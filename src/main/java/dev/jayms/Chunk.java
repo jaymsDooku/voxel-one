@@ -1,15 +1,14 @@
 package dev.jayms;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class Chunk {
+public class Chunk implements AutoCloseable {
 
     public static final int WIDTH = 16;
     public static final int LENGTH = 16;
     public static final int HEIGHT = 16;
 
     private int[] blocks = new int[WIDTH * LENGTH * HEIGHT];
+    private boolean dirty = true;
+    private Mesh mesh;
 
     public int getBlock(int x, int y, int z) {
         if (!inside(x, y, z)) {
@@ -27,6 +26,7 @@ public class Chunk {
         }
 
         blocks[index(x, y, z)] = color;
+        dirty = true;
     }
 
     public int index(int x, int y, int z) {
@@ -39,8 +39,23 @@ public class Chunk {
                 z >= 0 && z < LENGTH;
     }
 
-    public MeshData generate() {
-        return MeshDataGenerator.generate(this);
+    public Mesh getMesh() {
+        return mesh;
     }
 
+    public void checkMesh() {
+        if (dirty) {
+            generateMesh();
+            dirty = false;
+        }
+    }
+
+    public void generateMesh() {
+        mesh = new Mesh(MeshDataGenerator.generate(this));
+    }
+
+    @Override
+    public void close() throws Exception {
+        mesh.close();
+    }
 }

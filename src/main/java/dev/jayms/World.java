@@ -2,12 +2,12 @@ package dev.jayms;
 
 import java.util.*;
 
-public class World {
+public class World implements AutoCloseable {
 
     private Map<ChunkPos, Chunk> loadedChunks = new HashMap<>();
 
-    public Collection<Chunk> getLoadedChunks() {
-        return loadedChunks.values();
+    public Map<ChunkPos, Chunk> getLoadedChunks() {
+        return Collections.unmodifiableMap(loadedChunks);
     }
 
     public void addChunk(ChunkPos position, Chunk chunk) {
@@ -69,4 +69,10 @@ public class World {
         return meshes;
     }
 
+    @Override
+    public void close() throws Exception {
+        for (var entry : loadedChunks.entrySet()) {
+            entry.getValue().close();
+        }
+    }
 }

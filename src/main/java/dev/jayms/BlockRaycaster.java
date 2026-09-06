@@ -8,7 +8,7 @@ public class BlockRaycaster {
     }
 
     public static BlockHit cast(
-            Chunk chunk,
+            World world,
             Vector3f origin,
             Vector3f direction,
             float reach
@@ -42,11 +42,20 @@ public class BlockRaycaster {
         int normalZ = 0;
 
         while (distance <= reach) {
-            if (chunk.getBlock(x, y, z) != ChunkGenerator.AIR) {
-                return new BlockHit(
-                        x, y, z,
-                        normalX, normalY, normalZ
-                );
+            if (!world.isLoaded(x, y, z)) {
+                return null;
+            }
+
+            try {
+                if (world.getBlock(x, y, z) != ChunkGenerator.AIR) {
+                    return new BlockHit(
+                            x, y, z,
+                            normalX, normalY, normalZ
+                    );
+                }
+            } catch (IllegalStateException e) {
+                System.err.println("Raycaster stopped: " + e.getMessage());
+                return null;
             }
 
             if (nextX <= nextY && nextX <= nextZ) {

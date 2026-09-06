@@ -24,7 +24,6 @@ public class Main {
 
     private Chunk chunk;
     private Mesh chunkMesh;
-    private Map<ChunkPos, Mesh> meshes;
     private ShaderProgram shader;
     private Camera camera;
     private Player player;
@@ -34,7 +33,7 @@ public class Main {
     private int framebufferHeight = 1280;
     private int framebufferWidth = 720;
 
-    public void run() {
+    public void run() throws Exception {
         System.out.println("Hello LWJGL " + Version.getVersion() + "!");
 
         init();
@@ -43,10 +42,8 @@ public class Main {
         cleanup();
     }
 
-    private void cleanup() {
-        for (Mesh mesh : meshes.values()) {
-            mesh.close();
-        }
+    private void cleanup() throws Exception {
+        world.close();
         playerModel.close();
         chunkMesh.close();
         shader.close();
@@ -76,7 +73,7 @@ public class Main {
         });
         window.registerKeyListener(GLFW_KEY_R, GLFW_PRESS, () -> {
             BlockHit hit = BlockRaycaster.cast(
-                    chunk,
+                    world,
                     camera.position(),
                     camera.getDirection(),
                     6.0f
@@ -147,7 +144,6 @@ public class Main {
                 }
             }
         }
-        meshes = world.generateMeshes();
 
         configureMouse();
     }
@@ -220,7 +216,7 @@ public class Main {
                 -0.3f
         );
 
-        for (var entry : meshes.entrySet()) {
+        for (var entry : world.getLoadedChunks().entrySet()) {
             ChunkPos position = entry.getKey();
 
             Matrix4f chunkModel = new Matrix4f().translation(
@@ -233,7 +229,9 @@ public class Main {
                     "uModel",
                     chunkModel
             );
-            entry.getValue().render();
+            Chunk chunk = entry.getValue();
+            chunk.checkMesh();
+            chunk.getMesh().render();
         }
         playerModel.render(player, shader);
     }
@@ -287,20 +285,16 @@ public class Main {
     }
 
     private void modifyBlock(int x, int y, int z, int color) {
-        if (chunk.getBlock(x, y, z) == color) {
+        if (world.getBlock(x, y, z) == color) {
             return;
         }
 
-        chunk.setBlock(x, y, z, color);
-
-        Mesh replacement = new Mesh(chunk.generate());
-        chunkMesh.close();
-        chunkMesh = replacement;
+        world.setBlock(x, y, z, color);
     }
 
     private void breakBlock() {
         BlockHit hit = BlockRaycaster.cast(
-                chunk,
+                world,
                 player.eyePosition(),
                 camera.getDirection(),
                 6.0f
@@ -308,7 +302,7 @@ public class Main {
 
         if (hit == null) return;
 
-        int current = chunk.getBlock(hit.x(), hit.y(), hit.z());
+        int current = world.getBlock(hit.x(), hit.y(), hit.z());
         if (current == ChunkGenerator.AIR) return;
 
         modifyBlock(hit.x(), hit.y(), hit.z(), ChunkGenerator.AIR);
@@ -316,7 +310,7 @@ public class Main {
 
     private void placeBlock() {
         BlockHit hit = BlockRaycaster.cast(
-                chunk,
+                world,
                 player.eyePosition(),
                 camera.getDirection(),
                 6.0f
@@ -324,41 +318,14 @@ public class Main {
 
         if (hit == null) return;
 
-        int current = chunk.getBlock(hit.x() + hit.normalX(), hit.y() + hit.normalY(), hit.z() + hit.normalZ());
+        int current = world.getBlock(hit.x() + hit.normalX(), hit.y() + hit.normalY(), hit.z() + hit.normalZ());
         if (current != ChunkGenerator.AIR) return;
 
         modifyBlock(hit.x() + hit.normalX(), hit.y() + hit.normalY(), hit.z() + hit.normalZ(), ChunkGenerator.STONE);
     }
 
-    static void main(String[] args) {
+    static void main(String[] args) throws Exception {
         new Main().run();
-//        testWorld();
-    }
-
-    private static void testWorld() {
-        World world = new World();
-
-        for (int chunkX = -2; chunkX <= 2; chunkX++) {
-            for (int chunkZ = -2; chunkZ <= 2; chunkZ++) {
-                for (int chunkY = -1; chunkY <= 1; chunkY++) {
-                    ChunkPos position =
-                            new ChunkPos(chunkX, chunkY, chunkZ);
-
-                    world.addChunk(
-                            position,
-                            ChunkGenerator.generate(position)
-                    );
-                }
-            }
-        }
-
-        System.out.println(world.getLoadedChunks().size()); // 75
-
-// At world X=0, Z=0, surface height is 12.
-        System.out.println(world.getBlock(0, 12, 0)); // 1: grass
-        System.out.println(world.getBlock(0, 11, 0)); // 2: dirt
-        System.out.println(world.getBlock(0, 8, 0));  // 3: stone
-        System.out.println(world.getBlock(0, 13, 0)); // 0: air
     }
 
 }

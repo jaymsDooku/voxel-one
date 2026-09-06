@@ -13,7 +13,8 @@ public class PlayerModel implements AutoCloseable {
     public PlayerModel() {
         Chunk source = new Chunk();
         source.setBlock(0, 0, 0, ChunkGenerator.STONE);
-        cube = new Mesh(source.generate());
+        source.generateMesh();
+        cube = source.getMesh();
     }
 
     public void render(Player player, ShaderProgram shader) {
