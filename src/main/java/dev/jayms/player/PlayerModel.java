@@ -122,7 +122,7 @@ public class PlayerModel implements AutoCloseable {
         held(
                 player.heldItem(),
                 new Matrix4f(hand)
-                        .translate(0, .78f, -.20f)
+                        .translate(-.14f, .78f, .18f)
                         .rotateY(.55f)
                         .rotateX(-.2f)
                         .scale(.32f)
