@@ -12,7 +12,15 @@ public class Player {
     public static final float RADIUS = .3f, HEIGHT = 1.8f, EYE_HEIGHT = 1.6f;
     private final Vector3f position, lastSafe, velocity = new Vector3f();
     private float yaw, pitch, verticalVelocity, walkPhase, walkAmount;
-    private boolean grounded, thirdPerson, jumpHeld, flying;
+
+    public enum CameraView {
+        FIRST_PERSON,
+        THIRD_PERSON,
+        FRONT
+    }
+
+    private CameraView cameraView = CameraView.FIRST_PERSON;
+    private boolean grounded, jumpHeld, flying;
     private final Camera camera;
 
     public Player(Vector3f position, float yaw, float pitch, Camera camera) {
@@ -31,11 +39,30 @@ public class Player {
     }
 
     public void toggleView() {
-        thirdPerson = !thirdPerson;
+        cameraView =
+                switch (cameraView) {
+                    case FIRST_PERSON -> CameraView.THIRD_PERSON;
+                    case THIRD_PERSON -> CameraView.FRONT;
+                    case FRONT -> CameraView.FIRST_PERSON;
+                };
     }
 
     public boolean thirdPerson() {
-        return thirdPerson;
+        return cameraView != CameraView.FIRST_PERSON;
+    }
+
+    public CameraView cameraView() {
+        return cameraView;
+    }
+
+    /** Player aim stays independent of the camera looking back at the avatar. */
+    public Vector3f facingDirection() {
+        double yawRadians = Math.toRadians(yaw), pitchRadians = Math.toRadians(pitch);
+        return new Vector3f(
+                        (float) (Math.cos(yawRadians) * Math.cos(pitchRadians)),
+                        (float) Math.sin(pitchRadians),
+                        (float) (Math.sin(yawRadians) * Math.cos(pitchRadians)))
+                .normalize();
     }
 
     public void toggleFlight() {
@@ -59,11 +86,11 @@ public class Player {
 
     public void updateCamera(World world) {
         syncCamera();
-        if (thirdPerson) {
-            Vector3f back = camera.getDirection().negate();
+        if (thirdPerson()) {
+            Vector3f offset = facingDirection().mul(cameraView == CameraView.FRONT ? 1 : -1);
             float distance;
             for (distance = .1f; distance < 4; distance += .1f) {
-                Vector3f p = eyePosition().fma(distance, back);
+                Vector3f p = eyePosition().fma(distance, offset);
                 if (solid(
                         world,
                         (int) Math.floor(p.x),
@@ -73,7 +100,11 @@ public class Player {
                     break;
                 }
             }
-            camera.position().fma(-Math.min(4, distance), camera.getDirection());
+            camera.position().fma(Math.min(4, distance), offset);
+            if (cameraView == CameraView.FRONT) {
+                camera.setYaw(yaw + 180);
+                camera.setPitch(-pitch);
+            }
         }
     }
 

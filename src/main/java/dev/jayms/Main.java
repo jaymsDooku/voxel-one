@@ -279,7 +279,7 @@ public class Main {
         if (controls.matches(MODEL_EDITOR, code)) {
             inventoryHud.close();
             BlockHit hit =
-                    BlockRaycaster.cast(world, player.eyePosition(), camera.getDirection(), 6);
+                    BlockRaycaster.cast(world, player.eyePosition(), player.facingDirection(), 6);
             if (hit != null) {
                 var model = world.models().get(world.getBlock(hit.x(), hit.y(), hit.z()));
                 if (model != null) editor.load(model.definition());
@@ -608,7 +608,8 @@ public class Main {
             notice = "Disconnected: reconnect to edit the world.";
             return;
         }
-        BlockHit hit = BlockRaycaster.cast(world, player.eyePosition(), camera.getDirection(), 6);
+        BlockHit hit =
+                BlockRaycaster.cast(world, player.eyePosition(), player.facingDirection(), 6);
         if (hit == null) return;
         int x = hit.x() + (place ? hit.normalX() : 0),
                 y = hit.y() + (place ? hit.normalY() : 0),

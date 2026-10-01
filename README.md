@@ -47,7 +47,7 @@ Bindings and sensitivity persist in `~/.voxel-one/controls.properties` (on Windo
 | Right click | Place the selected hotbar block |
 | 1–9 / mouse wheel | Select a hotbar slot |
 | E | Open/close inventory |
-| F5 | First/third-person camera |
+| F5 | Cycle first-person → third-person behind → front view → first-person |
 | F6 | Toggle isometric sky overview |
 | F7 | Open/close voxel model editor |
 | Mouse wheel / = / - (sky view) | Zoom in/out |
@@ -58,6 +58,8 @@ Bindings and sensitivity persist in `~/.voxel-one/controls.properties` (on Windo
 Flight keeps voxel collision enabled. Walking accelerates and decelerates smoothly; diagonal movement is normalized. Limbs swing according to distance walked, settle at rest, and stop swinging during flight. Other players render with 100 ms of interpolation, including yaw and animation, to smooth the server's 20 Hz updates.
 
 Pending placements become solid immediately on the placing client, preventing movement into an unconfirmed block. Every edit carries the position at the moment of the click; the server checks bounds, reach, occupancy, and player overlap and sends an acceptance/rejection result. Rejected edits roll back. If a delayed edit from another player overlaps you, collision recovery moves you to the nearest free block face instead of leaving you trapped.
+
+Press **F5** once for third-person behind your player, twice for a front view looking back at your player, and a third time to return to first-person. Both external views move closer when terrain blocks the camera. Movement, player facing, and block interaction stay tied to the player's aim throughout the cycle.
 
 Press **F6** to view the loaded world from a fixed isometric angle high in the sky. This uses an orthographic projection, so blocks keep the same size with distance. The view centers and fits the loaded chunk footprint, updates as chunks load, and shows your player. Scroll or press **= / -** to zoom; **Home** fits the whole loaded world again. Press F6 to return to your previous player camera, or F5 to return and switch player camera. Sky view releases the mouse and stops movement input while physics and multiplayer continue. Its four keyboard actions can be rebound in the controls menu.
 
@@ -136,4 +138,4 @@ Use `systemctl --user status voxel-one` to check the process, `journalctl --user
 
 ## Verification
 
-`mvn verify` runs tests for gravity, jumping, collision, late block recovery, flight, acceleration and walking animation state, world edges, normalized movement, persisted bindings, remote interpolation, authenticated TLS sessions, wrong credentials, duplicate logins, registration, certificate pin rejection, exact-pose block placement, rollback, shared edits, late joins, disconnects, salted password storage, seeded biome generation, trees and caves, chunk boundaries, 36-slot stack capacity, inventory moves, exclusive item pickups, placement supply checks, health and respawn, orthographic isometric framing, aspect ratios, zoom limits, and save/reload. Model checks cover octree compression and round trips, immutable snapshots, greedy surface merging and winding, precise picking/collision, custom item creation, multiplayer definition ordering, late joins, pickups, and model persistence across restarts.
+`mvn verify` runs tests for gravity, jumping, collision, late block recovery, flight, acceleration and walking animation state, world edges, normalized movement, persisted bindings, remote interpolation, authenticated TLS sessions, wrong credentials, duplicate logins, registration, certificate pin rejection, exact-pose block placement, rollback, shared edits, late joins, disconnects, salted password storage, seeded biome generation, trees and caves, chunk boundaries, 36-slot stack capacity, inventory moves, exclusive item pickups, placement supply checks, health and respawn, three-view camera cycling, front-view aim and movement, camera obstruction, orthographic isometric framing, aspect ratios, zoom limits, and save/reload. Model checks cover octree compression and round trips, immutable snapshots, greedy surface merging and winding, precise picking/collision, custom item creation, multiplayer definition ordering, late joins, pickups, and model persistence across restarts.

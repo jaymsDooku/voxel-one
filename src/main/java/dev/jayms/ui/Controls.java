@@ -16,7 +16,7 @@ public final class Controls {
         DESCEND("Fly down", GLFW_KEY_LEFT_CONTROL),
         SPRINT("Sprint", GLFW_KEY_LEFT_SHIFT),
         FLY("Toggle flight", GLFW_KEY_F),
-        VIEW("Toggle camera", GLFW_KEY_F5),
+        VIEW("Cycle camera", GLFW_KEY_F5),
         CURSOR("Release mouse", GLFW_KEY_TAB),
         BREAK("Break block", -1),
         PLACE("Place block", -2),
