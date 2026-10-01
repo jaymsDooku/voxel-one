@@ -24,18 +24,19 @@ public final class LocalGame {
         if (Files.exists(save))
             try (var in = new DataInputStream(Files.newInputStream(save))) {
                 int version = in.readInt();
-                if (version != 3 && version != 4) throw new IOException("Invalid offline world");
+                if (version != 3 && version != 4 && version != 5)
+                    throw new IOException("Invalid offline world");
                 worldSeed = in.readLong();
-                if (version == 4) models = ModelLibrary.read(in);
+                if (version >= 4) models = ModelLibrary.read(in);
                 inventory = Inventory.read(in);
                 health = in.readUnsignedByte();
                 if (health > 20) throw new IOException("Invalid saved health");
                 int n = in.readInt();
                 if (n < 0 || n > 2000000) throw new IOException("Invalid world");
                 for (int i = 0; i < n; i++) {
-                    var e = Protocol.Edit.read(in);
+                    var e = version >= 5 ? Protocol.Edit.read(in) : Protocol.Edit.readLegacy(in);
                     if (!e.valid()) throw new IOException("Invalid edit");
-                    edits.put(e.key(), e);
+                    WorldVoxels.remember(edits, e);
                 }
                 n = in.readInt();
                 if (n < 0 || n > 100000) throw new IOException("Invalid drops");
@@ -60,13 +61,41 @@ public final class LocalGame {
     }
 
     public boolean edit(Protocol.Edit e, int old, int slot) {
+        if (!e.valid()) return false;
         if (e.type() == 0) {
-            if (old == 0) return false;
-            ItemDrop d = new ItemDrop(++nextDrop, old, 1, e.x() + .5f, e.y() + .35f, e.z() + .5f);
+            if (old == 0 || old == Blocks.PARTIAL) return false;
+            ItemDrop d =
+                    new ItemDrop(
+                            ++nextDrop,
+                            old,
+                            1,
+                            e.minX() + e.size() / 2,
+                            e.minY() + .35f,
+                            e.minZ() + e.size() / 2);
             drops.put(d.id(), d);
         } else if (!inventory.take(slot, e.type())) return false;
-        edits.put(e.key(), e);
+        WorldVoxels.remember(edits, e);
         return true;
+    }
+
+    public String craft(int recipe, Protocol.Pose pose) {
+        var result = Crafting.prepare(inventory, recipe);
+        if (!result.accepted()) return result.message();
+        if (result.excess() > 0 && drops.size() >= 100000)
+            return "Too many ground items: collect some before crafting.";
+        inventory = result.inventory();
+        if (result.excess() > 0) {
+            var drop =
+                    new ItemDrop(
+                            ++nextDrop,
+                            result.output(),
+                            result.excess(),
+                            pose.x() + .4f,
+                            pose.y() + .35f,
+                            pose.z());
+            drops.put(drop.id(), drop);
+        }
+        return result.message();
     }
 
     public boolean tick(
@@ -115,7 +144,7 @@ public final class LocalGame {
         Files.createDirectories(save.toAbsolutePath().getParent());
         Path temp = save.resolveSibling(save.getFileName() + ".tmp");
         try (var out = new DataOutputStream(Files.newOutputStream(temp))) {
-            out.writeInt(4);
+            out.writeInt(5);
             out.writeLong(seed);
             models.write(out);
             inventory.write(out);

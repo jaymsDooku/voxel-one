@@ -12,12 +12,12 @@ public class Chunk implements AutoCloseable {
         return java.util.Collections.unmodifiableMap(models);
     }
 
-    private int[] blocks = new int[WIDTH * LENGTH * HEIGHT];
+    private final dev.jayms.net.model.SparseVoxelOctree blocks =
+            new dev.jayms.net.model.SparseVoxelOctree(256);
     private boolean dirty = true;
-    private int occupied;
 
     public boolean isEmpty() {
-        return occupied == 0;
+        return blocks.nodes() == 0;
     }
 
     private Mesh mesh;
@@ -50,7 +50,7 @@ public class Chunk implements AutoCloseable {
             return 0;
         }
 
-        return blocks[index(x, y, z)];
+        return dev.jayms.net.WorldVoxels.decode(blocks.uniform(x * 16, y * 16, z * 16, 16));
     }
 
     public void setBlock(int x, int y, int z, int color) {
@@ -59,11 +59,53 @@ public class Chunk implements AutoCloseable {
         }
 
         int i = index(x, y, z);
-        if (blocks[i] == 0 && color != 0) occupied++;
-        if (blocks[i] != 0 && color == 0) occupied--;
-        blocks[i] = color;
+        blocks.fill(
+                x * 16,
+                y * 16,
+                z * 16,
+                x * 16 + 16,
+                y * 16 + 16,
+                z * 16 + 16,
+                dev.jayms.net.WorldVoxels.encode(color));
         if (dev.jayms.net.Blocks.isModel(color)) models.put(i, color);
         else models.remove(i);
+        dirty = true;
+    }
+
+    public dev.jayms.net.model.SparseVoxelOctree cell(int x, int y, int z) {
+        return blocks.region(x * 16, y * 16, z * 16, 16);
+    }
+
+    public int material(int x, int y, int z) {
+        if (x >= 0 && y >= 0 && z >= 0 && x < 256 && y < 256 && z < 256)
+            return dev.jayms.net.WorldVoxels.decode(blocks.get(x, y, z));
+        if (world == null) return 0;
+        return world.material(
+                position.chunkX() * 256 + x,
+                position.chunkY() * 256 + y,
+                position.chunkZ() * 256 + z);
+    }
+
+    public void apply(dev.jayms.net.Protocol.Edit edit) {
+        int x = Math.floorMod(edit.x(), 16),
+                y = Math.floorMod(edit.y(), 16),
+                z = Math.floorMod(edit.z(), 16);
+        if (edit.depth() == 0) {
+            setBlock(x, y, z, edit.type());
+            return;
+        }
+        int side = 16 >> edit.depth();
+        int fx = x * 16 + edit.ix() * side,
+                fy = y * 16 + edit.iy() * side,
+                fz = z * 16 + edit.iz() * side;
+        blocks.fill(
+                fx,
+                fy,
+                fz,
+                fx + side,
+                fy + side,
+                fz + side,
+                dev.jayms.net.WorldVoxels.encode(dev.jayms.net.Blocks.material(edit.type())));
         dirty = true;
     }
 

@@ -14,7 +14,7 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.function.Consumer;
 
-/** Layer painting and orbit preview edit the same octree used by world models. */
+/** Direct 3D sculpting and optional layer painting share the world-model octree. */
 public final class ModelEditor implements AutoCloseable {
     private static final int[] PALETTE = {
         ModelGenerators.CLAY,
@@ -30,14 +30,20 @@ public final class ModelEditor implements AutoCloseable {
     };
     private ModelDefinition definition = ModelGenerators.flowerPot();
     private final Deque<ModelDefinition> undo = new ArrayDeque<>(), redo = new ArrayDeque<>();
-    private Mesh mesh;
+    private Mesh mesh, floorMesh, cursorMesh;
+    private ModelSculptor.Tool tool = ModelSculptor.Tool.ADD;
+    private int brush = 1, paintColor = PALETTE[0];
+    private boolean sculpting, colorFocus;
+    private String colorDraft = "";
+    private float pointerX, pointerY;
     private boolean dirty = true, nameFocus, selectName, painting;
     private String nameDraft = "";
     private int axis = 2, layer = 16, color = 0, dragButton = -1, lastCell = -1;
     private float yaw = .75f, pitch = .4f, zoom = 1, lastX, lastY;
     public boolean open;
     public String message =
-            "Paint with left click; erase with right click. Create item to place your model.";
+            "Build directly in 3D with Add, Paint, Erase or Pick. Right drag orbits; Create item"
+                + " publishes your model.";
     private final Path draft = Controls.directory().resolve("models/draft.vxm");
 
     private record Layout(
@@ -45,7 +51,7 @@ public final class ModelEditor implements AutoCloseable {
 
     private Layout layout(int w, int h) {
         float size = Math.min(384, Math.min(w * .43f, h - 320));
-        return new Layout(w - size - 24, 170, size, w - size - 72, h - 170);
+        return new Layout(w - size - 24, 170, size, w - size - 72, h - 240);
     }
 
     public ModelDefinition snapshot() {
@@ -79,6 +85,17 @@ public final class ModelEditor implements AutoCloseable {
     }
 
     private void finishName() {
+        if (colorFocus) {
+            try {
+                if (colorDraft.length() != 6)
+                    throw new IllegalArgumentException("Enter six hexadecimal digits");
+                paintColor = 0xff000000 | Integer.parseInt(colorDraft, 16);
+                color = -1;
+            } catch (IllegalArgumentException e) {
+                message = "Colour: enter six hex digits, for example FF8844.";
+            }
+            colorFocus = false;
+        }
         if (nameFocus) {
             try {
                 definition = new ModelDefinition(nameDraft, definition.voxels());
@@ -98,8 +115,16 @@ public final class ModelEditor implements AutoCloseable {
     public void key(int key, int action, int mods) {
         if (action != GLFW_PRESS && action != GLFW_REPEAT) return;
         if (key == GLFW_KEY_ESCAPE) {
-            if (nameFocus) nameFocus = false;
+            if (colorFocus) colorFocus = false;
+            else if (nameFocus) nameFocus = false;
             else closeEditor();
+            return;
+        }
+        if (colorFocus) {
+            if (key == GLFW_KEY_ENTER) finishName();
+            else if (key == GLFW_KEY_BACKSPACE && !colorDraft.isEmpty())
+                colorDraft = colorDraft.substring(0, colorDraft.length() - 1);
+            else if ((mods & GLFW_MOD_CONTROL) != 0 && key == GLFW_KEY_A) colorDraft = "";
             return;
         }
         if (nameFocus) {
@@ -119,7 +144,9 @@ public final class ModelEditor implements AutoCloseable {
             else if (key == GLFW_KEY_Y) undo(true);
             return;
         }
-        if (key == GLFW_KEY_X) axis = 0;
+        if (key >= GLFW_KEY_1 && key <= GLFW_KEY_4)
+            tool = ModelSculptor.Tool.values()[key - GLFW_KEY_1];
+        else if (key == GLFW_KEY_X) axis = 0;
         else if (key == GLFW_KEY_Y) axis = 1;
         else if (key == GLFW_KEY_Z) axis = 2;
         else if (key == GLFW_KEY_UP) layer = Math.min(definition.voxels().size() - 1, layer + 1);
@@ -127,6 +154,12 @@ public final class ModelEditor implements AutoCloseable {
     }
 
     public void character(int codepoint) {
+        if (colorFocus) {
+            char c = (char) codepoint;
+            if (colorDraft.length() < 6 && Character.digit(c, 16) >= 0)
+                colorDraft += Character.toUpperCase(c);
+            return;
+        }
         if (!nameFocus || codepoint > 127) return;
         char c = (char) codepoint;
         if (Character.isLetterOrDigit(c) || c == ' ' || c == '_' || c == '-') {
@@ -154,13 +187,14 @@ public final class ModelEditor implements AutoCloseable {
     public void release() {
         dragButton = -1;
         lastCell = -1;
+        sculpting = false;
     }
 
     public void click(
             int button, float x, float y, int w, int h, Consumer<ModelDefinition> publish) {
         Layout l = layout(w, h);
-        lastX = x;
-        lastY = y;
+        lastX = pointerX = x;
+        lastY = pointerY = y;
         lastCell = -1;
         if (button != GLFW_MOUSE_BUTTON_LEFT && button != GLFW_MOUSE_BUTTON_RIGHT) return;
         if (y >= 40 && y < 70 && button == 0) {
@@ -183,6 +217,19 @@ public final class ModelEditor implements AutoCloseable {
             return;
         }
         finishName();
+        if (button == 0 && x >= 20 && x < 284 && y >= 101 && y < 129) {
+            tool = ModelSculptor.Tool.values()[Math.min(3, (int) ((x - 20) / 66))];
+            return;
+        }
+        if (button == 0 && x >= 62 && x < 174 && y >= 136 && y < 160) {
+            brush = 1 << Math.min(3, (int) ((x - 62) / 28));
+            return;
+        }
+        if (button == 0 && x >= 190 && x < 282 && y >= 136 && y < 160) {
+            colorFocus = true;
+            colorDraft = String.format("%06X", paintColor & 0xffffff);
+            return;
+        }
         if (button == 0 && y >= 137 && y < 162 && x >= l.left && x < l.left + 120) {
             axis = Math.min(2, (int) ((x - l.left) / 40));
             return;
@@ -206,6 +253,7 @@ public final class ModelEditor implements AutoCloseable {
                 && x >= l.left
                 && x < l.left + l.size) {
             color = Math.min(PALETTE.length - 1, (int) ((x - l.left) * PALETTE.length / l.size));
+            paintColor = PALETTE[color];
             return;
         }
         if (button == 0
@@ -227,18 +275,30 @@ public final class ModelEditor implements AutoCloseable {
             paint(x, y, l);
             return;
         }
-        if (x >= 20 && x < 20 + l.previewWidth && y >= 100 && y < 100 + l.previewHeight) {
+        if (x >= 20 && x < 20 + l.previewWidth && y >= 170 && y < 170 + l.previewHeight) {
             dragButton = button;
             painting = false;
+            sculpting = button == GLFW_MOUSE_BUTTON_LEFT;
+            if (sculpting) {
+                history();
+                sculpt(x, y, l);
+            }
         }
     }
 
     public void drag(float x, float y, int w, int h) {
         Layout l = layout(w, h);
+        pointerX = x;
+        pointerY = y;
         if (dragButton < 0) return;
         if (painting && x >= l.left && x < l.left + l.size && y >= l.top && y < l.top + l.size)
             paint(x, y, l);
-        else if (!painting && x < l.left - 16) {
+        else if (sculpting
+                && x >= 20
+                && x < 20 + l.previewWidth
+                && y >= 170
+                && y < 170 + l.previewHeight) sculpt(x, y, l);
+        else if (!painting && !sculpting && x < l.left - 16) {
             yaw += (x - lastX) * .01f;
             pitch = Math.max(-1.2f, Math.min(1.2f, pitch + (y - lastY) * .01f));
         }
@@ -263,8 +323,75 @@ public final class ModelEditor implements AutoCloseable {
                         xyz[0],
                         xyz[1],
                         xyz[2],
-                        dragButton == GLFW_MOUSE_BUTTON_RIGHT ? 0 : PALETTE[color]);
+                        dragButton == GLFW_MOUSE_BUTTON_RIGHT ? 0 : paintColor);
         dirty = true;
+    }
+
+    private Matrix4f previewProjection(Layout l) {
+        float span = .8f / zoom, aspect = l.previewWidth / l.previewHeight;
+        return new Matrix4f().ortho(-span * aspect, span * aspect, -span, span, .1f, 10);
+    }
+
+    private Matrix4f previewView() {
+        Vector3f eye =
+                new Vector3f(
+                        (float) (Math.cos(yaw) * Math.cos(pitch)) * 3,
+                        (float) Math.sin(pitch) * 3,
+                        (float) (Math.sin(yaw) * Math.cos(pitch)) * 3);
+        return new Matrix4f().lookAt(eye, new Vector3f(), new Vector3f(0, 1, 0));
+    }
+
+    private ModelSculptor.Target target(float x, float y, Layout l) {
+        if (x < 20 || x >= 20 + l.previewWidth || y < 170 || y >= 170 + l.previewHeight)
+            return null;
+        Matrix4f inverse =
+                previewProjection(l).mul(previewView()).translate(-.5f, -.5f, -.5f).invert();
+        float nx = (x - 20) / l.previewWidth * 2 - 1, ny = 1 - (y - 170) / l.previewHeight * 2;
+        Vector3f near = inverse.transformProject(new Vector3f(nx, ny, -1));
+        Vector3f far = inverse.transformProject(new Vector3f(nx, ny, 1));
+        return ModelSculptor.target(definition.voxels(), near, far.sub(near), tool, brush);
+    }
+
+    private void sculpt(float x, float y, Layout l) {
+        var target = target(x, y, l);
+        if (target == null) return;
+        int id = target.x() + target.y() * 32 + target.z() * 1024;
+        if (id == lastCell) return;
+        lastCell = id;
+        if (tool == ModelSculptor.Tool.PICK) {
+            paintColor = target.color();
+            color = -1;
+            return;
+        }
+        if (ModelSculptor.apply(definition.voxels(), target, tool, paintColor)) dirty = true;
+    }
+
+    private void initHelpers() {
+        if (floorMesh != null) return;
+        float[] vertices = new float[32 * 32 * 36];
+        int[] indices = new int[32 * 32 * 6];
+        for (int x = 0; x < 32; x++)
+            for (int z = 0; z < 32; z++) {
+                int face = x * 32 + z;
+                float[] corners = Face.TOP.vertices();
+                for (int i = 0; i < 4; i++) {
+                    int at = face * 36 + i * 9;
+                    vertices[at] = (x + corners[i * 3]) / 32f - .5f;
+                    vertices[at + 1] = -.502f;
+                    vertices[at + 2] = (z + corners[i * 3 + 2]) / 32f - .5f;
+                    vertices[at + 4] = 1;
+                    float shade = (x + z) % 2 == 0 ? .12f : .17f;
+                    vertices[at + 6] = shade;
+                    vertices[at + 7] = shade + .05f;
+                    vertices[at + 8] = shade + .08f;
+                }
+                int[] order = {0, 1, 2, 2, 3, 0};
+                for (int i = 0; i < 6; i++) indices[face * 6 + i] = face * 4 + order[i];
+            }
+        floorMesh = new Mesh(new MeshData(vertices, indices));
+        Chunk cube = new Chunk();
+        cube.setBlock(0, 0, 0, 3);
+        cursorMesh = new Mesh(MeshDataGenerator.generate(cube));
     }
 
     private void saveDraft() {
@@ -299,28 +426,39 @@ public final class ModelEditor implements AutoCloseable {
             }
             dirty = false;
         }
-        if (mesh == null) return;
+        initHelpers();
         glViewport(
-                20, h - 100 - (int) l.previewHeight, (int) l.previewWidth, (int) l.previewHeight);
+                20, h - 170 - (int) l.previewHeight, (int) l.previewWidth, (int) l.previewHeight);
         shader.bind();
         shader.setInt("uInstanced", 0);
         shader.setInt("uDistantTerrain", 0);
         shader.setInt("uFog", 0);
         shader.setInt("uVertexColor", 1);
         shader.setVector3("uLightDirection", -.4f, -1, -.3f);
-        float span = .8f / zoom, aspect = l.previewWidth / l.previewHeight;
-        shader.setMatrix4(
-                "uProjection",
-                new Matrix4f().ortho(-span * aspect, span * aspect, -span, span, .1f, 10));
-        Vector3f eye =
-                new Vector3f(
-                        (float) (Math.cos(yaw) * Math.cos(pitch)) * 3,
-                        (float) Math.sin(pitch) * 3,
-                        (float) (Math.sin(yaw) * Math.cos(pitch)) * 3);
-        shader.setMatrix4(
-                "uView", new Matrix4f().lookAt(eye, new Vector3f(), new Vector3f(0, 1, 0)));
+        shader.setMatrix4("uProjection", previewProjection(l));
+        shader.setMatrix4("uView", previewView());
+        shader.setMatrix4("uModel", new Matrix4f());
+        floorMesh.render();
         shader.setMatrix4("uModel", new Matrix4f().translation(-.5f, -.5f, -.5f));
-        mesh.render();
+        if (mesh != null) mesh.render();
+        var target = target(pointerX, pointerY, l);
+        if (target != null) {
+            float n = definition.voxels().size();
+            shader.setInt("uVertexColor", 0);
+            shader.setVector3("uColor", .3f, 1, .9f);
+            shader.setMatrix4(
+                    "uModel",
+                    new Matrix4f()
+                            .translation(
+                                    target.x() / n - .5f,
+                                    target.y() / n - .5f,
+                                    target.z() / n - .5f)
+                            .translate(-.001f, -.001f, -.001f)
+                            .scale(target.side() / n + .002f));
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            cursorMesh.render();
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
         glViewport(0, 0, w, h);
     }
 
@@ -333,7 +471,36 @@ public final class ModelEditor implements AutoCloseable {
             ui.rectangle(bx[i], 40, bw[i], 30, .07f, .21f, .28f, 1);
             ui.text(buttons[i], bx[i] + 8, 50, 1.2f);
         }
-        ui.text("Orbit: drag preview | Wheel: zoom", 20, 79, 1.35f);
+        ui.text("Left: selected tool | Right drag: orbit | Wheel: zoom", 20, 79, 1.25f);
+        for (int i = 0; i < 4; i++) {
+            ui.rectangle(
+                    20 + i * 66,
+                    101,
+                    62,
+                    28,
+                    tool.ordinal() == i ? .12f : .04f,
+                    tool.ordinal() == i ? .4f : .17f,
+                    .28f,
+                    1);
+            ui.text(ModelSculptor.Tool.values()[i].name(), 27 + i * 66, 110, 1.3f);
+        }
+        ui.text("Size", 20, 142, 1.2f);
+        for (int i = 0; i < 4; i++) {
+            ui.rectangle(62 + i * 28, 136, 25, 24, .06f, brush == (1 << i) ? .42f : .15f, .28f, 1);
+            ui.text("" + (1 << i), 70 + i * 28, 143, 1.3f);
+        }
+        ui.rectangle(190, 136, 92, 24, .06f, .2f, .28f, 1);
+        ui.text(
+                "#" + (colorFocus ? colorDraft : String.format("%06X", paintColor & 0xffffff)),
+                195,
+                143,
+                1.2f);
+        float[] selectedColor = {
+            (paintColor >>> 16 & 255) / 255f,
+            (paintColor >>> 8 & 255) / 255f,
+            (paintColor & 255) / 255f
+        };
+        ui.rectangle(294, 136, 24, 24, selectedColor[0], selectedColor[1], selectedColor[2], 1);
         ui.text("MODEL NAME", l.left, 82, 1.4f);
         ui.rectangle(l.left, 101, l.size, 28, nameFocus ? .1f : .03f, .17f, .22f, 1);
         ui.text(
@@ -425,5 +592,7 @@ public final class ModelEditor implements AutoCloseable {
     @Override
     public void close() {
         if (mesh != null) mesh.close();
+        if (floorMesh != null) floorMesh.close();
+        if (cursorMesh != null) cursorMesh.close();
     }
 }

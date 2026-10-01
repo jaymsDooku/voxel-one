@@ -12,6 +12,8 @@ public record ModelDefinition(String name, SparseVoxelOctree voxels) {
     public ModelDefinition {
         if (name != null) name = name.trim();
         if (voxels == null) throw new IllegalArgumentException("Missing voxel data");
+        if (voxels.size() < 8 || voxels.size() > 32)
+            throw new IllegalArgumentException("Models use 8, 16, or 32 voxels per axis");
         if (name == null || !name.matches("[A-Za-z0-9 _-]{1,32}"))
             throw new IllegalArgumentException(
                     "Name must contain 1-32 letters, numbers, spaces, underscores or dashes");

@@ -76,6 +76,31 @@ public final class Inventory {
         return inventory;
     }
 
+    public int countType(int type) {
+        int count = 0;
+        for (int i = 0; i < SIZE; i++) if (types[i] == type) count += counts[i];
+        return count;
+    }
+
+    public boolean consume(java.util.Map<Integer, Integer> required) {
+        for (var entry : required.entrySet())
+            if (entry.getKey() == 0
+                    || !Blocks.valid(entry.getKey())
+                    || entry.getValue() <= 0
+                    || countType(entry.getKey()) < entry.getValue()) return false;
+        for (var entry : required.entrySet()) {
+            int remaining = entry.getValue();
+            for (int i = 0; i < SIZE && remaining > 0; i++)
+                if (types[i] == entry.getKey()) {
+                    int used = Math.min(remaining, counts[i]);
+                    counts[i] -= used;
+                    remaining -= used;
+                    if (counts[i] == 0) types[i] = 0;
+                }
+        }
+        return true;
+    }
+
     public Inventory copy() {
         Inventory r = new Inventory();
         System.arraycopy(types, 0, r.types, 0, SIZE);

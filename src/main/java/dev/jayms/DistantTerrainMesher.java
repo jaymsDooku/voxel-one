@@ -20,6 +20,7 @@ public final class DistantTerrainMesher {
     public DistantTerrainMesher(Terrain terrain, Collection<Protocol.Edit> snapshot) {
         this.terrain = terrain;
         for (var edit : snapshot) {
+            if (edit.depth() != 0) continue;
             edits.put(new Position(edit.x(), edit.y(), edit.z()), edit.type());
             columns.computeIfAbsent(new Column(edit.x(), edit.z()), k -> new ArrayList<>())
                     .add(edit);

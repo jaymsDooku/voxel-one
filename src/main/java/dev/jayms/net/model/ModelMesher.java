@@ -10,7 +10,21 @@ public final class ModelMesher {
     public static final int MAX_QUADS = 8192;
 
     public static Geometry mesh(SparseVoxelOctree tree) throws IOException {
-        int size = tree.size(), quads = 0;
+        return mesh(tree.size(), tree::get);
+    }
+
+    @FunctionalInterface
+    public interface VoxelSampler {
+        int get(int x, int y, int z);
+    }
+
+    public static Geometry mesh(int size, VoxelSampler sampler) throws IOException {
+        return mesh(size, sampler, MAX_QUADS);
+    }
+
+    public static Geometry mesh(int size, VoxelSampler sampler, int maximumQuads)
+            throws IOException {
+        int quads = 0;
         float[] vertices = new float[36 * 128];
         int[] indices = new int[6 * 128];
         long[] mask = new long[size * size];
@@ -23,13 +37,15 @@ public final class ModelMesher {
                         cell[axis] = slice;
                         cell[u] = i;
                         cell[v] = j;
-                        int a = tree.get(cell[0], cell[1], cell[2]);
+                        int a = sampler.get(cell[0], cell[1], cell[2]);
                         cell[axis]++;
-                        int b = tree.get(cell[0], cell[1], cell[2]);
+                        int b = sampler.get(cell[0], cell[1], cell[2]);
                         mask[i + j * size] =
-                                a != 0 && b == 0
+                                a != 0 && b == 0 && slice >= 0
                                         ? ((a & 0xffffffffL) << 1) | 1
-                                        : a == 0 && b != 0 ? (b & 0xffffffffL) << 1 : 0;
+                                        : a == 0 && b != 0 && slice + 1 < size
+                                                ? (b & 0xffffffffL) << 1
+                                                : 0;
                     }
                 for (int j = 0; j < size; j++)
                     for (int i = 0; i < size; ) {
@@ -47,9 +63,11 @@ public final class ModelMesher {
                                 if (mask[i + k + (j + height) * size] != key) break outer;
                             height++;
                         }
-                        if (quads >= MAX_QUADS)
+                        if (quads >= maximumQuads)
                             throw new IOException(
-                                    "Model surface exceeds 8192 merged faces; simplify the design");
+                                    "Surface exceeds "
+                                            + maximumQuads
+                                            + " merged faces; simplify the design");
                         if ((quads + 1) * 36 > vertices.length) {
                             vertices = Arrays.copyOf(vertices, vertices.length * 2);
                             indices = Arrays.copyOf(indices, indices.length * 2);

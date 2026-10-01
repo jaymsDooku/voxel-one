@@ -442,6 +442,112 @@ class MultiplayerTest {
     }
 
     @Test
+    void serverCraftsOverflowAndSynchronizesFractionalEditsRejectionsAndLateJoins()
+            throws Exception {
+        Path save = temp.resolve("fractional.dat");
+        Inventory full = new Inventory();
+        full.add(Blocks.STONE, 64);
+        full.add(Blocks.DIRT, 35 * 64);
+        try (var out = new java.io.DataOutputStream(Files.newOutputStream(save))) {
+            out.writeInt(Protocol.MAGIC);
+            out.writeInt(-5);
+            out.writeLong(Terrain.DEFAULT_SEED);
+            new ModelLibrary().write(out);
+            out.writeInt(0);
+            out.writeInt(1);
+            out.writeUTF("alice");
+            full.write(out);
+            out.writeByte(20);
+            out.writeInt(0);
+        }
+        int half = Blocks.piece(Blocks.STONE, 1);
+        int recipe =
+                Crafting.recipes().stream()
+                        .filter(r -> r.output() == half && r.count() == 8)
+                        .findFirst()
+                        .orElseThrow()
+                        .id();
+        Protocol.Edit placed;
+        try (var server =
+                new MultiplayerServer("127.0.0.1", 0, save, accounts, identity.context())) {
+            Thread thread = run(server);
+            try (var a = client(server, "alice", "correct-password-a", false);
+                    var b = client(server, "bob", "correct-password-b", false)) {
+                b.move(new Protocol.Pose(b.id, 20, b.spawn.y(), 24, 0, 0));
+                until(
+                        () -> {
+                            a.poll();
+                            var pose = a.players.get(b.id);
+                            return pose != null && pose.x() == 20;
+                        });
+                assertTrue(a.craft(999, a.spawn));
+                until(
+                        () -> {
+                            a.poll();
+                            return a.notice().contains("Unknown recipe");
+                        });
+                assertEquals(64, a.inventory.countType(Blocks.STONE));
+                assertTrue(a.craft(recipe, a.spawn));
+                until(
+                        () -> {
+                            a.poll();
+                            b.poll();
+                            return a.inventory.countType(Blocks.STONE) == 63
+                                    && b.drops.values().stream()
+                                            .anyMatch(d -> d.type() == half && d.count() == 8);
+                        });
+                assertEquals(0, a.inventory.countType(half));
+                b.move(new Protocol.Pose(b.id, a.spawn.x(), a.spawn.y(), a.spawn.z(), 0, 0));
+                until(
+                        () -> {
+                            a.poll();
+                            b.poll();
+                            return b.inventory.countType(half) == 8;
+                        });
+                int y = (int) a.spawn.y() + 3;
+                placed = new Protocol.Edit(10, y, 24, half, 1, 0, 0, 0);
+                var pose = new Protocol.Pose(b.id, 9, y - 1, 24, 0, 0);
+                assertTrue(b.edit(placed, pose, 0));
+                var seen = new ArrayList<Protocol.Edit>();
+                until(
+                        () -> {
+                            a.poll().forEach(seen::add);
+                            b.poll();
+                            return seen.contains(placed) && b.inventory.countType(half) == 7;
+                        });
+                var adjacent = new Protocol.Edit(10, y, 24, half, 1, 1, 0, 0);
+                assertTrue(b.edit(adjacent, new Protocol.Pose(b.id, 11.1f, y, 24.1f, 0, 0), 0));
+                var corrections = new ArrayList<Protocol.Edit>();
+                until(
+                        () -> {
+                            corrections.addAll(b.poll());
+                            return b.notice().contains("Placement rejected");
+                        });
+                assertEquals(7, b.inventory.countType(half));
+                World corrected = new World(b.seed, b.models);
+                corrections.forEach(corrected::apply);
+                assertEquals(half, corrected.region(placed));
+                assertEquals(0, corrected.region(adjacent));
+                assertTrue(a.connected() && b.connected());
+            }
+            server.close();
+            thread.join(2000);
+        }
+        try (var server =
+                new MultiplayerServer("127.0.0.1", 0, save, accounts, identity.context())) {
+            Thread thread = run(server);
+            try (var late = client(server, "late", "correct-password-c", false)) {
+                World world = new World(late.seed, late.models);
+                late.initialEdits.forEach(world::apply);
+                assertEquals(half, world.region(placed));
+            }
+            server.close();
+            thread.join(2000);
+        }
+        assertTrue(serverErrors.isEmpty());
+    }
+
+    @Test
     void validatesNonFiniteAndOutOfBoundsPoses() {
         assertFalse(new Protocol.Pose(1, Float.NaN, 0, 0, 0, 0).valid());
         assertFalse(new Protocol.Pose(1, Terrain.LIMIT + 1f, 0, 0, 0, 0).valid());

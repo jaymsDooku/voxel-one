@@ -106,8 +106,7 @@ public class Main {
         world = new World(seed, network == null ? local.models : network.models);
         modelRenderer = new VoxelModelRenderer(world.models());
         editor = new ModelEditor();
-        for (var e : network == null ? local.edits.values() : network.initialEdits)
-            world.setBlock(e.x(), e.y(), e.z(), e.type());
+        for (var e : network == null ? local.edits.values() : network.initialEdits) world.apply(e);
         Protocol.Pose spawn =
                 network == null
                         ? new Protocol.Pose(
@@ -209,6 +208,11 @@ public class Main {
                                     (a, b) -> {
                                         if (network == null) local.inventory.swap(a, b);
                                         else network.swap(a, b);
+                                    },
+                                    id -> {
+                                        if (network == null)
+                                            notice = local.craft(id, player.pose(0));
+                                        else network.craft(id, player.pose(network.id));
                                     });
                         return;
                     }
@@ -244,7 +248,7 @@ public class Main {
                                 framebufferHeight);
                     } else if (menu.open) menu.scroll(y);
                     else if (isometric && !inventoryHud.open) overview.zoom(y);
-                    else if (captured) inventoryHud.scroll(y);
+                    else if (captured || inventoryHud.open) inventoryHud.scroll(y);
                 });
         glfwSetWindowFocusCallback(
                 window.getHandle(),
@@ -363,10 +367,10 @@ public class Main {
             // World changes are applied before physics, including collision recovery for late
             // edits.
             if (network != null) {
-                for (var e : network.poll()) world.setBlock(e.x(), e.y(), e.z(), e.type());
+                for (var e : network.poll()) world.apply(e);
                 predicted.entrySet().removeIf(e -> !network.pending(e.getValue()));
                 if (!network.connected()) {
-                    for (var e : predicted.values()) world.setBlock(e.x(), e.y(), e.z(), e.type());
+                    for (var e : predicted.values()) world.apply(e);
                     predicted.clear();
                 }
                 if (!network.notice().isEmpty()) notice = network.notice();
@@ -655,30 +659,43 @@ public class Main {
         BlockHit hit =
                 BlockRaycaster.cast(world, player.eyePosition(), player.facingDirection(), 6);
         if (hit == null) return;
-        int x = hit.x() + (place ? hit.normalX() : 0),
-                y = hit.y() + (place ? hit.normalY() : 0),
-                z = hit.z() + (place ? hit.normalZ() : 0);
-        if (!world.isLoaded(x, y, z)
-                || place && world.getBlock(x, y, z) != 0
-                || place
-                        && player.overlaps(world, x, y, z, inventory().type(inventoryHud.selected)))
-            return;
         int type = place ? inventory().type(inventoryHud.selected) : 0;
         if (place && type == 0) {
-            notice = "This slot is empty. Break blocks and walk near their drops to collect items.";
+            notice =
+                    "This slot is empty. Break blocks and collect drops, or craft building pieces.";
             return;
         }
-        Protocol.Edit edit = new Protocol.Edit(x, y, z, type);
+        int depth = place ? Blocks.depth(type) : hit.depth();
+        Vector3f point = player.eyePosition().fma(hit.distance(), player.facingDirection());
+        double offset = place ? .0001 : -.0001;
+        Protocol.Edit edit =
+                place && depth == 0
+                        ? new Protocol.Edit(
+                                hit.x() + hit.normalX(),
+                                hit.y() + hit.normalY(),
+                                hit.z() + hit.normalZ(),
+                                type)
+                        : Protocol.Edit.at(
+                                point.x + hit.normalX() * offset,
+                                point.y + hit.normalY() * offset,
+                                point.z + hit.normalZ() * offset,
+                                type,
+                                depth);
+        int x = edit.x(), y = edit.y(), z = edit.z();
+        if (!edit.valid()
+                || !world.isLoaded(x, y, z)
+                || place && world.region(edit) != 0
+                || place && player.overlaps(world, edit)) return;
         if (network == null) {
-            if (local.edit(edit, world.getBlock(x, y, z), inventoryHud.selected)) {
-                world.setBlock(x, y, z, edit.type());
+            if (local.edit(edit, world.region(edit), inventoryHud.selected)) {
+                world.apply(edit);
                 if (place) player.swing(true);
             }
         } else if (network.edit(edit, player.pose(network.id), inventoryHud.selected)) {
-            predicted.put(edit.key(), new Protocol.Edit(x, y, z, world.getBlock(x, y, z)));
+            predicted.put(edit.key(), edit.withType(world.region(edit)));
             if (place) player.swing(true);
             // Reserve it immediately so movement cannot enter an unconfirmed solid block.
-            world.setBlock(x, y, z, edit.type());
+            world.apply(edit);
         }
     }
 

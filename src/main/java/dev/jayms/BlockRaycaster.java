@@ -58,9 +58,44 @@ public class BlockRaycaster {
                                             Math.min(
                                                     reach,
                                                     Math.min(nextX, Math.min(nextY, nextZ))));
-                    if (hit != null) return new BlockHit(x, y, z, hit.nx(), hit.ny(), hit.nz());
+                    if (hit != null)
+                        return new BlockHit(
+                                x, y, z, hit.nx(), hit.ny(), hit.nz(), hit.distance(), 0);
                 } else if (type != ChunkGenerator.AIR) {
-                    return new BlockHit(x, y, z, normalX, normalY, normalZ);
+                    var hit =
+                            world.cell(x, y, z)
+                                    .raycast(
+                                            origin.x - x,
+                                            origin.y - y,
+                                            origin.z - z,
+                                            ray.x,
+                                            ray.y,
+                                            ray.z,
+                                            distance,
+                                            Math.min(
+                                                    reach,
+                                                    Math.min(nextX, Math.min(nextY, nextZ))));
+                    if (hit != null) {
+                        int depth =
+                                Math.max(
+                                        0,
+                                        Math.min(
+                                                4,
+                                                Math.round(
+                                                        (float)
+                                                                (-Math.log(hit.side())
+                                                                        / Math.log(2)))));
+                        boolean noNormal = hit.nx() == 0 && hit.ny() == 0 && hit.nz() == 0;
+                        return new BlockHit(
+                                x,
+                                y,
+                                z,
+                                noNormal ? normalX : hit.nx(),
+                                noNormal ? normalY : hit.ny(),
+                                noNormal ? normalZ : hit.nz(),
+                                hit.distance(),
+                                depth);
+                    }
                 }
             } catch (IllegalStateException e) {
                 System.err.println("Raycaster stopped: " + e.getMessage());

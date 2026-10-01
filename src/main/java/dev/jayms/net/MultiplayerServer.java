@@ -24,6 +24,7 @@ public final class MultiplayerServer implements AutoCloseable {
     private final Map<String, Integer> health = new HashMap<>();
     private final Map<Integer, ItemDrop> drops = new LinkedHashMap<>();
     private Terrain terrain;
+    private WorldVoxels voxels;
     private ModelLibrary models = new ModelLibrary();
     private int nextDrop;
     private final Map<String, AttemptWindow> attempts = new HashMap<>();
@@ -52,7 +53,8 @@ public final class MultiplayerServer implements AutoCloseable {
             try (var in = new DataInputStream(Files.newInputStream(save))) {
                 if (in.readInt() != Protocol.MAGIC) throw new IOException("Invalid world save");
                 int count = in.readInt();
-                boolean withModels = count == -4;
+                boolean fractional = count == -5;
+                boolean withModels = count == -4 || fractional;
                 boolean modern = count == -3 || withModels;
                 if (modern) {
                     terrain = new Terrain(in.readLong());
@@ -61,7 +63,7 @@ public final class MultiplayerServer implements AutoCloseable {
                 }
                 if (count < 0 || count > 2000000) throw new IOException("Invalid edit count");
                 for (int i = 0; i < count; i++) {
-                    var e = Protocol.Edit.read(in);
+                    var e = fractional ? Protocol.Edit.read(in) : Protocol.Edit.readLegacy(in);
                     if (!e.valid() || !models.has(e.type()))
                         throw new IOException("Invalid saved block");
                     edits.put(e.key(), e);
@@ -92,6 +94,8 @@ public final class MultiplayerServer implements AutoCloseable {
                 }
             }
         }
+        voxels = new WorldVoxels(terrain);
+        edits.values().forEach(voxels::apply);
         listener = tls.getServerSocketFactory().createServerSocket();
         ((SSLServerSocket) listener).setEnabledProtocols(new String[] {"TLSv1.3", "TLSv1.2"});
         listener.bind(new InetSocketAddress(bind, port));
@@ -296,6 +300,8 @@ public final class MultiplayerServer implements AutoCloseable {
                 int modelRequest = type == Protocol.MODEL_CREATE ? in.readInt() : 0;
                 ModelDefinition model =
                         type == Protocol.MODEL_CREATE ? ModelDefinition.read(in) : null;
+                int recipe = type == Protocol.CRAFT ? in.readInt() : -1;
+                Protocol.Pose craftPose = type == Protocol.CRAFT ? Protocol.Pose.read(in) : null;
                 synchronized (this) {
                     if (type == Protocol.MOVE) {
                         checkPose(peer, pose);
@@ -308,17 +314,19 @@ public final class MultiplayerServer implements AutoCloseable {
                         peer.pose = request.pose();
                         var e = request.edit();
                         var p = peer.pose;
-                        int current = e.valid() ? block(e.x(), e.y(), e.z()) : 0;
+                        int current = e.valid() ? voxels.region(e) : 0;
                         double distance =
-                                Math.pow(e.x() + .5 - p.x(), 2)
-                                        + Math.pow(e.y() + .5 - p.y() - 1.6, 2)
-                                        + Math.pow(e.z() + .5 - p.z(), 2);
+                                Math.pow(e.minX() + e.size() / 2 - p.x(), 2)
+                                        + Math.pow(e.minY() + e.size() / 2 - p.y() - 1.6, 2)
+                                        + Math.pow(e.minZ() + e.size() / 2 - p.z(), 2);
                         boolean accepted =
                                 e.valid()
                                         && models.has(e.type())
                                         && distance <= 49
                                         && (e.type() != 0 || drops.size() < 100000)
-                                        && (e.type() == 0 ? current != 0 : current == 0)
+                                        && (e.type() == 0
+                                                ? current != 0 && current != Blocks.PARTIAL
+                                                : current == 0)
                                         && (e.type() == 0
                                                 || request.slot() >= 0
                                                         && request.slot() < Inventory.HOTBAR
@@ -343,9 +351,9 @@ public final class MultiplayerServer implements AutoCloseable {
                                                 ++nextDrop,
                                                 current,
                                                 1,
-                                                e.x() + .5f,
-                                                e.y() + .35f,
-                                                e.z() + .5f);
+                                                e.minX() + e.size() / 2,
+                                                e.minY() + .35f,
+                                                e.minZ() + e.size() / 2);
                                 drops.put(drop.id(), drop);
                                 broadcast(
                                         new Event(
@@ -360,7 +368,8 @@ public final class MultiplayerServer implements AutoCloseable {
                                                 0));
                             }
                             sendInventory(peer);
-                            edits.put(e.key(), e);
+                            voxels.apply(e);
+                            WorldVoxels.remember(edits, e);
                             broadcast(new Event(Protocol.BLOCK, null, e, null, 0, true));
                             broadcast(new Event(Protocol.MOVE, peer.pose, null, null, 0, true));
                         }
@@ -368,16 +377,69 @@ public final class MultiplayerServer implements AutoCloseable {
                                 new Event(
                                         Protocol.EDIT_RESULT,
                                         null,
-                                        new Protocol.Edit(
-                                                e.x(), e.y(), e.z(), accepted ? e.type() : current),
+                                        e.withType(accepted ? e.type() : current),
                                         null,
                                         request.requestId(),
-                                        accepted));
+                                        accepted,
+                                        null,
+                                        null,
+                                        0,
+                                        null,
+                                        new Protocol.CellState(
+                                                e.x(),
+                                                e.y(),
+                                                e.z(),
+                                                voxels.cell(e.x(), e.y(), e.z()).copy().freeze())));
                     } else if (type == Protocol.SWAP) {
                         if (swapA >= Inventory.SIZE || swapB >= Inventory.SIZE)
                             throw new IOException("Invalid inventory slot");
                         inventories.get(peer.name).swap(swapA, swapB);
                         sendInventory(peer);
+                    } else if (type == Protocol.CRAFT) {
+                        checkPose(peer, craftPose);
+                        peer.pose = craftPose;
+                        var result = Crafting.prepare(inventories.get(peer.name), recipe);
+                        boolean accepted =
+                                result.accepted()
+                                        && (result.excess() == 0 || drops.size() < 100000);
+                        if (accepted) {
+                            inventories.put(peer.name, result.inventory());
+                            if (result.excess() > 0) {
+                                var drop =
+                                        new ItemDrop(
+                                                ++nextDrop,
+                                                result.output(),
+                                                result.excess(),
+                                                peer.pose.x() + .4f,
+                                                peer.pose.y() + .35f,
+                                                peer.pose.z());
+                                drops.put(drop.id(), drop);
+                                broadcast(
+                                        new Event(
+                                                Protocol.DROP,
+                                                null,
+                                                null,
+                                                null,
+                                                0,
+                                                true,
+                                                null,
+                                                drop,
+                                                0));
+                            }
+                            sendInventory(peer);
+                        }
+                        String message =
+                                result.accepted() && !accepted
+                                        ? "Too many ground items: collect some before crafting."
+                                        : result.message();
+                        peer.enqueue(
+                                new Event(
+                                        Protocol.CRAFT_RESULT,
+                                        null,
+                                        null,
+                                        message,
+                                        recipe,
+                                        accepted));
                     } else if (type == Protocol.MODEL_CREATE) {
                         String message;
                         boolean accepted = false;
@@ -519,8 +581,7 @@ public final class MultiplayerServer implements AutoCloseable {
     }
 
     private int block(int x, int y, int z) {
-        var edit = edits.get(x + "," + y + "," + z);
-        return edit == null ? terrain.block(x, y, z) : edit.type();
+        return voxels.type(x, y, z);
     }
 
     private Protocol.Pose safeSpawn(int id) throws IOException {
@@ -545,6 +606,12 @@ public final class MultiplayerServer implements AutoCloseable {
                     int type = block(x, y, z);
                     if (type == 0) continue;
                     var model = models.get(type);
+                    if (type == Blocks.PARTIAL) {
+                        if (voxels.cell(x, y, z)
+                                .intersects(x0 - x, y0 - y, z0 - z, x1 - x, y1 - y, z1 - z))
+                            return true;
+                        continue;
+                    }
                     if (model == null
                             || model.definition()
                                     .voxels()
@@ -555,6 +622,13 @@ public final class MultiplayerServer implements AutoCloseable {
     }
 
     private boolean overlaps(Protocol.Pose p, Protocol.Edit e) {
+        if (e.depth() > 0)
+            return p.x() + .3 > e.minX()
+                    && p.x() - .3 < e.minX() + e.size()
+                    && p.y() + 1.8 > e.minY()
+                    && p.y() < e.minY() + e.size()
+                    && p.z() + .3 > e.minZ()
+                    && p.z() - .3 < e.minZ() + e.size();
         var model = models.get(e.type());
         if (model != null)
             return model.definition()
@@ -592,7 +666,22 @@ public final class MultiplayerServer implements AutoCloseable {
             Inventory inventory,
             ItemDrop drop,
             int health,
-            ModelLibrary.Entry model) {
+            ModelLibrary.Entry model,
+            Protocol.CellState state) {
+        Event(
+                int type,
+                Protocol.Pose pose,
+                Protocol.Edit edit,
+                String name,
+                int request,
+                boolean accepted,
+                Inventory inventory,
+                ItemDrop drop,
+                int health,
+                ModelLibrary.Entry model) {
+            this(type, pose, edit, name, request, accepted, inventory, drop, health, model, null);
+        }
+
         Event(
                 int type,
                 Protocol.Pose pose,
@@ -658,6 +747,7 @@ public final class MultiplayerServer implements AutoCloseable {
                                         out.writeInt(e.request);
                                         out.writeBoolean(e.accepted);
                                         e.edit.write(out);
+                                        e.state.write(out);
                                     }
                                     case Protocol.INVENTORY -> {
                                         e.inventory.write(out);
@@ -668,6 +758,10 @@ public final class MultiplayerServer implements AutoCloseable {
                                     case Protocol.MODEL_DEFINE -> e.model.write(out);
                                     case Protocol.MODEL_RESULT -> {
                                         out.writeInt(e.request);
+                                        out.writeBoolean(e.accepted);
+                                        out.writeUTF(e.name);
+                                    }
+                                    case Protocol.CRAFT_RESULT -> {
                                         out.writeBoolean(e.accepted);
                                         out.writeUTF(e.name);
                                     }
@@ -697,7 +791,7 @@ public final class MultiplayerServer implements AutoCloseable {
         Path temp = absolute.resolveSibling(absolute.getFileName() + ".tmp");
         try (var out = new DataOutputStream(Files.newOutputStream(temp))) {
             out.writeInt(Protocol.MAGIC);
-            out.writeInt(-4);
+            out.writeInt(-5);
             out.writeLong(terrain.seed);
             models.write(out);
             out.writeInt(edits.size());

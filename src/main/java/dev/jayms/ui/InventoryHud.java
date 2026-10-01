@@ -8,6 +8,8 @@ import java.util.function.BiConsumer;
 public final class InventoryHud {
     public boolean open;
     public int selected;
+    private boolean crafting;
+    private int firstRecipe, selectedRecipe;
     private int source = -1;
     private static final int ICON_SIZE = 16;
     private final java.util.Map<ModelLibrary.Entry, int[]> icons = new java.util.HashMap<>();
@@ -54,6 +56,7 @@ public final class InventoryHud {
     public void toggle() {
         open = !open;
         source = -1;
+        crafting = false;
     }
 
     public void close() {
@@ -62,6 +65,15 @@ public final class InventoryHud {
     }
 
     public void scroll(double amount) {
+        if (open && crafting) {
+            firstRecipe =
+                    Math.max(
+                            0,
+                            Math.min(
+                                    Crafting.recipes().size() - 6,
+                                    firstRecipe - (int) Math.signum(amount) * 3));
+            return;
+        }
         selected = Math.floorMod(selected - (int) Math.signum(amount), 9);
     }
 
@@ -108,13 +120,17 @@ public final class InventoryHud {
                     }
             } else {
                 float[] c = Blocks.color(type);
-                ui.rectangle(x + 13, y + 11, 25, 25, c[0] * .65f, c[1] * .65f, c[2] * .65f, 1);
-                ui.rectangle(x + 11, y + 8, 25, 25, c[0], c[1], c[2], 1);
+                float iconSide = Math.max(7, 25f / (1 << Blocks.depth(type)));
+                float ix = x + 11 + (25 - iconSide) / 2, iy = y + 8 + (25 - iconSide) / 2;
                 ui.rectangle(
-                        x + 11,
-                        y + 8,
-                        25,
-                        5,
+                        ix + 2, iy + 3, iconSide, iconSide, c[0] * .65f, c[1] * .65f, c[2] * .65f,
+                        1);
+                ui.rectangle(ix, iy, iconSide, iconSide, c[0], c[1], c[2], 1);
+                ui.rectangle(
+                        ix,
+                        iy,
+                        iconSide,
+                        Math.min(5, iconSide / 3),
                         Math.min(1, c[0] * 1.2f),
                         Math.min(1, c[1] * 1.2f),
                         Math.min(1, c[2] * 1.2f),
@@ -172,7 +188,13 @@ public final class InventoryHud {
         ui.rectangle(0, 0, w, h, .01f, .025f, .045f, .65f);
         ui.rectangle(x - 18, y - 65, 540, 362, .025f, .06f, .11f, .98f);
         ui.rectangle(x - 18, y - 65, 540, 3, .15f, .85f, 1, 1);
-        ui.text("INVENTORY / 36 SLOTS", x, y - 43, 2.6f);
+        ui.text(crafting ? "CRAFTING / 86 RECIPES" : "INVENTORY / 36 SLOTS", x, y - 43, 2.1f);
+        ui.rectangle(x + 385, y - 49, 115, 28, .07f, .24f, .32f, 1);
+        ui.text(crafting ? "Inventory" : "Recipes", x + 394, y - 41, 1.5f);
+        if (crafting) {
+            renderCrafting(ui, inv, x, y);
+            return;
+        }
         ui.text("Click a stack, then a destination to move or merge it.", x, y - 15, 1.4f);
         for (int row = 0; row < 4; row++)
             for (int col = 0; col < 9; col++) {
@@ -207,6 +229,35 @@ public final class InventoryHud {
             int h,
             Inventory inventory,
             BiConsumer<Integer, Integer> swap) {
+        click(mx, my, w, h, inventory, swap, id -> {});
+    }
+
+    public void click(
+            float mx,
+            float my,
+            int w,
+            int h,
+            Inventory inventory,
+            BiConsumer<Integer, Integer> swap,
+            java.util.function.IntConsumer craft) {
+        float x = w / 2f - 268, y = h / 2f - 175;
+        if (mx >= x + 385 && mx < x + 500 && my >= y - 49 && my < y - 21) {
+            crafting = !crafting;
+            source = -1;
+            return;
+        }
+        if (crafting) {
+            if (mx >= x && mx < x + 504 && my >= y + 15 && my < y + 195) {
+                selectedRecipe =
+                        Math.min(
+                                Crafting.recipes().size() - 1,
+                                firstRecipe + (int) ((my - y - 15) / 30));
+                return;
+            }
+            if (mx >= x + 370 && mx < x + 504 && my >= y + 260 && my < y + 292)
+                craft.accept(selectedRecipe);
+            return;
+        }
         int index = slotAt(mx, my, w, h);
         if (index < 0) {
             source = -1;
@@ -218,9 +269,59 @@ public final class InventoryHud {
         }
     }
 
+    private void renderCrafting(Overlay ui, Inventory inventory, float x, float y) {
+        ui.text("Scroll to browse. Select a recipe, then Craft.", x, y - 15, 1.4f);
+        for (int row = 0; row < 6; row++) {
+            var recipe = Crafting.recipe(firstRecipe + row);
+            if (recipe == null) break;
+            boolean active = recipe.id() == selectedRecipe, available = recipe.available(inventory);
+            ui.rectangle(
+                    x,
+                    y + 15 + row * 30,
+                    504,
+                    27,
+                    active ? .1f : .03f,
+                    active ? .27f : .10f,
+                    active ? .34f : .16f,
+                    1);
+            ui.text(
+                    recipe.name() + " -> " + recipe.count() + " " + Blocks.name(recipe.output()),
+                    x + 7,
+                    y + 23 + row * 30,
+                    1.15f,
+                    available ? .75f : .5f,
+                    available ? 1 : .55f,
+                    available ? .84f : .62f,
+                    1);
+        }
+        var selected = Crafting.recipe(selectedRecipe);
+        ui.text(
+                (firstRecipe + 1)
+                        + "-"
+                        + Math.min(firstRecipe + 6, Crafting.recipes().size())
+                        + " / "
+                        + Crafting.recipes().size()
+                        + " recipes",
+                x,
+                y + 200,
+                1.2f);
+        ui.text("Requires:", x, y + 225, 1.3f);
+        String inputs = selected.ingredients(inventory);
+        if (inputs.length() > 62) {
+            int at = inputs.lastIndexOf(" | ", 62);
+            if (at < 0) at = 62;
+            ui.text(inputs.substring(0, at), x, y + 242, 1.15f);
+            ui.text(inputs.substring(at).stripLeading(), x, y + 257, 1.15f);
+        } else ui.text(inputs, x, y + 242, 1.15f);
+        boolean available = selected.available(inventory);
+        ui.rectangle(x + 370, y + 260, 134, 32, .08f, available ? .42f : .16f, .28f, 1);
+        ui.text("Craft", x + 414, y + 270, 1.6f);
+        ui.text("Overflow drops on the ground.", x, y + 281, 1.2f);
+    }
+
     public String hoveredName(
             Inventory inventory, ModelLibrary models, float mx, float my, int w, int h) {
-        if (!open) return "";
+        if (!open || crafting) return "";
         int index = slotAt(mx, my, w, h);
         return index < 0 || inventory.count(index) == 0 ? "" : models.name(inventory.type(index));
     }

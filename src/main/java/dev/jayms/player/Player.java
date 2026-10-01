@@ -1,6 +1,7 @@
 package dev.jayms.player;
 
 import dev.jayms.*;
+import dev.jayms.net.Blocks;
 import dev.jayms.net.Protocol;
 
 import org.joml.Vector3f;
@@ -287,6 +288,15 @@ public class Player {
     }
 
     public boolean overlaps(World world, int x, int y, int z, int type) {
+        if (type == Blocks.PARTIAL)
+            return world.cell(x, y, z)
+                    .intersects(
+                            position.x - RADIUS - x,
+                            position.y - y,
+                            position.z - RADIUS - z,
+                            position.x + RADIUS - x,
+                            position.y + HEIGHT - y,
+                            position.z + RADIUS - z);
         var model = world.models().get(type);
         return model == null
                 ? overlaps(x, y, z)
@@ -299,6 +309,16 @@ public class Player {
                                 position.x + RADIUS - x,
                                 position.y + HEIGHT - y,
                                 position.z + RADIUS - z);
+    }
+
+    public boolean overlaps(World world, Protocol.Edit e) {
+        if (e.depth() == 0) return overlaps(world, e.x(), e.y(), e.z(), e.type());
+        return position.x + RADIUS > e.minX()
+                && position.x - RADIUS < e.minX() + e.size()
+                && position.y + HEIGHT > e.minY()
+                && position.y < e.minY() + e.size()
+                && position.z + RADIUS > e.minZ()
+                && position.z - RADIUS < e.minZ() + e.size();
     }
 
     public boolean overlaps(int x, int y, int z) {

@@ -150,10 +150,11 @@ public final class MultiplayerClient implements AutoCloseable {
                     int request = in.readInt();
                     boolean accepted = in.readBoolean();
                     var e = Protocol.Edit.read(in);
+                    var state = Protocol.CellState.read(in);
                     event =
                             () -> {
                                 pending.remove(request);
-                                if (e.valid()) pendingEdits.add(e);
+                                pendingEdits.addAll(state.edits());
                                 if (!accepted)
                                     notice =
                                             "Placement rejected: occupied block, player overlap, or"
@@ -189,6 +190,10 @@ public final class MultiplayerClient implements AutoCloseable {
                                     close();
                                 }
                             };
+                } else if (type == Protocol.CRAFT_RESULT) {
+                    in.readBoolean();
+                    String message = Protocol.readText(in, 512);
+                    event = () -> notice = message;
                 } else if (type == Protocol.MODEL_RESULT) {
                     in.readInt();
                     in.readBoolean();
@@ -277,6 +282,16 @@ public final class MultiplayerClient implements AutoCloseable {
                     out.writeByte(Protocol.SWAP);
                     out.writeByte(a);
                     out.writeByte(b);
+                    out.flush();
+                });
+    }
+
+    public boolean craft(int recipe, Protocol.Pose pose) {
+        return send(
+                () -> {
+                    out.writeByte(Protocol.CRAFT);
+                    out.writeInt(recipe);
+                    pose.write(out);
                     out.flush();
                 });
     }

@@ -9,6 +9,7 @@ public class World implements AutoCloseable {
     private final Map<ChunkPos, Chunk> loadedChunks = new HashMap<>();
     private final Map<ChunkPos, Map<String, Protocol.Edit>> edits = new HashMap<>();
     private final Terrain terrain;
+    private final WorldVoxels voxels;
     private long editsVersion;
     private final ModelLibrary models;
 
@@ -23,6 +24,7 @@ public class World implements AutoCloseable {
     public World(long seed, ModelLibrary models) {
         this.models = models;
         terrain = new Terrain(seed);
+        voxels = new WorldVoxels(terrain);
     }
 
     public long editsVersion() {
@@ -30,9 +32,9 @@ public class World implements AutoCloseable {
     }
 
     public Map<String, Protocol.Edit> editsSnapshot() {
-        Map<String, Protocol.Edit> snapshot = new HashMap<>();
+        Map<String, Protocol.Edit> snapshot = new LinkedHashMap<>();
         edits.values().forEach(snapshot::putAll);
-        return Map.copyOf(snapshot);
+        return Collections.unmodifiableMap(snapshot);
     }
 
     /** Full columns take over from distant terrain only once all nonempty chunks have a mesh. */
@@ -63,12 +65,7 @@ public class World implements AutoCloseable {
         if (loadedChunks.putIfAbsent(p, c) != null)
             throw new IllegalStateException("Already loaded");
         c.attach(this, p);
-        for (var e : edits.getOrDefault(p, Map.of()).values())
-            c.setBlock(
-                    Math.floorMod(e.x(), 16),
-                    Math.floorMod(e.y(), 16),
-                    Math.floorMod(e.z(), 16),
-                    e.type());
+        for (var e : edits.getOrDefault(p, Map.of()).values()) c.apply(e);
         dirtyNeighbors(p);
     }
 
@@ -97,18 +94,49 @@ public class World implements AutoCloseable {
         Chunk c = loadedChunks.get(p);
         if (c != null)
             return c.getBlock(Math.floorMod(x, 16), Math.floorMod(y, 16), Math.floorMod(z, 16));
-        var e = edits.getOrDefault(p, Map.of()).get(x + "," + y + "," + z);
-        return e == null ? terrain.block(x, y, z) : e.type();
+        return voxels.type(x, y, z);
+    }
+
+    public int material(int x, int y, int z) {
+        var p = new ChunkPos(Math.floorDiv(x, 256), Math.floorDiv(y, 256), Math.floorDiv(z, 256));
+        var c = loadedChunks.get(p);
+        if (c != null)
+            return c.material(Math.floorMod(x, 256), Math.floorMod(y, 256), Math.floorMod(z, 256));
+        return WorldVoxels.decode(
+                voxels.cell(Math.floorDiv(x, 16), Math.floorDiv(y, 16), Math.floorDiv(z, 16))
+                        .get(Math.floorMod(x, 16), Math.floorMod(y, 16), Math.floorMod(z, 16)));
+    }
+
+    public dev.jayms.net.model.SparseVoxelOctree cell(int x, int y, int z) {
+        var c = loadedChunks.get(ChunkPos.fromBlock(x, y, z));
+        return c == null
+                ? voxels.cell(x, y, z)
+                : c.cell(Math.floorMod(x, 16), Math.floorMod(y, 16), Math.floorMod(z, 16));
+    }
+
+    public int region(Protocol.Edit e) {
+        int side = 16 >> e.depth();
+        int type =
+                WorldVoxels.decode(
+                        cell(e.x(), e.y(), e.z())
+                                .uniform(e.ix() * side, e.iy() * side, e.iz() * side, side));
+        if (type == 0 || type == Blocks.PARTIAL) return type;
+        return Blocks.isModel(type) && e.depth() > 0
+                ? Blocks.PARTIAL
+                : Blocks.piece(type, e.depth());
     }
 
     public void setBlock(int x, int y, int z, int type) {
-        ChunkPos p = ChunkPos.fromBlock(x, y, z);
-        var e = new Protocol.Edit(x, y, z, type);
+        apply(new Protocol.Edit(x, y, z, type));
+    }
+
+    public void apply(Protocol.Edit e) {
+        var p = ChunkPos.fromBlock(e.x(), e.y(), e.z());
         editsVersion++;
-        edits.computeIfAbsent(p, k -> new HashMap<>()).put(e.key(), e);
-        Chunk c = loadedChunks.get(p);
-        if (c != null)
-            c.setBlock(Math.floorMod(x, 16), Math.floorMod(y, 16), Math.floorMod(z, 16), type);
+        voxels.apply(e);
+        WorldVoxels.remember(edits.computeIfAbsent(p, k -> new LinkedHashMap<>()), e);
+        var c = loadedChunks.get(p);
+        if (c != null) c.apply(e);
         dirtyNeighbors(p);
     }
 

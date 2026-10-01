@@ -135,7 +135,12 @@ public class PlayerModel implements AutoCloseable {
             shader.setInt("uVertexColor", 0);
             float[] color = Blocks.color(type);
             shader.setVector3("uColor", color[0], color[1], color[2]);
-            shader.setMatrix4("uModel", transform);
+            Matrix4f item = new Matrix4f(transform);
+            if (Blocks.isPiece(type))
+                item.translate(.5f, 0, .5f)
+                        .scale(1f / (1 << Blocks.depth(type)))
+                        .translate(-.5f, 0, -.5f);
+            shader.setMatrix4("uModel", item);
             cube.render();
         }
     }
@@ -189,9 +194,9 @@ public class PlayerModel implements AutoCloseable {
                                 drop.y() + .06f * (float) Math.sin(time * 3 + drop.id()),
                                 drop.z())
                         .rotateY(time + drop.id()),
-                .25f,
-                .25f,
-                .25f);
+                Math.max(.1f, .25f / (1 << Blocks.depth(drop.type()))),
+                Math.max(.1f, .25f / (1 << Blocks.depth(drop.type()))),
+                Math.max(.1f, .25f / (1 << Blocks.depth(drop.type()))));
     }
 
     private void box(ShaderProgram shader, Matrix4f root, float w, float h, float d) {

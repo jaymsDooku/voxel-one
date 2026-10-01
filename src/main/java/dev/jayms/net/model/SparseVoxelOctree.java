@@ -19,15 +19,16 @@ public final class SparseVoxelOctree {
         }
     }
 
-    public record Hit(float distance, int nx, int ny, int nz) {}
+    public record Hit(float distance, int nx, int ny, int nz, float side) {}
 
     private Node root;
     private final int size;
     private boolean frozen;
 
     public SparseVoxelOctree(int size) {
-        if (size < 8 || size > 32 || (size & (size - 1)) != 0)
-            throw new IllegalArgumentException("Resolution must be 8, 16, or 32");
+        if (size < 1 || size > 256 || (size & (size - 1)) != 0)
+            throw new IllegalArgumentException(
+                    "Resolution must be a power of two from 1 through 256");
         this.size = size;
     }
 
@@ -78,8 +79,94 @@ public final class SparseVoxelOctree {
     }
 
     public void fill(int x0, int y0, int z0, int x1, int y1, int z1, int color) {
-        for (int x = x0; x < x1; x++)
-            for (int y = y0; y < y1; y++) for (int z = z0; z < z1; z++) set(x, y, z, color);
+        if (frozen) throw new IllegalStateException("Published octrees are immutable");
+        if (x0 < 0 || y0 < 0 || z0 < 0 || x1 > size || y1 > size || z1 > size || x1 < x0 || y1 < y0
+                || z1 < z0) throw new IndexOutOfBoundsException();
+        if (color != 0 && color >>> 24 != 255)
+            throw new IllegalArgumentException("Opaque value required");
+        root = fill(root, 0, 0, 0, size, x0, y0, z0, x1, y1, z1, color);
+    }
+
+    private static Node fill(
+            Node n,
+            int x,
+            int y,
+            int z,
+            int side,
+            int ax,
+            int ay,
+            int az,
+            int bx,
+            int by,
+            int bz,
+            int color) {
+        if (ax >= x + side || ay >= y + side || az >= z + side || bx <= x || by <= y || bz <= z)
+            return n;
+        if (ax <= x && ay <= y && az <= z && bx >= x + side && by >= y + side && bz >= z + side)
+            return color == 0 ? null : new Node(color);
+        if (n == null && color == 0 || n != null && n.children == null && n.color == color)
+            return n;
+        Node[] children = n != null && n.children != null ? n.children.clone() : new Node[8];
+        if (n != null && n.children == null) java.util.Arrays.fill(children, n);
+        int h = side / 2;
+        for (int i = 0; i < 8; i++)
+            children[i] =
+                    fill(
+                            children[i],
+                            x + ((i & 1) != 0 ? h : 0),
+                            y + ((i & 2) != 0 ? h : 0),
+                            z + ((i & 4) != 0 ? h : 0),
+                            h,
+                            ax,
+                            ay,
+                            az,
+                            bx,
+                            by,
+                            bz,
+                            color);
+        int first = children[0] == null ? 0 : children[0].color;
+        for (Node child : children)
+            if (child != null && child.children != null
+                    || (child == null ? 0 : child.color) != first) return new Node(children);
+        return first == 0 ? null : new Node(first);
+    }
+
+    /** Read an aligned region without expanding any uniform nodes. -1 denotes a mixed region. */
+    public int uniform(int x, int y, int z, int side) {
+        Node n = regionNode(x, y, z, side);
+        return n == null ? 0 : n.children == null ? n.color : -1;
+    }
+
+    public SparseVoxelOctree region(int x, int y, int z, int side) {
+        SparseVoxelOctree result = new SparseVoxelOctree(side);
+        result.root = regionNode(x, y, z, side);
+        return result;
+    }
+
+    private Node regionNode(int x, int y, int z, int side) {
+        if (side < 1
+                || side > size
+                || (side & (side - 1)) != 0
+                || x < 0
+                || y < 0
+                || z < 0
+                || x + side > size
+                || y + side > size
+                || z + side > size
+                || x % side != 0
+                || y % side != 0
+                || z % side != 0)
+            throw new IllegalArgumentException("Aligned octree region required");
+        Node n = root;
+        for (int span = size; span > side && n != null && n.children != null; ) {
+            int h = span / 2;
+            n = n.children[(x >= h ? 1 : 0) | (y >= h ? 2 : 0) | (z >= h ? 4 : 0)];
+            x %= h;
+            y %= h;
+            z %= h;
+            span = h;
+        }
+        return n;
     }
 
     // Nodes are persistent: edits copy only the path to a leaf, so snapshots share safely.
@@ -185,7 +272,7 @@ public final class SparseVoxelOctree {
             float start,
             float end) {
         if (n == null) return null;
-        float near = start, far = end;
+        float near = 0, far = end;
         int nx = 0, ny = 0, nz = 0;
         float[] low = {x, y, z}, o = {ox, oy, oz}, d = {dx, dy, dz};
         for (int axis = 0; axis < 3; axis++) {
@@ -206,7 +293,8 @@ public final class SparseVoxelOctree {
             far = Math.min(far, leave);
             if (near > far) return null;
         }
-        if (n.children == null) return new Hit(near, nx, ny, nz);
+        if (far < start) return null;
+        if (n.children == null) return new Hit(Math.max(start, near), nx, ny, nz, side);
         Hit best = null;
         float half = side / 2;
         for (int i = 0; i < 8; i++) {
@@ -230,8 +318,34 @@ public final class SparseVoxelOctree {
         return best;
     }
 
+    public record Leaf(int x, int y, int z, int side, int color) {}
+
+    public java.util.List<Leaf> leaves() {
+        var result = new java.util.ArrayList<Leaf>();
+        leaves(root, 0, 0, 0, size, result);
+        return java.util.List.copyOf(result);
+    }
+
+    private static void leaves(Node n, int x, int y, int z, int side, java.util.List<Leaf> out) {
+        if (n == null) return;
+        if (n.children == null) {
+            out.add(new Leaf(x, y, z, side, n.color));
+            return;
+        }
+        int h = side / 2;
+        for (int i = 0; i < 8; i++)
+            leaves(
+                    n.children[i],
+                    x + ((i & 1) != 0 ? h : 0),
+                    y + ((i & 2) != 0 ? h : 0),
+                    z + ((i & 4) != 0 ? h : 0),
+                    h,
+                    out);
+    }
+
     public void write(DataOutputStream out) throws IOException {
-        out.writeByte(size);
+        out.writeByte(size == 256 ? 0 : size);
+        if (size == 256) out.writeShort(size);
         write(root, out);
     }
 
@@ -251,8 +365,9 @@ public final class SparseVoxelOctree {
 
     public static SparseVoxelOctree read(DataInputStream in) throws IOException {
         int size = in.readUnsignedByte();
-        if (size != 8 && size != 16 && size != 32)
-            throw new IOException("Invalid model resolution");
+        if (size == 0) size = in.readUnsignedShort();
+        if (size < 1 || size > 256 || (size & (size - 1)) != 0)
+            throw new IOException("Invalid octree resolution");
         SparseVoxelOctree tree = new SparseVoxelOctree(size);
         tree.root = read(in, size);
         return tree;
