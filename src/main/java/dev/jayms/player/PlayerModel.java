@@ -1,14 +1,11 @@
 package dev.jayms.player;
 
-import dev.jayms.Chunk;
-import dev.jayms.ChunkGenerator;
-import dev.jayms.Mesh;
-import dev.jayms.ShaderProgram;
+import dev.jayms.*;
+
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 public class PlayerModel implements AutoCloseable {
-
     private final Mesh cube;
 
     public PlayerModel() {
@@ -19,57 +16,60 @@ public class PlayerModel implements AutoCloseable {
     }
 
     public void render(Player player, ShaderProgram shader) {
-        render(player.position(), player.yaw(), shader);
+        render(
+                player.position(),
+                player.yaw(),
+                player.pitch(),
+                player.walkPhase(),
+                player.walkAmount(),
+                shader);
     }
 
-    public void render(Vector3f position, float yaw, ShaderProgram shader) {
-        Matrix4f root = new Matrix4f()
-                .translate(position)
-                .rotateY((float) Math.toRadians(-yaw - 90.0f));
-
-        // Arguments: centre X, bottom Y, centre Z, width, height, depth.
-
-        // Head
-        drawBox(shader, root,
-                0, 1.4f, 0,
-                0.4f, 0.4f, 0.4f);
-
-        // Torso
-        drawBox(shader, root,
-                0, 0.7f, 0,
-                0.5f, 0.7f, 0.3f);
-
-        // Arms
-        drawBox(shader, root,
-                -0.36f, 0.7f, 0,
-                0.2f, 0.7f, 0.3f);
-
-        drawBox(shader, root,
-                0.36f, 0.7f, 0,
-                0.2f, 0.7f, 0.3f);
-
-        // Legs
-        drawBox(shader, root,
-                -0.13f, 0, 0,
-                0.22f, 0.7f, 0.3f);
-
-        drawBox(shader, root,
-                0.13f, 0, 0,
-                0.22f, 0.7f, 0.3f);
+    public void render(
+            Vector3f position,
+            float yaw,
+            float pitch,
+            float phase,
+            float amount,
+            ShaderProgram shader) {
+        Matrix4f root =
+                new Matrix4f().translate(position).rotateY((float) Math.toRadians(-yaw - 90));
+        float swing = (float) Math.sin(phase) * .65f * amount;
+        shader.setVector3("uColor", .88f, .68f, .46f);
+        box(
+                shader,
+                new Matrix4f(root).translate(0, 1.4f, 0).rotateX((float) Math.toRadians(-pitch)),
+                .4f,
+                .4f,
+                .4f);
+        shader.setVector3("uColor", .16f, .46f, .86f);
+        box(shader, new Matrix4f(root).translate(0, .7f, 0), .5f, .7f, .3f);
+        limb(shader, root, -.36f, 1.4f, swing, .2f, .7f, .3f);
+        limb(shader, root, .36f, 1.4f, -swing, .2f, .7f, .3f);
+        shader.setVector3("uColor", .12f, .16f, .24f);
+        limb(shader, root, -.13f, .7f, -swing, .22f, .7f, .3f);
+        limb(shader, root, .13f, .7f, swing, .22f, .7f, .3f);
     }
 
-    private void drawBox(
+    private void limb(
             ShaderProgram shader,
             Matrix4f root,
-            float x, float y, float z,
-            float width, float height, float depth
-    ) {
-        Matrix4f model = new Matrix4f(root)
-                .translate(x, y, z)
-                .scale(width, height, depth)
-                .translate(-0.5f, 0, -0.5f);
+            float x,
+            float y,
+            float angle,
+            float w,
+            float h,
+            float d) {
+        box(
+                shader,
+                new Matrix4f(root).translate(x, y, 0).rotateX(angle).translate(0, -h, 0),
+                w,
+                h,
+                d);
+    }
 
-        shader.setMatrix4("uModel", model);
+    private void box(ShaderProgram shader, Matrix4f root, float w, float h, float d) {
+        shader.setMatrix4("uModel", new Matrix4f(root).scale(w, h, d).translate(-.5f, 0, -.5f));
         cube.render();
     }
 
@@ -77,5 +77,4 @@ public class PlayerModel implements AutoCloseable {
     public void close() {
         cube.close();
     }
-
 }

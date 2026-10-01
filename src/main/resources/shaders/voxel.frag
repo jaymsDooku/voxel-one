@@ -6,6 +6,7 @@ in vec3 vWorldPosition;
 out vec4 fragColor;
 
 uniform vec3 uLightDirection;
+uniform vec3 uColor;
 
 void main() {
     vec3 normal = normalize(vNormal);
@@ -17,11 +18,7 @@ void main() {
 
     float ambient = 0.35;
 
-    vec3 blockColor = vec3(
-        0.35,
-        0.70,
-        0.25
-    );
+    vec3 blockColor = uColor;
 
     vec3 finalColor =
         blockColor * (ambient + diffuse * 0.65);

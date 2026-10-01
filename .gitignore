@@ -41,3 +41,7 @@ build/
 world.dat
 world.dat.tmp
 /runtime/
+
+# Local accounts and TLS identity
+/accounts.db
+/tls/
