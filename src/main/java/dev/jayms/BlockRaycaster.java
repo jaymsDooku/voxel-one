@@ -4,15 +4,9 @@ import org.joml.Vector3f;
 
 public class BlockRaycaster {
 
-    private BlockRaycaster() {
-    }
+    private BlockRaycaster() {}
 
-    public static BlockHit cast(
-            World world,
-            Vector3f origin,
-            Vector3f direction,
-            float reach
-    ) {
+    public static BlockHit cast(World world, Vector3f origin, Vector3f direction, float reach) {
         if (reach < 0 || direction.lengthSquared() == 0) {
             return null;
         }
@@ -47,11 +41,26 @@ public class BlockRaycaster {
             }
 
             try {
-                if (world.getBlock(x, y, z) != ChunkGenerator.AIR) {
-                    return new BlockHit(
-                            x, y, z,
-                            normalX, normalY, normalZ
-                    );
+                int type = world.getBlock(x, y, z);
+                var model = world.models().get(type);
+                if (model != null) {
+                    var hit =
+                            model.definition()
+                                    .voxels()
+                                    .raycast(
+                                            origin.x - x,
+                                            origin.y - y,
+                                            origin.z - z,
+                                            ray.x,
+                                            ray.y,
+                                            ray.z,
+                                            distance,
+                                            Math.min(
+                                                    reach,
+                                                    Math.min(nextX, Math.min(nextY, nextZ))));
+                    if (hit != null) return new BlockHit(x, y, z, hit.nx(), hit.ny(), hit.nz());
+                } else if (type != ChunkGenerator.AIR) {
+                    return new BlockHit(x, y, z, normalX, normalY, normalZ);
                 }
             } catch (IllegalStateException e) {
                 System.err.println("Raycaster stopped: " + e.getMessage());
@@ -95,16 +104,10 @@ public class BlockRaycaster {
     }
 
     private static float boundarySpacing(float direction) {
-        return direction == 0
-                ? Float.POSITIVE_INFINITY
-                : Math.abs(1.0f / direction);
+        return direction == 0 ? Float.POSITIVE_INFINITY : Math.abs(1.0f / direction);
     }
 
-    private static float firstBoundary(
-            float origin,
-            int cell,
-            float direction
-    ) {
+    private static float firstBoundary(float origin, int cell, float direction) {
         if (direction == 0) {
             return Float.POSITIVE_INFINITY;
         }
@@ -112,5 +115,4 @@ public class BlockRaycaster {
         float boundary = direction > 0 ? cell + 1 : cell;
         return (boundary - origin) / direction;
     }
-
 }

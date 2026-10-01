@@ -34,7 +34,8 @@ public final class Controls {
         ISOMETRIC("Isometric sky view", GLFW_KEY_F6),
         ZOOM_IN("Sky view: zoom in", GLFW_KEY_EQUAL),
         ZOOM_OUT("Sky view: zoom out", GLFW_KEY_MINUS),
-        FIT_VIEW("Sky view: fit world", GLFW_KEY_HOME);
+        FIT_VIEW("Sky view: fit world", GLFW_KEY_HOME),
+        MODEL_EDITOR("Voxel model editor", GLFW_KEY_F7);
         public final String label;
         public final int defaultCode;
 

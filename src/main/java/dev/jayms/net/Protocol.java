@@ -2,11 +2,12 @@ package dev.jayms.net;
 
 import java.io.*;
 
-/** Protocol 3 adds seeded terrain, inventories, item drops, and health over authenticated TLS. */
+/** Protocol 4 shares immutable microvoxel models over authenticated TLS. */
 public final class Protocol {
-    public static final int MAGIC = 0x564F5831, VERSION = 3, PORT = 25565;
+    public static final int MAGIC = 0x564F5831, VERSION = 4, PORT = 25565;
     public static final int MOVE = 1, BLOCK = 2, LEAVE = 3, READY = 4, JOIN = 5, EDIT_RESULT = 6;
     public static final int INVENTORY = 7, DROP = 8, SWAP = 9, RESPAWN = 10;
+    public static final int MODEL_CREATE = 11, MODEL_DEFINE = 12, MODEL_RESULT = 13;
     public static final int LOGIN = 1, REGISTER = 2;
 
     public record Pose(

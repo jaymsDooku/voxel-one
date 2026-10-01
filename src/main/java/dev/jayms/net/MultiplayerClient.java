@@ -1,5 +1,7 @@
 package dev.jayms.net;
 
+import dev.jayms.net.model.*;
+
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -14,6 +16,9 @@ public final class MultiplayerClient implements AutoCloseable {
     public final String username;
     public final Protocol.Pose spawn;
     public final long seed;
+    public final ModelLibrary models;
+    public String modelMessage = "";
+    public int modelResults;
     public Inventory inventory;
     public int health = 20;
     public final Map<Integer, ItemDrop> drops = new LinkedHashMap<>();
@@ -58,13 +63,15 @@ public final class MultiplayerClient implements AutoCloseable {
             spawn = Protocol.Pose.read(in);
             this.username = Protocol.readText(in, 16);
             seed = in.readLong();
+            models = ModelLibrary.read(in);
             inventory = Inventory.read(in);
             health = in.readUnsignedByte();
             int count = in.readInt();
             if (count < 0 || count > 2000000) throw new IOException("Invalid world snapshot");
             for (int i = 0; i < count; i++) {
                 var e = Protocol.Edit.read(in);
-                if (!e.valid()) throw new IOException("Invalid snapshot block");
+                if (!e.valid() || !models.has(e.type()))
+                    throw new IOException("Invalid snapshot block");
                 initialEdits.add(e);
             }
             count = in.readInt();
@@ -171,6 +178,26 @@ public final class MultiplayerClient implements AutoCloseable {
                 } else if (type == Protocol.RESPAWN) {
                     var p = Protocol.Pose.read(in);
                     event = () -> respawn = p;
+                } else if (type == Protocol.MODEL_DEFINE) {
+                    var model = ModelLibrary.Entry.read(in);
+                    event =
+                            () -> {
+                                try {
+                                    models.accept(model);
+                                } catch (IOException e) {
+                                    error = e.getMessage();
+                                    close();
+                                }
+                            };
+                } else if (type == Protocol.MODEL_RESULT) {
+                    in.readInt();
+                    in.readBoolean();
+                    String message = Protocol.readText(in, 256);
+                    event =
+                            () -> {
+                                modelMessage = message;
+                                modelResults++;
+                            };
                 } else if (type == Protocol.READY) {
                     event =
                             () -> {
@@ -229,6 +256,17 @@ public final class MultiplayerClient implements AutoCloseable {
                 () -> {
                     out.writeByte(Protocol.MOVE);
                     p.write(out);
+                    out.flush();
+                });
+    }
+
+    public boolean createModel(ModelDefinition model) {
+        int request = ++nextRequest;
+        return send(
+                () -> {
+                    out.writeByte(Protocol.MODEL_CREATE);
+                    out.writeInt(request);
+                    model.write(out);
                     out.flush();
                 });
     }

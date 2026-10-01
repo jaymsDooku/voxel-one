@@ -19,7 +19,8 @@ public final class MeshDataGenerator {
         for (int y = 0; y < Chunk.HEIGHT; y++) {
             for (int z = 0; z < Chunk.LENGTH; z++) {
                 for (int x = 0; x < Chunk.WIDTH; x++) {
-                    if (chunk.getBlock(x, y, z) == 0) {
+                    if (chunk.getBlock(x, y, z) == 0
+                            || dev.jayms.net.Blocks.isModel(chunk.getBlock(x, y, z))) {
                         continue;
                     }
 
@@ -28,7 +29,8 @@ public final class MeshDataGenerator {
                         int nY = y + face.dy();
                         int nZ = z + face.dz();
 
-                        if (chunk.neighbor(nX, nY, nZ) != 0) {
+                        if (chunk.neighbor(nX, nY, nZ) != 0
+                                && !dev.jayms.net.Blocks.isModel(chunk.neighbor(nX, nY, nZ))) {
                             continue;
                         }
 

@@ -28,6 +28,12 @@ public final class Inventory {
         return amount;
     }
 
+    public boolean hasSpace(int type) {
+        for (int i = 0; i < SIZE; i++)
+            if (counts[i] == 0 || types[i] == type && counts[i] < STACK) return true;
+        return false;
+    }
+
     public boolean take(int slot, int type) {
         if (slot < 0 || slot >= HOTBAR || types[slot] != type || counts[slot] == 0) return false;
         if (--counts[slot] == 0) types[slot] = 0;

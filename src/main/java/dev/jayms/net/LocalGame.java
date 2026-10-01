@@ -1,11 +1,14 @@
 package dev.jayms.net;
 
+import dev.jayms.net.model.*;
+
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 
 /** Offline survival state uses the same stack rules and terrain as multiplayer. */
 public final class LocalGame {
+    public ModelLibrary models = new ModelLibrary();
     public Inventory inventory = new Inventory();
     public int health = 20;
     public final Map<Integer, ItemDrop> drops = new LinkedHashMap<>();
@@ -20,8 +23,10 @@ public final class LocalGame {
         long worldSeed = requestedSeed;
         if (Files.exists(save))
             try (var in = new DataInputStream(Files.newInputStream(save))) {
-                if (in.readInt() != 3) throw new IOException("Invalid offline world");
+                int version = in.readInt();
+                if (version != 3 && version != 4) throw new IOException("Invalid offline world");
                 worldSeed = in.readLong();
+                if (version == 4) models = ModelLibrary.read(in);
                 inventory = Inventory.read(in);
                 health = in.readUnsignedByte();
                 if (health > 20) throw new IOException("Invalid saved health");
@@ -41,6 +46,17 @@ public final class LocalGame {
                 }
             }
         seed = worldSeed;
+    }
+
+    public String createModel(ModelDefinition definition) throws IOException {
+        int existing = models.find(definition), id = existing < 0 ? models.nextId() : existing;
+        if (!inventory.hasSpace(id))
+            throw new IOException("Inventory full: make an empty slot first");
+        var model = models.register(definition, "offline");
+        inventory.add(model.id(), 1);
+        return "Created "
+                + model.definition().name()
+                + ". Close the editor and select its hotbar slot to place it.";
     }
 
     public boolean edit(Protocol.Edit e, int old, int slot) {
@@ -99,8 +115,9 @@ public final class LocalGame {
         Files.createDirectories(save.toAbsolutePath().getParent());
         Path temp = save.resolveSibling(save.getFileName() + ".tmp");
         try (var out = new DataOutputStream(Files.newOutputStream(temp))) {
-            out.writeInt(3);
+            out.writeInt(4);
             out.writeLong(seed);
+            models.write(out);
             inventory.write(out);
             out.writeByte(health);
             out.writeInt(edits.size());

@@ -25,7 +25,7 @@ On first connection, compare the certificate fingerprint displayed in the launch
 java -jar voxel-one-1.0-SNAPSHOT-client.jar --server SERVER_IP --fingerprint SHA256_FINGERPRINT
 ```
 
-The deployed VPS address is `198.100.154.156`. The `jayms` test account's password is supplied separately, not stored in this repository. Download the updated client: protocol 3 includes inventory, health, and procedural world synchronization, so clients from the initial multiplayer version cannot connect.
+The deployed VPS address is `198.100.154.156`. The `jayms` test account's password is supplied separately, not stored in this repository. Download the updated client: protocol 4 adds shared voxel models, so older clients cannot connect.
 
 On macOS, add `-XstartOnFirstThread` immediately after `java`. To skip the launcher and play offline, use `--offline`. Launching without arguments opens the launcher.
 
@@ -49,6 +49,7 @@ Bindings and sensitivity persist in `~/.voxel-one/controls.properties` (on Windo
 | E | Open/close inventory |
 | F5 | First/third-person camera |
 | F6 | Toggle isometric sky overview |
+| F7 | Open/close voxel model editor |
 | Mouse wheel / = / - (sky view) | Zoom in/out |
 | Home (sky view) | Fit all loaded chunks |
 | Tab | Release/capture mouse |
@@ -73,6 +74,31 @@ Every world uses a saved seed. Climate noise selects **plains, forest, desert, a
 Use `--seed NUMBER` when creating a server world, or `--offline --world FILE --seed NUMBER` for a new offline world. An existing world keeps its saved seed regardless of the command-line seed. Offline play saves inventory, drops, health, and edits to `~/.voxel-one/offline-world.dat` by default. Saves occur every minute and on normal exit; use the controls menu's Quit button to save before exiting.
 
 Older server saves are upgraded on the next save: their block edits remain at their original coordinates, over the new default seeded terrain. Make a backup before upgrading if you want to retain the previous terrain with an older server binary. The deployed VPS keeps a pre-upgrade backup.
+
+## Tiny voxel models and the editor
+
+Press **F7** to open the model editor. It starts with a procedurally generated **flower pot**: a hollow terracotta pot, soil, stem, leaves, and a pink flower made of tiny colored voxels. Click **Create item**, close the editor with F7, select the item in your hotbar, then right click a nearby surface to place it. Creation grants one item; repeat to obtain more copies. Break a placed model and walk over its floating miniature to pick it up again. Model items use the existing 36-slot inventory and stack up to 64.
+
+The editor has a live 3D preview and a layer painting grid. Drag the preview to orbit; scroll over it to zoom. Left click/drag paints the selected color; right click/drag erases. Select a color below the grid. Click **X/Y/Z** or press those keys to choose the slice axis; Up/Down, the +/- buttons, or scrolling over the grid changes the layer. Click the name to rename your model. **Ctrl+Z / Ctrl+Y** or the Undo/Redo buttons restore edits. **Clear** starts an empty model; the Flower pot button restores the example. **Save draft / Load draft** use `~/.voxel-one/models/draft.vxm` (on Windows, `%USERPROFILE%\.voxel-one\models\draft.vxm`). Copy this file to share an editable draft with another player.
+
+Opening the editor while aiming at a placed model loads an editable copy. Publishing creates an immutable model type: subsequent editing leaves placed copies intact. Multiplayer sends definitions to everyone, including late joiners, before blocks and inventory reference them. Models, placed copies, and items persist across server restarts and offline saves. Creation is free during this cooperative playtest; no crafting recipe is required. The server allows 16 distinct custom models per account and 128 per world, with a two-second creation cooldown. Identical names and voxel data reuse an existing type.
+
+Models occupy one world cell with **8³, 16³, or 32³** colored voxels; the player editor uses 32³. Empty regions and uniform colored regions collapse in a sparse voxel octree, and undo snapshots share immutable tree nodes. Picking and collision traverse the octree, so the empty space around the pot is passable. Rendering removes internal faces, greedily merges adjacent faces of the same color, caches one mesh per model type, and uses instanced draws for placed copies. The flower pot has 1,476 occupied voxels and 770 merged surface quads. Each model is limited to 8,192 quads and a 200 KB serialized definition; unusually detailed models receive an editor error instead of exhausting the renderer.
+
+Programmatic generators use the same model format as the editor. For example:
+
+```java
+import dev.jayms.net.model.*;
+
+SparseVoxelOctree voxels = new SparseVoxelOctree(32);
+voxels.fill(10, 0, 10, 22, 3, 22, 0xffbc5939); // opaque ARGB; upper bounds exclusive
+voxels.set(16, 3, 16, 0xff50b552);
+ModelDefinition model = new ModelDefinition("Tiny planter", voxels);
+// model.write(DataOutputStream) exports a .vxm draft;
+// ModelDefinition.read(DataInputStream) imports it.
+```
+
+`ModelGenerators.flowerPot()` demonstrates a more detailed procedural model. The editor submits definitions through `MultiplayerClient.createModel(...)` or `LocalGame.createModel(...)`; the server validates and assigns stable world item IDs. Colors must be opaque ARGB; zero erases a voxel. Previous inventory/world saves upgrade automatically without changing their seed or existing blocks. The VPS retains a backup from before this upgrade.
 
 ## Run a server
 
@@ -110,4 +136,4 @@ Use `systemctl --user status voxel-one` to check the process, `journalctl --user
 
 ## Verification
 
-`mvn verify` runs tests for gravity, jumping, collision, late block recovery, flight, acceleration and walking animation state, world edges, normalized movement, persisted bindings, remote interpolation, authenticated TLS sessions, wrong credentials, duplicate logins, registration, certificate pin rejection, exact-pose block placement, rollback, shared edits, late joins, disconnects, salted password storage, seeded biome generation, trees and caves, chunk boundaries, 36-slot stack capacity, inventory moves, exclusive item pickups, placement supply checks, health and respawn, orthographic isometric framing, aspect ratios, zoom limits, and save/reload.
+`mvn verify` runs tests for gravity, jumping, collision, late block recovery, flight, acceleration and walking animation state, world edges, normalized movement, persisted bindings, remote interpolation, authenticated TLS sessions, wrong credentials, duplicate logins, registration, certificate pin rejection, exact-pose block placement, rollback, shared edits, late joins, disconnects, salted password storage, seeded biome generation, trees and caves, chunk boundaries, 36-slot stack capacity, inventory moves, exclusive item pickups, placement supply checks, health and respawn, orthographic isometric framing, aspect ratios, zoom limits, and save/reload. Model checks cover octree compression and round trips, immutable snapshots, greedy surface merging and winding, precise picking/collision, custom item creation, multiplayer definition ordering, late joins, pickups, and model persistence across restarts.

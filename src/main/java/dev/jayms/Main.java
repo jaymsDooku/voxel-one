@@ -6,6 +6,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 
 import dev.jayms.net.*;
+import dev.jayms.net.model.*;
 import dev.jayms.player.*;
 import dev.jayms.ui.*;
 import dev.jayms.window.Window;
@@ -32,6 +33,9 @@ public class Main {
     private boolean isometric;
     private Player player;
     private PlayerModel playerModel;
+    private VoxelModelRenderer modelRenderer;
+    private ModelEditor editor;
+    private int modelResults;
     private World world;
     private InventoryHud inventoryHud = new InventoryHud();
     private LocalGame local;
@@ -98,7 +102,9 @@ public class Main {
             local = new LocalGame(offlineSave, seed);
             seed = local.seed;
         } else seed = network.seed;
-        world = new World(seed);
+        world = new World(seed, network == null ? local.models : network.models);
+        modelRenderer = new VoxelModelRenderer(world.models());
+        editor = new ModelEditor();
         for (var e : network == null ? local.edits.values() : network.initialEdits)
             world.setBlock(e.x(), e.y(), e.z(), e.type());
         Protocol.Pose spawn =
@@ -132,6 +138,13 @@ public class Main {
         glfwSetKeyCallback(
                 window.getHandle(),
                 (handle, key, scancode, action, mods) -> {
+                    if (editor.open) {
+                        if (action == GLFW_PRESS && controls.matches(MODEL_EDITOR, key))
+                            editor.closeEditor();
+                        else editor.key(key, action, mods);
+                        if (!editor.open) setCaptured(true);
+                        return;
+                    }
                     if (menu.open) {
                         menu.key(key, action);
                         if (!menu.open) setCaptured(true);
@@ -142,6 +155,14 @@ public class Main {
         glfwSetCursorPosCallback(
                 window.getHandle(),
                 (handle, x, y) -> {
+                    if (editor.open) {
+                        int[] size = window.getSize();
+                        editor.drag(
+                                (float) x * framebufferWidth / size[0],
+                                (float) y * framebufferHeight / size[1],
+                                framebufferWidth,
+                                framebufferHeight);
+                    }
                     if (captured && !firstMouse)
                         player.look(
                                 (float) (x - mouseX) * controls.sensitivity,
@@ -153,6 +174,25 @@ public class Main {
         glfwSetMouseButtonCallback(
                 window.getHandle(),
                 (handle, button, action, mods) -> {
+                    if (editor.open) {
+                        if (action == GLFW_PRESS && controls.matches(MODEL_EDITOR, -button - 1)) {
+                            editor.closeEditor();
+                            setCaptured(true);
+                            return;
+                        }
+                        if (action == GLFW_RELEASE) editor.release();
+                        else if (action == GLFW_PRESS) {
+                            int[] size = window.getSize();
+                            editor.click(
+                                    button,
+                                    (float) mouseX * framebufferWidth / size[0],
+                                    (float) mouseY * framebufferHeight / size[1],
+                                    framebufferWidth,
+                                    framebufferHeight,
+                                    this::createModel);
+                        }
+                        return;
+                    }
                     if (action != GLFW_PRESS) return;
                     if (inventoryHud.open) {
                         int[] size = window.getSize();
@@ -183,10 +223,23 @@ public class Main {
                     }
                     input(-button - 1);
                 });
+        glfwSetCharCallback(
+                window.getHandle(),
+                (handle, character) -> {
+                    if (editor.open) editor.character(character);
+                });
         glfwSetScrollCallback(
                 window.getHandle(),
                 (handle, x, y) -> {
-                    if (menu.open) menu.scroll(y);
+                    if (editor.open) {
+                        int[] size = window.getSize();
+                        editor.scroll(
+                                (float) mouseX * framebufferWidth / size[0],
+                                (float) mouseY * framebufferHeight / size[1],
+                                y,
+                                framebufferWidth,
+                                framebufferHeight);
+                    } else if (menu.open) menu.scroll(y);
                     else if (isometric && !inventoryHud.open) overview.zoom(y);
                     else if (captured) inventoryHud.scroll(y);
                 });
@@ -195,6 +248,7 @@ public class Main {
                 (handle, focused) -> {
                     if (!focused) {
                         inventoryHud.close();
+                        if (editor.open) return;
                         menu.open = true;
                         setCaptured(false);
                     }
@@ -209,7 +263,31 @@ public class Main {
         return network == null ? local.drops : network.drops;
     }
 
+    private void createModel(ModelDefinition model) {
+        try {
+            if (network == null) {
+                editor.message = local.createModel(model);
+                local.save();
+            } else if (network.createModel(model)) editor.message = "Creating model item...";
+            else editor.message = "Disconnected: reconnect to create model items.";
+        } catch (java.io.IOException e) {
+            editor.message = e.getMessage();
+        }
+    }
+
     private void input(int code) {
+        if (controls.matches(MODEL_EDITOR, code)) {
+            inventoryHud.close();
+            BlockHit hit =
+                    BlockRaycaster.cast(world, player.eyePosition(), camera.getDirection(), 6);
+            if (hit != null) {
+                var model = world.models().get(world.getBlock(hit.x(), hit.y(), hit.z()));
+                if (model != null) editor.load(model.definition());
+            }
+            editor.open = true;
+            setCaptured(false);
+            return;
+        }
         if (inventoryHud.open) {
             if (code == GLFW_KEY_ESCAPE || controls.matches(INVENTORY, code)) {
                 inventoryHud.close();
@@ -266,7 +344,7 @@ public class Main {
     }
 
     private void setCaptured(boolean value) {
-        value = value && !isometric;
+        value = value && !isometric && (editor == null || !editor.open);
         captured = value;
         firstMouse = true;
         glfwSetInputMode(
@@ -289,6 +367,10 @@ public class Main {
                     predicted.clear();
                 }
                 if (!network.notice().isEmpty()) notice = network.notice();
+                if (network.modelResults != modelResults) {
+                    modelResults = network.modelResults;
+                    editor.message = network.modelMessage;
+                }
             }
             if (network != null && network.respawn != null) {
                 var p = network.respawn;
@@ -345,9 +427,13 @@ public class Main {
                             + " | "
                             + (isometric ? "Isometric" : player.flying() ? "Flying" : "Walking")
                             + " | "
-                            + (menu.open
-                                    ? "Controls menu"
-                                    : inventoryHud.open ? "Inventory" : "Esc controls"));
+                            + (editor.open
+                                    ? "Model editor"
+                                    : menu.open
+                                            ? "Controls menu"
+                                            : inventoryHud.open ? "Inventory" : "Esc controls"));
+            if (editor.open) glClearColor(.025f, .045f, .075f, 1);
+            else glClearColor(.48f, .72f, .92f, 1);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             if (framebufferWidth > 0 && framebufferHeight > 0) {
                 render();
@@ -359,6 +445,10 @@ public class Main {
     }
 
     private void render() {
+        if (editor.open) {
+            editor.renderPreview(shader, framebufferWidth, framebufferHeight);
+            return;
+        }
         if (isometric)
             projection.set(overview.projection(world, framebufferWidth, framebufferHeight));
         else
@@ -376,6 +466,7 @@ public class Main {
         shader.setMatrix4("uView", view);
         shader.setVector3("uLightDirection", -.4f, -1, -.3f);
         shader.setInt("uVertexColor", 1);
+        shader.setInt("uInstanced", 0);
         int meshBudget = 3;
         for (var entry : world.getLoadedChunks().entrySet()) {
             ChunkPos p = entry.getKey();
@@ -396,9 +487,12 @@ public class Main {
             }
             if (c.getMesh() != null) c.getMesh().render();
         }
+        modelRenderer.render(world, frustum, shader);
         for (ItemDrop drop : drops().values())
             if (player.position().distanceSquared(drop.x(), drop.y(), drop.z()) < 10000)
-                playerModel.renderDrop(drop, (float) glfwGetTime(), shader);
+                if (Blocks.isModel(drop.type()))
+                    modelRenderer.renderDrop(drop, (float) glfwGetTime(), shader);
+                else playerModel.renderDrop(drop, (float) glfwGetTime(), shader);
         if (isometric || player.thirdPerson()) playerModel.render(player, shader);
         if (network != null)
             for (var remote : network.remotePlayers.values()) {
@@ -416,6 +510,11 @@ public class Main {
 
     private void renderOverlay() {
         overlay.begin(framebufferWidth, framebufferHeight);
+        if (editor.open) {
+            editor.render(overlay, framebufferWidth, framebufferHeight);
+            overlay.end();
+            return;
+        }
         if (network != null)
             for (var remote : network.remotePlayers.values()) {
                 var p = remote.sample(System.nanoTime());
@@ -455,7 +554,9 @@ public class Main {
                                 + Controls.keyName(controls.code(VIEW))
                                 + ": camera | "
                                 + Controls.keyName(controls.code(ISOMETRIC))
-                                + ": sky view",
+                                + ": sky view | "
+                                + Controls.keyName(controls.code(MODEL_EDITOR))
+                                + ": models",
                 22,
                 44,
                 1.5f);
@@ -477,7 +578,8 @@ public class Main {
                 network == null ? local.health : network.health,
                 framebufferWidth,
                 framebufferHeight,
-                controls);
+                controls,
+                world.models());
         if (!notice.isEmpty()) overlay.text(notice, 20, 99, 1.4f, 1, .8f, .4f, 1);
         menu.render(overlay, framebufferWidth, framebufferHeight);
         overlay.end();
@@ -513,7 +615,9 @@ public class Main {
                 z = hit.z() + (place ? hit.normalZ() : 0);
         if (!world.isLoaded(x, y, z)
                 || place && world.getBlock(x, y, z) != 0
-                || place && player.overlaps(x, y, z)) return;
+                || place
+                        && player.overlaps(world, x, y, z, inventory().type(inventoryHud.selected)))
+            return;
         int type = place ? inventory().type(inventoryHud.selected) : 0;
         if (place && type == 0) {
             notice = "This slot is empty. Break blocks and walk near their drops to collect items.";
@@ -535,6 +639,8 @@ public class Main {
         if (network != null) network.close();
         if (world != null) world.close();
         if (playerModel != null) playerModel.close();
+        if (modelRenderer != null) modelRenderer.close();
+        if (editor != null) editor.close();
         if (overlay != null) overlay.close();
         if (shader != null) shader.close();
         if (window != null) window.destroy();

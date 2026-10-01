@@ -10,6 +10,7 @@ import java.nio.*;
 /** Small core-profile UI renderer for menus, HUD, and projected holographic labels. */
 public final class Overlay implements AutoCloseable {
     private final int program, vao, vbo;
+    private static final int[] CORNERS = {0, 1, 2, 0, 2, 3};
     private final ByteBuffer quads = MemoryUtil.memAlloc(128 * 1024);
     private final FloatBuffer vertices = MemoryUtil.memAllocFloat(200000);
 
@@ -18,14 +19,15 @@ public final class Overlay implements AutoCloseable {
                 compile(
                         GL_VERTEX_SHADER,
                         "#version 330 core\n"
-                            + "layout(location=0) in vec2 p; uniform vec2 viewport; void"
-                            + " main(){gl_Position=vec4(p.x/viewport.x*2-1,1-p.y/viewport.y*2,0,1);}");
+                            + "layout(location=0) in vec2 p; layout(location=1) in vec4 color; out"
+                            + " vec4 tint; uniform vec2 viewport; void"
+                            + " main(){tint=color;gl_Position=vec4(p.x/viewport.x*2-1,1-p.y/viewport.y*2,0,1);}");
         int fragment =
                 compile(
                         GL_FRAGMENT_SHADER,
                         "#version 330 core\n"
-                            + "uniform vec4 color; out vec4 fragColor; void"
-                            + " main(){fragColor=color;}");
+                                + "in vec4 tint; out vec4 fragColor; void"
+                                + " main(){fragColor=tint;}");
         program = glCreateProgram();
         glAttachShader(program, vertex);
         glAttachShader(program, fragment);
@@ -38,7 +40,9 @@ public final class Overlay implements AutoCloseable {
         vbo = glGenBuffers();
         glBindVertexArray(vao);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glVertexAttribPointer(0, 2, GL_FLOAT, false, 8, 0);
+        glVertexAttribPointer(0, 2, GL_FLOAT, false, 24, 0);
+        glVertexAttribPointer(1, 4, GL_FLOAT, false, 24, 8);
+        glEnableVertexAttribArray(1);
         glEnableVertexAttribArray(0);
         glBindVertexArray(0);
     }
@@ -53,6 +57,7 @@ public final class Overlay implements AutoCloseable {
     }
 
     public void begin(int width, int height) {
+        vertices.clear();
         glDisable(GL_DEPTH_TEST);
         glDisable(GL_CULL_FACE);
         glEnable(GL_BLEND);
@@ -62,30 +67,40 @@ public final class Overlay implements AutoCloseable {
     }
 
     public void end() {
+        flush();
         glDisable(GL_BLEND);
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
     }
 
-    private void draw(float r, float g, float b, float alpha) {
+    private void flush() {
+        if (vertices.position() == 0) return;
         vertices.flip();
-        glUniform4f(glGetUniformLocation(program, "color"), r, g, b, alpha);
         glBindVertexArray(vao);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBufferData(GL_ARRAY_BUFFER, vertices, GL_STREAM_DRAW);
-        glDrawArrays(GL_TRIANGLES, 0, vertices.remaining() / 2);
+        glDrawArrays(GL_TRIANGLES, 0, vertices.remaining() / 6);
         glBindVertexArray(0);
+        vertices.clear();
+    }
+
+    private void reserve(int floats) {
+        if (vertices.remaining() < floats) flush();
+    }
+
+    private void vertex(float x, float y, float r, float g, float b, float alpha) {
+        vertices.put(x).put(y).put(r).put(g).put(b).put(alpha);
     }
 
     public void rectangle(
             float x, float y, float width, float height, float r, float g, float b, float alpha) {
-        vertices.clear();
-        vertices.put(
-                new float[] {
-                    x, y, x + width, y, x + width, y + height, x, y, x + width, y + height, x,
-                    y + height
-                });
-        draw(r, g, b, alpha);
+        reserve(36);
+        vertex(x, y, r, g, b, alpha);
+        vertex(x + width, y, r, g, b, alpha);
+        vertex(x + width, y + height, r, g, b, alpha);
+        vertex(x, y, r, g, b, alpha);
+        vertex(x + width, y + height, r, g, b, alpha);
+        vertex(x, y + height, r, g, b, alpha);
     }
 
     public int textWidth(String text, float scale) {
@@ -97,14 +112,18 @@ public final class Overlay implements AutoCloseable {
         String safe = text.length() > 256 ? text.substring(0, 256) : text;
         quads.clear();
         int count = stb_easy_font_print(0, 0, safe, null, quads);
-        vertices.clear();
+        reserve(count * 36);
         for (int i = 0; i < count; i++)
-            for (int corner : new int[] {0, 1, 2, 0, 2, 3}) {
+            for (int corner : CORNERS) {
                 int index = i * 64 + corner * 16;
-                vertices.put(x + quads.getFloat(index) * scale)
-                        .put(y + quads.getFloat(index + 4) * scale);
+                vertex(
+                        x + quads.getFloat(index) * scale,
+                        y + quads.getFloat(index + 4) * scale,
+                        r,
+                        g,
+                        b,
+                        alpha);
             }
-        draw(r, g, b, alpha);
     }
 
     public void text(String text, float x, float y, float scale) {

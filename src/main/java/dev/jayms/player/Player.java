@@ -206,12 +206,32 @@ public class Player {
                     y++)
                 for (int z = (int) Math.floor(position.z - RADIUS);
                         z <= (int) Math.floor(position.z + RADIUS - .0001f);
-                        z++) if (solid(world, x, y, z)) return true;
+                        z++)
+                    if (solid(world, x, y, z)) {
+                        if (!world.isLoaded(x, y, z)) return true;
+                        int type = world.getBlock(x, y, z);
+                        if (overlaps(world, x, y, z, type)) return true;
+                    }
         return false;
     }
 
     private static boolean solid(World world, int x, int y, int z) {
         return !world.isLoaded(x, y, z) || world.getBlock(x, y, z) != ChunkGenerator.AIR;
+    }
+
+    public boolean overlaps(World world, int x, int y, int z, int type) {
+        var model = world.models().get(type);
+        return model == null
+                ? overlaps(x, y, z)
+                : model.definition()
+                        .voxels()
+                        .intersects(
+                                position.x - RADIUS - x,
+                                position.y - y,
+                                position.z - RADIUS - z,
+                                position.x + RADIUS - x,
+                                position.y + HEIGHT - y,
+                                position.z + RADIUS - z);
     }
 
     public boolean overlaps(int x, int y, int z) {

@@ -3,6 +3,7 @@ package dev.jayms;
 import static org.junit.jupiter.api.Assertions.*;
 
 import dev.jayms.net.*;
+import dev.jayms.net.model.*;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
@@ -323,6 +324,100 @@ class MultiplayerTest {
                 }
                 assertTrue(a.connected());
                 assertEquals(600, a.drops.size());
+            }
+            server.close();
+            thread.join(2000);
+        }
+    }
+
+    @Test
+    void voxelModelsSharePlaceBreakAndSurviveWorldRestart() throws Exception {
+        Path save = temp.resolve("model-world.dat");
+        String fingerprint;
+        SparseVoxelOctree tree = new SparseVoxelOctree(8);
+        tree.set(3, 3, 3, 0xffe65a91);
+        var custom = new ModelDefinition("Tiny pink voxel", tree);
+        fingerprint = custom.fingerprint();
+        Protocol.Edit placed;
+        try (var server =
+                new MultiplayerServer("127.0.0.1", 0, save, accounts, identity.context())) {
+            Thread thread = run(server);
+            try (var a = client(server, "alice", "correct-password-a", false);
+                    var b = client(server, "bob", "correct-password-b", false)) {
+                until(
+                        () -> {
+                            a.poll();
+                            b.poll();
+                            return a.players.containsKey(b.id);
+                        });
+                assertTrue(a.createModel(ModelGenerators.flowerPot()));
+                until(
+                        () -> {
+                            a.poll();
+                            return a.modelResults == 1 && a.inventory.type(0) == Blocks.FLOWER_POT;
+                        });
+                assertEquals(1, a.inventory.count(0));
+                assertTrue(a.createModel(ModelGenerators.flowerPot()));
+                until(
+                        () -> {
+                            a.poll();
+                            return a.modelResults == 2;
+                        });
+                assertEquals(1, a.inventory.count(0));
+                assertTrue(a.modelMessage.contains("two seconds"));
+                assertTrue(b.createModel(custom));
+                until(
+                        () -> {
+                            a.poll();
+                            b.poll();
+                            return a.models.get(9) != null && b.inventory.type(0) == 9;
+                        });
+                assertEquals(fingerprint, a.models.get(9).definition().fingerprint());
+                var pot = new Protocol.Edit(10, (int) a.spawn.y() + 1, 24, Blocks.FLOWER_POT);
+                // This pose overlaps the containing world cell, but misses every tiny pot voxel.
+                var click = new Protocol.Pose(a.id, 11.15f, pot.y(), 24.5f, 0, 0);
+                assertTrue(a.edit(pot, click, 0));
+                List<Protocol.Edit> seen = new ArrayList<>();
+                until(
+                        () -> {
+                            seen.addAll(b.poll());
+                            a.poll();
+                            return seen.contains(pot) && !a.pending(pot);
+                        });
+                assertEquals(0, a.inventory.count(0));
+                var broken = new Protocol.Edit(pot.x(), pot.y(), pot.z(), 0);
+                assertTrue(a.edit(broken, click, 0));
+                until(
+                        () -> {
+                            a.poll();
+                            b.poll();
+                            return !a.pending(broken)
+                                    && a.inventory.type(0) == Blocks.FLOWER_POT
+                                    && a.inventory.count(0) == 1;
+                        });
+                placed = new Protocol.Edit(12, pot.y(), 24, 9);
+                assertTrue(b.edit(placed, b.spawn, 0));
+                until(
+                        () -> {
+                            b.poll();
+                            return !b.pending(placed) && b.inventory.count(0) == 0;
+                        });
+                try (var late = client(server, "late", "correct-password-c", false)) {
+                    assertEquals(fingerprint, late.models.get(9).definition().fingerprint());
+                    assertTrue(late.initialEdits.contains(placed));
+                }
+            }
+            server.close();
+            thread.join(2000);
+        }
+        try (var server =
+                new MultiplayerServer("127.0.0.1", 0, save, accounts, identity.context())) {
+            Thread thread = run(server);
+            try (var a = client(server, "alice", "correct-password-a", false)) {
+                assertEquals(fingerprint, a.models.get(9).definition().fingerprint());
+                assertTrue(a.initialEdits.contains(placed));
+                assertEquals(Blocks.FLOWER_POT, a.inventory.type(0));
+                assertEquals(1, a.inventory.count(0));
             }
             server.close();
             thread.join(2000);

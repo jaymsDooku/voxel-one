@@ -18,6 +18,8 @@ public final class Mesh implements AutoCloseable {
     private final int ebo;
 
     private final int indexCount;
+    private int instances;
+    private FloatBuffer instanceData;
 
     public Mesh(MeshData meshData) {
         this.indexCount = meshData.indices().length;
@@ -80,8 +82,32 @@ public final class Mesh implements AutoCloseable {
         glBindVertexArray(0);
     }
 
+    public void renderInstanced(float[] positions) {
+        if (positions.length == 0) return;
+        glBindVertexArray(vao);
+        if (instances == 0) {
+            instances = glGenBuffers();
+            glBindBuffer(GL_ARRAY_BUFFER, instances);
+            glVertexAttribPointer(3, 3, GL_FLOAT, false, 3 * Float.BYTES, 0);
+            glEnableVertexAttribArray(3);
+            org.lwjgl.opengl.GL33.glVertexAttribDivisor(3, 1);
+        }
+        if (instanceData == null || instanceData.capacity() < positions.length) {
+            if (instanceData != null) MemoryUtil.memFree(instanceData);
+            instanceData = MemoryUtil.memAllocFloat(Math.max(64, positions.length));
+        }
+        instanceData.clear().put(positions).flip();
+        glBindBuffer(GL_ARRAY_BUFFER, instances);
+        glBufferData(GL_ARRAY_BUFFER, instanceData, GL_STREAM_DRAW);
+        org.lwjgl.opengl.GL31.glDrawElementsInstanced(
+                GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0L, positions.length / 3);
+        glBindVertexArray(0);
+    }
+
     @Override
     public void close() {
+        if (instances != 0) glDeleteBuffers(instances);
+        if (instanceData != null) MemoryUtil.memFree(instanceData);
         glDeleteBuffers(ebo);
         glDeleteBuffers(vbo);
         glDeleteVertexArrays(vao);

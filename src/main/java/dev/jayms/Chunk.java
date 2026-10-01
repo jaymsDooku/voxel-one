@@ -6,6 +6,12 @@ public class Chunk implements AutoCloseable {
     public static final int LENGTH = 16;
     public static final int HEIGHT = 16;
 
+    private final java.util.Map<Integer, Integer> models = new java.util.HashMap<>();
+
+    public java.util.Map<Integer, Integer> models() {
+        return java.util.Collections.unmodifiableMap(models);
+    }
+
     private int[] blocks = new int[WIDTH * LENGTH * HEIGHT];
     private boolean dirty = true;
     private Mesh mesh;
@@ -46,7 +52,10 @@ public class Chunk implements AutoCloseable {
             throw new IndexOutOfBoundsException("Block outside chunk: " + x + ", " + y + ", " + z);
         }
 
-        blocks[index(x, y, z)] = color;
+        int i = index(x, y, z);
+        blocks[i] = color;
+        if (dev.jayms.net.Blocks.isModel(color)) models.put(i, color);
+        else models.remove(i);
         dirty = true;
     }
 

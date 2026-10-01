@@ -1,5 +1,7 @@
 package dev.jayms.net;
 
+import dev.jayms.net.model.*;
+
 import java.io.*;
 import java.net.*;
 import java.nio.file.*;
@@ -22,6 +24,7 @@ public final class MultiplayerServer implements AutoCloseable {
     private final Map<String, Integer> health = new HashMap<>();
     private final Map<Integer, ItemDrop> drops = new LinkedHashMap<>();
     private Terrain terrain;
+    private ModelLibrary models = new ModelLibrary();
     private int nextDrop;
     private final Map<String, AttemptWindow> attempts = new HashMap<>();
     private final AtomicInteger ids = new AtomicInteger();
@@ -49,15 +52,18 @@ public final class MultiplayerServer implements AutoCloseable {
             try (var in = new DataInputStream(Files.newInputStream(save))) {
                 if (in.readInt() != Protocol.MAGIC) throw new IOException("Invalid world save");
                 int count = in.readInt();
-                boolean modern = count == -3;
+                boolean withModels = count == -4;
+                boolean modern = count == -3 || withModels;
                 if (modern) {
                     terrain = new Terrain(in.readLong());
+                    if (withModels) models = ModelLibrary.read(in);
                     count = in.readInt();
                 }
                 if (count < 0 || count > 2000000) throw new IOException("Invalid edit count");
                 for (int i = 0; i < count; i++) {
                     var e = Protocol.Edit.read(in);
-                    if (!e.valid()) throw new IOException("Invalid saved block");
+                    if (!e.valid() || !models.has(e.type()))
+                        throw new IOException("Invalid saved block");
                     edits.put(e.key(), e);
                 }
                 if (modern) {
@@ -66,7 +72,11 @@ public final class MultiplayerServer implements AutoCloseable {
                         throw new IOException("Invalid player save");
                     for (int i = 0; i < players; i++) {
                         String name = Protocol.readText(in, 16);
-                        inventories.put(name, Inventory.read(in));
+                        Inventory inventory = Inventory.read(in);
+                        for (int slot = 0; slot < Inventory.SIZE; slot++)
+                            if (!models.has(inventory.type(slot)))
+                                throw new IOException("Missing inventory model");
+                        inventories.put(name, inventory);
                         int hp = in.readUnsignedByte();
                         if (hp > 20) throw new IOException("Invalid health");
                         health.put(name, hp);
@@ -75,6 +85,7 @@ public final class MultiplayerServer implements AutoCloseable {
                     if (items < 0 || items > 100000) throw new IOException("Invalid drops");
                     for (int i = 0; i < items; i++) {
                         ItemDrop d = ItemDrop.read(in);
+                        if (!models.has(d.type())) throw new IOException("Missing dropped model");
                         drops.put(d.id(), d);
                         nextDrop = Math.max(nextDrop, d.id());
                     }
@@ -189,6 +200,9 @@ public final class MultiplayerServer implements AutoCloseable {
             Map<String, Protocol.Edit> snapshot;
             List<Peer> initialPlayers;
             Map<Integer, ItemDrop> initialDrops;
+            ModelLibrary initialModels;
+            Inventory initialInventory;
+            int initialHealth;
             synchronized (this) {
                 if (!running || sessions.size() >= 32) {
                     authReply(out, false, "Server full or stopping.");
@@ -205,16 +219,18 @@ public final class MultiplayerServer implements AutoCloseable {
                 snapshot = new LinkedHashMap<>(edits);
                 initialPlayers = new ArrayList<>(peers.values());
                 initialDrops = new LinkedHashMap<>(drops);
+                initialModels = models.copy();
+                initialInventory = inventories.get(username).copy();
+                initialHealth = health.get(username);
             }
             authReply(out, true, "Welcome " + username);
             out.writeInt(peer.pose.id());
             peer.pose.write(out);
             out.writeUTF(username);
             out.writeLong(terrain.seed);
-            synchronized (this) {
-                inventories.get(username).write(out);
-                out.writeByte(health.get(username));
-            }
+            initialModels.write(out);
+            initialInventory.write(out);
+            out.writeByte(initialHealth);
             out.writeInt(snapshot.size());
             for (var e : snapshot.values()) e.write(out);
             out.writeInt(initialPlayers.size());
@@ -228,6 +244,8 @@ public final class MultiplayerServer implements AutoCloseable {
             if (in.readUnsignedByte() != Protocol.READY) throw new IOException("Expected ready");
             synchronized (this) {
                 peer.enqueue(new Event(Protocol.READY, null, null, null, 0, false));
+                for (var model : models.entries())
+                    if (initialModels.get(model.id()) == null) peer.enqueue(modelEvent(model));
                 for (var e : edits.values())
                     if (!e.equals(snapshot.get(e.key())))
                         peer.enqueue(new Event(Protocol.BLOCK, null, e, null, 0, true));
@@ -275,6 +293,9 @@ public final class MultiplayerServer implements AutoCloseable {
                         type == Protocol.BLOCK ? Protocol.BlockRequest.read(in) : null;
                 int swapA = type == Protocol.SWAP ? in.readUnsignedByte() : -1;
                 int swapB = type == Protocol.SWAP ? in.readUnsignedByte() : -1;
+                int modelRequest = type == Protocol.MODEL_CREATE ? in.readInt() : 0;
+                ModelDefinition model =
+                        type == Protocol.MODEL_CREATE ? ModelDefinition.read(in) : null;
                 synchronized (this) {
                     if (type == Protocol.MOVE) {
                         checkPose(peer, pose);
@@ -294,6 +315,7 @@ public final class MultiplayerServer implements AutoCloseable {
                                         + Math.pow(e.z() + .5 - p.z(), 2);
                         boolean accepted =
                                 e.valid()
+                                        && models.has(e.type())
                                         && distance <= 49
                                         && (e.type() != 0 || drops.size() < 100000)
                                         && (e.type() == 0 ? current != 0 : current == 0)
@@ -356,6 +378,39 @@ public final class MultiplayerServer implements AutoCloseable {
                             throw new IOException("Invalid inventory slot");
                         inventories.get(peer.name).swap(swapA, swapB);
                         sendInventory(peer);
+                    } else if (type == Protocol.MODEL_CREATE) {
+                        String message;
+                        boolean accepted = false;
+                        try {
+                            if (System.nanoTime() - peer.lastModel < 2_000_000_000L)
+                                throw new IOException(
+                                        "Wait two seconds before creating another model item");
+                            peer.lastModel = System.nanoTime();
+                            int existing = models.find(model);
+                            int id = existing < 0 ? models.nextId() : existing;
+                            if (!inventories.get(peer.name).hasSpace(id))
+                                throw new IOException("Inventory full: make an empty slot first");
+                            var entry = models.register(model, peer.name);
+                            if (existing < 0) broadcast(modelEvent(entry));
+                            inventories.get(peer.name).add(entry.id(), 1);
+                            sendInventory(peer);
+                            accepted = true;
+                            message =
+                                    "Created "
+                                            + entry.definition().name()
+                                            + ". Close the editor and select its hotbar slot to"
+                                            + " place it.";
+                        } catch (IOException e) {
+                            message = e.getMessage();
+                        }
+                        peer.enqueue(
+                                new Event(
+                                        Protocol.MODEL_RESULT,
+                                        null,
+                                        null,
+                                        message,
+                                        modelRequest,
+                                        accepted));
                     } else throw new IOException("Unknown message");
                 }
             }
@@ -393,11 +448,13 @@ public final class MultiplayerServer implements AutoCloseable {
         }
         peer.fallTop = Math.max(peer.fallTop, pose.y());
         boolean grounded =
-                block(
-                                (int) Math.floor(pose.x()),
-                                (int) Math.floor(pose.y() - .05),
-                                (int) Math.floor(pose.z()))
-                        != 0;
+                solid(
+                        pose.x() - .3f,
+                        pose.y() - .05f,
+                        pose.z() - .3f,
+                        pose.x() + .3f,
+                        pose.y(),
+                        pose.z() + .3f);
         if (grounded) {
             int damage = Math.max(0, (int) Math.floor(peer.fallTop - pose.y() - 3));
             peer.fallTop = pose.y();
@@ -423,11 +480,13 @@ public final class MultiplayerServer implements AutoCloseable {
             ItemDrop d = entry.getValue();
             float y = d.y();
             if (y > Terrain.MIN_Y + .3
-                    && block(
-                                    (int) Math.floor(d.x()),
-                                    (int) Math.floor(y - .3),
-                                    (int) Math.floor(d.z()))
-                            == 0) {
+                    && !solid(
+                            d.x() - .05f,
+                            y - .31f,
+                            d.z() - .05f,
+                            d.x() + .05f,
+                            y - .3f,
+                            d.z() + .05f)) {
                 y = Math.max(Terrain.MIN_Y + .3f, y - .3f);
                 d = new ItemDrop(d.id(), d.type(), d.count(), d.x(), y, d.z());
                 entry.setValue(d);
@@ -478,13 +537,44 @@ public final class MultiplayerServer implements AutoCloseable {
         throw new IOException("Spawn area is blocked; clear space before joining.");
     }
 
-    private static boolean overlaps(Protocol.Pose p, Protocol.Edit e) {
+    private boolean solid(float x0, float y0, float z0, float x1, float y1, float z1) {
+        for (int x = (int) Math.floor(x0); x < Math.ceil(x1); x++)
+            for (int y = (int) Math.floor(y0); y < Math.ceil(y1); y++)
+                for (int z = (int) Math.floor(z0); z < Math.ceil(z1); z++) {
+                    int type = block(x, y, z);
+                    if (type == 0) continue;
+                    var model = models.get(type);
+                    if (model == null
+                            || model.definition()
+                                    .voxels()
+                                    .intersects(x0 - x, y0 - y, z0 - z, x1 - x, y1 - y, z1 - z))
+                        return true;
+                }
+        return false;
+    }
+
+    private boolean overlaps(Protocol.Pose p, Protocol.Edit e) {
+        var model = models.get(e.type());
+        if (model != null)
+            return model.definition()
+                    .voxels()
+                    .intersects(
+                            p.x() - .3f - e.x(),
+                            p.y() - e.y(),
+                            p.z() - .3f - e.z(),
+                            p.x() + .3f - e.x(),
+                            p.y() + 1.8f - e.y(),
+                            p.z() + .3f - e.z());
         return p.x() + .3 > e.x()
                 && p.x() - .3 < e.x() + 1
                 && p.y() + 1.8 > e.y()
                 && p.y() < e.y() + 1
                 && p.z() + .3 > e.z()
                 && p.z() - .3 < e.z() + 1;
+    }
+
+    private Event modelEvent(ModelLibrary.Entry model) {
+        return new Event(Protocol.MODEL_DEFINE, null, null, null, 0, true, null, null, 0, model);
     }
 
     private void broadcast(Event event) {
@@ -500,7 +590,21 @@ public final class MultiplayerServer implements AutoCloseable {
             boolean accepted,
             Inventory inventory,
             ItemDrop drop,
-            int health) {
+            int health,
+            ModelLibrary.Entry model) {
+        Event(
+                int type,
+                Protocol.Pose pose,
+                Protocol.Edit edit,
+                String name,
+                int request,
+                boolean accepted,
+                Inventory inventory,
+                ItemDrop drop,
+                int health) {
+            this(type, pose, edit, name, request, accepted, inventory, drop, health, null);
+        }
+
         Event(
                 int type,
                 Protocol.Pose pose,
@@ -508,7 +612,7 @@ public final class MultiplayerServer implements AutoCloseable {
                 String name,
                 int request,
                 boolean accepted) {
-            this(type, pose, edit, name, request, accepted, null, null, 0);
+            this(type, pose, edit, name, request, accepted, null, null, 0, null);
         }
     }
 
@@ -518,6 +622,7 @@ public final class MultiplayerServer implements AutoCloseable {
         final String name;
         volatile Protocol.Pose pose;
         float fallTop;
+        long lastModel;
         final BlockingQueue<Event> queue = new ArrayBlockingQueue<>(512);
 
         Peer(Socket socket, DataOutputStream out, String name, Protocol.Pose pose) {
@@ -559,6 +664,12 @@ public final class MultiplayerServer implements AutoCloseable {
                                     }
                                     case Protocol.DROP -> e.drop.write(out);
                                     case Protocol.RESPAWN -> e.pose.write(out);
+                                    case Protocol.MODEL_DEFINE -> e.model.write(out);
+                                    case Protocol.MODEL_RESULT -> {
+                                        out.writeInt(e.request);
+                                        out.writeBoolean(e.accepted);
+                                        out.writeUTF(e.name);
+                                    }
                                     case Protocol.READY -> {}
                                     default -> throw new IOException("Unknown queued event");
                                 }
@@ -585,8 +696,9 @@ public final class MultiplayerServer implements AutoCloseable {
         Path temp = absolute.resolveSibling(absolute.getFileName() + ".tmp");
         try (var out = new DataOutputStream(Files.newOutputStream(temp))) {
             out.writeInt(Protocol.MAGIC);
-            out.writeInt(-3);
+            out.writeInt(-4);
             out.writeLong(terrain.seed);
+            models.write(out);
             out.writeInt(edits.size());
             for (var e : edits.values()) e.write(out);
             out.writeInt(inventories.size());

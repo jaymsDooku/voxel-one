@@ -1,6 +1,7 @@
 package dev.jayms;
 
 import dev.jayms.net.*;
+import dev.jayms.net.model.*;
 
 import java.util.*;
 
@@ -8,13 +9,23 @@ public class World implements AutoCloseable {
     private final Map<ChunkPos, Chunk> loadedChunks = new HashMap<>();
     private final Map<ChunkPos, Map<String, Protocol.Edit>> edits = new HashMap<>();
     private final Terrain terrain;
+    private final ModelLibrary models;
 
     public World() {
         this(Terrain.DEFAULT_SEED);
     }
 
     public World(long seed) {
+        this(seed, new ModelLibrary());
+    }
+
+    public World(long seed, ModelLibrary models) {
+        this.models = models;
         terrain = new Terrain(seed);
+    }
+
+    public ModelLibrary models() {
+        return models;
     }
 
     public Terrain terrain() {
