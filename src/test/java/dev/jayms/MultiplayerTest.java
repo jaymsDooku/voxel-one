@@ -80,12 +80,27 @@ class MultiplayerTest {
                         });
                 assertEquals("alice", b.names.get(a.id));
                 assertEquals("bob", a.names.get(b.id));
-                a.move(new Protocol.Pose(a.id, 9, Protocol.spawnY(), 24, 45, 0));
+                a.move(
+                        new Protocol.Pose(
+                                a.id,
+                                9,
+                                Protocol.spawnY(),
+                                24,
+                                45,
+                                0,
+                                2,
+                                .6f,
+                                false,
+                                .25f,
+                                Blocks.STONE));
                 until(
                         () -> {
                             b.poll();
-                            return b.players.get(a.id).x() == 9;
+                            var received = b.players.get(a.id);
+                            return received != null && received.x() == 9;
                         });
+                assertEquals(.25f, b.players.get(a.id).swingProgress());
+                assertEquals(Blocks.STONE, b.players.get(a.id).heldItem());
                 var edit = new Protocol.Edit(10, (int) Protocol.spawnY() - 1, 24, 0);
                 assertTrue(a.edit(edit, new Protocol.Pose(a.id, 9, Protocol.spawnY(), 24, 45, 0)));
                 List<Protocol.Edit> seen = new ArrayList<>();

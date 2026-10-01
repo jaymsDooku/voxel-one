@@ -415,6 +415,7 @@ public class Main {
                     nextSave = now + 60;
                 }
             }
+            player.heldItem(inventory().type(inventoryHud.selected));
             player.updateCamera(world);
             if (network != null && now >= nextNetworkUpdate) {
                 network.move(player.pose(network.id));
@@ -493,19 +494,26 @@ public class Main {
                 if (Blocks.isModel(drop.type()))
                     modelRenderer.renderDrop(drop, (float) glfwGetTime(), shader);
                 else playerModel.renderDrop(drop, (float) glfwGetTime(), shader);
-        if (isometric || player.thirdPerson()) playerModel.render(player, shader);
+        if (isometric || player.thirdPerson())
+            playerModel.render(player.pose(0), shader, modelRenderer);
         if (network != null)
             for (var remote : network.remotePlayers.values()) {
                 var p = remote.sample(System.nanoTime());
-                if (p != null)
-                    playerModel.render(
-                            new Vector3f(p.x(), p.y(), p.z()),
-                            p.yaw(),
-                            p.pitch(),
-                            p.walkPhase(),
-                            p.walkAmount(),
-                            shader);
+                if (p != null) playerModel.render(p, shader, modelRenderer);
             }
+        if (!isometric && !player.thirdPerson()) {
+            glClear(GL_DEPTH_BUFFER_BIT);
+            shader.setMatrix4(
+                    "uProjection",
+                    new Matrix4f()
+                            .perspective(
+                                    (float) Math.toRadians(70),
+                                    (float) framebufferWidth / framebufferHeight,
+                                    .03f,
+                                    10));
+            shader.setMatrix4("uView", new Matrix4f());
+            playerModel.renderFirstPerson(player, shader, modelRenderer);
+        }
     }
 
     private void renderOverlay() {
@@ -604,6 +612,7 @@ public class Main {
 
     private void interact(boolean place) {
         if (isometric) return;
+        if (!place) player.swing();
         if (network != null && !network.connected()) {
             notice = "Disconnected: reconnect to edit the world.";
             return;

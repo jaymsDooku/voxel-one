@@ -2,9 +2,9 @@ package dev.jayms.net;
 
 import java.io.*;
 
-/** Protocol 4 shares immutable microvoxel models over authenticated TLS. */
+/** Protocol 5 adds held items and swing animation to shared player poses. */
 public final class Protocol {
-    public static final int MAGIC = 0x564F5831, VERSION = 4, PORT = 25565;
+    public static final int MAGIC = 0x564F5831, VERSION = 5, PORT = 25565;
     public static final int MOVE = 1, BLOCK = 2, LEAVE = 3, READY = 4, JOIN = 5, EDIT_RESULT = 6;
     public static final int INVENTORY = 7, DROP = 8, SWAP = 9, RESPAWN = 10;
     public static final int MODEL_CREATE = 11, MODEL_DEFINE = 12, MODEL_RESULT = 13;
@@ -19,7 +19,22 @@ public final class Protocol {
             float pitch,
             float walkPhase,
             float walkAmount,
-            boolean flying) {
+            boolean flying,
+            float swingProgress,
+            int heldItem) {
+        public Pose(
+                int id,
+                float x,
+                float y,
+                float z,
+                float yaw,
+                float pitch,
+                float walkPhase,
+                float walkAmount,
+                boolean flying) {
+            this(id, x, y, z, yaw, pitch, walkPhase, walkAmount, flying, 1, 0);
+        }
+
         public Pose(int id, float x, float y, float z, float yaw, float pitch) {
             this(id, x, y, z, yaw, pitch, 0, 0, false);
         }
@@ -34,6 +49,8 @@ public final class Protocol {
             out.writeFloat(walkPhase);
             out.writeFloat(walkAmount);
             out.writeBoolean(flying);
+            out.writeFloat(swingProgress);
+            out.writeByte(heldItem);
         }
 
         public static Pose read(DataInputStream in) throws IOException {
@@ -46,7 +63,9 @@ public final class Protocol {
                     in.readFloat(),
                     in.readFloat(),
                     in.readFloat(),
-                    in.readBoolean());
+                    in.readBoolean(),
+                    in.readFloat(),
+                    in.readUnsignedByte());
         }
 
         public boolean valid() {
@@ -57,6 +76,10 @@ public final class Protocol {
                     && Float.isFinite(pitch)
                     && Float.isFinite(walkPhase)
                     && Float.isFinite(walkAmount)
+                    && Float.isFinite(swingProgress)
+                    && swingProgress >= 0
+                    && swingProgress <= 1
+                    && Blocks.valid(heldItem)
                     && walkAmount >= 0
                     && walkAmount <= 1
                     && x >= -Terrain.LIMIT

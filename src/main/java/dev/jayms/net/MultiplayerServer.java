@@ -514,7 +514,8 @@ public final class MultiplayerServer implements AutoCloseable {
     }
 
     private void checkPose(Peer peer, Protocol.Pose pose) throws IOException {
-        if (!pose.valid() || pose.id() != peer.pose.id()) throw new IOException("Invalid movement");
+        if (!pose.valid() || pose.id() != peer.pose.id() || !models.has(pose.heldItem()))
+            throw new IOException("Invalid movement");
     }
 
     private int block(int x, int y, int z) {

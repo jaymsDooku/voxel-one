@@ -4,12 +4,21 @@ A Java/LWJGL voxel playground with seeded procedural biomes, a survival inventor
 
 ## Build and download
 
+For Windows, download [Voxel-One-windows.zip](https://github.com/jaymsDooku/voxel-one/releases/latest/download/Voxel-One-windows.zip), extract it, and double click **Play Voxel One.cmd**. Java 17+ must be installed and available on PATH. The included launcher checks for updates on every start, downloads the latest tested Windows client automatically, verifies its SHA-256 checksum, and opens the sign-in screen for the VPS at `198.100.154.156`. Keep using this launcher for future updates; you no longer need to copy a new game JAR manually. Close and reopen the game to receive a published update.
+
+The [latest release](https://github.com/jaymsDooku/voxel-one/releases/latest) also includes Linux and Mac launcher ZIPs, platform-specific client JARs, and the headless server. The small `voxel-one-launcher.jar` works on all four supported platforms. Run `java -jar voxel-one-launcher.jar --offline` to use it for offline play, or pass `--server HOST` for another server. `--update-only` downloads/checks the client without starting it.
+
+The launcher installs immutable versions in `%LOCALAPPDATA%\VoxelOne` on Windows and `~/.voxel-one/client` on Linux/Mac. It downloads into a temporary file and replaces the installed-version record only after integrity checks succeed. If checking/downloading an update fails, it can start a previously verified client. A corrupted installed JAR is rejected. First use requires an internet connection. Logs live in `game.log` under the installation cache. Your existing game saves, controls, remembered username, and trusted server certificate remain in the usual `.voxel-one` directory.
+
+Every successful build of the current `master` commit publishes an immutable GitHub release and then marks it latest, after Windows, Linux, and both Mac builds pass. Release files and the update manifest become public together. Updates are checked on startup; an already running game continues its current version.
+
 Run `mvn verify` with a JDK and Maven. The build selects native libraries for Windows, Linux x86-64, Intel macOS, or Apple Silicon macOS. To build a Windows client from Linux, use `mvn verify -Dlwjgl.natives=natives-windows`.
 
 GitHub Actions builds all four desktop variants. Download and extract your desktop's artifact from **Actions → Build and test**:
 
 - `voxel-one-1.0-SNAPSHOT-client.jar`: desktop client, dependencies and shaders included.
 - `voxel-one-1.0-SNAPSHOT-server.jar`: headless server without graphics dependencies.
+- `voxel-one-1.0-SNAPSHOT-launcher.jar`: small automatic updater without graphics dependencies.
 
 ## Connect and sign in
 
@@ -25,7 +34,7 @@ On first connection, compare the certificate fingerprint displayed in the launch
 java -jar voxel-one-1.0-SNAPSHOT-client.jar --server SERVER_IP --fingerprint SHA256_FINGERPRINT
 ```
 
-The deployed VPS address is `198.100.154.156`. The `jayms` test account's password is supplied separately, not stored in this repository. Download the updated client: protocol 4 adds shared voxel models, so older clients cannot connect.
+The deployed VPS address is `198.100.154.156`. The `jayms` test account's password is supplied separately, not stored in this repository. Download the updated client: protocol 5 adds swing and held-item synchronization, so older clients cannot connect.
 
 On macOS, add `-XstartOnFirstThread` immediately after `java`. To skip the launcher and play offline, use `--offline`. Launching without arguments opens the launcher.
 
@@ -55,7 +64,7 @@ Bindings and sensitivity persist in `~/.voxel-one/controls.properties` (on Windo
 | Tab | Release/capture mouse |
 | Escape / F1 | Controls menu |
 
-Flight keeps voxel collision enabled. Walking accelerates and decelerates smoothly; diagonal movement is normalized. Limbs swing according to distance walked, settle at rest, and stop swinging during flight. Other players render with 100 ms of interpolation, including yaw and animation, to smooth the server's 20 Hz updates.
+Flight keeps voxel collision enabled. Walking accelerates and decelerates smoothly; diagonal movement is normalized. The avatar uses classic block proportions: an 8x8x8 head, an 8x12x4 torso, and 4x12x4 limbs, scaled at 16 pixels per block. Opposing arms and legs use a distance-based walk cycle with smooth acceleration and settling at rest; flight stops the walking cycle. The geometry and gait reference [Mojang's humanoid model](https://github.com/Mojang/bedrock-samples/blob/main/resource_pack/models/mobs.json) and [player animations](https://github.com/Mojang/bedrock-samples/blob/main/resource_pack/animations/player.animation.json); Voxel One uses its own blue-shirt skin and face. Left click swings the right arm even when aiming at empty space. First-person shows the right arm and the selected hotbar item, including custom tiny-voxel models. External cameras and other players show the held item and swing too. Attack animations last 0.3 seconds; rapid clicks preserve the first half of a swing before restarting it. Other players render with 100 ms of interpolation, including yaw and animation, to smooth the server's 20 Hz updates.
 
 Pending placements become solid immediately on the placing client, preventing movement into an unconfirmed block. Every edit carries the position at the moment of the click; the server checks bounds, reach, occupancy, and player overlap and sends an acceptance/rejection result. Rejected edits roll back. If a delayed edit from another player overlaps you, collision recovery moves you to the nearest free block face instead of leaving you trapped.
 
@@ -138,4 +147,4 @@ Use `systemctl --user status voxel-one` to check the process, `journalctl --user
 
 ## Verification
 
-`mvn verify` runs tests for gravity, jumping, collision, late block recovery, flight, acceleration and walking animation state, world edges, normalized movement, persisted bindings, remote interpolation, authenticated TLS sessions, wrong credentials, duplicate logins, registration, certificate pin rejection, exact-pose block placement, rollback, shared edits, late joins, disconnects, salted password storage, seeded biome generation, trees and caves, chunk boundaries, 36-slot stack capacity, inventory moves, exclusive item pickups, placement supply checks, health and respawn, three-view camera cycling, front-view aim and movement, camera obstruction, orthographic isometric framing, aspect ratios, zoom limits, and save/reload. Model checks cover octree compression and round trips, immutable snapshots, greedy surface merging and winding, precise picking/collision, custom item creation, multiplayer definition ordering, late joins, pickups, and model persistence across restarts.
+`mvn verify` runs tests for gravity, jumping, collision, late block recovery, flight, acceleration and walking animation state, world edges, normalized movement, persisted bindings, remote interpolation, authenticated TLS sessions, wrong credentials, duplicate logins, registration, certificate pin rejection, exact-pose block placement, rollback, shared edits, late joins, disconnects, salted password storage, seeded biome generation, trees and caves, chunk boundaries, 36-slot stack capacity, inventory moves, exclusive item pickups, placement supply checks, health and respawn, three-view camera cycling, front-view aim and movement, camera obstruction, orthographic isometric framing, aspect ratios, zoom limits, and save/reload. Model checks cover octree compression and round trips, immutable snapshots, greedy surface merging and winding, precise picking/collision, custom item creation, multiplayer definition ordering, late joins, pickups, and model persistence across restarts. Animation checks cover classic dimensions, opposing limbs, swing timing, held-item/swing network round trips, and remote swing resets. Updater tests exercise real HTTP downloads, caching, checksum rejection, atomic replacement, offline fallback, invalid manifests, corrupted installations, platform detection, and launch arguments.

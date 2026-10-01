@@ -66,6 +66,14 @@ public final class VoxelModelRenderer implements AutoCloseable {
         shader.setInt("uInstanced", 0);
     }
 
+    public void renderHeld(int type, Matrix4f transform, ShaderProgram shader) {
+        if (library.get(type) == null) return;
+        shader.setInt("uVertexColor", 1);
+        shader.setInt("uInstanced", 0);
+        shader.setMatrix4("uModel", transform);
+        mesh(type).render();
+    }
+
     public void renderDrop(ItemDrop drop, float time, ShaderProgram shader) {
         if (library.get(drop.type()) == null) return;
         shader.setInt("uVertexColor", 1);

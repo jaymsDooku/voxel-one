@@ -19,6 +19,10 @@ public class Player {
         FRONT
     }
 
+    private float swingProgress = 1;
+    private int heldItem;
+    public static final float SWING_SECONDS = .3f;
+
     private CameraView cameraView = CameraView.FIRST_PERSON;
     private boolean grounded, jumpHeld, flying;
     private final Camera camera;
@@ -84,6 +88,24 @@ public class Player {
         return walkAmount;
     }
 
+    public void swing() {
+        if (swingProgress >= .5f) swingProgress = 0;
+    }
+
+    public float swingProgress() {
+        return swingProgress;
+    }
+
+    public void heldItem(int type) {
+        if (!dev.jayms.net.Blocks.valid(type))
+            throw new IllegalArgumentException("Invalid held item");
+        heldItem = type;
+    }
+
+    public int heldItem() {
+        return heldItem;
+    }
+
     public void updateCamera(World world) {
         syncCamera();
         if (thirdPerson()) {
@@ -128,6 +150,7 @@ public class Player {
             boolean sprint,
             boolean descend) {
         dt = Math.min(Math.max(dt, 0), .1f);
+        swingProgress = Math.min(1, swingProgress + dt / SWING_SECONDS);
         resolvePenetration(world);
         Vector3f direction =
                 new Vector3f(
@@ -165,9 +188,9 @@ public class Player {
             }
         }
         float moved = (float) Math.hypot(position.x - before.x, position.z - before.z);
-        if (grounded && !flying) walkPhase += moved * 5.0f;
+        if (grounded && !flying) walkPhase += moved * (4f * .6662f);
         float amount = grounded && !flying && dt > 0 ? Math.min(1, moved / dt / 5) : 0;
-        walkAmount += (amount - walkAmount) * (1 - (float) Math.exp(-15 * dt));
+        walkAmount += (amount - walkAmount) * (1 - (float) Math.exp(-8 * dt));
         if (!collides(world)) lastSafe.set(position);
         syncCamera();
     }
@@ -276,7 +299,17 @@ public class Player {
 
     public Protocol.Pose pose(int id) {
         return new Protocol.Pose(
-                id, position.x, position.y, position.z, yaw, pitch, walkPhase, walkAmount, flying);
+                id,
+                position.x,
+                position.y,
+                position.z,
+                yaw,
+                pitch,
+                walkPhase,
+                walkAmount,
+                flying,
+                swingProgress,
+                heldItem);
     }
 
     public Vector3f position() {

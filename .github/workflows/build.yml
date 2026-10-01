@@ -1,10 +1,23 @@
 name: Build and test
 on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+concurrency:
+  group: voxel-one-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-15-intel, macos-latest]
+        include:
+          - os: ubuntu-latest
+            platform: linux
+          - os: windows-latest
+            platform: windows
+          - os: macos-15-intel
+            platform: mac-intel
+          - os: macos-latest
+            platform: mac-arm
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -20,3 +33,48 @@ jobs:
           path: |
             target/*-client.jar
             target/*-server.jar
+            target/*-launcher.jar
+      - name: Package desktop update
+        shell: bash
+        run: python3 deploy/package_release.py build --platform '${{ matrix.platform }}' --revision "$GITHUB_SHA" --tag 'playtest-${{ github.run_number }}'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: voxel-one-release-${{ matrix.platform }}
+          path: target/release/*
+  publish:
+    needs: build
+    if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: voxel-one-release-*
+          merge-multiple: true
+          path: target/release
+      - run: python3 deploy/package_release.py assemble
+      - name: Publish verified update
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: playtest-${{ github.run_number }}
+        shell: bash
+        run: |
+          current=$(gh api "repos/$GH_REPO/commits/master" --jq .sha)
+          if [ "$current" != "$GITHUB_SHA" ]; then
+            echo 'A newer commit exists; skipping this update.'
+            exit 0
+          fi
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            if [ "$(gh api "repos/$GH_REPO/releases/tags/$RELEASE_TAG" --jq .draft)" != true ]; then
+              echo 'This update is already published.'
+              exit 0
+            fi
+          else
+            printf 'Automatically built and tested for Windows, Linux, and both Mac architectures.\n\nCommit: %s\n\nDownload the ZIP for your desktop, extract it, and use the included launcher for automatic updates. Requires Java 17+ and OpenGL 3.3.\n' "$GITHUB_SHA" > target/release-notes.md
+            gh release create "$RELEASE_TAG" --draft --target "$GITHUB_SHA" --title "Voxel One playtest ${GITHUB_SHA:0:7}" --notes-file target/release-notes.md
+          fi
+          gh release upload "$RELEASE_TAG" target/release/*.jar target/release/*.zip target/release/update.properties --clobber
+          gh release edit "$RELEASE_TAG" --draft=false --latest

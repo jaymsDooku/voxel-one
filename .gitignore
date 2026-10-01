@@ -45,3 +45,6 @@ world.dat.tmp
 # Local accounts and TLS identity
 /accounts.db
 /tls/
+
+# Release packaging Python cache
+__pycache__/
