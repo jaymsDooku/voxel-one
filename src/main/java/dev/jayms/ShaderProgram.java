@@ -106,7 +106,11 @@ public final class ShaderProgram implements AutoCloseable {
 
     private String readFile(String filename) {
         try {
-            return Files.readString(Path.of(filename));
+            String resource = filename.replace("src/main/resources/", "");
+            try (var input = ShaderProgram.class.getClassLoader().getResourceAsStream(resource)) {
+                if (input == null) throw new IOException("Missing resource " + resource);
+                return new String(input.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+            }
         } catch (IOException exception) {
             throw new IllegalStateException(
                     "Could not read shader: " + filename,

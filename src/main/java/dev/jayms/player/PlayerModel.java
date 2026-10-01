@@ -5,6 +5,7 @@ import dev.jayms.ChunkGenerator;
 import dev.jayms.Mesh;
 import dev.jayms.ShaderProgram;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 public class PlayerModel implements AutoCloseable {
 
@@ -18,9 +19,13 @@ public class PlayerModel implements AutoCloseable {
     }
 
     public void render(Player player, ShaderProgram shader) {
+        render(player.position(), player.yaw(), shader);
+    }
+
+    public void render(Vector3f position, float yaw, ShaderProgram shader) {
         Matrix4f root = new Matrix4f()
-                .translate(player.position())
-                .rotateY((float) Math.toRadians(-player.yaw() - 90.0f));
+                .translate(position)
+                .rotateY((float) Math.toRadians(-yaw - 90.0f));
 
         // Arguments: centre X, bottom Y, centre Z, width, height, depth.
 

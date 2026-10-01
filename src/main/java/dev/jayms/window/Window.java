@@ -28,6 +28,10 @@ public class Window {
 
     public Window(int width, int height, String title, boolean visible, boolean resizable) {
         glfwDefaultWindowHints();
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
         glfwWindowHint(GLFW_VISIBLE, glfwBool(visible)); // the window will stay hidden after creation
         glfwWindowHint(GLFW_RESIZABLE, glfwBool(resizable)); // the window will be resizable
 

@@ -51,11 +51,12 @@ public class Chunk implements AutoCloseable {
     }
 
     public void generateMesh() {
+        if (mesh != null) mesh.close();
         mesh = new Mesh(MeshDataGenerator.generate(this));
     }
 
     @Override
     public void close() throws Exception {
-        mesh.close();
+        if (mesh != null) mesh.close();
     }
 }
