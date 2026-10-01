@@ -29,7 +29,8 @@ public class PlayerModel implements AutoCloseable {
                         player.walkPhase(),
                         player.walkAmount(),
                         player.swingProgress(),
-                        player.heldItem() != 0);
+                        player.heldItem() != 0,
+                        player.placingSwing());
         Matrix4f torso = new Matrix4f(root).rotateY(pose.bodyTwist());
         Matrix4f head =
                 new Matrix4f(torso)
@@ -37,14 +38,14 @@ public class PlayerModel implements AutoCloseable {
                         .rotateX((float) Math.toRadians(-player.pitch()));
         skin(shader);
         box(shader, head, HEAD, HEAD, HEAD);
-        // Original simple face and hair, built from colored cuboids.
+        // Inflated outer skin layer: no visible face shares the base head depth plane.
         shader.setVector3("uColor", .23f, .15f, .10f);
         box(
                 shader,
-                new Matrix4f(head).translate(0, 6 * PIXEL, 0),
-                HEAD + .002f,
-                2 * PIXEL,
-                HEAD + .002f);
+                new Matrix4f(head).translate(0, PlayerSkin.HAIR_BOTTOM, 0),
+                PlayerSkin.HAIR_WIDTH,
+                PlayerSkin.HAIR_HEIGHT,
+                PlayerSkin.HAIR_WIDTH);
         for (float x : new float[] {-1.7f * PIXEL, 1.7f * PIXEL}) {
             shader.setVector3("uColor", .95f, .96f, .92f);
             box(
@@ -102,17 +103,12 @@ public class PlayerModel implements AutoCloseable {
     }
 
     public void renderFirstPerson(Player player, ShaderProgram shader, VoxelModelRenderer models) {
-        float attack = attack(player.swingProgress());
-        float bob = (float) Math.sin(player.walkPhase()) * player.walkAmount() * .015f;
         Matrix4f hand =
-                new Matrix4f()
-                        .translate(
-                                .52f - attack * .25f,
-                                -.90f + bob + attack * .15f,
-                                -.7f - attack * .12f)
-                        .rotateY(-.15f - attack * .45f)
-                        .rotateZ(-.12f - attack * .2f)
-                        .rotateX(-.35f + attack * .5f);
+                firstPersonHand(
+                        player.walkPhase(),
+                        player.walkAmount(),
+                        player.swingProgress(),
+                        player.placingSwing());
         shader.setInt("uVertexColor", 0);
         shader.setInt("uInstanced", 0);
         skin(shader);

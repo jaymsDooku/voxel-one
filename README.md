@@ -34,7 +34,7 @@ On first connection, compare the certificate fingerprint displayed in the launch
 java -jar voxel-one-1.0-SNAPSHOT-client.jar --server SERVER_IP --fingerprint SHA256_FINGERPRINT
 ```
 
-The deployed VPS address is `198.100.154.156`. The `jayms` test account's password is supplied separately, not stored in this repository. Download the updated client: protocol 5 adds swing and held-item synchronization, so older clients cannot connect.
+The deployed VPS address is `198.100.154.156`. The `jayms` test account's password is supplied separately, not stored in this repository. Restart through **Play Voxel One** to install the updated client: protocol 6 synchronizes distinct attack and placement swings, so older clients cannot connect.
 
 On macOS, add `-XstartOnFirstThread` immediately after `java`. To skip the launcher and play offline, use `--offline`. Launching without arguments opens the launcher.
 
@@ -48,7 +48,7 @@ Bindings and sensitivity persist in `~/.voxel-one/controls.properties` (on Windo
 | --- | --- |
 | W/A/S/D | Walk or fly horizontally |
 | Left Shift | Sprint / faster flight |
-| Space | Jump, or ascend while flying |
+| Space | Jump repeatedly while held, or ascend while flying |
 | Left Ctrl | Descend while flying |
 | F | Toggle flight |
 | Mouse | Look |
@@ -65,6 +65,8 @@ Bindings and sensitivity persist in `~/.voxel-one/controls.properties` (on Windo
 | Escape / F1 | Controls menu |
 
 Flight keeps voxel collision enabled. Walking accelerates and decelerates smoothly; diagonal movement is normalized. The avatar uses classic block proportions: an 8x8x8 head, an 8x12x4 torso, and 4x12x4 limbs, scaled at 16 pixels per block. Opposing arms and legs use a distance-based walk cycle with smooth acceleration and settling at rest; flight stops the walking cycle. The geometry and gait reference [Mojang's humanoid model](https://github.com/Mojang/bedrock-samples/blob/main/resource_pack/models/mobs.json) and [player animations](https://github.com/Mojang/bedrock-samples/blob/main/resource_pack/animations/player.animation.json); Voxel One uses its own blue-shirt skin and face. Left click swings the right arm even when aiming at empty space. First-person shows the right arm and the selected hotbar item, including custom tiny-voxel models. External cameras and other players show the held item and swing too. Attack animations last 0.3 seconds; rapid clicks preserve the first half of a swing before restarting it. Other players render with 100 ms of interpolation, including yaw and animation, to smooth the server's 20 Hz updates.
+
+Attack swings start at shoulder height and strike downward; successful placements use a gentler motion. In the inventory, hover over an occupied slot to see its item or custom model name. Hair renders as an inflated outer skin layer.
 
 Pending placements become solid immediately on the placing client, preventing movement into an unconfirmed block. Every edit carries the position at the moment of the click; the server checks bounds, reach, occupancy, and player overlap and sends an acceptance/rejection result. Rejected edits roll back. If a delayed edit from another player overlaps you, collision recovery moves you to the nearest free block face instead of leaving you trapped.
 
@@ -147,4 +149,4 @@ Use `systemctl --user status voxel-one` to check the process, `journalctl --user
 
 ## Verification
 
-`mvn verify` runs tests for gravity, jumping, collision, late block recovery, flight, acceleration and walking animation state, world edges, normalized movement, persisted bindings, remote interpolation, authenticated TLS sessions, wrong credentials, duplicate logins, registration, certificate pin rejection, exact-pose block placement, rollback, shared edits, late joins, disconnects, salted password storage, seeded biome generation, trees and caves, chunk boundaries, 36-slot stack capacity, inventory moves, exclusive item pickups, placement supply checks, health and respawn, three-view camera cycling, front-view aim and movement, camera obstruction, orthographic isometric framing, aspect ratios, zoom limits, and save/reload. Model checks cover octree compression and round trips, immutable snapshots, greedy surface merging and winding, precise picking/collision, custom item creation, multiplayer definition ordering, late joins, pickups, and model persistence across restarts. Animation checks cover classic dimensions, opposing limbs, swing timing, held-item/swing network round trips, and remote swing resets. Updater tests exercise real HTTP downloads, caching, checksum rejection, atomic replacement, offline fallback, invalid manifests, corrupted installations, platform detection, and launch arguments.
+`mvn verify` runs tests for gravity, jumping, collision, late block recovery, flight, acceleration and walking animation state, world edges, normalized movement, persisted bindings, remote interpolation, authenticated TLS sessions, wrong credentials, duplicate logins, registration, certificate pin rejection, exact-pose block placement, rollback, shared edits, late joins, disconnects, salted password storage, seeded biome generation, trees and caves, chunk boundaries, 36-slot stack capacity, inventory moves, exclusive item pickups, placement supply checks, health and respawn, three-view camera cycling, front-view aim and movement, camera obstruction, orthographic isometric framing, aspect ratios, zoom limits, and save/reload. Model checks cover octree compression and round trips, immutable snapshots, greedy surface merging and winding, precise picking/collision, custom item creation, multiplayer definition ordering, late joins, pickups, and model persistence across restarts. Animation checks cover classic dimensions, opposing limbs, downward attack and gentler placement trajectories, swing timing, inflated outer hair geometry, held-item/swing network round trips, and remote swing resets. Inventory hover tests cover built-in and custom names, moved stacks, empty slots, gaps, and resized windows. Updater tests exercise real HTTP downloads, caching, checksum rejection, atomic replacement, offline fallback, invalid manifests, corrupted installations, platform detection, and launch arguments.

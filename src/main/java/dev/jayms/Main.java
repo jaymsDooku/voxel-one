@@ -580,6 +580,7 @@ public class Main {
                 22,
                 76,
                 1.4f);
+        int[] windowSize = window.getSize();
         inventoryHud.render(
                 overlay,
                 inventory(),
@@ -587,7 +588,9 @@ public class Main {
                 framebufferWidth,
                 framebufferHeight,
                 controls,
-                world.models());
+                world.models(),
+                (float) mouseX * framebufferWidth / windowSize[0],
+                (float) mouseY * framebufferHeight / windowSize[1]);
         if (!notice.isEmpty()) overlay.text(notice, 20, 99, 1.4f, 1, .8f, .4f, 1);
         menu.render(overlay, framebufferWidth, framebufferHeight);
         overlay.end();
@@ -635,10 +638,13 @@ public class Main {
         }
         Protocol.Edit edit = new Protocol.Edit(x, y, z, type);
         if (network == null) {
-            if (local.edit(edit, world.getBlock(x, y, z), inventoryHud.selected))
+            if (local.edit(edit, world.getBlock(x, y, z), inventoryHud.selected)) {
                 world.setBlock(x, y, z, edit.type());
+                if (place) player.swing(true);
+            }
         } else if (network.edit(edit, player.pose(network.id), inventoryHud.selected)) {
             predicted.put(edit.key(), new Protocol.Edit(x, y, z, world.getBlock(x, y, z)));
+            if (place) player.swing(true);
             // Reserve it immediately so movement cannot enter an unconfirmed solid block.
             world.setBlock(x, y, z, edit.type());
         }

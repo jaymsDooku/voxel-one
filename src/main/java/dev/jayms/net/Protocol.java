@@ -2,9 +2,9 @@ package dev.jayms.net;
 
 import java.io.*;
 
-/** Protocol 5 adds held items and swing animation to shared player poses. */
+/** Protocol 6 distinguishes attack and placement swings in shared player poses. */
 public final class Protocol {
-    public static final int MAGIC = 0x564F5831, VERSION = 5, PORT = 25565;
+    public static final int MAGIC = 0x564F5831, VERSION = 6, PORT = 25565;
     public static final int MOVE = 1, BLOCK = 2, LEAVE = 3, READY = 4, JOIN = 5, EDIT_RESULT = 6;
     public static final int INVENTORY = 7, DROP = 8, SWAP = 9, RESPAWN = 10;
     public static final int MODEL_CREATE = 11, MODEL_DEFINE = 12, MODEL_RESULT = 13;
@@ -21,7 +21,35 @@ public final class Protocol {
             float walkAmount,
             boolean flying,
             float swingProgress,
-            int heldItem) {
+            int heldItem,
+            boolean placingSwing) {
+        public Pose(
+                int id,
+                float x,
+                float y,
+                float z,
+                float yaw,
+                float pitch,
+                float walkPhase,
+                float walkAmount,
+                boolean flying,
+                float swingProgress,
+                int heldItem) {
+            this(
+                    id,
+                    x,
+                    y,
+                    z,
+                    yaw,
+                    pitch,
+                    walkPhase,
+                    walkAmount,
+                    flying,
+                    swingProgress,
+                    heldItem,
+                    false);
+        }
+
         public Pose(
                 int id,
                 float x,
@@ -51,6 +79,7 @@ public final class Protocol {
             out.writeBoolean(flying);
             out.writeFloat(swingProgress);
             out.writeByte(heldItem);
+            out.writeBoolean(placingSwing);
         }
 
         public static Pose read(DataInputStream in) throws IOException {
@@ -65,7 +94,8 @@ public final class Protocol {
                     in.readFloat(),
                     in.readBoolean(),
                     in.readFloat(),
-                    in.readUnsignedByte());
+                    in.readUnsignedByte(),
+                    in.readBoolean());
         }
 
         public boolean valid() {

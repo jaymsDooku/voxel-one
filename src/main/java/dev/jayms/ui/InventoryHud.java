@@ -131,7 +131,9 @@ public final class InventoryHud {
             int w,
             int h,
             Controls controls,
-            ModelLibrary models) {
+            ModelLibrary models,
+            float mx,
+            float my) {
         float size = 56, left = w / 2f - size * 9 / 2, top = h - 72;
         ui.rectangle(left - 7, top - 36, size * 9 + 11, 30, .02f, .05f, .09f, .85f);
         ui.text("HEALTH", left + 4, top - 28, 1.5f);
@@ -187,6 +189,15 @@ public final class InventoryHud {
             }
         ui.text("Bottom row is your hotbar. Escape closes inventory.", x, y + 265, 1.4f);
         if (source >= 0) ui.text("Selected: " + models.name(inv.type(source)), x, y + 285, 1.3f);
+        String name = hoveredName(inv, models, mx, my, w, h);
+        if (!name.isEmpty()) {
+            float width = ui.textWidth(name, 1.5f) + 18, height = 29;
+            float tx = Math.max(0, Math.min(w - width, mx + 14));
+            float ty = my + 16 + height > h ? Math.max(0, my - height - 8) : my + 16;
+            ui.rectangle(tx, ty, width, height, .025f, .045f, .085f, .98f);
+            ui.rectangle(tx, ty, width, 2, .25f, .8f, 1, 1);
+            ui.text(name, tx + 9, ty + 8, 1.5f);
+        }
     }
 
     public void click(
@@ -196,20 +207,32 @@ public final class InventoryHud {
             int h,
             Inventory inventory,
             BiConsumer<Integer, Integer> swap) {
+        int index = slotAt(mx, my, w, h);
+        if (index < 0) {
+            source = -1;
+        } else if (source < 0) {
+            if (inventory.count(index) > 0) source = index;
+        } else {
+            if (source != index) swap.accept(source, index);
+            source = -1;
+        }
+    }
+
+    public String hoveredName(
+            Inventory inventory, ModelLibrary models, float mx, float my, int w, int h) {
+        if (!open) return "";
+        int index = slotAt(mx, my, w, h);
+        return index < 0 || inventory.count(index) == 0 ? "" : models.name(inventory.type(index));
+    }
+
+    public static int slotAt(float mx, float my, int w, int h) {
         float x = w / 2f - 268, y = h / 2f - 175;
         for (int row = 0; row < 4; row++)
             for (int col = 0; col < 9; col++) {
                 float sx = x + col * 56, sy = y + row * 60 + (row == 3 ? 10 : 0);
-                if (mx < sx || mx >= sx + 53 || my < sy || my >= sy + 53) continue;
-                int index = row == 3 ? col : 9 + row * 9 + col;
-                if (source < 0) {
-                    if (inventory.count(index) > 0) source = index;
-                } else {
-                    if (source != index) swap.accept(source, index);
-                    source = -1;
-                }
-                return;
+                if (mx >= sx && mx < sx + 53 && my >= sy && my < sy + 53)
+                    return row == 3 ? col : 9 + row * 9 + col;
             }
-        source = -1;
+        return -1;
     }
 }

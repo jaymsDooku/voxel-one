@@ -26,8 +26,16 @@ class PlayerTest {
         p.step(w, 1f / 60, 0, 0, true, false);
         assertTrue(p.position().y > 1.1);
         assertFalse(p.grounded());
-        for (int i = 0; i < 120; i++) p.step(w, 1f / 60, 0, 0, true, false);
-        assertEquals(1, p.position().y, .002); // Holding jump does not repeatedly jump.
+        int takeoffs = 0;
+        for (int i = 0; i < 120; i++) {
+            boolean landed = p.grounded();
+            p.step(w, 1f / 60, 0, 0, true, false);
+            if (landed && !p.grounded()) takeoffs++;
+        }
+        assertTrue(takeoffs >= 2, "Holding jump should launch again after each landing");
+        for (int i = 0; i < 120; i++) p.step(w, 1f / 60, 0, 0, false, false);
+        assertEquals(1, p.position().y, .002);
+        assertTrue(p.grounded());
     }
 
     @Test

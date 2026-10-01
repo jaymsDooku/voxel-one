@@ -21,10 +21,11 @@ public class Player {
 
     private float swingProgress = 1;
     private int heldItem;
-    public static final float SWING_SECONDS = .3f;
+    public static final float SWING_SECONDS = .3f, PLACEMENT_SECONDS = .25f;
+    private boolean placingSwing;
 
     private CameraView cameraView = CameraView.FIRST_PERSON;
-    private boolean grounded, jumpHeld, flying;
+    private boolean grounded, flying;
     private final Camera camera;
 
     public Player(Vector3f position, float yaw, float pitch, Camera camera) {
@@ -89,7 +90,18 @@ public class Player {
     }
 
     public void swing() {
-        if (swingProgress >= .5f) swingProgress = 0;
+        swing(false);
+    }
+
+    public void swing(boolean placing) {
+        if (swingProgress >= .5f || placingSwing != placing) {
+            swingProgress = 0;
+            placingSwing = placing;
+        }
+    }
+
+    public boolean placingSwing() {
+        return placingSwing;
     }
 
     public float swingProgress() {
@@ -150,7 +162,9 @@ public class Player {
             boolean sprint,
             boolean descend) {
         dt = Math.min(Math.max(dt, 0), .1f);
-        swingProgress = Math.min(1, swingProgress + dt / SWING_SECONDS);
+        swingProgress =
+                Math.min(
+                        1, swingProgress + dt / (placingSwing ? PLACEMENT_SECONDS : SWING_SECONDS));
         resolvePenetration(world);
         Vector3f direction =
                 new Vector3f(
@@ -164,11 +178,10 @@ public class Player {
         if (flying) target.y = (jump ? 1 : 0) - (descend ? 1 : 0);
         if (target.lengthSquared() > 1) target.normalize();
         target.mul(flying ? (sprint ? 14 : 8) : (sprint ? 8 : 5));
-        if (!flying && jump && !jumpHeld && grounded) {
+        if (!flying && jump && grounded) {
             verticalVelocity = 8;
             grounded = false;
         }
-        jumpHeld = jump;
         int steps = Math.max(1, (int) Math.ceil(dt / .008f));
         float step = dt / steps;
         Vector3f before = new Vector3f(position);
@@ -309,7 +322,8 @@ public class Player {
                 walkAmount,
                 flying,
                 swingProgress,
-                heldItem);
+                heldItem,
+                placingSwing);
     }
 
     public Vector3f position() {

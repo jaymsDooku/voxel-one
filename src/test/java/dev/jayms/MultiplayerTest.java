@@ -92,7 +92,8 @@ class MultiplayerTest {
                                 .6f,
                                 false,
                                 .25f,
-                                Blocks.STONE));
+                                Blocks.STONE,
+                                true));
                 until(
                         () -> {
                             b.poll();
@@ -100,6 +101,7 @@ class MultiplayerTest {
                             return received != null && received.x() == 9;
                         });
                 assertEquals(.25f, b.players.get(a.id).swingProgress());
+                assertTrue(b.players.get(a.id).placingSwing());
                 assertEquals(Blocks.STONE, b.players.get(a.id).heldItem());
                 var edit = new Protocol.Edit(10, (int) Protocol.spawnY() - 1, 24, 0);
                 assertTrue(a.edit(edit, new Protocol.Pose(a.id, 9, Protocol.spawnY(), 24, 45, 0)));
