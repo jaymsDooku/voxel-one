@@ -9,6 +9,7 @@ public class World implements AutoCloseable {
     private final Map<ChunkPos, Chunk> loadedChunks = new HashMap<>();
     private final Map<ChunkPos, Map<String, Protocol.Edit>> edits = new HashMap<>();
     private final Terrain terrain;
+    private long editsVersion;
     private final ModelLibrary models;
 
     public World() {
@@ -22,6 +23,28 @@ public class World implements AutoCloseable {
     public World(long seed, ModelLibrary models) {
         this.models = models;
         terrain = new Terrain(seed);
+    }
+
+    public long editsVersion() {
+        return editsVersion;
+    }
+
+    public Map<String, Protocol.Edit> editsSnapshot() {
+        Map<String, Protocol.Edit> snapshot = new HashMap<>();
+        edits.values().forEach(snapshot::putAll);
+        return Map.copyOf(snapshot);
+    }
+
+    /** Full columns take over from distant terrain only once all nonempty chunks have a mesh. */
+    public Set<ChunkPos> renderedColumns() {
+        Set<ChunkPos> columns = new HashSet<>(), incomplete = new HashSet<>();
+        for (var e : loadedChunks.entrySet()) {
+            ChunkPos p = new ChunkPos(e.getKey().chunkX(), 0, e.getKey().chunkZ());
+            columns.add(p);
+            if (!e.getValue().isEmpty() && e.getValue().getMesh() == null) incomplete.add(p);
+        }
+        columns.removeAll(incomplete);
+        return columns;
     }
 
     public ModelLibrary models() {
@@ -81,6 +104,7 @@ public class World implements AutoCloseable {
     public void setBlock(int x, int y, int z, int type) {
         ChunkPos p = ChunkPos.fromBlock(x, y, z);
         var e = new Protocol.Edit(x, y, z, type);
+        editsVersion++;
         edits.computeIfAbsent(p, k -> new HashMap<>()).put(e.key(), e);
         Chunk c = loadedChunks.get(p);
         if (c != null)

@@ -304,6 +304,8 @@ public final class ModelEditor implements AutoCloseable {
                 20, h - 100 - (int) l.previewHeight, (int) l.previewWidth, (int) l.previewHeight);
         shader.bind();
         shader.setInt("uInstanced", 0);
+        shader.setInt("uDistantTerrain", 0);
+        shader.setInt("uFog", 0);
         shader.setInt("uVertexColor", 1);
         shader.setVector3("uLightDirection", -.4f, -1, -.3f);
         float span = .8f / zoom, aspect = l.previewWidth / l.previewHeight;

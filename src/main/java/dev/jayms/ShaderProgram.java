@@ -73,6 +73,10 @@ public final class ShaderProgram implements AutoCloseable {
         glUniform1i(glGetUniformLocation(programId, name), value);
     }
 
+    public void setInts(String name, int[] values) {
+        glUniform1iv(glGetUniformLocation(programId, name), values);
+    }
+
     public void setVector3(String name, float x, float y, float z) {
         int location = glGetUniformLocation(programId, name);
 

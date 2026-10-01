@@ -34,6 +34,7 @@ public class Main {
     private Player player;
     private PlayerModel playerModel;
     private VoxelModelRenderer modelRenderer;
+    private DistantTerrainRenderer distant;
     private ModelEditor editor;
     private int modelResults;
     private World world;
@@ -129,6 +130,8 @@ public class Main {
             while (surface > Terrain.MIN_Y && world.sample(8, surface, 24) == 0) surface--;
             player = new Player(new Vector3f(8.5f, surface + 1.01f, 24.5f), -90, -20, camera);
         }
+        distant = new DistantTerrainRenderer(seed);
+        distant.update(world, player.position().x, player.position().z);
         player.resolvePenetration(world);
         configureInput();
         setCaptured(true);
@@ -450,8 +453,11 @@ public class Main {
             editor.renderPreview(shader, framebufferWidth, framebufferHeight);
             return;
         }
+        var location = player.position();
+        distant.update(world, location.x, location.z);
         if (isometric)
-            projection.set(overview.projection(world, framebufferWidth, framebufferHeight));
+            projection.set(
+                    overview.projection(distant.bounds(), framebufferWidth, framebufferHeight));
         else
             projection
                     .identity()
@@ -459,7 +465,7 @@ public class Main {
                             (float) Math.toRadians(70),
                             (float) framebufferWidth / framebufferHeight,
                             .1f,
-                            300);
+                            DistantTerrainPlan.RADIUS * 2);
         view.set((isometric ? overview.camera() : camera).createViewMatrix());
         frustum.set(new Matrix4f(projection).mul(view));
         shader.bind();
@@ -468,9 +474,36 @@ public class Main {
         shader.setVector3("uLightDirection", -.4f, -1, -.3f);
         shader.setInt("uVertexColor", 1);
         shader.setInt("uInstanced", 0);
+        shader.setInt("uDistantTerrain", 0);
+        shader.setInt("uFog", isometric ? 0 : 1);
+        shader.setVector3(
+                "uCameraPosition", camera.position().x, camera.position().y, camera.position().z);
+        // Build complete nearby columns first, including their offscreen chunks, before replacing
+        // the background approximation. Air chunks consume neither GPU buffers nor mesh budget.
+        var chunks = new ArrayList<>(world.getLoadedChunks().entrySet());
+        chunks.sort(
+                Comparator.comparingDouble(
+                        e -> {
+                            float dx = e.getKey().chunkX() * 16 + 8 - location.x;
+                            float dz = e.getKey().chunkZ() * 16 + 8 - location.z;
+                            return dx * dx + dz * dz;
+                        }));
         int meshBudget = 3;
+        for (var entry : chunks) {
+            Chunk c = entry.getValue();
+            if (!c.dirty()) continue;
+            if (c.isEmpty()) {
+                c.checkMesh();
+                continue;
+            }
+            c.checkMesh();
+            if (--meshBudget == 0) break;
+        }
+        var detailed = world.renderedColumns();
+        distant.render(shader, frustum, detailed);
         for (var entry : world.getLoadedChunks().entrySet()) {
             ChunkPos p = entry.getKey();
+            if (!detailed.contains(new ChunkPos(p.chunkX(), 0, p.chunkZ()))) continue;
             if (!frustum.testAab(
                     p.chunkX() * 16,
                     p.chunkY() * 16,
@@ -482,10 +515,6 @@ public class Main {
                     "uModel",
                     new Matrix4f().translation(p.chunkX() * 16, p.chunkY() * 16, p.chunkZ() * 16));
             Chunk c = entry.getValue();
-            if (c.dirty() && meshBudget > 0) {
-                c.checkMesh();
-                meshBudget--;
-            }
             if (c.getMesh() != null) c.getMesh().render();
         }
         modelRenderer.render(world, frustum, shader);
@@ -503,6 +532,7 @@ public class Main {
             }
         if (!isometric && !player.thirdPerson()) {
             glClear(GL_DEPTH_BUFFER_BIT);
+            shader.setInt("uFog", 0);
             shader.setMatrix4(
                     "uProjection",
                     new Matrix4f()
@@ -542,7 +572,9 @@ public class Main {
         overlay.text(
                 (network == null ? "Offline" : network.status())
                         + " | "
-                        + (isometric ? "ISOMETRIC" : player.flying() ? "FLYING" : "WALKING"),
+                        + (isometric
+                                ? "ISOMETRIC | 4096 x 4096 BLOCKS"
+                                : player.flying() ? "FLYING" : "WALKING"),
                 22,
                 22,
                 1.8f);
@@ -653,6 +685,7 @@ public class Main {
     private void cleanup() throws Exception {
         if (local != null) local.save();
         if (network != null) network.close();
+        if (distant != null) distant.close();
         if (world != null) world.close();
         if (playerModel != null) playerModel.close();
         if (modelRenderer != null) modelRenderer.close();

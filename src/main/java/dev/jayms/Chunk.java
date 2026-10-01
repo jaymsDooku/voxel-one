@@ -14,6 +14,12 @@ public class Chunk implements AutoCloseable {
 
     private int[] blocks = new int[WIDTH * LENGTH * HEIGHT];
     private boolean dirty = true;
+    private int occupied;
+
+    public boolean isEmpty() {
+        return occupied == 0;
+    }
+
     private Mesh mesh;
     private World world;
     private ChunkPos position;
@@ -53,6 +59,8 @@ public class Chunk implements AutoCloseable {
         }
 
         int i = index(x, y, z);
+        if (blocks[i] == 0 && color != 0) occupied++;
+        if (blocks[i] != 0 && color == 0) occupied--;
         blocks[i] = color;
         if (dev.jayms.net.Blocks.isModel(color)) models.put(i, color);
         else models.remove(i);
@@ -80,6 +88,8 @@ public class Chunk implements AutoCloseable {
 
     public void generateMesh() {
         if (mesh != null) mesh.close();
+        mesh = null;
+        if (isEmpty()) return;
         mesh = new Mesh(MeshDataGenerator.generate(this));
     }
 

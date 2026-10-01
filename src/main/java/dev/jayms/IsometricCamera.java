@@ -5,7 +5,7 @@ import dev.jayms.net.Terrain;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-/** Orthographic sky view fitted to the currently loaded chunk footprint. */
+/** Orthographic sky view fitted to the visible world footprint, including distant terrain. */
 public final class IsometricCamera {
     private final Camera camera = new Camera();
     private float zoom = 1;
@@ -29,7 +29,7 @@ public final class IsometricCamera {
                 Math.max(
                         .25f,
                         Math.min(
-                                8,
+                                64,
                                 zoom * (float) Math.pow(1.15, Math.max(-20, Math.min(20, steps)))));
     }
 
@@ -38,23 +38,19 @@ public final class IsometricCamera {
     }
 
     public Matrix4f projection(World world, int width, int height) {
-        float minX = Float.POSITIVE_INFINITY,
-                minZ = minX,
-                maxX = Float.NEGATIVE_INFINITY,
-                maxZ = maxX;
-        for (ChunkPos p : world.getLoadedChunks().keySet()) {
-            minX = Math.min(minX, p.chunkX() * 16);
-            maxX = Math.max(maxX, p.chunkX() * 16 + 16);
-            minZ = Math.min(minZ, p.chunkZ() * 16);
-            maxZ = Math.max(maxZ, p.chunkZ() * 16 + 16);
-        }
-        if (!Float.isFinite(minX)) {
-            minX = minZ = 0;
-            maxX = maxZ = 16;
-        }
+        return projection(WorldBounds.loaded(world), width, height);
+    }
+
+    public Matrix4f projection(WorldBounds bounds, int width, int height) {
+        float minX = bounds.minX(),
+                minZ = bounds.minZ(),
+                maxX = bounds.maxX(),
+                maxZ = bounds.maxZ();
         float minY = Terrain.MIN_Y, maxY = Terrain.MAX_Y + 1;
         Vector3f center = new Vector3f((minX + maxX) / 2, (minY + maxY) / 2, (minZ + maxZ) / 2);
-        camera.position().set(center).fma(-320, camera.getDirection());
+        float radius = new Vector3f(maxX - minX, maxY - minY, maxZ - minZ).length() / 2;
+        float distance = radius + 128;
+        camera.position().set(center).fma(-distance, camera.getDirection());
         Matrix4f view = camera.createViewMatrix();
         float aspect = (float) Math.max(1, width) / Math.max(1, height), extent = 1;
         float usableWidth = Math.max(1, width - 40), usableHeight = Math.max(1, height - 220);
@@ -79,6 +75,6 @@ public final class IsometricCamera {
                         offset - halfHeight,
                         offset + halfHeight,
                         .1f,
-                        1000);
+                        distance + radius + 128);
     }
 }

@@ -69,12 +69,34 @@ class IsometricCameraTest {
         overview.zoom(3);
         assertTrue(overview.projection(world, 1280, 720).m00() > before);
         for (int i = 0; i < 100; i++) overview.zoom(20);
-        assertEquals(8, overview.zoom());
+        assertEquals(64, overview.zoom());
         overview.zoom(Double.NaN);
-        assertEquals(8, overview.zoom());
+        assertEquals(64, overview.zoom());
         for (int i = 0; i < 100; i++) overview.zoom(-20);
         assertEquals(.25f, overview.zoom());
         overview.fit();
         assertEquals(before, overview.projection(world, 1280, 720).m00(), 1e-6);
+    }
+
+    @Test
+    void overviewFitsDistantTerrainWithoutDepthClippingAtBothAspectRatios() {
+        var bounds = new DistantTerrainPlan(-160, -272).bounds();
+        var overview = new IsometricCamera();
+        for (int[] size : new int[][] {{1280, 720}, {640, 1000}}) {
+            Matrix4f combined =
+                    overview.projection(bounds, size[0], size[1])
+                            .mul(overview.camera().createViewMatrix());
+            for (float x : new float[] {bounds.minX(), bounds.maxX()})
+                for (float z : new float[] {bounds.minZ(), bounds.maxZ()})
+                    for (float y : new float[] {-32, 96}) {
+                        Vector4f clip = combined.transform(new Vector4f(x, y, z, 1));
+                        assertTrue(
+                                Math.abs(clip.x) < 1
+                                        && Math.abs(clip.y) < 1
+                                        && Math.abs(clip.z) < 1);
+                        float sy = (.5f - clip.y * .5f) * size[1];
+                        assertTrue(sy > 80 && sy < size[1] - 140);
+                    }
+        }
     }
 }
