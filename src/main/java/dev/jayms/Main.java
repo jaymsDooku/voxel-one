@@ -28,6 +28,8 @@ public class Main {
     private Overlay overlay;
     private ShaderProgram shader;
     private Camera camera;
+    private final IsometricCamera overview = new IsometricCamera();
+    private boolean isometric;
     private Player player;
     private PlayerModel playerModel;
     private World world;
@@ -185,6 +187,7 @@ public class Main {
                 window.getHandle(),
                 (handle, x, y) -> {
                     if (menu.open) menu.scroll(y);
+                    else if (isometric && !inventoryHud.open) overview.zoom(y);
                     else if (captured) inventoryHud.scroll(y);
                 });
         glfwSetWindowFocusCallback(
@@ -214,6 +217,32 @@ public class Main {
             }
             return;
         }
+        if (controls.matches(ISOMETRIC, code)) {
+            isometric = !isometric;
+            if (isometric) overview.fit();
+            setCaptured(!isometric);
+            return;
+        }
+        if (isometric) {
+            if (controls.matches(ZOOM_IN, code)) {
+                overview.zoom(1);
+                return;
+            }
+            if (controls.matches(ZOOM_OUT, code)) {
+                overview.zoom(-1);
+                return;
+            }
+            if (controls.matches(FIT_VIEW, code)) {
+                overview.fit();
+                return;
+            }
+            if (controls.matches(VIEW, code)) {
+                isometric = false;
+                player.toggleView();
+                setCaptured(true);
+                return;
+            }
+        }
         if (controls.matches(INVENTORY, code)) {
             inventoryHud.toggle();
             setCaptured(false);
@@ -237,6 +266,7 @@ public class Main {
     }
 
     private void setCaptured(boolean value) {
+        value = value && !isometric;
         captured = value;
         firstMouse = true;
         glfwSetInputMode(
@@ -313,7 +343,7 @@ public class Main {
                     "Voxel One | "
                             + (network == null ? "Offline" : network.status())
                             + " | "
-                            + (player.flying() ? "Flying" : "Walking")
+                            + (isometric ? "Isometric" : player.flying() ? "Flying" : "Walking")
                             + " | "
                             + (menu.open
                                     ? "Controls menu"
@@ -329,14 +359,17 @@ public class Main {
     }
 
     private void render() {
-        projection
-                .identity()
-                .perspective(
-                        (float) Math.toRadians(70),
-                        (float) framebufferWidth / framebufferHeight,
-                        .1f,
-                        300);
-        view.set(camera.createViewMatrix());
+        if (isometric)
+            projection.set(overview.projection(world, framebufferWidth, framebufferHeight));
+        else
+            projection
+                    .identity()
+                    .perspective(
+                            (float) Math.toRadians(70),
+                            (float) framebufferWidth / framebufferHeight,
+                            .1f,
+                            300);
+        view.set((isometric ? overview.camera() : camera).createViewMatrix());
         frustum.set(new Matrix4f(projection).mul(view));
         shader.bind();
         shader.setMatrix4("uProjection", projection);
@@ -366,7 +399,7 @@ public class Main {
         for (ItemDrop drop : drops().values())
             if (player.position().distanceSquared(drop.x(), drop.y(), drop.z()) < 10000)
                 playerModel.renderDrop(drop, (float) glfwGetTime(), shader);
-        if (player.thirdPerson()) playerModel.render(player, shader);
+        if (isometric || player.thirdPerson()) playerModel.render(player, shader);
         if (network != null)
             for (var remote : network.remotePlayers.values()) {
                 var p = remote.sample(System.nanoTime());
@@ -388,7 +421,7 @@ public class Main {
                 var p = remote.sample(System.nanoTime());
                 if (p != null) nameplate(remote.name, new Vector3f(p.x(), p.y() + 2.15f, p.z()));
             }
-        if (player.thirdPerson())
+        if (isometric || player.thirdPerson())
             nameplate(
                     network == null ? "Offline player" : network.username,
                     player.position().add(0, 2.15f, 0));
@@ -402,16 +435,27 @@ public class Main {
         overlay.text(
                 (network == null ? "Offline" : network.status())
                         + " | "
-                        + (player.flying() ? "FLYING" : "WALKING"),
+                        + (isometric ? "ISOMETRIC" : player.flying() ? "FLYING" : "WALKING"),
                 22,
                 22,
                 1.8f);
         overlay.text(
-                "Esc: controls | "
-                        + Controls.keyName(controls.code(FLY))
-                        + ": flight | "
-                        + Controls.keyName(controls.code(VIEW))
-                        + ": camera",
+                isometric
+                        ? Controls.keyName(controls.code(ISOMETRIC))
+                                + ": return | Wheel / "
+                                + Controls.keyName(controls.code(ZOOM_IN))
+                                + " / "
+                                + Controls.keyName(controls.code(ZOOM_OUT))
+                                + ": zoom | "
+                                + Controls.keyName(controls.code(FIT_VIEW))
+                                + ": fit world"
+                        : "Esc: controls | "
+                                + Controls.keyName(controls.code(FLY))
+                                + ": flight | "
+                                + Controls.keyName(controls.code(VIEW))
+                                + ": camera | "
+                                + Controls.keyName(controls.code(ISOMETRIC))
+                                + ": sky view",
                 22,
                 44,
                 1.5f);
@@ -440,15 +484,15 @@ public class Main {
     }
 
     private void nameplate(String name, Vector3f position) {
-        float distance = camera.position().distance(position);
-        if (distance > 70) return;
+        float distance = player.position().distance(position);
+        if (!isometric && distance > 70) return;
         Vector4f clip = new Vector4f(position, 1);
         view.transform(clip);
         projection.transform(clip);
         if (clip.w <= 0 || clip.z < -clip.w || clip.z > clip.w) return;
         float x = (clip.x / clip.w * .5f + .5f) * framebufferWidth,
                 y = (.5f - clip.y / clip.w * .5f) * framebufferHeight;
-        float scale = Math.max(1.3f, Math.min(2.3f, 16 / Math.max(1, distance)));
+        float scale = isometric ? 1.3f : Math.max(1.3f, Math.min(2.3f, 16 / Math.max(1, distance)));
         float width = overlay.textWidth(name, scale);
         overlay.rectangle(x - width / 2 - 9, y - 6, width + 18, 22 * scale, .03f, .18f, .24f, .5f);
         overlay.rectangle(x - width / 2 - 9, y - 6, width + 18, 1, .2f, .9f, 1, .8f);
@@ -457,6 +501,7 @@ public class Main {
     }
 
     private void interact(boolean place) {
+        if (isometric) return;
         if (network != null && !network.connected()) {
             notice = "Disconnected: reconnect to edit the world.";
             return;
@@ -515,7 +560,7 @@ public class Main {
                 default ->
                         throw new IllegalArgumentException(
                                 "Usage: --server HOST --port PORT --fingerprint SHA256 --offline"
-                                    + " --world FILE --seed NUMBER");
+                                        + " --world FILE --seed NUMBER");
             }
         Main game = new Main();
         game.seed = seed;

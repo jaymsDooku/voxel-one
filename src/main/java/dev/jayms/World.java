@@ -87,6 +87,7 @@ public class World implements AutoCloseable {
             if (Math.abs(e.getKey().chunkX() - cx) > 6 || Math.abs(e.getKey().chunkZ() - cz) > 6) {
                 e.getValue().close();
                 it.remove();
+                dirtyNeighbors(e.getKey());
             }
         }
         int generated = 0;

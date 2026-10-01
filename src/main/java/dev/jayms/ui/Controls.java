@@ -30,7 +30,11 @@ public final class Controls {
         SLOT_6("Hotbar slot 6", GLFW_KEY_6),
         SLOT_7("Hotbar slot 7", GLFW_KEY_7),
         SLOT_8("Hotbar slot 8", GLFW_KEY_8),
-        SLOT_9("Hotbar slot 9", GLFW_KEY_9);
+        SLOT_9("Hotbar slot 9", GLFW_KEY_9),
+        ISOMETRIC("Isometric sky view", GLFW_KEY_F6),
+        ZOOM_IN("Sky view: zoom in", GLFW_KEY_EQUAL),
+        ZOOM_OUT("Sky view: zoom out", GLFW_KEY_MINUS),
+        FIT_VIEW("Sky view: fit world", GLFW_KEY_HOME);
         public final String label;
         public final int defaultCode;
 
@@ -149,6 +153,7 @@ public final class Controls {
                 default -> "Mouse " + -code;
             };
         return switch (code) {
+            case GLFW_KEY_HOME -> "Home";
             case GLFW_KEY_SPACE -> "Space";
             case GLFW_KEY_LEFT_SHIFT -> "Left Shift";
             case GLFW_KEY_RIGHT_SHIFT -> "Right Shift";

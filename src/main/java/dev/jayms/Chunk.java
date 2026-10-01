@@ -26,12 +26,11 @@ public class Chunk implements AutoCloseable {
     }
 
     public int neighbor(int x, int y, int z) {
-        return inside(x, y, z) || world == null
-                ? getBlock(x, y, z)
-                : world.sample(
-                        position.chunkX() * 16 + x,
-                        position.chunkY() * 16 + y,
-                        position.chunkZ() * 16 + z);
+        if (inside(x, y, z) || world == null) return getBlock(x, y, z);
+        int wx = position.chunkX() * 16 + x,
+                wy = position.chunkY() * 16 + y,
+                wz = position.chunkZ() * 16 + z;
+        return world.isLoaded(wx, wy, wz) ? world.getBlock(wx, wy, wz) : 0;
     }
 
     public int getBlock(int x, int y, int z) {
