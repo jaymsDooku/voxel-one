@@ -13,6 +13,11 @@ public final class MultiplayerClient implements AutoCloseable {
     public final int id;
     public final String username;
     public final Protocol.Pose spawn;
+    public final long seed;
+    public Inventory inventory;
+    public int health = 20;
+    public final Map<Integer, ItemDrop> drops = new LinkedHashMap<>();
+    public Protocol.Pose respawn;
     public final List<Protocol.Edit> initialEdits = new ArrayList<>();
     public final Map<Integer, Protocol.Pose> players = new HashMap<>();
     public final Map<Integer, String> names = new HashMap<>();
@@ -52,6 +57,9 @@ public final class MultiplayerClient implements AutoCloseable {
             id = in.readInt();
             spawn = Protocol.Pose.read(in);
             this.username = Protocol.readText(in, 16);
+            seed = in.readLong();
+            inventory = Inventory.read(in);
+            health = in.readUnsignedByte();
             int count = in.readInt();
             if (count < 0 || count > 2000000) throw new IOException("Invalid world snapshot");
             for (int i = 0; i < count; i++) {
@@ -65,6 +73,12 @@ public final class MultiplayerClient implements AutoCloseable {
                 var p = Protocol.Pose.read(in);
                 String name = Protocol.readText(in, 16);
                 join(p, name);
+            }
+            count = in.readInt();
+            if (count < 0 || count > 100000) throw new IOException("Invalid item snapshot");
+            for (int i = 0; i < count; i++) {
+                ItemDrop drop = ItemDrop.read(in);
+                if (drop.count() > 0) drops.put(drop.id(), drop);
             }
             out.writeByte(Protocol.READY);
             out.flush();
@@ -136,8 +150,27 @@ public final class MultiplayerClient implements AutoCloseable {
                                 if (!accepted)
                                     notice =
                                             "Placement rejected: occupied block, player overlap, or"
-                                                + " out of reach.";
+                                                    + " out of reach.";
                             };
+                } else if (type == Protocol.INVENTORY) {
+                    Inventory state = Inventory.read(in);
+                    int hp = in.readUnsignedByte();
+                    if (hp > 20) throw new IOException("Invalid health");
+                    event =
+                            () -> {
+                                inventory = state;
+                                health = hp;
+                            };
+                } else if (type == Protocol.DROP) {
+                    ItemDrop d = ItemDrop.read(in);
+                    event =
+                            () -> {
+                                if (d.count() == 0) drops.remove(d.id());
+                                else drops.put(d.id(), d);
+                            };
+                } else if (type == Protocol.RESPAWN) {
+                    var p = Protocol.Pose.read(in);
+                    event = () -> respawn = p;
                 } else if (type == Protocol.READY) {
                     event =
                             () -> {
@@ -200,7 +233,21 @@ public final class MultiplayerClient implements AutoCloseable {
                 });
     }
 
-    public boolean edit(Protocol.Edit e, Protocol.Pose currentPose) {
+    public void swap(int a, int b) {
+        send(
+                () -> {
+                    out.writeByte(Protocol.SWAP);
+                    out.writeByte(a);
+                    out.writeByte(b);
+                    out.flush();
+                });
+    }
+
+    public boolean edit(Protocol.Edit e, Protocol.Pose pose) {
+        return edit(e, pose, 0);
+    }
+
+    public boolean edit(Protocol.Edit e, Protocol.Pose currentPose, int slot) {
         if (!connected || pending(e)) return false;
         int request = ++nextRequest;
         pending.put(request, e);
@@ -208,7 +255,7 @@ public final class MultiplayerClient implements AutoCloseable {
                 send(
                         () -> {
                             out.writeByte(Protocol.BLOCK);
-                            new Protocol.BlockRequest(request, currentPose, e).write(out);
+                            new Protocol.BlockRequest(request, currentPose, e, slot).write(out);
                             out.flush();
                         });
         if (!queued) pending.remove(request);

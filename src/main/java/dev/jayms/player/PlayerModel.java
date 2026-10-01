@@ -32,6 +32,7 @@ public class PlayerModel implements AutoCloseable {
             float phase,
             float amount,
             ShaderProgram shader) {
+        shader.setInt("uVertexColor", 0);
         Matrix4f root =
                 new Matrix4f().translate(position).rotateY((float) Math.toRadians(-yaw - 90));
         float swing = (float) Math.sin(phase) * .65f * amount;
@@ -49,6 +50,23 @@ public class PlayerModel implements AutoCloseable {
         shader.setVector3("uColor", .12f, .16f, .24f);
         limb(shader, root, -.13f, .7f, -swing, .22f, .7f, .3f);
         limb(shader, root, .13f, .7f, swing, .22f, .7f, .3f);
+    }
+
+    public void renderDrop(dev.jayms.net.ItemDrop drop, float time, ShaderProgram shader) {
+        shader.setInt("uVertexColor", 0);
+        float[] c = dev.jayms.net.Blocks.color(drop.type());
+        shader.setVector3("uColor", c[0], c[1], c[2]);
+        box(
+                shader,
+                new Matrix4f()
+                        .translate(
+                                drop.x(),
+                                drop.y() + .06f * (float) Math.sin(time * 3 + drop.id()),
+                                drop.z())
+                        .rotateY(time + drop.id()),
+                .25f,
+                .25f,
+                .25f);
     }
 
     private void limb(

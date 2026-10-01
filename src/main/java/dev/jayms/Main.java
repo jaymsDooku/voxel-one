@@ -31,6 +31,11 @@ public class Main {
     private Player player;
     private PlayerModel playerModel;
     private World world;
+    private InventoryHud inventoryHud = new InventoryHud();
+    private LocalGame local;
+    private long seed = Terrain.DEFAULT_SEED;
+    private java.nio.file.Path offlineSave = Controls.directory().resolve("offline-world.dat");
+    private double nextSave;
     private boolean captured = true, firstMouse = true;
     private double mouseX, mouseY, nextNetworkUpdate;
     private int framebufferWidth = 1280, framebufferHeight = 720;
@@ -82,23 +87,39 @@ public class Main {
         window.show();
     }
 
-    private void initScene() {
+    private void initScene() throws Exception {
         shader = new ShaderProgram("shaders/voxel.vert", "shaders/voxel.frag");
         overlay = new Overlay();
         camera = new Camera();
         playerModel = new PlayerModel();
-        world = new World();
-        for (int x = -4; x <= 4; x++)
-            for (int z = -4; z <= 4; z++)
-                for (int y = -2; y <= 2; y++) {
-                    ChunkPos p = new ChunkPos(x, y, z);
-                    world.addChunk(p, ChunkGenerator.generate(p));
-                }
-        player = new Player(new Vector3f(8.5f, Protocol.spawnY(), 24.5f), -90, -20, camera);
-        if (network != null) {
-            for (var e : network.initialEdits) world.setBlock(e.x(), e.y(), e.z(), e.type());
-            var p = network.spawn;
-            player = new Player(new Vector3f(p.x(), p.y(), p.z()), p.yaw(), p.pitch(), camera);
+        if (network == null) {
+            local = new LocalGame(offlineSave, seed);
+            seed = local.seed;
+        } else seed = network.seed;
+        world = new World(seed);
+        for (var e : network == null ? local.edits.values() : network.initialEdits)
+            world.setBlock(e.x(), e.y(), e.z(), e.type());
+        Protocol.Pose spawn =
+                network == null
+                        ? new Protocol.Pose(
+                                0,
+                                8.5f,
+                                world.terrain().column(8, 24).height() + 1.01f,
+                                24.5f,
+                                -90,
+                                -20)
+                        : network.spawn;
+        player =
+                new Player(
+                        new Vector3f(spawn.x(), spawn.y(), spawn.z()),
+                        spawn.yaw(),
+                        spawn.pitch(),
+                        camera);
+        world.stream(spawn.x(), spawn.z(), 9);
+        if (network == null) {
+            int surface = Terrain.MAX_Y;
+            while (surface > Terrain.MIN_Y && world.sample(8, surface, 24) == 0) surface--;
+            player = new Player(new Vector3f(8.5f, surface + 1.01f, 24.5f), -90, -20, camera);
         }
         player.resolvePenetration(world);
         configureInput();
@@ -131,6 +152,21 @@ public class Main {
                 window.getHandle(),
                 (handle, button, action, mods) -> {
                     if (action != GLFW_PRESS) return;
+                    if (inventoryHud.open) {
+                        int[] size = window.getSize();
+                        if (button == GLFW_MOUSE_BUTTON_LEFT)
+                            inventoryHud.click(
+                                    (float) mouseX * framebufferWidth / size[0],
+                                    (float) mouseY * framebufferHeight / size[1],
+                                    framebufferWidth,
+                                    framebufferHeight,
+                                    inventory(),
+                                    (a, b) -> {
+                                        if (network == null) local.inventory.swap(a, b);
+                                        else network.swap(a, b);
+                                    });
+                        return;
+                    }
                     if (menu.open) {
                         int[] size = window.getSize();
                         menu.click(
@@ -145,17 +181,49 @@ public class Main {
                     }
                     input(-button - 1);
                 });
+        glfwSetScrollCallback(
+                window.getHandle(),
+                (handle, x, y) -> {
+                    if (menu.open) menu.scroll(y);
+                    else if (captured) inventoryHud.scroll(y);
+                });
         glfwSetWindowFocusCallback(
                 window.getHandle(),
                 (handle, focused) -> {
                     if (!focused) {
+                        inventoryHud.close();
                         menu.open = true;
                         setCaptured(false);
                     }
                 });
     }
 
+    private Inventory inventory() {
+        return network == null ? local.inventory : network.inventory;
+    }
+
+    private Map<Integer, ItemDrop> drops() {
+        return network == null ? local.drops : network.drops;
+    }
+
     private void input(int code) {
+        if (inventoryHud.open) {
+            if (code == GLFW_KEY_ESCAPE || controls.matches(INVENTORY, code)) {
+                inventoryHud.close();
+                setCaptured(true);
+            }
+            return;
+        }
+        if (controls.matches(INVENTORY, code)) {
+            inventoryHud.toggle();
+            setCaptured(false);
+            return;
+        }
+        for (int i = 0; i < 9; i++)
+            if (controls.matches(Controls.Action.values()[SLOT_1.ordinal() + i], code)) {
+                inventoryHud.selected = i;
+                return;
+            }
         if (code == GLFW_KEY_ESCAPE || controls.matches(MENU, code)) {
             menu.toggle();
             setCaptured(!menu.open);
@@ -175,7 +243,7 @@ public class Main {
                 window.getHandle(), GLFW_CURSOR, value ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
     }
 
-    private void loop() {
+    private void loop() throws Exception {
         double previous = glfwGetTime();
         while (!window.shouldClose()) {
             double now = glfwGetTime();
@@ -192,6 +260,15 @@ public class Main {
                 }
                 if (!network.notice().isEmpty()) notice = network.notice();
             }
+            if (network != null && network.respawn != null) {
+                var p = network.respawn;
+                world.stream(p.x(), p.z(), 9);
+                player = new Player(new Vector3f(p.x(), p.y(), p.z()), p.yaw(), p.pitch(), camera);
+                network.respawn = null;
+                notice = "You respawned. Your inventory was kept.";
+            }
+            var location = player.position();
+            world.stream(location.x, location.z, 2);
             float forward =
                     captured
                             ? (controls.down(window.getHandle(), FORWARD) ? 1 : 0)
@@ -210,6 +287,22 @@ public class Main {
                     captured && controls.down(window.getHandle(), JUMP),
                     captured && controls.down(window.getHandle(), SPRINT),
                     captured && controls.down(window.getHandle(), DESCEND));
+            if (local != null) {
+                if (local.tick(
+                        player.pose(0),
+                        player.grounded(),
+                        dt,
+                        e -> world.sample(e.x(), e.y(), e.z()))) {
+                    float y = world.terrain().column(8, 24).height() + 1.01f;
+                    world.stream(8, 24, 9);
+                    player = new Player(new Vector3f(8.5f, y, 24.5f), -90, -20, camera);
+                    notice = "You respawned. Your inventory was kept.";
+                }
+                if (now >= nextSave) {
+                    local.save();
+                    nextSave = now + 60;
+                }
+            }
             player.updateCamera(world);
             if (network != null && now >= nextNetworkUpdate) {
                 network.move(player.pose(network.id));
@@ -222,7 +315,9 @@ public class Main {
                             + " | "
                             + (player.flying() ? "Flying" : "Walking")
                             + " | "
-                            + (menu.open ? "Controls menu" : "Esc controls"));
+                            + (menu.open
+                                    ? "Controls menu"
+                                    : inventoryHud.open ? "Inventory" : "Esc controls"));
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             if (framebufferWidth > 0 && framebufferHeight > 0) {
                 render();
@@ -247,7 +342,8 @@ public class Main {
         shader.setMatrix4("uProjection", projection);
         shader.setMatrix4("uView", view);
         shader.setVector3("uLightDirection", -.4f, -1, -.3f);
-        shader.setVector3("uColor", .35f, .70f, .25f);
+        shader.setInt("uVertexColor", 1);
+        int meshBudget = 3;
         for (var entry : world.getLoadedChunks().entrySet()) {
             ChunkPos p = entry.getKey();
             if (!frustum.testAab(
@@ -261,9 +357,15 @@ public class Main {
                     "uModel",
                     new Matrix4f().translation(p.chunkX() * 16, p.chunkY() * 16, p.chunkZ() * 16));
             Chunk c = entry.getValue();
-            c.checkMesh();
-            c.getMesh().render();
+            if (c.dirty() && meshBudget > 0) {
+                c.checkMesh();
+                meshBudget--;
+            }
+            if (c.getMesh() != null) c.getMesh().render();
         }
+        for (ItemDrop drop : drops().values())
+            if (player.position().distanceSquared(drop.x(), drop.y(), drop.z()) < 10000)
+                playerModel.renderDrop(drop, (float) glfwGetTime(), shader);
         if (player.thirdPerson()) playerModel.render(player, shader);
         if (network != null)
             for (var remote : network.remotePlayers.values()) {
@@ -313,8 +415,26 @@ public class Main {
                 22,
                 44,
                 1.5f);
-        if (!notice.isEmpty())
-            overlay.text(notice, 20, framebufferHeight - 28, 1.4f, 1, .8f, .4f, 1);
+        var pos = player.position();
+        overlay.text(
+                world.terrain()
+                                .column((int) Math.floor(pos.x), (int) Math.floor(pos.z))
+                                .biome()
+                                .name()
+                                .replace('_', ' ')
+                        + " | Seed "
+                        + seed,
+                22,
+                76,
+                1.4f);
+        inventoryHud.render(
+                overlay,
+                inventory(),
+                network == null ? local.health : network.health,
+                framebufferWidth,
+                framebufferHeight,
+                controls);
+        if (!notice.isEmpty()) overlay.text(notice, 20, 99, 1.4f, 1, .8f, .4f, 1);
         menu.render(overlay, framebufferWidth, framebufferHeight);
         overlay.end();
     }
@@ -349,10 +469,16 @@ public class Main {
         if (!world.isLoaded(x, y, z)
                 || place && world.getBlock(x, y, z) != 0
                 || place && player.overlaps(x, y, z)) return;
-        Protocol.Edit edit =
-                new Protocol.Edit(x, y, z, place ? ChunkGenerator.STONE : ChunkGenerator.AIR);
-        if (network == null) world.setBlock(x, y, z, edit.type());
-        else if (network.edit(edit, player.pose(network.id))) {
+        int type = place ? inventory().type(inventoryHud.selected) : 0;
+        if (place && type == 0) {
+            notice = "This slot is empty. Break blocks and walk near their drops to collect items.";
+            return;
+        }
+        Protocol.Edit edit = new Protocol.Edit(x, y, z, type);
+        if (network == null) {
+            if (local.edit(edit, world.getBlock(x, y, z), inventoryHud.selected))
+                world.setBlock(x, y, z, edit.type());
+        } else if (network.edit(edit, player.pose(network.id), inventoryHud.selected)) {
             predicted.put(edit.key(), new Protocol.Edit(x, y, z, world.getBlock(x, y, z)));
             // Reserve it immediately so movement cannot enter an unconfirmed solid block.
             world.setBlock(x, y, z, edit.type());
@@ -360,6 +486,7 @@ public class Main {
     }
 
     private void cleanup() throws Exception {
+        if (local != null) local.save();
         if (network != null) network.close();
         if (world != null) world.close();
         if (playerModel != null) playerModel.close();
@@ -375,17 +502,24 @@ public class Main {
         String host = null, pin = null;
         int port = Protocol.PORT;
         boolean offline = false;
+        long seed = Terrain.DEFAULT_SEED;
+        java.nio.file.Path save = Controls.directory().resolve("offline-world.dat");
         for (int i = 0; i < args.length; i++)
             switch (args[i]) {
                 case "--server" -> host = args[++i];
                 case "--port" -> port = Integer.parseInt(args[++i]);
                 case "--fingerprint" -> pin = args[++i];
+                case "--seed" -> seed = Long.parseLong(args[++i]);
+                case "--world" -> save = java.nio.file.Path.of(args[++i]);
                 case "--offline" -> offline = true;
                 default ->
                         throw new IllegalArgumentException(
-                                "Usage: --server HOST --port PORT --fingerprint SHA256 --offline");
+                                "Usage: --server HOST --port PORT --fingerprint SHA256 --offline"
+                                    + " --world FILE --seed NUMBER");
             }
         Main game = new Main();
+        game.seed = seed;
+        game.offlineSave = save;
         try {
             if (!offline) {
                 try {

@@ -6,8 +6,8 @@ import java.util.List;
 public final class MeshDataGenerator {
 
     private static final int[] FACE_INDICES = {
-            0, 1, 2,
-            2, 3, 0
+        0, 1, 2,
+        2, 3, 0
     };
 
     public static MeshData generate(Chunk chunk) {
@@ -28,11 +28,19 @@ public final class MeshDataGenerator {
                         int nY = y + face.dy();
                         int nZ = z + face.dz();
 
-                        if (chunk.getBlock(nX, nY, nZ) != 0) {
+                        if (chunk.neighbor(nX, nY, nZ) != 0) {
                             continue;
                         }
 
-                        addFace(vertices, indices, face, x, y, z, vertexCount);
+                        addFace(
+                                vertices,
+                                indices,
+                                face,
+                                x,
+                                y,
+                                z,
+                                vertexCount,
+                                chunk.getBlock(x, y, z));
 
                         vertexCount += 4;
                     }
@@ -43,27 +51,32 @@ public final class MeshDataGenerator {
         return new MeshData(toFloatArray(vertices), toIntArray(indices));
     }
 
-    private static void addFace(List<Float> vertices, List<Integer> indices, Face face, int blockX, int blockY, int blockZ, int vertexOffset) {
+    private static void addFace(
+            List<Float> vertices,
+            List<Integer> indices,
+            Face face,
+            int blockX,
+            int blockY,
+            int blockZ,
+            int vertexOffset,
+            int type) {
         float[] faceVertices = face.vertices();
 
         for (int i = 0; i < 4; i++) {
             int positionOffset = i * 3;
 
-            vertices.add(
-                    blockX + faceVertices[positionOffset]
-            );
+            vertices.add(blockX + faceVertices[positionOffset]);
 
-            vertices.add(
-                    blockY + faceVertices[positionOffset + 1]
-            );
+            vertices.add(blockY + faceVertices[positionOffset + 1]);
 
-            vertices.add(
-                    blockZ + faceVertices[positionOffset + 2]
-            );
+            vertices.add(blockZ + faceVertices[positionOffset + 2]);
 
             vertices.add((float) face.dx());
             vertices.add((float) face.dy());
             vertices.add((float) face.dz());
+            float[] color = dev.jayms.net.Blocks.color(type);
+            if (type == 1 && face.dy() < 1) color = dev.jayms.net.Blocks.color(2);
+            for (float component : color) vertices.add(component);
         }
 
         for (int index : FACE_INDICES) {
@@ -90,5 +103,4 @@ public final class MeshDataGenerator {
 
         return result;
     }
-
 }

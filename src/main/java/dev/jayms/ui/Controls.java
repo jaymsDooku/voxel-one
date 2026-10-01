@@ -20,7 +20,17 @@ public final class Controls {
         CURSOR("Release mouse", GLFW_KEY_TAB),
         BREAK("Break block", -1),
         PLACE("Place block", -2),
-        MENU("Controls menu", GLFW_KEY_F1);
+        MENU("Controls menu", GLFW_KEY_F1),
+        INVENTORY("Inventory", GLFW_KEY_E),
+        SLOT_1("Hotbar slot 1", GLFW_KEY_1),
+        SLOT_2("Hotbar slot 2", GLFW_KEY_2),
+        SLOT_3("Hotbar slot 3", GLFW_KEY_3),
+        SLOT_4("Hotbar slot 4", GLFW_KEY_4),
+        SLOT_5("Hotbar slot 5", GLFW_KEY_5),
+        SLOT_6("Hotbar slot 6", GLFW_KEY_6),
+        SLOT_7("Hotbar slot 7", GLFW_KEY_7),
+        SLOT_8("Hotbar slot 8", GLFW_KEY_8),
+        SLOT_9("Hotbar slot 9", GLFW_KEY_9);
         public final String label;
         public final int defaultCode;
 

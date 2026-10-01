@@ -2,10 +2,11 @@ package dev.jayms.net;
 
 import java.io.*;
 
-/** Protocol 2 requires authenticated TLS before world state is sent. */
+/** Protocol 3 adds seeded terrain, inventories, item drops, and health over authenticated TLS. */
 public final class Protocol {
-    public static final int MAGIC = 0x564F5831, VERSION = 2, PORT = 25565;
+    public static final int MAGIC = 0x564F5831, VERSION = 3, PORT = 25565;
     public static final int MOVE = 1, BLOCK = 2, LEAVE = 3, READY = 4, JOIN = 5, EDIT_RESULT = 6;
+    public static final int INVENTORY = 7, DROP = 8, SWAP = 9, RESPAWN = 10;
     public static final int LOGIN = 1, REGISTER = 2;
 
     public record Pose(
@@ -57,12 +58,12 @@ public final class Protocol {
                     && Float.isFinite(walkAmount)
                     && walkAmount >= 0
                     && walkAmount <= 1
-                    && x >= -63.7f
-                    && x <= 79.701f
-                    && z >= -63.7f
-                    && z <= 79.701f
-                    && y >= -32
-                    && y <= 46.201f
+                    && x >= -Terrain.LIMIT
+                    && x <= Terrain.LIMIT
+                    && z >= -Terrain.LIMIT
+                    && z <= Terrain.LIMIT
+                    && y >= Terrain.MIN_Y
+                    && y <= Terrain.MAX_Y + 32
                     && Math.abs(pitch) <= 89;
         }
     }
@@ -80,8 +81,11 @@ public final class Protocol {
         }
 
         public boolean valid() {
-            return x >= -64 && x < 80 && z >= -64 && z < 80 && y >= -32 && y < 48 && type >= 0
-                    && type <= 3;
+            return Math.abs((long) x) <= Terrain.LIMIT
+                    && Math.abs((long) z) <= Terrain.LIMIT
+                    && y >= Terrain.MIN_Y
+                    && y <= Terrain.MAX_Y
+                    && Blocks.valid(type);
         }
 
         public String key() {
@@ -89,25 +93,32 @@ public final class Protocol {
         }
     }
 
-    public record BlockRequest(int requestId, Pose pose, Edit edit) {
+    public record BlockRequest(int requestId, Pose pose, Edit edit, int slot) {
+        public BlockRequest(int requestId, Pose pose, Edit edit) {
+            this(requestId, pose, edit, 0);
+        }
+
         public void write(DataOutputStream out) throws IOException {
             out.writeInt(requestId);
             pose.write(out);
             edit.write(out);
+            out.writeByte(slot);
         }
 
         public static BlockRequest read(DataInputStream in) throws IOException {
-            return new BlockRequest(in.readInt(), Pose.read(in), Edit.read(in));
+            return new BlockRequest(
+                    in.readInt(), Pose.read(in), Edit.read(in), in.readUnsignedByte());
         }
     }
 
     public static int terrain(int x, int y, int z) {
-        int height = (int) Math.floor(8 + Math.sin(x * .08) * 6 + Math.cos(z * .06) * 4);
-        return y > height ? 0 : y == height ? 1 : y >= height - 2 ? 2 : 3;
+        return DEFAULT_TERRAIN.block(x, y, z);
     }
 
+    private static final Terrain DEFAULT_TERRAIN = new Terrain(Terrain.DEFAULT_SEED);
+
     public static float spawnY() {
-        return (float) Math.floor(8 + Math.sin(8 * .08) * 6 + Math.cos(24 * .06) * 4) + 1.01f;
+        return DEFAULT_TERRAIN.column(8, 24).height() + 1.01f;
     }
 
     public static String readText(DataInputStream in, int maximum) throws IOException {

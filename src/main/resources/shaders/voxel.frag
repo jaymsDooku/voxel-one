@@ -1,6 +1,8 @@
 #version 330 core
 
 in vec3 vNormal;
+in vec3 vColor;
+uniform int uVertexColor;
 in vec3 vWorldPosition;
 
 out vec4 fragColor;
@@ -18,7 +20,7 @@ void main() {
 
     float ambient = 0.35;
 
-    vec3 blockColor = uColor;
+    vec3 blockColor = uVertexColor==1?vColor:uColor;
 
     vec3 finalColor =
         blockColor * (ambient + diffuse * 0.65);

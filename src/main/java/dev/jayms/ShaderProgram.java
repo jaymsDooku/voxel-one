@@ -1,35 +1,24 @@
 package dev.jayms;
 
+import static org.lwjgl.opengl.GL20.*;
+
 import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryStack;
 
 import java.io.IOException;
 import java.nio.FloatBuffer;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
-import static org.lwjgl.opengl.GL20.*;
 
 public final class ShaderProgram implements AutoCloseable {
 
     private final int programId;
 
-    public ShaderProgram(
-            String vertexPath,
-            String fragmentPath
-    ) {
+    public ShaderProgram(String vertexPath, String fragmentPath) {
         String vertexSource = readFile(vertexPath);
         String fragmentSource = readFile(fragmentPath);
 
-        int vertexShader = compileShader(
-                GL_VERTEX_SHADER,
-                vertexSource
-        );
+        int vertexShader = compileShader(GL_VERTEX_SHADER, vertexSource);
 
-        int fragmentShader = compileShader(
-                GL_FRAGMENT_SHADER,
-                fragmentSource
-        );
+        int fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentSource);
 
         programId = glCreateProgram();
 
@@ -39,9 +28,7 @@ public final class ShaderProgram implements AutoCloseable {
 
         if (glGetProgrami(programId, GL_LINK_STATUS) == GL_FALSE) {
             throw new IllegalStateException(
-                    "Shader link failed:\n"
-                            + glGetProgramInfoLog(programId)
-            );
+                    "Shader link failed:\n" + glGetProgramInfoLog(programId));
         }
 
         glDetachShader(programId, vertexShader);
@@ -61,9 +48,7 @@ public final class ShaderProgram implements AutoCloseable {
             String log = glGetShaderInfoLog(shader);
             glDeleteShader(shader);
 
-            throw new IllegalStateException(
-                    "Shader compilation failed:\n" + log
-            );
+            throw new IllegalStateException("Shader compilation failed:\n" + log);
         }
 
         return shader;
@@ -73,33 +58,23 @@ public final class ShaderProgram implements AutoCloseable {
         glUseProgram(programId);
     }
 
-    public void setMatrix4(
-            String name,
-            Matrix4f matrix
-    ) {
-        int location =
-                glGetUniformLocation(programId, name);
+    public void setMatrix4(String name, Matrix4f matrix) {
+        int location = glGetUniformLocation(programId, name);
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
             FloatBuffer buffer = stack.mallocFloat(16);
             matrix.get(buffer);
 
-            glUniformMatrix4fv(
-                    location,
-                    false,
-                    buffer
-            );
+            glUniformMatrix4fv(location, false, buffer);
         }
     }
 
-    public void setVector3(
-            String name,
-            float x,
-            float y,
-            float z
-    ) {
-        int location =
-                glGetUniformLocation(programId, name);
+    public void setInt(String name, int value) {
+        glUniform1i(glGetUniformLocation(programId, name), value);
+    }
+
+    public void setVector3(String name, float x, float y, float z) {
+        int location = glGetUniformLocation(programId, name);
 
         glUniform3f(location, x, y, z);
     }
@@ -112,10 +87,7 @@ public final class ShaderProgram implements AutoCloseable {
                 return new String(input.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
             }
         } catch (IOException exception) {
-            throw new IllegalStateException(
-                    "Could not read shader: " + filename,
-                    exception
-            );
+            throw new IllegalStateException("Could not read shader: " + filename, exception);
         }
     }
 

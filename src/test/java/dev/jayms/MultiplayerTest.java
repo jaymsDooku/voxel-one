@@ -170,11 +170,16 @@ class MultiplayerTest {
                 // Last movement is at x=9. The placement pose is already inside the target block at
                 // x=10.
                 a.move(new Protocol.Pose(a.id, 9, Protocol.spawnY(), 24, 0, 0));
-                var edit = new Protocol.Edit(10, (int) Protocol.spawnY(), 24, 3);
-                assertTrue(
-                        a.edit(
-                                edit,
-                                new Protocol.Pose(a.id, 10.5f, Protocol.spawnY(), 24.5f, 0, 0)));
+                var mine = new Protocol.Edit(8, (int) Protocol.spawnY() - 1, 24, 0);
+                assertTrue(a.edit(mine, a.spawn));
+                until(
+                        () -> {
+                            a.poll();
+                            return a.inventory.count(0) == 1;
+                        });
+                var edit =
+                        new Protocol.Edit(10, (int) Protocol.spawnY() + 2, 24, a.inventory.type(0));
+                assertTrue(a.edit(edit, new Protocol.Pose(a.id, 10.5f, edit.y(), 24.5f, 0, 0)));
                 assertFalse(
                         a.edit(
                                 edit,
@@ -214,8 +219,119 @@ class MultiplayerTest {
     }
 
     @Test
+    void pickupIsExclusiveInventoryCannotBeForgedAndSeedSurvivesRestart() throws Exception {
+        Path save = temp.resolve("survival.dat");
+        try (var server =
+                new MultiplayerServer("127.0.0.1", 0, save, accounts, identity.context(), 42)) {
+            Thread thread = run(server);
+            try (var a = client(server, "alice", "correct-password-a", false);
+                    var b = client(server, "bob", "correct-password-b", false)) {
+                assertEquals(42, a.seed);
+                assertEquals(a.seed, b.seed);
+                until(
+                        () -> {
+                            a.poll();
+                            b.poll();
+                            return a.players.containsKey(b.id);
+                        });
+                var p = a.spawn;
+                var broken =
+                        new Protocol.Edit(
+                                (int) Math.floor(p.x()),
+                                (int) Math.floor(p.y()) - 1,
+                                (int) Math.floor(p.z()),
+                                0);
+                assertTrue(a.edit(broken, p));
+                until(
+                        () -> {
+                            a.poll();
+                            b.poll();
+                            return a.inventory.count(0) + b.inventory.count(0) == 1;
+                        });
+                assertTrue(a.edit(broken, p));
+                until(
+                        () -> {
+                            a.poll();
+                            b.poll();
+                            return !a.pending(broken);
+                        });
+                assertEquals(1, a.inventory.count(0) + b.inventory.count(0));
+                MultiplayerClient owner = a.inventory.count(0) > 0 ? a : b;
+                int type = owner.inventory.type(0);
+                owner.swap(0, 35);
+                until(
+                        () -> {
+                            owner.poll();
+                            return owner.inventory.count(35) == 1;
+                        });
+                var place = new Protocol.Edit(broken.x() + 2, broken.y() + 3, broken.z(), type);
+                assertTrue(owner.edit(place, owner.spawn, 0));
+                List<Protocol.Edit> replies = new ArrayList<>();
+                until(
+                        () -> {
+                            replies.addAll(owner.poll());
+                            return !owner.pending(place);
+                        });
+                assertFalse(replies.contains(place));
+                assertEquals(1, owner.inventory.count(35));
+            }
+            server.close();
+            thread.join(2000);
+        }
+        try (var server =
+                new MultiplayerServer("127.0.0.1", 0, save, accounts, identity.context(), 999)) {
+            Thread thread = run(server);
+            try (var a = client(server, "alice", "correct-password-a", false);
+                    var b = client(server, "bob", "correct-password-b", false)) {
+                assertEquals(42, a.seed);
+                assertEquals(1, a.inventory.count(35) + b.inventory.count(35));
+                assertEquals(1, a.initialEdits.size());
+            }
+            server.close();
+            thread.join(2000);
+        }
+    }
+
+    @Test
+    void largeSavedDropSnapshotDoesNotOverflowWriterQueue() throws Exception {
+        Path save = temp.resolve("drops.dat");
+        Inventory full = new Inventory();
+        full.add(Blocks.STONE, Inventory.SIZE * Inventory.STACK);
+        try (var out = new java.io.DataOutputStream(Files.newOutputStream(save))) {
+            out.writeInt(Protocol.MAGIC);
+            out.writeInt(-3);
+            out.writeLong(42);
+            out.writeInt(0);
+            out.writeInt(1);
+            out.writeUTF("alice");
+            full.write(out);
+            out.writeByte(20);
+            out.writeInt(600);
+            for (int i = 1; i <= 600; i++)
+                new ItemDrop(i, Blocks.SAND, 1, 100 + i, 0, 100).write(out);
+        }
+        try (var server =
+                new MultiplayerServer("127.0.0.1", 0, save, accounts, identity.context())) {
+            Thread thread = run(server);
+            try (var a = client(server, "alice", "correct-password-a", false)) {
+                assertEquals(600, a.drops.size());
+                assertEquals(64, a.inventory.count(35));
+                for (int i = 0; i < 10; i++) {
+                    a.poll();
+                    a.move(a.spawn);
+                    Thread.sleep(20);
+                }
+                assertTrue(a.connected());
+                assertEquals(600, a.drops.size());
+            }
+            server.close();
+            thread.join(2000);
+        }
+    }
+
+    @Test
     void validatesNonFiniteAndOutOfBoundsPoses() {
         assertFalse(new Protocol.Pose(1, Float.NaN, 0, 0, 0, 0).valid());
-        assertFalse(new Protocol.Pose(1, 500, 0, 0, 0, 0).valid());
+        assertFalse(new Protocol.Pose(1, Terrain.LIMIT + 1f, 0, 0, 0, 0).valid());
     }
 }

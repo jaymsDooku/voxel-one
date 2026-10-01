@@ -1,80 +1,36 @@
 package dev.jayms;
 
+import dev.jayms.net.Terrain;
+
 public final class ChunkGenerator {
+    public static final int AIR = 0, GRASS = 1, DIRT = 2, STONE = 3;
 
-    public static final int AIR = 0;
-    public static final int GRASS = 1;
-    public static final int DIRT = 2;
-    public static final int STONE = 3;
+    public static Chunk generate(ChunkPos p) {
+        return generate(p, new Terrain(Terrain.DEFAULT_SEED));
+    }
 
-    private ChunkGenerator() {
+    public static Chunk generate(ChunkPos p, Terrain terrain) {
+        Chunk c = new Chunk();
+        for (int x = 0; x < 16; x++)
+            for (int z = 0; z < 16; z++)
+                for (int y = 0; y < 16; y++) {
+                    int type =
+                            terrain.block(
+                                    p.chunkX() * 16 + x, p.chunkY() * 16 + y, p.chunkZ() * 16 + z);
+                    if (type != 0) c.setBlock(x, y, z, type);
+                }
+        return c;
     }
 
     public static Chunk createExampleChunk() {
         return generate(new ChunkPos(0, 0, 0));
     }
 
-    private static int calculateHeight(int worldX, int worldZ) {
-        double height =
-                8.0
-                        + Math.sin(worldX * 0.08) * 6.0
-                        + Math.cos(worldZ * 0.06) * 4.0;
-
-        return (int) Math.floor(height);
-    }
-
     public static Chunk createDebugChunk() {
-        Chunk chunk = new Chunk();
-
-        chunk.setBlock(2, 2, 2, GRASS);
-
-        chunk.setBlock(5, 2, 5, STONE);
-        chunk.setBlock(6, 2, 5, STONE);
-        chunk.setBlock(7, 2, 5, STONE);
-
-        for (int y = 0; y < 6; y++) {
-            chunk.setBlock(10, y, 10, DIRT);
-        }
-
-        return chunk;
+        Chunk c = new Chunk();
+        c.setBlock(2, 2, 2, GRASS);
+        return c;
     }
 
-    public static Chunk generate(ChunkPos position) {
-        Chunk chunk = new Chunk();
-
-        int originX = position.chunkX() * Chunk.WIDTH;
-        int originY = position.chunkY() * Chunk.HEIGHT;
-        int originZ = position.chunkZ() * Chunk.LENGTH;
-
-        for (int x = 0; x < Chunk.WIDTH; x++) {
-            for (int z = 0; z < Chunk.LENGTH; z++) {
-                int worldX = originX + x;
-                int worldZ = originZ + z;
-
-                int surfaceY = calculateHeight(worldX, worldZ);
-
-                for (int y = 0; y < Chunk.HEIGHT; y++) {
-                    int worldY = originY + y;
-
-                    if (worldY > surfaceY) {
-                        continue; // New chunks already contain air.
-                    }
-
-                    int blockType;
-
-                    if (worldY == surfaceY) {
-                        blockType = GRASS;
-                    } else if (worldY >= surfaceY - 2) {
-                        blockType = DIRT;
-                    } else {
-                        blockType = STONE;
-                    }
-
-                    chunk.setBlock(x, y, z, blockType);
-                }
-            }
-        }
-
-        return chunk;
-    }
+    private ChunkGenerator() {}
 }

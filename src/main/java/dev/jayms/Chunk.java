@@ -9,6 +9,30 @@ public class Chunk implements AutoCloseable {
     private int[] blocks = new int[WIDTH * LENGTH * HEIGHT];
     private boolean dirty = true;
     private Mesh mesh;
+    private World world;
+    private ChunkPos position;
+
+    public void attach(World world, ChunkPos position) {
+        this.world = world;
+        this.position = position;
+    }
+
+    public void markDirty() {
+        dirty = true;
+    }
+
+    public boolean dirty() {
+        return dirty;
+    }
+
+    public int neighbor(int x, int y, int z) {
+        return inside(x, y, z) || world == null
+                ? getBlock(x, y, z)
+                : world.sample(
+                        position.chunkX() * 16 + x,
+                        position.chunkY() * 16 + y,
+                        position.chunkZ() * 16 + z);
+    }
 
     public int getBlock(int x, int y, int z) {
         if (!inside(x, y, z)) {
@@ -20,9 +44,7 @@ public class Chunk implements AutoCloseable {
 
     public void setBlock(int x, int y, int z, int color) {
         if (!inside(x, y, z)) {
-            throw new IndexOutOfBoundsException(
-                    "Block outside chunk: " + x + ", " + y + ", " + z
-            );
+            throw new IndexOutOfBoundsException("Block outside chunk: " + x + ", " + y + ", " + z);
         }
 
         blocks[index(x, y, z)] = color;
@@ -34,9 +56,7 @@ public class Chunk implements AutoCloseable {
     }
 
     private boolean inside(int x, int y, int z) {
-        return x >= 0 && x < WIDTH &&
-                y >= 0 && y < HEIGHT &&
-                z >= 0 && z < LENGTH;
+        return x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT && z >= 0 && z < LENGTH;
     }
 
     public Mesh getMesh() {

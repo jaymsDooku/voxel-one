@@ -7,6 +7,20 @@ import java.io.IOException;
 public final class ControlsMenu {
     private final Controls controls;
     private int selected;
+
+    private int offset() {
+        return Math.max(0, Math.min(selected - 6, Controls.Action.values().length - 13));
+    }
+
+    public void scroll(double direction) {
+        selected =
+                Math.max(
+                        0,
+                        Math.min(
+                                Controls.Action.values().length - 1,
+                                selected - (int) Math.signum(direction)));
+    }
+
     private boolean editing;
     private String message = "Click a control or use Up/Down and Enter to change it.";
     public boolean open;
@@ -69,8 +83,8 @@ public final class ControlsMenu {
         float left = width / 2f - 300, top = height / 2f - 290;
         if (x < left || x > left + 600) return;
         int row = (int) ((y - top - 80) / 29);
-        if (y >= top + 80 && row >= 0 && row < Controls.Action.values().length) {
-            selected = row;
+        if (y >= top + 80 && row >= 0 && row < 13) {
+            selected = row + offset();
             edit();
             return;
         }
@@ -108,10 +122,10 @@ public final class ControlsMenu {
         ui.rectangle(left, top, 600, 580, .025f, .06f, .11f, .98f);
         ui.rectangle(left, top, 600, 3, .1f, .85f, 1, 1);
         ui.text("CONTROLS", left + 24, top + 22, 3);
-        ui.text("Escape resumes | Multiplayer keeps running", left + 24, top + 55, 1.6f);
-        int i = 0;
-        for (Controls.Action a : Controls.Action.values()) {
-            float row = top + 80 + i * 29;
+        ui.text("Escape resumes | Scroll or arrows for more controls", left + 24, top + 55, 1.6f);
+        for (int i = offset(); i < Math.min(offset() + 13, Controls.Action.values().length); i++) {
+            Controls.Action a = Controls.Action.values()[i];
+            float row = top + 80 + (i - offset()) * 29;
             if (i == selected) ui.rectangle(left + 14, row, 572, 27, .07f, .27f, .36f, .9f);
             ui.text(a.label, left + 24, row + 6, 1.7f);
             ui.text(
@@ -121,7 +135,6 @@ public final class ControlsMenu {
                     left + 360,
                     row + 6,
                     1.7f);
-            i++;
         }
         ui.text(
                 String.format(
