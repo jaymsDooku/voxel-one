@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T13:24:50+00:00",
+  "updatedAt": "2026-10-02T13:32:03+00:00",
   "release": {
-    "name": "Playtest 13",
-    "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-13",
-    "commit": "d0da076758711c10c270605c55ff1414439b26cd"
+    "name": "Playtest 18",
+    "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-18",
+    "commit": "37f059821b3fcd592d13d49a29a4bf8d013ccb18"
   },
   "verification": {
-    "tests": 94,
+    "tests": 103,
     "failures": 0,
-    "label": "Playtest 17",
-    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/player-nameplate-release-checks.json"
+    "label": "Playtest 18",
+    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/mayor-dashboard-release-checks.json"
   },
   "items": [
     {
@@ -1041,11 +1041,36 @@
           "kind": "image",
           "label": "mayor dashboard compact scroll.png",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/mayor-dashboard-compact-scroll.png"
+        },
+        {
+          "kind": "link",
+          "label": "Cross-platform build and release",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/37012962567"
+        },
+        {
+          "kind": "link",
+          "label": "Mayor dashboard documentation",
+          "url": "https://voxel-one.jamesleaver1.chatgpt.site/docs.html#mayor-dashboard"
+        },
+        {
+          "kind": "report",
+          "label": "mayor dashboard release checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/mayor-dashboard-release-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "mayor dashboard website checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/mayor-dashboard-website-checks.json"
+        },
+        {
+          "kind": "image",
+          "label": "mayor dashboard docs mobile.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/mayor-dashboard-docs-mobile.png"
         }
       ],
-      "status": "in_progress",
-      "note": "Implemented four live mayor views, citizen search/filtering and world inspection. All 103 tests and packaged-client checks passed, including 640x640 layouts. Preparing the desktop release and documentation publication.",
-      "updatedAt": "2026-10-02T13:24:50+00:00"
+      "status": "complete",
+      "note": "Released in Playtest 18: F9 or Dashboard opens Overview, Groups, Citizens and Finances. Live housing, jobs, hunger, savings and budget metrics; searchable citizen roster locates people in Inspect. All 103 tests passed on four desktop platforms, seven packaged-client checks and eight documentation browser checks passed, and the Windows updater downloaded and verified the release.",
+      "updatedAt": "2026-10-02T13:32:03+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
