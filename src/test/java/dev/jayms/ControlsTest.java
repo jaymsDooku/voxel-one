@@ -33,6 +33,26 @@ class ControlsTest {
     }
 
     @Test
+    void newDashboardBindingPreservesOlderCustomF9Binding() throws Exception {
+        Path file = temp.resolve("legacy-controls.properties");
+        var c = new Controls(file);
+        c.bind(FORWARD, org.lwjgl.glfw.GLFW.GLFW_KEY_F9);
+        c.save();
+        var props = new java.util.Properties();
+        try (var in = Files.newInputStream(file)) {
+            props.load(in);
+        }
+        props.remove("MAYOR_DASHBOARD");
+        try (var out = Files.newOutputStream(file)) {
+            props.store(out, "Legacy controls");
+        }
+        var loaded = new Controls(file);
+        assertEquals(org.lwjgl.glfw.GLFW.GLFW_KEY_F9, loaded.code(FORWARD));
+        assertNotEquals(loaded.code(FORWARD), loaded.code(MAYOR_DASHBOARD));
+        assertEquals(BACKWARD.defaultCode, loaded.code(BACKWARD));
+    }
+
+    @Test
     void escapeIsReservedAndCorruptConfigFallsBack() throws Exception {
         Path file = temp.resolve("controls.properties");
         var c = new Controls(file);

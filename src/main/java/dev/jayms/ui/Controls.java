@@ -37,7 +37,8 @@ public final class Controls {
         FIT_VIEW("Sky view: fit world", GLFW_KEY_HOME),
         MODEL_EDITOR("Voxel model editor", GLFW_KEY_F7),
         LIGHT_COLOR("LED light colour", GLFW_KEY_F8),
-        DISMOUNT("Dismount horse", GLFW_KEY_H);
+        DISMOUNT("Dismount horse", GLFW_KEY_H),
+        MAYOR_DASHBOARD("Mayor dashboard", GLFW_KEY_F9);
         public final String label;
         public final int defaultCode;
 
@@ -64,9 +65,25 @@ public final class Controls {
             boolean validFile = true;
             for (Action a : Action.values()) {
                 try {
+                    int preferred = a.defaultCode;
+                    if (!p.containsKey(a.name()) && used.contains(preferred)) {
+                        preferred = 0;
+                        for (int candidate = GLFW_KEY_F1; candidate <= GLFW_KEY_F25; candidate++)
+                            if (!used.contains(candidate)) {
+                                preferred = candidate;
+                                break;
+                            }
+                        if (preferred == 0)
+                            for (int candidate = GLFW_KEY_SPACE;
+                                    candidate <= GLFW_KEY_LAST;
+                                    candidate++)
+                                if (valid(candidate) && !used.contains(candidate)) {
+                                    preferred = candidate;
+                                    break;
+                                }
+                    }
                     int code =
-                            Integer.parseInt(
-                                    p.getProperty(a.name(), Integer.toString(a.defaultCode)));
+                            Integer.parseInt(p.getProperty(a.name(), Integer.toString(preferred)));
                     if (!valid(code) || !used.add(code)) validFile = false;
                     loaded.put(a, code);
                 } catch (NumberFormatException ignored) {

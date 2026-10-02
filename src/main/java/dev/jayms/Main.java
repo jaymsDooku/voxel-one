@@ -37,6 +37,7 @@ public class Main {
     private PlayerModel playerModel;
     private HorseModel horseModel;
     private final CityTools cityTools = new CityTools();
+    private final MayorDashboard mayorDashboard = new MayorDashboard();
     private GameConfig gameConfig = GameConfig.sandbox();
 
     private CityFrame city() {
@@ -211,6 +212,18 @@ public class Main {
         glfwSetKeyCallback(
                 window.getHandle(),
                 (handle, key, scancode, action, mods) -> {
+                    if (mayorDashboard.open) {
+                        if (action == GLFW_PRESS
+                                && (key == GLFW_KEY_ESCAPE
+                                        || controls.matches(MAYOR_DASHBOARD, key)
+                                                && (!mayorDashboard.searchFocus
+                                                        || key >= GLFW_KEY_F1
+                                                                && key <= GLFW_KEY_F25))) {
+                            mayorDashboard.close();
+                            setCaptured(true);
+                        } else mayorDashboard.key(key, action);
+                        return;
+                    }
                     if (lightColors.open) {
                         if (action == GLFW_PRESS && controls.matches(LIGHT_COLOR, key))
                             lightColors.open = false;
@@ -261,6 +274,28 @@ public class Main {
         glfwSetMouseButtonCallback(
                 window.getHandle(),
                 (handle, button, action, mods) -> {
+                    if (mayorDashboard.open) {
+                        if (action == GLFW_PRESS) {
+                            if (button != GLFW_MOUSE_BUTTON_LEFT
+                                    && controls.matches(MAYOR_DASHBOARD, -button - 1)) {
+                                mayorDashboard.close();
+                                setCaptured(true);
+                                return;
+                            }
+                            if (button == GLFW_MOUSE_BUTTON_LEFT) {
+                                int[] size = window.getSize();
+                                mayorDashboard.click(
+                                        (float) mouseX * framebufferWidth / size[0],
+                                        (float) mouseY * framebufferHeight / size[1],
+                                        framebufferWidth,
+                                        framebufferHeight,
+                                        city(),
+                                        this::inspectCitizen);
+                                if (!mayorDashboard.open) setCaptured(true);
+                            }
+                        }
+                        return;
+                    }
                     if (editor.open) {
                         if (action == GLFW_PRESS && controls.matches(MODEL_EDITOR, -button - 1)) {
                             editor.closeEditor();
@@ -336,6 +371,10 @@ public class Main {
                                 view,
                                 city(),
                                 this::cityCommand);
+                        if (cityTools.dashboardRequested) {
+                            cityTools.dashboardRequested = false;
+                            openMayorDashboard();
+                        }
                         return;
                     }
                     input(-button - 1);
@@ -343,12 +382,17 @@ public class Main {
         glfwSetCharCallback(
                 window.getHandle(),
                 (handle, character) -> {
-                    if (editor.open) editor.character(character);
+                    if (mayorDashboard.open) mayorDashboard.character(character);
+                    else if (editor.open) editor.character(character);
                     else if (lightColors.open) lightColors.character(character);
                 });
         glfwSetScrollCallback(
                 window.getHandle(),
                 (handle, x, y) -> {
+                    if (mayorDashboard.open) {
+                        mayorDashboard.scroll(y);
+                        return;
+                    }
                     if (editor.open) {
                         int[] size = window.getSize();
                         editor.scroll(
@@ -367,7 +411,7 @@ public class Main {
                 (handle, focused) -> {
                     if (!focused) {
                         inventoryHud.close();
-                        if (editor.open || lightColors.open) return;
+                        if (editor.open || lightColors.open || mayorDashboard.open) return;
                         menu.open = true;
                         setCaptured(false);
                     }
@@ -394,7 +438,34 @@ public class Main {
         }
     }
 
+    private void openMayorDashboard() {
+        if (!city().config().city()) {
+            notice = "Join Voxel City One to open the mayor dashboard.";
+            return;
+        }
+        inventoryHud.close();
+        mayorDashboard.show();
+        setCaptured(false);
+    }
+
+    private void inspectCitizen(int id) {
+        var citizen = city().citizens().stream().filter(c -> c.id() == id).findFirst().orElse(null);
+        if (citizen == null) return;
+        mayorDashboard.close();
+        cityTools.key(GLFW_KEY_ESCAPE, this::cityCommand);
+        cityTools.selectedCitizen = id;
+        cityTools.selectedBuilding = cityTools.selectedPlot = 0;
+        isometric = true;
+        overview.focus(citizen.x(), citizen.z(), citizen.y());
+        setCaptured(false);
+    }
+
     private void input(int code) {
+        if (controls.matches(MAYOR_DASHBOARD, code)) {
+            openMayorDashboard();
+            return;
+        }
+
         if (controls.matches(DISMOUNT, code) && riding() != null) {
             cityCommand(new CityCommand(CityCommand.RIDE, 0, List.of()));
             return;
@@ -481,7 +552,8 @@ public class Main {
                 value
                         && !isometric
                         && (editor == null || !editor.open)
-                        && (lightColors == null || !lightColors.open);
+                        && (lightColors == null || !lightColors.open)
+                        && !mayorDashboard.open;
         captured = value;
         firstMouse = true;
         glfwSetInputMode(
@@ -533,7 +605,8 @@ public class Main {
                     && !menu.open
                     && !inventoryHud.open
                     && !editor.open
-                    && !lightColors.open) {
+                    && !lightColors.open
+                    && !mayorDashboard.open) {
                 float speed = Math.min(dt, .1f) * 50 / Math.max(.25f, overview.zoom() / 64);
                 float
                         f =
@@ -606,11 +679,15 @@ public class Main {
                                                     ? "Flying | " + player.cameraView()
                                                     : "Walking | " + player.cameraView())
                             + " | "
-                            + (editor.open
-                                    ? "Model editor"
-                                    : menu.open
-                                            ? "Controls menu"
-                                            : inventoryHud.open ? "Inventory" : "Esc controls"));
+                            + (mayorDashboard.open
+                                    ? "Mayor dashboard"
+                                    : editor.open
+                                            ? "Model editor"
+                                            : menu.open
+                                                    ? "Controls menu"
+                                                    : inventoryHud.open
+                                                            ? "Inventory"
+                                                            : "Esc controls"));
             if (editor.open) glClearColor(.025f, .045f, .075f, 1);
             else glClearColor(.48f, .72f, .92f, 1);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -625,6 +702,7 @@ public class Main {
     }
 
     private void render() {
+        if (mayorDashboard.open) return;
         if (editor.open) {
             editor.renderPreview(shader, framebufferWidth, framebufferHeight);
             return;
@@ -802,6 +880,18 @@ public class Main {
 
     private void renderOverlay() {
         overlay.begin(framebufferWidth, framebufferHeight);
+        if (mayorDashboard.open) {
+            mayorDashboard.render(
+                    overlay,
+                    framebufferWidth,
+                    framebufferHeight,
+                    city(),
+                    Controls.keyName(controls.code(MAYOR_DASHBOARD)),
+                    network == null || network.connected());
+            renderFps();
+            overlay.end();
+            return;
+        }
         if (editor.open) {
             editor.render(overlay, framebufferWidth, framebufferHeight);
             renderFps();

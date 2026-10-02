@@ -15,6 +15,7 @@ import java.util.function.Consumer;
 
 /** Isometric planning tools. Click polygon corners, then explicitly confirm with Enter. */
 public final class CityTools {
+    public boolean dashboardRequested;
     public int tool = -1, selectedCitizen, selectedBuilding, selectedPlot;
     private final List<Polygon.Point> points = new ArrayList<>();
     public String message = "Choose a tool; click citizens to inspect their household.";
@@ -51,6 +52,10 @@ public final class CityTools {
             Matrix4f view,
             CityFrame city,
             Consumer<CityCommand> submit) {
+        if (x >= width - 146 && x <= width - 24 && y >= 74 && y <= 100) {
+            dashboardRequested = true;
+            return;
+        }
         float top = height - 196;
         if (y >= top && y <= top + 34 && x >= 16 && x < width - 16) {
             int index = (int) ((x - 16) / ((width - 32) / 6f));
@@ -161,14 +166,16 @@ public final class CityTools {
         int hungry = (int) city.citizens().stream().filter(c -> c.hunger() < 35).count();
         ui.rectangle(12, 68, w - 24, 61, .025f, .045f, .07f, .9f);
         ui.text(
-                "VOXEL CITY ONE | "
-                        + time
-                        + " | Citizens "
-                        + city.citizens().size()
-                        + " | Buildings "
-                        + city.buildings().size()
-                        + " | Hungry "
-                        + hungry,
+                w < 900
+                        ? "VOXEL CITY ONE | " + time + " | Citizens " + city.citizens().size()
+                        : "VOXEL CITY ONE | "
+                                + time
+                                + " | Citizens "
+                                + city.citizens().size()
+                                + " | Buildings "
+                                + city.buildings().size()
+                                + " | Hungry "
+                                + hungry,
                 22,
                 78,
                 1.5f);
@@ -186,6 +193,10 @@ public final class CityTools {
                 22,
                 103,
                 1.4f);
+        if (isometric) {
+            ui.rectangle(w - 146, 74, 122, 26, .12f, .27f, .3f, 1);
+            ui.text("Dashboard", w - 134, 82, 1.3f);
+        }
         if (!isometric) return;
         if (!message.startsWith("Choose")) ui.text(message, 20, 156, 1.3f, 1, .7f, .2f, 1);
         float ground = city.roads().isEmpty() ? 32 : city.roads().get(0).y() + 1.04f;
@@ -279,9 +290,9 @@ public final class CityTools {
                                         + " Esc: cancel"
                                 : tool == 4
                                         ? "Private companies fund construction. Zoning is free."
-                                              + " Inspect a building for ownership."
+                                                + " Inspect a building for ownership."
                                         : "WASD: pan | Wheel: zoom | Home: horizon | F6: walk in"
-                                              + " the city",
+                                                + " the city",
                 24,
                 top + 48,
                 1.25f);

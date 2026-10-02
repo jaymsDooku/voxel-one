@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T10:34:08+00:00",
+  "updatedAt": "2026-10-02T13:24:50+00:00",
   "release": {
     "name": "Playtest 13",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-13",
@@ -10,8 +10,8 @@
   "verification": {
     "tests": 94,
     "failures": 0,
-    "label": "Playtest 15",
-    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/mayor-developer-tests.json"
+    "label": "Playtest 17",
+    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/player-nameplate-release-checks.json"
   },
   "items": [
     {
@@ -891,6 +891,161 @@
       "status": "complete",
       "note": "Released Playtest 15 and deployed both VPS servers. Mayor treasury pays for roads; private companies buy plots, employ construction workers, fund buildings and sell/rent property to businesses and households. 94 tests, all four platform builds, actual client Economy/property panels, Windows updater and live TLS/save upgrade checks passed.",
       "updatedAt": "2026-10-02T10:34:08+00:00"
+    },
+    {
+      "id": "fps-counter",
+      "title": "FPS counter",
+      "description": "Adding a readable half-second FPS average to the player HUD.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Four-platform CI",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/37008538913"
+        },
+        {
+          "kind": "link",
+          "label": "Playtest 16",
+          "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-16"
+        },
+        {
+          "kind": "report",
+          "label": "fps client checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/fps-client-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "fps release checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/fps-release-checks.json"
+        },
+        {
+          "kind": "image",
+          "label": "fps city.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/fps-city.png"
+        },
+        {
+          "kind": "image",
+          "label": "fps first person.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/fps-first-person.png"
+        },
+        {
+          "kind": "image",
+          "label": "fps model editor.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/fps-model-editor.png"
+        },
+        {
+          "kind": "image",
+          "label": "fps controls.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/fps-controls.png"
+        }
+      ],
+      "status": "complete",
+      "note": "Added a top-right FPS counter, averaged over actual elapsed time and refreshed every half second. Visible during gameplay, isometric view, the model editor and menus. Packaged-client GUI checks passed; Playtest 16 passed 94 tests on all four platforms and the Windows updater downloaded and verified the release.",
+      "updatedAt": "2026-10-02T12:48:48+00:00"
+    },
+    {
+      "id": "player-nameplates",
+      "title": "Nameplates for actual players only",
+      "description": "Removing population/NPC holographic nameplates while keeping actual player labels and citizen inspection.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Four-platform CI",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/37009312635"
+        },
+        {
+          "kind": "link",
+          "label": "Playtest 17",
+          "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-17"
+        },
+        {
+          "kind": "report",
+          "label": "player nameplate client checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/player-nameplate-client-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "player nameplate release checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/player-nameplate-release-checks.json"
+        },
+        {
+          "kind": "image",
+          "label": "player nameplates city.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/player-nameplates-city.png"
+        },
+        {
+          "kind": "image",
+          "label": "player nameplates first person.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/player-nameplates-first-person.png"
+        },
+        {
+          "kind": "image",
+          "label": "player nameplates third person.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/player-nameplates-third-person.png"
+        }
+      ],
+      "status": "complete",
+      "note": "Removed population/NPC holographic labels; actual local and multiplayer player labels remain. Citizen identities are available through Inspect. Packaged-client city/first-person/third-person checks passed. Playtest 17 passed 94 tests on all four desktop platforms; Windows updater download and checksum verification passed.",
+      "updatedAt": "2026-10-02T12:57:07+00:00"
+    },
+    {
+      "id": "mayor-dashboard",
+      "title": "Mayor population dashboard",
+      "description": "Building a dedicated live city dashboard with population wellbeing, housing, jobs, socioeconomic groups and public/private finances.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "mayor dashboard tests.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/mayor-dashboard-tests.json"
+        },
+        {
+          "kind": "report",
+          "label": "mayor dashboard client checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/mayor-dashboard-client-checks.json"
+        },
+        {
+          "kind": "image",
+          "label": "mayor dashboard overview.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/mayor-dashboard-overview.png"
+        },
+        {
+          "kind": "image",
+          "label": "mayor dashboard groups.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/mayor-dashboard-groups.png"
+        },
+        {
+          "kind": "image",
+          "label": "mayor dashboard citizens.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/mayor-dashboard-citizens.png"
+        },
+        {
+          "kind": "image",
+          "label": "mayor dashboard search.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/mayor-dashboard-search.png"
+        },
+        {
+          "kind": "image",
+          "label": "mayor dashboard finances.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/mayor-dashboard-finances.png"
+        },
+        {
+          "kind": "image",
+          "label": "mayor dashboard inspect.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/mayor-dashboard-inspect.png"
+        },
+        {
+          "kind": "image",
+          "label": "mayor dashboard compact overview.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/mayor-dashboard-compact-overview.png"
+        },
+        {
+          "kind": "image",
+          "label": "mayor dashboard compact scroll.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/mayor-dashboard-compact-scroll.png"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Implemented four live mayor views, citizen search/filtering and world inspection. All 103 tests and packaged-client checks passed, including 640x640 layouts. Preparing the desktop release and documentation publication.",
+      "updatedAt": "2026-10-02T13:24:50+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

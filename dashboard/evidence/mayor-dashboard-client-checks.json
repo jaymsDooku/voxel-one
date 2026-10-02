@@ -1,0 +1,14 @@
+{
+  "platform": "Linux software OpenGL / Xvfb",
+  "scope": "Packaged client with saved offline city fixture; not a physical Windows playtest",
+  "checks": [
+    "Planning Dashboard button opens dedicated screen",
+    "Roster search accepts name; screenshot records filtered result",
+    "Click citizen returns to isometric inspector",
+    "F9 opens and Back closes",
+    "Dashboard opens from first person; movement keys leave modal open",
+    "All four views render at 640x640; roster scroll checked",
+    "Clean shutdown without crash"
+  ],
+  "screenshots": "mayor-dashboard-*.png"
+}
