@@ -1,0 +1,19 @@
+{
+  "release": "Playtest 28",
+  "revision": "2c9716d841ae99486b7b2abbae90faa6e4b0dd74",
+  "ci": "https://github.com/jaymsDooku/voxel-one/actions/runs/37065085596",
+  "testsPerPlatform": 166,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "platforms": [
+    "build (macos-15-intel, mac-intel)",
+    "build (macos-latest, mac-arm)",
+    "build (windows-latest, windows)",
+    "build (ubuntu-latest, linux)"
+  ],
+  "serverSha256": "f7136ba0a32dca491118b95834c2989bae8973ad3c777cc5dfd066989c0a0cb0",
+  "publishedServerDigestVerified": true,
+  "desktopUpdater": "Windows payload actually downloaded and corrected shaders verified; physical Windows GUI not tested",
+  "gpuEvidence": "Real Linux Mesa OpenGL sealed room: zero changed pixels from hidden LED or sun; glass and air transmit"
+}

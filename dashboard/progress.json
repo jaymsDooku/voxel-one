@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T21:04:42+00:00",
+  "updatedAt": "2026-10-02T21:16:38+00:00",
   "release": {
-    "name": "Playtest 27",
-    "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-27",
-    "commit": "f90797361b1a87b295d049411c466f7634bf8da0"
+    "name": "Playtest 28",
+    "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
+    "commit": "2c9716d841ae99486b7b2abbae90faa6e4b0dd74"
   },
   "verification": {
-    "tests": 160,
+    "tests": 166,
     "failures": 0,
-    "label": "Playtest 27 \u00b7 all four platforms",
-    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/agriculture-release-checks.json"
+    "label": "Playtest 28 \u00b7 all four platforms",
+    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
     {
@@ -1681,11 +1681,76 @@
           "kind": "report",
           "label": "lighting occlusion rendering.json",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-rendering.json"
+        },
+        {
+          "kind": "report",
+          "label": "lighting occlusion gpu.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-gpu.json"
+        },
+        {
+          "kind": "image",
+          "label": "lighting occlusion solid off.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-solid-off.png"
+        },
+        {
+          "kind": "image",
+          "label": "lighting occlusion solid red.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-solid-red.png"
+        },
+        {
+          "kind": "image",
+          "label": "lighting occlusion solid sun.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-solid-sun.png"
+        },
+        {
+          "kind": "image",
+          "label": "lighting occlusion glass off.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-glass-off.png"
+        },
+        {
+          "kind": "image",
+          "label": "lighting occlusion glass red.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-glass-red.png"
+        },
+        {
+          "kind": "image",
+          "label": "lighting occlusion opening red.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-opening-red.png"
+        },
+        {
+          "kind": "link",
+          "label": "Four-platform CI",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/37065085596"
+        },
+        {
+          "kind": "link",
+          "label": "Playtest 28",
+          "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28"
+        },
+        {
+          "kind": "report",
+          "label": "lighting occlusion release checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "lighting occlusion windows updater.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-windows-updater.json"
+        },
+        {
+          "kind": "report",
+          "label": "lighting occlusion vps preservation.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-vps-preservation.json"
+        },
+        {
+          "kind": "report",
+          "label": "lighting occlusion live servers.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-live-servers.json"
         }
       ],
-      "status": "in_progress",
-      "note": "166 automated tests pass. Actual GPU checks show zero LED or sunlight leakage through a 1/16 solid wall; glass and openings transmit. Preparing the desktop release.",
-      "updatedAt": "2026-10-02T21:04:42+00:00"
+      "status": "complete",
+      "note": "Playtest 28 committed, published and deployed. Actual opaque octree leaves block skylight, sunlight, reflected sky and RGB LEDs; glass and air transmit. All 166 tests pass on Windows, Linux and both Macs. GPU hidden-light and sunlight tests change zero pixels across a solid 1/16 wall. Windows updater verified; both VPS worlds, accounts and TLS preserved.",
+      "updatedAt": "2026-10-02T21:16:38+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

@@ -1,0 +1,23 @@
+{
+  "scope": "Post-release TLS connectivity on both VPS game ports; existing identity preserved",
+  "release": "playtest-28",
+  "servers": [
+    {
+      "game": "sandbox",
+      "port": 25565,
+      "tls": "TLSv1.3",
+      "pinnedIdentityPreserved": true,
+      "reachable": true
+    },
+    {
+      "game": "city",
+      "port": 25566,
+      "tls": "TLSv1.3",
+      "pinnedIdentityPreserved": true,
+      "reachable": true
+    }
+  ],
+  "accountsPreserved": true,
+  "privateTlsIdentityFilesPreserved": true,
+  "publishedJarInstalledOnBothServers": true
+}
