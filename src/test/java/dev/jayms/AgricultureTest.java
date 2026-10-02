@@ -155,6 +155,11 @@ class AgricultureTest {
         e.resources.add(0, crops.id, 1102, 100 * CityMaterials.UNIT);
         e.resources.add(0, cane.id, 1103, 100 * CityMaterials.UNIT);
         e.resources.add(0, cattle.id, 1105, 100 * CityMaterials.UNIT);
+        // Retail inventory is reserved for citizen meals; factories buy directly from producers.
+        var shop = firm(s, 1);
+        e.resources.add(0, shop.id, CityMaterials.CARROT, 500 * CityMaterials.UNIT);
+        e.resources.add(0, shop.id, CityMaterials.MILK, 500 * CityMaterials.UNIT);
+        double shopCash = shop.cash;
         double money = e.companies().stream().mapToDouble(f -> f.cash).sum(), budget = e.budget;
         for (int kind = 11; kind <= 14; kind++) {
             var factory = firm(s, kind);
@@ -175,6 +180,15 @@ class AgricultureTest {
         assertEquals(0, e.resources.available(0, cake.id, 1105));
         assertEquals(16 * CityMaterials.UNIT, e.resources.available(0, firm(s, 11).id, 1106));
         assertEquals(16 * CityMaterials.UNIT, e.resources.available(0, firm(s, 13).id, 1108));
+        assertEquals(
+                92 * CityMaterials.UNIT, e.resources.available(0, crops.id, CityMaterials.CARROT));
+        assertEquals(
+                92 * CityMaterials.UNIT, e.resources.available(0, cattle.id, CityMaterials.MILK));
+        assertEquals(
+                500 * CityMaterials.UNIT, e.resources.available(0, shop.id, CityMaterials.CARROT));
+        assertEquals(
+                500 * CityMaterials.UNIT, e.resources.available(0, shop.id, CityMaterials.MILK));
+        assertEquals(shopCash, shop.cash);
     }
 
     @Test

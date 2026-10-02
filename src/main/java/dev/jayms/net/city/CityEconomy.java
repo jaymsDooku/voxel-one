@@ -742,6 +742,7 @@ public final class CityEconomy {
         for (var seller : companies())
             if (seller.id != company
                     && seller.kind != DEVELOPER
+                    && seller.kind != SHOP
                     && !(CityMaterials.farmer(seller.kind)
                             && CityMaterials.buildingMaterial(material))) {
                 long units = Math.min(missing, resources.available(COMPANY, seller.id, material));
