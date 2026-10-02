@@ -1,0 +1,22 @@
+Checking for Voxel One updates...
+Downloading the latest Voxel One...
+Downloading Voxel One: 1 MB
+Downloading Voxel One: 2 MB
+Downloading Voxel One: 3 MB
+Downloading Voxel One: 4 MB
+Downloading Voxel One: 5 MB
+Downloading Voxel One: 6 MB
+Downloading Voxel One: 7 MB
+Downloading Voxel One: 8 MB
+Downloading Voxel One: 9 MB
+Downloading Voxel One: 10 MB
+Downloading Voxel One: 11 MB
+Downloading Voxel One: 12 MB
+Downloading Voxel One: 13 MB
+Downloading Voxel One: 14 MB
+Downloading Voxel One: 15 MB
+Downloading Voxel One: 16 MB
+Downloading Voxel One: 17 MB
+Downloading Voxel One: 18 MB
+Downloading Voxel One: 19 MB
+Windows client downloaded and verified; revision=84bbfcb4e7ac96877af6648b919115b21fa87423; updated=true
