@@ -2,7 +2,7 @@
   "status": "passed",
   "platform": "Linux, Java 25 host; Java 17 target",
   "tests": 160,
-  "scope": "Full Maven verify passed; agriculture, business, material and real TLS multiplayer checks rerun after saved-job migration fix",
+  "scope": "Full 160-test Linux verification; affected migration, material, business, economy and multiplayer suites rerun after final corrections",
   "agricultureTests": 8,
   "fullSuiteCommand": "mvn verify",
   "affectedSuiteCommand": "mvn -Dtest=AgricultureTest,CityBusinessTest,CityMaterialsTest,CityMultiplayerTest verify",
@@ -193,5 +193,10 @@
       "failures": 0,
       "errors": 0
     }
+  ],
+  "producerPurchaseRegression": "Food factories buy ingredients directly from private producers; market meal stock and cash remain untouched",
+  "affectedSuiteCommands": [
+    "mvn -Dtest=AgricultureTest,CityBusinessTest,CityMaterialsTest,CityMultiplayerTest verify",
+    "mvn -Dtest=AgricultureTest,CityBusinessTest,CityEconomyTest,CityMaterialsTest verify"
   ]
 }
