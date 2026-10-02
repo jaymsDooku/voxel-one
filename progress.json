@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T15:00:13+00:00",
+  "updatedAt": "2026-10-02T15:29:34+00:00",
   "release": {
     "name": "Playtest 20",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-20",
@@ -1266,6 +1266,15 @@
       "status": "complete",
       "note": "F10 records the game, HUD and menus to a silent MP4; controls are editable, resizing preserves aspect ratio and normal Quit finishes saving. The inline dashboard video is an actual 14.6-second city run. All four desktop builds passed 117 tests; 8 WebKit/Chromium browser checks, 5 video handler tests and 2 built-worker route checks passed. Playtest 20 is published and the Windows updater downloaded and verified its recorder and encoder. GUI tests ran on Linux/Mesa; no physical Windows or iPhone playtest.",
       "updatedAt": "2026-10-02T15:00:13+00:00"
+    },
+    {
+      "id": "business-system",
+      "title": "Operating businesses and mayor business dashboard",
+      "description": "Expanding shops and mines into staffed businesses with operating accounts, production, sales and a mayor monitoring screen.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Expanding shops and mines into staffed businesses with operating accounts, production, sales and a mayor monitoring screen.",
+      "updatedAt": "2026-10-02T15:29:34+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
