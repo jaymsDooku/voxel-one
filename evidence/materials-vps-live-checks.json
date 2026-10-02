@@ -1,0 +1,31 @@
+{
+  "scope": "Actual public VPS services; existing test account authenticated using the unchanged pinned TLS identity. City snapshot has ten private firms and seven operating locations; closed resource yards start their accounts when work begins.",
+  "city": {
+    "protocol": 12,
+    "port": 25566,
+    "city": true,
+    "playersAuthenticated": true,
+    "clockAdvanced": true,
+    "population": 12,
+    "buildings": 5,
+    "companies": 10,
+    "businesses": 7,
+    "operatingAccounts": 2,
+    "calendarDay": 25,
+    "status": "passed"
+  },
+  "sandbox": {
+    "protocol": 12,
+    "port": 25565,
+    "city": false,
+    "playersAuthenticated": true,
+    "clockAdvanced": true,
+    "population": 0,
+    "buildings": 0,
+    "companies": 5,
+    "businesses": 0,
+    "operatingAccounts": 0,
+    "calendarDay": 1,
+    "status": "passed"
+  }
+}
