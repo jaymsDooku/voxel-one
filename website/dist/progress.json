@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T01:03:38+00:00",
+  "updatedAt": "2026-10-02T01:12:08+00:00",
   "release": {
-    "name": "Playtest 12",
-    "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-12",
-    "commit": "8c798c1ea5fd9696656418563e4c197f7f01761a"
+    "name": "Playtest 13",
+    "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-13",
+    "commit": "d0da076758711c10c270605c55ff1414439b26cd"
   },
   "verification": {
-    "tests": 68,
+    "tests": 74,
     "failures": 0,
-    "label": "Playtest 12",
-    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/master/dashboard/evidence/playtest-12-tests.json"
+    "label": "Playtest 13",
+    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-tests.json"
   },
   "items": [
     {
@@ -73,46 +73,141 @@
       "id": "sun-lighting",
       "title": "Sun and daylight",
       "description": "A visible sun with directional lighting.",
-      "status": "in_progress",
-      "updatedAt": "2026-10-02T01:03:38+00:00",
-      "note": "Visible sun and sky verified in the real client. All 74 regressions pass; final GPU evidence, release and deployment checks underway.",
-      "evidence": []
+      "status": "complete",
+      "updatedAt": "2026-10-02T01:11:51+00:00",
+      "note": "Sun and HDR sky, filtered geometry shadows, verified in both AA paths. Playtest 13 passed all four desktop builds and is deployed on the VPS.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Cross-platform build and release",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/36949403767"
+        },
+        {
+          "kind": "report",
+          "label": "rendering gpu 1x.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/rendering-gpu-1x.json"
+        },
+        {
+          "kind": "report",
+          "label": "rendering gpu 4x.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/rendering-gpu-4x.json"
+        },
+        {
+          "kind": "image",
+          "label": "voxel lighting sun.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/voxel-lighting-sun.png"
+        }
+      ]
     },
     {
       "id": "global-illumination",
       "title": "Global illumination",
       "description": "Indirect light and occlusion for the voxel world.",
-      "status": "in_progress",
-      "updatedAt": "2026-10-02T00:18:27+00:00",
-      "note": "Implementing bounded voxel light propagation and indirect colour bounce.",
-      "evidence": []
+      "status": "complete",
+      "updatedAt": "2026-10-02T01:11:56+00:00",
+      "note": "Background voxel skylight, diffuse sunlight bounce and occluded RGB light propagation implemented. Sealed-room, mixing and falloff regressions pass; irradiance upload verified in the renderer.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Lighting regression source",
+          "url": "https://github.com/jaymsDooku/voxel-one/blob/d0da076758711c10c270605c55ff1414439b26cd/src/test/java/dev/jayms/LightingTest.java"
+        },
+        {
+          "kind": "report",
+          "label": "lighting tests.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-tests.json"
+        },
+        {
+          "kind": "image",
+          "label": "voxel lighting gpu gallery.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/voxel-lighting-gpu-gallery.png"
+        }
+      ]
     },
     {
       "id": "environment-reflections",
       "title": "Environment lighting and reflections",
       "description": "Sky illumination and material reflections.",
-      "status": "in_progress",
-      "updatedAt": "2026-10-02T00:18:27+00:00",
-      "note": "Implementing a filtered sky environment and material reflections.",
-      "evidence": []
+      "status": "complete",
+      "updatedAt": "2026-10-02T01:12:01+00:00",
+      "note": "Daylight environment cubemap lights surfaces and supplies roughness-dependent sky reflections. Real GPU comparisons verify reflected light affects surfaces.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Reproducible GPU checks",
+          "url": "https://github.com/jaymsDooku/voxel-one/blob/d0da076758711c10c270605c55ff1414439b26cd/deploy/RenderingSmoke.java"
+        },
+        {
+          "kind": "report",
+          "label": "rendering gpu 1x.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/rendering-gpu-1x.json"
+        },
+        {
+          "kind": "report",
+          "label": "rendering gpu 4x.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/rendering-gpu-4x.json"
+        }
+      ]
     },
     {
       "id": "antialias-filtering",
       "title": "Anti-aliasing and texture filtering",
       "description": "Reduce jagged edges and improve sampling quality.",
-      "status": "in_progress",
-      "updatedAt": "2026-10-02T00:18:27+00:00",
-      "note": "Implementing an HDR render target, multisampling, edge smoothing and filtered procedural material textures.",
-      "evidence": []
+      "status": "complete",
+      "updatedAt": "2026-10-02T01:12:04+00:00",
+      "note": "4x MSAA on accelerated drivers, FXAA fallback, filtered procedural textures, mipmaps and supported anisotropy. Both paths, texture parameters, resize and no-GL-error checks passed.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "rendering gpu 1x.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/rendering-gpu-1x.json"
+        },
+        {
+          "kind": "report",
+          "label": "rendering gpu 4x.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/rendering-gpu-4x.json"
+        },
+        {
+          "kind": "image",
+          "label": "voxel lighting resized.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/voxel-lighting-resized.png"
+        }
+      ]
     },
     {
       "id": "coloured-led-blocks",
       "title": "Coloured glowing blocks",
       "description": "Place LED-like blocks with any chosen colour and visible local illumination.",
-      "status": "in_progress",
-      "updatedAt": "2026-10-02T00:45:16+00:00",
-      "note": "RGB LED blocks, F8 colour controls, crafting, save migration and TLS replication regressions implemented; GPU verification in progress.",
-      "evidence": []
+      "status": "complete",
+      "updatedAt": "2026-10-02T01:12:08+00:00",
+      "note": "Craftable LED lights with any 24-bit RGB colour, F8 picker, full/fractional placement, coloured indirect light, held-item replication and persistent multiplayer RGB edits. All 74 tests pass; live jayms login and Windows auto-update verified.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "lighting tests.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-tests.json"
+        },
+        {
+          "kind": "report",
+          "label": "lighting client checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-client-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "lighting deployment.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-deployment.json"
+        },
+        {
+          "kind": "image",
+          "label": "voxel lighting placed purple.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/voxel-lighting-placed-purple.png"
+        },
+        {
+          "kind": "image",
+          "label": "voxel lighting colour menu.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/voxel-lighting-colour-menu.png"
+        }
+      ]
     },
     {
       "id": "player-multiplayer",

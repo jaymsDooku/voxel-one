@@ -1,0 +1,21 @@
+{
+  "recordedAt": "2026-10-02T01:11:51+00:00",
+  "scope": "Observed VPS deployment, preservation check, pinned TLS login and public Windows updater probe. No account database, password or TLS private key is published.",
+  "release": "playtest-13",
+  "sourceCommit": "d0da076758711c10c270605c55ff1414439b26cd",
+  "protocol": 8,
+  "saveFormat": -6,
+  "worldEditsPreserved": 187,
+  "worldModelsPreserved": 1,
+  "inventoriesHealthDropsPreserved": true,
+  "accountsUnchanged": true,
+  "tlsIdentityUnchanged": true,
+  "backupWorld": "runtime/world-pre-lighting.dat",
+  "backupServer": "runtime/server-pre-lighting.jar",
+  "service": "active",
+  "jaymsPinnedTlsLogin": "passed",
+  "windowsUpdaterRevision": "d0da076758711c10c270605c55ff1414439b26cd",
+  "windowsJarChecksumAndNatives": "passed",
+  "allFourPlatformBuilds": "passed",
+  "workflow": "https://github.com/jaymsDooku/voxel-one/actions/runs/36949403767"
+}
