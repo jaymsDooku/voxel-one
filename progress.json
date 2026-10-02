@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T08:34:49+00:00",
+  "updatedAt": "2026-10-02T09:00:08+00:00",
   "release": {
     "name": "Playtest 13",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-13",
@@ -745,6 +745,15 @@
       "status": "in_progress",
       "note": "Building configurable time, ECS populations, polygon zoning, generated structures, road travel and rideable horses.",
       "updatedAt": "2026-10-02T08:34:49+00:00"
+    },
+    {
+      "id": "dashboard-questions",
+      "title": "Dashboard questions and persistent answers",
+      "description": "Adding mobile answer forms and private persistent storage; future development questions will use the dashboard.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Adding mobile answer forms and private persistent storage; future development questions will use the dashboard.",
+      "updatedAt": "2026-10-02T09:00:08+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
