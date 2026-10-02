@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T01:12:08+00:00",
+  "updatedAt": "2026-10-02T08:34:49+00:00",
   "release": {
     "name": "Playtest 13",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-13",
@@ -736,6 +736,15 @@
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/master/dashboard/evidence/playtest-12-tests.json"
         }
       ]
+    },
+    {
+      "id": "voxel-city-one",
+      "title": "Voxel City One: playable city simulation",
+      "description": "Building configurable time, ECS populations, polygon zoning, generated structures, road travel and rideable horses.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Building configurable time, ECS populations, polygon zoning, generated structures, road travel and rideable horses.",
+      "updatedAt": "2026-10-02T08:34:49+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
