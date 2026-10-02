@@ -86,7 +86,7 @@ def main():
             evidence={'kind':'link','label':label,'url':url}
             if evidence not in item['evidence']:item['evidence'].append(evidence)
         for name in args.artifact:
-            evidence={'kind':'image' if name.endswith('.png') else 'report','label':name.replace('-',' '),'url':RAW+'evidence/'+name}
+            evidence={'kind':'image' if name.lower().endswith('.png') else 'video' if name.lower().endswith('.mp4') else 'report','label':name.replace('-',' '),'url':RAW+'evidence/'+name}
             if evidence not in item['evidence']:item['evidence'].append(evidence)
         if item!=before:
             now=datetime.datetime.now(datetime.timezone.utc).isoformat(timespec='seconds');item['updatedAt']=now;data['updatedAt']=now

@@ -21,7 +21,11 @@ for new items. Publish requires existing `gh` authentication and network access.
 It writes the dedicated `development-progress` branch, without game CI or release
 work. Evidence files go directly inside `dashboard/evidence/`; use
 `--artifact FILENAME` to upload one and attach its link. Attach actual test reports,
-CI results, recorded screenshots or relevant regression sources. Never include
+CI results, recorded screenshots, MP4 recordings or relevant regression sources.
+For visual changes, use the engine's F10 recorder for a short, representative run
+when motion helps demonstrate the result. Attach the finished MP4 using --artifact;
+the dashboard displays video entries inline. Keep clips below the 6 MB artifact
+limit and describe the tested scenario and platform. Never include
 passwords, account databases, TLS private keys, environment dumps or full private
 runtime logs. Label historical evidence honestly. Do not invent test results.
 Completion requires finishing the requested implementation and relevant checks.

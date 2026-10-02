@@ -38,7 +38,8 @@ public final class Controls {
         MODEL_EDITOR("Voxel model editor", GLFW_KEY_F7),
         LIGHT_COLOR("LED light colour", GLFW_KEY_F8),
         DISMOUNT("Dismount horse", GLFW_KEY_H),
-        MAYOR_DASHBOARD("Mayor dashboard", GLFW_KEY_F9);
+        MAYOR_DASHBOARD("Mayor dashboard", GLFW_KEY_F9),
+        RECORD("Start / stop recording", GLFW_KEY_F10);
         public final String label;
         public final int defaultCode;
 

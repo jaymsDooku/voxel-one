@@ -1,4 +1,5 @@
 import { database } from './storage.mjs';
+import { evidenceVideo } from './video.mjs';
 function json(value,status=200){return Response.json(value,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});}
 async function body(request){if(!request.headers.get('content-type')?.startsWith('application/json'))throw new Error('Invalid request format');if(Number(request.headers.get('content-length')||0)>16000)throw new Error('Request too long');const text=await request.text();if(text.length>16000)throw new Error('Request too long');return JSON.parse(text);}
 function unpack(row){return {id:row.id,version:row.version,title:row.title,context:row.context,options:JSON.parse(row.options),status:row.status,createdAt:row.created_at,updatedAt:row.updated_at};}
@@ -8,6 +9,7 @@ export default {async fetch(request,env){const url=new URL(request.url);if(!url.
  // A service caller has no browser identity; it must also explicitly select the agent API.
  const agent=!user&&request.headers.get('x-voxel-agent')==='1';
  if(!user&&!agent)return json({error:'Sign in to this dashboard to answer questions.'},401);
+ if(url.pathname.startsWith('/api/evidence-video/') && user && (request.method==='GET'||request.method==='HEAD')) return evidenceVideo(request);
  try{const db=database(env);
  if(url.pathname==='/api/questions'&&request.method==='GET'&&user){const qs=await db.prepare('SELECT * FROM questions ORDER BY created_at DESC LIMIT 100').all();const rows=await db.prepare('SELECT question_id,question_version,answer,updated_at FROM question_answers WHERE user_id = ?').bind(user).all();const answers=new Map(rows.results.map(r=>[r.question_id,r]));return json({schemaVersion:1,questions:qs.results.map(r=>({...unpack(r),saved:answers.get(r.id)?.question_version===r.version?answers.get(r.id):null}))});}
  if(url.pathname==='/api/answers'&&request.method==='POST'&&user){

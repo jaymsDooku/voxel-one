@@ -1,0 +1,8 @@
+{
+  "scope": "Full Maven verify on Linux; recorder MP4 decode, timing, bounded queue, finalization, invalid input, folder errors and control migration regression tests",
+  "tests": 117,
+  "errors": 0,
+  "failures": 0,
+  "skipped": 0,
+  "videoHandlerTests": 5
+}

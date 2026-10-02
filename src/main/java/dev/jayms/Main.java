@@ -24,6 +24,8 @@ import java.util.*;
 
 public class Main {
     private Window window;
+    private final dev.jayms.recording.ScreenRecorder recorder =
+            new dev.jayms.recording.ScreenRecorder(Controls.directory().resolve("recordings"));
     private MultiplayerClient network;
     private Controls controls;
     private ControlsMenu menu;
@@ -208,10 +210,22 @@ public class Main {
         setCaptured(true);
     }
 
+    private boolean recordInput(int code) {
+        if (!controls.matches(RECORD, code) || menu.open && menu.editing()) return false;
+        if (code >= GLFW_KEY_SPACE
+                && code < GLFW_KEY_ESCAPE
+                && (mayorDashboard.open && mayorDashboard.searchFocus
+                        || editor.open
+                        || lightColors.open)) return false;
+        recorder.toggle(framebufferWidth, framebufferHeight);
+        return true;
+    }
+
     private void configureInput() {
         glfwSetKeyCallback(
                 window.getHandle(),
                 (handle, key, scancode, action, mods) -> {
+                    if (action == GLFW_PRESS && recordInput(key)) return;
                     if (mayorDashboard.open) {
                         if (action == GLFW_PRESS
                                 && (key == GLFW_KEY_ESCAPE
@@ -274,6 +288,7 @@ public class Main {
         glfwSetMouseButtonCallback(
                 window.getHandle(),
                 (handle, button, action, mods) -> {
+                    if (action == GLFW_PRESS && recordInput(-button - 1)) return;
                     if (mayorDashboard.open) {
                         if (action == GLFW_PRESS) {
                             if (button != GLFW_MOUSE_BUTTON_LEFT
@@ -694,6 +709,7 @@ public class Main {
             if (framebufferWidth > 0 && framebufferHeight > 0) {
                 render();
                 renderOverlay();
+                recorder.capture(framebufferWidth, framebufferHeight);
                 fpsFrames++;
             }
             window.swapBuffers();
@@ -1013,6 +1029,13 @@ public class Main {
         float x = framebufferWidth - width - 12;
         overlay.rectangle(x, 12, width, 30, .015f, .035f, .065f, .85f);
         overlay.text(label, x + 10, 21, scale);
+        String recording = recorder.status(Controls.keyName(controls.code(RECORD)));
+        if (!recording.isEmpty()) {
+            float rw = overlay.textWidth(recording, 1.3f) + 20;
+            float rx = (framebufferWidth - rw) / 2f;
+            overlay.rectangle(rx, 12, rw, 30, .3f, .025f, .035f, .95f);
+            overlay.text(recording, rx + 10, 22, 1.3f);
+        }
     }
 
     private void nameplate(String name, Vector3f position) {
@@ -1113,6 +1136,7 @@ public class Main {
     }
 
     private void cleanup() throws Exception {
+        recorder.close();
         if (local != null) local.save();
         if (network != null) network.close();
         if (distant != null) distant.close();

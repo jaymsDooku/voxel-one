@@ -30,6 +30,7 @@
     </dependencyManagement>
 
     <dependencies>
+        <dependency><groupId>org.jcodec</groupId><artifactId>jcodec</artifactId><version>0.2.5</version></dependency>
         <dependency><groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter</artifactId><version>5.12.2</version><scope>test</scope></dependency>
         <dependency>
             <groupId>org.lwjgl</groupId>

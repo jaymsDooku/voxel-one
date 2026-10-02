@@ -29,6 +29,10 @@ public final class ControlsMenu {
         this.controls = controls;
     }
 
+    public boolean editing() {
+        return editing;
+    }
+
     public void toggle() {
         open = !open;
         editing = false;

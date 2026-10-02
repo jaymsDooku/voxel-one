@@ -142,6 +142,7 @@ Bindings and sensitivity persist in `~/.voxel-one/controls.properties` (on Windo
 | F7 | Open/close voxel model editor |
 | F8 | Choose LED placement colour |
 | F9 | Open/close the mayor dashboard (Voxel City One) |
+| F10 | Start/stop a game recording |
 | Mouse wheel / = / - (sky view) | Zoom in/out |
 | Home (sky view) | Fit the full visible world |
 | Tab | Release/capture mouse |
@@ -262,3 +263,19 @@ xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 java -Dvoxel.msaa=4 -cp target/voxel-one
 ```
 
 These check the rendered sun, uploaded irradiance, visible shadow/reflection differences, texture filters, framebuffer resizing, and OpenGL errors, writing screenshots and compact JSON evidence. The second command forces the 4× MSAA path on the software driver.
+
+## Screen recording and video evidence
+
+Press **F10** to start recording, and press it again to stop. A red **REC** timer confirms capture is running. This shortcut is editable in **Controls** and works in the world, inventory, model editor and mayor dashboard. It stays available while menus are open; changing a binding or typing into a text field takes priority over a recording shortcut bound to a text key.
+
+The engine records the game window, including its HUD and menus, as a silent **MP4**. It does not capture the desktop or launcher login. The recorder is included in every desktop client; no extra application is required. Videos are saved in **`~/.voxel-one/recordings/`**, or **`%USERPROFILE%\.voxel-one\recordings\`** on Windows. The saved filename begins with `Voxel-One_` and the recording date. Wait for **Recording saved** before copying a file. Quitting normally also finishes an active recording; a forced process termination can leave an unfinished `.partial` file.
+
+Capture targets **15 frames per second**, at up to **960 × 540**, using the window's aspect ratio. Resizing during a recording keeps the original video dimensions and adds black bars where needed. Encoding runs on a background thread with a bounded queue. If rendering or encoding cannot keep up, fewer frames are recorded while playback retains the run's real duration. Recording adds CPU and framebuffer capture work, so compare performance with recording switched off when benchmarking.
+
+Development work items can show recordings directly on the [progress dashboard](https://voxel-one.jamesleaver1.chatgpt.site/progress.html). Expand an item and use the video controls to play, pause, seek or open fullscreen, including in Safari on a phone. Record a short run that demonstrates the change, copy the finished MP4 into `dashboard/evidence/` with a descriptive filename, then attach it:
+
+```sh
+python3 deploy/update_progress.py set ITEM_ID --status complete --note "Verified the feature" --artifact feature-run.mp4 --publish
+```
+
+Evidence uploads are limited to **6 MB per file**. Use a short clip and record a smaller window when necessary. Videos are published to the repository's evidence branch, so use an offline test fixture or a clean test account and avoid showing private chat or other sensitive in-game content. Recordings are never uploaded automatically. Include the scenario and any testing limits in the work item's note.

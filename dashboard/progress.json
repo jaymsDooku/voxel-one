@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T14:27:05+00:00",
+  "updatedAt": "2026-10-02T14:49:32+00:00",
   "release": {
     "name": "Playtest 19",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-19",
@@ -1191,6 +1191,31 @@
       "status": "complete",
       "note": "Released Playtest 19 and updated the VPS city with a backup and preserved clock/population/finances. Added midnight calendar rollover, daily routines and work/meal/sleep gestures, hourly hunger/pay rates and safe building aisles. Three full days passed: all 12 citizens worked, ate, travelled and slept each cycle; 72 hourly samples recorded. All 109 tests passed on four platforms, GPU/client/browser checks passed, Windows update verified, and live pinned-TLS city snapshots advanced.",
       "updatedAt": "2026-10-02T14:27:05+00:00"
+    },
+    {
+      "id": "screen-recorder",
+      "title": "In-game screen recorder and video evidence",
+      "description": "Implementing MP4 game capture, a recording control and inline dashboard video evidence.",
+      "evidence": [
+        {
+          "kind": "video",
+          "label": "screen recorder city run.mp4",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/screen-recorder-city-run.mp4"
+        },
+        {
+          "kind": "report",
+          "label": "screen recorder client checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/screen-recorder-client-checks.json"
+        },
+        {
+          "kind": "image",
+          "label": "screen recorder active.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/screen-recorder-active.png"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Actual packaged client recorded a city run; stop and normal Quit both produced complete MP4s. Recorder regression tests pass. Checking dashboard video playback and desktop release builds.",
+      "updatedAt": "2026-10-02T14:49:32+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

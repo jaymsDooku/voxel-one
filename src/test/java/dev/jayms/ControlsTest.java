@@ -53,6 +53,28 @@ class ControlsTest {
     }
 
     @Test
+    void newRecorderPreservesAnOlderCustomF10Binding() throws Exception {
+        Path file = temp.resolve("old-controls.properties");
+        var controls = new Controls(file);
+        controls.bind(FORWARD, org.lwjgl.glfw.GLFW.GLFW_KEY_F10);
+        controls.save();
+        var properties = new java.util.Properties();
+        try (var input = Files.newInputStream(file)) {
+            properties.load(input);
+        }
+        properties.remove("RECORD");
+        try (var output = Files.newOutputStream(file)) {
+            properties.store(output, "Before recorder");
+        }
+        var loaded = new Controls(file);
+        assertEquals(org.lwjgl.glfw.GLFW.GLFW_KEY_F10, loaded.code(FORWARD));
+        assertNotEquals(loaded.code(FORWARD), loaded.code(RECORD));
+        assertEquals(MAYOR_DASHBOARD.defaultCode, loaded.code(MAYOR_DASHBOARD));
+        loaded.bind(RECORD, -3);
+        assertEquals(-3, new Controls(file).code(RECORD));
+    }
+
+    @Test
     void escapeIsReservedAndCorruptConfigFallsBack() throws Exception {
         Path file = temp.resolve("controls.properties");
         var c = new Controls(file);
