@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T00:12:19+00:00",
+  "updatedAt": "2026-10-02T00:18:27+00:00",
   "release": {
     "name": "Playtest 12",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-12",
@@ -18,9 +18,9 @@
       "id": "development-dashboard",
       "title": "Development dashboard",
       "description": "A mobile-friendly progress view, historical work and linked test evidence.",
-      "status": "in_progress",
-      "updatedAt": "2026-10-02T00:12:18+00:00",
-      "note": "Dashboard implemented; 16 WebKit/Chromium mobile and desktop checks passed. Publishing the site.",
+      "status": "complete",
+      "updatedAt": "2026-10-02T00:18:26+00:00",
+      "note": "Published the mobile-friendly dashboard with 13 historical items, testing evidence, refresh/offline fallback and a milestone updater that skips game rebuilds.",
       "evidence": [
         {
           "kind": "report",
@@ -31,6 +31,11 @@
           "kind": "image",
           "label": "web progress mobile.png",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/web-progress-mobile.png"
+        },
+        {
+          "kind": "link",
+          "label": "Live dashboard",
+          "url": "https://voxel-one.jamesleaver1.chatgpt.site/progress.html"
         }
       ]
     },
@@ -38,9 +43,9 @@
       "id": "website-docs",
       "title": "Voxel One website and documentation",
       "description": "An engaging game landing page and easy-to-navigate feature documentation.",
-      "status": "in_progress",
-      "updatedAt": "2026-10-02T00:12:19+00:00",
-      "note": "Landing page, nine documentation sections and mobile navigation passed browser checks. Publishing the site.",
+      "status": "complete",
+      "updatedAt": "2026-10-02T00:18:26+00:00",
+      "note": "Published the game landing page and nine detailed, navigable documentation sections. Passed 16 WebKit/Chromium phone and desktop checks.",
       "evidence": [
         {
           "kind": "report",
@@ -56,6 +61,11 @@
           "kind": "image",
           "label": "web docs mobile.png",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/web-docs-mobile.png"
+        },
+        {
+          "kind": "link",
+          "label": "Live website",
+          "url": "https://voxel-one.jamesleaver1.chatgpt.site"
         }
       ]
     },
@@ -63,45 +73,45 @@
       "id": "sun-lighting",
       "title": "Sun and daylight",
       "description": "A visible sun with directional lighting.",
-      "status": "queued",
-      "updatedAt": "2026-10-01T23:55:49+00:00",
-      "note": "Requested; waiting for the preceding work.",
+      "status": "in_progress",
+      "updatedAt": "2026-10-02T00:18:26+00:00",
+      "note": "Implementing the daylight rendering pipeline: visible sun, sky and sun shadows.",
       "evidence": []
     },
     {
       "id": "global-illumination",
       "title": "Global illumination",
       "description": "Indirect light and occlusion for the voxel world.",
-      "status": "queued",
-      "updatedAt": "2026-10-01T23:55:49+00:00",
-      "note": "Requested; waiting for the preceding work.",
+      "status": "in_progress",
+      "updatedAt": "2026-10-02T00:18:27+00:00",
+      "note": "Implementing bounded voxel light propagation and indirect colour bounce.",
       "evidence": []
     },
     {
       "id": "environment-reflections",
       "title": "Environment lighting and reflections",
       "description": "Sky illumination and material reflections.",
-      "status": "queued",
-      "updatedAt": "2026-10-01T23:55:49+00:00",
-      "note": "Requested; waiting for the preceding work.",
+      "status": "in_progress",
+      "updatedAt": "2026-10-02T00:18:27+00:00",
+      "note": "Implementing a filtered sky environment and material reflections.",
       "evidence": []
     },
     {
       "id": "antialias-filtering",
       "title": "Anti-aliasing and texture filtering",
       "description": "Reduce jagged edges and improve sampling quality.",
-      "status": "queued",
-      "updatedAt": "2026-10-01T23:55:49+00:00",
-      "note": "Requested; waiting for the preceding work.",
+      "status": "in_progress",
+      "updatedAt": "2026-10-02T00:18:27+00:00",
+      "note": "Implementing an HDR render target, multisampling, edge smoothing and filtered procedural material textures.",
       "evidence": []
     },
     {
       "id": "coloured-led-blocks",
       "title": "Coloured glowing blocks",
       "description": "Place LED-like blocks with any chosen colour and visible local illumination.",
-      "status": "queued",
-      "updatedAt": "2026-10-01T23:55:49+00:00",
-      "note": "Requested; waiting for the preceding work.",
+      "status": "in_progress",
+      "updatedAt": "2026-10-02T00:18:27+00:00",
+      "note": "Adding RGB light materials to the octree, multiplayer protocol, saves and colour controls.",
       "evidence": []
     },
     {
@@ -632,5 +642,6 @@
         }
       ]
     }
-  ]
+  ],
+  "website": "https://voxel-one.jamesleaver1.chatgpt.site"
 }
