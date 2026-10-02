@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T21:26:46+00:00",
+  "updatedAt": "2026-10-02T21:51:09+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -1758,8 +1758,8 @@
       "description": "Building a separate application-grouped queue, prompt submission, worktree-based developers, independent PR review and budget-aware continuation.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Building a separate application-grouped queue, prompt submission, worktree-based developers, independent PR review and budget-aware continuation.",
-      "updatedAt": "2026-10-02T21:26:46+00:00"
+      "note": "Shared queue passes 13 SQLite API checks and mobile WebKit/Chromium checks. Voxel bridge and private hosting PRs independently reviewed and merged; worker PR in review for fenced Git mutations and checkpoint recovery. Preparing owner-private deployment and durable VPS service.",
+      "updatedAt": "2026-10-02T21:51:09+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
