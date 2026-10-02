@@ -1,0 +1,19 @@
+{
+  "result": "passed",
+  "build": "mvn -q -o -Dmaven.repo.local=/tmp/voxel-m2 -Dlwjgl.natives=natives-linux -DskipTests package",
+  "platform": "Packaged Linux client, Xvfb and Mesa software OpenGL",
+  "checks": [
+    "NPC holographic name drawing removed from the gameplay overlay",
+    "City view shows citizens without floating names while the local player retains its holographic label",
+    "Third-person view retains the actual player label",
+    "First-person view contains no NPC floating names",
+    "Citizen identities and Inspect UI remain available; multiplayer remote-player label rendering retained (source inspection)",
+    "Client saves and exits successfully"
+  ],
+  "screenshots": [
+    "player-nameplates-city.png",
+    "player-nameplates-first-person.png",
+    "player-nameplates-third-person.png"
+  ],
+  "limitations": "Physical Windows desktop playtest remains with the user."
+}

@@ -808,8 +808,6 @@ public class Main {
             overlay.end();
             return;
         }
-        for (var c : city().citizens())
-            nameplate(c.name(), new Vector3f(c.x(), c.y() + 2.15f, c.z()));
         if (network != null)
             for (var remote : network.remotePlayers.values()) {
                 var p = remote.sample(System.nanoTime());
