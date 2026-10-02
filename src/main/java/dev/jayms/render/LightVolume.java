@@ -38,6 +38,11 @@ public final class LightVolume {
     }
 
     public static LightVolume bake(int x, int y, int z, int w, int h, int l, Sampler source) {
+        return bake(x, y, z, w, h, l, 1, source);
+    }
+
+    public static LightVolume bake(
+            int x, int y, int z, int w, int h, int l, float ambient, Sampler source) {
         LightVolume v = new LightVolume(x, y, z, w, h, l);
         for (int dz = 0; dz < l; dz++)
             for (int dy = 0; dy < h; dy++)
@@ -93,7 +98,7 @@ public final class LightVolume {
                     int sun = v.sky[i] & 255;
                     if (sun < 8 || cosine == 0) continue;
                     int color = WorldVoxels.surfaceColor(v.material[j]);
-                    float strength = 5 * cosine * sun / 15f;
+                    float strength = 5 * cosine * sun / 15f * ambient;
                     v.red[i] =
                             (byte)
                                     Math.max(
@@ -116,7 +121,7 @@ public final class LightVolume {
         v.propagate(false);
         for (int i = 0; i < v.material.length; i++) {
             float skylight = (v.sky[i] & 255) / 15f;
-            skylight *= skylight;
+            skylight *= skylight * ambient;
             v.rgba[i * 4] =
                     (byte)
                             Math.min(

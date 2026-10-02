@@ -45,54 +45,26 @@ public final class RenderPipeline implements AutoCloseable {
     private final int shadowResolution = software ? 1024 : 2048;
     private boolean hasIrradiance;
     private LightVolume volume;
+    private Vector3f sun = new Vector3f(SUN);
+    private float daylight = 1, ambient = 1;
+    private int environmentPhase = -1;
+
+    public void time(dev.jayms.net.city.GameConfig config, double elapsed) {
+        var light = Daylight.at(config, elapsed);
+        sun.set(light.sun());
+        daylight = light.intensity();
+        ambient = light.ambient();
+        int phase = (int) (config.hour(elapsed) * 4);
+        if (config.cycle() && phase != environmentPhase) {
+            environmentPhase = phase;
+            updateEnvironment();
+        }
+    }
+
     private final Matrix4f shadowMatrix = new Matrix4f();
 
     public RenderPipeline() {
-        glBindTexture(GL_TEXTURE_CUBE_MAP, environment);
-        FloatBuffer data = MemoryUtil.memAllocFloat(128 * 128 * 3);
-        try {
-            for (int face = 0; face < 6; face++) {
-                data.clear();
-                for (int y = 0; y < 128; y++)
-                    for (int x = 0; x < 128; x++) {
-                        float a = (x + .5f) / 64 - 1, b = (y + .5f) / 64 - 1;
-                        Vector3f d =
-                                switch (face) {
-                                    case 0 -> new Vector3f(1, -b, -a);
-                                    case 1 -> new Vector3f(-1, -b, a);
-                                    case 2 -> new Vector3f(a, 1, b);
-                                    case 3 -> new Vector3f(a, -1, -b);
-                                    case 4 -> new Vector3f(a, -b, 1);
-                                    default -> new Vector3f(-a, -b, -1);
-                                };
-                        d.normalize();
-                        float t = Math.max(0, d.y),
-                                disc = (float) Math.pow(Math.max(0, d.dot(SUN)), 512) * 3;
-                        data.put(.32f * (1 - t) + .045f * t + disc)
-                                .put(.53f * (1 - t) + .18f * t + disc * .9f)
-                                .put(.8f * (1 - t) + .48f * t + disc * .65f);
-                    }
-                data.flip();
-                glTexImage2D(
-                        GL_TEXTURE_CUBE_MAP_POSITIVE_X + face,
-                        0,
-                        GL_RGB16F,
-                        128,
-                        128,
-                        0,
-                        GL_RGB,
-                        GL_FLOAT,
-                        data);
-            }
-        } finally {
-            MemoryUtil.memFree(data);
-        }
-        glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+        updateEnvironment();
         glBindTexture(GL_TEXTURE_2D, shadowTexture);
         glTexImage2D(
                 GL_TEXTURE_2D,
@@ -127,12 +99,64 @@ public final class RenderPipeline implements AutoCloseable {
                         + ", HDR, voxel indirect lighting, sun shadows, sky reflections");
     }
 
+    private void updateEnvironment() {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, environment);
+        FloatBuffer data = MemoryUtil.memAllocFloat(128 * 128 * 3);
+        try {
+            for (int face = 0; face < 6; face++) {
+                data.clear();
+                for (int y = 0; y < 128; y++)
+                    for (int x = 0; x < 128; x++) {
+                        float a = (x + .5f) / 64 - 1, b = (y + .5f) / 64 - 1;
+                        Vector3f d =
+                                switch (face) {
+                                    case 0 -> new Vector3f(1, -b, -a);
+                                    case 1 -> new Vector3f(-1, -b, a);
+                                    case 2 -> new Vector3f(a, 1, b);
+                                    case 3 -> new Vector3f(a, -1, -b);
+                                    case 4 -> new Vector3f(a, -b, 1);
+                                    default -> new Vector3f(-a, -b, -1);
+                                };
+                        d.normalize();
+                        float t = Math.max(0, d.y),
+                                disc =
+                                        (float) Math.pow(Math.max(0, d.dot(sun)), 512)
+                                                * 3
+                                                * daylight;
+                        data.put((.32f * (1 - t) + .045f * t) * ambient + disc)
+                                .put((.53f * (1 - t) + .18f * t) * ambient + disc * .9f)
+                                .put((.8f * (1 - t) + .48f * t) * ambient + disc * .65f);
+                    }
+                data.flip();
+                glTexImage2D(
+                        GL_TEXTURE_CUBE_MAP_POSITIVE_X + face,
+                        0,
+                        GL_RGB16F,
+                        128,
+                        128,
+                        0,
+                        GL_RGB,
+                        GL_FLOAT,
+                        data);
+            }
+        } finally {
+            MemoryUtil.memFree(data);
+        }
+        glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    }
+
     public boolean lightingReady() {
         return hasIrradiance;
     }
 
     public void update(World world, float x, float z) {
-        LightVolume next = lighting.update(world, x, z);
+        LightVolume next = lighting.update(world, x, z, Math.round(ambient * 10) / 10f);
         if (next == null) return;
         volume = next;
         ByteBuffer buffer = MemoryUtil.memAlloc(next.rgba.length);
@@ -171,7 +195,13 @@ public final class RenderPipeline implements AutoCloseable {
                                 / shadowResolution);
         Matrix4f lightView =
                 new Matrix4f()
-                        .lookAt(new Vector3f(center).fma(180, SUN), center, new Vector3f(0, 1, 0));
+                        .lookAt(
+                                new Vector3f(center)
+                                        .fma(
+                                                180,
+                                                daylight > .01f ? sun : new Vector3f(sun).negate()),
+                                center,
+                                new Vector3f(0, 1, 0));
         Matrix4f lightProjection = new Matrix4f().ortho(-80, 80, -80, 80, 1, 360);
         shadowMatrix.set(lightProjection).mul(lightView);
         FrustumIntersection f = new FrustumIntersection(shadowMatrix);
@@ -220,7 +250,9 @@ public final class RenderPipeline implements AutoCloseable {
         sky.bind();
         sky.setMatrix4("uInverseViewProjection", new Matrix4f(projection).mul(view).invert());
         sky.setVector3("uCameraPosition", camera.x, camera.y, camera.z);
-        sky.setVector3("uSunDirection", SUN.x, SUN.y, SUN.z);
+        sky.setVector3("uSunDirection", sun.x, sun.y, sun.z);
+        sky.setFloat("uDaylight", daylight);
+        sky.setFloat("uAmbient", ambient);
         sky.setInt("uIsometric", isometric ? 1 : 0);
         draw();
         glEnable(GL_DEPTH_TEST);
@@ -228,18 +260,22 @@ public final class RenderPipeline implements AutoCloseable {
         far.bind();
         far.setMatrix4("uProjection", projection);
         far.setMatrix4("uView", view);
-        far.setVector3("uLightDirection", -SUN.x, -SUN.y, -SUN.z);
+        far.setVector3("uLightDirection", -sun.x, -sun.y, -sun.z);
         far.setVector3("uCameraPosition", camera.x, camera.y, camera.z);
+        far.setFloat("uDaylight", daylight);
+        far.setFloat("uAmbient", ambient);
         far.setInt("uFog", isometric ? 0 : 1);
         far.setInt("uEnvironment", 0);
         voxel.bind();
         voxel.setVector3("uCameraPosition", camera.x, camera.y, camera.z);
+        voxel.setFloat("uDaylight", daylight);
+        voxel.setFloat("uAmbient", ambient);
         voxel.setInt("uLightingEnabled", 1);
         voxel.setInt("uHasIrradiance", hasIrradiance ? 1 : 0);
         voxel.setInt("uShadowEnabled", 1);
         voxel.setInt("uHeld", 0);
         voxel.setFloat("uModelEmission", 0);
-        voxel.setVector3("uLightDirection", -SUN.x, -SUN.y, -SUN.z);
+        voxel.setVector3("uLightDirection", -sun.x, -sun.y, -sun.z);
         voxel.setMatrix4("uShadowMatrix", shadowMatrix);
         if (volume != null) {
             voxel.setVector3("uVolumeOrigin", volume.x, volume.y, volume.z);

@@ -36,7 +36,8 @@ public final class Controls {
         ZOOM_OUT("Sky view: zoom out", GLFW_KEY_MINUS),
         FIT_VIEW("Sky view: fit world", GLFW_KEY_HOME),
         MODEL_EDITOR("Voxel model editor", GLFW_KEY_F7),
-        LIGHT_COLOR("LED light colour", GLFW_KEY_F8);
+        LIGHT_COLOR("LED light colour", GLFW_KEY_F8),
+        DISMOUNT("Dismount horse", GLFW_KEY_H);
         public final String label;
         public final int defaultCode;
 

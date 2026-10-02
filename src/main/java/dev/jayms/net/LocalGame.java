@@ -1,5 +1,6 @@
 package dev.jayms.net;
 
+import dev.jayms.net.city.*;
 import dev.jayms.net.model.*;
 
 import java.io.*;
@@ -8,6 +9,7 @@ import java.util.*;
 
 /** Offline survival state uses the same stack rules and terrain as multiplayer. */
 public final class LocalGame {
+    public CitySimulation city;
     public ModelLibrary models = new ModelLibrary();
     public Inventory inventory = new Inventory();
     public int health = 20;
@@ -52,6 +54,16 @@ public final class LocalGame {
                 }
             }
         seed = worldSeed;
+    }
+
+    public void startGame(GameConfig config, CitySimulation.Ground ground) throws IOException {
+        var stored = CitySimulation.load(save.resolveSibling(save.getFileName() + ".city"));
+        city =
+                new CitySimulation(
+                        stored == null ? config : stored.config(),
+                        ground,
+                        new Terrain(seed),
+                        stored);
     }
 
     public String createModel(ModelDefinition definition) throws IOException {
@@ -168,5 +180,6 @@ public final class LocalGame {
         } catch (AtomicMoveNotSupportedException e) {
             Files.move(temp, save, StandardCopyOption.REPLACE_EXISTING);
         }
+        if (city != null) city.save(save.resolveSibling(save.getFileName() + ".city"));
     }
 }

@@ -8,7 +8,45 @@ import org.joml.Vector3f;
 /** Orthographic sky view fitted to the visible world footprint, including distant terrain. */
 public final class IsometricCamera {
     private final Camera camera = new Camera();
-    private float zoom = 1;
+    private float zoom = 1, maxZoom = 64;
+
+    public void cityMode() {
+        maxZoom = 256;
+    }
+
+    private float panX, panZ, focusY = 32;
+
+    public void focus(float x, float z, float y) {
+        focus(x, z);
+        focusY = y;
+    }
+
+    private boolean focused;
+
+    public boolean focused() {
+        return focused;
+    }
+
+    public float focusX() {
+        return panX;
+    }
+
+    public float focusZ() {
+        return panZ;
+    }
+
+    public void focus(float x, float z) {
+        focused = true;
+        panX = x;
+        panZ = z;
+        zoom = maxZoom > 64 ? 128 : 64;
+    }
+
+    public void pan(float x, float z) {
+        focused = true;
+        panX = Math.max(-248, Math.min(264, panX + x));
+        panZ = Math.max(-232, Math.min(280, panZ + z));
+    }
 
     public IsometricCamera() {
         camera.setYaw(-135);
@@ -29,12 +67,14 @@ public final class IsometricCamera {
                 Math.max(
                         .25f,
                         Math.min(
-                                64,
+                                maxZoom,
                                 zoom * (float) Math.pow(1.15, Math.max(-20, Math.min(20, steps)))));
     }
 
     public void fit() {
         zoom = 1;
+        focused = false;
+        panX = panZ = 0;
     }
 
     public Matrix4f projection(World world, int width, int height) {
@@ -68,6 +108,11 @@ public final class IsometricCamera {
         float halfHeight = extent * 1.1f / zoom;
         // Reserve the top status panel and bottom inventory HUD when fitting the world.
         float offset = -60f / Math.max(1, height) * halfHeight;
+        if (focused) {
+            camera.position().x += panX - center.x;
+            camera.position().z += panZ - center.z;
+            camera.position().y += focusY - center.y;
+        }
         return new Matrix4f()
                 .ortho(
                         -halfHeight * aspect,

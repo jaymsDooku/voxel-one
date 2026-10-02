@@ -22,8 +22,13 @@ public final class WorldLighting implements AutoCloseable {
     private int centerX = Integer.MIN_VALUE, centerZ;
     private long revision = -1, submittedRevision;
     private int submittedX, submittedZ;
+    private float ambient = -1, submittedAmbient;
 
     public LightVolume update(World world, float px, float pz) {
+        return update(world, px, pz, 1);
+    }
+
+    public LightVolume update(World world, float px, float pz, float skyStrength) {
         int cx = Math.floorDiv((int) Math.floor(px), 16) * 16,
                 cz = Math.floorDiv((int) Math.floor(pz), 16) * 16;
         LightVolume result = null;
@@ -32,9 +37,11 @@ public final class WorldLighting implements AutoCloseable {
                 var baked = pending.get();
                 if (submittedRevision == world.editsVersion()
                         && submittedX == cx
-                        && submittedZ == cz) {
+                        && submittedZ == cz
+                        && submittedAmbient == skyStrength) {
                     result = baked;
                     revision = submittedRevision;
+                    ambient = submittedAmbient;
                     centerX = cx;
                     centerZ = cz;
                 }
@@ -45,7 +52,11 @@ public final class WorldLighting implements AutoCloseable {
             }
         }
         if (pending == null
-                && (cx != centerX || cz != centerZ || revision != world.editsVersion())) {
+                && (cx != centerX
+                        || cz != centerZ
+                        || revision != world.editsVersion()
+                        || ambient != skyStrength)) {
+            submittedAmbient = skyStrength;
             submittedX = cx;
             submittedZ = cz;
             submittedRevision = world.editsVersion();
@@ -68,6 +79,7 @@ public final class WorldLighting implements AutoCloseable {
                                         96,
                                         128,
                                         96,
+                                        skyStrength,
                                         (x, y, z) -> {
                                             var octree = chunks.get(ChunkPos.fromBlock(x, y, z));
                                             int value;

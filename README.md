@@ -34,9 +34,37 @@ On first connection, compare the certificate fingerprint displayed in the launch
 java -jar voxel-one-1.0-SNAPSHOT-client.jar --server SERVER_IP --fingerprint SHA256_FINGERPRINT
 ```
 
-The deployed VPS address is `198.100.154.156`. The `jayms` test account's password is supplied separately, not stored in this repository. Restart through **Play Voxel One** to install the updated client: protocol 8 adds coloured lights and synchronised held-light colours, so older clients cannot connect.
+The deployed VPS address is `198.100.154.156`. The `jayms` test account's password is supplied separately, not stored in this repository. Restart through **Play Voxel One** to install the updated client: protocol 9 adds shared city simulation, zoning, horse ownership and the game clock, so older clients cannot connect.
 
 On macOS, add `-XstartOnFirstThread` immediately after `java`. To skip the launcher and play offline, use `--offline`. Launching without arguments opens the launcher.
+
+## Voxel City One
+
+Voxel City One is the engine's first game: plan a settlement from above, then walk or ride through the same world. Select **Voxel City One** in the sign-in screen. The VPS city world uses **198.100.154.156:25566**; **Voxel One sandbox** uses **25565**. They have separate worlds, inventories and simulations. The existing `jayms` test credentials work on both; newly registered accounts belong to the selected server.
+
+The city starts with crossed dirt roads, three initial zones, twelve citizens and six horses. Over the first twenty seconds, the simulation builds three houses, a shop and a mine, then assigns homes and mining jobs. Three socioeconomic cohorts—labourers, skilled workers and prosperous settlers—have different starting savings, wage rates and access to horseback travel. Every citizen has an animated, named avatar in the world. Click a citizen in **Inspect** mode to see their group, money, hunger, home, job and current activity.
+
+The city opens in isometric planning view. **W/A/S/D** pans, the wheel zooms (up to 256×), and **Home** fits the visible horizon. Panning streams detailed chunks around the planning focus. **F6** returns to your player; press it again to focus planning on your location. Choose a bottom planning tool:
+
+- **Dirt road:** click two endpoints. The road follows the voxel grid and levels a three-block-wide dirt surface. Extend roads with additional sections.
+- **Residential / Commercial / Industrial:** click three or more corners of any convex polygon, then press **Enter**. **Backspace** removes the last corner; **Escape** cancels. Polygon edges can be diagonal and use half-block coordinates; enclosed voxel centres determine the zone's ground cells.
+- **Inspect:** click a citizen to inspect their household and activity.
+
+Zones must touch a dirt road, cannot cover roads or another zone, and need space for a 6×7 building plus entrances. Construction lays out fitting lots inside the polygon and develops them automatically every four seconds. Residential zones build houses, commercial zones build shops, and industrial zones build mines. Structures are generated from engine materials with real interiors, doors, windows, roofs, mine shafts, coloured lamps and half-voxel porch details. They use the world's sparse octree storage, collision and meshes, so you can explore and modify them as ordinary voxel buildings. City planning is free in this cooperative prototype; ordinary first-person building still uses your inventory.
+
+Citizens commute on connected dirt roads, work in mines from **08:00–17:00**, earn wages, buy food for three money units when hungry, and return to their homes. Mining supplies shop restocking. Skilled and prosperous groups can use nearby free horses; other citizens walk. NPCs dismount at building entrances. **Right-click a free horse within five blocks** in first person to mount it; **W/A/S/D** rides, **Shift** accelerates, and **Space** jumps. **H** or another right-click dismounts. F5 also works while riding. Horse ownership is exclusive and released when a player disconnects. Flight is disabled while mounted.
+
+The city runs on the authoritative multiplayer server and continues while menus or isometric tools are open. Citizens and horses interpolate between five snapshots per second. Zones, buildings, roads, population needs and savings, assignments and clock time persist in a `world.dat.city` sidecar alongside the normal world file. Offline cities use `offline-city.dat` and its sidecar, preserving the sandbox's offline save. This first simulation has bounded limits: a 512×512 planning region, 128 zones, 512 buildings, twelve initial citizens and six horses. Population growth, city taxation, transport upgrades and combat are future game mechanics.
+
+To start a new city server:
+
+```sh
+java -jar voxel-one-1.0-SNAPSHOT-server.jar --game city --port 25566 --world city.dat --day-seconds 1200 --start-hour 8
+```
+
+For an offline city, use `--offline --game city`. `--day-seconds` sets a full day to 60–86,400 real seconds, `--start-hour` chooses 0–23.999, and `--fixed-time` freezes the sky clock at that hour while the simulation continues. Saved games retain their clock configuration. The engine's `GameConfig` supplies per-game settings; the sandbox keeps fixed daylight. The sun moves through the sky, followed by twilight, moonlight and stars. Sky reflections and indirect illumination change with the clock, while LED lights stay lit at night.
+
+The reusable `Ecs` stores typed components and deterministic entity queries. `CitySimulation` runs construction, household/job assignment, needs/economy and travel at a fixed 0.1-second step. Its immutable `CityFrame` is shared by network snapshots and persistence; the server batches generated world edits so larger road/building changes keep network queues bounded.
 
 ## Fractional world blocks and crafting
 
@@ -61,7 +89,8 @@ Bindings and sensitivity persist in `~/.voxel-one/controls.properties` (on Windo
 | F | Toggle flight |
 | Mouse | Look |
 | Left click | Break block |
-| Right click | Place the selected hotbar block |
+| Right click | Place the selected hotbar block / mount or dismount a horse |
+| H | Dismount horse |
 | 1–9 / mouse wheel | Select a hotbar slot |
 | E | Open/close inventory |
 | F5 | Cycle first-person → third-person behind → front view → first-person |
@@ -99,7 +128,7 @@ The bottom HUD has nine hotbar slots, with health immediately above them. **E** 
 
 New players start with an empty inventory. Break a block with left click, then walk within two blocks of its floating, rotating item to pick it up. Right click places one item from the selected slot. Full inventories leave uncollected items in the world. The server owns item counts, pickups, and inventory moves, and saves inventories per account. Two players cannot collect the same item, and rejected placements do not consume items.
 
-Health starts at 20. Falls longer than three blocks cause damage; flight is safe. At zero health you respawn with full health and keep your inventory. Combat, hunger, and tools with durability are not implemented yet.
+Health starts at 20. Falls longer than three blocks cause damage; flight is safe. At zero health you respawn with full health and keep your inventory. Player combat, player hunger, and tools with durability are not implemented yet; city citizens have simulated hunger.
 
 Every world uses a saved seed. Climate noise selects **plains, forest, desert, and snowy mountain** biomes; layered terrain noise creates hills and mountains, with underground caves and trees in forests. Terrain and tree features agree across chunk boundaries and are generated from the same seed on the server and client. Chunks load as you explore and distant GPU meshes unload. Horizontal coordinates support -1,000,000 through 1,000,000; generated blocks span Y -32 through 95, with flight space above. The HUD displays your biome and seed.
 
@@ -164,9 +193,19 @@ sudo loginctl enable-linger "$USER"
 
 Adjust paths if installing elsewhere. The runtime directory contains the server JAR, world, accounts, and TLS identity and is excluded from Git.
 
+`deploy/voxel-city-one.service` runs the separate city on TCP 25566 from `runtime/city/`. Keep its accounts and TLS directory independent from the sandbox; copying the initial account hashes allows the test login on both without concurrent writers to one account database. Back up each city world and its `.city` sidecar together.
+
 Use `systemctl --user status voxel-one` to check the process, `journalctl --user -u voxel-one -f` for logs, and `systemctl --user stop voxel-one` to stop and save. To update: stop, replace the JAR, start.
 
+## Development dashboard and questions
+
+The [development dashboard](https://voxel-one.jamesleaver1.chatgpt.site/progress.html) tracks current and completed work with recorded test evidence. **Questions for you** appears above the work list. Choose a suggested answer or enter your own, then press **Save answer**. You can edit saved answers; they persist across browsers and sessions. The dashboard requires the owner's ChatGPT sign-in. Answers stay in private storage, and the agent reads them at useful development checkpoints. Saving an answer does not start a separate agent run. Use **Refresh questions** to check for new prompts; returning to the page after five minutes also refreshes it. Resolved questions remain in the answer history.
+
+Future development questions go to this form. Site source is in `website/`; `python3 deploy/build_site.py` builds the documentation and static content, then `npm run build` in `website/` packages the Worker and assets. Question storage uses schema-only Drizzle migrations and D1. The existing private Sites project must be reused for publishing.
+
 ## Verification
+
+City tests additionally cover ECS queries, convex polygon rasterization and validation, road adjacency, construction geometry, home/job assignment, walking and horseback travel, wages and food purchases, exclusive mounts, the solar clock, night LED lighting, city persistence, batched shared roads, multiplayer zoning, late joins and restart recovery.
 
 `mvn verify` runs tests for gravity, jumping, collision, late block recovery, flight, acceleration and walking animation state, world edges, normalized movement, persisted bindings, remote interpolation, authenticated TLS sessions, wrong credentials, duplicate logins, registration, certificate pin rejection, exact-pose block placement, rollback, shared edits, late joins, disconnects, salted password storage, seeded biome generation, trees and caves, chunk boundaries, 36-slot stack capacity, inventory moves, exclusive item pickups, placement supply checks, health and respawn, three-view camera cycling, front-view aim and movement, camera obstruction, orthographic isometric framing, aspect ratios, zoom limits, and save/reload. Model checks cover octree compression and round trips, immutable snapshots, greedy surface merging and winding, precise picking/collision, custom item creation, multiplayer definition ordering, late joins, pickups, and model persistence across restarts. Animation checks cover classic dimensions, opposing limbs, downward attack and gentler placement trajectories, swing timing, inflated outer hair geometry, held-item/swing network round trips, and remote swing resets. Inventory hover tests cover built-in and custom names, moved stacks, empty slots, gaps, and resized windows. Fractional-world and crafting checks cover octree compression, persistence, fine picking and collision, greedy geometry, material volume, recipes, missing inputs, full-inventory overflow, legacy save migration, server validation, conflicting edits, authoritative corrections and late joins. Direct 3D editor tests cover starting on the floor, adding to faces, painting, picking, erasing and misses. Distant-terrain tests cover seeded surfaces and edits, tree geometry, face winding, bounded tile residency, negative coordinates, exact coverage, non-overlapping refinement, parent fallbacks, and isometric depth/viewport fitting across the expanded footprint. Lighting tests cover RGB material persistence and mesh emission, sealed-room occlusion, light falloff and mixing, diffuse surface bounce, colour validation, protocol round trips, legacy v5 migration, crafting, rejected-edit restoration and multiplayer late joins/restarts. Updater tests exercise real HTTP downloads, caching, checksum rejection, atomic replacement, offline fallback, invalid manifests, corrupted installations, platform detection, and launch arguments.
 

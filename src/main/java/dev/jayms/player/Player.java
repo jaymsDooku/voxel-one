@@ -38,6 +38,27 @@ public class Player {
 
     private CameraView cameraView = CameraView.FIRST_PERSON;
     private boolean grounded, flying;
+    private boolean mounted;
+
+    public boolean mounted() {
+        return mounted;
+    }
+
+    public void mount(boolean value, Vector3f horse) {
+        if (value == mounted) return;
+        if (value) {
+            position.set(horse).add(0, .75f, 0);
+            lastSafe.set(horse);
+            flying = false;
+        } else {
+            position.y -= .75f;
+            lastSafe.set(position);
+        }
+        mounted = value;
+        velocity.zero();
+        verticalVelocity = 0;
+    }
+
     private final Camera camera;
 
     public Player(Vector3f position, float yaw, float pitch, Camera camera) {
@@ -83,6 +104,7 @@ public class Player {
     }
 
     public void toggleFlight() {
+        if (mounted) return;
         flying = !flying;
         verticalVelocity = 0;
         grounded = false;
@@ -177,6 +199,7 @@ public class Player {
         swingProgress =
                 Math.min(
                         1, swingProgress + dt / (placingSwing ? PLACEMENT_SECONDS : SWING_SECONDS));
+        if (mounted) position.y -= .75f;
         resolvePenetration(world);
         Vector3f direction =
                 new Vector3f(
@@ -189,7 +212,7 @@ public class Player {
                         .fma(right, new Vector3f(direction).cross(0, 1, 0));
         if (flying) target.y = (jump ? 1 : 0) - (descend ? 1 : 0);
         if (target.lengthSquared() > 1) target.normalize();
-        target.mul(flying ? (sprint ? 14 : 8) : (sprint ? 8 : 5));
+        target.mul(mounted ? (sprint ? 12 : 8) : flying ? (sprint ? 14 : 8) : (sprint ? 8 : 5));
         if (!flying && jump && grounded) {
             verticalVelocity = 8;
             grounded = false;
@@ -217,6 +240,7 @@ public class Player {
         float amount = grounded && !flying && dt > 0 ? Math.min(1, moved / dt / 5) : 0;
         walkAmount += (amount - walkAmount) * (1 - (float) Math.exp(-8 * dt));
         if (!collides(world)) lastSafe.set(position);
+        if (mounted) position.y += .75f;
         syncCamera();
     }
 
@@ -225,6 +249,11 @@ public class Player {
         float start = position.get(axis);
         position.setComponent(axis, start + delta);
         if (!collides(world)) return false;
+        if (mounted && axis != 1 && grounded) {
+            position.y += 1.001f;
+            if (!collides(world)) return false;
+            position.y -= 1.001f;
+        }
         float low = 0, high = 1;
         for (int i = 0; i < 14; i++) {
             float mid = (low + high) / 2;
@@ -246,7 +275,7 @@ public class Player {
                 x <= (int) Math.floor(position.x + RADIUS);
                 x++)
             for (int y = (int) Math.floor(position.y);
-                    y <= (int) Math.floor(position.y + HEIGHT);
+                    y <= (int) Math.floor(position.y + HEIGHT + (mounted ? .75f : 0));
                     y++)
                 for (int z = (int) Math.floor(position.z - RADIUS);
                         z <= (int) Math.floor(position.z + RADIUS);
@@ -281,7 +310,7 @@ public class Player {
                 x <= (int) Math.floor(position.x + RADIUS - .0001f);
                 x++)
             for (int y = (int) Math.floor(position.y);
-                    y <= (int) Math.floor(position.y + HEIGHT - .0001f);
+                    y <= (int) Math.floor(position.y + HEIGHT + (mounted ? .75f : 0) - .0001f);
                     y++)
                 for (int z = (int) Math.floor(position.z - RADIUS);
                         z <= (int) Math.floor(position.z + RADIUS - .0001f);
@@ -306,7 +335,7 @@ public class Player {
                             position.y - y,
                             position.z - RADIUS - z,
                             position.x + RADIUS - x,
-                            position.y + HEIGHT - y,
+                            position.y + HEIGHT + (mounted ? .75f : 0) - y,
                             position.z + RADIUS - z);
         var model = world.models().get(type);
         return model == null
@@ -318,7 +347,7 @@ public class Player {
                                 position.y - y,
                                 position.z - RADIUS - z,
                                 position.x + RADIUS - x,
-                                position.y + HEIGHT - y,
+                                position.y + HEIGHT + (mounted ? .75f : 0) - y,
                                 position.z + RADIUS - z);
     }
 
@@ -326,7 +355,7 @@ public class Player {
         if (e.depth() == 0) return overlaps(world, e.x(), e.y(), e.z(), e.type());
         return position.x + RADIUS > e.minX()
                 && position.x - RADIUS < e.minX() + e.size()
-                && position.y + HEIGHT > e.minY()
+                && position.y + HEIGHT + (mounted ? .75f : 0) > e.minY()
                 && position.y < e.minY() + e.size()
                 && position.z + RADIUS > e.minZ()
                 && position.z - RADIUS < e.minZ() + e.size();
@@ -335,7 +364,7 @@ public class Player {
     public boolean overlaps(int x, int y, int z) {
         return position.x + RADIUS > x
                 && position.x - RADIUS < x + 1
-                && position.y + HEIGHT > y
+                && position.y + HEIGHT + (mounted ? .75f : 0) > y
                 && position.y < y + 1
                 && position.z + RADIUS > z
                 && position.z - RADIUS < z + 1;

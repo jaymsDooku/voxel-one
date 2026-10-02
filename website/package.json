@@ -1,0 +1,8 @@
+{
+  "name": "voxel-one-dashboard",
+  "private": true,
+  "type": "module",
+  "scripts": {"build": "node build.mjs", "db:generate": "drizzle-kit generate", "dev": "wrangler dev --config dist/server/wrangler.json --local --port 8765"},
+  "dependencies": {"drizzle-orm":"0.45.2"},
+  "devDependencies": {"drizzle-kit":"0.31.10", "wrangler":"4.98.0"}
+}

@@ -15,6 +15,8 @@ import javax.swing.*;
  * Login and registration happen before opening the game, without blocking the Swing event thread.
  */
 public final class LoginDialog {
+    public static volatile boolean citySelected = true;
+
     public static MultiplayerClient open(String initialHost, int initialPort, String explicitPin)
             throws Exception {
         CompletableFuture<MultiplayerClient> result = new CompletableFuture<>();
@@ -60,8 +62,17 @@ public final class LoginDialog {
         JTextField username = new JTextField(settings.getProperty("username", "jayms"), 20);
         JPasswordField password = new JPasswordField(20);
         JLabel status = new JLabel("Sign in, create an account, or play offline.");
-        String[] labels = {"Server", "Port", "Username", "Password"};
-        JComponent[] fields = {host, port, username, password};
+        JComboBox<String> game =
+                new JComboBox<>(new String[] {"Voxel City One", "Voxel One sandbox"});
+        game.setSelectedIndex(citySelected ? 0 : 1);
+        if (initialPort == 25565 && citySelected) port.setText("25566");
+        game.addActionListener(
+                e -> {
+                    citySelected = game.getSelectedIndex() == 0;
+                    port.setText(citySelected ? "25566" : "25565");
+                });
+        String[] labels = {"Game", "Server", "Port", "Username", "Password"};
+        JComponent[] fields = {game, host, port, username, password};
         c.gridx = 0;
         c.gridy = 0;
         c.gridwidth = 2;
@@ -84,14 +95,14 @@ public final class LoginDialog {
         buttons.add(register);
         buttons.add(offline);
         c.gridx = 0;
-        c.gridy = 5;
+        c.gridy = 6;
         c.gridwidth = 2;
         panel.add(buttons, c);
-        c.gridy = 6;
+        c.gridy = 7;
         panel.add(status, c);
         JLabel hint = new JLabel("Usernames: 3-16 letters/numbers/_ | Passwords: 10+ characters");
         hint.setFont(hint.getFont().deriveFont(11f));
-        c.gridy = 7;
+        c.gridy = 8;
         panel.add(hint, c);
         Runnable[] connect = new Runnable[2];
         for (int action = 0; action < 2; action++) {
@@ -117,6 +128,7 @@ public final class LoginDialog {
                             status.setText("Password must contain 10-128 characters.");
                             return;
                         }
+                        game.setEnabled(false);
                         login.setEnabled(false);
                         register.setEnabled(false);
                         offline.setEnabled(false);
@@ -138,7 +150,7 @@ public final class LoginDialog {
                                                                 JOptionPane.showConfirmDialog(
                                                                                 frame,
                                                                                 "First connection"
-                                                                                    + " to "
+                                                                                        + " to "
                                                                                         + address
                                                                                         + ":"
                                                                                         + number
@@ -204,6 +216,7 @@ public final class LoginDialog {
                                             cause.getMessage() == null
                                                     ? "Connection failed"
                                                     : cause.getMessage());
+                                    game.setEnabled(true);
                                     login.setEnabled(true);
                                     register.setEnabled(true);
                                     offline.setEnabled(true);

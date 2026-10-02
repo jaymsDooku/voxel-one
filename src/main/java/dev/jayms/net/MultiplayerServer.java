@@ -1,5 +1,6 @@
 package dev.jayms.net;
 
+import dev.jayms.net.city.*;
 import dev.jayms.net.model.*;
 
 import java.io.*;
@@ -27,6 +28,10 @@ public final class MultiplayerServer implements AutoCloseable {
     private WorldVoxels voxels;
     private ModelLibrary models = new ModelLibrary();
     private int nextDrop;
+    private CitySimulation city;
+    private Path citySave;
+    private long lastTick = System.nanoTime();
+    private int cityTicks;
     private final Map<String, AttemptWindow> attempts = new HashMap<>();
     private final AtomicInteger ids = new AtomicInteger();
     private final Semaphore connections = new Semaphore(64), hashing = new Semaphore(4);
@@ -45,6 +50,18 @@ public final class MultiplayerServer implements AutoCloseable {
 
     public MultiplayerServer(
             String bind, int port, Path save, AccountStore accounts, SSLContext tls, long seed)
+            throws IOException {
+        this(bind, port, save, accounts, tls, seed, GameConfig.sandbox());
+    }
+
+    public MultiplayerServer(
+            String bind,
+            int port,
+            Path save,
+            AccountStore accounts,
+            SSLContext tls,
+            long seed,
+            GameConfig game)
             throws IOException {
         terrain = new Terrain(seed);
         this.save = save;
@@ -102,6 +119,39 @@ public final class MultiplayerServer implements AutoCloseable {
         }
         voxels = new WorldVoxels(terrain);
         edits.values().forEach(voxels::apply);
+        citySave = save == null ? null : save.resolveSibling(save.getFileName() + ".city");
+        CityFrame savedCity = CitySimulation.load(citySave);
+        city =
+                new CitySimulation(
+                        savedCity == null ? game : savedCity.config(),
+                        new CitySimulation.Ground() {
+                            public int type(int x, int y, int z) {
+                                return block(x, y, z);
+                            }
+
+                            public boolean occupied(int x, int y, int z, int width, int depth) {
+                                return peers.values().stream()
+                                                .anyMatch(
+                                                        p ->
+                                                                p.pose.x() + .3 > x
+                                                                        && p.pose.x() - .3
+                                                                                < x + width
+                                                                        && p.pose.z() + .3 > z
+                                                                        && p.pose.z() - .3
+                                                                                < z + depth
+                                                                        && p.pose.y() + 1.8 > y
+                                                                        && p.pose.y() < y + 7)
+                                        || (city != null
+                                                && CityOccupancy.overlaps(
+                                                        city.frame(), x, y, z, width, 7, depth));
+                            }
+
+                            public void apply(List<Protocol.Edit> batch) {
+                                applyCityEdits(batch);
+                            }
+                        },
+                        terrain,
+                        savedCity);
         listener = tls.getServerSocketFactory().createServerSocket();
         ((SSLServerSocket) listener).setEnabledProtocols(new String[] {"TLSv1.3", "TLSv1.2"});
         listener.bind(new InetSocketAddress(bind, port));
@@ -213,6 +263,7 @@ public final class MultiplayerServer implements AutoCloseable {
             ModelLibrary initialModels;
             Inventory initialInventory;
             int initialHealth;
+            CityFrame initialCity;
             synchronized (this) {
                 if (!running || sessions.size() >= 32) {
                     authReply(out, false, "Server full or stopping.");
@@ -232,6 +283,7 @@ public final class MultiplayerServer implements AutoCloseable {
                 initialModels = models.copy();
                 initialInventory = inventories.get(username).copy();
                 initialHealth = health.get(username);
+                initialCity = city.frame();
             }
             authReply(out, true, "Welcome " + username);
             out.writeInt(peer.pose.id());
@@ -250,6 +302,7 @@ public final class MultiplayerServer implements AutoCloseable {
             }
             out.writeInt(initialDrops.size());
             for (ItemDrop drop : initialDrops.values()) drop.write(out);
+            initialCity.write(out);
             out.flush();
             if (in.readUnsignedByte() != Protocol.READY) throw new IOException("Expected ready");
             synchronized (this) {
@@ -287,6 +340,7 @@ public final class MultiplayerServer implements AutoCloseable {
                                         0));
                 peers.put(peer.pose.id(), peer);
                 broadcast(new Event(Protocol.JOIN, peer.pose, null, peer.name, 0, true));
+                peer.enqueue(cityState());
                 peer.startWriter();
             }
             long second = System.nanoTime();
@@ -308,10 +362,24 @@ public final class MultiplayerServer implements AutoCloseable {
                         type == Protocol.MODEL_CREATE ? ModelDefinition.read(in) : null;
                 int recipe = type == Protocol.CRAFT ? in.readInt() : -1;
                 Protocol.Pose craftPose = type == Protocol.CRAFT ? Protocol.Pose.read(in) : null;
+                CityCommand cityCommand =
+                        type == Protocol.CITY_COMMAND ? CityCommand.read(in) : null;
                 synchronized (this) {
-                    if (type == Protocol.MOVE) {
+                    if (type == Protocol.CITY_COMMAND) {
+                        String result;
+                        long now = System.nanoTime();
+                        if (now - peer.lastCity < 500_000_000L)
+                            result = "Wait briefly before another city command";
+                        else {
+                            peer.lastCity = now;
+                            result = city.command(cityCommand, peer.pose.id(), peer.pose);
+                        }
+                        peer.enqueue(new Event(Protocol.CITY_RESULT, null, null, result, 0, true));
+                        broadcast(cityState());
+                    } else if (type == Protocol.MOVE) {
                         checkPose(peer, pose);
                         updateHealth(peer, pose);
+                        city.riderMoved(peer.pose.id(), peer.pose);
                         broadcast(new Event(type, peer.pose, null, null, 0, true));
                     } else if (type == Protocol.BLOCK) {
                         // The edit carries the exact pose when clicked, ordered ahead of this
@@ -347,7 +415,9 @@ public final class MultiplayerServer implements AutoCloseable {
                                         && (e.type() == 0
                                                 || peers.values().stream()
                                                         .noneMatch(
-                                                                other -> overlaps(other.pose, e)));
+                                                                other -> overlaps(other.pose, e)))
+                                        && (e.type() == 0
+                                                || !CityOccupancy.overlaps(city.frame(), e));
                         if (accepted) {
                             if (e.type() != 0)
                                 inventories.get(peer.name).take(request.slot(), e.type());
@@ -488,8 +558,10 @@ public final class MultiplayerServer implements AutoCloseable {
         } finally {
             synchronized (this) {
                 if (reserved) sessions.remove(username);
-                if (peer != null && peers.remove(peer.pose.id()) != null)
+                if (peer != null && peers.remove(peer.pose.id()) != null) {
+                    city.release(peer.pose.id());
                     broadcast(new Event(Protocol.LEAVE, peer.pose, null, null, 0, true));
+                }
             }
         }
     }
@@ -542,6 +614,10 @@ public final class MultiplayerServer implements AutoCloseable {
 
     private synchronized void tickItems() {
         if (!running) return;
+        long now = System.nanoTime();
+        city.advance((now - lastTick) / 1e9);
+        lastTick = now;
+        if (++cityTicks % 2 == 0) broadcast(cityState());
         var iterator = drops.entrySet().iterator();
         while (iterator.hasNext()) {
             var entry = iterator.next();
@@ -673,7 +749,25 @@ public final class MultiplayerServer implements AutoCloseable {
             ItemDrop drop,
             int health,
             ModelLibrary.Entry model,
-            Protocol.CellState state) {
+            Protocol.CellState state,
+            byte[] payload) {
+        Event(
+                int type,
+                Protocol.Pose pose,
+                Protocol.Edit edit,
+                String name,
+                int request,
+                boolean accepted,
+                Inventory inventory,
+                ItemDrop drop,
+                int health,
+                ModelLibrary.Entry model,
+                Protocol.CellState state) {
+            this(
+                    type, pose, edit, name, request, accepted, inventory, drop, health, model,
+                    state, null);
+        }
+
         Event(
                 int type,
                 Protocol.Pose pose,
@@ -718,7 +812,7 @@ public final class MultiplayerServer implements AutoCloseable {
         final String name;
         volatile Protocol.Pose pose;
         float fallTop;
-        long lastModel;
+        long lastModel, lastCity;
         final BlockingQueue<Event> queue = new ArrayBlockingQueue<>(512);
 
         Peer(Socket socket, DataOutputStream out, String name, Protocol.Pose pose) {
@@ -771,6 +865,9 @@ public final class MultiplayerServer implements AutoCloseable {
                                         out.writeBoolean(e.accepted);
                                         out.writeUTF(e.name);
                                     }
+                                    case Protocol.CITY_STATE, Protocol.CITY_WORLD ->
+                                            out.write(e.payload);
+                                    case Protocol.CITY_RESULT -> out.writeUTF(e.name);
                                     case Protocol.READY -> {}
                                     default -> throw new IOException("Unknown queued event");
                                 }
@@ -786,6 +883,60 @@ public final class MultiplayerServer implements AutoCloseable {
             try {
                 socket.close();
             } catch (IOException ignored) {
+            }
+        }
+    }
+
+    private Event cityState() {
+        try {
+            var bytes = new ByteArrayOutputStream();
+            city.frame().write(new DataOutputStream(bytes));
+            return new Event(
+                    Protocol.CITY_STATE,
+                    null,
+                    null,
+                    null,
+                    0,
+                    true,
+                    null,
+                    null,
+                    0,
+                    null,
+                    null,
+                    bytes.toByteArray());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private void applyCityEdits(List<Protocol.Edit> batch) {
+        for (var edit : batch) {
+            voxels.apply(edit);
+            WorldVoxels.remember(edits, edit);
+        }
+        for (int start = 0; start < batch.size(); start += 8192) {
+            try {
+                var bytes = new ByteArrayOutputStream();
+                var out = new DataOutputStream(bytes);
+                int end = Math.min(start + 8192, batch.size());
+                out.writeInt(end - start);
+                for (int i = start; i < end; i++) batch.get(i).write(out);
+                broadcast(
+                        new Event(
+                                Protocol.CITY_WORLD,
+                                null,
+                                null,
+                                null,
+                                0,
+                                true,
+                                null,
+                                null,
+                                0,
+                                null,
+                                null,
+                                bytes.toByteArray()));
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
             }
         }
     }
@@ -820,6 +971,7 @@ public final class MultiplayerServer implements AutoCloseable {
         } catch (AtomicMoveNotSupportedException e) {
             Files.move(temp, absolute, StandardCopyOption.REPLACE_EXISTING);
         }
+        city.save(citySave);
     }
 
     @Override
@@ -837,11 +989,22 @@ public final class MultiplayerServer implements AutoCloseable {
         String bind = "0.0.0.0", create = null;
         int port = Protocol.PORT;
         long seed = Terrain.DEFAULT_SEED;
+        boolean cityGame = false, cycle = true;
+        double daySeconds = 1200, startHour = 8;
         Path save = Path.of("world.dat"),
                 accountFile = Path.of("accounts.db"),
                 tlsDirectory = Path.of("tls");
         for (int i = 0; i < args.length; i++)
             switch (args[i]) {
+                case "--game" -> {
+                    String value = args[++i];
+                    if (!value.equals("city") && !value.equals("sandbox"))
+                        throw new IllegalArgumentException("Game must be city or sandbox");
+                    cityGame = value.equals("city");
+                }
+                case "--day-seconds" -> daySeconds = Double.parseDouble(args[++i]);
+                case "--start-hour" -> startHour = Double.parseDouble(args[++i]);
+                case "--fixed-time" -> cycle = false;
                 case "--bind" -> bind = args[++i];
                 case "--seed" -> seed = Long.parseLong(args[++i]);
                 case "--port" -> port = Integer.parseInt(args[++i]);
@@ -871,7 +1034,14 @@ public final class MultiplayerServer implements AutoCloseable {
         }
         var identity = SecureTransport.server(tlsDirectory);
         try (var server =
-                new MultiplayerServer(bind, port, save, accounts, identity.context(), seed)) {
+                new MultiplayerServer(
+                        bind,
+                        port,
+                        save,
+                        accounts,
+                        identity.context(),
+                        seed,
+                        new GameConfig(cityGame, cityGame && cycle, daySeconds, startHour))) {
             Runtime.getRuntime()
                     .addShutdownHook(
                             new Thread(

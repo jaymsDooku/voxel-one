@@ -1,0 +1,16 @@
+[Unit]
+Description=Voxel City One multiplayer simulation
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/debian/codex/voxel-one/runtime/city
+ExecStart=/usr/bin/java -Xms64m -Xmx256m -jar /home/debian/codex/voxel-one/runtime/city/server.jar --game city --bind 0.0.0.0 --port 25566 --world world.dat --day-seconds 1200 --start-hour 8
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=20
+NoNewPrivileges=true
+
+[Install]
+WantedBy=default.target

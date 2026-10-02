@@ -1,5 +1,6 @@
 package dev.jayms.net;
 
+import dev.jayms.net.city.*;
 import dev.jayms.net.model.*;
 
 import java.io.*;
@@ -21,6 +22,10 @@ public final class MultiplayerClient implements AutoCloseable {
     public int modelResults;
     public Inventory inventory;
     public int health = 20;
+    public CityFrame city;
+    public long cityReceived;
+    public final Map<Integer, RemotePlayer> citizens = new HashMap<>();
+    public final Map<Integer, RemotePlayer> horses = new HashMap<>();
     public final Map<Integer, ItemDrop> drops = new LinkedHashMap<>();
     public Protocol.Pose respawn;
     public final List<Protocol.Edit> initialEdits = new ArrayList<>();
@@ -87,6 +92,7 @@ public final class MultiplayerClient implements AutoCloseable {
                 ItemDrop drop = ItemDrop.read(in);
                 if (drop.count() > 0) drops.put(drop.id(), drop);
             }
+            acceptCity(CityFrame.read(in), System.nanoTime());
             out.writeByte(Protocol.READY);
             out.flush();
             socket.setSoTimeout(0);
@@ -114,6 +120,52 @@ public final class MultiplayerClient implements AutoCloseable {
         writer.start();
     }
 
+    private void acceptCity(CityFrame frame, long time) {
+        city = frame;
+        cityReceived = time;
+        for (var c : frame.citizens())
+            citizens.computeIfAbsent(c.id(), id -> new RemotePlayer(c.name()))
+                    .accept(
+                            new Protocol.Pose(
+                                    c.id(),
+                                    c.x(),
+                                    c.y(),
+                                    c.z(),
+                                    c.yaw(),
+                                    0,
+                                    c.phase(),
+                                    c.activity().startsWith("Commuting")
+                                                    || c.activity().startsWith("Going")
+                                                    || c.activity().startsWith("Buying")
+                                            ? 1
+                                            : 0,
+                                    false),
+                            time);
+        for (var h : frame.horses())
+            horses.computeIfAbsent(h.id(), id -> new RemotePlayer("Horse"))
+                    .accept(
+                            new Protocol.Pose(
+                                    h.id(),
+                                    h.x(),
+                                    h.y(),
+                                    h.z(),
+                                    h.yaw(),
+                                    0,
+                                    h.phase(),
+                                    h.rider() != 0 ? 1 : 0,
+                                    false),
+                            time);
+    }
+
+    public boolean cityCommand(CityCommand command) {
+        return send(
+                () -> {
+                    out.writeByte(Protocol.CITY_COMMAND);
+                    command.write(out);
+                    out.flush();
+                });
+    }
+
     private void join(Protocol.Pose p, String name) {
         if (p.id() == id) return;
         players.put(p.id(), p);
@@ -128,7 +180,25 @@ public final class MultiplayerClient implements AutoCloseable {
             while (connected) {
                 int type = in.readUnsignedByte();
                 Runnable event;
-                if (type == Protocol.MOVE) {
+                if (type == Protocol.CITY_STATE) {
+                    var state = CityFrame.read(in);
+                    long time = System.nanoTime();
+                    event = () -> acceptCity(state, time);
+                } else if (type == Protocol.CITY_WORLD) {
+                    int n = in.readInt();
+                    if (n < 0 || n > 8192) throw new IOException("Invalid city edit batch");
+                    var batch = new ArrayList<Protocol.Edit>();
+                    for (int i = 0; i < n; i++) {
+                        var edit = Protocol.Edit.read(in);
+                        if (!edit.valid() || !models.has(edit.type()))
+                            throw new IOException("Invalid city edit");
+                        batch.add(edit);
+                    }
+                    event = () -> pendingEdits.addAll(batch);
+                } else if (type == Protocol.CITY_RESULT) {
+                    String message = Protocol.readText(in, 512);
+                    event = () -> notice = message;
+                } else if (type == Protocol.MOVE) {
                     var p = Protocol.Pose.read(in);
                     long received = System.nanoTime();
                     event =

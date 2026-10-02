@@ -9,6 +9,27 @@ import org.joml.Matrix4f;
 
 public class PlayerModel implements AutoCloseable {
     private final Mesh cube;
+    private int cohort = -1;
+    private boolean seated;
+
+    public void renderCitizen(
+            Protocol.Pose pose,
+            int group,
+            boolean riding,
+            ShaderProgram shader,
+            VoxelModelRenderer models) {
+        cohort = group;
+        seated = riding;
+        render(pose, shader, models);
+        cohort = -1;
+        seated = false;
+    }
+
+    public void renderRider(Protocol.Pose pose, ShaderProgram shader, VoxelModelRenderer models) {
+        seated = true;
+        render(pose, shader, models);
+        seated = false;
+    }
 
     public PlayerModel() {
         Chunk source = new Chunk();
@@ -88,8 +109,8 @@ public class PlayerModel implements AutoCloseable {
                         .rotateX(pose.rightArm());
         arm(shader, rightArm, 1);
         shader.setVector3("uColor", .17f, .22f, .40f);
-        leg(shader, root, -2 * PIXEL, pose.leftLeg());
-        leg(shader, root, 2 * PIXEL, pose.rightLeg());
+        leg(shader, root, -2 * PIXEL, seated ? -1.25f : pose.leftLeg());
+        leg(shader, root, 2 * PIXEL, seated ? -1.25f : pose.rightLeg());
         held(
                 player.heldItem(),
                 player.heldColor(),
@@ -165,7 +186,10 @@ public class PlayerModel implements AutoCloseable {
     }
 
     private void shirt(ShaderProgram shader) {
-        shader.setVector3("uColor", .16f, .46f, .86f);
+        if (cohort == 0) shader.setVector3("uColor", .65f, .4f, .18f);
+        else if (cohort == 1) shader.setVector3("uColor", .2f, .6f, .4f);
+        else if (cohort == 2) shader.setVector3("uColor", .55f, .25f, .65f);
+        else shader.setVector3("uColor", .16f, .46f, .86f);
     }
 
     private void arm(ShaderProgram shader, Matrix4f pivot, int side) {

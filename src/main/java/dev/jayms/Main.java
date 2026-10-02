@@ -6,6 +6,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 
 import dev.jayms.net.*;
+import dev.jayms.net.city.*;
 import dev.jayms.net.model.*;
 import dev.jayms.player.*;
 import dev.jayms.ui.*;
@@ -34,6 +35,31 @@ public class Main {
     private boolean isometric;
     private Player player;
     private PlayerModel playerModel;
+    private HorseModel horseModel;
+    private final CityTools cityTools = new CityTools();
+    private GameConfig gameConfig = GameConfig.sandbox();
+
+    private CityFrame city() {
+        return network == null ? local.city.frame() : network.city;
+    }
+
+    private int riderId() {
+        return network == null ? 1000000 : network.id;
+    }
+
+    private void cityCommand(CityCommand command) {
+        if (network == null) notice = local.city.command(command, riderId(), player.pose(0));
+        else if (!network.cityCommand(command))
+            notice = "Disconnected: reconnect to use city tools";
+    }
+
+    private CityFrame.Horse riding() {
+        return city().horses().stream()
+                .filter(h -> h.rider() == riderId())
+                .findFirst()
+                .orElse(null);
+    }
+
     private VoxelModelRenderer modelRenderer;
     private DistantTerrainRenderer distant;
     private ModelEditor editor;
@@ -102,6 +128,7 @@ public class Main {
         overlay = new Overlay();
         camera = new Camera();
         playerModel = new PlayerModel();
+        horseModel = new HorseModel();
         if (network == null) {
             local = new LocalGame(offlineSave, seed);
             seed = local.seed;
@@ -135,6 +162,40 @@ public class Main {
         }
         distant = new DistantTerrainRenderer(seed);
         distant.update(world, player.position().x, player.position().z);
+        if (local != null)
+            local.startGame(
+                    gameConfig,
+                    new CitySimulation.Ground() {
+                        public int type(int x, int y, int z) {
+                            return world.sample(x, y, z);
+                        }
+
+                        public boolean occupied(int x, int y, int z, int width, int depth) {
+                            var p = player.position();
+                            return local.city != null
+                                            && p.x + .3 > x
+                                            && p.x - .3 < x + width
+                                            && p.z + .3 > z
+                                            && p.z - .3 < z + depth
+                                            && p.y + 1.8 > y
+                                            && p.y < y + 7
+                                    || local.city != null
+                                            && CityOccupancy.overlaps(
+                                                    city(), x, y, z, width, 7, depth);
+                        }
+
+                        public void apply(List<Protocol.Edit> batch) {
+                            for (var edit : batch) {
+                                world.apply(edit);
+                                WorldVoxels.remember(local.edits, edit);
+                            }
+                        }
+                    });
+        if (city().config().city()) {
+            isometric = true;
+            overview.cityMode();
+            overview.focus(16, 26, player.position().y);
+        }
         player.resolvePenetration(world);
         configureInput();
         setCaptured(true);
@@ -163,7 +224,14 @@ public class Main {
                         if (!menu.open) setCaptured(true);
                         return;
                     }
-                    if (action == GLFW_PRESS) input(key);
+                    if (action == GLFW_PRESS) {
+                        if (isometric
+                                && city().config().city()
+                                && !menu.open
+                                && !inventoryHud.open
+                                && cityTools.key(key, this::cityCommand)) return;
+                        input(key);
+                    }
                 });
         glfwSetCursorPosCallback(
                 window.getHandle(),
@@ -251,6 +319,19 @@ public class Main {
                         if (!menu.open) setCaptured(true);
                         return;
                     }
+                    if (isometric && city().config().city() && button == GLFW_MOUSE_BUTTON_LEFT) {
+                        int[] size = window.getSize();
+                        cityTools.click(
+                                (float) mouseX * framebufferWidth / size[0],
+                                (float) mouseY * framebufferHeight / size[1],
+                                framebufferWidth,
+                                framebufferHeight,
+                                projection,
+                                view,
+                                city(),
+                                this::cityCommand);
+                        return;
+                    }
                     input(-button - 1);
                 });
         glfwSetCharCallback(
@@ -308,6 +389,10 @@ public class Main {
     }
 
     private void input(int code) {
+        if (controls.matches(DISMOUNT, code) && riding() != null) {
+            cityCommand(new CityCommand(CityCommand.RIDE, 0, List.of()));
+            return;
+        }
         if (controls.matches(LIGHT_COLOR, code)) {
             inventoryHud.close();
             lightColors.show();
@@ -335,7 +420,11 @@ public class Main {
         }
         if (controls.matches(ISOMETRIC, code)) {
             isometric = !isometric;
-            if (isometric) overview.fit();
+            if (isometric) {
+                if (city().config().city())
+                    overview.focus(player.position().x, player.position().z, player.position().y);
+                else overview.fit();
+            }
             setCaptured(!isometric);
             return;
         }
@@ -421,8 +510,34 @@ public class Main {
                 network.respawn = null;
                 notice = "You respawned. Your inventory was kept.";
             }
+            if (local != null) local.city.advance(Math.min(dt, .25));
+            var horse = riding();
+            player.mount(
+                    horse != null,
+                    horse == null ? null : new Vector3f(horse.x(), horse.y(), horse.z()));
+            if (isometric
+                    && city().config().city()
+                    && !menu.open
+                    && !inventoryHud.open
+                    && !editor.open
+                    && !lightColors.open) {
+                float speed = Math.min(dt, .1f) * 50 / Math.max(.25f, overview.zoom() / 64);
+                float
+                        f =
+                                (controls.down(window.getHandle(), FORWARD) ? 1 : 0)
+                                        - (controls.down(window.getHandle(), BACKWARD) ? 1 : 0),
+                        r =
+                                (controls.down(window.getHandle(), RIGHT) ? 1 : 0)
+                                        - (controls.down(window.getHandle(), LEFT) ? 1 : 0);
+                if (f != 0 || r != 0) overview.pan((-f + r) * speed, (-f - r) * speed);
+            }
             var location = player.position();
-            world.stream(location.x, location.z, 2);
+            float streamX = location.x, streamZ = location.z;
+            if (isometric && city().config().city() && overview.focused()) {
+                streamX = overview.focusX();
+                streamZ = overview.focusZ();
+            }
+            world.stream(streamX, streamZ, 2);
             float forward =
                     captured
                             ? (controls.down(window.getHandle(), FORWARD) ? 1 : 0)
@@ -457,6 +572,7 @@ public class Main {
                     nextSave = now + 60;
                 }
             }
+            if (local != null) local.city.riderMoved(riderId(), player.pose(0));
             player.heldItem(inventory().type(inventoryHud.selected));
             player.heldColor(lightColors.color());
             player.updateCamera(world);
@@ -469,7 +585,13 @@ public class Main {
                     "Voxel One | "
                             + (network == null ? "Offline" : network.status())
                             + " | "
-                            + (isometric ? "Isometric" : player.flying() ? "Flying" : "Walking")
+                            + (isometric
+                                    ? "Isometric"
+                                    : player.mounted()
+                                            ? "Riding horse | " + player.cameraView()
+                                            : player.flying()
+                                                    ? "Flying | " + player.cameraView()
+                                                    : "Walking | " + player.cameraView())
                             + " | "
                             + (editor.open
                                     ? "Model editor"
@@ -494,6 +616,8 @@ public class Main {
             return;
         }
         var location = player.position();
+        if (isometric && city().config().city() && overview.focused())
+            location.set(overview.focusX(), location.y, overview.focusZ());
         distant.update(world, location.x, location.z);
         if (isometric)
             projection.set(
@@ -539,6 +663,12 @@ public class Main {
             c.checkMesh();
             if (--meshBudget == 0) break;
         }
+        rendering.time(
+                city().config(),
+                city().elapsed()
+                        + (network == null
+                                ? 0
+                                : Math.min(1, (System.nanoTime() - network.cityReceived) / 1e9)));
         rendering.update(world, location.x, location.z);
         rendering.renderShadows(world, modelRenderer, location);
         rendering.begin(
@@ -573,12 +703,69 @@ public class Main {
                 if (Blocks.isModel(drop.type()))
                     modelRenderer.renderDrop(drop, (float) glfwGetTime(), shader);
                 else playerModel.renderDrop(drop, (float) glfwGetTime(), shader);
-        if (isometric || player.thirdPerson())
-            playerModel.render(player.pose(0), shader, modelRenderer);
+        for (var h : city().horses()) {
+            Protocol.Pose p =
+                    new Protocol.Pose(
+                            h.id(),
+                            h.x(),
+                            h.y(),
+                            h.z(),
+                            h.yaw(),
+                            0,
+                            h.phase(),
+                            h.rider() != 0 ? 1 : 0,
+                            false);
+            if (network != null && network.horses.containsKey(h.id()) && h.rider() != riderId())
+                p = network.horses.get(h.id()).sample(System.nanoTime());
+            if (h.rider() == riderId()) {
+                var loc = player.position();
+                p =
+                        new Protocol.Pose(
+                                h.id(),
+                                loc.x,
+                                loc.y - .75f,
+                                loc.z,
+                                player.yaw(),
+                                0,
+                                player.walkPhase(),
+                                player.walkAmount(),
+                                false);
+            }
+            if (p != null) horseModel.render(p, shader);
+        }
+        for (var c : city().citizens()) {
+            Protocol.Pose p =
+                    new Protocol.Pose(
+                            c.id(),
+                            c.x(),
+                            c.y(),
+                            c.z(),
+                            c.yaw(),
+                            0,
+                            c.phase(),
+                            c.activity().startsWith("Commuting")
+                                            || c.activity().startsWith("Going")
+                                            || c.activity().startsWith("Buying")
+                                    ? 1
+                                    : 0,
+                            false);
+            if (network != null && network.citizens.containsKey(c.id()))
+                p = network.citizens.get(c.id()).sample(System.nanoTime());
+            if (p != null)
+                playerModel.renderCitizen(p, c.cohort(), c.horse() != 0, shader, modelRenderer);
+        }
+        if (isometric || player.thirdPerson()) {
+            if (player.mounted()) playerModel.renderRider(player.pose(0), shader, modelRenderer);
+            else playerModel.render(player.pose(0), shader, modelRenderer);
+        }
         if (network != null)
             for (var remote : network.remotePlayers.values()) {
                 var p = remote.sample(System.nanoTime());
-                if (p != null) playerModel.render(p, shader, modelRenderer);
+                if (p != null) {
+                    if (city().horses().stream().anyMatch(h -> h.rider() == p.id()))
+                        playerModel.renderRider(p, shader, modelRenderer);
+                    else playerModel.render(p, shader, modelRenderer);
+                }
             }
         if (!isometric && !player.thirdPerson()) {
             glClear(GL_DEPTH_BUFFER_BIT);
@@ -606,6 +793,8 @@ public class Main {
             overlay.end();
             return;
         }
+        for (var c : city().citizens())
+            nameplate(c.name(), new Vector3f(c.x(), c.y() + 2.15f, c.z()));
         if (network != null)
             for (var remote : network.remotePlayers.values()) {
                 var p = remote.sample(System.nanoTime());
@@ -627,7 +816,9 @@ public class Main {
                         + " | "
                         + (isometric
                                 ? "ISOMETRIC | 4096 x 4096 BLOCKS"
-                                : player.flying() ? "FLYING" : "WALKING"),
+                                : player.mounted()
+                                        ? "RIDING HORSE | H: dismount"
+                                        : player.flying() ? "FLYING" : "WALKING"),
                 22,
                 22,
                 1.8f);
@@ -676,7 +867,8 @@ public class Main {
                 world.models(),
                 (float) mouseX * framebufferWidth / windowSize[0],
                 (float) mouseY * framebufferHeight / windowSize[1]);
-        if (!notice.isEmpty()) overlay.text(notice, 20, 99, 1.4f, 1, .8f, .4f, 1);
+        if (!notice.isEmpty())
+            overlay.text(notice, 20, city().config().city() ? 132 : 99, 1.4f, 1, .8f, .4f, 1);
         if (Blocks.material(player.heldItem()) == Blocks.LED)
             overlay.text(
                     String.format(
@@ -685,6 +877,15 @@ public class Main {
                     20,
                     framebufferHeight - 130,
                     1.4f);
+        if (city().config().city() && !inventoryHud.open && !menu.open && !lightColors.open)
+            cityTools.render(
+                    overlay,
+                    framebufferWidth,
+                    framebufferHeight,
+                    projection,
+                    view,
+                    city(),
+                    isometric);
         menu.render(overlay, framebufferWidth, framebufferHeight);
         lightColors.render(overlay, framebufferWidth, framebufferHeight);
         overlay.end();
@@ -709,6 +910,30 @@ public class Main {
 
     private void interact(boolean place) {
         if (isometric) return;
+        if (place && city().config().city()) {
+            if (riding() != null) {
+                cityCommand(new CityCommand(CityCommand.RIDE, 0, List.of()));
+                return;
+            }
+            CityFrame.Horse closest = null;
+            float best = 5;
+            var eye = player.eyePosition();
+            var aim = player.facingDirection();
+            var blockHit = BlockRaycaster.cast(world, eye, aim, 6);
+            if (blockHit != null) best = Math.min(best, blockHit.distance());
+            for (var h : city().horses()) {
+                if (h.rider() != 0) continue;
+                float t = HorseInteraction.distance(h, eye, aim);
+                if (t < best) {
+                    closest = h;
+                    best = t;
+                }
+            }
+            if (closest != null) {
+                cityCommand(new CityCommand(CityCommand.RIDE, closest.id(), List.of()));
+                return;
+            }
+        }
         if (!place) player.swing();
         if (network != null && !network.connected()) {
             notice = "Disconnected: reconnect to edit the world.";
@@ -745,7 +970,8 @@ public class Main {
         if (!edit.valid()
                 || !world.isLoaded(x, y, z)
                 || place && world.region(edit) != 0
-                || place && player.overlaps(world, edit)) return;
+                || place && player.overlaps(world, edit)
+                || place && CityOccupancy.overlaps(city(), edit)) return;
         if (network == null) {
             if (local.edit(edit, world.region(edit), inventoryHud.selected)) {
                 world.apply(edit);
@@ -768,6 +994,7 @@ public class Main {
         if (distant != null) distant.close();
         if (world != null) world.close();
         if (playerModel != null) playerModel.close();
+        if (horseModel != null) horseModel.close();
         if (modelRenderer != null) modelRenderer.close();
         if (editor != null) editor.close();
         if (overlay != null) overlay.close();
@@ -782,11 +1009,24 @@ public class Main {
     public static void main(String[] args) throws Exception {
         String host = null, pin = null;
         int port = Protocol.PORT;
-        boolean offline = false;
+        boolean offline = false, cityGame = false, gameExplicit = false;
+        double daySeconds = 1200, startHour = 8;
+        boolean cycle = true;
         long seed = Terrain.DEFAULT_SEED;
         java.nio.file.Path save = Controls.directory().resolve("offline-world.dat");
         for (int i = 0; i < args.length; i++)
             switch (args[i]) {
+                case "--game" -> {
+                    String value = args[++i];
+                    if (!value.equals("city") && !value.equals("sandbox"))
+                        throw new IllegalArgumentException("Game must be city or sandbox");
+                    cityGame = value.equals("city");
+                    gameExplicit = true;
+                    LoginDialog.citySelected = cityGame;
+                }
+                case "--day-seconds" -> daySeconds = Double.parseDouble(args[++i]);
+                case "--start-hour" -> startHour = Double.parseDouble(args[++i]);
+                case "--fixed-time" -> cycle = false;
                 case "--server" -> host = args[++i];
                 case "--port" -> port = Integer.parseInt(args[++i]);
                 case "--fingerprint" -> pin = args[++i];
@@ -812,6 +1052,10 @@ public class Main {
                     throw e;
                 }
             }
+            if (!offline && !gameExplicit) cityGame = LoginDialog.citySelected;
+            game.gameConfig = new GameConfig(cityGame, cityGame && cycle, daySeconds, startHour);
+            if (cityGame && save.equals(Controls.directory().resolve("offline-world.dat")))
+                game.offlineSave = Controls.directory().resolve("offline-city.dat");
             game.run();
         } finally {
             if (game.network != null) game.network.close();

@@ -48,3 +48,9 @@ world.dat.tmp
 
 # Release packaging Python cache
 __pycache__/
+
+# Website tools and local database previews
+website/node_modules/
+website/.wrangler/
+website/.sites-runtime/
+website/**/.wrangler/
