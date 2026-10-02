@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T01:11:51+00:00",
+  "updatedAt": "2026-10-02T01:11:56+00:00",
   "release": {
     "name": "Playtest 13",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-13",
@@ -103,10 +103,26 @@
       "id": "global-illumination",
       "title": "Global illumination",
       "description": "Indirect light and occlusion for the voxel world.",
-      "status": "in_progress",
-      "updatedAt": "2026-10-02T00:18:27+00:00",
-      "note": "Implementing bounded voxel light propagation and indirect colour bounce.",
-      "evidence": []
+      "status": "complete",
+      "updatedAt": "2026-10-02T01:11:56+00:00",
+      "note": "Background voxel skylight, diffuse sunlight bounce and occluded RGB light propagation implemented. Sealed-room, mixing and falloff regressions pass; irradiance upload verified in the renderer.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Lighting regression source",
+          "url": "https://github.com/jaymsDooku/voxel-one/blob/d0da076758711c10c270605c55ff1414439b26cd/src/test/java/dev/jayms/LightingTest.java"
+        },
+        {
+          "kind": "report",
+          "label": "lighting tests.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-tests.json"
+        },
+        {
+          "kind": "image",
+          "label": "voxel lighting gpu gallery.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/voxel-lighting-gpu-gallery.png"
+        }
+      ]
     },
     {
       "id": "environment-reflections",
