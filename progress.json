@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T13:32:03+00:00",
+  "updatedAt": "2026-10-02T13:51:57+00:00",
   "release": {
     "name": "Playtest 18",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-18",
@@ -1071,6 +1071,15 @@
       "status": "complete",
       "note": "Released in Playtest 18: F9 or Dashboard opens Overview, Groups, Citizens and Finances. Live housing, jobs, hunger, savings and budget metrics; searchable citizen roster locates people in Inspect. All 103 tests passed on four desktop platforms, seven packaged-client checks and eight documentation browser checks passed, and the Windows updater downloaded and verified the release.",
       "updatedAt": "2026-10-02T13:32:03+00:00"
+    },
+    {
+      "id": "city-time",
+      "title": "City time and daily population routines",
+      "description": "Reviewing the existing city clock and routines; implementing visible daily life and verifying multiple simulated days.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Reviewing the existing city clock and routines; implementing visible daily life and verifying multiple simulated days.",
+      "updatedAt": "2026-10-02T13:51:57+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
