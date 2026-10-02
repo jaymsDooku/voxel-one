@@ -77,8 +77,31 @@ public final class CityEconomy {
             List<Firm> firms,
             List<Plot> plots,
             List<Property> properties,
-            List<Contract> contracts) {
+            List<Contract> contracts,
+            List<CityBusinesses.Record> businesses) {
+        public State(
+                double budget,
+                double roadSpending,
+                double landRevenue,
+                double rentClock,
+                List<Firm> firms,
+                List<Plot> plots,
+                List<Property> properties,
+                List<Contract> contracts) {
+            this(
+                    budget,
+                    roadSpending,
+                    landRevenue,
+                    rentClock,
+                    firms,
+                    plots,
+                    properties,
+                    contracts,
+                    List.of());
+        }
+
         public State {
+            businesses = List.copyOf(businesses);
             firms = List.copyOf(firms);
             plots = List.copyOf(plots);
             properties = List.copyOf(properties);
@@ -90,6 +113,10 @@ public final class CityEconomy {
         }
 
         public void write(DataOutput out) throws IOException {
+            write(out, false);
+        }
+
+        public void write(DataOutput out, boolean legacy) throws IOException {
             out.writeDouble(budget);
             out.writeDouble(roadSpending);
             out.writeDouble(landRevenue);
@@ -136,9 +163,14 @@ public final class CityEconomy {
                 out.writeBoolean(c.sale);
                 out.writeDouble(c.amount);
             }
+            if (!legacy) CityBusinesses.write(out, businesses);
         }
 
         public static State read(DataInput in) throws IOException {
+            return read(in, false);
+        }
+
+        public static State read(DataInput in, boolean legacy) throws IOException {
             double budget = money(in), roads = money(in), land = money(in), clock = money(in);
             var firms = new ArrayList<Firm>();
             for (int i = 0, n = count(in, 16); i < n; i++) {
@@ -190,7 +222,16 @@ public final class CityEconomy {
                 if (kind > 1) throw new IOException("Invalid contract");
                 contracts.add(new Contract(b, kind, party, in.readBoolean(), money(in)));
             }
-            return new State(budget, roads, land, clock, firms, plots, properties, contracts);
+            return new State(
+                    budget,
+                    roads,
+                    land,
+                    clock,
+                    firms,
+                    plots,
+                    properties,
+                    contracts,
+                    legacy ? List.of() : CityBusinesses.read(in));
         }
 
         private static double money(DataInput in) throws IOException {
@@ -213,6 +254,7 @@ public final class CityEconomy {
     }
 
     private final Ecs ecs;
+    public final CityBusinesses businesses;
     public double budget = INITIAL_BUDGET, roadSpending, landRevenue, rentClock;
     public final List<Plot> plots = new ArrayList<>();
     public final List<Property> properties = new ArrayList<>();
@@ -220,6 +262,7 @@ public final class CityEconomy {
 
     public CityEconomy(Ecs ecs, State state) {
         this.ecs = ecs;
+        businesses = new CityBusinesses(state == null ? List.of() : state.businesses());
         if (state != null && !state.firms().isEmpty()) {
             budget = state.budget;
             roadSpending = state.roadSpending;
@@ -325,6 +368,17 @@ public final class CityEconomy {
         return true;
     }
 
+    public boolean businessWage(
+            int building, double value, double hours, CitySimulation.Needs needs) {
+        var property = property(building);
+        if (property == null || !wage(property.operator(), value, needs)) {
+            businesses.missedWage(building);
+            return false;
+        }
+        businesses.wage(building, value, hours);
+        return true;
+    }
+
     public void work(int plot, float dt) {
         var p = project(plot);
         if (p != null) plots.set(plots.indexOf(p), p.progress(Math.min(100, p.work + dt)));
@@ -378,7 +432,10 @@ public final class CityEconomy {
     public int operate(CityFrame.Building b) {
         var p = property(b.id());
         if (p == null) return 0;
-        if (p.operator != 0) return p.operator;
+        if (p.operator != 0) {
+            businesses.open(b.id(), p.operator);
+            return p.operator;
+        }
         var operator =
                 companies().stream().filter(c -> c.kind == b.type()).findFirst().orElse(null);
         if (operator == null) return 0;
@@ -386,6 +443,8 @@ public final class CityEconomy {
         double amount = buy ? p.price : p.rent;
         if (operator.cash < amount) return 0;
         operator.cash -= amount;
+        businesses.open(b.id(), operator.id);
+        if (!buy) businesses.rent(b.id(), amount);
         credit(p, amount);
         contracts.add(new Contract(b.id(), COMPANY, operator.id, buy, amount));
         properties.set(
@@ -430,8 +489,12 @@ public final class CityEconomy {
                 double amount = contract.amount;
                 if (contract.partyKind == COMPANY) {
                     var c = company(contract.party);
-                    if (c.cash < amount) continue;
+                    if (c.cash < amount) {
+                        businesses.missedRent(contract.building);
+                        continue;
+                    }
                     c.cash -= amount;
+                    businesses.rent(contract.building, amount);
                 } else {
                     var n = ecs.get(contract.party, CitySimulation.Needs.class);
                     if (n.money < amount) continue;
@@ -448,6 +511,7 @@ public final class CityEconomy {
             var c = company(p.operator);
             c.cash += amount;
             c.receipts += amount;
+            businesses.sale(building, 1, amount);
         }
     }
 
@@ -461,6 +525,8 @@ public final class CityEconomy {
         buyer.cash -= .5;
         seller.cash += .5;
         seller.receipts += .5;
+        businesses.sale(mine, 1, .5);
+        businesses.delivery(shop, 1, .5);
         return true;
     }
 
@@ -485,6 +551,7 @@ public final class CityEconomy {
                         .toList(),
                 plots,
                 properties,
-                contracts);
+                contracts,
+                businesses.records());
     }
 }

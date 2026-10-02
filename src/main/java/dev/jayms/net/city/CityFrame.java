@@ -62,6 +62,10 @@ public record CityFrame(
     }
 
     public void write(DataOutput out) throws IOException {
+        write(out, 3);
+    }
+
+    public void write(DataOutput out, int version) throws IOException {
         config.write(out);
         out.writeDouble(elapsed);
         out.writeInt(roads.size());
@@ -114,7 +118,7 @@ public record CityFrame(
             out.writeFloat(h.phase);
             out.writeInt(h.rider);
         }
-        economy.write(out);
+        if (version >= 2) economy.write(out, version < 3);
     }
 
     private static int count(DataInput in, int max) throws IOException {
@@ -134,6 +138,10 @@ public record CityFrame(
     }
 
     public static CityFrame read(DataInput in, boolean legacy) throws IOException {
+        return read(in, legacy ? 1 : 3);
+    }
+
+    public static CityFrame read(DataInput in, int version) throws IOException {
         var config = GameConfig.read(in);
         double elapsed = in.readDouble();
         if (!Double.isFinite(elapsed) || elapsed < 0) throw new IOException("Invalid clock");
@@ -217,6 +225,6 @@ public record CityFrame(
                 buildings,
                 citizens,
                 horses,
-                legacy ? CityEconomy.State.empty() : CityEconomy.State.read(in));
+                version < 2 ? CityEconomy.State.empty() : CityEconomy.State.read(in, version < 3));
     }
 }

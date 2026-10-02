@@ -201,6 +201,7 @@ public final class CitySimulation {
             construct();
             nextBuild = elapsed + 4;
         }
+        economy.businesses.beginDay(config.time(elapsed).day());
         economy.rent(dt / config.daySeconds());
         finishProjects();
         assign();
@@ -223,7 +224,7 @@ public final class CitySimulation {
                 t.activity = "Waiting for a clear route";
                 continue;
             }
-            boolean working = time.period() == CityTime.Period.WORKDAY;
+            boolean working = onShift(id, time);
             float mealThreshold = working ? 65 : 85;
             int mealShop =
                     time.shopsOpen() && n.hunger < mealThreshold && n.money >= 3 ? find(1) : 0;
@@ -271,31 +272,19 @@ public final class CitySimulation {
                 } else t.activity = "Developer cannot afford wages";
             } else if (b.type() == 2 && working && !eating) {
                 t.activity = "Working in mine";
-                var property = economy.property(b.id());
-                if (property == null
-                        || !economy.wage(property.operator(), hours * (1.8 + h.cohort * .3), n)) {
+                if (!economy.businessWage(b.id(), hours * (1.8 + h.cohort * .3), hours, n)) {
                     t.activity = "Employer cannot afford wages";
                     continue;
                 }
-                int stock = Math.min(1000, b.stock() + 1);
+                int stock = b.stock() + economy.businesses.produce(b.id(), hours, 1000 - b.stock());
                 replaceStock(b, stock);
-                for (var shop : new ArrayList<>(buildings))
-                    if (shop.type() == 1
-                            && shop.stock() < 80
-                            && stock > 0
-                            && ((int) (elapsed * 10)) % 20 == 0
-                            && economy.delivery(b.id(), shop.id())) {
-                        replaceStock(shop, shop.stock() + 1);
-                        replaceStock(building(b.id()), --stock);
-                    }
             } else if (b.type() == 1 && working && !eating) {
-                var property = economy.property(b.id());
                 t.activity =
-                        economy.wage(property.operator(), hours * 1.8, n)
+                        economy.businessWage(b.id(), hours * 1.8, hours, n)
                                 ? "Working in shop"
                                 : "Employer cannot afford wages";
             } else if (b.type() == 1 && eating) {
-                if (n.hunger < 95 && n.money >= 3 && b.stock() > 0) {
+                if (n.hunger < 95 && n.money >= 3 && b.stock() > 0 && shopReady(b, time)) {
                     n.money -= 3;
                     economy.meal(b.id(), 3);
                     n.hunger = Math.min(100, n.hunger + 35);
@@ -306,7 +295,11 @@ public final class CitySimulation {
                 t.activity =
                         n.money < 3
                                 ? "Cannot afford food"
-                                : b.stock() == 0 ? "Shop needs mine deliveries" : "Eating at shop";
+                                : b.stock() == 0
+                                        ? "Shop needs mine deliveries"
+                                        : !shopReady(b, time)
+                                                ? "Waiting for shop staff"
+                                                : "Eating at shop";
                 if (n.money < 3 && h.job != 0) {
                     t.target = h.job;
                     var job = workplace(h.job);
@@ -320,6 +313,38 @@ public final class CitySimulation {
                                         ? "Morning at home"
                                         : working ? "Looking for work" : "Relaxing at home";
         }
+        restock();
+    }
+
+    private boolean onShift(int citizen, CityTime time) {
+        var h = ecs.get(citizen, Household.class);
+        var b = building(h.job);
+        if (b == null || b.type() != 1) return time.period() == CityTime.Period.WORKDAY;
+        var staff =
+                ecs.query(Household.class).stream()
+                        .filter(id -> ecs.get(id, Household.class).job == b.id())
+                        .toList();
+        int shift = staff.indexOf(citizen) % 2;
+        return CityBusinesses.shopShift(time.hour(), shift);
+    }
+
+    private boolean shopReady(CityFrame.Building b, CityTime time) {
+        var property = economy.property(b.id());
+        if (!time.shopsOpen() || property == null || property.operator() == 0) return false;
+        var firm = economy.company(property.operator());
+        if (firm == null || firm.cash <= 0) return false;
+        return ecs.query(Household.class, Position.class).stream()
+                .anyMatch(
+                        id -> {
+                            var h = ecs.get(id, Household.class);
+                            var p = ecs.get(id, Position.class);
+                            return h.job == b.id()
+                                    && onShift(id, time)
+                                    && p.x > b.x()
+                                    && p.x < b.x() + 6
+                                    && p.z > b.z()
+                                    && p.z < b.z() + 7;
+                        });
     }
 
     private void replaceStock(CityFrame.Building b, int stock) {
@@ -329,6 +354,24 @@ public final class CitySimulation {
                     i,
                     new CityFrame.Building(
                             b.id(), b.zone(), b.type(), b.x(), b.y(), b.z(), b.capacity(), stock));
+    }
+
+    private void restock() {
+        for (var initial : new ArrayList<>(buildings))
+            if (initial.type() == 1 && initial.stock() < 80) {
+                var shop = building(initial.id());
+                for (var initialMine : new ArrayList<>(buildings))
+                    if (initialMine.type() == 2) {
+                        var mine = building(initialMine.id());
+                        // At most one unit per location per step. Each paid unit is moved
+                        // atomically.
+                        if (mine.stock() > 0 && economy.delivery(mine.id(), shop.id())) {
+                            replaceStock(mine, mine.stock() - 1);
+                            replaceStock(shop, shop.stock() + 1);
+                            break;
+                        }
+                    }
+            }
     }
 
     private void assign() {
@@ -918,9 +961,9 @@ public final class CitySimulation {
         if (file == null || !Files.exists(file)) return null;
         try (var in = new DataInputStream(Files.newInputStream(file))) {
             int magic = in.readInt();
-            if (magic != 0x43495431 && magic != 0x43495432)
+            if (magic != 0x43495431 && magic != 0x43495432 && magic != 0x43495433)
                 throw new IOException("Invalid city save");
-            return CityFrame.read(in, magic == 0x43495431);
+            return CityFrame.read(in, magic == 0x43495431 ? 1 : magic == 0x43495432 ? 2 : 3);
         }
     }
 
@@ -929,7 +972,7 @@ public final class CitySimulation {
         Files.createDirectories(file.toAbsolutePath().getParent());
         Path tmp = file.resolveSibling(file.getFileName() + ".tmp");
         try (var out = new DataOutputStream(Files.newOutputStream(tmp))) {
-            out.writeInt(0x43495432);
+            out.writeInt(0x43495433);
             frame().write(out);
         }
         try {

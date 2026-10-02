@@ -61,7 +61,7 @@ class CityTimeTest {
                         assertEquals(CityTime.Period.NIGHT, config.time(frame.elapsed()).period());
                     }
                     if (citizen.activity().equals("Eating at shop")) ate.add(citizen.id());
-                    if (citizen.activity().startsWith("Working"))
+                    if (citizen.activity().equals("Working in mine"))
                         assertEquals(
                                 CityTime.Period.WORKDAY, config.time(frame.elapsed()).period());
                     assertTrue(Float.isFinite(citizen.money()) && citizen.money() >= 0);

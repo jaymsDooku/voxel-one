@@ -9,27 +9,37 @@ import java.util.function.IntConsumer;
 
 /** Live, read-only mayor screen. Citizen selection returns to the existing world inspector. */
 public final class MayorDashboard {
+    public final BusinessDashboard businesses = new BusinessDashboard();
     public boolean open;
     public int tab, filter, firstRow;
     public boolean sortBySavings, searchFocus;
     public String search = "";
     private List<CityFrame.Citizen> displayedRows = List.of();
-    public static final String[] TABS = {"Overview", "Groups", "Citizens", "Finances"};
+    public static final String[] TABS = {
+        "Overview", "Groups", "Citizens", "Finances", "Businesses"
+    };
     private static final String[] FILTERS = {"All", "Attention", "Hungry", "No home", "No job"};
     private static final int TOP = 138, TABLE = 242, ROW = 30;
 
     public void show() {
         open = true;
         searchFocus = false;
+        businesses.searchFocus = false;
     }
 
     public void close() {
         open = false;
         searchFocus = false;
+        businesses.searchFocus = false;
     }
 
     public void key(int key, int action) {
         if (action != GLFW_PRESS && action != GLFW_REPEAT) return;
+        if (tab == 4) {
+            businesses.key(key, action);
+            searchFocus = businesses.searchFocus;
+            return;
+        }
         if (searchFocus) {
             if (key == GLFW_KEY_BACKSPACE && !search.isEmpty()) {
                 search = search.substring(0, search.length() - 1);
@@ -47,6 +57,10 @@ public final class MayorDashboard {
     }
 
     public void character(int c) {
+        if (open && tab == 4) {
+            businesses.character(c);
+            return;
+        }
         if (open && tab == 2 && searchFocus && c >= 32 && c <= 126 && search.length() < 40) {
             search += (char) c;
             firstRow = 0;
@@ -54,6 +68,10 @@ public final class MayorDashboard {
     }
 
     public void scroll(double amount) {
+        if (tab == 4) {
+            businesses.scroll(amount);
+            return;
+        }
         if (tab == 2) firstRow = Math.max(0, firstRow - (int) Math.signum(amount) * 3);
     }
 
@@ -95,9 +113,15 @@ public final class MayorDashboard {
             return;
         }
         if (y >= 88 && y <= 120 && x >= 24 && x < w - 24) {
-            tab = Math.min(3, (int) ((x - 24) / ((w - 48) / 4f)));
+            tab = Math.min(TABS.length - 1, (int) ((x - 24) / ((w - 48) / (float) TABS.length)));
+            businesses.searchFocus = false;
             searchFocus = false;
             firstRow = 0;
+            return;
+        }
+        if (tab == 4) {
+            businesses.click(x, y, w, h);
+            searchFocus = businesses.searchFocus;
             return;
         }
         if (tab != 2) return;
@@ -176,13 +200,13 @@ public final class MayorDashboard {
                 city.config().time(city.elapsed()).label()
                         + " | "
                         + (connected
-                                ? "Live population metrics"
+                                ? "Live city metrics"
                                 : "Disconnected - last received city snapshot");
         text(ui, clock, 24, 55, w - 180, 1.15f);
         panel(ui, w - 124, 48, 100, 28);
         ui.text("Back", w - 98, 56, 1.3f);
-        float bw = (w - 48) / 4f;
-        for (int i = 0; i < 4; i++) {
+        float bw = (w - 48) / (float) TABS.length;
+        for (int i = 0; i < TABS.length; i++) {
             panel(ui, 24 + i * bw, 88, bw - 6, 32);
             if (i == tab) ui.rectangle(24 + i * bw, 118, bw - 6, 2, .3f, .85f, .7f, 1);
             ui.text(TABS[i], 36 + i * bw, 98, 1.4f);
@@ -193,6 +217,7 @@ public final class MayorDashboard {
             case 1 -> groups(ui, w, h, m);
             case 2 -> citizens(ui, w, h, city);
             case 3 -> finances(ui, w, h, city, m);
+            case 4 -> businesses.render(ui, w, h, city);
             default -> throw new IllegalStateException("Dashboard tab");
         }
         text(

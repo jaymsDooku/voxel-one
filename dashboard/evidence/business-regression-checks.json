@@ -1,0 +1,7 @@
+{
+  "scope": "Full Linux Maven verify; business production, staffed service, cash and inventory reconciliation, shifts, insolvency, daily history, legacy city upgrades and network/persistence regressions",
+  "tests": 129,
+  "errors": 0,
+  "failures": 0,
+  "skipped": 0
+}

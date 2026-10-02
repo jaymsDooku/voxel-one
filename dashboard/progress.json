@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T15:00:13+00:00",
+  "updatedAt": "2026-10-02T16:04:32+00:00",
   "release": {
     "name": "Playtest 20",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-20",
@@ -1266,6 +1266,66 @@
       "status": "complete",
       "note": "F10 records the game, HUD and menus to a silent MP4; controls are editable, resizing preserves aspect ratio and normal Quit finishes saving. The inline dashboard video is an actual 14.6-second city run. All four desktop builds passed 117 tests; 8 WebKit/Chromium browser checks, 5 video handler tests and 2 built-worker route checks passed. Playtest 20 is published and the Windows updater downloaded and verified its recorder and encoder. GUI tests ran on Linux/Mesa; no physical Windows or iPhone playtest.",
       "updatedAt": "2026-10-02T15:00:13+00:00"
+    },
+    {
+      "id": "business-system",
+      "title": "Operating businesses and mayor business dashboard",
+      "description": "Expanding shops and mines into staffed businesses with operating accounts, production, sales and a mayor monitoring screen.",
+      "evidence": [
+        {
+          "kind": "video",
+          "label": "business dashboard run.mp4",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-dashboard-run.mp4"
+        },
+        {
+          "kind": "image",
+          "label": "business dashboard overview.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-dashboard-overview.png"
+        },
+        {
+          "kind": "image",
+          "label": "business dashboard location.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-dashboard-location.png"
+        },
+        {
+          "kind": "image",
+          "label": "business dashboard companies.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-dashboard-companies.png"
+        },
+        {
+          "kind": "image",
+          "label": "business dashboard compact location.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-dashboard-compact-location.png"
+        },
+        {
+          "kind": "report",
+          "label": "business three days.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-three-days.json"
+        },
+        {
+          "kind": "report",
+          "label": "business client checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-client-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "business vps upgrade checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-vps-upgrade-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "business video decoded.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-video-decoded.json"
+        },
+        {
+          "kind": "report",
+          "label": "business regression checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-regression-checks.json"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Three simulated days passed with 72 hourly business samples and reconciled cash/inventory. The final client dashboard was playtested at desktop and 640x640 sizes and recorded with the engine recorder. Existing VPS city ownership, balances, population and clock survive the save upgrade. Preparing cross-platform release and server deployment.",
+      "updatedAt": "2026-10-02T16:04:32+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
