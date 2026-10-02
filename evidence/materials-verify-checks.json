@@ -1,0 +1,9 @@
+{
+  "scope": "Complete Maven verify on this Linux VPS; includes real authenticated TLS multiplayer, world persistence, updates, recorder decoding and city material accounting",
+  "tests": 140,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "protocol": 12,
+  "citySave": "CITY4"
+}
