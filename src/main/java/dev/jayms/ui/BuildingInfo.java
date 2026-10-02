@@ -141,6 +141,10 @@ public final class BuildingInfo {
                                             + (int) Math.min(100, p.work() / 8 * 100)
                                             + "%"
                                     : "Waiting for developer-owned materials");
+            if (p.building() != 0 && (recipe == null || !recipe.consumed())) {
+                rows.add("Existing property: historical construction materials were not recorded.");
+                return List.copyOf(rows);
+            }
             rows.add("MATERIAL                       AVAILABLE / REQUIRED");
             for (var a :
                     recipe == null ? CityMaterials.requirements(p.type()) : recipe.materials()) {

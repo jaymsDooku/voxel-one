@@ -304,6 +304,18 @@ class CityMaterialsTest {
         assertEquals(old.economy(), restored.frame().economy());
         assertEquals(old.buildings(), restored.frame().buildings());
         assertEquals(old.elapsed(), restored.frame().elapsed());
+        var inspector = new BuildingInfo();
+        inspector.show(old.buildings().get(0).id(), 0);
+        assertTrue(
+                inspector.lines(old).stream()
+                        .anyMatch(
+                                line ->
+                                        line.contains(
+                                                "historical construction materials were not"
+                                                    + " recorded")));
+        assertFalse(
+                inspector.lines(old).stream()
+                        .anyMatch(line -> line.contains("AVAILABLE / REQUIRED")));
         restored.advance(1);
         assertEquals(5, restored.frame().buildings().size());
         assertTrue(
