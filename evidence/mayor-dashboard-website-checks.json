@@ -1,0 +1,53 @@
+{
+  "scope": "Local WebKit and Chromium checks; WebKit simulates Safari, not a physical iPhone",
+  "checks": [
+    {
+      "browser": "webkit",
+      "width": 390,
+      "check": "Mayor showcase screenshot and documentation link; no overflow",
+      "status": "passed"
+    },
+    {
+      "browser": "webkit",
+      "width": 390,
+      "check": "Mayor dashboard navigation and F9 documentation; no overflow or page errors",
+      "status": "passed"
+    },
+    {
+      "browser": "webkit",
+      "width": 1280,
+      "check": "Mayor showcase screenshot and documentation link; no overflow",
+      "status": "passed"
+    },
+    {
+      "browser": "webkit",
+      "width": 1280,
+      "check": "Mayor dashboard navigation and F9 documentation; no overflow or page errors",
+      "status": "passed"
+    },
+    {
+      "browser": "chromium",
+      "width": 390,
+      "check": "Mayor showcase screenshot and documentation link; no overflow",
+      "status": "passed"
+    },
+    {
+      "browser": "chromium",
+      "width": 390,
+      "check": "Mayor dashboard navigation and F9 documentation; no overflow or page errors",
+      "status": "passed"
+    },
+    {
+      "browser": "chromium",
+      "width": 1280,
+      "check": "Mayor showcase screenshot and documentation link; no overflow",
+      "status": "passed"
+    },
+    {
+      "browser": "chromium",
+      "width": 1280,
+      "check": "Mayor dashboard navigation and F9 documentation; no overflow or page errors",
+      "status": "passed"
+    }
+  ]
+}
