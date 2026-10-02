@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T18:42:21+00:00",
+  "updatedAt": "2026-10-02T18:52:33+00:00",
   "release": {
     "name": "Playtest 22",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-22",
@@ -1471,10 +1471,16 @@
       "id": "manufacturing-addresses",
       "title": "Road addresses and configurable manufacturing",
       "description": "Adding generated road names and building addresses, privately funded tool factories, and configurable production pipelines.",
-      "evidence": [],
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "manufacturing three day simulation.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/manufacturing-three-day-simulation.json"
+        }
+      ],
       "status": "in_progress",
-      "note": "Implemented persistent street names and numbered addresses, configurable factory recipes and prices, private input purchases, and owned tool productivity bonuses. Running simulation, persistence, and multiplayer regression checks.",
-      "updatedAt": "2026-10-02T18:42:21+00:00"
+      "note": "All 151 initial tests passed. Three simulated days now conserve harvested materials and private cash, produce 34 tools, equip mining/logging crews, and feed and house all 12 citizens. Fixed a mine-exit route exposed by industrial expansion; final checks and client recording underway.",
+      "updatedAt": "2026-10-02T18:52:33+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
