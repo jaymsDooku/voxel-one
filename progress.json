@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T21:51:09+00:00",
+  "updatedAt": "2026-10-02T22:01:52+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -1756,10 +1756,41 @@
       "id": "general-development-dashboard",
       "title": "General Codex development queue and agent team",
       "description": "Building a separate application-grouped queue, prompt submission, worktree-based developers, independent PR review and budget-aware continuation.",
-      "evidence": [],
-      "status": "in_progress",
-      "note": "Shared queue passes 13 SQLite API checks and mobile WebKit/Chromium checks. Voxel bridge and private hosting PRs independently reviewed and merged; worker PR in review for fenced Git mutations and checkpoint recovery. Preparing owner-private deployment and durable VPS service.",
-      "updatedAt": "2026-10-02T21:51:09+00:00"
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Shared work queue",
+          "url": "https://codex-development-dashboard.jamesleaver1.chatgpt.site/?application=voxel-one"
+        },
+        {
+          "kind": "link",
+          "label": "API and concurrency checks",
+          "url": "https://codex-development-dashboard.jamesleaver1.chatgpt.site/evidence/api-results.tap"
+        },
+        {
+          "kind": "link",
+          "label": "Worker recovery and review checks",
+          "url": "https://codex-development-dashboard.jamesleaver1.chatgpt.site/evidence/runner-results.tap"
+        },
+        {
+          "kind": "link",
+          "label": "Phone browser checks",
+          "url": "https://codex-development-dashboard.jamesleaver1.chatgpt.site/evidence/browser-results.json"
+        },
+        {
+          "kind": "link",
+          "label": "Actual VPS service checks",
+          "url": "https://codex-development-dashboard.jamesleaver1.chatgpt.site/evidence/live-service-checks.json"
+        },
+        {
+          "kind": "link",
+          "label": "WebKit phone screenshot",
+          "url": "https://codex-development-dashboard.jamesleaver1.chatgpt.site/evidence/webkit-phone.png"
+        }
+      ],
+      "status": "complete",
+      "note": "Standalone owner-private shared queue deployed; two developer processes and independent reviewer running durably on the VPS. All five feature PRs independently reviewed and merged. 16 API/presentation checks, 20 worker checks, four Voxel bridge checks and WebKit/Chromium 390px/320px checks passed. Actual quota RPC/three-slot heartbeat verified; 33 historical milestones and 279 evidence links retained. Budget checkpoint/reset resumption tested deterministically; live reset has not elapsed. Questions are answered on the shared dashboard; resume a blocked item after answering.",
+      "updatedAt": "2026-10-02T22:01:52+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
