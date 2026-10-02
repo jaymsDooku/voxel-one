@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T09:56:10+00:00",
+  "updatedAt": "2026-10-02T10:10:06+00:00",
   "release": {
     "name": "Playtest 13",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-13",
@@ -841,6 +841,15 @@
       "status": "complete",
       "note": "Published persistent private questions and editable answers. Passed 12 WebKit/Chromium/API checks; verified live D1 tables and authenticated agent question creation. All future questions use this dashboard.",
       "updatedAt": "2026-10-02T09:12:22+00:00"
+    },
+    {
+      "id": "mayor-developers",
+      "title": "Mayor budget and private developers",
+      "description": "Separating public city spending from private plot purchases, construction, companies and property sales/rent.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Separating public city spending from private plot purchases, construction, companies and property sales/rent.",
+      "updatedAt": "2026-10-02T10:10:06+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
