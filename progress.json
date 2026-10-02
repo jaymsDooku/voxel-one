@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T12:57:07+00:00",
+  "updatedAt": "2026-10-02T13:00:47+00:00",
   "release": {
     "name": "Playtest 13",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-13",
@@ -986,6 +986,15 @@
       "status": "complete",
       "note": "Removed population/NPC holographic labels; actual local and multiplayer player labels remain. Citizen identities are available through Inspect. Packaged-client city/first-person/third-person checks passed. Playtest 17 passed 94 tests on all four desktop platforms; Windows updater download and checksum verification passed.",
       "updatedAt": "2026-10-02T12:57:07+00:00"
+    },
+    {
+      "id": "mayor-dashboard",
+      "title": "Mayor population dashboard",
+      "description": "Building a dedicated live city dashboard with population wellbeing, housing, jobs, socioeconomic groups and public/private finances.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Building a dedicated live city dashboard with population wellbeing, housing, jobs, socioeconomic groups and public/private finances.",
+      "updatedAt": "2026-10-02T13:00:47+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
