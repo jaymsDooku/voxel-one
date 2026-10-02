@@ -1,0 +1,12 @@
+{
+  "scope": "Actual packaged Linux client, Xvfb/Mesa, fresh city after three simulated days; not a physical Windows desktop",
+  "checks": [
+    "F9 opens the mayor view and the Businesses tab",
+    "Operating overview and per-location daily accounts",
+    "Private companies includes developers and operating companies",
+    "640x640 layout, industrial filtering and scrolling",
+    "Engine recorder captured navigation and resizing",
+    "Clean save and Quit"
+  ],
+  "videoBytes": 1943054
+}
