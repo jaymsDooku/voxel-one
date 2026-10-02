@@ -78,7 +78,31 @@ public final class CityEconomy {
             List<Plot> plots,
             List<Property> properties,
             List<Contract> contracts,
-            List<CityBusinesses.Record> businesses) {
+            List<CityBusinesses.Record> businesses,
+            CityMaterials.State resources) {
+        public State(
+                double budget,
+                double roadSpending,
+                double landRevenue,
+                double rentClock,
+                List<Firm> firms,
+                List<Plot> plots,
+                List<Property> properties,
+                List<Contract> contracts,
+                List<CityBusinesses.Record> businesses) {
+            this(
+                    budget,
+                    roadSpending,
+                    landRevenue,
+                    rentClock,
+                    firms,
+                    plots,
+                    properties,
+                    contracts,
+                    businesses,
+                    CityMaterials.State.empty());
+        }
+
         public State(
                 double budget,
                 double roadSpending,
@@ -101,6 +125,7 @@ public final class CityEconomy {
         }
 
         public State {
+            Objects.requireNonNull(resources);
             businesses = List.copyOf(businesses);
             firms = List.copyOf(firms);
             plots = List.copyOf(plots);
@@ -113,10 +138,14 @@ public final class CityEconomy {
         }
 
         public void write(DataOutput out) throws IOException {
-            write(out, false);
+            write(out, 4);
         }
 
         public void write(DataOutput out, boolean legacy) throws IOException {
+            write(out, legacy ? 2 : 4);
+        }
+
+        public void write(DataOutput out, int version) throws IOException {
             out.writeDouble(budget);
             out.writeDouble(roadSpending);
             out.writeDouble(landRevenue);
@@ -163,21 +192,27 @@ public final class CityEconomy {
                 out.writeBoolean(c.sale);
                 out.writeDouble(c.amount);
             }
-            if (!legacy) CityBusinesses.write(out, businesses);
+            if (version >= 3) CityBusinesses.write(out, businesses);
+            if (version >= 4) CityMaterials.write(out, resources);
         }
 
         public static State read(DataInput in) throws IOException {
-            return read(in, false);
+            return read(in, 4);
         }
 
         public static State read(DataInput in, boolean legacy) throws IOException {
+            return read(in, legacy ? 2 : 4);
+        }
+
+        public static State read(DataInput in, int version) throws IOException {
             double budget = money(in), roads = money(in), land = money(in), clock = money(in);
             var firms = new ArrayList<Firm>();
             for (int i = 0, n = count(in, 16); i < n; i++) {
                 int id = id(in);
                 String name = in.readUTF();
                 int kind = in.readUnsignedByte();
-                if (name.length() > 48 || kind > 2) throw new IOException("Invalid company");
+                if (name.length() > 48 || kind > CityMaterials.FARM)
+                    throw new IOException("Invalid company");
                 firms.add(
                         new Firm(
                                 id, name, kind, money(in), money(in), money(in), money(in),
@@ -222,16 +257,42 @@ public final class CityEconomy {
                 if (kind > 1) throw new IOException("Invalid contract");
                 contracts.add(new Contract(b, kind, party, in.readBoolean(), money(in)));
             }
-            return new State(
-                    budget,
-                    roads,
-                    land,
-                    clock,
-                    firms,
-                    plots,
-                    properties,
-                    contracts,
-                    legacy ? List.of() : CityBusinesses.read(in));
+            var state =
+                    new State(
+                            budget,
+                            roads,
+                            land,
+                            clock,
+                            firms,
+                            plots,
+                            properties,
+                            contracts,
+                            version < 3 ? List.of() : CityBusinesses.read(in),
+                            version < 4 ? CityMaterials.State.empty() : CityMaterials.read(in));
+            for (var stock : state.resources.stocks())
+                if (stock.ownerKind() == COMPANY
+                        && firms.stream().noneMatch(f -> f.id() == stock.owner()))
+                    throw new IOException("Unknown material company");
+            for (var project : state.resources.projects()) {
+                var plot =
+                        plots.stream()
+                                .filter(p -> p.id() == project.plot())
+                                .findFirst()
+                                .orElse(null);
+                if (plot == null
+                        || !project.materials()
+                                .equals(
+                                        CityMaterials.requirements(
+                                                plot.type(), project.businessKind()))
+                        || project.reserved() && plot.building() != 0
+                        || project.consumed() && plot.building() == 0)
+                    throw new IOException("Invalid construction material recipe");
+            }
+            for (var production : state.resources.production())
+                if (firms.stream()
+                        .noneMatch(f -> f.id() == production.company() && f.kind() >= MINE))
+                    throw new IOException("Unknown harvesting company");
+            return state;
         }
 
         private static double money(DataInput in) throws IOException {
@@ -255,6 +316,7 @@ public final class CityEconomy {
 
     private final Ecs ecs;
     public final CityBusinesses businesses;
+    public final CityMaterials resources;
     public double budget = INITIAL_BUDGET, roadSpending, landRevenue, rentClock;
     public final List<Plot> plots = new ArrayList<>();
     public final List<Property> properties = new ArrayList<>();
@@ -263,6 +325,8 @@ public final class CityEconomy {
     public CityEconomy(Ecs ecs, State state) {
         this.ecs = ecs;
         businesses = new CityBusinesses(state == null ? List.of() : state.businesses());
+        resources =
+                new CityMaterials(state == null ? CityMaterials.State.empty() : state.resources());
         if (state != null && !state.firms().isEmpty()) {
             budget = state.budget;
             roadSpending = state.roadSpending;
@@ -286,6 +350,24 @@ public final class CityEconomy {
             create("Horizon Builders", DEVELOPER, 1200);
             create("Town Market", SHOP, 1500);
             create("Valley Mining", MINE, 2000);
+            ensureIndustries();
+        }
+    }
+
+    public void ensureIndustries() {
+        String[] names = {
+            "",
+            "",
+            "",
+            "Pinewood Logging",
+            "Stonecraft Brickworks",
+            "Dune Glassworks",
+            "Bright Spark Lighting",
+            "Meadow Farm"
+        };
+        for (int kind = CityMaterials.LOGGING; kind <= CityMaterials.FARM; kind++) {
+            final int k = kind;
+            if (companies().stream().noneMatch(c -> c.kind == k)) create(names[k], k, 1500);
         }
     }
 
@@ -330,16 +412,54 @@ public final class CityEconomy {
     }
 
     public Plot buyPlot(int zone, int type, int x, int y, int z) {
-        double land = 24, cost = type == 0 ? 90 : type == 1 ? 140 : 200;
+        return buyPlot(zone, type, x, y, z, type);
+    }
+
+    public Plot buyPlot(int zone, int type, int x, int y, int z, int businessKind) {
+        double land = 24;
+        var recipe = CityMaterials.requirements(type, businessKind);
+        double cost =
+                recipe.stream()
+                        .mapToDouble(
+                                a ->
+                                        a.units()
+                                                / (double) CityMaterials.UNIT
+                                                * CityMaterials.price(a.material()))
+                        .sum();
         var developer =
                 companies().stream()
-                        .filter(c -> c.kind == DEVELOPER && c.cash >= land + cost + 10)
+                        .filter(
+                                c ->
+                                        c.kind == DEVELOPER
+                                                && c.cash
+                                                        >= land
+                                                                + 10
+                                                                + recipe.stream()
+                                                                        .mapToDouble(
+                                                                                a ->
+                                                                                        Math.max(
+                                                                                                        0,
+                                                                                                        a
+                                                                                                                        .units()
+                                                                                                                - resources
+                                                                                                                        .available(
+                                                                                                                                COMPANY,
+                                                                                                                                c.id,
+                                                                                                                                a
+                                                                                                                                        .material()))
+                                                                                                / (double)
+                                                                                                        CityMaterials
+                                                                                                                .UNIT
+                                                                                                * CityMaterials
+                                                                                                        .price(
+                                                                                                                a
+                                                                                                                        .material()))
+                                                                        .sum())
                         .max(Comparator.comparingDouble(c -> c.cash))
                         .orElse(null);
         if (developer == null) return null;
-        developer.cash -= land + cost;
+        developer.cash -= land;
         developer.land += land;
-        developer.materials += cost;
         budget += land;
         landRevenue += land;
         var p =
@@ -381,7 +501,8 @@ public final class CityEconomy {
 
     public void work(int plot, float dt) {
         var p = project(plot);
-        if (p != null) plots.set(plots.indexOf(p), p.progress(Math.min(100, p.work + dt)));
+        if (p != null && resources.project(plot) != null && resources.project(plot).reserved())
+            plots.set(plots.indexOf(p), p.progress(Math.min(100, p.work + dt)));
     }
 
     public void completed(Plot plot, int building) {
@@ -436,8 +557,15 @@ public final class CityEconomy {
             businesses.open(b.id(), p.operator);
             return p.operator;
         }
-        var operator =
-                companies().stream().filter(c -> c.kind == b.type()).findFirst().orElse(null);
+        int purpose =
+                plots.stream()
+                        .filter(plot -> plot.building() == b.id())
+                        .map(plot -> resources.project(plot.id()))
+                        .filter(Objects::nonNull)
+                        .mapToInt(CityMaterials.Project::businessKind)
+                        .findFirst()
+                        .orElse(b.type());
+        var operator = companies().stream().filter(c -> c.kind == purpose).findFirst().orElse(null);
         if (operator == null) return 0;
         boolean buy = b.type() == 1 && operator.cash >= p.price;
         double amount = buy ? p.price : p.rent;
@@ -515,6 +643,77 @@ public final class CityEconomy {
         }
     }
 
+    public int account(int company) {
+        int id =
+                businesses.records().stream()
+                        .filter(a -> a.company() == company && a.building() < CityMaterials.YARD)
+                        .mapToInt(CityBusinesses.Record::building)
+                        .findFirst()
+                        .orElse(CityMaterials.YARD + company);
+        businesses.open(id, company);
+        return id;
+    }
+
+    private double cash(int kind, int owner) {
+        var c = company(owner);
+        var n = ecs.get(owner, CitySimulation.Needs.class);
+        return kind == COMPANY ? c == null ? -1 : c.cash : n == null ? -1 : n.money;
+    }
+
+    private void cash(int kind, int owner, double value) {
+        if (kind == COMPANY) company(owner).cash += value;
+        else ecs.get(owner, CitySimulation.Needs.class).money += (float) value;
+    }
+
+    /** Seller stocks and buyer cash are validated before either is moved. */
+    public boolean trade(
+            int sellerKind, int seller, int buyerKind, int buyer, int material, long units) {
+        if (sellerKind < 0
+                || sellerKind > CITIZEN
+                || buyerKind < 0
+                || buyerKind > CITIZEN
+                || sellerKind == buyerKind && seller == buyer
+                || units <= 0
+                || resources.available(sellerKind, seller, material) < units) return false;
+        double amount = units / (double) CityMaterials.UNIT * CityMaterials.price(material);
+        if (cash(sellerKind, seller) < 0 || cash(buyerKind, buyer) < amount) return false;
+        if (resources.available(buyerKind, buyer, material) > 1_000_000_000L - units) return false;
+        resources.remove(sellerKind, seller, material, units);
+        resources.add(buyerKind, buyer, material, units);
+        cash(buyerKind, buyer, -amount);
+        cash(sellerKind, seller, amount);
+        int count = (int) Math.max(1, units / CityMaterials.UNIT);
+        if (sellerKind == COMPANY) {
+            company(seller).receipts += amount;
+            businesses.sale(account(seller), count, amount);
+        }
+        if (buyerKind == COMPANY) {
+            if (company(buyer).kind == DEVELOPER) company(buyer).materials += amount;
+            else businesses.delivery(account(buyer), count, amount);
+        }
+        return true;
+    }
+
+    public boolean purchase(int company, int material, long needed) {
+        long missing = needed - resources.available(COMPANY, company, material);
+        if (missing <= 0) return true;
+        for (var seller : companies())
+            if (seller.id != company && seller.kind != DEVELOPER) {
+                long units = Math.min(missing, resources.available(COMPANY, seller.id, material));
+                if (units > 0 && trade(COMPANY, seller.id, COMPANY, company, material, units))
+                    missing -= units;
+                if (missing == 0) return true;
+            }
+        return false;
+    }
+
+    public boolean supply(Plot plot) {
+        var project = resources.plan(plot, plot.type());
+        if (project.reserved()) return true;
+        for (var a : project.materials()) purchase(plot.developer(), a.material(), a.units());
+        return resources.reserve(plot);
+    }
+
     public boolean delivery(int mine, int shop) {
         var m = property(mine);
         var s = property(shop);
@@ -552,6 +751,7 @@ public final class CityEconomy {
                 plots,
                 properties,
                 contracts,
-                businesses.records());
+                businesses.records(),
+                resources.state());
     }
 }

@@ -29,7 +29,7 @@ class CityEconomyTest {
     double total(CityFrame f) {
         return f.economy().budget()
                 + f.economy().roadSpending()
-                + f.economy().firms().stream().mapToDouble(c -> c.cash() + c.materials()).sum()
+                + f.economy().firms().stream().mapToDouble(c -> c.cash()).sum()
                 + f.citizens().stream().mapToDouble(CityFrame.Citizen::money).sum();
     }
 
@@ -76,7 +76,7 @@ class CityEconomyTest {
                         .contains("created"));
         assertEquals(budget, s.economy.budget);
         for (var c : s.economy.companies()) if (c.kind == CityEconomy.DEVELOPER) c.cash = 0;
-        for (int i = 0; i < 60; i++) s.advance(1);
+        for (int i = 0; i < 160; i++) s.advance(1);
         assertTrue(s.frame().buildings().isEmpty());
         assertTrue(s.frame().economy().plots().isEmpty());
         assertEquals(budget, s.economy.budget);
@@ -88,7 +88,7 @@ class CityEconomyTest {
         var s = sim(g);
         double total = total(s.frame());
         boolean construction = false;
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 160; i++) {
             s.advance(1);
             construction |=
                     s.frame().citizens().stream()
@@ -138,7 +138,7 @@ class CityEconomyTest {
     void wagesAndRecurringRentAreTransfersAndInsolvencyStopsWages() {
         var g = new CityTest.Ground();
         var s = sim(g);
-        for (int i = 0; i < 60; i++) s.advance(1);
+        for (int i = 0; i < 160; i++) s.advance(1);
         var before = s.frame();
         double total = total(before);
         double budget = s.economy.budget;
@@ -171,7 +171,7 @@ class CityEconomyTest {
         assertEquals(s.frame(), f);
         var restored = new CitySimulation(f.config(), g, g.terrain, f);
         assertEquals(f.economy(), restored.frame().economy());
-        for (int i = 0; i < 90; i++) restored.advance(1);
+        for (int i = 0; i < 160; i++) restored.advance(1);
         assertEquals(5, restored.frame().buildings().size());
         restored.save(path);
         var saved = CitySimulation.load(path);
@@ -184,7 +184,7 @@ class CityEconomyTest {
     void legacyCityIsAdoptedWithoutRebuildingOrPublicConstructionCost() throws Exception {
         var g = new CityTest.Ground();
         var s = sim(g);
-        for (int i = 0; i < 60; i++) s.advance(1);
+        for (int i = 0; i < 160; i++) s.advance(1);
         var frame = s.frame();
         var all = new ByteArrayOutputStream();
         frame.write(new DataOutputStream(all));

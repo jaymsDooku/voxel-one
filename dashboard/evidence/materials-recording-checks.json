@@ -1,0 +1,9 @@
+{
+  "codec": "H264",
+  "width": 960,
+  "height": 540,
+  "durationSeconds": 18.259,
+  "decodedFrames": 92,
+  "status": "passed",
+  "scope": "Independently decoded every frame of the actual engine F10 recording, including resized inspector frames"
+}

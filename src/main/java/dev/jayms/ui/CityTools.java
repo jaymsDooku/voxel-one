@@ -5,6 +5,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import dev.jayms.net.*;
 import dev.jayms.net.city.*;
 
+import org.joml.Intersectionf;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -18,7 +19,7 @@ public final class CityTools {
     public boolean dashboardRequested;
     public int tool = -1, selectedCitizen, selectedBuilding, selectedPlot;
     private final List<Polygon.Point> points = new ArrayList<>();
-    public String message = "Choose a tool; click citizens to inspect their household.";
+    public String message = "Inspect: click a building, plot or citizen for details.";
 
     public boolean key(int key, Consumer<CityCommand> submit) {
         if (key == GLFW_KEY_ESCAPE && (!points.isEmpty() || tool != -1)) {
@@ -76,37 +77,14 @@ public final class CityTools {
                 }
             }
             if (selectedCitizen == 0) {
-                for (var b : city.buildings()) {
-                    var p =
-                            project(
-                                    b.x() + 3,
-                                    b.y() + 3,
-                                    b.z() + 3,
-                                    projection,
-                                    view,
-                                    width,
-                                    height);
-                    if (p != null && p.distanceSquared(x, y) < 45 * 45) {
-                        selectedBuilding = b.id();
-                        break;
-                    }
-                }
-                for (var plot : city.economy().plots())
-                    if (plot.building() == 0) {
-                        var p =
-                                project(
-                                        plot.x() + 3,
-                                        plot.y() + 1,
-                                        plot.z() + 3,
-                                        projection,
-                                        view,
-                                        width,
-                                        height);
-                        if (p != null && p.distanceSquared(x, y) < 45 * 45) {
-                            selectedPlot = plot.id();
-                            break;
-                        }
-                    }
+                var inverse = new Matrix4f(projection).mul(view).invert();
+                var near =
+                        inverse.transformProject(
+                                new Vector3f(x / width * 2 - 1, 1 - y / height * 2, -1));
+                var far =
+                        inverse.transformProject(
+                                new Vector3f(x / width * 2 - 1, 1 - y / height * 2, 1));
+                selectRay(near, far.sub(near).normalize(), Float.POSITIVE_INFINITY, city);
             }
             return;
         }
@@ -129,6 +107,56 @@ public final class CityTools {
         } catch (IllegalArgumentException e) {
             message = e.getMessage();
         }
+    }
+
+    /** Pick the nearest physical property, rather than an approximate screen-space circle. */
+    public boolean selectRay(Vector3f origin, Vector3f direction, float limit, CityFrame city) {
+        selectedCitizen = selectedBuilding = selectedPlot = 0;
+        var interval = new Vector2f();
+        float best = limit;
+        for (var b : city.buildings())
+            if (Intersectionf.intersectRayAab(
+                            origin.x,
+                            origin.y,
+                            origin.z,
+                            direction.x,
+                            direction.y,
+                            direction.z,
+                            b.x(),
+                            b.y(),
+                            b.z(),
+                            b.x() + 6,
+                            b.y() + 7,
+                            b.z() + 7,
+                            interval)
+                    && interval.y >= 0
+                    && Math.max(0, interval.x) < best) {
+                best = Math.max(0, interval.x);
+                selectedBuilding = b.id();
+            }
+        for (var p : city.economy().plots())
+            if (p.building() == 0)
+                if (Intersectionf.intersectRayAab(
+                                origin.x,
+                                origin.y,
+                                origin.z,
+                                direction.x,
+                                direction.y,
+                                direction.z,
+                                p.x(),
+                                p.y() - .1f,
+                                p.z(),
+                                p.x() + 6,
+                                p.y() + 1,
+                                p.z() + 7,
+                                interval)
+                        && interval.y >= 0
+                        && Math.max(0, interval.x) < best) {
+                    best = Math.max(0, interval.x);
+                    selectedPlot = p.id();
+                    selectedBuilding = 0;
+                }
+        return selectedBuilding != 0 || selectedPlot != 0;
     }
 
     private static Vector2f project(

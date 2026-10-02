@@ -190,7 +190,7 @@ class CityTest {
     void starterCityBuildsAllStructuresAndAssignsHouseholdsAndJobs() {
         var g = new Ground();
         var sim = simulation(g);
-        for (int i = 0; i < 40; i++) sim.advance(1);
+        for (int i = 0; i < 160; i++) sim.advance(1);
         var frame = sim.frame();
         assertEquals(12, frame.citizens().size());
         assertEquals(

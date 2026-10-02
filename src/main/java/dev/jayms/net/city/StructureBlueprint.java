@@ -52,5 +52,26 @@ public final class StructureBlueprint {
         return edits;
     }
 
+    /** Resource companies get workshops; only the quarry needs a mine shaft. */
+    public static List<Protocol.Edit> generate(int type, int businessKind, int x, int y, int z) {
+        if (type != 2 || businessKind == CityEconomy.MINE) return generate(type, x, y, z);
+        var edits = new ArrayList<>(generate(0, x, y, z));
+        int bench =
+                businessKind == CityMaterials.LOGGING
+                        ? Blocks.WOOD
+                        : businessKind == CityMaterials.MASONRY
+                                ? Blocks.BRICKS
+                                : businessKind == CityMaterials.FARM ? Blocks.PLANKS : Blocks.STONE;
+        edits.add(new Protocol.Edit(x + 4, y + 1, z + 4, bench));
+        if (businessKind == CityMaterials.GLASSWORKS)
+            edits.add(new Protocol.Edit(x + 4, y + 2, z + 4, Blocks.GLASS));
+        if (businessKind == CityMaterials.LIGHTING)
+            for (int i = 0; i < 3; i++)
+                edits.add(
+                        new Protocol.Edit(x + 3 + i, y + 2, z + 5, Blocks.LED)
+                                .withColor(new int[] {0xff5544, 0x55ff88, 0x5588ff}[i]));
+        return edits;
+    }
+
     private StructureBlueprint() {}
 }

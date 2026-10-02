@@ -39,6 +39,7 @@ public class Main {
     private PlayerModel playerModel;
     private HorseModel horseModel;
     private final CityTools cityTools = new CityTools();
+    private final BuildingInfo buildingInfo = new BuildingInfo();
     private final MayorDashboard mayorDashboard = new MayorDashboard();
     private GameConfig gameConfig = GameConfig.sandbox();
 
@@ -226,6 +227,11 @@ public class Main {
                 window.getHandle(),
                 (handle, key, scancode, action, mods) -> {
                     if (action == GLFW_PRESS && recordInput(key)) return;
+                    if (buildingInfo.open) {
+                        buildingInfo.key(key, action);
+                        if (!buildingInfo.open) setCaptured(true);
+                        return;
+                    }
                     if (mayorDashboard.open) {
                         if (action == GLFW_PRESS
                                 && (key == GLFW_KEY_ESCAPE
@@ -289,6 +295,18 @@ public class Main {
                 window.getHandle(),
                 (handle, button, action, mods) -> {
                     if (action == GLFW_PRESS && recordInput(-button - 1)) return;
+                    if (buildingInfo.open) {
+                        if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_LEFT) {
+                            int[] size = window.getSize();
+                            buildingInfo.click(
+                                    (float) mouseX * framebufferWidth / size[0],
+                                    (float) mouseY * framebufferHeight / size[1],
+                                    framebufferWidth,
+                                    framebufferHeight);
+                            if (!buildingInfo.open) setCaptured(true);
+                        }
+                        return;
+                    }
                     if (mayorDashboard.open) {
                         if (action == GLFW_PRESS) {
                             if (button != GLFW_MOUSE_BUTTON_LEFT
@@ -386,9 +404,26 @@ public class Main {
                                 view,
                                 city(),
                                 this::cityCommand);
+                        if (cityTools.tool == -1
+                                && (cityTools.selectedBuilding != 0
+                                        || cityTools.selectedPlot != 0)) {
+                            buildingInfo.show(cityTools.selectedBuilding, cityTools.selectedPlot);
+                            setCaptured(false);
+                        }
                         if (cityTools.dashboardRequested) {
                             cityTools.dashboardRequested = false;
                             openMayorDashboard();
+                        }
+                        return;
+                    }
+                    if (!isometric
+                            && city().config().city()
+                            && button == GLFW_MOUSE_BUTTON_LEFT
+                            && (mods & GLFW_MOD_ALT) != 0) {
+                        if (cityTools.selectRay(
+                                player.eyePosition(), player.facingDirection(), 12, city())) {
+                            buildingInfo.show(cityTools.selectedBuilding, cityTools.selectedPlot);
+                            setCaptured(false);
                         }
                         return;
                     }
@@ -404,6 +439,10 @@ public class Main {
         glfwSetScrollCallback(
                 window.getHandle(),
                 (handle, x, y) -> {
+                    if (buildingInfo.open) {
+                        buildingInfo.scroll(y);
+                        return;
+                    }
                     if (mayorDashboard.open) {
                         mayorDashboard.scroll(y);
                         return;
@@ -426,7 +465,10 @@ public class Main {
                 (handle, focused) -> {
                     if (!focused) {
                         inventoryHud.close();
-                        if (editor.open || lightColors.open || mayorDashboard.open) return;
+                        if (editor.open
+                                || lightColors.open
+                                || mayorDashboard.open
+                                || buildingInfo.open) return;
                         menu.open = true;
                         setCaptured(false);
                     }
@@ -568,7 +610,8 @@ public class Main {
                         && !isometric
                         && (editor == null || !editor.open)
                         && (lightColors == null || !lightColors.open)
-                        && !mayorDashboard.open;
+                        && !mayorDashboard.open
+                        && !buildingInfo.open;
         captured = value;
         firstMouse = true;
         glfwSetInputMode(
@@ -621,7 +664,8 @@ public class Main {
                     && !inventoryHud.open
                     && !editor.open
                     && !lightColors.open
-                    && !mayorDashboard.open) {
+                    && !mayorDashboard.open
+                    && !buildingInfo.open) {
                 float speed = Math.min(dt, .1f) * 50 / Math.max(.25f, overview.zoom() / 64);
                 float
                         f =
@@ -694,15 +738,17 @@ public class Main {
                                                     ? "Flying | " + player.cameraView()
                                                     : "Walking | " + player.cameraView())
                             + " | "
-                            + (mayorDashboard.open
-                                    ? "Mayor dashboard"
-                                    : editor.open
-                                            ? "Model editor"
-                                            : menu.open
-                                                    ? "Controls menu"
-                                                    : inventoryHud.open
-                                                            ? "Inventory"
-                                                            : "Esc controls"));
+                            + (buildingInfo.open
+                                    ? "Building information"
+                                    : mayorDashboard.open
+                                            ? "Mayor dashboard"
+                                            : editor.open
+                                                    ? "Model editor"
+                                                    : menu.open
+                                                            ? "Controls menu"
+                                                            : inventoryHud.open
+                                                                    ? "Inventory"
+                                                                    : "Esc controls"));
             if (editor.open) glClearColor(.025f, .045f, .075f, 1);
             else glClearColor(.48f, .72f, .92f, 1);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -916,6 +962,12 @@ public class Main {
                     city(),
                     Controls.keyName(controls.code(MAYOR_DASHBOARD)),
                     network == null || network.connected());
+            renderFps();
+            overlay.end();
+            return;
+        }
+        if (buildingInfo.open) {
+            buildingInfo.render(overlay, framebufferWidth, framebufferHeight, city());
             renderFps();
             overlay.end();
             return;

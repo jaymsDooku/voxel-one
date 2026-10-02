@@ -100,11 +100,16 @@ class CityTimeTest {
     private CitySimulation settled(double daySeconds) {
         var g = new CityTest.Ground();
         var sim = new CityTest().simulation(g);
-        for (int i = 0; i < 60; i++) sim.advance(1);
+        for (int i = 0; i < 160; i++) sim.advance(1);
         var f = sim.frame();
         sim = new CitySimulation(new GameConfig(true, false, daySeconds, 10), g, g.terrain, f);
         for (var c : f.citizens()) {
-            var b = f.buildings().stream().filter(x -> x.id() == c.job()).findFirst().orElseThrow();
+            var b =
+                    BusinessMetrics.from(f).locations().stream()
+                            .map(BusinessMetrics.Location::building)
+                            .filter(x -> x.id() == c.job())
+                            .findFirst()
+                            .orElseThrow();
             var p = sim.ecs.get(c.id(), CitySimulation.Position.class);
             p.x = b.x() + 2.5f;
             p.z = b.z() + 2.5f;

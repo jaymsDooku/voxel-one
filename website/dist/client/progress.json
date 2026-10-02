@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T16:30:51+00:00",
+  "updatedAt": "2026-10-02T17:36:28+00:00",
   "release": {
     "name": "Playtest 22",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-22",
@@ -1361,6 +1361,71 @@
       "status": "complete",
       "note": "Operating shops and mines now have staffed shifts, inventory and delivery flows, sales, wages, rent and persistent daily accounts. F9 > Businesses monitors locations and private companies, with filters, search, staffing/stock/financial alerts and seven completed days of history. Three simulated days and 72 hourly samples reconcile cash and stock. Playtest 22 passed 129 tests on all four desktop platforms; 8 WebKit/Chromium checks and both authenticated VPS connections passed. Existing city and accounts are preserved. The recorded walkthrough captures the business implementation before the final vacant-location label correction. Windows updater verified; GUI testing used Linux/Mesa, not a physical Windows desktop.",
       "updatedAt": "2026-10-02T16:30:51+00:00"
+    },
+    {
+      "id": "construction-materials",
+      "title": "Natural materials and building information",
+      "description": "Adding resource harvesting businesses, privately owned material stocks, developer construction requirements and clickable building details.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "materials verify checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/materials-verify-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "materials three day checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/materials-three-day-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "materials client checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/materials-client-checks.json"
+        },
+        {
+          "kind": "video",
+          "label": "materials inspector run.mp4",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/materials-inspector-run.mp4"
+        },
+        {
+          "kind": "image",
+          "label": "materials building information.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/materials-building-information.png"
+        },
+        {
+          "kind": "image",
+          "label": "materials building information compact.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/materials-building-information-compact.png"
+        },
+        {
+          "kind": "image",
+          "label": "materials first person inspection.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/materials-first-person-inspection.png"
+        },
+        {
+          "kind": "image",
+          "label": "materials private company stocks.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/materials-private-company-stocks.png"
+        },
+        {
+          "kind": "report",
+          "label": "materials browser checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/materials-browser-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "materials recording checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/materials-recording-checks.json"
+        },
+        {
+          "kind": "image",
+          "label": "materials dashboard video mobile.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/materials-dashboard-video-mobile.png"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Final verification passed 142 tests, including old-save migration, naturally sourced workshop construction and developers using already-owned stock. The recorded inspector passed eight mobile/desktop WebKit and Chromium playback and documentation checks. Publishing the release and upgrading both VPS servers.",
+      "updatedAt": "2026-10-02T17:36:28+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

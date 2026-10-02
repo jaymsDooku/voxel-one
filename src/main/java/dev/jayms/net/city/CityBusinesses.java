@@ -189,6 +189,10 @@ public final class CityBusinesses {
                 });
     }
 
+    public void produced(int building, int units) {
+        update(building, c -> c.produced += units);
+    }
+
     public int produce(int building, double hours, int available) {
         var a = accounts.get(building);
         if (a == null || available <= 0) return 0;

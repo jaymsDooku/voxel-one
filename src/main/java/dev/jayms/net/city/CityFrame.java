@@ -62,7 +62,7 @@ public record CityFrame(
     }
 
     public void write(DataOutput out) throws IOException {
-        write(out, 3);
+        write(out, 4);
     }
 
     public void write(DataOutput out, int version) throws IOException {
@@ -118,7 +118,7 @@ public record CityFrame(
             out.writeFloat(h.phase);
             out.writeInt(h.rider);
         }
-        if (version >= 2) economy.write(out, version < 3);
+        if (version >= 2) economy.write(out, version);
     }
 
     private static int count(DataInput in, int max) throws IOException {
@@ -138,7 +138,7 @@ public record CityFrame(
     }
 
     public static CityFrame read(DataInput in, boolean legacy) throws IOException {
-        return read(in, legacy ? 1 : 3);
+        return read(in, legacy ? 1 : 4);
     }
 
     public static CityFrame read(DataInput in, int version) throws IOException {
@@ -225,6 +225,6 @@ public record CityFrame(
                 buildings,
                 citizens,
                 horses,
-                version < 2 ? CityEconomy.State.empty() : CityEconomy.State.read(in, version < 3));
+                version < 2 ? CityEconomy.State.empty() : CityEconomy.State.read(in, version));
     }
 }

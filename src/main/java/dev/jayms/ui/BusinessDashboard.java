@@ -118,7 +118,7 @@ public final class BusinessDashboard {
     }
 
     private static String sector(int kind) {
-        return kind == 0 ? "Developer" : kind == 1 ? "Commercial" : "Industrial";
+        return CityMaterials.sector(kind);
     }
 
     public void render(Overlay ui, int w, int h, CityFrame city) {
@@ -148,7 +148,7 @@ public final class BusinessDashboard {
             selected = 0;
         }
         if (view == 1) {
-            companies(ui, w, h, metrics);
+            companies(ui, w, h, metrics, city);
             return;
         }
         for (int i = 0; i < 4; i++) {
@@ -289,13 +289,14 @@ public final class BusinessDashboard {
                                         .orElse("Unknown owner");
         text(
                 ui,
-                sector(b.type())
+                sector(l.firm() == null ? b.type() : l.firm().kind())
                         + " | "
                         + l.status()
                         + " | "
                         + (b.type() == 1 ? "06:00-22:00" : "08:00-17:00")
-                        + " | Building #"
-                        + b.id()
+                        + (b.id() >= CityMaterials.YARD
+                                ? " | Temporary yard"
+                                : " | Building #" + b.id())
                         + " at "
                         + b.x()
                         + ", "
@@ -397,16 +398,16 @@ public final class BusinessDashboard {
                 1.05f);
     }
 
-    private void companies(Overlay ui, int w, int h, BusinessMetrics m) {
+    private void companies(Overlay ui, int w, int h, BusinessMetrics m, CityFrame city) {
         text(ui, "Company ownership, employment and lifetime finances", 24, 186, w - 48, 1.3f);
         var rows = m.companies();
-        int max = Math.max(1, (h - 268) / 88);
+        int max = Math.max(1, (h - 268) / 110);
         firstRow = Math.min(firstRow, Math.max(0, rows.size() - max));
         for (int i = 0; i < Math.min(max, rows.size() - firstRow); i++) {
             var c = rows.get(firstRow + i);
             var f = c.firm();
-            float y = 218 + i * 88;
-            panel(ui, 24, y, w - 48, 80);
+            float y = 218 + i * 110;
+            panel(ui, 24, y, w - 48, 102);
             text(ui, f.name() + " | " + sector(f.kind()), 36, y + 10, w - 72, 1.45f);
             text(
                     ui,
@@ -430,6 +431,22 @@ public final class BusinessDashboard {
                     y + 56,
                     w - 72,
                     1.15f);
+            String stock =
+                    city.economy().resources().stocks().stream()
+                            .filter(a -> a.ownerKind() == 0 && a.owner() == f.id())
+                            .map(
+                                    a ->
+                                            CityMaterials.name(a.material())
+                                                    + " "
+                                                    + CityMaterials.quantity(a.units()))
+                            .collect(java.util.stream.Collectors.joining(" | "));
+            text(
+                    ui,
+                    "Materials: " + (stock.isEmpty() ? "None available" : stock),
+                    36,
+                    y + 78,
+                    w - 72,
+                    1.1f);
         }
         text(
                 ui,

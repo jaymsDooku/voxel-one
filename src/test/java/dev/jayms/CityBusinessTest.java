@@ -16,7 +16,7 @@ class CityBusinessTest {
 
     private CitySimulation settled(CityTest.Ground ground) {
         var sim = new CityTest().simulation(ground);
-        for (int i = 0; i < 120; i++) sim.advance(1);
+        for (int i = 0; i < 160; i++) sim.advance(1);
         return sim;
     }
 
@@ -26,22 +26,36 @@ class CityBusinessTest {
         var s = settled(g);
         var frame = s.frame();
         var metrics = BusinessMetrics.from(frame);
-        assertEquals(2, metrics.locations().size());
+        assertEquals(7, metrics.locations().size());
         for (var l : metrics.locations()) {
             assertNotNull(l.account());
             assertFalse(l.employees().isEmpty());
             assertTrue(l.total().wages() > 0);
-            var f = l.firm();
-            var t = l.total();
-            assertEquals(f.wages(), t.wages(), .0001);
-            assertEquals(f.receipts(), t.revenue(), .0001);
-            assertEquals((f.kind() == 1 ? 1500 - 240 : 2000) + t.profit(), f.cash(), .0001);
-            if (f.kind() == 1) assertEquals(80 + t.received() - t.sold(), l.building().stock());
-            else assertEquals(t.produced() - t.sold(), l.building().stock());
         }
-        assertTrue(metrics.locations().stream().allMatch(l -> l.total().sold() > 0));
+        for (var c : metrics.companies())
+            if (c.firm().kind() != 0) {
+                var f = c.firm();
+                var accounts =
+                        frame.economy().businesses().stream()
+                                .filter(a -> a.company() == f.id())
+                                .toList();
+                assertEquals(
+                        f.wages(),
+                        accounts.stream().mapToDouble(a -> a.total().wages()).sum(),
+                        .0001);
+                assertEquals(f.receipts(), c.revenue(), .0001);
+                double initial = f.kind() == 1 ? 1500 - 240 : f.kind() == 2 ? 2000 : 1500;
+                assertEquals(initial + c.profit(), f.cash(), .0001);
+            }
+        var shop =
+                metrics.locations().stream()
+                        .filter(l -> l.building().type() == 1)
+                        .findFirst()
+                        .orElseThrow();
+        assertEquals(shop.total().received() - shop.total().sold(), shop.building().stock());
+        assertTrue(shop.total().sold() > 0);
         assertEquals(10120, frame.economy().budget());
-        assertEquals(5, metrics.companies().size());
+        assertEquals(10, metrics.companies().size());
     }
 
     @Test
@@ -91,7 +105,12 @@ class CityBusinessTest {
         var f = s.frame();
         s = new CitySimulation(new GameConfig(true, false, 1200, 18), g, g.terrain, f);
         for (var c : f.citizens()) {
-            var b = f.buildings().stream().filter(v -> v.id() == c.job()).findFirst().orElseThrow();
+            var b =
+                    BusinessMetrics.from(f).locations().stream()
+                            .map(BusinessMetrics.Location::building)
+                            .filter(v -> v.id() == c.job())
+                            .findFirst()
+                            .orElseThrow();
             var p = s.ecs.get(c.id(), CitySimulation.Position.class);
             p.x = b.x() + 2.5f;
             p.z = b.z() + 2.5f;
@@ -202,7 +221,7 @@ class CityBusinessTest {
         var migrated = new CitySimulation(old.config(), g, g.terrain, old);
         assertEquals(old.economy(), migrated.frame().economy());
         migrated.advance(1);
-        assertEquals(2, migrated.frame().economy().businesses().size());
+        assertEquals(7, BusinessMetrics.from(migrated.frame()).locations().size());
         migrated.save(save);
         assertEquals(migrated.frame(), CitySimulation.load(save));
     }

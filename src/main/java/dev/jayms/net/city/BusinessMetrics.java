@@ -16,7 +16,10 @@ public record BusinessMetrics(List<Location> locations, List<Company> companies)
             boolean attention,
             double dailyPayroll) {
         public String name() {
-            return (firm == null ? "Vacant workplace" : firm.name()) + " #" + building.id();
+            return (firm == null ? "Vacant workplace" : firm.name())
+                    + (building.id() >= CityMaterials.YARD
+                            ? " | field yard"
+                            : " #" + building.id());
         }
 
         public int capacity() {
@@ -58,11 +61,11 @@ public record BusinessMetrics(List<Location> locations, List<Company> companies)
     }
 
     public double revenue() {
-        return locations.stream().mapToDouble(l -> l.total().revenue()).sum();
+        return companies.stream().mapToDouble(Company::revenue).sum();
     }
 
     public double expenses() {
-        return locations.stream().mapToDouble(l -> l.total().expenses()).sum();
+        return companies.stream().mapToDouble(Company::expenses).sum();
     }
 
     public int employees() {
@@ -72,21 +75,56 @@ public record BusinessMetrics(List<Location> locations, List<Company> companies)
     public static BusinessMetrics from(CityFrame city) {
         var time = city.config().time(city.elapsed());
         var locations = new ArrayList<Location>();
-        for (var b : city.buildings())
+        var workplaces = new ArrayList<>(city.buildings());
+        if (city.config().city())
+            for (var f : city.economy().firms())
+                if (f.kind() >= 2
+                        && city.economy().properties().stream()
+                                .noneMatch(p -> p.operator() == f.id()))
+                    workplaces.add(
+                            new CityFrame.Building(
+                                    CityMaterials.YARD + f.id(),
+                                    0,
+                                    2,
+                                    -8 + (f.kind() - 2) * 6,
+                                    city.roads().isEmpty() ? 32 : city.roads().get(0).y(),
+                                    23,
+                                    1,
+                                    (int)
+                                            (city.economy()
+                                                            .resources()
+                                                            .available(
+                                                                    0,
+                                                                    f.id(),
+                                                                    CityMaterials.output(f.kind()))
+                                                    / CityMaterials.UNIT)));
+        for (var b : workplaces)
             if (b.type() != 0) {
                 var property =
                         city.economy().properties().stream()
                                 .filter(p -> p.building() == b.id())
                                 .findFirst()
                                 .orElse(null);
+                if (b.id() >= CityMaterials.YARD)
+                    property =
+                            new CityEconomy.Property(
+                                    b.id(),
+                                    0,
+                                    b.id() - CityMaterials.YARD,
+                                    b.id() - CityMaterials.YARD,
+                                    0,
+                                    0);
+                final var owned = property;
                 var firm =
                         property == null
                                 ? null
                                 : city.economy().firms().stream()
                                         .filter(
                                                 f ->
-                                                        f.id() == property.operator()
-                                                                && f.kind() == b.type())
+                                                        f.id() == owned.operator()
+                                                                && (f.kind() == b.type()
+                                                                        || b.type() == 2
+                                                                                && f.kind() >= 2))
                                         .findFirst()
                                         .orElse(null);
                 var account =
@@ -110,7 +148,9 @@ public record BusinessMetrics(List<Location> locations, List<Company> companies)
                                                 c ->
                                                         c.activity().equals("Working in shop")
                                                                 || c.activity()
-                                                                        .equals("Working in mine"))
+                                                                        .equals("Working in mine")
+                                                                || c.activity()
+                                                                        .startsWith("Working: "))
                                         .count();
                 int present = 0;
                 for (int i = 0; i < staff.size(); i++) {
@@ -147,7 +187,10 @@ public record BusinessMetrics(List<Location> locations, List<Company> companies)
                                                                         ? "Out of stock"
                                                                         : b.type() == 2
                                                                                         && b.stock()
-                                                                                                >= 1000
+                                                                                                >= CityMaterials
+                                                                                                        .capacity(
+                                                                                                                firm
+                                                                                                                        .kind())
                                                                                 ? "Storage full"
                                                                                 : "Open";
                 boolean alerts =
@@ -161,7 +204,10 @@ public record BusinessMetrics(List<Location> locations, List<Company> companies)
                                 || hours
                                         && (present == 0
                                                 || b.type() == 1 && b.stock() == 0
-                                                || b.type() == 2 && b.stock() >= 1000)
+                                                || b.type() == 2
+                                                        && b.stock()
+                                                                >= CityMaterials.capacity(
+                                                                        firm.kind()))
                                 || account != null
                                         && (account.total().profit() < 0
                                                 || account.today().totals().missedRent() > 0
@@ -198,8 +244,12 @@ public record BusinessMetrics(List<Location> locations, List<Company> companies)
                                                     p.ownerKind() == CityEconomy.COMPANY
                                                             && p.owner() == f.id())
                                     .count();
-            double revenue = ls.stream().mapToDouble(l -> l.total().revenue()).sum(),
-                    expenses = ls.stream().mapToDouble(l -> l.total().expenses()).sum();
+            var accounts =
+                    city.economy().businesses().stream()
+                            .filter(a -> a.company() == f.id())
+                            .toList();
+            double revenue = accounts.stream().mapToDouble(a -> a.total().revenue()).sum(),
+                    expenses = accounts.stream().mapToDouble(a -> a.total().expenses()).sum();
             companies.add(
                     new Company(
                             f,
