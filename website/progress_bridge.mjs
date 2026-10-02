@@ -4,7 +4,7 @@ export async function generalProgress(request,env,fetcher=fetch){
  if(!request.headers.get('oai-authenticated-user-id'))return Response.json({error:'Sign in to view development progress.'},{status:401});
  if(!env.GENERAL_DASHBOARD_AUTH||!env.GENERAL_DASHBOARD_BRIDGE_KEY)return Response.json({error:'The shared work queue is unavailable. Recorded progress remains available.'},{status:503});
  try{
-  const upstream=await fetcher(ORIGIN+'/api/applications/voxel-one/progress?agentId=voxel-bridge',{headers:{'OAI-Sites-Authorization':'Bearer '+env.GENERAL_DASHBOARD_AUTH,'X-Codex-Agent':'1','X-Codex-Agent-Key':env.GENERAL_DASHBOARD_BRIDGE_KEY},signal:AbortSignal.timeout(6000)});
+  const upstream=await fetcher(ORIGIN+'/api/applications/voxel-one/progress?agentId=voxel-bridge',{redirect:'error',headers:{'OAI-Sites-Authorization':'Bearer '+env.GENERAL_DASHBOARD_AUTH,'X-Codex-Agent':'1','X-Codex-Agent-Key':env.GENERAL_DASHBOARD_BRIDGE_KEY},signal:AbortSignal.timeout(6000)});
   if(!upstream.ok)throw Error('Unavailable');
   const text=await upstream.text();if(text.length>300000)throw Error('Too large');const data=JSON.parse(text);
   if(data.schemaVersion!==1||!Array.isArray(data.items)||data.items.length>1000)throw Error('Invalid projection');
