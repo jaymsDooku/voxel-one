@@ -1,0 +1,15 @@
+{
+  "scope": "Actual packaged Linux client, Xvfb/Mesa, after three simulated days; not a physical Windows desktop",
+  "checks": [
+    "Isometric view displays completed farmer-owned barns, planted crop fields and voxel cows and calves",
+    "Citizen dashboard navigation centres the camera on a farming family member",
+    "Clicking a farm opens its persistent road address, private farmer ownership and family information",
+    "Inspector displays cattle feeding, calf/slaughter counters and milk/beef/private material stock",
+    "640x640 inspector scrolling and Escape navigation",
+    "Mayor Businesses Agricultural filter shows farm operations",
+    "Private companies display food producers and processor finances",
+    "F10 recorder captures the actual world, cow movement, inspector resize and business screens",
+    "Clean save and Quit"
+  ],
+  "videoBytes": 2613521
+}
