@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T16:04:32+00:00",
+  "updatedAt": "2026-10-02T16:15:33+00:00",
   "release": {
     "name": "Playtest 20",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-20",
@@ -1321,11 +1321,21 @@
           "kind": "report",
           "label": "business regression checks.json",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-regression-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "business browser checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-browser-checks.json"
+        },
+        {
+          "kind": "image",
+          "label": "business dashboard video mobile.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-dashboard-video-mobile.png"
         }
       ],
       "status": "in_progress",
-      "note": "Three simulated days passed with 72 hourly business samples and reconciled cash/inventory. The final client dashboard was playtested at desktop and 640x640 sizes and recorded with the engine recorder. Existing VPS city ownership, balances, population and clock survive the save upgrade. Preparing cross-platform release and server deployment.",
-      "updatedAt": "2026-10-02T16:04:32+00:00"
+      "note": "Playtest 21 passed 129 tests on all four desktop platforms and is published. Recorded client navigation and 8 WebKit/Chromium browser checks passed. Both VPS servers are backed up and running the update; checking authenticated live city snapshots before completion.",
+      "updatedAt": "2026-10-02T16:15:33+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
