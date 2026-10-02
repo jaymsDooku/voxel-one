@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T14:27:05+00:00",
+  "updatedAt": "2026-10-02T15:00:13+00:00",
   "release": {
-    "name": "Playtest 19",
-    "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-19",
-    "commit": "85f71c77f44bd312f85b6edba9b166722081b414"
+    "name": "Playtest 20",
+    "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-20",
+    "commit": "cf3af7e06670adb1e897e9eee7b5938d1d64e52c"
   },
   "verification": {
-    "tests": 109,
+    "tests": 117,
     "failures": 0,
-    "label": "Playtest 19",
-    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/city-time-release-checks.json"
+    "label": "Playtest 20",
+    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/screen-recorder-release-checks.json"
   },
   "items": [
     {
@@ -1191,6 +1191,81 @@
       "status": "complete",
       "note": "Released Playtest 19 and updated the VPS city with a backup and preserved clock/population/finances. Added midnight calendar rollover, daily routines and work/meal/sleep gestures, hourly hunger/pay rates and safe building aisles. Three full days passed: all 12 citizens worked, ate, travelled and slept each cycle; 72 hourly samples recorded. All 109 tests passed on four platforms, GPU/client/browser checks passed, Windows update verified, and live pinned-TLS city snapshots advanced.",
       "updatedAt": "2026-10-02T14:27:05+00:00"
+    },
+    {
+      "id": "screen-recorder",
+      "title": "In-game screen recorder and video evidence",
+      "description": "Implementing MP4 game capture, a recording control and inline dashboard video evidence.",
+      "evidence": [
+        {
+          "kind": "video",
+          "label": "screen recorder city run.mp4",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/screen-recorder-city-run.mp4"
+        },
+        {
+          "kind": "report",
+          "label": "screen recorder client checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/screen-recorder-client-checks.json"
+        },
+        {
+          "kind": "image",
+          "label": "screen recorder active.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/screen-recorder-active.png"
+        },
+        {
+          "kind": "link",
+          "label": "Playtest 20",
+          "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-20"
+        },
+        {
+          "kind": "link",
+          "label": "Cross-platform build and tests",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/37023199353"
+        },
+        {
+          "kind": "report",
+          "label": "screen recorder browser checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/screen-recorder-browser-checks.json"
+        },
+        {
+          "kind": "image",
+          "label": "screen recorder dashboard mobile.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/screen-recorder-dashboard-mobile.png"
+        },
+        {
+          "kind": "report",
+          "label": "screen recorder decoded.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/screen-recorder-decoded.json"
+        },
+        {
+          "kind": "report",
+          "label": "screen recorder quit decoded.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/screen-recorder-quit-decoded.json"
+        },
+        {
+          "kind": "report",
+          "label": "screen recorder regression checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/screen-recorder-regression-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "screen recorder video handler checks.txt",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/screen-recorder-video-handler-checks.txt"
+        },
+        {
+          "kind": "report",
+          "label": "screen recorder worker checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/screen-recorder-worker-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "screen recorder release checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/screen-recorder-release-checks.json"
+        }
+      ],
+      "status": "complete",
+      "note": "F10 records the game, HUD and menus to a silent MP4; controls are editable, resizing preserves aspect ratio and normal Quit finishes saving. The inline dashboard video is an actual 14.6-second city run. All four desktop builds passed 117 tests; 8 WebKit/Chromium browser checks, 5 video handler tests and 2 built-worker route checks passed. Playtest 20 is published and the Windows updater downloaded and verified its recorder and encoder. GUI tests ran on Linux/Mesa; no physical Windows or iPhone playtest.",
+      "updatedAt": "2026-10-02T15:00:13+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

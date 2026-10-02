@@ -1,0 +1,1 @@
+{"scope":"Built Site worker route with a simulated authenticated browser request; no real identity or private answers","checks":["Unauthenticated requests rejected","Authenticated video route serves MP4 and byte ranges without requiring question storage"],"status":"passed"}
