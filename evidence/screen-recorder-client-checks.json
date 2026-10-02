@@ -1,0 +1,14 @@
+{
+  "scope": "Actual packaged Linux client under Xvfb/Mesa; offline city fixture. No physical Windows or iPhone test.",
+  "checks": [
+    "F10 starts and stops capture",
+    "World, camera changes, walking and mayor dashboard recorded",
+    "Resizing while recording preserves output dimensions",
+    "Normal game Quit finalizes active second recording",
+    "No partial files left after stop and normal Quit"
+  ],
+  "video": {
+    "file": "screen-recorder-city-run.mp4",
+    "bytes": 1684176
+  }
+}
