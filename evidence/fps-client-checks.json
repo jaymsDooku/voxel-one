@@ -1,0 +1,21 @@
+{
+  "result": "passed",
+  "build": "mvn -q -o -Dmaven.repo.local=/tmp/voxel-m2 -Dlwjgl.natives=natives-linux -DskipTests package",
+  "platform": "Packaged Linux client on Xvfb and Mesa software OpenGL",
+  "measurement": "Completed rendered frames divided by actual elapsed time, refreshed every 0.5 seconds; simulation delta clamps do not affect the count.",
+  "checks": [
+    "Top-right counter visible in city isometric view",
+    "Visible in first-person gameplay",
+    "Visible in voxel model editor",
+    "Visible above controls menu",
+    "Count changes with rendering workload; observed 3 FPS in software-rendered city and 56 FPS in model editor",
+    "Client saves and exits successfully"
+  ],
+  "screenshots": [
+    "fps-city.png",
+    "fps-first-person.png",
+    "fps-model-editor.png",
+    "fps-controls.png"
+  ],
+  "limitations": "Software GPU measurements are not representative of a physical Windows GPU."
+}
