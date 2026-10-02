@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T19:15:28+00:00",
+  "updatedAt": "2026-10-02T19:46:05+00:00",
   "release": {
     "name": "Playtest 25",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-25",
@@ -1573,8 +1573,8 @@
       "description": "Adding agricultural zones, farmer-funded construction and expansion, wheat/carrot/sugarcane crops, cattle, and privately traded food manufacturing.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Adding agricultural zones, farmer-funded construction and expansion, wheat/carrot/sugarcane crops, cattle, and privately traded food manufacturing.",
-      "updatedAt": "2026-10-02T19:15:28+00:00"
+      "note": "Implemented farmer-owned agricultural zoning, paid soil preparation and farm construction, growing crop fields, cattle/feed/breeding/milk/beef, and privately funded food factories. First three-day simulation fed and housed all 18 citizens; validating save migration, expansion, multiplayer and visuals.",
+      "updatedAt": "2026-10-02T19:46:05+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
