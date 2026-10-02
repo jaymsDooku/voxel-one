@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T17:30:02+00:00",
+  "updatedAt": "2026-10-02T17:36:28+00:00",
   "release": {
     "name": "Playtest 22",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-22",
@@ -1406,11 +1406,26 @@
           "kind": "image",
           "label": "materials private company stocks.png",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/materials-private-company-stocks.png"
+        },
+        {
+          "kind": "report",
+          "label": "materials browser checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/materials-browser-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "materials recording checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/materials-recording-checks.json"
+        },
+        {
+          "kind": "image",
+          "label": "materials dashboard video mobile.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/materials-dashboard-video-mobile.png"
         }
       ],
       "status": "in_progress",
-      "note": "Recorded packaged-client checks passed for isometric and first-person building clicks, compact inspector scrolling and private company material stocks. Additional industrial zones construct material-funded workshops for all resource companies. Preparing the tested desktop and VPS release.",
-      "updatedAt": "2026-10-02T17:30:02+00:00"
+      "note": "Final verification passed 142 tests, including old-save migration, naturally sourced workshop construction and developers using already-owned stock. The recorded inspector passed eight mobile/desktop WebKit and Chromium playback and documentation checks. Publishing the release and upgrading both VPS servers.",
+      "updatedAt": "2026-10-02T17:36:28+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
