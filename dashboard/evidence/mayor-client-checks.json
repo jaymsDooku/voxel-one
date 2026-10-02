@@ -9,11 +9,13 @@
     "F5 shows third-person rider",
     "H dismounts",
     "Isometric horizon fit and focus remain functional",
-    "Menu quit saves and exits successfully"
+    "Menu quit saves and exits successfully",
+    "Inspect click selects property #3 and displays private owner Avery, $50 value, $0.60/day rent and three rental agreements"
   ],
   "screenshots": [
     "mayor-overview.png",
-    "mayor-economy.png"
+    "mayor-economy.png",
+    "mayor-property-inspector.png"
   ],
   "limitations": "Physical Windows desktop playtest is performed by the user."
 }

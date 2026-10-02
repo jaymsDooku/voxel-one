@@ -1,0 +1,33 @@
+{
+  "recordedAt": "2026-10-02T10:33:08.113706+00:00",
+  "release": "playtest-15",
+  "revision": "efc75accad2acb738e4febd20d84706b871f5345",
+  "ci": "https://github.com/jaymsDooku/voxel-one/actions/runs/36995685503",
+  "platforms": {
+    "Windows": "passed",
+    "Linux": "passed",
+    "Mac Intel": "passed",
+    "Mac ARM": "passed"
+  },
+  "windowsUpdater": {
+    "download": "passed",
+    "sha256": "passed",
+    "WindowsNativeLibraries": "present",
+    "revision": "efc75accad2acb738e4febd20d84706b871f5345"
+  },
+  "vps": {
+    "host": "198.100.154.156",
+    "protocol": 10,
+    "cityPort": 25566,
+    "sandboxPort": 25565,
+    "saveUpgrade": "Actual stopped city copied and verified before replacing binary. Existing persistent citizens, zones, buildings, clock and all 2580 voxel edits preserved. Restart recomputes route activity. Private ownership added without mayor construction charges.",
+    "sandboxUpgrade": "All 187 edits, inventories, health, drops and model definitions preserved.",
+    "accountsAndTls": "Unchanged on both servers",
+    "backups": "Unique pre-mayor world, city sidecar and server backups retained; rollback prepared.",
+    "liveLoginChecks": {
+      "sandbox": "jayms authenticated over pinned TLS, 187 world edits",
+      "city": "jayms authenticated over pinned TLS, mayor budget $10000, 5 private firms, 5 owned properties and 14 contracts"
+    }
+  },
+  "limitations": "Windows CI and updater passed; physical Windows desktop and desktop-to-VPS playtest are performed by the user."
+}
