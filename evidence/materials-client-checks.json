@@ -1,0 +1,14 @@
+{
+  "scope": "Actual packaged Linux client, Xvfb/Mesa, fresh city after three simulated days; not a physical Windows desktop",
+  "checks": [
+    "Isometric click on a house opens its live property inspector",
+    "Inspector shows private ownership, residents and consumed voxel recipe",
+    "640x640 inspector scroll and Close/Escape navigation",
+    "Mayor Businesses view lists specialized firms and temporary yards",
+    "Private companies show owned material inventories",
+    "First-person Alt + left-click opens a building without breaking it",
+    "F10 recorder captures inspector navigation, resizing and company stocks",
+    "Clean save and Quit"
+  ],
+  "videoBytes": 2470594
+}
