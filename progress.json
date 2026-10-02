@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T00:18:27+00:00",
+  "updatedAt": "2026-10-02T00:45:16+00:00",
   "release": {
     "name": "Playtest 12",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-12",
@@ -110,8 +110,8 @@
       "title": "Coloured glowing blocks",
       "description": "Place LED-like blocks with any chosen colour and visible local illumination.",
       "status": "in_progress",
-      "updatedAt": "2026-10-02T00:18:27+00:00",
-      "note": "Adding RGB light materials to the octree, multiplayer protocol, saves and colour controls.",
+      "updatedAt": "2026-10-02T00:45:16+00:00",
+      "note": "RGB LED blocks, F8 colour controls, crafting, save migration and TLS replication regressions implemented; GPU verification in progress.",
       "evidence": []
     },
     {
