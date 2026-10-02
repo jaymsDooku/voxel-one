@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T21:16:38+00:00",
+  "updatedAt": "2026-10-02T21:26:46+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -1751,6 +1751,15 @@
       "status": "complete",
       "note": "Playtest 28 committed, published and deployed. Actual opaque octree leaves block skylight, sunlight, reflected sky and RGB LEDs; glass and air transmit. All 166 tests pass on Windows, Linux and both Macs. GPU hidden-light and sunlight tests change zero pixels across a solid 1/16 wall. Windows updater verified; both VPS worlds, accounts and TLS preserved.",
       "updatedAt": "2026-10-02T21:16:38+00:00"
+    },
+    {
+      "id": "general-development-dashboard",
+      "title": "General Codex development queue and agent team",
+      "description": "Building a separate application-grouped queue, prompt submission, worktree-based developers, independent PR review and budget-aware continuation.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Building a separate application-grouped queue, prompt submission, worktree-based developers, independent PR review and budget-aware continuation.",
+      "updatedAt": "2026-10-02T21:26:46+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
