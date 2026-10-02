@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T09:40:18+00:00",
+  "updatedAt": "2026-10-02T09:56:10+00:00",
   "release": {
     "name": "Playtest 13",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-13",
     "commit": "d0da076758711c10c270605c55ff1414439b26cd"
   },
   "verification": {
-    "tests": 74,
+    "tests": 87,
     "failures": 0,
-    "label": "Playtest 13",
-    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-tests.json"
+    "label": "Playtest 14",
+    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/city-tests.json"
   },
   "items": [
     {
@@ -756,11 +756,66 @@
           "kind": "image",
           "label": "city night.png",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/city-night.png"
+        },
+        {
+          "kind": "link",
+          "label": "Cross-platform release checks",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/36992239689"
+        },
+        {
+          "kind": "link",
+          "label": "Playtest 14 download",
+          "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-14"
+        },
+        {
+          "kind": "report",
+          "label": "city tests.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/city-tests.json"
+        },
+        {
+          "kind": "report",
+          "label": "city client checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/city-client-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "city deployment.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/city-deployment.json"
+        },
+        {
+          "kind": "image",
+          "label": "voxel city overview.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/voxel-city-overview.png"
+        },
+        {
+          "kind": "image",
+          "label": "voxel city first person.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/voxel-city-first-person.png"
+        },
+        {
+          "kind": "image",
+          "label": "voxel city riding.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/voxel-city-riding.png"
+        },
+        {
+          "kind": "image",
+          "label": "voxel city horse third person.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/voxel-city-horse-third-person.png"
+        },
+        {
+          "kind": "image",
+          "label": "voxel city horizon.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/voxel-city-horizon.png"
+        },
+        {
+          "kind": "image",
+          "label": "voxel city city focus.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/voxel-city-city-focus.png"
         }
       ],
-      "status": "in_progress",
-      "note": "Implemented city planning, ECS economy and road navigation, generated structures, configurable daylight and exclusive riding. Real client riding checks and GPU day/night checks passed; final regression and VPS/release deployment remain.",
-      "updatedAt": "2026-10-02T09:40:18+00:00"
+      "status": "complete",
+      "note": "Released Playtest 14 on all four desktop platforms and deployed separate City and sandbox servers. Convex zoning, generated buildings, population economy, horses, day/night and ECS implemented. 87 tests passed; GPU/client, updater, TLS login and saved-world checks passed.",
+      "updatedAt": "2026-10-02T09:56:10+00:00"
     },
     {
       "id": "dashboard-questions",
