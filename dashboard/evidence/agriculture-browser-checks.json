@@ -1,0 +1,73 @@
+{
+  "scope": "Local WebKit and Chromium playback checks with real H.264 MP4 and deployed video handler code. WebKit simulates Safari; not a physical iPhone test.",
+  "checks": [
+    {
+      "browser": "webkit",
+      "width": 390,
+      "check": "Actual recorded MP4 plays, pauses, seeks and decodes; inline controls, no autoplay, download link and responsive layout",
+      "status": "passed",
+      "metadata": {
+        "width": 960,
+        "height": 540,
+        "duration": 19.588
+      }
+    },
+    {
+      "browser": "webkit",
+      "width": 390,
+      "check": "Farmer-owned agriculture, fields, cattle, food recipes and upgrade documentation navigation",
+      "status": "passed"
+    },
+    {
+      "browser": "webkit",
+      "width": 1280,
+      "check": "Actual recorded MP4 plays, pauses, seeks and decodes; inline controls, no autoplay, download link and responsive layout",
+      "status": "passed",
+      "metadata": {
+        "width": 960,
+        "height": 540,
+        "duration": 19.588
+      }
+    },
+    {
+      "browser": "webkit",
+      "width": 1280,
+      "check": "Farmer-owned agriculture, fields, cattle, food recipes and upgrade documentation navigation",
+      "status": "passed"
+    },
+    {
+      "browser": "chromium",
+      "width": 390,
+      "check": "Actual recorded MP4 plays, pauses, seeks and decodes; inline controls, no autoplay, download link and responsive layout",
+      "status": "passed",
+      "metadata": {
+        "width": 960,
+        "height": 540,
+        "duration": 19.588
+      }
+    },
+    {
+      "browser": "chromium",
+      "width": 390,
+      "check": "Farmer-owned agriculture, fields, cattle, food recipes and upgrade documentation navigation",
+      "status": "passed"
+    },
+    {
+      "browser": "chromium",
+      "width": 1280,
+      "check": "Actual recorded MP4 plays, pauses, seeks and decodes; inline controls, no autoplay, download link and responsive layout",
+      "status": "passed",
+      "metadata": {
+        "width": 960,
+        "height": 540,
+        "duration": 19.588
+      }
+    },
+    {
+      "browser": "chromium",
+      "width": 1280,
+      "check": "Farmer-owned agriculture, fields, cattle, food recipes and upgrade documentation navigation",
+      "status": "passed"
+    }
+  ]
+}

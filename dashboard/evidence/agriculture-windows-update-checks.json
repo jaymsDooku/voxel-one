@@ -1,0 +1,14 @@
+{
+  "status": "passed",
+  "release": "playtest-27",
+  "revision": "f90797361b1a87b295d049411c466f7634bf8da0",
+  "scope": "Real updater downloads and verifies the Windows client on the VPS; Windows GUI playtesting remains on the user's desktop.",
+  "updated": true,
+  "checks": [
+    "Latest manifest revision matches the final agriculture commit",
+    "Published client download and checksum verification succeed",
+    "Agriculture, FarmModels, CityMaterials and building/business interfaces are bundled",
+    "F10 H.264 recorder, encoder and license are bundled",
+    "Windows x64 GLFW native library is bundled"
+  ]
+}

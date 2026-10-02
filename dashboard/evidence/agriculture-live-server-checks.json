@@ -1,0 +1,42 @@
+{
+  "status": "passed",
+  "release": "playtest-27",
+  "revision": "f90797361b1a87b295d049411c466f7634bf8da0",
+  "scope": "Real public-IP TLS authentication using the preserved jayms test account on both VPS services, without gameplay edits.",
+  "publishedJarDigestVerified": true,
+  "cityRequiresNewAgriculturalAndIndustrialZoning": true,
+  "checks": [
+    {
+      "protocol": 14,
+      "port": 25565,
+      "city": false,
+      "playersAuthenticated": true,
+      "clockAdvanced": true,
+      "population": 0,
+      "buildings": 0,
+      "companies": 5,
+      "businesses": 0,
+      "operatingAccounts": 0,
+      "calendarDay": 1,
+      "addressesVerified": true,
+      "agricultureCatalogVerified": false,
+      "status": "passed"
+    },
+    {
+      "protocol": 14,
+      "port": 25566,
+      "city": true,
+      "playersAuthenticated": true,
+      "clockAdvanced": true,
+      "population": 18,
+      "buildings": 5,
+      "companies": 17,
+      "businesses": 14,
+      "operatingAccounts": 7,
+      "calendarDay": 33,
+      "addressesVerified": true,
+      "agricultureCatalogVerified": true,
+      "status": "passed"
+    }
+  ]
+}
