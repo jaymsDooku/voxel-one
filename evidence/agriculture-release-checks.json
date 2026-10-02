@@ -1,0 +1,15 @@
+{
+  "status": "passed",
+  "release": "playtest-27",
+  "revision": "f90797361b1a87b295d049411c466f7634bf8da0",
+  "ciRun": "https://github.com/jaymsDooku/voxel-one/actions/runs/37059251092",
+  "testsPerPlatform": 160,
+  "platforms": [
+    "build (ubuntu-latest, linux)",
+    "build (macos-15-intel, mac-intel)",
+    "build (macos-latest, mac-arm)",
+    "build (windows-latest, windows)"
+  ],
+  "publishedServerSha256": "ed5aba730a46ec8e05c98382b3e3a322f479b6e0e997ac5f167b356d4b2c262f",
+  "publishedDigestMatches": true
+}
