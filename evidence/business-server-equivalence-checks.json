@@ -1,0 +1,8 @@
+{
+  "deployedServerRelease": "playtest-21",
+  "finalRelease": "playtest-22",
+  "allServerClassesIdentical": true,
+  "classesCompared": 82,
+  "protocol": 11,
+  "note": "The final client update corrects the vacant property label; the deployed server code is unchanged."
+}
