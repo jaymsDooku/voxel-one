@@ -1,0 +1,17 @@
+{
+  "release": "playtest-19",
+  "revision": "85f71c77f44bd312f85b6edba9b166722081b414",
+  "service": "voxel-city-one",
+  "port": 25566,
+  "status": "active",
+  "serverSha256": "3a5b27a56e8d28b0c3d385b6b303a1274a53b50bef84905a00c400072f0ae4b8",
+  "githubAssetDigestVerified": true,
+  "backupCreated": true,
+  "savedCityClock": {
+    "elapsed": 16680.40024855733,
+    "daySeconds": 1200.0,
+    "startHour": 8.0,
+    "cycle": true
+  },
+  "upgradeCheck": "Actual server load/save of a temporary VPS city copy preserved clock, population, buildings, roads, zones, horses and finances"
+}
