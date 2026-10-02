@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T19:05:44+00:00",
+  "updatedAt": "2026-10-02T19:15:28+00:00",
   "release": {
     "name": "Playtest 25",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-25",
@@ -1566,6 +1566,15 @@
       "status": "complete",
       "note": "Committed and pushed 84bbfcb; Playtest 25 published and both VPS services upgraded with existing worlds/accounts preserved. 152 tests passed on all four platforms, three city days conserved supplies and cash with 34 tools produced and all 12 citizens fed/sleeping; actual client video, mobile browser checks, Windows updater, and both live TLS logins verified. Zone additional industrial land to obtain factory premises in the existing city.",
       "updatedAt": "2026-10-02T19:05:44+00:00"
+    },
+    {
+      "id": "agriculture-food-chain",
+      "title": "Farmer-owned agriculture and food supply chains",
+      "description": "Adding agricultural zones, farmer-funded construction and expansion, wheat/carrot/sugarcane crops, cattle, and privately traded food manufacturing.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Adding agricultural zones, farmer-funded construction and expansion, wheat/carrot/sugarcane crops, cattle, and privately traded food manufacturing.",
+      "updatedAt": "2026-10-02T19:15:28+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
