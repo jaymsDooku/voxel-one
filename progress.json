@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T01:03:38+00:00",
+  "updatedAt": "2026-10-02T01:11:51+00:00",
   "release": {
-    "name": "Playtest 12",
-    "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-12",
-    "commit": "8c798c1ea5fd9696656418563e4c197f7f01761a"
+    "name": "Playtest 13",
+    "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-13",
+    "commit": "d0da076758711c10c270605c55ff1414439b26cd"
   },
   "verification": {
-    "tests": 68,
+    "tests": 74,
     "failures": 0,
-    "label": "Playtest 12",
-    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/master/dashboard/evidence/playtest-12-tests.json"
+    "label": "Playtest 13",
+    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-tests.json"
   },
   "items": [
     {
@@ -73,10 +73,31 @@
       "id": "sun-lighting",
       "title": "Sun and daylight",
       "description": "A visible sun with directional lighting.",
-      "status": "in_progress",
-      "updatedAt": "2026-10-02T01:03:38+00:00",
-      "note": "Visible sun and sky verified in the real client. All 74 regressions pass; final GPU evidence, release and deployment checks underway.",
-      "evidence": []
+      "status": "complete",
+      "updatedAt": "2026-10-02T01:11:51+00:00",
+      "note": "Sun and HDR sky, filtered geometry shadows, verified in both AA paths. Playtest 13 passed all four desktop builds and is deployed on the VPS.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Cross-platform build and release",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/36949403767"
+        },
+        {
+          "kind": "report",
+          "label": "rendering gpu 1x.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/rendering-gpu-1x.json"
+        },
+        {
+          "kind": "report",
+          "label": "rendering gpu 4x.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/rendering-gpu-4x.json"
+        },
+        {
+          "kind": "image",
+          "label": "voxel lighting sun.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/voxel-lighting-sun.png"
+        }
+      ]
     },
     {
       "id": "global-illumination",
