@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T17:58:55+00:00",
+  "updatedAt": "2026-10-02T18:10:46+00:00",
   "release": {
     "name": "Playtest 22",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-22",
@@ -1466,6 +1466,15 @@
       "status": "complete",
       "note": "Playtest 24 is committed, published and deployed on both VPS servers. Verified 142 tests on each desktop platform, three simulated days with conserved natural materials, recorded building inspection, Safari-compatible evidence playback, Windows auto-updating and live test-account TLS sign-in. Existing city, accounts and TLS identity retained with backups.",
       "updatedAt": "2026-10-02T17:58:55+00:00"
+    },
+    {
+      "id": "manufacturing-addresses",
+      "title": "Road addresses and configurable manufacturing",
+      "description": "Adding generated road names and building addresses, privately funded tool factories, and configurable production pipelines.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Adding generated road names and building addresses, privately funded tool factories, and configurable production pipelines.",
+      "updatedAt": "2026-10-02T18:10:46+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
