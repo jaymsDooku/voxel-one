@@ -1,0 +1,70 @@
+{
+  "recordedAt": "2026-10-02T09:04:18.989Z",
+  "scope": "Local Cloudflare Worker and real SQLite/D1 emulator. WebKit simulates Safari, not a physical iPhone. Synthetic questions and answers only.",
+  "checks": [
+    {
+      "browser": "webkit",
+      "width": 390,
+      "check": "Choice, text answer, edit, reload persistence, responsive layout",
+      "status": "passed"
+    },
+    {
+      "browser": "webkit",
+      "width": 390,
+      "check": "Failed save preserves draft",
+      "status": "passed"
+    },
+    {
+      "browser": "webkit",
+      "width": 1280,
+      "check": "Choice, text answer, edit, reload persistence, responsive layout",
+      "status": "passed"
+    },
+    {
+      "browser": "webkit",
+      "width": 1280,
+      "check": "Failed save preserves draft",
+      "status": "passed"
+    },
+    {
+      "browser": "chromium",
+      "width": 390,
+      "check": "Choice, text answer, edit, reload persistence, responsive layout",
+      "status": "passed"
+    },
+    {
+      "browser": "chromium",
+      "width": 390,
+      "check": "Failed save preserves draft",
+      "status": "passed"
+    },
+    {
+      "browser": "chromium",
+      "width": 1280,
+      "check": "Choice, text answer, edit, reload persistence, responsive layout",
+      "status": "passed"
+    },
+    {
+      "browser": "chromium",
+      "width": 1280,
+      "check": "Failed save preserves draft",
+      "status": "passed"
+    },
+    {
+      "check": "Anonymous API access denied",
+      "status": "passed"
+    },
+    {
+      "check": "Cross-origin submission denied",
+      "status": "passed"
+    },
+    {
+      "check": "Stale question version denied",
+      "status": "passed"
+    },
+    {
+      "check": "Agent reads persisted answers",
+      "status": "passed"
+    }
+  ]
+}
