@@ -1,0 +1,43 @@
+{
+  "recordedAt": "2026-10-02T12:48:48+00:00",
+  "release": "playtest-16",
+  "revision": "9acb022a6b1978c51e4845700a87ae34d291fd6e",
+  "ci": "https://github.com/jaymsDooku/voxel-one/actions/runs/37008538913",
+  "platforms": {
+    "Windows": {
+      "tests": 94,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "build": "passed"
+    },
+    "Linux": {
+      "tests": 94,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "build": "passed"
+    },
+    "Mac Intel": {
+      "tests": 94,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "build": "passed"
+    },
+    "Mac ARM": {
+      "tests": 94,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "build": "passed"
+    }
+  },
+  "windowsUpdater": {
+    "download": "passed",
+    "sha256Verification": "passed",
+    "WindowsGlfwNative": "present",
+    "revision": "9acb022a6b1978c51e4845700a87ae34d291fd6e"
+  },
+  "clientGui": "FPS counter visible and responsive in city, first person, model editor and controls menu. See fps-client-checks.json and recorded screenshots."
+}

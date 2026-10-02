@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T12:41:54+00:00",
+  "updatedAt": "2026-10-02T12:48:48+00:00",
   "release": {
     "name": "Playtest 13",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-13",
@@ -10,8 +10,8 @@
   "verification": {
     "tests": 94,
     "failures": 0,
-    "label": "Playtest 15",
-    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/mayor-developer-tests.json"
+    "label": "Playtest 16",
+    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/fps-release-checks.json"
   },
   "items": [
     {
@@ -896,10 +896,51 @@
       "id": "fps-counter",
       "title": "FPS counter",
       "description": "Adding a readable half-second FPS average to the player HUD.",
-      "evidence": [],
-      "status": "in_progress",
-      "note": "Adding a readable half-second FPS average to the player HUD.",
-      "updatedAt": "2026-10-02T12:41:54+00:00"
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Four-platform CI",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/37008538913"
+        },
+        {
+          "kind": "link",
+          "label": "Playtest 16",
+          "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-16"
+        },
+        {
+          "kind": "report",
+          "label": "fps client checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/fps-client-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "fps release checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/fps-release-checks.json"
+        },
+        {
+          "kind": "image",
+          "label": "fps city.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/fps-city.png"
+        },
+        {
+          "kind": "image",
+          "label": "fps first person.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/fps-first-person.png"
+        },
+        {
+          "kind": "image",
+          "label": "fps model editor.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/fps-model-editor.png"
+        },
+        {
+          "kind": "image",
+          "label": "fps controls.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/fps-controls.png"
+        }
+      ],
+      "status": "complete",
+      "note": "Added a top-right FPS counter, averaged over actual elapsed time and refreshed every half second. Visible during gameplay, isometric view, the model editor and menus. Packaged-client GUI checks passed; Playtest 16 passed 94 tests on all four platforms and the Windows updater downloaded and verified the release.",
+      "updatedAt": "2026-10-02T12:48:48+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
