@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T10:27:19+00:00",
+  "updatedAt": "2026-10-02T10:34:08+00:00",
   "release": {
     "name": "Playtest 13",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-13",
     "commit": "d0da076758711c10c270605c55ff1414439b26cd"
   },
   "verification": {
-    "tests": 87,
+    "tests": 94,
     "failures": 0,
-    "label": "Playtest 14",
-    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/city-tests.json"
+    "label": "Playtest 15",
+    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/mayor-developer-tests.json"
   },
   "items": [
     {
@@ -866,11 +866,31 @@
           "kind": "image",
           "label": "mayor overview.png",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/mayor-overview.png"
+        },
+        {
+          "kind": "link",
+          "label": "Four-platform release checks",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/36995685503"
+        },
+        {
+          "kind": "link",
+          "label": "Playtest 15",
+          "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-15"
+        },
+        {
+          "kind": "report",
+          "label": "mayor deployment.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/mayor-deployment.json"
+        },
+        {
+          "kind": "image",
+          "label": "mayor property inspector.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/mayor-property-inspector.png"
         }
       ],
-      "status": "in_progress",
-      "note": "Implemented shared mayor treasury, budgeted roads, ECS private firms, purchased plots, on-site paid construction, property ownership, company/household sales and recurring rent. 94 regression tests and packaged-client Economy panel passed; actual saved city upgrade preflight preserves world and population.",
-      "updatedAt": "2026-10-02T10:27:19+00:00"
+      "status": "complete",
+      "note": "Released Playtest 15 and deployed both VPS servers. Mayor treasury pays for roads; private companies buy plots, employ construction workers, fund buildings and sell/rent property to businesses and households. 94 tests, all four platform builds, actual client Economy/property panels, Windows updater and live TLS/save upgrade checks passed.",
+      "updatedAt": "2026-10-02T10:34:08+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
