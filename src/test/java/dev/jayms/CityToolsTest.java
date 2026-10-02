@@ -40,7 +40,7 @@ class CityToolsTest {
     @Test
     void isometricPickingSendsRoadEndpointsInWorldCoordinates() {
         var tools = new CityTools();
-        tools.tool = 3;
+        tools.tool = 4;
         var result = new ArrayList<CityCommand>();
         click(tools, 14, 26, result);
         click(tools, 28.5f, 26, result);

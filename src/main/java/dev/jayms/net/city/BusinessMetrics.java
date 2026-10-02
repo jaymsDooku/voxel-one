@@ -125,6 +125,11 @@ public record BusinessMetrics(List<Location> locations, List<Company> companies)
                                                 f ->
                                                         f.id() == owned.operator()
                                                                 && (f.kind() == b.type()
+                                                                        || b.type() == 3
+                                                                                && CityMaterials
+                                                                                        .farmer(
+                                                                                                f
+                                                                                                        .kind())
                                                                         || b.type() == 2
                                                                                 && f.kind() >= 2))
                                         .findFirst()
@@ -177,45 +182,55 @@ public record BusinessMetrics(List<Location> locations, List<Company> companies)
                 String status =
                         firm != null
                                         && b.id() >= CityMaterials.YARD
-                                        && !city.economy()
-                                                .resources()
-                                                .catalog()
-                                                .recipes(firm.kind())
-                                                .isEmpty()
-                                        && city
-                                                .economy()
-                                                .resources()
-                                                .catalog()
-                                                .recipes(firm.kind())
-                                                .stream()
-                                                .allMatch(ProductionCatalog.Recipe::requiresFactory)
-                                ? "Needs industrial factory"
-                                : firm == null
-                                        ? "Vacant"
-                                        : !hours
-                                                ? "Closed"
-                                                : firm.cash() < .01
-                                                        ? "Unfunded"
-                                                        : staff.isEmpty()
-                                                                ? "No employees"
-                                                                : present == 0
-                                                                        ? "Awaiting staff"
-                                                                        : b.type() == 1
-                                                                                        && b.stock()
-                                                                                                == 0
-                                                                                ? "Out of stock"
-                                                                                : b.type() == 2
+                                        && city.agriculture().enabled()
+                                        && CityMaterials.farmer(firm.kind())
+                                ? "Needs agricultural land"
+                                : firm != null
+                                                && b.id() >= CityMaterials.YARD
+                                                && !city.economy()
+                                                        .resources()
+                                                        .catalog()
+                                                        .recipes(firm.kind())
+                                                        .isEmpty()
+                                                && city
+                                                        .economy()
+                                                        .resources()
+                                                        .catalog()
+                                                        .recipes(firm.kind())
+                                                        .stream()
+                                                        .allMatch(
+                                                                ProductionCatalog.Recipe
+                                                                        ::requiresFactory)
+                                        ? "Needs industrial factory"
+                                        : firm == null
+                                                ? "Vacant"
+                                                : !hours
+                                                        ? "Closed"
+                                                        : firm.cash() < .01
+                                                                ? "Unfunded"
+                                                                : staff.isEmpty()
+                                                                        ? "No employees"
+                                                                        : present == 0
+                                                                                ? "Awaiting staff"
+                                                                                : b.type() == 1
                                                                                                 && b
                                                                                                                 .stock()
-                                                                                                        >= city.economy()
-                                                                                                                .resources()
-                                                                                                                .catalog()
-                                                                                                                .capacity(
-                                                                                                                        firm
-                                                                                                                                .kind())
-                                                                                        ? "Storage"
-                                                                                              + " full"
-                                                                                        : "Open";
+                                                                                                        == 0
+                                                                                        ? "Out of"
+                                                                                              + " stock"
+                                                                                        : b.type()
+                                                                                                                == 2
+                                                                                                        && b
+                                                                                                                        .stock()
+                                                                                                                >= city.economy()
+                                                                                                                        .resources()
+                                                                                                                        .catalog()
+                                                                                                                        .capacity(
+                                                                                                                                firm
+                                                                                                                                        .kind())
+                                                                                                ? "Storage"
+                                                                                                      + " full"
+                                                                                                : "Open";
                 boolean alerts =
                         firm == null
                                 || staff.isEmpty()

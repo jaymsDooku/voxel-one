@@ -8,6 +8,14 @@ import java.util.*;
 public final class StructureBlueprint {
     public static final int WIDTH = 6, DEPTH = 7;
 
+    public static int width(int type) {
+        return type == 3 ? 12 : WIDTH;
+    }
+
+    public static int depth(int type) {
+        return type == 3 ? 14 : DEPTH;
+    }
+
     public static List<Protocol.Edit> generate(int type, int x, int y, int z) {
         var edits = new ArrayList<Protocol.Edit>();
         for (int i = 0; i < WIDTH; i++)
@@ -54,6 +62,24 @@ public final class StructureBlueprint {
 
     /** Resource companies get workshops; only the quarry needs a mine shaft. */
     public static List<Protocol.Edit> generate(int type, int businessKind, int x, int y, int z) {
+        if (type == 3) {
+            var farm = new ArrayList<>(generate(0, x, y, z));
+            // Paid soil beds or a wooden pen occupy the rest of the owned plot.
+            for (int dx = 6; dx < 12; dx++)
+                for (int dz = 0; dz < 14; dz++) {
+                    farm.add(new Protocol.Edit(x + dx, y, z + dz, Blocks.DIRT));
+                    if (businessKind == CityMaterials.CATTLE_FARM
+                            && (dx == 6 || dx == 11 || dz == 0 || dz == 13))
+                        farm.add(
+                                Protocol.Edit.at(
+                                        x + dx + .25,
+                                        y + 1,
+                                        z + dz + .25,
+                                        Blocks.piece(Blocks.WOOD, 1),
+                                        1));
+                }
+            return farm;
+        }
         if (type != 2 || businessKind == CityEconomy.MINE) return generate(type, x, y, z);
         var edits = new ArrayList<>(generate(0, x, y, z));
         int bench =

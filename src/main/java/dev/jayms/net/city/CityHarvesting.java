@@ -61,11 +61,11 @@ public final class CityHarvesting {
                                 ? column.height() + 1
                                 : material == Blocks.STONE
                                         ? column.height() - 16
-                                        : column.height() - (material == Blocks.SAND ? 2 : 0);
+                                        : column.height() - (material==Blocks.DIRT?4:material == Blocks.SAND ? 2 : 0);
                 int hi =
                         material == Blocks.WOOD
                                 ? column.height() + 8
-                                : material == Blocks.STONE ? column.height() - 5 : column.height();
+                                : material == Blocks.STONE ? column.height() - 5 : material==Blocks.DIRT?column.height()-1:column.height();
                 for (int y = Math.max(Terrain.MIN_Y + 3, lo); y <= Math.min(Terrain.MAX_Y, hi); y++)
                     if (terrain.block(x, y, z) == material) pending.add(new Node(x, y, z));
             }

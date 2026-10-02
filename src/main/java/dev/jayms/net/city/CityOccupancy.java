@@ -31,6 +31,13 @@ public final class CityOccupancy {
                     && z < h.z() + 1.2f
                     && y + height > h.y()
                     && y < h.y() + 2.3f) return true;
+        for (var c : frame.agriculture().cows())
+            if (x + width > c.x() - .5f
+                    && x < c.x() + .5f
+                    && z + depth > c.z() - .8f
+                    && z < c.z() + .8f
+                    && y + height > c.y()
+                    && y < c.y() + 1.8f) return true;
         return false;
     }
 

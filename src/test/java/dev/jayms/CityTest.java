@@ -41,7 +41,11 @@ class CityTest {
 
     CitySimulation simulation(Ground ground) {
         return new CitySimulation(
-                new GameConfig(true, false, 1200, 10), ground, ground.terrain, null);
+                new GameConfig(true, false, 1200, 10),
+                ground,
+                ground.terrain,
+                null,
+                ProductionCatalog.toolEra());
     }
 
     static Polygon box(int x, int z, int w, int d) {

@@ -5,7 +5,7 @@ import java.io.*;
 /** Protocol 12 adds owned natural materials and construction reservations. */
 public final class Protocol {
     public static final int CITY_STATE = 16, CITY_COMMAND = 17, CITY_WORLD = 18, CITY_RESULT = 19;
-    public static final int MAGIC = 0x564F5831, VERSION = 13, PORT = 25565;
+    public static final int MAGIC = 0x564F5831, VERSION = 14, PORT = 25565;
     public static final int MOVE = 1, BLOCK = 2, LEAVE = 3, READY = 4, JOIN = 5, EDIT_RESULT = 6;
     public static final int INVENTORY = 7, DROP = 8, SWAP = 9, RESPAWN = 10;
     public static final int MODEL_CREATE = 11, MODEL_DEFINE = 12, MODEL_RESULT = 13;

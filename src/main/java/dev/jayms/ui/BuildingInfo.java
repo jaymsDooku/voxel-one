@@ -122,6 +122,70 @@ public final class BuildingInfo {
                                                             + v.status()
                                                             + " | Harvested "
                                                             + v.harvested()));
+                    if (type == 3) {
+                        rows.add("Farmer-owned land, barn and fields; no developer lease.");
+                        city.agriculture().families().stream()
+                                .filter(f -> f.company() == firm.id())
+                                .forEach(
+                                        f ->
+                                                f.members()
+                                                        .forEach(
+                                                                id ->
+                                                                        city.citizens().stream()
+                                                                                .filter(
+                                                                                        c ->
+                                                                                                c
+                                                                                                                .id()
+                                                                                                        == id)
+                                                                                .findFirst()
+                                                                                .ifPresent(
+                                                                                        c ->
+                                                                                                rows
+                                                                                                        .add(
+                                                                                                                "Family:"
+                                                                                                                    + " "
+                                                                                                                        + c
+                                                                                                                                .name()
+                                                                                                                        + " | "
+                                                                                                                        + c
+                                                                                                                                .activity()))));
+                        city.agriculture().fields().stream()
+                                .filter(f -> f.building() == b.id())
+                                .forEach(
+                                        f ->
+                                                rows.add(
+                                                        city.economy()
+                                                                        .resources()
+                                                                        .catalog()
+                                                                        .name(f.product())
+                                                                + " field: "
+                                                                + Math.round(f.growth() * 100)
+                                                                + "% | Harvests "
+                                                                + f.harvests()));
+                        var cows =
+                                city.agriculture().cows().stream()
+                                        .filter(c -> c.building() == b.id())
+                                        .toList();
+                        if (!cows.isEmpty())
+                            rows.add(
+                                    "Cattle: "
+                                            + cows.size()
+                                            + " | Calves "
+                                            + cows.stream().filter(c -> c.age() < 24).count()
+                                            + " | Fed "
+                                            + cows.stream().filter(c -> c.fed() > 0).count());
+                        city.agriculture().farms().stream()
+                                .filter(f -> f.building() == b.id())
+                                .forEach(
+                                        f -> {
+                                            if (f.births() > 0 || !cows.isEmpty())
+                                                rows.add(
+                                                        "Calves born "
+                                                                + f.births()
+                                                                + " | Cattle harvested "
+                                                                + f.slaughtered());
+                                        });
+                    }
                     var catalog = city.economy().resources().catalog();
                     var equipment = catalog.equipment(firm.kind());
                     if (equipment != null) {
@@ -140,7 +204,7 @@ public final class BuildingInfo {
                                                 : " awaiting purchase | 1x productivity"));
                         rows.add(
                                 "Tools are durable, privately owned; one equips this company's"
-                                    + " crew.");
+                                        + " crew.");
                     }
                     for (var line : catalog.recipes(firm.kind())) {
                         String inputs =
@@ -165,7 +229,9 @@ public final class BuildingInfo {
             addStocks(rows, city, property.ownerKind(), property.owner());
         }
         if (p != null) {
-            rows.add("DEVELOPER: " + owner(city, 0, p.developer()));
+            rows.add(
+                    (p.type() == 3 ? "FARM BUILDER: " : "DEVELOPER: ")
+                            + owner(city, 0, p.developer()));
             var recipe = city.economy().resources().project(p.id());
             rows.add(
                     p.building() != 0

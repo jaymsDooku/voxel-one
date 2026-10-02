@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T19:05:44+00:00",
+  "updatedAt": "2026-10-02T20:00:33+00:00",
   "release": {
     "name": "Playtest 25",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-25",
@@ -1566,6 +1566,66 @@
       "status": "complete",
       "note": "Committed and pushed 84bbfcb; Playtest 25 published and both VPS services upgraded with existing worlds/accounts preserved. 152 tests passed on all four platforms, three city days conserved supplies and cash with 34 tools produced and all 12 citizens fed/sleeping; actual client video, mobile browser checks, Windows updater, and both live TLS logins verified. Zone additional industrial land to obtain factory premises in the existing city.",
       "updatedAt": "2026-10-02T19:05:44+00:00"
+    },
+    {
+      "id": "agriculture-food-chain",
+      "title": "Farmer-owned agriculture and food supply chains",
+      "description": "Adding agricultural zones, farmer-funded construction and expansion, wheat/carrot/sugarcane crops, cattle, and privately traded food manufacturing.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "agriculture test results.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/agriculture-test-results.json"
+        },
+        {
+          "kind": "report",
+          "label": "agriculture three day checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/agriculture-three-day-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "agriculture client checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/agriculture-client-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "agriculture recording checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/agriculture-recording-checks.json"
+        },
+        {
+          "kind": "video",
+          "label": "agriculture farm run.mp4",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/agriculture-farm-run.mp4"
+        },
+        {
+          "kind": "image",
+          "label": "agriculture cattle world.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/agriculture-cattle-world.png"
+        },
+        {
+          "kind": "image",
+          "label": "agriculture farm information.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/agriculture-farm-information.png"
+        },
+        {
+          "kind": "image",
+          "label": "agriculture farm information compact.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/agriculture-farm-information-compact.png"
+        },
+        {
+          "kind": "image",
+          "label": "agriculture businesses farms.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/agriculture-businesses-farms.png"
+        },
+        {
+          "kind": "image",
+          "label": "agriculture private food companies.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/agriculture-private-food-companies.png"
+        }
+      ],
+      "status": "in_progress",
+      "note": "160 Linux regression tests pass; affected migration/material/business/multiplayer suites rerun. Three full days: 18 citizens ate and slept, four privately funded farms including expansion, six crop fields, cow births and finite beef, all food factories, conserved soil/wood/stone/sand and reconciled private cash. Actual F10 recording captured crops, cows, farm ownership and agricultural dashboards; preparing verified release.",
+      "updatedAt": "2026-10-02T20:00:33+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

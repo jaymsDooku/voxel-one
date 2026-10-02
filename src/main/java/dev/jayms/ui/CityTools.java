@@ -31,7 +31,7 @@ public final class CityTools {
             points.remove(points.size() - 1);
             return true;
         }
-        if (key == GLFW_KEY_ENTER && tool >= 0 && tool < 3) {
+        if (key == GLFW_KEY_ENTER && tool >= 0 && tool < 4) {
             try {
                 new Polygon(points);
                 submit.accept(new CityCommand(CityCommand.ZONE, tool, points));
@@ -59,13 +59,13 @@ public final class CityTools {
         }
         float top = height - 196;
         if (y >= top && y <= top + 34 && x >= 16 && x < width - 16) {
-            int index = (int) ((x - 16) / ((width - 32) / 6f));
-            tool = new int[] {-1, 3, 0, 1, 2, 4}[Math.min(5, index)];
+            int index = (int) ((x - 16) / ((width - 32) / 7f));
+            tool = new int[] {-1, 4, 0, 1, 2, 3, 5}[Math.min(6, index)];
             points.clear();
             return;
         }
         if (y < 130 || y > height - 200) return;
-        if (tool == 4) return;
+        if (tool == 5) return;
         if (tool == -1) {
             float best = 22 * 22;
             selectedCitizen = selectedBuilding = selectedPlot = selectedStreet = 0;
@@ -100,7 +100,7 @@ public final class CityTools {
         var hit = new Vector3f(a).lerp(b, t);
         try {
             points.add(new Polygon.Point(Math.round(hit.x * 2) / 2f, Math.round(hit.z * 2) / 2f));
-            if (tool == 3 && points.size() == 2) {
+            if (tool == 4 && points.size() == 2) {
                 submit.accept(new CityCommand(CityCommand.ROAD, 0, points));
                 points.clear();
             }
@@ -126,9 +126,9 @@ public final class CityTools {
                             b.x(),
                             b.y(),
                             b.z(),
-                            b.x() + 6,
+                            b.x() + StructureBlueprint.width(b.type()),
                             b.y() + 7,
-                            b.z() + 7,
+                            b.z() + StructureBlueprint.depth(b.type()),
                             interval)
                     && interval.y >= 0
                     && Math.max(0, interval.x) < best) {
@@ -147,9 +147,9 @@ public final class CityTools {
                                 p.x(),
                                 p.y() - .1f,
                                 p.z(),
-                                p.x() + 6,
+                                p.x() + StructureBlueprint.width(p.type()),
                                 p.y() + 1,
-                                p.z() + 7,
+                                p.z() + StructureBlueprint.depth(p.type()),
                                 interval)
                         && interval.y >= 0
                         && Math.max(0, interval.x) < best) {
@@ -248,7 +248,9 @@ public final class CityTools {
                             ? new float[] {.3f, .95f, .5f}
                             : zone.type() == 1
                                     ? new float[] {.25f, .65f, 1}
-                                    : new float[] {1, .7f, .2f};
+                                    : zone.type() == 3
+                                            ? new float[] {.65f, .9f, .25f}
+                                            : new float[] {1, .7f, .2f};
             var vs = zone.polygon().vertices();
             for (int i = 0; i < vs.size(); i++) {
                 var a = vs.get(i);
@@ -311,12 +313,18 @@ public final class CityTools {
                     valid ? 1 : .2f,
                     .2f);
         }
-        float bw = (w - 32) / 6f, top = h - 196;
+        float bw = (w - 32) / 7f, top = h - 196;
         String[] labels = {
-            "Inspect", "Dirt road", "Residential", "Commercial", "Industrial", "Economy"
+            "Inspect",
+            "Dirt road",
+            "Residential",
+            "Commercial",
+            "Industrial",
+            "Agriculture",
+            "Economy"
         };
-        for (int i = 0; i < 6; i++) {
-            boolean active = tool == new int[] {-1, 3, 0, 1, 2, 4}[i];
+        for (int i = 0; i < 7; i++) {
+            boolean active = tool == new int[] {-1, 4, 0, 1, 2, 3, 5}[i];
             ui.rectangle(
                     16 + i * bw,
                     top,
@@ -326,16 +334,16 @@ public final class CityTools {
                     active ? .32f : .09f,
                     active ? .36f : .13f,
                     .95f);
-            ui.text(labels[i], 22 + i * bw, top + 11, 1.4f);
+            ui.text(labels[i], 22 + i * bw, top + 11, w < 900 ? 1f : 1.3f);
         }
         ui.rectangle(16, top + 38, w - 32, 35, .015f, .025f, .04f, .85f);
         ui.text(
-                tool == 3
+                tool == 4
                         ? "Click two endpoints | Mayor pays $4 per new road cell."
-                        : tool >= 0 && tool < 3
+                        : tool >= 0 && tool < 4
                                 ? "Click convex polygon corners | Enter: zone | Backspace: undo |"
                                         + " Esc: cancel"
-                                : tool == 4
+                                : tool == 5
                                         ? "Private companies fund construction. Zoning is free."
                                                 + " Inspect a building for ownership."
                                         : "WASD: pan | Wheel: zoom | Home: horizon | F6: walk in"
@@ -392,7 +400,7 @@ public final class CityTools {
             ui.text("Employer: " + owner(city, CityEconomy.COMPANY, employer), x + 10, 252, 1.15f);
             ui.text(citizen.activity(), x + 10, 227, 1.4f);
         }
-        if (tool == 4) {
+        if (tool == 5) {
             float x = Math.max(16, w - 410);
             ui.rectangle(x, 170, 394, 210, .025f, .04f, .065f, .97f);
             ui.text("PRIVATE COMPANIES", x + 10, 182, 1.4f);

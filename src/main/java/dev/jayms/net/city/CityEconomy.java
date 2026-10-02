@@ -138,11 +138,11 @@ public final class CityEconomy {
         }
 
         public void write(DataOutput out) throws IOException {
-            write(out, 5);
+            write(out, 6);
         }
 
         public void write(DataOutput out, boolean legacy) throws IOException {
-            write(out, legacy ? 2 : 5);
+            write(out, legacy ? 2 : 6);
         }
 
         public void write(DataOutput out, int version) throws IOException {
@@ -197,21 +197,21 @@ public final class CityEconomy {
         }
 
         public static State read(DataInput in) throws IOException {
-            return read(in, 5);
+            return read(in, 6);
         }
 
         public static State read(DataInput in, boolean legacy) throws IOException {
-            return read(in, legacy ? 2 : 5);
+            return read(in, legacy ? 2 : 6);
         }
 
         public static State read(DataInput in, int version) throws IOException {
             double budget = money(in), roads = money(in), land = money(in), clock = money(in);
             var firms = new ArrayList<Firm>();
-            for (int i = 0, n = count(in, 16); i < n; i++) {
+            for (int i = 0, n = count(in, 64); i < n; i++) {
                 int id = id(in);
                 String name = in.readUTF();
                 int kind = in.readUnsignedByte();
-                if (name.length() > 48 || kind > CityMaterials.TOOLS)
+                if (name.length() > 48 || kind > CityMaterials.MAX_KIND)
                     throw new IOException("Invalid company");
                 firms.add(
                         new Firm(
@@ -230,7 +230,7 @@ public final class CityEconomy {
                 double price = money(in), cost = money(in);
                 float work = in.readFloat();
                 int building = in.readInt();
-                if (type > 2
+                if (type > 3
                         || Math.abs((long) x - 8) > 256
                         || Math.abs((long) z - 24) > 256
                         || y < -27
@@ -389,9 +389,20 @@ public final class CityEconomy {
             "Dune Glassworks",
             "Bright Spark Lighting",
             "Meadow Farm",
-            "Stone & Timber Tools"
+            "Stone & Timber Tools",
+            "Reed Family Sugarcane",
+            "Brook Family Cattle",
+            "Valley Flour Mill",
+            "Oak Road Bakery",
+            "Cane Sugar Refinery",
+            "Carrot Cake Kitchen"
         };
-        for (int kind = CityMaterials.LOGGING; kind <= CityMaterials.TOOLS; kind++) {
+        for (int kind = CityMaterials.LOGGING;
+                kind
+                        <= (resources.catalog.agriculture()
+                                ? CityMaterials.MAX_KIND
+                                : CityMaterials.TOOLS);
+                kind++) {
             final int k = kind;
             if (companies().stream().noneMatch(c -> c.kind == k)) create(names[k], k, 1500);
         }
@@ -419,14 +430,18 @@ public final class CityEconomy {
     }
 
     public boolean overlaps(int x, int z) {
+        return overlaps(x, z, 6, 7);
+    }
+
+    public boolean overlaps(int x, int z, int width, int depth) {
         return plots.stream()
                 .anyMatch(
                         p ->
                                 p.building == 0
-                                        && x - 1 < p.x + 7
-                                        && x + 7 > p.x - 1
-                                        && z - 2 < p.z + 8
-                                        && z + 8 > p.z - 2);
+                                        && x - 1 < p.x + StructureBlueprint.width(p.type) + 1
+                                        && x + width + 1 > p.x - 1
+                                        && z - 2 < p.z + StructureBlueprint.depth(p.type) + 1
+                                        && z + depth + 1 > p.z - 2);
     }
 
     public boolean roads(int cells) {
@@ -442,7 +457,8 @@ public final class CityEconomy {
     }
 
     public Plot buyPlot(int zone, int type, int x, int y, int z, int businessKind) {
-        double land = 24;
+        if (type == 3 && !CityMaterials.farmer(businessKind)) return null;
+        double land = type == 3 ? 48 : 24;
         var recipe = CityMaterials.requirements(type, businessKind);
         double cost =
                 recipe.stream()
@@ -456,7 +472,7 @@ public final class CityEconomy {
                 companies().stream()
                         .filter(
                                 c ->
-                                        c.kind == DEVELOPER
+                                        c.kind == (type == 3 ? businessKind : DEVELOPER)
                                                 && c.cash
                                                         >= land
                                                                 + 10
@@ -538,9 +554,9 @@ public final class CityEconomy {
                         building,
                         COMPANY,
                         plot.developer,
-                        0,
+                        plot.type == 3 ? plot.developer : 0,
                         plot.type == 0 ? 50 : plot.type == 1 ? 240 : 400,
-                        plot.type == 0 ? .6 : 6));
+                        plot.type == 3 ? 0 : plot.type == 0 ? .6 : 6));
     }
 
     /**
@@ -724,7 +740,10 @@ public final class CityEconomy {
         long missing = needed - resources.available(COMPANY, company, material);
         if (missing <= 0) return true;
         for (var seller : companies())
-            if (seller.id != company && seller.kind != DEVELOPER) {
+            if (seller.id != company
+                    && seller.kind != DEVELOPER
+                    && !(CityMaterials.farmer(seller.kind)
+                            && CityMaterials.buildingMaterial(material))) {
                 long units = Math.min(missing, resources.available(COMPANY, seller.id, material));
                 if (units > 0 && trade(COMPANY, seller.id, COMPANY, company, material, units))
                     missing -= units;

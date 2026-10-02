@@ -226,7 +226,8 @@ class CityBusinessTest {
         var migrated = new CitySimulation(old.config(), g, g.terrain, old);
         assertEquals(old.economy(), migrated.frame().economy());
         migrated.advance(1);
-        assertEquals(8, BusinessMetrics.from(migrated.frame()).locations().size());
+        assertEquals(14, BusinessMetrics.from(migrated.frame()).locations().size());
+        assertEquals(18, migrated.frame().citizens().size());
         migrated.save(save);
         assertEquals(migrated.frame(), CitySimulation.load(save));
     }

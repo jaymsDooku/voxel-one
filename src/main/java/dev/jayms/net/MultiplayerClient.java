@@ -26,6 +26,7 @@ public final class MultiplayerClient implements AutoCloseable {
     public long cityReceived;
     public final Map<Integer, RemotePlayer> citizens = new HashMap<>();
     public final Map<Integer, RemotePlayer> horses = new HashMap<>();
+    public final Map<Integer, RemotePlayer> cows = new HashMap<>();
     public final Map<Integer, ItemDrop> drops = new LinkedHashMap<>();
     public Protocol.Pose respawn;
     public final List<Protocol.Edit> initialEdits = new ArrayList<>();
@@ -140,6 +141,14 @@ public final class MultiplayerClient implements AutoCloseable {
                                             ? 1
                                             : 0,
                                     false),
+                            time);
+        cows.keySet()
+                .removeIf(id -> frame.agriculture().cows().stream().noneMatch(c -> c.id() == id));
+        for (var c : frame.agriculture().cows())
+            cows.computeIfAbsent(c.id(), id -> new RemotePlayer("Cow"))
+                    .accept(
+                            new Protocol.Pose(
+                                    c.id(), c.x(), c.y(), c.z(), c.yaw(), 0, c.phase(), 1, false),
                             time);
         for (var h : frame.horses())
             horses.computeIfAbsent(h.id(), id -> new RemotePlayer("Horse"))

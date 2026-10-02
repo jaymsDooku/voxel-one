@@ -220,7 +220,13 @@ class ManufacturingTest {
     @Test
     void expandedCityCompletesThreeDailyRoutinesWithoutTrappingMineWorkers() {
         var g = new CityTest.Ground();
-        var s = new CitySimulation(new GameConfig(true, true, 1200, 6), g, g.terrain, null);
+        var s =
+                new CitySimulation(
+                        new GameConfig(true, true, 1200, 6),
+                        g,
+                        g.terrain,
+                        null,
+                        ProductionCatalog.toolEra());
         var pose = new Protocol.Pose(1, 8, 40, 24, 0, 0);
         s.command(
                 new CityCommand(

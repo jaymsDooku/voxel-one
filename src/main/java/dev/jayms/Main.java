@@ -38,6 +38,7 @@ public class Main {
     private Player player;
     private PlayerModel playerModel;
     private HorseModel horseModel;
+    private FarmModels farmModels;
     private final CityTools cityTools = new CityTools();
     private final BuildingInfo buildingInfo = new BuildingInfo();
     private final MayorDashboard mayorDashboard = new MayorDashboard();
@@ -135,6 +136,7 @@ public class Main {
         camera = new Camera();
         playerModel = new PlayerModel();
         horseModel = new HorseModel();
+        farmModels = new FarmModels();
         if (network == null) {
             local = new LocalGame(offlineSave, seed);
             seed = local.seed;
@@ -857,6 +859,23 @@ public class Main {
                 if (Blocks.isModel(drop.type()))
                     modelRenderer.renderDrop(drop, (float) glfwGetTime(), shader);
                 else playerModel.renderDrop(drop, (float) glfwGetTime(), shader);
+        farmModels.crops(city().agriculture(), shader);
+        for (var cow : city().agriculture().cows()) {
+            var pose =
+                    new Protocol.Pose(
+                            cow.id(),
+                            cow.x(),
+                            cow.y(),
+                            cow.z(),
+                            cow.yaw(),
+                            0,
+                            cow.phase(),
+                            1,
+                            false);
+            if (network != null && network.cows.containsKey(cow.id()))
+                pose = network.cows.get(cow.id()).sample(System.nanoTime());
+            if (pose != null) farmModels.cow(cow, pose, shader);
+        }
         for (var h : city().horses()) {
             Protocol.Pose p =
                     new Protocol.Pose(
@@ -1195,6 +1214,7 @@ public class Main {
         if (world != null) world.close();
         if (playerModel != null) playerModel.close();
         if (horseModel != null) horseModel.close();
+        farmModels.close();
         if (modelRenderer != null) modelRenderer.close();
         if (editor != null) editor.close();
         if (overlay != null) overlay.close();

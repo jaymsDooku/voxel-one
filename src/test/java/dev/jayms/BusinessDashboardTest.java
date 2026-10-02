@@ -59,7 +59,7 @@ class BusinessDashboardTest {
         assertEquals(0, ui.firstRow);
         ui.click(40, 150, 1280, 720);
         assertEquals(0, ui.view);
-        ui.click(600, 190, 1280, 720);
+        ui.click(400, 190, 1280, 720);
         assertEquals(1, ui.filter);
         assertEquals(f, CityMetricsTest.fixture());
     }

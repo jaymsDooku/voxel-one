@@ -43,7 +43,8 @@ public record CityMetrics(
     }
 
     public static boolean housed(CityFrame f, CityFrame.Citizen c) {
-        return f.buildings().stream().anyMatch(b -> b.id() == c.home() && b.type() == 0);
+        return f.buildings().stream()
+                .anyMatch(b -> b.id() == c.home() && (b.type() == 0 || b.type() == 3));
     }
 
     public static int employer(CityFrame f, CityFrame.Citizen c) {
@@ -114,7 +115,7 @@ public record CityMetrics(
         int housed = groups.stream().mapToInt(Group::housed).sum(),
                 beds =
                         f.buildings().stream()
-                                .filter(b -> b.type() == 0)
+                                .filter(b -> (b.type() == 0 || b.type() == 3))
                                 .mapToInt(CityFrame.Building::capacity)
                                 .sum();
         double savings = f.citizens().stream().mapToDouble(CityFrame.Citizen::money).sum();

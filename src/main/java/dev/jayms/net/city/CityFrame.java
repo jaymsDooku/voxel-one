@@ -13,7 +13,31 @@ public record CityFrame(
         List<Citizen> citizens,
         List<Horse> horses,
         CityEconomy.State economy,
-        CityAddresses.State addresses) {
+        CityAddresses.State addresses,
+        Agriculture.State agriculture) {
+    public CityFrame(
+            GameConfig config,
+            double elapsed,
+            List<Road> roads,
+            List<Zone> zones,
+            List<Building> buildings,
+            List<Citizen> citizens,
+            List<Horse> horses,
+            CityEconomy.State economy,
+            CityAddresses.State addresses) {
+        this(
+                config,
+                elapsed,
+                roads,
+                zones,
+                buildings,
+                citizens,
+                horses,
+                economy,
+                addresses,
+                Agriculture.State.empty());
+    }
+
     public CityFrame(
             GameConfig config,
             double elapsed,
@@ -84,7 +108,7 @@ public record CityFrame(
     }
 
     public void write(DataOutput out) throws IOException {
-        write(out, 5);
+        write(out, 6);
     }
 
     public void write(DataOutput out, int version) throws IOException {
@@ -142,6 +166,7 @@ public record CityFrame(
         }
         if (version >= 2) economy.write(out, version);
         if (version >= 5) CityAddresses.write(out, addresses);
+        if (version >= 6) Agriculture.write(out, agriculture);
     }
 
     private static int count(DataInput in, int max) throws IOException {
@@ -161,7 +186,7 @@ public record CityFrame(
     }
 
     public static CityFrame read(DataInput in, boolean legacy) throws IOException {
-        return read(in, legacy ? 1 : 5);
+        return read(in, legacy ? 1 : 6);
     }
 
     public static CityFrame read(DataInput in, int version) throws IOException {
@@ -178,7 +203,7 @@ public record CityFrame(
         var zones = new ArrayList<Zone>();
         for (int i = 0, n = count(in, 128); i < n; i++) {
             int id = in.readInt(), type = in.readUnsignedByte();
-            if (id < 1 || type > 2) throw new IOException("Invalid zone");
+            if (id < 1 || type > 3) throw new IOException("Invalid zone");
             zones.add(new Zone(id, type, Polygon.read(in)));
         }
         var buildings = new ArrayList<Building>();
@@ -192,7 +217,7 @@ public record CityFrame(
                     capacity = in.readInt(),
                     stock = in.readInt();
             if (id < 1
-                    || type > 2
+                    || type > 3
                     || capacity < 1
                     || capacity > 32
                     || stock < 0
@@ -245,7 +270,20 @@ public record CityFrame(
                 version < 5
                         ? CityAddresses.migrate(roads, buildings)
                         : CityAddresses.read(in, buildings);
+        var agriculture =
+                version >= 6
+                        ? Agriculture.read(in, economy, buildings, citizens, horses)
+                        : Agriculture.State.migration(economy.resources().catalog());
         return new CityFrame(
-                config, elapsed, roads, zones, buildings, citizens, horses, economy, addresses);
+                config,
+                elapsed,
+                roads,
+                zones,
+                buildings,
+                citizens,
+                horses,
+                economy,
+                addresses,
+                agriculture);
     }
 }

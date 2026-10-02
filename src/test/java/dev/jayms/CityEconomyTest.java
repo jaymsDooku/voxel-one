@@ -16,7 +16,12 @@ class CityEconomyTest {
     @TempDir Path temp;
 
     CitySimulation sim(CityTest.Ground g) {
-        return new CitySimulation(new GameConfig(true, false, 1200, 10), g, g.terrain, null);
+        return new CitySimulation(
+                new GameConfig(true, false, 1200, 10),
+                g,
+                g.terrain,
+                null,
+                ProductionCatalog.toolEra());
     }
 
     CityCommand road() {

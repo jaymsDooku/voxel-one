@@ -23,7 +23,9 @@ public final class CitySimulation {
     }
 
     public static final String[] COHORTS = {"Labourers", "Skilled workers", "Prosperous settlers"};
-    public static final String[] ZONES = {"Residential", "Commercial", "Industrial"};
+    public static final String[] ZONES = {
+        "Residential", "Commercial", "Industrial", "Agricultural"
+    };
 
     public static final class Position {
         public float x, y, z, yaw, phase;
@@ -76,6 +78,7 @@ public final class CitySimulation {
     private CityAddresses addresses = new CityAddresses(CityAddresses.empty());
     public final CityEconomy economy;
     private boolean founding = true, migrateMaterials;
+    public final Agriculture agriculture;
 
     public CitySimulation(GameConfig config, Ground ground, Terrain terrain, CityFrame saved) {
         this(config, ground, terrain, saved, ProductionCatalog.cityGame());
@@ -112,12 +115,14 @@ public final class CitySimulation {
             restore(saved);
             economy = new CityEconomy(ecs, saved.economy());
             economy.adopt(buildings);
+            agriculture = new Agriculture(ecs, saved.agriculture());
             migrateMaterials = saved.economy().resources().equals(CityMaterials.State.empty());
             founding = false;
             return;
         }
         if (!config.city()) {
             economy = new CityEconomy(ecs, null, catalog);
+            agriculture = new Agriculture(ecs, Agriculture.State.empty());
             founding = false;
             return;
         }
@@ -172,6 +177,38 @@ public final class CitySimulation {
             ecs.put(id, Mount.class, new Mount());
         }
         economy = new CityEconomy(ecs, null, catalog);
+        agriculture = new Agriculture(ecs, Agriculture.State.empty());
+        if (catalog.agriculture()) {
+            // Founding city infrastructure is free as before; every subsequent extension is paid.
+            road(List.of(new Point(-10, 24), new Point(-64, 24)));
+            road(List.of(new Point(8, 45), new Point(8, 64)));
+            road(List.of(new Point(8, 43), new Point(88, 43)));
+            zone(
+                    2,
+                    new Polygon(
+                            List.of(
+                                    new Point(-60, 26),
+                                    new Point(4, 26),
+                                    new Point(4, 41),
+                                    new Point(-60, 41))));
+            zone(
+                    2,
+                    new Polygon(
+                            List.of(
+                                    new Point(-60, 13),
+                                    new Point(-10, 13),
+                                    new Point(-10, 23),
+                                    new Point(-60, 23))));
+            zone(
+                    3,
+                    new Polygon(
+                            List.of(
+                                    new Point(12, 45),
+                                    new Point(88, 45),
+                                    new Point(88, 63),
+                                    new Point(12, 63))));
+            agriculture.initialize(economy, grade);
+        }
         founding = false;
     }
 
@@ -228,6 +265,8 @@ public final class CitySimulation {
     private void step(float dt) {
         elapsed += dt;
         if (!config.city()) return;
+        if (agriculture.pending()) agriculture.initialize(economy, grade);
+        agriculture.tick(dt * 24 / config.daySeconds());
         if (elapsed >= nextBuild) {
             construct();
             nextBuild = elapsed + 4;
@@ -312,13 +351,43 @@ public final class CitySimulation {
             }
             if (target < 0 && working && !eating) {
                 var project = economy.project(-target);
-                if (project != null
+                if (project != null && project.type() == 3 && !ready(project)) {
+                    var supplies = economy.resources.project(project.id());
+                    long soil =
+                            supplies.materials().stream()
+                                    .filter(a -> a.material() == Blocks.DIRT)
+                                    .mapToLong(CityMaterials.Amount::units)
+                                    .sum();
+                    if (economy.resources.available(0, project.developer(), Blocks.DIRT) < soil
+                            && economy.wage(project.developer(), hours * 2.1, n)) {
+                        var prod = economy.resources.production(project.developer());
+                        double progress = prod.progress() + hours * 64;
+                        int digs = (int) progress;
+                        progress -= digs;
+                        long dug = 0;
+                        for (int i = 0;
+                                i < digs
+                                        && economy.resources.available(
+                                                        0, project.developer(), Blocks.DIRT)
+                                                < soil;
+                                i++)
+                            if (harvesting.harvest(Blocks.DIRT)) {
+                                economy.resources.add(
+                                        0, project.developer(), Blocks.DIRT, CityMaterials.UNIT);
+                                dug++;
+                            }
+                        economy.resources.production(
+                                project.developer(), progress, dug, 0, "Preparing farm soil");
+                        t.activity = "Preparing family farm soil";
+                    } else t.activity = "Farm needs building materials";
+                } else if (project != null
                         && economy.resources.reserve(project)
                         && economy.wage(project.developer(), dt * .15, n)) {
                     economy.work(project.id(), dt);
-                    t.activity = "Building for developer";
-                } else t.activity = "Developer cannot afford wages";
-            } else if (b.type() == 2 && working && !eating) {
+                    t.activity =
+                            project.type() == 3 ? "Building family farm" : "Building for developer";
+                } else t.activity = "Builder cannot afford wages";
+            } else if ((b.type() == 2 || b.type() == 3) && working && !eating) {
                 int company = employer(h.job);
                 var firm = economy.company(company);
                 if (firm == null) continue;
@@ -333,7 +402,9 @@ public final class CitySimulation {
                     continue;
                 }
                 economy.businesses.wage(account, hours * (1.8 + h.cohort * .3), hours);
-                harvesting.work(economy, firm, hours);
+                if (b.type() == 3) agriculture.work(b, economy, hours, ground);
+                else if (!agriculture.enabled() || !CityMaterials.farmer(firm.kind))
+                    harvesting.work(economy, firm, hours);
                 if (b.id() < CityMaterials.YARD)
                     replaceStock(
                             b,
@@ -349,21 +420,19 @@ public final class CitySimulation {
                                 ? "Working in shop"
                                 : "Employer cannot afford wages";
             } else if (b.type() == 1 && eating) {
-                if (n.hunger < 95
+                int food = availableFood(economy.property(b.id()).operator());
+                if (food != 0
+                        && n.hunger < 95
                         && n.money >= 3
                         && b.stock() > 0
                         && shopReady(b, time)
-                        && economy.resources.available(
-                                        0, economy.property(b.id()).operator(), CityMaterials.FOOD)
+                        && economy.resources.available(0, economy.property(b.id()).operator(), food)
                                 >= CityMaterials.UNIT) {
                     n.money -= 3;
                     economy.resources.remove(
-                            0,
-                            economy.property(b.id()).operator(),
-                            CityMaterials.FOOD,
-                            CityMaterials.UNIT);
+                            0, economy.property(b.id()).operator(), food, CityMaterials.UNIT);
                     economy.meal(b.id(), 3);
-                    n.hunger = Math.min(100, n.hunger + 35);
+                    n.hunger = Math.min(100, n.hunger + economy.resources.catalog.nutrition(food));
                     replaceStock(b, b.stock() - 1);
                     t.target = -9999;
                     t.mealUntil = elapsed + Math.min(3, config.daySeconds() / 240);
@@ -432,6 +501,19 @@ public final class CitySimulation {
                             b.id(), b.zone(), b.type(), b.x(), b.y(), b.z(), b.capacity(), stock));
     }
 
+    private int availableFood(int company) {
+        return economy.resources.catalog.food().stream()
+                .filter(id -> economy.resources.available(0, company, id) >= CityMaterials.UNIT)
+                .max(Comparator.comparingInt(id -> economy.resources.catalog.nutrition(id)))
+                .orElse(0);
+    }
+
+    private long foodStock(int company) {
+        return economy.resources.catalog.food().stream()
+                .mapToLong(id -> economy.resources.available(0, company, id) / CityMaterials.UNIT)
+                .sum();
+    }
+
     private void restock() {
         for (var b : new ArrayList<>(buildings))
             if (b.type() == 1 && b.stock() < 80) {
@@ -447,7 +529,13 @@ public final class CitySimulation {
                                                                 == p.operator())
                                 .mapToLong(CityFrame.Building::stock)
                                 .sum();
-                if (economy.purchase(
+                if (agriculture.enabled()) {
+                    for (int food : economy.resources.catalog.food()) {
+                        if (food == CityMaterials.FOOD) continue;
+                        economy.purchase(p.operator(), food, 16 * CityMaterials.UNIT);
+                    }
+                    if (foodStock(p.operator()) > allocated) replaceStock(b, b.stock() + 1);
+                } else if (economy.purchase(
                         p.operator(), CityMaterials.FOOD, (allocated + 1) * CityMaterials.UNIT))
                     replaceStock(b, b.stock() + 1);
             }
@@ -466,10 +554,27 @@ public final class CitySimulation {
     }
 
     private void assign() {
+        // Retire the prototype farm's off-plot job when the saved default game upgrades.
+        if (agriculture.enabled())
+            for (int id : ecs.query(Household.class)) {
+                var h = ecs.get(id, Household.class);
+                var company = economy.company(employer(h.job));
+                var b = building(h.job);
+                if (agriculture.company(id) == 0
+                        && company != null
+                        && CityMaterials.farmer(company.kind)
+                        && (b == null || b.type() != 3)) {
+                    h.job = 0;
+                    var travel = ecs.get(id, Travel.class);
+                    travel.target = -9999;
+                    travel.route.clear();
+                }
+            }
         for (var b : buildings) if (b.type() != 0) economy.operate(b);
+        assignFarmers();
         // Mobile crews can harvest before their own premises exist, avoiding a supply deadlock.
         for (var firm : economy.companies())
-            if (firm.kind >= 2) {
+            if (firm.kind >= 2 && (!agriculture.enabled() || !CityMaterials.farmer(firm.kind))) {
                 int workplace =
                         buildings.stream()
                                 .filter(
@@ -502,6 +607,7 @@ public final class CitySimulation {
                 }
                 for (int id : ecs.query(Household.class)) {
                     var h = ecs.get(id, Household.class);
+                    if (agriculture.company(id) != 0) continue;
                     int current = employer(h.job);
                     if (h.job == 0
                             || h.job > 0
@@ -522,6 +628,7 @@ public final class CitySimulation {
                 for (int id : ecs.query(Household.class)) {
                     if (occupants(b.id(), false) >= 2) break;
                     var h = ecs.get(id, Household.class);
+                    if (agriculture.company(id) != 0) continue;
                     int company = employer(h.job);
                     if (h.job == 0
                             || h.job > 0
@@ -540,6 +647,7 @@ public final class CitySimulation {
                 for (int id : ecs.query(Household.class)) {
                     if (occupants(-plot.id(), false) >= 2) break;
                     var h = ecs.get(id, Household.class);
+                    if (agriculture.company(id) != 0) continue;
                     if (h.job == 0
                             || h.job > 0
                                     && h.job < CityMaterials.YARD
@@ -555,6 +663,7 @@ public final class CitySimulation {
             }
         for (int id : ecs.query(Household.class)) {
             var h = ecs.get(id, Household.class);
+            if (agriculture.company(id) != 0) continue;
             if (h.job < 0 && economy.project(-h.job) == null) h.job = 0;
             if (h.home > 0
                     && economy.contracts.stream()
@@ -603,6 +712,44 @@ public final class CitySimulation {
                             h.job = b.id();
                             break;
                         }
+            }
+        }
+    }
+
+    private void assignFarmers() {
+        if (!agriculture.enabled()) return;
+        for (var family : agriculture.state().families()) {
+            var owned =
+                    buildings.stream()
+                            .filter(
+                                    b ->
+                                            b.type() == 3
+                                                    && economy.property(b.id()).owner()
+                                                            == family.company())
+                            .toList();
+            var project =
+                    economy.plots.stream()
+                            .filter(
+                                    p ->
+                                            p.type() == 3
+                                                    && p.developer() == family.company()
+                                                    && p.building() == 0)
+                            .findFirst()
+                            .orElse(null);
+            for (int i = 0; i < family.members().size(); i++) {
+                int id = family.members().get(i);
+                var h = ecs.get(id, Household.class);
+                h.home = owned.isEmpty() ? 0 : owned.get(0).id();
+                int job =
+                        project != null
+                                ? -project.id()
+                                : owned.isEmpty() ? 0 : owned.get(i % owned.size()).id();
+                if (h.job != job) {
+                    h.job = job;
+                    var t = ecs.get(id, Travel.class);
+                    t.target = -9999;
+                    t.route.clear();
+                }
             }
         }
     }
@@ -920,7 +1067,7 @@ public final class CitySimulation {
     }
 
     private String zone(int type, Polygon polygon) {
-        if (type < 0 || type > 2 || zones.size() >= 128)
+        if (type < 0 || type > 3 || zones.size() >= 128)
             throw new IllegalArgumentException("Invalid zone type or city zone limit reached");
         var cells = polygon.cells();
         boolean adjacent = false;
@@ -935,24 +1082,37 @@ public final class CitySimulation {
         if (!adjacent) throw new IllegalArgumentException("Zone must touch a dirt road");
         boolean fits = false;
         for (var c : cells)
-            if (fits(polygon, c.x(), c.z())) {
+            if (fits(polygon, c.x(), c.z(), type)) {
                 fits = true;
                 break;
             }
         if (!fits)
-            throw new IllegalArgumentException("Leave room for a 6 x 7 building and its entrance");
+            throw new IllegalArgumentException(
+                    type == 3
+                            ? "Leave room for a 12 x 14 farm and its entrance"
+                            : "Leave room for a 6 x 7 building and its entrance");
         zones.add(new CityFrame.Zone(++zoneIds, type, polygon));
-        return ZONES[type] + " zone created; private developers assess demand";
+        return ZONES[type]
+                + (type == 3
+                        ? " zone created; farming families assess demand"
+                        : " zone created; private developers assess demand");
     }
 
     private boolean fits(Polygon polygon, int x, int z) {
-        for (int dx = 0; dx < 6; dx++)
-            for (int dz = -1; dz <= 7; dz++)
+        return fits(polygon, x, z, 0);
+    }
+
+    private boolean fits(Polygon polygon, int x, int z, int type) {
+        int width = StructureBlueprint.width(type), depth = StructureBlueprint.depth(type);
+        for (int dx = 0; dx < width; dx++)
+            for (int dz = -1; dz <= depth; dz++)
                 if (!polygon.contains(x + dx + .5f, z + dz + .5f)) return false;
-        if (economy != null && economy.overlaps(x, z)) return false;
+        if (economy != null && economy.overlaps(x, z, width, depth)) return false;
         for (var b : buildings)
-            if (x - 1 < b.x() + 7 && x + 7 > b.x() - 1 && z - 2 < b.z() + 8 && z + 8 > b.z() - 2)
-                return false;
+            if (x - 1 < b.x() + StructureBlueprint.width(b.type()) + 1
+                    && x + width + 1 > b.x() - 1
+                    && z - 2 < b.z() + StructureBlueprint.depth(b.type()) + 1
+                    && z + depth + 1 > b.z() - 2) return false;
         return true;
     }
 
@@ -962,12 +1122,14 @@ public final class CitySimulation {
         for (var zone : zones)
             if (demand(zone.type()))
                 for (var c : zone.polygon().cells())
-                    if (fits(zone.polygon(), c.x(), c.z())) {
+                    if (fits(zone.polygon(), c.x(), c.z(), zone.type())) {
                         int x = c.x(), z = c.z();
-                        if (ground.occupied(x, grade + 1, z, 6, 7)) continue;
+                        int width = StructureBlueprint.width(zone.type()),
+                                depth = StructureBlueprint.depth(zone.type());
+                        if (ground.occupied(x, grade + 1, z, width, depth)) continue;
                         var edits = new ArrayList<Protocol.Edit>();
-                        for (int dx = 0; dx < 6; dx++)
-                            for (int dz = -1; dz <= 7; dz++) level(x + dx, z + dz, edits);
+                        for (int dx = 0; dx < width; dx++)
+                            for (int dz = -1; dz <= depth; dz++) level(x + dx, z + dz, edits);
                         var planned =
                                 new CityFrame.Building(
                                         buildingIds + 1,
@@ -1021,11 +1183,14 @@ public final class CitySimulation {
                             for (var cell : path)
                                 if (!roads.containsKey(cell)) level(cell.x(), cell.z(), edits);
                         }
-                        int purpose = zone.type() == 2 ? industrialDemand() : zone.type();
+                        int purpose =
+                                zone.type() == 2
+                                        ? industrialDemand()
+                                        : zone.type() == 3 ? agriculturalDemand() : zone.type();
                         var plot =
                                 economy.buyPlot(zone.id(), zone.type(), x, grade + 1, z, purpose);
                         if (plot == null) return;
-                        if (zone.type() == 2) {
+                        if (zone.type() == 2 || zone.type() == 3) {
                             economy.resources.plan(plot, purpose);
                         } else economy.resources.plan(plot, zone.type());
                         ground.apply(edits);
@@ -1039,17 +1204,58 @@ public final class CitySimulation {
         if (type == 0) {
             long capacity =
                     buildings.stream()
-                            .filter(b -> b.type() == 0)
+                            .filter(b -> b.type() == 0 || b.type() == 3)
                             .mapToInt(CityFrame.Building::capacity)
                             .sum();
             return capacity + projects * 4 < ecs.query(Household.class).size();
         }
         if (type == 2) return industrialDemand() != 0;
+        if (type == 3) return agriculturalDemand() != 0;
         return projects == 0 && buildings.stream().noneMatch(b -> b.type() == type);
     }
 
+    private int agriculturalDemand() {
+        if (!agriculture.enabled()) return 0;
+        for (int kind :
+                new int[] {
+                    CityMaterials.FARM, CityMaterials.SUGARCANE_FARM, CityMaterials.CATTLE_FARM
+                }) {
+            int k = kind;
+            long plots =
+                    economy.plots.stream()
+                            .filter(p -> p.type() == 3 && economy.company(p.developer()).kind == k)
+                            .count();
+            if (plots == 0) return k;
+        }
+        // Expansion is a second paid plot, triggered by low stock after the founding day.
+        if (elapsed > config.daySeconds())
+            for (int kind : new int[] {CityMaterials.FARM, CityMaterials.SUGARCANE_FARM}) {
+                int k = kind;
+                var firm =
+                        economy.companies().stream()
+                                .filter(f -> f.kind == k)
+                                .findFirst()
+                                .orElseThrow();
+                if (economy.plots.stream()
+                                        .filter(p -> p.type() == 3 && p.developer() == firm.id)
+                                        .count()
+                                < 2
+                        && economy.resources.available(
+                                        0,
+                                        firm.id,
+                                        kind == CityMaterials.FARM
+                                                ? CityMaterials.WHEAT
+                                                : CityMaterials.SUGARCANE)
+                                < 64 * CityMaterials.UNIT) return kind;
+            }
+        return 0;
+    }
+
     private int industrialDemand() {
-        for (int kind = 2; kind <= CityMaterials.TOOLS; kind++) {
+        for (int kind = 2;
+                kind <= (agriculture.enabled() ? CityMaterials.MAX_KIND : CityMaterials.TOOLS);
+                kind++) {
+            if (agriculture.enabled() && CityMaterials.farmer(kind)) continue;
             final int k = kind;
             boolean exists =
                     economy.plots.stream()
@@ -1087,7 +1293,12 @@ public final class CitySimulation {
     private void finishProjects() {
         for (var p : new ArrayList<>(economy.plots))
             if (p.building() == 0 && p.work() >= 8 && ready(p)) {
-                if (ground.playerOccupied(p.x(), p.y(), p.z(), 6, 7)) continue;
+                if (ground.playerOccupied(
+                        p.x(),
+                        p.y(),
+                        p.z(),
+                        StructureBlueprint.width(p.type()),
+                        StructureBlueprint.depth(p.type()))) continue;
                 for (int id : ecs.query(Household.class, Position.class)) {
                     var pos = ecs.get(id, Position.class);
                     if (pos.x > p.x() && pos.x < p.x() + 6 && pos.z > p.z() && pos.z < p.z() + 7) {
@@ -1127,10 +1338,11 @@ public final class CitySimulation {
                                 p.x(),
                                 p.y(),
                                 p.z(),
-                                p.type() == 0 ? 4 : 16,
+                                p.type() == 3 ? 2 : p.type() == 0 ? 4 : 16,
                                 0);
                 buildings.add(b);
                 economy.completed(p, b.id());
+                agriculture.completed(b, economy);
                 for (int id : ecs.query(Household.class)) {
                     var h = ecs.get(id, Household.class);
                     if (h.job == -p.id()) {
@@ -1222,7 +1434,8 @@ public final class CitySimulation {
                 cs,
                 hs,
                 economy.state(),
-                addresses.state(buildings));
+                addresses.state(buildings),
+                agriculture.state());
     }
 
     public static CityFrame load(Path file) throws IOException {
@@ -1233,14 +1446,19 @@ public final class CitySimulation {
                     && magic != 0x43495432
                     && magic != 0x43495433
                     && magic != 0x43495434
-                    && magic != 0x43495435) throw new IOException("Invalid city save");
+                    && magic != 0x43495435
+                    && magic != 0x43495436) throw new IOException("Invalid city save");
             return CityFrame.read(
                     in,
                     magic == 0x43495431
                             ? 1
                             : magic == 0x43495432
                                     ? 2
-                                    : magic == 0x43495433 ? 3 : magic == 0x43495434 ? 4 : 5);
+                                    : magic == 0x43495433
+                                            ? 3
+                                            : magic == 0x43495434
+                                                    ? 4
+                                                    : magic == 0x43495435 ? 5 : 6);
         }
     }
 
@@ -1249,7 +1467,7 @@ public final class CitySimulation {
         Files.createDirectories(file.toAbsolutePath().getParent());
         Path tmp = file.resolveSibling(file.getFileName() + ".tmp");
         try (var out = new DataOutputStream(Files.newOutputStream(tmp))) {
-            out.writeInt(0x43495435);
+            out.writeInt(0x43495436);
             frame().write(out);
         }
         try {

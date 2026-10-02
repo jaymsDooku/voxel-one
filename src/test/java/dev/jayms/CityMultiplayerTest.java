@@ -68,7 +68,7 @@ class CityMultiplayerTest {
                                     false,
                                     tls.fingerprint())) {
                 assertTrue(a.city.config().city());
-                assertEquals(12, a.city.citizens().size());
+                assertEquals(18, a.city.citizens().size());
                 assertEquals(a.city.roads(), b.city.roads());
                 roadCount = a.city.roads().size();
                 assertTrue(
@@ -95,7 +95,7 @@ class CityMultiplayerTest {
                 assertEquals(a.city.roads(), b.city.roads());
                 assertTrue(b.city.economy().roadSpending() > 0);
                 assertEquals(a.city.economy().roadSpending(), b.city.economy().roadSpending());
-                assertEquals(11, b.city.economy().firms().size());
+                assertEquals(17, b.city.economy().firms().size());
                 Thread.sleep(550);
                 var zone =
                         List.of(
@@ -108,9 +108,9 @@ class CityMultiplayerTest {
                         () -> {
                             a.poll();
                             b.poll();
-                            return b.city.zones().size() == 4;
+                            return b.city.zones().size() == 7;
                         });
-                assertEquals(zone, b.city.zones().get(3).polygon().vertices());
+                assertEquals(zone, b.city.zones().get(6).polygon().vertices());
                 var h =
                         a.city.horses().stream()
                                 .filter(m -> m.rider() == 0)
@@ -149,7 +149,7 @@ class CityMultiplayerTest {
                                 "correct-password-c".toCharArray(),
                                 false,
                                 tls.fingerprint())) {
-                    assertEquals(4, late.city.zones().size());
+                    assertEquals(7, late.city.zones().size());
                     assertTrue(
                             late.initialEdits.stream()
                                     .anyMatch(
@@ -190,11 +190,11 @@ class CityMultiplayerTest {
                             false,
                             tls.fingerprint())) {
                 assertTrue(a.city.config().city());
-                assertEquals(4, a.city.zones().size());
+                assertEquals(7, a.city.zones().size());
                 assertTrue(a.city.roads().size() > roadCount);
                 assertTrue(a.city.elapsed() > 0);
                 assertTrue(a.city.economy().roadSpending() > 0);
-                assertEquals(11, a.city.economy().firms().size());
+                assertEquals(17, a.city.economy().firms().size());
                 assertTrue(a.city.horses().stream().noneMatch(h -> h.rider() > 0));
             }
             server.close();

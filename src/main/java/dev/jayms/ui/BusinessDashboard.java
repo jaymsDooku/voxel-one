@@ -13,7 +13,9 @@ public final class BusinessDashboard {
     public boolean searchFocus;
     private List<BusinessMetrics.Location> displayed = List.of();
     private static final int TOP = 138, ROW = 32;
-    private static final String[] FILTERS = {"All", "Attention", "Commercial", "Industrial"};
+    private static final String[] FILTERS = {
+        "All", "Attention", "Commercial", "Industrial", "Agricultural"
+    };
 
     public List<BusinessMetrics.Location> rows(CityFrame city) {
         String q = search.toLowerCase(Locale.ROOT);
@@ -23,7 +25,8 @@ public final class BusinessDashboard {
                                 filter == 0
                                         || filter == 1 && l.attention()
                                         || filter == 2 && l.building().type() == 1
-                                        || filter == 3 && l.building().type() == 2)
+                                        || filter == 3 && l.building().type() == 2
+                                        || filter == 4 && l.building().type() == 3)
                 .filter(l -> (l.name() + " " + l.status()).toLowerCase(Locale.ROOT).contains(q))
                 .sorted(
                         Comparator.<BusinessMetrics.Location, Boolean>comparing(
@@ -77,7 +80,7 @@ public final class BusinessDashboard {
         }
         if (view == 1) return;
         if (y >= 178 && y <= 208) {
-            filter = Math.min(3, (int) ((x - 24) / ((w - 48) / 4f)));
+            filter = Math.min(4, (int) ((x - 24) / ((w - 48) / 5f)));
             firstRow = 0;
             searchFocus = false;
             return;
@@ -151,11 +154,11 @@ public final class BusinessDashboard {
             companies(ui, w, h, metrics, city);
             return;
         }
-        for (int i = 0; i < 4; i++) {
-            float x = 24 + i * (w - 48) / 4f;
-            panel(ui, x, 178, (w - 48) / 4f - 6, 30);
-            text(ui, FILTERS[i], x + 9, 187, (w - 48) / 4f - 20, 1.2f);
-            if (filter == i) ui.rectangle(x, 206, (w - 48) / 4f - 6, 2, .3f, .85f, .7f, 1);
+        for (int i = 0; i < 5; i++) {
+            float x = 24 + i * (w - 48) / 5f;
+            panel(ui, x, 178, (w - 48) / 5f - 6, 30);
+            text(ui, FILTERS[i], x + 9, 187, (w - 48) / 5f - 20, 1.2f);
+            if (filter == i) ui.rectangle(x, 206, (w - 48) / 5f - 6, 2, .3f, .85f, .7f, 1);
         }
         panel(ui, 24, 218, w - 48, 28);
         text(ui, (searchFocus ? "> " : "Search: ") + search, 34, 227, w - 70, 1.2f);

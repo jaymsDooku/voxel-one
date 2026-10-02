@@ -9,7 +9,11 @@ import java.util.*;
 /** Game-owned manufacturing data. Quantities use CityMaterials.UNIT; tools are durable stock. */
 public record ProductionCatalog(
         List<Product> products, List<Recipe> recipes, List<Equipment> equipment) {
-    public record Product(int id, String name, double price) {}
+    public record Product(int id, String name, double price, int nutrition) {
+        public Product(int id, String name, double price) {
+            this(id, name, price, id == CityMaterials.FOOD ? 35 : 0);
+        }
+    }
 
     public record Recipe(
             String id,
@@ -42,7 +46,9 @@ public record ProductionCatalog(
                     || p.name.length() > 48
                     || !Double.isFinite(p.price)
                     || p.price <= 0
-                    || p.price > 10000) throw new IllegalArgumentException("Invalid product");
+                    || p.price > 10000
+                    || p.nutrition < 0
+                    || p.nutrition > 100) throw new IllegalArgumentException("Invalid product");
         if (!ids.contains(CityMaterials.FOOD))
             throw new IllegalArgumentException("Food product is required");
         var recipeIds = new HashSet<String>();
@@ -51,7 +57,7 @@ public record ProductionCatalog(
                     || r.id.length() > 48
                     || !recipeIds.add(r.id)
                     || r.companyKind < 2
-                    || r.companyKind > CityMaterials.TOOLS
+                    || r.companyKind > CityMaterials.MAX_KIND
                     || !valid(r.output, products)
                     || r.count < 1
                     || r.count > 64
@@ -71,7 +77,7 @@ public record ProductionCatalog(
         for (var e : equipment)
             if (!ids.contains(e.product)
                     || e.companyKind < 2
-                    || e.companyKind > CityMaterials.TOOLS
+                    || e.companyKind > CityMaterials.MAX_KIND
                     || !equipped.add(e.companyKind)
                     || !Double.isFinite(e.multiplier)
                     || e.multiplier <= 1
@@ -95,6 +101,22 @@ public record ProductionCatalog(
                 .orElse(Blocks.name(id));
     }
 
+    public int nutrition(int id) {
+        return products.stream()
+                .filter(p -> p.id == id)
+                .mapToInt(Product::nutrition)
+                .findFirst()
+                .orElse(0);
+    }
+
+    public boolean agriculture() {
+        return valid(CityMaterials.WHEAT);
+    }
+
+    public List<Integer> food() {
+        return products.stream().filter(p -> p.nutrition > 0).map(Product::id).toList();
+    }
+
     public double price(int id) {
         return products.stream()
                 .filter(p -> p.id == id)
@@ -111,6 +133,7 @@ public record ProductionCatalog(
     }
 
     public int output(int kind) {
+        if (agriculture() && kind == CityMaterials.FARM) return CityMaterials.WHEAT;
         return recipes(kind).stream()
                 .mapToInt(Recipe::output)
                 .findFirst()
@@ -125,6 +148,8 @@ public record ProductionCatalog(
     }
 
     public String outputs(int kind) {
+        if (agriculture() && kind == CityMaterials.FARM) return "Wheat / Carrots";
+        if (agriculture() && kind == CityMaterials.CATTLE_FARM) return "Beef / Milk";
         return recipes(kind).isEmpty()
                 ? name(output(kind))
                 : recipes(kind).stream()
@@ -142,10 +167,47 @@ public record ProductionCatalog(
     }
 
     private static final class Defaults {
+        static final ProductionCatalog LEGACY = createToolEra();
         static final ProductionCatalog CATALOG = createCityGame();
     }
 
+    public static ProductionCatalog toolEra() {
+        return Defaults.LEGACY;
+    }
+
     private static ProductionCatalog createCityGame() {
+        var old = createToolEra();
+        var p = new ArrayList<>(old.products);
+        var r = new ArrayList<>(old.recipes);
+        p.addAll(
+                List.of(
+                        new Product(1101, "Wheat", .4),
+                        new Product(1102, "Carrots", .5, 25),
+                        new Product(1103, "Sugarcane", .4),
+                        new Product(1104, "Beef", 1.2, 40),
+                        new Product(1105, "Milk", .7, 20),
+                        new Product(1106, "Flour", .7),
+                        new Product(1107, "Bread", 1, 35),
+                        new Product(1108, "Sugar", .6),
+                        new Product(1109, "Carrot cake", 2, 60)));
+        r.addAll(
+                List.of(
+                        new Recipe("flour", 11, 1106, 2, Map.of(1101, 1), 12, 128, true),
+                        new Recipe("bread", 12, 1107, 2, Map.of(1101, 1), 12, 128, true),
+                        new Recipe("sugar", 13, 1108, 2, Map.of(1103, 1), 12, 128, true),
+                        new Recipe(
+                                "carrot-cake",
+                                14,
+                                1109,
+                                4,
+                                Map.of(1106, 1, 1108, 1, 1102, 1, 1105, 1),
+                                8,
+                                128,
+                                true)));
+        return new ProductionCatalog(p, r, old.equipment);
+    }
+
+    private static ProductionCatalog createToolEra() {
         return new ProductionCatalog(
                 List.of(
                         new Product(CityMaterials.FOOD, "Food", .5),
@@ -227,7 +289,11 @@ public record ProductionCatalog(
                         new Product(
                                 id,
                                 required(data, "product." + id + ".name"),
-                                Double.parseDouble(required(data, "product." + id + ".price"))));
+                                Double.parseDouble(required(data, "product." + id + ".price")),
+                                Integer.parseInt(
+                                        data.getProperty(
+                                                "product." + id + ".nutrition",
+                                                id == CityMaterials.FOOD ? "35" : "0"))));
             }
             var recipes = new ArrayList<Recipe>();
             for (String id : list(required(data, "recipes"))) {
@@ -281,11 +347,16 @@ public record ProductionCatalog(
     }
 
     public void write(DataOutput out) throws IOException {
+        write(out, 6);
+    }
+
+    public void write(DataOutput out, int version) throws IOException {
         out.writeInt(products.size());
         for (var p : products) {
             out.writeInt(p.id);
             out.writeUTF(p.name);
             out.writeDouble(p.price);
+            if (version >= 6) out.writeByte(p.nutrition);
         }
         out.writeInt(recipes.size());
         for (var r : recipes) {
@@ -311,10 +382,25 @@ public record ProductionCatalog(
     }
 
     public static ProductionCatalog read(DataInput in) throws IOException {
+        return read(in, 6);
+    }
+
+    public static ProductionCatalog read(DataInput in, int version) throws IOException {
         try {
             var products = new ArrayList<Product>();
-            for (int n = count(in, 64); n > 0; n--)
-                products.add(new Product(in.readInt(), in.readUTF(), in.readDouble()));
+            for (int n = count(in, 64); n > 0; n--) {
+                int id = in.readInt();
+                String name = in.readUTF();
+                double price = in.readDouble();
+                products.add(
+                        new Product(
+                                id,
+                                name,
+                                price,
+                                version >= 6
+                                        ? in.readUnsignedByte()
+                                        : id == CityMaterials.FOOD ? 35 : 0));
+            }
             var recipes = new ArrayList<Recipe>();
             for (int n = count(in, 64); n > 0; n--) {
                 String id = in.readUTF();

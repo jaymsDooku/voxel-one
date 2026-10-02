@@ -13,7 +13,28 @@ public final class CityMaterials {
             GLASSWORKS = 5,
             LIGHTING = 6,
             FARM = 7,
-            TOOLS = 8;
+            TOOLS = 8,
+            SUGARCANE_FARM = 9,
+            CATTLE_FARM = 10,
+            MILL = 11,
+            BAKERY = 12,
+            SUGARWORKS = 13,
+            CAKE_FACTORY = 14;
+    public static final int MAX_KIND = CAKE_FACTORY;
+    public static final int WHEAT = 1101,
+            CARROT = 1102,
+            SUGARCANE = 1103,
+            BEEF = 1104,
+            MILK = 1105,
+            FLOUR = 1106,
+            BREAD = 1107,
+            SUGAR = 1108,
+            CARROT_CAKE = 1109;
+
+    public static boolean farmer(int kind) {
+        return kind == FARM || kind == SUGARCANE_FARM || kind == CATTLE_FARM;
+    }
+
     public static final int FOOD = 1001, PICKAXE = 1002, AXE = 1003, YARD = 100000;
 
     public record Amount(int material, long units) {}
@@ -82,7 +103,7 @@ public final class CityMaterials {
     private final Map<Key, Long> stocks = new LinkedHashMap<>();
     private final Map<Integer, Production> production = new LinkedHashMap<>();
     private final Map<Integer, Project> projects = new LinkedHashMap<>();
-    public final ProductionCatalog catalog;
+    public ProductionCatalog catalog;
     private final Map<String, Batch> batches = new LinkedHashMap<>();
 
     public CityMaterials(State state) {
@@ -104,6 +125,12 @@ public final class CityMaterials {
             case LIGHTING -> "Lighting workshop";
             case FARM -> "Crop farm";
             case TOOLS -> "Tool factory";
+            case SUGARCANE_FARM -> "Sugarcane farm";
+            case CATTLE_FARM -> "Cattle farm";
+            case MILL -> "Flour mill";
+            case BAKERY -> "Bakery";
+            case SUGARWORKS -> "Sugar refinery";
+            case CAKE_FACTORY -> "Cake bakery";
             default -> "Business";
         };
     }
@@ -126,6 +153,8 @@ public final class CityMaterials {
             case LIGHTING -> Blocks.LED;
             case 1, FARM -> FOOD;
             case TOOLS -> PICKAXE;
+            case SUGARCANE_FARM -> SUGARCANE;
+            case CATTLE_FARM -> MILK;
             default -> Blocks.STONE;
         };
     }
@@ -298,7 +327,8 @@ public final class CityMaterials {
     }
 
     static boolean buildingMaterial(int id) {
-        return id == Blocks.STONE
+        return id == Blocks.DIRT
+                || id == Blocks.STONE
                 || id == Blocks.SAND
                 || id == Blocks.WOOD
                 || id == Blocks.PLANKS
@@ -308,7 +338,7 @@ public final class CityMaterials {
     }
 
     public static void write(DataOutput out, State state) throws IOException {
-        write(out, state, 5);
+        write(out, state, 6);
     }
 
     public static void write(DataOutput out, State state, int version) throws IOException {
@@ -340,7 +370,7 @@ public final class CityMaterials {
             }
         }
         if (version >= 5) {
-            state.catalog.write(out);
+            state.catalog.write(out, version);
             out.writeInt(state.batches.size());
             for (var b : state.batches) {
                 out.writeInt(b.company);
@@ -352,7 +382,7 @@ public final class CityMaterials {
     }
 
     public static State read(DataInput in) throws IOException {
-        return read(in, 5);
+        return read(in, 6);
     }
 
     public static State read(DataInput in, int version) throws IOException {
@@ -367,7 +397,7 @@ public final class CityMaterials {
         }
         var production = new ArrayList<Production>();
         var companyIds = new HashSet<Integer>();
-        for (int i = 0, n = count(in, 16); i < n; i++) {
+        for (int i = 0, n = count(in, 64); i < n; i++) {
             int company = positive(in);
             double progress = in.readDouble();
             long harvested = in.readLong(), processed = in.readLong();
@@ -387,7 +417,7 @@ public final class CityMaterials {
         for (int i = 0, n = count(in, 512); i < n; i++) {
             int plot = positive(in), kind = in.readUnsignedByte();
             boolean reserved = in.readBoolean(), consumed = in.readBoolean();
-            if (kind > TOOLS || reserved && consumed || !plotIds.add(plot))
+            if (kind > MAX_KIND || reserved && consumed || !plotIds.add(plot))
                 throw new IOException("Invalid material reservation");
             var materials = new ArrayList<Amount>();
             var materialIds = new HashSet<Integer>();
@@ -400,7 +430,8 @@ public final class CityMaterials {
             }
             projects.add(new Project(plot, kind, reserved, consumed, materials));
         }
-        var catalog = version >= 5 ? ProductionCatalog.read(in) : ProductionCatalog.cityGame();
+        var catalog =
+                version >= 5 ? ProductionCatalog.read(in, version) : ProductionCatalog.toolEra();
         for (var stock : stocks)
             if (!catalog.valid(stock.material)) throw new IOException("Unknown stock product");
         var batches = new ArrayList<Batch>();

@@ -41,7 +41,9 @@ class CityTimeTest {
     void populationsCompleteDailyLifeAcrossThreeFullDays() {
         var ground = new CityTest.Ground();
         var config = new GameConfig(true, true, 1200, 6);
-        var sim = new CitySimulation(config, ground, ground.terrain, null);
+        var sim =
+                new CitySimulation(
+                        config, ground, ground.terrain, null, ProductionCatalog.toolEra());
         var activities = new ArrayList<Set<String>>();
         for (int day = 0; day < 3; day++) activities.add(new HashSet<>());
         var slept = new HashSet<Integer>();
@@ -138,7 +140,7 @@ class CityTimeTest {
     void savingAtNightResumesCalendarAndScheduleWithoutResettingBalances() throws Exception {
         var g = new CityTest.Ground();
         var config = new GameConfig(true, true, 600, 8);
-        var sim = new CitySimulation(config, g, g.terrain, null);
+        var sim = new CitySimulation(config, g, g.terrain, null, ProductionCatalog.toolEra());
         for (int i = 0; i < 1000; i++) sim.advance(1);
         assertEquals(3, config.time(sim.frame().elapsed()).day());
         sim.save(temp.resolve("clock.city"));
