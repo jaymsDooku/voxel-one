@@ -1,0 +1,12 @@
+{
+  "scope": "Private Sites deployment and native live D1 verification. No user answers included.",
+  "site": "https://voxel-one.jamesleaver1.chatgpt.site/progress.html",
+  "sourceCommit": "38da2b60aa9befddc4847f42cf19dacbba1554cb",
+  "deployment": "appgdep_6abf74f710ac8191aa327b5be9b02505",
+  "status": "succeeded",
+  "questionCreatedThroughAuthenticatedAgentAPI": true,
+  "nativeDatabaseTables": [
+    "questions",
+    "question_answers"
+  ]
+}
