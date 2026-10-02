@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T20:00:33+00:00",
+  "updatedAt": "2026-10-02T20:04:57+00:00",
   "release": {
     "name": "Playtest 25",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-25",
@@ -1621,11 +1621,21 @@
           "kind": "image",
           "label": "agriculture private food companies.png",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/agriculture-private-food-companies.png"
+        },
+        {
+          "kind": "report",
+          "label": "agriculture browser checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/agriculture-browser-checks.json"
+        },
+        {
+          "kind": "image",
+          "label": "agriculture dashboard video mobile.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/agriculture-dashboard-video-mobile.png"
         }
       ],
       "status": "in_progress",
-      "note": "160 Linux regression tests pass; affected migration/material/business/multiplayer suites rerun. Three full days: 18 citizens ate and slept, four privately funded farms including expansion, six crop fields, cow births and finite beef, all food factories, conserved soil/wood/stone/sand and reconciled private cash. Actual F10 recording captured crops, cows, farm ownership and agricultural dashboards; preparing verified release.",
-      "updatedAt": "2026-10-02T20:00:33+00:00"
+      "note": "Committed and pushed ede5869. All 160 Linux tests pass; real three-day farm/food/material/cash checks and the F10 walkthrough are attached. Safari-style WebKit and Chromium pass eight phone/desktop video playback and documentation navigation checks. Private website documentation is published; Windows/Linux/Mac release verification is running before VPS deployment.",
+      "updatedAt": "2026-10-02T20:04:57+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
