@@ -1,0 +1,43 @@
+{
+  "recordedAt": "2026-10-02T12:57:07+00:00",
+  "release": "playtest-17",
+  "revision": "e33738026e7ad0a76d69aab096605a93fa4f80b7",
+  "ci": "https://github.com/jaymsDooku/voxel-one/actions/runs/37009312635",
+  "platforms": {
+    "Windows": {
+      "tests": 94,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "build": "passed"
+    },
+    "Linux": {
+      "tests": 94,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "build": "passed"
+    },
+    "Mac Intel": {
+      "tests": 94,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "build": "passed"
+    },
+    "Mac ARM": {
+      "tests": 94,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "build": "passed"
+    }
+  },
+  "windowsUpdater": {
+    "download": "passed",
+    "sha256Verification": "passed",
+    "WindowsGlfwNative": "present",
+    "revision": "e33738026e7ad0a76d69aab096605a93fa4f80b7"
+  },
+  "clientGui": "NPC nameplates absent in city and first person. Actual player label retained in city and third person. See player-nameplate-client-checks.json and recorded screenshots."
+}
