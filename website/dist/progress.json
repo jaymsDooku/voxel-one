@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T20:32:21+00:00",
+  "updatedAt": "2026-10-02T20:42:47+00:00",
   "release": {
     "name": "Playtest 27",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-27",
@@ -1666,6 +1666,15 @@
       "status": "complete",
       "note": "Playtest 27 committed, pushed and deployed to both VPS services. Agricultural crop/cattle farms are privately built and expanded by farming families; developers stay out. Wheat/carrot/cane fields and finite fed cows supply bread/flour/sugar/carrot-cake factories and markets. 160 tests pass on Windows/Linux/Mac Intel/Mac ARM; three-day world conserves building materials and cash, with 18 citizens eating/sleeping and paid farm expansion. Real F10 walkthrough and Safari-style video checks attached. Windows updater downloaded the final client; existing jayms login, TLS, city clock, properties, accounts and public budget verified. Existing city needs new agricultural land and industrial factory plots.",
       "updatedAt": "2026-10-02T20:32:21+00:00"
+    },
+    {
+      "id": "lighting-occlusion",
+      "title": "Solid voxel light occlusion",
+      "description": "Tracing propagation and surface sampling; testing opaque walls against glass, air and fine voxels.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Tracing propagation and surface sampling; testing opaque walls against glass, air and fine voxels.",
+      "updatedAt": "2026-10-02T20:42:47+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

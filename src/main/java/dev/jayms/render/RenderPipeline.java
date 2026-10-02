@@ -28,7 +28,10 @@ public final class RenderPipeline implements AutoCloseable {
             environment = glGenTextures(),
             shadowTexture = glGenTextures(),
             shadowFbo = glGenFramebuffers(),
-            irradiance = glGenTextures();
+            irradiance = glGenTextures(),
+            fineRoots = glGenTextures(),
+            fineLight = glGenTextures(),
+            fineBuffer = glGenBuffers();
     private int hdrFbo, hdrColor, hdrDepth, resolveFbo, resolveTexture, width, height;
     private final boolean software =
             glGetString(GL_RENDERER)
@@ -88,8 +91,8 @@ public final class RenderPipeline implements AutoCloseable {
         check();
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glBindTexture(GL_TEXTURE_3D, irradiance);
-        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
@@ -176,6 +179,27 @@ public final class RenderPipeline implements AutoCloseable {
                     GL_RGBA,
                     GL_UNSIGNED_BYTE,
                     buffer);
+            glActiveTexture(GL_TEXTURE4);
+            glBindTexture(GL_TEXTURE_3D, fineRoots);
+            glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexImage3D(
+                    GL_TEXTURE_3D,
+                    0,
+                    GL_R32I,
+                    next.width,
+                    next.height,
+                    next.length,
+                    0,
+                    GL_RED_INTEGER,
+                    GL_INT,
+                    next.roots);
+            glActiveTexture(GL_TEXTURE5);
+            glBindBuffer(GL_TEXTURE_BUFFER, fineBuffer);
+            glBufferData(GL_TEXTURE_BUFFER, next.fine, GL_DYNAMIC_DRAW);
+            glBindTexture(GL_TEXTURE_BUFFER, fineLight);
+            glTexBuffer(GL_TEXTURE_BUFFER, GL_R32I, fineBuffer);
+            glBindBuffer(GL_TEXTURE_BUFFER, 0);
             hasIrradiance = true;
         } finally {
             MemoryUtil.memFree(buffer);
@@ -289,6 +313,10 @@ public final class RenderPipeline implements AutoCloseable {
         voxel.setInt("uShadow", 1);
         voxel.setInt("uMaterials", 2);
         voxel.setInt("uIrradiance", 3);
+        bind(4, GL_TEXTURE_3D, fineRoots);
+        bind(5, GL_TEXTURE_BUFFER, fineLight);
+        voxel.setInt("uFineRoots", 4);
+        voxel.setInt("uFineLight", 5);
         glActiveTexture(GL_TEXTURE0);
     }
 
@@ -383,6 +411,9 @@ public final class RenderPipeline implements AutoCloseable {
         deleteTargets();
         glDeleteTextures(environment);
         glDeleteTextures(irradiance);
+        glDeleteTextures(fineRoots);
+        glDeleteTextures(fineLight);
+        glDeleteBuffers(fineBuffer);
         glDeleteTextures(shadowTexture);
         glDeleteFramebuffers(shadowFbo);
         glDeleteVertexArrays(vao);

@@ -1,0 +1,16 @@
+{
+  "platform": "Linux VPS, Java 25 targeting Java 17",
+  "tests": 166,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "lightingScenarios": [
+    "Whole opaque materials; air and attenuating glass",
+    "Thin 1/2, 1/4, 1/8, 1/16 walls on all axes at negative and chunk-boundary coordinates",
+    "32-voxel opaque model wall; RGB does not become a material ID",
+    "Buried tiny LED cannot emit through enclosing stone",
+    "Cut and reseal an opening",
+    "Fractional opaque roof versus glass skylight transmission"
+  ],
+  "lightingTests": 11
+}

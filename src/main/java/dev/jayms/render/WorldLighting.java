@@ -67,6 +67,7 @@ public final class WorldLighting implements AutoCloseable {
                     chunks.put(e.getKey(), e.getValue().snapshot());
             var edits = world.editsSnapshot();
             long seed = world.terrain().seed;
+            ModelLibrary models = world.models().copy();
             pending =
                     worker.submit(
                             () -> {
@@ -80,37 +81,62 @@ public final class WorldLighting implements AutoCloseable {
                                         128,
                                         96,
                                         skyStrength,
-                                        (x, y, z) -> {
-                                            var octree = chunks.get(ChunkPos.fromBlock(x, y, z));
-                                            int value;
-                                            if (octree != null)
-                                                value =
-                                                        octree.uniform(
+                                        new LightVolume.Sampler() {
+                                            private final Map<Integer, SparseVoxelOctree> geometry =
+                                                    new HashMap<>();
+
+                                            private SparseVoxelOctree cell(int x, int y, int z) {
+                                                var octree =
+                                                        chunks.get(ChunkPos.fromBlock(x, y, z));
+                                                return octree == null
+                                                        ? fallback.cell(x, y, z)
+                                                        : octree.region(
                                                                 Math.floorMod(x, 16) * 16,
                                                                 Math.floorMod(y, 16) * 16,
                                                                 Math.floorMod(z, 16) * 16,
                                                                 16);
-                                            else
-                                                value = fallback.cell(x, y, z).uniform(0, 0, 0, 16);
-                                            if (value != -1) return value;
-                                            // Mixed cells retain tiny LEDs as light sources;
-                                            // otherwise estimate partial coverage.
-                                            var cell =
-                                                    octree != null
-                                                            ? octree.region(
-                                                                    Math.floorMod(x, 16) * 16,
-                                                                    Math.floorMod(y, 16) * 16,
-                                                                    Math.floorMod(z, 16) * 16,
-                                                                    16)
-                                                            : fallback.cell(x, y, z);
-                                            for (var leaf : cell.leaves())
-                                                if (WorldVoxels.decode(leaf.color()) == Blocks.LED)
-                                                    return leaf.color();
-                                            return 0xff000000 | Blocks.PARTIAL;
+                                            }
+
+                                            public int value(int x, int y, int z) {
+                                                int value = cell(x, y, z).uniform(0, 0, 0, 16);
+                                                return Blocks.isModel(WorldVoxels.decode(value))
+                                                        ? -1
+                                                        : value;
+                                            }
+
+                                            public SparseVoxelOctree detail(int x, int y, int z) {
+                                                var tree = cell(x, y, z);
+                                                int type =
+                                                        WorldVoxels.decode(
+                                                                tree.uniform(0, 0, 0, 16));
+                                                if (!Blocks.isModel(type)) return tree;
+                                                return geometry.computeIfAbsent(
+                                                        type, id -> modelGeometry(models.get(id)));
+                                            }
                                         });
                             });
         }
         return result;
+    }
+
+    /**
+     * Model colours are opaque ARGB, not encoded block IDs. Preserve their actual 8/16/32 geometry.
+     */
+    public static SparseVoxelOctree modelGeometry(ModelLibrary.Entry entry) {
+        var model = entry == null ? null : entry.definition().voxels();
+        var tree = new SparseVoxelOctree(model == null ? 16 : model.size());
+        if (model == null) tree.fill(0, 0, 0, 16, 16, 16, WorldVoxels.encode(Blocks.STONE));
+        else
+            for (var leaf : model.leaves())
+                tree.fill(
+                        leaf.x(),
+                        leaf.y(),
+                        leaf.z(),
+                        leaf.x() + leaf.side(),
+                        leaf.y() + leaf.side(),
+                        leaf.z() + leaf.side(),
+                        WorldVoxels.encode(Blocks.STONE));
+        return tree;
     }
 
     @Override

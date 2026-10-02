@@ -1,0 +1,11 @@
+{
+  "scope": "Actual OpenGL engine on Linux VPS; not a physical Windows desktop",
+  "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+  "opaqueOneSixteenthWallLeakedPixels": 0,
+  "sealedRoomSunLeakedPixels": 0,
+  "glassChangedPixels": 216000,
+  "openingChangedPixels": 216000,
+  "sunOpaqueDepth": 0.19191922,
+  "sunGlassDepth": 1.0,
+  "glErrors": 0
+}
