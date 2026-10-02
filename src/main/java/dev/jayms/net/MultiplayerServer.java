@@ -129,21 +129,24 @@ public final class MultiplayerServer implements AutoCloseable {
                                 return block(x, y, z);
                             }
 
-                            public boolean occupied(int x, int y, int z, int width, int depth) {
+                            public boolean playerOccupied(
+                                    int x, int y, int z, int width, int depth) {
                                 return peers.values().stream()
-                                                .anyMatch(
-                                                        p ->
-                                                                p.pose.x() + .3 > x
-                                                                        && p.pose.x() - .3
-                                                                                < x + width
-                                                                        && p.pose.z() + .3 > z
-                                                                        && p.pose.z() - .3
-                                                                                < z + depth
-                                                                        && p.pose.y() + 1.8 > y
-                                                                        && p.pose.y() < y + 7)
-                                        || (city != null
+                                        .anyMatch(
+                                                p ->
+                                                        p.pose.x() + .3 > x
+                                                                && p.pose.x() - .3 < x + width
+                                                                && p.pose.z() + .3 > z
+                                                                && p.pose.z() - .3 < z + depth
+                                                                && p.pose.y() + 1.8 > y
+                                                                && p.pose.y() < y + 7);
+                            }
+
+                            public boolean occupied(int x, int y, int z, int width, int depth) {
+                                return playerOccupied(x, y, z, width, depth)
+                                        || city != null
                                                 && CityOccupancy.overlaps(
-                                                        city.frame(), x, y, z, width, 7, depth));
+                                                        city.frame(), x, y, z, width, 7, depth);
                             }
 
                             public void apply(List<Protocol.Edit> batch) {

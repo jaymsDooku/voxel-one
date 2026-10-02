@@ -1,0 +1,19 @@
+{
+  "platform": "Linux VPS, Xvfb and Mesa software OpenGL",
+  "result": "passed",
+  "checks": [
+    "Mayor budget, public road spending and land-sale income visible in city HUD",
+    "Economy tool opens panel with five private company balances and construction job count",
+    "Return to Inspect and first person",
+    "Right-click horse mounts; title confirms first-person riding",
+    "F5 shows third-person rider",
+    "H dismounts",
+    "Isometric horizon fit and focus remain functional",
+    "Menu quit saves and exits successfully"
+  ],
+  "screenshots": [
+    "mayor-overview.png",
+    "mayor-economy.png"
+  ],
+  "limitations": "Physical Windows desktop playtest is performed by the user."
+}

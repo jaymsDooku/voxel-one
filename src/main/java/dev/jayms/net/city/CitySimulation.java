@@ -16,6 +16,10 @@ public final class CitySimulation {
         void apply(List<Protocol.Edit> edits);
 
         boolean occupied(int x, int y, int z, int width, int depth);
+
+        default boolean playerOccupied(int x, int y, int z, int width, int depth) {
+            return occupied(x, y, z, width, depth);
+        }
     }
 
     public static final String[] COHORTS = {"Labourers", "Skilled workers", "Prosperous settlers"};
@@ -68,6 +72,8 @@ public final class CitySimulation {
     private final List<CityFrame.Building> buildings = new ArrayList<>();
     private double elapsed, accumulator, nextBuild;
     private int zoneIds, buildingIds, grade;
+    public final CityEconomy economy;
+    private boolean founding = true;
 
     public CitySimulation(GameConfig config, Ground ground, Terrain terrain, CityFrame saved) {
         this.config = config;
@@ -75,9 +81,16 @@ public final class CitySimulation {
         grade = Math.max(-26, Math.min(88, terrain.column(8, 24).height()));
         if (saved != null) {
             restore(saved);
+            economy = new CityEconomy(ecs, saved.economy());
+            economy.adopt(buildings);
+            founding = false;
             return;
         }
-        if (!config.city()) return;
+        if (!config.city()) {
+            economy = new CityEconomy(ecs, null);
+            founding = false;
+            return;
+        }
         road(List.of(new Point(-10, 24), new Point(44, 24)));
         road(List.of(new Point(8, 8), new Point(8, 45)));
         zone(
@@ -128,6 +141,8 @@ public final class CitySimulation {
             ecs.put(id, Position.class, new Position(2.5f + i, grade + 1.01f, 24.5f));
             ecs.put(id, Mount.class, new Mount());
         }
+        economy = new CityEconomy(ecs, null);
+        founding = false;
     }
 
     private void restore(CityFrame f) {
@@ -186,6 +201,8 @@ public final class CitySimulation {
             construct();
             nextBuild = elapsed + 4;
         }
+        economy.rent(dt / config.daySeconds());
+        finishProjects();
         assign();
         for (int id : ecs.query(Position.class, Household.class, Needs.class, Travel.class)) {
             var p = ecs.get(id, Position.class);
@@ -207,45 +224,66 @@ public final class CitySimulation {
                     target == 0
                             ? "Needs home / work"
                             : target == h.job
-                                    ? "Commuting to mine"
+                                    ? (h.job < 0
+                                            ? "Going to construction site"
+                                            : "Commuting to work")
                                     : target == h.home ? "Going home" : "Buying food";
             if (target != t.target) {
                 t.target = target;
                 t.route.clear();
-                var b = building(target);
+                var b = workplace(target);
                 if (b != null) journey(id, p, b, t);
             }
             if (!t.route.isEmpty()) {
                 travel(id, p, h, t, dt);
                 continue;
             }
-            var b = building(target);
+            var b = workplace(target);
             if (b == null) continue;
             if (!(p.x > b.x() && p.x < b.x() + 6 && p.z > b.z() && p.z < b.z() + 7)) {
                 t.activity = "No connected road route";
-                t.target = -1;
+                t.target = -9999;
                 t.retryAt = elapsed + 2;
                 continue;
             }
-            if (b.type() == 2) {
+            if (target < 0) {
+                var project = economy.project(-target);
+                if (project != null && economy.wage(project.developer(), dt * .15, n)) {
+                    economy.work(project.id(), dt);
+                    t.activity = "Building for developer";
+                } else t.activity = "Developer cannot afford wages";
+            } else if (b.type() == 2) {
                 t.activity = "Working in mine";
-                n.money = Math.min(1e6f, n.money + dt * (.11f + h.cohort * .04f));
+                var property = economy.property(b.id());
+                if (property == null
+                        || !economy.wage(property.operator(), dt * (.11f + h.cohort * .04f), n)) {
+                    t.activity = "Employer cannot afford wages";
+                    continue;
+                }
                 int stock = Math.min(1000, b.stock() + 1);
                 replaceStock(b, stock);
                 for (var shop : new ArrayList<>(buildings))
                     if (shop.type() == 1
                             && shop.stock() < 80
                             && stock > 0
-                            && ((int) (elapsed * 10)) % 20 == 0) {
+                            && ((int) (elapsed * 10)) % 20 == 0
+                            && economy.delivery(b.id(), shop.id())) {
                         replaceStock(shop, shop.stock() + 1);
                         replaceStock(building(b.id()), --stock);
                     }
+            } else if (b.type() == 1 && target == h.job && (n.hunger >= 65 || n.money < 3)) {
+                var property = economy.property(b.id());
+                t.activity =
+                        economy.wage(property.operator(), dt * .12, n)
+                                ? "Working in shop"
+                                : "Employer cannot afford wages";
             } else if (b.type() == 1) {
                 if (n.hunger < 95 && n.money >= 3 && b.stock() > 0) {
                     n.money -= 3;
+                    economy.meal(b.id(), 3);
                     n.hunger = Math.min(100, n.hunger + 35);
                     replaceStock(b, b.stock() - 1);
-                    t.target = -1;
+                    t.target = -9999;
                 }
                 t.activity =
                         n.money < 3
@@ -253,7 +291,7 @@ public final class CitySimulation {
                                 : b.stock() == 0 ? "Shop needs mine deliveries" : "Shopping";
                 if (n.money < 3 && h.job != 0) {
                     t.target = h.job;
-                    var job = building(h.job);
+                    var job = workplace(h.job);
                     journey(id, p, job, t);
                 }
             } else t.activity = "At home";
@@ -270,27 +308,76 @@ public final class CitySimulation {
     }
 
     private void assign() {
+        for (var b : buildings) if (b.type() != 0) economy.operate(b);
+        for (var plot : economy.plots)
+            if (plot.building() == 0) {
+                for (int id : ecs.query(Household.class)) {
+                    if (occupants(-plot.id(), false) >= 2) break;
+                    var h = ecs.get(id, Household.class);
+                    if (h.job >= 0) {
+                        h.job = -plot.id();
+                        var t = ecs.get(id, Travel.class);
+                        t.target = -9999;
+                        t.route.clear();
+                    }
+                }
+            }
         for (int id : ecs.query(Household.class)) {
             var h = ecs.get(id, Household.class);
-            if (h.home == 0) h.home = available(0, true);
-            if (h.job == 0) h.job = available(2, false);
+            if (h.job < 0 && economy.project(-h.job) == null) h.job = 0;
+            if (h.home > 0
+                    && economy.contracts.stream()
+                            .noneMatch(
+                                    c ->
+                                            c.partyKind() == CityEconomy.CITIZEN
+                                                    && c.party() == id
+                                                    && c.building() == h.home)) {
+                var home = building(h.home);
+                if (home == null || !economy.house(id, home)) h.home = 0;
+            }
+            if (h.home == 0) {
+                for (var b : buildings)
+                    if (b.type() == 0
+                            && occupants(b.id(), true) < b.capacity()
+                            && economy.house(id, b)) {
+                        h.home = b.id();
+                        break;
+                    }
+            }
+            if (h.job == 0) {
+                for (var plot : economy.plots)
+                    if (plot.building() == 0 && occupants(-plot.id(), false) < 2) {
+                        h.job = -plot.id();
+                        break;
+                    }
+                if (h.job == 0)
+                    for (var b : buildings)
+                        if (b.type() != 0
+                                && economy.property(b.id()).operator() != 0
+                                && occupants(b.id(), false) < (b.type() == 1 ? 2 : b.capacity())) {
+                            h.job = b.id();
+                            break;
+                        }
+            }
         }
     }
 
-    private int available(int type, boolean home) {
-        for (var b : buildings)
-            if (b.type() == type) {
-                long used =
-                        ecs.query(Household.class).stream()
-                                .filter(
-                                        id -> {
-                                            var h = ecs.get(id, Household.class);
-                                            return (home ? h.home : h.job) == b.id();
-                                        })
-                                .count();
-                if (used < b.capacity()) return b.id();
-            }
-        return 0;
+    private long occupants(int building, boolean home) {
+        return ecs.query(Household.class).stream()
+                .filter(
+                        id -> {
+                            var h = ecs.get(id, Household.class);
+                            return (home ? h.home : h.job) == building;
+                        })
+                .count();
+    }
+
+    private CityFrame.Building workplace(int id) {
+        if (id >= 0) return building(id);
+        var p = economy.project(-id);
+        return p == null
+                ? null
+                : new CityFrame.Building(id, p.zone(), p.type(), p.x(), p.y() - 1, p.z(), 2, 0);
     }
 
     private int find(int type) {
@@ -382,7 +469,7 @@ public final class CitySimulation {
                 nz = dist < speed * dt ? target.z() + .5f : p.z + dz / dist * speed * dt;
         if (!passable(nx, nz)) {
             t.activity = "Route obstructed";
-            t.target = -1;
+            t.target = -9999;
             t.route.clear();
             t.retryAt = elapsed + 2;
             return;
@@ -525,6 +612,10 @@ public final class CitySimulation {
             if (ground.occupied(cell.x(), grade + 1, cell.z(), 1, 1))
                 throw new IllegalArgumentException("Road would intersect a player");
         }
+        int newCells = (int) cells.stream().filter(c -> !roads.containsKey(c)).count();
+        if (!founding && !economy.roads(newCells))
+            return "Mayor budget too low for road: needs $"
+                    + (int) (newCells * CityEconomy.ROAD_COST);
         var edits = new ArrayList<Protocol.Edit>();
         for (var c : cells)
             if (!roads.containsKey(c)) {
@@ -532,7 +623,9 @@ public final class CitySimulation {
                 roads.put(c, grade);
             }
         ground.apply(edits);
-        return "Dirt road built";
+        return founding
+                ? "Dirt road built"
+                : "Dirt road built | Mayor paid $" + (int) (newCells * CityEconomy.ROAD_COST);
     }
 
     private void level(int x, int z, List<Protocol.Edit> edits) {
@@ -567,13 +660,14 @@ public final class CitySimulation {
         if (!fits)
             throw new IllegalArgumentException("Leave room for a 6 x 7 building and its entrance");
         zones.add(new CityFrame.Zone(++zoneIds, type, polygon));
-        return ZONES[type] + " zone created; construction will follow";
+        return ZONES[type] + " zone created; private developers assess demand";
     }
 
     private boolean fits(Polygon polygon, int x, int z) {
         for (int dx = 0; dx < 6; dx++)
             for (int dz = -1; dz <= 7; dz++)
                 if (!polygon.contains(x + dx + .5f, z + dz + .5f)) return false;
+        if (economy != null && economy.overlaps(x, z)) return false;
         for (var b : buildings)
             if (x - 1 < b.x() + 7 && x + 7 > b.x() - 1 && z - 2 < b.z() + 8 && z + 8 > b.z() - 2)
                 return false;
@@ -581,73 +675,140 @@ public final class CitySimulation {
     }
 
     private void construct() {
-        if (buildings.size() >= 512) return;
+        if (buildings.size() + economy.plots.stream().filter(p -> p.building() == 0).count() >= 512)
+            return;
         for (var zone : zones)
-            for (var c : zone.polygon().cells())
-                if (fits(zone.polygon(), c.x(), c.z())) {
-                    int x = c.x(), z = c.z();
-                    if (ground.occupied(x, grade + 1, z, 6, 7)) continue;
-                    var edits = new ArrayList<Protocol.Edit>();
-                    for (int dx = 0; dx < 6; dx++)
-                        for (int dz = -1; dz <= 7; dz++) level(x + dx, z + dz, edits);
-                    var planned =
-                            new CityFrame.Building(
-                                    buildingIds + 1,
-                                    zone.id(),
-                                    zone.type(),
-                                    x,
-                                    grade + 1,
-                                    z,
-                                    16,
-                                    0);
-                    int door = entrance(planned);
-                    var access = nearest(x + 2.5f, door + .5f);
-                    if (access != null) {
-                        float dx = x + 2.5f - access.x() - .5f, dz = door - access.z();
-                        int count = Math.max(1, (int) (Math.hypot(dx, dz) * 4));
-                        var path = new LinkedHashSet<Cell>();
-                        for (int i = 0; i <= count; i++)
-                            path.add(
-                                    new Cell(
-                                            (int) Math.floor(access.x() + .5f + dx * i / count),
-                                            (int) Math.floor(access.z() + .5f + dz * i / count)));
-                        boolean blocked =
-                                path.stream()
-                                        .anyMatch(
-                                                cell ->
-                                                        buildings.stream()
-                                                                .anyMatch(
-                                                                        b ->
-                                                                                cell.x() >= b.x()
-                                                                                        && cell.x()
-                                                                                                < b
-                                                                                                                .x()
-                                                                                                        + 6
-                                                                                        && cell.z()
-                                                                                                >= b
-                                                                                                        .z()
-                                                                                        && cell.z()
-                                                                                                < b
-                                                                                                                .z()
-                                                                                                        + 7));
-                        if (blocked) continue;
-                        for (var cell : path)
-                            if (!roads.containsKey(cell)) level(cell.x(), cell.z(), edits);
+            if (demand(zone.type()))
+                for (var c : zone.polygon().cells())
+                    if (fits(zone.polygon(), c.x(), c.z())) {
+                        int x = c.x(), z = c.z();
+                        if (ground.occupied(x, grade + 1, z, 6, 7)) continue;
+                        var edits = new ArrayList<Protocol.Edit>();
+                        for (int dx = 0; dx < 6; dx++)
+                            for (int dz = -1; dz <= 7; dz++) level(x + dx, z + dz, edits);
+                        var planned =
+                                new CityFrame.Building(
+                                        buildingIds + 1,
+                                        zone.id(),
+                                        zone.type(),
+                                        x,
+                                        grade + 1,
+                                        z,
+                                        16,
+                                        0);
+                        int door = entrance(planned);
+                        var access = nearest(x + 2.5f, door + .5f);
+                        if (access != null) {
+                            float dx = x + 2.5f - access.x() - .5f, dz = door - access.z();
+                            int count = Math.max(1, (int) (Math.hypot(dx, dz) * 4));
+                            var path = new LinkedHashSet<Cell>();
+                            for (int i = 0; i <= count; i++)
+                                path.add(
+                                        new Cell(
+                                                (int) Math.floor(access.x() + .5f + dx * i / count),
+                                                (int)
+                                                        Math.floor(
+                                                                access.z()
+                                                                        + .5f
+                                                                        + dz * i / count)));
+                            boolean blocked =
+                                    path.stream()
+                                            .anyMatch(
+                                                    cell ->
+                                                            buildings.stream()
+                                                                    .anyMatch(
+                                                                            b ->
+                                                                                    cell.x()
+                                                                                                    >= b
+                                                                                                            .x()
+                                                                                            && cell
+                                                                                                            .x()
+                                                                                                    < b
+                                                                                                                    .x()
+                                                                                                            + 6
+                                                                                            && cell
+                                                                                                            .z()
+                                                                                                    >= b
+                                                                                                            .z()
+                                                                                            && cell
+                                                                                                            .z()
+                                                                                                    < b
+                                                                                                                    .z()
+                                                                                                            + 7));
+                            if (blocked) continue;
+                            for (var cell : path)
+                                if (!roads.containsKey(cell)) level(cell.x(), cell.z(), edits);
+                        }
+                        var plot = economy.buyPlot(zone.id(), zone.type(), x, grade + 1, z);
+                        if (plot == null) return;
+                        ground.apply(edits);
+                        return;
                     }
-                    edits.addAll(StructureBlueprint.generate(zone.type(), x, grade + 1, z));
-                    ground.apply(edits);
-                    buildings.add(
-                            new CityFrame.Building(
-                                    ++buildingIds,
-                                    zone.id(),
-                                    zone.type(),
-                                    x,
-                                    grade + 1,
-                                    z,
-                                    zone.type() == 0 ? 4 : zone.type() == 2 ? 16 : 16,
-                                    zone.type() == 1 ? 80 : 0));
-                    return;
+    }
+
+    private boolean demand(int type) {
+        long projects =
+                economy.plots.stream().filter(p -> p.type() == type && p.building() == 0).count();
+        if (type == 0) {
+            long capacity =
+                    buildings.stream()
+                            .filter(b -> b.type() == 0)
+                            .mapToInt(CityFrame.Building::capacity)
+                            .sum();
+            return capacity + projects * 4 < ecs.query(Household.class).size();
+        }
+        return projects == 0 && buildings.stream().noneMatch(b -> b.type() == type);
+    }
+
+    private void finishProjects() {
+        for (var p : new ArrayList<>(economy.plots))
+            if (p.building() == 0 && p.work() >= 8) {
+                if (ground.playerOccupied(p.x(), p.y(), p.z(), 6, 7)) continue;
+                for (int id : ecs.query(Household.class, Position.class)) {
+                    var pos = ecs.get(id, Position.class);
+                    if (pos.x > p.x() && pos.x < p.x() + 6 && pos.z > p.z() && pos.z < p.z() + 7) {
+                        // Move construction workers onto the completed building's interior floor.
+                        // Its aisle keeps their assigned stations clear; no enclosing wall is
+                        // placed over them.
+                        pos.x = p.x() + 2.5f;
+                        pos.z = p.z() + 2.5f;
+                        pos.y = p.y() + 1.01f;
+                    }
                 }
+                for (int id : ecs.query(Mount.class, Position.class)) {
+                    var hp = ecs.get(id, Position.class);
+                    if (hp.x > p.x() && hp.x < p.x() + 6 && hp.z > p.z() && hp.z < p.z() + 7) {
+                        var mount = ecs.get(id, Mount.class);
+                        if (mount.rider < 0) ecs.get(-mount.rider, Household.class).horse = 0;
+                        mount.rider = 0;
+                        hp.x = p.x() + 2.5f;
+                        hp.z = p.z() - .5f;
+                        hp.y = p.y() + .01f;
+                    }
+                }
+                ground.apply(StructureBlueprint.generate(p.type(), p.x(), p.y(), p.z()));
+                var b =
+                        new CityFrame.Building(
+                                ++buildingIds,
+                                p.zone(),
+                                p.type(),
+                                p.x(),
+                                p.y(),
+                                p.z(),
+                                p.type() == 0 ? 4 : 16,
+                                p.type() == 1 ? 80 : 0);
+                buildings.add(b);
+                economy.completed(p, b.id());
+                for (int id : ecs.query(Household.class)) {
+                    var h = ecs.get(id, Household.class);
+                    if (h.job == -p.id()) {
+                        h.job = 0;
+                        var t = ecs.get(id, Travel.class);
+                        t.target = -9999;
+                        t.route.clear();
+                    }
+                }
+            }
     }
 
     private String ride(int rider, int horse, Protocol.Pose p) {
@@ -720,14 +881,16 @@ public final class CitySimulation {
                     new CityFrame.Horse(
                             id, p.x, p.y, p.z, p.yaw, p.phase, ecs.get(id, Mount.class).rider));
         }
-        return new CityFrame(config, elapsed, rs, zones, buildings, cs, hs);
+        return new CityFrame(config, elapsed, rs, zones, buildings, cs, hs, economy.state());
     }
 
     public static CityFrame load(Path file) throws IOException {
         if (file == null || !Files.exists(file)) return null;
         try (var in = new DataInputStream(Files.newInputStream(file))) {
-            if (in.readInt() != 0x43495431) throw new IOException("Invalid city save");
-            return CityFrame.read(in);
+            int magic = in.readInt();
+            if (magic != 0x43495431 && magic != 0x43495432)
+                throw new IOException("Invalid city save");
+            return CityFrame.read(in, magic == 0x43495431);
         }
     }
 
@@ -736,7 +899,7 @@ public final class CitySimulation {
         Files.createDirectories(file.toAbsolutePath().getParent());
         Path tmp = file.resolveSibling(file.getFileName() + ".tmp");
         try (var out = new DataOutputStream(Files.newOutputStream(tmp))) {
-            out.writeInt(0x43495431);
+            out.writeInt(0x43495432);
             frame().write(out);
         }
         try {

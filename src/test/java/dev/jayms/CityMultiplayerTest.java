@@ -93,6 +93,9 @@ class CityMultiplayerTest {
                                                                     && e.type() == Blocks.DIRT);
                         });
                 assertEquals(a.city.roads(), b.city.roads());
+                assertTrue(b.city.economy().roadSpending() > 0);
+                assertEquals(a.city.economy().roadSpending(), b.city.economy().roadSpending());
+                assertEquals(5, b.city.economy().firms().size());
                 Thread.sleep(550);
                 var zone =
                         List.of(
@@ -190,6 +193,8 @@ class CityMultiplayerTest {
                 assertEquals(4, a.city.zones().size());
                 assertTrue(a.city.roads().size() > roadCount);
                 assertTrue(a.city.elapsed() > 0);
+                assertTrue(a.city.economy().roadSpending() > 0);
+                assertEquals(5, a.city.economy().firms().size());
                 assertTrue(a.city.horses().stream().noneMatch(h -> h.rider() > 0));
             }
             server.close();

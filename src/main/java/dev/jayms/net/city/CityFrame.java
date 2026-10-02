@@ -11,7 +11,19 @@ public record CityFrame(
         List<Zone> zones,
         List<Building> buildings,
         List<Citizen> citizens,
-        List<Horse> horses) {
+        List<Horse> horses,
+        CityEconomy.State economy) {
+    public CityFrame(
+            GameConfig config,
+            double elapsed,
+            List<Road> roads,
+            List<Zone> zones,
+            List<Building> buildings,
+            List<Citizen> citizens,
+            List<Horse> horses) {
+        this(config, elapsed, roads, zones, buildings, citizens, horses, CityEconomy.State.empty());
+    }
+
     public record Road(int x, int z, int y) {}
 
     public record Zone(int id, int type, Polygon polygon) {}
@@ -102,6 +114,7 @@ public record CityFrame(
             out.writeFloat(h.phase);
             out.writeInt(h.rider);
         }
+        economy.write(out);
     }
 
     private static int count(DataInput in, int max) throws IOException {
@@ -117,6 +130,10 @@ public record CityFrame(
     }
 
     public static CityFrame read(DataInput in) throws IOException {
+        return read(in, false);
+    }
+
+    public static CityFrame read(DataInput in, boolean legacy) throws IOException {
         var config = GameConfig.read(in);
         double elapsed = in.readDouble();
         if (!Double.isFinite(elapsed) || elapsed < 0) throw new IOException("Invalid clock");
@@ -192,6 +209,14 @@ public record CityFrame(
                             number(in),
                             number(in),
                             in.readInt()));
-        return new CityFrame(config, elapsed, roads, zones, buildings, citizens, horses);
+        return new CityFrame(
+                config,
+                elapsed,
+                roads,
+                zones,
+                buildings,
+                citizens,
+                horses,
+                legacy ? CityEconomy.State.empty() : CityEconomy.State.read(in));
     }
 }

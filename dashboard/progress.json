@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T09:56:10+00:00",
+  "updatedAt": "2026-10-02T10:27:19+00:00",
   "release": {
     "name": "Playtest 13",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-13",
@@ -841,6 +841,36 @@
       "status": "complete",
       "note": "Published persistent private questions and editable answers. Passed 12 WebKit/Chromium/API checks; verified live D1 tables and authenticated agent question creation. All future questions use this dashboard.",
       "updatedAt": "2026-10-02T09:12:22+00:00"
+    },
+    {
+      "id": "mayor-developers",
+      "title": "Mayor budget and private developers",
+      "description": "Separating public city spending from private plot purchases, construction, companies and property sales/rent.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "mayor developer tests.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/mayor-developer-tests.json"
+        },
+        {
+          "kind": "report",
+          "label": "mayor client checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/mayor-client-checks.json"
+        },
+        {
+          "kind": "image",
+          "label": "mayor economy.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/mayor-economy.png"
+        },
+        {
+          "kind": "image",
+          "label": "mayor overview.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/mayor-overview.png"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Implemented shared mayor treasury, budgeted roads, ECS private firms, purchased plots, on-site paid construction, property ownership, company/household sales and recurring rent. 94 regression tests and packaged-client Economy panel passed; actual saved city upgrade preflight preserves world and population.",
+      "updatedAt": "2026-10-02T10:27:19+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

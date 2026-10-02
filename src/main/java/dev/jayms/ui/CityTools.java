@@ -15,7 +15,7 @@ import java.util.function.Consumer;
 
 /** Isometric planning tools. Click polygon corners, then explicitly confirm with Enter. */
 public final class CityTools {
-    public int tool = -1, selectedCitizen;
+    public int tool = -1, selectedCitizen, selectedBuilding, selectedPlot;
     private final List<Polygon.Point> points = new ArrayList<>();
     public String message = "Choose a tool; click citizens to inspect their household.";
 
@@ -53,21 +53,55 @@ public final class CityTools {
             Consumer<CityCommand> submit) {
         float top = height - 196;
         if (y >= top && y <= top + 34 && x >= 16 && x < width - 16) {
-            int index = (int) ((x - 16) / ((width - 32) / 5f));
-            tool = new int[] {-1, 3, 0, 1, 2}[Math.min(4, index)];
+            int index = (int) ((x - 16) / ((width - 32) / 6f));
+            tool = new int[] {-1, 3, 0, 1, 2, 4}[Math.min(5, index)];
             points.clear();
             return;
         }
         if (y < 130 || y > height - 200) return;
+        if (tool == 4) return;
         if (tool == -1) {
             float best = 22 * 22;
-            selectedCitizen = 0;
+            selectedCitizen = selectedBuilding = selectedPlot = 0;
             for (var c : city.citizens()) {
                 var p = project(c.x(), c.y() + 1, c.z(), projection, view, width, height);
                 if (p != null && p.distanceSquared(x, y) < best) {
                     best = p.distanceSquared(x, y);
                     selectedCitizen = c.id();
                 }
+            }
+            if (selectedCitizen == 0) {
+                for (var b : city.buildings()) {
+                    var p =
+                            project(
+                                    b.x() + 3,
+                                    b.y() + 3,
+                                    b.z() + 3,
+                                    projection,
+                                    view,
+                                    width,
+                                    height);
+                    if (p != null && p.distanceSquared(x, y) < 45 * 45) {
+                        selectedBuilding = b.id();
+                        break;
+                    }
+                }
+                for (var plot : city.economy().plots())
+                    if (plot.building() == 0) {
+                        var p =
+                                project(
+                                        plot.x() + 3,
+                                        plot.y() + 1,
+                                        plot.z() + 3,
+                                        projection,
+                                        view,
+                                        width,
+                                        height);
+                        if (p != null && p.distanceSquared(x, y) < 45 * 45) {
+                            selectedPlot = plot.id();
+                            break;
+                        }
+                    }
             }
             return;
         }
@@ -139,20 +173,21 @@ public final class CityTools {
                 78,
                 1.5f);
         ui.text(
-                "Homes "
-                        + city.citizens().stream().filter(c -> c.home() != 0).count()
-                        + " / "
-                        + city.citizens().size()
-                        + " | Jobs "
-                        + city.citizens().stream().filter(c -> c.job() != 0).count()
-                        + " / "
-                        + city.citizens().size()
-                        + " | F6: plan city | H: dismount",
+                String.format(
+                        Locale.ROOT,
+                        "MAYOR $%.0f | Roads $%.0f | Land sales +$%.0f | Homes %d/%d | Jobs %d/%d",
+                        city.economy().budget(),
+                        city.economy().roadSpending(),
+                        city.economy().landRevenue(),
+                        city.citizens().stream().filter(c -> c.home() != 0).count(),
+                        city.citizens().size(),
+                        city.citizens().stream().filter(c -> c.job() != 0).count(),
+                        city.citizens().size()),
                 22,
                 103,
                 1.4f);
         if (!isometric) return;
-        if(!message.startsWith("Choose"))ui.text(message,20,156,1.3f,1,.7f,.2f,1);
+        if (!message.startsWith("Choose")) ui.text(message, 20, 156, 1.3f, 1, .7f, .2f, 1);
         float ground = city.roads().isEmpty() ? 32 : city.roads().get(0).y() + 1.04f;
         for (var zone : city.zones()) {
             float[] color =
@@ -218,10 +253,12 @@ public final class CityTools {
                     valid ? 1 : .2f,
                     .2f);
         }
-        float bw = (w - 32) / 5f, top = h - 196;
-        String[] labels = {"Inspect", "Dirt road", "Residential", "Commercial", "Industrial"};
-        for (int i = 0; i < 5; i++) {
-            boolean active = tool == new int[] {-1, 3, 0, 1, 2}[i];
+        float bw = (w - 32) / 6f, top = h - 196;
+        String[] labels = {
+            "Inspect", "Dirt road", "Residential", "Commercial", "Industrial", "Economy"
+        };
+        for (int i = 0; i < 6; i++) {
+            boolean active = tool == new int[] {-1, 3, 0, 1, 2, 4}[i];
             ui.rectangle(
                     16 + i * bw,
                     top,
@@ -236,11 +273,15 @@ public final class CityTools {
         ui.rectangle(16, top + 38, w - 32, 35, .015f, .025f, .04f, .85f);
         ui.text(
                 tool == 3
-                        ? "Click two road endpoints. Roads follow the voxel grid."
-                        : tool >= 0
-                                ? "Click convex polygon corners | Enter: build | Backspace: undo |"
-                                      + " Esc: cancel"
-                                : "WASD: pan | Wheel: zoom | Home: horizon | F6: walk in the city",
+                        ? "Click two endpoints | Mayor pays $4 per new road cell."
+                        : tool >= 0 && tool < 3
+                                ? "Click convex polygon corners | Enter: zone | Backspace: undo |"
+                                        + " Esc: cancel"
+                                : tool == 4
+                                        ? "Private companies fund construction. Zoning is free."
+                                              + " Inspect a building for ownership."
+                                        : "WASD: pan | Wheel: zoom | Home: horizon | F6: walk in"
+                                              + " the city",
                 24,
                 top + 48,
                 1.25f);
@@ -251,7 +292,7 @@ public final class CityTools {
                         .orElse(null);
         if (citizen != null) {
             float x = Math.max(16, w - 350);
-            ui.rectangle(x, 140, 334, 119, .025f, .04f, .065f, .95f);
+            ui.rectangle(x, 140, 334, 147, .025f, .04f, .065f, .95f);
             ui.text(
                     citizen.name() + " | " + CitySimulation.COHORTS[citizen.cohort()],
                     x + 10,
@@ -266,8 +307,138 @@ public final class CityTools {
                     x + 10,
                     177,
                     1.4f);
-            ui.text("Home #" + citizen.home() + " | Mine job #" + citizen.job(), x + 10, 202, 1.4f);
+            ui.text(
+                    "Home #"
+                            + citizen.home()
+                            + " | "
+                            + (citizen.job() < 0
+                                    ? "Construction #" + (-citizen.job())
+                                    : "Work #" + citizen.job()),
+                    x + 10,
+                    202,
+                    1.3f);
+            int employer =
+                    citizen.job() < 0
+                            ? city.economy().plots().stream()
+                                    .filter(p -> p.id() == -citizen.job())
+                                    .mapToInt(CityEconomy.Plot::developer)
+                                    .findFirst()
+                                    .orElse(0)
+                            : city.economy().properties().stream()
+                                    .filter(p -> p.building() == citizen.job())
+                                    .mapToInt(CityEconomy.Property::operator)
+                                    .findFirst()
+                                    .orElse(0);
+            ui.text("Employer: " + owner(city, CityEconomy.COMPANY, employer), x + 10, 252, 1.15f);
             ui.text(citizen.activity(), x + 10, 227, 1.4f);
         }
+        if (tool == 4) {
+            float x = Math.max(16, w - 410);
+            ui.rectangle(x, 170, 394, 210, .025f, .04f, .065f, .97f);
+            ui.text("PRIVATE COMPANIES", x + 10, 182, 1.4f);
+            int row = 0;
+            for (var firm : city.economy().firms()) {
+                ui.text(firm.name(), x + 10, 212 + row * 29, 1.15f);
+                ui.text(
+                        String.format(Locale.ROOT, "$%.0f", firm.cash()),
+                        x + 320,
+                        212 + row * 29,
+                        1.15f);
+                row++;
+            }
+            ui.text(
+                    "Construction jobs: "
+                            + city.citizens().stream().filter(c -> c.job() < 0).count(),
+                    x + 10,
+                    358,
+                    1.15f);
+        }
+        for (var plot : city.economy().plots())
+            if (plot.building() == 0) {
+                var p = project(plot.x() + 3, plot.y() + 1, plot.z() + 3, projection, view, w, h);
+                if (p != null)
+                    ui.text(
+                            "Private build " + (int) (plot.work() / 8 * 100) + "%",
+                            p.x,
+                            p.y,
+                            1.1f,
+                            1,
+                            .8f,
+                            .3f,
+                            1);
+            }
+        var property =
+                city.economy().properties().stream()
+                        .filter(p -> p.building() == selectedBuilding)
+                        .findFirst()
+                        .orElse(null);
+        var plot =
+                city.economy().plots().stream()
+                        .filter(p -> p.id() == selectedPlot)
+                        .findFirst()
+                        .orElse(null);
+        if (tool == -1 && selectedCitizen == 0 && (property != null || plot != null)) {
+            float x = Math.max(16, w - 410);
+            ui.rectangle(x, 170, 394, 130, .025f, .04f, .065f, .97f);
+            if (property != null) {
+                ui.text("PROPERTY #" + property.building(), x + 10, 182, 1.4f);
+                ui.text(
+                        "Owner: " + owner(city, property.ownerKind(), property.owner()),
+                        x + 10,
+                        207,
+                        1.15f);
+                ui.text(
+                        "Business: " + owner(city, CityEconomy.COMPANY, property.operator()),
+                        x + 10,
+                        232,
+                        1.15f);
+                ui.text(
+                        String.format(
+                                Locale.ROOT,
+                                "Value $%.0f | Rent $%.1f / day",
+                                property.price(),
+                                property.rent()),
+                        x + 10,
+                        257,
+                        1.2f);
+                long tenants =
+                        city.economy().contracts().stream()
+                                .filter(c -> c.building() == property.building() && !c.sale())
+                                .count();
+                ui.text("Active rental agreements: " + tenants, x + 10, 282, 1.1f);
+            } else {
+                ui.text("PLOT #" + plot.id() + " | PRIVATE DEVELOPMENT", x + 10, 182, 1.25f);
+                ui.text(owner(city, CityEconomy.COMPANY, plot.developer()), x + 10, 207, 1.15f);
+                ui.text(
+                        String.format(
+                                Locale.ROOT,
+                                "Land $%.0f | Materials $%.0f",
+                                plot.landPrice(),
+                                plot.constructionCost()),
+                        x + 10,
+                        232,
+                        1.2f);
+                ui.text(
+                        "Construction " + (int) (plot.work() / 8 * 100) + "% | Mayor cost $0",
+                        x + 10,
+                        257,
+                        1.2f);
+            }
+        }
+    }
+
+    private static String owner(CityFrame city, int kind, int id) {
+        if (id == 0) return "None";
+        return kind == CityEconomy.COMPANY
+                ? city.economy().firms().stream()
+                        .filter(c -> c.id() == id)
+                        .map(CityEconomy.Firm::name)
+                        .findFirst()
+                        .orElse("Company #" + id)
+                : city.citizens().stream()
+                        .filter(c -> c.id() == id)
+                        .map(CityFrame.Citizen::name)
+                        .findFirst()
+                        .orElse("Citizen #" + id);
     }
 }

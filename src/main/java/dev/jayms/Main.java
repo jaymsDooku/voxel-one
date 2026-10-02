@@ -170,15 +170,19 @@ public class Main {
                             return world.sample(x, y, z);
                         }
 
-                        public boolean occupied(int x, int y, int z, int width, int depth) {
+                        public boolean playerOccupied(int x, int y, int z, int width, int depth) {
                             var p = player.position();
                             return local.city != null
-                                            && p.x + .3 > x
-                                            && p.x - .3 < x + width
-                                            && p.z + .3 > z
-                                            && p.z - .3 < z + depth
-                                            && p.y + 1.8 > y
-                                            && p.y < y + 7
+                                    && p.x + .3 > x
+                                    && p.x - .3 < x + width
+                                    && p.z + .3 > z
+                                    && p.z - .3 < z + depth
+                                    && p.y + 1.8 > y
+                                    && p.y < y + 7;
+                        }
+
+                        public boolean occupied(int x, int y, int z, int width, int depth) {
+                            return playerOccupied(x, y, z, width, depth)
                                     || local.city != null
                                             && CityOccupancy.overlaps(
                                                     city(), x, y, z, width, 7, depth);
