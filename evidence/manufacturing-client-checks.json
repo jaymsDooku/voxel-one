@@ -1,0 +1,15 @@
+{
+  "scope": "Actual packaged Linux client, Xvfb/Mesa, after three simulated days; not a physical Windows desktop",
+  "checks": [
+    "Isometric view displays the private industrial factory with its generated voxel structure",
+    "Citizen dashboard navigation centres the camera on the factory employee",
+    "Clicking a factory opens its persistent road address and private operator information",
+    "Inspector displays wood and stone recipes, stone pickaxes and axes, input stock and manufactured products",
+    "640x640 inspector scroll and Escape navigation",
+    "Mayor Businesses view lists generated street addresses",
+    "Private companies show privately owned durable tools and productivity bonuses",
+    "F10 recorder captures actual inspector navigation, resizing and company stocks",
+    "Clean save and Quit"
+  ],
+  "videoBytes": 1949236
+}
