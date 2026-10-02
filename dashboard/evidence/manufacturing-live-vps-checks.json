@@ -1,0 +1,37 @@
+{
+  "scope": "Actual public VPS, existing jayms account, pinned TLS; no desktop rendering claim",
+  "release": "playtest-25",
+  "revision": "84bbfcb4e7ac96877af6648b919115b21fa87423",
+  "protocol": 13,
+  "services": [
+    "voxel-one",
+    "voxel-city-one"
+  ],
+  "servicesActive": true,
+  "bothServerJarsMatchPublishedSha256": "be24c4cddbd2a4c452948645b2574b5dbaf5d7f0468e32587bd6433b2cf66f11",
+  "existingWorldsAccountsAndTlsBackedUp": true,
+  "existingCityColdUpgradePreserved": true,
+  "city": {
+    "port": 25566,
+    "playersAuthenticated": true,
+    "clockAdvanced": true,
+    "population": 12,
+    "buildings": 5,
+    "companies": 11,
+    "businessLocations": 8,
+    "trackedAccounts": 4,
+    "calendarDay": 29,
+    "generatedAddressesVerified": true,
+    "manufacturingCatalogVerified": true,
+    "factoryStatus": "Existing zones preserved; additional industrial space is needed for factory premises"
+  },
+  "sandbox": {
+    "port": 25565,
+    "playersAuthenticated": true,
+    "clockAdvanced": true,
+    "population": 0,
+    "buildings": 0,
+    "companies": 5,
+    "status": "passed"
+  }
+}

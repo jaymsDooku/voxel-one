@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T18:56:24+00:00",
+  "updatedAt": "2026-10-02T19:05:44+00:00",
   "release": {
-    "name": "Playtest 22",
-    "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-22",
-    "commit": "3fa3c70e6e47f1a301fa0ac4ba864c686d2dd6a4"
+    "name": "Playtest 25",
+    "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-25",
+    "commit": "84bbfcb4e7ac96877af6648b919115b21fa87423"
   },
   "verification": {
-    "tests": 129,
+    "tests": 152,
     "failures": 0,
-    "label": "Playtest 22",
-    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-release-checks.json"
+    "label": "Playtest 25 \u00b7 all four platforms",
+    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/manufacturing-release-checks.json"
   },
   "items": [
     {
@@ -1470,7 +1470,7 @@
     {
       "id": "manufacturing-addresses",
       "title": "Road addresses and configurable manufacturing",
-      "description": "Adding generated road names and building addresses, privately funded tool factories, and configurable production pipelines.",
+      "description": "Persistent road names and numbered building addresses, configurable private factory recipes, and purchased tools that improve mining and logging productivity.",
       "evidence": [
         {
           "kind": "report",
@@ -1516,11 +1516,56 @@
           "kind": "report",
           "label": "manufacturing recording checks.json",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/manufacturing-recording-checks.json"
+        },
+        {
+          "kind": "link",
+          "label": "Playtest 25",
+          "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-25"
+        },
+        {
+          "kind": "link",
+          "label": "Cross-platform verification",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/37050928052"
+        },
+        {
+          "kind": "link",
+          "label": "Manufacturing documentation",
+          "url": "https://voxel-one.jamesleaver1.chatgpt.site/docs.html#road-addresses-and-manufacturing"
+        },
+        {
+          "kind": "report",
+          "label": "manufacturing browser checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/manufacturing-browser-checks.json"
+        },
+        {
+          "kind": "image",
+          "label": "manufacturing dashboard video mobile.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/manufacturing-dashboard-video-mobile.png"
+        },
+        {
+          "kind": "report",
+          "label": "manufacturing release checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/manufacturing-release-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "manufacturing windows updater checks.txt",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/manufacturing-windows-updater-checks.txt"
+        },
+        {
+          "kind": "report",
+          "label": "manufacturing vps upgrade checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/manufacturing-vps-upgrade-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "manufacturing live vps checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/manufacturing-live-vps-checks.json"
         }
       ],
-      "status": "in_progress",
-      "note": "152 tests passed, including the three-day worker lifecycle regression. Recorded actual factory/address screens and both manufactured tools; preparing desktop release and VPS deployment.",
-      "updatedAt": "2026-10-02T18:56:24+00:00"
+      "status": "complete",
+      "note": "Committed and pushed 84bbfcb; Playtest 25 published and both VPS services upgraded with existing worlds/accounts preserved. 152 tests passed on all four platforms, three city days conserved supplies and cash with 34 tools produced and all 12 citizens fed/sleeping; actual client video, mobile browser checks, Windows updater, and both live TLS logins verified. Zone additional industrial land to obtain factory premises in the existing city.",
+      "updatedAt": "2026-10-02T19:05:44+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

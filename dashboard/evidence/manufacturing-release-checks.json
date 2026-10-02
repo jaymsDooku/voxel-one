@@ -1,0 +1,24 @@
+{
+  "scope": "Published GitHub release from exact pushed code revision; all platform Maven verify results",
+  "release": "playtest-25",
+  "revision": "84bbfcb4e7ac96877af6648b919115b21fa87423",
+  "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-25",
+  "run": "https://github.com/jaymsDooku/voxel-one/actions/runs/37050928052",
+  "testsPerPlatform": 152,
+  "platforms": [
+    "Windows",
+    "Linux",
+    "Mac Intel",
+    "Mac ARM"
+  ],
+  "failures": 0,
+  "errors": 0,
+  "serverSha256": "be24c4cddbd2a4c452948645b2574b5dbaf5d7f0468e32587bd6433b2cf66f11",
+  "serverGitHubDigestMatches": true,
+  "platformTestResults": [
+    "build (macos-latest, mac-arm)\tRun mvn --batch-mode verify\t2026-10-02T19:00:20.0602170Z [INFO] Tests run: 152, Failures: 0, Errors: 0, Skipped: 0",
+    "build (windows-latest, windows)\tRun mvn --batch-mode verify\t2026-10-02T18:59:13.7526884Z [INFO] Tests run: 152, Failures: 0, Errors: 0, Skipped: 0",
+    "build (ubuntu-latest, linux)\tRun mvn --batch-mode verify\t2026-10-02T18:58:55.6875271Z [INFO] Tests run: 152, Failures: 0, Errors: 0, Skipped: 0",
+    "build (macos-15-intel, mac-intel)\tRun mvn --batch-mode verify\t2026-10-02T19:01:06.6676960Z [INFO] Tests run: 152, Failures: 0, Errors: 0, Skipped: 0"
+  ]
+}
