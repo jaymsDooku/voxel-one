@@ -23,7 +23,11 @@ public record GameConfig(boolean city, boolean cycle, double daySeconds, double 
     }
 
     public double hour(double elapsed) {
-        return (startHour + (cycle ? elapsed * 24 / daySeconds : 0)) % 24;
+        return time(elapsed).hour();
+    }
+
+    public CityTime time(double elapsed) {
+        return CityTime.at(this, elapsed);
     }
 
     public void write(DataOutput out) throws IOException {

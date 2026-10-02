@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T13:32:03+00:00",
+  "updatedAt": "2026-10-02T14:12:46+00:00",
   "release": {
     "name": "Playtest 18",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-18",
@@ -1071,6 +1071,71 @@
       "status": "complete",
       "note": "Released in Playtest 18: F9 or Dashboard opens Overview, Groups, Citizens and Finances. Live housing, jobs, hunger, savings and budget metrics; searchable citizen roster locates people in Inspect. All 103 tests passed on four desktop platforms, seven packaged-client checks and eight documentation browser checks passed, and the Windows updater downloaded and verified the release.",
       "updatedAt": "2026-10-02T13:32:03+00:00"
+    },
+    {
+      "id": "city-time",
+      "title": "City time and daily population routines",
+      "description": "Reviewing the existing city clock and routines; implementing visible daily life and verifying multiple simulated days.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "city time three days.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/city-time-three-days.json"
+        },
+        {
+          "kind": "report",
+          "label": "city time tests.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/city-time-tests.json"
+        },
+        {
+          "kind": "report",
+          "label": "citizen life gpu checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/citizen-life-gpu-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "city time city render checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/city-time-city-render-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "city time client checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/city-time-client-checks.json"
+        },
+        {
+          "kind": "image",
+          "label": "city time night world.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/city-time-night-world.png"
+        },
+        {
+          "kind": "image",
+          "label": "city time night citizens.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/city-time-night-citizens.png"
+        },
+        {
+          "kind": "image",
+          "label": "city time morning world.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/city-time-morning-world.png"
+        },
+        {
+          "kind": "image",
+          "label": "citizen life 0 0.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/citizen-life-0-0.png"
+        },
+        {
+          "kind": "image",
+          "label": "citizen life 0 1.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/citizen-life-0-1.png"
+        },
+        {
+          "kind": "image",
+          "label": "citizen life 4 0.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/citizen-life-4-0.png"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Three full days passed: all 12 citizens worked, ate, travelled and slept in every cycle; 72 hourly snapshots recorded. Fixed a shop-counter routing bug. All 109 regressions and actual GPU work/meal/sleep plus day/night checks passed; packaged client verified in all four periods. Preparing release and VPS city update.",
+      "updatedAt": "2026-10-02T14:12:46+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

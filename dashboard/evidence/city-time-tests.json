@@ -1,0 +1,178 @@
+{
+  "recordedAt": "2026-10-02T14:10:28.290919+00:00",
+  "command": "mvn -q -o -Dlwjgl.natives=natives-linux verify",
+  "tests": 109,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "suites": [
+    {
+      "name": "dev.jayms.AccountStoreTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 5.142
+    },
+    {
+      "name": "dev.jayms.CityEconomyTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 1.48
+    },
+    {
+      "name": "dev.jayms.CityMetricsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 0.02
+    },
+    {
+      "name": "dev.jayms.CityMultiplayerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 10.145
+    },
+    {
+      "name": "dev.jayms.CityTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 1.589
+    },
+    {
+      "name": "dev.jayms.CityTimeTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 2.178
+    },
+    {
+      "name": "dev.jayms.CityToolsTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 0.019
+    },
+    {
+      "name": "dev.jayms.ControlsTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 0.016
+    },
+    {
+      "name": "dev.jayms.CraftingTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 0.024
+    },
+    {
+      "name": "dev.jayms.DistantTerrainTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 0.136
+    },
+    {
+      "name": "dev.jayms.FractionalWorldTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 0.107
+    },
+    {
+      "name": "dev.jayms.InventoryHudTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 0.017
+    },
+    {
+      "name": "dev.jayms.IsometricCameraTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 0.011
+    },
+    {
+      "name": "dev.jayms.LightingTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 0.03
+    },
+    {
+      "name": "dev.jayms.MayorDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 0.102
+    },
+    {
+      "name": "dev.jayms.ModelSculptorTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 0.006
+    },
+    {
+      "name": "dev.jayms.MultiplayerTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 59.383
+    },
+    {
+      "name": "dev.jayms.PlayerAnimationTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 0.104
+    },
+    {
+      "name": "dev.jayms.PlayerCameraTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 0.01
+    },
+    {
+      "name": "dev.jayms.PlayerTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 0.105
+    },
+    {
+      "name": "dev.jayms.RemotePlayerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 0.002
+    },
+    {
+      "name": "dev.jayms.SurvivalTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 0.505
+    },
+    {
+      "name": "dev.jayms.UpdaterTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 0.446
+    },
+    {
+      "name": "dev.jayms.VoxelModelTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 0.128
+    }
+  ]
+}

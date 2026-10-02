@@ -55,7 +55,7 @@ public final class CitySimulation {
 
     public static final class Travel {
         public int target;
-        public double retryAt;
+        public double retryAt, mealUntil;
         public String activity = "Looking for home / work";
         public final ArrayDeque<Cell> route = new ArrayDeque<>();
     }
@@ -209,25 +209,42 @@ public final class CitySimulation {
             var h = ecs.get(id, Household.class);
             var n = ecs.get(id, Needs.class);
             var t = ecs.get(id, Travel.class);
-            n.hunger = Math.max(0, n.hunger - dt * .08f);
+            var time = config.time(elapsed);
+            // Needs and wages follow simulated hours, independent of configured day length.
+            float hours = (float) (dt * 24 / config.daySeconds());
+            n.hunger =
+                    Math.max(
+                            0, n.hunger - hours * (time.period() == CityTime.Period.NIGHT ? 2 : 5));
+            if (t.mealUntil > elapsed) {
+                t.activity = "Eating at shop";
+                continue;
+            }
             if (t.retryAt > elapsed) {
                 t.activity = "Waiting for a clear route";
                 continue;
             }
-            double hour = config.hour(elapsed);
-            int target =
-                    n.hunger < 65 && n.money >= 3
-                            ? find(1)
-                            : hour >= 8 && hour < 17 ? h.job : h.home;
-            if (target == 0) target = h.job != 0 ? h.job : h.home;
+            boolean working = time.period() == CityTime.Period.WORKDAY;
+            float mealThreshold = working ? 65 : 85;
+            int mealShop =
+                    time.shopsOpen() && n.hunger < mealThreshold && n.money >= 3 ? find(1) : 0;
+            boolean eating = mealShop != 0;
+            int target = eating ? mealShop : working && h.job != 0 ? h.job : h.home;
+            if (target == 0) {
+                t.target = 0;
+                t.route.clear();
+                t.activity = working ? "Needs home / work" : "No home for the night";
+                continue;
+            }
             t.activity =
                     target == 0
                             ? "Needs home / work"
-                            : target == h.job
-                                    ? (h.job < 0
-                                            ? "Going to construction site"
-                                            : "Commuting to work")
-                                    : target == h.home ? "Going home" : "Buying food";
+                            : eating
+                                    ? "Going to shop"
+                                    : target == h.job && working
+                                            ? (h.job < 0
+                                                    ? "Going to construction site"
+                                                    : "Commuting to work")
+                                            : "Going home";
             if (target != t.target) {
                 t.target = target;
                 t.route.clear();
@@ -246,17 +263,17 @@ public final class CitySimulation {
                 t.retryAt = elapsed + 2;
                 continue;
             }
-            if (target < 0) {
+            if (target < 0 && working && !eating) {
                 var project = economy.project(-target);
                 if (project != null && economy.wage(project.developer(), dt * .15, n)) {
                     economy.work(project.id(), dt);
                     t.activity = "Building for developer";
                 } else t.activity = "Developer cannot afford wages";
-            } else if (b.type() == 2) {
+            } else if (b.type() == 2 && working && !eating) {
                 t.activity = "Working in mine";
                 var property = economy.property(b.id());
                 if (property == null
-                        || !economy.wage(property.operator(), dt * (.11f + h.cohort * .04f), n)) {
+                        || !economy.wage(property.operator(), hours * (1.8 + h.cohort * .3), n)) {
                     t.activity = "Employer cannot afford wages";
                     continue;
                 }
@@ -271,30 +288,37 @@ public final class CitySimulation {
                         replaceStock(shop, shop.stock() + 1);
                         replaceStock(building(b.id()), --stock);
                     }
-            } else if (b.type() == 1 && target == h.job && (n.hunger >= 65 || n.money < 3)) {
+            } else if (b.type() == 1 && working && !eating) {
                 var property = economy.property(b.id());
                 t.activity =
-                        economy.wage(property.operator(), dt * .12, n)
+                        economy.wage(property.operator(), hours * 1.8, n)
                                 ? "Working in shop"
                                 : "Employer cannot afford wages";
-            } else if (b.type() == 1) {
+            } else if (b.type() == 1 && eating) {
                 if (n.hunger < 95 && n.money >= 3 && b.stock() > 0) {
                     n.money -= 3;
                     economy.meal(b.id(), 3);
                     n.hunger = Math.min(100, n.hunger + 35);
                     replaceStock(b, b.stock() - 1);
                     t.target = -9999;
+                    t.mealUntil = elapsed + Math.min(3, config.daySeconds() / 240);
                 }
                 t.activity =
                         n.money < 3
                                 ? "Cannot afford food"
-                                : b.stock() == 0 ? "Shop needs mine deliveries" : "Shopping";
+                                : b.stock() == 0 ? "Shop needs mine deliveries" : "Eating at shop";
                 if (n.money < 3 && h.job != 0) {
                     t.target = h.job;
                     var job = workplace(h.job);
                     journey(id, p, job, t);
                 }
-            } else t.activity = "At home";
+            } else
+                t.activity =
+                        time.period() == CityTime.Period.NIGHT
+                                ? "Sleeping at home"
+                                : time.period() == CityTime.Period.MORNING
+                                        ? "Morning at home"
+                                        : working ? "Looking for work" : "Relaxing at home";
         }
     }
 
@@ -411,7 +435,12 @@ public final class CitySimulation {
                     t.route.add(new Cell(b.x() + 1, b.z() + 5));
                     t.route.add(new Cell(b.x() + 2, b.z() + 5));
                     t.route.add(new Cell(b.x() + 2, b.z() + 6));
-                } else t.route.add(new Cell(b.x() + 2, door < b.z() ? b.z() + 1 : b.z() + 5));
+                } else {
+                    // Join the clear centre aisle before heading for the door. Diagonal shortcuts
+                    // from a station can cross the shop's shelves.
+                    t.route.add(new Cell(b.x() + 2, (int) Math.floor(z)));
+                    t.route.add(new Cell(b.x() + 2, door < b.z() ? b.z() + 1 : b.z() + 5));
+                }
                 t.route.add(new Cell(b.x() + 2, door));
                 x = b.x() + 2.5f;
                 z = door + .5f;
@@ -434,6 +463,7 @@ public final class CitySimulation {
                     new Cell(
                             destination.x() + 2,
                             door < destination.z() ? destination.z() + 1 : destination.z() + 5));
+        t.route.add(new Cell(destination.x() + 2, destination.z() + 1 + (id / 4) % 2));
         t.route.add(new Cell(destination.x() + 1 + id % 4, destination.z() + 1 + (id / 4) % 2));
     }
 

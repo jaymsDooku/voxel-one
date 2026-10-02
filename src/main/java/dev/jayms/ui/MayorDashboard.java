@@ -173,12 +173,9 @@ public final class MayorDashboard {
         ui.rectangle(0, 0, w, h, .025f, .04f, .06f, 1);
         ui.text("MAYOR DASHBOARD", 24, 20, 2.1f);
         String clock =
-                fmt(
-                        "Sim day %d | %02d:%02d | %s",
-                        1 + (int) (city.elapsed() / city.config().daySeconds()),
-                        (int) city.config().hour(city.elapsed()),
-                        (int) (city.config().hour(city.elapsed()) % 1 * 60),
-                        connected
+                city.config().time(city.elapsed()).label()
+                        + " | "
+                        + (connected
                                 ? "Live population metrics"
                                 : "Disconnected - last received city snapshot");
         text(ui, clock, 24, 55, w - 180, 1.15f);

@@ -159,15 +159,12 @@ public final class CityTools {
             Matrix4f view,
             CityFrame city,
             boolean isometric) {
-        double hour = city.config().hour(city.elapsed());
-        String time =
-                String.format(
-                        java.util.Locale.ROOT, "%02d:%02d", (int) hour, (int) (hour % 1 * 60));
+        String time = city.config().time(city.elapsed()).label();
         int hungry = (int) city.citizens().stream().filter(c -> c.hunger() < 35).count();
         ui.rectangle(12, 68, w - 24, 61, .025f, .045f, .07f, .9f);
         ui.text(
                 w < 900
-                        ? "VOXEL CITY ONE | " + time + " | Citizens " + city.citizens().size()
+                        ? time + " | Citizens " + city.citizens().size()
                         : "VOXEL CITY ONE | "
                                 + time
                                 + " | Citizens "

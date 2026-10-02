@@ -1,0 +1,25 @@
+{
+  "scope": "Packaged Linux client, actual saved hourly fixtures, Xvfb software OpenGL; not a physical Windows desktop test",
+  "checks": [
+    {
+      "phase": "workday",
+      "check": "Clock, lighting, citizen activities, dashboard and clean exit",
+      "status": "passed"
+    },
+    {
+      "phase": "evening",
+      "check": "Clock, lighting, citizen activities, dashboard and clean exit",
+      "status": "passed"
+    },
+    {
+      "phase": "night",
+      "check": "Clock, lighting, citizen activities, dashboard and clean exit",
+      "status": "passed"
+    },
+    {
+      "phase": "morning",
+      "check": "Clock, lighting, citizen activities, dashboard and clean exit",
+      "status": "passed"
+    }
+  ]
+}

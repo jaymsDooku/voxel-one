@@ -11,18 +11,25 @@ public class PlayerModel implements AutoCloseable {
     private final Mesh cube;
     private int cohort = -1;
     private boolean seated;
+    private String activity = "";
+    private double animationSeconds;
 
     public void renderCitizen(
             Protocol.Pose pose,
             int group,
             boolean riding,
+            String activity,
+            double seconds,
             ShaderProgram shader,
             VoxelModelRenderer models) {
         cohort = group;
         seated = riding;
+        this.activity = activity;
+        animationSeconds = seconds;
         render(pose, shader, models);
         cohort = -1;
         seated = false;
+        this.activity = "";
     }
 
     public void renderRider(Protocol.Pose pose, ShaderProgram shader, VoxelModelRenderer models) {
@@ -41,10 +48,11 @@ public class PlayerModel implements AutoCloseable {
     public void render(Protocol.Pose player, ShaderProgram shader, VoxelModelRenderer models) {
         shader.setInt("uVertexColor", 0);
         shader.setInt("uInstanced", 0);
-        Matrix4f root =
-                new Matrix4f()
-                        .translate(player.x(), player.y(), player.z())
-                        .rotateY((float) Math.toRadians(-player.yaw() - 90));
+        Matrix4f root = new Matrix4f().translate(player.x(), player.y(), player.z());
+        if (cohort >= 0 && CitizenAnimation.sleeping(activity))
+            // Align along the house's depth; a station's travel yaw could put the head in a wall.
+            root.translate(0, .3f, 0).rotateX((float) Math.PI / 2);
+        else root.rotateY((float) Math.toRadians(-player.yaw() - 90));
         var pose =
                 pose(
                         player.walkPhase(),
@@ -52,6 +60,8 @@ public class PlayerModel implements AutoCloseable {
                         player.swingProgress(),
                         player.heldItem() != 0,
                         player.placingSwing());
+        if (cohort >= 0)
+            pose = CitizenAnimation.pose(pose, activity, animationSeconds, player.id());
         Matrix4f torso = new Matrix4f(root).rotateY(pose.bodyTwist());
         Matrix4f head =
                 new Matrix4f(torso)

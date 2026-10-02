@@ -844,7 +844,19 @@ public class Main {
             if (network != null && network.citizens.containsKey(c.id()))
                 p = network.citizens.get(c.id()).sample(System.nanoTime());
             if (p != null)
-                playerModel.renderCitizen(p, c.cohort(), c.horse() != 0, shader, modelRenderer);
+                playerModel.renderCitizen(
+                        p,
+                        c.cohort(),
+                        c.horse() != 0,
+                        c.activity(),
+                        city().elapsed()
+                                + (network == null || !network.connected()
+                                        ? 0
+                                        : Math.min(
+                                                .3,
+                                                (System.nanoTime() - network.cityReceived) / 1e9)),
+                        shader,
+                        modelRenderer);
         }
         if (isometric || player.thirdPerson()) {
             if (player.mounted()) playerModel.renderRider(player.pose(0), shader, modelRenderer);
