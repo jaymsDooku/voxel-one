@@ -1,5 +1,13 @@
 # Voxel One development
 
+## Shared work queue and review
+
+The authoritative work queue is the owner-private [General Codex Development Progress Dashboard](https://codex-development-dashboard.jamesleaver1.chatgpt.site/?application=voxel-one). Its separate private source repository is `jaymsDooku/codex-development-dashboard`; the VPS coordinator is installed at `/home/debian/codex/codex-development-dashboard`. Voxel One’s website projects this application’s current work and keeps its recorded evidence as a fallback.
+
+Use the queue’s application `voxel-one`, fenced claims and milestone checkpoints. Two developer slots may work concurrently. Each work item uses its own feature branch and Git worktree; never implement or commit directly on master. Submit a pull request with the work-item acceptance criteria and meaningful test evidence. A separate reviewer checks the exact submitted head, sends substantial deficiencies back to the originating developer, and merges acceptable changes only after checks pass. A developer cannot complete or approve its own work. Do not expose private prompts, answers or credentials in public progress artifacts.
+
+The coordinator provides authenticated, credential-free queue operations to its agents, heartbeats leases and checks the actual shared Codex five-hour quota. Check the budget at work boundaries and periodically; never infer quota from token counts or five hours of wall time. Before exhaustion, save the current branch, worktree, thread and checkpoint, and arrange continuation just after the observed reset. Resume only when the authoritative usage check permits work. Idle and budget-wait periods must not generate model turns. Ask substantive questions through the private dashboard.
+
 ## Progress dashboard
 
 The user wants past and current work tracked with testing evidence. Maintain
