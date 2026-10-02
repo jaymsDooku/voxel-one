@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T14:27:05+00:00",
+  "updatedAt": "2026-10-02T14:38:45+00:00",
   "release": {
     "name": "Playtest 19",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-19",
@@ -1191,6 +1191,15 @@
       "status": "complete",
       "note": "Released Playtest 19 and updated the VPS city with a backup and preserved clock/population/finances. Added midnight calendar rollover, daily routines and work/meal/sleep gestures, hourly hunger/pay rates and safe building aisles. Three full days passed: all 12 citizens worked, ate, travelled and slept each cycle; 72 hourly samples recorded. All 109 tests passed on four platforms, GPU/client/browser checks passed, Windows update verified, and live pinned-TLS city snapshots advanced.",
       "updatedAt": "2026-10-02T14:27:05+00:00"
+    },
+    {
+      "id": "screen-recorder",
+      "title": "In-game screen recorder and video evidence",
+      "description": "Implementing MP4 game capture, a recording control and inline dashboard video evidence.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Implementing MP4 game capture, a recording control and inline dashboard video evidence.",
+      "updatedAt": "2026-10-02T14:38:45+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
