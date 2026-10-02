@@ -26,8 +26,13 @@ class CityBusinessTest {
         var s = settled(g);
         var frame = s.frame();
         var metrics = BusinessMetrics.from(frame);
-        assertEquals(7, metrics.locations().size());
+        assertEquals(8, metrics.locations().size());
         for (var l : metrics.locations()) {
+            if (l.firm().kind() == CityMaterials.TOOLS) {
+                assertEquals("Needs industrial factory", l.status());
+                assertTrue(l.employees().isEmpty());
+                continue;
+            }
             assertNotNull(l.account());
             assertFalse(l.employees().isEmpty());
             assertTrue(l.total().wages() > 0);
@@ -55,7 +60,7 @@ class CityBusinessTest {
         assertEquals(shop.total().received() - shop.total().sold(), shop.building().stock());
         assertTrue(shop.total().sold() > 0);
         assertEquals(10120, frame.economy().budget());
-        assertEquals(10, metrics.companies().size());
+        assertEquals(11, metrics.companies().size());
     }
 
     @Test
@@ -221,7 +226,7 @@ class CityBusinessTest {
         var migrated = new CitySimulation(old.config(), g, g.terrain, old);
         assertEquals(old.economy(), migrated.frame().economy());
         migrated.advance(1);
-        assertEquals(7, BusinessMetrics.from(migrated.frame()).locations().size());
+        assertEquals(8, BusinessMetrics.from(migrated.frame()).locations().size());
         migrated.save(save);
         assertEquals(migrated.frame(), CitySimulation.load(save));
     }

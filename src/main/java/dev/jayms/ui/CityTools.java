@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 /** Isometric planning tools. Click polygon corners, then explicitly confirm with Enter. */
 public final class CityTools {
     public boolean dashboardRequested;
-    public int tool = -1, selectedCitizen, selectedBuilding, selectedPlot;
+    public int tool = -1, selectedCitizen, selectedBuilding, selectedPlot, selectedStreet;
     private final List<Polygon.Point> points = new ArrayList<>();
     public String message = "Inspect: click a building, plot or citizen for details.";
 
@@ -68,7 +68,7 @@ public final class CityTools {
         if (tool == 4) return;
         if (tool == -1) {
             float best = 22 * 22;
-            selectedCitizen = selectedBuilding = selectedPlot = 0;
+            selectedCitizen = selectedBuilding = selectedPlot = selectedStreet = 0;
             for (var c : city.citizens()) {
                 var p = project(c.x(), c.y() + 1, c.z(), projection, view, width, height);
                 if (p != null && p.distanceSquared(x, y) < best) {
@@ -111,7 +111,8 @@ public final class CityTools {
 
     /** Pick the nearest physical property, rather than an approximate screen-space circle. */
     public boolean selectRay(Vector3f origin, Vector3f direction, float limit, CityFrame city) {
-        selectedCitizen = selectedBuilding = selectedPlot = 0;
+        selectedCitizen = selectedBuilding = selectedPlot = selectedStreet = 0;
+        selectedStreet = 0;
         var interval = new Vector2f();
         float best = limit;
         for (var b : city.buildings())
@@ -156,6 +157,22 @@ public final class CityTools {
                     selectedPlot = p.id();
                     selectedBuilding = 0;
                 }
+        if (selectedBuilding == 0 && selectedPlot == 0 && direction.y < -.0001f) {
+            for (var road : city.roads()) {
+                float t = (road.y() + 1 - origin.y) / direction.y;
+                float x = origin.x + direction.x * t, z = origin.z + direction.z * t;
+                if (t >= 0
+                        && t <= limit
+                        && x >= road.x()
+                        && x < road.x() + 1
+                        && z >= road.z()
+                        && z < road.z() + 1) {
+                    var street = city.addresses().nearest(x, z);
+                    if (street != null) selectedStreet = street.id();
+                    break;
+                }
+            }
+        }
         return selectedBuilding != 0 || selectedPlot != 0;
     }
 
@@ -258,6 +275,11 @@ public final class CityTools {
                         1);
         }
         boolean valid = true;
+        if (tool == -1 && selectedCitizen == 0 && selectedStreet != 0) {
+            ui.rectangle(16, 140, Math.min(400, w - 32), 65, .025f, .04f, .065f, .95f);
+            ui.text(city.addresses().streetName(selectedStreet), 28, 152, 1.5f);
+            ui.text("Dirt road | Mayor-owned public access", 28, 179, 1.2f);
+        }
         try {
             if (points.size() >= 3) new Polygon(points);
         } catch (IllegalArgumentException e) {
@@ -344,8 +366,10 @@ public final class CityTools {
                     177,
                     1.4f);
             ui.text(
-                    "Home #"
-                            + citizen.home()
+                    "Home: "
+                            + (citizen.home() == 0
+                                    ? "None"
+                                    : city.addresses().buildingName(citizen.home()))
                             + " | "
                             + (citizen.job() < 0
                                     ? "Construction #" + (-citizen.job())
@@ -417,7 +441,7 @@ public final class CityTools {
             float x = Math.max(16, w - 410);
             ui.rectangle(x, 170, 394, 130, .025f, .04f, .065f, .97f);
             if (property != null) {
-                ui.text("PROPERTY #" + property.building(), x + 10, 182, 1.4f);
+                ui.text(city.addresses().buildingName(property.building()), x + 10, 182, 1.4f);
                 ui.text(
                         "Owner: " + owner(city, property.ownerKind(), property.owner()),
                         x + 10,

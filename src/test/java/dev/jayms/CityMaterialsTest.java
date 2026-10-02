@@ -203,7 +203,7 @@ class CityMaterialsTest {
         for (int i = 0; i < 320; i++) s.advance(1);
         var f = s.frame();
         assertEquals(5, f.buildings().size());
-        assertEquals(10, f.economy().firms().size());
+        assertEquals(11, f.economy().firms().size());
         assertTrue(
                 f.economy().resources().projects().stream()
                         .allMatch(CityMaterials.Project::consumed));
@@ -413,7 +413,7 @@ class CityMaterialsTest {
                         .contains("created"));
         for (int i = 0; i < 500; i++) s.advance(1);
         var f = s.frame();
-        for (int kind = 2; kind <= CityMaterials.FARM; kind++) {
+        for (int kind = 2; kind <= CityMaterials.TOOLS; kind++) {
             final int k = kind;
             var company =
                     f.economy().firms().stream()
@@ -442,7 +442,7 @@ class CityMaterialsTest {
                     g.type(b.x() + 2, b.y(), b.z() + 3),
                     "Only the quarry has an open mine shaft");
         }
-        assertEquals(10, f.buildings().size());
+        assertEquals(11, f.buildings().size());
     }
 
     @Test

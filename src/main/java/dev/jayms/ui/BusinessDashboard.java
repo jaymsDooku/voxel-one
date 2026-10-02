@@ -295,8 +295,8 @@ public final class BusinessDashboard {
                         + " | "
                         + (b.type() == 1 ? "06:00-22:00" : "08:00-17:00")
                         + (b.id() >= CityMaterials.YARD
-                                ? " | Temporary yard"
-                                : " | Building #" + b.id())
+                                ? " | Awaiting premises"
+                                : " | " + city.addresses().buildingName(b.id()))
                         + " at "
                         + b.x()
                         + ", "
@@ -436,13 +436,37 @@ public final class BusinessDashboard {
                             .filter(a -> a.ownerKind() == 0 && a.owner() == f.id())
                             .map(
                                     a ->
-                                            CityMaterials.name(a.material())
+                                            city.economy().resources().catalog().name(a.material())
                                                     + " "
                                                     + CityMaterials.quantity(a.units()))
                             .collect(java.util.stream.Collectors.joining(" | "));
             text(
                     ui,
-                    "Materials: " + (stock.isEmpty() ? "None available" : stock),
+                    "Materials: "
+                            + (stock.isEmpty() ? "None available" : stock)
+                            + (city.economy().resources().catalog().equipment(f.kind()) == null
+                                    ? ""
+                                    : " | "
+                                            + (city.economy()
+                                                                    .resources()
+                                                                    .available(
+                                                                            0,
+                                                                            f.id(),
+                                                                            city.economy()
+                                                                                    .resources()
+                                                                                    .catalog()
+                                                                                    .equipment(
+                                                                                            f
+                                                                                                    .kind())
+                                                                                    .product())
+                                                            >= CityMaterials.UNIT
+                                                    ? city.economy()
+                                                                    .resources()
+                                                                    .catalog()
+                                                                    .equipment(f.kind())
+                                                                    .multiplier()
+                                                            + "x output"
+                                                    : "Awaiting tools")),
                     36,
                     y + 78,
                     w - 72,

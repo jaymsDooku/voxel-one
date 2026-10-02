@@ -95,7 +95,7 @@ class CityMultiplayerTest {
                 assertEquals(a.city.roads(), b.city.roads());
                 assertTrue(b.city.economy().roadSpending() > 0);
                 assertEquals(a.city.economy().roadSpending(), b.city.economy().roadSpending());
-                assertEquals(10, b.city.economy().firms().size());
+                assertEquals(11, b.city.economy().firms().size());
                 Thread.sleep(550);
                 var zone =
                         List.of(
@@ -194,7 +194,7 @@ class CityMultiplayerTest {
                 assertTrue(a.city.roads().size() > roadCount);
                 assertTrue(a.city.elapsed() > 0);
                 assertTrue(a.city.economy().roadSpending() > 0);
-                assertEquals(10, a.city.economy().firms().size());
+                assertEquals(11, a.city.economy().firms().size());
                 assertTrue(a.city.horses().stream().noneMatch(h -> h.rider() > 0));
             }
             server.close();

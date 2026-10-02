@@ -72,6 +72,7 @@ public final class BuildingInfo {
         rows.add(
                 CitySimulation.ZONES[type]
                         + (b == null ? " development plot #" + p.id() : " building #" + b.id()));
+        if (b != null) rows.add("Address: " + city.addresses().buildingName(b.id()));
         rows.add(
                 "Location: "
                         + (b == null ? p.x() : b.x())
@@ -102,7 +103,7 @@ public final class BuildingInfo {
                     rows.add(
                             CityMaterials.sector(firm.kind())
                                     + " | Output: "
-                                    + CityMaterials.name(CityMaterials.output(firm.kind())));
+                                    + city.economy().resources().catalog().outputs(firm.kind()));
                     rows.add(
                             String.format(
                                     Locale.ROOT,
@@ -121,6 +122,39 @@ public final class BuildingInfo {
                                                             + v.status()
                                                             + " | Harvested "
                                                             + v.harvested()));
+                    var catalog = city.economy().resources().catalog();
+                    var equipment = catalog.equipment(firm.kind());
+                    if (equipment != null) {
+                        boolean owned =
+                                city.economy()
+                                                .resources()
+                                                .available(0, firm.id(), equipment.product())
+                                        >= CityMaterials.UNIT;
+                        rows.add(
+                                "Equipment: "
+                                        + catalog.name(equipment.product())
+                                        + (owned
+                                                ? " owned | "
+                                                        + equipment.multiplier()
+                                                        + "x productivity"
+                                                : " awaiting purchase | 1x productivity"));
+                        rows.add(
+                                "Tools are durable, privately owned; one equips this company's"
+                                    + " crew.");
+                    }
+                    for (var line : catalog.recipes(firm.kind())) {
+                        String inputs =
+                                line.inputs().entrySet().stream()
+                                        .map(e -> e.getValue() + " " + catalog.name(e.getKey()))
+                                        .collect(java.util.stream.Collectors.joining(" + "));
+                        rows.add(
+                                inputs + " -> " + line.count() + " " + catalog.name(line.output()));
+                        if (line.requiresFactory())
+                            rows.add(
+                                    "Factory line: "
+                                            + line.batchesPerHour()
+                                            + " batches / worker-hour (shared time)");
+                    }
                     rows.add("BUSINESS MATERIALS (available for owned use or sale)");
                     addStocks(rows, city, 0, firm.id());
                     if (type == 1)
@@ -178,7 +212,7 @@ public final class BuildingInfo {
         for (var s : stocks)
             rows.add(
                     "  "
-                            + CityMaterials.name(s.material())
+                            + city.economy().resources().catalog().name(s.material())
                             + ": "
                             + CityMaterials.quantity(s.units()));
     }

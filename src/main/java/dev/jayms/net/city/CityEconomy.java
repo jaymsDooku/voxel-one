@@ -138,11 +138,11 @@ public final class CityEconomy {
         }
 
         public void write(DataOutput out) throws IOException {
-            write(out, 4);
+            write(out, 5);
         }
 
         public void write(DataOutput out, boolean legacy) throws IOException {
-            write(out, legacy ? 2 : 4);
+            write(out, legacy ? 2 : 5);
         }
 
         public void write(DataOutput out, int version) throws IOException {
@@ -193,15 +193,15 @@ public final class CityEconomy {
                 out.writeDouble(c.amount);
             }
             if (version >= 3) CityBusinesses.write(out, businesses);
-            if (version >= 4) CityMaterials.write(out, resources);
+            if (version >= 4) CityMaterials.write(out, resources, version);
         }
 
         public static State read(DataInput in) throws IOException {
-            return read(in, 4);
+            return read(in, 5);
         }
 
         public static State read(DataInput in, boolean legacy) throws IOException {
-            return read(in, legacy ? 2 : 4);
+            return read(in, legacy ? 2 : 5);
         }
 
         public static State read(DataInput in, int version) throws IOException {
@@ -211,7 +211,7 @@ public final class CityEconomy {
                 int id = id(in);
                 String name = in.readUTF();
                 int kind = in.readUnsignedByte();
-                if (name.length() > 48 || kind > CityMaterials.FARM)
+                if (name.length() > 48 || kind > CityMaterials.TOOLS)
                     throw new IOException("Invalid company");
                 firms.add(
                         new Firm(
@@ -268,7 +268,9 @@ public final class CityEconomy {
                             properties,
                             contracts,
                             version < 3 ? List.of() : CityBusinesses.read(in),
-                            version < 4 ? CityMaterials.State.empty() : CityMaterials.read(in));
+                            version < 4
+                                    ? CityMaterials.State.empty()
+                                    : CityMaterials.read(in, version));
             for (var stock : state.resources.stocks())
                 if (stock.ownerKind() == COMPANY
                         && firms.stream().noneMatch(f -> f.id() == stock.owner()))
@@ -292,6 +294,22 @@ public final class CityEconomy {
                 if (firms.stream()
                         .noneMatch(f -> f.id() == production.company() && f.kind() >= MINE))
                     throw new IOException("Unknown harvesting company");
+            for (var batch : state.resources.batches())
+                if (firms.stream()
+                        .noneMatch(
+                                f ->
+                                        f.id() == batch.company()
+                                                && state
+                                                        .resources
+                                                        .catalog()
+                                                        .recipes(f.kind())
+                                                        .stream()
+                                                        .anyMatch(
+                                                                r ->
+                                                                        r.id().equals(
+                                                                                        batch
+                                                                                                .recipe()))))
+                    throw new IOException("Unknown manufacturing company / recipe");
             return state;
         }
 
@@ -323,10 +341,17 @@ public final class CityEconomy {
     public final List<Contract> contracts = new ArrayList<>();
 
     public CityEconomy(Ecs ecs, State state) {
+        this(ecs, state, ProductionCatalog.cityGame());
+    }
+
+    public CityEconomy(Ecs ecs, State state, ProductionCatalog catalog) {
         this.ecs = ecs;
         businesses = new CityBusinesses(state == null ? List.of() : state.businesses());
         resources =
-                new CityMaterials(state == null ? CityMaterials.State.empty() : state.resources());
+                new CityMaterials(
+                        state == null
+                                ? new CityMaterials.State(List.of(), List.of(), List.of(), catalog)
+                                : state.resources());
         if (state != null && !state.firms().isEmpty()) {
             budget = state.budget;
             roadSpending = state.roadSpending;
@@ -363,9 +388,10 @@ public final class CityEconomy {
             "Stonecraft Brickworks",
             "Dune Glassworks",
             "Bright Spark Lighting",
-            "Meadow Farm"
+            "Meadow Farm",
+            "Stone & Timber Tools"
         };
-        for (int kind = CityMaterials.LOGGING; kind <= CityMaterials.FARM; kind++) {
+        for (int kind = CityMaterials.LOGGING; kind <= CityMaterials.TOOLS; kind++) {
             final int k = kind;
             if (companies().stream().noneMatch(c -> c.kind == k)) create(names[k], k, 1500);
         }
@@ -675,7 +701,7 @@ public final class CityEconomy {
                 || sellerKind == buyerKind && seller == buyer
                 || units <= 0
                 || resources.available(sellerKind, seller, material) < units) return false;
-        double amount = units / (double) CityMaterials.UNIT * CityMaterials.price(material);
+        double amount = units / (double) CityMaterials.UNIT * resources.catalog.price(material);
         if (cash(sellerKind, seller) < 0 || cash(buyerKind, buyer) < amount) return false;
         if (resources.available(buyerKind, buyer, material) > 1_000_000_000L - units) return false;
         resources.remove(sellerKind, seller, material, units);

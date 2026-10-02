@@ -12,7 +12,29 @@ public record CityFrame(
         List<Building> buildings,
         List<Citizen> citizens,
         List<Horse> horses,
-        CityEconomy.State economy) {
+        CityEconomy.State economy,
+        CityAddresses.State addresses) {
+    public CityFrame(
+            GameConfig config,
+            double elapsed,
+            List<Road> roads,
+            List<Zone> zones,
+            List<Building> buildings,
+            List<Citizen> citizens,
+            List<Horse> horses,
+            CityEconomy.State economy) {
+        this(
+                config,
+                elapsed,
+                roads,
+                zones,
+                buildings,
+                citizens,
+                horses,
+                economy,
+                CityAddresses.migrate(roads, buildings));
+    }
+
     public CityFrame(
             GameConfig config,
             double elapsed,
@@ -62,7 +84,7 @@ public record CityFrame(
     }
 
     public void write(DataOutput out) throws IOException {
-        write(out, 4);
+        write(out, 5);
     }
 
     public void write(DataOutput out, int version) throws IOException {
@@ -119,6 +141,7 @@ public record CityFrame(
             out.writeInt(h.rider);
         }
         if (version >= 2) economy.write(out, version);
+        if (version >= 5) CityAddresses.write(out, addresses);
     }
 
     private static int count(DataInput in, int max) throws IOException {
@@ -138,7 +161,7 @@ public record CityFrame(
     }
 
     public static CityFrame read(DataInput in, boolean legacy) throws IOException {
-        return read(in, legacy ? 1 : 4);
+        return read(in, legacy ? 1 : 5);
     }
 
     public static CityFrame read(DataInput in, int version) throws IOException {
@@ -217,14 +240,12 @@ public record CityFrame(
                             number(in),
                             number(in),
                             in.readInt()));
+        var economy = version < 2 ? CityEconomy.State.empty() : CityEconomy.State.read(in, version);
+        var addresses =
+                version < 5
+                        ? CityAddresses.migrate(roads, buildings)
+                        : CityAddresses.read(in, buildings);
         return new CityFrame(
-                config,
-                elapsed,
-                roads,
-                zones,
-                buildings,
-                citizens,
-                horses,
-                version < 2 ? CityEconomy.State.empty() : CityEconomy.State.read(in, version));
+                config, elapsed, roads, zones, buildings, citizens, horses, economy, addresses);
     }
 }

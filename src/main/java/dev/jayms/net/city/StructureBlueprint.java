@@ -70,6 +70,27 @@ public final class StructureBlueprint {
                 edits.add(
                         new Protocol.Edit(x + 3 + i, y + 2, z + 5, Blocks.LED)
                                 .withColor(new int[] {0xff5544, 0x55ff88, 0x5588ff}[i]));
+        if (businessKind == CityMaterials.TOOLS) {
+            // Workbenches and tiny voxel tool silhouettes; the central aisle stays walkable.
+            edits.add(new Protocol.Edit(x + 1, y + 1, z + 4, Blocks.STONE));
+            edits.add(new Protocol.Edit(x + 4, y + 1, z + 5, Blocks.WOOD));
+            for (int j = 0; j < 4; j++)
+                edits.add(
+                        Protocol.Edit.at(
+                                x + 1.5,
+                                y + 2 + j * .25,
+                                z + 4.5,
+                                Blocks.piece(Blocks.WOOD, 2),
+                                2));
+            for (int i = -1; i <= 1; i++)
+                edits.add(
+                        Protocol.Edit.at(
+                                x + 1.5 + i * .25,
+                                y + 2.75,
+                                z + 4.5,
+                                Blocks.piece(Blocks.STONE, 2),
+                                2));
+        }
         return edits;
     }
 

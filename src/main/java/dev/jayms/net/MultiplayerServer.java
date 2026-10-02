@@ -63,6 +63,19 @@ public final class MultiplayerServer implements AutoCloseable {
             long seed,
             GameConfig game)
             throws IOException {
+        this(bind, port, save, accounts, tls, seed, game, ProductionCatalog.cityGame());
+    }
+
+    public MultiplayerServer(
+            String bind,
+            int port,
+            Path save,
+            AccountStore accounts,
+            SSLContext tls,
+            long seed,
+            GameConfig game,
+            ProductionCatalog production)
+            throws IOException {
         terrain = new Terrain(seed);
         this.save = save;
         this.accounts = accounts;
@@ -154,7 +167,8 @@ public final class MultiplayerServer implements AutoCloseable {
                             }
                         },
                         terrain,
-                        savedCity);
+                        savedCity,
+                        production);
         listener = tls.getServerSocketFactory().createServerSocket();
         ((SSLServerSocket) listener).setEnabledProtocols(new String[] {"TLSv1.3", "TLSv1.2"});
         listener.bind(new InetSocketAddress(bind, port));
@@ -997,8 +1011,10 @@ public final class MultiplayerServer implements AutoCloseable {
         Path save = Path.of("world.dat"),
                 accountFile = Path.of("accounts.db"),
                 tlsDirectory = Path.of("tls");
+        Path productionFile = null;
         for (int i = 0; i < args.length; i++)
             switch (args[i]) {
+                case "--production-config" -> productionFile = Path.of(args[++i]);
                 case "--game" -> {
                     String value = args[++i];
                     if (!value.equals("city") && !value.equals("sandbox"))
@@ -1018,7 +1034,8 @@ public final class MultiplayerServer implements AutoCloseable {
                 default ->
                         throw new IllegalArgumentException(
                                 "Usage: --bind ADDRESS --port PORT --world FILE --accounts FILE"
-                                    + " --tls-dir DIRECTORY --seed NUMBER --create-account NAME");
+                                    + " --tls-dir DIRECTORY --seed NUMBER --create-account NAME"
+                                    + " --production-config FILE");
             }
         AccountStore accounts = new AccountStore(accountFile);
         if (create != null) {
@@ -1044,7 +1061,10 @@ public final class MultiplayerServer implements AutoCloseable {
                         accounts,
                         identity.context(),
                         seed,
-                        new GameConfig(cityGame, cityGame && cycle, daySeconds, startHour))) {
+                        new GameConfig(cityGame, cityGame && cycle, daySeconds, startHour),
+                        productionFile == null
+                                ? ProductionCatalog.cityGame()
+                                : ProductionCatalog.load(productionFile))) {
             Runtime.getRuntime()
                     .addShutdownHook(
                             new Thread(

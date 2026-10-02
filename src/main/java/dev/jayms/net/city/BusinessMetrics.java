@@ -14,12 +14,11 @@ public record BusinessMetrics(List<Location> locations, List<Company> companies)
             int onSite,
             String status,
             boolean attention,
-            double dailyPayroll) {
+            double dailyPayroll,
+            String address) {
         public String name() {
             return (firm == null ? "Vacant workplace" : firm.name())
-                    + (building.id() >= CityMaterials.YARD
-                            ? " | field yard"
-                            : " #" + building.id());
+                    + (building.id() >= CityMaterials.YARD ? " | field yard" : " | " + address);
         }
 
         public int capacity() {
@@ -96,7 +95,10 @@ public record BusinessMetrics(List<Location> locations, List<Company> companies)
                                                             .available(
                                                                     0,
                                                                     f.id(),
-                                                                    CityMaterials.output(f.kind()))
+                                                                    city.economy()
+                                                                            .resources()
+                                                                            .catalog()
+                                                                            .output(f.kind()))
                                                     / CityMaterials.UNIT)));
         for (var b : workplaces)
             if (b.type() != 0) {
@@ -173,26 +175,47 @@ public record BusinessMetrics(List<Location> locations, List<Company> companies)
                                         c -> b.type() == 1 ? 1.8 * 8 : (1.8 + c.cohort() * .3) * 9)
                                 .sum();
                 String status =
-                        firm == null
-                                ? "Vacant"
-                                : !hours
-                                        ? "Closed"
-                                        : firm.cash() < .01
-                                                ? "Unfunded"
-                                                : staff.isEmpty()
-                                                        ? "No employees"
-                                                        : present == 0
-                                                                ? "Awaiting staff"
-                                                                : b.type() == 1 && b.stock() == 0
-                                                                        ? "Out of stock"
-                                                                        : b.type() == 2
+                        firm != null
+                                        && b.id() >= CityMaterials.YARD
+                                        && !city.economy()
+                                                .resources()
+                                                .catalog()
+                                                .recipes(firm.kind())
+                                                .isEmpty()
+                                        && city
+                                                .economy()
+                                                .resources()
+                                                .catalog()
+                                                .recipes(firm.kind())
+                                                .stream()
+                                                .allMatch(ProductionCatalog.Recipe::requiresFactory)
+                                ? "Needs industrial factory"
+                                : firm == null
+                                        ? "Vacant"
+                                        : !hours
+                                                ? "Closed"
+                                                : firm.cash() < .01
+                                                        ? "Unfunded"
+                                                        : staff.isEmpty()
+                                                                ? "No employees"
+                                                                : present == 0
+                                                                        ? "Awaiting staff"
+                                                                        : b.type() == 1
                                                                                         && b.stock()
-                                                                                                >= CityMaterials
-                                                                                                        .capacity(
-                                                                                                                firm
-                                                                                                                        .kind())
-                                                                                ? "Storage full"
-                                                                                : "Open";
+                                                                                                == 0
+                                                                                ? "Out of stock"
+                                                                                : b.type() == 2
+                                                                                                && b
+                                                                                                                .stock()
+                                                                                                        >= city.economy()
+                                                                                                                .resources()
+                                                                                                                .catalog()
+                                                                                                                .capacity(
+                                                                                                                        firm
+                                                                                                                                .kind())
+                                                                                        ? "Storage"
+                                                                                              + " full"
+                                                                                        : "Open";
                 boolean alerts =
                         firm == null
                                 || staff.isEmpty()
@@ -206,8 +229,10 @@ public record BusinessMetrics(List<Location> locations, List<Company> companies)
                                                 || b.type() == 1 && b.stock() == 0
                                                 || b.type() == 2
                                                         && b.stock()
-                                                                >= CityMaterials.capacity(
-                                                                        firm.kind()))
+                                                                >= city.economy()
+                                                                        .resources()
+                                                                        .catalog()
+                                                                        .capacity(firm.kind()))
                                 || account != null
                                         && (account.total().profit() < 0
                                                 || account.today().totals().missedRent() > 0
@@ -223,7 +248,8 @@ public record BusinessMetrics(List<Location> locations, List<Company> companies)
                                 present,
                                 status,
                                 alerts,
-                                payroll));
+                                payroll,
+                                city.addresses().buildingName(b.id())));
             }
         var companies = new ArrayList<Company>();
         for (var f : city.economy().firms()) {

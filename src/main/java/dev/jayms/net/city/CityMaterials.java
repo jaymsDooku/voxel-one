@@ -8,8 +8,13 @@ import java.util.*;
 /** Privately owned, volume-exact supplies. Reserved stock still belongs to its developer. */
 public final class CityMaterials {
     public static final long UNIT = 4096;
-    public static final int LOGGING = 3, MASONRY = 4, GLASSWORKS = 5, LIGHTING = 6, FARM = 7;
-    public static final int FOOD = 1001, YARD = 100000;
+    public static final int LOGGING = 3,
+            MASONRY = 4,
+            GLASSWORKS = 5,
+            LIGHTING = 6,
+            FARM = 7,
+            TOOLS = 8;
+    public static final int FOOD = 1001, PICKAXE = 1002, AXE = 1003, YARD = 100000;
 
     public record Amount(int material, long units) {}
 
@@ -17,6 +22,8 @@ public final class CityMaterials {
 
     public record Production(
             int company, double progress, long harvested, long processed, String status) {}
+
+    public record Batch(int company, String recipe, double progress, long completed) {}
 
     public record Project(
             int plot,
@@ -29,11 +36,29 @@ public final class CityMaterials {
         }
     }
 
-    public record State(List<Stock> stocks, List<Production> production, List<Project> projects) {
+    public record State(
+            List<Stock> stocks,
+            List<Production> production,
+            List<Project> projects,
+            ProductionCatalog catalog,
+            List<Batch> batches) {
+        public State(List<Stock> stocks, List<Production> production, List<Project> projects) {
+            this(stocks, production, projects, ProductionCatalog.cityGame(), List.of());
+        }
+
+        public State(
+                List<Stock> stocks,
+                List<Production> production,
+                List<Project> projects,
+                ProductionCatalog catalog) {
+            this(stocks, production, projects, catalog, List.of());
+        }
+
         public State {
             stocks = List.copyOf(stocks);
             production = List.copyOf(production);
             projects = List.copyOf(projects);
+            batches = List.copyOf(batches);
         }
 
         public static State empty() {
@@ -57,11 +82,15 @@ public final class CityMaterials {
     private final Map<Key, Long> stocks = new LinkedHashMap<>();
     private final Map<Integer, Production> production = new LinkedHashMap<>();
     private final Map<Integer, Project> projects = new LinkedHashMap<>();
+    public final ProductionCatalog catalog;
+    private final Map<String, Batch> batches = new LinkedHashMap<>();
 
     public CityMaterials(State state) {
+        catalog = state.catalog;
         for (var s : state.stocks) stocks.put(new Key(s.ownerKind, s.owner, s.material), s.units);
         for (var p : state.production) production.put(p.company, p);
         for (var p : state.projects) projects.put(p.plot, p);
+        for (var b : state.batches) batches.put(b.company + ":" + b.recipe, b);
     }
 
     public static String sector(int kind) {
@@ -74,12 +103,13 @@ public final class CityMaterials {
             case GLASSWORKS -> "Sand pit / glassworks";
             case LIGHTING -> "Lighting workshop";
             case FARM -> "Crop farm";
+            case TOOLS -> "Tool factory";
             default -> "Business";
         };
     }
 
     public static String name(int material) {
-        return material == FOOD ? "Food" : Blocks.name(material);
+        return ProductionCatalog.cityGame().name(material);
     }
 
     public static String quantity(long units) {
@@ -95,20 +125,17 @@ public final class CityMaterials {
             case GLASSWORKS -> Blocks.GLASS;
             case LIGHTING -> Blocks.LED;
             case 1, FARM -> FOOD;
+            case TOOLS -> PICKAXE;
             default -> Blocks.STONE;
         };
     }
 
     public static int capacity(int kind) {
-        return kind == LIGHTING ? 32 : 512;
+        return kind == TOOLS ? 16 : kind == LIGHTING ? 32 : 512;
     }
 
     public static double price(int material) {
-        return material == Blocks.LED
-                ? .8
-                : material == FOOD || material == Blocks.WOOD
-                        ? .5
-                        : material == Blocks.GLASS ? .4 : .3;
+        return ProductionCatalog.cityGame().price(material);
     }
 
     public long available(int kind, int owner, int material) {
@@ -119,7 +146,7 @@ public final class CityMaterials {
         if (kind < 0
                 || kind > 1
                 || owner < 1
-                || !validMaterial(material)
+                || !catalog.valid(material)
                 || units < 0
                 || units > 1_000_000_000L)
             throw new IllegalArgumentException("Invalid material stock");
@@ -177,23 +204,45 @@ public final class CityMaterials {
 
     /** Use the same recipes as player crafting; work cannot create inputs that are missing. */
     public int craft(int company, int output) {
-        var recipe =
-                Crafting.recipes().stream()
-                        .filter(
-                                r ->
-                                        r.output() == output
-                                                && r.inputs().keySet().stream()
-                                                        .noneMatch(Blocks::isPiece))
+        var configured =
+                catalog.recipes().stream()
+                        .filter(r -> r.output() == output)
                         .findFirst()
                         .orElse(null);
-        if (recipe == null
+        if (configured != null) return craft(company, configured);
+        return 0;
+    }
+
+    /** A complete batch is checked before any input is consumed. */
+    public int craft(int company, ProductionCatalog.Recipe recipe) {
+        if (!catalog.recipes().contains(recipe)
+                || available(0, company, recipe.output()) + recipe.count() * UNIT
+                        > recipe.capacity() * UNIT
                 || recipe.inputs().entrySet().stream()
                         .anyMatch(e -> available(0, company, e.getKey()) < e.getValue() * UNIT))
             return 0;
         for (var e : recipe.inputs().entrySet())
             remove(0, company, e.getKey(), e.getValue() * UNIT);
-        add(0, company, output, recipe.count() * UNIT);
+        add(0, company, recipe.output(), recipe.count() * UNIT);
         return recipe.count();
+    }
+
+    public double productivity(int company, int kind) {
+        var equipment = catalog.equipment(kind);
+        return equipment != null && available(0, company, equipment.product()) >= UNIT
+                ? equipment.multiplier()
+                : 1;
+    }
+
+    public Batch batch(int company, String recipe) {
+        return batches.getOrDefault(company + ":" + recipe, new Batch(company, recipe, 0, 0));
+    }
+
+    public void batch(int company, String recipe, double progress, long completed) {
+        var old = batch(company, recipe);
+        batches.put(
+                company + ":" + recipe,
+                new Batch(company, recipe, progress, old.completed + completed));
     }
 
     public Production production(int company) {
@@ -225,7 +274,9 @@ public final class CityMaterials {
                                                 e.getValue()))
                         .toList(),
                 List.copyOf(production.values()),
-                List.copyOf(projects.values()));
+                List.copyOf(projects.values()),
+                catalog,
+                List.copyOf(batches.values()));
     }
 
     public static List<Amount> requirements(int type) {
@@ -246,9 +297,8 @@ public final class CityMaterials {
         return totals.entrySet().stream().map(e -> new Amount(e.getKey(), e.getValue())).toList();
     }
 
-    private static boolean validMaterial(int id) {
-        return id == FOOD
-                || id == Blocks.STONE
+    static boolean buildingMaterial(int id) {
+        return id == Blocks.STONE
                 || id == Blocks.SAND
                 || id == Blocks.WOOD
                 || id == Blocks.PLANKS
@@ -258,6 +308,10 @@ public final class CityMaterials {
     }
 
     public static void write(DataOutput out, State state) throws IOException {
+        write(out, state, 5);
+    }
+
+    public static void write(DataOutput out, State state, int version) throws IOException {
         out.writeInt(state.stocks.size());
         for (var s : state.stocks) {
             out.writeByte(s.ownerKind);
@@ -285,15 +339,29 @@ public final class CityMaterials {
                 out.writeLong(a.units);
             }
         }
+        if (version >= 5) {
+            state.catalog.write(out);
+            out.writeInt(state.batches.size());
+            for (var b : state.batches) {
+                out.writeInt(b.company);
+                out.writeUTF(b.recipe);
+                out.writeDouble(b.progress);
+                out.writeLong(b.completed);
+            }
+        }
     }
 
     public static State read(DataInput in) throws IOException {
+        return read(in, 5);
+    }
+
+    public static State read(DataInput in, int version) throws IOException {
         var stocks = new ArrayList<Stock>();
         var keys = new HashSet<Key>();
         for (int i = 0, n = count(in, 4096); i < n; i++) {
             int kind = in.readUnsignedByte(), owner = positive(in), material = in.readInt();
             long units = units(in);
-            if (kind > 1 || !validMaterial(material) || !keys.add(new Key(kind, owner, material)))
+            if (kind > 1 || !keys.add(new Key(kind, owner, material)))
                 throw new IOException("Invalid material owner / duplicate stock");
             stocks.add(new Stock(kind, owner, material, units));
         }
@@ -319,20 +387,39 @@ public final class CityMaterials {
         for (int i = 0, n = count(in, 512); i < n; i++) {
             int plot = positive(in), kind = in.readUnsignedByte();
             boolean reserved = in.readBoolean(), consumed = in.readBoolean();
-            if (kind > FARM || reserved && consumed || !plotIds.add(plot))
+            if (kind > TOOLS || reserved && consumed || !plotIds.add(plot))
                 throw new IOException("Invalid material reservation");
             var materials = new ArrayList<Amount>();
             var materialIds = new HashSet<Integer>();
             for (int j = 0, m = count(in, 8); j < m; j++) {
                 int material = in.readInt();
                 long units = units(in);
-                if (!validMaterial(material) || material == FOOD || !materialIds.add(material))
+                if (!buildingMaterial(material) || !materialIds.add(material))
                     throw new IOException("Invalid building material");
                 materials.add(new Amount(material, units));
             }
             projects.add(new Project(plot, kind, reserved, consumed, materials));
         }
-        return new State(stocks, production, projects);
+        var catalog = version >= 5 ? ProductionCatalog.read(in) : ProductionCatalog.cityGame();
+        for (var stock : stocks)
+            if (!catalog.valid(stock.material)) throw new IOException("Unknown stock product");
+        var batches = new ArrayList<Batch>();
+        var batchKeys = new HashSet<String>();
+        if (version >= 5)
+            for (int n = count(in, 1024); n > 0; n--) {
+                int company = positive(in);
+                String recipe = in.readUTF();
+                double progress = in.readDouble();
+                long completed = in.readLong();
+                if (!batchKeys.add(company + ":" + recipe)
+                        || catalog.recipes().stream().noneMatch(r -> r.id().equals(recipe))
+                        || !Double.isFinite(progress)
+                        || progress < 0
+                        || progress >= 1
+                        || completed < 0) throw new IOException("Invalid manufacturing batch");
+                batches.add(new Batch(company, recipe, progress, completed));
+            }
+        return new State(stocks, production, projects, catalog, batches);
     }
 
     private static int positive(DataInput in) throws IOException {

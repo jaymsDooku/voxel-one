@@ -121,16 +121,30 @@ public final class CityHarvesting {
 
     public void work(CityEconomy economy, CityEconomy.Company firm, double hours) {
         var stocks = economy.resources;
-        int output = CityMaterials.output(firm.kind);
+        if (!Double.isFinite(hours) || hours <= 0) return;
+        if (firm.kind == CityMaterials.TOOLS
+                || stocks.catalog.recipes(firm.kind).stream()
+                        .anyMatch(ProductionCatalog.Recipe::requiresFactory)) {
+            manufacture(economy, firm, hours);
+            return;
+        }
+        var equipment = stocks.catalog.equipment(firm.kind);
+        if (equipment != null) economy.purchase(firm.id, equipment.product(), CityMaterials.UNIT);
+        int output = stocks.catalog.output(firm.kind);
         var old = stocks.production(firm.id);
-        double progress = old.progress() + hours * (firm.kind == CityMaterials.FARM ? 16 : 256);
+        var recipes = stocks.catalog.recipes(firm.kind);
+        double rate =
+                recipes.isEmpty()
+                        ? firm.kind == CityMaterials.FARM ? 16 : 256
+                        : recipes.get(0).batchesPerHour();
+        double progress = old.progress() + hours * rate * stocks.productivity(firm.id, firm.kind);
         int cycles = Math.min(512, (int) progress);
         progress -= (int) progress;
         long harvested = 0, processed = 0;
         String status = cycles == 0 ? old.status() : "Working";
         for (int i = 0; i < cycles; i++) {
             if (stocks.available(0, firm.id, output)
-                    >= CityMaterials.capacity(firm.kind) * CityMaterials.UNIT) {
+                    >= stocks.catalog.capacity(firm.kind) * CityMaterials.UNIT) {
                 status = "Storage full";
                 break;
             }
@@ -165,12 +179,6 @@ public final class CityHarvesting {
                 processed++;
                 continue;
             }
-            if (firm.kind == CityMaterials.MASONRY)
-                economy.purchase(firm.id, Blocks.STONE, 4 * CityMaterials.UNIT);
-            if (firm.kind == CityMaterials.LIGHTING) {
-                economy.purchase(firm.id, Blocks.STONE, CityMaterials.UNIT);
-                economy.purchase(firm.id, Blocks.GLASS, CityMaterials.UNIT);
-            }
             if (firm.kind == CityEconomy.MINE) {
                 if (!harvest(Blocks.STONE)) {
                     status =
@@ -186,7 +194,19 @@ public final class CityHarvesting {
             }
             // Keep logs for exposed beams and sand for trade; refinement consumes the surplus.
             if (raw != 0 && stocks.available(0, firm.id, raw) <= 16 * CityMaterials.UNIT) continue;
-            int result = stocks.craft(firm.id, output);
+            var recipe =
+                    recipes.stream().filter(r -> r.output() == output).findFirst().orElse(null);
+            if (recipe == null) {
+                status = "No configured recipe";
+                break;
+            }
+            for (var ingredient : recipe.inputs().entrySet())
+                if (ingredient.getKey() != raw)
+                    economy.purchase(
+                            firm.id,
+                            ingredient.getKey(),
+                            ingredient.getValue() * CityMaterials.UNIT);
+            int result = stocks.craft(firm.id, recipe);
             if (result == 0) {
                 status = "Waiting for input materials";
                 continue;
@@ -195,5 +215,57 @@ public final class CityHarvesting {
         }
         stocks.production(firm.id, progress, harvested, processed, status);
         economy.businesses.produced(economy.account(firm.id), (int) processed);
+    }
+
+    /**
+     * Each configured line gets an equal share of paid work; waiting time never creates free
+     * batches.
+     */
+    private void manufacture(CityEconomy economy, CityEconomy.Company firm, double hours) {
+        var stocks = economy.resources;
+        var recipes = stocks.catalog.recipes(firm.kind);
+        boolean premises =
+                economy.properties.stream()
+                        .anyMatch(
+                                p -> p.operator() == firm.id && p.building() < CityMaterials.YARD);
+        String status = recipes.isEmpty() ? "No configured recipe" : "Storage full";
+        long produced = 0;
+        for (var recipe : recipes) {
+            if (recipe.requiresFactory() && !premises) {
+                status = "Needs industrial factory";
+                continue;
+            }
+            if (stocks.available(0, firm.id, recipe.output()) + recipe.count() * CityMaterials.UNIT
+                    > recipe.capacity() * CityMaterials.UNIT) continue;
+            for (var e : recipe.inputs().entrySet())
+                economy.purchase(firm.id, e.getKey(), e.getValue() * CityMaterials.UNIT);
+            if (recipe.inputs().entrySet().stream()
+                    .anyMatch(
+                            e ->
+                                    stocks.available(0, firm.id, e.getKey())
+                                            < e.getValue() * CityMaterials.UNIT)) {
+                status = "Waiting for input materials";
+                continue;
+            }
+            var old = stocks.batch(firm.id, recipe.id());
+            double progress = old.progress() + hours / recipes.size() * recipe.batchesPerHour();
+            int cycles = Math.min(512, (int) progress), completed = 0;
+            progress -= (int) progress;
+            status = "Manufacturing";
+            for (int i = 0; i < cycles; i++) {
+                for (var e : recipe.inputs().entrySet())
+                    economy.purchase(firm.id, e.getKey(), e.getValue() * CityMaterials.UNIT);
+                int count = stocks.craft(firm.id, recipe);
+                if (count == 0) {
+                    status = "Waiting for inputs / capacity";
+                    break;
+                }
+                completed++;
+                produced += count;
+            }
+            stocks.batch(firm.id, recipe.id(), progress, completed);
+        }
+        stocks.production(firm.id, 0, 0, produced, status);
+        if (produced > 0) economy.businesses.produced(economy.account(firm.id), (int) produced);
     }
 }

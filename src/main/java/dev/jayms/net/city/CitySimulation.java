@@ -73,10 +73,20 @@ public final class CitySimulation {
     private final List<CityFrame.Building> buildings = new ArrayList<>();
     private double elapsed, accumulator, nextBuild;
     private int zoneIds, buildingIds, grade;
+    private CityAddresses addresses = new CityAddresses(CityAddresses.empty());
     public final CityEconomy economy;
     private boolean founding = true, migrateMaterials;
 
     public CitySimulation(GameConfig config, Ground ground, Terrain terrain, CityFrame saved) {
+        this(config, ground, terrain, saved, ProductionCatalog.cityGame());
+    }
+
+    public CitySimulation(
+            GameConfig config,
+            Ground ground,
+            Terrain terrain,
+            CityFrame saved,
+            ProductionCatalog catalog) {
         this.config = config;
         this.ground = ground;
         harvesting =
@@ -107,7 +117,7 @@ public final class CitySimulation {
             return;
         }
         if (!config.city()) {
-            economy = new CityEconomy(ecs, null);
+            economy = new CityEconomy(ecs, null, catalog);
             founding = false;
             return;
         }
@@ -161,11 +171,12 @@ public final class CitySimulation {
             ecs.put(id, Position.class, new Position(2.5f + i, grade + 1.01f, 24.5f));
             ecs.put(id, Mount.class, new Mount());
         }
-        economy = new CityEconomy(ecs, null);
+        economy = new CityEconomy(ecs, null, catalog);
         founding = false;
     }
 
     private void restore(CityFrame f) {
+        addresses = new CityAddresses(f.addresses());
         elapsed = f.elapsed();
         nextBuild = elapsed + 2;
         for (var r : f.roads()) roads.put(new Cell(r.x(), r.z()), r.y());
@@ -328,7 +339,9 @@ public final class CitySimulation {
                             b,
                             (int)
                                     (economy.resources.available(
-                                                    0, company, CityMaterials.output(firm.kind))
+                                                    0,
+                                                    company,
+                                                    economy.resources.catalog.output(firm.kind))
                                             / CityMaterials.UNIT));
             } else if (b.type() == 1 && working && !eating) {
                 t.activity =
@@ -467,6 +480,10 @@ public final class CitySimulation {
                                 .mapToInt(CityFrame.Building::id)
                                 .findFirst()
                                 .orElse(CityMaterials.YARD + firm.id);
+                if (workplace >= CityMaterials.YARD
+                        && !economy.resources.catalog.recipes(firm.kind).isEmpty()
+                        && economy.resources.catalog.recipes(firm.kind).stream()
+                                .allMatch(ProductionCatalog.Recipe::requiresFactory)) continue;
                 var crew =
                         ecs.query(Household.class).stream()
                                 .filter(id -> employer(ecs.get(id, Household.class).job) == firm.id)
@@ -640,9 +657,13 @@ public final class CitySimulation {
         for (var b : buildings)
             if (x > b.x() && x < b.x() + 6 && z > b.z() && z < b.z() + 7) {
                 int door = entrance(b);
-                if (b.type() == 2 && door > b.z()) {
-                    t.route.add(new Cell(b.x() + 1, b.z() + 2));
-                    t.route.add(new Cell(b.x() + 1, b.z() + 5));
+                if (quarry(b) && door > b.z()) {
+                    // A worker already near the rear door must not walk diagonally back across
+                    // the shaft. Interior workers first join the safe side aisle at their own Z.
+                    if (z < b.z() + 5) {
+                        t.route.add(new Cell(b.x() + 1, (int) Math.floor(z)));
+                        t.route.add(new Cell(b.x() + 1, b.z() + 5));
+                    }
                     t.route.add(new Cell(b.x() + 2, b.z() + 5));
                     t.route.add(new Cell(b.x() + 2, b.z() + 6));
                 } else {
@@ -668,7 +689,7 @@ public final class CitySimulation {
             return;
         }
         t.route.addAll(path);
-        if (destination.type() == 2 && door > destination.z()) {
+        if (quarry(destination) && door > destination.z()) {
             t.route.add(new Cell(destination.x() + 2, destination.z() + 6));
             t.route.add(new Cell(destination.x() + 2, destination.z() + 5));
             t.route.add(new Cell(destination.x() + 1, destination.z() + 5));
@@ -680,6 +701,10 @@ public final class CitySimulation {
                             door < destination.z() ? destination.z() + 1 : destination.z() + 5));
         t.route.add(new Cell(destination.x() + 2, destination.z() + 1 + (id / 4) % 2));
         t.route.add(new Cell(destination.x() + 1 + id % 4, destination.z() + 1 + (id / 4) % 2));
+    }
+
+    private boolean quarry(CityFrame.Building b) {
+        return b.type() == 2 && ground.type(b.x() + 2, b.y(), b.z() + 3) == Blocks.AIR;
     }
 
     private void travel(int id, Position p, Household h, Travel t, float dt) {
@@ -858,6 +883,14 @@ public final class CitySimulation {
                 throw new IllegalArgumentException("Road would intersect a player");
         }
         int newCells = (int) cells.stream().filter(c -> !roads.containsKey(c)).count();
+        var nextAddresses = new CityAddresses(addresses.state(buildings));
+        String name =
+                newCells == 0
+                        ? addresses
+                                .state(buildings)
+                                .nearest(points.get(0).x(), points.get(0).z())
+                                .name()
+                        : nextAddresses.road(points);
         if (!founding && !economy.roads(newCells))
             return "Mayor budget too low for road: needs $"
                     + (int) (newCells * CityEconomy.ROAD_COST);
@@ -868,9 +901,13 @@ public final class CitySimulation {
                 roads.put(c, grade);
             }
         ground.apply(edits);
+        addresses = nextAddresses;
         return founding
-                ? "Dirt road built"
-                : "Dirt road built | Mayor paid $" + (int) (newCells * CityEconomy.ROAD_COST);
+                ? "Dirt road built: " + name
+                : "Dirt road built: "
+                        + name
+                        + " | Mayor paid $"
+                        + (int) (newCells * CityEconomy.ROAD_COST);
     }
 
     private void level(int x, int z, List<Protocol.Edit> edits) {
@@ -1012,7 +1049,7 @@ public final class CitySimulation {
     }
 
     private int industrialDemand() {
-        for (int kind = 2; kind <= CityMaterials.FARM; kind++) {
+        for (int kind = 2; kind <= CityMaterials.TOOLS; kind++) {
             final int k = kind;
             boolean exists =
                     economy.plots.stream()
@@ -1176,7 +1213,16 @@ public final class CitySimulation {
                     new CityFrame.Horse(
                             id, p.x, p.y, p.z, p.yaw, p.phase, ecs.get(id, Mount.class).rider));
         }
-        return new CityFrame(config, elapsed, rs, zones, buildings, cs, hs, economy.state());
+        return new CityFrame(
+                config,
+                elapsed,
+                rs,
+                zones,
+                buildings,
+                cs,
+                hs,
+                economy.state(),
+                addresses.state(buildings));
     }
 
     public static CityFrame load(Path file) throws IOException {
@@ -1186,12 +1232,15 @@ public final class CitySimulation {
             if (magic != 0x43495431
                     && magic != 0x43495432
                     && magic != 0x43495433
-                    && magic != 0x43495434) throw new IOException("Invalid city save");
+                    && magic != 0x43495434
+                    && magic != 0x43495435) throw new IOException("Invalid city save");
             return CityFrame.read(
                     in,
                     magic == 0x43495431
                             ? 1
-                            : magic == 0x43495432 ? 2 : magic == 0x43495433 ? 3 : 4);
+                            : magic == 0x43495432
+                                    ? 2
+                                    : magic == 0x43495433 ? 3 : magic == 0x43495434 ? 4 : 5);
         }
     }
 
@@ -1200,7 +1249,7 @@ public final class CitySimulation {
         Files.createDirectories(file.toAbsolutePath().getParent());
         Path tmp = file.resolveSibling(file.getFileName() + ".tmp");
         try (var out = new DataOutputStream(Files.newOutputStream(tmp))) {
-            out.writeInt(0x43495434);
+            out.writeInt(0x43495435);
             frame().write(out);
         }
         try {
