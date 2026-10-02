@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T15:29:34+00:00",
+  "updatedAt": "2026-10-02T15:47:38+00:00",
   "release": {
     "name": "Playtest 20",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-20",
@@ -1273,8 +1273,8 @@
       "description": "Expanding shops and mines into staffed businesses with operating accounts, production, sales and a mayor monitoring screen.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Expanding shops and mines into staffed businesses with operating accounts, production, sales and a mayor monitoring screen.",
-      "updatedAt": "2026-10-02T15:29:34+00:00"
+      "note": "Implemented staffed shop shifts, hourly mine production, per-workplace operating accounts and the mayor Businesses view. Business regression tests pass; checking multi-day operation, save upgrades, multiplayer snapshots and the actual client UI.",
+      "updatedAt": "2026-10-02T15:47:38+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
