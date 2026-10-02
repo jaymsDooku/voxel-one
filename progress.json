@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T01:12:04+00:00",
+  "updatedAt": "2026-10-02T01:12:08+00:00",
   "release": {
     "name": "Playtest 13",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-13",
@@ -178,10 +178,36 @@
       "id": "coloured-led-blocks",
       "title": "Coloured glowing blocks",
       "description": "Place LED-like blocks with any chosen colour and visible local illumination.",
-      "status": "in_progress",
-      "updatedAt": "2026-10-02T00:45:16+00:00",
-      "note": "RGB LED blocks, F8 colour controls, crafting, save migration and TLS replication regressions implemented; GPU verification in progress.",
-      "evidence": []
+      "status": "complete",
+      "updatedAt": "2026-10-02T01:12:08+00:00",
+      "note": "Craftable LED lights with any 24-bit RGB colour, F8 picker, full/fractional placement, coloured indirect light, held-item replication and persistent multiplayer RGB edits. All 74 tests pass; live jayms login and Windows auto-update verified.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "lighting tests.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-tests.json"
+        },
+        {
+          "kind": "report",
+          "label": "lighting client checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-client-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "lighting deployment.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-deployment.json"
+        },
+        {
+          "kind": "image",
+          "label": "voxel lighting placed purple.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/voxel-lighting-placed-purple.png"
+        },
+        {
+          "kind": "image",
+          "label": "voxel lighting colour menu.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/voxel-lighting-colour-menu.png"
+        }
+      ]
     },
     {
       "id": "player-multiplayer",
