@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T09:12:22+00:00",
+  "updatedAt": "2026-10-02T09:40:18+00:00",
   "release": {
     "name": "Playtest 13",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-13",
@@ -741,10 +741,26 @@
       "id": "voxel-city-one",
       "title": "Voxel City One: playable city simulation",
       "description": "Building configurable time, ECS populations, polygon zoning, generated structures, road travel and rideable horses.",
-      "evidence": [],
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "city render checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/city-render-checks.json"
+        },
+        {
+          "kind": "image",
+          "label": "city day.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/city-day.png"
+        },
+        {
+          "kind": "image",
+          "label": "city night.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/city-night.png"
+        }
+      ],
       "status": "in_progress",
-      "note": "Building configurable time, ECS populations, polygon zoning, generated structures, road travel and rideable horses.",
-      "updatedAt": "2026-10-02T08:34:49+00:00"
+      "note": "Implemented city planning, ECS economy and road navigation, generated structures, configurable daylight and exclusive riding. Real client riding checks and GPU day/night checks passed; final regression and VPS/release deployment remain.",
+      "updatedAt": "2026-10-02T09:40:18+00:00"
     },
     {
       "id": "dashboard-questions",
