@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T20:04:57+00:00",
+  "updatedAt": "2026-10-02T20:32:21+00:00",
   "release": {
-    "name": "Playtest 25",
-    "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-25",
-    "commit": "84bbfcb4e7ac96877af6648b919115b21fa87423"
+    "name": "Playtest 27",
+    "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-27",
+    "commit": "f90797361b1a87b295d049411c466f7634bf8da0"
   },
   "verification": {
-    "tests": 152,
+    "tests": 160,
     "failures": 0,
-    "label": "Playtest 25 \u00b7 all four platforms",
-    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/manufacturing-release-checks.json"
+    "label": "Playtest 27 \u00b7 all four platforms",
+    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/agriculture-release-checks.json"
   },
   "items": [
     {
@@ -1631,11 +1631,41 @@
           "kind": "image",
           "label": "agriculture dashboard video mobile.png",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/agriculture-dashboard-video-mobile.png"
+        },
+        {
+          "kind": "link",
+          "label": "Playtest 27 release",
+          "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-27"
+        },
+        {
+          "kind": "link",
+          "label": "160 tests on all platforms",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/37059251092"
+        },
+        {
+          "kind": "report",
+          "label": "agriculture release checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/agriculture-release-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "agriculture windows update checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/agriculture-windows-update-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "agriculture vps upgrade checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/agriculture-vps-upgrade-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "agriculture live server checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/agriculture-live-server-checks.json"
         }
       ],
-      "status": "in_progress",
-      "note": "Committed and pushed ede5869. All 160 Linux tests pass; real three-day farm/food/material/cash checks and the F10 walkthrough are attached. Safari-style WebKit and Chromium pass eight phone/desktop video playback and documentation navigation checks. Private website documentation is published; Windows/Linux/Mac release verification is running before VPS deployment.",
-      "updatedAt": "2026-10-02T20:04:57+00:00"
+      "status": "complete",
+      "note": "Playtest 27 committed, pushed and deployed to both VPS services. Agricultural crop/cattle farms are privately built and expanded by farming families; developers stay out. Wheat/carrot/cane fields and finite fed cows supply bread/flour/sugar/carrot-cake factories and markets. 160 tests pass on Windows/Linux/Mac Intel/Mac ARM; three-day world conserves building materials and cash, with 18 citizens eating/sleeping and paid farm expansion. Real F10 walkthrough and Safari-style video checks attached. Windows updater downloaded the final client; existing jayms login, TLS, city clock, properties, accounts and public budget verified. Existing city needs new agricultural land and industrial factory plots.",
+      "updatedAt": "2026-10-02T20:32:21+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
