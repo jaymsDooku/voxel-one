@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T12:49:47+00:00",
+  "updatedAt": "2026-10-02T12:57:07+00:00",
   "release": {
     "name": "Playtest 13",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-13",
@@ -10,8 +10,8 @@
   "verification": {
     "tests": 94,
     "failures": 0,
-    "label": "Playtest 16",
-    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/fps-release-checks.json"
+    "label": "Playtest 17",
+    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/player-nameplate-release-checks.json"
   },
   "items": [
     {
@@ -946,10 +946,46 @@
       "id": "player-nameplates",
       "title": "Nameplates for actual players only",
       "description": "Removing population/NPC holographic nameplates while keeping actual player labels and citizen inspection.",
-      "evidence": [],
-      "status": "in_progress",
-      "note": "Removing population/NPC holographic nameplates while keeping actual player labels and citizen inspection.",
-      "updatedAt": "2026-10-02T12:49:47+00:00"
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Four-platform CI",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/37009312635"
+        },
+        {
+          "kind": "link",
+          "label": "Playtest 17",
+          "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-17"
+        },
+        {
+          "kind": "report",
+          "label": "player nameplate client checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/player-nameplate-client-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "player nameplate release checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/player-nameplate-release-checks.json"
+        },
+        {
+          "kind": "image",
+          "label": "player nameplates city.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/player-nameplates-city.png"
+        },
+        {
+          "kind": "image",
+          "label": "player nameplates first person.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/player-nameplates-first-person.png"
+        },
+        {
+          "kind": "image",
+          "label": "player nameplates third person.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/player-nameplates-third-person.png"
+        }
+      ],
+      "status": "complete",
+      "note": "Removed population/NPC holographic labels; actual local and multiplayer player labels remain. Citizen identities are available through Inspect. Packaged-client city/first-person/third-person checks passed. Playtest 17 passed 94 tests on all four desktop platforms; Windows updater download and checksum verification passed.",
+      "updatedAt": "2026-10-02T12:57:07+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
