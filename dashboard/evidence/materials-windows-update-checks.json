@@ -1,0 +1,10 @@
+{
+  "platform": "Windows",
+  "scope": "Existing auto-updater downloaded the released Windows client on this Linux VPS; this does not run Windows graphics",
+  "revision": "178e759cb1bef0eb2850f524881779ea0dac537c",
+  "clientChecksumVerified": true,
+  "materialAndInspectorClassesPresent": true,
+  "windowsGlfwNativePresent": true,
+  "recorderAndEncoderPresent": true,
+  "status": "passed"
+}

@@ -1,0 +1,13 @@
+{
+  "release": "playtest-24",
+  "revision": "178e759cb1bef0eb2850f524881779ea0dac537c",
+  "serverSha256": "f7aa4845b3d762621f92ace1f9eec84d91b39537133aa5a04cc9a6555ba33630",
+  "publishedChecksumVerified": true,
+  "status": "passed",
+  "serverServices": [
+    "voxel-one",
+    "voxel-city-one"
+  ],
+  "backupsCreated": true,
+  "worldAccountsAndTlsIdentityPreserved": true
+}

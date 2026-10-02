@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T17:36:28+00:00",
+  "updatedAt": "2026-10-02T17:58:55+00:00",
   "release": {
     "name": "Playtest 22",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-22",
@@ -1421,11 +1421,51 @@
           "kind": "image",
           "label": "materials dashboard video mobile.png",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/materials-dashboard-video-mobile.png"
+        },
+        {
+          "kind": "link",
+          "label": "Release and downloads",
+          "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-24"
+        },
+        {
+          "kind": "link",
+          "label": "Four-platform verification",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/37042747215"
+        },
+        {
+          "kind": "link",
+          "label": "Ownership, recipes and migration regressions",
+          "url": "https://github.com/jaymsDooku/voxel-one/blob/178e759cb1bef0eb2850f524881779ea0dac537c/src/test/java/dev/jayms/CityMaterialsTest.java"
+        },
+        {
+          "kind": "report",
+          "label": "materials ci checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/materials-ci-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "materials release checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/materials-release-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "materials vps upgrade checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/materials-vps-upgrade-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "materials vps live checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/materials-vps-live-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "materials windows update checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/materials-windows-update-checks.json"
         }
       ],
-      "status": "in_progress",
-      "note": "Final verification passed 142 tests, including old-save migration, naturally sourced workshop construction and developers using already-owned stock. The recorded inspector passed eight mobile/desktop WebKit and Chromium playback and documentation checks. Publishing the release and upgrading both VPS servers.",
-      "updatedAt": "2026-10-02T17:36:28+00:00"
+      "status": "complete",
+      "note": "Playtest 24 is committed, published and deployed on both VPS servers. Verified 142 tests on each desktop platform, three simulated days with conserved natural materials, recorded building inspection, Safari-compatible evidence playback, Windows auto-updating and live test-account TLS sign-in. Existing city, accounts and TLS identity retained with backups.",
+      "updatedAt": "2026-10-02T17:58:55+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
