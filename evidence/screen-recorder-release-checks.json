@@ -1,0 +1,61 @@
+{
+  "release": "playtest-20",
+  "revision": "cf3af7e06670adb1e897e9eee7b5938d1d64e52c",
+  "ci": "https://github.com/jaymsDooku/voxel-one/actions/runs/37023199353",
+  "published": true,
+  "platforms": [
+    {
+      "platform": "windows",
+      "tests": 117,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "build": "success"
+    },
+    {
+      "platform": "linux",
+      "tests": 117,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "build": "success"
+    },
+    {
+      "platform": "mac-intel",
+      "tests": 117,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "build": "success"
+    },
+    {
+      "platform": "mac-arm",
+      "tests": 117,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "build": "success"
+    }
+  ],
+  "windowsUpdater": {
+    "downloaded": true,
+    "sha256Verified": true,
+    "windowsGlfwLibraryPresent": true,
+    "recorderAndEncoderPresent": true,
+    "encoderLicensePresent": true,
+    "revision": "cf3af7e06670adb1e897e9eee7b5938d1d64e52c",
+    "scope": "Windows release artifact verified on VPS; not a physical Windows desktop playtest"
+  },
+  "dashboardPublished": true,
+  "dashboardVideoChecks": 8,
+  "videoHandlerTests": 5,
+  "workerRouteChecks": 2,
+  "recordedRun": {
+    "codec": "H264",
+    "width": 674,
+    "height": 540,
+    "durationSeconds": 14.616,
+    "decodedFrames": 83,
+    "status": "passed"
+  }
+}
