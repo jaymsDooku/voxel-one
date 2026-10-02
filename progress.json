@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T20:42:47+00:00",
+  "updatedAt": "2026-10-02T21:04:42+00:00",
   "release": {
     "name": "Playtest 27",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-27",
@@ -1671,10 +1671,21 @@
       "id": "lighting-occlusion",
       "title": "Solid voxel light occlusion",
       "description": "Tracing propagation and surface sampling; testing opaque walls against glass, air and fine voxels.",
-      "evidence": [],
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "lighting occlusion tests.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-tests.json"
+        },
+        {
+          "kind": "report",
+          "label": "lighting occlusion rendering.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-rendering.json"
+        }
+      ],
       "status": "in_progress",
-      "note": "Tracing propagation and surface sampling; testing opaque walls against glass, air and fine voxels.",
-      "updatedAt": "2026-10-02T20:42:47+00:00"
+      "note": "166 automated tests pass. Actual GPU checks show zero LED or sunlight leakage through a 1/16 solid wall; glass and openings transmit. Preparing the desktop release.",
+      "updatedAt": "2026-10-02T21:04:42+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
