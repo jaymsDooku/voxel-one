@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T16:41:40+00:00",
+  "updatedAt": "2026-10-02T17:01:46+00:00",
   "release": {
     "name": "Playtest 22",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-22",
@@ -1368,8 +1368,8 @@
       "description": "Adding resource harvesting businesses, privately owned material stocks, developer construction requirements and clickable building details.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Adding resource harvesting businesses, privately owned material stocks, developer construction requirements and clickable building details.",
-      "updatedAt": "2026-10-02T16:41:40+00:00"
+      "note": "Implemented privately owned material stocks, terrain harvesting and refining businesses, exact building recipes and reservation gating; testing startup, ownership transfers and building inspection.",
+      "updatedAt": "2026-10-02T17:01:46+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
