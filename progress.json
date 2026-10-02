@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T22:01:52+00:00",
+  "updatedAt": "2026-10-02T22:11:28+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -1755,22 +1755,27 @@
     {
       "id": "general-development-dashboard",
       "title": "General Codex development queue and agent team",
-      "description": "Building a separate application-grouped queue, prompt submission, worktree-based developers, independent PR review and budget-aware continuation.",
+      "description": "General private queue deployed; two developers and independent reviewer running on VPS. Six feature PRs reviewed and merged. 16 API/presentation, 21 worker and four bridge checks plus mobile WebKit/Chromium pass. Actual structured model turn, quota RPC and three-slot heartbeat verified. Historical milestones/evidence preserved. Budget reset continuation tested deterministically; live reset has not elapsed. Answer private questions, then Resume blocked work.",
       "evidence": [
         {
           "kind": "link",
-          "label": "Shared work queue",
+          "label": "General queue",
           "url": "https://codex-development-dashboard.jamesleaver1.chatgpt.site/?application=voxel-one"
         },
         {
           "kind": "link",
-          "label": "API and concurrency checks",
+          "label": "API checks",
           "url": "https://codex-development-dashboard.jamesleaver1.chatgpt.site/evidence/api-results.tap"
         },
         {
           "kind": "link",
-          "label": "Worker recovery and review checks",
+          "label": "21 worker checks",
           "url": "https://codex-development-dashboard.jamesleaver1.chatgpt.site/evidence/runner-results.tap"
+        },
+        {
+          "kind": "link",
+          "label": "Actual runtime evidence",
+          "url": "https://codex-development-dashboard.jamesleaver1.chatgpt.site/evidence/live-service-checks.json"
         },
         {
           "kind": "link",
@@ -1779,18 +1784,13 @@
         },
         {
           "kind": "link",
-          "label": "Actual VPS service checks",
-          "url": "https://codex-development-dashboard.jamesleaver1.chatgpt.site/evidence/live-service-checks.json"
-        },
-        {
-          "kind": "link",
-          "label": "WebKit phone screenshot",
-          "url": "https://codex-development-dashboard.jamesleaver1.chatgpt.site/evidence/webkit-phone.png"
+          "label": "Verified runtime PR",
+          "url": "https://github.com/jaymsDooku/codex-development-dashboard/pull/5"
         }
       ],
       "status": "complete",
-      "note": "Standalone owner-private shared queue deployed; two developer processes and independent reviewer running durably on the VPS. All five feature PRs independently reviewed and merged. 16 API/presentation checks, 20 worker checks, four Voxel bridge checks and WebKit/Chromium 390px/320px checks passed. Actual quota RPC/three-slot heartbeat verified; 33 historical milestones and 279 evidence links retained. Budget checkpoint/reset resumption tested deterministically; live reset has not elapsed. Questions are answered on the shared dashboard; resume a blocked item after answering.",
-      "updatedAt": "2026-10-02T22:01:52+00:00"
+      "note": "General private queue deployed; two developers and independent reviewer running on VPS. Six feature PRs reviewed and merged. 16 API/presentation, 21 worker and four bridge checks plus mobile WebKit/Chromium pass. Actual structured model turn, quota RPC and three-slot heartbeat verified. Historical milestones/evidence preserved. Budget reset continuation tested deterministically; live reset has not elapsed. Answer private questions, then Resume blocked work.",
+      "updatedAt": "2026-10-02T22:11:28+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
