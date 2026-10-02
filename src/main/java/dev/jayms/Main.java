@@ -78,6 +78,8 @@ public class Main {
     private final Matrix4f projection = new Matrix4f(), view = new Matrix4f();
     private final FrustumIntersection frustum = new FrustumIntersection();
     private String notice = "";
+    private int fps = -1, fpsFrames;
+    private double fpsElapsed;
 
     public void run() throws Exception {
         controls = new Controls(Controls.directory().resolve("controls.properties"));
@@ -490,7 +492,14 @@ public class Main {
         double previous = glfwGetTime();
         while (!window.shouldClose()) {
             double now = glfwGetTime();
-            float dt = (float) (now - previous);
+            double frameElapsed = now - previous;
+            float dt = (float) frameElapsed;
+            fpsElapsed += frameElapsed;
+            if (fpsElapsed >= .5) {
+                fps = (int) Math.round(fpsFrames / fpsElapsed);
+                fpsFrames = 0;
+                fpsElapsed = 0;
+            }
             previous = now;
             // World changes are applied before physics, including collision recovery for late
             // edits.
@@ -608,6 +617,7 @@ public class Main {
             if (framebufferWidth > 0 && framebufferHeight > 0) {
                 render();
                 renderOverlay();
+                fpsFrames++;
             }
             window.swapBuffers();
             window.pollEvents();
@@ -794,6 +804,7 @@ public class Main {
         overlay.begin(framebufferWidth, framebufferHeight);
         if (editor.open) {
             editor.render(overlay, framebufferWidth, framebufferHeight);
+            renderFps();
             overlay.end();
             return;
         }
@@ -892,7 +903,16 @@ public class Main {
                     isometric);
         menu.render(overlay, framebufferWidth, framebufferHeight);
         lightColors.render(overlay, framebufferWidth, framebufferHeight);
+        renderFps();
         overlay.end();
+    }
+
+    private void renderFps() {
+        String label = fps < 0 ? "FPS --" : "FPS " + fps;
+        float scale = 1.6f, width = Math.max(100, overlay.textWidth(label, scale) + 20);
+        float x = framebufferWidth - width - 12;
+        overlay.rectangle(x, 12, width, 30, .015f, .035f, .065f, .85f);
+        overlay.text(label, x + 10, 21, scale);
     }
 
     private void nameplate(String name, Vector3f position) {
