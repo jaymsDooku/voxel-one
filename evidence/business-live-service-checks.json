@@ -1,0 +1,34 @@
+{
+  "scope": "Authenticated pinned-TLS clients against both public VPS services; actual city snapshot and clock updates",
+  "serverRelease": "playtest-21",
+  "checks": [
+    {
+      "protocol": 11,
+      "port": 25566,
+      "city": true,
+      "playersAuthenticated": true,
+      "clockAdvanced": true,
+      "population": 12,
+      "buildings": 5,
+      "companies": 5,
+      "businesses": 2,
+      "operatingAccounts": 2,
+      "calendarDay": 20,
+      "status": "passed"
+    },
+    {
+      "protocol": 11,
+      "port": 25565,
+      "city": false,
+      "playersAuthenticated": true,
+      "clockAdvanced": true,
+      "population": 0,
+      "buildings": 0,
+      "companies": 5,
+      "businesses": 0,
+      "operatingAccounts": 0,
+      "calendarDay": 1,
+      "status": "passed"
+    }
+  ]
+}
