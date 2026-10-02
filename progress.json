@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T01:12:01+00:00",
+  "updatedAt": "2026-10-02T01:12:04+00:00",
   "release": {
     "name": "Playtest 13",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-13",
@@ -153,10 +153,26 @@
       "id": "antialias-filtering",
       "title": "Anti-aliasing and texture filtering",
       "description": "Reduce jagged edges and improve sampling quality.",
-      "status": "in_progress",
-      "updatedAt": "2026-10-02T00:18:27+00:00",
-      "note": "Implementing an HDR render target, multisampling, edge smoothing and filtered procedural material textures.",
-      "evidence": []
+      "status": "complete",
+      "updatedAt": "2026-10-02T01:12:04+00:00",
+      "note": "4x MSAA on accelerated drivers, FXAA fallback, filtered procedural textures, mipmaps and supported anisotropy. Both paths, texture parameters, resize and no-GL-error checks passed.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "rendering gpu 1x.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/rendering-gpu-1x.json"
+        },
+        {
+          "kind": "report",
+          "label": "rendering gpu 4x.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/rendering-gpu-4x.json"
+        },
+        {
+          "kind": "image",
+          "label": "voxel lighting resized.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/voxel-lighting-resized.png"
+        }
+      ]
     },
     {
       "id": "coloured-led-blocks",
