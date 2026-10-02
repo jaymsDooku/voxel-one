@@ -1,0 +1,130 @@
+{
+  "scope": "Full local Linux Maven verify; real local authenticated TLS multiplayer and HTTP updater tests",
+  "tests": 152,
+  "failures": 0,
+  "errors": 0,
+  "suites": [
+    {
+      "name": "dev.jayms.CraftingTest",
+      "tests": 6
+    },
+    {
+      "name": "dev.jayms.BusinessDashboardTest",
+      "tests": 3
+    },
+    {
+      "name": "dev.jayms.CityMaterialsTest",
+      "tests": 13
+    },
+    {
+      "name": "dev.jayms.ManufacturingTest",
+      "tests": 7
+    },
+    {
+      "name": "dev.jayms.CityAddressesTest",
+      "tests": 3
+    },
+    {
+      "name": "dev.jayms.CityToolsTest",
+      "tests": 2
+    },
+    {
+      "name": "dev.jayms.MayorDashboardTest",
+      "tests": 3
+    },
+    {
+      "name": "dev.jayms.DistantTerrainTest",
+      "tests": 6
+    },
+    {
+      "name": "dev.jayms.ControlsTest",
+      "tests": 4
+    },
+    {
+      "name": "dev.jayms.RemotePlayerTest",
+      "tests": 1
+    },
+    {
+      "name": "dev.jayms.ModelSculptorTest",
+      "tests": 3
+    },
+    {
+      "name": "dev.jayms.PlayerCameraTest",
+      "tests": 3
+    },
+    {
+      "name": "dev.jayms.CityMetricsTest",
+      "tests": 5
+    },
+    {
+      "name": "dev.jayms.CityTimeTest",
+      "tests": 6
+    },
+    {
+      "name": "dev.jayms.CityMultiplayerTest",
+      "tests": 1
+    },
+    {
+      "name": "dev.jayms.VideoRecordingTest",
+      "tests": 7
+    },
+    {
+      "name": "dev.jayms.LightingTest",
+      "tests": 5
+    },
+    {
+      "name": "dev.jayms.PlayerTest",
+      "tests": 6
+    },
+    {
+      "name": "dev.jayms.UpdaterTest",
+      "tests": 2
+    },
+    {
+      "name": "dev.jayms.SurvivalTest",
+      "tests": 4
+    },
+    {
+      "name": "dev.jayms.CityBusinessTest",
+      "tests": 9
+    },
+    {
+      "name": "dev.jayms.AccountStoreTest",
+      "tests": 2
+    },
+    {
+      "name": "dev.jayms.MultiplayerTest",
+      "tests": 9
+    },
+    {
+      "name": "dev.jayms.FractionalWorldTest",
+      "tests": 7
+    },
+    {
+      "name": "dev.jayms.CityTest",
+      "tests": 10
+    },
+    {
+      "name": "dev.jayms.CityEconomyTest",
+      "tests": 7
+    },
+    {
+      "name": "dev.jayms.InventoryHudTest",
+      "tests": 2
+    },
+    {
+      "name": "dev.jayms.PlayerAnimationTest",
+      "tests": 6
+    },
+    {
+      "name": "dev.jayms.IsometricCameraTest",
+      "tests": 4
+    },
+    {
+      "name": "dev.jayms.VoxelModelTest",
+      "tests": 6
+    }
+  ],
+  "protocol": 13,
+  "citySaveVersion": 5
+}
