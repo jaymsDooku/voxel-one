@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T16:30:51+00:00",
+  "updatedAt": "2026-10-02T16:41:40+00:00",
   "release": {
     "name": "Playtest 22",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-22",
@@ -1361,6 +1361,15 @@
       "status": "complete",
       "note": "Operating shops and mines now have staffed shifts, inventory and delivery flows, sales, wages, rent and persistent daily accounts. F9 > Businesses monitors locations and private companies, with filters, search, staffing/stock/financial alerts and seven completed days of history. Three simulated days and 72 hourly samples reconcile cash and stock. Playtest 22 passed 129 tests on all four desktop platforms; 8 WebKit/Chromium checks and both authenticated VPS connections passed. Existing city and accounts are preserved. The recorded walkthrough captures the business implementation before the final vacant-location label correction. Windows updater verified; GUI testing used Linux/Mesa, not a physical Windows desktop.",
       "updatedAt": "2026-10-02T16:30:51+00:00"
+    },
+    {
+      "id": "construction-materials",
+      "title": "Natural materials and building information",
+      "description": "Adding resource harvesting businesses, privately owned material stocks, developer construction requirements and clickable building details.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Adding resource harvesting businesses, privately owned material stocks, developer construction requirements and clickable building details.",
+      "updatedAt": "2026-10-02T16:41:40+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
