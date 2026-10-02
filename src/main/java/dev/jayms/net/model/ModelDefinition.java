@@ -14,6 +14,9 @@ public record ModelDefinition(String name, SparseVoxelOctree voxels) {
         if (voxels == null) throw new IllegalArgumentException("Missing voxel data");
         if (voxels.size() < 8 || voxels.size() > 32)
             throw new IllegalArgumentException("Models use 8, 16, or 32 voxels per axis");
+        for (var leaf : voxels.leaves())
+            if (leaf.color() >>> 24 != 255)
+                throw new IllegalArgumentException("Models require opaque ARGB colours");
         if (name == null || !name.matches("[A-Za-z0-9 _-]{1,32}"))
             throw new IllegalArgumentException(
                     "Name must contain 1-32 letters, numbers, spaces, underscores or dashes");

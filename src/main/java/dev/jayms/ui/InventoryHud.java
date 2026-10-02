@@ -123,7 +123,13 @@ public final class InventoryHud {
                 float iconSide = Math.max(7, 25f / (1 << Blocks.depth(type)));
                 float ix = x + 11 + (25 - iconSide) / 2, iy = y + 8 + (25 - iconSide) / 2;
                 ui.rectangle(
-                        ix + 2, iy + 3, iconSide, iconSide, c[0] * .65f, c[1] * .65f, c[2] * .65f,
+                        ix + 2,
+                        iy + 3,
+                        iconSide,
+                        iconSide,
+                        c[0] * .65f,
+                        c[1] * .65f,
+                        c[2] * .65f,
                         1);
                 ui.rectangle(ix, iy, iconSide, iconSide, c[0], c[1], c[2], 1);
                 ui.rectangle(
@@ -188,7 +194,13 @@ public final class InventoryHud {
         ui.rectangle(0, 0, w, h, .01f, .025f, .045f, .65f);
         ui.rectangle(x - 18, y - 65, 540, 362, .025f, .06f, .11f, .98f);
         ui.rectangle(x - 18, y - 65, 540, 3, .15f, .85f, 1, 1);
-        ui.text(crafting ? "CRAFTING / 86 RECIPES" : "INVENTORY / 36 SLOTS", x, y - 43, 2.1f);
+        ui.text(
+                crafting
+                        ? "CRAFTING / " + Crafting.recipes().size() + " RECIPES"
+                        : "INVENTORY / 36 SLOTS",
+                x,
+                y - 43,
+                2.1f);
         ui.rectangle(x + 385, y - 49, 115, 28, .07f, .24f, .32f, 1);
         ui.text(crafting ? "Inventory" : "Recipes", x + 394, y - 41, 1.5f);
         if (crafting) {

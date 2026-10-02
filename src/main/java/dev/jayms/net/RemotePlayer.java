@@ -46,7 +46,8 @@ public final class RemotePlayer {
                         ? (t < 1 ? a.swingProgress() : b.swingProgress())
                         : lerp(a.swingProgress(), b.swingProgress(), t),
                 t < 1 ? a.heldItem() : b.heldItem(),
-                t < 1 ? a.placingSwing() : b.placingSwing());
+                t < 1 ? a.placingSwing() : b.placingSwing(),
+                t < 1 ? a.heldColor() : b.heldColor());
     }
 
     public static float shortestAngle(float a, float b) {

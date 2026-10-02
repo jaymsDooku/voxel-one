@@ -53,7 +53,8 @@ public final class MultiplayerServer implements AutoCloseable {
             try (var in = new DataInputStream(Files.newInputStream(save))) {
                 if (in.readInt() != Protocol.MAGIC) throw new IOException("Invalid world save");
                 int count = in.readInt();
-                boolean fractional = count == -5;
+                boolean colored = count == -6;
+                boolean fractional = count == -5 || colored;
                 boolean withModels = count == -4 || fractional;
                 boolean modern = count == -3 || withModels;
                 if (modern) {
@@ -63,7 +64,12 @@ public final class MultiplayerServer implements AutoCloseable {
                 }
                 if (count < 0 || count > 2000000) throw new IOException("Invalid edit count");
                 for (int i = 0; i < count; i++) {
-                    var e = fractional ? Protocol.Edit.read(in) : Protocol.Edit.readLegacy(in);
+                    var e =
+                            colored
+                                    ? Protocol.Edit.read(in)
+                                    : fractional
+                                            ? Protocol.Edit.readV7(in)
+                                            : Protocol.Edit.readLegacy(in);
                     if (!e.valid() || !models.has(e.type()))
                         throw new IOException("Invalid saved block");
                     edits.put(e.key(), e);
@@ -791,7 +797,7 @@ public final class MultiplayerServer implements AutoCloseable {
         Path temp = absolute.resolveSibling(absolute.getFileName() + ".tmp");
         try (var out = new DataOutputStream(Files.newOutputStream(temp))) {
             out.writeInt(Protocol.MAGIC);
-            out.writeInt(-5);
+            out.writeInt(-6);
             out.writeLong(terrain.seed);
             models.write(out);
             out.writeInt(edits.size());

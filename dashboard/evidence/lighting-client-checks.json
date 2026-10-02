@@ -1,0 +1,18 @@
+{
+  "recordedAt": "2026-10-02T01:03:38.249562+00:00",
+  "scope": "Real Linux client on Xvfb/llvmpipe; separate offline gallery, not the live server world. Final settled frames inspected.",
+  "checks": [
+    "Visible sun and daylight sky",
+    "RGB light gallery and coloured indirect light on surrounding surfaces",
+    "F8 sliders, presets and hex picker",
+    "Apply RGB C040FF, held item colour and successful placement consuming one item",
+    "Saved colour retained when reopening the picker",
+    "Isometric overview of the visible world",
+    "Framebuffer resize to 960\u00d7640",
+    "Model editor preview and restoration to the world renderer",
+    "Clean controls-menu quit and offline save"
+  ],
+  "placementColour": "C040FF",
+  "status": "passed",
+  "antiAliasing": "FXAA software fallback; 4x MSAA path separately checked"
+}

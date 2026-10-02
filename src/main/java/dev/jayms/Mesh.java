@@ -16,6 +16,7 @@ public final class Mesh implements AutoCloseable {
     private final int vao;
     private final int vbo;
     private final int ebo;
+    private int surfaceBuffer;
 
     private final int indexCount;
     private int instances;
@@ -45,6 +46,15 @@ public final class Mesh implements AutoCloseable {
         glVertexAttribPointer(2, 3, GL_FLOAT, false, stride, 6L * Float.BYTES);
         glEnableVertexAttribArray(2);
 
+        if (meshData.surface() != null) {
+            if (meshData.surface().length != meshData.vertices().length / 9 * 3)
+                throw new IllegalArgumentException("Surface attribute count");
+            surfaceBuffer = glGenBuffers();
+            glBindBuffer(GL_ARRAY_BUFFER, surfaceBuffer);
+            glBufferData(GL_ARRAY_BUFFER, meshData.surface(), GL_STATIC_DRAW);
+            glVertexAttribPointer(4, 3, GL_FLOAT, false, 3 * Float.BYTES, 0);
+            glEnableVertexAttribArray(4);
+        }
         glBindVertexArray(0);
     }
 
@@ -76,7 +86,7 @@ public final class Mesh implements AutoCloseable {
 
     public void render() {
         glBindVertexArray(vao);
-
+        if (surfaceBuffer == 0) org.lwjgl.opengl.GL20.glVertexAttrib3f(4, 0, .85f, -1);
         glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0L);
 
         glBindVertexArray(0);
@@ -84,6 +94,7 @@ public final class Mesh implements AutoCloseable {
 
     public void renderInstanced(float[] positions) {
         if (positions.length == 0) return;
+        if (surfaceBuffer == 0) org.lwjgl.opengl.GL20.glVertexAttrib3f(4, 0, .85f, -1);
         glBindVertexArray(vao);
         if (instances == 0) {
             instances = glGenBuffers();
@@ -108,6 +119,7 @@ public final class Mesh implements AutoCloseable {
     public void close() {
         if (instances != 0) glDeleteBuffers(instances);
         if (instanceData != null) MemoryUtil.memFree(instanceData);
+        if (surfaceBuffer != 0) glDeleteBuffers(surfaceBuffer);
         glDeleteBuffers(ebo);
         glDeleteBuffers(vbo);
         glDeleteVertexArrays(vao);

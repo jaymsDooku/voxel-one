@@ -65,6 +65,117 @@ class MultiplayerTest {
     }
 
     @Test
+    void colouredLightCraftingReplicationRollbackAndRestartMigrateV5() throws Exception {
+        Path save = temp.resolve("led.dat");
+        Inventory materials = new Inventory();
+        materials.add(Blocks.GLASS, 1);
+        materials.add(Blocks.STONE, 1);
+        try (var out = new java.io.DataOutputStream(Files.newOutputStream(save))) {
+            out.writeInt(Protocol.MAGIC);
+            out.writeInt(-5);
+            out.writeLong(Terrain.DEFAULT_SEED);
+            new ModelLibrary().write(out);
+            out.writeInt(1);
+            out.writeInt(50);
+            out.writeInt(70);
+            out.writeInt(50);
+            out.writeInt(Blocks.STONE);
+            for (int i = 0; i < 4; i++) out.writeByte(0);
+            out.writeInt(1);
+            out.writeUTF("alice");
+            materials.write(out);
+            out.writeByte(20);
+            out.writeInt(0);
+        }
+        Protocol.Edit placed;
+        try (var server =
+                new MultiplayerServer("127.0.0.1", 0, save, accounts, identity.context())) {
+            Thread thread = run(server);
+            try (var a = client(server, "alice", "correct-password-a", false);
+                    var b = client(server, "bob", "correct-password-b", false)) {
+                int recipe =
+                        Crafting.recipes().stream()
+                                .filter(r -> r.name().equals("LED light"))
+                                .findFirst()
+                                .orElseThrow()
+                                .id();
+                a.craft(recipe, a.spawn);
+                until(
+                        () -> {
+                            a.poll();
+                            b.poll();
+                            return a.inventory.type(0) == Blocks.LED;
+                        });
+                assertEquals(1, a.inventory.count(0));
+                placed =
+                        new Protocol.Edit(10, (int) a.spawn.y() + 1, 24, Blocks.LED)
+                                .withColor(0x12abef);
+                assertTrue(a.edit(placed, a.spawn, 0));
+                java.util.List<Protocol.Edit> seen = new java.util.ArrayList<>();
+                until(
+                        () -> {
+                            seen.addAll(b.poll());
+                            a.poll();
+                            return seen.contains(placed) && !a.pending(placed);
+                        });
+                assertEquals(0, a.inventory.count(0));
+                // Unauthorised overwrite receives the complete cell, including the original RGB.
+                var forgery = placed.withColor(0xff0000);
+                assertTrue(b.edit(forgery, b.spawn, 0));
+                seen.clear();
+                until(
+                        () -> {
+                            seen.addAll(b.poll());
+                            return !b.pending(forgery);
+                        });
+                assertTrue(seen.contains(placed));
+                var pose =
+                        new Protocol.Pose(
+                                a.id,
+                                a.spawn.x(),
+                                a.spawn.y(),
+                                a.spawn.z(),
+                                0,
+                                0,
+                                0,
+                                0,
+                                false,
+                                0,
+                                Blocks.LED,
+                                false,
+                                0x12abef);
+                a.move(pose);
+                until(
+                        () -> {
+                            b.poll();
+                            var p = b.players.get(a.id);
+                            return p != null && p.heldColor() == 0x12abef;
+                        });
+                try (var late = client(server, "late", "correct-password-c", false)) {
+                    assertTrue(late.initialEdits.contains(placed));
+                }
+            }
+            server.close();
+            thread.join(2000);
+        }
+        try (var in = new java.io.DataInputStream(Files.newInputStream(save))) {
+            assertEquals(Protocol.MAGIC, in.readInt());
+            assertEquals(-6, in.readInt());
+        }
+        try (var server =
+                new MultiplayerServer("127.0.0.1", 0, save, accounts, identity.context())) {
+            Thread thread = run(server);
+            try (var a = client(server, "alice", "correct-password-a", false)) {
+                assertTrue(a.initialEdits.contains(placed));
+                assertTrue(a.initialEdits.contains(new Protocol.Edit(50, 70, 50, Blocks.STONE)));
+            }
+            server.close();
+            thread.join(2000);
+        }
+        assertTrue(serverErrors.isEmpty());
+    }
+
+    @Test
     void movementEditsLateJoinDisconnectAndPersistence() throws Exception {
         Path save = temp.resolve("world.dat");
         try (var server =
@@ -450,7 +561,7 @@ class MultiplayerTest {
         full.add(Blocks.DIRT, 35 * 64);
         try (var out = new java.io.DataOutputStream(Files.newOutputStream(save))) {
             out.writeInt(Protocol.MAGIC);
-            out.writeInt(-5);
+            out.writeInt(-6);
             out.writeLong(Terrain.DEFAULT_SEED);
             new ModelLibrary().write(out);
             out.writeInt(0);

@@ -29,6 +29,10 @@ public class Chunk implements AutoCloseable {
         this.position = position;
     }
 
+    public ChunkPos position() {
+        return position;
+    }
+
     public void markDirty() {
         dirty = true;
     }
@@ -76,6 +80,20 @@ public class Chunk implements AutoCloseable {
         return blocks.region(x * 16, y * 16, z * 16, 16);
     }
 
+    public dev.jayms.net.model.SparseVoxelOctree snapshot() {
+        return blocks.copy().freeze();
+    }
+
+    public int value(int x, int y, int z) {
+        if (x >= 0 && y >= 0 && z >= 0 && x < 256 && y < 256 && z < 256) return blocks.get(x, y, z);
+        return world == null
+                ? 0
+                : world.value(
+                        position.chunkX() * 256 + x,
+                        position.chunkY() * 256 + y,
+                        position.chunkZ() * 256 + z);
+    }
+
     public int material(int x, int y, int z) {
         if (x >= 0 && y >= 0 && z >= 0 && x < 256 && y < 256 && z < 256)
             return dev.jayms.net.WorldVoxels.decode(blocks.get(x, y, z));
@@ -90,7 +108,8 @@ public class Chunk implements AutoCloseable {
         int x = Math.floorMod(edit.x(), 16),
                 y = Math.floorMod(edit.y(), 16),
                 z = Math.floorMod(edit.z(), 16);
-        if (edit.depth() == 0) {
+        if (edit.depth() == 0
+                && dev.jayms.net.Blocks.material(edit.type()) != dev.jayms.net.Blocks.LED) {
             setBlock(x, y, z, edit.type());
             return;
         }
@@ -105,7 +124,8 @@ public class Chunk implements AutoCloseable {
                 fx + side,
                 fy + side,
                 fz + side,
-                dev.jayms.net.WorldVoxels.encode(dev.jayms.net.Blocks.material(edit.type())));
+                dev.jayms.net.WorldVoxels.encode(edit));
+        if (edit.depth() == 0) models.remove(index(x, y, z));
         dirty = true;
     }
 

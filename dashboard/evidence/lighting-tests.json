@@ -1,0 +1,548 @@
+{
+  "recordedAt": "2026-10-02T00:54:01.812983+00:00",
+  "scope": "Final local Maven verify on the VPS; Java 17 bytecode with Linux natives. TLS tests bind real local sockets.",
+  "tests": 74,
+  "failures": 0,
+  "suites": [
+    {
+      "suite": "dev.jayms.AccountStoreTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 5.236,
+      "cases": [
+        {
+          "name": "persistsSaltedHashesAndValidatesCredentials",
+          "seconds": 5.229,
+          "status": "passed"
+        },
+        {
+          "name": "rejectsInvalidNamesAndShortPasswords",
+          "seconds": 0.003,
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "suite": "dev.jayms.ControlsTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.019,
+      "cases": [
+        {
+          "name": "escapeIsReservedAndCorruptConfigFallsBack",
+          "seconds": 0.009,
+          "status": "passed"
+        },
+        {
+          "name": "bindingsSwapPersistAndReset",
+          "seconds": 0.007,
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "suite": "dev.jayms.CraftingTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.036,
+      "cases": [
+        {
+          "name": "overflowBecomesGroundItemsAndFractionalInventorySurvivesSaveReload",
+          "seconds": 0.008,
+          "status": "passed"
+        },
+        {
+          "name": "splittingAndJoiningPreserveMaterialVolumeAcrossEverySubdivision",
+          "seconds": 0.004,
+          "status": "passed"
+        },
+        {
+          "name": "missingInputsAndUnknownRecipesNeverConsumeInventory",
+          "seconds": 0.004,
+          "status": "passed"
+        },
+        {
+          "name": "brokenFractionalPiecesDropAtTheirCenterAndCanBeCollected",
+          "seconds": 0.003,
+          "status": "passed"
+        },
+        {
+          "name": "legacyOfflineSavesUpgradeWithoutLosingBlocksOrInventory",
+          "seconds": 0.006,
+          "status": "passed"
+        },
+        {
+          "name": "recipeTabSubmitsTheSelectedRecipeAndHidesInventoryHover",
+          "seconds": 0.005,
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "suite": "dev.jayms.DistantTerrainTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.137,
+      "cases": [
+        {
+          "name": "terrainAndSkirtsHaveFiniteOutwardFacingTrianglesAtEveryResolution",
+          "seconds": 0.028,
+          "status": "passed"
+        },
+        {
+          "name": "adaptiveTilesCoverTheVisibleWorldWithoutOverlapIncludingNegativeCoordinates",
+          "seconds": 0.084,
+          "status": "passed"
+        },
+        {
+          "name": "coarseCoverageStaysUntilEveryChildHasCoverage",
+          "seconds": 0.003,
+          "status": "passed"
+        },
+        {
+          "name": "fineSurfacesUseTheWorldSeedAndKnownSurfaceEdits",
+          "seconds": 0.009,
+          "status": "passed"
+        },
+        {
+          "name": "fineForestTilesIncludeVisibleTreeGeometry",
+          "seconds": 0.003,
+          "status": "passed"
+        },
+        {
+          "name": "editsSnapshotsAreImmutableAndEmptyColumnsNeedNoGpuMesh",
+          "seconds": 0.005,
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "suite": "dev.jayms.FractionalWorldTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.13,
+      "cases": [
+        {
+          "name": "clippedOctreeRayRetainsTheEntryFaceNormalForBreaking",
+          "seconds": 0.001,
+          "status": "passed"
+        },
+        {
+          "name": "worldMeshingHandlesAFullCellOfSeparateSixteenthCubes",
+          "seconds": 0.062,
+          "status": "passed"
+        },
+        {
+          "name": "worldScaleOctreesCompressUniformRegionsAndShareImmutableSnapshots",
+          "seconds": 0.001,
+          "status": "passed"
+        },
+        {
+          "name": "orderedOverridesReplayAndFullReplacementRemovesOldSubdivisions",
+          "seconds": 0.005,
+          "status": "passed"
+        },
+        {
+          "name": "fractionalSurfaceOffsetsRemainPreciseNearTheWorldBoundary",
+          "seconds": 0.001,
+          "status": "passed"
+        },
+        {
+          "name": "fractionalWireAndCellSnapshotsRoundTripAndRejectMismatchedItemDepth",
+          "seconds": 0.001,
+          "status": "passed"
+        },
+        {
+          "name": "pickingCollisionAndGreedyGeometryRespectHalfQuarterAndSixteenthCubes",
+          "seconds": 0.053,
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "suite": "dev.jayms.InventoryHudTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.017,
+      "cases": [
+        {
+          "name": "hoveredNamesFollowBuiltInAndCustomItemsWhenMoved",
+          "seconds": 0.013,
+          "status": "passed"
+        },
+        {
+          "name": "slotCoordinatesMatchAllThirtySixSlotsAndResizedWindows",
+          "seconds": 0.002,
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "suite": "dev.jayms.IsometricCameraTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.014,
+      "cases": [
+        {
+          "name": "overviewFitsDistantTerrainWithoutDepthClippingAtBothAspectRatios",
+          "seconds": 0.002,
+          "status": "passed"
+        },
+        {
+          "name": "orthographicOverviewFitsLoadedWorldAtWideAndTallAspectRatios",
+          "seconds": 0.003,
+          "status": "passed"
+        },
+        {
+          "name": "loadedWorldEdgesAreClosedAndAdjacentChunksHideSharedFaces",
+          "seconds": 0.003,
+          "status": "passed"
+        },
+        {
+          "name": "zoomIsBoundedAndResetRestoresWorldFit",
+          "seconds": 0.002,
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "suite": "dev.jayms.LightingTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.049,
+      "cases": [
+        {
+          "name": "coloredWholeAndFineLightsHaveEmissionAndStableSurfaceColours",
+          "seconds": 0.017,
+          "status": "passed"
+        },
+        {
+          "name": "wireColorValidationAndCellRollbackRetainExactRgb",
+          "seconds": 0.004,
+          "status": "passed"
+        },
+        {
+          "name": "lightsMixAndSunlightBouncesSurfaceColour",
+          "seconds": 0.009,
+          "status": "passed"
+        },
+        {
+          "name": "localSaveRetainsRgbAndMigratesV5",
+          "seconds": 0.007,
+          "status": "passed"
+        },
+        {
+          "name": "roofBlocksSkyAndColoredLightFallsOffBehindWalls",
+          "seconds": 0.006,
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "suite": "dev.jayms.ModelSculptorTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.01,
+      "cases": [
+        {
+          "name": "emptyModelsCanBeStartedOnTheFloorAndExtendedFromVisibleFaces",
+          "seconds": 0.005,
+          "status": "passed"
+        },
+        {
+          "name": "missAndOutsideBoundsDoNotEditTheModel",
+          "seconds": 0.001,
+          "status": "passed"
+        },
+        {
+          "name": "paintEraseAndPickOperateOnTheHitSurfaceWithoutFillingEmptyVoxels",
+          "seconds": 0.002,
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "suite": "dev.jayms.MultiplayerTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 59.251,
+      "cases": [
+        {
+          "name": "largeSavedDropSnapshotDoesNotOverflowWriterQueue",
+          "seconds": 5.63,
+          "status": "passed"
+        },
+        {
+          "name": "pickupIsExclusiveInventoryCannotBeForgedAndSeedSurvivesRestart",
+          "seconds": 7.517,
+          "status": "passed"
+        },
+        {
+          "name": "placementUsesClickPoseInsteadOfStaleMovementAndRollsBack",
+          "seconds": 4.63,
+          "status": "passed"
+        },
+        {
+          "name": "serverCraftsOverflowAndSynchronizesFractionalEditsRejectionsAndLateJoins",
+          "seconds": 6.457,
+          "status": "passed"
+        },
+        {
+          "name": "authenticationRegistrationDuplicateSessionsAndCertificatePin",
+          "seconds": 9.139,
+          "status": "passed"
+        },
+        {
+          "name": "colouredLightCraftingReplicationRollbackAndRestartMigrateV5",
+          "seconds": 7.541,
+          "status": "passed"
+        },
+        {
+          "name": "voxelModelsSharePlaceBreakAndSurviveWorldRestart",
+          "seconds": 7.312,
+          "status": "passed"
+        },
+        {
+          "name": "validatesNonFiniteAndOutOfBoundsPoses",
+          "seconds": 3.453,
+          "status": "passed"
+        },
+        {
+          "name": "movementEditsLateJoinDisconnectAndPersistence",
+          "seconds": 7.56,
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "suite": "dev.jayms.PlayerAnimationTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.139,
+      "cases": [
+        {
+          "name": "clickSwingCompletesAndRapidClicksDoNotPinTheArm",
+          "seconds": 0.006,
+          "status": "passed"
+        },
+        {
+          "name": "visibleHairLayerClearsEveryExteriorHeadPlane",
+          "seconds": 0.001,
+          "status": "passed"
+        },
+        {
+          "name": "swingAndHeldItemRoundTripAndRemoteSwingDoesNotRewindAtReset",
+          "seconds": 0.003,
+          "status": "passed"
+        },
+        {
+          "name": "attackStrikesDownFromShoulderAndPlacementHasSmallerMotion",
+          "seconds": 0.119,
+          "status": "passed"
+        },
+        {
+          "name": "placingSwingUsesItsOwnDurationAndCanReplaceAttack",
+          "seconds": 0.004,
+          "status": "passed"
+        },
+        {
+          "name": "classicRigHasFullWidthLimbsAndOpposingWalkCycle",
+          "seconds": 0.001,
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "suite": "dev.jayms.PlayerCameraTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.035,
+      "cases": [
+        {
+          "name": "frontViewPreservesMouseAimMovementAndNetworkPose",
+          "seconds": 0.028,
+          "status": "passed"
+        },
+        {
+          "name": "terrainPullsBothExternalCamerasInBeforeTheWall",
+          "seconds": 0.003,
+          "status": "passed"
+        },
+        {
+          "name": "cyclePlacesCameraBehindThenInFrontAndReturnsToEyes",
+          "seconds": 0.002,
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "suite": "dev.jayms.PlayerTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.1,
+      "cases": [
+        {
+          "name": "accelerationIsSmoothAndAnimationStopsAtRest",
+          "seconds": 0.05,
+          "status": "passed"
+        },
+        {
+          "name": "pendingSolidPlacementStopsMovementAndLateBlocksRecover",
+          "seconds": 0.014,
+          "status": "passed"
+        },
+        {
+          "name": "flightAscendsHoversDescendsAndReturnsToGravity",
+          "seconds": 0.009,
+          "status": "passed"
+        },
+        {
+          "name": "gravityLandingAndJump",
+          "seconds": 0.01,
+          "status": "passed"
+        },
+        {
+          "name": "wallsStopMovementAndDiagonalSpeedIsNormalized",
+          "seconds": 0.006,
+          "status": "passed"
+        },
+        {
+          "name": "negativeChunkCoordinatesAndWorldEdge",
+          "seconds": 0.005,
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "suite": "dev.jayms.RemotePlayerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.002,
+      "cases": [
+        {
+          "name": "interpolatesMovementAndYawAcrossWrap",
+          "seconds": 0.001,
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "suite": "dev.jayms.SurvivalTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.454,
+      "cases": [
+        {
+          "name": "exactly36SlotsStackCapacitySwapAndRoundTrip",
+          "seconds": 0.075,
+          "status": "passed"
+        },
+        {
+          "name": "seededBiomesAndChunkBoundariesAreDeterministic",
+          "seconds": 0.309,
+          "status": "passed"
+        },
+        {
+          "name": "offlineBreakPickupPlacementAndSave",
+          "seconds": 0.016,
+          "status": "passed"
+        },
+        {
+          "name": "fallingHurtsFlightIsSafeAndDeathRespawns",
+          "seconds": 0.006,
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "suite": "dev.jayms.UpdaterTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.51,
+      "cases": [
+        {
+          "name": "platformAndLaunchArgumentsPreserveOfflineModeAndExplicitServer",
+          "seconds": 0.023,
+          "status": "passed"
+        },
+        {
+          "name": "installsUpdatesAtomicallyRejectsTamperingAndUsesVerifiedOfflineCache",
+          "seconds": 0.484,
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "suite": "dev.jayms.VoxelModelTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.14,
+      "cases": [
+        {
+          "name": "modelsUseActualVoxelsForCollisionAndRayHits",
+          "seconds": 0.007,
+          "status": "passed"
+        },
+        {
+          "name": "octreeMergesUniformRegionsAndSnapshotsRemainIndependent",
+          "seconds": 0.002,
+          "status": "passed"
+        },
+        {
+          "name": "customModelsAreImmutableDeduplicatedAndSavedOffline",
+          "seconds": 0.085,
+          "status": "passed"
+        },
+        {
+          "name": "randomEditsSurviveOctreeSerializationAndInvalidDataIsRejected",
+          "seconds": 0.024,
+          "status": "passed"
+        },
+        {
+          "name": "flowerPotHasHolesPrecisePickingAndCompactSurface",
+          "seconds": 0.015,
+          "status": "passed"
+        },
+        {
+          "name": "greedyMeshCullsInteriorsPreservesColorsAndHasOutwardWinding",
+          "seconds": 0.002,
+          "status": "passed"
+        }
+      ]
+    }
+  ]
+}

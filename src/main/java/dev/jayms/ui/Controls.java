@@ -35,7 +35,8 @@ public final class Controls {
         ZOOM_IN("Sky view: zoom in", GLFW_KEY_EQUAL),
         ZOOM_OUT("Sky view: zoom out", GLFW_KEY_MINUS),
         FIT_VIEW("Sky view: fit world", GLFW_KEY_HOME),
-        MODEL_EDITOR("Voxel model editor", GLFW_KEY_F7);
+        MODEL_EDITOR("Voxel model editor", GLFW_KEY_F7),
+        LIGHT_COLOR("LED light colour", GLFW_KEY_F8);
         public final String label;
         public final int defaultCode;
 

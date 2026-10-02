@@ -43,7 +43,7 @@ public final class ModelEditor implements AutoCloseable {
     public boolean open;
     public String message =
             "Build directly in 3D with Add, Paint, Erase or Pick. Right drag orbits; Create item"
-                + " publishes your model.";
+                    + " publishes your model.";
     private final Path draft = Controls.directory().resolve("models/draft.vxm");
 
     private record Layout(
@@ -433,6 +433,7 @@ public final class ModelEditor implements AutoCloseable {
         shader.setInt("uInstanced", 0);
         shader.setInt("uDistantTerrain", 0);
         shader.setInt("uFog", 0);
+        shader.setInt("uLightingEnabled", 0);
         shader.setInt("uVertexColor", 1);
         shader.setVector3("uLightDirection", -.4f, -1, -.3f);
         shader.setMatrix4("uProjection", previewProjection(l));

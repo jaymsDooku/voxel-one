@@ -13,6 +13,7 @@ public final class Blocks {
             PLANKS = 165,
             BRICKS = 166,
             GLASS = 167,
+            LED = 180,
             PARTIAL = 255;
     private static final String[] NAMES = {
         "Empty", "Grass", "Dirt", "Stone", "Sand", "Snow", "Wood", "Leaves", "Flower pot"
@@ -30,7 +31,7 @@ public final class Blocks {
     };
 
     public static boolean valid(int type) {
-        return type >= 0 && type < 180;
+        return type >= 0 && type < 185;
     }
 
     public static String name(int type) {
@@ -38,6 +39,7 @@ public final class Blocks {
         if (type == PLANKS) return "Planks";
         if (type == BRICKS) return "Bricks";
         if (type == GLASS) return "Glass";
+        if (type == LED) return "LED light";
         return type < NAMES.length ? NAMES[type] : "Model " + type;
     }
 
@@ -46,6 +48,7 @@ public final class Blocks {
         if (type == PLANKS) return new float[] {.72f, .51f, .29f};
         if (type == BRICKS) return new float[] {.61f, .27f, .21f};
         if (type == GLASS) return new float[] {.66f, .87f, .91f};
+        if (type == LED) return new float[] {1, 1, 1};
         return type < COLORS.length ? COLORS[type].clone() : new float[] {.6f, .4f, .7f};
     }
 
@@ -54,20 +57,27 @@ public final class Blocks {
     }
 
     public static boolean isPiece(int type) {
-        return type >= 137 && type <= 164 || type >= 168 && type <= 179;
+        return type >= 137 && type <= 164
+                || type >= 168 && type <= 179
+                || type >= 181 && type <= 184;
     }
 
     public static int depth(int type) {
-        return !isPiece(type) ? 0 : (type >= 168 ? type - 168 : type - 137) % 4 + 1;
+        return !isPiece(type)
+                ? 0
+                : (type >= 181 ? type - 181 : type >= 168 ? type - 168 : type - 137) % 4 + 1;
     }
 
     public static int material(int type) {
-        return !isPiece(type) ? type : type >= 168 ? 165 + (type - 168) / 4 : 1 + (type - 137) / 4;
+        return !isPiece(type)
+                ? type
+                : type >= 181 ? LED : type >= 168 ? 165 + (type - 168) / 4 : 1 + (type - 137) / 4;
     }
 
     public static int piece(int material, int depth) {
         if (depth == 0) return material;
         if (depth < 1 || depth > 4) throw new IllegalArgumentException("Invalid piece depth");
+        if (material == LED) return 181 + depth - 1;
         if (material >= 1 && material <= 7) return 137 + (material - 1) * 4 + depth - 1;
         if (material >= 165 && material <= 167) return 168 + (material - 165) * 4 + depth - 1;
         throw new IllegalArgumentException("Only building materials can be subdivided");

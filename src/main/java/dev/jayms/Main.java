@@ -28,6 +28,7 @@ public class Main {
     private ControlsMenu menu;
     private Overlay overlay;
     private ShaderProgram shader;
+    private dev.jayms.render.RenderPipeline rendering;
     private Camera camera;
     private final IsometricCamera overview = new IsometricCamera();
     private boolean isometric;
@@ -36,6 +37,7 @@ public class Main {
     private VoxelModelRenderer modelRenderer;
     private DistantTerrainRenderer distant;
     private ModelEditor editor;
+    private LightColorMenu lightColors;
     private int modelResults;
     private World world;
     private InventoryHud inventoryHud = new InventoryHud();
@@ -96,6 +98,7 @@ public class Main {
 
     private void initScene() throws Exception {
         shader = new ShaderProgram("shaders/voxel.vert", "shaders/voxel.frag");
+        rendering = new dev.jayms.render.RenderPipeline();
         overlay = new Overlay();
         camera = new Camera();
         playerModel = new PlayerModel();
@@ -106,6 +109,7 @@ public class Main {
         world = new World(seed, network == null ? local.models : network.models);
         modelRenderer = new VoxelModelRenderer(world.models());
         editor = new ModelEditor();
+        lightColors = new LightColorMenu(Controls.directory().resolve("light-colour.properties"));
         for (var e : network == null ? local.edits.values() : network.initialEdits) world.apply(e);
         Protocol.Pose spawn =
                 network == null
@@ -140,6 +144,13 @@ public class Main {
         glfwSetKeyCallback(
                 window.getHandle(),
                 (handle, key, scancode, action, mods) -> {
+                    if (lightColors.open) {
+                        if (action == GLFW_PRESS && controls.matches(LIGHT_COLOR, key))
+                            lightColors.open = false;
+                        else lightColors.key(key, action, mods);
+                        if (!lightColors.open) setCaptured(true);
+                        return;
+                    }
                     if (editor.open) {
                         if (action == GLFW_PRESS && controls.matches(MODEL_EDITOR, key))
                             editor.closeEditor();
@@ -195,6 +206,18 @@ public class Main {
                         }
                         return;
                     }
+                    if (lightColors.open) {
+                        if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_LEFT) {
+                            int[] size = window.getSize();
+                            lightColors.click(
+                                    (float) mouseX * framebufferWidth / size[0],
+                                    (float) mouseY * framebufferHeight / size[1],
+                                    framebufferWidth,
+                                    framebufferHeight);
+                            if (!lightColors.open) setCaptured(true);
+                        }
+                        return;
+                    }
                     if (action != GLFW_PRESS) return;
                     if (inventoryHud.open) {
                         int[] size = window.getSize();
@@ -234,6 +257,7 @@ public class Main {
                 window.getHandle(),
                 (handle, character) -> {
                     if (editor.open) editor.character(character);
+                    else if (lightColors.open) lightColors.character(character);
                 });
         glfwSetScrollCallback(
                 window.getHandle(),
@@ -246,7 +270,8 @@ public class Main {
                                 y,
                                 framebufferWidth,
                                 framebufferHeight);
-                    } else if (menu.open) menu.scroll(y);
+                    } else if (lightColors.open) return;
+                    else if (menu.open) menu.scroll(y);
                     else if (isometric && !inventoryHud.open) overview.zoom(y);
                     else if (captured || inventoryHud.open) inventoryHud.scroll(y);
                 });
@@ -255,7 +280,7 @@ public class Main {
                 (handle, focused) -> {
                     if (!focused) {
                         inventoryHud.close();
-                        if (editor.open) return;
+                        if (editor.open || lightColors.open) return;
                         menu.open = true;
                         setCaptured(false);
                     }
@@ -283,6 +308,12 @@ public class Main {
     }
 
     private void input(int code) {
+        if (controls.matches(LIGHT_COLOR, code)) {
+            inventoryHud.close();
+            lightColors.show();
+            setCaptured(false);
+            return;
+        }
         if (controls.matches(MODEL_EDITOR, code)) {
             inventoryHud.close();
             BlockHit hit =
@@ -351,7 +382,11 @@ public class Main {
     }
 
     private void setCaptured(boolean value) {
-        value = value && !isometric && (editor == null || !editor.open);
+        value =
+                value
+                        && !isometric
+                        && (editor == null || !editor.open)
+                        && (lightColors == null || !lightColors.open);
         captured = value;
         firstMouse = true;
         glfwSetInputMode(
@@ -423,6 +458,7 @@ public class Main {
                 }
             }
             player.heldItem(inventory().type(inventoryHud.selected));
+            player.heldColor(lightColors.color());
             player.updateCamera(world);
             if (network != null && now >= nextNetworkUpdate) {
                 network.move(player.pose(network.id));
@@ -475,7 +511,7 @@ public class Main {
         shader.bind();
         shader.setMatrix4("uProjection", projection);
         shader.setMatrix4("uView", view);
-        shader.setVector3("uLightDirection", -.4f, -1, -.3f);
+
         shader.setInt("uVertexColor", 1);
         shader.setInt("uInstanced", 0);
         shader.setInt("uDistantTerrain", 0);
@@ -503,8 +539,18 @@ public class Main {
             c.checkMesh();
             if (--meshBudget == 0) break;
         }
+        rendering.update(world, location.x, location.z);
+        rendering.renderShadows(world, modelRenderer, location);
+        rendering.begin(
+                framebufferWidth,
+                framebufferHeight,
+                projection,
+                view,
+                (isometric ? overview.camera() : camera).position(),
+                isometric,
+                shader);
         var detailed = world.renderedColumns();
-        distant.render(shader, frustum, detailed);
+        rendering.distant(distant, frustum, detailed, shader);
         for (var entry : world.getLoadedChunks().entrySet()) {
             ChunkPos p = entry.getKey();
             if (!detailed.contains(new ChunkPos(p.chunkX(), 0, p.chunkZ()))) continue;
@@ -537,6 +583,8 @@ public class Main {
         if (!isometric && !player.thirdPerson()) {
             glClear(GL_DEPTH_BUFFER_BIT);
             shader.setInt("uFog", 0);
+            shader.setInt("uShadowEnabled", 0);
+            shader.setInt("uHeld", 1);
             shader.setMatrix4(
                     "uProjection",
                     new Matrix4f()
@@ -548,6 +596,7 @@ public class Main {
             shader.setMatrix4("uView", new Matrix4f());
             playerModel.renderFirstPerson(player, shader, modelRenderer);
         }
+        rendering.finish();
     }
 
     private void renderOverlay() {
@@ -628,7 +677,16 @@ public class Main {
                 (float) mouseX * framebufferWidth / windowSize[0],
                 (float) mouseY * framebufferHeight / windowSize[1]);
         if (!notice.isEmpty()) overlay.text(notice, 20, 99, 1.4f, 1, .8f, .4f, 1);
+        if (Blocks.material(player.heldItem()) == Blocks.LED)
+            overlay.text(
+                    String.format(
+                            "LED #%06X | %s: colour",
+                            lightColors.color(), Controls.keyName(controls.code(LIGHT_COLOR))),
+                    20,
+                    framebufferHeight - 130,
+                    1.4f);
         menu.render(overlay, framebufferWidth, framebufferHeight);
+        lightColors.render(overlay, framebufferWidth, framebufferHeight);
         overlay.end();
     }
 
@@ -681,6 +739,8 @@ public class Main {
                                 point.z + hit.normalZ() * offset,
                                 type,
                                 depth);
+        if (place && Blocks.material(type) == Blocks.LED)
+            edit = edit.withColor(lightColors.color());
         int x = edit.x(), y = edit.y(), z = edit.z();
         if (!edit.valid()
                 || !world.isLoaded(x, y, z)
@@ -692,7 +752,10 @@ public class Main {
                 if (place) player.swing(true);
             }
         } else if (network.edit(edit, player.pose(network.id), inventoryHud.selected)) {
-            predicted.put(edit.key(), edit.withType(world.region(edit)));
+            var old = edit.withType(world.region(edit));
+            if (Blocks.material(old.type()) == Blocks.LED)
+                old = old.withColor(WorldVoxels.lightColor(world.regionValue(edit)));
+            predicted.put(edit.key(), old);
             if (place) player.swing(true);
             // Reserve it immediately so movement cannot enter an unconfirmed solid block.
             world.apply(edit);
@@ -708,6 +771,7 @@ public class Main {
         if (modelRenderer != null) modelRenderer.close();
         if (editor != null) editor.close();
         if (overlay != null) overlay.close();
+        if (rendering != null) rendering.close();
         if (shader != null) shader.close();
         if (window != null) window.destroy();
         glfwTerminate();

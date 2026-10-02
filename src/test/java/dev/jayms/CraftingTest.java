@@ -16,7 +16,7 @@ class CraftingTest {
 
     @Test
     void splittingAndJoiningPreserveMaterialVolumeAcrossEverySubdivision() {
-        assertEquals(86, Crafting.recipes().size());
+        assertEquals(95, Crafting.recipes().size());
         for (int material : new int[] {Blocks.STONE, Blocks.WOOD, Blocks.BRICKS}) {
             Inventory inventory = new Inventory();
             inventory.add(material, 1);

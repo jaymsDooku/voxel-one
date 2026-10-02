@@ -55,7 +55,38 @@ public final class MeshDataGenerator {
             }
         }
 
-        return new MeshData(toFloatArray(vertices), toIntArray(indices));
+        float[] v = toFloatArray(vertices);
+        float[] surface = new float[v.length / 9 * 3];
+        for (int base = 0; base < v.length; base += 36) {
+            float cx = 0, cy = 0, cz = 0;
+            for (int j = 0; j < 4; j++) {
+                cx += v[base + j * 9];
+                cy += v[base + j * 9 + 1];
+                cz += v[base + j * 9 + 2];
+            }
+            int fx = (int) Math.floor((cx / 4 - v[base + 3] * .001f) * 16),
+                    fy = (int) Math.floor((cy / 4 - v[base + 4] * .001f) * 16),
+                    fz = (int) Math.floor((cz / 4 - v[base + 5] * .001f) * 16);
+            int raw = chunk.value(fx, fy, fz), type = dev.jayms.net.WorldVoxels.decode(raw);
+            for (int j = 0; j < 4; j++) {
+                int i = base + j * 9;
+                if (type == dev.jayms.net.Blocks.LED) {
+                    int c = dev.jayms.net.WorldVoxels.lightColor(raw);
+                    v[i + 6] = (c >> 16 & 255) / 255f;
+                    v[i + 7] = (c >> 8 & 255) / 255f;
+                    v[i + 8] = (c & 255) / 255f;
+                }
+                surface[i / 3] = type == dev.jayms.net.Blocks.LED ? 4 : 0;
+                surface[i / 3 + 1] =
+                        type == dev.jayms.net.Blocks.GLASS
+                                ? .12f
+                                : type == dev.jayms.net.Blocks.LED ? .25f : .85f;
+                surface[i / 3 + 2] =
+                        dev.jayms.render.MaterialTextures.layer(
+                                type == 1 && v[i + 4] < 1 ? 2 : type);
+            }
+        }
+        return new MeshData(v, toIntArray(indices), surface);
     }
 
     private static void addFace(
@@ -117,8 +148,8 @@ public final class MeshDataGenerator {
                     dev.jayms.net.model.ModelMesher.mesh(
                             16,
                             (x, y, z) ->
-                                    dev.jayms.net.WorldVoxels.color(
-                                            chunk.material(bx * 16 + x, by * 16 + y, bz * 16 + z)),
+                                    dev.jayms.net.WorldVoxels.surfaceColor(
+                                            chunk.value(bx * 16 + x, by * 16 + y, bz * 16 + z)),
                             24576);
             float[] v = geometry.vertices();
             for (int i = 0; i < v.length; i += 9) {

@@ -92,6 +92,7 @@ public class PlayerModel implements AutoCloseable {
         leg(shader, root, 2 * PIXEL, pose.rightLeg());
         held(
                 player.heldItem(),
+                player.heldColor(),
                 new Matrix4f(rightArm)
                         .translate(PIXEL, -9 * PIXEL, -2 * PIXEL)
                         .rotateX(-.35f)
@@ -117,6 +118,7 @@ public class PlayerModel implements AutoCloseable {
         box(shader, hand, LIMB_WIDTH, .25f, DEPTH);
         held(
                 player.heldItem(),
+                player.heldColor(),
                 new Matrix4f(hand)
                         .translate(-.14f, .78f, .18f)
                         .rotateY(.55f)
@@ -128,12 +130,23 @@ public class PlayerModel implements AutoCloseable {
     }
 
     private void held(
-            int type, Matrix4f transform, ShaderProgram shader, VoxelModelRenderer models) {
+            int type,
+            int rgb,
+            Matrix4f transform,
+            ShaderProgram shader,
+            VoxelModelRenderer models) {
         if (type == 0) return;
         if (Blocks.isModel(type)) models.renderHeld(type, transform, shader);
         else {
             shader.setInt("uVertexColor", 0);
-            float[] color = Blocks.color(type);
+            float[] color =
+                    Blocks.material(type) == Blocks.LED
+                            ? new float[] {
+                                (rgb >>> 16 & 255) / 255f,
+                                (rgb >>> 8 & 255) / 255f,
+                                (rgb & 255) / 255f
+                            }
+                            : Blocks.color(type);
             shader.setVector3("uColor", color[0], color[1], color[2]);
             Matrix4f item = new Matrix4f(transform);
             if (Blocks.isPiece(type))
@@ -141,7 +154,9 @@ public class PlayerModel implements AutoCloseable {
                         .scale(1f / (1 << Blocks.depth(type)))
                         .translate(-.5f, 0, -.5f);
             shader.setMatrix4("uModel", item);
+            shader.setFloat("uModelEmission", Blocks.material(type) == Blocks.LED ? 4 : 0);
             cube.render();
+            shader.setFloat("uModelEmission", 0);
         }
     }
 

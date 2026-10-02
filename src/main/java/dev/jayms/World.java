@@ -97,6 +97,24 @@ public class World implements AutoCloseable {
         return voxels.type(x, y, z);
     }
 
+    public int value(int x, int y, int z) {
+        var c =
+                loadedChunks.get(
+                        new ChunkPos(
+                                Math.floorDiv(x, 256),
+                                Math.floorDiv(y, 256),
+                                Math.floorDiv(z, 256)));
+        return c == null
+                ? voxels.cell(Math.floorDiv(x, 16), Math.floorDiv(y, 16), Math.floorDiv(z, 16))
+                        .get(Math.floorMod(x, 16), Math.floorMod(y, 16), Math.floorMod(z, 16))
+                : c.value(Math.floorMod(x, 256), Math.floorMod(y, 256), Math.floorMod(z, 256));
+    }
+
+    public int regionValue(Protocol.Edit e) {
+        int side = 16 >> e.depth();
+        return cell(e.x(), e.y(), e.z()).uniform(e.ix() * side, e.iy() * side, e.iz() * side, side);
+    }
+
     public int material(int x, int y, int z) {
         var p = new ChunkPos(Math.floorDiv(x, 256), Math.floorDiv(y, 256), Math.floorDiv(z, 256));
         var c = loadedChunks.get(p);

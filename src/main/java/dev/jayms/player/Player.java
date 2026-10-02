@@ -22,6 +22,17 @@ public class Player {
 
     private float swingProgress = 1;
     private int heldItem;
+    private int heldColor = 0xffffff;
+
+    public int heldColor() {
+        return heldColor;
+    }
+
+    public void heldColor(int rgb) {
+        if (rgb < 0 || rgb > 0xffffff) throw new IllegalArgumentException("Invalid light colour");
+        heldColor = rgb;
+    }
+
     public static final float SWING_SECONDS = .3f, PLACEMENT_SECONDS = .25f;
     private boolean placingSwing;
 
@@ -343,7 +354,8 @@ public class Player {
                 flying,
                 swingProgress,
                 heldItem,
-                placingSwing);
+                placingSwing,
+                heldColor);
     }
 
     public Vector3f position() {

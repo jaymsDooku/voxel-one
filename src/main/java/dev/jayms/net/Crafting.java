@@ -36,7 +36,9 @@ public final class Crafting {
     static {
         List<Recipe> recipes = new ArrayList<>();
         for (int material :
-                new int[] {1, 2, 3, 4, 5, 6, 7, Blocks.PLANKS, Blocks.BRICKS, Blocks.GLASS})
+                new int[] {
+                    1, 2, 3, 4, 5, 6, 7, Blocks.PLANKS, Blocks.BRICKS, Blocks.GLASS, Blocks.LED
+                })
             for (int depth = 1; depth <= 4; depth++) {
                 int parent = Blocks.piece(material, depth - 1),
                         child = Blocks.piece(material, depth);
@@ -54,6 +56,7 @@ public final class Crafting {
                 Map.of(Blocks.SAND, 3, Blocks.DIRT, 1, Blocks.LEAVES, 1),
                 Blocks.FLOWER_POT,
                 1);
+        add(recipes, "LED light", Map.of(Blocks.GLASS, 1, Blocks.STONE, 1), Blocks.LED, 1);
         RECIPES = List.copyOf(recipes);
     }
 

@@ -2,9 +2,9 @@ package dev.jayms.net;
 
 import java.io.*;
 
-/** Protocol 7 adds fractional world edits and authoritative crafting. */
+/** Protocol 8 adds RGB LED world materials and held-light colours. */
 public final class Protocol {
-    public static final int MAGIC = 0x564F5831, VERSION = 7, PORT = 25565;
+    public static final int MAGIC = 0x564F5831, VERSION = 8, PORT = 25565;
     public static final int MOVE = 1, BLOCK = 2, LEAVE = 3, READY = 4, JOIN = 5, EDIT_RESULT = 6;
     public static final int INVENTORY = 7, DROP = 8, SWAP = 9, RESPAWN = 10;
     public static final int MODEL_CREATE = 11, MODEL_DEFINE = 12, MODEL_RESULT = 13;
@@ -23,7 +23,37 @@ public final class Protocol {
             boolean flying,
             float swingProgress,
             int heldItem,
-            boolean placingSwing) {
+            boolean placingSwing,
+            int heldColor) {
+        public Pose(
+                int id,
+                float x,
+                float y,
+                float z,
+                float yaw,
+                float pitch,
+                float walkPhase,
+                float walkAmount,
+                boolean flying,
+                float swingProgress,
+                int heldItem,
+                boolean placingSwing) {
+            this(
+                    id,
+                    x,
+                    y,
+                    z,
+                    yaw,
+                    pitch,
+                    walkPhase,
+                    walkAmount,
+                    flying,
+                    swingProgress,
+                    heldItem,
+                    placingSwing,
+                    0xffffff);
+        }
+
         public Pose(
                 int id,
                 float x,
@@ -81,6 +111,7 @@ public final class Protocol {
             out.writeFloat(swingProgress);
             out.writeByte(heldItem);
             out.writeBoolean(placingSwing);
+            out.writeInt(heldColor);
         }
 
         public static Pose read(DataInputStream in) throws IOException {
@@ -96,11 +127,14 @@ public final class Protocol {
                     in.readBoolean(),
                     in.readFloat(),
                     in.readUnsignedByte(),
-                    in.readBoolean());
+                    in.readBoolean(),
+                    in.readInt());
         }
 
         public boolean valid() {
-            return Float.isFinite(x)
+            return heldColor >= 0
+                    && heldColor <= 0xffffff
+                    && Float.isFinite(x)
                     && Float.isFinite(y)
                     && Float.isFinite(z)
                     && Float.isFinite(yaw)
@@ -123,7 +157,25 @@ public final class Protocol {
         }
     }
 
-    public record Edit(int x, int y, int z, int type, int depth, int ix, int iy, int iz) {
+    public record Edit(
+            int x, int y, int z, int type, int depth, int ix, int iy, int iz, int color) {
+        public Edit(int x, int y, int z, int type, int depth, int ix, int iy, int iz) {
+            this(
+                    x,
+                    y,
+                    z,
+                    type,
+                    depth,
+                    ix,
+                    iy,
+                    iz,
+                    Blocks.material(type) == Blocks.LED ? 0xffffff : 0);
+        }
+
+        public Edit withColor(int rgb) {
+            return new Edit(x, y, z, type, depth, ix, iy, iz, rgb);
+        }
+
         public Edit(int x, int y, int z, int type) {
             this(x, y, z, type, 0, 0, 0, 0);
         }
@@ -145,7 +197,18 @@ public final class Protocol {
         }
 
         public Edit withType(int value) {
-            return new Edit(x, y, z, value, depth, ix, iy, iz);
+            return new Edit(
+                    x,
+                    y,
+                    z,
+                    value,
+                    depth,
+                    ix,
+                    iy,
+                    iz,
+                    Blocks.material(value) == Blocks.LED
+                            ? (Blocks.material(type) == Blocks.LED ? color : 0xffffff)
+                            : 0);
         }
 
         public static Edit at(double x, double y, double z, int type, int depth) {
@@ -173,9 +236,10 @@ public final class Protocol {
             out.writeByte(ix);
             out.writeByte(iy);
             out.writeByte(iz);
+            out.writeInt(color);
         }
 
-        public static Edit read(DataInputStream in) throws IOException {
+        public static Edit readV7(DataInputStream in) throws IOException {
             return new Edit(
                     in.readInt(),
                     in.readInt(),
@@ -187,12 +251,20 @@ public final class Protocol {
                     in.readUnsignedByte());
         }
 
+        public static Edit read(DataInputStream in) throws IOException {
+            var edit = readV7(in);
+            return edit.withColor(in.readInt());
+        }
+
         public static Edit readLegacy(DataInputStream in) throws IOException {
             return new Edit(in.readInt(), in.readInt(), in.readInt(), in.readInt());
         }
 
         public boolean valid() {
-            return depth >= 0
+            return color >= 0
+                    && color <= 0xffffff
+                    && (Blocks.material(type) == Blocks.LED || color == 0)
+                    && depth >= 0
                     && depth <= 4
                     && ix >= 0
                     && iy >= 0
@@ -257,7 +329,10 @@ public final class Protocol {
                                 depth,
                                 leaf.x() / leaf.side(),
                                 leaf.y() / leaf.side(),
-                                leaf.z() / leaf.side()));
+                                leaf.z() / leaf.side(),
+                                WorldVoxels.decode(leaf.color()) == Blocks.LED
+                                        ? WorldVoxels.lightColor(leaf.color())
+                                        : 0));
             }
             return out;
         }

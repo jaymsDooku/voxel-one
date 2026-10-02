@@ -9,7 +9,7 @@ import java.util.*;
  */
 public final class WorldVoxels {
     public static final int RESOLUTION = 16;
-    private static final int[] COLORS = new int[180];
+    private static final int[] COLORS = new int[185];
 
     static {
         for (int i = 1; i < COLORS.length; i++) {
@@ -34,11 +34,25 @@ public final class WorldVoxels {
     }
 
     public static int encode(int type) {
-        return type == 0 ? 0 : 0xff000000 | type;
+        return type == 0 ? 0 : type == Blocks.LED ? 0xfeffffff : 0xff000000 | type;
+    }
+
+    public static int encode(Protocol.Edit edit) {
+        return Blocks.material(edit.type()) == Blocks.LED
+                ? 0xfe000000 | edit.color()
+                : encode(Blocks.material(edit.type()));
+    }
+
+    public static int lightColor(int value) {
+        return value >>> 24 == 254 ? value & 0xffffff : 0xffffff;
+    }
+
+    public static int surfaceColor(int value) {
+        return decode(value) == Blocks.LED ? 0xff000000 | lightColor(value) : color(decode(value));
     }
 
     public static int decode(int value) {
-        return value == -1 ? Blocks.PARTIAL : value & 255;
+        return value == -1 ? Blocks.PARTIAL : value >>> 24 == 254 ? Blocks.LED : value & 255;
     }
 
     public SparseVoxelOctree cell(int x, int y, int z) {
@@ -76,7 +90,7 @@ public final class WorldVoxels {
                 x = edit.ix() * side,
                 y = edit.iy() * side,
                 z = edit.iz() * side;
-        tree.fill(x, y, z, x + side, y + side, z + side, encode(Blocks.material(edit.type())));
+        tree.fill(x, y, z, x + side, y + side, z + side, encode(edit));
         cells.put(edit.cellKey(), tree);
     }
 

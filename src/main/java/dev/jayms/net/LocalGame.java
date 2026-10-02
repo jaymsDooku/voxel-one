@@ -24,7 +24,7 @@ public final class LocalGame {
         if (Files.exists(save))
             try (var in = new DataInputStream(Files.newInputStream(save))) {
                 int version = in.readInt();
-                if (version != 3 && version != 4 && version != 5)
+                if (version != 3 && version != 4 && version != 5 && version != 6)
                     throw new IOException("Invalid offline world");
                 worldSeed = in.readLong();
                 if (version >= 4) models = ModelLibrary.read(in);
@@ -34,7 +34,12 @@ public final class LocalGame {
                 int n = in.readInt();
                 if (n < 0 || n > 2000000) throw new IOException("Invalid world");
                 for (int i = 0; i < n; i++) {
-                    var e = version >= 5 ? Protocol.Edit.read(in) : Protocol.Edit.readLegacy(in);
+                    var e =
+                            version >= 6
+                                    ? Protocol.Edit.read(in)
+                                    : version == 5
+                                            ? Protocol.Edit.readV7(in)
+                                            : Protocol.Edit.readLegacy(in);
                     if (!e.valid()) throw new IOException("Invalid edit");
                     WorldVoxels.remember(edits, e);
                 }
@@ -144,7 +149,7 @@ public final class LocalGame {
         Files.createDirectories(save.toAbsolutePath().getParent());
         Path temp = save.resolveSibling(save.getFileName() + ".tmp");
         try (var out = new DataOutputStream(Files.newOutputStream(temp))) {
-            out.writeInt(5);
+            out.writeInt(6);
             out.writeLong(seed);
             models.write(out);
             inventory.write(out);

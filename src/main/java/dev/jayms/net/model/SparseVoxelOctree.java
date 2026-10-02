@@ -82,7 +82,7 @@ public final class SparseVoxelOctree {
         if (frozen) throw new IllegalStateException("Published octrees are immutable");
         if (x0 < 0 || y0 < 0 || z0 < 0 || x1 > size || y1 > size || z1 > size || x1 < x0 || y1 < y0
                 || z1 < z0) throw new IndexOutOfBoundsException();
-        if (color != 0 && color >>> 24 != 255)
+        if (color != 0 && color >>> 24 != 255 && color >>> 24 != 254)
             throw new IllegalArgumentException("Opaque value required");
         root = fill(root, 0, 0, 0, size, x0, y0, z0, x1, y1, z1, color);
     }
@@ -378,7 +378,8 @@ public final class SparseVoxelOctree {
         if (tag == 0) return null;
         if (tag == 1) {
             int color = in.readInt();
-            if (color >>> 24 != 255) throw new IOException("Invalid voxel color");
+            if (color >>> 24 != 255 && color >>> 24 != 254)
+                throw new IOException("Invalid voxel value");
             return new Node(color);
         }
         if (tag != 2 || size == 1) throw new IOException("Invalid octree branch");
