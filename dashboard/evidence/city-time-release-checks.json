@@ -1,0 +1,51 @@
+{
+  "release": "playtest-19",
+  "revision": "85f71c77f44bd312f85b6edba9b166722081b414",
+  "ci": "https://github.com/jaymsDooku/voxel-one/actions/runs/37018853117",
+  "published": true,
+  "platforms": [
+    {
+      "platform": "windows",
+      "tests": 109,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "build": "success"
+    },
+    {
+      "platform": "linux",
+      "tests": 109,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "build": "success"
+    },
+    {
+      "platform": "mac-intel",
+      "tests": 109,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "build": "success"
+    },
+    {
+      "platform": "mac-arm",
+      "tests": 109,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "build": "success"
+    }
+  ],
+  "windowsUpdater": {
+    "downloaded": true,
+    "sha256Verified": true,
+    "windowsGlfwLibraryPresent": true,
+    "revision": "85f71c77f44bd312f85b6edba9b166722081b414",
+    "scope": "Windows release artifact verified on VPS; not a physical Windows desktop playtest"
+  },
+  "cityServiceUpdated": true,
+  "cityProtocol": 10,
+  "multiDayCycles": 3,
+  "hoursRecorded": 72
+}

@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T14:12:46+00:00",
+  "updatedAt": "2026-10-02T14:27:05+00:00",
   "release": {
-    "name": "Playtest 18",
-    "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-18",
-    "commit": "37f059821b3fcd592d13d49a29a4bf8d013ccb18"
+    "name": "Playtest 19",
+    "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-19",
+    "commit": "85f71c77f44bd312f85b6edba9b166722081b414"
   },
   "verification": {
-    "tests": 103,
+    "tests": 109,
     "failures": 0,
-    "label": "Playtest 18",
-    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/mayor-dashboard-release-checks.json"
+    "label": "Playtest 19",
+    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/city-time-release-checks.json"
   },
   "items": [
     {
@@ -1131,11 +1131,66 @@
           "kind": "image",
           "label": "citizen life 4 0.png",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/citizen-life-4-0.png"
+        },
+        {
+          "kind": "link",
+          "label": "Cross-platform release",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/37018853117"
+        },
+        {
+          "kind": "link",
+          "label": "City time documentation",
+          "url": "https://voxel-one.jamesleaver1.chatgpt.site/docs.html#city-time-and-daily-life"
+        },
+        {
+          "kind": "report",
+          "label": "city time release checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/city-time-release-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "city time vps deployment.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/city-time-vps-deployment.json"
+        },
+        {
+          "kind": "report",
+          "label": "city time live check.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/city-time-live-check.json"
+        },
+        {
+          "kind": "report",
+          "label": "city time website checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/city-time-website-checks.json"
+        },
+        {
+          "kind": "image",
+          "label": "city time docs mobile.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/city-time-docs-mobile.png"
+        },
+        {
+          "kind": "image",
+          "label": "city time workday citizens.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/city-time-workday-citizens.png"
+        },
+        {
+          "kind": "image",
+          "label": "city time evening citizens.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/city-time-evening-citizens.png"
+        },
+        {
+          "kind": "image",
+          "label": "city time morning citizens.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/city-time-morning-citizens.png"
+        },
+        {
+          "kind": "image",
+          "label": "citizen life 4 1.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/citizen-life-4-1.png"
         }
       ],
-      "status": "in_progress",
-      "note": "Three full days passed: all 12 citizens worked, ate, travelled and slept in every cycle; 72 hourly snapshots recorded. Fixed a shop-counter routing bug. All 109 regressions and actual GPU work/meal/sleep plus day/night checks passed; packaged client verified in all four periods. Preparing release and VPS city update.",
-      "updatedAt": "2026-10-02T14:12:46+00:00"
+      "status": "complete",
+      "note": "Released Playtest 19 and updated the VPS city with a backup and preserved clock/population/finances. Added midnight calendar rollover, daily routines and work/meal/sleep gestures, hourly hunger/pay rates and safe building aisles. Three full days passed: all 12 citizens worked, ate, travelled and slept each cycle; 72 hourly samples recorded. All 109 tests passed on four platforms, GPU/client/browser checks passed, Windows update verified, and live pinned-TLS city snapshots advanced.",
+      "updatedAt": "2026-10-02T14:27:05+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

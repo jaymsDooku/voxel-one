@@ -1,0 +1,13 @@
+{
+  "scope": "Public VPS pinned-TLS jayms login, live authoritative city snapshots",
+  "status": "passed",
+  "clock": "Day 15 | 10:06 | Workday",
+  "advancedSeconds": 2.3,
+  "daySeconds": 1200,
+  "citizens": 12,
+  "buildings": 5,
+  "zones": 3,
+  "roads": 282,
+  "privateFirms": 5,
+  "protocol": 10
+}
