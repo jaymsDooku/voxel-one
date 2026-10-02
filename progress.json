@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T01:11:56+00:00",
+  "updatedAt": "2026-10-02T01:12:01+00:00",
   "release": {
     "name": "Playtest 13",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-13",
@@ -128,10 +128,26 @@
       "id": "environment-reflections",
       "title": "Environment lighting and reflections",
       "description": "Sky illumination and material reflections.",
-      "status": "in_progress",
-      "updatedAt": "2026-10-02T00:18:27+00:00",
-      "note": "Implementing a filtered sky environment and material reflections.",
-      "evidence": []
+      "status": "complete",
+      "updatedAt": "2026-10-02T01:12:01+00:00",
+      "note": "Daylight environment cubemap lights surfaces and supplies roughness-dependent sky reflections. Real GPU comparisons verify reflected light affects surfaces.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Reproducible GPU checks",
+          "url": "https://github.com/jaymsDooku/voxel-one/blob/d0da076758711c10c270605c55ff1414439b26cd/deploy/RenderingSmoke.java"
+        },
+        {
+          "kind": "report",
+          "label": "rendering gpu 1x.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/rendering-gpu-1x.json"
+        },
+        {
+          "kind": "report",
+          "label": "rendering gpu 4x.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/rendering-gpu-4x.json"
+        }
+      ]
     },
     {
       "id": "antialias-filtering",
