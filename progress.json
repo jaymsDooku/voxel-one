@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T09:07:10+00:00",
+  "updatedAt": "2026-10-02T09:12:22+00:00",
   "release": {
     "name": "Playtest 13",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-13",
@@ -760,11 +760,16 @@
           "kind": "image",
           "label": "dashboard questions mobile.png",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/dashboard-questions-mobile.png"
+        },
+        {
+          "kind": "report",
+          "label": "dashboard question deployment.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/dashboard-question-deployment.json"
         }
       ],
-      "status": "in_progress",
-      "note": "Passed 12 WebKit/Chromium and API checks against real local persistent storage. Publishing private question forms and agent answer access.",
-      "updatedAt": "2026-10-02T09:07:10+00:00"
+      "status": "complete",
+      "note": "Published persistent private questions and editable answers. Passed 12 WebKit/Chromium/API checks; verified live D1 tables and authenticated agent question creation. All future questions use this dashboard.",
+      "updatedAt": "2026-10-02T09:12:22+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
