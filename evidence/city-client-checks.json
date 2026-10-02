@@ -1,0 +1,24 @@
+{
+  "platform": "Linux VPS, Xvfb and Mesa software OpenGL",
+  "client": "Packaged Linux client, fresh separate offline city save",
+  "checks": [
+    "City opens with isometric planning view and generated houses, shop and mine",
+    "First person view renders citizens and horses",
+    "Right-click ray from first person claims horse; window title confirms riding",
+    "F5 retains mount in third person",
+    "H dismounts",
+    "Home expands view to horizon",
+    "Isometric view returns to city focus",
+    "Menu quit exits successfully and saves city world"
+  ],
+  "result": "passed",
+  "screenshots": [
+    "voxel-city-overview.png",
+    "voxel-city-first-person.png",
+    "voxel-city-riding.png",
+    "voxel-city-horse-third-person.png",
+    "voxel-city-horizon.png",
+    "voxel-city-city-focus.png"
+  ],
+  "limitations": "Physical Windows desktop playtest remains with the user."
+}
