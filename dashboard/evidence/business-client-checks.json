@@ -8,5 +8,6 @@
     "Engine recorder captured navigation and resizing",
     "Clean save and Quit"
   ],
-  "videoBytes": 1943054
+  "videoBytes": 1943054,
+  "recordingContext": "Recorded the business implementation published in Playtest 21; Playtest 22 additionally corrects the vacant-location ownership label."
 }

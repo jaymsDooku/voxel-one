@@ -1,0 +1,64 @@
+{
+  "release": "playtest-22",
+  "revision": "3fa3c70e6e47f1a301fa0ac4ba864c686d2dd6a4",
+  "ci": "https://github.com/jaymsDooku/voxel-one/actions/runs/37033348961",
+  "published": true,
+  "platforms": [
+    {
+      "platform": "windows",
+      "tests": 129,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "build": "success"
+    },
+    {
+      "platform": "linux",
+      "tests": 129,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "build": "success"
+    },
+    {
+      "platform": "mac-intel",
+      "tests": 129,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "build": "success"
+    },
+    {
+      "platform": "mac-arm",
+      "tests": 129,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "build": "success"
+    }
+  ],
+  "windowsUpdater": {
+    "downloaded": true,
+    "sha256Verified": true,
+    "businessDashboardAndAccountsPresent": true,
+    "windowsGlfwLibraryPresent": true,
+    "revision": "3fa3c70e6e47f1a301fa0ac4ba864c686d2dd6a4",
+    "scope": "Windows release artifact verified on VPS; not a physical Windows desktop playtest"
+  },
+  "cityAndSandboxDeployed": true,
+  "protocol": 11,
+  "existingCityPreserved": true,
+  "serverCodeMatchesFinalRelease": true,
+  "privateWebsitePublished": true,
+  "multiDaySimulationDays": 3,
+  "hourlySamples": 72,
+  "browserChecks": 8,
+  "recording": {
+    "codec": "H264",
+    "width": 960,
+    "height": 540,
+    "durationSeconds": 15.444,
+    "decodedFrames": 132,
+    "status": "passed"
+  }
+}

@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T15:47:38+00:00",
+  "updatedAt": "2026-10-02T16:30:51+00:00",
   "release": {
-    "name": "Playtest 20",
-    "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-20",
-    "commit": "cf3af7e06670adb1e897e9eee7b5938d1d64e52c"
+    "name": "Playtest 22",
+    "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-22",
+    "commit": "3fa3c70e6e47f1a301fa0ac4ba864c686d2dd6a4"
   },
   "verification": {
-    "tests": 117,
+    "tests": 129,
     "failures": 0,
-    "label": "Playtest 20",
-    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/screen-recorder-release-checks.json"
+    "label": "Playtest 22",
+    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-release-checks.json"
   },
   "items": [
     {
@@ -1271,10 +1271,96 @@
       "id": "business-system",
       "title": "Operating businesses and mayor business dashboard",
       "description": "Expanding shops and mines into staffed businesses with operating accounts, production, sales and a mayor monitoring screen.",
-      "evidence": [],
-      "status": "in_progress",
-      "note": "Implemented staffed shop shifts, hourly mine production, per-workplace operating accounts and the mayor Businesses view. Business regression tests pass; checking multi-day operation, save upgrades, multiplayer snapshots and the actual client UI.",
-      "updatedAt": "2026-10-02T15:47:38+00:00"
+      "evidence": [
+        {
+          "kind": "video",
+          "label": "business dashboard run.mp4",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-dashboard-run.mp4"
+        },
+        {
+          "kind": "image",
+          "label": "business dashboard overview.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-dashboard-overview.png"
+        },
+        {
+          "kind": "image",
+          "label": "business dashboard location.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-dashboard-location.png"
+        },
+        {
+          "kind": "image",
+          "label": "business dashboard companies.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-dashboard-companies.png"
+        },
+        {
+          "kind": "image",
+          "label": "business dashboard compact location.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-dashboard-compact-location.png"
+        },
+        {
+          "kind": "report",
+          "label": "business three days.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-three-days.json"
+        },
+        {
+          "kind": "report",
+          "label": "business client checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-client-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "business vps upgrade checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-vps-upgrade-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "business video decoded.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-video-decoded.json"
+        },
+        {
+          "kind": "report",
+          "label": "business regression checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-regression-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "business browser checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-browser-checks.json"
+        },
+        {
+          "kind": "image",
+          "label": "business dashboard video mobile.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-dashboard-video-mobile.png"
+        },
+        {
+          "kind": "link",
+          "label": "Final desktop release",
+          "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-22"
+        },
+        {
+          "kind": "link",
+          "label": "Final cross-platform build and tests",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/37033348961"
+        },
+        {
+          "kind": "report",
+          "label": "business release checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-release-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "business live service checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-live-service-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "business server equivalence checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-server-equivalence-checks.json"
+        }
+      ],
+      "status": "complete",
+      "note": "Operating shops and mines now have staffed shifts, inventory and delivery flows, sales, wages, rent and persistent daily accounts. F9 > Businesses monitors locations and private companies, with filters, search, staffing/stock/financial alerts and seven completed days of history. Three simulated days and 72 hourly samples reconcile cash and stock. Playtest 22 passed 129 tests on all four desktop platforms; 8 WebKit/Chromium checks and both authenticated VPS connections passed. Existing city and accounts are preserved. The recorded walkthrough captures the business implementation before the final vacant-location label correction. Windows updater verified; GUI testing used Linux/Mesa, not a physical Windows desktop.",
+      "updatedAt": "2026-10-02T16:30:51+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
