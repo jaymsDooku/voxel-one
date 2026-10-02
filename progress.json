@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T17:01:46+00:00",
+  "updatedAt": "2026-10-02T17:17:23+00:00",
   "release": {
     "name": "Playtest 22",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-22",
@@ -1366,10 +1366,21 @@
       "id": "construction-materials",
       "title": "Natural materials and building information",
       "description": "Adding resource harvesting businesses, privately owned material stocks, developer construction requirements and clickable building details.",
-      "evidence": [],
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "materials verify checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/materials-verify-checks.json"
+        },
+        {
+          "kind": "report",
+          "label": "materials three day checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/materials-three-day-checks.json"
+        }
+      ],
       "status": "in_progress",
-      "note": "Implemented privately owned material stocks, terrain harvesting and refining businesses, exact building recipes and reservation gating; testing startup, ownership transfers and building inspection.",
-      "updatedAt": "2026-10-02T17:01:46+00:00"
+      "note": "All 140 checks passed. A fresh three-day voxel simulation conserved harvested wood, stone and sand through refining and construction, reconciled company cash, and fed and housed all 12 citizens. Recording the live inspector and preparing the desktop/server release.",
+      "updatedAt": "2026-10-02T17:17:23+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
