@@ -1,0 +1,636 @@
+{
+  "schemaVersion": 1,
+  "project": "Voxel One",
+  "updatedAt": "2026-10-02T00:12:19+00:00",
+  "release": {
+    "name": "Playtest 12",
+    "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-12",
+    "commit": "8c798c1ea5fd9696656418563e4c197f7f01761a"
+  },
+  "verification": {
+    "tests": 68,
+    "failures": 0,
+    "label": "Playtest 12",
+    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/master/dashboard/evidence/playtest-12-tests.json"
+  },
+  "items": [
+    {
+      "id": "development-dashboard",
+      "title": "Development dashboard",
+      "description": "A mobile-friendly progress view, historical work and linked test evidence.",
+      "status": "in_progress",
+      "updatedAt": "2026-10-02T00:12:18+00:00",
+      "note": "Dashboard implemented; 16 WebKit/Chromium mobile and desktop checks passed. Publishing the site.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "website browser checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/website-browser-checks.json"
+        },
+        {
+          "kind": "image",
+          "label": "web progress mobile.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/web-progress-mobile.png"
+        }
+      ]
+    },
+    {
+      "id": "website-docs",
+      "title": "Voxel One website and documentation",
+      "description": "An engaging game landing page and easy-to-navigate feature documentation.",
+      "status": "in_progress",
+      "updatedAt": "2026-10-02T00:12:19+00:00",
+      "note": "Landing page, nine documentation sections and mobile navigation passed browser checks. Publishing the site.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "website browser checks.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/website-browser-checks.json"
+        },
+        {
+          "kind": "image",
+          "label": "web index mobile.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/web-index-mobile.png"
+        },
+        {
+          "kind": "image",
+          "label": "web docs mobile.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/web-docs-mobile.png"
+        }
+      ]
+    },
+    {
+      "id": "sun-lighting",
+      "title": "Sun and daylight",
+      "description": "A visible sun with directional lighting.",
+      "status": "queued",
+      "updatedAt": "2026-10-01T23:55:49+00:00",
+      "note": "Requested; waiting for the preceding work.",
+      "evidence": []
+    },
+    {
+      "id": "global-illumination",
+      "title": "Global illumination",
+      "description": "Indirect light and occlusion for the voxel world.",
+      "status": "queued",
+      "updatedAt": "2026-10-01T23:55:49+00:00",
+      "note": "Requested; waiting for the preceding work.",
+      "evidence": []
+    },
+    {
+      "id": "environment-reflections",
+      "title": "Environment lighting and reflections",
+      "description": "Sky illumination and material reflections.",
+      "status": "queued",
+      "updatedAt": "2026-10-01T23:55:49+00:00",
+      "note": "Requested; waiting for the preceding work.",
+      "evidence": []
+    },
+    {
+      "id": "antialias-filtering",
+      "title": "Anti-aliasing and texture filtering",
+      "description": "Reduce jagged edges and improve sampling quality.",
+      "status": "queued",
+      "updatedAt": "2026-10-01T23:55:49+00:00",
+      "note": "Requested; waiting for the preceding work.",
+      "evidence": []
+    },
+    {
+      "id": "coloured-led-blocks",
+      "title": "Coloured glowing blocks",
+      "description": "Place LED-like blocks with any chosen colour and visible local illumination.",
+      "status": "queued",
+      "updatedAt": "2026-10-01T23:55:49+00:00",
+      "note": "Requested; waiting for the preceding work.",
+      "evidence": []
+    },
+    {
+      "id": "player-multiplayer",
+      "title": "Player physics and multiplayer",
+      "description": "Walking, jumping, collision and a shared, persistent server world.",
+      "status": "complete",
+      "updatedAt": "2026-10-01T16:56:14Z",
+      "note": "Implemented, verified and published.",
+      "commit": "afcf900583f3471ad9c054c8c09efee668ee3fb6",
+      "evidence": [
+        {
+          "kind": "ci",
+          "label": "Passed desktop build and tests",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/36895685002"
+        },
+        {
+          "kind": "commit",
+          "label": "Implementation commit",
+          "url": "https://github.com/jaymsDooku/voxel-one/commit/afcf900583f3471ad9c054c8c09efee668ee3fb6"
+        },
+        {
+          "kind": "test",
+          "label": "PlayerTest",
+          "url": "https://github.com/jaymsDooku/voxel-one/blob/afcf900583f3471ad9c054c8c09efee668ee3fb6/src/test/java/dev/jayms/PlayerTest.java"
+        },
+        {
+          "kind": "test",
+          "label": "MultiplayerTest",
+          "url": "https://github.com/jaymsDooku/voxel-one/blob/afcf900583f3471ad9c054c8c09efee668ee3fb6/src/test/java/dev/jayms/MultiplayerTest.java"
+        },
+        {
+          "kind": "image",
+          "label": "Recorded graphical playtest (Linux)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/master/dashboard/evidence/voxel-jayms.png"
+        },
+        {
+          "kind": "report",
+          "label": "Latest regression test results (68 tests)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/master/dashboard/evidence/playtest-12-tests.json"
+        }
+      ]
+    },
+    {
+      "id": "accounts-controls-flight",
+      "title": "Accounts, controls and flight",
+      "description": "Authenticated TLS sessions, editable controls, flight, smooth movement and holographic player names.",
+      "status": "complete",
+      "updatedAt": "2026-10-01T17:41:22Z",
+      "note": "Implemented, verified and published.",
+      "commit": "f21d1d5b0797dfc86eb1145c6d0730e756696544",
+      "evidence": [
+        {
+          "kind": "ci",
+          "label": "Passed desktop build and tests",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/36901220651"
+        },
+        {
+          "kind": "commit",
+          "label": "Implementation commit",
+          "url": "https://github.com/jaymsDooku/voxel-one/commit/f21d1d5b0797dfc86eb1145c6d0730e756696544"
+        },
+        {
+          "kind": "test",
+          "label": "AccountStoreTest",
+          "url": "https://github.com/jaymsDooku/voxel-one/blob/f21d1d5b0797dfc86eb1145c6d0730e756696544/src/test/java/dev/jayms/AccountStoreTest.java"
+        },
+        {
+          "kind": "test",
+          "label": "ControlsTest",
+          "url": "https://github.com/jaymsDooku/voxel-one/blob/f21d1d5b0797dfc86eb1145c6d0730e756696544/src/test/java/dev/jayms/ControlsTest.java"
+        },
+        {
+          "kind": "test",
+          "label": "RemotePlayerTest",
+          "url": "https://github.com/jaymsDooku/voxel-one/blob/f21d1d5b0797dfc86eb1145c6d0730e756696544/src/test/java/dev/jayms/RemotePlayerTest.java"
+        },
+        {
+          "kind": "test",
+          "label": "MultiplayerTest",
+          "url": "https://github.com/jaymsDooku/voxel-one/blob/f21d1d5b0797dfc86eb1145c6d0730e756696544/src/test/java/dev/jayms/MultiplayerTest.java"
+        },
+        {
+          "kind": "image",
+          "label": "Recorded graphical playtest (Linux)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/master/dashboard/evidence/voxel-controls.png"
+        },
+        {
+          "kind": "report",
+          "label": "Latest regression test results (68 tests)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/master/dashboard/evidence/playtest-12-tests.json"
+        }
+      ]
+    },
+    {
+      "id": "survival-biomes",
+      "title": "Inventory, health and procedural worlds",
+      "description": "Nine hotbar slots, 36 inventory slots, pickups, health, caves, trees and four seeded biomes.",
+      "status": "complete",
+      "updatedAt": "2026-10-01T18:14:52Z",
+      "note": "Implemented, verified and published.",
+      "commit": "bb636b9c019ea91fad5433179535a9d148129f7e",
+      "evidence": [
+        {
+          "kind": "ci",
+          "label": "Passed desktop build and tests",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/36905401136"
+        },
+        {
+          "kind": "commit",
+          "label": "Implementation commit",
+          "url": "https://github.com/jaymsDooku/voxel-one/commit/bb636b9c019ea91fad5433179535a9d148129f7e"
+        },
+        {
+          "kind": "test",
+          "label": "SurvivalTest",
+          "url": "https://github.com/jaymsDooku/voxel-one/blob/bb636b9c019ea91fad5433179535a9d148129f7e/src/test/java/dev/jayms/SurvivalTest.java"
+        },
+        {
+          "kind": "image",
+          "label": "Recorded graphical playtest (Linux)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/master/dashboard/evidence/voxel-biomes.png"
+        },
+        {
+          "kind": "report",
+          "label": "Latest regression test results (68 tests)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/master/dashboard/evidence/playtest-12-tests.json"
+        }
+      ]
+    },
+    {
+      "id": "isometric-camera",
+      "title": "Isometric sky camera",
+      "description": "Orthographic world overview with zoom and a return to the player camera.",
+      "status": "complete",
+      "updatedAt": "2026-10-01T18:31:49Z",
+      "note": "Implemented, verified and published.",
+      "commit": "8ff7389d60b03d67b2152259d2935bcce40d6ef2",
+      "evidence": [
+        {
+          "kind": "ci",
+          "label": "Passed desktop build and tests",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/36907509593"
+        },
+        {
+          "kind": "commit",
+          "label": "Implementation commit",
+          "url": "https://github.com/jaymsDooku/voxel-one/commit/8ff7389d60b03d67b2152259d2935bcce40d6ef2"
+        },
+        {
+          "kind": "test",
+          "label": "IsometricCameraTest",
+          "url": "https://github.com/jaymsDooku/voxel-one/blob/8ff7389d60b03d67b2152259d2935bcce40d6ef2/src/test/java/dev/jayms/IsometricCameraTest.java"
+        },
+        {
+          "kind": "image",
+          "label": "Recorded graphical playtest (Linux)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/master/dashboard/evidence/voxel-isometric.png"
+        },
+        {
+          "kind": "report",
+          "label": "Latest regression test results (68 tests)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/master/dashboard/evidence/playtest-12-tests.json"
+        }
+      ]
+    },
+    {
+      "id": "voxel-models",
+      "title": "Tiny voxel models and flower pots",
+      "description": "Sparse octree models, procedural generators, custom items and model persistence in multiplayer.",
+      "status": "complete",
+      "updatedAt": "2026-10-01T19:26:17Z",
+      "note": "Implemented, verified and published.",
+      "commit": "c065eaf647bf358da64dec77c839510d02b3a5ad",
+      "evidence": [
+        {
+          "kind": "ci",
+          "label": "Passed desktop build and tests",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/36914272974"
+        },
+        {
+          "kind": "commit",
+          "label": "Implementation commit",
+          "url": "https://github.com/jaymsDooku/voxel-one/commit/c065eaf647bf358da64dec77c839510d02b3a5ad"
+        },
+        {
+          "kind": "test",
+          "label": "VoxelModelTest",
+          "url": "https://github.com/jaymsDooku/voxel-one/blob/c065eaf647bf358da64dec77c839510d02b3a5ad/src/test/java/dev/jayms/VoxelModelTest.java"
+        },
+        {
+          "kind": "test",
+          "label": "MultiplayerTest",
+          "url": "https://github.com/jaymsDooku/voxel-one/blob/c065eaf647bf358da64dec77c839510d02b3a5ad/src/test/java/dev/jayms/MultiplayerTest.java"
+        },
+        {
+          "kind": "image",
+          "label": "Recorded graphical playtest (Linux)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/master/dashboard/evidence/voxel-placed-pot.png"
+        },
+        {
+          "kind": "report",
+          "label": "Latest regression test results (68 tests)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/master/dashboard/evidence/playtest-12-tests.json"
+        }
+      ]
+    },
+    {
+      "id": "camera-cycle",
+      "title": "Three player camera views",
+      "description": "F5 cycles behind the player, in front, and back to first person, with camera obstruction checks.",
+      "status": "complete",
+      "updatedAt": "2026-10-01T19:32:56Z",
+      "note": "Implemented, verified and published.",
+      "commit": "8070222fe4754fe232b460e83a15d9c4b924c708",
+      "evidence": [
+        {
+          "kind": "ci",
+          "label": "Passed desktop build and tests",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/36915094946"
+        },
+        {
+          "kind": "commit",
+          "label": "Implementation commit",
+          "url": "https://github.com/jaymsDooku/voxel-one/commit/8070222fe4754fe232b460e83a15d9c4b924c708"
+        },
+        {
+          "kind": "test",
+          "label": "PlayerCameraTest",
+          "url": "https://github.com/jaymsDooku/voxel-one/blob/8070222fe4754fe232b460e83a15d9c4b924c708/src/test/java/dev/jayms/PlayerCameraTest.java"
+        },
+        {
+          "kind": "image",
+          "label": "Recorded graphical playtest (Linux)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/master/dashboard/evidence/voxel-camera-front.png"
+        },
+        {
+          "kind": "report",
+          "label": "Latest regression test results (68 tests)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/master/dashboard/evidence/playtest-12-tests.json"
+        }
+      ]
+    },
+    {
+      "id": "avatar-launcher",
+      "title": "Player rig, held items and desktop updates",
+      "description": "Classic voxel proportions, walking animation, visible first-person arm and held items, plus automatic desktop updates.",
+      "status": "complete",
+      "updatedAt": "2026-10-01T20:01:23Z",
+      "note": "Implemented, verified and published.",
+      "commit": "707b0d3faf649d1277d6e3a7c4eb498efb079dc4",
+      "evidence": [
+        {
+          "kind": "ci",
+          "label": "Passed desktop build and tests",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/36918542863"
+        },
+        {
+          "kind": "commit",
+          "label": "Implementation commit",
+          "url": "https://github.com/jaymsDooku/voxel-one/commit/707b0d3faf649d1277d6e3a7c4eb498efb079dc4"
+        },
+        {
+          "kind": "test",
+          "label": "PlayerAnimationTest",
+          "url": "https://github.com/jaymsDooku/voxel-one/blob/707b0d3faf649d1277d6e3a7c4eb498efb079dc4/src/test/java/dev/jayms/PlayerAnimationTest.java"
+        },
+        {
+          "kind": "test",
+          "label": "UpdaterTest",
+          "url": "https://github.com/jaymsDooku/voxel-one/blob/707b0d3faf649d1277d6e3a7c4eb498efb079dc4/src/test/java/dev/jayms/UpdaterTest.java"
+        },
+        {
+          "kind": "image",
+          "label": "Recorded graphical playtest (Linux)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/master/dashboard/evidence/voxel-camera-held-pot.png"
+        },
+        {
+          "kind": "report",
+          "label": "Latest regression test results (68 tests)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/master/dashboard/evidence/playtest-12-tests.json"
+        }
+      ]
+    },
+    {
+      "id": "held-model-position",
+      "title": "Held model placement",
+      "description": "Held voxel models remain fully in front of the first-person hand.",
+      "status": "complete",
+      "updatedAt": "2026-10-01T20:06:32Z",
+      "note": "Implemented, verified and published.",
+      "commit": "6d77a54885cea59a462c46470609320f16bd4f04",
+      "evidence": [
+        {
+          "kind": "ci",
+          "label": "Passed desktop build and tests",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/36919169530"
+        },
+        {
+          "kind": "commit",
+          "label": "Implementation commit",
+          "url": "https://github.com/jaymsDooku/voxel-one/commit/6d77a54885cea59a462c46470609320f16bd4f04"
+        },
+        {
+          "kind": "test",
+          "label": "PlayerAnimationTest",
+          "url": "https://github.com/jaymsDooku/voxel-one/blob/6d77a54885cea59a462c46470609320f16bd4f04/src/test/java/dev/jayms/PlayerAnimationTest.java"
+        },
+        {
+          "kind": "image",
+          "label": "Recorded graphical playtest (Linux)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/master/dashboard/evidence/voxel-camera-held-pot.png"
+        },
+        {
+          "kind": "report",
+          "label": "Latest regression test results (68 tests)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/master/dashboard/evidence/playtest-12-tests.json"
+        }
+      ]
+    },
+    {
+      "id": "interaction-polish",
+      "title": "Swing, jumping, names and skin fixes",
+      "description": "Downward attack, gentler placement, repeat jumping, inventory name tooltips and a non-flickering outer hair layer.",
+      "status": "complete",
+      "updatedAt": "2026-10-01T20:42:24Z",
+      "note": "Implemented, verified and published.",
+      "commit": "f818271123a9357a8f3aba1ad11ee28ff5920308",
+      "evidence": [
+        {
+          "kind": "ci",
+          "label": "Passed desktop build and tests",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/36923538084"
+        },
+        {
+          "kind": "commit",
+          "label": "Implementation commit",
+          "url": "https://github.com/jaymsDooku/voxel-one/commit/f818271123a9357a8f3aba1ad11ee28ff5920308"
+        },
+        {
+          "kind": "test",
+          "label": "PlayerAnimationTest",
+          "url": "https://github.com/jaymsDooku/voxel-one/blob/f818271123a9357a8f3aba1ad11ee28ff5920308/src/test/java/dev/jayms/PlayerAnimationTest.java"
+        },
+        {
+          "kind": "test",
+          "label": "PlayerTest",
+          "url": "https://github.com/jaymsDooku/voxel-one/blob/f818271123a9357a8f3aba1ad11ee28ff5920308/src/test/java/dev/jayms/PlayerTest.java"
+        },
+        {
+          "kind": "test",
+          "label": "InventoryHudTest",
+          "url": "https://github.com/jaymsDooku/voxel-one/blob/f818271123a9357a8f3aba1ad11ee28ff5920308/src/test/java/dev/jayms/InventoryHudTest.java"
+        },
+        {
+          "kind": "image",
+          "label": "Recorded graphical playtest (Linux)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/master/dashboard/evidence/voxel-fix-hair-front.png"
+        },
+        {
+          "kind": "report",
+          "label": "Latest regression test results (68 tests)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/master/dashboard/evidence/playtest-12-tests.json"
+        }
+      ]
+    },
+    {
+      "id": "horizon-rendering",
+      "title": "Terrain to the horizon",
+      "description": "Adaptive background terrain reaches 2,048 blocks in each direction; the isometric view fits the 4,096-block visible footprint.",
+      "status": "complete",
+      "updatedAt": "2026-10-01T22:35:15Z",
+      "note": "Implemented, verified and published.",
+      "commit": "bb9c26f09b26b16a8561b94cadd6a028cc29a133",
+      "evidence": [
+        {
+          "kind": "ci",
+          "label": "Passed desktop build and tests",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/36935948621"
+        },
+        {
+          "kind": "commit",
+          "label": "Implementation commit",
+          "url": "https://github.com/jaymsDooku/voxel-one/commit/bb9c26f09b26b16a8561b94cadd6a028cc29a133"
+        },
+        {
+          "kind": "test",
+          "label": "DistantTerrainTest",
+          "url": "https://github.com/jaymsDooku/voxel-one/blob/bb9c26f09b26b16a8561b94cadd6a028cc29a133/src/test/java/dev/jayms/DistantTerrainTest.java"
+        },
+        {
+          "kind": "test",
+          "label": "IsometricCameraTest",
+          "url": "https://github.com/jaymsDooku/voxel-one/blob/bb9c26f09b26b16a8561b94cadd6a028cc29a133/src/test/java/dev/jayms/IsometricCameraTest.java"
+        },
+        {
+          "kind": "image",
+          "label": "Recorded graphical playtest (Linux)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/master/dashboard/evidence/voxel-horizon-overview-fit.png"
+        },
+        {
+          "kind": "report",
+          "label": "Latest regression test results (68 tests)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/master/dashboard/evidence/playtest-12-tests.json"
+        }
+      ]
+    },
+    {
+      "id": "fractional-world",
+      "title": "Octree world and smaller blocks",
+      "description": "World chunks use sparse octrees; half, quarter, eighth and sixteenth cubes support precise collision, picking and saved edits.",
+      "status": "complete",
+      "updatedAt": "2026-10-01T23:32:08Z",
+      "note": "Implemented, verified and published.",
+      "commit": "8c798c1ea5fd9696656418563e4c197f7f01761a",
+      "evidence": [
+        {
+          "kind": "ci",
+          "label": "Passed desktop build and tests",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/36941322411"
+        },
+        {
+          "kind": "commit",
+          "label": "Implementation commit",
+          "url": "https://github.com/jaymsDooku/voxel-one/commit/8c798c1ea5fd9696656418563e4c197f7f01761a"
+        },
+        {
+          "kind": "test",
+          "label": "FractionalWorldTest",
+          "url": "https://github.com/jaymsDooku/voxel-one/blob/8c798c1ea5fd9696656418563e4c197f7f01761a/src/test/java/dev/jayms/FractionalWorldTest.java"
+        },
+        {
+          "kind": "test",
+          "label": "MultiplayerTest",
+          "url": "https://github.com/jaymsDooku/voxel-one/blob/8c798c1ea5fd9696656418563e4c197f7f01761a/src/test/java/dev/jayms/MultiplayerTest.java"
+        },
+        {
+          "kind": "image",
+          "label": "Recorded graphical playtest (Linux)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/master/dashboard/evidence/voxel-features-quarter-placed.png"
+        },
+        {
+          "kind": "report",
+          "label": "Latest regression test results (68 tests)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/master/dashboard/evidence/playtest-12-tests.json"
+        }
+      ]
+    },
+    {
+      "id": "model-sculpting",
+      "title": "Direct 3D voxel modelling",
+      "description": "Build, paint, erase and pick colours directly in 3D, with orbit, brush sizes, hex colours and undo/redo.",
+      "status": "complete",
+      "updatedAt": "2026-10-01T23:32:08Z",
+      "note": "Implemented, verified and published.",
+      "commit": "8c798c1ea5fd9696656418563e4c197f7f01761a",
+      "evidence": [
+        {
+          "kind": "ci",
+          "label": "Passed desktop build and tests",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/36941322411"
+        },
+        {
+          "kind": "commit",
+          "label": "Implementation commit",
+          "url": "https://github.com/jaymsDooku/voxel-one/commit/8c798c1ea5fd9696656418563e4c197f7f01761a"
+        },
+        {
+          "kind": "test",
+          "label": "ModelSculptorTest",
+          "url": "https://github.com/jaymsDooku/voxel-one/blob/8c798c1ea5fd9696656418563e4c197f7f01761a/src/test/java/dev/jayms/ModelSculptorTest.java"
+        },
+        {
+          "kind": "test",
+          "label": "VoxelModelTest",
+          "url": "https://github.com/jaymsDooku/voxel-one/blob/8c798c1ea5fd9696656418563e4c197f7f01761a/src/test/java/dev/jayms/VoxelModelTest.java"
+        },
+        {
+          "kind": "image",
+          "label": "Recorded graphical playtest (Linux)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/master/dashboard/evidence/voxel-features-3d-created.png"
+        },
+        {
+          "kind": "report",
+          "label": "Latest regression test results (68 tests)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/master/dashboard/evidence/playtest-12-tests.json"
+        }
+      ]
+    },
+    {
+      "id": "crafting",
+      "title": "Inventory crafting",
+      "description": "86 recipes consume inputs across the inventory, stack outputs and drop overflow. Multiplayer validates recipes on the server.",
+      "status": "complete",
+      "updatedAt": "2026-10-01T23:32:08Z",
+      "note": "Implemented, verified and published.",
+      "commit": "8c798c1ea5fd9696656418563e4c197f7f01761a",
+      "evidence": [
+        {
+          "kind": "ci",
+          "label": "Passed desktop build and tests",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/36941322411"
+        },
+        {
+          "kind": "commit",
+          "label": "Implementation commit",
+          "url": "https://github.com/jaymsDooku/voxel-one/commit/8c798c1ea5fd9696656418563e4c197f7f01761a"
+        },
+        {
+          "kind": "test",
+          "label": "CraftingTest",
+          "url": "https://github.com/jaymsDooku/voxel-one/blob/8c798c1ea5fd9696656418563e4c197f7f01761a/src/test/java/dev/jayms/CraftingTest.java"
+        },
+        {
+          "kind": "test",
+          "label": "MultiplayerTest",
+          "url": "https://github.com/jaymsDooku/voxel-one/blob/8c798c1ea5fd9696656418563e4c197f7f01761a/src/test/java/dev/jayms/MultiplayerTest.java"
+        },
+        {
+          "kind": "image",
+          "label": "Recorded graphical playtest (Linux)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/master/dashboard/evidence/voxel-features-recipes.png"
+        },
+        {
+          "kind": "report",
+          "label": "Latest regression test results (68 tests)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/master/dashboard/evidence/playtest-12-tests.json"
+        }
+      ]
+    }
+  ]
+}

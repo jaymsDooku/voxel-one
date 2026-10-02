@@ -1,5 +1,11 @@
 name: Build and test
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+    branches-ignore: [development-progress]
+    paths-ignore: ['website/**', 'dashboard/**', 'AGENTS.md', 'deploy/build_site.py', 'deploy/update_progress.py']
+  pull_request:
+    paths-ignore: ['website/**', 'dashboard/**', 'AGENTS.md', 'deploy/build_site.py', 'deploy/update_progress.py']
+  workflow_dispatch:
 permissions:
   contents: read
 concurrency:

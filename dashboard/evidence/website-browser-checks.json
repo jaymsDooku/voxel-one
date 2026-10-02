@@ -1,0 +1,102 @@
+{
+  "recordedAt": "2026-10-02T00:11:09.501Z",
+  "scope": "Local browser checks. WebKit simulates Safari rendering, not a physical iPhone.",
+  "checks": [
+    {
+      "browser": "webkit",
+      "viewport": 390,
+      "page": "index.html",
+      "status": "passed"
+    },
+    {
+      "browser": "webkit",
+      "viewport": 390,
+      "page": "docs.html",
+      "status": "passed"
+    },
+    {
+      "browser": "webkit",
+      "viewport": 390,
+      "page": "progress.html",
+      "status": "passed"
+    },
+    {
+      "browser": "webkit",
+      "viewport": 390,
+      "check": "Offline progress fallback",
+      "status": "passed"
+    },
+    {
+      "browser": "webkit",
+      "viewport": 1280,
+      "page": "index.html",
+      "status": "passed"
+    },
+    {
+      "browser": "webkit",
+      "viewport": 1280,
+      "page": "docs.html",
+      "status": "passed"
+    },
+    {
+      "browser": "webkit",
+      "viewport": 1280,
+      "page": "progress.html",
+      "status": "passed"
+    },
+    {
+      "browser": "webkit",
+      "viewport": 1280,
+      "check": "Offline progress fallback",
+      "status": "passed"
+    },
+    {
+      "browser": "chromium",
+      "viewport": 390,
+      "page": "index.html",
+      "status": "passed"
+    },
+    {
+      "browser": "chromium",
+      "viewport": 390,
+      "page": "docs.html",
+      "status": "passed"
+    },
+    {
+      "browser": "chromium",
+      "viewport": 390,
+      "page": "progress.html",
+      "status": "passed"
+    },
+    {
+      "browser": "chromium",
+      "viewport": 390,
+      "check": "Offline progress fallback",
+      "status": "passed"
+    },
+    {
+      "browser": "chromium",
+      "viewport": 1280,
+      "page": "index.html",
+      "status": "passed"
+    },
+    {
+      "browser": "chromium",
+      "viewport": 1280,
+      "page": "docs.html",
+      "status": "passed"
+    },
+    {
+      "browser": "chromium",
+      "viewport": 1280,
+      "page": "progress.html",
+      "status": "passed"
+    },
+    {
+      "browser": "chromium",
+      "viewport": 1280,
+      "check": "Offline progress fallback",
+      "status": "passed"
+    }
+  ]
+}

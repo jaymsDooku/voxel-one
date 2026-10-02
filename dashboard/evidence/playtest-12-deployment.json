@@ -1,0 +1,27 @@
+{
+  "label": "Playtest 12 deployment verification",
+  "commit": "8c798c1ea5fd9696656418563e4c197f7f01761a",
+  "recordedAt": "2026-10-01T23:55:49+00:00",
+  "source": "Recorded successful verification during the playtest 12 deployment.",
+  "checks": [
+    {
+      "name": "World save migration",
+      "status": "passed",
+      "detail": "All 187 edits, inventories, health, drops and models preserved."
+    },
+    {
+      "name": "Account and TLS identity preservation",
+      "status": "passed"
+    },
+    {
+      "name": "Authenticated TLS login",
+      "status": "passed",
+      "detail": "Existing jayms account connected to the VPS; initial world edits: 187."
+    },
+    {
+      "name": "Windows automatic update",
+      "status": "passed",
+      "detail": "Downloaded client SHA-256 verified, Windows glfw.dll present, revision matches the implementation commit."
+    }
+  ]
+}
