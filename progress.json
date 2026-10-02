@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T18:10:46+00:00",
+  "updatedAt": "2026-10-02T18:42:21+00:00",
   "release": {
     "name": "Playtest 22",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-22",
@@ -1473,8 +1473,8 @@
       "description": "Adding generated road names and building addresses, privately funded tool factories, and configurable production pipelines.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Adding generated road names and building addresses, privately funded tool factories, and configurable production pipelines.",
-      "updatedAt": "2026-10-02T18:10:46+00:00"
+      "note": "Implemented persistent street names and numbered addresses, configurable factory recipes and prices, private input purchases, and owned tool productivity bonuses. Running simulation, persistence, and multiplayer regression checks.",
+      "updatedAt": "2026-10-02T18:42:21+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
