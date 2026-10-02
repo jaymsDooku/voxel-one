@@ -1,0 +1,17 @@
+{
+  "revision": "178e759cb1bef0eb2850f524881779ea0dac537c",
+  "release": "playtest-24",
+  "run": "https://github.com/jaymsDooku/voxel-one/actions/runs/37042747215",
+  "platforms": [
+    "Windows",
+    "Linux",
+    "Mac Intel",
+    "Mac ARM"
+  ],
+  "testsPerPlatform": 142,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "published": true,
+  "status": "passed"
+}
