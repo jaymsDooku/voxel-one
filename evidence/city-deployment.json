@@ -1,0 +1,43 @@
+{
+  "recordedAt": "2026-10-02T09:56:10+00:00",
+  "release": "playtest-14",
+  "revision": "17bca21e66982015042bc3c49900f44d0e3dcc55",
+  "ci": "https://github.com/jaymsDooku/voxel-one/actions/runs/36992239689",
+  "platformBuilds": {
+    "Windows": "passed",
+    "Linux": "passed",
+    "Mac Intel": "passed",
+    "Mac ARM": "passed"
+  },
+  "windowsUpdater": {
+    "download": "passed",
+    "sha256Verification": "passed",
+    "windowsGlfwNative": "present",
+    "revision": "17bca21e66982015042bc3c49900f44d0e3dcc55"
+  },
+  "vps": {
+    "host": "198.100.154.156",
+    "sandbox": {
+      "port": 25565,
+      "pinnedTlsJaymsLogin": "passed",
+      "saveComparison": "187 edits, inventories, health, drops and model definitions preserved",
+      "accountAndTlsIdentity": "unchanged",
+      "backups": "world-pre-city.dat, server-pre-city.jar"
+    },
+    "city": {
+      "port": 25566,
+      "service": "enabled and active",
+      "pinnedTlsJaymsLogin": "passed after service restart",
+      "population": 12,
+      "horses": 6,
+      "zones": 3,
+      "buildings": 5,
+      "roads": 282,
+      "save": "independent world and simulation sidecar"
+    }
+  },
+  "limitations": [
+    "Windows build tests and updater verified; physical desktop playtest is performed by the user.",
+    "Public VPS address checked from this VPS; connection from the user\u2019s desktop is pending."
+  ]
+}
