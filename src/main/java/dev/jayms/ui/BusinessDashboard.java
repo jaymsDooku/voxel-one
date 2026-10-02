@@ -309,12 +309,14 @@ public final class BusinessDashboard {
                 "Owner: "
                         + owner
                         + " | "
-                        + (p != null
-                                        && l.firm() != null
-                                        && p.ownerKind() == CityEconomy.COMPANY
-                                        && p.owner() == l.firm().id()
-                                ? "Company-owned"
-                                : "Leased workplace")
+                        + (l.firm() == null
+                                ? "No operator"
+                                : p != null
+                                                && l.firm() != null
+                                                && p.ownerKind() == CityEconomy.COMPANY
+                                                && p.owner() == l.firm().id()
+                                        ? "Company-owned"
+                                        : "Leased workplace")
                         + " | Tracking since Day "
                         + (l.account() == null ? "--" : l.account().startedDay()),
                 24,
