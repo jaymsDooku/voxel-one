@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T21:04:42+00:00",
+  "updatedAt": "2026-10-02T21:09:06+00:00",
   "release": {
     "name": "Playtest 27",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-27",
@@ -1681,11 +1681,46 @@
           "kind": "report",
           "label": "lighting occlusion rendering.json",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-rendering.json"
+        },
+        {
+          "kind": "report",
+          "label": "lighting occlusion gpu.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-gpu.json"
+        },
+        {
+          "kind": "image",
+          "label": "lighting occlusion solid off.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-solid-off.png"
+        },
+        {
+          "kind": "image",
+          "label": "lighting occlusion solid red.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-solid-red.png"
+        },
+        {
+          "kind": "image",
+          "label": "lighting occlusion solid sun.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-solid-sun.png"
+        },
+        {
+          "kind": "image",
+          "label": "lighting occlusion glass off.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-glass-off.png"
+        },
+        {
+          "kind": "image",
+          "label": "lighting occlusion glass red.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-glass-red.png"
+        },
+        {
+          "kind": "image",
+          "label": "lighting occlusion opening red.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-opening-red.png"
         }
       ],
       "status": "in_progress",
-      "note": "166 automated tests pass. Actual GPU checks show zero LED or sunlight leakage through a 1/16 solid wall; glass and openings transmit. Preparing the desktop release.",
-      "updatedAt": "2026-10-02T21:04:42+00:00"
+      "note": "GPU regression: hidden red LED changes zero pixels behind solid 1/16 wall; glass and openings transmit. Sealed rooms reject sunlight and sky reflections. Windows update build starting.",
+      "updatedAt": "2026-10-02T21:09:06+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
