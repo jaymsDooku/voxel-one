@@ -1,0 +1,52 @@
+{
+  "revision": "Overhead-fix replay conflict recovery",
+  "resolution": "Retained both existing overhead preservation and demolition compatibility regressions; used replayed full-height validation comment/formatting and retained both checkpoint histories. Functional code matches the previous verified recovery.",
+  "commands": [
+    {
+      "command": "/tmp/apache-maven-3.9.11/bin/mvn -o -Dmaven.repo.local=target/special-build-tools/m2 -DargLine=-Djava.io.tmpdir=$PWD/target/special-build-tools -Dtest=SpecialBuildingsTest,CityToolsTest,DemolitionTest -q test",
+      "result": "Exit 0; 13 tests passed."
+    },
+    {
+      "command": "git diff --check",
+      "result": "Exit 0."
+    },
+    {
+      "command": "rg -n '^(<<<<<<<|=======|>>>>>>>)' src dashboard",
+      "result": "No conflict markers found."
+    }
+  ],
+  "totals": {
+    "tests": 13,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "suites": [
+    {
+      "suite": "SpecialBuildingsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "CityToolsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "DemolitionTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "priorBroadEvidence": "special-buildings-recovery-tests.json records 169 passing tests from the preceding recovery. Not rerun for this comment/formatting-only source resolution.",
+  "limitations": [
+    "Graphical playthrough and multiplayer sockets remain unverified."
+  ],
+  "handoff": "Working files resolved and left unstaged. Controller must stage and continue the preserved rebase; no abort/reset/commit/push/merge/deploy performed."
+}

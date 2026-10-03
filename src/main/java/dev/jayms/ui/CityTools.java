@@ -17,6 +17,14 @@ import java.util.function.Consumer;
 /** Isometric planning tools. Click polygon corners, then explicitly confirm with Enter. */
 public final class CityTools {
     public boolean dashboardRequested;
+    public int specialKind, specialLevel = 1, specialOwner;
+    private int ownerIndex;
+
+    private int ownerId(CityFrame city) {
+        if (specialOwner == 1) return city.citizens().isEmpty() ? -1 : city.citizens().get(Math.floorMod(ownerIndex, city.citizens().size())).id();
+        if (specialOwner == 2) return city.economy().firms().isEmpty() ? -1 : city.economy().firms().get(Math.floorMod(ownerIndex, city.economy().firms().size())).id();
+        return 0;
+    }
     public int tool = -1, selectedCitizen, selectedBuilding, selectedPlot, selectedStreet;
     private final List<Polygon.Point> points = new ArrayList<>();
     public String message = "Inspect: click a building, plot or citizen for details.";
@@ -57,10 +65,18 @@ public final class CityTools {
             dashboardRequested = true;
             return;
         }
+        if (tool == 6 && x >= 16 && x <= 450 && y >= 140 && y < 140+8*28) {
+            int row = (int)((y-140)/28);
+            if (row < 5) specialKind = row;
+            if (row == 5) specialLevel = specialLevel % 3 + 1;
+            if (row == 6) { specialOwner = (specialOwner+1)%3; ownerIndex = 0; }
+            if (row == 7) ownerIndex++;
+            return;
+        }
         float top = height - 196;
         if (y >= top && y <= top + 34 && x >= 16 && x < width - 16) {
-            int index = (int) ((x - 16) / ((width - 32) / 7f));
-            tool = new int[] {-1, 4, 0, 1, 2, 3, 5}[Math.min(6, index)];
+            int index = (int) ((x - 16) / ((width - 32) / 8f));
+            tool = new int[] {-1, 4, 0, 1, 2, 3, 5, 6}[Math.min(7, index)];
             points.clear();
             return;
         }
@@ -99,6 +115,13 @@ public final class CityTools {
         if (t < 0 || t > 1) return;
         var hit = new Vector3f(a).lerp(b, t);
         try {
+            if (tool == 6) {
+                int id = ownerId(city);
+                if (id < 0) { message = "No eligible owners available"; return; }
+                submit.accept(new CityCommand(CityCommand.SPECIAL, SpecialBuildings.type(specialKind, specialLevel),
+                        List.of(new Polygon.Point((float)Math.floor(Math.round(hit.x * 2) / 2f), (float)Math.floor(Math.round(hit.z * 2) / 2f))), specialOwner, id));
+                return;
+            }
             points.add(new Polygon.Point(Math.round(hit.x * 2) / 2f, Math.round(hit.z * 2) / 2f));
             if (tool == 4 && points.size() == 2) {
                 submit.accept(new CityCommand(CityCommand.ROAD, 0, points));
@@ -240,7 +263,7 @@ public final class CityTools {
             ui.text("Dashboard", w - 134, 82, 1.3f);
         }
         if (!isometric) return;
-        if (!message.startsWith("Choose")) ui.text(message, 20, 156, 1.3f, 1, .7f, .2f, 1);
+        if (!message.startsWith("Choose")) ui.text(message, 20, tool == 6 ? 378 : 156, 1.3f, 1, .7f, .2f, 1);
         float ground = city.roads().isEmpty() ? 32 : city.roads().get(0).y() + 1.04f;
         for (var zone : city.zones()) {
             float[] color =
@@ -313,7 +336,18 @@ public final class CityTools {
                     valid ? 1 : .2f,
                     .2f);
         }
-        float bw = (w - 32) / 7f, top = h - 196;
+        if (tool == 6) {
+            ui.rectangle(16,140,434,224,.025f,.04f,.065f,.95f);
+            for (int row=0; row<8; row++) {
+                String label;
+                if (row < 5) label = (row == specialKind ? "> " : "  ") + SpecialBuildings.NAMES[row];
+                else if (row == 5) label = "Level: " + specialLevel + " (click to cycle)";
+                else if (row == 6) label = "Ownership: " + new String[]{"City government","Private individual","Private company"}[specialOwner];
+                else label = "Owner: " + (specialOwner == 0 ? "City government" : BuildingInfo.owner(city, specialOwner == 2 ? CityEconomy.COMPANY : 0, ownerId(city))) + " (click: next)";
+                ui.text(label,24,149+row*28,1.15f);
+            }
+        }
+        float bw = (w - 32) / 8f, top = h - 196;
         String[] labels = {
             "Inspect",
             "Dirt road",
@@ -321,10 +355,11 @@ public final class CityTools {
             "Commercial",
             "Industrial",
             "Agriculture",
-            "Economy"
+            "Economy",
+            "Special"
         };
-        for (int i = 0; i < 7; i++) {
-            boolean active = tool == new int[] {-1, 4, 0, 1, 2, 3, 5}[i];
+        for (int i = 0; i < 8; i++) {
+            boolean active = tool == new int[] {-1, 4, 0, 1, 2, 3, 5, 6}[i];
             ui.rectangle(
                     16 + i * bw,
                     top,
@@ -338,7 +373,9 @@ public final class CityTools {
         }
         ui.rectangle(16, top + 38, w - 32, 35, .015f, .025f, .04f, .85f);
         ui.text(
-                tool == 4
+                tool == 6
+                        ? "Select building, level and owner | Click clear unzoned land: 6 x 9 | Front faces north | Esc: cancel"
+                        : tool == 4
                         ? "Click two endpoints | Mayor pays $4 per new road cell."
                         : tool >= 0 && tool < 4
                                 ? "Click convex polygon corners | Enter: zone | Backspace: undo |"

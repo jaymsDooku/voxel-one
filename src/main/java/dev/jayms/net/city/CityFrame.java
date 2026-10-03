@@ -217,11 +217,12 @@ public record CityFrame(
                     capacity = in.readInt(),
                     stock = in.readInt();
             if (id < 1
-                    || type > 3
+                    || (type > 3 && !SpecialBuildings.special(type))
                     || capacity < 1
                     || capacity > 32
                     || stock < 0
-                    || stock > 1000
+                    || (!SpecialBuildings.special(type) && stock > 1000)
+                    || (SpecialBuildings.special(type) && (zone < -2 || zone > 0 || (zone == 0 ? stock != 0 : stock < 1)))
                     || y < -27
                     || y > 89
                     || Math.abs((long) x - 8) > 256

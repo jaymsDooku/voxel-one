@@ -1,0 +1,17 @@
+{
+  "result": "passed",
+  "fixture": "Synthetic flat road-accessible site; actual CityTools click, authoritative CitySimulation and engine voxel renderer; static captures, not live gameplay",
+  "platform": "Linux Mesa surfaceless EGL",
+  "changedWorldPixels": 91443,
+  "captures": [
+    "special-buildings-menu.png",
+    "special-buildings-placement.png"
+  ],
+  "egl": "1.5",
+  "command": "python3 deploy/run_special_buildings_smoke.py dashboard/evidence target/special-build-tools/m2",
+  "checks": [
+    "Actual menu click permits a City hall",
+    "Rendered placement changes at least 1000 world pixels",
+    "No OpenGL errors in both captures"
+  ]
+}

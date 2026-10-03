@@ -1,0 +1,104 @@
+{
+  "feature": "Special building permits",
+  "finalChecks": [
+    {
+      "suite": "SpecialBuildingsTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "CityToolsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "BusinessDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "CityMetricsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "MayorDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "CityTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "CityEconomyTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "CityAddressesTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "CityMaterialsTest",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "CityBusinessTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "commands": [
+    {
+      "command": "/tmp/apache-maven-3.9.11/bin/mvn -o -Dmaven.repo.local=.build-tools/m2 -DargLine=-Djava.io.tmpdir=$PWD/.build-tools -Dtest=SpecialBuildingsTest,CityToolsTest,CityTest,CityEconomyTest,CityAddressesTest,CityMaterialsTest,CityBusinessTest,CityMetricsTest,MayorDashboardTest -q test",
+      "result": "Exit 0; focused city integration run."
+    },
+    {
+      "command": "/tmp/apache-maven-3.9.11/bin/mvn -o -Dmaven.repo.local=.build-tools/m2 -DargLine=-Djava.io.tmpdir=$PWD/.build-tools -Dtest=SpecialBuildingsTest,CityToolsTest,BusinessDashboardTest,CityMetricsTest,MayorDashboardTest -q test",
+      "result": "Exit 0; final changes: 19 tests passed."
+    },
+    {
+      "command": "/tmp/apache-maven-3.9.11/bin/mvn -o -Dmaven.repo.local=.build-tools/m2 -DargLine=-Djava.io.tmpdir=$PWD/.build-tools '-Dtest=*,!MultiplayerTest,!CityMultiplayerTest,!UpdaterTest' -q test",
+      "result": "163 tests; 162 passed, 1 boundary-picking failure before fix. Corrected and covered by subsequent passing CityToolsTest."
+    },
+    {
+      "command": "git diff --check",
+      "result": "Exit 0"
+    }
+  ],
+  "limitations": [
+    "CityMultiplayerTest could not open a socket: Operation not permitted. No sandbox controls were changed.",
+    "No graphical playthrough or F10 recording captured.",
+    "Maven not on PATH; used existing /tmp/apache-maven-3.9.11 with a workspace-local copy of /tmp/voxel-m2. Initial cache/temp path attempts failed under sandbox; corrected using local cache and forked JVM temp path."
+  ],
+  "coverage": [
+    "Catalog: all five kinds and three levels; command wire round trips including owner IDs above 1000.",
+    "City and private citizen/company ownership, snapshot round trips and restoration.",
+    "Atomic rejection of overlapping buildings, roads, future zones/roads, invalid owners, player occupancy, missing road access, and city bounds.",
+    "Menu selection, level/ownership controls, cancellation, world picking and civic exclusion from business metrics."
+  ]
+}

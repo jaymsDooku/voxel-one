@@ -93,6 +93,34 @@ class CityToolsTest {
     }
 
     @Test
+    void specialMenuControlsDoNotPlaceBuildings() {
+        var tools = new CityTools(); tools.tool = 6;
+        var result = new ArrayList<CityCommand>();
+        tools.click(40, 140 + 3 * 28 + 10, 1280, 720, projection, view, frame, result::add);
+        tools.click(40, 140 + 5 * 28 + 10, 1280, 720, projection, view, frame, result::add);
+        tools.click(40, 140 + 6 * 28 + 10, 1280, 720, projection, view, frame, result::add);
+        assertEquals(3, tools.specialKind);
+        assertEquals(2, tools.specialLevel);
+        assertEquals(1, tools.specialOwner);
+        assertTrue(result.isEmpty());
+        assertTrue(tools.key(256, result::add));
+        assertEquals(-1, tools.tool);
+    }
+
+    @Test
+    void specialBuildingClickSubmitsSelectedTypeLevelAndPublicOwner() {
+        var tools = new CityTools(); tools.tool = 6; tools.specialKind = 4; tools.specialLevel = 3;
+        var result = new ArrayList<CityCommand>();
+        click(tools, 28.5f, 26, result);
+        assertEquals(1, result.size());
+        assertEquals(CityCommand.SPECIAL, result.get(0).kind());
+        assertEquals(SpecialBuildings.type(4, 3), result.get(0).value());
+        assertEquals(0, result.get(0).ownerKind());
+        assertEquals(0, result.get(0).ownerId());
+        assertEquals(List.of(new Polygon.Point(28, 26)), result.get(0).points());
+    }
+
+    @Test
     void polygonConfirmationUndoAndCancel() {
         var tools = new CityTools();
         tools.tool = 0;

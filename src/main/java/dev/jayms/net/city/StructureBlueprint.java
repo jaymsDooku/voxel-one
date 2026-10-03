@@ -60,6 +60,21 @@ public final class StructureBlueprint {
         return edits;
     }
 
+    /** Walkable civic structures: clear central aisle, desks, and a service-coloured sign. */
+    public static List<Protocol.Edit> special(int type, int x, int y, int z) {
+        if (!SpecialBuildings.special(type)) throw new IllegalArgumentException("Invalid special building");
+        var edits = new ArrayList<>(generate(0, x, y, z));
+        int kind = SpecialBuildings.kind(type);
+        int[] colors = {0xffd166, 0x80ed99, 0x57ccff, 0xc792ea, 0x5588ff};
+        for (int level = 0; level < SpecialBuildings.level(type); level++)
+            edits.add(new Protocol.Edit(x + 1 + level, y + 4, z + 3, Blocks.LED).withColor(colors[kind]));
+        for (int row = 0; row < (kind == 0 || kind == 4 ? 1 : 3); row++) {
+            edits.add(new Protocol.Edit(x + 1, y + 1, z + 2 + row, kind == 4 ? Blocks.STONE : Blocks.PLANKS));
+            edits.add(new Protocol.Edit(x + 4, y + 1, z + 2 + row, Blocks.PLANKS));
+        }
+        return edits;
+    }
+
     /** Resource companies get workshops; only the quarry needs a mine shaft. */
     public static List<Protocol.Edit> generate(int type, int businessKind, int x, int y, int z) {
         if (type == 3) {
