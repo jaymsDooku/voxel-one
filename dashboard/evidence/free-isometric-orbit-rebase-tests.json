@@ -1,0 +1,121 @@
+{
+  "base": "127c1d22d72d746a412962086964a769689051d9",
+  "testedTreeFingerprint": "69f007840274f041387d8d39ef854091bf438c9cfd1cfd0a22c8fec1c3fd4050",
+  "scope": "Corrected working tree before controller stages and continues rebase. Manifest validates equivalence of the later submitted commit; no uncreated head is claimed tested.",
+  "requiredControllerCheck": "python3 deploy/verify_isometric_orbit_tree.py --revision HEAD must pass after rebase and before resubmission.",
+  "preservationReport": "free-isometric-orbit-base-preservation.json",
+  "regressionCommand": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 MAVEN_OPTS=\"-Djava.io.tmpdir=target/tmp -Djansi.tmpdir=target/tmp\" /tmp/apache-maven-3.9.11/bin/mvn -o -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=IsometricCameraTest,IsometricOrbitDragTest,PlayerCameraTest,MetricHistoryTest,MayorDashboardTest,BusinessCatalogTest,SpecialBuildingsTest,BusinessDashboardTest,TerrainGenerationTest,SurvivalTest,DistantTerrainTest -q test",
+  "exitCode": 0,
+  "results": [
+    {
+      "suite": "IsometricCameraTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "IsometricOrbitDragTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "PlayerCameraTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "MetricHistoryTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "MayorDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "BusinessCatalogTest",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "SpecialBuildingsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "BusinessDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "TerrainGenerationTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "SurvivalTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "DistantTerrainTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "graphicalCommand": "python3 deploy/run_isometric_orbit_smoke.py (approved local X11 runtime)",
+  "graphicalExitCode": 0,
+  "graphicalResults": {
+    "platform": "Linux Xvfb Mesa",
+    "status": "passed",
+    "degreesTravelled": 400.0,
+    "checks": [
+      "real GLFW RMB orbit past 360 degrees",
+      "release",
+      "inventory modal",
+      "view transitions",
+      "focus loss and restore",
+      "fresh drag"
+    ],
+    "recording": "engine F10 recorder",
+    "base": "127c1d22d72d746a412962086964a769689051d9",
+    "testedTreeFingerprint": "69f007840274f041387d8d39ef854091bf438c9cfd1cfd0a22c8fec1c3fd4050",
+    "scope": "Corrected working tree; controller must verify submitted HEAD against preserved manifest."
+  },
+  "videoDecodeCommand": "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -cp \"$(cat target/orbit-classpath.txt)\" RecordingProbe dashboard/evidence/free-isometric-orbit.mp4",
+  "videoDecode": {
+    "codec": "H264",
+    "width": 960,
+    "height": 540,
+    "durationSeconds": 14.477,
+    "decodedFrames": 62,
+    "status": "passed"
+  },
+  "clipBytes": 2569550,
+  "workingTreeVerifier": "passed",
+  "negativeVerifierCheck": "--revision HEAD correctly fails on the base-only commit, which does not include camera changes.",
+  "diffCheck": "git diff --check passed",
+  "limits": "Linux Xvfb/Mesa graphical verification only; full suite and other platforms not claimed."
+}

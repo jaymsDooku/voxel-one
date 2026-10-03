@@ -1,0 +1,17 @@
+{
+  "platform": "Linux Xvfb Mesa",
+  "status": "passed",
+  "degreesTravelled": 400.0,
+  "checks": [
+    "real GLFW RMB orbit past 360 degrees",
+    "release",
+    "inventory modal",
+    "view transitions",
+    "focus loss and restore",
+    "fresh drag"
+  ],
+  "recording": "engine F10 recorder",
+  "base": "127c1d22d72d746a412962086964a769689051d9",
+  "testedTreeFingerprint": "69f007840274f041387d8d39ef854091bf438c9cfd1cfd0a22c8fec1c3fd4050",
+  "scope": "Corrected working tree; controller must verify submitted HEAD against preserved manifest."
+}

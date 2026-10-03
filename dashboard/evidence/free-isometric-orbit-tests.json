@@ -1,0 +1,36 @@
+{
+  "targetedCommand": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 MAVEN_OPTS=\"-Djava.io.tmpdir=target/tmp -Djansi.tmpdir=target/tmp\" /tmp/apache-maven-3.9.11/bin/mvn -o -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=IsometricCameraTest,IsometricOrbitDragTest,PlayerCameraTest -q test",
+  "targetedExitCode": 0,
+  "results": [
+    {
+      "suite": "IsometricCameraTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "IsometricOrbitDragTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "PlayerCameraTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "fullSuite": "Initial attempt failed on read-only /tmp. Retry with writable temp directory confirmed java.net.SocketException: Operation not permitted in UpdaterTest and CityMultiplayerTest, then was interrupted at requested pause.",
+  "visualEvidence": "Superseded by successful Linux Xvfb/Mesa real GLFW verification and F10 MP4; see free-isometric-orbit-rebase-tests.json.",
+  "diffCheck": "git diff --check passed",
+  "remainingSuiteCommand": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 MAVEN_OPTS=\"-Djava.io.tmpdir=target/tmp -Djansi.tmpdir=target/tmp\" /tmp/apache-maven-3.9.11/bin/mvn -o -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" \"-Dtest=*,!MultiplayerTest,!CityMultiplayerTest,!UpdaterTest\" -q test",
+  "remainingSuiteResult": "Interrupted on second owner-requested quota pause; no full-suite pass claimed.",
+  "packageCommand": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 MAVEN_OPTS=\"-Djava.io.tmpdir=target/tmp -Djansi.tmpdir=target/tmp\" /tmp/apache-maven-3.9.11/bin/mvn -o -Dmaven.repo.local=target/maven-cache -DskipTests -q package",
+  "packageExitCode": 0,
+  "reviewStatus": "Implementation ready for independent review; not merged, deployed or approved by developer.",
+  "historicalNotice": "Earlier development checks only; superseded by 58 tests and fresh graphical run on base 127c1d2 in free-isometric-orbit-rebase-tests.json."
+}
