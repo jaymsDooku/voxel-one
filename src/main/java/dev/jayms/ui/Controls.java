@@ -39,7 +39,9 @@ public final class Controls {
         LIGHT_COLOR("LED light colour", GLFW_KEY_F8),
         DISMOUNT("Dismount horse", GLFW_KEY_H),
         MAYOR_DASHBOARD("Mayor dashboard", GLFW_KEY_F9),
-        RECORD("Start / stop recording", GLFW_KEY_F10);
+        RECORD("Start / stop recording", GLFW_KEY_F10),
+        ROTATE_LEFT("Sky view: rotate left", GLFW_KEY_LEFT),
+        ROTATE_RIGHT("Sky view: rotate right", GLFW_KEY_RIGHT);
         public final String label;
         public final int defaultCode;
 

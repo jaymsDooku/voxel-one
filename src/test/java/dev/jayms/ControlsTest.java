@@ -15,6 +15,35 @@ class ControlsTest {
     @TempDir Path temp;
 
     @Test
+    void rotationBindingsMigrateWithoutLosingCustomArrowKeys() throws Exception {
+        Path file = temp.resolve("legacy-arrows.properties");
+        var controls = new Controls(file);
+        controls.bind(FORWARD, ROTATE_LEFT.defaultCode);
+        controls.bind(BACKWARD, ROTATE_RIGHT.defaultCode);
+        controls.save();
+        var properties = new java.util.Properties();
+        try (var input = Files.newInputStream(file)) {
+            properties.load(input);
+        }
+        properties.remove("ROTATE_LEFT");
+        properties.remove("ROTATE_RIGHT");
+        try (var output = Files.newOutputStream(file)) {
+            properties.store(output, "Before rotation controls");
+        }
+        var loaded = new Controls(file);
+        assertEquals(ROTATE_LEFT.defaultCode, loaded.code(FORWARD));
+        assertEquals(ROTATE_RIGHT.defaultCode, loaded.code(BACKWARD));
+        assertEquals(
+                Controls.Action.values().length,
+                java.util.Arrays.stream(Controls.Action.values())
+                        .map(loaded::code)
+                        .distinct()
+                        .count());
+        loaded.bind(ROTATE_LEFT, -3);
+        assertEquals(-3, new Controls(file).code(ROTATE_LEFT));
+    }
+
+    @Test
     void bindingsSwapPersistAndReset() throws Exception {
         Path file = temp.resolve("controls.properties");
         var c = new Controls(file);

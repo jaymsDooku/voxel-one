@@ -53,6 +53,23 @@ public final class IsometricCamera {
         camera.setPitch((float) -Math.toDegrees(Math.atan(1 / Math.sqrt(2))));
     }
 
+    /** Orbit in quarter turns, keeping equal foreshortening of all three world axes. */
+    public void rotate(int quarterTurns) {
+        int turns = Math.floorMod(quarterTurns, 4);
+        camera.setYaw(-135 + Math.floorMod(Math.round((camera.yaw() + 135) / 90) + turns, 4) * 90);
+    }
+
+    /** Pan along screen right/up on the ground plane at the current orientation. */
+    public void panRelative(float right, float forward) {
+        Vector3f direction = camera.getDirection();
+        // Retain the existing pan speed at the default diagonal orientation.
+        float scale =
+                (float) Math.sqrt(2 / (direction.x * direction.x + direction.z * direction.z));
+        pan(
+                (direction.x * forward - direction.z * right) * scale,
+                (direction.z * forward + direction.x * right) * scale);
+    }
+
     public Camera camera() {
         return camera;
     }

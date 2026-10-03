@@ -1,0 +1,38 @@
+{
+  "feature": "Isometric camera quarter-turn rotation",
+  "platform": "Linux, sandboxed execution; no active graphical display",
+  "verification": [
+    {
+      "command": "mvn -q -Dtest=IsometricCameraTest,CityToolsTest,ControlsTest test",
+      "result": "Could not run: mvn not on PATH; used existing Maven installation afterward."
+    },
+    {
+      "command": "/tmp/apache-maven-3.9.11/bin/mvn -o -Dmaven.repo.local=/tmp/voxel-m2 -Dtest=IsometricCameraTest,CityToolsTest,ControlsTest test",
+      "result": "Initial run: fixture zoom placed zone clicks outside viewport; ControlsTest temporary directory blocked by read-only /tmp. Corrected fixture zoom and set java.io.tmpdir inside worktree."
+    },
+    {
+      "command": "JAVA_TOOL_OPTIONS=\"-Djava.io.tmpdir=$PWD/target/test-tmp\" /tmp/apache-maven-3.9.11/bin/mvn -o -Dmaven.repo.local=/tmp/voxel-m2 -Dtest=IsometricCameraTest,CityToolsTest,ControlsTest verify",
+      "result": "PASS: 15 tests, 0 failures, 0 errors; client/server/launcher jars packaged."
+    },
+    {
+      "command": "JAVA_TOOL_OPTIONS=\"-Djava.io.tmpdir=$PWD/target/test-tmp\" /tmp/apache-maven-3.9.11/bin/mvn -o -Dmaven.repo.local=/tmp/voxel-m2 verify",
+      "result": "171 tests: 0 assertion failures, 10 errors. All 10 errors were java.net.SocketException: Operation not permitted in UpdaterTest (1), CityMultiplayerTest (1), MultiplayerTest (8). Remaining 161 tests passed."
+    },
+    {
+      "command": "git diff --check",
+      "result": "PASS"
+    }
+  ],
+  "coverage": [
+    "Equal foreshortening and fixed pitch in all four orientations",
+    "Focus and zoom retained; opposite turns and full revolution restore orientation",
+    "Rotated distant terrain fits wide and tall viewports without depth clipping or HUD overlap",
+    "WASD pan axes track camera orientation",
+    "Zone world coordinates preserved when rotating between each polygon corner",
+    "New bindings preserve older custom arrow-key assignments and support rebinding"
+  ],
+  "limitations": [
+    "No F10 recording or interactive visual playtest: no graphical display available.",
+    "No deployment, commits, pushes or PR mutations performed."
+  ]
+}

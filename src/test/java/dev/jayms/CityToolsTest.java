@@ -38,6 +38,47 @@ class CityToolsTest {
     }
 
     @Test
+    void zoneCornersRemainInWorldCoordinatesWhenRotatingMidPolygon() {
+        var overview = new IsometricCamera();
+        overview.cityMode();
+        overview.focus(18, 28, 24);
+        overview.zoom(-20);
+        overview.zoom(-8);
+        var tools = new CityTools();
+        tools.tool = 0;
+        var result = new ArrayList<CityCommand>();
+        var corners =
+                List.of(
+                        new Polygon.Point(14, 26),
+                        new Polygon.Point(26, 26),
+                        new Polygon.Point(26, 38),
+                        new Polygon.Point(14, 38));
+        for (var corner : corners) {
+            var projection = overview.projection(new World(), 1280, 720);
+            var view = overview.camera().createViewMatrix();
+            var p =
+                    new Matrix4f(projection)
+                            .mul(view)
+                            .transform(new Vector4f(corner.x(), 24.03f, corner.z(), 1));
+            tools.click(
+                    (p.x * .5f + .5f) * 1280,
+                    (.5f - p.y * .5f) * 720,
+                    1280,
+                    720,
+                    projection,
+                    view,
+                    frame,
+                    result::add);
+            overview.rotate(1);
+        }
+        assertTrue(result.isEmpty());
+        tools.key(257, result::add);
+        assertEquals(1, result.size());
+        assertEquals(CityCommand.ZONE, result.get(0).kind());
+        assertEquals(corners, result.get(0).points());
+    }
+
+    @Test
     void isometricPickingSendsRoadEndpointsInWorldCoordinates() {
         var tools = new CityTools();
         tools.tool = 4;

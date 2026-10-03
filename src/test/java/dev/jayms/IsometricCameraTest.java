@@ -9,6 +9,86 @@ import org.junit.jupiter.api.Test;
 
 class IsometricCameraTest {
     @Test
+    void rotatedOverviewFitsAllWorldCornersAtWideAndTallSizes() {
+        var bounds = new DistantTerrainPlan(-160, -272).bounds();
+        var overview = new IsometricCamera();
+        for (int turn = 0; turn < 4; turn++) {
+            for (int[] size : new int[][] {{1280, 720}, {640, 1000}}) {
+                var combined =
+                        overview.projection(bounds, size[0], size[1])
+                                .mul(overview.camera().createViewMatrix());
+                for (float x : new float[] {bounds.minX(), bounds.maxX()})
+                    for (float z : new float[] {bounds.minZ(), bounds.maxZ()})
+                        for (float y : new float[] {-32, 96}) {
+                            var clip = combined.transform(new Vector4f(x, y, z, 1));
+                            assertEquals(1, clip.w);
+                            assertTrue(Math.abs(clip.x) < 1 && Math.abs(clip.z) < 1);
+                            float screenY = (.5f - clip.y * .5f) * size[1];
+                            assertTrue(screenY > 80 && screenY < size[1] - 140);
+                        }
+            }
+            overview.rotate(1);
+        }
+    }
+
+    @Test
+    void quarterTurnsPreserveFocusZoomPitchAndIsometricAxes() {
+        var overview = new IsometricCamera();
+        overview.cityMode();
+        overview.focus(18, 28, 24);
+        overview.zoom(-5);
+        float zoom = overview.zoom(), pitch = overview.camera().pitch();
+        for (int turn = 0; turn < 4; turn++) {
+            overview.rotate(1);
+            var combined =
+                    overview.projection(new World(), 1280, 720)
+                            .mul(overview.camera().createViewMatrix());
+            var direction = new Vector3f(18, 24, 28).sub(overview.camera().position()).normalize();
+            assertEquals(0, direction.distance(overview.camera().getDirection()), 1e-4);
+            assertEquals(zoom, overview.zoom());
+            assertEquals(pitch, overview.camera().pitch());
+            float length = -1;
+            for (int axis = 0; axis < 3; axis++) {
+                var projected = combined.transformDirection(new Vector3f().setComponent(axis, 1));
+                float next = (float) Math.hypot(projected.x * 1280, projected.y * 720);
+                if (length >= 0) assertEquals(length, next, 1e-3);
+                length = next;
+            }
+        }
+        assertEquals(-135, overview.camera().yaw());
+        overview.rotate(-1);
+        assertEquals(135, overview.camera().yaw());
+        overview.rotate(1);
+        assertEquals(-135, overview.camera().yaw());
+    }
+
+    @Test
+    void panningFollowsScreenAxesAtEveryOrientation() {
+        var overview = new IsometricCamera();
+        for (int turn = 0; turn < 4; turn++) {
+            overview.focus(0, 0, 32);
+            overview.panRelative(1, 0);
+            var movement =
+                    overview.camera()
+                            .createViewMatrix()
+                            .transformDirection(
+                                    new Vector3f(overview.focusX(), 0, overview.focusZ()));
+            assertTrue(movement.x > 0);
+            assertEquals(0, movement.y, 1e-5);
+            overview.focus(0, 0, 32);
+            overview.panRelative(0, 1);
+            movement =
+                    overview.camera()
+                            .createViewMatrix()
+                            .transformDirection(
+                                    new Vector3f(overview.focusX(), 0, overview.focusZ()));
+            assertTrue(movement.y > 0);
+            assertEquals(0, movement.x, 1e-5);
+            overview.rotate(1);
+        }
+    }
+
+    @Test
     void orthographicOverviewFitsLoadedWorldAtWideAndTallAspectRatios() {
         World world = new World();
         world.addChunk(new ChunkPos(-4, 0, -4), new Chunk());
