@@ -1,0 +1,36 @@
+Building demolition verification (Linux, Java, sandboxed feature worktree)
+
+Implemented: inspector Demolish / Confirm demolition action; authoritative command; clears structure, fine porch pieces and farm assets; removes properties, contracts, addresses, completed projects and operating business accounts; releases resident/job assignments and paths. Zones remain available for paid redevelopment. No material or money refund. Occupied player buildings are rejected. Underground terrain is preserved.
+
+Initial focused check: 3 demolition tests passed.
+
+Full suite command:
+MAVEN_OPTS="-Djava.io.tmpdir=$PWD/target/tmp -Djansi.tmpdir=$PWD/target/tmp" /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=target/m2 "-DargLine=-Djava.io.tmpdir=$PWD/target/tmp" verify
+Result: 174 tests, 0 assertion failures, 10 errors caused by sandbox socket restrictions (Operation not permitted); 164 passed.
+dev.jayms.CityMultiplayerTest.sharedRoadsZoningHorseOwnershipLateJoinAndRestart: java.net.SocketException: Operation not permitted
+dev.jayms.UpdaterTest.installsUpdatesAtomicallyRejectsTamperingAndUsesVerifiedOfflineCache: java.net.SocketException: Operation not permitted
+dev.jayms.MultiplayerTest.largeSavedDropSnapshotDoesNotOverflowWriterQueue: java.net.SocketException: Operation not permitted
+dev.jayms.MultiplayerTest.pickupIsExclusiveInventoryCannotBeForgedAndSeedSurvivesRestart: java.net.SocketException: Operation not permitted
+dev.jayms.MultiplayerTest.placementUsesClickPoseInsteadOfStaleMovementAndRollsBack: java.net.SocketException: Operation not permitted
+dev.jayms.MultiplayerTest.serverCraftsOverflowAndSynchronizesFractionalEditsRejectionsAndLateJoins: java.net.SocketException: Operation not permitted
+dev.jayms.MultiplayerTest.authenticationRegistrationDuplicateSessionsAndCertificatePin: java.net.SocketException: Operation not permitted
+dev.jayms.MultiplayerTest.colouredLightCraftingReplicationRollbackAndRestartMigrateV5: java.net.SocketException: Operation not permitted
+dev.jayms.MultiplayerTest.voxelModelsSharePlaceBreakAndSurviveWorldRestart: java.net.SocketException: Operation not permitted
+dev.jayms.MultiplayerTest.movementEditsLateJoinDisconnectAndPersistence: java.net.SocketException: Operation not permitted
+
+Visual limitation: no interactive game run, screenshot or F10 recording was captured. UI behavior is verified by direct inspector click tests.
+
+Final regression command (after underground terrain safeguard):
+MAVEN_OPTS="-Djava.io.tmpdir=$PWD/target/tmp -Djansi.tmpdir=$PWD/target/tmp" /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=target/m2 "-DargLine=-Djava.io.tmpdir=$PWD/target/tmp" -Dtest=DemolitionTest,CityTest,CityEconomyTest,AgricultureTest,CityMaterialsTest,CityBusinessTest,CityAddressesTest,BusinessDashboardTest,CityToolsTest test
+Exit 0. Final regression: tests=59 failures=0 errors=0 skipped=0
+DemolitionTest: tests=3 failures=0 errors=0 skipped=0
+CityTest: tests=10 failures=0 errors=0 skipped=0
+CityEconomyTest: tests=7 failures=0 errors=0 skipped=0
+AgricultureTest: tests=8 failures=0 errors=0 skipped=0
+CityMaterialsTest: tests=13 failures=0 errors=0 skipped=0
+CityBusinessTest: tests=9 failures=0 errors=0 skipped=0
+CityAddressesTest: tests=3 failures=0 errors=0 skipped=0
+BusinessDashboardTest: tests=3 failures=0 errors=0 skipped=0
+CityToolsTest: tests=3 failures=0 errors=0 skipped=0
+
+git diff --check: passed.

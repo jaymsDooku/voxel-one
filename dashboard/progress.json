@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-03T03:21:19+00:00",
+  "updatedAt": "2026-10-03T07:53:55+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,21 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "36373966363030342d613265392d346438382d616436372d363961323932396265373961",
+      "title": "Building demolition",
+      "description": "Implementing authoritative demolition and inspector controls.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "building demolition tests.txt",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-demolition-tests.txt"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Implementation ready for independent review. Demolition and related city regression tests passed; full verification encountered only sandbox socket errors. Evidence saved locally; no publication or deployment performed.",
+      "updatedAt": "2026-10-03T07:53:55+00:00"
+    },
     {
       "id": "8fdb8e5d-2133-4c4f-827d-e7d190f01db6",
       "title": "Isometric camera rotation",

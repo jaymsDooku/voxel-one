@@ -4,12 +4,14 @@ import java.io.*;
 import java.util.*;
 
 public record CityCommand(int kind, int value, List<Polygon.Point> points) {
-    public static final int ROAD = 1, ZONE = 2, RIDE = 3;
+    public static final int ROAD = 1, ZONE = 2, RIDE = 3, DEMOLISH = 4;
 
     public CityCommand {
         points = List.copyOf(points);
-        if (kind < 1 || kind > 3 || points.size() > 32)
+        if (kind < 1 || kind > 4 || points.size() > 32)
             throw new IllegalArgumentException("Invalid city command");
+        if (kind == DEMOLISH && (value <= 0 || !points.isEmpty()))
+            throw new IllegalArgumentException("Demolition needs a building ID and no points");
     }
 
     public void write(DataOutput out) throws IOException {

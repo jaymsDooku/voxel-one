@@ -143,6 +143,10 @@ public final class CityAddresses {
         return generated(id);
     }
 
+    public void demolish(int building) {
+        addresses.removeIf(a -> a.building() == building);
+    }
+
     public State state(List<CityFrame.Building> buildings) {
         for (var b :
                 buildings.stream()
