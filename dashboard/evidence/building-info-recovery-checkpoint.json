@@ -6,11 +6,11 @@
   ],
   "report": "building-info-terrain-integration.json",
   "nextStep": "Controller stages and continues rebase; retain current evidence in subsequent replays; exact published-head CI required before merge.",
-  "replayHead": "96423526363c74e8d6d247c74c3b23f8eb7fc2f9",
+  "replayHead": "047c6f0b2457fc4d71c4d7b25898593bfd37456e",
   "checks": [
-    "526 protected base files, all source hashes and base milestones verified unchanged; no base deletions",
-    "117-render archive integrity, representative PNG comparisons and JSON validation passed",
-    "Metadata-only replay: retained previous 73 passing tests/package and fresh renders without rerunning tests",
-    "Multiplayer sandbox socket restriction and corrected-head hosted CI remain pending"
+    "526 protected base files, all source hashes and base milestones unchanged; no base deletions",
+    "117-render archive, representative PNG comparisons and JSON validation passed",
+    "Metadata-only replay; previous 73-test verify/package and fresh rendering results retained without rerunning tests",
+    "Incoming CI report explicitly historical; multiplayer sandbox restriction and corrected published-head CI pending"
   ]
 }
