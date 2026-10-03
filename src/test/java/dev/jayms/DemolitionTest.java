@@ -60,10 +60,20 @@ class DemolitionTest {
         }
         var after = city.frame();
         assertTrue(after.buildings().isEmpty());
-        assertTrue(after.economy().plots().isEmpty());
+        // Traffic can leave some planned plots unfinished. Demolishing built structures
+        // removes their plots and projects while preserving unrelated construction.
+        var remainingPlots =
+                before.economy().plots().stream().filter(p -> p.building() == 0).toList();
+        assertEquals(remainingPlots, after.economy().plots());
         assertTrue(after.economy().properties().isEmpty());
         assertTrue(after.economy().contracts().isEmpty());
-        assertTrue(after.economy().resources().projects().isEmpty());
+        var remainingPlotIds = new HashSet<Integer>();
+        for (var plot : remainingPlots) remainingPlotIds.add(plot.id());
+        assertEquals(
+                before.economy().resources().projects().stream()
+                        .filter(p -> remainingPlotIds.contains(p.plot()))
+                        .toList(),
+                after.economy().resources().projects());
         assertTrue(after.agriculture().fields().isEmpty());
         assertTrue(after.agriculture().cows().isEmpty());
         assertTrue(after.agriculture().farms().isEmpty());

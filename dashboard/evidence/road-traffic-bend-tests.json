@@ -1,0 +1,126 @@
+{
+  "scope": "Inside-bend traffic correction; local developer validation, awaiting independent review",
+  "control": {
+    "command": "MAVEN_OPTS=-Djava.io.tmpdir=$PWD/.build-tmp /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -DargLine=-Djava.io.tmpdir=$PWD/.build-tmp -Dtest=RoadTrafficTest#closelySpacedTravellersClearBendsInBothDirections test",
+    "geometry": "Original HEAD RoadTraffic.java temporarily restored, then fixed source restored in finally",
+    "exit": 1,
+    "result": "Expected regression failure: stuck lead traveller, turn=-1, reverse=true"
+  },
+  "broad_run": {
+    "command": "MAVEN_OPTS=-Djava.io.tmpdir=$PWD/.build-tmp /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -DargLine=-Djava.io.tmpdir=$PWD/.build-tmp '-Dtest=RoadTrafficTest,City*Test,!CityMultiplayerTest,ManufacturingTest,AgricultureTest,MayorDashboardTest' test",
+    "exit": 1,
+    "tests": 84,
+    "passed": 83,
+    "failures": 1,
+    "result": "An additional road-join change caused 10/18 residents to eat; join change reverted entirely."
+  },
+  "final_targeted_run": {
+    "command": "MAVEN_OPTS=-Djava.io.tmpdir=$PWD/.build-tmp /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -DargLine=-Djava.io.tmpdir=$PWD/.build-tmp '-Dtest=RoadTrafficTest,AgricultureTest#threeDaysFeedEveryoneAndPreserveFarmsCowsAndFoodAcrossSaveAndNetwork' test",
+    "exit": 0,
+    "tests": 12,
+    "failures": 0,
+    "errors": 0,
+    "result": "All traffic tests and the previously failing three-day feeding/save/network-codec regression pass after reverting the join change."
+  },
+  "latest_suite_reports": [
+    {
+      "name": "dev.jayms.AgricultureTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.CityAddressesTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.CityBusinessTest",
+      "tests": "9",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.CityEconomyTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.CityMaterialsTest",
+      "tests": "13",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.CityMetricsTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.CityTest",
+      "tests": "10",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.CityTimeTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.CityToolsTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.ManufacturingTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.MayorDashboardTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.RoadTrafficTest",
+      "tests": "11",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "checks": [
+    {
+      "command": "java -Djava.io.tmpdir=$PWD/.build-tmp -jar /tmp/google-java-format.jar --aosp --dry-run --set-exit-if-changed src/main/java/dev/jayms/net/city/RoadTraffic.java src/test/java/dev/jayms/RoadTrafficTest.java",
+      "exit": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "limitations": [
+    "Graphical/F10 motion recording unavailable without a graphical display.",
+    "Multiplayer sockets not repeated; previously denied by sandbox restrictions.",
+    "Broad suite preceded reverting the road-join change; final targeted rerun covers traffic and the affected feeding regression."
+  ]
+}

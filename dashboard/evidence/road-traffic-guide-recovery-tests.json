@@ -1,0 +1,195 @@
+{
+  "scope": "Combined traffic and building-direction-guide rebase recovery",
+  "reviewed_base": "49ac21a14286e1e258d6178d8a99e8b381afd75e",
+  "guide_files_preserved_byte_for_byte": [
+    "dashboard/evidence/building-direction-guide-rendering.json",
+    "dashboard/evidence/building-direction-guide-tests.txt",
+    "dashboard/evidence/building-guide-angle-0-scenario-0.png",
+    "dashboard/evidence/building-guide-angle-0-scenario-1.png",
+    "dashboard/evidence/building-guide-angle-0-scenario-2.png",
+    "dashboard/evidence/building-guide-angle-0-scenario-3.png",
+    "dashboard/evidence/building-guide-angle-1-scenario-0.png",
+    "dashboard/evidence/building-guide-angle-1-scenario-1.png",
+    "dashboard/evidence/building-guide-angle-1-scenario-2.png",
+    "dashboard/evidence/building-guide-angle-1-scenario-3.png",
+    "dashboard/evidence/building-guide-angle-2-scenario-0.png",
+    "dashboard/evidence/building-guide-angle-2-scenario-1.png",
+    "dashboard/evidence/building-guide-angle-2-scenario-2.png",
+    "dashboard/evidence/building-guide-angle-2-scenario-3.png",
+    "dashboard/evidence/building-guide-angle-3-scenario-0.png",
+    "dashboard/evidence/building-guide-angle-3-scenario-1.png",
+    "dashboard/evidence/building-guide-angle-3-scenario-2.png",
+    "dashboard/evidence/building-guide-angle-3-scenario-3.png",
+    "deploy/BuildingGuideSmoke.java",
+    "deploy/run_building_guide_smoke.py",
+    "src/main/java/dev/jayms/ui/BuildingGuide.java"
+  ],
+  "integration": "Main hover integration, CityTools preview/snapping and CityToolsTest match base; all non-traffic main source unchanged.",
+  "checks": [
+    {
+      "command": "MAVEN_OPTS=-Djava.io.tmpdir=$PWD/.build-tmp /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -DargLine=-Djava.io.tmpdir=$PWD/.build-tmp '-Dtest=RoadTrafficTest,City*Test,!CityMultiplayerTest,ManufacturingTest,AgricultureTest,MayorDashboardTest,DemolitionTest,IsometricCameraTest,PlayerCameraTest,MetricHistoryTest,SpecialBuildingsTest' test",
+      "exit": 0,
+      "tests": 114,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "suites": [
+        {
+          "name": "dev.jayms.AgricultureTest",
+          "tests": "8",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityAddressesTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityBusinessTest",
+          "tests": "9",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityEconomyTest",
+          "tests": "7",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityMaterialsTest",
+          "tests": "13",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityMetricsTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityTest",
+          "tests": "10",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityTimeTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityToolsTest",
+          "tests": "9",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.DemolitionTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.IsometricCameraTest",
+          "tests": "7",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.ManufacturingTest",
+          "tests": "7",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.MayorDashboardTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.MetricHistoryTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.PlayerCameraTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.RoadTrafficTest",
+          "tests": "12",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.SpecialBuildingsTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        }
+      ]
+    },
+    {
+      "command": "python3 - <<'PY'\nfrom pathlib import Path\np=Path('deploy/run_building_guide_smoke.py').resolve()\ns=p.read_text().replace(\"'dashboard/evidence'\", \"'.build-tmp/guide-smoke'\")\nexec(compile(s,str(p),'exec'),{'__file__':str(p),'__name__':'__main__'})\nPY",
+      "exit": 0,
+      "probe_exit": 0,
+      "captures": [
+        "dashboard/evidence/road-traffic-planning-building-guide-angle-0-scenario-0.png",
+        "dashboard/evidence/road-traffic-planning-building-guide-angle-0-scenario-1.png",
+        "dashboard/evidence/road-traffic-planning-building-guide-angle-0-scenario-2.png",
+        "dashboard/evidence/road-traffic-planning-building-guide-angle-0-scenario-3.png",
+        "dashboard/evidence/road-traffic-planning-building-guide-angle-1-scenario-0.png",
+        "dashboard/evidence/road-traffic-planning-building-guide-angle-1-scenario-1.png",
+        "dashboard/evidence/road-traffic-planning-building-guide-angle-1-scenario-2.png",
+        "dashboard/evidence/road-traffic-planning-building-guide-angle-1-scenario-3.png",
+        "dashboard/evidence/road-traffic-planning-building-guide-angle-2-scenario-0.png",
+        "dashboard/evidence/road-traffic-planning-building-guide-angle-2-scenario-1.png",
+        "dashboard/evidence/road-traffic-planning-building-guide-angle-2-scenario-2.png",
+        "dashboard/evidence/road-traffic-planning-building-guide-angle-2-scenario-3.png",
+        "dashboard/evidence/road-traffic-planning-building-guide-angle-3-scenario-0.png",
+        "dashboard/evidence/road-traffic-planning-building-guide-angle-3-scenario-1.png",
+        "dashboard/evidence/road-traffic-planning-building-guide-angle-3-scenario-2.png",
+        "dashboard/evidence/road-traffic-planning-building-guide-angle-3-scenario-3.png"
+      ],
+      "coverage": "Four orientations x four synthetic planning scenarios; 1280x720 Mesa EGL captures. Representative angle-0/scenario-0 and angle-1/scenario-2 images inspected."
+    },
+    {
+      "command": "Python byte comparisons against reviewed base, combined progress entry assertions and unique IDs",
+      "result": "Passed"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "limitations": [
+    "Gameplay F10 motion and multiplayer socket behavior not independently validated. Existing planning-guide evidence remains historical; fresh captures are separately named."
+  ],
+  "next": "Controller stages resolutions, continues rebase, verifies concurrent-feature preservation and obtains independent exact-head review."
+}

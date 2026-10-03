@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-03T18:43:22+00:00",
+  "updatedAt": "2026-10-03T23:19:04+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,15 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "31656461353163612d376237342d343939392d623262332d366535613763363439316637",
+      "title": "Directional road traffic",
+      "description": "Implementing directional carriageway and pavement travel with congestion spacing.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Planning-guide recovery verified with traffic: guide/hover/snapping/tests/tools/original evidence retained. Combined suite and 16 fresh Mesa EGL captures passed. Report: dashboard/evidence/road-traffic-guide-recovery-tests.json. Controller staging/continuation and independent review pending.",
+      "updatedAt": "2026-10-03T23:19:04+00:00"
+    },
     {
       "id": "36646132363664302d343539632d346638662d613536642d326361383834333232363834",
       "title": "Building direction guide",

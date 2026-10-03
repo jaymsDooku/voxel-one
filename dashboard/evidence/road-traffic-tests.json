@@ -1,0 +1,149 @@
+{
+  "status": "ready_for_independent_review",
+  "platform": "Linux; Java 25.0.3 compiling Java 17 target; cached offline Maven 3.9.11",
+  "totals": {
+    "tests": 83,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "suites": [
+    {
+      "suite": "dev.jayms.AgricultureTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 88.847
+    },
+    {
+      "suite": "dev.jayms.CityAddressesTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 4.76
+    },
+    {
+      "suite": "dev.jayms.CityBusinessTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 11.308
+    },
+    {
+      "suite": "dev.jayms.CityEconomyTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 10.431
+    },
+    {
+      "suite": "dev.jayms.CityMaterialsTest",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 19.835
+    },
+    {
+      "suite": "dev.jayms.CityMetricsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.03
+    },
+    {
+      "suite": "dev.jayms.CityTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 6.843
+    },
+    {
+      "suite": "dev.jayms.CityTimeTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 14.957
+    },
+    {
+      "suite": "dev.jayms.CityToolsTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.025
+    },
+    {
+      "suite": "dev.jayms.ManufacturingTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 23.488
+    },
+    {
+      "suite": "dev.jayms.MayorDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.067
+    },
+    {
+      "suite": "dev.jayms.RoadTrafficTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 1.846
+    }
+  ],
+  "commands": [
+    {
+      "command": "MAVEN_OPTS=-Djava.io.tmpdir=$PWD/.build-tmp /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -DargLine=-Djava.io.tmpdir=$PWD/.build-tmp '-Dtest=RoadTrafficTest,City*Test,!CityMultiplayerTest,ManufacturingTest,AgricultureTest,MayorDashboardTest' test",
+      "result": "82 tests executed: 80 passed; two farming assertions needed traffic-aware construction timing and dynamic dashboard row counts. All unchanged suites passed."
+    },
+    {
+      "command": "MAVEN_OPTS=-Djava.io.tmpdir=$PWD/.build-tmp /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -DargLine=-Djava.io.tmpdir=$PWD/.build-tmp -Dtest=RoadTrafficTest,AgricultureTest test",
+      "result": "18 passed, zero failures/errors/skips after updating farming timing assertions and adding the reached-waypoint regression. Together with the unchanged suites, all 83 distinct checks pass."
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed"
+    },
+    {
+      "command": "java -Djava.io.tmpdir=$PWD/.build-tmp -jar /tmp/google-java-format.jar --aosp --dry-run --set-exit-if-changed src/main/java/dev/jayms/net/city/RoadTraffic.java src/main/java/dev/jayms/net/city/CitySimulation.java src/test/java/dev/jayms/RoadTrafficTest.java src/test/java/dev/jayms/AgricultureTest.java",
+      "result": "passed on final source"
+    }
+  ],
+  "coverage": [
+    "Opposing mounted lanes and pedestrian pavement directions",
+    "Dirt carriageway and stone pavement half-cube surfaces, including construction on stone terrain",
+    "Bends, intersections, boundary lane positions and disconnected routes",
+    "Pedestrian and mounted queues stop without discarding routes, then resume as leaders move",
+    "Swept spacing prevents overtaking and detects occupied movement paths",
+    "Merging traffic yields and reached waypoints clear without waiting for future merges",
+    "Saved road topology and legacy pavement migration",
+    "Existing city construction, jobs, wages, meals, sleep, manufacturing, farming, dashboards, materials conservation and save/network serialization"
+  ],
+  "testAdjustment": "Farming checks retain original minimum capacity, match dashboard rows to actual farms, and bound the wait for expansion to 850 simulated seconds. Land payment, completed plots, four family fields, consumed construction reservations, all residents eating/sleeping and four food industries producing remain asserted.",
+  "limitations": [
+    {
+      "check": "CityMultiplayerTest.sharedRoadsZoningHorseOwnershipLateJoinAndRestart",
+      "result": "Attempted in the broader run; socket creation failed with Operation not permitted. Excluded from the final offline suite; requires an environment permitting local server sockets."
+    },
+    {
+      "check": "F10 engine recording",
+      "result": "Not recorded: no graphical display available in this sandbox."
+    }
+  ],
+  "implementation": "Right-hand traffic. The existing three-cell footprint contains two one-metre dirt lanes and a half-metre stone pavement on each side; half-cube geometry preserves existing zones and road saves. Mounted agents use carriageway lanes; pedestrians use pavements. Traffic is a point-agent foundation for future vehicle expansion.",
+  "publication": "All implementation and evidence remain local; runner handles commit, push, pull request and independent review."
+}

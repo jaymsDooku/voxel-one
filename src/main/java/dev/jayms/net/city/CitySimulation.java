@@ -59,7 +59,7 @@ public final class CitySimulation {
         public int target;
         public double retryAt, mealUntil;
         public String activity = "Looking for home / work";
-        public final ArrayDeque<Cell> route = new ArrayDeque<>();
+        public final ArrayDeque<RoadTraffic.Waypoint> route = new ArrayDeque<>();
     }
 
     public static final class Mount {
@@ -75,9 +75,10 @@ public final class CitySimulation {
     private final List<CityFrame.Building> buildings = new ArrayList<>();
     private double elapsed, accumulator, nextBuild;
     private int zoneIds, buildingIds, grade;
+    private RoadTraffic traffic = new RoadTraffic(List.of());
     private CityAddresses addresses = new CityAddresses(CityAddresses.empty());
     public final CityEconomy economy;
-    private boolean founding = true, migrateMaterials;
+    private boolean founding = true, migrateMaterials, migratePavements;
     public final Agriculture agriculture;
 
     public CitySimulation(GameConfig config, Ground ground, Terrain terrain, CityFrame saved) {
@@ -152,12 +153,15 @@ public final class CitySimulation {
                                 new Point(4, 13),
                                 new Point(4, 23),
                                 new Point(-8, 23))));
+        // New arrivals wait on a cleared apron, away from through traffic until assigned a trip.
+        var arrivals = new ArrayList<Protocol.Edit>();
+        for (int x = 10; x <= 11; x++) for (int z = 26; z <= 31; z++) level(x, z, arrivals);
+        // Material-yard work stations must also be outside the pavement through lanes.
+        for (int x = -6; x <= 24; x += 6) level(x == 12 ? 13 : x, 26, arrivals);
+        ground.apply(arrivals);
         for (int i = 0; i < 12; i++) {
             int id = ecs.create();
-            ecs.put(
-                    id,
-                    Position.class,
-                    new Position(9.5f + i % 3, grade + 1.01f, 24.5f + i / 3 * .15f));
+            ecs.put(id, Position.class, new Position(10.5f + i % 2, grade + 1.01f, 26.5f + i / 2));
             ecs.put(
                     id,
                     Household.class,
@@ -214,6 +218,8 @@ public final class CitySimulation {
 
     private void restore(CityFrame f) {
         addresses = new CityAddresses(f.addresses());
+        traffic = new RoadTraffic(f.addresses().streets());
+        migratePavements = true;
         elapsed = f.elapsed();
         nextBuild = elapsed + 2;
         for (var r : f.roads()) roads.put(new Cell(r.x(), r.z()), r.y());
@@ -265,6 +271,12 @@ public final class CitySimulation {
     private void step(float dt) {
         elapsed += dt;
         if (!config.city()) return;
+        if (migratePavements) {
+            var edits = new ArrayList<Protocol.Edit>();
+            pave(edits);
+            ground.apply(edits);
+            migratePavements = false;
+        }
         if (agriculture.pending()) agriculture.initialize(economy, grade);
         agriculture.tick(dt * 24 / config.daySeconds());
         if (elapsed >= nextBuild) {
@@ -335,7 +347,10 @@ public final class CitySimulation {
                 t.target = target;
                 t.route.clear();
                 var b = workplace(target);
-                if (b != null) journey(id, p, b, t);
+                if (b != null) {
+                    mount(id, p, h);
+                    journey(id, p, b, t);
+                }
             }
             if (!t.route.isEmpty()) {
                 travel(id, p, h, t, dt);
@@ -769,7 +784,17 @@ public final class CitySimulation {
             var firm = economy.company(id - CityMaterials.YARD);
             return firm == null
                     ? null
-                    : new CityFrame.Building(id, 0, 2, -8 + (firm.kind - 2) * 6, grade, 23, 1, 0);
+                    : new CityFrame.Building(
+                            id,
+                            0,
+                            2,
+                            -8
+                                    + (firm.kind - 2) * 6
+                                    + (firm.kind == CityMaterials.GLASSWORKS ? 1 : 0),
+                            grade,
+                            23,
+                            1,
+                            0);
         }
         if (id >= 0) return building(id);
         var p = economy.project(-id);
@@ -800,7 +825,7 @@ public final class CitySimulation {
     }
 
     private void journey(int id, Position p, CityFrame.Building destination, Travel t) {
-        float x = p.x, z = p.z;
+        float x = p.x, z = p.z, exitOffset = 0;
         for (var b : buildings)
             if (x > b.x() && x < b.x() + 6 && z > b.z() && z < b.z() + 7) {
                 int door = entrance(b);
@@ -808,62 +833,103 @@ public final class CitySimulation {
                     // A worker already near the rear door must not walk diagonally back across
                     // the shaft. Interior workers first join the safe side aisle at their own Z.
                     if (z < b.z() + 5) {
-                        t.route.add(new Cell(b.x() + 1, (int) Math.floor(z)));
-                        t.route.add(new Cell(b.x() + 1, b.z() + 5));
+                        t.route.add(point(b.x() + 1, (int) Math.floor(z)));
+                        t.route.add(point(b.x() + 1, b.z() + 5));
                     }
-                    t.route.add(new Cell(b.x() + 2, b.z() + 5));
-                    t.route.add(new Cell(b.x() + 2, b.z() + 6));
+                    t.route.add(point(b.x() + 2, b.z() + 5));
+                    t.route.add(point(b.x() + 2, b.z() + 6));
                 } else {
                     // Join the clear centre aisle before heading for the door. Diagonal shortcuts
                     // from a station can cross the shop's shelves.
-                    t.route.add(new Cell(b.x() + 2, (int) Math.floor(z)));
-                    t.route.add(new Cell(b.x() + 2, door < b.z() ? b.z() + 1 : b.z() + 5));
+                    t.route.add(point(b.x() + 2, (int) Math.floor(z)));
+                    t.route.add(point(b.x() + 2, door < b.z() ? b.z() + 1 : b.z() + 5));
                 }
-                t.route.add(new Cell(b.x() + 2, door));
-                x = b.x() + 2.5f;
+                exitOffset = door < b.z() ? .35f : -.35f;
+                t.route.add(new RoadTraffic.Waypoint(b.x() + 2.5f + exitOffset, door + .5f));
+                x = b.x() + 2.5f + exitOffset;
                 z = door + .5f;
                 break;
             }
         if (destination.id() >= CityMaterials.YARD) {
-            var path = route(x, z, destination.x() + 2.5f, 24.5f);
-            t.route.addAll(path);
+            var path = route(x, z, destination.x() + 2.5f, 26.5f);
+            t.route.addAll(
+                    lanePath(path, ecs.get(id, Household.class).horse != 0, exitOffset, 0, x, z));
             return;
         }
         int door = entrance(destination);
-        var path = route(x, z, destination.x() + 2.5f, door + .5f);
-        if (path.isEmpty()) {
-            t.route.clear();
-            return;
+        float entryOffset = door < destination.z() ? -.35f : .35f;
+        if (Math.hypot(x - destination.x() - 2.5f, z - door - .5f) < 4) {
+            // A traveller already on the access path must not retrace it through traffic.
+            float accessX = destination.x() + 2.5f + entryOffset;
+            t.route.add(new RoadTraffic.Waypoint(accessX, z));
+            t.route.add(new RoadTraffic.Waypoint(accessX, door + .5f));
+        } else {
+            var path = route(x, z, destination.x() + 2.5f, door + .5f);
+            if (path.isEmpty()) {
+                t.route.clear();
+                return;
+            }
+            t.route.addAll(
+                    lanePath(
+                            path,
+                            ecs.get(id, Household.class).horse != 0,
+                            exitOffset,
+                            entryOffset,
+                            x,
+                            z));
         }
-        t.route.addAll(path);
         if (quarry(destination) && door > destination.z()) {
-            t.route.add(new Cell(destination.x() + 2, destination.z() + 6));
-            t.route.add(new Cell(destination.x() + 2, destination.z() + 5));
-            t.route.add(new Cell(destination.x() + 1, destination.z() + 5));
-            t.route.add(new Cell(destination.x() + 1, destination.z() + 2));
+            t.route.add(point(destination.x() + 2, destination.z() + 6));
+            t.route.add(point(destination.x() + 2, destination.z() + 5));
+            t.route.add(point(destination.x() + 1, destination.z() + 5));
+            t.route.add(point(destination.x() + 1, destination.z() + 2));
         } else
             t.route.add(
-                    new Cell(
+                    point(
                             destination.x() + 2,
                             door < destination.z() ? destination.z() + 1 : destination.z() + 5));
-        t.route.add(new Cell(destination.x() + 2, destination.z() + 1 + (id / 4) % 2));
-        t.route.add(new Cell(destination.x() + 1 + id % 4, destination.z() + 1 + (id / 4) % 2));
+        t.route.add(point(destination.x() + 2, destination.z() + 1 + (id / 4) % 2));
+        t.route.add(point(destination.x() + 1 + id % 4, destination.z() + 1 + (id / 4) % 2));
+    }
+
+    private List<RoadTraffic.Waypoint> lanePath(
+            List<Cell> path,
+            boolean mounted,
+            float exitOffset,
+            float entryOffset,
+            float x,
+            float z) {
+        var points = new ArrayList<>(traffic.lanes(path, mounted));
+        if (!points.isEmpty()) {
+            var first = points.get(0);
+            points.set(0, new RoadTraffic.Waypoint(first.x() + exitOffset, first.z()));
+            // Separate opposite flows on the short building access corridor, too.
+            for (int i = Math.max(0, points.size() - 2); i < points.size(); i++) {
+                var point = points.get(i);
+                float shift = i == 0 && entryOffset != 0 ? entryOffset - exitOffset : entryOffset;
+                points.set(i, new RoadTraffic.Waypoint(point.x() + shift, point.z()));
+            }
+        }
+        if (path.size() > 1 && traffic.connected(path.get(0), path.get(1))) {
+            var a = path.get(0);
+            var b = path.get(1);
+            // Joining or changing lanes must proceed forward, rather than backtracking into
+            // followers.
+            if ((x - a.x() - .5f) * (b.x() - a.x()) + (z - a.z() - .5f) * (b.z() - a.z()) > 0)
+                points.remove(0);
+        }
+        return points;
     }
 
     private boolean quarry(CityFrame.Building b) {
         return b.type() == 2 && ground.type(b.x() + 2, b.y(), b.z() + 3) == Blocks.AIR;
     }
 
-    private void travel(int id, Position p, Household h, Travel t, float dt) {
-        var site = workplace(t.target);
-        if (h.horse != 0
-                && site != null
-                && Math.hypot(p.x - site.x() - 2.5f, p.z - entrance(site) - .5f) < 2) {
-            ecs.get(h.horse, Mount.class).rider = 0;
-            h.horse = 0;
-            p.y -= .75f;
-        }
+    private static RoadTraffic.Waypoint point(int x, int z) {
+        return new RoadTraffic.Waypoint(x + .5f, z + .5f);
+    }
 
+    private void mount(int id, Position p, Household h) {
         if (h.horse == 0
                 && h.cohort > 0
                 && roads.containsKey(new Cell((int) Math.floor(p.x), (int) Math.floor(p.z)))) {
@@ -877,13 +943,94 @@ public final class CitySimulation {
                 }
             }
         }
+    }
+
+    private void travel(int id, Position p, Household h, Travel t, float dt) {
+        var site = workplace(t.target);
+        if (h.horse != 0
+                && site != null
+                && Math.hypot(p.x - site.x() - 2.5f, p.z - entrance(site) - .5f) < 4) {
+            ecs.get(h.horse, Mount.class).rider = 0;
+            h.horse = 0;
+            p.y -= .75f;
+        }
+
+        if (h.horse == 0
+                && site != null
+                && Math.hypot(p.x - site.x() - 2.5f, p.z - entrance(site) - .5f) >= 4) {
+            mount(id, p, h);
+            if (h.horse != 0) {
+                t.route.clear();
+                journey(id, p, site, t);
+                if (t.route.isEmpty()) return;
+            }
+        }
         float speed = h.horse == 0 ? 2.2f : 5.5f;
         var target = t.route.peek();
-        float dx = target.x() + .5f - p.x,
-                dz = target.z() + .5f - p.z,
-                dist = (float) Math.hypot(dx, dz);
-        float nx = dist < speed * dt ? target.x() + .5f : p.x + dx / dist * speed * dt,
-                nz = dist < speed * dt ? target.z() + .5f : p.z + dz / dist * speed * dt;
+        float dx = target.x() - p.x, dz = target.z() - p.z, dist = (float) Math.hypot(dx, dz);
+        if (dist < .0001f) {
+            // Reached waypoints consume no road space and must not wait for a future merge.
+            t.route.remove();
+            return;
+        }
+        float nx = dist <= speed * dt ? target.x() : p.x + dx / dist * speed * dt,
+                nz = dist <= speed * dt ? target.z() : p.z + dz / dist * speed * dt;
+        boolean onRoad =
+                roads.containsKey(new Cell((int) Math.floor(p.x), (int) Math.floor(p.z)))
+                        || roads.containsKey(new Cell((int) Math.floor(nx), (int) Math.floor(nz)));
+        var trafficIds = onRoad ? ecs.query(Position.class, Household.class) : List.<Integer>of();
+        boolean clearing = false;
+        for (int other : trafficIds) {
+            if (other == id) continue;
+            var op = ecs.get(other, Position.class);
+            var ot = ecs.get(other, Travel.class);
+            if (ot != null
+                    && RoadTraffic.yields(id, p.x, p.z, t.route, other, op.x, op.z, ot.route)) {
+                // Yielding must also leave clearance for the priority traveller. A stream
+                // already inside its stopping space backs out along its approach, retaining
+                // the route, instead of reserving a crossing neither stream can enter.
+                var ahead =
+                        ot.route.stream()
+                                .filter(w -> Math.hypot(w.x() - op.x, w.z() - op.z) > .0001)
+                                .findFirst()
+                                .orElse(null);
+                float gap = h.horse != 0 && ecs.get(other, Household.class).horse != 0 ? .65f : .5f;
+                float rx = p.x - dx / dist * speed * dt, rz = p.z - dz / dist * speed * dt;
+                if (ahead != null) {
+                    float length = (float) Math.hypot(ahead.x() - op.x, ahead.z() - op.z);
+                    float step =
+                            Math.min(
+                                    length,
+                                    (ecs.get(other, Household.class).horse == 0 ? 2.2f : 5.5f)
+                                            * dt);
+                    float ax = op.x + (ahead.x() - op.x) / length * step;
+                    float az = op.z + (ahead.z() - op.z) / length * step;
+                    if (RoadTraffic.blocks(op.x, op.z, ax, az, p.x, p.z, gap)
+                            && Math.hypot(rx - op.x, rz - op.z) > Math.hypot(p.x - op.x, p.z - op.z)
+                            && roads.containsKey(
+                                    new Cell((int) Math.floor(rx), (int) Math.floor(rz)))
+                            && passable(rx, rz)) {
+                        nx = rx;
+                        nz = rz;
+                        dx = -dx;
+                        dz = -dz;
+                        clearing = true;
+                        break;
+                    }
+                }
+                t.activity = "Waiting for traffic";
+                return;
+            }
+        }
+        for (int other : trafficIds) {
+            if (other == id) continue;
+            var op = ecs.get(other, Position.class);
+            float gap = h.horse != 0 && ecs.get(other, Household.class).horse != 0 ? .65f : .5f;
+            if (RoadTraffic.blocks(p.x, p.z, nx, nz, op.x, op.z, gap)) {
+                t.activity = "Waiting for traffic";
+                return;
+            }
+        }
         if (!passable(nx, nz)) {
             t.activity = "Route obstructed";
             t.target = -9999;
@@ -891,9 +1038,9 @@ public final class CitySimulation {
             t.retryAt = elapsed + 2;
             return;
         }
-        if (dist < speed * dt) {
-            p.x = target.x() + .5f;
-            p.z = target.z() + .5f;
+        if (!clearing && dist <= speed * dt) {
+            p.x = target.x();
+            p.z = target.z();
             t.route.remove();
         } else {
             p.x += dx / dist * speed * dt;
@@ -931,7 +1078,7 @@ public final class CitySimulation {
     }
 
     public List<Cell> route(float x, float z, float tx, float tz) {
-        Cell a = nearest(x, z), b = nearest(tx, tz);
+        Cell a = traffic.nearest(x, z), b = traffic.nearest(tx, tz);
         if (a == null || b == null) return List.of();
         var parents = new HashMap<Cell, Cell>();
         var queue = new ArrayDeque<Cell>();
@@ -941,7 +1088,8 @@ public final class CitySimulation {
             var c = queue.remove();
             if (c.equals(b)) break;
             for (var next : neighbours(c))
-                if (roads.containsKey(next)
+                if (traffic.connected(c, next)
+                        && roads.containsKey(next)
                         && !parents.containsKey(next)
                         && passable(next.x() + .5f, next.z() + .5f)) {
                     parents.put(next, c);
@@ -953,7 +1101,8 @@ public final class CitySimulation {
         for (var c = b; !c.equals(a); c = parents.get(c)) route.add(c);
         route.add(a);
         Collections.reverse(route);
-        route.add(new Cell((int) Math.floor(tx), (int) Math.floor(tz)));
+        var end = new Cell((int) Math.floor(tx), (int) Math.floor(tz));
+        if (!end.equals(b)) route.add(end);
         return route;
     }
 
@@ -1143,14 +1292,44 @@ public final class CitySimulation {
                 level(c.x(), c.z(), edits);
                 roads.put(c, grade);
             }
-        ground.apply(edits);
         addresses = nextAddresses;
+        traffic = new RoadTraffic(addresses.state(buildings).streets());
+        pave(edits);
+        ground.apply(edits);
         return founding
                 ? "Dirt road built: " + name
                 : "Dirt road built: "
                         + name
                         + " | Mayor paid $"
                         + (int) (newCells * CityEconomy.ROAD_COST);
+    }
+
+    private void pave(List<Protocol.Edit> edits) {
+        for (var c : roads.keySet()) {
+            int y = roads.get(c);
+            edits.add(
+                    new Protocol.Edit(
+                            c.x(), y, c.z(), traffic.center(c) ? Blocks.DIRT : Blocks.STONE));
+            if (traffic.center(c)) continue;
+            // Two one-metre dirt lanes and two half-metre pavements fit the saved three-cell
+            // strip.
+            // The engine's existing half cubes preserve both the footprint and full-height footing.
+            for (var adjacent : neighbours(c)) {
+                if (!traffic.center(adjacent)) continue;
+                int dx = adjacent.x() - c.x(), dz = adjacent.z() - c.z();
+                for (int ix = 0; ix < 2; ix++)
+                    for (int iz = 0; iz < 2; iz++)
+                        if (dx != 0 && ix == (dx > 0 ? 1 : 0) || dz != 0 && iz == (dz > 0 ? 1 : 0))
+                            for (int iy = 0; iy < 2; iy++)
+                                edits.add(
+                                        Protocol.Edit.at(
+                                                c.x() + ix * .5,
+                                                y + iy * .5,
+                                                c.z() + iz * .5,
+                                                Blocks.piece(Blocks.DIRT, 1),
+                                                1));
+            }
+        }
     }
 
     private void level(int x, int z, List<Protocol.Edit> edits) {
