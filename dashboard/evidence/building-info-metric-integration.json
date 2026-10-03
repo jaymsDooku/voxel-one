@@ -88,5 +88,23 @@
     "src/main/java/dev/jayms/ui/BuildingInfo.java": "8ff26cc0310c96661e4154f76a5a23681dcb7487b5110d3d86d9f22fad1b4406",
     "src/test/java/dev/jayms/CityMultiplayerTest.java": "32e419c70898bdf7170bb4180e2106b4f3e114e54fe0f3e98226da5d34e29eb0"
   },
-  "ci": "Hosted checks on the corrected submitted head remain pending. The older failed Windows/cancelled macOS results are historical and do not establish success for this tree. Controller must finish rebase and publication, run the CI matrix on that exact head, and obtain independent review before merge."
+  "ci": "Hosted checks on the corrected submitted head remain pending. The older failed Windows/cancelled macOS results are historical and do not establish success for this tree. Controller must finish rebase and publication, run the CI matrix on that exact head, and obtain independent review before merge.",
+  "evidenceReplayResolution": {
+    "headBeforeControllerContinuation": "bca3b224c18087cc8269823deb648e9c061d84e0",
+    "resolvedFiles": [
+      "dashboard/evidence/building-info-recovery-checkpoint.json",
+      "dashboard/evidence/building-info-rendered-screenshots.zip",
+      "dashboard/evidence/building-information-tests.json",
+      "dashboard/progress.json"
+    ],
+    "result": "Retained newer metric-integration progress, reports and inspector archive. No production/test/tool code changed.",
+    "checks": [
+      "All 28 protected metric files match supplied base.",
+      "Every recorded source SHA-256 matches the previously verified tree.",
+      "No base files deleted; all base progress entries unchanged.",
+      "81-capture ZIP integrity and representative PNG byte checks passed.",
+      "Resolved JSON parses and contains no conflict markers."
+    ],
+    "tests": "Previous 16-test/package verification and 81 inspector/8 metric renders remain applicable to identical implementation. No new test run; socket and hosted-CI limitations unchanged."
+  }
 }

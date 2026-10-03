@@ -1,8 +1,11 @@
 {
-  "status": "metric-feature-preserved-conflict-resolved-ready-for-controller",
+  "status": "metric-integration-evidence-replay-resolved",
   "baseHead": "8c524a18d18d7f685cdabb6a16c7ebbf57fb77f3",
   "savedFeatureHead": "0d67f0b76acb07e5495c9ac5241b428e35760abf",
   "resolvedFiles": [
+    "dashboard/evidence/building-info-recovery-checkpoint.json",
+    "dashboard/evidence/building-info-rendered-screenshots.zip",
+    "dashboard/evidence/building-information-tests.json",
     "dashboard/progress.json"
   ],
   "retainedFeatures": [
@@ -10,7 +13,7 @@
     "Tabbed inspector, full-text wrapping and indented-name regression fix",
     "Current master progress entries and feature progress/evidence"
   ],
-  "controllerNextStep": "Stage local progress resolution, verification evidence and preserved multiplayer synchronization test, then continue rebase without abort/reset. Keep supplied base metric-feature files and progress entries intact through subsequent replay. Publish corrected head and rerun hosted CI matrix before independent approval.",
+  "controllerNextStep": "Stage preserved replay resolutions and updated integration checkpoint, then continue rebase. Retain protected metric feature and all base progress entries. Hosted CI on corrected published head and independent approval remain required.",
   "checks": {
     "testsPassed": 16,
     "applicationPackaging": "passed",
@@ -19,7 +22,8 @@
     "baseFilePreservation": "28 files byte identical; all base progress entries retained",
     "multiplayer": "socket permission error; not a passing run",
     "hostedCI": "pending on corrected published head",
-    "diffCheck": "passed"
+    "diffCheck": "passed",
+    "evidenceReplay": "28 metric files and all recorded source hashes match verified tree; base entries preserved; archive and JSON checks pass. Implementation unchanged; no repeated test run."
   },
   "report": "dashboard/evidence/building-information-tests.json",
   "protectedBaseFiles": [
@@ -51,5 +55,6 @@
     "src/main/java/dev/jayms/Main.java",
     "src/main/java/dev/jayms/ui/MayorDashboard.java",
     "src/main/java/dev/jayms/ui/Overlay.java"
-  ]
+  ],
+  "validatedReplayHead": "bca3b224c18087cc8269823deb648e9c061d84e0"
 }

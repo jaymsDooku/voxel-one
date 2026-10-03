@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-03T18:27:38+00:00",
+  "updatedAt": "2026-10-03T18:29:23+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -96,8 +96,8 @@
         }
       ],
       "status": "in_progress",
-      "note": "Metric-history regression corrected in combined tree: 28 base feature files and every base milestone preserved. Sixteen tests and packaging, 81 inspector renders and eight metric chart renders passed. Multiplayer blocked by sandbox sockets; corrected-head hosted CI pending after controller rebase/publication.",
-      "updatedAt": "2026-10-03T18:27:38+00:00"
+      "note": "Resolved four evidence/progress replay conflicts by retaining newer metric-integration results. All protected files, base milestones and verified source hashes match; archive/JSON checks passed. Implementation unchanged; prior 16 tests and renders remain applicable. Controller continuation and exact-head hosted CI required.",
+      "updatedAt": "2026-10-03T18:29:23+00:00"
     },
     {
       "id": "38383035396439392d393432392d343737342d393838302d636439653137323962623766",
