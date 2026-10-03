@@ -1,0 +1,1 @@
+{"result":"passed","fixture":"Synthetic flat road-accessible site; actual CityTools click, authoritative CitySimulation and engine voxel renderer; static captures, not live gameplay","platform":"Linux Mesa surfaceless EGL","changedWorldPixels":91449,"captures":["special-buildings-menu.png","special-buildings-placement.png"]}

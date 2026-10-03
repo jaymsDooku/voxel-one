@@ -228,6 +228,7 @@ public class Main {
     }
 
     private void configureInput() {
+        mayorDashboard.submit = this::cityCommand;
         glfwSetKeyCallback(
                 window.getHandle(),
                 (handle, key, scancode, action, mods) -> {
@@ -1023,6 +1024,9 @@ public class Main {
                     city(),
                     Controls.keyName(controls.code(MAYOR_DASHBOARD)),
                     network == null || network.connected());
+            if (notice != null && !notice.isEmpty())
+                overlay.text(
+                        notice.length() > 120 ? notice.substring(0, 120) : notice, 24, 126, 1f);
             renderFps();
             overlay.end();
             return;

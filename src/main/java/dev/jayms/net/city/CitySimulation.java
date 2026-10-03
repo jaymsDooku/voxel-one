@@ -115,6 +115,13 @@ public final class CitySimulation {
             restore(saved);
             economy = new CityEconomy(ecs, saved.economy());
             economy.adopt(buildings);
+            if (saved.economy().capital().equals(CityCapital.State.empty()))
+                economy.capital.graduates.addAll(
+                        saved.citizens().stream()
+                                .skip(8)
+                                .limit(4)
+                                .map(CityFrame.Citizen::id)
+                                .toList());
             agriculture = new Agriculture(ecs, saved.agriculture(), terrain);
             migrateMaterials = saved.economy().resources().equals(CityMaterials.State.empty());
             founding = false;
@@ -178,6 +185,9 @@ public final class CitySimulation {
         }
         economy = new CityEconomy(ecs, null, catalog);
         agriculture = new Agriculture(ecs, Agriculture.State.empty(), terrain);
+        // The founding settlement includes four graduates; education is independent of income.
+        economy.capital.graduates.addAll(
+                ecs.query(Household.class).stream().skip(8).limit(4).toList());
         if (catalog.agriculture()) {
             // Founding city infrastructure is free as before; every subsequent extension is paid.
             road(List.of(new Point(-10, 24), new Point(-64, 24)));
@@ -286,6 +296,7 @@ public final class CitySimulation {
             migrateMaterials = false;
         }
         economy.ensureIndustries();
+        economy.capital.ensureCompanies();
         economy.businesses.beginDay(config.time(elapsed).day());
         economy.rent(dt / config.daySeconds());
         finishProjects();
@@ -415,6 +426,16 @@ public final class CitySimulation {
                                                     company,
                                                     economy.resources.catalog.output(firm.kind))
                                             / CityMaterials.UNIT));
+            } else if (b.type() == SpecialBuildings.EXCHANGE && working && !eating) {
+                double salary = hours * (economy.capital.graduates.contains(id) ? 2.7 : 1.8);
+                if (economy.budget >= salary) {
+                    economy.budget -= salary;
+                    n.money += (float) salary;
+                    t.activity =
+                            economy.capital.graduates.contains(id)
+                                    ? "Exchange analyst (graduate)"
+                                    : "Exchange office support";
+                } else t.activity = "Exchange cannot afford wages";
             } else if (b.type() == 1 && working && !eating) {
                 t.activity =
                         economy.businessWage(b.id(), hours * 1.8, hours, n)
@@ -460,6 +481,7 @@ public final class CitySimulation {
                                         : working ? "Looking for work" : "Relaxing at home";
         }
         restock();
+        refreshExchange();
     }
 
     private boolean onShift(int citizen, CityTime time) {
@@ -555,6 +577,8 @@ public final class CitySimulation {
     }
 
     private void assign() {
+        assignExchange();
+
         // Retire the prototype farm's off-plot job when the saved default game upgrades.
         if (agriculture.enabled())
             for (int id : ecs.query(Household.class)) {
@@ -997,6 +1021,8 @@ public final class CitySimulation {
                 case CityCommand.SPECIAL -> special(c);
                 case CityCommand.RIDE -> ride(player, c.value(), pose);
                 case CityCommand.DEMOLISH -> demolish(c.value());
+                case CityCommand.EXCHANGE -> buildExchange(c.points());
+                case CityCommand.CAPITAL -> capitalCommand(c.capital());
                 default -> "Unknown city tool";
             };
         } catch (IllegalArgumentException e) {
@@ -1048,6 +1074,7 @@ public final class CitySimulation {
             t.target = -9999;
             t.route.clear();
         }
+        refreshExchange();
         return "Building demolished; zoned land can redevelop (no material refund)";
     }
 
@@ -1058,7 +1085,7 @@ public final class CitySimulation {
 
     private String special(CityCommand command) {
         int type = command.value();
-        if (!SpecialBuildings.special(type) || command.points().size() != 1 || buildings.size() >= 512)
+        if ((type < 4 || type > 18) || command.points().size() != 1 || buildings.size() >= 512)
             throw new IllegalArgumentException("Invalid special building permit");
         int kind = command.ownerKind(), id = command.ownerId();
         var snapshot = frame();
@@ -1095,6 +1122,120 @@ public final class CitySimulation {
         ground.apply(edits);
         buildings.add(new CityFrame.Building(++buildingIds,-kind,type,x,grade+1,z,8*SpecialBuildings.level(type),id));
         return "Permitted " + SpecialBuildings.name(type);
+    }
+
+    private void assignExchange() {
+        for (var b : buildings)
+            if (b.type() == SpecialBuildings.EXCHANGE) {
+                for (int id : ecs.query(Household.class, Needs.class, Travel.class)) {
+                    var h = ecs.get(id, Household.class);
+                    boolean graduate = economy.capital.graduates.contains(id);
+                    long qualified =
+                            ecs.query(Household.class).stream()
+                                    .filter(
+                                            c ->
+                                                    ecs.get(c, Household.class).job == b.id()
+                                                            && economy.capital.graduates.contains(
+                                                                    c))
+                                    .count();
+                    long support = occupants(b.id(), false) - qualified;
+                    if (h.job != b.id()
+                            && (graduate ? qualified < 3 : support < 1)
+                            && agriculture.company(id) == 0) {
+                        h.job = b.id();
+                        var t = ecs.get(id, Travel.class);
+                        t.target = -9999;
+                        t.route.clear();
+                    }
+                }
+            }
+    }
+
+    public void refreshExchange() {
+        boolean available = false;
+        for (var b : buildings)
+            if (b.type() == SpecialBuildings.EXCHANGE) {
+                long onSite = 0, graduates = 0;
+                for (int id : ecs.query(Household.class, Position.class, Travel.class)) {
+                    var p = ecs.get(id, Position.class);
+                    var t = ecs.get(id, Travel.class);
+                    if (ecs.get(id, Household.class).job == b.id()
+                            && onShift(id, config.time(elapsed))
+                            && p.x > b.x()
+                            && p.x < b.x() + 6
+                            && p.z > b.z()
+                            && p.z < b.z() + 7
+                            && (t.activity.equals("Exchange analyst (graduate)")
+                                    || t.activity.equals("Exchange office support"))) {
+                        onSite++;
+                        if (economy.capital.graduates.contains(id)) graduates++;
+                    }
+                }
+                if (onSite >= 2 && graduates >= 2 && graduates * 2 > onSite && economy.budget > 0)
+                    available = true;
+            }
+        economy.capital.exchange.operational(available);
+    }
+
+    private String capitalCommand(CityCommand.Capital c) {
+        refreshExchange();
+        var book = economy.capital.exchange;
+        var owner = new CityStockExchange.Owner(c.ownerKind(), c.owner());
+        return switch (c.action()) {
+            case 0 -> {
+                book.goPublic(c.company(), owner, c.shares(), c.price());
+                yield "Public offering entered; sold shares fund the company";
+            }
+            case 1, 2 -> {
+                book.submit(c.company(), owner, c.action() == 1, c.shares(), c.price());
+                yield "Share order accepted";
+            }
+            case 3 ->
+                    book.cancel(c.order(), owner)
+                            ? "Order cancelled; reservation released"
+                            : "Order not owned by this investor";
+            default -> throw new IllegalArgumentException("Invalid exchange action");
+        };
+    }
+
+    private String buildExchange(List<Point> points) {
+        if (points.size() != 1) throw new IllegalArgumentException("Choose one exchange location");
+        int x = (int) Math.floor(points.get(0).x()), z = (int) Math.floor(points.get(0).z());
+        if (buildings.size() >= 512 || buildings.stream().anyMatch(b -> b.type() == SpecialBuildings.EXCHANGE))
+            throw new IllegalArgumentException("The city already has a stock exchange");
+        if (Math.abs((long) x - 8) > 250 || Math.abs((long) z - 24) > 250 || economy.budget < 600)
+            throw new IllegalArgumentException("Exchange needs $600 and a site within city limits");
+        var road = nearest(x + 2.5f, z - .5f);
+        if (road == null || Math.hypot(road.x() - x - 2, road.z() - z + 1) > 6)
+            throw new IllegalArgumentException("Exchange needs road access near its front door");
+        if (ground.occupied(x, grade + 1, z, 6, 7)
+                || ground.playerOccupied(x, grade + 1, z, 6, 7)
+                || economy.overlaps(x, z)
+                || buildings.stream()
+                        .anyMatch(
+                                b ->
+                                        x - 1 < b.x() + StructureBlueprint.width(b.type()) + 1
+                                                && x + 7 > b.x() - 1
+                                                && z - 1
+                                                        < b.z()
+                                                                + StructureBlueprint.depth(b.type())
+                                                                + 1
+                                                && z + 8 > b.z() - 1)
+                || roads.keySet().stream()
+                        .anyMatch(c -> c.x() >= x && c.x() < x + 6 && c.z() >= z && c.z() < z + 7))
+            throw new IllegalArgumentException("Exchange site is occupied");
+        var edits = new ArrayList<Protocol.Edit>();
+        for (int dx = 0; dx < 6; dx++)
+            for (int dz = -1; dz <= 7; dz++) level(x + dx, z + dz, edits);
+        edits.addAll(StructureBlueprint.generate(SpecialBuildings.EXCHANGE, x, grade + 1, z));
+        ground.apply(edits);
+        economy.budget -= 600;
+        var building = new CityFrame.Building(++buildingIds, 0, SpecialBuildings.EXCHANGE, x, grade + 1, z, 4, 0);
+        buildings.add(building);
+        addresses.state(buildings);
+        assignExchange();
+        refreshExchange();
+        return "Stock exchange built for $600; offices need three graduates and one support worker";
     }
 
     private String road(List<Point> points) {
@@ -1549,7 +1690,8 @@ public final class CitySimulation {
                     && magic != 0x43495434
                     && magic != 0x43495435
                     && magic != 0x43495436
-                    && magic != 0x43495437) throw new IOException("Invalid city save");
+                    && magic != 0x43495437
+                    && magic != 0x43495438) throw new IOException("Invalid city save");
             return CityFrame.read(
                     in,
                     magic == 0x43495431
@@ -1562,7 +1704,7 @@ public final class CitySimulation {
                                                     ? 4
                                                     : magic == 0x43495435
                                                             ? 5
-                                                            : magic == 0x43495436 ? 6 : 7);
+                                                            : magic == 0x43495436 ? 6 : magic == 0x43495437 ? 7 : 8);
         }
     }
 
@@ -1571,7 +1713,7 @@ public final class CitySimulation {
         Files.createDirectories(file.toAbsolutePath().getParent());
         Path tmp = file.resolveSibling(file.getFileName() + ".tmp");
         try (var out = new DataOutputStream(Files.newOutputStream(tmp))) {
-            out.writeInt(0x43495437);
+            out.writeInt(0x43495438);
             frame().write(out);
         }
         try {

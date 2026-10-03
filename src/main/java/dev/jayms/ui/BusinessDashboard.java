@@ -130,7 +130,7 @@ public final class BusinessDashboard {
             panel(ui, x, TOP, (w - 48) / 2f - 6, 30);
             text(
                     ui,
-                    i == 0 ? "Operating businesses" : "Private companies",
+                    i == 0 ? "Operating businesses" : "Companies",
                     x + 10,
                     TOP + 9,
                     (w - 48) / 2f - 20,
@@ -411,7 +411,22 @@ public final class BusinessDashboard {
             var f = c.firm();
             float y = 218 + i * 110;
             panel(ui, 24, y, w - 48, 102);
-            text(ui, f.name() + " | " + sector(city, f.kind()), 36, y + 10, w - 72, 1.45f);
+            var listing =
+                    city.economy().capital().book().listings().stream()
+                            .filter(l -> l.company() == f.id())
+                            .findFirst()
+                            .orElse(null);
+            text(
+                    ui,
+                    f.name()
+                            + " | "
+                            + sector(city, f.kind())
+                            + " | "
+                            + (listing != null && listing.publicCompany() ? "Public" : "Private"),
+                    36,
+                    y + 10,
+                    w - 72,
+                    1.45f);
             text(
                     ui,
                     fmt(

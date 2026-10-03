@@ -19,6 +19,31 @@ class SpecialBuildingsTest {
     CityCommand permit(int type,int x,int z) {
         return new CityCommand(CityCommand.SPECIAL,type,List.of(new Polygon.Point(x,z)),0,0);
     }
+    @Test void legacyCatalogSavesKeepEveryPermitIdAndOwner() throws Exception {
+        var terrain = new Terrain(Terrain.DEFAULT_SEED);
+        var ground = new Ground(terrain.column(8,24).height());
+        var seed = new CitySimulation(GameConfig.cityGame(), ground, terrain, null).frame();
+        for (int version : new int[]{6,7}) {
+            var buildings = new ArrayList<CityFrame.Building>();
+            for (int type = 4; type <= 18; type++)
+                buildings.add(new CityFrame.Building(type, -2, type, 50, ground.grade+1, 52,
+                        8*SpecialBuildings.level(type), seed.economy().firms().get(0).id()));
+            var frame = new CityFrame(seed.config(), seed.elapsed(), seed.roads(), seed.zones(),
+                    buildings, seed.citizens(), seed.horses(), seed.economy());
+            var bytes = new ByteArrayOutputStream();
+            frame.write(new DataOutputStream(bytes), version);
+            var restored = CityFrame.read(new DataInputStream(new ByteArrayInputStream(bytes.toByteArray())), version);
+            assertEquals(buildings, restored.buildings());
+            var upgraded = new CitySimulation(seed.config(), ground, terrain, restored);
+            assertEquals(buildings, upgraded.frame().buildings());
+            assertTrue(upgraded.economy.capital.exchange.state().listings().stream().allMatch(l -> !l.publicCompany()));
+        }
+        assertEquals(5, CityCommand.SPECIAL);
+        assertEquals(6, CityCommand.EXCHANGE);
+        assertEquals(7, CityCommand.CAPITAL);
+        assertEquals(19, SpecialBuildings.EXCHANGE);
+    }
+
     @Test void placementPersistenceAndFutureToolsRespectEntireSite() throws Exception {
         var terrain=new Terrain(Terrain.DEFAULT_SEED);
         var ground=new Ground(terrain.column(8,24).height());

@@ -224,7 +224,10 @@ class CityBusinessTest {
         assertEquals(f.buildings(), old.buildings());
         assertEquals(f.economy().firms(), old.economy().firms());
         var migrated = new CitySimulation(old.config(), g, g.terrain, old);
-        assertEquals(old.economy(), migrated.frame().economy());
+        assertEquals(old.economy(), CityCapitalTest.withoutCapital(migrated.frame().economy()));
+        assertTrue(
+                migrated.economy.capital.state().book().listings().stream()
+                        .allMatch(l -> !l.publicCompany()));
         migrated.advance(1);
         assertEquals(14, BusinessMetrics.from(migrated.frame()).locations().size());
         assertEquals(18, migrated.frame().citizens().size());

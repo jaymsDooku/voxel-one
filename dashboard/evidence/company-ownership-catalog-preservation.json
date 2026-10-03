@@ -1,0 +1,42 @@
+{
+  "status": "ready for controller rebase continuation and independent review",
+  "change": "Retained special-building IDs 4-18, permits and owner metadata, catalog/levels, blueprints and UI. Added Exchange type19, command6; retained SPECIAL=5 and DEMOLISH=4, CAPITAL=7. CITY8 and protocol18 append ownership support to base catalogs. CITY6/CITY7 migration regressions and independent toolbar placement regression pass. Direction guide, cursor preview and road-edge snapping retained.",
+  "commands": [
+    {
+      "command": "MAVEN_OPTS=\"-Djava.io.tmpdir=$PWD/target/test-tmp\" /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=target/maven-cache \"-DargLine=-Djava.io.tmpdir=$PWD/target/test-tmp\" '-Dtest=*,!CityMultiplayerTest,!MultiplayerTest,!UpdaterTest' test",
+      "exitCode": 1,
+      "result": "All suites ran; two BusinessCatalogTest assertions required CITY8/missing legacy capital adjustments. Corrected and rerun below."
+    },
+    {
+      "command": "MAVEN_OPTS=\"-Djava.io.tmpdir=$PWD/target/test-tmp\" /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=target/maven-cache \"-DargLine=-Djava.io.tmpdir=$PWD/target/test-tmp\" -Dtest=BusinessCatalogTest,ExchangePermitCompositionTest,SpecialBuildingsTest,CityToolsTest,CityCapitalTest,CapitalSettlementLimitsTest,CityStockExchangeTest,CapitalDashboardTest,DemolitionTest,MetricHistoryTest test",
+      "exitCode": 0,
+      "tests": 68
+    },
+    {
+      "command": "javac --release 17 -cp \"$(cat target/capital-render-classpath.txt)\" -d target/catalog-java17 $(rg --files src/main/java -g \"*.java\")",
+      "exitCode": 0
+    },
+    {
+      "command": "javac -cp \"target/test-classes:$(cat target/capital-render-classpath.txt)\" -d target deploy/MetricTrendsSmoke.java deploy/CapitalRenderingSmoke.java deploy/CombinedDashboardSmoke.java deploy/SpecialBuildingsSmoke.java deploy/BuildingGuideSmoke.java",
+      "exitCode": 0
+    },
+    {
+      "command": "EGL_PLATFORM=surfaceless LIBGL_ALWAYS_SOFTWARE=1 java -Djava.io.tmpdir=\"$PWD/target/test-tmp\" -Dorg.lwjgl.system.SharedLibraryExtractPath=\"$PWD/target/native-libs\" -cp \"target:target/test-classes:$(cat target/capital-render-classpath.txt)\" CombinedDashboardSmoke target/catalog-combined-render",
+      "exitCode": 0
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0
+    }
+  ],
+  "latestPassingPerSuiteTotals": {
+    "tests": 236,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "scope": "Totals combine the broad run with final focused rerun; not a single uninterrupted full-suite pass. Three socket suites remain excluded for CI.",
+  "preservation": "28 original catalog/guide evidence artifacts, BuildingGuide, original CityToolsTest, BuildingGuideSmoke and SpecialBuildingsSmoke match reviewed base byte-for-byte; relevant base progress milestones unchanged. Metric history and settlement limits retained.",
+  "rendering": "Fresh Mesa EGL: catalog menu/placement, eight Trends captures, Exchange book/shareholders and F10 trading clip, 16 guide captures covering four camera angles and preview/click snapping. Visually inspected catalog menu and guide capture. Artifacts use catalog-combined prefix.",
+  "controller": "Resolved working files have no conflict markers; index remains unmerged until controller stages. No staging, commit, push, rebase continuation or deployment performed."
+}

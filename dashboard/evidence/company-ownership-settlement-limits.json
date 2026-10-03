@@ -1,0 +1,362 @@
+{
+  "status": "passed; ready for independent review",
+  "change": "Centralized investor/company persistence limits and replaced incremental cash transfers with complete order planning and atomic multi-account settlement. Rejecting any cash limit leaves the live accounts and ledger unchanged.",
+  "commands": [
+    {
+      "command": "MAVEN_OPTS=\"-Djava.io.tmpdir=$PWD/target/test-tmp\" /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=target/maven-cache \"-DargLine=-Djava.io.tmpdir=$PWD/target/test-tmp\" -Dtest=CapitalSettlementLimitsTest,CityStockExchangeTest,CityCapitalTest,CapitalDashboardTest,DemolitionTest test",
+      "exitCode": 0,
+      "tests": 36
+    },
+    {
+      "command": "MAVEN_OPTS=\"-Djava.io.tmpdir=$PWD/target/test-tmp\" /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=target/maven-cache \"-DargLine=-Djava.io.tmpdir=$PWD/target/test-tmp\" '-Dtest=*,!CityMultiplayerTest,!MultiplayerTest,!UpdaterTest' test",
+      "exitCode": 0
+    },
+    {
+      "command": "javac --release 17 -cp \"$(cat target/capital-render-classpath.txt)\" -d target/settlement-review-classes $(rg --files src/main/java -g \"*.java\")",
+      "exitCode": 0
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0
+    }
+  ],
+  "passingDistinctTests": {
+    "tests": 195,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "scope": "Latest passing per-suite results across the full regression run and final focused boundary run.",
+  "suites": [
+    {
+      "name": "dev.jayms.AccountStoreTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.AgricultureTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.BusinessDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.CapitalDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.CapitalSettlementLimitsTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.CityAddressesTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.CityBusinessTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.CityCapitalTest",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.CityEconomyTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.CityMaterialsTest",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.CityMetricsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.CityTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.CityTimeTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.CityToolsTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.ControlsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.CraftingTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.DemolitionTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.DistantTerrainTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.FractionalWorldTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.InventoryHudTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.IsometricCameraTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.LightOcclusionTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.LightingTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.ManufacturingTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.MayorDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.ModelSculptorTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.PlayerAnimationTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.PlayerCameraTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.PlayerTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.RemotePlayerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.SurvivalTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.VideoRecordingTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.VoxelModelTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.net.city.CityStockExchangeTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "focusedSuites": [
+    {
+      "name": "dev.jayms.CapitalSettlementLimitsTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "fractionalCompanyHeadroomCannotBeRoundedIntoCapacity",
+        "investorCancellationRefundAtLimitIsAtomicAndSaveable",
+        "rejectedSellerOrderLeavesRestingBuyerEscrowUntouched",
+        "investorCanReachExactMaximumAndNextSaleIsAtomicAcrossMultipleFills",
+        "buyMustAffordFullLimitEvenWhenExecutionWouldBeCheaper",
+        "companyIpoProceedsRespectSnapshotMaximum",
+        "cancellationRefundThatWouldOverflowKeepsEscrowAndCanBeRetried",
+        "investorAtMaximumRejectsSellerProceedsWithoutChangingBuyerOrBook",
+        "buyerRefundAndSellerProceedsMustBothFitBeforeRestingBidExecutes"
+      ]
+    },
+    {
+      "name": "dev.jayms.net.city.CityStockExchangeTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "secondaryTradesPaySellerAndMovePriceThroughSupplyAndDemand",
+        "bestPriceThenFifoWithPartialFillsAndMakerPrice",
+        "restoredStateRetainsEscrowAndCanContinueSettlement",
+        "ipoRaisesCompanyCapitalAndRefundsPriceImprovement",
+        "invalidInputAndCorruptSnapshotsAreRejectedWithoutMutation",
+        "rejectsDuplicateReferencesAndUnknownShareholdersOnRestore",
+        "partialBidFillRefundsOnlyExecutedSharesAndCancellationReturnsRemainder",
+        "startsPrivateAndRequiresOwnerAndExchangeForDilution",
+        "reservesCashAndSharesAndCancellationRequiresOrderOwner",
+        "selfOrdersDoNotTradeAndClosurePreservesBookButAllowsCancellation"
+      ]
+    },
+    {
+      "name": "dev.jayms.CityCapitalTest",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "corruptCapitalReferencesAndNegativeInvestorBalancesAreRejectedOnNetworkRead",
+        "authorizesOfferingsSettlesCompanyAndPersonOrdersAndCancelsAfterClosure",
+        "unpaidOfficesCloseEvenWhenTreasuryHasPositiveDustBalance",
+        "placementIsBudgetedAtomicAndOfficeHasGraduateMajority",
+        "officeWagesComeFromTreasuryAndGraduateQualificationsPersistIndependently",
+        "allCompaniesHavePrivateFoundersIncludingEmptyAndLegacyWorlds",
+        "demolitionAndExchangeCommandsHaveDistinctWireIds",
+        "exchangeDemolitionClearsOfficeReferencesClosesTradingAndPreservesInvestments",
+        "saveAndNetworkRoundTripRetainEscrowAndShareholdings",
+        "staffCommuteToBuiltOfficesThroughNormalSimulation",
+        "exactCommandPayloadRoundTripsAndMalformedCommandsAreRejected"
+      ]
+    },
+    {
+      "name": "dev.jayms.CapitalDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "marketNavigationKeepsCitizenSearchAndMarketInputIndependent",
+        "requiresExplicitConfirmationAndAllowsCompanyAndPersonActors",
+        "validatesExactDecimalEntryAndInvalidOrChangedDraftDoesNotSubmit"
+      ]
+    },
+    {
+      "name": "dev.jayms.DemolitionTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "commandRoundTripsAndRejectsMalformedRequests",
+        "demolitionClearsStructuresReferencesAndSurvivesReload",
+        "occupiedBuildingIsProtectedAndInspectorRequiresConfirmation"
+      ]
+    }
+  ],
+  "limits": {
+    "investorCents": 100000000000000,
+    "companyDollars": 1000000000000
+  },
+  "limitations": [
+    "Previously identified socket-dependent suites excluded due sandbox restrictions; live multiplayer integration remains for CI.",
+    "Earlier visuals are historical evidence; this correction changes settlement rather than rendering."
+  ],
+  "handoff": "Local edits preserved for runner commit/publication and separate review. No git staging, commit, push, merge, deployment or approval performed."
+}

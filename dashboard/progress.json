@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-04T09:50:35+00:00",
+  "updatedAt": "2026-10-04T10:06:52+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -2118,6 +2118,61 @@
       "status": "in_progress",
       "note": "Preserved terrain generation, protocol 17 and version-7 save compatibility; 73 tests/package and 117 fresh renders passed. Controller continuation and published-head CI required; multiplayer blocked by sandbox sockets.",
       "updatedAt": "2026-10-04T09:50:35+00:00"
+    },
+    {
+      "id": "37313939613234322d323439352d343463662d616437302d343733383964663130333466",
+      "title": "Company ownership and stock exchange",
+      "description": "Implementing ownership and exchange settlement with conservation and order reservation tests.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "company ownership ledger tests.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/company-ownership-ledger-tests.json"
+        },
+        {
+          "kind": "report",
+          "label": "company ownership tests.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/company-ownership-tests.json"
+        },
+        {
+          "kind": "image",
+          "label": "company exchange book.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/company-exchange-book.png"
+        },
+        {
+          "kind": "image",
+          "label": "company exchange owners.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/company-exchange-owners.png"
+        },
+        {
+          "kind": "video",
+          "label": "company exchange trading.mp4",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/company-exchange-trading.mp4"
+        },
+        {
+          "kind": "report",
+          "label": "company ownership review correction.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/company-ownership-review-correction.json"
+        },
+        {
+          "kind": "report",
+          "label": "company ownership metric preservation.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/company-ownership-metric-preservation.json"
+        },
+        {
+          "kind": "report",
+          "label": "company ownership catalog preservation.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/company-ownership-catalog-preservation.json"
+        },
+        {
+          "kind": "report",
+          "label": "company ownership inspector preservation.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/company-ownership-inspector-preservation.json"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Inspector tabs, navigation and complete text wrapping preserved with exchange details. 74 focused tests, Java 17 compilation and 117 Mesa inspector renders passed. Ready for controller continuation and independent review.",
+      "updatedAt": "2026-10-04T10:06:52+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

@@ -76,8 +76,8 @@ public final class CityTools {
         }
         float top = height - 196;
         if (y >= top && y <= top + 34 && x >= 16 && x < width - 16) {
-            int index = (int) ((x - 16) / ((width - 32) / 8f));
-            tool = new int[] {-1, 4, 0, 1, 2, 3, 5, 6}[Math.min(7, index)];
+            int index = (int) ((x - 16) / ((width - 32) / 9f));
+            tool = new int[] {-1, 4, 0, 1, 2, 3, 5, 6, 7}[Math.min(8, index)];
             points.clear();
             return;
         }
@@ -115,6 +115,11 @@ public final class CityTools {
                         List.of(new Polygon.Point((float)Math.floor(candidate.x()), (float)Math.floor(candidate.z()))), specialOwner, id));
                 return;
             }
+            if (tool == 7) {
+                submit.accept(new CityCommand(CityCommand.EXCHANGE, 0, List.of(candidate)));
+                tool = -1;
+                return;
+            }
             points.add(candidate);
             if (tool == 4 && points.size() == 2) {
                 submit.accept(new CityCommand(CityCommand.ROAD, 0, points));
@@ -128,7 +133,7 @@ public final class CityTools {
     /** Shared by preview and click so the highlighted point is the submitted point. */
     public Polygon.Point cursorPoint(float x, float y, int w, int h,
             Matrix4f projection, Matrix4f view, CityFrame city) {
-        if (tool < 0 || (tool > 4 && tool != 6) || y < 130 || y > h - 200) return null;
+        if (tool < 0 || (tool > 4 && tool != 6 && tool != 7) || y < 130 || y > h - 200) return null;
         var inverse = new Matrix4f(projection).mul(view).invert();
         var a = inverse.transformProject(new Vector3f(x / w * 2 - 1, 1 - y / h * 2, -1));
         var b = inverse.transformProject(new Vector3f(x / w * 2 - 1, 1 - y / h * 2, 1));
@@ -137,7 +142,7 @@ public final class CityTools {
         if (!Float.isFinite(t) || t < 0 || t > 1) return null;
         var hit = new Vector3f(a).lerp(b, t);
         var raw = new Polygon.Point(Math.round(hit.x * 2) / 2f, Math.round(hit.z * 2) / 2f);
-        if (tool == 6) return raw;
+        if (tool == 6 || tool == 7) return raw;
         Polygon.Point best = raw;
         float distance = 10 * 10;
         if (!points.isEmpty()) {
@@ -413,7 +418,7 @@ public final class CityTools {
                 ui.text(label,24,149+row*28,1.15f);
             }
         }
-        float bw = (w - 32) / 8f, top = h - 196;
+        float bw = (w - 32) / 9f, top = h - 196;
         String[] labels = {
             "Inspect",
             "Dirt road",
@@ -422,10 +427,10 @@ public final class CityTools {
             "Industrial",
             "Agriculture",
             "Economy",
-            "Special"
+            "Special", "Exchange"
         };
-        for (int i = 0; i < 8; i++) {
-            boolean active = tool == new int[] {-1, 4, 0, 1, 2, 3, 5, 6}[i];
+        for (int i = 0; i < 9; i++) {
+            boolean active = tool == new int[] {-1, 4, 0, 1, 2, 3, 5, 6, 7}[i];
             ui.rectangle(
                     16 + i * bw,
                     top,
@@ -441,6 +446,8 @@ public final class CityTools {
         ui.text(
                 tool == 6
                         ? "Select building, level and owner | Click clear unzoned land: 6 x 9 | Front faces north | Esc: cancel"
+                        : tool == 7
+                                ? "Choose clear land near a road | Exchange: $600 | Graduate office staff"
                         : tool == 4
                         ? "Click two endpoints | Mayor pays $4 per new road cell."
                         : tool >= 0 && tool < 4

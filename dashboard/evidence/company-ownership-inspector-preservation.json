@@ -1,0 +1,40 @@
+{
+  "status": "ready for controller continuation and independent review",
+  "change": "Retained base BuildingInfo tabs, sectionLines, wrappedLines, mouse and keyboard navigation and Main event routing; added only exchange details to Overview. Original inspector tests, rendering harness, milestone and evidence match the reviewed base. Added CapitalInspectorTest covering exchange details, lossless wrapping, keyboard navigation and mouse tabs.",
+  "commands": [
+    {
+      "command": "MAVEN_OPTS=\"-Djava.io.tmpdir=$PWD/target/test-tmp\" /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=target/maven-cache \"-DargLine=-Djava.io.tmpdir=$PWD/target/test-tmp\" -Dtest=BuildingInfoTest,CapitalInspectorTest,CityCapitalTest,CityStockExchangeTest,CapitalSettlementLimitsTest,CapitalDashboardTest,ExchangePermitCompositionTest,SpecialBuildingsTest,CityToolsTest,MetricHistoryTest,DemolitionTest,BusinessCatalogTest test",
+      "exitCode": 0,
+      "tests": 74,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "command": "EGL_PLATFORM=surfaceless LIBGL_ALWAYS_SOFTWARE=1 java -Djava.io.tmpdir=\"$PWD/target/test-tmp\" -Dorg.lwjgl.system.SharedLibraryExtractPath=\"$PWD/target/native-libs\" -cp \"target/test-classes:$(cat target/capital-render-classpath.txt)\" dev.jayms.BuildingInfoRenderEvidence target/ownership-inspector-render",
+      "exitCode": 0,
+      "renders": 117
+    },
+    {
+      "command": "javac -cp \"target/test-classes:$(cat target/capital-render-classpath.txt)\" -d target deploy/CapitalRenderingSmoke.java",
+      "exitCode": 0
+    },
+    {
+      "command": "EGL_PLATFORM=surfaceless LIBGL_ALWAYS_SOFTWARE=1 java -Djava.io.tmpdir=\"$PWD/target/test-tmp\" -Dorg.lwjgl.system.SharedLibraryExtractPath=\"$PWD/target/native-libs\" -cp \"target:target/test-classes:$(cat target/capital-render-classpath.txt)\" CapitalRenderingSmoke target/ownership-exchange-inspector-render",
+      "exitCode": 0
+    },
+    {
+      "command": "javac --release 17 -cp \"$(cat target/capital-render-classpath.txt)\" -d target/inspector-java17 $(rg --files src/main/java -g \"*.java\")",
+      "exitCode": 0
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0
+    }
+  ],
+  "artifacts": [
+    "company-ownership-inspector.png",
+    "company-ownership-inspector-renders.zip"
+  ],
+  "scope": "Fresh focused verification and Mesa EGL rendering; no fresh full-suite run claimed. Three socket-dependent suites remain for CI. Original historical evidence preserved.",
+  "controller": "Progress conflict resolved in working files; controller stages and continues rebase. No staging, commit, push, merge or deployment performed."
+}
