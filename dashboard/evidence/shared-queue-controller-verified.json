@@ -1,0 +1,57 @@
+{
+  "testedHead": "2958db7ee3b6a579552a2b530f0e2f969da73053",
+  "testedAt": "2026-10-05T16:00:03.345607+00:00",
+  "scope": "Exact packaged route with real private General upstream; local browser authentication fixture. Production browser session and deployment remain unverified.",
+  "checks": [
+    {
+      "name": "Real scoped General upstream",
+      "status": 200,
+      "items": 49
+    },
+    {
+      "name": "Packaged authenticated fixture route using real upstream",
+      "status": 200,
+      "matchingItemIds": 49,
+      "credentialsAbsent": true
+    },
+    {
+      "name": "Unauthenticated packaged route",
+      "status": 401
+    },
+    {
+      "name": "Chromium390px",
+      "renderedItems": 49
+    },
+    {
+      "name": "Safari WebKit390px",
+      "renderedItems": 49,
+      "liveStatusVisible": true
+    }
+  ],
+  "packageSha256": {
+    "website/dist/server/index.js": "99dd2acca02e8525e302842244c50a163c549b1cfcb7d32a16be40daa48aedc9",
+    "website/dist/server/progress_bridge.mjs": "398156441300e433dfaf65e4b724938ba3758ef54a2a57d1b614498680dfe651",
+    "website/dist/client/progress.js": "2507d3dc232dc92ddae3b5e3defc5ed8ab0671eb71bf0d71a9de5dcf198165d1"
+  },
+  "capture": "dashboard/evidence/shared-queue-controller-webkit.png",
+  "privacy": "Actual item statuses/order/counts retained; private titles/descriptions/evidence hidden in image.",
+  "developerVerification": {
+    "environment": "Node v22.14.0; Linux; Chromium and Safari-WebKit, 390x844; exact packaged client with controller-fetched real upstream projection.",
+    "command": "TMPDIR=\"$PWD/dashboard/evidence/.browser-tmp\" PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers /home/debian/.local/bin/node deploy/capture_shared_queue_controller.mjs",
+    "exitCode": 0,
+    "playtest": "Playtest: open packaged development record; expect live shared queue state and all scoped items. Observed live status and 49 rendered items in both engines. Edge: 390px WebKit capture shows status and current, queued and completed cards. Regression: controller real-upstream harness rejected unauthenticated request with HTTP 401; local 10 bridge/package tests passed.",
+    "mediaInspected": true,
+    "mediaSha256": "b19a4b5507a0adce682c839b9afa3ffe5a2857ee84bff202324055074470ca43",
+    "publication": "pending controller publication",
+    "checks": [
+      "python3 deploy/build_site.py: passed",
+      "node build.mjs (website): passed",
+      "node --test website/test/*.test.mjs: 10 passed",
+      "node deploy/video-evidence-test.mjs: 5 passed",
+      "git diff --check: passed",
+      "All three package hashes match controller report."
+    ],
+    "initialCaptureAttempt": "Failed with EROFS creating temporary browser files in /tmp; rerun passed with TMPDIR inside assigned worktree.",
+    "limitations": "Developer did not rerun credentialed upstream command. Controller executed it; reproducible harness and sanitized result supplied. Production browser session and deployment not claimed."
+  }
+}

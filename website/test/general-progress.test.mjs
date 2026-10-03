@@ -10,3 +10,41 @@ test('fixed Voxel projection forwards credentials only to General Site and exclu
  assert.equal(target,'https://codex-development-dashboard.jamesleaver1.chatgpt.site/api/applications/voxel-one/progress?agentId=voxel-bridge');assert.equal(headers['X-Codex-Agent-Key'],env.GENERAL_DASHBOARD_BRIDGE_KEY);const data=await r.json();assert.equal(data.items.length,1);assert.equal(data.items[0].status,'waiting_review');assert.equal(data.items[0].evidence.length,1);assert.equal(data.items[0].evidence[0].kind,'image');assert.equal(data.verification.tests,166);const text=JSON.stringify(data);for(const hidden of ['Private prompt','Private lease','Private agent state',env.GENERAL_DASHBOARD_AUTH,env.GENERAL_DASHBOARD_BRIDGE_KEY])assert.equal(text.includes(hidden),false);
 });
 test('upstream errors and invalid schema do not leak private diagnostics',async()=>{for(const response of [()=>Response.json({error:'Private upstream diagnostic'}, {status:403}),()=>Response.json({schemaVersion:2,items:[]})]){const r=await generalProgress(userRequest(),env,response);assert.equal(r.status,503);assert.equal((await r.text()).includes('Private upstream'),false);}});
+
+test('queue remains available when AbortSignal.timeout is absent in the runtime',async()=>{
+ const original=Object.getOwnPropertyDescriptor(AbortSignal,'timeout');
+ Object.defineProperty(AbortSignal,'timeout',{value:undefined,configurable:true});
+ try{
+  let called=false;
+  const response=await generalProgress(userRequest(),env,async(url,options)=>{
+   called=true;assert.ok(options.signal instanceof AbortSignal);
+   return Response.json({schemaVersion:1,items:[{id:'live-item',title:'Live work',status:'queued'}]});
+  });
+  assert.equal(response.status,200);assert.equal(called,true);
+  assert.equal((await response.json()).items[0].id,'live-item');
+ }finally{Object.defineProperty(AbortSignal,'timeout',original);}
+});
+
+test('optional recorded snapshot never prevents live queue delivery',async()=>{
+ for(const ASSETS of [undefined,{fetch:async()=>{throw Error('Unavailable');}},{fetch:async()=>new Response('not JSON')},{fetch:async()=>Response.json(null)},{fetch:async()=>Response.json({verification:{tests:999}},{status:404})}]){
+  const response=await generalProgress(userRequest(),{...env,ASSETS},async()=>Response.json({schemaVersion:1,items:[{id:'current',title:'Current queue item',status:'in_progress'}]}));
+  assert.equal(response.status,200);const data=await response.json();
+  assert.equal(data.items[0].id,'current');assert.equal(data.verification,undefined);
+ }
+});
+
+test('bridge aborts the upstream request on timeout and clears its timer',async()=>{
+ const originalSet=globalThis.setTimeout,originalClear=globalThis.clearTimeout;
+ let expire,cleared=false;
+ const timer={};
+ globalThis.setTimeout=(callback,ms)=>{assert.equal(ms,6000);expire=callback;return timer;};
+ globalThis.clearTimeout=value=>{assert.equal(value,timer);cleared=true;};
+ try{
+  const response=await generalProgress(userRequest(),env,async(url,{signal})=>{
+   assert.equal(signal.aborted,false);expire();assert.equal(signal.aborted,true);
+   throw Error('Timeout with private diagnostic');
+  });
+  assert.equal(response.status,503);assert.equal(cleared,true);
+  assert.equal((await response.text()).includes('private diagnostic'),false);
+ }finally{globalThis.setTimeout=originalSet;globalThis.clearTimeout=originalClear;}
+});
