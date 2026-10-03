@@ -148,5 +148,16 @@
     "src/test/java/dev/jayms/CityMultiplayerTest.java": "32e419c70898bdf7170bb4180e2106b4f3e114e54fe0f3e98226da5d34e29eb0"
   },
   "ci": "Not yet run on the corrected published head. Controller must finish rebase/publication and require passing exact-head matrix checks and independent review; older CI remains historical.",
-  "currentMasterIntegrationReport": "building-info-current-master-integration.json"
+  "currentMasterIntegrationReport": "building-info-current-master-integration.json",
+  "latestReplayResolution": {
+    "headBeforeControllerContinuation": "7b207e212679e7cc2713991b322ee0f125dafc89",
+    "resolvedFiles": [
+      "dashboard/evidence/building-info-metric-integration.json",
+      "dashboard/evidence/building-info-recovery-checkpoint.json",
+      "dashboard/progress.json"
+    ],
+    "result": "Newer current-master integration reports and milestones retained. Code and tools unchanged.",
+    "verification": "72 protected current-master files, all source hashes and master milestones verified; zero base deletions; 117-capture archive and representative PNGs verified; resolved JSON parses without conflict markers. Prior 38-test/package and rendering results retained without rerunning tests.",
+    "pending": "Controller staging/rebase continuation, corrected-head hosted CI, independent review."
+  }
 }

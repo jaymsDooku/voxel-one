@@ -1,8 +1,10 @@
 {
-  "status": "current-master-progress-conflict-resolved",
+  "status": "current-master-metadata-replay-resolved",
   "baseHead": "49ac21a14286e1e258d6178d8a99e8b381afd75e",
   "savedFeatureHead": "0d67f0b76acb07e5495c9ac5241b428e35760abf",
   "resolvedFiles": [
+    "dashboard/evidence/building-info-metric-integration.json",
+    "dashboard/evidence/building-info-recovery-checkpoint.json",
     "dashboard/progress.json"
   ],
   "retainedFeatures": [
@@ -10,7 +12,7 @@
     "Tabbed inspector, full-text wrapping and indented-name regression fix",
     "Current master progress entries and feature progress/evidence"
   ],
-  "controllerNextStep": "Stage progress resolution, ownership correction/test and regenerated evidence, then continue preserved rebase. Keep all current-master metric/special-building/guide features and milestones intact. Publish corrected head; require hosted CI and independent review before merge.",
+  "controllerNextStep": "Stage preserved metadata resolutions and updated current-master report, then continue the pending rebase. Retain ownership fix, regression test, 117-render evidence, all protected master features and milestones. Hosted CI and independent review required on corrected published head.",
   "checks": {
     "testsPassed": 38,
     "packaging": "passed",
@@ -21,7 +23,8 @@
     "baseDeletions": 0,
     "multiplayer": "blocked by sandbox socket permission",
     "hostedCI": "pending after publication",
-    "diffCheck": "passed"
+    "diffCheck": "passed",
+    "latestReplay": "72 protected files and all source hashes/milestones verified; archive/PNG/JSON checks passed. Implementation unchanged; tests not repeated."
   },
   "report": "dashboard/evidence/building-information-tests.json",
   "protectedBaseFiles": [
@@ -97,5 +100,6 @@
     "src/test/java/dev/jayms/CityToolsTest.java",
     "src/test/java/dev/jayms/MetricHistoryTest.java",
     "src/test/java/dev/jayms/SpecialBuildingsTest.java"
-  ]
+  ],
+  "validatedReplayHead": "7b207e212679e7cc2713991b322ee0f125dafc89"
 }
