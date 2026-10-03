@@ -1,10 +1,9 @@
 {
-  "status": "metric-integration-evidence-replay-resolved",
+  "status": "final-report-replay-conflicts-resolved",
   "baseHead": "8c524a18d18d7f685cdabb6a16c7ebbf57fb77f3",
   "savedFeatureHead": "0d67f0b76acb07e5495c9ac5241b428e35760abf",
   "resolvedFiles": [
     "dashboard/evidence/building-info-recovery-checkpoint.json",
-    "dashboard/evidence/building-info-rendered-screenshots.zip",
     "dashboard/evidence/building-information-tests.json",
     "dashboard/progress.json"
   ],
@@ -13,7 +12,7 @@
     "Tabbed inspector, full-text wrapping and indented-name regression fix",
     "Current master progress entries and feature progress/evidence"
   ],
-  "controllerNextStep": "Stage preserved replay resolutions and updated integration checkpoint, then continue rebase. Retain protected metric feature and all base progress entries. Hosted CI on corrected published head and independent approval remain required.",
+  "controllerNextStep": "Stage report/progress resolutions and evidence annotations, then continue rebase. Preserve protected metric-history files and base milestones. Publish corrected head and require passing exact-head hosted CI and independent review before merge.",
   "checks": {
     "testsPassed": 16,
     "applicationPackaging": "passed",
@@ -23,7 +22,8 @@
     "multiplayer": "socket permission error; not a passing run",
     "hostedCI": "pending on corrected published head",
     "diffCheck": "passed",
-    "evidenceReplay": "28 metric files and all recorded source hashes match verified tree; base entries preserved; archive and JSON checks pass. Implementation unchanged; no repeated test run."
+    "evidenceReplay": "28 metric files and all recorded source hashes match verified tree; base entries preserved; archive and JSON checks pass. Implementation unchanged; no repeated test run.",
+    "latestReplay": "Three report/progress conflicts resolved; source hashes, 28 base files, all base milestones, ZIP and JSON checks passed. Implementation unchanged."
   },
   "report": "dashboard/evidence/building-information-tests.json",
   "protectedBaseFiles": [
@@ -56,5 +56,5 @@
     "src/main/java/dev/jayms/ui/MayorDashboard.java",
     "src/main/java/dev/jayms/ui/Overlay.java"
   ],
-  "validatedReplayHead": "bca3b224c18087cc8269823deb648e9c061d84e0"
+  "validatedReplayHead": "bb1e7be8df51299254979aede707d054cf9a3a38"
 }

@@ -106,5 +106,16 @@
       "Resolved JSON parses and contains no conflict markers."
     ],
     "tests": "Previous 16-test/package verification and 81 inspector/8 metric renders remain applicable to identical implementation. No new test run; socket and hosted-CI limitations unchanged."
+  },
+  "finalEvidenceReplayResolution": {
+    "headBeforeControllerContinuation": "bb1e7be8df51299254979aede707d054cf9a3a38",
+    "resolvedFiles": [
+      "dashboard/evidence/building-info-recovery-checkpoint.json",
+      "dashboard/evidence/building-information-tests.json",
+      "dashboard/progress.json"
+    ],
+    "result": "Newer metric-preserving reports retained; production, tests and tools unchanged.",
+    "verification": "All 28 base files, source hashes and base progress entries match. Zero base deletions. JSON and 81-capture archive checks passed. Previous 16-test/package verification and 81 inspector/8 metric renders remain applicable; no repeated test run.",
+    "hostedCI": "Still required on corrected published head; old Windows failure/macOS cancellations remain historical."
   }
 }
