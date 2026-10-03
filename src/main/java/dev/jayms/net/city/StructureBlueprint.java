@@ -17,6 +17,18 @@ public final class StructureBlueprint {
     }
 
     public static List<Protocol.Edit> generate(int type, int x, int y, int z) {
+        if (type == 4) {
+            var office = new ArrayList<>(generate(1, x, y, z));
+            // Two banks of desks leave the central entrance and walking aisle clear.
+            for (int dx : new int[] {1, 4})
+                for (int dz : new int[] {3, 5}) {
+                    office.add(new Protocol.Edit(x + dx, y + 1, z + dz, Blocks.PLANKS));
+                    office.add(new Protocol.Edit(x + dx, y + 2, z + dz, Blocks.GLASS));
+                }
+            office.add(new Protocol.Edit(x + 1, y + 3, z, Blocks.LED).withColor(0x40e0b0));
+            office.add(new Protocol.Edit(x + 4, y + 3, z, Blocks.LED).withColor(0x40e0b0));
+            return office;
+        }
         var edits = new ArrayList<Protocol.Edit>();
         for (int i = 0; i < WIDTH; i++)
             for (int k = 0; k < DEPTH; k++)

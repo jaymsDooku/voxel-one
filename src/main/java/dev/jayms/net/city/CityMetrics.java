@@ -48,6 +48,7 @@ public record CityMetrics(
     }
 
     public static int employer(CityFrame f, CityFrame.Citizen c) {
+        if (f.buildings().stream().anyMatch(b -> b.id() == c.job() && b.type() == 4)) return -1;
         if (c.job() >= CityMaterials.YARD) {
             int id = c.job() - CityMaterials.YARD;
             return f.economy().firms().stream()

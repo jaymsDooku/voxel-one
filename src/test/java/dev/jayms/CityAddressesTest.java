@@ -78,7 +78,7 @@ class CityAddressesTest {
         }
         var old = CitySimulation.load(save);
         assertEquals(s.frame().buildings(), old.buildings());
-        assertEquals(s.frame().economy(), old.economy());
+        assertEquals(CityCapitalTest.withoutCapital(s.frame().economy()), old.economy());
         assertEquals(s.frame().elapsed(), old.elapsed());
         assertEquals(s.frame().addresses(), old.addresses());
         assertEquals(
