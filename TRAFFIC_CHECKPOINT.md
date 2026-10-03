@@ -1,0 +1,37 @@
+# Directional traffic review correction
+
+Local correction on feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637, based on b9efa10ae104e700545498e1b1f1d1e2c9c0300d. Nothing committed, pushed, deployed, merged or approved by the developer.
+
+Inside pavement bends retain their lane miter and trim neighbouring samples that would cause backtracking on either leg. The geometry regression checks the exact overshooting samples and a short route ending near the bend. The actual-traveller regression simulates three pedestrians 0.55 metres apart, both turn signs and both travel directions, using authoritative travel/spacing and distinct destinations beyond the bend. The regression failed against the original geometry with a stuck leader and passes with the correction.
+
+Validation: the broad run executed 84 tests, with 83 passing and one feeding failure caused by an additional road-join change. That join change was reverted entirely. The final targeted rerun passed all 11 traffic tests and the affected three-day feeding/save/network-codec test (12 tests, zero failures/errors). The regression control failed against the original geometry as expected. Exact commands, phase results and latest suite counts are in dashboard/evidence/road-traffic-bend-tests.json. Formatting and git diff --check pass. The prior 83-test report remains historical evidence for the original implementation.
+
+Graphical/F10 and multiplayer socket checks have not been repeated: no graphical display is available, and prior multiplayer validation was blocked by sandbox socket restrictions. Runner should submit the local changes for independent review of the new exact head and applicable CI. No owner answer is required.
+
+## Rebase recovery pause
+
+Paused by service control. Dashboard conflict markers resolved in the working file, retaining both sides’ entries. Restored the saved bend correction, traveller regression and historical evidence from cbebb1f475472c28ea0c778d66c4c6f85ab9ebfc. All local edits preserved. Index remains unmerged intentionally: controller must stage resolutions and continue the rebase. Do not abort/reset. The combined traffic/city/agriculture/demolition/camera test command was interrupted with exit 130 when pause arrived; no combined-suite pass is claimed. Exact command and result: dashboard/evidence/road-traffic-recovery-tests.json. Resume validation when service control permits. No commits, push, deployment or rebase continuation performed.
+
+## Recovery validation complete
+
+Resolved working dashboard retains both feature entries; index remains unmerged for controller staging. Restored bend fix and both-direction actual-traveller regression are intact. Combined checks ran 98 tests: 97 passed, one demolition timing assumption failed. Updated demolition assertions verify exact preservation of unfinished plots/projects while retaining structure/reference deletion, terrain, occupancy and reload requirements. All three demolition tests passed on rerun, yielding 98 distinct passing latest reports. Formatting, JSON integrity and git diff --check pass. Exact commands/results: dashboard/evidence/road-traffic-recovery-tests.json. Controller stages all resolutions and continues pending rebase; subsequent commits may need dashboard reconciliation. Independent review of final head remains required. Nothing committed, pushed, deployed or approved by developer.
+
+## Subsequent documentation conflict resolved
+
+Retained the newer recovery checkpoint and dashboard notes, including all current feature entries. No source or test changes occurred at this rebase step: git diff HEAD -- src is empty. Bend correction, actual-traveller regression and unfinished-plot demolition checks remain intact. Dashboard JSON/unique IDs, conflict-marker scan and git diff --check pass. Prior 98 distinct passing test evidence remains applicable; no redundant rerun performed. Evidence: dashboard/evidence/road-traffic-rebase-resolution.json. Index intentionally remains unmerged; controller stages and continues rebase. Independent exact-head review still required.
+
+## Intersection clearance correction ready
+
+Yielding travellers that block the priority stream’s immediate step now back out along their approach, retaining their route. Retreat requires an open road position, increased separation from the priority traveller, passable terrain and swept spacing against all travellers. Normal mounted pose updates remain active. The new actual-traveller regression checks pedestrians and mounted traffic, both update orders, destination completion and spacing after every move. It fails against original HEAD and passes with the correction. Offline broad suite passed 99 tests, zero failures/errors/skips; formatting and git diff --check pass. Exact commands and counts: dashboard/evidence/road-traffic-crossing-tests.json. Graphical and socket limitations remain. All changes local; controller commits/publishes and obtains independent exact-head review. No owner answer needed.
+
+## Metric-history concurrency recovery ready
+
+Resolved dashboard conflict retaining traffic and metric-history entries. All 25 metric-related files match reviewed base 8c524a18d18d7f685cdabb6a16c7ebbf57fb77f3 byte-for-byte, including source, tests, smoke tools and recorded evidence. MayorDashboard metric integration is unchanged. Restored latest intersection clearance correction and test from 21e1f8d085c0a86b58483cbb329de6ed7e118036 using only the CitySimulation patch and traffic-specific files; bend correction remains intact. Combined offline suite including MetricHistoryTest passed 103 tests, zero failures/errors/skips. Formatting, JSON integrity and git diff --check pass. Exact evidence: dashboard/evidence/road-traffic-metric-recovery-tests.json. Graphical and socket checks remain unverified. Index remains unmerged for controller staging/continuation; do not abort/reset. Controller must verify metric preservation after continuation and obtain independent final-head review. No developer commit, push or deployment.
+
+## Combined-feature documentation conflict resolved
+
+Preserved both historical checkpoint records and newer combined verification. Traffic and metric-history dashboard entries retained. Source/tests unchanged from validated HEAD; all 25 metric-related files and MayorDashboard integration match reviewed base. JSON integrity, conflict-marker checks and git diff --check pass. Prior combined 103-test pass remains applicable; no redundant tests run for documentation-only changes. Evidence: dashboard/evidence/road-traffic-metric-rebase-resolution.json. Index remains unmerged for controller staging/continuation; developer has not committed, pushed or continued rebase. Independent review still required.
+
+## Clearance-commit documentation conflict resolved
+
+Retained intersection-clearance handoff together with newer combined metric-history validation. Source/tests unchanged from validated HEAD; clearance implementation and both-update-order regression remain present. All 25 metric files/UI integration match reviewed base, and both progress entries remain. JSON, marker scan and git diff --check pass; prior combined 103-test pass applies without rerun. Evidence appended to dashboard/evidence/road-traffic-metric-rebase-resolution.json. Controller stages these working-file resolutions and continues rebase; independent review of final exact head remains required.

@@ -1,0 +1,48 @@
+{
+  "scope": "Subsequent documentation-only conflict during combined traffic/metric rebase",
+  "head": "a936e425385d7fdee9a3f4a48ca953420706c573",
+  "resolved": [
+    "TRAFFIC_CHECKPOINT.md",
+    "dashboard/progress.json"
+  ],
+  "resolution": "Preserved both historical checkpoint sections and newer combined-verification notes; retained metric-history and traffic progress entries.",
+  "checks": [
+    {
+      "command": "git diff HEAD -- src",
+      "result": "Empty: implementation/tests unchanged from combined 103-test validation."
+    },
+    {
+      "command": "Python byte comparison of all 25 metric-related files against 8c524a18d18d7f685cdabb6a16c7ebbf57fb77f3 and MayorDashboard integration diff",
+      "result": "Passed, unchanged."
+    },
+    {
+      "command": "Python dashboard JSON parse, unique IDs, both progress entries, and conflict-marker assertions",
+      "result": "Passed."
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "tests": "No rerun for documentation-only changes; prior 103 passing combined tests remain applicable.",
+  "prior_evidence": "dashboard/evidence/road-traffic-metric-recovery-tests.json",
+  "next": "Controller stages resolved files and continues rebase. Independent final-head review required.",
+  "subsequent_resolutions": [
+    {
+      "head": "7e2c9ae3d91723f7b8ddf2102d22262fa2c87899",
+      "conflicts": [
+        "TRAFFIC_CHECKPOINT.md",
+        "dashboard/progress.json"
+      ],
+      "result": "Retained intersection-clearance checkpoint plus newer combined verification and both feature progress entries.",
+      "checks": {
+        "git diff HEAD -- src": "Empty; no implementation/test changes",
+        "metric byte comparison": "All 25 metric files and MayorDashboard integration unchanged from reviewed base",
+        "clearance fix and actual-traveller regression": "Present",
+        "JSON unique IDs, both entries and conflict markers": "Passed",
+        "git diff --check": "Passed"
+      },
+      "tests": "Prior combined 103 tests apply; no redundant rerun for notes-only changes."
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "status": "checkpoint",
+  "compile": "Passed using cached offline Maven dependencies",
+  "tests": {
+    "command": "MAVEN_OPTS=-Djava.io.tmpdir=$PWD/.build-tmp /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -Dtest=RoadTrafficTest,CityTest,CityBusinessTest,CityAddressesTest test",
+    "total": 27,
+    "passed": 5,
+    "failures": 0,
+    "errors": 22,
+    "detail": "All five RoadTrafficTest tests passed. Existing tests errored creating JUnit temporary directories under read-only /tmp; forked test JVM needs -DargLine=-Djava.io.tmpdir=$PWD/.build-tmp."
+  },
+  "visualEvidence": "Not recorded; implementation and validation paused by controller."
+}
