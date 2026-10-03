@@ -1,0 +1,152 @@
+{
+  "validatedWorkingTreeBase": "49ac21a14286e1e258d6178d8a99e8b381afd75e",
+  "status": "Resolved working tree ready for controller staging and rebase continuation; no corrected submitted head exists yet.",
+  "preservation": {
+    "files": [
+      "dashboard/evidence/building-direction-guide-rendering.json",
+      "dashboard/evidence/building-direction-guide-tests.txt",
+      "dashboard/evidence/building-guide-angle-0-scenario-0.png",
+      "dashboard/evidence/building-guide-angle-0-scenario-1.png",
+      "dashboard/evidence/building-guide-angle-0-scenario-2.png",
+      "dashboard/evidence/building-guide-angle-0-scenario-3.png",
+      "dashboard/evidence/building-guide-angle-1-scenario-0.png",
+      "dashboard/evidence/building-guide-angle-1-scenario-1.png",
+      "dashboard/evidence/building-guide-angle-1-scenario-2.png",
+      "dashboard/evidence/building-guide-angle-1-scenario-3.png",
+      "dashboard/evidence/building-guide-angle-2-scenario-0.png",
+      "dashboard/evidence/building-guide-angle-2-scenario-1.png",
+      "dashboard/evidence/building-guide-angle-2-scenario-2.png",
+      "dashboard/evidence/building-guide-angle-2-scenario-3.png",
+      "dashboard/evidence/building-guide-angle-3-scenario-0.png",
+      "dashboard/evidence/building-guide-angle-3-scenario-1.png",
+      "dashboard/evidence/building-guide-angle-3-scenario-2.png",
+      "dashboard/evidence/building-guide-angle-3-scenario-3.png",
+      "dashboard/evidence/metric-trends-companies-1280x720.png",
+      "dashboard/evidence/metric-trends-companies-640x640.png",
+      "dashboard/evidence/metric-trends-government-1280x720.png",
+      "dashboard/evidence/metric-trends-government-640x640.png",
+      "dashboard/evidence/metric-trends-population-1280x720.png",
+      "dashboard/evidence/metric-trends-population-640x640.png",
+      "dashboard/evidence/metric-trends-rebase-verification.json",
+      "dashboard/evidence/metric-trends-recovery-companies-1280x720.png",
+      "dashboard/evidence/metric-trends-recovery-companies-640x640.png",
+      "dashboard/evidence/metric-trends-recovery-government-1280x720.png",
+      "dashboard/evidence/metric-trends-recovery-government-640x640.png",
+      "dashboard/evidence/metric-trends-recovery-population-1280x720.png",
+      "dashboard/evidence/metric-trends-recovery-population-640x640.png",
+      "dashboard/evidence/metric-trends-recovery-workplaces-1280x720.png",
+      "dashboard/evidence/metric-trends-recovery-workplaces-640x640.png",
+      "dashboard/evidence/metric-trends-recovery.json",
+      "dashboard/evidence/metric-trends-rendering.json",
+      "dashboard/evidence/metric-trends-tests.json",
+      "dashboard/evidence/metric-trends-workplaces-1280x720.png",
+      "dashboard/evidence/metric-trends-workplaces-640x640.png",
+      "dashboard/evidence/special-buildings-checkpoint.md",
+      "dashboard/evidence/special-buildings-menu.png",
+      "dashboard/evidence/special-buildings-metric-integration-tests.json",
+      "dashboard/evidence/special-buildings-metric-replay-tests.json",
+      "dashboard/evidence/special-buildings-overhead-tests.json",
+      "dashboard/evidence/special-buildings-placement.png",
+      "dashboard/evidence/special-buildings-recovery-tests.json",
+      "dashboard/evidence/special-buildings-rendering.json",
+      "dashboard/evidence/special-buildings-replay-recovery-tests.json",
+      "dashboard/evidence/special-buildings-tests.json",
+      "deploy/BuildingGuideSmoke.java",
+      "deploy/MetricTrendsSmoke.java",
+      "deploy/SpecialBuildingsSmoke.java",
+      "deploy/run_building_guide_smoke.py",
+      "deploy/run_metric_trends_smoke.py",
+      "deploy/run_special_buildings_smoke.py",
+      "src/main/java/dev/jayms/Main.java",
+      "src/main/java/dev/jayms/net/Protocol.java",
+      "src/main/java/dev/jayms/net/city/BusinessMetrics.java",
+      "src/main/java/dev/jayms/net/city/CityCommand.java",
+      "src/main/java/dev/jayms/net/city/CityEconomy.java",
+      "src/main/java/dev/jayms/net/city/CityFrame.java",
+      "src/main/java/dev/jayms/net/city/CitySimulation.java",
+      "src/main/java/dev/jayms/net/city/SpecialBuildings.java",
+      "src/main/java/dev/jayms/net/city/StructureBlueprint.java",
+      "src/main/java/dev/jayms/ui/BuildingGuide.java",
+      "src/main/java/dev/jayms/ui/CityTools.java",
+      "src/main/java/dev/jayms/ui/MayorDashboard.java",
+      "src/main/java/dev/jayms/ui/MetricHistory.java",
+      "src/main/java/dev/jayms/ui/MetricTrends.java",
+      "src/main/java/dev/jayms/ui/Overlay.java",
+      "src/test/java/dev/jayms/CityToolsTest.java",
+      "src/test/java/dev/jayms/MetricHistoryTest.java",
+      "src/test/java/dev/jayms/SpecialBuildingsTest.java"
+    ],
+    "result": "72 master feature/integration files match current master byte-for-byte; every master progress entry retained; zero base deletions. Inspector preserves special-building naming/levels, demolition, and tab navigation. Metric trends and placement-direction guide retained.",
+    "unrelatedDeletedFiles": []
+  },
+  "commands": [
+    {
+      "command": "/tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=target/maven-repository -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=BuildingInfoTest,MetricHistoryTest,CityMetricsTest,MayorDashboardTest,SpecialBuildingsTest,CityToolsTest,IsometricCameraTest verify",
+      "exitCode": 0,
+      "result": "38 passed; application jars packaged."
+    },
+    {
+      "command": "/tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=target/maven-repository -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=CityMultiplayerTest test",
+      "exitCode": 1,
+      "result": "Socket Operation not permitted while binding loopback server, before network assertions."
+    },
+    {
+      "command": "python3 deploy/render_building_info_evidence.py",
+      "exitCode": 0,
+      "result": "117 actual inspector renders at 640x640 and 1280x720."
+    },
+    {
+      "command": "python3 deploy/run_metric_trends_smoke.py target/building-info-new-master-chart-captures target/maven-repository",
+      "exitCode": 0,
+      "result": "8 actual changing-metric chart renders across four domains and both sizes."
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0
+    }
+  ],
+  "results": [
+    {
+      "suite": "BuildingInfoTest",
+      "result": "Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.036 s -- in dev.jayms.BuildingInfoTest"
+    },
+    {
+      "suite": "MetricHistoryTest",
+      "result": "Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.153 s -- in dev.jayms.MetricHistoryTest"
+    },
+    {
+      "suite": "CityMetricsTest",
+      "result": "Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s -- in dev.jayms.CityMetricsTest"
+    },
+    {
+      "suite": "MayorDashboardTest",
+      "result": "Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.248 s -- in dev.jayms.MayorDashboardTest"
+    },
+    {
+      "suite": "SpecialBuildingsTest",
+      "result": "Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.173 s -- in dev.jayms.SpecialBuildingsTest"
+    },
+    {
+      "suite": "CityToolsTest",
+      "result": "Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.300 s -- in dev.jayms.CityToolsTest"
+    },
+    {
+      "suite": "IsometricCameraTest",
+      "result": "Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.051 s -- in dev.jayms.IsometricCameraTest"
+    }
+  ],
+  "metricRenderingReport": "building-info-integrated-metric-rendering.json",
+  "sourceHashes": {
+    "src/main/java/dev/jayms/Main.java": "f871584ee858a58734629228e5ea57c87ca35f4ade72147a5dbef31049fb70ce",
+    "src/main/java/dev/jayms/ui/BuildingInfo.java": "62d6b48b60e2b5686796dc62e0e904dac0097fdb3ccb8e40d94545fb98c7d4be",
+    "src/main/java/dev/jayms/ui/MayorDashboard.java": "8b3e822d92055a8ed22ee3a427384e47cb32e35b2cd56156723029353c1b6f3a",
+    "src/main/java/dev/jayms/ui/MetricHistory.java": "6be7b1e19b85b8776498bd4acbf47fe58320c98cd54c34c56ffdf7a9891542e3",
+    "src/main/java/dev/jayms/ui/MetricTrends.java": "48a37d3d2e333099563cc081d0fd482b0b78be809d12dbf93c9ea1384cbfdf24",
+    "src/main/java/dev/jayms/ui/BuildingGuide.java": "3280cc6c6fe8825a806943ee9b5a958642066ff2801023f85d6e6f9db7bfd0a6",
+    "src/main/java/dev/jayms/net/city/SpecialBuildings.java": "d6799df3245e12dd79805c9f51e57a429b0e36a6ac45a99dfe19b01d6f79de87",
+    "src/test/java/dev/jayms/BuildingInfoTest.java": "8f448fb8e57de259a934255beadfaddfcc930a7a5e5f479354c236c23a066d3d",
+    "src/test/java/dev/jayms/CityMultiplayerTest.java": "32e419c70898bdf7170bb4180e2106b4f3e114e54fe0f3e98226da5d34e29eb0"
+  },
+  "ci": "Not yet run on the corrected published head. Controller must finish rebase/publication and require passing exact-head matrix checks and independent review; older CI remains historical.",
+  "currentMasterIntegrationReport": "building-info-current-master-integration.json"
+}

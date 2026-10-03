@@ -84,7 +84,13 @@ class CityMultiplayerTest {
                         () -> {
                             a.poll();
                             seen.addAll(b.poll());
+                            // Each client receives city snapshots independently. Wait for the
+                            // commanded road in both before comparing their authoritative state.
                             return b.city.roads().size() > roadCount
+                                    && a.city.roads().stream()
+                                            .anyMatch(r -> r.x() == 55 && r.z() == 24)
+                                    && b.city.roads().stream()
+                                            .anyMatch(r -> r.x() == 55 && r.z() == 24)
                                     && seen.stream()
                                             .anyMatch(
                                                     e ->
