@@ -1,0 +1,21 @@
+{
+  "status": "ready for controller continuation",
+  "changes": "Checkpoint and progress documents only; preserved all correction notes and task evidence links.",
+  "checks": [
+    {
+      "command": "git diff --check",
+      "exitCode": 0
+    },
+    {
+      "command": "git diff --name-only HEAD -- src deploy",
+      "exitCode": 0,
+      "result": "No source, test or harness changes"
+    },
+    {
+      "command": "Python JSON parsing and conflict-marker assertions on resolved documents",
+      "result": "passed"
+    }
+  ],
+  "priorVerification": "68 focused tests and 236 latest per-suite tests passed; Java 17 and combined rendering passed. Not rerun for document-only resolution.",
+  "controller": "Index remains unmerged until controller stages resolved documents; no staging, commit, push or rebase continuation performed."
+}

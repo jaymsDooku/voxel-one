@@ -2168,6 +2168,11 @@
           "kind": "report",
           "label": "company ownership inspector preservation.json",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/company-ownership-inspector-preservation.json"
+        },
+        {
+          "kind": "report",
+          "label": "company ownership settlement limits.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/company-ownership-settlement-limits.json"
         }
       ],
       "status": "in_progress",
