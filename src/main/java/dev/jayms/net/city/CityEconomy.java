@@ -564,7 +564,7 @@ public final class CityEconomy {
      */
     public void adopt(List<CityFrame.Building> buildings) {
         for (var b : buildings)
-            if (property(b.id()) == null) {
+            if (!SpecialBuildings.special(b.type()) && property(b.id()) == null) {
                 var dev =
                         companies().stream()
                                 .filter(c -> c.kind == DEVELOPER)

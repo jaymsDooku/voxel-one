@@ -90,7 +90,7 @@ public final class BuildingInfo {
         }
         int type = b == null ? p.type() : b.type();
         rows.add(
-                CitySimulation.ZONES[type]
+                (SpecialBuildings.special(type) ? SpecialBuildings.name(type) : CitySimulation.ZONES[type])
                         + (b == null ? " development plot #" + p.id() : " building #" + b.id()));
         if (b != null) rows.add("Address: " + city.addresses().buildingName(b.id()));
         rows.add(
@@ -100,6 +100,10 @@ public final class BuildingInfo {
                         + (b == null ? p.y() : b.y())
                         + ", "
                         + (b == null ? p.z() : b.z()));
+        if (b != null && SpecialBuildings.special(type)) {
+            rows.add("Owner: " + (b.zone() == 0 ? "City government" : owner(city, b.zone() == -2 ? CityEconomy.COMPANY : 0, b.stock())));
+            rows.add("Level: " + SpecialBuildings.level(type));
+        }
         if (property != null) {
             rows.add("Owner: " + owner(city, property.ownerKind(), property.owner()));
             rows.add(

@@ -1,0 +1,231 @@
+{
+  "revision": "Metric-history preservation and visual review evidence",
+  "reviewedBase": "8c524a18d18d7f685cdabb6a16c7ebbf57fb77f3",
+  "preservation": {
+    "byteIdenticalFiles": [
+      "dashboard/evidence/metric-trends-companies-1280x720.png",
+      "dashboard/evidence/metric-trends-companies-640x640.png",
+      "dashboard/evidence/metric-trends-government-1280x720.png",
+      "dashboard/evidence/metric-trends-government-640x640.png",
+      "dashboard/evidence/metric-trends-population-1280x720.png",
+      "dashboard/evidence/metric-trends-population-640x640.png",
+      "dashboard/evidence/metric-trends-rebase-verification.json",
+      "dashboard/evidence/metric-trends-recovery-companies-1280x720.png",
+      "dashboard/evidence/metric-trends-recovery-companies-640x640.png",
+      "dashboard/evidence/metric-trends-recovery-government-1280x720.png",
+      "dashboard/evidence/metric-trends-recovery-government-640x640.png",
+      "dashboard/evidence/metric-trends-recovery-population-1280x720.png",
+      "dashboard/evidence/metric-trends-recovery-population-640x640.png",
+      "dashboard/evidence/metric-trends-recovery-workplaces-1280x720.png",
+      "dashboard/evidence/metric-trends-recovery-workplaces-640x640.png",
+      "dashboard/evidence/metric-trends-recovery.json",
+      "dashboard/evidence/metric-trends-rendering.json",
+      "dashboard/evidence/metric-trends-tests.json",
+      "dashboard/evidence/metric-trends-workplaces-1280x720.png",
+      "dashboard/evidence/metric-trends-workplaces-640x640.png",
+      "deploy/MetricTrendsSmoke.java",
+      "deploy/run_metric_trends_smoke.py",
+      "src/main/java/dev/jayms/ui/MetricHistory.java",
+      "src/main/java/dev/jayms/ui/MetricTrends.java",
+      "src/test/java/dev/jayms/MetricHistoryTest.java",
+      "src/main/java/dev/jayms/ui/MayorDashboard.java",
+      "src/main/java/dev/jayms/ui/BusinessDashboard.java",
+      "src/main/java/dev/jayms/Main.java"
+    ],
+    "metricProgressEntriesRetained": 1,
+    "summary": "Current rebase applies special buildings onto the reviewed metric-history base. History source, Trends controls, Main observation, regression tests, smoke tools, evidence and progress entries retained."
+  },
+  "commands": [
+    {
+      "command": "/tmp/apache-maven-3.9.11/bin/mvn -o -Dmaven.repo.local=target/special-build-tools/m2 -DargLine=-Djava.io.tmpdir=$PWD/target/special-build-tools -Dtest=MetricHistoryTest,SpecialBuildingsTest,CityToolsTest,DemolitionTest,MayorDashboardTest,BusinessDashboardTest -q test",
+      "result": "Exit 0; 23 tests passed."
+    },
+    {
+      "command": "python3 deploy/run_metric_trends_smoke.py target/metric-restoration-evidence target/special-build-tools/m2",
+      "result": "Exit 0; eight fresh real OpenGL changing-chart captures passed."
+    },
+    {
+      "command": "python3 deploy/run_special_buildings_smoke.py dashboard/evidence target/special-build-tools/m2",
+      "result": "Exit 0; actual menu click, authoritative placement and two real engine/OpenGL captures passed."
+    },
+    {
+      "command": "git diff --check",
+      "result": "Exit 0."
+    }
+  ],
+  "totals": {
+    "tests": 23,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "suites": [
+    {
+      "suite": "MetricHistoryTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "SpecialBuildingsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "CityToolsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "DemolitionTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "MayorDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "BusinessDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "freshChartRendering": {
+    "result": "passed",
+    "fixture": "Synthetic changing snapshots, not live gameplay",
+    "platform": "Linux Mesa surfaceless EGL pbuffer",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "openGL": "4.5 (Core Profile) Mesa 22.3.6",
+    "captures": [
+      {
+        "file": "metric-trends-population-1280x720.png",
+        "width": 1280,
+        "height": 720,
+        "metric": "Population / All / population",
+        "initial": 4.0,
+        "latest": 11.0,
+        "samples": 80,
+        "chartPixels": 3328,
+        "chartRows": 304
+      },
+      {
+        "file": "metric-trends-companies-1280x720.png",
+        "width": 1280,
+        "height": 720,
+        "metric": "Companies / All / Operating cash ($)",
+        "initial": 500.0,
+        "latest": 1211.0,
+        "samples": 80,
+        "chartPixels": 2976,
+        "chartRows": 304
+      },
+      {
+        "file": "metric-trends-government-1280x720.png",
+        "width": 1280,
+        "height": 720,
+        "metric": "Government / City / Treasury ($)",
+        "initial": 10000.0,
+        "latest": 9052.0,
+        "samples": 80,
+        "chartPixels": 2976,
+        "chartRows": 304
+      },
+      {
+        "file": "metric-trends-workplaces-1280x720.png",
+        "width": 1280,
+        "height": 720,
+        "metric": "Workplaces / Mining Co | Building #2 #2 / revenue ($)",
+        "initial": 0.0,
+        "latest": 1185.0,
+        "samples": 80,
+        "chartPixels": 2976,
+        "chartRows": 304
+      },
+      {
+        "file": "metric-trends-population-640x640.png",
+        "width": 640,
+        "height": 640,
+        "metric": "Population / All / population",
+        "initial": 4.0,
+        "latest": 11.0,
+        "samples": 80,
+        "chartPixels": 1990,
+        "chartRows": 224
+      },
+      {
+        "file": "metric-trends-companies-640x640.png",
+        "width": 640,
+        "height": 640,
+        "metric": "Companies / All / Operating cash ($)",
+        "initial": 500.0,
+        "latest": 1211.0,
+        "samples": 80,
+        "chartPixels": 1670,
+        "chartRows": 224
+      },
+      {
+        "file": "metric-trends-government-640x640.png",
+        "width": 640,
+        "height": 640,
+        "metric": "Government / City / Treasury ($)",
+        "initial": 10000.0,
+        "latest": 9052.0,
+        "samples": 80,
+        "chartPixels": 1670,
+        "chartRows": 224
+      },
+      {
+        "file": "metric-trends-workplaces-640x640.png",
+        "width": 640,
+        "height": 640,
+        "metric": "Workplaces / Mining Co | Building #2 #2 / revenue ($)",
+        "initial": 0.0,
+        "latest": 1185.0,
+        "samples": 80,
+        "chartPixels": 1670,
+        "chartRows": 224
+      }
+    ],
+    "egl": "1.5",
+    "command": "python3 deploy/run_metric_trends_smoke.py target/metric-restoration-evidence target/special-build-tools/m2",
+    "checks": [
+      "Each selected metric changes between first and last sample",
+      "Each rendered chart has at least 300 mint pixels across at least 100 chart rows",
+      "No OpenGL errors in all eight captures"
+    ]
+  },
+  "buildingRendering": {
+    "result": "passed",
+    "fixture": "Synthetic flat road-accessible site; actual CityTools click, authoritative CitySimulation and engine voxel renderer; static captures, not live gameplay",
+    "platform": "Linux Mesa surfaceless EGL",
+    "changedWorldPixels": 91443,
+    "captures": [
+      "special-buildings-menu.png",
+      "special-buildings-placement.png"
+    ],
+    "egl": "1.5",
+    "command": "python3 deploy/run_special_buildings_smoke.py dashboard/evidence target/special-build-tools/m2",
+    "checks": [
+      "Actual menu click permits a City hall",
+      "Rendered placement changes at least 1000 world pixels",
+      "No OpenGL errors in both captures"
+    ]
+  },
+  "limitations": [
+    "Offscreen synthetic fixtures; no live graphical playthrough or F10 recording. Multiplayer sockets remain unverified."
+  ],
+  "handoff": "Resolved current progress conflict without staging or continuing the rebase. Controller owns stage/rebase continuation, commit/push/PR submission and independent review."
+}

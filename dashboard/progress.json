@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-03T13:23:46+00:00",
+  "updatedAt": "2026-10-03T18:10:03+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -37,6 +37,15 @@
       "status": "in_progress",
       "note": "Implementation ready for independent review. Demolition and related city regression tests passed; full verification encountered only sandbox socket errors. Evidence saved locally; no publication or deployment performed.",
       "updatedAt": "2026-10-03T07:53:55+00:00"
+    },
+    {
+      "id": "62396263643165632d613139372d343964312d393932662d616537663165333133383366",
+      "title": "Special building permits and placement",
+      "description": "Implementing catalog, ownership, levels, and authoritative placement checks.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Review revision ready: metric-history source, controls, tests, tooling, evidence and milestone retained from reviewed base. Combined 23 tests and eight chart renders passed. Actual menu and placement OpenGL screenshots saved; controller stages and continues rebase. Evidence: special-buildings-metric-integration-tests.json.",
+      "updatedAt": "2026-10-03T18:10:03+00:00"
     },
     {
       "id": "8fdb8e5d-2133-4c4f-827d-e7d190f01db6",

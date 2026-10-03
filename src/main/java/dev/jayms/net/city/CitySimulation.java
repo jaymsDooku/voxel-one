@@ -706,7 +706,7 @@ public final class CitySimulation {
                     }
                 if (h.job == 0)
                     for (var b : buildings)
-                        if (b.type() != 0
+                        if (b.type() != 0 && !SpecialBuildings.special(b.type())
                                 && economy.property(b.id()).operator() != 0
                                 && occupants(b.id(), false) < (b.type() == 1 ? 2 : b.capacity())) {
                             h.job = b.id();
@@ -992,6 +992,7 @@ public final class CitySimulation {
             return switch (c.kind()) {
                 case CityCommand.ROAD -> road(c.points());
                 case CityCommand.ZONE -> zone(c.value(), new Polygon(c.points()));
+                case CityCommand.SPECIAL -> special(c);
                 case CityCommand.RIDE -> ride(player, c.value(), pose);
                 case CityCommand.DEMOLISH -> demolish(c.value());
                 default -> "Unknown city tool";
@@ -1015,7 +1016,9 @@ public final class CitySimulation {
         var company = property == null ? null : economy.company(property.operator());
         int kind = company == null ? b.type() : company.kind;
         var edits = new ArrayList<Protocol.Edit>();
-        for (var e : StructureBlueprint.generate(b.type(), kind, b.x(), b.y(), b.z()))
+        for (var e : SpecialBuildings.special(b.type())
+                ? StructureBlueprint.special(b.type(), b.x(), b.y(), b.z())
+                : StructureBlueprint.generate(b.type(), kind, b.x(), b.y(), b.z()))
             // Excavated mine shafts are terrain, not structure to remove.
             if (e.y() >= b.y()) edits.add(e.withType(0));
         // Crops and livestock pens may extend beyond the barn blueprint.
@@ -1046,6 +1049,51 @@ public final class CitySimulation {
         return "Building demolished; zoned land can redevelop (no material refund)";
     }
 
+    private boolean specialCell(int x, int z) {
+        return buildings.stream().anyMatch(b -> SpecialBuildings.special(b.type())
+                && x >= b.x() && x < b.x() + 6 && z >= b.z()-1 && z <= b.z()+7);
+    }
+
+    private String special(CityCommand command) {
+        int type = command.value();
+        if (!SpecialBuildings.special(type) || command.points().size() != 1 || buildings.size() >= 512)
+            throw new IllegalArgumentException("Invalid special building permit");
+        int kind = command.ownerKind(), id = command.ownerId();
+        var snapshot = frame();
+        if (kind < 0 || kind > 2
+                || (kind == 0 && id != 0)
+                || (kind == 1 && snapshot.citizens().stream().noneMatch(c -> c.id() == id))
+                || (kind == 2 && snapshot.economy().firms().stream().noneMatch(f -> f.id() == id)))
+            throw new IllegalArgumentException("Select an existing owner");
+        int x = (int)Math.floor(command.points().get(0).x()), z = (int)Math.floor(command.points().get(0).z());
+        boolean access = false;
+        if (grade + 7 > Terrain.MAX_Y) throw new IllegalArgumentException("Building exceeds world height");
+        if (economy.overlaps(x, z, 6, 7)) throw new IllegalArgumentException("Building overlaps an owned plot");
+        for (int dx = 0; dx < 6; dx++) for (int dz = -1; dz <= 7; dz++) {
+            int cx = x+dx, cz = z+dz;
+            if (Math.abs((long)cx-8)>256 || Math.abs((long)cz-24)>256)
+                throw new IllegalArgumentException("Building outside city limits");
+            if (roads.containsKey(new Cell(cx,cz))) throw new IllegalArgumentException("Building cannot cover roads");
+            for (var zone : zones) if (zone.polygon().contains(cx+.5f,cz+.5f))
+                throw new IllegalArgumentException("Building cannot cover zones");
+            for (var b : buildings) if (cx >= b.x()-1 && cx <= b.x()+StructureBlueprint.width(b.type())
+                    && cz >= b.z()-2 && cz <= b.z()+StructureBlueprint.depth(b.type()))
+                throw new IllegalArgumentException("Building overlaps another building or entrance");
+            if (dz == -1 && roads.containsKey(new Cell(cx,cz-1))) access = true;
+            if (ground.occupied(cx,grade+1,cz,1,1)) throw new IllegalArgumentException("Building would intersect a player");
+            // level() clears the whole column; validate it before any mutation.
+            for (int y=grade+1; y<=Terrain.MAX_Y; y++) if (ground.type(cx,y,cz)!=0)
+                throw new IllegalArgumentException("Clear the building site first");
+        }
+        if (!access) throw new IllegalArgumentException("Front entrance must touch a road");
+        var edits = new ArrayList<Protocol.Edit>();
+        for (int dx=0;dx<6;dx++) for(int dz=-1;dz<=7;dz++) level(x+dx,z+dz,edits);
+        edits.addAll(StructureBlueprint.special(type,x,grade+1,z));
+        ground.apply(edits);
+        buildings.add(new CityFrame.Building(++buildingIds,-kind,type,x,grade+1,z,8*SpecialBuildings.level(type),id));
+        return "Permitted " + SpecialBuildings.name(type);
+    }
+
     private String road(List<Point> points) {
         if (points.size() < 2) throw new IllegalArgumentException("Roads need two endpoints");
         var cells = new LinkedHashSet<Cell>();
@@ -1067,6 +1115,7 @@ public final class CitySimulation {
         if (cells.size() > 768 || roads.size() + cells.size() > 8192)
             throw new IllegalArgumentException("Road too long: use shorter sections");
         for (var cell : cells) {
+            if (specialCell(cell.x(), cell.z())) throw new IllegalArgumentException("Road cannot cover a special building");
             if (Math.abs(cell.x() - 8) > 256 || Math.abs(cell.z() - 24) > 256)
                 throw new IllegalArgumentException("Road outside city limits");
             for (var zone : zones)
@@ -1118,6 +1167,7 @@ public final class CitySimulation {
         var cells = polygon.cells();
         boolean adjacent = false;
         for (var c : cells) {
+            if (specialCell(c.x(), c.z())) throw new IllegalArgumentException("Zones cannot cover special buildings");
             if (roads.containsKey(c))
                 throw new IllegalArgumentException("Zones cannot cover roads");
             if (neighbours(c).stream().anyMatch(roads::containsKey)) adjacent = true;
