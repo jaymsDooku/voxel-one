@@ -993,11 +993,57 @@ public final class CitySimulation {
                 case CityCommand.ROAD -> road(c.points());
                 case CityCommand.ZONE -> zone(c.value(), new Polygon(c.points()));
                 case CityCommand.RIDE -> ride(player, c.value(), pose);
+                case CityCommand.DEMOLISH -> demolish(c.value());
                 default -> "Unknown city tool";
             };
         } catch (IllegalArgumentException e) {
             return e.getMessage();
         }
+    }
+
+    private String demolish(int id) {
+        var b = building(id);
+        if (b == null) return "Building is no longer available";
+        if (ground.playerOccupied(
+                b.x(),
+                b.y(),
+                b.z(),
+                StructureBlueprint.width(b.type()),
+                StructureBlueprint.depth(b.type())))
+            return "Move players out of the building before demolition";
+        var property = economy.property(id);
+        var company = property == null ? null : economy.company(property.operator());
+        int kind = company == null ? b.type() : company.kind;
+        var edits = new ArrayList<Protocol.Edit>();
+        for (var e : StructureBlueprint.generate(b.type(), kind, b.x(), b.y(), b.z()))
+            // Excavated mine shafts are terrain, not structure to remove.
+            if (e.y() >= b.y()) edits.add(e.withType(0));
+        // Crops and livestock pens may extend beyond the barn blueprint.
+        if (b.type() == 3)
+            for (int x = 0; x < StructureBlueprint.width(3); x++)
+                for (int z = 0; z < StructureBlueprint.depth(3); z++)
+                    edits.add(new Protocol.Edit(b.x() + x, b.y() + 1, b.z() + z, 0));
+        ground.apply(edits);
+        buildings.remove(b);
+        addresses.demolish(id);
+        for (var plot : new ArrayList<>(economy.plots))
+            if (plot.building() == id) {
+                economy.resources.forgetProject(plot.id());
+                economy.plots.remove(plot);
+            }
+        economy.properties.removeIf(p -> p.building() == id);
+        economy.contracts.removeIf(c -> c.building() == id);
+        economy.businesses.close(id);
+        agriculture.demolish(id);
+        for (int citizen : ecs.query(Household.class, Travel.class)) {
+            var h = ecs.get(citizen, Household.class);
+            var t = ecs.get(citizen, Travel.class);
+            if (h.home == id) h.home = 0;
+            if (h.job == id) h.job = 0;
+            t.target = -9999;
+            t.route.clear();
+        }
+        return "Building demolished; zoned land can redevelop (no material refund)";
     }
 
     private String road(List<Point> points) {

@@ -138,6 +138,10 @@ public final class CityBusinesses {
         return staffIndex % 2 == 0 ? hour >= 6 && hour < 14 : hour >= 14 && hour < 22;
     }
 
+    public void close(int building) {
+        accounts.remove(building);
+    }
+
     public void open(int building, int company) {
         accounts.computeIfAbsent(building, b -> new Account(b, company, day));
     }

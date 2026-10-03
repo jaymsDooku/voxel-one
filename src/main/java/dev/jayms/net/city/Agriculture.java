@@ -85,6 +85,16 @@ public final class Agriculture {
     private final List<Farm> farms = new ArrayList<>();
     private boolean enabled, pending;
 
+    public void demolish(int building) {
+        fields.removeIf(f -> f.building() == building);
+        farms.removeIf(f -> f.building() == building);
+        for (var cow : new ArrayList<>(cows))
+            if (cow.building() == building) {
+                ecs.remove(cow.id());
+                cows.remove(cow);
+            }
+    }
+
     public Agriculture(Ecs ecs, State state) {
         this.ecs = ecs;
         enabled = state.enabled;

@@ -205,6 +205,10 @@ public final class CityMaterials {
                                 requirements(plot.type(), businessKind)));
     }
 
+    public void forgetProject(int plot) {
+        projects.remove(plot);
+    }
+
     public Project project(int plot) {
         return projects.get(plot);
     }

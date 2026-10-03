@@ -304,7 +304,9 @@ public class Main {
                                     (float) mouseX * framebufferWidth / size[0],
                                     (float) mouseY * framebufferHeight / size[1],
                                     framebufferWidth,
-                                    framebufferHeight);
+                                    framebufferHeight,
+                                    city(),
+                                    this::cityCommand);
                             if (!buildingInfo.open) setCaptured(true);
                         }
                         return;

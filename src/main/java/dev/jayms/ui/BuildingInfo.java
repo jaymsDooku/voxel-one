@@ -6,15 +6,16 @@ import dev.jayms.net.city.*;
 
 import java.util.*;
 
-/** Read-only, live property inspector shared by first-person and isometric picking. */
+/** Live property inspector shared by first-person and isometric picking. */
 public final class BuildingInfo {
-    public boolean open;
+    public boolean open, confirmDemolition;
     public int building, plot, firstRow;
 
     public void show(int building, int plot) {
         this.building = building;
         this.plot = plot;
         firstRow = 0;
+        confirmDemolition = false;
         open = building != 0 || plot != 0;
     }
 
@@ -34,6 +35,25 @@ public final class BuildingInfo {
     public void click(float x, float y, int w, int h) {
         float left = (w - Math.min(760, w - 32)) / 2f;
         if (y >= 34 && y <= 72 && x >= w - left - 92 && x <= w - left - 12) open = false;
+    }
+
+    public void click(
+            float x,
+            float y,
+            int w,
+            int h,
+            CityFrame city,
+            java.util.function.Consumer<CityCommand> send) {
+        click(x, y, w, h);
+        float left = (w - Math.min(760, w - 32)) / 2f;
+        if (!open || x < left + 18 || x > left + 238 || y < h - 102 || y > h - 64) return;
+        if (city.buildings().stream().noneMatch(b -> b.id() == building)) return;
+        if (!confirmDemolition) confirmDemolition = true;
+        else {
+            send.accept(new CityCommand(CityCommand.DEMOLISH, building, List.of()));
+            open = false;
+            confirmDemolition = false;
+        }
     }
 
     public static String owner(CityFrame city, int kind, int id) {
@@ -291,13 +311,22 @@ public final class BuildingInfo {
         ui.rectangle(w - left - 92, 34, 80, 38, .13f, .2f, .27f, 1);
         ui.text("Close", w - left - 82, 47, 1.4f);
         var rows = lines(city);
-        int count = Math.max(1, (h - 150) / 25);
+        int count = Math.max(1, (h - 210) / 25);
         firstRow = Math.min(firstRow, Math.max(0, rows.size() - count));
         for (int i = 0; i < Math.min(count, rows.size() - firstRow); i++) {
             String line = rows.get(firstRow + i);
             while (!line.isEmpty() && ui.textWidth(line, 1.25f) > width - 36)
                 line = line.substring(0, line.length() - 1);
             ui.text(line, left + 18, 92 + i * 25, 1.25f);
+        }
+        if (city.buildings().stream().anyMatch(b -> b.id() == building)) {
+            ui.rectangle(left + 18, h - 102, 220, 38, .55f, .12f, .1f, 1);
+            ui.text(
+                    confirmDemolition ? "Confirm demolition" : "Demolish building",
+                    left + 28,
+                    h - 90,
+                    1.3f);
+            ui.text("No refund; zoned land can redevelop", left + 248, h - 90, 1.0f);
         }
         ui.text(
                 "Scroll / arrows for details | Esc to close | Simulation continues",
