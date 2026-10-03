@@ -1,0 +1,31 @@
+{
+  "submittedHead": "2161ba6dd458e8aeb970a876b6860b64f4943dc4",
+  "pr": "https://github.com/jaymsDooku/voxel-one/pull/3",
+  "publicationConfirmed": {
+    "localHead": "2161ba6dd458e8aeb970a876b6860b64f4943dc4",
+    "openPRHead": "2161ba6dd458e8aeb970a876b6860b64f4943dc4",
+    "prBase": "af30736b53d1784330b4dec00809f94117f84853",
+    "cleanCheckoutBeforeChanges": true
+  },
+  "ci": {
+    "run": "https://github.com/jaymsDooku/voxel-one/actions/runs/37125658451",
+    "linux": "success",
+    "windows": "failure",
+    "macIntel": "cancelled",
+    "macArm": "cancelled",
+    "windowsSummary": "178 tests: 1 failure, 0 errors. CityMultiplayerTest line 95 compared client road lists while the requesting client had not received the road update yet.",
+    "fix": "Wait for the commanded road cell (55,24) in both clients before asserting exact road-list and road-spending equality. Original equality assertions and timeout retained."
+  },
+  "localValidation": {
+    "command": "/tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=target/maven-repository -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=CityMultiplayerTest,BuildingInfoTest test",
+    "exitCode": 1,
+    "inspectorTests": "4 passed, zero failures/errors",
+    "multiplayerTest": "Unable to bind loopback server: Socket Operation not permitted; test did not reach road-synchronization assertions.",
+    "compile": "passed as part of test run",
+    "diffCheck": "passed",
+    "renderedEvidence": "Preserved 81 actual renders at 640x640 and 1280x720. Archive integrity passed; all 11 representative PNGs match archive entries. Production inspector source unchanged."
+  },
+  "nextStep": "Controller commits/pushes the synchronization correction, refreshes existing PR 3 and runs hosted CI. Independent reviewer must check the new submitted head and require passing matrix checks before merge.",
+  "historical": true,
+  "applicability": "Older-head CI diagnosis only; not evidence of hosted-CI success for this corrected current-master integration."
+}

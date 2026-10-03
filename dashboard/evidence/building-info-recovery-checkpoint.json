@@ -1,5 +1,5 @@
 {
-  "status": "current-master-metadata-replay-resolved",
+  "status": "current-master-report-replay-resolved",
   "baseHead": "49ac21a14286e1e258d6178d8a99e8b381afd75e",
   "savedFeatureHead": "0d67f0b76acb07e5495c9ac5241b428e35760abf",
   "resolvedFiles": [
@@ -12,7 +12,7 @@
     "Tabbed inspector, full-text wrapping and indented-name regression fix",
     "Current master progress entries and feature progress/evidence"
   ],
-  "controllerNextStep": "Stage preserved metadata resolutions and updated current-master report, then continue the pending rebase. Retain ownership fix, regression test, 117-render evidence, all protected master features and milestones. Hosted CI and independent review required on corrected published head.",
+  "controllerNextStep": "Stage preserved report/progress resolutions, historical-CI annotation and updated current-master report; then continue rebase. Keep citizen ownership fix, all concurrent features/master milestones and 117-render evidence. Require hosted CI and independent review on corrected published head.",
   "checks": {
     "testsPassed": 38,
     "packaging": "passed",
@@ -24,7 +24,7 @@
     "multiplayer": "blocked by sandbox socket permission",
     "hostedCI": "pending after publication",
     "diffCheck": "passed",
-    "latestReplay": "72 protected files and all source hashes/milestones verified; archive/PNG/JSON checks passed. Implementation unchanged; tests not repeated."
+    "latestReplay": "72 protected files/source hashes/master entries preserved; JSON/archive/PNG checks passed. Implementation unchanged; no repeated tests."
   },
   "report": "dashboard/evidence/building-information-tests.json",
   "protectedBaseFiles": [
@@ -101,5 +101,5 @@
     "src/test/java/dev/jayms/MetricHistoryTest.java",
     "src/test/java/dev/jayms/SpecialBuildingsTest.java"
   ],
-  "validatedReplayHead": "7b207e212679e7cc2713991b322ee0f125dafc89"
+  "validatedReplayHead": "065b519b2e847b5d131c1621ef2e43e313fbbcc8"
 }

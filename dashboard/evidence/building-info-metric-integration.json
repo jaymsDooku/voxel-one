@@ -150,14 +150,14 @@
   "ci": "Not yet run on the corrected published head. Controller must finish rebase/publication and require passing exact-head matrix checks and independent review; older CI remains historical.",
   "currentMasterIntegrationReport": "building-info-current-master-integration.json",
   "latestReplayResolution": {
-    "headBeforeControllerContinuation": "7b207e212679e7cc2713991b322ee0f125dafc89",
+    "headBeforeControllerContinuation": "065b519b2e847b5d131c1621ef2e43e313fbbcc8",
     "resolvedFiles": [
       "dashboard/evidence/building-info-metric-integration.json",
       "dashboard/evidence/building-info-recovery-checkpoint.json",
       "dashboard/progress.json"
     ],
-    "result": "Newer current-master integration reports and milestones retained. Code and tools unchanged.",
-    "verification": "72 protected current-master files, all source hashes and master milestones verified; zero base deletions; 117-capture archive and representative PNGs verified; resolved JSON parses without conflict markers. Prior 38-test/package and rendering results retained without rerunning tests.",
-    "pending": "Controller staging/rebase continuation, corrected-head hosted CI, independent review."
+    "result": "Newer master-preserving reports and progress retained; source, tests and tools unchanged.",
+    "verification": "72 protected master files and all source hashes/master milestones verified; no deletions; archive and PNG checks passed; JSON valid and conflict markers removed.",
+    "testApplicability": "Previously passing 38 tests/package, 117 inspector renders and 8 metric-chart renders retained. Tests not repeated because implementation is unchanged. Multiplayer socket restriction and corrected-head hosted CI requirement remain."
   }
 }

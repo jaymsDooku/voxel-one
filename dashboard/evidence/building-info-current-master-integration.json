@@ -168,5 +168,16 @@
     "result": "Newer current-master integration reports and milestones retained. Code and tools unchanged.",
     "verification": "72 protected current-master files, all source hashes and master milestones verified; zero base deletions; 117-capture archive and representative PNGs verified; resolved JSON parses without conflict markers. Prior 38-test/package and rendering results retained without rerunning tests.",
     "pending": "Controller staging/rebase continuation, corrected-head hosted CI, independent review."
+  },
+  "latestReportReplayResolution": {
+    "headBeforeControllerContinuation": "065b519b2e847b5d131c1621ef2e43e313fbbcc8",
+    "resolvedFiles": [
+      "dashboard/evidence/building-info-metric-integration.json",
+      "dashboard/evidence/building-info-recovery-checkpoint.json",
+      "dashboard/progress.json"
+    ],
+    "result": "Newer master-preserving reports and progress retained; source, tests and tools unchanged.",
+    "verification": "72 protected master files and all source hashes/master milestones verified; no deletions; archive and PNG checks passed; JSON valid and conflict markers removed.",
+    "testApplicability": "Previously passing 38 tests/package, 117 inspector renders and 8 metric-chart renders retained. Tests not repeated because implementation is unchanged. Multiplayer socket restriction and corrected-head hosted CI requirement remain."
   }
 }

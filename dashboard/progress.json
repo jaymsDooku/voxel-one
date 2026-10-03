@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-03T23:20:21+00:00",
+  "updatedAt": "2026-10-03T23:21:28+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -116,8 +116,8 @@
         }
       ],
       "status": "in_progress",
-      "note": "Resolved three metadata replay conflicts; preserved ownership fix, concurrent features/milestones and latest 38-test/117-render evidence. All 72 protected master files, source hashes and archives verified. Implementation unchanged; controller continuation and corrected-head hosted CI required.",
-      "updatedAt": "2026-10-03T23:20:21+00:00"
+      "note": "Resolved three report/progress replay conflicts, preserving current-master integration and marking older CI historical. Source/tests/tools unchanged; 72 protected files, master milestones and 117-capture evidence verified. Prior 38-test verification retained; controller continuation and corrected-head hosted CI required.",
+      "updatedAt": "2026-10-03T23:21:28+00:00"
     },
     {
       "id": "36646132363664302d343539632d346638662d613536642d326361383834333232363834",
