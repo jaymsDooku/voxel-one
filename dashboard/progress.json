@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-03T18:43:22+00:00",
+  "updatedAt": "2026-10-03T23:15:16+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -1893,6 +1893,15 @@
       "status": "complete",
       "note": "Playtest 28 committed, published and deployed. Actual opaque octree leaves block skylight, sunlight, reflected sky and RGB LEDs; glass and air transmit. All 166 tests pass on Windows, Linux and both Macs. GPU hidden-light and sunlight tests change zero pixels across a solid 1/16 wall. Windows updater verified; both VPS worlds, accounts and TLS preserved.",
       "updatedAt": "2026-10-02T21:16:38+00:00"
+    },
+    {
+      "id": "33643431663362342d363034302d346465632d393638662d306463653965366335303339",
+      "title": "Supply and demand market pricing",
+      "description": "Implementing market quotes and price-sensitive purchasing with regression coverage.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Building-guide preservation review addressed: guide, hover/snapping integration, tests, tools, evidence and all base records retained. Combined Maven verify passed 185 tests with zero failures/errors; packages built. Evidence: dashboard/evidence/market-guide-combined-tests.json. Awaiting controller rebase continuation and independent review; socket tests require CI.",
+      "updatedAt": "2026-10-03T23:15:16+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

@@ -75,6 +75,8 @@ public final class CitySimulation {
     private final List<CityFrame.Building> buildings = new ArrayList<>();
     private double elapsed, accumulator, nextBuild;
     private int zoneIds, buildingIds, grade;
+    private long marketDay = -1;
+    private int marketBuildings = -1;
     private CityAddresses addresses = new CityAddresses(CityAddresses.empty());
     public final CityEconomy economy;
     private boolean founding = true, migrateMaterials;
@@ -289,7 +291,14 @@ public final class CitySimulation {
         economy.businesses.beginDay(config.time(elapsed).day());
         economy.rent(dt / config.daySeconds());
         finishProjects();
+        boolean marketReview = marketDay != config.time(elapsed).day();
+        if (marketReview || marketBuildings != buildings.size()) {
+            marketDay = config.time(elapsed).day();
+            marketBuildings = buildings.size();
+            economy.priceProperties(buildings);
+        }
         assign();
+        if (marketReview || hasUnpaidWorkers()) chooseJobs(marketReview);
         for (int id : ecs.query(Position.class, Household.class, Needs.class, Travel.class)) {
             var p = ecs.get(id, Position.class);
             var h = ecs.get(id, Household.class);
@@ -311,8 +320,7 @@ public final class CitySimulation {
             }
             boolean working = onShift(id, time);
             float mealThreshold = working ? 65 : 85;
-            int mealShop =
-                    time.shopsOpen() && n.hunger < mealThreshold && n.money >= 3 ? find(1) : 0;
+            int mealShop = time.shopsOpen() && n.hunger < mealThreshold ? cheapestMeal(n, time) : 0;
             boolean eating = mealShop != 0;
             int target = eating ? mealShop : working && h.job != 0 ? h.job : h.home;
             if (target == 0) {
@@ -359,7 +367,10 @@ public final class CitySimulation {
                                     .mapToLong(CityMaterials.Amount::units)
                                     .sum();
                     if (economy.resources.available(0, project.developer(), Blocks.DIRT) < soil
-                            && economy.wage(project.developer(), hours * 2.1, n)) {
+                            && economy.wage(
+                                    project.developer(),
+                                    hours * economy.labourRate(project.developer(), 2.1),
+                                    n)) {
                         var prod = economy.resources.production(project.developer());
                         double progress = prod.progress() + hours * 64;
                         int digs = (int) progress;
@@ -382,7 +393,10 @@ public final class CitySimulation {
                     } else t.activity = "Farm needs building materials";
                 } else if (project != null
                         && economy.resources.reserve(project)
-                        && economy.wage(project.developer(), dt * .15, n)) {
+                        && economy.wage(
+                                project.developer(),
+                                hours * economy.labourRate(project.developer(), 1.8),
+                                n)) {
                     economy.work(project.id(), dt);
                     t.activity =
                             project.type() == 3 ? "Building family farm" : "Building for developer";
@@ -396,12 +410,13 @@ public final class CitySimulation {
                         firm.kind == CityEconomy.MINE
                                 ? "Working in mine"
                                 : "Working: " + CityMaterials.sector(firm.kind);
-                if (!economy.wage(company, hours * (1.8 + h.cohort * .3), n)) {
+                double pay = hours * economy.labourRate(company, 1.8 + h.cohort * .3);
+                if (!economy.wage(company, pay, n)) {
                     economy.businesses.missedWage(account);
                     t.activity = "Employer cannot afford wages";
                     continue;
                 }
-                economy.businesses.wage(account, hours * (1.8 + h.cohort * .3), hours);
+                economy.businesses.wage(account, pay, hours);
                 if (b.type() == 3) agriculture.work(b, economy, hours, ground);
                 else if (!agriculture.enabled() || !CityMaterials.farmer(firm.kind))
                     harvesting.work(economy, firm, hours);
@@ -416,39 +431,33 @@ public final class CitySimulation {
                                             / CityMaterials.UNIT));
             } else if (b.type() == 1 && working && !eating) {
                 t.activity =
-                        economy.businessWage(b.id(), hours * 1.8, hours, n)
+                        economy.businessWage(
+                                        b.id(),
+                                        hours
+                                                * economy.labourRate(
+                                                        economy.property(b.id()).operator(), 1.8),
+                                        hours,
+                                        n)
                                 ? "Working in shop"
                                 : "Employer cannot afford wages";
             } else if (b.type() == 1 && eating) {
-                int food = availableFood(economy.property(b.id()).operator());
-                if (food != 0
-                        && n.hunger < 95
-                        && n.money >= 3
-                        && b.stock() > 0
-                        && shopReady(b, time)
-                        && economy.resources.available(0, economy.property(b.id()).operator(), food)
-                                >= CityMaterials.UNIT) {
-                    n.money -= 3;
-                    economy.resources.remove(
-                            0, economy.property(b.id()).operator(), food, CityMaterials.UNIT);
-                    economy.meal(b.id(), 3);
-                    n.hunger = Math.min(100, n.hunger + economy.resources.catalog.nutrition(food));
-                    replaceStock(b, b.stock() - 1);
+                var food =
+                        shopReady(b, time) && n.hunger < 95 && b.stock() > 0
+                                ? economy.buyMeal(id, b.id(), mealNutrition(n))
+                                : null;
+                if (food != null) {
+                    replaceStock(b, Math.max(0, b.stock() - food.portions()));
                     t.target = -9999;
                     t.mealUntil = elapsed + Math.min(3, config.daySeconds() / 240);
-                }
-                t.activity =
-                        n.money < 3
-                                ? "Cannot afford food"
-                                : b.stock() == 0
-                                        ? "Shop needs farm deliveries"
-                                        : !shopReady(b, time)
-                                                ? "Waiting for shop staff"
-                                                : "Eating at shop";
-                if (n.money < 3 && h.job != 0) {
-                    t.target = h.job;
-                    var job = workplace(h.job);
-                    journey(id, p, job, t);
+                    t.activity = "Eating at shop";
+                } else {
+                    t.activity =
+                            b.stock() == 0
+                                    ? "Shop needs farm deliveries"
+                                    : !shopReady(b, time)
+                                            ? "Waiting for shop staff"
+                                            : "Cannot afford food";
+                    t.target = -9999;
                 }
             } else
                 t.activity =
@@ -501,10 +510,30 @@ public final class CitySimulation {
                             b.id(), b.zone(), b.type(), b.x(), b.y(), b.z(), b.capacity(), stock));
     }
 
-    private int availableFood(int company) {
-        return economy.resources.catalog.food().stream()
-                .filter(id -> economy.resources.available(0, company, id) >= CityMaterials.UNIT)
-                .max(Comparator.comparingInt(id -> economy.resources.catalog.nutrition(id)))
+    private int mealNutrition(Needs needs) {
+        return (int) Math.max(1, Math.min(35, Math.ceil(100 - needs.hunger)));
+    }
+
+    private int cheapestMeal(Needs needs, CityTime time) {
+        return buildings.stream()
+                .filter(b -> b.type() == 1 && b.stock() > 0 && shopReady(b, time))
+                .filter(
+                        b ->
+                                economy.cheapestFood(
+                                                economy.property(b.id()).operator(),
+                                                needs.money,
+                                                mealNutrition(needs))
+                                        != null)
+                .min(
+                        Comparator.comparingDouble(
+                                        (CityFrame.Building b) ->
+                                                economy.cheapestFood(
+                                                                economy.property(b.id()).operator(),
+                                                                needs.money,
+                                                                mealNutrition(needs))
+                                                        .price())
+                                .thenComparingInt(CityFrame.Building::id))
+                .map(CityFrame.Building::id)
                 .orElse(0);
     }
 
@@ -530,9 +559,22 @@ public final class CitySimulation {
                                 .mapToLong(CityFrame.Building::stock)
                                 .sum();
                 if (agriculture.enabled()) {
-                    for (int food : economy.resources.catalog.food()) {
-                        if (food == CityMaterials.FOOD) continue;
-                        economy.purchase(p.operator(), food, 16 * CityMaterials.UNIT);
+                    var foods =
+                            economy.resources.catalog.food().stream()
+                                    .filter(food -> food != CityMaterials.FOOD)
+                                    .sorted(
+                                            Comparator.comparingDouble(
+                                                    (Integer food) ->
+                                                            economy.marketPrice(food)
+                                                                    / economy.resources.catalog
+                                                                            .nutrition(food)))
+                                    .toList();
+                    for (int food : foods) {
+                        if (foodStock(p.operator()) >= allocated + 16) break;
+                        economy.purchase(
+                                p.operator(),
+                                food,
+                                Math.max(16, allocated + 16) * CityMaterials.UNIT);
                     }
                     if (foodStock(p.operator()) > allocated) replaceStock(b, b.stock() + 1);
                 } else if (economy.purchase(
@@ -570,7 +612,17 @@ public final class CitySimulation {
                     travel.route.clear();
                 }
             }
-        for (var b : buildings) if (b.type() != 0) economy.operate(b);
+        for (var b :
+                buildings.stream()
+                        .filter(b -> b.type() != 0 && economy.property(b.id()) != null)
+                        .sorted(
+                                Comparator.comparingDouble(
+                                                (CityFrame.Building b) ->
+                                                        b.type() == 1
+                                                                ? economy.property(b.id()).price()
+                                                                : economy.property(b.id()).rent())
+                                        .thenComparingInt(CityFrame.Building::id))
+                        .toList()) economy.operate(b);
         assignFarmers();
         // Mobile crews can harvest before their own premises exist, avoiding a supply deadlock.
         for (var firm : economy.companies())
@@ -609,6 +661,7 @@ public final class CitySimulation {
                     var h = ecs.get(id, Household.class);
                     if (agriculture.company(id) != 0) continue;
                     int current = employer(h.job);
+                    if (!canPayJob(workplace, h.cohort)) continue;
                     if (h.job == 0
                             || h.job > 0
                                     && h.job < CityMaterials.YARD
@@ -630,6 +683,7 @@ public final class CitySimulation {
                     var h = ecs.get(id, Household.class);
                     if (agriculture.company(id) != 0) continue;
                     int company = employer(h.job);
+                    if (!canPayJob(b.id(), h.cohort)) continue;
                     if (h.job == 0
                             || h.job > 0
                                     && h.job < CityMaterials.YARD
@@ -648,6 +702,7 @@ public final class CitySimulation {
                     if (occupants(-plot.id(), false) >= 2) break;
                     var h = ecs.get(id, Household.class);
                     if (agriculture.company(id) != 0) continue;
+                    if (!canPayJob(-plot.id(), h.cohort)) continue;
                     if (h.job == 0
                             || h.job > 0
                                     && h.job < CityMaterials.YARD
@@ -676,7 +731,15 @@ public final class CitySimulation {
                 if (home == null || !economy.house(id, home)) h.home = 0;
             }
             if (h.home == 0) {
-                for (var b : buildings)
+                for (var b :
+                        buildings.stream()
+                                .filter(b -> b.type() == 0)
+                                .sorted(
+                                        Comparator.comparingDouble(
+                                                        (CityFrame.Building b) ->
+                                                                economy.housingCost(id, b.id()))
+                                                .thenComparingInt(CityFrame.Building::id))
+                                .toList())
                     if (b.type() == 0
                             && occupants(b.id(), true) < b.capacity()
                             && economy.house(id, b)) {
@@ -684,23 +747,14 @@ public final class CitySimulation {
                         break;
                     }
             }
-            if (h.home != 0
-                    && ecs.get(id, Needs.class).money >= 10
-                    && economy.resources.available(CityEconomy.CITIZEN, id, Blocks.WOOD)
-                            < CityMaterials.UNIT) {
-                for (var seller : economy.companies())
-                    if (seller.kind == CityMaterials.LOGGING)
-                        economy.trade(
-                                0,
-                                seller.id,
-                                CityEconomy.CITIZEN,
-                                id,
-                                Blocks.WOOD,
-                                CityMaterials.UNIT);
-            }
+            if (h.home != 0)
+                economy.purchase(CityEconomy.CITIZEN, id, Blocks.WOOD, CityMaterials.UNIT);
             if (h.job == 0) {
                 for (var plot : economy.plots)
-                    if (plot.building() == 0 && ready(plot) && occupants(-plot.id(), false) < 2) {
+                    if (plot.building() == 0
+                            && ready(plot)
+                            && occupants(-plot.id(), false) < 2
+                            && canPayJob(-plot.id(), h.cohort)) {
                         h.job = -plot.id();
                         break;
                     }
@@ -708,10 +762,91 @@ public final class CitySimulation {
                     for (var b : buildings)
                         if (b.type() != 0 && !SpecialBuildings.special(b.type())
                                 && economy.property(b.id()).operator() != 0
-                                && occupants(b.id(), false) < (b.type() == 1 ? 2 : b.capacity())) {
+                                && occupants(b.id(), false) < (b.type() == 1 ? 2 : b.capacity())
+                                && canPayJob(b.id(), h.cohort)) {
                             h.job = b.id();
                             break;
                         }
+            }
+        }
+    }
+
+    private double jobRate(int job, int cohort) {
+        var plot = job < 0 ? economy.project(-job) : null;
+        int company = plot == null ? employer(job) : plot.developer();
+        if (company == 0) return 0;
+        var b = building(job);
+        return economy.labourRate(
+                company, plot != null || b != null && b.type() == 1 ? 1.8 : 1.8 + cohort * .3);
+    }
+
+    private boolean canPayJob(int job, int cohort) {
+        var plot = job < 0 ? economy.project(-job) : null;
+        var firm = economy.company(plot == null ? employer(job) : plot.developer());
+        return firm != null && firm.cash >= jobRate(job, cohort);
+    }
+
+    private boolean hasUnpaidWorkers() {
+        return ecs.query(Household.class).stream()
+                .anyMatch(
+                        id -> {
+                            var h = ecs.get(id, Household.class);
+                            return h.job != 0
+                                    && agriculture.company(id) == 0
+                                    && !canPayJob(h.job, h.cohort);
+                        });
+    }
+
+    /** Paid crews review daily; unpaid workers can seek a funded offer on any tick. */
+    private void chooseJobs(boolean reviewPaid) {
+        var offers = new LinkedHashMap<Integer, Integer>();
+        for (var plot : economy.plots)
+            if (plot.building() == 0 && ready(plot)) offers.put(-plot.id(), 2);
+        for (var b : buildings)
+            if (b.type() != 0
+                    && economy.property(b.id()) != null
+                    && economy.property(b.id()).operator() != 0)
+                offers.put(b.id(), b.type() == 1 ? 2 : b.capacity());
+        for (var firm : economy.companies()) {
+            if (firm.kind < 2 || agriculture.enabled() && CityMaterials.farmer(firm.kind)) continue;
+            int yard = CityMaterials.YARD + firm.id;
+            if (buildings.stream()
+                            .noneMatch(b -> economy.property(b.id()) != null
+                                    && economy.property(b.id()).operator() == firm.id)
+                    && economy.resources.catalog.recipes(firm.kind).stream()
+                            .noneMatch(ProductionCatalog.Recipe::requiresFactory))
+                offers.put(yard, 1);
+        }
+        for (int id : ecs.query(Household.class)) {
+            var h = ecs.get(id, Household.class);
+            if (agriculture.company(id) != 0) continue;
+            var current = building(h.job);
+            int minimum = current != null && current.type() == 1 ? 2 : 1;
+            boolean paid = canPayJob(h.job, h.cohort);
+            if (paid && (!reviewPaid || occupants(h.job, false) <= minimum)) continue;
+            int best =
+                    offers.keySet().stream()
+                            .filter(job -> job != h.job && occupants(job, false) < offers.get(job))
+                            .filter(
+                                    job -> {
+                                        var plot = job < 0 ? economy.project(-job) : null;
+                                        var firm =
+                                                economy.company(
+                                                        plot == null
+                                                                ? employer(job)
+                                                                : plot.developer());
+                                        return firm != null && firm.cash >= jobRate(job, h.cohort);
+                                    })
+                            .max(
+                                    Comparator.comparingDouble(
+                                                    (Integer job) -> jobRate(job, h.cohort))
+                                            .thenComparingInt(job -> -job))
+                            .orElse(0);
+            if (best != 0 && (!paid || jobRate(best, h.cohort) > jobRate(h.job, h.cohort) * 1.2)) {
+                h.job = best;
+                var travel = ecs.get(id, Travel.class);
+                travel.target = -9999;
+                travel.route.clear();
             }
         }
     }
