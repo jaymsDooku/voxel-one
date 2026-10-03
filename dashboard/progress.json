@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-04T09:38:26+00:00",
+  "updatedAt": "2026-10-04T09:50:35+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -2003,6 +2003,121 @@
       "status": "in_progress",
       "note": "Integrated review remediation ready for independent review: city formats 1\u20137/civic and business features retained, protocol 17, 216 tests and Maven packaging passed. Refreshed actual OpenGL camera/walking and MP4 checks passed; all base history preserved.",
       "updatedAt": "2026-10-04T03:56:59.365447+00:00"
+    },
+    {
+      "id": "65393337353464382d336534322d343235612d626564372d666561623834346233616331",
+      "title": "Building information navigation",
+      "description": "Organizing the property inspector into focused tabs and readable details.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "building information tests.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-information-tests.json"
+        },
+        {
+          "kind": "report",
+          "label": "building info rendered screenshots.zip",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-info-rendered-screenshots.zip"
+        },
+        {
+          "kind": "image",
+          "label": "building info 640x640 property 1 tab 1.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-info-640x640-property-1-tab-1.png"
+        },
+        {
+          "kind": "image",
+          "label": "building info 640x640 property 2 tab 2.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-info-640x640-property-2-tab-2.png"
+        },
+        {
+          "kind": "image",
+          "label": "building info 640x640 property 3 tab 2 scrolled.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-info-640x640-property-3-tab-2-scrolled.png"
+        },
+        {
+          "kind": "image",
+          "label": "building info 640x640 property 5 tab 4.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-info-640x640-property-5-tab-4.png"
+        },
+        {
+          "kind": "image",
+          "label": "building info 1280x720 property 2 tab 2.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-info-1280x720-property-2-tab-2.png"
+        },
+        {
+          "kind": "image",
+          "label": "building info 1280x720 property 6 tab 4.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-info-1280x720-property-6-tab-4.png"
+        },
+        {
+          "kind": "report",
+          "label": "building info recovery checkpoint.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-info-recovery-checkpoint.json"
+        },
+        {
+          "kind": "image",
+          "label": "building info 640x640 property 1 demolition confirm.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-info-640x640-property-1-demolition-confirm.png"
+        },
+        {
+          "kind": "image",
+          "label": "building info 1280x720 property 2 demolition confirm.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-info-1280x720-property-2-demolition-confirm.png"
+        },
+        {
+          "kind": "report",
+          "label": "building info metric integration.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-info-metric-integration.json"
+        },
+        {
+          "kind": "report",
+          "label": "building info integrated metric rendering.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-info-integrated-metric-rendering.json"
+        },
+        {
+          "kind": "image",
+          "label": "building info integrated metric trends population 640x640.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-info-integrated-metric-trends-population-640x640.png"
+        },
+        {
+          "kind": "image",
+          "label": "building info integrated metric trends government 1280x720.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-info-integrated-metric-trends-government-1280x720.png"
+        },
+        {
+          "kind": "report",
+          "label": "building info current master integration.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-info-current-master-integration.json"
+        },
+        {
+          "kind": "image",
+          "label": "building info 640x640 property 7 tab 0.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-info-640x640-property-7-tab-0.png"
+        },
+        {
+          "kind": "image",
+          "label": "building info 640x640 property 8 tab 0.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-info-640x640-property-8-tab-0.png"
+        },
+        {
+          "kind": "image",
+          "label": "building info 640x640 property 9 tab 0.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-info-640x640-property-9-tab-0.png"
+        },
+        {
+          "kind": "report",
+          "label": "building info business catalog integration.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-info-business-catalog-integration.json"
+        },
+        {
+          "kind": "report",
+          "label": "building info terrain integration.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-info-terrain-integration.json"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Preserved terrain generation, protocol 17 and version-7 save compatibility; 73 tests/package and 117 fresh renders passed. Controller continuation and published-head CI required; multiplayer blocked by sandbox sockets.",
+      "updatedAt": "2026-10-04T09:50:35+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

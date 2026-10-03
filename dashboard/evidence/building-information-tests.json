@@ -1,0 +1,299 @@
+{
+  "scenario": "Read-only building inspector tabs, navigation, full-text wrapping, construction materials, agriculture and manufacturing",
+  "commands": [
+    {
+      "command": "/tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=target/maven-repository -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=BuildingInfoTest,MetricHistoryTest,CityMetricsTest,MayorDashboardTest,SpecialBuildingsTest,CityToolsTest,IsometricCameraTest verify",
+      "exitCode": 0,
+      "result": "38 passed; application jars packaged."
+    },
+    {
+      "command": "/tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=target/maven-repository -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=CityMultiplayerTest test",
+      "exitCode": 1,
+      "result": "Socket Operation not permitted while binding loopback server, before network assertions."
+    },
+    {
+      "command": "python3 deploy/render_building_info_evidence.py",
+      "exitCode": 0,
+      "result": "117 actual inspector renders at 640x640 and 1280x720."
+    },
+    {
+      "command": "python3 deploy/run_metric_trends_smoke.py target/building-info-new-master-chart-captures target/maven-repository",
+      "exitCode": 0,
+      "result": "8 actual changing-metric chart renders across four domains and both sizes."
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0
+    }
+  ],
+  "results": [
+    {
+      "suite": "BuildingInfoTest",
+      "result": "Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.036 s -- in dev.jayms.BuildingInfoTest"
+    },
+    {
+      "suite": "MetricHistoryTest",
+      "result": "Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.153 s -- in dev.jayms.MetricHistoryTest"
+    },
+    {
+      "suite": "CityMetricsTest",
+      "result": "Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s -- in dev.jayms.CityMetricsTest"
+    },
+    {
+      "suite": "MayorDashboardTest",
+      "result": "Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.248 s -- in dev.jayms.MayorDashboardTest"
+    },
+    {
+      "suite": "SpecialBuildingsTest",
+      "result": "Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.173 s -- in dev.jayms.SpecialBuildingsTest"
+    },
+    {
+      "suite": "CityToolsTest",
+      "result": "Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.300 s -- in dev.jayms.CityToolsTest"
+    },
+    {
+      "suite": "IsometricCameraTest",
+      "result": "Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.051 s -- in dev.jayms.IsometricCameraTest"
+    }
+  ],
+  "visualCheck": {
+    "status": "passed",
+    "platform": "Linux; GLFW null platform with surfaceless EGL; OpenGL 3.3 core; Mesa llvmpipe (LLVM 15.0.6, 256 bits)",
+    "renderer": "Production BuildingInfo.render and Overlay, with synthetic immutable CityFrame fixtures. Not a mockup or live account session.",
+    "sizes": [
+      "640x640",
+      "1280x720"
+    ],
+    "properties": {
+      "1": "Residential: 30 residents, long street address and unbroken resident name",
+      "2": "Industrial tool business: long company/production details, recipes and inventories",
+      "3": "Farm: family, 18 fields, cattle, harvests and inventory",
+      "4": "Construction plot awaiting materials",
+      "5": "Construction plot with reserved materials, 50% progress",
+      "6": "Completed construction with consumed-material history",
+      "7": "Government-owned City hall level 3",
+      "8": "Citizen-owned primary school level 2 with long citizen name",
+      "9": "Company-owned police station level 3"
+    },
+    "checks": [
+      "All five tabs clicked through BuildingInfo.click for each property at each size; selection and scroll reset asserted.",
+      "Every wrapped line checked using actual Overlay.textWidth against content width.",
+      "Repeated wheel events reach the end of every overflowing section; render clamps offset to the last page.",
+      "Page-up offset and close-button clicks asserted.",
+      "glGetError verified GL_NO_ERROR for every capture.",
+      "Inspected representative screenshots of overview, long residents and production, family, farm details, inventories, waiting/reserved/completed construction and final scroll pages; no clipping or overlap found.",
+      "Production CityFrame/send mouse overload used for tab clicks; no city command emitted by tab selection.",
+      "Demolition confirmation rendered at both sizes; second click sends exactly one synthetic DEMOLISH command and closes inspector.",
+      "Inspected regenerated scrolled residential/farm views and confirmation controls at 640x640 and 1280x720: no overlap or clipping."
+    ],
+    "fix": "Prevented leading indentation from producing an empty row before a long unbroken name; added regression assertion and regenerated all captures. During conflict resolution, preserved current master demolition and confirmation behavior; reserved 60 additional pixels below detail rows for its action controls. Current-master integration corrects special-building citizen ownership lookup to use CITIZEN; ownership regression and special-building renders added.",
+    "captureCount": 117,
+    "archive": "building-info-rendered-screenshots.zip",
+    "captures": [
+      "building-info-1280x720-property-1-demolition-confirm.png",
+      "building-info-1280x720-property-1-tab-0.png",
+      "building-info-1280x720-property-1-tab-1-scrolled.png",
+      "building-info-1280x720-property-1-tab-1.png",
+      "building-info-1280x720-property-1-tab-2.png",
+      "building-info-1280x720-property-1-tab-3-scrolled.png",
+      "building-info-1280x720-property-1-tab-3.png",
+      "building-info-1280x720-property-1-tab-4.png",
+      "building-info-1280x720-property-2-demolition-confirm.png",
+      "building-info-1280x720-property-2-tab-0.png",
+      "building-info-1280x720-property-2-tab-1.png",
+      "building-info-1280x720-property-2-tab-2.png",
+      "building-info-1280x720-property-2-tab-3-scrolled.png",
+      "building-info-1280x720-property-2-tab-3.png",
+      "building-info-1280x720-property-2-tab-4.png",
+      "building-info-1280x720-property-3-demolition-confirm.png",
+      "building-info-1280x720-property-3-tab-0.png",
+      "building-info-1280x720-property-3-tab-1.png",
+      "building-info-1280x720-property-3-tab-2-scrolled.png",
+      "building-info-1280x720-property-3-tab-2.png",
+      "building-info-1280x720-property-3-tab-3-scrolled.png",
+      "building-info-1280x720-property-3-tab-3.png",
+      "building-info-1280x720-property-3-tab-4.png",
+      "building-info-1280x720-property-4-tab-0.png",
+      "building-info-1280x720-property-4-tab-1.png",
+      "building-info-1280x720-property-4-tab-2.png",
+      "building-info-1280x720-property-4-tab-3.png",
+      "building-info-1280x720-property-4-tab-4.png",
+      "building-info-1280x720-property-5-tab-0.png",
+      "building-info-1280x720-property-5-tab-1.png",
+      "building-info-1280x720-property-5-tab-2.png",
+      "building-info-1280x720-property-5-tab-3.png",
+      "building-info-1280x720-property-5-tab-4.png",
+      "building-info-1280x720-property-6-demolition-confirm.png",
+      "building-info-1280x720-property-6-tab-0.png",
+      "building-info-1280x720-property-6-tab-1.png",
+      "building-info-1280x720-property-6-tab-2.png",
+      "building-info-1280x720-property-6-tab-3-scrolled.png",
+      "building-info-1280x720-property-6-tab-3.png",
+      "building-info-1280x720-property-6-tab-4.png",
+      "building-info-1280x720-property-7-demolition-confirm.png",
+      "building-info-1280x720-property-7-tab-0.png",
+      "building-info-1280x720-property-7-tab-1.png",
+      "building-info-1280x720-property-7-tab-2.png",
+      "building-info-1280x720-property-7-tab-3.png",
+      "building-info-1280x720-property-7-tab-4.png",
+      "building-info-1280x720-property-8-demolition-confirm.png",
+      "building-info-1280x720-property-8-tab-0.png",
+      "building-info-1280x720-property-8-tab-1.png",
+      "building-info-1280x720-property-8-tab-2.png",
+      "building-info-1280x720-property-8-tab-3.png",
+      "building-info-1280x720-property-8-tab-4.png",
+      "building-info-1280x720-property-9-demolition-confirm.png",
+      "building-info-1280x720-property-9-tab-0.png",
+      "building-info-1280x720-property-9-tab-1.png",
+      "building-info-1280x720-property-9-tab-2.png",
+      "building-info-1280x720-property-9-tab-3.png",
+      "building-info-1280x720-property-9-tab-4.png",
+      "building-info-640x640-property-1-demolition-confirm.png",
+      "building-info-640x640-property-1-tab-0.png",
+      "building-info-640x640-property-1-tab-1-scrolled.png",
+      "building-info-640x640-property-1-tab-1.png",
+      "building-info-640x640-property-1-tab-2.png",
+      "building-info-640x640-property-1-tab-3-scrolled.png",
+      "building-info-640x640-property-1-tab-3.png",
+      "building-info-640x640-property-1-tab-4.png",
+      "building-info-640x640-property-2-demolition-confirm.png",
+      "building-info-640x640-property-2-tab-0.png",
+      "building-info-640x640-property-2-tab-1.png",
+      "building-info-640x640-property-2-tab-2.png",
+      "building-info-640x640-property-2-tab-3-scrolled.png",
+      "building-info-640x640-property-2-tab-3.png",
+      "building-info-640x640-property-2-tab-4.png",
+      "building-info-640x640-property-3-demolition-confirm.png",
+      "building-info-640x640-property-3-tab-0.png",
+      "building-info-640x640-property-3-tab-1-scrolled.png",
+      "building-info-640x640-property-3-tab-1.png",
+      "building-info-640x640-property-3-tab-2-scrolled.png",
+      "building-info-640x640-property-3-tab-2.png",
+      "building-info-640x640-property-3-tab-3-scrolled.png",
+      "building-info-640x640-property-3-tab-3.png",
+      "building-info-640x640-property-3-tab-4.png",
+      "building-info-640x640-property-4-tab-0.png",
+      "building-info-640x640-property-4-tab-1.png",
+      "building-info-640x640-property-4-tab-2.png",
+      "building-info-640x640-property-4-tab-3.png",
+      "building-info-640x640-property-4-tab-4.png",
+      "building-info-640x640-property-5-tab-0.png",
+      "building-info-640x640-property-5-tab-1.png",
+      "building-info-640x640-property-5-tab-2.png",
+      "building-info-640x640-property-5-tab-3.png",
+      "building-info-640x640-property-5-tab-4.png",
+      "building-info-640x640-property-6-demolition-confirm.png",
+      "building-info-640x640-property-6-tab-0.png",
+      "building-info-640x640-property-6-tab-1.png",
+      "building-info-640x640-property-6-tab-2.png",
+      "building-info-640x640-property-6-tab-3-scrolled.png",
+      "building-info-640x640-property-6-tab-3.png",
+      "building-info-640x640-property-6-tab-4.png",
+      "building-info-640x640-property-7-demolition-confirm.png",
+      "building-info-640x640-property-7-tab-0.png",
+      "building-info-640x640-property-7-tab-1.png",
+      "building-info-640x640-property-7-tab-2.png",
+      "building-info-640x640-property-7-tab-3.png",
+      "building-info-640x640-property-7-tab-4.png",
+      "building-info-640x640-property-8-demolition-confirm.png",
+      "building-info-640x640-property-8-tab-0.png",
+      "building-info-640x640-property-8-tab-1.png",
+      "building-info-640x640-property-8-tab-2.png",
+      "building-info-640x640-property-8-tab-3.png",
+      "building-info-640x640-property-8-tab-4.png",
+      "building-info-640x640-property-9-demolition-confirm.png",
+      "building-info-640x640-property-9-tab-0.png",
+      "building-info-640x640-property-9-tab-1.png",
+      "building-info-640x640-property-9-tab-2.png",
+      "building-info-640x640-property-9-tab-3.png",
+      "building-info-640x640-property-9-tab-4.png"
+    ],
+    "representativeScreenshots": [
+      "building-info-1280x720-property-2-demolition-confirm.png",
+      "building-info-1280x720-property-2-tab-2.png",
+      "building-info-1280x720-property-6-tab-4.png",
+      "building-info-640x640-property-1-demolition-confirm.png",
+      "building-info-640x640-property-1-tab-0.png",
+      "building-info-640x640-property-1-tab-1-scrolled.png",
+      "building-info-640x640-property-1-tab-1.png",
+      "building-info-640x640-property-2-tab-2.png",
+      "building-info-640x640-property-2-tab-3-scrolled.png",
+      "building-info-640x640-property-3-tab-2-scrolled.png",
+      "building-info-640x640-property-5-tab-4.png"
+    ],
+    "reproduce": "Compile production classes and run python3 deploy/render_building_info_evidence.py [dependency-repository]. Requires existing Linux LWJGL dependencies and Mesa EGL. The script compiles the synthetic harness, invokes the production renderer, captures glReadPixels PNGs, and packages evidence."
+  },
+  "reviewStatus": "Current-master conflict resolution ready for controller staging and rebase continuation. Not yet run on the corrected published head. Controller must finish rebase/publication and require passing exact-head matrix checks and independent review; older CI remains historical.",
+  "previousValidation": {
+    "note": "Historical validation before the review follow-up; superseded visual limitation resolved below.",
+    "commands": [
+      {
+        "command": "/tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=target/maven-repository -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=BuildingInfoTest,CityMaterialsTest,AgricultureTest,ManufacturingTest test",
+        "exitCode": 0
+      },
+      {
+        "command": "/tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=target/maven-repository -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=BuildingInfoTest test",
+        "exitCode": 0
+      },
+      {
+        "command": "git diff --check",
+        "exitCode": 0
+      }
+    ],
+    "results": [
+      {
+        "suite": "BuildingInfoTest",
+        "result": "Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.224 s -- in dev.jayms.BuildingInfoTest"
+      },
+      {
+        "suite": "CityMaterialsTest",
+        "result": "Tests run: 13, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 16.42 s -- in dev.jayms.CityMaterialsTest"
+      },
+      {
+        "suite": "AgricultureTest",
+        "result": "Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 57.05 s -- in dev.jayms.AgricultureTest"
+      },
+      {
+        "suite": "ManufacturingTest",
+        "result": "Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 22.76 s -- in dev.jayms.ManufacturingTest"
+      }
+    ]
+  },
+  "validationBeforeConflictResolution": {
+    "note": "Historical validation before combining with current master demolition controls.",
+    "commands": [
+      {
+        "command": "/tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=target/maven-repository -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=BuildingInfoTest,CityMaterialsTest test",
+        "exitCode": 0
+      },
+      {
+        "command": "python3 deploy/render_building_info_evidence.py",
+        "exitCode": 0
+      },
+      {
+        "command": "git diff --check",
+        "exitCode": 0
+      }
+    ],
+    "results": [
+      {
+        "suite": "BuildingInfoTest",
+        "result": "Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 s -- in dev.jayms.BuildingInfoTest"
+      },
+      {
+        "suite": "CityMaterialsTest",
+        "result": "Tests run: 13, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 17.29 s -- in dev.jayms.CityMaterialsTest"
+      }
+    ],
+    "renderCount": 73
+  },
+  "metricIntegration": {
+    "report": "building-info-metric-integration.json",
+    "base": "8c524a18d18d7f685cdabb6a16c7ebbf57fb77f3",
+    "preservation": "28 metric-feature and integration files plus all base progress entries preserved exactly.",
+    "validation": "16 tests and packaging passed; 81 inspector and 8 metric chart renders passed; multiplayer blocked by socket permissions; corrected-head hosted CI pending."
+  },
+  "currentMasterIntegrationReport": "building-info-current-master-integration.json",
+  "historical": true,
+  "supersededBy": "building-info-terrain-integration.json"
+}
