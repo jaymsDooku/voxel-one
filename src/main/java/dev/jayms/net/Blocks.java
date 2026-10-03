@@ -14,6 +14,8 @@ public final class Blocks {
             BRICKS = 166,
             GLASS = 167,
             LED = 180,
+            WATER = 185,
+            MINERAL = 186,
             PARTIAL = 255;
     private static final String[] NAMES = {
         "Empty", "Grass", "Dirt", "Stone", "Sand", "Snow", "Wood", "Leaves", "Flower pot"
@@ -31,11 +33,13 @@ public final class Blocks {
     };
 
     public static boolean valid(int type) {
-        return type >= 0 && type < 185;
+        return type >= 0 && type < 187;
     }
 
     public static String name(int type) {
         if (isPiece(type)) return name(material(type)) + " 1/" + (1 << depth(type)) + " cube";
+        if (type == WATER) return "Water";
+        if (type == MINERAL) return "Mineral ore";
         if (type == PLANKS) return "Planks";
         if (type == BRICKS) return "Bricks";
         if (type == GLASS) return "Glass";
@@ -45,6 +49,8 @@ public final class Blocks {
 
     public static float[] color(int type) {
         type = material(type);
+        if (type == WATER) return new float[] {.15f, .43f, .68f};
+        if (type == MINERAL) return new float[] {.53f, .39f, .25f};
         if (type == PLANKS) return new float[] {.72f, .51f, .29f};
         if (type == BRICKS) return new float[] {.61f, .27f, .21f};
         if (type == GLASS) return new float[] {.66f, .87f, .91f};
@@ -72,6 +78,11 @@ public final class Blocks {
         return !isPiece(type)
                 ? type
                 : type >= 181 ? LED : type >= 168 ? 165 + (type - 168) / 4 : 1 + (type - 137) / 4;
+    }
+
+    public static boolean subdividable(int type) {
+        int base = material(type);
+        return base >= GRASS && base <= LEAVES || base >= PLANKS && base <= GLASS || base == LED;
     }
 
     public static int piece(int material, int depth) {

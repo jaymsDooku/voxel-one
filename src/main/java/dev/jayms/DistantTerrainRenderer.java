@@ -29,7 +29,11 @@ public final class DistantTerrainRenderer implements AutoCloseable {
     private int rendered;
 
     public DistantTerrainRenderer(long seed) {
-        terrain = new Terrain(seed);
+        this(seed, Terrain.CURRENT_VERSION);
+    }
+
+    public DistantTerrainRenderer(long seed, int generatorVersion) {
+        terrain = new Terrain(seed, generatorVersion);
     }
 
     public WorldBounds bounds() {

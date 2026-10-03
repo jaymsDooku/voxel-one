@@ -16,7 +16,10 @@ public final class Terrain {
 
     public record Column(int height, Biome biome) {}
 
+    public static final int LEGACY_VERSION = 1, CURRENT_VERSION = 2;
+    public final int version;
     public final long seed;
+    private final Geography geography;
     private final Map<Long, Column> columns =
             new LinkedHashMap<>(4096, .75f, true) {
                 protected boolean removeEldestEntry(Map.Entry<Long, Column> e) {
@@ -25,7 +28,15 @@ public final class Terrain {
             };
 
     public Terrain(long seed) {
+        this(seed, CURRENT_VERSION);
+    }
+
+    public Terrain(long seed, int version) {
+        if (version < LEGACY_VERSION || version > CURRENT_VERSION)
+            throw new IllegalArgumentException("Unsupported terrain generator version: " + version);
         this.seed = seed;
+        this.version = version;
+        geography = version == CURRENT_VERSION ? new Geography(seed) : null;
     }
 
     private long hash(int x, int z, long salt) {
@@ -49,11 +60,32 @@ public final class Terrain {
         return lo * (1 - b) + hi * b;
     }
 
-    public Column column(int x, int z) {
+    public Geography.Fields fields(int x, int z) {
+        return geography == null ? null : geography.fields(x, z);
+    }
+
+    public int surfaceHeight(int x, int z) {
+        return Math.max(
+                column(x, z).height(), geography == null ? MIN_Y : fields(x, z).waterLevel());
+    }
+
+    public synchronized Column column(int x, int z) {
         long key = ((long) x << 32) ^ (z & 0xffffffffL);
         return columns.computeIfAbsent(
                 key,
                 k -> {
+                    if (geography != null) {
+                        var f = fields(x, z);
+                        Biome biome =
+                                f.temperature() < .28
+                                        ? Biome.SNOWY_MOUNTAINS
+                                        : f.moisture() < .28
+                                                ? Biome.DESERT
+                                                : f.moisture() > .53 && f.fertility() > .3
+                                                        ? Biome.FOREST
+                                                        : Biome.PLAINS;
+                        return new Column(f.height(), biome);
+                    }
                     double climate = noise(x / 180.0, z / 180.0, 91),
                             wet = noise(x / 150.0, z / 150.0, 173);
                     Biome biome =
@@ -81,6 +113,13 @@ public final class Terrain {
                     && y > MIN_Y + 2
                     && noise(x / 18.0 + y * .19, z / 18.0 - y * .17, 401) > .82
                     && noise(x / 30.0, z / 30.0 + y * .11, 509) > .60) return 0;
+            if (geography != null && fields(x, z).rockExposure() && y >= h - 3) return Blocks.STONE;
+            if (geography != null
+                    && y < h - 4
+                    && y > MIN_Y + 2
+                    && fields(x, z).geology() > .58
+                    && value(Math.floorDiv(x, 5), Math.floorDiv(z, 5), 719 + Math.floorDiv(y, 4))
+                            > .78) return Blocks.MINERAL;
             if (y == h)
                 return c.biome == Biome.DESERT
                         ? Blocks.SAND
@@ -88,6 +127,7 @@ public final class Terrain {
             if (y >= h - 3) return c.biome == Biome.DESERT ? Blocks.SAND : Blocks.DIRT;
             return Blocks.STONE;
         }
+        if (geography != null && y <= fields(x, z).waterLevel()) return Blocks.WATER;
         if (y > h + 9) return 0;
         int gx = Math.floorDiv(x, 12), gz = Math.floorDiv(z, 12);
         for (int a = gx - 1; a <= gx + 1; a++)
@@ -96,6 +136,10 @@ public final class Terrain {
                         tz = b * 12 + 2 + (int) (value(a, b, 277) * 8);
                 if (Math.abs(tx - x) > 2 || Math.abs(tz - z) > 2) continue;
                 Column tree = column(tx, tz);
+                if (geography != null
+                        && (fields(tx, tz).waterLevel() >= tree.height
+                                || fields(tx, tz).settlement()
+                                || fields(tx, tz).rockExposure())) continue;
                 if (tree.biome != Biome.FOREST || value(a, b, 307) > .78) continue;
                 int base = tree.height + 1, top = base + 4 + (int) (value(a, b, 331) * 2);
                 if (x == tx && z == tz && y >= base && y < top) return Blocks.WOOD;

@@ -324,10 +324,13 @@ public class Player {
     }
 
     private static boolean solid(World world, int x, int y, int z) {
-        return !world.isLoaded(x, y, z) || world.getBlock(x, y, z) != ChunkGenerator.AIR;
+        return !world.isLoaded(x, y, z)
+                || (world.getBlock(x, y, z) != ChunkGenerator.AIR
+                        && world.getBlock(x, y, z) != Blocks.WATER);
     }
 
     public boolean overlaps(World world, int x, int y, int z, int type) {
+        if (type == Blocks.WATER) return false;
         if (type == Blocks.PARTIAL)
             return world.cell(x, y, z)
                     .intersects(

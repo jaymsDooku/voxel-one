@@ -17,8 +17,18 @@ class CityTest {
     @TempDir Path temp;
 
     static class Ground implements CitySimulation.Ground {
-        final Terrain terrain = new Terrain(Terrain.DEFAULT_SEED);
-        final WorldVoxels voxels = new WorldVoxels(terrain);
+        final Terrain terrain;
+        final WorldVoxels voxels;
+
+        Ground() {
+            this(Terrain.CURRENT_VERSION);
+        }
+
+        Ground(int generatorVersion) {
+            terrain = new Terrain(Terrain.DEFAULT_SEED, generatorVersion);
+            voxels = new WorldVoxels(terrain);
+        }
+
         final Map<String, Protocol.Edit> edits = new LinkedHashMap<>();
         boolean occupied;
 

@@ -83,12 +83,20 @@ public final class MultiplayerServer implements AutoCloseable {
             try (var in = new DataInputStream(Files.newInputStream(save))) {
                 if (in.readInt() != Protocol.MAGIC) throw new IOException("Invalid world save");
                 int count = in.readInt();
-                boolean colored = count == -6;
+                terrain = new Terrain(seed, Terrain.LEGACY_VERSION);
+                boolean versioned = count == -7;
+                boolean colored = count == -6 || versioned;
                 boolean fractional = count == -5 || colored;
                 boolean withModels = count == -4 || fractional;
                 boolean modern = count == -3 || withModels;
                 if (modern) {
-                    terrain = new Terrain(in.readLong());
+                    long storedSeed = in.readLong();
+                    int generator = versioned ? in.readInt() : Terrain.LEGACY_VERSION;
+                    try {
+                        terrain = new Terrain(storedSeed, generator);
+                    } catch (IllegalArgumentException e) {
+                        throw new IOException("Unsupported terrain generator", e);
+                    }
                     if (withModels) models = ModelLibrary.read(in);
                     count = in.readInt();
                 }
@@ -307,6 +315,7 @@ public final class MultiplayerServer implements AutoCloseable {
             peer.pose.write(out);
             out.writeUTF(username);
             out.writeLong(terrain.seed);
+            out.writeInt(terrain.version);
             initialModels.write(out);
             initialInventory.write(out);
             out.writeByte(initialHealth);
@@ -703,7 +712,7 @@ public final class MultiplayerServer implements AutoCloseable {
             for (int y = (int) Math.floor(y0); y < Math.ceil(y1); y++)
                 for (int z = (int) Math.floor(z0); z < Math.ceil(z1); z++) {
                     int type = block(x, y, z);
-                    if (type == 0) continue;
+                    if (type == 0 || type == Blocks.WATER) continue;
                     var model = models.get(type);
                     if (type == Blocks.PARTIAL) {
                         if (voxels.cell(x, y, z)
@@ -965,8 +974,9 @@ public final class MultiplayerServer implements AutoCloseable {
         Path temp = absolute.resolveSibling(absolute.getFileName() + ".tmp");
         try (var out = new DataOutputStream(Files.newOutputStream(temp))) {
             out.writeInt(Protocol.MAGIC);
-            out.writeInt(-6);
+            out.writeInt(-7);
             out.writeLong(terrain.seed);
+            out.writeInt(terrain.version);
             models.write(out);
             out.writeInt(edits.size());
             for (var e : edits.values()) e.write(out);
@@ -1034,8 +1044,8 @@ public final class MultiplayerServer implements AutoCloseable {
                 default ->
                         throw new IllegalArgumentException(
                                 "Usage: --bind ADDRESS --port PORT --world FILE --accounts FILE"
-                                    + " --tls-dir DIRECTORY --seed NUMBER --create-account NAME"
-                                    + " --production-config FILE");
+                                        + " --tls-dir DIRECTORY --seed NUMBER --create-account NAME"
+                                        + " --production-config FILE");
             }
         AccountStore accounts = new AccountStore(accountFile);
         if (create != null) {

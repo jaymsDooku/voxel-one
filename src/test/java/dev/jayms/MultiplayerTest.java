@@ -64,6 +64,210 @@ class MultiplayerTest {
                 identity.fingerprint());
     }
 
+    private void writeTerrainSave(Path save, int marker, long seed, int generator)
+            throws IOException {
+        try (var out = new java.io.DataOutputStream(Files.newOutputStream(save))) {
+            out.writeInt(Protocol.MAGIC);
+            out.writeInt(marker);
+            out.writeLong(seed);
+            if (marker == -7) out.writeInt(generator);
+            if (marker <= -4) new ModelLibrary().write(out);
+            out.writeInt(1);
+            var edit = new Protocol.Edit(50, 80, 50, Blocks.STONE);
+            if (marker <= -6) edit.write(out);
+            else {
+                out.writeInt(edit.x());
+                out.writeInt(edit.y());
+                out.writeInt(edit.z());
+                out.writeInt(edit.type());
+                if (marker == -5) for (int i = 0; i < 4; i++) out.writeByte(0);
+            }
+            out.writeInt(0); // no synthetic saved inventories
+            out.writeInt(0); // no item drops
+        }
+    }
+
+    private void checkTerrainSession(Path save, int expectedVersion) throws Exception {
+        checkTerrainSession(save, expectedVersion, 999);
+    }
+
+    private void checkTerrainSession(Path save, int expectedVersion, long requestedSeed)
+            throws Exception {
+        try (var server =
+                new MultiplayerServer(
+                        "127.0.0.1", 0, save, accounts, identity.context(), requestedSeed)) {
+            Thread thread = run(server);
+            try {
+                try (var client = client(server, "alice", "correct-password-a", false)) {
+                    assertEquals(42, client.seed, "Stored seed must override the requested seed");
+                    assertEquals(expectedVersion, client.generatorVersion);
+                    assertTrue(
+                            client.initialEdits.contains(
+                                    new Protocol.Edit(50, 80, 50, Blocks.STONE)));
+                    World world = new World(client.seed, client.models, client.generatorVersion);
+                    client.initialEdits.forEach(world::apply);
+                    Terrain expected = new Terrain(42, expectedVersion);
+                    assertEquals(expected.column(8, 24).height() + 1.01f, client.spawn.y(), .001f);
+                    for (int x = -32; x <= 32; x += 4) {
+                        assertEquals(expected.column(x, 24), world.terrain().column(x, 24));
+                        assertEquals(expected.block(x, 26, 24), world.terrain().block(x, 26, 24));
+                    }
+                    assertEquals(Blocks.STONE, world.region(new Protocol.Edit(50, 80, 50, 0)));
+                }
+            } finally {
+                server.close();
+                thread.join(5000);
+                assertFalse(thread.isAlive());
+            }
+        }
+        try (var in = new java.io.DataInputStream(Files.newInputStream(save))) {
+            assertEquals(Protocol.MAGIC, in.readInt());
+            assertEquals(-7, in.readInt());
+            assertEquals(42, in.readLong());
+            assertEquals(expectedVersion, in.readInt());
+        }
+        synchronized (serverErrors) {
+            assertTrue(serverErrors.isEmpty());
+        }
+    }
+
+    @Test
+    void legacyServerSaveFormatsMigrateAndKeepGeneratorOnClientAndRestart() throws Exception {
+        for (int marker : new int[] {-3, -4, -5, -6}) {
+            Path save = temp.resolve("terrain-legacy-" + (-marker) + ".dat");
+            writeTerrainSave(save, marker, 42, Terrain.LEGACY_VERSION);
+            checkTerrainSession(save, Terrain.LEGACY_VERSION);
+            checkTerrainSession(save, Terrain.LEGACY_VERSION);
+        }
+    }
+
+    @Test
+    void seedlessServerSaveMigratesToVersionedLegacyTerrain() throws Exception {
+        Path save = temp.resolve("terrain-seedless.dat");
+        try (var out = new java.io.DataOutputStream(Files.newOutputStream(save))) {
+            out.writeInt(Protocol.MAGIC);
+            out.writeInt(1);
+            out.writeInt(50);
+            out.writeInt(80);
+            out.writeInt(50);
+            out.writeInt(Blocks.STONE);
+        }
+        checkTerrainSession(save, Terrain.LEGACY_VERSION, 42);
+        checkTerrainSession(save, Terrain.LEGACY_VERSION);
+    }
+
+    @Test
+    void brandNewServerChoosesVersionTwoAndPersistsIt() throws Exception {
+        Path save = temp.resolve("terrain-new.dat");
+        try (var server =
+                new MultiplayerServer("127.0.0.1", 0, save, accounts, identity.context(), 42)) {
+            Thread thread = run(server);
+            try {
+                try (var client = client(server, "alice", "correct-password-a", false)) {
+                    assertEquals(42, client.seed);
+                    assertEquals(Terrain.CURRENT_VERSION, client.generatorVersion);
+                    assertEquals(27.01f, client.spawn.y(), .001f);
+                    assertTrue(client.initialEdits.isEmpty());
+                }
+            } finally {
+                server.close();
+                thread.join(5000);
+                assertFalse(thread.isAlive());
+            }
+        }
+        try (var in = new java.io.DataInputStream(Files.newInputStream(save))) {
+            assertEquals(Protocol.MAGIC, in.readInt());
+            assertEquals(-7, in.readInt());
+            assertEquals(42, in.readLong());
+            assertEquals(Terrain.CURRENT_VERSION, in.readInt());
+        }
+    }
+
+    @Test
+    void versionTwoServerSaveRoundTripsToClientsAcrossRestart() throws Exception {
+        Path save = temp.resolve("terrain-v2.dat");
+        writeTerrainSave(save, -7, 42, Terrain.CURRENT_VERSION);
+        checkTerrainSession(save, Terrain.CURRENT_VERSION);
+        checkTerrainSession(save, Terrain.CURRENT_VERSION);
+    }
+
+    @Test
+    void unsupportedSavedGeneratorFailsBeforeOpeningListenerAndPreservesSave() throws Exception {
+        for (int generator : new int[] {0, 99}) {
+            Path save = temp.resolve("terrain-unsupported-" + generator + ".dat");
+            writeTerrainSave(save, -7, 42, generator);
+            byte[] original = Files.readAllBytes(save);
+            var error =
+                    assertThrows(
+                            IOException.class,
+                            () ->
+                                    new MultiplayerServer(
+                                            "127.0.0.1", 0, save, accounts, identity.context()));
+            assertTrue(error.getMessage().contains("Unsupported terrain generator"));
+            assertArrayEquals(original, Files.readAllBytes(save));
+        }
+    }
+
+    @Test
+    void clientRejectsUnsupportedGeneratorFromAuthenticatedHandshake() throws Exception {
+        try (var listener =
+                (javax.net.ssl.SSLServerSocket)
+                        identity.context()
+                                .getServerSocketFactory()
+                                .createServerSocket(
+                                        0, 1, java.net.InetAddress.getByName("127.0.0.1"))) {
+            listener.setSoTimeout(5000);
+            var worker = java.util.concurrent.Executors.newSingleThreadExecutor();
+            try {
+                var result =
+                        worker.submit(
+                                () -> {
+                                    try (var socket = listener.accept()) {
+                                        socket.setSoTimeout(5000);
+                                        var in =
+                                                new java.io.DataInputStream(
+                                                        socket.getInputStream());
+                                        assertEquals(Protocol.MAGIC, in.readInt());
+                                        assertEquals(Protocol.VERSION, in.readInt());
+                                        in.readByte();
+                                        in.readUTF();
+                                        in.readUTF(); // consume the synthetic login request
+                                        var out =
+                                                new java.io.DataOutputStream(
+                                                        socket.getOutputStream());
+                                        out.writeInt(Protocol.MAGIC);
+                                        out.writeInt(Protocol.VERSION);
+                                        out.writeBoolean(true);
+                                        out.writeUTF("Welcome");
+                                        out.writeInt(1);
+                                        new Protocol.Pose(1, 8.5f, 27.01f, 24.5f, -90, 0)
+                                                .write(out);
+                                        out.writeUTF("alice");
+                                        out.writeLong(42);
+                                        out.writeInt(99);
+                                        out.flush();
+                                    }
+                                    return true;
+                                });
+                var error =
+                        assertThrows(
+                                IOException.class,
+                                () ->
+                                        new MultiplayerClient(
+                                                "127.0.0.1",
+                                                listener.getLocalPort(),
+                                                "alice",
+                                                "correct-password-a".toCharArray(),
+                                                false,
+                                                identity.fingerprint()));
+                assertTrue(error.getMessage().contains("Unsupported terrain generator"));
+                assertTrue(result.get(5, java.util.concurrent.TimeUnit.SECONDS));
+            } finally {
+                worker.shutdownNow();
+            }
+        }
+    }
+
     @Test
     void colouredLightCraftingReplicationRollbackAndRestartMigrateV5() throws Exception {
         Path save = temp.resolve("led.dat");
@@ -160,7 +364,9 @@ class MultiplayerTest {
         }
         try (var in = new java.io.DataInputStream(Files.newInputStream(save))) {
             assertEquals(Protocol.MAGIC, in.readInt());
-            assertEquals(-6, in.readInt());
+            assertEquals(-7, in.readInt());
+            assertEquals(Terrain.DEFAULT_SEED, in.readLong());
+            assertEquals(Terrain.LEGACY_VERSION, in.readInt());
         }
         try (var server =
                 new MultiplayerServer("127.0.0.1", 0, save, accounts, identity.context())) {

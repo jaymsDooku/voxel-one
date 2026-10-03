@@ -142,7 +142,8 @@ public class Main {
             local = new LocalGame(offlineSave, seed);
             seed = local.seed;
         } else seed = network.seed;
-        world = new World(seed, network == null ? local.models : network.models);
+        int generatorVersion = network == null ? local.generatorVersion : network.generatorVersion;
+        world = new World(seed, network == null ? local.models : network.models, generatorVersion);
         modelRenderer = new VoxelModelRenderer(world.models());
         editor = new ModelEditor();
         lightColors = new LightColorMenu(Controls.directory().resolve("light-colour.properties"));
@@ -169,7 +170,7 @@ public class Main {
             while (surface > Terrain.MIN_Y && world.sample(8, surface, 24) == 0) surface--;
             player = new Player(new Vector3f(8.5f, surface + 1.01f, 24.5f), -90, -20, camera);
         }
-        distant = new DistantTerrainRenderer(seed);
+        distant = new DistantTerrainRenderer(seed, generatorVersion);
         distant.update(world, player.position().x, player.position().z);
         if (local != null)
             local.startGame(

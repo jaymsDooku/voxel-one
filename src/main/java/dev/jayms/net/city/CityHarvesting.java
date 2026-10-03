@@ -51,6 +51,12 @@ public final class CityHarvesting {
                 }
                 if (protectedLand.test(x, z)) continue;
                 var column = terrain.column(x, z);
+                var fields = terrain.fields(x, z);
+                if (fields != null
+                        && (material == Blocks.GRASS
+                                        && (fields.fertility() < .5
+                                                || fields.waterLevel() >= column.height())
+                                || material == Blocks.STONE && fields.geology() < .4)) continue;
                 if (material == Blocks.WOOD && column.biome() != Terrain.Biome.FOREST
                         || material == Blocks.SAND && column.biome() != Terrain.Biome.DESERT
                         || material == Blocks.GRASS
