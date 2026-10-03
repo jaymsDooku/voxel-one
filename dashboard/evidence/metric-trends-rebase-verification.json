@@ -1,0 +1,53 @@
+{
+  "context": "Final rendering-improvement replay combined with current master; worktree verification while controller retains rebase ownership.",
+  "test_command": "MAVEN_OPTS=\"-Djava.io.tmpdir=$PWD/target/tmp\" /tmp/apache-maven-3.9.11/bin/mvn -o -Dmaven.repo.local=target/m2 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=MetricHistoryTest,MayorDashboardTest,CityMetricsTest,BusinessDashboardTest,DemolitionTest,IsometricCameraTest -q test",
+  "suites": [
+    {
+      "name": "MetricHistoryTest",
+      "tests": 4,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "name": "MayorDashboardTest",
+      "tests": 3,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "name": "CityMetricsTest",
+      "tests": 5,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "name": "BusinessDashboardTest",
+      "tests": 3,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "name": "DemolitionTest",
+      "tests": 3,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "name": "IsometricCameraTest",
+      "tests": 7,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    }
+  ],
+  "tests": 25,
+  "rendering_command": "python3 deploy/run_metric_trends_smoke.py dashboard/evidence target/m2",
+  "rendering_report": "metric-trends-rendering.json",
+  "rendering_result": "Eight changing-metric OpenGL captures passed across Population, Companies, Government, Workplaces at 1280x720 and 640x640.",
+  "conflict_result": "Resolved timestamp mismatch; all unrelated milestone records retained unchanged, rendering-review milestone retained, JSON valid. Index deliberately unchanged for controller continuation."
+}

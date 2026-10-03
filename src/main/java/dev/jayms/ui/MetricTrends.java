@@ -136,8 +136,7 @@ public final class MetricTrends {
                 w - 72);
         label(
                 ui,
-                "Session history: 5s samples, last 240; finance flows are cumulative, balances are"
-                        + " current.",
+                "Session: 5s samples, last 240. Flows cumulative; balances current.",
                 36,
                 bottom + 56,
                 w - 72);
