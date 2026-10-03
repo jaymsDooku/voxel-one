@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-03T07:53:55+00:00",
+  "updatedAt": "2026-10-03T13:07:36+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,21 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "queue-66336630333365302d663833322d343535352d613434352d346261373363343964663936",
+      "title": "Restore Voxel One shared queue projection",
+      "description": "Inspecting the application-specific queue bridge and verifying local regression coverage; live deployment configuration is outside this worktree.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "shared queue bridge checkpoint.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/shared-queue-bridge-checkpoint.json"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Implementation ready for independent review: rebuilt stale deployment artifacts to include the Voxel queue route, removed AbortSignal.timeout dependency, and isolated optional snapshot metadata. Local bridge and packaged-worker checks pass; runner must verify the live route after publishing.",
+      "updatedAt": "2026-10-03T13:07:36+00:00"
+    },
     {
       "id": "36373966363030342d613265392d346438382d616436372d363961323932396265373961",
       "title": "Building demolition",
