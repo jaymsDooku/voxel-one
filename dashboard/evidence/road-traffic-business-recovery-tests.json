@@ -1,0 +1,193 @@
+{
+  "scope": "Final configurable-business/traffic rebase recovery",
+  "base_head": "1ed24587886a1c21f8e57a5552acf9bc472dea15",
+  "change": "Preserved bounded configurable yard locations and glassworks access offset. Multiple catalog-defined companies of one type receive separated stopping positions on their shared apron cell; ordinary yard destinations retained.",
+  "initial_broad": {
+    "command": "MAVEN_OPTS=-Djava.io.tmpdir=$PWD/.build-tmp /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -DargLine=-Djava.io.tmpdir=$PWD/.build-tmp '-Dtest=RoadTrafficTest,City*Test,!CityMultiplayerTest,ManufacturingTest,AgricultureTest,MayorDashboardTest,DemolitionTest,IsometricCameraTest,PlayerCameraTest,MetricHistoryTest,SpecialBuildingsTest,BusinessCatalogTest,BusinessDashboardTest' test",
+    "exit": 1,
+    "tests": 126,
+    "failures": 1,
+    "errors": 0,
+    "result": "One co-located configurable company worker remained blocked at a shared stop."
+  },
+  "targeted_before_narrowing": {
+    "command": "MAVEN_OPTS=-Djava.io.tmpdir=$PWD/.build-tmp /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -DargLine=-Djava.io.tmpdir=$PWD/.build-tmp '-Dtest=BusinessCatalogTest,RoadTrafficTest' test",
+    "exit": 0,
+    "result": "Catalog/traffic checks passed after separating stops; broad verification still required."
+  },
+  "paused_broad": {
+    "command": "MAVEN_OPTS=-Djava.io.tmpdir=$PWD/.build-tmp /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -DargLine=-Djava.io.tmpdir=$PWD/.build-tmp '-Dtest=RoadTrafficTest,City*Test,!CityMultiplayerTest,ManufacturingTest,AgricultureTest,MayorDashboardTest,DemolitionTest,IsometricCameraTest,PlayerCameraTest,MetricHistoryTest,SpecialBuildingsTest,BusinessCatalogTest,BusinessDashboardTest' test",
+    "exit": 130,
+    "result": "Interrupted at requested service-control pause."
+  },
+  "resumed_broad_before_narrowing": {
+    "command": "MAVEN_OPTS=-Djava.io.tmpdir=$PWD/.build-tmp /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -DargLine=-Djava.io.tmpdir=$PWD/.build-tmp '-Dtest=RoadTrafficTest,City*Test,!CityMultiplayerTest,ManufacturingTest,AgricultureTest,MayorDashboardTest,DemolitionTest,IsometricCameraTest,PlayerCameraTest,MetricHistoryTest,SpecialBuildingsTest,BusinessCatalogTest,BusinessDashboardTest' test",
+    "exit": 1,
+    "tests": 127,
+    "failures": 12,
+    "errors": 3,
+    "result": "Applying stopping offsets to every yard changed ordinary city behavior. Correction limits offsets to types with multiple explicitly configured companies."
+  },
+  "final_broad": {
+    "command": "MAVEN_OPTS=-Djava.io.tmpdir=$PWD/.build-tmp /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -DargLine=-Djava.io.tmpdir=$PWD/.build-tmp '-Dtest=RoadTrafficTest,City*Test,!CityMultiplayerTest,ManufacturingTest,AgricultureTest,MayorDashboardTest,DemolitionTest,IsometricCameraTest,PlayerCameraTest,MetricHistoryTest,SpecialBuildingsTest,BusinessCatalogTest,BusinessDashboardTest' test",
+    "exit": 0,
+    "tests": 127,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "suites": [
+      {
+        "name": "dev.jayms.AgricultureTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.BusinessCatalogTest",
+        "tests": "10",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.BusinessDashboardTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CityAddressesTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CityBusinessTest",
+        "tests": "9",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CityEconomyTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CityMaterialsTest",
+        "tests": "13",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CityMetricsTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CityTest",
+        "tests": "10",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CityTimeTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CityToolsTest",
+        "tests": "9",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.DemolitionTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.IsometricCameraTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.ManufacturingTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.MayorDashboardTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.MetricHistoryTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.PlayerCameraTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.RoadTrafficTest",
+        "tests": "12",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.SpecialBuildingsTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ]
+  },
+  "regression": "Added bounded type-15 yard/glassworks access regression. Existing 180-second paid-worker/harvesting test passes unchanged.",
+  "checks": [
+    {
+      "command": "git diff --check",
+      "exit": 0
+    },
+    {
+      "command": "java -Djava.io.tmpdir=$PWD/.build-tmp -jar /tmp/google-java-format.jar --aosp --dry-run --set-exit-if-changed src/test/java/dev/jayms/BusinessCatalogTest.java",
+      "exit": 0
+    },
+    {
+      "command": "Python current-HEAD main-source diff-name assertion, protocol 16, both progress entries, unique IDs and no conflict-marker assertions",
+      "result": "Passed"
+    }
+  ],
+  "limitations": [
+    "Gameplay F10 and multiplayer socket checks not performed in this recovery session. Previously captured guide evidence preserved; no new graphical result claimed."
+  ],
+  "next": "Controller stages all resolved files/new regression/evidence and continues rebase; independent final-head review required."
+}

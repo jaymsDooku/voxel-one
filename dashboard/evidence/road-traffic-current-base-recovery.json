@@ -1,0 +1,11 @@
+{
+  "status": "resolved working contents; controller must stage and continue",
+  "preservation": "Conflicted CitySimulation, AgricultureTest and CityMultiplayerTest exactly match stage 2 current base. No staged file deletions. Base Main.java and concurrent features retained.",
+  "checks": [
+    "git diff --check: exit 0",
+    "Exact byte comparisons against stage 2: passed",
+    "Conflict markers absent from four resolved files: passed",
+    "Staged deleted file list: empty"
+  ],
+  "playtest": "Not run during unresolved-index handoff. Final-head regression tests, directional lane integration and fresh native media remain required after controller continuation."
+}

@@ -1,0 +1,349 @@
+{
+  "status": "ready_for_independent_review",
+  "tested_head": "82218f2cc90b2c3e6b88b7302c5c95a5f4e0616c",
+  "git_state": "Recovered feature branch; no unmerged index or pending rebase. No developer commit/push/merge/deployment.",
+  "source_note": "Production source and existing test hashes match pre-recovery validated source. Native smoke tools now assert actual geometry/derived lanes and accept an artifact prefix to preserve prior media. Local tool/evidence edits require runner commit.",
+  "environment": {
+    "platform": "Linux x86_64",
+    "jdk": "Oracle JDK 21.0.5",
+    "maven": "3.9.11",
+    "graphics": "Xvfb :121, Mesa software rendering, LIBGL_ALWAYS_SOFTWARE=1",
+    "execution": "Approved scoped local socket/X11 execution; sandbox and approval controls retained",
+    "state": "Isolated synthetic offline profile; private runtime output stays under target/."
+  },
+  "tests": [
+    {
+      "command": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -Djava.io.tmpdir=$PWD/target/tmp -DargLine=-Djava.io.tmpdir=$PWD/target/tmp '-Dtest=RoadTrafficTest,City*Test,ManufacturingTest,AgricultureTest,MayorDashboardTest,DemolitionTest,IsometricCameraTest,PlayerCameraTest,MetricHistoryTest,SpecialBuildingsTest,BusinessCatalogTest,BusinessDashboardTest' test",
+      "exit": 0,
+      "tests": 155,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "suites": [
+        {
+          "name": "dev.jayms.BusinessDashboardTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityMaterialsTest",
+          "tests": "13",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.ManufacturingTest",
+          "tests": "7",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityAddressesTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityToolsTest",
+          "tests": "9",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.MayorDashboardTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityCapitalTest",
+          "tests": "11",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.city.CityStockExchangeTest",
+          "tests": "10",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.PlayerCameraTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.SpecialBuildingsTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityMetricsTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityTimeTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityMultiplayerTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityBusinessTest",
+          "tests": "9",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.MetricHistoryTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.RoadTrafficTest",
+          "tests": "13",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityTest",
+          "tests": "10",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.BusinessCatalogTest",
+          "tests": "12",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityEconomyTest",
+          "tests": "7",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.DemolitionTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.AgricultureTest",
+          "tests": "8",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.IsometricCameraTest",
+          "tests": "8",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        }
+      ],
+      "expected": "Directional geometry, congestion spacing, bends/crossings/access merges, worker routines, multiplayer road convergence/late join/restart and affected game regressions pass.",
+      "observed": "All 155 tests passed, including 13 traffic tests and the multiplayer test."
+    },
+    {
+      "command": "python3 deploy/run_traffic_gameplay_smoke.py --artifact-prefix final-head-82218f2-",
+      "exit": 0,
+      "expected": "Actual road material geometry and directional lanes, held-leader queues, release and safe crossing behavior work in the native application.",
+      "observed": "All runtime assertions passed; eight fresh native screenshots and three production F10 videos saved under new filenames."
+    },
+    {
+      "command": "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -cp target/traffic-gameplay:/tmp/voxel-m2/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar TrafficMediaInspect dashboard/evidence/final-head-82218f2-road-traffic-game-pedestrians.mp4 dashboard/evidence/final-head-82218f2-road-traffic-game-horses.mp4 dashboard/evidence/final-head-82218f2-road-traffic-game-crossing.mp4",
+      "exit": 0,
+      "observed": [
+        {
+          "file": "final-head-82218f2-road-traffic-game-pedestrians.mp4",
+          "frames": 17,
+          "duration_seconds": 9.85,
+          "bytes": 618159,
+          "inspection": "First, middle and last frames decoded and visually inspected"
+        },
+        {
+          "file": "final-head-82218f2-road-traffic-game-horses.mp4",
+          "frames": 23,
+          "duration_seconds": 10.605,
+          "bytes": 608161,
+          "inspection": "First, middle and last frames decoded and visually inspected"
+        },
+        {
+          "file": "final-head-82218f2-road-traffic-game-crossing.mp4",
+          "frames": 38,
+          "duration_seconds": 18.395,
+          "bytes": 1051655,
+          "inspection": "First, middle and last frames decoded and visually inspected"
+        }
+      ]
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed",
+      "additional_checks": "JSON, unique progress IDs, conflict markers, source/media hashes and absent recovery state verified by local Python checks."
+    }
+  ],
+  "playtest": {
+    "entry": "Playtest: real Main offline city in GLFW; xdotool input sends production F10 recording callbacks.",
+    "browser": "Voxel One is a native game; browser playtesting does not apply.",
+    "fixture": "Controlled synthetic live ECS fixture, automatic household replanning held; production CitySimulation.travel executes 0.1-second steps while the real engine renders.",
+    "steps": [
+      "Launch fresh isolated city, close controls menu, focus camera and zoom to 256.",
+      "Read actual road material across six half-metre samples at z=23 through z=25.5; require stone,dirt,dirt,dirt,dirt,stone. This proves two one-metre dirt lanes and one half-metre pavement lane per side.",
+      "Derive lane positions from saved street topology. Require opposite carriageway z=25/24 and pavement z=25.75/23.25. Use derived lane positions in the live fixtures.",
+      "Hold three forward pedestrians .65 metres apart. Advance followers: no movement, Waiting for traffic. Move reverse traveller independently. Release leader and run 20 steps; require progress, minimum .5 metre gap, no overtaking, lanes and routes retained.",
+      "Repeat with mounted travellers: initial 1 metre spacing, minimum .65 metre gap.",
+      "Exercise two perpendicular pedestrian streams in both update orders: yielding retreat, minimum .5 metre spacing, no obstruction and both routes complete.",
+      "Use real F10 start/stop; capture actual window before/after each scenario. Decode and inspect first/middle/last recorded frames."
+    ],
+    "expected": "Correct opposing one-way carriageway/pavement lanes; congestion forms behind held leader and drains on release; crossings finish without deadlock/collision.",
+    "observed": "All geometry, lane-side, spacing, queue, reverse-flow and crossing assertions passed. Native screenshots and sampled F10 frames show the tested behavior.",
+    "limits": "Controlled fixture rather than a random population schedule. Mesa software rendering near 2\u20133 FPS; no performance benchmark claimed."
+  },
+  "runtime_assertion_report": "final-head-82218f2-road-traffic-native-gameplay.json",
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "52f766ffc43e0e22cee95973e57aa151ca39eb5d87a958a6e8c714a138e93947",
+    "src/main/java/dev/jayms/net/city/RoadTraffic.java": "ec326e5a8f0054f6075ba0a870fbde5a18682be3f4c4a1c18980dcaea3e08d3b",
+    "src/test/java/dev/jayms/RoadTrafficTest.java": "456c22808eedba086a78aea7ced3b2a7aadd66e10eda9a303515d5366078728a",
+    "src/test/java/dev/jayms/CityMultiplayerTest.java": "77b2fbfcf504e8f3ab4e678b6deb58aa3fb36fdd810161a12f8f46c08934306a",
+    "src/test/java/dev/jayms/BusinessCatalogTest.java": "992e56a59ad3696a0ffc76582149c4d2ac03da9acd7054f7ed576f7aaa926d91",
+    "deploy/RoadTrafficSmoke.java": "ef0eef6c16405e76edb010d769b7f92ecca464b626ea48af2efe54934c1f13ca",
+    "deploy/run_road_traffic_smoke.py": "552573a15e96304085891d0fd7bc325332f91dd5efc631ea966058250ce72b16",
+    "deploy/TrafficGameplaySmoke.java": "928a2313a6c1f82bb333c1693d5a1ee6291586e3dcff64ed4563f728034ce06a",
+    "deploy/run_traffic_gameplay_smoke.py": "f07948bbdc4cce2bc385cbafb2ea3591a6f0a9881572526967fb0bc9ef33b87a"
+  },
+  "core_matches_pre_recovery": {
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": true,
+    "src/main/java/dev/jayms/net/city/RoadTraffic.java": true,
+    "src/test/java/dev/jayms/RoadTrafficTest.java": true,
+    "src/test/java/dev/jayms/CityMultiplayerTest.java": true,
+    "src/test/java/dev/jayms/BusinessCatalogTest.java": true
+  },
+  "prior_native_media": "All 11 prior native artifacts retained unchanged; prior reports and checkpoints preserved.",
+  "media": [
+    {
+      "file": "dashboard/evidence/final-head-82218f2-road-traffic-game-crossing-false-cleared.png",
+      "kind": "image",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/final-head-82218f2-road-traffic-game-crossing-false-cleared.png",
+      "label": "Fresh final recovered-source capture; pending controller publication",
+      "sha256": "b084c43e88425f0946533f6d3b2c952423004bc5e841229ab27f1d83b227fbef",
+      "bytes": 1034850
+    },
+    {
+      "file": "dashboard/evidence/final-head-82218f2-road-traffic-game-crossing-false-start.png",
+      "kind": "image",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/final-head-82218f2-road-traffic-game-crossing-false-start.png",
+      "label": "Fresh final recovered-source capture; pending controller publication",
+      "sha256": "fcf63c8a820433a00de99cf88987cecf9ed352c9194e0c07b49fce7fab5a2224",
+      "bytes": 999448
+    },
+    {
+      "file": "dashboard/evidence/final-head-82218f2-road-traffic-game-crossing-true-cleared.png",
+      "kind": "image",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/final-head-82218f2-road-traffic-game-crossing-true-cleared.png",
+      "label": "Fresh final recovered-source capture; pending controller publication",
+      "sha256": "f200f3acb423f2575e646b02362a936a6e083b78adad06d78e43489cea44ecb3",
+      "bytes": 1033812
+    },
+    {
+      "file": "dashboard/evidence/final-head-82218f2-road-traffic-game-crossing-true-start.png",
+      "kind": "image",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/final-head-82218f2-road-traffic-game-crossing-true-start.png",
+      "label": "Fresh final recovered-source capture; pending controller publication",
+      "sha256": "fea43c600a1764c6847a242757f0bae8095f057e187c5f1547a4a878e5502b3b",
+      "bytes": 1034971
+    },
+    {
+      "file": "dashboard/evidence/final-head-82218f2-road-traffic-game-crossing.mp4",
+      "kind": "video",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/final-head-82218f2-road-traffic-game-crossing.mp4",
+      "label": "Fresh final recovered-source capture; pending controller publication",
+      "sha256": "89b77bd41ed928e0d66b6f538aae5952b2418662e8d0d97f7ff4119217f47b06",
+      "bytes": 1051655
+    },
+    {
+      "file": "dashboard/evidence/final-head-82218f2-road-traffic-game-horses-resumed.png",
+      "kind": "image",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/final-head-82218f2-road-traffic-game-horses-resumed.png",
+      "label": "Fresh final recovered-source capture; pending controller publication",
+      "sha256": "9cf172dca0380ee6901cc9d074c2c6898146fc35714b3256584c42f0628dfb3c",
+      "bytes": 1012565
+    },
+    {
+      "file": "dashboard/evidence/final-head-82218f2-road-traffic-game-horses-waiting.png",
+      "kind": "image",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/final-head-82218f2-road-traffic-game-horses-waiting.png",
+      "label": "Fresh final recovered-source capture; pending controller publication",
+      "sha256": "599e558b9762b06afa8b835d7b4e67706f1b7922d7f8078a7d79cee585ba8a5b",
+      "bytes": 997471
+    },
+    {
+      "file": "dashboard/evidence/final-head-82218f2-road-traffic-game-horses.mp4",
+      "kind": "video",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/final-head-82218f2-road-traffic-game-horses.mp4",
+      "label": "Fresh final recovered-source capture; pending controller publication",
+      "sha256": "81deb3180da5c6efb189e1e62f10df7fb03a14c2a8e97c886320511c0683bc60",
+      "bytes": 608161
+    },
+    {
+      "file": "dashboard/evidence/final-head-82218f2-road-traffic-game-pedestrians-resumed.png",
+      "kind": "image",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/final-head-82218f2-road-traffic-game-pedestrians-resumed.png",
+      "label": "Fresh final recovered-source capture; pending controller publication",
+      "sha256": "90ed0614b82ac668985bad836a885f45078709cbd1323e1e3905660dcfb4e95a",
+      "bytes": 950246
+    },
+    {
+      "file": "dashboard/evidence/final-head-82218f2-road-traffic-game-pedestrians-waiting.png",
+      "kind": "image",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/final-head-82218f2-road-traffic-game-pedestrians-waiting.png",
+      "label": "Fresh final recovered-source capture; pending controller publication",
+      "sha256": "5683b5d6b3b65891b2e18730ba3bbe8e24c1e502e420722a3a6e95aafecf21d7",
+      "bytes": 648567
+    },
+    {
+      "file": "dashboard/evidence/final-head-82218f2-road-traffic-game-pedestrians.mp4",
+      "kind": "video",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/final-head-82218f2-road-traffic-game-pedestrians.mp4",
+      "label": "Fresh final recovered-source capture; pending controller publication",
+      "sha256": "3b3ee7b8d9b2ec63fa1815aea7856f9691fce728ad1992451d0f7119b5832ac7",
+      "bytes": 618159
+    }
+  ],
+  "publication": "Intended HTTPS feature-branch URLs, pending controller publication. Runner owns commit/push/PR and CI; independent reviewer must exercise workflow and verify published media against submitted head.",
+  "platform_limits": "No current Windows/macOS pass is claimed. Local final recovered-source Linux checks passed."
+}

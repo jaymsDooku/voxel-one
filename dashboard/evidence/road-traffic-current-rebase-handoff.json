@@ -1,0 +1,135 @@
+{
+  "status": "recover",
+  "scope": "Documentation rebase conflict resolution; controller Git handoff before final-head validation",
+  "resolved_files": [
+    "TRAFFIC_CHECKPOINT.md",
+    "dashboard/progress.json"
+  ],
+  "retained": "Both checkpoint histories, all progress items and existing native media/evidence preserved. No source/test edits. Index left unmerged for controller staging and continuation.",
+  "source_hash_checks": [
+    {
+      "file": "src/main/java/dev/jayms/net/city/CitySimulation.java",
+      "recorded_sha256": "52f766ffc43e0e22cee95973e57aa151ca39eb5d87a958a6e8c714a138e93947",
+      "present": true,
+      "matches_recorded": true
+    },
+    {
+      "file": "src/main/java/dev/jayms/net/city/RoadTraffic.java",
+      "recorded_sha256": "ec326e5a8f0054f6075ba0a870fbde5a18682be3f4c4a1c18980dcaea3e08d3b",
+      "present": true,
+      "matches_recorded": true
+    },
+    {
+      "file": "src/test/java/dev/jayms/RoadTrafficTest.java",
+      "recorded_sha256": "456c22808eedba086a78aea7ced3b2a7aadd66e10eda9a303515d5366078728a",
+      "present": true,
+      "matches_recorded": true
+    },
+    {
+      "file": "src/test/java/dev/jayms/CityMultiplayerTest.java",
+      "recorded_sha256": "77b2fbfcf504e8f3ab4e678b6deb58aa3fb36fdd810161a12f8f46c08934306a",
+      "present": true,
+      "matches_recorded": true
+    },
+    {
+      "file": "src/test/java/dev/jayms/BusinessCatalogTest.java",
+      "recorded_sha256": "992e56a59ad3696a0ffc76582149c4d2ac03da9acd7054f7ed576f7aaa926d91",
+      "present": true,
+      "matches_recorded": true
+    },
+    {
+      "file": "deploy/RoadTrafficSmoke.java",
+      "recorded_sha256": "ef0eef6c16405e76edb010d769b7f92ecca464b626ea48af2efe54934c1f13ca",
+      "present": true,
+      "matches_recorded": true
+    },
+    {
+      "file": "deploy/run_road_traffic_smoke.py",
+      "recorded_sha256": "552573a15e96304085891d0fd7bc325332f91dd5efc631ea966058250ce72b16",
+      "present": true,
+      "matches_recorded": true
+    },
+    {
+      "file": "deploy/TrafficGameplaySmoke.java",
+      "recorded_sha256": "1aa7a2ecc7634e71136982266de63559cd1285e269632db028d28f91453f1d01",
+      "present": true,
+      "matches_recorded": true
+    },
+    {
+      "file": "deploy/run_traffic_gameplay_smoke.py",
+      "recorded_sha256": "0c2b38daabb158ff6859ea76acb671fc0ca173ef2d525a49e8dcc189a5327f0c",
+      "present": true,
+      "matches_recorded": true
+    }
+  ],
+  "media_hash_checks": [
+    {
+      "file": "dashboard/evidence/road-traffic-game-crossing-false-cleared.png",
+      "recorded_sha256": "d088da922dc3d6c840cf3ab76549264ae7a81cff9f46ffd88e7f1395cc4148e4",
+      "present": true,
+      "matches_recorded": true
+    },
+    {
+      "file": "dashboard/evidence/road-traffic-game-crossing-false-start.png",
+      "recorded_sha256": "dfd694ed18a0850f665397400fedb5c190d9ba80138e934b5c44ffc8df1a760f",
+      "present": true,
+      "matches_recorded": true
+    },
+    {
+      "file": "dashboard/evidence/road-traffic-game-crossing-true-cleared.png",
+      "recorded_sha256": "a48da780822b23f68878d07f7829cba2941ea7cb9413e61287a6e01bb0ad1339",
+      "present": true,
+      "matches_recorded": true
+    },
+    {
+      "file": "dashboard/evidence/road-traffic-game-crossing-true-start.png",
+      "recorded_sha256": "67887396ae0ebe107ec059515320baf284db0331ae175fa46064bd07aefdbe73",
+      "present": true,
+      "matches_recorded": true
+    },
+    {
+      "file": "dashboard/evidence/road-traffic-game-crossing.mp4",
+      "recorded_sha256": "e29f6e761cca440a2a24be96635f6103aa51949eec4a067016695c97071ada2f",
+      "present": true,
+      "matches_recorded": true
+    },
+    {
+      "file": "dashboard/evidence/road-traffic-game-horses-resumed.png",
+      "recorded_sha256": "eea20895b3b7ae8b0865a72750ab435080bbf9b024f115c092dbc922d6197411",
+      "present": true,
+      "matches_recorded": true
+    },
+    {
+      "file": "dashboard/evidence/road-traffic-game-horses-waiting.png",
+      "recorded_sha256": "ac6580a6a0b0f91133bbd03faed4f3003e7e9c9dce936798a4fd01adaf32ac77",
+      "present": true,
+      "matches_recorded": true
+    },
+    {
+      "file": "dashboard/evidence/road-traffic-game-horses.mp4",
+      "recorded_sha256": "2f39471e123bf0a97739b1325613505af88b337c0f466ce75004bf325e84dce5",
+      "present": true,
+      "matches_recorded": true
+    },
+    {
+      "file": "dashboard/evidence/road-traffic-game-pedestrians-resumed.png",
+      "recorded_sha256": "672cee3d70a0ba6e88f76637fd52afc1bf09742e51595b994a8a39ba6174ad54",
+      "present": true,
+      "matches_recorded": true
+    },
+    {
+      "file": "dashboard/evidence/road-traffic-game-pedestrians-waiting.png",
+      "recorded_sha256": "c7a6b4e3ba35dbab03781a2a30c8eef8d387879d91fe247ea2736011ca410618",
+      "present": true,
+      "matches_recorded": true
+    },
+    {
+      "file": "dashboard/evidence/road-traffic-game-pedestrians.mp4",
+      "recorded_sha256": "7a6c1b5eae1d35f292404e29e3627c83e39588468fe06a5af5191af040aece92",
+      "present": true,
+      "matches_recorded": true
+    }
+  ],
+  "new_execution": "No new gameplay or test suite run before Git recovery. Historical native/multiplayer results are retained, not asserted as current submitted-head results.",
+  "continuation": "Controller stages resolutions and continues rebase without publishing. Resume developer to verify final-head hashes and run needed tests/media. No owner answer required."
+}

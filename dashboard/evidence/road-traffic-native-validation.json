@@ -1,0 +1,204 @@
+{
+  "status": "ready_for_independent_review",
+  "environment": {
+    "platform": "Linux x86_64",
+    "jdk": "Oracle JDK 21.0.5",
+    "maven": "3.9.11",
+    "graphics": "Xvfb :121, Mesa software rendering, LIBGL_ALWAYS_SOFTWARE=1",
+    "profile": "Isolated synthetic offline city under target/traffic-home; no private account data",
+    "execution": "Scoped local socket/X11 execution passed through approval controls; controls retained"
+  },
+  "implementation": "Directional road/pavement lanes with single-file swept spacing, congestion queues, corner trimming, crossing clearance and safe building-access merges. Current-master camera and terrain migration coverage preserved in resolved working files.",
+  "checks": [
+    {
+      "command": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -Djava.io.tmpdir=$PWD/target/tmp -DargLine=-Djava.io.tmpdir=$PWD/target/tmp '-Dtest=RoadTrafficTest,City*Test,!CityMultiplayerTest,ManufacturingTest,AgricultureTest,MayorDashboardTest,DemolitionTest,IsometricCameraTest,PlayerCameraTest,MetricHistoryTest,SpecialBuildingsTest,BusinessCatalogTest,BusinessDashboardTest' test",
+      "result": "Previously executed combined run: 154 tests, zero failures/errors/skips. All seven tested source/probe file hashes still match; no implementation changes since this run.",
+      "report": "road-traffic-final-recovery-tests.json"
+    },
+    {
+      "command": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -Djava.io.tmpdir=$PWD/target/tmp -DargLine=-Djava.io.tmpdir=$PWD/target/tmp -Dtest=RoadTrafficTest,BusinessCatalogTest test",
+      "result": "Previously executed final targeted run: 25 tests passed (13 traffic, 12 catalog). Sources unchanged."
+    },
+    {
+      "command": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -Djava.io.tmpdir=$PWD/target/tmp -DargLine=-Djava.io.tmpdir=$PWD/target/tmp -Dtest=CityMultiplayerTest test",
+      "exit": 0,
+      "suite": {
+        "name": "dev.jayms.CityMultiplayerTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      "expected": "Both clients converge on complete commanded road list; exact roads survive late join and restart; zoning and horse ownership remain correct.",
+      "observed": "All assertions passed through approved loopback execution."
+    },
+    {
+      "command": "python3 deploy/run_traffic_gameplay_smoke.py",
+      "exit": 0,
+      "expected": "Actual native window, production travel and real F10 callbacks pass controlled congestion and crossing scenarios.",
+      "observed": "Final run passed, including both crossing update orders; eight screenshots and three production F10 videos saved. Earlier two straight-queue runs also passed; closer zoom retained in final run."
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed"
+    },
+    {
+      "command": "JSON parse and conflict-marker integrity checks",
+      "result": "passed for progress and task reports; no conflict markers in resolved working files. Index still unmerged for controller staging."
+    }
+  ],
+  "playtest": {
+    "entry": "Playtest: actual Main offline city running in GLFW under Xvfb Mesa, with real xdotool input and production F10 recorder.",
+    "browser": "Voxel One is a native game; browser playtesting does not apply.",
+    "setup": "Synthetic live ECS fixture. Automatic household replanning held with retryAt infinity; production CitySimulation.travel invoked for 0.1-second steps while the real engine renders the world, travellers, horses and HUD. This isolates traffic behavior from job scheduling.",
+    "steps": [
+      "Launch fresh synthetic offline city, focus real X11 game window, close controls menu when present. Focus city camera and zoom to 256.",
+      "Place three pedestrians .65 metres apart on forward pavement z=25.75; place reverse pedestrian on z=23.25. Hold leader. Advance followers once: positions remain unchanged and activity becomes Waiting for traffic.",
+      "Advance reverse traveller while leader is held; it moves freely. Release leader, run 20 steps with 250 ms visual spacing between steps; verify every queued traveller advances, no overtaking, minimum .5 metre gap, retained routes and correct lanes.",
+      "Repeat with mounted citizens on carriageway lanes z=25 and z=24, initial 1 metre spacing and minimum .65 metre gap.",
+      "Place two pedestrians on perpendicular approaches near (8.5,24.5). Run 30 steps in each update order with 150 ms visual spacing. Verify yielding traveller backs out to free priority stopping space, gap stays at least .5 metres, no Route obstructed state, and both routes finish.",
+      "Use real F10 key events to start and stop each recording. Save actual window screenshots before and after each scenario. Decode each clip at its first, middle and last frames and inspect those frames."
+    ],
+    "expected": "Congested forward travellers wait behind the held leader and resume in order; reverse lane remains free; crossing yields without deadlock or collision.",
+    "observed": "All runtime assertions passed. Fresh close-view screenshots and decoded F10 frames visually show waiting queues, queue release, separate travel directions and completed crossings.",
+    "limits": "Synthetic fixture control is explicit. Software rendering ran near 2\u20134 FPS; this is behavior evidence, not a performance benchmark."
+  },
+  "video_inspection": [
+    {
+      "file": "road-traffic-game-pedestrians.mp4",
+      "frames": 18,
+      "duration_seconds": 10.222,
+      "bytes": 608618
+    },
+    {
+      "file": "road-traffic-game-horses.mp4",
+      "frames": 26,
+      "duration_seconds": 9.773,
+      "bytes": 674775
+    },
+    {
+      "file": "road-traffic-game-crossing.mp4",
+      "frames": 44,
+      "duration_seconds": 17.15,
+      "bytes": 1183986
+    }
+  ],
+  "regression_control": "The access-merge test previously failed against preserved original traffic code and passed after the fix; details in road-traffic-final-recovery-tests.json.",
+  "source_hashes_unchanged_from_combined_run": {
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": true,
+    "src/main/java/dev/jayms/net/city/RoadTraffic.java": true,
+    "src/test/java/dev/jayms/RoadTrafficTest.java": true,
+    "src/test/java/dev/jayms/CityMultiplayerTest.java": true,
+    "src/test/java/dev/jayms/BusinessCatalogTest.java": true,
+    "deploy/RoadTrafficSmoke.java": true,
+    "deploy/run_road_traffic_smoke.py": true
+  },
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "52f766ffc43e0e22cee95973e57aa151ca39eb5d87a958a6e8c714a138e93947",
+    "src/main/java/dev/jayms/net/city/RoadTraffic.java": "ec326e5a8f0054f6075ba0a870fbde5a18682be3f4c4a1c18980dcaea3e08d3b",
+    "src/test/java/dev/jayms/RoadTrafficTest.java": "456c22808eedba086a78aea7ced3b2a7aadd66e10eda9a303515d5366078728a",
+    "src/test/java/dev/jayms/CityMultiplayerTest.java": "77b2fbfcf504e8f3ab4e678b6deb58aa3fb36fdd810161a12f8f46c08934306a",
+    "src/test/java/dev/jayms/BusinessCatalogTest.java": "992e56a59ad3696a0ffc76582149c4d2ac03da9acd7054f7ed576f7aaa926d91",
+    "deploy/RoadTrafficSmoke.java": "ef0eef6c16405e76edb010d769b7f92ecca464b626ea48af2efe54934c1f13ca",
+    "deploy/run_road_traffic_smoke.py": "552573a15e96304085891d0fd7bc325332f91dd5efc631ea966058250ce72b16",
+    "deploy/TrafficGameplaySmoke.java": "1aa7a2ecc7634e71136982266de63559cd1285e269632db028d28f91453f1d01",
+    "deploy/run_traffic_gameplay_smoke.py": "0c2b38daabb158ff6859ea76acb671fc0ca173ef2d525a49e8dcc189a5327f0c"
+  },
+  "media": [
+    {
+      "label": "Fresh native game traffic capture; pending controller publication",
+      "file": "dashboard/evidence/road-traffic-game-crossing-false-cleared.png",
+      "kind": "image",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/road-traffic-game-crossing-false-cleared.png",
+      "bytes": 1030452,
+      "sha256": "d088da922dc3d6c840cf3ab76549264ae7a81cff9f46ffd88e7f1395cc4148e4"
+    },
+    {
+      "label": "Fresh native game traffic capture; pending controller publication",
+      "file": "dashboard/evidence/road-traffic-game-crossing-false-start.png",
+      "kind": "image",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/road-traffic-game-crossing-false-start.png",
+      "bytes": 1029062,
+      "sha256": "dfd694ed18a0850f665397400fedb5c190d9ba80138e934b5c44ffc8df1a760f"
+    },
+    {
+      "label": "Fresh native game traffic capture; pending controller publication",
+      "file": "dashboard/evidence/road-traffic-game-crossing-true-cleared.png",
+      "kind": "image",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/road-traffic-game-crossing-true-cleared.png",
+      "bytes": 1033784,
+      "sha256": "a48da780822b23f68878d07f7829cba2941ea7cb9413e61287a6e01bb0ad1339"
+    },
+    {
+      "label": "Fresh native game traffic capture; pending controller publication",
+      "file": "dashboard/evidence/road-traffic-game-crossing-true-start.png",
+      "kind": "image",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/road-traffic-game-crossing-true-start.png",
+      "bytes": 1030832,
+      "sha256": "67887396ae0ebe107ec059515320baf284db0331ae175fa46064bd07aefdbe73"
+    },
+    {
+      "label": "Fresh native game traffic capture; pending controller publication",
+      "file": "dashboard/evidence/road-traffic-game-crossing.mp4",
+      "kind": "video",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/road-traffic-game-crossing.mp4",
+      "bytes": 1183986,
+      "sha256": "e29f6e761cca440a2a24be96635f6103aa51949eec4a067016695c97071ada2f"
+    },
+    {
+      "label": "Fresh native game traffic capture; pending controller publication",
+      "file": "dashboard/evidence/road-traffic-game-horses-resumed.png",
+      "kind": "image",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/road-traffic-game-horses-resumed.png",
+      "bytes": 1010514,
+      "sha256": "eea20895b3b7ae8b0865a72750ab435080bbf9b024f115c092dbc922d6197411"
+    },
+    {
+      "label": "Fresh native game traffic capture; pending controller publication",
+      "file": "dashboard/evidence/road-traffic-game-horses-waiting.png",
+      "kind": "image",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/road-traffic-game-horses-waiting.png",
+      "bytes": 851628,
+      "sha256": "ac6580a6a0b0f91133bbd03faed4f3003e7e9c9dce936798a4fd01adaf32ac77"
+    },
+    {
+      "label": "Fresh native game traffic capture; pending controller publication",
+      "file": "dashboard/evidence/road-traffic-game-horses.mp4",
+      "kind": "video",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/road-traffic-game-horses.mp4",
+      "bytes": 674775,
+      "sha256": "2f39471e123bf0a97739b1325613505af88b337c0f466ce75004bf325e84dce5"
+    },
+    {
+      "label": "Fresh native game traffic capture; pending controller publication",
+      "file": "dashboard/evidence/road-traffic-game-pedestrians-resumed.png",
+      "kind": "image",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/road-traffic-game-pedestrians-resumed.png",
+      "bytes": 978872,
+      "sha256": "672cee3d70a0ba6e88f76637fd52afc1bf09742e51595b994a8a39ba6174ad54"
+    },
+    {
+      "label": "Fresh native game traffic capture; pending controller publication",
+      "file": "dashboard/evidence/road-traffic-game-pedestrians-waiting.png",
+      "kind": "image",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/road-traffic-game-pedestrians-waiting.png",
+      "bytes": 803143,
+      "sha256": "c7a6b4e3ba35dbab03781a2a30c8eef8d387879d91fe247ea2736011ca410618"
+    },
+    {
+      "label": "Fresh native game traffic capture; pending controller publication",
+      "file": "dashboard/evidence/road-traffic-game-pedestrians.mp4",
+      "kind": "video",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/road-traffic-game-pedestrians.mp4",
+      "bytes": 608618,
+      "sha256": "7a6c1b5eae1d35f292404e29e3627c83e39588468fe06a5af5191af040aece92"
+    }
+  ],
+  "controller_actions": [
+    "Stage working resolutions and all new source/evidence files; continue any pending rebase without discarding edits.",
+    "Verify the resulting submitted source matches recorded hashes, run required CI, and publish feature-branch media.",
+    "Obtain independent exact-head review, including separate workflow execution and published media verification."
+  ],
+  "publication": "Intended assigned-feature-branch HTTPS URLs; pending controller publication. No developer commit, push, merge, deploy or rebase continuation.",
+  "historical_ci": "Operator reported prior Windows run 201 tests/1 road snapshot equality failure, Linux passed, macOS cancelled. No current Windows or macOS pass is claimed."
+}

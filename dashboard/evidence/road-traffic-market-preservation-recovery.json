@@ -1,0 +1,257 @@
+{
+  "status": "recover",
+  "reviewed_base": "431ff142666f791c4323882075834f3390685153",
+  "reviewed_feature_head": "bd7895eaba055fb88977336c3439e62f5eccd559",
+  "resolution": "Retained marketDay,marketBuildings and traffic fields together. Nested progress conflicts keep updated-upstream queue entry and all traffic evidence.",
+  "reviewer_requirements_preserved": [
+    "Market pricing, meal selection, shop restocking, housing/labour pricing in merged CitySimulation",
+    "CityEconomy.wage finite/positive guard",
+    "MarketEconomyTest,ExchangeLabourMarketTest,ShopRestockMarketTest",
+    "Packaged /api/general-progress route and website tests",
+    "Reviewed-base historical evidence; no deleted base evidence paths"
+  ],
+  "exact_base_checks": [
+    {
+      "file": "src/main/java/dev/jayms/net/city/CityEconomy.java",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "src/test/java/dev/jayms/MarketEconomyTest.java",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "src/test/java/dev/jayms/ExchangeLabourMarketTest.java",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "src/test/java/dev/jayms/ShopRestockMarketTest.java",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/.gitignore",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/.openai/hosting.json",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/build.mjs",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/db/schema.ts",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/db/storage.mjs",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/dist/assets/business-dashboard-overview.png",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/dist/assets/mayor-dashboard-overview.png",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/dist/assets/player-nameplates-city.png",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/dist/assets/voxel-city-overview.png",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/dist/assets/voxel-features-3d-created.png",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/dist/assets/voxel-horizon-flying.png",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/dist/assets/voxel-lighting-placed-purple.png",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/dist/client/assets/business-dashboard-overview.png",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/dist/client/assets/mayor-dashboard-overview.png",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/dist/client/assets/player-nameplates-city.png",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/dist/client/assets/voxel-city-overview.png",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/dist/client/assets/voxel-features-3d-created.png",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/dist/client/assets/voxel-horizon-flying.png",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/dist/client/assets/voxel-lighting-placed-purple.png",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/dist/client/docs.html",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/dist/client/index.html",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/dist/client/progress.html",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/dist/client/progress.js",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/dist/client/progress.json",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/dist/client/questions.js",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/dist/client/site.css",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/dist/docs.html",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/dist/index.html",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/dist/progress.html",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/dist/progress.js",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/dist/progress.json",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/dist/questions.js",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/dist/server/index.js",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/dist/server/progress_bridge.mjs",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/dist/server/storage.mjs",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/dist/server/video.mjs",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/dist/server/wrangler.json",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/dist/site.css",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/drizzle.config.ts",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/drizzle/0000_windy_madripoor.sql",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/drizzle/meta/0000_snapshot.json",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/drizzle/meta/_journal.json",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/package-lock.json",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/package.json",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/progress_bridge.mjs",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/test/general-progress-package.test.mjs",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/test/general-progress.test.mjs",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/video.mjs",
+      "matches_reviewed_base": true
+    },
+    {
+      "file": "website/worker.mjs",
+      "matches_reviewed_base": true
+    }
+  ],
+  "restored_missing_traffic_evidence": [
+    "dashboard/evidence/final-head-82218f2-road-traffic-game-crossing-false-cleared.png",
+    "dashboard/evidence/final-head-82218f2-road-traffic-game-crossing-false-start.png",
+    "dashboard/evidence/final-head-82218f2-road-traffic-game-crossing-true-cleared.png",
+    "dashboard/evidence/final-head-82218f2-road-traffic-game-crossing-true-start.png",
+    "dashboard/evidence/final-head-82218f2-road-traffic-game-crossing.mp4",
+    "dashboard/evidence/final-head-82218f2-road-traffic-game-horses-resumed.png",
+    "dashboard/evidence/final-head-82218f2-road-traffic-game-horses-waiting.png",
+    "dashboard/evidence/final-head-82218f2-road-traffic-game-horses.mp4",
+    "dashboard/evidence/final-head-82218f2-road-traffic-game-pedestrians-resumed.png",
+    "dashboard/evidence/final-head-82218f2-road-traffic-game-pedestrians-waiting.png",
+    "dashboard/evidence/final-head-82218f2-road-traffic-game-pedestrians.mp4",
+    "dashboard/evidence/final-head-82218f2-road-traffic-native-gameplay.json",
+    "dashboard/evidence/road-traffic-business-rebase-resolution.json",
+    "dashboard/evidence/road-traffic-current-rebase-handoff.json",
+    "dashboard/evidence/road-traffic-final-head-validation.json",
+    "dashboard/evidence/road-traffic-guide-rebase-resolution.json",
+    "dashboard/evidence/road-traffic-metric-rebase-resolution.json",
+    "dashboard/evidence/road-traffic-next-rebase-handoff.json",
+    "dashboard/evidence/road-traffic-rebase-resolution.json",
+    "dashboard/evidence/road-traffic-special-rebase-resolution.json"
+  ],
+  "playtest": "Playtest: prior native videos/reports preserved from exact reviewed feature commit; no new execution while rebase remains pending. Final-head combined market/traffic/multiplayer and packaged-worker integration, plus fresh native media, must run after controller continuation.",
+  "continuation": "Controller stages and continues without publishing. No developer staging/continuation/commit/push/merge/reset/abort/deploy. Return recover with question:null.",
+  "merged_market_logic_checks": {
+    "meal_nutrition_selection_restock_housing_labour_assignment_region": "Byte-for-byte match to reviewed base",
+    "daily_market_pricing_review_region": "Byte-for-byte match to reviewed base",
+    "base_historical_evidence": "No modified/deleted/type-changed base evidence paths",
+    "source_scope": "Only CitySimulation and new RoadTraffic differ under src/main/java; only traffic behavior changed in CitySimulation"
+  }
+}

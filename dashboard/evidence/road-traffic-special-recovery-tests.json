@@ -1,0 +1,173 @@
+{
+  "scope": "Combined traffic and special-building rebase recovery",
+  "reviewed_base": "234136c6f0365fe08757a2f0a52d72d7df92578c",
+  "special_files_preserved_byte_for_byte": [
+    "dashboard/evidence/special-buildings-checkpoint.md",
+    "dashboard/evidence/special-buildings-menu.png",
+    "dashboard/evidence/special-buildings-metric-integration-tests.json",
+    "dashboard/evidence/special-buildings-metric-replay-tests.json",
+    "dashboard/evidence/special-buildings-overhead-tests.json",
+    "dashboard/evidence/special-buildings-placement.png",
+    "dashboard/evidence/special-buildings-recovery-tests.json",
+    "dashboard/evidence/special-buildings-rendering.json",
+    "dashboard/evidence/special-buildings-replay-recovery-tests.json",
+    "dashboard/evidence/special-buildings-tests.json",
+    "deploy/SpecialBuildingsSmoke.java",
+    "deploy/run_special_buildings_smoke.py",
+    "src/main/java/dev/jayms/net/city/SpecialBuildings.java",
+    "src/test/java/dev/jayms/SpecialBuildingsTest.java"
+  ],
+  "compatibility": "Protocol.VERSION=15 retained; civic saved building types 4\u201318 accepted by unchanged base CityFrame.read.",
+  "checks": [
+    {
+      "command": "MAVEN_OPTS=-Djava.io.tmpdir=$PWD/.build-tmp /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -DargLine=-Djava.io.tmpdir=$PWD/.build-tmp '-Dtest=RoadTrafficTest,City*Test,!CityMultiplayerTest,ManufacturingTest,AgricultureTest,MayorDashboardTest,DemolitionTest,IsometricCameraTest,PlayerCameraTest,MetricHistoryTest,SpecialBuildingsTest' test",
+      "exit": 0,
+      "tests": 110,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "suites": [
+        {
+          "name": "dev.jayms.AgricultureTest",
+          "tests": "8",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityAddressesTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityBusinessTest",
+          "tests": "9",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityEconomyTest",
+          "tests": "7",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityMaterialsTest",
+          "tests": "13",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityMetricsTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityTest",
+          "tests": "10",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityTimeTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityToolsTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.DemolitionTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.IsometricCameraTest",
+          "tests": "7",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.ManufacturingTest",
+          "tests": "7",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.MayorDashboardTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.MetricHistoryTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.PlayerCameraTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.RoadTrafficTest",
+          "tests": "12",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.SpecialBuildingsTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        }
+      ]
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    },
+    {
+      "command": "Python byte comparisons of all special-building files/evidence/smoke tools, Protocol, CityFrame, CityCommand and StructureBlueprint against reviewed base",
+      "result": "Passed"
+    },
+    {
+      "command": "Python diff-name assertion: only CitySimulation and RoadTraffic differ in src/main; special placement/ownership methods match base; both progress entries and unique IDs verified",
+      "result": "Passed"
+    }
+  ],
+  "traffic_retained": [
+    "Directional lanes/pavements and congestion spacing",
+    "Inside-bend geometry and actual traveller queue regression",
+    "Intersection clearance and pedestrian/mounted regression in both update orders"
+  ],
+  "limitations": [
+    "Graphical/F10 and multiplayer socket behavior not revalidated. Preserved rendering evidence is historical, not new captures."
+  ],
+  "next": "Controller stages resolved working files, continues rebase, verifies all concurrent features remain present and requests independent exact-head review."
+}

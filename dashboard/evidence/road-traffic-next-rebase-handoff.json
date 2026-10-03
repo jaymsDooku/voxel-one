@@ -1,0 +1,100 @@
+{
+  "status": "recover",
+  "scope": "Next documentation conflict after controller advancement",
+  "resolved_working_files": [
+    "TRAFFIC_CHECKPOINT.md",
+    "dashboard/progress.json"
+  ],
+  "preservation": "Both checkpoint histories, all dashboard items and four native evidence links preserved. Incoming obsolete blocker kept as historical context. Existing source/tests and media unchanged. All other artifacts and stashes untouched.",
+  "source_hash_checks": [
+    {
+      "file": "src/main/java/dev/jayms/net/city/CitySimulation.java",
+      "matches_recorded": true
+    },
+    {
+      "file": "src/main/java/dev/jayms/net/city/RoadTraffic.java",
+      "matches_recorded": true
+    },
+    {
+      "file": "src/test/java/dev/jayms/RoadTrafficTest.java",
+      "matches_recorded": true
+    },
+    {
+      "file": "src/test/java/dev/jayms/CityMultiplayerTest.java",
+      "matches_recorded": true
+    },
+    {
+      "file": "src/test/java/dev/jayms/BusinessCatalogTest.java",
+      "matches_recorded": true
+    },
+    {
+      "file": "deploy/RoadTrafficSmoke.java",
+      "matches_recorded": true
+    },
+    {
+      "file": "deploy/run_road_traffic_smoke.py",
+      "matches_recorded": true
+    },
+    {
+      "file": "deploy/TrafficGameplaySmoke.java",
+      "matches_recorded": true
+    },
+    {
+      "file": "deploy/run_traffic_gameplay_smoke.py",
+      "matches_recorded": true
+    }
+  ],
+  "media_hash_checks": [
+    {
+      "file": "dashboard/evidence/road-traffic-game-crossing-false-cleared.png",
+      "matches_recorded": true
+    },
+    {
+      "file": "dashboard/evidence/road-traffic-game-crossing-false-start.png",
+      "matches_recorded": true
+    },
+    {
+      "file": "dashboard/evidence/road-traffic-game-crossing-true-cleared.png",
+      "matches_recorded": true
+    },
+    {
+      "file": "dashboard/evidence/road-traffic-game-crossing-true-start.png",
+      "matches_recorded": true
+    },
+    {
+      "file": "dashboard/evidence/road-traffic-game-crossing.mp4",
+      "matches_recorded": true
+    },
+    {
+      "file": "dashboard/evidence/road-traffic-game-horses-resumed.png",
+      "matches_recorded": true
+    },
+    {
+      "file": "dashboard/evidence/road-traffic-game-horses-waiting.png",
+      "matches_recorded": true
+    },
+    {
+      "file": "dashboard/evidence/road-traffic-game-horses.mp4",
+      "matches_recorded": true
+    },
+    {
+      "file": "dashboard/evidence/road-traffic-game-pedestrians-resumed.png",
+      "matches_recorded": true
+    },
+    {
+      "file": "dashboard/evidence/road-traffic-game-pedestrians-waiting.png",
+      "matches_recorded": true
+    },
+    {
+      "file": "dashboard/evidence/road-traffic-game-pedestrians.mp4",
+      "matches_recorded": true
+    }
+  ],
+  "checks": [
+    "JSON parse and unique progress IDs passed",
+    "All unmerged working files have no conflict markers",
+    "git diff --check passed"
+  ],
+  "playtest": "Playtest: prior native gameplay and multiplayer results retained as historical evidence; final-head execution deferred until controller completes Git recovery.",
+  "continuation": "Controller stages and continues without publishing, then resumes developer for final-head hashes/tests/media. No developer Git index writes or owner answer required."
+}

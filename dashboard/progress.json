@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T12:00:58+00:00",
+  "updatedAt": "2026-10-07T12:59:58.582954+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -2983,6 +2983,36 @@
       "status": "in_progress",
       "note": "Integrated head verified: 118 tests and native development/reload workflow passed. Fresh screenshots and F10 video inspected. Ready for independent review; controller publication pending.",
       "updatedAt": "2026-10-07T11:29:14.289000+00:00"
+    },
+    {
+      "id": "31656461353163612d376237342d343939392d623262332d366535613763363439316637",
+      "title": "Directional road traffic",
+      "description": "Implementing directional carriageway and pavement travel with congestion spacing.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "Native traffic validation \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/road-traffic-native-validation.json"
+        },
+        {
+          "kind": "video",
+          "label": "Native pedestrian traffic F10 \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/road-traffic-game-pedestrians.mp4"
+        },
+        {
+          "kind": "video",
+          "label": "Native horse traffic F10 \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/road-traffic-game-horses.mp4"
+        },
+        {
+          "kind": "video",
+          "label": "Native crossing regression F10 \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/road-traffic-game-crossing.mp4"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Progress conflict resolved while preserving current base milestones and traffic evidence history. Controller must stage and continue the rebase before final-head source audit, tests and fresh native media. Earlier validation is historical.",
+      "updatedAt": "2026-10-07T12:59:58.582954+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
