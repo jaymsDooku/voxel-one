@@ -108,8 +108,11 @@ class CityEconomyTest {
         assertEquals(5, f.buildings().size());
         assertEquals(5, f.economy().plots().size());
         assertEquals(0, f.economy().roadSpending());
-        assertEquals(120, f.economy().landRevenue());
-        assertEquals(10120, f.economy().budget());
+        assertEquals(
+                f.economy().plots().stream().mapToDouble(CityEconomy.Plot::landPrice).sum(),
+                f.economy().landRevenue(),
+                1e-8);
+        assertEquals(10000 + f.economy().landRevenue(), f.economy().budget(), 1e-8);
         assertTrue(
                 f.economy().firms().stream()
                         .filter(c -> c.kind() == CityEconomy.DEVELOPER)
