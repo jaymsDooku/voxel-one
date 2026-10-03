@@ -25,5 +25,19 @@
   ],
   "tests": "Prior 114 combined passing tests and successful 16-capture guide smoke remain applicable; no redundant rerun for documentation-only changes.",
   "prior_evidence": "dashboard/evidence/road-traffic-guide-recovery-tests.json",
-  "next": "Controller stages resolutions and continues rebase, then obtains independent exact-head review."
+  "next": "Controller stages resolutions and continues rebase, then obtains independent exact-head review.",
+  "subsequent_resolutions": [
+    {
+      "head": "0096aa9df444e5fbe9a1e430dbba9d00cb303828",
+      "result": "Retained incoming historical notes and newer guide recovery notes; kept guide/traffic progress and evidence.",
+      "checks": {
+        "git diff HEAD -- src": "Empty; source/tests unchanged",
+        "guide source/tests/tools/original evidence byte comparisons": "Passed",
+        "non-traffic main source comparison with reviewed base": "Unchanged",
+        "dashboard JSON/unique IDs/both entries, no markers, 16 fresh captures": "Passed",
+        "git diff --check": "Passed"
+      },
+      "tests": "Prior 114 passing combined tests and 16-capture guide smoke remain applicable; no documentation-only rerun."
+    }
+  ]
 }

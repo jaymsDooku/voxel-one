@@ -25,5 +25,19 @@
   ],
   "tests": "No rerun for documentation-only changes. Prior 110 passing combined tests remain applicable.",
   "prior_evidence": "dashboard/evidence/road-traffic-special-recovery-tests.json",
-  "next": "Controller stages working-file resolutions and continues rebase; final feature preservation and independent exact-head review required."
+  "next": "Controller stages working-file resolutions and continues rebase; final feature preservation and independent exact-head review required.",
+  "subsequent_resolutions": [
+    {
+      "head": "012f9361800626abbd5659ce167e121fbfd18c61",
+      "result": "Retained both historical checkpoint sides and newer progress notes.",
+      "checks": {
+        "git diff HEAD -- src": "Empty; source/tests unchanged",
+        "special/metric files and protocol/save/command/blueprint/UI comparison against reviewed base": "Passed",
+        "dashboard JSON, unique IDs and traffic/special/metric entry assertions": "Passed",
+        "conflict-marker assertions": "Passed",
+        "git diff --check": "Passed"
+      },
+      "tests": "Prior combined 110-test pass remains applicable; no rerun for documentation-only changes."
+    }
+  ]
 }

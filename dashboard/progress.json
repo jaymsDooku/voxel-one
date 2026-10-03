@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-03T23:20:03+00:00",
+  "updatedAt": "2026-10-03T23:21:02+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -20,8 +20,8 @@
       "description": "Implementing directional carriageway and pavement travel with congestion spacing.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Guide-recovery documentation conflict resolved retaining histories, both progress entries and rendering evidence. Source/tests unchanged; prior 114-test pass and 16 guide captures apply. Controller staging/continuation and independent review pending.",
-      "updatedAt": "2026-10-03T23:20:03+00:00"
+      "note": "Historical-guide notes conflict resolved; both histories, guide progress/evidence and all features preserved. Source/tests unchanged; prior combined 114-test pass and 16 guide captures apply. Controller staging/continuation and independent review pending.",
+      "updatedAt": "2026-10-03T23:21:02+00:00"
     },
     {
       "id": "36646132363664302d343539632d346638662d613536642d326361383834333232363834",
