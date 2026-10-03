@@ -1,0 +1,38 @@
+{
+  "focused_command": "MAVEN_OPTS=\"-Djava.io.tmpdir=$PWD/target/tmp\" /tmp/apache-maven-3.9.11/bin/mvn -o -Dmaven.repo.local=target/m2 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=MetricHistoryTest,MayorDashboardTest,CityMetricsTest,BusinessDashboardTest -q test",
+  "results": [
+    {
+      "suite": "MetricHistoryTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "MayorDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "CityMetricsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "BusinessDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "total_tests": 15,
+  "full_suite": "Attempted; UpdaterTest local HTTP server fails with SocketException: Operation not permitted; stopped stalled suite. Initial attempt also failed because default /tmp is read-only; focused run uses worktree temp directory.",
+  "visual_capture": "Passed: python3 deploy/run_metric_trends_smoke.py dashboard/evidence target/m2. Eight real OpenGL screenshots with changing synthetic metrics across four domains at 1280x720 and 640x640; Linux Mesa llvmpipe surfaceless EGL. See metric-trends-rendering.json for pixel checks, values and file names. Captures visually inspected; session note shortened to fit the minimum viewport.",
+  "scope": "Population totals/groups, company finances/staffing, workplace accounts/stock/staffing, government treasury/road spending/land income. History collected every 5 simulation seconds, bounded to 240 samples, session only.",
+  "review_status": "Rendering review feedback addressed; ready for independent review. No commit, push, PR mutation, merge or deployment performed."
+}

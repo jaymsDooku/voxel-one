@@ -103,6 +103,30 @@ public final class Overlay implements AutoCloseable {
         vertex(x, y + height, r, g, b, alpha);
     }
 
+    /** Thick segment rendered as triangles, independent of driver line-width limits. */
+    public void line(
+            float x1,
+            float y1,
+            float x2,
+            float y2,
+            float width,
+            float r,
+            float g,
+            float b,
+            float alpha) {
+        double length = Math.hypot(x2 - x1, y2 - y1);
+        if (length == 0) return;
+        float dx = (float) (-(y2 - y1) / length * width / 2);
+        float dy = (float) ((x2 - x1) / length * width / 2);
+        reserve(36);
+        vertex(x1 + dx, y1 + dy, r, g, b, alpha);
+        vertex(x2 + dx, y2 + dy, r, g, b, alpha);
+        vertex(x2 - dx, y2 - dy, r, g, b, alpha);
+        vertex(x1 + dx, y1 + dy, r, g, b, alpha);
+        vertex(x2 - dx, y2 - dy, r, g, b, alpha);
+        vertex(x1 - dx, y1 - dy, r, g, b, alpha);
+    }
+
     public int textWidth(String text, float scale) {
         return (int) (stb_easy_font_width(text) * scale);
     }

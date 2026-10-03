@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-03T07:53:55+00:00",
+  "updatedAt": "2026-10-03T13:23:46+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,15 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "38383035396439392d393432392d343737342d393838302d636439653137323962623766",
+      "title": "Metric history charts",
+      "description": "Implementing population, company and government time-series views locally.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Rebase conflict resolved in worktree; master milestones and rendering-review requirements retained. Combined tree passed 25 chart, demolition and isometric-camera tests. Eight fresh Linux Mesa OpenGL captures show changing metrics across four domains at 1280x720 and 640x640. Evidence: metric-trends-rebase-verification.json and metric-trends-rendering.json. Controller stages and continues rebase; independent review pending.",
+      "updatedAt": "2026-10-03T13:23:46+00:00"
+    },
     {
       "id": "36373966363030342d613265392d346438382d616436372d363961323932396265373961",
       "title": "Building demolition",

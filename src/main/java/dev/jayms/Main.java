@@ -982,6 +982,8 @@ public class Main {
     }
 
     private void renderOverlay() {
+        if (city().config().city() && (network == null || network.connected()))
+            mayorDashboard.history.observe(city());
         overlay.begin(framebufferWidth, framebufferHeight);
         if (mayorDashboard.open) {
             mayorDashboard.render(

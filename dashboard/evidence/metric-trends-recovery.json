@@ -1,0 +1,151 @@
+{
+  "result": "passed",
+  "fixture": "Synthetic changing snapshots, not live gameplay",
+  "platform": "Linux Mesa surfaceless EGL pbuffer",
+  "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+  "openGL": "4.5 (Core Profile) Mesa 22.3.6",
+  "captures": [
+    {
+      "file": "metric-trends-recovery-population-1280x720.png",
+      "width": 1280,
+      "height": 720,
+      "metric": "Population / All / population",
+      "initial": 4.0,
+      "latest": 11.0,
+      "samples": 80,
+      "chartPixels": 3328,
+      "chartRows": 304
+    },
+    {
+      "file": "metric-trends-recovery-companies-1280x720.png",
+      "width": 1280,
+      "height": 720,
+      "metric": "Companies / All / Operating cash ($)",
+      "initial": 500.0,
+      "latest": 1211.0,
+      "samples": 80,
+      "chartPixels": 2976,
+      "chartRows": 304
+    },
+    {
+      "file": "metric-trends-recovery-government-1280x720.png",
+      "width": 1280,
+      "height": 720,
+      "metric": "Government / City / Treasury ($)",
+      "initial": 10000.0,
+      "latest": 9052.0,
+      "samples": 80,
+      "chartPixels": 2976,
+      "chartRows": 304
+    },
+    {
+      "file": "metric-trends-recovery-workplaces-1280x720.png",
+      "width": 1280,
+      "height": 720,
+      "metric": "Workplaces / Mining Co | Building #2 #2 / revenue ($)",
+      "initial": 0.0,
+      "latest": 1185.0,
+      "samples": 80,
+      "chartPixels": 2976,
+      "chartRows": 304
+    },
+    {
+      "file": "metric-trends-recovery-population-640x640.png",
+      "width": 640,
+      "height": 640,
+      "metric": "Population / All / population",
+      "initial": 4.0,
+      "latest": 11.0,
+      "samples": 80,
+      "chartPixels": 1990,
+      "chartRows": 224
+    },
+    {
+      "file": "metric-trends-recovery-companies-640x640.png",
+      "width": 640,
+      "height": 640,
+      "metric": "Companies / All / Operating cash ($)",
+      "initial": 500.0,
+      "latest": 1211.0,
+      "samples": 80,
+      "chartPixels": 1670,
+      "chartRows": 224
+    },
+    {
+      "file": "metric-trends-recovery-government-640x640.png",
+      "width": 640,
+      "height": 640,
+      "metric": "Government / City / Treasury ($)",
+      "initial": 10000.0,
+      "latest": 9052.0,
+      "samples": 80,
+      "chartPixels": 1670,
+      "chartRows": 224
+    },
+    {
+      "file": "metric-trends-recovery-workplaces-640x640.png",
+      "width": 640,
+      "height": 640,
+      "metric": "Workplaces / Mining Co | Building #2 #2 / revenue ($)",
+      "initial": 0.0,
+      "latest": 1185.0,
+      "samples": 80,
+      "chartPixels": 1670,
+      "chartRows": 224
+    }
+  ],
+  "egl": "1.5",
+  "command": "python3 deploy/run_metric_trends_smoke.py target/metric-recovery-rendering target/m2",
+  "checks": [
+    "Each selected metric changes between first and last sample",
+    "Each rendered chart has at least 300 mint pixels across at least 100 chart rows",
+    "No OpenGL errors in all eight captures"
+  ],
+  "validation_context": "Combined source worktree during pending rebase; controller stages and continues. Saved review harness used from a919a8e9197b4dcabe1a79af150a416786f1933e under ignored target/, without replaying pending commits.",
+  "test_command": "MAVEN_OPTS=\"-Djava.io.tmpdir=$PWD/target/tmp\" /tmp/apache-maven-3.9.11/bin/mvn -o -Dmaven.repo.local=target/m2 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=MetricHistoryTest,MayorDashboardTest,CityMetricsTest,BusinessDashboardTest,DemolitionTest,IsometricCameraTest -q test",
+  "tests": [
+    {
+      "suite": "MetricHistoryTest",
+      "tests": 4,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "MayorDashboardTest",
+      "tests": 3,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "CityMetricsTest",
+      "tests": 5,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "BusinessDashboardTest",
+      "tests": 3,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "DemolitionTest",
+      "tests": 3,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "IsometricCameraTest",
+      "tests": 7,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    }
+  ],
+  "conflict_check": "dashboard/progress.json parsed successfully; all master metadata retained unchanged alongside feature milestone. No conflict markers remain. Git index deliberately untouched."
+}
