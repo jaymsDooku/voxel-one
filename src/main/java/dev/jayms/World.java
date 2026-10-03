@@ -22,8 +22,12 @@ public class World implements AutoCloseable {
     }
 
     public World(long seed, ModelLibrary models) {
+        this(seed, models, Terrain.CURRENT_VERSION);
+    }
+
+    public World(long seed, ModelLibrary models, int generatorVersion) {
         this.models = models;
-        terrain = new Terrain(seed);
+        terrain = new Terrain(seed, generatorVersion);
         voxels = new WorldVoxels(terrain);
     }
 
@@ -139,7 +143,7 @@ public class World implements AutoCloseable {
                         cell(e.x(), e.y(), e.z())
                                 .uniform(e.ix() * side, e.iy() * side, e.iz() * side, side));
         if (type == 0 || type == Blocks.PARTIAL) return type;
-        return Blocks.isModel(type) && e.depth() > 0
+        return !Blocks.subdividable(type) && e.depth() > 0
                 ? Blocks.PARTIAL
                 : Blocks.piece(type, e.depth());
     }

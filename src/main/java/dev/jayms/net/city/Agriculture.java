@@ -1,6 +1,7 @@
 package dev.jayms.net.city;
 
 import dev.jayms.net.Blocks;
+import dev.jayms.net.Terrain;
 
 import java.io.*;
 import java.util.*;
@@ -79,6 +80,7 @@ public final class Agriculture {
     public record Livestock(int company, int building) {}
 
     private final Ecs ecs;
+    private final Terrain terrain;
     private final List<Family> families = new ArrayList<>();
     private final List<Field> fields = new ArrayList<>();
     private final List<Cow> cows = new ArrayList<>();
@@ -86,7 +88,12 @@ public final class Agriculture {
     private boolean enabled, pending;
 
     public Agriculture(Ecs ecs, State state) {
+        this(ecs, state, null);
+    }
+
+    public Agriculture(Ecs ecs, State state, Terrain terrain) {
         this.ecs = ecs;
+        this.terrain = terrain;
         enabled = state.enabled;
         pending = state.pending;
         families.addAll(state.families);
@@ -247,6 +254,16 @@ public final class Agriculture {
         }
     }
 
+    /**
+     * Built soil still needs a suitable climate. Legacy worlds retain their original growth rate.
+     */
+    public double growingConditions(int x, int z) {
+        var fields = terrain == null ? null : terrain.fields(x, z);
+        if (fields == null) return 1;
+        double warmth = Math.max(.2, 1 - Math.abs(fields.temperature() - .55));
+        return (.6 + .6 * fields.fertility()) * warmth * (.7 + .4 * fields.moisture());
+    }
+
     public void work(
             CityFrame.Building b, CityEconomy economy, double hours, CitySimulation.Ground ground) {
         var p = economy.property(b.id());
@@ -264,7 +281,12 @@ public final class Agriculture {
                         if (ground.type(field.x + dx, field.y - 1, field.z + dz) != Blocks.DIRT)
                             soil = false;
                 if (!soil) continue;
-                float growth = (float) Math.min(1, field.growth + hours / 4);
+                float growth =
+                        (float)
+                                Math.min(
+                                        1,
+                                        field.growth
+                                                + hours / 4 * growingConditions(field.x, field.z));
                 long count = field.harvests;
                 if (growth >= 1
                         && economy.resources.available(0, company, field.product)

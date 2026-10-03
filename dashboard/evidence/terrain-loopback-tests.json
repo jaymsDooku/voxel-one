@@ -1,0 +1,39 @@
+{
+  "label": "Terrain server migration and multiplayer generator-version validation",
+  "tests": 6,
+  "failures": 0,
+  "errors": 0,
+  "command": "/tmp/apache-maven-3.9.11/bin/mvn -o -Dmaven.repo.local=target/maven-cache -Djava.io.tmpdir=\"$PWD/target/tmp\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" '-Dtest=MultiplayerTest#legacyServerSaveFormatsMigrateAndKeepGeneratorOnClientAndRestart+seedlessServerSaveMigratesToVersionedLegacyTerrain+brandNewServerChoosesVersionTwoAndPersistsIt+versionTwoServerSaveRoundTripsToClientsAcrossRestart+unsupportedSavedGeneratorFailsBeforeOpeningListenerAndPreservesSave+clientRejectsUnsupportedGeneratorFromAuthenticatedHandshake' test -q",
+  "cases": [
+    {
+      "name": "versionTwoServerSaveRoundTripsToClientsAcrossRestart",
+      "status": "passed",
+      "seconds": 6.607
+    },
+    {
+      "name": "seedlessServerSaveMigratesToVersionedLegacyTerrain",
+      "status": "passed",
+      "seconds": 6.014
+    },
+    {
+      "name": "brandNewServerChoosesVersionTwoAndPersistsIt",
+      "status": "passed",
+      "seconds": 4.747
+    },
+    {
+      "name": "clientRejectsUnsupportedGeneratorFromAuthenticatedHandshake",
+      "status": "passed",
+      "seconds": 3.876
+    },
+    {
+      "name": "unsupportedSavedGeneratorFailsBeforeOpeningListenerAndPreservesSave",
+      "status": "passed",
+      "seconds": 3.757
+    },
+    {
+      "name": "legacyServerSaveFormatsMigrateAndKeepGeneratorOnClientAndRestart",
+      "status": "passed",
+      "seconds": 11.938
+    }
+  ]
+}

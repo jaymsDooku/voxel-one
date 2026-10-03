@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-03T03:21:19+00:00",
+  "updatedAt": "2026-10-03T23:11:24+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -1760,6 +1760,15 @@
       "status": "complete",
       "note": "Playtest 28 committed, published and deployed. Actual opaque octree leaves block skylight, sunlight, reflected sky and RGB LEDs; glass and air transmit. All 166 tests pass on Windows, Linux and both Macs. GPU hidden-light and sunlight tests change zero pixels across a solid 1/16 wall. Windows updater verified; both VPS worlds, accounts and TLS preserved.",
       "updatedAt": "2026-10-02T21:16:38+00:00"
+    },
+    {
+      "id": "terrain-generation",
+      "title": "Improve terrain generation",
+      "description": "Implementing versioned geography and bounded drainage; legacy terrain will remain available for existing saves.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Review remediation ready for independent review: full Maven verify passes all 187 tests, including legacy/server/client version migration, restored camera regressions and existing multiplayer checks. Actual OpenGL camera/walking captures and engine-recorder MP4 verified; camera history preserved.",
+      "updatedAt": "2026-10-03T23:11:24+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

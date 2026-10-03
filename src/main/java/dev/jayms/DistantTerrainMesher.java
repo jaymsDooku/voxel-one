@@ -33,7 +33,7 @@ public final class DistantTerrainMesher {
     }
 
     private int ground(int x, int z, boolean fine) {
-        int h = terrain.column(x, z).height();
+        int h = terrain.surfaceHeight(x, z);
         if (fine && columns.containsKey(new Column(x, z))) {
             while (h >= Terrain.MIN_Y && (block(x, h, z) == 0 || Blocks.isModel(block(x, h, z))))
                 h--;
@@ -64,6 +64,7 @@ public final class DistantTerrainMesher {
                                 : c.biome() == Terrain.Biome.SNOWY_MOUNTAINS
                                         ? Blocks.SNOW
                                         : Blocks.GRASS;
+                type = terrain.block(x + step / 2, h - 1, z + step / 2);
                 if (fine && h > Terrain.MIN_Y) type = block(x, h - 1, z);
                 if (h > Terrain.MIN_Y)
                     mesh.face(Face.TOP, a * step, h, b * step, step, 0, step, type);

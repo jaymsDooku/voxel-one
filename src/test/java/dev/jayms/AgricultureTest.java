@@ -75,8 +75,9 @@ class AgricultureTest {
         s.agriculture.tick(48);
         assertEquals(0, s.economy.resources.available(0, owner.id, CityMaterials.WHEAT));
         s.agriculture.work(b, s.economy, 2, g);
-        assertEquals(.5, s.agriculture.state().fields().get(0).growth(), .0001);
-        s.agriculture.work(b, s.economy, 2, g);
+        var first = s.agriculture.state().fields().get(0);
+        assertTrue(first.growth() > 0 && first.growth() < .5, "Dry land grows more slowly");
+        s.agriculture.work(b, s.economy, 6, g);
         assertEquals(
                 32 * CityMaterials.UNIT,
                 s.economy.resources.available(0, owner.id, CityMaterials.WHEAT));
@@ -85,7 +86,7 @@ class AgricultureTest {
                 s.economy.resources.available(0, owner.id, CityMaterials.CARROT));
         var f = s.agriculture.state().fields().get(0);
         g.apply(List.of(new Protocol.Edit(f.x(), f.y() - 1, f.z(), Blocks.AIR)));
-        s.agriculture.work(b, s.economy, 4, g);
+        s.agriculture.work(b, s.economy, 6, g);
         assertEquals(
                 32 * CityMaterials.UNIT,
                 s.economy.resources.available(0, owner.id, CityMaterials.WHEAT));
@@ -193,7 +194,8 @@ class AgricultureTest {
 
     @Test
     void threeDaysFeedEveryoneAndPreserveFarmsCowsAndFoodAcrossSaveAndNetwork() throws Exception {
-        var g = new CityTest.Ground();
+        // Existing worlds retain the original crop rates and economic trajectory.
+        var g = new CityTest.Ground(Terrain.LEGACY_VERSION);
         var s = city(g);
         var ate = new HashSet<Integer>();
         var slept = new HashSet<Integer>();
