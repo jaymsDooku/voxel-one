@@ -1,0 +1,60 @@
+{
+  "status": "final-report-replay-conflicts-resolved",
+  "baseHead": "8c524a18d18d7f685cdabb6a16c7ebbf57fb77f3",
+  "savedFeatureHead": "0d67f0b76acb07e5495c9ac5241b428e35760abf",
+  "resolvedFiles": [
+    "dashboard/evidence/building-info-recovery-checkpoint.json",
+    "dashboard/evidence/building-information-tests.json",
+    "dashboard/progress.json"
+  ],
+  "retainedFeatures": [
+    "Current master demolition action and two-click confirmation",
+    "Tabbed inspector, full-text wrapping and indented-name regression fix",
+    "Current master progress entries and feature progress/evidence"
+  ],
+  "controllerNextStep": "Stage report/progress resolutions and evidence annotations, then continue rebase. Preserve protected metric-history files and base milestones. Publish corrected head and require passing exact-head hosted CI and independent review before merge.",
+  "checks": {
+    "testsPassed": 16,
+    "applicationPackaging": "passed",
+    "inspectorRenders": 81,
+    "metricRenders": 8,
+    "baseFilePreservation": "28 files byte identical; all base progress entries retained",
+    "multiplayer": "socket permission error; not a passing run",
+    "hostedCI": "pending on corrected published head",
+    "diffCheck": "passed",
+    "evidenceReplay": "28 metric files and all recorded source hashes match verified tree; base entries preserved; archive and JSON checks pass. Implementation unchanged; no repeated test run.",
+    "latestReplay": "Three report/progress conflicts resolved; source hashes, 28 base files, all base milestones, ZIP and JSON checks passed. Implementation unchanged."
+  },
+  "report": "dashboard/evidence/building-information-tests.json",
+  "protectedBaseFiles": [
+    "dashboard/evidence/metric-trends-companies-1280x720.png",
+    "dashboard/evidence/metric-trends-companies-640x640.png",
+    "dashboard/evidence/metric-trends-government-1280x720.png",
+    "dashboard/evidence/metric-trends-government-640x640.png",
+    "dashboard/evidence/metric-trends-population-1280x720.png",
+    "dashboard/evidence/metric-trends-population-640x640.png",
+    "dashboard/evidence/metric-trends-rebase-verification.json",
+    "dashboard/evidence/metric-trends-recovery-companies-1280x720.png",
+    "dashboard/evidence/metric-trends-recovery-companies-640x640.png",
+    "dashboard/evidence/metric-trends-recovery-government-1280x720.png",
+    "dashboard/evidence/metric-trends-recovery-government-640x640.png",
+    "dashboard/evidence/metric-trends-recovery-population-1280x720.png",
+    "dashboard/evidence/metric-trends-recovery-population-640x640.png",
+    "dashboard/evidence/metric-trends-recovery-workplaces-1280x720.png",
+    "dashboard/evidence/metric-trends-recovery-workplaces-640x640.png",
+    "dashboard/evidence/metric-trends-recovery.json",
+    "dashboard/evidence/metric-trends-rendering.json",
+    "dashboard/evidence/metric-trends-tests.json",
+    "dashboard/evidence/metric-trends-workplaces-1280x720.png",
+    "dashboard/evidence/metric-trends-workplaces-640x640.png",
+    "deploy/MetricTrendsSmoke.java",
+    "deploy/run_metric_trends_smoke.py",
+    "src/main/java/dev/jayms/ui/MetricHistory.java",
+    "src/main/java/dev/jayms/ui/MetricTrends.java",
+    "src/test/java/dev/jayms/MetricHistoryTest.java",
+    "src/main/java/dev/jayms/Main.java",
+    "src/main/java/dev/jayms/ui/MayorDashboard.java",
+    "src/main/java/dev/jayms/ui/Overlay.java"
+  ],
+  "validatedReplayHead": "bb1e7be8df51299254979aede707d054cf9a3a38"
+}

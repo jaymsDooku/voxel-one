@@ -9,19 +9,43 @@ import java.util.*;
 /** Live property inspector shared by first-person and isometric picking. */
 public final class BuildingInfo {
     public boolean open, confirmDemolition;
-    public int building, plot, firstRow;
+    public int building, plot, firstRow, tab;
+    private static final String[] TABS = {"Overview", "People", "Business", "Inventory", "Build"};
+
+    private static final class Rows extends ArrayList<String> {
+        final List<List<String>> sections = new ArrayList<>();
+        int section;
+
+        Rows() {
+            for (String ignored : TABS) sections.add(new ArrayList<>());
+        }
+
+        @Override
+        public boolean add(String line) {
+            sections.get(section).add(line);
+            return super.add(line);
+        }
+    }
+
+    private void selectTab(int selected) {
+        tab = Math.floorMod(selected, TABS.length);
+        firstRow = 0;
+    }
 
     public void show(int building, int plot) {
         this.building = building;
         this.plot = plot;
         firstRow = 0;
         confirmDemolition = false;
+        tab = 0;
         open = building != 0 || plot != 0;
     }
 
     public void key(int key, int action) {
         if (action != GLFW_PRESS && action != GLFW_REPEAT) return;
         if (key == GLFW_KEY_ESCAPE) open = false;
+        if (key == GLFW_KEY_RIGHT || key == GLFW_KEY_TAB) selectTab(tab + 1);
+        if (key == GLFW_KEY_LEFT) selectTab(tab - 1);
         if (key == GLFW_KEY_DOWN || key == GLFW_KEY_PAGE_DOWN)
             firstRow += key == GLFW_KEY_DOWN ? 1 : 5;
         if (key == GLFW_KEY_UP || key == GLFW_KEY_PAGE_UP)
@@ -34,6 +58,9 @@ public final class BuildingInfo {
 
     public void click(float x, float y, int w, int h) {
         float left = (w - Math.min(760, w - 32)) / 2f;
+        float width = Math.min(760, w - 32);
+        if (y >= 82 && y <= 120 && x >= left + 18 && x < left + width - 18)
+            selectTab((int) ((x - left - 18) / ((width - 36) / TABS.length)));
         if (y >= 34 && y <= 72 && x >= w - left - 92 && x <= w - left - 12) open = false;
     }
 
@@ -72,7 +99,19 @@ public final class BuildingInfo {
     }
 
     public List<String> lines(CityFrame city) {
-        var rows = new ArrayList<String>();
+        return List.copyOf(details(city));
+    }
+
+    public List<String> sectionLines(CityFrame city) {
+        var rows = details(city);
+        if (rows.size() == 1) return List.copyOf(rows);
+        var section = rows.sections.get(tab);
+        return section.isEmpty() ? List.of("No " + TABS[tab].toLowerCase(Locale.ROOT) + " details for this property.")
+                : List.copyOf(section);
+    }
+
+    private Rows details(CityFrame city) {
+        var rows = new Rows();
         var b = city.buildings().stream().filter(v -> v.id() == building).findFirst().orElse(null);
         var p =
                 city.economy().plots().stream()
@@ -111,8 +150,10 @@ public final class BuildingInfo {
             if (type == 0) {
                 var residents = city.citizens().stream().filter(c -> c.home() == b.id()).toList();
                 rows.add("Residents: " + residents.size() + " / " + b.capacity());
+                rows.section = 1;
                 for (var c : residents) rows.add("  " + c.name() + " | " + c.activity());
             } else {
+                rows.section = 2;
                 rows.add("Operator: " + owner(city, 0, property.operator()));
                 var firm =
                         city.economy().firms().stream()
@@ -144,6 +185,7 @@ public final class BuildingInfo {
                                                             + v.harvested()));
                     if (type == 3) {
                         rows.add("Farmer-owned land, barn and fields; no developer lease.");
+                        rows.section = 1;
                         city.agriculture().families().stream()
                                 .filter(f -> f.company() == firm.id())
                                 .forEach(
@@ -169,6 +211,7 @@ public final class BuildingInfo {
                                                                                                                         + " | "
                                                                                                                         + c
                                                                                                                                 .activity()))));
+                        rows.section = 2;
                         city.agriculture().fields().stream()
                                 .filter(f -> f.building() == b.id())
                                 .forEach(
@@ -239,15 +282,19 @@ public final class BuildingInfo {
                                             + line.batchesPerHour()
                                             + " batches / worker-hour (shared time)");
                     }
+                    rows.section = 3;
                     rows.add("BUSINESS MATERIALS (available for owned use or sale)");
                     addStocks(rows, city, 0, firm.id());
+                    rows.section = 2;
                     if (type == 1)
                         rows.add("Food on shelves: " + b.stock() + " | Opening hours 06:00-22:00");
                 }
             }
+            rows.section = 3;
             rows.add("OWNER MATERIALS (separate private inventory)");
             addStocks(rows, city, property.ownerKind(), property.owner());
         }
+        rows.section = 4;
         if (p != null) {
             rows.add(
                     (p.type() == 3 ? "FARM BUILDER: " : "DEVELOPER: ")
@@ -263,7 +310,7 @@ public final class BuildingInfo {
                                     : "Waiting for developer-owned materials");
             if (p.building() != 0 && (recipe == null || !recipe.consumed())) {
                 rows.add("Existing property: historical construction materials were not recorded.");
-                return List.copyOf(rows);
+                return rows;
             }
             rows.add("MATERIAL                       AVAILABLE / REQUIRED");
             for (var a :
@@ -286,7 +333,7 @@ public final class BuildingInfo {
             }
             rows.add("Reserved materials belong to this developer and cannot supply another plot.");
         } else rows.add("Existing property: historical construction materials were not recorded.");
-        return List.copyOf(rows);
+        return rows;
     }
 
     private static void addStocks(List<String> rows, CityFrame city, int kind, int owner) {
@@ -310,28 +357,54 @@ public final class BuildingInfo {
         ui.text("BUILDING INFORMATION", left + 18, 43, 1.8f);
         ui.rectangle(w - left - 92, 34, 80, 38, .13f, .2f, .27f, 1);
         ui.text("Close", w - left - 82, 47, 1.4f);
-        var rows = lines(city);
-        int count = Math.max(1, (h - 210) / 25);
+        float tabWidth = (width - 36) / TABS.length;
+        for (int i = 0; i < TABS.length; i++) {
+            float x = left + 18 + i * tabWidth;
+            ui.rectangle(x, 82, tabWidth - 3, 38,
+                    i == tab ? .16f : .07f, i == tab ? .30f : .12f, i == tab ? .42f : .18f, 1);
+            float scale = Math.min(1.25f, (tabWidth - 12) / ui.textWidth(TABS[i], 1));
+            ui.text(TABS[i], x + 6, 95, scale);
+        }
+        String identity = lines(city).get(0);
+        ui.text(identity, left + 18, 132,
+                Math.min(1.2f, (width - 36) / Math.max(1, ui.textWidth(identity, 1))));
+        var rows = wrappedLines(sectionLines(city), width - 36,
+                text -> ui.textWidth(text, 1.25f));
+        boolean hasBuilding = city.buildings().stream().anyMatch(b -> b.id() == building);
+        int count = Math.max(1, (h - (hasBuilding ? 300 : 240)) / 25);
         firstRow = Math.min(firstRow, Math.max(0, rows.size() - count));
         for (int i = 0; i < Math.min(count, rows.size() - firstRow); i++) {
-            String line = rows.get(firstRow + i);
-            while (!line.isEmpty() && ui.textWidth(line, 1.25f) > width - 36)
-                line = line.substring(0, line.length() - 1);
-            ui.text(line, left + 18, 92 + i * 25, 1.25f);
+            if (i % 2 == 0) ui.rectangle(left + 12, 159 + i * 25, width - 24, 25, .05f, .08f, .11f, 1);
+            ui.text(rows.get(firstRow + i), left + 18, 165 + i * 25, 1.25f);
         }
-        if (city.buildings().stream().anyMatch(b -> b.id() == building)) {
+        if (hasBuilding) {
             ui.rectangle(left + 18, h - 102, 220, 38, .55f, .12f, .1f, 1);
-            ui.text(
-                    confirmDemolition ? "Confirm demolition" : "Demolish building",
-                    left + 28,
-                    h - 90,
-                    1.3f);
+            ui.text(confirmDemolition ? "Confirm demolition" : "Demolish building",
+                    left + 28, h - 90, 1.3f);
             ui.text("No refund; zoned land can redevelop", left + 248, h - 90, 1.0f);
         }
-        ui.text(
-                "Scroll / arrows for details | Esc to close | Simulation continues",
-                left + 18,
-                h - 51,
-                1.1f);
+        String footer = (firstRow + 1) + "-" + Math.min(rows.size(), firstRow + count) + " / " + rows.size()
+                + " | Scroll / arrows | Left / right: tabs | Esc: close";
+        ui.text(footer, left + 18, h - 51,
+                Math.min(1.1f, (width - 36) / Math.max(1, ui.textWidth(footer, 1))));
+    }
+
+    /** Wrap without dropping characters, including long names with no spaces. */
+    public static List<String> wrappedLines(List<String> lines, float width,
+            java.util.function.ToDoubleFunction<String> measure) {
+        var result = new ArrayList<String>();
+        for (String original : lines) {
+            String remaining = original;
+            while (!remaining.isEmpty() && measure.applyAsDouble(remaining) > width) {
+                int end = remaining.length();
+                while (end > 1 && measure.applyAsDouble(remaining.substring(0, end)) > width) end--;
+                int space = remaining.lastIndexOf(' ', end);
+                if (space > 0 && !remaining.substring(0, space).isBlank()) end = space;
+                result.add(remaining.substring(0, end));
+                remaining = remaining.substring(end).stripLeading();
+            }
+            if (!remaining.isEmpty() || original.isEmpty()) result.add(remaining);
+        }
+        return List.copyOf(result);
     }
 }
