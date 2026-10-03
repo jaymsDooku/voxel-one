@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-03T23:15:16+00:00",
+  "updatedAt": "2026-10-03T23:16:22+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -1900,8 +1900,8 @@
       "description": "Implementing market quotes and price-sensitive purchasing with regression coverage.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Building-guide preservation review addressed: guide, hover/snapping integration, tests, tools, evidence and all base records retained. Combined Maven verify passed 185 tests with zero failures/errors; packages built. Evidence: dashboard/evidence/market-guide-combined-tests.json. Awaiting controller rebase continuation and independent review; socket tests require CI.",
-      "updatedAt": "2026-10-03T23:15:16+00:00"
+      "note": "Later metadata conflicts resolved; guide feature, previous review fixes and all base work records retained. All source/build-input hashes match successful 185-test verification; no tests repeated. Controller must stage and continue rebase before independent review. Evidence: dashboard/evidence/market-final-conflict-checks.json. Socket tests require CI.",
+      "updatedAt": "2026-10-03T23:16:22+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

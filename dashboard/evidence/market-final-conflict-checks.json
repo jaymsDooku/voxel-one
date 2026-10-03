@@ -1,0 +1,22 @@
+{
+  "base": "49ac21a14286e1e258d6178d8a99e8b381afd75e",
+  "scope": "Later metadata replay",
+  "commands": [
+    "Python SHA256 comparison of every source/build input and 22 guide assets against market-guide-combined-tests.json",
+    "git diff HEAD --name-only -- src pom.xml config deploy",
+    "git diff 49ac21a14286e1e258d6178d8a99e8b381afd75e --diff-filter=D --name-only",
+    "Python JSON, base-record and conflict-marker validation",
+    "git diff --check"
+  ],
+  "results": {
+    "allSourceAndBuildInputHashesMatch185TestBuild": true,
+    "preservedGuideAssets": 22,
+    "deletedBaseFiles": [],
+    "allBaseProgressEntriesPreserved": true,
+    "jsonValid": true,
+    "remainingConflictMarkers": false,
+    "diffCheck": "passed"
+  },
+  "tests": "No new tests for metadata-only replay. Combined verification passed 185 tests; socket-dependent tests require CI.",
+  "controllerAction": "Stage resolutions and continue preserved rebase; independent review remains required."
+}
