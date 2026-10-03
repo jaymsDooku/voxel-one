@@ -1,0 +1,22 @@
+{
+  "reviewedBase": "8c524a18d18d7f685cdabb6a16c7ebbf57fb77f3",
+  "scope": "Later metadata replay during preserved rebase",
+  "commands": [
+    "git diff HEAD --name-only -- src pom.xml config deploy",
+    "git diff 8c524a18d18d7f685cdabb6a16c7ebbf57fb77f3 --diff-filter=D --name-only",
+    "Python SHA256 comparison against market-trends-combined-tests.json",
+    "Python JSON, unique IDs, base progress preservation and conflict-marker checks",
+    "git diff --check"
+  ],
+  "results": {
+    "sourceAndBuildInputsChanged": false,
+    "deletedBaseFiles": [],
+    "preservedMetricAssets": 27,
+    "baseProgressEntriesUnchanged": true,
+    "jsonValid": true,
+    "conflictMarkers": false,
+    "diffCheck": "passed"
+  },
+  "tests": "No new tests: metadata-only replay. Sources match prior successful 174-test combined Maven verify. Socket-dependent classes require CI.",
+  "controllerAction": "Stage resolutions and continue rebase; no developer staging or git mutation."
+}

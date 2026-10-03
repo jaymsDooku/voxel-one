@@ -7,3 +7,7 @@ Resolved dashboard progress conflict by retaining all base entries unchanged and
 Fresh combined offline Maven verify passed: 174 tests, zero failures/errors/skips; client, server and launcher packages built. Command, suite counts and preservation hashes are in `market-trends-combined-tests.json`. Socket-dependent UpdaterTest, MultiplayerTest and CityMultiplayerTest excluded under sandbox and require CI. Existing metric visual evidence remains historical.
 
 Controller must stage the resolved files and evidence, continue the rebase, and submit the resulting exact head for independent review. If later replay changes source or build inputs, rerun affected checks. All local edits preserved.
+
+## Later metadata replay
+
+Resolved the subsequent conflicts in progress.json and this checkpoint by retaining the newer 174-test combined verification and all reviewed-base progress entries. Historical review evidence and reviewer corrections in market-economy-notes.md are also retained. No source, deployment tools or build inputs changed in this replay; source hashes and all 27 metric assets still match the successful combined build. Tests were not repeated for metadata-only changes. Controller must stage these resolutions and continue the rebase; the index remains unmerged until staging.
