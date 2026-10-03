@@ -39,5 +39,37 @@
       },
       "tests": "Prior 114 passing combined tests and 16-capture guide smoke remain applicable; no documentation-only rerun."
     }
-  ]
+  ],
+  "retained_incoming_historical_reports": [
+    {
+      "scope": "Documentation-only guide/traffic rebase conflict",
+      "head": "3939c65a00674d3b94ca18b98fd32080d2d752ce",
+      "resolved": [
+        "TRAFFIC_CHECKPOINT.md",
+        "dashboard/progress.json"
+      ],
+      "checks": [
+        {
+          "command": "git diff HEAD -- src",
+          "result": "Empty: source/tests unchanged from 114-test combined validation."
+        },
+        {
+          "command": "Python byte comparisons of guide source/integration/tests/tools/evidence against 49ac21a14286e1e258d6178d8a99e8b381afd75e",
+          "result": "Passed."
+        },
+        {
+          "command": "Python JSON, unique IDs, traffic/guide entries, conflict-marker and 16 retained fresh-capture assertions",
+          "result": "Passed."
+        },
+        {
+          "command": "git diff --check",
+          "exit": 0
+        }
+      ],
+      "tests": "Prior 114 combined passing tests and successful 16-capture guide smoke remain applicable; no redundant rerun for documentation-only changes.",
+      "prior_evidence": "dashboard/evidence/road-traffic-guide-recovery-tests.json",
+      "next": "Controller stages resolutions and continues rebase, then obtains independent exact-head review."
+    }
+  ],
+  "historical_recovery_note": "Preserved report variants; these historical checks do not assert current-head validation."
 }

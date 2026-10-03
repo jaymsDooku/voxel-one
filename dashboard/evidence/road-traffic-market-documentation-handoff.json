@@ -1,0 +1,35 @@
+{
+  "status": "recover",
+  "reviewed_base": "431ff142666f791c4323882075834f3390685153",
+  "resolved_working_files": [
+    "TRAFFIC_CHECKPOINT.md",
+    "dashboard/evidence/road-traffic-guide-rebase-resolution.json",
+    "dashboard/evidence/road-traffic-metric-rebase-resolution.json",
+    "dashboard/evidence/road-traffic-special-rebase-resolution.json",
+    "dashboard/progress.json"
+  ],
+  "json_report_resolutions": [
+    {
+      "file": "dashboard/evidence/road-traffic-guide-rebase-resolution.json",
+      "stage_variants_identical": false,
+      "additional_records_retained": 1
+    },
+    {
+      "file": "dashboard/evidence/road-traffic-metric-rebase-resolution.json",
+      "stage_variants_identical": false,
+      "additional_records_retained": 1
+    },
+    {
+      "file": "dashboard/evidence/road-traffic-special-rebase-resolution.json",
+      "stage_variants_identical": false,
+      "additional_records_retained": 1
+    }
+  ],
+  "protected_exact_base_files": 53,
+  "market_method_regions": "Match reviewed base exactly",
+  "preserved": "Both documentation histories, market/wage/shop/housing/labour features, packaged queue route, website tests and historical evidence retained; source not edited in this handoff.",
+  "playtest": "Playtest: existing implementation media/reports preserved. Combined checks and fresh native media follow controller completion of Git recovery; none run here.",
+  "continuation": "Controller stages/continues without publication. No developer Git index writes, commit/push/merge/reset/abort/deployment. Return recover with question:null.",
+  "media_preservation": "All three final-head-82218f2 videos match exact reviewed feature commit",
+  "historical_evidence_preservation": "No base evidence deletion"
+}
