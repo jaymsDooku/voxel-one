@@ -34,6 +34,7 @@ public class Main {
     private dev.jayms.render.RenderPipeline rendering;
     private Camera camera;
     private final IsometricCamera overview = new IsometricCamera();
+    private final IsometricOrbitDrag orbitDrag = new IsometricOrbitDrag();
     private boolean isometric;
     private Player player;
     private PlayerModel playerModel;
@@ -285,6 +286,10 @@ public class Main {
                                 framebufferWidth,
                                 framebufferHeight);
                     }
+                    if (orbitDrag.active()) {
+                        if (canOrbit()) orbitDrag.move(x, controls.sensitivity, overview);
+                        else setCaptured(false);
+                    }
                     if (captured && !firstMouse)
                         player.look(
                                 (float) (x - mouseX) * controls.sensitivity,
@@ -296,7 +301,18 @@ public class Main {
         glfwSetMouseButtonCallback(
                 window.getHandle(),
                 (handle, button, action, mods) -> {
+                    if (button == GLFW_MOUSE_BUTTON_RIGHT
+                            && action == GLFW_RELEASE
+                            && orbitDrag.active()) {
+                        setCaptured(false);
+                        return;
+                    }
                     if (action == GLFW_PRESS && recordInput(-button - 1)) return;
+                    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS && canOrbit()) {
+                        orbitDrag.begin();
+                        glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                        return;
+                    }
                     if (buildingInfo.open) {
                         if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_LEFT) {
                             int[] size = window.getSize();
@@ -468,6 +484,7 @@ public class Main {
                 window.getHandle(),
                 (handle, focused) -> {
                     if (!focused) {
+                        setCaptured(false);
                         inventoryHud.close();
                         if (editor.open
                                 || lightColors.open
@@ -616,7 +633,18 @@ public class Main {
         }
     }
 
+    private boolean canOrbit() {
+        return isometric
+                && !menu.open
+                && !inventoryHud.open
+                && !editor.open
+                && !lightColors.open
+                && !mayorDashboard.open
+                && !buildingInfo.open;
+    }
+
     private void setCaptured(boolean value) {
+        orbitDrag.end();
         value =
                 value
                         && !isometric
@@ -1047,7 +1075,7 @@ public class Main {
                                 + Controls.keyName(controls.code(ROTATE_LEFT))
                                 + " / "
                                 + Controls.keyName(controls.code(ROTATE_RIGHT))
-                                + ": rotate"
+                                + ": rotate | Hold RMB + drag: orbit"
                         : "Esc: controls | "
                                 + Controls.keyName(controls.code(FLY))
                                 + ": flight | "

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-03T07:53:55+00:00",
+  "updatedAt": "2026-10-03T17:50:02+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,21 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "65333431633761642d346435342d343463652d613931322d356134386633313436303863",
+      "title": "Free isometric camera rotation",
+      "description": "Inspecting camera input and preparing drag rotation regression checks.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "free isometric orbit tests.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/free-isometric-orbit-tests.json"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Ready for independent review: free orbit implemented, twelve camera tests and package build passed. Broader suite and live graphical checks qualified in evidence report.",
+      "updatedAt": "2026-10-03T17:50:02+00:00"
+    },
     {
       "id": "36373966363030342d613265392d346438382d616436372d363961323932396265373961",
       "title": "Building demolition",
