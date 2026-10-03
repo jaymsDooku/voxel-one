@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-03T23:19:04+00:00",
+  "updatedAt": "2026-10-03T23:20:03+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -20,8 +20,8 @@
       "description": "Implementing directional carriageway and pavement travel with congestion spacing.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Planning-guide recovery verified with traffic: guide/hover/snapping/tests/tools/original evidence retained. Combined suite and 16 fresh Mesa EGL captures passed. Report: dashboard/evidence/road-traffic-guide-recovery-tests.json. Controller staging/continuation and independent review pending.",
-      "updatedAt": "2026-10-03T23:19:04+00:00"
+      "note": "Guide-recovery documentation conflict resolved retaining histories, both progress entries and rendering evidence. Source/tests unchanged; prior 114-test pass and 16 guide captures apply. Controller staging/continuation and independent review pending.",
+      "updatedAt": "2026-10-03T23:20:03+00:00"
     },
     {
       "id": "36646132363664302d343539632d346638662d613536642d326361383834333232363834",
