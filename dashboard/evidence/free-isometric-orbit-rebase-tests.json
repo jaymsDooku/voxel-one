@@ -1,0 +1,82 @@
+{
+  "rebaseResolution": "Merged dashboard progress entries by ID, retaining all current master items plus camera entry; controller must stage and continue rebase. No Git mutation performed.",
+  "retainedMasterFiles": [
+    "src/main/java/dev/jayms/ui/MetricHistory.java",
+    "src/main/java/dev/jayms/ui/MetricTrends.java",
+    "src/main/java/dev/jayms/ui/MayorDashboard.java",
+    "src/test/java/dev/jayms/MetricHistoryTest.java",
+    "deploy/MetricTrendsSmoke.java"
+  ],
+  "historySampling": "Main.java retains mayorDashboard.history.observe(city())",
+  "testCommand": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 MAVEN_OPTS=\"-Djava.io.tmpdir=target/tmp -Djansi.tmpdir=target/tmp\" /tmp/apache-maven-3.9.11/bin/mvn -o -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=IsometricCameraTest,IsometricOrbitDragTest,PlayerCameraTest,MetricHistoryTest,MayorDashboardTest -q test",
+  "exitCode": 0,
+  "results": [
+    {
+      "suite": "IsometricCameraTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "IsometricOrbitDragTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "PlayerCameraTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "MetricHistoryTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "MayorDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "graphicalVerification": {
+    "status": "passed",
+    "platform": "Linux Xvfb 1280x720, Mesa software rendering, real production GLFW callbacks",
+    "testCommand": "python3 target/run-orbit-smoke.py (approved local X11 runtime); equivalent preserved launcher: python3 deploy/run_isometric_orbit_smoke.py",
+    "exitCode": 0,
+    "results": {
+      "platform": "Linux Xvfb Mesa",
+      "status": "passed",
+      "degreesTravelled": 400.0,
+      "checks": [
+        "real GLFW RMB orbit past 360 degrees",
+        "release",
+        "inventory modal",
+        "view transitions",
+        "focus loss and restore",
+        "fresh drag"
+      ],
+      "recording": "engine F10 recorder"
+    },
+    "recording": "free-isometric-orbit.mp4",
+    "recordingBytes": 2368848,
+    "limitations": "Headless software-rendered Linux validation; no other platform live-input results claimed. Earlier restricted attempts and harness startup failures are superseded by corrected passing run.",
+    "videoDecode": {
+      "codec": "H264",
+      "width": 960,
+      "height": 540,
+      "durationSeconds": 14.648,
+      "decodedFrames": 54,
+      "status": "passed"
+    }
+  },
+  "diffCheck": "git diff --check passed after conflict text resolution"
+}
