@@ -3,12 +3,49 @@ package dev.jayms.net.city;
 import java.io.*;
 import java.util.*;
 
-public record CityCommand(int kind, int value, List<Polygon.Point> points) {
-    public static final int ROAD = 1, ZONE = 2, RIDE = 3, DEMOLISH = 4;
+public record CityCommand(int kind, int value, List<Polygon.Point> points, Capital capital) {
+    public static final int ROAD = 1, ZONE = 2, RIDE = 3, DEMOLISH = 4, EXCHANGE = 5, CAPITAL = 6;
+
+    public record Capital(
+            int action,
+            int company,
+            int ownerKind,
+            int owner,
+            long shares,
+            long price,
+            long order) {
+        public Capital {
+            if (action < 0
+                    || action > 3
+                    || company < 1
+                    || ownerKind < 0
+                    || ownerKind > 1
+                    || owner < 1
+                    || action < 3
+                            && (shares < 1
+                                    || shares > CityStockExchange.MAX_SHARES
+                                    || price < 1
+                                    || price > CityStockExchange.MAX_PRICE)
+                    || action == 3 && order < 1)
+                throw new IllegalArgumentException("Invalid capital command");
+        }
+    }
+
+    public CityCommand(int kind, int value, List<Polygon.Point> points) {
+        this(kind, value, points, null);
+    }
+
+    public CityCommand(Capital capital) {
+        this(CAPITAL, 0, List.of(), capital);
+    }
 
     public CityCommand {
         points = List.copyOf(points);
-        if (kind < 1 || kind > 4 || points.size() > 32)
+        if (kind < 1
+                || kind > 6
+                || points.size() > 32
+                || (kind == CAPITAL) != (capital != null)
+                || kind == CAPITAL && !points.isEmpty())
             throw new IllegalArgumentException("Invalid city command");
         if (kind == DEMOLISH && (value <= 0 || !points.isEmpty()))
             throw new IllegalArgumentException("Demolition needs a building ID and no points");
@@ -22,6 +59,15 @@ public record CityCommand(int kind, int value, List<Polygon.Point> points) {
             out.writeFloat(p.x());
             out.writeFloat(p.z());
         }
+        if (capital != null) {
+            out.writeByte(capital.action());
+            out.writeInt(capital.company());
+            out.writeByte(capital.ownerKind());
+            out.writeInt(capital.owner());
+            out.writeLong(capital.shares());
+            out.writeLong(capital.price());
+            out.writeLong(capital.order());
+        }
     }
 
     public static CityCommand read(DataInput in) throws IOException {
@@ -31,7 +77,18 @@ public record CityCommand(int kind, int value, List<Polygon.Point> points) {
             var points = new ArrayList<Polygon.Point>();
             for (int i = 0; i < n; i++)
                 points.add(new Polygon.Point(in.readFloat(), in.readFloat()));
-            return new CityCommand(kind, value, points);
+            var capital =
+                    kind == CAPITAL
+                            ? new Capital(
+                                    in.readUnsignedByte(),
+                                    in.readInt(),
+                                    in.readUnsignedByte(),
+                                    in.readInt(),
+                                    in.readLong(),
+                                    in.readLong(),
+                                    in.readLong())
+                            : null;
+            return new CityCommand(kind, value, points, capital);
         } catch (IllegalArgumentException e) {
             throw new IOException(e);
         }

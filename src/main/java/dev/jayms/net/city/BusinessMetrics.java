@@ -101,7 +101,7 @@ public record BusinessMetrics(List<Location> locations, List<Company> companies)
                                                                             .output(f.kind()))
                                                     / CityMaterials.UNIT)));
         for (var b : workplaces)
-            if (b.type() != 0) {
+            if (b.type() != 0 && b.type() != 4) {
                 var property =
                         city.economy().properties().stream()
                                 .filter(p -> p.building() == b.id())
