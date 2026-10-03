@@ -1,0 +1,176 @@
+{
+  "scope": "Combined traffic and metric-history rebase recovery",
+  "reviewed_metric_base": "8c524a18d18d7f685cdabb6a16c7ebbf57fb77f3",
+  "metric_files_preserved_byte_for_byte": [
+    "dashboard/evidence/metric-trends-companies-1280x720.png",
+    "dashboard/evidence/metric-trends-companies-640x640.png",
+    "dashboard/evidence/metric-trends-government-1280x720.png",
+    "dashboard/evidence/metric-trends-government-640x640.png",
+    "dashboard/evidence/metric-trends-population-1280x720.png",
+    "dashboard/evidence/metric-trends-population-640x640.png",
+    "dashboard/evidence/metric-trends-rebase-verification.json",
+    "dashboard/evidence/metric-trends-recovery-companies-1280x720.png",
+    "dashboard/evidence/metric-trends-recovery-companies-640x640.png",
+    "dashboard/evidence/metric-trends-recovery-government-1280x720.png",
+    "dashboard/evidence/metric-trends-recovery-government-640x640.png",
+    "dashboard/evidence/metric-trends-recovery-population-1280x720.png",
+    "dashboard/evidence/metric-trends-recovery-population-640x640.png",
+    "dashboard/evidence/metric-trends-recovery-workplaces-1280x720.png",
+    "dashboard/evidence/metric-trends-recovery-workplaces-640x640.png",
+    "dashboard/evidence/metric-trends-recovery.json",
+    "dashboard/evidence/metric-trends-rendering.json",
+    "dashboard/evidence/metric-trends-tests.json",
+    "dashboard/evidence/metric-trends-workplaces-1280x720.png",
+    "dashboard/evidence/metric-trends-workplaces-640x640.png",
+    "deploy/MetricTrendsSmoke.java",
+    "deploy/run_metric_trends_smoke.py",
+    "src/main/java/dev/jayms/ui/MetricHistory.java",
+    "src/main/java/dev/jayms/ui/MetricTrends.java",
+    "src/test/java/dev/jayms/MetricHistoryTest.java"
+  ],
+  "checks": [
+    {
+      "command": "MAVEN_OPTS=-Djava.io.tmpdir=$PWD/.build-tmp /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -DargLine=-Djava.io.tmpdir=$PWD/.build-tmp '-Dtest=RoadTrafficTest,City*Test,!CityMultiplayerTest,ManufacturingTest,AgricultureTest,MayorDashboardTest,DemolitionTest,IsometricCameraTest,PlayerCameraTest,MetricHistoryTest' test",
+      "exit": 0,
+      "tests": 103,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "suites": [
+        {
+          "name": "dev.jayms.AgricultureTest",
+          "tests": "8",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityAddressesTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityBusinessTest",
+          "tests": "9",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityEconomyTest",
+          "tests": "7",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityMaterialsTest",
+          "tests": "13",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityMetricsTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityTest",
+          "tests": "10",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityTimeTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityToolsTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.DemolitionTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.IsometricCameraTest",
+          "tests": "7",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.ManufacturingTest",
+          "tests": "7",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.MayorDashboardTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.MetricHistoryTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.PlayerCameraTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.RoadTrafficTest",
+          "tests": "12",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        }
+      ]
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    },
+    {
+      "command": "java -Djava.io.tmpdir=$PWD/.build-tmp -jar /tmp/google-java-format.jar --aosp --dry-run --set-exit-if-changed src/main/java/dev/jayms/net/city/CitySimulation.java src/main/java/dev/jayms/net/city/RoadTraffic.java src/test/java/dev/jayms/RoadTrafficTest.java src/test/java/dev/jayms/DemolitionTest.java",
+      "exit": 0
+    },
+    {
+      "command": "Python byte-for-byte comparison against reviewed base for all 25 metric-related files, plus MayorDashboard integration diff; JSON parse, unique IDs and both progress entry assertions",
+      "result": "Passed"
+    }
+  ],
+  "traffic_preserved": [
+    "Inside-bend waypoint trimming and actual-traveller queues in both directions",
+    "Intersection clearance and pedestrian/mounted regression in both update orders",
+    "Existing demolition preservation checks"
+  ],
+  "limitations": [
+    "Graphical/F10 and multiplayer socket behavior not revalidated in this session. Existing metric rendering evidence preserved unchanged; not presented as fresh captures."
+  ],
+  "next": "Controller stages resolutions, continues pending rebase and obtains independent review of final exact head. Check metric preservation again after continuation."
+}
