@@ -43,6 +43,7 @@ public class Main {
     private final BuildingInfo buildingInfo = new BuildingInfo();
     private final MayorDashboard mayorDashboard = new MayorDashboard();
     private GameConfig gameConfig = GameConfig.sandbox();
+    private ProductionCatalog productionCatalog = ProductionCatalog.cityGame();
 
     private CityFrame city() {
         return network == null ? local.city.frame() : network.city;
@@ -202,7 +203,7 @@ public class Main {
                                 WorldVoxels.remember(local.edits, edit);
                             }
                         }
-                    });
+                    }, productionCatalog);
         if (city().config().city()) {
             isometric = true;
             overview.cityMode();
@@ -1254,6 +1255,7 @@ public class Main {
         double daySeconds = 1200, startHour = 8;
         boolean cycle = true;
         long seed = Terrain.DEFAULT_SEED;
+        java.nio.file.Path productionFile = null;
         java.nio.file.Path save = Controls.directory().resolve("offline-world.dat");
         for (int i = 0; i < args.length; i++)
             switch (args[i]) {
@@ -1265,6 +1267,7 @@ public class Main {
                     gameExplicit = true;
                     LoginDialog.citySelected = cityGame;
                 }
+                case "--production-config" -> productionFile = java.nio.file.Path.of(args[++i]);
                 case "--day-seconds" -> daySeconds = Double.parseDouble(args[++i]);
                 case "--start-hour" -> startHour = Double.parseDouble(args[++i]);
                 case "--fixed-time" -> cycle = false;
@@ -1277,9 +1280,10 @@ public class Main {
                 default ->
                         throw new IllegalArgumentException(
                                 "Usage: --server HOST --port PORT --fingerprint SHA256 --offline"
-                                        + " --world FILE --seed NUMBER");
+                                        + " --world FILE --seed NUMBER --production-config FILE");
             }
         Main game = new Main();
+        if (productionFile != null) game.productionCatalog = ProductionCatalog.load(productionFile);
         game.seed = seed;
         game.offlineSave = save;
         try {

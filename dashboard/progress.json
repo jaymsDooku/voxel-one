@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-03T18:43:22+00:00",
+  "updatedAt": "2026-10-03T23:06:35+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,51 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "configurable-businesses",
+      "title": "Configurable city businesses",
+      "description": "Implementing game-owned company and harvesting definitions.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "configurable businesses tests.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/configurable-businesses-tests.json"
+        },
+        {
+          "kind": "report",
+          "label": "configurable businesses review tests.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/configurable-businesses-review-tests.json"
+        },
+        {
+          "kind": "report",
+          "label": "configurable businesses demolition review tests.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/configurable-businesses-demolition-review-tests.json"
+        },
+        {
+          "kind": "report",
+          "label": "configurable businesses combined review tests.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/configurable-businesses-combined-review-tests.json"
+        },
+        {
+          "kind": "image",
+          "label": "business review metric trends population 1280x720.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-review-metric-trends-population-1280x720.png"
+        },
+        {
+          "kind": "image",
+          "label": "business review metric trends companies 640x640.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-review-metric-trends-companies-640x640.png"
+        },
+        {
+          "kind": "report",
+          "label": "configurable businesses special review tests.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/configurable-businesses-special-review-tests.json"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Special-building review correction verified: complete civic feature and all current-base history/evidence retained; legacy saves tested for every civic type 4\u201318. Combined protocol is 16 to avoid base-version collision. Thirteen-suite combined test run passed; ready for controller staging/rebase continuation and independent review.",
+      "updatedAt": "2026-10-03T23:06:35+00:00"
+    },
     {
       "id": "36646132363664302d343539632d346638662d613536642d326361383834333232363834",
       "title": "Building direction guide",

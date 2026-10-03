@@ -6,9 +6,22 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 
-/** Game-owned manufacturing data. Quantities use CityMaterials.UNIT; tools are durable stock. */
+/** Game-owned business and manufacturing data. Quantities use CityMaterials.UNIT. */
 public record ProductionCatalog(
-        List<Product> products, List<Recipe> recipes, List<Equipment> equipment) {
+        List<Product> products,
+        List<Recipe> recipes,
+        List<Equipment> equipment,
+        BusinessCatalog businesses) {
+    public ProductionCatalog(
+            List<Product> products, List<Recipe> recipes, List<Equipment> equipment) {
+        this(
+                products,
+                recipes,
+                equipment,
+                BusinessCatalog.defaults(
+                        products.stream().anyMatch(p -> p.id() == CityMaterials.WHEAT)));
+    }
+
     public record Product(int id, String name, double price, int nutrition) {
         public Product(int id, String name, double price) {
             this(id, name, price, id == CityMaterials.FOOD ? 35 : 0);
@@ -57,7 +70,7 @@ public record ProductionCatalog(
                     || r.id.length() > 48
                     || !recipeIds.add(r.id)
                     || r.companyKind < 2
-                    || r.companyKind > CityMaterials.MAX_KIND
+                    || businesses.type(r.companyKind) == null
                     || !valid(r.output, products)
                     || r.count < 1
                     || r.count > 64
@@ -77,7 +90,7 @@ public record ProductionCatalog(
         for (var e : equipment)
             if (!ids.contains(e.product)
                     || e.companyKind < 2
-                    || e.companyKind > CityMaterials.MAX_KIND
+                    || businesses.type(e.companyKind) == null
                     || !equipped.add(e.companyKind)
                     || !Double.isFinite(e.multiplier)
                     || e.multiplier <= 1
@@ -134,6 +147,9 @@ public record ProductionCatalog(
 
     public int output(int kind) {
         if (agriculture() && kind == CityMaterials.FARM) return CityMaterials.WHEAT;
+        var type = businesses.type(kind);
+        if (type != null && !type.harvest().isEmpty() && recipes(kind).isEmpty())
+            return type.harvest().get(0);
         return recipes(kind).stream()
                 .mapToInt(Recipe::output)
                 .findFirst()
@@ -144,12 +160,20 @@ public record ProductionCatalog(
         return recipes(kind).stream()
                 .mapToInt(Recipe::capacity)
                 .findFirst()
-                .orElse(CityMaterials.capacity(kind));
+                .orElse(
+                        businesses.type(kind) == null
+                                ? CityMaterials.capacity(kind)
+                                : businesses.type(kind).capacity());
     }
 
     public String outputs(int kind) {
         if (agriculture() && kind == CityMaterials.FARM) return "Wheat / Carrots";
         if (agriculture() && kind == CityMaterials.CATTLE_FARM) return "Beef / Milk";
+        var type = businesses.type(kind);
+        if (recipes(kind).isEmpty() && type != null && !type.harvest().isEmpty())
+            return type.harvest().stream()
+                    .map(this::name)
+                    .collect(java.util.stream.Collectors.joining(" / "));
         return recipes(kind).isEmpty()
                 ? name(output(kind))
                 : recipes(kind).stream()
@@ -330,7 +354,12 @@ public record ProductionCatalog(
                                 Integer.parseInt(fields[1]),
                                 Double.parseDouble(fields[2])));
             }
-            return new ProductionCatalog(products, recipes, equipment);
+            return new ProductionCatalog(
+                    products,
+                    recipes,
+                    equipment,
+                    BusinessCatalog.load(
+                            data, products.stream().anyMatch(p -> p.id() == CityMaterials.WHEAT)));
         } catch (IllegalArgumentException e) {
             throw new IOException("Invalid production configuration: " + e.getMessage(), e);
         }
@@ -347,7 +376,7 @@ public record ProductionCatalog(
     }
 
     public void write(DataOutput out) throws IOException {
-        write(out, 6);
+        write(out, 7);
     }
 
     public void write(DataOutput out, int version) throws IOException {
@@ -379,10 +408,11 @@ public record ProductionCatalog(
             out.writeByte(e.companyKind);
             out.writeDouble(e.multiplier);
         }
+        if (version >= 7) businesses.write(out);
     }
 
     public static ProductionCatalog read(DataInput in) throws IOException {
-        return read(in, 6);
+        return read(in, 7);
     }
 
     public static ProductionCatalog read(DataInput in, int version) throws IOException {
@@ -417,7 +447,15 @@ public record ProductionCatalog(
             var equipment = new ArrayList<Equipment>();
             for (int n = count(in, 32); n > 0; n--)
                 equipment.add(new Equipment(in.readInt(), in.readUnsignedByte(), in.readDouble()));
-            return new ProductionCatalog(products, recipes, equipment);
+            return new ProductionCatalog(
+                    products,
+                    recipes,
+                    equipment,
+                    version >= 7
+                            ? BusinessCatalog.read(in)
+                            : BusinessCatalog.defaults(
+                                    products.stream()
+                                            .anyMatch(p -> p.id() == CityMaterials.WHEAT)));
         } catch (IllegalArgumentException e) {
             throw new IOException("Invalid production catalog", e);
         }

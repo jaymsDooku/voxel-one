@@ -125,7 +125,7 @@ public final class BuildingInfo {
                                 .orElse(null);
                 if (firm != null) {
                     rows.add(
-                            CityMaterials.sector(firm.kind())
+                            city.economy().resources().catalog().businesses().sector(firm.kind())
                                     + " | Output: "
                                     + city.economy().resources().catalog().outputs(firm.kind()));
                     rows.add(

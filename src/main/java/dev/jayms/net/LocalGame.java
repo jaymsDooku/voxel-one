@@ -57,13 +57,20 @@ public final class LocalGame {
     }
 
     public void startGame(GameConfig config, CitySimulation.Ground ground) throws IOException {
+        startGame(config, ground, ProductionCatalog.cityGame());
+    }
+
+    public void startGame(
+            GameConfig config, CitySimulation.Ground ground, ProductionCatalog catalog)
+            throws IOException {
         var stored = CitySimulation.load(save.resolveSibling(save.getFileName() + ".city"));
         city =
                 new CitySimulation(
                         stored == null ? config : stored.config(),
                         ground,
                         new Terrain(seed),
-                        stored);
+                        stored,
+                        catalog);
     }
 
     public String createModel(ModelDefinition definition) throws IOException {

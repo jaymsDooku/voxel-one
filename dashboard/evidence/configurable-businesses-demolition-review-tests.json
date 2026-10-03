@@ -1,0 +1,191 @@
+{
+  "command": "MAVEN_OPTS=\"-Djava.io.tmpdir=$PWD/target/tmp -Djansi.tmpdir=$PWD/target/tmp\" /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=target/maven-repository \"-DargLine=-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=DemolitionTest,BusinessCatalogTest,CityEconomyTest,IsometricCameraTest,ControlsTest,CityMaterialsTest,CityBusinessTest,ManufacturingTest,AgricultureTest,BusinessDashboardTest test",
+  "exitCode": 0,
+  "totalTests": 70,
+  "suites": [
+    {
+      "suite": "DemolitionTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "commandRoundTripsAndRejectsMalformedRequests",
+        "demolitionClearsStructuresReferencesAndSurvivesReload",
+        "occupiedBuildingIsProtectedAndInspectorRequiresConfirmation"
+      ]
+    },
+    {
+      "suite": "BusinessCatalogTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "emptyConfiguredRosterPreservesSavedMunicipalAccounts",
+        "excavatesLiveDirtAndSandRespectsCapacityAndProtection",
+        "seedsMultipleCompaniesAndKeepsSavedBalances",
+        "framesAndCitySavesPreserveConfiguration",
+        "newManufacturingTypesUseExistingRecipeConfiguration",
+        "configuredExampleReceivesPaidWorkersInTheCity",
+        "supportsReplacingCompaniesAndReadsLegacyCatalog",
+        "rejectsBadReferencesRatesMaterialsAndDuplicateIds"
+      ]
+    },
+    {
+      "suite": "CityEconomyTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "midConstructionOwnershipContractsAndBalancesPersist",
+        "developersBuyHireConstructSellAndRentWithConservedMoney",
+        "publicRoadsAreBudgetedAtomicAndChargeOnlyNewCells",
+        "malformedFinancialSnapshotIsRejected",
+        "wagesAndRecurringRentAreTransfersAndInsolvencyStopsWages",
+        "zoningIsFreeAndUnfundedDevelopersDoNotBuild",
+        "legacyCityIsAdoptedWithoutRebuildingOrPublicConstructionCost"
+      ]
+    },
+    {
+      "suite": "IsometricCameraTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "panningFollowsScreenAxesAtEveryOrientation",
+        "overviewFitsDistantTerrainWithoutDepthClippingAtBothAspectRatios",
+        "rotatedOverviewFitsAllWorldCornersAtWideAndTallSizes",
+        "quarterTurnsPreserveFocusZoomPitchAndIsometricAxes",
+        "orthographicOverviewFitsLoadedWorldAtWideAndTallAspectRatios",
+        "loadedWorldEdgesAreClosedAndAdjacentChunksHideSharedFaces",
+        "zoomIsBoundedAndResetRestoresWorldFit"
+      ]
+    },
+    {
+      "suite": "ControlsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "escapeIsReservedAndCorruptConfigFallsBack",
+        "newDashboardBindingPreservesOlderCustomF9Binding",
+        "newRecorderPreservesAnOlderCustomF10Binding",
+        "bindingsSwapPersistAndReset",
+        "rotationBindingsMigrateWithoutLosingCustomArrowKeys"
+      ]
+    },
+    {
+      "suite": "CityMaterialsTest",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "MalformedDuplicateNegativeOrRecipeChangingStocksAreRejected",
+        "ExpandedIndustrialZonesConstructDistinctMaterialFundedWorkshopsForAllResourceCompanies",
+        "DeveloperOwnedMaterialsReduceTheCashRequiredToAcquireAPlot",
+        "StarterCityConservesEveryHarvestedMaterialThroughTradeRefiningAndConstruction",
+        "CityThreeMigrationPreservesHistoricalPropertiesAndBalancesWithoutInventingMaterials",
+        "OtherOwnersStocksDoNotAuthorizeConstructionAndTradingTransfersCashAndVolume",
+        "MaterialsAndMidConstructionReservationsSurviveSaveAndNetworkRoundTrips",
+        "IndividualsCanBuyAndKeepMaterialsWithoutSupplyingUnrelatedDevelopers",
+        "RefiningUsesThePlayerRecipesAndCannotManufactureMissingInputs",
+        "MissingNaturalWoodStopsEveryBuildingAndNeverAdvancesConstructionWork",
+        "recipesMatchTheActualBlueprintIncludingFractionalBeams",
+        "ReservationsPreventDoubleUseAndInsufficientFundsLeaveBothOwnersUnchanged",
+        "PickingFindsTheNearestBuildingAndInspectorShowsLiveOwnedRequirements"
+      ]
+    },
+    {
+      "suite": "CityBusinessTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "emptyCityHasNoOperatingMetricsAndNoInventedProfit",
+        "bankruptEmployersStopPayAndRaiseBusinessAlertsWithoutPublicSubsidy",
+        "staffedBusinessesProduceSellAndReconcileCashAndStock",
+        "productionFollowsPaidGameHoursAndRetainsFractionalWorkAfterReload",
+        "malformedBusinessCountersAreRejected",
+        "saveNetworkRoundTripAndLegacyCityTwoMigrationPreserveTheCity",
+        "shopSalesRequireStaffActuallyPresentInTheWorkplace",
+        "dailyAccountsCloseAtMidnightAndHistoryIsBoundedAndPersistent",
+        "commercialShiftsOperateInEveningWhileMinesClose"
+      ]
+    },
+    {
+      "suite": "ManufacturingTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "ownedEquipmentIncreasesActualMiningAndLoggingExtraction",
+        "aStaffedFactoryBuildsAndTradesToolsDuringTheActualSimulation",
+        "missingInputsAndFullOutputDoNotConsumeInputsOrGenerateProducts",
+        "configurationMatchesDefaultAndRejectsBadInputsAndBonus",
+        "customPipelineAndPartialBatchesSurviveSaveAndNetwork",
+        "expandedCityCompletesThreeDailyRoutinesWithoutTrappingMineWorkers",
+        "factoryRequiresPremisesAndPurchasesInputsAndBothToolsWithoutPublicMoney"
+      ]
+    },
+    {
+      "suite": "AgricultureTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "snapshotRejectsForeignAndOutOfBoundsFarmEntities",
+        "farmersBuyAndBuildTheirOwnPlotsWhileDevelopersStayOut",
+        "cityFiveUpgradeIsDeferredAndPreservesExistingAssets",
+        "cattleNeedPurchasedFeedAndMilkAndBeefComeFromFiniteAnimals",
+        "foodFactoriesPurchaseAndConsumeEveryIngredientWithoutPublicSubsidies",
+        "threeDaysFeedEveryoneAndPreserveFarmsCowsAndFoodAcrossSaveAndNetwork",
+        "farmExpansionPaysForAnotherPlotAndMaterialReservation",
+        "fieldsNeedBuiltSoilAndLabourAndRegrowRealNamedCrops"
+      ]
+    },
+    {
+      "suite": "BusinessDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "newMayorBusinessTabKeepsPopulationNavigationAndTextInputSeparate",
+        "companyViewAndScrollRemainReadOnly",
+        "businessFiltersSearchAndSelectionUseActualLocations"
+      ]
+    }
+  ],
+  "preservation": {
+    "comparisonBase": "af30736b53d1784330b4dec00809f94117f84853",
+    "exactFileMatches": [
+      "src/main/java/dev/jayms/net/city/CityCommand.java",
+      "src/test/java/dev/jayms/DemolitionTest.java",
+      "dashboard/evidence/building-demolition-tests.txt",
+      "src/main/java/dev/jayms/IsometricCamera.java",
+      "src/main/java/dev/jayms/ui/Controls.java",
+      "src/test/java/dev/jayms/IsometricCameraTest.java",
+      "src/test/java/dev/jayms/ControlsTest.java",
+      "src/test/java/dev/jayms/CityMaterialsTest.java",
+      "dashboard/evidence/isometric-rotation-tests.json"
+    ],
+    "demolitionCleanup": "complete method preserved exactly",
+    "inspector": "identical except configurable sector label",
+    "preservedMilestoneIds": [
+      "36373966363030342d613265392d346438382d616436372d363961323932396265373961",
+      "8fdb8e5d-2133-4c4f-827d-e7d190f01db6"
+    ]
+  },
+  "limits": [
+    "Headless tests; no graphical verification or deployment.",
+    "Controller must stage conflict resolutions and continue preserved rebase."
+  ]
+}

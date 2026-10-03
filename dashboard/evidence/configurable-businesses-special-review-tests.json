@@ -1,0 +1,276 @@
+{
+  "command": "MAVEN_OPTS=\"-Djava.io.tmpdir=$PWD/target/tmp -Djansi.tmpdir=$PWD/target/tmp\" /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=target/maven-repository \"-DargLine=-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=SpecialBuildingsTest,CityToolsTest,MetricHistoryTest,DemolitionTest,BusinessCatalogTest,CityEconomyTest,IsometricCameraTest,ControlsTest,CityMaterialsTest,CityBusinessTest,ManufacturingTest,AgricultureTest,BusinessDashboardTest test",
+  "exitCode": 0,
+  "totalTests": 89,
+  "suites": [
+    {
+      "suite": "SpecialBuildingsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "privateOwnersAndRejectedPermitsAreValidatedBeforeMutation",
+        "demolitionAndSpecialPermitsHaveDistinctWireCommandsAndMatchingBlueprints",
+        "catalogAndCommandRoundTrip",
+        "overheadObstructionsRejectAtomicallyAcrossBuildingAndEntranceVolume",
+        "placementPersistenceAndFutureToolsRespectEntireSite"
+      ]
+    },
+    {
+      "suite": "CityToolsTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "zoneRoadSnapUsesBoundaryOnlyWhenPointerIntersectsRoad",
+        "guideHasEightCardinalTargetsAtThirtyAndSixtyBlocks",
+        "guideSnapsRoadEndpointAndClearsAfterSubmission",
+        "zoneCornersRemainInWorldCoordinatesWhenRotatingMidPolygon",
+        "polygonConfirmationUndoAndCancel",
+        "specialBuildingClickSubmitsSelectedTypeLevelAndPublicOwner",
+        "roadsideClicksProduceZonesAcceptedBySimulationOnBothSides",
+        "isometricPickingSendsRoadEndpointsInWorldCoordinates",
+        "specialMenuControlsDoNotPlaceBuildings"
+      ]
+    },
+    {
+      "suite": "MetricHistoryTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "ignoresRepeatedFramesBoundsRetentionAndResetsOnClockRewind",
+        "retainsChangingGovernmentBalancesAtTheirSimulationTimes",
+        "trendsToggleDoesNotTriggerCitizenActionsOrChangeExistingTabs",
+        "samplesAuthoritativeMetricsAcrossEveryDomainWithoutMutatingSnapshot"
+      ]
+    },
+    {
+      "suite": "DemolitionTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "commandRoundTripsAndRejectsMalformedRequests",
+        "demolitionClearsStructuresReferencesAndSurvivesReload",
+        "occupiedBuildingIsProtectedAndInspectorRequiresConfirmation"
+      ]
+    },
+    {
+      "suite": "BusinessCatalogTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "emptyConfiguredRosterPreservesSavedMunicipalAccounts",
+        "excavatesLiveDirtAndSandRespectsCapacityAndProtection",
+        "seedsMultipleCompaniesAndKeepsSavedBalances",
+        "legacyCivicBuildingSavesRemainReadableForEveryType",
+        "framesAndCitySavesPreserveConfiguration",
+        "newManufacturingTypesUseExistingRecipeConfiguration",
+        "configuredExampleReceivesPaidWorkersInTheCity",
+        "supportsReplacingCompaniesAndReadsLegacyCatalog",
+        "rejectsBadReferencesRatesMaterialsAndDuplicateIds"
+      ]
+    },
+    {
+      "suite": "CityEconomyTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "midConstructionOwnershipContractsAndBalancesPersist",
+        "developersBuyHireConstructSellAndRentWithConservedMoney",
+        "publicRoadsAreBudgetedAtomicAndChargeOnlyNewCells",
+        "malformedFinancialSnapshotIsRejected",
+        "wagesAndRecurringRentAreTransfersAndInsolvencyStopsWages",
+        "zoningIsFreeAndUnfundedDevelopersDoNotBuild",
+        "legacyCityIsAdoptedWithoutRebuildingOrPublicConstructionCost"
+      ]
+    },
+    {
+      "suite": "IsometricCameraTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "panningFollowsScreenAxesAtEveryOrientation",
+        "overviewFitsDistantTerrainWithoutDepthClippingAtBothAspectRatios",
+        "rotatedOverviewFitsAllWorldCornersAtWideAndTallSizes",
+        "quarterTurnsPreserveFocusZoomPitchAndIsometricAxes",
+        "orthographicOverviewFitsLoadedWorldAtWideAndTallAspectRatios",
+        "loadedWorldEdgesAreClosedAndAdjacentChunksHideSharedFaces",
+        "zoomIsBoundedAndResetRestoresWorldFit"
+      ]
+    },
+    {
+      "suite": "ControlsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "escapeIsReservedAndCorruptConfigFallsBack",
+        "newDashboardBindingPreservesOlderCustomF9Binding",
+        "newRecorderPreservesAnOlderCustomF10Binding",
+        "bindingsSwapPersistAndReset",
+        "rotationBindingsMigrateWithoutLosingCustomArrowKeys"
+      ]
+    },
+    {
+      "suite": "CityMaterialsTest",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "MalformedDuplicateNegativeOrRecipeChangingStocksAreRejected",
+        "ExpandedIndustrialZonesConstructDistinctMaterialFundedWorkshopsForAllResourceCompanies",
+        "DeveloperOwnedMaterialsReduceTheCashRequiredToAcquireAPlot",
+        "StarterCityConservesEveryHarvestedMaterialThroughTradeRefiningAndConstruction",
+        "CityThreeMigrationPreservesHistoricalPropertiesAndBalancesWithoutInventingMaterials",
+        "OtherOwnersStocksDoNotAuthorizeConstructionAndTradingTransfersCashAndVolume",
+        "MaterialsAndMidConstructionReservationsSurviveSaveAndNetworkRoundTrips",
+        "IndividualsCanBuyAndKeepMaterialsWithoutSupplyingUnrelatedDevelopers",
+        "RefiningUsesThePlayerRecipesAndCannotManufactureMissingInputs",
+        "MissingNaturalWoodStopsEveryBuildingAndNeverAdvancesConstructionWork",
+        "recipesMatchTheActualBlueprintIncludingFractionalBeams",
+        "ReservationsPreventDoubleUseAndInsufficientFundsLeaveBothOwnersUnchanged",
+        "PickingFindsTheNearestBuildingAndInspectorShowsLiveOwnedRequirements"
+      ]
+    },
+    {
+      "suite": "CityBusinessTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "emptyCityHasNoOperatingMetricsAndNoInventedProfit",
+        "bankruptEmployersStopPayAndRaiseBusinessAlertsWithoutPublicSubsidy",
+        "staffedBusinessesProduceSellAndReconcileCashAndStock",
+        "productionFollowsPaidGameHoursAndRetainsFractionalWorkAfterReload",
+        "malformedBusinessCountersAreRejected",
+        "saveNetworkRoundTripAndLegacyCityTwoMigrationPreserveTheCity",
+        "shopSalesRequireStaffActuallyPresentInTheWorkplace",
+        "dailyAccountsCloseAtMidnightAndHistoryIsBoundedAndPersistent",
+        "commercialShiftsOperateInEveningWhileMinesClose"
+      ]
+    },
+    {
+      "suite": "ManufacturingTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "ownedEquipmentIncreasesActualMiningAndLoggingExtraction",
+        "aStaffedFactoryBuildsAndTradesToolsDuringTheActualSimulation",
+        "missingInputsAndFullOutputDoNotConsumeInputsOrGenerateProducts",
+        "configurationMatchesDefaultAndRejectsBadInputsAndBonus",
+        "customPipelineAndPartialBatchesSurviveSaveAndNetwork",
+        "expandedCityCompletesThreeDailyRoutinesWithoutTrappingMineWorkers",
+        "factoryRequiresPremisesAndPurchasesInputsAndBothToolsWithoutPublicMoney"
+      ]
+    },
+    {
+      "suite": "AgricultureTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "snapshotRejectsForeignAndOutOfBoundsFarmEntities",
+        "farmersBuyAndBuildTheirOwnPlotsWhileDevelopersStayOut",
+        "cityFiveUpgradeIsDeferredAndPreservesExistingAssets",
+        "cattleNeedPurchasedFeedAndMilkAndBeefComeFromFiniteAnimals",
+        "foodFactoriesPurchaseAndConsumeEveryIngredientWithoutPublicSubsidies",
+        "threeDaysFeedEveryoneAndPreserveFarmsCowsAndFoodAcrossSaveAndNetwork",
+        "farmExpansionPaysForAnotherPlotAndMaterialReservation",
+        "fieldsNeedBuiltSoilAndLabourAndRegrowRealNamedCrops"
+      ]
+    },
+    {
+      "suite": "BusinessDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "newMayorBusinessTabKeepsPopulationNavigationAndTextInputSeparate",
+        "companyViewAndScrollRemainReadOnly",
+        "businessFiltersSearchAndSelectionUseActualLocations"
+      ]
+    }
+  ],
+  "preservation": {
+    "reviewBase": "234136c6f0365fe08757a2f0a52d72d7df92578c",
+    "exactFileMatches": [
+      "dashboard/evidence/building-demolition-tests.txt",
+      "dashboard/evidence/isometric-rotation-tests.json",
+      "dashboard/evidence/metric-trends-companies-1280x720.png",
+      "dashboard/evidence/metric-trends-companies-640x640.png",
+      "dashboard/evidence/metric-trends-government-1280x720.png",
+      "dashboard/evidence/metric-trends-government-640x640.png",
+      "dashboard/evidence/metric-trends-population-1280x720.png",
+      "dashboard/evidence/metric-trends-population-640x640.png",
+      "dashboard/evidence/metric-trends-rebase-verification.json",
+      "dashboard/evidence/metric-trends-recovery-companies-1280x720.png",
+      "dashboard/evidence/metric-trends-recovery-companies-640x640.png",
+      "dashboard/evidence/metric-trends-recovery-government-1280x720.png",
+      "dashboard/evidence/metric-trends-recovery-government-640x640.png",
+      "dashboard/evidence/metric-trends-recovery-population-1280x720.png",
+      "dashboard/evidence/metric-trends-recovery-population-640x640.png",
+      "dashboard/evidence/metric-trends-recovery-workplaces-1280x720.png",
+      "dashboard/evidence/metric-trends-recovery-workplaces-640x640.png",
+      "dashboard/evidence/metric-trends-recovery.json",
+      "dashboard/evidence/metric-trends-rendering.json",
+      "dashboard/evidence/metric-trends-tests.json",
+      "dashboard/evidence/metric-trends-workplaces-1280x720.png",
+      "dashboard/evidence/metric-trends-workplaces-640x640.png",
+      "dashboard/evidence/special-buildings-checkpoint.md",
+      "dashboard/evidence/special-buildings-menu.png",
+      "dashboard/evidence/special-buildings-metric-integration-tests.json",
+      "dashboard/evidence/special-buildings-metric-replay-tests.json",
+      "dashboard/evidence/special-buildings-overhead-tests.json",
+      "dashboard/evidence/special-buildings-placement.png",
+      "dashboard/evidence/special-buildings-recovery-tests.json",
+      "dashboard/evidence/special-buildings-rendering.json",
+      "dashboard/evidence/special-buildings-replay-recovery-tests.json",
+      "dashboard/evidence/special-buildings-tests.json",
+      "deploy/MetricTrendsSmoke.java",
+      "deploy/SpecialBuildingsSmoke.java",
+      "deploy/run_metric_trends_smoke.py",
+      "src/main/java/dev/jayms/IsometricCamera.java",
+      "src/main/java/dev/jayms/net/city/SpecialBuildings.java",
+      "src/main/java/dev/jayms/ui/MetricHistory.java",
+      "src/main/java/dev/jayms/ui/MetricTrends.java",
+      "src/test/java/dev/jayms/ControlsTest.java",
+      "src/test/java/dev/jayms/DemolitionTest.java",
+      "src/test/java/dev/jayms/IsometricCameraTest.java",
+      "src/test/java/dev/jayms/MetricHistoryTest.java",
+      "src/test/java/dev/jayms/SpecialBuildingsTest.java"
+    ],
+    "currentBaseMilestones": "All retained unchanged"
+  },
+  "integrationChanges": [
+    "Protocol bumped from base 15 to 16 for changed business-catalog frame layout; civic command encoding retained.",
+    "Legacy format-6 saves for every civic type 4 through 18 explicitly tested."
+  ],
+  "checks": [
+    "No deleted tracked files relative to current base",
+    "git diff --check passed",
+    "Resolved dashboard JSON retains every current-base milestone"
+  ],
+  "limits": [
+    "Headless tests; no new live gameplay recording.",
+    "Checks cover corrected working checkout; controller owns staging, rebase continuation, publication and exact-head independent review."
+  ]
+}

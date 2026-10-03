@@ -395,7 +395,8 @@ public final class CitySimulation {
                 t.activity =
                         firm.kind == CityEconomy.MINE
                                 ? "Working in mine"
-                                : "Working: " + CityMaterials.sector(firm.kind);
+                                : "Working: "
+                                        + economy.resources.catalog.businesses().sector(firm.kind);
                 if (!economy.wage(company, hours * (1.8 + h.cohort * .3), n)) {
                     economy.businesses.missedWage(account);
                     t.activity = "Employer cannot afford wages";
@@ -769,7 +770,8 @@ public final class CitySimulation {
             var firm = economy.company(id - CityMaterials.YARD);
             return firm == null
                     ? null
-                    : new CityFrame.Building(id, 0, 2, -8 + (firm.kind - 2) * 6, grade, 23, 1, 0);
+                    : new CityFrame.Building(
+                            id, 0, 2, -8 + Math.floorMod(firm.kind - 2, 8) * 6, grade, 23, 1, 0);
         }
         if (id >= 0) return building(id);
         var p = economy.project(-id);
@@ -1318,6 +1320,7 @@ public final class CitySimulation {
                     CityMaterials.FARM, CityMaterials.SUGARCANE_FARM, CityMaterials.CATTLE_FARM
                 }) {
             int k = kind;
+            if (economy.companies().stream().noneMatch(c -> c.kind == k)) continue;
             long plots =
                     economy.plots.stream()
                             .filter(p -> p.type() == 3 && economy.company(p.developer()).kind == k)
@@ -1332,7 +1335,8 @@ public final class CitySimulation {
                         economy.companies().stream()
                                 .filter(f -> f.kind == k)
                                 .findFirst()
-                                .orElseThrow();
+                                .orElse(null);
+                if (firm == null) continue;
                 if (economy.plots.stream()
                                         .filter(p -> p.type() == 3 && p.developer() == firm.id)
                                         .count()
@@ -1349,9 +1353,9 @@ public final class CitySimulation {
     }
 
     private int industrialDemand() {
-        for (int kind = 2;
-                kind <= (agriculture.enabled() ? CityMaterials.MAX_KIND : CityMaterials.TOOLS);
-                kind++) {
+        for (var type : economy.resources.catalog.businesses().types()) {
+            int kind = type.id();
+            if (kind < 2 || economy.companies().stream().noneMatch(c -> c.kind == kind)) continue;
             if (agriculture.enabled() && CityMaterials.farmer(kind)) continue;
             final int k = kind;
             boolean exists =
@@ -1544,7 +1548,8 @@ public final class CitySimulation {
                     && magic != 0x43495433
                     && magic != 0x43495434
                     && magic != 0x43495435
-                    && magic != 0x43495436) throw new IOException("Invalid city save");
+                    && magic != 0x43495436
+                    && magic != 0x43495437) throw new IOException("Invalid city save");
             return CityFrame.read(
                     in,
                     magic == 0x43495431
@@ -1555,7 +1560,9 @@ public final class CitySimulation {
                                             ? 3
                                             : magic == 0x43495434
                                                     ? 4
-                                                    : magic == 0x43495435 ? 5 : 6);
+                                                    : magic == 0x43495435
+                                                            ? 5
+                                                            : magic == 0x43495436 ? 6 : 7);
         }
     }
 
@@ -1564,7 +1571,7 @@ public final class CitySimulation {
         Files.createDirectories(file.toAbsolutePath().getParent());
         Path tmp = file.resolveSibling(file.getFileName() + ".tmp");
         try (var out = new DataOutputStream(Files.newOutputStream(tmp))) {
-            out.writeInt(0x43495436);
+            out.writeInt(0x43495437);
             frame().write(out);
         }
         try {
