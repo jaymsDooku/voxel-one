@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-03T18:12:06+00:00",
+  "updatedAt": "2026-10-03T22:53:59+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,21 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "33356462633030392d326535322d343064332d396463632d366438373831373162393833",
+      "title": "City login protocol compatibility",
+      "description": "Tracing client/server handshake and release compatibility locally.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "city protocol compatibility.md",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/city-protocol-compatibility.md"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Protocol 14 fallback implemented; 20 city tests and packaging passed. Network regression tests compile but socket execution is sandbox-blocked; awaiting controller verification and review.",
+      "updatedAt": "2026-10-03T22:53:59+00:00"
+    },
     {
       "id": "38383035396439392d393432392d343737342d393838302d636439653137323962623766",
       "title": "Metric history charts",

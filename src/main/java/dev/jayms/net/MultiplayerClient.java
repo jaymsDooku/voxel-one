@@ -14,6 +14,7 @@ public final class MultiplayerClient implements AutoCloseable {
     private final DataInputStream in;
     private final DataOutputStream out;
     public final int id;
+    public final int serverProtocol;
     public final String username;
     public final Protocol.Pose spawn;
     public final long seed;
@@ -50,21 +51,12 @@ public final class MultiplayerClient implements AutoCloseable {
             boolean register,
             String fingerprint)
             throws IOException {
-        socket = SecureTransport.connect(host, port, fingerprint);
-        in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
-        out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+        Connection connection = authenticate(host, port, username, password, register, fingerprint);
+        socket = connection.socket();
+        in = connection.in();
+        out = connection.out();
+        serverProtocol = connection.version();
         try {
-            out.writeInt(Protocol.MAGIC);
-            out.writeInt(Protocol.VERSION);
-            out.writeByte(register ? Protocol.REGISTER : Protocol.LOGIN);
-            out.writeUTF(username);
-            out.writeUTF(new String(password));
-            out.flush();
-            if (in.readInt() != Protocol.MAGIC || in.readInt() != Protocol.VERSION)
-                throw new IOException("Server protocol mismatch");
-            boolean success = in.readBoolean();
-            String message = Protocol.readText(in, 256);
-            if (!success) throw new IOException(message);
             id = in.readInt();
             spawn = Protocol.Pose.read(in);
             this.username = Protocol.readText(in, 16);
@@ -121,6 +113,53 @@ public final class MultiplayerClient implements AutoCloseable {
         writer.start();
     }
 
+    private record Connection(
+            Socket socket, DataInputStream in, DataOutputStream out, int version) {}
+
+    private static Connection authenticate(
+            String host, int port, String username, char[] password, boolean register,
+            String fingerprint) throws IOException {
+        int requested = Protocol.VERSION;
+        for (;;) {
+            Socket socket = SecureTransport.connect(host, port, fingerprint);
+            try {
+                var in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+                var out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+                out.writeInt(Protocol.MAGIC);
+                out.writeInt(requested);
+                out.writeByte(register ? Protocol.REGISTER : Protocol.LOGIN);
+                out.writeUTF(username);
+                out.writeUTF(new String(password));
+                out.flush();
+                int magic = in.readInt();
+                int version = in.readInt();
+                if (magic != Protocol.MAGIC) throw new IOException("Invalid server protocol header");
+                // Version 14 has the same snapshots and existing commands as 15. Only
+                // SPECIAL is new in 15. Reconnect because old servers close on mismatch.
+                if (requested == Protocol.VERSION && version == Protocol.CITY_BASE_VERSION) {
+                    if (in.readBoolean()) throw new IOException("Unexpected protocol acceptance");
+                    Protocol.readText(in, 256);
+                    socket.close();
+                    requested = Protocol.CITY_BASE_VERSION;
+                    continue;
+                }
+                if (version != requested)
+                    throw new IOException("Server protocol mismatch (client " + requested
+                            + ", server " + version + "). "
+                            + (version > Protocol.VERSION
+                                    ? "Restart the launcher to update the client."
+                                    : "The server needs an update."));
+                boolean success = in.readBoolean();
+                String message = Protocol.readText(in, 256);
+                if (!success) throw new IOException(message);
+                return new Connection(socket, in, out, version);
+            } catch (IOException e) {
+                socket.close();
+                throw e;
+            }
+        }
+    }
+
     private void acceptCity(CityFrame frame, long time) {
         city = frame;
         cityReceived = time;
@@ -167,6 +206,10 @@ public final class MultiplayerClient implements AutoCloseable {
     }
 
     public boolean cityCommand(CityCommand command) {
+        if (command.kind() == CityCommand.SPECIAL && serverProtocol < Protocol.VERSION) {
+            notice = "Special buildings require a server update.";
+            return false;
+        }
         return send(
                 () -> {
                     out.writeByte(Protocol.CITY_COMMAND);
