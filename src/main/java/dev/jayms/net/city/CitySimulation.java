@@ -1081,8 +1081,9 @@ public final class CitySimulation {
                 throw new IllegalArgumentException("Building overlaps another building or entrance");
             if (dz == -1 && roads.containsKey(new Cell(cx,cz-1))) access = true;
             if (ground.occupied(cx,grade+1,cz,1,1)) throw new IllegalArgumentException("Building would intersect a player");
-            // level() clears the whole column; validate it before any mutation.
-            for (int y=grade+1; y<=Terrain.MAX_Y; y++) if (ground.type(cx,y,cz)!=0)
+            // level() clears the whole column above grade, not just the building height.
+            // Validate that entire volume before collecting or applying any placement edits.
+            for (int y = grade + 1; y <= Terrain.MAX_Y; y++) if (ground.type(cx,y,cz)!=0)
                 throw new IllegalArgumentException("Clear the building site first");
         }
         if (!access) throw new IllegalArgumentException("Front entrance must touch a road");

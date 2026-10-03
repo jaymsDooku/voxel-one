@@ -25,3 +25,19 @@ The current preserved rebase applies special buildings onto reviewed base 8c524a
 Combined chart/placement/demolition/dashboard verification: 23 tests passed. Eight fresh changing-chart OpenGL captures passed using the existing smoke tool. Two new real engine/OpenGL captures show the actual catalog and a City hall placed through the CityTools click handler and authoritative simulation. Static synthetic fixtures, not live gameplay: special-buildings-menu.png, special-buildings-placement.png and special-buildings-rendering.json. Reproducible tooling: deploy/SpecialBuildingsSmoke.java and deploy/run_special_buildings_smoke.py. Full evidence: special-buildings-metric-integration-tests.json.
 
 Controller must stage resolutions and continue the preserved rebase; this worker did not stage, continue, commit, push, merge, deploy or change sandbox controls. Preserve the concurrent chart feature during any further replay. Graphical live playthrough/F10 and multiplayer sockets remain unverified.
+
+Review revision: overhead preservation
+
+The placement check now spans grade+1 through Terrain.MAX_Y for every cell that level() touches, including entrance strips. Obstructions anywhere in that volume reject the permit before world edits or city mutations. The regression reproduced acceptance on the prior code and passes after the fix. Nine combinations cover three heights (including grade+10 and the world ceiling) and three site positions; each asserts zero edit batches, preservation of all blocks and equality of the complete city snapshot. SpecialBuildingsTest and CityToolsTest pass all 9 tests after this revision. Actual commands and results: special-buildings-overhead-tests.json. Changes remain local for runner submission and independent review.
+
+Overhead revision replay recovery
+
+Resolved the second preserved conflict in working files. Retained the overhead preservation test and the demolition/permit compatibility test, retained full-height validation, and combined checkpoint histories. Command IDs remain demolition=4 and special=5. Civic demolition still uses its matching blueprint. Source changes relative to the preceding verified recovery are comments and formatting only. Targeted verification passed all 13 SpecialBuildingsTest, CityToolsTest and DemolitionTest tests; the earlier broad 169-test passing evidence remains in special-buildings-recovery-tests.json. Current commands/results: special-buildings-replay-recovery-tests.json.
+
+Controller must stage current resolutions and continue the rebase. Unmerged index entries are intentionally left for the controller. No staging, rebase continuation, abort/reset, commit, push, merge or deployment performed by this worker. Graphical playthrough and socket tests remain unverified.
+
+Metric integration final replay checkpoint
+
+Resolved the replay metadata conflicts by retaining both histories and the current metric-preservation progress. Kept the full-height source validation and all chart, placement and demolition integration. Reverified 28 metric-feature files against reviewed base and retained the metric milestone and OpenGL building screenshots. Combined checks again passed all 23 tests; evidence: special-buildings-metric-replay-tests.json. Source replay was comments/formatting only; existing rendering evidence remains applicable.
+
+Controller stages resolutions and continues the preserved rebase. This worker did not stage/continue, abort/reset, commit, push, merge or deploy. Live gameplay/F10 and socket tests remain unverified.

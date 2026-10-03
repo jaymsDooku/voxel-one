@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-03T18:10:03+00:00",
+  "updatedAt": "2026-10-03T18:12:06+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -44,8 +44,8 @@
       "description": "Implementing catalog, ownership, levels, and authoritative placement checks.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Review revision ready: metric-history source, controls, tests, tooling, evidence and milestone retained from reviewed base. Combined 23 tests and eight chart renders passed. Actual menu and placement OpenGL screenshots saved; controller stages and continues rebase. Evidence: special-buildings-metric-integration-tests.json.",
-      "updatedAt": "2026-10-03T18:10:03+00:00"
+      "note": "Replay conflicts resolved; metric feature and milestone retained, overhead protection and civic demolition preserved. All 23 combined tests passed again; menu/placement OpenGL evidence retained. Ready for controller staging and rebase continuation. Evidence: special-buildings-metric-replay-tests.json.",
+      "updatedAt": "2026-10-03T18:12:06+00:00"
     },
     {
       "id": "8fdb8e5d-2133-4c4f-827d-e7d190f01db6",

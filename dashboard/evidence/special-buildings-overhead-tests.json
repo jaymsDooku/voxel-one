@@ -1,0 +1,37 @@
+{
+  "change": "Validate the entire overhead volume modified by special-building leveling before mutation.",
+  "regressionCoverage": "Nine obstruction scenarios: grade+8, grade+10 and Terrain.MAX_Y, each over the building, front entrance strip and rear entrance strip. Rejection preserves all blocks, performs zero edit batches and leaves the city snapshot unchanged.",
+  "commands": [
+    {
+      "command": "/tmp/apache-maven-3.9.11/bin/mvn -o -Dmaven.repo.local=target/special-build-tools/m2 -DargLine=-Djava.io.tmpdir=$PWD/target/special-build-tools -Dtest=SpecialBuildingsTest#overheadObstructionsRejectAtomicallyAcrossBuildingAndEntranceVolume -q test",
+      "result": "Before fix: exit 1, regression reproduced (expected rejection, received Permitted City hall)."
+    },
+    {
+      "command": "/tmp/apache-maven-3.9.11/bin/mvn -o -Dmaven.repo.local=target/special-build-tools/m2 -DargLine=-Djava.io.tmpdir=$PWD/target/special-build-tools -Dtest=SpecialBuildingsTest,CityToolsTest -q test",
+      "result": "After fix: exit 0, all 9 tests passed."
+    },
+    {
+      "command": "git diff --check",
+      "result": "Exit 0."
+    }
+  ],
+  "suites": [
+    {
+      "suite": "SpecialBuildingsTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "CityToolsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "limitations": [
+    "Graphical playthrough and multiplayer sockets remain unverified; this revision changes authoritative placement validation only."
+  ]
+}

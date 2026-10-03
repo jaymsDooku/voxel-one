@@ -1,0 +1,79 @@
+{
+  "revision": "Metric-integration replay recovery",
+  "resolution": "Combined checkpoint histories, retained current metric integration progress, preserved full-height validation and civic demolition. Only comments/formatting changed in source relative to preceding integration.",
+  "commands": [
+    {
+      "command": "/tmp/apache-maven-3.9.11/bin/mvn -o -Dmaven.repo.local=target/special-build-tools/m2 -DargLine=-Djava.io.tmpdir=$PWD/target/special-build-tools -Dtest=MetricHistoryTest,SpecialBuildingsTest,CityToolsTest,DemolitionTest,MayorDashboardTest,BusinessDashboardTest -q test",
+      "result": "Exit 0; 23 tests passed."
+    },
+    {
+      "command": "git diff --check",
+      "result": "Exit 0."
+    },
+    {
+      "command": "rg -n '^(<<<<<<<|=======|>>>>>>>)' src dashboard deploy",
+      "result": "No conflict markers."
+    }
+  ],
+  "totals": {
+    "tests": 23,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "suites": [
+    {
+      "suite": "MetricHistoryTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "SpecialBuildingsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "CityToolsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "DemolitionTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "MayorDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "BusinessDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "preservation": "28 metric feature source/integration/test/tool/evidence files still byte-identical to reviewed base 8c524a18d18d7f685cdabb6a16c7ebbf57fb77f3; metric progress entry unchanged.",
+  "visualEvidence": [
+    "special-buildings-menu.png",
+    "special-buildings-placement.png",
+    "special-buildings-rendering.json"
+  ],
+  "visualValidation": "Previously captured real engine/OpenGL fixture screenshots retained; no visual source changes in this replay. Eight changing chart captures and placement captures recorded in special-buildings-metric-integration-tests.json.",
+  "limitations": [
+    "Synthetic offscreen fixture evidence; live gameplay/F10 recording and multiplayer sockets remain unverified."
+  ],
+  "handoff": "Working files resolved and left unstaged for controller rebase continuation; no git reset/abort, stage/continue, commit, push, merge or deployment."
+}
