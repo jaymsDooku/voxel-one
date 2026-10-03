@@ -1,0 +1,23 @@
+{
+  "base": "a3c1513221c227435ee1cbddc2162d16e916b9d4",
+  "scope": "Later metadata replay",
+  "commands": [
+    "Python SHA256 comparison of every source/build input, CITY8 fixture and 91 capital assets against market-capital-combined-tests.json",
+    "git diff HEAD --name-only -- src pom.xml config deploy",
+    "git diff a3c1513221c227435ee1cbddc2162d16e916b9d4 --diff-filter=D --name-only",
+    "Python JSON, base-record and conflict-marker validation",
+    "git diff --check"
+  ],
+  "results": {
+    "allSourceAndBuildInputHashesMatch253TestBuild": true,
+    "baseGeneratedCity8FixtureUnchanged": true,
+    "preservedCapitalAssets": 91,
+    "deletedBaseFiles": [],
+    "allBaseProgressEntriesPreserved": true,
+    "jsonValid": true,
+    "remainingConflictMarkers": false,
+    "diffCheck": "passed"
+  },
+  "tests": "No new tests for metadata-only replay. Combined verification passed 253 tests; socket-dependent tests require CI.",
+  "controllerAction": "Stage resolutions and continue preserved rebase; independent review remains required."
+}

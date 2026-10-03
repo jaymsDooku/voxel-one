@@ -11,3 +11,9 @@ New property sale/rental offers respond to city demand, capacity and local occup
 Hourly labour quotes respond to the employer's positions, staffing and unemployment. Daily job reviews compare affordable wage offers with a 20% switching premium and preserve minimum operating crews and family-farm assignments. Mobile startup crews are limited to one worker, leaving construction labour available.
 
 Regression coverage includes all configured products and building materials, construction and food demand, competing sellers, partial affordability, conservation, invalid transfers, meal portions, leases, labour demand, choosing cheaper housing in the real simulation, and quote/balance stability across restoration. Existing simulation tests retain their construction, production, ownership, nutrition, accounting and persistence assertions; fixed-price expectations now use actual negotiated quotes or paid plot prices.
+
+## Independent review corrections
+
+Unfunded wage offers no longer retain minimum crews: workers can consider funded alternatives on any simulation tick without the normal switching premium. Automatic assignment checks that the hiring employer can fund its hourly offer, so it does not reclaim workers into unpaid positions on subsequent ticks. Funded minimum crews and family-farm assignments keep their existing protections.
+
+Meal receipts now count the actual purchased portions in both lifetime and daily business sales. The regression fixture consumes four portions through the real simulation and reconciles recorded sales against shop stock and owned food inventory. Another regression checks minimum mine and shop crews before and after insolvency and their job choice over twelve subsequent simulation ticks.
