@@ -69,7 +69,50 @@
       "tests": "No rerun for documentation-only changes. Prior 110 passing combined tests remain applicable.",
       "prior_evidence": "dashboard/evidence/road-traffic-special-recovery-tests.json",
       "next": "Controller stages working-file resolutions and continues rebase; final feature preservation and independent exact-head review required."
+    },
+    {
+      "scope": "Documentation-only rebase conflict after special-building recovery",
+      "head": "e8481403fb4ce531f2545d3a45498adf0c12e213",
+      "resolved": [
+        "TRAFFIC_CHECKPOINT.md",
+        "dashboard/progress.json"
+      ],
+      "checks": [
+        {
+          "command": "git diff HEAD -- src",
+          "result": "Empty; implementation/tests unchanged from combined 110-test validation."
+        },
+        {
+          "command": "Python byte comparison against 234136c6f0365fe08757a2f0a52d72d7df92578c for special/metric files, Protocol, CityFrame, CityCommand, StructureBlueprint and MayorDashboard",
+          "result": "Passed."
+        },
+        {
+          "command": "Python dashboard JSON, unique IDs, traffic/special/metric entries and conflict-marker assertions",
+          "result": "Passed."
+        },
+        {
+          "command": "git diff --check",
+          "exit": 0
+        }
+      ],
+      "tests": "No rerun for documentation-only changes. Prior 110 passing combined tests remain applicable.",
+      "prior_evidence": "dashboard/evidence/road-traffic-special-recovery-tests.json",
+      "next": "Controller stages working-file resolutions and continues rebase; final feature preservation and independent exact-head review required.",
+      "subsequent_resolutions": [
+        {
+          "head": "012f9361800626abbd5659ce167e121fbfd18c61",
+          "result": "Retained both historical checkpoint sides and newer progress notes.",
+          "checks": {
+            "git diff HEAD -- src": "Empty; source/tests unchanged",
+            "special/metric files and protocol/save/command/blueprint/UI comparison against reviewed base": "Passed",
+            "dashboard JSON, unique IDs and traffic/special/metric entry assertions": "Passed",
+            "conflict-marker assertions": "Passed",
+            "git diff --check": "Passed"
+          },
+          "tests": "Prior combined 110-test pass remains applicable; no rerun for documentation-only changes."
+        }
+      ]
     }
   ],
-  "historical_recovery_note": "Preserved report variants; these historical checks do not assert current-head validation."
+  "historical_recovery_note": "Retained historical report variants during rebase. No current-head execution is claimed."
 }
