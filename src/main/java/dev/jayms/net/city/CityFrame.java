@@ -108,7 +108,7 @@ public record CityFrame(
     }
 
     public void write(DataOutput out) throws IOException {
-        write(out, 6);
+        write(out, 7);
     }
 
     public void write(DataOutput out, int version) throws IOException {
@@ -186,7 +186,7 @@ public record CityFrame(
     }
 
     public static CityFrame read(DataInput in, boolean legacy) throws IOException {
-        return read(in, legacy ? 1 : 6);
+        return read(in, legacy ? 1 : 7);
     }
 
     public static CityFrame read(DataInput in, int version) throws IOException {

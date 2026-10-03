@@ -1,0 +1,158 @@
+{
+  "platform": "Linux, headless Java tests",
+  "verification": [
+    {
+      "suite": "BusinessCatalogTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "emptyConfiguredRosterPreservesSavedMunicipalAccounts",
+        "excavatesLiveDirtAndSandRespectsCapacityAndProtection",
+        "seedsMultipleCompaniesAndKeepsSavedBalances",
+        "framesAndCitySavesPreserveConfiguration",
+        "newManufacturingTypesUseExistingRecipeConfiguration",
+        "configuredExampleReceivesPaidWorkersInTheCity",
+        "supportsReplacingCompaniesAndReadsLegacyCatalog",
+        "rejectsBadReferencesRatesMaterialsAndDuplicateIds"
+      ]
+    },
+    {
+      "suite": "CityBusinessTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "emptyCityHasNoOperatingMetricsAndNoInventedProfit",
+        "bankruptEmployersStopPayAndRaiseBusinessAlertsWithoutPublicSubsidy",
+        "staffedBusinessesProduceSellAndReconcileCashAndStock",
+        "productionFollowsPaidGameHoursAndRetainsFractionalWorkAfterReload",
+        "malformedBusinessCountersAreRejected",
+        "saveNetworkRoundTripAndLegacyCityTwoMigrationPreserveTheCity",
+        "shopSalesRequireStaffActuallyPresentInTheWorkplace",
+        "dailyAccountsCloseAtMidnightAndHistoryIsBoundedAndPersistent",
+        "commercialShiftsOperateInEveningWhileMinesClose"
+      ]
+    },
+    {
+      "suite": "CityTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "firstPersonGroundAimHitsHorseLegs",
+        "populationTravelsWorksBuysFoodAndRidesHorses",
+        "starterCityBuildsAllStructuresAndAssignsHouseholdsAndJobs",
+        "cityStateRoundTripsClockEconomyZonesAndBuildings",
+        "mountedPlayerMovesDismountsAndKeepsCollision",
+        "horsesAreExclusiveReleaseAndPersistWithoutHumanClaims",
+        "zoningRequiresRoadAccessSpaceAndNoOverlap",
+        "ecsQueriesComponentsAndRemoval",
+        "convexPolygonsRasterizeBothDirectionsAndRejectInvalidShapes",
+        "gameClockWrapsAndNightPreservesColoredLighting"
+      ]
+    },
+    {
+      "suite": "CityMaterialsTest",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "MalformedDuplicateNegativeOrRecipeChangingStocksAreRejected",
+        "ExpandedIndustrialZonesConstructDistinctMaterialFundedWorkshopsForAllResourceCompanies",
+        "DeveloperOwnedMaterialsReduceTheCashRequiredToAcquireAPlot",
+        "StarterCityConservesEveryHarvestedMaterialThroughTradeRefiningAndConstruction",
+        "CityThreeMigrationPreservesHistoricalPropertiesAndBalancesWithoutInventingMaterials",
+        "OtherOwnersStocksDoNotAuthorizeConstructionAndTradingTransfersCashAndVolume",
+        "MaterialsAndMidConstructionReservationsSurviveSaveAndNetworkRoundTrips",
+        "IndividualsCanBuyAndKeepMaterialsWithoutSupplyingUnrelatedDevelopers",
+        "RefiningUsesThePlayerRecipesAndCannotManufactureMissingInputs",
+        "MissingNaturalWoodStopsEveryBuildingAndNeverAdvancesConstructionWork",
+        "recipesMatchTheActualBlueprintIncludingFractionalBeams",
+        "ReservationsPreventDoubleUseAndInsufficientFundsLeaveBothOwnersUnchanged",
+        "PickingFindsTheNearestBuildingAndInspectorShowsLiveOwnedRequirements"
+      ]
+    },
+    {
+      "suite": "ManufacturingTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "ownedEquipmentIncreasesActualMiningAndLoggingExtraction",
+        "aStaffedFactoryBuildsAndTradesToolsDuringTheActualSimulation",
+        "missingInputsAndFullOutputDoNotConsumeInputsOrGenerateProducts",
+        "configurationMatchesDefaultAndRejectsBadInputsAndBonus",
+        "customPipelineAndPartialBatchesSurviveSaveAndNetwork",
+        "expandedCityCompletesThreeDailyRoutinesWithoutTrappingMineWorkers",
+        "factoryRequiresPremisesAndPurchasesInputsAndBothToolsWithoutPublicMoney"
+      ]
+    },
+    {
+      "suite": "AgricultureTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "snapshotRejectsForeignAndOutOfBoundsFarmEntities",
+        "farmersBuyAndBuildTheirOwnPlotsWhileDevelopersStayOut",
+        "cityFiveUpgradeIsDeferredAndPreservesExistingAssets",
+        "cattleNeedPurchasedFeedAndMilkAndBeefComeFromFiniteAnimals",
+        "foodFactoriesPurchaseAndConsumeEveryIngredientWithoutPublicSubsidies",
+        "threeDaysFeedEveryoneAndPreserveFarmsCowsAndFoodAcrossSaveAndNetwork",
+        "farmExpansionPaysForAnotherPlotAndMaterialReservation",
+        "fieldsNeedBuiltSoilAndLabourAndRegrowRealNamedCrops"
+      ]
+    },
+    {
+      "suite": "BusinessDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "newMayorBusinessTabKeepsPopulationNavigationAndTextInputSeparate",
+        "companyViewAndScrollRemainReadOnly",
+        "businessFiltersSearchAndSelectionUseActualLocations"
+      ]
+    }
+  ],
+  "passingTestsAcrossLatestSuiteReports": 58,
+  "runs": [
+    {
+      "command": "mvn -q -DskipTests compile",
+      "result": "exit 127: Maven not on PATH"
+    },
+    {
+      "command": "/tmp/apache-maven-3.9.11/bin/mvn -q -DskipTests compile",
+      "result": "exit 1: default Maven repository outside writable workspace; used a worktree-local copy of cached dependencies instead"
+    },
+    {
+      "command": "MAVEN_OPTS=\"-Djava.io.tmpdir=$PWD/target/tmp -Djansi.tmpdir=$PWD/target/tmp\" /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=target/maven-repository \"-DargLine=-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=BusinessCatalogTest,CityBusinessTest,CityMaterialsTest,ManufacturingTest,AgricultureTest test",
+      "result": "exit 0; 42 tests passed after directing forked JVM temporary files inside the worktree; prior attempt without forked JVM temporary override had 42 setup errors"
+    },
+    {
+      "command": "MAVEN_OPTS=\"-Djava.io.tmpdir=$PWD/target/tmp -Djansi.tmpdir=$PWD/target/tmp\" /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=target/maven-repository \"-DargLine=-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=BusinessCatalogTest,CityTest,CityBusinessTest,CityMaterialsTest,ManufacturingTest,AgricultureTest,BusinessDashboardTest test",
+      "result": "exit 1; 50 existing regression tests passed; 6 new tests passed and the new staffing test failed. Resolved custom yards positioned beyond the founding road and reduced example roster to fit the finite workforce."
+    },
+    {
+      "command": "MAVEN_OPTS=\"-Djava.io.tmpdir=$PWD/target/tmp -Djansi.tmpdir=$PWD/target/tmp\" /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=target/maven-repository \"-DargLine=-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=BusinessCatalogTest,CityBusinessTest test",
+      "result": "final exit 0; 17 tests passed, including 8 new tests. An intermediate run before the yard routing correction failed the staffing test."
+    },
+    {
+      "command": "git diff --check",
+      "result": "exit 0"
+    }
+  ],
+  "limits": [
+    "No graphical engine session or deployment performed.",
+    "Saved worlds retain their embedded catalog; changed external configurations apply to new worlds.",
+    "Current terrain has no ore blocks; supported extraction materials are dirt, sand, stone and wood."
+  ]
+}

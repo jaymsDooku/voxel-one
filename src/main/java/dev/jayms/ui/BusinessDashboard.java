@@ -120,8 +120,8 @@ public final class BusinessDashboard {
         text(ui, sub, x + 10, y + 55, w - 20, 1.1f);
     }
 
-    private static String sector(int kind) {
-        return CityMaterials.sector(kind);
+    private static String sector(CityFrame city, int kind) {
+        return city.economy().resources().catalog().businesses().sector(kind);
     }
 
     public void render(Overlay ui, int w, int h, CityFrame city) {
@@ -292,7 +292,7 @@ public final class BusinessDashboard {
                                         .orElse("Unknown owner");
         text(
                 ui,
-                sector(l.firm() == null ? b.type() : l.firm().kind())
+                sector(city, l.firm() == null ? b.type() : l.firm().kind())
                         + " | "
                         + l.status()
                         + " | "
@@ -411,7 +411,7 @@ public final class BusinessDashboard {
             var f = c.firm();
             float y = 218 + i * 110;
             panel(ui, 24, y, w - 48, 102);
-            text(ui, f.name() + " | " + sector(f.kind()), 36, y + 10, w - 72, 1.45f);
+            text(ui, f.name() + " | " + sector(city, f.kind()), 36, y + 10, w - 72, 1.45f);
             text(
                     ui,
                     fmt(

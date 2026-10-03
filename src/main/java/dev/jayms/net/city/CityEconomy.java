@@ -138,11 +138,11 @@ public final class CityEconomy {
         }
 
         public void write(DataOutput out) throws IOException {
-            write(out, 6);
+            write(out, 7);
         }
 
         public void write(DataOutput out, boolean legacy) throws IOException {
-            write(out, legacy ? 2 : 6);
+            write(out, legacy ? 2 : 7);
         }
 
         public void write(DataOutput out, int version) throws IOException {
@@ -197,17 +197,17 @@ public final class CityEconomy {
         }
 
         public static State read(DataInput in) throws IOException {
-            return read(in, 6);
+            return read(in, 7);
         }
 
         public static State read(DataInput in, boolean legacy) throws IOException {
-            return read(in, legacy ? 2 : 6);
+            return read(in, legacy ? 2 : 7);
         }
 
         public static State read(DataInput in, int version) throws IOException {
             double budget = money(in), roads = money(in), land = money(in), clock = money(in);
             var firms = new ArrayList<Firm>();
-            for (int i = 0, n = count(in, 64); i < n; i++) {
+            for (int i = 0, n = count(in, 128); i < n; i++) {
                 int id = id(in);
                 String name = in.readUTF();
                 int kind = in.readUnsignedByte();
@@ -271,6 +271,11 @@ public final class CityEconomy {
                             version < 4
                                     ? CityMaterials.State.empty()
                                     : CityMaterials.read(in, version));
+            if (version >= 7) {
+                for (var firm : firms)
+                    if (state.resources.catalog().businesses().type(firm.kind()) == null)
+                        throw new IOException("Unknown business type");
+            }
             for (var stock : state.resources.stocks())
                 if (stock.ownerKind() == COMPANY
                         && firms.stream().noneMatch(f -> f.id() == stock.owner()))
@@ -352,7 +357,7 @@ public final class CityEconomy {
                         state == null
                                 ? new CityMaterials.State(List.of(), List.of(), List.of(), catalog)
                                 : state.resources());
-        if (state != null && !state.firms().isEmpty()) {
+        if (state != null) {
             budget = state.budget;
             roadSpending = state.roadSpending;
             landRevenue = state.landRevenue;
@@ -369,43 +374,18 @@ public final class CityEconomy {
             plots.addAll(state.plots);
             properties.addAll(state.properties);
             contracts.addAll(state.contracts);
-        } else {
-            create("Oak & Stone Developers", DEVELOPER, 1200);
-            create("Riverbend Properties", DEVELOPER, 1200);
-            create("Horizon Builders", DEVELOPER, 1200);
-            create("Town Market", SHOP, 1500);
-            create("Valley Mining", MINE, 2000);
-            ensureIndustries();
         }
+        // Legacy city frames had no economy firms. Seed their catalog before adopt() while
+        // respecting configured catalogs whose starting roster is intentionally empty.
+        if (state == null || state.firms().isEmpty()) ensureIndustries();
     }
 
+    /** Idempotently seed configured companies; saved accounts and cash are never replaced. */
     public void ensureIndustries() {
-        String[] names = {
-            "",
-            "",
-            "",
-            "Pinewood Logging",
-            "Stonecraft Brickworks",
-            "Dune Glassworks",
-            "Bright Spark Lighting",
-            "Meadow Farm",
-            "Stone & Timber Tools",
-            "Reed Family Sugarcane",
-            "Brook Family Cattle",
-            "Valley Flour Mill",
-            "Oak Road Bakery",
-            "Cane Sugar Refinery",
-            "Carrot Cake Kitchen"
-        };
-        for (int kind = CityMaterials.LOGGING;
-                kind
-                        <= (resources.catalog.agriculture()
-                                ? CityMaterials.MAX_KIND
-                                : CityMaterials.TOOLS);
-                kind++) {
-            final int k = kind;
-            if (companies().stream().noneMatch(c -> c.kind == k)) create(names[k], k, 1500);
-        }
+        for (var seed : resources.catalog.businesses().companies())
+            if (companies().stream()
+                    .noneMatch(c -> c.kind == seed.type() && c.name.equals(seed.name())))
+                create(seed.name(), seed.type(), seed.cash());
     }
 
     private void create(String name, int kind, double cash) {

@@ -1,0 +1,330 @@
+{
+  "command": "MAVEN_OPTS=\"-Djava.io.tmpdir=$PWD/target/tmp -Djansi.tmpdir=$PWD/target/tmp\" /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=target/maven-repository \"-DargLine=-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=MetricHistoryTest,DemolitionTest,BusinessCatalogTest,CityEconomyTest,IsometricCameraTest,ControlsTest,CityMaterialsTest,CityBusinessTest,ManufacturingTest,AgricultureTest,BusinessDashboardTest test",
+  "exitCode": 0,
+  "totalTests": 74,
+  "suites": [
+    {
+      "suite": "MetricHistoryTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "ignoresRepeatedFramesBoundsRetentionAndResetsOnClockRewind",
+        "retainsChangingGovernmentBalancesAtTheirSimulationTimes",
+        "trendsToggleDoesNotTriggerCitizenActionsOrChangeExistingTabs",
+        "samplesAuthoritativeMetricsAcrossEveryDomainWithoutMutatingSnapshot"
+      ]
+    },
+    {
+      "suite": "DemolitionTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "commandRoundTripsAndRejectsMalformedRequests",
+        "demolitionClearsStructuresReferencesAndSurvivesReload",
+        "occupiedBuildingIsProtectedAndInspectorRequiresConfirmation"
+      ]
+    },
+    {
+      "suite": "BusinessCatalogTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "emptyConfiguredRosterPreservesSavedMunicipalAccounts",
+        "excavatesLiveDirtAndSandRespectsCapacityAndProtection",
+        "seedsMultipleCompaniesAndKeepsSavedBalances",
+        "framesAndCitySavesPreserveConfiguration",
+        "newManufacturingTypesUseExistingRecipeConfiguration",
+        "configuredExampleReceivesPaidWorkersInTheCity",
+        "supportsReplacingCompaniesAndReadsLegacyCatalog",
+        "rejectsBadReferencesRatesMaterialsAndDuplicateIds"
+      ]
+    },
+    {
+      "suite": "CityEconomyTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "midConstructionOwnershipContractsAndBalancesPersist",
+        "developersBuyHireConstructSellAndRentWithConservedMoney",
+        "publicRoadsAreBudgetedAtomicAndChargeOnlyNewCells",
+        "malformedFinancialSnapshotIsRejected",
+        "wagesAndRecurringRentAreTransfersAndInsolvencyStopsWages",
+        "zoningIsFreeAndUnfundedDevelopersDoNotBuild",
+        "legacyCityIsAdoptedWithoutRebuildingOrPublicConstructionCost"
+      ]
+    },
+    {
+      "suite": "IsometricCameraTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "panningFollowsScreenAxesAtEveryOrientation",
+        "overviewFitsDistantTerrainWithoutDepthClippingAtBothAspectRatios",
+        "rotatedOverviewFitsAllWorldCornersAtWideAndTallSizes",
+        "quarterTurnsPreserveFocusZoomPitchAndIsometricAxes",
+        "orthographicOverviewFitsLoadedWorldAtWideAndTallAspectRatios",
+        "loadedWorldEdgesAreClosedAndAdjacentChunksHideSharedFaces",
+        "zoomIsBoundedAndResetRestoresWorldFit"
+      ]
+    },
+    {
+      "suite": "ControlsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "escapeIsReservedAndCorruptConfigFallsBack",
+        "newDashboardBindingPreservesOlderCustomF9Binding",
+        "newRecorderPreservesAnOlderCustomF10Binding",
+        "bindingsSwapPersistAndReset",
+        "rotationBindingsMigrateWithoutLosingCustomArrowKeys"
+      ]
+    },
+    {
+      "suite": "CityMaterialsTest",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "MalformedDuplicateNegativeOrRecipeChangingStocksAreRejected",
+        "ExpandedIndustrialZonesConstructDistinctMaterialFundedWorkshopsForAllResourceCompanies",
+        "DeveloperOwnedMaterialsReduceTheCashRequiredToAcquireAPlot",
+        "StarterCityConservesEveryHarvestedMaterialThroughTradeRefiningAndConstruction",
+        "CityThreeMigrationPreservesHistoricalPropertiesAndBalancesWithoutInventingMaterials",
+        "OtherOwnersStocksDoNotAuthorizeConstructionAndTradingTransfersCashAndVolume",
+        "MaterialsAndMidConstructionReservationsSurviveSaveAndNetworkRoundTrips",
+        "IndividualsCanBuyAndKeepMaterialsWithoutSupplyingUnrelatedDevelopers",
+        "RefiningUsesThePlayerRecipesAndCannotManufactureMissingInputs",
+        "MissingNaturalWoodStopsEveryBuildingAndNeverAdvancesConstructionWork",
+        "recipesMatchTheActualBlueprintIncludingFractionalBeams",
+        "ReservationsPreventDoubleUseAndInsufficientFundsLeaveBothOwnersUnchanged",
+        "PickingFindsTheNearestBuildingAndInspectorShowsLiveOwnedRequirements"
+      ]
+    },
+    {
+      "suite": "CityBusinessTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "emptyCityHasNoOperatingMetricsAndNoInventedProfit",
+        "bankruptEmployersStopPayAndRaiseBusinessAlertsWithoutPublicSubsidy",
+        "staffedBusinessesProduceSellAndReconcileCashAndStock",
+        "productionFollowsPaidGameHoursAndRetainsFractionalWorkAfterReload",
+        "malformedBusinessCountersAreRejected",
+        "saveNetworkRoundTripAndLegacyCityTwoMigrationPreserveTheCity",
+        "shopSalesRequireStaffActuallyPresentInTheWorkplace",
+        "dailyAccountsCloseAtMidnightAndHistoryIsBoundedAndPersistent",
+        "commercialShiftsOperateInEveningWhileMinesClose"
+      ]
+    },
+    {
+      "suite": "ManufacturingTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "ownedEquipmentIncreasesActualMiningAndLoggingExtraction",
+        "aStaffedFactoryBuildsAndTradesToolsDuringTheActualSimulation",
+        "missingInputsAndFullOutputDoNotConsumeInputsOrGenerateProducts",
+        "configurationMatchesDefaultAndRejectsBadInputsAndBonus",
+        "customPipelineAndPartialBatchesSurviveSaveAndNetwork",
+        "expandedCityCompletesThreeDailyRoutinesWithoutTrappingMineWorkers",
+        "factoryRequiresPremisesAndPurchasesInputsAndBothToolsWithoutPublicMoney"
+      ]
+    },
+    {
+      "suite": "AgricultureTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "snapshotRejectsForeignAndOutOfBoundsFarmEntities",
+        "farmersBuyAndBuildTheirOwnPlotsWhileDevelopersStayOut",
+        "cityFiveUpgradeIsDeferredAndPreservesExistingAssets",
+        "cattleNeedPurchasedFeedAndMilkAndBeefComeFromFiniteAnimals",
+        "foodFactoriesPurchaseAndConsumeEveryIngredientWithoutPublicSubsidies",
+        "threeDaysFeedEveryoneAndPreserveFarmsCowsAndFoodAcrossSaveAndNetwork",
+        "farmExpansionPaysForAnotherPlotAndMaterialReservation",
+        "fieldsNeedBuiltSoilAndLabourAndRegrowRealNamedCrops"
+      ]
+    },
+    {
+      "suite": "BusinessDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "newMayorBusinessTabKeepsPopulationNavigationAndTextInputSeparate",
+        "companyViewAndScrollRemainReadOnly",
+        "businessFiltersSearchAndSelectionUseActualLocations"
+      ]
+    }
+  ],
+  "chartSmoke": {
+    "result": "passed",
+    "fixture": "Synthetic changing snapshots, not live gameplay",
+    "platform": "Linux Mesa surfaceless EGL pbuffer",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "openGL": "4.5 (Core Profile) Mesa 22.3.6",
+    "captures": [
+      {
+        "file": "business-review-metric-trends-population-1280x720.png",
+        "width": 1280,
+        "height": 720,
+        "metric": "Population / All / population",
+        "initial": 4.0,
+        "latest": 11.0,
+        "samples": 80,
+        "chartPixels": 3328,
+        "chartRows": 304
+      },
+      {
+        "file": "business-review-metric-trends-companies-1280x720.png",
+        "width": 1280,
+        "height": 720,
+        "metric": "Companies / All / Operating cash ($)",
+        "initial": 500.0,
+        "latest": 1211.0,
+        "samples": 80,
+        "chartPixels": 2976,
+        "chartRows": 304
+      },
+      {
+        "file": "business-review-metric-trends-government-1280x720.png",
+        "width": 1280,
+        "height": 720,
+        "metric": "Government / City / Treasury ($)",
+        "initial": 10000.0,
+        "latest": 9052.0,
+        "samples": 80,
+        "chartPixels": 2976,
+        "chartRows": 304
+      },
+      {
+        "file": "business-review-metric-trends-workplaces-1280x720.png",
+        "width": 1280,
+        "height": 720,
+        "metric": "Workplaces / Mining Co | Building #2 #2 / revenue ($)",
+        "initial": 0.0,
+        "latest": 1185.0,
+        "samples": 80,
+        "chartPixels": 2976,
+        "chartRows": 304
+      },
+      {
+        "file": "business-review-metric-trends-population-640x640.png",
+        "width": 640,
+        "height": 640,
+        "metric": "Population / All / population",
+        "initial": 4.0,
+        "latest": 11.0,
+        "samples": 80,
+        "chartPixels": 1990,
+        "chartRows": 224
+      },
+      {
+        "file": "business-review-metric-trends-companies-640x640.png",
+        "width": 640,
+        "height": 640,
+        "metric": "Companies / All / Operating cash ($)",
+        "initial": 500.0,
+        "latest": 1211.0,
+        "samples": 80,
+        "chartPixels": 1670,
+        "chartRows": 224
+      },
+      {
+        "file": "business-review-metric-trends-government-640x640.png",
+        "width": 640,
+        "height": 640,
+        "metric": "Government / City / Treasury ($)",
+        "initial": 10000.0,
+        "latest": 9052.0,
+        "samples": 80,
+        "chartPixels": 1670,
+        "chartRows": 224
+      },
+      {
+        "file": "business-review-metric-trends-workplaces-640x640.png",
+        "width": 640,
+        "height": 640,
+        "metric": "Workplaces / Mining Co | Building #2 #2 / revenue ($)",
+        "initial": 0.0,
+        "latest": 1185.0,
+        "samples": 80,
+        "chartPixels": 1670,
+        "chartRows": 224
+      }
+    ],
+    "egl": "1.5",
+    "command": "python3 deploy/run_metric_trends_smoke.py target/business-chart-smoke target/maven-repository",
+    "checks": [
+      "Each selected metric changes between first and last sample",
+      "Each rendered chart has at least 300 mint pixels across at least 100 chart rows",
+      "No OpenGL errors in all eight captures"
+    ]
+  },
+  "preservation": {
+    "base": "8c524a18d18d7f685cdabb6a16c7ebbf57fb77f3",
+    "exactFileMatches": [
+      "dashboard/evidence/building-demolition-tests.txt",
+      "dashboard/evidence/isometric-rotation-tests.json",
+      "dashboard/evidence/metric-trends-companies-1280x720.png",
+      "dashboard/evidence/metric-trends-companies-640x640.png",
+      "dashboard/evidence/metric-trends-government-1280x720.png",
+      "dashboard/evidence/metric-trends-government-640x640.png",
+      "dashboard/evidence/metric-trends-population-1280x720.png",
+      "dashboard/evidence/metric-trends-population-640x640.png",
+      "dashboard/evidence/metric-trends-rebase-verification.json",
+      "dashboard/evidence/metric-trends-recovery-companies-1280x720.png",
+      "dashboard/evidence/metric-trends-recovery-companies-640x640.png",
+      "dashboard/evidence/metric-trends-recovery-government-1280x720.png",
+      "dashboard/evidence/metric-trends-recovery-government-640x640.png",
+      "dashboard/evidence/metric-trends-recovery-population-1280x720.png",
+      "dashboard/evidence/metric-trends-recovery-population-640x640.png",
+      "dashboard/evidence/metric-trends-recovery-workplaces-1280x720.png",
+      "dashboard/evidence/metric-trends-recovery-workplaces-640x640.png",
+      "dashboard/evidence/metric-trends-recovery.json",
+      "dashboard/evidence/metric-trends-rendering.json",
+      "dashboard/evidence/metric-trends-tests.json",
+      "dashboard/evidence/metric-trends-workplaces-1280x720.png",
+      "dashboard/evidence/metric-trends-workplaces-640x640.png",
+      "deploy/MetricTrendsSmoke.java",
+      "src/main/java/dev/jayms/IsometricCamera.java",
+      "src/main/java/dev/jayms/ui/MetricHistory.java",
+      "src/main/java/dev/jayms/ui/MetricTrends.java",
+      "src/test/java/dev/jayms/ControlsTest.java",
+      "src/test/java/dev/jayms/DemolitionTest.java",
+      "src/test/java/dev/jayms/IsometricCameraTest.java",
+      "src/test/java/dev/jayms/MetricHistoryTest.java",
+      "src/main/java/dev/jayms/ui/MayorDashboard.java",
+      "deploy/run_metric_trends_smoke.py"
+    ],
+    "baseProgressHistory": "Every base milestone retained unchanged"
+  },
+  "checks": [
+    "git diff --check passed",
+    "Dashboard JSON valid without conflict markers"
+  ],
+  "limits": [
+    "Offscreen chart captures use synthetic snapshots, not live gameplay.",
+    "Verification covers corrected working checkout; controller owns staging/rebase continuation/publication and independent review of resulting head."
+  ]
+}

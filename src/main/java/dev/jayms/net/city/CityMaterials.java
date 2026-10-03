@@ -20,7 +20,7 @@ public final class CityMaterials {
             BAKERY = 12,
             SUGARWORKS = 13,
             CAKE_FACTORY = 14;
-    public static final int MAX_KIND = CAKE_FACTORY;
+    public static final int MAX_KIND = 63;
     public static final int WHEAT = 1101,
             CARROT = 1102,
             SUGARCANE = 1103,
@@ -342,7 +342,7 @@ public final class CityMaterials {
     }
 
     public static void write(DataOutput out, State state) throws IOException {
-        write(out, state, 6);
+        write(out, state, 7);
     }
 
     public static void write(DataOutput out, State state, int version) throws IOException {
@@ -386,7 +386,7 @@ public final class CityMaterials {
     }
 
     public static State read(DataInput in) throws IOException {
-        return read(in, 6);
+        return read(in, 7);
     }
 
     public static State read(DataInput in, int version) throws IOException {
@@ -401,7 +401,7 @@ public final class CityMaterials {
         }
         var production = new ArrayList<Production>();
         var companyIds = new HashSet<Integer>();
-        for (int i = 0, n = count(in, 64); i < n; i++) {
+        for (int i = 0, n = count(in, 128); i < n; i++) {
             int company = positive(in);
             double progress = in.readDouble();
             long harvested = in.readLong(), processed = in.readLong();

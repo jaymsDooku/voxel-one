@@ -61,11 +61,18 @@ public final class CityHarvesting {
                                 ? column.height() + 1
                                 : material == Blocks.STONE
                                         ? column.height() - 16
-                                        : column.height() - (material==Blocks.DIRT?4:material == Blocks.SAND ? 2 : 0);
+                                        : column.height()
+                                                - (material == Blocks.DIRT
+                                                        ? 4
+                                                        : material == Blocks.SAND ? 2 : 0);
                 int hi =
                         material == Blocks.WOOD
                                 ? column.height() + 8
-                                : material == Blocks.STONE ? column.height() - 5 : material==Blocks.DIRT?column.height()-1:column.height();
+                                : material == Blocks.STONE
+                                        ? column.height() - 5
+                                        : material == Blocks.DIRT
+                                                ? column.height() - 1
+                                                : column.height();
                 for (int y = Math.max(Terrain.MIN_Y + 3, lo); y <= Math.min(Terrain.MAX_Y, hi); y++)
                     if (terrain.block(x, y, z) == material) pending.add(new Node(x, y, z));
             }
@@ -133,27 +140,47 @@ public final class CityHarvesting {
         int output = stocks.catalog.output(firm.kind);
         var old = stocks.production(firm.id);
         var recipes = stocks.catalog.recipes(firm.kind);
+        var type = stocks.catalog.businesses().type(firm.kind);
         double rate =
-                recipes.isEmpty()
-                        ? firm.kind == CityMaterials.FARM ? 16 : 256
-                        : recipes.get(0).batchesPerHour();
+                recipes.isEmpty() && type != null
+                        ? type.rate()
+                        : recipes.isEmpty() ? 256 : recipes.get(0).batchesPerHour();
         double progress = old.progress() + hours * rate * stocks.productivity(firm.id, firm.kind);
         int cycles = Math.min(512, (int) progress);
         progress -= (int) progress;
         long harvested = 0, processed = 0;
         String status = cycles == 0 ? old.status() : "Working";
         for (int i = 0; i < cycles; i++) {
-            if (stocks.available(0, firm.id, output)
-                    >= stocks.catalog.capacity(firm.kind) * CityMaterials.UNIT) {
+            if (!(recipes.isEmpty() && type != null && !type.harvest().isEmpty())
+                    && stocks.available(0, firm.id, output)
+                            >= stocks.catalog.capacity(firm.kind) * CityMaterials.UNIT) {
                 status = "Storage full";
                 break;
             }
-            int raw =
-                    firm.kind == CityMaterials.LOGGING
-                            ? Blocks.WOOD
-                            : firm.kind == CityMaterials.GLASSWORKS
-                                    ? Blocks.SAND
-                                    : firm.kind == CityEconomy.MINE ? Blocks.STONE : 0;
+            // Pure harvesters can gather several configured materials in each cycle.
+            if (recipes.isEmpty() && type != null && !type.harvest().isEmpty()) {
+                boolean full = true;
+                for (int material : type.harvest()) {
+                    if (stocks.available(0, firm.id, material)
+                            >= type.capacity() * CityMaterials.UNIT) continue;
+                    full = false;
+                    if (harvest(material)) {
+                        stocks.add(0, firm.id, material, CityMaterials.UNIT);
+                        harvested++;
+                        processed++;
+                    } else
+                        status =
+                                deposits(material).radius > 512
+                                        ? "Natural deposit exhausted"
+                                        : "Searching for natural deposit";
+                }
+                if (full) {
+                    status = "Storage full";
+                    break;
+                }
+                continue;
+            }
+            int raw = type == null || type.harvest().isEmpty() ? 0 : type.harvest().get(0);
             if (raw != 0 && stocks.available(0, firm.id, raw) < 32 * CityMaterials.UNIT) {
                 if (!harvest(raw)) {
                     status =
@@ -175,19 +202,6 @@ public final class CityHarvesting {
                     break;
                 }
                 stocks.add(0, firm.id, CityMaterials.FOOD, CityMaterials.UNIT);
-                harvested++;
-                processed++;
-                continue;
-            }
-            if (firm.kind == CityEconomy.MINE) {
-                if (!harvest(Blocks.STONE)) {
-                    status =
-                            deposits(Blocks.STONE).radius > 512
-                                    ? "Natural deposit exhausted"
-                                    : "Searching for natural deposit";
-                    break;
-                }
-                stocks.add(0, firm.id, Blocks.STONE, CityMaterials.UNIT);
                 harvested++;
                 processed++;
                 continue;
