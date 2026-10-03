@@ -1096,6 +1096,10 @@ public class Main {
                     framebufferHeight - 130,
                     1.4f);
         if (city().config().city() && !inventoryHud.open && !menu.open && !lightColors.open)
+        {
+            cityTools.hover((float) mouseX * framebufferWidth / windowSize[0],
+                    (float) mouseY * framebufferHeight / windowSize[1],
+                    framebufferWidth, framebufferHeight, projection, view, city());
             cityTools.render(
                     overlay,
                     framebufferWidth,
@@ -1104,6 +1108,7 @@ public class Main {
                     view,
                     city(),
                     isometric);
+        }
         menu.render(overlay, framebufferWidth, framebufferHeight);
         lightColors.render(overlay, framebufferWidth, framebufferHeight);
         renderFps();

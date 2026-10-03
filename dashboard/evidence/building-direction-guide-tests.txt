@@ -1,0 +1,27 @@
+Building direction guide boundary correction verification (Linux sandbox)
+
+PASS (exit 0): /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -DargLine=-Djava.io.tmpdir=$PWD/target/tmp -Dtest=CityToolsTest,CityTest,CityAddressesTest,MetricHistoryTest,SpecialBuildingsTest test
+31 tests, zero failures/errors: CityToolsTest 9, CityTest 10,
+CityAddressesTest 3, MetricHistoryTest 4, SpecialBuildingsTest 5.
+
+End-to-end regression: pointer z=36,35.5,33.5,33 on a three-cell-wide road
+snaps to its exposed boundary at z=36 or z=33. Preview and submitted points
+agree. Four outward rectangles cover zero road cells and CitySimulation
+accepts each zone, increasing its zone count. Special menu and placement
+controls remain covered alongside camera rotation and road/zone controls.
+
+PASS (exit 0): python3 deploy/run_building_guide_smoke.py
+16 fresh real OpenGL captures at four camera angles using surfaceless Mesa EGL.
+Renderer: llvmpipe (LLVM 15.0.6), OpenGL 4.5 Core, Mesa 22.3.6.
+Both rings and eight dotted directions; road endpoint and zone cardinal-circle
+snapping (30/60 blocks), plus zone snapping to the exposed road boundary.
+All four rendered roadside-zone scenarios are also accepted by CitySimulation.
+Static synthetic-state captures, not live gameplay or F10 recordings.
+
+PASS: git diff --check; no conflict markers in resolved source or progress JSON.
+Concurrent metric and special-building work retained; other progress entries
+preserved from current HEAD. No full-suite pass claimed.
+
+Durable checkpoint: content conflicts are resolved. Git index intentionally
+remains unmerged; controller must stage and continue rebase. No staging,
+commit, push, rebase continuation, deployment or other worktree edits performed.

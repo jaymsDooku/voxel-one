@@ -1,0 +1,32 @@
+{
+  "platform": "Linux, GLFW null platform, surfaceless Mesa EGL, real OpenGL Overlay renderer",
+  "command": "python3 deploy/run_building_guide_smoke.py",
+  "result": "PASS: 16 captures and preview/click assertions at four camera angles; all four roadside-zone submissions accepted by CitySimulation",
+  "fixture": "Synthetic city and projected road markers; no private player or account data. Static captures, not live gameplay or F10 recordings.",
+  "scenarios": {
+    "0": "Road endpoint snaps to 30-block cardinal-ring intersection",
+    "1": "Zone corner snaps to 30-block cardinal-ring intersection",
+    "2": "Zone corner snaps to exposed road boundary at z=36; resulting zone accepted by simulation",
+    "3": "Zone corner snaps to 60-block cardinal-ring intersection"
+  },
+  "captures": [
+    "building-guide-angle-0-scenario-0.png",
+    "building-guide-angle-0-scenario-1.png",
+    "building-guide-angle-0-scenario-2.png",
+    "building-guide-angle-0-scenario-3.png",
+    "building-guide-angle-1-scenario-0.png",
+    "building-guide-angle-1-scenario-1.png",
+    "building-guide-angle-1-scenario-2.png",
+    "building-guide-angle-1-scenario-3.png",
+    "building-guide-angle-2-scenario-0.png",
+    "building-guide-angle-2-scenario-1.png",
+    "building-guide-angle-2-scenario-2.png",
+    "building-guide-angle-2-scenario-3.png",
+    "building-guide-angle-3-scenario-0.png",
+    "building-guide-angle-3-scenario-1.png",
+    "building-guide-angle-3-scenario-2.png",
+    "building-guide-angle-3-scenario-3.png"
+  ],
+  "concurrentChanges": "Metric features and special-building controls retained. Conflicts resolved in content; controller must stage and continue rebase.",
+  "renderer": "llvmpipe (LLVM 15.0.6, 256 bits), OpenGL 4.5 Core, Mesa 22.3.6"
+}
