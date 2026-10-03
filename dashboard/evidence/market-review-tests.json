@@ -1,0 +1,283 @@
+{
+  "recordedAt": "2026-10-03T02:56:56.883114+00:00",
+  "reviewedParent": "37a7a9028004aa1ad0a6bcfc0b757f8a4eba8b9a",
+  "scope": "Uncommitted review corrections in the assigned feature worktree; independent approval remains pending.",
+  "fixes": [
+    "Unfunded minimum crews can consider funded alternatives between daily reviews; automatic hiring checks affordability to preserve their choices across ticks.",
+    "Meal receipts record actual portions in daily and lifetime sales counters."
+  ],
+  "command": "MAVEN_OPTS=\"-Djava.io.tmpdir=$PWD/target/build-tmp -Djansi.tmpdir=$PWD/target/build-tmp\" /tmp/apache-maven-3.9.11/bin/mvn -o --batch-mode -Dmaven.repo.local=target/market-build-cache/m2 \"-DargLine=-Djava.io.tmpdir=$PWD/target/build-tmp\" '-Dtest=*,!UpdaterTest,!MultiplayerTest,!CityMultiplayerTest' verify",
+  "result": "BUILD SUCCESS",
+  "tests": 162,
+  "failures": 0,
+  "errors": 0,
+  "duration": "04:58 min",
+  "regressions": [
+    "Eight MarketEconomyTest cases pass, including mine/shop insolvency and continued job choice across twelve ticks.",
+    "Four-portion simulation purchase reconciles daily/lifetime sales with building stock and food inventory."
+  ],
+  "packagesBuilt": [
+    "voxel-one-1.0-SNAPSHOT.jar",
+    "voxel-one-1.0-SNAPSHOT-server.jar",
+    "voxel-one-1.0-SNAPSHOT-launcher.jar"
+  ],
+  "excludedClasses": [
+    "UpdaterTest",
+    "MultiplayerTest",
+    "CityMultiplayerTest"
+  ],
+  "limitation": "Socket-dependent classes remain excluded because this sandbox prohibits opening local sockets, as recorded in the earlier full-selection attempt. CI must validate these classes. No sandbox or approval controls were changed.",
+  "additionalChecks": [
+    {
+      "command": "git diff --check",
+      "result": "passed"
+    }
+  ],
+  "suites": [
+    {
+      "suite": "dev.jayms.SurvivalTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.548
+    },
+    {
+      "suite": "dev.jayms.ManufacturingTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 25.9
+    },
+    {
+      "suite": "dev.jayms.MayorDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.047
+    },
+    {
+      "suite": "dev.jayms.CityAddressesTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 5.179
+    },
+    {
+      "suite": "dev.jayms.PlayerTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.091
+    },
+    {
+      "suite": "dev.jayms.CityToolsTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.009
+    },
+    {
+      "suite": "dev.jayms.CityMaterialsTest",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 24.02
+    },
+    {
+      "suite": "dev.jayms.PlayerCameraTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.027
+    },
+    {
+      "suite": "dev.jayms.CityTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 9.373
+    },
+    {
+      "suite": "dev.jayms.CityEconomyTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 13.07
+    },
+    {
+      "suite": "dev.jayms.BusinessDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.038
+    },
+    {
+      "suite": "dev.jayms.PlayerAnimationTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.139
+    },
+    {
+      "suite": "dev.jayms.LightOcclusionTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 1.739
+    },
+    {
+      "suite": "dev.jayms.CityTimeTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 24.82
+    },
+    {
+      "suite": "dev.jayms.DistantTerrainTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.122
+    },
+    {
+      "suite": "dev.jayms.VoxelModelTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.132
+    },
+    {
+      "suite": "dev.jayms.CityBusinessTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 13.32
+    },
+    {
+      "suite": "dev.jayms.FractionalWorldTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.153
+    },
+    {
+      "suite": "dev.jayms.IsometricCameraTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.021
+    },
+    {
+      "suite": "dev.jayms.MarketEconomyTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.268
+    },
+    {
+      "suite": "dev.jayms.CityMetricsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.045
+    },
+    {
+      "suite": "dev.jayms.RemotePlayerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.002
+    },
+    {
+      "suite": "dev.jayms.AgricultureTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 164.8
+    },
+    {
+      "suite": "dev.jayms.ModelSculptorTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.007
+    },
+    {
+      "suite": "dev.jayms.VideoRecordingTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.335
+    },
+    {
+      "suite": "dev.jayms.LightingTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.034
+    },
+    {
+      "suite": "dev.jayms.InventoryHudTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.038
+    },
+    {
+      "suite": "dev.jayms.AccountStoreTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 6.037
+    },
+    {
+      "suite": "dev.jayms.ControlsTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.023
+    },
+    {
+      "suite": "dev.jayms.CraftingTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.048
+    }
+  ],
+  "sourceSha256": {
+    "src/main/java/dev/jayms/net/city/CityEconomy.java": "9e6f33e759ff02ae1b9fe4f9d1cc13b8cb2c6d529456d65bcd7a10ba12761b3c",
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "d84d3b23cdae72c8cf5a450107fab487e4b83fff44aa8e07ec42b2e4db56041e",
+    "src/test/java/dev/jayms/MarketEconomyTest.java": "701a3b0de0d6659eb9f701894e7b95e1e2786861e4a340e22f19ee8e3cbb5961"
+  }
+}

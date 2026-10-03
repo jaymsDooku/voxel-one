@@ -1,0 +1,282 @@
+{
+  "date": "2026-10-03",
+  "platform": "Linux, Java source/target 17",
+  "scope": "Final working-tree source; not committed, published or independently approved.",
+  "command": "MAVEN_OPTS=\"-Djava.io.tmpdir=$PWD/target/build-tmp -Djansi.tmpdir=$PWD/target/build-tmp\" /tmp/apache-maven-3.9.11/bin/mvn -o --batch-mode -Dmaven.repo.local=target/market-build-cache/m2 \"-DargLine=-Djava.io.tmpdir=$PWD/target/build-tmp\" '-Dtest=*,!UpdaterTest,!MultiplayerTest,!CityMultiplayerTest' verify",
+  "result": "BUILD SUCCESS",
+  "tests": 160,
+  "failures": 0,
+  "errors": 0,
+  "skippedWithinSelection": 0,
+  "duration": "4 minutes 42 seconds",
+  "packagesBuilt": [
+    "voxel-one-1.0-SNAPSHOT.jar",
+    "voxel-one-1.0-SNAPSHOT-server.jar",
+    "voxel-one-1.0-SNAPSHOT-launcher.jar"
+  ],
+  "excludedClasses": [
+    "UpdaterTest",
+    "MultiplayerTest",
+    "CityMultiplayerTest"
+  ],
+  "limitation": "A full-selection verify attempt encountered 10 SocketException errors: Operation not permitted. These three classes require local sockets prohibited by this sandbox and must run in CI. Sandbox and approval controls were retained. Earlier fixed-price assertions were corrected and their final tests pass in this report.",
+  "additionalChecks": [
+    {
+      "command": "git diff --check",
+      "result": "passed"
+    }
+  ],
+  "suites": [
+    {
+      "suite": "dev.jayms.SurvivalTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.526
+    },
+    {
+      "suite": "dev.jayms.ManufacturingTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 22.93
+    },
+    {
+      "suite": "dev.jayms.MayorDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.056
+    },
+    {
+      "suite": "dev.jayms.CityAddressesTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 5.392
+    },
+    {
+      "suite": "dev.jayms.PlayerTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.123
+    },
+    {
+      "suite": "dev.jayms.CityToolsTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.025
+    },
+    {
+      "suite": "dev.jayms.CityMaterialsTest",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 20.45
+    },
+    {
+      "suite": "dev.jayms.PlayerCameraTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.023
+    },
+    {
+      "suite": "dev.jayms.CityTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 8.112
+    },
+    {
+      "suite": "dev.jayms.CityEconomyTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 13.35
+    },
+    {
+      "suite": "dev.jayms.BusinessDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.016
+    },
+    {
+      "suite": "dev.jayms.PlayerAnimationTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.098
+    },
+    {
+      "suite": "dev.jayms.LightOcclusionTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 1.871
+    },
+    {
+      "suite": "dev.jayms.CityTimeTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 19.89
+    },
+    {
+      "suite": "dev.jayms.DistantTerrainTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.122
+    },
+    {
+      "suite": "dev.jayms.VoxelModelTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.137
+    },
+    {
+      "suite": "dev.jayms.CityBusinessTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 11.87
+    },
+    {
+      "suite": "dev.jayms.FractionalWorldTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.106
+    },
+    {
+      "suite": "dev.jayms.IsometricCameraTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.017
+    },
+    {
+      "suite": "dev.jayms.MarketEconomyTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.132
+    },
+    {
+      "suite": "dev.jayms.CityMetricsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.039
+    },
+    {
+      "suite": "dev.jayms.RemotePlayerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.002
+    },
+    {
+      "suite": "dev.jayms.AgricultureTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 154.2
+    },
+    {
+      "suite": "dev.jayms.ModelSculptorTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.007
+    },
+    {
+      "suite": "dev.jayms.VideoRecordingTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.403
+    },
+    {
+      "suite": "dev.jayms.LightingTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.051
+    },
+    {
+      "suite": "dev.jayms.InventoryHudTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.048
+    },
+    {
+      "suite": "dev.jayms.AccountStoreTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 5.528
+    },
+    {
+      "suite": "dev.jayms.ControlsTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.027
+    },
+    {
+      "suite": "dev.jayms.CraftingTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.03
+    }
+  ],
+  "sourceSha256": {
+    "src/main/java/dev/jayms/net/city/CityEconomy.java": "d9a715c81da0d399ad21d330078623294075bf6cc9305ec2ad6b46cea38d8116",
+    "src/main/java/dev/jayms/net/city/CityMaterials.java": "9d1516acb802d1d4f6dcb8f7ed42265ef43a48d8389107ece2d92bcc4e9ff692",
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "62fa01251ac5edc318d92c67dbd4e6dead3756320c340738bc07d4b50b6908bc",
+    "src/test/java/dev/jayms/MarketEconomyTest.java": "a80a46d39057cdccfc5b974967c1ec89655fe2b20f9fe2d2d8f89eda329885c5",
+    "src/test/java/dev/jayms/AgricultureTest.java": "0d90846f1ce7ed910a8fe9610c75dddede43b41c744dafc562ffe894b245b402",
+    "src/test/java/dev/jayms/CityBusinessTest.java": "72cdac3583000162b141d9715773184d638195958d0be088bfd455d08db4be62",
+    "src/test/java/dev/jayms/CityEconomyTest.java": "b66d8be91cb3be139da1311d938b86069f897989d3430a6dd3b16997c3d12498",
+    "src/test/java/dev/jayms/CityMaterialsTest.java": "ecf9e9dcbdcb1c5d3875830a81a8f506dabc04a2dd36447504944a641a81519c",
+    "src/test/java/dev/jayms/ManufacturingTest.java": "d81ca64a0ed0aaf91b72d54175b4b1f18e1508a42420038b9fe9eb97236f43d5"
+  }
+}
