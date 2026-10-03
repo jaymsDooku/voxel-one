@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T21:16:38+00:00",
+  "updatedAt": "2026-10-03T13:07:36+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,45 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "queue-66336630333365302d663833322d343535352d613434352d346261373363343964663936",
+      "title": "Restore Voxel One shared queue projection",
+      "description": "Inspecting the application-specific queue bridge and verifying local regression coverage; live deployment configuration is outside this worktree.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "shared queue bridge checkpoint.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/shared-queue-bridge-checkpoint.json"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Implementation ready for independent review: rebuilt stale deployment artifacts to include the Voxel queue route, removed AbortSignal.timeout dependency, and isolated optional snapshot metadata. Local bridge and packaged-worker checks pass; runner must verify the live route after publishing.",
+      "updatedAt": "2026-10-03T13:07:36+00:00"
+    },
+    {
+      "id": "36373966363030342d613265392d346438382d616436372d363961323932396265373961",
+      "title": "Building demolition",
+      "description": "Implementing authoritative demolition and inspector controls.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "building demolition tests.txt",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-demolition-tests.txt"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Implementation ready for independent review. Demolition and related city regression tests passed; full verification encountered only sandbox socket errors. Evidence saved locally; no publication or deployment performed.",
+      "updatedAt": "2026-10-03T07:53:55+00:00"
+    },
+    {
+      "id": "8fdb8e5d-2133-4c4f-827d-e7d190f01db6",
+      "title": "Isometric camera rotation",
+      "description": "Implementing quarter-turn camera controls and rotation-aware panning; preparing camera and picking regressions.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Implementation ready for separate review. Rebindable left/right quarter turns preserve isometric pitch, focus and zoom; panning follows orientation. Targeted verify passed 15 tests and packaged all jars. Full suite: 161 passed, 10 socket-permission errors, zero assertion failures. Evidence: dashboard/evidence/isometric-rotation-tests.json. No graphical display for F10 recording.",
+      "updatedAt": "2026-10-03T03:21:19+00:00"
+    },
     {
       "id": "development-dashboard",
       "title": "Development dashboard",
