@@ -38,6 +38,78 @@ class CityToolsTest {
     }
 
     @Test
+    void guideHasEightCardinalTargetsAtThirtyAndSixtyBlocks() {
+        var origin = new Polygon.Point(10, 20);
+        var targets = dev.jayms.ui.BuildingGuide.targets(origin);
+        assertEquals(8, targets.size());
+        assertTrue(targets.contains(new Polygon.Point(40, 20)));
+        assertTrue(targets.contains(new Polygon.Point(10, -40)));
+        assertDoesNotThrow(() -> dev.jayms.ui.BuildingGuide.targets(new Polygon.Point(260, 270)));
+    }
+
+    @Test
+    void guideSnapsRoadEndpointAndClearsAfterSubmission() {
+        var tools = new CityTools();
+        tools.tool = 4;
+        var result = new ArrayList<CityCommand>();
+        click(tools, 0, 24, result);
+        click(tools, 30.5f, 24, result);
+        assertEquals(new Polygon.Point(30, 24), result.get(0).points().get(1));
+        click(tools, 30.5f, 24, result);
+        click(tools, 44, 24, result);
+        assertEquals(new Polygon.Point(30.5f, 24), result.get(1).points().get(0));
+    }
+
+    @Test
+    void zoneRoadSnapUsesBoundaryOnlyWhenPointerIntersectsRoad() {
+        var roads = List.of(new CityFrame.Road(12, 24, 23));
+        var addresses = new CityAddresses.State(List.of(new CityAddresses.Street(1, "Test",
+                List.of(new Polygon.Point(0, 24), new Polygon.Point(40, 24)))), List.of());
+        var city = new CityFrame(frame.config(), 0, roads, List.of(), List.of(), List.of(),
+                List.of(), frame.economy(), addresses);
+        assertEquals(new Polygon.Point(12, 24.5f), dev.jayms.ui.BuildingGuide.snapRoad(
+                new Polygon.Point(12.5f, 24.5f), city));
+        assertEquals(new Polygon.Point(12.5f, 28), dev.jayms.ui.BuildingGuide.snapRoad(
+                new Polygon.Point(12.5f, 28), city));
+    }
+
+    @Test
+    void roadsideClicksProduceZonesAcceptedBySimulationOnBothSides() {
+        for (float pointerZ : new float[] {36, 35.5f, 33.5f, 33}) {
+            var roads = new ArrayList<CityFrame.Road>();
+            for (int x = -60; x <= 60; x++) for (int z = 33; z <= 35; z++)
+                roads.add(new CityFrame.Road(x, z, 23));
+            var city = new CityFrame(frame.config(), 0, roads, List.of(), List.of(), List.of(), List.of());
+            var tools = new CityTools();
+            tools.tool = 0;
+            var commands = new ArrayList<CityCommand>();
+            float boundary = pointerZ > 34.5f ? 36 : 33;
+            float outside = boundary == 36 ? 55 : 14;
+            for (var point : List.of(new Polygon.Point(0, pointerZ), new Polygon.Point(20, pointerZ),
+                    new Polygon.Point(20, outside), new Polygon.Point(0, outside))) {
+                var p = new Matrix4f(projection).mul(view).transform(new Vector4f(point.x(), 24.03f, point.z(), 1));
+                float x = (p.x / p.w * .5f + .5f) * 1280;
+                float y = (.5f - p.y / p.w * .5f) * 720;
+                var preview = tools.cursorPoint(x, y, 1280, 720, projection, view, city);
+                tools.click(x, y, 1280, 720, projection, view, city, commands::add);
+                if (point.z() == pointerZ) assertEquals(boundary, preview.z());
+            }
+            tools.key(257, commands::add);
+            assertEquals(1, commands.size());
+            assertEquals(boundary, commands.get(0).points().get(0).z());
+            assertEquals(boundary, commands.get(0).points().get(1).z());
+            var polygon = new Polygon(commands.get(0).points());
+            assertTrue(roads.stream().noneMatch(r -> polygon.contains(r.x() + .5f, r.z() + .5f)));
+            var ground = new CityTest.Ground();
+            var simulation = new CitySimulation(city.config(), ground, ground.terrain, city);
+            int before = simulation.frame().zones().size();
+            assertTrue(simulation.command(commands.get(0), 1,
+                    new dev.jayms.net.Protocol.Pose(1, 8, 40, 24, 0, 0)).contains("created"));
+            assertEquals(before + 1, simulation.frame().zones().size());
+        }
+    }
+
+    @Test
     void zoneCornersRemainInWorldCoordinatesWhenRotatingMidPolygon() {
         var overview = new IsometricCamera();
         overview.cityMode();

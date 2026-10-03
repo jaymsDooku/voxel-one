@@ -27,6 +27,7 @@ public final class CityTools {
     }
     public int tool = -1, selectedCitizen, selectedBuilding, selectedPlot, selectedStreet;
     private final List<Polygon.Point> points = new ArrayList<>();
+    private Polygon.Point hover;
     public String message = "Inspect: click a building, plot or citizen for details.";
 
     public boolean key(int key, Consumer<CityCommand> submit) {
@@ -104,31 +105,95 @@ public final class CityTools {
             }
             return;
         }
-        Matrix4f inverse = new Matrix4f(projection).mul(view).invert();
-        Vector3f a = new Vector3f(), b = new Vector3f();
-        a.set(x / width * 2 - 1, 1 - y / height * 2, -1);
-        b.set(x / width * 2 - 1, 1 - y / height * 2, 1);
-        inverse.transformProject(a);
-        inverse.transformProject(b);
-        float ground = city.roads().isEmpty() ? 32 : city.roads().get(0).y() + 1.03f;
-        float t = (ground - a.y) / (b.y - a.y);
-        if (t < 0 || t > 1) return;
-        var hit = new Vector3f(a).lerp(b, t);
         try {
+            var candidate = cursorPoint(x, y, width, height, projection, view, city);
+            if (candidate == null) return;
             if (tool == 6) {
                 int id = ownerId(city);
                 if (id < 0) { message = "No eligible owners available"; return; }
                 submit.accept(new CityCommand(CityCommand.SPECIAL, SpecialBuildings.type(specialKind, specialLevel),
-                        List.of(new Polygon.Point((float)Math.floor(Math.round(hit.x * 2) / 2f), (float)Math.floor(Math.round(hit.z * 2) / 2f))), specialOwner, id));
+                        List.of(new Polygon.Point((float)Math.floor(candidate.x()), (float)Math.floor(candidate.z()))), specialOwner, id));
                 return;
             }
-            points.add(new Polygon.Point(Math.round(hit.x * 2) / 2f, Math.round(hit.z * 2) / 2f));
+            points.add(candidate);
             if (tool == 4 && points.size() == 2) {
                 submit.accept(new CityCommand(CityCommand.ROAD, 0, points));
                 points.clear();
             }
         } catch (IllegalArgumentException e) {
             message = e.getMessage();
+        }
+    }
+
+    /** Shared by preview and click so the highlighted point is the submitted point. */
+    public Polygon.Point cursorPoint(float x, float y, int w, int h,
+            Matrix4f projection, Matrix4f view, CityFrame city) {
+        if (tool < 0 || (tool > 4 && tool != 6) || y < 130 || y > h - 200) return null;
+        var inverse = new Matrix4f(projection).mul(view).invert();
+        var a = inverse.transformProject(new Vector3f(x / w * 2 - 1, 1 - y / h * 2, -1));
+        var b = inverse.transformProject(new Vector3f(x / w * 2 - 1, 1 - y / h * 2, 1));
+        float ground = city.roads().isEmpty() ? 32 : city.roads().get(0).y() + 1.03f;
+        float t = (ground - a.y) / (b.y - a.y);
+        if (!Float.isFinite(t) || t < 0 || t > 1) return null;
+        var hit = new Vector3f(a).lerp(b, t);
+        var raw = new Polygon.Point(Math.round(hit.x * 2) / 2f, Math.round(hit.z * 2) / 2f);
+        if (tool == 6) return raw;
+        Polygon.Point best = raw;
+        float distance = 10 * 10;
+        if (!points.isEmpty()) {
+            for (var target : BuildingGuide.targets(points.get(0))) {
+                var screen = project(target.x(), ground, target.z(), projection, view, w, h);
+                if (screen != null && screen.distanceSquared(x, y) < distance
+                        && BuildingGuide.distanceSquared(raw, target) <= 4) {
+                    best = target;
+                    distance = screen.distanceSquared(x, y);
+                }
+            }
+        }
+        return tool < 4 ? BuildingGuide.snapRoad(best, city) : best;
+    }
+
+    public void hover(float x, float y, int w, int h, Matrix4f projection,
+            Matrix4f view, CityFrame city) {
+        try {
+            hover = cursorPoint(x, y, w, h, projection, view, city);
+        } catch (IllegalArgumentException ignored) {
+            hover = null;
+        }
+    }
+
+    private void renderGuide(Overlay ui, int w, int h, Matrix4f projection,
+            Matrix4f view, float ground) {
+        if (points.isEmpty() || tool < 0 || tool > 4) return;
+        var origin = points.get(0);
+        for (int radius : BuildingGuide.RADII) {
+            for (int i = 0; i < 180; i++) {
+                double a = i * Math.PI * 2 / 180, b = (i + 1) * Math.PI * 2 / 180;
+                edge(ui, project(origin.x() + radius * (float) Math.cos(a), ground,
+                                origin.z() + radius * (float) Math.sin(a), projection, view, w, h),
+                        project(origin.x() + radius * (float) Math.cos(b), ground,
+                                origin.z() + radius * (float) Math.sin(b), projection, view, w, h),
+                        .35f, .8f, 1);
+            }
+        }
+        for (int direction = 0; direction < 8; direction++) {
+            double angle = direction * Math.PI / 4;
+            for (int d = 3; d <= 60; d += 3) {
+                var p = project(origin.x() + d * (float) Math.cos(angle), ground,
+                        origin.z() + d * (float) Math.sin(angle), projection, view, w, h);
+                if (p != null && p.x >= 16 && p.x < w - 16 && p.y >= 130 && p.y < h - 200)
+                    ui.rectangle(p.x - 1, p.y - 1, 3, 3, .6f, .85f, 1, .8f);
+            }
+        }
+        for (var target : BuildingGuide.targets(origin)) {
+            var p = project(target.x(), ground, target.z(), projection, view, w, h);
+            if (p != null) ui.rectangle(p.x - 3, p.y - 3, 6, 6, .4f, .85f, 1, 1);
+        }
+        if (hover != null) {
+            var p = project(hover.x(), ground, hover.z(), projection, view, w, h);
+            var last = points.get(points.size() - 1);
+            edge(ui, project(last.x(), ground, last.z(), projection, view, w, h), p, 1, 1, .2f);
+            if (p != null) ui.rectangle(p.x - 5, p.y - 5, 10, 10, 1, 1, .2f, 1);
         }
     }
 
@@ -299,6 +364,7 @@ public final class CityTools {
                         color[2],
                         1);
         }
+        renderGuide(ui, w, h, projection, view, ground);
         boolean valid = true;
         if (tool == -1 && selectedCitizen == 0 && selectedStreet != 0) {
             ui.rectangle(16, 140, Math.min(400, w - 32), 65, .025f, .04f, .065f, .95f);

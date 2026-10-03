@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-03T18:12:06+00:00",
+  "updatedAt": "2026-10-03T18:43:22+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,106 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "36646132363664302d343539632d346638662d613536642d326361383834333232363834",
+      "title": "Building direction guide",
+      "description": "Implementing world-space planning guide and zone snapping locally.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "building direction guide tests.txt",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-direction-guide-tests.txt"
+        },
+        {
+          "kind": "report",
+          "label": "building-direction-guide-rendering.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-direction-guide-rendering.json"
+        },
+        {
+          "kind": "image",
+          "label": "building-guide-angle-0-scenario-0.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-guide-angle-0-scenario-0.png"
+        },
+        {
+          "kind": "image",
+          "label": "building-guide-angle-0-scenario-1.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-guide-angle-0-scenario-1.png"
+        },
+        {
+          "kind": "image",
+          "label": "building-guide-angle-0-scenario-2.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-guide-angle-0-scenario-2.png"
+        },
+        {
+          "kind": "image",
+          "label": "building-guide-angle-0-scenario-3.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-guide-angle-0-scenario-3.png"
+        },
+        {
+          "kind": "image",
+          "label": "building-guide-angle-1-scenario-0.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-guide-angle-1-scenario-0.png"
+        },
+        {
+          "kind": "image",
+          "label": "building-guide-angle-1-scenario-1.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-guide-angle-1-scenario-1.png"
+        },
+        {
+          "kind": "image",
+          "label": "building-guide-angle-1-scenario-2.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-guide-angle-1-scenario-2.png"
+        },
+        {
+          "kind": "image",
+          "label": "building-guide-angle-1-scenario-3.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-guide-angle-1-scenario-3.png"
+        },
+        {
+          "kind": "image",
+          "label": "building-guide-angle-2-scenario-0.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-guide-angle-2-scenario-0.png"
+        },
+        {
+          "kind": "image",
+          "label": "building-guide-angle-2-scenario-1.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-guide-angle-2-scenario-1.png"
+        },
+        {
+          "kind": "image",
+          "label": "building-guide-angle-2-scenario-2.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-guide-angle-2-scenario-2.png"
+        },
+        {
+          "kind": "image",
+          "label": "building-guide-angle-2-scenario-3.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-guide-angle-2-scenario-3.png"
+        },
+        {
+          "kind": "image",
+          "label": "building-guide-angle-3-scenario-0.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-guide-angle-3-scenario-0.png"
+        },
+        {
+          "kind": "image",
+          "label": "building-guide-angle-3-scenario-1.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-guide-angle-3-scenario-1.png"
+        },
+        {
+          "kind": "image",
+          "label": "building-guide-angle-3-scenario-2.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-guide-angle-3-scenario-2.png"
+        },
+        {
+          "kind": "image",
+          "label": "building-guide-angle-3-scenario-3.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-guide-angle-3-scenario-3.png"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Road-boundary snapping corrected; four end-to-end roadside zones accepted. 31 tests and 16 fresh Mesa EGL captures pass. Concurrent metric and special-building features retained; controller stages resolutions and continues rebase.",
+      "updatedAt": "2026-10-03T18:43:22+00:00"
+    },
     {
       "id": "38383035396439392d393432392d343737342d393838302d636439653137323962623766",
       "title": "Metric history charts",
