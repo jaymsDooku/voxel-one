@@ -1,0 +1,55 @@
+{
+  "status": "metric-feature-preserved-conflict-resolved-ready-for-controller",
+  "baseHead": "8c524a18d18d7f685cdabb6a16c7ebbf57fb77f3",
+  "savedFeatureHead": "0d67f0b76acb07e5495c9ac5241b428e35760abf",
+  "resolvedFiles": [
+    "dashboard/progress.json"
+  ],
+  "retainedFeatures": [
+    "Current master demolition action and two-click confirmation",
+    "Tabbed inspector, full-text wrapping and indented-name regression fix",
+    "Current master progress entries and feature progress/evidence"
+  ],
+  "controllerNextStep": "Stage local progress resolution, verification evidence and preserved multiplayer synchronization test, then continue rebase without abort/reset. Keep supplied base metric-feature files and progress entries intact through subsequent replay. Publish corrected head and rerun hosted CI matrix before independent approval.",
+  "checks": {
+    "testsPassed": 16,
+    "applicationPackaging": "passed",
+    "inspectorRenders": 81,
+    "metricRenders": 8,
+    "baseFilePreservation": "28 files byte identical; all base progress entries retained",
+    "multiplayer": "socket permission error; not a passing run",
+    "hostedCI": "pending on corrected published head",
+    "diffCheck": "passed"
+  },
+  "report": "dashboard/evidence/building-information-tests.json",
+  "protectedBaseFiles": [
+    "dashboard/evidence/metric-trends-companies-1280x720.png",
+    "dashboard/evidence/metric-trends-companies-640x640.png",
+    "dashboard/evidence/metric-trends-government-1280x720.png",
+    "dashboard/evidence/metric-trends-government-640x640.png",
+    "dashboard/evidence/metric-trends-population-1280x720.png",
+    "dashboard/evidence/metric-trends-population-640x640.png",
+    "dashboard/evidence/metric-trends-rebase-verification.json",
+    "dashboard/evidence/metric-trends-recovery-companies-1280x720.png",
+    "dashboard/evidence/metric-trends-recovery-companies-640x640.png",
+    "dashboard/evidence/metric-trends-recovery-government-1280x720.png",
+    "dashboard/evidence/metric-trends-recovery-government-640x640.png",
+    "dashboard/evidence/metric-trends-recovery-population-1280x720.png",
+    "dashboard/evidence/metric-trends-recovery-population-640x640.png",
+    "dashboard/evidence/metric-trends-recovery-workplaces-1280x720.png",
+    "dashboard/evidence/metric-trends-recovery-workplaces-640x640.png",
+    "dashboard/evidence/metric-trends-recovery.json",
+    "dashboard/evidence/metric-trends-rendering.json",
+    "dashboard/evidence/metric-trends-tests.json",
+    "dashboard/evidence/metric-trends-workplaces-1280x720.png",
+    "dashboard/evidence/metric-trends-workplaces-640x640.png",
+    "deploy/MetricTrendsSmoke.java",
+    "deploy/run_metric_trends_smoke.py",
+    "src/main/java/dev/jayms/ui/MetricHistory.java",
+    "src/main/java/dev/jayms/ui/MetricTrends.java",
+    "src/test/java/dev/jayms/MetricHistoryTest.java",
+    "src/main/java/dev/jayms/Main.java",
+    "src/main/java/dev/jayms/ui/MayorDashboard.java",
+    "src/main/java/dev/jayms/ui/Overlay.java"
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "validatedWorkingTreeBase": "8c524a18d18d7f685cdabb6a16c7ebbf57fb77f3",
+  "status": "Resolved working tree ready for controller staging and rebase continuation; no corrected submitted head exists yet.",
+  "preservation": {
+    "files": [
+      "dashboard/evidence/metric-trends-companies-1280x720.png",
+      "dashboard/evidence/metric-trends-companies-640x640.png",
+      "dashboard/evidence/metric-trends-government-1280x720.png",
+      "dashboard/evidence/metric-trends-government-640x640.png",
+      "dashboard/evidence/metric-trends-population-1280x720.png",
+      "dashboard/evidence/metric-trends-population-640x640.png",
+      "dashboard/evidence/metric-trends-rebase-verification.json",
+      "dashboard/evidence/metric-trends-recovery-companies-1280x720.png",
+      "dashboard/evidence/metric-trends-recovery-companies-640x640.png",
+      "dashboard/evidence/metric-trends-recovery-government-1280x720.png",
+      "dashboard/evidence/metric-trends-recovery-government-640x640.png",
+      "dashboard/evidence/metric-trends-recovery-population-1280x720.png",
+      "dashboard/evidence/metric-trends-recovery-population-640x640.png",
+      "dashboard/evidence/metric-trends-recovery-workplaces-1280x720.png",
+      "dashboard/evidence/metric-trends-recovery-workplaces-640x640.png",
+      "dashboard/evidence/metric-trends-recovery.json",
+      "dashboard/evidence/metric-trends-rendering.json",
+      "dashboard/evidence/metric-trends-tests.json",
+      "dashboard/evidence/metric-trends-workplaces-1280x720.png",
+      "dashboard/evidence/metric-trends-workplaces-640x640.png",
+      "deploy/MetricTrendsSmoke.java",
+      "deploy/run_metric_trends_smoke.py",
+      "src/main/java/dev/jayms/ui/MetricHistory.java",
+      "src/main/java/dev/jayms/ui/MetricTrends.java",
+      "src/test/java/dev/jayms/MetricHistoryTest.java",
+      "src/main/java/dev/jayms/Main.java",
+      "src/main/java/dev/jayms/ui/MayorDashboard.java",
+      "src/main/java/dev/jayms/ui/Overlay.java"
+    ],
+    "result": "All 28 files match supplied base byte for byte, including MetricHistory, MetricTrends, their tests/tools/evidence, Main history collection, MayorDashboard Trends controls and Overlay support. All base progress entries retained exactly.",
+    "unrelatedDeletedFiles": []
+  },
+  "commands": [
+    {
+      "command": "/tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=target/maven-repository -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=BuildingInfoTest,MetricHistoryTest,CityMetricsTest,MayorDashboardTest verify",
+      "exitCode": 0,
+      "result": "16 tests passed and all application jars packaged."
+    },
+    {
+      "command": "/tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=target/maven-repository -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=CityMultiplayerTest test",
+      "exitCode": 1,
+      "result": "Blocked before network assertions: Socket Operation not permitted when binding the synthetic loopback server."
+    },
+    {
+      "command": "python3 deploy/render_building_info_evidence.py",
+      "exitCode": 0,
+      "result": "81 actual inspector renders at 640x640 and 1280x720, including navigation, scrolling and demolition confirmation."
+    },
+    {
+      "command": "python3 deploy/run_metric_trends_smoke.py target/building-info-metric-chart-captures target/maven-repository",
+      "exitCode": 0,
+      "result": "8 actual changing-metric chart renders across Population, Companies, Government, Workplaces at 640x640 and 1280x720."
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0
+    }
+  ],
+  "results": [
+    {
+      "suite": "BuildingInfoTest",
+      "result": "Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.108 s -- in dev.jayms.BuildingInfoTest"
+    },
+    {
+      "suite": "MetricHistoryTest",
+      "result": "Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.990 s -- in dev.jayms.MetricHistoryTest"
+    },
+    {
+      "suite": "CityMetricsTest",
+      "result": "Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.017 s -- in dev.jayms.CityMetricsTest"
+    },
+    {
+      "suite": "MayorDashboardTest",
+      "result": "Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.208 s -- in dev.jayms.MayorDashboardTest"
+    }
+  ],
+  "metricRenderingReport": "building-info-integrated-metric-rendering.json",
+  "sourceHashes": {
+    "src/main/java/dev/jayms/Main.java": "289beb0228a7e748c4c4c84d32ebff4f76b4b95d64124e1b04b74307707f5c7d",
+    "src/main/java/dev/jayms/ui/MayorDashboard.java": "8b3e822d92055a8ed22ee3a427384e47cb32e35b2cd56156723029353c1b6f3a",
+    "src/main/java/dev/jayms/ui/MetricHistory.java": "6be7b1e19b85b8776498bd4acbf47fe58320c98cd54c34c56ffdf7a9891542e3",
+    "src/main/java/dev/jayms/ui/MetricTrends.java": "48a37d3d2e333099563cc081d0fd482b0b78be809d12dbf93c9ea1384cbfdf24",
+    "src/main/java/dev/jayms/ui/BuildingInfo.java": "8ff26cc0310c96661e4154f76a5a23681dcb7487b5110d3d86d9f22fad1b4406",
+    "src/test/java/dev/jayms/CityMultiplayerTest.java": "32e419c70898bdf7170bb4180e2106b4f3e114e54fe0f3e98226da5d34e29eb0"
+  },
+  "ci": "Hosted checks on the corrected submitted head remain pending. The older failed Windows/cancelled macOS results are historical and do not establish success for this tree. Controller must finish rebase and publication, run the CI matrix on that exact head, and obtain independent review before merge."
+}

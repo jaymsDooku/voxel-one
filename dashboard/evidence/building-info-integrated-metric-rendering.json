@@ -1,0 +1,104 @@
+{
+  "result": "passed",
+  "fixture": "Synthetic changing snapshots, not live gameplay",
+  "platform": "Linux Mesa surfaceless EGL pbuffer",
+  "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+  "openGL": "4.5 (Core Profile) Mesa 22.3.6",
+  "captures": [
+    {
+      "file": "building-info-integrated-metric-trends-population-1280x720.png",
+      "width": 1280,
+      "height": 720,
+      "metric": "Population / All / population",
+      "initial": 4.0,
+      "latest": 11.0,
+      "samples": 80,
+      "chartPixels": 3328,
+      "chartRows": 304
+    },
+    {
+      "file": "building-info-integrated-metric-trends-companies-1280x720.png",
+      "width": 1280,
+      "height": 720,
+      "metric": "Companies / All / Operating cash ($)",
+      "initial": 500.0,
+      "latest": 1211.0,
+      "samples": 80,
+      "chartPixels": 2976,
+      "chartRows": 304
+    },
+    {
+      "file": "building-info-integrated-metric-trends-government-1280x720.png",
+      "width": 1280,
+      "height": 720,
+      "metric": "Government / City / Treasury ($)",
+      "initial": 10000.0,
+      "latest": 9052.0,
+      "samples": 80,
+      "chartPixels": 2976,
+      "chartRows": 304
+    },
+    {
+      "file": "building-info-integrated-metric-trends-workplaces-1280x720.png",
+      "width": 1280,
+      "height": 720,
+      "metric": "Workplaces / Mining Co | Building #2 #2 / revenue ($)",
+      "initial": 0.0,
+      "latest": 1185.0,
+      "samples": 80,
+      "chartPixels": 2976,
+      "chartRows": 304
+    },
+    {
+      "file": "building-info-integrated-metric-trends-population-640x640.png",
+      "width": 640,
+      "height": 640,
+      "metric": "Population / All / population",
+      "initial": 4.0,
+      "latest": 11.0,
+      "samples": 80,
+      "chartPixels": 1990,
+      "chartRows": 224
+    },
+    {
+      "file": "building-info-integrated-metric-trends-companies-640x640.png",
+      "width": 640,
+      "height": 640,
+      "metric": "Companies / All / Operating cash ($)",
+      "initial": 500.0,
+      "latest": 1211.0,
+      "samples": 80,
+      "chartPixels": 1670,
+      "chartRows": 224
+    },
+    {
+      "file": "building-info-integrated-metric-trends-government-640x640.png",
+      "width": 640,
+      "height": 640,
+      "metric": "Government / City / Treasury ($)",
+      "initial": 10000.0,
+      "latest": 9052.0,
+      "samples": 80,
+      "chartPixels": 1670,
+      "chartRows": 224
+    },
+    {
+      "file": "building-info-integrated-metric-trends-workplaces-640x640.png",
+      "width": 640,
+      "height": 640,
+      "metric": "Workplaces / Mining Co | Building #2 #2 / revenue ($)",
+      "initial": 0.0,
+      "latest": 1185.0,
+      "samples": 80,
+      "chartPixels": 1670,
+      "chartRows": 224
+    }
+  ],
+  "egl": "1.5",
+  "command": "python3 deploy/run_metric_trends_smoke.py target/building-info-metric-chart-captures target/maven-repository",
+  "checks": [
+    "Each selected metric changes between first and last sample",
+    "Each rendered chart has at least 300 mint pixels across at least 100 chart rows",
+    "No OpenGL errors in all eight captures"
+  ]
+}
