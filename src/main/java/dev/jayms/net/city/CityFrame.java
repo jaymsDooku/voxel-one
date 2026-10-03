@@ -108,7 +108,7 @@ public record CityFrame(
     }
 
     public void write(DataOutput out) throws IOException {
-        write(out, 6);
+        write(out, 7);
     }
 
     public void write(DataOutput out, int version) throws IOException {
@@ -186,7 +186,7 @@ public record CityFrame(
     }
 
     public static CityFrame read(DataInput in, boolean legacy) throws IOException {
-        return read(in, legacy ? 1 : 6);
+        return read(in, legacy ? 1 : 7);
     }
 
     public static CityFrame read(DataInput in, int version) throws IOException {
@@ -217,7 +217,7 @@ public record CityFrame(
                     capacity = in.readInt(),
                     stock = in.readInt();
             if (id < 1
-                    || type > 3
+                    || type > (version >= 7 ? 4 : 3)
                     || capacity < 1
                     || capacity > 32
                     || stock < 0
@@ -274,6 +274,13 @@ public record CityFrame(
                 version >= 6
                         ? Agriculture.read(in, economy, buildings, citizens, horses)
                         : Agriculture.State.migration(economy.resources().catalog());
+        if (version >= 7) {
+            try {
+                CityCapital.validate(economy.capital(), economy.firms(), citizens);
+            } catch (IllegalArgumentException e) {
+                throw new IOException("Invalid capital ownership", e);
+            }
+        }
         return new CityFrame(
                 config,
                 elapsed,

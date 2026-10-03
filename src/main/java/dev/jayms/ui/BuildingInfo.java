@@ -90,7 +90,7 @@ public final class BuildingInfo {
         }
         int type = b == null ? p.type() : b.type();
         rows.add(
-                CitySimulation.ZONES[type]
+                (type == 4 ? "Stock exchange" : CitySimulation.ZONES[type])
                         + (b == null ? " development plot #" + p.id() : " building #" + b.id()));
         if (b != null) rows.add("Address: " + city.addresses().buildingName(b.id()));
         rows.add(
@@ -100,6 +100,22 @@ public final class BuildingInfo {
                         + (b == null ? p.y() : b.y())
                         + ", "
                         + (b == null ? p.z() : b.z()));
+        if (type == 4) {
+            long staff = city.citizens().stream().filter(c -> c.job() == b.id()).count();
+            long grads =
+                    city.citizens().stream()
+                            .filter(
+                                    c ->
+                                            c.job() == b.id()
+                                                    && city.economy()
+                                                            .capital()
+                                                            .graduates()
+                                                            .contains(c.id()))
+                            .count();
+            rows.add("City-owned exchange offices | Graduate staff " + grads + " / " + staff);
+            rows.add("Three university graduate roles, one office support role | 08:00-17:00");
+            rows.add("Open the Exchange dashboard to view company ownership and trade shares.");
+        }
         if (property != null) {
             rows.add("Owner: " + owner(city, property.ownerKind(), property.owner()));
             rows.add(

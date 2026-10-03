@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-03T07:53:55+00:00",
+  "updatedAt": "2026-10-03T13:27:15+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -1775,6 +1775,46 @@
       "status": "complete",
       "note": "Playtest 28 committed, published and deployed. Actual opaque octree leaves block skylight, sunlight, reflected sky and RGB LEDs; glass and air transmit. All 166 tests pass on Windows, Linux and both Macs. GPU hidden-light and sunlight tests change zero pixels across a solid 1/16 wall. Windows updater verified; both VPS worlds, accounts and TLS preserved.",
       "updatedAt": "2026-10-02T21:16:38+00:00"
+    },
+    {
+      "id": "37313939613234322d323439352d343463662d616437302d343733383964663130333466",
+      "title": "Company ownership and stock exchange",
+      "description": "Implementing ownership and exchange settlement with conservation and order reservation tests.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "company ownership ledger tests.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/company-ownership-ledger-tests.json"
+        },
+        {
+          "kind": "report",
+          "label": "company ownership tests.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/company-ownership-tests.json"
+        },
+        {
+          "kind": "image",
+          "label": "company exchange book.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/company-exchange-book.png"
+        },
+        {
+          "kind": "image",
+          "label": "company exchange owners.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/company-exchange-owners.png"
+        },
+        {
+          "kind": "video",
+          "label": "company exchange trading.mp4",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/company-exchange-trading.mp4"
+        },
+        {
+          "kind": "report",
+          "label": "company ownership review correction.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/company-ownership-review-correction.json"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Reviewer correction complete: demolition ID 4, inspector confirmation, cleanup, tests and evidence preserved; exchange uses 5 and capital uses 6. Exchange demolition covered. 186 sandbox-compatible tests and Java 17 compile pass. Resolutions unstaged for controller rebase continuation.",
+      "updatedAt": "2026-10-03T13:27:15+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

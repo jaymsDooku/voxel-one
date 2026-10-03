@@ -30,7 +30,7 @@ class BusinessDashboardTest {
         var f = CityMetricsTest.fixture();
         var ui = new MayorDashboard();
         ui.show();
-        ui.click(1120, 100, 1280, 720, f, id -> fail());
+        ui.click(960, 100, 1280, 720, f, id -> fail());
         assertEquals(4, ui.tab);
         ui.click(100, 230, 1280, 720, f, id -> fail());
         assertTrue(ui.searchFocus);
@@ -39,9 +39,9 @@ class BusinessDashboardTest {
         assertEquals("", ui.search);
         ui.key(GLFW_KEY_ENTER, GLFW_PRESS);
         assertFalse(ui.searchFocus);
-        ui.click(640, 100, 1280, 720, f, id -> fail());
+        ui.click(530, 100, 1280, 720, f, id -> fail());
         assertEquals(2, ui.tab);
-        ui.click(1120, 100, 1280, 720, f, id -> fail());
+        ui.click(960, 100, 1280, 720, f, id -> fail());
         ui.click(100, 230, 1280, 720, f, id -> fail());
         ui.close();
         assertFalse(ui.businesses.searchFocus);

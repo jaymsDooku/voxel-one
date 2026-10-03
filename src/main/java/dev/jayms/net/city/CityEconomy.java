@@ -79,7 +79,33 @@ public final class CityEconomy {
             List<Property> properties,
             List<Contract> contracts,
             List<CityBusinesses.Record> businesses,
-            CityMaterials.State resources) {
+            CityMaterials.State resources,
+            CityCapital.State capital) {
+        public State(
+                double budget,
+                double roadSpending,
+                double landRevenue,
+                double rentClock,
+                List<Firm> firms,
+                List<Plot> plots,
+                List<Property> properties,
+                List<Contract> contracts,
+                List<CityBusinesses.Record> businesses,
+                CityMaterials.State resources) {
+            this(
+                    budget,
+                    roadSpending,
+                    landRevenue,
+                    rentClock,
+                    firms,
+                    plots,
+                    properties,
+                    contracts,
+                    businesses,
+                    resources,
+                    CityCapital.State.empty());
+        }
+
         public State(
                 double budget,
                 double roadSpending,
@@ -126,6 +152,7 @@ public final class CityEconomy {
 
         public State {
             Objects.requireNonNull(resources);
+            Objects.requireNonNull(capital);
             businesses = List.copyOf(businesses);
             firms = List.copyOf(firms);
             plots = List.copyOf(plots);
@@ -138,11 +165,11 @@ public final class CityEconomy {
         }
 
         public void write(DataOutput out) throws IOException {
-            write(out, 6);
+            write(out, 7);
         }
 
         public void write(DataOutput out, boolean legacy) throws IOException {
-            write(out, legacy ? 2 : 6);
+            write(out, legacy ? 2 : 7);
         }
 
         public void write(DataOutput out, int version) throws IOException {
@@ -194,14 +221,15 @@ public final class CityEconomy {
             }
             if (version >= 3) CityBusinesses.write(out, businesses);
             if (version >= 4) CityMaterials.write(out, resources, version);
+            if (version >= 7) CityCapital.write(out, capital);
         }
 
         public static State read(DataInput in) throws IOException {
-            return read(in, 6);
+            return read(in, 7);
         }
 
         public static State read(DataInput in, boolean legacy) throws IOException {
-            return read(in, legacy ? 2 : 6);
+            return read(in, legacy ? 2 : 7);
         }
 
         public static State read(DataInput in, int version) throws IOException {
@@ -270,7 +298,8 @@ public final class CityEconomy {
                             version < 3 ? List.of() : CityBusinesses.read(in),
                             version < 4
                                     ? CityMaterials.State.empty()
-                                    : CityMaterials.read(in, version));
+                                    : CityMaterials.read(in, version),
+                            version >= 7 ? CityCapital.read(in) : CityCapital.State.empty());
             for (var stock : state.resources.stocks())
                 if (stock.ownerKind() == COMPANY
                         && firms.stream().noneMatch(f -> f.id() == stock.owner()))
@@ -335,6 +364,7 @@ public final class CityEconomy {
     private final Ecs ecs;
     public final CityBusinesses businesses;
     public final CityMaterials resources;
+    public final CityCapital capital;
     public double budget = INITIAL_BUDGET, roadSpending, landRevenue, rentClock;
     public final List<Plot> plots = new ArrayList<>();
     public final List<Property> properties = new ArrayList<>();
@@ -377,6 +407,8 @@ public final class CityEconomy {
             create("Valley Mining", MINE, 2000);
             ensureIndustries();
         }
+        capital =
+                new CityCapital(this, state == null ? CityCapital.State.empty() : state.capital());
     }
 
     public void ensureIndustries() {
@@ -564,7 +596,7 @@ public final class CityEconomy {
      */
     public void adopt(List<CityFrame.Building> buildings) {
         for (var b : buildings)
-            if (property(b.id()) == null) {
+            if (b.type() != 4 && property(b.id()) == null) {
                 var dev =
                         companies().stream()
                                 .filter(c -> c.kind == DEVELOPER)
@@ -798,6 +830,7 @@ public final class CityEconomy {
                 properties,
                 contracts,
                 businesses.records(),
-                resources.state());
+                resources.state(),
+                capital.state());
     }
 }

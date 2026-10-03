@@ -59,8 +59,8 @@ public final class CityTools {
         }
         float top = height - 196;
         if (y >= top && y <= top + 34 && x >= 16 && x < width - 16) {
-            int index = (int) ((x - 16) / ((width - 32) / 7f));
-            tool = new int[] {-1, 4, 0, 1, 2, 3, 5}[Math.min(6, index)];
+            int index = (int) ((x - 16) / ((width - 32) / 8f));
+            tool = new int[] {-1, 4, 0, 1, 2, 3, 5, 6}[Math.min(7, index)];
             points.clear();
             return;
         }
@@ -100,6 +100,11 @@ public final class CityTools {
         var hit = new Vector3f(a).lerp(b, t);
         try {
             points.add(new Polygon.Point(Math.round(hit.x * 2) / 2f, Math.round(hit.z * 2) / 2f));
+            if (tool == 6) {
+                submit.accept(new CityCommand(CityCommand.EXCHANGE, 0, points));
+                points.clear();
+                tool = -1;
+            }
             if (tool == 4 && points.size() == 2) {
                 submit.accept(new CityCommand(CityCommand.ROAD, 0, points));
                 points.clear();
@@ -313,7 +318,7 @@ public final class CityTools {
                     valid ? 1 : .2f,
                     .2f);
         }
-        float bw = (w - 32) / 7f, top = h - 196;
+        float bw = (w - 32) / 8f, top = h - 196;
         String[] labels = {
             "Inspect",
             "Dirt road",
@@ -321,10 +326,11 @@ public final class CityTools {
             "Commercial",
             "Industrial",
             "Agriculture",
-            "Economy"
+            "Economy",
+            "Exchange"
         };
-        for (int i = 0; i < 7; i++) {
-            boolean active = tool == new int[] {-1, 4, 0, 1, 2, 3, 5}[i];
+        for (int i = 0; i < 8; i++) {
+            boolean active = tool == new int[] {-1, 4, 0, 1, 2, 3, 5, 6}[i];
             ui.rectangle(
                     16 + i * bw,
                     top,
@@ -338,16 +344,19 @@ public final class CityTools {
         }
         ui.rectangle(16, top + 38, w - 32, 35, .015f, .025f, .04f, .85f);
         ui.text(
-                tool == 4
-                        ? "Click two endpoints | Mayor pays $4 per new road cell."
-                        : tool >= 0 && tool < 4
-                                ? "Click convex polygon corners | Enter: zone | Backspace: undo |"
-                                        + " Esc: cancel"
-                                : tool == 5
-                                        ? "Private companies fund construction. Zoning is free."
-                                                + " Inspect a building for ownership."
-                                        : "WASD: pan | Wheel: zoom | Home: horizon | F6: walk in"
-                                                + " the city",
+                tool == 6
+                        ? "Click a clear site near a road | Stock exchange $600 | Three graduate"
+                              + " office roles."
+                        : tool == 4
+                                ? "Click two endpoints | Mayor pays $4 per new road cell."
+                                : tool >= 0 && tool < 4
+                                        ? "Click convex polygon corners | Enter: zone | Backspace:"
+                                              + " undo | Esc: cancel"
+                                        : tool == 5
+                                                ? "Private companies fund construction. Zoning is"
+                                                      + " free. Inspect a building for ownership."
+                                                : "WASD: pan | Wheel: zoom | Home: horizon | F6:"
+                                                      + " walk in the city",
                 24,
                 top + 48,
                 1.25f);

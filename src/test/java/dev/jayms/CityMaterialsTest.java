@@ -301,7 +301,10 @@ class CityMaterialsTest {
         var old = CitySimulation.load(save);
         assertEquals(CityMaterials.State.empty(), old.economy().resources());
         var restored = new CitySimulation(old.config(), g, g.terrain, old);
-        assertEquals(old.economy(), restored.frame().economy());
+        assertEquals(old.economy(), CityCapitalTest.withoutCapital(restored.frame().economy()));
+        assertTrue(
+                restored.economy.capital.state().book().listings().stream()
+                        .allMatch(l -> !l.publicCompany()));
         assertEquals(old.buildings(), restored.frame().buildings());
         assertEquals(old.elapsed(), restored.frame().elapsed());
         var inspector = new BuildingInfo();
@@ -312,7 +315,7 @@ class CityMaterialsTest {
                                 line ->
                                         line.contains(
                                                 "historical construction materials were not"
-                                                    + " recorded")));
+                                                        + " recorded")));
         assertFalse(
                 inspector.lines(old).stream()
                         .anyMatch(line -> line.contains("AVAILABLE / REQUIRED")));
