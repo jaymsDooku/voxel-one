@@ -50,8 +50,8 @@ class AgricultureTest {
         var p = e.buyPlot(9, 3, 100, 30, 100, 7);
         assertNotNull(p);
         assertEquals(farmer.id, p.developer());
-        assertEquals(cash - 48, farmer.cash);
-        assertEquals(budget + 48, e.budget);
+        assertEquals(cash - p.landPrice(), farmer.cash, 1e-8);
+        assertEquals(budget + p.landPrice(), e.budget, 1e-8);
         assertEquals(developers, e.state().firms().stream().filter(f -> f.kind() == 0).toList());
         e.resources.plan(p, 7);
         assertFalse(e.supply(p));
@@ -110,8 +110,12 @@ class AgricultureTest {
         s.economy.resources.add(0, crop.id, CityMaterials.WHEAT, 100 * CityMaterials.UNIT);
         double cash = cattle.cash, seller = crop.cash;
         s.agriculture.work(b, s.economy, 1, g);
-        assertEquals(cash - 1.6, cattle.cash, .00001);
-        assertEquals(seller + 1.6, crop.cash, .00001);
+        double paid = cash - cattle.cash;
+        assertTrue(paid > 0, "Cattle farmer pays for feed at market prices");
+        assertEquals(seller + paid, crop.cash, .00001);
+        assertEquals(
+                96 * CityMaterials.UNIT,
+                s.economy.resources.available(0, crop.id, CityMaterials.WHEAT));
         assertEquals(
                 4 * CityMaterials.UNIT,
                 s.economy.resources.available(0, cattle.id, CityMaterials.MILK));
@@ -266,7 +270,9 @@ class AgricultureTest {
                         .filter(p -> p.type() == 3 && p.developer() == farmer.id)
                         .toList();
         assertEquals(2, plots.size());
-        assertEquals(land + 48, farmer.land);
+        assertTrue(farmer.land > land);
+        assertEquals(
+                plots.stream().mapToDouble(CityEconomy.Plot::landPrice).sum(), farmer.land, 1e-8);
         assertTrue(plots.stream().allMatch(p -> p.building() > 0));
         assertEquals(
                 4,
@@ -376,7 +382,17 @@ class AgricultureTest {
                         .filter(c -> previousCitizens.contains(c.id()))
                         .noneMatch(c -> CityMetrics.employer(s.frame(), c) == oldFarm));
         assertEquals(before.economy().budget(), s.frame().economy().budget());
-        assertEquals(before.economy().properties(), s.frame().economy().properties());
+        assertEquals(
+                before.economy().properties().stream()
+                        .map(p -> List.of(p.building(), p.ownerKind(), p.owner(), p.operator()))
+                        .toList(),
+                s.frame().economy().properties().stream()
+                        .map(p -> List.of(p.building(), p.ownerKind(), p.owner(), p.operator()))
+                        .toList());
+        assertEquals(
+                before.economy().contracts(),
+                s.frame().economy().contracts(),
+                "Migration preserves negotiated contracts while market offers may move");
         assertTrue(s.frame().economy().resources().catalog().agriculture());
         s.advance(1);
         assertEquals(18, s.frame().citizens().size());

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-04T10:06:52+00:00",
+  "updatedAt": "2026-10-04T10:28:12+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -2178,6 +2178,15 @@
       "status": "in_progress",
       "note": "Inspector tabs, navigation and complete text wrapping preserved with exchange details. 74 focused tests, Java 17 compilation and 117 Mesa inspector renders passed. Ready for controller continuation and independent review.",
       "updatedAt": "2026-10-04T10:06:52+00:00"
+    },
+    {
+      "id": "33643431663362342d363034302d346465632d393638662d306463653965366335303339",
+      "title": "Supply and demand market pricing",
+      "description": "Implementing market quotes and price-sensitive purchasing with regression coverage.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Capital review addressed: ownership/exchange/commands/UI, protocol 18, CITY8 and all base history retained. Civic staffing integration fixed; real base-generated CITY8 fixture load/resave regression passes. Combined Maven verify passed 253 tests, zero failures/errors; packages built. Evidence: dashboard/evidence/market-capital-combined-tests.json. Awaiting controller continuation and independent review; socket tests require CI.",
+      "updatedAt": "2026-10-04T10:28:12+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

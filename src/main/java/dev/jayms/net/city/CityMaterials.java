@@ -184,6 +184,14 @@ public final class CityMaterials {
         if (next > 0) stocks.put(new Key(kind, owner, material), next);
     }
 
+    /** Unreserved inventories only; project reservations have already left these balances. */
+    public long availableSupply(int material) {
+        return stocks.entrySet().stream()
+                .filter(e -> e.getKey().material == material)
+                .mapToLong(Map.Entry::getValue)
+                .sum();
+    }
+
     public boolean remove(int kind, int owner, int material, long units) {
         if (units <= 0 || available(kind, owner, material) < units) return false;
         var key = new Key(kind, owner, material);

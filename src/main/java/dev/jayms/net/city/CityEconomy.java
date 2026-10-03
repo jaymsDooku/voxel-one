@@ -472,7 +472,11 @@ public final class CityEconomy {
 
     public Plot buyPlot(int zone, int type, int x, int y, int z, int businessKind) {
         if (type == 3 && !CityMaterials.farmer(businessKind)) return null;
-        double land = type == 3 ? 48 : 24;
+        double land =
+                (type == 3 ? 48 : 24)
+                        * pressure(
+                                ecs.query(CitySimulation.Household.class).size(),
+                                16 + plots.stream().filter(p -> p.type() == type).count() * 4);
         var recipe = CityMaterials.requirements(type, businessKind);
         double cost =
                 recipe.stream()
@@ -480,7 +484,7 @@ public final class CityEconomy {
                                 a ->
                                         a.units()
                                                 / (double) CityMaterials.UNIT
-                                                * CityMaterials.price(a.material()))
+                                                * marketPrice(a.material()))
                         .sum();
         var developer =
                 companies().stream()
@@ -506,10 +510,9 @@ public final class CityEconomy {
                                                                                                 / (double)
                                                                                                         CityMaterials
                                                                                                                 .UNIT
-                                                                                                * CityMaterials
-                                                                                                        .price(
-                                                                                                                a
-                                                                                                                        .material()))
+                                                                                                * marketPrice(
+                                                                                                        a
+                                                                                                                .material()))
                                                                         .sum())
                         .max(Comparator.comparingDouble(c -> c.cash))
                         .orElse(null);
@@ -532,12 +535,14 @@ public final class CityEconomy {
                         0,
                         0);
         plots.add(p);
+        resources.plan(p, businessKind);
         return p;
     }
 
     public boolean wage(int company, double value, CitySimulation.Needs needs) {
         var firm = company(company);
-        if (firm == null || firm.cash < value) return false;
+        if (firm == null || !Double.isFinite(value) || value <= 0 || firm.cash < value)
+            return false;
         firm.cash -= value;
         firm.wages += value;
         needs.money += (float) value;
@@ -690,12 +695,16 @@ public final class CityEconomy {
     }
 
     public void meal(int building, double amount) {
+        meal(building, 1, amount);
+    }
+
+    public void meal(int building, int portions, double amount) {
         var p = property(building);
         if (p != null && p.operator != 0) {
             var c = company(p.operator);
             c.cash += amount;
             c.receipts += amount;
-            businesses.sale(building, 1, amount);
+            businesses.sale(building, portions, amount);
         }
     }
 
@@ -721,17 +730,233 @@ public final class CityEconomy {
         else ecs.get(owner, CitySimulation.Needs.class).money += (float) value;
     }
 
+    /**
+     * Bounded clearing pressure; catalogue prices are reference values, not transaction prices.
+     * Quotes derive from saved stock, projects and households, so reloads cannot reset a market.
+     */
+    private static double pressure(double demand, double supply) {
+        return Math.max(.25, Math.min(4, Math.sqrt((demand + 1) / (supply + 1))));
+    }
+
+    public double marketPrice(int material) {
+        double demand = 0;
+        if (resources.catalog.nutrition(material) > 0)
+            demand +=
+                    ecs.query(CitySimulation.Needs.class).stream()
+                                    .mapToDouble(
+                                            id ->
+                                                    Math.max(
+                                                                    0,
+                                                                    100
+                                                                            - ecs.get(
+                                                                                            id,
+                                                                                            CitySimulation
+                                                                                                    .Needs
+                                                                                                    .class)
+                                                                                    .hunger)
+                                                            / resources.catalog.nutrition(material))
+                                    .sum()
+                            / resources.catalog.food().size();
+        for (var plot : plots) {
+            if (plot.building() != 0) continue;
+            var project = resources.project(plot.id());
+            if (project != null && project.reserved()) continue;
+            var requirements =
+                    project == null
+                            ? CityMaterials.requirements(plot.type(), plot.type())
+                            : project.materials();
+            for (var a : requirements)
+                if (a.material() == material)
+                    demand +=
+                            Math.max(
+                                            0,
+                                            a.units()
+                                                    - resources.available(
+                                                            COMPANY, plot.developer(), material))
+                                    / (double) CityMaterials.UNIT;
+        }
+        for (var firm : companies())
+            for (var recipe : resources.catalog.recipes(firm.kind))
+                demand +=
+                        Math.max(
+                                        0,
+                                        recipe.inputs().getOrDefault(material, 0)
+                                                        * CityMaterials.UNIT
+                                                - resources.available(COMPANY, firm.id, material))
+                                / (double) CityMaterials.UNIT;
+        for (var equipment : resources.catalog.equipment())
+            if (equipment.product() == material)
+                for (var firm : companies())
+                    if (firm.kind == equipment.companyKind())
+                        demand +=
+                                Math.max(
+                                                0,
+                                                CityMaterials.UNIT
+                                                        - resources.available(
+                                                                COMPANY, firm.id, material))
+                                        / (double) CityMaterials.UNIT;
+        double supply = resources.availableSupply(material) / (double) CityMaterials.UNIT;
+        return resources.catalog.price(material) * pressure(demand, supply);
+    }
+
+    /** Competing sellers discount abundant inventories and charge more for scarce stock. */
+    private double sellerDiscount(int sellerKind, int seller, int material) {
+        double stock =
+                resources.available(sellerKind, seller, material) / (double) CityMaterials.UNIT;
+        return .75 + 1 / Math.sqrt(stock + 1);
+    }
+
+    public double offer(int sellerKind, int seller, int material) {
+        return marketPrice(material) * sellerDiscount(sellerKind, seller, material);
+    }
+
+    public record FoodOffer(int product, int portions, double price, int nutrition) {}
+
+    public FoodOffer cheapestFood(int company, double money, int nutrition) {
+        return resources.catalog.food().stream()
+                .map(
+                        product -> {
+                            int value = resources.catalog.nutrition(product);
+                            int portions =
+                                    Math.max(1, (Math.max(1, nutrition) + value - 1) / value);
+                            return new FoodOffer(
+                                    product,
+                                    portions,
+                                    portions * offer(COMPANY, company, product),
+                                    portions * value);
+                        })
+                .filter(
+                        food ->
+                                food.price() <= money
+                                        && resources.available(COMPANY, company, food.product())
+                                                >= food.portions() * CityMaterials.UNIT)
+                .min(
+                        Comparator.comparingDouble(FoodOffer::price)
+                                .thenComparingInt(FoodOffer::product))
+                .orElse(null);
+    }
+
+    /** Select an affordable meal before moving either inventory or money. */
+    public FoodOffer buyMeal(int citizen, int building, int nutrition) {
+        var p = property(building);
+        var needs = ecs.get(citizen, CitySimulation.Needs.class);
+        if (p == null || p.operator() == 0 || company(p.operator()) == null || needs == null)
+            return null;
+        var food = cheapestFood(p.operator(), needs.money, nutrition);
+        if (food == null) return null;
+        resources.remove(
+                COMPANY, p.operator(), food.product(), food.portions() * CityMaterials.UNIT);
+        needs.money -= (float) food.price();
+        meal(building, food.portions(), food.price());
+        needs.hunger = Math.min(100, needs.hunger + food.nutrition());
+        return food;
+    }
+
+    public double housingCost(int citizen, int building) {
+        var p = property(building);
+        var needs = ecs.get(citizen, CitySimulation.Needs.class);
+        var household = ecs.get(citizen, CitySimulation.Household.class);
+        if (p == null || needs == null || household == null) return Double.POSITIVE_INFINITY;
+        return p.ownerKind() == COMPANY && household.cohort == 2 && needs.money >= p.price()
+                ? p.price()
+                : p.rent();
+    }
+
+    public double labourRate(int company, double reference) {
+        long workers =
+                ecs.query(CitySimulation.Household.class).stream()
+                        .filter(
+                                id -> {
+                                    int job = ecs.get(id, CitySimulation.Household.class).job;
+                                    var p = job < 0 ? project(-job) : null;
+                                    var b = job > 0 ? property(job) : null;
+                                    return p != null && p.developer() == company
+                                            || b != null && b.operator() == company
+                                            || job == CityMaterials.YARD + company;
+                                })
+                        .count();
+        long unemployed =
+                ecs.query(CitySimulation.Household.class).stream()
+                        .filter(id -> ecs.get(id, CitySimulation.Household.class).job == 0)
+                        .count();
+        long vacancies =
+                plots.stream().filter(p -> p.building() == 0 && p.developer() == company).count()
+                                * 2
+                        + properties.stream().filter(p -> p.operator() == company).count() * 2;
+        return reference * pressure(Math.max(2, vacancies), workers + unemployed);
+    }
+
+    /** Only new offers move; existing leases retain the negotiated contract amount. */
+    public void priceProperties(List<CityFrame.Building> buildings) {
+        for (var b : buildings) {
+            var p = property(b.id());
+            if (p == null) continue;
+            long capacity =
+                    buildings.stream()
+                            .filter(a -> a.type() == b.type())
+                            .mapToLong(CityFrame.Building::capacity)
+                            .sum();
+            long demand =
+                    b.type() == 0
+                            ? ecs.query(CitySimulation.Household.class).size()
+                            : companies().stream()
+                                            .filter(
+                                                    c ->
+                                                            b.type() == 3
+                                                                    ? CityMaterials.farmer(c.kind)
+                                                                    : b.type() == 2
+                                                                            ? c.kind >= 2
+                                                                                    && !CityMaterials
+                                                                                            .farmer(
+                                                                                                    c.kind)
+                                                                            : c.kind == SHOP)
+                                            .count()
+                                    * 2;
+            long occupied = contracts.stream().filter(c -> c.building() == b.id()).count();
+            double factor = pressure(demand, capacity) * pressure(occupied + 1, b.capacity());
+            properties.set(
+                    properties.indexOf(p),
+                    new Property(
+                            p.building(),
+                            p.ownerKind(),
+                            p.owner(),
+                            p.operator(),
+                            (b.type() == 0 ? 50 : b.type() == 1 ? 240 : 400) * factor,
+                            (b.type() == 3 ? 0 : b.type() == 0 ? .6 : 6) * factor));
+        }
+    }
+
     /** Seller stocks and buyer cash are validated before either is moved. */
     public boolean trade(
             int sellerKind, int seller, int buyerKind, int buyer, int material, long units) {
+        return trade(
+                sellerKind,
+                seller,
+                buyerKind,
+                buyer,
+                material,
+                units,
+                offer(sellerKind, seller, material));
+    }
+
+    private boolean trade(
+            int sellerKind,
+            int seller,
+            int buyerKind,
+            int buyer,
+            int material,
+            long units,
+            double price) {
         if (sellerKind < 0
                 || sellerKind > CITIZEN
                 || buyerKind < 0
                 || buyerKind > CITIZEN
                 || sellerKind == buyerKind && seller == buyer
+                || !resources.catalog.valid(material)
                 || units <= 0
+                || units > 1_000_000_000L
                 || resources.available(sellerKind, seller, material) < units) return false;
-        double amount = units / (double) CityMaterials.UNIT * resources.catalog.price(material);
+        double amount = units / (double) CityMaterials.UNIT * price;
         if (cash(sellerKind, seller) < 0 || cash(buyerKind, buyer) < amount) return false;
         if (resources.available(buyerKind, buyer, material) > 1_000_000_000L - units) return false;
         resources.remove(sellerKind, seller, material, units);
@@ -751,16 +976,42 @@ public final class CityEconomy {
     }
 
     public boolean purchase(int company, int material, long needed) {
-        long missing = needed - resources.available(COMPANY, company, material);
+        return purchase(COMPANY, company, material, needed);
+    }
+
+    public boolean purchase(int buyerKind, int buyer, int material, long needed) {
+        if (buyerKind < COMPANY
+                || buyerKind > CITIZEN
+                || cash(buyerKind, buyer) < 0
+                || !resources.catalog.valid(material)
+                || needed < 0
+                || needed > 1_000_000_000L) return false;
+        long missing = needed - resources.available(buyerKind, buyer, material);
         if (missing <= 0) return true;
-        for (var seller : companies())
-            if (seller.id != company
+        for (var seller :
+                companies().stream()
+                        .sorted(
+                                Comparator.comparingDouble(
+                                                (Company c) ->
+                                                        sellerDiscount(COMPANY, c.id, material))
+                                        .thenComparingInt(c -> c.id))
+                        .toList())
+            if (!(buyerKind == COMPANY && seller.id == buyer)
                     && seller.kind != DEVELOPER
                     && seller.kind != SHOP
                     && !(CityMaterials.farmer(seller.kind)
                             && CityMaterials.buildingMaterial(material))) {
-                long units = Math.min(missing, resources.available(COMPANY, seller.id, material));
-                if (units > 0 && trade(COMPANY, seller.id, COMPANY, company, material, units))
+                double price = offer(COMPANY, seller.id, material);
+                long affordable =
+                        (long) Math.floor(cash(buyerKind, buyer) / price * CityMaterials.UNIT);
+                long units =
+                        Math.min(
+                                affordable,
+                                Math.min(
+                                        missing,
+                                        resources.available(COMPANY, seller.id, material)));
+                if (units > 0
+                        && trade(COMPANY, seller.id, buyerKind, buyer, material, units, price))
                     missing -= units;
                 if (missing == 0) return true;
             }
@@ -778,15 +1029,13 @@ public final class CityEconomy {
         var m = property(mine);
         var s = property(shop);
         if (m == null || s == null || m.operator == 0 || s.operator == 0) return false;
-        var buyer = company(s.operator);
-        var seller = company(m.operator);
-        if (buyer.cash < .5) return false;
-        buyer.cash -= .5;
-        seller.cash += .5;
-        seller.receipts += .5;
-        businesses.sale(mine, 1, .5);
-        businesses.delivery(shop, 1, .5);
-        return true;
+        return trade(
+                COMPANY,
+                m.operator,
+                COMPANY,
+                s.operator,
+                resources.catalog.output(company(m.operator).kind),
+                CityMaterials.UNIT);
     }
 
     public State state() {
