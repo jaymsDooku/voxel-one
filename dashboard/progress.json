@@ -15,6 +15,15 @@
   },
   "items": [
     {
+      "id": "38383035396439392d393432392d343737342d393838302d636439653137323962623766",
+      "title": "Metric history charts",
+      "description": "Implementing population, company and government time-series views locally.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Implementation ready for independent review: session-history line charts across population, companies, workplaces and government; 15 focused regression tests passed. Evidence: dashboard/evidence/metric-trends-tests.json. Full-suite HTTP and Xvfb capture restricted by sandbox.",
+      "updatedAt": "2026-10-03T03:13:26+00:00"
+    },
+    {
       "id": "36373966363030342d613265392d346438382d616436372d363961323932396265373961",
       "title": "Building demolition",
       "description": "Implementing authoritative demolition and inspector controls.",

@@ -10,6 +10,8 @@ import java.util.function.IntConsumer;
 /** Live, read-only mayor screen. Citizen selection returns to the existing world inspector. */
 public final class MayorDashboard {
     public final BusinessDashboard businesses = new BusinessDashboard();
+    public final MetricHistory history = new MetricHistory();
+    public final MetricTrends trends = new MetricTrends();
     public boolean open;
     public int tab, filter, firstRow;
     public boolean sortBySavings, searchFocus;
@@ -34,6 +36,7 @@ public final class MayorDashboard {
     }
 
     public void key(int key, int action) {
+        if (trends.open) return;
         if (action != GLFW_PRESS && action != GLFW_REPEAT) return;
         if (tab == 4) {
             businesses.key(key, action);
@@ -57,6 +60,7 @@ public final class MayorDashboard {
     }
 
     public void character(int c) {
+        if (trends.open) return;
         if (open && tab == 4) {
             businesses.character(c);
             return;
@@ -68,6 +72,7 @@ public final class MayorDashboard {
     }
 
     public void scroll(double amount) {
+        if (trends.open) return;
         if (tab == 4) {
             businesses.scroll(amount);
             return;
@@ -108,15 +113,26 @@ public final class MayorDashboard {
     }
 
     public void click(float x, float y, int w, int h, CityFrame city, IntConsumer select) {
+        if (x >= w - 260 && x <= w - 136 && y >= 48 && y <= 76) {
+            trends.open = !trends.open;
+            if (trends.open) trends.selectDomain(tab == 3 ? 2 : tab == 4 ? 1 : 0);
+            searchFocus = businesses.searchFocus = false;
+            return;
+        }
         if (x >= w - 124 && x <= w - 24 && y >= 48 && y <= 76) {
             close();
             return;
         }
         if (y >= 88 && y <= 120 && x >= 24 && x < w - 24) {
+            trends.open = false;
             tab = Math.min(TABS.length - 1, (int) ((x - 24) / ((w - 48) / (float) TABS.length)));
             businesses.searchFocus = false;
             searchFocus = false;
             firstRow = 0;
+            return;
+        }
+        if (trends.open) {
+            trends.click(x, y, w);
             return;
         }
         if (tab == 4) {
@@ -202,7 +218,9 @@ public final class MayorDashboard {
                         + (connected
                                 ? "Live city metrics"
                                 : "Disconnected - last received city snapshot");
-        text(ui, clock, 24, 55, w - 180, 1.15f);
+        text(ui, clock, 24, 55, w - 300, 1.15f);
+        panel(ui, w - 260, 48, 124, 28);
+        ui.text(trends.open ? "Snapshot" : "Trends", w - 246, 56, 1.3f);
         panel(ui, w - 124, 48, 100, 28);
         ui.text("Back", w - 98, 56, 1.3f);
         float bw = (w - 48) / (float) TABS.length;
@@ -210,6 +228,10 @@ public final class MayorDashboard {
             panel(ui, 24 + i * bw, 88, bw - 6, 32);
             if (i == tab) ui.rectangle(24 + i * bw, 118, bw - 6, 2, .3f, .85f, .7f, 1);
             ui.text(TABS[i], 36 + i * bw, 98, 1.4f);
+        }
+        if (trends.open) {
+            trends.render(ui, w, h, city, history);
+            return;
         }
         var m = CityMetrics.from(city);
         switch (tab) {
