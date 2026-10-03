@@ -565,6 +565,14 @@ public class Main {
             return;
         }
         if (isometric) {
+            if (controls.matches(ROTATE_LEFT, code)) {
+                overview.rotate(-1);
+                return;
+            }
+            if (controls.matches(ROTATE_RIGHT, code)) {
+                overview.rotate(1);
+                return;
+            }
             if (controls.matches(ZOOM_IN, code)) {
                 overview.zoom(1);
                 return;
@@ -676,7 +684,7 @@ public class Main {
                         r =
                                 (controls.down(window.getHandle(), RIGHT) ? 1 : 0)
                                         - (controls.down(window.getHandle(), LEFT) ? 1 : 0);
-                if (f != 0 || r != 0) overview.pan((-f + r) * speed, (-f - r) * speed);
+                if (f != 0 || r != 0) overview.panRelative(r * speed, f * speed);
             }
             var location = player.position();
             float streamX = location.x, streamZ = location.z;
@@ -1033,7 +1041,11 @@ public class Main {
                                 + Controls.keyName(controls.code(ZOOM_OUT))
                                 + ": zoom | "
                                 + Controls.keyName(controls.code(FIT_VIEW))
-                                + ": fit world"
+                                + ": fit | "
+                                + Controls.keyName(controls.code(ROTATE_LEFT))
+                                + " / "
+                                + Controls.keyName(controls.code(ROTATE_RIGHT))
+                                + ": rotate"
                         : "Esc: controls | "
                                 + Controls.keyName(controls.code(FLY))
                                 + ": flight | "
