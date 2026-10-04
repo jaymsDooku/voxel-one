@@ -240,3 +240,76 @@ markers remain. The index still records progress.json as unmerged for controller
 staging. No tests or media were rerun in this recovery handoff; previous results
 do not validate the resulting head. Controller must stage and continue rebase
 without publishing, then resume final-source workflow checks and fresh media.
+## Renewed recovery checkpoint (2026-10-05)
+
+Resolved the remaining evidence and progress working-file conflicts. Kept all
+current-base milestones and both validation histories. No index staging, commit,
+rebase continuation, push, deployment or merge was performed.
+
+Executed the focused seven-class Maven verify command above using Linux, Java
+25.0.3, Maven 3.9.11 and target/recovery-m2. BusinessCatalogTest (11), CityToolsTest
+(9), CityTest (10) and SpecialBuildingsTest (6) passed: 36 tests.
+ProtocolCompatibilityTest had 2 socket-permission errors; CityMultiplayerTest had
+1 socket-permission error, all before authentication. Zero assertion failures in
+these completed classes. MultiplayerTest completed with 15 tests, 13 errors and zero assertion failures.
+Final total: 54 tests, zero assertion failures, 16 errors; BUILD FAILURE (exit 1).
+No successful full verify or packaging is claimed for this run.
+
+Playtest: invoked synthetic TLS fixtures for legacy login/registration and initial
+and streamed snapshots, incompatible-version edge cases and current-version City
+synchronization regression. Expected: authentication and command/frame assertions
+complete. Observed: listening sockets denied with Operation not permitted. Desktop
+workflow and implementation image/video remain unexecuted and unavailable. Browser
+playtesting does not apply to this desktop TLS workflow. Controller execution and
+media capture are already authorized; no live owner account login is required.
+
+Delegation service became unavailable during evidence reconciliation; reconciliation
+was inspected locally. No delegate output is used as test evidence.
+
+## Network-enabled recovery validation (2026-10-05)
+
+Linux, Java 25.0.3, Maven 3.9.11; worktree HEAD 762fd97b with preserved
+protocol-18 recovery files. No rebase continuation or index staging performed.
+A Python socket.bind/listen probe on 127.0.0.1 succeeded.
+
+Executed:
+
+```sh
+/tmp/apache-maven-3.9.11/bin/mvn -o -Dmaven.repo.local="$PWD/target/recovery-m2" -Djansi.tmpdir="$PWD/target/tmp" -Djava.io.tmpdir="$PWD/target/tmp" "-DargLine=-Djava.io.tmpdir=$PWD/target/tmp" --batch-mode -Dtest=ProtocolCompatibilityTest,CityMultiplayerTest,MultiplayerTest,CityTest,SpecialBuildingsTest,CityToolsTest,BusinessCatalogTest verify
+```
+
+Playtest: ran the production MultiplayerClient against temporary synthetic TLS
+servers. Requested behavior: protocol-18 client retries pinned protocol 14/15
+login and registration, decodes initial and streamed format-6 city snapshots,
+uses legacy terrain and receives road acknowledgements. Edge case: incompatible
+protocols rejected and newer commands suppressed locally. Regression: current
+City server authentication and synchronization. Expected: fixture assertions pass.
+Observed: ProtocolCompatibilityTest 2/2 and CityMultiplayerTest 1/1 passed, zero
+failures/errors. Non-network classes also passed 36 tests. Browser playtesting
+does not apply to this desktop network integration. Desktop UI playtest and
+sanitized implementation media still await the authorized controller capture.
+No live owner account login was attempted. No private runtime logs attached.
+
+Final result: 54 tests, zero failures/errors/skips; BUILD SUCCESS (exit 0).
+MultiplayerTest passed 15/15. Client, server and launcher packaging completed.
+These results cover the preserved recovery working files, not a completed rebase
+head. Controller must stage and continue the rebase and supply desktop media.
+
+## Controller Git recovery handoff
+
+Working files have no conflict markers; progress JSON parses and git diff --check
+passes. The index still records the two evidence/progress paths as unmerged.
+Controller must stage resolved contents and continue the preserved rebase without
+publication, then resume development for resulting-head tests and media. Prior
+54-test results remain scoped to pre-rebase working files. This is an authorized
+Git recovery handoff, not an owner blocker or final readiness claim.
+
+## Second reviewer recovery handoff
+
+Merged both report histories. All prior tests remain historical and do not
+validate this ongoing rebase. Kept the reviewer-required base-preservation
+requirements and every non-City progress entry from the current rebase side.
+Only evidence/progress paths required resolution at this step. Controller must
+stage and continue without publication, then resume resulting-source validation
+including market regressions, website checks, City login and fresh media.
+No workflow checks or media were executed during this handoff.

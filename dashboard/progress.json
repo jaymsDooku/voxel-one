@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-05T18:36:40.365021+00:00",
+  "updatedAt": "2026-10-05T18:37:49.903930+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -31,8 +31,8 @@
         }
       ],
       "status": "in_progress",
-      "note": "Reapplying only City login compatibility onto reviewer-required base 431ff142. Market features/tests/evidence and website queue changes retained. Progress conflict contents resolved; controller must continue rebase. Previous test and media results do not validate resulting head.",
-      "updatedAt": "2026-10-05T18:36:40.365021+00:00"
+      "note": "Second rebase evidence conflict resolved while retaining reviewer-required market and website base features and all base progress entries. Historical tests retained with source scope; controller continuation precedes final-source workflow tests and fresh media.",
+      "updatedAt": "2026-10-05T18:37:49.903930+00:00"
     },
     {
       "id": "queue-66336630333365302d663833322d343535352d613434352d346261373363343964663936",
