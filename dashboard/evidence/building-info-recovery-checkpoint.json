@@ -1,0 +1,16 @@
+{
+  "baseHead": "1324e90a06b457f1c0cd334af7b6649dc0759523",
+  "status": "Resolved, unstaged for controller continuation",
+  "resolvedFiles": [
+    "dashboard/evidence/building-info-recovery-checkpoint.json"
+  ],
+  "report": "building-info-terrain-integration.json",
+  "nextStep": "Controller stages and continues rebase; retain current evidence in subsequent replays; exact published-head CI required before merge.",
+  "replayHead": "047c6f0b2457fc4d71c4d7b25898593bfd37456e",
+  "checks": [
+    "526 protected base files, all source hashes and base milestones unchanged; no base deletions",
+    "117-render archive, representative PNG comparisons and JSON validation passed",
+    "Metadata-only replay; previous 73-test verify/package and fresh rendering results retained without rerunning tests",
+    "Incoming CI report explicitly historical; multiplayer sandbox restriction and corrected published-head CI pending"
+  ]
+}
