@@ -464,10 +464,10 @@ public final class CitySimulation {
             } else if (b.type() == 1 && eating) {
                 var food =
                         shopReady(b, time) && n.hunger < 95 && b.stock() > 0
-                                ? economy.buyMeal(id, b.id(), mealNutrition(n))
+                                ? economy.buyMeal(id, b.id(), mealNutrition(n), b.stock())
                                 : null;
                 if (food != null) {
-                    replaceStock(b, Math.max(0, b.stock() - food.portions()));
+                    replaceStock(b, b.stock() - food.portions());
                     t.target = -9999;
                     t.mealUntil = elapsed + Math.min(3, config.daySeconds() / 240);
                     t.activity = "Eating at shop";
@@ -544,7 +544,7 @@ public final class CitySimulation {
                                 economy.cheapestFood(
                                                 economy.property(b.id()).operator(),
                                                 needs.money,
-                                                mealNutrition(needs))
+                                                mealNutrition(needs), b.stock())
                                         != null)
                 .min(
                         Comparator.comparingDouble(
@@ -552,7 +552,7 @@ public final class CitySimulation {
                                                 economy.cheapestFood(
                                                                 economy.property(b.id()).operator(),
                                                                 needs.money,
-                                                                mealNutrition(needs))
+                                                                mealNutrition(needs), b.stock())
                                                         .price())
                                 .thenComparingInt(CityFrame.Building::id))
                 .map(CityFrame.Building::id)

@@ -181,6 +181,8 @@ class MarketEconomyTest {
         assertEquals(CityMaterials.FOOD, offer.product());
         assertEquals(4, offer.portions());
         assertTrue(offer.nutrition() >= 35);
+        assertEquals(1020, e.cheapestFood(shop.id, needs.money, 35, 1).product());
+        assertNull(e.cheapestFood(shop.id, needs.money, 35, 0));
         double total = needs.money + shop.cash;
         assertEquals(offer, e.buyMeal(citizen, 999, 35));
         assertEquals(40, needs.hunger);
@@ -251,6 +253,90 @@ class MarketEconomyTest {
         assertEquals(account.total().received() - account.total().sold(), stock);
         assertEquals(inventory / CityMaterials.UNIT, stock);
         assertTrue(run.ecs.get(citizens.get(2).id(), CitySimulation.Needs.class).hunger > 59);
+    }
+
+    private record MealStockFixture(CitySimulation run, int company, int eater) {}
+
+    private MealStockFixture mealStockFixture(boolean sharedCompany) {
+        var ground = new CityTest.Ground();
+        var catalog = new ProductionCatalog(
+                List.of(new ProductionCatalog.Product(CityMaterials.FOOD, "Small meal", .2, 10)),
+                List.of(), List.of());
+        var seed = new CitySimulation(new GameConfig(true, false, 1200, 10),
+                ground, ground.terrain, null, catalog);
+        var shop = firm(seed.economy, CityEconomy.SHOP);
+        for (var company : seed.economy.companies()) company.cash = company.id == shop.id ? 10000 : 0;
+        var citizens = seed.frame().citizens();
+        int eaterIndex = sharedCompany ? 4 : 2;
+        for (int i = 0; i < citizens.size(); i++) {
+            int id = citizens.get(i).id();
+            seed.ecs.get(id, CitySimulation.Household.class).job =
+                    i < 2 ? 600 : sharedCompany && i < 4 ? 601 : 0;
+            seed.ecs.get(id, CitySimulation.Needs.class).hunger = i == eaterIndex ? 20 : 100;
+            var position = seed.ecs.get(id, CitySimulation.Position.class);
+            position.x = sharedCompany && i >= 2 && i <= 4 ? 22 : 14;
+            position.z = 30;
+        }
+        var shops = new ArrayList<CityFrame.Building>();
+        shops.add(new CityFrame.Building(600, 1, 1, 12, 24, 28, 2, 1));
+        if (sharedCompany) shops.add(new CityFrame.Building(601, 1, 1, 20, 24, 28, 2, 19));
+        for (var building : shops) {
+            seed.economy.properties.add(new CityEconomy.Property(
+                    building.id(), 0, shop.id, shop.id, 200, 4));
+            seed.economy.businesses.open(building.id(), shop.id);
+            seed.economy.businesses.delivery(building.id(), building.stock(), 0);
+        }
+        seed.economy.resources.add(0, shop.id, CityMaterials.FOOD, 20 * CityMaterials.UNIT);
+        var frame = seed.frame();
+        var fixture = new CityFrame(frame.config(), frame.elapsed(), frame.roads(), frame.zones(),
+                shops, frame.citizens(), frame.horses(), frame.economy());
+        var run = new CitySimulation(frame.config(), ground, ground.terrain, fixture);
+        int eater = citizens.get(eaterIndex).id();
+        run.ecs.get(eater, CitySimulation.Travel.class).target = sharedCompany ? 601 : 600;
+        return new MealStockFixture(run, shop.id, eater);
+    }
+
+    @Test
+    void lowStockShopCannotSellMultiPortionMealBeforeRestocking() {
+        var fixture = mealStockFixture(false);
+        var run = fixture.run();
+        var needs = run.ecs.get(fixture.eater(), CitySimulation.Needs.class);
+        float money = needs.money;
+        assertNull(run.economy.buyMeal(fixture.eater(), 600, 35, 1));
+        assertEquals(money, needs.money);
+        assertEquals(20, needs.hunger);
+        run.advance(.11);
+        var account = run.economy.businesses.records().stream()
+                .filter(r -> r.building() == 600).findFirst().orElseThrow();
+        assertEquals(0, account.total().sold());
+        assertEquals(0, account.today().totals().sold());
+        assertEquals(money, needs.money);
+        assertTrue(needs.hunger <= 20);
+        assertEquals(20 * CityMaterials.UNIT,
+                run.economy.resources.available(0, fixture.company(), CityMaterials.FOOD));
+        // The normal restock step allocates one additional portion after the blocked purchase.
+        assertEquals(2, run.frame().buildings().get(0).stock());
+    }
+
+    @Test
+    void sharedCompanyShopsUseLocalStockAndReconcileSales() {
+        var fixture = mealStockFixture(true);
+        var run = fixture.run();
+        run.advance(.11);
+        var records = run.economy.businesses.records();
+        var low = records.stream().filter(r -> r.building() == 600).findFirst().orElseThrow();
+        var stocked = records.stream().filter(r -> r.building() == 601).findFirst().orElseThrow();
+        assertEquals(0, low.total().sold());
+        assertEquals(4, stocked.total().sold());
+        assertEquals(4, stocked.today().totals().sold());
+        for (var building : run.frame().buildings()) {
+            var account = records.stream().filter(r -> r.building() == building.id()).findFirst().orElseThrow();
+            assertEquals(account.total().received() - account.total().sold(), building.stock());
+        }
+        assertEquals(16, run.frame().buildings().stream().mapToInt(CityFrame.Building::stock).sum());
+        assertEquals(16 * CityMaterials.UNIT,
+                run.economy.resources.available(0, fixture.company(), CityMaterials.FOOD));
+        assertTrue(run.ecs.get(fixture.eater(), CitySimulation.Needs.class).hunger > 59);
     }
 
     @Test

@@ -813,6 +813,10 @@ public final class CityEconomy {
     public record FoodOffer(int product, int portions, double price, int nutrition) {}
 
     public FoodOffer cheapestFood(int company, double money, int nutrition) {
+        return cheapestFood(company, money, nutrition, Integer.MAX_VALUE);
+    }
+
+    public FoodOffer cheapestFood(int company, double money, int nutrition, int availablePortions) {
         return resources.catalog.food().stream()
                 .map(
                         product -> {
@@ -827,7 +831,8 @@ public final class CityEconomy {
                         })
                 .filter(
                         food ->
-                                food.price() <= money
+                                food.portions() <= availablePortions
+                                        && food.price() <= money
                                         && resources.available(COMPANY, company, food.product())
                                                 >= food.portions() * CityMaterials.UNIT)
                 .min(
@@ -838,11 +843,15 @@ public final class CityEconomy {
 
     /** Select an affordable meal before moving either inventory or money. */
     public FoodOffer buyMeal(int citizen, int building, int nutrition) {
+        return buyMeal(citizen, building, nutrition, Integer.MAX_VALUE);
+    }
+
+    public FoodOffer buyMeal(int citizen, int building, int nutrition, int availablePortions) {
         var p = property(building);
         var needs = ecs.get(citizen, CitySimulation.Needs.class);
         if (p == null || p.operator() == 0 || company(p.operator()) == null || needs == null)
             return null;
-        var food = cheapestFood(p.operator(), needs.money, nutrition);
+        var food = cheapestFood(p.operator(), needs.money, nutrition, availablePortions);
         if (food == null) return null;
         resources.remove(
                 COMPANY, p.operator(), food.product(), food.portions() * CityMaterials.UNIT);
