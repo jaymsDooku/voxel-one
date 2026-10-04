@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-04T16:20:56+00:00",
+  "updatedAt": "2026-10-04T16:25:46+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -1801,11 +1801,16 @@
           "kind": "report",
           "label": "city protocol compatibility.md",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/city-protocol-compatibility.md"
+        },
+        {
+          "kind": "link",
+          "label": "Feature PR",
+          "url": "https://github.com/jaymsDooku/voxel-one/pull/15"
         }
       ],
       "status": "in_progress",
-      "note": "Controller is finishing preserved rebase and validating protocol compatibility in the authorized VPS loopback runtime.",
-      "updatedAt": "2026-10-04T16:20:56+00:00"
+      "note": "Preserved rebase completed; VPS focused verify passed 45 tests, legacy streamed-frame regression passed, and read-only pinned TLS probe observed live City protocol 14. Awaiting independent exact-head review; live owner login untested.",
+      "updatedAt": "2026-10-04T16:25:46+00:00"
     },
     {
       "id": "configurable-businesses",
