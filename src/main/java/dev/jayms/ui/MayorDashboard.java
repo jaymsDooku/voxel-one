@@ -12,13 +12,15 @@ public final class MayorDashboard {
     public final BusinessDashboard businesses = new BusinessDashboard();
     public final MetricHistory history = new MetricHistory();
     public final MetricTrends trends = new MetricTrends();
+    public final CapitalDashboard capital = new CapitalDashboard();
+    public java.util.function.Consumer<CityCommand> submit = c -> {};
     public boolean open;
     public int tab, filter, firstRow;
     public boolean sortBySavings, searchFocus;
     public String search = "";
     private List<CityFrame.Citizen> displayedRows = List.of();
     public static final String[] TABS = {
-        "Overview", "Groups", "Citizens", "Finances", "Businesses"
+        "Overview", "Groups", "Citizens", "Finances", "Businesses", "Exchange"
     };
     private static final String[] FILTERS = {"All", "Attention", "Hungry", "No home", "No job"};
     private static final int TOP = 138, TABLE = 242, ROW = 30;
@@ -38,6 +40,11 @@ public final class MayorDashboard {
     public void key(int key, int action) {
         if (trends.open) return;
         if (action != GLFW_PRESS && action != GLFW_REPEAT) return;
+        if (tab == 5) {
+            capital.key(key, action);
+            searchFocus = capital.editing();
+            return;
+        }
         if (tab == 4) {
             businesses.key(key, action);
             searchFocus = businesses.searchFocus;
@@ -61,6 +68,10 @@ public final class MayorDashboard {
 
     public void character(int c) {
         if (trends.open) return;
+        if (open && tab == 5) {
+            capital.character(c);
+            return;
+        }
         if (open && tab == 4) {
             businesses.character(c);
             return;
@@ -73,6 +84,10 @@ public final class MayorDashboard {
 
     public void scroll(double amount) {
         if (trends.open) return;
+        if (tab == 5) {
+            capital.scroll(amount);
+            return;
+        }
         if (tab == 4) {
             businesses.scroll(amount);
             return;
@@ -133,6 +148,11 @@ public final class MayorDashboard {
         }
         if (trends.open) {
             trends.click(x, y, w);
+            return;
+        }
+        if (tab == 5) {
+            capital.click(x, y, w, h, city, submit);
+            searchFocus = capital.editing();
             return;
         }
         if (tab == 4) {
@@ -240,6 +260,7 @@ public final class MayorDashboard {
             case 2 -> citizens(ui, w, h, city);
             case 3 -> finances(ui, w, h, city, m);
             case 4 -> businesses.render(ui, w, h, city);
+            case 5 -> capital.render(ui, w, h, city);
             default -> throw new IllegalStateException("Dashboard tab");
         }
         text(
@@ -410,7 +431,7 @@ public final class MayorDashboard {
                             .filter(f -> f.id() == employer)
                             .map(CityEconomy.Firm::name)
                             .findFirst()
-                            .orElse("None");
+                            .orElse(employer == -1 ? "Stock exchange" : "None");
             String home = CityMetrics.housed(city, c) ? "#" + c.home() : "None",
                     work = employer == 0 ? "None" : c.job() < 0 ? "Building" : "Employed";
             String[] values =

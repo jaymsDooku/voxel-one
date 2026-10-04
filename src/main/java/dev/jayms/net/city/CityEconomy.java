@@ -6,6 +6,7 @@ import java.util.*;
 /** Public treasury and private balance sheets. Transfers never mint wages or rent. */
 public final class CityEconomy {
     public static final int DEVELOPER = 0, SHOP = 1, MINE = 2, COMPANY = 0, CITIZEN = 1;
+    public static final double MAX_BALANCE = 1e12;
     public static final double INITIAL_BUDGET = 10000, ROAD_COST = 4;
 
     public static final class Company {
@@ -79,7 +80,33 @@ public final class CityEconomy {
             List<Property> properties,
             List<Contract> contracts,
             List<CityBusinesses.Record> businesses,
-            CityMaterials.State resources) {
+            CityMaterials.State resources,
+            CityCapital.State capital) {
+        public State(
+                double budget,
+                double roadSpending,
+                double landRevenue,
+                double rentClock,
+                List<Firm> firms,
+                List<Plot> plots,
+                List<Property> properties,
+                List<Contract> contracts,
+                List<CityBusinesses.Record> businesses,
+                CityMaterials.State resources) {
+            this(
+                    budget,
+                    roadSpending,
+                    landRevenue,
+                    rentClock,
+                    firms,
+                    plots,
+                    properties,
+                    contracts,
+                    businesses,
+                    resources,
+                    CityCapital.State.empty());
+        }
+
         public State(
                 double budget,
                 double roadSpending,
@@ -126,6 +153,7 @@ public final class CityEconomy {
 
         public State {
             Objects.requireNonNull(resources);
+            Objects.requireNonNull(capital);
             businesses = List.copyOf(businesses);
             firms = List.copyOf(firms);
             plots = List.copyOf(plots);
@@ -138,11 +166,11 @@ public final class CityEconomy {
         }
 
         public void write(DataOutput out) throws IOException {
-            write(out, 7);
+            write(out, 8);
         }
 
         public void write(DataOutput out, boolean legacy) throws IOException {
-            write(out, legacy ? 2 : 7);
+            write(out, legacy ? 2 : 8);
         }
 
         public void write(DataOutput out, int version) throws IOException {
@@ -194,14 +222,15 @@ public final class CityEconomy {
             }
             if (version >= 3) CityBusinesses.write(out, businesses);
             if (version >= 4) CityMaterials.write(out, resources, version);
+            if (version >= 8) CityCapital.write(out, capital);
         }
 
         public static State read(DataInput in) throws IOException {
-            return read(in, 7);
+            return read(in, 8);
         }
 
         public static State read(DataInput in, boolean legacy) throws IOException {
-            return read(in, legacy ? 2 : 7);
+            return read(in, legacy ? 2 : 8);
         }
 
         public static State read(DataInput in, int version) throws IOException {
@@ -270,7 +299,8 @@ public final class CityEconomy {
                             version < 3 ? List.of() : CityBusinesses.read(in),
                             version < 4
                                     ? CityMaterials.State.empty()
-                                    : CityMaterials.read(in, version));
+                                    : CityMaterials.read(in, version),
+                            version >= 8 ? CityCapital.read(in) : CityCapital.State.empty());
             if (version >= 7) {
                 for (var firm : firms)
                     if (state.resources.catalog().businesses().type(firm.kind()) == null)
@@ -320,7 +350,8 @@ public final class CityEconomy {
 
         private static double money(DataInput in) throws IOException {
             double n = in.readDouble();
-            if (!Double.isFinite(n) || n < 0 || n > 1e12) throw new IOException("Invalid balance");
+            if (!Double.isFinite(n) || n < 0 || n > MAX_BALANCE)
+                throw new IOException("Invalid balance");
             return n;
         }
 
@@ -340,6 +371,7 @@ public final class CityEconomy {
     private final Ecs ecs;
     public final CityBusinesses businesses;
     public final CityMaterials resources;
+    public final CityCapital capital;
     public double budget = INITIAL_BUDGET, roadSpending, landRevenue, rentClock;
     public final List<Plot> plots = new ArrayList<>();
     public final List<Property> properties = new ArrayList<>();
@@ -378,6 +410,8 @@ public final class CityEconomy {
         // Legacy city frames had no economy firms. Seed their catalog before adopt() while
         // respecting configured catalogs whose starting roster is intentionally empty.
         if (state == null || state.firms().isEmpty()) ensureIndustries();
+        capital =
+                new CityCapital(this, state == null ? CityCapital.State.empty() : state.capital());
     }
 
     /** Idempotently seed configured companies; saved accounts and cash are never replaced. */
@@ -778,6 +812,7 @@ public final class CityEconomy {
                 properties,
                 contracts,
                 businesses.records(),
-                resources.state());
+                resources.state(),
+                capital.state());
     }
 }

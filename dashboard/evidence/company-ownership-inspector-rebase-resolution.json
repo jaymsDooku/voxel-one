@@ -1,0 +1,21 @@
+{
+  "status": "ready for controller staging and rebase continuation",
+  "changes": "Checkpoint and progress documents only; preserved inspector and earlier corrections plus all task evidence links.",
+  "checks": [
+    {
+      "command": "git diff --check",
+      "exitCode": 0
+    },
+    {
+      "command": "git diff --name-only HEAD -- src deploy",
+      "exitCode": 0,
+      "result": "No source, test or harness changes"
+    },
+    {
+      "command": "Python JSON parsing and conflict-marker assertions",
+      "result": "passed"
+    }
+  ],
+  "priorChecks": "74 focused tests, Java 17 compilation, 117 inspector renders and fresh exchange capture passed; not repeated for document-only changes. Socket suites remain for CI.",
+  "controller": "Two files retain unmerged index entries pending controller staging. Developer did not stage, commit, push or continue rebase."
+}

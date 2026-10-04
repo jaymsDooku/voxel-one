@@ -3,13 +3,51 @@ package dev.jayms.net.city;
 import java.io.*;
 import java.util.*;
 
-public record CityCommand(int kind, int value, List<Polygon.Point> points, int ownerKind, int ownerId) {
-    public CityCommand(int kind, int value, List<Polygon.Point> points) { this(kind, value, points, 0, 0); }
-    public static final int ROAD = 1, ZONE = 2, RIDE = 3, DEMOLISH = 4, SPECIAL = 5;
+public record CityCommand(int kind, int value, List<Polygon.Point> points, int ownerKind, int ownerId, Capital capital) {
+    public static final int ROAD = 1, ZONE = 2, RIDE = 3, DEMOLISH = 4, SPECIAL = 5, EXCHANGE = 6, CAPITAL = 7;
+
+    public record Capital(
+            int action,
+            int company,
+            int ownerKind,
+            int owner,
+            long shares,
+            long price,
+            long order) {
+        public Capital {
+            if (action < 0
+                    || action > 3
+                    || company < 1
+                    || ownerKind < 0
+                    || ownerKind > 1
+                    || owner < 1
+                    || action < 3
+                            && (shares < 1
+                                    || shares > CityStockExchange.MAX_SHARES
+                                    || price < 1
+                                    || price > CityStockExchange.MAX_PRICE)
+                    || action == 3 && order < 1)
+                throw new IllegalArgumentException("Invalid capital command");
+        }
+    }
+
+    public CityCommand(int kind, int value, List<Polygon.Point> points) {
+        this(kind, value, points, 0, 0, null);
+    }
+
+    public CityCommand(int kind, int value, List<Polygon.Point> points, int ownerKind, int ownerId) { this(kind, value, points, ownerKind, ownerId, null); }
+
+    public CityCommand(Capital capital) {
+        this(CAPITAL, 0, List.of(), 0, 0, capital);
+    }
 
     public CityCommand {
         points = List.copyOf(points);
-        if (kind < 1 || kind > 5 || points.size() > 32)
+        if (kind < 1
+                || kind > 7
+                || points.size() > 32
+                || (kind == CAPITAL) != (capital != null)
+                || kind == CAPITAL && !points.isEmpty())
             throw new IllegalArgumentException("Invalid city command");
         if (kind == DEMOLISH && (value <= 0 || !points.isEmpty()))
             throw new IllegalArgumentException("Demolition needs a building ID and no points");
@@ -24,6 +62,15 @@ public record CityCommand(int kind, int value, List<Polygon.Point> points, int o
             out.writeFloat(p.x());
             out.writeFloat(p.z());
         }
+        if (capital != null) {
+            out.writeByte(capital.action());
+            out.writeInt(capital.company());
+            out.writeByte(capital.ownerKind());
+            out.writeInt(capital.owner());
+            out.writeLong(capital.shares());
+            out.writeLong(capital.price());
+            out.writeLong(capital.order());
+        }
     }
 
     public static CityCommand read(DataInput in) throws IOException {
@@ -35,7 +82,18 @@ public record CityCommand(int kind, int value, List<Polygon.Point> points, int o
             var points = new ArrayList<Polygon.Point>();
             for (int i = 0; i < n; i++)
                 points.add(new Polygon.Point(in.readFloat(), in.readFloat()));
-            return new CityCommand(kind, value, points, ownerKind, ownerId);
+            var capital =
+                    kind == CAPITAL
+                            ? new Capital(
+                                    in.readUnsignedByte(),
+                                    in.readInt(),
+                                    in.readUnsignedByte(),
+                                    in.readInt(),
+                                    in.readLong(),
+                                    in.readLong(),
+                                    in.readLong())
+                            : null;
+            return new CityCommand(kind, value, points, ownerKind, ownerId, capital);
         } catch (IllegalArgumentException e) {
             throw new IOException(e);
         }

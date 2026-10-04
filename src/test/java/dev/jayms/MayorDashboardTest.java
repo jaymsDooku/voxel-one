@@ -40,7 +40,7 @@ class MayorDashboardTest {
         var f = CityMetricsTest.fixture();
         var ui = new MayorDashboard();
         ui.show();
-        ui.click(640, 100, 1280, 720, f, id -> fail("Tab must not inspect citizen"));
+        ui.click(530, 100, 1280, 720, f, id -> fail("Tab must not inspect citizen"));
         assertEquals(2, ui.tab);
         ui.click(40, 190, 1280, 720, f, id -> fail());
         assertTrue(ui.searchFocus);

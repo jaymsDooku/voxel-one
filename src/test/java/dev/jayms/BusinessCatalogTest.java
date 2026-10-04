@@ -249,6 +249,12 @@ company.sand.cash=1200
         var frame = new CityFrame(original.config(), original.elapsed(), original.roads(),
                 original.zones(), buildings, original.citizens(), original.horses(),
                 original.economy(), CityAddresses.migrate(original.roads(), buildings), original.agriculture());
+        // A pre-ownership CITY7 frame has no capital payload.
+        var e = frame.economy();
+        var legacyEconomy = new CityEconomy.State(e.budget(), e.roadSpending(), e.landRevenue(),
+                e.rentClock(), e.firms(), e.plots(), e.properties(), e.contracts(), e.businesses(), e.resources());
+        frame = new CityFrame(frame.config(), frame.elapsed(), frame.roads(), frame.zones(),
+                frame.buildings(), frame.citizens(), frame.horses(), legacyEconomy, frame.addresses(), frame.agriculture());
         Path save = temp.resolve("city-seven.city");
         try (var out = new DataOutputStream(Files.newOutputStream(save))) {
             out.writeInt(0x43495437);
@@ -265,14 +271,14 @@ company.sand.cash=1200
                 new Terrain(42, Terrain.CURRENT_VERSION), loaded, ProductionCatalog.toolEra());
         restored.save(save);
         try (var in = new DataInputStream(Files.newInputStream(save))) {
-            assertEquals(0x43495437, in.readInt());
+            assertEquals(0x43495438, in.readInt());
         }
         assertEquals(buildings, CitySimulation.load(save).buildings());
         assertEquals(catalog, CitySimulation.load(save).economy().resources().catalog());
     }
 
     @Test
-    void terrainIntegrationMigratesCitySixCivicBuildingsToSeven() throws Exception {
+    void terrainIntegrationMigratesCitySixCivicBuildingsToEight() throws Exception {
         var ground = new CityTest.Ground();
         var building = new CityFrame.Building(40, 0, 18, 60, 32, 52, 1, 0);
         var frame = new CityFrame(GameConfig.cityGame(), 0, List.of(), List.of(),
@@ -287,7 +293,7 @@ company.sand.cash=1200
                 new Terrain(42, Terrain.LEGACY_VERSION), loaded);
         restored.save(save);
         try (var in = new DataInputStream(Files.newInputStream(save))) {
-            assertEquals(0x43495437, in.readInt());
+            assertEquals(0x43495438, in.readInt());
         }
         assertEquals(restored.frame(), CitySimulation.load(save));
         assertEquals(List.of(building), CitySimulation.load(save).buildings());

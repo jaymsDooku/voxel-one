@@ -1,0 +1,25 @@
+{
+  "scope": "Share ledger and matching engine only; game integration remains pending",
+  "command": "MAVEN_OPTS=\"-Djava.io.tmpdir=$PWD/target/test-tmp\" /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=target/maven-cache -Dtest=dev.jayms.net.city.CityStockExchangeTest test",
+  "exitCode": 0,
+  "tests": 10,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "cases": [
+    "secondaryTradesPaySellerAndMovePriceThroughSupplyAndDemand",
+    "bestPriceThenFifoWithPartialFillsAndMakerPrice",
+    "restoredStateRetainsEscrowAndCanContinueSettlement",
+    "ipoRaisesCompanyCapitalAndRefundsPriceImprovement",
+    "invalidInputAndCorruptSnapshotsAreRejectedWithoutMutation",
+    "rejectsDuplicateReferencesAndUnknownShareholdersOnRestore",
+    "partialBidFillRefundsOnlyExecutedSharesAndCancellationReturnsRemainder",
+    "startsPrivateAndRequiresOwnerAndExchangeForDilution",
+    "reservesCashAndSharesAndCancellationRequiresOrderOwner",
+    "selfOrdersDoNotTradeAndClosurePreservesBookButAllowsCancellation"
+  ],
+  "limitations": [
+    "No game integration or visual verification yet.",
+    "Maven is unavailable on PATH; existing Maven and copied offline dependency cache used."
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "decision": "checkpoint",
+  "resolution": "Documentation/progress conflicts resolved preserving both corrections and evidence. Controller staging and rebase continuation remain pending.",
+  "tests": [
+    {
+      "command": "git diff --check",
+      "exitCode": 0
+    },
+    {
+      "command": "MAVEN_OPTS=\"-Djava.io.tmpdir=$PWD/target/test-tmp\" /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=target/maven-cache \"-DargLine=-Djava.io.tmpdir=$PWD/target/test-tmp\" -Dtest=MetricHistoryTest,CapitalSettlementLimitsTest,CityStockExchangeTest,CityCapitalTest,CapitalDashboardTest,DemolitionTest test",
+      "exitCode": 0
+    }
+  ],
+  "pause": "Owner requested quota/service pause. Existing local edits and evidence preserved."
+}

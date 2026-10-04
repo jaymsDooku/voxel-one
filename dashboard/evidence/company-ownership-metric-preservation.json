@@ -1,0 +1,40 @@
+{
+  "status": "passed; pending controller rebase continuation and independent review",
+  "preservation": "MetricHistory, MetricTrends, Main sampling, all four domains, original smoke harness, 20 original metric evidence files and metric progress milestone retained. Exchange, demolition ID 4, exchange IDs 5/6, cleanup and atomic settlement limits retained.",
+  "commands": [
+    {
+      "command": "MAVEN_OPTS=\"-Djava.io.tmpdir=$PWD/target/test-tmp\" /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=target/maven-cache \"-DargLine=-Djava.io.tmpdir=$PWD/target/test-tmp\" '-Dtest=*,!CityMultiplayerTest,!MultiplayerTest,!UpdaterTest' test",
+      "exitCode": 0
+    },
+    {
+      "command": "javac --release 17 -cp \"$(cat target/capital-render-classpath.txt)\" -d target/combined-java17 $(rg --files src/main/java -g \"*.java\")",
+      "exitCode": 0
+    },
+    {
+      "command": "javac -cp \"target/test-classes:$(cat target/capital-render-classpath.txt)\" -d target deploy/MetricTrendsSmoke.java deploy/CapitalRenderingSmoke.java deploy/CombinedDashboardSmoke.java",
+      "exitCode": 0
+    },
+    {
+      "command": "EGL_PLATFORM=surfaceless LIBGL_ALWAYS_SOFTWARE=1 java -Djava.io.tmpdir=\"$PWD/target/test-tmp\" -Dorg.lwjgl.system.SharedLibraryExtractPath=\"$PWD/target/native-libs\" -cp \"target:target/test-classes:$(cat target/capital-render-classpath.txt)\" CombinedDashboardSmoke target/combined-dashboard-render",
+      "exitCode": 0
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0
+    },
+    {
+      "command": "MAVEN_OPTS=\"-Djava.io.tmpdir=$PWD/target/test-tmp\" /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=target/maven-cache \"-DargLine=-Djava.io.tmpdir=$PWD/target/test-tmp\" -Dtest=MetricHistoryTest,CapitalSettlementLimitsTest,CityStockExchangeTest,CityCapitalTest,CapitalDashboardTest,DemolitionTest test",
+      "exitCode": 0,
+      "tests": 41
+    }
+  ],
+  "totals": {
+    "tests": 200,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "excluded": "CityMultiplayerTest, MultiplayerTest, UpdaterTest require sockets prohibited by sandbox; remain for CI. Old reports for these suites were excluded from totals.",
+  "rendering": "Mesa software EGL: eight Trends captures (four domains at 1280x720 and 640x640), Exchange book and shareholders captures, F10 trading MP4. Visually inspected current company Trends and Exchange captures.",
+  "controller": "Working-file resolutions only. Index retains conflict entries for controller staging; no commit, push, or rebase continuation performed."
+}

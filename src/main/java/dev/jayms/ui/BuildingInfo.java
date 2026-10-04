@@ -143,6 +143,22 @@ public final class BuildingInfo {
             rows.add("Owner: " + (b.zone() == 0 ? "City government" : owner(city, b.zone() == -2 ? CityEconomy.COMPANY : CityEconomy.CITIZEN, b.stock())));
             rows.add("Level: " + SpecialBuildings.level(type));
         }
+        if (b != null && type == SpecialBuildings.EXCHANGE) {
+            long staff = city.citizens().stream().filter(c -> c.job() == b.id()).count();
+            long grads =
+                    city.citizens().stream()
+                            .filter(
+                                    c ->
+                                            c.job() == b.id()
+                                                    && city.economy()
+                                                            .capital()
+                                                            .graduates()
+                                                            .contains(c.id()))
+                            .count();
+            rows.add("City-owned exchange offices | Graduate staff " + grads + " / " + staff);
+            rows.add("Three university graduate roles, one office support role | 08:00-17:00");
+            rows.add("Open the Exchange dashboard to view company ownership and trade shares.");
+        }
         if (property != null) {
             rows.add("Owner: " + owner(city, property.ownerKind(), property.owner()));
             rows.add(

@@ -99,13 +99,41 @@ class MetricHistoryTest {
     }
 
     @Test
+    void exchangeAndTrendsKeepIndependentInputsAndHistory() {
+        var ui = new MayorDashboard();
+        ui.open = true;
+        ui.submit = command -> fail("Trends must not submit capital commands");
+        ui.history.observe(at(0));
+        ui.history.observe(at(10));
+        ui.click(1150, 100, 1280, 720, at(0), id -> fail());
+        assertEquals(5, ui.tab);
+        ui.capital.focus = 0;
+        ui.capital.firstRow = 4;
+        String quantity = ui.capital.quantity;
+        ui.click(1040, 60, 1280, 720, at(0), id -> fail());
+        assertTrue(ui.trends.open);
+        ui.character('7');
+        ui.scroll(-1);
+        ui.key(org.lwjgl.glfw.GLFW.GLFW_KEY_BACKSPACE, org.lwjgl.glfw.GLFW.GLFW_PRESS);
+        ui.click(350, 150, 1280, 720, at(0), id -> fail());
+        assertEquals(quantity, ui.capital.quantity);
+        assertEquals(4, ui.capital.firstRow);
+        assertEquals(2, ui.history.samples().size());
+        ui.click(1150, 100, 1280, 720, at(0), id -> fail());
+        assertFalse(ui.trends.open);
+        assertEquals(5, ui.tab);
+        ui.character('7');
+        assertEquals(quantity + "7", ui.capital.quantity);
+    }
+
+    @Test
     void trendsToggleDoesNotTriggerCitizenActionsOrChangeExistingTabs() {
         var ui = new MayorDashboard();
         ui.click(1040, 60, 1280, 720, at(0), id -> fail());
         assertTrue(ui.trends.open);
         ui.click(40, 150, 1280, 720, at(0), id -> fail());
         assertTrue(ui.trends.open);
-        ui.click(640, 100, 1280, 720, at(0), id -> fail());
+        ui.click(530, 100, 1280, 720, at(0), id -> fail());
         assertFalse(ui.trends.open);
         assertEquals(2, ui.tab);
     }
