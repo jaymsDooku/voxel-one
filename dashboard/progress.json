@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-04T03:56:59.365447+00:00",
+  "updatedAt": "2026-10-04T09:38:26+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,46 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "65333431633761642d346435342d343463652d613931322d356134386633313436303863",
+      "title": "Free isometric camera rotation",
+      "description": "Inspecting camera input and preparing drag rotation regression checks.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "free isometric orbit tests.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/free-isometric-orbit-tests.json"
+        },
+        {
+          "kind": "report",
+          "label": "free isometric orbit rebase tests.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/free-isometric-orbit-rebase-tests.json"
+        },
+        {
+          "kind": "report",
+          "label": "free isometric orbit graphical.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/free-isometric-orbit-graphical.json"
+        },
+        {
+          "kind": "video",
+          "label": "free isometric orbit.mp4",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/free-isometric-orbit.mp4"
+        },
+        {
+          "kind": "report",
+          "label": "free isometric orbit base preservation.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/free-isometric-orbit-base-preservation.json"
+        },
+        {
+          "kind": "report",
+          "label": "free isometric orbit tested tree.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/free-isometric-orbit-tested-tree.json"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Corrected tree on base 127c1d2: 513 base files and 40 base progress entries preserved; Protocol 17 and v7 saves retained; 58 tests and fresh GLFW/F10 checks passed. Controller must pass verify_isometric_orbit_tree.py --revision HEAD after rebase before resubmission.",
+      "updatedAt": "2026-10-04T09:38:26+00:00"
+    },
     {
       "id": "configurable-businesses",
       "title": "Configurable city businesses",

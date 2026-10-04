@@ -12,7 +12,7 @@ class IsometricCameraTest {
     void rotatedOverviewFitsAllWorldCornersAtWideAndTallSizes() {
         var bounds = new DistantTerrainPlan(-160, -272).bounds();
         var overview = new IsometricCamera();
-        for (int turn = 0; turn < 4; turn++) {
+        for (int turn = 0; turn < 24; turn++) {
             for (int[] size : new int[][] {{1280, 720}, {640, 1000}}) {
                 var combined =
                         overview.projection(bounds, size[0], size[1])
@@ -27,8 +27,33 @@ class IsometricCameraTest {
                             assertTrue(screenY > 80 && screenY < size[1] - 140);
                         }
             }
-            overview.rotate(1);
+            overview.rotateDegrees(15);
         }
+    }
+
+    @Test
+    void freeOrbitPreservesFocusZoomAndPitchAndWrapsInBothDirections() {
+        var overview = new IsometricCamera();
+        overview.cityMode();
+        overview.focus(18, 28, 24);
+        overview.zoom(-5);
+        float zoom = overview.zoom(), pitch = overview.camera().pitch();
+        overview.rotateDegrees(37.5f);
+        assertEquals(-97.5f, overview.camera().yaw());
+        for (int i = 0; i < 24; i++) {
+            overview.rotateDegrees(15);
+            overview.projection(new World(), 1280, 720);
+            var direction = new Vector3f(18, 24, 28).sub(overview.camera().position()).normalize();
+            assertEquals(0, direction.distance(overview.camera().getDirection()), 1e-4);
+            assertEquals(zoom, overview.zoom());
+            assertEquals(pitch, overview.camera().pitch());
+        }
+        assertEquals(-97.5f, overview.camera().yaw());
+        overview.rotateDegrees(-720);
+        assertEquals(-97.5f, overview.camera().yaw());
+        overview.rotateDegrees(Float.NaN);
+        overview.rotateDegrees(Float.POSITIVE_INFINITY);
+        assertEquals(-97.5f, overview.camera().yaw());
     }
 
     @Test
@@ -65,7 +90,7 @@ class IsometricCameraTest {
     @Test
     void panningFollowsScreenAxesAtEveryOrientation() {
         var overview = new IsometricCamera();
-        for (int turn = 0; turn < 4; turn++) {
+        for (int turn = 0; turn < 24; turn++) {
             overview.focus(0, 0, 32);
             overview.panRelative(1, 0);
             var movement =
@@ -84,7 +109,7 @@ class IsometricCameraTest {
                                     new Vector3f(overview.focusX(), 0, overview.focusZ()));
             assertTrue(movement.y > 0);
             assertEquals(0, movement.x, 1e-5);
-            overview.rotate(1);
+            overview.rotateDegrees(15);
         }
     }
 

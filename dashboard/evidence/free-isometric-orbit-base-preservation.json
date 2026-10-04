@@ -1,0 +1,15 @@
+{
+  "base": "127c1d22d72d746a412962086964a769689051d9",
+  "scope": "All base tracked files outside four intentional edits",
+  "unchangedFiles": 513,
+  "unexpectedChanges": [],
+  "intendedEditedFiles": [
+    "dashboard/progress.json",
+    "src/main/java/dev/jayms/IsometricCamera.java",
+    "src/main/java/dev/jayms/Main.java",
+    "src/test/java/dev/jayms/IsometricCameraTest.java"
+  ],
+  "progressEntriesRetainedVerbatim": 40,
+  "protocolVersion": 17,
+  "saveCompatibility": "LocalGame retains version-7 reads and terrain generator version. File byte-identical to base."
+}

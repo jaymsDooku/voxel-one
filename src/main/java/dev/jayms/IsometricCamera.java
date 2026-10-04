@@ -59,6 +59,13 @@ public final class IsometricCamera {
         camera.setYaw(-135 + Math.floorMod(Math.round((camera.yaw() + 135) / 90) + turns, 4) * 90);
     }
 
+    /** Orbit freely around the current focus without changing elevation or zoom. */
+    public void rotateDegrees(float degrees) {
+        if (!Float.isFinite(degrees)) return;
+        double yaw = (double) camera.yaw() + degrees;
+        camera.setYaw((float) (((yaw + 180) % 360 + 360) % 360 - 180));
+    }
+
     /** Pan along screen right/up on the ground plane at the current orientation. */
     public void panRelative(float right, float forward) {
         Vector3f direction = camera.getDirection();
