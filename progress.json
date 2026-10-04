@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-02T22:11:28+00:00",
+  "updatedAt": "2026-10-04T16:20:56+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -1791,6 +1791,208 @@
       "status": "complete",
       "note": "General private queue deployed; two developers and independent reviewer running on VPS. Six feature PRs reviewed and merged. 16 API/presentation, 21 worker and four bridge checks plus mobile WebKit/Chromium pass. Actual structured model turn, quota RPC and three-slot heartbeat verified. Historical milestones/evidence preserved. Budget reset continuation tested deterministically; live reset has not elapsed. Answer private questions, then Resume blocked work.",
       "updatedAt": "2026-10-02T22:11:28+00:00"
+    },
+    {
+      "id": "33356462633030392d326535322d343064332d396463632d366438373831373162393833",
+      "title": "City login protocol compatibility",
+      "description": "Tracing client/server handshake and release compatibility locally.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "city protocol compatibility.md",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/city-protocol-compatibility.md"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Controller is finishing preserved rebase and validating protocol compatibility in the authorized VPS loopback runtime.",
+      "updatedAt": "2026-10-04T16:20:56+00:00"
+    },
+    {
+      "id": "configurable-businesses",
+      "title": "Configurable city businesses",
+      "description": "Implementing game-owned company and harvesting definitions.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "configurable businesses tests.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/configurable-businesses-tests.json"
+        },
+        {
+          "kind": "report",
+          "label": "configurable businesses review tests.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/configurable-businesses-review-tests.json"
+        },
+        {
+          "kind": "report",
+          "label": "configurable businesses demolition review tests.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/configurable-businesses-demolition-review-tests.json"
+        },
+        {
+          "kind": "report",
+          "label": "configurable businesses combined review tests.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/configurable-businesses-combined-review-tests.json"
+        },
+        {
+          "kind": "image",
+          "label": "business review metric trends population 1280x720.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-review-metric-trends-population-1280x720.png"
+        },
+        {
+          "kind": "image",
+          "label": "business review metric trends companies 640x640.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/business-review-metric-trends-companies-640x640.png"
+        },
+        {
+          "kind": "report",
+          "label": "configurable businesses special review tests.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/configurable-businesses-special-review-tests.json"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Special-building review correction verified: complete civic feature and all current-base history/evidence retained; legacy saves tested for every civic type 4\u201318. Combined protocol is 16 to avoid base-version collision. Thirteen-suite combined test run passed; ready for controller staging/rebase continuation and independent review.",
+      "updatedAt": "2026-10-03T23:06:35+00:00"
+    },
+    {
+      "id": "36646132363664302d343539632d346638662d613536642d326361383834333232363834",
+      "title": "Building direction guide",
+      "description": "Implementing world-space planning guide and zone snapping locally.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "building direction guide tests.txt",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-direction-guide-tests.txt"
+        },
+        {
+          "kind": "report",
+          "label": "building-direction-guide-rendering.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-direction-guide-rendering.json"
+        },
+        {
+          "kind": "image",
+          "label": "building-guide-angle-0-scenario-0.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-guide-angle-0-scenario-0.png"
+        },
+        {
+          "kind": "image",
+          "label": "building-guide-angle-0-scenario-1.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-guide-angle-0-scenario-1.png"
+        },
+        {
+          "kind": "image",
+          "label": "building-guide-angle-0-scenario-2.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-guide-angle-0-scenario-2.png"
+        },
+        {
+          "kind": "image",
+          "label": "building-guide-angle-0-scenario-3.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-guide-angle-0-scenario-3.png"
+        },
+        {
+          "kind": "image",
+          "label": "building-guide-angle-1-scenario-0.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-guide-angle-1-scenario-0.png"
+        },
+        {
+          "kind": "image",
+          "label": "building-guide-angle-1-scenario-1.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-guide-angle-1-scenario-1.png"
+        },
+        {
+          "kind": "image",
+          "label": "building-guide-angle-1-scenario-2.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-guide-angle-1-scenario-2.png"
+        },
+        {
+          "kind": "image",
+          "label": "building-guide-angle-1-scenario-3.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-guide-angle-1-scenario-3.png"
+        },
+        {
+          "kind": "image",
+          "label": "building-guide-angle-2-scenario-0.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-guide-angle-2-scenario-0.png"
+        },
+        {
+          "kind": "image",
+          "label": "building-guide-angle-2-scenario-1.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-guide-angle-2-scenario-1.png"
+        },
+        {
+          "kind": "image",
+          "label": "building-guide-angle-2-scenario-2.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-guide-angle-2-scenario-2.png"
+        },
+        {
+          "kind": "image",
+          "label": "building-guide-angle-2-scenario-3.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-guide-angle-2-scenario-3.png"
+        },
+        {
+          "kind": "image",
+          "label": "building-guide-angle-3-scenario-0.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-guide-angle-3-scenario-0.png"
+        },
+        {
+          "kind": "image",
+          "label": "building-guide-angle-3-scenario-1.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-guide-angle-3-scenario-1.png"
+        },
+        {
+          "kind": "image",
+          "label": "building-guide-angle-3-scenario-2.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-guide-angle-3-scenario-2.png"
+        },
+        {
+          "kind": "image",
+          "label": "building-guide-angle-3-scenario-3.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-guide-angle-3-scenario-3.png"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Road-boundary snapping corrected; four end-to-end roadside zones accepted. 31 tests and 16 fresh Mesa EGL captures pass. Concurrent metric and special-building features retained; controller stages resolutions and continues rebase.",
+      "updatedAt": "2026-10-03T18:43:22+00:00"
+    },
+    {
+      "id": "38383035396439392d393432392d343737342d393838302d636439653137323962623766",
+      "title": "Metric history charts",
+      "description": "Implementing population, company and government time-series views locally.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Rebase conflict resolved in worktree; master milestones and rendering-review requirements retained. Combined tree passed 25 chart, demolition and isometric-camera tests. Eight fresh Linux Mesa OpenGL captures show changing metrics across four domains at 1280x720 and 640x640. Evidence: metric-trends-rebase-verification.json and metric-trends-rendering.json. Controller stages and continues rebase; independent review pending.",
+      "updatedAt": "2026-10-03T13:23:46+00:00"
+    },
+    {
+      "id": "36373966363030342d613265392d346438382d616436372d363961323932396265373961",
+      "title": "Building demolition",
+      "description": "Implementing authoritative demolition and inspector controls.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "building demolition tests.txt",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/building-demolition-tests.txt"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Implementation ready for independent review. Demolition and related city regression tests passed; full verification encountered only sandbox socket errors. Evidence saved locally; no publication or deployment performed.",
+      "updatedAt": "2026-10-03T07:53:55+00:00"
+    },
+    {
+      "id": "62396263643165632d613139372d343964312d393932662d616537663165333133383366",
+      "title": "Special building permits and placement",
+      "description": "Implementing catalog, ownership, levels, and authoritative placement checks.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Replay conflicts resolved; metric feature and milestone retained, overhead protection and civic demolition preserved. All 23 combined tests passed again; menu/placement OpenGL evidence retained. Ready for controller staging and rebase continuation. Evidence: special-buildings-metric-replay-tests.json.",
+      "updatedAt": "2026-10-03T18:12:06+00:00"
+    },
+    {
+      "id": "8fdb8e5d-2133-4c4f-827d-e7d190f01db6",
+      "title": "Isometric camera rotation",
+      "description": "Implementing quarter-turn camera controls and rotation-aware panning; preparing camera and picking regressions.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Implementation ready for separate review. Rebindable left/right quarter turns preserve isometric pitch, focus and zoom; panning follows orientation. Targeted verify passed 15 tests and packaged all jars. Full suite: 161 passed, 10 socket-permission errors, zero assertion failures. Evidence: dashboard/evidence/isometric-rotation-tests.json. No graphical display for F10 recording.",
+      "updatedAt": "2026-10-03T03:21:19+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
