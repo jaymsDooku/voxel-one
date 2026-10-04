@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-03T23:06:35+00:00",
+  "updatedAt": "2026-10-04T03:56:59.365447+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -1938,6 +1938,31 @@
       "status": "complete",
       "note": "Playtest 28 committed, published and deployed. Actual opaque octree leaves block skylight, sunlight, reflected sky and RGB LEDs; glass and air transmit. All 166 tests pass on Windows, Linux and both Macs. GPU hidden-light and sunlight tests change zero pixels across a solid 1/16 wall. Windows updater verified; both VPS worlds, accounts and TLS preserved.",
       "updatedAt": "2026-10-02T21:16:38+00:00"
+    },
+    {
+      "id": "terrain-generation",
+      "title": "Improve terrain generation",
+      "description": "Implementing versioned geography and bounded drainage; legacy terrain will remain available for existing saves.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "Integrated terrain validation",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/terrain-integrated-validation.md"
+        },
+        {
+          "kind": "report",
+          "label": "Integrated terrain 216 tests",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/terrain-integrated-verify.json"
+        },
+        {
+          "kind": "video",
+          "label": "Integrated OpenGL camera and walking",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/terrain-integrated-opengl-camera-walk.mp4"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Integrated review remediation ready for independent review: city formats 1\u20137/civic and business features retained, protocol 17, 216 tests and Maven packaging passed. Refreshed actual OpenGL camera/walking and MP4 checks passed; all base history preserved.",
+      "updatedAt": "2026-10-04T03:56:59.365447+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

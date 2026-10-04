@@ -115,14 +115,14 @@ public final class CitySimulation {
             restore(saved);
             economy = new CityEconomy(ecs, saved.economy());
             economy.adopt(buildings);
-            agriculture = new Agriculture(ecs, saved.agriculture());
+            agriculture = new Agriculture(ecs, saved.agriculture(), terrain);
             migrateMaterials = saved.economy().resources().equals(CityMaterials.State.empty());
             founding = false;
             return;
         }
         if (!config.city()) {
             economy = new CityEconomy(ecs, null, catalog);
-            agriculture = new Agriculture(ecs, Agriculture.State.empty());
+            agriculture = new Agriculture(ecs, Agriculture.State.empty(), terrain);
             founding = false;
             return;
         }
@@ -177,7 +177,7 @@ public final class CitySimulation {
             ecs.put(id, Mount.class, new Mount());
         }
         economy = new CityEconomy(ecs, null, catalog);
-        agriculture = new Agriculture(ecs, Agriculture.State.empty());
+        agriculture = new Agriculture(ecs, Agriculture.State.empty(), terrain);
         if (catalog.agriculture()) {
             // Founding city infrastructure is free as before; every subsequent extension is paid.
             road(List.of(new Point(-10, 24), new Point(-64, 24)));

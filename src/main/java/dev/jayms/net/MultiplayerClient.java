@@ -17,6 +17,7 @@ public final class MultiplayerClient implements AutoCloseable {
     public final String username;
     public final Protocol.Pose spawn;
     public final long seed;
+    public final int generatorVersion;
     public final ModelLibrary models;
     public String modelMessage = "";
     public int modelResults;
@@ -69,6 +70,12 @@ public final class MultiplayerClient implements AutoCloseable {
             spawn = Protocol.Pose.read(in);
             this.username = Protocol.readText(in, 16);
             seed = in.readLong();
+            generatorVersion = in.readInt();
+            try {
+                new Terrain(seed, generatorVersion);
+            } catch (IllegalArgumentException e) {
+                throw new IOException("Unsupported terrain generator", e);
+            }
             models = ModelLibrary.read(in);
             inventory = Inventory.read(in);
             health = in.readUnsignedByte();

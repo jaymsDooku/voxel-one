@@ -236,4 +236,61 @@ company.sand.cash=1200
         }
     }
 
+    @Test
+    void terrainIntegrationPreservesCitySevenCatalogAndEveryCivicBuilding() throws Exception {
+        var ground = new CityTest.Ground();
+        var catalog = excavation();
+        var simulation = new CitySimulation(GameConfig.cityGame(), ground,
+                new Terrain(42, Terrain.CURRENT_VERSION), null, catalog);
+        var original = simulation.frame();
+        var buildings = new ArrayList<CityFrame.Building>();
+        for (int type = 4; type <= 18; type++)
+            buildings.add(new CityFrame.Building(100 + type, 0, type, type * 8, 32, 52, 1, 0));
+        var frame = new CityFrame(original.config(), original.elapsed(), original.roads(),
+                original.zones(), buildings, original.citizens(), original.horses(),
+                original.economy(), CityAddresses.migrate(original.roads(), buildings), original.agriculture());
+        Path save = temp.resolve("city-seven.city");
+        try (var out = new DataOutputStream(Files.newOutputStream(save))) {
+            out.writeInt(0x43495437);
+            frame.write(out, 7);
+        }
+        var loaded = CitySimulation.load(save);
+        assertEquals(frame, loaded);
+        assertEquals(catalog, loaded.economy().resources().catalog());
+        var bytes = new ByteArrayOutputStream();
+        loaded.write(new DataOutputStream(bytes));
+        assertEquals(loaded, CityFrame.read(new DataInputStream(
+                new ByteArrayInputStream(bytes.toByteArray()))));
+        var restored = new CitySimulation(loaded.config(), ground,
+                new Terrain(42, Terrain.CURRENT_VERSION), loaded, ProductionCatalog.toolEra());
+        restored.save(save);
+        try (var in = new DataInputStream(Files.newInputStream(save))) {
+            assertEquals(0x43495437, in.readInt());
+        }
+        assertEquals(buildings, CitySimulation.load(save).buildings());
+        assertEquals(catalog, CitySimulation.load(save).economy().resources().catalog());
+    }
+
+    @Test
+    void terrainIntegrationMigratesCitySixCivicBuildingsToSeven() throws Exception {
+        var ground = new CityTest.Ground();
+        var building = new CityFrame.Building(40, 0, 18, 60, 32, 52, 1, 0);
+        var frame = new CityFrame(GameConfig.cityGame(), 0, List.of(), List.of(),
+                List.of(building), List.of(), List.of());
+        Path save = temp.resolve("city-six.city");
+        try (var out = new DataOutputStream(Files.newOutputStream(save))) {
+            out.writeInt(0x43495436);
+            frame.write(out, 6);
+        }
+        var loaded = CitySimulation.load(save);
+        var restored = new CitySimulation(loaded.config(), ground,
+                new Terrain(42, Terrain.LEGACY_VERSION), loaded);
+        restored.save(save);
+        try (var in = new DataInputStream(Files.newInputStream(save))) {
+            assertEquals(0x43495437, in.readInt());
+        }
+        assertEquals(restored.frame(), CitySimulation.load(save));
+        assertEquals(List.of(building), CitySimulation.load(save).buildings());
+    }
+
 }

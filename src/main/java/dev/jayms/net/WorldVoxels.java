@@ -9,7 +9,7 @@ import java.util.*;
  */
 public final class WorldVoxels {
     public static final int RESOLUTION = 16;
-    private static final int[] COLORS = new int[185];
+    private static final int[] COLORS = new int[187];
 
     static {
         for (int i = 1; i < COLORS.length; i++) {
@@ -79,7 +79,7 @@ public final class WorldVoxels {
                                         side));
         return material == Blocks.PARTIAL || material == 0
                 ? material
-                : Blocks.isModel(material) && edit.depth() > 0
+                : !Blocks.subdividable(material) && edit.depth() > 0
                         ? Blocks.PARTIAL
                         : Blocks.piece(material, edit.depth());
     }

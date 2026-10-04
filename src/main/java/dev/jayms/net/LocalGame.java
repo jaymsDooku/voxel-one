@@ -16,6 +16,7 @@ public final class LocalGame {
     public final Map<Integer, ItemDrop> drops = new LinkedHashMap<>();
     public final Map<String, Protocol.Edit> edits = new LinkedHashMap<>();
     public final long seed;
+    public final int generatorVersion;
     private int nextDrop;
     private float fallTop;
     private final Path save;
@@ -23,12 +24,19 @@ public final class LocalGame {
     public LocalGame(Path save, long requestedSeed) throws IOException {
         this.save = save;
         long worldSeed = requestedSeed;
+        int generator = Terrain.CURRENT_VERSION;
         if (Files.exists(save))
             try (var in = new DataInputStream(Files.newInputStream(save))) {
                 int version = in.readInt();
-                if (version != 3 && version != 4 && version != 5 && version != 6)
+                if (version != 3 && version != 4 && version != 5 && version != 6 && version != 7)
                     throw new IOException("Invalid offline world");
                 worldSeed = in.readLong();
+                generator = version >= 7 ? in.readInt() : Terrain.LEGACY_VERSION;
+                try {
+                    new Terrain(worldSeed, generator);
+                } catch (IllegalArgumentException e) {
+                    throw new IOException("Unsupported terrain generator", e);
+                }
                 if (version >= 4) models = ModelLibrary.read(in);
                 inventory = Inventory.read(in);
                 health = in.readUnsignedByte();
@@ -54,6 +62,7 @@ public final class LocalGame {
                 }
             }
         seed = worldSeed;
+        generatorVersion = generator;
     }
 
     public void startGame(GameConfig config, CitySimulation.Ground ground) throws IOException {
@@ -68,7 +77,7 @@ public final class LocalGame {
                 new CitySimulation(
                         stored == null ? config : stored.config(),
                         ground,
-                        new Terrain(seed),
+                        new Terrain(seed, generatorVersion),
                         stored,
                         catalog);
     }
@@ -168,8 +177,9 @@ public final class LocalGame {
         Files.createDirectories(save.toAbsolutePath().getParent());
         Path temp = save.resolveSibling(save.getFileName() + ".tmp");
         try (var out = new DataOutputStream(Files.newOutputStream(temp))) {
-            out.writeInt(6);
+            out.writeInt(7);
             out.writeLong(seed);
+            out.writeInt(generatorVersion);
             models.write(out);
             inventory.write(out);
             out.writeByte(health);
