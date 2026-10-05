@@ -1,0 +1,76 @@
+{
+  "date": "2026-10-05",
+  "sourceHead": "2eef1351beca21bf227fd9c8e187859b2cc5c0bd",
+  "masterCompatibility": "Local master 93a32e40aae2720502270f89cedc6d752a881068 is an ancestor of sourceHead; no master-only changes. Remote master was not fetched.",
+  "environment": "Linux amd64; Java 25.0.3; Maven 3.9.11 offline cache; Mesa surfaceless EGL 1.5; actual Overlay/BusinessDashboard at 1280x720; synthetic CitySimulation fixture.",
+  "playtest": {
+    "command": "python3 deploy/run_market_playtest.py dashboard/evidence target/market-build-cache/m2",
+    "steps": [
+      "Click Commercial filter, click stocked shop row, capture baseline.",
+      "Advance authoritative simulation by .11 seconds; capture accounts.",
+      "Open one-portion shop fixture, advance .11 seconds, click shop row and capture accounts.",
+      "Run actual cheapest suitable meal, cheapest material supplier, partial fill, conservation and shared-company regression assertions."
+    ],
+    "expected": "Four portions sold at stocked shop; stock 19 becomes 15; aggregate stock 16. Insufficient local stock rejects four-portion meal; zero sales and stock 2 after normal restocking.",
+    "observed": "All assertions passed. Native accounts show four units sold and $0.5 sales at stocked shop; low-stock accounts show zero units sold and $0.0 sales. Screenshots visually inspected.",
+    "scope": "Automated native application component playtest; actual simulation and UI click handlers, not a full Main client walkthrough. Browser playtesting does not apply to this Java/LWJGL desktop game."
+  },
+  "failedAttempts": [
+    "Xvfb :129 -screen 0 1280x720x24 -nolisten tcp failed: Could not create lock file in /tmp/.tX129-lock. GLFW launch then failed: GLFW unavailable. Recovered through existing EGL mechanism.",
+    "First click harness attempted a row outside the visible page and failed Shop row click failed. Added Commercial filter before selecting; rerun passed."
+  ],
+  "media": [
+    {
+      "file": "market-current-purchase.png",
+      "sha256": "8789227d7ab21e4ae6e25747fda384da7ed914aacc515e73db60bc6f13692f42",
+      "publication": "Pending controller publication to assigned feature branch"
+    },
+    {
+      "file": "market-current-low-stock.png",
+      "sha256": "c909aeab3a556e42607a65e8cce3f6bab6263cf7716c4903b079109775c843f2",
+      "publication": "Pending controller publication to assigned feature branch"
+    },
+    {
+      "file": "market-current-businesses.png",
+      "sha256": "0ebc812f8e80f3b0c6eaa6a45d6845d963a9a8513085360d378c00860173aab7",
+      "publication": "Pending controller publication to assigned feature branch"
+    },
+    {
+      "file": "market-current-before.png",
+      "sha256": "84e9c0816398404125a6638b1ca36b004cae22ba828a66aaad0940bb02547a5c",
+      "publication": "Pending controller publication to assigned feature branch"
+    },
+    {
+      "file": "market-current-edge-businesses.png",
+      "sha256": "9cd11f3a149fad8702c996605b7784a650ff32579956f0b612e5a3d11e1f8b8d",
+      "publication": "Pending controller publication to assigned feature branch"
+    }
+  ],
+  "testCommands": [
+    "/tmp/apache-maven-3.9.11/bin/mvn -o --batch-mode -Dmaven.repo.local=target/market-build-cache/m2 '-DargLine=-Djava.io.tmpdir=target/build-tmp' -Dtest=MarketEconomyTest,CityEconomyTest,CityMaterialsTest,CityBusinessTest,AgricultureTest,ManufacturingTest test",
+    "/tmp/apache-maven-3.9.11/bin/mvn -o --batch-mode -Dmaven.repo.local=target/market-build-cache/m2 '-DargLine=-Djava.io.tmpdir=target/build-tmp' -Dtest=AgricultureTest test",
+    "git diff --check",
+    "git merge-base --is-ancestor master HEAD"
+  ],
+  "completedSuites": {
+    "MarketEconomyTest": 13,
+    "ManufacturingTest": 7,
+    "CityMaterialsTest": 13,
+    "CityEconomyTest": 7,
+    "CityBusinessTest": 9,
+    "AgricultureTest": 8
+  },
+  "initialCombinedRun": "Completed 49 tests with zero failures/errors/skips in five suites; process exited 143 during AgricultureTest. AgricultureTest rerun separately; never count interrupted suite as passed.",
+  "agricultureRerun": "BUILD SUCCESS; 8 tests; zero failures/errors/skips; 164.5 seconds suite, 02:46 total. Combined completed suite total: 57 tests.",
+  "checks": [
+    "git diff --check passed",
+    "python3 -m py_compile deploy/run_market_playtest.py passed"
+  ],
+  "sourceHashes": {
+    "src/main/java/dev/jayms/net/city/CityEconomy.java": "8f9dbac0f20cc8b71aab0bed09fd20b1ed5661b3772324bd19945d8464b9c484",
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "283a3b544b9291f31becd1e4a810960fd7b892d36762de11ca2b82da3a832105",
+    "src/test/java/dev/jayms/MarketEconomyTest.java": "257c9792fcb4cdf33ed410e81225614dc1be6582d2a5fb81cfab8aa619b23cfc",
+    "deploy/MarketPlaytest.java": "cb1900cd5cab61f376330fb934b7672bd29e29f43f3c29c8c364c5c224f5abdb",
+    "deploy/run_market_playtest.py": "f2da13ed9fde99696d9b8ee434d25e1c3d2bd0978d7ef28ff007b599d7eae151"
+  }
+}

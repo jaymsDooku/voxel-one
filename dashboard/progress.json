@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-04T10:42:56+00:00",
+  "updatedAt": "2026-10-05T10:41:26+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -2185,8 +2185,8 @@
       "description": "Implementing market quotes and price-sensitive purchasing with regression coverage.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Shop-stock review fixed: local portion limits enforced before meal payment/consumption; no stock clamping. Low-stock/shared-company regressions pass. 13 market tests passed on corrected rerun; 44 supporting economy tests passed. Evidence: dashboard/evidence/market-shop-stock-tests.json. Awaiting independent exact-head review; socket tests require CI.",
-      "updatedAt": "2026-10-04T10:42:56+00:00"
+      "note": "Ready for independent review: 57 current tests passed; native market simulation/dashboard playtest passed with fresh purchase and low-stock screenshots. Sanitized report: dashboard/evidence/market-current-playtest.json. Media pending controller publication.",
+      "updatedAt": "2026-10-05T10:41:26+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
