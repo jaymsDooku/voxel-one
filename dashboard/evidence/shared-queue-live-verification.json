@@ -1,5 +1,5 @@
 {
-  "status": "controller_package_verified_media_captured",
+  "status": "blocked_controller_playtest_evidence",
   "implementationHead": "28d7fcc9b333abf2e5d33f4cce1ac5424cedba37",
   "packageCodeSha256": {
     "website/dist/server/index.js": "99dd2acca02e8525e302842244c50a163c549b1cfcb7d32a16be40daa48aedc9",
@@ -37,10 +37,14 @@
     "productionPublicationVerified": false,
     "liveBrowserSessionVerified": false
   },
-  "missingEvidence": [],
+  "missingEvidence": [
+    "Fresh sanitized capture showing live shared queue status and representative Voxel One work items from the exact submitted implementation.",
+    "Actual reproducible sanitized controller commands, environment and steps for real-upstream authentication/application projection and browser playtest."
+  ],
   "controllerNextSteps": [
-    "Stage the resolved files and publish the implementation screenshot with the feature head through the runner.",
-    "Retain independent review before production publication."
+    "Run the already-authorized real-upstream playtest against the submitted package; record actual commands without credentials.",
+    "Capture live status and representative Voxel One items, including 390px WebKit; save sanitized media inside this feature worktree dashboard/evidence/.",
+    "Publish new media with the exact feature head through the runner before independent review."
   ],
   "localVerificationThisTurn": [
     {
@@ -70,7 +74,7 @@
       "result": "All three reviewed code hashes match; both progress copies match; conflict JSON parses."
     }
   ],
-  "checkpoint": "Conflict contents resolved with both milestone histories retained. Controller supplied current implementation screenshot; publication pending runner. No production deployment claimed.",
+  "checkpoint": "Code preserved. Reviewer found published capture insufficient: it stops before live queue status and items. Controller commands remain absent. No new owner authorization required; authenticated controller execution evidence is required.",
   "playtest": {
     "entry": "Playtest: controller exercised the exact reviewed package with real scoped upstream data.",
     "environment": "Controller local authenticated fixture, real General upstream, Chromium and 390px Safari-WebKit.",
@@ -93,11 +97,31 @@
     "media": {
       "path": "dashboard/evidence/shared-queue-controller-webkit.png",
       "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-66336630333365302d663833322d343535352d613434352d346261373363343964663936/dashboard/evidence/shared-queue-controller-webkit.png",
-      "publication": "pending controller publication",
+      "publication": "Published artifact independently verified by reviewer at head 2958db7ee3b6a579552a2b530f0e2f969da73053; insufficient viewport content.",
       "inspection": "Developer inspected supplied mobile capture; development record visible with 45 and 4 summary counts; no private data visible.",
       "sha256": "95597a15c99238ea7abf84662bf4281a7709d1f4d1687f4cfef9076422f878bb"
     }
   },
+<<<<<<< Updated upstream
   "gitConflictState": "Worktree conflict markers resolved. Four index entries remain unmerged; controller must stage them. No stash, staging, rebase, commit or push operation performed.",
   "historicalRecord": "Earlier controller report and header-only capture state; superseded by shared-queue-controller-verified.json and shared-queue-controller-playtest.md. Retained as history."
+=======
+  "gitConflictState": "Current git status was clean at turn start; prior conflict resolution was committed by controller. No staging, stash, rebase, commit or push performed by developer.",
+  "currentTurnChecks": [
+    {
+      "command": "node --test website/test/*.test.mjs",
+      "exitCode": 0,
+      "result": "2 test files passed; synthetic regression coverage only."
+    },
+    {
+      "command": "node deploy/video-evidence-test.mjs",
+      "exitCode": 0,
+      "result": "5 passed."
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0
+    }
+  ]
+>>>>>>> Stashed changes
 }
