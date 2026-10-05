@@ -201,6 +201,11 @@ class AgricultureTest {
         // Existing worlds retain the original crop rates and economic trajectory.
         var g = new CityTest.Ground(Terrain.LEGACY_VERSION);
         var s = city(g);
+        // This production regression models an established, qualified factory workforce.
+        // Fresh cities now need enough technical graduates before all factories can run.
+        for (int id : s.ecs.query(CitySimulation.Household.class))
+            if (s.life(id).education == CitizenLife.Education.NONE)
+                s.life(id).education = CitizenLife.Education.TECHNICAL;
         var ate = new HashSet<Integer>();
         var slept = new HashSet<Integer>();
         for (int second = 0; second < 3600; second++) {

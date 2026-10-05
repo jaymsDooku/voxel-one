@@ -78,7 +78,7 @@ public final class StructureBlueprint {
         if (!SpecialBuildings.special(type)) throw new IllegalArgumentException("Invalid special building");
         var edits = new ArrayList<>(generate(0, x, y, z));
         int kind = SpecialBuildings.kind(type);
-        int[] colors = {0xffd166, 0x80ed99, 0x57ccff, 0xc792ea, 0x5588ff};
+        int[] colors = {0xffd166, 0x80ed99, 0x57ccff, 0xc792ea, 0x5588ff, 0xffaa55};
         for (int level = 0; level < SpecialBuildings.level(type); level++)
             edits.add(new Protocol.Edit(x + 1 + level, y + 4, z + 3, Blocks.LED).withColor(colors[kind]));
         for (int row = 0; row < (kind == 0 || kind == 4 ? 1 : 3); row++) {

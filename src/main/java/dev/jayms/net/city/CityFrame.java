@@ -91,7 +91,16 @@ public record CityFrame(
             int home,
             int job,
             int horse,
-            String activity) {}
+            String activity, double age, CitizenLife.Gender gender, CitizenLife.Education education,
+            double study, int spouse, int mother, int father, int school, double lastBirthAge) {
+        public Citizen(int id, String name, int cohort, float x, float y, float z, float yaw,
+                float phase, float hunger, float money, int home, int job, int horse, String activity) {
+            this(id, name, cohort, x, y, z, yaw, phase, hunger, money, home, job, horse, activity,
+                    24 + (id - 1) % 8, id % 2 != 0 ? CitizenLife.Gender.FEMALE : CitizenLife.Gender.MALE,
+                    cohort == 0 ? CitizenLife.Education.NONE : cohort == 1 ? CitizenLife.Education.TECHNICAL : CitizenLife.Education.UNIVERSITY,
+                    0, 0, 0, 0, 0, -10);
+        }
+    }
 
     public record Horse(int id, float x, float y, float z, float yaw, float phase, int rider) {}
 
@@ -108,7 +117,7 @@ public record CityFrame(
     }
 
     public void write(DataOutput out) throws IOException {
-        write(out, 8);
+        write(out, 9);
     }
 
     public void write(DataOutput out, int version) throws IOException {
@@ -153,6 +162,12 @@ public record CityFrame(
             out.writeInt(c.job);
             out.writeInt(c.horse);
             out.writeUTF(c.activity);
+            if (version >= 9) {
+                out.writeDouble(c.age); out.writeByte(c.gender.ordinal());
+                out.writeByte(c.education.ordinal()); out.writeDouble(c.study);
+                out.writeInt(c.spouse); out.writeInt(c.mother); out.writeInt(c.father);
+                out.writeInt(c.school); out.writeDouble(c.lastBirthAge);
+            }
         }
         out.writeInt(horses.size());
         for (var h : horses) {
@@ -186,7 +201,7 @@ public record CityFrame(
     }
 
     public static CityFrame read(DataInput in, boolean legacy) throws IOException {
-        return read(in, legacy ? 1 : 8);
+        return read(in, legacy ? 1 : 9);
     }
 
     public static CityFrame read(DataInput in, int version) throws IOException {
@@ -219,6 +234,7 @@ public record CityFrame(
             if (id < 1
                     || (type > 3 && !SpecialBuildings.special(type))
                     || (type == SpecialBuildings.EXCHANGE && version < 8)
+                    || (type >= 20 && version < 9)
                     || capacity < 1
                     || capacity > 32
                     || stock < 0
@@ -251,10 +267,22 @@ public record CityFrame(
                     || hunger > 100
                     || money < 0
                     || activity.length() > 64) throw new IOException("Invalid citizen");
-            citizens.add(
-                    new Citizen(
-                            id, name, cohort, x, y, z, yaw, phase, hunger, money, home, job, horse,
-                            activity));
+            var citizen = new Citizen(id, name, cohort, x, y, z, yaw, phase, hunger, money, home, job, horse, activity);
+            if (version >= 9) {
+                double age = in.readDouble(); int gender = in.readUnsignedByte(), education = in.readUnsignedByte();
+                double study = in.readDouble();
+                int spouse = in.readInt(), mother = in.readInt(), father = in.readInt(), school = in.readInt();
+                double lastBirth = in.readDouble();
+                if (!Double.isFinite(age) || age < 0 || age > 10000 || gender > 1 || education > 4
+                        || !Double.isFinite(study) || study < 0 || study > 8
+                        || spouse < 0 || mother < 0 || father < 0 || school < 0
+                        || !Double.isFinite(lastBirth) || lastBirth > age)
+                    throw new IOException("Invalid citizen life history");
+                citizen = new Citizen(id, name, cohort, x, y, z, yaw, phase, hunger, money, home, job, horse, activity,
+                        age, CitizenLife.Gender.values()[gender], CitizenLife.Education.values()[education],
+                        study, spouse, mother, father, school, lastBirth);
+            }
+            citizens.add(citizen);
         }
         var horses = new ArrayList<Horse>();
         for (int i = 0, n = count(in, 64); i < n; i++)
@@ -281,6 +309,24 @@ public record CityFrame(
                 CityCapital.validate(economy.capital(), economy.firms(), citizens);
             } catch (IllegalArgumentException e) {
                 throw new IOException("Invalid capital ownership", e);
+            }
+        }
+        if (version >= 9) {
+            var people = new HashMap<Integer, Citizen>();
+            for (var c : citizens)
+                if (people.put(c.id(), c) != null) throw new IOException("Duplicate citizen");
+            for (var c : citizens) {
+                if (c.spouse() != 0 && (c.spouse() == c.id() || !people.containsKey(c.spouse())
+                        || people.get(c.spouse()).spouse() != c.id() || c.age() <= 18
+                        || people.get(c.spouse()).age() <= 18)) throw new IOException("Invalid spouse");
+                if (c.mother() != 0 && (!people.containsKey(c.mother()) || c.mother() == c.id())
+                        || c.father() != 0 && (!people.containsKey(c.father()) || c.father() == c.id()))
+                    throw new IOException("Invalid parent");
+                if (c.school() != 0 && buildings.stream().noneMatch(b -> b.id() == c.school()
+                        && SpecialBuildings.special(b.type()) && b.type() != SpecialBuildings.EXCHANGE
+                        && (SpecialBuildings.kind(b.type()) == 1 || SpecialBuildings.kind(b.type()) == 2
+                            || SpecialBuildings.kind(b.type()) == 3 || SpecialBuildings.kind(b.type()) == 5)))
+                    throw new IOException("Invalid school");
             }
         }
         return new CityFrame(

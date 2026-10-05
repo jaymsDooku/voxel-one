@@ -20,7 +20,7 @@ class CapitalInspectorTest {
         var overview = inspector.sectionLines(city);
         assertTrue(overview.stream().anyMatch(s -> s.contains("Stock exchange")));
         assertTrue(overview.stream().anyMatch(s -> s.contains("Graduate staff")));
-        String details = overview.stream().filter(s -> s.startsWith("Three university")).findFirst().orElseThrow();
+        String details = overview.stream().filter(s -> s.startsWith("Four university")).findFirst().orElseThrow();
         var wrapped = BuildingInfo.wrappedLines(List.of(details), 20, s -> s.length());
         assertEquals(details.replace(" ", ""), String.join("", wrapped).replace(" ", ""));
         inspector.firstRow = 12;

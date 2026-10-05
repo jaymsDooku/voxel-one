@@ -142,6 +142,13 @@ public final class BuildingInfo {
         if (b != null && SpecialBuildings.special(type)) {
             rows.add("Owner: " + (b.zone() == 0 ? "City government" : owner(city, b.zone() == -2 ? CityEconomy.COMPANY : CityEconomy.CITIZEN, b.stock())));
             rows.add("Level: " + SpecialBuildings.level(type));
+            int kind = SpecialBuildings.kind(type);
+            if (type != SpecialBuildings.EXCHANGE && (kind == 1 || kind == 2 || kind == 3 || kind == 5)) {
+                rows.add("Ages: " + (kind == 1 ? "5-11" : kind == 2 ? "12-17" : "18-21") + " | Classes 08:00-14:00");
+                rows.add("Students: " + city.citizens().stream().filter(c -> c.school() == b.id()).count() + " / " + b.capacity());
+                rows.add("Requires: " + (kind == 1 ? "No education" : kind == 2 ? "Primary education" : "Secondary education"));
+                rows.add("Attendance needed: " + (kind == 1 ? "6" : kind == 2 ? "5" : "3") + " school years | Year = 12 city days");
+            }
         }
         if (b != null && type == SpecialBuildings.EXCHANGE) {
             long staff = city.citizens().stream().filter(c -> c.job() == b.id()).count();
@@ -156,7 +163,7 @@ public final class BuildingInfo {
                                                             .contains(c.id()))
                             .count();
             rows.add("City-owned exchange offices | Graduate staff " + grads + " / " + staff);
-            rows.add("Three university graduate roles, one office support role | 08:00-17:00");
+            rows.add("Four university graduate roles | 08:00-17:00");
             rows.add("Open the Exchange dashboard to view company ownership and trade shares.");
         }
         if (property != null) {

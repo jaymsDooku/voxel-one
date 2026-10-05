@@ -138,7 +138,7 @@ class CityCapitalTest {
         var assigned = s.frame().citizens().stream().filter(c -> c.job() == b.id()).toList();
         assertEquals(4, assigned.size());
         assertEquals(
-                3,
+                4,
                 assigned.stream()
                         .filter(c -> s.economy.capital.graduates.contains(c.id()))
                         .count());
@@ -146,7 +146,7 @@ class CityCapitalTest {
         inspector.building = b.id();
         assertTrue(
                 inspector.lines(s.frame()).stream()
-                        .anyMatch(v -> v.contains("Graduate staff 3 / 4")));
+                        .anyMatch(v -> v.contains("Graduate staff 4 / 4")));
         assertFalse(s.economy.capital.exchange.operational());
         staff(s);
         assertTrue(s.economy.capital.exchange.operational());
@@ -257,7 +257,7 @@ class CityCapitalTest {
                 "Exchange staff must reach offices without fixture teleportation");
         assertTrue(CapitalDashboard.available(s.frame()));
         assertEquals(
-                3,
+                4,
                 s.frame().citizens().stream()
                         .filter(c -> c.job() == 1 && s.economy.capital.graduates.contains(c.id()))
                         .count());
