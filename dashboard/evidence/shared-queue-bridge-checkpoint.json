@@ -1,0 +1,100 @@
+{
+<<<<<<< Updated upstream
+  "status": "ready_for_independent_review",
+=======
+  "status": "blocked_controller_playtest_evidence",
+>>>>>>> Stashed changes
+  "findings": [
+    "The previously checked-in deployment worker lacked the /api/general-progress route and did not package progress_bridge.mjs.",
+    "A synthetic authenticated request to the previous packaged worker reproduced HTTP 503 when question storage was absent.",
+    "The rebuilt deployment route returns HTTP 200 with all 46 synthetic Voxel queue items without DB or ASSETS bindings.",
+    "Bridge regressions also reproduced HTTP 503 when AbortSignal.timeout was unavailable or optional progress.json parsed as null; both now pass."
+  ],
+  "changes": [
+    "Preserved both upstream milestone entries and the task checkpoint while resolving dashboard/progress.json conflict contents.",
+    "Rebuilt website client/server artifacts, retaining current source features.",
+    "Use AbortController with a six-second timer cleared in finally.",
+    "Treat missing, failed, invalid or null saved metadata as optional.",
+    "Add packaged-worker regression coverage and npm test script."
+  ],
+  "tests": [
+    {
+      "command": "node website/test/general-progress.test.mjs",
+      "exitCode": 0,
+      "result": "7 assertions-based tests passed, 0 failed."
+    },
+    {
+      "command": "node website/test/general-progress-package.test.mjs",
+      "exitCode": 0,
+      "result": "3 packaged-worker tests passed, 0 failed."
+    },
+    {
+      "command": "python3 deploy/build_site.py",
+      "exitCode": 0,
+      "result": "Landing page, 19-section documentation and development dashboard generated."
+    },
+    {
+      "command": "node build.mjs (cwd: website)",
+      "exitCode": 0,
+      "result": "Client/server deployment package rebuilt."
+    },
+    {
+      "command": "node --test test/*.test.mjs (cwd: website)",
+      "exitCode": 0,
+      "result": "2 test files passed, 0 failed."
+    },
+    {
+      "command": "node deploy/video-evidence-test.mjs",
+      "exitCode": 0,
+      "result": "5 existing evidence-video tests passed, 0 failed."
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0,
+      "result": "No whitespace errors."
+    },
+    {
+      "command": "python3 -m json.tool dashboard/progress.json",
+      "exitCode": 0,
+      "result": "Resolved milestone record is valid JSON."
+    },
+    {
+      "command": "npm run build && npm test (cwd: website)",
+      "exitCode": 127,
+      "result": "npm is unavailable in this environment; equivalent build and test entrypoints passed through node."
+    }
+  ],
+  "beforeAfter": {
+    "originalBridgeWithNewTests": "4 passed, 3 failed; exit 1.",
+    "originalPackagedRouteWithoutQuestionDB": "HTTP 503",
+    "rebuiltPackagedRouteWithoutQuestionDBOrSavedAssets": "HTTP 200"
+  },
+  "limitations": [
+    "Production publication and owner browser session not claimed.",
+    "Real-upstream authentication check executed by controller; developer independently reran browser capture and matched package hashes."
+  ],
+<<<<<<< Updated upstream
+  "checkpoint": "Timestamp conflict contents resolved preserving all work-item history. Fresh capture inspected: live status and representative sanitized work items visible. Actual controller commands supplied. Runner must stage resolution and publish artifacts before independent review.",
+  "priorCheckpoint": "Awaiting controller authenticated package check; synthetic tests alone did not prove live success. Superseded by shared-queue-controller-verified.json and fresh live-status capture.",
+  "reviewRequirements": [
+    "Capture must show live queue status and representative Voxel One items.",
+    "Record actual reproducible sanitized controller commands for real upstream playtest.",
+    "Independent reviewer must verify published media against submitted head."
+  ]
+=======
+  "checkpoint": "Implementation preserved. Reviewer requires capture showing live status and representative work items plus reproducible real-upstream controller commands. Current header capture is insufficient. See shared-queue-live-verification.json.",
+  "priorCheckpoint": "Awaiting controller authenticated package check; synthetic tests alone did not prove live success. This prior state is superseded by the controller verification report.",
+  "controllerRecovery20261005": {
+    "status": "previous_media_and_command_blocker_fulfilled",
+    "report": "dashboard/evidence/shared-queue-controller-verified.json",
+    "steps": "dashboard/evidence/shared-queue-controller-playtest.md",
+    "harness": [
+      "deploy/check_shared_queue_controller.mjs",
+      "deploy/capture_shared_queue_controller.mjs"
+    ],
+    "capture": "dashboard/evidence/shared-queue-controller-webkit.png",
+    "observed": "Real upstream and exact packaged authenticated fixture200 with49 matching items; unauthenticated401; Chromium/WebKit390px49 rendered; corrected Safari capture shows live status and representative real item statuses. Private titles/descriptions sanitized.",
+    "remaining": "Developer must reconcile current report with historical pending reports, validate and submit through runner for independent review; publication remains pending."
+  }
+>>>>>>> Stashed changes
+}
