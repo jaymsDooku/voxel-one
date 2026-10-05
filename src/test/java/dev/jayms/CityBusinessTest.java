@@ -49,7 +49,16 @@ class CityBusinessTest {
                         accounts.stream().mapToDouble(a -> a.total().wages()).sum(),
                         .0001);
                 assertEquals(f.receipts(), c.revenue(), .0001);
-                double initial = f.kind() == 1 ? 1500 - 240 : f.kind() == 2 ? 2000 : 1500;
+                double purchases =
+                        frame.economy().contracts().stream()
+                                .filter(
+                                        contract ->
+                                                contract.partyKind() == CityEconomy.COMPANY
+                                                        && contract.party() == f.id()
+                                                        && contract.sale())
+                                .mapToDouble(CityEconomy.Contract::amount)
+                                .sum();
+                double initial = (f.kind() == 2 ? 2000 : 1500) - purchases;
                 assertEquals(initial + c.profit(), f.cash(), .0001);
             }
         var shop =
@@ -59,7 +68,7 @@ class CityBusinessTest {
                         .orElseThrow();
         assertEquals(shop.total().received() - shop.total().sold(), shop.building().stock());
         assertTrue(shop.total().sold() > 0);
-        assertEquals(10120, frame.economy().budget());
+        assertEquals(10000 + frame.economy().landRevenue(), frame.economy().budget(), 1e-8);
         assertEquals(11, metrics.companies().size());
     }
 

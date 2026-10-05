@@ -1,0 +1,243 @@
+{
+  "status": "In progress at pause; no final result recorded",
+  "finalResultAvailable": false,
+  "completedSuites": [
+    {
+      "suite": "dev.jayms.SurvivalTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.ManufacturingTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.MayorDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.CityAddressesTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.PlayerTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.CityToolsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.CityMaterialsTest",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.PlayerCameraTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.CityTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.CityEconomyTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.BusinessDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.MetricHistoryTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.PlayerAnimationTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.LightOcclusionTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.CityTimeTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.DistantTerrainTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.VoxelModelTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.CityBusinessTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.FractionalWorldTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.IsometricCameraTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.MarketEconomyTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.CityMetricsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.RemotePlayerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.AgricultureTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.ModelSculptorTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.VideoRecordingTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.LightingTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "command": "MAVEN_OPTS=\"-Djava.io.tmpdir=$PWD/target/build-tmp -Djansi.tmpdir=$PWD/target/build-tmp\" /tmp/apache-maven-3.9.11/bin/mvn -o --batch-mode -Dmaven.repo.local=target/market-build-cache/m2 \"-DargLine=-Djava.io.tmpdir=$PWD/target/build-tmp\" \"-Dtest=*,!UpdaterTest,!MultiplayerTest,!CityMultiplayerTest\" verify",
+  "preservation": {
+    "base": "234136c6f0365fe08757a2f0a52d72d7df92578c",
+    "assets": {
+      "dashboard/evidence/metric-trends-companies-1280x720.png": "2918515fddd4db84c608019ed3713e3ce7387eabc4f6a7bddf852facb6ea3080",
+      "dashboard/evidence/metric-trends-companies-640x640.png": "e8c0401dbd54045f2ef26ada33b7b8bb484c9c9839b9e5c9cb462132a6bbee32",
+      "dashboard/evidence/metric-trends-government-1280x720.png": "91337fdb308352ed409dc994cf7a360bfbc78807f76f782d72476321d6fccf40",
+      "dashboard/evidence/metric-trends-government-640x640.png": "5fb4573fc0b78d3bd885ec6d11632dfa53f8f6a5ce318c43200c275f0252a317",
+      "dashboard/evidence/metric-trends-population-1280x720.png": "e3f5c164f4da0bfaa4c40b0b911491356af8b96efa41c6e41b929a16cb7fafe2",
+      "dashboard/evidence/metric-trends-population-640x640.png": "60be1aebfe5738603a1546e216cb98ffb06436ba81742f8e34e5506b9595abd6",
+      "dashboard/evidence/metric-trends-rebase-verification.json": "c26824b09bb3a41864e5143b957adceacb49614f0022acb4e2d129641d347e75",
+      "dashboard/evidence/metric-trends-recovery-companies-1280x720.png": "49cf8cd6da536e3da39e07a801a3f0ea687f8966ea15a26c0aa1154a5fc5aec8",
+      "dashboard/evidence/metric-trends-recovery-companies-640x640.png": "9fc730a5d4a6be772e10906b37dd8eb7ac757740ab8ba9791b3dd07b1f789a1b",
+      "dashboard/evidence/metric-trends-recovery-government-1280x720.png": "6ce6dbcfd3266969dd6b81cac918cc3af0948ed76767d507614f57da1f533011",
+      "dashboard/evidence/metric-trends-recovery-government-640x640.png": "2ed5dd5d4901ef9fb7878d1167602403cdb09d83bbde3e5d4f351817f92a636c",
+      "dashboard/evidence/metric-trends-recovery-population-1280x720.png": "9b7ec9aefa4322c62935390711c64dfe946a1c2780ed68e288aa927643e204c6",
+      "dashboard/evidence/metric-trends-recovery-population-640x640.png": "8fa34d65ab8ef60309412d023ebfd16e9800b9fa038289a05bf68bfd2f956392",
+      "dashboard/evidence/metric-trends-recovery-workplaces-1280x720.png": "5fb4141dae7a45bdaa2b3a5bd5e911492d43e9ca4c82543c1e5e746dc55ecdb0",
+      "dashboard/evidence/metric-trends-recovery-workplaces-640x640.png": "ed96d0264a1d7f0a18d13066874a7bdfd233f1f873bff01bc9edf59b1a257444",
+      "dashboard/evidence/metric-trends-recovery.json": "fc69fb943b41f0d3e4d2c5fac537ad326cd1da25f090ee38ce47c45a07f98c0e",
+      "dashboard/evidence/metric-trends-rendering.json": "3a51a6179151405d827917afc94cdbbba113f10ce75457d98358ceec0cb64adb",
+      "dashboard/evidence/metric-trends-tests.json": "9c0f78e898be9ecf4a97c68ff9b96a97e4e0efd66f441cfd051019887215594c",
+      "dashboard/evidence/metric-trends-workplaces-1280x720.png": "78152b6a399cb25044aa729df31790f30c60899b6eb2e6c829bf5bb93c22891b",
+      "dashboard/evidence/metric-trends-workplaces-640x640.png": "61134aa1b9ffd04e46d8d87de5c70b8c3230dfb0dab8707d3875bc7bd10c93f4",
+      "dashboard/evidence/special-buildings-checkpoint.md": "18e4233a64a45affa61e630aa07bc2d5be3100c57574b676c0d5d9246e60026b",
+      "dashboard/evidence/special-buildings-menu.png": "719fded1ccff8ccb0f95b743148a30191f15ebe69b3f598a0683a1d9728581fb",
+      "dashboard/evidence/special-buildings-metric-integration-tests.json": "cc56f31807c465de744f23181f6172c476c11d58344a2113f0e472d0fa58e480",
+      "dashboard/evidence/special-buildings-metric-replay-tests.json": "edca8531c046de723b8531aa3e16699ebcdfcbcfdf595af21185c9ff55ae025f",
+      "dashboard/evidence/special-buildings-overhead-tests.json": "e32e625dc71fe38d38bcda6f961dafd448418bafe68e4e2a5a54f88be8aa6f3b",
+      "dashboard/evidence/special-buildings-placement.png": "555519bccdccca0a341a7885eca2ce5acf97d7856b9b333fef64d412cfff3674",
+      "dashboard/evidence/special-buildings-recovery-tests.json": "fe14d911adbb4b3b01444f741519bd86e72c0110bd1ed5d7386baeed8f980b4c",
+      "dashboard/evidence/special-buildings-rendering.json": "680411f8bdacf3efdcc629112b679f87b65af5525f16a8d9d79ac97fa9583a85",
+      "dashboard/evidence/special-buildings-replay-recovery-tests.json": "1b01b3adab14ec7f55380530a274af75d28dbd84e3f3115bc8945d7d89d046ee",
+      "dashboard/evidence/special-buildings-tests.json": "a0fd31f82506b7d3c43beff729e6fa93136838250027ba25020078a6c08620c3",
+      "deploy/MetricTrendsSmoke.java": "98c49773d8c66abb8ae5151a4a6ede27410d382b695c8f658179864f5b3b9c6d",
+      "deploy/SpecialBuildingsSmoke.java": "6c9e51f294e4d4b401e975afc56fee36b6c4323e5646f810300b0afbde03d72d",
+      "src/main/java/dev/jayms/Main.java": "289beb0228a7e748c4c4c84d32ebff4f76b4b95d64124e1b04b74307707f5c7d",
+      "src/main/java/dev/jayms/net/Protocol.java": "0c49ca26ad4dffedd4ac674d905ca21876724162f6d31869bb54b9155e5779b1",
+      "src/main/java/dev/jayms/net/city/SpecialBuildings.java": "d6799df3245e12dd79805c9f51e57a429b0e36a6ac45a99dfe19b01d6f79de87",
+      "src/main/java/dev/jayms/ui/MayorDashboard.java": "8b3e822d92055a8ed22ee3a427384e47cb32e35b2cd56156723029353c1b6f3a",
+      "src/main/java/dev/jayms/ui/MetricHistory.java": "6be7b1e19b85b8776498bd4acbf47fe58320c98cd54c34c56ffdf7a9891542e3",
+      "src/main/java/dev/jayms/ui/MetricTrends.java": "48a37d3d2e333099563cc081d0fd482b0b78be809d12dbf93c9ea1384cbfdf24",
+      "src/test/java/dev/jayms/MetricHistoryTest.java": "1468273a8e0b68334e87384ad577787209e809dd27e9f55e8488935749ff79de",
+      "src/test/java/dev/jayms/SpecialBuildingsTest.java": "8e432444372e0f0fdd54b0e110def64f2aaca95bc144f5d933cdadd899511402"
+    },
+    "baseProgressEntriesPreserved": 37
+  },
+  "resume": "Inspect existing build result before starting any new verification. Controller must stage and continue rebase."
+}

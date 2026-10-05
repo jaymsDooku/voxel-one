@@ -1,0 +1,120 @@
+{
+  "date": "2026-10-05",
+  "checkpointHead": "a5d3b61f8e0cb46193c64296e19265b5144da72a",
+  "change": "Exchange graduate and support wage offers now use bounded square-root supply/demand pressure. Treasury pays actual quotes. Hiring and job reviews check treasury funds, compare offers and enforce three analyst / one support positions. Farm assignments remain protected. Total office capacity remains four when a support worker graduates.",
+  "compatibility": "Both local master 93a32e40aae2720502270f89cedc6d752a881068 and reviewed base a3c1513221c227435ee1cbddc2162d16e916b9d4 are ancestors of checkpoint HEAD. No remote fetch performed.",
+  "environment": "Linux amd64; Java 25.0.3; Maven 3.9.11 offline worktree cache; Mesa surfaceless EGL 1.5; native UI at 1280x720.",
+  "testCommands": [
+    "/tmp/apache-maven-3.9.11/bin/mvn -o --batch-mode -Dmaven.repo.local=target/market-build-cache/m2 '-DargLine=-Djava.io.tmpdir=target/build-tmp' -Dtest=ExchangeLabourMarketTest,MarketEconomyTest,CityCapitalTest,CapitalDashboardTest,SpecialBuildingsTest test",
+    "/tmp/apache-maven-3.9.11/bin/mvn -o --batch-mode -Dmaven.repo.local=target/market-build-cache/m2 '-DargLine=-Djava.io.tmpdir=target/build-tmp' -Dtest=CityEconomyTest,CityMaterialsTest,CityBusinessTest,AgricultureTest,ManufacturingTest test",
+    "python3 deploy/run_market_playtest.py dashboard/evidence target/market-build-cache/m2",
+    "git diff --check",
+    "python3 -m py_compile deploy/run_market_playtest.py",
+    "/tmp/apache-maven-3.9.11/bin/mvn -o --batch-mode -Dmaven.repo.local=target/market-build-cache/m2 '-DargLine=-Djava.io.tmpdir=target/build-tmp' -Dtest=ManufacturingTest test",
+    "/tmp/apache-maven-3.9.11/bin/mvn -o --batch-mode -Dmaven.repo.local=target/market-build-cache/m2 '-DargLine=-Djava.io.tmpdir=target/build-tmp' -Dtest=CityMaterialsTest,CityEconomyTest,CityBusinessTest test",
+    "/tmp/apache-maven-3.9.11/bin/mvn -o --batch-mode -Dmaven.repo.local=target/market-build-cache/m2 '-DargLine=-Djava.io.tmpdir=target/build-tmp' -Dtest=AgricultureTest test"
+  ],
+  "focusedTests": {
+    "result": "PASS",
+    "tests": 39,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "suites": {
+      "ExchangeLabourMarketTest": 6,
+      "MarketEconomyTest": 13,
+      "CityCapitalTest": 11,
+      "CapitalDashboardTest": 3,
+      "SpecialBuildingsTest": 6
+    }
+  },
+  "playtest": {
+    "result": "PASS",
+    "type": "Automated native application component playtest using actual CitySimulation, BuildingInfo, BusinessDashboard, Overlay and click handlers, with synthetic city state. Not a full Main client walkthrough. Browser playtesting does not apply to this Java/LWJGL desktop game.",
+    "steps": [
+      "Build exchange through CityCommand.EXCHANGE; staff its offices using synthetic eligible workers, click inspector Overview, advance .11 seconds and capture.",
+      "Treasury-funded market payroll assertion reconciles expected hourly quotes with actual treasury debit, without debiting private company balances.",
+      "Set treasury to zero and advance .11 seconds; assert trading closed and capture. With no funded private vacancies, unpaid staff may remain assigned but receive no wages.",
+      "Exercise actual quote response to qualified labour supply and exchange removal; hiring tests reject unqualified analyst applicants, limit role capacity, move paid workers to better funded private offers, and let unpaid workers take funded vacancies without forced rehiring. A newly graduated support worker does not cause a fifth worker to be hired.",
+      "Run prior cheapest-meal/material and local-stock regression playtest again; click Commercial filter and shop rows; capture fresh business screenshots."
+    ],
+    "expected": "Wages vary with role supply and demand; treasury alone funds exchange payroll; qualified funded staff open trading; zero treasury closes trading; role limits and market job choice hold; prior goods purchasing remains correct.",
+    "observed": "All playtest assertions passed. Paid image shows analyst $2.415/hour and support $0.849/hour, treasury $9399.984, Graduate staff 3 / 4 and OPEN. Unfunded image shows treasury $0.000 and CLOSED. Food purchase remains four portions with sixteen aggregate portions left; low-stock sale remains rejected.",
+    "annotation": "Playtest captions display live quote, treasury and operational values from the tested simulation; they are harness annotations, not new product UI."
+  },
+  "initialFailures": [
+    "Initial new test compile used private config field; corrected to public config().",
+    "Demolition expectation used wrong capitalization; corrected to actual response.",
+    "Initial unpaid-worker fixture expected all four office workers to find jobs despite limited funded private vacancies; corrected to exercise available vacancies and verify no unfunded rehiring. No failed attempt is counted as passed.",
+    "Supporting-suite combined run exited 143 during ManufacturingTest before any suite completed; rerunning smaller batches. No result counted for interrupted batch."
+  ],
+  "sourceHashes": {
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "a0f693a764781c6cff7f12c8eaf50110c177d1f16be0d614c06f23f05d1bb503",
+    "src/test/java/dev/jayms/ExchangeLabourMarketTest.java": "bd2a746628bc614abcb749b322d766d2c7a4a37254450e748b912b034dc7ff63",
+    "deploy/MarketPlaytest.java": "b5f7098218f349ba24c37966a27bfd0e4a5517009eb228002f0311f8f8b7f516",
+    "deploy/run_market_playtest.py": "f2da13ed9fde99696d9b8ee434d25e1c3d2bd0978d7ef28ff007b599d7eae151"
+  },
+  "media": [
+    {
+      "file": "market-exchange-paid.png",
+      "bytes": 21544,
+      "sha256": "eeb3e9994fed14730498c6f1f7625e1f01b7c7abaf82ad56e3011b3411688544",
+      "publication": "Pending controller publication on assigned feature branch; captured from this implementation; visually inspected.",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33643431663362342d363034302d346465632d393638662d306463653965366335303339/dashboard/evidence/market-exchange-paid.png"
+    },
+    {
+      "file": "market-exchange-unfunded.png",
+      "bytes": 21522,
+      "sha256": "3be24d53f8a6c3fc4791c7cedb15d2c42731ac9b318529746da72026f77ae5bd",
+      "publication": "Pending controller publication on assigned feature branch; captured from this implementation; visually inspected.",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33643431663362342d363034302d346465632d393638662d306463653965366335303339/dashboard/evidence/market-exchange-unfunded.png"
+    }
+  ],
+  "publication": "Runner owns staging, commit, push, PR and merge. Independent reviewer must verify exact submitted source and published media. No commit, push, merge or deployment by developer.",
+  "supportingTests": {
+    "ManufacturingTest": {
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "result": "BUILD SUCCESS"
+    },
+    "CityMaterialsTest": {
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "result": "BUILD SUCCESS"
+    },
+    "CityEconomyTest": {
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "result": "BUILD SUCCESS"
+    },
+    "CityBusinessTest": {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "result": "BUILD SUCCESS"
+    },
+    "AgricultureTest": {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "result": "BUILD SUCCESS",
+      "suiteSeconds": 167.5
+    }
+  },
+  "checks": [
+    "git diff --check passed",
+    "python3 -m py_compile deploy/run_market_playtest.py passed",
+    "git merge-base --is-ancestor master HEAD passed",
+    "git merge-base --is-ancestor a3c1513221c227435ee1cbddc2162d16e916b9d4 HEAD passed"
+  ],
+  "totalCompletedTests": 83,
+  "supportingResult": "All 44 supporting tests passed on this correction. The interrupted combined batch contributes no result; successful smaller batches replace it."
+}

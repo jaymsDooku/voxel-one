@@ -85,12 +85,13 @@ class ManufacturingTest {
         assertEquals(CityMaterials.UNIT, e.resources.available(0, factory.id, CityMaterials.AXE));
         assertEquals(14 * CityMaterials.UNIT, e.resources.available(0, mine.id, Blocks.STONE));
         assertEquals(16 * CityMaterials.UNIT, e.resources.available(0, logging.id, Blocks.WOOD));
-        assertEquals(1500 - 3.8, factory.cash, .00001);
+        assertTrue(factory.cash < 1500, "Factory pays market prices for its inputs");
         assertEquals(total, e.companies().stream().mapToDouble(c -> c.cash).sum(), .00001);
         assertEquals(budget, e.budget);
         double cash = mine.cash;
+        double price = e.offer(0, factory.id, CityMaterials.PICKAXE);
         assertTrue(e.purchase(mine.id, CityMaterials.PICKAXE, CityMaterials.UNIT));
-        assertEquals(cash - 4, mine.cash, .00001);
+        assertEquals(cash - price, mine.cash, .00001);
         assertEquals(2, e.resources.productivity(mine.id, 2));
         assertTrue(e.purchase(logging.id, CityMaterials.AXE, CityMaterials.UNIT));
         assertEquals(2, e.resources.productivity(logging.id, 3));

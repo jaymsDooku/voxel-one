@@ -1,0 +1,96 @@
+{
+  "date": "2026-10-05",
+  "checkpointHead": "38ba352e4b54700d0ad8c11194fa105154f93e95",
+  "change": "Shop restocking ranks actual eligible affordable supplier offers per unit of nutrition across substitute foods, rechecks after each whole portion and stops at the shared inventory target. Generic material purchasing retains its seller exclusions through a shared maySell helper.",
+  "environment": "Linux amd64 6.1.0-50-cloud-amd64; Java 25.0.3; Maven 3.9.11; offline assigned-worktree dependency cache; Mesa surfaceless EGL 1.5; actual native UI at 1280x720.",
+  "commands": [
+    "/tmp/apache-maven-3.9.11/bin/mvn -o --batch-mode -Dmaven.repo.local=target/market-build-cache/m2 '-DargLine=-Djava.io.tmpdir=target/build-tmp' -Dtest=ShopRestockMarketTest test > target/restock-before-tests.txt 2>&1",
+    "/tmp/apache-maven-3.9.11/bin/mvn -o --batch-mode -Dmaven.repo.local=target/market-build-cache/m2 '-DargLine=-Djava.io.tmpdir=target/build-tmp' -Dtest=ShopRestockMarketTest,MarketEconomyTest,ExchangeLabourMarketTest,CityCapitalTest test > target/restock-fixed-tests.txt 2>&1",
+    "/tmp/apache-maven-3.9.11/bin/mvn -o --batch-mode -Dmaven.repo.local=target/market-build-cache/m2 '-DargLine=-Djava.io.tmpdir=target/build-tmp' -Dtest=CityEconomyTest,CityMaterialsTest,CityBusinessTest,ManufacturingTest test > target/restock-support-tests.txt 2>&1",
+    "/tmp/apache-maven-3.9.11/bin/mvn -o --batch-mode -Dmaven.repo.local=target/market-build-cache/m2 '-DargLine=-Djava.io.tmpdir=target/build-tmp' -Dtest=AgricultureTest test > target/restock-agriculture-tests.txt 2>&1",
+    "python3 deploy/run_market_playtest.py dashboard/evidence target/market-build-cache/m2 > target/restock-playtest.txt 2>&1",
+    "git diff --check",
+    "python3 -m py_compile deploy/run_market_playtest.py",
+    "git merge-base --is-ancestor master HEAD"
+  ],
+  "focusedTests": {
+    "tests": 34,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "result": "BUILD SUCCESS",
+    "suites": {
+      "ShopRestockMarketTest": 4,
+      "MarketEconomyTest": 13,
+      "ExchangeLabourMarketTest": 6,
+      "CityCapitalTest": 11
+    }
+  },
+  "supportingTests": {
+    "tests": 36,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "result": "BUILD SUCCESS",
+    "suites": {
+      "CityEconomyTest": 7,
+      "CityMaterialsTest": 13,
+      "CityBusinessTest": 9,
+      "ManufacturingTest": 7
+    }
+  },
+  "agricultureResult": {
+    "tests": 8,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "result": "BUILD SUCCESS",
+    "suiteSeconds": 128.4
+  },
+  "beforeFix": "All three initial restock regressions failed on checkpoint production code: reversed offer fixture acquired A=16/B=0; depletion fixture acquired four A portions before B; unaffordable fixture spent cash on unusable partial stock.",
+  "testCorrection": "First depletion assertion expected A=1/B=15. Actual global market supply includes buyer inventory, so transfer does not reduce aggregate supply; seller discount changes made the actual switch occur after two A portions. Corrected expectation to A=2/B=14; no production change for that correction.",
+  "playtest": {
+    "command": "python3 deploy/run_market_playtest.py dashboard/evidence target/market-build-cache/m2",
+    "result": "PASS",
+    "scope": "Automated native application component playtest with synthetic CitySimulation fixtures, actual advance(.11), BuildingInfo Inventory tab click, BusinessDashboard clicks and engine Overlay. Not a full Main client walkthrough. Browser playtesting does not apply to this Java/LWJGL desktop game.",
+    "steps": [
+      "Create equal-nutrition substitute foods whose reference price favours A while eligible seller offers favour B. Advance actual simulation .11 seconds. Click the shop inspector Inventory tab and capture.",
+      "Create empty A supply and B supply with shop cash $0.50. Advance .11 seconds, click Inventory and capture.",
+      "Execute reversed-order regression, dynamic supplier-price recheck, insufficient cash/empty stock and nutrition-value assertions. Check excluded developer supply and total company cash conservation.",
+      "Rerun existing meal purchase, local stock, supplier partial-fill, exchange payroll, skill, job choice and unfunded closure playtests."
+    ],
+    "expected": "Choose B=16/A=0 for reversed offers; limited shop buys two whole B portions without an overdraft. Changing seller quotes trigger substitute selection; higher nutrition can justify a higher portion price.",
+    "observed": "All assertions passed. Native Inventory UI shows Meal B: 16 and no A in first capture. Budget capture shows Meal B: 2 and cash $0.025. Both fresh images visually inspected. Existing goods and exchange playtests passed.",
+    "annotation": "Top captions display live synthetic shop inventory and cash. They are harness annotations, not new product UI."
+  },
+  "sourceHashes": {
+    "src/main/java/dev/jayms/net/city/CityEconomy.java": "fb6b0d81d8684f506d9991594335bc3916d94089d9b7f5333581792dfed055b4",
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "280114db5cce164d20250ee9a0d5fab44de812a0c1d8dc591058c96c270e461e",
+    "src/test/java/dev/jayms/ShopRestockMarketTest.java": "fd2cb8090b1647f5e2205f581205aa8d19ae613488e9555852b3da0c6d7e56bb",
+    "deploy/MarketPlaytest.java": "a7f33b826fa5c09a85cd2add2cba0708a751bdb52fea6c7732bbe9dca7d3f5c2"
+  },
+  "media": [
+    {
+      "file": "market-restock-budget-edge.png",
+      "sha256": "f50540821006e911f94f93bb30ce927ec581ba8624642b3ddde1bc9aaaab14ed",
+      "bytes": 19993,
+      "publication": "Pending controller publication on assigned feature branch; fresh implementation capture; visually inspected.",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33643431663362342d363034302d346465632d393638662d306463653965366335303339/dashboard/evidence/market-restock-budget-edge.png"
+    },
+    {
+      "file": "market-restock-cheapest-offer.png",
+      "sha256": "295c372d8e72d221ef50a74c27226a96ae9f576113c213bcd4ca9bb03afcf573",
+      "bytes": 20063,
+      "publication": "Pending controller publication on assigned feature branch; fresh implementation capture; visually inspected.",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33643431663362342d363034302d346465632d393638662d306463653965366335303339/dashboard/evidence/market-restock-cheapest-offer.png"
+    }
+  ],
+  "compatibility": "Local master 93a32e40aae2720502270f89cedc6d752a881068 is an ancestor of checkpoint HEAD. No remote fetch performed.",
+  "publication": "Runner owns staging, commit, push, PR and merge. No developer commit, push, merge or deployment. Independent review must exercise the exact submitted head and verify published media.",
+  "totalCompletedTests": 78,
+  "checks": [
+    "git diff --check passed",
+    "python3 -m py_compile deploy/run_market_playtest.py passed",
+    "git merge-base --is-ancestor master HEAD passed"
+  ]
+}

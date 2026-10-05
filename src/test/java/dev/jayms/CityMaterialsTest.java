@@ -87,7 +87,7 @@ class CityMaterialsTest {
         var plot = e.buyPlot(1, 0, 12, 30, 28);
         assertNotNull(plot);
         assertEquals(developer.id, plot.developer());
-        assertEquals(16, developer.cash);
+        assertEquals(40 - plot.landPrice(), developer.cash, 1e-8);
         assertTrue(e.resources.reserve(plot));
     }
 
@@ -141,9 +141,10 @@ class CityMaterialsTest {
         float cash = s.ecs.get(citizen, CitySimulation.Needs.class).money;
         e.resources.add(0, f.id, Blocks.WOOD, CityMaterials.UNIT);
         double businessCash = f.cash;
+        double price = e.offer(0, f.id, Blocks.WOOD);
         assertTrue(e.trade(0, f.id, 1, citizen, Blocks.WOOD, CityMaterials.UNIT));
-        assertEquals(cash - .5, s.ecs.get(citizen, CitySimulation.Needs.class).money);
-        assertEquals(businessCash + .5, f.cash);
+        assertEquals(cash - price, s.ecs.get(citizen, CitySimulation.Needs.class).money, 1e-5);
+        assertEquals(businessCash + price, f.cash, 1e-8);
         assertEquals(CityMaterials.UNIT, e.resources.available(1, citizen, Blocks.WOOD));
         assertEquals(0, e.resources.available(0, f.id, Blocks.WOOD));
     }
