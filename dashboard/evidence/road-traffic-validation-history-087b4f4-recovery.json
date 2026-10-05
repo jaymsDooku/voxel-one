@@ -1,0 +1,25 @@
+{
+  "status": "controller_recovery_required",
+  "updatedAt": "2026-10-07T13:10:35.365202+00:00",
+  "recoveryHead": "087b4f4acc3e11558021f6d4d4c04e2545699a3b",
+  "reviewBase": "6770d9b9fd0f2bf56674e5cf5ab77f499f5f71c5",
+  "resolvedWorkingFiles": [
+    "TRAFFIC_CHECKPOINT.md",
+    "dashboard/progress.json"
+  ],
+  "environment": "Linux; assigned feature worktree; Python 3 and read-only Git inspection.",
+  "checks": [
+    "Both complete stage checkpoint histories verified as ordered subsequences.",
+    "Progress JSON parses, IDs unique, unrelated current-base milestones and metadata unchanged.",
+    "All evidence URLs from both stages retained; working markers absent.",
+    "git diff --check passed.",
+    "git diff --name-only --diff-filter=D 6770d9b9fd0f2bf56674e5cf5ab77f499f5f71c5 returned no files."
+  ],
+  "protectedBaseSource": {
+    "src/main/java/dev/jayms/Main.java": true,
+    "src/main/java/dev/jayms/player/Jeep.java": true
+  },
+  "intendedDeletions": "None.",
+  "playtest": "No new native or browser playtest during text/JSON conflict resolution. Final-head game checks and fresh native media follow controller continuation. Previous execution evidence is historical.",
+  "handoff": "Controller stages and continues; developer did not mutate Git index/history or publish. No owner answer needed."
+}

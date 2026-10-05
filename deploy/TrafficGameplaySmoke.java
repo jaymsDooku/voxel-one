@@ -84,12 +84,33 @@ public class TrafficGameplaySmoke {
             p.x = 100;
             p.z = 100;
         }
+        var traffic = new RoadTraffic(city.frame().addresses().streets());
+        var forward = List.of(new Polygon.Cell(0, 24), new Polygon.Cell(1, 24));
+        var reverse = List.of(new Polygon.Cell(1, 24), new Polygon.Cell(0, 24));
+        float forwardZ = traffic.lanes(forward, mounted).get(0).z();
+        float reverseZ = traffic.lanes(reverse, mounted).get(0).z();
+        require(
+                Math.abs(forwardZ - (mounted ? 25f : 25.75f)) < .001,
+                "Derived forward lane has the required carriageway/pavement side");
+        require(
+                Math.abs(reverseZ - (mounted ? 24f : 23.25f)) < .001,
+                "Derived reverse lane has the required carriageway/pavement side");
+        var world = (World) get("world");
+        int grade = city.frame().roads().get(0).y();
+        for (int half = 0; half < 6; half++) {
+            int expected = half == 0 || half == 5 ? Blocks.STONE : Blocks.DIRT;
+            require(
+                    world.region(Protocol.Edit.at(0, grade + .5, 23 + half * .5, 0, 1))
+                            == Blocks.piece(expected, 1),
+                    "Actual road has two one-metre dirt lanes and one half-metre pavement per"
+                        + " side");
+        }
         float gap = mounted ? .65f : .5f;
         for (int i = 0; i < 4; i++) {
             int id = ids.get(i);
             var p = city.ecs.get(id, CitySimulation.Position.class);
             p.x = i == 3 ? 4.5f : 1.5f - i * (mounted ? 1f : .65f);
-            p.z = mounted ? (i == 3 ? 24f : 25f) : (i == 3 ? 23.25f : 25.75f);
+            p.z = i == 3 ? reverseZ : forwardZ;
             p.y = city.frame().roads().get(0).y() + 1.01f;
             p.yaw = i == 3 ? 180 : 0;
             var t = city.ecs.get(id, CitySimulation.Travel.class);
@@ -309,8 +330,10 @@ public class TrafficGameplaySmoke {
                                             + " resume\",\"opposite lane remains"
                                             + " free\",\"single-file spacing\",\"no"
                                             + " overtaking\",\"directional lanes"
-                                            + " retained\",\"routes retained\",\"crossing yields"
-                                            + " and drains in both update orders\"]}\n");
+                                            + " retained\",\"routes retained\",\"actual"
+                                            + " dirt/pavement geometry and derived lane"
+                                            + " sides\",\"crossing yields and drains in both update"
+                                            + " orders\"]}\n");
                             } catch (Throwable e) {
                                 failure = e;
                             } finally {

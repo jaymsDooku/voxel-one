@@ -1,0 +1,14 @@
+{
+  "timestamp": "2026-10-05T19:49:28.254103+00:00",
+  "phase": "controller rebase continuation required",
+  "protected_base": "431ff142666f791c4323882075834f3390685153",
+  "exact_base_file_count": 53,
+  "market_regions_match": true,
+  "historical_media_match": true,
+  "base_evidence_removed_or_modified": false,
+  "checks": [
+    "JSON integrity and unique IDs",
+    "working-file conflict markers absent"
+  ],
+  "tests": "No new tests or gameplay during pending rebase. Final-head combined tests and fresh native media required."
+}

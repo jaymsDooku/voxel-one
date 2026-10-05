@@ -342,3 +342,30 @@ Both checkpoint histories retained; progress conflict resolved. 93 protected bas
 Resolved both working documentation conflicts. Both full index-stage checkpoint histories are retained as verified ordered subsequences. Progress JSON parses; IDs are unique; unrelated current-base milestones/metadata and all incoming evidence URLs remain. Working markers absent; git diff --check passes. No file deletions against 6770d9b9fd0f2bf56674e5cf5ab77f499f5f71c5. Main.java and Jeep.java remain byte-exact that review base. Report: dashboard/evidence/road-traffic-next-documentation-6770-recovery.json.
 
 Controller must stage and continue before final-head source audit, regression checks and fresh native media. Index remains unmerged for that handoff. Historical validation does not establish readiness on the resulting source. No new test/playtest pass claimed, no owner answer needed, and no developer staging, continuation, abort, reset, commit, push or publication.
+
+
+## Retained incoming validation variant (historical)
+
+## Retained incoming validation history (historical)
+
+## Historical validation before reviewer corrections
+
+## Final recovered-head validation complete
+
+Controller completed recovery on feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637 at 82218f2cc90b2c3e6b88b7302c5c95a5f4e0616c. No unmerged index or pending rebase remains. Production source and existing test hashes match recorded native validation. Final combined Linux run including multiplayer passed 155 tests, zero failures/errors/skips. Native Main GLFW/F10 playtest passed after recovery. Enhanced smoke asserts actual stone/dirt half-cell geometry and derives both carriageway/pavement directions from saved street topology. Pedestrian/horse queues wait and resume, reverse flow remains free, spacing/no-overtaking hold, and crossings drain in both update orders.
+
+Fresh media use final-head-82218f2- prefixes. Eight native screenshots and three F10 clips saved; all clips below 6 MB, with first/middle/last frames decoded and inspected. Prior 11 native artifacts remain unchanged. Reports: dashboard/evidence/road-traffic-final-head-validation.json and dashboard/evidence/final-head-82218f2-road-traffic-native-gameplay.json. Exact commands, environment, expected/observed steps, source/media hashes and intended feature-branch HTTPS publication URLs are recorded. Software rendering near 2–3 FPS is not a benchmark. No current Windows/macOS pass claimed.
+
+Ready for independent review with question:null. Runner stages/commits/pushes local smoke-tool/evidence/progress edits and runs required CI; independent reviewer exercises the exact submitted source and verifies published media. No developer staging, commit, push, merge, deployment, abort or reset. All historical recovery notes remain preserved. Helper coverage findings were inspected and applied to native geometry assertions; helper task closed, with no delegated execution claims.
+
+## Current reviewer-correction recovery handoff
+
+Both documentation histories retained. Incoming readiness belongs to historical 82218f2 validation only. Current rebase still needs controller staging and continuation. All 53 protected base files and market regions match; original videos and base evidence preserved. Run combined market/traffic/multiplayer and packaged website checks, then fresh native gameplay/media after recovery. Report: dashboard/evidence/road-traffic-market-final-documentation-handoff.json. No new execution pass claimed.
+
+## Legacy validation-history recovery handoff
+
+Both append histories retained and progress timestamp resolved. 93 protected networking/website/compatibility/market files match current base. Historical media hashes and base evidence intact. Controller stages and continues before final-head compatibility/multiplayer/native workflow checks and fresh media. Prior readiness is historical. Report: dashboard/evidence/road-traffic-legacy-validation-history-handoff.json. No new execution pass claimed.
+
+## Validation-history recovery — controller continuation required
+
+Both full checkpoint stage histories and all progress evidence are retained. JSON/unique-ID/marker checks pass. Unrelated base milestones and metadata remain unchanged. No files deleted against 6770d9b9fd0f2bf56674e5cf5ab77f499f5f71c5. Main.java and Jeep.java match that base. Controller stages and continues the preserved rebase before final-head audit, regression checks and fresh native media. Prior validation is historical; no new tests/playtest claimed. No developer staging, continuation, abort, reset, commit, push or publication. No owner answer needed. Report: dashboard/evidence/road-traffic-validation-history-087b4f4-recovery.json.

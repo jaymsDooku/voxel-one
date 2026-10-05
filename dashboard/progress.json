@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T13:08:15.328140+00:00",
+  "updatedAt": "2026-10-07T13:10:35.365202+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -3008,11 +3008,31 @@
           "kind": "video",
           "label": "Native crossing regression F10 \u2014 pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/road-traffic-game-crossing.mp4"
+        },
+        {
+          "kind": "report",
+          "label": "Final recovered-head validation \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/road-traffic-final-head-validation.json"
+        },
+        {
+          "kind": "video",
+          "label": "Fresh native pedestrians F10 \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/final-head-82218f2-road-traffic-game-pedestrians.mp4"
+        },
+        {
+          "kind": "video",
+          "label": "Fresh native horses F10 \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/final-head-82218f2-road-traffic-game-horses.mp4"
+        },
+        {
+          "kind": "video",
+          "label": "Fresh native crossing F10 \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/final-head-82218f2-road-traffic-game-crossing.mp4"
         }
       ],
       "status": "in_progress",
-      "note": "Next documentation conflict resolved. Both complete histories, current base milestones and evidence remain preserved. Controller stages and continues before final-head source audit, regression tests and fresh native media. Earlier validation is historical.",
-      "updatedAt": "2026-10-07T13:08:15.328140+00:00"
+      "note": "Validation-history conflicts resolved. Both complete histories, current base milestones and evidence remain preserved. Controller stages and continues before final-head source audit, regression tests and fresh native media. Prior validation is historical.",
+      "updatedAt": "2026-10-07T13:10:35.365202+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

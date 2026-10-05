@@ -3,7 +3,13 @@ All state and private output stay in this worktree's target/. Only sanitized cap
 and a small assertion report are copied to dashboard/evidence/ after successful checks.
 """
 from pathlib import Path
-import os, subprocess, time, shutil
+import os, subprocess, time, shutil, argparse, re
+parser = argparse.ArgumentParser()
+parser.add_argument('--artifact-prefix', default='')
+args = parser.parse_args()
+prefix = args.artifact_prefix
+if not re.fullmatch(r'[A-Za-z0-9-]*', prefix):
+    parser.error('artifact prefix must contain only letters, digits or hyphens')
 root = Path(__file__).resolve().parents[1]
 os.chdir(root)
 java = Path('/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin')
@@ -16,7 +22,7 @@ classpath = 'target/classes:target/traffic-gameplay:' + ':'.join(
     str(p) for p in Path('/tmp/voxel-m2').rglob('*.jar') if 'natives-windows' not in p.name)
 subprocess.run([str(java / 'javac'), '-cp', classpath, '-d', 'target/traffic-gameplay',
                 'deploy/TrafficGameplaySmoke.java'], check=True)
-out = root / 'target/traffic-gameplay/captures'
+out = root / ('target/traffic-gameplay/captures-' + prefix if prefix else 'target/traffic-gameplay/captures')
 out.mkdir(exist_ok=True)
 (out / 'results.json').unlink(missing_ok=True)
 for generated_save in out.glob('synthetic-world.dat*'):
@@ -36,14 +42,14 @@ with open('target/traffic-x11-private.txt','w') as display_log, open('target/tra
         result = engine.wait(timeout=150)
         print('Native gameplay harness exit:',result)
         if result: raise SystemExit(result)
-        for p in out.glob('road-traffic-game-*.png'): shutil.copyfile(p,root/'dashboard/evidence'/p.name)
-        shutil.copyfile(out/'results.json',root/'dashboard/evidence/road-traffic-native-gameplay.json')
+        for p in out.glob('road-traffic-game-*.png'): shutil.copyfile(p,root/'dashboard/evidence'/(prefix+p.name))
+        shutil.copyfile(out/'results.json',root/'dashboard/evidence'/(prefix+'road-traffic-native-gameplay.json'))
         videos = sorted((root/'target/traffic-home/.voxel-one/recordings').glob('*.mp4'), key=lambda p:p.stat().st_mtime)
         if len(videos) < 3: raise RuntimeError('All three F10 recordings required')
         for p, name in zip(videos[-3:], ('road-traffic-game-pedestrians.mp4','road-traffic-game-horses.mp4','road-traffic-game-crossing.mp4')):
             if p.stat().st_size >= 6*1024*1024: raise RuntimeError('F10 artifact exceeds 6 MB')
-            shutil.copyfile(p,root/'dashboard/evidence'/name)
-        print('Published locally: eight screenshots, three production F10 clips, one assertion report')
+            shutil.copyfile(p,root/'dashboard/evidence'/(prefix+name))
+        print('Saved locally: eight screenshots, three production F10 clips, one assertion report')
     finally:
         if engine is not None and engine.poll() is None: engine.kill();engine.wait()
         server.terminate();server.wait()
