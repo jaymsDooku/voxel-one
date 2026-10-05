@@ -1,0 +1,10 @@
+{
+  "status": "working files resolved; controller stages and continues",
+  "resolution": "Preserved stage-2 base progress entries; merged traffic historical evidence without claiming readiness.",
+  "checks": [
+    "Progress JSON parses",
+    "Conflict markers absent",
+    "No staged deletions"
+  ],
+  "playtest": "Not run in this documentation-only rebase handoff. Remaining lane integration and final-head tests/media are pending."
+}

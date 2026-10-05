@@ -369,3 +369,21 @@ Both append histories retained and progress timestamp resolved. 93 protected net
 ## Validation-history recovery — controller continuation required
 
 Both full checkpoint stage histories and all progress evidence are retained. JSON/unique-ID/marker checks pass. Unrelated base milestones and metadata remain unchanged. No files deleted against 6770d9b9fd0f2bf56674e5cf5ab77f499f5f71c5. Main.java and Jeep.java match that base. Controller stages and continues the preserved rebase before final-head audit, regression checks and fresh native media. Prior validation is historical; no new tests/playtest claimed. No developer staging, continuation, abort, reset, commit, push or publication. No owner answer needed. Report: dashboard/evidence/road-traffic-validation-history-087b4f4-recovery.json.
+
+
+## Retained incoming final-history variant (historical)
+
+## Historical market validation before legacy recovery
+
+## Reviewer corrections verified on recovered b6da37c
+
+All 178 combined game tests passed with zero failures/errors/skips, including multiplayer and MarketEconomyTest, ExchangeLabourMarketTest and ShopRestockMarketTest. All 10 Node website tests passed, including actual packaged general-progress worker integration and anonymous rejection. Fresh Main Xvfb/Mesa gameplay passed requested lanes/geometry, pedestrian/horse congestion release, spacing and both crossing orders. Eight screenshots and three F10 clips preserved with market-b6da37c- prefix; all under 6 MB, first/middle/last frames decoded and visually inspected. 53 protected reviewed-base files and market regions match exactly; historical evidence retained. Source/media hashes rechecked. Exact commands, environment and observed results: dashboard/evidence/road-traffic-market-final-validation.json. No current Windows/macOS CI pass claimed. Ready for independent review; controller publishes and reviewer verifies exact head/media. All helper tasks resolved; no delegated execution claimed. No developer Git writes or deployment.
+
+## Current legacy recovery final-history handoff
+
+Resolved two working-file conflicts. Both histories preserved; earlier 178-test readiness is historical. 93 protected files match current base; legacy negotiation/decoding/generator fallback/command guards and ProtocolCompatibilityTest retained. Market media hashes and base evidence intact. Controller stages/continues before final-head tests and fresh workflow/media. Report: dashboard/evidence/road-traffic-legacy-final-history-handoff.json. No new tests or playtest claimed; no developer Git mutation.
+
+
+## Final-history recovery — controller continuation required
+
+Both complete stage histories and all progress evidence are retained. Unique-ID, JSON and conflict-marker checks pass. Current base milestones remain unchanged. Main.java and Jeep.java match review base 6770d9b9fd0f2bf56674e5cf5ab77f499f5f71c5. No review-base files are deleted. Controller must stage these resolutions and continue the rebase before final-head regression tests and fresh native media. Earlier validation is historical. No new playtest or owner answer is needed for this handoff. Report: dashboard/evidence/road-traffic-final-history-cd59941-recovery.json.
