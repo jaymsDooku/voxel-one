@@ -76,6 +76,7 @@ public final class CitySimulation {
     private double elapsed, accumulator, nextBuild;
     private int zoneIds, buildingIds, grade;
     private long marketDay = -1;
+    private final Set<Integer> graduationReviews = new HashSet<>();
     private int marketBuildings = -1;
     private CityAddresses addresses = new CityAddresses(CityAddresses.empty());
     public final CityEconomy economy;
@@ -425,7 +426,7 @@ public final class CitySimulation {
         }
         lifeTick(dt);
         assign();
-        if (marketReview || hasUnpaidWorkers()) chooseJobs(marketReview);
+        if (marketReview || hasUnpaidWorkers() || !graduationReviews.isEmpty()) chooseJobs(marketReview);
         for (int id : ecs.query(Position.class, Household.class, Needs.class, Travel.class)) {
             var p = ecs.get(id, Position.class);
             var h = ecs.get(id, Household.class);
@@ -446,11 +447,11 @@ public final class CitySimulation {
                 continue;
             }
             boolean working = onShift(id, time);
-            float mealThreshold = working ? 65 : 85;
-            int mealShop = time.shopsOpen() && n.hunger < mealThreshold ? cheapestMeal(n, time) : 0;
-            boolean eating = mealShop != 0;
             var life = life(id);
             boolean studying = life.school != 0 && time.hour() >= 8 && time.hour() < 14;
+            float mealThreshold = working || studying ? 65 : 85;
+            int mealShop = time.shopsOpen() && n.hunger < mealThreshold ? cheapestMeal(n, time) : 0;
+            boolean eating = mealShop != 0;
             int target = eating ? mealShop : studying ? life.school : working && h.job != 0 ? h.job : h.home;
             if (target == 0) {
                 t.target = 0;
@@ -571,6 +572,7 @@ public final class CitySimulation {
                         default -> CitizenLife.Education.TECHNICAL;
                     };
                     life.study = 0; life.school = 0;
+                    if (life.adult()) graduationReviews.add(id);
                     if (life.education == CitizenLife.Education.UNIVERSITY) economy.capital.graduates.add(id);
                 }
             } else if (b.type() == SpecialBuildings.EXCHANGE && working && !eating) {
@@ -988,24 +990,32 @@ public final class CitySimulation {
                     && current.type() != SpecialBuildings.EXCHANGE) continue;
             int minimum = current != null && current.type() == 1 ? 2 : 1;
             boolean paid = canPayJob(h.job, id);
-            if (paid && (!reviewPaid || occupants(h.job, false) <= minimum
+            if (paid && !graduationReviews.contains(id) && (!reviewPaid || occupants(h.job, false) <= minimum
                     && (current == null || current.type() != SpecialBuildings.EXCHANGE))) continue;
             int best =
                     offers.keySet().stream()
                             .filter(job -> job != h.job && occupants(job, false) < offers.get(job))
                             .filter(job -> exchangeVacancy(job, id) && canPayJob(job, id))
                             .max(
-                                    Comparator.comparingDouble(
-                                                    (Integer job) -> jobRate(job, id))
+                                    Comparator.comparingInt((Integer job) -> graduationReviews.contains(id) ? careerRank(job, id) : 0)
+                                            .thenComparingDouble(job -> jobRate(job, id))
                                             .thenComparingInt(job -> -job))
                             .orElse(0);
-            if (best != 0 && (!paid || jobRate(best, id) > jobRate(h.job, id) * 1.2)) {
+            if (best != 0 && (!paid || graduationReviews.contains(id) && careerRank(best, id) > careerRank(h.job, id)
+                    || jobRate(best, id) > jobRate(h.job, id) * 1.2)) {
                 h.job = best;
                 var travel = ecs.get(id, Travel.class);
                 travel.target = -9999;
                 travel.route.clear();
             }
         }
+        graduationReviews.clear();
+    }
+
+    private int careerRank(int job, int citizen) {
+        var b = building(job);
+        if (b != null && (b.type() == SpecialBuildings.EXCHANGE || b.type() == 2 && life(citizen).education == CitizenLife.Education.TECHNICAL)) return 2;
+        return b != null && b.type() == 1 ? 1 : 0;
     }
 
     private void assignFarmers() {
@@ -1140,6 +1150,14 @@ public final class CitySimulation {
                     new Cell(
                             destination.x() + 2,
                             door < destination.z() ? destination.z() + 1 : destination.z() + 5));
+        if (SpecialBuildings.special(destination.type()) && destination.type() != SpecialBuildings.EXCHANGE) {
+            int kind = SpecialBuildings.kind(destination.type());
+            if (kind == 1 || kind == 2 || kind == 3 || kind == 5) {
+                // School desks occupy the side stations used by houses and shops.
+                t.route.add(new Cell(destination.x() + 2, destination.z() + 3));
+                return;
+            }
+        }
         t.route.add(new Cell(destination.x() + 2, destination.z() + 1 + (id / 4) % 2));
         t.route.add(new Cell(destination.x() + 1 + id % 4, destination.z() + 1 + (id / 4) % 2));
     }
@@ -1171,27 +1189,25 @@ public final class CitySimulation {
                 }
             }
         }
-        float speed = h.horse == 0 ? 2.2f : 5.5f;
-        var target = t.route.peek();
-        float dx = target.x() + .5f - p.x,
-                dz = target.z() + .5f - p.z,
-                dist = (float) Math.hypot(dx, dz);
-        float nx = dist < speed * dt ? target.x() + .5f : p.x + dx / dist * speed * dt,
-                nz = dist < speed * dt ? target.z() + .5f : p.z + dz / dist * speed * dt;
-        if (!passable(nx, nz)) {
-            t.activity = "Route obstructed";
-            t.target = -9999;
-            t.route.clear();
-            t.retryAt = elapsed + 2;
-            return;
-        }
-        if (dist < speed * dt) {
-            p.x = target.x() + .5f;
-            p.z = target.z() + .5f;
-            t.route.remove();
-        } else {
-            p.x += dx / dist * speed * dt;
-            p.z += dz / dist * speed * dt;
+        // Travel must keep pace with needs and schedules when the city clock is accelerated.
+        float speed = (float)((h.horse == 0 ? 2.2f : 5.5f) * 1200 / config.daySeconds());
+        float remaining = speed * dt, dx = 0, dz = 0;
+        // Consume the whole distance budget, including several cells on accelerated days.
+        // Small collision steps keep fast travel from crossing walls or furniture.
+        while (remaining > .0001f && !t.route.isEmpty()) {
+            var target = t.route.peek();
+            dx = target.x() + .5f - p.x; dz = target.z() + .5f - p.z;
+            float dist = (float)Math.hypot(dx, dz);
+            if (dist < .0001f) { t.route.remove(); continue; }
+            float movement = Math.min(Math.min(remaining, dist), .25f);
+            float nx = p.x + dx / dist * movement, nz = p.z + dz / dist * movement;
+            if (!passable(nx, nz)) {
+                t.activity = "Route obstructed"; t.target = -9999;
+                t.route.clear(); t.retryAt = elapsed + 2;
+                return;
+            }
+            p.x = nx; p.z = nz; remaining -= movement;
+            if (dist - movement < .0001f) t.route.remove();
         }
         p.y =
                 roads.getOrDefault(new Cell((int) Math.floor(p.x), (int) Math.floor(p.z)), grade)
@@ -1254,7 +1270,7 @@ public final class CitySimulation {
     private boolean passable(float x, float z) {
         float y = grade + 1.01f;
         for (var b : buildings)
-            if (x > b.x() && x < b.x() + 6 && z > b.z() && z < b.z() + 7) {
+            if (x >= b.x() && x < b.x() + 6 && z >= b.z() && z < b.z() + 7) {
                 y = b.y() + 1.01f;
                 break;
             }
