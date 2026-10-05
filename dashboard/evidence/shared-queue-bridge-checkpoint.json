@@ -69,5 +69,11 @@
     "Production publication and owner browser session not claimed.",
     "Real-upstream authentication check executed by controller; developer independently reran browser capture and matched package hashes."
   ],
-  "checkpoint": "Timestamp conflict contents resolved preserving all work-item history. Fresh capture inspected: live status and representative sanitized work items visible. Actual controller commands supplied. Runner must stage resolution and publish artifacts before independent review."
+  "checkpoint": "Timestamp conflict contents resolved preserving all work-item history. Fresh capture inspected: live status and representative sanitized work items visible. Actual controller commands supplied. Runner must stage resolution and publish artifacts before independent review.",
+  "priorCheckpoint": "Awaiting controller authenticated package check; synthetic tests alone did not prove live success. Superseded by shared-queue-controller-verified.json and fresh live-status capture.",
+  "reviewRequirements": [
+    "Capture must show live queue status and representative Voxel One items.",
+    "Record actual reproducible sanitized controller commands for real upstream playtest.",
+    "Independent reviewer must verify published media against submitted head."
+  ]
 }

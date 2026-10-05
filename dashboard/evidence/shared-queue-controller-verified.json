@@ -53,5 +53,18 @@
     ],
     "initialCaptureAttempt": "Failed with EROFS creating temporary browser files in /tmp; rerun passed with TMPDIR inside assigned worktree.",
     "limitations": "Developer did not rerun credentialed upstream command. Controller executed it; reproducible harness and sanitized result supplied. Production browser session and deployment not claimed."
+  },
+  "rebaseRecoveryVerification": {
+    "conflicts": "Retained newer task state and all other milestones. Retained older checkpoint/report as history. Binary media is the fresh live-status capture. Index still unmerged; controller stages and continues.",
+    "commands": [
+      "python3 deploy/build_site.py",
+      "node build.mjs (cwd website)",
+      "node --test website/test/*.test.mjs",
+      "node deploy/video-evidence-test.mjs",
+      "git diff --check",
+      "TMPDIR=\"$PWD/dashboard/evidence/.browser-tmp\" PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers /home/debian/.local/bin/node deploy/capture_shared_queue_controller.mjs"
+    ],
+    "results": "Builds passed; 10 bridge/package tests and 5 media tests passed. Browser capture exit 0: Chromium and 390px WebKit each rendered 49 items. Code hashes match controller report.",
+    "playtest": "Playtest: rebuilt development record displayed live shared queue state and 49 items using controller-fetched real projection. Phone-width edge passed in WebKit; fresh screenshot inspected. Auth rejection and unavailable/invalid snapshot regressions pass in local tests. Credentialed upstream check remains controller-executed."
   }
 }

@@ -1,0 +1,103 @@
+{
+  "status": "controller_package_verified_media_captured",
+  "implementationHead": "28d7fcc9b333abf2e5d33f4cce1ac5424cedba37",
+  "packageCodeSha256": {
+    "website/dist/server/index.js": "99dd2acca02e8525e302842244c50a163c549b1cfcb7d32a16be40daa48aedc9",
+    "website/dist/server/progress_bridge.mjs": "398156441300e433dfaf65e4b724938ba3758ef54a2a57d1b614498680dfe651",
+    "website/dist/client/progress.js": "2507d3dc232dc92ddae3b5e3defc5ed8ab0671eb71bf0d71a9de5dcf198165d1"
+  },
+  "operatorReportedDiagnostics": {
+    "provenance": "Sanitized controller results supplied for reviewed PR head; developer did not perform these authenticated checks.",
+    "testedHead": "28d7fcc9b333abf2e5d33f4cce1ac5424cedba37",
+    "environmentRevision": 1,
+    "bindingsRegistered": [
+      "GENERAL_DASHBOARD_AUTH",
+      "GENERAL_DASHBOARD_BRIDGE_KEY"
+    ],
+    "upstream": {
+      "httpStatus": 200,
+      "schemaVersion": 1,
+      "voxelItems": 49,
+      "bridgeRoleAccepted": true
+    },
+    "packagedRoute": {
+      "authentication": "Local authenticated fixture; real upstream",
+      "httpStatus": 200,
+      "project": "Voxel One",
+      "items": 49,
+      "allIdsMatchUpstream": true,
+      "noCredentialsInOutput": true
+    },
+    "browser": {
+      "chromiumItemsRendered": 49,
+      "webkit390pxItemsRendered": 49,
+      "sharedQueueLoadStateCorrect": true
+    },
+    "serviceBearerBrowserRouteStatus": 401,
+    "productionPublicationVerified": false,
+    "liveBrowserSessionVerified": false
+  },
+  "missingEvidence": [],
+  "controllerNextSteps": [
+    "Stage the resolved files and publish the implementation screenshot with the feature head through the runner.",
+    "Retain independent review before production publication."
+  ],
+  "localVerificationThisTurn": [
+    {
+      "command": "python3 deploy/build_site.py",
+      "exitCode": 0
+    },
+    {
+      "command": "node build.mjs (cwd website)",
+      "exitCode": 0
+    },
+    {
+      "command": "node --test website/test/*.test.mjs",
+      "exitCode": 0,
+      "result": "2 test files passed, 0 failed"
+    },
+    {
+      "command": "node deploy/video-evidence-test.mjs",
+      "exitCode": 0,
+      "result": "5 passed, 0 failed"
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0
+    },
+    {
+      "command": "Python JSON parsing, SHA-256 reviewed package comparison and packaged progress byte comparison",
+      "result": "All three reviewed code hashes match; both progress copies match; conflict JSON parses."
+    }
+  ],
+  "checkpoint": "Conflict contents resolved with both milestone histories retained. Controller supplied current implementation screenshot; publication pending runner. No production deployment claimed.",
+  "playtest": {
+    "entry": "Playtest: controller exercised the exact reviewed package with real scoped upstream data.",
+    "environment": "Controller local authenticated fixture, real General upstream, Chromium and 390px Safari-WebKit.",
+    "commands": "Controller invocation not supplied. Steps and observed results supplied by controller; developer did not execute browser commands.",
+    "requestedBehavior": {
+      "step": "Call packaged Voxel progress route and render development record.",
+      "expected": "Return and render the Voxel application items with live queue state.",
+      "observed": "HTTP 200, 49 matching IDs, all 49 rendered, shared queue state correct (controller reported)."
+    },
+    "edgeCase": {
+      "step": "Render at 390px phone width in Safari-WebKit.",
+      "expected": "Application work remains visible.",
+      "observed": "49 rendered (controller reported)."
+    },
+    "regression": {
+      "step": "Call browser-only progress route with owner service bearer.",
+      "expected": "Reject service bearer without browser identity.",
+      "observed": "HTTP 401 (controller reported)."
+    },
+    "media": {
+      "path": "dashboard/evidence/shared-queue-controller-webkit.png",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-66336630333365302d663833322d343535352d613434352d346261373363343964663936/dashboard/evidence/shared-queue-controller-webkit.png",
+      "publication": "pending controller publication",
+      "inspection": "Developer inspected supplied mobile capture; development record visible with 45 and 4 summary counts; no private data visible.",
+      "sha256": "95597a15c99238ea7abf84662bf4281a7709d1f4d1687f4cfef9076422f878bb"
+    }
+  },
+  "gitConflictState": "Worktree conflict markers resolved. Four index entries remain unmerged; controller must stage them. No stash, staging, rebase, commit or push operation performed.",
+  "historicalRecord": "Earlier controller report and header-only capture state; superseded by shared-queue-controller-verified.json and shared-queue-controller-playtest.md. Retained as history."
+}
