@@ -387,3 +387,15 @@ Resolved two working-file conflicts. Both histories preserved; earlier 178-test 
 ## Final-history recovery — controller continuation required
 
 Both complete stage histories and all progress evidence are retained. Unique-ID, JSON and conflict-marker checks pass. Current base milestones remain unchanged. Main.java and Jeep.java match review base 6770d9b9fd0f2bf56674e5cf5ab77f499f5f71c5. No review-base files are deleted. Controller must stage these resolutions and continue the rebase before final-head regression tests and fresh native media. Earlier validation is historical. No new playtest or owner answer is needed for this handoff. Report: dashboard/evidence/road-traffic-final-history-cd59941-recovery.json.
+
+
+## Retained incoming validation variant (historical)
+
+## Legacy reviewer corrections validated on4a2e0d7
+
+180 combined Maven tests passed, zero failures/errors/skips, including ProtocolCompatibilityTest and CityMultiplayerTest plus traffic/market/regressions. Actual legacy14/15 TLS login/register negotiation, frame decoding, generator fallback and command guards verified; shared roads latejoin/restart passed.10 website tests passed, including packaged route integration. Fresh native Main Xvfb/Mesa workflow passed geometry, directional lanes, pedestrian/horse queues and release, spacing and both crossing orders. Eight screenshots and three F10 clips with legacy-4a2e0d7- prefix; under6MB, all first/middle/last frames decoded and inspected. Source/media hashes verified. Exact commands/environment/steps/results: dashboard/evidence/road-traffic-legacy-final-validation.json. Historical evidence preserved. No current Windows/macOS CI pass claimed. Ready for independent review; runner publishes, reviewer verifies exact source and media. Helper task closed with self takeover; no delegated execution claimed. No developer Git writes or deployment.
+
+
+## Validation-history recovery — controller continuation required
+
+Both complete checkpoint histories and progress evidence are retained. Existing base milestones remain unchanged. Main.java and Jeep.java match review base 6770d9b9fd0f2bf56674e5cf5ab77f499f5f71c5. No review-base files are deleted. Earlier readiness is historical. Controller stages and continues before final-head regression tests and fresh native media. No new playtest or owner answer for this handoff. Report: dashboard/evidence/road-traffic-validation-history-fac878c-recovery.json.

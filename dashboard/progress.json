@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T13:13:30.804802+00:00",
+  "updatedAt": "2026-10-07T13:14:13.340099+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -3028,11 +3028,31 @@
           "kind": "video",
           "label": "Fresh native crossing F10 — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/final-head-82218f2-road-traffic-game-crossing.mp4"
+        },
+        {
+          "kind": "video",
+          "label": "Fresh legacy-recovered pedestrians F10 — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/legacy-4a2e0d7-road-traffic-game-pedestrians.mp4"
+        },
+        {
+          "kind": "video",
+          "label": "Fresh legacy-recovered horses F10 — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/legacy-4a2e0d7-road-traffic-game-horses.mp4"
+        },
+        {
+          "kind": "video",
+          "label": "Fresh legacy-recovered crossing F10 — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/legacy-4a2e0d7-road-traffic-game-crossing.mp4"
+        },
+        {
+          "kind": "report",
+          "label": "Legacy and traffic validation — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/road-traffic-legacy-final-validation.json"
         }
       ],
       "status": "in_progress",
-      "note": "Final-history conflicts resolved. Both complete histories, current base milestones and evidence preserved. Controller stages and continues before final-head audit, regression tests and fresh native media. Earlier validation is historical.",
-      "updatedAt": "2026-10-07T13:13:30.804802+00:00"
+      "note": "Validation-history conflicts resolved. Both full histories, current base milestones and evidence preserved. Earlier readiness is historical. Controller stages and continues before final-head audit, regression tests and fresh native media.",
+      "updatedAt": "2026-10-07T13:14:13.340099+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

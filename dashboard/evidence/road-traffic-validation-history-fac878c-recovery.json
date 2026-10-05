@@ -1,0 +1,27 @@
+{
+  "status": "controller_recovery_required",
+  "timestamp": "2026-10-07T13:14:13.340099+00:00",
+  "recoveryHead": "fac878c3fdcfc44458bc9c9016a44e79b27ad238",
+  "reviewBase": "6770d9b9fd0f2bf56674e5cf5ab77f499f5f71c5",
+  "resolvedWorkingFiles": [
+    "TRAFFIC_CHECKPOINT.md",
+    "dashboard/progress.json"
+  ],
+  "environment": "Linux; Python 3; read-only Git inspection; assigned worktree",
+  "checks": [
+    "Both complete checkpoint histories retained in order",
+    "All incoming and existing progress evidence URLs retained",
+    "Unique progress IDs and valid JSON",
+    "Existing nontraffic milestones and base metadata unchanged",
+    "No conflict markers in resolved working files",
+    "git diff --check passed",
+    "No files deleted against review base"
+  ],
+  "protectedBaseSource": [
+    "src/main/java/dev/jayms/Main.java",
+    "src/main/java/dev/jayms/player/Jeep.java"
+  ],
+  "intendedDeletions": [],
+  "playtest": "No new native playtest during text/JSON recovery. Final-head native workflow tests and fresh media follow controller continuation. Earlier results are historical.",
+  "handoff": "Controller stages and continues. No developer Git index/history mutation or publication. No owner answer required."
+}
