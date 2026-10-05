@@ -380,3 +380,10 @@ for the current required-base rebase. All non-City progress entries are retained
 Final resulting-source checks must include market and website regressions and
 fresh protocol-login media. No workflow checks or captures ran in this handoff.
 Controller must stage resolved files and continue without publication.
+
+## Required-base validation complete
+
+See city-protocol-final-validation.md for fresh source validation at 735e96b,
+77 passing Java tests plus packaging, 10 website checks and new desktop images.
+This supersedes all historical recovery/test sections above. Independent review
+and controller publication remain required; no developer approval is claimed.

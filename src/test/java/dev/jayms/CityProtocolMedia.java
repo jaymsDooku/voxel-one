@@ -25,7 +25,7 @@ public final class CityProtocolMedia {
         int version = Integer.parseInt(args[0]);
         Path root = Path.of(args[1]).toAbsolutePath();
         Files.createDirectories(root);
-        System.setProperty("user.home", root.resolve("home-" + version).toString());
+        System.setProperty("user.home", Files.createTempDirectory(root, "home-" + version + "-").toString());
         var identity = SecureTransport.server(root.resolve("tls-" + version));
         var listener = identity.context().getServerSocketFactory()
                 .createServerSocket(0, 2, InetAddress.getLoopbackAddress());
