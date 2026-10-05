@@ -313,3 +313,70 @@ Only evidence/progress paths required resolution at this step. Controller must
 stage and continue without publication, then resume resulting-source validation
 including market regressions, website checks, City login and fresh media.
 No workflow checks or media were executed during this handoff.
+## Recovered-head verification (2026-10-05)
+
+Source inspected at recovered head `979ee5c1c0c3de6218e80c8de82a26fce12562be`.
+Protocol 18 and current base features are retained. CityToolsTest includes the
+eight-target direction guide and road-endpoint regression checks. Legacy 14/15
+reads use terrain legacy version and city frame format 6; newer capital/exchange
+commands are suppressed. TLS certificate pinning remains in the connection path.
+
+Linux, Java 25.0.3, Maven 3.9.11, offline worktree-local cache. Executed:
+
+```sh
+/tmp/apache-maven-3.9.11/bin/mvn -o -Dmaven.repo.local="$PWD/target/recovery-m2" -Djansi.tmpdir="$PWD/target/tmp" -Djava.io.tmpdir="$PWD/target/tmp" "-DargLine=-Djava.io.tmpdir=$PWD/target/tmp" --batch-mode -Dtest=ProtocolCompatibilityTest,CityMultiplayerTest,MultiplayerTest,CityTest,SpecialBuildingsTest,CityToolsTest,BusinessCatalogTest verify
+```
+
+Observed: **54 tests, zero failures/errors/skips; BUILD SUCCESS (exit 0)**. Client,
+server and launcher JARs packaged. This is a fresh run on recovered production
+source, not reuse of the pre-rebase 54-test run.
+
+Playtest: production MultiplayerClient against synthetic pinned TLS fixtures.
+Requested behavior: protocol-18 client logs in and registers against protocols
+14 and 15, loads initial and streamed legacy snapshots and receives road results.
+Edge cases: unsupported protocol rejection, capital/exchange guards and SPECIAL
+blocked only below 15. Regression: current-protocol authentication and City
+synchronization plus existing multiplayer and direction guide tests. Expected
+and observed: all assertions pass (legacy 2/2, City multiplayer 1/1, multiplayer
+15/15 and non-network 36/36). Browser playtesting does not apply to this desktop
+application. The earlier sanitized controller diagnostic established that the
+affected live endpoint advertises 14; no owner account login is claimed.
+
+Desktop media uses the actual LoginDialog and Main with a synthetic pinned TLS
+server, fresh checkout-local settings, and Java Robot screen capture. Password
+fields are cleared before capture. No private account files or live credentials
+are used. The fixture source is CityProtocolMedia.java. Reproduction command:
+
+```sh
+python3 deploy/capture_city_protocol.py
+```
+
+The script compiles the fixture and starts a checkout-local Xvfb using software
+OpenGL at 1280x900. Because /tmp is read-only, its copied binary redirects /tmp
+strings to ./tm and uses a copied keyboard directory, all under target/. No
+sandbox controls are changed. The fixture signs in through the actual dialog.
+Protocol 14 requires a pinned reconnect and READY after its city snapshot.
+Protocol 16 is deliberately incompatible and remains on the login error screen.
+Media artifacts are new captures from this recovered implementation and await
+controller publication on the assigned feature branch.
+
+Capture command completed with exit 0. Observed protocol-14 fixture READY and
+actual rendered City world/HUD after closing the first-run controls menu. The
+protocol-16 dialog shows client 18/server 16 with server update guidance and an
+empty password field. Both images were visually inspected.
+
+- Actual protocol-14 login reaching City world: 763730 bytes. Pending controller publication: https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33356462633030392d326535322d343064332d396463632d366438373831373162393833/dashboard/evidence/city-protocol-legacy-login.png
+- Actual incompatible-protocol login error: 11290 bytes. Pending controller publication: https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33356462633030392d326535322d343064332d396463632d366438373831373162393833/dashboard/evidence/city-protocol-incompatible.png
+
+No production deployment or owner account login was performed. Final readiness
+is for independent review, not developer approval or merge.
+
+## Third reviewer recovery handoff
+
+Preserved both report sides and capture source/media. The recovered-head section
+above describes historical 979ee5c validation, which reviewer feedback found
+insufficient to establish unrelated base-feature preservation. It is not evidence
+for the current required-base rebase. All non-City progress entries are retained.
+Final resulting-source checks must include market and website regressions and
+fresh protocol-login media. No workflow checks or captures ran in this handoff.
+Controller must stage resolved files and continue without publication.

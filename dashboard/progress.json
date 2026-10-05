@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-05T18:37:49.903930+00:00",
+  "updatedAt": "2026-10-05T18:38:25.165520+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -28,11 +28,21 @@
           "kind": "link",
           "label": "Feature PR",
           "url": "https://github.com/jaymsDooku/voxel-one/pull/15"
+        },
+        {
+          "kind": "image",
+          "label": "Protocol-14 City login; pending publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33356462633030392d326535322d343064332d396463632d366438373831373162393833/dashboard/evidence/city-protocol-legacy-login.png"
+        },
+        {
+          "kind": "image",
+          "label": "Incompatible-protocol error; pending publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33356462633030392d326535322d343064332d396463632d366438373831373162393833/dashboard/evidence/city-protocol-incompatible.png"
         }
       ],
       "status": "in_progress",
-      "note": "Second rebase evidence conflict resolved while retaining reviewer-required market and website base features and all base progress entries. Historical tests retained with source scope; controller continuation precedes final-source workflow tests and fresh media.",
-      "updatedAt": "2026-10-05T18:37:49.903930+00:00"
+      "note": "Third rebase evidence conflict resolved. Required market and website base features and all unrelated progress entries retained. Capture source and prior media preserved; prior results are historical. Controller continuation must precede final-head tests and fresh captures.",
+      "updatedAt": "2026-10-05T18:38:25.165520+00:00"
     },
     {
       "id": "queue-66336630333365302d663833322d343535352d613434352d346261373363343964663936",
