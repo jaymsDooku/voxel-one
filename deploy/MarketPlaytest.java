@@ -48,6 +48,24 @@ public final class MarketPlaytest {
         SpecialBuildingsSmoke.capture(path);
         if (glGetError() != GL_NO_ERROR) throw new AssertionError("OpenGL error");
     }
+    static void restockCapture(Overlay overlay, CitySimulation city, Path path) throws Exception {
+        var tests = new ShopRestockMarketTest();
+        var inspector = new BuildingInfo();
+        inspector.building = ShopRestockMarketTest.SHOP;
+        inspector.open = true;
+        inspector.click(750, 100, 1280, 720);
+        glClearColor(.04f, .06f, .08f, 1);
+        glClear(GL_COLOR_BUFFER_BIT);
+        overlay.begin(1280, 720);
+        inspector.render(overlay, 1280, 720, city.frame());
+        overlay.text(String.format(java.util.Locale.ROOT,
+                "Playtest: shop Meal A=%d | Meal B=%d | cash $%.3f",
+                tests.stock(city, ShopRestockMarketTest.A), tests.stock(city, ShopRestockMarketTest.B),
+                tests.shop(city).cash), 24, 8, 1.2f);
+        overlay.end();
+        SpecialBuildingsSmoke.capture(path);
+        if (glGetError() != GL_NO_ERROR) throw new AssertionError("OpenGL error");
+    }
     public static void main(String[] args) throws Exception {
         boolean offscreen = args.length > 1 && args[1].equals("offscreen");
         long window = 0;
@@ -114,8 +132,31 @@ public final class MarketPlaytest {
             exchangeTests.hiringKeepsSkillSlotsAndPaidWorkersCanChooseBetterOffers();
             exchangeTests.unqualifiedApplicantsCannotFillAnalystVacancies();
             exchangeTests.graduatingSupportWorkerDoesNotOverfillOffice();
+            var restockTests = new ShopRestockMarketTest();
+            var restocked = restockTests.fixture(1, 1.02, 10, 30);
+            restocked.economy.resources.add(0, restockTests.sellers(restocked).get(2).id,
+                    ShopRestockMarketTest.A, 10 * CityMaterials.UNIT);
+            restocked.economy.resources.add(0, restockTests.sellers(restocked).get(3).id,
+                    ShopRestockMarketTest.A, 10 * CityMaterials.UNIT);
+            restocked.advance(.11);
+            if (restockTests.stock(restocked, ShopRestockMarketTest.A) != 0
+                    || restockTests.stock(restocked, ShopRestockMarketTest.B) != 16)
+                throw new AssertionError("Restock chose dearer supplier offers");
+            restockCapture(overlay, restocked, out.resolve("market-restock-cheapest-offer.png"));
+            var limited = restockTests.fixture(1, 1.02, 0, 30);
+            restockTests.shop(limited).cash = .5;
+            limited.advance(.11);
+            if (restockTests.stock(limited, ShopRestockMarketTest.B) != 2
+                    || restockTests.shop(limited).cash < 0)
+                throw new AssertionError("Restock affordability failed");
+            restockCapture(overlay, limited, out.resolve("market-restock-budget-edge.png"));
+            restockTests.reversedReferenceAndSupplierOfferOrderingBuysCheapestSuitableFood();
+            restockTests.supplierDepletionRechecksSubstitutesBeforeMoreExpensiveFills();
+            restockTests.unaffordableAndEmptyOffersDoNotSpendMoneyOrOverdraw();
+            restockTests.higherNutritionCanBeatLowerPortionPrice();
             System.out.println("PASS: native dashboard; four-portion purchase; low-stock rejection; cheapest suitable meal; cheapest supplier; partial fill; conservation; shared-company stock");
             System.out.println("PASS: exchange market wages; qualified staffing; treasury payroll; unfunded closure; funded private job choice");
+            System.out.println("PASS: restock actual cheapest offers; reversed reference order; changing supplier quotes; affordable portions; nutrition value; eligible suppliers");
         } finally {
             if (!offscreen) { glfwDestroyWindow(window); glfwTerminate(); }
         }

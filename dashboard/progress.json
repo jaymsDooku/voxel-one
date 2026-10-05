@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-05T11:07:43+00:00",
+  "updatedAt": "2026-10-05T15:03:44+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -2185,8 +2185,8 @@
       "description": "Implementing market quotes and price-sensitive purchasing with regression coverage.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Exchange labour review fixed: role-specific supply/demand wages, treasury funding, qualified hiring, job choice and four-worker capacity. 83 current tests and native playtest passed. Fresh exchange media and market-exchange-review-fix.json ready for controller publication and independent review.",
-      "updatedAt": "2026-10-05T11:07:43+00:00"
+      "note": "Restock review fixed: actual affordable supplier offers ranked across suitable foods, rechecked per portion. Four new regressions; 78 current tests and native playtest passed. Fresh inventory media and market-restock-review-fix.json ready for controller publication and independent review.",
+      "updatedAt": "2026-10-05T15:03:44+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

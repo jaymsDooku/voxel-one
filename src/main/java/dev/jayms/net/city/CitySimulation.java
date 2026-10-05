@@ -581,23 +581,7 @@ public final class CitySimulation {
                                 .mapToLong(CityFrame.Building::stock)
                                 .sum();
                 if (agriculture.enabled()) {
-                    var foods =
-                            economy.resources.catalog.food().stream()
-                                    .filter(food -> food != CityMaterials.FOOD)
-                                    .sorted(
-                                            Comparator.comparingDouble(
-                                                    (Integer food) ->
-                                                            economy.marketPrice(food)
-                                                                    / economy.resources.catalog
-                                                                            .nutrition(food)))
-                                    .toList();
-                    for (int food : foods) {
-                        if (foodStock(p.operator()) >= allocated + 16) break;
-                        economy.purchase(
-                                p.operator(),
-                                food,
-                                Math.max(16, allocated + 16) * CityMaterials.UNIT);
-                    }
+                    economy.restockFood(p.operator(), allocated + 16);
                     if (foodStock(p.operator()) > allocated) replaceStock(b, b.stock() + 1);
                 } else if (economy.purchase(
                         p.operator(), CityMaterials.FOOD, (allocated + 1) * CityMaterials.UNIT))

@@ -988,6 +988,45 @@ public final class CityEconomy {
         return purchase(COMPANY, company, material, needed);
     }
 
+    private boolean maySell(Company seller, int buyerKind, int buyer, int material) {
+        return !(buyerKind == COMPANY && seller.id == buyer)
+                && seller.kind != DEVELOPER
+                && seller.kind != SHOP
+                && !(CityMaterials.farmer(seller.kind) && CityMaterials.buildingMaterial(material));
+    }
+
+    private record FoodSupply(int seller, int product, double price, double nutritionCost) {}
+
+    /** Fill shop inventory from the cheapest affordable nutrition, rechecking each portion. */
+    public void restockFood(int buyer, long neededPortions) {
+        if (company(buyer) == null || neededPortions < 0 || neededPortions > 1_000_000) return;
+        long portions = resources.catalog.food().stream()
+                .mapToLong(food -> resources.available(COMPANY, buyer, food) / CityMaterials.UNIT)
+                .sum();
+        while (portions < neededPortions) {
+            FoodSupply best = null;
+            for (int food : resources.catalog.food()) {
+                if (food == CityMaterials.FOOD) continue;
+                for (var seller : companies()) {
+                    if (!maySell(seller, COMPANY, buyer, food) || seller.cash < 0
+                            || resources.available(COMPANY, seller.id, food) < CityMaterials.UNIT
+                            || resources.available(COMPANY, buyer, food) > 1_000_000_000L - CityMaterials.UNIT)
+                        continue;
+                    double price = offer(COMPANY, seller.id, food);
+                    if (cash(COMPANY, buyer) < price) continue;
+                    double cost = price / resources.catalog.nutrition(food);
+                    if (best == null || cost < best.nutritionCost()
+                            || cost == best.nutritionCost() && (food < best.product()
+                                    || food == best.product() && seller.id < best.seller()))
+                        best = new FoodSupply(seller.id, food, price, cost);
+                }
+            }
+            if (best == null || !trade(COMPANY, best.seller(), COMPANY, buyer, best.product(),
+                    CityMaterials.UNIT, best.price())) return;
+            portions++;
+        }
+    }
+
     public boolean purchase(int buyerKind, int buyer, int material, long needed) {
         if (buyerKind < COMPANY
                 || buyerKind > CITIZEN
@@ -1005,11 +1044,7 @@ public final class CityEconomy {
                                                         sellerDiscount(COMPANY, c.id, material))
                                         .thenComparingInt(c -> c.id))
                         .toList())
-            if (!(buyerKind == COMPANY && seller.id == buyer)
-                    && seller.kind != DEVELOPER
-                    && seller.kind != SHOP
-                    && !(CityMaterials.farmer(seller.kind)
-                            && CityMaterials.buildingMaterial(material))) {
+            if (maySell(seller, buyerKind, buyer, material)) {
                 double price = offer(COMPANY, seller.id, material);
                 long affordable =
                         (long) Math.floor(cash(buyerKind, buyer) / price * CityMaterials.UNIT);
