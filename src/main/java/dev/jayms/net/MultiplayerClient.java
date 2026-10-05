@@ -14,6 +14,7 @@ public final class MultiplayerClient implements AutoCloseable {
     private final DataInputStream in;
     private final DataOutputStream out;
     public final int id;
+    public final int serverProtocol;
     public final String username;
     public final Protocol.Pose spawn;
     public final long seed;
@@ -51,26 +52,17 @@ public final class MultiplayerClient implements AutoCloseable {
             boolean register,
             String fingerprint)
             throws IOException {
-        socket = SecureTransport.connect(host, port, fingerprint);
-        in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
-        out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+        Connection connection = authenticate(host, port, username, password, register, fingerprint);
+        socket = connection.socket();
+        in = connection.in();
+        out = connection.out();
+        serverProtocol = connection.version();
         try {
-            out.writeInt(Protocol.MAGIC);
-            out.writeInt(Protocol.VERSION);
-            out.writeByte(register ? Protocol.REGISTER : Protocol.LOGIN);
-            out.writeUTF(username);
-            out.writeUTF(new String(password));
-            out.flush();
-            if (in.readInt() != Protocol.MAGIC || in.readInt() != Protocol.VERSION)
-                throw new IOException("Server protocol mismatch");
-            boolean success = in.readBoolean();
-            String message = Protocol.readText(in, 256);
-            if (!success) throw new IOException(message);
             id = in.readInt();
             spawn = Protocol.Pose.read(in);
             this.username = Protocol.readText(in, 16);
             seed = in.readLong();
-            generatorVersion = in.readInt();
+            generatorVersion = serverProtocol >= 17 ? in.readInt() : Terrain.LEGACY_VERSION;
             try {
                 new Terrain(seed, generatorVersion);
             } catch (IllegalArgumentException e) {
@@ -100,7 +92,7 @@ public final class MultiplayerClient implements AutoCloseable {
                 ItemDrop drop = ItemDrop.read(in);
                 if (drop.count() > 0) drops.put(drop.id(), drop);
             }
-            acceptCity(CityFrame.read(in), System.nanoTime());
+            acceptCity(CityFrame.read(in, serverProtocol < 16 ? 6 : 8), System.nanoTime());
             out.writeByte(Protocol.READY);
             out.flush();
             socket.setSoTimeout(0);
@@ -126,6 +118,54 @@ public final class MultiplayerClient implements AutoCloseable {
                         "voxel-network-writer");
         writer.setDaemon(true);
         writer.start();
+    }
+
+    private record Connection(
+            Socket socket, DataInputStream in, DataOutputStream out, int version) {}
+
+    private static Connection authenticate(
+            String host, int port, String username, char[] password, boolean register,
+            String fingerprint) throws IOException {
+        int requested = Protocol.VERSION;
+        for (;;) {
+            Socket socket = SecureTransport.connect(host, port, fingerprint);
+            try {
+                var in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+                var out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+                out.writeInt(Protocol.MAGIC);
+                out.writeInt(requested);
+                out.writeByte(register ? Protocol.REGISTER : Protocol.LOGIN);
+                out.writeUTF(username);
+                out.writeUTF(new String(password));
+                out.flush();
+                int magic = in.readInt();
+                int version = in.readInt();
+                if (magic != Protocol.MAGIC) throw new IOException("Invalid server protocol header");
+                // Protocols 14 and 15 use city frame format 6; 16 uses format 7.
+                // Reconnect because old servers close on mismatch.
+                if (requested == Protocol.VERSION && version >= Protocol.CITY_BASE_VERSION
+                        && version <= Protocol.SPECIAL_BUILDINGS_VERSION) {
+                    if (in.readBoolean()) throw new IOException("Unexpected protocol acceptance");
+                    Protocol.readText(in, 256);
+                    socket.close();
+                    requested = version;
+                    continue;
+                }
+                if (version != requested)
+                    throw new IOException("Server protocol mismatch (client " + requested
+                            + ", server " + version + "). "
+                            + (version > Protocol.VERSION
+                                    ? "Restart the launcher to update the client."
+                                    : "The server needs an update."));
+                boolean success = in.readBoolean();
+                String message = Protocol.readText(in, 256);
+                if (!success) throw new IOException(message);
+                return new Connection(socket, in, out, version);
+            } catch (IOException e) {
+                socket.close();
+                throw e;
+            }
+        }
     }
 
     private void acceptCity(CityFrame frame, long time) {
@@ -174,6 +214,16 @@ public final class MultiplayerClient implements AutoCloseable {
     }
 
     public boolean cityCommand(CityCommand command) {
+        if (serverProtocol < 18 && (command.kind() == CityCommand.CAPITAL
+                || command.kind() == CityCommand.EXCHANGE
+                || command.kind() == CityCommand.SPECIAL && command.value() == SpecialBuildings.EXCHANGE)) {
+            notice = "Capital commands require a server update.";
+            return false;
+        }
+        if (command.kind() == CityCommand.SPECIAL && serverProtocol < Protocol.SPECIAL_BUILDINGS_VERSION) {
+            notice = "Special buildings require a server update.";
+            return false;
+        }
         return send(
                 () -> {
                     out.writeByte(Protocol.CITY_COMMAND);
@@ -197,7 +247,7 @@ public final class MultiplayerClient implements AutoCloseable {
                 int type = in.readUnsignedByte();
                 Runnable event;
                 if (type == Protocol.CITY_STATE) {
-                    var state = CityFrame.read(in);
+                    var state = CityFrame.read(in, serverProtocol < 16 ? 6 : 8);
                     long time = System.nanoTime();
                     event = () -> acceptCity(state, time);
                 } else if (type == Protocol.CITY_WORLD) {

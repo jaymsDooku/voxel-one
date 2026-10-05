@@ -1,11 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-<<<<<<< Updated upstream
-  "updatedAt": "2026-10-05T16:07:43.701252+00:00",
-=======
-  "updatedAt": "2026-10-05T10:43:02.505493+00:00",
->>>>>>> Stashed changes
+  "updatedAt": "2026-10-05T18:43:06.873169+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -18,6 +14,41 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "33356462633030392d326535322d343064332d396463632d366438373831373162393833",
+      "title": "City login protocol compatibility",
+      "description": "Tracing client/server handshake and release compatibility locally.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "city protocol compatibility.md",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/city-protocol-compatibility.md"
+        },
+        {
+          "kind": "link",
+          "label": "Feature PR",
+          "url": "https://github.com/jaymsDooku/voxel-one/pull/15"
+        },
+        {
+          "kind": "image",
+          "label": "Protocol-14 City login; pending publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33356462633030392d326535322d343064332d396463632d366438373831373162393833/dashboard/evidence/city-protocol-legacy-login.png"
+        },
+        {
+          "kind": "image",
+          "label": "Incompatible-protocol error; pending publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33356462633030392d326535322d343064332d396463632d366438373831373162393833/dashboard/evidence/city-protocol-incompatible.png"
+        },
+        {
+          "kind": "report",
+          "label": "Required-base final validation; pending publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33356462633030392d326535322d343064332d396463632d366438373831373162393833/dashboard/evidence/city-protocol-final-validation.md"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Ready for independent review on required-base recovery 735e96b. Market/website source, tests and evidence retained. 77 Java tests and packaging plus 10 website checks pass. Fresh actual protocol-14 City login and protocol-16 error captures inspected; controller publication pending. No owner live login claimed.",
+      "updatedAt": "2026-10-05T18:43:06.873169+00:00"
+    },
     {
       "id": "queue-66336630333365302d663833322d343535352d613434352d346261373363343964663936",
       "title": "Restore Voxel One shared queue projection",
@@ -40,7 +71,6 @@
         },
         {
           "kind": "image",
-<<<<<<< Updated upstream
           "label": "Live queue status and work items \u2014 pending publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-66336630333365302d663833322d343535352d613434352d346261373363343964663936/dashboard/evidence/shared-queue-controller-webkit.png"
         }
@@ -48,15 +78,6 @@
       "status": "in_progress",
       "note": "Ready for independent review. Controller real-upstream check returned HTTP 200 with all 49 matching Voxel IDs and HTTP 401 for unauthenticated access. Developer reran Chromium and 390px WebKit capture: all 49 rendered; live status and representative cards visible. 10 package/bridge and 5 media tests pass. Conflict contents resolved; controller stages and publishes.",
       "updatedAt": "2026-10-05T16:07:43.701252+00:00"
-=======
-          "label": "Controller mobile header capture \u2014 published; insufficient live-item coverage",
-          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-66336630333365302d663833322d343535352d613434352d346261373363343964663936/dashboard/evidence/shared-queue-controller-webkit.png"
-        }
-      ],
-      "status": "blocked",
-      "note": "Code checks pass. Review requires a fresh controller capture showing live queue status and representative Voxel items, plus actual sanitized real-upstream playtest commands. Existing published header capture is insufficient. Implementation preserved; no new owner authorization required.",
-      "updatedAt": "2026-10-05T10:43:02.505493+00:00"
->>>>>>> Stashed changes
     },
     {
       "id": "65333431633761642d346435342d343463652d613931322d356134386633313436303863",
