@@ -441,7 +441,7 @@ public final class CitySimulation {
                                                     economy.resources.catalog.output(firm.kind))
                                             / CityMaterials.UNIT));
             } else if (b.type() == SpecialBuildings.EXCHANGE && working && !eating) {
-                double salary = hours * (economy.capital.graduates.contains(id) ? 2.7 : 1.8);
+                double salary = hours * exchangeLabourRate(economy.capital.graduates.contains(id));
                 if (economy.budget >= salary) {
                     economy.budget -= salary;
                     n.money += (float) salary;
@@ -685,7 +685,7 @@ public final class CitySimulation {
                     var h = ecs.get(id, Household.class);
                     if (agriculture.company(id) != 0) continue;
                     int current = employer(h.job);
-                    if (!canPayJob(workplace, h.cohort)) continue;
+                    if (!canPayJob(workplace, id)) continue;
                     if (h.job == 0
                             || h.job > 0
                                     && h.job < CityMaterials.YARD
@@ -707,7 +707,7 @@ public final class CitySimulation {
                     var h = ecs.get(id, Household.class);
                     if (agriculture.company(id) != 0) continue;
                     int company = employer(h.job);
-                    if (!canPayJob(b.id(), h.cohort)) continue;
+                    if (!canPayJob(b.id(), id)) continue;
                     if (h.job == 0
                             || h.job > 0
                                     && h.job < CityMaterials.YARD
@@ -726,7 +726,7 @@ public final class CitySimulation {
                     if (occupants(-plot.id(), false) >= 2) break;
                     var h = ecs.get(id, Household.class);
                     if (agriculture.company(id) != 0) continue;
-                    if (!canPayJob(-plot.id(), h.cohort)) continue;
+                    if (!canPayJob(-plot.id(), id)) continue;
                     if (h.job == 0
                             || h.job > 0
                                     && h.job < CityMaterials.YARD
@@ -778,7 +778,7 @@ public final class CitySimulation {
                     if (plot.building() == 0
                             && ready(plot)
                             && occupants(-plot.id(), false) < 2
-                            && canPayJob(-plot.id(), h.cohort)) {
+                            && canPayJob(-plot.id(), id)) {
                         h.job = -plot.id();
                         break;
                     }
@@ -787,7 +787,7 @@ public final class CitySimulation {
                         if (b.type() != 0 && !SpecialBuildings.special(b.type())
                                 && economy.property(b.id()).operator() != 0
                                 && occupants(b.id(), false) < (b.type() == 1 ? 2 : b.capacity())
-                                && canPayJob(b.id(), h.cohort)) {
+                                && canPayJob(b.id(), id)) {
                             h.job = b.id();
                             break;
                         }
@@ -795,7 +795,11 @@ public final class CitySimulation {
         }
     }
 
-    private double jobRate(int job, int cohort) {
+    private double jobRate(int job, int citizen) {
+        var workplace = building(job);
+        if (workplace != null && workplace.type() == SpecialBuildings.EXCHANGE)
+            return exchangeLabourRate(economy.capital.graduates.contains(citizen));
+        int cohort = ecs.get(citizen, Household.class).cohort;
         var plot = job < 0 ? economy.project(-job) : null;
         int company = plot == null ? employer(job) : plot.developer();
         if (company == 0) return 0;
@@ -804,10 +808,13 @@ public final class CitySimulation {
                 company, plot != null || b != null && b.type() == 1 ? 1.8 : 1.8 + cohort * .3);
     }
 
-    private boolean canPayJob(int job, int cohort) {
+    private boolean canPayJob(int job, int citizen) {
+        var workplace = building(job);
+        if (workplace != null && workplace.type() == SpecialBuildings.EXCHANGE)
+            return economy.budget >= jobRate(job, citizen);
         var plot = job < 0 ? economy.project(-job) : null;
         var firm = economy.company(plot == null ? employer(job) : plot.developer());
-        return firm != null && firm.cash >= jobRate(job, cohort);
+        return firm != null && firm.cash >= jobRate(job, citizen);
     }
 
     private boolean hasUnpaidWorkers() {
@@ -817,9 +824,10 @@ public final class CitySimulation {
                             var h = ecs.get(id, Household.class);
                             var workplace = building(h.job);
                             return h.job != 0
-                                    && (workplace == null || !SpecialBuildings.special(workplace.type()))
+                                    && (workplace == null || !SpecialBuildings.special(workplace.type())
+                                            || workplace.type() == SpecialBuildings.EXCHANGE)
                                     && agriculture.company(id) == 0
-                                    && !canPayJob(h.job, h.cohort);
+                                    && !canPayJob(h.job, id);
                         });
     }
 
@@ -829,7 +837,8 @@ public final class CitySimulation {
         for (var plot : economy.plots)
             if (plot.building() == 0 && ready(plot)) offers.put(-plot.id(), 2);
         for (var b : buildings)
-            if (b.type() != 0
+            if (b.type() == SpecialBuildings.EXCHANGE) offers.put(b.id(), 4);
+            else if (b.type() != 0
                     && economy.property(b.id()) != null
                     && economy.property(b.id()).operator() != 0)
                 offers.put(b.id(), b.type() == 1 ? 2 : b.capacity());
@@ -847,30 +856,22 @@ public final class CitySimulation {
             var h = ecs.get(id, Household.class);
             if (agriculture.company(id) != 0) continue;
             var current = building(h.job);
-            // Civic staffing and wages are managed by assignExchange(), not a private employer.
-            if (current != null && SpecialBuildings.special(current.type())) continue;
+            if (current != null && SpecialBuildings.special(current.type())
+                    && current.type() != SpecialBuildings.EXCHANGE) continue;
             int minimum = current != null && current.type() == 1 ? 2 : 1;
-            boolean paid = canPayJob(h.job, h.cohort);
-            if (paid && (!reviewPaid || occupants(h.job, false) <= minimum)) continue;
+            boolean paid = canPayJob(h.job, id);
+            if (paid && (!reviewPaid || occupants(h.job, false) <= minimum
+                    && (current == null || current.type() != SpecialBuildings.EXCHANGE))) continue;
             int best =
                     offers.keySet().stream()
                             .filter(job -> job != h.job && occupants(job, false) < offers.get(job))
-                            .filter(
-                                    job -> {
-                                        var plot = job < 0 ? economy.project(-job) : null;
-                                        var firm =
-                                                economy.company(
-                                                        plot == null
-                                                                ? employer(job)
-                                                                : plot.developer());
-                                        return firm != null && firm.cash >= jobRate(job, h.cohort);
-                                    })
+                            .filter(job -> exchangeVacancy(job, id) && canPayJob(job, id))
                             .max(
                                     Comparator.comparingDouble(
-                                                    (Integer job) -> jobRate(job, h.cohort))
+                                                    (Integer job) -> jobRate(job, id))
                                             .thenComparingInt(job -> -job))
                             .orElse(0);
-            if (best != 0 && (!paid || jobRate(best, h.cohort) > jobRate(h.job, h.cohort) * 1.2)) {
+            if (best != 0 && (!paid || jobRate(best, id) > jobRate(h.job, id) * 1.2)) {
                 h.job = best;
                 var travel = ecs.get(id, Travel.class);
                 travel.target = -9999;
@@ -1262,6 +1263,32 @@ public final class CitySimulation {
         return "Permitted " + SpecialBuildings.name(type);
     }
 
+    /** Treasury-funded offers use separate qualified analyst and support labour pools. */
+    public double exchangeLabourRate(boolean graduate) {
+        long positions = buildings.stream()
+                .filter(b -> b.type() == SpecialBuildings.EXCHANGE).count() * (graduate ? 3 : 1);
+        long supply = ecs.query(Household.class).stream()
+                .filter(id -> economy.capital.graduates.contains(id) == graduate)
+                .filter(id -> agriculture.company(id) == 0)
+                .filter(id -> {
+                    int job = ecs.get(id, Household.class).job;
+                    var b = building(job);
+                    return job == 0 || b != null && b.type() == SpecialBuildings.EXCHANGE;
+                }).count();
+        double pressure = Math.max(.25, Math.min(4, Math.sqrt((positions + 1.0) / (supply + 1.0))));
+        return (graduate ? 2.7 : 1.8) * pressure;
+    }
+
+    private boolean exchangeVacancy(int job, int citizen) {
+        var b = building(job);
+        if (b == null || b.type() != SpecialBuildings.EXCHANGE) return true;
+        boolean graduate = economy.capital.graduates.contains(citizen);
+        long filled = ecs.query(Household.class).stream()
+                .filter(id -> ecs.get(id, Household.class).job == job)
+                .filter(id -> economy.capital.graduates.contains(id) == graduate).count();
+        return filled < (graduate ? 3 : 1);
+    }
+
     private void assignExchange() {
         for (var b : buildings)
             if (b.type() == SpecialBuildings.EXCHANGE) {
@@ -1278,8 +1305,12 @@ public final class CitySimulation {
                                     .count();
                     long support = occupants(b.id(), false) - qualified;
                     if (h.job != b.id()
+                            && occupants(b.id(), false) < b.capacity()
                             && (graduate ? qualified < 3 : support < 1)
-                            && agriculture.company(id) == 0) {
+                            && agriculture.company(id) == 0
+                            && canPayJob(b.id(), id)
+                            && (!canPayJob(h.job, id)
+                                    || jobRate(b.id(), id) > jobRate(h.job, id) * 1.2)) {
                         h.job = b.id();
                         var t = ecs.get(id, Travel.class);
                         t.target = -9999;

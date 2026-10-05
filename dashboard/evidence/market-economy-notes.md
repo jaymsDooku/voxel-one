@@ -17,3 +17,9 @@ Regression coverage includes all configured products and building materials, con
 Unfunded wage offers no longer retain minimum crews: workers can consider funded alternatives on any simulation tick without the normal switching premium. Automatic assignment checks that the hiring employer can fund its hourly offer, so it does not reclaim workers into unpaid positions on subsequent ticks. Funded minimum crews and family-farm assignments keep their existing protections.
 
 Meal receipts now count the actual purchased portions in both lifetime and daily business sales. The regression fixture consumes four portions through the real simulation and reconciles recorded sales against shop stock and owned food inventory. Another regression checks minimum mine and shop crews before and after insolvency and their job choice over twelve subsequent simulation ticks.
+
+## Exchange labour review correction
+
+Exchange analysts and office support now have separate qualified labour markets. Their $2.7/hour and $1.8/hour reference wages use the same 0.25–4 bounded square-root demand/supply pressure as private labour. Demand counts exchange role positions; supply counts eligible unemployed and existing office staff. Farm workers stay excluded. Actual payroll still debits the public treasury and credits the worker.
+
+Exchange offers participate in worker job reviews. Hiring checks treasury affordability and preserves three graduate analyst roles plus one non-graduate support role. Assignment compares funded alternatives instead of taking workers regardless of pay. Paid office workers can switch for an offer exceeding their current wage by 20%; unpaid office workers can seek any funded vacancy. A worker may stay assigned to an unfunded office when no funded vacancy exists, but receives no wage and cannot keep trading operational. Existing exchange operation and skill checks remain in force.

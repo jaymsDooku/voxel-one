@@ -28,6 +28,26 @@ public final class MarketPlaytest {
         SpecialBuildingsSmoke.capture(path);
         if (glGetError() != GL_NO_ERROR) throw new AssertionError("OpenGL error");
     }
+    static void exchangeCapture(Overlay overlay, CitySimulation city, Path path) throws Exception {
+        var inspector = new BuildingInfo();
+        inspector.building = new ExchangeLabourMarketTest().exchange(city);
+        inspector.open = true;
+        inspector.click(290, 100, 1280, 720);
+        glClearColor(.04f, .06f, .08f, 1);
+        glClear(GL_COLOR_BUFFER_BIT);
+        overlay.begin(1280, 720);
+        inspector.render(overlay, 1280, 720, city.frame());
+        overlay.text(String.format(java.util.Locale.ROOT,
+                "Playtest: hourly analyst $%.3f | support $%.3f | treasury $%.3f",
+                city.exchangeLabourRate(true), city.exchangeLabourRate(false), city.economy.budget),
+                24, 8, 1.2f);
+        overlay.text("Playtest: exchange trading "
+                + (city.economy.capital.exchange.operational() ? "OPEN" : "CLOSED"),
+                24, 704, 1.2f);
+        overlay.end();
+        SpecialBuildingsSmoke.capture(path);
+        if (glGetError() != GL_NO_ERROR) throw new AssertionError("OpenGL error");
+    }
     public static void main(String[] args) throws Exception {
         boolean offscreen = args.length > 1 && args[1].equals("offscreen");
         long window = 0;
@@ -75,7 +95,27 @@ public final class MarketPlaytest {
             tests.buyersChooseCheapestSupplierAndPartialAffordableFillsConserveAssets();
             tests.lowStockShopCannotSellMultiPortionMealBeforeRestocking();
             tests.sharedCompanyShopsUseLocalStockAndReconcileSales();
+            var exchangeTests = new ExchangeLabourMarketTest();
+            var office = exchangeTests.fixture();
+            new CityCapitalTest().staff(office);
+            for (var firm : office.economy.companies()) firm.cash = 0;
+            office.advance(.11);
+            if (!office.economy.capital.exchange.operational())
+                throw new AssertionError("Funded qualified exchange not operational");
+            exchangeCapture(overlay, office, out.resolve("market-exchange-paid.png"));
+            office.economy.budget = 0;
+            office.advance(.11);
+            if (office.economy.capital.exchange.operational())
+                throw new AssertionError("Unfunded exchange remained operational");
+            exchangeCapture(overlay, office, out.resolve("market-exchange-unfunded.png"));
+            exchangeTests.quotesRespondToQualifiedSupplyAndExchangeDemand();
+            exchangeTests.actualPayrollUsesMarketQuotesAndOnlyTreasuryFunds();
+            exchangeTests.unfundedExchangeDoesNotHireAndWorkersCanTakeFundedPrivateJobs();
+            exchangeTests.hiringKeepsSkillSlotsAndPaidWorkersCanChooseBetterOffers();
+            exchangeTests.unqualifiedApplicantsCannotFillAnalystVacancies();
+            exchangeTests.graduatingSupportWorkerDoesNotOverfillOffice();
             System.out.println("PASS: native dashboard; four-portion purchase; low-stock rejection; cheapest suitable meal; cheapest supplier; partial fill; conservation; shared-company stock");
+            System.out.println("PASS: exchange market wages; qualified staffing; treasury payroll; unfunded closure; funded private job choice");
         } finally {
             if (!offscreen) { glfwDestroyWindow(window); glfwTerminate(); }
         }
