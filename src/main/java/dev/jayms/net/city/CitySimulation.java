@@ -407,6 +407,8 @@ public final class CitySimulation {
         elapsed += dt;
         if (!config.city()) return;
         population.advance(dt, config.daySeconds());
+        economy.logisticsSites(buildings);
+        economy.logisticsClock(elapsed * 24 / config.daySeconds());
         if (agriculture.pending()) agriculture.initialize(economy, grade);
         agriculture.tick(dt * 24 / config.daySeconds());
         if (elapsed >= nextBuild) {
@@ -786,7 +788,8 @@ public final class CitySimulation {
         assignFarmers();
         // Mobile crews can harvest before their own premises exist, avoiding a supply deadlock.
         for (var firm : economy.companies())
-            if (firm.kind >= 2 && (!agriculture.enabled() || !CityMaterials.farmer(firm.kind))) {
+            if (firm.kind >= 2 && IndustrialProgression.unlocked(economy.resources, firm.kind)
+                    && (!agriculture.enabled() || !CityMaterials.farmer(firm.kind))) {
                 int workplace =
                         buildings.stream()
                                 .filter(
@@ -989,7 +992,8 @@ public final class CitySimulation {
                     && economy.property(b.id()).operator() != 0)
                 offers.put(b.id(), b.type() == 1 ? 2 : b.capacity());
         for (var firm : economy.companies()) {
-            if (firm.kind < 2 || agriculture.enabled() && CityMaterials.farmer(firm.kind)) continue;
+            if (firm.kind < 2 || !IndustrialProgression.unlocked(economy.resources, firm.kind)
+                    || agriculture.enabled() && CityMaterials.farmer(firm.kind)) continue;
             int yard = CityMaterials.YARD + firm.id;
             if (buildings.stream()
                             .noneMatch(b -> economy.property(b.id()) != null
@@ -1025,6 +1029,20 @@ public final class CitySimulation {
                 travel.route.clear();
             }
         }
+        if (reviewPaid && IndustrialProgression.enabled(economy.resources.catalog)
+                && IndustrialProgression.tier(economy.resources) >= 6)
+            for (int id : ecs.query(Needs.class)) {
+                var needs = ecs.get(id, Needs.class);
+                if (needs.money > 100) {
+                    if (IndustrialProgression.tier(economy.resources) >= 8)
+                        economy.purchase(CityEconomy.CITIZEN, id, IndustrialProgression.ADVANCED_VEHICLE, CityMaterials.UNIT);
+                    if (economy.resources.available(CityEconomy.CITIZEN, id, IndustrialProgression.ADVANCED_VEHICLE) == 0)
+                        economy.purchase(CityEconomy.CITIZEN, id, IndustrialProgression.CAR, CityMaterials.UNIT);
+                }
+                if (economy.resources.available(CityEconomy.CITIZEN, id, IndustrialProgression.CAR) >= CityMaterials.UNIT
+                        || economy.resources.available(CityEconomy.CITIZEN, id, IndustrialProgression.ADVANCED_VEHICLE) >= CityMaterials.UNIT)
+                    economy.purchase(CityEconomy.CITIZEN, id, IndustrialProgression.FUEL, 4 * CityMaterials.UNIT);
+            }
         graduationReviews.clear();
     }
 
@@ -1205,8 +1223,11 @@ public final class CitySimulation {
                 }
             }
         }
+        // Only road routes use the private passenger fleet. Collision checks still apply.
+        double transit = roads.containsKey(new Cell((int) Math.floor(p.x), (int) Math.floor(p.z)))
+                && !t.route.isEmpty() ? economy.passengerSpeed(id, dt * 24 / config.daySeconds()) : 2.2;
         // Travel must keep pace with needs and schedules when the city clock is accelerated.
-        float speed = (float)((h.horse == 0 ? 2.2f : 5.5f) * 1200 / config.daySeconds());
+        float speed = (float)(Math.max(transit, h.horse == 0 ? 2.2 : 5.5) * 1200 / config.daySeconds());
         float remaining = speed * dt, dx = 0, dz = 0;
         // Consume the whole distance budget, including several cells on accelerated days.
         // Small collision steps keep fast travel from crossing walls or furniture.
@@ -1359,6 +1380,11 @@ public final class CitySimulation {
         var property = economy.property(id);
         var company = property == null ? null : economy.company(property.operator());
         int kind = company == null ? b.type() : company.kind;
+        if (b.type() == 0 && b.capacity() == 8) {
+            kind = economy.plots.stream().filter(p -> p.building() == b.id())
+                    .map(p -> economy.resources.project(p.id())).filter(Objects::nonNull)
+                    .mapToInt(CityMaterials.Project::businessKind).findFirst().orElse(kind);
+        }
         var edits = new ArrayList<Protocol.Edit>();
         for (var e : b.type() == SpecialBuildings.AIRPORT ? Aviation.blueprint(b.x(), b.y(), b.z(), Aviation.runways(b)) : SpecialBuildings.special(b.type())
                 ? StructureBlueprint.special(b.type(), b.x(), b.y(), b.z())
@@ -2020,7 +2046,8 @@ public final class CitySimulation {
     private int industrialDemand() {
         for (var type : economy.resources.catalog.businesses().types()) {
             int kind = type.id();
-            if (kind < 2 || economy.companies().stream().noneMatch(c -> c.kind == kind)) continue;
+            if (kind < 2 || !IndustrialProgression.unlocked(economy.resources, kind)
+                    || economy.companies().stream().noneMatch(c -> c.kind == kind)) continue;
             if (agriculture.enabled() && CityMaterials.farmer(kind)) continue;
             final int k = kind;
             boolean exists =
@@ -2104,7 +2131,8 @@ public final class CitySimulation {
                                 p.x(),
                                 p.y(),
                                 p.z(),
-                                p.type() == 3 ? 2 : p.type() == 0 ? 4 : 16,
+                                p.type() == 3 ? 2 : p.type() == 0
+                                        ? economy.resources.project(p.id()).businessKind() == 50 ? 8 : 4 : 16,
                                 0);
                 buildings.add(b);
                 economy.completed(p, b.id());

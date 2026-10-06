@@ -127,8 +127,10 @@ public final class Agriculture {
     }
 
     public void initialize(CityEconomy economy, int grade) {
-        if (pending && economy.resources.catalog.equals(ProductionCatalog.toolEra()))
+        if (pending && economy.resources.catalog.equals(ProductionCatalog.toolEra())) {
             economy.resources.catalog = ProductionCatalog.cityGame();
+            IndustrialProgression.importSettlementHistory(economy);
+        }
         enabled = economy.resources.catalog.agriculture();
         pending = false;
         if (!enabled) return;

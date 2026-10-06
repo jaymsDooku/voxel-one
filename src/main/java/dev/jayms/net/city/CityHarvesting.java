@@ -135,7 +135,21 @@ public final class CityHarvesting {
     public void work(CityEconomy economy, CityEconomy.Company firm, double hours) {
         var stocks = economy.resources;
         if (!Double.isFinite(hours) || hours <= 0) return;
+        if (!IndustrialProgression.unlocked(stocks, firm.kind)) {
+            stocks.production(firm.id, 0, 0, 0, "Locked: tier " + IndustrialProgression.required(firm.kind));
+            return;
+        }
+        economy.provisionFleet(firm.id);
+        if (IndustrialProgression.enabled(stocks.catalog) && IndustrialProgression.tier(stocks) >= 2
+                && (firm.kind == CityEconomy.MINE || firm.kind == CityMaterials.LOGGING))
+            economy.purchase(firm.id, IndustrialProgression.IRON_TOOLS, CityMaterials.UNIT);
+        if (IndustrialProgression.enabled(stocks.catalog) && firm.kind == 46
+                && stocks.available(0, firm.id, IndustrialProgression.MACHINERY) < CityMaterials.UNIT) {
+            stocks.production(firm.id, 0, 0, 0, "Needs installed machinery");
+            return;
+        }
         if (firm.kind == CityMaterials.TOOLS
+                || IndustrialProgression.enabled(stocks.catalog) && firm.kind >= 32 && firm.kind <= 48
                 || stocks.catalog.recipes(firm.kind).stream()
                         .anyMatch(ProductionCatalog.Recipe::requiresFactory)) {
             manufacture(economy, firm, hours);
@@ -232,6 +246,7 @@ public final class CityHarvesting {
                 continue;
             }
             processed += result;
+            if (IndustrialProgression.enabled(stocks.catalog)) stocks.batch(firm.id, recipe.id(), 0, 1);
         }
         stocks.production(firm.id, progress, harvested, processed, status);
         economy.businesses.produced(economy.account(firm.id), (int) processed);
@@ -268,11 +283,16 @@ public final class CityHarvesting {
                 continue;
             }
             var old = stocks.batch(firm.id, recipe.id());
-            double progress = old.progress() + hours / recipes.size() * recipe.batchesPerHour();
+            double multiplier = IndustrialLogistics.productivity(stocks, firm.id);
+            double progress = old.progress() + hours / recipes.size() * recipe.batchesPerHour() * multiplier;
             int cycles = Math.min(512, (int) progress), completed = 0;
             progress -= (int) progress;
             status = "Manufacturing";
             for (int i = 0; i < cycles; i++) {
+                if (multiplier == 2 && stocks.available(0, firm.id, IndustrialProgression.POWER) < CityMaterials.UNIT / 16) {
+                    status = "Needs electricity";
+                    break;
+                }
                 for (var e : recipe.inputs().entrySet())
                     economy.purchase(firm.id, e.getKey(), e.getValue() * CityMaterials.UNIT);
                 int count = stocks.craft(firm.id, recipe);
@@ -280,6 +300,7 @@ public final class CityHarvesting {
                     status = "Waiting for inputs / capacity";
                     break;
                 }
+                if (multiplier == 2) stocks.remove(0, firm.id, IndustrialProgression.POWER, CityMaterials.UNIT / 16);
                 completed++;
                 produced += count;
             }

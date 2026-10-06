@@ -93,6 +93,24 @@ public final class StructureBlueprint {
 
     /** Resource companies get workshops; only the quarry needs a mine shaft. */
     public static List<Protocol.Edit> generate(int type, int businessKind, int x, int y, int z) {
+        if (type == 0 && businessKind == 50) {
+            var tower = new ArrayList<>(generate(0, x, y, z));
+            // Two real floors on the same footprint; extra blocks enter the project reservation.
+            for (int dx = 0; dx < WIDTH; dx++) for (int dz = 0; dz < DEPTH; dz++)
+                for (int dy = 4; dy <= 9; dy++) {
+                    int block = dy == 4 || dy == 9 ? Blocks.BRICKS
+                            : dx == 0 || dx == WIDTH - 1 || dz == 0 || dz == DEPTH - 1 ? Blocks.BRICKS : Blocks.AIR;
+                    if (dy == 6 && (dx == 0 || dx == WIDTH - 1) && (dz == 2 || dz == 4)) block = Blocks.GLASS;
+                    tower.add(new Protocol.Edit(x + dx, y + dy, z + dz, block));
+                }
+            // Open stairwell and ascending steps connect both floors.
+            for (int step = 1; step <= 3; step++) {
+                tower.add(new Protocol.Edit(x + 4, y + 4, z + step + 2, Blocks.AIR));
+                tower.add(new Protocol.Edit(x + 4, y + step, z + step + 2, Blocks.PLANKS));
+            }
+            tower.add(new Protocol.Edit(x + 3, y + 4, z + 5, Blocks.PLANKS));
+            return tower;
+        }
         if (type == 3) {
             var farm = new ArrayList<>(generate(0, x, y, z));
             // Paid soil beds or a wooden pen occupy the rest of the owned plot.

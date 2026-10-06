@@ -17,7 +17,14 @@ class AgricultureTest {
     @TempDir Path directory;
 
     private CitySimulation city(CityTest.Ground g) {
-        return new CitySimulation(new GameConfig(true, true, 1200, 6), g, g.terrain, null);
+        // Keep the established agriculture trajectory as an explicit saved custom catalog.
+        // New default industrial eras are exercised by IndustrialProgressionTest and its native playtest.
+        var old = ProductionCatalog.settlementGame();
+        var companies = old.businesses().companies().stream()
+                .map(c -> new BusinessCatalog.Company("regression-" + c.key(), c.name(), c.type(), c.cash())).toList();
+        var catalog = new ProductionCatalog(old.products(), old.recipes(), old.equipment(),
+                new BusinessCatalog(old.businesses().types(), companies));
+        return new CitySimulation(new GameConfig(true, true, 1200, 6), g, g.terrain, null, catalog);
     }
 
     private CityEconomy.Company firm(CitySimulation s, int kind) {
@@ -378,7 +385,7 @@ class AgricultureTest {
         assertTrue(CitySimulation.load(file).agriculture().pending());
         s.advance(1);
         assertEquals(18, s.frame().citizens().size());
-        assertEquals(17, s.frame().economy().firms().size());
+        assertEquals(35, s.frame().economy().firms().size());
         assertEquals(before.buildings(), s.frame().buildings());
         var previousCitizens = before.citizens().stream().map(CityFrame.Citizen::id).toList();
         int oldFarm = firm(s, 7).id;

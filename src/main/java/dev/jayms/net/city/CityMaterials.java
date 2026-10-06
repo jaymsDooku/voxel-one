@@ -256,7 +256,8 @@ public final class CityMaterials {
 
     /** A complete batch is checked before any input is consumed. */
     public int craft(int company, ProductionCatalog.Recipe recipe) {
-        if (!catalog.recipes().contains(recipe)
+        if (!IndustrialProgression.unlocked(this, recipe.companyKind())
+                || !catalog.recipes().contains(recipe)
                 || available(0, company, recipe.output()) + recipe.count() * UNIT
                         > recipe.capacity() * UNIT
                 || recipe.inputs().entrySet().stream()
@@ -270,9 +271,15 @@ public final class CityMaterials {
 
     public double productivity(int company, int kind) {
         var equipment = catalog.equipment(kind);
+        if (IndustrialProgression.enabled(catalog) && available(0, company, IndustrialProgression.IRON_TOOLS) >= UNIT
+                && IndustrialProgression.tier(this) >= 2 && (kind == 2 || kind == LOGGING)) return 3;
         return equipment != null && available(0, company, equipment.product()) >= UNIT
                 ? equipment.multiplier()
                 : 1;
+    }
+
+    public long completed(String recipe) {
+        return batches.values().stream().filter(b -> b.recipe().equals(recipe)).mapToLong(Batch::completed).sum();
     }
 
     public Batch batch(int company, String recipe) {

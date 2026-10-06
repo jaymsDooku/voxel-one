@@ -65,7 +65,7 @@ public final class BusinessDashboard {
     public void click(float x, float y, int w, int h) {
         if (x < 24 || x >= w - 24) return;
         if (y >= TOP && y <= TOP + 30) {
-            view = x < 24 + (w - 48) / 2f ? 0 : 1;
+            view = x < 24 + (w - 48) / 3f ? 0 : x < 24 + 2 * (w - 48) / 3f ? 2 : 1;
             selected = 0;
             firstRow = 0;
             searchFocus = false;
@@ -78,7 +78,7 @@ public final class BusinessDashboard {
             }
             return;
         }
-        if (view == 1) return;
+        if (view != 0) return;
         if (y >= 178 && y <= 208) {
             filter = Math.min(4, (int) ((x - 24) / ((w - 48) / 5f)));
             firstRow = 0;
@@ -124,19 +124,48 @@ public final class BusinessDashboard {
         return city.economy().resources().catalog().businesses().sector(kind);
     }
 
+    private void progression(Overlay ui, int w, int h, CityFrame city) {
+        var stock = city.economy().resources();
+        if (!IndustrialProgression.enabled(stock.catalog())) {
+            text(ui, "This saved custom catalog has no industrial progression.", 34, 192, w - 68, 1.3f);
+            return;
+        }
+        int tier = IndustrialProgression.tier(stock);
+        text(ui, "Tier " + tier + ": " + IndustrialProgression.TIERS.get(tier - 1).name(), 34, 185, w - 68, 1.6f);
+        text(ui, tier < 8 ? "Next era: produce " + IndustrialProgression.missing(stock)
+                : IndustrialLogistics.denseHousing(stock) ? "All eras unlocked | Dense housing enabled"
+                        : "All eras unlocked | Dense housing: produce Electronics + Alloys", 34, 211, w - 68, 1.2f);
+        text(ui, "Completed batches unlock eras permanently. Private crews pay for inputs and fleets.", 34, 235, w - 68, 1.05f);
+        int rows = Math.max(1, (h - 310) / 52);
+        firstRow = Math.min(Math.max(0, firstRow), Math.max(0, 8 - rows));
+        for (int index = firstRow; index < Math.min(8, firstRow + rows); index++) {
+            var era = IndustrialProgression.TIERS.get(index);
+            float y = 264 + (index - firstRow) * 52;
+            panel(ui, 24, y, w - 48, 46);
+            text(ui, (era.number() <= tier ? "Unlocked: " : "Locked: ") + era.number() + ". " + era.name(), 34, y + 5, 280, 1.15f);
+            text(ui, era.capability(), 324, y + 5, w - 358, 1.05f);
+            String outputs = stock.catalog().recipes().stream().filter(r -> r.companyKind() >= 32 && r.companyKind() <= 48
+                            && IndustrialProgression.required(r.companyKind()) == era.number())
+                    .map(r -> stock.catalog().name(r.output())).distinct().collect(java.util.stream.Collectors.joining(" / "));
+            text(ui, outputs.isEmpty() ? "Logging / Quarrying / Farming" : outputs, 34, y + 26, w - 68, 1.05f);
+        }
+        text(ui, "Scroll: eras | Fleets extend delivery range; fuel and electricity are consumed.", 34, h - 37, w - 68, 1.05f);
+    }
+
     public void render(Overlay ui, int w, int h, CityFrame city) {
-        for (int i = 0; i < 2; i++) {
-            float x = 24 + i * (w - 48) / 2f;
-            panel(ui, x, TOP, (w - 48) / 2f - 6, 30);
+        for (int i = 0; i < 3; i++) {
+            float x = 24 + i * (w - 48) / 3f;
+            panel(ui, x, TOP, (w - 48) / 3f - 6, 30);
             text(
                     ui,
-                    i == 0 ? "Operating businesses" : "Companies",
+                    i == 0 ? "Operating businesses" : i == 1 ? "Resource progression" : "Companies",
                     x + 10,
                     TOP + 9,
-                    (w - 48) / 2f - 20,
+                    (w - 48) / 3f - 20,
                     1.25f);
-            if (view == i) ui.rectangle(x, TOP + 28, (w - 48) / 2f - 6, 2, .3f, .85f, .7f, 1);
+            if (view == new int[]{0, 2, 1}[i]) ui.rectangle(x, TOP + 28, (w - 48) / 3f - 6, 2, .3f, .85f, .7f, 1);
         }
+        if (view == 2) { progression(ui, w, h, city); return; }
         var metrics = BusinessMetrics.from(city);
         if (selected != 0) {
             var l =

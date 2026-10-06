@@ -154,6 +154,41 @@
       "updatedAt": "2026-10-06T17:31:33+00:00"
     },
     {
+      "id": "resource-progression",
+      "title": "Industrial resource progression",
+      "description": "Inspecting production, zone growth and saved resource catalogs. Implementation and evidence remain local for controller publication.",
+      "evidence": [
+        {
+          "kind": "image",
+          "label": "resource progression settlement.png (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/resource-progression-settlement.png"
+        },
+        {
+          "kind": "image",
+          "label": "resource progression advanced.png (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/resource-progression-advanced.png"
+        },
+        {
+          "kind": "report",
+          "label": "resource progression playtest.json (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/resource-progression-playtest.json"
+        },
+        {
+          "kind": "image",
+          "label": "Paid advanced manufacturing in synthetic city (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/resource-progression-manufacturing.png"
+        },
+        {
+          "kind": "report",
+          "label": "Resource progression tests and Playtest (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/resource-progression-tests.json"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Implementation and local checks finished. Full Maven run, final 31-test compatibility retest and native Playtest passed; 305 tests have passing reports. Three implementation screenshots and sanitized reports await controller publication and independent review.",
+      "updatedAt": "2026-10-06T17:17:02+00:00"
+    },
+    {
       "id": "queue-38613638386362362d333266662d346339302d383566312d333861363332623962333363",
       "title": "Population life cycle and education",
       "description": "Implementing saved demographics, school attendance and career eligibility.",

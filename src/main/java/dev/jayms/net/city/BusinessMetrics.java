@@ -78,6 +78,8 @@ public record BusinessMetrics(List<Location> locations, List<Company> companies)
         if (city.config().city())
             for (var f : city.economy().firms())
                 if (f.kind() >= 2
+                        && (!IndustrialProgression.enabled(city.economy().resources().catalog())
+                                || IndustrialProgression.tier(city.economy().resources()) >= IndustrialProgression.required(f.kind()))
                         && city.economy().properties().stream()
                                 .noneMatch(p -> p.operator() == f.id()))
                     workplaces.add(
