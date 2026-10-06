@@ -1,9 +1,9 @@
 # Road spacing rebase recovery
 
-Resolved checkpoint and dashboard working files. All unrelated dashboard entries match current HEAD. Passenger fleet speed retained in CitySimulation alongside spacing passing-route changes. Industrial progression, advanced recipes, freight energy, passenger transport, vehicle purchases, save compatibility tests/fixtures and historical evidence remain upstream.
+Resolved the checkpoint, dashboard and five historical Jeep media conflicts in working files. Historical Jeep media match HEAD and stage 2 byte for byte. All unrelated dashboard entries remain unchanged. No runtime or test source changed in this replay stage.
 
-Current focused checks pending. Prior recovery 20-test pass is historical. Index stays unmerged until controller stages and continues the rebase. No abort/reset/commit/push.
+Controller must stage resolutions and continue the preserved rebase. The index remains unmerged. No abort, reset, commit or push performed.
 
-Later replay must retain food, porch, staffing and clearance fixes and restore original automatic factory regression without manual job overrides. After replay, inspect actual final source, verify all upstream features/fixtures/evidence against the reviewed base, then run full verification and native requested/edge/regression workflows with fresh task-specific media. Do not overwrite historical media. No final-head playtest or fresh media claimed during recovery.
+Prior recovery passed 20 focused tests; these were not rerun in this media/documentation stage. Current structural and byte checks are recorded in dashboard/evidence/road-spacing-progression-recovery-3.json. Final-head verification and native playtests remain pending controller continuation.
 
-Current recovery checks passed: 20 tests, zero failures/errors/skips; BUILD SUCCESS. Actual command/environment/results saved in dashboard/evidence/road-spacing-progression-recovery-2.json. Conflict markers absent; all unrelated dashboard entries, fixtures and non-spacing historical evidence unchanged; git diff --check passed. Index still unmerged pending controller staging. All delegates resolved. Return recover for controller continuation.
+Later replay must retain food, porch, automatic staffing and clearance fixes, including the original factory regression without manual job overrides. Preserve industrial progression, advanced recipes, freight energy, passenger transport, vehicle purchases, save compatibility tests/fixtures and historical evidence. Inspect the final source against the reviewed base, run full verification and requested/edge/regression native workflows, then capture fresh task-specific media. Verify real video bytes after all report writes. Do not overwrite historical evidence.

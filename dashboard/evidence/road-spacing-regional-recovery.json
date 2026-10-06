@@ -1,49 +1,55 @@
 {
-  "status": "recovery_checks_passed",
-  "head": "e83d8d185e0002f363d96cfd8db419b5bcf31372",
-  "scope": "Second rebase conflict: checkpoint and spacing progress note resolved. Intermediate working files, not final-head acceptance.",
-  "resolution": "Prefer current regional requirements: protocol21 and format11. Retain all unrelated progress entries unchanged. Keep historical tests/media separate from final-head proof.",
-  "command": "MAVEN_OPTS=\"-Xmx256m -Djava.io.tmpdir=$PWD/target/tmp\" /tmp/apache-maven-3.9.11/bin/mvn --batch-mode -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux \"-DargLine=-Xmx512m -Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=RegionalPopulationTest,RegionalSaveCompatibilityTest,RoadSpacingTest test > target/regional-recovery-next-checks.txt 2>&1",
-  "environment": "Linux; inherited Java; Maven3.9.11; worktree-local target/maven-cache and target/tmp; Maven heap256MiB, fork heap512MiB. Synthetic test fixtures.",
-  "expected": "Regional state/commands and version11 persistence remain compatible; spacing regression tests pass.",
-  "observed": "BUILD SUCCESS;16 tests,0failures/errors/skips;exit0.",
-  "suites": [
+  "status": "recovery_contents_checked",
+  "head": "af41744c9630b30ad8a9f6217f9d0a2ac8da854c",
+  "scope": "Current rebase conflicts only checkpoint and spacing progress note. Runtime/test sources unchanged against HEAD. Controller must stage and continue; not final-head acceptance.",
+  "resolution": "Retained current regional requirements: district population/UI/commands, protocol21 and format11. Unrelated progress entries unchanged. Historical protocol20/format10 claims are superseded.",
+  "checks": [
     {
-      "name": "dev.jayms.RegionalPopulationTest",
-      "tests": "9",
-      "failures": "0",
-      "errors": "0",
-      "skipped": "0"
+      "command": "python3 -m json.tool dashboard/progress.json > /dev/null",
+      "expected": "Resolved progress is valid JSON.",
+      "observed": "exit0; passed"
     },
     {
-      "name": "dev.jayms.RegionalSaveCompatibilityTest",
-      "tests": "4",
-      "failures": "0",
-      "errors": "0",
-      "skipped": "0"
+      "command": "git diff --check",
+      "expected": "No whitespace errors or remaining conflict markers.",
+      "observed": "exit0; passed"
     },
     {
-      "name": "dev.jayms.net.city.RoadSpacingTest",
-      "tests": "3",
-      "failures": "0",
-      "errors": "0",
-      "skipped": "0"
+      "command": "git diff --name-only HEAD",
+      "expected": "No runtime/test source changes for this replay.",
+      "observed": "Only checkpoint, progress and evidence files changed."
     }
   ],
-  "upstreamFilesSha256": {
-    "src/main/java/dev/jayms/net/city/RegionalPopulation.java": "5b40b74f336b296d53247605ee983ddaf312b705336da8d3e81622d784410258",
-    "src/main/java/dev/jayms/net/city/CityFrame.java": "90b0716c61412e740395d9beef2e46dc9b8a6de689033b806bfb6c5d96e7dd5e",
-    "src/main/java/dev/jayms/net/city/CityCommand.java": "8e4e89cc665f876832446ddd424ef6c3af3cbdaf2318a65bbebd3eef11302715",
-    "src/main/java/dev/jayms/net/Protocol.java": "0ee2c2b3040a7330137b67fb8d149fb4abf1b732bdf1afff488ae7b588c65ac1",
-    "src/main/java/dev/jayms/ui/CityTools.java": "c9c13c59fdfedb65f8088c879ecd78c3ad1abba74b5a342c6b6d2c4344967f7a",
-    "src/main/java/dev/jayms/ui/MayorDashboard.java": "3ea2b5d7c86b35a0483d4357b8bafeaf8745539bd86aa0b68255dd549ea6bb6d",
-    "src/main/java/dev/jayms/ui/RegionalDashboard.java": "08373588af18f59437a408d7d293a1f2bf598d0e3d1083b62b83544a79425dba",
-    "src/test/java/dev/jayms/RegionalPopulationTest.java": "50f2553c4749697ea696d0d71362b78bc150b6ef2beceb64dbcce584977470e5",
-    "src/test/java/dev/jayms/RegionalSaveCompatibilityTest.java": "0cf3b5fd193b06b1d9a28b66a98a7aa1e4ff43b80c129b33a4b8989f41c2cb59",
-    "src/test/java/dev/jayms/RegionalMultiplayerTest.java": "f6a193dcc27bec496f82a0466e63b02555346e0dd2c074a34614b427e8aeadde"
+  "environment": "Assigned Linux feature worktree; Python3 and Git. No native display used.",
+  "previousFocusedChecks": {
+    "status": "historical, not rerun this turn",
+    "command": "MAVEN_OPTS=\"-Xmx256m -Djava.io.tmpdir=$PWD/target/tmp\" /tmp/apache-maven-3.9.11/bin/mvn --batch-mode -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux \"-DargLine=-Xmx512m -Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=RegionalPopulationTest,RegionalSaveCompatibilityTest,RoadSpacingTest test > target/regional-recovery-next-checks.txt 2>&1",
+    "suites": [
+      {
+        "name": "dev.jayms.RegionalPopulationTest",
+        "tests": "9",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.RegionalSaveCompatibilityTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.city.RoadSpacingTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ],
+    "observed": "Prior regional/save/spacing run:16 tests passed."
   },
-  "regionalEvidence": "51 regional/district/population artifacts match HEAD byte for byte, including prior recovery report.",
-  "playtest": "Playtest: final-head native workflow checks and fresh media are pending controller Git continuation. No native check executed this recovery turn. Browser does not apply to native Java/OpenGL app; Maven checks exercise synthetic state/save integration.",
+  "playtest": "Playtest: not run for this documentation/evidence-only recovery stop. CLI JSON/source-preservation checks apply; browser does not apply. Final native workflows/media remain pending controller Git continuation.",
   "remaining": [
     "Replay later factory fix: original automatic700-second regression must have no manual job/travel overrides.",
     "Continue rebase while retaining subsequent factory/food/porch and spacing fixes.",
@@ -51,10 +57,5 @@
     "Run final-head regression checks and native spacing/zero/factory/road/jeep/regional workflows.",
     "Replace road-jeep-driving.mp4 with fresh F10 video; validate container, decode and inspect exact submitted bytes before publication."
   ],
-  "publication": "pending controller publication",
-  "checks": [
-    "Resolved files have no conflict markers.",
-    "git diff --check passed.",
-    "All unrelated progress entries match HEAD."
-  ]
+  "publication": "pending controller publication"
 }

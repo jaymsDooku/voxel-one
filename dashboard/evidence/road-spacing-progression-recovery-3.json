@@ -1,0 +1,35 @@
+{
+  "stage": "Preserved rebase recovery; not final-head validation",
+  "environment": "Assigned Linux feature worktree; no native application launched",
+  "checks": [
+    {
+      "command": "git show :2:<historical Jeep media>; git show HEAD:<historical Jeep media>",
+      "result": "Five media files restored; stage 2, HEAD and working bytes equal",
+      "sha256": {
+        "dashboard/evidence/jeep-driver-seat.png": "c8fc7d1968cf6566c8fdb9fe0b8a1ffdc0311cdd257cbb1b3afb4c092ef94aa8",
+        "dashboard/evidence/jeep-driving.mp4": "d6fa04792d9eed41718312c70eac2171394785763cdc3ea2c66b40cb3fb15efa",
+        "dashboard/evidence/jeep-parked.png": "997a483dc87c87c638cf80e580d2edd721a7d29ea1b53c23b8b9d5e750de5a93",
+        "dashboard/evidence/jeep-wall.png": "098a46ff675c9e3f06747e2f26d205c4423c363fa3d707876847f9632a3f2849",
+        "dashboard/evidence/jeep-windshield.png": "5f5a030f84830fdcbe6ba9725c52ae0846594a8c2a552724f86b65fb13231d50"
+      }
+    },
+    {
+      "command": "Python json.loads and unrelated progress-entry comparison against HEAD",
+      "result": "Passed; only assigned spacing entry updated"
+    },
+    {
+      "command": "Python conflict-marker checks on progress.json and ROAD_SPACING_CHECKPOINT.md",
+      "result": "Passed"
+    },
+    {
+      "command": "git diff HEAD --name-only -- src deploy",
+      "result": "Empty; runtime and test sources unchanged"
+    },
+    {
+      "command": "git diff --check",
+      "result": "Passed"
+    }
+  ],
+  "tests": "No Maven tests rerun in this source-unchanged recovery stage. Prior 20-test pass is historical.",
+  "playtest": "Playtest: final-head requested behavior, edge case and regression checks plus fresh task-specific media pending controller rebase continuation."
+}
