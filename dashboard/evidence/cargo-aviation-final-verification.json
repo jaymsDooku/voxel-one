@@ -1,0 +1,31 @@
+{
+  "sourceHead": "94e3268308bb8839c46d08ccd73a20817cdb7e94",
+  "sha256": {
+    "src/main/java/dev/jayms/Main.java": "ed374d7620a018686760c61a5eb65e685a924bda4d1070356a9e1ed69a216152",
+    "src/main/java/dev/jayms/player/CargoVehicle.java": "f969399497ba124dcd27d1dd2835dbfab76ed47987334bbf99da4e622cf8066b",
+    "src/main/java/dev/jayms/player/Jeep.java": "cdea4cde3828a3b266f3952ab4a3faae340bc8b6d4f3079bdcab9a0225ca8126",
+    "src/main/java/dev/jayms/player/JeepModel.java": "9977a10a73edfa2eb432166c99f95234b756e6f8a440211d6d9cc639e73647a1",
+    "src/main/java/dev/jayms/net/Protocol.java": "d500ccd12048e1481be3a653e9c0e478c7286dbbf95552bf290a880fdb8d89c7",
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "1dff1f1598680605ac1ead4f334b4825609b814bf949043691329293aad5e687",
+    "deploy/CargoVehicleSmoke.java": "e79cc9987930e8ebc03e1ef4dace55b53274676f51fe92704c95cf2a5342ee83",
+    "deploy/AviationSmoke.java": "6771ea4c0a180741df0de5107e79f648bd1ae31afbcd0ee2553264af4589250b",
+    "dashboard/evidence/cargo-aviation-final-tanker.png": "13ad5a8736ca8368680058e999ca5c64218bc507e69d341a0007eaf6ffb3d16c",
+    "dashboard/evidence/cargo-aviation-final-jeep.png": "f7ed05cf63356399ea39355d915efa6323b337d70ffefa9e9726c3efaab11cca",
+    "dashboard/evidence/cargo-aviation-final-container.png": "e80a8fdc00938bd74e809cd7706ec5c56a8e593f8c1049c300aa47e12b6099b4",
+    "dashboard/evidence/cargo-aviation-final-video-check.json": "9ccb321b8d950d8a48056e15b3a02f732f6ca81f102e919244b464fcdb37404b",
+    "dashboard/evidence/cargo-aviation-final-van.png": "48ac59b289f157b5e74de3898ec098f6f574daaac93ad97661d98f90b7d2424c",
+    "dashboard/evidence/cargo-aviation-final-lorry.png": "674588838244041e2083269fabf0b99713a901f65856fa036746bcdc4a03fe6d",
+    "dashboard/evidence/cargo-aviation-final-playtest.json": "5d9da36006fbf3d5d1a098d1c818cb574cec64133973e98c5bea40785d407784",
+    "dashboard/evidence/cargo-aviation-final-container-drive.mp4": "5c3fc9dd9d08be8f5435ffc095ed0ef4e46099d8132ceb8b2e89e2b279b4ee0a",
+    "dashboard/evidence/cargo-aviation-airport-boarding.png": "b186ca0c2e1f2b046e0bfe280e4a0b3a70c3dda269aa2d0795d6b433ac55ad13",
+    "dashboard/evidence/cargo-aviation-airport-flight.png": "deb030747ac21670578e4621e1728ac24794a75a65b820bb6847c9f65f98457a",
+    "dashboard/evidence/cargo-aviation-airport-compact-menu.png": "0ec54810d906ab7a65db85de55d6ac6da63b8df05ab346d61839d241b9b10665",
+    "dashboard/evidence/cargo-aviation-airport-regional-regression.png": "51f8abde113711269b1c9906b78e5c126b64708da0bfba03f3587138fe37e71b",
+    "dashboard/evidence/cargo-aviation-airport-playtest.mp4": "1341bef1e50d7903978d831c9e73ba331386c1e492c9816453ea0971a6f5a217",
+    "dashboard/evidence/cargo-aviation-airport-expanded.png": "cfd66d2761e0ab350ef4b361eb85f30b4bec99ed7c4d425ced95ef0c78161dd5",
+    "dashboard/evidence/cargo-aviation-airport-arrival.png": "3ce426ec9cd250594e624fa8153eae3cf73c5cb49080c7d1a8451c8538255cf7",
+    "dashboard/evidence/cargo-aviation-airport-playtest.json": "dd9b4b9896bca69d46bbb8f016a986307fd149145b4ca1b1017cd924fae26948",
+    "dashboard/evidence/cargo-aviation-airport-video-check.json": "9b715287b89f0cf9b0d5d5f935b947ece3b22f1b7e6a72fdd8b63c9feb973df7",
+    "dashboard/evidence/cargo-aviation-airport-exchange-rejected.png": "ccc4f4b4232d394ce619b8e34c2c8a7131f0cea3f02b5a0fca16fc8bce94ed79"
+  }
+}
