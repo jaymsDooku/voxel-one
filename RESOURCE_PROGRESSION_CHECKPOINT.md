@@ -62,8 +62,14 @@ Checkpoint and dashboard conflicts resolved. Earlier validation sections are his
 
 Latest recovery: both fallback defects remain pending. Historical ready statements above apply only to their earlier tested heads. Controller must stage and continue before fixes and final-head tests/media.
 
+## Fallback fixes completed
+
+Food restocking now tries all affordable supplies in nutrition-price/product/seller order before stopping. Delivery tries owned tier/range/depot/energy-feasible modes, including cart fallback when train lacks full cargo energy. New FreightFallbackTest checks both reported failures plus no-feasible-mode atomicity and funded-train energy use.31 focused tests and fresh native progression/fallback playtest passed. Fresh market screenshot shows10 carrots and998.5 cash. Report:dashboard/evidence/resource-progression-fallback-tests.json. No full-suite pass claimed. Ready for controller publication and independent review; no developer commit/push/merge/deploy.
+
 ## Aviation recovery handoff
 
 Resolved dashboard timestamp conflict by retaining current-base timestamp and all current-base entries alongside progression. Source inspection confirms aviation airport construction, runway expansion, flight ticking and plane rendering; AviationTest, native harness and airport evidence are present. Controller must stage and continue rebase. Final-head checks remain pending: actual base-generated version12 city save (0x4349543C) load/restore/resave, protocol22 and aviation serialization, native aviation workflow alongside progression and both fallback regressions, fresh sanitized media. Earlier ready/test statements are historical. No developer stage/continue/abort/reset/commit/push/deploy. JSON preservation checks and git diff --check passed in this recovery; no native playtest run.
 
 Current recovery: checkpoint and dashboard conflicts resolved. Aviation compatibility and actual base-generated version12 save regression remain required after controller continuation. Do not treat historical checks as final-head validation.
+
+Latest handoff: fallback fixes and their regression tests are retained in working source. Historical validation is preserved. Aviation/progression final-head tests, protocol22/version12 serialization and actual base-generated save regression remain pending controller continuation.

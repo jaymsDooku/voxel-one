@@ -1,0 +1,77 @@
+{
+  "result": "passed",
+  "publication": "Pending controller publication",
+  "testedBaseHead": "6b1611b910b2c28f9049a039833d18a687274879",
+  "environment": {
+    "platform": "Linux native GLFW/OpenGL",
+    "java": "25.0.3",
+    "maven": "3.9.11",
+    "natives": "natives-linux",
+    "dependencies": "Offline target/m2",
+    "profile": "Fresh target/resource-progression-fallback-profile; synthetic trained crews and seeded inputs",
+    "display": "Inherited assigned DISPLAY and XAUTHORITY; authentication excluded"
+  },
+  "commands": [
+    {
+      "command": "JAVA_TOOL_OPTIONS=-Djava.io.tmpdir=$PWD/target/tmp /tmp/apache-maven-3.9.11/bin/mvn -q -o -Dmaven.repo.local=target/m2 -Dlwjgl.natives=natives-linux -Dtest=FreightFallbackTest,IndustrialProgressionTest,RegionalPopulationTest,RoadTypesTest,JeepTest test",
+      "exitCode": 0,
+      "tests": 31,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "command": "python3 deploy/run_resource_progression_smoke.py --display \"$DISPLAY\" --profile target/resource-progression-fallback-profile",
+      "exitCode": 0
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0
+    }
+  ],
+  "steps": [
+    {
+      "step": "Playtest: restock market with cheaper100-portion remote farm at1000 cells and affordable10-portion nearby farm at48 cells",
+      "expected": "Try remote offer then buy feasible local carrots; cash conserved; remote stock unchanged",
+      "observed": "Bought3 local portions, then exhausted local stock to10; remote100 portions unchanged. Market cash998.5 and carrots10 visible in fresh screenshot."
+    },
+    {
+      "step": "Playtest: 120-cell16-unit delivery with owned cart, then add train/station and one coal unit",
+      "expected": "Delivery still succeeds via cart; skipped train consumes no coal or fleet assets",
+      "observed": "Passed; resource state unchanged by energy-free cart delivery."
+    },
+    {
+      "step": "Playtest: attempt300-cell16-unit delivery with insufficient coal, then add8 coal units",
+      "expected": "Initial delivery fails atomically; funded train succeeds and consumes19200 fixed-point energy units",
+      "observed": "Passed; failed delivery left state unchanged; funded train used19200 units."
+    },
+    {
+      "step": "Playtest: attempt further food purchases after reachable stock exhausted",
+      "expected": "Stop only once all candidates fail; cash/stock unchanged",
+      "observed": "Passed; repeated restock left complete resource state and market cash unchanged."
+    },
+    {
+      "step": "Playtest: native Mayor dashboard, paid production through all8 eras, locked work, freight range, advanced lines, dense house reservation/demolition, exact save/reload",
+      "expected": "All existing progression checks pass",
+      "observed": "Passed; fresh settlement, advanced and manufacturing captures saved."
+    }
+  ],
+  "limitations": [
+    "Initial food fixture used raw wheat, which is not shop food; that test failed and was corrected to edible carrots. No pass claimed for failed attempt.",
+    "No full-suite pass claimed.31 focused tests and native integration checks passed.",
+    "Synthetic seeded crews do not show naturally reaching tier8.",
+    "Browser testing does not apply to the native Java/OpenGL game."
+  ],
+  "sourceSha256": {
+    "src/main/java/dev/jayms/net/city/CityEconomy.java": "e8cb508ef654fe039a015c8aef5a40b8d6a78f9485ecdc9bff1bab304e791093",
+    "src/main/java/dev/jayms/net/city/IndustrialLogistics.java": "23c59031bf4fa4ce09da7c78e6139d5d24d1f1c2972f8172c9213e5590a8deb5",
+    "src/test/java/dev/jayms/FreightFallbackTest.java": "4ecca8d103c2ec5dcef56533c4033154d40320d7a064e936fb556a3e0de0b6bd",
+    "deploy/ResourceProgressionSmoke.java": "6a7863f1316b873abcec5db5c63dc1f5018b30f7e1f947f92ba6a45cc4590f23"
+  },
+  "mediaSha256": {
+    "resource-progression-food-fallback.png": "f15a6f8e877042bcdcccccc4a5f75fead373cdd1a348f92e6e28d191cdb051e3",
+    "resource-progression-advanced.png": "624690b1e78e9ec9bb68ffcbffdd46eac68f9a3e71943439dbd0628fc9f566d6",
+    "resource-progression-manufacturing.png": "66fb6dc86d89f41ba447f52efd3e828116bbddbde04b8b7c3710e3a4682dd696",
+    "resource-progression-settlement.png": "c8883326da987087b73b75c92dba92a9182fcd387e6db45da6467bc0e6109b76"
+  }
+}

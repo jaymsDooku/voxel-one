@@ -140,7 +140,12 @@ public final class ResourceProgressionSmoke {
         check(city.frame().equals(saved),"Save/reload preserves exact frame and unlock proofs");
         var reloaded=new CitySimulation(config,ground,ground.terrain,saved);
         check(IndustrialProgression.tier(reloaded.economy.resources.state())==8,"Reload retains tier 8");
+        FreightFallbackTest.cartFallbackScenario();
+        var foodCity=FreightFallbackTest.foodFallbackScenario();
+        mayor.businesses.view=1;
+        render(mayor,foodCity,evidence.resolve("resource-progression-food-fallback.png"));
         String report="{\n  \"result\": \"passed\",\n  \"platform\": \"Linux native GLFW/OpenGL; inherited role display\",\n  \"profile\": \"isolated synthetic trained crews and seeded input stocks; 60-second production rate at fixed workday hour\",\n  \"playtest\": \"Click Businesses then Resource progression; place industrial zone; run paid factory shifts through all eight eras; test locked work, freight energy and range, advanced manufacturing, reserved dense housing and full-height demolition, and exact save/reload\",\n  \"unlockSamples\": \""+String.join("; ",paidSamples)+"\"\n}\n";
+        report=report.replace("test locked work, freight energy and range", "test unreachable cheapest food seller with local fallback, cart fallback with insufficient train coal, no-feasible-mode atomicity, locked work, freight energy and range");
         Files.writeString(evidence.resolve("resource-progression-playtest.json"),report);
         glfwDestroyWindow(window);glfwTerminate();System.out.println("Resource progression Playtest: passed; eight paid era unlocks, native UI captures, locked work, freight limits and save/reload");
     }

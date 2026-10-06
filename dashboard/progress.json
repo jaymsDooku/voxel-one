@@ -197,10 +197,20 @@
           "kind": "video",
           "label": "Road integration \u2014 pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/road-placement-playtest.mp4"
+        },
+        {
+          "kind": "image",
+          "label": "Fallback fixes \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/resource-progression-food-fallback.png"
+        },
+        {
+          "kind": "report",
+          "label": "Fallback fixes \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/resource-progression-fallback-tests.json"
         }
       ],
       "status": "in_progress",
-      "note": "Aviation rebase recovery in progress. Final-head aviation/progression checks, actual base-generated version12 save compatibility and fresh media remain pending controller continuation.",
+      "note": "Fallback fixes retained. Aviation rebase recovery in progress; final-head aviation/progression tests, actual base-generated version12 save compatibility and fresh media remain pending controller continuation.",
       "updatedAt": "2026-10-06T18:43:15.000799+00:00"
     },
     {

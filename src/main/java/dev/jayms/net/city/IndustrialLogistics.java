@@ -45,10 +45,23 @@ public final class IndustrialLogistics {
         if (!Double.isFinite(distance) || distance < 0 || units <= 0 || units > 1_000_000_000L
                 || buyerKind < 0 || buyerKind > 1 || buyer < 1) return false;
         if (!IndustrialProgression.enabled(stock.catalog)) return true;
-        var mode = mode(stock, buyerKind, buyer);
-        if (distance > mode.range()) return false;
-        long energy = energy(mode, distance, units);
-        return energy == 0 || stock.remove(buyerKind, buyer, mode.energy(), energy);
+        int tier = IndustrialProgression.tier(stock);
+        for (var mode : MODES.stream().sorted(Comparator.comparingInt(Mode::range).reversed()
+                .thenComparing(Comparator.comparingDouble(Mode::speed).reversed())).toList()) {
+            int required = mode.vehicle() == 0 ? 1
+                    : mode.vehicle() == IndustrialProgression.CART ? 2
+                    : mode.vehicle() == IndustrialProgression.FREIGHT_TRAIN ? 4
+                    : mode.vehicle() == IndustrialProgression.TRUCK ? 5
+                    : mode.vehicle() == IndustrialProgression.CAR ? 6
+                    : mode.vehicle() == IndustrialProgression.ELECTRIC_RAIL ? 7 : 8;
+            if (tier < required || distance > mode.range()
+                    || mode.vehicle() != 0 && stock.available(buyerKind, buyer, mode.vehicle()) < CityMaterials.UNIT
+                    || mode.depot() != 0 && stock.available(buyerKind, buyer, mode.depot()) < CityMaterials.UNIT)
+                continue;
+            long energy = energy(mode, distance, units);
+            if (energy == 0 || stock.remove(buyerKind, buyer, mode.energy(), energy)) return true;
+        }
+        return false;
     }
     /** Fleet investment is paid from private company cash, through the existing stock market. */
     public static void provision(CityEconomy economy, int company) {

@@ -1089,7 +1089,7 @@ public final class CityEconomy {
                 .mapToLong(food -> resources.available(COMPANY, buyer, food) / CityMaterials.UNIT)
                 .sum();
         while (portions < neededPortions) {
-            FoodSupply best = null;
+            var supplies = new ArrayList<FoodSupply>();
             for (int food : resources.catalog.food()) {
                 if (food == CityMaterials.FOOD) continue;
                 for (var seller : companies()) {
@@ -1100,14 +1100,19 @@ public final class CityEconomy {
                     double price = offer(COMPANY, seller.id, food);
                     if (cash(COMPANY, buyer) < price) continue;
                     double cost = price / resources.catalog.nutrition(food);
-                    if (best == null || cost < best.nutritionCost()
-                            || cost == best.nutritionCost() && (food < best.product()
-                                    || food == best.product() && seller.id < best.seller()))
-                        best = new FoodSupply(seller.id, food, price, cost);
+                    supplies.add(new FoodSupply(seller.id, food, price, cost));
                 }
             }
-            if (best == null || !trade(COMPANY, best.seller(), COMPANY, buyer, best.product(),
-                    CityMaterials.UNIT, best.price())) return;
+            supplies.sort(Comparator.comparingDouble(FoodSupply::nutritionCost)
+                    .thenComparingInt(FoodSupply::product).thenComparingInt(FoodSupply::seller));
+            boolean bought = false;
+            for (var supply : supplies)
+                if (trade(COMPANY, supply.seller(), COMPANY, buyer, supply.product(),
+                        CityMaterials.UNIT, supply.price())) {
+                    bought = true;
+                    break;
+                }
+            if (!bought) return;
             portions++;
         }
     }
