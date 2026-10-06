@@ -289,18 +289,14 @@ public final class CityHarvesting {
             progress -= (int) progress;
             status = "Manufacturing";
             for (int i = 0; i < cycles; i++) {
-                if (multiplier == 2 && stocks.available(0, firm.id, IndustrialProgression.POWER) < CityMaterials.UNIT / 16) {
-                    status = "Needs electricity";
-                    break;
-                }
                 for (var e : recipe.inputs().entrySet())
                     economy.purchase(firm.id, e.getKey(), e.getValue() * CityMaterials.UNIT);
-                int count = stocks.craft(firm.id, recipe);
+                int count = stocks.craft(firm.id, recipe,
+                        multiplier == 2 ? CityMaterials.UNIT / 16 : 0);
                 if (count == 0) {
                     status = "Waiting for inputs / capacity";
                     break;
                 }
-                if (multiplier == 2) stocks.remove(0, firm.id, IndustrialProgression.POWER, CityMaterials.UNIT / 16);
                 completed++;
                 produced += count;
             }

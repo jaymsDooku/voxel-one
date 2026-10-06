@@ -222,6 +222,16 @@
           "kind": "image",
           "label": "Aviation integration \u2014 pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/airport-flight.png"
+        },
+        {
+          "kind": "image",
+          "label": "Operating energy \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/resource-progression-operating-energy.png"
+        },
+        {
+          "kind": "report",
+          "label": "Operating energy \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/resource-progression-operating-energy-tests.json"
         }
       ],
       "status": "in_progress",

@@ -256,8 +256,17 @@ public final class CityMaterials {
 
     /** A complete batch is checked before any input is consumed. */
     public int craft(int company, ProductionCatalog.Recipe recipe) {
+        return craft(company, recipe, 0);
+    }
+
+    /** Recipe power and operating power are checked together before the batch changes stock. */
+    public int craft(int company, ProductionCatalog.Recipe recipe, long operatingPower) {
         if (!IndustrialProgression.unlocked(this, recipe.companyKind())
                 || !catalog.recipes().contains(recipe)
+                || operatingPower < 0 || operatingPower > 1_000_000_000L
+                || operatingPower > 0 && (!catalog.valid(IndustrialProgression.POWER)
+                    || available(0, company, IndustrialProgression.POWER)
+                        < recipe.inputs().getOrDefault(IndustrialProgression.POWER, 0) * UNIT + operatingPower)
                 || available(0, company, recipe.output()) + recipe.count() * UNIT
                         > recipe.capacity() * UNIT
                 || recipe.inputs().entrySet().stream()
@@ -265,6 +274,7 @@ public final class CityMaterials {
             return 0;
         for (var e : recipe.inputs().entrySet())
             remove(0, company, e.getKey(), e.getValue() * UNIT);
+        if (operatingPower > 0) remove(0, company, IndustrialProgression.POWER, operatingPower);
         add(0, company, recipe.output(), recipe.count() * UNIT);
         return recipe.count();
     }
