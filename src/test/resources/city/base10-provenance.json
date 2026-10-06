@@ -1,0 +1,27 @@
+{
+  "base_commit": "2b50f4c4be6d47a865906ec0af04585a6db203b0",
+  "save_magic": "0x4349543A",
+  "save_version": 10,
+  "generation_command": "python3 deploy/generate_base10_city_fixtures.py",
+  "writer": "Exact base CityFrame and RoadTypes; unchanged base DTO dependencies",
+  "base_source_sha256": {
+    "src/main/java/dev/jayms/net/city/GameConfig.java": "4b6ddcd4a504fe9b0e465fb9d565a4984d07cfa3520673be49d4c189498f72f9",
+    "src/main/java/dev/jayms/net/city/CityEconomy.java": "fb6b0d81d8684f506d9991594335bc3916d94089d9b7f5333581792dfed055b4",
+    "src/main/java/dev/jayms/net/city/CityAddresses.java": "8e2ee06138357fc730bf601f051cfdf6a845327685739dcc1a6160f00833de26",
+    "src/main/java/dev/jayms/net/city/Agriculture.java": "042b5ad716f6857a8ec319ef7f4ec928de6821901a9187294102e8722a9c0a92",
+    "src/main/java/dev/jayms/net/city/Polygon.java": "31d9f1474f9563349bb24e6386a25d07eb6720fc54d471c4d791ae3ac21373be",
+    "src/main/java/dev/jayms/net/city/CityFrame.java": "1da17ddc85c5a3bdaaa6eb4885255e177e1565083d33534a0ca165899c4f0df2",
+    "src/main/java/dev/jayms/net/city/RoadTypes.java": "fe62a3f159d2ce1a74b30d50888b9f8d2728407c6fb89076101cb522347744ed"
+  },
+  "generator_java_sha256": "a41edb869fcb48143637ea7706d6b9bb4266410b3f09c322e0a374cb84b9826a",
+  "fixtures": {
+    "base10-empty.city": {
+      "bytes": 2126,
+      "sha256": "68ad567c260a2ece43c82520374e4ac3c385dabd61a50077c75e93279db7a83c"
+    },
+    "base10-paved.city": {
+      "bytes": 2212,
+      "sha256": "caf6be1f0505083fddd37f327dedf4bab8e8d072b1424ae1e6648498b0e17bd9"
+    }
+  }
+}

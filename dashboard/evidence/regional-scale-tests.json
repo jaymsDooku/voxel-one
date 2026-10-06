@@ -1,0 +1,291 @@
+{
+  "status": "passed selected checks; ready for independent review",
+  "testedSourceHead": "39798a64aee978ac85792752c094b33af27ba4f3",
+  "environment": {
+    "platform": "Linux native X11; inherited assigned DISPLAY and XAUTHORITY; Mesa software OpenGL",
+    "java": "25.0.3",
+    "profiles": "isolated synthetic offline profiles under target",
+    "browser": "Browser playtesting does not apply to this Java native application."
+  },
+  "tests": [
+    {
+      "command": "/usr/share/maven/bin/mvn -q -Djava.io.tmpdir=\"$PWD/target/tmp\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=RegionalSaveCompatibilityTest,RegionalPopulationTest,RegionalMultiplayerTest,RoadTypesTest,CityMultiplayerTest,CityMetricsTest,CityTest,CitizenLifeTest,MayorDashboardTest,BusinessDashboardTest,CapitalDashboardTest,MetricHistoryTest,CityToolsTest,BusinessCatalogTest,MarketEconomyTest,ProtocolCompatibilityTest test > target/scaling-final-rebased-tests.txt 2>&1",
+      "exitCode": 0,
+      "tests": 91,
+      "suites": [
+        {
+          "name": "dev.jayms.RegionalSaveCompatibilityTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.RegionalPopulationTest",
+          "tests": "9",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.RegionalMultiplayerTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.RoadTypesTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityMultiplayerTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityMetricsTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityTest",
+          "tests": "10",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CitizenLifeTest",
+          "tests": "8",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.MayorDashboardTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.BusinessDashboardTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CapitalDashboardTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.MetricHistoryTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityToolsTest",
+          "tests": "9",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.BusinessCatalogTest",
+          "tests": "11",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.MarketEconomyTest",
+          "tests": "13",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.ProtocolCompatibilityTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        }
+      ]
+    },
+    {
+      "observed": "Both base10-empty.city and base10-paved.city retain exact base-writer bytes after format-10 load/write. Both load with empty regional population.",
+      "commands": [
+        "javac -cp target/classes -d target/test-classes target/FinalSaveFixtureProbe.java",
+        "java -cp target/test-classes:target/classes FinalSaveFixtureProbe"
+      ]
+    }
+  ],
+  "benchmarks": [
+    "GROUP_BOUND: population=10000000 groups=4096 steps=600 elapsed_ms=355.426 snapshot_bytes=348180",
+    "SCALE: population=10000000 groups=30 agents=64 steps=6000 elapsed_ms=149.403 snapshot_bytes=5258"
+  ],
+  "playtests": [
+    {
+      "entry": "Playtest: regional native Main workflow",
+      "command": "python3 deploy/run_regional_playtest.py --display \"$DISPLAY\"",
+      "exitCode": 0,
+      "expectedAndObserved": "Playtest: Main.run, inherited X11 display, Mesa OpenGL, isolated synthetic profile.\nSettle 1,000,000 through Districts UI: population=1000000\nSettle 1,000,000 through Districts UI: population=2000000\nFocus district #1: 64 nearby residents, population remains 2000000\nViewed nearby resident in Main renderer: movement and wallet updates; money conserved; save/reload equal\nEdge: no food, money or work; 12 simulated seconds: hunger=0, food=0, money=0\nRegression: legacy/local-only city retains 12 named citizens and searchable citizen table\nExpected and observed: all assertions passed. Rendered frames: 57\n"
+    },
+    {
+      "entry": "Playtest: paved-road native Main workflow",
+      "command": "python3 deploy/run_regional_road_playtest.py --display \"$DISPLAY\"",
+      "exitCode": 0,
+      "expectedAndObserved": {
+        "status": "passed",
+        "platform": "Linux X11 inherited role display; Mesa",
+        "profile": "isolated synthetic offline city",
+        "checks": [
+          "road menu",
+          "dirt and paved 2/3/4 lane placement",
+          "direction guide",
+          "distinct world widths",
+          "dirt upgrade",
+          "cancel endpoint leaves world and road spending unchanged",
+          "menu escape returns to inspect"
+        ],
+        "recording": "production F10 recorder"
+      }
+    }
+  ],
+  "videoVerification": {
+    "regional-scale": {
+      "codec": "H264",
+      "width": 960,
+      "height": 540,
+      "durationSeconds": 6.055,
+      "decodedFrames": 11,
+      "status": "passed"
+    },
+    "regional-road": {
+      "codec": "H264",
+      "width": 960,
+      "height": 540,
+      "durationSeconds": 76.17,
+      "decodedFrames": 132,
+      "status": "passed"
+    }
+  },
+  "mediaInspection": "Viewed fresh district, nearby resident and road surface PNGs. Decoded all video frames with RecordingProbe. VerifyRoadVideo sampled start/middle/end; viewed sampled regional and road frames. H264 display dimensions 960x540; decoded coded height 544 includes padding.",
+  "preservation": {
+    "unchangedBaseRoadFiles": [
+      "dashboard/evidence/road-focused-test-results.json",
+      "dashboard/evidence/road-full-test-results.json",
+      "dashboard/evidence/road-guide.png",
+      "dashboard/evidence/road-jeep-driver-seat.png",
+      "dashboard/evidence/road-jeep-driving.mp4",
+      "dashboard/evidence/road-jeep-media-validation.json",
+      "dashboard/evidence/road-jeep-parked.png",
+      "dashboard/evidence/road-jeep-playtest.json",
+      "dashboard/evidence/road-jeep-recovery-tests.json",
+      "dashboard/evidence/road-jeep-wall.png",
+      "dashboard/evidence/road-jeep-windshield.png",
+      "dashboard/evidence/road-media-manifest.json",
+      "dashboard/evidence/road-media-validation.json",
+      "dashboard/evidence/road-menu.png",
+      "dashboard/evidence/road-placement-playtest.json",
+      "dashboard/evidence/road-placement-playtest.mp4",
+      "dashboard/evidence/road-rebase-recovery.md",
+      "dashboard/evidence/road-selection-tests.md",
+      "dashboard/evidence/road-source-preservation.json",
+      "dashboard/evidence/road-surfaces.png",
+      "deploy/RoadPlacementSmoke.java",
+      "deploy/VerifyRoadVideo.java",
+      "deploy/run_road_jeep_regression.py",
+      "deploy/run_road_placement_smoke.py",
+      "src/main/java/dev/jayms/net/Blocks.java",
+      "src/main/java/dev/jayms/net/WorldVoxels.java",
+      "src/main/java/dev/jayms/net/city/RoadTypes.java",
+      "src/test/java/dev/jayms/RoadTypesTest.java"
+    ],
+    "unchangedBaseProgressEntries": 49
+  },
+  "media": [
+    {
+      "file": "regional-road-guide.png",
+      "bytes": 833714,
+      "sha256": "93bd0250d905f06c3b55f2bc623c36f40e8a2257a8a7b8dcc90dacbcd7d63e2a",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "regional-road-main.mp4",
+      "bytes": 3517447,
+      "sha256": "5540b37feb208e7c8f6bedb64f09d92b385c0c97fb019fa4c4ce4024a560291b",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "regional-road-menu.png",
+      "bytes": 795687,
+      "sha256": "73ce7c3c9d3c914f1a33107047f65b0354389fd907ddb5830637213ffa7a4ac2",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "regional-road-surfaces.png",
+      "bytes": 823299,
+      "sha256": "19efb52a754be945c8d967d2b9cf8c72adc7146823ce479a9e567df635378530",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "regional-scale-districts.png",
+      "bytes": 16762,
+      "sha256": "57eea1163d5fa98bfc47093c06d42b8ad6ef24fd1b30fbcaef91b40f337b2443",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "regional-scale-local-regression.png",
+      "bytes": 26315,
+      "sha256": "336564e65e23d97a93781bc0314c492f308b9e947ddf90b9e5a6a36d24a046e2",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "regional-scale-main.mp4",
+      "bytes": 322039,
+      "sha256": "2df47c585f59a5fc6c5bf3cbed9773b8504dab23c94cff3cc1e52e94408ed166",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "regional-scale-nearby.png",
+      "bytes": 210512,
+      "sha256": "c22d82f4b4409048a041b2846265150f3d6078a69d43371d31faad28e7ab660f",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "regional-scale-overview.png",
+      "bytes": 19383,
+      "sha256": "26b65ec141b3b4dc4d6147b898719b42c862ca0bc03cde7220b933af17a4df0c",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "regional-scale-starvation-edge.png",
+      "bytes": 19792,
+      "sha256": "32855a16bdfe345c897dc017636f8f1b3fe465661bd18c81aa63615e437a89eb",
+      "publication": "pending controller publication"
+    }
+  ],
+  "limitations": [
+    "Full Maven suite was not completed; only the 91 selected tests above are claimed passed.",
+    "Regional economy and movement use documented aggregate approximations; multiplayer shares one district focus.",
+    "Software-rendered playtest FPS is not a rendering performance guarantee."
+  ],
+  "publication": "Runner alone stages, commits and publishes these artifacts. No commit, push, merge or deployment performed.",
+  "playtestEntry": "Playtest: Recorded native application checks on the recovered implementation.\nEnvironment: Linux X11, inherited assigned DISPLAY and XAUTHORITY, Mesa software OpenGL, Java 25.0.3, isolated synthetic offline profiles under target. Browser playtesting does not apply to this Java native application.\nCommands actually executed:\npython3 deploy/run_regional_playtest.py --display \"$DISPLAY\"\npython3 deploy/run_regional_road_playtest.py --display \"$DISPLAY\"\nBoth commands exited 0. These are prior executed checks; this documentation update does not claim a new execution.\nSteps: Open the mayor dashboard and Districts. Settle 1,000,000 residents twice. Focus district #1 and inspect a nearby resident. Observe movement and wallet updates, check money conservation, then save/reload. Exercise a region with no food, money or work for 12 simulated seconds. Open the local-only citizen table. In the road workflow, choose dirt and paved 2/3/4 lanes, place roads using endpoints and the direction guide, upgrade dirt, cancel after selecting the first endpoint, and escape the menu. Capture using the production F10 recorder.\nExpected: 2,000,000 regional residents with 64 nearby agents; individual movement and wallets; conserved money and equal save/reload state; starvation reaches hunger=0 without negative food or money; 12 local named citizens remain searchable. Roads retain distinct widths and lane choices; cancel changes neither world nor road spending; escape returns to inspect.\nObserved: All assertions passed. Regional counts were 2,000,000 and 64; save/reload and money checks passed. After 12 simulated seconds the starvation case had hunger=0, food=0 and money=0. The local-only table retained 12 named citizens. Dirt and paved 2/3/4 lanes, guide, widths, upgrade, cancel and escape checks passed. Regional run rendered 57 frames. Fresh screenshots were inspected. All 11 regional video frames and 132 road video frames decoded successfully.\nEvidence: regional-scale-districts.png, regional-scale-nearby.png, regional-scale-starvation-edge.png, regional-scale-local-regression.png, regional-scale-main.mp4, regional-road-surfaces.png and regional-road-main.mp4. Command details and hashes are in regional-scale-tests.json. Publication is reserved to the controller.\n"
+}

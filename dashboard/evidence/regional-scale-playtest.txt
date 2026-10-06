@@ -1,0 +1,8 @@
+Playtest: Main.run, inherited X11 display, Mesa OpenGL, isolated synthetic profile.
+Settle 1,000,000 through Districts UI: population=1000000
+Settle 1,000,000 through Districts UI: population=2000000
+Focus district #1: 64 nearby residents, population remains 2000000
+Viewed nearby resident in Main renderer: movement and wallet updates; money conserved; save/reload equal
+Edge: no food, money or work; 12 simulated seconds: hunger=0, food=0, money=0
+Regression: legacy/local-only city retains 12 named citizens and searchable citizen table
+Expected and observed: all assertions passed. Rendered frames: 57

@@ -14,7 +14,15 @@ public record CityFrame(
         List<Horse> horses,
         CityEconomy.State economy,
         CityAddresses.State addresses,
-        Agriculture.State agriculture) {
+        Agriculture.State agriculture,
+        RegionalPopulation.State population) {
+    public CityFrame(GameConfig config, double elapsed, List<Road> roads, List<Zone> zones,
+            List<Building> buildings, List<Citizen> citizens, List<Horse> horses,
+            CityEconomy.State economy, CityAddresses.State addresses, Agriculture.State agriculture) {
+        this(config, elapsed, roads, zones, buildings, citizens, horses, economy, addresses,
+                agriculture, RegionalPopulation.State.empty());
+    }
+
     public CityFrame(
             GameConfig config,
             double elapsed,
@@ -115,15 +123,25 @@ public record CityFrame(
         horses = List.copyOf(horses);
     }
 
+    /** Local residents and the bounded, individually simulated nearby district pool. */
+    public List<Citizen> visibleCitizens() {
+        if (population.agents().isEmpty()) return citizens;
+        var result=new ArrayList<>(citizens);
+        result.addAll(RegionalPopulation.citizens(population));
+        return List.copyOf(result);
+    }
+
     public static CityFrame empty(GameConfig config) {
         return new CityFrame(config, 0, List.of(), List.of(), List.of(), List.of(), List.of());
     }
 
     public void write(DataOutput out) throws IOException {
-        write(out, 10);
+        write(out, 11);
     }
 
     public void write(DataOutput out, int version) throws IOException {
+        if (version < 11 && !population.groups().isEmpty())
+            throw new IOException("Regional population requires city format 11");
         config.write(out);
         out.writeDouble(elapsed);
         out.writeInt(roads.size());
@@ -186,6 +204,7 @@ public record CityFrame(
         if (version >= 2) economy.write(out, version);
         if (version >= 5) CityAddresses.write(out, addresses);
         if (version >= 6) Agriculture.write(out, agriculture);
+        if (version >= 11) RegionalPopulation.write(out, population);
     }
 
     private static int count(DataInput in, int max) throws IOException {
@@ -205,7 +224,7 @@ public record CityFrame(
     }
 
     public static CityFrame read(DataInput in, boolean legacy) throws IOException {
-        return read(in, legacy ? 1 : 10);
+        return read(in, legacy ? 1 : 11);
     }
 
     public static CityFrame read(DataInput in, int version) throws IOException {
@@ -345,6 +364,7 @@ public record CityFrame(
                 horses,
                 economy,
                 addresses,
-                agriculture);
+                agriculture,
+                version >= 11 ? RegionalPopulation.read(in) : RegionalPopulation.State.empty());
     }
 }

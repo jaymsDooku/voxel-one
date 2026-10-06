@@ -101,7 +101,7 @@ public final class CityTools {
         if (tool == -1) {
             float best = 22 * 22;
             selectedCitizen = selectedBuilding = selectedPlot = selectedStreet = 0;
-            for (var c : city.citizens()) {
+            for (var c : city.visibleCitizens()) {
                 var p = project(c.x(), c.y() + 1, c.z(), projection, view, width, height);
                 if (p != null && p.distanceSquared(x, y) < best) {
                     best = p.distanceSquared(x, y);
@@ -313,15 +313,16 @@ public final class CityTools {
             CityFrame city,
             boolean isometric) {
         String time = city.config().time(city.elapsed()).label();
-        int hungry = (int) city.citizens().stream().filter(c -> c.hunger() < 35).count();
+        var metrics = CityMetrics.from(city);
+        int hungry = metrics.hungry();
         ui.rectangle(12, 68, w - 24, 61, .025f, .045f, .07f, .9f);
         ui.text(
                 w < 900
-                        ? time + " | Citizens " + city.citizens().size()
+                        ? time + " | Citizens " + metrics.population()
                         : "VOXEL CITY ONE | "
                                 + time
                                 + " | Citizens "
-                                + city.citizens().size()
+                                + metrics.population()
                                 + " | Buildings "
                                 + city.buildings().size()
                                 + " | Hungry "
@@ -336,10 +337,10 @@ public final class CityTools {
                         city.economy().budget(),
                         city.economy().roadSpending(),
                         city.economy().landRevenue(),
-                        city.citizens().stream().filter(c -> c.home() != 0).count(),
-                        city.citizens().size(),
-                        city.citizens().stream().filter(c -> c.job() != 0).count(),
-                        city.citizens().size()),
+                        metrics.housed(),
+                        metrics.population(),
+                        metrics.employed(),
+                        metrics.population()),
                 22,
                 103,
                 1.4f);
@@ -483,10 +484,23 @@ public final class CityTools {
                 top + 48,
                 1.25f);
         var citizen =
-                city.citizens().stream()
+                city.visibleCitizens().stream()
                         .filter(c -> c.id() == selectedCitizen)
                         .findFirst()
                         .orElse(null);
+        if (citizen != null && citizen.id() >= RegionalPopulation.AGENT_ID_BASE) {
+            var agent=city.population().agents().stream().filter(a->a.id()==citizen.id()).findFirst().orElseThrow();
+            var group=city.population().groups().stream().filter(g->g.id()==agent.group()).findFirst().orElseThrow();
+            float x=Math.max(16,w-380);
+            ui.rectangle(x,140,364,190,.025f,.04f,.065f,.95f);
+            ui.text(citizen.name(),x+10,152,1.3f);
+            ui.text(String.format(Locale.ROOT,"Money %.1f | Hunger %.1f / 100",agent.savings(),agent.hunger()),x+10,181,1.25f);
+            ui.text(CitySimulation.COHORTS[group.cohort()]+" | Company #"+group.company(),x+10,211,1.1f);
+            ui.text("Regional home: "+(agent.housed()?"Housed":"None")+" | "+(agent.employed()?"Employed":"No job"),x+10,240,1.15f);
+            ui.text("Individual resident in the active district",x+10,271,1.05f);
+            ui.text("Rejoins cohort simulation when out of view",x+10,299,1.05f);
+            return;
+        }
         if (citizen != null) {
             float x = Math.max(16, w - 350);
             ui.rectangle(x, 140, 334, 297, .025f, .04f, .065f, .95f);

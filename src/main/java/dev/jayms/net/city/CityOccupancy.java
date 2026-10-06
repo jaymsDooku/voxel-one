@@ -17,7 +17,7 @@ public final class CityOccupancy {
 
     public static boolean overlaps(
             CityFrame frame, float x, float y, float z, float width, float height, float depth) {
-        for (var c : frame.citizens())
+        for (var c : frame.visibleCitizens())
             if (x + width > c.x() - .3f
                     && x < c.x() + .3f
                     && z + depth > c.z() - .3f
