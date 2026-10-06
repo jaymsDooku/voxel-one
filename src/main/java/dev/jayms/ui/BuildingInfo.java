@@ -141,7 +141,11 @@ public final class BuildingInfo {
                         + (b == null ? p.z() : b.z()));
         if (b != null && SpecialBuildings.special(type)) {
             rows.add("Owner: " + (b.zone() == 0 ? "City government" : owner(city, b.zone() == -2 ? CityEconomy.COMPANY : CityEconomy.CITIZEN, b.stock())));
-            rows.add("Level: " + SpecialBuildings.level(type));
+            if (type == SpecialBuildings.AIRPORT) {
+                rows.add("Runways: " + Aviation.runways(b) + " / " + Aviation.MAX_RUNWAYS);
+                rows.add("Reserved flights: " + city.aviation().flights().stream().filter(f -> f.origin() == b.id() || f.destination() == b.id()).count());
+                rows.add("Special menu: expand runway or book citizen flight");
+            } else rows.add("Level: " + SpecialBuildings.level(type));
             int kind = SpecialBuildings.kind(type);
             if (type != SpecialBuildings.EXCHANGE && (kind == 1 || kind == 2 || kind == 3 || kind == 5)) {
                 rows.add("Ages: " + (kind == 1 ? "5-11" : kind == 2 ? "12-17" : "18-21") + " | Classes 08:00-14:00");

@@ -85,6 +85,8 @@ public final class CitySimulation {
     public final CityEconomy economy;
     private boolean founding = true, migrateMaterials;
     public final Agriculture agriculture;
+    private final List<Aviation.Flight> flights = new ArrayList<>();
+    private int flightIds;
 
     public CitySimulation(GameConfig config, Ground ground, Terrain terrain, CityFrame saved) {
         this(config, ground, terrain, saved, ProductionCatalog.cityGame());
@@ -115,9 +117,9 @@ public final class CitySimulation {
                                                 .anyMatch(
                                                         b ->
                                                                 x >= b.x() - 2
-                                                                        && x <= b.x() + 8
+                                                                        && x <= b.x() + StructureBlueprint.width(b.type()) + 2
                                                                         && z >= b.z() - 2
-                                                                        && z <= b.z() + 9));
+                                                                        && z <= b.z() + (b.type() == SpecialBuildings.AIRPORT ? Aviation.depth(Aviation.runways(b)) : StructureBlueprint.depth(b.type())) + 2));
         grade = Math.max(-26, Math.min(88, terrain.column(8, 24).height()));
         if (saved != null) {
             restore(saved);
@@ -234,6 +236,8 @@ public final class CitySimulation {
     private void restore(CityFrame f) {
         addresses = new CityAddresses(f.addresses());
         elapsed = f.elapsed();
+        flights.addAll(f.aviation().flights());
+        flightIds = flights.stream().mapToInt(Aviation.Flight::id).max().orElse(0);
         nextBuild = elapsed + 2;
         for (var r : f.roads()) {
             var cell = new Cell(r.x(), r.z());
@@ -436,12 +440,14 @@ public final class CitySimulation {
         }
         lifeTick(dt);
         assign();
+        aviationTick(dt);
         if (marketReview || hasUnpaidWorkers() || !graduationReviews.isEmpty()) chooseJobs(marketReview);
         for (int id : ecs.query(Position.class, Household.class, Needs.class, Travel.class)) {
             var p = ecs.get(id, Position.class);
             var h = ecs.get(id, Household.class);
             var n = ecs.get(id, Needs.class);
             var t = ecs.get(id, Travel.class);
+            if (flights.stream().anyMatch(f -> f.citizen() == id)) continue;
             var time = config.time(elapsed);
             // Needs and wages follow simulated hours, independent of configured day length.
             float hours = (float) (dt * 24 / config.daySeconds());
@@ -1312,7 +1318,9 @@ public final class CitySimulation {
             return switch (c.kind()) {
                 case CityCommand.ROAD -> road(c.points(), c.value());
                 case CityCommand.ZONE -> zone(c.value(), new Polygon(c.points()));
-                case CityCommand.SPECIAL -> special(c);
+                case CityCommand.SPECIAL -> c.value() == SpecialBuildings.AIRPORT ? airport(c) : special(c);
+                case CityCommand.RUNWAY -> expandAirport(c);
+                case CityCommand.FLIGHT -> bookFlight(c);
                 case CityCommand.RIDE -> ride(player, c.value(), pose);
                 case CityCommand.DEMOLISH -> demolish(c.value());
                 case CityCommand.EXCHANGE -> buildExchange(c.points());
@@ -1342,13 +1350,13 @@ public final class CitySimulation {
                 b.y(),
                 b.z(),
                 StructureBlueprint.width(b.type()),
-                StructureBlueprint.depth(b.type())))
+                (b.type() == SpecialBuildings.AIRPORT ? Aviation.depth(Aviation.runways(b)) : StructureBlueprint.depth(b.type()))))
             return "Move players out of the building before demolition";
         var property = economy.property(id);
         var company = property == null ? null : economy.company(property.operator());
         int kind = company == null ? b.type() : company.kind;
         var edits = new ArrayList<Protocol.Edit>();
-        for (var e : SpecialBuildings.special(b.type())
+        for (var e : b.type() == SpecialBuildings.AIRPORT ? Aviation.blueprint(b.x(), b.y(), b.z(), Aviation.runways(b)) : SpecialBuildings.special(b.type())
                 ? StructureBlueprint.special(b.type(), b.x(), b.y(), b.z())
                 : StructureBlueprint.generate(b.type(), kind, b.x(), b.y(), b.z()))
             // Excavated mine shafts are terrain, not structure to remove.
@@ -1359,6 +1367,14 @@ public final class CitySimulation {
                 for (int z = 0; z < StructureBlueprint.depth(3); z++)
                     edits.add(new Protocol.Edit(b.x() + x, b.y() + 1, b.z() + z, 0));
         ground.apply(edits);
+        for (var f : new ArrayList<>(flights)) if (f.origin() == id || f.destination() == id) {
+            var safe = building(f.origin() == id ? f.destination() : f.origin());
+            var p = ecs.get(f.citizen(), Position.class);
+            var h = ecs.get(f.citizen(), Household.class);
+            if (h != null && h.horse != 0) { var m = ecs.get(h.horse, Mount.class); if (m != null) m.rider = 0; h.horse = 0; }
+            if (p != null) { p.x = safe.x() + 2.5f; p.y = safe.y() + 1.01f; p.z = safe.z() - .5f; }
+            flights.remove(f);
+        }
         buildings.remove(b);
         addresses.demolish(id);
         for (var plot : new ArrayList<>(economy.plots))
@@ -1382,14 +1398,133 @@ public final class CitySimulation {
         return "Building demolished; zoned land can redevelop (no material refund)";
     }
 
+    private void airportSite(int x, int z, int start, int end, int ignore, boolean entranceRequired) {
+        boolean access = false;
+        if (grade + 10 > Terrain.MAX_Y) throw new IllegalArgumentException("Airport exceeds world height");
+        if (economy.overlaps(x, z + start, Aviation.WIDTH, end - start)) throw new IllegalArgumentException("Airport overlaps an owned plot");
+        for (int dx = 0; dx < Aviation.WIDTH; dx++) for (int dz = start; dz < end; dz++) {
+            int cx = x + dx, cz = z + dz;
+            if (Math.abs((long)cx-8)>256 || Math.abs((long)cz-24)>256) throw new IllegalArgumentException("Airport outside city limits");
+            if (roads.containsKey(new Cell(cx, cz))) throw new IllegalArgumentException("Airport cannot cover roads");
+            for (var zone : zones) if (zone.polygon().contains(cx+.5f,cz+.5f)) throw new IllegalArgumentException("Airport cannot cover zones");
+            for (var b : buildings) if (b.id() != ignore && cx >= b.x()-1 && cx <= b.x()+StructureBlueprint.width(b.type())
+                    && cz >= b.z()-2 && cz <= b.z()+(b.type() == SpecialBuildings.AIRPORT ? Aviation.depth(Aviation.runways(b)) : StructureBlueprint.depth(b.type())))
+                throw new IllegalArgumentException("Airport overlaps another building or entrance");
+            if (dx < 6 && dz == -1 && roads.containsKey(new Cell(cx, cz-1))) access = true;
+            if (ground.occupied(cx,grade+1,cz,1,1)) throw new IllegalArgumentException("Airport would intersect a player");
+            for (int y=grade+1; y<=Terrain.MAX_Y; y++) if (ground.type(cx,y,cz)!=0) throw new IllegalArgumentException("Clear the airport site first");
+        }
+        if (entranceRequired && !access) throw new IllegalArgumentException("Front entrance must touch a road");
+    }
+
+    private String airport(CityCommand c) {
+        if (c.points().size()!=1 || c.ownerKind()!=0 || c.ownerId()!=0) throw new IllegalArgumentException("Airports need a city-owned permit");
+        if (buildings.size()>=512 || buildings.stream().filter(b -> b.type()==SpecialBuildings.AIRPORT).count()>=Aviation.MAX_AIRPORTS)
+            throw new IllegalArgumentException("Airport limit reached");
+        int x=(int)Math.floor(c.points().get(0).x()), z=(int)Math.floor(c.points().get(0).z());
+        airportSite(x,z,-1,Aviation.depth(1),0,true);
+        if (economy.budget<Aviation.AIRPORT_COST) throw new IllegalArgumentException("Treasury needs 2000 for an airport");
+        var edits=new ArrayList<Protocol.Edit>();
+        for(int dx=0;dx<Aviation.WIDTH;dx++) for(int dz=-1;dz<Aviation.depth(1);dz++) level(x+dx,z+dz,edits);
+        edits.addAll(Aviation.blueprint(x,grade+1,z,1));
+        ground.apply(edits); economy.budget-=Aviation.AIRPORT_COST;
+        buildings.add(new CityFrame.Building(++buildingIds,0,SpecialBuildings.AIRPORT,x,grade+1,z,8,0));
+        return "Permitted Airport with 1 runway";
+    }
+
+    private String expandAirport(CityCommand c) {
+        var b=building(c.value());
+        if(b==null || b.type()!=SpecialBuildings.AIRPORT || !c.points().isEmpty()) throw new IllegalArgumentException("Select an airport to expand");
+        int count=Aviation.runways(b);
+        if(count>=Aviation.MAX_RUNWAYS) throw new IllegalArgumentException("Airport already has 3 runways");
+        int start=Aviation.depth(count), end=Aviation.depth(count+1);
+        airportSite(b.x(),b.z(),start,end,b.id(),false);
+        if(economy.budget<Aviation.RUNWAY_COST) throw new IllegalArgumentException("Treasury needs 1000 for a runway");
+        var edits=new ArrayList<Protocol.Edit>();
+        for(int dx=0;dx<Aviation.WIDTH;dx++) for(int dz=start;dz<end;dz++) level(b.x()+dx,b.z()+dz,edits);
+        for(var e:Aviation.blueprint(b.x(),b.y(),b.z(),count+1)) if(e.z()>=b.z()+start) edits.add(e);
+        ground.apply(edits); economy.budget-=Aviation.RUNWAY_COST;
+        buildings.set(buildings.indexOf(b),new CityFrame.Building(b.id(),0,b.type(),b.x(),b.y(),b.z(),8*(count+1),0));
+        return "Airport expanded to " + (count+1) + " runways";
+    }
+
+    private int availableRunway(CityFrame.Building b) {
+        for (int r=0;r<Aviation.runways(b);r++) {
+            final int lane=r;
+            if (flights.stream().noneMatch(f -> f.origin()==b.id() && f.originRunway()==lane
+                    || f.destination()==b.id() && f.destinationRunway()==lane)) return r;
+        }
+        return -1;
+    }
+
+    private boolean runwayAvailable(CityFrame.Building b) {
+        return flights.stream().filter(f -> f.origin()==b.id() || f.destination()==b.id()).count()<Aviation.runways(b);
+    }
+
+    private String bookFlight(CityCommand c) {
+        var destination=building(c.value()); int id=c.ownerId();
+        var p=ecs.get(id,Position.class); var h=ecs.get(id,Household.class); var t=ecs.get(id,Travel.class);
+        if(destination==null || destination.type()!=SpecialBuildings.AIRPORT || h==null || !c.points().isEmpty() || c.ownerKind()!=0)
+            throw new IllegalArgumentException("Select a citizen, then a destination airport");
+        if(!life(id).adult()) throw new IllegalArgumentException("Only adult citizens can book flights");
+        if(flights.stream().anyMatch(f -> f.citizen()==id)) throw new IllegalArgumentException("Citizen already has a flight");
+        var origins=buildings.stream().filter(b -> b.type()==SpecialBuildings.AIRPORT && b.id()!=destination.id())
+                .sorted(Comparator.comparingDouble(b -> Math.hypot(b.x()-p.x,b.z()-p.z))).toList();
+        if(origins.isEmpty()) throw new IllegalArgumentException("Build a second airport for flights");
+        if(!runwayAvailable(destination)) throw new IllegalArgumentException("Destination runways are busy");
+        for(var origin:origins) if(runwayAvailable(origin)) {
+            var trial=new Travel(); trial.target=origin.id(); journey(id,p,origin,trial);
+            boolean inside=p.x>origin.x() && p.x<origin.x()+6 && p.z>origin.z() && p.z<origin.z()+7;
+            if(trial.route.isEmpty() && !inside) continue;
+            if(h.horse!=0) { var mount=ecs.get(h.horse,Mount.class); if(mount!=null) mount.rider=0; h.horse=0; p.y-=.75f; }
+            t.target=origin.id(); t.route.clear(); t.route.addAll(trial.route); t.activity="Going to airport";
+            flights.add(new Aviation.Flight(++flightIds,origin.id(),destination.id(),id,availableRunway(origin),availableRunway(destination),0,0));
+            return "Flight booked: walk to airport, board, then fly";
+        }
+        throw new IllegalArgumentException("No connected origin airport with a free runway");
+    }
+
+    private void aviationTick(float dt) {
+        for(var old:new ArrayList<>(flights)) {
+            var f=old.tick(dt); var a=building(f.origin()); var b=building(f.destination());
+            var p=ecs.get(f.citizen(),Position.class); var h=ecs.get(f.citizen(),Household.class); var t=ecs.get(f.citizen(),Travel.class);
+            if(p==null || h==null || a==null || b==null) { flights.remove(old); continue; }
+            if(f.stage()==0) {
+                t.activity="Going to airport";
+                if(t.target!=a.id()) { t.target=a.id(); t.route.clear(); journey(f.citizen(),p,a,t); }
+                if(!t.route.isEmpty()) travel(f.citizen(),p,h,t,dt);
+                if(p.x>a.x() && p.x<a.x()+6 && p.z>a.z() && p.z<a.z()+7 && t.route.isEmpty()) f=f.stage(1);
+                else if(f.clock()>120 || t.route.isEmpty()) { flights.remove(old); t.target=-9999; t.activity="Flight cancelled: route blocked"; continue; }
+            }
+            if(f.stage()==1) {
+                t.activity="Boarding passenger jet";
+                if(h.horse!=0) { var m=ecs.get(h.horse,Mount.class); if(m!=null)m.rider=0; h.horse=0; }
+                if(f.clock()>=3) f=f.stage(2);
+            }
+            if(f.stage()==2) {
+                double progress=Math.min(1,f.clock()/Aviation.duration(a,b));
+                var sample=FlightPath.sample(a.x()+8,a.y()+1,a.z()+18+Aviation.RUNWAY_SPACING*f.originRunway(),b.x()+28,b.y()+1,b.z()+18+Aviation.RUNWAY_SPACING*f.destinationRunway(),progress);
+                p.x=sample.x();p.y=sample.y();p.z=sample.z();p.yaw=sample.yaw();
+                t.activity="Flying to airport #"+b.id();
+                if(progress>=1) { f=f.stage(3); p.x=b.x()+2.5f;p.y=b.y()+1.01f;p.z=b.z()+1.5f; }
+            }
+            if(f.stage()==3) {
+                t.activity="Arrived at airport #"+b.id();
+                if(f.clock()>=3) { flights.remove(old); t.target=-9999;t.route.clear();continue; }
+            }
+            flights.set(flights.indexOf(old),f);
+        }
+    }
+
     private boolean specialCell(int x, int z) {
         return buildings.stream().anyMatch(b -> SpecialBuildings.special(b.type())
-                && x >= b.x() && x < b.x() + 6 && z >= b.z()-1 && z <= b.z()+7);
+                && x >= b.x() && x < b.x() + StructureBlueprint.width(b.type())
+                && z >= b.z()-1 && z <= b.z()+(b.type() == SpecialBuildings.AIRPORT ? Aviation.depth(Aviation.runways(b)) : StructureBlueprint.depth(b.type())));
     }
 
     private String special(CityCommand command) {
         int type = command.value();
-        if ((!SpecialBuildings.special(type) || type == SpecialBuildings.EXCHANGE) || command.points().size() != 1 || buildings.size() >= 512)
+        if ((!SpecialBuildings.special(type) || type == SpecialBuildings.EXCHANGE || type == SpecialBuildings.AIRPORT) || command.points().size() != 1 || buildings.size() >= 512)
             throw new IllegalArgumentException("Invalid special building permit");
         int kind = command.ownerKind(), id = command.ownerId();
         var snapshot = frame();
@@ -1410,7 +1545,7 @@ public final class CitySimulation {
             for (var zone : zones) if (zone.polygon().contains(cx+.5f,cz+.5f))
                 throw new IllegalArgumentException("Building cannot cover zones");
             for (var b : buildings) if (cx >= b.x()-1 && cx <= b.x()+StructureBlueprint.width(b.type())
-                    && cz >= b.z()-2 && cz <= b.z()+StructureBlueprint.depth(b.type()))
+                    && cz >= b.z()-2 && cz <= b.z()+(b.type() == SpecialBuildings.AIRPORT ? Aviation.depth(Aviation.runways(b)) : StructureBlueprint.depth(b.type())))
                 throw new IllegalArgumentException("Building overlaps another building or entrance");
             if (dz == -1 && roads.containsKey(new Cell(cx,cz-1))) access = true;
             if (ground.occupied(cx,grade+1,cz,1,1)) throw new IllegalArgumentException("Building would intersect a player");
@@ -1552,7 +1687,7 @@ public final class CitySimulation {
                                                 && x + 7 > b.x() - 1
                                                 && z - 1
                                                         < b.z()
-                                                                + StructureBlueprint.depth(b.type())
+                                                                + (b.type() == SpecialBuildings.AIRPORT ? Aviation.depth(Aviation.runways(b)) : StructureBlueprint.depth(b.type()))
                                                                 + 1
                                                 && z + 8 > b.z() - 1)
                 || roads.keySet().stream()
@@ -1709,7 +1844,7 @@ public final class CitySimulation {
         for (var b : buildings)
             if (x - 1 < b.x() + StructureBlueprint.width(b.type()) + 1
                     && x + width + 1 > b.x() - 1
-                    && z - 2 < b.z() + StructureBlueprint.depth(b.type()) + 1
+                    && z - 2 < b.z() + (b.type() == SpecialBuildings.AIRPORT ? Aviation.depth(Aviation.runways(b)) : StructureBlueprint.depth(b.type())) + 1
                     && z + depth + 1 > b.z() - 2) return false;
         return true;
     }
@@ -2037,8 +2172,7 @@ public final class CitySimulation {
                 hs,
                 economy.state(),
                 addresses.state(buildings),
-                agriculture.state(),
-                population.state());
+                agriculture.state(), population.state(), new Aviation.State(flights));
     }
 
     public static CityFrame load(Path file) throws IOException {
@@ -2055,7 +2189,7 @@ public final class CitySimulation {
                     && magic != 0x43495438
                     && magic != 0x43495439
                     && magic != 0x4349543A
-                    && magic != 0x4349543B) throw new IOException("Invalid city save");
+                    && magic != 0x4349543B && magic != 0x4349543C) throw new IOException("Invalid city save");
             return CityFrame.read(
                     in,
                     magic == 0x43495431
@@ -2068,7 +2202,7 @@ public final class CitySimulation {
                                                     ? 4
                                                     : magic == 0x43495435
                                                             ? 5
-                                                            : magic == 0x43495436 ? 6 : magic == 0x43495437 ? 7 : magic == 0x43495438 ? 8 : magic == 0x43495439 ? 9 : magic == 0x4349543A ? 10 : 11);
+                                                            : magic == 0x43495436 ? 6 : magic == 0x43495437 ? 7 : magic == 0x43495438 ? 8 : magic == 0x43495439 ? 9 : magic == 0x4349543A ? 10 : magic == 0x4349543B ? 11 : 12);
         }
     }
 
@@ -2077,7 +2211,7 @@ public final class CitySimulation {
         Files.createDirectories(file.toAbsolutePath().getParent());
         Path tmp = file.resolveSibling(file.getFileName() + ".tmp");
         try (var out = new DataOutputStream(Files.newOutputStream(tmp))) {
-            out.writeInt(0x4349543B);
+            out.writeInt(0x4349543C);
             frame().write(out);
         }
         try {

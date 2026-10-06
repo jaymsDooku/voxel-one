@@ -1,13 +1,9 @@
-# Camera orbit: terrain-base resolution ready for controller
+# Expanded airport overlap fix ready for independent review
 
-Current rebase HEAD/base: 127c1d22d72d746a412962086964a769689051d9. Controller must stage resolutions and continue the existing rebase. No reset, abort, commit, push, merge or deployment performed.
+Exchange and private building overlap checks use airport current runway count. Regression tests attempt exchange construction on second and third runways with real road access; reject with unchanged treasury, buildings, voxel map and apply count. Outside exchange construction still works. Regional data and command compatibility remain preserved.
 
-513 unrelated base files hash-identical; every one of 40 base progress entries retained verbatim. Geography, terrain source/tests/tools/evidence, Protocol 17 and LocalGame version-7 save compatibility retained. Main diff contains only camera changes; --production-config preserved.
+Current focused Maven tests: 23 passed, zero failures/errors (AviationTest10, CityBusinessTest9, RegionalSaveCompatibilityTest4). No new full-suite or package run claimed. Previous broad validation is historical in airport-tests.json.
 
-58 tests passed, including TerrainGenerationTest saveVersionAndLegacyMigration. Fresh actual GLFW/X11/Mesa run passed 400-degree orbit, release, inventory modal, view changes, focus loss/restore and fresh drag. Fresh F10 clip independently decoded, below 6 MB. Commands/results: dashboard/evidence/free-isometric-orbit-rebase-tests.json.
+Playtest: production Main, Linux X11/Mesa, inherited assigned DISPLAY/XAUTHORITY, isolated synthetic profile. Exchange UI attempt inside expanded runway rejected; treasury and world edits unchanged. Airport placement/expansion, single-airport edge, City hall regression, boarding/flight/arrival, compact menu and regional settle1000000/focus64 all passed. Fresh airport-exchange-rejected.png and other captures saved. F10 clip decoded fully: 40 frames, 1596688 bytes.
 
-MANDATORY CONTROLLER CHECK AFTER REBASE, BEFORE RESUBMISSION:
-python3 deploy/verify_isometric_orbit_tree.py --revision HEAD
-This must pass. It checks the tested engine/test/tools/config fingerprint, all unrelated base blobs and each base progress entry. Manifest: dashboard/evidence/free-isometric-orbit-tested-tree.json. Default working-tree verification passes; negative check against current base-only HEAD correctly fails. If the post-rebase check fails, do not submit; preserve state and return for correction. Earlier submitted heads and old-base reports do not establish correctness of a new head.
-
-The index still marks dashboard/progress.json unmerged until controller stages the resolved file. All edits preserved; independent exact-head review remains required.
+Commands, expected/observed results, source/media hashes in dashboard/evidence/airport-tests.json. git diff --check passed. All edits preserved; no commit, push, merge, deployment or index writes. Controller owns publication and independent review. URLs pending controller publication. Helper failed and was resolved as self; concurrency0. No owner answer pending.

@@ -115,7 +115,7 @@ class ProtocolCompatibilityTest {
     @Test
     void incompatibleVersionsAreRejectedWithActionableDiagnostics() throws Exception {
         var identity = SecureTransport.server(temp.resolve("tls"));
-        for (int version : List.of(13, Protocol.VERSION + 1)) {
+        for (int version : List.of(13, 21, Protocol.VERSION + 1)) {
             try (var listener = identity.context().getServerSocketFactory()
                     .createServerSocket(0, 1, InetAddress.getLoopbackAddress())) {
                 listener.setSoTimeout(10000);
@@ -134,7 +134,7 @@ class ProtocolCompatibilityTest {
                         "127.0.0.1", listener.getLocalPort(), "tester",
                         "test-password".toCharArray(), false, identity.fingerprint()));
                 assertTrue(failure.getMessage().contains("server " + version));
-                assertTrue(failure.getMessage().contains(version == 13 ? "server needs" : "launcher"));
+                assertTrue(failure.getMessage().contains(version < Protocol.VERSION ? "server needs" : "launcher"));
                 task.get(10, TimeUnit.SECONDS);
             }
         }

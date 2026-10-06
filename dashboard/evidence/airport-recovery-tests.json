@@ -1,0 +1,69 @@
+{
+  "status": "rebase file resolutions ready for controller; final-head checks pending",
+  "changes": [
+    "Preserved regional population, district UI, fixtures, tests and historical evidence",
+    "City format 11 retains regional serialization; format 12 appends aviation; save magic 0x4349543C",
+    "Protocol 22; district IDs 8/9 retained; runway and flight IDs 10/11",
+    "Regional visible citizens and flight passenger hiding both retained"
+  ],
+  "tests": [
+    {
+      "command": "MAVEN_OPTS='-Xmx512m' mvn -q -o -Dmaven.repo.local=target/maven-cache -DargLine=\"-Xmx512m -Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=AviationTest,RegionalPopulationTest,CityToolsTest,ProtocolCompatibilityTest,MarketEconomyTest,BusinessCatalogTest test",
+      "result": "Passed after deleting generated target/classes, target/test-classes and target/maven-status to force clean compilation",
+      "suites": [
+        {
+          "name": "AviationTest",
+          "tests": 9,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "RegionalPopulationTest",
+          "tests": 10,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "CityToolsTest",
+          "tests": 9,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "ProtocolCompatibilityTest",
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "MarketEconomyTest",
+          "tests": 13,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "BusinessCatalogTest",
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      ]
+    },
+    {
+      "command": "git diff --check",
+      "result": "Passed"
+    },
+    {
+      "result": "Playtest: final-head native workflow and new media deferred until controller stages resolutions and continues rebase. Existing airport media records earlier implementation, not this merged head."
+    }
+  ],
+  "environment": "Linux; Java 25; writable target/maven-cache and target/tmp; no native display run during recovery",
+  "history": "Two earlier focused runs failed 3 aviation assertions because stale generated CityFrame.class read format 11. Clean compilation confirmed format 12 and all checks passed.",
+  "handoff": "Controller stages file resolutions and continues rebase. No Git mutation, commit, push or deployment by developer."
+}

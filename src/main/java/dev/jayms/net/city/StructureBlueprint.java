@@ -9,14 +9,15 @@ public final class StructureBlueprint {
     public static final int WIDTH = 6, DEPTH = 7;
 
     public static int width(int type) {
-        return type == 3 ? 12 : WIDTH;
+        return type == SpecialBuildings.AIRPORT ? Aviation.WIDTH : type == 3 ? 12 : WIDTH;
     }
 
     public static int depth(int type) {
-        return type == 3 ? 14 : DEPTH;
+        return type == SpecialBuildings.AIRPORT ? Aviation.depth(1) : type == 3 ? 14 : DEPTH;
     }
 
     public static List<Protocol.Edit> generate(int type, int x, int y, int z) {
+        if (type == SpecialBuildings.AIRPORT) return Aviation.blueprint(x, y, z, 1);
         if (type == SpecialBuildings.EXCHANGE) {
             var office = new ArrayList<>(generate(1, x, y, z));
             // Two banks of desks leave the central entrance and walking aisle clear.
@@ -74,6 +75,7 @@ public final class StructureBlueprint {
 
     /** Walkable civic structures: clear central aisle, desks, and a service-coloured sign. */
     public static List<Protocol.Edit> special(int type, int x, int y, int z) {
+        if (type == SpecialBuildings.AIRPORT) return Aviation.blueprint(x, y, z, 1);
         if (type == SpecialBuildings.EXCHANGE) return generate(type, x, y, z);
         if (!SpecialBuildings.special(type)) throw new IllegalArgumentException("Invalid special building");
         var edits = new ArrayList<>(generate(0, x, y, z));

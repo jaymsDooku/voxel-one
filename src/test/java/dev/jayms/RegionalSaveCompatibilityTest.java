@@ -26,8 +26,8 @@ class RegionalSaveCompatibilityTest {
         var ground=new CityTest.Ground();var simulation=new CitySimulation(old.config(),ground,ground.terrain,old);
         Path upgraded=temp.resolve("empty-upgraded.city");simulation.save(upgraded);
         try(var in=new DataInputStream(Files.newInputStream(upgraded))) {
-            assertEquals(0x4349543B,in.readInt());
-            assertEquals(simulation.frame(),CityFrame.read(in,11));assertEquals(-1,in.read());
+            assertEquals(0x4349543C,in.readInt());
+            assertEquals(simulation.frame(),CityFrame.read(in,12));assertEquals(-1,in.read());
         }
         assertEquals(simulation.frame(),CitySimulation.load(upgraded));
     }
@@ -57,7 +57,7 @@ class RegionalSaveCompatibilityTest {
         Path truncated=temp.resolve("truncated10.city");Files.write(truncated,Arrays.copyOf(original,original.length-1));
         assertThrows(IOException.class,()->CitySimulation.load(truncated));
         var current=new ByteArrayOutputStream();var out=new DataOutputStream(current);
-        out.writeInt(0x4349543B);CityFrame.empty(GameConfig.cityGame()).write(out);
+        out.writeInt(0x4349543B);CityFrame.empty(GameConfig.cityGame()).write(out,11);
         Path broken=temp.resolve("truncated11.city");Files.write(broken,Arrays.copyOf(current.toByteArray(),current.size()-1));
         assertThrows(IOException.class,()->CitySimulation.load(broken));
     }

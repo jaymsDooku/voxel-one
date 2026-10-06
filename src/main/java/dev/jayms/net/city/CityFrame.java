@@ -15,12 +15,27 @@ public record CityFrame(
         CityEconomy.State economy,
         CityAddresses.State addresses,
         Agriculture.State agriculture,
-        RegionalPopulation.State population) {
+        RegionalPopulation.State population, Aviation.State aviation) {
     public CityFrame(GameConfig config, double elapsed, List<Road> roads, List<Zone> zones,
             List<Building> buildings, List<Citizen> citizens, List<Horse> horses,
             CityEconomy.State economy, CityAddresses.State addresses, Agriculture.State agriculture) {
         this(config, elapsed, roads, zones, buildings, citizens, horses, economy, addresses,
-                agriculture, RegionalPopulation.State.empty());
+                agriculture, RegionalPopulation.State.empty(), Aviation.State.empty());
+    }
+
+    public CityFrame(GameConfig config, double elapsed, List<Road> roads, List<Zone> zones,
+            List<Building> buildings, List<Citizen> citizens, List<Horse> horses,
+            CityEconomy.State economy, CityAddresses.State addresses, Agriculture.State agriculture,
+            RegionalPopulation.State population) {
+        this(config, elapsed, roads, zones, buildings, citizens, horses, economy, addresses,
+                agriculture, population, Aviation.State.empty());
+    }
+    public CityFrame(GameConfig config, double elapsed, List<Road> roads, List<Zone> zones,
+            List<Building> buildings, List<Citizen> citizens, List<Horse> horses,
+            CityEconomy.State economy, CityAddresses.State addresses, Agriculture.State agriculture,
+            Aviation.State aviation) {
+        this(config, elapsed, roads, zones, buildings, citizens, horses, economy, addresses,
+                agriculture, RegionalPopulation.State.empty(), aviation);
     }
 
     public CityFrame(
@@ -136,12 +151,14 @@ public record CityFrame(
     }
 
     public void write(DataOutput out) throws IOException {
-        write(out, 11);
+        write(out, 12);
     }
 
     public void write(DataOutput out, int version) throws IOException {
         if (version < 11 && !population.groups().isEmpty())
             throw new IOException("Regional population requires city format 11");
+        if (version < 12 && (!aviation.flights().isEmpty() || buildings.stream().anyMatch(b -> b.type() == SpecialBuildings.AIRPORT)))
+            throw new IOException("Airports need snapshot version 12");
         config.write(out);
         out.writeDouble(elapsed);
         out.writeInt(roads.size());
@@ -205,6 +222,7 @@ public record CityFrame(
         if (version >= 5) CityAddresses.write(out, addresses);
         if (version >= 6) Agriculture.write(out, agriculture);
         if (version >= 11) RegionalPopulation.write(out, population);
+        if (version >= 12) Aviation.write(out, aviation);
     }
 
     private static int count(DataInput in, int max) throws IOException {
@@ -224,7 +242,7 @@ public record CityFrame(
     }
 
     public static CityFrame read(DataInput in, boolean legacy) throws IOException {
-        return read(in, legacy ? 1 : 11);
+        return read(in, legacy ? 1 : 12);
     }
 
     public static CityFrame read(DataInput in, int version) throws IOException {
@@ -260,6 +278,10 @@ public record CityFrame(
                     || (type > 3 && !SpecialBuildings.special(type))
                     || (type == SpecialBuildings.EXCHANGE && version < 8)
                     || (type >= 20 && version < 9)
+                    || (type == SpecialBuildings.AIRPORT && (version < 11 || zone != 0 || stock != 0 || capacity % 8 != 0 || capacity > 24
+                            || y + 8 > dev.jayms.net.Terrain.MAX_Y
+                            || (long)x + Aviation.WIDTH - 1 > 264
+                            || (long)z - 1 < -232 || (long)z + Aviation.depth(capacity / 8) - 1 > 280))
                     || capacity < 1
                     || capacity > 32
                     || stock < 0
@@ -271,6 +293,8 @@ public record CityFrame(
                     || Math.abs((long) z - 24) > 256) throw new IOException("Invalid building");
             buildings.add(new Building(id, zone, type, x, y, z, capacity, stock));
         }
+        if (buildings.stream().filter(b -> b.type() == SpecialBuildings.AIRPORT).count() > Aviation.MAX_AIRPORTS)
+            throw new IOException("Too many airports");
         var citizens = new ArrayList<Citizen>();
         for (int i = 0, n = count(in, 128); i < n; i++) {
             int id = in.readInt();
@@ -354,6 +378,8 @@ public record CityFrame(
                     throw new IOException("Invalid school");
             }
         }
+        var population = version >= 11 ? RegionalPopulation.read(in) : RegionalPopulation.State.empty();
+        var aviation = version >= 12 ? Aviation.read(in, buildings, citizens) : Aviation.State.empty();
         return new CityFrame(
                 config,
                 elapsed,
@@ -364,7 +390,6 @@ public record CityFrame(
                 horses,
                 economy,
                 addresses,
-                agriculture,
-                version >= 11 ? RegionalPopulation.read(in) : RegionalPopulation.State.empty());
+                agriculture, population, aviation);
     }
 }

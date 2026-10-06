@@ -146,6 +146,19 @@ class RegionalPopulationTest {
         assertEquals(RegionalPopulation.State.empty(),legacy.population());assertEquals(original.citizens(),legacy.citizens());
         assertThrows(IOException.class,()->frame.write(new DataOutputStream(new ByteArrayOutputStream()),9));
     }
+    @Test void formatElevenRegionalSaveMigratesWithoutReadingFlights() throws Exception {
+        var s=city();s.command(new CityCommand(CityCommand.SETTLE_DISTRICT,1_000_000,List.of()),1,null);
+        var frame=s.frame();var bytes=new ByteArrayOutputStream();
+        var out=new DataOutputStream(bytes);out.writeInt(0x4349543B);frame.write(out,11);
+        var file=temp.resolve("base-format-eleven.city");java.nio.file.Files.write(file,bytes.toByteArray());
+        var loaded=CitySimulation.load(file);
+        assertEquals(frame.population(),loaded.population());
+        assertTrue(loaded.aviation().flights().isEmpty());
+        var current=new ByteArrayOutputStream();loaded.write(new DataOutputStream(current));
+        assertEquals(loaded,CityFrame.read(new DataInputStream(new ByteArrayInputStream(current.toByteArray()))));
+        assertEquals(8,CityCommand.SETTLE_DISTRICT);assertEquals(9,CityCommand.FOCUS_DISTRICT);
+        assertEquals(10,CityCommand.RUNWAY);assertEquals(11,CityCommand.FLIGHT);
+    }
     @Test void dashboardSettlesFocusesAndLocatesThroughProductionCommands() {
         var s=city();var ui=new MayorDashboard();ui.show();
         ui.click(920,60,1280,720,s.frame(),id->fail());assertEquals(6,ui.tab);
