@@ -73,3 +73,11 @@ Resolved dashboard timestamp conflict by retaining current-base timestamp and al
 Current recovery: checkpoint and dashboard conflicts resolved. Aviation compatibility and actual base-generated version12 save regression remain required after controller continuation. Do not treat historical checks as final-head validation.
 
 Latest handoff: fallback fixes and their regression tests are retained in working source. Historical validation is preserved. Aviation/progression final-head tests, protocol22/version12 serialization and actual base-generated save regression remain pending controller continuation.
+
+## Aviation integration validated
+
+Current rebased source retains aviation construction, expanded runways, flights/rendering, protocol22 and v12 city/network frames. Actual reviewed base1ecbf565c449d7b5c96a621310c1a012b80ae1aa wrote committed synthetic src/test/resources/base-v12-aviation-city.dat, with provenance/aviation manifest. AviationSaveCompatibilityTest verifies load, exact base aviation record, airports/runways/flight, network equality, restore/resave and v12 header.43 focused tests passed. Native aviation and progression/fallback harnesses exited0 with fresh profiles/media. Detailed receipt:dashboard/evidence/resource-progression-aviation-integration.json. No full-suite pass claimed. Ready for controller publication and independent review; no developer commit/push/merge/deploy.
+
+## Shipping recovery handoff
+
+Resolved dashboard timestamp conflict while retaining all current-base entries alongside progression. Preserve Shipping.java, coastal terrain, port placement/UI, multiplayer guards, protocol23, shipping tests and historical media. Controller must stage and continue rebase. Final-head shipping/progression tests and native workflow with fresh synthetic profiles/media remain required after continuation. AviationSaveCompatibilityTest currently asserts protocol22; update this assertion to current protocol23 after continuation, retaining actual v12 save compatibility. Earlier receipts are historical, not readiness proof for the new head. No developer stage/continue/abort/reset/commit/push/deploy.

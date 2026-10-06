@@ -1,0 +1,94 @@
+{
+  "result": "passed",
+  "publication": "Pending controller publication",
+  "testedHead": "0f8858da3c79d614709afba85146e29c59aef773",
+  "environment": {
+    "platform": "Linux native X11/GLFW/OpenGL; Mesa",
+    "java": "25.0.3",
+    "maven": "3.9.11",
+    "natives": "natives-linux",
+    "dependencies": "Offline target/m2; target/maven-cache points to m2",
+    "display": "Inherited assigned DISPLAY/XAUTHORITY; values and authentication excluded",
+    "profiles": "Reset synthetic target/aviation-home and target/aviation-runtime; fresh target/resource-progression-aviation-integrated-profile"
+  },
+  "commands": [
+    {
+      "command": "JAVA_TOOL_OPTIONS=-Djava.io.tmpdir=$PWD/target/tmp /tmp/apache-maven-3.9.11/bin/mvn -q -o -Dmaven.repo.local=target/m2 -Dlwjgl.natives=natives-linux -Dtest=AviationSaveCompatibilityTest,AviationTest,IndustrialProgressionTest,FreightFallbackTest,RegionalPopulationTest,RoadTypesTest,JeepTest test",
+      "exitCode": 0,
+      "tests": 43,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "command": "python3 deploy/run_aviation_smoke.py --display \"$DISPLAY\"",
+      "exitCode": 0
+    },
+    {
+      "command": "python3 deploy/run_resource_progression_smoke.py --display \"$DISPLAY\" --profile target/resource-progression-aviation-integrated-profile",
+      "exitCode": 0
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0
+    }
+  ],
+  "baseSave": {
+    "provenance": {
+      "baseCommit": "1ecbf565c449d7b5c96a621310c1a012b80ae1aa",
+      "generation": "Compiled archived base src/main/java and base AviationTest.java plus deploy/WriteBaseAviationSave.java; isolated synthetic fixture. Base classes preceded dependency jars; no current classes on writer classpath.",
+      "citySaveMagic": "0x4349543C",
+      "networkProtocol": 22,
+      "contents": "Two synthetic airports; origin expanded to2 runways; one booked synthetic flight; default base access roads/citizens/economy. No private profiles/accounts.",
+      "sha256": {
+        "base-v12-aviation-city.dat": "741409ae34edf28c5a8b832a2ffec37aa47aa06899bccb781d965791d25abfbc",
+        "base-v12-aviation-state.txt": "0c67515794a70631901f8ffa4179180f73b1ef8a90461dce7b0ad0c298d29760"
+      }
+    },
+    "extractionCommand": "git archive 1ecbf565c449d7b5c96a621310c1a012b80ae1aa src/main/java src/test/java/dev/jayms/AviationTest.java | tar -x -C target/aviation-base-source",
+    "generationCommands": [
+      "Python subprocess: javac -cp (target/m2 jar paths) -d target/aviation-base-classes (all archived base src/main/java files) target/aviation-base-source/src/test/java/dev/jayms/AviationTest.java deploy/WriteBaseAviationSave.java",
+      "Python subprocess: java -Djava.io.tmpdir=(worktree)/target/tmp -cp (target/aviation-base-classes plus target/m2 jars) dev.jayms.WriteBaseAviationSave src/test/resources/base-v12-aviation-city.dat"
+    ],
+    "generationExitCode": 0,
+    "expected": "Current loader accepts complete actual base v12 save, retaining airports, expanded runway and booked flight; complete network frame equality; restore and resave retain aviation and roads; writer emits0x4349543C and protocol22 stays",
+    "observed": "AviationSaveCompatibilityTest passed. Base manifest aviation record matched exactly. Two airports,2 origin runways,1 flight retained. Network frame equality and restore/resave checks passed."
+  },
+  "playtests": [
+    {
+      "step": "Playtest: production Main/X11 Special airport permits, runway expansion, single-airport flight rejection, selected-citizen booking, walking/boarding/curved flight/arrival, compact menu and regional district focus",
+      "expected": "All aviation workflows and existing menu/district regressions work",
+      "observed": "Native harness exited0; seven fresh screenshots and F10 video captured; aircraft screenshot visually inspected."
+    },
+    {
+      "step": "Playtest: paid progression through8 eras, locked work, advanced production, freight energy/range, reserved dense housing demolition, exact save/reload, feasible food seller and cart fallback",
+      "expected": "Progression and both reviewer fallback regressions remain valid with aviation present",
+      "observed": "Native harness exited0; fresh progression and food-fallback media saved."
+    }
+  ],
+  "limitations": [
+    "No full-suite pass claimed.43 focused tests and two native workflows passed.",
+    "Synthetic seeded progression crews do not demonstrate natural unseeded era8 growth.",
+    "Native Java/OpenGL and CLI save checks apply; browser testing does not apply.",
+    "Historical media and receipts remain retained; media hashes here identify fresh captures."
+  ],
+  "sourceSha256": {
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "fe7714ca5bcd52c8b460569acc0fe08e93d6dfffc0ec51d04122fb558903bc9e",
+    "src/main/java/dev/jayms/net/city/CityFrame.java": "f184ae4a312ff9fd68a820a3d72617a7c3653a97835ef922c98dec9db5d95cad",
+    "src/main/java/dev/jayms/net/city/Aviation.java": "aec5129c8d0ee506a0f5626217cf773af7152194b2d828ba106660f29b1a62ff",
+    "src/main/java/dev/jayms/net/Protocol.java": "d500ccd12048e1481be3a653e9c0e478c7286dbbf95552bf290a880fdb8d89c7",
+    "src/main/java/dev/jayms/Main.java": "76fe4bece24b15a5a2a1cdf245ee80164c2d6dcc1436ea58af1eb86715ccf174",
+    "src/main/java/dev/jayms/net/city/IndustrialLogistics.java": "23c59031bf4fa4ce09da7c78e6139d5d24d1f1c2972f8172c9213e5590a8deb5",
+    "src/main/java/dev/jayms/net/city/CityEconomy.java": "e8cb508ef654fe039a015c8aef5a40b8d6a78f9485ecdc9bff1bab304e791093",
+    "src/test/java/dev/jayms/AviationSaveCompatibilityTest.java": "df66dad7c362e056dcf1156fa43a1bcf32daa463a301ecd474289fa0628acc0a",
+    "deploy/WriteBaseAviationSave.java": "98eae1504ac6a087f7a864100cb6d5e053f77094f2e27465a516ade127e0d3a0"
+  },
+  "mediaSha256": {
+    "airport-expanded.png": "6eccd1e1b5e60f622234c6e26ddc578632ea6f5f2576a754be2c7e87fc2b882a",
+    "airport-flight.png": "a27c76a5709b1f6fa683cb36a8a01a3b38824c209fac726f9f9a6b9e6259b9f1",
+    "airport-arrival.png": "79dc476703d52fc0361e7a3df2dfa045d9029bd9d1a9b6c5f7b36a90061a6a9d",
+    "airport-playtest.mp4": "efd5768dfe5aff7f9cbd57a2b2d48a47338cec20b60d52b2c81ae62ba7a880c0",
+    "resource-progression-advanced.png": "624690b1e78e9ec9bb68ffcbffdd46eac68f9a3e71943439dbd0628fc9f566d6",
+    "resource-progression-food-fallback.png": "f15a6f8e877042bcdcccccc4a5f75fead373cdd1a348f92e6e28d191cdb051e3"
+  }
+}

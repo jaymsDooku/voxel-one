@@ -207,11 +207,26 @@
           "kind": "report",
           "label": "Fallback fixes \u2014 pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/resource-progression-fallback-tests.json"
+        },
+        {
+          "kind": "report",
+          "label": "Aviation integration \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/resource-progression-aviation-integration.json"
+        },
+        {
+          "kind": "video",
+          "label": "Aviation integration \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/airport-playtest.mp4"
+        },
+        {
+          "kind": "image",
+          "label": "Aviation integration \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/airport-flight.png"
         }
       ],
       "status": "in_progress",
-      "note": "Fallback fixes retained. Aviation rebase recovery in progress; final-head aviation/progression tests, actual base-generated version12 save compatibility and fresh media remain pending controller continuation.",
-      "updatedAt": "2026-10-06T18:43:15.000799+00:00"
+      "note": "Shipping rebase recovery in progress. Preserve coastal shipping and protocol23. Final-head shipping/progression regression tests, native workflow and fresh media remain pending controller continuation.",
+      "updatedAt": "2026-10-06T22:46:35.478814+00:00"
     },
     {
       "id": "queue-38613638386362362d333266662d346339302d383566312d333861363332623962333363",
