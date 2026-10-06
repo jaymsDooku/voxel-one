@@ -1,0 +1,144 @@
+{
+  "testedProductionHead": "edd8361bde0642d71dfc7bbd4195adb3ce007d3b",
+  "publication": "pending controller publication",
+  "artifacts": [
+    {
+      "file": "road-airport-final-playtest.json",
+      "bytes": 836,
+      "sha256": "dd9b4b9896bca69d46bbb8f016a986307fd149145b4ca1b1017cd924fae26948",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "road-airport-final-playtest.mp4",
+      "bytes": 1543489,
+      "sha256": "058f36c292cb4ae56e20713ef80878a9fcbebb159b09eed96e04223030566f4a",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "road-final-airport-arrival.png",
+      "bytes": 902823,
+      "sha256": "d60a4906bd2242ebdecb9f17463fc442e33696f564018af8537335b1b2267fbb",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "road-final-airport-boarding.png",
+      "bytes": 769264,
+      "sha256": "415450da02dc670e14a05381f40a9048d1283a0a167b17678c6cd398004b70b5",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "road-final-airport-compact-menu.png",
+      "bytes": 670388,
+      "sha256": "bb8e20087ee58f300de6dfad33da3d80ab951bce770f20bbc084379ee0c2ea0e",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "road-final-airport-exchange-rejected.png",
+      "bytes": 1129451,
+      "sha256": "544840f090a1d22afdc3b24705a4451b98cf23d547d506ac8fd4d18f8ed0d206",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "road-final-airport-expanded.png",
+      "bytes": 661004,
+      "sha256": "cbe208bc595e48e31f51cb3c1d42c6f9e1c831f4f85159adfb9f7f793037cd03",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "road-final-airport-flight.png",
+      "bytes": 304012,
+      "sha256": "96fb2e9d909422971e25b4973b9fbc43ab5cbea16c2aba241c1f8b2df1e3d860",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "road-final-airport-regional-regression.png",
+      "bytes": 15934,
+      "sha256": "e3f193baa6a2fd853d843a00a7cfa5ad11cb56a9dac913ebbb2755017778f555",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "road-final-airport-video-samples.json",
+      "bytes": 154,
+      "sha256": "a8667ffd314aa8c326690e45c0710086db29ebf62d063b5042f418572f3ad978",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "road-final-airport-video-validation.json",
+      "bytes": 308,
+      "sha256": "fb3e4cb698648da4abf8776d0c1202c28a977cc231e78d9c082dd1176895946d",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "road-final-edited.png",
+      "bytes": 810204,
+      "sha256": "234d3784d2d036abd554bcdf02ce4bcc495f578bb61e14b6a6c7b6df67cc2918",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "road-final-guide.png",
+      "bytes": 837171,
+      "sha256": "bb498da1cc3103a2ec9aef085caa32e506f72c06d1196de17bc3f1dd8f176d11",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "road-final-menu.png",
+      "bytes": 805608,
+      "sha256": "b411f22aec071fc45d47bde04d5176a05f44067cf9a988dd5dec1f4897ffc73b",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "road-final-playtest.json",
+      "bytes": 501,
+      "sha256": "58146b5d713cb97a1198aa47f32fcbf8aedf9765fbeb96c3d6bd19ae27c70f80",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "road-final-playtest.mp4",
+      "bytes": 3424419,
+      "sha256": "804f1f139583bdfe630b0249c8b9de137ea1e8eda19970dd41865b0ded98e11b",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "road-final-selected.png",
+      "bytes": 768594,
+      "sha256": "b22ca48c8997a52974b346309b7c8a353aa3082abe6fb64bb978e8765204d8dd",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "road-final-snap.png",
+      "bytes": 807467,
+      "sha256": "03fd96d08353088f6449912da163529e39e894b3cd46bce5c75c4129b20722e6",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "road-final-source-preservation.json",
+      "bytes": 13649,
+      "sha256": "79fd5916638205e74897ddeba3153e7d8ab53b9b49ff206eb1a68f601f8b4e57",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "road-final-surfaces.png",
+      "bytes": 838277,
+      "sha256": "3a3d3e50ec51f3ef22f3744daea1342987dab1c27c81ba8c93b1f0df9ab2b54d",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "road-final-tests.json",
+      "bytes": 1446,
+      "sha256": "8d52f4ce947e76434f11a622c3818794881ba17078144d848bc52173e85228c5",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "road-final-validation.md",
+      "bytes": 7285,
+      "sha256": "70e1ae1a7fc280e5270973a950b31dbea6b4d549930848f726e4d868eab71f62",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "road-final-video-validation.json",
+      "bytes": 157,
+      "sha256": "e5d8879cf9daaab56a969929d67f1eba0682c095dec8b76a39da7667115b1729",
+      "publication": "pending controller publication"
+    }
+  ]
+}

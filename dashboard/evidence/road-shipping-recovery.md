@@ -29,3 +29,9 @@ Terrain migration test exited 0: one test passed. A new generator-3 synthetic sa
 Playtest: not run on this intermediate rebase state. The controller must continue the preserved rebase and resume the developer for final-head road, shipping and airport native workflow checks and fresh media. Historical clips are preserved as base artifacts and are not new validation proof.
 
 Later replayed ownership changes must retain format 13 and protocol 24, plus terrain generator 3 and coastal ports. The base ShippingAviationCompatibilityTest initial handshake assertion currently expects protocol 23; update it to the final protocol version when the ownership commit is replayed. Final-head mvn verify and platform CI must pass before review resubmission.
+
+## Second recovery: media/progress commit
+
+Only dashboard/progress.json conflicted. Retained all master top-level fields and all non-road milestones exactly. Replaced only the road milestone from the replayed commit, with status in_progress and a note that final-head testing is pending. The earlier media links are historical. Python JSON parsing, unique-ID checks and exact non-road/top-level equality passed. All 60 preserved shipping/terrain file hashes still match. git diff --name-only HEAD -- src/main/java src/test/java was empty; no source or test changed during this recovery step. The prior 35 executed checks are unchanged-source evidence, not a fresh rerun. git diff --check passed.
+
+Playtest: deferred until controller Git continuation completes. No new native run or fresh media is claimed for this intermediate metadata-only step. The controller must stage the resolved JSON and continue the preserved rebase. No developer staging, commit, push, merge or deployment occurred.

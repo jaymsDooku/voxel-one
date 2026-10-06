@@ -38,6 +38,36 @@
           "kind": "video",
           "label": "Native road workflow F10 video (pending controller publication)",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63363064363463302d316661372d346365352d386366352d346661663863373732396561/dashboard/evidence/road-workflow-playtest.mp4"
+        },
+        {
+          "kind": "report",
+          "label": "Final-head validation (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63363064363463302d316661372d346365352d386366352d346661663863373732396561/dashboard/evidence/road-final-validation.md"
+        },
+        {
+          "kind": "image",
+          "label": "Final road selection (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63363064363463302d316661372d346365352d386366352d346661663863373732396561/dashboard/evidence/road-final-selected.png"
+        },
+        {
+          "kind": "image",
+          "label": "Final zone-edge snap (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63363064363463302d316661372d346365352d386366352d346661663863373732396561/dashboard/evidence/road-final-snap.png"
+        },
+        {
+          "kind": "video",
+          "label": "Final road workflow F10 (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63363064363463302d316661372d346365352d386366352d346661663863373732396561/dashboard/evidence/road-final-playtest.mp4"
+        },
+        {
+          "kind": "image",
+          "label": "Preserved airport flight regression (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63363064363463302d316661372d346365352d386366352d346661663863373732396561/dashboard/evidence/road-final-airport-flight.png"
+        },
+        {
+          "kind": "video",
+          "label": "Final airport regression F10 (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63363064363463302d316661372d346365352d386366352d346661663863373732396561/dashboard/evidence/road-airport-final-playtest.mp4"
         }
       ],
       "status": "in_progress",
