@@ -1,27 +1,58 @@
 {
+  "sourceHead": "3b6fd21d2011bb6b4fdd4f524d02632ecf33e814",
   "artifacts": [
     {
       "file": "road-menu.png",
-      "bytes": 780231,
-      "sha256": "ade2ca114b97515a839a5f948641819341ee0269b1934c0f9814be1362ba98f6",
+      "bytes": 790314,
+      "sha256": "cf02cdc2a80340b88a3f87f5eef9c4fb58c58b7b2423d181dfc34acef6b34928",
       "publication": "pending controller publication"
     },
     {
       "file": "road-guide.png",
-      "bytes": 809168,
-      "sha256": "f4ce3e39eec768a7e3cff503de1de440d41189708d50815ce26c59e65b5b79ec",
+      "bytes": 833731,
+      "sha256": "85fa43f75776500c48e195defa61389081a3032dd8abccaeaae82c769b87c3f2",
       "publication": "pending controller publication"
     },
     {
       "file": "road-surfaces.png",
-      "bytes": 823413,
-      "sha256": "fc83afa192d72c755eeed5b53fa219493204b788fda0ed8f425588cc91227fa3",
+      "bytes": 823394,
+      "sha256": "1a2c7470b8f39082accbf7e12684eb85e6f696f7f884e84f69bc6eff2d394304",
       "publication": "pending controller publication"
     },
     {
       "file": "road-placement-playtest.mp4",
-      "bytes": 3437776,
-      "sha256": "53c0763b790ea4195d770af61e90cb9878373630ab8e9bc01e7cda74da943c3c",
+      "bytes": 3342226,
+      "sha256": "b7f3606874006ca55a76538f1fdd4eae2ddcc4061fc836abcff4e14e61b0b451",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "road-jeep-parked.png",
+      "bytes": 707355,
+      "sha256": "d0e5b298f0b558d313e48257af9b6aa423ef3110978a6054d9a14c8c238cca5d",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "road-jeep-driver-seat.png",
+      "bytes": 653764,
+      "sha256": "7ed173061916cc67b36289e08aed9e0149f3eea0dbdb19c37bf2ff93fe0b7c29",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "road-jeep-windshield.png",
+      "bytes": 387968,
+      "sha256": "6b11eb8ede46b116e2ffbb5f7602eba6dea9f63c286d7f92626f165a36d31175",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "road-jeep-wall.png",
+      "bytes": 672684,
+      "sha256": "2b8221ed2c5c19cbe3af9d6ee193ce0c16c4284d9d9e3d053a7e3e9556ef7e3a",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "road-jeep-driving.mp4",
+      "bytes": 3106613,
+      "sha256": "cda065746e08beab1c208a27ce9b3b7b6164f05808d75a22e9207cb434b70609",
       "publication": "pending controller publication"
     }
   ]

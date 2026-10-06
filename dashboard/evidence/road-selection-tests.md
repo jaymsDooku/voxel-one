@@ -1,68 +1,72 @@
-# Road selection and paved lanes
+# Roads and jeep validation after rebase
 
-Implementation: dirt roads plus paved roads with 2, 3 and 4 lanes. Click **Roads**, choose a road, click the first endpoint, use the direction guide, then click the second endpoint. Selecting another toolbar tool or pressing Escape cancels the draft. Reopen Roads to change the road choice. Paved roads use asphalt and painted dividers. Types survive saves, restart and shared city snapshots. Old city saves load roads as dirt. Network protocol is now 20; city save/frame format is 10.
+Roads offers dirt roads and paved roads with 2, 3 and 4 lanes. Choosing a road starts endpoint placement with the direction guide. Paved roads use asphalt and painted lane dividers. Dirt roads can be upgraded. Road types survive saves and multiplayer restart; old saves load as dirt.
 
-Environment: Linux, Java 25, Maven 3.9.11, Linux LWJGL natives. Tests use worktree-local temporary files. Native playtesting uses the inherited role X11 display and XAUTHORITY, Mesa software rendering, a fresh synthetic offline city and a worktree-local synthetic home. No real account data is used.
+Tested production source: `3b6fd21d2011bb6b4fdd4f524d02632ecf33e814`, rebased onto `34bcb3197904b27aa12bad31b5aedf659bbc991f`. The complete source diff is confined to roads. Jeep source, model, tests, Main input/rendering/persistence integration, shader transparency, original playtest tools, docs and original media match the base byte for byte, including after the native runs. Every base progress entry is preserved, including the jeep entry. The road entry is also present. IDs are unique. No unresolved index, deletions or conflict debris remain.
 
-## Automated checks
+The new `deploy/run_road_jeep_regression.py` launcher uses the unchanged jeep harness and cached dependencies. It writes fresh jeep regression media under `road-jeep-*` names, preserving the base jeep artifacts.
 
-Executed command:
+## Build and automated checks
+
+Environment: Linux, Java 25.0.3, Maven 3.9.11, Linux LWJGL natives, cached dependencies under `/tmp/voxel-m2`, and worktree-local temporary files. Native runs use the inherited role DISPLAY and XAUTHORITY, Mesa software rendering and separate fresh synthetic offline profiles. No real account data is used. This is the native GLFW game; browser playtesting does not apply.
+
+Executed incremental compilation, exit 0:
 
 ```sh
-MAVEN_OPTS="-Djava.io.tmpdir=$PWD/target/tmp" /tmp/apache-maven-3.9.11/bin/mvn -q -Dmaven.repo.local=/tmp/voxel-m2 -Dlwjgl.natives=natives-linux -DargLine="-Djava.io.tmpdir=$PWD/target/tmp" -Dtest=RoadTypesTest,CityToolsTest,CityTest,ProtocolCompatibilityTest,BusinessCatalogTest,MarketEconomyTest,CityMultiplayerTest,SurvivalTest,LightingTest test > target/road-final-tests.txt 2>&1
+MAVEN_OPTS="-Djava.io.tmpdir=$PWD/target/tmp" /tmp/apache-maven-3.9.11/bin/mvn -q -Dmaven.repo.local=/tmp/voxel-m2 -Dlwjgl.natives=natives-linux test-compile > target/road-rebased-compile.txt 2>&1
 ```
 
-Observed: exit 0; 59 tests passed, 0 failures, 0 errors. Expected and observed:
+Executed the full prebuilt suite without overlapping compilation:
 
-- Road selection consumes menu clicks and sends the selected type into placement.
-- Dirt width stays 3 cells. Paved roads have 2, 3 and 4 lanes, with total widths of 3, 5 and 7 cells and 1, 2 and 3 painted dividers. Horizontal and vertical surfaces use the correct divider orientation. Diagonal roads follow the endpoints.
-- New cells and dirt upgrades charge $4 per changed cell. Repeating the same road type charges $0. Invalid road types, duplicate endpoints and occupied cells leave road state and the treasury unchanged.
-- Save/load and simulation restart preserve road types. Format 9 frames still load as dirt. Historical city saves preserve buildings, ownership and market state during migration to format 10.
-- Two clients receive equal paved road metadata and divider edits. Server restart preserves the paved road. Existing zoning, snapping, survival and lighting checks pass.
+```sh
+MAVEN_OPTS="-Djava.io.tmpdir=$PWD/target/tmp" /tmp/apache-maven-3.9.11/bin/mvn -q -Dmaven.repo.local=/tmp/voxel-m2 -Dlwjgl.natives=natives-linux -DargLine="-Djava.io.tmpdir=$PWD/target/tmp" surefire:test > target/road-rebased-full-tests.txt 2>&1
+```
 
-Earlier runs exposed the read-only default `/tmp`, old save/protocol assertions and concurrent compiler output changes. Temp files now stay in the worktree; assertions reflect the new format. The final focused run above passed. The final full suite below also passed.
+Observed full-suite retry: exit 0; 305 tests passed, 0 failures, 0 errors, 0 skipped. Sanitized suite counts are in `road-full-test-results.json`. Expected and observed: road choice, widths, markings, upgrading, atomic rejection, save migration, multiplayer restart and prior city behavior pass; jeep controls, collision, entry/exit, respawn and persistence pass.
 
-## Native Playtest
+One initial full-suite process and the first jeep process ended with exit 143 without a completed result. They are not counted as passing. The jeep retry passed. The full-suite retry ran after the native game exited and passed.
 
-Command:
+## Playtest: roads
+
+Executed:
 
 ```sh
 python3 deploy/run_road_placement_smoke.py --display "$DISPLAY"
 ```
 
-The harness runs `Main`, sends X11 input to the exact GLFW X11 window, and waits for rendered frames before checking results. Camera setup uses the production observer; road choice and placement use real mouse input and GLFW callbacks. Images come from the production framebuffer. Video comes from the engine F10 recorder. The driver and launcher are saved in `deploy/RoadPlacementSmoke.java` and `deploy/run_road_placement_smoke.py`.
+Observed exit 0. The production application received real X11 mouse and key input through GLFW callbacks. The harness targeted its exact GLFW window and waited for rendered frames before checking results. Its isolated city and home were recreated under `target/road-runtime` and `target/road-home`.
 
-Steps and expected results:
+Steps, expected and observed results:
 
-1. Open Roads. Expect dirt and paved 2/3/4 lane choices.
-2. Select each choice. Click endpoints on clear land. Expect the existing direction guide after the first click, a new road after the second click, distinct widths, and stored type matching the choice.
-3. Select paved 2 lanes and place over the dirt section. Expect an asphalt upgrade.
-4. Select paved 4 lanes, click only the first endpoint, then press Escape. Expect Inspect mode, unchanged roads and unchanged road spending. Normal city trade can change the treasury independently, so this native check compares road spending; the isolated unit check also verifies treasury rollback.
-5. Reopen Roads and press Escape before choosing. Expect the menu to close and Inspect mode to resume.
+1. Open Roads: dirt and paved 2/3/4 lane choices appear.
+2. Choose each road and click the first endpoint: the direction guide appears. Click the second endpoint: the road is built in the running world with the chosen type. Dirt width remains 3 cells; paved widths are 3, 5 and 7 cells, with 1, 2 and 3 dividers.
+3. Choose paved 2 lanes and place over dirt: the selected section becomes asphalt.
+4. Choose paved 4 lanes, click one endpoint and press Escape: Inspect resumes, road count and road spending remain unchanged. City trade can change the treasury independently.
+5. Reopen Roads and press Escape before choosing: the menu closes and Inspect resumes.
 
-The observed native results and media publication status are recorded below. Earlier harness attempts corrected window targeting, frame timing, camera framing and the cancellation spending check. No failed attempt is labeled passed.
+All workflow assertions passed. Screenshots show the menu, guide and built paved widths. Terrain grading keeps the existing dirt-road behavior.
 
-Artifacts are generated from this implementation. Publication is reserved to the controller. The intended URLs use the assigned feature branch under `https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-30366437373533632d613238632d343963612d383265322d346239646166376638393338/dashboard/evidence/`.
+## Playtest: jeep regression
 
-Observed native result: exit 0. All seven workflow checks passed. Road choice opened the direction guide; dirt and paved 2/3/4 lane placements changed the running world with the expected widths; dirt upgraded to asphalt; endpoint cancellation left road count and road spending unchanged; menu cancellation returned to Inspect. The capture shows all paved widths with 1, 2 and 3 dividers. Terrain grading retains the existing dirt-road behavior.
-
-Media validation: `deploy/VerifyRoadVideo.java` was compiled with cached JCodec jars and executed against `dashboard/evidence/road-placement-playtest.mp4`. It decoded the start, midpoint and two seconds before the end. Observed H264, 126 frames, 108.908 seconds, 3,437,776 bytes; decoded buffer size 960 x 544. The decoded final frame and production screenshots were visually inspected. The low-frame-rate Mesa run preserves real capture timing.
-
-- `road-menu.png`: production Roads menu.
-- `road-guide.png`: production placement direction guide with paved roads visible.
-- `road-surfaces.png`: production paved road widths and lane markings after placement and upgrade.
-- `road-placement-playtest.mp4`: continuous production F10 recording of choices, guide, placements, upgrade and cancellation.
-- `road-placement-playtest.json`: sanitized native workflow result.
-- `road-media-validation.json`: actual decoder metadata and validation result.
-
-All HTTPS media links are **pending controller publication**. No commit, push, PR, merge or deployment was performed by the developer.
-
-## Final full-suite result
-
-Executed after final source compilation:
+Executed after the road process exited:
 
 ```sh
-MAVEN_OPTS="-Djava.io.tmpdir=$PWD/target/tmp" /tmp/apache-maven-3.9.11/bin/mvn -q -Dmaven.repo.local=/tmp/voxel-m2 -Dlwjgl.natives=natives-linux -DargLine="-Djava.io.tmpdir=$PWD/target/tmp" surefire:test > target/road-full-final-tests.txt 2>&1
+python3 deploy/run_road_jeep_regression.py --display "$DISPLAY"
 ```
 
-Observed: exit 0; 299 tests passed, 0 failures, 0 errors, 0 skipped. `road-full-test-results.json` contains sanitized counts per suite. `git diff --check` also passed.
+Observed exit 0 on retry. The unchanged `deploy/JeepPlaytest.java` harness ran in Main with a separate fresh synthetic profile and flat test world under `target/road-jeep-playtest` and `target/road-jeep-home`. Real X11 input exercised driver entry, first-person windshield view, third-person view, W driving, Ctrl boost, S reverse, A/D steering, mouse steering, rejection of exit while moving, a full-body wall stop at boost speed, stopped exit and walking after exit. All expected results were observed. Screenshots show driver seating, transparent glass and the wall stop; the decoded video end shows walking after exit.
+
+## Fresh media
+
+Both clips come from the production F10 recorder. `deploy/VerifyRoadVideo.java` was compiled against cached JCodec jars and run against each clip, using `target/road-smoke` as its class directory. It decoded the start, midpoint and two seconds before the end. Decoded end frames and production screenshots were visually inspected.
+
+- Road video: H264, 125 frames, 116.2 seconds, 3342226 bytes.
+- Jeep regression video: H264, 107 frames, 75.962 seconds, 3106613 bytes.
+- Decoded buffers: 960 x 544. Low-frame-rate Mesa captures retain real elapsed timing.
+- All nine images/videos are below the 6 MB limit. `road-media-manifest.json` records fresh sizes and SHA-256 hashes.
+- Native results: `road-placement-playtest.json` and `road-jeep-playtest.json`.
+- Decoder results: `road-media-validation.json` and `road-jeep-media-validation.json`.
+
+All new media links are pending controller publication under the assigned feature branch. The developer did not stage, commit, push, merge or deploy. The controller must publish the artifacts before review.
+
+Final preservation recheck passed after all workflows and tests. `road-source-preservation.json` records base equality and file hashes. `git diff --check` passed. Production source remained unchanged during validation; only road-owned harness, progress, reports and fresh media were written. Both native workflows, all 305 tests and media validation passed. Ready for independent review and controller publication.

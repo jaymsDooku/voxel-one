@@ -1,3 +1,5 @@
+Historical pre-continuation recovery check. Final-head validation is recorded in `road-selection-tests.md`.
+
 # Road and jeep rebase recovery
 
 Resolved the sole conflicted file, `dashboard/progress.json`. Preserved every base progress entry unchanged, including the jeep entry, and retained the road entry. Progress IDs are unique and the JSON parses.

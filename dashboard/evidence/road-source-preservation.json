@@ -1,0 +1,86 @@
+{
+  "sourceHead": "3b6fd21d2011bb6b4fdd4f524d02632ecf33e814",
+  "base": "34bcb3197904b27aa12bad31b5aedf659bbc991f",
+  "status": "passed",
+  "allBaseProgressEntriesPreserved": true,
+  "roadEntryRetained": true,
+  "unresolvedIndex": false,
+  "deletions": false,
+  "files": [
+    {
+      "file": "src/main/java/dev/jayms/player/Jeep.java",
+      "sha256": "fee90881847413cfdf28669bb43c2f658f336543ca74f4ca4cd94fb569717645",
+      "matchesBase": true
+    },
+    {
+      "file": "src/main/java/dev/jayms/player/JeepModel.java",
+      "sha256": "22c0d10ff0dc9552a912ba07cb8939f9343acd157f31ab3597977b002b33b08c",
+      "matchesBase": true
+    },
+    {
+      "file": "src/test/java/dev/jayms/JeepTest.java",
+      "sha256": "a25f35bdb6d94da3fd06726f358e41aaa0e98d51174406c0067eab5f6f489d3c",
+      "matchesBase": true
+    },
+    {
+      "file": "src/main/java/dev/jayms/Main.java",
+      "sha256": "7ec4978592d8cccf015a2fe76017dfa01c3f65688e350aa1b74ef0bfd7377871",
+      "matchesBase": true
+    },
+    {
+      "file": "src/main/resources/shaders/voxel.frag",
+      "sha256": "3305a32170e0d5a671c6039b2acf31d7ae74e0ab527eb9dc60cbe9f55aa71eb3",
+      "matchesBase": true
+    },
+    {
+      "file": "deploy/JeepPlaytest.java",
+      "sha256": "e2aeface95ec7dff46f38042ece9f0257e474dc832c6aade7888afb16c2ab463",
+      "matchesBase": true
+    },
+    {
+      "file": "deploy/run_jeep_playtest.py",
+      "sha256": "6ceaee8e53d2640608bfb04090224cd0140bddbc1bccaf2a9896fe97c61333d4",
+      "matchesBase": true
+    },
+    {
+      "file": "docs/jeep.md",
+      "sha256": "cd7f2c4617a06ef7610815647cc7ac5c5c726230b7d49d00d76ff29844a36b29",
+      "matchesBase": true
+    },
+    {
+      "file": "dashboard/evidence/jeep-parked.png",
+      "sha256": "41ba6d18c2c0b880429cd45ad6800404d48429bd8d66018b9972c9b9723e114c",
+      "matchesBase": true
+    },
+    {
+      "file": "dashboard/evidence/jeep-driver-seat.png",
+      "sha256": "10164e818c66dccef77d7eab8fad15cf58f550d7ff39770053f5f99781202860",
+      "matchesBase": true
+    },
+    {
+      "file": "dashboard/evidence/jeep-windshield.png",
+      "sha256": "eb313e79da0e1d9f9856b55a7068291a05b27ada820dc01b617c7cc5a7e0511d",
+      "matchesBase": true
+    },
+    {
+      "file": "dashboard/evidence/jeep-driving.mp4",
+      "sha256": "f0d6c389415d142666d6311f8494ae0ac354ba559c99a564b70bff67f6d9bcd9",
+      "matchesBase": true
+    },
+    {
+      "file": "dashboard/evidence/jeep-wall.png",
+      "sha256": "6ea23b8ca3db14258cf79e6374f143e6bf74d0e24a65634d500946883b3a5ae7",
+      "matchesBase": true
+    },
+    {
+      "file": "dashboard/evidence/jeep-test-report.md",
+      "sha256": "fc750e1cf364484381d8c9a00c3a8be92e62c75229710547c9cdc2bf9524f3b9",
+      "matchesBase": true
+    },
+    {
+      "file": "dashboard/evidence/jeep-playtest.json",
+      "sha256": "6dce5ac79b3aaa1964f7e9710c9119e7a7832a4425262d63a721493f39c138c4",
+      "matchesBase": true
+    }
+  ]
+}
