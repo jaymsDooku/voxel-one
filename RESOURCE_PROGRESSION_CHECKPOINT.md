@@ -52,10 +52,18 @@ Resolved dashboard/progress.json timestamp conflict and retained every non-progr
 
 Controller must stage resolutions and continue rebase. No developer stage/continue/abort/reset/commit/push performed. After continuation, run native paved-road placement and existing-base-save loading, progression and jeep regression checks with fresh sanitized media. Old receipts do not prove final-head compatibility.
 
+## Final typed-road integration
+
+Tested 535292baffff2128c5d044b959a385a59a709390.21 focused tests passed. Native road placement and progression playtests passed with fresh synthetic profiles/media. Independently compiled base2b50f4c4be6d47a865906ec0af04585a6db203b0 wrote a v10 typed-road save; current implementation loaded, restored and resaved every paved type. Materials187–189 and protocol20 checked. Detailed sanitized receipt:dashboard/evidence/resource-progression-road-integration.json. Ready for controller publication and independent review; no full-suite pass claimed.
+
 ## Current recovery handoff
 
 Checkpoint and dashboard conflicts resolved. Earlier validation sections are historical; they do not establish readiness for the current head. Retained population.advance and logistics site/clock updates. Both reviewer fixes remain pending after controller rebase continuation: try feasible food sellers before stopping; select cargo-energy-feasible transport with cart fallback when a train lacks coal. Add regression tests and run fresh native workflow checks/media before ready. Controller alone stages and continues; no developer abort/reset/commit/push.
 
+Latest recovery: both fallback defects remain pending. Historical ready statements above apply only to their earlier tested heads. Controller must stage and continue before fixes and final-head tests/media.
+
 ## Aviation recovery handoff
 
 Resolved dashboard timestamp conflict by retaining current-base timestamp and all current-base entries alongside progression. Source inspection confirms aviation airport construction, runway expansion, flight ticking and plane rendering; AviationTest, native harness and airport evidence are present. Controller must stage and continue rebase. Final-head checks remain pending: actual base-generated version12 city save (0x4349543C) load/restore/resave, protocol22 and aviation serialization, native aviation workflow alongside progression and both fallback regressions, fresh sanitized media. Earlier ready/test statements are historical. No developer stage/continue/abort/reset/commit/push/deploy. JSON preservation checks and git diff --check passed in this recovery; no native playtest run.
+
+Current recovery: checkpoint and dashboard conflicts resolved. Aviation compatibility and actual base-generated version12 save regression remain required after controller continuation. Do not treat historical checks as final-head validation.

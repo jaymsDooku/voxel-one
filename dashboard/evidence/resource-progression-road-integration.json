@@ -1,0 +1,74 @@
+{
+  "result": "passed",
+  "testedHead": "535292baffff2128c5d044b959a385a59a709390",
+  "publication": "Pending controller publication",
+  "environment": {
+    "platform": "Linux X11/Mesa native game; Java25.0.3; Maven3.9.11; natives-linux",
+    "display": "Inherited assigned DISPLAY and XAUTHORITY; no authentication data recorded",
+    "profiles": "Isolated synthetic road home/runtime and fresh target/resource-progression-road-integrated-profile"
+  },
+  "commands": [
+    {
+      "command": "JAVA_TOOL_OPTIONS=-Djava.io.tmpdir=$PWD/target/tmp /tmp/apache-maven-3.9.11/bin/mvn -q -o -Dmaven.repo.local=target/m2 -Dlwjgl.natives=natives-linux -Dtest=RoadTypesTest,IndustrialProgressionTest,JeepTest,CityMultiplayerTest test",
+      "exitCode": 0,
+      "tests": 21,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "command": "python3 deploy/run_road_placement_smoke.py --display \"$DISPLAY\"",
+      "exitCode": 0
+    },
+    {
+      "command": "python3 deploy/run_resource_progression_smoke.py --display \"$DISPLAY\" --profile target/resource-progression-road-integrated-profile",
+      "exitCode": 0
+    }
+  ],
+  "playtests": [
+    {
+      "step": "Playtest: actual Main road menu and X11 endpoint clicks for dirt and paved2/3/4-lane roads; upgrade dirt; cancel endpoint and menu",
+      "expected": "Distinct widths and line materials; upgrade retains paved type; cancellation leaves world/budget unchanged",
+      "observed": "Passed. Fresh screenshots and production F10 video saved."
+    },
+    {
+      "step": "Playtest: actual Mayor progression tab with paid synthetic factory shifts; locked production; advanced manufacturing; freight; dense housing demolition; save/reload",
+      "expected": "All8 tiers unlock from paid batches; locked work unchanged; energy consumed; invalid freight range rejected; exact restore",
+      "observed": "Passed. Fresh progression screenshots and native receipt saved."
+    }
+  ],
+  "baseSaveProbe": {
+    "baseCommit": "2b50f4c4be6d47a865906ec0af04585a6db203b0",
+    "extractionCommand": "git archive 2b50f4c4be6d47a865906ec0af04585a6db203b0 src/main/java src/test/java/dev/jayms/CityTest.java | tar -x -C target/road-base-source",
+    "execution": "Python subprocess compiled every archived src/main/java file, archived CityTest.java and deploy/BaseCitySaveSmoke.java with javac -cp (target/m2 jar paths) -d target/road-base-classes. java -Djava.io.tmpdir=(worktree)/target/tmp -cp (base classes plus jars) dev.jayms.BaseCitySaveSmoke write target/base-v10-city.dat exited0. Compiled deploy/BaseCitySaveSmoke.java against target/classes:target/test-classes and jars. java with current classes dev.jayms.BaseCitySaveSmoke read target/base-v10-city.dat exited0.",
+    "expected": "Existing base-written 0x4349543A save loads; every typed paved road retains width/type through restore/resave; materials187\u2013189 valid; protocol20",
+    "observed": "Passed base writer and current reader, all three paved types, restore and resave. Fixture SHA256 recorded below.",
+    "fixtureSha256": "776f80821d091d93eeeb31ed99ff91372c1b99c189d96dd1bcfe31acca798fee"
+  },
+  "browser": "Browser testing does not apply to this native Java/OpenGL game; native workflow and CLI save integration executed.",
+  "limitations": [
+    "Progression test uses trained synthetic crews and seeded inputs; does not claim natural unseeded advancement.",
+    "No final-head full-suite pass claimed.21 focused tests and two native workflows passed.",
+    "Prior road evidence retained; media listed here was freshly captured after rebase."
+  ],
+  "mediaSha256": {
+    "resource-progression-advanced.png": "c271e716548032b407f2ff20208dacb1ec5a0329050e1679ab061431916cbc55",
+    "resource-progression-manufacturing.png": "e2bb6de576a84ca4fc3152abafd63b03e32265c3d63f506050a2581e088b82f0",
+    "resource-progression-settlement.png": "58af635d064b4841f4e84d6fa920ee087aa90fe1b894f994fec4ff368cccea07",
+    "road-menu.png": "20fedf55f284a89f2d425130b044f0acd370f220ae6884af9596ef18279edf7d",
+    "road-guide.png": "d6b5046b4a6cdefc25e54ee891f749b7dbad83e4db41364c26bd9c0808fa768c",
+    "road-surfaces.png": "99f2156d7fbcc76eb808cbc60e93835ca9868e82a51d5be6bacb99f743f19550",
+    "road-placement-playtest.mp4": "251aad21115c7597499acf4d6a66676ed0b82bca1fb951a43b4e50456b426cc5"
+  },
+  "sourceSha256": {
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "f9768060eeb267ac482c8ed10e9e850377c0d8ea8c9bc080d819f493f4b7421e",
+    "src/main/java/dev/jayms/net/city/CityFrame.java": "1da17ddc85c5a3bdaaa6eb4885255e177e1565083d33534a0ca165899c4f0df2",
+    "src/main/java/dev/jayms/net/Protocol.java": "fc20efde58d0b7d69c955392ca6d6d66db570de9c92077612730d5c914f5c7f9",
+    "src/main/java/dev/jayms/net/Blocks.java": "9e9bbf8e036e7cc3eeba6823c4e3214849bb1e42145716ba1225c54edfe497f1",
+    "src/main/java/dev/jayms/ui/CityTools.java": "28a115e0f314327493d95f5edb0e0df7adde155df3e0ee62678bc402d6bfdf9b",
+    "src/main/java/dev/jayms/net/city/RoadTypes.java": "fe62a3f159d2ce1a74b30d50888b9f8d2728407c6fb89076101cb522347744ed",
+    "src/main/java/dev/jayms/net/city/IndustrialProgression.java": "2ed81783e6102f87605835028ed0c3e6c66bb3a32f6dc5ec57998c671ce9c108",
+    "src/main/java/dev/jayms/net/city/IndustrialLogistics.java": "ef0ee5bcaf5a20a95159801559a1a2f106f2d00aa2c216348af68cd27f543bb2",
+    "deploy/BaseCitySaveSmoke.java": "95c45b90bdd8c62518556559d54636b968e004c086639c95b6f402fcb4d05b85"
+  }
+}
