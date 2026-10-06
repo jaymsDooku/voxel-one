@@ -71,6 +71,7 @@ public final class CitySimulation {
     private final GameConfig config;
     private final CityHarvesting harvesting;
     private final Map<Cell, Integer> roads = new LinkedHashMap<>();
+    private final Map<Cell, Integer> roadTypes = new LinkedHashMap<>();
     private final List<CityFrame.Zone> zones = new ArrayList<>();
     private final List<CityFrame.Building> buildings = new ArrayList<>();
     private double elapsed, accumulator, nextBuild;
@@ -230,7 +231,11 @@ public final class CitySimulation {
         addresses = new CityAddresses(f.addresses());
         elapsed = f.elapsed();
         nextBuild = elapsed + 2;
-        for (var r : f.roads()) roads.put(new Cell(r.x(), r.z()), r.y());
+        for (var r : f.roads()) {
+            var cell = new Cell(r.x(), r.z());
+            roads.put(cell, r.y());
+            roadTypes.put(cell, r.type());
+        }
         zones.addAll(f.zones());
         buildings.addAll(f.buildings());
         zoneIds = zones.stream().mapToInt(CityFrame.Zone::id).max().orElse(0);
@@ -1300,7 +1305,7 @@ public final class CitySimulation {
         if (!config.city()) return "Join Voxel City One to use city tools";
         try {
             return switch (c.kind()) {
-                case CityCommand.ROAD -> road(c.points());
+                case CityCommand.ROAD -> road(c.points(), c.value());
                 case CityCommand.ZONE -> zone(c.value(), new Polygon(c.points()));
                 case CityCommand.SPECIAL -> special(c);
                 case CityCommand.RIDE -> ride(player, c.value(), pose);
@@ -1552,25 +1557,49 @@ public final class CitySimulation {
         return "Stock exchange built for $600; four university graduate office roles";
     }
 
-    private String road(List<Point> points) {
+    private String road(List<Point> points) { return road(points, 0); }
+
+    private String road(List<Point> points, int type) {
+        RoadTypes.validate(type);
         if (points.size() < 2) throw new IllegalArgumentException("Roads need two endpoints");
         var cells = new LinkedHashSet<Cell>();
+        var surfaces = new LinkedHashMap<Cell, Integer>();
+        int radius = RoadTypes.width(type) / 2;
         for (int i = 1; i < points.size(); i++) {
             var a = points.get(i - 1);
             var b = points.get(i);
-            int x = (int) Math.floor(a.x()),
-                    z = (int) Math.floor(a.z()),
-                    bx = (int) Math.floor(b.x()),
-                    bz = (int) Math.floor(b.z());
+            int x = (int) Math.floor(a.x()), z = (int) Math.floor(a.z());
+            int bx = (int) Math.floor(b.x()), bz = (int) Math.floor(b.z());
+            int dx = Math.abs(bx - x), dz = Math.abs(bz - z);
+            if (dx == 0 && dz == 0) throw new IllegalArgumentException("Road endpoints must differ");
+            int sx = Integer.signum(bx - x), sz = Integer.signum(bz - z), error = dx - dz;
+            boolean alongX = dx >= dz;
             while (true) {
-                for (int dx = -1; dx <= 1; dx++)
-                    for (int dz = -1; dz <= 1; dz++) cells.add(new Cell(x + dx, z + dz));
+                for (int offset = -radius; offset <= radius; offset++) {
+                    var cell = new Cell(x + (alongX ? 0 : offset), z + (alongX ? offset : 0));
+                    if (type == 0) {
+                        for (int end = -1; end <= 1; end++) {
+                            var dirt = new Cell(cell.x() + (alongX ? end : 0), cell.z() + (alongX ? 0 : end));
+                            cells.add(dirt);
+                            surfaces.put(dirt, Blocks.DIRT);
+                        }
+                    } else cells.add(cell);
+                    int surface = type == 0 ? Blocks.DIRT : Blocks.ASPHALT;
+                    if (type != 0 && (offset + radius) % 2 == 1)
+                        surface = alongX ? Blocks.ROAD_LINE_X : Blocks.ROAD_LINE_Z;
+                    surfaces.put(cell, surface);
+                }
                 if (x == bx && z == bz) break;
-                if (x != bx) x += Integer.signum(bx - x);
-                else z += Integer.signum(bz - z);
+                if (type == 0) {
+                    if (x != bx) x += sx; else z += sz;
+                } else {
+                    int twice = 2 * error;
+                    if (twice > -dz) { error -= dz; x += sx; }
+                    if (twice < dx) { error += dx; z += sz; }
+                }
             }
         }
-        if (cells.size() > 768 || roads.size() + cells.size() > 8192)
+        if (cells.size() > 768 || roads.size() + cells.stream().filter(c -> !roads.containsKey(c)).count() > 8192)
             throw new IllegalArgumentException("Road too long: use shorter sections");
         for (var cell : cells) {
             if (specialCell(cell.x(), cell.z())) throw new IllegalArgumentException("Road cannot cover a special building");
@@ -1583,31 +1612,31 @@ public final class CitySimulation {
                 throw new IllegalArgumentException("Road would intersect a player");
         }
         int newCells = (int) cells.stream().filter(c -> !roads.containsKey(c)).count();
+        int changedCells = (int) cells.stream().filter(c -> !roads.containsKey(c)
+                || roadTypes.getOrDefault(c, 0) != type).count();
         var nextAddresses = new CityAddresses(addresses.state(buildings));
-        String name =
-                newCells == 0
-                        ? addresses
-                                .state(buildings)
-                                .nearest(points.get(0).x(), points.get(0).z())
-                                .name()
-                        : nextAddresses.road(points);
-        if (!founding && !economy.roads(newCells))
+        var existingStreet = addresses.state(buildings).nearest(points.get(0).x(), points.get(0).z());
+        String name = newCells == 0 && existingStreet != null
+                ? existingStreet.name() : nextAddresses.road(points);
+        if (!founding && !economy.roads(changedCells))
             return "Mayor budget too low for road: needs $"
-                    + (int) (newCells * CityEconomy.ROAD_COST);
+                    + (int) (changedCells * CityEconomy.ROAD_COST);
         var edits = new ArrayList<Protocol.Edit>();
-        for (var c : cells)
-            if (!roads.containsKey(c)) {
-                level(c.x(), c.z(), edits);
-                roads.put(c, grade);
-            }
+        for (var c : cells) {
+            if (!roads.containsKey(c)) level(c.x(), c.z(), edits);
+            // Repainting overlapping cells lets the mayor upgrade an existing dirt road.
+            edits.add(new Protocol.Edit(c.x(), grade, c.z(), surfaces.get(c)));
+            roads.put(c, grade);
+            roadTypes.put(c, type);
+        }
         ground.apply(edits);
         addresses = nextAddresses;
         return founding
-                ? "Dirt road built: " + name
-                : "Dirt road built: "
+                ? RoadTypes.NAMES[type] + " built: " + name
+                : RoadTypes.NAMES[type] + " built: "
                         + name
                         + " | Mayor paid $"
-                        + (int) (newCells * CityEconomy.ROAD_COST);
+                        + (int) (changedCells * CityEconomy.ROAD_COST);
     }
 
     private void level(int x, int z, List<Protocol.Edit> edits) {
@@ -1950,7 +1979,7 @@ public final class CitySimulation {
 
     public CityFrame frame() {
         var rs = new ArrayList<CityFrame.Road>();
-        roads.forEach((c, y) -> rs.add(new CityFrame.Road(c.x(), c.z(), y)));
+        roads.forEach((c, y) -> rs.add(new CityFrame.Road(c.x(), c.z(), y, roadTypes.getOrDefault(c, 0))));
         var cs = new ArrayList<CityFrame.Citizen>();
         for (int id : ecs.query(Household.class)) {
             var p = ecs.get(id, Position.class);
@@ -2008,7 +2037,8 @@ public final class CitySimulation {
                     && magic != 0x43495436
                     && magic != 0x43495437
                     && magic != 0x43495438
-                    && magic != 0x43495439) throw new IOException("Invalid city save");
+                    && magic != 0x43495439
+                    && magic != 0x4349543A) throw new IOException("Invalid city save");
             return CityFrame.read(
                     in,
                     magic == 0x43495431
@@ -2021,7 +2051,7 @@ public final class CitySimulation {
                                                     ? 4
                                                     : magic == 0x43495435
                                                             ? 5
-                                                            : magic == 0x43495436 ? 6 : magic == 0x43495437 ? 7 : magic == 0x43495438 ? 8 : 9);
+                                                            : magic == 0x43495436 ? 6 : magic == 0x43495437 ? 7 : magic == 0x43495438 ? 8 : magic == 0x43495439 ? 9 : 10);
         }
     }
 
@@ -2030,7 +2060,7 @@ public final class CitySimulation {
         Files.createDirectories(file.toAbsolutePath().getParent());
         Path tmp = file.resolveSibling(file.getFileName() + ".tmp");
         try (var out = new DataOutputStream(Files.newOutputStream(tmp))) {
-            out.writeInt(0x43495439);
+            out.writeInt(0x4349543A);
             frame().write(out);
         }
         try {

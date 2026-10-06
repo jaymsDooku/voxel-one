@@ -75,7 +75,7 @@ class CityMultiplayerTest {
                         a.cityCommand(
                                 new CityCommand(
                                         CityCommand.ROAD,
-                                        0,
+                                        1,
                                         List.of(
                                                 new Polygon.Point(44, 24),
                                                 new Polygon.Point(60, 24)))));
@@ -96,9 +96,10 @@ class CityMultiplayerTest {
                                                     e ->
                                                             e.x() == 55
                                                                     && e.z() == 24
-                                                                    && e.type() == Blocks.DIRT);
+                                                                    && e.type() == Blocks.ROAD_LINE_X);
                         });
                 assertEquals(a.city.roads(), b.city.roads());
+                assertTrue(b.city.roads().stream().anyMatch(r -> r.x() == 55 && r.z() == 24 && r.type() == 1));
                 assertTrue(b.city.economy().roadSpending() > 0);
                 assertEquals(a.city.economy().roadSpending(), b.city.economy().roadSpending());
                 assertEquals(17, b.city.economy().firms().size());
@@ -198,6 +199,7 @@ class CityMultiplayerTest {
                 assertTrue(a.city.config().city());
                 assertEquals(7, a.city.zones().size());
                 assertTrue(a.city.roads().size() > roadCount);
+                assertTrue(a.city.roads().stream().anyMatch(r -> r.x() == 55 && r.z() == 24 && r.type() == 1));
                 assertTrue(a.city.elapsed() > 0);
                 assertTrue(a.city.economy().roadSpending() > 0);
                 assertEquals(17, a.city.economy().firms().size());

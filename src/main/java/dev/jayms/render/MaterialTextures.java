@@ -26,6 +26,9 @@ public final class MaterialTextures implements AutoCloseable {
             case Blocks.BRICKS -> 8;
             case Blocks.GLASS -> 9;
             case Blocks.LED -> 10;
+            case Blocks.ASPHALT -> 11;
+            case Blocks.ROAD_LINE_X -> 12;
+            case Blocks.ROAD_LINE_Z -> 13;
             default -> -1;
         };
     }
@@ -33,9 +36,9 @@ public final class MaterialTextures implements AutoCloseable {
     public MaterialTextures() {
         id = glGenTextures();
         glBindTexture(GL_TEXTURE_2D_ARRAY, id);
-        ByteBuffer pixels = MemoryUtil.memAlloc(32 * 32 * 11 * 4);
+        ByteBuffer pixels = MemoryUtil.memAlloc(32 * 32 * 14 * 4);
         try {
-            for (int l = 0; l < 11; l++)
+            for (int l = 0; l < 14; l++)
                 for (int y = 0; y < 32; y++)
                     for (int x = 0; x < 32; x++) {
                         int hash = (x * 374761393 + y * 668265263 + l * 1274126177);
@@ -46,6 +49,11 @@ public final class MaterialTextures implements AutoCloseable {
                         if (l == 8 && (y % 8 == 0 || x % 16 == (y / 8 % 2) * 8)) shade = 145;
                         if (l == 9) shade = 245;
                         if (l == 10) shade = x % 8 == 0 || y % 8 == 0 ? 190 : 255;
+                        if (l >= 11) {
+                            shade = 50 + (hash >>> 24 & 15);
+                            if (l == 12 && y >= 14 && y <= 17 || l == 13 && x >= 14 && x <= 17)
+                                shade = 250;
+                        }
                         pixels.put((byte) shade)
                                 .put((byte) shade)
                                 .put((byte) shade)
@@ -58,7 +66,7 @@ public final class MaterialTextures implements AutoCloseable {
                     GL_RGBA8,
                     32,
                     32,
-                    11,
+                    14,
                     0,
                     GL_RGBA,
                     GL_UNSIGNED_BYTE,

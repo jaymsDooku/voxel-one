@@ -9,7 +9,7 @@ import java.util.*;
  */
 public final class WorldVoxels {
     public static final int RESOLUTION = 16;
-    private static final int[] COLORS = new int[187];
+    private static final int[] COLORS = new int[190];
 
     static {
         for (int i = 1; i < COLORS.length; i++) {

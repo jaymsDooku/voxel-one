@@ -25,15 +25,18 @@ public final class CityTools {
         if (specialOwner == 2) return city.economy().firms().isEmpty() ? -1 : city.economy().firms().get(Math.floorMod(ownerIndex, city.economy().firms().size())).id();
         return 0;
     }
+    public int roadType;
+    public boolean roadMenu;
     public int tool = -1, selectedCitizen, selectedBuilding, selectedPlot, selectedStreet;
     private final List<Polygon.Point> points = new ArrayList<>();
     private Polygon.Point hover;
     public String message = "Inspect: click a building, plot or citizen for details.";
 
     public boolean key(int key, Consumer<CityCommand> submit) {
-        if (key == GLFW_KEY_ESCAPE && (!points.isEmpty() || tool != -1)) {
+        if (key == GLFW_KEY_ESCAPE && (!points.isEmpty() || tool != -1 || roadMenu)) {
             points.clear();
             tool = -1;
+            roadMenu = false;
             return true;
         }
         if (key == GLFW_KEY_BACKSPACE && !points.isEmpty()) {
@@ -66,6 +69,16 @@ public final class CityTools {
             dashboardRequested = true;
             return;
         }
+        if (roadMenu) {
+            if (x >= 16 && x <= Math.min(450, width - 16) && y >= 140 && y < 252) {
+                roadType = (int) ((y - 140) / 28);
+                roadMenu = false;
+                tool = 4;
+                points.clear();
+                message = "Choose the first endpoint for " + RoadTypes.NAMES[roadType];
+                return;
+            }
+        }
         if (tool == 6 && x >= 16 && x <= 450 && y >= 140 && y < 140+9*28) {
             int row = (int)((y-140)/28);
             if (row < 6) specialKind = row;
@@ -79,8 +92,10 @@ public final class CityTools {
             int index = (int) ((x - 16) / ((width - 32) / 9f));
             tool = new int[] {-1, 4, 0, 1, 2, 3, 5, 6, 7}[Math.min(8, index)];
             points.clear();
+            roadMenu = tool == 4;
             return;
         }
+        if (roadMenu) return;
         if (y < 130 || y > height - 200) return;
         if (tool == 5) return;
         if (tool == -1) {
@@ -122,7 +137,7 @@ public final class CityTools {
             }
             points.add(candidate);
             if (tool == 4 && points.size() == 2) {
-                submit.accept(new CityCommand(CityCommand.ROAD, 0, points));
+                submit.accept(new CityCommand(CityCommand.ROAD, roadType, points));
                 points.clear();
             }
         } catch (IllegalArgumentException e) {
@@ -133,7 +148,7 @@ public final class CityTools {
     /** Shared by preview and click so the highlighted point is the submitted point. */
     public Polygon.Point cursorPoint(float x, float y, int w, int h,
             Matrix4f projection, Matrix4f view, CityFrame city) {
-        if (tool < 0 || (tool > 4 && tool != 6 && tool != 7) || y < 130 || y > h - 200) return null;
+        if (roadMenu || tool < 0 || (tool > 4 && tool != 6 && tool != 7) || y < 130 || y > h - 200) return null;
         var inverse = new Matrix4f(projection).mul(view).invert();
         var a = inverse.transformProject(new Vector3f(x / w * 2 - 1, 1 - y / h * 2, -1));
         var b = inverse.transformProject(new Vector3f(x / w * 2 - 1, 1 - y / h * 2, 1));
@@ -374,7 +389,7 @@ public final class CityTools {
         if (tool == -1 && selectedCitizen == 0 && selectedStreet != 0) {
             ui.rectangle(16, 140, Math.min(400, w - 32), 65, .025f, .04f, .065f, .95f);
             ui.text(city.addresses().streetName(selectedStreet), 28, 152, 1.5f);
-            ui.text("Dirt road | Mayor-owned public access", 28, 179, 1.2f);
+            ui.text("Public road | Mayor-owned access", 28, 179, 1.2f);
         }
         try {
             if (points.size() >= 3) new Polygon(points);
@@ -418,10 +433,16 @@ public final class CityTools {
                 ui.text(label,24,149+row*28,1.15f);
             }
         }
+        if (roadMenu) {
+            ui.rectangle(16, 140, Math.min(434, w - 32), 112, .025f, .04f, .065f, .97f);
+            for (int row = 0; row < RoadTypes.NAMES.length; row++) {
+                ui.text((row == roadType ? "> " : "  ") + RoadTypes.NAMES[row], 24, 149 + row * 28, 1.3f);
+            }
+        }
         float bw = (w - 32) / 9f, top = h - 196;
         String[] labels = {
             "Inspect",
-            "Dirt road",
+            "Roads",
             "Residential",
             "Commercial",
             "Industrial",
@@ -449,7 +470,7 @@ public final class CityTools {
                         : tool == 7
                                 ? "Choose clear land near a road | Exchange: $600 | Graduate office staff"
                         : tool == 4
-                        ? "Click two endpoints | Mayor pays $4 per new road cell."
+                        ? roadMenu ? "Choose a road | Esc: cancel" : RoadTypes.NAMES[roadType] + " | Click two endpoints | $4 per new or upgraded cell | Esc: cancel"
                         : tool >= 0 && tool < 4
                                 ? "Click convex polygon corners | Enter: zone | Backspace: undo |"
                                         + " Esc: cancel"
