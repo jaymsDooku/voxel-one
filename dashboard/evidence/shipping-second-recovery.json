@@ -1,0 +1,31 @@
+{
+  "status": "resolved_for_controller_continuation",
+  "headBeforeContinuation": "e61abc28e35651e522db77e675ad3fb70b64c4ce",
+  "conflict": "dashboard/progress.json timestamps and shipping note; current aviation recovery retained",
+  "productionSourceChangedFromRecoveredHead": false,
+  "preserved": "Airport23, port24, protocol23, format12 aviation snapshots/save loader, commands10/11, regional data and prior evidence",
+  "command": "mvn -Dmaven.repo.local=target/m2 -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=ShippingAviationCompatibilityTest,ShippingProtocolCompatibilityTest test",
+  "exit": 0,
+  "tests": 5,
+  "suites": [
+    {
+      "name": "dev.jayms.ShippingAviationCompatibilityTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "1.409"
+    },
+    {
+      "name": "dev.jayms.ShippingProtocolCompatibilityTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "3.094"
+    }
+  ],
+  "environment": "Linux, Java25.0.3, target/m2 and writable target/tmp; isolated synthetic save files and TLS identities/accounts",
+  "Playtest": "Pending controller rebase continuation. Final-head full Maven verify and native shipping/aviation workflows with fresh sanitized media remain required. Prior media and shipping-final-tests.json are historical pre-aviation recovery evidence.",
+  "handoff": "Controller stages and continues preserved rebase. No abort, reset, stage, commit, push or publication performed by developer."
+}
