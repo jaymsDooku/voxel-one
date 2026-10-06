@@ -14,7 +14,8 @@
     "failures": 0,
     "errors": 0,
     "skipped": 0,
-    "classes": 52
+    "classes": 52,
+    "note": "Aggregate reports, including earlier runs. Not a final-head full-suite pass."
   },
   "commands": [
     {
@@ -35,6 +36,26 @@
     {
       "command": "git diff --check",
       "exitCode": 0
+    },
+    {
+      "command": "JAVA_TOOL_OPTIONS=-Djava.io.tmpdir=$PWD/target/tmp timeout 900 /tmp/apache-maven-3.9.11/bin/mvn -q -o -Dmaven.repo.local=target/m2 -Dlwjgl.natives=natives-linux test",
+      "exitCode": 143,
+      "note": "Rebased full-suite attempt terminated. No final-head full-suite pass claimed."
+    },
+    {
+      "command": "python3 deploy/run_resource_progression_smoke.py --display \"$DISPLAY\" --profile target/resource-progression-final-rebase-profile",
+      "exitCode": 0,
+      "note": "Playtest: fresh native progression workflow and media after rebase."
+    },
+    {
+      "command": "JAVA_HOME=\"$(dirname \"$(dirname \"$(readlink -f /usr/bin/java)\")\")\" python3 deploy/run_jeep_playtest.py --display \"$DISPLAY\"",
+      "exitCode": 0,
+      "note": "Playtest: actual Main GLFW callbacks and X11 input; isolated synthetic world and worktree-local home. target/maven-cache symlink points to target/m2. Fresh screenshots and F10 video. Application shutdown save reloads exact position and heading; restored jeep is parked."
+    },
+    {
+      "command": "JAVA_TOOL_OPTIONS=-Djava.io.tmpdir=$PWD/target/tmp /tmp/apache-maven-3.9.11/bin/mvn -q -o -Dmaven.repo.local=target/m2 -Dlwjgl.natives=natives-linux -Dtest=JeepTest,IndustrialProgressionTest,BusinessCatalogTest,ManufacturingTest,DemolitionTest test",
+      "exitCode": 0,
+      "note": "Final rebased source: 37 focused tests passed."
     }
   ],
   "playtest": {
@@ -86,7 +107,12 @@
   "mediaSha256": {
     "resource-progression-settlement.png": "58af635d064b4841f4e84d6fa920ee087aa90fe1b894f994fec4ff368cccea07",
     "resource-progression-advanced.png": "c271e716548032b407f2ff20208dacb1ec5a0329050e1679ab061431916cbc55",
-    "resource-progression-manufacturing.png": "e2bb6de576a84ca4fc3152abafd63b03e32265c3d63f506050a2581e088b82f0"
+    "resource-progression-manufacturing.png": "e2bb6de576a84ca4fc3152abafd63b03e32265c3d63f506050a2581e088b82f0",
+    "jeep-driving.mp4": "d6fa04792d9eed41718312c70eac2171394785763cdc3ea2c66b40cb3fb15efa",
+    "jeep-wall.png": "098a46ff675c9e3f06747e2f26d205c4423c363fa3d707876847f9632a3f2849",
+    "jeep-windshield.png": "5f5a030f84830fdcbe6ba9725c52ae0846594a8c2a552724f86b65fb13231d50",
+    "jeep-driver-seat.png": "c8fc7d1968cf6566c8fdb9fe0b8a1ffdc0311cdd257cbb1b3afb4c092ef94aa8",
+    "jeep-parked.png": "997a483dc87c87c638cf80e580d2edd721a7d29ea1b53c23b8b9d5e750de5a93"
   },
   "sourceSha256": {
     "config/city-production.properties": "e2e1fa959add639f4081125b22d6db9512e1e000a3e0845322c10ba5024615db",
@@ -120,6 +146,50 @@
     "src/main/java/dev/jayms/ui/BusinessDashboard.java": "b91157aed2ee391e3167d6fa6f263ac7ab02ec3b665a7dd2ade56e0c6c01fad2",
     "src/test/java/dev/jayms/AgricultureTest.java": "289f5834882a1b82bf9c5b20b2f675c9ea17ab513325520656c2a68a49102223",
     "src/test/java/dev/jayms/CityMultiplayerTest.java": "358e47de5e83213d449167a5eeb3f1d511dd005d48bc867a8cb6afd785042669",
-    "src/test/java/dev/jayms/IndustrialProgressionTest.java": "3ab1aa26ebe69dfeded0ad07c7eca7d185af388a40ca11aff9306074654ad3bb"
+    "src/test/java/dev/jayms/IndustrialProgressionTest.java": "3ab1aa26ebe69dfeded0ad07c7eca7d185af388a40ca11aff9306074654ad3bb",
+    "deploy/JeepPlaytest.java": "a8945f6a985a359060faf116dedfa4f3c43b9fd710860932c2a4f5f7feef4911",
+    "src/main/java/dev/jayms/player/Jeep.java": "fee90881847413cfdf28669bb43c2f658f336543ca74f4ca4cd94fb569717645",
+    "src/main/java/dev/jayms/player/JeepModel.java": "22c0d10ff0dc9552a912ba07cb8939f9343acd157f31ab3597977b002b33b08c",
+    "src/main/java/dev/jayms/Main.java": "7ec4978592d8cccf015a2fe76017dfa01c3f65688e350aa1b74ef0bfd7377871",
+    "src/main/java/dev/jayms/player/Player.java": "c37b83e829f008693ce324a45b149226f5c36aa4a19bca3d876a094fe6d11618",
+    "src/main/java/dev/jayms/ui/Controls.java": "1f82764d31e522a6ad7fc31324adc82ef53862133bf9a0be6fbf5923d76a66cf",
+    "src/main/resources/shaders/voxel.frag": "3305a32170e0d5a671c6039b2acf31d7ae74e0ab527eb9dc60cbe9f55aa71eb3"
+  },
+  "rebasedHead": "724b1831b694124dcb8a7b8f78925749406606f3",
+  "jeepRegression": {
+    "status": "passed",
+    "platform": "Linux assigned X11 display",
+    "profile": "isolated synthetic",
+    "checks": [
+      "driver entry",
+      "first-person windshield camera",
+      "third-person camera regression",
+      "W drive",
+      "Ctrl acceleration",
+      "S reverse",
+      "A/D steering",
+      "mouse steering",
+      "moving exit rejected",
+      "wall collision at boost speed",
+      "stopped exit",
+      "walking regression",
+      "application shutdown save",
+      "exact position and heading reload",
+      "restored jeep parked"
+    ],
+    "recording": "F10 engine recorder"
+  },
+  "finalHeadFocusedTests": {
+    "classes": [
+      "JeepTest",
+      "IndustrialProgressionTest",
+      "BusinessCatalogTest",
+      "ManufacturingTest",
+      "DemolitionTest"
+    ],
+    "tests": 37,
+    "failures": 0,
+    "errors": 0,
+    "result": "passed"
   }
 }

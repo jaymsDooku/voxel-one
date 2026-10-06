@@ -41,3 +41,21 @@ Resolved CitySimulation.step conflict by retaining population.advance(dt, config
 Outstanding reviewer fixes after continuation: CityEconomy.restockFood must try reachable affordable sellers when the cheapest is unreachable. IndustrialLogistics must choose a cargo-energy-feasible transport mode and fall back to owned cart when a longer-range train lacks coal. Add regression tests for both, exercise affected running workflow with synthetic profiles, and capture new sanitized media before ready. Prior receipts do not validate these fixes.
 
 Recovery check exited0:19 tests in IndustrialProgressionTest and RegionalPopulationTest. Command:`JAVA_TOOL_OPTIONS=-Djava.io.tmpdir=$PWD/target/tmp /tmp/apache-maven-3.9.11/bin/mvn -q -o -Dmaven.repo.local=target/m2 -Dlwjgl.natives=natives-linux -Dtest=IndustrialProgressionTest,RegionalPopulationTest test`. No native playtest during this recovery; reviewer fixes and final-head workflow checks remain pending.
+
+## Final rebased integration validation
+
+Controller continued rebase to 724b1831b694124dcb8a7b8f78925749406606f3. No unmerged index remains. Both jeep and progression are retained. Final focused Maven run exited 0 (37 tests). Fresh native progression and jeep playtests exited 0. Jeep harness now checks the actual Main shutdown sidecar through Jeep.load: exact position and heading, parked state. Inspected fresh tier-eight dashboard, jeep wall collision and transparent windshield screenshots. Fresh F10 video is 3,095,909 bytes. Sanitized commands, environment, expected/observed checks and source/media hashes are in dashboard/evidence/resource-progression-tests.json. Full Maven attempt exited 143; no final-head full-suite pass claimed. Ready for controller publication and independent review. No developer Git commit, push, merge or deployment.
+
+## Typed-road recovery
+
+Resolved dashboard/progress.json timestamp conflict and retained every non-progression current-base entry. Current source retains 0x4349543A version-10 save read/write, typed roads, protocol20, materials187–189, paved2/3/4-lane choices, road regression tests, native harness and historical evidence. Progression and jeep remain present. Pre-continuation Maven command exited0 with 20 tests: `JAVA_TOOL_OPTIONS=-Djava.io.tmpdir=$PWD/target/tmp /tmp/apache-maven-3.9.11/bin/mvn -q -o -Dmaven.repo.local=target/m2 -Dlwjgl.natives=natives-linux -Dtest=RoadTypesTest,IndustrialProgressionTest,JeepTest test`. Road tests exercise all paved types and version-10 save/reload plus version9 fallback. JSON validation and git diff --check passed.
+
+Controller must stage resolutions and continue rebase. No developer stage/continue/abort/reset/commit/push performed. After continuation, run native paved-road placement and existing-base-save loading, progression and jeep regression checks with fresh sanitized media. Old receipts do not prove final-head compatibility.
+
+## Current recovery handoff
+
+Checkpoint and dashboard conflicts resolved. Earlier validation sections are historical; they do not establish readiness for the current head. Retained population.advance and logistics site/clock updates. Both reviewer fixes remain pending after controller rebase continuation: try feasible food sellers before stopping; select cargo-energy-feasible transport with cart fallback when a train lacks coal. Add regression tests and run fresh native workflow checks/media before ready. Controller alone stages and continues; no developer abort/reset/commit/push.
+
+## Aviation recovery handoff
+
+Resolved dashboard timestamp conflict by retaining current-base timestamp and all current-base entries alongside progression. Source inspection confirms aviation airport construction, runway expansion, flight ticking and plane rendering; AviationTest, native harness and airport evidence are present. Controller must stage and continue rebase. Final-head checks remain pending: actual base-generated version12 city save (0x4349543C) load/restore/resave, protocol22 and aviation serialization, native aviation workflow alongside progression and both fallback regressions, fresh sanitized media. Earlier ready/test statements are historical. No developer stage/continue/abort/reset/commit/push/deploy. JSON preservation checks and git diff --check passed in this recovery; no native playtest run.

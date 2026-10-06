@@ -182,11 +182,16 @@
           "kind": "report",
           "label": "Resource progression tests and Playtest (pending controller publication)",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/resource-progression-tests.json"
+        },
+        {
+          "kind": "video",
+          "label": "Jeep integration regression \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/jeep-driving.mp4"
         }
       ],
       "status": "in_progress",
-      "note": "Implementation and local checks finished. Full Maven run, final 31-test compatibility retest and native Playtest passed; 305 tests have passing reports. Three implementation screenshots and sanitized reports await controller publication and independent review.",
-      "updatedAt": "2026-10-06T17:17:02+00:00"
+      "note": "Rebase recovery in progress. Population and logistics updates retained. Food seller and energy-feasible freight fallback fixes, regression tests and fresh final-head native checks remain pending controller continuation.",
+      "updatedAt": "2026-10-06T18:43:15.000799+00:00"
     },
     {
       "id": "queue-38613638386362362d333266662d346339302d383566312d333861363332623962333363",
