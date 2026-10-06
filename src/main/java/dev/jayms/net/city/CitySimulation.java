@@ -828,12 +828,22 @@ public final class CitySimulation {
                     if (agriculture.company(id) != 0) continue;
                     int current = employer(h.job);
                     if (!canPayJob(workplace, id)) continue;
+                    // A new graduate workplace may recruit from a shop while leaving
+                    // one worker there; eligible graduates need not wait for unemployment.
                     if (h.job == 0
                             || h.job > 0
                                     && h.job < CityMaterials.YARD
                                     && current != 0
                                     && economy.company(current).kind >= 2
-                                    && occupants(h.job, false) > 1) {
+                                    && occupants(h.job, false) > 1
+                            || current != 0
+                                    && economy.resources.catalog.recipes(firm.kind).stream()
+                                            .anyMatch(ProductionCatalog.Recipe::requiresFactory)
+                                    && building(h.job) != null
+                                    && building(h.job).type() == 1
+                                    && occupants(h.job, false) > 1
+                                    && careerRank(workplace, id) > careerRank(h.job, id)
+                                    && jobRate(workplace, id) >= jobRate(h.job, id)) {
                         h.job = workplace;
                         var t = ecs.get(id, Travel.class);
                         t.target = -9999;
@@ -1301,7 +1311,7 @@ public final class CitySimulation {
                     float sx = p.x + (float) ((dx * Math.cos(radians) + dz * Math.sin(radians)) / dist * movement);
                     float sz = p.z + (float) ((dz * Math.cos(radians) - dx * Math.sin(radians)) / dist * movement);
                     double distanceToTarget = Math.hypot(target.x() + .5f - sx, target.z() + .5f - sz);
-                    if (distanceToTarget < best && roadApproach(sx, sz) && passable(sx, sz)
+                    if (distanceToTarget < best && passingGround(sx, sz) && passable(sx, sz)
                             && roadClear(id, p, h, sx, sz)) {
                         nx = sx;
                         nz = sz;
@@ -1397,6 +1407,13 @@ public final class CitySimulation {
         }
         if (goal == null) return false;
         var start = new Cell((int) Math.floor(p.x), (int) Math.floor(p.z));
+        var directions = new ArrayList<Cell>();
+        for (int dx = -1; dx <= 1; dx++) for (int dz = -1; dz <= 1; dz++)
+            if (dx != 0 || dz != 0) directions.add(new Cell(dx, dz));
+        int headingX = goal.x() - start.x(), headingZ = goal.z() - start.z();
+        // Opposing traffic chooses opposite sides instead of planning into the same lane.
+        directions.sort(Comparator.comparingInt((Cell offset) -> headingX * offset.z() - headingZ * offset.x())
+                .thenComparingInt(offset -> -headingX * offset.x() - headingZ * offset.z()));
         var parents = new HashMap<Cell, Cell>();
         var queue = new ArrayDeque<Cell>();
         parents.put(start, start);
@@ -1404,13 +1421,14 @@ public final class CitySimulation {
         while (!queue.isEmpty() && parents.size() < 256) {
             var cell = queue.remove();
             if (cell.equals(goal)) break;
-            for (int dx = -1; dx <= 1; dx++) for (int dz = -1; dz <= 1; dz++) {
-                if (dx == 0 && dz == 0) continue;
-                var next = new Cell(cell.x() + dx, cell.z() + dz);
-                if (parents.containsKey(next) || !roadApproach(next.x() + .5f, next.z() + .5f)
+            for (var offset : directions) {
+                var next = new Cell(cell.x() + offset.x(), cell.z() + offset.z());
+                if (parents.containsKey(next) || !passingGround(next.x() + .5f, next.z() + .5f)
                         || !passable(next.x() + .5f, next.z() + .5f)) continue;
                 var probe = new Position(next.x() + .5f, p.y, next.z() + .5f);
-                if (!roadClear(id, probe, h, probe.x, probe.z)) continue;
+                var from = cell.equals(start) ? p : new Position(cell.x() + .5f, p.y, cell.z() + .5f);
+                if (!clearTerrainPath(from.x, from.z, probe.x, probe.z)
+                        || !roadClear(id, from, h, probe.x, probe.z)) continue;
                 parents.put(next, cell);
                 queue.add(next);
             }
@@ -1423,6 +1441,18 @@ public final class CitySimulation {
         for (int i = path.size() - 1; i >= 0; i--) t.route.addFirst(path.get(i));
         t.passingPoints = path.size();
         return true;
+    }
+
+    /** Wide gaps can leave the pavement briefly on clear ground to bypass a queue. */
+    private boolean passingGround(float x, float z) {
+        if (roadApproach(x, z)) return true;
+        if (Math.max(roadSpacing.pedestrians(), roadSpacing.mounted()) < 2
+                || buildings.stream().anyMatch(b -> x > b.x() && x < b.x() + 6
+                        && z > b.z() && z < b.z() + 7)) return false;
+        int cx = (int)Math.floor(x), cz = (int)Math.floor(z);
+        for (int dx = -3; dx <= 3; dx++) for (int dz = -3; dz <= 3; dz++)
+            if (roads.containsKey(new Cell(cx + dx, cz + dz))) return true;
+        return false;
     }
 
     private boolean roadApproach(float x, float z) {
@@ -1442,12 +1472,12 @@ public final class CitySimulation {
 
     /** Check the swept step, so a fast rider cannot skip through a waiting walker. */
     private boolean roadClear(int id, Position p, Household h, float nx, float nz) {
-        if (!roadApproach(p.x, p.z) && !roadApproach(nx, nz)) return true;
+        if (!passingGround(p.x, p.z) && !passingGround(nx, nz)) return true;
         float ownGap = h.horse == 0 ? roadSpacing.pedestrians() : roadSpacing.mounted();
         for (int other : ecs.query(Position.class, Household.class)) {
             if (other == id) continue;
             var q = ecs.get(other, Position.class);
-            if (!roadApproach(q.x, q.z)) continue;
+            if (!passingGround(q.x, q.z)) continue;
             var household = ecs.get(other, Household.class);
             float gap = Math.max(ownGap, household.horse == 0
                     ? roadSpacing.pedestrians() : roadSpacing.mounted());
@@ -1458,7 +1488,7 @@ public final class CitySimulation {
             // NPC riders are already counted by their household position.
             if (mount.rider < 0 || horse == h.horse) continue;
             var q = ecs.get(horse, Position.class);
-            if (roadApproach(q.x, q.z) && !clearStep(p.x, p.z, nx, nz, q.x, q.z,
+            if (passingGround(q.x, q.z) && !clearStep(p.x, p.z, nx, nz, q.x, q.z,
                     Math.max(ownGap, roadSpacing.mounted()))) return false;
         }
         return true;
@@ -2308,10 +2338,15 @@ public final class CitySimulation {
                         StructureBlueprint.depth(p.type()))) continue;
                 for (int id : ecs.query(Household.class, Position.class)) {
                     var pos = ecs.get(id, Position.class);
-                    if (pos.x > p.x() && pos.x < p.x() + 6 && pos.z > p.z() && pos.z < p.z() + 7) {
+                    boolean inside = pos.x > p.x() && pos.x < p.x() + 6
+                            && pos.z > p.z() && pos.z < p.z() + 7;
+                    boolean porchBeam = (Math.floor(pos.x) == p.x() || Math.floor(pos.x) == p.x() + 5)
+                            && Math.floor(pos.z) == p.z() - 1;
+                    if (inside || porchBeam) {
                         // Move construction workers onto the completed building's interior floor.
                         // Its aisle keeps their assigned stations clear; no enclosing wall is
-                        // placed over them.
+                        // placed over them. Include the north porch beams, which occupy
+                        // the voxel row immediately outside the main building footprint.
                         pos.x = p.x() + 2.5f;
                         pos.z = p.z() + 2.5f;
                         pos.y = p.y() + 1.01f;

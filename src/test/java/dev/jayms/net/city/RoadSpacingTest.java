@@ -87,7 +87,7 @@ class RoadSpacingTest {
                     last=separation;
                 }
             }
-            assertTrue(ta.route.isEmpty() && tb.route.isEmpty(), "Both walkers arrive");
+            assertTrue(ta.route.isEmpty() && tb.route.isEmpty(), "Both walkers arrive: gap="+gap+" mounted="+mounted+" pos="+pa.x+","+pa.z+" / "+pb.x+","+pb.z+" route="+ta.route+" / "+tb.route);
             assertEquals(8.5f,pa.x,.001); assertEquals(following ? 12.5f : -3.5f,pb.x,.001);
         } finally {
             if (previous == null) System.clearProperty("voxel.road.pedestrianSpacing");

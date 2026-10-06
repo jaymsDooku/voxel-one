@@ -255,6 +255,39 @@ class ManufacturingTest {
     }
 
     @Test
+    void maximumRoadGapsKeepAutomaticFactoryProductionAndToolDelivery() {
+        String walking = System.getProperty("voxel.road.pedestrianSpacing");
+        String mounted = System.getProperty("voxel.road.mountedSpacing");
+        try {
+            System.setProperty("voxel.road.pedestrianSpacing", "2");
+            System.setProperty("voxel.road.mountedSpacing", "2");
+            var g = new CityTest.Ground();
+            var s = city(g);
+            var pose = new Protocol.Pose(1, 8, 40, 24, 0, 0);
+            s.command(new CityCommand(CityCommand.ROAD, 0,
+                    List.of(new Polygon.Point(-10, 24), new Polygon.Point(-60, 24))), 1, pose);
+            s.command(new CityCommand(CityCommand.ZONE, 2,
+                    CityTest.box(-50, 26, 40, 24).vertices()), 1, pose);
+            for (int second = 0; second < 700; second++) s.advance(1);
+            var factory = firm(s, 8);
+            assertTrue(s.economy.resources.production(factory.id).processed() > 0);
+            int building = s.economy.properties.stream().filter(p -> p.operator() == factory.id)
+                    .findFirst().orElseThrow().building();
+            assertTrue(s.frame().citizens().stream()
+                    .anyMatch(c -> c.job() == building && s.eligible(building, c.id())));
+            // Wider queues delay a delivery, but must not halt the automatic supply chain.
+            for (int second = 700; second < 1200; second++) s.advance(1);
+            assertEquals(2, s.economy.resources.productivity(firm(s, 2).id, 2));
+            assertEquals(2, s.economy.resources.productivity(firm(s, 3).id, 3));
+        } finally {
+            if (walking == null) System.clearProperty("voxel.road.pedestrianSpacing");
+            else System.setProperty("voxel.road.pedestrianSpacing", walking);
+            if (mounted == null) System.clearProperty("voxel.road.mountedSpacing");
+            else System.setProperty("voxel.road.mountedSpacing", mounted);
+        }
+    }
+
+    @Test
     void aStaffedFactoryBuildsAndTradesToolsDuringTheActualSimulation() throws Exception {
         var g = new CityTest.Ground();
         var s = city(g);
@@ -273,27 +306,6 @@ class ManufacturingTest {
         for (int i = 0; i < 700; i++) s.advance(1);
         var f = firm(s, 8);
         assertTrue(s.economy.properties.stream().anyMatch(p -> p.operator() == f.id));
-        // This test needs a staffed factory, independent of construction timing and
-        // the daily labour market retaining paid graduates in mining jobs.
-        int factory = s.economy.properties.stream().filter(p -> p.operator() == f.id)
-                .findFirst().orElseThrow().building();
-        int worker = s.ecs.query(CitySimulation.Household.class).stream()
-                .filter(id -> s.life(id).education == CitizenLife.Education.TECHNICAL)
-                .findFirst().orElseThrow();
-        s.ecs.get(worker, CitySimulation.Household.class).job = factory;
-        var commute = s.ecs.get(worker, CitySimulation.Travel.class);
-        commute.target = -9999;
-        commute.route.clear();
-        commute.passingPoints = 0;
-        commute.retryAt = 0;
-        // Construction still completes within 700 seconds. Spaced commutes can delay
-        // the first factory shift and equipment delivery; allow at most three days.
-        for (int i = 700; i < 3600; i++) {
-            if (s.economy.resources.production(f.id).processed() > 0
-                    && s.economy.resources.productivity(firm(s, 2).id, 2) == 2
-                    && s.economy.resources.productivity(firm(s, 3).id, 3) == 2) break;
-            s.advance(1);
-        }
         assertTrue(s.economy.resources.production(f.id).processed() > 0);
         assertEquals(2, s.economy.resources.productivity(firm(s, 2).id, 2));
         assertEquals(2, s.economy.resources.productivity(firm(s, 3).id, 3));

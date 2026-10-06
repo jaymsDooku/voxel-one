@@ -20,3 +20,5 @@ This controls automatic city traffic and its clearance around parked or player-r
 Automatic riders wait to mount until the larger mounted gap is clear. On arrival, an NPC horse uses a clear parking cell within 4 blocks when one is available, keeping the doorway and rider apart. Existing overlap can move apart; spacing does not force users through a blocked route.
 
 Road shortcuts check the terrain along the full segment before skipping a waypoint. Passing searches can use walkable verges to rejoin the road. This keeps building and food-production journeys connected without dropping road clearance.
+
+At 2-block gaps, traffic may briefly use nearby walkable ground to pass a crowded doorway and rejoin the road. Detours keep the configured clearance and cannot cross building interiors.

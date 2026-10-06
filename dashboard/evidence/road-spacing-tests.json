@@ -1,22 +1,671 @@
 {
   "status": "passed",
-  "publication": "pending controller publication; independent exact-head review required",
-  "environment": {
-    "automated": "Linux 6.1.0-50-cloud-amd64 amd64; Oracle Java 25.0.3; Java target 17; Maven 3.9.11; natives-linux; Maven and test temporary files inside target/tmp",
-    "native": "Linux; inherited managed X11 role DISPLAY and XAUTHORITY unchanged; Mesa software OpenGL. Spacing uses Oracle JDK 21.0.5; road placement and jeep harnesses use inherited Java executable. Isolated synthetic offline profiles under target/spacing-home, target/road-home and target/road-jeep-home.",
-    "browser": "Browser playtesting does not apply: this is a native Java desktop game."
-  },
-  "implementation": {
-    "defaultsBlocks": {
-      "pedestrians": 0.8,
-      "mounted": 1.4
+  "publication": "pending controller publication and independent review",
+  "recordedAt": "2026-10-06T21:45:56.715052+00:00",
+  "implementation": "Configurable finite gaps 0\u20132 blocks; defaults pedestrian 0.8/mounted 1.4. Automatic graduate recruitment retains shop coverage. Construction relocation includes only actual north porch beam cells so passersby cannot become trapped. Graduate shop recruitment is limited to factory recipes. Maximum-gap queues use walkable detours; all detours retain swept clearance, avoid interiors and choose opposite passing sides.",
+  "verification": {
+    "command": "MAVEN_OPTS=\"-Xmx256m -Djava.io.tmpdir=$PWD/target/tmp\" /tmp/apache-maven-3.9.11/bin/mvn --batch-mode -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux \"-DargLine=-Xmx512m -Djava.io.tmpdir=$PWD/target/tmp\" verify > target/factory-final-complete-verify.txt 2>&1",
+    "environment": "Linux amd64; Maven 3.9.11; inherited Oracle Java 25.0.3; target Java 17; Linux natives; worktree-local dependency cache and JVM temp paths; Maven heap 256 MiB/test heap 512 MiB.",
+    "exitCode": 0,
+    "result": "BUILD SUCCESS; client, server and launcher packaged",
+    "totals": {
+      "tests": 309,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
     },
-    "inclusiveRangeBlocks": [
-      0,
-      2
-    ],
-    "repair": "Restore forward doorway entry outside verges; validate full terrain segments before skipping waypoints; use walkable verges for passing; keep parked horses clear of door aisles. Swept road clearance remains enforced."
+    "suites": [
+      {
+        "name": "dev.jayms.AccountStoreTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.AgricultureTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.BuildingInfoTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.BusinessCatalogTest",
+        "tests": 11,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.BusinessDashboardTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.CapitalDashboardTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.CapitalInspectorTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.CapitalSettlementLimitsTest",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.CitizenLifeTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.CityAddressesTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.CityBusinessTest",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.CityCapitalTest",
+        "tests": 11,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.CityEconomyTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.CityMaterialsTest",
+        "tests": 13,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.CityMetricsTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.CityMultiplayerTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.CityTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.CityTimeTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.CityToolsTest",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.ControlsTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.CraftingTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.DemolitionTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.DistantTerrainTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.ExchangeLabourMarketTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.ExchangePermitCompositionTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.FractionalWorldTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.InventoryHudTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.IsometricCameraTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.IsometricOrbitDragTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.JeepTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.LightOcclusionTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.LightingTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.ManufacturingTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.MarketEconomyTest",
+        "tests": 13,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.MayorDashboardTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.MetricHistoryTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.ModelSculptorTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.MultiplayerTest",
+        "tests": 15,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.PlayerAnimationTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.PlayerCameraTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.PlayerTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.PopulationJourneyTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.ProtocolCompatibilityTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.RemotePlayerTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.RoadTypesTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.ShopRestockMarketTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.SpecialBuildingsTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.SurvivalTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.TerrainGenerationTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.UpdaterTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.VideoRecordingTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.VoxelModelTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.net.city.CityStockExchangeTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.net.city.RoadSpacingTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ]
   },
+  "focused": {
+    "command": "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Xmx512m -Djava.io.tmpdir=\"$PWD/target/tmp\" -cp \"target/narrow-classes:target/classes:target/test-classes:$(cat target/spacing-classpath.txt)\" dev.jayms.PorchWorkflowCheck > target/narrow-porch-check.txt 2>&1",
+    "environment": "Current CitySimulation compiled with JDK21 to separate target/narrow-classes; unchanged existing test methods invoked through a local CLI harness. Synthetic CityTest.Ground; no browser applies to this CLI.",
+    "exitCode": 0,
+    "checksPassed": 4,
+    "harnessSource": "package dev.jayms;\nimport java.nio.file.*;\npublic class PorchWorkflowCheck {\n public static void main(String[] args)throws Exception {\n  new CityTimeTest().populationsCompleteDailyLifeAcrossThreeFullDays();System.out.println(\"Daily-life original check passed\");\n  new DemolitionTest().demolitionClearsStructuresReferencesAndSurvivesReload();System.out.println(\"Demolition original check passed\");\n  var m=new ManufacturingTest();m.directory=Path.of(\"target/tmp/narrow-check\");m.aStaffedFactoryBuildsAndTradesToolsDuringTheActualSimulation();System.out.println(\"Default factory original700 check passed\");\n  m.maximumRoadGapsKeepAutomaticFactoryProductionAndToolDelivery();System.out.println(\"Maximum factory700/1200 check passed\");\n }\n}\n",
+    "compileCommands": [
+      "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/javac -cp \"target/classes:$(cat target/spacing-classpath.txt)\" -d target/narrow-classes src/main/java/dev/jayms/net/city/CitySimulation.java",
+      "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/javac -cp \"target/narrow-classes:target/classes:target/test-classes:$(cat target/spacing-classpath.txt)\" -d target/narrow-classes target/PorchWorkflowCheck.java"
+    ],
+    "checks": [
+      "Original daily-life test",
+      "Original demolition test",
+      "Original 700-second automatic factory test",
+      "Separate maximum-gap 700/1200-second factory test"
+    ],
+    "originalFactory": "Original automatic workflow uses 700 seconds, no Household.job/Travel overrides; all production/tool-trade/save/inspector assertions retained.",
+    "maximumGapFactory": "Separate test: both gaps 2; production and eligible crew by 700 seconds; both tool deliveries by 1200 seconds."
+  },
+  "playtests": [
+    {
+      "label": "Playtest: Configured gaps",
+      "command": "JAVA_TOOL_OPTIONS=\"-Xmx512m\" python3 deploy/run_road_spacing_smoke.py --display \"$DISPLAY\" --output target/factory-complete-spacing",
+      "environment": "Linux inherited role X11 DISPLAY and XAUTHORITY; Mesa software OpenGL; isolated synthetic profile; native heap 512 MiB. Authentication unchanged and not read.",
+      "steps": "Observe walkers and riders; sample gaps and movement; open and close inventory.",
+      "expected": "1.0/1.4-block clearance, moving traffic and inventory pass.",
+      "observed": {
+        "platform": "Linux X11 Xvfb Mesa software OpenGL",
+        "status": "passed",
+        "pedestrianGapBlocks": 1.0,
+        "mountedGapBlocks": 1.4,
+        "movingSamples": 186,
+        "nearbySeparatedPairSamples": 1662,
+        "mountedSamples": 100,
+        "overlapSamples": 0,
+        "minimumClearanceMarginBlocks": 0.003037455272443701,
+        "lateClosestRoadPairBlocks": 1.0152592423106803,
+        "regression": "Native inventory opens and closes",
+        "recording": "engine F10 recorder",
+        "sourceRecording": "Voxel-One_2026-10-06_21-33-54_3126909260649947064.mp4",
+        "publication": "pending controller publication"
+      },
+      "media": {
+        "status": "passed",
+        "frames": 22,
+        "seconds": 14.943,
+        "bytes": 476199,
+        "width": 960,
+        "height": 544,
+        "decodedFractions": [
+          0,
+          0.5,
+          0.95
+        ]
+      },
+      "visualInspection": "Fresh decoded midpoint frame inspected; synthetic game view, no private data.",
+      "browser": "Browser playtesting does not apply: native Java/OpenGL application."
+    },
+    {
+      "label": "Playtest: Zero-gap edge",
+      "command": "JAVA_TOOL_OPTIONS=\"-Xmx512m\" python3 deploy/run_road_spacing_smoke.py --display \"$DISPLAY\" --output target/factory-complete-zero --pedestrian-spacing 0 --mounted-spacing 0",
+      "environment": "Linux inherited role X11 DISPLAY and XAUTHORITY; Mesa software OpenGL; isolated synthetic profile; native heap 512 MiB. Authentication unchanged and not read.",
+      "steps": "Observe overlapping walkers and mounted traffic; open and close inventory.",
+      "expected": "Overlap allowed; traffic and inventory still work.",
+      "observed": {
+        "platform": "Linux X11 Xvfb Mesa software OpenGL",
+        "status": "passed",
+        "pedestrianGapBlocks": 0,
+        "mountedGapBlocks": 0,
+        "movingSamples": 230,
+        "nearbySeparatedPairSamples": 957,
+        "mountedSamples": 54,
+        "overlapSamples": 56,
+        "minimumClearanceMarginBlocks": 0.0,
+        "lateClosestRoadPairBlocks": 0.010015010833740234,
+        "regression": "Native inventory opens and closes",
+        "recording": "engine F10 recorder",
+        "sourceRecording": "Voxel-One_2026-10-06_21-34-44_16496502175585010994.mp4",
+        "publication": "pending controller publication"
+      },
+      "media": {
+        "status": "passed",
+        "frames": 38,
+        "seconds": 15.545,
+        "bytes": 778246,
+        "width": 960,
+        "height": 544,
+        "decodedFractions": [
+          0,
+          0.5,
+          0.95
+        ]
+      },
+      "visualInspection": "Fresh decoded midpoint frame inspected; synthetic game view, no private data.",
+      "browser": "Browser playtesting does not apply: native Java/OpenGL application."
+    },
+    {
+      "label": "Playtest: Automatic factory at maximum gaps",
+      "command": "JAVA_TOOL_OPTIONS=\"-Xmx512m\" python3 deploy/run_factory_staffing_smoke.py --display \"$DISPLAY\" --max-spacing",
+      "environment": "Linux inherited role X11 DISPLAY and XAUTHORITY; Mesa software OpenGL; isolated synthetic profile; native heap 512 MiB. Authentication unchanged and not read.",
+      "steps": "Create original road/industrial-zone fixture; advance 700 seconds without job/position overrides; verify crew and production; allow tool delivery through 1200 seconds; inspect factory and inventory.",
+      "expected": "Eligible automatic crew, production by 700 seconds, both tools by 1200 seconds and shop coverage retained.",
+      "observed": {
+        "status": "passed",
+        "platform": "Linux inherited X11; Mesa",
+        "profile": "isolated synthetic offline city",
+        "simulatedSecondsBeforeCapture": 700,
+        "pedestrianGapBlocks": 2.0,
+        "mountedGapBlocks": 2.0,
+        "processedAt700": 10,
+        "checks": [
+          "automatic staffing without job mutation",
+          "eligible graduate commute",
+          "factory production by 700 seconds; both tool deliveries by 1200 seconds",
+          "shop coverage retained",
+          "native factory inspector"
+        ],
+        "recording": "engine F10 recorder"
+      },
+      "media": {
+        "status": "passed",
+        "frames": 5,
+        "seconds": 7.182,
+        "bytes": 99049,
+        "width": 960,
+        "height": 544,
+        "decodedFractions": [
+          0,
+          0.5,
+          0.95
+        ]
+      },
+      "visualInspection": "Fresh decoded midpoint frame inspected; synthetic game view, no private data.",
+      "browser": "Browser playtesting does not apply: native Java/OpenGL application."
+    },
+    {
+      "label": "Playtest: Typed-road regression",
+      "command": "JAVA_TOOL_OPTIONS=\"-Xmx512m\" python3 deploy/run_road_placement_smoke.py --display \"$DISPLAY\"",
+      "environment": "Linux inherited role X11 DISPLAY and XAUTHORITY; Mesa software OpenGL; isolated synthetic profile; native heap 512 MiB. Authentication unchanged and not read.",
+      "steps": "Select and place dirt and paved 2/3/4-lane roads; inspect widths; upgrade dirt; cancel endpoint; escape menu.",
+      "expected": "Distinct widths/materials, upgrade and cancellation without world/spending changes pass.",
+      "observed": {
+        "status": "passed",
+        "platform": "Linux X11 inherited role display; Mesa",
+        "profile": "isolated synthetic offline city",
+        "checks": [
+          "road menu",
+          "dirt and paved 2/3/4 lane placement",
+          "direction guide",
+          "distinct world widths",
+          "dirt upgrade",
+          "cancel endpoint leaves world and road spending unchanged",
+          "menu escape returns to inspect"
+        ],
+        "recording": "production F10 recorder"
+      },
+      "media": {
+        "status": "passed",
+        "frames": 127,
+        "seconds": 101.001,
+        "bytes": 3412425,
+        "width": 960,
+        "height": 544,
+        "decodedFractions": [
+          0,
+          0.5,
+          0.95
+        ]
+      },
+      "visualInspection": "Fresh decoded midpoint frame inspected; synthetic game view, no private data.",
+      "browser": "Browser playtesting does not apply: native Java/OpenGL application."
+    },
+    {
+      "label": "Playtest: Jeep regression",
+      "command": "JAVA_TOOL_OPTIONS=\"-Xmx512m\" python3 deploy/run_road_jeep_regression.py --display \"$DISPLAY\"",
+      "environment": "Linux inherited role X11 DISPLAY and XAUTHORITY; Mesa software OpenGL; isolated synthetic profile; native heap 512 MiB. Authentication unchanged and not read.",
+      "steps": "Enter jeep; check windshield and third-person camera; drive, boost, steer, reverse; test moving exit rejection, wall collision, stopped exit and walking.",
+      "expected": "All existing jeep controls and transparency work.",
+      "observed": {
+        "status": "passed",
+        "platform": "Linux assigned X11 display",
+        "profile": "isolated synthetic",
+        "checks": [
+          "driver entry",
+          "first-person windshield camera",
+          "third-person camera regression",
+          "W drive",
+          "Ctrl acceleration",
+          "S reverse",
+          "A/D steering",
+          "mouse steering",
+          "moving exit rejected",
+          "wall collision at boost speed",
+          "stopped exit",
+          "walking regression"
+        ],
+        "recording": "F10 engine recorder"
+      },
+      "media": {
+        "status": "passed",
+        "frames": 107,
+        "seconds": 51.147,
+        "bytes": 3104838,
+        "width": 960,
+        "height": 544,
+        "decodedFractions": [
+          0,
+          0.5,
+          0.95
+        ]
+      },
+      "visualInspection": "Fresh decoded midpoint frame inspected; synthetic game view, no private data.",
+      "browser": "Browser playtesting does not apply: native Java/OpenGL application."
+    }
+  ],
+  "cli": [
+    {
+      "role": "client",
+      "command": "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Xmx256m -Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/37653764393438302d353363332d346134312d626437312d626137346466336266356538/target/tmp -Duser.home=/home/debian/codex/voxel-one-queue-worktrees/37653764393438302d353363332d346134312d626437312d626137346466336266356538/target/factory-complete-cli-home -jar target/voxel-one-1.0-SNAPSHOT-client.jar --offline --game city --pedestrian-spacing NaN",
+      "environment": "Linux; Oracle JDK21; isolated synthetic user.home; worktree-local JVM temp directory",
+      "expected": "Nonzero exit; Road spacing must be finite and between 0 and 2 blocks",
+      "exitCode": 1,
+      "observed": "Road spacing must be finite and between 0 and 2 blocks",
+      "passed": true
+    },
+    {
+      "role": "client",
+      "command": "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Xmx256m -Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/37653764393438302d353363332d346134312d626437312d626137346466336266356538/target/tmp -Duser.home=/home/debian/codex/voxel-one-queue-worktrees/37653764393438302d353363332d346134312d626437312d626137346466336266356538/target/factory-complete-cli-home -jar target/voxel-one-1.0-SNAPSHOT-client.jar --offline --game city --pedestrian-spacing -1",
+      "environment": "Linux; Oracle JDK21; isolated synthetic user.home; worktree-local JVM temp directory",
+      "expected": "Nonzero exit; Road spacing must be finite and between 0 and 2 blocks",
+      "exitCode": 1,
+      "observed": "Road spacing must be finite and between 0 and 2 blocks",
+      "passed": true
+    },
+    {
+      "role": "client",
+      "command": "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Xmx256m -Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/37653764393438302d353363332d346134312d626437312d626137346466336266356538/target/tmp -Duser.home=/home/debian/codex/voxel-one-queue-worktrees/37653764393438302d353363332d346134312d626437312d626137346466336266356538/target/factory-complete-cli-home -jar target/voxel-one-1.0-SNAPSHOT-client.jar --offline --game city --pedestrian-spacing 2.1",
+      "environment": "Linux; Oracle JDK21; isolated synthetic user.home; worktree-local JVM temp directory",
+      "expected": "Nonzero exit; Road spacing must be finite and between 0 and 2 blocks",
+      "exitCode": 1,
+      "observed": "Road spacing must be finite and between 0 and 2 blocks",
+      "passed": true
+    },
+    {
+      "role": "server",
+      "command": "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Xmx256m -Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/37653764393438302d353363332d346134312d626437312d626137346466336266356538/target/tmp -Duser.home=/home/debian/codex/voxel-one-queue-worktrees/37653764393438302d353363332d346134312d626437312d626137346466336266356538/target/factory-complete-cli-home -jar target/voxel-one-1.0-SNAPSHOT-server.jar --game city --mounted-spacing NaN",
+      "environment": "Linux; Oracle JDK21; isolated synthetic user.home; worktree-local JVM temp directory",
+      "expected": "Nonzero exit; Road spacing must be finite and between 0 and 2 blocks",
+      "exitCode": 1,
+      "observed": "Road spacing must be finite and between 0 and 2 blocks",
+      "passed": true
+    },
+    {
+      "role": "server",
+      "command": "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Xmx256m -Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/37653764393438302d353363332d346134312d626437312d626137346466336266356538/target/tmp -Duser.home=/home/debian/codex/voxel-one-queue-worktrees/37653764393438302d353363332d346134312d626437312d626137346466336266356538/target/factory-complete-cli-home -jar target/voxel-one-1.0-SNAPSHOT-server.jar --game city --mounted-spacing -1",
+      "environment": "Linux; Oracle JDK21; isolated synthetic user.home; worktree-local JVM temp directory",
+      "expected": "Nonzero exit; Road spacing must be finite and between 0 and 2 blocks",
+      "exitCode": 1,
+      "observed": "Road spacing must be finite and between 0 and 2 blocks",
+      "passed": true
+    },
+    {
+      "role": "server",
+      "command": "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Xmx256m -Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/37653764393438302d353363332d346134312d626437312d626137346466336266356538/target/tmp -Duser.home=/home/debian/codex/voxel-one-queue-worktrees/37653764393438302d353363332d346134312d626437312d626137346466336266356538/target/factory-complete-cli-home -jar target/voxel-one-1.0-SNAPSHOT-server.jar --game city --mounted-spacing 2.1",
+      "environment": "Linux; Oracle JDK21; isolated synthetic user.home; worktree-local JVM temp directory",
+      "expected": "Nonzero exit; Road spacing must be finite and between 0 and 2 blocks",
+      "exitCode": 1,
+      "observed": "Road spacing must be finite and between 0 and 2 blocks",
+      "passed": true
+    }
+  ],
   "sourceSha256": {
     "src/main/java/dev/jayms/Chunk.java": "3ce856e5299c397c96381c2d78bea4698fad697a9493c4ebd7a3207e1acf45d3",
     "src/main/java/dev/jayms/BlockHit.java": "2504caca6144abc0a45b3c85626110caed210d18a42c5169084ce15d29eda09b",
@@ -92,7 +741,7 @@
     "src/main/java/dev/jayms/net/LocalGame.java": "776f7129ab0a27f696f43f9827c255f17147c2adf2c1b4783519088fa3f70d4b",
     "src/main/java/dev/jayms/net/Protocol.java": "fc20efde58d0b7d69c955392ca6d6d66db570de9c92077612730d5c914f5c7f9",
     "src/main/java/dev/jayms/net/SecureTransport.java": "6d04aa968e17a151ba1694c1ac637722d4e84f33253ac44c1e59be10502b6d41",
-    "src/main/java/dev/jayms/net/city/CitySimulation.java": "c0668e6c36f740f6f45664deab3f151d3428bdeea4fab4faf9efe0566e20b438",
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "5310e3cf52b224c8eb942c84c8aa7b8a831f228355888f79707f662bf9173e80",
     "src/main/java/dev/jayms/net/city/CityStockExchange.java": "b407c53961601a4c9b3d81dae10d6ddb64aa8defcd2546b328cdff20442f1b56",
     "src/main/java/dev/jayms/net/city/ProductionCatalog.java": "5c6ec4bb7498a5981662688cc5193e06e4514e7a7df23533afd585308aa8ce43",
     "src/main/java/dev/jayms/net/city/CityBusinesses.java": "50a66c7ffc66a7e687822d3fde396338a9882ad3f1037beb8f7ff1363d6a7920",
@@ -168,7 +817,7 @@
     "src/test/java/dev/jayms/ExchangePermitCompositionTest.java": "e5993c960cd6b8c95cd3318e888f68083801c54d2f961eb7c76648f2ae58cba7",
     "src/test/java/dev/jayms/CapitalDashboardTest.java": "ab673ab2cb61fab27ab049f0df15191de5f2c29b572be5253b16a81444261741",
     "src/test/java/dev/jayms/CityCapitalTest.java": "1374a751c8daff8096f19a9c4cfb64ebee949c481e8da5d3007d4104d653285b",
-    "src/test/java/dev/jayms/ManufacturingTest.java": "0f7fdfeef0da26206966ed410e7897a09f0a128aecb5049f7dad962bd019de19",
+    "src/test/java/dev/jayms/ManufacturingTest.java": "30b26dd3799224a1d511638db0a05621967ac246c834860e558028ed05c1d501",
     "src/test/java/dev/jayms/JeepTest.java": "a25f35bdb6d94da3fd06726f358e41aaa0e98d51174406c0067eab5f6f489d3c",
     "src/test/java/dev/jayms/CapitalSettlementLimitsTest.java": "94d37a9a07dfa73e392f28b289a66e8498ad4365ec81b93ce2345d344e65042c",
     "src/test/java/dev/jayms/CityMultiplayerTest.java": "fc30cab6556014cd3f22219f367f53caa81512adc4760aa6e80a452b74c2099c",
@@ -177,737 +826,83 @@
     "src/test/java/dev/jayms/SpecialBuildingsTest.java": "065b7bf8c2aebe718b7b4763f8c0dae0d73d674088f268262e465fa83a78f8fe",
     "src/test/java/dev/jayms/CityTest.java": "88f3025943ebf5771e3e8334595baba0ca497d4506d936fd4953687b0636c0dc",
     "src/test/java/dev/jayms/net/city/CityStockExchangeTest.java": "57a477b39491e870e1f9312c78ab314de076311e1db750019014ca2e3bac827d",
-    "src/test/java/dev/jayms/net/city/RoadSpacingTest.java": "f751e14ca509fb48ccf5fe00a7f8d9113b30f1b713c4cbe7262d465f491fceb2",
+    "src/test/java/dev/jayms/net/city/RoadSpacingTest.java": "ac33f889a1dd3d19ad4e5fee9e5e2b241bb566f669d93eddeb0874cb44c95620",
     "deploy/RoadSpacingSmoke.java": "dd941d55d48fb73c49c40f60499e957a62bbbb7b4f6863f8506c3a797c6dbf5f",
+    "deploy/FactoryStaffingSmoke.java": "10f449feace0d561de9658be201337469bb991e46d9410d24e19d9732d2a2196",
     "deploy/RoadPlacementSmoke.java": "1878daca6fc6d482e6105e959c3cbce4f5349ac8047d8730b422b24b894a5f57",
-    "deploy/JeepPlaytest.java": "e2aeface95ec7dff46f38042ece9f0257e474dc832c6aade7888afb16c2ab463"
+    "deploy/JeepPlaytest.java": "e2aeface95ec7dff46f38042ece9f0257e474dc832c6aade7888afb16c2ab463",
+    "deploy/run_factory_staffing_smoke.py": "32df2dc849f3497385b893f0c175800a09ec069b46221c341fffdc8aef621e1b"
   },
-  "history": "Earlier reports/media describe preceding heads. First final verify exited143 during CityTimeTest and is not counted as passed. Full retry passed. Upstream typed-road schema/UI/materials/protocol20/version10 saves/tests/evidence and jeep are retained. Four fresh native workflows verified the combined source.",
-  "playtests": [
-    {
-      "label": "Playtest: native spacing",
-      "command": "python3 deploy/run_road_spacing_smoke.py --display \"$DISPLAY\" --output target/spacing-typed-standard",
-      "exitCode": 0,
-      "steps": "Launch actual Main with synthetic city; sample walking/mounted traffic; F10 record; open/close inventory.",
-      "expected": "Configured gaps hold with traffic moving; zero gaps allow overlap; inventory works.",
-      "observed": {
-        "platform": "Linux X11 Xvfb Mesa software OpenGL",
-        "status": "passed",
-        "pedestrianGapBlocks": 1.0,
-        "mountedGapBlocks": 1.4,
-        "movingSamples": 221,
-        "nearbySeparatedPairSamples": 1336,
-        "mountedSamples": 100,
-        "overlapSamples": 0,
-        "minimumClearanceMarginBlocks": 0.0007846984818757896,
-        "lateClosestRoadPairBlocks": 1.0180001110570316,
-        "regression": "Native inventory opens and closes",
-        "recording": "engine F10 recorder",
-        "sourceRecording": "Voxel-One_2026-10-06_19-20-58_16072972886433256825.mp4",
-        "publication": "pending controller publication"
-      },
-      "media": {
-        "status": "passed",
-        "frames": 31,
-        "seconds": 15.289,
-        "bytes": 706232,
-        "width": 960,
-        "height": 544,
-        "decodedFractions": [
-          0,
-          0.5,
-          0.95
-        ]
-      }
-    },
-    {
-      "label": "Playtest: zero spacing",
-      "command": "python3 deploy/run_road_spacing_smoke.py --display \"$DISPLAY\" --output target/spacing-typed-zero --pedestrian-spacing 0 --mounted-spacing 0",
-      "exitCode": 0,
-      "steps": "Launch actual Main with synthetic city; sample walking/mounted traffic; F10 record; open/close inventory.",
-      "expected": "Configured gaps hold with traffic moving; zero gaps allow overlap; inventory works.",
-      "observed": {
-        "platform": "Linux X11 Xvfb Mesa software OpenGL",
-        "status": "passed",
-        "pedestrianGapBlocks": 0,
-        "mountedGapBlocks": 0,
-        "movingSamples": 179,
-        "nearbySeparatedPairSamples": 1273,
-        "mountedSamples": 97,
-        "overlapSamples": 82,
-        "minimumClearanceMarginBlocks": 0.0,
-        "lateClosestRoadPairBlocks": 0.060021400451660156,
-        "regression": "Native inventory opens and closes",
-        "recording": "engine F10 recorder",
-        "sourceRecording": "Voxel-One_2026-10-06_19-21-47_8155423302698094362.mp4",
-        "publication": "pending controller publication"
-      },
-      "media": {
-        "status": "passed",
-        "frames": 24,
-        "seconds": 15.397,
-        "bytes": 487748,
-        "width": 960,
-        "height": 544,
-        "decodedFractions": [
-          0,
-          0.5,
-          0.95
-        ]
-      }
-    },
-    {
-      "label": "Playtest: typed roads",
-      "command": "python3 deploy/run_road_placement_smoke.py --display \"$DISPLAY\"",
-      "exitCode": 0,
-      "expected": "Existing workflow and edge/cancel checks remain intact.",
-      "observed": {
-        "status": "passed",
-        "platform": "Linux X11 inherited role display; Mesa",
-        "profile": "isolated synthetic offline city",
-        "checks": [
-          "road menu",
-          "dirt and paved 2/3/4 lane placement",
-          "direction guide",
-          "distinct world widths",
-          "dirt upgrade",
-          "cancel endpoint leaves world and road spending unchanged",
-          "menu escape returns to inspect"
-        ],
-        "recording": "production F10 recorder"
-      },
-      "media": {
-        "status": "passed",
-        "frames": 131,
-        "seconds": 74.859,
-        "bytes": 3465650,
-        "width": 960,
-        "height": 544,
-        "decodedFractions": [
-          0,
-          0.5,
-          0.95
-        ]
-      },
-      "steps": "Launch actual Main; open road menu; choose dirt and paved 2/3/4-lane roads; place endpoints with direction guide; inspect distinct widths/materials; upgrade dirt; cancel pending endpoint and check unchanged world/spending; Escape menu to inspect; F10 record."
-    },
-    {
-      "label": "Playtest: jeep regression",
-      "command": "python3 deploy/run_road_jeep_regression.py --display \"$DISPLAY\"",
-      "exitCode": 0,
-      "expected": "Existing workflow and edge/cancel checks remain intact.",
-      "observed": {
-        "status": "passed",
-        "platform": "Linux assigned X11 display",
-        "profile": "isolated synthetic",
-        "checks": [
-          "driver entry",
-          "first-person windshield camera",
-          "third-person camera regression",
-          "W drive",
-          "Ctrl acceleration",
-          "S reverse",
-          "A/D steering",
-          "mouse steering",
-          "moving exit rejected",
-          "wall collision at boost speed",
-          "stopped exit",
-          "walking regression"
-        ],
-        "recording": "F10 engine recorder"
-      },
-      "media": {
-        "status": "passed",
-        "frames": 107,
-        "seconds": 38.892,
-        "bytes": 3104520,
-        "width": 960,
-        "height": 544,
-        "decodedFractions": [
-          0,
-          0.5,
-          0.95
-        ]
-      },
-      "steps": "Launch actual Main on synthetic platform with wall. J enter; inspect transparent windshield first-person and third-person camera; W drive; Ctrl boost; A/D and mouse steer; reject moving exit; coast; S reverse; stop at wall under boost; J exit stopped; resume walking; F10 record."
-    }
-  ],
-  "mediaInspection": "All four fresh F10 clips decoded at 0%, 50% and 95%. Midpoint frames and road surfaces/jeep windshield screenshots visually inspected. Road and jeep copies match isolated recorder bytes. Browser playtesting does not apply to this native desktop game.",
   "artifacts": [
     {
-      "filename": "road-spacing-native.mp4",
-      "bytes": 706232,
-      "sha256": "9bce389870f16c16c21fcf87456378ab253fbb12239fc1f6fe40865a3aa09fe6",
+      "label": "Configured gaps \u2014 pending controller publication",
       "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-native.mp4",
-      "publication": "pending controller publication"
+      "kind": "video",
+      "bytes": 476199,
+      "sha256": "975e4ef8b44c492012c24000911d16ff3c42d6c955463a0c5c85b119e2c4f591"
     },
     {
-      "filename": "road-spacing-zero.mp4",
-      "bytes": 487748,
-      "sha256": "52fff87c693a05c802912d53d5777b8ce8e7e406037cea243992add6e734879c",
+      "label": "Zero-gap edge \u2014 pending controller publication",
       "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-zero.mp4",
-      "publication": "pending controller publication"
+      "kind": "video",
+      "bytes": 778246,
+      "sha256": "0c655fabc3463b2f53f50c7a11bd4cf8a231e890282adc0befb457a40048051e"
     },
     {
-      "filename": "road-placement-playtest.mp4",
-      "bytes": 3465650,
-      "sha256": "b9c3e08cc11f5d0e486bb77af71fbbba31ab3671c24bb943bef3cadfc344eae1",
+      "label": "Automatic factory at maximum gaps \u2014 pending controller publication",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-factory.mp4",
+      "kind": "video",
+      "bytes": 99049,
+      "sha256": "8eb4c0f7d1ea651e5e0b38b7e50d3e748fe81ac001f6a8981152c66d50c5c92b"
+    },
+    {
+      "label": "Typed-road regression \u2014 pending controller publication",
       "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-placement-playtest.mp4",
-      "publication": "pending controller publication"
+      "kind": "video",
+      "bytes": 3412425,
+      "sha256": "28e0e6631ce7b3762f0759c9443ef9274987a9daafbe9767597466663c8f7f23"
     },
     {
-      "filename": "road-jeep-driving.mp4",
-      "bytes": 3104520,
-      "sha256": "3f50ed9aae59898e925e88688abf19343cba4e03d3d6bb951e4b1d4a12cb0987",
+      "label": "Jeep regression \u2014 pending controller publication",
       "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-jeep-driving.mp4",
-      "publication": "pending controller publication"
-    },
-    {
-      "filename": "road-spacing-native-video-frame.png",
-      "bytes": 971837,
-      "sha256": "9cd6f28cd07e357a88ca6f5aa904f6983462f5b26d415c1062481c7028a8f799",
-      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-native-video-frame.png",
-      "publication": "pending controller publication"
-    },
-    {
-      "filename": "road-spacing-zero-video-frame.png",
-      "bytes": 944331,
-      "sha256": "450d9a63e127b9204d097120ed7b456d9d1097fb5392f210e6a925d33218feac",
-      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-zero-video-frame.png",
-      "publication": "pending controller publication"
-    },
-    {
-      "filename": "spacing-typed-road-frame.png",
-      "bytes": 1076981,
-      "sha256": "62755b676ea3716a12f913fe857365f240d5d8c25ee809b1c8b68ff6fe655e4b",
-      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/spacing-typed-road-frame.png",
-      "publication": "pending controller publication"
-    },
-    {
-      "filename": "spacing-typed-jeep-frame.png",
-      "bytes": 612062,
-      "sha256": "074f9d139911151995931ae662ff26f8b6f40a9c1910b8e947d43253b8a9ffa1",
-      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/spacing-typed-jeep-frame.png",
-      "publication": "pending controller publication"
-    },
-    {
-      "filename": "road-surfaces.png",
-      "bytes": 823391,
-      "sha256": "790c6c1de417d6e0fffd68a1231631232ff08821386e3837704f17aff67bfed4",
-      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-surfaces.png",
-      "publication": "pending controller publication"
-    },
-    {
-      "filename": "road-jeep-windshield.png",
-      "bytes": 389177,
-      "sha256": "910741ebc827bdc83a65d3ac301c3aacbb2d47c1daeaae3f462677becc87c697",
-      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-jeep-windshield.png",
-      "publication": "pending controller publication"
+      "kind": "video",
+      "bytes": 3104838,
+      "sha256": "c3b043c9e34a94447ebbd23d60c769f1267686486d1bdd89c8f6255ca5dfb35b"
     }
   ],
-  "interruptedVerification": {
-    "command": "MAVEN_OPTS=\"-Djava.io.tmpdir=$PWD/target/tmp\" /tmp/apache-maven-3.9.11/bin/mvn --batch-mode -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux -DargLine=-Djava.io.tmpdir=$PWD/target/tmp verify > target/spacing-typed-final-verify.txt 2>&1",
-    "exitCode": 143,
-    "observed": "Stopped during CityTimeTest. Not counted as passed."
-  },
-  "validationScope": "Final combined typed-road, jeep and spacing source. Frozen source hashes unchanged throughout verification and native workflows.",
-  "automated": {
-    "command": "MAVEN_OPTS=\"-Djava.io.tmpdir=$PWD/target/tmp\" /tmp/apache-maven-3.9.11/bin/mvn --batch-mode -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux -DargLine=-Djava.io.tmpdir=$PWD/target/tmp verify > target/spacing-typed-final-retry.txt 2>&1",
-    "exitCode": 0,
-    "build": "BUILD SUCCESS",
-    "tests": 308,
-    "failures": 0,
-    "errors": 0,
-    "skipped": 0,
-    "suites": [
-      {
-        "name": "dev.jayms.AccountStoreTest",
-        "tests": "2",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.AgricultureTest",
-        "tests": "8",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.BuildingInfoTest",
-        "tests": "5",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.BusinessCatalogTest",
-        "tests": "11",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.BusinessDashboardTest",
-        "tests": "3",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.CapitalDashboardTest",
-        "tests": "3",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.CapitalInspectorTest",
-        "tests": "1",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.CapitalSettlementLimitsTest",
-        "tests": "9",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.CitizenLifeTest",
-        "tests": "8",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.CityAddressesTest",
-        "tests": "3",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.CityBusinessTest",
-        "tests": "9",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.CityCapitalTest",
-        "tests": "11",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.CityEconomyTest",
-        "tests": "7",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.CityMaterialsTest",
-        "tests": "13",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.CityMetricsTest",
-        "tests": "5",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.CityMultiplayerTest",
-        "tests": "1",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.CityTest",
-        "tests": "10",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.CityTimeTest",
-        "tests": "6",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.CityToolsTest",
-        "tests": "9",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.ControlsTest",
-        "tests": "5",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.CraftingTest",
-        "tests": "6",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.DemolitionTest",
-        "tests": "3",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.DistantTerrainTest",
-        "tests": "6",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.ExchangeLabourMarketTest",
-        "tests": "6",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.ExchangePermitCompositionTest",
-        "tests": "1",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.FractionalWorldTest",
-        "tests": "7",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.InventoryHudTest",
-        "tests": "2",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.IsometricCameraTest",
-        "tests": "8",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.IsometricOrbitDragTest",
-        "tests": "1",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.JeepTest",
-        "tests": "6",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.LightOcclusionTest",
-        "tests": "6",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.LightingTest",
-        "tests": "5",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.ManufacturingTest",
-        "tests": "7",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.MarketEconomyTest",
-        "tests": "13",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.MayorDashboardTest",
-        "tests": "3",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.MetricHistoryTest",
-        "tests": "5",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.ModelSculptorTest",
-        "tests": "3",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.MultiplayerTest",
-        "tests": "15",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.PlayerAnimationTest",
-        "tests": "6",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.PlayerCameraTest",
-        "tests": "3",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.PlayerTest",
-        "tests": "6",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.PopulationJourneyTest",
-        "tests": "2",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.ProtocolCompatibilityTest",
-        "tests": "2",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.RemotePlayerTest",
-        "tests": "1",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.RoadTypesTest",
-        "tests": "4",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.ShopRestockMarketTest",
-        "tests": "4",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.SpecialBuildingsTest",
-        "tests": "6",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.SurvivalTest",
-        "tests": "4",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.TerrainGenerationTest",
-        "tests": "10",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.UpdaterTest",
-        "tests": "2",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.VideoRecordingTest",
-        "tests": "7",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.VoxelModelTest",
-        "tests": "6",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.net.city.CityStockExchangeTest",
-        "tests": "10",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      },
-      {
-        "name": "dev.jayms.net.city.RoadSpacingTest",
-        "tests": "3",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0"
-      }
-    ],
-    "observed": "Client, server and launcher built. RoadTypesTest covers types1\u20133 version-10 save/load, legacyv9, asphalt/dividers/width/budget, invalidtype4, upgrade/collision, direction and UI. AgricultureTest covers all18 eating/sleeping. Jeep, protocol and maximum-spacing regressions pass."
-  },
-  "cli": [
+  "previousAttempts": [
     {
-      "command": [
-        "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
-        "-Duser.home=/home/debian/codex/voxel-one-queue-worktrees/37653764393438302d353363332d346134312d626437312d626137346466336266356538/target/spacing-typed-cli-home",
-        "-jar",
-        "target/voxel-one-1.0-SNAPSHOT-client.jar",
-        "--offline",
-        "--game",
-        "city",
-        "--pedestrian-spacing",
-        "NaN"
-      ],
-      "exitCode": 1,
-      "expected": "Nonzero exit with spacing validation error before game startup.",
-      "observed": "Road spacing must be finite and between 0 and 2 blocks",
-      "passed": true
+      "result": "Incomplete, not passed",
+      "detail": "Prior road capture exited143. Retried on final source."
     },
     {
-      "command": [
-        "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
-        "-Duser.home=/home/debian/codex/voxel-one-queue-worktrees/37653764393438302d353363332d346134312d626437312d626137346466336266356538/target/spacing-typed-cli-home",
-        "-jar",
-        "target/voxel-one-1.0-SNAPSHOT-client.jar",
-        "--offline",
-        "--game",
-        "city",
-        "--pedestrian-spacing",
-        "-1"
-      ],
-      "exitCode": 1,
-      "expected": "Nonzero exit with spacing validation error before game startup.",
-      "observed": "Road spacing must be finite and between 0 and 2 blocks",
-      "passed": true
+      "result": "Failed, not passed",
+      "detail": "First final factory capture failed during startup with FarmModels.close NullPointerException. Retry after compilation passed."
     },
     {
-      "command": [
-        "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
-        "-Duser.home=/home/debian/codex/voxel-one-queue-worktrees/37653764393438302d353363332d346134312d626437312d626137346466336266356538/target/spacing-typed-cli-home",
-        "-jar",
-        "target/voxel-one-1.0-SNAPSHOT-client.jar",
-        "--offline",
-        "--game",
-        "city",
-        "--pedestrian-spacing",
-        "2.1"
-      ],
-      "exitCode": 1,
-      "expected": "Nonzero exit with spacing validation error before game startup.",
-      "observed": "Road spacing must be finite and between 0 and 2 blocks",
-      "passed": true
+      "result": "Failed, not passed",
+      "detail": "Broad porch-row relocation completed309 tests with maximum-gap production failure. Narrowed relocation to the two actual beam cells; all four affected workflow checks passed."
     },
     {
-      "command": [
-        "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
-        "-Duser.home=/home/debian/codex/voxel-one-queue-worktrees/37653764393438302d353363332d346134312d626437312d626137346466336266356538/target/spacing-typed-cli-home",
-        "-jar",
-        "target/voxel-one-1.0-SNAPSHOT-server.jar",
-        "--game",
-        "city",
-        "--mounted-spacing",
-        "NaN"
-      ],
-      "exitCode": 1,
-      "expected": "Nonzero exit with spacing validation error before game startup.",
-      "observed": "Road spacing must be finite and between 0 and 2 blocks",
-      "passed": true
+      "result": "Failed, not passed",
+      "detail": "Pre-porch full run completed309 with two failures: one missed sleeper and unfinished construction in demolition. Porch beam trapped a passerby; relocation now covers that row. Both unchanged regression checks then passed."
     },
     {
-      "command": [
-        "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
-        "-Duser.home=/home/debian/codex/voxel-one-queue-worktrees/37653764393438302d353363332d346134312d626437312d626137346466336266356538/target/spacing-typed-cli-home",
-        "-jar",
-        "target/voxel-one-1.0-SNAPSHOT-server.jar",
-        "--game",
-        "city",
-        "--mounted-spacing",
-        "-1"
-      ],
-      "exitCode": 1,
-      "expected": "Nonzero exit with spacing validation error before game startup.",
-      "observed": "Road spacing must be finite and between 0 and 2 blocks",
-      "passed": true
+      "result": "Incomplete, not passed",
+      "detail": "Unbounded test fork exited 137 during AgricultureTest; 259 completed tests had no failures/errors."
     },
     {
-      "command": [
-        "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
-        "-Duser.home=/home/debian/codex/voxel-one-queue-worktrees/37653764393438302d353363332d346134312d626437312d626137346466336266356538/target/spacing-typed-cli-home",
-        "-jar",
-        "target/voxel-one-1.0-SNAPSHOT-server.jar",
-        "--game",
-        "city",
-        "--mounted-spacing",
-        "2.1"
-      ],
-      "exitCode": 1,
-      "expected": "Nonzero exit with spacing validation error before game startup.",
-      "observed": "Road spacing must be finite and between 0 and 2 blocks",
-      "passed": true
+      "result": "Failed, not passed",
+      "detail": "Earlier bounded full run completed 308 tests with one road-clearance failure. Corrected detour clearance and swept path validation."
+    },
+    {
+      "result": "Failed, not passed",
+      "detail": "Intermediate opposing-traffic arrival checks failed before opposite-side passing preference was added."
     }
   ],
-  "mediaCommand": "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -cp \"target/spacing-smoke:$(cat target/spacing-classpath.txt)\" RoadSpacingMediaCheck <clip> <frame> <report>; executed for both spacing clips, road-placement-playtest.mp4 and road-jeep-driving.mp4",
-  "finalChecks": [
-    "Frozen source hashes unchanged.",
-    "Fresh F10 clips decoded at0%,50%,95%; representative frames visually inspected.",
-    "Controller publication and independent exact-head review pending. All delegates resolved.",
-    "No developer staging, commit, push, merge or deployment.",
-    "git diff --check passed; no unmerged files. Other progress entries match HEAD unchanged."
+  "checks": [
+    "All frozen source hashes unchanged through native captures and verification.",
+    "All five F10 recordings decoded at 0%, 50% and 95%; fresh frames visually inspected.",
+    "git diff --check passed; no unmerged index."
   ]
 }

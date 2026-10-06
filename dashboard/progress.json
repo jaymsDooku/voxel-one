@@ -2574,7 +2574,7 @@
         }
       ],
       "status": "in_progress",
-      "note": "Rebase recovery: historical road and Jeep evidence retained; unrelated progress entries unchanged. Controller continuation required before final-head verification and fresh task-specific captures.",
+      "note": "Rebase recovery: automatic factory regression restored without job overrides. 28 focused tests passed. Base features and historical media retained; final-head checks await controller continuation.",
       "updatedAt": "2026-10-06T15:55:01+00:00"
     }
   ],
