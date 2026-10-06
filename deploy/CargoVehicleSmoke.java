@@ -58,8 +58,9 @@ public class CargoVehicleSmoke {
                 x("windowmove",windowId,"0","0"); x("windowraise",windowId);
                 if(((ControlsMenu)get("menu")).open) x("key","Escape");
                 onFrame(() -> { try {
-                    World world=new World(); set("world",world);
-                    for(int cx=-2;cx<=2;cx++) for(int cz=-2;cz<=2;cz++) {
+                    World oldWorld=(World)get("world");
+                    World world=new World(); set("world",world); oldWorld.close();
+                    for(int cx=-6;cx<=6;cx++) for(int cz=-6;cz<=6;cz++) {
                         Chunk ground=new Chunk(); for(int xx=0;xx<16;xx++) for(int zz=0;zz<16;zz++) ground.setBlock(xx,0,zz,Blocks.STONE);
                         for(int yy=-2;yy<=7;yy++) world.addChunk(new ChunkPos(cx,yy,cz),yy==5?ground:new Chunk());
                     }

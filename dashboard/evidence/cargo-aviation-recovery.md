@@ -33,3 +33,7 @@ Expected: protocol 22 and a complete format-12 CityFrame save load and roundtrip
 `git diff --check` passed. Browser testing does not apply to this native Java application or the save-header CLI check.
 
 Playtest: No new native playtest or media capture was run during this pending rebase. Prior cargo playtests cover earlier heads only. After controller continuation, use inherited DISPLAY/XAUTHORITY, Mesa and isolated synthetic profiles to run cargo and aviation workflows. Select, drive, exit, re-enter and reload cargo bodies; check moving-exit and driving-switch rejection and Jeep regression. Exercise aviation boarding, flight and save restoration. Expected: both features and compatibility work together. Observed for the continued head: pending; no pass claimed.
+
+## Second replay handoff
+
+Resolved checkpoint and progress JSON contents by retaining the aviation recovery state and unioning absent milestone IDs. No duplicate IDs remain. cargo-final-validation.md is now replayed and corrected directly: its ready claim is historical, and its blanket deletion claim is retracted against the aviation base. The native fixture replay only closes the old test world and expands the synthetic yard. Rechecked all 734 aviation-base files: unchanged. Protocol 22 and format-12 reads/writes remain present. JSON parses, conflict markers are absent, and git diff --check passes. The 38-test suite and save CLI results above were executed before this second replay; no new native pass is claimed. Final-head cargo and aviation playtests/media await controller continuation.

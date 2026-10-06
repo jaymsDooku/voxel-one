@@ -2395,7 +2395,7 @@
         }
       ],
       "status": "in_progress",
-      "note": "Aviation-base rebase recovery: preserving protocol 22, format-12 saves, aviation UI/tests/evidence and cargo bodies. Controller continuation and final-head checks pending.",
+      "note": "Second aviation-base recovery resolved. Protocol 22 and format-12 saves retained. Historical cargo report corrected; controller continuation and final-head cargo/aviation checks pending.",
       "updatedAt": "2026-10-06T20:35:10+00:00"
     }
   ],

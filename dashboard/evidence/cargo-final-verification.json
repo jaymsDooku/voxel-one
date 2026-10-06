@@ -1,0 +1,135 @@
+{
+  "status": "passed",
+  "publication": "pending controller publication",
+  "testedGameSourceHead": "382319295068cad4eff11a513a28ef18f8f89252",
+  "baseFilesPreserved": 713,
+  "priorEvidenceFilesPreserved": 502,
+  "unitTests": {
+    "RegionalPopulationTest": 9,
+    "RegionalSaveCompatibilityTest": 4,
+    "RegionalMultiplayerTest": 1,
+    "JeepTest": 8,
+    "ControlsTest": 5,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "nativePlaytest": {
+    "status": "passed",
+    "platform": "Linux X11 inherited role display; Mesa",
+    "profile": "isolated synthetic offline yard",
+    "checks": [
+      "all five bodies selected via real Shift+J",
+      "enter drive brake exit via real J/W",
+      "moving exit and driving body switch rejected",
+      "all body types survive save reload",
+      "longer truck rejects wall",
+      "cycle returns to original jeep"
+    ],
+    "media": "five production renderer captures"
+  },
+  "video": {
+    "status": "passed",
+    "frames": 26,
+    "seconds": 19.891,
+    "bytes": 1004273,
+    "decodedSamples": [
+      0.2,
+      0.45,
+      0.8,
+      0.95
+    ]
+  },
+  "sourceFiles": {
+    "src/main/java/dev/jayms/Main.java": {
+      "sha256": "62272137bb42157543bd55261fa6e49eb31f2be5814f5e7255e69992b4c4848c",
+      "bytes": 64664
+    },
+    "src/main/java/dev/jayms/player/CargoVehicle.java": {
+      "sha256": "f969399497ba124dcd27d1dd2835dbfab76ed47987334bbf99da4e622cf8066b",
+      "bytes": 638
+    },
+    "src/main/java/dev/jayms/player/Jeep.java": {
+      "sha256": "cdea4cde3828a3b266f3952ab4a3faae340bc8b6d4f3079bdcab9a0225ca8126",
+      "bytes": 9248
+    },
+    "src/main/java/dev/jayms/player/JeepModel.java": {
+      "sha256": "9977a10a73edfa2eb432166c99f95234b756e6f8a440211d6d9cc639e73647a1",
+      "bytes": 6813
+    },
+    "src/main/java/dev/jayms/ui/Controls.java": {
+      "sha256": "4e761eb2cc27ccce770983221347e117aa9915b0b5b2c1eafe7c818dd3f40857",
+      "bytes": 7831
+    },
+    "src/main/java/dev/jayms/ui/CityTools.java": {
+      "sha256": "c9c13c59fdfedb65f8088c879ecd78c3ad1abba74b5a342c6b6d2c4344967f7a",
+      "bytes": 30499
+    },
+    "src/main/java/dev/jayms/net/Protocol.java": {
+      "sha256": "0ee2c2b3040a7330137b67fb8d149fb4abf1b732bdf1afff488ae7b588c65ac1",
+      "bytes": 13383
+    },
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": {
+      "sha256": "f706ec4b357c5c1b533b3de71caf1ee7e5ff53a420c903867b68a3deba329960",
+      "bytes": 104318
+    },
+    "src/main/java/dev/jayms/net/city/CityFrame.java": {
+      "sha256": "90b0716c61412e740395d9beef2e46dc9b8a6de689033b806bfb6c5d96e7dd5e",
+      "bytes": 15552
+    },
+    "src/main/java/dev/jayms/net/city/RegionalPopulation.java": {
+      "sha256": "5b40b74f336b296d53247605ee983ddaf312b705336da8d3e81622d784410258",
+      "bytes": 13265
+    },
+    "src/test/java/dev/jayms/JeepTest.java": {
+      "sha256": "92eda0babdff7524003cd5ed172aa94fc8b9dc43bcb35ff09f772702c1505dee",
+      "bytes": 6591
+    },
+    "src/test/java/dev/jayms/RegionalPopulationTest.java": {
+      "sha256": "50f2553c4749697ea696d0d71362b78bc150b6ef2beceb64dbcce584977470e5",
+      "bytes": 11343
+    },
+    "src/test/java/dev/jayms/RegionalSaveCompatibilityTest.java": {
+      "sha256": "0cf3b5fd193b06b1d9a28b66a98a7aa1e4ff43b80c129b33a4b8989f41c2cb59",
+      "bytes": 4610
+    },
+    "src/test/java/dev/jayms/RegionalMultiplayerTest.java": {
+      "sha256": "f6a193dcc27bec496f82a0466e63b02555346e0dd2c074a34614b427e8aeadde",
+      "bytes": 3547
+    },
+    "deploy/CargoVehicleSmoke.java": {
+      "sha256": "e79cc9987930e8ebc03e1ef4dace55b53274676f51fe92704c95cf2a5342ee83",
+      "bytes": 9565
+    },
+    "deploy/run_cargo_smoke.py": {
+      "sha256": "2bf6456c0f7acaa89ace6f1d6240b52b914035094043b9748238dd6bbfebe9ec",
+      "bytes": 2495
+    }
+  },
+  "mediaFiles": {
+    "cargo-final-container.png": {
+      "sha256": "aa75954e4cb35b962f3e7bfdf278c85c8cfd9a2059951cfdd450ea35d2f4404e",
+      "bytes": 832828
+    },
+    "cargo-final-tanker.png": {
+      "sha256": "73320e5a7e1f2a19d43cb72a1f92acbcb420ab0a3ebea552dd646c828db901f5",
+      "bytes": 838412
+    },
+    "cargo-final-van.png": {
+      "sha256": "f1bf51853caeec7661fd5dd55af27e968524d08bd70d82697f23730c1d6a1232",
+      "bytes": 841710
+    },
+    "cargo-final-lorry.png": {
+      "sha256": "81e2e63bf91c7812c03b6c0fa79dad5118a3da18438fb594fdb5ee8975b750b4",
+      "bytes": 837814
+    },
+    "cargo-final-jeep.png": {
+      "sha256": "f7ed05cf63356399ea39355d915efa6323b337d70ffefa9e9726c3efaab11cca",
+      "bytes": 845014
+    },
+    "cargo-final-container-drive.mp4": {
+      "sha256": "de5695da2f476b43a873ff607a85a8dfc94290dceaf4e248685121dd5fee8107",
+      "bytes": 1004273
+    }
+  }
+}
