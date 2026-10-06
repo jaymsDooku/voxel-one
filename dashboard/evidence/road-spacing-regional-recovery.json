@@ -1,8 +1,8 @@
 {
   "status": "recovery_contents_checked",
-  "head": "af41744c9630b30ad8a9f6217f9d0a2ac8da854c",
-  "scope": "Current rebase conflicts only checkpoint and spacing progress note. Runtime/test sources unchanged against HEAD. Controller must stage and continue; not final-head acceptance.",
-  "resolution": "Retained current regional requirements: district population/UI/commands, protocol21 and format11. Unrelated progress entries unchanged. Historical protocol20/format10 claims are superseded.",
+  "head": "5816edef12df3ef573f051e24442c99da684e8af",
+  "scope": "Latest rebase conflict: checkpoint and progress timestamp/note; no runtime/test source changes.",
+  "resolution": "Kept current regional population/protocol21/format11 requirements and current timestamp. Preserved unrelated progress entries. Incoming308-test/native readiness remains historical.",
   "checks": [
     {
       "command": "python3 -m json.tool dashboard/progress.json > /dev/null",
@@ -49,7 +49,7 @@
     ],
     "observed": "Prior regional/save/spacing run:16 tests passed."
   },
-  "playtest": "Playtest: not run for this documentation/evidence-only recovery stop. CLI JSON/source-preservation checks apply; browser does not apply. Final native workflows/media remain pending controller Git continuation.",
+  "playtest": "Playtest: no new native or Maven checks this documentation/evidence-only recovery turn. Python CLI JSON/marker checks and Git source-change checks passed. Browser does not apply. Final-head native tests and fresh valid Jeep MP4 remain pending controller continuation.",
   "remaining": [
     "Replay later factory fix: original automatic700-second regression must have no manual job/travel overrides.",
     "Continue rebase while retaining subsequent factory/food/porch and spacing fixes.",

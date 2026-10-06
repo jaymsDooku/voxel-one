@@ -1,0 +1,39 @@
+{
+  "stage": "Rebase recovery; controller continuation required",
+  "environment": "Assigned Linux feature worktree; application not launched",
+  "checks": [
+    {
+      "command": "git show HEAD:<historical artifact>; Python byte comparison",
+      "result": "Nine historical road/Jeep artifacts restored and byte-identical to HEAD",
+      "sha256": {
+        "dashboard/evidence/road-guide.png": "d6b5046b4a6cdefc25e54ee891f749b7dbad83e4db41364c26bd9c0808fa768c",
+        "dashboard/evidence/road-menu.png": "20fedf55f284a89f2d425130b044f0acd370f220ae6884af9596ef18279edf7d",
+        "dashboard/evidence/road-placement-playtest.mp4": "251aad21115c7597499acf4d6a66676ed0b82bca1fb951a43b4e50456b426cc5",
+        "dashboard/evidence/road-surfaces.png": "99f2156d7fbcc76eb808cbc60e93835ca9868e82a51d5be6bacb99f743f19550",
+        "dashboard/evidence/road-jeep-driver-seat.png": "7ed173061916cc67b36289e08aed9e0149f3eea0dbdb19c37bf2ff93fe0b7c29",
+        "dashboard/evidence/road-jeep-driving.mp4": "cda065746e08beab1c208a27ce9b3b7b6164f05808d75a22e9207cb434b70609",
+        "dashboard/evidence/road-jeep-parked.png": "d0e5b298f0b558d313e48257af9b6aa423ef3110978a6054d9a14c8c238cca5d",
+        "dashboard/evidence/road-jeep-wall.png": "2b8221ed2c5c19cbe3af9d6ee193ce0c16c4284d9d9e3d053a7e3e9556ef7e3a",
+        "dashboard/evidence/road-jeep-windshield.png": "6b11eb8ede46b116e2ffbb5f7602eba6dea9f63c286d7f92626f165a36d31175"
+      }
+    },
+    {
+      "command": "Python JSON parsing, unrelated-entry comparison and conflict-marker scan",
+      "result": "Passed"
+    },
+    {
+      "command": "git diff HEAD --name-only -- src deploy",
+      "result": "Empty; runtime/test source unchanged"
+    },
+    {
+      "command": "git diff HEAD --name-only --diff-filter=MD -- dashboard/evidence src/test/resources",
+      "result": "Only task-specific spacing artifacts changed; unrelated evidence and fixtures retained"
+    },
+    {
+      "command": "git diff --check",
+      "result": "Passed"
+    }
+  ],
+  "tests": "No Maven rerun in this source-unchanged stage; previous 20-test pass is historical.",
+  "playtest": "Playtest: final-head requested behavior, edge case and regression checks with fresh task-specific media pending controller continuation."
+}
