@@ -26,6 +26,37 @@ class JeepTest {
     void run(Jeep jeep,World world,float throttle,float steer,boolean boost,int frames) {
         for(int i=0;i<frames;i++) jeep.step(world,1f/60,throttle,steer,boost);
     }
+    @Test void cargoBodiesDrivePersistAndKeepLegacySaves() throws Exception {
+        World world=flat(); Jeep vehicle=new Jeep(new Vector3f(0,1.01f,0),-90);
+        Player beside=new Player(new Vector3f(3,1,0),0,0,new Camera());
+        for(CargoVehicle type:CargoVehicle.values()) {
+            assertEquals(type,vehicle.type());
+            Path file=temp.resolve("cargo.jeep"); vehicle.save(file);
+            assertEquals(type,Jeep.load(file,world,beside.position()).type());
+            assertTrue(vehicle.enter(beside));
+            assertFalse(vehicle.cycleBody(world,beside));
+            run(vehicle,world,1,0,false,30); assertTrue(vehicle.speed()>0);
+            run(vehicle,world,0,0,false,90); assertTrue(vehicle.exit(world,beside));
+            assertTrue(vehicle.enter(beside), "Re-enter from the cab exit for "+type);
+            assertTrue(vehicle.exit(world,beside));
+            beside.driveSeat(vehicle.position().add(3,0,0),0);
+            assertTrue(vehicle.cycleBody(world,beside));
+        }
+        assertEquals(CargoVehicle.JEEP,vehicle.type());
+        Path legacy=temp.resolve("legacy.jeep"); Files.writeString(legacy,"0 1.01 0 -90\n");
+        assertEquals(CargoVehicle.JEEP,Jeep.load(legacy,world,beside.position()).type());
+    }
+    @Test void largerBodyRejectsWallsAndPlayerOverlap() {
+        World world=flat(); Jeep vehicle=new Jeep(new Vector3f(0,1.01f,0),-90);
+        Player beside=new Player(new Vector3f(3,1,0),0,0,new Camera());
+        world.getLoadedChunks().get(new ChunkPos(0,0,0)).setBlock(0,2,4,Blocks.STONE);
+        assertFalse(vehicle.cycleBody(world,beside)); assertEquals(CargoVehicle.JEEP,vehicle.type());
+        world.getLoadedChunks().get(new ChunkPos(0,0,0)).setBlock(0,2,4,Blocks.AIR);
+        beside.driveSeat(new Vector3f(0,1,3),0);
+        assertFalse(vehicle.cycleBody(world,beside));
+        beside.driveSeat(new Vector3f(3,1,0),0); assertTrue(vehicle.cycleBody(world,beside));
+        assertTrue(vehicle.collides(world,new Vector3f(0,1,46)));
+    }
     @Test void driveBoostReverseAndBrake() {
         World world=flat();
         Jeep normal=new Jeep(new Vector3f(0,1.01f,0),0),fast=new Jeep(new Vector3f(0,1.01f,0),0);
