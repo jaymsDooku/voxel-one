@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-06T19:32:52+00:00",
+  "updatedAt": "2026-10-06T20:17:38+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -38,11 +38,16 @@
           "kind": "report",
           "label": "Rebase and save migration checks (pending controller publication)",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-65396632633436642d613861352d346161632d613932642d343661616166316666626638/dashboard/evidence/regional-scale-recovery-tests.json"
+        },
+        {
+          "kind": "link",
+          "label": "All four CI platforms passed",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/37519826842"
         }
       ],
       "status": "in_progress",
-      "note": "Recovered source validated: 91 selected tests; fresh native regional and paved-road workflows passed; format-10 migration and block IDs 187\u2013189 verified. Ready for independent review. Fresh media pending controller publication; full suite not completed.",
-      "updatedAt": "2026-10-06T19:32:52+00:00"
+      "note": "Independent review found no substantial defect at 817b97e78a0b7ca91af4f3712b312b1d57c97948. CI run 37519826842 now passed Linux, Windows, Mac ARM and Mac Intel; publish job skipped. Ready for reviewer/controller handoff.",
+      "updatedAt": "2026-10-06T20:17:38+00:00"
     },
     {
       "id": "queue-30366437373533632d613238632d343963612d383265322d346239646166376638393338",

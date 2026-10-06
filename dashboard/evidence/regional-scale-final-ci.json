@@ -1,0 +1,17 @@
+{
+  "testedHead": "817b97e78a0b7ca91af4f3712b312b1d57c97948",
+  "command": "gh run view 37519826842 --json status,conclusion,jobs --jq '{status,conclusion,jobs:[.jobs[]|{name,status,conclusion}]}'",
+  "observed": {
+    "status": "completed",
+    "conclusion": "success",
+    "passedBuilds": [
+      "macos-15-intel, mac-intel",
+      "windows-latest, windows",
+      "macos-latest, mac-arm",
+      "ubuntu-latest, linux"
+    ],
+    "publish": "skipped"
+  },
+  "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/37519826842",
+  "scope": "Read-only CI check. No source change or new playtest. Existing native playtest evidence remains applicable."
+}
