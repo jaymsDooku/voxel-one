@@ -2574,7 +2574,7 @@
         }
       ],
       "status": "in_progress",
-      "note": "Rebase recovery: automatic factory regression restored without job overrides. 28 focused tests passed. Base features and historical media retained; final-head checks await controller continuation.",
+      "note": "Rebase recovery: historical road/Jeep evidence and unrelated progress entries retained. Runtime/test sources unchanged; prior 28-test focused pass remains historical. Final-head checks await controller continuation.",
       "updatedAt": "2026-10-06T15:55:01+00:00"
     }
   ],
