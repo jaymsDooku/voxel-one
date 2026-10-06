@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-06T21:12:14+00:00",
+  "updatedAt": "2026-10-06T21:27:26+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -2380,8 +2380,8 @@
         }
       ],
       "status": "in_progress",
-      "note": "Conflict contents resolved; regional data preserved, format 12 and protocol 22 integrated. Clean focused tests passed. Controller rebase continuation and final-head playtesting remain.",
-      "updatedAt": "2026-10-06T21:12:14+00:00"
+      "note": "Regional features and compatibility retained; final package checks, airport and district native workflows passed. Fresh media and report ready for controller publication and independent review.",
+      "updatedAt": "2026-10-06T21:27:26+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

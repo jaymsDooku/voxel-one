@@ -6,8 +6,9 @@
     "City-owned airport special building 23 with terminal, glass departure hall, control tower, marked runways and lights",
     "Treasury-funded airport permit (2000) and additional runway (1000); maximum 3 runways and 8 airports",
     "Distinct runway reservations at both airports; citizens walk, board, fly and arrive; interrupted trips and demolition release reservations",
-    "Saved flight state and backward migration: protocol 21, city save 11; old permit IDs preserved",
-    "Great-circle cruise projected onto the existing planar map using a 6,371,000 metre reference radius; climb and descent stay over cleared runways; cruise clears terrain"
+    "Saved flight state and backward migration: protocol 22, city save 12; old permit IDs preserved",
+    "Great-circle cruise projected onto the existing planar map using a 6,371,000 metre reference radius; climb and descent stay over cleared runways; cruise clears terrain",
+    "Regional population, district UI, tests, base fixtures and historical evidence retained; city format 11 reads regional data and format 12 appends aviation. District command IDs 8/9; airport IDs 10/11."
   ],
   "behaviorLimits": [
     "City-directed bookings for adult citizens",
@@ -29,66 +30,22 @@
   "tests": [
     {
       "command": "MAVEN_OPTS='-Xmx512m' mvn -q -o -Dmaven.repo.local=target/maven-cache -DargLine=\"-Xmx512m -Djava.io.tmpdir=$PWD/target/tmp\" verify",
-      "result": "Passed: 312 tests, 0 failures, 0 errors. Broad regression run completed before the final parked-jet pose and compact-menu corrections. Final corrections are covered by the next run."
+      "result": "Full run executed 329 tests: 327 passed, 2 failed, 0 errors. The failures were preserved regional test expectations for upgraded format and truncation. Those tests were corrected and rerun below."
     },
     {
-      "command": "MAVEN_OPTS='-Xmx512m' mvn -q -o -Dmaven.repo.local=target/maven-cache -DargLine=\"-Xmx512m -Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=AviationTest,SpecialBuildingsTest,CityToolsTest,MarketEconomyTest,BusinessCatalogTest,ProtocolCompatibilityTest,CityMultiplayerTest verify",
-      "result": "Passed on final implementation: 51 tests, 0 failures, 0 errors; game, client, server and launcher packages built.",
-      "suites": [
-        {
-          "class": "AviationTest",
-          "tests": 9,
-          "failures": 0,
-          "errors": 0,
-          "skipped": 0
-        },
-        {
-          "class": "SpecialBuildingsTest",
-          "tests": 6,
-          "failures": 0,
-          "errors": 0,
-          "skipped": 0
-        },
-        {
-          "class": "CityToolsTest",
-          "tests": 9,
-          "failures": 0,
-          "errors": 0,
-          "skipped": 0
-        },
-        {
-          "class": "MarketEconomyTest",
-          "tests": 13,
-          "failures": 0,
-          "errors": 0,
-          "skipped": 0
-        },
-        {
-          "class": "BusinessCatalogTest",
-          "tests": 11,
-          "failures": 0,
-          "errors": 0,
-          "skipped": 0
-        },
-        {
-          "class": "ProtocolCompatibilityTest",
-          "tests": 2,
-          "failures": 0,
-          "errors": 0,
-          "skipped": 0
-        },
-        {
-          "class": "CityMultiplayerTest",
-          "tests": 1,
-          "failures": 0,
-          "errors": 0,
-          "skipped": 0
-        }
+      "command": "MAVEN_OPTS='-Xmx512m' mvn -q -o -Dmaven.repo.local=target/maven-cache -DargLine=\"-Xmx512m -Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=RegionalSaveCompatibilityTest,RegionalPopulationTest,AviationTest,ProtocolCompatibilityTest verify",
+      "result": "Passed: 25 tests, 0 failures/errors; packages built. Corrected upgraded format expectation to 12 and made format-11 truncation fixture explicitly write format 11. Remaining suites passed in the full run.",
+      "coverage": [
+        "Base format-10 fixtures load and upgrade",
+        "Format-11 regional save loads without reading flight count and migrates to format12",
+        "Truncated format11 regional tails still fail",
+        "Protocol21 peer rejected before snapshots/commands",
+        "Regional district and aviation persistence/regressions"
       ]
     },
     {
       "command": "python3 deploy/run_aviation_smoke.py --display \"$DISPLAY\"",
-      "result": "Playtest: passed on final implementation.",
+      "result": "Playtest: passed in running production Main with real X11 input.",
       "steps": [
         "Special menu Airport: place first terminal and runway",
         "Book selected citizen: single airport rejected without mutation",
@@ -96,26 +53,27 @@
         "Place City hall through original permit menu",
         "Inspect adult citizen; Book flight; click destination airport",
         "Observe walking, boarding, curved flight and arrival at second terminal",
-        "At 1280 x 640 open Special menu and select Book flight above toolbar"
+        "At 1280 x 640 open Special menu and select Book flight above toolbar",
+        "Districts: settle 1000000 and focus 64 nearby residents"
       ],
-      "expected": "Two voxel airports, expanded runway, visible jet, citizen arrives, existing permits work",
-      "observed": "All checks passed in running Main with X11 input"
+      "expected": "Two voxel airports, expanded runway, visible jet, citizen arrives, existing permits work; district settlement 1000000 and 64 nearby citizens",
+      "observed": "All checks passed in running Main with X11 input; Districts settlement and focus passed, source commands remain distinct."
     },
     {
       "commands": [
         "javac -cp target/maven-cache/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar -d target/aviation-media-check deploy/VerifyAviationMedia.java",
         "java -Xmx256m -cp target/aviation-media-check:target/maven-cache/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar VerifyAviationMedia dashboard/evidence/airport-playtest.mp4 dashboard/evidence/airport-media.json"
       ],
-      "result": "Passed: every frame of final F10 clip decoded; frame count matches MP4 metadata; first and last images differ; artifact below 6 MB.",
+      "result": "Passed: all frames decoded; nonstatic clip below 6 MB.",
       "media": {
         "status": "passed",
         "source": "production F10 recorder in native airport playtest",
         "codec": "H264",
-        "bytes": 1586551,
+        "bytes": 1584535,
         "decodedFrames": 40,
         "width": 960,
         "height": 544,
-        "durationSeconds": 21.731,
+        "durationSeconds": 21.555,
         "checks": [
           "Every frame decoded",
           "Frame count matches MP4 metadata",
@@ -126,32 +84,37 @@
     },
     {
       "command": "git diff --check",
-      "result": "Passed; no whitespace errors"
+      "result": "Passed"
     },
     {
-      "result": "Visual inspection: final boarding jet is level; jet and runways visible; flight and arrival labels match observed states; compact flight choice is visible above toolbar."
+      "result": "Visual inspection: expanded airport shows both runways and jet; flight and arrival labels visible; Districts image shows 1000000 residents and 64 nearby agents."
     }
   ],
   "sourceSha256": {
-    "deploy/AviationSmoke.java": "45e974d56de00ce3489a8542ccf62ec41df029e6f0a2e9ab11de91b3e0016568",
+    "deploy/AviationSmoke.java": "9df6293b346111e61a215835ac1176d8e1a6f805a4761cd121b1ede101f6216a",
     "deploy/VerifyAviationMedia.java": "0ae33d62214d00fa5bec9a4e6f1a2b47b948d7e0af257bf649052971b4de08db",
-    "deploy/run_aviation_smoke.py": "b4a25be7dafc4fda058cdf28f2fcc0f68cebd3595e85c1fae60df10af68338f1",
-    "src/main/java/dev/jayms/Main.java": "8a85a4689c8bf6ff4cd27b26aa1f76dcfe536970251723964fa7e09aca16a466",
-    "src/main/java/dev/jayms/net/MultiplayerClient.java": "cac42b3446541191e3ba5f0f7584694286eec38aceb2f1635e1a9fb394efa353",
-    "src/main/java/dev/jayms/net/Protocol.java": "40b9ad8a1b5953d565e52d4e1cc085e4ec006ad895955c7bfeaa012f5b98276a",
+    "deploy/run_aviation_smoke.py": "bdd100b0e11d1293b931801a81f27ab9acfb9cc83406e5f3d8cf3de8d1b28ba0",
+    "src/main/java/dev/jayms/Main.java": "76fe4bece24b15a5a2a1cdf245ee80164c2d6dcc1436ea58af1eb86715ccf174",
+    "src/main/java/dev/jayms/net/MultiplayerClient.java": "2a3e06edd0309e3794e2b1c2a4c7deb937e5e124c46a02c55f5f0a0250da2b2e",
+    "src/main/java/dev/jayms/net/Protocol.java": "d500ccd12048e1481be3a653e9c0e478c7286dbbf95552bf290a880fdb8d89c7",
     "src/main/java/dev/jayms/net/city/Aviation.java": "aec5129c8d0ee506a0f5626217cf773af7152194b2d828ba106660f29b1a62ff",
-    "src/main/java/dev/jayms/net/city/CityCommand.java": "bf18217434f555c0cac882acf5fa7298c1b4a7bafe1fce884699a5193733a419",
-    "src/main/java/dev/jayms/net/city/CityFrame.java": "f616c9eeb1788cfda26e0752bea21c999fa7ab4ee66dc8dbd40ebe2c0ef692b2",
-    "src/main/java/dev/jayms/net/city/CitySimulation.java": "738745ad7edb4686d5cb95b9839bc77ec21e70be61952964e132cd0f10078eaf",
+    "src/main/java/dev/jayms/net/city/CityCommand.java": "7f28344c075148a0456a32fd00c69a21453d523432c2ff04a415d40ea3343174",
+    "src/main/java/dev/jayms/net/city/CityFrame.java": "f184ae4a312ff9fd68a820a3d72617a7c3653a97835ef922c98dec9db5d95cad",
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "f7677100a114d68cee7b51b19834e470dcb14131cbd4701bb969de6c5de76704",
     "src/main/java/dev/jayms/net/city/FlightPath.java": "8446b174424086e965efa18428525f42d60f35a6ac41eb173ccf671cdafd01e5",
     "src/main/java/dev/jayms/net/city/SpecialBuildings.java": "b4094e27eb629ea76d80bc09764668fe0a1d871b4961b2b94430078e1180bc7c",
     "src/main/java/dev/jayms/net/city/StructureBlueprint.java": "742df873fca7ad2c4a4c5e78a2b9691981c389ac98540fbbf411e99ef4224533",
     "src/main/java/dev/jayms/player/PlaneModel.java": "07fc96f97b6c6b46b785361605a498c5473aabc0cfa6fddce29fd3f45ba3aaeb",
     "src/main/java/dev/jayms/ui/BuildingInfo.java": "e6bd88c89ee42254909e5d1369a9d6fe7f09234f55fe300410fe1dfa0f935938",
-    "src/main/java/dev/jayms/ui/CityTools.java": "59913a5a114be1dcad724a3a758e665006f8b8f5bce1a21e4c15749141ddd06e",
+    "src/main/java/dev/jayms/ui/CityTools.java": "a9bce73f1fc7f842755eb3aaf35e3d2e12109da96327c8b885ba5bf0ac17c0ff",
     "src/test/java/dev/jayms/AviationTest.java": "a9a45c6f1eab4ac4b365abf1a11f5b3b61b60feddcb99d40e39c1b4859174c84",
-    "src/test/java/dev/jayms/BusinessCatalogTest.java": "7ad039bb51ff513f2bc62373f7106da4b9f87de9545d54b7d36116e7e6b0a326",
-    "src/test/java/dev/jayms/MarketEconomyTest.java": "70af853e634b67bd571af49400581cd4b4df2104bf6573dde78bb40d9eb2b13b"
+    "src/test/java/dev/jayms/BusinessCatalogTest.java": "ed2281ce82b358b8ccc6fed49a9f223f2bf616ed78c9e6b34fffa616b8c6e768",
+    "src/test/java/dev/jayms/MarketEconomyTest.java": "1216c3f539b8048983f310a08cf181e19f8bb7370353ddd45d3c94f271863146",
+    "src/main/java/dev/jayms/net/city/RegionalPopulation.java": "5b40b74f336b296d53247605ee983ddaf312b705336da8d3e81622d784410258",
+    "src/main/java/dev/jayms/ui/MayorDashboard.java": "3ea2b5d7c86b35a0483d4357b8bafeaf8745539bd86aa0b68255dd549ea6bb6d",
+    "src/test/java/dev/jayms/RegionalSaveCompatibilityTest.java": "969101a36d2a56b8f5aaa51a2176cefa5a296c956cb2b3674a1c9cc42a842299",
+    "src/test/java/dev/jayms/RegionalPopulationTest.java": "e9f74bab14798ebc92b627d0cbdfade71a14fe9f15df82cb057be4740240df34",
+    "src/test/java/dev/jayms/ProtocolCompatibilityTest.java": "68524d0a6e271aef4c2b62ad7a2f86df5b998f1be7589d79879ac9b2d9bd02ad"
   },
   "artifacts": [
     {
@@ -168,14 +131,14 @@
     },
     {
       "file": "airport-flight.png",
-      "bytes": 297612,
-      "sha256": "f4727ba634b3c99ec959e8b25c60c9a0be71251c1a1efc7a1e0f32a072dd4466",
+      "bytes": 304053,
+      "sha256": "dcaf2373dd51f80e47f511e574dd5733187a929f3f369c431d71ede197a20a0c",
       "publication": "pending controller publication"
     },
     {
       "file": "airport-arrival.png",
-      "bytes": 950498,
-      "sha256": "10952c58af1d0cf2d3c0fd686e2485fde79d1fc5a568919b86514d8e55a609c4",
+      "bytes": 902771,
+      "sha256": "fc70e73d6a76426b3d34e9549cea300493091005957498e3ac149b521ae86707",
       "publication": "pending controller publication"
     },
     {
@@ -186,21 +149,27 @@
     },
     {
       "file": "airport-playtest.mp4",
-      "bytes": 1586551,
-      "sha256": "f591f776f79d4ccf61bae592700be590082fe4b73d45ae676a121b875da3ba9d",
+      "bytes": 1584535,
+      "sha256": "e69959fd433c68d5cf4ad039de219756823af0093bcb838f67476c6cddaddf13",
       "publication": "pending controller publication"
     },
     {
       "file": "airport-playtest.json",
-      "bytes": 778,
-      "sha256": "8d4bf0195f324d04e4bffa8e454e0cd37f23beea9583443054ee1986a782540e",
+      "bytes": 836,
+      "sha256": "dd9b4b9896bca69d46bbb8f016a986307fd149145b4ca1b1017cd924fae26948",
       "publication": "pending controller publication"
     },
     {
       "file": "airport-media.json",
       "bytes": 309,
-      "sha256": "7358f139dace9c12d8a6b826b1dcc39f972ce7c82a03808e0cb48ddba58beba7",
+      "sha256": "e3d4f7ef9f2e7ddbee0ef2b944b10904cac7c3b5451a6a80fbf95dee681f343b",
       "publication": "pending controller publication"
+    },
+    {
+      "file": "airport-regional-regression.png",
+      "publication": "pending controller publication",
+      "bytes": 15946,
+      "sha256": "e8e2916373314245737bbfb590e094ba0d0760702f27196a07ea8e3bbf11ce1b"
     }
   ],
   "packages": [
@@ -209,5 +178,408 @@
     "voxel-one-1.0-SNAPSHOT-server.jar",
     "voxel-one-1.0-SNAPSHOT.jar"
   ],
-  "handoff": "Runner owns staging, commits, publication, PR and merge. Reviewer must exercise the exact submitted head and verify published media. No deployment or Git write performed."
+  "handoff": "Runner owns staging, commits, publication, PR and merge. Reviewer must exercise the exact submitted head and verify published media. No deployment or Git write performed.",
+  "testedHead": "2c5077142b202c8e34513bb2f221a02408874de6",
+  "uncommittedChanges": "Test helper district regression and regional save test version expectations; application source unchanged after controller recovery.",
+  "finalSuiteReports": [
+    {
+      "class": "dev.jayms.ExchangeLabourMarketTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.CraftingTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.BusinessDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.MarketEconomyTest",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.CityMaterialsTest",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.ManufacturingTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.CityAddressesTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.CityToolsTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.MayorDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.CityCapitalTest",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.net.city.CityStockExchangeTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.DistantTerrainTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.ControlsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.CapitalInspectorTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.RemotePlayerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.JeepTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.ModelSculptorTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.PlayerCameraTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.PopulationJourneyTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.SpecialBuildingsTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.ExchangePermitCompositionTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.CityMetricsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.CityTimeTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.CitizenLifeTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.CapitalSettlementLimitsTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.CityMultiplayerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.BuildingInfoTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.VideoRecordingTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.LightingTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.RoadTypesTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.IsometricOrbitDragTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.PlayerTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.UpdaterTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.RegionalPopulationTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.SurvivalTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.CityBusinessTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.LightOcclusionTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.AccountStoreTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.MultiplayerTest",
+      "tests": 15,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.CapitalDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.FractionalWorldTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.MetricHistoryTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.RegionalSaveCompatibilityTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.CityTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.ShopRestockMarketTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.ProtocolCompatibilityTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.BusinessCatalogTest",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.CityEconomyTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.InventoryHudTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.DemolitionTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.TerrainGenerationTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.PlayerAnimationTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.AviationTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.RegionalMultiplayerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.AgricultureTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.IsometricCameraTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.VoxelModelTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ]
 }

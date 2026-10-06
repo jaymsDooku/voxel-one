@@ -1,11 +1,11 @@
-# Airport and regional integration: controller recovery handoff
+# Airport integration ready for independent review
 
-All conflict file contents resolved. Git index remains unmerged until the controller stages them. Do not abort or reset. Controller stages resolutions and continues rebase, then resumes developer for final-head validation and fresh native media.
+Controller recovered head: 2c5077142b202c8e34513bb2f221a02408874de6. All edits remain in assigned feature worktree. No unmerged index. No developer Git writes, commit, push, merge or deployment.
 
-Regional population source, district UI, tests, fixtures and historical evidence retained. City format 11 remains regional; format 12 appends aviation. Save magic 0x4349543C. Protocol 22 uses district command IDs 8/9 and runway/flight IDs 10/11. Regional visible citizens and hidden flight passengers both preserved.
+Regional population, district UI, tests, fixtures and historical evidence preserved. City format 11 retains regional data; format 12 appends aviation; save magic 0x4349543C. Protocol 22 uses district IDs 8/9 and runway/flight IDs 10/11.
 
-Clean focused Maven test run passed 54 tests, zero failures/errors. Migration test loads a base-format-11 regional save and rewrites format 12. Protocol tests reject version 21 before exchanging snapshots or commands. Two stale-class test runs failed before deleting generated classes; clean rebuilt reader verified format 12. Commands/results are in dashboard/evidence/airport-recovery-tests.json. git diff --check passed; no conflict markers remain.
+Final validation: full run executed 329 tests with 2 preserved format-test expectation failures; corrected upgrade expectation to 12 and explicitly wrote format11 for truncation. Final focused verify passed 25 tests, zero failures/errors, and packaged all jars. Remaining suites passed in the full run. Current combined suite reports show 329 tests with zero failures/errors. Commands and limits are in dashboard/evidence/airport-tests.json.
 
-Playtest: final-head native airport placement, expansion, single-airport edge, citizen boarding/flight/arrival, district UI and City hall regression still required after controller rebase continuation. Existing airport media and reports describe the earlier implementation and must not be treated as this merged head's validation. Run final package/regression tests and refresh evidence/source hashes after continuation.
+Playtest: final recovered application passed airport placement, expansion, single-airport rejection, City hall regression, citizen boarding/flight/arrival, compact menu, district settlement 1000000 and focus64. Linux X11/Mesa, inherited role display/authentication, isolated synthetic profile. Refreshed images and F10 video saved; all 40 frames decoded, 1584535 bytes. Report includes source/media hashes. Historical regional evidence retained unchanged.
 
-All edits preserved in assigned feature worktree. No commit, push, merge, deployment or index staging performed. Helper task resolved as self; concurrency 0. No owner answer pending.
+Controller next: stage test/helper/report/media edits, commit and publish assigned feature branch, submit exact head for independent review. All media URLs are pending controller publication. Reviewer must independently exercise workflow and verify published media matches submitted head. No owner answer needed. All delegate tasks resolved; concurrency 0.

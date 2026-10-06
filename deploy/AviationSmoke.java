@@ -187,8 +187,18 @@ public class AviationSmoke {
                 capture="airport-compact-menu.png";x("getwindowfocus");
                 click(80,427);require(((CityTools)get("cityTools")).tool==10,"Compact menu flight choice works above toolbar");
                 x("windowsize",windowId,"1280","720");x("getwindowfocus");
+                x("key","F9");click(920,60);
+                require(((MayorDashboard)get("mayorDashboard")).tab==6,"District tab preserved");
+                click(440,180);
+                require(city().population().population()==1_000_000,"District settlement command remains distinct from runway command");
+                click(40,285);
+                require(city().population().agents().size()==64,"District focus command remains distinct from flight command");
+                capture="airport-regional-regression.png";
+                long districtCaptureDeadline=System.currentTimeMillis()+60000;
+                while(!"airport-regional-regression.png".equals(captured) && System.currentTimeMillis()<districtCaptureDeadline) Thread.sleep(50);
+                require("airport-regional-regression.png".equals(captured),"District capture saved");
                 if(recording)x("key","F10");Thread.sleep(2500);
-                Files.writeString(out.resolve("results.json"),"{\"status\":\"passed\",\"platform\":\"Linux X11 inherited role display; Mesa\",\"profile\":\"isolated synthetic offline city and flattened sites\",\"steps\":[\"Special menu Airport: place first terminal and runway\",\"Book selected citizen: single airport rejected without mutation\",\"Place second airport and expand it to two runways\",\"Place City hall through original permit menu\",\"Inspect adult citizen; Book flight; click destination airport\",\"Observe walking, boarding, curved flight and arrival at second terminal\",\"At 1280 x 640 open Special menu and select Book flight above toolbar\"],\"expected\":\"Two voxel airports, expanded runway, visible jet, citizen arrives, existing permits work\",\"observed\":\"All checks passed in running Main with X11 input\",\"recording\":\"production F10 recorder\"}\n");
+                Files.writeString(out.resolve("results.json"),"{\"status\":\"passed\",\"platform\":\"Linux X11 inherited role display; Mesa\",\"profile\":\"isolated synthetic offline city and flattened sites\",\"steps\":[\"Special menu Airport: place first terminal and runway\",\"Book selected citizen: single airport rejected without mutation\",\"Place second airport and expand it to two runways\",\"Place City hall through original permit menu\",\"Inspect adult citizen; Book flight; click destination airport\",\"Observe walking, boarding, curved flight and arrival at second terminal\",\"At 1280 x 640 open Special menu and select Book flight above toolbar\",\"Districts: settle 1000000 and focus 64 nearby residents\"],\"expected\":\"Two voxel airports, expanded runway, visible jet, citizen arrives, existing permits work\",\"observed\":\"All checks passed in running Main with X11 input\",\"recording\":\"production F10 recorder\"}\n");
             } catch(Throwable e) {
                 failure=e;
                 try { Files.writeString(out.resolve("failure.txt"),e.getClass().getSimpleName()+": "+e.getMessage()); } catch(Exception ignored) {}

@@ -34,7 +34,7 @@ if result.returncode:
     if failure.exists(): print(failure.read_text())
     raise SystemExit(result.returncode)
 shutil.copyfile(result_file,root/'dashboard/evidence/airport-playtest.json')
-for name in ('airport-expanded.png', 'airport-boarding.png', 'airport-flight.png', 'airport-arrival.png', 'airport-compact-menu.png'):
+for name in ('airport-expanded.png', 'airport-boarding.png', 'airport-flight.png', 'airport-arrival.png', 'airport-compact-menu.png', 'airport-regional-regression.png'):
     shutil.copyfile(root/'target/aviation-runtime'/name, root/'dashboard/evidence'/name)
 clips=sorted((root/'target/aviation-home/.voxel-one/recordings').glob('*.mp4'))
 if not clips: raise SystemExit('F10 video missing')
