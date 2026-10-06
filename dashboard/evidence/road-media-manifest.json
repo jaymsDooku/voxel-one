@@ -1,0 +1,28 @@
+{
+  "artifacts": [
+    {
+      "file": "road-menu.png",
+      "bytes": 780231,
+      "sha256": "ade2ca114b97515a839a5f948641819341ee0269b1934c0f9814be1362ba98f6",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "road-guide.png",
+      "bytes": 809168,
+      "sha256": "f4ce3e39eec768a7e3cff503de1de440d41189708d50815ce26c59e65b5b79ec",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "road-surfaces.png",
+      "bytes": 823413,
+      "sha256": "fc83afa192d72c755eeed5b53fa219493204b788fda0ed8f425588cc91227fa3",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "road-placement-playtest.mp4",
+      "bytes": 3437776,
+      "sha256": "53c0763b790ea4195d770af61e90cb9878373630ab8e9bc01e7cda74da943c3c",
+      "publication": "pending controller publication"
+    }
+  ]
+}

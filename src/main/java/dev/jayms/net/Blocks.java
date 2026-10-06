@@ -16,6 +16,9 @@ public final class Blocks {
             LED = 180,
             WATER = 185,
             MINERAL = 186,
+            ASPHALT = 187,
+            ROAD_LINE_X = 188,
+            ROAD_LINE_Z = 189,
             PARTIAL = 255;
     private static final String[] NAMES = {
         "Empty", "Grass", "Dirt", "Stone", "Sand", "Snow", "Wood", "Leaves", "Flower pot"
@@ -33,11 +36,13 @@ public final class Blocks {
     };
 
     public static boolean valid(int type) {
-        return type >= 0 && type < 187;
+        return type >= 0 && type < 190;
     }
 
     public static String name(int type) {
         if (isPiece(type)) return name(material(type)) + " 1/" + (1 << depth(type)) + " cube";
+        if (type == ASPHALT) return "Asphalt";
+        if (type == ROAD_LINE_X || type == ROAD_LINE_Z) return "Road divider";
         if (type == WATER) return "Water";
         if (type == MINERAL) return "Mineral ore";
         if (type == PLANKS) return "Planks";
@@ -49,6 +54,7 @@ public final class Blocks {
 
     public static float[] color(int type) {
         type = material(type);
+        if (type >= ASPHALT && type <= ROAD_LINE_Z) return new float[] {.8f, .8f, .8f};
         if (type == WATER) return new float[] {.15f, .43f, .68f};
         if (type == MINERAL) return new float[] {.53f, .39f, .25f};
         if (type == PLANKS) return new float[] {.72f, .51f, .29f};

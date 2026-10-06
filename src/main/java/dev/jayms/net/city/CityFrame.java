@@ -70,7 +70,10 @@ public record CityFrame(
         this(config, elapsed, roads, zones, buildings, citizens, horses, CityEconomy.State.empty());
     }
 
-    public record Road(int x, int z, int y) {}
+    public record Road(int x, int z, int y, int type) {
+        public Road(int x, int z, int y) { this(x, z, y, 0); }
+        public Road { RoadTypes.validate(type); }
+    }
 
     public record Zone(int id, int type, Polygon polygon) {}
 
@@ -117,7 +120,7 @@ public record CityFrame(
     }
 
     public void write(DataOutput out) throws IOException {
-        write(out, 9);
+        write(out, 10);
     }
 
     public void write(DataOutput out, int version) throws IOException {
@@ -128,6 +131,7 @@ public record CityFrame(
             out.writeInt(r.x);
             out.writeInt(r.z);
             out.writeInt(r.y);
+            if (version >= 10) out.writeByte(r.type);
         }
         out.writeInt(zones.size());
         for (var z : zones) {
@@ -201,7 +205,7 @@ public record CityFrame(
     }
 
     public static CityFrame read(DataInput in, boolean legacy) throws IOException {
-        return read(in, legacy ? 1 : 9);
+        return read(in, legacy ? 1 : 10);
     }
 
     public static CityFrame read(DataInput in, int version) throws IOException {
@@ -213,7 +217,9 @@ public record CityFrame(
             int x = in.readInt(), z = in.readInt(), y = in.readInt();
             if (Math.abs((long) x - 8) > 256 || Math.abs((long) z - 24) > 256 || y < -31 || y > 89)
                 throw new IOException("Invalid road");
-            roads.add(new Road(x, z, y));
+            int type = version >= 10 ? in.readUnsignedByte() : 0;
+            if (type > 3) throw new IOException("Invalid road type");
+            roads.add(new Road(x, z, y, type));
         }
         var zones = new ArrayList<Zone>();
         for (int i = 0, n = count(in, 128); i < n; i++) {

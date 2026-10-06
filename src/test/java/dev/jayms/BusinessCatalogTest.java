@@ -271,7 +271,7 @@ company.sand.cash=1200
                 new Terrain(42, Terrain.CURRENT_VERSION), loaded, ProductionCatalog.toolEra());
         restored.save(save);
         try (var in = new DataInputStream(Files.newInputStream(save))) {
-            assertEquals(0x43495439, in.readInt());
+            assertEquals(0x4349543A, in.readInt());
         }
         assertEquals(buildings, CitySimulation.load(save).buildings());
         assertEquals(catalog, CitySimulation.load(save).economy().resources().catalog());
@@ -293,7 +293,7 @@ company.sand.cash=1200
                 new Terrain(42, Terrain.LEGACY_VERSION), loaded);
         restored.save(save);
         try (var in = new DataInputStream(Files.newInputStream(save))) {
-            assertEquals(0x43495439, in.readInt());
+            assertEquals(0x4349543A, in.readInt());
         }
         assertEquals(restored.frame(), CitySimulation.load(save));
         assertEquals(List.of(building), CitySimulation.load(save).buildings());
