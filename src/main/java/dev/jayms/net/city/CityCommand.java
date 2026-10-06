@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 
 public record CityCommand(int kind, int value, List<Polygon.Point> points, int ownerKind, int ownerId, Capital capital) {
-    public static final int ROAD = 1, ZONE = 2, RIDE = 3, DEMOLISH = 4, SPECIAL = 5, EXCHANGE = 6, CAPITAL = 7;
+    public static final int ROAD = 1, ZONE = 2, RIDE = 3, DEMOLISH = 4, SPECIAL = 5, EXCHANGE = 6, CAPITAL = 7, SETTLE_DISTRICT = 8, FOCUS_DISTRICT = 9;
 
     public record Capital(
             int action,
@@ -44,11 +44,15 @@ public record CityCommand(int kind, int value, List<Polygon.Point> points, int o
     public CityCommand {
         points = List.copyOf(points);
         if (kind < 1
-                || kind > 7
+                || kind > 9
                 || points.size() > 32
                 || (kind == CAPITAL) != (capital != null)
                 || kind == CAPITAL && !points.isEmpty())
             throw new IllegalArgumentException("Invalid city command");
+        if ((kind == SETTLE_DISTRICT || kind == FOCUS_DISTRICT)
+                && (!points.isEmpty() || ownerKind!=0 || ownerId!=0 || value<0
+                    || kind==SETTLE_DISTRICT && value!=1000 && value!=100_000 && value!=1_000_000))
+            throw new IllegalArgumentException("Invalid district command");
         if (kind == DEMOLISH && (value <= 0 || !points.isEmpty()))
             throw new IllegalArgumentException("Demolition needs a building ID and no points");
     }

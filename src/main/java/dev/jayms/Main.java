@@ -56,7 +56,10 @@ public class Main {
     private GameConfig gameConfig = GameConfig.sandbox();
     private ProductionCatalog productionCatalog = ProductionCatalog.cityGame();
 
+    private CityFrame renderCity;
+
     private CityFrame city() {
+        if (renderCity != null) return renderCity;
         return network == null ? local.city.frame() : network.city;
     }
 
@@ -553,7 +556,7 @@ public class Main {
     }
 
     private void inspectCitizen(int id) {
-        var citizen = city().citizens().stream().filter(c -> c.id() == id).findFirst().orElse(null);
+        var citizen = city().visibleCitizens().stream().filter(c -> c.id() == id).findFirst().orElse(null);
         if (citizen == null) return;
         mayorDashboard.close();
         cityTools.key(GLFW_KEY_ESCAPE, this::cityCommand);
@@ -757,6 +760,8 @@ public class Main {
                 streamX = overview.focusX();
                 streamZ = overview.focusZ();
             }
+            if (local != null && !mayorDashboard.open)
+                local.city.population.focusNear(streamX, streamZ);
             world.stream(streamX, streamZ, 2);
             float forward =
                     captured
@@ -836,8 +841,9 @@ public class Main {
             else glClearColor(.48f, .72f, .92f, 1);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             if (framebufferWidth > 0 && framebufferHeight > 0) {
-                render();
-                renderOverlay();
+                renderCity = network == null ? local.city.frame() : network.city;
+                try { render(); renderOverlay(); }
+                finally { renderCity = null; }
                 if (frameObserver != null) frameObserver.afterFrame(this);
                 recorder.capture(framebufferWidth, framebufferHeight);
                 fpsFrames++;
@@ -989,7 +995,7 @@ public class Main {
             }
             if (p != null) horseModel.render(p, shader);
         }
-        for (var c : city().citizens()) {
+        for (var c : city().visibleCitizens()) {
             Protocol.Pose p =
                     new Protocol.Pose(
                             c.id(),

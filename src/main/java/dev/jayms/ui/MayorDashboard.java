@@ -9,6 +9,7 @@ import java.util.function.IntConsumer;
 
 /** Live, read-only mayor screen. Citizen selection returns to the existing world inspector. */
 public final class MayorDashboard {
+    public final RegionalDashboard regions = new RegionalDashboard();
     public final BusinessDashboard businesses = new BusinessDashboard();
     public final MetricHistory history = new MetricHistory();
     public final MetricTrends trends = new MetricTrends();
@@ -83,6 +84,7 @@ public final class MayorDashboard {
     }
 
     public void scroll(double amount) {
+        if (tab == 6) { regions.scroll(amount); return; }
         if (trends.open) return;
         if (tab == 5) {
             capital.scroll(amount);
@@ -128,6 +130,11 @@ public final class MayorDashboard {
     }
 
     public void click(float x, float y, int w, int h, CityFrame city, IntConsumer select) {
+        if (x >= w - 400 && x <= w - 276 && y >= 48 && y <= 76) {
+            tab = 6;
+            trends.open = searchFocus = businesses.searchFocus = false;
+            return;
+        }
         if (x >= w - 260 && x <= w - 136 && y >= 48 && y <= 76) {
             trends.open = !trends.open;
             if (trends.open) trends.selectDomain(tab == 3 ? 2 : tab == 4 ? 1 : 0);
@@ -150,6 +157,7 @@ public final class MayorDashboard {
             trends.click(x, y, w);
             return;
         }
+        if (tab == 6) { regions.click(x, y, w, h, city, submit, select); return; }
         if (tab == 5) {
             capital.click(x, y, w, h, city, submit);
             searchFocus = capital.editing();
@@ -238,7 +246,10 @@ public final class MayorDashboard {
                         + (connected
                                 ? "Live city metrics"
                                 : "Disconnected - last received city snapshot");
-        text(ui, clock, 24, 55, w - 300, 1.15f);
+        text(ui, clock, 24, 55, w - 450, 1.15f);
+        panel(ui, w - 400, 48, 124, 28);
+        ui.text("Districts", w - 389, 56, 1.3f);
+        if (tab == 6) ui.rectangle(w - 400, 74, 124, 2, .3f, .85f, .7f, 1);
         panel(ui, w - 260, 48, 124, 28);
         ui.text(trends.open ? "Snapshot" : "Trends", w - 246, 56, 1.3f);
         panel(ui, w - 124, 48, 100, 28);
@@ -254,6 +265,8 @@ public final class MayorDashboard {
             return;
         }
         var m = CityMetrics.from(city);
+        if (!city.population().groups().isEmpty() && tab < 2)
+            ui.text("Regional needs and savings use cohort estimates", 24, 126, 1.0f);
         switch (tab) {
             case 0 -> overview(ui, w, h, m);
             case 1 -> groups(ui, w, h, m);
@@ -261,6 +274,7 @@ public final class MayorDashboard {
             case 3 -> finances(ui, w, h, city, m);
             case 4 -> businesses.render(ui, w, h, city);
             case 5 -> capital.render(ui, w, h, city);
+            case 6 -> regions.render(ui, w, h, city);
             default -> throw new IllegalStateException("Dashboard tab");
         }
         text(
@@ -282,7 +296,7 @@ public final class MayorDashboard {
         int columns = w >= 900 ? 3 : 2;
         float cw = (w - 48 - (columns - 1) * 12) / (float) columns;
         String[][] data = {
-            {"Population", "" + m.population(), "Simulated citizens"},
+            {"Population", "" + m.population(), "Local and regional residents"},
             {
                 "Housing",
                 m.housed() + " / " + m.population(),
@@ -297,7 +311,7 @@ public final class MayorDashboard {
             {
                 "Average savings",
                 fmt("$%.1f", m.averageSavings()),
-                fmt("Median $%.1f", m.medianSavings())
+                fmt("Estimated median $%.1f", m.medianSavings())
             },
             {"Hungry citizens", "" + m.hungry(), m.criticalHunger() + " critical (below 10)"}
         };
@@ -476,11 +490,12 @@ public final class MayorDashboard {
             {"Household savings", fmt("$%.1f", m.totalSavings()), "All citizens combined"},
             {
                 "Private company cash",
-                fmt("$%.0f", e.firms().stream().mapToDouble(CityEconomy.Firm::cash).sum()),
-                "Developer and business balances"
+                fmt("$%.0f", e.firms().stream().mapToDouble(CityEconomy.Firm::cash).sum()
+                        + city.population().groups().stream().mapToDouble(RegionalPopulation.Group::treasury).sum()),
+                "Local and regional business balances"
             },
             {
-                "Company wages paid",
+                "Local company wages paid",
                 fmt("$%.1f", e.firms().stream().mapToDouble(CityEconomy.Firm::wages).sum()),
                 "Total paid to date"
             }
@@ -497,7 +512,7 @@ public final class MayorDashboard {
                     -1);
         float y = TOP + ((data.length + cols - 1) / cols) * 88;
         panel(ui, 24, y, w - 48, h - y - 44);
-        ui.text("PRIVATE COMPANIES", 36, y + 10, 1.35f);
+        ui.text("LOCAL COMPANIES (regional firms: Districts)", 36, y + 10, 1.35f);
         int row = 0;
         for (var f : e.firms()) {
             if (y + 40 + row * 25 > h - 50) break;

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-06T18:31:27+00:00",
+  "updatedAt": "2026-10-06T19:25:47+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,36 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "65396632633436642d613861352d346161632d613932642d343661616166316666626638",
+      "title": "Million-citizen city scaling",
+      "description": "Architecture audit found bounded population, nested population scans and full citizen snapshots; defining scale acceptance before implementation.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "Scale tests (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-65396632633436642d613861352d346161632d613932642d343661616166316666626638/dashboard/evidence/regional-scale-tests.json"
+        },
+        {
+          "kind": "image",
+          "label": "Two-million-resident districts (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-65396632633436642d613861352d346161632d613932642d343661616166316666626638/dashboard/evidence/regional-scale-districts.png"
+        },
+        {
+          "kind": "video",
+          "label": "Native F10 playtest (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-65396632633436642d613861352d346161632d613932642d343661616166316666626638/dashboard/evidence/regional-scale-main.mp4"
+        },
+        {
+          "kind": "report",
+          "label": "Rebase and save migration checks (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-65396632633436642d613861352d346161632d613932642d343661616166316666626638/dashboard/evidence/regional-scale-recovery-tests.json"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Rebase contents resolved; 45 recovery tests passed. All 28 base road files and 49 progress entries retained. Regional format 11/protocol 21 migrates exact-base format-10 saves. Controller must stage/continue, then resume final-head checks and fresh native evidence.",
+      "updatedAt": "2026-10-06T19:25:47+00:00"
+    },
     {
       "id": "queue-30366437373533632d613238632d343963612d383265322d346239646166376638393338",
       "title": "Road selection and paved lanes",

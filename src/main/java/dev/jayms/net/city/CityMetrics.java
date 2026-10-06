@@ -97,48 +97,62 @@ public record CityMetrics(
                 : a.length % 2 == 1 ? a[a.length / 2] : (a[a.length / 2 - 1] + a[a.length / 2]) / 2;
     }
 
-    public static CityMetrics from(CityFrame f) {
-        var groups = new ArrayList<Group>();
-        for (int cohort = 0; cohort < 3; cohort++) {
-            final int group = cohort;
-            var cs = f.citizens().stream().filter(c -> c.cohort() == group).toList();
-            groups.add(
-                    new Group(
-                            cohort,
-                            cs.size(),
-                            (int) cs.stream().filter(c -> housed(f, c)).count(),
-                            (int) cs.stream().filter(c -> employer(f, c) != 0).count(),
-                            (int) cs.stream().filter(c -> c.hunger() < 35).count(),
-                            cs.stream().mapToDouble(CityFrame.Citizen::hunger).average().orElse(0),
-                            cs.stream().mapToDouble(CityFrame.Citizen::money).average().orElse(0),
-                            median(cs)));
+    private record Bin(int cohort, int count, int homes, int jobs, double hunger,
+            double savings, int blocked) {}
+
+    private static double weightedMedian(List<Bin> bins) {
+        var sorted=bins.stream().filter(b -> b.count()>0)
+                .sorted(Comparator.comparingDouble(b -> b.savings()/b.count())).toList();
+        long n=sorted.stream().mapToLong(Bin::count).sum();
+        if(n==0) return 0;
+        long lo=(n-1)/2, hi=n/2, seen=0; double a=0,b=0;
+        for(var row:sorted) {
+            long end=seen+row.count();
+            if(lo>=seen && lo<end) a=row.savings()/row.count();
+            if(hi>=seen && hi<end) { b=row.savings()/row.count(); break; }
+            seen=end;
         }
-        int housed = groups.stream().mapToInt(Group::housed).sum(),
-                beds =
-                        f.buildings().stream()
-                                .filter(b -> (b.type() == 0 || b.type() == 3))
-                                .mapToInt(CityFrame.Building::capacity)
-                                .sum();
-        double savings = f.citizens().stream().mapToDouble(CityFrame.Citizen::money).sum();
-        return new CityMetrics(
-                f.citizens().size(),
-                housed,
-                groups.stream().mapToInt(Group::employed).sum(),
+        return (a+b)/2;
+    }
+
+    public static CityMetrics from(CityFrame f) {
+        var bins=new ArrayList<Bin>();
+        for(var c:f.citizens()) bins.add(new Bin(c.cohort(),1,housed(f,c)?1:0,
+                employer(f,c)!=0?1:0,c.hunger(),c.money(),blocked(c)?1:0));
+        for(var g:f.population().groups()) if(g.count()>0)
+            bins.add(new Bin(g.cohort(),g.count(),g.housed(),g.employed(),g.hunger(),g.savings(),0));
+        var byId=new HashMap<Integer,RegionalPopulation.Group>();
+        f.population().groups().forEach(g -> byId.put(g.id(),g));
+        for(var a:f.population().agents()) bins.add(new Bin(byId.get(a.group()).cohort(),1,
+                a.housed()?1:0,a.employed()?1:0,a.hunger(),a.savings(),0));
+        var groups=new ArrayList<Group>();
+        for(int cohort=0;cohort<3;cohort++) {
+            final int key=cohort;
+            var rows=bins.stream().filter(b -> b.cohort()==key).toList();
+            int n=rows.stream().mapToInt(Bin::count).sum();
+            groups.add(new Group(cohort,n,rows.stream().mapToInt(Bin::homes).sum(),
+                    rows.stream().mapToInt(Bin::jobs).sum(),
+                    rows.stream().filter(b->b.hunger()<35).mapToInt(Bin::count).sum(),
+                    n==0?0:rows.stream().mapToDouble(b->b.hunger()*b.count()).sum()/n,
+                    n==0?0:rows.stream().mapToDouble(Bin::savings).sum()/n,weightedMedian(rows)));
+        }
+        int n=bins.stream().mapToInt(Bin::count).sum();
+        int housed=groups.stream().mapToInt(Group::housed).sum();
+        int beds=f.buildings().stream().filter(b->b.type()==0 || b.type()==3)
+                .mapToInt(CityFrame.Building::capacity).sum()
+                +f.population().groups().stream().mapToInt(RegionalPopulation.Group::housed).sum()
+                +(int)f.population().agents().stream().filter(RegionalPopulation.Agent::housed).count();
+        double savings=bins.stream().mapToDouble(Bin::savings).sum();
+        double food=f.buildings().stream().filter(b->b.type()==1).mapToInt(CityFrame.Building::stock).sum()
+                +f.population().groups().stream().mapToDouble(RegionalPopulation.Group::food).sum();
+        return new CityMetrics(n,housed,groups.stream().mapToInt(Group::employed).sum(),
                 groups.stream().mapToInt(Group::hungry).sum(),
-                (int) f.citizens().stream().filter(c -> c.hunger() < 10).count(),
-                (int) f.citizens().stream().filter(c -> c.money() < 3).count(),
-                (int) f.citizens().stream().filter(CityMetrics::blocked).count(),
-                f.citizens().stream().mapToDouble(CityFrame.Citizen::hunger).average().orElse(0),
-                savings,
-                f.citizens().isEmpty() ? 0 : savings / f.citizens().size(),
-                median(f.citizens()),
-                beds,
-                Math.max(0, beds - housed),
-                f.buildings().stream()
-                        .filter(b -> b.type() == 1)
-                        .mapToInt(CityFrame.Building::stock)
-                        .sum(),
-                (int) f.economy().plots().stream().filter(p -> p.building() == 0).count(),
-                groups);
+                bins.stream().filter(b->b.hunger()<10).mapToInt(Bin::count).sum(),
+                bins.stream().filter(b->b.savings()/b.count()<3).mapToInt(Bin::count).sum(),
+                bins.stream().mapToInt(Bin::blocked).sum(),
+                n==0?0:bins.stream().mapToDouble(b->b.hunger()*b.count()).sum()/n,
+                savings,n==0?0:savings/n,weightedMedian(bins),beds,Math.max(0,beds-housed),
+                (int)Math.min(Integer.MAX_VALUE,food),
+                (int)f.economy().plots().stream().filter(p->p.building()==0).count(),groups);
     }
 }

@@ -66,8 +66,10 @@ public final class CitySimulation {
         public int rider;
     }
 
+    public final RegionalPopulation population;
     public final Ecs ecs = new Ecs();
     private final Ground ground;
+    private final Terrain terrain;
     private final GameConfig config;
     private final CityHarvesting harvesting;
     private final Map<Cell, Integer> roads = new LinkedHashMap<>();
@@ -95,7 +97,9 @@ public final class CitySimulation {
             CityFrame saved,
             ProductionCatalog catalog) {
         this.config = config;
+        population = new RegionalPopulation(saved == null ? RegionalPopulation.State.empty() : saved.population());
         this.ground = ground;
+        this.terrain = terrain;
         harvesting =
                 new CityHarvesting(
                         ground,
@@ -398,6 +402,7 @@ public final class CitySimulation {
     private void step(float dt) {
         elapsed += dt;
         if (!config.city()) return;
+        population.advance(dt, config.daySeconds());
         if (agriculture.pending()) agriculture.initialize(economy, grade);
         agriculture.tick(dt * 24 / config.daySeconds());
         if (elapsed >= nextBuild) {
@@ -1312,11 +1317,21 @@ public final class CitySimulation {
                 case CityCommand.DEMOLISH -> demolish(c.value());
                 case CityCommand.EXCHANGE -> buildExchange(c.points());
                 case CityCommand.CAPITAL -> capitalCommand(c.capital());
+                case CityCommand.SETTLE_DISTRICT -> settleDistrict(c.value());
+                case CityCommand.FOCUS_DISTRICT -> { population.focus(c.value()); yield "District focus updated"; }
                 default -> "Unknown city tool";
             };
         } catch (IllegalArgumentException e) {
             return e.getMessage();
         }
+    }
+
+    private String settleDistrict(int count) {
+        int district=population.state().groups().stream().mapToInt(RegionalPopulation.Group::district).max().orElse(0)+1;
+        int x=8+(district%32)*512, z=24+(district/32+1)*512;
+        int y=terrain.column(x,z).height()+1;
+        int id=population.settle(count,y);
+        return "District " + id + " settled with " + count + " immigrants";
     }
 
     private String demolish(int id) {
@@ -2022,7 +2037,8 @@ public final class CitySimulation {
                 hs,
                 economy.state(),
                 addresses.state(buildings),
-                agriculture.state());
+                agriculture.state(),
+                population.state());
     }
 
     public static CityFrame load(Path file) throws IOException {
@@ -2038,7 +2054,8 @@ public final class CitySimulation {
                     && magic != 0x43495437
                     && magic != 0x43495438
                     && magic != 0x43495439
-                    && magic != 0x4349543A) throw new IOException("Invalid city save");
+                    && magic != 0x4349543A
+                    && magic != 0x4349543B) throw new IOException("Invalid city save");
             return CityFrame.read(
                     in,
                     magic == 0x43495431
@@ -2051,7 +2068,7 @@ public final class CitySimulation {
                                                     ? 4
                                                     : magic == 0x43495435
                                                             ? 5
-                                                            : magic == 0x43495436 ? 6 : magic == 0x43495437 ? 7 : magic == 0x43495438 ? 8 : magic == 0x43495439 ? 9 : 10);
+                                                            : magic == 0x43495436 ? 6 : magic == 0x43495437 ? 7 : magic == 0x43495438 ? 8 : magic == 0x43495439 ? 9 : magic == 0x4349543A ? 10 : 11);
         }
     }
 
@@ -2060,7 +2077,7 @@ public final class CitySimulation {
         Files.createDirectories(file.toAbsolutePath().getParent());
         Path tmp = file.resolveSibling(file.getFileName() + ".tmp");
         try (var out = new DataOutputStream(Files.newOutputStream(tmp))) {
-            out.writeInt(0x4349543A);
+            out.writeInt(0x4349543B);
             frame().write(out);
         }
         try {

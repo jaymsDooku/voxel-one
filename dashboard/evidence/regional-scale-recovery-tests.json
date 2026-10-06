@@ -1,0 +1,176 @@
+{
+  "status": "Pre-handoff checks passed; controller must stage and continue rebase, then resume final-head tests and media",
+  "base_commit": "2b50f4c4be6d47a865906ec0af04585a6db203b0",
+  "commands": [
+    {
+      "command": "python3 deploy/generate_base10_city_fixtures.py",
+      "exit_code": 0,
+      "observed": "Exact-base empty and paved-road format-10 fixtures generated with isolated base CityFrame/RoadTypes writer and unchanged DTO dependencies"
+    },
+    {
+      "command": "/usr/share/maven/bin/mvn -q -Djava.io.tmpdir=\"$PWD/target/tmp\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=RegionalSaveCompatibilityTest,RegionalPopulationTest,RegionalMultiplayerTest,RoadTypesTest,CityMultiplayerTest,ProtocolCompatibilityTest,BusinessCatalogTest,MarketEconomyTest test > target/scaling-recovery-tests.txt 2>&1",
+      "exit_code": 0,
+      "observed": {
+        "tests": 45,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "suites": [
+    {
+      "name": "RegionalSaveCompatibilityTest",
+      "time": 0.082,
+      "tests": 4,
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "RegionalPopulationTest",
+      "time": 1.468,
+      "tests": 9,
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "RegionalMultiplayerTest",
+      "time": 14.744,
+      "tests": 1,
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "RoadTypesTest",
+      "time": 0.361,
+      "tests": 4,
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "CityMultiplayerTest",
+      "time": 15.324,
+      "tests": 1,
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "ProtocolCompatibilityTest",
+      "time": 4.828,
+      "tests": 2,
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "BusinessCatalogTest",
+      "time": 4.734,
+      "tests": 11,
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "MarketEconomyTest",
+      "time": 1.329,
+      "tests": 13,
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0
+    }
+  ],
+  "preservation": {
+    "base_road_files": 28,
+    "road_files_sha256": {
+      "dashboard/evidence/road-focused-test-results.json": "d10f3135bb723be458d459fd74ad4e34c4bd229823048d6d62a9db2154a9c89c",
+      "dashboard/evidence/road-full-test-results.json": "c7c4637d0c600e5527b5cda5fdc2659cc907a2437c93d882eae875db5b9e6709",
+      "dashboard/evidence/road-guide.png": "85fa43f75776500c48e195defa61389081a3032dd8abccaeaae82c769b87c3f2",
+      "dashboard/evidence/road-jeep-driver-seat.png": "7ed173061916cc67b36289e08aed9e0149f3eea0dbdb19c37bf2ff93fe0b7c29",
+      "dashboard/evidence/road-jeep-driving.mp4": "cda065746e08beab1c208a27ce9b3b7b6164f05808d75a22e9207cb434b70609",
+      "dashboard/evidence/road-jeep-media-validation.json": "7acba3136792e18f99201758fe6010ab3b815ceca9cc01c805c700230beceb40",
+      "dashboard/evidence/road-jeep-parked.png": "d0e5b298f0b558d313e48257af9b6aa423ef3110978a6054d9a14c8c238cca5d",
+      "dashboard/evidence/road-jeep-playtest.json": "6dce5ac79b3aaa1964f7e9710c9119e7a7832a4425262d63a721493f39c138c4",
+      "dashboard/evidence/road-jeep-recovery-tests.json": "41f687e5c30974ba45bc28ffe803fc32e48b6fa0cf46c41f5ebb2ff32e90daa8",
+      "dashboard/evidence/road-jeep-wall.png": "2b8221ed2c5c19cbe3af9d6ee193ce0c16c4284d9d9e3d053a7e3e9556ef7e3a",
+      "dashboard/evidence/road-jeep-windshield.png": "6b11eb8ede46b116e2ffbb5f7602eba6dea9f63c286d7f92626f165a36d31175",
+      "dashboard/evidence/road-media-manifest.json": "b943b3e1124064347f4d4b429511edfc29b294ddc303b7805c41a981c4552d54",
+      "dashboard/evidence/road-media-validation.json": "8528a3f25d23ed8e1e52d738d61e2abac71cc96b1bf41218cc1ce838cbc05875",
+      "dashboard/evidence/road-menu.png": "cf02cdc2a80340b88a3f87f5eef9c4fb58c58b7b2423d181dfc34acef6b34928",
+      "dashboard/evidence/road-placement-playtest.json": "6a8d464f01f784d9819cfed19e50b50506dd00f36a5cc16921ff36f8718addc8",
+      "dashboard/evidence/road-placement-playtest.mp4": "b7f3606874006ca55a76538f1fdd4eae2ddcc4061fc836abcff4e14e61b0b451",
+      "dashboard/evidence/road-rebase-recovery.md": "65d34d6cf273923b6001a64817dbefc5da88d1098114bc30200177375fbeb6b3",
+      "dashboard/evidence/road-selection-tests.md": "86467f571168484e30b7c3e21866fe1765e97909836af19822c2eeaf50ed0685",
+      "dashboard/evidence/road-source-preservation.json": "6bf42fccceaa6d2e8be9a13cff0838f9855652f1815296a7a6a406aa08d1be43",
+      "dashboard/evidence/road-surfaces.png": "1a2c7470b8f39082accbf7e12684eb85e6f696f7f884e84f69bc6eff2d394304",
+      "deploy/RoadPlacementSmoke.java": "1878daca6fc6d482e6105e959c3cbce4f5349ac8047d8730b422b24b894a5f57",
+      "deploy/VerifyRoadVideo.java": "849adc3ca44dbd97f505d6de7bb2fbf20c64b14762d82a9ebfbdb3e4d5e95943",
+      "deploy/run_road_jeep_regression.py": "08227fbbbb1f466124f9aedf707ff615b35e38e8284724bd8782e91800f79a7a",
+      "deploy/run_road_placement_smoke.py": "3b9dce85e7d9312cb7e2dac3d3d5c8d650973ff7d2658e7d203f559995599c3a",
+      "src/main/java/dev/jayms/net/city/RoadTypes.java": "fe62a3f159d2ce1a74b30d50888b9f8d2728407c6fb89076101cb522347744ed",
+      "src/test/java/dev/jayms/RoadTypesTest.java": "44fce1fc3cc56017e023f4c0f428df4037e0ecc133764e84532e5425bebc6b48",
+      "src/main/java/dev/jayms/net/Blocks.java": "9e9bbf8e036e7cc3eeba6823c4e3214849bb1e42145716ba1225c54edfe497f1",
+      "src/main/java/dev/jayms/net/WorldVoxels.java": "41d67d5f010a605400d80da384014264ef3ad603e061ded9a4feb9544d7c7408"
+    },
+    "base_progress_entries_preserved": 49,
+    "base_files_deleted": 0
+  },
+  "migration": {
+    "base10_magic": "0x4349543A",
+    "regional11_magic": "0x4349543B",
+    "road_type_bytes": "Formats >=10",
+    "regional_tail": "Formats >=11 only",
+    "protocol": 21,
+    "fixtures": {
+      "base_commit": "2b50f4c4be6d47a865906ec0af04585a6db203b0",
+      "save_magic": "0x4349543A",
+      "save_version": 10,
+      "generation_command": "python3 deploy/generate_base10_city_fixtures.py",
+      "writer": "Exact base CityFrame and RoadTypes; unchanged base DTO dependencies",
+      "base_source_sha256": {
+        "src/main/java/dev/jayms/net/city/GameConfig.java": "4b6ddcd4a504fe9b0e465fb9d565a4984d07cfa3520673be49d4c189498f72f9",
+        "src/main/java/dev/jayms/net/city/CityEconomy.java": "fb6b0d81d8684f506d9991594335bc3916d94089d9b7f5333581792dfed055b4",
+        "src/main/java/dev/jayms/net/city/CityAddresses.java": "8e2ee06138357fc730bf601f051cfdf6a845327685739dcc1a6160f00833de26",
+        "src/main/java/dev/jayms/net/city/Agriculture.java": "042b5ad716f6857a8ec319ef7f4ec928de6821901a9187294102e8722a9c0a92",
+        "src/main/java/dev/jayms/net/city/Polygon.java": "31d9f1474f9563349bb24e6386a25d07eb6720fc54d471c4d791ae3ac21373be",
+        "src/main/java/dev/jayms/net/city/CityFrame.java": "1da17ddc85c5a3bdaaa6eb4885255e177e1565083d33534a0ca165899c4f0df2",
+        "src/main/java/dev/jayms/net/city/RoadTypes.java": "fe62a3f159d2ce1a74b30d50888b9f8d2728407c6fb89076101cb522347744ed"
+      },
+      "generator_java_sha256": "a41edb869fcb48143637ea7706d6b9bb4266410b3f09c322e0a374cb84b9826a",
+      "fixtures": {
+        "base10-empty.city": {
+          "bytes": 2126,
+          "sha256": "68ad567c260a2ece43c82520374e4ac3c385dabd61a50077c75e93279db7a83c"
+        },
+        "base10-paved.city": {
+          "bytes": 2212,
+          "sha256": "caf6be1f0505083fddd37f327dedf4bab8e8d072b1424ae1e6648498b0e17bd9"
+        }
+      }
+    }
+  },
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/city/CityFrame.java": "90b0716c61412e740395d9beef2e46dc9b8a6de689033b806bfb6c5d96e7dd5e",
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "f706ec4b357c5c1b533b3de71caf1ee7e5ff53a420c903867b68a3deba329960",
+    "src/main/java/dev/jayms/net/Protocol.java": "0ee2c2b3040a7330137b67fb8d149fb4abf1b732bdf1afff488ae7b588c65ac1",
+    "src/main/java/dev/jayms/net/MultiplayerClient.java": "3ec9a7023a249b562899fd2e4121acd53311f1207b2b2fb92a83d02b9dbea023",
+    "src/test/java/dev/jayms/RegionalSaveCompatibilityTest.java": "0cf3b5fd193b06b1d9a28b66a98a7aa1e4ff43b80c129b33a4b8989f41c2cb59",
+    "deploy/generate_base10_city_fixtures.py": "e981d0bf4f121bbfa6a8fbeb9997c6a4969724eef307e5c1419473e0c379f50b"
+  },
+  "playtest": "Playtest: native final-head workflow is deferred until the authorized controller stages and continues the rebase. No fresh graphical pass is claimed for this recovery. Earlier regional media and test report are historical evidence of the previous submitted head, not validation of this corrected tree.",
+  "scope": "No Git staging, rebase continuation, abort/reset, commit, push, merge or deployment performed. Unrelated inherited conflict markers in unchanged base evidence were left untouched.",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS",
+    "temporary_directory": "target/tmp inside the assigned worktree",
+    "native_display": "Not exercised during recovery; final-head native checks must inherit assigned DISPLAY and XAUTHORITY"
+  }
+}
