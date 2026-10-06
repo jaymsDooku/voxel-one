@@ -70,6 +70,13 @@ public class Player {
         syncCamera();
     }
 
+    /** Vehicle seat/exit pose; walking physics resumes with no stale velocity. */
+    public void driveSeat(Vector3f seat, float heading) {
+        position.set(seat); lastSafe.set(seat); yaw = heading;
+        flying = false; velocity.zero(); verticalVelocity = 0;
+        grounded = false; walkAmount = 0; syncCamera();
+    }
+
     public void syncCamera() {
         camera.setYaw(yaw);
         camera.setPitch(pitch);

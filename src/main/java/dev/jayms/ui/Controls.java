@@ -41,7 +41,8 @@ public final class Controls {
         MAYOR_DASHBOARD("Mayor dashboard", GLFW_KEY_F9),
         RECORD("Start / stop recording", GLFW_KEY_F10),
         ROTATE_LEFT("Sky view: rotate left", GLFW_KEY_LEFT),
-        ROTATE_RIGHT("Sky view: rotate right", GLFW_KEY_RIGHT);
+        ROTATE_RIGHT("Sky view: rotate right", GLFW_KEY_RIGHT),
+        JEEP("Enter / exit jeep", GLFW_KEY_J);
         public final String label;
         public final int defaultCode;
 
