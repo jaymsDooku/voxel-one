@@ -1,0 +1,46 @@
+{
+  "status": "resumed_and_validated",
+  "time": "2026-10-06T23:38:07.342759+00:00",
+  "head": "28f07d513e83d0c980353a19bc88627305e4cfdc",
+  "branch": "feature/queue-62386532623363612d343231342d343234362d626163612d613333396139623934303436",
+  "completed": [
+    "CargoVehicle.java, Jeep loading/body persistence, Main controls/rendering restored by controller base integration",
+    "98 cargo/aviation/regional protected paths and1 cargo progress record byte-identical reviewed base5e05822; no missing base paths",
+    "Synthetic four/five-field save CLI passed position(0,1.01,0), yaw-90, JEEP/CONTAINER body and roundtrip",
+    "Fresh shipping native workflow passed inland/coastal/overlap/civic/save-reload checks",
+    "Fresh shipping video validated: H26430frames22.030seconds915890bytes; seeking and changed camera frames passed"
+  ],
+  "interrupted": [
+    "Full Maven verify still running when pause requested; stopped, no full-suite pass claimed",
+    "Native cargo playtest still running when pause requested; stopped, no cargo workflow pass claimed"
+  ],
+  "preservedEdits": [
+    "deploy/run_shipping_cargo_smoke.py",
+    "deploy/ShippingVehicleSaveCheck.java",
+    "dashboard/evidence/shipping-vehicle-save-check.json",
+    "fresh shipping images/video/validation reports",
+    "dashboard/progress.json"
+  ],
+  "privateRuntime": "Partial cargo artifacts and private test output remain under target/; do not publish full runtime logs",
+  "resume": [
+    "Run full Maven verify after authoritative quota permits",
+    "Rerun native cargo workflow on inherited role DISPLAY using isolated synthetic profile",
+    "Decode and inspect fresh cargo media under shipping-cargo filenames; preserve original cargo evidence",
+    "Update shipping-final-tests.json with current head and actual completed results",
+    "Return ready only after validation; runner handles staging, commit and publication"
+  ],
+  "question": null,
+  "stoppedRuns": [
+    {
+      "command": "mvn --batch-mode -Dmaven.repo.local=target/m2 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" verify",
+      "exit": 130,
+      "result": "Interrupted for owner pause; not passed"
+    },
+    {
+      "command": "python3 deploy/run_shipping_cargo_smoke.py --display \"$DISPLAY\"",
+      "exit": 130,
+      "result": "Interrupted for owner pause; not passed"
+    }
+  ],
+  "resumedResults": "Full Maven verify343 tests passed; native cargo workflow passed; fresh cargo clip decoded and inspected. See shipping-final-tests.json."
+}

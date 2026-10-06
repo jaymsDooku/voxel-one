@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-06T23:14:52+00:00",
+  "updatedAt": "2026-10-06T23:52:03+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -41,13 +41,18 @@
         },
         {
           "kind": "link",
-          "label": "Aviation flight regression \u2014 pending controller publication",
+          "label": "Prior aviation regression \u2014 preserved historical evidence",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-62386532623363612d343231342d343234362d626163612d613333396139623934303436/dashboard/evidence/shipping-airport-playtest.mp4"
+        },
+        {
+          "kind": "link",
+          "label": "Fresh cargo regression video \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-62386532623363612d343231342d343234362d626163612d613333396139623934303436/dashboard/evidence/shipping-cargo-container-drive.mp4"
         }
       ],
       "status": "in_progress",
-      "note": "Ready for independent review: final source c908605 passed full Maven verify (341 tests; zero failures/errors) and package. Shipping, airport placement/expansion/flight and district native workflows passed. Three fresh F10 videos decoded and inspected. Airport 23, port 24; format 12 and protocol 23 retained. Controller publication pending.",
-      "updatedAt": "2026-10-06T23:14:52+00:00"
+      "note": "Ready for independent review: source 28f07d5 passed full Maven verify (343 tests; zero failures/errors) and package. Shipping and all five cargo bodies passed native workflows. Four/five-field vehicle saves retain position/yaw/body. Fresh shipping/cargo F10 videos decoded and inspected. All 98 protected paths and 52 prior progress items preserved. Controller publication pending.",
+      "updatedAt": "2026-10-06T23:52:03+00:00"
     },
     {
       "id": "65396632633436642d613861352d346161632d613932642d343661616166316666626638",

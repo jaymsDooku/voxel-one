@@ -1,0 +1,17 @@
+{
+  "status": "passed",
+  "platform": "Linux X11 inherited role display; Mesa",
+  "profile": "isolated synthetic offline yard",
+  "checks": [
+    "all five bodies selected via real Shift+J",
+    "enter drive brake exit via real J/W",
+    "moving exit and driving body switch rejected",
+    "all body types survive save reload",
+    "longer truck rejects wall",
+    "cycle returns to original jeep"
+  ],
+  "media": "five production renderer captures",
+  "sourceHead": "28f07d513e83d0c980353a19bc88627305e4cfdc",
+  "command": "python3 deploy/run_shipping_cargo_smoke.py --display \"$DISPLAY\"",
+  "Playtest": "Playtest: production Main.run with real X11 Shift+J/J/W input, Linux/Mesa, synthetic target/shipping-cargo-home profile. Expected and observed: Jeep, container truck, tanker, van and lorry bodies selected and rendered; all enter, drive, brake and exit; moving exit and driving body change rejected; all bodies survive save/reload; larger body rejects wall; cycle returns to Jeep. All assertions passed. F10 records container driving. Native Java/OpenGL game; browser testing does not apply."
+}
