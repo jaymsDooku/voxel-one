@@ -1,301 +1,290 @@
 {
-  "status": "passed selected checks; independent review and controller publication pending",
-  "branch": "feature/queue-65396632633436642d613861352d346161632d613932642d343661616166316666626638",
-  "worktree": "/home/debian/codex/voxel-one-queue-worktrees/65396632633436642d613861352d346161632d613932642d343661616166316666626638",
+  "status": "passed selected checks; ready for independent review",
+  "testedSourceHead": "39798a64aee978ac85792752c094b33af27ba4f3",
   "environment": {
-    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
-    "java": "Java(TM) 25.0.3+9-LTS-195",
-    "cpu_count": 4,
-    "host_memory_bytes": 8140382208,
-    "native_heap_limit": "-Xmx2g",
-    "native_display": "inherited assigned role X11 display; XAUTHORITY inherited without reading its cookie",
-    "graphics_environment": {
-      "LIBGL_ALWAYS_SOFTWARE": "1",
-      "MESA_SHADER_CACHE_DISABLE": "true"
-    },
-    "profile": "target/regional-playtest/profile (fresh synthetic offline profile)"
+    "platform": "Linux native X11; inherited assigned DISPLAY and XAUTHORITY; Mesa software OpenGL",
+    "java": "25.0.3",
+    "profiles": "isolated synthetic offline profiles under target",
+    "browser": "Browser playtesting does not apply to this Java native application."
   },
-  "commands": [
+  "tests": [
     {
-      "command": "/usr/share/maven/bin/mvn -q -Djava.io.tmpdir=\"$PWD/target/tmp\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=RegionalPopulationTest,RegionalMultiplayerTest,CityMetricsTest,CityTest,CitizenLifeTest,MayorDashboardTest,BusinessDashboardTest,CapitalDashboardTest,MetricHistoryTest,CityToolsTest,BusinessCatalogTest,MarketEconomyTest,ProtocolCompatibilityTest test > target/scaling-final-targeted-output.txt 2>&1",
-      "exit_code": 0,
-      "observed": "82 tests, 0 failures, 0 errors, 0 skipped"
+      "command": "/usr/share/maven/bin/mvn -q -Djava.io.tmpdir=\"$PWD/target/tmp\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=RegionalSaveCompatibilityTest,RegionalPopulationTest,RegionalMultiplayerTest,RoadTypesTest,CityMultiplayerTest,CityMetricsTest,CityTest,CitizenLifeTest,MayorDashboardTest,BusinessDashboardTest,CapitalDashboardTest,MetricHistoryTest,CityToolsTest,BusinessCatalogTest,MarketEconomyTest,ProtocolCompatibilityTest test > target/scaling-final-rebased-tests.txt 2>&1",
+      "exitCode": 0,
+      "tests": 91,
+      "suites": [
+        {
+          "name": "dev.jayms.RegionalSaveCompatibilityTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.RegionalPopulationTest",
+          "tests": "9",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.RegionalMultiplayerTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.RoadTypesTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityMultiplayerTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityMetricsTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityTest",
+          "tests": "10",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CitizenLifeTest",
+          "tests": "8",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.MayorDashboardTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.BusinessDashboardTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CapitalDashboardTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.MetricHistoryTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityToolsTest",
+          "tests": "9",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.BusinessCatalogTest",
+          "tests": "11",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.MarketEconomyTest",
+          "tests": "13",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.ProtocolCompatibilityTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        }
+      ]
     },
     {
-      "command": "python3 deploy/run_regional_playtest.py --display \"$DISPLAY\"",
-      "exit_code": 0,
-      "observed": "Playtest: Main.run, inherited X11 display, Mesa OpenGL, isolated synthetic profile.\nSettle 1,000,000 through Districts UI: population=1000000\nSettle 1,000,000 through Districts UI: population=2000000\nFocus district #1: 64 nearby residents, population remains 2000000\nViewed nearby resident in Main renderer: movement and wallet updates; money conserved; save/reload equal\nEdge: no food, money or work; 12 simulated seconds: hunger=0, food=0, money=0\nRegression: legacy/local-only city retains 12 named citizens and searchable citizen table\nExpected and observed: all assertions passed. Rendered frames: 57\n"
-    },
-    {
-      "command": {
-        "compile": [
-          "javac",
-          "-cp",
-          "target/classes:/home/debian/.m2/repository/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar",
-          "-d",
-          "target/test-classes",
-          "deploy/RecordingProbe.java"
-        ],
-        "decode": [
-          "java",
-          "-cp",
-          "target/test-classes:target/classes:/home/debian/.m2/repository/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar",
-          "RecordingProbe",
-          "dashboard/evidence/regional-scale-main.mp4"
-        ]
-      },
-      "exit_code": 0,
-      "observed": {
-        "codec": "H264",
-        "width": 960,
-        "height": 540,
-        "durationSeconds": 6.144,
-        "decodedFrames": 10,
-        "status": "passed"
-      }
-    },
-    {
-      "command": "git diff --check",
-      "exit_code": 0
-    },
-    {
-      "command": "python3 -m py_compile deploy/run_regional_playtest.py",
-      "exit_code": 0
+      "observed": "Both base10-empty.city and base10-paved.city retain exact base-writer bytes after format-10 load/write. Both load with empty regional population.",
+      "commands": [
+        "javac -cp target/classes -d target/test-classes target/FinalSaveFixtureProbe.java",
+        "java -cp target/test-classes:target/classes FinalSaveFixtureProbe"
+      ]
     }
   ],
-  "playtest": {
-    "entry": "Playtest: full native Main application; browser playtesting does not apply to this desktop OpenGL workflow.",
-    "steps": [
-      {
-        "action": "Press F9, choose Districts, click Settle 1,000,000 twice",
-        "expected": "Regional population reaches 2,000,000; overview includes local residents too",
-        "observed": "Passed; regional population 2,000,000 and overview 2,000,012"
-      },
-      {
-        "action": "Focus district #1, inspect nearby resident and render movement",
-        "expected": "64 nearby individual residents; regional total unchanged; needs and wallets update; money conserved",
-        "observed": "Passed; captured native images and F10 clip"
-      },
-      {
-        "action": "Save and reload the native city",
-        "expected": "Regional clock, focus, groups and active residents match exactly",
-        "observed": "Passed"
-      },
-      {
-        "action": "Run unemployed households with no food or money for 12 simulated seconds",
-        "expected": "No free wages or food; hunger reaches zero",
-        "observed": "Passed; edge screenshot captured"
-      },
-      {
-        "action": "Return to local-only city and open citizen table",
-        "expected": "12 named residents remain available and inspectable",
-        "observed": "Passed; regression screenshot captured"
-      }
-    ]
-  },
   "benchmarks": [
-    "GROUP_BOUND: population=10000000 groups=4096 steps=600 elapsed_ms=438.995 snapshot_bytes=348180",
-    "SCALE: population=10000000 groups=30 agents=64 steps=6000 elapsed_ms=278.270 snapshot_bytes=5258"
+    "GROUP_BOUND: population=10000000 groups=4096 steps=600 elapsed_ms=355.426 snapshot_bytes=348180",
+    "SCALE: population=10000000 groups=30 agents=64 steps=6000 elapsed_ms=149.403 snapshot_bytes=5258"
   ],
-  "suites": [
+  "playtests": [
     {
-      "name": "RegionalPopulationTest",
-      "time": 1.208,
-      "tests": 9,
-      "errors": 0,
-      "skipped": 0,
-      "failures": 0
+      "entry": "Playtest: regional native Main workflow",
+      "command": "python3 deploy/run_regional_playtest.py --display \"$DISPLAY\"",
+      "exitCode": 0,
+      "expectedAndObserved": "Playtest: Main.run, inherited X11 display, Mesa OpenGL, isolated synthetic profile.\nSettle 1,000,000 through Districts UI: population=1000000\nSettle 1,000,000 through Districts UI: population=2000000\nFocus district #1: 64 nearby residents, population remains 2000000\nViewed nearby resident in Main renderer: movement and wallet updates; money conserved; save/reload equal\nEdge: no food, money or work; 12 simulated seconds: hunger=0, food=0, money=0\nRegression: legacy/local-only city retains 12 named citizens and searchable citizen table\nExpected and observed: all assertions passed. Rendered frames: 57\n"
     },
     {
-      "name": "RegionalMultiplayerTest",
-      "time": 7.791,
-      "tests": 1,
-      "errors": 0,
-      "skipped": 0,
-      "failures": 0
-    },
-    {
-      "name": "CityMetricsTest",
-      "time": 0.009,
-      "tests": 5,
-      "errors": 0,
-      "skipped": 0,
-      "failures": 0
-    },
-    {
-      "name": "CityTest",
-      "time": 16.666,
-      "tests": 10,
-      "errors": 0,
-      "skipped": 0,
-      "failures": 0
-    },
-    {
-      "name": "CitizenLifeTest",
-      "time": 0.192,
-      "tests": 8,
-      "errors": 0,
-      "skipped": 0,
-      "failures": 0
-    },
-    {
-      "name": "MayorDashboardTest",
-      "time": 0.48,
-      "tests": 3,
-      "errors": 0,
-      "skipped": 0,
-      "failures": 0
-    },
-    {
-      "name": "BusinessDashboardTest",
-      "time": 0.068,
-      "tests": 3,
-      "errors": 0,
-      "skipped": 0,
-      "failures": 0
-    },
-    {
-      "name": "CapitalDashboardTest",
-      "time": 0.122,
-      "tests": 3,
-      "errors": 0,
-      "skipped": 0,
-      "failures": 0
-    },
-    {
-      "name": "MetricHistoryTest",
-      "time": 0.911,
-      "tests": 5,
-      "errors": 0,
-      "skipped": 0,
-      "failures": 0
-    },
-    {
-      "name": "CityToolsTest",
-      "time": 0.159,
-      "tests": 9,
-      "errors": 0,
-      "skipped": 0,
-      "failures": 0
-    },
-    {
-      "name": "BusinessCatalogTest",
-      "time": 6.277,
-      "tests": 11,
-      "errors": 0,
-      "skipped": 0,
-      "failures": 0
-    },
-    {
-      "name": "MarketEconomyTest",
-      "time": 0.532,
-      "tests": 13,
-      "errors": 0,
-      "skipped": 0,
-      "failures": 0
-    },
-    {
-      "name": "ProtocolCompatibilityTest",
-      "time": 5.353,
-      "tests": 2,
-      "errors": 0,
-      "skipped": 0,
-      "failures": 0
+      "entry": "Playtest: paved-road native Main workflow",
+      "command": "python3 deploy/run_regional_road_playtest.py --display \"$DISPLAY\"",
+      "exitCode": 0,
+      "expectedAndObserved": {
+        "status": "passed",
+        "platform": "Linux X11 inherited role display; Mesa",
+        "profile": "isolated synthetic offline city",
+        "checks": [
+          "road menu",
+          "dirt and paved 2/3/4 lane placement",
+          "direction guide",
+          "distinct world widths",
+          "dirt upgrade",
+          "cancel endpoint leaves world and road spending unchanged",
+          "menu escape returns to inspect"
+        ],
+        "recording": "production F10 recorder"
+      }
     }
   ],
-  "prior_attempts": {
-    "initial_baseline": "mvn not found on PATH; resolved with /usr/share/maven/bin/mvn and a worktree-local JVM temp directory",
-    "full_suite": "Interrupted (exit 130) after three navigation failures caused by shifting existing tab positions. Districts now has a separate button. BusinessDashboardTest, MetricHistoryTest and CapitalDashboardTest passed in the final selected run. The entire full suite is not claimed as passed.",
-    "native_launch_before_final_compile": "A launch during an unsuccessful compile failed to compile its driver. Final launch followed successful final-source compilation and passed."
+  "videoVerification": {
+    "regional-scale": {
+      "codec": "H264",
+      "width": 960,
+      "height": 540,
+      "durationSeconds": 6.055,
+      "decodedFrames": 11,
+      "status": "passed"
+    },
+    "regional-road": {
+      "codec": "H264",
+      "width": 960,
+      "height": 540,
+      "durationSeconds": 76.17,
+      "decodedFrames": 132,
+      "status": "passed"
+    }
   },
-  "limits": [
-    "10,000,000 regional residents; 4,096 groups; 1,024 districts; 64 nearby regional agents; local citizens retain their existing 128-person limit",
-    "Regional firms/provisioning are separate from local capital/material markets; district housing/employment and distant needs are aggregate estimates",
-    "Nearby regional agents use simplified street movement and individual wallets/needs; no distant per-person family history or millions of voxel buildings",
-    "One shared focused district in multiplayer",
-    "Native software-rendered screenshot counters showed about 2 FPS in the nearby world and 7 FPS on the district screen; scale timings are backend benchmarks, not a frame-rate guarantee",
-    "Existing integer HUD food counter saturates at 2,147,483,647"
-  ],
-  "source_sha256": {
-    "src/main/java/dev/jayms/Main.java": "c4cbc6ecae4808055eec68711ca9c737af128e099b83b07113ee2a47732f5170",
-    "src/main/java/dev/jayms/net/MultiplayerClient.java": "f46cdb263c479559b02b8032054b3dba3670ac28989bcd92e98fc2307d62b45c",
-    "src/main/java/dev/jayms/net/Protocol.java": "8eb12cf574b40d3ff3174602a8a430586e2ca076e65fed3bafbfed061f6b09d1",
-    "src/main/java/dev/jayms/net/city/CityCommand.java": "8e4e89cc665f876832446ddd424ef6c3af3cbdaf2318a65bbebd3eef11302715",
-    "src/main/java/dev/jayms/net/city/CityFrame.java": "c95be65f879626add8fcd9f10596d9ae169c065f5562ba7714476f7a72dea6e1",
-    "src/main/java/dev/jayms/net/city/CityMetrics.java": "a25acc7db89bfaec8b12f039b1e0b4765208ae44b10bd64d6d34ff7466c65786",
-    "src/main/java/dev/jayms/net/city/CityOccupancy.java": "c0f2197e7c1194ec034f8b6991fb53bf3de91894a2f01f15829f91b82f84b43e",
-    "src/main/java/dev/jayms/net/city/CitySimulation.java": "b59bc0ed1e076c53e7908b1bda4273041f3e9fd6ba46f3e258170ef33919d329",
-    "src/main/java/dev/jayms/net/city/RegionalPopulation.java": "5b40b74f336b296d53247605ee983ddaf312b705336da8d3e81622d784410258",
-    "src/main/java/dev/jayms/ui/CityTools.java": "14d9da7dbee9345ebd2365575a7e985d6aa6b393978df1d3d85e6e66af0922f1",
-    "src/main/java/dev/jayms/ui/MayorDashboard.java": "3ea2b5d7c86b35a0483d4357b8bafeaf8745539bd86aa0b68255dd549ea6bb6d",
-    "src/main/java/dev/jayms/ui/RegionalDashboard.java": "08373588af18f59437a408d7d293a1f2bf598d0e3d1083b62b83544a79425dba",
-    "deploy/RegionalMainPlaytest.java": "15731363bd494fdae27aee24561ccf53be70f087f72b68c3722c9ca8159bbba3",
-    "deploy/run_regional_playtest.py": "feb16850788107906149e7b5158ba1dd6be03ddced0768e6d06732a1e660081c",
-    "src/test/java/dev/jayms/RegionalPopulationTest.java": "50f2553c4749697ea696d0d71362b78bc150b6ef2beceb64dbcce584977470e5",
-    "src/test/java/dev/jayms/RegionalMultiplayerTest.java": "f6a193dcc27bec496f82a0466e63b02555346e0dd2c074a34614b427e8aeadde",
-    "src/test/java/dev/jayms/BusinessCatalogTest.java": "e56d6a98bb09eadb85f297080b20b6837d8ca7fc45fd447fc60da077a3d38eb2",
-    "src/test/java/dev/jayms/MarketEconomyTest.java": "5b77f9b98d3d39aea4eddc485c6019c6d4e667262da4bb15227c7bc3fad45e35"
+  "mediaInspection": "Viewed fresh district, nearby resident and road surface PNGs. Decoded all video frames with RecordingProbe. VerifyRoadVideo sampled start/middle/end; viewed sampled regional and road frames. H264 display dimensions 960x540; decoded coded height 544 includes padding.",
+  "preservation": {
+    "unchangedBaseRoadFiles": [
+      "dashboard/evidence/road-focused-test-results.json",
+      "dashboard/evidence/road-full-test-results.json",
+      "dashboard/evidence/road-guide.png",
+      "dashboard/evidence/road-jeep-driver-seat.png",
+      "dashboard/evidence/road-jeep-driving.mp4",
+      "dashboard/evidence/road-jeep-media-validation.json",
+      "dashboard/evidence/road-jeep-parked.png",
+      "dashboard/evidence/road-jeep-playtest.json",
+      "dashboard/evidence/road-jeep-recovery-tests.json",
+      "dashboard/evidence/road-jeep-wall.png",
+      "dashboard/evidence/road-jeep-windshield.png",
+      "dashboard/evidence/road-media-manifest.json",
+      "dashboard/evidence/road-media-validation.json",
+      "dashboard/evidence/road-menu.png",
+      "dashboard/evidence/road-placement-playtest.json",
+      "dashboard/evidence/road-placement-playtest.mp4",
+      "dashboard/evidence/road-rebase-recovery.md",
+      "dashboard/evidence/road-selection-tests.md",
+      "dashboard/evidence/road-source-preservation.json",
+      "dashboard/evidence/road-surfaces.png",
+      "deploy/RoadPlacementSmoke.java",
+      "deploy/VerifyRoadVideo.java",
+      "deploy/run_road_jeep_regression.py",
+      "deploy/run_road_placement_smoke.py",
+      "src/main/java/dev/jayms/net/Blocks.java",
+      "src/main/java/dev/jayms/net/WorldVoxels.java",
+      "src/main/java/dev/jayms/net/city/RoadTypes.java",
+      "src/test/java/dev/jayms/RoadTypesTest.java"
+    ],
+    "unchangedBaseProgressEntries": 49
   },
-  "artifacts": [
+  "media": [
+    {
+      "file": "regional-road-guide.png",
+      "bytes": 833714,
+      "sha256": "93bd0250d905f06c3b55f2bc623c36f40e8a2257a8a7b8dcc90dacbcd7d63e2a",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "regional-road-main.mp4",
+      "bytes": 3517447,
+      "sha256": "5540b37feb208e7c8f6bedb64f09d92b385c0c97fb019fa4c4ce4024a560291b",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "regional-road-menu.png",
+      "bytes": 795687,
+      "sha256": "73ce7c3c9d3c914f1a33107047f65b0354389fd907ddb5830637213ffa7a4ac2",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "regional-road-surfaces.png",
+      "bytes": 823299,
+      "sha256": "19efb52a754be945c8d967d2b9cf8c72adc7146823ce479a9e567df635378530",
+      "publication": "pending controller publication"
+    },
     {
       "file": "regional-scale-districts.png",
-      "bytes": 16753,
-      "sha256": "508043bc49321bfedf6f99fcdf2f7c566d827fc73dc25d2d64b2cd13d47ca040",
-      "publication": "pending controller publication",
-      "intended_url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-65396632633436642d613861352d346161632d613932642d343661616166316666626638/dashboard/evidence/regional-scale-districts.png"
+      "bytes": 16762,
+      "sha256": "57eea1163d5fa98bfc47093c06d42b8ad6ef24fd1b30fbcaef91b40f337b2443",
+      "publication": "pending controller publication"
     },
     {
       "file": "regional-scale-local-regression.png",
-      "bytes": 26304,
-      "sha256": "4f847bd0a61c5c48d24a98075ea3c72ae332c2d00a2ca3ce2ca77c98331e366b",
-      "publication": "pending controller publication",
-      "intended_url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-65396632633436642d613861352d346161632d613932642d343661616166316666626638/dashboard/evidence/regional-scale-local-regression.png"
+      "bytes": 26315,
+      "sha256": "336564e65e23d97a93781bc0314c492f308b9e947ddf90b9e5a6a36d24a046e2",
+      "publication": "pending controller publication"
     },
     {
       "file": "regional-scale-main.mp4",
-      "bytes": 293545,
-      "sha256": "248658798027059a78679a532463dd2d4233cb001e40d294b7f2a5481976ffc5",
-      "publication": "pending controller publication",
-      "intended_url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-65396632633436642d613861352d346161632d613932642d343661616166316666626638/dashboard/evidence/regional-scale-main.mp4"
+      "bytes": 322039,
+      "sha256": "2df47c585f59a5fc6c5bf3cbed9773b8504dab23c94cff3cc1e52e94408ed166",
+      "publication": "pending controller publication"
     },
     {
       "file": "regional-scale-nearby.png",
-      "bytes": 210540,
-      "sha256": "6d0acaae6adf3c29d75ec09e66b91a5e33cb80564bccadf391d0000a6903b13e",
-      "publication": "pending controller publication",
-      "intended_url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-65396632633436642d613861352d346161632d613932642d343661616166316666626638/dashboard/evidence/regional-scale-nearby.png"
+      "bytes": 210512,
+      "sha256": "c22d82f4b4409048a041b2846265150f3d6078a69d43371d31faad28e7ab660f",
+      "publication": "pending controller publication"
     },
     {
       "file": "regional-scale-overview.png",
-      "bytes": 19359,
-      "sha256": "1956d940f56262edf4b16440f90014fd33570eabd428fb58ad6de290ffcfadae",
-      "publication": "pending controller publication",
-      "intended_url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-65396632633436642d613861352d346161632d613932642d343661616166316666626638/dashboard/evidence/regional-scale-overview.png"
-    },
-    {
-      "file": "regional-scale-playtest.txt",
-      "bytes": 606,
-      "sha256": "02d964c010b3d06e121fc7ebd39679babbadea6b1abd2c1d4026a36d6800f02d",
-      "publication": "pending controller publication",
-      "intended_url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-65396632633436642d613861352d346161632d613932642d343661616166316666626638/dashboard/evidence/regional-scale-playtest.txt"
+      "bytes": 19383,
+      "sha256": "26b65ec141b3b4dc4d6147b898719b42c862ca0bc03cde7220b933af17a4df0c",
+      "publication": "pending controller publication"
     },
     {
       "file": "regional-scale-starvation-edge.png",
-      "bytes": 19795,
-      "sha256": "abc9062d50f334ca280feb55dd715f2c54bc7dbd750cfab5f1e7262df51614f9",
-      "publication": "pending controller publication",
-      "intended_url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-65396632633436642d613861352d346161632d613932642d343661616166316666626638/dashboard/evidence/regional-scale-starvation-edge.png"
-    },
-    {
-      "file": "regional-scale-video-check.json",
-      "bytes": 103,
-      "sha256": "0996a2ced511de5e6432b37ea635032573cc7bd0404ac600e8f4b675b6e71de5",
-      "publication": "pending controller publication",
-      "intended_url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-65396632633436642d613861352d346161632d613932642d343661616166316666626638/dashboard/evidence/regional-scale-video-check.json"
+      "bytes": 19792,
+      "sha256": "32855a16bdfe345c897dc017636f8f1b3fe465661bd18c81aa63615e437a89eb",
+      "publication": "pending controller publication"
     }
   ],
-  "benchmark_notes": {
-    "SCALE": "Advance-only wall time for 6,000 fixed steps (600 simulated seconds at daySeconds=60).",
-    "GROUP_BOUND": "Wall time includes 600 fixed steps and bounded snapshot write/read assertions."
-  }
+  "limitations": [
+    "Full Maven suite was not completed; only the 91 selected tests above are claimed passed.",
+    "Regional economy and movement use documented aggregate approximations; multiplayer shares one district focus.",
+    "Software-rendered playtest FPS is not a rendering performance guarantee."
+  ],
+  "publication": "Runner alone stages, commits and publishes these artifacts. No commit, push, merge or deployment performed."
 }

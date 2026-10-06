@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-06T19:25:47+00:00",
+  "updatedAt": "2026-10-06T19:32:52+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -41,8 +41,8 @@
         }
       ],
       "status": "in_progress",
-      "note": "Rebase contents resolved; 45 recovery tests passed. All 28 base road files and 49 progress entries retained. Regional format 11/protocol 21 migrates exact-base format-10 saves. Controller must stage/continue, then resume final-head checks and fresh native evidence.",
-      "updatedAt": "2026-10-06T19:25:47+00:00"
+      "note": "Recovered source validated: 91 selected tests; fresh native regional and paved-road workflows passed; format-10 migration and block IDs 187\u2013189 verified. Ready for independent review. Fresh media pending controller publication; full suite not completed.",
+      "updatedAt": "2026-10-06T19:32:52+00:00"
     },
     {
       "id": "queue-30366437373533632d613238632d343963612d383265322d346239646166376638393338",

@@ -1,18 +1,11 @@
-# Regional population: controller rebase handoff
+# Regional population: ready for independent review
 
-Current base HEAD: `2b50f4c4be6d47a865906ec0af04585a6db203b0`.
-The rebase remains paused. The controller must stage resolved files and continue it. No staging, continuation, abort/reset, commit, push, merge or deployment was performed here.
+Validated recovered gameplay and test source at `39798a64aee978ac85792752c094b33af27ba4f3`. Controller finished the rebase. Gameplay and tests remain unchanged from this head. Only fresh evidence, the local progress entry, this checkpoint and a tested road playtest launcher changed during final validation.
 
-Resolved `dashboard/progress.json` by retaining all 49 base entries unchanged and adding this task's entry. All 28 base road source/test/tool/evidence files are byte-identical to the base, including block IDs 187–189, color handling, lane choices and road tests. No base files were deleted. Unrelated historical conflict markers inside unchanged base queue evidence remain untouched.
+Regional populations support 10 million residents with at most 64 nearby regional agents. Regional saves use format 11 (`0x4349543B`) and protocol 21. Existing formats 1–10 load without a regional tail; format 10 retains paved-road types. Base-generated empty and paved-road fixtures retain exact base-writer bytes. Blocks 187–189, lane choices, road tests and all 28 base road source/tool/evidence files remain intact. All 49 base progress entries remain unchanged.
 
-Regional saves now use format 11 (`0x4349543B`) and protocol 21. Formats 1–10 load without a regional tail; format 10 retains paved-road type bytes. Formats below 11 reject nonempty regional data before writing. Base-generated format-10 empty and paved-road fixtures, their writer provenance, a reproducible generator and four compatibility tests were added.
+91 selected tests across 16 suites passed. Final native Main playtests passed regional settlement, nearby inspection, movement/wallet conservation, save/reload, starvation and local-only citizens. The road playtest passed dirt and 2/3/4 paved lanes, direction guide, distinct widths, upgrades and cancel without world/spending changes. Both fresh F10 videos decoded fully and fresh screenshots/video frames were visually inspected. Commands, environment, expected/observed results, benchmark timings and media hashes are in `dashboard/evidence/regional-scale-tests.json`. No full-suite pass is claimed.
 
-Pre-handoff checks: 45 tests across eight suites passed, including format-10 migration, format-11 roundtrip, truncated save rejection, block validation/color handling, paved lane placement/persistence, regional scaling and real TLS late join/restart. Commands, preservation hashes and fixture provenance: `dashboard/evidence/regional-scale-recovery-tests.json`.
+Fresh regional evidence replaces the prior submitted-head media. Fresh road evidence uses `regional-road-*`; original base road evidence remains unchanged. All artifacts are below 6 MB. Media publication remains pending controller staging/commit/push. The historical pre-handoff report `regional-scale-recovery-tests.json` remains preserved.
 
-MANDATORY AFTER CONTROLLER CONTINUES REBASE:
-- Resume development for final-head tests and native playtesting on the inherited assigned display.
-- Refresh regional PNG/MP4/report evidence; existing regional media describes the prior submitted head and must not validate this corrected head.
-- Exercise paved-road placement alongside regional workflow, starvation and local-only regressions. Preserve prior base road media; give new captures distinct names.
-- Verify source/fixture/preservation hashes and publish only through the controller before independent review.
-
-The developer handoff is `recover`, not `ready`. No owner answer is needed. No full-suite or final-head native pass is claimed in this checkpoint.
+DeepSeek source review was independently checked and resolved; no delegate remains pending. No owner answer is needed. Developer decision: ready for independent review. Runner alone handles Git publication and PR updates. No developer commit, push, merge or deployment occurred.
