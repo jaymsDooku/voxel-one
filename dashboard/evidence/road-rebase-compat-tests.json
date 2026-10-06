@@ -1,0 +1,46 @@
+{
+  "status": "passed",
+  "exitCode": 0,
+  "tests": 34,
+  "failures": 0,
+  "errors": 0,
+  "stage": "resolved contents; controller rebase continuation pending",
+  "suites": [
+    {
+      "name": "dev.jayms.RoadBaseCompatibilityTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "name": "dev.jayms.RoadWorkflowTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "name": "dev.jayms.RoadTypesTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "name": "dev.jayms.AviationTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "name": "dev.jayms.RegionalPopulationTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "name": "dev.jayms.ProtocolCompatibilityTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0
+    }
+  ]
+}

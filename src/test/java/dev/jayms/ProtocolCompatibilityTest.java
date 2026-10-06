@@ -116,9 +116,66 @@ class ProtocolCompatibilityTest {
     }
 
     @Test
+    void reviewedProtocol22KeepsAirportCommandsAndBlocksNewRoadActions() throws Exception {
+        var identity=SecureTransport.server(temp.resolve("aviation-tls"));
+        try(var listener=identity.context().getServerSocketFactory()
+                .createServerSocket(0,2,InetAddress.getLoopbackAddress())) {
+            listener.setSoTimeout(10000);
+            var task=new FutureTask<Void>(() -> {
+                try(var first=listener.accept()) {
+                    first.setSoTimeout(10000);
+                    request(new DataInputStream(first.getInputStream()),23,false);
+                    reply(new DataOutputStream(first.getOutputStream()),22,false,"Client version mismatch");
+                }
+                try(var second=listener.accept()) {
+                    second.setSoTimeout(10000);
+                    var in=new DataInputStream(second.getInputStream());
+                    var out=new DataOutputStream(second.getOutputStream());
+                    request(in,22,false); reply(out,22,true,"Welcome tester");
+                    out.writeInt(1);
+                    new Protocol.Pose(1,8,20,24,0,0,0,0,false).write(out);
+                    out.writeUTF("tester"); out.writeLong(Terrain.DEFAULT_SEED);
+                    out.writeInt(Terrain.CURRENT_VERSION);
+                    new ModelLibrary().write(out); new Inventory().write(out);
+                    out.writeByte(20); out.writeInt(0); out.writeInt(0); out.writeInt(0);
+                    CityFrame.empty(GameConfig.cityGame()).write(out,12); out.flush();
+                    assertEquals(Protocol.READY,in.readUnsignedByte());
+                    assertEquals(Protocol.CITY_COMMAND,in.readUnsignedByte());
+                    assertEquals(10,in.readUnsignedByte()); assertEquals(7,in.readInt());
+                    assertEquals(0,in.readUnsignedByte());
+                    assertEquals(Protocol.CITY_COMMAND,in.readUnsignedByte());
+                    assertEquals(11,in.readUnsignedByte()); assertEquals(8,in.readInt());
+                    assertEquals(0,in.readUnsignedByte()); assertEquals(0,in.readUnsignedByte());
+                    assertEquals(9,in.readInt());
+                    out.writeByte(Protocol.CITY_RESULT); out.writeUTF("Airport packets received"); out.flush();
+                    assertEquals(-1,in.read());
+                }
+                return null;
+            });
+            var thread=new Thread(task); thread.setDaemon(true); thread.start();
+            try(var client=new MultiplayerClient("127.0.0.1",listener.getLocalPort(),
+                    "tester","test-password".toCharArray(),false,identity.fingerprint())) {
+                assertEquals(22,client.serverProtocol);
+                assertFalse(client.cityCommand(new CityCommand(CityCommand.DELETE_ROAD,7,List.of())));
+                assertFalse(client.cityCommand(new CityCommand(CityCommand.EDIT_ROAD,7,
+                        List.of(new Polygon.Point(3,0)))));
+                assertTrue(client.cityCommand(new CityCommand(CityCommand.RUNWAY,7,List.of())));
+                assertTrue(client.cityCommand(new CityCommand(CityCommand.FLIGHT,8,List.of(),0,9)));
+                long deadline=System.nanoTime()+TimeUnit.SECONDS.toNanos(5);
+                while(!client.notice().equals("Airport packets received") && System.nanoTime()<deadline) {
+                    client.poll(); Thread.sleep(10);
+                }
+                assertEquals("Airport packets received",client.notice());
+            }
+            task.get(10,TimeUnit.SECONDS);
+        }
+    }
+
+    @Test
     void incompatibleVersionsAreRejectedWithActionableDiagnostics() throws Exception {
         var identity = SecureTransport.server(temp.resolve("tls"));
-        for (int version : List.of(13, 21, 22, Protocol.VERSION + 1)) {
+        // Protocol 22 is a supported reconnect target, covered by the aviation retry tests.
+        for (int version : List.of(13, 21, Protocol.VERSION + 1)) {
             try (var listener = identity.context().getServerSocketFactory()
                     .createServerSocket(0, 1, InetAddress.getLoopbackAddress())) {
                 listener.setSoTimeout(10000);

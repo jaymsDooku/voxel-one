@@ -1,0 +1,8 @@
+{
+  "status": "interrupted",
+  "exitCode": 143,
+  "testsInCompletedReports": 247,
+  "failuresInCompletedReports": 1,
+  "errorsInCompletedReports": 0,
+  "knownFailure": "Obsolete protocol 21 assertion; corrected to 22. MarketEconomyTest passes in the final 47-test integration run. The interrupted broad suite is not counted as passing."
+}

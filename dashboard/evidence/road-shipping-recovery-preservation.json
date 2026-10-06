@@ -1,0 +1,307 @@
+{
+  "baseHead": "60628241773b1985572b5f1b723a09ab12f41672",
+  "status": "passed",
+  "shippingProgressPreserved": true,
+  "files": [
+    {
+      "file": "dashboard/evidence/shipping-airport-arrival.png",
+      "matchesBase": true,
+      "sha256": "9f634481bde876991b21491179942db46d0071bea0489897cd4a8d0f2df13d8a"
+    },
+    {
+      "file": "dashboard/evidence/shipping-airport-boarding.png",
+      "matchesBase": true,
+      "sha256": "48a695761cf463511744fd951636f0ff11f2a7c0b4b768db2a41a5d3faa9ee5d"
+    },
+    {
+      "file": "dashboard/evidence/shipping-airport-compact-menu.png",
+      "matchesBase": true,
+      "sha256": "99300c2480773221b7bb060ecab4b4dd21e2dee3decd5a26c5c9032b82e0f3a2"
+    },
+    {
+      "file": "dashboard/evidence/shipping-airport-exchange-rejected.png",
+      "matchesBase": true,
+      "sha256": "544840f090a1d22afdc3b24705a4451b98cf23d547d506ac8fd4d18f8ed0d206"
+    },
+    {
+      "file": "dashboard/evidence/shipping-airport-expanded.png",
+      "matchesBase": true,
+      "sha256": "cbe208bc595e48e31f51cb3c1d42c6f9e1c831f4f85159adfb9f7f793037cd03"
+    },
+    {
+      "file": "dashboard/evidence/shipping-airport-flight.png",
+      "matchesBase": true,
+      "sha256": "66611a29aa640d65729f782a41e2db6250c3f60924ecdf5f4379204c6905abe0"
+    },
+    {
+      "file": "dashboard/evidence/shipping-airport-playtest.json",
+      "matchesBase": true,
+      "sha256": "a3d6068560cc03a8ceff7148053d9c9497ece330b14a7b23e41583fb772f1ae4"
+    },
+    {
+      "file": "dashboard/evidence/shipping-airport-playtest.mp4",
+      "matchesBase": true,
+      "sha256": "c64fd36fe7b4e03e702bfc22118f600f79b6d001f668a584d8907b4b0f77b483"
+    },
+    {
+      "file": "dashboard/evidence/shipping-airport-regional-regression.png",
+      "matchesBase": true,
+      "sha256": "f235e66cf3844499109bd00c4181fed1bb0eb5b6cc4aedc79984503c2495b1ca"
+    },
+    {
+      "file": "dashboard/evidence/shipping-airport-video-seek.json",
+      "matchesBase": true,
+      "sha256": "4059a4ee45355721910bc69283ad8d089f03126560b1315c227a93d26d9d5f2b"
+    },
+    {
+      "file": "dashboard/evidence/shipping-airport-video-validation.json",
+      "matchesBase": true,
+      "sha256": "921f12217120cdc3ca3d06e84cb72dee47872058762bc40b11e9dd262e82a10c"
+    },
+    {
+      "file": "dashboard/evidence/shipping-aviation-recovery.json",
+      "matchesBase": true,
+      "sha256": "9fe3d8e43b64b675dc79ffb1c2d8f3506c3a4d04157ee8e6aaf751300f3587d3"
+    },
+    {
+      "file": "dashboard/evidence/shipping-cargo-checkpoint.json",
+      "matchesBase": true,
+      "sha256": "6464a88e45f16608cf285d95e23e4d223738392bc27a00b54d632fdf2fdb1e98"
+    },
+    {
+      "file": "dashboard/evidence/shipping-cargo-container-drive.mp4",
+      "matchesBase": true,
+      "sha256": "46e815ceefcdd2db3be3db604a8111b6a7822f8d5c0e8b22d9cb43550898f635"
+    },
+    {
+      "file": "dashboard/evidence/shipping-cargo-container.png",
+      "matchesBase": true,
+      "sha256": "bf03c921004a10f4e92591954d738cb4b840db487b69eb28967b4f26dc7b93de"
+    },
+    {
+      "file": "dashboard/evidence/shipping-cargo-jeep.png",
+      "matchesBase": true,
+      "sha256": "1cf8aec31f7d9dcb6d2db7d932fe14fad8d5450bfafb6a0739bfc28ff5ba4470"
+    },
+    {
+      "file": "dashboard/evidence/shipping-cargo-lorry.png",
+      "matchesBase": true,
+      "sha256": "81e2e63bf91c7812c03b6c0fa79dad5118a3da18438fb594fdb5ee8975b750b4"
+    },
+    {
+      "file": "dashboard/evidence/shipping-cargo-placement-playtest.json",
+      "matchesBase": true,
+      "sha256": "5183c20d6402bdae22893fe2448b2362bec9cbdddc94ef4881459726d9e0799c"
+    },
+    {
+      "file": "dashboard/evidence/shipping-cargo-tanker.png",
+      "matchesBase": true,
+      "sha256": "3fcc14b8f06ff23a59df0d58366949d2d450d000932af2704760ae0e114f2f32"
+    },
+    {
+      "file": "dashboard/evidence/shipping-cargo-van.png",
+      "matchesBase": true,
+      "sha256": "f1bf51853caeec7661fd5dd55af27e968524d08bd70d82697f23730c1d6a1232"
+    },
+    {
+      "file": "dashboard/evidence/shipping-cargo-video-motion.json",
+      "matchesBase": true,
+      "sha256": "9b2b8779e5af89d21f67b41d02f5632c98527f0f627900be123ec1ac0ca44b50"
+    },
+    {
+      "file": "dashboard/evidence/shipping-cargo-video-validation.json",
+      "matchesBase": true,
+      "sha256": "d883edc4a3ba5d8b3db0b640719f8bb111abe54ac38a003bda77b5ac8625bd88"
+    },
+    {
+      "file": "dashboard/evidence/shipping-coastal-menu.png",
+      "matchesBase": true,
+      "sha256": "97e4ac4cda8158d43060e4389d1817932302df0f2e6675d356ec688cfc0780f3"
+    },
+    {
+      "file": "dashboard/evidence/shipping-final-tests.json",
+      "matchesBase": true,
+      "sha256": "9f52e723b105004643f5095c068f8e5c3c79dbc31a84f32be53b5b88b7151eb6"
+    },
+    {
+      "file": "dashboard/evidence/shipping-full-regression.json",
+      "matchesBase": true,
+      "sha256": "75c46c3bf52ab9182c07ed0eb4ed357ea37fbabac979066c28531d3c48926f17"
+    },
+    {
+      "file": "dashboard/evidence/shipping-inland-rejection.png",
+      "matchesBase": true,
+      "sha256": "42c64a4921a438edd8388c67e26c21f6e5dd4987ff2e6c7e91dd8dafad5c2578"
+    },
+    {
+      "file": "dashboard/evidence/shipping-placement-playtest.json",
+      "matchesBase": true,
+      "sha256": "3cd8d28fd613591371d927ae56f22f4cb568b1007f947064c1fe85d6a89a1f95"
+    },
+    {
+      "file": "dashboard/evidence/shipping-placement-playtest.mp4",
+      "matchesBase": true,
+      "sha256": "bfadebb87b80eca7cc37fad610f06219792765265e138ecc298037a08dd2f113"
+    },
+    {
+      "file": "dashboard/evidence/shipping-port-carrier.png",
+      "matchesBase": true,
+      "sha256": "f75fb1f77b18a6c68bf2822e61e4c3f25aa5a552e72fd6ef2ae6bb07211ce69a"
+    },
+    {
+      "file": "dashboard/evidence/shipping-port-reverse.png",
+      "matchesBase": true,
+      "sha256": "87f674942ce368a380827a8699a993d6f688c394cbdf8ca00986410431e0b25e"
+    },
+    {
+      "file": "dashboard/evidence/shipping-pre-aviation-tests.json",
+      "matchesBase": true,
+      "sha256": "fbd2da1a3894bedb6bdfdc25a66dd8605537d91726d41b8a0926369d29c4954d"
+    },
+    {
+      "file": "dashboard/evidence/shipping-pre-cargo-tests.json",
+      "matchesBase": true,
+      "sha256": "9df01ce9a93cb15fed55cf35e5bbce40a6cdff7767716274a63cc459a4f83cc4"
+    },
+    {
+      "file": "dashboard/evidence/shipping-rebase-recovery.json",
+      "matchesBase": true,
+      "sha256": "b2f24c10659fc6493871dfc9a9abc4d961260eb4eff9e65f07e18ce3c60bd2bc"
+    },
+    {
+      "file": "dashboard/evidence/shipping-regional-districts.png",
+      "matchesBase": true,
+      "sha256": "63f982e7f1622459326e77b344ee4dadb31d1833dcd21822ea36750172b95f67"
+    },
+    {
+      "file": "dashboard/evidence/shipping-regional-local-regression.png",
+      "matchesBase": true,
+      "sha256": "6aea5bdd57a0a7e7cd4bfd94240e0a5f26c3323e075ec1f676b111f903b44714"
+    },
+    {
+      "file": "dashboard/evidence/shipping-regional-main.mp4",
+      "matchesBase": true,
+      "sha256": "00a88d202092091e3c7b171876d3610c9d3d706f9deb24140819b490fdc064ae"
+    },
+    {
+      "file": "dashboard/evidence/shipping-regional-native-tests.json",
+      "matchesBase": true,
+      "sha256": "4aaac415a4127e99ee1d6de9351012d1197da96f7c66545478ee329b4845f820"
+    },
+    {
+      "file": "dashboard/evidence/shipping-regional-nearby.png",
+      "matchesBase": true,
+      "sha256": "6dd9efebdc43332706eac980fbef563ee0565bd6d352cfd085deedaee2aee979"
+    },
+    {
+      "file": "dashboard/evidence/shipping-regional-overview.png",
+      "matchesBase": true,
+      "sha256": "988a9efdd0f9f9fe19ea47eeb222b8f4ee6a696ef0d462fd914ac11728570f19"
+    },
+    {
+      "file": "dashboard/evidence/shipping-regional-playtest.txt",
+      "matchesBase": true,
+      "sha256": "02d964c010b3d06e121fc7ebd39679babbadea6b1abd2c1d4026a36d6800f02d"
+    },
+    {
+      "file": "dashboard/evidence/shipping-regional-starvation-edge.png",
+      "matchesBase": true,
+      "sha256": "685151ab8acc9b8ba5a253bb562ca0bf9c4bbc85ab157d93ea16744714a136b3"
+    },
+    {
+      "file": "dashboard/evidence/shipping-regional-video-motion.json",
+      "matchesBase": true,
+      "sha256": "40aa39d913e535a86acbcfa423cd6663c3466ff7ae16a22e3898ed6c0a4913fe"
+    },
+    {
+      "file": "dashboard/evidence/shipping-regional-video-validation.json",
+      "matchesBase": true,
+      "sha256": "3b2001d24ab38209657ecf563df63940f8728e01c870c34961367697c4bc5e82"
+    },
+    {
+      "file": "dashboard/evidence/shipping-second-recovery.json",
+      "matchesBase": true,
+      "sha256": "44f2efa2c3f48ba4158c61020c2f74055511cfbba21953d7bbcbac0b146b8f1b"
+    },
+    {
+      "file": "dashboard/evidence/shipping-vehicle-save-check.json",
+      "matchesBase": true,
+      "sha256": "9f8340c795bb64888970984ee84f4c489aba2c61ebe45c0adcc6ed598b9c2fe1"
+    },
+    {
+      "file": "dashboard/evidence/shipping-video-motion.json",
+      "matchesBase": true,
+      "sha256": "bac7e2d0d9c351663df1f06bb79d26b676056983da6a45f1117f0acde3160e00"
+    },
+    {
+      "file": "dashboard/evidence/shipping-video-validation.json",
+      "matchesBase": true,
+      "sha256": "4b97466e97b450c78d213435e150a7ef98dafab7b93a4f3f7483780a64ecd8fa"
+    },
+    {
+      "file": "deploy/ShippingSmoke.java",
+      "matchesBase": true,
+      "sha256": "bf9706ec66d6291c2c5f703ac8be61fde718deacdc93ce21cf10aea313a69a2b"
+    },
+    {
+      "file": "deploy/ShippingVehicleSaveCheck.java",
+      "matchesBase": true,
+      "sha256": "6f4b0adafd68b6a6e9e899f1f3d175a3c32c0e02faa98cac8ad82ff934900d16"
+    },
+    {
+      "file": "deploy/run_shipping_aviation_smoke.py",
+      "matchesBase": true,
+      "sha256": "7543227d448a4d5d9be270c9cb2d3f9e6df5e49e28365b652bca555e5eba2d61"
+    },
+    {
+      "file": "deploy/run_shipping_cargo_smoke.py",
+      "matchesBase": true,
+      "sha256": "50aad14134ce87d67690d6d231c7e80c2bd8d91ecba22883f38cde92f94d70b4"
+    },
+    {
+      "file": "deploy/run_shipping_regional_smoke.py",
+      "matchesBase": true,
+      "sha256": "01e2bbf7a29a9ba564cb02e27adcde59b0a9d655e7a797930897fb8a5c155972"
+    },
+    {
+      "file": "deploy/run_shipping_smoke.py",
+      "matchesBase": true,
+      "sha256": "eb5943fd86795fdc71b00dca896f03fcf2ae4ec0b3675e6e14fa53e08bcb0077"
+    },
+    {
+      "file": "src/main/java/dev/jayms/net/Geography.java",
+      "matchesBase": true,
+      "sha256": "c6b79f348ff4b6e520b3d43ddc2707da05d7923a749bb9aa72c246e82d0c6e1c"
+    },
+    {
+      "file": "src/main/java/dev/jayms/net/Terrain.java",
+      "matchesBase": true,
+      "sha256": "3a2957d28603604d8cee8b6fd68889a2a59c43e4470d54a9a85383e47c989068"
+    },
+    {
+      "file": "src/main/java/dev/jayms/net/city/Shipping.java",
+      "matchesBase": true,
+      "sha256": "af8433aa53085022d8482d58c91638beeba0eb848826a1f72ebdb433bed34c10"
+    },
+    {
+      "file": "src/main/java/dev/jayms/net/city/SpecialBuildings.java",
+      "matchesBase": true,
+      "sha256": "4e6b3d8751fc0fbc2b2f858fd3c25b43c8be54b7a7a661fe33d8bd11179e977e"
+    },
+    {
+      "file": "src/test/java/dev/jayms/ShippingAviationCompatibilityTest.java",
+      "matchesBase": true,
+      "sha256": "36b4fee69dc9e878556965ec9c89195d96819db40ac671fe9832af3017c35d60"
+    },
+    {
+      "file": "src/test/java/dev/jayms/ShippingProtocolCompatibilityTest.java",
+      "matchesBase": true,
+      "sha256": "159677607f5464260c7fac3b9d9e98d4cee1646aae2aaecef10186c8765ed931"
+    },
+    {
+      "file": "src/test/java/dev/jayms/ShippingTest.java",
+      "matchesBase": true,
+      "sha256": "e667ab64984128204893b66df928f93bd6363a03a436a0a31fee1362b4a1cb8e"
+    }
+  ]
+}

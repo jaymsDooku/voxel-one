@@ -54,7 +54,7 @@ public final class CityAddresses {
         return new State(List.of(), List.of());
     }
 
-    private static double distance(Street street, float x, float z) {
+    public static double distance(Street street, float x, float z) {
         double best = Double.POSITIVE_INFINITY;
         for (int i = 1; i < street.route.size(); i++) {
             var a = street.route.get(i - 1);
@@ -91,7 +91,9 @@ public final class CityAddresses {
     }
 
     /** Collinear, touching extensions retain the street name and all existing addresses. */
-    public String road(List<Polygon.Point> points) {
+    public String road(List<Polygon.Point> points) { return road(points,0); }
+
+    public String road(List<Polygon.Point> points, int type) {
         points =
                 points.stream()
                         .map(
@@ -136,11 +138,16 @@ public final class CityAddresses {
         for (int i = 1; i < points.size(); i++) {
             var a = points.get(i - 1);
             var b = points.get(i);
-            if (a.x() != b.x() && a.z() != b.z()) route.add(new Polygon.Point(b.x(), a.z()));
+            if (type == 0 && a.x() != b.x() && a.z() != b.z()) route.add(new Polygon.Point(b.x(), a.z()));
             route.add(b);
         }
         streets.add(new Street(id, generated(id), route));
         return generated(id);
+    }
+
+    public void removeStreet(int id) {
+        streets.removeIf(s -> s.id()==id);
+        addresses.removeIf(a -> a.street()==id);
     }
 
     public void demolish(int building) {

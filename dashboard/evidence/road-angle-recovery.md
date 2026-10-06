@@ -1,0 +1,9 @@
+# Right-angle base integration recovery
+
+Resolved working conflict contents in CitySimulation.java, CityTools.java and dashboard/progress.json. Kept base RoadRoute X-then-Z normalization, shared it with RoadGeometry centers/surfaces, and made zone snapping validate the right-angle prefix footprint. Kept chaining, snap and edit help text alongside bend direction. All stage-2 base progress milestones remain byte-equivalent as JSON objects; road milestone added without duplicate IDs. No base feature removals requested or performed.
+
+Command: `MAVEN_OPTS="-Djava.io.tmpdir=$PWD/target/tmp" /tmp/apache-maven-3.9.11/bin/mvn -q -Dmaven.repo.local=/tmp/voxel-m2 -Dlwjgl.natives=natives-linux -DargLine="-Djava.io.tmpdir=$PWD/target/tmp" -Dtest=RoadTypesTest,CityToolsTest,CityMultiplayerTest test > target/road-angle-recovery-tests.txt 2>&1`. Environment: Linux, Maven 3.9.11, cached dependencies, Linux natives and worktree-local target/tmp. Expected: base right-angle routing and road UI/multiplayer regressions pass. Observed: exit 0; 17 tests passed, zero failures/errors/skips. JSON validation and git diff --check passed.
+
+This is an intermediate replay before ownership/long-road/acknowledgement commits. Reviewer requirements remain mandatory after those commits replay: only CITY_RESULT may consume city callbacks; CRAFT_RESULT must not consume them; add real-server craft(-1) then ROAD interleaving regression; RoadWorkflowTest must deliver its matching acknowledgement before expecting the next chain command. Current source has no acknowledgement callback queue yet, so these later-replay fixes are not claimed completed.
+
+Playtest: final-head native workflow and fresh media await controller rebase continuation. Historical media is not final-head evidence. Unmerged index intentionally remains for controller staging. No developer stage, commit, push, abort/reset or rebase continuation performed.

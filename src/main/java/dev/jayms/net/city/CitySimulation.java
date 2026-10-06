@@ -1582,6 +1582,8 @@ public final class CitySimulation {
         try {
             return switch (c.kind()) {
                 case CityCommand.ROAD -> road(c.points(), c.value());
+                case CityCommand.DELETE_ROAD -> changeRoad(c.value(), -1);
+                case CityCommand.EDIT_ROAD -> changeRoad(c.value(), (int)c.points().get(0).x());
                 case CityCommand.ZONE -> zone(c.value(), new Polygon(c.points()));
                 case CityCommand.SPECIAL -> c.value() == SpecialBuildings.AIRPORT ? airport(c) : special(c);
                 case CityCommand.RUNWAY -> expandAirport(c);
@@ -2010,42 +2012,18 @@ public final class CitySimulation {
 
     private String road(List<Point> points) { return road(points, 0); }
 
-    private String road(List<Point> points, int type) {
+    private String road(List<Point> points, int type) { return road(points,type,0); }
+
+    private String road(List<Point> points, int type, int editing) {
         RoadTypes.validate(type);
         if (points.size() < 2) throw new IllegalArgumentException("Roads need two endpoints");
         points = RoadRoute.points(points);
-        var cells = new LinkedHashSet<Cell>();
-        var surfaces = new LinkedHashMap<Cell, Integer>();
-        int radius = RoadTypes.width(type) / 2;
-        for (int i = 1; i < points.size(); i++) {
-            var a = points.get(i - 1);
-            var b = points.get(i);
-            int x = (int) Math.floor(a.x()), z = (int) Math.floor(a.z());
-            int bx = (int) Math.floor(b.x()), bz = (int) Math.floor(b.z());
-            int dx = Math.abs(bx - x), dz = Math.abs(bz - z);
-            if (dx == 0 && dz == 0) throw new IllegalArgumentException("Road endpoints must differ");
-            int sx = Integer.signum(bx - x), sz = Integer.signum(bz - z);
-            boolean alongX = dx >= dz;
-            while (true) {
-                for (int offset = -radius; offset <= radius; offset++) {
-                    var cell = new Cell(x + (alongX ? 0 : offset), z + (alongX ? offset : 0));
-                    if (type == 0) {
-                        for (int end = -1; end <= 1; end++) {
-                            var dirt = new Cell(cell.x() + (alongX ? end : 0), cell.z() + (alongX ? 0 : end));
-                            cells.add(dirt);
-                            surfaces.put(dirt, Blocks.DIRT);
-                        }
-                    } else cells.add(cell);
-                    int surface = type == 0 ? Blocks.DIRT : Blocks.ASPHALT;
-                    if (type != 0 && (offset + radius) % 2 == 1)
-                        surface = alongX ? Blocks.ROAD_LINE_X : Blocks.ROAD_LINE_Z;
-                    surfaces.put(cell, surface);
-                }
-                if (x == bx && z == bz) break;
-                if (x != bx) x += sx; else z += sz;
-            }
-        }
-        if (cells.size() > 768 || roads.size() + cells.stream().filter(c -> !roads.containsKey(c)).count() > 8192)
+        for (int i=1;i<points.size();i++)
+            if ((int)Math.floor(points.get(i-1).x()) == (int)Math.floor(points.get(i).x())
+                    && (int)Math.floor(points.get(i-1).z()) == (int)Math.floor(points.get(i).z()))
+                throw new IllegalArgumentException("Road endpoints must differ");
+        var surfaces = RoadGeometry.surfaces(points,type);
+        var cells = surfaces.keySet();        if (cells.size() > 768 || roads.size() + cells.stream().filter(c -> !roads.containsKey(c)).count() > 8192)
             throw new IllegalArgumentException("Road too long: use shorter sections");
         for (var cell : cells) {
             if (specialCell(cell.x(), cell.z())) throw new IllegalArgumentException("Road cannot cover a special building");
@@ -2062,8 +2040,8 @@ public final class CitySimulation {
                 || roadTypes.getOrDefault(c, 0) != type).count();
         var nextAddresses = new CityAddresses(addresses.state(buildings));
         var existingStreet = addresses.state(buildings).nearest(points.get(0).x(), points.get(0).z());
-        String name = newCells == 0 && existingStreet != null
-                ? existingStreet.name() : nextAddresses.road(points);
+        String name = editing != 0 ? addresses.state(buildings).streetName(editing) : newCells == 0 && existingStreet != null
+                ? existingStreet.name() : nextAddresses.road(points, type);
         if (!founding && !economy.roads(changedCells))
             return "Mayor budget too low for road: needs $"
                     + (int) (changedCells * CityEconomy.ROAD_COST);
@@ -2083,6 +2061,43 @@ public final class CitySimulation {
                         + name
                         + " | Mayor paid $"
                         + (int) (changedCells * CityEconomy.ROAD_COST);
+    }
+
+    private boolean sharedRoadCell(CityFrame frame,int id,CityFrame.Road road) {
+        var cell=new Cell(road.x(),road.z());
+        return frame.addresses().streets().stream().anyMatch(s -> s.id()!=id
+                && RoadGeometry.surfaces(s.route(),road.type()).containsKey(cell));
+    }
+
+    private String changeRoad(int id, int type) {
+        var frame=frame();
+        var section=RoadGeometry.section(frame,id);
+        if(section.isEmpty()) return "Road section is no longer available";
+        var edits=new ArrayList<Protocol.Edit>();
+        for(var r:section) if(ground.occupied(r.x(),r.y()+1,r.z(),1,1))
+            return "Road would intersect a player";
+        if(type>=0) {
+            RoadTypes.validate(type);
+            var street=frame.addresses().streets().stream().filter(s->s.id()==id).findFirst().orElseThrow();
+            var result=road(street.route(),type,id);
+            if(!result.contains(" built:")) return result;
+            var keep=RoadGeometry.surfaces(street.route(),type).keySet();
+            for(var r:section) {
+                var cell=new Cell(r.x(),r.z());
+                if(keep.contains(cell) || sharedRoadCell(frame,id,r)) continue;
+                roads.remove(cell); roadTypes.remove(cell);
+                edits.add(new Protocol.Edit(r.x(),r.y(),r.z(),Blocks.DIRT));
+            }
+        } else {
+            for(var r:section) {
+                if(sharedRoadCell(frame,id,r)) continue;
+                var cell=new Cell(r.x(),r.z()); roads.remove(cell); roadTypes.remove(cell);
+                edits.add(new Protocol.Edit(r.x(),r.y(),r.z(),Blocks.DIRT));
+            }
+            addresses.removeStreet(id);
+        }
+        ground.apply(edits);
+        return type<0 ? "Road section deleted" : "Road section edited: " + RoadTypes.NAMES[type];
     }
 
     private void level(int x, int z, List<Protocol.Edit> edits) {

@@ -102,6 +102,25 @@ class CityMultiplayerTest {
                 assertTrue(b.city.roads().stream().anyMatch(r -> r.x() == 55 && r.z() == 24 && r.type() == 1));
                 assertTrue(b.city.economy().roadSpending() > 0);
                 assertEquals(a.city.economy().roadSpending(), b.city.economy().roadSpending());
+                // Road section actions cross the real server connection and reach both clients.
+                Thread.sleep(550); // Honor the server's existing 500 ms city-command limit.
+                a.cityCommand(new CityCommand(CityCommand.ROAD,1,List.of(
+                        new Polygon.Point(90,90),new Polygon.Point(100,90))));
+                until(() -> { a.poll(); b.poll(); return b.city.roads().stream()
+                        .anyMatch(r->r.x()==95 && r.z()==90); });
+                int sectionId=b.city.addresses().nearest(95,90).id();
+                Thread.sleep(550);
+                a.cityCommand(new CityCommand(CityCommand.EDIT_ROAD,sectionId,
+                        List.of(new Polygon.Point(3,0))));
+                until(() -> { a.poll(); b.poll(); return a.city.roads().stream()
+                        .anyMatch(r->r.x()==95 && r.z()==93 && r.type()==3)
+                        && b.city.roads().stream().anyMatch(r->r.x()==95 && r.z()==93 && r.type()==3); });
+                assertEquals(a.city.roads(),b.city.roads());
+                b.cityCommand(new CityCommand(CityCommand.DELETE_ROAD,sectionId,List.of()));
+                until(() -> { a.poll(); b.poll(); return a.city.roads().stream()
+                        .noneMatch(r->r.x()==95 && r.z()==90)
+                        && b.city.roads().stream().noneMatch(r->r.x()==95 && r.z()==90); });
+                assertEquals(a.city.roads(),b.city.roads());
                 assertEquals(35, b.city.economy().firms().size());
                 Thread.sleep(550);
                 var zone =

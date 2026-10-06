@@ -141,10 +141,10 @@ public final class MultiplayerClient implements AutoCloseable {
                 int magic = in.readInt();
                 int version = in.readInt();
                 if (magic != Protocol.MAGIC) throw new IOException("Invalid server protocol header");
-                // Protocols 14 and 15 use city frame format 6; 16 uses format 7.
+                // Protocols 14/15 use frame format 6; reviewed aviation protocol 22 uses format 12.
                 // Reconnect because old servers close on mismatch.
                 if (requested == Protocol.VERSION && version >= Protocol.CITY_BASE_VERSION
-                        && version <= Protocol.SPECIAL_BUILDINGS_VERSION) {
+                        && (version <= Protocol.SPECIAL_BUILDINGS_VERSION || version == 22)) {
                     if (in.readBoolean()) throw new IOException("Unexpected protocol acceptance");
                     Protocol.readText(in, 256);
                     socket.close();
@@ -217,6 +217,10 @@ public final class MultiplayerClient implements AutoCloseable {
         if (serverProtocol < 23 && command.kind() == CityCommand.SPECIAL
                 && command.value() == SpecialBuildings.PORT) {
             notice = "Coastal ports require a server update.";
+            return false;
+        }
+        if (serverProtocol < 23 && (command.kind()==CityCommand.EDIT_ROAD || command.kind()==CityCommand.DELETE_ROAD)) {
+            notice = "Road section actions require a server update.";
             return false;
         }
         if (serverProtocol < 21 && (command.kind() == CityCommand.SETTLE_DISTRICT

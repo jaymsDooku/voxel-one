@@ -60,7 +60,7 @@ class CityAddressesTest {
                 saved.addresses(),
                 new CitySimulation(saved.config(), g, g.terrain, saved).frame().addresses());
         var tools = new CityTools();
-        assertFalse(
+        assertTrue(
                 tools.selectRay(
                         new Vector3f(40.5f, 80, 24.5f), new Vector3f(0, -1, 0), 100, saved));
         assertEquals("Oak Road", saved.addresses().streetName(tools.selectedStreet));

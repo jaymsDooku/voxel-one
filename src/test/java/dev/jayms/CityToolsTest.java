@@ -48,7 +48,7 @@ class CityToolsTest {
     }
 
     @Test
-    void guideSnapsRoadEndpointAndClearsAfterSubmission() {
+    void guideSnapsRoadEndpointAndChainsAfterSubmission() {
         var tools = new CityTools();
         tools.tool = 4;
         var result = new ArrayList<CityCommand>();
@@ -57,7 +57,8 @@ class CityToolsTest {
         assertEquals(new Polygon.Point(30, 24), result.get(0).points().get(1));
         click(tools, 30.5f, 24, result);
         click(tools, 44, 24, result);
-        assertEquals(new Polygon.Point(30.5f, 24), result.get(1).points().get(0));
+        assertEquals(2, result.size());
+        assertEquals(new Polygon.Point(30, 24), result.get(1).points().get(0));
     }
 
     @Test
