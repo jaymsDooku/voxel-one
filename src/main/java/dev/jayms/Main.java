@@ -46,6 +46,7 @@ public class Main {
     private Player player;
     private PlayerModel playerModel;
     private HorseModel horseModel;
+    private PlaneModel planeModel;
     private Jeep jeep;
     private JeepModel jeepModel;
     private java.nio.file.Path jeepSave() { return offlineSave.resolveSibling(offlineSave.getFileName()+".jeep"); }
@@ -157,6 +158,7 @@ public class Main {
         camera = new Camera();
         playerModel = new PlayerModel();
         horseModel = new HorseModel();
+        planeModel = new PlaneModel();
         farmModels = new FarmModels();
         if (network == null) {
             local = new LocalGame(offlineSave, seed);
@@ -965,6 +967,7 @@ public class Main {
                 pose = network.cows.get(cow.id()).sample(System.nanoTime());
             if (pose != null) farmModels.cow(cow, pose, shader);
         }
+        for (var plane : Aviation.planes(city())) planeModel.render(plane, shader);
         for (var h : city().horses()) {
             Protocol.Pose p =
                     new Protocol.Pose(
@@ -996,6 +999,7 @@ public class Main {
             if (p != null) horseModel.render(p, shader);
         }
         for (var c : city().visibleCitizens()) {
+            if (c.activity().startsWith("Flying") || c.activity().startsWith("Boarding")) continue;
             Protocol.Pose p =
                     new Protocol.Pose(
                             c.id(),
@@ -1323,6 +1327,7 @@ public class Main {
         if (world != null) world.close();
         if (playerModel != null) playerModel.close();
         if (horseModel != null) horseModel.close();
+        if (planeModel != null) planeModel.close();
         if (jeepModel != null) jeepModel.close();
         farmModels.close();
         if (modelRenderer != null) modelRenderer.close();

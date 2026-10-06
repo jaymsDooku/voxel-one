@@ -1,0 +1,52 @@
+{
+  "status": "checkpoint; final validation incomplete",
+  "branch": "feature/queue-61363330343836302d633363302d346664392d383937392d313438643935363133613933",
+  "implementation": "Airport permits, treasury-funded runway expansion, bounded saved flight state, citizen walking/boarding/flying/arrival, voxel jets, spherical routes projected to planar terrain; protocol 21 and city save 11.",
+  "tests": [
+    {
+      "command": "mvn -q -Dtest=AviationTest test",
+      "result": "Passed initial 3 aviation tests before later runway lane/spacing and protection changes."
+    },
+    {
+      "command": "mvn -q -Dtest=AviationTest,SpecialBuildingsTest,CityToolsTest,MarketEconomyTest,BusinessCatalogTest,ProtocolCompatibilityTest,CityMultiplayerTest test",
+      "result": "45 tests, 0 assertion failures, 16 temp-directory errors: /tmp is read-only."
+    },
+    {
+      "command": "mvn -q -Djava.io.tmpdir=\"$PWD/target/tmp\" -Dtest=AviationTest,SpecialBuildingsTest,CityToolsTest,MarketEconomyTest,BusinessCatalogTest,ProtocolCompatibilityTest,CityMultiplayerTest test",
+      "result": "Same temp errors; JVM launch argLine is required."
+    },
+    {
+      "command": "mvn -q -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" verify",
+      "result": "Started; no confirmed completed result before pause."
+    },
+    {
+      "command": "mvn -q -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" test",
+      "result": "Started; no confirmed completed result before pause."
+    },
+    {
+      "command": "mvn -q -o -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=AviationTest,SpecialBuildingsTest,CityToolsTest,MarketEconomyTest,BusinessCatalogTest,ProtocolCompatibilityTest,CityMultiplayerTest test",
+      "result": "Started; no confirmed completed result before pause. Available mixed/stale XML totals: 230 tests, 0 failures, 0 errors; these do not prove a completed final suite."
+    }
+  ],
+  "playtest": {
+    "command": "python3 deploy/run_aviation_smoke.py --display \"$DISPLAY\"",
+    "environment": "Linux X11 inherited role display, inherited XAUTHORITY; Mesa software rendering; isolated synthetic offline profile under target/aviation-home.",
+    "steps": [
+      "Open production Special menu and place airport",
+      "Attempt a flight with only one airport",
+      "Place second airport",
+      "Expand second airport",
+      "Continue City hall regression and citizen inspect/flight workflow"
+    ],
+    "expected": "Airport permits and expansion work; one-airport flight rejected; City hall still works; passenger walks, boards, flies and arrives.",
+    "observed": "Initial harness read CityTools.message instead of Main.notice; fixed. Last native run reached two airports and expanded runway capture, then process exited -9 without a passing results.json. Boarding, flight and arrival remain unverified in the running application.",
+    "media": "airport-checkpoint-draft-expanded.png is actual earlier local draft capture; runway spacing was changed afterward. Partial draft evidence only, not final-source proof; pending controller publication."
+  },
+  "remaining": [
+    "Rebuild and run final checks sequentially with writable Maven cache and JVM temp directory",
+    "Run native workflow to completion; diagnose exit -9 without reading full runtime logs",
+    "Capture and inspect final-source boarding, flight and arrival screenshots and F10 video below 6 MB",
+    "Record final results and review-ready receipt"
+  ],
+  "delegation": "Two helper tasks failed; both resolved as self. No delegated validation claimed."
+}

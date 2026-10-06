@@ -1,13 +1,11 @@
-# Camera orbit: terrain-base resolution ready for controller
+# Airport and regional integration: controller recovery handoff
 
-Current rebase HEAD/base: 127c1d22d72d746a412962086964a769689051d9. Controller must stage resolutions and continue the existing rebase. No reset, abort, commit, push, merge or deployment performed.
+All conflict file contents resolved. Git index remains unmerged until the controller stages them. Do not abort or reset. Controller stages resolutions and continues rebase, then resumes developer for final-head validation and fresh native media.
 
-513 unrelated base files hash-identical; every one of 40 base progress entries retained verbatim. Geography, terrain source/tests/tools/evidence, Protocol 17 and LocalGame version-7 save compatibility retained. Main diff contains only camera changes; --production-config preserved.
+Regional population source, district UI, tests, fixtures and historical evidence retained. City format 11 remains regional; format 12 appends aviation. Save magic 0x4349543C. Protocol 22 uses district command IDs 8/9 and runway/flight IDs 10/11. Regional visible citizens and hidden flight passengers both preserved.
 
-58 tests passed, including TerrainGenerationTest saveVersionAndLegacyMigration. Fresh actual GLFW/X11/Mesa run passed 400-degree orbit, release, inventory modal, view changes, focus loss/restore and fresh drag. Fresh F10 clip independently decoded, below 6 MB. Commands/results: dashboard/evidence/free-isometric-orbit-rebase-tests.json.
+Clean focused Maven test run passed 54 tests, zero failures/errors. Migration test loads a base-format-11 regional save and rewrites format 12. Protocol tests reject version 21 before exchanging snapshots or commands. Two stale-class test runs failed before deleting generated classes; clean rebuilt reader verified format 12. Commands/results are in dashboard/evidence/airport-recovery-tests.json. git diff --check passed; no conflict markers remain.
 
-MANDATORY CONTROLLER CHECK AFTER REBASE, BEFORE RESUBMISSION:
-python3 deploy/verify_isometric_orbit_tree.py --revision HEAD
-This must pass. It checks the tested engine/test/tools/config fingerprint, all unrelated base blobs and each base progress entry. Manifest: dashboard/evidence/free-isometric-orbit-tested-tree.json. Default working-tree verification passes; negative check against current base-only HEAD correctly fails. If the post-rebase check fails, do not submit; preserve state and return for correction. Earlier submitted heads and old-base reports do not establish correctness of a new head.
+Playtest: final-head native airport placement, expansion, single-airport edge, citizen boarding/flight/arrival, district UI and City hall regression still required after controller rebase continuation. Existing airport media and reports describe the earlier implementation and must not be treated as this merged head's validation. Run final package/regression tests and refresh evidence/source hashes after continuation.
 
-The index still marks dashboard/progress.json unmerged until controller stages the resolved file. All edits preserved; independent exact-head review remains required.
+All edits preserved in assigned feature worktree. No commit, push, merge, deployment or index staging performed. Helper task resolved as self; concurrency 0. No owner answer pending.

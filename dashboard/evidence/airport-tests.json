@@ -1,0 +1,213 @@
+{
+  "status": "ready for independent review; unpublished",
+  "branch": "feature/queue-61363330343836302d633363302d346664392d383937392d313438643935363133613933",
+  "implementation": [
+    "Voxel passenger jet with cabin windows, cockpit, stepped wings, twin engines, tail and landing gear",
+    "City-owned airport special building 23 with terminal, glass departure hall, control tower, marked runways and lights",
+    "Treasury-funded airport permit (2000) and additional runway (1000); maximum 3 runways and 8 airports",
+    "Distinct runway reservations at both airports; citizens walk, board, fly and arrive; interrupted trips and demolition release reservations",
+    "Saved flight state and backward migration: protocol 21, city save 11; old permit IDs preserved",
+    "Great-circle cruise projected onto the existing planar map using a 6,371,000 metre reference radius; climb and descent stay over cleared runways; cruise clears terrain"
+  ],
+  "behaviorLimits": [
+    "City-directed bookings for adult citizens",
+    "One citizen per booked jet; runway capacity controls concurrent trips",
+    "Existing city placement limits apply; world terrain remains the existing map"
+  ],
+  "environment": {
+    "os": "Linux",
+    "runtime": "Java 25.0.3; source target Java 17",
+    "graphics": "GLFW/X11 with inherited role DISPLAY and XAUTHORITY; Mesa software rendering",
+    "profile": "Isolated synthetic offline city under target/aviation-home and target/aviation-runtime",
+    "viewports": [
+      "1280 x 720",
+      "1280 x 640 compact menu"
+    ],
+    "capturePreparation": "Synthetic flattened sites; production chunk meshes completed before still captures; expansion still waits for file completion before camera moves",
+    "browserPlaytesting": "Does not apply to this Java/OpenGL desktop game"
+  },
+  "tests": [
+    {
+      "command": "MAVEN_OPTS='-Xmx512m' mvn -q -o -Dmaven.repo.local=target/maven-cache -DargLine=\"-Xmx512m -Djava.io.tmpdir=$PWD/target/tmp\" verify",
+      "result": "Passed: 312 tests, 0 failures, 0 errors. Broad regression run completed before the final parked-jet pose and compact-menu corrections. Final corrections are covered by the next run."
+    },
+    {
+      "command": "MAVEN_OPTS='-Xmx512m' mvn -q -o -Dmaven.repo.local=target/maven-cache -DargLine=\"-Xmx512m -Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=AviationTest,SpecialBuildingsTest,CityToolsTest,MarketEconomyTest,BusinessCatalogTest,ProtocolCompatibilityTest,CityMultiplayerTest verify",
+      "result": "Passed on final implementation: 51 tests, 0 failures, 0 errors; game, client, server and launcher packages built.",
+      "suites": [
+        {
+          "class": "AviationTest",
+          "tests": 9,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "class": "SpecialBuildingsTest",
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "class": "CityToolsTest",
+          "tests": 9,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "class": "MarketEconomyTest",
+          "tests": 13,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "class": "BusinessCatalogTest",
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "class": "ProtocolCompatibilityTest",
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "class": "CityMultiplayerTest",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      ]
+    },
+    {
+      "command": "python3 deploy/run_aviation_smoke.py --display \"$DISPLAY\"",
+      "result": "Playtest: passed on final implementation.",
+      "steps": [
+        "Special menu Airport: place first terminal and runway",
+        "Book selected citizen: single airport rejected without mutation",
+        "Place second airport and expand it to two runways",
+        "Place City hall through original permit menu",
+        "Inspect adult citizen; Book flight; click destination airport",
+        "Observe walking, boarding, curved flight and arrival at second terminal",
+        "At 1280 x 640 open Special menu and select Book flight above toolbar"
+      ],
+      "expected": "Two voxel airports, expanded runway, visible jet, citizen arrives, existing permits work",
+      "observed": "All checks passed in running Main with X11 input"
+    },
+    {
+      "commands": [
+        "javac -cp target/maven-cache/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar -d target/aviation-media-check deploy/VerifyAviationMedia.java",
+        "java -Xmx256m -cp target/aviation-media-check:target/maven-cache/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar VerifyAviationMedia dashboard/evidence/airport-playtest.mp4 dashboard/evidence/airport-media.json"
+      ],
+      "result": "Passed: every frame of final F10 clip decoded; frame count matches MP4 metadata; first and last images differ; artifact below 6 MB.",
+      "media": {
+        "status": "passed",
+        "source": "production F10 recorder in native airport playtest",
+        "codec": "H264",
+        "bytes": 1586551,
+        "decodedFrames": 40,
+        "width": 960,
+        "height": 544,
+        "durationSeconds": 21.731,
+        "checks": [
+          "Every frame decoded",
+          "Frame count matches MP4 metadata",
+          "First and last images differ",
+          "Below 6 MB artifact limit"
+        ]
+      }
+    },
+    {
+      "command": "git diff --check",
+      "result": "Passed; no whitespace errors"
+    },
+    {
+      "result": "Visual inspection: final boarding jet is level; jet and runways visible; flight and arrival labels match observed states; compact flight choice is visible above toolbar."
+    }
+  ],
+  "sourceSha256": {
+    "deploy/AviationSmoke.java": "45e974d56de00ce3489a8542ccf62ec41df029e6f0a2e9ab11de91b3e0016568",
+    "deploy/VerifyAviationMedia.java": "0ae33d62214d00fa5bec9a4e6f1a2b47b948d7e0af257bf649052971b4de08db",
+    "deploy/run_aviation_smoke.py": "b4a25be7dafc4fda058cdf28f2fcc0f68cebd3595e85c1fae60df10af68338f1",
+    "src/main/java/dev/jayms/Main.java": "8a85a4689c8bf6ff4cd27b26aa1f76dcfe536970251723964fa7e09aca16a466",
+    "src/main/java/dev/jayms/net/MultiplayerClient.java": "cac42b3446541191e3ba5f0f7584694286eec38aceb2f1635e1a9fb394efa353",
+    "src/main/java/dev/jayms/net/Protocol.java": "40b9ad8a1b5953d565e52d4e1cc085e4ec006ad895955c7bfeaa012f5b98276a",
+    "src/main/java/dev/jayms/net/city/Aviation.java": "aec5129c8d0ee506a0f5626217cf773af7152194b2d828ba106660f29b1a62ff",
+    "src/main/java/dev/jayms/net/city/CityCommand.java": "bf18217434f555c0cac882acf5fa7298c1b4a7bafe1fce884699a5193733a419",
+    "src/main/java/dev/jayms/net/city/CityFrame.java": "f616c9eeb1788cfda26e0752bea21c999fa7ab4ee66dc8dbd40ebe2c0ef692b2",
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "738745ad7edb4686d5cb95b9839bc77ec21e70be61952964e132cd0f10078eaf",
+    "src/main/java/dev/jayms/net/city/FlightPath.java": "8446b174424086e965efa18428525f42d60f35a6ac41eb173ccf671cdafd01e5",
+    "src/main/java/dev/jayms/net/city/SpecialBuildings.java": "b4094e27eb629ea76d80bc09764668fe0a1d871b4961b2b94430078e1180bc7c",
+    "src/main/java/dev/jayms/net/city/StructureBlueprint.java": "742df873fca7ad2c4a4c5e78a2b9691981c389ac98540fbbf411e99ef4224533",
+    "src/main/java/dev/jayms/player/PlaneModel.java": "07fc96f97b6c6b46b785361605a498c5473aabc0cfa6fddce29fd3f45ba3aaeb",
+    "src/main/java/dev/jayms/ui/BuildingInfo.java": "e6bd88c89ee42254909e5d1369a9d6fe7f09234f55fe300410fe1dfa0f935938",
+    "src/main/java/dev/jayms/ui/CityTools.java": "59913a5a114be1dcad724a3a758e665006f8b8f5bce1a21e4c15749141ddd06e",
+    "src/test/java/dev/jayms/AviationTest.java": "a9a45c6f1eab4ac4b365abf1a11f5b3b61b60feddcb99d40e39c1b4859174c84",
+    "src/test/java/dev/jayms/BusinessCatalogTest.java": "7ad039bb51ff513f2bc62373f7106da4b9f87de9545d54b7d36116e7e6b0a326",
+    "src/test/java/dev/jayms/MarketEconomyTest.java": "70af853e634b67bd571af49400581cd4b4df2104bf6573dde78bb40d9eb2b13b"
+  },
+  "artifacts": [
+    {
+      "file": "airport-expanded.png",
+      "bytes": 688420,
+      "sha256": "cfd66d2761e0ab350ef4b361eb85f30b4bec99ed7c4d425ced95ef0c78161dd5",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "airport-boarding.png",
+      "bytes": 769298,
+      "sha256": "2777e9b8853b9f5b5cdfe95839b3ffd1559134b0c094853406c2d0db19aa917c",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "airport-flight.png",
+      "bytes": 297612,
+      "sha256": "f4727ba634b3c99ec959e8b25c60c9a0be71251c1a1efc7a1e0f32a072dd4466",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "airport-arrival.png",
+      "bytes": 950498,
+      "sha256": "10952c58af1d0cf2d3c0fd686e2485fde79d1fc5a568919b86514d8e55a609c4",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "airport-compact-menu.png",
+      "bytes": 670333,
+      "sha256": "317e9d628eaf44288b9333995b04513bb71b1e9616765584fc6be2a95654a9ec",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "airport-playtest.mp4",
+      "bytes": 1586551,
+      "sha256": "f591f776f79d4ccf61bae592700be590082fe4b73d45ae676a121b875da3ba9d",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "airport-playtest.json",
+      "bytes": 778,
+      "sha256": "8d4bf0195f324d04e4bffa8e454e0cd37f23beea9583443054ee1986a782540e",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "airport-media.json",
+      "bytes": 309,
+      "sha256": "7358f139dace9c12d8a6b826b1dcc39f972ce7c82a03808e0cb48ddba58beba7",
+      "publication": "pending controller publication"
+    }
+  ],
+  "packages": [
+    "voxel-one-1.0-SNAPSHOT-client.jar",
+    "voxel-one-1.0-SNAPSHOT-launcher.jar",
+    "voxel-one-1.0-SNAPSHOT-server.jar",
+    "voxel-one-1.0-SNAPSHOT.jar"
+  ],
+  "handoff": "Runner owns staging, commits, publication, PR and merge. Reviewer must exercise the exact submitted head and verify published media. No deployment or Git write performed."
+}

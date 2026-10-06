@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-06T20:17:38+00:00",
+  "updatedAt": "2026-10-06T21:12:14+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -2362,6 +2362,26 @@
       "status": "in_progress",
       "note": "Restock review fixed: actual affordable supplier offers ranked across suitable foods, rechecked per portion. Four new regressions; 78 current tests and native playtest passed. Fresh inventory media and market-restock-review-fix.json ready for controller publication and independent review.",
       "updatedAt": "2026-10-05T15:03:44+00:00"
+    },
+    {
+      "id": "queue-61363330343836302d633363302d346664392d383937392d313438643935363133613933",
+      "title": "Airport and passenger flight system",
+      "description": "Building airport permits, runway expansion, passenger travel and curved routes.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Final build and playtest report (pending publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-61363330343836302d633363302d346664392d383937392d313438643935363133613933/dashboard/evidence/airport-tests.json"
+        },
+        {
+          "kind": "link",
+          "label": "Native F10 flight clip (pending publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-61363330343836302d633363302d346664392d383937392d313438643935363133613933/dashboard/evidence/airport-playtest.mp4"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Conflict contents resolved; regional data preserved, format 12 and protocol 22 integrated. Clean focused tests passed. Controller rebase continuation and final-head playtesting remain.",
+      "updatedAt": "2026-10-06T21:12:14+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
