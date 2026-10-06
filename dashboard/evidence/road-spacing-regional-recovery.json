@@ -1,0 +1,54 @@
+{
+  "status": "recovery_checks_passed",
+  "head": "6aadb95a4d021185e45ecad88177f732fd23ed76",
+  "scope": "Intermediate rebase working files; not final-head acceptance. Controller must stage and continue.",
+  "resolution": "Retained upstream Terrain terrain and constructor assignment plus incoming RoadSpacing roadSpacing. Regional population/district commands/UI, protocol21 and cityformat11 remain upstream.",
+  "command": "MAVEN_OPTS=\"-Xmx256m -Djava.io.tmpdir=$PWD/target/tmp\" /tmp/apache-maven-3.9.11/bin/mvn --batch-mode -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux \"-DargLine=-Xmx512m -Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=RegionalPopulationTest,RegionalSaveCompatibilityTest,RoadSpacingTest test > target/regional-recovery-checks.txt 2>&1",
+  "environment": "Linux; inherited Java; Maven3.9.11; worktree-local target/maven-cache and target/tmp; Maven heap256MiB, fork heap512MiB. Synthetic test fixtures.",
+  "expected": "Regional state/commands and version11 persistence remain compatible; spacing regression tests pass.",
+  "observed": "BUILD SUCCESS;16 tests,0failures/errors/skips;exit0.",
+  "suites": [
+    {
+      "name": "dev.jayms.RegionalPopulationTest",
+      "tests": "9",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.RegionalSaveCompatibilityTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.net.city.RoadSpacingTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "upstreamFilesSha256": {
+    "src/main/java/dev/jayms/net/city/RegionalPopulation.java": "5b40b74f336b296d53247605ee983ddaf312b705336da8d3e81622d784410258",
+    "src/main/java/dev/jayms/net/city/CityFrame.java": "90b0716c61412e740395d9beef2e46dc9b8a6de689033b806bfb6c5d96e7dd5e",
+    "src/main/java/dev/jayms/net/city/CityCommand.java": "8e4e89cc665f876832446ddd424ef6c3af3cbdaf2318a65bbebd3eef11302715",
+    "src/main/java/dev/jayms/net/Protocol.java": "0ee2c2b3040a7330137b67fb8d149fb4abf1b732bdf1afff488ae7b588c65ac1",
+    "src/main/java/dev/jayms/ui/CityTools.java": "c9c13c59fdfedb65f8088c879ecd78c3ad1abba74b5a342c6b6d2c4344967f7a",
+    "src/main/java/dev/jayms/ui/MayorDashboard.java": "3ea2b5d7c86b35a0483d4357b8bafeaf8745539bd86aa0b68255dd549ea6bb6d",
+    "src/main/java/dev/jayms/ui/RegionalDashboard.java": "08373588af18f59437a408d7d293a1f2bf598d0e3d1083b62b83544a79425dba",
+    "src/test/java/dev/jayms/RegionalPopulationTest.java": "50f2553c4749697ea696d0d71362b78bc150b6ef2beceb64dbcce584977470e5",
+    "src/test/java/dev/jayms/RegionalSaveCompatibilityTest.java": "0cf3b5fd193b06b1d9a28b66a98a7aa1e4ff43b80c129b33a4b8989f41c2cb59",
+    "src/test/java/dev/jayms/RegionalMultiplayerTest.java": "f6a193dcc27bec496f82a0466e63b02555346e0dd2c074a34614b427e8aeadde"
+  },
+  "regionalEvidence": "50 regional/district/population artifacts match current base HEAD byte for byte.",
+  "playtest": "Playtest: final-head native workflow checks and fresh media are pending controller Git continuation. No native check executed this recovery turn. Browser does not apply to native Java/OpenGL app; Maven checks exercise synthetic state/save integration.",
+  "remaining": [
+    "Continue rebase while retaining subsequent factory/food/porch and spacing fixes.",
+    "Confirm final regional population, district UI/commands, protocol21 and format11 source/tests/evidence after all commits replay.",
+    "Run final-head regression checks and native spacing/zero/factory/road/jeep/regional workflows.",
+    "Replace road-jeep-driving.mp4 with fresh F10 video; validate container, decode and inspect exact submitted bytes before publication."
+  ],
+  "publication": "pending controller publication"
+}

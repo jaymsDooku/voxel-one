@@ -2546,6 +2546,36 @@
       "status": "in_progress",
       "note": "Ready for independent review: 38 tests, cargo and aviation native workflows passed on aviation base. Protocol 22, format-12 saves and 734 checked base files preserved. Fresh media pending controller publication.",
       "updatedAt": "2026-10-06T20:35:10+00:00"
+    },
+    {
+      "id": "37653764393438302d353363332d346134312d626437312d626137346466336266356538",
+      "title": "Configurable road user spacing",
+      "description": "Inspecting road travel and configuration; implementation and playtest pending.",
+      "evidence": [
+        {
+          "label": "Configured gaps native playtest \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-native.mp4",
+          "kind": "video"
+        },
+        {
+          "label": "Zero-gap edge playtest \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-zero.mp4",
+          "kind": "video"
+        },
+        {
+          "label": "Native tested frame \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-native-video-frame.png",
+          "kind": "image"
+        },
+        {
+          "label": "Final test report \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-tests.json",
+          "kind": "report"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Rebase conflicts resolved with passenger transport and configurable spacing retained. 20 focused progression/energy/freight/save/spacing tests passed. Upstream features, fixtures and historical evidence preserved. Controller staging/continuation and final-head workflow checks/media remain pending.",
+      "updatedAt": "2026-10-06T15:55:01+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

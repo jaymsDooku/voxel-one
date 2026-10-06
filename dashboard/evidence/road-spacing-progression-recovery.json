@@ -1,0 +1,58 @@
+{
+  "status": "recovery checks passed; final-head validation pending",
+  "head": "9e60a29cfa379097e647b1aecdc5f7159be0e756",
+  "command": "MAVEN_OPTS=\"-Xmx256m -Djava.io.tmpdir=$PWD/target/tmp\" /tmp/apache-maven-3.9.11/bin/mvn --batch-mode -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux \"-DargLine=-Xmx512m -Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=IndustrialProgressionTest,OperatingEnergyTest,FreightFallbackTest,AviationSaveCompatibilityTest,RoadSpacingTest test > target/spacing-progression-recovery.txt 2>&1",
+  "environment": "Linux; Maven 3.9.11; inherited Java; local dependency cache and JVM temp; Maven 256 MiB/test 512 MiB heaps.",
+  "exitCode": 0,
+  "observed": "BUILD SUCCESS; 20 tests, zero failures/errors/skips",
+  "suites": [
+    {
+      "name": "dev.jayms.IndustrialProgressionTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.OperatingEnergyTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.FreightFallbackTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.AviationSaveCompatibilityTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.net.city.RoadSpacingTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "resolution": "Passenger fleet speed and accelerated movement retained alongside spacing travel budget, swept clearance and passing variables. Dashboard keeps all upstream items and adds spacing separately.",
+  "checks": [
+    "git diff --check passed.",
+    "No conflict markers in resolved files.",
+    "No modified/deleted upstream evidence or save fixtures.",
+    "All upstream dashboard items preserved."
+  ],
+  "playtest": "Playtest: final-head native workflow checks and fresh media deferred until controller stages resolutions and continues the preserved rebase. No gameplay pass or new media claimed for this recovery.",
+  "publication": "pending controller publication after final-head validation",
+  "resolvedSourceSha256": {
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "26847edaf11ebd655ae65024525cca4a36a9bf574d1db37bd2ba349f428668d1",
+    "src/main/java/dev/jayms/net/city/RoadSpacing.java": "87e84a3a1895d81f4e44a2e7439af9d6cb73927ec134cdec8bbc78c9ddc61316"
+  }
+}

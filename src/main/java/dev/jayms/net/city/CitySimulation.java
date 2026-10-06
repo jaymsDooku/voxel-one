@@ -57,6 +57,7 @@ public final class CitySimulation {
 
     public static final class Travel {
         public int target;
+        public int passingPoints;
         public double retryAt, mealUntil;
         public String activity = "Looking for home / work";
         public final ArrayDeque<Cell> route = new ArrayDeque<>();
@@ -70,6 +71,7 @@ public final class CitySimulation {
     public final Ecs ecs = new Ecs();
     private final Ground ground;
     private final Terrain terrain;
+    private final RoadSpacing roadSpacing = RoadSpacing.configured();
     private final GameConfig config;
     private final CityHarvesting harvesting;
     private final Map<Cell, Integer> roads = new LinkedHashMap<>();
@@ -174,7 +176,8 @@ public final class CitySimulation {
             ecs.put(
                     id,
                     Position.class,
-                    new Position(9.5f + i % 3, grade + 1.01f, 24.5f + i / 3 * .15f));
+                    new Position(9.5f + i * (Math.max(roadSpacing.pedestrians(), roadSpacing.mounted()) + .1f),
+                            grade + 1.01f, 25.1f));
             ecs.put(
                     id,
                     Household.class,
@@ -191,7 +194,7 @@ public final class CitySimulation {
         }
         for (int i = 0; i < 6; i++) {
             int id = ecs.create();
-            ecs.put(id, Position.class, new Position(2.5f + i, grade + 1.01f, 24.5f));
+            ecs.put(id, Position.class, new Position(8.5f, grade + 1.01f, 21.8f - i * (roadSpacing.mounted() + .1f)));
             ecs.put(id, Mount.class, new Mount());
         }
         economy = new CityEconomy(ecs, null, catalog);
@@ -1138,6 +1141,7 @@ public final class CitySimulation {
     }
 
     private void journey(int id, Position p, CityFrame.Building destination, Travel t) {
+        t.passingPoints = 0;
         float x = p.x, z = p.z;
         for (var b : buildings)
             if (x > b.x() && x < b.x() + 6 && z > b.z() && z < b.z() + 7) {
@@ -1205,20 +1209,28 @@ public final class CitySimulation {
         if (h.horse != 0
                 && site != null
                 && Math.hypot(p.x - site.x() - 2.5f, p.z - entrance(site) - .5f) < 2) {
-            ecs.get(h.horse, Mount.class).rider = 0;
+            int horse = h.horse;
+            ecs.get(horse, Mount.class).rider = 0;
             h.horse = 0;
             p.y -= .75f;
+            parkHorse(horse, p);
         }
 
         if (h.horse == 0
                 && h.cohort > 0
+                && (site == null || Math.hypot(p.x - site.x() - 2.5f, p.z - entrance(site) - .5f) >= 2)
                 && roads.containsKey(new Cell((int) Math.floor(p.x), (int) Math.floor(p.z)))) {
             for (int horse : ecs.query(Mount.class)) {
                 var m = ecs.get(horse, Mount.class);
                 var hp = ecs.get(horse, Position.class);
                 if (m.rider == 0 && distance(p, hp) < 4) {
-                    m.rider = -id;
+                    // Mounting must not enlarge an existing walking gap into an overlap.
                     h.horse = horse;
+                    if (!roadClear(id, p, h, p.x, p.z)) {
+                        h.horse = 0;
+                        continue;
+                    }
+                    m.rider = -id;
                     break;
                 }
             }
@@ -1228,23 +1240,86 @@ public final class CitySimulation {
                 && !t.route.isEmpty() ? economy.passengerSpeed(id, dt * 24 / config.daySeconds()) : 2.2;
         // Travel must keep pace with needs and schedules when the city clock is accelerated.
         float speed = (float)(Math.max(transit, h.horse == 0 ? 2.2 : 5.5) * 1200 / config.daySeconds());
-        float remaining = speed * dt, dx = 0, dz = 0;
-        // Consume the whole distance budget, including several cells on accelerated days.
-        // Small collision steps keep fast travel from crossing walls or furniture.
+        float remaining = speed * dt, dx = 0, dz = 0, travelled = 0;
+        boolean replanned = false;
+        float waypointRadius = Math.max(roadSpacing.pedestrians(), roadSpacing.mounted()) + .15f;
         while (remaining > .0001f && !t.route.isEmpty()) {
             var target = t.route.peek();
-            dx = target.x() + .5f - p.x; dz = target.z() + .5f - p.z;
-            float dist = (float)Math.hypot(dx, dz);
-            if (dist < .0001f) { t.route.remove(); continue; }
+            // Road cells guide passing users without forcing them through occupied centres.
+            while (t.route.size() > 1 && roadApproach(p.x, p.z)
+                    && publicRoad(target.x() + .5f, target.z() + .5f)
+                    && Math.hypot(target.x() + .5f - p.x, target.z() + .5f - p.z)
+                            < (t.passingPoints > 0 ? .15f : waypointRadius)) {
+                var points = t.route.iterator();
+                points.next();
+                var next = points.next();
+                // Keep door alignment, but do not turn back to a road point already passed.
+                boolean alignedAhead = next.x() == target.x()
+                        && Math.abs(p.x - target.x() - .5f) < .12f
+                        && (p.z - target.z() - .5f) * (next.z() - target.z()) > 0
+                        || next.z() == target.z()
+                        && Math.abs(p.z - target.z() - .5f) < .12f
+                        && (p.x - target.x() - .5f) * (next.x() - target.x()) > 0;
+                if (!publicRoad(next.x() + .5f, next.z() + .5f) && !alignedAhead) break;
+                consumeWaypoint(t);
+                target = t.route.peek();
+            }
+            if (t.target >= CityMaterials.YARD && t.route.size() == 1
+                    && Math.hypot(target.x() + .5f - p.x, target.z() + .5f - p.z) < waypointRadius) {
+                t.route.clear();
+                break;
+            }
+            dx = target.x() + .5f - p.x;
+            dz = target.z() + .5f - p.z;
+            float dist = (float) Math.hypot(dx, dz);
+            if (dist < .0001f) {
+                consumeWaypoint(t);
+                continue;
+            }
+            // Retain upstream's small collision steps, including on accelerated days.
             float movement = Math.min(Math.min(remaining, dist), .25f);
             float nx = p.x + dx / dist * movement, nz = p.z + dz / dist * movement;
             if (!passable(nx, nz)) {
-                t.activity = "Route obstructed"; t.target = -9999;
-                t.route.clear(); t.retryAt = elapsed + 2;
-                return;
+                t.activity = "Route obstructed";
+                t.target = -9999;
+                t.route.clear();
+                t.retryAt = elapsed + 2;
+                break;
             }
-            p.x = nx; p.z = nz; remaining -= movement;
-            if (dist - movement < .0001f) t.route.remove();
+            if (!roadClear(id, p, h, nx, nz)) {
+                if (!replanned && publicRoad(p.x, p.z)) {
+                    replanned = true;
+                    if (passingRoute(id, p, h, t)) continue;
+                }
+                // Keep the route while waiting. Try clear passing directions, right first.
+                boolean moved = false;
+                double best = Double.POSITIVE_INFINITY;
+                for (int angle : new int[] {30, -30, 60, -60, 90, -90, 120, -120, 150, -150, 180}) {
+                    double radians = Math.toRadians(angle);
+                    float sx = p.x + (float) ((dx * Math.cos(radians) + dz * Math.sin(radians)) / dist * movement);
+                    float sz = p.z + (float) ((dz * Math.cos(radians) - dx * Math.sin(radians)) / dist * movement);
+                    double distanceToTarget = Math.hypot(target.x() + .5f - sx, target.z() + .5f - sz);
+                    if (distanceToTarget < best && roadApproach(sx, sz) && passable(sx, sz)
+                            && roadClear(id, p, h, sx, sz)) {
+                        nx = sx;
+                        nz = sz;
+                        best = distanceToTarget;
+                        moved = true;
+                    }
+                }
+                if (!moved) {
+                    t.activity = "Waiting for road clearance";
+                    break;
+                }
+            }
+            dx = nx - p.x;
+            dz = nz - p.z;
+            travelled += (float) Math.hypot(dx, dz);
+            p.x = nx;
+            p.z = nz;
+            remaining -= movement;
+            if (Math.hypot(p.x - target.x() - .5f, p.z - target.z() - .5f) < .0001)
+                consumeWaypoint(t);
         }
         p.y =
                 roads.getOrDefault(new Cell((int) Math.floor(p.x), (int) Math.floor(p.z)), grade)
@@ -1255,7 +1330,7 @@ public final class CitySimulation {
                 break;
             }
         p.yaw = (float) Math.toDegrees(Math.atan2(dz, dx));
-        p.phase += speed * dt * 2.66f;
+        p.phase += travelled * 2.66f;
         if (h.horse != 0) {
             var hp = ecs.get(h.horse, Position.class);
             hp.x = p.x;
@@ -1265,11 +1340,133 @@ public final class CitySimulation {
             hp.phase = p.phase;
             p.y += .75f;
             if (t.route.isEmpty()) {
-                ecs.get(h.horse, Mount.class).rider = 0;
+                int horse = h.horse;
+                ecs.get(horse, Mount.class).rider = 0;
                 h.horse = 0;
                 p.y -= .75f;
+                parkHorse(horse, p);
             }
         }
+    }
+
+    private void parkHorse(int horse, Position rider) {
+        var clearance = new Household("Traffic clearance", 0);
+        clearance.horse = horse;
+        var candidates = roads.keySet().stream()
+                .filter(c -> Math.hypot(c.x() + .5f - rider.x, c.z() + .5f - rider.z) <= 4)
+                .sorted(Comparator.comparingDouble(c -> Math.hypot(c.x() + .5f - rider.x, c.z() + .5f - rider.z)))
+                .toList();
+        for (var cell : candidates) {
+            float x = cell.x() + .5f, z = cell.z() + .5f;
+            if (Math.hypot(x - rider.x, z - rider.z) < roadSpacing.mounted()
+                    || !publicRoad(x, z) || !passable(x, z)) continue;
+            var probe = new Position(x, roads.get(cell) + 1.01f, z);
+            if (!roadClear(-horse, probe, clearance, x, z)) continue;
+            var hp = ecs.get(horse, Position.class);
+            hp.x = x; hp.y = probe.y; hp.z = z;
+            return;
+        }
+    }
+
+    private static void consumeWaypoint(Travel t) {
+        t.route.remove();
+        t.passingPoints = Math.max(0, t.passingPoints - 1);
+    }
+
+    /** Rejoin the road ahead using a clear lane, rather than oscillating beside a worker. */
+    private boolean passingRoute(int id, Position p, Household h, Travel t) {
+        Cell goal = null;
+        int prefix = 0, goalPrefix = 0;
+        for (var cell : t.route) {
+            if (++prefix > 6 || !publicRoad(cell.x() + .5f, cell.z() + .5f)) break;
+            var probe = new Position(cell.x() + .5f, p.y, cell.z() + .5f);
+            if (passable(probe.x, probe.z) && roadClear(id, probe, h, probe.x, probe.z)) {
+                goal = cell;
+                goalPrefix = prefix;
+            }
+        }
+        if (goal == null) return false;
+        var start = new Cell((int) Math.floor(p.x), (int) Math.floor(p.z));
+        var parents = new HashMap<Cell, Cell>();
+        var queue = new ArrayDeque<Cell>();
+        parents.put(start, start);
+        queue.add(start);
+        while (!queue.isEmpty() && parents.size() < 256) {
+            var cell = queue.remove();
+            if (cell.equals(goal)) break;
+            for (int dx = -1; dx <= 1; dx++) for (int dz = -1; dz <= 1; dz++) {
+                if (dx == 0 && dz == 0) continue;
+                var next = new Cell(cell.x() + dx, cell.z() + dz);
+                if (parents.containsKey(next) || !publicRoad(next.x() + .5f, next.z() + .5f)
+                        || !passable(next.x() + .5f, next.z() + .5f)) continue;
+                var probe = new Position(next.x() + .5f, p.y, next.z() + .5f);
+                if (!roadClear(id, probe, h, probe.x, probe.z)) continue;
+                parents.put(next, cell);
+                queue.add(next);
+            }
+        }
+        if (!parents.containsKey(goal) || goal.equals(start)) return false;
+        var path = new ArrayList<Cell>();
+        for (var cell = goal; !cell.equals(start); cell = parents.get(cell)) path.add(cell);
+        Collections.reverse(path);
+        for (int i = 0; i < goalPrefix; i++) t.route.remove();
+        for (int i = path.size() - 1; i >= 0; i--) t.route.addFirst(path.get(i));
+        t.passingPoints = path.size();
+        return true;
+    }
+
+    private boolean roadApproach(float x, float z) {
+        if (buildings.stream().anyMatch(b -> x > b.x() && x < b.x() + 6
+                && z > b.z() && z < b.z() + 7)) return false;
+        int cx = (int) Math.floor(x), cz = (int) Math.floor(z);
+        for (int dx = -1; dx <= 1; dx++) for (int dz = -1; dz <= 1; dz++)
+            if (roads.containsKey(new Cell(cx + dx, cz + dz))) return true;
+        return false;
+    }
+
+    private boolean publicRoad(float x, float z) {
+        return roads.containsKey(new Cell((int) Math.floor(x), (int) Math.floor(z)))
+                && buildings.stream().noneMatch(b -> x > b.x() && x < b.x() + 6
+                        && z > b.z() && z < b.z() + 7);
+    }
+
+    /** Check the swept step, so a fast rider cannot skip through a waiting walker. */
+    private boolean roadClear(int id, Position p, Household h, float nx, float nz) {
+        if (!roadApproach(p.x, p.z) && !roadApproach(nx, nz)) return true;
+        float ownGap = h.horse == 0 ? roadSpacing.pedestrians() : roadSpacing.mounted();
+        for (int other : ecs.query(Position.class, Household.class)) {
+            if (other == id) continue;
+            var q = ecs.get(other, Position.class);
+            if (!roadApproach(q.x, q.z)) continue;
+            var household = ecs.get(other, Household.class);
+            float gap = Math.max(ownGap, household.horse == 0
+                    ? roadSpacing.pedestrians() : roadSpacing.mounted());
+            if (!clearStep(p.x, p.z, nx, nz, q.x, q.z, gap)) return false;
+        }
+        for (int horse : ecs.query(Position.class, Mount.class)) {
+            var mount = ecs.get(horse, Mount.class);
+            // NPC riders are already counted by their household position.
+            if (mount.rider < 0 || horse == h.horse) continue;
+            var q = ecs.get(horse, Position.class);
+            if (roadApproach(q.x, q.z) && !clearStep(p.x, p.z, nx, nz, q.x, q.z,
+                    Math.max(ownGap, roadSpacing.mounted()))) return false;
+        }
+        return true;
+    }
+
+    static boolean clearStep(float x, float z, float nx, float nz,
+            float qx, float qz, float gap) {
+        if (gap == 0) return true;
+        double before = Math.hypot(x - qx, z - qz);
+        double after = Math.hypot(nx - qx, nz - qz);
+        double dx = nx - x, dz = nz - z, length = dx * dx + dz * dz;
+        double along = length == 0 ? 0 : Math.max(0, Math.min(1,
+                ((qx - x) * dx + (qz - z) * dz) / length));
+        double closest = Math.hypot(x + along * dx - qx, z + along * dz - qz);
+        // Already overlapping pairs may separate, never move closer.
+        if (before < gap - .00001)
+            return after > before + .00001 && closest >= before - .00001;
+        return closest >= gap - .00001;
     }
 
     private static float distance(Position a, Position b) {

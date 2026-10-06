@@ -1,0 +1,28 @@
+{
+  "status": "resolved_contents_pending_controller_git",
+  "checks": [
+    "Parsed both index versions and retained every upstream progress entry unchanged. Added spacing as a separate item.",
+    "Jeep source, Player/Controls integration, shader transparency files, JeepTest, docs, harnesses and every jeep evidence file match upstream HEAD byte for byte.",
+    "Main staged diff adds only spacing CLI handling and usage; existing jeep integration remains."
+  ],
+  "jeepFilesSha256": {
+    "src/main/java/dev/jayms/player/Jeep.java": "fee90881847413cfdf28669bb43c2f658f336543ca74f4ca4cd94fb569717645",
+    "src/main/java/dev/jayms/player/JeepModel.java": "22c0d10ff0dc9552a912ba07cb8939f9343acd157f31ab3597977b002b33b08c",
+    "src/main/java/dev/jayms/player/Player.java": "c37b83e829f008693ce324a45b149226f5c36aa4a19bca3d876a094fe6d11618",
+    "src/main/java/dev/jayms/ui/Controls.java": "1f82764d31e522a6ad7fc31324adc82ef53862133bf9a0be6fbf5923d76a66cf",
+    "src/main/java/dev/jayms/ShaderProgram.java": "b756c2f9a109d23ff174c6910f3bbb0c7d42b22aab2479b74c258765c089c588",
+    "src/main/resources/shaders/voxel.frag": "3305a32170e0d5a671c6039b2acf31d7ae74e0ab527eb9dc60cbe9f55aa71eb3",
+    "src/test/java/dev/jayms/JeepTest.java": "a25f35bdb6d94da3fd06726f358e41aaa0e98d51174406c0067eab5f6f489d3c",
+    "docs/jeep.md": "cd7f2c4617a06ef7610815647cc7ac5c5c726230b7d49d00d76ff29844a36b29",
+    "deploy/JeepPlaytest.java": "e2aeface95ec7dff46f38042ece9f0257e474dc832c6aade7888afb16c2ab463",
+    "deploy/run_jeep_playtest.py": "6ceaee8e53d2640608bfb04090224cd0140bddbc1bccaf2a9896fe97c61333d4",
+    "dashboard/evidence/jeep-parked.png": "41ba6d18c2c0b880429cd45ad6800404d48429bd8d66018b9972c9b9723e114c",
+    "dashboard/evidence/jeep-driver-seat.png": "10164e818c66dccef77d7eab8fad15cf58f550d7ff39770053f5f99781202860",
+    "dashboard/evidence/jeep-windshield.png": "eb313e79da0e1d9f9856b55a7068291a05b27ada820dc01b617c7cc5a7e0511d",
+    "dashboard/evidence/jeep-driving.mp4": "f0d6c389415d142666d6311f8494ae0ac354ba559c99a564b70bff67f6d9bcd9",
+    "dashboard/evidence/jeep-wall.png": "6ea23b8ca3db14258cf79e6374f143e6bf74d0e24a65634d500946883b3a5ae7",
+    "dashboard/evidence/jeep-test-report.md": "fc750e1cf364484381d8c9a00c3a8be92e62c75229710547c9cdc2bf9524f3b9",
+    "dashboard/evidence/jeep-playtest.json": "6dce5ac79b3aaa1964f7e9710c9119e7a7832a4425262d63a721493f39c138c4"
+  },
+  "execution": "No gameplay or automated simulation checks run during this Git recovery. Final-head full verification, AgricultureTest, JeepTest and fresh native spacing/jeep regression playtests remain required after controller continuation."
+}

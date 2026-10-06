@@ -1,0 +1,242 @@
+{
+  "status": "passed",
+  "publication": "pending controller publication; independent review required",
+  "environment": {
+    "automated": "Linux; Oracle Java 25.0.3; Java target 17; Maven 3.9.11; native dependencies natives-linux",
+    "native": "Linux; inherited managed X11 role DISPLAY and XAUTHORITY; Mesa software OpenGL; Oracle JDK 21.0.5; isolated synthetic offline profiles under target/spacing-home",
+    "browser": "Browser playtesting does not apply: Voxel One is a Java desktop game."
+  },
+  "automated": {
+    "command": "/tmp/apache-maven-3.9.11/bin/mvn -q -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux -DargLine=-Djava.io.tmpdir=$PWD/target/tmp -Dtest=RoadSpacingTest,CityTest,CityTimeTest,CityMultiplayerTest,PopulationJourneyTest test > target/road-spacing-final-checks.txt 2>&1",
+    "exitCode": 0,
+    "tests": 22,
+    "suites": [
+      {
+        "name": "dev.jayms.net.city.RoadSpacingTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CityTest",
+        "tests": "10",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CityTimeTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CityMultiplayerTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.PopulationJourneyTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ],
+    "coverage": "Swept clearance, following and opposing pedestrians, mounted users, overlapping spawn escape, zero spacing, accelerated travel, settlement assignments, daily life, save/restore, multiplayer, full education journey and disconnected-school edge."
+  },
+  "playtest": {
+    "entry": "Playtest: PASS. Full Main.run application, real native window, engine renderer, GLFW input and F10 recorder. Both configured-spacing and zero-gap edge cases passed; inventory opens and closes in both runs.",
+    "steps": [
+      "Start full native city application with isolated synthetic profile and configured gaps. Advance starter city 300 simulation seconds and stage twelve real citizens with normal journey replanning, including a mounted commuter.",
+      "Focus the native game window. Press F10 using xdotool. Sample live immutable rendered city frames 100 times at 150 ms intervals. Check walking movement, mounted movement, nearby pair clearance and late minimum clearance.",
+      "For the zero-gap case, stage two coincident pedestrians. Confirm overlap is allowed while users continue moving.",
+      "Stop F10. Press E to open inventory, wait for native state, press E to close and verify closed. Close native window.",
+      "Match each completed recording to its case result time. Independently decode frames at 0%, 50% and 95%, export midpoint images and visually inspect screenshots and decoded images."
+    ],
+    "expected": "Configured users move with the requested walking/mounted gaps. Zero allows overlap and motion. Inventory still opens and closes. Both engine recordings decode and remain below 6 MB.",
+    "observed": "Both runs exited 0. Standard case: 304 moving samples, 986 nearby separated pair samples, 115 mounted samples, minimum clearance margin +0.0004940784014084709 blocks. Zero case: 254 moving samples, 59 mounted samples and 41 overlap samples. Inventory regression passed. Both matched recordings decoded and images were inspected.",
+    "cases": [
+      {
+        "command": "python3 deploy/run_road_spacing_smoke.py --display \"$DISPLAY\" --output target/spacing-native-final",
+        "exitCode": 0,
+        "results": {
+          "platform": "Linux X11 Xvfb Mesa software OpenGL",
+          "status": "passed",
+          "pedestrianGapBlocks": 1.0,
+          "mountedGapBlocks": 1.4,
+          "movingSamples": 304,
+          "nearbySeparatedPairSamples": 986,
+          "mountedSamples": 115,
+          "overlapSamples": 0,
+          "minimumClearanceMarginBlocks": 0.0004940784014084709,
+          "lateClosestRoadPairBlocks": 1.0239275510582853,
+          "regression": "Native inventory opens and closes",
+          "recording": "engine F10 recorder",
+          "sourceRecording": "Voxel-One_2026-10-06_15-43-06_11169270136678772893.mp4",
+          "recordingMatch": "Latest finalized recording before this case result; cases ran sequentially",
+          "publication": "pending controller publication"
+        },
+        "decodedMedia": {
+          "status": "passed",
+          "frames": 52,
+          "seconds": 15.337,
+          "bytes": 949962,
+          "width": 960,
+          "height": 544,
+          "decodedFractions": [
+            0,
+            0.5,
+            0.95
+          ]
+        }
+      },
+      {
+        "command": "python3 deploy/run_road_spacing_smoke.py --display \"$DISPLAY\" --output target/spacing-native-zero --pedestrian-spacing 0 --mounted-spacing 0",
+        "exitCode": 0,
+        "results": {
+          "platform": "Linux X11 Xvfb Mesa software OpenGL",
+          "status": "passed",
+          "pedestrianGapBlocks": 0,
+          "mountedGapBlocks": 0,
+          "movingSamples": 254,
+          "nearbySeparatedPairSamples": 732,
+          "mountedSamples": 59,
+          "overlapSamples": 41,
+          "minimumClearanceMarginBlocks": 0.0,
+          "lateClosestRoadPairBlocks": 0.03002309799194336,
+          "regression": "Native inventory opens and closes",
+          "recording": "engine F10 recorder",
+          "sourceRecording": "Voxel-One_2026-10-06_15-45-02_7650071695153739324.mp4",
+          "recordingMatch": "Latest finalized recording before this case result; cases ran sequentially",
+          "publication": "pending controller publication"
+        },
+        "decodedMedia": {
+          "status": "passed",
+          "frames": 50,
+          "seconds": 15.096,
+          "bytes": 909122,
+          "width": 960,
+          "height": 544,
+          "decodedFractions": [
+            0,
+            0.5,
+            0.95
+          ]
+        }
+      }
+    ]
+  },
+  "cli": [
+    {
+      "command": "java -Duser.home=target/spacing-cli-home -cp <compiled engine and cached dependencies> dev.jayms.Main --offline --game city --pedestrian-spacing NaN",
+      "exitCode": 1,
+      "expected": "Reject invalid spacing before gameplay",
+      "observed": "Road spacing must be finite and between 0 and 2 blocks",
+      "passed": true
+    },
+    {
+      "command": "java -Duser.home=target/spacing-cli-home -cp <compiled engine and cached dependencies> dev.jayms.Main --offline --game city --pedestrian-spacing -1",
+      "exitCode": 1,
+      "expected": "Reject invalid spacing before gameplay",
+      "observed": "Road spacing must be finite and between 0 and 2 blocks",
+      "passed": true
+    },
+    {
+      "command": "java -Duser.home=target/spacing-cli-home -cp <compiled engine and cached dependencies> dev.jayms.Main --offline --game city --pedestrian-spacing 2.1",
+      "exitCode": 1,
+      "expected": "Reject invalid spacing before gameplay",
+      "observed": "Road spacing must be finite and between 0 and 2 blocks",
+      "passed": true
+    }
+  ],
+  "mediaVerification": {
+    "commands": [
+      "javac -cp <target/spacing-classpath.txt contents> -d target/spacing-smoke deploy/RoadSpacingMediaCheck.java",
+      "java -Djava.io.tmpdir=<worktree>/target/tmp -cp <target/spacing-classpath.txt contents> RoadSpacingMediaCheck dashboard/evidence/road-spacing-native.mp4 dashboard/evidence/road-spacing-native-video-frame.png dashboard/evidence/road-spacing-native-media.json",
+      "java -Djava.io.tmpdir=<worktree>/target/tmp -cp <target/spacing-classpath.txt contents> RoadSpacingMediaCheck dashboard/evidence/road-spacing-zero.mp4 dashboard/evidence/road-spacing-zero-video-frame.png dashboard/evidence/road-spacing-zero-media.json"
+    ],
+    "observed": "Both independent decode commands exited 0; standard 52 frames, 15.337 seconds, 949962 bytes; zero 50 frames, 15.096 seconds, 909122 bytes. Matched decoded midpoint images inspected."
+  },
+  "sourceSha256": {
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "948e01bdb3e5722a2964e0bc4ad7dddff0f8545ab761cb5549d01f85ddfe8c04",
+    "src/main/java/dev/jayms/net/city/CityStockExchange.java": "b407c53961601a4c9b3d81dae10d6ddb64aa8defcd2546b328cdff20442f1b56",
+    "src/main/java/dev/jayms/net/city/ProductionCatalog.java": "5c6ec4bb7498a5981662688cc5193e06e4514e7a7df23533afd585308aa8ce43",
+    "src/main/java/dev/jayms/net/city/CityBusinesses.java": "50a66c7ffc66a7e687822d3fde396338a9882ad3f1037beb8f7ff1363d6a7920",
+    "src/main/java/dev/jayms/net/city/BusinessCatalog.java": "203f5f93706ae88953b323d02fc7ec19620c0200e13f09def84a8d4789badbb8",
+    "src/main/java/dev/jayms/net/city/CityEconomy.java": "fb6b0d81d8684f506d9991594335bc3916d94089d9b7f5333581792dfed055b4",
+    "src/main/java/dev/jayms/net/city/CitizenLife.java": "6a6954931f4536740fd6b4b6e20b57bf131cdfe329afe02b64363db733512a88",
+    "src/main/java/dev/jayms/net/city/RoadSpacing.java": "87e84a3a1895d81f4e44a2e7439af9d6cb73927ec134cdec8bbc78c9ddc61316",
+    "src/main/java/dev/jayms/net/city/CityMaterials.java": "c820dac65580ea9c97ac5c0826bfadc838a6aba2bf0b5b308015f7bd98fc5d1e",
+    "src/main/java/dev/jayms/net/city/CityFrame.java": "54df307db25a628c07c9ddc16de97f2af1ad3c7a3c47db42e3756913f98a79b5",
+    "src/main/java/dev/jayms/net/city/Ecs.java": "45d0faac94eb4019db49bf122f3c885f1954ac748c6e59c7068abff63fae5578",
+    "src/main/java/dev/jayms/net/city/CityOccupancy.java": "078e7e5c3c23944b5dcd8d76bc411b4813e2fb5a6c4d9953d078c3010d3631d6",
+    "src/main/java/dev/jayms/net/city/Agriculture.java": "042b5ad716f6857a8ec319ef7f4ec928de6821901a9187294102e8722a9c0a92",
+    "src/main/java/dev/jayms/net/city/CityCapital.java": "3d3476cf157e5818adad8c8250186ebd1ee581a8207e8a0a96c29fcf9588b82d",
+    "src/main/java/dev/jayms/net/city/CityMetrics.java": "2f4aa707c9150fdb5e32fc9154505a3274c8608af0e43de4c5e287c246259181",
+    "src/main/java/dev/jayms/net/city/StructureBlueprint.java": "8ec1ad0bb0e40b7016957e18f1c411be673d72431686fa57ce58b40a88c021b1",
+    "src/main/java/dev/jayms/net/city/CityHarvesting.java": "5a456ec63ae20ee75b41960f1bacd837ec0bbfdb47c8d7618a2d11de23177277",
+    "src/main/java/dev/jayms/net/city/GameConfig.java": "4b6ddcd4a504fe9b0e465fb9d565a4984d07cfa3520673be49d4c189498f72f9",
+    "src/main/java/dev/jayms/net/city/BusinessMetrics.java": "cdf18dc2c19c6653fb3227c5c8feb4a7a79df4ab7d6b48d8184a3c8e667f356e",
+    "src/main/java/dev/jayms/net/city/SpecialBuildings.java": "5ef726d8342abac414429329aaee2ccdff84d3889dca475002e802e636c8267b",
+    "src/main/java/dev/jayms/net/city/CityAddresses.java": "8e2ee06138357fc730bf601f051cfdf6a845327685739dcc1a6160f00833de26",
+    "src/main/java/dev/jayms/net/city/Polygon.java": "31d9f1474f9563349bb24e6386a25d07eb6720fc54d471c4d791ae3ac21373be",
+    "src/main/java/dev/jayms/net/city/CityTime.java": "06433762b2bb190236a0a85e13fa7b12225c0aca4cd4fa68e607f391f33fde8d",
+    "src/main/java/dev/jayms/net/city/CityCommand.java": "b050ea4251364d64e5ab28f3fc4a5e47403fda2bfc88c559b230466308c9da16",
+    "src/main/java/dev/jayms/Main.java": "c2b27cb5c74c89f16ddfc6ea01438f4e35c6f3502f08508594ead498a1005859",
+    "src/main/java/dev/jayms/net/MultiplayerServer.java": "e48c7301b6a0c7ef008707dc37f8c9362285353bde80008ad99bd48aaa422b5a",
+    "src/test/java/dev/jayms/net/city/RoadSpacingTest.java": "b55d89ffcce2da4db99312a22ac6692b6d6ac59bf833e7354a4367552aeb176c",
+    "deploy/RoadSpacingSmoke.java": "dd941d55d48fb73c49c40f60499e957a62bbbb7b4f6863f8506c3a797c6dbf5f",
+    "deploy/run_road_spacing_smoke.py": "b0c3ec7eab92f7ab36427164dfc2f8b6369c1b9ae06a0fcd1eb080bed502d990",
+    "deploy/RoadSpacingMediaCheck.java": "c137479d40521f4a931c262d679c6243bd4514fcacf00608932bec70c55271ca"
+  },
+  "artifacts": [
+    {
+      "filename": "road-spacing-native.mp4",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-native.mp4",
+      "bytes": 949962,
+      "sha256": "5f26875dc645584411e94ebb1989a00de0cd14f1baef7f240da70186d029628a",
+      "publication": "pending controller publication"
+    },
+    {
+      "filename": "road-spacing-zero.mp4",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-zero.mp4",
+      "bytes": 909122,
+      "sha256": "9453e07105b643c3ead22de8bb0f9bcbfec439b0509e6da165a8742216fe317b",
+      "publication": "pending controller publication"
+    },
+    {
+      "filename": "road-spacing-native.png",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-native.png",
+      "bytes": 327019,
+      "sha256": "a64a8e3f92c202a137ac9c4b8bb270ae6a840f61c35e8c63bd409e1e85b6f1c6",
+      "publication": "pending controller publication"
+    },
+    {
+      "filename": "road-spacing-zero.png",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-zero.png",
+      "bytes": 93239,
+      "sha256": "e33c12bd22cd56de40605e4ad07880d82ffc5d27718fa394fd6301a151aee74d",
+      "publication": "pending controller publication"
+    },
+    {
+      "filename": "road-spacing-native-video-frame.png",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-native-video-frame.png",
+      "bytes": 994329,
+      "sha256": "a6b81d4574a460404f985df7e0d127663d6ac3f1b4011278192d4ccd2bb4b86b",
+      "publication": "pending controller publication"
+    },
+    {
+      "filename": "road-spacing-zero-video-frame.png",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-zero-video-frame.png",
+      "bytes": 991807,
+      "sha256": "03acf991cb7d32af6be340febd57b36789dad1e289287537a3926ee7fc2439bc",
+      "publication": "pending controller publication"
+    }
+  ],
+  "history": "Earlier recovery failures and unavailable-display attempts were fixed and superseded by these final-tree checks. Earlier offscreen media is supplemental historical evidence, not this native playtest."
+}

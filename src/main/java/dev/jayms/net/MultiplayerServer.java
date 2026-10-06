@@ -1024,6 +1024,8 @@ public final class MultiplayerServer implements AutoCloseable {
         Path productionFile = null;
         for (int i = 0; i < args.length; i++)
             switch (args[i]) {
+                case "--pedestrian-spacing", "--mounted-spacing" ->
+                    RoadSpacing.configure(args[i], args[++i]);
                 case "--production-config" -> productionFile = Path.of(args[++i]);
                 case "--game" -> {
                     String value = args[++i];
@@ -1045,7 +1047,7 @@ public final class MultiplayerServer implements AutoCloseable {
                         throw new IllegalArgumentException(
                                 "Usage: --bind ADDRESS --port PORT --world FILE --accounts FILE"
                                         + " --tls-dir DIRECTORY --seed NUMBER --create-account NAME"
-                                        + " --production-config FILE");
+                                        + " --production-config FILE --pedestrian-spacing BLOCKS --mounted-spacing BLOCKS");
             }
         AccountStore accounts = new AccountStore(accountFile);
         if (create != null) {
