@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 
 public record CityCommand(int kind, int value, List<Polygon.Point> points, int ownerKind, int ownerId, Capital capital) {
-    public static final int ROAD = 1, ZONE = 2, RIDE = 3, DEMOLISH = 4, SPECIAL = 5, EXCHANGE = 6, CAPITAL = 7, SETTLE_DISTRICT = 8, FOCUS_DISTRICT = 9, RUNWAY = 10, FLIGHT = 11, DELETE_ROAD = 12, EDIT_ROAD = 13;
+    public static final int ROAD = 1, ZONE = 2, RIDE = 3, DEMOLISH = 4, SPECIAL = 5, EXCHANGE = 6, CAPITAL = 7, SETTLE_DISTRICT = 8, FOCUS_DISTRICT = 9, RUNWAY = 10, FLIGHT = 11, DELETE_ROAD = 12, EDIT_ROAD = 13, RAIL = 14;
 
     public record Capital(
             int action,
@@ -44,7 +44,7 @@ public record CityCommand(int kind, int value, List<Polygon.Point> points, int o
     public CityCommand {
         points = List.copyOf(points);
         if (kind < 1
-                || kind > 13
+                || kind > 14
                 || points.size() > 32
                 || (kind == CAPITAL) != (capital != null)
                 || kind == CAPITAL && !points.isEmpty())

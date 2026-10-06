@@ -14,7 +14,7 @@ class RoadBaseCompatibilityTest {
     @TempDir Path temp;
 
     @Test void protocol22AviationPacketsKeepTheirMeaningAndAlignment() throws Exception {
-        assertEquals(24,Protocol.VERSION);
+        assertEquals(25,Protocol.VERSION);
         assertEquals(10,CityCommand.RUNWAY); assertEquals(11,CityCommand.FLIGHT);
         assertEquals(12,CityCommand.DELETE_ROAD); assertEquals(13,CityCommand.EDIT_ROAD);
         var bytes=new ByteArrayOutputStream(); var out=new DataOutputStream(bytes);
@@ -47,7 +47,7 @@ class RoadBaseCompatibilityTest {
         assertEquals(frame.aviation(),loaded.aviation());
         var restored=new CitySimulation(loaded.config(),fixture.ground(),fixture.terrain(),loaded);
         var saved=temp.resolve("restored.city"); restored.save(saved);
-        try(var in=new DataInputStream(Files.newInputStream(saved))) { assertEquals(0x4349543D,in.readInt()); }
+        try(var in=new DataInputStream(Files.newInputStream(saved))) { assertEquals(0x4349543E,in.readInt()); }
         assertEquals(loaded.buildings(),CitySimulation.load(saved).buildings());
         assertEquals(loaded.aviation(),CitySimulation.load(saved).aviation());
     }

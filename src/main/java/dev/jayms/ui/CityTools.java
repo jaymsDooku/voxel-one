@@ -97,8 +97,10 @@ public final class CityTools {
             }
         }
         if (roadMenu) {
-            if (x >= 16 && x <= Math.min(450, width - 16) && y >= 140 && y < 252) {
-                roadType = (int) ((y - 140) / 28);
+            if (x >= 16 && x <= Math.min(450, width - 16) && y >= 140 && y < 336) {
+                int choice = (int) ((y - 140) / 28);
+                if (editingStreet != 0 && choice >= 4) return;
+                if (choice < 4) roadType = choice;
                 roadMenu = false;
                 if (editingStreet != 0) {
                     submit.accept(new CityCommand(CityCommand.EDIT_ROAD, editingStreet,
@@ -107,10 +109,12 @@ public final class CityTools {
                     tool = -1;
                     return;
                 }
-                tool = 4;
+                tool = choice < 4 ? 4 : choice == 4 ? 11 : 6;
+                if (choice >= 5) specialKind = choice == 5 ? 8 : 9;
                 pendingRoad = null;
                 points.clear();
-                message = "Choose the first endpoint for " + RoadTypes.NAMES[roadType];
+                message = choice < 4 ? "Choose the first endpoint for " + RoadTypes.NAMES[roadType]
+                        : choice == 4 ? "Rail: choose two endpoints" : SpecialBuildings.NAMES[specialKind] + ": front road, rear rail dock";
                 return;
             }
         }
@@ -200,6 +204,9 @@ public final class CityTools {
                 pendingRoad = new CityCommand(CityCommand.ROAD, roadType, points);
                 points.remove(1);
                 submit.accept(pendingRoad);
+            } else if (tool == 11 && points.size() == 2) {
+                submit.accept(new CityCommand(CityCommand.RAIL, 0, points));
+                points.clear();
             }
         } catch (IllegalArgumentException e) {
             pendingRoad = null;
@@ -210,7 +217,7 @@ public final class CityTools {
     /** Shared by preview and click so the highlighted point is the submitted point. */
     public Polygon.Point cursorPoint(float x, float y, int w, int h,
             Matrix4f projection, Matrix4f view, CityFrame city) {
-        if (roadMenu || tool < 0 || (tool > 4 && (tool < 6 || tool > 10)) || y < 130 || y > h - 200) return null;
+        if (roadMenu || tool < 0 || (tool > 4 && (tool < 6 || tool > 11)) || y < 130 || y > h - 200) return null;
         var inverse = new Matrix4f(projection).mul(view).invert();
         var a = inverse.transformProject(new Vector3f(x / w * 2 - 1, 1 - y / h * 2, -1));
         var b = inverse.transformProject(new Vector3f(x / w * 2 - 1, 1 - y / h * 2, 1));
@@ -247,7 +254,7 @@ public final class CityTools {
 
     private void renderGuide(Overlay ui, int w, int h, Matrix4f projection,
             Matrix4f view, float ground) {
-        if (points.isEmpty() || tool < 0 || tool > 4) return;
+        if (points.isEmpty() || tool < 0 || tool > 4 && tool != 11) return;
         var origin = points.get(0);
         for (int radius : BuildingGuide.RADII) {
             for (int i = 0; i < 180; i++) {
@@ -275,7 +282,7 @@ public final class CityTools {
         if (hover != null) {
             var p = project(hover.x(), ground, hover.z(), projection, view, w, h);
             var last = points.get(points.size() - 1);
-            var route = tool == 4 ? RoadRoute.points(List.of(last, hover)) : List.of(last, hover);
+            var route = tool == 4 || tool == 11 ? RoadRoute.points(List.of(last, hover)) : List.of(last, hover);
             for (int i = 1; i < route.size(); i++) {
                 var a = route.get(i - 1);
                 var b = route.get(i);
@@ -516,9 +523,10 @@ public final class CityTools {
             }
         }
         if (roadMenu) {
-            ui.rectangle(16, 140, Math.min(434, w - 32), 112, .025f, .04f, .065f, .97f);
-            for (int row = 0; row < RoadTypes.NAMES.length; row++) {
-                ui.text((row == roadType ? "> " : "  ") + RoadTypes.NAMES[row], 24, 149 + row * 28, 1.3f);
+            ui.rectangle(16, 140, Math.min(434, w - 32), 196, .025f, .04f, .065f, .97f);
+            String[] transport = editingStreet != 0 ? RoadTypes.NAMES : new String[]{RoadTypes.NAMES[0], RoadTypes.NAMES[1], RoadTypes.NAMES[2], RoadTypes.NAMES[3], "Rail track", "Rail station", "Rail depot"};
+            for (int row = 0; row < transport.length; row++) {
+                ui.text((row == roadType ? "> " : "  ") + transport[row], 24, 149 + row * 28, 1.3f);
             }
         }
         float bw = (w - 32) / 9f, top = h - 196;
@@ -548,12 +556,13 @@ public final class CityTools {
         ui.rectangle(16, top + 38, w - 32, 35, .015f, .025f, .04f, .85f);
         ui.text(
                 tool == 6
-                        ? specialKind == 6 ? "Port: dry entrance + road (-Z), open ocean berth (+Z) | 6 x 21 site | Esc: cancel" : "Select building, level and owner | Click clear unzoned land: 6 x 9 | Front faces north | Esc: cancel"
+                        ? specialKind >= 8 ? SpecialBuildings.NAMES[specialKind] + " | Front road: z-2 | Rear rail dock: x+2, z+8 | Esc: cancel" : specialKind == 6 ? "Port: dry entrance + road (-Z), open ocean berth (+Z) | 6 x 21 site | Esc: cancel" : "Select building, level and owner | Click clear unzoned land: 6 x 9 | Front faces north | Esc: cancel"
                         : tool == 7
                                 ? "Choose clear land near a road | Exchange: $600 | Graduate office staff"
                         : tool == 8 ? "Airport: 36 x 27 clear site | North entrance touches road | $2000 | Esc: cancel"
                         : tool == 9 ? "Click airport to add a runway | $1000 | Clear 36 x 16 strip to south | Maximum 3 runways"
                         : tool == 10 ? "Inspect an adult citizen, then click destination airport | Citizen walks to a connected origin"
+                        : tool == 11 ? "Rail: two endpoints | $8 per new cell | Two stations and a depot start service | Esc: cancel"
                         : tool == 4
                         ? roadMenu ? "Choose a road | Esc: cancel" : RoadTypes.NAMES[roadType] + " | Click to chain: X then Z bend | Zone edges snap | $4 per changed cell | Esc: finish"
                         : tool >= 0 && tool < 4

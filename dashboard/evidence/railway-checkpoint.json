@@ -1,0 +1,112 @@
+{
+  "status": "Road workflow and ownership recovery working files resolved; controller must stage and continue.",
+  "versions": {
+    "save_format": 14,
+    "save_magic": "0x4349543E",
+    "protocol": 25,
+    "delete_road": 12,
+    "edit_road": 13,
+    "rail": 14
+  },
+  "completed": [
+    "Retained road editing/deletion, durable ownership, zone snapping and acknowledged chained placement.",
+    "Base format13 ownership suffix retained; railway appended only in format14. Readers1..13 retained.",
+    "Literal reviewed-base empty ownership suffix and all four owned road types load/resave; edit/delete migration checks passed.",
+    "New client rejects protocol24 server; new server rejects protocol24 client before authentication. Legacy22 reconnect remains supported.",
+    "455 road harness/history files unchanged; no base files deleted."
+  ],
+  "tests": {
+    "current_reports": {
+      "tests": 31,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "suites": [
+      {
+        "name": "dev.jayms.RailwayOwnershipCompatibilityTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.RoadWorkflowTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.MixedRoadOwnershipTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.RoadBaseCompatibilityTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.RailwayTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.RailwaySaveCompatibilityTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.ProtocolCompatibilityTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.ShippingProtocolCompatibilityTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "initial": "Focused 28-test run exited 1 for stale protocol24 expectation in retained protocol22 test. No pass claimed for this command.",
+    "reruns": [
+      "RailwayOwnershipCompatibilityTest,ProtocolCompatibilityTest exited 0 after current handshake correction.",
+      "ShippingProtocolCompatibilityTest exited 0 including new protocol24 rejection check."
+    ],
+    "commands": [
+      {
+        "command": "mvn -q -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=RailwayOwnershipCompatibilityTest,RoadWorkflowTest,MixedRoadOwnershipTest,RoadBaseCompatibilityTest,RailwayTest,RailwaySaveCompatibilityTest,ProtocolCompatibilityTest test",
+        "exit": 1
+      },
+      {
+        "command": "mvn -q -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=RailwayOwnershipCompatibilityTest,ProtocolCompatibilityTest test",
+        "exit": 0
+      },
+      {
+        "command": "mvn -q -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=ShippingProtocolCompatibilityTest test",
+        "exit": 0
+      }
+    ]
+  },
+  "remaining": [
+    "Controller stages and continues rebase.",
+    "Inspect resulting source and preserve format14/protocol25 and IDs through later replays.",
+    "Run final-head road edit/delete/ownership/snapping/acknowledged-chain and railway native workflows.",
+    "Update harnesses for retained chained roads and capture fresh media; complete final-head compatibility checks.",
+    "Controller publishes; independent reviewer tests exact submitted head."
+  ],
+  "historical_notice": "Earlier media and test reports predate road workflow and ownership recovery; final-head validation remains pending.",
+  "question": null
+}

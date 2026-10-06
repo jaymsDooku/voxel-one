@@ -15,7 +15,13 @@ public record CityFrame(
         CityEconomy.State economy,
         CityAddresses.State addresses,
         Agriculture.State agriculture,
-        RegionalPopulation.State population, Aviation.State aviation) {
+        RegionalPopulation.State population, Aviation.State aviation, Railway.State railway) {
+    public CityFrame(GameConfig config, double elapsed, List<Road> roads, List<Zone> zones, List<Building> buildings, List<Citizen> citizens, List<Horse> horses, CityEconomy.State economy, CityAddresses.State addresses, Agriculture.State agriculture, RegionalPopulation.State population, Aviation.State aviation) {
+        this(config, elapsed, roads, zones, buildings, citizens, horses, economy, addresses, agriculture, population, aviation, Railway.State.empty());
+    }
+    public CityFrame(GameConfig config, double elapsed, List<Road> roads, List<Zone> zones, List<Building> buildings, List<Citizen> citizens, List<Horse> horses, CityEconomy.State economy, CityAddresses.State addresses, Agriculture.State agriculture, Railway.State railway) {
+        this(config, elapsed, roads, zones, buildings, citizens, horses, economy, addresses, agriculture, RegionalPopulation.State.empty(), Aviation.State.empty(), railway);
+    }
     public CityFrame(GameConfig config, double elapsed, List<Road> roads, List<Zone> zones,
             List<Building> buildings, List<Citizen> citizens, List<Horse> horses,
             CityEconomy.State economy, CityAddresses.State addresses, Agriculture.State agriculture) {
@@ -153,10 +159,12 @@ public record CityFrame(
     }
 
     public void write(DataOutput out) throws IOException {
-        write(out, 13);
+        write(out, 14);
     }
 
     public void write(DataOutput out, int version) throws IOException {
+        if (version < 14 && (!railway.tracks().isEmpty() || !railway.trains().isEmpty() || buildings.stream().anyMatch(b -> b.type() == SpecialBuildings.RAIL_STATION || b.type() == SpecialBuildings.RAIL_DEPOT)))
+            throw new IOException("Railways require city snapshot version 14");
         if (version < 11 && !population.groups().isEmpty())
             throw new IOException("Regional population requires city format 11");
         if (version < 12 && (!aviation.flights().isEmpty() || buildings.stream().anyMatch(b -> b.type() == SpecialBuildings.AIRPORT)))
@@ -226,6 +234,7 @@ public record CityFrame(
         if (version >= 11) RegionalPopulation.write(out, population);
         if (version >= 12) Aviation.write(out, aviation);
         if (version >= 13) RoadOwnership.write(out, RoadOwnership.forFrame(this));
+        if (version >= 14) railway.write(out);
     }
 
     private static int count(DataInput in, int max) throws IOException {
@@ -245,7 +254,7 @@ public record CityFrame(
     }
 
     public static CityFrame read(DataInput in, boolean legacy) throws IOException {
-        return read(in, legacy ? 1 : 13);
+        return read(in, legacy ? 1 : 14);
     }
 
     public static CityFrame read(DataInput in, int version) throws IOException {
@@ -281,6 +290,7 @@ public record CityFrame(
                     || (type > 3 && !SpecialBuildings.special(type))
                     || (type == SpecialBuildings.EXCHANGE && version < 8)
                     || (type >= 20 && version < 9)
+                    || (type >= SpecialBuildings.RAIL_STATION && version < 14)
                     || (type == SpecialBuildings.AIRPORT && (version < 11 || zone != 0 || stock != 0 || capacity % 8 != 0 || capacity > 24
                             || y + 8 > dev.jayms.net.Terrain.MAX_Y
                             || (long)x + Aviation.WIDTH - 1 > 264
@@ -395,6 +405,6 @@ public record CityFrame(
                 horses,
                 economy,
                 addresses,
-                agriculture, population, aviation);
+                agriculture, population, aviation, version >= 14 ? Railway.State.read(in, buildings, citizens) : Railway.State.empty());
     }
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T03:57:01+00:00",
+  "updatedAt": "2026-10-07T04:17:35+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -2705,6 +2705,26 @@
       "status": "in_progress",
       "note": "Reviewed base bb657412 preserved. 61 tests passed; exact paved-road bend regression and native saves/road preview/reverse/upgrade/cancel passed. Fresh media saved; awaiting independent review and controller publication.",
       "updatedAt": "2026-10-07T03:20:28+00:00"
+    },
+    {
+      "id": "37396661366138612d366466362d343435352d383665342d653165333732313935316464",
+      "title": "Railway system",
+      "description": "Building rail placement, stations, depots and steam train service in the assigned feature worktree.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Rail workflow report (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37396661366138612d366466362d343435352d383665342d653165333732313935316464/dashboard/evidence/railway-verification.json"
+        },
+        {
+          "kind": "link",
+          "label": "F10 rail service video (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37396661366138612d366466362d343435352d383665342d653165333732313935316464/dashboard/evidence/railway-service.mp4"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Road workflow recovery preserves edit/delete command IDs, ownership, snapping, acknowledged chains, tests, harnesses and history. Rail command is 14. Save format 14/magic 0x4349543E and protocol 25 append rail data after base ownership. Focused recovery checks running; final native checks follow controller continuation.",
+      "updatedAt": "2026-10-07T04:17:35+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

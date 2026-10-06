@@ -158,6 +158,19 @@ public final class BuildingInfo {
                 rows.add("Attendance needed: " + (kind == 1 ? "6" : kind == 2 ? "5" : "3") + " school years | Year = 12 city days");
             }
         }
+        if (b != null && type == SpecialBuildings.RAIL_DEPOT) {
+            var trains=city.railway().trains().stream().filter(t->t.depot()==b.id()).toList();
+            rows.add("Steam locomotives: " + trains.size());
+            rows.add("Stored: " + trains.stream().filter(t->t.stop()==t.depot()&&t.dwell()>0).count());
+            rows.add("Automatic service: two connected stations; one train per line");
+            rows.add("Rear rail dock: " + (b.x()+2) + ", " + (b.z()+8));
+        }
+        if (b != null && type == SpecialBuildings.RAIL_STATION) {
+            rows.add("Platform: citizens walk here, board and leave steam trains");
+            rows.add("Train seats: 16 | Station dwell: 4 seconds");
+            rows.add("Waiting: " + city.citizens().stream().filter(c->c.activity().equals("Waiting at rail station")&&Math.hypot(c.x()-b.x()-2.5f,c.z()-b.z()-2.5f)<5).count());
+            rows.add("Rear rail dock: " + (b.x()+2) + ", " + (b.z()+8));
+        }
         if (b != null && type == SpecialBuildings.EXCHANGE) {
             long staff = city.citizens().stream().filter(c -> c.job() == b.id()).count();
             long grads =

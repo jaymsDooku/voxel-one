@@ -81,7 +81,20 @@ public final class StructureBlueprint {
         if (!SpecialBuildings.special(type)) throw new IllegalArgumentException("Invalid special building");
         var edits = new ArrayList<>(generate(0, x, y, z));
         int kind = SpecialBuildings.kind(type);
-        int[] colors = {0xffd166, 0x80ed99, 0x57ccff, 0xc792ea, 0x5588ff, 0xffaa55};
+        if (type == SpecialBuildings.RAIL_STATION || type == SpecialBuildings.RAIL_DEPOT) {
+            // Rear platform faces the track at z+8. A wide depot door opens toward the line.
+            for (int dx = 1; dx < 5; dx++) for (int dy = 1; dy < 4; dy++)
+                edits.add(new Protocol.Edit(x+dx,y+dy,z+6,0));
+            for (int dx = 0; dx < 6; dx++) {
+                edits.add(new Protocol.Edit(x+dx,y,z+7,Blocks.STONE));
+                if (type == SpecialBuildings.RAIL_STATION) edits.add(new Protocol.Edit(x+dx,y+4,z+7,Blocks.PLANKS));
+            }
+            if (type == SpecialBuildings.RAIL_STATION) {
+                for(int dx : new int[]{0,5}) for(int dy=1;dy<4;dy++) edits.add(new Protocol.Edit(x+dx,y+dy,z+7,Blocks.WOOD));
+                for(int dx : new int[]{1,4}) edits.add(new Protocol.Edit(x+dx,y+1,z+4,Blocks.PLANKS));
+            }
+        }
+        int[] colors = {0xffd166, 0x80ed99, 0x57ccff, 0xc792ea, 0x5588ff, 0xffaa55, 0xffffff, 0xffffff, 0xb8c4d0, 0xff7050};
         for (int level = 0; level < SpecialBuildings.level(type); level++)
             edits.add(new Protocol.Edit(x + 1 + level, y + 4, z + 3, Blocks.LED).withColor(colors[kind]));
         for (int row = 0; row < (kind == 0 || kind == 4 ? 1 : 3); row++) {
