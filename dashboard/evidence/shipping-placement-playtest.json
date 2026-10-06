@@ -15,7 +15,7 @@
   "siteX": -100,
   "siteZ": 210,
   "saveReload": "passed",
-  "sourceHead": "e8947181c6c6ed2f25a66634279fda2b8ca7986c",
+  "sourceHead": "c908605d3fde7de6ba0097070ef8eaa4c6fdf1d0",
   "command": "python3 deploy/run_shipping_smoke.py --display \"$DISPLAY\"",
-  "Playtest": "Playtest: production Main.run with X11 menu clicks, isolated synthetic profile. Expected and observed: inland port rejected; coastal port placed; dock, voxel containers and carrier visible; ocean remains beside berth; overlapping port rejected; TechnicalCollege level 3 still places; two camera angles recorded with F10; save/reload preserves port and generator 3. All assertions passed. Native Java/OpenGL game; browser testing does not apply."
+  "Playtest": "Playtest: production Main.run with X11 menu clicks, Linux/Mesa, isolated synthetic profile target/shipping-home. Expected and observed: inland port rejected, coastal port24 placed, carrier and containers visible with ocean beside berth, overlapping permit rejected, TechnicalCollege level3 placed, two camera angles recorded using F10, format12 save/reload retains port and generator3. All assertions passed. Native Java/OpenGL game; browser testing does not apply."
 }

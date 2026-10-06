@@ -1,0 +1,21 @@
+{
+  "status": "passed",
+  "platform": "Linux X11 inherited role display; Mesa",
+  "profile": "isolated synthetic offline city and flattened sites",
+  "steps": [
+    "Special menu Airport: place first terminal and runway",
+    "Book selected citizen: single airport rejected without mutation",
+    "Place second airport and expand it to two runways",
+    "Place City hall through original permit menu",
+    "Inspect adult citizen; Book flight; click destination airport",
+    "Observe walking, boarding, curved flight and arrival at second terminal",
+    "At 1280 x 640 open Special menu and select Book flight above toolbar",
+    "Districts: settle 1000000 and focus 64 nearby residents"
+  ],
+  "expected": "Two voxel airports, expanded runway, visible jet, citizen arrives, existing permits work",
+  "observed": "All checks passed in running Main with X11 input",
+  "recording": "production F10 recorder",
+  "sourceHead": "c908605d3fde7de6ba0097070ef8eaa4c6fdf1d0",
+  "command": "python3 deploy/run_shipping_aviation_smoke.py --display \"$DISPLAY\"",
+  "Playtest": "Playtest: production Main.run, real X11 menu/citizen/destination clicks, Linux/Mesa, separate synthetic profile target/shipping-aviation-home. Expected and observed: first airport23 placed; single-airport flight rejected; second airport placed and expanded to2 runways; exchange placement inside second runway rejected; city hall placed; adult selected and flight booked; citizen walked, boarded, flew and arrived; compact1280x640 menu flight choice worked; district settled1000000 and focused64 agents. All assertions passed. F10 captures actual passenger flight. Native Java/OpenGL game; browser testing does not apply."
+}
