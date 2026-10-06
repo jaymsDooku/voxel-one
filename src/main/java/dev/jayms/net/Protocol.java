@@ -2,10 +2,10 @@ package dev.jayms.net;
 
 import java.io.*;
 
-/** Protocol 22 adds aviation after protocol 21 regional snapshots and district commands. */
+/** Protocol 23 retains aviation and regional snapshots, and adds ocean terrain and coastal ports. */
 public final class Protocol {
     public static final int CITY_STATE = 16, CITY_COMMAND = 17, CITY_WORLD = 18, CITY_RESULT = 19;
-    public static final int MAGIC = 0x564F5831, VERSION = 22, PORT = 25565;
+    public static final int MAGIC = 0x564F5831, VERSION = 23, PORT = 25565;
     public static final int CITY_BASE_VERSION = 14, SPECIAL_BUILDINGS_VERSION = 15;
     public static final int MOVE = 1, BLOCK = 2, LEAVE = 3, READY = 4, JOIN = 5, EDIT_RESULT = 6;
     public static final int INVENTORY = 7, DROP = 8, SWAP = 9, RESPAWN = 10;

@@ -1,0 +1,126 @@
+{
+  "decision": "recover",
+  "status": "Content conflicts resolved; index remains unmerged for controller staging and rebase continuation.",
+  "branch": "feature/queue-62386532623363612d343231342d343234362d626163612d613333396139623934303436",
+  "resolvedContent": [
+    "dashboard/progress.json",
+    "src/main/java/dev/jayms/net/Protocol.java",
+    "src/main/java/dev/jayms/net/city/CitySimulation.java"
+  ],
+  "changes": [
+    "Retained RegionalPopulation initialization and a single terrain field/assignment",
+    "Preserved format 11 CityFrame layout, save magic 0x4349543B and loader acceptance; no snapshot downgrade",
+    "Protocol 22 distinguishes shipping from pre-shipping regional protocol 21",
+    "Merged shipping progress entry with all current-base progress entries",
+    "Shipping smoke synthetic fixture now writes format 11 magic with the format 11 layout",
+    "Added regional format 11 load -> coastal port -> save/reload test preserving 1000000 residents and 64 nearby agents",
+    "New regional settlements use surfaceHeight, so nearby agents remain above ocean water"
+  ],
+  "baseFilesPreservedByteForByte": [
+    "src/main/java/dev/jayms/net/city/RegionalPopulation.java",
+    "src/main/java/dev/jayms/net/city/CityFrame.java",
+    "src/main/java/dev/jayms/net/city/CityCommand.java",
+    "src/main/java/dev/jayms/ui/MayorDashboard.java",
+    "src/test/java/dev/jayms/RegionalPopulationTest.java",
+    "src/test/java/dev/jayms/RegionalSaveCompatibilityTest.java",
+    "src/test/java/dev/jayms/RegionalMultiplayerTest.java",
+    "src/test/resources/city/base10-empty.city",
+    "src/test/resources/city/base10-paved.city",
+    "docs/REGIONAL_POPULATION.md"
+  ],
+  "noBaseFilesDeleted": true,
+  "checks": [
+    {
+      "command": "mvn -Dmaven.repo.local=target/m2 -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=ShippingTest,SpecialBuildingsTest,TerrainGenerationTest,CityToolsTest,RegionalSaveCompatibilityTest,RegionalPopulationTest,RegionalMultiplayerTest test",
+      "exitCode": 0,
+      "suites": [
+        {
+          "name": "dev.jayms.ShippingTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "0.824"
+        },
+        {
+          "name": "dev.jayms.SpecialBuildingsTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "0.363"
+        },
+        {
+          "name": "dev.jayms.TerrainGenerationTest",
+          "tests": "10",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "2.517"
+        },
+        {
+          "name": "dev.jayms.CityToolsTest",
+          "tests": "9",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "0.866"
+        },
+        {
+          "name": "dev.jayms.RegionalSaveCompatibilityTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "0.11"
+        },
+        {
+          "name": "dev.jayms.RegionalPopulationTest",
+          "tests": "9",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "2.158"
+        },
+        {
+          "name": "dev.jayms.RegionalMultiplayerTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "19.795"
+        }
+      ],
+      "tests": 45,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0
+    },
+    {
+      "command": "python3 -m py_compile deploy/run_shipping_smoke.py",
+      "exitCode": 0
+    },
+    {
+      "command": "python3 -m json.tool dashboard/progress.json > target/shipping-progress-validated.json",
+      "exitCode": 0
+    }
+  ],
+  "environment": {
+    "os": "Linux",
+    "java": "25.0.3",
+    "cache": "target/m2",
+    "temporaryFiles": "target/tmp",
+    "network": "RegionalMultiplayerTest used temporary synthetic TLS identities/accounts; no private runtime logs were read or published"
+  },
+  "Playtest": "Final-head native shipping and district UI checks and fresh media are deferred until the controller stages these resolutions and continues the rebase. Earlier shipping media/tests belong to afff0b199761c6447c5b6c94835c155a8b3ea4a5 and are historical, not validation of the recovered head. Browser testing does not apply to these Java serialization/TLS integration checks.",
+  "controllerNextStep": "Stage resolved contents and other recovery edits, then continue the preserved rebase without publishing. Resume developer for final-head build, native workflows and fresh sanitized image/video evidence.",
+  "sourceSha256": {
+    "src/main/java/dev/jayms/net/Protocol.java": "caad86218a30b5e9bd7e8a1fbae524d1a57a59f60696f5160c7a37ed703c1540",
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "e93e5407737ec3c08321e2fb4bb417f95884a7a68519085ccb76e599fa9311d1",
+    "src/test/java/dev/jayms/ShippingTest.java": "77e126a8bc2ed154477e202f6bb5ab0f0fc9e552f183963bafc7a5bd305de5b2",
+    "deploy/ShippingSmoke.java": "c4ece8efa6385d5c0d95e64eaf54337ed93fff738537affa3a6869c48fcb2c60"
+  }
+}

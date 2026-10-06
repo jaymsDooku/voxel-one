@@ -1,0 +1,232 @@
+{
+  "status": "passed",
+  "branch": "feature/queue-62386532623363612d343231342d343234362d626163612d613333396139623934303436",
+  "publication": "All new evidence is local and pending controller publication. No Git commit, push, merge or deployment was performed.",
+  "implementation": {
+    "terrain": "Version 3 adds a seeded open ocean and coastal transition, continuing across terrain chunk and watershed boundaries. Version 1 and version 2 worlds retain their generators.",
+    "port": "Special building type 23: a road-connected dry coastal entrance, container yard, stepped dock, crane and a docked carrier. Requires a 6 x 21 clear reserved site, with its ocean berth toward +Z. Freshwater and inland sites are rejected before edits.",
+    "cargo": "Reusable voxel container and carrier blueprints. Each port has 2 quay containers and 1 docked carrier carrying 1 container. Carriers are static docked assets.",
+    "network": "Protocol 21 rejects clients that cannot read generator 3 or building type 23."
+  },
+  "environment": {
+    "os": "Linux",
+    "java": "25.0.3",
+    "mavenCache": "target/m2",
+    "javaTemp": "target/tmp",
+    "nativeDisplay": "Inherited assigned role DISPLAY and XAUTHORITY; Mesa software rendering",
+    "profile": "Isolated synthetic offline city; all test profiles and runtime output stay under target/",
+    "browserPlaytesting": "Not applicable to the native Java/OpenGL game; tested Main.run with actual X11 input."
+  },
+  "commands": [
+    {
+      "command": "mvn -Dmaven.repo.local=target/m2 -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" test",
+      "result": "Exit 0; 309 tests, no failures/errors. Full run preceded the final protocol constant bump and extra shipping assertions; see shipping-full-regression.json."
+    },
+    {
+      "command": "mvn -Dmaven.repo.local=target/m2 -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=ShippingTest,SpecialBuildingsTest,TerrainGenerationTest,CityToolsTest,MultiplayerTest,CityMultiplayerTest,DemolitionTest,LightingTest package",
+      "result": "Final production code: all 7 integration suites passed; ShippingTest had 1 incorrect fixed-coordinate river fixture. The fixture was corrected to select a real wet river column."
+    },
+    {
+      "command": "mvn -Dmaven.repo.local=target/m2 -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=ShippingTest package",
+      "result": "Exit 0; 5 ShippingTest checks passed. Client, server and launcher jars built."
+    },
+    {
+      "command": "python3 deploy/run_shipping_smoke.py --display \"$DISPLAY\"",
+      "result": "Exit 0 on final compiled production code; native workflow, edge and regression checks passed; fresh images and F10 MP4 saved. See shipping-placement-playtest.json."
+    },
+    {
+      "command": "javac -cp target/voxel-one-1.0-SNAPSHOT-client.jar -d target/shipping-smoke deploy/VerifyRoadVideo.java deploy/TerrainRecordingCheck.java",
+      "result": "Exit 0"
+    },
+    {
+      "command": "java -Djava.io.tmpdir=\"$PWD/target/tmp\" -cp target/voxel-one-1.0-SNAPSHOT-client.jar:target/shipping-smoke VerifyRoadVideo dashboard/evidence/shipping-placement-playtest.mp4 target/shipping-video-frame.png dashboard/evidence/shipping-video-validation.json",
+      "result": "Exit 0; start, middle and near-end frames decode. Extracted final frame visually inspected."
+    },
+    {
+      "command": "java -Djava.io.tmpdir=\"$PWD/target/tmp\" -cp target/voxel-one-1.0-SNAPSHOT-client.jar:target/shipping-smoke TerrainRecordingCheck dashboard/evidence/shipping-placement-playtest.mp4 dashboard/evidence/shipping-video-motion.json",
+      "result": "Exit 0; seekable H264; camera frames differ."
+    },
+    {
+      "command": "git diff --check",
+      "result": "Exit 0"
+    }
+  ],
+  "finalChecks": {
+    "uniqueTests": 54,
+    "failures": 0,
+    "errors": 0,
+    "suites": [
+      {
+        "name": "dev.jayms.CityMultiplayerTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "14.072"
+      },
+      {
+        "name": "dev.jayms.CityToolsTest",
+        "tests": "9",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.502"
+      },
+      {
+        "name": "dev.jayms.DemolitionTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "88.905"
+      },
+      {
+        "name": "dev.jayms.LightingTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.146"
+      },
+      {
+        "name": "dev.jayms.MultiplayerTest",
+        "tests": "15",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "182.586"
+      },
+      {
+        "name": "dev.jayms.ShippingTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "1.052"
+      },
+      {
+        "name": "dev.jayms.SpecialBuildingsTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.35"
+      },
+      {
+        "name": "dev.jayms.TerrainGenerationTest",
+        "tests": "10",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "1.62"
+      }
+    ]
+  },
+  "Playtest": [
+    {
+      "steps": "Special menu -> Port -> click inland (40,80)",
+      "expected": "Reject permit without adding a building; explain open ocean requirement",
+      "observed": "Passed; native notice contains open ocean; building count stays 0"
+    },
+    {
+      "steps": "Special menu -> Technical college -> cycle level twice -> click cleared site (40,80)",
+      "expected": "Existing level controls place level 3 Technical college",
+      "observed": "Passed; building type 22 exists"
+    },
+    {
+      "steps": "Pan to generated coast; Special -> Port; click site (-100,210)",
+      "expected": "Create coastal infrastructure, containers and a docked carrier while retaining ocean water beside berth",
+      "observed": "Passed; permit notice, building type 23, hull block (-99,15,224), water block (-100,14,225); fresh media inspected"
+    },
+    {
+      "steps": "Repeat click on the placed port",
+      "expected": "Reject overlap without adding another port",
+      "observed": "Passed; building count unchanged"
+    },
+    {
+      "steps": "Escape; wider camera; rotate 90 degrees; F10 start/stop",
+      "expected": "Capture full dock, cargo and carrier from two angles",
+      "observed": "Passed; both images show full structure; production F10 MP4 finished below 6 MB"
+    },
+    {
+      "steps": "Close game; reload synthetic LocalGame and city save",
+      "expected": "Keep generator version 3, port permit and carrier blocks",
+      "observed": "Passed; saveReload is passed"
+    }
+  ],
+  "additionalChecks": [
+    "Generator 2 offline save retains version 2 after reload and resave",
+    "Open ocean surface remains at Y=14 at negative/positive X and beyond the old watershed edge",
+    "River and inland permits reject atomically",
+    "Obstructed carrier berth rejects atomically",
+    "Road cannot cover the reserved carrier footprint",
+    "Port metadata survives snapshot save/reload",
+    "Demolition removes the low carrier and restores ocean water",
+    "Every generated shipping edit is valid"
+  ],
+  "video": {
+    "codec": "H264",
+    "frames": 32,
+    "durationSeconds": 19.554,
+    "width": 960,
+    "height": 540,
+    "bytes": 904719,
+    "seekable": true,
+    "cameraFramesDiffer": true
+  },
+  "limits": [
+    "Observed software-renderer FPS was roughly 1-3 during native captures; this is functional evidence, not a performance benchmark."
+  ],
+  "sourceSha256": {
+    "src/main/java/dev/jayms/net/Geography.java": "c6b79f348ff4b6e520b3d43ddc2707da05d7923a749bb9aa72c246e82d0c6e1c",
+    "src/main/java/dev/jayms/net/Terrain.java": "3a2957d28603604d8cee8b6fd68889a2a59c43e4470d54a9a85383e47c989068",
+    "src/main/java/dev/jayms/net/Protocol.java": "9f93676b9c76f5b950cb3658f3a81a1ecae1089c715b8611bc565850516a163f",
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "4bd4ba544e66462a771fadad873db6792d94dbc9ea3e1697b800688d12c5a51d",
+    "src/main/java/dev/jayms/net/city/SpecialBuildings.java": "8abf1bd3cdb11849b21b68a595990b31b3992a82165c84fb148e64e585797896",
+    "src/main/java/dev/jayms/net/city/Shipping.java": "af8433aa53085022d8482d58c91638beeba0eb848826a1f72ebdb433bed34c10",
+    "src/main/java/dev/jayms/net/city/StructureBlueprint.java": "d5f10316075e3b43d2f116638a30ec10030a7fd9def361e11fb391441f5dfdfd",
+    "src/main/java/dev/jayms/ui/CityTools.java": "4166a7e2f6d5940d713eea667e138811d1ced21a9ef3c0e085a2d9755862773b",
+    "src/main/java/dev/jayms/ui/BuildingInfo.java": "0e083144f211053bb9a10a97e627c0374bdf70bd6b7fc857c4356ecabd932516",
+    "src/test/java/dev/jayms/ShippingTest.java": "5e7c90ed30459eb2ca21cd56161492d6dd105095228937953941206064e09a5a",
+    "src/test/java/dev/jayms/CityToolsTest.java": "962f05ae4b448b8d9b923adad04b369d1f46c4f6fad9cd66c237b8835f3df97b",
+    "deploy/ShippingSmoke.java": "e5ec5bee2f175c0cf4c503471b3b7ab907d5b6d77a157043ea0e9f3970ad4cb3",
+    "deploy/run_shipping_smoke.py": "684a8e94077ed673c07261d16e284b169862339559159fc09be7b9efc9694fdc"
+  },
+  "media": [
+    {
+      "filename": "shipping-coastal-menu.png",
+      "bytes": 799476,
+      "sha256": "5bf0d2d3a386de46c0999026a585fb4711a1275641604b468f556318664d224a",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-62386532623363612d343231342d343234362d626163612d613333396139623934303436/dashboard/evidence/shipping-coastal-menu.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "filename": "shipping-inland-rejection.png",
+      "bytes": 843511,
+      "sha256": "b40d77c6f814fff64a805e20bd48c0a1885c282f1d10c585960f884f033e4034",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-62386532623363612d343231342d343234362d626163612d613333396139623934303436/dashboard/evidence/shipping-inland-rejection.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "filename": "shipping-placement-playtest.mp4",
+      "bytes": 904719,
+      "sha256": "93d2befa8a00cef43ea5a0bc4f660e7bc78b830b58cb930fb812db065569d04d",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-62386532623363612d343231342d343234362d626163612d613333396139623934303436/dashboard/evidence/shipping-placement-playtest.mp4",
+      "publication": "pending controller publication"
+    },
+    {
+      "filename": "shipping-port-carrier.png",
+      "bytes": 420703,
+      "sha256": "9eff94b209cfe95d5402fba711ad5c5c9316605964d4f83fbe83ed5c78511656",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-62386532623363612d343231342d343234362d626163612d613333396139623934303436/dashboard/evidence/shipping-port-carrier.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "filename": "shipping-port-reverse.png",
+      "bytes": 369333,
+      "sha256": "596f7913cf5dd71e9e90139095e396e66371acf26a4e8636f01112cd2a03410c",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-62386532623363612d343231342d343234362d626163612d613333396139623934303436/dashboard/evidence/shipping-port-reverse.png",
+      "publication": "pending controller publication"
+    }
+  ]
+}

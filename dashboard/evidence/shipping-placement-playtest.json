@@ -1,0 +1,58 @@
+{
+  "status": "passed",
+  "platform": "Linux X11 inherited role display; Mesa",
+  "profile": "isolated synthetic offline city on generated version 3 terrain",
+  "checks": [
+    "actual menu clicks reject inland port",
+    "technical college level 3 regression",
+    "actual coastal port permit",
+    "carrier hull and containers in world",
+    "ocean beside berth preserved",
+    "overlap rejected",
+    "two camera angles"
+  ],
+  "recording": "production F10 recorder",
+  "siteX": -100,
+  "siteZ": 210,
+  "saveReload": "passed",
+  "command": "python3 deploy/run_shipping_smoke.py --display \"$DISPLAY\"",
+  "environment": {
+    "java": "25.0.3",
+    "display": "Inherited assigned role DISPLAY; inherited XAUTHORITY; neither authentication cookie nor private profile data was read into model context",
+    "renderer": "Linux X11 / Mesa software OpenGL",
+    "profile": "target/shipping-home; isolated synthetic offline city",
+    "browserPlaytest": "Does not apply: this is a native Java/OpenGL game. The production Main.run loop was exercised with actual X11 clicks."
+  },
+  "Playtest": [
+    {
+      "steps": "Special menu -> Port -> click inland (40,80)",
+      "expected": "Reject permit without adding a building; explain open ocean requirement",
+      "observed": "Passed; native notice contains open ocean; building count stays 0"
+    },
+    {
+      "steps": "Special menu -> Technical college -> cycle level twice -> click cleared site (40,80)",
+      "expected": "Existing level controls place level 3 Technical college",
+      "observed": "Passed; building type 22 exists"
+    },
+    {
+      "steps": "Pan to generated coast; Special -> Port; click site (-100,210)",
+      "expected": "Create coastal infrastructure, containers and a docked carrier while retaining ocean water beside berth",
+      "observed": "Passed; permit notice, building type 23, hull block (-99,15,224), water block (-100,14,225); fresh media inspected"
+    },
+    {
+      "steps": "Repeat click on the placed port",
+      "expected": "Reject overlap without adding another port",
+      "observed": "Passed; building count unchanged"
+    },
+    {
+      "steps": "Escape; wider camera; rotate 90 degrees; F10 start/stop",
+      "expected": "Capture full dock, cargo and carrier from two angles",
+      "observed": "Passed; both images show full structure; production F10 MP4 finished below 6 MB"
+    },
+    {
+      "steps": "Close game; reload synthetic LocalGame and city save",
+      "expected": "Keep generator version 3, port permit and carrier blocks",
+      "observed": "Passed; saveReload is passed"
+    }
+  ]
+}

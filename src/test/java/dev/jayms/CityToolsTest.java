@@ -169,10 +169,12 @@ class CityToolsTest {
         var tools = new CityTools(); tools.tool = 6;
         var result = new ArrayList<CityCommand>();
         tools.click(40, 140 + 3 * 28 + 10, 1280, 720, projection, view, frame, result::add);
-        tools.click(40, 140 + 6 * 28 + 10, 1280, 720, projection, view, frame, result::add);
         tools.click(40, 140 + 7 * 28 + 10, 1280, 720, projection, view, frame, result::add);
+        tools.click(40, 140 + 8 * 28 + 10, 1280, 720, projection, view, frame, result::add);
         assertEquals(3, tools.specialKind);
         assertEquals(2, tools.specialLevel);
+        tools.click(40, 140 + 6 * 28 + 10, 1280, 720, projection, view, frame, result::add);
+        assertEquals(6, tools.specialKind);
         assertEquals(1, tools.specialOwner);
         assertTrue(result.isEmpty());
         assertTrue(tools.key(256, result::add));

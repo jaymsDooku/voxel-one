@@ -27,7 +27,7 @@ class MarketEconomyTest {
             java.nio.file.Files.copy(input, file);
         }
         var saved = CitySimulation.load(file);
-        assertEquals(22, dev.jayms.net.Protocol.VERSION);
+        assertEquals(23, dev.jayms.net.Protocol.VERSION);
         assertTrue(saved.buildings().stream().anyMatch(b -> b.type() == SpecialBuildings.EXCHANGE));
         var capital = saved.economy().capital();
         assertFalse(capital.book().listings().isEmpty());

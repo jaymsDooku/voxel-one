@@ -16,7 +16,7 @@ public final class Terrain {
 
     public record Column(int height, Biome biome) {}
 
-    public static final int LEGACY_VERSION = 1, CURRENT_VERSION = 2;
+    public static final int LEGACY_VERSION = 1, GEOGRAPHY_VERSION = 2, CURRENT_VERSION = 3;
     public final int version;
     public final long seed;
     private final Geography geography;
@@ -36,7 +36,7 @@ public final class Terrain {
             throw new IllegalArgumentException("Unsupported terrain generator version: " + version);
         this.seed = seed;
         this.version = version;
-        geography = version == CURRENT_VERSION ? new Geography(seed) : null;
+        geography = version >= GEOGRAPHY_VERSION ? new Geography(seed, version >= 3) : null;
     }
 
     private long hash(int x, int z, long salt) {
@@ -62,6 +62,11 @@ public final class Terrain {
 
     public Geography.Fields fields(int x, int z) {
         return geography == null ? null : geography.fields(x, z);
+    }
+
+    /** Ocean identity comes from the generator, never from placed water or river channels. */
+    public boolean ocean(int x, int z) {
+        return geography != null && geography.ocean(x, z);
     }
 
     public int surfaceHeight(int x, int z) {
