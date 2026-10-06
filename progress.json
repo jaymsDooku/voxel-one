@@ -1,18 +1,6 @@
 {
   "schemaVersion": 1,
-  "project": "Voxel One",
-  "updatedAt": "2026-10-04T16:25:46+00:00",
-  "release": {
-    "name": "Playtest 28",
-    "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
-    "commit": "2c9716d841ae99486b7b2abbae90faa6e4b0dd74"
-  },
-  "verification": {
-    "tests": 166,
-    "failures": 0,
-    "label": "Playtest 28 \u00b7 all four platforms",
-    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
-  },
+  "updatedAt": "2026-10-06T18:24:27+00:00",
   "items": [
     {
       "id": "development-dashboard",
@@ -1998,7 +1986,21 @@
       "status": "in_progress",
       "note": "Implementation ready for separate review. Rebindable left/right quarter turns preserve isometric pitch, focus and zoom; panning follows orientation. Targeted verify passed 15 tests and packaged all jars. Full suite: 161 passed, 10 socket-permission errors, zero assertion failures. Evidence: dashboard/evidence/isometric-rotation-tests.json. No graphical display for F10 recording.",
       "updatedAt": "2026-10-03T03:21:19+00:00"
+    },
+    {
+      "id": "developer2-maven-repair-2026-10-06",
+      "title": "Restore developer2 Maven for citizen simulation development",
+      "description": "Installed persistent system Maven3.8.7; verified developer2 PATH, project compilation and 10 citizen simulation tests. Resolved missing-Maven question; million-citizen work queued for developer2.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "developer2 maven repair 2026 10 06.txt",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/developer2-maven-repair-2026-10-06.txt"
+        }
+      ],
+      "status": "complete",
+      "note": "Installed persistent system Maven3.8.7; verified developer2 PATH, project compilation and 10 citizen simulation tests. Resolved missing-Maven question; million-citizen work queued for developer2.",
+      "updatedAt": "2026-10-06T18:24:27+00:00"
     }
-  ],
-  "website": "https://voxel-one.jamesleaver1.chatgpt.site"
+  ]
 }
