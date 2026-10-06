@@ -1687,7 +1687,7 @@ public final class CitySimulation {
                                                 && x + 7 > b.x() - 1
                                                 && z - 1
                                                         < b.z()
-                                                                + StructureBlueprint.depth(b.type())
+                                                                + (b.type() == SpecialBuildings.AIRPORT ? Aviation.depth(Aviation.runways(b)) : StructureBlueprint.depth(b.type()))
                                                                 + 1
                                                 && z + 8 > b.z() - 1)
                 || roads.keySet().stream()
@@ -1844,7 +1844,7 @@ public final class CitySimulation {
         for (var b : buildings)
             if (x - 1 < b.x() + StructureBlueprint.width(b.type()) + 1
                     && x + width + 1 > b.x() - 1
-                    && z - 2 < b.z() + StructureBlueprint.depth(b.type()) + 1
+                    && z - 2 < b.z() + (b.type() == SpecialBuildings.AIRPORT ? Aviation.depth(Aviation.runways(b)) : StructureBlueprint.depth(b.type())) + 1
                     && z + depth + 1 > b.z() - 2) return false;
         return true;
     }

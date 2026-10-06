@@ -53,6 +53,21 @@ class AviationTest {
         assertEquals("Building demolished; zoned land can redevelop (no material refund)",command(c,new CityCommand(CityCommand.DEMOLISH,a.id(),List.of())));
         assertEquals(0,f.ground().type(60,f.ground().grade+1,80));
     }
+    @Test void exchangesCannotOverwriteSecondOrThirdRunway() {
+        for(int runways : List.of(2,3)) {
+            var f=fixture();var c=f.city();command(c,permit(50));int airport=c.frame().buildings().get(0).id();
+            for(int n=1;n<runways;n++)command(c,new CityCommand(CityCommand.RUNWAY,airport,List.of()));
+            int z=85+16*(runways-2);
+            command(c,new CityCommand(CityCommand.ROAD,0,List.of(new Polygon.Point(40,z+5),new Polygon.Point(48,z+5))));
+            assertTrue(c.frame().roads().stream().anyMatch(r->r.x()==48&&r.z()==z+5));
+            double money=c.economy.budget;var buildings=c.frame().buildings();var voxels=Map.copyOf(f.ground().blocks);int batches=f.ground().batches;
+            assertEquals("Exchange site is occupied",command(c,new CityCommand(CityCommand.EXCHANGE,0,List.of(new Polygon.Point(50,z)))));
+            assertEquals(money,c.economy.budget);assertEquals(buildings,c.frame().buildings());
+            assertEquals(voxels,f.ground().blocks);assertEquals(batches,f.ground().batches);
+        }
+        var f=fixture();
+        assertTrue(command(f.city(),new CityCommand(CityCommand.EXCHANGE,0,List.of(new Polygon.Point(100,52)))).startsWith("Stock exchange built"));
+    }
     @Test void passengerWalksBoardsFliesLandsAndRestoresMidFlight() throws Exception {
         var f=fixture();var c=f.city();command(c,permit(50));command(c,permit(130));
         int person=c.frame().citizens().get(0).id();int dest=c.frame().buildings().get(1).id();

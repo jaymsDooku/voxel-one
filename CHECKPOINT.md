@@ -1,11 +1,9 @@
-# Airport integration ready for independent review
+# Expanded airport overlap fix ready for independent review
 
-Controller recovered head: 2c5077142b202c8e34513bb2f221a02408874de6. All edits remain in assigned feature worktree. No unmerged index. No developer Git writes, commit, push, merge or deployment.
+Exchange and private building overlap checks use airport current runway count. Regression tests attempt exchange construction on second and third runways with real road access; reject with unchanged treasury, buildings, voxel map and apply count. Outside exchange construction still works. Regional data and command compatibility remain preserved.
 
-Regional population, district UI, tests, fixtures and historical evidence preserved. City format 11 retains regional data; format 12 appends aviation; save magic 0x4349543C. Protocol 22 uses district IDs 8/9 and runway/flight IDs 10/11.
+Current focused Maven tests: 23 passed, zero failures/errors (AviationTest10, CityBusinessTest9, RegionalSaveCompatibilityTest4). No new full-suite or package run claimed. Previous broad validation is historical in airport-tests.json.
 
-Final validation: full run executed 329 tests with 2 preserved format-test expectation failures; corrected upgrade expectation to 12 and explicitly wrote format11 for truncation. Final focused verify passed 25 tests, zero failures/errors, and packaged all jars. Remaining suites passed in the full run. Current combined suite reports show 329 tests with zero failures/errors. Commands and limits are in dashboard/evidence/airport-tests.json.
+Playtest: production Main, Linux X11/Mesa, inherited assigned DISPLAY/XAUTHORITY, isolated synthetic profile. Exchange UI attempt inside expanded runway rejected; treasury and world edits unchanged. Airport placement/expansion, single-airport edge, City hall regression, boarding/flight/arrival, compact menu and regional settle1000000/focus64 all passed. Fresh airport-exchange-rejected.png and other captures saved. F10 clip decoded fully: 40 frames, 1596688 bytes.
 
-Playtest: final recovered application passed airport placement, expansion, single-airport rejection, City hall regression, citizen boarding/flight/arrival, compact menu, district settlement 1000000 and focus64. Linux X11/Mesa, inherited role display/authentication, isolated synthetic profile. Refreshed images and F10 video saved; all 40 frames decoded, 1584535 bytes. Report includes source/media hashes. Historical regional evidence retained unchanged.
-
-Controller next: stage test/helper/report/media edits, commit and publish assigned feature branch, submit exact head for independent review. All media URLs are pending controller publication. Reviewer must independently exercise workflow and verify published media matches submitted head. No owner answer needed. All delegate tasks resolved; concurrency 0.
+Commands, expected/observed results, source/media hashes in dashboard/evidence/airport-tests.json. git diff --check passed. All edits preserved; no commit, push, merge, deployment or index writes. Controller owns publication and independent review. URLs pending controller publication. Helper failed and was resolved as self; concurrency0. No owner answer pending.

@@ -130,6 +130,21 @@ public class AviationSmoke {
                 long captureDeadline=System.currentTimeMillis()+60000;
                 while(!"airport-expanded.png".equals(captured) && System.currentTimeMillis()<captureDeadline) Thread.sleep(50);
                 require("airport-expanded.png".equals(captured),"Expanded airport capture completed before camera moves");
+                // Add a synthetic access road; reject exchange placement through real UI.
+                var localGame=(LocalGame)get("local");
+                localGame.city.command(new CityCommand(CityCommand.ROAD,0,List.of(new Polygon.Point(120,90),new Polygon.Point(128,90))),1,null);
+                x("getwindowfocus");
+                double overlapBudget=city().economy().budget();
+                var overlapEdits=new HashMap<>(localGame.edits);
+                camera.focus(140,85,city().roads().get(0).y()+1);camera.zoom(3);x("getwindowfocus");
+                click((int)(16+8.5f*(width()-32)/9f),height()-180);point(130,85);
+                require(((String)get("notice")).contains("occupied"),"Exchange inside second runway rejected");
+                require(city().economy().budget()==overlapBudget,"Rejected exchange preserves treasury");
+                require(localGame.edits.equals(overlapEdits),"Rejected exchange preserves voxels");
+                capture="airport-exchange-rejected.png";
+                long rejectionDeadline=System.currentTimeMillis()+60000;
+                while(!"airport-exchange-rejected.png".equals(captured) && System.currentTimeMillis()<rejectionDeadline)Thread.sleep(50);
+                require("airport-exchange-rejected.png".equals(captured),"Rejection image saved");
                 // Regression: standard City hall permit still works beside the road.
                 camera.focus(104,56,city().roads().get(0).y()+1);camera.zoom(3);x("getwindowfocus");
                 click((int)(16+7.5f*(width()-32)/9f),height()-180);
