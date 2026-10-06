@@ -1,16 +1,1 @@
-{
-  "platform": "Linux X11 Xvfb Mesa software OpenGL",
-  "status": "passed",
-  "pedestrianGapBlocks": 1.0,
-  "mountedGapBlocks": 1.4,
-  "movingSamples": 205,
-  "nearbySeparatedPairSamples": 1608,
-  "mountedSamples": 100,
-  "overlapSamples": 0,
-  "minimumClearanceMarginBlocks": 0.0002651214599609375,
-  "lateClosestRoadPairBlocks": 1.000265121459961,
-  "regression": "Native inventory opens and closes",
-  "recording": "engine F10 recorder",
-  "sourceRecording": "Voxel-One_2026-10-06_22-08-55_10649648359615126013.mp4",
-  "publication": "pending controller publication"
-}
+{"platform":"Linux X11 Xvfb Mesa software OpenGL","status":"passed","pedestrianGapBlocks":1.0,"mountedGapBlocks":1.4,"movingSamples":248,"nearbySeparatedPairSamples":1605,"mountedSamples":105,"overlapSamples":0,"minimumClearanceMarginBlocks":2.651214599609375E-4,"lateClosestRoadPairBlocks":1.000265121459961,"regression":"Native inventory opens and closes","recording":"engine F10 recorder"}
