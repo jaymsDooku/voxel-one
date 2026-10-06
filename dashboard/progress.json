@@ -2382,6 +2382,21 @@
       "status": "in_progress",
       "note": "Expanded runways protected from exchanges and private buildings. 23 focused tests and native rejection/flight/district checks passed. Fresh media ready for controller publication and review.",
       "updatedAt": "2026-10-06T21:47:07+00:00"
+    },
+    {
+      "id": "63663864323833632d366236302d343366362d613866362d643262326334346335353430",
+      "title": "Create voxelized lorries and trucks",
+      "description": "Inspecting vehicle models and placement workflow; adding four cargo vehicle types.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Cargo vehicle playtest report (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63663864323833632d366236302d343366362d613866362d643262326334346335353430/dashboard/evidence/cargo-vehicles-playtest.md"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Aviation-base rebase recovery: preserving protocol 22, format-12 saves, aviation UI/tests/evidence and cargo bodies. Controller continuation and final-head checks pending.",
+      "updatedAt": "2026-10-06T20:35:10+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

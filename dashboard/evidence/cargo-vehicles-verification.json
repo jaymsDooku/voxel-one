@@ -1,0 +1,97 @@
+{
+  "status": "passed",
+  "publication": "pending controller publication",
+  "unitTests": {
+    "JeepTest": 8,
+    "ControlsTest": 5,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "nativePlaytest": {
+    "status": "passed",
+    "platform": "Linux X11 inherited role display; Mesa",
+    "profile": "isolated synthetic offline yard",
+    "checks": [
+      "all five bodies selected via real Shift+J",
+      "enter drive brake exit via real J/W",
+      "moving exit and driving body switch rejected",
+      "all body types survive save reload",
+      "longer truck rejects wall",
+      "cycle returns to original jeep"
+    ],
+    "media": "five production renderer captures"
+  },
+  "video": {
+    "status": "passed",
+    "frames": 27,
+    "seconds": 13.51,
+    "bytes": 1046704,
+    "decodedSamples": [
+      0.2,
+      0.45,
+      0.8,
+      0.95
+    ]
+  },
+  "sourceFiles": {
+    "src/main/java/dev/jayms/Main.java": {
+      "sha256": "26362f9e220e663c790678b2cdf1184daa0d68e616a0081eb313ed05e15c65b7",
+      "bytes": 64321
+    },
+    "src/main/java/dev/jayms/player/CargoVehicle.java": {
+      "sha256": "f969399497ba124dcd27d1dd2835dbfab76ed47987334bbf99da4e622cf8066b",
+      "bytes": 638
+    },
+    "src/main/java/dev/jayms/player/Jeep.java": {
+      "sha256": "cdea4cde3828a3b266f3952ab4a3faae340bc8b6d4f3079bdcab9a0225ca8126",
+      "bytes": 9248
+    },
+    "src/main/java/dev/jayms/player/JeepModel.java": {
+      "sha256": "9977a10a73edfa2eb432166c99f95234b756e6f8a440211d6d9cc639e73647a1",
+      "bytes": 6813
+    },
+    "src/main/java/dev/jayms/ui/Controls.java": {
+      "sha256": "4e761eb2cc27ccce770983221347e117aa9915b0b5b2c1eafe7c818dd3f40857",
+      "bytes": 7831
+    },
+    "src/test/java/dev/jayms/JeepTest.java": {
+      "sha256": "92eda0babdff7524003cd5ed172aa94fc8b9dc43bcb35ff09f772702c1505dee",
+      "bytes": 6591
+    },
+    "deploy/CargoVehicleSmoke.java": {
+      "sha256": "26c9cce095dc9a7a22c5fb19850df7a38b6fefb35b97b6b0a0576025b93170cf",
+      "bytes": 9491
+    },
+    "deploy/run_cargo_smoke.py": {
+      "sha256": "2bf6456c0f7acaa89ace6f1d6240b52b914035094043b9748238dd6bbfebe9ec",
+      "bytes": 2495
+    }
+  },
+  "mediaFiles": {
+    "cargo-container.png": {
+      "sha256": "83ffb049236ef811cc88061ca49e709859e016d494f61fe865416fe3a3e5368e",
+      "bytes": 832809
+    },
+    "cargo-tanker.png": {
+      "sha256": "73320e5a7e1f2a19d43cb72a1f92acbcb420ab0a3ebea552dd646c828db901f5",
+      "bytes": 838412
+    },
+    "cargo-van.png": {
+      "sha256": "52182e9b92eea70f41e9ddd1759b2d1cb921087df3348d8e5e49ba459c72cc01",
+      "bytes": 841938
+    },
+    "cargo-lorry.png": {
+      "sha256": "ae7f85784cd4ccc29be1da96ffd3abd7bc300a9edd109d9fda977b8e6fffad30",
+      "bytes": 836550
+    },
+    "cargo-jeep.png": {
+      "sha256": "1cf8aec31f7d9dcb6d2db7d932fe14fad8d5450bfafb6a0739bfc28ff5ba4470",
+      "bytes": 845003
+    },
+    "cargo-container-drive.mp4": {
+      "sha256": "973288edc9c3e491c0d4c3e401d1d78dcd40f32d880654d34e0eec4b702772a0",
+      "bytes": 1046704
+    }
+  }
+}

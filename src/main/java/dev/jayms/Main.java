@@ -571,9 +571,13 @@ public class Main {
 
     private void input(int code) {
         if (controls.matches(JEEP, code) && captured && jeep != null) {
+            if (glfwGetKey(window.getHandle(), GLFW_KEY_LEFT_SHIFT)==GLFW_PRESS || glfwGetKey(window.getHandle(), GLFW_KEY_RIGHT_SHIFT)==GLFW_PRESS) {
+                notice=jeep.cycleBody(world,player) ? "Vehicle: "+jeep.type().label : "Stop, exit, and leave clear space around the vehicle to change body";
+                return;
+            }
             boolean ok = jeep.driving() ? jeep.exit(world, player) : jeep.enter(player);
-            notice = ok ? (jeep.driving() ? "Driving jeep: WASD + mouse, Ctrl boost, J exit when stopped" : "Left jeep")
-                    : "Move within 4 blocks to enter; stop and leave room beside the jeep to exit";
+            notice = ok ? (jeep.driving() ? "Driving "+jeep.type().label+": WASD + mouse, Ctrl boost, vehicle key exits when stopped" : "Left "+jeep.type().label)
+                    : "Move within 4 blocks of the cab to enter; stop and leave room beside the vehicle to exit";
             return;
         }
         if (controls.matches(MAYOR_DASHBOARD, code)) {
@@ -821,7 +825,7 @@ public class Main {
                             + " | "
                             + (isometric
                                     ? "Isometric"
-                                    : jeep != null && jeep.driving() ? "Driving jeep | " + player.cameraView()
+                                    : jeep != null && jeep.driving() ? "Driving "+jeep.type().label+" | " + player.cameraView()
                                     : player.mounted()
                                             ? "Riding horse | " + player.cameraView()
                                             : player.flying()
@@ -1117,7 +1121,7 @@ public class Main {
                         + " | "
                         + (isometric
                                 ? "ISOMETRIC | 4096 x 4096 BLOCKS"
-                                : jeep != null && jeep.driving() ? "DRIVING JEEP | " + Controls.keyName(controls.code(JEEP)) + ": exit | " + Math.round(Math.abs(jeep.speed())*3.6f) + " km/h"
+                                : jeep != null && jeep.driving() ? "DRIVING "+jeep.type().label+" | " + Controls.keyName(controls.code(JEEP)) + ": exit | " + Math.round(Math.abs(jeep.speed())*3.6f) + " km/h"
                                 : player.mounted()
                                         ? "RIDING HORSE | H: dismount"
                                         : player.flying() ? "FLYING" : "WALKING"),
@@ -1139,7 +1143,7 @@ public class Main {
                                 + Controls.keyName(controls.code(ROTATE_RIGHT))
                                 + ": rotate | Hold RMB + drag: orbit"
                         : jeep != null && jeep.driving() ? "W/S: drive / reverse | A/D + mouse: steer | Ctrl: boost"
-                        : jeep != null && player.position().distance(jeep.position()) <= 5 ? Controls.keyName(controls.code(JEEP)) + ": enter jeep | Esc: controls | " + Controls.keyName(controls.code(VIEW)) + ": camera"
+                        : jeep != null && player.position().distance(jeep.position()) <= 5 ? Controls.keyName(controls.code(JEEP)) + ": enter "+jeep.type().label+" | Shift + vehicle key: change body | Esc: controls | " + Controls.keyName(controls.code(VIEW)) + ": camera"
                         : "Esc: controls | "
                                 + Controls.keyName(controls.code(FLY))
                                 + ": flight | "
