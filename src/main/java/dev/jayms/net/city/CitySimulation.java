@@ -76,6 +76,7 @@ public final class CitySimulation {
     private double elapsed, accumulator, nextBuild;
     private int zoneIds, buildingIds, grade;
     private long marketDay = -1;
+    private final Set<Integer> graduationReviews = new HashSet<>();
     private int marketBuildings = -1;
     private CityAddresses addresses = new CityAddresses(CityAddresses.empty());
     public final CityEconomy economy;
@@ -179,6 +180,7 @@ public final class CitySimulation {
                             i / 4));
             ecs.put(id, Needs.class, new Needs(12 + i / 4 * 24));
             ecs.put(id, Travel.class, new Travel());
+            ecs.put(id, CitizenLife.class, CitizenLife.founder(i));
         }
         for (int i = 0; i < 6; i++) {
             int id = ecs.create();
@@ -244,6 +246,10 @@ public final class CitySimulation {
             h.job = c.job();
             h.horse = c.horse();
             ecs.put(c.id(), Household.class, h);
+            var life = new CitizenLife(c.age(), c.gender(), c.education());
+            life.study = c.study(); life.spouse = c.spouse(); life.mother = c.mother();
+            life.father = c.father(); life.school = c.school(); life.lastBirthAge = c.lastBirthAge();
+            ecs.put(c.id(), CitizenLife.class, life);
             var n = new Needs(c.money());
             n.hunger = c.hunger();
             ecs.put(c.id(), Needs.class, n);
@@ -263,6 +269,116 @@ public final class CitySimulation {
 
     public GameConfig config() {
         return config;
+    }
+
+    public CitizenLife life(int id) {
+        var value = ecs.get(id, CitizenLife.class);
+        if (value == null) {
+            var h = ecs.get(id, Household.class);
+            value = new CitizenLife(24 + (id - 1) % 8,
+                    id % 2 != 0 ? CitizenLife.Gender.FEMALE : CitizenLife.Gender.MALE,
+                    h.cohort == 0 ? CitizenLife.Education.NONE : h.cohort == 1 ? CitizenLife.Education.TECHNICAL : CitizenLife.Education.UNIVERSITY);
+            ecs.put(id, CitizenLife.class, value);
+        }
+        return value;
+    }
+
+    /** Career gates apply to every assignment path, including farms and mobile crews. */
+    public boolean eligible(int job, int id) {
+        var l = life(id);
+        if (!l.adult() || job == 0) return false;
+        var b = building(job);
+        if (b != null && b.type() == SpecialBuildings.EXCHANGE)
+            return l.education == CitizenLife.Education.UNIVERSITY;
+        if (b != null && SpecialBuildings.special(b.type())) return false;
+        if (b != null && b.type() == 1)
+            return l.education.ordinal() >= CitizenLife.Education.SECONDARY.ordinal();
+        var firm = economy.company(employer(job));
+        if (job > 0 && firm != null && economy.resources.catalog.recipes(firm.kind).stream()
+                .anyMatch(ProductionCatalog.Recipe::requiresFactory))
+            return l.education == CitizenLife.Education.TECHNICAL;
+        return true;
+    }
+
+    private int schoolKind(CitizenLife l) {
+        if (l.age >= 5 && l.age < 12 && l.education == CitizenLife.Education.NONE) return 1;
+        if (l.age >= 12 && l.age < 18 && l.education == CitizenLife.Education.PRIMARY) return 2;
+        if (l.age >= 18 && l.age < 22 && l.education == CitizenLife.Education.SECONDARY) return 3;
+        return -1;
+    }
+
+    private void lifeTick(float dt) {
+        var ids = new ArrayList<>(ecs.query(Household.class));
+        for (int id : ids) {
+            var l = life(id);
+            int before = schoolKind(l);
+            l.age += dt / (config.daySeconds() * CitizenLife.DAYS_PER_YEAR);
+            int kind = schoolKind(l);
+            if (kind != before) { l.study = 0; l.school = 0; }
+            var h = ecs.get(id, Household.class);
+            if (h.job != 0 && !eligible(h.job, id)) {
+                h.job = 0;
+                var t = ecs.get(id, Travel.class); t.target = -9999; t.route.clear();
+            }
+            if (l.education == CitizenLife.Education.UNIVERSITY) economy.capital.graduates.add(id);
+            else economy.capital.graduates.remove(id);
+            var school = building(l.school);
+            if (l.school != 0 && school == null) l.study = 0;
+            if (school == null || kind < 0 || (SpecialBuildings.kind(school.type()) != kind
+                    && !(kind == 3 && SpecialBuildings.kind(school.type()) == 5))) l.school = 0;
+            if (kind >= 0 && l.school == 0) {
+                final int stage = kind;
+                // Students choose the closest open place; both tertiary paths require secondary.
+                var p = ecs.get(id, Position.class);
+                l.school = buildings.stream().filter(b -> SpecialBuildings.special(b.type())
+                        && b.type() != SpecialBuildings.EXCHANGE
+                        && (SpecialBuildings.kind(b.type()) == stage
+                            || stage == 3 && SpecialBuildings.kind(b.type()) == 5))
+                        .filter(b -> ids.stream().filter(other -> life(other).school == b.id()).count() < b.capacity())
+                        .min(Comparator.comparingDouble((CityFrame.Building b) ->
+                            Math.pow(b.x() - p.x, 2) + Math.pow(b.z() - p.z, 2)).thenComparingInt(CityFrame.Building::id))
+                        .map(CityFrame.Building::id).orElse(0);
+            }
+            if (l.age <= 18 || l.spouse != 0) continue;
+            for (int partner : ids) {
+                var other = life(partner);
+                if (partner == id || other.age <= 18 || other.spouse != 0 || other.gender == l.gender
+                        || partner == l.mother || partner == l.father || id == other.mother || id == other.father
+                        || l.mother != 0 && l.mother == other.mother || l.father != 0 && l.father == other.father) continue;
+                l.spouse = partner; other.spouse = id; break;
+            }
+        }
+        for (int id : ids) {
+            var l = life(id); var h = ecs.get(id, Household.class);
+            if (l.spouse != 0 && h.home != 0 && agriculture.company(id) == 0
+                    && agriculture.company(l.spouse) == 0 && ecs.get(l.spouse, Household.class).home != h.home) {
+                var home = building(h.home);
+                var dependents = ids.stream().filter(child -> life(child).mother == l.spouse
+                        && !life(child).adult()).toList();
+                if (home != null && occupants(home.id(), true) + 1 + dependents.size() < home.capacity()
+                        && economy.house(l.spouse, home)) {
+                    economy.contracts.removeIf(c -> c.partyKind() == CityEconomy.CITIZEN
+                            && c.party() == l.spouse && !c.sale() && c.building() != home.id());
+                    ecs.get(l.spouse, Household.class).home = h.home;
+                    for (int child : dependents) ecs.get(child, Household.class).home = h.home;
+                }
+            }
+            if (l.gender != CitizenLife.Gender.FEMALE || l.age <= 18 || l.age >= 45
+                    || l.spouse == 0 || life(l.spouse).age <= 18 || l.age - l.lastBirthAge < 2
+                    || h.home == 0 || ecs.get(l.spouse, Household.class).home != h.home
+                    || ecs.query(Household.class).size() >= 128) continue;
+            var home = building(h.home);
+            if (home == null || occupants(home.id(), true) >= home.capacity()) continue;
+            int child = ecs.create(); var p = ecs.get(id, Position.class);
+            ecs.put(child, Position.class, new Position(p.x, p.y, p.z));
+            var household = new Household("Child " + child, h.cohort); household.home = h.home;
+            ecs.put(child, Household.class, household);
+            ecs.put(child, Needs.class, new Needs(0)); ecs.put(child, Travel.class, new Travel());
+            var newborn = new CitizenLife(0, child % 2 == 0 ? CitizenLife.Gender.FEMALE : CitizenLife.Gender.MALE,
+                    CitizenLife.Education.NONE);
+            newborn.mother = id; newborn.father = l.spouse;
+            ecs.put(child, CitizenLife.class, newborn); l.lastBirthAge = l.age;
+        }
     }
 
     public void advance(double dt) {
@@ -308,8 +424,9 @@ public final class CitySimulation {
             marketBuildings = buildings.size();
             economy.priceProperties(buildings);
         }
+        lifeTick(dt);
         assign();
-        if (marketReview || hasUnpaidWorkers()) chooseJobs(marketReview);
+        if (marketReview || hasUnpaidWorkers() || !graduationReviews.isEmpty()) chooseJobs(marketReview);
         for (int id : ecs.query(Position.class, Household.class, Needs.class, Travel.class)) {
             var p = ecs.get(id, Position.class);
             var h = ecs.get(id, Household.class);
@@ -330,10 +447,12 @@ public final class CitySimulation {
                 continue;
             }
             boolean working = onShift(id, time);
-            float mealThreshold = working ? 65 : 85;
+            var life = life(id);
+            boolean studying = life.school != 0 && time.hour() >= 8 && time.hour() < 14;
+            float mealThreshold = working || studying ? 65 : 85;
             int mealShop = time.shopsOpen() && n.hunger < mealThreshold ? cheapestMeal(n, time) : 0;
             boolean eating = mealShop != 0;
-            int target = eating ? mealShop : working && h.job != 0 ? h.job : h.home;
+            int target = eating ? mealShop : studying ? life.school : working && h.job != 0 ? h.job : h.home;
             if (target == 0) {
                 t.target = 0;
                 t.route.clear();
@@ -350,11 +469,12 @@ public final class CitySimulation {
                                                     ? "Going to construction site"
                                                     : "Commuting to work")
                                             : "Going home";
+            if (studying && !eating) t.activity = "Going to " + SpecialBuildings.name(building(life.school).type());
             if (target != t.target) {
                 t.target = target;
                 t.route.clear();
                 var b = workplace(target);
-                if (b != null) journey(id, p, b, t);
+                if (b != null && !(p.x > b.x() && p.x < b.x() + 6 && p.z > b.z() && p.z < b.z() + 7)) journey(id, p, b, t);
             }
             if (!t.route.isEmpty()) {
                 travel(id, p, h, t, dt);
@@ -440,6 +560,21 @@ public final class CitySimulation {
                                                     company,
                                                     economy.resources.catalog.output(firm.kind))
                                             / CityMaterials.UNIT));
+            } else if (studying && b.id() == life.school && !eating) {
+                t.activity = "Studying at " + SpecialBuildings.name(b.type());
+                life.study += hours / (6 * CitizenLife.DAYS_PER_YEAR);
+                double required = SpecialBuildings.kind(b.type()) == 1 ? 6 : SpecialBuildings.kind(b.type()) == 2 ? 5 : 3;
+                if (life.study + 1e-6 >= required) {
+                    life.education = switch (SpecialBuildings.kind(b.type())) {
+                        case 1 -> CitizenLife.Education.PRIMARY;
+                        case 2 -> CitizenLife.Education.SECONDARY;
+                        case 3 -> CitizenLife.Education.UNIVERSITY;
+                        default -> CitizenLife.Education.TECHNICAL;
+                    };
+                    life.study = 0; life.school = 0;
+                    if (life.adult()) graduationReviews.add(id);
+                    if (life.education == CitizenLife.Education.UNIVERSITY) economy.capital.graduates.add(id);
+                }
             } else if (b.type() == SpecialBuildings.EXCHANGE && working && !eating) {
                 double salary = hours * exchangeLabourRate(economy.capital.graduates.contains(id));
                 if (economy.budget >= salary) {
@@ -493,6 +628,7 @@ public final class CitySimulation {
     }
 
     private boolean onShift(int citizen, CityTime time) {
+        if (!life(citizen).adult() || life(citizen).school != 0 && time.hour() >= 8 && time.hour() < 14) return false;
         var h = ecs.get(citizen, Household.class);
         var b = building(h.job);
         if (b == null || b.type() != 1) return time.period() == CityTime.Period.WORKDAY;
@@ -727,6 +863,15 @@ public final class CitySimulation {
         for (int id : ecs.query(Household.class)) {
             var h = ecs.get(id, Household.class);
             if (agriculture.company(id) != 0) continue;
+            var l = life(id);
+            if (!l.adult() && l.mother != 0) {
+                h.home = ecs.get(l.mother, Household.class).home;
+                var parent = ecs.get(l.mother, Needs.class);
+                var needs = ecs.get(id, Needs.class);
+                float grant = (float)Math.min(Math.max(0, 4 - needs.money), Math.min(parent.money, .02));
+                parent.money -= grant; needs.money += grant;
+                continue;
+            }
             if (h.job < 0 && economy.project(-h.job) == null) h.job = 0;
             if (h.home > 0
                     && economy.contracts.stream()
@@ -793,6 +938,7 @@ public final class CitySimulation {
     }
 
     private boolean canPayJob(int job, int citizen) {
+        if (!eligible(job, citizen)) return false;
         var workplace = building(job);
         if (workplace != null && workplace.type() == SpecialBuildings.EXCHANGE)
             return economy.budget >= jobRate(job, citizen);
@@ -844,24 +990,32 @@ public final class CitySimulation {
                     && current.type() != SpecialBuildings.EXCHANGE) continue;
             int minimum = current != null && current.type() == 1 ? 2 : 1;
             boolean paid = canPayJob(h.job, id);
-            if (paid && (!reviewPaid || occupants(h.job, false) <= minimum
+            if (paid && !graduationReviews.contains(id) && (!reviewPaid || occupants(h.job, false) <= minimum
                     && (current == null || current.type() != SpecialBuildings.EXCHANGE))) continue;
             int best =
                     offers.keySet().stream()
                             .filter(job -> job != h.job && occupants(job, false) < offers.get(job))
                             .filter(job -> exchangeVacancy(job, id) && canPayJob(job, id))
                             .max(
-                                    Comparator.comparingDouble(
-                                                    (Integer job) -> jobRate(job, id))
+                                    Comparator.comparingInt((Integer job) -> graduationReviews.contains(id) ? careerRank(job, id) : 0)
+                                            .thenComparingDouble(job -> jobRate(job, id))
                                             .thenComparingInt(job -> -job))
                             .orElse(0);
-            if (best != 0 && (!paid || jobRate(best, id) > jobRate(h.job, id) * 1.2)) {
+            if (best != 0 && (!paid || graduationReviews.contains(id) && careerRank(best, id) > careerRank(h.job, id)
+                    || jobRate(best, id) > jobRate(h.job, id) * 1.2)) {
                 h.job = best;
                 var travel = ecs.get(id, Travel.class);
                 travel.target = -9999;
                 travel.route.clear();
             }
         }
+        graduationReviews.clear();
+    }
+
+    private int careerRank(int job, int citizen) {
+        var b = building(job);
+        if (b != null && (b.type() == SpecialBuildings.EXCHANGE || b.type() == 2 && life(citizen).education == CitizenLife.Education.TECHNICAL)) return 2;
+        return b != null && b.type() == 1 ? 1 : 0;
     }
 
     private void assignFarmers() {
@@ -892,6 +1046,7 @@ public final class CitySimulation {
                         project != null
                                 ? -project.id()
                                 : owned.isEmpty() ? 0 : owned.get(i % owned.size()).id();
+                if (!eligible(job, id)) job = 0;
                 if (h.job != job) {
                     h.job = job;
                     var t = ecs.get(id, Travel.class);
@@ -995,6 +1150,14 @@ public final class CitySimulation {
                     new Cell(
                             destination.x() + 2,
                             door < destination.z() ? destination.z() + 1 : destination.z() + 5));
+        if (SpecialBuildings.special(destination.type()) && destination.type() != SpecialBuildings.EXCHANGE) {
+            int kind = SpecialBuildings.kind(destination.type());
+            if (kind == 1 || kind == 2 || kind == 3 || kind == 5) {
+                // School desks occupy the side stations used by houses and shops.
+                t.route.add(new Cell(destination.x() + 2, destination.z() + 3));
+                return;
+            }
+        }
         t.route.add(new Cell(destination.x() + 2, destination.z() + 1 + (id / 4) % 2));
         t.route.add(new Cell(destination.x() + 1 + id % 4, destination.z() + 1 + (id / 4) % 2));
     }
@@ -1026,27 +1189,25 @@ public final class CitySimulation {
                 }
             }
         }
-        float speed = h.horse == 0 ? 2.2f : 5.5f;
-        var target = t.route.peek();
-        float dx = target.x() + .5f - p.x,
-                dz = target.z() + .5f - p.z,
-                dist = (float) Math.hypot(dx, dz);
-        float nx = dist < speed * dt ? target.x() + .5f : p.x + dx / dist * speed * dt,
-                nz = dist < speed * dt ? target.z() + .5f : p.z + dz / dist * speed * dt;
-        if (!passable(nx, nz)) {
-            t.activity = "Route obstructed";
-            t.target = -9999;
-            t.route.clear();
-            t.retryAt = elapsed + 2;
-            return;
-        }
-        if (dist < speed * dt) {
-            p.x = target.x() + .5f;
-            p.z = target.z() + .5f;
-            t.route.remove();
-        } else {
-            p.x += dx / dist * speed * dt;
-            p.z += dz / dist * speed * dt;
+        // Travel must keep pace with needs and schedules when the city clock is accelerated.
+        float speed = (float)((h.horse == 0 ? 2.2f : 5.5f) * 1200 / config.daySeconds());
+        float remaining = speed * dt, dx = 0, dz = 0;
+        // Consume the whole distance budget, including several cells on accelerated days.
+        // Small collision steps keep fast travel from crossing walls or furniture.
+        while (remaining > .0001f && !t.route.isEmpty()) {
+            var target = t.route.peek();
+            dx = target.x() + .5f - p.x; dz = target.z() + .5f - p.z;
+            float dist = (float)Math.hypot(dx, dz);
+            if (dist < .0001f) { t.route.remove(); continue; }
+            float movement = Math.min(Math.min(remaining, dist), .25f);
+            float nx = p.x + dx / dist * movement, nz = p.z + dz / dist * movement;
+            if (!passable(nx, nz)) {
+                t.activity = "Route obstructed"; t.target = -9999;
+                t.route.clear(); t.retryAt = elapsed + 2;
+                return;
+            }
+            p.x = nx; p.z = nz; remaining -= movement;
+            if (dist - movement < .0001f) t.route.remove();
         }
         p.y =
                 roads.getOrDefault(new Cell((int) Math.floor(p.x), (int) Math.floor(p.z)), grade)
@@ -1109,7 +1270,7 @@ public final class CitySimulation {
     private boolean passable(float x, float z) {
         float y = grade + 1.01f;
         for (var b : buildings)
-            if (x > b.x() && x < b.x() + 6 && z > b.z() && z < b.z() + 7) {
+            if (x >= b.x() && x < b.x() + 6 && z >= b.z() && z < b.z() + 7) {
                 y = b.y() + 1.01f;
                 break;
             }
@@ -1208,7 +1369,7 @@ public final class CitySimulation {
 
     private String special(CityCommand command) {
         int type = command.value();
-        if ((type < 4 || type > 18) || command.points().size() != 1 || buildings.size() >= 512)
+        if ((!SpecialBuildings.special(type) || type == SpecialBuildings.EXCHANGE) || command.points().size() != 1 || buildings.size() >= 512)
             throw new IllegalArgumentException("Invalid special building permit");
         int kind = command.ownerKind(), id = command.ownerId();
         var snapshot = frame();
@@ -1250,7 +1411,7 @@ public final class CitySimulation {
     /** Treasury-funded offers use separate qualified analyst and support labour pools. */
     public double exchangeLabourRate(boolean graduate) {
         long positions = buildings.stream()
-                .filter(b -> b.type() == SpecialBuildings.EXCHANGE).count() * (graduate ? 3 : 1);
+                .filter(b -> b.type() == SpecialBuildings.EXCHANGE).count() * (graduate ? 4 : 0);
         long supply = ecs.query(Household.class).stream()
                 .filter(id -> economy.capital.graduates.contains(id) == graduate)
                 .filter(id -> agriculture.company(id) == 0)
@@ -1270,7 +1431,7 @@ public final class CitySimulation {
         long filled = ecs.query(Household.class).stream()
                 .filter(id -> ecs.get(id, Household.class).job == job)
                 .filter(id -> economy.capital.graduates.contains(id) == graduate).count();
-        return filled < (graduate ? 3 : 1);
+        return graduate && filled < 4;
     }
 
     private void assignExchange() {
@@ -1290,7 +1451,7 @@ public final class CitySimulation {
                     long support = occupants(b.id(), false) - qualified;
                     if (h.job != b.id()
                             && occupants(b.id(), false) < b.capacity()
-                            && (graduate ? qualified < 3 : support < 1)
+                            && (graduate ? qualified < 4 : support < 1)
                             && agriculture.company(id) == 0
                             && canPayJob(b.id(), id)
                             && (!canPayJob(h.job, id)
@@ -1388,7 +1549,7 @@ public final class CitySimulation {
         addresses.state(buildings);
         assignExchange();
         refreshExchange();
-        return "Stock exchange built for $600; offices need three graduates and one support worker";
+        return "Stock exchange built for $600; four university graduate office roles";
     }
 
     private String road(List<Point> points) {
@@ -1811,7 +1972,9 @@ public final class CitySimulation {
                             h.home,
                             h.job,
                             h.horse,
-                            t.activity));
+                            t.activity, life(id).age, life(id).gender, life(id).education,
+                            life(id).study, life(id).spouse, life(id).mother, life(id).father,
+                            life(id).school, life(id).lastBirthAge));
         }
         var hs = new ArrayList<CityFrame.Horse>();
         for (int id : ecs.query(Mount.class)) {
@@ -1844,7 +2007,8 @@ public final class CitySimulation {
                     && magic != 0x43495435
                     && magic != 0x43495436
                     && magic != 0x43495437
-                    && magic != 0x43495438) throw new IOException("Invalid city save");
+                    && magic != 0x43495438
+                    && magic != 0x43495439) throw new IOException("Invalid city save");
             return CityFrame.read(
                     in,
                     magic == 0x43495431
@@ -1857,7 +2021,7 @@ public final class CitySimulation {
                                                     ? 4
                                                     : magic == 0x43495435
                                                             ? 5
-                                                            : magic == 0x43495436 ? 6 : magic == 0x43495437 ? 7 : 8);
+                                                            : magic == 0x43495436 ? 6 : magic == 0x43495437 ? 7 : magic == 0x43495438 ? 8 : 9);
         }
     }
 
@@ -1866,7 +2030,7 @@ public final class CitySimulation {
         Files.createDirectories(file.toAbsolutePath().getParent());
         Path tmp = file.resolveSibling(file.getFileName() + ".tmp");
         try (var out = new DataOutputStream(Files.newOutputStream(tmp))) {
-            out.writeInt(0x43495438);
+            out.writeInt(0x43495439);
             frame().write(out);
         }
         try {

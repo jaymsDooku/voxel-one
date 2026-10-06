@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-05T18:43:06.873169+00:00",
+  "updatedAt": "2026-10-05T21:35:49+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,26 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "queue-38613638386362362d333266662d346339302d383566312d333861363332623962333363",
+      "title": "Population life cycle and education",
+      "description": "Implementing saved demographics, school attendance and career eligibility.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Population playtest report (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38613638386362362d333266662d346339302d383566312d333861363332623962333363/dashboard/evidence/population-playtest.json"
+        },
+        {
+          "kind": "link",
+          "label": "Main journey report \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38613638386362362d333266662d346339302d383566312d333861363332623962333363/dashboard/evidence/population-journey-playtest.json"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Fixed school commutes and graduate job reviews. Main zero-study journeys, both tertiary careers, disconnected-road edge, save/reload and market regression passed. 295 Maven tests passed. New media pending controller publication and independent review.",
+      "updatedAt": "2026-10-05T21:35:49+00:00"
+    },
     {
       "id": "33356462633030392d326535322d343064332d396463632d366438373831373162393833",
       "title": "City login protocol compatibility",

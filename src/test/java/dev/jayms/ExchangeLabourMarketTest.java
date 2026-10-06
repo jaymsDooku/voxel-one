@@ -29,10 +29,11 @@ class ExchangeLabourMarketTest {
         assertTrue(city.exchangeLabourRate(true) < scarceAnalyst);
         assertTrue(city.exchangeLabourRate(false) < scarceSupport);
         city.economy.capital.graduates.clear();
+        for (int id : city.ecs.query(CitySimulation.Household.class)) city.life(id).education = CitizenLife.Education.NONE;
         assertEquals(scarceAnalyst, city.exchangeLabourRate(true), 1e-8);
-        double before = city.exchangeLabourRate(false);
+        double before = city.exchangeLabourRate(true);
         assertTrue(city.command(new CityCommand(CityCommand.DEMOLISH, exchange(city), java.util.List.of()), 1, null).contains("demolished"));
-        assertTrue(city.exchangeLabourRate(false) < before);
+        assertTrue(city.exchangeLabourRate(true) < before);
         assertTrue(Double.isFinite(city.exchangeLabourRate(true)));
     }
 
@@ -66,10 +67,10 @@ class ExchangeLabourMarketTest {
         var city = fixture();
         int office = exchange(city);
         city.economy.budget = 0;
-        // Leave funded private vacancies available to each unpaid office worker.
+        // Retain funded workers while leaving manual vacancies for unpaid graduates.
         for (int id : city.ecs.query(CitySimulation.Household.class))
             if (city.ecs.get(id, CitySimulation.Household.class).job != office)
-                city.ecs.get(id, CitySimulation.Household.class).job = CityMaterials.YARD + 1;
+                city.ecs.get(id, CitySimulation.Household.class).job = CityMaterials.YARD + city.economy.companies().get(0).id;
         var review = CitySimulation.class.getDeclaredMethod("chooseJobs", boolean.class);
         review.setAccessible(true);
         review.invoke(city, false);
@@ -92,11 +93,10 @@ class ExchangeLabourMarketTest {
         int office = exchange(city);
         var workers = city.frame().citizens().stream().filter(c -> c.job() == office).toList();
         assertEquals(4, workers.size());
-        assertEquals(3, workers.stream().filter(c -> city.economy.capital.graduates.contains(c.id())).count());
-        // Make a private firm's offer scarce and funded, then run the actual daily job review.
+        assertEquals(4, workers.stream().filter(c -> city.economy.capital.graduates.contains(c.id())).count());
+        // Isolate qualified office applicants so funded manual offers stay vacant.
         for (int id : city.ecs.query(CitySimulation.Household.class))
-            if (city.ecs.get(id, CitySimulation.Household.class).job != office)
-                city.ecs.get(id, CitySimulation.Household.class).job = CityMaterials.YARD + 1;
+            if (city.ecs.get(id, CitySimulation.Household.class).job != office) city.ecs.remove(id);
         var review = CitySimulation.class.getDeclaredMethod("chooseJobs", boolean.class);
         review.setAccessible(true);
         review.invoke(city, true);
@@ -109,7 +109,7 @@ class ExchangeLabourMarketTest {
         long analysts = city.frame().citizens().stream().filter(c -> c.job() == office)
                 .filter(c -> city.economy.capital.graduates.contains(c.id())).count();
         long support = city.frame().citizens().stream().filter(c -> c.job() == office).count() - analysts;
-        assertTrue(analysts <= 3);
+        assertTrue(analysts <= 4);
         assertTrue(support <= 1);
     }
 
@@ -117,10 +117,11 @@ class ExchangeLabourMarketTest {
     void unqualifiedApplicantsCannotFillAnalystVacancies() {
         var city = fixture();
         city.economy.capital.graduates.clear();
+        for (int id : city.ecs.query(CitySimulation.Household.class)) city.life(id).education = CitizenLife.Education.NONE;
         for (int id : city.ecs.query(CitySimulation.Household.class))
             city.ecs.get(id, CitySimulation.Household.class).job = 0;
         city.advance(.11);
-        assertEquals(1, city.frame().citizens().stream().filter(c -> c.job() == exchange(city)).count());
+        assertEquals(0, city.frame().citizens().stream().filter(c -> c.job() == exchange(city)).count());
         assertFalse(city.economy.capital.exchange.operational());
     }
 

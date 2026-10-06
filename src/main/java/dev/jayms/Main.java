@@ -23,6 +23,13 @@ import org.lwjgl.system.MemoryStack;
 import java.util.*;
 
 public class Main {
+    /** Optional render-thread observer for reproducible application playtests. */
+    public interface FrameObserver {
+        default void started(Main game) throws Exception {}
+        default void beforeFrame(Main game) throws Exception {}
+        default void afterFrame(Main game) throws Exception {}
+    }
+    private FrameObserver frameObserver;
     private Window window;
     private final dev.jayms.recording.ScreenRecorder recorder =
             new dev.jayms.recording.ScreenRecorder(Controls.directory().resolve("recordings"));
@@ -89,6 +96,11 @@ public class Main {
     private double fpsElapsed;
 
     public void run() throws Exception {
+        run(null);
+    }
+
+    public void run(FrameObserver observer) throws Exception {
+        frameObserver = observer;
         controls = new Controls(Controls.directory().resolve("controls.properties"));
         menu = new ControlsMenu(controls);
         GLFWErrorCallback.createPrint(System.err).set();
@@ -96,6 +108,7 @@ public class Main {
         try {
             init();
             initScene();
+            if (frameObserver != null) frameObserver.started(this);
             loop();
         } finally {
             cleanup();
@@ -664,6 +677,7 @@ public class Main {
     private void loop() throws Exception {
         double previous = glfwGetTime();
         while (!window.shouldClose()) {
+            if (frameObserver != null) frameObserver.beforeFrame(this);
             double now = glfwGetTime();
             double frameElapsed = now - previous;
             float dt = (float) frameElapsed;
@@ -798,6 +812,7 @@ public class Main {
             if (framebufferWidth > 0 && framebufferHeight > 0) {
                 render();
                 renderOverlay();
+                if (frameObserver != null) frameObserver.afterFrame(this);
                 recorder.capture(framebufferWidth, framebufferHeight);
                 fpsFrames++;
             }

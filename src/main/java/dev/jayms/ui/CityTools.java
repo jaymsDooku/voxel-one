@@ -66,12 +66,12 @@ public final class CityTools {
             dashboardRequested = true;
             return;
         }
-        if (tool == 6 && x >= 16 && x <= 450 && y >= 140 && y < 140+8*28) {
+        if (tool == 6 && x >= 16 && x <= 450 && y >= 140 && y < 140+9*28) {
             int row = (int)((y-140)/28);
-            if (row < 5) specialKind = row;
-            if (row == 5) specialLevel = specialLevel % 3 + 1;
-            if (row == 6) { specialOwner = (specialOwner+1)%3; ownerIndex = 0; }
-            if (row == 7) ownerIndex++;
+            if (row < 6) specialKind = row;
+            if (row == 6) specialLevel = specialLevel % 3 + 1;
+            if (row == 7) { specialOwner = (specialOwner+1)%3; ownerIndex = 0; }
+            if (row == 8) ownerIndex++;
             return;
         }
         float top = height - 196;
@@ -408,12 +408,12 @@ public final class CityTools {
                     .2f);
         }
         if (tool == 6) {
-            ui.rectangle(16,140,434,224,.025f,.04f,.065f,.95f);
-            for (int row=0; row<8; row++) {
+            ui.rectangle(16,140,434,252,.025f,.04f,.065f,.95f);
+            for (int row=0; row<9; row++) {
                 String label;
-                if (row < 5) label = (row == specialKind ? "> " : "  ") + SpecialBuildings.NAMES[row];
-                else if (row == 5) label = "Level: " + specialLevel + " (click to cycle)";
-                else if (row == 6) label = "Ownership: " + new String[]{"City government","Private individual","Private company"}[specialOwner];
+                if (row < 6) label = (row == specialKind ? "> " : "  ") + SpecialBuildings.NAMES[row];
+                else if (row == 6) label = "Level: " + specialLevel + " (click to cycle)";
+                else if (row == 7) label = "Ownership: " + new String[]{"City government","Private individual","Private company"}[specialOwner];
                 else label = "Owner: " + (specialOwner == 0 ? "City government" : BuildingInfo.owner(city, specialOwner == 2 ? CityEconomy.COMPANY : 0, ownerId(city))) + " (click: next)";
                 ui.text(label,24,149+row*28,1.15f);
             }
@@ -468,7 +468,7 @@ public final class CityTools {
                         .orElse(null);
         if (citizen != null) {
             float x = Math.max(16, w - 350);
-            ui.rectangle(x, 140, 334, 147, .025f, .04f, .065f, .95f);
+            ui.rectangle(x, 140, 334, 297, .025f, .04f, .065f, .95f);
             ui.text(
                     citizen.name() + " | " + CitySimulation.COHORTS[citizen.cohort()],
                     x + 10,
@@ -508,7 +508,15 @@ public final class CityTools {
                                     .findFirst()
                                     .orElse(0);
             ui.text("Employer: " + owner(city, CityEconomy.COMPANY, employer), x + 10, 252, 1.15f);
-            ui.text(citizen.activity(), x + 10, 227, 1.4f);
+            ui.text(citizen.activity(), x + 10, 227, 1.15f);
+            ui.text("Age " + (int)citizen.age() + " | " + citizen.gender(), x + 10, 277, 1.15f);
+            ui.text("Education: " + citizen.education(), x + 10, 302, 1.15f);
+            ui.text("Spouse: " + (citizen.spouse() == 0 ? "None" : "#" + citizen.spouse())
+                    + " | Parents: " + citizen.mother() + "/" + citizen.father(), x + 10, 327, 1.05f);
+            ui.text("School: " + (citizen.school() == 0 ? "None" : "#" + citizen.school())
+                    + String.format(java.util.Locale.ROOT, " | Study %.2f years", citizen.study()), x + 10, 352, 1.05f);
+            ui.text("Year: 12 city days | Classes 08:00-14:00", x + 10, 377, 1.05f);
+            ui.text("Careers: " + (citizen.age() < 18 ? "Too young to work" : CitizenLife.career(citizen.education())), x + 10, 402, 1f);
         }
         if (tool == 5) {
             float x = Math.max(16, w - 410);

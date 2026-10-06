@@ -194,14 +194,10 @@ class CityEconomyTest {
         var s = sim(g);
         for (int i = 0; i < 160; i++) s.advance(1);
         var frame = s.frame();
-        var all = new ByteArrayOutputStream();
-        frame.write(new DataOutputStream(all));
-        var economy = new ByteArrayOutputStream();
-        frame.economy().write(new DataOutputStream(economy));
         Path path = temp.resolve("legacy");
         try (var out = new DataOutputStream(Files.newOutputStream(path))) {
             out.writeInt(0x43495431);
-            out.write(all.toByteArray(), 0, all.size() - economy.size());
+            frame.write(out, 1);
         }
         var legacy = CitySimulation.load(path);
         int edits = g.edits.size();

@@ -27,7 +27,7 @@ class MarketEconomyTest {
             java.nio.file.Files.copy(input, file);
         }
         var saved = CitySimulation.load(file);
-        assertEquals(18, dev.jayms.net.Protocol.VERSION);
+        assertEquals(19, dev.jayms.net.Protocol.VERSION);
         assertTrue(saved.buildings().stream().anyMatch(b -> b.type() == SpecialBuildings.EXCHANGE));
         var capital = saved.economy().capital();
         assertFalse(capital.book().listings().isEmpty());
@@ -40,7 +40,7 @@ class MarketEconomyTest {
         var roundTrip = temp.resolve("round-trip.city");
         restored.save(roundTrip);
         try (var input = new java.io.DataInputStream(java.nio.file.Files.newInputStream(roundTrip))) {
-            assertEquals(0x43495438, input.readInt());
+            assertEquals(0x43495439, input.readInt());
         }
         assertEquals(capital, CitySimulation.load(roundTrip).economy().capital());
     }
@@ -270,6 +270,7 @@ class MarketEconomyTest {
         int eaterIndex = sharedCompany ? 4 : 2;
         for (int i = 0; i < citizens.size(); i++) {
             int id = citizens.get(i).id();
+            seed.life(id).education = CitizenLife.Education.SECONDARY;
             seed.ecs.get(id, CitySimulation.Household.class).job =
                     i < 2 ? 600 : sharedCompany && i < 4 ? 601 : 0;
             seed.ecs.get(id, CitySimulation.Needs.class).hunger = i == eaterIndex ? 20 : 100;
@@ -350,9 +351,11 @@ class MarketEconomyTest {
                 company.cash = company.id == source.id || company.id == alternative.id ? 10000 : 0;
             int minimum = kind == CityEconomy.SHOP ? 2 : 1;
             var citizens = s.frame().citizens();
-            for (int i = 0; i < citizens.size(); i++)
+            for (int i = 0; i < citizens.size(); i++) {
+                s.life(citizens.get(i).id()).education = CitizenLife.Education.SECONDARY;
                 s.ecs.get(citizens.get(i).id(), CitySimulation.Household.class).job =
                         i < minimum ? 600 : 0;
+            }
             s.economy.properties.add(
                     new CityEconomy.Property(600, 0, source.id, source.id, 200, 4));
             s.economy.properties.add(

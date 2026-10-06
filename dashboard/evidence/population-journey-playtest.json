@@ -1,0 +1,148 @@
+{
+  "status": "Passed locally; pending controller commit, publication and independent review",
+  "baseHead": "f73caaaf8dd1106f3a722acbea4231a6f8dca32d",
+  "headBinding": "Source SHA-256 below identifies the tested working-tree implementation. Controller assigns and publishes the revised Git head. Prior isolated HUD images are not evidence of this run.",
+  "environment": {
+    "os": "Linux",
+    "jdk": "25.0.3+9-LTS-195",
+    "maven": "3.9.11",
+    "application": "Main.run, native GLFW/OpenGL, Xvfb 1280x720x24, LIBGL_ALWAYS_SOFTWARE=1",
+    "display": "Authenticated TCP Xvfb. Private executable copy relocates fixed /tmp paths into the worktree; locking and authentication remain enabled. No sandbox or approval controls changed. Cookie deleted after shutdown.",
+    "browser": "Does not apply: this is a native Java/OpenGL game. Main window, world, simulation, renderer, HUD and F10 recorder ran."
+  },
+  "checks": [
+    {
+      "command": "MAVEN_OPTS=\"-Djava.io.tmpdir=$PWD/target/tmp\" target/tools/apache-maven-3.9.11/bin/mvn -Dmaven.repo.local=target/m2 -Dlwjgl.natives=natives-linux -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=PopulationJourneyTest,CitizenLifeTest,CityToolsTest,SpecialBuildingsTest,CityTimeTest,ExchangeLabourMarketTest test -q",
+      "observed": "Exit 0; 37 tests, 0 failures, 0 errors, 0 skips."
+    },
+    {
+      "command": "MAVEN_OPTS=\"-Djava.io.tmpdir=$PWD/target/tmp\" target/tools/apache-maven-3.9.11/bin/mvn -Dmaven.repo.local=target/m2 -Dlwjgl.natives=natives-linux -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" test -q",
+      "observed": "Exit 0; 295 tests, 0 failures, 0 errors, 0 skips. Final explicit job-ID assertions were then added and checked by the focused two-test run below; production code did not change."
+    },
+    {
+      "command": "MAVEN_OPTS=\"-Djava.io.tmpdir=$PWD/target/tmp\" target/tools/apache-maven-3.9.11/bin/mvn -Dmaven.repo.local=target/m2 -Dlwjgl.natives=natives-linux -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=PopulationJourneyTest test -q",
+      "observed": "Exit 0; 2 tests. Zero-study journey graduates take factory #107 and exchange office #108; disconnected roads prevent study."
+    },
+    {
+      "command": "python3 deploy/run_population_main_playtest.py dashboard/evidence",
+      "expected": "Housed learners start age 5, NONE education, zero study. Physical attendance yields primary, secondary and distinct tertiary degrees; qualified jobs follow. Unconnected roads prevent attendance; save/reload preserves citizens.",
+      "observed": "Exit 0. Main ran 123312 driver ticks and 209 journey render frames. Learner 1: PRIMARY -> SECONDARY -> TECHNICAL, worked in shop then Tool factory. Learner 2: PRIMARY -> SECONDARY -> UNIVERSITY, worked as Exchange analyst (graduate). Both ate at shop. School visits: 102,109,103,110,104,105. No age, degree or study mutations after initial fixture creation. Every driver tick was observed. Renderer sampled up to 720 simulation ticks per frame after initial real-frame commute. Save/reload equality passed. Separate disconnected-road scenario ran 1200 ticks (.1 seconds each): NONE education, zero study, waiting for a clear route."
+    },
+    {
+      "command": "python3 deploy/run_market_playtest.py target/population-revision-market",
+      "observed": "Exit 0; Mesa surfaceless EGL 1.5. Purchases, low-stock rejection, cheapest suitable meal and supplier, partial fills, conservation, shared-company stock, restock, nutrition, exchange staffing, payroll, unfunded closure and funded job choice passed."
+    },
+    {
+      "command": "javac -cp target/classes -d target target/PopulationSavedJobsProbe.java; java -cp target:target/classes PopulationSavedJobsProbe",
+      "observed": "Exit 0. Loaded the final city saved by Main: learner 1 TECHNICAL job 107; learner 2 UNIVERSITY job 108."
+    },
+    {
+      "command": "javac -cp target/m2/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar -d target target/VideoProbe.java; java -cp target:target/m2/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar VideoProbe dashboard/evidence/population-main-journey.mp4",
+      "observed": "Exit 0. H264, 8.053 seconds, 24 frames/packets, 577910 bytes. First and last frames decoded. Native F10 recording shows the early live commute; milestone PNGs show the later degrees and jobs."
+    },
+    {
+      "command": "git diff --check",
+      "observed": "Exit 0."
+    }
+  ],
+  "steps": [
+    "Grade the fixture town including door-to-road approaches; create actual voxel building geometry, connected roads, funded food shop, factory and exchange. Seed two housed age-5 learners with no education or study, and one adult shop worker.",
+    "Run Main with the render-thread observer. Let normal city aging, route collision, needs, attendance, qualification and employment rules operate. Capture the live framebuffer at milestones.",
+    "Verify every primary and secondary stage, both tertiary paths, actual work activities and final saved job IDs.",
+    "Reset to a separate zero-study fixture with no road network. Advance 120 seconds; verify no attendance or qualification. Capture the live waiting-for-route HUD."
+  ],
+  "limitations": [
+    "This is a deterministic seeded town and accelerated calendar, not a manually built campaign. Existing age/gender/family unit checks also passed.",
+    "population-main-zero-study.png is the early attendance snapshot at frame 25 (study already 0.06 years); its filename denotes the initial zero-study journey, not a zero-study value in that image.",
+    "Two earlier diagnostic Main attempts failed: missing Xvfb keyboard temporary path, then ungraded terrain blocking the second school approach. The final graded run passed both paths.",
+    "Video covers early movement. PNGs and per-tick observations establish the full education journey. Publication and exact submitted-head verification remain the controller and independent reviewer tasks."
+  ],
+  "sourceSha256": {
+    "src/main/java/dev/jayms/Main.java": "1769a93a7e7b5839926e55dc13f58932daa979baccb4d459ad0eb55b3f7be460",
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "7cbb3204662ae9d5351460b2740f32813d0f11d78c2ca42a8599f30969d5c700",
+    "src/test/java/dev/jayms/PopulationJourneyTest.java": "7d502cc91e97b74e7da2825168da5cae5e75e04a89400f973e1968953197f4b6",
+    "deploy/PopulationMainPlaytest.java": "27ef8e380bdaacec615a5044ba5a2c1df07b4e48a625dbd1c9a66b1e2b770049",
+    "deploy/run_population_main_playtest.py": "5c0f7360dea0f09ce63aac0f5dc548e02aebebc1f6bbabe2f262ac64d73aecb6",
+    "docs/population-education.md": "4f9119a06c5939f6ef4f5a57a0fe638b221f6ea933c7788e6829402a75afdce3"
+  },
+  "media": [
+    {
+      "file": "population-main-commute.png",
+      "sha256": "4559b3f6452f2236e32057d457b29fca3dacd479bcd34e9f0612db6bf5c603f8",
+      "bytes": 127280,
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38613638386362362d333266662d346339302d383566312d333861363332623962333363/dashboard/evidence/population-main-commute.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "population-main-disconnected.png",
+      "sha256": "930ad45a5d422ed803215b4307bf235ec071d813a4aaed6a5543b63f9200d520",
+      "bytes": 240021,
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38613638386362362d333266662d346339302d383566312d333861363332623962333363/dashboard/evidence/population-main-disconnected.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "population-main-primary-1.png",
+      "sha256": "8d4f72c96bfe6afa9fffae77953bbc9c72655f264eec004e289b24b4d1e2fc33",
+      "bytes": 227000,
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38613638386362362d333266662d346339302d383566312d333861363332623962333363/dashboard/evidence/population-main-primary-1.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "population-main-primary-2.png",
+      "sha256": "ce50e2227384e28c857800ab218eaf6c661b48c560081dd57369fc93561f37a2",
+      "bytes": 219829,
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38613638386362362d333266662d346339302d383566312d333861363332623962333363/dashboard/evidence/population-main-primary-2.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "population-main-qualified-jobs.png",
+      "sha256": "2ebfb11ed1b1e4556862d2bfbe6bc47ee8da7b10aed626d53f95778b14f62599",
+      "bytes": 174170,
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38613638386362362d333266662d346339302d383566312d333861363332623962333363/dashboard/evidence/population-main-qualified-jobs.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "population-main-secondary-1.png",
+      "sha256": "8c8b550de078cc908da551820f5b73bf0d8e359ab6f4a42a5b05828ee37dc854",
+      "bytes": 277447,
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38613638386362362d333266662d346339302d383566312d333861363332623962333363/dashboard/evidence/population-main-secondary-1.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "population-main-secondary-2.png",
+      "sha256": "ae3e771af26028f9d141bb659990714965bf64bd82accbade51a5c4bce690698",
+      "bytes": 227308,
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38613638386362362d333266662d346339302d383566312d333861363332623962333363/dashboard/evidence/population-main-secondary-2.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "population-main-technical-1.png",
+      "sha256": "c9d78aa254cc87fc32bcef27745b5d050f65469a357fff6d3e1ae037ef7b2c08",
+      "bytes": 283565,
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38613638386362362d333266662d346339302d383566312d333861363332623962333363/dashboard/evidence/population-main-technical-1.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "population-main-university-2.png",
+      "sha256": "db1aa6c28e75b3f340f1f855f06ae1c2dbe3d6f453769f4db1362738a605701e",
+      "bytes": 269098,
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38613638386362362d333266662d346339302d383566312d333861363332623962333363/dashboard/evidence/population-main-university-2.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "population-main-zero-study.png",
+      "sha256": "7f1678fd4cf74538b45f8db746318e84ac49306b112de0eab605b3bea6fda7e6",
+      "bytes": 124697,
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38613638386362362d333266662d346339302d383566312d333861363332623962333363/dashboard/evidence/population-main-zero-study.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "population-main-journey.mp4",
+      "sha256": "72d5178529fe29d6347f62a6427331319708cdcb728631dd4b173088e465a171",
+      "bytes": 577910,
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38613638386362362d333266662d346339302d383566312d333861363332623962333363/dashboard/evidence/population-main-journey.mp4",
+      "publication": "pending controller publication"
+    }
+  ],
+  "runtimeObservations": "Main.run full application: PASS\nInitial learners: age 5, NONE, study 0, separate houses.\nNo age, degree or study mutations after fixture creation.\nTicks: 123312 | Render frames: 209\nStages: [1:NONE, 2:NONE, 1:PRIMARY, 2:PRIMARY, 1:SECONDARY, 2:SECONDARY, 2:UNIVERSITY, 1:TECHNICAL]\nVisited schools: [102, 109, 103, 110, 104, 105]\nMax study: {102=5.999444869087347, 109=5.999444869087347, 103=4.999444798307009, 110=4.999444798307009, 104=2.999444656746333, 105=2.999444656746333}\nActivities: [1:Going to Primary school level 1, 2:Going to Primary school level 1, 1:Studying at Primary school level 1, 2:Studying at Primary school level 1, 1:Going home, 2:Going home, 1:Relaxing at home, 2:Relaxing at home, 1:Sleeping at home, 2:Sleeping at home, 1:Morning at home, 2:Morning at home, 1:Going to shop, 2:Going to shop, 2:Eating at shop, 1:Eating at shop, 1:Going to Secondary school level 1, 2:Going to Secondary school level 1, 2:Studying at Secondary school level 1, 1:Studying at Secondary school level 1, 1:Going to Technical college level 1, 2:Going to University level 1, 2:Studying at University level 1, 1:Studying at Technical college level 1, 2:Looking for work, 1:Commuting to work, 1:Working in shop, 2:Commuting to work, 2:Exchange analyst (graduate), 1:Working: Tool factory]\nCaptures: [population-main-zero-study.png, population-main-zero-study.png, population-main-commute.png, population-main-primary-1.png, population-main-primary-2.png, population-main-secondary-1.png, population-main-secondary-2.png, population-main-university-2.png, population-main-technical-1.png, population-main-qualified-jobs.png]\nSave/reload: PASS\nDisconnected-road edge: PASS; 1200 ticks, zero study, NONE education.\n"
+}

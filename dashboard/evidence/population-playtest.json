@@ -1,0 +1,499 @@
+{
+  "status": "Ready for independent review; final Maven suite and native playtests passed",
+  "publication": "Pending controller publication. Local captures from this implementation; no stock or historical media.",
+  "branch": "feature/queue-38613638386362362d333266662d346339302d383566312d333861363332623962333363",
+  "environment": "Linux; JDK 25.0.3; Java 17 target; Maven 3.9.11; LWJGL 3.4.1; Mesa software OpenGL 3.3 on surfaceless EGL 1.5; 1280 x 720 framebuffer",
+  "workflow": "Playtest: production city simulation and native in-game HUD run offscreen with synthetic residents. Browser playtesting does not apply to this native LWJGL desktop game. Main was not started; this is a scripted native integration playtest.",
+  "commands": [
+    {
+      "command": "MAVEN_OPTS=\"-Djava.io.tmpdir=$PWD/target/tmp\" target/tools/apache-maven-3.9.11/bin/mvn -Dmaven.repo.local=target/m2 -Dlwjgl.natives=natives-linux -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" test -q",
+      "result": "Exit 0; 293 tests, 0 failures, 0 errors, 0 skipped"
+    },
+    {
+      "command": "python3 deploy/run_population_playtest.py dashboard/evidence",
+      "result": "Exit 0. PASS: population native workflow, age edge, school paths, family, careers and legacy reload; Mesa surfaceless EGL 1.5"
+    },
+    {
+      "command": "python3 deploy/run_market_playtest.py target/population-market-regression",
+      "result": "Exit 0. PASS: native dashboard, purchases, low-stock rejection, supplier and meal choice, partial fills, conservation, shared-company stock, exchange wage/staffing/payroll/closure/job choice, restock offers and nutrition"
+    },
+    {
+      "command": "git diff --check",
+      "result": "Exit 0; no whitespace errors"
+    }
+  ],
+  "steps": [
+    {
+      "step": "Technical college attendance",
+      "setup": "Synthetic 21-year-old secondary graduate inside a technical college at 08:00; prior study 2.99 school years",
+      "action": "Advance production simulation in 0.11-second calls; inspect school and citizen HUD",
+      "expected": "Study rises only while physically attending; 3 school years yields TECHNICAL and factory eligibility",
+      "observed": "Attendance rises, school occupancy is 1 / 8, then TECHNICAL graduation clears enrollment and shows factory careers"
+    },
+    {
+      "step": "Primary, secondary and university graduation",
+      "setup": "Synthetic students near graduation, ages 11, 17 and 21, with the required previous qualification",
+      "action": "Advance a tick and inspect saved citizen state; render university graduate",
+      "expected": "PRIMARY, SECONDARY and UNIVERSITY; university citizen joins graduate office labour pool",
+      "observed": "All three qualifications granted; university citizen is in the graduate pool and HUD shows office careers"
+    },
+    {
+      "step": "Family and aging",
+      "setup": "Two unrelated age-19 adults share a home with spare capacity",
+      "action": "Advance two ticks; inspect newborn; serialize and reload; advance again",
+      "expected": "Reciprocal spouse links; one child with mother, father and shared home; no child job; saved cooldown prevents repeat birth",
+      "observed": "Three residents; reciprocal spouse links; newborn has parent IDs 1 and 2, shared home, age 0 and no job; later age increases; reload preserves history"
+    },
+    {
+      "step": "Family edges",
+      "action": "Run minor, homeless, sibling, cooldown and invalid-spouse cases",
+      "expected": "No minor marriage, no homeless birth, no sibling or parent pairing, next birth only after two years, invalid references rejected",
+      "observed": "All assertions passed in the native playtest; advancing parental age by two years permits the second birth"
+    },
+    {
+      "step": "Enrollment edges",
+      "action": "Run wrong-age and missing-prerequisite cases, nine students for eight places, and a student away from school; render age 22 university case",
+      "expected": "Only eight students enroll, no out-of-range enrollment or free study away from school",
+      "observed": "Age 22 has school None and study 0.00; all capacity, prerequisite and attendance assertions passed"
+    },
+    {
+      "step": "Career restrictions",
+      "action": "Check manual, commercial, factory and office offers for every qualification; tick residents injected into unqualified jobs",
+      "expected": "Below secondary only manual; secondary commercial; technical factory; university office; no jobs under age 18",
+      "observed": "All gates passed; uneducated commercial worker loses that job and the child loses a factory job"
+    },
+    {
+      "step": "Technical permit UI and save",
+      "action": "Click Technical college in the Special menu, click a projected road-accessible clear site through CityTools, serialize the placed building",
+      "expected": "One permitted college with stable type 20, generated voxel edits and preserved building after reload",
+      "observed": "Permitted Technical college level 1; exactly one ground edit batch; building matches after reload"
+    },
+    {
+      "step": "Market regression",
+      "action": "Run existing native market playtest against the current classes, using qualified commercial fixtures",
+      "expected": "Meal purchases and restocking conserve resources; qualified offices receive treasury wages; unfunded offices close",
+      "observed": "All three native market PASS summaries and Mesa playtest PASS returned"
+    }
+  ],
+  "media": [
+    {
+      "file": "population-age-edge.png",
+      "bytes": 22965,
+      "sha256": "d8da82c4d62a0ecefbd7590e769d0f2ed66d834212fbda79148d59dd25d0f624",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38613638386362362d333266662d346339302d383566312d333861363332623962333363/dashboard/evidence/population-age-edge.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "population-college-permit.png",
+      "bytes": 16554,
+      "sha256": "c10a3b3894aa3402125675d9069df29ec5a73261b1afe301a6ef07edbfc4dc71",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38613638386362362d333266662d346339302d383566312d333861363332623962333363/dashboard/evidence/population-college-permit.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "population-family.png",
+      "bytes": 21073,
+      "sha256": "9f6e848a7665bad9a292ff1f13c78aa77ba4e1e91a167efb0acafbe786914786",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38613638386362362d333266662d346339302d383566312d333861363332623962333363/dashboard/evidence/population-family.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "population-technical-attendance.png",
+      "bytes": 22436,
+      "sha256": "ef3c0fe7a44bba036f8a8721f8537289730e0ee6c16fed9bae8a5e9ba41ee1cb",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38613638386362362d333266662d346339302d383566312d333861363332623962333363/dashboard/evidence/population-technical-attendance.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "population-technical-graduate.png",
+      "bytes": 22681,
+      "sha256": "8402cebaef0ba7ade377ff9ba67facc8025b0c31a5f641113e02f43d75c51411",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38613638386362362d333266662d346339302d383566312d333861363332623962333363/dashboard/evidence/population-technical-graduate.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "population-university.png",
+      "bytes": 23086,
+      "sha256": "d502ef42bfe7e09dc213026cc51c43dde415a0d1e755b3876c29a113b912ec56",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38613638386362362d333266662d346339302d383566312d333861363332623962333363/dashboard/evidence/population-university.png",
+      "publication": "pending controller publication"
+    }
+  ],
+  "sourceSha256": {
+    "src/main/java/dev/jayms/net/city/CitizenLife.java": "6a6954931f4536740fd6b4b6e20b57bf131cdfe329afe02b64363db733512a88",
+    "src/main/java/dev/jayms/net/city/CityFrame.java": "54df307db25a628c07c9ddc16de97f2af1ad3c7a3c47db42e3756913f98a79b5",
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "d9d73a700a636e8112a35fe82ed4b42b465e3e667040624c7e37b7a0303f683c",
+    "src/main/java/dev/jayms/net/city/SpecialBuildings.java": "5ef726d8342abac414429329aaee2ccdff84d3889dca475002e802e636c8267b",
+    "src/main/java/dev/jayms/net/city/StructureBlueprint.java": "8ec1ad0bb0e40b7016957e18f1c411be673d72431686fa57ce58b40a88c021b1",
+    "src/main/java/dev/jayms/net/Protocol.java": "ac1b781d5408211ede9ce2d5f67092e3bd044064dc5741eee7d8fd197a076525",
+    "src/main/java/dev/jayms/net/MultiplayerClient.java": "8d3751791ae0fe68656e678e42aa0d305c00f0462bfa1a1d9a0c36478b7a6254",
+    "src/main/java/dev/jayms/ui/CityTools.java": "022e31dfe28a0cbda3552a509559e1203299242db7066bb89919bd4b1195dda9",
+    "src/main/java/dev/jayms/ui/BuildingInfo.java": "e6e9bc41af3740790672cd52414a46854c4e4db24865990627bb97fe042ea8e0",
+    "src/test/java/dev/jayms/CitizenLifeTest.java": "600ca49475610c2b89041d0de6775f6c594e2d3c9a82703180c3e07f3374ef25",
+    "deploy/PopulationPlaytest.java": "dd6a0199cd94e602eea11567bfa4aa9703f6dacf7b1baa290868b854c97fe5bf",
+    "deploy/run_population_playtest.py": "30bfefde1a1ad0ddf93e3fbbb00b5c9faea2a0991418c9f009b9030784246cfc"
+  },
+  "reviewNotes": [
+    "The first full run found three outdated fixtures: CITY1 encoding, office-role text, and unqualified factory staffing. All were fixed. The final full run passed.",
+    "The founding settlement has four technical graduates available for jobs outside farming families. Factories can wait for enough trained workers. The established agriculture regression explicitly seeds an appropriately qualified workforce.",
+    "No commits, pushes, pull requests, merges or deployment were performed. Media publication remains the controller responsibility."
+  ],
+  "regressionTotals": {
+    "tests": 293,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "suites": [
+    {
+      "name": "dev.jayms.AccountStoreTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.AgricultureTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.BuildingInfoTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.BusinessCatalogTest",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.BusinessDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.CapitalDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.CapitalInspectorTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.CapitalSettlementLimitsTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.CitizenLifeTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.CityAddressesTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.CityBusinessTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.CityCapitalTest",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.CityEconomyTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.CityMaterialsTest",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.CityMetricsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.CityMultiplayerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.CityTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.CityTimeTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.CityToolsTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.ControlsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.CraftingTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.DemolitionTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.DistantTerrainTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.ExchangeLabourMarketTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.ExchangePermitCompositionTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.FractionalWorldTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.InventoryHudTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.IsometricCameraTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.IsometricOrbitDragTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.LightOcclusionTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.LightingTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.ManufacturingTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.MarketEconomyTest",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.MayorDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.MetricHistoryTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.ModelSculptorTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.MultiplayerTest",
+      "tests": 15,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.PlayerAnimationTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.PlayerCameraTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.PlayerTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.ProtocolCompatibilityTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.RemotePlayerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.ShopRestockMarketTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.SpecialBuildingsTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.SurvivalTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.TerrainGenerationTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.UpdaterTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.VideoRecordingTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.VoxelModelTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.net.city.CityStockExchangeTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ]
+}

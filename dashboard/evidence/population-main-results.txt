@@ -1,0 +1,11 @@
+Main.run full application: PASS
+Initial learners: age 5, NONE, study 0, separate houses.
+No age, degree or study mutations after fixture creation.
+Ticks: 123312 | Render frames: 209
+Stages: [1:NONE, 2:NONE, 1:PRIMARY, 2:PRIMARY, 1:SECONDARY, 2:SECONDARY, 2:UNIVERSITY, 1:TECHNICAL]
+Visited schools: [102, 109, 103, 110, 104, 105]
+Max study: {102=5.999444869087347, 109=5.999444869087347, 103=4.999444798307009, 110=4.999444798307009, 104=2.999444656746333, 105=2.999444656746333}
+Activities: [1:Going to Primary school level 1, 2:Going to Primary school level 1, 1:Studying at Primary school level 1, 2:Studying at Primary school level 1, 1:Going home, 2:Going home, 1:Relaxing at home, 2:Relaxing at home, 1:Sleeping at home, 2:Sleeping at home, 1:Morning at home, 2:Morning at home, 1:Going to shop, 2:Going to shop, 2:Eating at shop, 1:Eating at shop, 1:Going to Secondary school level 1, 2:Going to Secondary school level 1, 2:Studying at Secondary school level 1, 1:Studying at Secondary school level 1, 1:Going to Technical college level 1, 2:Going to University level 1, 2:Studying at University level 1, 1:Studying at Technical college level 1, 2:Looking for work, 1:Commuting to work, 1:Working in shop, 2:Commuting to work, 2:Exchange analyst (graduate), 1:Working: Tool factory]
+Captures: [population-main-zero-study.png, population-main-zero-study.png, population-main-commute.png, population-main-primary-1.png, population-main-primary-2.png, population-main-secondary-1.png, population-main-secondary-2.png, population-main-university-2.png, population-main-technical-1.png, population-main-qualified-jobs.png]
+Save/reload: PASS
+Disconnected-road edge: PASS; 1200 ticks, zero study, NONE education.
