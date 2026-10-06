@@ -5,7 +5,7 @@ out vec4 fragColor;
 uniform float uDaylight,uAmbient;
 uniform int uVertexColor,uFog,uLightingEnabled,uHasIrradiance,uShadowEnabled,uHeld;
 uniform vec3 uColor,uLightDirection,uCameraPosition,uVolumeOrigin,uVolumeSize;
-uniform float uModelEmission;
+uniform float uModelEmission,uTransparency;
 uniform samplerCube uEnvironment;
 uniform sampler2D uShadow;
 uniform sampler3D uIrradiance;
@@ -36,7 +36,7 @@ vec4 irradiance(vec3 point){
 }
 void main(){
     vec3 N=normalize(vNormal),L=normalize(-uLightDirection);vec3 albedo=uVertexColor==1?vColor:uColor;
-    if(uLightingEnabled==0){fragColor=vec4(albedo*(.35+.65*max(dot(N,L),0.)),1);return;}
+    if(uLightingEnabled==0){fragColor=vec4(albedo*(.35+.65*max(dot(N,L),0.)),1.-uTransparency);return;}
     if(uVertexColor==1&&vSurface.z>=0.){
         vec2 uv=abs(N.y)>.5?vWorldPosition.xz:abs(N.x)>.5?vWorldPosition.zy:vWorldPosition.xy;
         albedo*=texture(uMaterials,vec3(uv,vSurface.z)).rgb;
@@ -53,5 +53,5 @@ void main(){
     float emission=uModelEmission+(uVertexColor==1?vSurface.x:0.);
     vec3 color=albedo*(indirect+vec3(1.5,1.38,1.15)*uDaylight*max(dot(N,L),0.)*shadow(N,L)*skyVisibility)+reflection*F*(1.-rough*.65)*skyVisibility+albedo*emission;
     if(uFog==1){float haze=smoothstep(640.,1920.,length(vWorldPosition.xz-uCameraPosition.xz));color=mix(color,vec3(.32,.53,.8)*uAmbient,haze);}
-    fragColor=vec4(color,1);
+    fragColor=vec4(color,1.-uTransparency);
 }

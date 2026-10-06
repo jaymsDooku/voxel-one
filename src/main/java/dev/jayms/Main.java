@@ -46,6 +46,9 @@ public class Main {
     private Player player;
     private PlayerModel playerModel;
     private HorseModel horseModel;
+    private Jeep jeep;
+    private JeepModel jeepModel;
+    private java.nio.file.Path jeepSave() { return offlineSave.resolveSibling(offlineSave.getFileName()+".jeep"); }
     private FarmModels farmModels;
     private final CityTools cityTools = new CityTools();
     private final BuildingInfo buildingInfo = new BuildingInfo();
@@ -184,6 +187,11 @@ public class Main {
             while (surface > Terrain.MIN_Y && world.sample(8, surface, 24) == 0) surface--;
             player = new Player(new Vector3f(8.5f, surface + 1.01f, 24.5f), -90, -20, camera);
         }
+        if (local != null) {
+            jeep = Jeep.load(jeepSave(), world, player.position());
+            jeepModel = new JeepModel();
+            world.stream(player.position().x, player.position().z, 9);
+        }
         distant = new DistantTerrainRenderer(seed, generatorVersion);
         distant.update(world, player.position().x, player.position().z);
         if (local != null)
@@ -306,6 +314,8 @@ public class Main {
                         if (canOrbit()) orbitDrag.move(x, controls.sensitivity, overview);
                         else setCaptured(false);
                     }
+                    if (captured && !firstMouse && jeep != null && jeep.driving())
+                        jeep.mouse(world, (float)(x-mouseX)*controls.sensitivity);
                     if (captured && !firstMouse)
                         player.look(
                                 (float) (x - mouseX) * controls.sensitivity,
@@ -555,6 +565,12 @@ public class Main {
     }
 
     private void input(int code) {
+        if (controls.matches(JEEP, code) && captured && jeep != null) {
+            boolean ok = jeep.driving() ? jeep.exit(world, player) : jeep.enter(player);
+            notice = ok ? (jeep.driving() ? "Driving jeep: WASD + mouse, Ctrl boost, J exit when stopped" : "Left jeep")
+                    : "Move within 4 blocks to enter; stop and leave room beside the jeep to exit";
+            return;
+        }
         if (controls.matches(MAYOR_DASHBOARD, code)) {
             openMayorDashboard();
             return;
@@ -642,6 +658,8 @@ public class Main {
             setCaptured(!menu.open);
         } else if (controls.matches(CURSOR, code)) setCaptured(!captured);
         else if (captured) {
+            if (jeep != null && jeep.driving() && (controls.matches(FLY, code)
+                    || controls.matches(BREAK, code) || controls.matches(PLACE, code))) return;
             if (controls.matches(FLY, code)) player.toggleFlight();
             else if (controls.matches(VIEW, code)) player.toggleView();
             else if (controls.matches(BREAK, code)) interact(false);
@@ -750,7 +768,12 @@ public class Main {
                             ? (controls.down(window.getHandle(), RIGHT) ? 1 : 0)
                                     - (controls.down(window.getHandle(), LEFT) ? 1 : 0)
                             : 0;
-            player.step(
+            if (jeep != null && player.position().distance(jeep.position()) < 64) {
+                jeep.step(world, dt, forward, right, captured && (glfwGetKey(window.getHandle(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS
+                        || glfwGetKey(window.getHandle(), GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS));
+            }
+            if (jeep != null && jeep.driving()) player.driveSeat(jeep.seat(), jeep.yaw());
+            else player.step(
                     world,
                     dt,
                     forward,
@@ -764,6 +787,7 @@ public class Main {
                         player.grounded(),
                         dt,
                         e -> world.sample(e.x(), e.y(), e.z()))) {
+                    if (jeep != null) jeep.releaseDriver();
                     float y = world.terrain().column(8, 24).height() + 1.01f;
                     world.stream(8, 24, 9);
                     player = new Player(new Vector3f(8.5f, y, 24.5f), -90, -20, camera);
@@ -771,6 +795,7 @@ public class Main {
                 }
                 if (now >= nextSave) {
                     local.save();
+                    if (jeep != null) jeep.save(jeepSave());
                     nextSave = now + 60;
                 }
             }
@@ -789,6 +814,7 @@ public class Main {
                             + " | "
                             + (isometric
                                     ? "Isometric"
+                                    : jeep != null && jeep.driving() ? "Driving jeep | " + player.cameraView()
                                     : player.mounted()
                                             ? "Riding horse | " + player.cameraView()
                                             : player.flying()
@@ -910,6 +936,7 @@ public class Main {
             if (c.getMesh() != null) c.getMesh().render();
         }
         modelRenderer.render(world, frustum, shader);
+        if (jeep != null) jeepModel.render(jeep, shader);
         for (ItemDrop drop : drops().values())
             if (player.position().distanceSquared(drop.x(), drop.y(), drop.z()) < 10000)
                 if (Blocks.isModel(drop.type()))
@@ -996,7 +1023,7 @@ public class Main {
                         modelRenderer);
         }
         if (isometric || player.thirdPerson()) {
-            if (player.mounted()) playerModel.renderRider(player.pose(0), shader, modelRenderer);
+            if (player.mounted() || (jeep != null && jeep.driving())) playerModel.renderRider(player.pose(0), shader, modelRenderer);
             else playerModel.render(player.pose(0), shader, modelRenderer);
         }
         if (network != null)
@@ -1008,7 +1035,8 @@ public class Main {
                     else playerModel.render(p, shader, modelRenderer);
                 }
             }
-        if (!isometric && !player.thirdPerson()) {
+        if (jeep != null) jeepModel.glass(jeep, shader);
+        if (!isometric && !player.thirdPerson() && !(jeep != null && jeep.driving())) {
             glClear(GL_DEPTH_BUFFER_BIT);
             shader.setInt("uFog", 0);
             shader.setInt("uShadowEnabled", 0);
@@ -1079,6 +1107,7 @@ public class Main {
                         + " | "
                         + (isometric
                                 ? "ISOMETRIC | 4096 x 4096 BLOCKS"
+                                : jeep != null && jeep.driving() ? "DRIVING JEEP | " + Controls.keyName(controls.code(JEEP)) + ": exit | " + Math.round(Math.abs(jeep.speed())*3.6f) + " km/h"
                                 : player.mounted()
                                         ? "RIDING HORSE | H: dismount"
                                         : player.flying() ? "FLYING" : "WALKING"),
@@ -1099,6 +1128,8 @@ public class Main {
                                 + " / "
                                 + Controls.keyName(controls.code(ROTATE_RIGHT))
                                 + ": rotate | Hold RMB + drag: orbit"
+                        : jeep != null && jeep.driving() ? "W/S: drive / reverse | A/D + mouse: steer | Ctrl: boost"
+                        : jeep != null && player.position().distance(jeep.position()) <= 5 ? Controls.keyName(controls.code(JEEP)) + ": enter jeep | Esc: controls | " + Controls.keyName(controls.code(VIEW)) + ": camera"
                         : "Esc: controls | "
                                 + Controls.keyName(controls.code(FLY))
                                 + ": flight | "
@@ -1197,6 +1228,7 @@ public class Main {
     }
 
     private void interact(boolean place) {
+        if (jeep != null && jeep.driving()) return;
         if (isometric) return;
         if (place && city().config().city()) {
             if (riding() != null) {
@@ -1279,11 +1311,13 @@ public class Main {
     private void cleanup() throws Exception {
         recorder.close();
         if (local != null) local.save();
+        if (jeep != null) jeep.save(jeepSave());
         if (network != null) network.close();
         if (distant != null) distant.close();
         if (world != null) world.close();
         if (playerModel != null) playerModel.close();
         if (horseModel != null) horseModel.close();
+        if (jeepModel != null) jeepModel.close();
         farmModels.close();
         if (modelRenderer != null) modelRenderer.close();
         if (editor != null) editor.close();
