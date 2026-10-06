@@ -2574,7 +2574,7 @@
         }
       ],
       "status": "in_progress",
-      "note": "Rebase recovery: checkpoint and progress conflicts resolved; base features and historical evidence retained. Source unchanged; final-head verification and fresh task-specific media await controller continuation.",
+      "note": "Rebase recovery: checkpoint and progress conflicts resolved; source, base features and historical evidence retained. Final-head checks await controller continuation.",
       "updatedAt": "2026-10-06T15:55:01+00:00"
     }
   ],
