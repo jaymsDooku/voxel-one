@@ -1,9 +1,9 @@
 {
   "status": "recovery_checks_passed",
-  "head": "6aadb95a4d021185e45ecad88177f732fd23ed76",
-  "scope": "Intermediate rebase working files; not final-head acceptance. Controller must stage and continue.",
-  "resolution": "Retained upstream Terrain terrain and constructor assignment plus incoming RoadSpacing roadSpacing. Regional population/district commands/UI, protocol21 and cityformat11 remain upstream.",
-  "command": "MAVEN_OPTS=\"-Xmx256m -Djava.io.tmpdir=$PWD/target/tmp\" /tmp/apache-maven-3.9.11/bin/mvn --batch-mode -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux \"-DargLine=-Xmx512m -Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=RegionalPopulationTest,RegionalSaveCompatibilityTest,RoadSpacingTest test > target/regional-recovery-checks.txt 2>&1",
+  "head": "e83d8d185e0002f363d96cfd8db419b5bcf31372",
+  "scope": "Second rebase conflict: checkpoint and spacing progress note resolved. Intermediate working files, not final-head acceptance.",
+  "resolution": "Prefer current regional requirements: protocol21 and format11. Retain all unrelated progress entries unchanged. Keep historical tests/media separate from final-head proof.",
+  "command": "MAVEN_OPTS=\"-Xmx256m -Djava.io.tmpdir=$PWD/target/tmp\" /tmp/apache-maven-3.9.11/bin/mvn --batch-mode -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux \"-DargLine=-Xmx512m -Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=RegionalPopulationTest,RegionalSaveCompatibilityTest,RoadSpacingTest test > target/regional-recovery-next-checks.txt 2>&1",
   "environment": "Linux; inherited Java; Maven3.9.11; worktree-local target/maven-cache and target/tmp; Maven heap256MiB, fork heap512MiB. Synthetic test fixtures.",
   "expected": "Regional state/commands and version11 persistence remain compatible; spacing regression tests pass.",
   "observed": "BUILD SUCCESS;16 tests,0failures/errors/skips;exit0.",
@@ -42,13 +42,19 @@
     "src/test/java/dev/jayms/RegionalSaveCompatibilityTest.java": "0cf3b5fd193b06b1d9a28b66a98a7aa1e4ff43b80c129b33a4b8989f41c2cb59",
     "src/test/java/dev/jayms/RegionalMultiplayerTest.java": "f6a193dcc27bec496f82a0466e63b02555346e0dd2c074a34614b427e8aeadde"
   },
-  "regionalEvidence": "50 regional/district/population artifacts match current base HEAD byte for byte.",
+  "regionalEvidence": "51 regional/district/population artifacts match HEAD byte for byte, including prior recovery report.",
   "playtest": "Playtest: final-head native workflow checks and fresh media are pending controller Git continuation. No native check executed this recovery turn. Browser does not apply to native Java/OpenGL app; Maven checks exercise synthetic state/save integration.",
   "remaining": [
+    "Replay later factory fix: original automatic700-second regression must have no manual job/travel overrides.",
     "Continue rebase while retaining subsequent factory/food/porch and spacing fixes.",
     "Confirm final regional population, district UI/commands, protocol21 and format11 source/tests/evidence after all commits replay.",
     "Run final-head regression checks and native spacing/zero/factory/road/jeep/regional workflows.",
     "Replace road-jeep-driving.mp4 with fresh F10 video; validate container, decode and inspect exact submitted bytes before publication."
   ],
-  "publication": "pending controller publication"
+  "publication": "pending controller publication",
+  "checks": [
+    "Resolved files have no conflict markers.",
+    "git diff --check passed.",
+    "All unrelated progress entries match HEAD."
+  ]
 }

@@ -1,7 +1,9 @@
 # Road spacing rebase recovery
 
-Current head: 9e60a29cfa379097e647b1aecdc5f7159be0e756. Assigned feature worktree unchanged. Resolved working-file conflicts in CitySimulation.java and dashboard/progress.json. Passenger fleet speed retained with spacing clearance/passing; industrial progression, advanced recipes, freight energy, passenger transport, vehicle purchases, compatibility tests, fixtures and historical evidence remain in the upstream files.
+Resolved checkpoint and dashboard working files. All unrelated dashboard entries match current HEAD. Passenger fleet speed retained in CitySimulation alongside spacing passing-route changes. Industrial progression, advanced recipes, freight energy, passenger transport, vehicle purchases, save compatibility tests/fixtures and historical evidence remain upstream.
 
-Focused Maven passed: 20 tests, zero failures/errors/skips. Commands/environment/results recorded in dashboard/evidence/road-spacing-progression-recovery.json. Conflict marker scan, dashboard preservation, historical evidence/fixture checks and git diff --check passed.
+Current focused checks pending. Prior recovery 20-test pass is historical. Index stays unmerged until controller stages and continues the rebase. No abort/reset/commit/push.
 
-Index remains unmerged until controller stages these resolutions. Controller must stage and continue the preserved rebase. No abort/reset/commit/push performed. Final-head full verification, native requested/edge/regression workflows and fresh media remain pending after continuation. All delegates resolved. No owner answer needed.
+Later replay must retain food, porch, staffing and clearance fixes and restore original automatic factory regression without manual job overrides. After replay, inspect actual final source, verify all upstream features/fixtures/evidence against the reviewed base, then run full verification and native requested/edge/regression workflows with fresh task-specific media. Do not overwrite historical media. No final-head playtest or fresh media claimed during recovery.
+
+Current recovery checks passed: 20 tests, zero failures/errors/skips; BUILD SUCCESS. Actual command/environment/results saved in dashboard/evidence/road-spacing-progression-recovery-2.json. Conflict markers absent; all unrelated dashboard entries, fixtures and non-spacing historical evidence unchanged; git diff --check passed. Index still unmerged pending controller staging. All delegates resolved. Return recover for controller continuation.

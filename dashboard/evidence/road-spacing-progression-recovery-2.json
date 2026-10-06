@@ -1,0 +1,56 @@
+{
+  "status": "recovery checks passed; final-head validation pending",
+  "head": "e7812a79dfa0e5d6c30f4b4ca2c4d1c850b3013b",
+  "command": "MAVEN_OPTS=\"-Xmx256m -Djava.io.tmpdir=$PWD/target/tmp\" /tmp/apache-maven-3.9.11/bin/mvn --batch-mode -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux \"-DargLine=-Xmx512m -Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=IndustrialProgressionTest,OperatingEnergyTest,FreightFallbackTest,AviationSaveCompatibilityTest,RoadSpacingTest test > target/spacing-progression-recovery-2.txt 2>&1",
+  "environment": "Linux; Maven 3.9.11; inherited Java; worktree-local cache/temp; Maven 256 MiB and test 512 MiB heaps.",
+  "exitCode": 0,
+  "observed": "BUILD SUCCESS; 20 tests, zero failures/errors/skips",
+  "suites": [
+    {
+      "name": "dev.jayms.IndustrialProgressionTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.OperatingEnergyTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.FreightFallbackTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.AviationSaveCompatibilityTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.net.city.RoadSpacingTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "resolution": "Checkpoint rewritten to actual recovery state. All non-spacing dashboard items retained from HEAD. Passenger speed and spacing route/clearance retained.",
+  "checks": [
+    "Conflict-marker scan passed for both resolved files.",
+    "git diff --check passed.",
+    "All unrelated dashboard entries unchanged.",
+    "Save fixtures and historical non-spacing evidence unchanged; only assigned spacing artifacts replayed."
+  ],
+  "playtest": "Playtest: final-head native workflows and fresh task-specific media pending controller staging and rebase continuation. No gameplay pass claimed for this recovery.",
+  "remaining": "Later replay must retain automatic factory workflow without manual job overrides, food/porch/clearance fixes and all upstream features. Final combined-source verification and media remain required.",
+  "publication": "pending controller publication",
+  "sourceSha256": "d19c13230dfb9dfed71f024ec9d12f0d6b7fe0abda1dcef7314df1439adb3990"
+}

@@ -273,6 +273,27 @@ class ManufacturingTest {
         for (int i = 0; i < 700; i++) s.advance(1);
         var f = firm(s, 8);
         assertTrue(s.economy.properties.stream().anyMatch(p -> p.operator() == f.id));
+        // This test needs a staffed factory, independent of construction timing and
+        // the daily labour market retaining paid graduates in mining jobs.
+        int factory = s.economy.properties.stream().filter(p -> p.operator() == f.id)
+                .findFirst().orElseThrow().building();
+        int worker = s.ecs.query(CitySimulation.Household.class).stream()
+                .filter(id -> s.life(id).education == CitizenLife.Education.TECHNICAL)
+                .findFirst().orElseThrow();
+        s.ecs.get(worker, CitySimulation.Household.class).job = factory;
+        var commute = s.ecs.get(worker, CitySimulation.Travel.class);
+        commute.target = -9999;
+        commute.route.clear();
+        commute.passingPoints = 0;
+        commute.retryAt = 0;
+        // Construction still completes within 700 seconds. Spaced commutes can delay
+        // the first factory shift and equipment delivery; allow at most three days.
+        for (int i = 700; i < 3600; i++) {
+            if (s.economy.resources.production(f.id).processed() > 0
+                    && s.economy.resources.productivity(firm(s, 2).id, 2) == 2
+                    && s.economy.resources.productivity(firm(s, 3).id, 3) == 2) break;
+            s.advance(1);
+        }
         assertTrue(s.economy.resources.production(f.id).processed() > 0);
         assertEquals(2, s.economy.resources.productivity(firm(s, 2).id, 2));
         assertEquals(2, s.economy.resources.productivity(firm(s, 3).id, 3));

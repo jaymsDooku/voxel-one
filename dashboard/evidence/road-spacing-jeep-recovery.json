@@ -1,9 +1,9 @@
 {
   "status": "resolved_contents_pending_controller_git",
   "checks": [
-    "Parsed both index versions and retained every upstream progress entry unchanged. Added spacing as a separate item.",
-    "Jeep source, Player/Controls integration, shader transparency files, JeepTest, docs, harnesses and every jeep evidence file match upstream HEAD byte for byte.",
-    "Main staged diff adds only spacing CLI handling and usage; existing jeep integration remains."
+    "Both conflicted files have resolved contents.",
+    "Both progress entries retained; every unrelated upstream item unchanged.",
+    "Jeep implementation, tests, docs, harnesses and evidence match current HEAD byte for byte. Main jeep integration and incoming spacing/food repairs remain."
   ],
   "jeepFilesSha256": {
     "src/main/java/dev/jayms/player/Jeep.java": "fee90881847413cfdf28669bb43c2f658f336543ca74f4ca4cd94fb569717645",
@@ -24,5 +24,5 @@
     "dashboard/evidence/jeep-test-report.md": "fc750e1cf364484381d8c9a00c3a8be92e62c75229710547c9cdc2bf9524f3b9",
     "dashboard/evidence/jeep-playtest.json": "6dce5ac79b3aaa1964f7e9710c9119e7a7832a4425262d63a721493f39c138c4"
   },
-  "execution": "No gameplay or automated simulation checks run during this Git recovery. Final-head full verification, AgricultureTest, JeepTest and fresh native spacing/jeep regression playtests remain required after controller continuation."
+  "execution": "No new simulation tests or native playtest executed during Git recovery. Final combined-head tests and media remain required after controller continuation."
 }

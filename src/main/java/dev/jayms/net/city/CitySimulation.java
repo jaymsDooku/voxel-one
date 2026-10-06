@@ -1246,7 +1246,7 @@ public final class CitySimulation {
         while (remaining > .0001f && !t.route.isEmpty()) {
             var target = t.route.peek();
             // Road cells guide passing users without forcing them through occupied centres.
-            while (t.route.size() > 1 && roadApproach(p.x, p.z)
+            while (t.route.size() > 1
                     && publicRoad(target.x() + .5f, target.z() + .5f)
                     && Math.hypot(target.x() + .5f - p.x, target.z() + .5f - p.z)
                             < (t.passingPoints > 0 ? .15f : waypointRadius)) {
@@ -1260,7 +1260,9 @@ public final class CitySimulation {
                         || next.z() == target.z()
                         && Math.abs(p.z - target.z() - .5f) < .12f
                         && (p.x - target.x() - .5f) * (next.x() - target.x()) > 0;
-                if (!publicRoad(next.x() + .5f, next.z() + .5f) && !alignedAhead) break;
+                if ((!roadApproach(p.x, p.z) || !publicRoad(next.x() + .5f, next.z() + .5f))
+                        && !alignedAhead) break;
+                if (!clearTerrainPath(p.x, p.z, next.x() + .5f, next.z() + .5f)) break;
                 consumeWaypoint(t);
                 target = t.route.peek();
             }
@@ -1287,7 +1289,7 @@ public final class CitySimulation {
                 break;
             }
             if (!roadClear(id, p, h, nx, nz)) {
-                if (!replanned && publicRoad(p.x, p.z)) {
+                if (!replanned && roadApproach(p.x, p.z)) {
                     replanned = true;
                     if (passingRoute(id, p, h, t)) continue;
                 }
@@ -1359,13 +1361,21 @@ public final class CitySimulation {
         for (var cell : candidates) {
             float x = cell.x() + .5f, z = cell.z() + .5f;
             if (Math.hypot(x - rider.x, z - rider.z) < roadSpacing.mounted()
-                    || !publicRoad(x, z) || !passable(x, z)) continue;
+                    || !publicRoad(x, z) || !passable(x, z) || blocksDoorApproach(x, z)) continue;
             var probe = new Position(x, roads.get(cell) + 1.01f, z);
             if (!roadClear(-horse, probe, clearance, x, z)) continue;
             var hp = ecs.get(horse, Position.class);
             hp.x = x; hp.y = probe.y; hp.z = z;
             return;
         }
+    }
+
+    /** Keep parked mounts out of the aisle between a building door and the road. */
+    private boolean blocksDoorApproach(float x, float z) {
+        for (var b : buildings)
+            if (Math.abs(x - b.x() - 2.5f) < roadSpacing.mounted() + .25f
+                    && z >= b.z() - 4 && z <= b.z() + 11) return true;
+        return false;
     }
 
     private static void consumeWaypoint(Travel t) {
@@ -1397,7 +1407,7 @@ public final class CitySimulation {
             for (int dx = -1; dx <= 1; dx++) for (int dz = -1; dz <= 1; dz++) {
                 if (dx == 0 && dz == 0) continue;
                 var next = new Cell(cell.x() + dx, cell.z() + dz);
-                if (parents.containsKey(next) || !publicRoad(next.x() + .5f, next.z() + .5f)
+                if (parents.containsKey(next) || !roadApproach(next.x() + .5f, next.z() + .5f)
                         || !passable(next.x() + .5f, next.z() + .5f)) continue;
                 var probe = new Position(next.x() + .5f, p.y, next.z() + .5f);
                 if (!roadClear(id, probe, h, probe.x, probe.z)) continue;
@@ -1499,6 +1509,13 @@ public final class CitySimulation {
         Collections.reverse(route);
         route.add(new Cell((int) Math.floor(tx), (int) Math.floor(tz)));
         return route;
+    }
+
+    private boolean clearTerrainPath(float x, float z, float nx, float nz) {
+        int steps = Math.max(1, (int) Math.ceil(Math.hypot(nx - x, nz - z) / .25));
+        for (int i = 1; i <= steps; i++)
+            if (!passable(x + (nx - x) * i / steps, z + (nz - z) * i / steps)) return false;
+        return true;
     }
 
     private boolean passable(float x, float z) {

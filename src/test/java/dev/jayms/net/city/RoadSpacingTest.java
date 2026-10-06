@@ -22,6 +22,8 @@ class RoadSpacingTest {
         exercise(.8f, false, false, true);
         exercise(1.2f, false, false, false);
         exercise(1.4f, false, true, false);
+        exercise(2f, false, false, false);
+        exercise(2f, false, true, false);
         exercise(.8f, true, false, false);
     }
 
@@ -37,8 +39,10 @@ class RoadSpacingTest {
     private void exercise(float gap, boolean overlap, boolean mounted, boolean following,
             double daySeconds) throws Exception {
         String previous = System.getProperty("voxel.road.pedestrianSpacing");
+        String previousMounted = System.getProperty("voxel.road.mountedSpacing");
         try {
             System.setProperty("voxel.road.pedestrianSpacing", Float.toString(gap));
+            if (mounted) System.setProperty("voxel.road.mountedSpacing", Float.toString(gap));
             var terrain = new Terrain(Terrain.DEFAULT_SEED);
             int grade = Math.max(-26, Math.min(88, terrain.column(8,24).height()));
             var ground = new CitySimulation.Ground() {
@@ -88,6 +92,8 @@ class RoadSpacingTest {
         } finally {
             if (previous == null) System.clearProperty("voxel.road.pedestrianSpacing");
             else System.setProperty("voxel.road.pedestrianSpacing", previous);
+            if (previousMounted == null) System.clearProperty("voxel.road.mountedSpacing");
+            else System.setProperty("voxel.road.mountedSpacing", previousMounted);
         }
     }
     private int add(CitySimulation sim, float x) {
