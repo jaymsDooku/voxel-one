@@ -35,3 +35,17 @@ Later replayed ownership changes must retain format 13 and protocol 24, plus ter
 Only dashboard/progress.json conflicted. Retained all master top-level fields and all non-road milestones exactly. Replaced only the road milestone from the replayed commit, with status in_progress and a note that final-head testing is pending. The earlier media links are historical. Python JSON parsing, unique-ID checks and exact non-road/top-level equality passed. All 60 preserved shipping/terrain file hashes still match. git diff --name-only HEAD -- src/main/java src/test/java was empty; no source or test changed during this recovery step. The prior 35 executed checks are unchanged-source evidence, not a fresh rerun. git diff --check passed.
 
 Playtest: deferred until controller Git continuation completes. No new native run or fresh media is claimed for this intermediate metadata-only step. The controller must stage the resolved JSON and continue the preserved rebase. No developer staging, commit, push, merge or deployment occurred.
+
+## Third recovery: durable ownership commit
+
+Resolved Protocol.java to protocol 24 with durable road ownership and retained shipping support. Resolved MultiplayerClient.java with independent port serverProtocol < 23 and road action serverProtocol < 24 gates. Snapshot 13 carries ownership; older protocol 22 uses snapshot 12. Resolved progress by keeping all non-road base entries exactly and using only the replayed road item with an intermediate/historical-media note. Terrain generator 3, port type 24 and format-12 loading remain.
+
+Updated ShippingAviationCompatibilityTest server handshake expectation from literal 23 to Protocol.VERSION. The intentional old-client request stays literal 22, and IDs 10/11 and port type 24 stay literal assertions. Fifty-nine preserved shipping/terrain files are unchanged; this handshake test is the only intended change among the previous 60-file preservation list.
+
+Executed:
+
+```sh
+MAVEN_OPTS="-Djava.io.tmpdir=$PWD/target/tmp" /tmp/apache-maven-3.9.11/bin/mvn --batch-mode -q -Dmaven.repo.local=/tmp/voxel-m2 -Dlwjgl.natives=natives-linux -DargLine="-Djava.io.tmpdir=$PWD/target/tmp" -Dtest=MixedRoadOwnershipTest,RoadWorkflowTest,RoadBaseCompatibilityTest,ShippingTest,ShippingProtocolCompatibilityTest,ShippingAviationCompatibilityTest,ProtocolCompatibilityTest verify > target/road-shipping-ownership-recovery.txt 2>&1
+```
+
+Focused verify exited 0: 26 tests passed with zero failures/errors/skips; packaging completed. This includes exact mixed-width delete/narrow cases, format-12 airport loading, port placement/save/load/demolition, ocean determinism and version-2 persistence, protocol mismatch rejection and protocol-22 aviation retry. git diff --check and JSON preservation checks passed. Playtest: final-head native road, shipping and airport checks and fresh media remain deferred until the controller completes the preserved rebase. No earlier video is claimed as current validation.

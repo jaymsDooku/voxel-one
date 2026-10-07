@@ -13,10 +13,12 @@ public final class CityAddresses {
 
     public record Address(int building, int street, int number) {}
 
-    public record State(List<Street> streets, List<Address> addresses) {
+    public record State(List<Street> streets, List<Address> addresses, List<RoadOwnership.Footprint> roadFootprints) {
+        public State(List<Street> streets,List<Address> addresses) { this(streets,addresses,List.of()); }
         public State {
             streets = List.copyOf(streets);
             addresses = List.copyOf(addresses);
+            roadFootprints = List.copyOf(roadFootprints);
         }
 
         public String buildingName(int building) {
@@ -44,10 +46,12 @@ public final class CityAddresses {
 
     private final List<Street> streets = new ArrayList<>();
     private final List<Address> addresses = new ArrayList<>();
+    private List<RoadOwnership.Footprint> roadFootprints;
 
     public CityAddresses(State state) {
         streets.addAll(state.streets);
         addresses.addAll(state.addresses);
+        roadFootprints=state.roadFootprints;
     }
 
     public static State empty() {
@@ -145,7 +149,12 @@ public final class CityAddresses {
         return generated(id);
     }
 
+    public void paintRoad(int id,int type,Map<Polygon.Cell,Integer> surfaces,boolean replace) {
+        roadFootprints=RoadOwnership.paint(roadFootprints,id,type,surfaces,replace);
+    }
+
     public void removeStreet(int id) {
+        roadFootprints=roadFootprints.stream().filter(f->f.street()!=id).toList();
         streets.removeIf(s -> s.id()==id);
         addresses.removeIf(a -> a.street()==id);
     }
@@ -184,7 +193,7 @@ public final class CityAddresses {
                             + 1;
             addresses.add(new Address(b.id(), street.id, number));
         }
-        return new State(streets, addresses);
+        return new State(streets, addresses, roadFootprints);
     }
 
     /** Reconstruct center lines from old three-cell-wide roads without changing any world cells. */

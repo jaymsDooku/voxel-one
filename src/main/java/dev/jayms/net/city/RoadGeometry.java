@@ -68,26 +68,19 @@ public final class RoadGeometry {
 
     public static int streetAt(CityFrame city, CityFrame.Road road) {
         var cell=new Polygon.Cell(road.x(),road.z());
-        return city.addresses().streets().stream()
-            .filter(s -> surfaces(s.route(),road.type()).containsKey(cell))
-            .min(Comparator.comparingDouble(s -> CityAddresses.distance(s,road.x(),road.z())))
-            .map(CityAddresses.Street::id).orElse(0);
+        var owners=RoadOwnership.forFrame(city).stream()
+                .filter(f->f.cells().stream().anyMatch(c->c.cell().equals(cell)))
+                .map(RoadOwnership.Footprint::street).collect(java.util.stream.Collectors.toSet());
+        return city.addresses().streets().stream().filter(s->owners.contains(s.id()))
+                .min(Comparator.comparingDouble(s->CityAddresses.distance(s,road.x(),road.z())))
+                .map(CityAddresses.Street::id).orElse(0);
     }
 
-    /** Assign shared junction cells once, to the nearest route that covers the cell. */
+    /** A street retains its exact owned cells even when a crossing paints over them. */
     public static List<CityFrame.Road> section(CityFrame city, int street) {
-        var footprints=new HashMap<Integer,Map<Integer,Set<Polygon.Cell>>>();
-        for(var s:city.addresses().streets()) {
-            var types=new HashMap<Integer,Set<Polygon.Cell>>();
-            for(int type=0;type<4;type++) types.put(type,surfaces(s.route(),type).keySet());
-            footprints.put(s.id(),types);
-        }
-        return city.roads().stream().filter(r->{
-            var cell=new Polygon.Cell(r.x(),r.z());
-            var nearest=city.addresses().streets().stream()
-                .filter(s->footprints.get(s.id()).get(r.type()).contains(cell))
-                .min(Comparator.comparingDouble(s->CityAddresses.distance(s,r.x(),r.z()))).orElse(null);
-            return nearest!=null && nearest.id()==street;
-        }).toList();
+        var cells=new HashSet<Polygon.Cell>();
+        for(var f:RoadOwnership.forFrame(city)) if(f.street()==street)
+            for(var c:f.cells()) cells.add(c.cell());
+        return city.roads().stream().filter(r->cells.contains(new Polygon.Cell(r.x(),r.z()))).toList();
     }
 }

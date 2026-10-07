@@ -27,7 +27,7 @@ class MarketEconomyTest {
             java.nio.file.Files.copy(input, file);
         }
         var saved = CitySimulation.load(file);
-        assertEquals(23, dev.jayms.net.Protocol.VERSION);
+        assertEquals(24, dev.jayms.net.Protocol.VERSION);
         assertTrue(saved.buildings().stream().anyMatch(b -> b.type() == SpecialBuildings.EXCHANGE));
         var capital = saved.economy().capital();
         assertFalse(capital.book().listings().isEmpty());
@@ -40,7 +40,7 @@ class MarketEconomyTest {
         var roundTrip = temp.resolve("round-trip.city");
         restored.save(roundTrip);
         try (var input = new java.io.DataInputStream(java.nio.file.Files.newInputStream(roundTrip))) {
-            assertEquals(0x4349543C, input.readInt());
+            assertEquals(0x4349543D, input.readInt());
         }
         assertEquals(capital, CitySimulation.load(roundTrip).economy().capital());
     }

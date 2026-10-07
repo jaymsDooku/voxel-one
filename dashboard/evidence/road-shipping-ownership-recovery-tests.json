@@ -1,0 +1,63 @@
+{
+  "scope": "resolved ownership rebase; focused Maven verify including packaging",
+  "exitCode": 0,
+  "tests": 26,
+  "suites": [
+    {
+      "name": "dev.jayms.MixedRoadOwnershipTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "2.277"
+    },
+    {
+      "name": "dev.jayms.RoadWorkflowTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.615"
+    },
+    {
+      "name": "dev.jayms.RoadBaseCompatibilityTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.311"
+    },
+    {
+      "name": "dev.jayms.ShippingTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.656"
+    },
+    {
+      "name": "dev.jayms.ShippingProtocolCompatibilityTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "4.085"
+    },
+    {
+      "name": "dev.jayms.ShippingAviationCompatibilityTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "2.204"
+    },
+    {
+      "name": "dev.jayms.ProtocolCompatibilityTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "9.14"
+    }
+  ]
+}

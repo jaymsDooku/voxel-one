@@ -1,0 +1,155 @@
+{
+  "publication": "pending controller publication",
+  "files": [
+    {
+      "file": "road-mixed-airport-all-frames.json",
+      "bytes": 380,
+      "sha256": "6af941eb543474d60dff74d75f29480f19620d4cca33e5ee6a01eaf0dfa5b233"
+    },
+    {
+      "file": "road-mixed-airport-arrival.png",
+      "bytes": 902821,
+      "sha256": "70d57c2f5da383db1329445ffce118411c90e08881b0d0c00f4f614b6f49a674"
+    },
+    {
+      "file": "road-mixed-airport-boarding.png",
+      "bytes": 806344,
+      "sha256": "48a695761cf463511744fd951636f0ff11f2a7c0b4b768db2a41a5d3faa9ee5d"
+    },
+    {
+      "file": "road-mixed-airport-compact-menu.png",
+      "bytes": 670370,
+      "sha256": "81ea94e3cd70b249f3d01ab31a31ff5e7e2af75108f08b972cc87a5172f6f2f4"
+    },
+    {
+      "file": "road-mixed-airport-exchange-rejected.png",
+      "bytes": 1129451,
+      "sha256": "544840f090a1d22afdc3b24705a4451b98cf23d547d506ac8fd4d18f8ed0d206"
+    },
+    {
+      "file": "road-mixed-airport-expanded.png",
+      "bytes": 661004,
+      "sha256": "cbe208bc595e48e31f51cb3c1d42c6f9e1c831f4f85159adfb9f7f793037cd03"
+    },
+    {
+      "file": "road-mixed-airport-flight.png",
+      "bytes": 297474,
+      "sha256": "66611a29aa640d65729f782a41e2db6250c3f60924ecdf5f4379204c6905abe0"
+    },
+    {
+      "file": "road-mixed-airport-playtest.json",
+      "bytes": 836,
+      "sha256": "dd9b4b9896bca69d46bbb8f016a986307fd149145b4ca1b1017cd924fae26948"
+    },
+    {
+      "file": "road-mixed-airport-playtest.mp4",
+      "bytes": 1581082,
+      "sha256": "2ba3b06ed7a4418c48c646d66c2df0544cf3ac7a9c87ac2cdcf105f153aa0627"
+    },
+    {
+      "file": "road-mixed-airport-regional-regression.png",
+      "bytes": 15938,
+      "sha256": "2c40927d937350fdc0604e8c53b25727f187629bf8a7d8f24aaca2e6ffcee79d"
+    },
+    {
+      "file": "road-mixed-airport-video-check.json",
+      "bytes": 155,
+      "sha256": "59d69c4757877d892dbc7d1303240b6822aad6323c43df5556aa72894155f399"
+    },
+    {
+      "file": "road-mixed-all-frames.json",
+      "bytes": 373,
+      "sha256": "cfefc4a1dcbf049f9cb4270738eb35fe8865821c1abf085fb3431aa358ad0cd7"
+    },
+    {
+      "file": "road-mixed-base-preservation.json",
+      "bytes": 8750,
+      "sha256": "4ce5859e8d3d656c191400941819a591e81e1db7f11a33c3b15d880209bd10f5"
+    },
+    {
+      "file": "road-mixed-before.png",
+      "bytes": 505098,
+      "sha256": "0a4b894b141b3816c83c449d4857c70c0b6a9571b39575e1ec2981aad1b2f684"
+    },
+    {
+      "file": "road-mixed-deleted.png",
+      "bytes": 588250,
+      "sha256": "6c40067663be5fea81e1d40e495759c11c3742ff88b57d2c5a4884b39d863516"
+    },
+    {
+      "file": "road-mixed-edited.png",
+      "bytes": 810203,
+      "sha256": "a303b3c8efef672c5ba0289d3e3c4a7619d12cfbf0223e781c08e219c7df73e4"
+    },
+    {
+      "file": "road-mixed-guide.png",
+      "bytes": 837155,
+      "sha256": "7f041790a0376c2bb5474b2ba031c94774b19eb969d1bf0fcf1585e31a603cd5"
+    },
+    {
+      "file": "road-mixed-menu.png",
+      "bytes": 748098,
+      "sha256": "be94c459b110f039c4ae7c580594116b1a6b7fb766a8a69d72b011cf7c5d52b6"
+    },
+    {
+      "file": "road-mixed-narrowed.png",
+      "bytes": 800265,
+      "sha256": "762698b165910473273589a8f92f6d4fcf286c0245fdbda98194086e31bf96af"
+    },
+    {
+      "file": "road-mixed-playtest.json",
+      "bytes": 381,
+      "sha256": "4c8132bd62cec599c5dcb8d57a488ae0b13b963e06df6c1e0d1bf57ce87ceedf"
+    },
+    {
+      "file": "road-mixed-playtest.mp4",
+      "bytes": 2598998,
+      "sha256": "ecd6b0d83bacd103679a3cd3f72ca211c725eac9ad4482a7ee15bdfad158306f"
+    },
+    {
+      "file": "road-mixed-regression-playtest.json",
+      "bytes": 642,
+      "sha256": "827746bb9eb2fed392ae82c2d36f5d83b44cf6baeae0f8562070a736518dccb0"
+    },
+    {
+      "file": "road-mixed-restored.png",
+      "bytes": 825572,
+      "sha256": "fdcf19e0847c5eae1cc9a9b9c617a0c4bddebcd36a305c2ee13d45670af95377"
+    },
+    {
+      "file": "road-mixed-selected.png",
+      "bytes": 768587,
+      "sha256": "b896601c964933571f81fede28ad33fe3c7b87ae05208e4f1577f9fdd489e357"
+    },
+    {
+      "file": "road-mixed-snap.png",
+      "bytes": 806609,
+      "sha256": "ef1e2be5692f39d9d414c06607a15e47957dd73cd937886c5a92e9528502a10a"
+    },
+    {
+      "file": "road-mixed-source-preservation.json",
+      "bytes": 13650,
+      "sha256": "02a74ee5811fe497f993b4740dacb0533c44e421535a7407c7108a518f587978"
+    },
+    {
+      "file": "road-mixed-surfaces.png",
+      "bytes": 838263,
+      "sha256": "039f5db04bf91a15d3ce2768775ea18e35ab7a21a77d2c8cfe3d1587ef93ccbc"
+    },
+    {
+      "file": "road-mixed-tests.json",
+      "bytes": 1570,
+      "sha256": "412119158bc014f18fa7c3b92bd018c18bf3d14364a9f1c2241f5b9bde222e31"
+    },
+    {
+      "file": "road-mixed-validation.md",
+      "bytes": 7434,
+      "sha256": "813f78d23c82c824ba66a0fe388397538929fad8d8f041a8efbbb618f5b0fe66"
+    },
+    {
+      "file": "road-mixed-video-check.json",
+      "bytes": 156,
+      "sha256": "a83d341d2e0dca10ba901843e7d4b9126ef79f920657c96f389f58550a823465"
+    }
+  ]
+}

@@ -33,7 +33,7 @@ class ShippingAviationCompatibilityTest {
                 var out=new DataOutputStream(socket.getOutputStream());
                 out.writeInt(Protocol.MAGIC);out.writeInt(22);out.flush();
                 var in=new DataInputStream(socket.getInputStream());
-                assertEquals(Protocol.MAGIC,in.readInt());assertEquals(23,in.readInt());
+                assertEquals(Protocol.MAGIC,in.readInt());assertEquals(Protocol.VERSION,in.readInt());
                 assertFalse(in.readBoolean());assertTrue(in.readUTF().contains("Client version mismatch"));
             } finally {server.close();worker.join(5000);assertFalse(worker.isAlive());assertNull(failure.get());}
         }

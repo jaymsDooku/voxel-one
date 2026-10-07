@@ -124,7 +124,7 @@ class ProtocolCompatibilityTest {
             var task=new FutureTask<Void>(() -> {
                 try(var first=listener.accept()) {
                     first.setSoTimeout(10000);
-                    request(new DataInputStream(first.getInputStream()),23,false);
+                    request(new DataInputStream(first.getInputStream()),24,false);
                     reply(new DataOutputStream(first.getOutputStream()),22,false,"Client version mismatch");
                 }
                 try(var second=listener.accept()) {

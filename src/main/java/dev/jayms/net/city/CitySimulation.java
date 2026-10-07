@@ -237,7 +237,13 @@ public final class CitySimulation {
     }
 
     private void restore(CityFrame f) {
-        addresses = new CityAddresses(f.addresses());
+        var savedAddresses=f.addresses();
+        if(savedAddresses.streets().isEmpty() && !f.roads().isEmpty())
+            savedAddresses=CityAddresses.migrate(f.roads(),f.buildings());
+        addresses = new CityAddresses(new CityAddresses.State(savedAddresses.streets(),savedAddresses.addresses(),
+                f.addresses().roadFootprints().isEmpty()?RoadOwnership.infer(new CityFrame(f.config(),f.elapsed(),f.roads(),f.zones(),
+                        f.buildings(),f.citizens(),f.horses(),f.economy(),savedAddresses,f.agriculture(),f.population(),f.aviation()))
+                        :f.addresses().roadFootprints()));
         elapsed = f.elapsed();
         flights.addAll(f.aviation().flights());
         flightIds = flights.stream().mapToInt(Aviation.Flight::id).max().orElse(0);
@@ -2042,6 +2048,9 @@ public final class CitySimulation {
         var existingStreet = addresses.state(buildings).nearest(points.get(0).x(), points.get(0).z());
         String name = editing != 0 ? addresses.state(buildings).streetName(editing) : newCells == 0 && existingStreet != null
                 ? existingStreet.name() : nextAddresses.road(points, type);
+        int streetId=editing!=0?editing:newCells==0 && existingStreet!=null?existingStreet.id():
+                nextAddresses.state(buildings).streets().stream().filter(s->s.name().equals(name)).findFirst().orElseThrow().id();
+        nextAddresses.paintRoad(streetId,type,surfaces,editing!=0);
         if (!founding && !economy.roads(changedCells))
             return "Mayor budget too low for road: needs $"
                     + (int) (changedCells * CityEconomy.ROAD_COST);
@@ -2063,38 +2072,30 @@ public final class CitySimulation {
                         + (int) (changedCells * CityEconomy.ROAD_COST);
     }
 
-    private boolean sharedRoadCell(CityFrame frame,int id,CityFrame.Road road) {
-        var cell=new Cell(road.x(),road.z());
-        return frame.addresses().streets().stream().anyMatch(s -> s.id()!=id
-                && RoadGeometry.surfaces(s.route(),road.type()).containsKey(cell));
-    }
-
     private String changeRoad(int id, int type) {
-        var frame=frame();
-        var section=RoadGeometry.section(frame,id);
+        var before=frame();
+        var section=RoadGeometry.section(before,id);
         if(section.isEmpty()) return "Road section is no longer available";
-        var edits=new ArrayList<Protocol.Edit>();
         for(var r:section) if(ground.occupied(r.x(),r.y()+1,r.z(),1,1))
             return "Road would intersect a player";
         if(type>=0) {
             RoadTypes.validate(type);
-            var street=frame.addresses().streets().stream().filter(s->s.id()==id).findFirst().orElseThrow();
+            var street=before.addresses().streets().stream().filter(s->s.id()==id).findFirst().orElseThrow();
             var result=road(street.route(),type,id);
             if(!result.contains(" built:")) return result;
-            var keep=RoadGeometry.surfaces(street.route(),type).keySet();
-            for(var r:section) {
-                var cell=new Cell(r.x(),r.z());
-                if(keep.contains(cell) || sharedRoadCell(frame,id,r)) continue;
+        } else addresses.removeStreet(id);
+        // Repaint from surviving owners, including the hidden road under a crossing.
+        var visible=RoadOwnership.visible(addresses.state(buildings).roadFootprints());
+        var edits=new ArrayList<Protocol.Edit>();
+        for(var r:section) {
+            var cell=new Cell(r.x(),r.z()); var remaining=visible.get(cell);
+            if(remaining==null) {
                 roads.remove(cell); roadTypes.remove(cell);
                 edits.add(new Protocol.Edit(r.x(),r.y(),r.z(),Blocks.DIRT));
+            } else {
+                roadTypes.put(cell,remaining.type());
+                edits.add(new Protocol.Edit(r.x(),r.y(),r.z(),remaining.surface()));
             }
-        } else {
-            for(var r:section) {
-                if(sharedRoadCell(frame,id,r)) continue;
-                var cell=new Cell(r.x(),r.z()); roads.remove(cell); roadTypes.remove(cell);
-                edits.add(new Protocol.Edit(r.x(),r.y(),r.z(),Blocks.DIRT));
-            }
-            addresses.removeStreet(id);
         }
         ground.apply(edits);
         return type<0 ? "Road section deleted" : "Road section edited: " + RoadTypes.NAMES[type];
@@ -2507,7 +2508,7 @@ public final class CitySimulation {
                     && magic != 0x43495438
                     && magic != 0x43495439
                     && magic != 0x4349543A
-                    && magic != 0x4349543B && magic != 0x4349543C) throw new IOException("Invalid city save");
+                    && magic != 0x4349543B && magic != 0x4349543C && magic != 0x4349543D) throw new IOException("Invalid city save");
             return CityFrame.read(
                     in,
                     magic == 0x43495431
@@ -2520,7 +2521,7 @@ public final class CitySimulation {
                                                     ? 4
                                                     : magic == 0x43495435
                                                             ? 5
-                                                            : magic == 0x43495436 ? 6 : magic == 0x43495437 ? 7 : magic == 0x43495438 ? 8 : magic == 0x43495439 ? 9 : magic == 0x4349543A ? 10 : magic == 0x4349543B ? 11 : 12);
+                                                            : magic == 0x43495436 ? 6 : magic == 0x43495437 ? 7 : magic == 0x43495438 ? 8 : magic == 0x43495439 ? 9 : magic == 0x4349543A ? 10 : magic == 0x4349543B ? 11 : magic == 0x4349543C ? 12 : 13);
         }
     }
 
@@ -2529,7 +2530,7 @@ public final class CitySimulation {
         Files.createDirectories(file.toAbsolutePath().getParent());
         Path tmp = file.resolveSibling(file.getFileName() + ".tmp");
         try (var out = new DataOutputStream(Files.newOutputStream(tmp))) {
-            out.writeInt(0x4349543C);
+            out.writeInt(0x4349543D);
             frame().write(out);
         }
         try {
