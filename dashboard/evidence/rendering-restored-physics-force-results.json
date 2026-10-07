@@ -1,0 +1,1 @@
+{"Playtest":"Synthetic bodies in production PhysicsLab/PhysicsWorld; inherited X11 display, Mesa, isolated profile","elapsedSeconds":0.008333206,"expectedForceVx":1,"observedForceVx":1.0,"expectedTorqueWx":0.3,"observedTorqueWx":0.3,"pointImpulseWx":0.3,"observed":"All wake, inertia and load-clearing assertions passed; R reset verified later"}
