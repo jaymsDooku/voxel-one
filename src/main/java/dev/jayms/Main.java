@@ -71,9 +71,13 @@ public class Main {
     }
 
     private void cityCommand(CityCommand command) {
-        if (network == null) notice = local.city.command(command, riderId(), player.pose(0));
-        else if (!network.cityCommand(command))
+        if (network == null) {
+            notice = local.city.command(command, riderId(), player.pose(0));
+            cityTools.roadResult(command, notice);
+        } else if (!network.cityCommand(command, result -> cityTools.roadResult(command, result))) {
             notice = "Disconnected: reconnect to use city tools";
+            cityTools.roadResult(command, notice);
+        }
     }
 
     private CityFrame.Horse riding() {

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T03:20:28+00:00",
+  "updatedAt": "2026-10-07T03:47:37+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -81,8 +81,8 @@
         }
       ],
       "status": "in_progress",
-      "note": "Right-angle base routes retained during road rebase. Controller continuation and final-head tests/media pending. Callback interleaving and acknowledgement test fixes remain required; old media is historical.",
-      "updatedAt": "2026-10-06T23:20:26+00:00"
+      "note": "Resolved progress timestamp conflict; unrelated history and City saves integration preserved. Eight focused road, multiplayer and save tests passed. Controller must continue rebase before final-head save and road playtests.",
+      "updatedAt": "2026-10-07T03:47:37+00:00"
     },
     {
       "id": "35353439383837332d393262632d343536312d616464642d396661313231326632653537",

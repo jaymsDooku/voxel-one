@@ -213,7 +213,11 @@ public final class MultiplayerClient implements AutoCloseable {
                             time);
     }
 
-    public boolean cityCommand(CityCommand command) {
+    private final java.util.Queue<java.util.function.Consumer<String>> cityResults = new java.util.concurrent.ConcurrentLinkedQueue<>();
+
+    public boolean cityCommand(CityCommand command) { return cityCommand(command, null); }
+
+    public synchronized boolean cityCommand(CityCommand command, java.util.function.Consumer<String> completion) {
         if (serverProtocol < 23 && command.kind() == CityCommand.SPECIAL
                 && command.value() == SpecialBuildings.PORT) {
             notice = "Coastal ports require a server update.";
@@ -243,12 +247,16 @@ public final class MultiplayerClient implements AutoCloseable {
             notice = "Special buildings require a server update.";
             return false;
         }
-        return send(
+        java.util.function.Consumer<String> pending = result -> { if (completion != null) completion.accept(result); };
+        cityResults.add(pending);
+        boolean sent = send(
                 () -> {
                     out.writeByte(Protocol.CITY_COMMAND);
                     command.write(out);
                     out.flush();
                 });
+        if (!sent) cityResults.remove(pending);
+        return sent;
     }
 
     private void join(Protocol.Pose p, String name) {
@@ -282,7 +290,11 @@ public final class MultiplayerClient implements AutoCloseable {
                     event = () -> pendingEdits.addAll(batch);
                 } else if (type == Protocol.CITY_RESULT) {
                     String message = Protocol.readText(in, 512);
-                    event = () -> notice = message;
+                    event = () -> {
+                        notice = message;
+                        var completion = cityResults.poll();
+                        if (completion != null) completion.accept(message);
+                    };
                 } else if (type == Protocol.MOVE) {
                     var p = Protocol.Pose.read(in);
                     long received = System.nanoTime();
@@ -388,6 +400,10 @@ public final class MultiplayerClient implements AutoCloseable {
     public List<Protocol.Edit> poll() {
         Runnable event;
         while ((event = events.poll()) != null) event.run();
+        if (!connected) {
+            java.util.function.Consumer<String> completion;
+            while ((completion = cityResults.poll()) != null) completion.accept("Disconnected: road placement not confirmed");
+        }
         var result = new ArrayList<>(pendingEdits);
         pendingEdits.clear();
         return result;

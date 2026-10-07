@@ -55,12 +55,26 @@ class CityToolsTest {
         click(tools, 0, 24, result);
         click(tools, 30.5f, 24, result);
         assertEquals(new Polygon.Point(30, 24), result.get(0).points().get(1));
+        tools.roadResult(result.get(0), "Paved road built: Test");
         click(tools, 30.5f, 24, result);
         click(tools, 44, 24, result);
         assertEquals(2, result.size());
         assertEquals(new Polygon.Point(30, 24), result.get(1).points().get(0));
     }
 
+    @Test void rejectedRoadRetainsAnchorUntilSuccessfulAcknowledgement() {
+        var tools=new CityTools();tools.tool=4;var sent=new ArrayList<CityCommand>();
+        click(tools,0,24,sent);click(tools,20,24,sent);
+        click(tools,40,24,sent);assertEquals(1,sent.size(),"Pending acknowledgement blocks another placement");
+        tools.roadResult(sent.get(0),"Mayor budget too low for road");
+        click(tools,40,24,sent);assertEquals(new Polygon.Point(0,24),sent.get(1).points().get(0));
+        tools.roadResult(sent.get(1),"Paved road built: Test");
+        click(tools,44,24,sent);assertEquals(sent.get(1).points().get(1),sent.get(2).points().get(0));
+        tools.key(org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE,c->{});
+        tools.roadResult(sent.get(2),"Paved road built: Test");
+        tools.tool=4;click(tools,10,24,sent);click(tools,20,24,sent);
+        assertEquals(new Polygon.Point(10,24),sent.get(3).points().get(0),"Canceled acknowledgement cannot restore old chain");
+    }
     @Test
     void zoneRoadSnapUsesBoundaryOnlyWhenPointerIntersectsRoad() {
         var roads = List.of(new CityFrame.Road(12, 24, 23));

@@ -32,10 +32,23 @@ public final class CityTools {
     public int tool = -1, selectedCitizen, selectedBuilding, selectedPlot, selectedStreet;
     private final List<Polygon.Point> points = new ArrayList<>();
     private Polygon.Point hover;
+    private CityCommand pendingRoad;
+
+    public void roadResult(CityCommand command, String result) {
+        if (pendingRoad != command) return;
+        pendingRoad = null;
+        message = result;
+        if (tool == 4 && points.size() == 1 && result.contains(" built:")) {
+            pendingRoad = null;
+            points.clear();
+            points.add(command.points().get(1));
+        }
+    }
     public String message = "Inspect: click a building, plot or citizen for details.";
 
     public boolean key(int key, Consumer<CityCommand> submit) {
         if (key == GLFW_KEY_ESCAPE && (!points.isEmpty() || tool != -1 || roadMenu || selectedStreet != 0)) {
+            pendingRoad = null;
             points.clear();
             tool = -1;
             roadMenu = false;
@@ -44,6 +57,7 @@ public final class CityTools {
             return true;
         }
         if (key == GLFW_KEY_BACKSPACE && !points.isEmpty()) {
+            pendingRoad = null;
             points.remove(points.size() - 1);
             return true;
         }
@@ -51,6 +65,7 @@ public final class CityTools {
             try {
                 new Polygon(points);
                 submit.accept(new CityCommand(CityCommand.ZONE, tool, points));
+                pendingRoad = null;
                 points.clear();
             } catch (IllegalArgumentException e) {
                 message = e.getMessage();
@@ -93,6 +108,7 @@ public final class CityTools {
                     return;
                 }
                 tool = 4;
+                pendingRoad = null;
                 points.clear();
                 message = "Choose the first endpoint for " + RoadTypes.NAMES[roadType];
                 return;
@@ -111,6 +127,7 @@ public final class CityTools {
         if (y >= top && y <= top + 34 && x >= 16 && x < width - 16) {
             int index = (int) ((x - 16) / ((width - 32) / 9f));
             tool = new int[] {-1, 4, 0, 1, 2, 3, 5, 6, 7}[Math.min(8, index)];
+            pendingRoad = null;
             points.clear();
             roadMenu = tool == 4;
             editingStreet = 0;
@@ -177,13 +194,15 @@ public final class CityTools {
                 message = "Choose a different endpoint on clear land";
                 return;
             }
+            if (tool == 4 && pendingRoad != null) { message = "Waiting for road placement"; return; }
             points.add(candidate);
             if (tool == 4 && points.size() == 2) {
-                submit.accept(new CityCommand(CityCommand.ROAD, roadType, points));
-                points.clear();
-                points.add(candidate);
+                pendingRoad = new CityCommand(CityCommand.ROAD, roadType, points);
+                points.remove(1);
+                submit.accept(pendingRoad);
             }
         } catch (IllegalArgumentException e) {
+            pendingRoad = null;
             message = e.getMessage();
         }
     }

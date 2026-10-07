@@ -18,6 +18,7 @@ class RoadWorkflowTest {
         fixture.click(tools,14,26,commands); fixture.click(tools,28.5f,26,commands);
         fixture.click(tools,28.5f,26,commands);
         assertEquals(1,commands.size());
+        tools.roadResult(commands.get(0), "Paved road built: Test");
         fixture.click(tools,28.5f,36,commands);
         assertEquals(2,commands.size());
         assertEquals(commands.get(0).points().get(1),commands.get(1).points().get(0));
@@ -28,9 +29,10 @@ class RoadWorkflowTest {
         var frame=new CityFrame(GameConfig.cityGame(),0,List.of(),List.of(zone),List.of(),List.of(),List.of());
         for(int type=0;type<4;type++) for(var pair:List.of(
                 List.of(p(80,110),p(130,110)),List.of(p(110,80),p(110,130)),
-                List.of(p(140,110),p(90,110)),List.of(p(80,80),p(130,130)))) {
+                List.of(p(140,110),p(90,110)),List.of(p(80,80),p(130,130)),
+                List.of(p(80,80),p(110,130)))) {
             var snap=RoadGeometry.snapZone(pair.get(0),pair.get(1),type,frame);
-            if(type==0 && pair.get(0).equals(p(80,80))) assertEquals(pair.get(1),snap);
+            if(pair.equals(List.of(p(80,80),p(130,130)))) assertEquals(pair.get(1),snap, "Right-angle route goes around zone");
             else assertNotEquals(pair.get(1),snap);
             assertFalse(RoadGeometry.surfaces(List.of(pair.get(0),snap),type).keySet().stream()
                 .anyMatch(c->zone.polygon().contains(c.x()+.5f,c.z()+.5f)));
