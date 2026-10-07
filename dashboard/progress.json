@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-06T23:52:03+00:00",
+  "updatedAt": "2026-10-07T00:38:08+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,15 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "32393565343262322d373731352d343339342d396432342d653663393930356237303038",
+      "title": "Offline cheat mode",
+      "description": "Adding explicit cheat controls, vehicle selection, flight and treasury grants.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Implementation and native playtest passed; 48 focused tests passed. Sanitized screenshots and F10 video saved for controller publication and independent review.",
+      "updatedAt": "2026-10-07T00:38:08+00:00"
+    },
     {
       "id": "shipping-system",
       "title": "Oceans and coastal shipping ports",

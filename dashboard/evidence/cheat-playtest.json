@@ -1,0 +1,29 @@
+{
+  "status": "passed",
+  "platform": "Linux assigned X11 display; software OpenGL",
+  "profile": "isolated synthetic city",
+  "checks": [
+    "explicit mode entry and exit",
+    "flight up and down",
+    "all five road vehicles spawn",
+    "jet and carrier spawn",
+    "selected kind wraps",
+    "spawned lorry entry and exit",
+    "spawn while driving rejected",
+    "repeat and blocked spawn rejected",
+    "exact treasury grant and saved budget",
+    "money disabled outside mode",
+    "existing F flight, F6 camera and F9 dashboard regressions",
+    "Finances tab shows granted budget",
+    "budget cap rejects grant",
+    "64-spawn cap rejects new vehicle"
+  ],
+  "recording": "F10 engine recorder",
+  "sourceSha256": {
+    "src/main/java/dev/jayms/Main.java": "3599d37f3baab43695253071c54457937bb32782d5b8744ed9f6a2b7eb603556",
+    "src/main/java/dev/jayms/player/Jeep.java": "78014b32dac4927629b4e5394d28ea18aab6d4e8db7d703e6f540d77a70a3aaa",
+    "src/main/java/dev/jayms/ui/Controls.java": "a02a9066d33daa3db46930422385d137ac13a478ba644091f2f98aea8b6a8ae3",
+    "deploy/CheatPlaytest.java": "2af5c6bdea5074b403120944d2f5763d616ed63dae2cb4558d1a97f339b5bccd",
+    "deploy/run_cheat_playtest.py": "f8042a0b5fbe0e396951051b12c20eef0b6a5fcf84706c97fbeb87f387890522"
+  }
+}
