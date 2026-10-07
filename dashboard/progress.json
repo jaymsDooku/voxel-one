@@ -41,7 +41,7 @@
         }
       ],
       "status": "in_progress",
-      "note": "Hinge world-inertia impulses and opposite-axis alignment fixed. 68 focused tests passed; native momentum stayed 20 kg\u00b7m\u00b2/s and axes dot reached 1. Prior physics/walker regressions and Java 17 launch passed; fresh media captured. Ready for independent review; CI needs controller verification.",
+      "note": "Slow-contact waking and swept trigger events fixed. 74 focused tests passed; native sleeper retained 0.1 blocks/s and complete crossings reported enter+exit. Prior physics/walker regressions and Java 17 launch passed; fresh media captured. Ready for independent review; CI needs controller verification.",
       "updatedAt": "2026-10-07T20:35:42.621494+00:00"
     },
     {

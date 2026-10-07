@@ -20,6 +20,7 @@ if result.returncode:
     raise SystemExit(result.returncode)
 for file in (root/'target/physics-runtime').glob('physics-*.png'):shutil.copyfile(file,root/'dashboard/evidence'/file.name)
 shutil.copyfile(root/'target/physics-runtime/results.json',root/'dashboard/evidence/physics-playtest.json')
+shutil.copyfile(root/'target/physics-runtime/contact-trigger-results.json',root/'dashboard/evidence/physics-contact-trigger-playtest.json')
 shutil.copyfile(root/'target/physics-runtime/hinge-inertia-results.json',root/'dashboard/evidence/physics-hinge-inertia-playtest.json')
 shutil.copyfile(root/'target/physics-runtime/hinge-results.json',root/'dashboard/evidence/physics-hinge-playtest.json')
 shutil.copyfile(root/'target/physics-runtime/platform-results.json',root/'dashboard/evidence/physics-platform-playtest.json')

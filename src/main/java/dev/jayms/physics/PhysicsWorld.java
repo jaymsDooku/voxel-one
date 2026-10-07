@@ -16,10 +16,9 @@ public final class PhysicsWorld {
     public void step(float dt) {
         if(!Float.isFinite(dt)||dt<0||dt>.25f)throw new IllegalArgumentException("Physics time must be 0..0.25 seconds");
         if(dt==0)return;int steps=Math.max(1,(int)Math.ceil(dt/(1f/120)));float h=dt/steps;
-        Set<Overlap> before=overlaps;
+        entered=new LinkedHashSet<>();exited=new LinkedHashSet<>();
         for(int s=0;s<steps;s++) substep(h);
-        Set<Overlap> enter=new HashSet<>(overlaps);enter.removeAll(before);entered=Set.copyOf(enter);
-        Set<Overlap> exit=new HashSet<>(before);exit.removeAll(overlaps);exited=Set.copyOf(exit);
+        entered=Set.copyOf(entered);exited=Set.copyOf(exited);
         for(RigidBody b:bodies){b.force.zero();b.torque.zero();}
     }
     private float weight(RigidBody b){return b.kinematic?0:b.inverseMass;}
@@ -52,7 +51,7 @@ public final class PhysicsWorld {
         for(int i=0;i<bodies.size();i++)for(int j=i+1;j<bodies.size();j++){
             var a=bodies.get(i);var b=bodies.get(j);if((a.trigger||b.trigger)&&a.interacts(b)&&a.bounds().overlaps(b.bounds()))current.add(new Overlap(a,b));
         }
-        overlaps=Set.copyOf(current);
+        recordOverlaps(Set.copyOf(current));
         for(RigidBody b:bodies)if(weight(b)>0&&!b.trigger) {
             if(b.velocity.lengthSquared()<.015f&&b.angularVelocity.lengthSquared()<.015f&&b.force.lengthSquared()==0&&b.torque.lengthSquared()==0) {
                 b.quietTime+=h;if(b.quietTime>.75f){b.sleeping=true;b.velocity.zero();b.angularVelocity.zero();}
@@ -86,6 +85,7 @@ public final class PhysicsWorld {
                 }
             }
             float elapsed=remaining*fraction;
+            recordSweptTriggers(elapsed);
             for(RigidBody b:bodies)if(moving(b))b.position.fma(elapsed,b.velocity);
             remaining-=elapsed;
             if(first==null)break;
@@ -97,12 +97,44 @@ public final class PhysicsWorld {
             resolveVelocity(first,second,normal);
         }
     }
+    private void recordOverlaps(Set<Overlap> current) {
+        for(var pair:current)if(!overlaps.contains(pair))entered.add(pair);
+        for(var pair:overlaps)if(!current.contains(pair))exited.add(pair);
+        overlaps=current;
+    }
+    /** Follow actual CCD segments, so an obstacle cannot create a false trigger crossing. */
+    private void recordSweptTriggers(float elapsed) {
+        Set<Overlap> start=new LinkedHashSet<>(),end=new LinkedHashSet<>();
+        for(int i=0;i<bodies.size();i++)for(int j=i+1;j<bodies.size();j++) {
+            var a=bodies.get(i);var b=bodies.get(j);
+            if(!(a.trigger||b.trigger)||!a.interacts(b))continue;
+            var pair=new Overlap(a,b);var ab=a.bounds();var bb=b.bounds();
+            Vector3f da=motionVelocity(a).mul(elapsed),db=motionVelocity(b).mul(elapsed);
+            boolean inside=ab.overlaps(bb),outsideEnd=!ab.translate(da).overlaps(bb.translate(db));
+            if(inside)start.add(pair);if(!outsideEnd)end.add(pair);
+            if(!inside&&outsideEnd&&sweptOverlap(ab,bb,new Vector3f(da).sub(db))){entered.add(pair);exited.add(pair);}
+        }
+        recordOverlaps(start);recordOverlaps(end);
+    }
+    private boolean sweptOverlap(Aabb a,Aabb b,Vector3f delta) {
+        float enter=0,exit=1;
+        float[] amin={a.x0(),a.y0(),a.z0()},amax={a.x1(),a.y1(),a.z1()};
+        float[] bmin={b.x0(),b.y0(),b.z0()},bmax={b.x1(),b.y1(),b.z1()};
+        for(int axis=0;axis<3;axis++){
+            float v=delta.get(axis);
+            if(Math.abs(v)<1e-9f){if(amax[axis]<=bmin[axis]||amin[axis]>=bmax[axis])return false;continue;}
+            float t0=(bmin[axis]-amax[axis])/v,t1=(bmax[axis]-amin[axis])/v;
+            enter=Math.max(enter,Math.min(t0,t1));exit=Math.min(exit,Math.max(t0,t1));
+        }
+        return enter<exit; // A grazing touch has no positive overlap interval.
+    }
     private void resolveVelocity(RigidBody a,RigidBody b,Vector3f normal) {
         float wa=weight(a),wb=weight(b),sum=wa+wb;if(sum==0)return;
         Vector3f relative=new Vector3f(a.velocity).sub(b.velocity);float vn=relative.dot(normal);if(vn>=0)return;
-        if(vn<-.5f){if(a.sleeping)a.wake();if(b.sleeping)b.wake();}
         float restitution=Math.abs(vn)<.5f?0:Math.max(a.restitution,b.restitution);
         float impulse=-(1+restitution)*vn/sum;
+        if(wa*impulse>1e-7f&&a.sleeping)a.wake();
+        if(wb*impulse>1e-7f&&b.sleeping)b.wake();
         a.velocity.fma(wa*impulse,normal);b.velocity.fma(-wb*impulse,normal);
         Vector3f tangent=relative.sub(new Vector3f(normal).mul(vn));float speed=tangent.length();
         if(speed>1e-6f){tangent.div(speed);float friction=Math.min(speed/sum,impulse*(float)Math.sqrt(a.friction*b.friction));a.velocity.fma(-wa*friction,tangent);b.velocity.fma(wb*friction,tangent);}

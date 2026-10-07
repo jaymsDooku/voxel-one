@@ -1,0 +1,71 @@
+{
+  "sourceHeadBeforeControllerCommit": "72a7a93f24983a001d61275e5da5a838a159c106",
+  "reviewBase": "41ed6e88d231435559810c788416832d2b13d136",
+  "change": "Meaningful contact impulses wake sleeping dynamic bodies regardless of restitution cutoff. Trigger enter/exit pair sets accumulate endpoint transitions across substeps and positive swept overlap intervals along actual CCD segments. Final overlaps remains endpoint state. Relative motion and bilateral masks apply; grazing touches are excluded.",
+  "commands": [
+    {
+      "command": "mvn -q -Dmaven.repo.local=target/maven-cache -Dmaven.compiler.release=17 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Djvm=/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Dtest=ContactTriggerTest,HingeInertiaTest,HingeSwingTest,PlatformCarryTest,DistanceLoadTest,PhysicsTest,CcdMotionTest,ForceInertiaTest,PlayerTest,JeepTest package > target/contact-trigger-build.txt 2>&1",
+      "result": "final run exit 0; 74 focused tests, zero failures/errors; package built"
+    },
+    {
+      "command": "python3 deploy/run_physics_smoke.py --display \"$DISPLAY\"",
+      "result": "two runs exit 0; second improves slow-impact capture; final lab and walker assertions passed"
+    },
+    {
+      "command": "python3 deploy/run_physics_cli_smoke.py --display \"$DISPLAY\" --java /usr/lib/jvm/java-17-openjdk-amd64/bin/java",
+      "result": "exit 0; packaged lab opened and Escape closed it"
+    },
+    {
+      "command": "git diff --check",
+      "result": "exit 0"
+    }
+  ],
+  "Playtest": {
+    "environment": "Linux X11; inherited assigned DISPLAY/XAUTHORITY without reading cookie; Mesa software rendering; isolated synthetic profiles under target",
+    "steps": "In running PhysicsLab, impact a sleeping equal-mass box at 0.2 blocks/s; advance 1/120 second and check retained impulse. Cross a trigger at 10 blocks/s over .25 seconds and at 1000 blocks/s over 1/120 second. Check both events and empty final overlaps; advance again to check no stale events. Capture the tested slow-impact bodies. Run previous hinge/swing/load/platform/force/CCD fixtures, all five lab scenes and Main stair/wall/jump/landing regressions.",
+    "observed": {
+      "Playtest": "Production PhysicsWorld in running native PhysicsLab; synthetic slow contact and complete crossings",
+      "expectedSleeperVx": 0.1,
+      "observedSleeperVx": 0.1,
+      "crossingSpeeds": [
+        10,
+        1000
+      ],
+      "expected": "Both enter and exit per crossing, no final overlap or stale events",
+      "observed": "All assertions passed; prior physics and walker regressions follow"
+    },
+    "edges": "Focused tests also passed masked crossing, true grazing touch and solid wall before trigger. Initial grazing test used decimal coordinates that rounded into overlap; corrected to exactly representable 1.125/.125 values.",
+    "visual": "Fresh slow-impact image inspected; both tested bodies visible.",
+    "browser": "Not applicable: native Java LWJGL game."
+  },
+  "media": {
+    "status": "passed",
+    "source": "production F10 recorder in native physics collapse playtest",
+    "codec": "H264",
+    "bytes": 157658,
+    "decodedFrames": 12,
+    "width": 816,
+    "height": 544,
+    "durationSeconds": 4.042,
+    "checks": [
+      "Every frame decoded",
+      "Frame count matches MP4 metadata",
+      "First and last images differ",
+      "Below 6 MB artifact limit"
+    ]
+  },
+  "audit": "Entire diff against review base restricted to physics work, intended Main/Player/Jeep integration and retained reviewer artifacts. No deleted files. 189 upstream files and 71 prior progress entries preserved. Intentional Player axis-loop and Jeep inline-query replacements use shared voxel sweeps.",
+  "limits": [
+    "Full suite and macOS CI are not claimed passed; controller must verify CI.",
+    "Swept triggers use linear AABB segments; event sets coalesce repeated transitions of one pair per step.",
+    "Advanced simulations remain explicit lab/API integrations.",
+    "Media awaits controller publication; earlier reports retain historical provenance."
+  ],
+  "sha256": {
+    "src/main/java/dev/jayms/physics/PhysicsWorld.java": "64b30cef1ef78cf200b5be5fecb274bc0bcd7e32a8d99fef7eaf0169a1542ee4",
+    "src/test/java/dev/jayms/physics/ContactTriggerTest.java": "c1b79c5d9ecd88c07e0dc65dc31c3a8c3b53f012776bc1a8de6163c6690ff8b1",
+    "deploy/PhysicsSmoke.java": "6f7957240e569ec50bfe2d4daab0a3d663b0f2c65cb5b6a55ab72c0d0f238aea",
+    "dashboard/evidence/physics-contact-trigger.png": "caf94bad62867bf4f382cd87242facdaa8bb20d2660b06455b6c937046f3dfdd",
+    "dashboard/evidence/physics-collapse.mp4": "e216ca0a4907061e9fb8ede10b0103dcd67fbff6909f060dc7cf962821a14e33"
+  }
+}

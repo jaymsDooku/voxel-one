@@ -14,6 +14,7 @@ public class PhysicsSmoke {
     static Path out;static volatile String capture;static volatile String captured;static volatile PhysicsLab active;
     static volatile Throwable failure;static volatile int debris,tab,broken;static volatile float vehicleX,waterMass,smoke;
     static volatile boolean reset,finite,gpu;static volatile int tower;static volatile boolean gpuChecked;
+    static volatile boolean eventSetup,eventChecked;
     static volatile boolean hingeSetup,hingeChecked;
     static volatile boolean platformSetup,platformChecked;
     static volatile boolean ropeSetup,ropeStarted,ropeChecked;static float ropeStart;static Constraints.Hinge loadedHinge;static RigidBody hingeLoad;static Constraints.Distance sustainedRope,overloadRope,softRope;static RigidBody sustainedLoad,softLoad;
@@ -36,6 +37,7 @@ public class PhysicsSmoke {
             key(window,"3");Thread.sleep(1800);require(waterMass>121.59f&&waterMass<121.61f,"Cellular water conserves 121.6 units");require(smoke>0,"Fire emits rising smoke");shot("physics-fluid-fire.png");
             key(window,"4");key(window,"p");require(!active.scene.xpbd,"PBD toggle");key(window,"p");require(active.scene.xpbd,"XPBD toggle");key(window,"w");key(window,"g");Thread.sleep(800);require(gpuChecked,"GPU/CPU equivalence check executed");require(finite,"Cloth soft body and SPH stay finite");shot("physics-cloth-sph.png");
             key(window,"5");float start=vehicleX;x("keydown","--window",window,"Up");Thread.sleep(1400);x("keyup","--window",window,"Up");Thread.sleep(250);require(vehicleX>start+.1f,"Wheel torque drives sprung vehicle");shot("physics-vehicle.png");
+            eventSetup=true;for(int i=0;i<300&&!eventChecked;i++)Thread.sleep(20);require(eventChecked,"Slow impulse and swept trigger event checks");shot("physics-contact-trigger.png");
             hingeSetup=true;for(int i=0;i<300&&!hingeChecked;i++)Thread.sleep(20);require(hingeChecked,"Offset hinge gravity and centre impulse swing");shot("physics-hinge-swing.png");
             platformSetup=true;for(int i=0;i<300&&!platformChecked;i++)Thread.sleep(20);require(platformChecked,"Rising, descending, ceiling and horizontal platform checks");shot("physics-platform-carry.png");
             ropeSetup=true;for(int i=0;i<600&&!ropeChecked;i++)Thread.sleep(20);require(ropeChecked,"Sustained rope load, overload and compliance native checks");shot("physics-rope-load.png");
@@ -45,6 +47,20 @@ public class PhysicsSmoke {
             Files.writeString(out.resolve("results.json"),"{\n  \"Playtest\": \"Production PhysicsLab; Linux X11; inherited assigned DISPLAY/XAUTHORITY; Mesa software rendering; isolated synthetic profile\",\n  \"steps\": [\"D removes support: 28 debris voxels fall; independent anchored tower stays intact\",\"D repeated: no change; R restores scene\",\"X/F: explosion and stress fracture detach structures; pause freezes time\",\"2 B: loaded ropes break\",\"3: water mass 121.6 conserved; fire emits smoke\",\"4 W G: cloth/soft body/SPH finite; GPU integration matches CPU and pinned particles stay fixed\",\"5 Up: wheel torque moves sprung vehicle\",\"Synthetic contact fixtures in production world: floor travel 10 blocks/s and wall tangent travel 6 blocks/s for at least one second\",\"R: reset regression restores original cells\",\"F10: collapse clip recorded\"],\n  \"expected\": \"All listed assertions pass\",\n  \"observed\": \"All listed assertions passed\",\n  \"gpuCompute\": "+gpu+"\n}\n");
         }catch(Throwable e){failure=e;try{Files.writeString(out.resolve("failure.txt"),e.getClass().getSimpleName()+": "+e.getMessage());}catch(Exception ignored){}}finally{if(active!=null)glfwSetWindowShouldClose(active.window,true);}},"physics-native-input");input.start();
         lab.run(l->{active=l;
+            if(eventSetup&&!eventChecked){
+                var w=l.scene.physics;w.bodies.clear();w.joints.clear();w.gravity.zero();
+                var a=new RigidBody(new Vector3f(6.999f,3,8),new Vector3f(.5f),1);var b=new RigidBody(new Vector3f(8,3,8),new Vector3f(.5f),1);a.velocity.x=.2f;b.sleeping=true;w.bodies.add(a);w.bodies.add(b);w.step(1f/120);
+                require(!b.sleeping&&Math.abs(b.velocity.x-.1f)<.001f,"Slow impact wakes sleeper and retains impulse");float slowV=b.velocity.x;
+                for(float speed:new float[]{10,1000}){
+                    w.bodies.clear();var mover=new RigidBody(new Vector3f(7,3,8),new Vector3f(.05f),1);mover.velocity.x=speed;
+                    var trigger=new RigidBody(new Vector3f(8,3,8),new Vector3f(.1f,1,1),0);trigger.trigger=true;w.bodies.add(mover);w.bodies.add(trigger);
+                    w.step(speed==10?.25f:1f/120);require(w.entered().size()==1&&w.exited().size()==1&&w.overlaps().isEmpty(),"Complete trigger crossing retains enter and exit");
+                    w.step(.001f);require(w.entered().isEmpty()&&w.exited().isEmpty(),"Trigger events clear on next step");mover.velocity.zero();
+                }
+                w.bodies.clear();w.bodies.add(a);w.bodies.add(b);
+                l.scene.scene=2;l.scene.paused=true;
+                Files.writeString(out.resolve("contact-trigger-results.json"),"{\"Playtest\":\"Production PhysicsWorld in running native PhysicsLab; synthetic slow contact and complete crossings\",\"expectedSleeperVx\":0.1,\"observedSleeperVx\":"+slowV+",\"crossingSpeeds\":[10,1000],\"expected\":\"Both enter and exit per crossing, no final overlap or stale events\",\"observed\":\"All assertions passed; prior physics and walker regressions follow\"}\n");eventChecked=true;
+            }
             if(hingeSetup&&!hingeChecked){
                 var small=new RigidBody(new Vector3f(8,6,8),new Vector3f(1),1);
                 var large=new RigidBody(new Vector3f(8,6,8),new Vector3f(3),1);
