@@ -2013,6 +2013,7 @@ public final class CitySimulation {
     private String road(List<Point> points, int type) {
         RoadTypes.validate(type);
         if (points.size() < 2) throw new IllegalArgumentException("Roads need two endpoints");
+        points = RoadRoute.points(points);
         var cells = new LinkedHashSet<Cell>();
         var surfaces = new LinkedHashMap<Cell, Integer>();
         int radius = RoadTypes.width(type) / 2;
@@ -2023,7 +2024,7 @@ public final class CitySimulation {
             int bx = (int) Math.floor(b.x()), bz = (int) Math.floor(b.z());
             int dx = Math.abs(bx - x), dz = Math.abs(bz - z);
             if (dx == 0 && dz == 0) throw new IllegalArgumentException("Road endpoints must differ");
-            int sx = Integer.signum(bx - x), sz = Integer.signum(bz - z), error = dx - dz;
+            int sx = Integer.signum(bx - x), sz = Integer.signum(bz - z);
             boolean alongX = dx >= dz;
             while (true) {
                 for (int offset = -radius; offset <= radius; offset++) {
@@ -2041,13 +2042,7 @@ public final class CitySimulation {
                     surfaces.put(cell, surface);
                 }
                 if (x == bx && z == bz) break;
-                if (type == 0) {
-                    if (x != bx) x += sx; else z += sz;
-                } else {
-                    int twice = 2 * error;
-                    if (twice > -dz) { error -= dz; x += sx; }
-                    if (twice < dx) { error += dx; z += sz; }
-                }
+                if (x != bx) x += sx; else z += sz;
             }
         }
         if (cells.size() > 768 || roads.size() + cells.stream().filter(c -> !roads.containsKey(c)).count() > 8192)

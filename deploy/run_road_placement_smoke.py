@@ -33,12 +33,12 @@ if result.returncode:
     failure=root/'target/road-runtime/failure.txt'
     if failure.exists(): print(failure.read_text())
     raise SystemExit(result.returncode)
-shutil.copyfile(result_file,root/'dashboard/evidence/road-placement-playtest.json')
-for name in ('road-menu.png', 'road-guide.png', 'road-surfaces.png'):
+shutil.copyfile(result_file,root/'dashboard/evidence/right-angle-playtest.json')
+for name in ('right-angle-preview.png', 'right-angle-built.png'):
     shutil.copyfile(root/'target/road-runtime'/name, root/'dashboard/evidence'/name)
 clips=sorted((root/'target/road-home/.voxel-one/recordings').glob('*.mp4'))
 if not clips: raise SystemExit('F10 video missing')
 clip=clips[-1]
 if clip.stat().st_size>6_000_000: raise SystemExit('F10 video exceeds 6 MB')
-shutil.copyfile(clip,root/'dashboard/evidence/road-placement-playtest.mp4')
-print('PASS: real game road choices, widths, upgrade and cancellation; F10 video saved')
+shutil.copyfile(clip,root/'dashboard/evidence/right-angle-playtest.mp4')
+print('PASS: real game right-angle routes, reverse bend, road widths, upgrade and cancellation; F10 video saved')

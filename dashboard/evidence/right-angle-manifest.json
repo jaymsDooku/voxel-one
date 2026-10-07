@@ -1,0 +1,40 @@
+{
+  "publication": "pending controller commit and push",
+  "files": [
+    {
+      "path": "src/main/java/dev/jayms/net/city/RoadRoute.java",
+      "sha256": "2b5720ab5efa6e08ffbe45f02f12f370e377592252e2c286a2d462d39d7cb6a7",
+      "bytes": 801
+    },
+    {
+      "path": "src/main/java/dev/jayms/net/city/CitySimulation.java",
+      "sha256": "21314ca3d5d163a9403fd22209c5d30d0366bb6668f757ec8bc516cab603dd60",
+      "bytes": 132032
+    },
+    {
+      "path": "src/main/java/dev/jayms/ui/CityTools.java",
+      "sha256": "46178c481aa64a32e64d3dbec1d0b0f285d114ca5dbeedaa69316d0b75ae28cb",
+      "bytes": 33269
+    },
+    {
+      "path": "deploy/RoadPlacementSmoke.java",
+      "sha256": "029ffcc8c281028149cbbcfda8720240df1e53aae862462d94b575c6c0c77d69",
+      "bytes": 11462
+    },
+    {
+      "path": "dashboard/evidence/right-angle-preview.png",
+      "sha256": "fc9ec7c7aeb73a496bc60a5624fbba3a683af178a5cfa2b61614c22b8dcd0c7b",
+      "bytes": 741734
+    },
+    {
+      "path": "dashboard/evidence/right-angle-built.png",
+      "sha256": "2b5ca14cec8f902dbed9377d0023b0e444a2a6d97758b23e15cfc0c03d8f3858",
+      "bytes": 770426
+    },
+    {
+      "path": "dashboard/evidence/right-angle-playtest.mp4",
+      "sha256": "6d77b7cb9ba039622aeb5f1f028c49b4eda79d72d48f3ec0910a5dc0cc54234c",
+      "bytes": 5277188
+    }
+  ]
+}
