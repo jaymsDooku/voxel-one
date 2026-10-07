@@ -399,3 +399,21 @@ Both complete stage histories and all progress evidence are retained. Unique-ID,
 ## Validation-history recovery — controller continuation required
 
 Both complete checkpoint histories and progress evidence are retained. Existing base milestones remain unchanged. Main.java and Jeep.java match review base 6770d9b9fd0f2bf56674e5cf5ab77f499f5f71c5. No review-base files are deleted. Earlier readiness is historical. Controller stages and continues before final-head regression tests and fresh native media. No new playtest or owner answer for this handoff. Report: dashboard/evidence/road-traffic-validation-history-fac878c-recovery.json.
+
+
+## Retained incoming CI history (historical)
+
+## CI capacity checkpoint on5a829e0f
+
+Exact-head Linux111965417273,Windows111965404598,macOS Intel111965404426 CI succeeded. macOS ARM111965416942 cancelled with no steps; annotation says hosted runner was not acquired after multiple attempts due capacity constraints. No implementation failure observed. Source/media hashes match recorded180-test and native validation. No new tests/playtest executed; no macOS ARM pass claimed. Controller reruns CI when capacity is available. All source/evidence preserved; no developer commit/push/merge/deploy or CI mutation. Report: dashboard/evidence/road-traffic-ci-capacity-checkpoint.json.
+
+## Authorized CI retry handoff
+
+Read-only GitHub checks still show run37370277527 attempt1 and original cancelled macOS ARM job; no retry observed in latest branch runs. Controller retry is already authorized; no new owner question needed. Await completion before review resubmission. Current source/media hashes match recorded180-test/native validation. No new tests/playtest executed. All local checkpoint/progress/evidence edits preserved; no developer CI or Git mutations. Report: dashboard/evidence/road-traffic-ci-retry-handoff.json.
+
+CI retry verified: run 37370277527 attempt 2 succeeded at 5a829e0fa39c9abe541762e280e2d6ed529b5242 on all four platforms. Recorded source and media hashes match. Ready for independent review; controller owns publication.
+
+
+## CI-history recovery — controller continuation required
+
+Both complete checkpoint histories and all progress evidence retained. Current base milestones unchanged. Main.java and Jeep.java match review base 6770d9b9fd0f2bf56674e5cf5ab77f499f5f71c5. No review-base files deleted. Earlier CI and readiness apply to historical source only. Controller stages and continues before final-head audit, regression tests and fresh native media. No new playtest or owner answer for this handoff. Report: dashboard/evidence/road-traffic-ci-history-409bdfa-recovery.json.

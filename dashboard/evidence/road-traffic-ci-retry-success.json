@@ -1,0 +1,22 @@
+{
+  "timestamp": "2026-10-07T08:08:16.599993+00:00",
+  "head": "5a829e0fa39c9abe541762e280e2d6ed529b5242",
+  "command": "gh api repos/jaymsDooku/voxel-one/actions/runs/37370277527 --jq {head_sha,status,conclusion,run_attempt,html_url}",
+  "run_attempt": 2,
+  "status": "completed",
+  "conclusion": "success",
+  "platforms": {
+    "mac-arm": "success",
+    "mac-intel": "success",
+    "linux": "success",
+    "windows": "success"
+  },
+  "ci_url": "https://github.com/jaymsDooku/voxel-one/actions/runs/37370277527",
+  "hash_checks": {
+    "source_sha256": true,
+    "media_sha256": true
+  },
+  "prior_validation": "road-traffic-legacy-final-validation.json",
+  "playtest": "No new native run this turn. Prior executed workflow and media remain valid: all recorded source and media hashes match.",
+  "publication": "Pending controller publication."
+}

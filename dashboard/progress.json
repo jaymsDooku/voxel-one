@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T13:14:13.340099+00:00",
+  "updatedAt": "2026-10-07T13:14:53.152715+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -3051,8 +3051,8 @@
         }
       ],
       "status": "in_progress",
-      "note": "Validation-history conflicts resolved. Both full histories, current base milestones and evidence preserved. Earlier readiness is historical. Controller stages and continues before final-head audit, regression tests and fresh native media.",
-      "updatedAt": "2026-10-07T13:14:13.340099+00:00"
+      "note": "CI-history conflicts resolved. Both complete histories, current base milestones and evidence preserved. Earlier CI and readiness apply to historical source only. Controller stages and continues before final-head audit, regression tests and fresh native media.",
+      "updatedAt": "2026-10-07T13:14:53.152715+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
