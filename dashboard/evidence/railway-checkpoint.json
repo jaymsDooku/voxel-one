@@ -1,26 +1,12 @@
 {
   "phase": "ready for controller publication and independent review",
-  "head": "d77e0dba965c4f0cfd43c94277c4d90554406cb9",
-  "note": "90 targeted tests and all four fresh native workflows passed. Five fresh F10 videos decoded. Historical base files preserved. Full suite and CI not run. Controller owns publication; independent review remains.",
-  "saveFormat": 14,
-  "protocol": 25,
-  "commands": {
-    "DELETE_ROAD": 12,
-    "EDIT_ROAD": 13,
-    "RAIL": 14
-  },
-  "completed": [
-    "literal base13 empty and owned-road migration",
-    "legacy10\u201312 roads",
-    "mixed ownership unit checks",
-    "native railway bends/service/save",
-    "native road edit/delete/snap/chains",
-    "native rejected placement retry",
-    "native mixed-width ownership",
-    "fresh media inspection and full decoding"
-  ],
+  "sourceBaseHead": "156cfeabeae39a6a87e2402975582d58dd10664a",
+  "note": "Shared airportSite rejects railway cells before edits, building changes or spending for both new airports and expanded runways.",
+  "tests": "66 targeted tests and native airport/rail overlap rejection, adjacent construction and reload passed. Full suite and CI not run.",
+  "evidence": "railway-airport-verification.json",
   "remaining": [
     "controller publication",
-    "independent exact-head review"
-  ]
+    "independent review"
+  ],
+  "git": "No commit, push, merge or deployment performed."
 }

@@ -1,0 +1,99 @@
+{
+  "status": "passed",
+  "sourceBaseHead": "156cfeabeae39a6a87e2402975582d58dd10664a",
+  "fix": "Shared airportSite rejects railway cells before edits, building changes or spending for both new airports and expanded runways.",
+  "environment": "Linux; inherited assigned DISPLAY and XAUTHORITY; Mesa software OpenGL; Java 21; fresh isolated synthetic offline profile; writable target/tmp. Native GLFW application; browser playtesting does not apply.",
+  "tests": {
+    "report": "railway-airport-tests.json",
+    "exitCode": 0,
+    "tests": 66,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "scope": "Targeted railway, road, protocol, shipping and aviation checks. Full suite and CI not run."
+  },
+  "native": {
+    "command": "JAVA_HOME=\"$(dirname \"$(dirname \"$(readlink -f /usr/bin/java)\")\")\" python3 deploy/run_railway_airport_playtest.py --display \"$DISPLAY\"",
+    "exitCode": 0,
+    "Playtest": [
+      {
+        "steps": "Use rail tool to place 85 cells at z60, then airport menu to permit airport(50,52).",
+        "expected": "Airport cannot cover rails; no rail/building/budget/voxel changes.",
+        "observed": "Passed; rejection image captured."
+      },
+      {
+        "steps": "Fresh synthetic fixture; permit airport(50,52), place36 rail cells at z84, then expand airport through menu.",
+        "expected": "Airport cannot cover rails; no rail/building/budget/voxel changes.",
+        "observed": "Passed; runway rejection image captured."
+      },
+      {
+        "steps": "Permit adjacent clear airport(100,52) and expand it to2 runways; save/reload.",
+        "expected": "Adjacent construction succeeds,36 rail cells remain; airport and rail state survives reload.",
+        "observed": "Passed; adjacent image captured."
+      }
+    ],
+    "initialAttempt": "Harness compilation failed; corrected before native execution. No pass claimed for failed compilation."
+  },
+  "atomicUnitChecks": "Full CityFrame equality, voxel map equality and unchanged ground.apply batch count for each rejected path.",
+  "video": {
+    "status": "passed",
+    "codec": "H264",
+    "width": 960,
+    "height": 540,
+    "frames": 83,
+    "changedFrames": 82,
+    "durationSeconds": 32.244,
+    "bytes": 2660912
+  },
+  "inspection": "All three fresh images inspected. F10 clip fully decoded;83 frames,82 changed frames;960x540 H264;2660912 bytes.",
+  "source": [
+    {
+      "path": "src/main/java/dev/jayms/net/city/CitySimulation.java",
+      "bytes": 140105,
+      "sha256": "2afd4f760d1061e9b1e516a433f7a55f1510cf32b14c7cfd3fee06c08e612221"
+    },
+    {
+      "path": "src/test/java/dev/jayms/RailwayAirportCompatibilityTest.java",
+      "bytes": 1884,
+      "sha256": "af1feee87f21230ebf8ca83eb72ffe21eabd7b40029ef8186f8517a3d1e811c5"
+    },
+    {
+      "path": "deploy/RailwayAirportPlaytest.java",
+      "bytes": 12534,
+      "sha256": "923e4223c9bd32fa328e2edc39f860435a6bd7ec55e96e017c96883d87074942"
+    },
+    {
+      "path": "deploy/run_railway_airport_playtest.py",
+      "bytes": 2970,
+      "sha256": "70009a23568b4ed4191fd9d863411fd415dfc2245edcdd03d486f1eaea48399a"
+    }
+  ],
+  "media": [
+    {
+      "path": "dashboard/evidence/railway-airport-rejected.png",
+      "bytes": 182563,
+      "sha256": "2a965f8f1ad52d9cc4f96e6b8aeb4fd1051d14e8e00e88877684b19080b946d2"
+    },
+    {
+      "path": "dashboard/evidence/railway-runway-rejected.png",
+      "bytes": 330953,
+      "sha256": "6f8af51fe016cb26bbaf4e18ff24255b6b1bc89373832f44c31b500620bffbd1"
+    },
+    {
+      "path": "dashboard/evidence/railway-airport-adjacent.png",
+      "bytes": 413688,
+      "sha256": "851e6313c06279f18fb1d659d30a8954b09c54b8fb304017f9928e7417f9e4b9"
+    },
+    {
+      "path": "dashboard/evidence/railway-airport-playtest.mp4",
+      "bytes": 2660912,
+      "sha256": "882ca436a42597cfa0461c57fe315e9d89af3b902a1ad5c5ea5be376287c12ec"
+    }
+  ],
+  "checks": [
+    "git diff --check passed",
+    "Python harness compilation passed",
+    "No unmerged files"
+  ],
+  "publication": "Pending controller publication; independent exact-head review required."
+}

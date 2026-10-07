@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T04:30:58+00:00",
+  "updatedAt": "2026-10-07T04:40:02+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -2723,8 +2723,8 @@
         }
       ],
       "status": "in_progress",
-      "note": "Railways and restored road ownership, edit/delete, snap and acknowledged chains passed 90 targeted tests and fresh native workflows. Save14/protocol25 preserve base13 and IDs12/13. Five fresh clips verified. Controller publication and independent review remain.",
-      "updatedAt": "2026-10-07T04:30:58+00:00"
+      "note": "Airport and runway expansion reject rail overlap before edits or spending. 66 targeted tests and fresh native rejection, adjacent construction and reload checks passed. F10 clip and three images verified. Controller publication and independent review remain.",
+      "updatedAt": "2026-10-07T04:40:02+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

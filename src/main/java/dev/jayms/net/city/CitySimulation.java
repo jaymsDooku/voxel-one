@@ -1736,6 +1736,7 @@ public final class CitySimulation {
         for (int dx = 0; dx < Aviation.WIDTH; dx++) for (int dz = start; dz < end; dz++) {
             int cx = x + dx, cz = z + dz;
             if (Math.abs((long)cx-8)>256 || Math.abs((long)cz-24)>256) throw new IllegalArgumentException("Airport outside city limits");
+            if (railway.contains(cx, cz)) throw new IllegalArgumentException("Airport cannot cover rails");
             if (roads.containsKey(new Cell(cx, cz))) throw new IllegalArgumentException("Airport cannot cover roads");
             for (var zone : zones) if (zone.polygon().contains(cx+.5f,cz+.5f)) throw new IllegalArgumentException("Airport cannot cover zones");
             for (var b : buildings) if (b.id() != ignore && cx >= b.x()-1 && cx <= b.x()+StructureBlueprint.width(b.type())
