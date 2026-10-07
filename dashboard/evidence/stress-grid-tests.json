@@ -1,15 +1,15 @@
 {
   "status": "passed",
-  "createdAt": "2026-10-07T10:57:22.627721+00:00",
+  "createdAt": "2026-10-07T11:20:05.641173+00:00",
   "branch": "feature/queue-65333430666162362d326337392d343737612d623765382d623233306336383138396363",
-  "baseHead": "f629d31663904393218ccc6e7bbf3906ffc339c6",
-  "sourceState": "Post-integration HEAD f629d31663904393218ccc6e7bbf3906ffc339c6; only refreshed evidence and progress changed after testing. Controller publication pending.",
+  "baseHead": "994e7475849d0e364d9c0c504fae004c2b14ef0f",
+  "sourceState": "Tested working source on 994e7475849d0e364d9c0c504fae004c2b14ef0f; source hashes below identify implementation before controller commit. Publication pending.",
   "sourceSha256": {
-    "deploy/StressGridSmoke.java": "1afe140a1b1eb57eb70714a859276e27c8ba23713f1611c007657323427e394c",
+    "deploy/StressGridSmoke.java": "4012099abf5c0bec14aa157c800508f63664ba686cf9036fcd026fc5cf926303",
     "deploy/VerifyStressGridMedia.java": "b26fc7bd206c3b487df24cbeabf1a1ca863a5bf6f952be4e6bf564a0786409d8",
-    "deploy/run_stress_grid_smoke.py": "5198e9585b2751e294f79cf49617ef0da4a58bb921ec2177dc160792100a8539",
+    "deploy/run_stress_grid_smoke.py": "f2a59057db8d1ae6ef7d747e2a8eda54edaf0e4e5d9b15247f68fdfbc77132e9",
     "deploy/verify_stress_grid_media.py": "de287dd96e99d2df53029d995976db9ba0920745d8a2d4deff14d0f59e3a6693",
-    "docs/stress-test-grid.md": "486faec9fa8b5c78a9d57f6e0fcb49662c5c05e6debd91f934997e25a72a63b5",
+    "docs/stress-test-grid.md": "c0be81d3e57da6ac326b91a18d3dcb34dd5b1b2f7b6f1de2423b4b0e8fa9e32f",
     "src/main/java/dev/jayms/DistantTerrainRenderer.java": "47c7a7b0e6a8fe1aaf499b93d52e7bb2bedb0e2d0b13bd438e6be009624e827e",
     "src/main/java/dev/jayms/IsometricCamera.java": "4d20a47c1085f8f4d855863b31ab5061ab19e16ddacc592e6c41c4b885fe150d",
     "src/main/java/dev/jayms/Main.java": "eaa93e526124ccc7aa47e694ba04a761e803881de8704b8523e9b22299107552",
@@ -17,12 +17,13 @@
     "src/main/java/dev/jayms/net/MultiplayerClient.java": "dec28d6b4c302e0abc0f1b1fb5e86e12581051046df93d6b89cb47a92fddaa38",
     "src/main/java/dev/jayms/net/Protocol.java": "a04387a67791e42fe0bd15022b28ac0be90b201bfc6ccb05f7d31f11631f6692",
     "src/main/java/dev/jayms/net/Terrain.java": "f9644e806d70c7942d3360ff87d4452f5bc1f6b51a671fbdbf1e0921bd043fff",
-    "src/main/java/dev/jayms/net/city/CityFrame.java": "f657cecae89cbf2c39fc94fe8c35811b69f3e4cc9fe017267d993516b7d3ca5b",
-    "src/main/java/dev/jayms/net/city/CitySimulation.java": "bd4054859427daff9f7ad1db00adbace2d8a196ab5edfba18132b0ff57876434",
+    "src/main/java/dev/jayms/net/city/CityEconomy.java": "f4add4dbbf9fce09cb9aa18d885ce5558b07f1519280b6e6f1a5100cbf9b4cf0",
+    "src/main/java/dev/jayms/net/city/CityFrame.java": "d3d7c4b7a8c5ddc51fb5af3bfa656cf42620334ceb38b01220913ddf3961bfd0",
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "2711d7f70d8f33d9a54e7944afc57be68d6736eff1a8ea70fd9e923794096d8d",
     "src/main/java/dev/jayms/net/city/Polygon.java": "190fd15e5f717ea2becf742f74fb8043e53cf887d15cf83a68bf3d47c20a04dc",
-    "src/main/java/dev/jayms/net/city/StressGrid.java": "f872f4fd643854b30a8e4bcaa9cc5becedfef9406b40e2d4407ed08004d6808b",
+    "src/main/java/dev/jayms/net/city/StressGrid.java": "e499c67fde41b172b3a1a20db0da28b78213a95c421b67de3f7516e2c0e49b6e",
     "src/main/java/dev/jayms/render/WorldLighting.java": "2c0e2deba59a0d09420ddd732b1bd907e0d58ba30b97c668ad45f76681c04c60",
-    "src/main/java/dev/jayms/ui/CityTools.java": "d94c53e053e860ebb39d6d1186faa227d31e5ae63ce22870ed0c085690153125",
+    "src/main/java/dev/jayms/ui/CityTools.java": "9d1199852128229d37c60d2d0a9259178597c0c00be4a3e4dd6b2792482e8968",
     "src/test/java/dev/jayms/AviationSaveCompatibilityTest.java": "dc298da0b9f883904e408fa8bec0b248988f915aaa71439bd63af2f40fd9631f",
     "src/test/java/dev/jayms/MarketEconomyTest.java": "83d844a034e62d4c5387945fe0af8802fb802c898f128f6a4af4aadc285b9633",
     "src/test/java/dev/jayms/RailwayOwnershipCompatibilityTest.java": "9d4e2ebf9786b2c18e89844a0cda9f76a40391be44768aca272c18ecb3929d8f",
@@ -30,8 +31,9 @@
     "src/test/java/dev/jayms/RailwayShippingCompatibilityTest.java": "c323de7097a0af808def84cc4ac89babb3fcf2318460d6e81e90d29cbb7dd16c",
     "src/test/java/dev/jayms/RoadBaseCompatibilityTest.java": "b2cc0f3c4255567ff5a8ee7d52d3f2e0a0535d236ca555388276d91f50539c43",
     "src/test/java/dev/jayms/ShippingProtocolCompatibilityTest.java": "607fa7b8fd3a9edf8d9aa82d6e8e99518b7d36d469be5fa6ba767bd3e0673473",
+    "src/test/java/dev/jayms/StressGridDevelopmentTest.java": "d1d0ad406d24e9ad05ee1098101491027768772096e24fbc16c7a0cafe174971",
     "src/test/java/dev/jayms/StressGridLightingTest.java": "39d236a0847cf31e443f800315d0818d04b683b9eca1c38b1e332d7d99dc2542",
-    "src/test/java/dev/jayms/StressGridTest.java": "a8ce3b4c63ad3ad2c8d55f5b60f82a7cb5a77858e4f21ce29ceac922c06a5824"
+    "src/test/java/dev/jayms/StressGridTest.java": "48e900927f2e5084e39ae21bb15bf590c57f9f9a3982ad4beb79c6b23444ba47"
   },
   "environment": {
     "platform": "Linux X11",
@@ -50,8 +52,16 @@
       "result": "exit 0"
     },
     {
-      "command": "mvn -q -Dlwjgl.natives=natives-linux -DargLine=\"-Djava.io.tmpdir=$PWD/target/stress-unit-tmp\" -Dtest=StressGridTest,StressGridLightingTest,CitySavesTest,RoadCitySavesTest,RoadTypesTest,ShippingProtocolCompatibilityTest,RailwaySaveCompatibilityTest,RailwayShippingCompatibilityTest,AviationSaveCompatibilityTest,RegionalPopulationTest,TerrainGenerationTest,DistantTerrainTest,RoadBaseCompatibilityTest,RegionalSaveCompatibilityTest,ProtocolCompatibilityTest,MarketEconomyTest,RailwayOwnershipCompatibilityTest,CityTest,CityToolsTest,RoadWorkflowTest,CityMultiplayerTest,LightingTest,LightOcclusionTest test > target/stress-unit-output.txt 2>&1",
-      "result": "exit 0; 116 tests across 23 suites passed"
+      "command": "mvn -q -Dlwjgl.natives=natives-linux -DskipTests compile > target/stress-development-compile.txt 2>&1",
+      "result": "exit 0"
+    },
+    {
+      "command": "mvn -q -Dlwjgl.natives=natives-linux -DargLine=\"-Djava.io.tmpdir=$PWD/target/stress-unit-tmp\" -Dtest=StressGridTest,StressGridDevelopmentTest test > target/stress-development-tests.txt 2>&1",
+      "result": "exit 0; 9 tests passed"
+    },
+    {
+      "command": "mvn -q -Dlwjgl.natives=natives-linux -DargLine=\"-Djava.io.tmpdir=$PWD/target/stress-unit-tmp\" -Dtest=StressGridTest,StressGridDevelopmentTest,StressGridLightingTest,CitySavesTest,RoadCitySavesTest,RoadTypesTest,ShippingProtocolCompatibilityTest,RailwaySaveCompatibilityTest,RailwayShippingCompatibilityTest,AviationSaveCompatibilityTest,RegionalPopulationTest,TerrainGenerationTest,DistantTerrainTest,RoadBaseCompatibilityTest,RegionalSaveCompatibilityTest,ProtocolCompatibilityTest,MarketEconomyTest,RailwayOwnershipCompatibilityTest,CityTest,CityToolsTest,RoadWorkflowTest,CityMultiplayerTest,LightingTest,LightOcclusionTest test > target/stress-unit-output.txt 2>&1",
+      "result": "exit 0; 118 tests across 24 suites passed"
     },
     {
       "command": "python3 deploy/run_stress_grid_smoke.py --display \"$DISPLAY\"",
@@ -67,11 +77,11 @@
     },
     {
       "command": "python3 -m py_compile deploy/run_stress_grid_smoke.py deploy/verify_stress_grid_media.py",
-      "result": "exit 0"
+      "result": "exit 0; all 12 fresh F10 frames decoded"
     }
   ],
   "units": {
-    "tests": 116,
+    "tests": 118,
     "suites": [
       {
         "name": "AviationSaveCompatibilityTest",
@@ -79,7 +89,7 @@
         "failures": 0,
         "errors": 0,
         "skipped": 0,
-        "seconds": 0.066
+        "seconds": 0.061
       },
       {
         "name": "CityMultiplayerTest",
@@ -87,7 +97,7 @@
         "failures": 0,
         "errors": 0,
         "skipped": 0,
-        "seconds": 11.126
+        "seconds": 12.506
       },
       {
         "name": "CitySavesTest",
@@ -95,7 +105,7 @@
         "failures": 0,
         "errors": 0,
         "skipped": 0,
-        "seconds": 0.019
+        "seconds": 0.034
       },
       {
         "name": "CityTest",
@@ -103,7 +113,7 @@
         "failures": 0,
         "errors": 0,
         "skipped": 0,
-        "seconds": 12.828
+        "seconds": 12.488
       },
       {
         "name": "CityToolsTest",
@@ -111,7 +121,7 @@
         "failures": 0,
         "errors": 0,
         "skipped": 0,
-        "seconds": 0.315
+        "seconds": 0.369
       },
       {
         "name": "DistantTerrainTest",
@@ -119,7 +129,7 @@
         "failures": 0,
         "errors": 0,
         "skipped": 0,
-        "seconds": 0.198
+        "seconds": 0.211
       },
       {
         "name": "LightOcclusionTest",
@@ -127,7 +137,7 @@
         "failures": 0,
         "errors": 0,
         "skipped": 0,
-        "seconds": 1.523
+        "seconds": 1.597
       },
       {
         "name": "LightingTest",
@@ -135,7 +145,7 @@
         "failures": 0,
         "errors": 0,
         "skipped": 0,
-        "seconds": 0.04
+        "seconds": 0.056
       },
       {
         "name": "MarketEconomyTest",
@@ -143,7 +153,7 @@
         "failures": 0,
         "errors": 0,
         "skipped": 0,
-        "seconds": 0.441
+        "seconds": 0.466
       },
       {
         "name": "ProtocolCompatibilityTest",
@@ -151,7 +161,7 @@
         "failures": 0,
         "errors": 0,
         "skipped": 0,
-        "seconds": 5.505
+        "seconds": 7.29
       },
       {
         "name": "RailwayOwnershipCompatibilityTest",
@@ -159,7 +169,7 @@
         "failures": 0,
         "errors": 0,
         "skipped": 0,
-        "seconds": 0.867
+        "seconds": 1.048
       },
       {
         "name": "RailwaySaveCompatibilityTest",
@@ -167,7 +177,7 @@
         "failures": 0,
         "errors": 0,
         "skipped": 0,
-        "seconds": 0.075
+        "seconds": 0.073
       },
       {
         "name": "RailwayShippingCompatibilityTest",
@@ -175,7 +185,7 @@
         "failures": 0,
         "errors": 0,
         "skipped": 0,
-        "seconds": 0.268
+        "seconds": 0.35
       },
       {
         "name": "RegionalPopulationTest",
@@ -183,7 +193,7 @@
         "failures": 0,
         "errors": 0,
         "skipped": 0,
-        "seconds": 0.876
+        "seconds": 1.173
       },
       {
         "name": "RegionalSaveCompatibilityTest",
@@ -191,7 +201,7 @@
         "failures": 0,
         "errors": 0,
         "skipped": 0,
-        "seconds": 0.046
+        "seconds": 0.051
       },
       {
         "name": "RoadBaseCompatibilityTest",
@@ -199,7 +209,7 @@
         "failures": 0,
         "errors": 0,
         "skipped": 0,
-        "seconds": 0.087
+        "seconds": 0.098
       },
       {
         "name": "RoadCitySavesTest",
@@ -207,7 +217,7 @@
         "failures": 0,
         "errors": 0,
         "skipped": 0,
-        "seconds": 0.194
+        "seconds": 0.223
       },
       {
         "name": "RoadTypesTest",
@@ -215,7 +225,7 @@
         "failures": 0,
         "errors": 0,
         "skipped": 0,
-        "seconds": 2.13
+        "seconds": 2.814
       },
       {
         "name": "RoadWorkflowTest",
@@ -223,7 +233,7 @@
         "failures": 0,
         "errors": 0,
         "skipped": 0,
-        "seconds": 0.243
+        "seconds": 0.218
       },
       {
         "name": "ShippingProtocolCompatibilityTest",
@@ -231,7 +241,25 @@
         "failures": 0,
         "errors": 0,
         "skipped": 0,
-        "seconds": 3.047
+        "seconds": 4.497
+      },
+      {
+        "name": "StressGridDevelopmentTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 9.383,
+        "cases": [
+          {
+            "name": "developedGridSitesRejectWrongPlotAndOrdinarySnapshotsRetainBounds",
+            "seconds": 0.054
+          },
+          {
+            "name": "normalWorkersDevelopGridAndSaveAllDevelopedState",
+            "seconds": 9.315
+          }
+        ]
       },
       {
         "name": "StressGridLightingTest",
@@ -239,7 +267,13 @@
         "failures": 0,
         "errors": 0,
         "skipped": 0,
-        "seconds": 0.98
+        "seconds": 1.235,
+        "cases": [
+          {
+            "name": "lightingFallbackUsesFlatGridInsteadOfHiddenOriginalHills",
+            "seconds": 1.172
+          }
+        ]
       },
       {
         "name": "StressGridTest",
@@ -247,7 +281,37 @@
         "failures": 0,
         "errors": 0,
         "skipped": 0,
-        "seconds": 0.733
+        "seconds": 0.837,
+        "cases": [
+          {
+            "name": "plotsFitBuildingsAndKeepRoadsBetweenEveryRowAndColumn",
+            "seconds": 0.038
+          },
+          {
+            "name": "generatedTerrainAndChunksHaveRoadSurfacesAtTheFarCorner",
+            "seconds": 0.012
+          },
+          {
+            "name": "namedSaveInstallsOnceCopiesAndPreservesOriginalAndElapsedTime",
+            "seconds": 0.23
+          },
+          {
+            "name": "version14CannotSilentlyDropGridAndVersion15RejectsBadGrade",
+            "seconds": 0.046
+          },
+          {
+            "name": "routesAcrossAndAlongGridUseOnlyConnectedRoadCells",
+            "seconds": 0.061
+          },
+          {
+            "name": "all1001RoadsContinueAcrossTheWholeGridWithTwoLanesAndDivider",
+            "seconds": 0.316
+          },
+          {
+            "name": "everyRankIsUniqueAndRingsHaveExactSymmetricShares",
+            "seconds": 0.108
+          }
+        ]
       },
       {
         "name": "TerrainGenerationTest",
@@ -255,7 +319,7 @@
         "failures": 0,
         "errors": 0,
         "skipped": 0,
-        "seconds": 1.322
+        "seconds": 1.151
       }
     ]
   },
@@ -268,28 +332,32 @@
     "Named save installation is idempotent; duplicate rejected; original bytes preserved; copy and reload retain descriptor and elapsed time",
     "Format 14 refuses to discard a grid; malformed grade and truncated grid data rejected",
     "CitySimulation routes to the far road through generated terrain without breadth-first area search",
-    "Lighting worker fallback uses the flat grid above a synthetic original hill; sky reaches y=34 and y=31 stays opaque"
+    "Lighting worker fallback uses the flat grid above a synthetic original hill; sky reaches y=34 and y=31 stays opaque",
+    "Inverse rank verified for all million plots; bounded construction candidates span the complete rank range",
+    "Normal workers completed housing; residents assigned homes; material reservations consumed",
+    "Developed buildings, citizens, horses, owned plots, materials and agriculture survive snapshot reload; outer-ring projects persist beyond former coordinate limits",
+    "Malformed developed sites and ordinary format 15 snapshots outside original bounds rejected"
   ],
   "save": {
-    "cityBytes": 11303,
+    "cityBytes": 18523,
     "magic": "0x4349543f",
     "format": 15
   },
-  "playtest": "Playtest: PASS. Linux native Main, inherited assigned X11 DISPLAY/XAUTHORITY, Mesa software OpenGL, isolated synthetic user.home. Browser playtesting does not apply to this native Java application.\nInput: xdotool save menu, ring map, F6 and production F10 recorder.\nExpected: automatic independent preset; exact million zones; reachable rings and far corner; duplicate rejected; save/reload preserved; original city and view toggle retained.\nObserved: City saves listed Original city and automatically installed Stress Test Grid.\nObserved: Loaded full 1000 x 1000 vacant plot grid through the save menu; 1,000,000 zones active.\nObserved: Map visited Commercial plot #502854; adjacent generated road surface matched; displayed FPS=1.\nObserved: Map visited Industrial plot #502909; adjacent generated road surface matched; displayed FPS=2.\nObserved: Industrial framebuffer lighting regression: 269884 of 396720 inspected pixels show lit grass.\nObserved: Map visited Agricultural plot #502984; adjacent generated road surface matched; displayed FPS=2.\nObserved: Map visited Agricultural plot #1000000; adjacent generated road surface matched; displayed FPS=4.\nObserved: Visited plot #1,000,000 at the far corner; adjacent road surface matched.\nObserved: Terrain had 44 rendered frames to stream before each ring screenshot; recorded camera pan with production F10.\nObserved: Duplicate Stress Test Grid rejected without switching or overwriting.\nObserved: Save/reload restored million-plot layout and elapsed simulation time.\nObserved: Original city restored roads and local citizens; F6 view toggle still works.\nRendered frames: 300\n",
+  "playtest": "Playtest: PASS. Linux native Main, inherited assigned X11 DISPLAY/XAUTHORITY, Mesa software OpenGL, isolated synthetic user.home. Browser playtesting does not apply to this native Java application.\nInput: xdotool save menu, ring map, F6 and production F10 recorder.\nExpected: automatic independent preset; actual worker-built housing and occupied homes; developed state persists; exact million zones; reachable rings and far corner; duplicate rejected; save/reload preserved; original city and view toggle retained.\nObserved: City saves listed Original city and automatically installed Stress Test Grid.\nObserved: Loaded full 1000 x 1000 buildable plot grid through the save menu; 1,000,000 zones active.\nObserved: Advanced 240 simulation seconds through normal fixed-step updates; workers completed 5 buildings; residents occupy housing; construction consumed reserved materials.\nObserved: Map visited Commercial plot #502854; adjacent generated road surface matched; displayed FPS=3.\nObserved: Map visited Industrial plot #502909; adjacent generated road surface matched; displayed FPS=3.\nObserved: Industrial framebuffer lighting regression: 233865 of 396720 inspected pixels show lit grass.\nObserved: Map visited Agricultural plot #502984; adjacent generated road surface matched; displayed FPS=2.\nObserved: Map visited Agricultural plot #1000000; adjacent generated road surface matched; displayed FPS=3.\nObserved: Visited plot #1,000,000 at the far corner; adjacent road surface matched.\nObserved: Terrain had 44 rendered frames to stream before each ring screenshot; recorded camera pan with production F10.\nObserved: Duplicate Stress Test Grid rejected without switching or overwriting.\nObserved: Save/reload restored million-plot layout, developed buildings, residents, owned plots and elapsed simulation time.\nObserved: Original city restored roads and local citizens; F6 view toggle still works.\nRendered frames: 285\n",
   "visualInspection": [
-    "Fresh residential, commercial, industrial, agricultural, far-corner screenshots show matching zone labels and road grid",
-    "Industrial framebuffer regression passed: 269885 of 396720 inspected pixels are lit grass",
-    "Fresh decoded video middle frame inspected; residential road grid and camera pan recorded by F10"
+    "All eight fresh screenshots inspected: save menu, developed housing, four ring labels, far corner, duplicate rejection and Original city",
+    "Industrial framebuffer regression passed: 233865 of 396720 inspected pixels show lit grass",
+    "Fresh decoded video middle frame inspected; worker-built houses, residents and camera pan recorded by production F10"
   ],
   "video": {
     "status": "passed",
     "source": "production F10 recorder in native Stress Grid playtest",
     "codec": "H264",
-    "bytes": 1490126,
+    "bytes": 1335391,
     "frames": 12,
     "width": 960,
     "height": 544,
-    "seconds": 7.874,
+    "seconds": 7.55,
     "checks": [
       "Every frame decoded",
       "Frame count matches metadata",
@@ -299,66 +367,70 @@
   },
   "media": {
     "stress-grid-agricultural.png": {
-      "bytes": 761719,
-      "sha256": "36bb4058f9e0adde61d2b6e75421bbcb91fa860fb60e46384c57a7d784ae5dac",
+      "bytes": 741365,
+      "sha256": "4783b9348fdc23afdc68a006ade2112a3433816b2660e4071456c3665f9137e2",
       "publication": "pending controller publication"
     },
     "stress-grid-commercial.png": {
-      "bytes": 805727,
-      "sha256": "d4dcbb6f3df77ed62b6ce8b07226e7155388508957784774ea3844a25e53abd9",
+      "bytes": 719925,
+      "sha256": "b1d0a43cb402150296fc575938169b4152d6f39574ca101b13fc9b5d98553e18",
       "publication": "pending controller publication"
     },
     "stress-grid-duplicate.png": {
-      "bytes": 279066,
-      "sha256": "41b71b2b65541361b1b6f0570fd1831731146e4ad506b287fbe41e34feb9f892",
+      "bytes": 271790,
+      "sha256": "11f07bde17d277010b4c5d9c31494742b3ad802352a48533f18ff88f32d23e9c",
       "publication": "pending controller publication"
     },
     "stress-grid-industrial.png": {
-      "bytes": 774492,
-      "sha256": "5de5cf4699aefe3d1495d8086d410a2ad6ac7c4c3582c478f175c24a0f344144",
+      "bytes": 728833,
+      "sha256": "b95dcac0cf52f3b4655bdb02819cc8bfe8e186c1daf39fa22f3d41ad9044f4bc",
       "publication": "pending controller publication"
     },
     "stress-grid-last-plot.png": {
-      "bytes": 556390,
-      "sha256": "a0b55a8fe50f2d7ad7b0f705c9ab3750391d70c9b79ccf078e125f4e3ef0f42b",
+      "bytes": 565659,
+      "sha256": "733ccd6635a4615bbef6622cc34227173f9cf8999bd9177d27aa9513ba8432e7",
       "publication": "pending controller publication"
     },
     "stress-grid-main.mp4": {
-      "bytes": 1490126,
-      "sha256": "3740b44b97f20101b66cb81516639401aaf1d8a209eac3481879483123da6a91",
+      "bytes": 1335391,
+      "sha256": "f8c43a24b5fd9aae1d513ef72bb9d0591cb267c26ef62e6b01048c7400f471cd",
       "publication": "pending controller publication"
     },
     "stress-grid-original-regression.png": {
-      "bytes": 227883,
-      "sha256": "76e618d6dbc0380f90af29256e689717a9f4228b6ab6d173c5bb244a40ec48f7",
+      "bytes": 188400,
+      "sha256": "76d0f995233d090d1f5402c4c7a785a50d1fef5da38e3aa1ffe03d584224518d",
       "publication": "pending controller publication"
     },
     "stress-grid-residential.png": {
-      "bytes": 592673,
-      "sha256": "44f3ff5b4d0842597ae5d24af169fad3f60ed5e5e6cedb1773128f0fd6559532",
+      "bytes": 521356,
+      "sha256": "98604451de82e25fd0b86b2bae44ba288d32ce7c6a10ade2514c5f799cccc3dc",
       "publication": "pending controller publication"
     },
     "stress-grid-saves.png": {
-      "bytes": 60219,
-      "sha256": "87d1892b06865612453333f7d03b0d4ca38245d8d3ea497893957e656e9a0ac1",
+      "bytes": 60228,
+      "sha256": "a0d58a32c3f18fca09d5fc291a98dd856e9be729adaf066c7782b11991fddb33",
       "publication": "pending controller publication"
     }
   },
   "limitations": [
-    "Vacant fixed-layout zoning benchmark; no starting citizens or completed buildings; not a million-resident or million-building load test",
-    "Map samples the layout; exact counts come from the full rank/type verification, not thumbnail pixel counts",
-    "Displayed FPS values 1-4 are observations on Mesa llvmpipe, not a hardware performance claim"
+    "Usual simulator population and 512 building/project capacity remain; the preset does not seed a million buildings or citizens",
+    "Prebuilt roads and zoning retain exact requested layout; buildings and projects develop normally and can be inspected or demolished",
+    "Finite initial stocks: eight recipe sets per non-farm building type for each developer; two farm recipe sets for each farmer; normal reservation and consumption apply; developed reload does not refill stocks",
+    "Long travel to outer rings uses normal movement and takes simulation time",
+    "Map samples layout; exhaustive rank tests verify exact counts",
+    "Mesa llvmpipe software rendering; observed ring FPS 2-3. No hardware performance claim",
+    "Prior independent-review media is historical; this report describes refreshed developer media only"
   ],
   "diffAudit": {
     "base": "3c9162971fecf6afcc2b59cf413c6e91b505522d",
     "unrelatedFileDeletions": 0,
     "unrelatedProgressEntriesChanged": 0,
     "notes": [
-      "Audited proposed source diff against recorded review base. No files deleted.",
-      "Intended line replacements implement grid-aware bounds, lazy zones, road lookup, compact format 15 / protocol 26, visible-zone rendering and lighting terrain propagation.",
-      "Polygon.Point becomes an immutable class retaining ordinary coordinate limits; internal generated geometry uses a separate factory.",
-      "Seven protocol version assertions follow protocol 26. Existing aviation, railway, shipping and historical save handling retained and selected regressions passed."
+      "Audited full proposed diff against recorded review base; no files deleted.",
+      "Intended replacements implement grid bounds, lazy geometry, compact format 15/protocol 26, grid roads, lighting and visible-zone rendering.",
+      "Removed vacant-only snapshot restrictions and construction skip; extracted unchanged normal founder creation into shared helper; added finite initial stock and bounded construction candidates.",
+      "Grid buildings and owned plots validate against their original plot and zoning; ordinary snapshots retain original coordinate limits. Existing railway, aviation, shipping, population and save handling preserved and selected regressions passed."
     ]
   },
-  "delegation": "Geometry helper failed; developer took over, independently inspected geometry and executed full-rank, road and route checks. No unresolved delegate tasks."
+  "delegation": "Helper failed; developer took over, independently inspected and applied changes, then executed integration, regression and native checks. No delegate task remains unresolved."
 }

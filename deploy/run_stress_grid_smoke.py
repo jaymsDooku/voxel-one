@@ -17,8 +17,8 @@ env=dict(os.environ,LIBGL_ALWAYS_SOFTWARE='1',MESA_SHADER_CACHE_DISABLE='true',T
 env.pop('WAYLAND_DISPLAY',None)
 command=['java','--enable-native-access=ALL-UNNAMED','-Xmx2g','-Duser.home='+str(profile),'-Djava.io.tmpdir='+str(tmp),'-Dorg.lwjgl.system.SharedLibraryExtractPath='+str(tmp/'natives'),'-cp',cp,'StressGridSmoke',str(tmp/'worlds'),'dashboard/evidence']
 with (tmp/'runtime-private.txt').open('w') as runtime:
-    try: result=subprocess.run(command,env=env,stdout=runtime,stderr=runtime,timeout=240)
-    except subprocess.TimeoutExpired: raise SystemExit('Native workflow timed out after 240 seconds; no pass claimed.')
+    try: result=subprocess.run(command,env=env,stdout=runtime,stderr=runtime,timeout=600)
+    except subprocess.TimeoutExpired: raise SystemExit('Native workflow timed out after 600 seconds; no pass claimed.')
 if result.returncode:
     failure=tmp/'worlds/assertion-failure.txt'
     if failure.exists(): print(failure.read_text().strip())

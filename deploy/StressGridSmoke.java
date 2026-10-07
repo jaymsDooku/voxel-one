@@ -18,6 +18,7 @@ public final class StressGridSmoke extends CitySavesSmoke {
     }
     final List<String> checks=new ArrayList<>();
     double gridElapsed;
+    CityFrame developedSaved;
     int rendered, waitFrames;
     void pass(String note) { checks.add(note); }
     void captured(boolean value) throws Exception {
@@ -61,12 +62,20 @@ public final class StressGridSmoke extends CitySavesSmoke {
             case 6 -> {
                 require(starts==2 && active().getParent().getFileName().toString().equals(StressGrid.NAME),"Preset loaded through native menu");
                 var frame=local().city.frame(); require(frame.stressGrid()!=null && frame.zones().size()==1000000,"Million zones active");
-                require(frame.citizens().isEmpty() && frame.buildings().isEmpty(),"Vacant zone benchmark has no invented population");
+                require(!frame.citizens().isEmpty(),"Normal founding households active");
                 require(frame.zones().get(500500).type()==0,"Central residential zone");
-                pass("Loaded full 1000 x 1000 vacant plot grid through the save menu; 1,000,000 zones active.");
+                pass("Loaded full 1000 x 1000 buildable plot grid through the save menu; 1,000,000 zones active.");
                 waitFrames=rendered+44;
             }
-            case 7 -> { capture="stress-grid-residential.png"; key("F10"); x("keydown","w"); waitFrames=rendered+12; }
+            case 7 -> {
+                // Advance the running application's ordinary fixed-step simulation, without changing work or stock.
+                for(int n=0;n<240;n++) local().city.advance(1);
+                var developed=local().city.frame();
+                require(developed.buildings().stream().anyMatch(b->b.type()==0),"Workers completed residential development");
+                require(developed.citizens().stream().anyMatch(c->c.home()>0),"Residents occupy developed grid housing");
+                require(developed.economy().resources().projects().stream().anyMatch(p->p.consumed()),"Normal construction consumed reserved materials");
+                pass("Advanced 240 simulation seconds through normal fixed-step updates; workers completed "+developed.buildings().size()+" buildings; residents occupy housing; construction consumed reserved materials.");
+                capture="stress-grid-residential.png"; key("F10"); x("keydown","w"); waitFrames=rendered+12; }
             case 8 -> { x("keyup","w"); key("F10"); map(170,100); waitFrames=rendered+44; }
             case 9 -> { verifyFocus(1); capture="stress-grid-commercial.png"; }
             case 10 -> { map(181,100); waitFrames=rendered+44; }
@@ -84,7 +93,7 @@ public final class StressGridSmoke extends CitySavesSmoke {
             case 17 -> { if(!menu().open) key("Escape"); }
             case 18 -> { require(menu().open,"Controls reopened"); click(470,32); }
             case 19 -> click(100,372);
-            case 20 -> { gridElapsed=CitySimulation.load(CitySaves.sidecar(active(),".city")).elapsed(); type(StressGrid.NAME); }
+            case 20 -> { developedSaved=CitySimulation.load(CitySaves.sidecar(active(),".city")); gridElapsed=developedSaved.elapsed(); type(StressGrid.NAME); }
             case 21 -> click(420,480);
             case 22 -> {
                 require(starts==2,"Duplicate keeps active save");
@@ -97,7 +106,10 @@ public final class StressGridSmoke extends CitySavesSmoke {
                 require(starts==3 && local().city.frame().stressGrid()!=null,"Reload restored grid descriptor");
                 require(local().city.frame().elapsed()>=gridElapsed,"Reload preserved elapsed simulation time");
                 require(local().city.frame().zones().get(999999).type()==3,"Reload preserved far plot");
-                pass("Save/reload restored million-plot layout and elapsed simulation time."); if(!menu().open) key("Escape");
+                require(local().city.frame().buildings().containsAll(developedSaved.buildings()),"Developed buildings survive reload");
+                require(local().city.frame().citizens().size()==developedSaved.citizens().size(),"Developed residents survive reload");
+                for(var plot:developedSaved.economy().plots()) require(local().city.frame().economy().plots().stream().anyMatch(p->p.id()==plot.id() && p.zone()==plot.zone() && p.building()==plot.building()),"Owned grid plot survives reload");
+                pass("Save/reload restored million-plot layout, developed buildings, residents, owned plots and elapsed simulation time."); if(!menu().open) key("Escape");
             }
             case 26 -> click(470,32);
             case 27 -> click(80,110);
@@ -136,7 +148,7 @@ public final class StressGridSmoke extends CitySavesSmoke {
             game.run(test); test.require(test.step==33,"All workflow steps executed");
             String report="Playtest: PASS. Linux native Main, inherited assigned X11 DISPLAY/XAUTHORITY, Mesa software OpenGL, isolated synthetic user.home. Browser playtesting does not apply to this native Java application.\n"+
                     "Input: xdotool save menu, ring map, F6 and production F10 recorder.\n"+
-                    "Expected: automatic independent preset; exact million zones; reachable rings and far corner; duplicate rejected; save/reload preserved; original city and view toggle retained.\n"+
+                    "Expected: automatic independent preset; actual worker-built housing and occupied homes; developed state persists; exact million zones; reachable rings and far corner; duplicate rejected; save/reload preserved; original city and view toggle retained.\n"+
                     "Observed: "+String.join("\nObserved: ",test.checks)+"\nRendered frames: "+test.rendered+"\n";
             Files.writeString(test.evidence.resolve("stress-grid-playtest.txt"),report);
         } catch(Throwable e) {

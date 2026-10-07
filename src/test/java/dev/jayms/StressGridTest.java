@@ -15,6 +15,7 @@ class StressGridTest {
         BitSet seen=new BitSet(StressGrid.COUNT); int[] counts=new int[4];
         for(int z=0;z<1000;z++) for(int x=0;x<1000;x++) {
             int rank=StressGrid.rank(x,z), type=StressGrid.type(x,z);
+            assertEquals(z*1000+x,StressGrid.indexForRank(rank));
             assertTrue(rank>=0 && rank<StressGrid.COUNT); assertFalse(seen.get(rank)); seen.set(rank);
             counts[type]++;
             assertEquals(type,StressGrid.type(999-z,x));
@@ -81,7 +82,7 @@ class StressGridTest {
         var local=new LocalGame(entry.world(),0); var terrain=new Terrain(local.seed); terrain.stressGrid(frame.stressGrid());
         local.startGame(GameConfig.cityGame(),new CitySimulation.Ground() {
             public int type(int x,int y,int z) { return terrain.block(x,y,z); }
-            public void apply(List<Protocol.Edit> edits) { fail("Vacant grid has no construction edits"); }
+            public void apply(List<Protocol.Edit> edits) { for(var edit:edits) assertTrue(edit.valid()); }
             public boolean occupied(int x,int y,int z,int width,int depth) { return false; }
         });
         for(int i=0;i<100;i++) local.city.advance(.1);
@@ -90,7 +91,8 @@ class StressGridTest {
         assertTrue(route.size()<40000,"Route work follows distance, not grid area");
         assertEquals(new Polygon.Cell(StressGrid.MIN_X+StressGrid.EXTENT-2,StressGrid.MIN_Z+StressGrid.EXTENT-2),route.get(route.size()-1));
         local.save(); double elapsed=local.city.frame().elapsed(); assertTrue(elapsed>=9.9);
-        assertEquals(0,local.city.frame().buildings().size());
+        assertFalse(local.city.frame().citizens().isEmpty());
+        assertFalse(local.city.frame().economy().plots().isEmpty());
         store.ensureStressGrid(99);
         assertEquals(elapsed,CitySimulation.load(CitySaves.sidecar(entry.world(),".city")).elapsed());
         Path copy=store.create("Grid Copy",entry.world(),99); CitySaves.validate(copy,0);

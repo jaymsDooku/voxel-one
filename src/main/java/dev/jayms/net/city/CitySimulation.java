@@ -138,7 +138,15 @@ public final class CitySimulation {
                                 .limit(4)
                                 .map(CityFrame.Citizen::id)
                                 .toList());
-            agriculture = new Agriculture(ecs, saved.agriculture(), terrain);
+            boolean newGrid = stressGrid != null && saved.citizens().isEmpty()
+                    && saved.buildings().isEmpty() && saved.economy().plots().isEmpty();
+            if (newGrid) {
+                seedFounders();
+                seedGridSupplies();
+                economy.capital.graduates.addAll(ecs.query(Household.class).stream().skip(8).limit(4).toList());
+            }
+            agriculture = new Agriculture(ecs, newGrid
+                    ? Agriculture.State.migration(economy.resources.catalog) : saved.agriculture(), terrain);
             migrateMaterials = saved.economy().resources().equals(CityMaterials.State.empty());
             founding = false;
             return;
@@ -175,32 +183,7 @@ public final class CitySimulation {
                                 new Point(4, 13),
                                 new Point(4, 23),
                                 new Point(-8, 23))));
-        for (int i = 0; i < 12; i++) {
-            int id = ecs.create();
-            ecs.put(
-                    id,
-                    Position.class,
-                    new Position(9.5f + i * (Math.max(roadSpacing.pedestrians(), roadSpacing.mounted()) + .1f),
-                            grade + 1.01f, 25.1f));
-            ecs.put(
-                    id,
-                    Household.class,
-                    new Household(
-                            new String[] {
-                                        "Alex", "Robin", "Morgan", "Sam", "Taylor", "Jamie",
-                                        "River", "Casey", "Avery", "Rowan", "Jordan", "Sky"
-                                    }
-                                    [i],
-                            i / 4));
-            ecs.put(id, Needs.class, new Needs(12 + i / 4 * 24));
-            ecs.put(id, Travel.class, new Travel());
-            ecs.put(id, CitizenLife.class, CitizenLife.founder(i));
-        }
-        for (int i = 0; i < 6; i++) {
-            int id = ecs.create();
-            ecs.put(id, Position.class, new Position(8.5f, grade + 1.01f, 21.8f - i * (roadSpacing.mounted() + .1f)));
-            ecs.put(id, Mount.class, new Mount());
-        }
+        seedFounders();
         economy = new CityEconomy(ecs, null, catalog);
         agriculture = new Agriculture(ecs, Agriculture.State.empty(), terrain);
         // The founding settlement includes four graduates; education is independent of income.
@@ -240,6 +223,49 @@ public final class CitySimulation {
         founding = false;
     }
 
+    /** One finite starting stock: the paved grid has no nearby forest to bootstrap logging. */
+    private void seedGridSupplies() {
+        for (var firm : economy.companies()) {
+            if (firm.kind==CityEconomy.DEVELOPER) {
+                for (int type=0; type<3; type++) for (var amount:CityMaterials.requirements(type,type))
+                    economy.resources.add(CityEconomy.COMPANY,firm.id,amount.material(),amount.units()*8);
+            } else if (CityMaterials.farmer(firm.kind)) {
+                for (var amount:CityMaterials.requirements(3,firm.kind))
+                    economy.resources.add(CityEconomy.COMPANY,firm.id,amount.material(),amount.units()*2);
+            }
+        }
+    }
+
+    /** The grid uses the same founding households and horses as an ordinary city. */
+    private void seedFounders() {
+        for (int i = 0; i < 12; i++) {
+            int id = ecs.create();
+            ecs.put(
+                    id,
+                    Position.class,
+                    new Position(9.5f + i * (Math.max(roadSpacing.pedestrians(), roadSpacing.mounted()) + .1f),
+                            grade + 1.01f, 25.1f));
+            ecs.put(
+                    id,
+                    Household.class,
+                    new Household(
+                            new String[] {
+                                        "Alex", "Robin", "Morgan", "Sam", "Taylor", "Jamie",
+                                        "River", "Casey", "Avery", "Rowan", "Jordan", "Sky"
+                                    }
+                                    [i],
+                            i / 4));
+            ecs.put(id, Needs.class, new Needs(12 + i / 4 * 24));
+            ecs.put(id, Travel.class, new Travel());
+            ecs.put(id, CitizenLife.class, CitizenLife.founder(i));
+        }
+        for (int i = 0; i < 6; i++) {
+            int id = ecs.create();
+            ecs.put(id, Position.class, new Position(8.5f, grade + 1.01f, 21.8f - i * (roadSpacing.mounted() + .1f)));
+            ecs.put(id, Mount.class, new Mount());
+        }
+    }
+
     private void restore(CityFrame f) {
         stressGrid = f.stressGrid();
         if (stressGrid != null) { grade = stressGrid.grade(); terrain.stressGrid(stressGrid); }
@@ -249,7 +275,7 @@ public final class CitySimulation {
             savedAddresses=CityAddresses.migrate(f.roads(),f.buildings());
         addresses = new CityAddresses(new CityAddresses.State(savedAddresses.streets(),savedAddresses.addresses(),
                 f.addresses().roadFootprints().isEmpty()?RoadOwnership.infer(new CityFrame(f.config(),f.elapsed(),f.roads(),f.zones(),
-                        f.buildings(),f.citizens(),f.horses(),f.economy(),savedAddresses,f.agriculture(),f.population(),f.aviation()))
+                        f.buildings(),f.citizens(),f.horses(),f.economy(),savedAddresses,f.agriculture(),f.population(),f.aviation(),f.railway(),f.stressGrid()))
                         :f.addresses().roadFootprints()));
         elapsed = f.elapsed();
         flights.addAll(f.aviation().flights());
@@ -1647,7 +1673,7 @@ public final class CitySimulation {
         if (!config.city()) return "Join Voxel City One to use city tools";
         try {
             if (stressGrid != null && (c.kind() == CityCommand.ROAD || c.kind() == CityCommand.DELETE_ROAD || c.kind() == CityCommand.EDIT_ROAD || c.kind() == CityCommand.RAIL || c.kind() == CityCommand.ZONE || c.kind() == CityCommand.SPECIAL || c.kind() == CityCommand.EXCHANGE))
-                return "Stress grid geometry is fixed. Use another save for city editing.";
+                return "Prebuilt grid roads and zoning are fixed; buildings develop and can be inspected or demolished.";
             for (var point : c.points()) if (Math.abs(point.x()-8)>256 || Math.abs(point.z()-24)>256)
                 throw new IllegalArgumentException("City limits: 512 x 512 blocks around spawn");
             String result = switch (c.kind()) {
@@ -2275,13 +2301,37 @@ public final class CitySimulation {
         return true;
     }
 
+    private final int[] gridConstructionCursor = {0,400_000,600_000,800_000};
+    private Iterable<CityFrame.Zone> constructionZones() {
+        if (stressGrid == null) return zones;
+        var candidates = new ArrayList<CityFrame.Zone>();
+        int[] begin = {0,400_000,600_000,800_000}, end = {400_000,600_000,800_000,1_000_000};
+        for (int type=0; type<4; type++) if (demand(type)) {
+            // Advance only when visited: unvisited candidates must not be lost on a successful purchase.
+            int rank=gridConstructionCursor[type];
+            for (int n=0; n<64; n++) {
+                candidates.add(stressGrid.zone(StressGrid.indexForRank(rank)));
+                rank++; if(rank==end[type]) rank=begin[type];
+            }
+        }
+        return candidates;
+    }
+
+    private boolean visitConstructionZone(CityFrame.Zone zone) {
+        if (stressGrid != null) {
+            int index=zone.id()-1, type=zone.type();
+            int next=StressGrid.rank(index%1000,index/1000)+1;
+            int[] begin={0,400_000,600_000,800_000}, end={400_000,600_000,800_000,1_000_000};
+            gridConstructionCursor[type]=next==end[type]?begin[type]:next;
+        }
+        return true;
+    }
+
     private void construct() {
-        // This preset benchmarks a vacant zoning layout; no construction demand without households.
-        if (stressGrid != null && ecs.query(Household.class).isEmpty()) return;
         if (buildings.size() + economy.plots.stream().filter(p -> p.building() == 0).count() >= 512)
             return;
-        for (var zone : zones)
-            if (demand(zone.type()))
+        for (var zone : constructionZones())
+            if (visitConstructionZone(zone) && demand(zone.type()))
                 for (var c : zone.polygon().cells())
                     if (fits(zone.polygon(), c.x(), c.z(), zone.type())) {
                         int x = c.x(), z = c.z();

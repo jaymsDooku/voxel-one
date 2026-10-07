@@ -1,5 +1,13 @@
 # Current recovery status
 
+Development-enabling source and StressGridDevelopmentTest are now present in the replay. Resolved progress JSON and feature checkpoint working files. Controller must stage and continue Git before final-source checks. Earlier tests and media below are historical; they do not validate this integrated source. Playtest: not rerun during recovery. No staging, continuation or publication performed here.
+
+Preserved 64 unrelated HEAD task entries and metadata except the later updatedAt timestamp. Audit against 4de70d245c8af27fd2c76b86807daa34f0271d17 found no deleted files. Intended line replacements add grid geometry, format/protocol support, road queries, camera/rendering/lighting, standard founders, finite starting stock, bounded construction candidates and developed-state persistence. Inspection and demolition remain available; original grid roads/zoning remain fixed.
+
+## Historical HEAD checkpoint
+
+# Current recovery status
+
 Intermediate rebase source is not ready for review. Controller must stage and continue, retaining the development-enabling follow-up commit and StressGridDevelopmentTest. The current source still contains the earlier vacant-only guard. Final-source tests and fresh media remain required. Playtest: not rerun during this recovery.
 
 Progress JSON resolved while preserving 64 unrelated HEAD entries. Checkpoint retains both historical notes below. Audit against 4de70d245c8af27fd2c76b86807daa34f0271d17 found no deleted files. Intended line replacements implement grid geometry, format/protocol support, road queries, view bounds, rendering and lighting. No staging or Git continuation performed.
@@ -49,3 +57,17 @@ Ready for independent review. Tested recovered HEAD f629d31663904393218ccc6e7bbf
 No files deleted against the review base; unrelated progress entries unchanged. Intended line replacements support implicit grid geometry, format 15/protocol 26, view bounds and rendering, road queries and flat-grid lighting. Legacy behavior retained in selected regression tests.
 
 This is a vacant fixed-layout plot benchmark. It does not seed one million buildings or residents. Mesa llvmpipe observed FPS 1–4; no hardware performance claim. Media publication pending controller publication.
+
+## Historical incoming development validation
+
+# Stress Grid development checkpoint
+
+Ready for independent review. Working implementation tested on 994e7475849d0e364d9c0c504fae004c2b14ef0f. Source and media hashes recorded in stress-grid-tests.json. No game source changed after tests. Controller alone commits and publishes.
+
+Normal founding households now create demand. Paid plots, reserved materials, workers, occupied housing and completed buildings use the normal simulator. Construction uses bounded candidates from every ring. Developed state persists beyond former coordinate limits. Inspect and demolition paths remain available; prebuilt roads and zoning retain their requested layout. Finite starting stocks and ordinary simulator limits are documented in docs/stress-test-grid.md.
+
+118 tests across 24 selected suites passed, zero failures/errors/skips. Playtest: native Main passed on inherited role display/auth and isolated synthetic profile. Advancing 240 seconds through ordinary fixed-step simulation produced 5 completed buildings and occupied housing. Verified all rings, far plot, roads, duplicate rejection, developed save/reload and Original city regression.
+
+Fresh eight screenshots inspected. F10 video: 12 decoded H264 frames, 7.55 seconds, 1,335,391 bytes; middle frame inspected. Commands, environment, steps, expected and observed results recorded in stress-grid-tests.json and stress-grid-playtest.txt. Media pending controller publication.
+
+Audit against 3c9162971fecf6afcc2b59cf413c6e91b505522d found no deleted files or unrelated progress changes. Intended replacements enable implicit grid geometry, development and persistence, preserve legacy limits, and support camera/rendering/lighting. Earlier independent-review media is historical.

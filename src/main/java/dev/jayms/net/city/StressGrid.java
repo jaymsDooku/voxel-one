@@ -41,6 +41,18 @@ public record StressGrid(int grade) {
         else p=3*side+hi-z;
         return (2*k-2)*(2*k-2)+4*(p%side)+p/side;
     }
+    /** Invert the perimeter rank without scanning or storing a million polygons. */
+    public static int indexForRank(int rank) {
+        Objects.checkIndex(rank,COUNT);
+        int k=(int)Math.sqrt(rank)/2+1, side=2*k-1, lo=SIDE/2-k, hi=SIDE/2+k-1;
+        int offset=rank-(2*k-2)*(2*k-2), p=(offset%4)*side+offset/4;
+        int x,z;
+        if(p<side) { x=lo+p; z=lo; }
+        else if(p<2*side) { x=hi; z=lo+p-side; }
+        else if(p<3*side) { x=hi-(p-2*side); z=hi; }
+        else { x=lo; z=hi-(p-3*side); }
+        return z*SIDE+x;
+    }
     public static int type(int x, int z) {
         int n=rank(x,z);
         return n<400_000?0:n<600_000?1:n<800_000?2:3;

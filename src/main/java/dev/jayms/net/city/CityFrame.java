@@ -140,9 +140,11 @@ public record CityFrame(
     public record Horse(int id, float x, float y, float z, float yaw, float phase, int rider) {}
 
     public CityFrame {
-        if (stressGrid != null && (!config.city() || !roads.isEmpty() || !buildings.isEmpty()
-                || !citizens.isEmpty() || !horses.isEmpty() || !economy.plots().isEmpty()))
-            throw new IllegalArgumentException("Stress grid snapshots require a vacant layout");
+        if (stressGrid != null) {
+            if (!config.city() || !roads.isEmpty()) throw new IllegalArgumentException("Invalid stress grid layout");
+            for (var b : buildings) validateGridSite(stressGrid,b.zone(),b.type(),b.x(),b.y(),b.z());
+            for (var p : economy.plots()) validateGridSite(stressGrid,p.zone(),p.type(),p.x(),p.y(),p.z());
+        }
         roads = List.copyOf(roads);
         zones = stressGrid == null ? List.copyOf(zones) : stressGrid.zones();
         buildings = List.copyOf(buildings);
@@ -150,6 +152,16 @@ public record CityFrame(
         horses = List.copyOf(horses);
         if(addresses.roadFootprints().isEmpty() && !roads.isEmpty() && !addresses.streets().isEmpty())
             addresses=new CityAddresses.State(addresses.streets(),addresses.addresses(),RoadOwnership.infer(roads,addresses));
+    }
+
+    private static void validateGridSite(StressGrid grid,int zone,int type,int x,int y,int z) {
+        if (zone<1 || zone>StressGrid.COUNT || type<0 || type>3 || y!=grid.grade()+1)
+            throw new IllegalArgumentException("Invalid developed grid site");
+        var polygon=grid.zone(zone-1).polygon();
+        if (grid.zone(zone-1).type()!=type) throw new IllegalArgumentException("Grid site zoning mismatch");
+        int width=StructureBlueprint.width(type), depth=StructureBlueprint.depth(type);
+        for(int dx=0;dx<width;dx++) for(int dz=-1;dz<=depth;dz++)
+            if (!polygon.contains(x+dx+.5f,z+dz+.5f)) throw new IllegalArgumentException("Grid site outside its plot");
     }
 
     /** Local residents and the bounded, individually simulated nearby district pool. */
@@ -310,8 +322,8 @@ public record CityFrame(
                     || (SpecialBuildings.special(type) && (zone < -2 || zone > 0 || (zone == 0 ? stock != 0 : stock < 1)))
                     || y < -27
                     || y > 89
-                    || Math.abs((long) x - 8) > 256
-                    || Math.abs((long) z - 24) > 256) throw new IOException("Invalid building");
+                    || Math.abs((long) x - 8) > (version >= 15 ? 10000 : 256)
+                    || Math.abs((long) z - 24) > (version >= 15 ? 10000 : 256)) throw new IOException("Invalid building");
             buildings.add(new Building(id, zone, type, x, y, z, capacity, stock));
         }
         if (buildings.stream().filter(b -> b.type() == SpecialBuildings.AIRPORT).count() > Aviation.MAX_AIRPORTS)
@@ -405,9 +417,19 @@ public record CityFrame(
                 RoadOwnership.read(in,addresses,roads));
         var railway = version >= 14 ? Railway.State.read(in, buildings, citizens) : Railway.State.empty();
         var grid = version >= 15 && in.readBoolean() ? StressGrid.read(in) : null;
-        if (grid != null && (!config.city() || !zones.isEmpty() || !roads.isEmpty() || !buildings.isEmpty()
-                || !citizens.isEmpty() || !horses.isEmpty() || !economy.plots().isEmpty()))
+        if (grid != null && (!config.city() || !zones.isEmpty() || !roads.isEmpty()))
             throw new IOException("Invalid stress grid snapshot");
+        try {
+            if (grid != null) {
+                for (var b : buildings) validateGridSite(grid,b.zone(),b.type(),b.x(),b.y(),b.z());
+                for (var p : economy.plots()) validateGridSite(grid,p.zone(),p.type(),p.x(),p.y(),p.z());
+            } else {
+                for (var b : buildings) if (Math.abs((long)b.x()-8)>256 || Math.abs((long)b.z()-24)>256)
+                    throw new IllegalArgumentException("Building outside ordinary city limits");
+                for (var p : economy.plots()) if (Math.abs((long)p.x()-8)>256 || Math.abs((long)p.z()-24)>256)
+                    throw new IllegalArgumentException("Plot outside ordinary city limits");
+            }
+        } catch (IllegalArgumentException e) { throw new IOException("Invalid developed city snapshot",e); }
         return new CityFrame(
                 config,
                 elapsed,

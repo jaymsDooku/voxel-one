@@ -119,7 +119,6 @@ public final class CityTools {
             dashboardRequested = true;
             return;
         }
-        if (city.stressGrid() != null) { message="Stress grid geometry is fixed. Use another save for city editing."; return; }
         if (!roadMenu && tool == -1 && selectedStreet != 0 && x >= 16 && x <= Math.min(416,width-16)) {
             if(y>=205 && y<233) { editingStreet=selectedStreet; roadMenu=true; return; }
             if(y>=233 && y<261) {
@@ -173,6 +172,9 @@ public final class CityTools {
         if (roadMenu) return;
         if (y < 130 || y > height - 200) return;
         if (tool == 5) return;
+        if (city.stressGrid()!=null && tool!=-1) {
+            message="Prebuilt roads and zoning retained. Inspect buildings or use the dashboard."; return;
+        }
         if (tool == -1) {
             float best = 22 * 22;
             selectedCitizen = selectedBuilding = selectedPlot = selectedStreet = 0;
@@ -551,7 +553,7 @@ public final class CityTools {
                         color[2],
                         1);
         }
-        if (city.stressGrid() != null) { renderStressGrid(ui,w,city.stressGrid()); return; }
+        if (city.stressGrid() != null) renderStressGrid(ui,w,city.stressGrid());
         renderGuide(ui, w, h, projection, view, ground);
         boolean valid = true;
         if (tool == -1 && selectedCitizen == 0 && selectedStreet != 0) {
