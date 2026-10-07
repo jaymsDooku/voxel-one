@@ -441,6 +441,10 @@ public final class CityEconomy {
     }
 
     public Property property(int building) {
+        if (building > 0 && building <= properties.size()) {
+            var candidate = properties.get(building-1);
+            if (candidate.building() == building) return candidate;
+        }
         return properties.stream().filter(p -> p.building == building).findFirst().orElse(null);
     }
 

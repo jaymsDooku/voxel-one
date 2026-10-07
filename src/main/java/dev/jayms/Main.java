@@ -375,6 +375,7 @@ public class Main {
             }
             menu.saves = new SavesMenu(citySaves, offlineSave, new SavesMenu.Actions() {
                 public void save() throws Exception { saveCurrentSimulation(); }
+                public String developStressGrid() { return local.city.developStressGrid(); }
                 public void load(java.nio.file.Path path) throws Exception {
                     CitySaves.validate(path, seed);
                     saveCurrentSimulation();

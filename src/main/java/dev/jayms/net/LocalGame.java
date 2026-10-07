@@ -14,7 +14,7 @@ public final class LocalGame {
     public Inventory inventory = new Inventory();
     public int health = 20;
     public final Map<Integer, ItemDrop> drops = new LinkedHashMap<>();
-    public final Map<String, Protocol.Edit> edits = new LinkedHashMap<>();
+    public final Map<String, Protocol.Edit> edits = new WorldVoxels.History();
     public final long seed;
     public final int generatorVersion;
     private int nextDrop;

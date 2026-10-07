@@ -11,6 +11,56 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class StressGridDevelopmentTest {
     @TempDir Path dir;
+    @Test void explicitBenchmarkExpansionIsPopulatedPersistentAndRepeatSafe() throws Exception {
+        var store = new CitySaves(dir.resolve("original.dat"));
+        var path = store.createStressGrid(42);
+        var frame = CitySimulation.load(CitySaves.sidecar(path,".city"));
+        var ground = new CityTest.Ground(); ground.terrain.stressGrid(frame.stressGrid());
+        var sim = new CitySimulation(frame.config(),ground,ground.terrain,frame);
+        // A player-placed block on the first candidate must survive expansion.
+        var v = frame.stressGrid().zone(StressGrid.indexForRank(0)).polygon().vertices().get(0);
+        var edit = new Protocol.Edit((int)v.x()+1,33,(int)v.z()+1,Blocks.GLASS);
+        var factory = frame.stressGrid().zone(StressGrid.indexForRank(600000)).polygon().vertices().get(0);
+        var buried = new Protocol.Edit((int)factory.x()+3,31,(int)factory.z()+4,Blocks.GLASS);
+        ground.apply(List.of(edit,buried));
+        sim.developStressGrid();
+        var developed = sim.frame();
+        int[] expected = {192,80,80,48};
+        for(int type=0;type<4;type++) {
+            final int t=type;
+            assertEquals(expected[type],developed.buildings().stream().filter(b->b.type()==t).count());
+        }
+        assertEquals(128,developed.citizens().size());
+        assertEquals(48,developed.agriculture().farms().size());
+        assertEquals(96,developed.agriculture().fields().size());
+        assertEquals(Blocks.GLASS,ground.type(edit.x(),edit.y(),edit.z()));
+        assertEquals(Blocks.GLASS,ground.type(buried.x(),buried.y(),buried.z()));
+        assertTrue(developed.citizens().stream().filter(c->c.home()>0).count()>=110);
+        assertTrue(developed.economy().properties().stream().filter(p->p.operator()>0).count()>=208);
+        int edits = ground.edits.size();
+        sim.developStressGrid();
+        assertEquals(developed.buildings(),sim.frame().buildings());
+        assertEquals(developed.citizens(),sim.frame().citizens());
+        assertEquals(edits,ground.edits.size());
+        for(int n=0;n<5;n++) sim.advance(1);
+        sim.save(CitySaves.sidecar(path,".city"));
+        var loaded=CitySimulation.load(CitySaves.sidecar(path,".city"));
+        assertEquals(sim.frame().buildings(),loaded.buildings());
+        assertEquals(sim.frame().citizens(),loaded.citizens());
+        assertEquals(sim.frame().agriculture(),loaded.agriculture());
+        assertEquals(sim.frame().economy(),loaded.economy());
+        var version16 = dir.resolve("populated-stress-v16.city");
+        try (var out = new DataOutputStream(Files.newOutputStream(version16))) {
+            out.writeInt(0x43495440);
+            loaded.write(out,16);
+        }
+        assertEquals(loaded,CitySimulation.load(version16),"Version 16 preserves the full populated stress city");
+        var ordinaryGround=new CityTest.Ground();
+        var ordinary=new CitySimulation(GameConfig.cityGame(),ordinaryGround,ordinaryGround.terrain,null);
+        var before=ordinary.frame();
+        assertThrows(IllegalArgumentException.class,ordinary::developStressGrid);
+        assertEquals(before,ordinary.frame());
+    }
     @Test void normalWorkersDevelopGridAndSaveAllDevelopedState() throws Exception {
         var store=new CitySaves(dir.resolve("original.dat"));
         var path=store.createStressGrid(42);

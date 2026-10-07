@@ -8,6 +8,39 @@ import java.util.*;
  * Sparse overrides on an implicit seeded world; each block subdivides to sixteen cells per axis.
  */
 public final class WorldVoxels {
+    /** Ordered edit history with a cell index. Collection views are read-only. */
+    public static final class History extends AbstractMap<String, Protocol.Edit> {
+        private final Map<String, Protocol.Edit> ordered = new LinkedHashMap<>();
+        private final Map<String, Set<String>> cells = new HashMap<>();
+        @Override public Set<Entry<String, Protocol.Edit>> entrySet() {
+            return Collections.unmodifiableMap(ordered).entrySet();
+        }
+        @Override public Protocol.Edit get(Object key) { return ordered.get(key); }
+        @Override public int size() { return ordered.size(); }
+        @Override public boolean containsKey(Object key) { return ordered.containsKey(key); }
+        @Override public Protocol.Edit put(String key, Protocol.Edit edit) {
+            if (!key.equals(edit.key())) throw new IllegalArgumentException("Edit key mismatch");
+            cells.computeIfAbsent(edit.cellKey(), k -> new LinkedHashSet<>()).add(key);
+            return ordered.put(key,edit);
+        }
+        @Override public Protocol.Edit remove(Object key) {
+            var old = ordered.remove(key);
+            if (old != null) {
+                var keys = cells.get(old.cellKey()); keys.remove(key);
+                if (keys.isEmpty()) cells.remove(old.cellKey());
+            }
+            return old;
+        }
+        @Override public void clear() { ordered.clear(); cells.clear(); }
+        private void remember(Protocol.Edit edit) {
+            var keys = cells.get(edit.cellKey());
+            if (keys != null) for (var key : List.copyOf(keys)) {
+                var old = ordered.get(key);
+                if (covered(old,edit)) remove(key);
+            }
+            put(edit.key(),edit);
+        }
+    }
     public static final int RESOLUTION = 16;
     private static final int[] COLORS = new int[190];
 
@@ -97,18 +130,19 @@ public final class WorldVoxels {
 
     /** Preserve replay order and remove overrides fully covered by the new region. */
     public static void remember(Map<String, Protocol.Edit> history, Protocol.Edit edit) {
+        if (history instanceof History indexed) { indexed.remember(edit); return; }
         history.entrySet()
                 .removeIf(
                         e -> {
                             var old = e.getValue();
-                            return old.cellKey().equals(edit.cellKey())
-                                    && old.minX() >= edit.minX()
-                                    && old.minY() >= edit.minY()
-                                    && old.minZ() >= edit.minZ()
-                                    && old.minX() + old.size() <= edit.minX() + edit.size()
-                                    && old.minY() + old.size() <= edit.minY() + edit.size()
-                                    && old.minZ() + old.size() <= edit.minZ() + edit.size();
+                            return old.cellKey().equals(edit.cellKey()) && covered(old,edit);
                         });
         history.put(edit.key(), edit);
+    }
+    private static boolean covered(Protocol.Edit old, Protocol.Edit edit) {
+        return old.minX() >= edit.minX() && old.minY() >= edit.minY() && old.minZ() >= edit.minZ()
+                && old.minX()+old.size() <= edit.minX()+edit.size()
+                && old.minY()+old.size() <= edit.minY()+edit.size()
+                && old.minZ()+old.size() <= edit.minZ()+edit.size();
     }
 }

@@ -1,0 +1,11 @@
+Playtest: PASS. Command: python3 deploy/run_populated_stress_smoke.py --display "$DISPLAY"
+Environment: Linux native Main; inherited assigned DISPLAY/XAUTHORITY; Mesa software OpenGL; isolated synthetic user.home and saves. No browser workflow applies to this native Java game.
+Expected: Develop stress save fills target counts, creates real voxels and operators, repeat adds no duplicates, save/reload persists, Original city and F6 remain intact.
+Rendering: district navigation synchronizes player and camera; World.stream preloads 81 columns, then 20 frames use the normal mesh budget. Fully meshed building columns required before capture. Streaming latency is not claimed.
+Steps: native Controls > City saves > load Stress Test Grid > Develop stress save > repeat > Save current > render each developed ring > F10 pan > save/reload > load Original > F6.
+Observed: Native Develop stress save added 192 houses, 80 businesses, 80 factories, 48 crop farms and filled the 128 citizen limit; real voxel floor and operators checked.
+Observed: Repeated native action kept buildings and citizens unchanged.
+Observed: Running simulation retained populated city; four populated districts rendered with 20 frames for terrain streaming.
+Observed: Save/reload kept all saved buildings, 128 residents, farms and business operators.
+Observed: Original save roads and residents unchanged; F6 toggle works.
+Rendered frames: 131

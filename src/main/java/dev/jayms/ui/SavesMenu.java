@@ -11,6 +11,7 @@ public final class SavesMenu {
         void save() throws Exception;
         void load(Path path) throws Exception;
         void create(String name, boolean copy) throws Exception;
+        default String developStressGrid() throws Exception { return "Load Stress Test Grid first."; }
     }
     private final CitySaves store;
     private final Actions actions;
@@ -54,7 +55,11 @@ public final class SavesMenu {
                 else if (!entries.isEmpty()) actions.load(entries.get(selected).world());
             } else if (y >= top+458 && y < top+498) {
                 actions.create(name, x < left+300); name = ""; show();
-            } else if (y >= top+530 && y < top+570) open = false;
+            } else if (y >= top+530 && y < top+570) {
+                if (x < left+300 && current.getParent().getFileName().toString().equals(dev.jayms.net.city.StressGrid.NAME))
+                    message = actions.developStressGrid();
+                else open = false;
+            }
         } catch (Exception e) {
             message = e instanceof java.io.IOException ? e.getMessage() : "Save operation failed. Current city kept.";
         }
@@ -78,7 +83,10 @@ public final class SavesMenu {
         ui.text(name+"_",l+24,t+437,1.5f);
         button(ui,l+16,t+458,276,"Save a copy"); button(ui,l+308,t+458,276,"New city");
         ui.text(message,l+24,t+508,1.15f);
-        button(ui,l+16,t+530,568,"Back to controls / Esc");
+        if (current.getParent().getFileName().toString().equals(dev.jayms.net.city.StressGrid.NAME)) {
+            button(ui,l+16,t+530,276,"Develop stress save");
+            button(ui,l+308,t+530,276,"Back / Esc");
+        } else button(ui,l+16,t+530,568,"Back to controls / Esc");
     }
     private void button(Overlay ui,float x,float y,float w,String text) {
         ui.rectangle(x,y,w,40,.06f,.27f,.35f,1); ui.text(text,x+16,y+13,1.7f);
