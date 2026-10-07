@@ -13,6 +13,7 @@ public final class ControlsMenu {
     }
 
     public void scroll(double direction) {
+        if (saves != null && saves.open) { saves.scroll(direction); return; }
         selected =
                 Math.max(
                         0,
@@ -24,6 +25,7 @@ public final class ControlsMenu {
     private boolean editing;
     private String message = "Click a control or use Up/Down and Enter to change it.";
     public boolean open;
+    public SavesMenu saves;
 
     public ControlsMenu(Controls controls) {
         this.controls = controls;
@@ -40,6 +42,7 @@ public final class ControlsMenu {
 
     public boolean key(int key, int action) {
         if (!open) return false;
+        if (saves != null && saves.open) { saves.key(key, action); return true; }
         if (action != GLFW_PRESS) return true;
         if (key == GLFW_KEY_ESCAPE) {
             if (editing) {
@@ -79,6 +82,7 @@ public final class ControlsMenu {
 
     public void click(int button, float x, float y, int width, int height, Runnable quit) {
         if (!open) return;
+        if (saves != null && saves.open) { saves.click(button, x, y, width, height); return; }
         if (editing) {
             assign(-button - 1);
             return;
@@ -86,6 +90,7 @@ public final class ControlsMenu {
         if (button != GLFW_MOUSE_BUTTON_LEFT) return;
         float left = width / 2f - 300, top = height / 2f - 290;
         if (x < left || x > left + 600) return;
+        if (saves != null && y >= top + 18 && y < top + 50 && x >= left + 400) { saves.show(); return; }
         int row = (int) ((y - top - 80) / 29);
         if (y >= top + 80 && row >= 0 && row < 13) {
             selected = row + offset();
@@ -121,10 +126,15 @@ public final class ControlsMenu {
 
     public void render(Overlay ui, int width, int height) {
         if (!open) return;
+        if (saves != null && saves.open) { saves.render(ui, width, height); return; }
         float left = width / 2f - 300, top = height / 2f - 290;
         ui.rectangle(0, 0, width, height, .01f, .02f, .06f, .7f);
         ui.rectangle(left, top, 600, 580, .025f, .06f, .11f, .98f);
         ui.rectangle(left, top, 600, 3, .1f, .85f, 1, 1);
+        if (saves != null) {
+            ui.rectangle(left + 400, top + 18, 180, 32, .06f, .27f, .35f, 1);
+            ui.text("City saves", left + 418, top + 27, 1.8f);
+        }
         ui.text("CONTROLS", left + 24, top + 22, 3);
         ui.text("Escape resumes | Scroll or arrows for more controls", left + 24, top + 55, 1.6f);
         for (int i = offset(); i < Math.min(offset() + 13, Controls.Action.values().length); i++) {

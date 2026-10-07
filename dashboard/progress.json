@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T02:45:11+00:00",
+  "updatedAt": "2026-10-07T03:11:34+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -2590,6 +2590,31 @@
       "status": "in_progress",
       "note": "Configurable gaps: 0\u20132 blocks; defaults 0.8 pedestrian and 1.4 mounted. Reviewed-base features and 628 historical evidence/fixtures preserved. Full verification passed 364 tests. Fresh spacing, zero-gap, factory and industrial playtests passed. Awaiting controller publication and independent review.",
       "updatedAt": "2026-10-06T15:55:01+00:00"
+    },
+    {
+      "id": "66313165343334612d636366372d346531642d616564332d613063656337313538363039",
+      "title": "Multiple city saves",
+      "description": "Implementing named local simulations and an in-game save menu.",
+      "evidence": [
+        {
+          "kind": "image",
+          "label": "Save menu image (pending publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-66313165343334612d636366372d346531642d616564332d613063656337313538363039/dashboard/evidence/city-saves-menu.png"
+        },
+        {
+          "kind": "report",
+          "label": "Native playtest report (pending publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-66313165343334612d636366372d346531642d616564332d613063656337313538363039/dashboard/evidence/city-saves-playtest.txt"
+        },
+        {
+          "kind": "image",
+          "label": "Duplicate name rejected (pending publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-66313165343334612d636366372d346531642d616564332d613063656337313538363039/dashboard/evidence/city-saves-duplicate.png"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Rebase conflict resolved against reviewed base bb657412e77bc87213dbf498730d372045716394. Right-angle routing and save feature retained. Controller continuation and final-head validation pending.",
+      "updatedAt": "2026-10-07T03:11:34+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
