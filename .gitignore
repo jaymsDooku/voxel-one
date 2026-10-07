@@ -54,3 +54,6 @@ website/node_modules/
 website/.wrangler/
 website/.sites-runtime/
 website/**/.wrangler/
+
+# Extracted native library cache
+/.lwjgl/

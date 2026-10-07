@@ -1,0 +1,87 @@
+{
+  "status": "passed",
+  "sourceHead": "4c6f8033c7b1bd4c77c733edfd514a4e6a34a810",
+  "scope": "affected audio, vehicles, camera, saves, and restored road regressions",
+  "tests": 53,
+  "suites": [
+    {
+      "name": "dev.jayms.VehicleAudioTest",
+      "tests": "1",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.AviationTest",
+      "tests": "10",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.JeepTest",
+      "tests": "8",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.RailwayTest",
+      "tests": "5",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.IsometricCameraTest",
+      "tests": "8",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.CitySavesTest",
+      "tests": "2",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.RailwaySaveCompatibilityTest",
+      "tests": "3",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.RoadTypesTest",
+      "tests": "9",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.RoadWorkflowTest",
+      "tests": "5",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.RoadBaseCompatibilityTest",
+      "tests": "2",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0"
+    }
+  ],
+  "exitCode": 0,
+  "packages": [
+    "voxel-one-1.0-SNAPSHOT-launcher.jar",
+    "voxel-one-1.0-SNAPSHOT-client.jar",
+    "voxel-one-1.0-SNAPSHOT-server.jar",
+    "voxel-one-1.0-SNAPSHOT.jar"
+  ],
+  "fullSuitePassed": false,
+  "note": "Scoped verify passed on recovered head; no new full-suite pass claimed."
+}
