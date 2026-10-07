@@ -15,6 +15,36 @@
   },
   "items": [
     {
+      "id": "63386663653465302d303138612d346331372d396364302d353961636235626436613632",
+      "title": "Voxel physics systems",
+      "description": "Building collision, structural destruction, vehicle and environmental simulation with native playtests",
+      "evidence": [
+        {
+          "kind": "video",
+          "label": "Native support removal and falling debris \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63386663653465302d303138612d346331372d396364302d353961636235626436613632/dashboard/evidence/physics-collapse.mp4"
+        },
+        {
+          "kind": "image",
+          "label": "Cloth, soft body and SPH scene \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63386663653465302d303138612d346331372d396364302d353961636235626436613632/dashboard/evidence/physics-cloth-sph.png"
+        },
+        {
+          "kind": "image",
+          "label": "Main sandbox half-voxel stair \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63386663653465302d303138612d346331372d396364302d353961636235626436613632/dashboard/evidence/physics-walker-step.png"
+        },
+        {
+          "kind": "report",
+          "label": "Commands, results, limits and media hashes \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63386663653465302d303138612d346331372d396364302d353961636235626436613632/dashboard/evidence/physics-validation.json"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Rebase recovery: newest upstream features preserved. Remaining physics commits must replay, including velocity/load fixes for ropes and hinges. Final-head validation and fresh media pending controller continuation.",
+      "updatedAt": "2026-10-07T18:33:44.209532+00:00"
+    },
+    {
       "id": "36346562663133302d383033312d343733612d616132342d393031326464616132313235",
       "title": "Voxel Space Invaders",
       "description": "Browser game with voxel aliens and player spaceship, classic fleet combat and iOS touch controls.",
@@ -24,57 +54,57 @@
       "evidence": [
         {
           "kind": "image",
-          "label": "Desktop gameplay — pending controller publication",
+          "label": "Desktop gameplay \u2014 pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36346562663133302d383033312d343733612d616132342d393031326464616132313235/dashboard/evidence/space-invaders-desktop.png"
         },
         {
           "kind": "image",
-          "label": "Mobile touch gameplay — pending controller publication",
+          "label": "Mobile touch gameplay \u2014 pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36346562663133302d383033312d343733612d616132342d393031326464616132313235/dashboard/evidence/space-invaders-touch.png"
         },
         {
           "kind": "image",
-          "label": "Mobile landscape gameplay — pending controller publication",
+          "label": "Mobile landscape gameplay \u2014 pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36346562663133302d383033312d343733612d616132342d393031326464616132313235/dashboard/evidence/space-invaders-landscape.png"
         },
         {
           "kind": "link",
-          "label": "Validation commands and limits — pending controller publication",
+          "label": "Validation commands and limits \u2014 pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36346562663133302d383033312d343733612d616132342d393031326464616132313235/dashboard/evidence/space-invaders-validation.md"
         },
         {
           "kind": "image",
-          "label": "Small iPhone start layout — pending controller publication",
+          "label": "Small iPhone start layout \u2014 pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36346562663133302d383033312d343733612d616132342d393031326464616132313235/dashboard/evidence/space-invaders-568x320-start.png"
         },
         {
           "kind": "image",
-          "label": "Small iPhone gameplay — pending controller publication",
+          "label": "Small iPhone gameplay \u2014 pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36346562663133302d383033312d343733612d616132342d393031326464616132313235/dashboard/evidence/space-invaders-568x320-playing.png"
         },
         {
           "kind": "image",
-          "label": "Small iPhone game over — pending controller publication",
+          "label": "Small iPhone game over \u2014 pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36346562663133302d383033312d343733612d616132342d393031326464616132313235/dashboard/evidence/space-invaders-568x320-game-over.png"
         },
         {
           "kind": "image",
-          "label": "iPhone landscape pause — pending controller publication",
+          "label": "iPhone landscape pause \u2014 pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36346562663133302d383033312d343733612d616132342d393031326464616132313235/dashboard/evidence/space-invaders-667x375-paused.png"
         },
         {
           "kind": "link",
-          "label": "16 viewport/state layout results — pending controller publication",
+          "label": "16 viewport/state layout results \u2014 pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36346562663133302d383033312d343733612d616132342d393031326464616132313235/dashboard/evidence/space-invaders-layout.json"
         },
         {
           "kind": "link",
-          "label": "Newer-base audit: 43 restored files — pending controller publication",
+          "label": "Newer-base audit: 43 restored files \u2014 pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36346562663133302d383033312d343733612d616132342d393031326464616132313235/dashboard/evidence/space-invaders-base-audit.json"
         },
         {
           "kind": "link",
-          "label": "13 upstream Java regression tests — pending controller publication",
+          "label": "13 upstream Java regression tests \u2014 pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36346562663133302d383033312d343733612d616132342d393031326464616132313235/dashboard/evidence/space-invaders-upstream-regression.json"
         }
       ]

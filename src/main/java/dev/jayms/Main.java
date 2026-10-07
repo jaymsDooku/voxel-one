@@ -1625,6 +1625,10 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
+        if (args.length == 1 && args[0].equals("--physics-lab")) {
+            dev.jayms.physics.PhysicsLab.main(new String[0]);
+            return;
+        }
         String host = null, pin = null;
         int port = Protocol.PORT;
         boolean offline = false, cityGame = false, gameExplicit = false, engineWorkspace = false;

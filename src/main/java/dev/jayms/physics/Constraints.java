@@ -1,0 +1,51 @@
+package dev.jayms.physics;
+
+import org.joml.Vector3f;
+
+/** Iterative positional joints. Broken joints stop applying corrections and expose their state. */
+public final class Constraints {
+    public interface Joint {void solve(float dt);boolean broken();}
+    public static final class Distance implements Joint {
+        public final RigidBody a,b;public final float rest,compliance;public final boolean rope;
+        public float breakForce=Float.POSITIVE_INFINITY;private boolean broken;
+        public Distance(RigidBody a,RigidBody b,float rest,float compliance,boolean rope){if(rest<0||compliance<0)throw new IllegalArgumentException("Invalid joint");this.a=a;this.b=b;this.rest=rest;this.compliance=compliance;this.rope=rope;}
+        public boolean broken(){return broken;}
+        public void solve(float dt){
+            if(broken)return;Vector3f d=new Vector3f(b.position).sub(a.position);float length=d.length(),error=length-rest;
+            if(length<1e-7f||rope&&error<=0)return;
+            float wa=a.kinematic?0:a.inverseMass,wb=b.kinematic?0:b.inverseMass,sum=wa+wb+compliance/(dt*dt);if(sum==0)return;
+            float impulse=error/sum;
+            if(Math.abs(impulse)/(dt*dt)>breakForce){broken=true;return;}
+            d.div(length);a.position.fma(wa*impulse,d);b.position.fma(-wb*impulse,d);
+        }
+    }
+    public static final class Spring implements Joint {
+        public final RigidBody a,b;public final float rest,stiffness,damping;public float breakForce=Float.POSITIVE_INFINITY;private boolean broken;
+        public Spring(RigidBody a,RigidBody b,float rest,float stiffness,float damping){this.a=a;this.b=b;this.rest=rest;this.stiffness=stiffness;this.damping=damping;}
+        public boolean broken(){return broken;}
+        public void solve(float dt) {
+            if(broken)return;Vector3f d=new Vector3f(b.position).sub(a.position);float length=d.length();if(length<1e-7f)return;d.div(length);
+            float f=(length-rest)*stiffness+new Vector3f(b.velocity).sub(a.velocity).dot(d)*damping;
+            if(Math.abs(f)>breakForce){broken=true;return;}a.impulse(new Vector3f(d).mul(f*dt));b.impulse(d.mul(-f*dt));
+        }
+    }
+    /** Anchor coincidence and aligned hinge axes leave exactly rotation about the hinge free. */
+    public static final class Hinge implements Joint {
+        public final RigidBody a,b;private final Vector3f anchorA,anchorB,axisA,axisB;
+        public float breakForce=Float.POSITIVE_INFINITY;private boolean broken;
+        public Hinge(RigidBody a,RigidBody b,Vector3f anchorA,Vector3f anchorB,Vector3f axis){this.a=a;this.b=b;this.anchorA=new Vector3f(anchorA);this.anchorB=new Vector3f(anchorB);this.axisA=new Vector3f(axis).normalize();this.axisB=new Vector3f(axis).normalize();}
+        public boolean broken(){return broken;}
+        public void solve(float dt) {
+            if(broken)return;float wa=a.kinematic?0:a.inverseMass,wb=b.kinematic?0:b.inverseMass,sum=wa+wb;if(sum==0)return;
+            Vector3f error=b.anchor(anchorB).sub(a.anchor(anchorA));
+            if(error.length()/(sum*dt*dt)>breakForce){broken=true;return;}
+            a.position.fma(wa/sum,error);b.position.fma(-wb/sum,error);
+            Vector3f aa=a.rotation.transform(new Vector3f(axisA)),bb=b.rotation.transform(new Vector3f(axisB));
+            Vector3f cross=bb.cross(aa);float sine=cross.length();
+            if(sine>1e-6f){cross.div(sine);float angle=(float)Math.asin(Math.min(1,sine));if(wa>0)a.rotation.rotateAxis(-angle*wa/sum,cross.x,cross.y,cross.z);if(wb>0)b.rotation.rotateAxis(angle*wb/sum,cross.x,cross.y,cross.z);}
+            Vector3f relative=new Vector3f(b.angularVelocity).sub(a.angularVelocity);relative.sub(new Vector3f(aa).mul(relative.dot(aa)));
+            a.angularVelocity.fma(wa/sum,relative);b.angularVelocity.fma(-wb/sum,relative);
+        }
+    }
+    private Constraints() {}
+}

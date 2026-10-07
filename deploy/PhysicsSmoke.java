@@ -1,0 +1,42 @@
+import dev.jayms.physics.*;
+import org.joml.Vector3f;
+import org.lwjgl.system.MemoryUtil;
+import java.nio.*;
+import java.nio.file.*;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import java.util.*;
+import static org.lwjgl.opengl.GL33.*;
+import static org.lwjgl.glfw.GLFW.*;
+
+/** Real X11 input against the production PhysicsLab, with render-thread state checks. */
+public class PhysicsSmoke {
+    static Path out;static volatile String capture;static volatile String captured;static volatile PhysicsLab active;
+    static volatile Throwable failure;static volatile int debris,tab,broken;static volatile float vehicleX,waterMass,smoke;
+    static volatile boolean reset,finite,gpu;static volatile int tower;static volatile boolean gpuChecked;
+    static void require(boolean value,String text){if(!value)throw new AssertionError(text);}
+    static String x(String...args)throws Exception{var cmd=new ArrayList<String>();cmd.add("xdotool");cmd.addAll(List.of(args));var p=new ProcessBuilder(cmd).redirectError(ProcessBuilder.Redirect.DISCARD).start();String result=new String(p.getInputStream().readAllBytes()).trim();if(p.waitFor()!=0)throw new AssertionError("X11 input failed "+args[0]);return result;}
+    static void key(String window,String key)throws Exception{long sequence=active.renderedInputSequence;x("windowfocus",window);x("key","--clearmodifiers","--window",window,key);long deadline=System.currentTimeMillis()+15000;while(active.renderedInputSequence<=sequence&&System.currentTimeMillis()<deadline)Thread.sleep(20);require(active.renderedInputSequence>sequence,"Rendered response after key "+key);Thread.sleep(100);}
+    static void shot(String name)throws Exception{capture=name;for(int i=0;i<200&&!name.equals(captured);i++)Thread.sleep(25);require(name.equals(captured),"Screenshot completed "+name);}
+    static void capture(PhysicsLab lab,String name)throws Exception{
+        ByteBuffer data=MemoryUtil.memAlloc(lab.width*lab.height*3);try{glReadPixels(0,0,lab.width,lab.height,GL_RGB,GL_UNSIGNED_BYTE,data);BufferedImage image=new BufferedImage(lab.width,lab.height,BufferedImage.TYPE_INT_RGB);for(int y=0;y<lab.height;y++)for(int xx=0;xx<lab.width;xx++){int k=(y*lab.width+xx)*3;image.setRGB(xx,lab.height-y-1,(data.get(k)&255)<<16|(data.get(k+1)&255)<<8|(data.get(k+2)&255));}int colored=0;for(int y=110;y<lab.height-80;y++)for(int xx=0;xx<lab.width;xx++){int rgb=image.getRGB(xx,y);if((rgb>>16&255)>60||(rgb>>8&255)>70||(rgb&255)>95)colored++;}require(colored>500,"Rendered scene geometry visible in "+name);require(glGetError()==GL_NO_ERROR,"No OpenGL error during physics render");ImageIO.write(image,"png",out.resolve(name).toFile());}finally{MemoryUtil.memFree(data);}
+    }
+    public static void main(String[]args)throws Exception{
+        out=Path.of(args[0]);Files.createDirectories(out);PhysicsLab lab=new PhysicsLab();
+        Thread input=new Thread(()->{try{
+            while(active==null)Thread.sleep(50);String window=Long.toString(org.lwjgl.glfw.GLFWNativeX11.glfwGetX11Window(active.window));
+            x("windowfocus",window);Thread.sleep(500);shot("physics-intact.png");key(window,"F10");key(window,"d");require(debris==28,"Support cut detaches 28 connected voxels: observed "+debris+" key="+active.lastKey);shot("physics-collapse.png");Thread.sleep(2200);shot("physics-settled.png");key(window,"F10");
+            key(window,"d");require(debris==28,"Repeated cut is harmless");require(tower==3,"Independent anchored tower preserved");
+            key(window,"r");require(debris==0,"Reset restores intact scene: observed "+debris+" key="+active.lastKey);key(window,"x");require(debris>0,"Explosion destroys and detaches structure");shot("physics-explosion.png");key(window,"r");key(window,"f");require(debris>0,"Stress failure propagates collapse");shot("physics-fracture.png");key(window,"r");key(window,"space");float pausedTime=active.scene.time;Thread.sleep(300);require(active.scene.time==pausedTime,"Pause freezes simulation");key(window,"space");key(window,"2");key(window,"b");Thread.sleep(500);require(broken>0,"Loaded ropes break");shot("physics-joints.png");
+            key(window,"3");Thread.sleep(1800);require(waterMass>121.59f&&waterMass<121.61f,"Cellular water conserves 121.6 units");require(smoke>0,"Fire emits rising smoke");shot("physics-fluid-fire.png");
+            key(window,"4");key(window,"p");require(!active.scene.xpbd,"PBD toggle");key(window,"p");require(active.scene.xpbd,"XPBD toggle");key(window,"w");key(window,"g");Thread.sleep(800);require(gpuChecked,"GPU/CPU equivalence check executed");require(finite,"Cloth soft body and SPH stay finite");shot("physics-cloth-sph.png");
+            key(window,"5");float start=vehicleX;x("keydown","--window",window,"Up");Thread.sleep(1400);x("keyup","--window",window,"Up");Thread.sleep(250);require(vehicleX>start+.1f,"Wheel torque drives sprung vehicle");shot("physics-vehicle.png");
+            key(window,"r");require(debris==0&&tower==3,"Reset regression preserves anchored content");shot("physics-reset.png");
+            Files.writeString(out.resolve("results.json"),"{\n  \"Playtest\": \"Production PhysicsLab; Linux X11; inherited assigned DISPLAY/XAUTHORITY; Mesa software rendering; isolated synthetic profile\",\n  \"steps\": [\"D removes support: 28 debris voxels fall; independent anchored tower stays intact\",\"D repeated: no change; R restores scene\",\"X/F: explosion and stress fracture detach structures; pause freezes time\",\"2 B: loaded ropes break\",\"3: water mass 121.6 conserved; fire emits smoke\",\"4 W G: cloth/soft body/SPH finite; GPU integration matches CPU and pinned particles stay fixed\",\"5 Up: wheel torque moves sprung vehicle\",\"R: reset regression restores original cells\",\"F10: collapse clip recorded\"],\n  \"expected\": \"All listed assertions pass\",\n  \"observed\": \"All listed assertions passed\",\n  \"gpuCompute\": "+gpu+"\n}\n");
+        }catch(Throwable e){failure=e;try{Files.writeString(out.resolve("failure.txt"),e.getClass().getSimpleName()+": "+e.getMessage());}catch(Exception ignored){}}finally{if(active!=null)glfwSetWindowShouldClose(active.window,true);}},"physics-native-input");input.start();
+        lab.run(l->{active=l;debris=l.scene.detached;tab=l.scene.scene;tower=l.scene.voxels.sample(12,2,12);vehicleX=l.scene.vehicle.position.x;broken=(int)l.scene.physics.joints.stream().filter(Constraints.Joint::broken).count();waterMass=0;smoke=0;for(float f:l.scene.fluid.water)waterMass+=f;for(float f:l.scene.fluid.smoke)smoke+=f;finite=l.scene.cloth.particles.stream().allMatch(p->p.position.isFinite())&&l.scene.soft.particles.stream().allMatch(p->p.position.isFinite())&&l.scene.particles.positions.stream().allMatch(Vector3f::isFinite);
+            if(!gpuChecked){try(var compute=new ComputeParticles()){float[] data={0,4,0,1,2,0,0,0,0,5,0,0,0,0,0,0};float[] cpu=data.clone();ComputeParticles.cpu(cpu,.1f,-10);compute.integrate(data,.1f,-10);for(int i=0;i<data.length;i++)require(Math.abs(data[i]-cpu[i])<.00001f,"GPU integration equals CPU at index "+i);gpu=compute.available();gpuChecked=true;}}
+            if(capture!=null&&!capture.equals(captured)){capture(l,capture);captured=capture;}});
+        input.join();if(failure!=null)throw new AssertionError("Physics native playtest failed",failure);
+    }
+}

@@ -254,22 +254,29 @@ public class Player {
     private boolean moveAxis(World world, float delta, int axis) {
         if (delta == 0) return false;
         float start = position.get(axis);
-        position.setComponent(axis, start + delta);
-        if (!collides(world)) return false;
-        if (mounted && axis != 1 && grounded) {
-            position.y += 1.001f;
-            if (!collides(world)) return false;
-            position.y -= 1.001f;
+        var box = new dev.jayms.physics.VoxelQueries.Box(position.x-RADIUS,position.y,position.z-RADIUS,
+                position.x+RADIUS,position.y+HEIGHT+(mounted?.75f:0),position.z+RADIUS);
+        float allowed = dev.jayms.physics.VoxelMotion.allowed(world,box,delta,axis);
+        if (axis != 1 && grounded && !flying && Math.abs(allowed-delta)>.0001f) {
+            float rise = mounted ? 1.001f : .601f;
+            float up = dev.jayms.physics.VoxelMotion.allowed(world,box,rise,1);
+            if (up >= rise-.0001f) {
+                position.y += rise;
+                var raised = new dev.jayms.physics.VoxelQueries.Box(position.x-RADIUS,position.y,position.z-RADIUS,
+                        position.x+RADIUS,position.y+HEIGHT+(mounted?.75f:0),position.z+RADIUS);
+                float across=dev.jayms.physics.VoxelMotion.allowed(world,raised,delta,axis);
+                if (Math.abs(across-delta)<.0001f) {
+                    position.setComponent(axis,start+delta);
+                    var landing = new dev.jayms.physics.VoxelQueries.Box(position.x-RADIUS,position.y,position.z-RADIUS,
+                            position.x+RADIUS,position.y+HEIGHT+(mounted?.75f:0),position.z+RADIUS);
+                    position.y += dev.jayms.physics.VoxelMotion.allowed(world,landing,-rise,1);
+                    return false;
+                }
+                position.y -= rise;
+            }
         }
-        float low = 0, high = 1;
-        for (int i = 0; i < 14; i++) {
-            float mid = (low + high) / 2;
-            position.setComponent(axis, start + delta * mid);
-            if (collides(world)) high = mid;
-            else low = mid;
-        }
-        position.setComponent(axis, start + delta * low);
-        return true;
+        position.setComponent(axis,start+allowed);
+        return Math.abs(allowed-delta)>.000001f;
     }
 
     /** A late remote edit can surround the predicted player. Find the nearest free block face. */

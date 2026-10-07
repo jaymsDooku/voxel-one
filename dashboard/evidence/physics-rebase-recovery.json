@@ -1,0 +1,42 @@
+{
+  "status": "resolved_files_await_controller_rebase_continue",
+  "recordedAt": "2026-10-07T20:36:30.532685+00:00",
+  "checks": [
+    {
+      "command": "git show :2:dashboard/progress.json; git show :3:dashboard/progress.json (parsed privately; only relevant item inspected)",
+      "expected": "Keep every upstream progress entry and add physics item",
+      "observed": "All 70 upstream entries and root metadata preserved; physics item added; JSON parses; no conflict markers."
+    },
+    {
+      "command": "Compare working source bytes with git show HEAD:<path>",
+      "expected": "Upstream city features remain intact",
+      "observed": "LocalGame.java, WorldVoxels.java, CitySimulation.java, SavesMenu.java, StressGridDevelopmentTest.java and PopulatedStressSmoke.java match upstream bytes."
+    },
+    {
+      "command": "git diff --name-status 11314f5f2ebf39e0d8b335f90af8b8327722f35a",
+      "expected": "No unrelated changes or deletions against reviewer base",
+      "observed": "Only physics paths/integrations, progress and evidence changed; no deleted files."
+    },
+    {
+      "command": "git diff --check",
+      "expected": "No whitespace errors",
+      "observed": "Exit 0"
+    }
+  ],
+  "Playtest": "Not run during partial rebase. Controller must continue remaining commits first; final-head city and physics workflows and fresh media are required afterward. Existing media is historical.",
+  "pending": [
+    "Controller stages resolution and continues rebase.",
+    "Verify CCD and force/inertia corrections after all commits replay.",
+    "Rerun affected city workflows and physics checks on final integrated source.",
+    "macOS CI remains unverified; no CI pass claimed."
+  ],
+  "reviewBase": "41ed6e88d231435559810c788416832d2b13d136",
+  "recoverySteps": [
+    {
+      "conflict": "dashboard/progress.json",
+      "resolution": "Preserved all upstream root metadata and nonphysics entries; inserted replayed physics entry with recovery note.",
+      "checks": "JSON parses, unique IDs, exact upstream nonphysics entries, upstream city/network source and existing tests/populated media unchanged; no deletions or unrelated diff paths against new review base.",
+      "pending": "Controller replays remaining physics corrections, including joint-load fix; final-head playtests/media not run during partial rebase."
+    }
+  ]
+}
