@@ -1,0 +1,314 @@
+{
+  "artifacts": [
+    {
+      "name": "road-industrial-final-airport-arrival.png",
+      "bytes": 947401,
+      "sha256": "98046755d6907b412721021ebad1545043da499bdb16fd60a65495bd5ebe5e49"
+    },
+    {
+      "name": "road-industrial-final-airport-boarding.png",
+      "bytes": 768735,
+      "sha256": "717023d33672a82992f37f4c21b053a25c8f6377bdf4caeb964efe19c2b0c90c"
+    },
+    {
+      "name": "road-industrial-final-airport-compact-menu.png",
+      "bytes": 671029,
+      "sha256": "7848ebb99f5961e327b308494a45eacb940d77271350294a04e49e3b929e7c8c"
+    },
+    {
+      "name": "road-industrial-final-airport-exchange-rejected.png",
+      "bytes": 1129453,
+      "sha256": "034a13bbcdc68f80fbd319b46991332afc1664c482d5ecbc991d3bfb9a6626d9"
+    },
+    {
+      "name": "road-industrial-final-airport-expanded.png",
+      "bytes": 688073,
+      "sha256": "04033437e006c9b6e6dc5f8365bc642614798b33d00703564f4a07131c3da30e"
+    },
+    {
+      "name": "road-industrial-final-airport-flight.png",
+      "bytes": 304006,
+      "sha256": "60a478f04494847f5e41c09fcc61cc84ed5e23952b567663d297b016e78352dc"
+    },
+    {
+      "name": "road-industrial-final-airport-playtest.json",
+      "bytes": 836,
+      "sha256": "dd9b4b9896bca69d46bbb8f016a986307fd149145b4ca1b1017cd924fae26948"
+    },
+    {
+      "name": "road-industrial-final-airport-playtest.mp4",
+      "bytes": 1572702,
+      "sha256": "986d59d29841bc883882a861f3600d3372fa698185dd9d8c90d08b101d2fc004"
+    },
+    {
+      "name": "road-industrial-final-airport-regional-regression.png",
+      "bytes": 15964,
+      "sha256": "f5774c7a39a40c4868a9fe31103343ccc3f4d523c43dc22f5e985a12a8ef2ab3"
+    },
+    {
+      "name": "road-industrial-final-airport-video-all-frames.json",
+      "bytes": 369,
+      "sha256": "38a268793dbc29d53a32853acea2cf318d8122e34175f483a39699cf6ccfc2d9"
+    },
+    {
+      "name": "road-industrial-final-airport-video-samples.json",
+      "bytes": 155,
+      "sha256": "d641f742d494437756ded61da96d93ee9ad3aa001cc27eebbb200360f07491f9"
+    },
+    {
+      "name": "road-industrial-final-cheat-cheat-budget.png",
+      "bytes": 27199,
+      "sha256": "ff2952f36ff81248e5c3e99d82eb81ba03e7bee9727dfa72c2082f18e07fbe66"
+    },
+    {
+      "name": "road-industrial-final-cheat-cheat-carrier.png",
+      "bytes": 747108,
+      "sha256": "40503cc00914ac10f39e1e5e7787e5190db3d0f9614567a90822fc377cba801f"
+    },
+    {
+      "name": "road-industrial-final-cheat-cheat-flight.png",
+      "bytes": 706847,
+      "sha256": "532e3ccc228d1bbc89ac33695838e3017137bbbe515d8fc28576b885f2eeacfb"
+    },
+    {
+      "name": "road-industrial-final-cheat-cheat-jet.png",
+      "bytes": 695740,
+      "sha256": "75376b30bc940fe7c9c8da2f54facb3c9b2b0903e6cc6316f6cee25a6190a739"
+    },
+    {
+      "name": "road-industrial-final-cheat-cheat-vehicle-0.png",
+      "bytes": 704272,
+      "sha256": "c0500e0378eaa08d48b9761c4b312e73a1b3a3be8cb0be078951eb76b85dff40"
+    },
+    {
+      "name": "road-industrial-final-cheat-cheat-vehicle-1.png",
+      "bytes": 703541,
+      "sha256": "f3516994507a5fbbc2d2e436b008a7019436a314ec4bdc9d384ce034c347e214"
+    },
+    {
+      "name": "road-industrial-final-cheat-cheat-vehicle-2.png",
+      "bytes": 703567,
+      "sha256": "69f12857eb1982840877911264e3fa272a5994e92d65369ab00900e528a1bae1"
+    },
+    {
+      "name": "road-industrial-final-cheat-cheat-vehicle-3.png",
+      "bytes": 627155,
+      "sha256": "7edce6240deee9e72076cf4272a905270a82787087e54e023b85e67f5ea66d86"
+    },
+    {
+      "name": "road-industrial-final-cheat-cheat-vehicle-4.png",
+      "bytes": 704271,
+      "sha256": "f1417bcf6a6664ddab0c8d7177d91b7342ee46ed49db9bb26052b012a9894f9b"
+    },
+    {
+      "name": "road-industrial-final-cheat-playtest.mp4",
+      "bytes": 3052505,
+      "sha256": "dc1a62c3481cfae7dc8ebe48ee2a68c3131936cbb035b51d2459b6f237672462"
+    },
+    {
+      "name": "road-industrial-final-cheat-results.json",
+      "bytes": 515,
+      "sha256": "18dc5802b6ffa89ece615ec3c0e92442cfbd7be64b02883858d79e01d237b269"
+    },
+    {
+      "name": "road-industrial-final-cheat-video-all-frames.json",
+      "bytes": 309,
+      "sha256": "ecd1205e7affdbe6c16adb796c65a502d9c86b965544f25c2c3abd900ba70c61"
+    },
+    {
+      "name": "road-industrial-final-cheat-video-samples.json",
+      "bytes": 155,
+      "sha256": "6440fd0a63bcf8b1bcf34cc46f8f48a3571cf44d0ea6abafab08a19d4af790af"
+    },
+    {
+      "name": "road-industrial-final-compatibility.json",
+      "bytes": 195,
+      "sha256": "d521af33e07a81c07e0c3f0233a081c9bc5582ad370af9907ba91da3d8c3ffc8"
+    },
+    {
+      "name": "road-industrial-final-industrial-resource-progression-advanced.png",
+      "bytes": 22736,
+      "sha256": "624690b1e78e9ec9bb68ffcbffdd46eac68f9a3e71943439dbd0628fc9f566d6"
+    },
+    {
+      "name": "road-industrial-final-industrial-resource-progression-food-fallback.png",
+      "bytes": 26300,
+      "sha256": "f15a6f8e877042bcdcccccc4a5f75fead373cdd1a348f92e6e28d191cdb051e3"
+    },
+    {
+      "name": "road-industrial-final-industrial-resource-progression-manufacturing.png",
+      "bytes": 20879,
+      "sha256": "66fb6dc86d89f41ba447f52efd3e828116bbddbde04b8b7c3710e3a4682dd696"
+    },
+    {
+      "name": "road-industrial-final-industrial-resource-progression-operating-energy.png",
+      "bytes": 25889,
+      "sha256": "34de6be2425c994ac489e2d6c584ddb22dac276b0f05667de13f524bf4763d79"
+    },
+    {
+      "name": "road-industrial-final-industrial-resource-progression-playtest.json",
+      "bytes": 1096,
+      "sha256": "70f8555617378163f60622221ed6f024a530a8de12ae5dcf3acb5550c5c2c185"
+    },
+    {
+      "name": "road-industrial-final-industrial-resource-progression-settlement.png",
+      "bytes": 22412,
+      "sha256": "c8883326da987087b73b75c92dba92a9182fcd387e6db45da6467bc0e6109b76"
+    },
+    {
+      "name": "road-industrial-final-mixed-before.png",
+      "bytes": 504912,
+      "sha256": "4ee8c54a04c2dada22002915171b58c0534719076729b380a0ebeaba1f6ca1ba"
+    },
+    {
+      "name": "road-industrial-final-mixed-deleted.png",
+      "bytes": 573072,
+      "sha256": "a5986f674748d044c608edfb4f35fd17d03889f6f41744a342e62a24454c73e2"
+    },
+    {
+      "name": "road-industrial-final-mixed-menu.png",
+      "bytes": 734759,
+      "sha256": "3755305911a4a239ce3de0d89fd12a22ff3d08736840092b81b0b1e160794e06"
+    },
+    {
+      "name": "road-industrial-final-mixed-narrowed.png",
+      "bytes": 793388,
+      "sha256": "97f4d35ae2265e822298907a576772dfca0a0f858681584d1f425b7acc4b9e52"
+    },
+    {
+      "name": "road-industrial-final-mixed-playtest.json",
+      "bytes": 381,
+      "sha256": "4c8132bd62cec599c5dcb8d57a488ae0b13b963e06df6c1e0d1bf57ce87ceedf"
+    },
+    {
+      "name": "road-industrial-final-mixed-playtest.mp4",
+      "bytes": 2580387,
+      "sha256": "be120c7e5ecb7216957f4af511a39a7d1e2a9f3b5a064978cdf25f3175a6efd2"
+    },
+    {
+      "name": "road-industrial-final-mixed-restored.png",
+      "bytes": 818656,
+      "sha256": "2609b3a80d37a3688cc822af4910e010f247bcd4c2c4ed60181357cb51382455"
+    },
+    {
+      "name": "road-industrial-final-mixed-video-all-frames.json",
+      "bytes": 368,
+      "sha256": "74d769e6d8502b94de9c2d855dd73e9fde4999a50de78e88b43952bd5f9b7e7c"
+    },
+    {
+      "name": "road-industrial-final-mixed-video-samples.json",
+      "bytes": 156,
+      "sha256": "73a11515eb71c07005b199521a02801b9cb3a7b8aa5bb550deb08e904f384935"
+    },
+    {
+      "name": "road-industrial-final-preservation.json",
+      "bytes": 10338,
+      "sha256": "6e37e31b0600a360c84fa5b2d6c5023269d6990b5becfc0c012fd2803c1cefe3"
+    },
+    {
+      "name": "road-industrial-final-road-edited.png",
+      "bytes": 810221,
+      "sha256": "99a3ff81dd0f1de50a6cdca62edb1ff5976e1f491f5c419b9b3c7d6f4c0159c6"
+    },
+    {
+      "name": "road-industrial-final-road-guide.png",
+      "bytes": 837170,
+      "sha256": "2a0803a1b02deb368ce420a1b0a1977921a1e65bd0bb9fc59020cfdca75c87ec"
+    },
+    {
+      "name": "road-industrial-final-road-menu.png",
+      "bytes": 806245,
+      "sha256": "bd02174808eb9fa7502e37728c8e5ab6ecf44db0b643118d8a8a917b17eee444"
+    },
+    {
+      "name": "road-industrial-final-road-playtest.json",
+      "bytes": 501,
+      "sha256": "58146b5d713cb97a1198aa47f32fcbf8aedf9765fbeb96c3d6bd19ae27c70f80"
+    },
+    {
+      "name": "road-industrial-final-road-playtest.mp4",
+      "bytes": 3440617,
+      "sha256": "22a63e4cc87507028a55b81ad572f4771b77b750fd578761a94483047b8fc270"
+    },
+    {
+      "name": "road-industrial-final-road-selected.png",
+      "bytes": 787823,
+      "sha256": "785bdf5adcf912ea7d0b37cf46031e72830de3efa6f4d24dee5c755c32fe2fd4"
+    },
+    {
+      "name": "road-industrial-final-road-snap.png",
+      "bytes": 825774,
+      "sha256": "926e59d4b67198a151ddb052100a7220f648c6dc339fa56c338530a79a7ffe3e"
+    },
+    {
+      "name": "road-industrial-final-road-surfaces.png",
+      "bytes": 838299,
+      "sha256": "4324969cfcf8e401fbcd21aa9ca7fd059a0711dee6abfec6dbe3b49f5049bfee"
+    },
+    {
+      "name": "road-industrial-final-road-video-all-frames.json",
+      "bytes": 368,
+      "sha256": "c5c59662609e92a7ae7c244520d8d821226ff69c43a2603145f706ab859a11ee"
+    },
+    {
+      "name": "road-industrial-final-road-video-samples.json",
+      "bytes": 157,
+      "sha256": "5b64b92dcd52cb83bab0c9aa1ac6f491d7873fc8e1e392621212b3dd591620e5"
+    },
+    {
+      "name": "road-industrial-final-shipping-coastal-menu.png",
+      "bytes": 792184,
+      "sha256": "899d8c7ddc89837ed1e17ca8e9afa4a5e6d529434121071e62f59eff3eaf6e86"
+    },
+    {
+      "name": "road-industrial-final-shipping-inland-rejection.png",
+      "bytes": 819778,
+      "sha256": "2e4f16a7caa430a66ea05956cc7e37db5d41c94878b4e586a7a25f9971844a71"
+    },
+    {
+      "name": "road-industrial-final-shipping-playtest.json",
+      "bytes": 460,
+      "sha256": "bfa078ae16ec7b930b06725bcf4efd3e1b076828da31048ba3425c98c07135fc"
+    },
+    {
+      "name": "road-industrial-final-shipping-playtest.mp4",
+      "bytes": 1179605,
+      "sha256": "5d508832c7b6299fb95fa00b828007b689952c5d80f354e407a9734de61c3be9"
+    },
+    {
+      "name": "road-industrial-final-shipping-port-carrier.png",
+      "bytes": 495276,
+      "sha256": "755af862636e1cf1657270ee550512b07cbe8133447efc9d3f952b7941d0f1f8"
+    },
+    {
+      "name": "road-industrial-final-shipping-port-reverse.png",
+      "bytes": 520599,
+      "sha256": "0720bcb77cd0db87a9cd9276f32e6368681c8316740ceea0197e4ef2cd42dc6d"
+    },
+    {
+      "name": "road-industrial-final-shipping-video-all-frames.json",
+      "bytes": 370,
+      "sha256": "f636163ac30e87eda7f3af0ffbc1cd87b1c966a3dbc4d618f383c6d7b1451fc5"
+    },
+    {
+      "name": "road-industrial-final-shipping-video-samples.json",
+      "bytes": 155,
+      "sha256": "f282594f13bdee7169861d05793bfb06dff7de27411daf9cdbd1ed821f178df1"
+    },
+    {
+      "name": "road-industrial-final-source.json",
+      "bytes": 15040,
+      "sha256": "3a1a4aef21b655c8c57a9e1dbad80cc3dd4a6f8ce3950f0d68664df056bec1b9"
+    },
+    {
+      "name": "road-industrial-final-tests.json",
+      "bytes": 11428,
+      "sha256": "4c48bf82581334d1d09783e85cd38675fd24e352a05c6f2677f19f3b94b4094a"
+    },
+    {
+      "name": "road-industrial-final-validation.md",
+      "bytes": 5675,
+      "sha256": "aa29c6d4630d8735724a94eb3ed12de69471caddc7d7c446dbe4f499cc44fae9"
+    }
+  ]
+}
