@@ -1,8 +1,49 @@
-Rebase recovery validation status
-Authoritative reviewed base: bb657412e77bc87213dbf498730d372045716394. Earlier audit against 495cb40 was incomplete because it excluded the reviewed right-angle feature.
-Current content audit: all 14 right-angle commit files other than progress JSON match reviewed base byte for byte; all base progress entries retained exactly. Save feature remains applied. Index awaits controller staging and rebase continuation. No final-head Maven or native check has run in this recovery turn. Media below belongs to earlier runs and must be regenerated after continuation.
+Current rebase recovery status
+Authoritative reviewed base: bb657412e77bc87213dbf498730d372045716394. Earlier audit against 495cb40 omitted reviewed right-angle routing and is superseded.
+All right-angle source, preview, regression tests, harness and historical evidence match the authoritative base. Every base dashboard entry remains. Save feature and added validation harness remain. Controller must stage contents and finish rebase before final-head tests and fresh captures. Earlier 366-test results and native media below are historical and do not validate this recovered head.
 
-Historical earlier validation record, not final recovered-head proof:
+Historical validation record from the incoming commit:
+Current restored-base validation
+Source HEAD 1f621db; parent reviewed base 495cb40. Independent review and controller publication pending.
+
+Restoration audit: RoadSpacing, CitySimulation, MultiplayerServer, AgricultureTest, ManufacturingTest, RoadSpacingTest and docs match 495cb40 byte for byte. All base dashboard entries and 104 historical evidence/checkpoint files are preserved. HEAD^..HEAD contains only save-related changes.
+
+Playtest: python3 deploy/run_city_saves_smoke.py --display "$DISPLAY" (exit 0). Linux inherited X11/XAUTHORITY, LIBGL_ALWAYS_SOFTWARE=1, synthetic target/city-saves-profile, temp target/tmp. No display server started or authentication cookie read. All workflow steps in the historical detailed record below were rerun and passed: save, copy, duplicate rejection, new city, list, load, independent state, same window across four scene starts, resume and F6. Both PNGs regenerated. Inspected images and raw ImageIO text counts: title 999, Save a copy 311, New city 247 in each. Initial driver compilation started before Maven finished rebuilding and failed with missing classes; only the later exit-0 run supports this result.
+
+Playtest: python3 deploy/run_factory_staffing_smoke.py --display "$DISPLAY" --max-spacing (exit 0). Same inherited X11 display; isolated target/factory-home. Expected graduate staffing, commute, production, tool deliveries and shop coverage at 2-block pedestrian/mounted gaps. Observed all assertions passed, processedAt700=10, both tool deliveries and native inspector passed. Fresh F10 MP4, PNG and results saved as city-saves-restored-factory.* / city-saves-restored-factory-results.json. Historical road-spacing-factory evidence restored byte for byte after capture.
+
+Playtest: python3 deploy/run_road_spacing_smoke.py --display "$DISPLAY" --pedestrian-spacing 0 --mounted-spacing 0 --output target/city-saves-restored-zero (exit 0). Same inherited display; synthetic target/spacing-home. Expected zero-spacing movement and inventory regression. Observed 211 moving samples, 59 mounted samples, minimum clearance margin 0.0 blocks, inventory opened/closed. Fresh PNG and results saved as city-saves-restored-zero.png and city-saves-restored-zero-results.json. Harness hardcodes Xvfb in its result label; published JSON corrects that label to actual inherited X11. No Xvfb was started.
+
+CLI integration commands: javac -cp <contents of target/spacing-classpath.txt> -d target/test-classes deploy/CliSpacingProbe.java; java -cp target/test-classes:<same classpath> CliSpacingProbe. Executed via subprocess.run in Python; exit 0. Expected Main.main accepts both gaps at 0 and 2, rejects -1. Observed configuration equals 0 then 2; unknown --probe-stop triggers Usage only after values apply; -1 rejected before sentinel. Probe source retained in deploy/CliSpacingProbe.java. Browser testing does not apply to this native desktop app/CLI.
+
+python3 deploy/build_site.py (exit 0): built landing page, 19 documentation sections and dashboard. No publication performed.
+
+Full regression command (exit 0):
+mvn -q -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux -DargLine="-Djava.io.tmpdir=$PWD/target/tmp" test
+Expected: every existing and restored suite passes alongside the save feature.
+Observed: 366 tests across 66 suites; zero failures, errors or skips. Restored RoadSpacingTest: 3 tests; AgricultureTest: 8; ManufacturingTest: 8. CitySavesTest: 2. All passed. Completed Surefire XML covers all 66 test source classes.
+
+Exact CLI probe execution:
+python3 - <<'PYCLI'
+from pathlib import Path
+import subprocess
+cp=Path('target/spacing-classpath.txt').read_text()
+subprocess.run(['javac','-cp',cp,'-d','target/test-classes','deploy/CliSpacingProbe.java'],check=True)
+subprocess.run(['java','-cp','target/test-classes:'+cp,'CliSpacingProbe'],check=True)
+PYCLI
+Observed exit 0 and PASS: Main CLI accepts 0 and 2 for both gaps; rejects -1 before app startup.
+
+Final hygiene: git diff --check (exit 0). Controller handles staging, commit, push and review. Fresh save, factory and zero-gap media is pending controller publication. No credentials, prompts, answers, account data or runtime logs are included.
+
+Current source SHA-256:
+e6a9c4272b739a48d3a75c42979370c01fd37476e514c360a2b1c6d9b8d6d8f3  src/main/java/dev/jayms/Main.java
+2b9848977cdd057dac86a2f547e57e4e351e48ac8ab15ba52fc9df1df5721d10  src/main/java/dev/jayms/net/city/CitySimulation.java
+87e84a3a1895d81f4e44a2e7439af9d6cb73927ec134cdec8bbc78c9ddc61316  src/main/java/dev/jayms/net/city/RoadSpacing.java
+9360e66ed566285b95973e6b0cb1e01fe1da6b84dcd14829863cb0031d51d5ca  src/main/java/dev/jayms/net/CitySaves.java
+32ffe4ac8ec4a7f8d110e1086d165a48e53003f7c90aba95440c757c02521378  deploy/CitySavesSmoke.java
+f1573af9bb7daab68ad2da96946bda322edcacd997072fe735290ebd9e8e668b  deploy/CliSpacingProbe.java
+
+Historical detailed validation record (earlier head; current native steps repeated above):
 City saves: final developer validation
 Status: implementation and local checks finished; independent review and controller publication pending.
 
@@ -39,12 +80,3 @@ Media: both 1280 x 720 PNGs were regenerated by the final native run. They captu
 
 Other check: git diff --check (exit 0).
 Limits/history: the earlier full regression run was interrupted for the requested operator pause and is not claimed as a full-suite pass. Earlier 100-second native runs timed out; the final bounded harness uses 300 seconds and completed. An intermediate mixed-source compilation failed the newly added reserved-name assertion; rebuilding final sources passed it. Only the successful final-source commands above support this handoff. Image-preview misreads were checked against raw PNG pixels; no font-renderer defect is claimed.
-
-Working-source SHA-256 (controller has not committed this work yet):
-536a2082a160a7ba702ec4e1e0546783acefa5b805f7c9b0063e6ce04a04057c  src/main/java/dev/jayms/Main.java
-9360e66ed566285b95973e6b0cb1e01fe1da6b84dcd14829863cb0031d51d5ca  src/main/java/dev/jayms/net/CitySaves.java
-fdbb96514588eb3e6da678a39d353778e4ac99d7806dc97107bdea253e287a14  src/main/java/dev/jayms/ui/ControlsMenu.java
-04b6ec93372e3736cc5a0794b8351655edd78cce3b9b4b88ec889bd45ef6140d  src/main/java/dev/jayms/ui/SavesMenu.java
-6e1d8cf4cc01616638a61f4706ffa1e8abc2e5f4d122524606ce15086a79e9d1  src/test/java/dev/jayms/CitySavesTest.java
-32ffe4ac8ec4a7f8d110e1086d165a48e53003f7c90aba95440c757c02521378  deploy/CitySavesSmoke.java
-ff3d83c3c72b67eae8f65174d83af9d17fcd4f0a0be2440bfc29e14678ad8371  deploy/run_city_saves_smoke.py
