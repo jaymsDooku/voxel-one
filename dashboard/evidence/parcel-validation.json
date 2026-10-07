@@ -2,7 +2,8 @@
   "status": "passed",
   "publication": "Pending controller publication",
   "branch": "feature/queue-36623333663562302d613731382d343833342d613735302d326666313839333532663035",
-  "startingHead": "2b35f2602fdce5d3bfd73f5943d996a3e14d2cad",
+  "startingHead": "f1fe9b2f9847568d080d0a8e3ed4894763822d91",
+  "testedTree": "Starting HEAD plus local smoke-harness changes and fresh evidence. Production source is unchanged from reviewed HEAD.",
   "environment": {
     "platform": "Linux native desktop application, inherited role X11 display",
     "java": "25.0.3",
@@ -10,139 +11,191 @@
     "graphics": "LIBGL_ALWAYS_SOFTWARE=1; inherited DISPLAY and XAUTHORITY; no replacement display server",
     "profile": "isolated synthetic city, leveled parcel test site"
   },
+  "reviewFailure": {
+    "observed": "Independent reviewer reported Road placement regression: expected road cell (98,182) absent. Earlier parcel checks passed.",
+    "localReproduction": "Not reproduced locally. Both full workflows passed with center clicks. Old boundary probes in the second run also picked the intended endpoints. Original failed run had no endpoint trace; its precise picked cells are unknown.",
+    "diagnosis": "Harness targeted exact cell boundaries. Projection rounds to integer screen pixels; CityTools.cursorPoint rounds the surface hit to half cells; RoadRoute.points floors to cells. A nearby half-cell pick can change the route row. Center clicks remove this ambiguity. No production defect was confirmed.",
+    "fix": "Only final road regression uses cell centers (80.5,182.5) and (116.5,182.5). Real xdotool clicks and exact assertion for road cell (98,182) remain. New sanitized endpoint/probe diagnostics and final capture are saved. Failure paths also save sanitized failure text and a final capture."
+  },
   "checks": [
     {
-      "command": "mvn -q -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=ParcelPortfolioTest,CityToolsTest,CityTest,CityMultiplayerTest,RegionalSaveCompatibilityTest,StressGridTest,RailwayOwnershipCompatibilityTest,AviationSaveCompatibilityTest,MarketEconomyTest,RailwayShippingCompatibilityTest,ShippingProtocolCompatibilityTest,RailwaySaveCompatibilityTest,RoadBaseCompatibilityTest,ProtocolCompatibilityTest,EngineEditorTest test",
-      "observed": "Exit 0; 73 tests, 0 failures, 0 errors, 0 skipped"
-    },
-    {
-      "command": "mvn -q -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux -DskipTests package",
-      "observed": "Exit 0"
-    },
-    {
-      "command": "git diff --check",
-      "observed": "Exit 0"
+      "command": "python3 deploy/run_parcel_smoke.py --display \"$DISPLAY\"",
+      "execution": "First center-click run, before boundary probes were added",
+      "expected": "All15 layouts, preview/apply, editor isolation/save/return, save/reload, construction fit, occupied-zone rejection, and exact road cell (98,182)",
+      "observed": "Exit0; all workflow assertions passed. Endpoint picks (80.5,182.5), (116.5,182.5); road built for $468."
     },
     {
       "command": "python3 deploy/run_parcel_smoke.py --display \"$DISPLAY\"",
-      "observed": "Exit 0; all 15 layouts and parcel/editor integration assertions passed; fresh images and F10 MP4 saved"
+      "execution": "Final harness with boundary probes and artifact copying",
+      "expected": "Same full workflow; diagnostics and final road capture saved",
+      "observed": "Exit0; all assertions passed. Boundary probes picked (80,182) and (116,182); real center clicks picked (80.5,182.5) and (116.5,182.5). Exact cell (98,182) exists."
     },
     {
-      "command": "javac --release 17 -cp target/maven-cache/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar -d target/parcel-classes deploy/ParcelVideoCheck.java && java -Djava.io.tmpdir=\"$PWD/target/tmp\" -cp target/parcel-classes:target/maven-cache/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar ParcelVideoCheck dashboard/evidence/parcel-playtest.mp4",
-      "observed": "Exit 0; four samples decoded; 51 frames, 47.465 seconds, 949019 bytes"
+      "command": "java -Djava.io.tmpdir=\"$PWD/target/tmp\" -cp target/parcel-classes:target/maven-cache/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar ParcelVideoCheck dashboard/evidence/parcel-playtest.mp4",
+      "observed": {
+        "status": "passed",
+        "frames": 54,
+        "seconds": 69.9,
+        "bytes": 980711,
+        "decodedSamples": [
+          0.2,
+          0.45,
+          0.8,
+          0.95
+        ]
+      }
+    },
+    {
+      "command": "git diff --check",
+      "observed": "Exit0"
+    },
+    {
+      "command": "git diff --name-only --diff-filter=D 88aff9a6cc09421ff03f753d12d578715b6271ea",
+      "observed": "Exit0; no deleted files; no intended deletions"
     }
   ],
-  "testReports": [
-    {
-      "class": "ParcelPortfolioTest",
-      "tests": 9,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0
-    },
-    {
-      "class": "CityToolsTest",
-      "tests": 10,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0
-    },
-    {
-      "class": "CityTest",
-      "tests": 10,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0
-    },
-    {
-      "class": "CityMultiplayerTest",
-      "tests": 1,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0
-    },
-    {
-      "class": "RegionalSaveCompatibilityTest",
-      "tests": 4,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0
-    },
-    {
-      "class": "StressGridTest",
-      "tests": 7,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0
-    },
-    {
-      "class": "RailwayOwnershipCompatibilityTest",
-      "tests": 2,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0
-    },
-    {
-      "class": "AviationSaveCompatibilityTest",
-      "tests": 1,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0
-    },
-    {
-      "class": "MarketEconomyTest",
-      "tests": 13,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0
-    },
-    {
-      "class": "RailwayShippingCompatibilityTest",
-      "tests": 2,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0
-    },
-    {
-      "class": "ShippingProtocolCompatibilityTest",
-      "tests": 3,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0
-    },
-    {
-      "class": "RailwaySaveCompatibilityTest",
-      "tests": 3,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0
-    },
-    {
-      "class": "RoadBaseCompatibilityTest",
-      "tests": 2,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0
-    },
-    {
-      "class": "ProtocolCompatibilityTest",
-      "tests": 3,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0
-    },
-    {
-      "class": "EngineEditorTest",
-      "tests": 3,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0
-    }
+  "Playtest": "Native production Main on inherited Linux X11/Mesa display, isolated synthetic profile; no browser workflow applies to this desktop application. Two real-input full workflow runs passed. Final road image and decoded video frame95 inspected: road and success/cost notice visible; no private data.",
+  "workflow": {
+    "status": "passed",
+    "layouts": 15,
+    "checks": [
+      "real UI zoning and grid parcels",
+      "15 layout choices applied",
+      "preview does not mutate zones",
+      "partition invariants",
+      "real save/reload",
+      "production construction fits parcel",
+      "purchased plot protects layout",
+      "engine workspace input isolation and paused clock",
+      "workspace save and return preserve parcels",
+      "road placement regression"
+    ],
+    "setup": "synthetic city; autonomous purchasing deferred during comparisons; one construction pass isolated to tested zone",
+    "profile": "isolated synthetic city",
+    "platform": "Linux inherited X11 Mesa"
+  },
+  "roadTrace": [
+    "boundary probe=80,182; screen=425,206; picked=Point[x=80.0, z=182.0]",
+    "target cell=80,182; points=[Point[x=80.5, z=182.5]]; message=Choose the first endpoint for Dirt road; notice=Parcel changes need a zone without buildings or purchased plots",
+    "boundary probe=116,182; screen=855,454; picked=Point[x=116.0, z=182.0]",
+    "target cell=116,182; points=[Point[x=116.5, z=182.5]]; message=Dirt road built: Meadow Lane | Mayor paid $468; notice=Dirt road built: Meadow Lane | Mayor paid $468"
   ],
+  "priorChecks": {
+    "note": "Previously executed on unchanged production source; not rerun for this harness-only correction.",
+    "tests": [
+      {
+        "class": "ParcelPortfolioTest",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "CityToolsTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "CityTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "CityMultiplayerTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "RegionalSaveCompatibilityTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "StressGridTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "RailwayOwnershipCompatibilityTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "AviationSaveCompatibilityTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "MarketEconomyTest",
+        "tests": 13,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "RailwayShippingCompatibilityTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "ShippingProtocolCompatibilityTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "RailwaySaveCompatibilityTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "RoadBaseCompatibilityTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "ProtocolCompatibilityTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "EngineEditorTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "build": "Maven package passed; all four platform CI jobs passed for starting HEAD. New harness revision still needs controller publication and independent review.",
+    "initialHarnessEdit": "First compile attempt failed: points has private access in CityTools. Fixed with reflection in test harness; both subsequent compile/native runs passed."
+  },
   "sourceSha256": {
     "deploy/ParcelVideoCheck.java": "24e08beab9b09fd1eb8f8a19d6e1a83028bf1911ecf732edec3147c44fd65dc1",
-    "deploy/ParcelWorkflowSmoke.java": "e9bdd483da859c3a7e37364ab6248de3f5da2f50e6f2f531577265f12b02b2aa",
-    "deploy/run_parcel_smoke.py": "11e305a5c5eba7199c77cd28886219df7104d2afb05e133fd6b96c78bee158ae",
+    "deploy/ParcelWorkflowSmoke.java": "78200a1ae42ff7e0b0986c836b3890325115cfc701a61059476606797b723aad",
+    "deploy/run_parcel_smoke.py": "7f35ad1278fd825dd12b2517576e7c6658f7753fc70bb6ab8c114b8a5091cffb",
     "docs/parcel-algorithms.md": "ad6f423f2810275fde1dca571684557d2362807ae40c88140b42642705aa5550",
     "src/main/java/dev/jayms/net/MultiplayerClient.java": "13c3a5efe42a9fad112f901fa158439ce73f7f7fa4f6fc0379b0a684efc556ac",
     "src/main/java/dev/jayms/net/Protocol.java": "673e6718c2c46bc428e8018aac4dc8c4d7339606ea2f27cdfdabcbdce4acaf18",
@@ -166,63 +219,6 @@
     "src/main/java/dev/jayms/ui/EngineEditor.java": "eaae7520e1786b6f1cfc92e2d5581d0c59d8cbc513b727d5d62a193e46f3cd22",
     "src/test/java/dev/jayms/EngineEditorTest.java": "f1afba1f800e21d2ccb4d8e1627f6e50b11b3a0f9a1cdd8fb2135ee198dc6d46"
   },
-  "audit": {
-    "against": "88aff9a6cc09421ff03f753d12d578715b6271ea",
-    "deletedFiles": [],
-    "notes": "Audited complete proposed diff against recorded base. Changes add parcel generation, selection, placement, persistence, protocol version/gates, relevant tests/docs and evidence. No file deletions or unrelated feature removal. Upstream engine editor and its progress entry retained."
-  },
-  "limits": [
-    "Skeleton methods are cell-based approximations, not continuous vector solvers.",
-    "Constraint optimisation is a bounded heuristic.",
-    "Terrain preview uses flat costs; applying uses authoritative terrain heights.",
-    "Frontage and area are preferences; unsuitable small parcels report zero candidate sites."
-  ],
-  "handoff": "Controller stages and publishes updated evidence, submits PR and arranges independent review. No developer commit, push, merge or deploy. Rerun meaningful checks and media if later source integration changes the tested source.",
-  "browserPlaytesting": "Browser playtesting does not apply: this is a native OpenGL desktop application. The affected workflow runs in the production Main application with real X11 input on the inherited role display.",
-  "earlierChecks": "An earlier broad Maven run used stale protocol-26 assertions and exited 1. All changed version assertions and compatibility gates were rerun on the final source in the 70 passing focused checks. Earlier native driver failures were fixed before fresh successful media was captured.",
-  "playtest": {
-    "command": "python3 deploy/run_parcel_smoke.py --display \"$DISPLAY\"",
-    "result": "Playtest: Passed on rebased source. Exit 0; production Main application, real inherited-role X11 input, isolated synthetic profile. All 15 layouts and merged editor integration exercised.",
-    "steps": [
-      {
-        "step": "Open Residential zoning, draw a roadside 36 x 24 zone with Grid selected, press Enter",
-        "expected": "Zone stores grid parcels and shows boundaries",
-        "observed": "Passed; zone created with nonempty grid parcels and visible edges"
-      },
-      {
-        "step": "Cycle all 15 layouts; toggle V, then P and click the empty zone",
-        "expected": "Preview leaves stored parcels unchanged; apply stores each selected algorithm; cells form a valid partition",
-        "observed": "Passed for all 15 choices; overlap, coverage and connectivity checked"
-      },
-      {
-        "step": "Open engine workspace with F11; send parcel hotkeys and editor clicks; save while open; return with F11",
-        "expected": "Parcel state and selected layout stay unchanged; offline clock pauses; save retains parcels; clock resumes on return",
-        "observed": "Passed; both editor state isolation and city return captured in fresh PNGs"
-      },
-      {
-        "step": "Apply Grid and save the synthetic city through LocalGame.save on the game thread; load its city sidecar",
-        "expected": "Selected algorithm, parcel IDs and cells survive reload",
-        "observed": "Passed; restored zone equals saved zone"
-      },
-      {
-        "step": "Run production construction with only the tested zone offered as a candidate",
-        "expected": "Developer buys a site fully inside one parcel, including the entrance strip",
-        "observed": "Passed; purchased plot found and its footprint validated against one parcel"
-      },
-      {
-        "step": "Choose another layout and apply to the purchased zone",
-        "expected": "Reject the change and retain stored parcels",
-        "observed": "Passed; message requires a zone without buildings or purchased plots; zone unchanged"
-      },
-      {
-        "step": "Leave zoning and build a road through the road tool",
-        "expected": "Road guide and placement still work",
-        "observed": "Passed; expected central road cell exists"
-      }
-    ],
-    "setup": "Isolated synthetic profile. Test site leveled through the game world on the render thread. Autonomous purchases deferred during comparisons. Construction candidate list temporarily isolated for one production pass, then restored. Save and construction execute on the game thread.",
-    "media": "Fresh final-head PNGs and production F10 MP4. Editor-return image and decoded video frame visually inspected. Every media artifact is under 6 MB."
-  },
   "evidence": [
     {
       "name": "parcel-editor-isolation.png",
@@ -230,7 +226,7 @@
       "kind": "image",
       "bytes": 201099,
       "sha256": "5adeadfe038277bfcd2e5f58582d5548dad3d37ed6cf3193e4ad0a1556ebcce9",
-      "publication": "Pending controller publication"
+      "publication": "Pending controller publication of this revision"
     },
     {
       "name": "parcel-editor-return.png",
@@ -238,31 +234,31 @@
       "kind": "image",
       "bytes": 618522,
       "sha256": "666d8ec952dabbac20839cb0bf0956d0daae0bd59cf233ebd37d6fb7c4343c07",
-      "publication": "Pending controller publication"
+      "publication": "Pending controller publication of this revision"
     },
     {
       "name": "parcel-grid.png",
       "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623333663562302d613731382d343833342d613735302d326666313839333532663035/dashboard/evidence/parcel-grid.png",
       "kind": "image",
-      "bytes": 264461,
-      "sha256": "25a0c7c362b3be60e3151d37ed5eabd50f184837d7bcf4153ddecb3c15114c8a",
-      "publication": "Pending controller publication"
+      "bytes": 239500,
+      "sha256": "94e365e0d2f669371938aa2b9a31f3976f84e65b52dd79c5aa8f1e287cddd659",
+      "publication": "Pending controller publication of this revision"
     },
     {
       "name": "parcel-layout-0.png",
       "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623333663562302d613731382d343833342d613735302d326666313839333532663035/dashboard/evidence/parcel-layout-0.png",
       "kind": "image",
-      "bytes": 358463,
-      "sha256": "a7fe3e5e4dc289870402f6c91a4eba065182b45d1f13e5f5b19219abcce81965",
-      "publication": "Pending controller publication"
+      "bytes": 348949,
+      "sha256": "f8c0d08a46d68a151dae74ab560d968d4019a045a709c4048546b578131772a3",
+      "publication": "Pending controller publication of this revision"
     },
     {
       "name": "parcel-layout-1.png",
       "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623333663562302d613731382d343833342d613735302d326666313839333532663035/dashboard/evidence/parcel-layout-1.png",
       "kind": "image",
-      "bytes": 451233,
-      "sha256": "a6542619646ce9568bf77ff3febbde1ed2a270d2f03243750eb38038d408e3d0",
-      "publication": "Pending controller publication"
+      "bytes": 437871,
+      "sha256": "c622e5f583feeb9dfb4ae3b5067f9ea29477aaa866f641a42d6a114ce54dd173",
+      "publication": "Pending controller publication of this revision"
     },
     {
       "name": "parcel-layout-12.png",
@@ -270,7 +266,7 @@
       "kind": "image",
       "bytes": 595458,
       "sha256": "362414e5e08e1f96896ecbfa62ee66da31fa6f63c504547eb3546dde8d5fea97",
-      "publication": "Pending controller publication"
+      "publication": "Pending controller publication of this revision"
     },
     {
       "name": "parcel-layout-13.png",
@@ -278,101 +274,49 @@
       "kind": "image",
       "bytes": 595644,
       "sha256": "4d4e658355887298651cf5ae5729b8a8ed180a9da6f531df2a21ba7df3222e6d",
-      "publication": "Pending controller publication"
+      "publication": "Pending controller publication of this revision"
     },
     {
       "name": "parcel-layout-4.png",
       "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623333663562302d613731382d343833342d613735302d326666313839333532663035/dashboard/evidence/parcel-layout-4.png",
       "kind": "image",
-      "bytes": 579382,
-      "sha256": "dc72ef0d1a9632b6e660a9dd1d1db2d7b2d0d72dccab990a1905b96d308ef348",
-      "publication": "Pending controller publication"
+      "bytes": 578667,
+      "sha256": "c98ec8488070a370a1051a26ad3b28645565082a4f40a5e624c5dbbdd6d588f0",
+      "publication": "Pending controller publication of this revision"
     },
     {
       "name": "parcel-layout-8.png",
       "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623333663562302d613731382d343833342d613735302d326666313839333532663035/dashboard/evidence/parcel-layout-8.png",
       "kind": "image",
-      "bytes": 588137,
-      "sha256": "774e99e75f9fe5954351517c419032d1afd591143b3d51f8c3a9e4edef7e1627",
-      "publication": "Pending controller publication"
+      "bytes": 588140,
+      "sha256": "a8a0855a9458f72ec2847dc72a27b7007215337684e1086fac265116885169d0",
+      "publication": "Pending controller publication of this revision"
     },
     {
       "name": "parcel-playtest.mp4",
       "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623333663562302d613731382d343833342d613735302d326666313839333532663035/dashboard/evidence/parcel-playtest.mp4",
       "kind": "video",
-      "bytes": 949019,
-      "sha256": "74ad337e5c7701a026ef0e13fa560dc936990e4e0be75298ac2d2f2e7a48bc92",
-      "publication": "Pending controller publication"
+      "bytes": 980711,
+      "sha256": "09ab59e53a0e0b38e3549cea496a9eb0a9be2a887cdc3fb14e8ca1936e45fbd8",
+      "publication": "Pending controller publication of this revision"
     },
     {
       "name": "parcel-protected-plot.png",
       "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623333663562302d613731382d343833342d613735302d326666313839333532663035/dashboard/evidence/parcel-protected-plot.png",
       "kind": "image",
-      "bytes": 615993,
-      "sha256": "3d5ba89d7738b1e65060e7a049601c0b9ff6bad66e389bf60f80f77b00a3a408",
-      "publication": "Pending controller publication"
+      "bytes": 615995,
+      "sha256": "8b70d97d98b12378758a242cf260db15ffda54da4a4b0077ae56803ac2d6efd5",
+      "publication": "Pending controller publication of this revision"
+    },
+    {
+      "name": "parcel-road-final.png",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623333663562302d613731382d343833342d613735302d326666313839333532663035/dashboard/evidence/parcel-road-final.png",
+      "kind": "image",
+      "bytes": 674114,
+      "sha256": "dfc9f8fcbb4900046043211cae9450418ee22e7b5dd7d3d65c7ed3020449db94",
+      "publication": "Pending controller publication of this revision"
     }
   ],
-  "videoCheck": {
-    "status": "passed",
-    "frames": 51,
-    "seconds": 47.465,
-    "bytes": 949019,
-    "decodedSamples": [
-      0.2,
-      0.45,
-      0.8,
-      0.95
-    ]
-  },
-  "recovery": {
-    "reviewBase": "88aff9a6cc09421ff03f753d12d578715b6271ea",
-    "conflict": "dashboard/progress.json",
-    "resolution": "Kept upstream metadata and every unrelated progress entry; retained parcel entry and labeled its existing evidence pre-rebase.",
-    "deletedFiles": [],
-    "validation": "JSON parsed and unrelated upstream records compared exactly. Conflict-marker scan and diff whitespace checks follow.",
-    "testsAndMedia": "Final-head validation completed after controller continuation: 73 tests and package passed; native playtest and fresh media passed, including merged editor isolation/save/return checks.",
-    "gitHandoff": "Historical conflict handoff completed by controller. Current developer edits contain refreshed evidence/progress and added native integration assertions only; no developer Git mutation.",
-    "sourceChangesSincePreviousChecks": [],
-    "audit": "Audited complete proposed diff against 88aff9a6cc09421ff03f753d12d578715b6271ea: parcel files, protocol version/gates, parcel workflow integration, relevant compatibility tests and evidence only. No file deletions; no unrelated feature removal intended.",
-    "state": "Controller continued the rebase. No pending rebase or unmerged index at this turn start. Parcel feature source hashes matched the earlier tested source; merged Main and editor are now included in fresh checks."
-  },
-  "preRebaseChecks": [
-    {
-      "command": "mvn -q -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=ParcelPortfolioTest,CityToolsTest,CityTest,CityMultiplayerTest,RegionalSaveCompatibilityTest,StressGridTest,RailwayOwnershipCompatibilityTest,AviationSaveCompatibilityTest,MarketEconomyTest,RailwayShippingCompatibilityTest,ShippingProtocolCompatibilityTest,RailwaySaveCompatibilityTest,RoadBaseCompatibilityTest,ProtocolCompatibilityTest test",
-      "observed": "Exit 0; 70 tests, 0 failures, 0 errors, 0 skipped"
-    },
-    {
-      "command": "mvn -q -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux -DskipTests package",
-      "observed": "Exit 0"
-    },
-    {
-      "command": "git diff --check",
-      "observed": "Exit 0; no whitespace errors"
-    },
-    {
-      "command": "python3 deploy/run_parcel_smoke.py --display \"$DISPLAY\"",
-      "observed": "Exit 0; all native assertions passed; fresh media saved"
-    },
-    {
-      "command": "java -Djava.io.tmpdir=\"$PWD/target/tmp\" -cp target/parcel-classes:target/maven-cache/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar ParcelVideoCheck dashboard/evidence/parcel-playtest.mp4",
-      "observed": "Exit 0; four samples decoded; 47.38 seconds, 51 frames, 969745 bytes"
-    }
-  ],
-  "preRebaseVideoCheck": {
-    "status": "passed",
-    "frames": 51,
-    "seconds": 47.38,
-    "bytes": 969745,
-    "decodedSamples": [
-      0.2,
-      0.45,
-      0.8,
-      0.95
-    ]
-  },
-  "testedHead": "6a5a59443729623c412bb762feba68d7a867e441",
-  "reviewBase": "88aff9a6cc09421ff03f753d12d578715b6271ea",
-  "validatedAt": "2026-10-07T16:34:28.339284+00:00",
-  "testedTree": "Recorded HEAD plus the local native harness integration checks; production source matches the built and tested sourceSha256 manifest. Controller has not yet published updated test evidence."
+  "limitations": "Straight-skeleton and medial-axis methods remain raster approximations; constraint optimisation is bounded heuristic search.",
+  "handoff": "Controller stages and publishes edits/media and resumes independent review. Developer did not commit, push, merge or deploy."
 }

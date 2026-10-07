@@ -19,6 +19,28 @@ public class ParcelWorkflowSmoke {
     static volatile boolean levelSite,siteReady;
     static volatile Matrix4f screenMatrix;
     static volatile CityFrame latestCity;
+    static final List<String> roadTrace = new ArrayList<>();
+    static void shot(String name) throws Exception {
+        capture=name;
+        for(int i=0;i<200 && !Files.exists(out.resolve(name));i++) Thread.sleep(50);
+        require(Files.exists(out.resolve(name)),"Capture saved: "+name);
+    }
+    static void roadPoint(int x,int z) throws Exception {
+        roadTrace.add(onFrame(()-> {
+            var tools=(CityTools)get("cityTools");
+            var projection=(Matrix4f)get("projection");var view=(Matrix4f)get("view");
+            var p=new Matrix4f(projection).mul(view).transform(new Vector4f(x,city().roads().get(0).y()+1.03f,z,1));
+            int px=java.lang.Math.round((p.x/p.w*.5f+.5f)*width());
+            int py=java.lang.Math.round((.5f-p.y/p.w*.5f)*height());
+            return "boundary probe="+x+","+z+"; screen="+px+","+py+"; picked="+tools.cursorPoint(px,py,width(),height(),projection,view,city());
+        }));
+        point(x+.5f,z+.5f);
+        roadTrace.add(onFrame(()-> {
+            var tools=(CityTools)get("cityTools");
+            var points=CityTools.class.getDeclaredField("points");points.setAccessible(true);
+            return "target cell="+x+","+z+"; points="+points.get(tools)+"; message="+tools.message+"; notice="+get("notice");
+        }));
+    }
     static final java.util.concurrent.ConcurrentLinkedQueue<java.util.concurrent.FutureTask<?>> frameTasks=new java.util.concurrent.ConcurrentLinkedQueue<>();
     static <T> T onFrame(java.util.concurrent.Callable<T> action) throws Exception {
         var task=new java.util.concurrent.FutureTask<T>(action);frameTasks.add(task);return task.get(30,java.util.concurrent.TimeUnit.SECONDS);
@@ -162,12 +184,15 @@ public class ParcelWorkflowSmoke {
                 capture="parcel-protected-plot.png";x("getwindowfocus");Thread.sleep(1000);
                 x("key","Escape");
                 // Road guide regression still uses real UI input.
-                camera.focus(98,182,city().roads().get(0).y()+1);x("getwindowfocus");menu(0);point(80,182);point(116,182);
-                require(city().roads().stream().anyMatch(r->r.x()==98&&r.z()==182),"Road placement regression");
+                camera.focus(98,182,city().roads().get(0).y()+1);x("getwindowfocus");menu(0);roadPoint(80,182);roadPoint(116,182);
+                shot("parcel-road-final.png");
+                Files.write(out.resolve("road-diagnostics.txt"),roadTrace);
+                require(city().roads().stream().anyMatch(r->r.x()==98&&r.z()==182),"Road placement regression: expected cell=98,182; "+roadTrace+"; nearby="+city().roads().stream().filter(r->r.x()>=80&&r.x()<=116&&r.z()>=180&&r.z()<=184).toList());
                 x("key","Escape");x("key","F10");Thread.sleep(1500);
                 Files.writeString(out.resolve("results.json"),"{\"status\":\"passed\",\"layouts\":"+layouts+",\"checks\":[\"real UI zoning and grid parcels\",\"15 layout choices applied\",\"preview does not mutate zones\",\"partition invariants\",\"real save/reload\",\"production construction fits parcel\",\"purchased plot protects layout\",\"engine workspace input isolation and paused clock\",\"workspace save and return preserve parcels\",\"road placement regression\"],\"setup\":\"synthetic city; autonomous purchasing deferred during comparisons; one construction pass isolated to tested zone\",\"profile\":\"isolated synthetic city\",\"platform\":\"Linux inherited X11 Mesa\"}");
             } catch(Throwable e) {
                 failure=e;
+                try { shot("parcel-failure-final.png");Files.write(out.resolve("road-diagnostics.txt"),roadTrace); } catch(Exception ignored) {}
                 try { Files.writeString(out.resolve("failure.txt"),e.getClass().getSimpleName()+": "+e.getMessage()); } catch(Exception ignored) {}
             } finally { if(handle!=0) glfwSetWindowShouldClose(handle,true); }
         });

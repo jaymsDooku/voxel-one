@@ -41,7 +41,7 @@
         }
       ],
       "status": "in_progress",
-      "note": "Rebased source verified: package and 73 focused tests pass. Native playtest passes all 15 layouts, saved parcels, construction, protected plots, editor isolation/save/return and road regression. Fresh 47.465-second F10 clip decoded and inspected; awaiting controller publication and independent review.",
+      "note": "Review road harness hardened: center clicks retain exact cell (98,182) assertion. Two full native workflows passed, including all 15 layouts and edge/regression checks. Sanitized picker diagnostics, final road image and fresh 69.9-second F10 clip saved and inspected. Original reviewer failure not reproduced locally; awaiting controller publication and independent review.",
       "updatedAt": "2026-10-07T16:34:28+00:00"
     },
     {

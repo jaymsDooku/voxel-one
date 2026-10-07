@@ -18,6 +18,10 @@ cp=os.pathsep.join([str(root/args.classes),str(classes),*jars])
 subprocess.run(['javac','-cp',cp,'-d',str(classes),'deploy/ParcelWorkflowSmoke.java'],check=True)
 with (runtime/'private-runtime.txt').open('w') as out:
  result=subprocess.run(['java','-Xmx768m','-Djava.io.tmpdir='+str(root/'target/tmp'),'-Duser.home='+str(home),'-cp',cp,'ParcelWorkflowSmoke',str(runtime)],env=env,stdout=out,stderr=out,timeout=600)
+evidence=root/'dashboard/evidence'
+for name in ('road-diagnostics.txt','failure.txt','parcel-failure-final.png','parcel-road-final.png'):
+ p=runtime/name
+ if p.exists():shutil.copyfile(p,evidence/('parcel-'+name if name.endswith('.txt') else name))
 print('Parcel native exit:',result.returncode)
 if result.returncode:
  failure=runtime/'failure.txt'
