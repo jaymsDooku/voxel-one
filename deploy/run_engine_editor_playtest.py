@@ -11,9 +11,9 @@ jdk=Path('/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin')
 jars=[str(p) for p in Path('target/maven-cache').rglob('*.jar') if 'natives-windows' not in p.name]
 cp=':'.join(['target/classes','target/editor-driver']+jars)
 subprocess.run([str(jdk/'javac'),'-cp',cp,'-d','target/editor-driver','deploy/EngineEditorPlaytest.java'],check=True)
-for name in ('engine-editor-workspace.png','engine-editor-city-play.png','engine-editor-assets.png','engine-editor-playtest-result.txt'):
+for name in ('engine-editor-workspace.png','engine-editor-city-play.png','engine-editor-assets.png','engine-editor-asset-return.png','engine-editor-playtest-result.txt'):
     (root/'dashboard/evidence'/name).unlink(missing_ok=True)
 with open('target/editor-runtime-private.txt','w') as log:
-    result=subprocess.run([str(jdk/'java'),'-Djava.io.tmpdir='+str(root/'target/tmp'),'-Duser.home='+str(root/'target/editor-home'),'-cp',cp,'EngineEditorPlaytest',str(root/'dashboard/evidence')],env=env,stdout=log,stderr=log,timeout=180)
+    result=subprocess.run([str(jdk/'java'),'-Djava.io.tmpdir='+str(root/'target/tmp'),'-Duser.home='+str(root/'target/editor-home'),'-cp',cp,'EngineEditorPlaytest',str(root/'dashboard/evidence')],env=env,stdout=log,stderr=log,timeout=240)
 print('Native editor Playtest exit:',result.returncode)
 raise SystemExit(result.returncode)

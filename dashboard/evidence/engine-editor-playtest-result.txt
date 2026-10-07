@@ -1,1 +1,1 @@
-PASS: startup, local pause, input isolation, selection wrap, play, resume, F6 regression, return, model tool, mouse Play, controls menu.
+PASS: startup, local pause, input isolation, selection wrap, play, resume, F6 regression, return, model tool, direct F11 return, focused name draft retention, Escape regression, mouse Play, controls menu.

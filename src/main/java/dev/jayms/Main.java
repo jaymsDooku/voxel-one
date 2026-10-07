@@ -447,6 +447,10 @@ public class Main {
                         return;
                     }
                     if (editor.open) {
+                        if (action == GLFW_PRESS && controls.matches(ENGINE_EDITOR, key)) {
+                            openEngineWorkspace();
+                            return;
+                        }
                         if (action == GLFW_PRESS && controls.matches(MODEL_EDITOR, key))
                             editor.closeEditor();
                         else editor.key(key, action, mods);
@@ -559,6 +563,10 @@ public class Main {
                         return;
                     }
                     if (editor.open) {
+                        if (action == GLFW_PRESS && controls.matches(ENGINE_EDITOR, -button - 1)) {
+                            openEngineWorkspace();
+                            return;
+                        }
                         if (action == GLFW_PRESS && controls.matches(MODEL_EDITOR, -button - 1)) {
                             editor.closeEditor();
                             setCaptured(true);
@@ -758,9 +766,7 @@ public class Main {
 
     private void input(int code) {
         if (controls.matches(ENGINE_EDITOR, code)) {
-            inventoryHud.close();
-            engineEditor.open = true;
-            setCaptured(false);
+            openEngineWorkspace();
             return;
         }
         if (controls.matches(CHEATS, code)) {
@@ -892,6 +898,13 @@ public class Main {
             else if (controls.matches(BREAK, code)) interact(false);
             else if (controls.matches(PLACE, code)) interact(true);
         }
+    }
+
+    private void openEngineWorkspace() {
+        if (editor.open) editor.closeEditor();
+        inventoryHud.close();
+        engineEditor.open = true;
+        setCaptured(false);
     }
 
     private void engineCommand(EngineEditor.Command command) {

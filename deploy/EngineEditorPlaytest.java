@@ -69,12 +69,22 @@ public class EngineEditorPlaytest {
                 image("engine-editor-city-play.png");
                 x("key","F11");await(()->workspace().open,"Return to workspace");
                 x("key","m");await(()->!workspace().open && ((ModelEditor)get("editor")).open,"Asset editor opens");
-                image("engine-editor-assets.png");x("key","Escape");await(()->!((ModelEditor)get("editor")).open,"Asset editor closes");
-                x("key","F11");await(()->workspace().open,"Workspace reopens after asset tool");
+                image("engine-editor-assets.png");
+                x("key","F11");await(()->workspace().open && !((ModelEditor)get("editor")).open,"F11 returns directly from asset tool without Escape");
+                require(!(boolean)get("captured"),"Workspace keeps pointer released");
+                image("engine-editor-asset-return.png");
+                x("key","m");await(()->((ModelEditor)get("editor")).open,"Asset tool reopens");
+                x("mousemove","--window",id,"1000","115");x("click","1");
+                x("key","ctrl+a");x("type","--clearmodifiers","Synthetic draft");
+                x("key","F11");await(()->workspace().open && !((ModelEditor)get("editor")).open,"F11 exits focused model name");
+                x("key","m");await(()->((ModelEditor)get("editor")).open,"Asset draft reopens");
+                require(((ModelEditor)get("editor")).snapshot().name().equals("Synthetic draft"),"Focused model name draft preserved");
+                x("key","Escape");await(()->!((ModelEditor)get("editor")).open,"Escape still closes asset tool");
+                x("key","F11");await(()->workspace().open,"Workspace reopens after Escape");
                 x("mousemove","--window",id,"100","75");x("click","1");await(()->!workspace().open,"Play mouse button works");
                 x("key","Escape");await(()->((ControlsMenu)get("menu")).open,"Game save/control menu regression");
                 x("key","Escape");await(()->!((ControlsMenu)get("menu")).open,"Game menu closes");
-                Files.writeString(out.resolve("engine-editor-playtest-result.txt"),"PASS: startup, local pause, input isolation, selection wrap, play, resume, F6 regression, return, model tool, mouse Play, controls menu.\n");
+                Files.writeString(out.resolve("engine-editor-playtest-result.txt"),"PASS: startup, local pause, input isolation, selection wrap, play, resume, F6 regression, return, model tool, direct F11 return, focused name draft retention, Escape regression, mouse Play, controls menu.\n");
             } catch(Throwable e){failure=e;}
             finally{if(handle!=0)glfwSetWindowShouldClose(handle,true);}
         });driver.setDaemon(true);driver.start();
