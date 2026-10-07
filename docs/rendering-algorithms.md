@@ -56,3 +56,5 @@ GI and light transport remain bounded to the existing nearby 96×128×96 voxel v
 Build with `mvn -Dmaven.repo.local=target/maven-cache -DargLine="-Djava.io.tmpdir=$PWD/target/tmp" package` after creating `target/tmp`. Run `python3 deploy/run_rendering_playtest.py --display "$DISPLAY" --gl33` for the strict 3.3 fixture, omit `--gl33` for the 4.3 path, and run `python3 deploy/run_rendering_main_playtest.py --display "$DISPLAY" --gl33` for the production game workflow. These harnesses use isolated synthetic homes and the inherited display. They never start an X server or access account data.
 
 Executed results and fresh media are recorded separately in `dashboard/evidence`. Harness source is not proof that a check ran.
+
+Clustered LED shadows traverse the finite segment from the biased receiver to the light. They exclude the target emitter cell and use exact cell crossings in the existing coarse transport opacity grid. Other opaque cells before the light block it; cells beyond the light do not. The coarse grid cannot resolve separate fractional shapes within the emitter cell. Directional sunlight keeps the bounded distance-field shadow march.

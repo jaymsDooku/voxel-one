@@ -1,0 +1,15 @@
+Playtest: PASS. Production pointShadow GLSL helper; real worker TransportField textures; inherited assigned X11; synthetic cells; 3.3 (Core Profile) Mesa 22.3.6; llvmpipe (LLVM 15.0.6, 256 bits).
+empty segment: expected=1.0, observed=1.0
+target LED excludes self-occlusion: expected=1.0, observed=1.0
+wall before LED: expected=0.0, observed=0.0
+wall adjacent before LED: expected=0.0, observed=0.0
+wall beyond LED: expected=1.0, observed=1.0
+beyond empty endpoint: expected=1.0, observed=1.0
+near emitter: expected=1.0, observed=1.0
+fractional emitter endpoint: expected=1.0, observed=1.0
+inside emitter: expected=1.0, observed=1.0
+reverse ray beyond light: expected=1.0, observed=1.0
+reverse ray before light: expected=0.0, observed=0.0
+diagonal emitter: expected=1.0, observed=1.0
+diagonal blocker: expected=0.0, observed=0.0
+corner-only contact is clear: expected=1.0, observed=1.0

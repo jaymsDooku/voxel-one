@@ -3358,11 +3358,16 @@
           "kind": "image",
           "label": "Fresh restored Space game (pending controller publication)",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-restored-space-desktop.png"
+        },
+        {
+          "kind": "test",
+          "label": "LED segment GPU regressions (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-led-shadow-checks.txt"
         }
       ],
       "status": "in_progress",
-      "note": "Space Invaders preservation fixes ready for independent review. All game, website/navigation, test/harness and historical-evidence paths match 41ed6e88; its progress record is intact. 88 focused Maven tests, 8 game tests and 10 website tests passed. Both WebKit workflow/layout harnesses passed. Native GL3.3 production passed 42 frames; modern compute fixture passed. Fresh media saved; controller handles publication.",
-      "updatedAt": "2026-10-07T20:45:22.872897+00:00"
+      "note": "LED shadow fix ready for independent review. Finite receiver-to-light traversal excludes emitter cell and stops before beyond-light blockers. 14 real GPU cases passed; emitter/beyond visibility 1.0, before-light visibility 0.0. Coarse fractional-cell limit documented. 88 focused tests passed; production GL3.3 passed 37 frames; 4x MSAA and modern compute fixtures passed. Fresh 8-frame F10 clip decoded, 10.886 seconds, 243712 bytes. No unrelated deletions; controller handles publication.",
+      "updatedAt": "2026-10-07T21:11:43.539294+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

@@ -1,11 +1,11 @@
 {
   "status": "ready_for_independent_review",
-  "rendererSourceSha256": "999f76d886f5e9872661976e3666bccf54b9e9f38ee54865c1bc0ce8bd63d75d",
+  "rendererSourceSha256": "48d0718193c5d1db4327fed5d76e2479ac8c623b3bfad5de0265aff117505f21",
   "platform": "Linux assigned inherited X11 DISPLAY and XAUTHORITY; Mesa llvmpipe; verified native Java 21.0.5; compile source/target 17; isolated synthetic profiles",
   "focusedSuites": [
     {
       "name": "dev.jayms.RenderingAlgorithmsTest",
-      "time": "0.088",
+      "time": "0.066",
       "tests": "9",
       "errors": "0",
       "skipped": "0",
@@ -13,7 +13,7 @@
     },
     {
       "name": "dev.jayms.LightingTest",
-      "time": "0.039",
+      "time": "0.034",
       "tests": "5",
       "errors": "0",
       "skipped": "0",
@@ -21,7 +21,7 @@
     },
     {
       "name": "dev.jayms.LightOcclusionTest",
-      "time": "1.793",
+      "time": "1.489",
       "tests": "6",
       "errors": "0",
       "skipped": "0",
@@ -29,7 +29,7 @@
     },
     {
       "name": "dev.jayms.FractionalWorldTest",
-      "time": "0.113",
+      "time": "0.111",
       "tests": "7",
       "errors": "0",
       "skipped": "0",
@@ -37,7 +37,7 @@
     },
     {
       "name": "dev.jayms.DistantTerrainTest",
-      "time": "0.143",
+      "time": "0.123",
       "tests": "6",
       "errors": "0",
       "skipped": "0",
@@ -45,7 +45,7 @@
     },
     {
       "name": "dev.jayms.StressGridLightingTest",
-      "time": "1.212",
+      "time": "1.195",
       "tests": "1",
       "errors": "0",
       "skipped": "0",
@@ -53,7 +53,7 @@
     },
     {
       "name": "dev.jayms.CityMaterialsTest",
-      "time": "23.821",
+      "time": "21.147",
       "tests": "13",
       "errors": "0",
       "skipped": "0",
@@ -61,7 +61,7 @@
     },
     {
       "name": "dev.jayms.PlayerCameraTest",
-      "time": "0.029",
+      "time": "0.028",
       "tests": "3",
       "errors": "0",
       "skipped": "0",
@@ -69,7 +69,7 @@
     },
     {
       "name": "dev.jayms.RoadMarkingsTest",
-      "time": "0.352",
+      "time": "0.399",
       "tests": "4",
       "errors": "0",
       "skipped": "0",
@@ -77,7 +77,7 @@
     },
     {
       "name": "dev.jayms.IsometricCameraTest",
-      "time": "0.08",
+      "time": "0.068",
       "tests": "8",
       "errors": "0",
       "skipped": "0",
@@ -85,7 +85,7 @@
     },
     {
       "name": "dev.jayms.VoxelModelTest",
-      "time": "0.115",
+      "time": "0.106",
       "tests": "6",
       "errors": "0",
       "skipped": "0",
@@ -93,7 +93,7 @@
     },
     {
       "name": "dev.jayms.EngineEditorTest",
-      "time": "0.038",
+      "time": "0.042",
       "tests": "3",
       "errors": "0",
       "skipped": "0",
@@ -101,7 +101,7 @@
     },
     {
       "name": "dev.jayms.VehicleAudioTest",
-      "time": "0.003",
+      "time": "0.002",
       "tests": "1",
       "errors": "0",
       "skipped": "0",
@@ -109,7 +109,7 @@
     },
     {
       "name": "dev.jayms.CityFormat16RegressionTest",
-      "time": "0.078",
+      "time": "0.071",
       "tests": "2",
       "errors": "0",
       "skipped": "0",
@@ -117,7 +117,7 @@
     },
     {
       "name": "dev.jayms.EditHistoryTest",
-      "time": "0.02",
+      "time": "0.022",
       "tests": "1",
       "errors": "0",
       "skipped": "0",
@@ -125,7 +125,7 @@
     },
     {
       "name": "dev.jayms.StressGridDevelopmentTest",
-      "time": "32.206",
+      "time": "33.985",
       "tests": "3",
       "errors": "0",
       "skipped": "0",
@@ -133,7 +133,7 @@
     },
     {
       "name": "dev.jayms.CityTest",
-      "time": "6.32",
+      "time": "6.595",
       "tests": "10",
       "errors": "0",
       "skipped": "0",
@@ -153,10 +153,9 @@
     }
   ],
   "diffAudit": {
-    "base": "11314f5f2ebf39e0d8b335f90af8b8327722f35a",
-    "preservationBase": "41ed6e88d231435559810c788416832d2b13d136",
+    "base": "41ed6e88d231435559810c788416832d2b13d136",
     "deletedFiles": [],
-    "scope": "Audited entire proposed tree against recorded base and later Space Invaders base. Space game, website navigation/output, build script, tests/harnesses, historical evidence and progress record match 41ed6e88. Later merged features are preserved; these additions against 11314f5 are inherited work. No unexpected changes outside explicit rendering paths. Intentional rendering statement replacements: greedy faces, screen-error LOD, cascade shadows, atmospheric scattering, temporal post and held-item ordering."
+    "scope": "Full proposed tree audited against current recorded base. Unrelated Space game, website/navigation, tests, harnesses and historical evidence remain exact base matches. This revision adds finite LED segment shadows, GPU checks and a documented coarse-cell limit. Intentional rendering replacements in complete diff remain greedy faces, screen-error LOD, cascades, atmosphere, temporal post and held-item ordering. No unrelated deletions."
   },
   "limits": [
     "Single-scattering atmosphere; screen-space effects miss offscreen geometry.",
@@ -166,170 +165,93 @@
     "Software Mesa playtesting does not establish physical GPU frame-rate targets.",
     "Full suite is not claimed as passed; controller CI and independent review remain required."
   ],
-  "completedAt": "2026-10-07T20:45:22.872897+00:00",
-  "playtest": "Playtest: restored Space Invaders workflow exercised in running WebKit via restored website navigation, with keyboard/touch, pause/blur/cancel, injected wave and game-over edges, restart and viewport regressions. Native LWJGL production rendering exercised via inherited assigned X11; real W/F10/F6, odd resize and menu passed. Browser tests use synthetic contexts; native tests use isolated synthetic profiles. Native voxel rendering has no browser workflow.",
-  "visualInspection": "Fresh desktop Space game and 568x320 paused layout inspected. Fresh modern water capture shows submerged floor and wall. Fresh native production video fully decoded; synthetic HUD/profile only. WebKit mobile emulation is not a physical iOS-device test.",
+  "completedAt": "2026-10-07T21:11:43.539294+00:00",
+  "playtest": "Playtest: production LED visibility helper executed on real GPU with actual transport data; 14 before/beyond/emitter/edge cases measured by float readback. Production native LWJGL gallery, real W/F10/F6, 333x271 resize at .65 scale and Escape menu exercised with inherited assigned X11 and isolated synthetic profile. Browser playtesting does not apply to this native shader fix; unrelated browser feature blobs remain unchanged.",
+  "visualInspection": "Fresh production LED gallery and fully decoded video midpoint inspected. Fresh GL3.3 4x water image shows submerged textured floor and wall. New native media excludes personal profiles and account data. Older restoration/browser artifacts remain historical evidence; no fresh browser check claimed for this shader change.",
   "media": [
     {
       "file": "rendering-expansion-decals.png",
-      "sha256": "f1006e81080502b8f039af9c00b8d136439c2a493a7e708b0eaff8939feecd6c",
-      "bytes": 334109,
+      "sha256": "48cbccea1e827d3ca4dfb408c28934e9bff073a7d85cb65e8910d499060d01e3",
+      "bytes": 342285,
       "publication": "pending controller publication",
-      "source": "fresh current rendering/Space restoration validation"
+      "source": "fresh corrected LED rendering implementation"
     },
     {
       "file": "rendering-expansion-graded.png",
-      "sha256": "313855736f7c6cfab85b229e548d957d377b31e97f0fa55c226f9f404cdda333",
-      "bytes": 287007,
+      "sha256": "2be3e22b82da3fb52cd8fa23a544a36822a22253380def702e8e2adeefb2471a",
+      "bytes": 297688,
       "publication": "pending controller publication",
-      "source": "fresh current rendering/Space restoration validation"
+      "source": "fresh corrected LED rendering implementation"
     },
     {
       "file": "rendering-expansion-main-gallery.png",
-      "sha256": "db8e5b85afb449e04190dad8d5cb30727a3f52e00da003987e819d8b1ebe75de",
-      "bytes": 305658,
+      "sha256": "84a8feaf178b01eb3f3e2de10560abe4f12d287e92c8ab9c5b4045b1e31332ac",
+      "bytes": 306889,
       "publication": "pending controller publication",
-      "source": "fresh current rendering/Space restoration validation"
+      "source": "fresh corrected LED rendering implementation"
     },
     {
       "file": "rendering-expansion-main-isometric.png",
-      "sha256": "c3c6b3de473bf7b0174035a1519b1e348531803743f5cb35ee00aae1f798aa14",
-      "bytes": 15702,
+      "sha256": "f760fbc95fe9865823c45cfe208195488b8fa3c4500960c0f39d0d7d69baa563",
+      "bytes": 15914,
       "publication": "pending controller publication",
-      "source": "fresh current rendering/Space restoration validation"
+      "source": "fresh corrected LED rendering implementation"
     },
     {
       "file": "rendering-expansion-main-menu.png",
-      "sha256": "c92c302a01e2685aa14b5034045440ad2d141699402692409a410b580852cad1",
-      "bytes": 4870,
+      "sha256": "ca2b43bf562ec2f509e68e0a622d1a419f1d19fa570d37bedae564a4ee8cde03",
+      "bytes": 4875,
       "publication": "pending controller publication",
-      "source": "fresh current rendering/Space restoration validation"
+      "source": "fresh corrected LED rendering implementation"
     },
     {
       "file": "rendering-expansion-main-motion.png",
-      "sha256": "2aa2de326c6e9316e434206d4977b7c6a024ab7cc075f722d7810e25f517bb73",
-      "bytes": 319131,
+      "sha256": "0da2f73a737ca033484d6ceaae36d13b154c62904fa5d869608697cc4afd9384",
+      "bytes": 319234,
       "publication": "pending controller publication",
-      "source": "fresh current rendering/Space restoration validation"
+      "source": "fresh corrected LED rendering implementation"
     },
     {
       "file": "rendering-expansion-main-resize.png",
-      "sha256": "ed327cd7209d8a99bafc5cfca1b4d9a4c8472ae92aa3dc737230e017aac7c107",
-      "bytes": 8711,
+      "sha256": "7849438d78c6763440ffae7b6d6fa22bdfaf1cc54f780a5f59fcd767472aed22",
+      "bytes": 8521,
       "publication": "pending controller publication",
-      "source": "fresh current rendering/Space restoration validation"
+      "source": "fresh corrected LED rendering implementation"
     },
     {
       "file": "rendering-expansion-playtest.mp4",
-      "sha256": "98d9a05ae3375e35415049e08b3773c2f663d609cf6550eb83364fb6fdf7fc20",
-      "bytes": 241220,
+      "sha256": "4669c1cd78ba2cdf2c9436e10b011999ff6f93ab7bdf0d6b86fcced3065ddeec",
+      "bytes": 243712,
       "publication": "pending controller publication",
-      "source": "fresh current rendering/Space restoration validation"
+      "source": "fresh corrected LED rendering implementation"
     },
     {
       "file": "rendering-expansion-temporal.png",
-      "sha256": "8cc4ed5e947a1679bbcd51b2742e5751ab253ffcb430b4f1983fb8bbda715bf8",
-      "bytes": 292993,
+      "sha256": "0539b267939871f2aae0be572d657469372d45a1028fcd2b088901b73f393887",
+      "bytes": 305198,
       "publication": "pending controller publication",
-      "source": "fresh current rendering/Space restoration validation"
+      "source": "fresh corrected LED rendering implementation"
     },
     {
       "file": "rendering-expansion-upscaled.png",
-      "sha256": "cc6c8fd8030074edb5f2b30ef941fab75b04915200d7f47d8581a7b73db694c3",
-      "bytes": 305411,
+      "sha256": "9e6085f6759c2ccd6742d69230b19f9a39d131fff7ca7928e9918ebdd2da3316",
+      "bytes": 316716,
       "publication": "pending controller publication",
-      "source": "fresh current rendering/Space restoration validation"
+      "source": "fresh corrected LED rendering implementation"
     },
     {
       "file": "rendering-expansion-video-frame.png",
-      "sha256": "7a9e06953d4113d573a0dbd0d2c47088168e64291855540ae265980e518e39fc",
-      "bytes": 421779,
+      "sha256": "e9abc695a3e3217b6bbe19e4f57c9c9249d0c50f15a848299c4bba8e88e4b9ea",
+      "bytes": 420046,
       "publication": "pending controller publication",
-      "source": "fresh current rendering/Space restoration validation"
+      "source": "fresh corrected LED rendering implementation"
     },
     {
       "file": "rendering-expansion-water.png",
-      "sha256": "89657c8810a79efe6cfad428ade3def27b1716a10f37d3dea3f27bcd356d80ff",
-      "bytes": 453964,
+      "sha256": "179f1ad863624f7fd5e8beaedeebe5c026f784b37d0e630a6ed9160bf4065bad",
+      "bytes": 458580,
       "publication": "pending controller publication",
-      "source": "fresh current rendering/Space restoration validation"
-    },
-    {
-      "file": "rendering-restored-space-568x320-game-over.png",
-      "sha256": "d8c744c51079d378e88b0de1894be4e4b656a52c2b7d223ec33f68593ba9f34b",
-      "bytes": 91928,
-      "publication": "pending controller publication",
-      "source": "fresh current rendering/Space restoration validation"
-    },
-    {
-      "file": "rendering-restored-space-568x320-paused.png",
-      "sha256": "d350460c494183fe9826f7a07d3287e139167a69631786156d0a59ca702c4b01",
-      "bytes": 98223,
-      "publication": "pending controller publication",
-      "source": "fresh current rendering/Space restoration validation"
-    },
-    {
-      "file": "rendering-restored-space-568x320-playing.png",
-      "sha256": "1a9c8d7d86354359cbeae7332eb4a45d13a8e3df8f0649c18e1c237b9fcdafaa",
-      "bytes": 118151,
-      "publication": "pending controller publication",
-      "source": "fresh current rendering/Space restoration validation"
-    },
-    {
-      "file": "rendering-restored-space-568x320-start.png",
-      "sha256": "23741d43b428d039edfae164b09a327f0247e70e1f7220374007f4f3b501a96a",
-      "bytes": 77608,
-      "publication": "pending controller publication",
-      "source": "fresh current rendering/Space restoration validation"
-    },
-    {
-      "file": "rendering-restored-space-667x375-game-over.png",
-      "sha256": "921de5861398cb033def75c9eb72c8a41aecfb683de74b6dbbbc9883a976bed5",
-      "bytes": 102304,
-      "publication": "pending controller publication",
-      "source": "fresh current rendering/Space restoration validation"
-    },
-    {
-      "file": "rendering-restored-space-667x375-paused.png",
-      "sha256": "936d06738ccd5d3d1974bc20f1446a5eee6845e414ef39a4b4b5dea114d98388",
-      "bytes": 101112,
-      "publication": "pending controller publication",
-      "source": "fresh current rendering/Space restoration validation"
-    },
-    {
-      "file": "rendering-restored-space-667x375-playing.png",
-      "sha256": "bfb17569a8b0a4db89afca75c5771717b2c03b9de827dd027e4ad2463651a22e",
-      "bytes": 126954,
-      "publication": "pending controller publication",
-      "source": "fresh current rendering/Space restoration validation"
-    },
-    {
-      "file": "rendering-restored-space-667x375-start.png",
-      "sha256": "c8b8b10f4c31e453b5800d9f6b0c3cd0b13426e49d29826b6b9cf6eefc2bbb43",
-      "bytes": 78399,
-      "publication": "pending controller publication",
-      "source": "fresh current rendering/Space restoration validation"
-    },
-    {
-      "file": "rendering-restored-space-desktop.png",
-      "sha256": "2c19d844cb603c660383f6c7c03877aafd4ef0e310719578f8fbc88ab1082765",
-      "bytes": 108932,
-      "publication": "pending controller publication",
-      "source": "fresh current rendering/Space restoration validation"
-    },
-    {
-      "file": "rendering-restored-space-landscape.png",
-      "sha256": "6ce5f05d68c9ffbf9b7fc314b1165553ad48fc3e82d745eaaa7f2d02a2fa47d5",
-      "bytes": 103161,
-      "publication": "pending controller publication",
-      "source": "fresh current rendering/Space restoration validation"
-    },
-    {
-      "file": "rendering-restored-space-touch.png",
-      "sha256": "a77284751cc413a6cdc2c437690f69bdde5b87f34ad4b5bde9bd809bf49525d4",
-      "bytes": 149605,
-      "publication": "pending controller publication",
-      "source": "fresh current rendering/Space restoration validation"
+      "source": "fresh corrected LED rendering implementation"
     }
   ],
   "auditCorrection": "The earlier claim that city logic was retained was wrong for reviewed head 195857c3202638a72e2a377e2b935ca2125f06c0. Current source 321d096 restores the merged stress workflow, indexed edit history, city performance fixes, tests, harnesses and historical evidence. 42 restored files match blob hashes and modes from 11314f5. See rendering-restoration-audit.json.",
@@ -374,8 +296,7 @@
     }
   ],
   "previousValidationNote": "Earlier rendering commands passed on the previous renderer integration. Current restored-source commands are recorded below; no full Maven suite pass claimed.",
-  "allMainSourceSha256": "ddcf2397fb287b5f1fcf0ef5a58b3c1b32c84d1aad9ac7efd4e32699877f89ee",
-  "sourceCommit": "12216ff59aa210c9df59ee413cc9919c8c948cd8",
+  "allMainSourceSha256": "03751171d63b9cd4e89bcb80ae38b613a9771ac27acb0fee1c9360c4ef39dc4b",
   "priorRestoredSourceCommands": [
     {
       "command": "mvn -q -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=RenderingAlgorithmsTest,LightingTest,LightOcclusionTest,FractionalWorldTest,DistantTerrainTest,StressGridLightingTest,CityMaterialsTest,PlayerCameraTest,RoadMarkingsTest,IsometricCameraTest,VoxelModelTest,EngineEditorTest,VehicleAudioTest,CityFormat16RegressionTest,EditHistoryTest,StressGridDevelopmentTest,CityTest package",
@@ -428,7 +349,8 @@
       "observed": "Exit 0. No unmerged index entries; no deleted files against recorded review base. Final preserved-file comparison: 42 byte-for-byte matches to 11314f5."
     }
   ],
-  "commands": [
+  "spaceRestorationCorrection": "The earlier audit against 11314f5 did not cover the later Space Invaders work. The current checkout restores that work from 41ed6e88. This preservation audit compares both recursive trees and verifies the Space Invaders progress record. Historical media is restored, not claimed as current validation.",
+  "previousSpaceRestorationCommands": [
     {
       "command": "mvn -q -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=RenderingAlgorithmsTest,LightingTest,LightOcclusionTest,FractionalWorldTest,DistantTerrainTest,StressGridLightingTest,CityMaterialsTest,PlayerCameraTest,RoadMarkingsTest,IsometricCameraTest,VoxelModelTest,EngineEditorTest,VehicleAudioTest,CityFormat16RegressionTest,EditHistoryTest,StressGridDevelopmentTest,CityTest package",
       "expected": "Renderer and restored city/history regressions pass.",
@@ -486,5 +408,56 @@
       "observed": "Exit 0; no deleted files against either 11314f5 or 41ed6e88; no unmerged index. All 34 tracked Space feature paths and the progress record match preservation base."
     }
   ],
-  "spaceRestorationCorrection": "The earlier audit against 11314f5 did not cover the later Space Invaders work. The current checkout restores that work from 41ed6e88. This preservation audit compares both recursive trees and verifies the Space Invaders progress record. Historical media is restored, not claimed as current validation."
+  "commands": [
+    {
+      "command": "mvn -q -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=RenderingAlgorithmsTest,LightingTest,LightOcclusionTest,FractionalWorldTest,DistantTerrainTest,StressGridLightingTest,CityMaterialsTest,PlayerCameraTest,RoadMarkingsTest,IsometricCameraTest,VoxelModelTest,EngineEditorTest,VehicleAudioTest,CityFormat16RegressionTest,EditHistoryTest,StressGridDevelopmentTest,CityTest package",
+      "expected": "Renderer and retained city/history regressions pass; package includes fixed shader.",
+      "observed": "Exit 0; 88 tests; zero failures/errors/skips. Packaged shader bytes match current source."
+    },
+    {
+      "command": "python3 deploy/run_rendering_main_playtest.py --display \"$DISPLAY\" --gl33",
+      "expected": "Corrected LEDs render in production; real W/F10/F6 inputs, odd resize and Escape menu remain functional.",
+      "observed": "Playtest: PASS. Production Main, Linux assigned X11 display, synthetic voxel profile. LED gallery, GPU particles, water, actual W camera motion, F10 recording, F6 isometric, temporal upscale at odd 333x271 resize, Escape menu; no GL errors across 37 frames. Backend=false. Exit 0."
+    },
+    {
+      "command": "python3 deploy/run_rendering_led_shadow_playtest.py --display \"$DISPLAY\"",
+      "environment": "Inherited assigned DISPLAY/XAUTHORITY; Mesa llvmpipe strict GL3.3; isolated target/render-led-home; actual production shader helper and real TransportField data in production RGBA16F/R16F formats; float framebuffer readback.",
+      "expected": "Empty/emitter/beyond-light rays visible; blockers before emitter occlude; nearby, fractional, reverse and diagonal rays stay finite and correct.",
+      "observed": "Exit 0; 14 GPU cases passed. Playtest: PASS. Production pointShadow GLSL helper; real worker TransportField textures; inherited assigned X11; synthetic cells; 3.3 (Core Profile) Mesa 22.3.6; llvmpipe (LLVM 15.0.6, 256 bits).\nempty segment: expected=1.0, observed=1.0\ntarget LED excludes self-occlusion: expected=1.0, observed=1.0\nwall before LED: expected=0.0, observed=0.0\nwall adjacent before LED: expected=0.0, observed=0.0\nwall beyond LED: expected=1.0, observed=1.0\nbeyond empty endpoint: expected=1.0, observed=1.0\nnear emitter: expected=1.0, observed=1.0\nfractional emitter endpoint: expected=1.0, observed=1.0\ninside emitter: expected=1.0, observed=1.0\nreverse ray beyond light: expected=1.0, observed=1.0\nreverse ray before light: expected=0.0, observed=0.0\ndiagonal emitter: expected=1.0, observed=1.0\ndiagonal blocker: expected=0.0, observed=0.0\ncorner-only contact is clear: expected=1.0, observed=1.0"
+    },
+    {
+      "command": "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Djava.io.tmpdir=\"$PWD/target/tmp\" -cp target/voxel-one-1.0-SNAPSHOT-client.jar deploy/VerifyRenderingMedia.java dashboard/evidence/rendering-expansion-playtest.mp4 dashboard/evidence/rendering-expansion-video.json dashboard/evidence/rendering-expansion-video-frame.png",
+      "observed": {
+        "status": "passed",
+        "source": "fresh production Main F10 rendering workflow",
+        "codec": "H264",
+        "bytes": 243712,
+        "frames": 8,
+        "width": 640,
+        "height": 400,
+        "seconds": 10.886,
+        "allFramesDecoded": true,
+        "firstAndLastDiffer": true
+      }
+    },
+    {
+      "command": "python3 deploy/run_rendering_playtest.py --display \"$DISPLAY\" --gl33 --msaa 4",
+      "observed": "Exit 0; Playtest: native OpenGL synthetic gallery; assigned X11 display; GPU backend=false; decals changed pixels=44875; reflection probes, GPU emitters/removal, water, camera motion/TAA, exposure, LUT, temporal upscaling, measured dynamic resolution, resize and GL errors passed."
+    },
+    {
+      "command": "python3 deploy/run_rendering_playtest.py --display \"$DISPLAY\"",
+      "observed": "Exit 0; Playtest: native OpenGL synthetic gallery; assigned X11 display; GPU backend=true; decals changed pixels=44524; reflection probes, GPU emitters/removal, water, camera motion/TAA, exposure, LUT, temporal upscaling, measured dynamic resolution, resize and GL errors passed."
+    },
+    {
+      "command": "git diff --check",
+      "observed": "Exit 0. Full diff audited against 41ed6e88; no deleted files. Space source, tests, website/navigation, historical evidence and progress record preserved."
+    },
+    {
+      "command": "python3 -m py_compile deploy/run_rendering_led_shadow_playtest.py",
+      "observed": "Exit 0."
+    }
+  ],
+  "ledShadowFix": "Clustered LEDs use finite voxel-cell traversal from the biased origin to the emitter, excluding its cell. Cells before the light block; cells beyond it are never sampled. This avoids interpolated emitter SDF self-occlusion. Directional sunlight retains the existing 24-unit SDF march. LED shadows use the bounded coarse opacity grid; separate fractional shapes inside the emitter cell cannot be resolved.",
+  "testedWorktreeParentCommit": "874f5d24ae0ee043997b5307986fd15601cc93e8",
+  "ledShadowShaderSha256": "3bd394808765e0f6c606f3016d3393e6c7a62f34a38bd9926bd89371092a77ed"
 }

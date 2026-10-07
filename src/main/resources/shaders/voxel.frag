@@ -74,6 +74,33 @@ float distanceShadow(vec3 p,vec3 dir){
     }
     return clamp(result,0.,1.);
 }
+// Trace only the biased receiver-to-emitter segment. The transport grid is coarse;
+// its emitter cell must not shadow its own light. Exact cell traversal also avoids
+// the emitter's interpolated SDF halo dimming otherwise unobstructed rays.
+float pointShadow(vec3 p,vec3 target){
+    vec3 delta=target-p;float limit=length(delta);
+    if(limit<.0001)return 1.;
+    vec3 dir=delta/limit;
+    ivec3 cell=ivec3(floor(p-uVolumeOrigin));
+    ivec3 emitter=ivec3(floor(target-uVolumeOrigin));
+    ivec3 step=ivec3(sign(dir));
+    vec3 stride=vec3(1e20),next=vec3(1e20);
+    for(int axis=0;axis<3;axis++)if(abs(dir[axis])>.000001){
+        stride[axis]=abs(1./dir[axis]);
+        float edge=uVolumeOrigin[axis]+float(cell[axis])+(step[axis]>0?1.:0.);
+        next[axis]=max(0.,(edge-p[axis])/dir[axis]);
+    }
+    for(int i=0;i<64;i++){
+        if(all(equal(cell,emitter)))return 1.;
+        if(any(lessThan(cell,ivec3(0)))||any(greaterThanEqual(cell,textureSize(uVoxelRadiance,0))))return 1.;
+        if(texelFetch(uVoxelRadiance,cell,0).a>.5)return 0.;
+        float t=min(next.x,min(next.y,next.z));
+        if(t>=limit)return 1.;
+        // Advance all tied axes; cells touched only at an edge are not blockers.
+        for(int axis=0;axis<3;axis++)if(next[axis]<=t+.00001){cell[axis]+=step[axis];next[axis]+=stride[axis];}
+    }
+    return 0.; // Conservative bound; radius-12 clustered lights need fewer than 64 cells.
+}
 vec3 cone(vec3 p,vec3 direction){
     vec3 sum=vec3(0);float transmittance=1.,distance=1.5;
     for(int i=0;i<12;i++){
@@ -161,7 +188,7 @@ void main(){
                 if(i>=range.y)break;int id=texelFetch(uLightIndices,range.x+i).r;
                 vec4 light=texelFetch(uLights,id*2);vec3 delta=light.xyz-vWorldPosition;float d=length(delta);
                 float attenuation=pow(clamp(1.-d/light.w,0.,1.),2.)/(1.+d*d);
-                float visible=uTransportReady==1&&volumeInside(point)?distanceShadow(point+N*.6,normalize(delta)):1.;
+                float visible=uTransportReady==1&&volumeInside(point)?pointShadow(point+N*.6,light.xyz):1.;
                 color+=albedo*texelFetch(uLights,id*2+1).rgb*max(0.,dot(N,normalize(delta)))*attenuation*visible*3.;
             }
         }
