@@ -1,0 +1,952 @@
+{
+  "status": "ready_for_independent_review",
+  "parentHead": "53e6f23458d0c29e02c5e27df129ca88792c5123",
+  "reviewBase": "6770d9b9fd0f2bf56674e5cf5ab77f499f5f71c5",
+  "timestamp": "2026-10-07T14:57:55.883465+00:00",
+  "change": "Restrict lane entry to public road space; allow passable private approach retreat with existing swept clearance; preserve interior movement; derive traffic graph from direct construction raster.",
+  "unchangedAcceptance": "ManufacturingTest#aStaffedFactoryBuildsAndTradesToolsDuringTheActualSimulation remains byte-identical to review base; passed including both equipment productivity assertions at 700 seconds.",
+  "commands": [
+    {
+      "command": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -Dmaven.compiler.release=17 -DargLine=-Djava.io.tmpdir=\"$PWD/target/tmp\" -Dtest=ManufacturingTest#aStaffedFactoryBuildsAndTradesToolsDuringTheActualSimulation,RoadTrafficTest test",
+      "result": "Exit 0; 27 tests passed."
+    },
+    {
+      "command": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -Dmaven.compiler.release=17 -DargLine=-Djava.io.tmpdir=\"$PWD/target/tmp\" test",
+      "result": "Historical intermediate broad run interrupted with exit 130 after three confirmed regressions; corrected before final full run."
+    },
+    {
+      "command": "python3 deploy/run_traffic_gameplay_smoke.py --display \"$DISPLAY\" --artifact-prefix factory-fix-",
+      "result": "Historical intermediate-source native run passed; final-source native result is recorded separately below."
+    },
+    {
+      "command": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -Dmaven.compiler.release=17 -DargLine=-Djava.io.tmpdir=\"$PWD/target/tmp\" -Dtest=ManufacturingTest#aStaffedFactoryBuildsAndTradesToolsDuringTheActualSimulation,RoadTrafficTest,RoadTypesTest,CityTest,CityMaterialsTest test",
+      "result": "Exit 0; 59 tests passed."
+    },
+    {
+      "command": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -Dmaven.compiler.release=17 -DargLine=-Djava.io.tmpdir=\"$PWD/target/tmp\" test",
+      "result": "Exit 0; full suite passed: 454 tests, 84 suites, zero failures/errors/skips."
+    },
+    {
+      "command": "python3 deploy/run_traffic_gameplay_smoke.py --display \"$DISPLAY\" --artifact-prefix factory-final-",
+      "result": "Exit 0; 24 native screenshots and three fresh F10 clips. All native assertions passed. Clips decoded first/middle/last; horse and crossing midpoint frames visually inspected."
+    }
+  ],
+  "environment": "Linux; JDK 21 compiler/runtime with --release 17; Maven 3.9.11 cached dependencies; worktree-local temporary files. The installed Java 17 directory lacks javac, so Java 17 API compatibility is enforced with release 17.",
+  "history": [
+    "Synthetic integration probe found factory approach gridlock; tool production existed but a supplier worker remained commuting",
+    "Footprint restriction alone did not restore delivery",
+    "An intermediate dynamic lane reset broke private merge retreat; removed",
+    "Public-road entry restriction plus safe private approach retreat passed unchanged manufacturing and all traffic tests",
+    "First broad run exposed starter-city meal regressions and direct-heading road regression. Restored interior behavior and matched RoadGeometry direct raster. All five focused suites then passed unchanged."
+  ],
+  "audit": "Manufacturing acceptance source unchanged. No review-base files deleted.",
+  "ci": "Controller handles publication and current-head cross-platform CI. No remote CI pass claimed.",
+  "playtest": {
+    "environment": "Linux X11 Mesa; inherited assigned DISPLAY/XAUTHORITY; isolated synthetic target/traffic-home; real Main application",
+    "steps": "Real xdotool callbacks and F10; held-leader pedestrian/mounted queues, release, opposite/mixed lanes, crossing/merge both orders, private forecourt and parked-horse stop/release",
+    "expected": "Queues stop and release without overtaking; crossings drain; private access clears; parked horses block at swept body clearance",
+    "observed": "All harness assertions passed; exit 0",
+    "inspection": "Final-source clips decoded at first/middle/last frames. Pedestrian, mounted and crossing midpoint frames visually inspected. 24 screenshots and 3 fresh F10 clips; all clips below 6 MiB.",
+    "browser": "Not applicable: native Java game workflow.",
+    "command": "python3 deploy/run_traffic_gameplay_smoke.py --display \"$DISPLAY\" --artifact-prefix factory-final-"
+  },
+  "fullSuite": {
+    "exitCode": 0,
+    "tests": 454,
+    "suites": 84,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "results": [
+      {
+        "name": "dev.jayms.RailwayTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.ExchangeLabourMarketTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.CraftingTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.BusinessDashboardTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.MarketEconomyTest",
+        "tests": 13,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.IndustrialProgressionTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.ShippingProtocolCompatibilityTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.CityMaterialsTest",
+        "tests": 13,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.ManufacturingTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.AviationSaveCompatibilityTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.CityAddressesTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.CityToolsTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.MayorDashboardTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.CityCapitalTest",
+        "tests": 11,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.StressGridRoadMarkingsTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.net.city.CityStockExchangeTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.DistantTerrainTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.RailwaySaveCompatibilityTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.ControlsTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.CapitalInspectorTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.RemotePlayerTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.JeepTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.ModelSculptorTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.PlayerCameraTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.PopulationJourneyTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.SpecialBuildingsTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.ExchangePermitCompositionTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.CityMetricsTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.CityTimeTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.CitizenLifeTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.CapitalSettlementLimitsTest",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.CityMultiplayerTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.BuildingInfoTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.VideoRecordingTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.MixedRoadOwnershipTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.OperatingEnergyTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.ShippingRoutesTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.LightingTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.RoadTypesTest",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.IsometricOrbitDragTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.RoadGuideHeightTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.PlayerTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.StressGridTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.RoadBaseCompatibilityTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.CitySavesTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.UpdaterTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.RoadMarkingsTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.FreightFallbackTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.RegionalPopulationTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.RailwayShippingCompatibilityTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.RoadCitySavesTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.SurvivalTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.CityBusinessTest",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.RailwayAirportCompatibilityTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.LightOcclusionTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.AccountStoreTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.MultiplayerTest",
+        "tests": 15,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.RailwayOwnershipCompatibilityTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.CapitalDashboardTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.FractionalWorldTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.MetricHistoryTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.StressGridDevelopmentTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.RegionalSaveCompatibilityTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.RoadTrafficTest",
+        "tests": 26,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.CityTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.ShopRestockMarketTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.ProtocolCompatibilityTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.RoadWorkflowTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.BusinessCatalogTest",
+        "tests": 12,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.net.city.RoadSpacingTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.CityEconomyTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.InventoryHudTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.VehicleAudioTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.ShippingAviationCompatibilityTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.DemolitionTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.TerrainGenerationTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.ShippingTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.PlayerAnimationTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.AviationTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.RegionalMultiplayerTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.StressGridLightingTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.AgricultureTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.IsometricCameraTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.VoxelModelTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "intendedDeletions": [],
+  "historicalSourceHashes": {
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "3e1f3efba1a972d41ab444c5fa709da018c64b432b13d40b8efcf1d764e1f3eb"
+  },
+  "sources": {
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "03027de726eeab79c8a9e50fbb1f41d274c7019afcf83e1a50901a8465cbcc85",
+    "src/main/java/dev/jayms/net/city/RoadTraffic.java": "0be024b8c2a7a4299e1b4686d1b13f471bcfd2c2d16ed249eab95b9e97c82a5f",
+    "src/test/java/dev/jayms/ManufacturingTest.java": "30b26dd3799224a1d511638db0a05621967ac246c834860e558028ed05c1d501"
+  },
+  "historicalMedia": [
+    {
+      "file": "dashboard/evidence/factory-fix-road-traffic-game-crossing-false-cleared.png",
+      "bytes": 1030414,
+      "sha256": "aa7b10a3e0a9c54b7f4ebfae8e560ba92d9af0d27f00801b32b2d0a7789e684c"
+    },
+    {
+      "file": "dashboard/evidence/factory-fix-road-traffic-game-crossing-false-start.png",
+      "bytes": 1012982,
+      "sha256": "5844dcaadf9550e4672b17bec70aca1499a1925c6e27ce742e55562029aa3b55"
+    },
+    {
+      "file": "dashboard/evidence/factory-fix-road-traffic-game-crossing-true-cleared.png",
+      "bytes": 1039438,
+      "sha256": "cf608cb3bf16dddadd4b7523b5106c925105ff3716d0fcbc22afc928e65441a2"
+    },
+    {
+      "file": "dashboard/evidence/factory-fix-road-traffic-game-crossing-true-start.png",
+      "bytes": 1039830,
+      "sha256": "0913af2002dddc7961ba99691ce624bc9680fd250d335c8e549a0de6d0558623"
+    },
+    {
+      "file": "dashboard/evidence/factory-fix-road-traffic-game-crossing.mp4",
+      "bytes": 5576622,
+      "sha256": "39f0459807ac1ece6c0177f2949864fd3c1145400609f9770e036179376075ae"
+    },
+    {
+      "file": "dashboard/evidence/factory-fix-road-traffic-game-forecourt-cleared.png",
+      "bytes": 1058035,
+      "sha256": "3c810e4410ee4e65a2b7ef9ef78d35b5cae9a6c5056968b99a4132300cc7f185"
+    },
+    {
+      "file": "dashboard/evidence/factory-fix-road-traffic-game-forecourt-start.png",
+      "bytes": 1053923,
+      "sha256": "603da91b02400a31dea0ffec51b2a06d2b1b69075840b0caf7573f3813e6da46"
+    },
+    {
+      "file": "dashboard/evidence/factory-fix-road-traffic-game-horses-resumed.png",
+      "bytes": 999540,
+      "sha256": "6599e2b10049654e67c49e0deb41a1c7b52347a6b93d541edbc8d86d48cea78a"
+    },
+    {
+      "file": "dashboard/evidence/factory-fix-road-traffic-game-horses-waiting.png",
+      "bytes": 977700,
+      "sha256": "9a4bc74121cb13ff7594c40c29bcfec82d0249b60571ebb4dc9b350623b1f01f"
+    },
+    {
+      "file": "dashboard/evidence/factory-fix-road-traffic-game-horses.mp4",
+      "bytes": 582633,
+      "sha256": "ffd4b64a7cbdc16a6862544cf0743620a80ceaf5655feb90708c609c72bace6e"
+    },
+    {
+      "file": "dashboard/evidence/factory-fix-road-traffic-game-opposing-merge-false-cleared.png",
+      "bytes": 1035388,
+      "sha256": "7d793a4b1fdd5437d8fd33336cba302879d45489ea35338e7755acce7c80493f"
+    },
+    {
+      "file": "dashboard/evidence/factory-fix-road-traffic-game-opposing-merge-false-start.png",
+      "bytes": 1027545,
+      "sha256": "9c8f3094cff91acbd1fb1adfdff1e8072e7f02f8265f151ac3fecd7e23ef2120"
+    },
+    {
+      "file": "dashboard/evidence/factory-fix-road-traffic-game-opposing-merge-true-cleared.png",
+      "bytes": 1053429,
+      "sha256": "63b11a65c2f0a488221438259805986392982d7123f2e9cf33d51c4ddb220722"
+    },
+    {
+      "file": "dashboard/evidence/factory-fix-road-traffic-game-opposing-merge-true-start.png",
+      "bytes": 997501,
+      "sha256": "eaa822b90b587e2c786f24907b5f6d7e4d386f1c72f6205a500a63cd56407754"
+    },
+    {
+      "file": "dashboard/evidence/factory-fix-road-traffic-game-parked-horse-released.png",
+      "bytes": 1058901,
+      "sha256": "bded443114287f52085bd10ad648e3ca9b5ff4e5e49eb6752bfd141b53182351"
+    },
+    {
+      "file": "dashboard/evidence/factory-fix-road-traffic-game-parked-horse-waiting.png",
+      "bytes": 1058066,
+      "sha256": "ed3fd48fb93630480ac101a70367fb96dc44cc67600e215034841da1b6143074"
+    },
+    {
+      "file": "dashboard/evidence/factory-fix-road-traffic-game-pedestrians-resumed.png",
+      "bytes": 938620,
+      "sha256": "31ff6f85cea6c5cc0e7bee99837715e8b47f35d4576e47ef2685d2fb3bfba6eb"
+    },
+    {
+      "file": "dashboard/evidence/factory-fix-road-traffic-game-pedestrians-waiting.png",
+      "bytes": 732519,
+      "sha256": "646502edcda7c1572d85a194380e54352816a079fe948a0e211ad272fd247704"
+    },
+    {
+      "file": "dashboard/evidence/factory-fix-road-traffic-game-pedestrians.mp4",
+      "bytes": 619608,
+      "sha256": "64ad21dc086934f90bee51260495cebeef7a7e0b4b118f4245a8e883496a9826"
+    },
+    {
+      "file": "dashboard/evidence/factory-fix-road-traffic-game-queued-merge-false-cleared.png",
+      "bytes": 1038045,
+      "sha256": "b16648ec47dcbe918dd2c7eca87fd812c92a793f16f6fccd38e571fdb295805d"
+    },
+    {
+      "file": "dashboard/evidence/factory-fix-road-traffic-game-queued-merge-false-start.png",
+      "bytes": 1037306,
+      "sha256": "4c333761077bfc18308565ecc1f6f14f13c1f2b73d94713e80b756aa1a8c7f93"
+    },
+    {
+      "file": "dashboard/evidence/factory-fix-road-traffic-game-queued-merge-true-cleared.png",
+      "bytes": 1038094,
+      "sha256": "02634e50270a2d6ff9d604e8991bee38db2ce9bc0377eb5c3fbb4975a6c36104"
+    },
+    {
+      "file": "dashboard/evidence/factory-fix-road-traffic-game-queued-merge-true-start.png",
+      "bytes": 1054467,
+      "sha256": "d88bb2f9bc0d348d4b6474e3e3c14dc74a546929652fc7cdcdbd2ac4e8044e6e"
+    },
+    {
+      "file": "dashboard/evidence/factory-fix-road-traffic-game-short-merge-false-cleared.png",
+      "bytes": 1029514,
+      "sha256": "96ae48175f50c54123b5ff3b6b898021bb2232524bdbfb28778faf073597d4f7"
+    },
+    {
+      "file": "dashboard/evidence/factory-fix-road-traffic-game-short-merge-false-start.png",
+      "bytes": 1030410,
+      "sha256": "079eb46cf8e7d5413358d8371d5dbaae0575067d734247b7c8d1420596e36a81"
+    },
+    {
+      "file": "dashboard/evidence/factory-fix-road-traffic-game-short-merge-true-cleared.png",
+      "bytes": 1036181,
+      "sha256": "81d68c2361c8b86f7cc1392874b3a81770db41ee137d6272fe730142b40cda8c"
+    },
+    {
+      "file": "dashboard/evidence/factory-fix-road-traffic-game-short-merge-true-start.png",
+      "bytes": 1049542,
+      "sha256": "3c03a7e43eb86cedd246301088c5e3b0a61b5f027b16c92ae9402417997813b1"
+    },
+    {
+      "file": "dashboard/evidence/factory-fix-road-traffic-native-gameplay.json",
+      "bytes": 783,
+      "sha256": "08d3e47b5d91306d760c3f54b691aea318d50f696d1e149ee1fd9a2408ec6b0f"
+    }
+  ],
+  "media": [
+    {
+      "file": "dashboard/evidence/factory-final-road-traffic-game-crossing-false-cleared.png",
+      "bytes": 1020027,
+      "sha256": "39668823bf0bfbe30841ec899c7f77259b10c56a371772202ce3f93f98fc5885"
+    },
+    {
+      "file": "dashboard/evidence/factory-final-road-traffic-game-crossing-false-start.png",
+      "bytes": 994275,
+      "sha256": "afb7cd205265c5bd00ea0b4632f87f10161883e80187347ace46df253748ba6a"
+    },
+    {
+      "file": "dashboard/evidence/factory-final-road-traffic-game-crossing-true-cleared.png",
+      "bytes": 1047282,
+      "sha256": "9c25620807005c576d07d7b0bda8271598e5526be3f669696a2aecec2fa9348a"
+    },
+    {
+      "file": "dashboard/evidence/factory-final-road-traffic-game-crossing-true-start.png",
+      "bytes": 1041498,
+      "sha256": "091080368b1bd442a0e62d5b58f5a6c382e1ba4873ef0f477e14efa33a76ba2b"
+    },
+    {
+      "file": "dashboard/evidence/factory-final-road-traffic-game-crossing.mp4",
+      "bytes": 5500491,
+      "sha256": "60ea7494655af0547231e67333d024d22d8149ce9a7b4dfffbedb3fc38adaf5a"
+    },
+    {
+      "file": "dashboard/evidence/factory-final-road-traffic-game-forecourt-cleared.png",
+      "bytes": 1057239,
+      "sha256": "b10dcf9936b8f0118fa2019f06899fede310060a5860dbfb0d32929dc7f41c1a"
+    },
+    {
+      "file": "dashboard/evidence/factory-final-road-traffic-game-forecourt-start.png",
+      "bytes": 1053960,
+      "sha256": "a6d6c61b43dc61ff9e7f873e2465c606c6ff91a0eacf4155789976695d4e4973"
+    },
+    {
+      "file": "dashboard/evidence/factory-final-road-traffic-game-horses-resumed.png",
+      "bytes": 1007951,
+      "sha256": "4d84fe369de7bdc3264ee8a39cad549b0a17d9bf4c507222ad0f4e78e15525b1"
+    },
+    {
+      "file": "dashboard/evidence/factory-final-road-traffic-game-horses-waiting.png",
+      "bytes": 991425,
+      "sha256": "aa14e3ab0bf3403e66d8bfde211a6813e897972d1b4b236d91d7ec8114a9918d"
+    },
+    {
+      "file": "dashboard/evidence/factory-final-road-traffic-game-horses.mp4",
+      "bytes": 608585,
+      "sha256": "fdaa313b71c82fdf74af4ca3bb2d6ca1783bdafc329bf6d7c827a80666979aa6"
+    },
+    {
+      "file": "dashboard/evidence/factory-final-road-traffic-game-opposing-merge-false-cleared.png",
+      "bytes": 1035655,
+      "sha256": "5dd75ee0c61b2fa8e794476e6761141f45b2cfb5aa8cebdce37d877bf6006242"
+    },
+    {
+      "file": "dashboard/evidence/factory-final-road-traffic-game-opposing-merge-false-start.png",
+      "bytes": 1025446,
+      "sha256": "4b4a59c71fc204b3ffe931948f930208e729996a82377588c932f6f91ca85ab0"
+    },
+    {
+      "file": "dashboard/evidence/factory-final-road-traffic-game-opposing-merge-true-cleared.png",
+      "bytes": 1052542,
+      "sha256": "d711c297ede1bb107d12b0e3625dbabe87fef0b98b357e81d492e32df2850d65"
+    },
+    {
+      "file": "dashboard/evidence/factory-final-road-traffic-game-opposing-merge-true-start.png",
+      "bytes": 1055437,
+      "sha256": "58fcd8e49f4370c46562e4abc5feb36dd3935fe26129768b85ee82334559394c"
+    },
+    {
+      "file": "dashboard/evidence/factory-final-road-traffic-game-parked-horse-released.png",
+      "bytes": 1038459,
+      "sha256": "86e706451850b41dfa900d7af6befc2a03785a10e9aabbaa70912b715a0b24c2"
+    },
+    {
+      "file": "dashboard/evidence/factory-final-road-traffic-game-parked-horse-waiting.png",
+      "bytes": 1057058,
+      "sha256": "3d266b9be7674e4c73f91763f9d2c8de4f0f47de41477a0da190cd47b2500392"
+    },
+    {
+      "file": "dashboard/evidence/factory-final-road-traffic-game-pedestrians-resumed.png",
+      "bytes": 976472,
+      "sha256": "ef0536a4cb58f93deb6b4d90581300b1200ba2b24a9709db503fe0fd919e69c0"
+    },
+    {
+      "file": "dashboard/evidence/factory-final-road-traffic-game-pedestrians-waiting.png",
+      "bytes": 757992,
+      "sha256": "4e2f4321292405b8d7e6e4ca4f660ad8663b90345768cb09ba35e6898a8dc142"
+    },
+    {
+      "file": "dashboard/evidence/factory-final-road-traffic-game-pedestrians.mp4",
+      "bytes": 564743,
+      "sha256": "517fae21a26b847c70b0cc6e892bfbb3ee3626f1b00c7426fbe1a8a418f78592"
+    },
+    {
+      "file": "dashboard/evidence/factory-final-road-traffic-game-queued-merge-false-cleared.png",
+      "bytes": 1029822,
+      "sha256": "999c7a51698e3291de083901a8e1a3c563387380ce97fcfe055ccb0b17a585c5"
+    },
+    {
+      "file": "dashboard/evidence/factory-final-road-traffic-game-queued-merge-false-start.png",
+      "bytes": 1038223,
+      "sha256": "0667bebfea7890fe543ea89f15864d61b8bdca13741708d8f16f826b6b648f43"
+    },
+    {
+      "file": "dashboard/evidence/factory-final-road-traffic-game-queued-merge-true-cleared.png",
+      "bytes": 961952,
+      "sha256": "66e573ad31b4c719280f24eccd734a2be313695563e516c08247d23e6f301ffd"
+    },
+    {
+      "file": "dashboard/evidence/factory-final-road-traffic-game-queued-merge-true-start.png",
+      "bytes": 1055090,
+      "sha256": "2b93c3ee1b97d1f13e31548d0bc96f3d5e8c1621f202dc78ce4606aeeefb6d27"
+    },
+    {
+      "file": "dashboard/evidence/factory-final-road-traffic-game-short-merge-false-cleared.png",
+      "bytes": 1030237,
+      "sha256": "d4bf37fa794f145517c8f7b132734f1547f9668c9ff1dd4bb8a082acb04367de"
+    },
+    {
+      "file": "dashboard/evidence/factory-final-road-traffic-game-short-merge-false-start.png",
+      "bytes": 1026444,
+      "sha256": "edd273eb15076a8d42753f46cc88c6b0ecc02637ca146d4fcdd14d782ce49ace"
+    },
+    {
+      "file": "dashboard/evidence/factory-final-road-traffic-game-short-merge-true-cleared.png",
+      "bytes": 1050224,
+      "sha256": "2dc1b69022fb2c88ba5058614b9536f213fa6034fa10881de6e7ae39b1f9801d"
+    },
+    {
+      "file": "dashboard/evidence/factory-final-road-traffic-game-short-merge-true-start.png",
+      "bytes": 1050419,
+      "sha256": "d566d59bc9cf5aab71b47a57e094231aa88aaf246809bb27b083bd0a1abd2251"
+    },
+    {
+      "file": "dashboard/evidence/factory-final-road-traffic-native-gameplay.json",
+      "bytes": 783,
+      "sha256": "08d3e47b5d91306d760c3f54b691aea318d50f696d1e149ee1fd9a2408ec6b0f"
+    }
+  ],
+  "checks": [
+    "Full suite process exited 0 and all 84 fresh reports have zero failures/errors/skips",
+    "Recorded final source/media hashes match checked files",
+    "24 final-source screenshots and 3 clips preserved",
+    "Main.java, Jeep.java and four unchanged acceptance sources match review base",
+    "No review-base files deleted",
+    "git diff --check passed"
+  ]
+}

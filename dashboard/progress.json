@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T13:55:53.721952+00:00",
+  "updatedAt": "2026-10-07T14:57:55.883465+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -3076,8 +3076,8 @@
         }
       ],
       "status": "in_progress",
-      "note": "Reviewer fixes validated: Java 17 package and 40 traffic/time/agriculture tests passed. Fresh native parked-horse stop/release, queue and crossing checks passed; 24 screenshots and three F10 clips inspected. Base work preserved. Controller publishes and reruns cross-platform CI before independent review.",
-      "updatedAt": "2026-10-07T13:55:53.721952+00:00"
+      "note": "Factory delivery restored without changing acceptance tests or equipment economics. Full suite passed: 454 tests across 84 suites. Fresh native traffic regression passed; 24 screenshots and three F10 clips decoded/inspected. Base features and history preserved. Ready for controller publication, current-head CI and independent review.",
+      "updatedAt": "2026-10-07T14:57:55.883465+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

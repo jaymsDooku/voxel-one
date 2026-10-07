@@ -673,3 +673,13 @@ HEAD 8c437f3f00585fc3e2cb52215412824759b337c8; review base 6770d9b9fd0f2bf56674e
 ## Java 17 and parked-mount corrections validated
 
 Parent head 26a221f18a29db1daf8db75419f23a0938179d39. Local fixes replace Java 21 list APIs, sweep lane movement against mount-only obstacles at 0.65 metres without duplicate NPC riders, and move routine NPC dismount parking off-road within four metres. Java 17 packaging passed; 40 traffic/time/agriculture tests passed with no failures/errors/skips. Fresh native Main queue, crossing, forecourt and parked-horse stop/release workflow passed. 24 screenshots and three F10 clips saved; clips decoded and inspected. Source/media hashes and git diff --check passed; no review-base files deleted. Report: dashboard/evidence/mount-fix-validation.json. Runner owns commit, publication and cross-platform CI retry. No remote CI pass claimed. No owner answer needed.
+
+
+## Factory delivery correction — validation running
+
+Unchanged manufacturing integration and 26 traffic tests passed after restricting lane entry to public road space and allowing safe private approach retreat with swept clearance. Full Maven suite and fresh native traffic run active. No full-suite pass claimed. Source preserved. Report: dashboard/evidence/factory-fix-validation.json. Controller retains Git/publication duties.
+
+
+## Factory correction final validation passed
+
+Parent head 53e6f23458d0c29e02c5e27df129ca88792c5123. Public-road lane entry and private-aisle retreat restore factory delivery; direct construction raster preserves diagonal road connectivity. ManufacturingTest and other acceptance sources remain unchanged. Full Maven suite exited 0: 454 tests across 84 suites, zero failures/errors/skips, compiled with release 17. Fresh native Main traffic checks passed, including queues, crossings, private forecourt and parked-horse stop/release. 24 screenshots and three F10 clips saved; clips decoded and inspected. Final source/media hashes, base preservation and git diff --check passed. Report: dashboard/evidence/factory-fix-validation.json. Runner owns Git/publication and current-head CI. No remote CI pass claimed; no owner answer needed.

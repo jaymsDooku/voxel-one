@@ -1334,15 +1334,17 @@ public final class CitySimulation {
         return yard.x()+new float[]{2.5f,3.5f,1.5f,4.5f}[index%4];
     }
 
-    private boolean beginLaneSegment(Travel t,Household h) {
-        if(t.accessRoute || t.passingPoints!=0 || !t.lanes.isEmpty() || t.route.size()<2) return false;
+    private boolean beginLaneSegment(Travel t,Household h,Position p) {
+        if(t.accessRoute || t.passingPoints!=0 || !t.lanes.isEmpty() || t.route.size()<2
+                || !publicRoad(p.x,p.z)) return false;
         var first=t.route.peek();
-        if(!roads.containsKey(first)) return false;
+        if(!roads.containsKey(first) || !publicRoad(first.x()+.5f,first.z()+.5f)) return false;
         var topology=new RoadTraffic(addresses.state(buildings).streets(),roads.keySet());
         if(!topology.center(first)) return false;
         var cells=new ArrayList<Cell>();
         for(var cell:t.route) {
-            if(!topology.center(cell) || !cells.isEmpty() && !topology.connected(cells.get(cells.size()-1),cell)) break;
+            if(!topology.center(cell) || !publicRoad(cell.x()+.5f,cell.z()+.5f)
+                    || !cells.isEmpty() && !topology.connected(cells.get(cells.size()-1),cell)) break;
             cells.add(cell);
         }
         if(cells.size()<2) return false;
@@ -1644,7 +1646,7 @@ public final class CitySimulation {
             }
         }
         refreshLaneType(t,h);
-        beginLaneSegment(t,h);
+        beginLaneSegment(t,h,p);
         if (!t.lanes.isEmpty()) {
             laneTravel(id,p,h,t,dt);
             return;
@@ -1658,7 +1660,7 @@ public final class CitySimulation {
         boolean replanned = false;
         float waypointRadius = Math.max(roadSpacing.pedestrians(), roadSpacing.mounted()) + .15f;
         while (remaining > .0001f && !t.route.isEmpty()) {
-            if(beginLaneSegment(t,h)) {
+            if(beginLaneSegment(t,h,p)) {
                 // Keep the gait for private approach movement even if the road queue waits.
                 p.phase += travelled * 2.66f;
                 if(travelled>0) p.yaw=(float)Math.toDegrees(Math.atan2(dz,dx));
@@ -1722,7 +1724,7 @@ public final class CitySimulation {
                     float sx = p.x + (float) ((dx * Math.cos(radians) + dz * Math.sin(radians)) / dist * movement);
                     float sz = p.z + (float) ((dz * Math.cos(radians) - dx * Math.sin(radians)) / dist * movement);
                     double distanceToTarget = Math.hypot(target.x() + .5f - sx, target.z() + .5f - sz);
-                    if (distanceToTarget < best && passingGround(sx, sz) && passable(sx, sz)
+                    if (distanceToTarget < best && (passingGround(sx, sz) || !publicRoad(p.x,p.z)) && passable(sx, sz)
                             && roadClear(id, p, h, sx, sz)) {
                         nx = sx;
                         nz = sz;
@@ -1893,7 +1895,7 @@ public final class CitySimulation {
 
     /** Check the swept step, so a fast rider cannot skip through a waiting walker. */
     private boolean roadClear(int id, Position p, Household h, float nx, float nz) {
-        if (!passingGround(p.x, p.z) && !passingGround(nx, nz)) return true;
+        if (!passingGround(p.x,p.z) && !passingGround(nx,nz)) return true;
         float ownGap = h.horse == 0 ? roadSpacing.pedestrians() : roadSpacing.mounted();
         var ownTravel=ecs.get(id,Travel.class);
         boolean localAccess=ownTravel!=null && (ownTravel.accessRoute || ownTravel.passingPoints>0

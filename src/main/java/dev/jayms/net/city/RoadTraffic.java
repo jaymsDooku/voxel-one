@@ -22,20 +22,21 @@ public final class RoadTraffic {
 
     public RoadTraffic(List<CityAddresses.Street> streets) {
         for (var street : streets) {
-            for (int i = 1; i < street.route().size(); i++) {
-                var a = street.route().get(i - 1);
-                var b = street.route().get(i);
-                Cell c = new Cell((int) Math.floor(a.x()), (int) Math.floor(a.z()));
-                Cell end = new Cell((int) Math.floor(b.x()), (int) Math.floor(b.z()));
-                edges.computeIfAbsent(c, k -> new LinkedHashSet<>());
-                while (!c.equals(end)) {
-                    Cell next =
-                            c.x() != end.x()
-                                    ? new Cell(c.x() + Integer.signum(end.x() - c.x()), c.z())
-                                    : new Cell(c.x(), c.z() + Integer.signum(end.z() - c.z()));
-                    edges.computeIfAbsent(c, k -> new LinkedHashSet<>()).add(next);
-                    edges.computeIfAbsent(next, k -> new LinkedHashSet<>()).add(c);
-                    c = next;
+            var centers = RoadGeometry.centers(street.route(), 0);
+            for (int i=1;i<centers.size();i++) {
+                var a=centers.get(i-1);var b=centers.get(i);
+                Cell c=new Cell((int)Math.floor(a.x()),(int)Math.floor(a.z()));
+                Cell end=new Cell((int)Math.floor(b.x()),(int)Math.floor(b.z()));
+                edges.computeIfAbsent(c,k->new LinkedHashSet<>());
+                // Match the direct raster used by construction. A diagonal raster
+                // step gets one cardinal bridge instead of an entire L-shaped leg.
+                while(!c.equals(end)) {
+                    Cell next=c.x()!=end.x()
+                            ? new Cell(c.x()+Integer.signum(end.x()-c.x()),c.z())
+                            : new Cell(c.x(),c.z()+Integer.signum(end.z()-c.z()));
+                    edges.computeIfAbsent(c,k->new LinkedHashSet<>()).add(next);
+                    edges.computeIfAbsent(next,k->new LinkedHashSet<>()).add(c);
+                    c=next;
                 }
             }
         }
