@@ -1,5 +1,9 @@
 package dev.jayms.net.city;
 
+import dev.jayms.net.city.parcel.ParcelGenerator.Parcel;
+import dev.jayms.net.city.parcel.ParcelPortfolio;
+import dev.jayms.net.city.parcel.ZoneParceling;
+
 import java.io.*;
 import java.util.*;
 
@@ -107,7 +111,16 @@ public record CityFrame(
         public Road { RoadTypes.validate(type); }
     }
 
-    public record Zone(int id, int type, Polygon polygon) {}
+    public record Zone(int id, int type, Polygon polygon, int algorithm,
+                       List<Parcel> parcels) {
+        public Zone(int id, int type, Polygon polygon) { this(id,type,polygon,2,List.of()); }
+        public Zone {
+            if (algorithm < 0 || algorithm >= ParcelPortfolio.Algorithm.values().length)
+                throw new IllegalArgumentException("Invalid parcel algorithm");
+            parcels=List.copyOf(parcels);
+            ZoneParceling.validate(polygon,parcels);
+        }
+    }
 
     public record Building(
             int id, int zone, int type, int x, int y, int z, int capacity, int stock) {}
@@ -177,7 +190,7 @@ public record CityFrame(
     }
 
     public void write(DataOutput out) throws IOException {
-        write(out, 15);
+        write(out, 16);
     }
 
     public void write(DataOutput out, int version) throws IOException {
@@ -188,6 +201,8 @@ public record CityFrame(
         if (version < 12 && (!aviation.flights().isEmpty() || buildings.stream().anyMatch(b -> b.type() == SpecialBuildings.AIRPORT)))
             throw new IOException("Airports need snapshot version 12");
         if (stressGrid != null && version < 15) throw new IOException("Stress grids require snapshot version 15");
+        if (version < 16 && stressGrid == null && zones.stream().anyMatch(z -> !z.parcels().isEmpty()))
+            throw new IOException("Parcels require city snapshot version 16");
         config.write(out);
         out.writeDouble(elapsed);
         out.writeInt(roads.size());
@@ -202,6 +217,13 @@ public record CityFrame(
             out.writeInt(z.id);
             out.writeByte(z.type);
             z.polygon.write(out);
+            if (version >= 16) {
+                out.writeByte(z.algorithm());out.writeInt(z.parcels().size());
+                for (var p : z.parcels()) {
+                    out.writeInt(p.id());out.writeInt(p.cells().size());
+                    for (var cell : p.cells()) { out.writeInt(cell.x());out.writeInt(cell.z()); }
+                }
+            }
         }
         out.writeInt(buildings.size());
         for (var b : buildings) {
@@ -274,7 +296,7 @@ public record CityFrame(
     }
 
     public static CityFrame read(DataInput in, boolean legacy) throws IOException {
-        return read(in, legacy ? 1 : 15);
+        return read(in, legacy ? 1 : 16);
     }
 
     public static CityFrame read(DataInput in, int version) throws IOException {
@@ -294,7 +316,19 @@ public record CityFrame(
         for (int i = 0, n = count(in, 128); i < n; i++) {
             int id = in.readInt(), type = in.readUnsignedByte();
             if (id < 1 || type > 3) throw new IOException("Invalid zone");
-            zones.add(new Zone(id, type, Polygon.read(in)));
+            var polygon=Polygon.read(in);
+            int algorithm=version>=16?in.readUnsignedByte():2;
+            var parcels=new ArrayList<Parcel>();
+            int total=0;
+            if(version>=16)for(int j=0,m=count(in,4096);j<m;j++) {
+                int parcelId=in.readInt(), size=count(in,4096);total+=size;
+                if(total>4096)throw new IOException("Too many parcel cells");
+                var cells=new LinkedHashSet<Polygon.Cell>();
+                for(int k=0;k<size;k++)if(!cells.add(new Polygon.Cell(in.readInt(),in.readInt())))throw new IOException("Duplicate parcel cell");
+                parcels.add(new Parcel(parcelId,cells));
+            }
+            try { zones.add(new Zone(id,type,polygon,algorithm,parcels)); }
+            catch(IllegalArgumentException e) { throw new IOException("Invalid parcel layout",e); }
         }
         var buildings = new ArrayList<Building>();
         for (int i = 0, n = count(in, 512); i < n; i++) {

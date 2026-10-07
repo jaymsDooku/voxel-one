@@ -1,5 +1,9 @@
 package dev.jayms.net.city;
 
+import dev.jayms.net.city.parcel.ParcelGenerator.Parcel;
+import dev.jayms.net.city.parcel.ParcelPortfolio;
+import dev.jayms.net.city.parcel.ZoneParceling;
+
 import static dev.jayms.net.city.Polygon.*;
 
 import dev.jayms.net.*;
@@ -2025,7 +2029,7 @@ public final class CitySimulation {
     public String command(CityCommand c, int player, Protocol.Pose pose) {
         if (!config.city()) return "Join Voxel City One to use city tools";
         try {
-            if (stressGrid != null && (c.kind() == CityCommand.ROAD || c.kind() == CityCommand.DELETE_ROAD || c.kind() == CityCommand.EDIT_ROAD || c.kind() == CityCommand.RAIL || c.kind() == CityCommand.ZONE || c.kind() == CityCommand.SPECIAL || c.kind() == CityCommand.EXCHANGE))
+            if (stressGrid != null && (c.kind() == CityCommand.ROAD || c.kind() == CityCommand.DELETE_ROAD || c.kind() == CityCommand.EDIT_ROAD || c.kind() == CityCommand.RAIL || c.kind() == CityCommand.ZONE || c.kind() == CityCommand.PARCEL || c.kind() == CityCommand.SPECIAL || c.kind() == CityCommand.EXCHANGE))
                 return "Prebuilt grid roads and zoning are fixed; buildings develop and can be inspected or demolished.";
             for (var point : c.points()) if (Math.abs(point.x()-8)>256 || Math.abs(point.z()-24)>256)
                 throw new IllegalArgumentException("City limits: 512 x 512 blocks around spawn");
@@ -2034,7 +2038,8 @@ public final class CitySimulation {
                 case CityCommand.DELETE_ROAD -> changeRoad(c.value(), -1);
                 case CityCommand.EDIT_ROAD -> changeRoad(c.value(), (int)c.points().get(0).x());
                 case CityCommand.RAIL -> rail(c.points());
-                case CityCommand.ZONE -> zone(c.value(), new Polygon(c.points()));
+                case CityCommand.ZONE -> zone(c.value()%4, new Polygon(c.points()), c.value()/4-1);
+                case CityCommand.PARCEL -> repartition(c.value(),(int)c.points().get(0).x());
                 case CityCommand.SPECIAL -> c.value() == SpecialBuildings.AIRPORT ? airport(c) : special(c);
                 case CityCommand.RUNWAY -> expandAirport(c);
                 case CityCommand.FLIGHT -> bookFlight(c);
@@ -2641,7 +2646,29 @@ public final class CitySimulation {
         edits.add(new Protocol.Edit(x, grade, z, Blocks.DIRT));
     }
 
-    private String zone(int type, Polygon polygon) {
+    private String repartition(int id,int algorithm) {
+        var old=zones.stream().filter(z->z.id()==id).findFirst().orElseThrow(()->new IllegalArgumentException("Zone not found"));
+        if(buildings.stream().anyMatch(b->b.zone()==id)||economy.plots.stream().anyMatch(p->p.zone()==id))
+            throw new IllegalArgumentException("Parcel changes need a zone without buildings or purchased plots");
+        var draft=new CityFrame.Zone(id,old.type(),old.polygon(),algorithm,old.parcels());
+        var layout=ZoneParceling.generate(draft,roads.keySet(),this::parcelCost);
+        var updated=new CityFrame.Zone(id,old.type(),old.polygon(),algorithm,layout);
+        zones.set(zones.indexOf(old),updated);
+        return parcelReport(updated);
+    }
+    private double parcelCost(Cell c) {
+        int h=terrain.surfaceHeight(c.x(),c.z());
+        return 1 + ParcelPortfolio.neighbours(c).stream()
+            .mapToInt(n->Math.abs(h-terrain.surfaceHeight(n.x(),n.z()))).max().orElse(0);
+    }
+    private String parcelReport(CityFrame.Zone zone) {
+        int sites=ZoneParceling.sites(zone).size();
+        return ParcelPortfolio.Algorithm.values()[zone.algorithm()].label
+            + ": " + zone.parcels().size() + " parcels, " + sites + " building sites"
+            + (sites==0?"; try merge or another layout":"");
+    }
+    private String zone(int type, Polygon polygon) { return zone(type,polygon,-1); }
+    private String zone(int type, Polygon polygon,int algorithm) {
         if (type < 0 || type > 3 || zones.size() >= 128)
             throw new IllegalArgumentException("Invalid zone type or city zone limit reached");
         var cells = polygon.cells();
@@ -2668,7 +2695,14 @@ public final class CitySimulation {
                     type == 3
                             ? "Leave room for a 12 x 14 farm and its entrance"
                             : "Leave room for a 6 x 7 building and its entrance");
-        zones.add(new CityFrame.Zone(++zoneIds, type, polygon));
+        var added=new CityFrame.Zone(zoneIds+1,type,polygon);
+        if(algorithm>=0) {
+            var draft=new CityFrame.Zone(zoneIds+1,type,polygon,algorithm,List.of());
+            added=new CityFrame.Zone(draft.id(),type,polygon,algorithm,
+                ZoneParceling.generate(draft,roads.keySet(),this::parcelCost));
+        }
+        zoneIds++;zones.add(added);
+        if(algorithm>=0)return ZONES[type]+" zone created; "+parcelReport(added);
         return ZONES[type]
                 + (type == 3
                         ? " zone created; farming families assess demand"
@@ -2719,12 +2753,25 @@ public final class CitySimulation {
         return true;
     }
 
+    private List<Cell> availableParcelSites(CityFrame.Zone zone) {
+        if(zone.parcels().isEmpty())return ZoneParceling.sites(zone);
+        var occupied=new HashSet<Cell>();
+        for(var p:economy.plots)if(p.zone()==zone.id())occupied.add(new Cell(p.x(),p.z()));
+        for(var b:buildings)if(b.zone()==zone.id())occupied.add(new Cell(b.x(),b.z()));
+        var result=new ArrayList<Cell>();
+        for(var parcel:zone.parcels()) {
+            if(occupied.stream().anyMatch(parcel.cells()::contains))continue;
+            for(var c:parcel.cells())if(ZoneParceling.fits(parcel,c.x(),c.z(),zone.type()))result.add(c);
+        }
+        return result;
+    }
+
     private void construct() {
         if (buildings.size() + economy.plots.stream().filter(p -> p.building() == 0).count() >= 512)
             return;
         for (var zone : constructionZones())
             if (visitConstructionZone(zone) && demand(zone.type()))
-                for (var c : zone.polygon().cells())
+                for (var c : availableParcelSites(zone))
                     if (fits(zone.polygon(), c.x(), c.z(), zone.type())) {
                         int x = c.x(), z = c.z();
                         int width = StructureBlueprint.width(zone.type()),
@@ -3067,7 +3114,7 @@ public final class CitySimulation {
                     && magic != 0x43495438
                     && magic != 0x43495439
                     && magic != 0x4349543A
-                    && magic != 0x4349543B && magic != 0x4349543C && magic != 0x4349543D && magic != 0x4349543E && magic != 0x4349543F) throw new IOException("Invalid city save");
+                    && magic != 0x4349543B && magic != 0x4349543C && magic != 0x4349543D && magic != 0x4349543E && magic != 0x4349543F && magic != 0x43495440) throw new IOException("Invalid city save");
             return CityFrame.read(
                     in,
                     magic == 0x43495431
@@ -3080,7 +3127,7 @@ public final class CitySimulation {
                                                     ? 4
                                                     : magic == 0x43495435
                                                             ? 5
-                                                            : magic == 0x43495436 ? 6 : magic == 0x43495437 ? 7 : magic == 0x43495438 ? 8 : magic == 0x43495439 ? 9 : magic == 0x4349543A ? 10 : magic == 0x4349543B ? 11 : magic == 0x4349543C ? 12 : magic == 0x4349543D ? 13 : magic == 0x4349543E ? 14 : 15);
+                                                            : magic == 0x43495436 ? 6 : magic == 0x43495437 ? 7 : magic == 0x43495438 ? 8 : magic == 0x43495439 ? 9 : magic == 0x4349543A ? 10 : magic == 0x4349543B ? 11 : magic == 0x4349543C ? 12 : magic == 0x4349543D ? 13 : magic == 0x4349543E ? 14 : magic == 0x4349543F ? 15 : 16);
         }
     }
 
@@ -3089,8 +3136,9 @@ public final class CitySimulation {
         Files.createDirectories(file.toAbsolutePath().getParent());
         Path tmp = file.resolveSibling(file.getFileName() + ".tmp");
         try (var out = new DataOutputStream(Files.newOutputStream(tmp))) {
-            out.writeInt(stressGrid == null ? 0x4349543E : 0x4349543F);
-            frame().write(out, stressGrid == null ? 14 : 15);
+            boolean parcels=stressGrid == null && zones.stream().anyMatch(z->!z.parcels().isEmpty());
+            out.writeInt(parcels?0x43495440:stressGrid == null ? 0x4349543E : 0x4349543F);
+            frame().write(out,parcels?16:stressGrid == null ? 14 : 15);
         }
         try {
             Files.move(
