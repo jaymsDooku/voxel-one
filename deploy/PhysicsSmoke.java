@@ -14,6 +14,7 @@ public class PhysicsSmoke {
     static Path out;static volatile String capture;static volatile String captured;static volatile PhysicsLab active;
     static volatile Throwable failure;static volatile int debris,tab,broken;static volatile float vehicleX,waterMass,smoke;
     static volatile boolean reset,finite,gpu;static volatile int tower;static volatile boolean gpuChecked;
+    static volatile boolean hingeSetup,hingeChecked;
     static volatile boolean platformSetup,platformChecked;
     static volatile boolean ropeSetup,ropeStarted,ropeChecked;static float ropeStart;static Constraints.Hinge loadedHinge;static RigidBody hingeLoad;static Constraints.Distance sustainedRope,overloadRope,softRope;static RigidBody sustainedLoad,softLoad;
     static volatile boolean forceSetup,forceStarted,forceChecked;static float forceStart;static RigidBody forceBody,torqueBody;
@@ -35,6 +36,7 @@ public class PhysicsSmoke {
             key(window,"3");Thread.sleep(1800);require(waterMass>121.59f&&waterMass<121.61f,"Cellular water conserves 121.6 units");require(smoke>0,"Fire emits rising smoke");shot("physics-fluid-fire.png");
             key(window,"4");key(window,"p");require(!active.scene.xpbd,"PBD toggle");key(window,"p");require(active.scene.xpbd,"XPBD toggle");key(window,"w");key(window,"g");Thread.sleep(800);require(gpuChecked,"GPU/CPU equivalence check executed");require(finite,"Cloth soft body and SPH stay finite");shot("physics-cloth-sph.png");
             key(window,"5");float start=vehicleX;x("keydown","--window",window,"Up");Thread.sleep(1400);x("keyup","--window",window,"Up");Thread.sleep(250);require(vehicleX>start+.1f,"Wheel torque drives sprung vehicle");shot("physics-vehicle.png");
+            hingeSetup=true;for(int i=0;i<300&&!hingeChecked;i++)Thread.sleep(20);require(hingeChecked,"Offset hinge gravity and centre impulse swing");shot("physics-hinge-swing.png");
             platformSetup=true;for(int i=0;i<300&&!platformChecked;i++)Thread.sleep(20);require(platformChecked,"Rising, descending, ceiling and horizontal platform checks");shot("physics-platform-carry.png");
             ropeSetup=true;for(int i=0;i<600&&!ropeChecked;i++)Thread.sleep(20);require(ropeChecked,"Sustained rope load, overload and compliance native checks");shot("physics-rope-load.png");
             forceSetup=true;for(int i=0;i<300&&!forceChecked;i++)Thread.sleep(20);require(forceChecked,"Sleeping loads and rotated inertia native checks");shot("physics-force-inertia.png");
@@ -43,6 +45,24 @@ public class PhysicsSmoke {
             Files.writeString(out.resolve("results.json"),"{\n  \"Playtest\": \"Production PhysicsLab; Linux X11; inherited assigned DISPLAY/XAUTHORITY; Mesa software rendering; isolated synthetic profile\",\n  \"steps\": [\"D removes support: 28 debris voxels fall; independent anchored tower stays intact\",\"D repeated: no change; R restores scene\",\"X/F: explosion and stress fracture detach structures; pause freezes time\",\"2 B: loaded ropes break\",\"3: water mass 121.6 conserved; fire emits smoke\",\"4 W G: cloth/soft body/SPH finite; GPU integration matches CPU and pinned particles stay fixed\",\"5 Up: wheel torque moves sprung vehicle\",\"Synthetic contact fixtures in production world: floor travel 10 blocks/s and wall tangent travel 6 blocks/s for at least one second\",\"R: reset regression restores original cells\",\"F10: collapse clip recorded\"],\n  \"expected\": \"All listed assertions pass\",\n  \"observed\": \"All listed assertions passed\",\n  \"gpuCompute\": "+gpu+"\n}\n");
         }catch(Throwable e){failure=e;try{Files.writeString(out.resolve("failure.txt"),e.getClass().getSimpleName()+": "+e.getMessage());}catch(Exception ignored){}}finally{if(active!=null)glfwSetWindowShouldClose(active.window,true);}},"physics-native-input");input.start();
         lab.run(l->{active=l;
+            if(hingeSetup&&!hingeChecked){
+                float gravityY=0,impulseOmega=0,anchorError=0;
+                for(int mode=0;mode<2;mode++){
+                    var w=l.scene.physics;w.bodies.clear();w.joints.clear();w.gravity.set(0,mode==0?-24:0,0);
+                    var a=new RigidBody(new Vector3f(8,6,8),new Vector3f(.15f),0);
+                    var b=new RigidBody(new Vector3f(10,6,8),new Vector3f(.4f),1);a.mask=b.mask=0;w.bodies.add(a);w.bodies.add(b);
+                    w.joints.add(new Constraints.Hinge(a,b,new Vector3f(),new Vector3f(-2,0,0),new Vector3f(0,0,1)));
+                    if(mode==1)b.impulse(new Vector3f(0,-1,0));
+                    for(int i=0;i<(mode==0?120:60);i++)w.step(1f/120);
+                    anchorError=b.anchor(new Vector3f(-2,0,0)).distance(a.position);
+                    require(anchorError<.01f,"Hinge anchors remain coincident");
+                    if(mode==0){gravityY=b.position.y;require(gravityY<5.99f&&Math.abs(b.rotation.z)>.1f,"Gravity swings offset hinge");}
+                    else{impulseOmega=b.angularVelocity.z;require(impulseOmega<-.1f,"Centre impulse produces angular swing");}
+                    require(a.position.distance(new Vector3f(8,6,8))==0&&a.angularVelocity.length()==0,"Static hinge anchor fixed");
+                }
+                l.scene.scene=2;l.scene.paused=true;
+                Files.writeString(out.resolve("hinge-results.json"),"{\"Playtest\":\"Production PhysicsWorld in native PhysicsLab; isolated fixtures, 120 Hz\",\"expected\":\"Gravity lowers offset centre below 5.99 and rotates; centre impulse gives omega.z below -0.1; anchor error below 0.01; static anchor fixed\",\"gravityY\":"+gravityY+",\"impulseOmegaZ\":"+impulseOmega+",\"anchorError\":"+anchorError+",\"observed\":\"All assertions passed\"}\n");hingeChecked=true;
+            }
             if(platformSetup&&!platformChecked){
                 for(int mode=0;mode<4;mode++){
                     var w=l.scene.physics;w.bodies.clear();w.joints.clear();w.gravity.set(0,-24,0);

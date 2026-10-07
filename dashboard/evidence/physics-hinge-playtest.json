@@ -1,0 +1,1 @@
+{"Playtest":"Production PhysicsWorld in native PhysicsLab; isolated fixtures, 120 Hz","expected":"Gravity lowers offset centre below 5.99 and rotates; centre impulse gives omega.z below -0.1; anchor error below 0.01; static anchor fixed","gravityY":5.601623,"impulseOmegaZ":-0.48647267,"anchorError":0.0,"observed":"All assertions passed"}

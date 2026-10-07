@@ -50,18 +50,40 @@ public final class Constraints {
         public void beginStep(){reaction.zero();}
         public void solve(float dt) {
             if(broken)return;float wa=a.kinematic?0:a.inverseMass,wb=b.kinematic?0:b.inverseMass,sum=wa+wb;if(sum==0)return;
-            Vector3f error=b.anchor(anchorB).sub(a.anchor(anchorA));
-            Vector3f nextReaction=new Vector3f(reaction).fma(1/sum,error);
+            for(int anchorIteration=0;anchorIteration<8;anchorIteration++){
+            Vector3f ra=a.rotation.transform(new Vector3f(anchorA)),rb=b.rotation.transform(new Vector3f(anchorB));
+            Vector3f error=new Vector3f(b.position).add(rb).sub(a.position).sub(ra);
+            // Anchor response includes the lever arm and world-space angular inertia.
+            var effective=new org.joml.Matrix3f(
+                response(new Vector3f(1,0,0),ra,rb,wa,wb),
+                response(new Vector3f(0,1,0),ra,rb,wa,wb),
+                response(new Vector3f(0,0,1),ra,rb,wa,wb));
+            Vector3f correction=effective.invert().transform(new Vector3f(error));
+            Vector3f nextReaction=new Vector3f(reaction).add(correction);
             if(nextReaction.length()/(dt*dt)>breakForce){broken=true;return;}
             reaction.set(nextReaction);
-            a.position.fma(wa/sum,error);b.position.fma(-wb/sum,error);
-            a.velocity.fma(wa/(sum*dt),error);b.velocity.fma(-wb/(sum*dt),error);
+            applyAnchor(a,ra,correction,wa,dt);
+            applyAnchor(b,rb,new Vector3f(correction).negate(),wb,dt);
             if(error.lengthSquared()>0){if(wa>0&&a.sleeping)a.wake();if(wb>0&&b.sleeping)b.wake();}
+            }
             Vector3f aa=a.rotation.transform(new Vector3f(axisA)),bb=b.rotation.transform(new Vector3f(axisB));
             Vector3f cross=bb.cross(aa);float sine=cross.length();
             if(sine>1e-6f){cross.div(sine);float angle=(float)Math.asin(Math.min(1,sine));if(wa>0)a.rotation.rotateAxis(-angle*wa/sum,cross.x,cross.y,cross.z);if(wb>0)b.rotation.rotateAxis(angle*wb/sum,cross.x,cross.y,cross.z);}
             Vector3f relative=new Vector3f(b.angularVelocity).sub(a.angularVelocity);relative.sub(new Vector3f(aa).mul(relative.dot(aa)));
             a.angularVelocity.fma(wa/sum,relative);b.angularVelocity.fma(-wb/sum,relative);
+        }
+        private Vector3f response(Vector3f direction,Vector3f ra,Vector3f rb,float wa,float wb) {
+            Vector3f result=new Vector3f(direction).mul(wa+wb);
+            if(wa>0)result.add(a.inverseInertiaWorld(new Vector3f(ra).cross(direction)).cross(ra));
+            if(wb>0)result.add(b.inverseInertiaWorld(new Vector3f(rb).cross(direction)).cross(rb));
+            return result;
+        }
+        private void applyAnchor(RigidBody body,Vector3f arm,Vector3f correction,float weight,float dt) {
+            if(weight==0)return;
+            Vector3f angular=body.inverseInertiaWorld(new Vector3f(arm).cross(correction));
+            body.position.fma(weight,correction);body.velocity.fma(weight/dt,correction);
+            body.rotation.integrate(1,angular.x,angular.y,angular.z).normalize();
+            body.angularVelocity.fma(1/dt,angular);
         }
     }
     private Constraints() {}

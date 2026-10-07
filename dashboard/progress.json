@@ -41,7 +41,7 @@
         }
       ],
       "status": "in_progress",
-      "note": "Moving platform carry fixed. 62 focused tests, native rising/descending/ceiling/horizontal cases and prior physics/walker regressions passed. Fresh media captured; Java 17 packaged launch passed. Ready for independent review; CI needs controller verification.",
+      "note": "Off-centre hinge angular response fixed. 65 focused tests and native swing, load, platform, physics/walker regressions passed. Fresh media captured; Java 17 packaged launch passed. Ready for independent review; CI needs controller verification.",
       "updatedAt": "2026-10-07T20:35:42.621494+00:00"
     },
     {
