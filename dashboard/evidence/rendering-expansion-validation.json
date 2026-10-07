@@ -1,11 +1,11 @@
 {
   "status": "ready_for_independent_review",
-  "rendererSourceSha256": "904bd3c797382824876063e7e48218e5f94674a28595191a88ca91b4eddf0c07",
+  "rendererSourceSha256": "999f76d886f5e9872661976e3666bccf54b9e9f38ee54865c1bc0ce8bd63d75d",
   "platform": "Linux assigned inherited X11 DISPLAY and XAUTHORITY; Mesa llvmpipe; verified native Java 21.0.5; compile source/target 17; isolated synthetic profiles",
   "focusedSuites": [
     {
       "name": "dev.jayms.RenderingAlgorithmsTest",
-      "time": "0.373",
+      "time": "0.071",
       "tests": "9",
       "errors": "0",
       "skipped": "0",
@@ -13,7 +13,7 @@
     },
     {
       "name": "dev.jayms.LightingTest",
-      "time": "0.084",
+      "time": "0.048",
       "tests": "5",
       "errors": "0",
       "skipped": "0",
@@ -21,7 +21,7 @@
     },
     {
       "name": "dev.jayms.LightOcclusionTest",
-      "time": "5.927",
+      "time": "1.971",
       "tests": "6",
       "errors": "0",
       "skipped": "0",
@@ -29,7 +29,7 @@
     },
     {
       "name": "dev.jayms.FractionalWorldTest",
-      "time": "0.77",
+      "time": "0.116",
       "tests": "7",
       "errors": "0",
       "skipped": "0",
@@ -37,7 +37,7 @@
     },
     {
       "name": "dev.jayms.DistantTerrainTest",
-      "time": "0.436",
+      "time": "0.133",
       "tests": "6",
       "errors": "0",
       "skipped": "0",
@@ -45,7 +45,7 @@
     },
     {
       "name": "dev.jayms.StressGridLightingTest",
-      "time": "3.725",
+      "time": "1.758",
       "tests": "1",
       "errors": "0",
       "skipped": "0",
@@ -53,7 +53,7 @@
     },
     {
       "name": "dev.jayms.CityMaterialsTest",
-      "time": "134.854",
+      "time": "27.203",
       "tests": "13",
       "errors": "0",
       "skipped": "0",
@@ -61,7 +61,7 @@
     },
     {
       "name": "dev.jayms.PlayerCameraTest",
-      "time": "0.134",
+      "time": "0.053",
       "tests": "3",
       "errors": "0",
       "skipped": "0",
@@ -69,7 +69,7 @@
     },
     {
       "name": "dev.jayms.RoadMarkingsTest",
-      "time": "19.246",
+      "time": "0.334",
       "tests": "4",
       "errors": "0",
       "skipped": "0",
@@ -77,7 +77,7 @@
     },
     {
       "name": "dev.jayms.IsometricCameraTest",
-      "time": "0.247",
+      "time": "0.07",
       "tests": "8",
       "errors": "0",
       "skipped": "0",
@@ -85,7 +85,7 @@
     },
     {
       "name": "dev.jayms.VoxelModelTest",
-      "time": "0.421",
+      "time": "0.129",
       "tests": "6",
       "errors": "0",
       "skipped": "0",
@@ -93,7 +93,7 @@
     },
     {
       "name": "dev.jayms.EngineEditorTest",
-      "time": "0.218",
+      "time": "0.039",
       "tests": "3",
       "errors": "0",
       "skipped": "0",
@@ -101,15 +101,204 @@
     },
     {
       "name": "dev.jayms.VehicleAudioTest",
-      "time": "0.01",
+      "time": "0.002",
       "tests": "1",
+      "errors": "0",
+      "skipped": "0",
+      "failures": "0"
+    },
+    {
+      "name": "dev.jayms.CityFormat16RegressionTest",
+      "time": "0.083",
+      "tests": "2",
+      "errors": "0",
+      "skipped": "0",
+      "failures": "0"
+    },
+    {
+      "name": "dev.jayms.EditHistoryTest",
+      "time": "0.048",
+      "tests": "1",
+      "errors": "0",
+      "skipped": "0",
+      "failures": "0"
+    },
+    {
+      "name": "dev.jayms.StressGridDevelopmentTest",
+      "time": "37.346",
+      "tests": "3",
+      "errors": "0",
+      "skipped": "0",
+      "failures": "0"
+    },
+    {
+      "name": "dev.jayms.CityTest",
+      "time": "6.815",
+      "tests": "10",
       "errors": "0",
       "skipped": "0",
       "failures": "0"
     }
   ],
-  "focusedTotal": 72,
-  "commands": [
+  "focusedTotal": 88,
+  "earlierFailures": [
+    {
+      "issue": "Opaque faces next to water were culled.",
+      "fix": "Keep non-water faces beside water. Tests cover top, side, cross-chunk seam, internal water faces and opaque neighbors."
+    },
+    {
+      "issue": "Production F6 harness checked before X11 press delivery and resent the toggle.",
+      "diagnosis": "Actual callback trace showed check at presses=0, then first PRESS changed false to true, then retry PRESS changed true to false. Reproduced AssertionError before fix.",
+      "fix": "Send one complete F6 key event. Wait for its actual GLFW PRESS callback; require exactly one press and isometric=true. Production input code is unchanged."
+    }
+  ],
+  "diffAudit": {
+    "base": "5f1b711d467566491538d975d9de24d01f19bc1f",
+    "deletedFiles": [],
+    "scope": "Recorded base 5f1b711d467566491538d975d9de24d01f19bc1f predates merged stress commit 11314f5. The proposed tree includes that merged feature intact. Rendering changes are audited against 11314f5 separately. No files deleted. Intentional rendering replacements: greedy full-cell face emission, screen-error distance selection, cascade shadows, scattering sky and temporal post resolve. Held items render after world resolve. The reviewed head had lost unrelated city code; current source restores it exactly."
+  },
+  "limits": [
+    "Single-scattering atmosphere; screen-space effects miss offscreen geometry.",
+    "Bounded nearby voxel GI; coarse distance approximation for fractional cells; exact sparse fine transport retained.",
+    "One rolling local reflection probe and one water reflection plane.",
+    "Compute commands are generated per chunk; CPU still submits dispatch/draw pairs.",
+    "Software Mesa playtesting does not establish physical GPU frame-rate targets.",
+    "Full suite is not claimed as passed; controller CI and independent review remain required."
+  ],
+  "completedAt": "2026-10-07T20:24:39.642311+00:00",
+  "playtest": "Playtest: native LWJGL application; browser playtesting does not apply. Restored development workflow fully exercised with real X11 menu/key inputs and isolated synthetic saves. Current-source rendering regression runs are also recorded below. Historical populated-stress evidence remains unchanged.",
+  "visualInspection": "Fresh GL3.3 4x water capture inspected: submerged textured checker floor and wall visible. Fresh production video midpoint inspected after decoding all 8 frames. Fresh restored Develop menu, business and farm captures inspected. 333x271 forced size clips the menu below production minimum. No physical GPU performance claim.",
+  "media": [
+    {
+      "file": "rendering-expansion-decals.png",
+      "sha256": "c5c5fdc19c0c2587eecb7bf522472526b52e66f8375ef3e46cab2ec903c4ad73",
+      "bytes": 335997,
+      "publication": "pending controller publication",
+      "source": "fresh current restored rendering integration"
+    },
+    {
+      "file": "rendering-expansion-graded.png",
+      "sha256": "d336a5e349f335c5de9c2a8e04c63122a1fe745558907563926bd79130522f1d",
+      "bytes": 290945,
+      "publication": "pending controller publication",
+      "source": "fresh current restored rendering integration"
+    },
+    {
+      "file": "rendering-expansion-main-gallery.png",
+      "sha256": "a381de696924976c59c58368f8d28814725d761f4b9e0ffae62248c324433dc9",
+      "bytes": 299540,
+      "publication": "pending controller publication",
+      "source": "fresh current restored rendering integration"
+    },
+    {
+      "file": "rendering-expansion-main-isometric.png",
+      "sha256": "b3faa651f2134b9e149af4f33be927ccfbf98e015fe51b1f582e350985c85371",
+      "bytes": 15823,
+      "publication": "pending controller publication",
+      "source": "fresh current restored rendering integration"
+    },
+    {
+      "file": "rendering-expansion-main-menu.png",
+      "sha256": "f7b34180bba2ee159160658be8bab84f033f1ccc3c72b6acd15184aed4d05761",
+      "bytes": 4885,
+      "publication": "pending controller publication",
+      "source": "fresh current restored rendering integration"
+    },
+    {
+      "file": "rendering-expansion-main-motion.png",
+      "sha256": "45373b8300fdfd7ab1e81a9218aa037ced58f41f847c47dc372c4abe3056d735",
+      "bytes": 313791,
+      "publication": "pending controller publication",
+      "source": "fresh current restored rendering integration"
+    },
+    {
+      "file": "rendering-expansion-main-resize.png",
+      "sha256": "33ed07ac20826447cfbd5b881cd1e02b0b4c0887d153115bee6e381eaaf57886",
+      "bytes": 8723,
+      "publication": "pending controller publication",
+      "source": "fresh current restored rendering integration"
+    },
+    {
+      "file": "rendering-expansion-playtest.mp4",
+      "sha256": "43deb92124c898306f1ed960c4b4059402084e17e4ec86b54f979b18b165d15d",
+      "bytes": 240433,
+      "publication": "pending controller publication",
+      "source": "fresh current restored rendering integration"
+    },
+    {
+      "file": "rendering-expansion-temporal.png",
+      "sha256": "71270b7615a2e990bc208413c3bbf8190ba2061a7ba4b82a29493a2193c915e2",
+      "bytes": 295780,
+      "publication": "pending controller publication",
+      "source": "fresh current restored rendering integration"
+    },
+    {
+      "file": "rendering-expansion-upscaled.png",
+      "sha256": "d01d7e45996130b747f94d3827d5559051394550ac204b9993567fab97546d96",
+      "bytes": 309220,
+      "publication": "pending controller publication",
+      "source": "fresh current restored rendering integration"
+    },
+    {
+      "file": "rendering-expansion-video-frame.png",
+      "sha256": "22f77c94d74af754746e7f20d89981d57fe1743779df52678c0fee617422c634",
+      "bytes": 417255,
+      "publication": "pending controller publication",
+      "source": "fresh current restored rendering integration"
+    },
+    {
+      "file": "rendering-expansion-water.png",
+      "sha256": "609d60868a4d4668fc349f3e4674719b15d422341de248cf9e70687b0c2f7dce",
+      "bytes": 451405,
+      "publication": "pending controller publication",
+      "source": "fresh current restored rendering integration"
+    },
+    {
+      "file": "rendering-restored-stress-businesses.png",
+      "sha256": "6356edbb190bec2f6692e7814315a41f97a3ef81d6604c6e934fac19108e1d35",
+      "bytes": 311100,
+      "publication": "pending controller publication",
+      "source": "fresh current restored rendering integration"
+    },
+    {
+      "file": "rendering-restored-stress-factories.png",
+      "sha256": "19a3aa28050c4e2ac992bfe14d8456d13423005d30c327130ca8c0d70aebc264",
+      "bytes": 315767,
+      "publication": "pending controller publication",
+      "source": "fresh current restored rendering integration"
+    },
+    {
+      "file": "rendering-restored-stress-farms.png",
+      "sha256": "adc2813ce0ea2dec6b9bde73734547ae848a4e42eedbffbcd0540da848b69120",
+      "bytes": 335092,
+      "publication": "pending controller publication",
+      "source": "fresh current restored rendering integration"
+    },
+    {
+      "file": "rendering-restored-stress-houses.png",
+      "sha256": "8e32f53ae945ee9e6985a598d562013e401f714a1740dfab0be1b0ed8ecff74e",
+      "bytes": 459704,
+      "publication": "pending controller publication",
+      "source": "fresh current restored rendering integration"
+    },
+    {
+      "file": "rendering-restored-stress-menu.png",
+      "sha256": "939f25f91fb565fab1aa93bf1c689ec1f3d4cbab265de79ed47d753b1fe1ba55",
+      "bytes": 33960,
+      "publication": "pending controller publication",
+      "source": "fresh current restored rendering integration"
+    },
+    {
+      "file": "rendering-restored-stress-original.png",
+      "sha256": "a13bd098324f14954d24d7c9cabea76f0d1f5a2057c6f3045cce10197eb56822",
+      "bytes": 110945,
+      "publication": "pending controller publication",
+      "source": "fresh current restored rendering integration"
+    }
+  ],
+  "auditCorrection": "The earlier claim that city logic was retained was wrong for reviewed head 195857c3202638a72e2a377e2b935ca2125f06c0. Current source 321d096 restores the merged stress workflow, indexed edit history, city performance fixes, tests, harnesses and historical evidence. 42 restored files match blob hashes and modes from 11314f5. See rendering-restoration-audit.json.",
+  "historicalMedia": "populated-stress-* artifacts are preserved merged-feature history, not new evidence for this rendering implementation.",
+  "previousValidation": [
     {
       "command": "mvn -q -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=RenderingAlgorithmsTest,LightingTest,LightOcclusionTest,FractionalWorldTest,DistantTerrainTest,StressGridLightingTest,CityMaterialsTest,PlayerCameraTest,RoadMarkingsTest,IsometricCameraTest,VoxelModelTest,EngineEditorTest,VehicleAudioTest package",
       "expected": "Package succeeds; focused geometry, lighting, camera, city, model and editor regression checks pass.",
@@ -148,105 +337,59 @@
       "observed": "Exit 0."
     }
   ],
-  "earlierFailures": [
+  "previousValidationNote": "Earlier rendering commands passed on the previous renderer integration. Current restored-source commands are recorded below; no full Maven suite pass claimed.",
+  "commands": [
     {
-      "issue": "Opaque faces next to water were culled.",
-      "fix": "Keep non-water faces beside water. Tests cover top, side, cross-chunk seam, internal water faces and opaque neighbors."
+      "command": "mvn -q -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=RenderingAlgorithmsTest,LightingTest,LightOcclusionTest,FractionalWorldTest,DistantTerrainTest,StressGridLightingTest,CityMaterialsTest,PlayerCameraTest,RoadMarkingsTest,IsometricCameraTest,VoxelModelTest,EngineEditorTest,VehicleAudioTest,CityFormat16RegressionTest,EditHistoryTest,StressGridDevelopmentTest,CityTest package",
+      "expected": "Restored edit-history, city-format and stress-development checks pass with renderer regression suites.",
+      "observed": "Exit 0; 88 tests; zero failures, errors or skips."
     },
     {
-      "issue": "Production F6 harness checked before X11 press delivery and resent the toggle.",
-      "diagnosis": "Actual callback trace showed check at presses=0, then first PRESS changed false to true, then retry PRESS changed true to false. Reproduced AssertionError before fix.",
-      "fix": "Send one complete F6 key event. Wait for its actual GLFW PRESS callback; require exactly one press and isometric=true. Production input code is unchanged."
+      "command": "python3 deploy/run_rendering_restoration_playtest.py --display \"$DISPLAY\"",
+      "environment": "Inherited assigned DISPLAY/XAUTHORITY; Mesa llvmpipe OpenGL 3.3; isolated target/render-restored-stress/profile; 800x640 at .65 render scale; original preserved harnesses wrapped without editing them.",
+      "expected": "Develop creates populated city; repeat adds no duplicates; four districts mesh; save/reload preserves development; original city and F6 work.",
+      "observed": "Exit 0; all 29 steps completed. 192 houses, 80 businesses, 80 factories, 48 crop farms, 128 residents. Repeat unchanged. Four districts rendered after 20 streaming frames each; saved buildings, residents, farms and operators retained. Original roads/residents unchanged; F6 passed."
+    },
+    {
+      "command": "python3 deploy/run_rendering_main_playtest.py --display \"$DISPLAY\" --gl33",
+      "expected": "Production camera, F10, F6, odd resize and menu work after city/edit-history restoration.",
+      "observed": "Playtest: PASS. Production Main, Linux assigned X11 display, synthetic voxel profile. LED gallery, GPU particles, water, actual W camera motion, F10 recording, F6 isometric, temporal upscale at odd 333x271 resize, Escape menu; no GL errors across 41 frames. Backend=false. Exit 0."
+    },
+    {
+      "command": "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Djava.io.tmpdir=\"$PWD/target/tmp\" -cp target/voxel-one-1.0-SNAPSHOT-client.jar deploy/VerifyRenderingMedia.java dashboard/evidence/rendering-expansion-playtest.mp4 dashboard/evidence/rendering-expansion-video.json dashboard/evidence/rendering-expansion-video-frame.png",
+      "expected": "Fresh clip decodes fully, changes over time and remains below 6 MB.",
+      "observed": {
+        "status": "passed",
+        "source": "fresh production Main F10 rendering workflow",
+        "codec": "H264",
+        "bytes": 240433,
+        "frames": 8,
+        "width": 640,
+        "height": 400,
+        "seconds": 7.21,
+        "allFramesDecoded": true,
+        "firstAndLastDiffer": true
+      }
+    },
+    {
+      "command": "python3 deploy/run_rendering_playtest.py --display \"$DISPLAY\" --gl33 --msaa 4",
+      "expected": "Current restored source preserves water refraction geometry and passes temporal, emitter, LUT, dynamic-resolution and resize checks through MSAA resolve.",
+      "observed": "Exit 0; strict GL3.3, 4x samples; Playtest: native OpenGL synthetic gallery; assigned X11 display; GPU backend=false; decals changed pixels=45046; reflection probes, GPU emitters/removal, water, camera motion/TAA, exposure, LUT, temporal upscaling, measured dynamic resolution, resize and GL errors passed."
+    },
+    {
+      "command": "python3 deploy/run_rendering_playtest.py --display \"$DISPLAY\"",
+      "expected": "Optional modern compute/indirect backend passes with restored edit history and city integration.",
+      "observed": "Exit 0; Playtest: native OpenGL synthetic gallery; assigned X11 display; GPU backend=true; decals changed pixels=44668; reflection probes, GPU emitters/removal, water, camera motion/TAA, exposure, LUT, temporal upscaling, measured dynamic resolution, resize and GL errors passed."
+    },
+    {
+      "command": "python3 -m py_compile deploy/run_rendering_restoration_playtest.py deploy/run_rendering_main_playtest.py deploy/run_rendering_playtest.py",
+      "observed": "Exit 0."
+    },
+    {
+      "command": "git diff --check",
+      "observed": "Exit 0. No unmerged index entries; no deleted files against recorded review base. Final preserved-file comparison: 42 byte-for-byte matches to 11314f5."
     }
   ],
-  "diffAudit": {
-    "base": "5f1b711d467566491538d975d9de24d01f19bc1f",
-    "deletedFiles": [],
-    "scope": "Audited full proposed diff. Rendering source, integration, focused tests, harnesses, docs and task media only. Existing city, roads, shipping and editor logic retained. Intentional removals replace per-cell full-face emission with greedy meshing, fixed distance thresholds with screen error selection, single shadow target with cascades, gradient sky with scattering, and old FXAA resolve with temporal post. Held-item rendering moved after world resolve."
-  },
-  "limits": [
-    "Single-scattering atmosphere; screen-space effects miss offscreen geometry.",
-    "Bounded nearby voxel GI; coarse distance approximation for fractional cells; exact sparse fine transport retained.",
-    "One rolling local reflection probe and one water reflection plane.",
-    "Compute commands are generated per chunk; CPU still submits dispatch/draw pairs.",
-    "Software Mesa playtesting does not establish physical GPU frame-rate targets.",
-    "Full suite is not claimed as passed; controller CI and independent review remain required."
-  ],
-  "completedAt": "2026-10-07T19:45:43.567266+00:00",
-  "playtest": "Playtest: native application on inherited assigned X11 DISPLAY/XAUTHORITY, Mesa llvmpipe, isolated synthetic profiles. Browser playtesting does not apply to this native LWJGL voxel engine. Steps: build; run production twice; move W; record F10; press F6 once; resize 333x271 at .65 scale; open Escape menu. Run shallow-water renderer fixture and edge/regression checks. Expected and observed results are recorded per command.",
-  "visualInspection": "Fresh water image shows brick/plank checker floor and brick wall beneath water. Fresh production gallery, isometric and menu captures inspected. Menu at forced 333x271 is clipped as expected for a test size below production window minimum. Software rendering is slow; no hardware performance claim.",
-  "media": [
-    {
-      "file": "rendering-expansion-water.png",
-      "sha256": "548c2b4a9b3d1a857a0b36058bf37c36d827e80082a9c27baf168c19194ca45c",
-      "bytes": 454291,
-      "publication": "pending controller publication"
-    },
-    {
-      "file": "rendering-expansion-video-frame.png",
-      "sha256": "28e5b231f8f06c5788e37bda872da6101c68c5340bd1528dfb65bc6d818c6ffa",
-      "bytes": 419184,
-      "publication": "pending controller publication"
-    },
-    {
-      "file": "rendering-expansion-playtest.mp4",
-      "sha256": "d9d1a4376eee8d6333691bfdd98601a713274bb566436b8266f665bc43220cb3",
-      "bytes": 240058,
-      "publication": "pending controller publication"
-    },
-    {
-      "file": "rendering-expansion-decals.png",
-      "sha256": "88ad6a47fc215e33653fa3edb994fae06c24ef491ebac936aaec6b4c38f620a5",
-      "bytes": 334374,
-      "publication": "pending controller publication"
-    },
-    {
-      "file": "rendering-expansion-main-menu.png",
-      "sha256": "d2e47207a385e2d55fdb7379644215e9a9a5096f34e83774219e0b431682fda8",
-      "bytes": 4880,
-      "publication": "pending controller publication"
-    },
-    {
-      "file": "rendering-expansion-main-isometric.png",
-      "sha256": "507cdd5bb5ded8e65587cc3d2a868335f336d9c9083175a10a7fc55520143389",
-      "bytes": 15809,
-      "publication": "pending controller publication"
-    },
-    {
-      "file": "rendering-expansion-temporal.png",
-      "sha256": "f18eebd3aa64ee7f0e67620ba4cec6992b8170621de9c1ac33a5becc041e8ce5",
-      "bytes": 292049,
-      "publication": "pending controller publication"
-    },
-    {
-      "file": "rendering-expansion-main-gallery.png",
-      "sha256": "2a0e12f043b107c6e65b827c575b18409ff95d26e6a151b52775f78c5c16af6a",
-      "bytes": 300127,
-      "publication": "pending controller publication"
-    },
-    {
-      "file": "rendering-expansion-upscaled.png",
-      "sha256": "1b57de262e7a775182da2a44f098c190246c5a673b9e958cfd8d0f090d6388bf",
-      "bytes": 304363,
-      "publication": "pending controller publication"
-    },
-    {
-      "file": "rendering-expansion-main-resize.png",
-      "sha256": "1142a2cff0aa7032cf6c2e6e970070948cf38f1c608873d46032c906a21e5bbf",
-      "bytes": 8691,
-      "publication": "pending controller publication"
-    },
-    {
-      "file": "rendering-expansion-graded.png",
-      "sha256": "df6fe60af03cdc391a937152f0edaba1de04bf806fb99fff891cfbae3926ce7a",
-      "bytes": 284600,
-      "publication": "pending controller publication"
-    },
-    {
-      "file": "rendering-expansion-main-motion.png",
-      "sha256": "5bd8d61c902b949b65a2d4865e11e853bd495882408747b58de3c1d4cc4a421d",
-      "bytes": 314703,
-      "publication": "pending controller publication"
-    }
-  ]
+  "allMainSourceSha256": "ddcf2397fb287b5f1fcf0ef5a58b3c1b32c84d1aad9ac7efd4e32699877f89ee",
+  "sourceCommit": "321d0965b21dcdc8d7e7a68629deefb3f0ee3826"
 }

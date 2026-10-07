@@ -3338,11 +3338,21 @@
           "kind": "video",
           "label": "Fresh production F10 workflow (pending controller publication)",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-expansion-playtest.mp4"
+        },
+        {
+          "kind": "report",
+          "label": "Restored merged feature audit (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-restoration-audit.json"
+        },
+        {
+          "kind": "image",
+          "label": "Fresh Develop stress save workflow (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-restored-stress-menu.png"
         }
       ],
       "status": "in_progress",
-      "note": "Review fixes ready for independent review. Submerged opaque floor and wall preserved. F6 harness now waits for the actual press instead of resending a delayed toggle. 72 focused tests passed. Production workflow passed twice; baseline 1x/4x MSAA and modern compute fixtures passed. Fresh water image and fully decoded 8-frame F10 clip saved. Media publication remains reserved to the controller.",
-      "updatedAt": "2026-10-07T19:45:43.567266+00:00"
+      "note": "Restoration review fixes ready. Verified 42 restored files match merged source, including Develop stress save, indexed edit history, city performance fixes, tests, harnesses, format documentation and historical evidence. Corrected the earlier reviewed-head audit claim. 88 selected tests passed. Native development/repeat/four districts/reload/original/F6 passed; production rendering passed across 41 frames; GL3.3 4x and modern compute fixtures passed. Fresh media saved; publication remains reserved to controller.",
+      "updatedAt": "2026-10-07T20:24:39.642311+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
