@@ -133,6 +133,242 @@ class RoadTrafficTest {
     }
 
     @Test
+    void mountingAndDismountingSwitchOnlyTheRemainingRoadLane() throws Exception {
+        var city=new CityTest().simulation(new CityTest.Ground());
+        var ids=city.ecs.query(CitySimulation.Position.class,CitySimulation.Household.class);
+        for(int id:ids) {var p=city.ecs.get(id,CitySimulation.Position.class);p.x=100;p.z=100;}
+        int id=ids.get(0);var p=city.ecs.get(id,CitySimulation.Position.class);p.x=.5f;p.z=25.75f;
+        var t=city.ecs.get(id,CitySimulation.Travel.class);var h=city.ecs.get(id,CitySimulation.Household.class);
+        for(int x=0;x<=10;x++)t.route.add(new Cell(x,24));
+        var travel=CitySimulation.class.getDeclaredMethod("travel",int.class,
+                CitySimulation.Position.class,CitySimulation.Household.class,CitySimulation.Travel.class,float.class);
+        travel.setAccessible(true);
+        travel.invoke(city,id,p,h,t,.1f);
+        int horse=city.ecs.query(CitySimulation.Mount.class).get(0);
+        h.horse=horse;city.ecs.get(horse,CitySimulation.Mount.class).rider=-id;
+        travel.invoke(city,id,p,h,t,.1f);
+        assertEquals(25,t.lanes.peek().z(),.001);
+        assertEquals(1.5,t.lanes.peek().x(),.001,"Consumed road cells must not restart");
+        assertTrue(p.z<25.75);
+        float mountedZ=p.z;h.horse=0;city.ecs.get(horse,CitySimulation.Mount.class).rider=0;
+        travel.invoke(city,id,p,h,t,.1f);
+        assertEquals(25.75,t.lanes.peek().z(),.001);
+        assertTrue(p.z>mountedZ);
+    }
+
+    @Test
+    void shortCornerLaneSwitchKeepsTheTrimmedPavementEndpoint() throws Exception {
+        var city=new CityTest().simulation(new CityTest.Ground());
+        var ids=city.ecs.query(CitySimulation.Position.class,CitySimulation.Household.class);
+        for(int id:ids) {var p=city.ecs.get(id,CitySimulation.Position.class);p.x=100;p.z=100;}
+        int id=ids.get(0);var p=city.ecs.get(id,CitySimulation.Position.class);p.x=7.5f;p.z=25;
+        var t=city.ecs.get(id,CitySimulation.Travel.class);var h=city.ecs.get(id,CitySimulation.Household.class);
+        t.route.addAll(List.of(new Cell(7,24),new Cell(8,24),new Cell(8,25)));
+        int horse=city.ecs.query(CitySimulation.Mount.class).get(0);
+        h.horse=horse;city.ecs.get(horse,CitySimulation.Mount.class).rider=-id;
+        var travel=CitySimulation.class.getDeclaredMethod("travel",int.class,
+                CitySimulation.Position.class,CitySimulation.Household.class,CitySimulation.Travel.class,float.class);
+        travel.setAccessible(true);
+        travel.invoke(city,id,p,h,t,.1f);travel.invoke(city,id,p,h,t,.1f);
+        h.horse=0;city.ecs.get(horse,CitySimulation.Mount.class).rider=0;
+        travel.invoke(city,id,p,h,t,.1f);
+        assertFalse(t.lanes.isEmpty());
+        assertEquals(new Waypoint(7.25f,25.75f),t.lanes.peek());
+    }
+
+    @Test
+    void pavementAndCarriagewayKeepIndependentSameDirectionQueues() throws Exception {
+        var city=new CityTest().simulation(new CityTest.Ground());
+        var ids=city.ecs.query(CitySimulation.Position.class,CitySimulation.Household.class);
+        for(int id:ids) {var p=city.ecs.get(id,CitySimulation.Position.class);p.x=100;p.z=100;}
+        int walker=ids.get(0),rider=ids.get(1),ahead=ids.get(2);
+        var wp=city.ecs.get(walker,CitySimulation.Position.class);wp.x=.5f;wp.z=25.75f;
+        var rp=city.ecs.get(rider,CitySimulation.Position.class);rp.x=1;rp.z=25;
+        var wt=city.ecs.get(walker,CitySimulation.Travel.class);
+        wt.lanes.addAll(List.of(new Waypoint(1.5f,25.75f),new Waypoint(2.5f,25.75f)));
+        city.ecs.get(rider,CitySimulation.Travel.class).lanes.addAll(
+                List.of(new Waypoint(2.5f,25),new Waypoint(3.5f,25)));
+        int horse=city.ecs.query(CitySimulation.Mount.class).get(0);
+        city.ecs.get(rider,CitySimulation.Household.class).horse=horse;
+        city.ecs.get(horse,CitySimulation.Mount.class).rider=-rider;
+        var travel=CitySimulation.class.getDeclaredMethod("travel",int.class,
+                CitySimulation.Position.class,CitySimulation.Household.class,CitySimulation.Travel.class,float.class);
+        travel.setAccessible(true);
+        travel.invoke(city,walker,wp,city.ecs.get(walker,CitySimulation.Household.class),wt,.1f);
+        assertTrue(wp.x>.5f,"The adjacent mounted stream must leave pavement travel clear");
+        wp.x=.5f;
+        var ap=city.ecs.get(ahead,CitySimulation.Position.class);ap.x=1;ap.z=25.75f;
+        city.ecs.get(ahead,CitySimulation.Travel.class).lanes.addAll(
+                List.of(new Waypoint(2.5f,25.75f),new Waypoint(3.5f,25.75f)));
+        travel.invoke(city,walker,wp,city.ecs.get(walker,CitySimulation.Household.class),wt,.1f);
+        assertEquals(.5f,wp.x);
+        assertEquals("Waiting for traffic",wt.activity);
+    }
+
+    @Test
+    void diagonalLaneEntryClearsAnIdleWorkerBesideThePavement() throws Exception {
+        var city=new CityTest().simulation(new CityTest.Ground());
+        var ids=city.ecs.query(CitySimulation.Position.class,CitySimulation.Household.class);
+        for(int id:ids) {var p=city.ecs.get(id,CitySimulation.Position.class);p.x=100;p.z=100;}
+        int walker=ids.get(0),worker=ids.get(1);
+        var p=city.ecs.get(walker,CitySimulation.Position.class);p.x=20;p.z=25.1f;
+        var idle=city.ecs.get(worker,CitySimulation.Position.class);idle.x=17.9f;idle.z=25.1f;
+        var t=city.ecs.get(walker,CitySimulation.Travel.class);
+        t.lanes.addAll(List.of(new Waypoint(19.5f,25.75f),new Waypoint(20.5f,25.75f)));
+        var travel=CitySimulation.class.getDeclaredMethod("travel",int.class,
+                CitySimulation.Position.class,CitySimulation.Household.class,CitySimulation.Travel.class,float.class);
+        travel.setAccessible(true);
+        travel.invoke(city,walker,p,city.ecs.get(walker,CitySimulation.Household.class),t,.1f);
+        assertTrue(p.z>25.1f,"An idle worker beside the pavement must not block diagonal entry");
+    }
+
+    @Test
+    void touchingEndCapsConnectOnlyAcrossBuiltRoadCells() {
+        var streets=List.of(new CityAddresses.Street(1,"West",List.of(new Point(0,24),new Point(2,24))),
+                new CityAddresses.Street(2,"East",List.of(new Point(4,24),new Point(8,24))));
+        var road=new RoadTraffic(streets,Set.of(new Cell(3,24)));
+        assertTrue(road.connected(new Cell(2,24),new Cell(3,24)));
+        assertTrue(road.connected(new Cell(3,24),new Cell(4,24)));
+        assertFalse(new RoadTraffic(streets,Set.of()).connected(new Cell(2,24),new Cell(3,24)));
+    }
+
+    @Test
+    void tinyRemainingLookaheadKeepsTheEarlierMergeTravellerFree() {
+        var lane=List.of(new Waypoint(-4.5f,25.75f),new Waypoint(-3.5f,25.75f));
+        assertFalse(RoadTraffic.yields(10,-4.4867907f,25.677675f,lane,
+                1,-4.46439f,23.750948f,lane),
+                "The first arrival must clear a short corner before the later arrival");
+        assertTrue(RoadTraffic.yields(1,-4.46439f,23.750948f,lane,
+                10,-4.4867907f,25.677675f,lane));
+    }
+
+    @Test
+    void multipleCrossingsKeepOneMergePriority() {
+        var pavement=List.of(new Waypoint(-5.5f,25.75f),new Waypoint(-4.5f,25.75f));
+        var carriageway=List.of(new Waypoint(-5.5f,25),new Waypoint(-4.5f,25));
+        assertTrue(RoadTraffic.yields(11,-5.5f,23.819975f,pavement,
+                12,-5.5f,25.399973f,carriageway));
+        assertFalse(RoadTraffic.yields(12,-5.5f,25.399973f,carriageway,
+                11,-5.5f,23.819975f,pavement),"Two conflicts must not reserve each other");
+    }
+
+    @Test
+    void offsetOpposingEntriesReserveBodyClearance() {
+        var west=List.of(new Waypoint(24.5f,23.25f),new Waypoint(23.5f,23.25f));
+        var east=List.of(new Waypoint(24.5f,25.75f),new Waypoint(25.5f,25.75f));
+        assertFalse(RoadTraffic.yields(6,24.5f,24.520006f,west,
+                12,24.300838f,23.906181f,east));
+        assertTrue(RoadTraffic.yields(12,24.300838f,23.906181f,east,
+                6,24.5f,24.520006f,west),"Body widths must reserve an aisle even if centre lines miss");
+    }
+
+    @Test
+    void clearanceChecksEveryPriorityTravellerBeforeWaiting() throws Exception {
+        var city=new CityTest().simulation(new CityTest.Ground());
+        var ids=city.ecs.query(CitySimulation.Position.class,CitySimulation.Household.class);
+        for(int id:ids) {
+            var p=city.ecs.get(id,CitySimulation.Position.class);p.x=100;p.z=100;
+            city.ecs.get(id,CitySimulation.Household.class).horse=0;
+            var t=city.ecs.get(id,CitySimulation.Travel.class);t.route.clear();t.clearRoadLanes();
+        }
+        for(int n=0;n<3;n++) {
+            int id=ids.get(n);var p=city.ecs.get(id,CitySimulation.Position.class);
+            p.x=new float[]{17.5f,16.5f,15.995405f}[n];
+            p.z=n==2 ? 23.575386f : 23.25f;
+            var t=city.ecs.get(id,CitySimulation.Travel.class);
+            t.lanes.add(new Waypoint(n==2 ? 15.5f : p.x-1,n==2 ? 24 : 23.25f));
+            t.lanes.add(new Waypoint(13.5f,n==2 ? 24 : 23.25f));
+        }
+        int joining=ids.get(2);var p=city.ecs.get(joining,CitySimulation.Position.class);
+        float before=p.x;
+        var travel=CitySimulation.class.getDeclaredMethod("travel",int.class,
+                CitySimulation.Position.class,CitySimulation.Household.class,CitySimulation.Travel.class,float.class);
+        travel.setAccessible(true);
+        travel.invoke(city,joining,p,city.ecs.get(joining,CitySimulation.Household.class),
+                city.ecs.get(joining,CitySimulation.Travel.class),.1f);
+        assertTrue(p.x<before,"A distant reservation must not prevent clearing the blocked priority traveller");
+        for(int n=0;n<2;n++) {
+            var other=city.ecs.get(ids.get(n),CitySimulation.Position.class);
+            assertTrue(Math.hypot(p.x-other.x,p.z-other.z)>=.5-.0001);
+        }
+    }
+
+    @Test
+    void queuedFollowerLeavesRoomForAJoiningTravellerToBackOut() throws Exception {
+        for(boolean reverse:new boolean[]{false,true}) {
+            var city=new CityTest().simulation(new CityTest.Ground());
+            var ids=city.ecs.query(CitySimulation.Position.class,CitySimulation.Household.class);
+            for(int id:ids) {
+                var p=city.ecs.get(id,CitySimulation.Position.class);p.x=100;p.z=100;
+                city.ecs.get(id,CitySimulation.Household.class).horse=0;
+                var t=city.ecs.get(id,CitySimulation.Travel.class);t.route.clear();t.clearRoadLanes();
+            }
+            for(int n=0;n<3;n++) {
+                int id=ids.get(n);var p=city.ecs.get(id,CitySimulation.Position.class);
+                p.x=n==0 ? 10.39f : 9.5f;p.z=new float[]{23.25f,23.62f,24.5f}[n];
+                var t=city.ecs.get(id,CitySimulation.Travel.class);
+                t.lanes.add(new Waypoint(9.5f,23.25f));
+                t.lanes.add(new Waypoint(3.5f+n,23.25f));
+            }
+            var travel=CitySimulation.class.getDeclaredMethod("travel",int.class,
+                    CitySimulation.Position.class,CitySimulation.Household.class,CitySimulation.Travel.class,float.class);
+            travel.setAccessible(true);
+            boolean followerRetreated=false;
+            for(int step=0;step<100;step++) for(int n=0;n<3;n++) {
+                int id=ids.get(reverse ? 2-n : n);var p=city.ecs.get(id,CitySimulation.Position.class);
+                var t=city.ecs.get(id,CitySimulation.Travel.class);if(t.lanes.isEmpty())continue;
+                float z=p.z;
+                travel.invoke(city,id,p,city.ecs.get(id,CitySimulation.Household.class),t,.1f);
+                if(id==ids.get(2) && p.z>z)followerRetreated=true;
+                for(int a=0;a<3;a++)for(int b=a+1;b<3;b++) {
+                    var ap=city.ecs.get(ids.get(a),CitySimulation.Position.class);
+                    var bp=city.ecs.get(ids.get(b),CitySimulation.Position.class);
+                    assertTrue(Math.hypot(ap.x-bp.x,ap.z-bp.z)>=.8-.0001);
+                }
+            }
+            assertTrue(followerRetreated);
+            for(int n=0;n<3;n++)assertTrue(city.ecs.get(ids.get(n),CitySimulation.Travel.class).lanes.isEmpty(),
+                    "Queued entry must drain in both update orders");
+        }
+    }
+
+    @Test
+    void privateForecourtCanPassAParkedMountWithoutReservingItsRoadHeadway() throws Exception {
+        var ground=new CityTest.Ground();var city=new CityTest().simulation(ground);
+        var ids=city.ecs.query(CitySimulation.Position.class,CitySimulation.Household.class);
+        for(int id:ids) {var p=city.ecs.get(id,CitySimulation.Position.class);p.x=100;p.z=100;}
+        for(int id:city.ecs.query(CitySimulation.Mount.class)) {
+            var p=city.ecs.get(id,CitySimulation.Position.class);p.x=100;p.z=100;
+            city.ecs.get(id,CitySimulation.Mount.class).rider=0;
+        }
+        int id=ids.getFirst(),horse=city.ecs.query(CitySimulation.Mount.class).getFirst();
+        var p=city.ecs.get(id,CitySimulation.Position.class);p.x=14.5f;p.z=22.3f;
+        int y=city.frame().roads().getFirst().y();p.y=y+1.01f;
+        for(int x=13;x<=15;x++)for(int z=22;z<=26;z++)ground.apply(List.of(
+                new dev.jayms.net.Protocol.Edit(x,y,z,dev.jayms.net.Blocks.DIRT),
+                new dev.jayms.net.Protocol.Edit(x,y+1,z,dev.jayms.net.Blocks.AIR),
+                new dev.jayms.net.Protocol.Edit(x,y+2,z,dev.jayms.net.Blocks.AIR)));
+        var hp=city.ecs.get(horse,CitySimulation.Position.class);hp.x=14.5f;hp.z=23.7f;
+        var t=city.ecs.get(id,CitySimulation.Travel.class);t.route.clear();t.clearRoadLanes();
+        t.accessRoute=false;t.passingPoints=1;t.route.add(new Cell(14,24));t.route.add(new Cell(15,24));
+        var travel=CitySimulation.class.getDeclaredMethod("travel",int.class,
+                CitySimulation.Position.class,CitySimulation.Household.class,CitySimulation.Travel.class,float.class);
+        travel.setAccessible(true);
+        travel.invoke(city,id,p,city.ecs.get(id,CitySimulation.Household.class),t,.1f);
+        assertTrue(p.z>22.3f,"A clear forecourt step must advance toward the road");
+        assertTrue(Math.hypot(p.x-hp.x,p.z-hp.z)>=.65-.0001);
+    }
+
+    @Test
+    void opposingAccessStreamsReserveTheirSharedAisle() {
+        var south=List.of(new Waypoint(0,2));
+        var north=List.of(new Waypoint(0,0));
+        assertTrue(RoadTraffic.yields(2,0,1.5f,north,1,0,.5f,south));
+        assertFalse(RoadTraffic.yields(1,0,.5f,south,2,0,1.5f,north));
+        assertFalse(RoadTraffic.yields(2,1,1.5f,List.of(new Waypoint(1,0)),1,0,.5f,south));
+    }
+
+    @Test
     void reachedWaypointIsConsumedBeforeWaitingForAMerge() throws Exception {
         var city = new CityTest().simulation(new CityTest.Ground());
         var ids = city.ecs.query(CitySimulation.Position.class, CitySimulation.Household.class);
@@ -151,11 +387,11 @@ class RoadTrafficTest {
         p.phase = 3;
         var merge = new Waypoint(1.5f, 25.75f);
         var at = city.ecs.get(ahead, CitySimulation.Travel.class);
-        at.route.add(merge);
-        at.route.add(new Waypoint(2.5f, 25.75f));
+        at.lanes.add(merge);
+        at.lanes.add(new Waypoint(2.5f, 25.75f));
         var t = city.ecs.get(follower, CitySimulation.Travel.class);
-        t.route.add(new Waypoint(p.x, p.z));
-        t.route.add(merge);
+        t.lanes.add(new Waypoint(p.x, p.z));
+        t.lanes.add(merge);
         t.activity = "Walking";
         var travel =
                 CitySimulation.class.getDeclaredMethod(
@@ -168,8 +404,8 @@ class RoadTrafficTest {
         travel.setAccessible(true);
         travel.invoke(
                 city, follower, p, city.ecs.get(follower, CitySimulation.Household.class), t, .1f);
-        assertEquals(1, t.route.size());
-        assertEquals(merge, t.route.peek());
+        assertEquals(1, t.lanes.size());
+        assertEquals(merge, t.lanes.peek());
         assertEquals("Walking", t.activity);
         assertEquals(.5f, p.x);
         assertEquals(3, p.phase);
@@ -216,12 +452,12 @@ class RoadTrafficTest {
                     p.y = city.frame().roads().get(0).y() + 1.01f;
                     var t = city.ecs.get(ids.get(i), CitySimulation.Travel.class);
                     t.target = 0;
-                    t.route.addAll(
+                    t.lanes.addAll(
                             road.lanes(cells.subList(cornerIndex - 1, cells.size() - i), false));
                     // Join beyond samples already behind the traveller.
-                    while (!t.route.isEmpty()
-                            && (t.route.peek().x() - p.x) * dx + (t.route.peek().z() - p.z) * dz
-                                    <= 0) t.route.remove();
+                    while (!t.lanes.isEmpty()
+                            && (t.lanes.peek().x() - p.x) * dx + (t.lanes.peek().z() - p.z) * dz
+                                    <= 0) t.lanes.remove();
                 }
                 var travel =
                         CitySimulation.class.getDeclaredMethod(
@@ -238,7 +474,7 @@ class RoadTrafficTest {
                     for (int i = 2; i >= 0; i--) {
                         int id = ids.get(i);
                         var t = city.ecs.get(id, CitySimulation.Travel.class);
-                        if (t.route.isEmpty()) continue;
+                        if (t.lanes.isEmpty()) continue;
                         travel.invoke(
                                 city,
                                 id,
@@ -296,7 +532,7 @@ class RoadTrafficTest {
                     p.y = city.frame().roads().get(0).y() + 1.01f;
                     var t = city.ecs.get(id, CitySimulation.Travel.class);
                     t.target = 0;
-                    t.route.add(new Waypoint(i == 0 ? 10.5f : 8.5f, i == 0 ? 24.5f : 26.5f));
+                    t.lanes.add(new Waypoint(i == 0 ? 10.5f : 8.5f, i == 0 ? 24.5f : 26.5f));
                     if (mounted) {
                         int horse = city.ecs.query(CitySimulation.Mount.class).get(i);
                         city.ecs.get(id, CitySimulation.Household.class).horse = horse;
@@ -318,7 +554,7 @@ class RoadTrafficTest {
                     for (int n = 0; n < 2; n++) {
                         int id = ids.get(reverseOrder ? 1 - n : n);
                         var t = city.ecs.get(id, CitySimulation.Travel.class);
-                        if (t.route.isEmpty()) continue;
+                        if (t.lanes.isEmpty()) continue;
                         var p = city.ecs.get(id, CitySimulation.Position.class);
                         float before = p.z;
                         travel.invoke(
@@ -374,8 +610,8 @@ class RoadTrafficTest {
                 p.y = city.frame().roads().get(0).y() + 1.01f;
                 var t = city.ecs.get(id, CitySimulation.Travel.class);
                 t.target = 0;
-                if (i == 1) t.route.add(new Waypoint(.5f, 25.75f));
-                t.route.add(new Waypoint(i == 0 ? 4.5f : 3.5f, 25.75f));
+                if (i == 1) t.lanes.add(new Waypoint(.5f, 25.75f));
+                t.lanes.add(new Waypoint(i == 0 ? 4.5f : 3.5f, 25.75f));
             }
             var travel =
                     CitySimulation.class.getDeclaredMethod(
@@ -391,7 +627,7 @@ class RoadTrafficTest {
                 for (int n = 0; n < 2; n++) {
                     int id = ids.get(reverseOrder ? 1 - n : n);
                     var t = city.ecs.get(id, CitySimulation.Travel.class);
-                    if (t.route.isEmpty()) continue;
+                    if (t.lanes.isEmpty()) continue;
                     var p = city.ecs.get(id, CitySimulation.Position.class);
                     float before = p.z;
                     travel.invoke(
@@ -442,8 +678,8 @@ class RoadTrafficTest {
             p.y = city.frame().roads().get(0).y() + 1.01f;
             var t = city.ecs.get(ids.get(i), CitySimulation.Travel.class);
             t.target = 0;
-            t.route.clear();
-            t.route.add(new Waypoint(4.5f, p.z));
+            t.lanes.clear();
+            t.lanes.add(new Waypoint(4.5f, p.z));
             if (mounted) {
                 int horse = city.ecs.query(CitySimulation.Mount.class).get(i);
                 city.ecs.get(ids.get(i), CitySimulation.Household.class).horse = horse;
@@ -459,21 +695,19 @@ class RoadTrafficTest {
                     city, id, p, city.ecs.get(id, CitySimulation.Household.class), t, .1f);
             assertEquals(before, p.x);
             assertEquals("Waiting for traffic", t.activity);
-            assertEquals(1, t.route.size());
+            assertEquals(1, t.lanes.size());
         }
-        for (int i = 0; i < 3; i++) {
-            int id = ids.get(i);
-            var p = city.ecs.get(id, CitySimulation.Position.class);
-            float before = p.x;
-            travelMethod.invoke(
-                    city,
-                    id,
-                    p,
-                    city.ecs.get(id, CitySimulation.Household.class),
-                    city.ecs.get(id, CitySimulation.Travel.class),
-                    .1f);
-            assertTrue(p.x > before);
+        float[] before = new float[3];
+        for(int i=0;i<3;i++) before[i]=city.ecs.get(ids.get(i),CitySimulation.Position.class).x;
+        // Release must first restore the configured gap for an initially crowded spawn.
+        for(int step=0;step<20;step++) for(int i=0;i<3;i++) {
+            int id=ids.get(i);
+            travelMethod.invoke(city,id,city.ecs.get(id,CitySimulation.Position.class),
+                    city.ecs.get(id,CitySimulation.Household.class),
+                    city.ecs.get(id,CitySimulation.Travel.class),.1f);
         }
+        for(int i=0;i<3;i++) assertTrue(city.ecs.get(ids.get(i),CitySimulation.Position.class).x>before[i]);
+
     }
 
     private void assertPavement(CityTest.Ground ground, int x, int y, int z) {

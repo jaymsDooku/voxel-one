@@ -1,0 +1,22 @@
+{
+  "status": "controller_recovery_required",
+  "reviewBase": "6770d9b9fd0f2bf56674e5cf5ab77f499f5f71c5",
+  "recoveryHead": "53d8d4072b4e7e8c37ce241977f71a976496cb31",
+  "timestamp": "2026-10-07T13:16:04.613770+00:00",
+  "checks": [
+    "Both complete checkpoint histories retained",
+    "All progress evidence retained; unique IDs and valid JSON",
+    "Existing nontraffic milestones unchanged",
+    "Main.java and Jeep.java byte-identical to review base",
+    "No review-base file deletions",
+    "No conflict markers in three resolved files",
+    "git diff --check passed"
+  ],
+  "sourceResolution": [
+    "roadContains retains stressGrid support",
+    "Passenger speed excludes accessRoute",
+    "BFS retains directional topology.connected guard"
+  ],
+  "playtest": "No new playtest during rebase recovery. Compilation, regression checks and fresh native media remain pending controller continuation.",
+  "intendedDeletions": []
+}

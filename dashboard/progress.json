@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T13:14:53.152715+00:00",
+  "updatedAt": "2026-10-07T13:16:04.613770+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -3048,11 +3048,36 @@
           "kind": "report",
           "label": "Legacy and traffic validation — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/road-traffic-legacy-final-validation.json"
+        },
+        {
+          "kind": "report",
+          "label": "Restored-base validation — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/restored-final-road-traffic-validation.json"
+        },
+        {
+          "kind": "video",
+          "label": "Fresh pedestrian queue — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/restored-final-road-traffic-game-pedestrians.mp4"
+        },
+        {
+          "kind": "video",
+          "label": "Fresh horse queue — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/restored-final-road-traffic-game-horses.mp4"
+        },
+        {
+          "kind": "video",
+          "label": "Fresh crossing and forecourt — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/restored-final-road-traffic-game-crossing.mp4"
+        },
+        {
+          "kind": "video",
+          "label": "Restored jeep regression — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/restored-final-jeep-driving.mp4"
         }
       ],
       "status": "in_progress",
-      "note": "CI-history conflicts resolved. Both complete histories, current base milestones and evidence preserved. Earlier CI and readiness apply to historical source only. Controller stages and continues before final-head audit, regression tests and fresh native media.",
-      "updatedAt": "2026-10-07T13:14:53.152715+00:00"
+      "note": "Source and history conflicts resolved. Stress-grid road lookup, private-access speed guard and directional route checks retained. Base features and evidence preserved. Controller continuation and final-head validation remain pending.",
+      "updatedAt": "2026-10-07T13:16:04.613770+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

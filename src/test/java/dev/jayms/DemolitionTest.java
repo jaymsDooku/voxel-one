@@ -46,6 +46,23 @@ class DemolitionTest {
     void demolitionClearsStructuresReferencesAndSurvivesReload() throws Exception {
         var ground = new CityTest.Ground();
         var city = city(ground);
+        // This fixture tests demolition of completed buildings, not construction timing.
+        // Prepare any queued projects; growth and material supply have separate regressions.
+        for (var plot : new ArrayList<>(city.economy.plots)) {
+            if (plot.building() != 0) continue;
+            var project = city.economy.resources.project(plot.id());
+            for (var material : project.materials()) {
+                long missing = material.units() - city.economy.resources.available(
+                        CityEconomy.COMPANY, plot.developer(), material.material());
+                if (missing > 0) city.economy.resources.add(
+                        CityEconomy.COMPANY, plot.developer(), material.material(), missing);
+            }
+            assertTrue(city.economy.resources.reserve(plot));
+            city.economy.work(plot.id(), 8);
+        }
+        city.advance(1);
+        assertTrue(city.frame().economy().plots().stream().allMatch(p -> p.building() != 0),
+                "All fixture plots must be built before demolition");
         var before = city.frame();
         assertTrue(before.buildings().stream().anyMatch(b -> b.type() == 3));
         for (var b : before.buildings()) {
@@ -60,20 +77,10 @@ class DemolitionTest {
         }
         var after = city.frame();
         assertTrue(after.buildings().isEmpty());
-        // Traffic can leave some planned plots unfinished. Demolishing built structures
-        // removes their plots and projects while preserving unrelated construction.
-        var remainingPlots =
-                before.economy().plots().stream().filter(p -> p.building() == 0).toList();
-        assertEquals(remainingPlots, after.economy().plots());
+        assertTrue(after.economy().plots().isEmpty());
         assertTrue(after.economy().properties().isEmpty());
         assertTrue(after.economy().contracts().isEmpty());
-        var remainingPlotIds = new HashSet<Integer>();
-        for (var plot : remainingPlots) remainingPlotIds.add(plot.id());
-        assertEquals(
-                before.economy().resources().projects().stream()
-                        .filter(p -> remainingPlotIds.contains(p.plot()))
-                        .toList(),
-                after.economy().resources().projects());
+        assertTrue(after.economy().resources().projects().isEmpty());
         assertTrue(after.agriculture().fields().isEmpty());
         assertTrue(after.agriculture().cows().isEmpty());
         assertTrue(after.agriculture().farms().isEmpty());

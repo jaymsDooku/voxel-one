@@ -25,7 +25,21 @@ class MixedRoadOwnershipTest {
         assertEquals(expected.keySet(),cells(city.frame()));
         for(var r:city.frame().roads()) if(expected.containsKey(new Polygon.Cell(r.x(),r.z()))) {
             assertEquals(type,r.type());
-            assertEquals(expected.get(new Polygon.Cell(r.x(),r.z())).intValue(),ground.type(r.x(),r.y(),r.z()));
+            if(type!=0) assertEquals(expected.get(new Polygon.Cell(r.x(),r.z())).intValue(),ground.type(r.x(),r.y(),r.z()));
+            else {
+                assertEquals(vertical,route);
+                // The requested dirt layout has a two-metre carriageway and half-metre pavements.
+                // Check every half cube, including the owned end caps, after the crossing is removed.
+                for(int ix=0;ix<2;ix++) for(int iz=0;iz<2;iz++) for(int iy=0;iy<2;iy++) {
+                    boolean inside=r.z()>=80 && r.z()<=100;
+                    boolean dirt=inside && (r.x()==100 || r.x()==99 && ix==1 || r.x()==101 && ix==0)
+                            || r.x()==100 && (r.z()==79 && iz==1 || r.z()==101 && iz==0);
+                    int material=Blocks.material(ground.voxels.region(dev.jayms.net.Protocol.Edit.at(
+                            r.x()+ix*.5,r.y()+iy*.5,r.z()+iz*.5,Blocks.AIR,1)));
+                    assertEquals(dirt ? Blocks.DIRT : Blocks.STONE,material,
+                            "Surviving dirt carriageway/pavement at "+r.x()+","+r.z()+" half "+ix+","+iz);
+                }
+            }
         }
     }
     @Test void mixedCrossingDeleteLeavesOnlyActualSurvivorInBothBuildOrders() {

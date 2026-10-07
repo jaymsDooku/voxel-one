@@ -50,16 +50,19 @@ public class RoadTrafficSmoke {
                 city.ecs.get(id, CitySimulation.Household.class).horse = 0;
             }
             float lane = mounted ? 25 : 25.75f;
+            var spacing=RoadSpacing.configured();
+            float gap=mounted ? spacing.mounted() : spacing.pedestrians();
             for (int i = 0; i < 3; i++) {
                 int id = ids.get(i);
                 var p = city.ecs.get(id, CitySimulation.Position.class);
-                p.x = 1.5f - i * (mounted ? 1 : .65f);
+                p.x = 1.5f - i * gap;
                 p.z = lane;
                 p.y = city.frame().roads().get(0).y() + 1.01f;
                 var t = city.ecs.get(id, CitySimulation.Travel.class);
                 t.target = 0;
                 t.route.clear();
-                t.route.add(new RoadTraffic.Waypoint(8.5f, lane));
+                t.clearRoadLanes();
+                t.lanes.add(new RoadTraffic.Waypoint(8.5f, lane));
                 if (mounted) {
                     int horse = city.ecs.query(CitySimulation.Mount.class).get(i);
                     city.ecs.get(id, CitySimulation.Household.class).horse = horse;

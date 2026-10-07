@@ -16,6 +16,8 @@ public final class RoadTraffic {
         }
     }
 
+    public record LanePoint(Waypoint point,int sourceIndex) {}
+
     private final Map<Cell, Set<Cell>> edges = new LinkedHashMap<>();
 
     public RoadTraffic(List<CityAddresses.Street> streets) {
@@ -39,6 +41,21 @@ public final class RoadTraffic {
         }
     }
 
+    /** Join touching road end caps, whose named centre lines can be two cells apart. */
+    public RoadTraffic(List<CityAddresses.Street> streets, Set<Cell> roadCells) {
+        this(streets);
+        var centers=new ArrayList<>(edges.keySet());
+        for(var c:centers) for(int[] d:new int[][]{{1,0},{-1,0},{0,1},{0,-1}}) {
+            var middle=new Cell(c.x()+d[0],c.z()+d[1]);
+            var end=new Cell(c.x()+2*d[0],c.z()+2*d[1]);
+            if(!edges.containsKey(end) || !roadCells.contains(middle)) continue;
+            edges.computeIfAbsent(c,k->new LinkedHashSet<>()).add(middle);
+            edges.computeIfAbsent(middle,k->new LinkedHashSet<>()).add(c);
+            edges.get(middle).add(end);
+            edges.get(end).add(middle);
+        }
+    }
+
     public boolean center(Cell c) {
         return edges.containsKey(c);
     }
@@ -57,6 +74,10 @@ public final class RoadTraffic {
 
     /** Offset each directed road segment. Mitered corners keep turns on their own side. */
     public List<Waypoint> lanes(List<Cell> route, boolean mounted) {
+        return lanePlan(route,mounted).stream().map(LanePoint::point).toList();
+    }
+
+    public List<LanePoint> lanePlan(List<Cell> route, boolean mounted) {
         var result = new ArrayList<Waypoint>();
         float offset = mounted ? .5f : 1.25f;
         for (int i = 0; i < route.size(); i++) {
@@ -99,12 +120,33 @@ public final class RoadTraffic {
                 trimmed[j] = true;
             }
         }
-        var forward = new ArrayList<Waypoint>();
-        for (int i = 0; i < result.size(); i++) if (!trimmed[i]) forward.add(result.get(i));
+        var forward = new ArrayList<LanePoint>();
+        for (int i = 0; i < result.size(); i++) if (!trimmed[i]) forward.add(new LanePoint(result.get(i),i));
         return forward;
     }
 
-    /** Reserve a merge before perpendicular streams enter each other's stopping space. */
+    private record Approach(boolean inLane, double distance) {}
+
+    private static Approach approach(float x, float z, Collection<Waypoint> route) {
+        var points=route.iterator();
+        Waypoint first=null;
+        double distance=Double.POSITIVE_INFINITY;
+        while(points.hasNext()) {
+            var point=points.next();double d=Math.hypot(point.x()-x,point.z()-z);
+            if(d>.0001) {first=point;distance=d;break;}
+        }
+        if(first==null) return new Approach(false,distance);
+        while(points.hasNext()) {
+            var next=points.next();double dx=next.x()-first.x(),dz=next.z()-first.z();
+            double length=Math.hypot(dx,dz);
+            if(length>.0001) return new Approach(
+                    Math.abs(dx*(z-first.z())-dz*(x-first.x()))/length<.001,distance);
+        }
+        return new Approach(true,distance);
+    }
+
+    /** Whether a traveller has joined the direction of its next road leg. */
+/** Reserve a merge before perpendicular streams enter each other's stopping space. */
     public static boolean yields(
             int id,
             float x,
@@ -114,6 +156,17 @@ public final class RoadTraffic {
             float otherX,
             float otherZ,
             Collection<Waypoint> otherRoute) {
+        return yields(id,x,z,route,otherId,otherX,otherZ,otherRoute,.5f);
+    }
+
+    public static boolean yields(int id,float x,float z,Collection<Waypoint> route,
+            int otherId,float otherX,float otherZ,Collection<Waypoint> otherRoute,float width) {
+        var own=approach(x,z,route);var otherApproach=approach(otherX,otherZ,otherRoute);
+        // One ordering across every conflict avoids mutually reserving different crossings.
+        // Travellers already in their lane clear it before newcomers merge into that stream.
+        boolean otherPriority=otherApproach.inLane()!=own.inLane() ? otherApproach.inLane()
+                : otherApproach.distance()<own.distance()-.001
+                || Math.abs(otherApproach.distance()-own.distance())<=.001 && otherId<id;
         double travelled = 0, px = x, pz = z;
         for (Waypoint point : route) {
             double dx = point.x() - px, dz = point.z() - pz;
@@ -131,16 +184,25 @@ public final class RoadTraffic {
                 odx *= otherRemaining / otherLength;
                 odz *= otherRemaining / otherLength;
                 double cross = dx * odz - dz * odx;
-                if (Math.abs(cross) > .0001) {
-                    double t = ((ox - px) * odz - (oz - pz) * odx) / cross;
-                    double u = ((ox - px) * dz - (oz - pz) * dx) / cross;
-                    if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
-                        double arrival = travelled + t * remaining;
-                        double otherArrival = otherTravelled + u * otherRemaining;
-                        if (otherArrival < arrival - .001
-                                || Math.abs(otherArrival - arrival) <= .001 && otherId < id)
-                            return true;
+                // Compare angles independently of segment length. A tiny remaining
+                // lookahead segment must not turn a real corner into a head-on aisle.
+                double parallelTolerance = .0001 * remaining * otherRemaining;
+                // Single-file followers keep their longitudinal gap instead of reserving
+                // each other's future line. Opposing and crossing bodies reserve an aisle
+                // even when their centre lines narrowly miss each other.
+                boolean sameDirection=Math.abs(cross)<=parallelTolerance && dx*odx+dz*odz>0;
+                if(otherPriority && !sameDirection) {
+                    if(Math.abs(cross)>parallelTolerance) {
+                        double t=((ox-px)*odz-(oz-pz)*odx)/cross;
+                        double u=((ox-px)*dz-(oz-pz)*dx)/cross;
+                        if(t>=0 && t<=1 && u>=0 && u<=1) return true;
                     }
+                    double clearance=Math.min(
+                            Math.min(pointSegment(px,pz,ox,oz,ox+odx,oz+odz),
+                                    pointSegment(px+dx,pz+dz,ox,oz,ox+odx,oz+odz)),
+                            Math.min(pointSegment(ox,oz,px,pz,px+dx,pz+dz),
+                                    pointSegment(ox+odx,oz+odz,px,pz,px+dx,pz+dz)));
+                    if(clearance<(width-.00001)*(width-.00001)) return true;
                 }
                 otherTravelled += otherRemaining;
                 if (otherTravelled >= 2) break;
@@ -155,6 +217,13 @@ public final class RoadTraffic {
         return false;
     }
 
+    private static double pointSegment(double x,double z,double ax,double az,double bx,double bz) {
+        double dx=bx-ax,dz=bz-az,length=dx*dx+dz*dz;
+        double t=length==0 ? 0 : Math.max(0,Math.min(1,((x-ax)*dx+(z-az)*dz)/length));
+        double ex=x-ax-t*dx,ez=z-az-t*dz;
+        return ex*ex+ez*ez;
+    }
+
     /** Swept spacing prevents tunnelling; overlapping spawns may separate, but never approach. */
     public static boolean blocks(
             float x, float z, float nx, float nz, float otherX, float otherZ, float gap) {
@@ -163,6 +232,6 @@ public final class RoadTraffic {
         double t = ((otherX - x) * dx + (otherZ - z) * dz) / length;
         if (t <= 0) return false;
         t = Math.min(1, t);
-        return Math.hypot(otherX - x - t * dx, otherZ - z - t * dz) < gap;
+        return Math.hypot(otherX - x - t * dx, otherZ - z - t * dz) < gap - .00001;
     }
 }

@@ -1,0 +1,28 @@
+{
+  "status": "paused_validation_incomplete",
+  "parentHead": "94a7edd978086f2c34b50a90064503f12c9643a3",
+  "updatedAt": "2026-10-07T10:04:30.233031+00:00",
+  "sourceHashes": {
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "34fea43ba68043417e747fb4927e5ddae8232a4fc1884578103b9532a47fe307",
+    "src/main/java/dev/jayms/net/city/RoadTraffic.java": "4fd1e48bff5d854b21aa5633de84f761b878a7f7f851ad28e649f545643f44cb",
+    "src/test/java/dev/jayms/RoadTrafficTest.java": "8af48adf760b7bd5ea37ef0fa0e82280bf13b715c981763a6a7c509609d27a11",
+    "deploy/TrafficGameplaySmoke.java": "260e6c1a78b7f2f1599300d3713ab0bbe2834d75574b5b64734496ea43aafefa",
+    "deploy/run_traffic_gameplay_smoke.py": "8057ae71c48da7306b4e60f954260fb3d0089b578647bb6e07987ba49d810cb8"
+  },
+  "tests": [
+    "Full Maven run stopped with exit 130 after factory and city-growth failures; no full-suite pass claimed.",
+    "Affected regression run before the yard-station change failed city growth, materials and economy checks. Factory maximum-gap check passed after lane-entry clearance fix.",
+    "Latest command: JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -DargLine=-Djava.io.tmpdir=\"$PWD/target/tmp\" -Dtest=RoadTrafficTest,CityTest,CityEconomyTest,CityMaterialsTest,ManufacturingTest,PopulationJourneyTest,BusinessCatalogTest test; interrupted on pause with exit 130. No latest combined pass claimed.",
+    "node --test deploy/video-evidence-test.mjs website/test/*.test.mjs: 15 passed, 0 failed.",
+    "Playtest: python3 deploy/run_traffic_gameplay_smoke.py --display \"$DISPLAY\" --artifact-prefix restored-final-: exit 0 before the latest yard-station change. Linux inherited X11/XAUTHORITY, Mesa, isolated target/traffic-home. Production pedestrian and horse queues wait/release, mixed lanes stay free, crossings drain both update orders. Three fresh F10 clips and eight screenshots preserved. They do not validate the latest yard-station change.",
+    "Playtest: isolated native jeep regression passed before the latest traffic edits. Entry, cameras, movement, wall collision, safe exit, walking, save/reload passed. Main.java and Jeep.java remain byte-identical to reviewed base.",
+    "JCodec decoded the four preserved MP4 files at 2 seconds; pedestrian frame inspected. Clips below 6 MB.",
+    "git diff --check: exit 0. No files deleted relative to reviewed base a5a5baafdfdf8514d6481fcb8d26ef3d72c1d4ec."
+  ],
+  "resume": [
+    "Validate latest yard stations inside yards at z=27.5, including initial workers already inside yard bounds.",
+    "Run affected city-growth/materials/economy/manufacturing/traffic/population/catalogue checks. Fix any remaining failures without weakening restored tests.",
+    "Run full Maven suite, refresh native workflow media against final source, inspect media, record source/media hashes, update local progress and return ready only after required checks pass."
+  ],
+  "publication": "All new artifacts are unpublished; controller owns Git and publication."
+}
