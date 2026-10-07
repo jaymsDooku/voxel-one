@@ -11,6 +11,41 @@ import static org.lwjgl.glfw.GLFW.*;
 /** Runs the production game with real X11 clicks and an isolated synthetic save. */
 public class RoadHeightSmoke {
     static Main game = new Main();
+    static volatile Thread gameThread;
+    static final java.util.concurrent.ConcurrentLinkedQueue<java.util.concurrent.FutureTask<?>> gameTasks =
+            new java.util.concurrent.ConcurrentLinkedQueue<>();
+
+    static <T> T onGame(java.util.concurrent.Callable<T> action) throws Exception {
+        if (Thread.currentThread() == gameThread) return action.call();
+        var task = new java.util.concurrent.FutureTask<T>(action);
+        gameTasks.add(task);
+        try {
+            return task.get(30, java.util.concurrent.TimeUnit.SECONDS);
+        } catch (java.util.concurrent.TimeoutException | InterruptedException e) {
+            task.cancel(false);
+            gameTasks.remove(task);
+            if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+            throw e;
+        } catch (java.util.concurrent.ExecutionException e) {
+            if (e.getCause() instanceof Exception cause) throw cause;
+            if (e.getCause() instanceof Error cause) throw cause;
+            throw e;
+        }
+    }
+
+    /** Verify actual click state, not just the cursor ray or a later Escape. */
+    static void selectedStart(float x, float z, String scenario) throws Exception {
+        onGame(() -> {
+            var tools = (CityTools)get("cityTools");
+            Field f = CityTools.class.getDeclaredField("points"); f.setAccessible(true);
+            @SuppressWarnings("unchecked") var points = (List<Polygon.Point>)f.get(tools);
+            require(points.size() == 1, scenario + ": first endpoint selected; count=" + points.size());
+            var point = points.get(0);
+            require(java.lang.Math.abs(point.x()-x)<=1 && java.lang.Math.abs(point.z()-z)<=1,
+                    scenario + ": actual selected point=" + point);
+            return null;
+        });
+    }
     static volatile Throwable failure;
     static Path out;
     static String windowId;
@@ -24,7 +59,10 @@ public class RoadHeightSmoke {
         Field f = Main.class.getDeclaredField(name); f.setAccessible(true); f.set(game,value);
     }
     static CityFrame city() throws Exception {
-        Method m = Main.class.getDeclaredMethod("city"); m.setAccessible(true); return (CityFrame)m.invoke(game);
+        return onGame(() -> {
+            Method m = Main.class.getDeclaredMethod("city"); m.setAccessible(true);
+            return (CityFrame)m.invoke(game);
+        });
     }
     static String x(String... args) throws Exception {
         var cmd = new ArrayList<String>(); cmd.add("xdotool"); cmd.addAll(List.of(args));
@@ -48,17 +86,23 @@ public class RoadHeightSmoke {
         click(px,py);
     }
     static float top(float x,float z) throws Exception {
-        var world=(World)get("world");
-        for(int y=Terrain.MAX_Y;y>=Terrain.MIN_Y;y--) if(world.sample((int)java.lang.Math.floor(x),y,(int)java.lang.Math.floor(z))!=0) return y+1.04f;
-        return Terrain.MIN_Y+1.04f;
+        return onGame(() -> {
+            var world=(World)get("world");
+            for(int y=Terrain.MAX_Y;y>=Terrain.MIN_Y;y--)
+                if(world.sample((int)java.lang.Math.floor(x),y,(int)java.lang.Math.floor(z))!=0) return y+1.04f;
+            return Terrain.MIN_Y+1.04f;
+        });
     }
     static void menu(int type) throws Exception {
         click((int)(16+1.5f*(width()-32)/9f),height()-180);
-        var tools = (CityTools)get("cityTools");
         capture="road-menu.png"; Thread.sleep(500);
-        require(tools.roadMenu,"Roads opens menu; tool="+tools.tool+" mouse="+get("mouseX")+","+get("mouseY")+" size="+width()+"x"+height()+" controls="+((ControlsMenu)get("menu")).open);
+        onGame(() -> { require(((CityTools)get("cityTools")).roadMenu,"Roads opens menu"); return null; });
         click(80,154+28*type);
-        require(!tools.roadMenu && tools.roadType==type && tools.tool==4,"Choice starts road guide");
+        onGame(() -> {
+            var tools = (CityTools)get("cityTools");
+            require(!tools.roadMenu && tools.roadType==type && tools.tool==4,"Choice starts road guide");
+            return null;
+        });
     }
     public static void main(String[] args) throws Exception {
         out=Path.of(args[0]); Files.createDirectories(out);
@@ -86,41 +130,50 @@ public class RoadHeightSmoke {
                 require(!((ControlsMenu)get("menu")).open,"Controls closed before road clicks; frames="+frames+" fps="+get("fps"));
                 require((boolean)get("isometric"),"City view");
                 var camera=(IsometricCamera)get("overview");
-                camera.focus(70,80,city().roads().get(0).y()+1);
-                camera.zoom(11);
+                onGame(() -> { camera.focus(70,80,city().roads().get(0).y()+1); camera.zoom(11); return null; });
                 Thread.sleep(1500);
                 x("key","F10");
                 // Select endpoints at unequal heights through real X11 input.
-                var world=(World)get("world");
                 int grade=city().roads().get(0).y();
-                for(int px=74;px<=88;px++) for(int pz=65;pz<=95;pz++)
-                    for(int py=grade+1;py<=grade+8;py++) world.apply(new Protocol.Edit(px,py,pz,2));
-                camera.focus(70,80,grade+1); camera.zoom(-6); Thread.sleep(1800);
+                onGame(() -> {
+                    var world=(World)get("world");
+                    for(int px=74;px<=88;px++) for(int pz=65;pz<=95;pz++)
+                        for(int py=grade+1;py<=grade+8;py++) world.apply(new Protocol.Edit(px,py,pz,2));
+                    camera.focus(70,80,grade+1); camera.zoom(-6);
+                    return null;
+                });
+                Thread.sleep(1800);
                 menu(1); point(60,80);
                 var endpoint=new Matrix4f(screenMatrix).transform(new Vector4f(80,top(80,80),80,1));
                 int sx=java.lang.Math.round((endpoint.x/endpoint.w*.5f+.5f)*width());
                 int sy=java.lang.Math.round((.5f-endpoint.y/endpoint.w*.5f)*height());
                 x("mousemove","--window",windowId,Integer.toString(sx),Integer.toString(sy));
                 Thread.sleep(600);
-                var tools=(CityTools)get("cityTools");
-                var selected=tools.cursorPoint(sx,sy,width(),height(),(Matrix4f)get("projection"),(Matrix4f)get("view"),city());
+                var selected=onGame(() -> ((CityTools)get("cityTools")).cursorPoint(sx,sy,width(),height(),
+                        (Matrix4f)get("projection"),(Matrix4f)get("view"),city()));
                 require(selected!=null && java.lang.Math.abs(selected.x()-80)<=1 && java.lang.Math.abs(selected.z()-80)<=1,"Raised endpoint matches preview: "+selected);
                 capture="height-guide-preview.png"; Thread.sleep(1200);
                 point(80,80);
                 require(city().roads().stream().anyMatch(r->r.x()==70 && java.lang.Math.abs(r.z()-80)<=1),"Road placed from surface-selected endpoints");
                 capture="height-guide-built.png"; Thread.sleep(1200);
                 // Edge: highest world surface; cancel must keep the city and spending intact.
-                for(int px=54;px<=56;px++) for(int pz=89;pz<=91;pz++) world.apply(new Protocol.Edit(px,Terrain.MAX_Y,pz,2));
-                camera.focus(55,90,Terrain.MAX_Y); Thread.sleep(700);
+                onGame(() -> {
+                    var world=(World)get("world");
+                    for(int px=54;px<=56;px++) for(int pz=89;pz<=91;pz++) world.apply(new Protocol.Edit(px,Terrain.MAX_Y,pz,2));
+                    camera.focus(55,90,Terrain.MAX_Y);
+                    return null;
+                });
+                Thread.sleep(700);
                 int count=city().roads().size(); double spending=city().economy().roadSpending();
-                menu(0); point(55,90); x("key","Escape");
+                x("key","Escape");
+                menu(0); point(55,90); selectedStart(55,90,"MAX_Y"); x("key","Escape");
                 require(city().roads().size()==count && city().economy().roadSpending()==spending,"High surface cancellation atomic");
                 // Regression: flat existing road still picks and opens a new section.
-                camera.focus(70,80,grade+1); Thread.sleep(700);
-                menu(1); point(65,80); x("key","Escape");
-                require(tools.tool==-1,"Flat road selection and Escape");
+                onGame(() -> { camera.focus(70,80,grade+1); return null; }); Thread.sleep(700);
+                menu(1); point(65,80); selectedStart(65,80,"Flat road"); x("key","Escape");
+                onGame(() -> { require(((CityTools)get("cityTools")).tool==-1,"Flat road selection and Escape"); return null; });
                 x("key","F10"); Thread.sleep(2000);
-                Files.writeString(out.resolve("results.json"),"{\"status\":\"passed\",\"platform\":\"Linux X11 inherited role display; Mesa\",\"profile\":\"isolated synthetic offline city\",\"checks\":[\"unequal-height endpoint preview and real road placement\",\"MAX_Y surface selection and atomic cancel\",\"existing flat road selection and Escape\"]}\n");
+                Files.writeString(out.resolve("results.json"),"{\"status\":\"passed\",\"platform\":\"Linux X11 inherited role display; Mesa\",\"profile\":\"isolated synthetic offline city\",\"checks\":[\"unequal-height endpoint preview and real road placement\",\"MAX_Y actual selected endpoint and atomic cancel\",\"existing flat road actual selected endpoint and Escape\"]}\n");
             } catch(Throwable e) {
                 failure=e;
                 try { Files.writeString(out.resolve("failure.txt"),e.getClass().getSimpleName()+": "+e.getMessage()); } catch(Exception ignored) {}
@@ -129,6 +182,8 @@ public class RoadHeightSmoke {
         driver.setDaemon(true);driver.start();
         game.run(new Main.FrameObserver() {
             public void afterFrame(Main main) throws Exception {
+                gameThread = Thread.currentThread();
+                for (var task = gameTasks.poll(); task != null; task = gameTasks.poll()) task.run();
                 screenMatrix=new Matrix4f((Matrix4f)get("projection")).mul((Matrix4f)get("view"));
                 frames++;
                 String name=capture; if(name==null) return; capture=null;

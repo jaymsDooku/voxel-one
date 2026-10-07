@@ -1,1 +1,1 @@
-{"status":"passed","platform":"Linux X11 inherited role display; Mesa","profile":"isolated synthetic offline city","checks":["unequal-height endpoint preview and real road placement","MAX_Y surface selection and atomic cancel","existing flat road selection and Escape"]}
+{"status":"passed","platform":"Linux X11 inherited role display; Mesa","profile":"isolated synthetic offline city","checks":["unequal-height endpoint preview and real road placement","MAX_Y actual selected endpoint and atomic cancel","existing flat road actual selected endpoint and Escape"]}

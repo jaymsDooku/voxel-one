@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T09:57:46+00:00",
+  "updatedAt": "2026-10-07T11:06:47+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -26,8 +26,8 @@
         }
       ],
       "status": "in_progress",
-      "note": "Recovered head verified: fresh compile/package, 26 focused tests and native unequal-height placement, MAX_Y cancellation and flat-road regression passed. Fresh F10 media decoded and inspected. Vehicle audio and all prior progress preserved. Awaiting controller publication and independent review.",
-      "updatedAt": "2026-10-07T09:57:46+00:00"
+      "note": "Reviewer harness fixes verified: game-thread synthetic edits/queries; actual MAX_Y and flat-road endpoints asserted. Package and 26 tests pass; two corrected native runs pass. Fresh F10 decoded and inspected. No unrelated deletions; prior features/history preserved. Awaiting controller publication/review.",
+      "updatedAt": "2026-10-07T11:06:47+00:00"
     },
     {
       "id": "carrier-routes",

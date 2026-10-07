@@ -1,40 +1,39 @@
-# Recovered road guide validation
+# Road guide reviewer fixes and final validation
 
-Source checked: `b789ec952601655edd3b8c91fc06203944601e8f`. Controller publication of the refreshed report and media is pending.
+Starting source HEAD: `812b8120cc8c30875e7d67a099f280c32b839a9c`. This run includes the local harness fixes described below. Controller commit/publication is pending.
 
-Environment: assigned feature worktree on Linux; inherited role X11 display and authentication, Mesa software rendering. Native capture uses a fresh synthetic offline city in `target/road-home` and `target/road-runtime`.
+## Changes
 
-Executed build and tests:
+Synthetic World edits, surface samples, city snapshots, camera changes, CityTools cursor queries and click-state checks run on the game thread. The driver queues FutureTasks; `FrameObserver.afterFrame` executes them. Same-thread calls run inline. Tasks time out after 30 seconds, cancel pending work and report the underlying exception.
 
-```sh
-mvn -q -o -Dmaven.repo.local=target/m2 -DskipTests package
-mvn -q -o -Dmaven.repo.local=target/m2 -DargLine="-Djava.io.tmpdir=$PWD/target/tmp" -Dtest=RoadGuideHeightTest,CityToolsTest,RoadWorkflowTest,RoadTypesTest,VehicleAudioTest test
-```
+The MAX_Y and existing flat-road cases now assert that a real click stored exactly one first endpoint within one block of the expected map coordinates before Escape. Escape is also sent after the built road to finish its chained section before starting the MAX_Y case. A click that selects nothing now fails the test.
 
-Both passed. Deleted only `target/classes`, `target/test-classes` and `target/maven-status`, then ran a fresh compilation and package check:
+## Diff audit
+
+The synchronized integration base is `3c91629` (the carrier-routes commit immediately before this task's two rebased commits). Audited the full proposed tracked diff against this base, including local edits. No files are deleted. Main adds only the surface sampler. CityTools replaces flat-plane guide projection/picking with surface-aware methods; those removed lines are intentional. Other changes are the road test, native harness, reports/media and this task's progress entry. Vehicle audio, its Main integration, `focusY()`, native-cache ignore rule, carrier routes and all prior evidence remain intact. Assertions confirmed every base dashboard item remains verbatim. The local `master` ref is stale and was not used as the synchronized base.
+
+## Checks
+
+Environment: Linux X11 on the inherited assigned role display, Mesa software rendering. Native runs use fresh synthetic offline profiles under `target/road-home` and `target/road-runtime`. No live profile or account data is used.
 
 ```sh
 mvn -q -o -Dmaven.repo.local=target/m2 -DargLine="-Djava.io.tmpdir=$PWD/target/tmp" -Dtest=RoadGuideHeightTest,CityToolsTest,RoadWorkflowTest,RoadTypesTest,VehicleAudioTest package
-```
-
-Passed: 26 tests, zero failures/errors/skips. Counts: RoadGuideHeightTest 1, CityToolsTest 10, RoadWorkflowTest 5, RoadTypesTest 9, VehicleAudioTest 1.
-
-Recovery checks: audio source, `focusY()` accessor, audio tests/harnesses and native-cache ignore rule have no difference from the current base. Main keeps audio initialization, listener/update and shutdown, plus the road surface sampler. Vehicle audio evidence remains in place. Every base dashboard item is retained verbatim, including Vehicle sounds. Dashboard IDs are unique. `git diff --check` passed. No native-cache files are tracked.
-
-Playtest command:
-
-```sh
 python3 deploy/run_road_height_smoke.py --display "$DISPLAY"
+git diff --check
 ```
 
-Playtest: production `Main.run`, real X11 clicks and keys. Choose paved road, click a first endpoint, hover and click a second endpoint on a raised synthetic patch. Expected: the hover and click select the same map coordinates despite different heights; a road is built. The test also checks a surface at `Terrain.MAX_Y`, cancellation without changes to road count or spending, and selection on an existing flat road followed by Escape. Native results and media are recorded below after execution.
+Package passed. Focused tests: 26 passed, zero failures/errors/skips (RoadGuideHeightTest 1, CityToolsTest 10, RoadWorkflowTest 5, RoadTypesTest 9, VehicleAudioTest 1).
 
-The retained audio integration runs during this road playtest. This report does not claim a new audible vehicle-sound playtest. The unchanged audio implementation has its preserved prior evidence and its focused test was rerun here.
+Playtest: Production `Main.run` with real X11 clicks and keys. Choose paved road, click first endpoint, hover/click an endpoint on a synthetic raised patch. Expected and observed: preview coordinates matched within one block, and resulting road cells were present. The guide follows visible column tops across mixed terrain.
 
-Final Playtest result: exit 0. Unequal-height endpoint preview matched within one block and the road was built. `Terrain.MAX_Y` selection/cancel left road count and spending unchanged. Existing flat-road selection and Escape passed. Fresh screenshot inspection shows both rings, spokes and sampled route over the mixed-height map. Main ran with the retained audio integration.
+Playtest edge case: Add a synthetic surface at `Terrain.MAX_Y`, finish the previous chained road, select a new first endpoint at (55, 90). Expected and observed: exactly one endpoint near (55, 90) exists before Escape; cancel preserves road count and spending.
 
-Final media: `height-guide-preview.png`, `height-guide-built.png` and `height-guide-playtest.mp4` were refreshed from this run. The F10 clip is 1,521,664 bytes. `ffprobe` was unavailable; the existing JCodec `VerifyVehicleAudioMedia` verifier decoded every frame instead: H264, 960 x 540, 55 frames, 54 changed frames, 42.885 seconds. Its middle frame was visually inspected. Verifier result: `height-guide-final-video-check.json`. Software-rendered capture shows low frame rate; no performance improvement is claimed.
+Playtest regression: Select (65, 80) on an existing flat road. Expected and observed: exactly one endpoint near (65, 80) exists before Escape; Escape returns to inspection.
 
-Verifier command: compile `deploy/VerifyVehicleAudioMedia.java` with JCodec jars from `target/m2/org/jcodec`, then run `VerifyVehicleAudioMedia dashboard/evidence/height-guide-playtest.mp4 target/height-guide-video-frames` with `target/road-smoke` and those jars on the Java classpath. It passed.
+The first corrected native run passed. A second run checks the final timeout/error-reporting helper and refreshes the media. Its final result is recorded below. Prior reports/media from before the harness fixes are historical and are not used as proof of the stronger assertions. Retained audio integration runs during this playtest; no new audible vehicle-sound test is claimed.
 
-Final source HEAD remained `b789ec952601655edd3b8c91fc06203944601e8f`. Source code was unchanged during validation. Only fresh road media, reports and this task progress were updated. No Git commit, push, merge or deployment was performed.
+Final repeat Playtest: exit 0. All three workflow checks passed on the final harness. Fresh screenshots and the F10 MP4 were copied from this synthetic run. No runtime crash was observed in either corrected run.
+
+Media verification: compiled `deploy/VerifyVehicleAudioMedia.java` against JCodec jars in `target/m2/org/jcodec`, then ran `VerifyVehicleAudioMedia dashboard/evidence/height-guide-playtest.mp4 target/height-guide-video-frames` with `target/road-smoke` and those jars on the classpath. Full decode passed: H264, 960 x 540, 79 frames, 78 changed frames, 59.145 seconds, 1,865,096 bytes. The screenshot and decoded middle frame were inspected. The clip is below 6 MB. Software-rendered capture shows low frame rate; no performance gain is claimed.
+
+Final `git diff --check` passed. Starting HEAD remained unchanged. Local changes are only the fixed native harness, this task progress and refreshed evidence. No commits, pushes, merges or deployment were performed.
