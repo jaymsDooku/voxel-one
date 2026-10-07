@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T00:38:08+00:00",
+  "updatedAt": "2026-10-07T00:53:35.724030+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -232,11 +232,26 @@
           "kind": "report",
           "label": "Operating energy \u2014 pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/resource-progression-operating-energy-tests.json"
+        },
+        {
+          "kind": "report",
+          "label": "Shipping integration \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/resource-progression-shipping-integration.json"
+        },
+        {
+          "kind": "video",
+          "label": "Shipping integration \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/shipping-placement-playtest.mp4"
+        },
+        {
+          "kind": "image",
+          "label": "Shipping integration \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/shipping-port-carrier.png"
         }
       ],
       "status": "in_progress",
-      "note": "Shipping rebase recovery in progress. Preserve coastal shipping and protocol23. Final-head shipping/progression regression tests, native workflow and fresh media remain pending controller continuation.",
-      "updatedAt": "2026-10-06T22:46:35.478814+00:00"
+      "note": "Shipping and protocol23 retained.28 combined shipping/progression/energy/save tests plus native shipping and progression playtests passed. Fresh coastal video/images and sanitized receipt await controller publication and independent review.",
+      "updatedAt": "2026-10-07T00:53:35.724030+00:00"
     },
     {
       "id": "queue-38613638386362362d333266662d346339302d383566312d333861363332623962333363",
