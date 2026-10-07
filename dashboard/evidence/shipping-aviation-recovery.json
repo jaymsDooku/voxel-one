@@ -1,0 +1,137 @@
+{
+  "status": "resolved_for_controller_rebase_continuation",
+  "base": "1ecbf565c449d7b5c96a621310c1a012b80ae1aa",
+  "handoff": "Conflict contents resolved. Controller must stage and continue rebase; developer did not stage, abort, reset, commit or push.",
+  "changes": [
+    "AIRPORT=23 retained; PORT=24",
+    "Protocol23 retains format12 aviation and format11 regional snapshot data; rejects aviation-only protocol22 peers",
+    "Save loader and writer retain base format12",
+    "Aviation commands10/11, expansion, flights and renderer retained",
+    "13-row compact special menu retains port and all aviation actions",
+    "Regional residents remain above ocean surface",
+    "Shipping fixtures updated to format12 and port24"
+  ],
+  "checks": {
+    "compile": "passed",
+    "diffWhitespace": "passed",
+    "conflictMarkers": "none",
+    "basePathsMissing": 0,
+    "baseAviationRegionalProtectedPathsUnchanged": 48,
+    "fullVerify": {
+      "command": "mvn --batch-mode -Dmaven.repo.local=target/m2 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" verify",
+      "exit": 1,
+      "tests": 338,
+      "failures": 1,
+      "errors": 0,
+      "failure": "MarketEconomyTest.loadsBaseGeneratedCityEightWithOwnershipOrdersAndExchange hard-coded protocol22; expected22, observed23",
+      "fix": "Updated expected protocol to23; affected regression passed in targeted rerun",
+      "scope": "Executed before final client port guard and third aviation compatibility test; full final-head verify remains required after controller continuation"
+    },
+    "targetedVerify": {
+      "command": "mvn --batch-mode -Dmaven.repo.local=target/m2 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=ShippingTest,AviationTest,ShippingAviationCompatibilityTest,ProtocolCompatibilityTest,MarketEconomyTest,CityToolsTest,TerrainGenerationTest,SpecialBuildingsTest,RegionalSaveCompatibilityTest verify",
+      "exit": 0,
+      "tests": 63,
+      "suites": [
+        {
+          "name": "dev.jayms.ShippingTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "0.441"
+        },
+        {
+          "name": "dev.jayms.AviationTest",
+          "tests": "10",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "2.513"
+        },
+        {
+          "name": "dev.jayms.ShippingAviationCompatibilityTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "2.13"
+        },
+        {
+          "name": "dev.jayms.ProtocolCompatibilityTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "6.256"
+        },
+        {
+          "name": "dev.jayms.MarketEconomyTest",
+          "tests": "13",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "0.895"
+        },
+        {
+          "name": "dev.jayms.CityToolsTest",
+          "tests": "9",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "0.569"
+        },
+        {
+          "name": "dev.jayms.TerrainGenerationTest",
+          "tests": "10",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "2.076"
+        },
+        {
+          "name": "dev.jayms.SpecialBuildingsTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "0.346"
+        },
+        {
+          "name": "dev.jayms.RegionalSaveCompatibilityTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "0.05"
+        }
+      ],
+      "package": "client, server and launcher jars built"
+    },
+    "environment": "Linux; Java25.0.3; target/m2 dependency cache; writable target/tmp; synthetic TLS identities, accounts and city saves only",
+    "regressions": [
+      "Base format12 empty save accepted",
+      "Booked aviation flight retained on disk and default snapshot; following CITY_STATE16 read correctly with0 unread bytes",
+      "Protocol22 client rejected before authentication; protocol23 client rejects22 server",
+      "Airport23 distinct from port24",
+      "Existing format11 regional data retained while adding shipping",
+      "Legacy14/15 clients reject ports locally"
+    ]
+  },
+  "Playtest": "Pending controller rebase continuation. Final-head native shipping and aviation workflow checks and fresh media required before ready. Prior media retained as historical; not claimed as current recovery validation.",
+  "resolvedFiles": {
+    "dashboard/progress.json": "452f726dc434c391a200ee4a288c4e47ac7948e3cd7f863c0bc20bb36792ad0e",
+    "src/main/java/dev/jayms/net/Protocol.java": "f8206e5ea9d1f6db33582143840f9f34e880ce4f28b91f6f4a41c217e63a0151",
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "76c55706d9a517b4efce2c7bb8bada01e7470b6bda8c6f81c2b97d7d4cee7e5b",
+    "src/main/java/dev/jayms/net/city/SpecialBuildings.java": "4e6b3d8751fc0fbc2b2f858fd3c25b43c8be54b7a7a661fe33d8bd11179e977e",
+    "src/main/java/dev/jayms/net/city/StructureBlueprint.java": "ef25d3278af0f05b764bafa2fbf7d1f30e2522298d1bd3fb7d66959d944ccf3b",
+    "src/main/java/dev/jayms/ui/BuildingInfo.java": "fa5edd0e253939f1473ec99291e048ee29d0e2802777e6c8b5ad0d323b628a43",
+    "src/main/java/dev/jayms/ui/CityTools.java": "88a4a9047e60474915c4b213b78648631a8e8ce79f48dab937c64cf34f87289a"
+  },
+  "nextSteps": [
+    "Controller stages resolved contents and continues preserved rebase; no publication yet",
+    "Inspect resulting source and resolve any further rebase conflicts",
+    "Run full final-head Maven verify",
+    "Run native shipping and aviation workflows, including edge and regression; capture fresh sanitized F10 media",
+    "Update current final test report; return ready only after checks pass"
+  ]
+}

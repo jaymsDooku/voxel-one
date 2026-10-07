@@ -25,6 +25,8 @@ public final class Geography {
 
     public record Reach(Node upstream, Node downstream, double width) {}
 
+    public static final int SEA_LEVEL = 14;
+    private final boolean oceans;
     private final long seed;
     private final List<Reach> reaches;
     private final Map<Long, Fields> cache =
@@ -34,8 +36,11 @@ public final class Geography {
                 }
             };
 
-    public Geography(long seed) {
+    public Geography(long seed) { this(seed, false); }
+
+    public Geography(long seed, boolean oceans) {
         this.seed = seed;
+        this.oceans = oceans;
         List<Reach> graph = new ArrayList<>();
         Node previous = null;
         for (int z = -384; z <= 448; z += 64) {
@@ -106,6 +111,13 @@ public final class Geography {
         return cache.computeIfAbsent(key, k -> sample(x, z));
     }
 
+    // A broad open sea beyond a seeded, gently curved shore; includes the pilot river mouth.
+    private double shore(int x) { return 225 + (noise(x / 180.0, 0, 827) - .5) * 24; }
+
+    public boolean ocean(int x, int z) {
+        return oceans && z >= shore(x) && fields(x, z).height() < SEA_LEVEL;
+    }
+
     private Fields sample(int x, int z) {
         // Soft watershed boundary: heights and fields blend before reaching the bounded graph edge.
         double pilot = 1 - curve((Math.max(Math.abs(x), Math.abs(z)) - 400) / 180.0);
@@ -166,9 +178,18 @@ public final class Geography {
             moisture = .48;
             fertility = .85;
         }
+        if (oceans) {
+            double marine = curve((z - shore(x) + 32) / 64);
+            h = mix(h, -6 + noise(x / 100.0, z / 100.0, 829) * 7, marine);
+            if (marine > 0 && h < SEA_LEVEL) {
+                moisture = Math.max(.65, moisture);
+                fertility *= 1 - marine;
+            }
+        }
         int water = Terrain.MIN_Y;
         if (channel && terrace == 0) water = (int) Math.floor(level);
         if (coast > .5 && h < 14) water = Math.max(water, 14);
+        if (oceans && z > shore(x) - 32 && h < SEA_LEVEL) water = SEA_LEVEL;
         return new Fields(
                 (int) Math.floor(Math.max(Terrain.MIN_Y + 4, Math.min(88, h))),
                 water,

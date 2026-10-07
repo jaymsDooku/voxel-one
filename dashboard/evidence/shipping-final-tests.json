@@ -1,0 +1,788 @@
+{
+  "status": "passed",
+  "sourceHead": "28f07d513e83d0c980353a19bc88627305e4cfdc",
+  "base": "5e05822fdedde872935214c75dbe7fdd34425201",
+  "publication": "Pending controller publication; developer did not stage, commit or push",
+  "environment": "Linux X11 inherited role DISPLAY and XAUTHORITY; Mesa; isolated synthetic profiles; Java25.0.3; target/m2 and writable target/tmp",
+  "preservation": {
+    "base": "5e05822fdedde872935214c75dbe7fdd34425201",
+    "basePaths": 854,
+    "removedBasePaths": [],
+    "protectedPathsUnchanged": [
+      "CARGO_VEHICLE_CHECKPOINT.md",
+      "dashboard/evidence/CargoFinalClipCheck.java",
+      "dashboard/evidence/airport-arrival.png",
+      "dashboard/evidence/airport-boarding.png",
+      "dashboard/evidence/airport-checkpoint-draft-expanded.png",
+      "dashboard/evidence/airport-checkpoint-tests.json",
+      "dashboard/evidence/airport-compact-menu.png",
+      "dashboard/evidence/airport-exchange-rejected.png",
+      "dashboard/evidence/airport-expanded.png",
+      "dashboard/evidence/airport-flight.png",
+      "dashboard/evidence/airport-media.json",
+      "dashboard/evidence/airport-playtest.json",
+      "dashboard/evidence/airport-playtest.mp4",
+      "dashboard/evidence/airport-recovery-tests.json",
+      "dashboard/evidence/airport-regional-regression.png",
+      "dashboard/evidence/airport-tests.json",
+      "dashboard/evidence/cargo-aviation-airport-arrival.png",
+      "dashboard/evidence/cargo-aviation-airport-boarding.png",
+      "dashboard/evidence/cargo-aviation-airport-compact-menu.png",
+      "dashboard/evidence/cargo-aviation-airport-exchange-rejected.png",
+      "dashboard/evidence/cargo-aviation-airport-expanded.png",
+      "dashboard/evidence/cargo-aviation-airport-flight.png",
+      "dashboard/evidence/cargo-aviation-airport-playtest.json",
+      "dashboard/evidence/cargo-aviation-airport-playtest.mp4",
+      "dashboard/evidence/cargo-aviation-airport-regional-regression.png",
+      "dashboard/evidence/cargo-aviation-airport-video-check.json",
+      "dashboard/evidence/cargo-aviation-final-container-drive.mp4",
+      "dashboard/evidence/cargo-aviation-final-container.png",
+      "dashboard/evidence/cargo-aviation-final-jeep.png",
+      "dashboard/evidence/cargo-aviation-final-lorry.png",
+      "dashboard/evidence/cargo-aviation-final-playtest.json",
+      "dashboard/evidence/cargo-aviation-final-tanker.png",
+      "dashboard/evidence/cargo-aviation-final-validation.md",
+      "dashboard/evidence/cargo-aviation-final-van.png",
+      "dashboard/evidence/cargo-aviation-final-verification.json",
+      "dashboard/evidence/cargo-aviation-final-video-check.json",
+      "dashboard/evidence/cargo-aviation-recovery.md",
+      "dashboard/evidence/cargo-container-drive.mp4",
+      "dashboard/evidence/cargo-container.png",
+      "dashboard/evidence/cargo-final-container-drive.mp4",
+      "dashboard/evidence/cargo-final-container.png",
+      "dashboard/evidence/cargo-final-jeep.png",
+      "dashboard/evidence/cargo-final-lorry.png",
+      "dashboard/evidence/cargo-final-playtest.json",
+      "dashboard/evidence/cargo-final-tanker.png",
+      "dashboard/evidence/cargo-final-validation.md",
+      "dashboard/evidence/cargo-final-van.png",
+      "dashboard/evidence/cargo-final-verification.json",
+      "dashboard/evidence/cargo-final-video-check.json",
+      "dashboard/evidence/cargo-jeep.png",
+      "dashboard/evidence/cargo-lorry.png",
+      "dashboard/evidence/cargo-placement-playtest.json",
+      "dashboard/evidence/cargo-rebase-recovery.md",
+      "dashboard/evidence/cargo-tanker.png",
+      "dashboard/evidence/cargo-van.png",
+      "dashboard/evidence/cargo-vehicles-playtest.md",
+      "dashboard/evidence/cargo-vehicles-verification.json",
+      "dashboard/evidence/cargo-video-check.json",
+      "dashboard/evidence/regional-road-guide.png",
+      "dashboard/evidence/regional-road-main.mp4",
+      "dashboard/evidence/regional-road-menu.png",
+      "dashboard/evidence/regional-road-playtest.json",
+      "dashboard/evidence/regional-road-surfaces.png",
+      "dashboard/evidence/regional-road-video-check.json",
+      "dashboard/evidence/regional-scale-districts.png",
+      "dashboard/evidence/regional-scale-final-ci.json",
+      "dashboard/evidence/regional-scale-local-regression.png",
+      "dashboard/evidence/regional-scale-main.mp4",
+      "dashboard/evidence/regional-scale-nearby.png",
+      "dashboard/evidence/regional-scale-overview.png",
+      "dashboard/evidence/regional-scale-playtest-entry.txt",
+      "dashboard/evidence/regional-scale-playtest.txt",
+      "dashboard/evidence/regional-scale-recovery-tests.json",
+      "dashboard/evidence/regional-scale-starvation-edge.png",
+      "dashboard/evidence/regional-scale-tests.json",
+      "dashboard/evidence/regional-scale-video-check.json",
+      "deploy/AviationSmoke.java",
+      "deploy/CargoVehicleSmoke.java",
+      "deploy/RegionalMainPlaytest.java",
+      "deploy/VerifyAviationMedia.java",
+      "deploy/run_aviation_smoke.py",
+      "deploy/run_cargo_smoke.py",
+      "deploy/run_regional_playtest.py",
+      "deploy/run_regional_road_playtest.py",
+      "docs/REGIONAL_POPULATION.md",
+      "src/main/java/dev/jayms/Main.java",
+      "src/main/java/dev/jayms/net/city/Aviation.java",
+      "src/main/java/dev/jayms/net/city/CityCommand.java",
+      "src/main/java/dev/jayms/net/city/CityFrame.java",
+      "src/main/java/dev/jayms/net/city/RegionalPopulation.java",
+      "src/main/java/dev/jayms/player/CargoVehicle.java",
+      "src/main/java/dev/jayms/player/Jeep.java",
+      "src/main/java/dev/jayms/ui/RegionalDashboard.java",
+      "src/test/java/dev/jayms/AviationTest.java",
+      "src/test/java/dev/jayms/JeepTest.java",
+      "src/test/java/dev/jayms/RegionalMultiplayerTest.java",
+      "src/test/java/dev/jayms/RegionalPopulationTest.java",
+      "src/test/java/dev/jayms/RegionalSaveCompatibilityTest.java"
+    ],
+    "cargoProgressRecordsUnchanged": 1,
+    "allBaseProgressItemsUnchanged": 52
+  },
+  "Playtest": [
+    {
+      "status": "passed",
+      "platform": "Linux X11 inherited role display; Mesa",
+      "profile": "isolated synthetic offline city on generated version 3 terrain",
+      "checks": [
+        "actual menu clicks reject inland port",
+        "technical college level 3 regression",
+        "actual coastal port permit",
+        "carrier hull and containers in world",
+        "ocean beside berth preserved",
+        "overlap rejected",
+        "two camera angles"
+      ],
+      "recording": "production F10 recorder",
+      "siteX": -100,
+      "siteZ": 210,
+      "saveReload": "passed",
+      "sourceHead": "28f07d513e83d0c980353a19bc88627305e4cfdc",
+      "command": "python3 deploy/run_shipping_smoke.py --display \"$DISPLAY\"",
+      "Playtest": "Playtest: production Main.run with X11 menu clicks, Linux/Mesa, synthetic target/shipping-home profile. Expected and observed: inland port rejected; coastal port24 placed; voxel containers and carrier visible; ocean beside berth retained; overlapping permit rejected; TechnicalCollege3 still places; format12 save/reload retains port and generator3. F10 captured two camera angles. All assertions passed. Native Java/OpenGL game; browser testing does not apply."
+    },
+    {
+      "status": "passed",
+      "platform": "Linux X11 inherited role display; Mesa",
+      "profile": "isolated synthetic offline yard",
+      "checks": [
+        "all five bodies selected via real Shift+J",
+        "enter drive brake exit via real J/W",
+        "moving exit and driving body switch rejected",
+        "all body types survive save reload",
+        "longer truck rejects wall",
+        "cycle returns to original jeep"
+      ],
+      "media": "five production renderer captures",
+      "sourceHead": "28f07d513e83d0c980353a19bc88627305e4cfdc",
+      "command": "python3 deploy/run_shipping_cargo_smoke.py --display \"$DISPLAY\"",
+      "Playtest": "Playtest: production Main.run with real X11 Shift+J/J/W input, Linux/Mesa, synthetic target/shipping-cargo-home profile. Expected and observed: Jeep, container truck, tanker, van and lorry bodies selected and rendered; all enter, drive, brake and exit; moving exit and driving body change rejected; all bodies survive save/reload; larger body rejects wall; cycle returns to Jeep. All assertions passed. F10 records container driving. Native Java/OpenGL game; browser testing does not apply."
+    }
+  ],
+  "saveRegression": {
+    "status": "passed",
+    "workflow": "Synthetic vehicle save CLI; browser UI does not apply to disk compatibility",
+    "expected": "Both formats retain position (0,1.01,0) and yaw -90; four fields default to JEEP, five fields retain CONTAINER; canonical save and reload retain body",
+    "observed": "All assertions passed",
+    "profile": "isolated synthetic files under target/shipping-vehicle-save-check",
+    "command": "python3 - <<'PY'\nfrom pathlib import Path\nimport os,subprocess\ncp=os.pathsep.join(['target/classes','target/test-classes','target/shipping-save-cli',*[str(p) for p in Path('target/m2').rglob('*.jar') if 'natives-windows' not in p.name and 'natives-macos' not in p.name]])\nPath('target/shipping-save-cli').mkdir(exist_ok=True)\nsubprocess.run(['javac','-cp',cp,'-d','target/shipping-save-cli','deploy/ShippingVehicleSaveCheck.java'],check=True)\nsubprocess.run(['java','-Djava.io.tmpdir='+str(Path('target/tmp').resolve()),'-cp',cp,'dev.jayms.ShippingVehicleSaveCheck','target/shipping-vehicle-save-check','dashboard/evidence/shipping-vehicle-save-check.json'],check=True)\nPY",
+    "exit": 0
+  },
+  "compatibility": "Four/five-field vehicle files retain position/yaw/body. Format12 aviation and format11 regional data retained. Airport23, port24, protocol23. Old protocol21/22 peers reject clearly.",
+  "media": [
+    {
+      "file": "shipping-port-carrier.png",
+      "bytes": 418477,
+      "sha256": "f75fb1f77b18a6c68bf2822e61e4c3f25aa5a552e72fd6ef2ae6bb07211ce69a",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "shipping-placement-playtest.mp4",
+      "bytes": 915890,
+      "sha256": "bfadebb87b80eca7cc37fad610f06219792765265e138ecc298037a08dd2f113",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "shipping-cargo-jeep.png",
+      "bytes": 845003,
+      "sha256": "1cf8aec31f7d9dcb6d2db7d932fe14fad8d5450bfafb6a0739bfc28ff5ba4470",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "shipping-cargo-container.png",
+      "bytes": 832807,
+      "sha256": "bf03c921004a10f4e92591954d738cb4b840db487b69eb28967b4f26dc7b93de",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "shipping-cargo-tanker.png",
+      "bytes": 838424,
+      "sha256": "3fcc14b8f06ff23a59df0d58366949d2d450d000932af2704760ae0e114f2f32",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "shipping-cargo-van.png",
+      "bytes": 841710,
+      "sha256": "f1bf51853caeec7661fd5dd55af27e968524d08bd70d82697f23730c1d6a1232",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "shipping-cargo-lorry.png",
+      "bytes": 837814,
+      "sha256": "81e2e63bf91c7812c03b6c0fa79dad5118a3da18438fb594fdb5ee8975b750b4",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "shipping-cargo-container-drive.mp4",
+      "bytes": 1004572,
+      "sha256": "46e815ceefcdd2db3be3db604a8111b6a7822f8d5c0e8b22d9cb43550898f635",
+      "publication": "pending controller publication"
+    }
+  ],
+  "mediaChecks": {
+    "shipping-video-validation.json": {
+      "status": "passed",
+      "codec": "H264",
+      "width": 960,
+      "height": 544,
+      "frames": 30,
+      "seconds": 22.03,
+      "bytes": 915890,
+      "decoded": "start, middle, two seconds before end"
+    },
+    "shipping-video-motion.json": {
+      "codec": "H264",
+      "frames": 30,
+      "durationSeconds": 22.03,
+      "width": 960,
+      "height": 540,
+      "bytes": 915890,
+      "seekable": true,
+      "cameraFramesDiffer": true
+    },
+    "shipping-cargo-video-validation.json": {
+      "status": "passed",
+      "codec": "H264",
+      "width": 960,
+      "height": 544,
+      "frames": 26,
+      "seconds": 35.803,
+      "bytes": 1004572,
+      "decoded": "start, middle, two seconds before end"
+    },
+    "shipping-cargo-video-motion.json": {
+      "codec": "H264",
+      "frames": 26,
+      "durationSeconds": 35.803,
+      "width": 960,
+      "height": 540,
+      "bytes": 1004572,
+      "seekable": true,
+      "cameraFramesDiffer": true
+    }
+  },
+  "limits": "Carrier is a static docked component. Cargo routing and trade simulation were not added. Prior aviation/district captures are preserved historical evidence, not new captures for this head.",
+  "driverHashes": {
+    "deploy/ShippingVehicleSaveCheck.java": "6f4b0adafd68b6a6e9e899f1f3d175a3c32c0e02faa98cac8ad82ff934900d16",
+    "deploy/run_shipping_cargo_smoke.py": "50aad14134ce87d67690d6d231c7e80c2bd8d91ecba22883f38cde92f94d70b4",
+    "deploy/run_shipping_smoke.py": "eb5943fd86795fdc71b00dca896f03fcf2ae4ec0b3675e6e14fa53e08bcb0077"
+  },
+  "verification": {
+    "command": "mvn --batch-mode -Dmaven.repo.local=target/m2 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" verify",
+    "exit": 0,
+    "tests": 343,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "suites": [
+      {
+        "name": "dev.jayms.SurvivalTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "1.768"
+      },
+      {
+        "name": "dev.jayms.CityCapitalTest",
+        "tests": "11",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "5.393"
+      },
+      {
+        "name": "dev.jayms.ManufacturingTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "97.18"
+      },
+      {
+        "name": "dev.jayms.CapitalSettlementLimitsTest",
+        "tests": "9",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.279"
+      },
+      {
+        "name": "dev.jayms.MayorDashboardTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.19"
+      },
+      {
+        "name": "dev.jayms.CityAddressesTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "15.977"
+      },
+      {
+        "name": "dev.jayms.IsometricOrbitDragTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.058"
+      },
+      {
+        "name": "dev.jayms.BusinessCatalogTest",
+        "tests": "11",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "11.653"
+      },
+      {
+        "name": "dev.jayms.PlayerTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.397"
+      },
+      {
+        "name": "dev.jayms.CityToolsTest",
+        "tests": "9",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.253"
+      },
+      {
+        "name": "dev.jayms.CityMaterialsTest",
+        "tests": "13",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "102.566"
+      },
+      {
+        "name": "dev.jayms.JeepTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.561"
+      },
+      {
+        "name": "dev.jayms.PlayerCameraTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.036"
+      },
+      {
+        "name": "dev.jayms.CityTest",
+        "tests": "10",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "25.073"
+      },
+      {
+        "name": "dev.jayms.BuildingInfoTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.074"
+      },
+      {
+        "name": "dev.jayms.CityEconomyTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "31.958"
+      },
+      {
+        "name": "dev.jayms.BusinessDashboardTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.094"
+      },
+      {
+        "name": "dev.jayms.RoadTypesTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.337"
+      },
+      {
+        "name": "dev.jayms.UpdaterTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "1.529"
+      },
+      {
+        "name": "dev.jayms.MetricHistoryTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "1.942"
+      },
+      {
+        "name": "dev.jayms.PlayerAnimationTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.344"
+      },
+      {
+        "name": "dev.jayms.AviationTest",
+        "tests": "10",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "2.787"
+      },
+      {
+        "name": "dev.jayms.ProtocolCompatibilityTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "9.578"
+      },
+      {
+        "name": "dev.jayms.LightOcclusionTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "4.268"
+      },
+      {
+        "name": "dev.jayms.CitizenLifeTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.131"
+      },
+      {
+        "name": "dev.jayms.ShippingTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.173"
+      },
+      {
+        "name": "dev.jayms.SpecialBuildingsTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.176"
+      },
+      {
+        "name": "dev.jayms.CityTimeTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "32.786"
+      },
+      {
+        "name": "dev.jayms.DistantTerrainTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.153"
+      },
+      {
+        "name": "dev.jayms.VoxelModelTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.15"
+      },
+      {
+        "name": "dev.jayms.CityBusinessTest",
+        "tests": "9",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "13.4"
+      },
+      {
+        "name": "dev.jayms.CapitalDashboardTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.055"
+      },
+      {
+        "name": "dev.jayms.TerrainGenerationTest",
+        "tests": "10",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.987"
+      },
+      {
+        "name": "dev.jayms.FractionalWorldTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.133"
+      },
+      {
+        "name": "dev.jayms.IsometricCameraTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.034"
+      },
+      {
+        "name": "dev.jayms.CityMultiplayerTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "10.366"
+      },
+      {
+        "name": "dev.jayms.MarketEconomyTest",
+        "tests": "13",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.622"
+      },
+      {
+        "name": "dev.jayms.RegionalMultiplayerTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "9.936"
+      },
+      {
+        "name": "dev.jayms.CityMetricsTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.009"
+      },
+      {
+        "name": "dev.jayms.RemotePlayerTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.003"
+      },
+      {
+        "name": "dev.jayms.ExchangePermitCompositionTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.003"
+      },
+      {
+        "name": "dev.jayms.MultiplayerTest",
+        "tests": "15",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "109.776"
+      },
+      {
+        "name": "dev.jayms.AgricultureTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "143.276"
+      },
+      {
+        "name": "dev.jayms.RegionalSaveCompatibilityTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.033"
+      },
+      {
+        "name": "dev.jayms.ModelSculptorTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.014"
+      },
+      {
+        "name": "dev.jayms.VideoRecordingTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.302"
+      },
+      {
+        "name": "dev.jayms.PopulationJourneyTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "31.358"
+      },
+      {
+        "name": "dev.jayms.ShopRestockMarketTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.06"
+      },
+      {
+        "name": "dev.jayms.LightingTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.028"
+      },
+      {
+        "name": "dev.jayms.DemolitionTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "39.201"
+      },
+      {
+        "name": "dev.jayms.ExchangeLabourMarketTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.232"
+      },
+      {
+        "name": "dev.jayms.RegionalPopulationTest",
+        "tests": "10",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.982"
+      },
+      {
+        "name": "dev.jayms.net.city.CityStockExchangeTest",
+        "tests": "10",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.019"
+      },
+      {
+        "name": "dev.jayms.ShippingProtocolCompatibilityTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "2.572"
+      },
+      {
+        "name": "dev.jayms.InventoryHudTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.012"
+      },
+      {
+        "name": "dev.jayms.AccountStoreTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "5.321"
+      },
+      {
+        "name": "dev.jayms.ShippingAviationCompatibilityTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "1.352"
+      },
+      {
+        "name": "dev.jayms.ControlsTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.025"
+      },
+      {
+        "name": "dev.jayms.CapitalInspectorTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.002"
+      },
+      {
+        "name": "dev.jayms.CraftingTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.017"
+      }
+    ],
+    "packaging": [
+      "voxel-one-1.0-SNAPSHOT-client.jar",
+      "voxel-one-1.0-SNAPSHOT-launcher.jar",
+      "voxel-one-1.0-SNAPSHOT-server.jar",
+      "voxel-one-1.0-SNAPSHOT.jar"
+    ]
+  },
+  "mediaCommands": [
+    {
+      "command": "java -Djava.io.tmpdir=\"$PWD/target/tmp\" -Djava.awt.headless=true -cp target/m2/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar:target/shipping-smoke VerifyRoadVideo dashboard/evidence/shipping-placement-playtest.mp4 target/shipping-video-frame.png dashboard/evidence/shipping-video-validation.json",
+      "exit": 0
+    },
+    {
+      "command": "java -Djava.io.tmpdir=\"$PWD/target/tmp\" -Djava.awt.headless=true -cp target/m2/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar:target/shipping-smoke TerrainRecordingCheck dashboard/evidence/shipping-placement-playtest.mp4 dashboard/evidence/shipping-video-motion.json",
+      "exit": 0
+    },
+    {
+      "command": "java -Djava.io.tmpdir=\"$PWD/target/tmp\" -Djava.awt.headless=true -cp target/m2/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar:target/shipping-smoke VerifyRoadVideo dashboard/evidence/shipping-cargo-container-drive.mp4 target/shipping-cargo-video-frame.png dashboard/evidence/shipping-cargo-video-validation.json",
+      "exit": 0
+    },
+    {
+      "command": "java -Djava.io.tmpdir=\"$PWD/target/tmp\" -Djava.awt.headless=true -cp target/m2/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar:target/shipping-smoke TerrainRecordingCheck dashboard/evidence/shipping-cargo-container-drive.mp4 dashboard/evidence/shipping-cargo-video-motion.json",
+      "exit": 0
+    }
+  ],
+  "checks": [
+    {
+      "command": "git diff --check",
+      "exit": 0
+    },
+    {
+      "command": "python3 -m py_compile deploy/run_shipping_cargo_smoke.py",
+      "exit": 0
+    }
+  ],
+  "inspection": "Fresh shipping port image, cargo container/tanker images and decoded cargo video frame inspected. Both videos decode at start/middle/near end, show changed frames and remain below6MB.",
+  "previousInterruptedRuns": "Stopped at owner pause with exit130; not counted as passes. Current resumed full verify and cargo native runs passed."
+}

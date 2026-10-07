@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-06T21:47:07+00:00",
+  "updatedAt": "2026-10-06T23:52:03+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,46 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "shipping-system",
+      "title": "Oceans and coastal shipping ports",
+      "description": "Implementing versioned ocean terrain and coastal port permits with voxel cargo and carriers.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Final protocol 23 checks \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-62386532623363612d343231342d343234362d626163612d613333396139623934303436/dashboard/evidence/shipping-final-tests.json"
+        },
+        {
+          "kind": "link",
+          "label": "Fresh port image \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-62386532623363612d343231342d343234362d626163612d613333396139623934303436/dashboard/evidence/shipping-port-carrier.png"
+        },
+        {
+          "kind": "link",
+          "label": "Fresh shipping F10 playtest \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-62386532623363612d343231342d343234362d626163612d613333396139623934303436/dashboard/evidence/shipping-placement-playtest.mp4"
+        },
+        {
+          "kind": "link",
+          "label": "Final protocol 23 checks \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-62386532623363612d343231342d343234362d626163612d613333396139623934303436/dashboard/evidence/shipping-final-tests.json"
+        },
+        {
+          "kind": "link",
+          "label": "Prior aviation regression \u2014 preserved historical evidence",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-62386532623363612d343231342d343234362d626163612d613333396139623934303436/dashboard/evidence/shipping-airport-playtest.mp4"
+        },
+        {
+          "kind": "link",
+          "label": "Fresh cargo regression video \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-62386532623363612d343231342d343234362d626163612d613333396139623934303436/dashboard/evidence/shipping-cargo-container-drive.mp4"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Ready for independent review: source 28f07d5 passed full Maven verify (343 tests; zero failures/errors) and package. Shipping and all five cargo bodies passed native workflows. Four/five-field vehicle saves retain position/yaw/body. Fresh shipping/cargo F10 videos decoded and inspected. All 98 protected paths and 52 prior progress items preserved. Controller publication pending.",
+      "updatedAt": "2026-10-06T23:52:03+00:00"
+    },
     {
       "id": "65396632633436642d613861352d346161632d613932642d343661616166316666626638",
       "title": "Million-citizen city scaling",

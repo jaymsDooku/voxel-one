@@ -214,6 +214,11 @@ public final class MultiplayerClient implements AutoCloseable {
     }
 
     public boolean cityCommand(CityCommand command) {
+        if (serverProtocol < 23 && command.kind() == CityCommand.SPECIAL
+                && command.value() == SpecialBuildings.PORT) {
+            notice = "Coastal ports require a server update.";
+            return false;
+        }
         if (serverProtocol < 21 && (command.kind() == CityCommand.SETTLE_DISTRICT
                 || command.kind() == CityCommand.FOCUS_DISTRICT)) {
             notice = "District commands require a server update.";

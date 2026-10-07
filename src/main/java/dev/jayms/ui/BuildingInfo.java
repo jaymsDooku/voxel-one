@@ -146,6 +146,10 @@ public final class BuildingInfo {
                 rows.add("Reserved flights: " + city.aviation().flights().stream().filter(f -> f.origin() == b.id() || f.destination() == b.id()).count());
                 rows.add("Special menu: expand runway or book citizen flight");
             } else rows.add("Level: " + SpecialBuildings.level(type));
+            if (type == SpecialBuildings.PORT) {
+                rows.add("Coastal dock | 2 quay containers | 1 docked cargo carrier");
+                rows.add("Carrier cargo: 1 container | Open ocean berth faces +Z");
+            }
             int kind = SpecialBuildings.kind(type);
             if (type != SpecialBuildings.EXCHANGE && (kind == 1 || kind == 2 || kind == 3 || kind == 5)) {
                 rows.add("Ages: " + (kind == 1 ? "5-11" : kind == 2 ? "12-17" : "18-21") + " | Classes 08:00-14:00");

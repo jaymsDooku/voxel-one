@@ -25,7 +25,7 @@ public final class CityTools {
         if (specialOwner == 2) return city.economy().firms().isEmpty() ? -1 : city.economy().firms().get(Math.floorMod(ownerIndex, city.economy().firms().size())).id();
         return 0;
     }
-    private static int specialRowHeight(int height) { return Math.max(12, Math.min(28, (height - 340) / 12)); }
+    private static int specialRowHeight(int height) { return Math.max(12, Math.min(28, (height - 340) / 13)); }
     public int roadType;
     public boolean roadMenu;
     public int tool = -1, selectedCitizen, selectedBuilding, selectedPlot, selectedStreet;
@@ -80,13 +80,13 @@ public final class CityTools {
                 return;
             }
         }
-        if (tool == 6 && x >= 16 && x <= 450 && y >= 140 && y < 140+12*specialRowHeight(height)) {
+        if (tool == 6 && x >= 16 && x <= 450 && y >= 140 && y < 140+13*specialRowHeight(height)) {
             int row = (int)((y-140)/specialRowHeight(height));
-            if (row < 6) specialKind = row;
-            if (row == 6) specialLevel = specialLevel % 3 + 1;
-            if (row == 7) { specialOwner = (specialOwner+1)%3; ownerIndex = 0; }
-            if (row == 8) ownerIndex++;
-            if (row >= 9) { tool = row - 1; message = row == 9 ? "Airport: click a cleared road-accessible site (2000)" : row == 10 ? "Expand: click an airport (1000 per runway, max 3)" : "Flight: inspect an adult citizen first, then click the destination airport"; }
+            if (row < 7) specialKind = row;
+            if (row == 7) specialLevel = specialLevel % 3 + 1;
+            if (row == 8) { specialOwner = (specialOwner+1)%3; ownerIndex = 0; }
+            if (row == 9) ownerIndex++;
+            if (row >= 10) { tool = row - 2; message = row == 10 ? "Airport: click a cleared road-accessible site (2000)" : row == 11 ? "Expand: click an airport (1000 per runway, max 3)" : "Flight: inspect an adult citizen first, then click the destination airport"; }
             return;
         }
         float top = height - 196;
@@ -365,7 +365,7 @@ public final class CityTools {
             ui.text("Dashboard", w - 134, 82, 1.3f);
         }
         if (!isometric) return;
-        if (!message.startsWith("Choose")) ui.text(message, 20, tool == 6 ? 486 : 156, 1.3f, 1, .7f, .2f, 1);
+        if (!message.startsWith("Choose")) ui.text(message, 20, tool == 6 ? 140 + 13 * specialRowHeight(h) + 8 : 156, 1.3f, 1, .7f, .2f, 1);
         float ground = city.roads().isEmpty() ? 32 : city.roads().get(0).y() + 1.04f;
         for (var zone : city.zones()) {
             float[] color =
@@ -440,15 +440,15 @@ public final class CityTools {
                     .2f);
         }
         if (tool == 6) {
-            ui.rectangle(16,140,434,12*specialRowHeight(h),.025f,.04f,.065f,.95f);
-            for (int row=0; row<12; row++) {
+            ui.rectangle(16,140,434,13*specialRowHeight(h),.025f,.04f,.065f,.95f);
+            for (int row=0; row<13; row++) {
                 String label;
-                if (row < 6) label = (row == specialKind ? "> " : "  ") + SpecialBuildings.NAMES[row];
-                else if (row == 6) label = "Level: " + specialLevel + " (click to cycle)";
-                else if (row == 7) label = "Ownership: " + new String[]{"City government","Private individual","Private company"}[specialOwner];
-                else if (row == 8) label = "Owner: " + (specialOwner == 0 ? "City government" : BuildingInfo.owner(city, specialOwner == 2 ? CityEconomy.COMPANY : 0, ownerId(city))) + " (click: next)";
-                else if (row == 9) label = "Airport (city): 2000 | place terminal + runway";
-                else if (row == 10) label = "Expand airport: 1000 | click airport";
+                if (row < 7) label = (row == specialKind ? "> " : "  ") + SpecialBuildings.NAMES[row];
+                else if (row == 7) label = specialKind == 6 ? "Level: 1 | Docked carrier and cargo" : "Level: " + specialLevel + " (click to cycle)";
+                else if (row == 8) label = "Ownership: " + new String[]{"City government","Private individual","Private company"}[specialOwner];
+                else if (row == 9) label = "Owner: " + (specialOwner == 0 ? "City government" : BuildingInfo.owner(city, specialOwner == 2 ? CityEconomy.COMPANY : 0, ownerId(city))) + " (click: next)";
+                else if (row == 10) label = "Airport (city): 2000 | place terminal + runway";
+                else if (row == 11) label = "Expand airport: 1000 | click airport";
                 else label = "Book flight: inspect citizen, click destination";
                 ui.text(label,24,149+row*specialRowHeight(h),Math.min(1.15f,specialRowHeight(h)/24f));
             }
@@ -486,7 +486,7 @@ public final class CityTools {
         ui.rectangle(16, top + 38, w - 32, 35, .015f, .025f, .04f, .85f);
         ui.text(
                 tool == 6
-                        ? "Select building, level and owner | Click clear unzoned land: 6 x 9 | Front faces north | Esc: cancel"
+                        ? specialKind == 6 ? "Port: dry entrance + road (-Z), open ocean berth (+Z) | 6 x 21 site | Esc: cancel" : "Select building, level and owner | Click clear unzoned land: 6 x 9 | Front faces north | Esc: cancel"
                         : tool == 7
                                 ? "Choose clear land near a road | Exchange: $600 | Graduate office staff"
                         : tool == 8 ? "Airport: 36 x 27 clear site | North entrance touches road | $2000 | Esc: cancel"

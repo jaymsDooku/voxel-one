@@ -1337,7 +1337,7 @@ public final class CitySimulation {
     private String settleDistrict(int count) {
         int district=population.state().groups().stream().mapToInt(RegionalPopulation.Group::district).max().orElse(0)+1;
         int x=8+(district%32)*512, z=24+(district/32+1)*512;
-        int y=terrain.column(x,z).height()+1;
+        int y=terrain.surfaceHeight(x,z)+1;
         int id=population.settle(count,y);
         return "District " + id + " settled with " + count + " immigrants";
     }
@@ -1345,6 +1345,10 @@ public final class CitySimulation {
     private String demolish(int id) {
         var b = building(id);
         if (b == null) return "Building is no longer available";
+        if (b.type() == SpecialBuildings.PORT)
+            for (int y=Geography.SEA_LEVEL; y<b.y(); y+=7)
+                if (ground.playerOccupied(b.x(),y,b.z(),StructureBlueprint.width(b.type()),StructureBlueprint.depth(b.type())))
+                    return "Move players out of the building before demolition";
         if (ground.playerOccupied(
                 b.x(),
                 b.y(),
@@ -1360,7 +1364,9 @@ public final class CitySimulation {
                 ? StructureBlueprint.special(b.type(), b.x(), b.y(), b.z())
                 : StructureBlueprint.generate(b.type(), kind, b.x(), b.y(), b.z()))
             // Excavated mine shafts are terrain, not structure to remove.
-            if (e.y() >= b.y()) edits.add(e.withType(0));
+            if (e.y() >= b.y() || b.type() == SpecialBuildings.PORT)
+                edits.add(e.withType(b.type() == SpecialBuildings.PORT && e.y() <= Geography.SEA_LEVEL
+                        ? terrain.block(e.x(),e.y(),e.z()) : 0));
         // Crops and livestock pens may extend beyond the barn blueprint.
         if (b.type() == 3)
             for (int x = 0; x < StructureBlueprint.width(3); x++)
@@ -1534,10 +1540,27 @@ public final class CitySimulation {
                 || (kind == 2 && snapshot.economy().firms().stream().noneMatch(f -> f.id() == id)))
             throw new IllegalArgumentException("Select an existing owner");
         int x = (int)Math.floor(command.points().get(0).x()), z = (int)Math.floor(command.points().get(0).z());
+        boolean port = type == SpecialBuildings.PORT;
+        int depth = StructureBlueprint.depth(type);
+        if (port) {
+            for (int dx=0;dx<6;dx++) {
+                for (int dz=-1;dz<3;dz++) {
+                    int cx=x+dx, cz=z+dz;
+                    if (terrain.fields(cx,cz)==null || terrain.fields(cx,cz).waterLevel() >= terrain.column(cx,cz).height())
+                        throw new IllegalArgumentException("Port entrance must be on dry coastal land");
+                }
+                for (int dz=14;dz<depth;dz++) {
+                    int cx=x+dx, cz=z+dz;
+                    if (!terrain.ocean(cx,cz) || terrain.column(cx,cz).height() > Geography.SEA_LEVEL-2
+                            || ground.type(cx,Geography.SEA_LEVEL,cz)!=Blocks.WATER)
+                        throw new IllegalArgumentException("Port requires open ocean behind its dock (+Z)");
+                }
+            }
+        }
         boolean access = false;
         if (grade + 7 > Terrain.MAX_Y) throw new IllegalArgumentException("Building exceeds world height");
-        if (economy.overlaps(x, z, 6, 7)) throw new IllegalArgumentException("Building overlaps an owned plot");
-        for (int dx = 0; dx < 6; dx++) for (int dz = -1; dz <= 7; dz++) {
+        if (economy.overlaps(x, z, 6, depth)) throw new IllegalArgumentException("Building overlaps an owned plot");
+        for (int dx = 0; dx < 6; dx++) for (int dz = -1; dz <= depth; dz++) {
             int cx = x+dx, cz = z+dz;
             if (Math.abs((long)cx-8)>256 || Math.abs((long)cz-24)>256)
                 throw new IllegalArgumentException("Building outside city limits");
@@ -1548,6 +1571,14 @@ public final class CitySimulation {
                     && cz >= b.z()-2 && cz <= b.z()+(b.type() == SpecialBuildings.AIRPORT ? Aviation.depth(Aviation.runways(b)) : StructureBlueprint.depth(b.type())))
                 throw new IllegalArgumentException("Building overlaps another building or entrance");
             if (dz == -1 && roads.containsKey(new Cell(cx,cz-1))) access = true;
+            if (port && dz>=3) {
+                for (int y=Geography.SEA_LEVEL; y<=grade+7; y++) {
+                    int block=ground.type(cx,y,cz);
+                    if (block!=0 && block!=Blocks.WATER && y>terrain.column(cx,cz).height())
+                        throw new IllegalArgumentException("Clear the dock and carrier berth first");
+                    if (ground.occupied(cx,y,cz,1,1)) throw new IllegalArgumentException("Dock would intersect a player");
+                }
+            }
             if (ground.occupied(cx,grade+1,cz,1,1)) throw new IllegalArgumentException("Building would intersect a player");
             // level() clears the whole column above grade, not just the building height.
             // Validate that entire volume before collecting or applying any placement edits.
@@ -1556,7 +1587,7 @@ public final class CitySimulation {
         }
         if (!access) throw new IllegalArgumentException("Front entrance must touch a road");
         var edits = new ArrayList<Protocol.Edit>();
-        for (int dx=0;dx<6;dx++) for(int dz=-1;dz<=7;dz++) level(x+dx,z+dz,edits);
+        for (int dx=0;dx<6;dx++) for(int dz=-1;dz<=(port ? 2 : 7);dz++) level(x+dx,z+dz,edits);
         edits.addAll(StructureBlueprint.special(type,x,grade+1,z));
         ground.apply(edits);
         buildings.add(new CityFrame.Building(++buildingIds,-kind,type,x,grade+1,z,8*SpecialBuildings.level(type),id));

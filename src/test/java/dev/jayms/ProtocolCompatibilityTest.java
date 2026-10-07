@@ -90,6 +90,9 @@ class ProtocolCompatibilityTest {
                         assertEquals(legacyVersion, client.serverProtocol);
                         assertTrue(client.city.config().city());
                         assertEquals(Terrain.LEGACY_VERSION, client.generatorVersion);
+                        assertFalse(client.cityCommand(new CityCommand(CityCommand.SPECIAL,
+                                SpecialBuildings.PORT, List.of(), 0, 0)));
+                        assertTrue(client.notice().contains("server update"));
                         assertFalse(client.cityCommand(new CityCommand(CityCommand.EXCHANGE, 0, List.of())));
                         assertFalse(client.cityCommand(new CityCommand(CityCommand.SPECIAL,
                                 SpecialBuildings.EXCHANGE, List.of(), 0, 0)));
@@ -115,7 +118,7 @@ class ProtocolCompatibilityTest {
     @Test
     void incompatibleVersionsAreRejectedWithActionableDiagnostics() throws Exception {
         var identity = SecureTransport.server(temp.resolve("tls"));
-        for (int version : List.of(13, 21, Protocol.VERSION + 1)) {
+        for (int version : List.of(13, 21, 22, Protocol.VERSION + 1)) {
             try (var listener = identity.context().getServerSocketFactory()
                     .createServerSocket(0, 1, InetAddress.getLoopbackAddress())) {
                 listener.setSoTimeout(10000);
