@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T11:20:05.641173+00:00",
+  "updatedAt": "2026-10-07T11:29:14.289000+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -2966,8 +2966,8 @@
         }
       ],
       "status": "in_progress",
-      "note": "Development fixes replayed; working-file conflicts resolved. Controller continuation and final-source tests/media pending.",
-      "updatedAt": "2026-10-07T11:20:05.641173+00:00"
+      "note": "Integrated head verified: 118 tests and native development/reload workflow passed. Fresh screenshots and F10 video inspected. Ready for independent review; controller publication pending.",
+      "updatedAt": "2026-10-07T11:29:14.289000+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
