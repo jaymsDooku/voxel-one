@@ -58,32 +58,42 @@ jobs:
           with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
               output.write(f'head={head}\nmode={mode}\nrequestId={request_id}\n')
           PY
-      - uses: actions/checkout@v4
+      - name: Checkout requested client source
+        uses: actions/checkout@v4
         with:
           ref: ${{ steps.request.outputs.head }}
+          path: source
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Checkout trusted workflow verifier
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: validator
           fetch-depth: 1
           persist-credentials: false
       - name: Verify exact checkout and tooling contracts
         env:
           EXPECTED_HEAD: ${{ steps.request.outputs.head }}
         run: |
-          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
-          python3 -m unittest discover -s tools/ios -p 'test_*.py' -v
+          test "$(git -C source rev-parse HEAD)" = "$EXPECTED_HEAD"
+          test "$(git -C validator rev-parse HEAD)" = "$GITHUB_SHA"
+          python3 -m unittest discover -s validator/tools/ios -p 'test_*.py' -v
       - name: Boot fresh iPhone and collect evidence
         env:
           EXPECTED_HEAD: ${{ steps.request.outputs.head }}
           IOS_CHECK_MODE: ${{ steps.request.outputs.mode }}
           IOS_REQUEST_ID: ${{ steps.request.outputs.requestId }}
         run: |
-          python3 tools/ios/simulator_checks.py --expected-head "$EXPECTED_HEAD" --mode "$IOS_CHECK_MODE" --request-id "$IOS_REQUEST_ID"
+          python3 validator/tools/ios/simulator_checks.py --repo "$GITHUB_WORKSPACE/source" --evidence-dir "$GITHUB_WORKSPACE/source/ios-evidence" --expected-head "$EXPECTED_HEAD" --mode "$IOS_CHECK_MODE" --request-id "$IOS_REQUEST_ID"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: ios-evidence
           path: |
-            ios-evidence/report.json
-            ios-evidence/preflight.png
-            ios-evidence/client.png
-            ios-evidence/*.mp4
+            source/ios-evidence/report.json
+            source/ios-evidence/preflight.png
+            source/ios-evidence/client.png
+            source/ios-evidence/*.mp4
           if-no-files-found: warn
           retention-days: 7

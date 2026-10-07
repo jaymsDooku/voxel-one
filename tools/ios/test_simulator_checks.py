@@ -1,11 +1,14 @@
 """Linux-compatible contract tests; all Apple commands and apps are MOCKS."""
 import copy
+import contextlib
+import io
 import json
 from pathlib import Path
 import plistlib
 import struct
 import tempfile
 import unittest
+from unittest import mock
 import zlib
 
 import simulator_checks as checks
@@ -44,6 +47,7 @@ class FakeAppleCommands:
         self.client_runs = 0
 
     def __call__(self, args, **kwargs):
+        assert kwargs['cwd'] == self.repo, 'All Git and client commands must use requested source, not verifier checkout'
         self.calls.append((args, kwargs))
         if args == ['git', 'rev-parse', 'HEAD']:
             return self.head
@@ -268,11 +272,64 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertIn('name: ios-evidence', workflow)
         self.assertIn('persist-credentials: false', workflow)
         self.assertIn('ref: ${{ steps.request.outputs.head }}', workflow)
+        self.assertIn('path: source', workflow)
+        self.assertIn('path: validator', workflow)
+        self.assertIn('ref: ${{ github.sha }}', workflow)
+        self.assertEqual(workflow.count('persist-credentials: false'), 2)
+        self.assertIn('git -C source rev-parse HEAD', workflow)
+        self.assertIn('git -C validator rev-parse HEAD', workflow)
+        self.assertIn('unittest discover -s validator/tools/ios', workflow)
+        self.assertIn('python3 validator/tools/ios/simulator_checks.py --repo "$GITHUB_WORKSPACE/source"', workflow)
+        self.assertIn('source/ios-evidence/report.json', workflow)
         self.assertIn('branches: [feature/ios-worker-bootstrap]', workflow)
         self.assertIn('if: always()', workflow)
         self.assertNotIn('pull_request_target', workflow)
         self.assertNotIn('secrets.', workflow)
         self.assertNotIn('contents: write', workflow)
+
+    def test_cli_repo_and_relative_evidence_paths_use_requested_checkout(self):
+        with tempfile.TemporaryDirectory(prefix='ios-source-checkout-') as tmp:
+            repo = Path(tmp) / 'source'
+            repo.mkdir()
+            captured = {}
+            def execute(source, output, head, mode, request):
+                captured.update(repo=source, output=output, head=head)
+                return {'status': 'passed', 'sourceHead': HEAD, 'clientChecked': False}
+            with mock.patch.object(checks, 'run_checks', side_effect=execute), contextlib.redirect_stdout(io.StringIO()):
+                result = checks.main(['--repo', str(repo), '--expected-head', HEAD, '--mode', 'preflight', '--request-id', REQUEST])
+            self.assertEqual(result, 0)
+            self.assertEqual(captured['repo'], repo.resolve())
+            self.assertEqual(captured['output'], repo.resolve() / 'ios-evidence')
+            self.assertEqual(captured['head'], HEAD)
+
+    def test_trusted_cli_checks_actual_source_git_head_in_separate_repository(self):
+        with tempfile.TemporaryDirectory(prefix='ios-real-source-head-') as tmp:
+            repo = Path(tmp) / 'source'
+            repo.mkdir()
+            checks.command(['git', 'init'], cwd=repo)
+            (repo / 'source.txt').write_text('public source fixture\n')
+            checks.command(['git', 'add', 'source.txt'], cwd=repo)
+            checks.command(['git', '-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-m', 'fixture'], cwd=repo)
+            head = checks.command(['git', 'rev-parse', 'HEAD'], cwd=repo)
+            # A feature's replacement verifier is deliberately unusable. The
+            # already imported trusted verifier never executes this source file.
+            (repo / 'tools/ios').mkdir(parents=True)
+            (repo / 'tools/ios/simulator_checks.py').write_text('raise SystemExit("feature verifier must not execute")\n')
+            with mock.patch.object(checks.platform, 'system', return_value='Linux'), contextlib.redirect_stdout(io.StringIO()):
+                result = checks.main(['--repo', str(repo), '--expected-head', head, '--mode', 'preflight', '--request-id', REQUEST])
+            report = json.loads((repo / 'ios-evidence/report.json').read_text())
+            self.assertEqual(result, 1)
+            self.assertEqual(report['sourceHead'], head)
+            self.assertEqual(report['errorCode'], 'macos_required')
+            self.assertFalse(report['clientChecked'])
+
+    def test_cli_rejects_evidence_outside_requested_source(self):
+        with tempfile.TemporaryDirectory(prefix='ios-source-boundary-') as tmp:
+            repo = Path(tmp) / 'source'
+            repo.mkdir()
+            with self.assertRaisesRegex(SystemExit, 'inside the source checkout'):
+                checks.main(['--repo', str(repo), '--evidence-dir', '../validator/evidence', '--expected-head', HEAD,
+                             '--mode', 'preflight', '--request-id', REQUEST])
 
 
 if __name__ == '__main__':

@@ -242,15 +242,17 @@ def run_checks(repo, output, expected_head, mode, request_id, *, run_command=com
     return report
 
 
-def main():
+def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--expected-head', required=True)
     parser.add_argument('--mode', choices=('preflight', 'client'), required=True)
     parser.add_argument('--request-id', required=True)
+    parser.add_argument('--repo', default=str(Path(__file__).resolve().parents[2]),
+                        help='Requested source checkout; verifier can live in a separate trusted checkout')
     parser.add_argument('--evidence-dir', default='ios-evidence')
-    args = parser.parse_args()
-    repo = Path(__file__).resolve().parents[2]
-    output = Path(args.evidence_dir).resolve()
+    args = parser.parse_args(argv)
+    repo = Path(args.repo).resolve()
+    output = (repo / args.evidence_dir).resolve()
     if not output.is_relative_to(repo) or output == repo:
         raise SystemExit('Evidence directory must stay inside the source checkout')
     report = run_checks(repo, output, args.expected_head, args.mode, args.request_id)
