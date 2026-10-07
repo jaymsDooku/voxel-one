@@ -1,0 +1,25 @@
+Native editor implementation is ready for controller integration and independent review.
+
+Final source: F11 workspace; --offline --editor starts City Builder workspace;
+scene groups with live inspector counts; M opens existing voxel asset editor;
+Enter/Escape/F11 or Play returns to the same game; local city time pauses.
+Pointer tracking remains active for editor buttons. Legacy custom F11 controls
+are preserved by placing the new action after existing bindings.
+
+Validation: 18 focused tests passed (EngineEditorTest 3, ControlsTest 5, CityTest
+10), package passed, real assigned-display native Playtest and direct CLI launch
+passed. Four fresh PNG captures inspected. Commands, expected/observed steps, limitations and source
+hashes are in dashboard/evidence/engine-editor-tests.json.
+
+No commit, push, PR, merge, deployment or Git index edits were made. Media and
+progress links await controller publication. Progress remains in_progress until
+independent review. No owner question is pending. Delegate task resolved as self;
+Pro concurrency is 0.
+
+Controller must synchronize master and provide the recorded review base. The
+local master ref is stale; local turn-start HEAD is
+2b35f2602fdce5d3bfd73f5943d996a3e14d2cad. Local diff has no file deletions.
+Rerun focused tests and native harness, replacing media, if integration changes
+source. Native harness command: python3 deploy/run_engine_editor_playtest.py
+--display "$DISPLAY". The harness uses target synthetic profiles and never starts
+an X server. See ENGINE_EDITOR.txt for user controls and interface scope.

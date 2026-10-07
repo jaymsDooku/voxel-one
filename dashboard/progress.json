@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T14:57:55.883465+00:00",
+  "updatedAt": "2026-10-07T15:48:16.260921+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,41 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "36343134366466332d316366392d343637312d623364612d373436613466356165303163",
+      "title": "Voxel One Game Engine Editor",
+      "description": "Building native project workspace and validating City Builder entry and return.",
+      "evidence": [
+        {
+          "kind": "image",
+          "label": "engine-editor-workspace.png — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36343134366466332d316366392d343637312d623364612d373436613466356165303163/dashboard/evidence/engine-editor-workspace.png"
+        },
+        {
+          "kind": "image",
+          "label": "engine-editor-city-play.png — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36343134366466332d316366392d343637312d623364612d373436613466356165303163/dashboard/evidence/engine-editor-city-play.png"
+        },
+        {
+          "kind": "image",
+          "label": "engine-editor-assets.png — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36343134366466332d316366392d343637312d623364612d373436613466356165303163/dashboard/evidence/engine-editor-assets.png"
+        },
+        {
+          "kind": "link",
+          "label": "Editor test report — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36343134366466332d316366392d343637312d623364612d373436613466356165303163/dashboard/evidence/engine-editor-tests.json"
+        },
+        {
+          "kind": "image",
+          "label": "Direct editor CLI launch — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36343134366466332d316366392d343637312d623364612d373436613466356165303163/dashboard/evidence/engine-editor-cli.png"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Native editor implemented; 18 focused tests, package build, real X11 Playtest and direct CLI launch passed. Four fresh images pending controller publication and independent review.",
+      "updatedAt": "2026-10-07T15:48:16.260921+00:00"
+    },
     {
       "id": "65373939316464372d633131352d346232312d393633612d366138613766363134353034",
       "title": "Continuous painted road lines",

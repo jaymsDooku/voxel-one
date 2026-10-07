@@ -1,0 +1,145 @@
+{
+  "task": "Native Voxel One Game Engine Editor interface",
+  "date": "2026-10-07T15:48:16.260921+00:00",
+  "branch": "feature/queue-36343134366466332d316366392d343637312d623364612d373436613466356165303163",
+  "turnStartHead": "2b35f2602fdce5d3bfd73f5943d996a3e14d2cad",
+  "environment": "Linux X11, Mesa software rendering, Oracle JDK 21.0.5. Inherited assigned DISPLAY and XAUTHORITY; no new X server. Isolated synthetic city and user home under target/editor-profile and target/editor-home.",
+  "scope": "Engine workspace for the active City Builder or Sandbox game, scene group inspector, existing voxel asset tool, Play/Return controls, local city-time pause, --editor startup option. Arbitrary game creation and code editing are not implemented.",
+  "checks": [
+    {
+      "command": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 MAVEN_OPTS=\"-Djava.io.tmpdir=$PWD/target/tmp\" mvn -q -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=EngineEditorTest,ControlsTest,CityTest test",
+      "expected": "Focused tests pass, including legacy custom F11 migration.",
+      "observed": "Exit 0; 18 tests, 0 failures, 0 errors, 0 skipped.",
+      "suites": [
+        {
+          "name": "EngineEditorTest",
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "ControlsTest",
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "CityTest",
+          "tests": 10,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      ]
+    },
+    {
+      "command": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 MAVEN_OPTS=\"-Djava.io.tmpdir=$PWD/target/tmp\" mvn -q -Dmaven.repo.local=target/maven-cache -DskipTests package",
+      "expected": "Package engine successfully.",
+      "observed": "Exit 0. Tests were run separately, not by this package command."
+    },
+    {
+      "command": "python3 deploy/run_engine_editor_playtest.py --display \"$DISPLAY\"",
+      "expected": "Real GLFW callbacks consume workspace input and support play, return, model tool and game controls.",
+      "observed": "Exit 0; fresh three PNG captures and engine-editor-playtest-result.txt.",
+      "entry": "Playtest: production Main render loop, X11 keys and clicks sent to the exact native window; synthetic City Builder profile. Browser playtesting does not apply to this native GLFW interface.",
+      "steps": [
+        {
+          "action": "Start production Main with City Builder config and workspace open via render-observer harness.",
+          "expected": "City Builder project and editor workspace are visible.",
+          "observed": "Workspace open; final workspace capture inspected."
+        },
+        {
+          "action": "Send W and F6 while workspace is open; compare city elapsed time.",
+          "expected": "Game view does not change and local city time stays paused.",
+          "observed": "Workspace remained open, view unchanged, elapsed time unchanged."
+        },
+        {
+          "action": "Press Up at first scene node, then Down at last node.",
+          "expected": "Selection wraps 0 -> 3 -> 0.",
+          "observed": "Both boundaries passed."
+        },
+        {
+          "action": "Press Enter, wait for city time to advance, press F6.",
+          "expected": "Same game resumes; existing isometric control toggles view.",
+          "observed": "Workspace closed, elapsed time increased, view toggled; gameplay captured."
+        },
+        {
+          "action": "Press F11, then M, then Escape and F11.",
+          "expected": "Workspace returns, existing asset editor opens and closes, workspace can reopen.",
+          "observed": "All state checks passed; asset editor captured."
+        },
+        {
+          "action": "Click Play at client position (100,75), then open/close Escape menu.",
+          "expected": "Mouse Play works and existing game menu still opens and closes.",
+          "observed": "All state checks passed."
+        }
+      ]
+    },
+    {
+      "command": "python3 deploy/run_engine_editor_cli.py --display \"$DISPLAY\"",
+      "expected": "Real Main --offline --editor --world <synthetic path> starts the engine workspace with City Builder selected by default.",
+      "observed": "Exit 0. Fresh engine-editor-cli.png inspected: engine editor, City Builder project, local paused runtime and Play/asset controls visible. App was terminated after capture; clean CLI shutdown is not claimed."
+    },
+    {
+      "command": "python3 -m py_compile deploy/run_engine_editor_playtest.py deploy/run_engine_editor_cli.py",
+      "expected": "Harness syntax valid.",
+      "observed": "Exit 0."
+    },
+    {
+      "command": "git diff --check",
+      "expected": "No whitespace errors.",
+      "observed": "Exit 0."
+    }
+  ],
+  "earlierAttempts": "Initial broad test run used default /tmp and hit read-only temporary-directory errors; it was cancelled and is not a full-suite pass. Native attempts exposed startup/timing and coordinate assumptions in the harness, plus a real cursor-tracking bug fixed in Main. Final focused tests and native run were repeated after the cursor fix and legacy-binding change.",
+  "limitations": [
+    "Multiplayer workspace live-server text is implemented; no multiplayer session was exercised for this item.",
+    "No synchronized review base was supplied yet. Local edits were audited against turn-start HEAD; no local file deletions. The local master ref is stale and was not used to undo existing merged work. Controller must synchronize and supply its review base; changed source requires fresh tests and media."
+  ],
+  "sourceSha256": {
+    "src/main/java/dev/jayms/Main.java": "4e8def74bc6f0df443f9ab24d1a6fe1b702df851c1d68c780424742902432ba2",
+    "src/main/java/dev/jayms/ui/EngineEditor.java": "eaae7520e1786b6f1cfc92e2d5581d0c59d8cbc513b727d5d62a193e46f3cd22",
+    "src/main/java/dev/jayms/ui/Controls.java": "2f5e63994ca8bd7fb3730843ec45ca29a21c99dd94e7eacf6cd0f56dbba0df3a",
+    "src/test/java/dev/jayms/EngineEditorTest.java": "f1afba1f800e21d2ccb4d8e1627f6e50b11b3a0f9a1cdd8fb2135ee198dc6d46",
+    "deploy/EngineEditorPlaytest.java": "6e0d1f56e7cc9d16b683a040347ccda9a2278c19bf9ba81da500be2ce7893739",
+    "deploy/run_engine_editor_playtest.py": "21fc915ed8578a8a43b85d9ccc24e96410a7d0595060a66b3c7ba38667e3c4a6",
+    "ENGINE_EDITOR.txt": "fd29090642bf52f47c82a6e3a121c8c93f75739004a6838f89ffd377a51c5b94",
+    "deploy/run_engine_editor_cli.py": "51a29f1674669baceb842eeaa1e940470610d8c2dded92626f359b6256991de0"
+  },
+  "media": [
+    {
+      "file": "engine-editor-workspace.png",
+      "bytes": 192330,
+      "sha256": "4fe92544a89cdd0d4661329443641ae43fb19fd030c1941e851ddb47cf755902",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36343134366466332d316366392d343637312d623364612d373436613466356165303163/dashboard/evidence/engine-editor-workspace.png",
+      "publication": "pending controller publication",
+      "inspection": "Fresh final-source image visually inspected; no private profile or account data."
+    },
+    {
+      "file": "engine-editor-city-play.png",
+      "bytes": 516570,
+      "sha256": "c62c27d6093d900d19b5c9741499bfec115cecc46a2ebd97c69308d4cf5aeed9",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36343134366466332d316366392d343637312d623364612d373436613466356165303163/dashboard/evidence/engine-editor-city-play.png",
+      "publication": "pending controller publication",
+      "inspection": "Fresh final-source image visually inspected; no private profile or account data."
+    },
+    {
+      "file": "engine-editor-assets.png",
+      "bytes": 36703,
+      "sha256": "873e4c323b02991e66c1dad1ae8c5b3f0e359379ab08832569f4ef55b18f156e",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36343134366466332d316366392d343637312d623364612d373436613466356165303163/dashboard/evidence/engine-editor-assets.png",
+      "publication": "pending controller publication",
+      "inspection": "Fresh final-source image visually inspected; no private profile or account data."
+    },
+    {
+      "file": "engine-editor-cli.png",
+      "bytes": 55746,
+      "sha256": "80ce511f746de23037d90f497710ed1dee768459d2f6ac5ef895899fc171590c",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36343134366466332d316366392d343637312d623364612d373436613466356165303163/dashboard/evidence/engine-editor-cli.png",
+      "publication": "pending controller publication",
+      "inspection": "Fresh production CLI workspace image visually inspected; synthetic local profile only."
+    }
+  ]
+}
