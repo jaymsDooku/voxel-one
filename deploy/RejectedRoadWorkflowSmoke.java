@@ -99,12 +99,29 @@ public class RejectedRoadWorkflowSmoke {
                 click(80,218);click(80,154+28*2);require(RoadGeometry.section(city(),tools.selectedStreet).stream().allMatch(r->r.type()==2),"Edit retry road");
                 click(80,246);require(city().roads().stream().noneMatch(r->r.x()==50&&r.z()==160),"Delete retry road");
                 camera.focus(50,190,city().roads().get(0).y()+1);x("getwindowfocus");menu(1);point(40,180);point(60,200);
-                require(city().roads().stream().anyMatch(r->r.x()==50&&r.z()==180),"Right-angle first leg retained");
-                require(city().roads().stream().anyMatch(r->r.x()==60&&r.z()==190),"Right-angle second leg retained");
-                require(city().roads().stream().noneMatch(r->r.x()==50&&r.z()==190),"No diagonal shortcut");
-                capture="road-right-angle-regression.png";x("getwindowfocus");Thread.sleep(2000);
-                x("key","Escape");x("key","F10");Thread.sleep(2000);
-                Files.writeString(out.resolve("results.json"),"{\"status\":\"passed\",\"checks\":[\"budget rejection retains anchor\",\"retry has no gap\",\"success advances chain\",\"selection/edit/delete regression\",\"right-angle base route preserved\"],\"profile\":\"isolated synthetic city\",\"platform\":\"Linux inherited X11 Mesa\"}");
+                require(city().roads().stream().noneMatch(r->r.x()==50&&r.z()==180),"No unwanted first cardinal leg");
+                require(city().roads().stream().noneMatch(r->r.x()==60&&r.z()==190),"No unwanted second cardinal leg");
+                require(city().roads().stream().anyMatch(r->r.x()==50&&r.z()==190),"Straight diagonal center built");
+                capture="road-diagonal.png";x("getwindowfocus");Thread.sleep(2000);
+                x("key","Escape");point(50,190);
+                require(tools.selectedStreet!=0,"Diagonal road selectable");
+                int diagonalId=tools.selectedStreet;
+                click(80,218);click(80,154+28*3);
+                require(RoadGeometry.section(city(),diagonalId).stream().allMatch(r->r.type()==3),"Diagonal widens to four lanes");
+                require(city().roads().stream().noneMatch(r->r.x()==50&&r.z()==180),"Edit keeps diagonal heading");
+                capture="road-diagonal-edited.png";x("getwindowfocus");Thread.sleep(1000);
+                click(80,246);require(RoadGeometry.section(city(),diagonalId).isEmpty(),"Diagonal deletion removes section");
+                for(int type=0;type<=3;type++) {
+                    int base=210+type*10;
+                    camera.focus(50,base+3,city().roads().get(0).y()+1);x("getwindowfocus");menu(type);
+                    point(40,base);point(60,base+7);
+                    require(city().roads().stream().anyMatch(r->r.x()==50&&java.lang.Math.abs(r.z()-(base+3))<=1),"Shallow heading built type "+type);
+                    require(city().roads().stream().noneMatch(r->r.x()==55&&r.z()==base),"Shallow heading has no cardinal leg type "+type);
+                    x("key","Escape");
+                }
+                capture="road-shallow.png";x("getwindowfocus");Thread.sleep(1000);
+                x("key","F10");Thread.sleep(2000);
+                Files.writeString(out.resolve("results.json"),"{\"status\":\"passed\",\"checks\":[\"budget rejection retains anchor\",\"retry has no gap\",\"success advances chain\",\"selection/edit/delete regression\",\"straight diagonal road\",\"diagonal edit/delete\",\"shallow headings for all road types\"],\"profile\":\"isolated synthetic city\",\"platform\":\"Linux inherited X11 Mesa\"}");
             } catch(Throwable e) {
                 failure=e;
                 try { Files.writeString(out.resolve("failure.txt"),e.getClass().getSimpleName()+": "+e.getMessage()); } catch(Exception ignored) {}

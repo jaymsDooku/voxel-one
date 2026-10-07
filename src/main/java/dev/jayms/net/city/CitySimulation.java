@@ -2075,7 +2075,7 @@ public final class CitySimulation {
         int bx=(int)Math.floor(points.get(1).x()), bz=(int)Math.floor(points.get(1).z());
         if (Math.abs((long)x-bx)+Math.abs((long)z-bz)>256) throw new IllegalArgumentException("Rail too long: use shorter sections");
         var cells=new LinkedHashSet<Cell>();
-        var route = RoadRoute.points(points);
+        var route = RoadRoute.railPoints(points);
         for (int i = 1; i < route.size(); i++) {
             var a = route.get(i - 1);
             var b = route.get(i);

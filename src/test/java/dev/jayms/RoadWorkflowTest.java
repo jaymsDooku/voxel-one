@@ -32,8 +32,7 @@ class RoadWorkflowTest {
                 List.of(p(140,110),p(90,110)),List.of(p(80,80),p(130,130)),
                 List.of(p(80,80),p(110,130)))) {
             var snap=RoadGeometry.snapZone(pair.get(0),pair.get(1),type,frame);
-            if(pair.equals(List.of(p(80,80),p(130,130)))) assertEquals(pair.get(1),snap, "Right-angle route goes around zone");
-            else assertNotEquals(pair.get(1),snap);
+            assertNotEquals(pair.get(1),snap, "Direct route stops before zone");
             assertFalse(RoadGeometry.surfaces(List.of(pair.get(0),snap),type).keySet().stream()
                 .anyMatch(c->zone.polygon().contains(c.x()+.5f,c.z()+.5f)));
         }

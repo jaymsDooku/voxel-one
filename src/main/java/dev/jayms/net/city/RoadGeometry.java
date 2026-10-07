@@ -21,12 +21,9 @@ public final class RoadGeometry {
             while (true) {
                 result.add(new Polygon.Point(x,z));
                 if (x == bx && z == bz) break;
-                if (type == 0) { if (x != bx) x += sx; else z += sz; }
-                else {
-                    int twice = error*2;
-                    if (twice > -dz) { error -= dz; x += sx; }
-                    if (twice < dx) { error += dx; z += sz; }
-                }
+                int twice = error*2;
+                if (twice > -dz) { error -= dz; x += sx; }
+                if (twice < dx) { error += dx; z += sz; }
             }
         }
         return result;

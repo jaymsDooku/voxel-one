@@ -282,7 +282,7 @@ public final class CityTools {
         if (hover != null) {
             var p = project(hover.x(), ground, hover.z(), projection, view, w, h);
             var last = points.get(points.size() - 1);
-            var route = tool == 4 || tool == 11 ? RoadRoute.points(List.of(last, hover)) : List.of(last, hover);
+            var route = tool == 11 ? RoadRoute.railPoints(List.of(last, hover)) : tool == 4 ? RoadRoute.points(List.of(last, hover)) : List.of(last, hover);
             for (int i = 1; i < route.size(); i++) {
                 var a = route.get(i - 1);
                 var b = route.get(i);
@@ -564,7 +564,7 @@ public final class CityTools {
                         : tool == 10 ? "Inspect an adult citizen, then click destination airport | Citizen walks to a connected origin"
                         : tool == 11 ? "Rail: two endpoints | $8 per new cell | Two stations and a depot start service | Esc: cancel"
                         : tool == 4
-                        ? roadMenu ? "Choose a road | Esc: cancel" : RoadTypes.NAMES[roadType] + " | Click to chain: X then Z bend | Zone edges snap | $4 per changed cell | Esc: finish"
+                        ? roadMenu ? "Choose a road | Esc: cancel" : RoadTypes.NAMES[roadType] + " | Click to chain straight sections | Zone edges snap | $4 per changed cell | Esc: finish"
                         : tool >= 0 && tool < 4
                                 ? "Click convex polygon corners | Enter: zone | Backspace: undo |"
                                         + " Esc: cancel"
