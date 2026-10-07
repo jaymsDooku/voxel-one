@@ -1374,6 +1374,11 @@ public class Main {
                     1.4f);
         if (city().config().city() && !inventoryHud.open && !menu.open && !lightColors.open)
         {
+            cityTools.surface(world, world.editsVersion(), (x, z) -> {
+                for (int y = Terrain.MAX_Y; y >= Terrain.MIN_Y; y--)
+                    if (world.sample(x, y, z) != 0) return y;
+                return Terrain.MIN_Y;
+            });
             cityTools.hover((float) mouseX * framebufferWidth / windowSize[0],
                     (float) mouseY * framebufferHeight / windowSize[1],
                     framebufferWidth, framebufferHeight, projection, view, city());

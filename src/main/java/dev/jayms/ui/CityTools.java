@@ -16,6 +16,32 @@ import java.util.function.Consumer;
 
 /** Isometric planning tools. Click polygon corners, then explicitly confirm with Enter. */
 public final class CityTools {
+    private java.util.function.IntBinaryOperator surface;
+    private final Map<Polygon.Cell, Integer> surfaceCache = new HashMap<>();
+
+    private Object surfaceWorld;
+    private long surfaceRevision;
+
+    /** Cache columns until the world changes; edits invalidate the visible guide immediately. */
+    public void surface(Object world, long revision, java.util.function.IntBinaryOperator sampler) {
+        if (surfaceWorld != world || surfaceRevision != revision || surfaceCache.size() > 8192)
+            surfaceCache.clear();
+        surfaceWorld = world;
+        surfaceRevision = revision;
+        surface = sampler;
+    }
+
+    private float height(float x, float z, float fallback) {
+        if (surface == null) return fallback;
+        var cell = new Polygon.Cell((int) Math.floor(x), (int) Math.floor(z));
+        return surfaceCache.computeIfAbsent(cell, c -> surface.applyAsInt(c.x(), c.z())) + 1.04f;
+    }
+
+    private Vector2f guideProject(float x, float ignoredHeight, float z, Matrix4f projection,
+            Matrix4f view, int w, int h) {
+        return project(x, height(x, z, ignoredHeight), z, projection, view, w, h);
+    }
+
     public boolean dashboardRequested;
     public int specialKind, specialLevel = 1, specialOwner;
     private int ownerIndex;
@@ -225,13 +251,29 @@ public final class CityTools {
         float t = (ground - a.y) / (b.y - a.y);
         if (!Float.isFinite(t) || t < 0 || t > 1) return null;
         var hit = new Vector3f(a).lerp(b, t);
+        if (surface != null && (tool <= 4 || tool == 11)) {
+            float nearest = Float.POSITIVE_INFINITY;
+            Vector3f selected = null;
+            // Test every column-top elevation, retaining the first surface along the ray.
+            for (int level = Terrain.MIN_Y; level <= Terrain.MAX_Y; level++) {
+                float candidate = (level + 1.04f - a.y) / (b.y - a.y);
+                if (!Float.isFinite(candidate) || candidate < 0 || candidate > 1 || candidate >= nearest) continue;
+                var point = new Vector3f(a).lerp(b, candidate);
+                if (Math.abs(height(point.x, point.z, ground) - (level + 1.04f)) < .001f) {
+                    nearest = candidate;
+                    selected = point;
+                }
+            }
+            if (selected == null) return null;
+            hit = selected;
+        }
         var raw = new Polygon.Point(Math.round(hit.x * 2) / 2f, Math.round(hit.z * 2) / 2f);
         if (tool == 6 || tool == 7) return raw;
         Polygon.Point best = raw;
         float distance = 10 * 10;
         if (!points.isEmpty()) {
             for (var target : BuildingGuide.targets(points.get(0))) {
-                var screen = project(target.x(), ground, target.z(), projection, view, w, h);
+                var screen = guideProject(target.x(), ground, target.z(), projection, view, w, h);
                 if (screen != null && screen.distanceSquared(x, y) < distance
                         && BuildingGuide.distanceSquared(raw, target) <= 4) {
                     best = target;
@@ -259,9 +301,9 @@ public final class CityTools {
         for (int radius : BuildingGuide.RADII) {
             for (int i = 0; i < 180; i++) {
                 double a = i * Math.PI * 2 / 180, b = (i + 1) * Math.PI * 2 / 180;
-                edge(ui, project(origin.x() + radius * (float) Math.cos(a), ground,
+                edge(ui, guideProject(origin.x() + radius * (float) Math.cos(a), ground,
                                 origin.z() + radius * (float) Math.sin(a), projection, view, w, h),
-                        project(origin.x() + radius * (float) Math.cos(b), ground,
+                        guideProject(origin.x() + radius * (float) Math.cos(b), ground,
                                 origin.z() + radius * (float) Math.sin(b), projection, view, w, h),
                         .35f, .8f, 1);
             }
@@ -269,25 +311,32 @@ public final class CityTools {
         for (int direction = 0; direction < 8; direction++) {
             double angle = direction * Math.PI / 4;
             for (int d = 3; d <= 60; d += 3) {
-                var p = project(origin.x() + d * (float) Math.cos(angle), ground,
+                var p = guideProject(origin.x() + d * (float) Math.cos(angle), ground,
                         origin.z() + d * (float) Math.sin(angle), projection, view, w, h);
                 if (p != null && p.x >= 16 && p.x < w - 16 && p.y >= 130 && p.y < h - 200)
                     ui.rectangle(p.x - 1, p.y - 1, 3, 3, .6f, .85f, 1, .8f);
             }
         }
         for (var target : BuildingGuide.targets(origin)) {
-            var p = project(target.x(), ground, target.z(), projection, view, w, h);
+            var p = guideProject(target.x(), ground, target.z(), projection, view, w, h);
             if (p != null) ui.rectangle(p.x - 3, p.y - 3, 6, 6, .4f, .85f, 1, 1);
         }
         if (hover != null) {
-            var p = project(hover.x(), ground, hover.z(), projection, view, w, h);
+            var p = guideProject(hover.x(), ground, hover.z(), projection, view, w, h);
             var last = points.get(points.size() - 1);
             var route = tool == 11 ? RoadRoute.railPoints(List.of(last, hover)) : tool == 4 ? RoadRoute.points(List.of(last, hover)) : List.of(last, hover);
             for (int i = 1; i < route.size(); i++) {
                 var a = route.get(i - 1);
                 var b = route.get(i);
-                edge(ui, project(a.x(), ground, a.z(), projection, view, w, h),
-                        project(b.x(), ground, b.z(), projection, view, w, h), 1, 1, .2f);
+                int steps = Math.max(1, (int) Math.ceil(Math.hypot(b.x() - a.x(), b.z() - a.z())));
+                Vector2f previous = guideProject(a.x(), ground, a.z(), projection, view, w, h);
+                for (int step = 1; step <= steps; step++) {
+                    float fraction = (float) step / steps;
+                    var next = guideProject(a.x() + (b.x() - a.x()) * fraction, ground,
+                            a.z() + (b.z() - a.z()) * fraction, projection, view, w, h);
+                    edge(ui, previous, next, 1, 1, .2f);
+                    previous = next;
+                }
             }
             if (p != null) ui.rectangle(p.x - 5, p.y - 5, 10, 10, 1, 1, .2f, 1);
         }
@@ -484,13 +533,13 @@ public final class CityTools {
         }
         for (int i = 0; i < points.size(); i++) {
             var a = points.get(i);
-            var p = project(a.x(), ground, a.z(), projection, view, w, h);
+            var p = guideProject(a.x(), ground, a.z(), projection, view, w, h);
             if (p != null) ui.rectangle(p.x - 4, p.y - 4, 8, 8, 1, valid ? 1 : .2f, .2f, 1);
             if (i > 0) {
                 var b = points.get(i - 1);
                 edge(
                         ui,
-                        project(b.x(), ground, b.z(), projection, view, w, h),
+                        guideProject(b.x(), ground, b.z(), projection, view, w, h),
                         p,
                         1,
                         valid ? 1 : .2f,
@@ -502,8 +551,8 @@ public final class CityTools {
             var b = points.get(points.size() - 1);
             edge(
                     ui,
-                    project(a.x(), ground, a.z(), projection, view, w, h),
-                    project(b.x(), ground, b.z(), projection, view, w, h),
+                    guideProject(a.x(), ground, a.z(), projection, view, w, h),
+                    guideProject(b.x(), ground, b.z(), projection, view, w, h),
                     1,
                     valid ? 1 : .2f,
                     .2f);

@@ -15,6 +15,21 @@
   },
   "items": [
     {
+      "id": "30333331373330302d353838302d343236302d613732392d623434653263633731336531",
+      "title": "Terrain-aware road direction guide",
+      "description": "Implementing surface-aware guide and matching cursor selection; native playtest pending",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Native guide capture (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-30333331373330302d353838302d343236302d613732392d623434653263633731336531/dashboard/evidence/height-guide-preview.png"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Implementation verified: 25 focused tests and native unequal-height workflow, MAX_Y cancellation and flat-road regression passed. Media saved locally; awaiting controller publication and independent review.",
+      "updatedAt": "2026-10-07T09:12:43+00:00"
+    },
+    {
       "id": "carrier-routes",
       "title": "Container carriers and port shipping routes",
       "description": "Adding automatic water routes and animated voxel container ships.",
