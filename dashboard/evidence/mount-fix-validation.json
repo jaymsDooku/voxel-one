@@ -1,0 +1,215 @@
+{
+  "status": "ready_for_controller_ci_and_independent_review",
+  "timestamp": "2026-10-07T13:55:53.721952+00:00",
+  "parentHead": "26a221f18a29db1daf8db75419f23a0938179d39",
+  "reviewBase": "6770d9b9fd0f2bf56674e5cf5ab77f499f5f71c5",
+  "changes": [
+    "Replace Java 21 list methods with Java 17 indexed access in production, tests and native harness",
+    "Sweep lane movement against parked and player-ridden mounts at 0.65 metres; exclude own mount and mounts represented by valid NPC households",
+    "Park routine NPC dismounts on nearby passable nonroad ground within 4 metres, outside door approaches and actor occupancy"
+  ],
+  "tests": [
+    {
+      "command": "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -DargLine=-Djava.io.tmpdir=\"$PWD/target/tmp\" -Dtest=RoadTrafficTest,CityTimeTest,AgricultureTest test",
+      "result": "Exit 0: 40 tests passed, zero failures/errors/skips, under Java 17."
+    },
+    {
+      "command": "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -DskipTests package",
+      "result": "Exit 0: Java 17 package succeeded; production class-file major version 61."
+    }
+  ],
+  "history": [
+    "Java 17 exposed three additional test getFirst calls; fixed",
+    "Initial new test release endpoint crossed the fixture home entrance; corrected endpoint to 5.5 metres",
+    "Initial swept-clearance integration failed daily-life regression because old NPC parking used road lanes; changed routine dismount parking",
+    "Two intermediate runs interrupted intentionally with exit 130 after source changes; no pass claimed"
+  ],
+  "playtest": {
+    "command": "python3 deploy/run_traffic_gameplay_smoke.py --display \"$DISPLAY\" --artifact-prefix mount-fix-",
+    "environment": "Linux X11 Mesa; inherited assigned DISPLAY/XAUTHORITY; synthetic target/traffic-home; native Main",
+    "steps": "Real xdotool callbacks and F10; synthetic ECS actors invoke production travel; requested queues/release; crossings and merges both orders; private forecourt; rider approaching parked horse then obstacle moved to opposite lane",
+    "expected": "Rider stops at least 0.65 metres from mount, retains route, resumes after clearance; own mount does not duplicate rider obstacle; existing workflows remain valid",
+    "observed": "Exit 0; all native assertions passed; 24 screenshots and three fresh F10 clips. Parked-horse waiting/released screenshots visually inspected. First/middle/last frames of all three clips decoded; horse/crossing midpoint inspected.",
+    "browser": "Not applicable to native Java game"
+  },
+  "sources": {
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "bc7d64c1b618337fa297a54425dcc581f6794d6b2de48d15b63112da796dd142",
+    "src/test/java/dev/jayms/RoadTrafficTest.java": "87e414be18e6bd148b34ef3967924dccceecd49e1d5045e56ae7569252d39a2c",
+    "deploy/TrafficGameplaySmoke.java": "222e984ebaf86e96be5a424e796302362d23a1f38d964195ea0e7bf8c7ae78d3"
+  },
+  "media": [
+    {
+      "file": "dashboard/evidence/mount-fix-road-traffic-game-crossing-false-cleared.png",
+      "bytes": 1030420,
+      "sha256": "acf4e6660e47795cd6cd10ebb0fe5b7e3bb3a92ab0b8b574085a2bbe5478e10d"
+    },
+    {
+      "file": "dashboard/evidence/mount-fix-road-traffic-game-crossing-false-start.png",
+      "bytes": 1019938,
+      "sha256": "7fa6d168c6d51622e5a96991ada841297378c6bc3760ef2d1fae913411e808f6"
+    },
+    {
+      "file": "dashboard/evidence/mount-fix-road-traffic-game-crossing-true-cleared.png",
+      "bytes": 985082,
+      "sha256": "aad4b2bdb855fa8a9856a475a55650325a2320b32990eb848d34b5d55c5e31a3"
+    },
+    {
+      "file": "dashboard/evidence/mount-fix-road-traffic-game-crossing-true-start.png",
+      "bytes": 1039987,
+      "sha256": "ab5baf3976e3ae79fe2a007639c8b70adaa65b320f9faa2e01fe9c31909a418b"
+    },
+    {
+      "file": "dashboard/evidence/mount-fix-road-traffic-game-crossing.mp4",
+      "bytes": 5512454,
+      "sha256": "690efabc64c1005df0815b07ca770655e6dc255e1e9c5bd2e78434fe9075da65"
+    },
+    {
+      "file": "dashboard/evidence/mount-fix-road-traffic-game-forecourt-cleared.png",
+      "bytes": 1055990,
+      "sha256": "fbac894e30d887e85e2ceed84f5afd129570fb80a4c917c92b91593ac1d4af7c"
+    },
+    {
+      "file": "dashboard/evidence/mount-fix-road-traffic-game-forecourt-start.png",
+      "bytes": 1052044,
+      "sha256": "a1628ee903bdec4946f16203eb546c022e62146aefc4734c98af3f5735859dc7"
+    },
+    {
+      "file": "dashboard/evidence/mount-fix-road-traffic-game-horses-resumed.png",
+      "bytes": 1002157,
+      "sha256": "f48ca8611089d2a7e2f088d21fc9cc751f7148869cc4ce53302c604b7eb33d09"
+    },
+    {
+      "file": "dashboard/evidence/mount-fix-road-traffic-game-horses-waiting.png",
+      "bytes": 991519,
+      "sha256": "6a4f945c44bc2992d8fd1a4a255425179dc358b8be2792faf5851229553f8db8"
+    },
+    {
+      "file": "dashboard/evidence/mount-fix-road-traffic-game-horses.mp4",
+      "bytes": 564412,
+      "sha256": "6d1d840b9b6479483f7b8c54ea278c4371bcab7975a9bd2815267634b91280da"
+    },
+    {
+      "file": "dashboard/evidence/mount-fix-road-traffic-game-opposing-merge-false-cleared.png",
+      "bytes": 1033504,
+      "sha256": "b67171d96780cb840eeff2acb80327cbca9518b9ac896548c80538d7a33d03cd"
+    },
+    {
+      "file": "dashboard/evidence/mount-fix-road-traffic-game-opposing-merge-false-start.png",
+      "bytes": 1029768,
+      "sha256": "4df2e72161be14d670cbc2ba58f052bafafc62327b08c37013614f9f8673ee97"
+    },
+    {
+      "file": "dashboard/evidence/mount-fix-road-traffic-game-opposing-merge-true-cleared.png",
+      "bytes": 1052048,
+      "sha256": "88f40db37d4c90fb6bfbd88b431a61b161c26048259126c3dcaacd4ac64e8b35"
+    },
+    {
+      "file": "dashboard/evidence/mount-fix-road-traffic-game-opposing-merge-true-start.png",
+      "bytes": 1054196,
+      "sha256": "30a10a5e87438b131055ded67a70b8ad497f80424072063490366d23a7caa08c"
+    },
+    {
+      "file": "dashboard/evidence/mount-fix-road-traffic-game-parked-horse-released.png",
+      "bytes": 1032843,
+      "sha256": "9cdbd06922cacf10f5b9caa43ff9953b4d4fd5add5778f8c517907ddd3707686"
+    },
+    {
+      "file": "dashboard/evidence/mount-fix-road-traffic-game-parked-horse-waiting.png",
+      "bytes": 1036956,
+      "sha256": "49e716ca98d86228b6564e13c215b5725897a7b73a2283229e7d6bef1a3c5d1c"
+    },
+    {
+      "file": "dashboard/evidence/mount-fix-road-traffic-game-pedestrians-resumed.png",
+      "bytes": 975860,
+      "sha256": "4bae97a4435d8257f9374a10df0231ad192948f25d7aa4bb3b33de2aa27e5a2f"
+    },
+    {
+      "file": "dashboard/evidence/mount-fix-road-traffic-game-pedestrians-waiting.png",
+      "bytes": 649870,
+      "sha256": "b17e008f018a116efc84f76fefd0d25bd47cda8097632b20a6f98cb367f6e422"
+    },
+    {
+      "file": "dashboard/evidence/mount-fix-road-traffic-game-pedestrians.mp4",
+      "bytes": 560682,
+      "sha256": "bde5c1ad4e06773fcfd401a17ed0ce35dd1d1f48ba1fd145eaed336598e92869"
+    },
+    {
+      "file": "dashboard/evidence/mount-fix-road-traffic-game-queued-merge-false-cleared.png",
+      "bytes": 1038017,
+      "sha256": "521206d64cc4dd4f6afb8ae16b9ea900a26f39d0a27b4d174083ddb750235a61"
+    },
+    {
+      "file": "dashboard/evidence/mount-fix-road-traffic-game-queued-merge-false-start.png",
+      "bytes": 1036162,
+      "sha256": "d415c2c12f4c9324e813f32ef56612ea29f4df2f6a11317a4c7344704b534f93"
+    },
+    {
+      "file": "dashboard/evidence/mount-fix-road-traffic-game-queued-merge-true-cleared.png",
+      "bytes": 1048280,
+      "sha256": "ac18c1b042b9707e308ba3646167587abd7774d06c15e82aaa9f683e510e7a83"
+    },
+    {
+      "file": "dashboard/evidence/mount-fix-road-traffic-game-queued-merge-true-start.png",
+      "bytes": 1052218,
+      "sha256": "2f5a597bf4ccedf62d00d7a6276d16170402436c24550696b06bb476c4452fef"
+    },
+    {
+      "file": "dashboard/evidence/mount-fix-road-traffic-game-short-merge-false-cleared.png",
+      "bytes": 1029514,
+      "sha256": "96ae48175f50c54123b5ff3b6b898021bb2232524bdbfb28778faf073597d4f7"
+    },
+    {
+      "file": "dashboard/evidence/mount-fix-road-traffic-game-short-merge-false-start.png",
+      "bytes": 1026671,
+      "sha256": "77a97207fc690fe16593c96a072a35cf546442442ae3522f8b53fac88e862ca7"
+    },
+    {
+      "file": "dashboard/evidence/mount-fix-road-traffic-game-short-merge-true-cleared.png",
+      "bytes": 1050605,
+      "sha256": "3478b0e386d83eaa7888cf0746581380259fbcd7472faf3e5dd96fb2760ff346"
+    },
+    {
+      "file": "dashboard/evidence/mount-fix-road-traffic-game-short-merge-true-start.png",
+      "bytes": 1048071,
+      "sha256": "9da9c5471e2e2a5df33df78d6fe92cb9b2ec3336193469cd940870329dd070bf"
+    },
+    {
+      "file": "dashboard/evidence/mount-fix-road-traffic-native-gameplay.json",
+      "bytes": 783,
+      "sha256": "08d3e47b5d91306d760c3f54b691aea318d50f696d1e149ee1fd9a2408ec6b0f"
+    }
+  ],
+  "ci": "Current-head all-platform CI retry reserved to controller; no remote CI pass claimed.",
+  "baseAudit": "No files deleted against review base; Main.java and Jeep.java byte-identical to base.",
+  "publication": "Pending controller publication",
+  "suites": [
+    {
+      "name": "RoadTrafficTest",
+      "tests": 26,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "CityTimeTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "AgricultureTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "checks": [
+    "Source and media hashes match tested files",
+    "24 fresh native screenshots and three F10 clips; each clip below 6 MiB",
+    "No review-base files deleted; Main.java and Jeep.java match base",
+    "git diff --check passed"
+  ],
+  "intendedReplacements": "NPC parkHorse now selects nearby passable nonroad ground instead of road-centre parking. No unrelated features or files removed."
+}

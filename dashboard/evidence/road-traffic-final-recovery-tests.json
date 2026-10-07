@@ -1,0 +1,308 @@
+{
+  "scope": "Road traffic recovery: conflict resolution, client convergence and pavement access merges",
+  "environment": {
+    "platform": "Linux x86_64",
+    "jdk": "Oracle JDK 21.0.5",
+    "maven": "3.9.11",
+    "dependency_cache": "/tmp/voxel-m2",
+    "graphics": "Mesa surfaceless EGL; synthetic city state; production CitySimulation.travel and Overlay"
+  },
+  "changes": [
+    "Preserved camera and traffic progress entries and all 12 business catalog tests, including terrain CITY6/CITY7 migration coverage. Working conflict markers removed; index remains unmerged for controller staging.",
+    "Road convergence waits for both clients and endpoint (61,25); exact roads checked at late join and server restart. Windows diagnostic had 741 old roads versus 789 roads including the extension.",
+    "Pavement access merges can retreat onto passable ground and retain collision checks within 0.65 metres of road cells. Both update orders retain pedestrian spacing and drain."
+  ],
+  "focused": {
+    "command": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -Djava.io.tmpdir=$PWD/target/tmp -DargLine=-Djava.io.tmpdir=$PWD/target/tmp -Dtest=CityMultiplayerTest,RoadTrafficTest,BusinessCatalogTest test",
+    "exit": 1,
+    "tests": 25,
+    "failures": 0,
+    "errors": 1,
+    "observed": "24 traffic/catalog tests passed; CityMultiplayerTest could not bind server socket: java.net.SocketException: Operation not permitted."
+  },
+  "initial_broad": {
+    "command": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -Djava.io.tmpdir=$PWD/target/tmp -DargLine=-Djava.io.tmpdir=$PWD/target/tmp '-Dtest=RoadTrafficTest,City*Test,!CityMultiplayerTest,ManufacturingTest,AgricultureTest,MayorDashboardTest,DemolitionTest,IsometricCameraTest,PlayerCameraTest,MetricHistoryTest,SpecialBuildingsTest,BusinessCatalogTest,BusinessDashboardTest' test",
+    "exit": 1,
+    "tests": 153,
+    "failures": 1,
+    "errors": 0,
+    "observed": "ManufacturingTest.expandedCityCompletesThreeDailyRoutinesWithoutTrappingMineWorkers: expected 12 sleeping workers, observed 7. Access-merge deadlock diagnosed and fixed."
+  },
+  "regression_control": {
+    "command": [
+      "/tmp/apache-maven-3.9.11/bin/mvn",
+      "-o",
+      "-q",
+      "-Dmaven.repo.local=/tmp/voxel-m2",
+      "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/31656461353163612d376237342d343939392d623262332d366535613763363439316637/target/tmp",
+      "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/31656461353163612d376237342d343939392d623262332d366535613763363439316637/target/tmp",
+      "-Dtest=RoadTrafficTest#pavementMergeCanClearBackOntoBuildingAccessPath",
+      "test"
+    ],
+    "exit": 1,
+    "tests": "1",
+    "failures": "1",
+    "messages": [
+      "Joining traveller must clear back onto the access path ==> expected: <true> but was: <false>"
+    ]
+  },
+  "integration": {
+    "command": "python3 deploy/run_road_traffic_smoke.py",
+    "exit": 0,
+    "steps": [
+      "Build synthetic city with production terrain/road topology. Place three pedestrians on forward pavement with a held leader. Advance both followers with production travel for 0.1 seconds.",
+      "Repeat on forward carriageway with three mounted citizens.",
+      "Advance leader then followers for 0.1 seconds. Capture before/after production travel state using real EGL OpenGL and Overlay."
+    ],
+    "expected": "Followers stay still with Waiting for traffic, retain routes, then all three move after leader moves.",
+    "observed": "Passed for pedestrians and horses. Four fresh PNG captures. Pedestrians: x 1.50/0.85/0.20 then 1.72/1.07/0.42. Horses: x 1.50/0.50/-0.50 then 2.05/1.05/0.05."
+  },
+  "playtest": {
+    "entry": "Playtest: full running-window GLFW/F10 workflow blocked; integration captures do not replace it.",
+    "command": "Xvfb :119 -screen 0 1280x720x24 -nolisten tcp; DISPLAY=:119 xdotool getdisplaygeometry",
+    "steps": [
+      "Start Xvfb with worktree-local TMPDIR.",
+      "Check X11 access before launching engine and sending real user input."
+    ],
+    "expected": "X11 display connection succeeds so real city input and F10 recording can run.",
+    "observed": "Xvfb process stayed alive, but xdotool getdisplaygeometry exited 1. Full engine workflow was not executed.",
+    "browser": "Voxel One is a native GLFW game; browser playtesting does not apply."
+  },
+  "media": [
+    {
+      "file": "dashboard/evidence/road-traffic-fresh-horses-resumed.png",
+      "sha256": "f8abd93a6ad7d4184ea157e1d608555bd18dd83fb519afeb8357e400aac22f68",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/road-traffic-fresh-horses-resumed.png",
+      "kind": "image",
+      "label": "Fresh live traffic integration capture; pending controller publication"
+    },
+    {
+      "file": "dashboard/evidence/road-traffic-fresh-horses.png",
+      "sha256": "974b17fd626c9b0f4cd7caa00e59ab476d693b9d49ad65c45942affad622117e",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/road-traffic-fresh-horses.png",
+      "kind": "image",
+      "label": "Fresh live traffic integration capture; pending controller publication"
+    },
+    {
+      "file": "dashboard/evidence/road-traffic-fresh-pedestrians-resumed.png",
+      "sha256": "6ba042193cb4469d3507ad1d10c01ef69fb0fcc797901075495e9acc81c05098",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/road-traffic-fresh-pedestrians-resumed.png",
+      "kind": "image",
+      "label": "Fresh live traffic integration capture; pending controller publication"
+    },
+    {
+      "file": "dashboard/evidence/road-traffic-fresh-pedestrians.png",
+      "sha256": "2a516038c506f2c7e8f76183cb74b82a7bb49969e9d44df036c5bd1155180974",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/road-traffic-fresh-pedestrians.png",
+      "kind": "image",
+      "label": "Fresh live traffic integration capture; pending controller publication"
+    }
+  ],
+  "required_remaining": [
+    "Controller stages resolved files and continues any pending rebase; developer did not stage or continue.",
+    "Run CityMultiplayerTest in a socket-capable controller environment and check Windows CI.",
+    "Exercise the running game with real input: directional lanes/pavements, a congested queue and release, bend/crossing regression; capture fresh F10 media.",
+    "Independent review of submitted head and published media."
+  ],
+  "publication": "All fresh media URLs are intended feature-branch URLs, pending controller publication. No developer commit, push, merge or deployment.",
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "52f766ffc43e0e22cee95973e57aa151ca39eb5d87a958a6e8c714a138e93947",
+    "src/main/java/dev/jayms/net/city/RoadTraffic.java": "ec326e5a8f0054f6075ba0a870fbde5a18682be3f4c4a1c18980dcaea3e08d3b",
+    "src/test/java/dev/jayms/RoadTrafficTest.java": "456c22808eedba086a78aea7ced3b2a7aadd66e10eda9a303515d5366078728a",
+    "src/test/java/dev/jayms/CityMultiplayerTest.java": "77b2fbfcf504e8f3ab4e678b6deb58aa3fb36fdd810161a12f8f46c08934306a",
+    "src/test/java/dev/jayms/BusinessCatalogTest.java": "992e56a59ad3696a0ffc76582149c4d2ac03da9acd7054f7ed576f7aaa926d91",
+    "deploy/RoadTrafficSmoke.java": "ef0eef6c16405e76edb010d769b7f92ecca464b626ea48af2efe54934c1f13ca",
+    "deploy/run_road_traffic_smoke.py": "552573a15e96304085891d0fd7bc325332f91dd5efc631ea966058250ce72b16"
+  },
+  "final_broad": {
+    "command": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -Djava.io.tmpdir=$PWD/target/tmp -DargLine=-Djava.io.tmpdir=$PWD/target/tmp '-Dtest=RoadTrafficTest,City*Test,!CityMultiplayerTest,ManufacturingTest,AgricultureTest,MayorDashboardTest,DemolitionTest,IsometricCameraTest,PlayerCameraTest,MetricHistoryTest,SpecialBuildingsTest,BusinessCatalogTest,BusinessDashboardTest' test",
+    "exit": 0,
+    "tests": 154,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "suites": [
+      {
+        "name": "dev.jayms.BusinessDashboardTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CityMaterialsTest",
+        "tests": "13",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.ManufacturingTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CityAddressesTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CityToolsTest",
+        "tests": "9",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.MayorDashboardTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CityCapitalTest",
+        "tests": "11",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.city.CityStockExchangeTest",
+        "tests": "10",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.PlayerCameraTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.SpecialBuildingsTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CityMetricsTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CityTimeTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CityBusinessTest",
+        "tests": "9",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.MetricHistoryTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.RoadTrafficTest",
+        "tests": "13",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CityTest",
+        "tests": "10",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.BusinessCatalogTest",
+        "tests": "12",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CityEconomyTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.DemolitionTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.AgricultureTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.IsometricCameraTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ],
+    "observed": "All selected checks passed, including all 12 workers sleeping during the three-day manufacturing regression and both access-merge update orders."
+  },
+  "historical_ci_context": {
+    "source": "Operator-provided sanitized diagnostics; not re-executed here",
+    "Windows": "Run37161503775 job111315715808: 201 tests, 1 CityMultiplayerTest road equality failure; RoadTrafficTest 12 passed.",
+    "Linux": "Operator reported passed on prior run; current local suite is separate.",
+    "macOS": "Jobs were cancelled; no pass claimed."
+  },
+  "final_focused": {
+    "command": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -Djava.io.tmpdir=$PWD/target/tmp -DargLine=-Djava.io.tmpdir=$PWD/target/tmp -Dtest=RoadTrafficTest,BusinessCatalogTest test",
+    "exit": 0,
+    "suites": [
+      {
+        "name": "dev.jayms.RoadTrafficTest",
+        "tests": "13",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.BusinessCatalogTest",
+        "tests": "12",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ],
+    "observed": "25 tests passed on final source: 13 traffic and 12 catalog tests, including both preserved terrain migration tests."
+  },
+  "checks": {
+    "git diff --check": "passed",
+    "progress JSON integrity": "passed",
+    "fresh images inspected": "all four inspected",
+    "delegation": "Both focused helper requests failed without proposals; independently resolved and closed as self. No delegated validation claimed."
+  }
+}

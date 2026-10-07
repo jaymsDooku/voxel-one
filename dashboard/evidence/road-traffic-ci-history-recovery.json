@@ -1,0 +1,10 @@
+{
+  "status": "working conflict resolved; controller stages and continues",
+  "resolution": "Preserved base progress entries and traffic historical evidence. CI success remains historical for its recorded head.",
+  "checks": [
+    "Progress JSON parses",
+    "Conflict markers absent",
+    "No staged deletions"
+  ],
+  "playtest": "Not run during documentation rebase handoff. Final-head integration, tests and fresh native captures remain pending."
+}

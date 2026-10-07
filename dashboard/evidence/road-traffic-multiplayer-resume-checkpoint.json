@@ -1,0 +1,18 @@
+{
+  "status": "checkpoint",
+  "environment": "Linux; Oracle JDK 21.0.5; Maven 3.9.11; approved scoped loopback execution",
+  "command": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -Djava.io.tmpdir=$PWD/target/tmp -DargLine=-Djava.io.tmpdir=$PWD/target/tmp -Dtest=CityMultiplayerTest test",
+  "exit": 0,
+  "suite": {
+    "name": "dev.jayms.CityMultiplayerTest",
+    "tests": "1",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0"
+  },
+  "expected": "Both clients converge on full commanded roads; exact road list survives late join and restart; zoning and horse ownership checks pass.",
+  "observed": "Test completed successfully.",
+  "playtest": "Playtest: native GLFW/F10 traffic harness prepared but not compiled or run before service-control pause. Prior live EGL integration evidence is separate. Browser playtesting does not apply to this native game.",
+  "continuation": "Run deploy/run_traffic_gameplay_smoke.py through approved local socket execution once service control permits; inspect fresh screenshots and F10 clips; update report and obtain independent review.",
+  "publication": "All changes remain local; controller owns staging, rebase continuation, commit, push and media publication."
+}

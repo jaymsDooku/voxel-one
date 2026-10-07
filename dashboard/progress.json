@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T12:00:58+00:00",
+  "updatedAt": "2026-10-07T14:57:55.883465+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -10,7 +10,7 @@
   "verification": {
     "tests": 166,
     "failures": 0,
-    "label": "Playtest 28 \u00b7 all four platforms",
+    "label": "Playtest 28 · all four platforms",
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
@@ -51,52 +51,52 @@
       "evidence": [
         {
           "kind": "link",
-          "label": "Carrier route validation \u2014 pending controller publication",
+          "label": "Carrier route validation — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64313639356363352d646564652d343665352d383035322d626638613863656463643939/dashboard/evidence/carrier-routes-validation.json"
         },
         {
           "kind": "image",
-          "label": "Carrier at destination port \u2014 pending controller publication",
+          "label": "Carrier at destination port — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64313639356363352d646564652d343665352d383035322d626638613863656463643939/dashboard/evidence/carrier-routes-arrival.png"
         },
         {
           "kind": "video",
-          "label": "Fresh carrier sailing F10 clip \u2014 pending controller publication",
+          "label": "Fresh carrier sailing F10 clip — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64313639356363352d646564652d343665352d383035322d626638613863656463643939/dashboard/evidence/carrier-routes-placement-playtest.mp4"
         },
         {
           "kind": "link",
-          "label": "Resolved-tree recovery validation \u2014 pending controller publication",
+          "label": "Resolved-tree recovery validation — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64313639356363352d646564652d343665352d383035322d626638613863656463643939/dashboard/evidence/carrier-routes-recovery-validation.json"
         },
         {
           "kind": "link",
-          "label": "Audio preservation recovery checks \u2014 pending controller publication",
+          "label": "Audio preservation recovery checks — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64313639356363352d646564652d343665352d383035322d626638613863656463643939/dashboard/evidence/carrier-audio-recovery-validation.json"
         },
         {
           "kind": "link",
-          "label": "Final rebased-source validation \u2014 pending controller publication",
+          "label": "Final rebased-source validation — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64313639356363352d646564652d343665352d383035322d626638613863656463643939/dashboard/evidence/carrier-final-validation.json"
         },
         {
           "kind": "image",
-          "label": "Fresh shallow-road regression \u2014 pending controller publication",
+          "label": "Fresh shallow-road regression — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64313639356363352d646564652d343665352d383035322d626638613863656463643939/dashboard/evidence/carrier-final-road-road-shallow.png"
         },
         {
           "kind": "video",
-          "label": "Fresh road regression F10 clip \u2014 pending controller publication",
+          "label": "Fresh road regression F10 clip — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64313639356363352d646564652d343665352d383035322d626638613863656463643939/dashboard/evidence/carrier-final-road-playtest.mp4"
         },
         {
           "kind": "link",
-          "label": "Second recovery checks \u2014 pending controller publication",
+          "label": "Second recovery checks — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64313639356363352d646564652d343665352d383035322d626638613863656463643939/dashboard/evidence/carrier-second-recovery-validation.json"
         },
         {
           "kind": "link",
-          "label": "Edited-world and native restart validation \u2014 pending controller publication",
+          "label": "Edited-world and native restart validation — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64313639356363352d646564652d343665352d383035322d626638613863656463643939/dashboard/evidence/carrier-obstacle-validation.json"
         }
       ],
@@ -111,112 +111,112 @@
       "evidence": [
         {
           "kind": "report",
-          "label": "Executed commands and Playtest \u2014 pending controller publication",
+          "label": "Executed commands and Playtest — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/vehicle-audio-checkpoint.md"
         },
         {
           "kind": "report",
-          "label": "37-test scoped verify and packages \u2014 pending controller publication",
+          "label": "37-test scoped verify and packages — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/vehicle-audio-build-check.json"
         },
         {
           "kind": "report",
-          "label": "Native application audio playtest \u2014 pending controller publication",
+          "label": "Native application audio playtest — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/vehicle-audio-playtest.json"
         },
         {
           "kind": "report",
-          "label": "Full F10 decode \u2014 pending controller publication",
+          "label": "Full F10 decode — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/vehicle-audio-video-check.json"
         },
         {
           "kind": "report",
-          "label": "Native PCM checks \u2014 pending controller publication",
+          "label": "Native PCM checks — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/vehicle-audio-pcm-check.json"
         },
         {
           "kind": "image",
-          "label": "Driven car \u2014 pending controller publication",
+          "label": "Driven car — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/vehicle-audio-car.png"
         },
         {
           "kind": "image",
-          "label": "Working steam train \u2014 pending controller publication",
+          "label": "Working steam train — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/vehicle-audio-train.png"
         },
         {
           "kind": "image",
-          "label": "Departing plane \u2014 pending controller publication",
+          "label": "Departing plane — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/vehicle-audio-takeoff.png"
         },
         {
           "kind": "video",
-          "label": "Moving train F10 clip (silent) \u2014 pending controller publication",
+          "label": "Moving train F10 clip (silent) — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/vehicle-audio-train.mp4"
         },
         {
           "kind": "report",
-          "label": "Native engine idle WAV \u2014 pending controller publication",
+          "label": "Native engine idle WAV — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/vehicle-audio-car-idle.wav"
         },
         {
           "kind": "report",
-          "label": "Native driven engine WAV \u2014 pending controller publication",
+          "label": "Native driven engine WAV — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/vehicle-audio-car-driving.wav"
         },
         {
           "kind": "report",
-          "label": "Native steam-train WAV \u2014 pending controller publication",
+          "label": "Native steam-train WAV — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/vehicle-audio-train-moving.wav"
         },
         {
           "kind": "report",
-          "label": "Native takeoff WAV \u2014 pending controller publication",
+          "label": "Native takeoff WAV — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/vehicle-audio-plane-takeoff.wav"
         },
         {
           "kind": "link",
-          "label": "Review recovery checks \u2014 pending controller publication",
+          "label": "Review recovery checks — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/vehicle-audio-road-recovery.md"
         },
         {
           "kind": "report",
-          "label": "Final recovered-head commands and Playtests \u2014 pending controller publication",
+          "label": "Final recovered-head commands and Playtests — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/vehicle-audio-final-validation.md"
         },
         {
           "kind": "report",
-          "label": "Fresh media checksums \u2014 pending controller publication",
+          "label": "Fresh media checksums — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/vehicle-audio-final-media.json"
         },
         {
           "kind": "report",
-          "label": "Road UI regression results \u2014 pending controller publication",
+          "label": "Road UI regression results — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/audio-final-road-playtest.json"
         },
         {
           "kind": "report",
-          "label": "Full road F10 decode \u2014 pending controller publication",
+          "label": "Full road F10 decode — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/audio-final-road-video-check.json"
         },
         {
           "kind": "image",
-          "label": "Restored direct diagonal road \u2014 pending controller publication",
+          "label": "Restored direct diagonal road — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/audio-final-road-road-diagonal.png"
         },
         {
           "kind": "image",
-          "label": "Diagonal widening regression \u2014 pending controller publication",
+          "label": "Diagonal widening regression — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/audio-final-road-road-diagonal-edited.png"
         },
         {
           "kind": "image",
-          "label": "Shallow roads for all types \u2014 pending controller publication",
+          "label": "Shallow roads for all types — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/audio-final-road-road-shallow.png"
         },
         {
           "kind": "video",
-          "label": "Restored road UI F10 playtest \u2014 pending controller publication",
+          "label": "Restored road UI F10 playtest — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/audio-final-road-playtest.mp4"
         }
       ],
@@ -281,12 +281,12 @@
         },
         {
           "kind": "link",
-          "label": "Mixed-width validation \u2014 pending controller publication",
+          "label": "Mixed-width validation — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63363064363463302d316661372d346365352d386366352d346661663863373732396561/dashboard/evidence/road-mixed-validation.md"
         },
         {
           "kind": "link",
-          "label": "Final road/shipping validation \u2014 pending controller publication",
+          "label": "Final road/shipping validation — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63363064363463302d316661372d346365352d386366352d346661663863373732396561/dashboard/evidence/road-shipping-final-validation.md"
         }
       ],
@@ -319,32 +319,32 @@
       "evidence": [
         {
           "kind": "link",
-          "label": "Final protocol 23 checks \u2014 pending controller publication",
+          "label": "Final protocol 23 checks — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-62386532623363612d343231342d343234362d626163612d613333396139623934303436/dashboard/evidence/shipping-final-tests.json"
         },
         {
           "kind": "link",
-          "label": "Fresh port image \u2014 pending controller publication",
+          "label": "Fresh port image — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-62386532623363612d343231342d343234362d626163612d613333396139623934303436/dashboard/evidence/shipping-port-carrier.png"
         },
         {
           "kind": "link",
-          "label": "Fresh shipping F10 playtest \u2014 pending controller publication",
+          "label": "Fresh shipping F10 playtest — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-62386532623363612d343231342d343234362d626163612d613333396139623934303436/dashboard/evidence/shipping-placement-playtest.mp4"
         },
         {
           "kind": "link",
-          "label": "Final protocol 23 checks \u2014 pending controller publication",
+          "label": "Final protocol 23 checks — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-62386532623363612d343231342d343234362d626163612d613333396139623934303436/dashboard/evidence/shipping-final-tests.json"
         },
         {
           "kind": "link",
-          "label": "Prior aviation regression \u2014 preserved historical evidence",
+          "label": "Prior aviation regression — preserved historical evidence",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-62386532623363612d343231342d343234362d626163612d613333396139623934303436/dashboard/evidence/shipping-airport-playtest.mp4"
         },
         {
           "kind": "link",
-          "label": "Fresh cargo regression video \u2014 pending controller publication",
+          "label": "Fresh cargo regression video — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-62386532623363612d343231342d343234362d626163612d613333396139623934303436/dashboard/evidence/shipping-cargo-container-drive.mp4"
         }
       ],
@@ -474,67 +474,67 @@
         },
         {
           "kind": "video",
-          "label": "Jeep integration regression \u2014 pending controller publication",
+          "label": "Jeep integration regression — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/jeep-driving.mp4"
         },
         {
           "kind": "report",
-          "label": "Road integration \u2014 pending controller publication",
+          "label": "Road integration — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/resource-progression-road-integration.json"
         },
         {
           "kind": "video",
-          "label": "Road integration \u2014 pending controller publication",
+          "label": "Road integration — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/road-placement-playtest.mp4"
         },
         {
           "kind": "image",
-          "label": "Fallback fixes \u2014 pending controller publication",
+          "label": "Fallback fixes — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/resource-progression-food-fallback.png"
         },
         {
           "kind": "report",
-          "label": "Fallback fixes \u2014 pending controller publication",
+          "label": "Fallback fixes — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/resource-progression-fallback-tests.json"
         },
         {
           "kind": "report",
-          "label": "Aviation integration \u2014 pending controller publication",
+          "label": "Aviation integration — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/resource-progression-aviation-integration.json"
         },
         {
           "kind": "video",
-          "label": "Aviation integration \u2014 pending controller publication",
+          "label": "Aviation integration — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/airport-playtest.mp4"
         },
         {
           "kind": "image",
-          "label": "Aviation integration \u2014 pending controller publication",
+          "label": "Aviation integration — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/airport-flight.png"
         },
         {
           "kind": "image",
-          "label": "Operating energy \u2014 pending controller publication",
+          "label": "Operating energy — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/resource-progression-operating-energy.png"
         },
         {
           "kind": "report",
-          "label": "Operating energy \u2014 pending controller publication",
+          "label": "Operating energy — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/resource-progression-operating-energy-tests.json"
         },
         {
           "kind": "report",
-          "label": "Shipping integration \u2014 pending controller publication",
+          "label": "Shipping integration — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/resource-progression-shipping-integration.json"
         },
         {
           "kind": "video",
-          "label": "Shipping integration \u2014 pending controller publication",
+          "label": "Shipping integration — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/shipping-placement-playtest.mp4"
         },
         {
           "kind": "image",
-          "label": "Shipping integration \u2014 pending controller publication",
+          "label": "Shipping integration — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/shipping-port-carrier.png"
         }
       ],
@@ -554,7 +554,7 @@
         },
         {
           "kind": "link",
-          "label": "Main journey report \u2014 pending controller publication",
+          "label": "Main journey report — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38613638386362362d333266662d346339302d383566312d333861363332623962333363/dashboard/evidence/population-journey-playtest.json"
         }
       ],
@@ -609,17 +609,17 @@
         },
         {
           "kind": "report",
-          "label": "Controller commands and playtest \u2014 pending publication",
+          "label": "Controller commands and playtest — pending publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-66336630333365302d663833322d343535352d613434352d346261373363343964663936/dashboard/evidence/shared-queue-controller-playtest.md"
         },
         {
           "kind": "report",
-          "label": "Controller and developer verification \u2014 pending publication",
+          "label": "Controller and developer verification — pending publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-66336630333365302d663833322d343535352d613434352d346261373363343964663936/dashboard/evidence/shared-queue-controller-verified.json"
         },
         {
           "kind": "image",
-          "label": "Live queue status and work items \u2014 pending publication",
+          "label": "Live queue status and work items — pending publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-66336630333365302d663833322d343535352d613434352d346261373363343964663936/dashboard/evidence/shared-queue-controller-webkit.png"
         }
       ],
@@ -709,7 +709,7 @@
         }
       ],
       "status": "in_progress",
-      "note": "Special-building review correction verified: complete civic feature and all current-base history/evidence retained; legacy saves tested for every civic type 4\u201318. Combined protocol is 16 to avoid base-version collision. Thirteen-suite combined test run passed; ready for controller staging/rebase continuation and independent review.",
+      "note": "Special-building review correction verified: complete civic feature and all current-base history/evidence retained; legacy saves tested for every civic type 4–18. Combined protocol is 16 to avoid base-version collision. Thirteen-suite combined test run passed; ready for controller staging/rebase continuation and independent review.",
       "updatedAt": "2026-10-03T23:06:35+00:00"
     },
     {
@@ -2614,7 +2614,7 @@
         }
       ],
       "status": "in_progress",
-      "note": "Integrated review remediation ready for independent review: city formats 1\u20137/civic and business features retained, protocol 17, 216 tests and Maven packaging passed. Refreshed actual OpenGL camera/walking and MP4 checks passed; all base history preserved.",
+      "note": "Integrated review remediation ready for independent review: city formats 1–7/civic and business features retained, protocol 17, 216 tests and Maven packaging passed. Refreshed actual OpenGL camera/walking and MP4 checks passed; all base history preserved.",
       "updatedAt": "2026-10-04T03:56:59.365447+00:00"
     },
     {
@@ -2842,33 +2842,33 @@
       "description": "Inspecting road travel and configuration; implementation and playtest pending.",
       "evidence": [
         {
-          "label": "Final verification \u2014 pending controller publication",
+          "label": "Final verification — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-final-tests.json",
           "kind": "report"
         },
         {
-          "label": "Configured gaps \u2014 pending controller publication",
+          "label": "Configured gaps — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-final-configured.mp4",
           "kind": "video"
         },
         {
-          "label": "Zero gap \u2014 pending controller publication",
+          "label": "Zero gap — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-final-zero.mp4",
           "kind": "video"
         },
         {
-          "label": "Automatic factory \u2014 pending controller publication",
+          "label": "Automatic factory — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-final-factory.mp4",
           "kind": "video"
         },
         {
-          "label": "Industrial progression \u2014 pending controller publication",
+          "label": "Industrial progression — pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-final-resource-progression-advanced.png",
           "kind": "image"
         }
       ],
       "status": "in_progress",
-      "note": "Configurable gaps: 0\u20132 blocks; defaults 0.8 pedestrian and 1.4 mounted. Reviewed-base features and 628 historical evidence/fixtures preserved. Full verification passed 364 tests. Fresh spacing, zero-gap, factory and industrial playtests passed. Awaiting controller publication and independent review.",
+      "note": "Configurable gaps: 0–2 blocks; defaults 0.8 pedestrian and 1.4 mounted. Reviewed-base features and 628 historical evidence/fixtures preserved. Full verification passed 364 tests. Fresh spacing, zero-gap, factory and industrial playtests passed. Awaiting controller publication and independent review.",
       "updatedAt": "2026-10-06T15:55:01+00:00"
     },
     {
@@ -2877,37 +2877,37 @@
       "description": "Implementing named local simulations and an in-game save menu.",
       "evidence": [
         {
-          "label": "Save menu \u2014 pending controller publication",
+          "label": "Save menu — pending controller publication",
           "kind": "image",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-66313165343334612d636366372d346531642d616564332d613063656337313538363039/dashboard/evidence/city-saves-menu.png"
         },
         {
-          "label": "Duplicate rejection \u2014 pending controller publication",
+          "label": "Duplicate rejection — pending controller publication",
           "kind": "image",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-66313165343334612d636366372d346531642d616564332d613063656337313538363039/dashboard/evidence/city-saves-duplicate.png"
         },
         {
-          "label": "Restored right-angle preview \u2014 pending controller publication",
+          "label": "Restored right-angle preview — pending controller publication",
           "kind": "image",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-66313165343334612d636366372d346531642d616564332d613063656337313538363039/dashboard/evidence/city-saves-right-angle-preview.png"
         },
         {
-          "label": "Restored right-angle road \u2014 pending controller publication",
+          "label": "Restored right-angle road — pending controller publication",
           "kind": "image",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-66313165343334612d636366372d346531642d616564332d613063656337313538363039/dashboard/evidence/city-saves-right-angle-built.png"
         },
         {
-          "label": "Native road workflow \u2014 pending controller publication",
+          "label": "Native road workflow — pending controller publication",
           "kind": "video",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-66313165343334612d636366372d346531642d616564332d613063656337313538363039/dashboard/evidence/city-saves-right-angle-playtest.mp4"
         },
         {
-          "label": "Recovered-head validation \u2014 pending controller publication",
+          "label": "Recovered-head validation — pending controller publication",
           "kind": "report",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-66313165343334612d636366372d346531642d616564332d613063656337313538363039/dashboard/evidence/city-saves-playtest.txt"
         },
         {
-          "label": "61-test results \u2014 pending controller publication",
+          "label": "61-test results — pending controller publication",
           "kind": "report",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-66313165343334612d636366372d346531642d616564332d613063656337313538363039/dashboard/evidence/city-saves-regression-results.json"
         }
@@ -2983,6 +2983,101 @@
       "status": "in_progress",
       "note": "Integrated head verified: 118 tests and native development/reload workflow passed. Fresh screenshots and F10 video inspected. Ready for independent review; controller publication pending.",
       "updatedAt": "2026-10-07T11:29:14.289000+00:00"
+    },
+    {
+      "id": "31656461353163612d376237342d343939392d623262332d366535613763363439316637",
+      "title": "Directional road traffic",
+      "description": "Implementing directional carriageway and pavement travel with congestion spacing.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "Native traffic validation — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/road-traffic-native-validation.json"
+        },
+        {
+          "kind": "video",
+          "label": "Native pedestrian traffic F10 — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/road-traffic-game-pedestrians.mp4"
+        },
+        {
+          "kind": "video",
+          "label": "Native horse traffic F10 — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/road-traffic-game-horses.mp4"
+        },
+        {
+          "kind": "video",
+          "label": "Native crossing regression F10 — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/road-traffic-game-crossing.mp4"
+        },
+        {
+          "kind": "report",
+          "label": "Final recovered-head validation — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/road-traffic-final-head-validation.json"
+        },
+        {
+          "kind": "video",
+          "label": "Fresh native pedestrians F10 — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/final-head-82218f2-road-traffic-game-pedestrians.mp4"
+        },
+        {
+          "kind": "video",
+          "label": "Fresh native horses F10 — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/final-head-82218f2-road-traffic-game-horses.mp4"
+        },
+        {
+          "kind": "video",
+          "label": "Fresh native crossing F10 — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/final-head-82218f2-road-traffic-game-crossing.mp4"
+        },
+        {
+          "kind": "video",
+          "label": "Fresh legacy-recovered pedestrians F10 — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/legacy-4a2e0d7-road-traffic-game-pedestrians.mp4"
+        },
+        {
+          "kind": "video",
+          "label": "Fresh legacy-recovered horses F10 — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/legacy-4a2e0d7-road-traffic-game-horses.mp4"
+        },
+        {
+          "kind": "video",
+          "label": "Fresh legacy-recovered crossing F10 — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/legacy-4a2e0d7-road-traffic-game-crossing.mp4"
+        },
+        {
+          "kind": "report",
+          "label": "Legacy and traffic validation — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/road-traffic-legacy-final-validation.json"
+        },
+        {
+          "kind": "report",
+          "label": "Restored-base validation — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/restored-final-road-traffic-validation.json"
+        },
+        {
+          "kind": "video",
+          "label": "Fresh pedestrian queue — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/restored-final-road-traffic-game-pedestrians.mp4"
+        },
+        {
+          "kind": "video",
+          "label": "Fresh horse queue — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/restored-final-road-traffic-game-horses.mp4"
+        },
+        {
+          "kind": "video",
+          "label": "Fresh crossing and forecourt — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/restored-final-road-traffic-game-crossing.mp4"
+        },
+        {
+          "kind": "video",
+          "label": "Restored jeep regression — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31656461353163612d376237342d343939392d623262332d366535613763363439316637/dashboard/evidence/restored-final-jeep-driving.mp4"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Factory delivery restored without changing acceptance tests or equipment economics. Full suite passed: 454 tests across 84 suites. Fresh native traffic regression passed; 24 screenshots and three F10 clips decoded/inspected. Base features and history preserved. Ready for controller publication, current-head CI and independent review.",
+      "updatedAt": "2026-10-07T14:57:55.883465+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

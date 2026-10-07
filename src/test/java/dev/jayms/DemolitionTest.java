@@ -46,6 +46,23 @@ class DemolitionTest {
     void demolitionClearsStructuresReferencesAndSurvivesReload() throws Exception {
         var ground = new CityTest.Ground();
         var city = city(ground);
+        // This fixture tests demolition of completed buildings, not construction timing.
+        // Prepare any queued projects; growth and material supply have separate regressions.
+        for (var plot : new ArrayList<>(city.economy.plots)) {
+            if (plot.building() != 0) continue;
+            var project = city.economy.resources.project(plot.id());
+            for (var material : project.materials()) {
+                long missing = material.units() - city.economy.resources.available(
+                        CityEconomy.COMPANY, plot.developer(), material.material());
+                if (missing > 0) city.economy.resources.add(
+                        CityEconomy.COMPANY, plot.developer(), material.material(), missing);
+            }
+            assertTrue(city.economy.resources.reserve(plot));
+            city.economy.work(plot.id(), 8);
+        }
+        city.advance(1);
+        assertTrue(city.frame().economy().plots().stream().allMatch(p -> p.building() != 0),
+                "All fixture plots must be built before demolition");
         var before = city.frame();
         assertTrue(before.buildings().stream().anyMatch(b -> b.type() == 3));
         for (var b : before.buildings()) {

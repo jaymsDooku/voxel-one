@@ -1,0 +1,10 @@
+{
+  "status": "working conflict resolved; controller stages and continues",
+  "resolution": "Preserved stage-2 progress entries; merged historical evidence only for traffic task; retained pending implementation and validation status.",
+  "checks": [
+    "dashboard/progress.json parses as JSON",
+    "No conflict markers remain in resolved file",
+    "No staged file deletions"
+  ],
+  "playtest": "Not run during this documentation-only rebase handoff. Final-head native workflow, edge case, regression checks and fresh media remain required."
+}

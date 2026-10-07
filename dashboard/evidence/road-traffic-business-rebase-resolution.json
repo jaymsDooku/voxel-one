@@ -1,0 +1,23 @@
+{
+  "scope": "Documentation-only rebase conflict resolution",
+  "head": "2089f1a75e35ee1fc3887c8ce5fe0cc879fb2619",
+  "checks": [
+    {
+      "command": "git diff HEAD -- src",
+      "result": "Empty; source and tests unchanged."
+    },
+    {
+      "command": "Python JSON, conflict-marker and feature/regression preservation assertions",
+      "result": "Passed; unique dashboard IDs, business entry, protocol 16, guide/metric/special classes and actual-traveller regressions retained."
+    },
+    {
+      "command": "git diff --check",
+      "result": "Passed after removing trailing blank line."
+    }
+  ],
+  "tests": "No new tests needed for documentation-only changes. Prior combined 127-test pass recorded in road-traffic-business-recovery-tests.json remains applicable.",
+  "limitations": [
+    "Gameplay F10 and multiplayer socket behavior remain unverified."
+  ],
+  "handoff": "Controller stages resolutions, continues rebase, and requests independent exact-head review."
+}

@@ -40,6 +40,36 @@ company.sand.cash=1200
     }
 
     @Test
+    void configurableYardsStayBoundedAndGlassworksKeepsTrafficClearance() throws Exception {
+        var ground = new CityTest.Ground();
+        var custom =
+                new CitySimulation(
+                        GameConfig.cityGame(), ground, ground.terrain, null, excavation());
+        var workplace = CitySimulation.class.getDeclaredMethod("workplace", int.class);
+        workplace.setAccessible(true);
+        var firms = custom.economy.companies().stream().filter(f -> f.kind == 15).toList();
+        assertEquals(2, firms.size());
+        for (var firm : firms) {
+            var yard = (CityFrame.Building) workplace.invoke(custom, CityMaterials.YARD + firm.id);
+            assertEquals(22, yard.x());
+            assertEquals(23, yard.z());
+            assertEquals(2, yard.type());
+        }
+        var ordinaryGround = new CityTest.Ground();
+        var ordinary = new CityTest().simulation(ordinaryGround);
+        var glassworks =
+                ordinary.economy.companies().stream()
+                        .filter(f -> f.kind == CityMaterials.GLASSWORKS)
+                        .findFirst()
+                        .orElseThrow();
+        var glassYard =
+                (CityFrame.Building) workplace.invoke(ordinary, CityMaterials.YARD + glassworks.id);
+        assertEquals(
+                11, glassYard.x(), "Glassworks access must stay clear of the residential porch");
+        assertEquals(23, glassYard.z());
+    }
+
+    @Test
     void seedsMultipleCompaniesAndKeepsSavedBalances() throws Exception {
         var catalog = excavation();
         var e = new CityEconomy(new Ecs(), null, catalog);
@@ -221,12 +251,20 @@ company.sand.cash=1200
         assertEquals(4321, restored.budget);
         assertTrue(restored.companies().isEmpty());
     }
+
     @Test
     void legacyCivicBuildingSavesRemainReadableForEveryType() throws Exception {
         for (int type = 4; type <= 18; type++) {
             var building = new CityFrame.Building(40, 0, type, 60, 32, 52, 1, 0);
-            var frame = new CityFrame(GameConfig.cityGame(), 0, List.of(), List.of(),
-                    List.of(building), List.of(), List.of());
+            var frame =
+                    new CityFrame(
+                            GameConfig.cityGame(),
+                            0,
+                            List.of(),
+                            List.of(),
+                            List.of(building),
+                            List.of(),
+                            List.of());
             Path save = temp.resolve("legacy-civic-" + type + ".city");
             try (var out = new DataOutputStream(Files.newOutputStream(save))) {
                 out.writeInt(0x43495436);

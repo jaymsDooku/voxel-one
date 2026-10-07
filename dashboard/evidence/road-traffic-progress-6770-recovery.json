@@ -1,0 +1,19 @@
+{
+  "status": "controller_recovery_required",
+  "updatedAt": "2026-10-07T13:00:46.225824+00:00",
+  "reviewBase": "6770d9b9fd0f2bf56674e5cf5ab77f499f5f71c5",
+  "resolvedWorkingFiles": [
+    "dashboard/progress.json"
+  ],
+  "checks": [
+    "Parsed both index stages and resolved working JSON.",
+    "All 66 current-base milestones and base metadata unchanged except global updatedAt.",
+    "Incoming traffic milestone and all incoming evidence URLs retained.",
+    "Working conflict markers absent.",
+    "git diff --check passed.",
+    "git diff --name-only --diff-filter=D 6770d9b9fd0f2bf56674e5cf5ab77f499f5f71c5 returned no files."
+  ],
+  "milestones": 67,
+  "playtest": "No new playtest executed during this Git handoff. Final-head workflow checks and fresh media follow controller continuation. Earlier tests/media remain historical.",
+  "handoff": "Controller stages the resolved working file and continues the preserved rebase. No developer staging, continuation, commit, push or publication. No owner answer needed."
+}

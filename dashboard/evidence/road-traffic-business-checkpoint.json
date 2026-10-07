@@ -1,0 +1,27 @@
+{
+  "scope": "Configurable-business/traffic recovery, paused by service control",
+  "resolution": "Kept bounded custom-kind yard coordinates and glassworks access offset; preserved protocol 16 and current-master features. Separated co-located firm stopping positions within the cleared apron cell.",
+  "initial_broad": {
+    "command": "MAVEN_OPTS=-Djava.io.tmpdir=$PWD/.build-tmp /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -DargLine=-Djava.io.tmpdir=$PWD/.build-tmp '-Dtest=RoadTrafficTest,City*Test,!CityMultiplayerTest,ManufacturingTest,AgricultureTest,MayorDashboardTest,DemolitionTest,IsometricCameraTest,PlayerCameraTest,MetricHistoryTest,SpecialBuildingsTest,BusinessCatalogTest,BusinessDashboardTest' test",
+    "exit": 1,
+    "tests": 126,
+    "failures": 1,
+    "result": "Configured company worker blocked behind another firm at shared stopping point."
+  },
+  "diagnostic": "Synthetic yard probe at 180 seconds: company 23 wages 0, worker at (24.5,25.97) waiting; company 24 working at (24.5,26.5). First probe lacked JUnit runtime dependency and failed; corrected classpath probe exited 0.",
+  "targeted": {
+    "command": "MAVEN_OPTS=-Djava.io.tmpdir=$PWD/.build-tmp /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -DargLine=-Djava.io.tmpdir=$PWD/.build-tmp '-Dtest=BusinessCatalogTest,RoadTrafficTest' test",
+    "exit": 0,
+    "result": "Both suites passed, including paid workers/production and new bounded-yard/glassworks-location regression."
+  },
+  "final_broad": {
+    "command": "MAVEN_OPTS=-Djava.io.tmpdir=$PWD/.build-tmp /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -DargLine=-Djava.io.tmpdir=$PWD/.build-tmp '-Dtest=RoadTrafficTest,City*Test,!CityMultiplayerTest,ManufacturingTest,AgricultureTest,MayorDashboardTest,DemolitionTest,IsometricCameraTest,PlayerCameraTest,MetricHistoryTest,SpecialBuildingsTest,BusinessCatalogTest,BusinessDashboardTest' test",
+    "exit": 130,
+    "result": "Interrupted at service-control pause. Final combined validation pending; do not claim ready."
+  },
+  "checks": {
+    "git diff --check": "Passed before pause",
+    "static checks": "Protocol 16, both progress entries, bounded coordinates and glassworks offset retained; only traffic main source differs from current HEAD."
+  },
+  "next": "Resume final broad validation when allowed, record counts, then controller stages resolutions and continues rebase. Preserve all local edits."
+}

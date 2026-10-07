@@ -1,0 +1,28 @@
+{
+  "status": "controller_recovery_required",
+  "updatedAt": "2026-10-07T13:06:58.376346+00:00",
+  "reviewBase": "6770d9b9fd0f2bf56674e5cf5ab77f499f5f71c5",
+  "resolvedWorkingFiles": [
+    "TRAFFIC_CHECKPOINT.md",
+    "dashboard/progress.json"
+  ],
+  "checks": [
+    "Both complete index-stage checkpoint histories verified as ordered subsequences of merged text.",
+    "Resolved progress JSON parses; milestone IDs unique; unrelated current-base milestones and metadata unchanged.",
+    "All evidence URLs from both stages retained.",
+    "Both working files have no conflict markers.",
+    "git diff --check passed.",
+    "No files deleted against recorded review base."
+  ],
+  "milestones": 67,
+  "protectedBaseSource": {
+    "src/main/java/dev/jayms/Main.java": true,
+    "src/main/java/dev/jayms/player/Jeep.java": true
+  },
+  "mainSourceDiff": [
+    "src/main/java/dev/jayms/net/city/RoadTraffic.java"
+  ],
+  "intendedDeletions": "No file deletions intended. Source differences require final audit after controller continuation.",
+  "playtest": "No new playtest or game-test pass claimed during this documentation recovery. Final-head workflow checks and fresh media follow controller continuation. Earlier evidence is historical.",
+  "handoff": "Controller stages and continues the preserved rebase. Index left unchanged by developer. No commit, reset, abort, push or publication. No owner answer needed."
+}

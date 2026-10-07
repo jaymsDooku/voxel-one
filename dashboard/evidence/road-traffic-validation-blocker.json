@@ -1,0 +1,30 @@
+{
+  "scope": "Recovery and required validation availability",
+  "head": "b3decf49c270935212ee11a42cd44f7e02d29134",
+  "checks": [
+    {
+      "command": "git diff HEAD -- src",
+      "result": "Empty; preserved source/tests unchanged."
+    },
+    {
+      "command": "Python conflict resolution and dashboard unique-ID assertions",
+      "result": "Passed; both histories and all progress entries retained."
+    },
+    {
+      "command": "git diff --check",
+      "result": "Passed."
+    },
+    {
+      "command": "gh run view 37161503775 --json jobs --jq <selected job failures>",
+      "result": "Exit 1: error connecting to api.github.com; Windows failure details unavailable."
+    }
+  ],
+  "playtest": {
+    "status": "not executed",
+    "environment": "Linux; no DISPLAY or WAYLAND_DISPLAY set; Xvfb and xvfb-run available.",
+    "required": "Run traffic workflow, congestion edge case and bend/intersection regression; capture fresh matching media. Existing guide captures do not validate traffic.",
+    "media": "No new traffic capture or durable HTTPS media URL available in this turn."
+  },
+  "platformCI": "Windows deficiency unresolved; macOS runs cancelled per controller diagnostics. No new CI pass claimed.",
+  "handoff": "Controller stages resolved files and continues rebase. Supply sanitized Windows failure diagnostics and artifact publication handoff before final validation/review."
+}

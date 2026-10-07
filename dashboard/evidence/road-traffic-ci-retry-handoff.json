@@ -1,0 +1,18 @@
+{
+  "timestamp": "2026-10-06T00:43:49.133162+00:00",
+  "head": "5a829e0fa39c9abe541762e280e2d6ed529b5242",
+  "run": 37370277527,
+  "run_attempt": 1,
+  "status": "completed",
+  "conclusion": "failure",
+  "retry_observed": false,
+  "checks": [
+    "gh pr checks 4",
+    "gh api repos/jaymsDooku/voxel-one/actions/runs/37370277527",
+    "GitHub branch latest-five workflow metadata",
+    "Python source/media SHA-256 comparison against road-traffic-legacy-final-validation.json"
+  ],
+  "source_media_hashes_match": true,
+  "next": "Controller performs already-authorized macOS ARM CI retry and resumes after completion. No additional owner answer required.",
+  "execution": "No new tests or playtest; existing180-test/native validation hashes match. No ARM pass claimed."
+}

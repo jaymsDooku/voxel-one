@@ -1,0 +1,834 @@
+{
+  "status": "ready_for_independent_review",
+  "updatedAt": "2026-10-07T12:56:47.701628+00:00",
+  "parentHead": "94a7edd978086f2c34b50a90064503f12c9643a3",
+  "reviewBase": "a5a5baafdfdf8514d6481fcb8d26ef3d72c1d4ec",
+  "sourceState": "Uncommitted working source; hashes identify the tested implementation. Controller stages and publishes. Source changes after synchronization require renewed checks and media.",
+  "sourceSha256": {
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "555050a2b2317c1b6c4cbd568628e2af93707ad42799f46d56979b2deb719738",
+    "src/main/java/dev/jayms/net/city/RoadTraffic.java": "1fea75a558907f9beb99c0a6c6cd7b860e093bb264c2a1aa53e25546d24743ec",
+    "src/test/java/dev/jayms/RoadTrafficTest.java": "63a6b76a8571d7534dd35528c177d97e16e8e5513588deb8cd8663686af04ebd",
+    "src/test/java/dev/jayms/DemolitionTest.java": "a62752d4fd5d3d4c01ba82bff7337e8bc426f2d68f4e713986ce2548b0656df6",
+    "src/test/java/dev/jayms/BusinessCatalogTest.java": "b5c0f801ac7c2ffe9d80cc7881b97b17a06b5b37a6a2903295acfed1860123e1",
+    "src/test/java/dev/jayms/MixedRoadOwnershipTest.java": "a5341a47a0af16695d30dd004fccef9338ad883d9003498a491b240cc867c984",
+    "deploy/TrafficGameplaySmoke.java": "d44140288cb72657bcef2ad8358a8b6d98d9746d309740fe1d0147ea2a4d166e",
+    "deploy/run_traffic_gameplay_smoke.py": "5d14887bf2093e648c39ff8c1bed8e5ee07346b32b44d18f3655d55747a41395",
+    "deploy/RoadTrafficSmoke.java": "73738b5ee07bcf554d841bf3223299f1a272212b961c569266ee2a7819fd2239",
+    "deploy/run_road_traffic_smoke.py": "1e7faece9a0638402b857892976d12a2a9a811d633ec65cb510d8227401c9727",
+    "src/main/java/dev/jayms/Main.java": "3b85d61f265597a8f5b6022e042ca2c13d79d4ef4bfce4c22bc146ab2d3b9999",
+    "src/main/java/dev/jayms/player/Jeep.java": "78014b32dac4927629b4e5394d28ea18aab6d4e8db7d703e6f540d77a70a3aaa",
+    "deploy/JeepPlaytest.java": "a8945f6a985a359060faf116dedfa4f3c43b9fd710860932c2a4f5f7feef4911",
+    "deploy/run_jeep_playtest.py": "6ceaee8e53d2640608bfb04090224cd0140bddbc1bccaf2a9896fe97c61333d4"
+  },
+  "environment": {
+    "platform": "Linux",
+    "java": "Oracle JDK 21.0.5 x64",
+    "maven": "3.9.11 offline /tmp/voxel-m2",
+    "graphics": "Mesa software rendering",
+    "display": "Inherited assigned DISPLAY and XAUTHORITY; no new X server",
+    "profiles": [
+      "target/traffic-home",
+      "target/jeep-home"
+    ],
+    "browser": "Does not apply: native Java game. Its website integration is checked through Node CLI."
+  },
+  "checks": [
+    {
+      "command": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=/tmp/voxel-m2 -DargLine=-Djava.io.tmpdir=\"$PWD/target/tmp\" test",
+      "exitCode": 0,
+      "suites": [
+        {
+          "name": "dev.jayms.AccountStoreTest",
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.AgricultureTest",
+          "tests": 8,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.AviationSaveCompatibilityTest",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.AviationTest",
+          "tests": 10,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.BuildingInfoTest",
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.BusinessCatalogTest",
+          "tests": 12,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.BusinessDashboardTest",
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.CapitalDashboardTest",
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.CapitalInspectorTest",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.CapitalSettlementLimitsTest",
+          "tests": 9,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.CitizenLifeTest",
+          "tests": 8,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.CityAddressesTest",
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.CityBusinessTest",
+          "tests": 9,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.CityCapitalTest",
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.CityEconomyTest",
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.CityMaterialsTest",
+          "tests": 13,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.CityMetricsTest",
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.CityMultiplayerTest",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.CitySavesTest",
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.CityTest",
+          "tests": 10,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.CityTimeTest",
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.CityToolsTest",
+          "tests": 10,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.ControlsTest",
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.CraftingTest",
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.DemolitionTest",
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.DistantTerrainTest",
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.ExchangeLabourMarketTest",
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.ExchangePermitCompositionTest",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.FractionalWorldTest",
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.FreightFallbackTest",
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.IndustrialProgressionTest",
+          "tests": 10,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.InventoryHudTest",
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.IsometricCameraTest",
+          "tests": 8,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.IsometricOrbitDragTest",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.JeepTest",
+          "tests": 8,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.LightOcclusionTest",
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.LightingTest",
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.ManufacturingTest",
+          "tests": 8,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.MarketEconomyTest",
+          "tests": 13,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.MayorDashboardTest",
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.MetricHistoryTest",
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.MixedRoadOwnershipTest",
+          "tests": 8,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.ModelSculptorTest",
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.MultiplayerTest",
+          "tests": 15,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.OperatingEnergyTest",
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.PlayerAnimationTest",
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.PlayerCameraTest",
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.PlayerTest",
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.PopulationJourneyTest",
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.ProtocolCompatibilityTest",
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.RailwayAirportCompatibilityTest",
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.RailwayOwnershipCompatibilityTest",
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.RailwaySaveCompatibilityTest",
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.RailwayShippingCompatibilityTest",
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.RailwayTest",
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.RegionalMultiplayerTest",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.RegionalPopulationTest",
+          "tests": 10,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.RegionalSaveCompatibilityTest",
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.RemotePlayerTest",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.RoadBaseCompatibilityTest",
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.RoadCitySavesTest",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.RoadTrafficTest",
+          "tests": 25,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.RoadTypesTest",
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.RoadWorkflowTest",
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.ShippingAviationCompatibilityTest",
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.ShippingProtocolCompatibilityTest",
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.ShippingTest",
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.ShopRestockMarketTest",
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.SpecialBuildingsTest",
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.SurvivalTest",
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.TerrainGenerationTest",
+          "tests": 10,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.UpdaterTest",
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.VideoRecordingTest",
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.VoxelModelTest",
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.net.city.CityStockExchangeTest",
+          "tests": 10,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "dev.jayms.net.city.RoadSpacingTest",
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "tests": 428,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "expected": "All traffic and restored-base regressions pass without weaker assertions.",
+      "observed": "Full offline Maven suite passed on the recorded working source."
+    },
+    {
+      "command": "node --test deploy/video-evidence-test.mjs website/test/*.test.mjs",
+      "exitCode": 0,
+      "tests": 15,
+      "failures": 0
+    },
+    {
+      "command": "python3 deploy/run_road_traffic_smoke.py --display \"$DISPLAY\"",
+      "exitCode": 0,
+      "expected": "Actual CitySimulation pedestrian and horse queues wait and resume.",
+      "observed": "Passed. Four offscreen EGL diagnostic captures stay under target/ and are not submitted as game media."
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0
+    }
+  ],
+  "playtests": [
+    {
+      "label": "Playtest: directional traffic native workflow",
+      "command": "python3 deploy/run_traffic_gameplay_smoke.py --display \"$DISPLAY\" --artifact-prefix restored-final-",
+      "exitCode": 0,
+      "steps": [
+        "Launch actual Main offline city with isolated synthetic profile.",
+        "Set controlled live ECS lanes; hold leader and automatic replanning while invoking production travel at 0.1 seconds.",
+        "Use real X11 GLFW input and F10 to record foot and horse waiting/release.",
+        "Check actual dirt/pavement geometry, opposite stream, same-direction mixed stream, retained routes, spacing and no overtaking.",
+        "Exercise finite crossing in both entity update orders and capture start/cleared state.",
+        "Exercise short and offset mixed-speed merges in both update orders. Use distinct destinations. Check queued follower retreat and spacing after every step. Pass a parked mount safely from a private forecourt."
+      ],
+      "expected": "Held leaders create queues. Release drains each queue. Separate road/pavement streams remain free. Crossings yield and drain.",
+      "observed": {
+        "status": "passed",
+        "platform": "Linux inherited X11 Mesa",
+        "application": "Main offline city",
+        "input": "real xdotool GLFW callbacks and F10",
+        "scenarioControl": "synthetic ECS fixtures, automatic replanning held; production travel invoked at 0.1 seconds",
+        "checks": [
+          "pedestrians wait and resume",
+          "horses wait and resume",
+          "opposite lane remains free",
+          "single-file spacing",
+          "no overtaking",
+          "directional lanes retained",
+          "routes retained",
+          "actual dirt/pavement geometry and derived lane sides",
+          "mixed same-direction lanes stay free",
+          "crossing yields and drains in both update orders",
+          "short merge clears in both update orders",
+          "mixed opposing entries use one merge priority and queued entries clear; forecourt clears parked mount"
+        ]
+      },
+      "media": "Three fresh F10 clips and 22 actual-window screenshots from the final working source."
+    },
+    {
+      "label": "Playtest: restored jeep regression",
+      "command": "python3 target/traffic-jeep-adapter.py",
+      "adapterSource": "from pathlib import Path\nimport os,sys\nroot=Path.cwd()\np=root/'deploy/run_jeep_playtest.py'\ns=p.read_text().replace(\"(root / 'target/maven-cache')\", \"Path('/tmp/voxel-m2')\")\ns=s.replace(\"out = root / 'target/jeep-playtest'\", \"shutil.rmtree(root/'target/jeep-home/.voxel-one/recordings', ignore_errors=True)\\nout = root / 'target/jeep-playtest'\")\ns=s.replace(\"evidence / ('jeep-playtest.json' if name == 'results.json' else name)\", \"evidence / ('restored-final-jeep-playtest.json' if name == 'results.json' else 'restored-final-'+name)\")\ns=s.replace(\"evidence / 'jeep-driving.mp4'\", \"evidence / 'restored-final-jeep-driving.mp4'\")\nsys.argv=[str(p),'--display',os.environ['DISPLAY']]\nexec(compile(s,str(p),'exec'),{'__file__':str(p),'__name__':'__main__'})\n",
+      "exitCode": 0,
+      "steps": [
+        "Use inherited role display and target/jeep-home synthetic profile.",
+        "Enter jeep, test first/third-person cameras, W/Ctrl/S, A/D and mouse steering.",
+        "Reject moving exit, collide with wall at boost speed, stop and exit, then walk.",
+        "Close application, reload saved exact jeep position/heading and confirm parked state."
+      ],
+      "expected": "Restored driving controls, collision, exit guard and save/reload work.",
+      "observed": {
+        "status": "passed",
+        "platform": "Linux assigned X11 display",
+        "profile": "isolated synthetic",
+        "checks": [
+          "driver entry",
+          "first-person windshield camera",
+          "third-person camera regression",
+          "W drive",
+          "Ctrl acceleration",
+          "S reverse",
+          "A/D steering",
+          "mouse steering",
+          "moving exit rejected",
+          "wall collision at boost speed",
+          "stopped exit",
+          "walking regression",
+          "application shutdown save",
+          "exact position and heading reload",
+          "restored jeep parked"
+        ],
+        "recording": "F10 engine recorder"
+      },
+      "media": "One new F10 clip and four actual-window screenshots.",
+      "sourceScope": "Jeep and Main are byte-exact reviewed base. The later traffic-only revert does not affect the plains driving workflow."
+    }
+  ],
+  "diffAudit": {
+    "command": "git diff --name-only --diff-filter=D a5a5baafdfdf8514d6481fcb8d26ef3d72c1d4ec",
+    "removedFiles": [],
+    "unchangedBaseFiles": {
+      "src/main/java/dev/jayms/Main.java": true,
+      "src/main/java/dev/jayms/player/Jeep.java": true,
+      "src/test/java/dev/jayms/DemolitionTest.java": false
+    },
+    "notes": "No base files deleted. Named city saves, jeeps, railways, regional population, industry, regression tests and historical evidence preserved. Main controls/rendering and Jeep match the reviewed base. Demolition keeps every cleanup assertion and prepares completed plot materials/work in its fixture, independent of construction timing. Growth and material-supply regressions remain separate. Canonical private access paths remain intact. Virtual yard stations use z=26.5 before starter home walls; Glassworks yard origin retains the protected yard regression. No intentional file deletions.",
+    "intendedLineReplacements": "Road-centre-only travel becomes directional lane travel while keeping canonical private access. Route resets clear derived lane state as well. No intentional file deletions."
+  },
+  "mediaVerification": {
+    "command": "JDK java -cp target:/tmp/voxel-m2/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar TrafficMediaCheck INPUT OUTPUT",
+    "result": "All four fresh MP4 files decoded at 2 seconds, 960x544 coded size. Pedestrian, horse, crossing and jeep frames plus offset-merge start screenshot visually inspected. All clips below 6 MB; synthetic profiles only.",
+    "files": {
+      "dashboard/evidence/restored-final-jeep-driver-seat.png": {
+        "bytes": 654648,
+        "sha256": "c8fbdba583ff5b65ddd132fb2cee01f44673f3f34582bbba57e7adf275cd41c3"
+      },
+      "dashboard/evidence/restored-final-jeep-driving.mp4": {
+        "bytes": 3111807,
+        "sha256": "acb73bd9378e788a513fcf79540beacbe7d37c939ab0a9494c09c1410c2acd53"
+      },
+      "dashboard/evidence/restored-final-jeep-parked.png": {
+        "bytes": 711343,
+        "sha256": "c053827c9d9ce811e6be44082e6d793033233ab2379ef4b6db5af14d5761244d"
+      },
+      "dashboard/evidence/restored-final-jeep-wall.png": {
+        "bytes": 672807,
+        "sha256": "7f7943e8a07285e660c4da714b152b94957afacec2d7cca93dd67dbe8b68b851"
+      },
+      "dashboard/evidence/restored-final-jeep-windshield.png": {
+        "bytes": 388545,
+        "sha256": "283563a0bc5fa56b0f4eba9b8909b5c212e1a6acc3470c4d01598f87c6af54b7"
+      },
+      "dashboard/evidence/restored-final-road-traffic-game-crossing-false-cleared.png": {
+        "bytes": 1026271,
+        "sha256": "d67a1e6f5b9fb5d86bea013ad733901591c1e4b9aa0fb48dc3ad16c54156865b"
+      },
+      "dashboard/evidence/restored-final-road-traffic-game-crossing-false-start.png": {
+        "bytes": 1029825,
+        "sha256": "9ea3ce3110b50d3d30233d3271b2bdf1176653d114b04b4e8fa93983d533bd66"
+      },
+      "dashboard/evidence/restored-final-road-traffic-game-crossing-true-cleared.png": {
+        "bytes": 1046399,
+        "sha256": "5b375bc810c12c1c46a399b9c7e863d45b4e72f79678b475ece8d86ae9f83c8f"
+      },
+      "dashboard/evidence/restored-final-road-traffic-game-crossing-true-start.png": {
+        "bytes": 1041597,
+        "sha256": "485c248d3b2989b5334da619bec7a07e008a979ec2dd5caf3d85c4cbf5d024a2"
+      },
+      "dashboard/evidence/restored-final-road-traffic-game-crossing.mp4": {
+        "bytes": 5337786,
+        "sha256": "914e0f802426ab22001b6440a66eb848e5ffe5008859bf6b3c4648db235f5a16"
+      },
+      "dashboard/evidence/restored-final-road-traffic-game-forecourt-cleared.png": {
+        "bytes": 1053921,
+        "sha256": "1648d597fb95583f1d8d130f5f47e922f4c1f48a8d6f1b70ccc973baacf3348a"
+      },
+      "dashboard/evidence/restored-final-road-traffic-game-forecourt-start.png": {
+        "bytes": 1055779,
+        "sha256": "2ff2a6144ef4bd1d4de643070c66399a46a80fdcb8ea4c1cda409876e77b9945"
+      },
+      "dashboard/evidence/restored-final-road-traffic-game-horses-resumed.png": {
+        "bytes": 1007254,
+        "sha256": "f99a7e72f9b5b0fda48aaffc6d31eddd460e91fc0ed6270c60cca5690417116c"
+      },
+      "dashboard/evidence/restored-final-road-traffic-game-horses-waiting.png": {
+        "bytes": 993215,
+        "sha256": "da1ea19b3071c9d3b87317e881cf801a1cf4eca2fa62f53d30d15bc6c56cfcb3"
+      },
+      "dashboard/evidence/restored-final-road-traffic-game-horses.mp4": {
+        "bytes": 592943,
+        "sha256": "a354bdc05561a9104c5641193313a5463ca64a5cfc44b1119fdd31f5fdf2bbcd"
+      },
+      "dashboard/evidence/restored-final-road-traffic-game-opposing-merge-false-cleared.png": {
+        "bytes": 1038209,
+        "sha256": "fc9c071bf204e727aabae98f6dda25ae3b7ce7bbda7220e88722074c9e16685f"
+      },
+      "dashboard/evidence/restored-final-road-traffic-game-opposing-merge-false-start.png": {
+        "bytes": 1034937,
+        "sha256": "6315a761481097c4f6034e31b6ab798d40ad2878f24bf27dfedba9790a31dab7"
+      },
+      "dashboard/evidence/restored-final-road-traffic-game-opposing-merge-true-cleared.png": {
+        "bytes": 1052708,
+        "sha256": "baf9343e71dc2d2b4b3180cc941e9cacf260e77fe019b0debaa9d4b9b4120dcf"
+      },
+      "dashboard/evidence/restored-final-road-traffic-game-opposing-merge-true-start.png": {
+        "bytes": 1056359,
+        "sha256": "e1cf3df0f393bb484c0dee14677ea1b14e7a4bdeb23797325383c2ceb8de3821"
+      },
+      "dashboard/evidence/restored-final-road-traffic-game-pedestrians-resumed.png": {
+        "bytes": 972660,
+        "sha256": "7ed4b51add1929e1fe1e2af0e7b209dff1bc7c829680d3f81435f0c462914788"
+      },
+      "dashboard/evidence/restored-final-road-traffic-game-pedestrians-waiting.png": {
+        "bytes": 852270,
+        "sha256": "92d9759b2fd02698a3b93c71c9bb00e5bc81c05412f707733f069443ad887c25"
+      },
+      "dashboard/evidence/restored-final-road-traffic-game-pedestrians.mp4": {
+        "bytes": 594031,
+        "sha256": "c85f7240fb5eb441710ef8b6724b8cf46a534d2f6a7b6456d40223a80139cd15"
+      },
+      "dashboard/evidence/restored-final-road-traffic-game-queued-merge-false-cleared.png": {
+        "bytes": 1040208,
+        "sha256": "e58982b22900e8e37163913c5275ddfd6795dd3750c641b2f5cf7d8ccbf25041"
+      },
+      "dashboard/evidence/restored-final-road-traffic-game-queued-merge-false-start.png": {
+        "bytes": 1037064,
+        "sha256": "f51846815b45e2140e92d5710508a7683d189c34d0178648766a79516d6e6426"
+      },
+      "dashboard/evidence/restored-final-road-traffic-game-queued-merge-true-cleared.png": {
+        "bytes": 1056428,
+        "sha256": "f773e5c567e4f6ae46805e7569154b757c4978458233873177fa60bb8dd8fd67"
+      },
+      "dashboard/evidence/restored-final-road-traffic-game-queued-merge-true-start.png": {
+        "bytes": 1047010,
+        "sha256": "26bd0e44c44dc96f0adcdcc77d21d9792edbffa4a1692c5ca116b54a81004aac"
+      },
+      "dashboard/evidence/restored-final-road-traffic-game-short-merge-false-cleared.png": {
+        "bytes": 1025077,
+        "sha256": "a9ec798b3315a3313bc17eedeb44e8757fe31b83bbcb51f68a438db5455dc5b2"
+      },
+      "dashboard/evidence/restored-final-road-traffic-game-short-merge-false-start.png": {
+        "bytes": 1026389,
+        "sha256": "a99fee4174472c30de757ea082e968b63e733112dc3a4cd5df8cb0915dcbc991"
+      },
+      "dashboard/evidence/restored-final-road-traffic-game-short-merge-true-cleared.png": {
+        "bytes": 1053928,
+        "sha256": "3fe61f093388601a23f690b50d5b98b4cc107a52a03a82a0a56d2b1c0ebf2d9a"
+      },
+      "dashboard/evidence/restored-final-road-traffic-game-short-merge-true-start.png": {
+        "bytes": 1051213,
+        "sha256": "c2311e50a0fb92a7701790bbaa9b1749b0727f16df72f90df6518206bb5e958f"
+      }
+    }
+  },
+  "publication": "Pending controller publication on the assigned feature branch. No current Windows or macOS CI pass claimed; earlier CI belongs to historical source.",
+  "changes": [
+    "Preserve remaining road cells and private access routes across lane travel and mounting changes.",
+    "Keep pavement bends, independent road/pavement gaps and configured single-file queues.",
+    "Inspect all yield reservations before waiting; safely clear blocked priority travellers using their full 0.25 metre stopping sweep.",
+    "Queued followers leave room for a joining traveller to retreat, with swept spacing on every move.",
+    "Rebuild surviving dirt pavement after deleting or editing a crossing. Road-ownership assertions check every half cube while retaining exact footprint and owner types.",
+    "Prepare off-road virtual yard footing and headroom on legacy terrain without clearing built structures.",
+    "Retain approach gait advancement when joining a waiting road lane.",
+    "Native smoke uses distinct final stops so a stationary leader does not occupy the follower destination.",
+    "Private forecourt access uses body clearance instead of reserving road headway. Travelling mounted horses share household traffic reservations; existing private-route parked-mount checks remain."
+  ],
+  "ci": "Current-source cross-platform CI remains for the controller. Historical four-platform CI does not validate these edits.",
+  "testChanges": [
+    {
+      "file": "src/test/java/dev/jayms/DemolitionTest.java",
+      "reason": "Traffic can delay construction. The demolition fixture supplies missing project materials, reserves them and adds work before one advance. It verifies every plot is built, then retains all original structure, ownership, contract, resource, farm, citizen, save/reload and occupied-building assertions. Construction growth and material supply retain separate full-suite coverage."
+    },
+    {
+      "file": "src/test/java/dev/jayms/MixedRoadOwnershipTest.java",
+      "reason": "The requested pavement changes dirt-road surface materials. Exact ownership and upgraded road surfaces stay asserted; dirt survivors now check every half cube of carriageway, pavement and end caps."
+    }
+  ],
+  "validationHistory": "Earlier full run: 426 tests, 5 failures. Corrections fixed material access, queue clearance, pavement rebuilds and gait. Optional parked-mount lane blocking was tried and reverted after legacy food production failed. Final source retains travelling household/mounted traffic queues and private-route parked-mount clearance. One full run was stopped with exit 130 to replace the slow demolition timing fixture. The final full run passed."
+}

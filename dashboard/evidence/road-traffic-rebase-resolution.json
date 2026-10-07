@@ -1,0 +1,30 @@
+{
+  "scope": "Second rebase conflict resolution: documentation only",
+  "head": "010bea6033363c9fa70ebf0a769f18a08ac40d86",
+  "resolved": [
+    "TRAFFIC_CHECKPOINT.md",
+    "dashboard/progress.json"
+  ],
+  "resolution": "Retained newer recovery checkpoint and dashboard entries from index stage 2; incoming stage 3 contained older task notes.",
+  "checks": [
+    {
+      "command": "git diff HEAD -- src",
+      "result": "Empty: source and tests unchanged from previously validated recovery HEAD."
+    },
+    {
+      "command": "Python JSON parse, unique item ID assertions, retained bend regression and demolition assertions",
+      "result": "Passed"
+    },
+    {
+      "command": "git diff --check",
+      "result": "Passed"
+    },
+    {
+      "command": "rg -n '^<<<<<<<|^=======|^>>>>>>>' TRAFFIC_CHECKPOINT.md dashboard/progress.json",
+      "result": "Exit 1: no conflict markers found."
+    }
+  ],
+  "tests": "No new tests: documentation-only resolution. Prior recovery evidence records 98 distinct passing tests across broad and corrective runs.",
+  "prior_evidence": "dashboard/evidence/road-traffic-recovery-tests.json",
+  "next": "Controller stages resolved files and continues rebase, then obtains independent exact-head review."
+}

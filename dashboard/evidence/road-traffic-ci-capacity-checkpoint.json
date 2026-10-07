@@ -1,0 +1,27 @@
+{
+  "timestamp": "2026-10-05T21:02:23.668092+00:00",
+  "head": "5a829e0fa39c9abe541762e280e2d6ed529b5242",
+  "commands": [
+    "gh pr checks 4",
+    "gh api repos/jaymsDooku/voxel-one/actions/jobs/111965416942 --jq {conclusion,head_sha,steps}",
+    "gh api repos/jaymsDooku/voxel-one/check-runs/111965416942/annotations",
+    "gh api repos/jaymsDooku/voxel-one/actions/jobs/111965417273",
+    "gh api repos/jaymsDooku/voxel-one/actions/jobs/111965404426",
+    "gh api repos/jaymsDooku/voxel-one/actions/jobs/111965404598"
+  ],
+  "mac_arm": {
+    "job": 111965416942,
+    "conclusion": "cancelled",
+    "steps": [],
+    "annotation": "The job was not acquired by Runner of type hosted even after multiple attempts",
+    "capacity": "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times."
+  },
+  "passed_same_head": {
+    "linux": 111965417273,
+    "mac_intel": 111965404426,
+    "windows": 111965404598
+  },
+  "source_and_media_hashes_match_prior_validation": true,
+  "execution": "No new tests or playtest. Recorded180-test and native workflow results match current source hashes; media hashes verified. No macOS ARM pass claimed.",
+  "next": "Controller reruns failed macOS ARM CI when hosted capacity is available. No source change is warranted by pre-execution runner cancellation."
+}
