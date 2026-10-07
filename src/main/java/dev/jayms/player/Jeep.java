@@ -20,6 +20,10 @@ public final class Jeep {
         if (collides(world,position) || insideBody(player.position())) { type=before; return false; }
         return true;
     }
+    public Jeep(Vector3f position, float yaw, CargoVehicle type) {
+        this(position, yaw);
+        this.type = java.util.Objects.requireNonNull(type);
+    }
     public Jeep(Vector3f position, float yaw) {
         this.position = new Vector3f(position);
         this.yaw = yaw;

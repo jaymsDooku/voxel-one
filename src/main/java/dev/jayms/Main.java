@@ -99,6 +99,82 @@ public class Main {
     private final Matrix4f projection = new Matrix4f(), view = new Matrix4f();
     private final FrustumIntersection frustum = new FrustumIntersection();
     private String notice = "";
+    private boolean cheatMode;
+    private int cheatVehicle;
+    private int cheatSpawnCount;
+    private final List<Jeep> cheatParked = new ArrayList<>();
+    private final List<Aviation.Plane> cheatPlanes = new ArrayList<>();
+
+    private String cheatVehicleName() {
+        int roads = dev.jayms.player.CargoVehicle.values().length;
+        return cheatVehicle < roads ? dev.jayms.player.CargoVehicle.values()[cheatVehicle].label
+                : cheatVehicle == roads ? "Passenger jet" : "Cargo carrier";
+    }
+
+    private void spawnCheatVehicle() {
+        if (player.mounted() || jeep != null && jeep.driving()) {
+            notice = "Exit your vehicle before spawning";
+            return;
+        }
+        if (cheatSpawnCount >= 64) {
+            notice = "Cheat vehicle limit: 64 per session";
+            return;
+        }
+        var pos = player.position();
+        var direction = player.facingDirection();
+        direction.y = 0;
+        if (direction.lengthSquared() < .001f) direction.set(0, 0, -1);
+        direction.normalize();
+        int roads = dev.jayms.player.CargoVehicle.values().length;
+        float distance = cheatVehicle < roads ? dev.jayms.player.CargoVehicle.values()[cheatVehicle].halfLength + 4 : 16;
+        var at = new Vector3f(pos).add(direction.mul(distance));
+        int x = (int)Math.floor(at.x), z = (int)Math.floor(at.z);
+        int y = (int)Math.floor(pos.y);
+        while (y > Terrain.MIN_Y && world.isLoaded(x, y - 1, z) && world.getBlock(x, y - 1, z) == Blocks.AIR) y--;
+        if (!world.isLoaded(x, y - 1, z) || world.getBlock(x, y - 1, z) == Blocks.AIR) {
+            notice = "Spawn needs loaded ground nearby";
+            return;
+        }
+        at.y = y + .01f;
+        // Reject occupied or unloaded space before changing the current vehicle or world.
+        int width = cheatVehicle < roads ? 3 : cheatVehicle == roads ? 18 : 4;
+        int depth = cheatVehicle < roads ? (int)Math.ceil(dev.jayms.player.CargoVehicle.values()[cheatVehicle].halfLength * 2 + 2) : cheatVehicle == roads ? 22 : 6;
+        int height = cheatVehicle < roads ? 4 : 8;
+        for (int dx = -width; dx <= width; dx++) for (int dz = -depth; dz <= depth; dz++)
+            for (int dy = 0; dy < height; dy++)
+                if (!world.isLoaded(x + dx, y + dy, z + dz) || world.getBlock(x + dx, y + dy, z + dz) != Blocks.AIR) {
+                    notice = "Clear a larger loaded area before spawning " + cheatVehicleName();
+                    return;
+                }
+        var vehicles = new ArrayList<>(cheatParked);
+        if (jeep != null) vehicles.add(jeep);
+        for (var existing : vehicles) if (Math.abs(existing.position().x - at.x) < width + existing.type().halfLength
+                && Math.abs(existing.position().z - at.z) < depth + existing.type().halfLength
+                && Math.abs(existing.position().y - at.y) < height) {
+            notice = "Spawn area overlaps a parked vehicle";
+            return;
+        }
+        for (var plane : cheatPlanes) if (Math.abs(plane.x() - at.x) < width + 18 && Math.abs(plane.z() - at.z) < depth + 22) {
+            notice = "Spawn area overlaps a passenger jet";
+            return;
+        }
+        if (cheatVehicle < roads) {
+            var fresh = new Jeep(at, player.yaw(), dev.jayms.player.CargoVehicle.values()[cheatVehicle]);
+            if (fresh.collides(world, at)) { notice = "Vehicle spawn is obstructed"; return; }
+            if (jeep != null) cheatParked.add(jeep);
+            jeep = fresh;
+        } else if (cheatVehicle == roads) {
+            cheatPlanes.add(new Aviation.Plane(-100000 - cheatPlanes.size(), at.x, at.y, at.z, player.yaw(), 0, false));
+        } else {
+            for (var edit : Shipping.carrier(x, y, z)) {
+                world.apply(edit);
+                WorldVoxels.remember(local.edits, edit);
+            }
+        }
+        cheatSpawnCount++;
+        notice = "Spawned " + cheatVehicleName() + (cheatVehicle < roads ? "; approach cab and press " + Controls.keyName(controls.code(JEEP)) : "; static asset");
+    }
+
     private int fps = -1, fpsFrames;
     private double fpsElapsed;
 
@@ -570,10 +646,35 @@ public class Main {
     }
 
     private void input(int code) {
+        if (controls.matches(CHEATS, code)) {
+            if (network != null || local == null) { notice = "Cheat mode is available offline only"; return; }
+            if (player.mounted() || jeep != null && jeep.driving()) { notice = "Exit your vehicle before changing cheat mode"; return; }
+            cheatMode = !cheatMode;
+            if (player.flying() != cheatMode) player.toggleFlight();
+            notice = cheatMode ? "Cheat mode enabled: flight on" : "Cheat mode disabled: flight off";
+            return;
+        }
+        if (controls.matches(CHEAT_SELECT, code) || controls.matches(CHEAT_SPAWN, code) || controls.matches(CHEAT_MONEY, code)) {
+            if (!cheatMode || network != null || local == null) { notice = "Enter offline cheat mode first"; return; }
+            if (controls.matches(CHEAT_SELECT, code)) {
+                cheatVehicle = (cheatVehicle + 1) % (dev.jayms.player.CargoVehicle.values().length + 2);
+                notice = "Selected " + cheatVehicleName();
+            } else if (controls.matches(CHEAT_SPAWN, code)) spawnCheatVehicle();
+            else if (!city().config().city()) notice = "City budget is available in Voxel City One";
+            else if (local.city.economy.budget > 990000000) notice = "Cheat budget limit reached";
+            else { local.city.economy.budget += 10000; notice = "Added $10,000 to city budget"; }
+            return;
+        }
+
         if (controls.matches(JEEP, code) && captured && jeep != null) {
             if (glfwGetKey(window.getHandle(), GLFW_KEY_LEFT_SHIFT)==GLFW_PRESS || glfwGetKey(window.getHandle(), GLFW_KEY_RIGHT_SHIFT)==GLFW_PRESS) {
                 notice=jeep.cycleBody(world,player) ? "Vehicle: "+jeep.type().label : "Stop, exit, and leave clear space around the vehicle to change body";
                 return;
+            }
+            if (!jeep.driving()) {
+                Jeep nearest = jeep;
+                for (var parked : cheatParked) if (player.position().distance(parked.seat()) < player.position().distance(nearest.seat())) nearest = parked;
+                if (nearest != jeep) { cheatParked.remove(nearest); cheatParked.add(jeep); jeep = nearest; }
             }
             boolean ok = jeep.driving() ? jeep.exit(world, player) : jeep.enter(player);
             notice = ok ? (jeep.driving() ? "Driving "+jeep.type().label+": WASD + mouse, Ctrl boost, vehicle key exits when stopped" : "Left "+jeep.type().label)
@@ -949,6 +1050,8 @@ public class Main {
         }
         modelRenderer.render(world, frustum, shader);
         if (jeep != null) jeepModel.render(jeep, shader);
+        for (var parked : cheatParked) jeepModel.render(parked, shader);
+        for (var plane : cheatPlanes) planeModel.render(plane, shader);
         for (ItemDrop drop : drops().values())
             if (player.position().distanceSquared(drop.x(), drop.y(), drop.z()) < 10000)
                 if (Blocks.isModel(drop.type()))
@@ -1050,6 +1153,7 @@ public class Main {
                 }
             }
         if (jeep != null) jeepModel.glass(jeep, shader);
+        for (var parked : cheatParked) jeepModel.glass(parked, shader);
         if (!isometric && !player.thirdPerson() && !(jeep != null && jeep.driving())) {
             glClear(GL_DEPTH_BUFFER_BIT);
             shader.setInt("uFog", 0);
@@ -1073,6 +1177,9 @@ public class Main {
         if (city().config().city() && (network == null || network.connected()))
             mayorDashboard.history.observe(city());
         overlay.begin(framebufferWidth, framebufferHeight);
+        if (cheatMode) overlay.text("CHEAT MODE | " + Controls.keyName(controls.code(CHEAT_SELECT)) + ": select " + cheatVehicleName()
+                + " | " + Controls.keyName(controls.code(CHEAT_SPAWN)) + ": spawn | " + Controls.keyName(controls.code(CHEAT_MONEY))
+                + ": +$10,000 | " + Controls.keyName(controls.code(CHEATS)) + ": leave", 20, framebufferHeight - 158, 1f, 1, .8f, .3f, 1);
         if (mayorDashboard.open) {
             mayorDashboard.render(
                     overlay,

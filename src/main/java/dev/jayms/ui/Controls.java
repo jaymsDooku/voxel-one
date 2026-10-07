@@ -42,7 +42,11 @@ public final class Controls {
         RECORD("Start / stop recording", GLFW_KEY_F10),
         ROTATE_LEFT("Sky view: rotate left", GLFW_KEY_LEFT),
         ROTATE_RIGHT("Sky view: rotate right", GLFW_KEY_RIGHT),
-        JEEP("Enter / exit vehicle (Shift: body)", GLFW_KEY_J);
+        JEEP("Enter / exit vehicle (Shift: body)", GLFW_KEY_J),
+        CHEATS("Enter / leave cheat mode (offline)", GLFW_KEY_F4),
+        CHEAT_SELECT("Cheats: next vehicle", GLFW_KEY_PAGE_UP),
+        CHEAT_SPAWN("Cheats: spawn selected vehicle", GLFW_KEY_PAGE_DOWN),
+        CHEAT_MONEY("Cheats: add $10,000 to city budget", GLFW_KEY_INSERT);
         public final String label;
         public final int defaultCode;
 
@@ -178,6 +182,9 @@ public final class Controls {
             };
         return switch (code) {
             case GLFW_KEY_HOME -> "Home";
+            case GLFW_KEY_PAGE_UP -> "Page Up";
+            case GLFW_KEY_PAGE_DOWN -> "Page Down";
+            case GLFW_KEY_INSERT -> "Insert";
             case GLFW_KEY_SPACE -> "Space";
             case GLFW_KEY_LEFT_SHIFT -> "Left Shift";
             case GLFW_KEY_RIGHT_SHIFT -> "Right Shift";
