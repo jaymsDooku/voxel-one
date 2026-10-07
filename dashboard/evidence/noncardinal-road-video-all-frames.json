@@ -1,0 +1,16 @@
+{
+  "status": "passed",
+  "source": "production F10 recorder in native road playtest",
+  "codec": "H264",
+  "bytes": 4245368,
+  "decodedFrames": 173,
+  "width": 960,
+  "height": 544,
+  "durationSeconds": 126.093,
+  "checks": [
+    "Every frame decoded",
+    "Frame count matches MP4 metadata",
+    "First and last images differ",
+    "Below 6 MB artifact limit"
+  ]
+}

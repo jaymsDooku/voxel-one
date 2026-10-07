@@ -136,16 +136,7 @@ public final class CityAddresses {
             }
         }
         int id = streets.stream().mapToInt(Street::id).max().orElse(0) + 1;
-        // The road builder walks along X, then Z; store that actual route, including bends.
-        var route = new ArrayList<Polygon.Point>();
-        route.add(points.get(0));
-        for (int i = 1; i < points.size(); i++) {
-            var a = points.get(i - 1);
-            var b = points.get(i);
-            if (type == 0 && a.x() != b.x() && a.z() != b.z()) route.add(new Polygon.Point(b.x(), a.z()));
-            route.add(b);
-        }
-        streets.add(new Street(id, generated(id), route));
+        streets.add(new Street(id, generated(id), points));
         return generated(id);
     }
 

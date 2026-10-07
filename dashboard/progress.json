@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T04:40:02+00:00",
+  "updatedAt": "2026-10-07T08:18:18.790758+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -2725,6 +2725,39 @@
       "status": "in_progress",
       "note": "Airport and runway expansion reject rail overlap before edits or spending. 66 targeted tests and fresh native rejection, adjacent construction and reload checks passed. F10 clip and three images verified. Controller publication and independent review remain.",
       "updatedAt": "2026-10-07T04:40:02+00:00"
+    },
+    {
+      "id": "64396536616564332d646233392d346366642d396435372d653830623731326233643537",
+      "title": "Straight roads at non-cardinal headings",
+      "status": "in_progress",
+      "description": "Implemented direct roads for all four types. 41 tests and native workflow passed; ready for independent review. Controller publication pending.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "Executed tests and Playtest (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64396536616564332d646233392d346366642d396435372d653830623731326233643537/dashboard/evidence/noncardinal-validation.md"
+        },
+        {
+          "kind": "test",
+          "label": "41 passing tests (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64396536616564332d646233392d346366642d396435372d653830623731326233643537/dashboard/evidence/noncardinal-tests.json"
+        },
+        {
+          "kind": "image",
+          "label": "Direct diagonal road (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64396536616564332d646233392d346366642d396435372d653830623731326233643537/dashboard/evidence/noncardinal-road-road-diagonal.png"
+        },
+        {
+          "kind": "image",
+          "label": "Shallow non-cardinal roads (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64396536616564332d646233392d346366642d396435372d653830623731326233643537/dashboard/evidence/noncardinal-road-road-shallow.png"
+        },
+        {
+          "kind": "video",
+          "label": "Native F10 road workflow (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64396536616564332d646233392d346366642d396435372d653830623731326233643537/dashboard/evidence/noncardinal-road-playtest.mp4"
+        }
+      ]
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
