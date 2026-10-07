@@ -1,0 +1,83 @@
+{
+  "status": "ready_for_independent_review",
+  "recordedAt": "2026-10-07T19:21:03.480943+00:00",
+  "reviewBase": "5f1b711d467566491538d975d9de24d01f19bc1f",
+  "sourceHeadBeforeControllerCommit": "bab8f1227e4e5fc94fc6344b3fa6119904418201",
+  "fix": "Synchronous earliest-contact CCD: advance all active bodies to contact; resolve impulse; sweep remaining time. Normal-only 0.000001-block clearance. 256-contact budget holds unchecked remaining motion at the last safe pose.",
+  "commands": [
+    {
+      "command": "mvn -q -Dmaven.repo.local=target/maven-cache -Dmaven.compiler.release=17 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Djvm=/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Dtest=CcdMotionTest test",
+      "expected": "New travelled-distance tests expose old CCD defect",
+      "observed": "Before fix: exit 1, five tests failed; floor x=0 instead of 10, wall z=5.989967823 instead of 6, rebound x=0.799989939 instead of 0.6, second-wall z=0.799979925 instead of 0.9, equal-mass target x=2.499989986 instead of 2."
+    },
+    {
+      "command": "mvn -q -Dmaven.repo.local=target/maven-cache -Dmaven.compiler.release=17 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Djvm=/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Dtest=CcdMotionTest,PhysicsTest,PlayerTest,JeepTest package",
+      "expected": "44 focused tests pass and Java 17-target package builds",
+      "observed": "Exit 0; 5 CCD, 25 physics, 6 player, 8 jeep tests passed."
+    },
+    {
+      "command": "python3 deploy/run_physics_smoke.py --display \"$DISPLAY\"",
+      "expected": "Contact sliding, existing lab and sandbox workflows pass; fresh media captured and decoded",
+      "observed": "Exit 0; both native applications passed; all 13 collapse-video frames decoded, 167934 bytes."
+    },
+    {
+      "command": "git diff --check",
+      "expected": "No whitespace errors",
+      "observed": "Exit 0"
+    },
+    {
+      "command": "python3 deploy/run_physics_cli_smoke.py --display \"$DISPLAY\" --java /usr/lib/jvm/java-17-openjdk-amd64/bin/java",
+      "expected": "Packaged --physics-lab opens on Java 17 and closes through native Escape input",
+      "observed": "Exit 0; native window opened and closed with isolated synthetic profile."
+    }
+  ],
+  "Playtest": {
+    "environment": "Linux X11; inherited assigned DISPLAY and XAUTHORITY; Mesa software rendering; isolated synthetic target/physics-home profile; browser checks do not apply to this native OpenGL game.",
+    "contactWorkflow": "Harness installs isolated zero-friction floor and wall fixtures in production PhysicsWorld, rendered by PhysicsLab. After at least one second: floor x=2+10*elapsed within 0.03 blocks; diagonal wall x=4.65 within 0.01 blocks and z=6+6*elapsed within 0.03 blocks. All assertions passed. Screenshot inspected: two boxes and wall visible. R restores original world afterward.",
+    "requestedBehavior": "Floor sliding retains 10 blocks/s; wall sliding retains 6 blocks/s tangential motion.",
+    "edgeCases": "Repeated destruction harmless; impulse rebound, second contact, equal-mass timing tested by executed CCD regressions.",
+    "regressions": {
+      "Playtest": "Production PhysicsLab; Linux X11; inherited assigned DISPLAY/XAUTHORITY; Mesa software rendering; isolated synthetic profile",
+      "steps": [
+        "D removes support: 28 debris voxels fall; independent anchored tower stays intact",
+        "D repeated: no change; R restores scene",
+        "X/F: explosion and stress fracture detach structures; pause freezes time",
+        "2 B: loaded ropes break",
+        "3: water mass 121.6 conserved; fire emits smoke",
+        "4 W G: cloth/soft body/SPH finite; GPU integration matches CPU and pinned particles stay fixed",
+        "5 Up: wheel torque moves sprung vehicle",
+        "Synthetic contact fixtures in production world: floor travel 10 blocks/s and wall tangent travel 6 blocks/s for at least one second",
+        "R: reset regression restores original cells",
+        "F10: collapse clip recorded"
+      ],
+      "expected": "All listed assertions pass",
+      "observed": "All listed assertions passed",
+      "gpuCompute": true
+    },
+    "sandbox": {
+      "Playtest": "Production Main offline sandbox; Linux X11 inherited role display; Mesa; isolated synthetic profile",
+      "steps": [
+        "Gravity lands on floor",
+        "Hold W: climb 0.5-block partial voxel without jumping",
+        "Hold W: stop at 3-block wall with no overlap",
+        "Space: jump and land on original floor"
+      ],
+      "expected": "Step at y=109.5; wall stops at x=9.7; jump lands at y=109",
+      "observed": "All assertions passed"
+    }
+  },
+  "diffAudit": {
+    "observed": "All tracked changes against review base fall within physics source, shared Player/Jeep integration, Main entry point, docs, test harnesses and evidence/progress. No deleted files.",
+    "intendedReplacements": "Player old axis mover and Jeep inline collision query loops replaced by shared voxel geometry sweeps. No unrelated deletions.",
+    "existingIssue": "website/dist/client/progress.json has baseline conflict markers; unchanged by this work."
+  },
+  "history": "physics-validation.json and physics-review-validation.json describe earlier heads. This report and regenerated developer media describe the CCD correction. No full-suite pass claimed.",
+  "publication": "Evidence saved locally; pending controller commit/push and independent review.",
+  "sha256": {
+    "src/main/java/dev/jayms/physics/PhysicsWorld.java": "37cbe46983e8163be93d8edbda2f4c53fcc5e17306a1debbc610f0dfd2b66bc9",
+    "src/test/java/dev/jayms/physics/CcdMotionTest.java": "b281d463c542e62a86a0d7822160e38cc58bab57a60abb528d81c8b278f9bffc",
+    "deploy/PhysicsSmoke.java": "5d81a5d2aa923ab34b4eba7ab7446e5ce2ebe68fcc96ab7b11c1db5f0c57f252",
+    "dashboard/evidence/physics-contact-sliding.png": "6caf3074f43a7445f2ccc25b65c7e4514845f8d20b529b4e4bfd0cd73fbcef12",
+    "dashboard/evidence/physics-collapse.mp4": "c7be32003369364118c1ff91cded39466a463364eae7476b90ac8947bbe178d2"
+  }
+}

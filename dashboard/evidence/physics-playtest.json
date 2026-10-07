@@ -1,6 +1,6 @@
 {
   "Playtest": "Production PhysicsLab; Linux X11; inherited assigned DISPLAY/XAUTHORITY; Mesa software rendering; isolated synthetic profile",
-  "steps": ["D removes support: 28 debris voxels fall; independent anchored tower stays intact","D repeated: no change; R restores scene","X/F: explosion and stress fracture detach structures; pause freezes time","2 B: loaded ropes break","3: water mass 121.6 conserved; fire emits smoke","4 W G: cloth/soft body/SPH finite; GPU integration matches CPU and pinned particles stay fixed","5 Up: wheel torque moves sprung vehicle","R: reset regression restores original cells","F10: collapse clip recorded"],
+  "steps": ["D removes support: 28 debris voxels fall; independent anchored tower stays intact","D repeated: no change; R restores scene","X/F: explosion and stress fracture detach structures; pause freezes time","2 B: loaded ropes break","3: water mass 121.6 conserved; fire emits smoke","4 W G: cloth/soft body/SPH finite; GPU integration matches CPU and pinned particles stay fixed","5 Up: wheel torque moves sprung vehicle","Synthetic contact fixtures in production world: floor travel 10 blocks/s and wall tangent travel 6 blocks/s for at least one second","R: reset regression restores original cells","F10: collapse clip recorded"],
   "expected": "All listed assertions pass",
   "observed": "All listed assertions passed",
   "gpuCompute": true

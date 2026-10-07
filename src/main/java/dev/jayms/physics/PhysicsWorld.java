@@ -32,23 +32,7 @@ public final class PhysicsWorld {
                 b.rotation.integrate(h,b.angularVelocity.x,b.angularVelocity.y,b.angularVelocity.z).normalize();
             }
         }
-        grid.rebuild(bodies,b->b.bounds().swept(new Vector3f(b.velocity).mul(h)));
-        // Sweep dynamic pairs in relative motion before discrete contact correction.
-        for(int i=0;i<bodies.size();i++) {
-            RigidBody a=bodies.get(i);if(a.sleeping||weight(a)==0&&!a.kinematic)continue;
-            Vector3f displacement=new Vector3f(a.velocity).mul(h);
-            float fraction=1;Vector3f normal=null;RigidBody hitBody=null;
-            for(RigidBody b:grid.query(a.bounds().swept(displacement))) {
-                if(a==b||a.trigger||b.trigger||!a.interacts(b))continue;
-                Vector3f relative=new Vector3f(a.velocity).sub(b.velocity).mul(h);
-                // Account for bodies already advanced this substep using their previous positions.
-                Aabb other=b.bounds().translate(new Vector3f(b.previous).sub(b.position));
-                var hit=a.bounds().sweep(other,relative);
-                if(hit!=null&&hit.time()<fraction&&relative.dot(hit.normal())<0) {fraction=hit.time();normal=hit.normal();hitBody=b;}
-            }
-            a.position.fma(Math.max(0,fraction-.00001f),displacement);
-            if(hitBody!=null)resolveVelocity(a,hitBody,normal);
-        }
+        sweepMotion(h);
         for(int iteration=0;iteration<iterations;iteration++) {
             grid.rebuild(bodies,RigidBody::bounds);
             Map<RigidBody,Integer> ids=new IdentityHashMap<>();for(int i=0;i<bodies.size();i++)ids.put(bodies.get(i),i);
@@ -71,6 +55,44 @@ public final class PhysicsWorld {
             if(b.velocity.lengthSquared()<.015f&&b.angularVelocity.lengthSquared()<.015f&&b.force.lengthSquared()==0) {
                 b.quietTime+=h;if(b.quietTime>.75f){b.sleeping=true;b.velocity.zero();b.angularVelocity.zero();}
             } else {b.quietTime=0;b.sleeping=false;}
+        }
+    }
+    private boolean moving(RigidBody b) {
+        return !b.sleeping && (weight(b)>0 || b.kinematic);
+    }
+    private Vector3f motionVelocity(RigidBody b) {
+        return moving(b)?new Vector3f(b.velocity):new Vector3f();
+    }
+    /** Advance every body on the same clock so impulses affect only time after contact. */
+    private void sweepMotion(float h) {
+        float remaining=h;
+        Map<RigidBody,Integer> ids=new IdentityHashMap<>();
+        for(int i=0;i<bodies.size();i++)ids.put(bodies.get(i),i);
+        // A finite contact budget keeps pathological piles bounded. Unconsumed time is
+        // held at the last safe pose rather than advanced through unchecked obstacles.
+        for(int contact=0;contact<256 && remaining>0;contact++) {
+            final float duration=remaining;
+            grid.rebuild(bodies,b->b.bounds().swept(motionVelocity(b).mul(duration)));
+            float fraction=1;RigidBody first=null,second=null;Vector3f normal=null;
+            for(RigidBody a:bodies)for(RigidBody b:grid.query(a.bounds().swept(motionVelocity(a).mul(duration)))) {
+                if(ids.get(b)<=ids.get(a)||a.trigger||b.trigger||!a.interacts(b)
+                        ||weight(a)+weight(b)==0||!moving(a)&&!moving(b))continue;
+                Vector3f relative=motionVelocity(a).sub(motionVelocity(b)).mul(duration);
+                var hit=a.bounds().sweep(b.bounds(),relative);
+                if(hit!=null&&hit.time()<=fraction&&relative.dot(hit.normal())<-1e-8f) {
+                    fraction=hit.time();first=a;second=b;normal=hit.normal();
+                }
+            }
+            float elapsed=remaining*fraction;
+            for(RigidBody b:bodies)if(moving(b))b.position.fma(elapsed,b.velocity);
+            remaining-=elapsed;
+            if(first==null)break;
+            // Normal-only clearance absorbs floating-point TOI roundoff without
+            // shortening tangential travel or consuming rebound time.
+            float sum=weight(first)+weight(second);
+            first.position.fma(.000001f*weight(first)/sum,normal);
+            second.position.fma(-.000001f*weight(second)/sum,normal);
+            resolveVelocity(first,second,normal);
         }
     }
     private void resolveVelocity(RigidBody a,RigidBody b,Vector3f normal) {

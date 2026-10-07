@@ -41,8 +41,8 @@
         }
       ],
       "status": "in_progress",
-      "note": "Rebase recovery: replayed physics validation retained and newest upstream features preserved. Remaining joint-load fixes and final-head checks await controller continuation.",
-      "updatedAt": "2026-10-07T18:45:41.242518+00:00"
+      "note": "Rebase recovery: CCD replay retained; newest upstream entries/features preserved. Remaining joint-load fixes and final-head validation/media await controller continuation.",
+      "updatedAt": "2026-10-07T19:21:37.813486+00:00"
     },
     {
       "id": "36346562663133302d383033312d343733612d616132342d393031326464616132313235",
