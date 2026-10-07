@@ -26,9 +26,10 @@ public final class PhysicsWorld {
     private void substep(float h) {
         for(RigidBody b:bodies) {
             b.previous.set(b.position);
+            if(weight(b)>0&&(b.force.lengthSquared()>0||b.torque.lengthSquared()>0))b.wake();
             if(weight(b)>0&&!b.sleeping) {
                 b.velocity.fma(h,gravity).fma(h*b.inverseMass,b.force);
-                b.angularVelocity.add(new Vector3f(b.torque).mul(b.inverseInertia).mul(h));
+                b.angularVelocity.add(b.inverseInertiaWorld(b.torque).mul(h));
                 b.rotation.integrate(h,b.angularVelocity.x,b.angularVelocity.y,b.angularVelocity.z).normalize();
             }
         }
@@ -52,7 +53,7 @@ public final class PhysicsWorld {
         }
         overlaps=Set.copyOf(current);
         for(RigidBody b:bodies)if(weight(b)>0&&!b.trigger) {
-            if(b.velocity.lengthSquared()<.015f&&b.angularVelocity.lengthSquared()<.015f&&b.force.lengthSquared()==0) {
+            if(b.velocity.lengthSquared()<.015f&&b.angularVelocity.lengthSquared()<.015f&&b.force.lengthSquared()==0&&b.torque.lengthSquared()==0) {
                 b.quietTime+=h;if(b.quietTime>.75f){b.sleeping=true;b.velocity.zero();b.angularVelocity.zero();}
             } else {b.quietTime=0;b.sleeping=false;}
         }

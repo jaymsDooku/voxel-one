@@ -28,6 +28,11 @@ public final class RigidBody {
     public boolean interacts(RigidBody b){return (mask&b.layer)!=0&&(b.mask&layer)!=0;}
     public void wake(){sleeping=false;quietTime=0;}
     public void impulse(Vector3f impulse){if(inverseMass>0&&!kinematic){velocity.fma(inverseMass,impulse);wake();}}
-    public void impulseAt(Vector3f impulse,Vector3f point){impulse(impulse);if(inverseMass>0&&!kinematic)angularVelocity.add(new Vector3f(point).sub(position).cross(impulse).mul(inverseInertia));}
+    /** Apply R * I_local^-1 * R^T to a world-space torque or angular impulse. */
+    public Vector3f inverseInertiaWorld(Vector3f worldVector) {
+        Vector3f local=rotation.transformInverse(new Vector3f(worldVector));
+        return rotation.transform(local.mul(inverseInertia));
+    }
+    public void impulseAt(Vector3f impulse,Vector3f point){impulse(impulse);if(inverseMass>0&&!kinematic)angularVelocity.add(inverseInertiaWorld(new Vector3f(point).sub(position).cross(impulse)));}
     public Vector3f anchor(Vector3f local){return rotation.transform(new Vector3f(local)).add(position);}
 }

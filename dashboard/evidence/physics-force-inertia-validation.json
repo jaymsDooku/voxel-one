@@ -1,0 +1,128 @@
+{
+  "status": "ready_for_independent_review",
+  "recordedAt": "2026-10-07T19:39:39.015282+00:00",
+  "reviewBase": "5f1b711d467566491538d975d9de24d01f19bc1f",
+  "sourceHeadBeforeControllerCommit": "233e26d9573e62eaf4282b88f5cb98ca4d6d1a67",
+  "changes": [
+    "Wake dynamic bodies before integrating applied force or torque; torque prevents sleep.",
+    "Apply world inverse inertia R * I_local^-1 * R^T to point impulses and torque.",
+    "Seven regressions include 90-degree and oblique rotated non-cubic boxes, centred impulse, small torque, unloaded sleepers, and immovable bodies."
+  ],
+  "commands": [
+    {
+      "command": "mvn -q -Dmaven.repo.local=target/maven-cache -Dmaven.compiler.release=17 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Djvm=/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Dtest=ForceInertiaTest test",
+      "expected": "Expose sleeping and rotated inertia defects before fix",
+      "observed": "Exit 1; 3 failures of 5 tests: force vx=0 instead of 1; sleeping torque wx=0 instead of .3; rotated point impulse wx=.2307692319 instead of .3."
+    },
+    {
+      "command": "mvn -q -Dmaven.repo.local=target/maven-cache -Dmaven.compiler.release=17 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Djvm=/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Dtest=ForceInertiaTest,CcdMotionTest,PhysicsTest,PlayerTest,JeepTest package",
+      "expected": "Java 17-target package builds and focused tests pass",
+      "observed": "Exit 0; initial 49 focused tests passed. Two additional regressions added afterward; production source unchanged."
+    },
+    {
+      "command": "mvn -q -Dmaven.repo.local=target/maven-cache -Dmaven.compiler.release=17 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Djvm=/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Dtest=ForceInertiaTest,CcdMotionTest,PhysicsTest,PlayerTest,JeepTest test",
+      "expected": "All 51 focused tests pass",
+      "observed": "Exit 0; 7 force/inertia, 5 CCD, 25 physics, 6 player, 8 jeep tests passed."
+    },
+    {
+      "command": "python3 deploy/run_physics_smoke.py --display \"$DISPLAY\"",
+      "expected": "Sleeping loads, world inertia, sliding, existing lab and sandbox checks pass; fresh media saved and decoded",
+      "observed": "Corrected rerun exit 0. PhysicsLab and Main sandbox assertions passed. Collapse video fully decoded: 8 frames, 118563 bytes."
+    },
+    {
+      "command": "python3 deploy/run_physics_cli_smoke.py --display \"$DISPLAY\" --java /usr/lib/jvm/java-17-openjdk-amd64/bin/java",
+      "expected": "Packaged lab opens on Java 17 and closes through Escape",
+      "observed": "Exit 0; isolated native window opened and closed through real X11 input."
+    },
+    {
+      "command": "git diff --check",
+      "expected": "No whitespace errors",
+      "observed": "Exit 0"
+    }
+  ],
+  "nativeFirstAttempt": {
+    "command": "python3 deploy/run_physics_smoke.py --display \"$DISPLAY\"",
+    "observed": "Exit 1: harness mistakenly treated a one-step applied force as a whole render-frame load. Corrected expected load duration to 1/120 second; engine source unchanged for rerun."
+  },
+  "diffAudit": {
+    "observed": "No deleted files or unrelated changed paths against recorded review base. Untracked additions also checked.",
+    "intendedReplacements": "Old Player axis movement and Jeep inline queries replaced by shared swept voxel geometry; no unrelated deletions.",
+    "baselineIssue": "website/dist/client/progress.json baseline conflict markers remain unchanged."
+  },
+  "limits": "Earlier CCD and original reports are historical. No full-suite or CI pass claimed; current independent review remains required. Advanced simulations retain documented lab/API scope.",
+  "sourceSha256": {
+    "src/main/java/dev/jayms/physics/PhysicsWorld.java": "d3392306efdb2fd14cf65b9a0483fd07da1f2a3e56b1b74ed9f7450df0ad4510",
+    "src/main/java/dev/jayms/physics/RigidBody.java": "18af895e616f4111c8d2e0caf1347470db0d46f24a271ba905b66c5cff1ee314",
+    "src/test/java/dev/jayms/physics/ForceInertiaTest.java": "38cd42d43896f6127e687133edbb75da55343992346ce9c689f1fc8be17d2aee",
+    "deploy/PhysicsSmoke.java": "a0c271035eec5a1e7dc482403d32321f34f908dbc379ce5f0e87db9c5fa4f9d5",
+    "deploy/run_physics_smoke.py": "cd5fe22681fabb2952db2e8f0a7bf03c17d4c0c2419e3d6036cca953daed19ce"
+  },
+  "Playtest": {
+    "environment": "Linux native X11; inherited assigned DISPLAY and XAUTHORITY; Mesa software rendering; synthetic target/physics-home profile. Browser playtesting does not apply to this native OpenGL application.",
+    "loads": {
+      "Playtest": "Synthetic bodies in production PhysicsLab/PhysicsWorld; inherited X11 display, Mesa, isolated profile",
+      "elapsedSeconds": 0.099998474,
+      "expectedForceVx": 1,
+      "observedForceVx": 1.0,
+      "expectedTorqueWx": 0.3,
+      "observedTorqueWx": 0.3,
+      "pointImpulseWx": 0.3,
+      "observed": "All wake, inertia and load-clearing assertions passed; R reset verified later"
+    },
+    "loadDurationSeconds": 0.008333333333333333,
+    "expected": "Sleeping 1 kg body under 120 N for one 1/120-second step wakes and reaches vx=1. Rotated non-cubic body torque and point impulse give angular x=.3. Loads clear after integration.",
+    "observed": "All load, wake and inertia assertions passed; inspected fresh screenshot showing rotated boxes.",
+    "edgeCases": "Unit tests passed oblique rotation, centre impulse, small torque, unloaded sleepers and static/kinematic bodies. Native repeated destruction and reset passed.",
+    "regressions": {
+      "Playtest": "Production PhysicsLab; Linux X11; inherited assigned DISPLAY/XAUTHORITY; Mesa software rendering; isolated synthetic profile",
+      "steps": [
+        "D removes support: 28 debris voxels fall; independent anchored tower stays intact",
+        "D repeated: no change; R restores scene",
+        "X/F: explosion and stress fracture detach structures; pause freezes time",
+        "2 B: loaded ropes break",
+        "3: water mass 121.6 conserved; fire emits smoke",
+        "4 W G: cloth/soft body/SPH finite; GPU integration matches CPU and pinned particles stay fixed",
+        "5 Up: wheel torque moves sprung vehicle",
+        "Synthetic contact fixtures in production world: floor travel 10 blocks/s and wall tangent travel 6 blocks/s for at least one second",
+        "R: reset regression restores original cells",
+        "F10: collapse clip recorded"
+      ],
+      "expected": "All listed assertions pass",
+      "observed": "All listed assertions passed",
+      "gpuCompute": true
+    },
+    "sandbox": {
+      "Playtest": "Production Main offline sandbox; Linux X11 inherited role display; Mesa; isolated synthetic profile",
+      "steps": [
+        "Gravity lands on floor",
+        "Hold W: climb 0.5-block partial voxel without jumping",
+        "Hold W: stop at 3-block wall with no overlap",
+        "Space: jump and land on original floor"
+      ],
+      "expected": "Step at y=109.5; wall stops at x=9.7; jump lands at y=109",
+      "observed": "All assertions passed"
+    },
+    "mediaDecode": {
+      "status": "passed",
+      "source": "production F10 recorder in native physics collapse playtest",
+      "codec": "H264",
+      "bytes": 118563,
+      "decodedFrames": 8,
+      "width": 816,
+      "height": 544,
+      "durationSeconds": 4.802,
+      "checks": [
+        "Every frame decoded",
+        "Frame count matches MP4 metadata",
+        "First and last images differ",
+        "Below 6 MB artifact limit"
+      ]
+    }
+  },
+  "mediaSha256": {
+    "dashboard/evidence/physics-force-inertia.png": "a3d9e2d41b1eb3763131350c3251e41614c4b2a1c48b5ae0fbcb45dd7f57738c",
+    "dashboard/evidence/physics-collapse.mp4": "6906a9bc4c7d7b2a290416314c52b08b996c331ccc1cf562554dc779387dd995",
+    "dashboard/evidence/physics-contact-sliding.png": "4d820e0d3a5bfabab331394ccbf6de15cf7208f58915050cadb041336bcf68d2"
+  },
+  "publication": "Pending controller commit/push and independent review; developer did not publish."
+}

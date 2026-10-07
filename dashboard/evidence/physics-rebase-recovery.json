@@ -1,6 +1,6 @@
 {
   "status": "resolved_files_await_controller_rebase_continue",
-  "recordedAt": "2026-10-07T20:38:27.763716+00:00",
+  "recordedAt": "2026-10-07T20:39:34.487281+00:00",
   "checks": [
     {
       "command": "git show :2:dashboard/progress.json; git show :3:dashboard/progress.json (parsed privately; only relevant item inspected)",
@@ -66,6 +66,21 @@
       "resolution": "Upstream progress/root retained; CCD physics entry replayed; recovery history lists merged without duplicate identical records.",
       "checks": "Both JSON files valid/no markers; upstream city/network source and existing regression assets unchanged; no unrelated diff paths or deletions.",
       "Playtest": "Pending complete replay, including joint-load fixes; historical media not final-head validation."
+    },
+    {
+      "conflict": "dashboard/progress.json",
+      "resolution": "Preserved stage2 root and all 70 nonphysics entries; retained replayed force/inertia physics validation item with pending-recovery status.",
+      "checks": "JSON valid; 71 unique IDs; upstream city byte matches; no reviewer-base deletions; CCD/wake/world inertia code retained.",
+      "Playtest": "Not rerun during partial rebase; final-head city/physics playtests, fresh media and macOS CI remain pending."
+    },
+    {
+      "conflicts": [
+        "dashboard/progress.json",
+        "dashboard/evidence/physics-rebase-recovery.json"
+      ],
+      "resolution": "Preserved upstream metadata/nonphysics entries, replayed force/inertia physics entry, combined both recovery histories.",
+      "checks": "JSON/unique IDs/no markers; full pinned-base diff and upstream byte audit; CCD/wake/world inertia retained.",
+      "Playtest": "Final-head execution awaits complete joint-fix replay; earlier results remain historical."
     }
   ]
 }
