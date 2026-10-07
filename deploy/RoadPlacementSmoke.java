@@ -106,6 +106,27 @@ public class RoadPlacementSmoke {
                     require(section.size()==RoadTypes.width(type),"Road width type "+type);
                     require(section.stream().allMatch(r -> r.type()==t),"Stored road type "+type);
                 }
+                // Off-axis click builds both legs; preview is captured before submission.
+                camera.focus(110,80,city().roads().get(0).y()+1); x("getwindowfocus");
+                menu(2); point(100,70);
+                var bendPreview = new Matrix4f(screenMatrix)
+                        .transform(new Vector4f(120,city().roads().get(0).y()+1.03f,90,1));
+                x("mousemove","--window",windowId,Integer.toString(java.lang.Math.round((bendPreview.x/bendPreview.w*.5f+.5f)*width())),
+                        Integer.toString(java.lang.Math.round((.5f-bendPreview.y/bendPreview.w*.5f)*height())));
+                capture="right-angle-preview.png"; Thread.sleep(700);
+                point(120,90);
+                require(city().roads().stream().anyMatch(r -> r.x()==110 && r.z()==70 && r.type()==2),"Bent road X leg");
+                require(city().roads().stream().anyMatch(r -> r.x()==120 && r.z()==80 && r.type()==2),"Bent road Z leg");
+                require(city().roads().stream().noneMatch(r -> r.x()==110 && r.z()==80),"No diagonal shortcut");
+                camera.camera().setPitch(-75);
+                Thread.sleep(15000);
+                capture="right-angle-built.png"; Thread.sleep(2500);
+                camera.camera().setPitch((float) -java.lang.Math.toDegrees(java.lang.Math.atan(1 / java.lang.Math.sqrt(2))));
+                // Reverse-direction bend is an edge case of the same two-click workflow.
+                camera.focus(150,80,city().roads().get(0).y()+1); x("getwindowfocus");
+                menu(1); point(160,90); point(140,70);
+                require(city().roads().stream().anyMatch(r -> r.x()==150 && r.z()==90 && r.type()==1),"Reverse X leg");
+                require(city().roads().stream().anyMatch(r -> r.x()==140 && r.z()==80 && r.type()==1),"Reverse Z leg");
                 // Upgrade dirt through the same menu and mouse workflow.
                 camera.focus(70,64,city().roads().get(0).y()+1); x("getwindowfocus");
                 menu(1); point(60,64); point(80,64);
@@ -124,7 +145,7 @@ public class RoadPlacementSmoke {
                 require(!((CityTools)get("cityTools")).roadMenu,"Menu escape");
                 camera.focus(70,80,city().roads().get(0).y()+1); x("getwindowfocus");
                 capture="road-surfaces.png"; Thread.sleep(1200); x("key","F10"); Thread.sleep(2000);
-                Files.writeString(out.resolve("results.json"),"{\"status\":\"passed\",\"platform\":\"Linux X11 inherited role display; Mesa\",\"profile\":\"isolated synthetic offline city\",\"checks\":[\"road menu\",\"dirt and paved 2/3/4 lane placement\",\"direction guide\",\"distinct world widths\",\"dirt upgrade\",\"cancel endpoint leaves world and road spending unchanged\",\"menu escape returns to inspect\"],\"recording\":\"production F10 recorder\"}\n");
+                Files.writeString(out.resolve("results.json"),"{\"status\":\"passed\",\"platform\":\"Linux X11 inherited role display; Mesa\",\"profile\":\"isolated synthetic offline city\",\"checks\":[\"off-axis right-angle preview and both legs\",\"reverse-direction bend\",\"no diagonal shortcut\",\"road menu\",\"dirt and paved 2/3/4 lane placement\",\"direction guide\",\"distinct world widths\",\"dirt upgrade\",\"cancel endpoint leaves world and road spending unchanged\",\"menu escape returns to inspect\"],\"recording\":\"production F10 recorder\"}\n");
             } catch(Throwable e) {
                 failure=e;
                 try { Files.writeString(out.resolve("failure.txt"),e.getClass().getSimpleName()+": "+e.getMessage()); } catch(Exception ignored) {}

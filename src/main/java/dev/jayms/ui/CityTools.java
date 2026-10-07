@@ -228,7 +228,13 @@ public final class CityTools {
         if (hover != null) {
             var p = project(hover.x(), ground, hover.z(), projection, view, w, h);
             var last = points.get(points.size() - 1);
-            edge(ui, project(last.x(), ground, last.z(), projection, view, w, h), p, 1, 1, .2f);
+            var route = tool == 4 ? RoadRoute.points(List.of(last, hover)) : List.of(last, hover);
+            for (int i = 1; i < route.size(); i++) {
+                var a = route.get(i - 1);
+                var b = route.get(i);
+                edge(ui, project(a.x(), ground, a.z(), projection, view, w, h),
+                        project(b.x(), ground, b.z(), projection, view, w, h), 1, 1, .2f);
+            }
             if (p != null) ui.rectangle(p.x - 5, p.y - 5, 10, 10, 1, 1, .2f, 1);
         }
     }
@@ -493,7 +499,7 @@ public final class CityTools {
                         : tool == 9 ? "Click airport to add a runway | $1000 | Clear 36 x 16 strip to south | Maximum 3 runways"
                         : tool == 10 ? "Inspect an adult citizen, then click destination airport | Citizen walks to a connected origin"
                         : tool == 4
-                        ? roadMenu ? "Choose a road | Esc: cancel" : RoadTypes.NAMES[roadType] + " | Click two endpoints | $4 per new or upgraded cell | Esc: cancel"
+                        ? roadMenu ? "Choose a road | Esc: cancel" : RoadTypes.NAMES[roadType] + " | Click two endpoints: X then Z bend | $4 per new or upgraded cell | Esc: cancel"
                         : tool >= 0 && tool < 4
                                 ? "Click convex polygon corners | Enter: zone | Backspace: undo |"
                                         + " Esc: cancel"

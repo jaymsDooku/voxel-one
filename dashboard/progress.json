@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T00:53:35.724030+00:00",
+  "updatedAt": "2026-10-07T02:45:11+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,15 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "35353439383837332d393262632d343536312d616464642d396661313231326632653537",
+      "title": "Right-angle road routes",
+      "description": "Adding joined right-angle routes and matching previews.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Right-angle road routes and previews implemented. Native playtest, media decode and 367-test Maven verify passed. Awaiting controller publication and separate review.",
+      "updatedAt": "2026-10-07T02:45:11+00:00"
+    },
     {
       "id": "32393565343262322d373731352d343339342d396432342d653663393930356237303038",
       "title": "Offline cheat mode",
