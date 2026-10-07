@@ -51,6 +51,7 @@ public class Main {
     private PlaneModel planeModel;
     private RailwayModel railwayModel;
     private Jeep jeep;
+    private dev.jayms.audio.VehicleAudio vehicleAudio;
     private JeepModel jeepModel;
     private java.nio.file.Path jeepSave() { return offlineSave.resolveSibling(offlineSave.getFileName()+".jeep"); }
     private FarmModels farmModels;
@@ -217,6 +218,7 @@ public class Main {
             if (window == null) init();
             else reuseWindow();
             initScene();
+            if (vehicleAudio == null) vehicleAudio = new dev.jayms.audio.VehicleAudio();
             if (frameObserver != null) frameObserver.started(this);
             loop();
         } finally {
@@ -1012,6 +1014,10 @@ public class Main {
             if (editor.open) glClearColor(.025f, .045f, .075f, 1);
             else glClearColor(.48f, .72f, .92f, 1);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            Vector3f audioListener = new Vector3f(player.position());
+            if (isometric && overview.focused()) audioListener.set(overview.focusX(), overview.focusY(), overview.focusZ());
+            vehicleAudio.update(jeep, city(), audioListener, menu.open || editor.open
+                    || framebufferWidth == 0 || framebufferHeight == 0);
             if (framebufferWidth > 0 && framebufferHeight > 0) {
                 renderCity = network == null ? local.city.frame() : network.city;
                 try { render(); renderOverlay(); }
@@ -1496,6 +1502,7 @@ public class Main {
     }
 
     private void cleanup(boolean keepWindow) throws Exception {
+        if (vehicleAudio != null) vehicleAudio.close();
         recorder.close();
         if (local != null) local.save();
         if (jeep != null) jeep.save(jeepSave());

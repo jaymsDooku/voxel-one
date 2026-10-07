@@ -35,6 +35,8 @@ public final class IsometricCamera {
         return panZ;
     }
 
+    public float focusY() { return focusY; }
+
     public void focus(float x, float z) {
         focused = true;
         panX = x;

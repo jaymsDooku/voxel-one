@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T08:18:18.790758+00:00",
+  "updatedAt": "2026-10-07T08:39:42+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,86 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "36623965383765392d303861652d343231642d393466392d633935633832613437313337",
+      "title": "Vehicle sounds",
+      "description": "Inspecting vehicle state and adding client audio.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "Executed commands and Playtest \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/vehicle-audio-checkpoint.md"
+        },
+        {
+          "kind": "report",
+          "label": "37-test scoped verify and packages \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/vehicle-audio-build-check.json"
+        },
+        {
+          "kind": "report",
+          "label": "Native application audio playtest \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/vehicle-audio-playtest.json"
+        },
+        {
+          "kind": "report",
+          "label": "Full F10 decode \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/vehicle-audio-video-check.json"
+        },
+        {
+          "kind": "report",
+          "label": "Native PCM checks \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/vehicle-audio-pcm-check.json"
+        },
+        {
+          "kind": "image",
+          "label": "Driven car \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/vehicle-audio-car.png"
+        },
+        {
+          "kind": "image",
+          "label": "Working steam train \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/vehicle-audio-train.png"
+        },
+        {
+          "kind": "image",
+          "label": "Departing plane \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/vehicle-audio-takeoff.png"
+        },
+        {
+          "kind": "video",
+          "label": "Moving train F10 clip (silent) \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/vehicle-audio-train.mp4"
+        },
+        {
+          "kind": "report",
+          "label": "Native engine idle WAV \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/vehicle-audio-car-idle.wav"
+        },
+        {
+          "kind": "report",
+          "label": "Native driven engine WAV \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/vehicle-audio-car-driving.wav"
+        },
+        {
+          "kind": "report",
+          "label": "Native steam-train WAV \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/vehicle-audio-train-moving.wav"
+        },
+        {
+          "kind": "report",
+          "label": "Native takeoff WAV \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/vehicle-audio-plane-takeoff.wav"
+        },
+        {
+          "kind": "link",
+          "label": "Review recovery checks \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623965383765392d303861652d343231642d393466392d633935633832613437313337/dashboard/evidence/vehicle-audio-road-recovery.md"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Review recovery checked: 53 tests pass; exact diagonal-road CLI passes; base road regressions and history retained. Native binaries removed from worktree and ignored. Controller must stage removals/resolution and continue Git before final-head playtest/media.",
+      "updatedAt": "2026-10-07T08:39:42+00:00"
+    },
     {
       "id": "63363064363463302d316661372d346365352d386366352d346661663863373732396561",
       "title": "Road snapping, chains and section editing",

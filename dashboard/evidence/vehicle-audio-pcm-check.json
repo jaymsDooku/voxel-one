@@ -1,0 +1,51 @@
+{
+  "status": "passed",
+  "origin": "actual native OpenAL Soft loopback during Main application playtest",
+  "physicalSpeakerOutputTested": false,
+  "captures": [
+    {
+      "file": "vehicle-audio-car-idle.wav",
+      "channels": 2,
+      "sampleRateHz": 22050,
+      "sampleBits": 16,
+      "durationSeconds": 1.0,
+      "rms": 1181.62,
+      "peak": 2424,
+      "clippedSamples": 0,
+      "sha256": "6403051c9a874ebcccbe4b16c9114c12155032ec35dd184213dde2c205ec2005"
+    },
+    {
+      "file": "vehicle-audio-car-driving.wav",
+      "channels": 2,
+      "sampleRateHz": 22050,
+      "sampleBits": 16,
+      "durationSeconds": 1.0,
+      "rms": 1179.73,
+      "peak": 2411,
+      "clippedSamples": 0,
+      "sha256": "fe51b346276344117197c1f02f2a1b5631096faed31ab792a631630d3260cb83"
+    },
+    {
+      "file": "vehicle-audio-train-moving.wav",
+      "channels": 2,
+      "sampleRateHz": 22050,
+      "sampleBits": 16,
+      "durationSeconds": 1.0,
+      "rms": 993.82,
+      "peak": 3105,
+      "clippedSamples": 0,
+      "sha256": "63b7944ad846a87699ca97946c779e55dc69a3ec207056b3811951c43e5a5742"
+    },
+    {
+      "file": "vehicle-audio-plane-takeoff.wav",
+      "channels": 2,
+      "sampleRateHz": 22050,
+      "sampleBits": 16,
+      "durationSeconds": 1.0,
+      "rms": 1010.57,
+      "peak": 3656,
+      "clippedSamples": 0,
+      "sha256": "2bcd7acdab06067d97d7345105445230845ca3d655e6c87543bf3ac6bb5c572e"
+    }
+  ]
+}

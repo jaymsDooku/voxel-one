@@ -1,0 +1,66 @@
+{
+  "status": "passed",
+  "scope": "affected vehicle/audio/aviation/railway/camera/save suites only",
+  "command": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 timeout 180s mvn -q -Dmaven.repo.local=target/maven-cache -Djava.io.tmpdir=\"$PWD/target/tmp\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=VehicleAudioTest,AviationTest,JeepTest,RailwayTest,IsometricCameraTest,CitySavesTest,RailwaySaveCompatibilityTest verify",
+  "exitCode": 0,
+  "tests": 37,
+  "suites": [
+    {
+      "name": "dev.jayms.VehicleAudioTest",
+      "tests": "1",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.AviationTest",
+      "tests": "10",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.JeepTest",
+      "tests": "8",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.RailwayTest",
+      "tests": "5",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.IsometricCameraTest",
+      "tests": "8",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.CitySavesTest",
+      "tests": "2",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.RailwaySaveCompatibilityTest",
+      "tests": "3",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0"
+    }
+  ],
+  "fullSuitePassed": false,
+  "fullSuiteNote": "Unscoped verify interrupted; bounded offline unscoped verify timed out at 240 seconds. No full-suite pass claimed.",
+  "packages": [
+    "voxel-one-1.0-SNAPSHOT-launcher.jar",
+    "voxel-one-1.0-SNAPSHOT-client.jar",
+    "voxel-one-1.0-SNAPSHOT-server.jar",
+    "voxel-one-1.0-SNAPSHOT.jar"
+  ]
+}
