@@ -295,5 +295,5 @@
     "placement": "Rail costs $8 per new cell; road crossings are rejected; rail buildings require front road access and a rear track dock.",
     "legacy": "City save version 10 and network protocol 20; prior city saves still migrate; old servers reject rail commands."
   },
-  "historical_notice": "Earlier media and test reports predate road workflow and ownership recovery; final-head validation remains pending."
+  "historical_notice": "Earlier reports and media predate save format14/protocol25 and restored road ownership; final-head validation remains pending."
 }
