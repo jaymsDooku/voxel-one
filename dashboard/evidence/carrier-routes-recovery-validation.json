@@ -1,0 +1,96 @@
+{
+  "status": "recovery_files_ready_for_controller",
+  "base": "042677bf255719ba3fdb8f74ad05cb4c7592e36e",
+  "environment": "Linux; Java17; Maven3.9.11; sandbox enabled; assigned worktree dependency cache and temp directory",
+  "resolution": "Resolved only the progress updatedAt conflict. Retained all base progress items and added carrier-routes. No source conflict or base rollback remains.",
+  "preservation": {
+    "base": "042677bf255719ba3fdb8f74ad05cb4c7592e36e",
+    "unchangedBasePaths": 1516,
+    "unexpectedChanges": [],
+    "noBaseDeletions": true
+  },
+  "baseProgressEntriesPreservedExactly": 61,
+  "preservedNoncardinalMediaFiles": 14,
+  "commands": [
+    "/tmp/apache-maven-3.9.11/bin/mvn --batch-mode -q -Dmaven.repo.local=target/m2 -Dlwjgl.natives=natives-linux \"-DargLine=-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=RoadTypesTest,ShippingRoutesTest,ShippingTest,ShippingProtocolCompatibilityTest,ShippingAviationCompatibilityTest,RailwayShippingCompatibilityTest,BuildingInfoTest,AviationTest,RailwayTest verify",
+    "git diff --check HEAD"
+  ],
+  "tests": [
+    {
+      "name": "dev.jayms.RoadTypesTest",
+      "tests": "9",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.ShippingRoutesTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.ShippingTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.ShippingProtocolCompatibilityTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.ShippingAviationCompatibilityTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.RailwayShippingCompatibilityTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.BuildingInfoTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.AviationTest",
+      "tests": "10",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.RailwayTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0"
+    }
+  ],
+  "totalTests": 46,
+  "reviewerRegressionChecks": [
+    {
+      "test": "RoadTypesTest.verticalAndDiagonalRoadsFollowEndpoints",
+      "expected": "Diagonal route has no cardinal legs",
+      "observed": "Passed original base test"
+    },
+    {
+      "test": "RoadTypesTest.shallowAndSteepHeadingsUseDirectRasterForEveryType",
+      "expected": "21 centers; direct endpoints; all four road types",
+      "observed": "Passed original base test"
+    }
+  ],
+  "playtest": "Playtest: no new native run during this rebase recovery. Earlier carrier media and ship workflow validation are historical to fe6e95b9b18bfb08a2cc25459b74c20624b3d322. After controller stages and continues the rebase, resume for final-head native carrier and non-cardinal road checks with fresh synthetic profiles and media. Browser playtesting does not apply to the native Java/OpenGL game.",
+  "handoff": "Controller must stage resolutions and continue the rebase. Developer did not stage, continue, abort/reset, commit, push, merge or deploy. Final-head validation and fresh media remain required.",
+  "sourceSha256": {
+    "src/main/java/dev/jayms/net/city/RoadRoute.java": "a499f14a50230824b427c68cb627bc5a88b77be308b2df9444a538dffcc28db7",
+    "src/test/java/dev/jayms/RoadTypesTest.java": "6671b88dc1a466250ebd32c78e0a6a3ed52df5bcdd60ccd3dd165a637f6b6bc7",
+    "src/main/java/dev/jayms/Main.java": "3e08ee310ad2dba11134becb627b788a224ddcb266501f2b1836510708360638",
+    "src/main/java/dev/jayms/net/city/ShippingRoutes.java": "37c6bf8b19c79a08b57117eb918d9a9c7a7352d560149b29011f7c16e0ff9afe",
+    "src/main/java/dev/jayms/player/ShipModel.java": "39b71605a993d8807fae7ba2428f3eeea8869d2f94319e7eb97cf47157082c96"
+  }
+}

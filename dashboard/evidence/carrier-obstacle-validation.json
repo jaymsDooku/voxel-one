@@ -1,0 +1,805 @@
+{
+  "status": "ready_for_independent_review",
+  "completedAt": "2026-10-07T09:48:59.149863+00:00",
+  "startingHead": "a2d91a4388dde0429f401a3cd7b4b0b7b2a0f23e",
+  "base": "69f11541824d573ad1e282be73dffc2a0df682d6",
+  "environment": "Linux X11/Mesa; inherited assigned DISPLAY/XAUTHORITY, fresh synthetic profiles; compiler target Java17; Maven3.9.11; assigned-worktree dependency cache and temp directory. Browser playtesting does not apply to this native Java/OpenGL game.",
+  "fixes": [
+    "Routes/ships now require World. Main and native harness pass the actual edited world. Water at y14 and air y15..23 are checked across the full conservative corridor. Partial voxel obstructions also reject the route.",
+    "Cache key uses World identity, World.editsVersion() and ports. Insert/remove edits force rebuilds, including cached empty routes.",
+    "WorldVoxels.type returns implicit terrain directly when no override exists, avoiding temporary octrees for each clearance sample. Existing override and partial-block semantics are preserved.",
+    "Native return wait increased from 40 to 240 sec; arrival wait 400 sec; total runtime limit 900 sec. Real simulation time remains unchanged. Actual restart of production Main verifies loaded route and renders a fresh screenshot."
+  ],
+  "unitValidation": {
+    "status": "passed",
+    "totalTests": 411,
+    "suites": [
+      {
+        "name": "dev.jayms.RailwayTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.ExchangeLabourMarketTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CraftingTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.BusinessDashboardTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.MarketEconomyTest",
+        "tests": "13",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.IndustrialProgressionTest",
+        "tests": "10",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.ShippingProtocolCompatibilityTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CityMaterialsTest",
+        "tests": "13",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.ManufacturingTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.AviationSaveCompatibilityTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CityAddressesTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CityToolsTest",
+        "tests": "10",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.MayorDashboardTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CityCapitalTest",
+        "tests": "11",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.city.CityStockExchangeTest",
+        "tests": "10",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.DistantTerrainTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.RailwaySaveCompatibilityTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.ControlsTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CapitalInspectorTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.RemotePlayerTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.JeepTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.ModelSculptorTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.PlayerCameraTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.PopulationJourneyTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.SpecialBuildingsTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.ExchangePermitCompositionTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CityMetricsTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CityTimeTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CitizenLifeTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CapitalSettlementLimitsTest",
+        "tests": "9",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CityMultiplayerTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.BuildingInfoTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.VideoRecordingTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.MixedRoadOwnershipTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.OperatingEnergyTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.ShippingRoutesTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.LightingTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.RoadTypesTest",
+        "tests": "9",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.IsometricOrbitDragTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.PlayerTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.RoadBaseCompatibilityTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CitySavesTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.UpdaterTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.FreightFallbackTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.RegionalPopulationTest",
+        "tests": "10",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.RailwayShippingCompatibilityTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.RoadCitySavesTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.SurvivalTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CityBusinessTest",
+        "tests": "9",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.RailwayAirportCompatibilityTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.LightOcclusionTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.AccountStoreTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.MultiplayerTest",
+        "tests": "15",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.RailwayOwnershipCompatibilityTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CapitalDashboardTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.FractionalWorldTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.MetricHistoryTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.RegionalSaveCompatibilityTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CityTest",
+        "tests": "10",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.ShopRestockMarketTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.ProtocolCompatibilityTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.RoadWorkflowTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.BusinessCatalogTest",
+        "tests": "11",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.city.RoadSpacingTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CityEconomyTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.InventoryHudTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.VehicleAudioTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.ShippingAviationCompatibilityTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.DemolitionTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.TerrainGenerationTest",
+        "tests": "10",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.ShippingTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.PlayerAnimationTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.AviationTest",
+        "tests": "10",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.RegionalMultiplayerTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.AgricultureTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.IsometricCameraTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.VoxelModelTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ],
+    "command": "MAVEN_OPTS=-Xmx512m /tmp/apache-maven-3.9.11/bin/mvn --batch-mode -q -Dmaven.repo.local=target/m2 -Dlwjgl.natives=natives-linux \"-DargLine=-Xmx512m -Djava.io.tmpdir=$PWD/target/tmp\" verify",
+    "environment": "Linux Java17, Maven3.9.11, worktree-local dependency cache and temp directory",
+    "observed": "411 tests, zero skips, failures or errors; package/verify completed"
+  },
+  "nativeValidation": {
+    "entry": "Playtest: production Main on inherited role display; stone insert/removal performed on render thread and persisted in the synthetic edit history. Full outbound/dwell/return and actual application restart executed.",
+    "exitCode": 0,
+    "steps": [
+      {
+        "step": "Permit inland port",
+        "expected": "No port; notice requires open ocean",
+        "observed": "No building and open-ocean notice asserted"
+      },
+      {
+        "step": "Place technical college level 3",
+        "expected": "Existing college behavior retained",
+        "observed": "Building type 22 asserted"
+      },
+      {
+        "step": "Place first coastal port and overlap",
+        "expected": "Permit succeeds; duplicate rejected; no route with one port",
+        "observed": "Permit, hull/water, building count and empty ships assertions passed"
+      },
+      {
+        "step": "Place second coastal port",
+        "expected": "One automatic water route",
+        "observed": "routes().size() == 1 asserted"
+      },
+      {
+        "step": "Apply stone edit on the render thread inside water corridor",
+        "expected": "Cached production route and fresh route both reject stone; ship hidden",
+        "observed": "Real world.sample == STONE; both route lists and ships list empty"
+      },
+      {
+        "step": "Remove stone edit",
+        "expected": "Cached and fresh routes recover",
+        "observed": "Both route counts == 1 asserted"
+      },
+      {
+        "step": "Observe ship sailing",
+        "expected": "Position changes by more than 2 blocks",
+        "observed": "Displacement > 2 blocks asserted"
+      },
+      {
+        "step": "Follow outbound arrival",
+        "expected": "Ship reaches destination and waits",
+        "observed": "Within 0.1 block of destination and sailing == false"
+      },
+      {
+        "step": "Wait through destination dwell",
+        "expected": "Real city time advances and ship returns",
+        "observed": "Arrival clock 60.00000089406967 s; return departure 68.40000101923943 s; sailing and Z displacement > 1 asserted"
+      },
+      {
+        "step": "Save and reload edits/city",
+        "expected": "Water corridor, ports and clock restore",
+        "observed": "Replayed world has one route; saved elapsed 68.50000102072954 s"
+      },
+      {
+        "step": "Restart production Main from saved synthetic profile",
+        "expected": "Restored ship renders on water from saved clock",
+        "observed": "Native restart assertions passed; fresh carrier-routes-reloaded.png saved"
+      }
+    ],
+    "rawSanitizedResults": {
+      "status": "passed",
+      "platform": "Linux X11 inherited role display; Mesa",
+      "profile": "isolated synthetic offline city on generated version 3 terrain",
+      "checks": [
+        "actual menu clicks reject inland port",
+        "technical college level 3 regression",
+        "actual coastal port permit",
+        "carrier hull and containers in world",
+        "ocean beside berth preserved",
+        "overlap rejected",
+        "two camera angles",
+        "single port edge: no service",
+        "second port actual permit click creates water route",
+        "carrier moves more than 2 blocks in running application",
+        "complete outbound voyage reaches destination and dwells",
+        "return voyage starts after destination dwell",
+        "cached and fresh routes reject real world stone edit",
+        "removing obstacle restores routes"
+      ],
+      "recording": "production F10 recorder",
+      "siteX": -100,
+      "siteZ": 210,
+      "saveReload": "passed",
+      "nativeRestart": "passed",
+      "arrivalClock": 60.00000089406967,
+      "returnClock": 68.40000101923943,
+      "reloadedElapsed": 68.50000102072954
+    }
+  },
+  "roadRegression": {
+    "entry": "Playtest: preserved RejectedRoadWorkflowSmoke, separate fresh synthetic profile, same assigned display after ship process exited.",
+    "expected": "Budget rejection/retry; placement chaining; selection/edit/delete; direct diagonal and shallow routes for all four road types.",
+    "observed": {
+      "status": "passed",
+      "checks": [
+        "budget rejection retains anchor",
+        "retry has no gap",
+        "success advances chain",
+        "selection/edit/delete regression",
+        "straight diagonal road",
+        "diagonal edit/delete",
+        "shallow headings for all road types"
+      ],
+      "profile": "isolated synthetic city",
+      "platform": "Linux inherited X11 Mesa"
+    },
+    "exitCode": 0,
+    "retryNote": "First extra road process exited 143 before road checks. One retry passed; no code failure or quota reason inferred."
+  },
+  "mediaValidation": {
+    "ship": {
+      "status": "passed",
+      "source": "production F10 recorder in edited-world shipping ship workflow",
+      "codec": "H264",
+      "bytes": 1988687,
+      "decodedFrames": 73,
+      "width": 960,
+      "height": 544,
+      "durationSeconds": 32.883,
+      "checks": [
+        "Every frame decoded",
+        "Frame count matches MP4 metadata",
+        "First and last images differ",
+        "Below 6 MB artifact limit"
+      ]
+    },
+    "road": {
+      "status": "passed",
+      "source": "production F10 recorder in edited-world shipping road workflow",
+      "codec": "H264",
+      "bytes": 4316239,
+      "decodedFrames": 179,
+      "width": 960,
+      "height": 544,
+      "durationSeconds": 99.281,
+      "checks": [
+        "Every frame decoded",
+        "Frame count matches MP4 metadata",
+        "First and last images differ",
+        "Below 6 MB artifact limit"
+      ]
+    }
+  },
+  "visualInspection": "Inspected fresh blocked-stone image (stone visible, sailing ship absent), return image beside destination port, restarted ship image, decoded ship end sample, shallow-road image and decoded road sample. Cargo stacks, stepped hull, bridge and funnel are visible. Captured native views showed 1-4 FPS under software rendering.",
+  "protectedBaseFileSha256": {
+    "dashboard/evidence/noncardinal-manifest.json": "5cc90c07fb4c44e44c01773ad621a58dc6ec28b614a42449df4564d05e1e79c6",
+    "dashboard/evidence/noncardinal-road-menu.png": "cb822bb662049e90c6cafa688f6120aadfe3f1ccf43536f8dd041e6536b74ead",
+    "dashboard/evidence/noncardinal-road-playtest.json": "bcd7a92c7b4bd6401bc816442d6f3911e21ca3b844b327a7665cc33d0c9cca13",
+    "dashboard/evidence/noncardinal-road-playtest.mp4": "0f8b4f8a4069deb12524f95a9357faffccbce9bfddd0933dc31dc29cba844245",
+    "dashboard/evidence/noncardinal-road-road-diagonal-edited.png": "2b29be09cbc16a3e67bc23fccb2f8a5aa0ca710ba887dc56b690cc683d224590",
+    "dashboard/evidence/noncardinal-road-road-diagonal.png": "6f66fa8a4061ac1cdaa9e4626acec4f0e884601f486ddb337b9c438625d7768c",
+    "dashboard/evidence/noncardinal-road-road-rejected-anchor.png": "391df4061435d79214601b3d5678b8565e1b9dce2fe81d3fd122ededfb9b19dc",
+    "dashboard/evidence/noncardinal-road-road-retry-connected.png": "c22d2f94adc6849d796b6c342beef3f42f92cbf18bbbd6dfbd9579b97c4d62b2",
+    "dashboard/evidence/noncardinal-road-road-shallow.png": "3796263376606401cb579195a5255e00bd5814f4f9713a90d77555c9a5da1596",
+    "dashboard/evidence/noncardinal-road-video-all-frames.json": "20dffa2cefb6143043e54bd4cb53e2b2ce1343790f6827d6df57a416507e9a13",
+    "dashboard/evidence/noncardinal-road-video-samples.json": "32f02ca497f077e0a1ec70fda8fb5cb4c1da3b10a0bed9f614e0a801e609a353",
+    "dashboard/evidence/noncardinal-source-hashes.json": "30f1b19c546edfe3db4e71b83c75c35536ac2949c998ae4388d5ce1f76e3f76e",
+    "dashboard/evidence/noncardinal-tests.json": "a928a9e48d7bb342c2598eda771f469085423d58f2228a346878c975bf48372b",
+    "dashboard/evidence/noncardinal-validation.md": "f38b574e39d3321568f592baa009011a161d8069d345e24824a3da4b2e5b92a5",
+    "dashboard/evidence/vehicle-audio-build-check.json": "87d3402a38e1fc98ff2b67e3c2ad426aa122505c818b87ce4791f15679889140",
+    "dashboard/evidence/vehicle-audio-car-driving.wav": "3d74fc2695565abb2e74f05cf3dbd1735fba441b84c4ad88129b77eb908adcc1",
+    "dashboard/evidence/vehicle-audio-car-idle.wav": "26b097a7b5fe74548c4b0d6a2c915c9b85cbaea9fcf727cb948839a057ed2c27",
+    "dashboard/evidence/vehicle-audio-car.png": "5b976deb01e7ced88f5f87affb0d4e32d0845a69b76d803cc628e2e2da725bea",
+    "dashboard/evidence/vehicle-audio-checkpoint.md": "6a52d6ebbcc9de51adce3c7b92eb61730f4ae2822b9cdb4cee658c860c0a813b",
+    "dashboard/evidence/vehicle-audio-final-media.json": "db821729f1216323c48aabe99f06cd09220eda18114aa11caa1d7dbcd1355f2d",
+    "dashboard/evidence/vehicle-audio-final-validation.md": "e687c0a329589e7fb5cde8ba0fe89fc2239a6451705d40b4a71bea2585a5b7ed",
+    "dashboard/evidence/vehicle-audio-pcm-check.json": "d826ccbb9fb66057723b21d6249f3bf221a555a1e2246ba77bdc8ffb6d10725f",
+    "dashboard/evidence/vehicle-audio-plane-takeoff.wav": "ec49d313ba9a5a962d272ff5c96853e4727cf9bb3a3cf5ff4f7b120b0d68a098",
+    "dashboard/evidence/vehicle-audio-playtest.json": "ea44ca7fdf03f9fc57e0e203861f496cb159d747f8cadad125d2f8668244cb5c",
+    "dashboard/evidence/vehicle-audio-road-recovery.md": "50feddf53abe982359698e7c3d7f066612d27971a185986c5dd01187adbb1c0b",
+    "dashboard/evidence/vehicle-audio-source-check.json": "983ff65276394d8ad79ac56661714ee13bd4064b219a8768e2997fccbd90d93b",
+    "dashboard/evidence/vehicle-audio-takeoff.png": "bdaeda0c7320bb20bdb63e7b79f3c723cffa362355f1693e9642fa0345c344a4",
+    "dashboard/evidence/vehicle-audio-train-moving.wav": "1fe9246785dfe6f30d08baf2670de4154cf541c7cce3d6bf10e691451078b2d0",
+    "dashboard/evidence/vehicle-audio-train.mp4": "d643fdc80575a5a2c79fbfb0a08ddd0e5c53ed5e0d0ed0ee3773915a535b17af",
+    "dashboard/evidence/vehicle-audio-train.png": "c5bfc29e57ed976d575097d304d400a046d2c8586d8309202baf391ad8abb830",
+    "dashboard/evidence/vehicle-audio-video-check.json": "869a4c88386dc57d5c7a18c3c48090c22ef0ddc94c55ee1b5a5e87397ec22b16",
+    "deploy/VehicleAudioDeviceCheck.java": "7a80c79c56ea4ee3edf3cd5d7182ab8bb79cd84c6e6cbb7d200228a12683b8c3",
+    "deploy/VehicleAudioPlaytest.java": "2130822063c7f8a2a97f2029e93eccedec40443c016d6e1cce1995bd591a0de9",
+    "deploy/VerifyVehicleAudioMedia.java": "f253a36e22e7f553ea83ad87eda0a8c1455a1303e2a2bc65651d6dcb08fa9672",
+    "deploy/check_vehicle_audio_pcm.py": "8c26437be4624d9c1ec572ae31bfd34f272f6122b3d0665a3f4dd12146f5d381",
+    "deploy/run_noncardinal_smoke.py": "8bb308c11634629399f1aa6a919633f9909bb0e7f27effae698af3b0265b698b",
+    "deploy/run_vehicle_audio_playtest.py": "6ef73ded3cdf661221074142b9aa1794e1eae6ff3335c4471a516496983f1970",
+    "deploy/verify_noncardinal_media.py": "90ef166fe64caa76844ed3c3e0c25f7ca4118c49c8a827a7f7bae8f618059ba2",
+    "src/main/java/dev/jayms/audio/VehicleAudio.java": "1e779440bbe84cd9a60488115872933b114fb064fd2b0535190c9943c8b2c0d8",
+    "src/main/java/dev/jayms/net/city/RoadRoute.java": "a499f14a50230824b427c68cb627bc5a88b77be308b2df9444a538dffcc28db7",
+    "src/test/java/dev/jayms/RoadTypesTest.java": "6671b88dc1a466250ebd32c78e0a6a3ed52df5bcdd60ccd3dd165a637f6b6bc7",
+    "src/test/java/dev/jayms/VehicleAudioTest.java": "822339cdf5b189bc3762b0870e1fe8f9073135662c465fd469a482a78044a4a6"
+  },
+  "baseProgressEntriesRetained": 62,
+  "sourceSha256": {
+    "src/main/java/dev/jayms/Main.java": "fb8b731712c3fef7df910d496aa247f7d49d6dc44be3d381d476ea8560447ca5",
+    "src/main/java/dev/jayms/World.java": "716b888dbb780ec1507ed284a5b68d2c45d1f5ffcae232e748def25bc0fe8cef",
+    "src/main/java/dev/jayms/net/WorldVoxels.java": "071a9bc48a7bb26977bd93e107dfaeb3c5795b949d0b9b3df0474a614ac8fb4e",
+    "src/main/java/dev/jayms/net/city/ShippingRoutes.java": "b91a52ee4c4ac1ce22af68483108274825f9592564b4129f08a17b08f197cfe0",
+    "src/main/java/dev/jayms/player/ShipModel.java": "39b71605a993d8807fae7ba2428f3eeea8869d2f94319e7eb97cf47157082c96",
+    "src/test/java/dev/jayms/ShippingRoutesTest.java": "319d5d80651a96a8e25174359cd56c00d103c0021b8f126d09d9971fb1fa45fc",
+    "deploy/CarrierRoutesSmoke.java": "60ef881b795704401e2d0aa496ded28841ec44be13627a8885ce7d1e93979934",
+    "deploy/run_carrier_routes_smoke.py": "0134408816b71083a2fbf5f589dce28be15bd780156e088c3d66a7990c757324",
+    "deploy/run_carrier_final_road_smoke.py": "a08631b0f0145ebddffd238547cd1d8cafde9392692792a1bd03e86bac5d8f59",
+    "deploy/RejectedRoadWorkflowSmoke.java": "74b813a27b0ff7c26b606c3038c433cadc2a72ea02be0b144721501a6dd30553",
+    "pom.xml": "15c4ad9c89be00993b512ecd497d8f7f9c38fc378cba67f4f2fb828e621b2e83"
+  },
+  "commands": [
+    "MAVEN_OPTS=-Xmx512m /tmp/apache-maven-3.9.11/bin/mvn --batch-mode -q -Dmaven.repo.local=target/m2 -Dlwjgl.natives=natives-linux \"-DargLine=-Xmx512m -Djava.io.tmpdir=$PWD/target/tmp\" verify",
+    "python3 deploy/run_carrier_routes_smoke.py --display \"$DISPLAY\"",
+    "python3 deploy/run_carrier_final_road_smoke.py --display \"$DISPLAY\" --scenario road",
+    "javac -cp target/m2/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar -d target/carrier-media deploy/VerifyAviationMedia.java deploy/VerifyRoadVideo.java",
+    "git diff --check",
+    "java -Xmx512m -Djava.io.tmpdir=\"$PWD/target/tmp\" -cp target/carrier-media:target/m2/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar VerifyAviationMedia dashboard/evidence/carrier-routes-placement-playtest.mp4 dashboard/evidence/carrier-routes-video-checks.json",
+    "java -Xmx512m -Djava.io.tmpdir=\"$PWD/target/tmp\" -cp target/carrier-media:target/m2/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar VerifyRoadVideo dashboard/evidence/carrier-routes-placement-playtest.mp4 target/carrier-obstacle-video-end.png dashboard/evidence/carrier-routes-video-samples.json",
+    "java -Xmx512m -Djava.io.tmpdir=\"$PWD/target/tmp\" -cp target/carrier-media:target/m2/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar VerifyAviationMedia dashboard/evidence/carrier-final-road-playtest.mp4 dashboard/evidence/carrier-final-road-video-checks.json",
+    "java -Xmx512m -Djava.io.tmpdir=\"$PWD/target/tmp\" -cp target/carrier-media:target/m2/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar VerifyRoadVideo dashboard/evidence/carrier-final-road-playtest.mp4 target/carrier-obstacle-road-end.png dashboard/evidence/carrier-final-road-video-samples.json"
+  ],
+  "publication": "Pending controller staging, commit, push and independent exact-head review. No developer staging, commit, push, merge or deployment.",
+  "artifactSha256": {
+    "dashboard/evidence/carrier-final-road-menu.png": "6d57d30faca5fd924743d3b746636313bf4fe019d91c2cb9be6d1727b70a8bfd",
+    "dashboard/evidence/carrier-final-road-playtest.json": "bcd7a92c7b4bd6401bc816442d6f3911e21ca3b844b327a7665cc33d0c9cca13",
+    "dashboard/evidence/carrier-final-road-playtest.mp4": "4021255252e58bf6a695b071a65227ca501da4f0763e03f832c98de851cd431a",
+    "dashboard/evidence/carrier-final-road-road-diagonal-edited.png": "c59c7ee62d83f8fb338c8ae72502e66c31fd87651a67ff8c7966c49b48dd8552",
+    "dashboard/evidence/carrier-final-road-road-diagonal.png": "008941e100c295a10225d7dc9c5563163973d7ec370b8118d954e9b19b389692",
+    "dashboard/evidence/carrier-final-road-road-rejected-anchor.png": "6bbe2560fb59a09b24bd89a57d1841d9edf0d64d60db783b1f4c5c8dcc22ad09",
+    "dashboard/evidence/carrier-final-road-road-retry-connected.png": "73f3884bbadad9f26370c4804719a5330d416016aa8563941a5defd8f6fdf703",
+    "dashboard/evidence/carrier-final-road-road-shallow.png": "f3aa9a569214c9a5fc07f36fe1baea76cb86d6836cbf4af4eb9f3e35225b2034",
+    "dashboard/evidence/carrier-final-road-video-checks.json": "1a4d33024eddcdd908a6ea4170f314605447efdaa3024e87db72b034eeaaa99f",
+    "dashboard/evidence/carrier-final-road-video-samples.json": "db7b6c63254b890760ba286de9f8eaa3aff284d4398921546786bb77e187a110",
+    "dashboard/evidence/carrier-obstacle-full-tests.json": "2d527c8cdb490910e2f6dc6283a37bbf1a52750e90be1d65dd8c362845eb9d27",
+    "dashboard/evidence/carrier-routes-arrival.png": "a7ef78ae5cce1970818a120896d9e2b99a75c567dabe503ca9745214a9531190",
+    "dashboard/evidence/carrier-routes-bridge.png": "504c2635ca65bc12c6ae33ebb51ddfaae105844fbe68f98e9db5a364045a2829",
+    "dashboard/evidence/carrier-routes-coastal-menu.png": "5ed0961adc28720eda2c405612917615a35ec1255b0159394787365b7053c998",
+    "dashboard/evidence/carrier-routes-inland-rejection.png": "2e4f16a7caa430a66ea05956cc7e37db5d41c94878b4e586a7a25f9971844a71",
+    "dashboard/evidence/carrier-routes-moved.png": "4b65e737c73d2ac16ad5291134450ae930dbcf22e9795abebfd0a7900cc73a29",
+    "dashboard/evidence/carrier-routes-obstacle-blocked.png": "f453918cb5ee27b6e3ab2f765427e9dbb58c4ccba85c7bb6b7593dfa6ea47787",
+    "dashboard/evidence/carrier-routes-obstacle-cleared.png": "512161c3c6f85d197a4deddf39a4737bb194f74ed44e9ad79236638b163bf4f9",
+    "dashboard/evidence/carrier-routes-placement-playtest.json": "08683600bf67c441860c1aa40d52c13b7ca47251b41d608c0d4a14c2e90913f2",
+    "dashboard/evidence/carrier-routes-placement-playtest.mp4": "c6e406aa92f4232201a9b9f1069f226e6ab58c595a1f87b77cbfd3f0b0b07351",
+    "dashboard/evidence/carrier-routes-port-carrier.png": "18e232dc33805fd738e2746e19727dff6bff4bbc01553a688b636034f4587d7e",
+    "dashboard/evidence/carrier-routes-port-reverse.png": "2595088b9eca572fa89af33d650174337394a6dd2b5a7cb01bb91c105f0ce68a",
+    "dashboard/evidence/carrier-routes-reloaded.png": "3c7a9df9a4450f0cc12da1609bda2804af9129f2806b4868eb7127415e41a318",
+    "dashboard/evidence/carrier-routes-return.png": "e8f4ec88a6771983ba79396cbd2e915fa73bfce4ac74624c12c5191104762b5d",
+    "dashboard/evidence/carrier-routes-sailing.png": "5e893cdca9f6a15ffee5ab198cb34e774fe04a111f2e3e94d55f6147521bbd0c",
+    "dashboard/evidence/carrier-routes-video-checks.json": "4c3e08a1e1a360dec33f4847b82a675dfa96c4a06fe1a51427b3171c50d37be2",
+    "dashboard/evidence/carrier-routes-video-samples.json": "9f70c408674169ccd872b90124a35969824addd692f8c5d468ac509f47571fdd"
+  }
+}

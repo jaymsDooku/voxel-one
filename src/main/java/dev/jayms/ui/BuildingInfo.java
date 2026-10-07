@@ -149,6 +149,9 @@ public final class BuildingInfo {
             if (type == SpecialBuildings.PORT) {
                 rows.add("Coastal dock | 2 quay containers | 1 docked cargo carrier");
                 rows.add("Carrier cargo: 1 container | Open ocean berth faces +Z");
+                rows.add("Automatic shipping: build a second coastal port within 2048 blocks");
+                rows.add("Carriers sail between offshore anchorages when the water corridor is clear");
+                rows.add("Cargo service: 18 containers | 4 blocks/sec | 8 sec at each port");
             }
             int kind = SpecialBuildings.kind(type);
             if (type != SpecialBuildings.EXCHANGE && (kind == 1 || kind == 2 || kind == 3 || kind == 5)) {

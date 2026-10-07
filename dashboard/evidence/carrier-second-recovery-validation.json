@@ -1,0 +1,80 @@
+{
+  "status": "second_recovery_files_ready_for_controller",
+  "base": "69f11541824d573ad1e282be73dffc2a0df682d6",
+  "resolution": "Preserved HEAD progress structure, merged only carrier evidence, retained all 62 base progress entries and all 24 audio paths. No unrelated source changes or base deletions.",
+  "tests": [
+    {
+      "name": "dev.jayms.VehicleAudioTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.RoadTypesTest",
+      "tests": "9",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.ShippingRoutesTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.ShippingTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.ShippingProtocolCompatibilityTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.ShippingAviationCompatibilityTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.RailwayShippingCompatibilityTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.BuildingInfoTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.AviationTest",
+      "tests": "10",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.RailwayTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0"
+    }
+  ],
+  "totalTests": 47,
+  "commands": [
+    "/tmp/apache-maven-3.9.11/bin/mvn --batch-mode -q -Dmaven.repo.local=target/m2 -Dlwjgl.natives=natives-linux \"-DargLine=-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=VehicleAudioTest,RoadTypesTest,ShippingRoutesTest,ShippingTest,ShippingProtocolCompatibilityTest,ShippingAviationCompatibilityTest,RailwayShippingCompatibilityTest,BuildingInfoTest,AviationTest,RailwayTest verify",
+    "git diff --check HEAD"
+  ],
+  "environment": "Linux; Java17; Maven3.9.11; assigned worktree dependency cache and temp directory; sandbox enabled.",
+  "remaining": [
+    "Use edited world blocks for shipping corridors and invalidate routes after obstacle changes; current ShippingRoutes bug is not fixed by this recovery.",
+    "Repeat native return and shutdown/reload validation after source fix; investigate the current 40-sec return harness bound under low frame rates.",
+    "Capture fresh final-source ship and obstacle evidence after controller finishes rebase."
+  ],
+  "playtest": "Playtest: no new native run during this pending Git recovery. Earlier native reports/media are historical and do not validate pending obstacle or return fixes. Browser playtesting does not apply to the native Java/OpenGL game.",
+  "handoff": "Controller must stage resolved files and continue the rebase. No staging, continuation, abort/reset, commit, push, merge or deployment by developer."
+}

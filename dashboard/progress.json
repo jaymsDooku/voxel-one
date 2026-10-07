@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T08:48:25+00:00",
+  "updatedAt": "2026-10-07T09:48:59+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,66 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "carrier-routes",
+      "title": "Container carriers and port shipping routes",
+      "description": "Adding automatic water routes and animated voxel container ships.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Carrier route validation \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64313639356363352d646564652d343665352d383035322d626638613863656463643939/dashboard/evidence/carrier-routes-validation.json"
+        },
+        {
+          "kind": "image",
+          "label": "Carrier at destination port \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64313639356363352d646564652d343665352d383035322d626638613863656463643939/dashboard/evidence/carrier-routes-arrival.png"
+        },
+        {
+          "kind": "video",
+          "label": "Fresh carrier sailing F10 clip \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64313639356363352d646564652d343665352d383035322d626638613863656463643939/dashboard/evidence/carrier-routes-placement-playtest.mp4"
+        },
+        {
+          "kind": "link",
+          "label": "Resolved-tree recovery validation \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64313639356363352d646564652d343665352d383035322d626638613863656463643939/dashboard/evidence/carrier-routes-recovery-validation.json"
+        },
+        {
+          "kind": "link",
+          "label": "Audio preservation recovery checks \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64313639356363352d646564652d343665352d383035322d626638613863656463643939/dashboard/evidence/carrier-audio-recovery-validation.json"
+        },
+        {
+          "kind": "link",
+          "label": "Final rebased-source validation \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64313639356363352d646564652d343665352d383035322d626638613863656463643939/dashboard/evidence/carrier-final-validation.json"
+        },
+        {
+          "kind": "image",
+          "label": "Fresh shallow-road regression \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64313639356363352d646564652d343665352d383035322d626638613863656463643939/dashboard/evidence/carrier-final-road-road-shallow.png"
+        },
+        {
+          "kind": "video",
+          "label": "Fresh road regression F10 clip \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64313639356363352d646564652d343665352d383035322d626638613863656463643939/dashboard/evidence/carrier-final-road-playtest.mp4"
+        },
+        {
+          "kind": "link",
+          "label": "Second recovery checks \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64313639356363352d646564652d343665352d383035322d626638613863656463643939/dashboard/evidence/carrier-second-recovery-validation.json"
+        },
+        {
+          "kind": "link",
+          "label": "Edited-world and native restart validation \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64313639356363352d646564652d343665352d383035322d626638613863656463643939/dashboard/evidence/carrier-obstacle-validation.json"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Ready for independent review: edited-world obstacles invalidate cached/fresh routes; removal restores service. Full verify 411 tests passed. Native return and actual restart passed; fresh ship/road videos decoded. Audio and roads preserved; controller publication pending.",
+      "updatedAt": "2026-10-07T09:48:59+00:00"
+    },
     {
       "id": "36623965383765392d303861652d343231642d393466392d633935633832613437313337",
       "title": "Vehicle sounds",

@@ -50,6 +50,8 @@ public class Main {
     private HorseModel horseModel;
     private PlaneModel planeModel;
     private RailwayModel railwayModel;
+    private ShipModel shipModel;
+    private final ShippingRoutes shippingRoutes = new ShippingRoutes();
     private Jeep jeep;
     private dev.jayms.audio.VehicleAudio vehicleAudio;
     private JeepModel jeepModel;
@@ -278,6 +280,7 @@ public class Main {
         horseModel = new HorseModel();
         planeModel = new PlaneModel();
         railwayModel = new RailwayModel();
+        shipModel = new ShipModel();
         farmModels = new FarmModels();
         if (network == null) {
             local = new LocalGame(offlineSave, seed);
@@ -1147,6 +1150,7 @@ public class Main {
         }
         for (var plane : Aviation.planes(city())) planeModel.render(plane, shader);
         railwayModel.render(city(), shader);
+        for (var ship : shippingRoutes.ships(city(), world)) shipModel.render(ship, shader);
         for (var h : city().horses()) {
             Protocol.Pose p =
                     new Protocol.Pose(
@@ -1513,6 +1517,7 @@ public class Main {
         if (horseModel != null) horseModel.close();
         if (planeModel != null) planeModel.close();
         if (railwayModel != null) railwayModel.close();
+        if (shipModel != null) shipModel.close();
         if (jeepModel != null) jeepModel.close();
         farmModels.close();
         if (modelRenderer != null) modelRenderer.close();

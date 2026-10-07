@@ -64,7 +64,8 @@ public final class WorldVoxels {
     }
 
     public int type(int x, int y, int z) {
-        return decode(cell(x, y, z).uniform(0, 0, 0, 16));
+        var existing = cells.get(x + "," + y + "," + z);
+        return existing == null ? terrain.block(x, y, z) : decode(existing.uniform(0, 0, 0, 16));
     }
 
     public int region(Protocol.Edit edit) {
