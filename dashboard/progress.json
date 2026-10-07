@@ -3348,11 +3348,21 @@
           "kind": "image",
           "label": "Fresh Develop stress save workflow (pending controller publication)",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-restored-stress-menu.png"
+        },
+        {
+          "kind": "report",
+          "label": "Space preservation audit (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-space-restoration-audit.json"
+        },
+        {
+          "kind": "image",
+          "label": "Fresh restored Space game (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-restored-space-desktop.png"
         }
       ],
       "status": "in_progress",
-      "note": "Restoration review fixes ready. Verified 42 restored files match merged source, including Develop stress save, indexed edit history, city performance fixes, tests, harnesses, format documentation and historical evidence. Corrected the earlier reviewed-head audit claim. 88 selected tests passed. Native development/repeat/four districts/reload/original/F6 passed; production rendering passed across 41 frames; GL3.3 4x and modern compute fixtures passed. Fresh media saved; publication remains reserved to controller.",
-      "updatedAt": "2026-10-07T20:24:39.642311+00:00"
+      "note": "Space Invaders preservation fixes ready for independent review. All game, website/navigation, test/harness and historical-evidence paths match 41ed6e88; its progress record is intact. 88 focused Maven tests, 8 game tests and 10 website tests passed. Both WebKit workflow/layout harnesses passed. Native GL3.3 production passed 42 frames; modern compute fixture passed. Fresh media saved; controller handles publication.",
+      "updatedAt": "2026-10-07T20:45:22.872897+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

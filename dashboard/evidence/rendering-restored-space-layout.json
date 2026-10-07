@@ -1,0 +1,1467 @@
+{
+  "browser": "Playwright WebKit",
+  "syntheticProfiles": true,
+  "limitation": "Mobile browser emulation; physical iOS devices untested",
+  "results": [
+    {
+      "viewport": {
+        "width": 568,
+        "height": 320
+      },
+      "state": "start",
+      "observed": "Panels do not overlap; all controls fit and are reachable; overlay content fits arena; no viewport overflow",
+      "geometry": {
+        "panels": {
+          "header": {
+            "x": 8,
+            "y": 78.40625,
+            "width": 140.203125,
+            "height": 123.1875
+          },
+          "#hud": {
+            "x": 8,
+            "y": 280,
+            "width": 140.203125,
+            "height": 32
+          },
+          ".arena": {
+            "x": 156.203125,
+            "y": 8.421875,
+            "width": 255.59375,
+            "height": 303.140625
+          },
+          ".controls": {
+            "x": 419.796875,
+            "y": 80,
+            "width": 140.203125,
+            "height": 160
+          }
+        },
+        "targets": [
+          {
+            "label": "Pause",
+            "x": 41.53125,
+            "y": 153.59375,
+            "width": 73.140625,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "Start game",
+            "x": 220.5625,
+            "y": 211.421875,
+            "width": 126.859375,
+            "height": 44,
+            "reachable": true
+          },
+          {
+            "label": "◀",
+            "x": 419.796875,
+            "y": 80,
+            "width": 140.203125,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "▶",
+            "x": 419.796875,
+            "y": 136,
+            "width": 140.203125,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "FIRE",
+            "x": 419.796875,
+            "y": 192,
+            "width": 140.203125,
+            "height": 48,
+            "reachable": true
+          }
+        ],
+        "overlay": {
+          "#title": {
+            "x": 191.125,
+            "y": 64.546875,
+            "width": 185.75,
+            "height": 21.59375
+          },
+          "#message": {
+            "x": 166.203125,
+            "y": 96.140625,
+            "width": 235.59375,
+            "height": 105.28125
+          },
+          "#start": {
+            "x": 220.5625,
+            "y": 211.421875,
+            "width": 126.859375,
+            "height": 44
+          }
+        },
+        "scrollWidth": 568,
+        "scrollHeight": 320
+      }
+    },
+    {
+      "viewport": {
+        "width": 568,
+        "height": 320
+      },
+      "state": "playing",
+      "observed": "Panels do not overlap; all controls fit and are reachable; overlay content fits arena; no viewport overflow",
+      "geometry": {
+        "panels": {
+          "header": {
+            "x": 8,
+            "y": 78.40625,
+            "width": 140.203125,
+            "height": 123.1875
+          },
+          "#hud": {
+            "x": 8,
+            "y": 280,
+            "width": 140.203125,
+            "height": 32
+          },
+          ".arena": {
+            "x": 156.203125,
+            "y": 8.421875,
+            "width": 255.59375,
+            "height": 303.140625
+          },
+          ".controls": {
+            "x": 419.796875,
+            "y": 80,
+            "width": 140.203125,
+            "height": 160
+          }
+        },
+        "targets": [
+          {
+            "label": "Pause",
+            "x": 41.53125,
+            "y": 153.59375,
+            "width": 73.140625,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "◀",
+            "x": 419.796875,
+            "y": 80,
+            "width": 140.203125,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "▶",
+            "x": 419.796875,
+            "y": 136,
+            "width": 140.203125,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "FIRE",
+            "x": 419.796875,
+            "y": 192,
+            "width": 140.203125,
+            "height": 48,
+            "reachable": true
+          }
+        ],
+        "overlay": null,
+        "scrollWidth": 568,
+        "scrollHeight": 320
+      }
+    },
+    {
+      "viewport": {
+        "width": 568,
+        "height": 320
+      },
+      "state": "paused",
+      "observed": "Panels do not overlap; all controls fit and are reachable; overlay content fits arena; no viewport overflow",
+      "geometry": {
+        "panels": {
+          "header": {
+            "x": 8,
+            "y": 78.40625,
+            "width": 140.203125,
+            "height": 123.1875
+          },
+          "#hud": {
+            "x": 8,
+            "y": 280,
+            "width": 140.203125,
+            "height": 32
+          },
+          ".arena": {
+            "x": 156.203125,
+            "y": 8.421875,
+            "width": 255.59375,
+            "height": 303.140625
+          },
+          ".controls": {
+            "x": 419.796875,
+            "y": 80,
+            "width": 140.203125,
+            "height": 160
+          }
+        },
+        "targets": [
+          {
+            "label": "Resume",
+            "x": 33.765625,
+            "y": 153.59375,
+            "width": 88.671875,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "Resume",
+            "x": 235.1875,
+            "y": 176.328125,
+            "width": 97.609375,
+            "height": 44,
+            "reachable": true
+          },
+          {
+            "label": "◀",
+            "x": 419.796875,
+            "y": 80,
+            "width": 140.203125,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "▶",
+            "x": 419.796875,
+            "y": 136,
+            "width": 140.203125,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "FIRE",
+            "x": 419.796875,
+            "y": 192,
+            "width": 140.203125,
+            "height": 48,
+            "reachable": true
+          }
+        ],
+        "overlay": {
+          "#title": {
+            "x": 247.25,
+            "y": 99.640625,
+            "width": 73.484375,
+            "height": 21.59375
+          },
+          "#message": {
+            "x": 166.203125,
+            "y": 131.234375,
+            "width": 235.59375,
+            "height": 35.09375
+          },
+          "#start": {
+            "x": 235.1875,
+            "y": 176.328125,
+            "width": 97.609375,
+            "height": 44
+          }
+        },
+        "scrollWidth": 568,
+        "scrollHeight": 320
+      }
+    },
+    {
+      "viewport": {
+        "width": 568,
+        "height": 320
+      },
+      "state": "game-over",
+      "observed": "Panels do not overlap; all controls fit and are reachable; overlay content fits arena; no viewport overflow",
+      "geometry": {
+        "panels": {
+          "header": {
+            "x": 8,
+            "y": 78.40625,
+            "width": 140.203125,
+            "height": 123.1875
+          },
+          "#hud": {
+            "x": 8,
+            "y": 280,
+            "width": 140.203125,
+            "height": 32
+          },
+          ".arena": {
+            "x": 156.203125,
+            "y": 8.421875,
+            "width": 255.59375,
+            "height": 303.140625
+          },
+          ".controls": {
+            "x": 419.796875,
+            "y": 80,
+            "width": 140.203125,
+            "height": 160
+          }
+        },
+        "targets": [
+          {
+            "label": "Play again",
+            "x": 224.28125,
+            "y": 167.5625,
+            "width": 119.4375,
+            "height": 44,
+            "reachable": true
+          },
+          {
+            "label": "◀",
+            "x": 419.796875,
+            "y": 80,
+            "width": 140.203125,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "▶",
+            "x": 419.796875,
+            "y": 136,
+            "width": 140.203125,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "FIRE",
+            "x": 419.796875,
+            "y": 192,
+            "width": 140.203125,
+            "height": 48,
+            "reachable": true
+          }
+        ],
+        "overlay": {
+          "#title": {
+            "x": 229.328125,
+            "y": 108.421875,
+            "width": 109.34375,
+            "height": 21.59375
+          },
+          "#message": {
+            "x": 206.71875,
+            "y": 140.015625,
+            "width": 154.5625,
+            "height": 17.546875
+          },
+          "#start": {
+            "x": 224.28125,
+            "y": 167.5625,
+            "width": 119.4375,
+            "height": 44
+          }
+        },
+        "scrollWidth": 568,
+        "scrollHeight": 320
+      }
+    },
+    {
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "state": "start",
+      "observed": "Panels do not overlap; all controls fit and are reachable; overlay content fits arena; no viewport overflow",
+      "geometry": {
+        "panels": {
+          "header": {
+            "x": 8,
+            "y": 105.90625,
+            "width": 167.421875,
+            "height": 123.1875
+          },
+          "#hud": {
+            "x": 8,
+            "y": 335,
+            "width": 167.421875,
+            "height": 32
+          },
+          ".arena": {
+            "x": 183.421875,
+            "y": 9.484375,
+            "width": 300.140625,
+            "height": 356.03125
+          },
+          ".controls": {
+            "x": 491.5625,
+            "y": 107.5,
+            "width": 167.4375,
+            "height": 160
+          }
+        },
+        "targets": [
+          {
+            "label": "Pause",
+            "x": 55.140625,
+            "y": 181.09375,
+            "width": 73.140625,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "Start game",
+            "x": 270.0625,
+            "y": 221.390625,
+            "width": 126.859375,
+            "height": 44,
+            "reachable": true
+          },
+          {
+            "label": "◀",
+            "x": 491.5625,
+            "y": 107.5,
+            "width": 167.4375,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "▶",
+            "x": 491.5625,
+            "y": 163.5,
+            "width": 167.4375,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "FIRE",
+            "x": 491.5625,
+            "y": 219.5,
+            "width": 167.4375,
+            "height": 48,
+            "reachable": true
+          }
+        ],
+        "overlay": {
+          "#title": {
+            "x": 240.609375,
+            "y": 109.609375,
+            "width": 185.75,
+            "height": 21.59375
+          },
+          "#message": {
+            "x": 193.421875,
+            "y": 141.203125,
+            "width": 280.140625,
+            "height": 70.1875
+          },
+          "#start": {
+            "x": 270.0625,
+            "y": 221.390625,
+            "width": 126.859375,
+            "height": 44
+          }
+        },
+        "scrollWidth": 667,
+        "scrollHeight": 375
+      }
+    },
+    {
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "state": "playing",
+      "observed": "Panels do not overlap; all controls fit and are reachable; overlay content fits arena; no viewport overflow",
+      "geometry": {
+        "panels": {
+          "header": {
+            "x": 8,
+            "y": 105.90625,
+            "width": 167.421875,
+            "height": 123.1875
+          },
+          "#hud": {
+            "x": 8,
+            "y": 335,
+            "width": 167.421875,
+            "height": 32
+          },
+          ".arena": {
+            "x": 183.421875,
+            "y": 9.484375,
+            "width": 300.140625,
+            "height": 356.03125
+          },
+          ".controls": {
+            "x": 491.5625,
+            "y": 107.5,
+            "width": 167.4375,
+            "height": 160
+          }
+        },
+        "targets": [
+          {
+            "label": "Pause",
+            "x": 55.140625,
+            "y": 181.09375,
+            "width": 73.140625,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "◀",
+            "x": 491.5625,
+            "y": 107.5,
+            "width": 167.4375,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "▶",
+            "x": 491.5625,
+            "y": 163.5,
+            "width": 167.4375,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "FIRE",
+            "x": 491.5625,
+            "y": 219.5,
+            "width": 167.4375,
+            "height": 48,
+            "reachable": true
+          }
+        ],
+        "overlay": null,
+        "scrollWidth": 667,
+        "scrollHeight": 375
+      }
+    },
+    {
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "state": "paused",
+      "observed": "Panels do not overlap; all controls fit and are reachable; overlay content fits arena; no viewport overflow",
+      "geometry": {
+        "panels": {
+          "header": {
+            "x": 8,
+            "y": 105.90625,
+            "width": 167.421875,
+            "height": 123.1875
+          },
+          "#hud": {
+            "x": 8,
+            "y": 335,
+            "width": 167.421875,
+            "height": 32
+          },
+          ".arena": {
+            "x": 183.421875,
+            "y": 9.484375,
+            "width": 300.140625,
+            "height": 356.03125
+          },
+          ".controls": {
+            "x": 491.5625,
+            "y": 107.5,
+            "width": 167.4375,
+            "height": 160
+          }
+        },
+        "targets": [
+          {
+            "label": "Resume",
+            "x": 47.375,
+            "y": 181.09375,
+            "width": 88.671875,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "Resume",
+            "x": 284.6875,
+            "y": 195.0625,
+            "width": 97.609375,
+            "height": 44,
+            "reachable": true
+          },
+          {
+            "label": "◀",
+            "x": 491.5625,
+            "y": 107.5,
+            "width": 167.4375,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "▶",
+            "x": 491.5625,
+            "y": 163.5,
+            "width": 167.4375,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "FIRE",
+            "x": 491.5625,
+            "y": 219.5,
+            "width": 167.4375,
+            "height": 48,
+            "reachable": true
+          }
+        ],
+        "overlay": {
+          "#title": {
+            "x": 296.75,
+            "y": 135.921875,
+            "width": 73.484375,
+            "height": 21.59375
+          },
+          "#message": {
+            "x": 204.625,
+            "y": 167.515625,
+            "width": 257.734375,
+            "height": 17.546875
+          },
+          "#start": {
+            "x": 284.6875,
+            "y": 195.0625,
+            "width": 97.609375,
+            "height": 44
+          }
+        },
+        "scrollWidth": 667,
+        "scrollHeight": 375
+      }
+    },
+    {
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "state": "game-over",
+      "observed": "Panels do not overlap; all controls fit and are reachable; overlay content fits arena; no viewport overflow",
+      "geometry": {
+        "panels": {
+          "header": {
+            "x": 8,
+            "y": 105.90625,
+            "width": 167.421875,
+            "height": 123.1875
+          },
+          "#hud": {
+            "x": 8,
+            "y": 335,
+            "width": 167.421875,
+            "height": 32
+          },
+          ".arena": {
+            "x": 183.421875,
+            "y": 9.484375,
+            "width": 300.140625,
+            "height": 356.03125
+          },
+          ".controls": {
+            "x": 491.5625,
+            "y": 107.5,
+            "width": 167.4375,
+            "height": 160
+          }
+        },
+        "targets": [
+          {
+            "label": "Play again",
+            "x": 273.765625,
+            "y": 195.0625,
+            "width": 119.4375,
+            "height": 44,
+            "reachable": true
+          },
+          {
+            "label": "◀",
+            "x": 491.5625,
+            "y": 107.5,
+            "width": 167.4375,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "▶",
+            "x": 491.5625,
+            "y": 163.5,
+            "width": 167.4375,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "FIRE",
+            "x": 491.5625,
+            "y": 219.5,
+            "width": 167.4375,
+            "height": 48,
+            "reachable": true
+          }
+        ],
+        "overlay": {
+          "#title": {
+            "x": 278.8125,
+            "y": 135.921875,
+            "width": 109.34375,
+            "height": 21.59375
+          },
+          "#message": {
+            "x": 256.203125,
+            "y": 167.515625,
+            "width": 154.5625,
+            "height": 17.546875
+          },
+          "#start": {
+            "x": 273.765625,
+            "y": 195.0625,
+            "width": 119.4375,
+            "height": 44
+          }
+        },
+        "scrollWidth": 667,
+        "scrollHeight": 375
+      }
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "state": "start",
+      "observed": "Panels do not overlap; all controls fit and are reachable; overlay content fits arena; no viewport overflow",
+      "geometry": {
+        "panels": {
+          "header": {
+            "x": 8,
+            "y": 132.203125,
+            "width": 248.53125,
+            "height": 101.59375
+          },
+          "#hud": {
+            "x": 8,
+            "y": 366,
+            "width": 248.53125,
+            "height": 16
+          },
+          ".arena": {
+            "x": 264.53125,
+            "y": 8.1875,
+            "width": 314.9375,
+            "height": 373.609375
+          },
+          ".controls": {
+            "x": 587.46875,
+            "y": 115,
+            "width": 248.53125,
+            "height": 160
+          }
+        },
+        "targets": [
+          {
+            "label": "Pause",
+            "x": 95.6875,
+            "y": 185.796875,
+            "width": 73.140625,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "Start game",
+            "x": 358.5625,
+            "y": 220.109375,
+            "width": 126.859375,
+            "height": 44,
+            "reachable": true
+          },
+          {
+            "label": "◀",
+            "x": 587.46875,
+            "y": 115,
+            "width": 248.53125,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "▶",
+            "x": 587.46875,
+            "y": 171,
+            "width": 248.53125,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "FIRE",
+            "x": 587.46875,
+            "y": 227,
+            "width": 248.53125,
+            "height": 48,
+            "reachable": true
+          }
+        ],
+        "overlay": {
+          "#title": {
+            "x": 329.125,
+            "y": 125.875,
+            "width": 185.75,
+            "height": 21.59375
+          },
+          "#message": {
+            "x": 277.5,
+            "y": 157.46875,
+            "width": 289,
+            "height": 52.640625
+          },
+          "#start": {
+            "x": 358.5625,
+            "y": 220.109375,
+            "width": 126.859375,
+            "height": 44
+          }
+        },
+        "scrollWidth": 844,
+        "scrollHeight": 390
+      }
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "state": "playing",
+      "observed": "Panels do not overlap; all controls fit and are reachable; overlay content fits arena; no viewport overflow",
+      "geometry": {
+        "panels": {
+          "header": {
+            "x": 8,
+            "y": 132.203125,
+            "width": 248.53125,
+            "height": 101.59375
+          },
+          "#hud": {
+            "x": 8,
+            "y": 366,
+            "width": 248.53125,
+            "height": 16
+          },
+          ".arena": {
+            "x": 264.53125,
+            "y": 8.1875,
+            "width": 314.9375,
+            "height": 373.609375
+          },
+          ".controls": {
+            "x": 587.46875,
+            "y": 115,
+            "width": 248.53125,
+            "height": 160
+          }
+        },
+        "targets": [
+          {
+            "label": "Pause",
+            "x": 95.6875,
+            "y": 185.796875,
+            "width": 73.140625,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "◀",
+            "x": 587.46875,
+            "y": 115,
+            "width": 248.53125,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "▶",
+            "x": 587.46875,
+            "y": 171,
+            "width": 248.53125,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "FIRE",
+            "x": 587.46875,
+            "y": 227,
+            "width": 248.53125,
+            "height": 48,
+            "reachable": true
+          }
+        ],
+        "overlay": null,
+        "scrollWidth": 844,
+        "scrollHeight": 390
+      }
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "state": "paused",
+      "observed": "Panels do not overlap; all controls fit and are reachable; overlay content fits arena; no viewport overflow",
+      "geometry": {
+        "panels": {
+          "header": {
+            "x": 8,
+            "y": 132.203125,
+            "width": 248.53125,
+            "height": 101.59375
+          },
+          "#hud": {
+            "x": 8,
+            "y": 366,
+            "width": 248.53125,
+            "height": 16
+          },
+          ".arena": {
+            "x": 264.53125,
+            "y": 8.1875,
+            "width": 314.9375,
+            "height": 373.609375
+          },
+          ".controls": {
+            "x": 587.46875,
+            "y": 115,
+            "width": 248.53125,
+            "height": 160
+          }
+        },
+        "targets": [
+          {
+            "label": "Resume",
+            "x": 87.921875,
+            "y": 185.796875,
+            "width": 88.671875,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "Resume",
+            "x": 373.1875,
+            "y": 202.5625,
+            "width": 97.609375,
+            "height": 44,
+            "reachable": true
+          },
+          {
+            "label": "◀",
+            "x": 587.46875,
+            "y": 115,
+            "width": 248.53125,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "▶",
+            "x": 587.46875,
+            "y": 171,
+            "width": 248.53125,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "FIRE",
+            "x": 587.46875,
+            "y": 227,
+            "width": 248.53125,
+            "height": 48,
+            "reachable": true
+          }
+        ],
+        "overlay": {
+          "#title": {
+            "x": 385.25,
+            "y": 143.421875,
+            "width": 73.484375,
+            "height": 21.59375
+          },
+          "#message": {
+            "x": 293.125,
+            "y": 175.015625,
+            "width": 257.734375,
+            "height": 17.546875
+          },
+          "#start": {
+            "x": 373.1875,
+            "y": 202.5625,
+            "width": 97.609375,
+            "height": 44
+          }
+        },
+        "scrollWidth": 844,
+        "scrollHeight": 390
+      }
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "state": "game-over",
+      "observed": "Panels do not overlap; all controls fit and are reachable; overlay content fits arena; no viewport overflow",
+      "geometry": {
+        "panels": {
+          "header": {
+            "x": 8,
+            "y": 132.203125,
+            "width": 248.53125,
+            "height": 101.59375
+          },
+          "#hud": {
+            "x": 8,
+            "y": 366,
+            "width": 248.53125,
+            "height": 16
+          },
+          ".arena": {
+            "x": 264.53125,
+            "y": 8.1875,
+            "width": 314.9375,
+            "height": 373.609375
+          },
+          ".controls": {
+            "x": 587.46875,
+            "y": 115,
+            "width": 248.53125,
+            "height": 160
+          }
+        },
+        "targets": [
+          {
+            "label": "Play again",
+            "x": 362.28125,
+            "y": 202.5625,
+            "width": 119.4375,
+            "height": 44,
+            "reachable": true
+          },
+          {
+            "label": "◀",
+            "x": 587.46875,
+            "y": 115,
+            "width": 248.53125,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "▶",
+            "x": 587.46875,
+            "y": 171,
+            "width": 248.53125,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "FIRE",
+            "x": 587.46875,
+            "y": 227,
+            "width": 248.53125,
+            "height": 48,
+            "reachable": true
+          }
+        ],
+        "overlay": {
+          "#title": {
+            "x": 367.328125,
+            "y": 143.421875,
+            "width": 109.34375,
+            "height": 21.59375
+          },
+          "#message": {
+            "x": 344.71875,
+            "y": 175.015625,
+            "width": 154.5625,
+            "height": 17.546875
+          },
+          "#start": {
+            "x": 362.28125,
+            "y": 202.5625,
+            "width": 119.4375,
+            "height": 44
+          }
+        },
+        "scrollWidth": 844,
+        "scrollHeight": 390
+      }
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "state": "start",
+      "observed": "Panels do not overlap; all controls fit and are reachable; overlay content fits arena; no viewport overflow",
+      "geometry": {
+        "panels": {
+          "header": {
+            "x": 12,
+            "y": 12,
+            "width": 366,
+            "height": 59.4375
+          },
+          "#hud": {
+            "x": 12,
+            "y": 71.4375,
+            "width": 366,
+            "height": 35
+          },
+          ".arena": {
+            "x": 12,
+            "y": 106.4375,
+            "width": 366,
+            "height": 434.25
+          },
+          ".controls": {
+            "x": 12,
+            "y": 552.6875,
+            "width": 366,
+            "height": 56
+          }
+        },
+        "targets": [
+          {
+            "label": "Pause",
+            "x": 286.140625,
+            "y": 17.71875,
+            "width": 91.859375,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "Start game",
+            "x": 125.5625,
+            "y": 426.25,
+            "width": 138.859375,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "◀",
+            "x": 12,
+            "y": 552.6875,
+            "width": 101.328125,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "▶",
+            "x": 125.328125,
+            "y": 552.6875,
+            "width": 101.328125,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "FIRE",
+            "x": 238.65625,
+            "y": 552.6875,
+            "width": 139.328125,
+            "height": 56,
+            "reachable": true
+          }
+        ],
+        "overlay": {
+          "#title": {
+            "x": 71.171875,
+            "y": 192.78125,
+            "width": 247.65625,
+            "height": 28
+          },
+          "#message": {
+            "x": 28,
+            "y": 256.6875,
+            "width": 334,
+            "height": 153.5625
+          },
+          "#start": {
+            "x": 125.5625,
+            "y": 426.25,
+            "width": 138.859375,
+            "height": 48
+          }
+        },
+        "scrollWidth": 390,
+        "scrollHeight": 844
+      }
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "state": "playing",
+      "observed": "Panels do not overlap; all controls fit and are reachable; overlay content fits arena; no viewport overflow",
+      "geometry": {
+        "panels": {
+          "header": {
+            "x": 12,
+            "y": 12,
+            "width": 366,
+            "height": 59.4375
+          },
+          "#hud": {
+            "x": 12,
+            "y": 71.4375,
+            "width": 366,
+            "height": 35
+          },
+          ".arena": {
+            "x": 12,
+            "y": 106.4375,
+            "width": 366,
+            "height": 434.25
+          },
+          ".controls": {
+            "x": 12,
+            "y": 552.6875,
+            "width": 366,
+            "height": 56
+          }
+        },
+        "targets": [
+          {
+            "label": "Pause",
+            "x": 286.140625,
+            "y": 17.71875,
+            "width": 91.859375,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "◀",
+            "x": 12,
+            "y": 552.6875,
+            "width": 101.328125,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "▶",
+            "x": 125.328125,
+            "y": 552.6875,
+            "width": 101.328125,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "FIRE",
+            "x": 238.65625,
+            "y": 552.6875,
+            "width": 139.328125,
+            "height": 56,
+            "reachable": true
+          }
+        ],
+        "overlay": null,
+        "scrollWidth": 390,
+        "scrollHeight": 844
+      }
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "state": "paused",
+      "observed": "Panels do not overlap; all controls fit and are reachable; overlay content fits arena; no viewport overflow",
+      "geometry": {
+        "panels": {
+          "header": {
+            "x": 12,
+            "y": 12,
+            "width": 366,
+            "height": 59.4375
+          },
+          "#hud": {
+            "x": 12,
+            "y": 71.4375,
+            "width": 366,
+            "height": 35
+          },
+          ".arena": {
+            "x": 12,
+            "y": 106.4375,
+            "width": 366,
+            "height": 434.25
+          },
+          ".controls": {
+            "x": 12,
+            "y": 552.6875,
+            "width": 366,
+            "height": 56
+          }
+        },
+        "targets": [
+          {
+            "label": "Resume",
+            "x": 268.390625,
+            "y": 17.71875,
+            "width": 109.609375,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "Resume",
+            "x": 140.1875,
+            "y": 362.265625,
+            "width": 109.609375,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "◀",
+            "x": 12,
+            "y": 552.6875,
+            "width": 101.328125,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "▶",
+            "x": 125.328125,
+            "y": 552.6875,
+            "width": 101.328125,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "FIRE",
+            "x": 238.65625,
+            "y": 552.6875,
+            "width": 139.328125,
+            "height": 56,
+            "reachable": true
+          }
+        ],
+        "overlay": {
+          "#title": {
+            "x": 146.015625,
+            "y": 256.765625,
+            "width": 97.96875,
+            "height": 28
+          },
+          "#message": {
+            "x": 36.390625,
+            "y": 320.671875,
+            "width": 317.21875,
+            "height": 25.59375
+          },
+          "#start": {
+            "x": 140.1875,
+            "y": 362.265625,
+            "width": 109.609375,
+            "height": 48
+          }
+        },
+        "scrollWidth": 390,
+        "scrollHeight": 844
+      }
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "state": "game-over",
+      "observed": "Panels do not overlap; all controls fit and are reachable; overlay content fits arena; no viewport overflow",
+      "geometry": {
+        "panels": {
+          "header": {
+            "x": 12,
+            "y": 12,
+            "width": 366,
+            "height": 59.4375
+          },
+          "#hud": {
+            "x": 12,
+            "y": 71.4375,
+            "width": 366,
+            "height": 35
+          },
+          ".arena": {
+            "x": 12,
+            "y": 106.4375,
+            "width": 366,
+            "height": 434.25
+          },
+          ".controls": {
+            "x": 12,
+            "y": 552.6875,
+            "width": 366,
+            "height": 56
+          }
+        },
+        "targets": [
+          {
+            "label": "Play again",
+            "x": 129.28125,
+            "y": 362.265625,
+            "width": 131.4375,
+            "height": 48,
+            "reachable": true
+          },
+          {
+            "label": "◀",
+            "x": 12,
+            "y": 552.6875,
+            "width": 101.328125,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "▶",
+            "x": 125.328125,
+            "y": 552.6875,
+            "width": 101.328125,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "FIRE",
+            "x": 238.65625,
+            "y": 552.6875,
+            "width": 139.328125,
+            "height": 56,
+            "reachable": true
+          }
+        ],
+        "overlay": {
+          "#title": {
+            "x": 122.109375,
+            "y": 256.765625,
+            "width": 145.78125,
+            "height": 28
+          },
+          "#message": {
+            "x": 99.875,
+            "y": 320.671875,
+            "width": 190.234375,
+            "height": 25.59375
+          },
+          "#start": {
+            "x": 129.28125,
+            "y": 362.265625,
+            "width": 131.4375,
+            "height": 48
+          }
+        },
+        "scrollWidth": 390,
+        "scrollHeight": 844
+      }
+    }
+  ]
+}
