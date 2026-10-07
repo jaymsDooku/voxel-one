@@ -191,7 +191,7 @@
       "description": "Native phone client with touch sandbox controls and server-authoritative city planning.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Native client and simulator harness implemented. Passed 26 Java tests, 15 gateway workflow checks/observations and 28 mock harness tests. Exact-source native Mac build, touch playtest and media inspection remain pending.",
+      "note": "Native client and harness implemented. Mac attempt failed in simulator boot verification before client execution; retry requested. Integrated-source gateway playtest passed 18 checks/observations; 28 mock contract tests passed. Native build, touch playtest and media remain pending.",
       "updatedAt": "2026-10-07T22:54:08+00:00"
     },
     {
