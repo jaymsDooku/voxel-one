@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T13:16:04.613770+00:00",
+  "updatedAt": "2026-10-07T13:34:52.180329+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -3076,8 +3076,8 @@
         }
       ],
       "status": "in_progress",
-      "note": "Source and history conflicts resolved. Stress-grid road lookup, private-access speed guard and directional route checks retained. Base features and evidence preserved. Controller continuation and final-head validation remain pending.",
-      "updatedAt": "2026-10-07T13:16:04.613770+00:00"
+      "note": "Ready for independent review: 94 focused Maven tests plus 14 agriculture/time tests and 15 website checks passed. Fresh native traffic and Jeep workflows passed; media inspected. No base files deleted. Full Maven run interrupted with exit 143; no full-suite pass claimed. Controller owns publication and current-head CI.",
+      "updatedAt": "2026-10-07T13:34:52.180329+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

@@ -663,3 +663,8 @@ Exact commands, environment, expected/observed steps, source/media hashes and fu
 ## Source recovery handoff
 
 Retained roadContains stress-grid support with the incoming private-access speed guard and directional connectivity condition. Both complete checkpoint histories and progress evidence retained. Main.java and Jeep.java match review base; no base files deleted. Final-head compilation, regression tests and fresh native media follow controller staging and continuation. Earlier readiness is historical. Report: dashboard/evidence/road-traffic-source-53d8d40-recovery.json.
+
+
+## Rebased source validated for independent review
+
+HEAD 8c437f3f00585fc3e2cb52215412824759b337c8; review base 6770d9b9fd0f2bf56674e5cf5ab77f499f5f71c5. No review-base files deleted; Main.java and Jeep.java unchanged. Focused Maven retry passed 94 tests across 17 suites; separate agriculture/time run passed 14 tests. Website checks passed 15 tests. Full Maven run interrupted with exit 143 after 139 tests in 21 suites passed; no full-suite pass claimed. Fresh native Main traffic and Jeep workflows passed with inherited assigned DISPLAY/XAUTHORITY and isolated synthetic profiles. Three traffic F10 clips plus Jeep clip decoded and inspected; all below 6 MiB. Source/media hashes verified. Report: dashboard/evidence/rebased-8c437f3-validation.json. Current-head CI, staging, commit and publication remain controller duties. No owner answer needed.
