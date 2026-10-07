@@ -36,6 +36,8 @@ public class Main {
     private MultiplayerClient network;
     private Controls controls;
     private ControlsMenu menu;
+    private CitySaves citySaves;
+    private java.nio.file.Path requestedSave;
     private Overlay overlay;
     private ShaderProgram shader;
     private dev.jayms.render.RenderPipeline rendering;
@@ -183,18 +185,37 @@ public class Main {
     }
 
     public void run(FrameObserver observer) throws Exception {
+        Main active = this;
+        while (true) {
+            active.runOnce(observer);
+            if (active.requestedSave == null) return;
+            Main next = new Main();
+            next.window = active.window;
+            next.offlineSave = active.requestedSave;
+            next.citySaves = active.citySaves;
+            next.seed = active.seed;
+            next.gameConfig = active.local.city.frame().config();
+            next.productionCatalog = active.productionCatalog;
+            active = next;
+        }
+    }
+
+    private void runOnce(FrameObserver observer) throws Exception {
         frameObserver = observer;
         controls = new Controls(Controls.directory().resolve("controls.properties"));
         menu = new ControlsMenu(controls);
-        GLFWErrorCallback.createPrint(System.err).set();
-        if (!glfwInit()) throw new IllegalStateException("Unable to initialize GLFW");
+        if (window == null) {
+            GLFWErrorCallback.createPrint(System.err).set();
+            if (!glfwInit()) throw new IllegalStateException("Unable to initialize GLFW");
+        }
         try {
-            init();
+            if (window == null) init();
+            else reuseWindow();
             initScene();
             if (frameObserver != null) frameObserver.started(this);
             loop();
         } finally {
-            cleanup();
+            cleanup(requestedSave != null);
         }
     }
 
@@ -209,6 +230,21 @@ public class Main {
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
         glClearColor(.48f, .72f, .92f, 1);
+        configureFramebuffer();
+        window.show();
+    }
+
+    private void reuseWindow() {
+        window.setOpenGlContext();
+        glfwSetWindowShouldClose(window.getHandle(), false);
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
+        glClearColor(.48f, .72f, .92f, 1);
+        configureFramebuffer();
+    }
+
+    private void configureFramebuffer() {
         glfwSetFramebufferSizeCallback(
                 window.getHandle(),
                 (handle, w, h) -> {
@@ -224,7 +260,6 @@ public class Main {
             framebufferHeight = h.get(0);
             glViewport(0, 0, framebufferWidth, framebufferHeight);
         }
-        window.show();
     }
 
     private void initScene() throws Exception {
@@ -314,15 +349,38 @@ public class Main {
             overview.focus(16, 26, player.position().y);
         }
         player.resolvePenetration(world);
+        if (local != null && city().config().city()) {
+            if (citySaves == null) citySaves = new CitySaves(offlineSave);
+            menu.saves = new SavesMenu(citySaves, offlineSave, new SavesMenu.Actions() {
+                public void save() throws Exception { saveCurrentSimulation(); }
+                public void load(java.nio.file.Path path) throws Exception {
+                    CitySaves.validate(path, seed);
+                    saveCurrentSimulation();
+                    requestedSave = path;
+                    glfwSetWindowShouldClose(window.getHandle(), true);
+                }
+                public void create(String name, boolean copy) throws Exception {
+                    saveCurrentSimulation();
+                    java.nio.file.Path path = citySaves.create(name, copy ? offlineSave : null, seed);
+                    load(path);
+                }
+            });
+        }
         configureInput();
         setCaptured(true);
+    }
+
+    private void saveCurrentSimulation() throws java.io.IOException {
+        local.save();
+        if (jeep != null) jeep.save(jeepSave());
     }
 
     private boolean recordInput(int code) {
         if (!controls.matches(RECORD, code) || menu.open && menu.editing()) return false;
         if (code >= GLFW_KEY_SPACE
                 && code < GLFW_KEY_ESCAPE
-                && (mayorDashboard.open && mayorDashboard.searchFocus
+                && (menu.open && menu.saves != null && menu.saves.open
+                        || mayorDashboard.open && mayorDashboard.searchFocus
                         || editor.open
                         || lightColors.open)) return false;
         recorder.toggle(framebufferWidth, framebufferHeight);
@@ -559,7 +617,8 @@ public class Main {
         glfwSetCharCallback(
                 window.getHandle(),
                 (handle, character) -> {
-                    if (mayorDashboard.open) mayorDashboard.character(character);
+                    if (menu.open && menu.saves != null && menu.saves.open) menu.saves.character(character);
+                    else if (mayorDashboard.open) mayorDashboard.character(character);
                     else if (editor.open) editor.character(character);
                     else if (lightColors.open) lightColors.character(character);
                 });
@@ -838,7 +897,7 @@ public class Main {
                 network.respawn = null;
                 notice = "You respawned. Your inventory was kept.";
             }
-            if (local != null) local.city.advance(Math.min(dt, .25));
+            if (local != null && !(menu.open && menu.saves != null && menu.saves.open)) local.city.advance(Math.min(dt, .25));
             var horse = riding();
             player.mount(
                     horse != null,
@@ -1429,7 +1488,7 @@ public class Main {
         }
     }
 
-    private void cleanup() throws Exception {
+    private void cleanup(boolean keepWindow) throws Exception {
         recorder.close();
         if (local != null) local.save();
         if (jeep != null) jeep.save(jeepSave());
@@ -1446,10 +1505,17 @@ public class Main {
         if (overlay != null) overlay.close();
         if (rendering != null) rendering.close();
         if (shader != null) shader.close();
-        if (window != null) window.destroy();
-        glfwTerminate();
-        var error = glfwSetErrorCallback(null);
-        if (error != null) error.free();
+        // Retire scene resources before another simulation uses the same context.
+        if (overlay != null) glFinish();
+        if (window != null) {
+            if (keepWindow) org.lwjgl.glfw.Callbacks.glfwFreeCallbacks(window.getHandle());
+            else window.destroy();
+        }
+        if (!keepWindow) {
+            glfwTerminate();
+            var error = glfwSetErrorCallback(null);
+            if (error != null) error.free();
+        }
     }
 
     public static void main(String[] args) throws Exception {

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T02:45:11+00:00",
+  "updatedAt": "2026-10-07T03:20:28+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -2590,6 +2590,51 @@
       "status": "in_progress",
       "note": "Configurable gaps: 0\u20132 blocks; defaults 0.8 pedestrian and 1.4 mounted. Reviewed-base features and 628 historical evidence/fixtures preserved. Full verification passed 364 tests. Fresh spacing, zero-gap, factory and industrial playtests passed. Awaiting controller publication and independent review.",
       "updatedAt": "2026-10-06T15:55:01+00:00"
+    },
+    {
+      "id": "66313165343334612d636366372d346531642d616564332d613063656337313538363039",
+      "title": "Multiple city saves",
+      "description": "Implementing named local simulations and an in-game save menu.",
+      "evidence": [
+        {
+          "label": "Save menu \u2014 pending controller publication",
+          "kind": "image",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-66313165343334612d636366372d346531642d616564332d613063656337313538363039/dashboard/evidence/city-saves-menu.png"
+        },
+        {
+          "label": "Duplicate rejection \u2014 pending controller publication",
+          "kind": "image",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-66313165343334612d636366372d346531642d616564332d613063656337313538363039/dashboard/evidence/city-saves-duplicate.png"
+        },
+        {
+          "label": "Restored right-angle preview \u2014 pending controller publication",
+          "kind": "image",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-66313165343334612d636366372d346531642d616564332d613063656337313538363039/dashboard/evidence/city-saves-right-angle-preview.png"
+        },
+        {
+          "label": "Restored right-angle road \u2014 pending controller publication",
+          "kind": "image",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-66313165343334612d636366372d346531642d616564332d613063656337313538363039/dashboard/evidence/city-saves-right-angle-built.png"
+        },
+        {
+          "label": "Native road workflow \u2014 pending controller publication",
+          "kind": "video",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-66313165343334612d636366372d346531642d616564332d613063656337313538363039/dashboard/evidence/city-saves-right-angle-playtest.mp4"
+        },
+        {
+          "label": "Recovered-head validation \u2014 pending controller publication",
+          "kind": "report",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-66313165343334612d636366372d346531642d616564332d613063656337313538363039/dashboard/evidence/city-saves-playtest.txt"
+        },
+        {
+          "label": "61-test results \u2014 pending controller publication",
+          "kind": "report",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-66313165343334612d636366372d346531642d616564332d613063656337313538363039/dashboard/evidence/city-saves-regression-results.json"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Reviewed base bb657412 preserved. 61 tests passed; exact paved-road bend regression and native saves/road preview/reverse/upgrade/cancel passed. Fresh media saved; awaiting independent review and controller publication.",
+      "updatedAt": "2026-10-07T03:20:28+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
