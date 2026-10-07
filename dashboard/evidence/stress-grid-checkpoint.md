@@ -1,3 +1,11 @@
+# Current recovery status
+
+Intermediate rebase source is not ready for review. Controller must stage and continue, retaining the development-enabling follow-up commit and StressGridDevelopmentTest. The current source still contains the earlier vacant-only guard. Final-source tests and fresh media remain required. Playtest: not rerun during this recovery.
+
+Progress JSON resolved while preserving 64 unrelated HEAD entries. Checkpoint retains both historical notes below. Audit against 4de70d245c8af27fd2c76b86807daa34f0271d17 found no deleted files. Intended line replacements implement grid geometry, format/protocol support, road queries, view bounds, rendering and lighting. No staging or Git continuation performed.
+
+## Historical HEAD checkpoint
+
 # Stress grid: ready for independent review
 
 All implementation edits remain in the assigned feature worktree. Runner alone handles commit, push, master integration, PR submission and publication. No owner answer is pending.
@@ -29,3 +37,15 @@ Recovery checks: JSON parsing and unrelated-entry equality passed; git diff --ch
 Resolved dashboard/progress.json in working files. Preserved 64 unrelated HEAD task entries and all top-level metadata except the later timestamp. JSON and equality checks passed; git diff --check passed. No files deleted against review base 4de70d245c8af27fd2c76b86807daa34f0271d17. Intended replacements in the current patch add grid geometry, compact snapshots, protocol version support, camera and rendering bounds, road queries and lighting propagation.
 
 The current replayed patch is the earlier grid implementation. Development-enabling follow-up changes and their development test must remain in the controller recovery sequence; this intermediate source is not ready for review. Controller must stage and continue Git. No staging, continuation or publication performed here. Playtest: not rerun on intermediate recovery source. Earlier tests and media are historical until final-source checks and fresh media complete.
+
+## Historical incoming validation
+
+# Stress Grid validation checkpoint
+
+Ready for independent review. Tested recovered HEAD f629d31663904393218ccc6e7bbf3906ffc339c6 against review base 3c9162971fecf6afcc2b59cf413c6e91b505522d. No game source changed after checks. Controller alone stages and publishes refreshed evidence.
+
+116 tests across 23 selected suites passed with zero failures, errors or skips. Playtest: native save workflow passed using inherited role display/auth and an isolated synthetic profile. Verified all rings, far plot, generated roads, duplicate rejection, save/reload and Original city regression. Fresh eight screenshots and F10 video inspected; all 12 H264 frames decoded, 7.874 seconds, 1,490,126 bytes. Full commands, environment, expected and observed results, source and media hashes are in stress-grid-tests.json.
+
+No files deleted against the review base; unrelated progress entries unchanged. Intended line replacements support implicit grid geometry, format 15/protocol 26, view bounds and rendering, road queries and flat-grid lighting. Legacy behavior retained in selected regression tests.
+
+This is a vacant fixed-layout plot benchmark. It does not seed one million buildings or residents. Mesa llvmpipe observed FPS 1–4; no hardware performance claim. Media publication pending controller publication.

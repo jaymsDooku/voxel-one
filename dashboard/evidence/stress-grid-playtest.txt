@@ -3,14 +3,14 @@ Input: xdotool save menu, ring map, F6 and production F10 recorder.
 Expected: automatic independent preset; exact million zones; reachable rings and far corner; duplicate rejected; save/reload preserved; original city and view toggle retained.
 Observed: City saves listed Original city and automatically installed Stress Test Grid.
 Observed: Loaded full 1000 x 1000 vacant plot grid through the save menu; 1,000,000 zones active.
-Observed: Map visited Commercial plot #502854; adjacent generated road surface matched; displayed FPS=4.
-Observed: Map visited Industrial plot #502909; adjacent generated road surface matched; displayed FPS=4.
-Observed: Industrial framebuffer lighting regression: 269885 of 396720 inspected pixels show lit grass.
-Observed: Map visited Agricultural plot #502984; adjacent generated road surface matched; displayed FPS=4.
-Observed: Map visited Agricultural plot #1000000; adjacent generated road surface matched; displayed FPS=3.
+Observed: Map visited Commercial plot #502854; adjacent generated road surface matched; displayed FPS=1.
+Observed: Map visited Industrial plot #502909; adjacent generated road surface matched; displayed FPS=2.
+Observed: Industrial framebuffer lighting regression: 269884 of 396720 inspected pixels show lit grass.
+Observed: Map visited Agricultural plot #502984; adjacent generated road surface matched; displayed FPS=2.
+Observed: Map visited Agricultural plot #1000000; adjacent generated road surface matched; displayed FPS=4.
 Observed: Visited plot #1,000,000 at the far corner; adjacent road surface matched.
 Observed: Terrain had 44 rendered frames to stream before each ring screenshot; recorded camera pan with production F10.
 Observed: Duplicate Stress Test Grid rejected without switching or overwriting.
 Observed: Save/reload restored million-plot layout and elapsed simulation time.
 Observed: Original city restored roads and local citizens; F6 view toggle still works.
-Rendered frames: 301
+Rendered frames: 300
