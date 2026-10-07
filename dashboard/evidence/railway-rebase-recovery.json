@@ -46,5 +46,15 @@
     ],
     "test_scope": "Prior 27 focused tests apply to unchanged source. No new Maven or native run in this replay step. Final-head checks remain pending.",
     "handoff": "Controller must stage resolutions and continue the rebase."
+  },
+  "replay": {
+    "conflict": "dashboard/progress.json",
+    "resolution": "Kept recovery note and all current master progress entries; incoming readiness claims remain historical.",
+    "checks": [
+      "Progress JSON parsed.",
+      "src/main unchanged from controller-continued road-spacing recovery HEAD.",
+      "No new native or Maven checks claimed in this replay step."
+    ],
+    "next": "Controller stages and continues rebase, then resumes final-head workflow checks."
   }
 }

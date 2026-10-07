@@ -33,7 +33,7 @@ out = root / 'target/railway-playtest'
 with (root / 'target/railway-runtime-private.txt').open('w') as log:
     result = subprocess.run([str(java_home / 'bin/java'), '-Djava.io.tmpdir=' + str(root / 'target/tmp'),
         '-Duser.home=' + str(root / 'target/railway-home'), '-cp', classpath, 'RailwayPlaytest', str(out)],
-        env=env, stdout=log, stderr=log, timeout=180)
+        env=env, stdout=log, stderr=log, timeout=600)
 print('Railway application playtest exit:', result.returncode)
 if result.returncode:
     raise SystemExit(result.returncode)

@@ -22,7 +22,7 @@ class AviationSaveCompatibilityTest {
         assertEquals(1,state.aviation().flights().size());
         var bytes=new ByteArrayOutputStream(); state.write(new DataOutputStream(bytes));
         var network=CityFrame.read(new DataInputStream(new ByteArrayInputStream(bytes.toByteArray())));
-        assertEquals(state,network,"Version13 network frame roundtrip from base version12 save");
+        assertEquals(state,network,"Version14 network frame roundtrip from base version12 save");
         var fixture=AviationTest.fixture();
         var city=new CitySimulation(state.config(),fixture.ground(),fixture.terrain(),state);
         assertEquals(state.aviation(),city.frame().aviation());

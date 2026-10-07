@@ -1,0 +1,258 @@
+{
+  "status": "Historical verification before shipping recovery; not current proof.",
+  "branch": "feature/queue-37396661366138612d366466362d343435352d383665342d653165333732313935316464",
+  "publication": "Do not submit as final-head evidence until renewed after controller rebase continuation.",
+  "environment": {
+    "os": "Linux",
+    "graphics": "Inherited assigned X11 display; Mesa software OpenGL",
+    "java": "Native harness: Java 21.0.5 LTS; compilation target: Java 17",
+    "profile": "Synthetic world and traveller; user.home, native extraction, runtime output and saves confined to target/"
+  },
+  "commands": [
+    {
+      "command": "mvn -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -DreuseForks=false -DforkedProcessTimeoutInSeconds=120 test -q",
+      "purpose": "Full recovered-source regression suite",
+      "result": {
+        "exitCode": 0,
+        "tests": 340,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "command": "python3 deploy/run_railway_playtest.py --display \"$DISPLAY\"",
+      "purpose": "Playtest: actual application rail placement, permits, boarding, storage, save and road regression",
+      "result": "Exit 0 with fresh isolated synthetic profile. Initial attempt rejected a stale synthetic save; cleared test profile and reran successfully. Harness now clears its test profile before each run."
+    },
+    {
+      "command": "git diff --check",
+      "purpose": "Whitespace check",
+      "result": "passed"
+    },
+    {
+      "command": "javac -cp <worktree classes and target/maven-cache jars> -d target/railway-smoke deploy/VerifyRailwayVideo.java; java -cp <same classpath> VerifyRailwayVideo dashboard/evidence/railway-service.mp4",
+      "purpose": "Independently decode every frame of the implementation F10 clip",
+      "result": {
+        "status": "passed",
+        "codec": "H264",
+        "width": 960,
+        "height": 540,
+        "frames": 29,
+        "changedFrames": 28,
+        "durationSeconds": 22.608,
+        "bytes": 553678
+      }
+    },
+    {
+      "command": "python3 target/run_railway_road_regression.py --display \"$DISPLAY\"",
+      "purpose": "Playtest: all existing road choices in running application; wrapper uses worktree Maven cache and separate evidence names. Durable equivalent: deploy/run_railway_road_regression.py.",
+      "result": "Exit 0; dirt and paved 2/3/4-lane placement, direction guide, exact widths, dirt upgrade, endpoint cancellation without world/budget change, and menu cancellation passed."
+    }
+  ],
+  "playtest": {
+    "steps": [
+      {
+        "step": "Open Roads, choose Rail track; click endpoints (48,60) and (132,60).",
+        "expected": "85 rail cells; charge $680.",
+        "observed": "85 cells placed; $680 transport spend."
+      },
+      {
+        "step": "Place rail across existing road at z=50.",
+        "expected": "Reject crossing without changing track count.",
+        "observed": "Rejected; track count stayed 85."
+      },
+      {
+        "step": "Place stations at (50,52) and (90,52), depot at (120,52), with front roads and rear rails.",
+        "expected": "Two stations, one depot and one stored locomotive.",
+        "observed": "All three permits placed; locomotive created with a depot stop and storage dwell."
+      },
+      {
+        "step": "Add a synthetic evening traveller near the first station, with a home near the second. Accelerate simulation through the render observer.",
+        "expected": "Walk/wait at station, board, ride, and leave at the second station.",
+        "observed": "Waiting, riding and destination arrival states all observed."
+      },
+      {
+        "step": "Save and reload the rail snapshot.",
+        "expected": "Tracks, trains and passengers retained.",
+        "observed": "Railway state matched the saved state."
+      },
+      {
+        "step": "Use Dirt road on clear land after the rail trip.",
+        "expected": "Existing road workflow still works.",
+        "observed": "Dirt road built."
+      }
+    ],
+    "input": "xdotool drives the production GLFW callbacks. Camera focus and fixture setup use the existing render observer.",
+    "timing": "Train speed is 3 blocks/s, station dwell 4 s, depot dwell 10 s. The observer adds 1.9 simulated seconds per frame during the trip only.",
+    "captures": [
+      "railway-built.png",
+      "railway-passenger.png",
+      "railway-arrival.png",
+      "railway-service.mp4",
+      "railway-regression-road-surfaces.png",
+      "railway-road-regression.mp4"
+    ],
+    "recorder": "Production F10 engine recorder; clip below 6,000,000 bytes.",
+    "road_regression": {
+      "steps": "Choose road menu rows 0\u20133; place each road, upgrade dirt to 2-lane paved, cancel first endpoint, cancel menu.",
+      "expected": "Distinct widths and stored types; upgrade succeeds; cancellations leave road count and spending unchanged.",
+      "observed": "All harness assertions passed. New surfaces image inspected."
+    }
+  },
+  "unit_coverage": [
+    "Atomic placement, budget and duplicate charging",
+    "Road/building/player/obstacle rejection",
+    "Connected depot service, boarding and depot return",
+    "Disconnected depot storage and depot removal",
+    "Citizen evening rail trip",
+    "Cardinal corner routing and invalid boarding",
+    "Snapshot version-10 round trip and legacy version-9 migration"
+  ],
+  "earlier_attempts": "This recovered-source run first encountered a stale synthetic save. The isolated test profile was cleared; rerun passed. The harness now resets its synthetic profile before each run. Historical attempts and media do not prove this recovered source. A combined Maven run did not exit and was interrupted (exit 130). RegionalPopulationTest alone passed; the full suite with isolated test forks then passed (exit 0).",
+  "artifacts": [
+    {
+      "filename": "railway-built.png",
+      "bytes": 294369,
+      "sha256": "1073a338d4a67ca2359926508de81ce68fb03a80134a360b2ff47ded4cb98a9a"
+    },
+    {
+      "filename": "railway-passenger.png",
+      "bytes": 296082,
+      "sha256": "2863055d6e102269a1a8f963ecbb8b2f3476a3b00ab7626d56b18e38ef4afb17"
+    },
+    {
+      "filename": "railway-arrival.png",
+      "bytes": 321421,
+      "sha256": "3cb9e8879afb6a28a021ee9cda351a62b08687258bb8be745971ecdcefd6dda2"
+    },
+    {
+      "filename": "railway-service.mp4",
+      "bytes": 553678,
+      "sha256": "3bfd7c247ef603a53c61fdb6703a85cc624c0a84f549b10f0e36637cb96b33f8"
+    },
+    {
+      "filename": "railway-regression-road-surfaces.png",
+      "bytes": 823407,
+      "sha256": "960f80ab709187937c87b6eda5e9bb7e7c82e5fe46512d7de7e81d9f619cfe55"
+    },
+    {
+      "filename": "railway-road-regression.mp4",
+      "bytes": 3529676,
+      "sha256": "ecba61d66bcb7da80b7d822b5b9596b13d421208d5ed3c954df2fd5fd0169ac2"
+    }
+  ],
+  "videoVerification": {
+    "status": "passed",
+    "codec": "H264",
+    "width": 960,
+    "height": 540,
+    "frames": 29,
+    "changedFrames": 28,
+    "durationSeconds": 22.608,
+    "bytes": 553678
+  },
+  "implementationSources": [
+    {
+      "path": "src/main/java/dev/jayms/Main.java",
+      "sha256": "e7c8fdcc330bf1c08b1728db04b859c06f76e4d4b72f20582ceffcab90a3db89"
+    },
+    {
+      "path": "src/main/java/dev/jayms/net/MultiplayerClient.java",
+      "sha256": "c2e447a20eb0ac0d75dbb446c630e57e16935f05d4f41e1c06429ed3c1bff87f"
+    },
+    {
+      "path": "src/main/java/dev/jayms/net/Protocol.java",
+      "sha256": "f1d1893639233eeba2ef9cc97726140c30d012ecf8183d995c14b85225b10265"
+    },
+    {
+      "path": "src/main/java/dev/jayms/net/city/CityCommand.java",
+      "sha256": "f3ea4a68b4f880d140e1df02598d49b0e5cc5eb959dd260dbe03ba130681c5e1"
+    },
+    {
+      "path": "src/main/java/dev/jayms/net/city/CityFrame.java",
+      "sha256": "b688cd8525700c43b429aa063992432d7d73b05e6e4743e3987d5a004fdb3678"
+    },
+    {
+      "path": "src/main/java/dev/jayms/net/city/CitySimulation.java",
+      "sha256": "25bab00986e5cbd51fc088848d693d7dba706c9e25159a15b650b9a3b9b9242b"
+    },
+    {
+      "path": "src/main/java/dev/jayms/net/city/Railway.java",
+      "sha256": "f0922db0ebd84a4a3ae1de02e72d52c59edd21ef57ca9baf1c60b98c35e92f38"
+    },
+    {
+      "path": "src/main/java/dev/jayms/net/city/SpecialBuildings.java",
+      "sha256": "942f0a83dfb7810d1389aab874ae78e781ad90a0a7dc6010066feb0e3da941e6"
+    },
+    {
+      "path": "src/main/java/dev/jayms/net/city/StructureBlueprint.java",
+      "sha256": "b9656f6fe0321f6dc885588a14bb09ca459cfbd4917b99c3d2e60fad98d6fc34"
+    },
+    {
+      "path": "src/main/java/dev/jayms/player/RailwayModel.java",
+      "sha256": "d4273f269bdba275c3e36e8d23d30f669384c62a7d635045b0cf55fed704d04e"
+    },
+    {
+      "path": "src/main/java/dev/jayms/ui/BuildingInfo.java",
+      "sha256": "496f663370a1ef019925a3ac6daa2db7522fb2c4cab0e25c36c97970d6a2810a"
+    },
+    {
+      "path": "src/main/java/dev/jayms/ui/CityTools.java",
+      "sha256": "fb6ba56db152181cd6ecb2427de895d1d96fd76a0afe66ec24f56a2a541720bd"
+    },
+    {
+      "path": "src/test/java/dev/jayms/RailwayTest.java",
+      "sha256": "8506b6c31e1fc76108118cfd72263e23070dd02ffa7965622df08629e045c422"
+    },
+    {
+      "path": "deploy/RailwayPlaytest.java",
+      "sha256": "46f6834bf30bfed9213a0025bb663790cadea23145d0c71a17fd16644a953520"
+    },
+    {
+      "path": "deploy/run_railway_playtest.py",
+      "sha256": "00f0d783859fdb8a002444980c9c6a99ce79c7c712898b637516315dbcf6492e"
+    },
+    {
+      "path": "deploy/VerifyRailwayVideo.java",
+      "sha256": "9cc9a480032827840a7f576329abc46f70899c11a29ee0bb8095c7c6d47e9e07"
+    }
+  ],
+  "regressionTotals": {
+    "tests": 340,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "regressionReport": "railway-regression-tests.json",
+  "serviceRules": {
+    "trainSpeedBlocksPerSecond": 3,
+    "stationDwellSeconds": 4,
+    "depotDwellSeconds": 10,
+    "seats": 16,
+    "dispatch": "Automatic depot -> connected stations in permit order -> depot; one active train per connected line.",
+    "placement": "Rail costs $8 per new cell; road crossings are rejected; rail buildings require front road access and a rear track dock.",
+    "legacy": "City save version 13 and network protocol 23; prior save readers 1\u201312 retained; old servers reject railway commands."
+  },
+  "implementation": {
+    "save_version": 13,
+    "save_magic": "0x4349543D",
+    "protocol_version": 23,
+    "rail_command": 12,
+    "airport_building": 23,
+    "rail_station_building": 24,
+    "rail_depot_building": 25,
+    "compatibility": "Old readers 1\u201312 retained; all four road types tested loading and resaving formats 10\u201312."
+  },
+  "historical_evidence": "Historical road evidence remains unchanged. The earlier 306-test railway run is retained as railway-historical-tests.json and is superseded by the current full-suite report.",
+  "roadVideoVerification": {
+    "status": "passed",
+    "codec": "H264",
+    "width": 960,
+    "height": 540,
+    "frames": 125,
+    "changedFrames": 124,
+    "durationSeconds": 111.743,
+    "bytes": 3529676
+  }
+}
