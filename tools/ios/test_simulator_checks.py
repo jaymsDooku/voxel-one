@@ -45,10 +45,16 @@ class FakeAppleCommands:
         self.booted = True
         self.launch = 'example.voxelone.client: 123'
         self.client_runs = 0
+        self.failure_stage = None
 
     def __call__(self, args, **kwargs):
         assert kwargs['cwd'] == self.repo, 'All Git and client commands must use requested source, not verifier checkout'
         self.calls.append((args, kwargs))
+        stage = args[2] if args[:2] == ['xcrun', 'simctl'] else None
+        if stage == 'io':
+            stage = 'screenshot'
+        if stage == self.failure_stage and stage is not None:
+            raise checks.CheckError('command_failed')
         if args == ['git', 'rev-parse', 'HEAD']:
             return self.head
         if args == ['git', 'diff', '--quiet', 'HEAD', '--']:
@@ -56,7 +62,7 @@ class FakeAppleCommands:
         if args[0] in ('sw_vers', 'xcodebuild'):
             return 'MOCK version; not actual Mac evidence'
         if args[:3] == ['xcrun', '--sdk', 'iphonesimulator']:
-            return 'MOCK SDK'
+            return '18.5'
         if args == ['xcrun', 'simctl', 'list', '--json']:
             return json.dumps(self.inventory)
         if args[:3] == ['xcrun', 'simctl', 'create']:
@@ -119,6 +125,27 @@ class SelectionTests(unittest.TestCase):
                                     (HEAD, 'shell', REQUEST), (HEAD, 'client', 'test; command')]:
             with self.subTest(head=head, mode=mode, request=request), self.assertRaises(checks.CheckError):
                 checks.validate_request(head, mode, request)
+
+    def test_active_sdk_18_5_selects_18_5_over_newer_installed_26_2(self):
+        data = inventory()
+        newer = 'com.apple.CoreSimulator.SimRuntime.iOS-26-2'
+        data['runtimes'].append({'identifier': newer, 'name': 'iOS 26.2', 'version': '26.2', 'isAvailable': True})
+        data['devices'][newer] = copy.deepcopy(data['devices'][RUNTIME])
+        self.assertEqual(checks.select_iphone(data)[0]['identifier'], newer)
+        self.assertEqual(checks.select_iphone(data, max_sdk='18.5')[0]['identifier'], RUNTIME)
+
+    def test_no_compatible_available_pair_reports_actionable_error(self):
+        data = inventory()
+        data['runtimes'][0]['version'] = '26.2'
+        with self.assertRaisesRegex(checks.CheckError, 'compatible_iphone_runtime_missing'):
+            checks.select_iphone(data, max_sdk='18.5')
+
+    def test_sdk_runtime_compatibility_uses_major_minor_and_rejects_unknown_sdk(self):
+        data = inventory()
+        data['runtimes'][0]['version'] = '18.5.2'
+        self.assertEqual(checks.select_iphone(data, max_sdk='18.5.1')[0]['identifier'], RUNTIME)
+        with self.assertRaisesRegex(checks.CheckError, 'simulator_sdk_version_invalid'):
+            checks.select_iphone(data, max_sdk='unknown SDK')
 
 
 class RunContractTests(unittest.TestCase):
@@ -262,6 +289,23 @@ class RunContractTests(unittest.TestCase):
             checks.media_metadata(self.output, 'fake.png')
         with self.assertRaisesRegex(checks.CheckError, 'invalid_evidence_path'):
             checks.media_metadata(self.output, '../private.png')
+
+    def test_command_failures_record_fixed_stage_without_raw_logs(self):
+        for stage in ('create', 'boot', 'bootstatus', 'screenshot'):
+            with self.subTest(stage=stage):
+                root = self.repo / stage
+                root.mkdir()
+                fake = FakeAppleCommands(root)
+                fake.failure_stage = stage
+                report = checks.run_checks(root, root / 'evidence', HEAD, 'preflight', REQUEST,
+                                          run_command=fake, system_name='Darwin', wait=lambda _: None)
+                self.assertEqual(report['status'], 'failed')
+                self.assertEqual(report['errorCode'], 'command_failed')
+                self.assertEqual(report['errorStage'], stage)
+                self.assertEqual(report['phase'], stage)
+                self.assertFalse(report['clientChecked'])
+                self.assertNotIn('stdout', report)
+                self.assertNotIn('stderr', report)
 
 
 class WorkflowContractTests(unittest.TestCase):

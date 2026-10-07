@@ -43,8 +43,13 @@ def validate_request(head, mode, request_id):
         raise CheckError('invalid_request_id') from None
 
 
-def select_iphone(inventory):
+def select_iphone(inventory, max_sdk=None):
     """Choose a known available pair, then CREATE a new device of that type."""
+    sdk_version = None
+    if max_sdk is not None:
+        if not isinstance(max_sdk, str) or not re.fullmatch(r'\d+(?:\.\d+)*', max_sdk):
+            raise CheckError('simulator_sdk_version_invalid')
+        sdk_version = (tuple(map(int, max_sdk.split('.'))) + (0,))[:2]
     types = {d['identifier']: d for d in inventory.get('devicetypes', [])
              if d.get('identifier', '').startswith('com.apple.CoreSimulator.SimDeviceType.iPhone-')
              and d.get('name', '').startswith('iPhone')}
@@ -56,13 +61,16 @@ def select_iphone(inventory):
                 or not identifier.startswith('com.apple.CoreSimulator.SimRuntime.iOS-')
                 or not re.fullmatch(r'\d+(?:\.\d+)*', version)):
             continue
+        runtime_version = tuple(map(int, version.split('.')))
+        if sdk_version is not None and (runtime_version + (0,))[:2] > sdk_version:
+            continue
         for device in inventory.get('devices', {}).get(identifier, []):
             device_type = types.get(device.get('deviceTypeIdentifier'))
             if device.get('isAvailable') is True and device_type:
-                candidates.append((tuple(map(int, version.split('.'))), device_type['identifier'],
+                candidates.append((runtime_version, device_type['identifier'],
                                    runtime, device_type))
     if not candidates:
-        raise CheckError('available_iphone_runtime_missing')
+        raise CheckError('compatible_iphone_runtime_missing' if max_sdk is not None else 'available_iphone_runtime_missing')
     _, _, runtime, device_type = max(candidates, key=lambda c: (c[0], c[1]))
     return ({k: runtime[k] for k in ('identifier', 'name', 'version')},
             {k: device_type[k] for k in ('identifier', 'name')})
@@ -149,7 +157,7 @@ def run_checks(repo, output, expected_head, mode, request_id, *, run_command=com
                system_name=None, wait=time.sleep):
     report = {'schemaVersion': 1, 'expectedHead': expected_head, 'sourceHead': None,
               'requestId': request_id, 'mode': mode, 'status': 'failed',
-              'environmentReady': False, 'clientChecked': False, 'evidence': []}
+              'environmentReady': False, 'clientChecked': False, 'evidence': [], 'phase': 'request'}
     udid = None
     created_output = False
     def run(args, **kwargs):
@@ -160,6 +168,7 @@ def run_checks(repo, output, expected_head, mode, request_id, *, run_command=com
             raise CheckError('evidence_directory_not_fresh')
         output.mkdir(parents=True)
         created_output = True
+        report['phase'] = 'source'
         report['sourceHead'] = run(['git', 'rev-parse', 'HEAD'])
         if report['sourceHead'] != expected_head:
             raise CheckError('source_head_mismatch')
@@ -169,11 +178,16 @@ def run_checks(repo, output, expected_head, mode, request_id, *, run_command=com
             raise CheckError('source_tree_changed') from None
         if (system_name or platform.system()) != 'Darwin':
             raise CheckError('macos_required')
+        report['phase'] = 'environment'
         report['environment'] = {'macOS': run(['sw_vers', '-productVersion']),
                                  'xcode': run(['xcodebuild', '-version']),
                                  'simulatorSDK': run(['xcrun', '--sdk', 'iphonesimulator', '--show-sdk-version'])}
-        runtime, device_type = select_iphone(json.loads(run(['xcrun', 'simctl', 'list', '--json'])))
+        report['phase'] = 'inventory'
+        inventory = json.loads(run(['xcrun', 'simctl', 'list', '--json']))
+        report['phase'] = 'selection'
+        runtime, device_type = select_iphone(inventory, max_sdk=report['environment']['simulatorSDK'])
         report.update(runtime=runtime, deviceType=device_type)
+        report['phase'] = 'create'
         udid = run(['xcrun', 'simctl', 'create', 'Voxel iOS ' + request_id[:8], device_type['identifier'], runtime['identifier']])
         try:
             if str(uuid.UUID(udid)).upper() != udid.upper():
@@ -182,18 +196,23 @@ def run_checks(repo, output, expected_head, mode, request_id, *, run_command=com
             udid = None
             raise CheckError('simulator_creation_invalid') from None
         report['udid'] = udid
+        report['phase'] = 'boot'
         run(['xcrun', 'simctl', 'boot', udid])
+        report['phase'] = 'bootstatus'
         run(['xcrun', 'simctl', 'bootstatus', udid, '-b'], timeout=240)
+        report['phase'] = 'boot_verify'
         booted = json.loads(run(['xcrun', 'simctl', 'list', 'devices', '--json']))
         if not any(d.get('udid') == udid and d.get('state') == 'Booted' and d.get('isAvailable') is True
                    for d in booted.get('devices', {}).get(runtime['identifier'], [])):
             raise CheckError('simulator_not_booted')
         wait(2)
+        report['phase'] = 'screenshot'
         run(['xcrun', 'simctl', 'io', udid, 'screenshot', str(output / 'preflight.png')])
         report['evidence'].append({**media_metadata(output, 'preflight.png'), 'kind': 'image',
                                    'description': 'Fresh iPhone simulator home screen; environment preflight, not Voxel One client evidence.'})
         report['environmentReady'] = True
         if mode == 'client':
+            report['phase'] = 'client_script'
             script = local_file(repo, 'ios/check-simulator.sh')
             if not script.is_file():
                 raise CheckError('native_client_script_missing')
@@ -201,21 +220,26 @@ def run_checks(repo, output, expected_head, mode, request_id, *, run_command=com
             client_env.update(IOS_SIMULATOR_UDID=udid, IOS_EVIDENCE_DIR=str(output), IOS_SOURCE_HEAD=expected_head,
                               IOS_RUNTIME_ID=runtime['identifier'])
             run(['bash', str(script), udid, str(output), expected_head], timeout=1200, env=client_env)
+            report['phase'] = 'client_receipt'
             receipt, videos = client_receipt(repo, output, expected_head, udid)
+            report['phase'] = 'client_install'
             installed = Path(run(['xcrun', 'simctl', 'get_app_container', udid, receipt['bundleId'], 'app']))
             if not installed.is_absolute():
                 raise CheckError('native_app_not_installed')
             native_app(installed, receipt['bundleId'])
+            report['phase'] = 'client_launch'
             launch = run(['xcrun', 'simctl', 'launch', udid, receipt['bundleId']])
             if not re.fullmatch(re.escape(receipt['bundleId']) + r': [1-9]\d*', launch):
                 raise CheckError('native_client_launch_failed')
             wait(2)
+            report['phase'] = 'client_screenshot'
             run(['xcrun', 'simctl', 'io', udid, 'screenshot', str(output / 'client.png')])
             report['evidence'].append({**media_metadata(output, 'client.png'), 'kind': 'image',
                                        'description': 'Actual launched native Voxel One simulator client; captured by the controller tooling.'})
             report['evidence'].extend({**v, 'kind': 'video'} for v in videos)
             report['client'] = {'bundleId': receipt['bundleId'], 'tests': receipt['tests']}
             report['clientChecked'] = True
+        report['phase'] = 'source_verify'
         if run(['git', 'rev-parse', 'HEAD']) != expected_head:
             raise CheckError('source_head_changed')
         try:
@@ -223,11 +247,14 @@ def run_checks(repo, output, expected_head, mode, request_id, *, run_command=com
         except CheckError:
             raise CheckError('source_tree_changed') from None
         report['status'] = 'passed'
+        report['phase'] = 'complete'
     except CheckError as error:
         report['errorCode'] = error.code
+        report['errorStage'] = report['phase']
         report['clientChecked'] = False
     except (ValueError, KeyError, TypeError, AttributeError, OSError):
         report['errorCode'] = 'invalid_simulator_metadata'
+        report['errorStage'] = report['phase']
         report['clientChecked'] = False
     finally:
         if udid:
@@ -257,7 +284,8 @@ def main(argv=None):
         raise SystemExit('Evidence directory must stay inside the source checkout')
     report = run_checks(repo, output, args.expected_head, args.mode, args.request_id)
     print(json.dumps({'status': report['status'], 'mode': args.mode, 'sourceHead': report['sourceHead'],
-                      'clientChecked': report['clientChecked'], 'errorCode': report.get('errorCode')}))
+                      'clientChecked': report['clientChecked'], 'errorCode': report.get('errorCode'),
+                      'errorStage': report.get('errorStage')}))
     return 0 if report['status'] == 'passed' else 1
 
 
