@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T11:50:50+00:00",
+  "updatedAt": "2026-10-07T12:00:58+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -18,10 +18,16 @@
       "id": "65373939316464372d633131352d346232312d393633612d366138613766363134353034",
       "title": "Continuous painted road lines",
       "description": "Replacing per-block stripe textures with route-aligned surface geometry",
-      "evidence": [],
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Integrated validation; pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-65373939316464372d633131352d346232312d393633612d366138613766363134353034/dashboard/evidence/painted-lines-integrated-validation.md"
+        }
+      ],
       "status": "in_progress",
-      "note": "Resolved progress conflict; current master stress-grid, protocol 26 and version-15 save support retained. Rebase continuation and fresh final-head playtest/media remain pending.",
-      "updatedAt": "2026-10-07T11:50:50+00:00"
+      "note": "Integrated source verified: 53 tests, native road and stress-grid workflows passed. Fresh PNG/F10 media decoded and inspected. Base features retained; awaiting controller publication and independent review.",
+      "updatedAt": "2026-10-07T12:00:58+00:00"
     },
     {
       "id": "30333331373330302d353838302d343236302d613732392d623434653263633731336531",

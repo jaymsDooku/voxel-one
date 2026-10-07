@@ -59,6 +59,35 @@ public final class RoadMarkings {
         float[] v=new float[vertices.size()];for(int i=0;i<v.length;i++)v[i]=vertices.get(i);
         return new MeshData(v,indices.stream().mapToInt(Integer::intValue).toArray());
     }
+    /** The stress grid is implicit: only paint detailed columns, never expand its million plots. */
+    public static MeshData stressMesh(StressGrid grid, Set<dev.jayms.ChunkPos> columns) {
+        var vertices=new ArrayList<Float>();var indices=new ArrayList<Integer>();
+        for(var column:columns) {
+            float x0=Math.max(column.chunkX()*16,StressGrid.MIN_X);
+            float z0=Math.max(column.chunkZ()*16,StressGrid.MIN_Z);
+            float x1=Math.min(column.chunkX()*16+16,StressGrid.MIN_X+StressGrid.EXTENT);
+            float z1=Math.min(column.chunkZ()*16+16,StressGrid.MIN_Z+StressGrid.EXTENT);
+            if(x0>=x1||z0>=z1)continue;
+            for(int axis=0;axis<2;axis++) {
+                float low=axis==0?z0:x0,high=axis==0?z1:x1;
+                float origin=(axis==0?StressGrid.MIN_Z:StressGrid.MIN_X)+1.5f;
+                int first=(int)Math.ceil((low-.0625f-origin)/StressGrid.STRIDE);
+                for(int line=Math.max(0,first);line<=StressGrid.SIDE;line++) {
+                    float center=origin+line*StressGrid.STRIDE;
+                    if(center-.0625f>=high)break;
+                    float a=Math.max(low,center-.0625f),b=Math.min(high,center+.0625f);
+                    if(a>=b)continue;
+                    float[][] quad=axis==0?new float[][]{{x0,a},{x1,a},{x1,b},{x0,b}}
+                            :new float[][]{{a,z0},{b,z0},{b,z1},{a,z1}};
+                    int base=vertices.size()/9;
+                    for(var point:quad)for(float value:new float[]{point[0],grid.grade()+1.003f,point[1],0,1,0,.95f,.95f,.9f})vertices.add(value);
+                    for(int index:new int[]{0,2,1,0,3,2})indices.add(base+index);
+                }
+            }
+        }
+        float[] v=new float[vertices.size()];for(int i=0;i<v.length;i++)v[i]=vertices.get(i);
+        return new MeshData(v,indices.stream().mapToInt(Integer::intValue).toArray());
+    }
     private static Polygon.Point edge(List<Polygon.Point> route,int i,int lane,float offset,float nx,float nz) {
         var p=route.get(i);
         if(i>0&&i<route.size()-1) {

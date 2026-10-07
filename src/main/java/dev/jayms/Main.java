@@ -1166,7 +1166,7 @@ public class Main {
             if (pose != null) farmModels.cow(cow, pose, shader);
         }
         for (var plane : Aviation.planes(city())) planeModel.render(plane, shader);
-        roadMarkingModel.render(city(), shader);
+        roadMarkingModel.render(city(), detailed, shader);
         railwayModel.render(city(), shader);
         for (var ship : shippingRoutes.ships(city(), world)) shipModel.render(ship, shader);
         for (var h : city().horses()) {

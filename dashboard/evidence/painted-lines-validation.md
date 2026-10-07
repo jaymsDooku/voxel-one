@@ -1,3 +1,5 @@
+Superseded by painted-lines-integrated-validation.md. The same-named road PNGs and F10 video have now been replaced by fresh integrated-source captures. Earlier observations below are retained as test history; their old media size/frame counts do not describe the current artifacts.
+
 Recovery status: previous tests and media below predate master integration. See painted-lines-recovery.md. Fresh final-head native checks and media await controller rebase continuation.
 
 Continuous painted road markings
