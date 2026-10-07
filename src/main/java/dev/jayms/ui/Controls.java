@@ -46,7 +46,8 @@ public final class Controls {
         CHEATS("Enter / leave cheat mode (offline)", GLFW_KEY_F4),
         CHEAT_SELECT("Cheats: next vehicle", GLFW_KEY_PAGE_UP),
         CHEAT_SPAWN("Cheats: spawn selected vehicle", GLFW_KEY_PAGE_DOWN),
-        CHEAT_MONEY("Cheats: add $10,000 to city budget", GLFW_KEY_INSERT);
+        CHEAT_MONEY("Cheats: add $10,000 to city budget", GLFW_KEY_INSERT),
+        ENGINE_EDITOR("Game engine workspace", GLFW_KEY_F11);
         public final String label;
         public final int defaultCode;
 

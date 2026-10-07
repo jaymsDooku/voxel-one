@@ -1,0 +1,19 @@
+Voxel One Game Engine Editor
+
+Launch the native workspace with --offline --editor. This selects Voxel One City
+Builder unless --game sandbox is supplied. Existing launch commands still work.
+F11 opens the workspace from a running game. This key can be changed in Controls.
+
+The project panel names the active game. Select World, Roads, Buildings or Citizens
+with a click or Up/Down to inspect the current scene. Local city time pauses while
+the workspace is open. A multiplayer server continues to run.
+
+Enter, Escape, F11 or Play game returns to the same game and world. Voxel assets
+(M) opens the existing voxel model sculptor, where Create makes a model item in
+the current game. Escape closes that tool; F11 returns directly to the workspace and keeps the
+current model draft. Game
+construction tools and saves remain available while playing.
+
+This first workspace uses the engine's existing rendering and game systems.
+It does not create arbitrary new game projects, edit code, or provide undo for
+in-game changes. The inspector shows scene groups and their current counts.

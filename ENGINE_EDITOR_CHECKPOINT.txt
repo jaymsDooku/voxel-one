@@ -1,0 +1,24 @@
+Editor review fix ready for independent review.
+
+Direct asset-editor F11 return now runs before model-editor key handling. The
+shared openEngineWorkspace helper closes the tool through closeEditor, keeps
+the model draft, commits a valid focused name, ends drag and releases the pointer.
+The mouse binding follows the same return path. Escape still closes the asset
+tool to gameplay.
+
+Review base: 2b35f2602fdce5d3bfd73f5943d996a3e14d2cad.
+Fix start head: d85e387a725758b287d9309d8f48c9fce40e2813.
+Entire proposed diff audited against the supplied base; no file deletions or
+unrelated removed features. Intended guard replacements are in the test report.
+
+Final checks: 18 focused tests passed; package build passed; production native
+Playtest passed, including direct Workspace -> M -> F11 with no Escape, focused
+name draft retention, Escape regression and mouse Play. Direct CLI launch passed.
+Five fresh images inspected. Commands, environment, expected/observed steps and
+source/media hashes: dashboard/evidence/engine-editor-tests.json.
+
+No commit, push, merge, deployment or Git index edits. Evidence and progress links
+await controller publication. Status stays in_progress for independent review.
+No owner question is pending. Delegate task resolved as self; concurrency is 0.
+If controller integration changes source, rerun the tests and both native
+harnesses with --display "$DISPLAY" and replace the captures.

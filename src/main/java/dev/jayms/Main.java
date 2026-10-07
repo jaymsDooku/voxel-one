@@ -95,6 +95,7 @@ public class Main {
     private VoxelModelRenderer modelRenderer;
     private DistantTerrainRenderer distant;
     private ModelEditor editor;
+    private final EngineEditor engineEditor = new EngineEditor();
     private LightColorMenu lightColors;
     private int modelResults;
     private World world;
@@ -414,6 +415,13 @@ public class Main {
                 window.getHandle(),
                 (handle, key, scancode, action, mods) -> {
                     if (action == GLFW_PRESS && recordInput(key)) return;
+                    if (engineEditor.open) {
+                        if (action == GLFW_PRESS) {
+                            if (controls.matches(ENGINE_EDITOR, key)) engineCommand(EngineEditor.Command.PLAY);
+                            else engineCommand(engineEditor.key(key));
+                        }
+                        return;
+                    }
                     if (buildingInfo.open) {
                         buildingInfo.key(key, action);
                         if (!buildingInfo.open) setCaptured(true);
@@ -439,6 +447,10 @@ public class Main {
                         return;
                     }
                     if (editor.open) {
+                        if (action == GLFW_PRESS && controls.matches(ENGINE_EDITOR, key)) {
+                            openEngineWorkspace();
+                            return;
+                        }
                         if (action == GLFW_PRESS && controls.matches(MODEL_EDITOR, key))
                             editor.closeEditor();
                         else editor.key(key, action, mods);
@@ -453,6 +465,7 @@ public class Main {
                     if (action == GLFW_PRESS) {
                         if (isometric
                                 && city().config().city()
+                                && !engineEditor.open
                                 && !menu.open
                                 && !inventoryHud.open
                                 && cityTools.key(key, this::cityCommand)) return;
@@ -462,6 +475,12 @@ public class Main {
         glfwSetCursorPosCallback(
                 window.getHandle(),
                 (handle, x, y) -> {
+                    if (engineEditor.open) {
+                        mouseX = x;
+                        mouseY = y;
+                        firstMouse = true;
+                        return;
+                    }
                     if (editor.open) {
                         int[] size = window.getSize();
                         editor.drag(
@@ -494,6 +513,14 @@ public class Main {
                         return;
                     }
                     if (action == GLFW_PRESS && recordInput(-button - 1)) return;
+                    if (engineEditor.open) {
+                        if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_LEFT) {
+                            int[] size = window.getSize();
+                            engineCommand(engineEditor.click((float) mouseX * framebufferWidth / size[0],
+                                    (float) mouseY * framebufferHeight / size[1], framebufferWidth));
+                        }
+                        return;
+                    }
                     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS && canOrbit()) {
                         orbitDrag.begin();
                         glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -536,6 +563,10 @@ public class Main {
                         return;
                     }
                     if (editor.open) {
+                        if (action == GLFW_PRESS && controls.matches(ENGINE_EDITOR, -button - 1)) {
+                            openEngineWorkspace();
+                            return;
+                        }
                         if (action == GLFW_PRESS && controls.matches(MODEL_EDITOR, -button - 1)) {
                             editor.closeEditor();
                             setCaptured(true);
@@ -653,6 +684,7 @@ public class Main {
         glfwSetScrollCallback(
                 window.getHandle(),
                 (handle, x, y) -> {
+                    if (engineEditor.open) return;
                     if (buildingInfo.open) {
                         buildingInfo.scroll(y);
                         return;
@@ -680,7 +712,7 @@ public class Main {
                     if (!focused) {
                         setCaptured(false);
                         inventoryHud.close();
-                        if (editor.open
+                        if (engineEditor.open || editor.open
                                 || lightColors.open
                                 || mayorDashboard.open
                                 || buildingInfo.open) return;
@@ -733,6 +765,10 @@ public class Main {
     }
 
     private void input(int code) {
+        if (controls.matches(ENGINE_EDITOR, code)) {
+            openEngineWorkspace();
+            return;
+        }
         if (controls.matches(CHEATS, code)) {
             if (network != null || local == null) { notice = "Cheat mode is available offline only"; return; }
             if (player.mounted() || jeep != null && jeep.driving()) { notice = "Exit your vehicle before changing cheat mode"; return; }
@@ -864,8 +900,23 @@ public class Main {
         }
     }
 
+    private void openEngineWorkspace() {
+        if (editor.open) editor.closeEditor();
+        inventoryHud.close();
+        engineEditor.open = true;
+        setCaptured(false);
+    }
+
+    private void engineCommand(EngineEditor.Command command) {
+        if (command == EngineEditor.Command.NONE) return;
+        engineEditor.open = false;
+        if (command == EngineEditor.Command.MODEL) editor.open = true;
+        setCaptured(command == EngineEditor.Command.PLAY);
+    }
+
     private boolean canOrbit() {
         return isometric
+                && !engineEditor.open
                 && !menu.open
                 && !inventoryHud.open
                 && !editor.open
@@ -879,6 +930,7 @@ public class Main {
         value =
                 value
                         && !isometric
+                        && !engineEditor.open
                         && (editor == null || !editor.open)
                         && (lightColors == null || !lightColors.open)
                         && !mayorDashboard.open
@@ -925,13 +977,14 @@ public class Main {
                 network.respawn = null;
                 notice = "You respawned. Your inventory was kept.";
             }
-            if (local != null && !(menu.open && menu.saves != null && menu.saves.open)) local.city.advance(Math.min(dt, .25));
+            if (local != null && !engineEditor.open && !(menu.open && menu.saves != null && menu.saves.open)) local.city.advance(Math.min(dt, .25));
             var horse = riding();
             player.mount(
                     horse != null,
                     horse == null ? null : new Vector3f(horse.x(), horse.y(), horse.z()));
             if (isometric
                     && city().config().city()
+                    && !engineEditor.open
                     && !menu.open
                     && !inventoryHud.open
                     && !editor.open
@@ -1036,7 +1089,7 @@ public class Main {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             Vector3f audioListener = new Vector3f(player.position());
             if (isometric && overview.focused()) audioListener.set(overview.focusX(), overview.focusY(), overview.focusZ());
-            vehicleAudio.update(jeep, city(), audioListener, menu.open || editor.open
+            vehicleAudio.update(jeep, city(), audioListener, engineEditor.open || menu.open || editor.open
                     || framebufferWidth == 0 || framebufferHeight == 0);
             if (framebufferWidth > 0 && framebufferHeight > 0) {
                 renderCity = network == null ? local.city.frame() : network.city;
@@ -1268,6 +1321,13 @@ public class Main {
     }
 
     private void renderOverlay() {
+        if (engineEditor.open) {
+            overlay.begin(framebufferWidth, framebufferHeight);
+            engineEditor.render(overlay, framebufferWidth, framebufferHeight, city(),
+                    Controls.keyName(controls.code(ENGINE_EDITOR)), local != null);
+            overlay.end();
+            return;
+        }
         if (city().config().city() && (network == null || network.connected()))
             mayorDashboard.history.observe(city());
         overlay.begin(framebufferWidth, framebufferHeight);
@@ -1390,7 +1450,8 @@ public class Main {
                     20,
                     framebufferHeight - 130,
                     1.4f);
-        if (city().config().city() && !inventoryHud.open && !menu.open && !lightColors.open)
+        if (city().config().city() && !inventoryHud.open && !engineEditor.open
+                && !menu.open && !lightColors.open)
         {
             cityTools.surface(world, world.editsVersion(), (x, z) -> {
                 for (int y = Terrain.MAX_Y; y >= Terrain.MIN_Y; y--)
@@ -1565,7 +1626,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         String host = null, pin = null;
         int port = Protocol.PORT;
-        boolean offline = false, cityGame = false, gameExplicit = false;
+        boolean offline = false, cityGame = false, gameExplicit = false, engineWorkspace = false;
         double daySeconds = 1200, startHour = 8;
         boolean cycle = true;
         long seed = Terrain.DEFAULT_SEED;
@@ -1573,6 +1634,7 @@ public class Main {
         java.nio.file.Path save = Controls.directory().resolve("offline-world.dat");
         for (int i = 0; i < args.length; i++)
             switch (args[i]) {
+                case "--editor" -> engineWorkspace = true;
                 case "--game" -> {
                     String value = args[++i];
                     if (!value.equals("city") && !value.equals("sandbox"))
@@ -1596,9 +1658,11 @@ public class Main {
                 default ->
                         throw new IllegalArgumentException(
                                 "Usage: --server HOST --port PORT --fingerprint SHA256 --offline"
-                                        + " --world FILE --seed NUMBER --production-config FILE --pedestrian-spacing BLOCKS --mounted-spacing BLOCKS");
+                                        + " --editor --game city|sandbox --world FILE --seed NUMBER --production-config FILE --pedestrian-spacing BLOCKS --mounted-spacing BLOCKS");
             }
+        if (engineWorkspace && !gameExplicit) cityGame = true;
         Main game = new Main();
+        game.engineEditor.open = engineWorkspace;
         if (productionFile != null) game.productionCatalog = ProductionCatalog.load(productionFile);
         game.seed = seed;
         game.offlineSave = save;
@@ -1613,7 +1677,7 @@ public class Main {
                     throw e;
                 }
             }
-            if (!offline && !gameExplicit) cityGame = LoginDialog.citySelected;
+            if (!offline && !gameExplicit && !engineWorkspace) cityGame = LoginDialog.citySelected;
             game.gameConfig = new GameConfig(cityGame, cityGame && cycle, daySeconds, startHour);
             if (cityGame && save.equals(Controls.directory().resolve("offline-world.dat")))
                 game.offlineSave = Controls.directory().resolve("offline-city.dat");
