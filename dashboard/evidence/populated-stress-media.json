@@ -1,1 +1,1 @@
-{"status":"passed","source":"production F10 recorder in native Stress Grid playtest","codec":"H264","bytes":1498843,"frames":12,"width":960,"height":544,"seconds":23.716,"checks":["Every frame decoded","Frame count matches metadata","First and last images differ","Below 6 MB"]}
+{"status":"passed","source":"production F10 recorder in native Stress Grid playtest","codec":"H264","bytes":1499053,"frames":12,"width":960,"height":544,"seconds":24.662,"checks":["Every frame decoded","Frame count matches metadata","First and last images differ","Below 6 MB"]}

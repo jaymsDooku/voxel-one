@@ -49,6 +49,12 @@ class StressGridDevelopmentTest {
         assertEquals(sim.frame().citizens(),loaded.citizens());
         assertEquals(sim.frame().agriculture(),loaded.agriculture());
         assertEquals(sim.frame().economy(),loaded.economy());
+        var version16 = dir.resolve("populated-stress-v16.city");
+        try (var out = new DataOutputStream(Files.newOutputStream(version16))) {
+            out.writeInt(0x43495440);
+            loaded.write(out,16);
+        }
+        assertEquals(loaded,CitySimulation.load(version16),"Version 16 preserves the full populated stress city");
         var ordinaryGround=new CityTest.Ground();
         var ordinary=new CitySimulation(GameConfig.cityGame(),ordinaryGround,ordinaryGround.terrain,null);
         var before=ordinary.frame();

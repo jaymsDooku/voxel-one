@@ -1,0 +1,23 @@
+{
+  "status": "passed",
+  "layouts": 15,
+  "checks": [
+    "real UI zoning and grid parcels",
+    "15 layout choices applied",
+    "preview does not mutate zones",
+    "partition invariants",
+    "real save/reload",
+    "production construction fits parcel",
+    "purchased plot protects layout",
+    "engine workspace input isolation and paused clock",
+    "workspace save and return preserve parcels",
+    "road placement regression"
+  ],
+  "setup": "synthetic city; autonomous purchasing deferred during comparisons; one construction pass isolated to tested zone",
+  "profile": "isolated synthetic city",
+  "platform": "Linux inherited X11 Mesa",
+  "command": "python3 deploy/run_populated_stress_parcel_smoke.py --display \"$DISPLAY\"",
+  "environment": "Linux native Main; Java 25.0.3; inherited assigned DISPLAY/XAUTHORITY; Mesa software OpenGL; isolated synthetic user.home and world. Browser playtesting does not apply to this native Java game.",
+  "playtest": "Playtest: PASS. Real UI creates residential zone; apply and validate all 15 layouts; preview keeps saved layout; F11 opens workspace; parcel keys/clicks stay isolated and simulation clock pauses; save while open; Enter returns to city; save/reload keeps parcels; production construction buys a fitting parcel; occupied zone rejects layout changes; real road clicks retain exact cell (98,182). Expected each state assertion and partition invariant to hold. Observed all passed; production F10 recording and fresh screenshots saved.",
+  "attempts": "First attempt failed at F11 returns to city. Separate harness rerun used documented Enter return and passed. Original merged parcel harness unchanged. No production fix or F11 regression claim."
+}

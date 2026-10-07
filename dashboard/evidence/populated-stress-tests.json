@@ -2,115 +2,902 @@
   "status": "passed",
   "environment": "Linux, Java 25.0.3; workspace-local synthetic saves and temp files. Native checks use inherited assigned DISPLAY/XAUTHORITY and Mesa software OpenGL. No authentication cookie was read or printed.",
   "unitTests": {
-    "tests": 82,
+    "tests": 470,
     "failures": 0,
     "errors": 0,
     "skipped": 0,
     "suites": [
       {
-        "name": "dev.jayms.CityBusinessTest",
-        "tests": "9",
-        "failures": "0",
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.RailwayTest",
+        "time": "0.983",
+        "tests": "5",
         "errors": "0",
         "skipped": "0",
-        "time": "13.609"
+        "failures": "0"
       },
       {
-        "name": "dev.jayms.CityEconomyTest",
-        "tests": "7",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0",
-        "time": "19.384"
-      },
-      {
-        "name": "dev.jayms.CitySavesTest",
-        "tests": "2",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0",
-        "time": "0.062"
-      },
-      {
-        "name": "dev.jayms.EditHistoryTest",
-        "tests": "1",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0",
-        "time": "0.062"
-      },
-      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
         "name": "dev.jayms.ExchangeLabourMarketTest",
+        "time": "0.148",
         "tests": "6",
-        "failures": "0",
         "errors": "0",
         "skipped": "0",
-        "time": "0.351"
+        "failures": "0"
       },
       {
-        "name": "dev.jayms.MarketEconomyTest",
-        "tests": "13",
-        "failures": "0",
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CraftingTest",
+        "time": "0.06",
+        "tests": "6",
         "errors": "0",
         "skipped": "0",
-        "time": "0.482"
+        "failures": "0"
       },
       {
-        "name": "dev.jayms.RoadTrafficTest",
-        "tests": "26",
-        "failures": "0",
-        "errors": "0",
-        "skipped": "0",
-        "time": "2.097"
-      },
-      {
-        "name": "dev.jayms.StressGridDevelopmentTest",
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.BusinessDashboardTest",
+        "time": "0.013",
         "tests": "3",
-        "failures": "0",
         "errors": "0",
         "skipped": "0",
-        "time": "31.871"
+        "failures": "0"
       },
       {
-        "name": "dev.jayms.StressGridLightingTest",
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.MarketEconomyTest",
+        "time": "0.316",
+        "tests": "13",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.IndustrialProgressionTest",
+        "time": "0.144",
+        "tests": "10",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.ShippingProtocolCompatibilityTest",
+        "time": "6.462",
+        "tests": "3",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.EditHistoryTest",
+        "time": "0.016",
         "tests": "1",
-        "failures": "0",
         "errors": "0",
         "skipped": "0",
-        "time": "1.369"
+        "failures": "0"
       },
       {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CityMaterialsTest",
+        "time": "27.519",
+        "tests": "13",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.ManufacturingTest",
+        "time": "45.675",
+        "tests": "8",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.AviationSaveCompatibilityTest",
+        "time": "0.091",
+        "tests": "1",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CityAddressesTest",
+        "time": "4.568",
+        "tests": "3",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.ParcelPortfolioTest",
+        "time": "0.751",
+        "tests": "9",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CityToolsTest",
+        "time": "0.125",
+        "tests": "10",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.MayorDashboardTest",
+        "time": "0.023",
+        "tests": "3",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CityCapitalTest",
+        "time": "7.068",
+        "tests": "11",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
         "name": "dev.jayms.StressGridRoadMarkingsTest",
+        "time": "0.002",
         "tests": "1",
-        "failures": "0",
         "errors": "0",
         "skipped": "0",
-        "time": "0.017"
+        "failures": "0"
       },
       {
-        "name": "dev.jayms.StressGridTest",
-        "tests": "7",
-        "failures": "0",
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.net.city.CityStockExchangeTest",
+        "time": "0.031",
+        "tests": "10",
         "errors": "0",
         "skipped": "0",
-        "time": "2.502"
+        "failures": "0"
       },
       {
-        "name": "dev.jayms.VoxelModelTest",
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.DistantTerrainTest",
+        "time": "0.113",
         "tests": "6",
-        "failures": "0",
         "errors": "0",
         "skipped": "0",
-        "time": "0.324"
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.RailwaySaveCompatibilityTest",
+        "time": "0.117",
+        "tests": "3",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.ControlsTest",
+        "time": "0.039",
+        "tests": "5",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.EngineEditorTest",
+        "time": "0.013",
+        "tests": "3",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CapitalInspectorTest",
+        "time": "0.008",
+        "tests": "1",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.RemotePlayerTest",
+        "time": "0.001",
+        "tests": "1",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.JeepTest",
+        "time": "0.206",
+        "tests": "8",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.ModelSculptorTest",
+        "time": "0.006",
+        "tests": "3",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.PlayerCameraTest",
+        "time": "0.007",
+        "tests": "3",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.PopulationJourneyTest",
+        "time": "28.402",
+        "tests": "2",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.SpecialBuildingsTest",
+        "time": "0.389",
+        "tests": "6",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.ExchangePermitCompositionTest",
+        "time": "0.002",
+        "tests": "1",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CityMetricsTest",
+        "time": "0.019",
+        "tests": "5",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CityTimeTest",
+        "time": "23.607",
+        "tests": "6",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CitizenLifeTest",
+        "time": "0.208",
+        "tests": "8",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CapitalSettlementLimitsTest",
+        "time": "0.106",
+        "tests": "9",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CityMultiplayerTest",
+        "time": "23.872",
+        "tests": "1",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.BuildingInfoTest",
+        "time": "0.014",
+        "tests": "5",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.VideoRecordingTest",
+        "time": "0.521",
+        "tests": "7",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.MixedRoadOwnershipTest",
+        "time": "0.789",
+        "tests": "8",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.OperatingEnergyTest",
+        "time": "0.235",
+        "tests": "4",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.ShippingRoutesTest",
+        "time": "0.484",
+        "tests": "6",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.LightingTest",
+        "time": "0.058",
+        "tests": "5",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.RoadTypesTest",
+        "time": "0.588",
+        "tests": "9",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.IsometricOrbitDragTest",
+        "time": "0.002",
+        "tests": "1",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.RoadGuideHeightTest",
+        "time": "0.163",
+        "tests": "1",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.PlayerTest",
+        "time": "0.429",
+        "tests": "6",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.StressGridTest",
+        "time": "0.867",
+        "tests": "7",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.RoadBaseCompatibilityTest",
+        "time": "0.055",
+        "tests": "2",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CitySavesTest",
+        "time": "0.058",
+        "tests": "2",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.UpdaterTest",
+        "time": "0.656",
+        "tests": "2",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.RoadMarkingsTest",
+        "time": "0.325",
+        "tests": "4",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.FreightFallbackTest",
+        "time": "0.083",
+        "tests": "2",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.RegionalPopulationTest",
+        "time": "1.094",
+        "tests": "10",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.RailwayShippingCompatibilityTest",
+        "time": "0.045",
+        "tests": "2",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.RoadCitySavesTest",
+        "time": "0.263",
+        "tests": "1",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.SurvivalTest",
+        "time": "1.421",
+        "tests": "4",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CityBusinessTest",
+        "time": "8.722",
+        "tests": "9",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.RailwayAirportCompatibilityTest",
+        "time": "0.056",
+        "tests": "2",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.LightOcclusionTest",
+        "time": "2.444",
+        "tests": "6",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.AccountStoreTest",
+        "time": "7.326",
+        "tests": "2",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.MultiplayerTest",
+        "time": "98.357",
+        "tests": "15",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.RailwayOwnershipCompatibilityTest",
+        "time": "0.252",
+        "tests": "2",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CapitalDashboardTest",
+        "time": "0.047",
+        "tests": "3",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.FractionalWorldTest",
+        "time": "0.13",
+        "tests": "7",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.MetricHistoryTest",
+        "time": "0.621",
+        "tests": "5",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.StressGridDevelopmentTest",
+        "time": "42.241",
+        "tests": "3",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.RegionalSaveCompatibilityTest",
+        "time": "0.058",
+        "tests": "4",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.RoadTrafficTest",
+        "time": "0.761",
+        "tests": "26",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CityTest",
+        "time": "6.199",
+        "tests": "10",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.ShopRestockMarketTest",
+        "time": "0.055",
+        "tests": "4",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.ProtocolCompatibilityTest",
+        "time": "8.187",
+        "tests": "3",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.RoadWorkflowTest",
+        "time": "0.217",
+        "tests": "5",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.BusinessCatalogTest",
+        "time": "1.714",
+        "tests": "12",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.net.city.RoadSpacingTest",
+        "time": "0.13",
+        "tests": "3",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CityEconomyTest",
+        "time": "8.429",
+        "tests": "7",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.InventoryHudTest",
+        "time": "0.031",
+        "tests": "2",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.VehicleAudioTest",
+        "time": "0.002",
+        "tests": "1",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.ShippingAviationCompatibilityTest",
+        "time": "2.725",
+        "tests": "3",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.DemolitionTest",
+        "time": "24.757",
+        "tests": "3",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.TerrainGenerationTest",
+        "time": "1.196",
+        "tests": "10",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.ShippingTest",
+        "time": "0.256",
+        "tests": "6",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.PlayerAnimationTest",
+        "time": "0.136",
+        "tests": "6",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CityFormat16RegressionTest",
+        "time": "0.116",
+        "tests": "2",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.AviationTest",
+        "time": "1.08",
+        "tests": "10",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.RegionalMultiplayerTest",
+        "time": "7.526",
+        "tests": "1",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.StressGridLightingTest",
+        "time": "1.933",
+        "tests": "1",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.AgricultureTest",
+        "time": "68.186",
+        "tests": "8",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.IsometricCameraTest",
+        "time": "0.039",
+        "tests": "8",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.VoxelModelTest",
+        "time": "0.177",
+        "tests": "6",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
       }
     ]
   },
   "commands": [
-    "mvn -q -Dtest=StressGridDevelopmentTest,EditHistoryTest -DargLine=\"-Xmx1g -Djava.io.tmpdir=$PWD/target/stress-unit-tmp\" test",
-    "mvn -q -Dtest=StressGridTest,StressGridLightingTest,StressGridRoadMarkingsTest,CitySavesTest,CityEconomyTest,MarketEconomyTest,ExchangeLabourMarketTest,CityBusinessTest,VoxelModelTest,RoadTrafficTest -DargLine=\"-Xmx1g -Djava.io.tmpdir=$PWD/target/stress-unit-tmp\" test",
+    "mvn -q -DargLine=\"-Xmx1g -Djava.io.tmpdir=$PWD/target/stress-unit-tmp\" test",
+    "mvn -q -Dtest=StressGridDevelopmentTest,CityFormat16RegressionTest -DargLine=\"-Xmx1g -Djava.io.tmpdir=$PWD/target/stress-unit-tmp\" test",
     "python3 deploy/run_populated_stress_smoke.py --display \"$DISPLAY\"",
     "python3 deploy/verify_populated_stress_media.py",
-    "git diff --check"
+    "git diff --check",
+    "python3 deploy/run_populated_stress_parcel_smoke.py --display \"$DISPLAY\"",
+    "python3 deploy/verify_populated_stress_parcel_media.py",
+    "python3 -m py_compile deploy/run_populated_stress_parcel_smoke.py deploy/verify_populated_stress_parcel_media.py"
   ],
   "acceptance": [
     "Explicit loaded stress-save action targets 192 houses, 80 commercial businesses, 80 industrial buildings, 48 crop farms and 128 detailed citizens.",
@@ -124,34 +911,41 @@
     "src/main/java/dev/jayms/net/LocalGame.java": "b4a812f71fba7d4925a524a8a573b9d063544a18e7ec6424eadaa8250aa71e42",
     "src/main/java/dev/jayms/net/WorldVoxels.java": "2a42e44525047ee47227fdf79005aebcd4b602ce4367211db9266943cef54e85",
     "src/main/java/dev/jayms/net/city/CityEconomy.java": "1d55fc85a4caf0058e156aa74b403dd5ae91bf6c3ac53b4ddb9d59390f6ed44f",
-    "src/main/java/dev/jayms/net/city/CitySimulation.java": "ac2b9eab34cc5c20c8e3f15daf952d71962b1a8ba17223a8ef4f2050b3f13dee",
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "e80830c75de32b47d41577ed4bf4a796222eb6a85957e3ef4d8b119b1e34d06c",
     "src/main/java/dev/jayms/ui/SavesMenu.java": "2996b42e3590055005ce88bd7cf6979f589222dbe0b0f836c7c3981186cfc79f",
     "src/test/java/dev/jayms/CityTest.java": "2daf29e4295f1c7dbfc5f326ff5784b66ca7468d33f7d95387b6af9497ce2a60",
-    "src/test/java/dev/jayms/StressGridDevelopmentTest.java": "649fa56c32904fb9020b367b21dbe9b7d0afe653eca0879320d21604b0cb409b",
-    "src/test/java/dev/jayms/EditHistoryTest.java": "e0ca03fe32e6e973b95c66070e0bfeeb65ef83343eaf27a6d8452e255e67b1bf"
+    "src/test/java/dev/jayms/StressGridDevelopmentTest.java": "d169904834b3e054826a48feca803477623a2b4ea13bc2e2195d8f2a9e1196fe",
+    "src/test/java/dev/jayms/EditHistoryTest.java": "e0ca03fe32e6e973b95c66070e0bfeeb65ef83343eaf27a6d8452e255e67b1bf",
+    "src/test/java/dev/jayms/CityFormat16RegressionTest.java": "091d0111d8cda8f86e7acea62ee468bb47a2cee94492a46702457c634f312ee1",
+    "deploy/PopulatedStressParcelSmoke.java": "0157238ff9c6af605ccab2aa51546f4badd10730bfba0864b1042cb384be235d",
+    "deploy/run_populated_stress_parcel_smoke.py": "a7361cecb094e2c19d374f2b4c19ce51ea9b0143c6b930dbca610141dc792ea0",
+    "deploy/verify_populated_stress_parcel_media.py": "e898beef19fb9af8296a3e5dfb7f80c45c5b8793353b90b4567331b104346d66",
+    "src/main/java/dev/jayms/net/city/CityFrame.java": "f1c702abae26e7effea5c00287c1b5beddbf473588d47c24029568c562332a80",
+    "src/main/java/dev/jayms/net/Protocol.java": "673e6718c2c46bc428e8018aac4dc8c4d7339606ea2f27cdfdabcbdce4acaf18"
   },
   "diffAudit": {
     "base": "88aff9a6cc09421ff03f753d12d578715b6271ea",
     "deletedFiles": [],
-    "intendedReplacements": "Per-cell indexed voxel history replaces global edit scans. Shared wage quotes are cached only within one citizen job review. Existing history coverage and job-selection rules are retained. Test ground uses the same indexed history; the existing native driver allows subclassing. No unrelated file deletion. Controller review base and final integration remain controller-owned."
+    "intendedReplacements": "Per-cell indexed voxel history replaces global edit scans. Shared wage quotes are cached only within one citizen job review. Existing history coverage and job-selection rules are retained. Test ground uses the same indexed history; the existing native driver allows subclassing. No unrelated file deletion. Controller review base and final integration remain controller-owned.",
+    "preservedParcelBaseline": "5f1b711d467566491538d975d9de24d01f19bc1f",
+    "preservedFeatures": "ParcelPortfolio, ZoneParceling, parcel UI/commands, tests, docs and original evidence retained unchanged from merged parcel baseline. CityFrame version-16 serialization, 0x43495440 loading and protocol 27 retained. No unrelated deletions."
   },
   "limitations": [
     "Benchmark assets are explicitly generated; they are not claimed to be earned through natural construction.",
     "Native district captures warm 81 terrain columns through World.stream, then use the normal render mesh budget and require complete building columns. Streaming latency and smooth FPS are not claimed.",
     "Mesa software rendering showed approximately 0-1 FPS under this workload.",
-    "Default /tmp test setup failed with Read-only file system. Workspace-local temp reruns passed. Early native capture-driver attempts were corrected and are not counted as final evidence.",
     "Artifacts are pending controller publication. No commit, push, deployment or merge was performed."
   ],
-  "playtest": "Playtest: PASS. See populated-stress-playtest.txt for commands, environment, steps, expected and observed results. Final native run completed all 29 stages with 135 rendered frames.",
+  "playtest": "Playtest: PASS. Command: python3 deploy/run_populated_stress_smoke.py --display \"$DISPLAY\"\nEnvironment: Linux native Main; inherited assigned DISPLAY/XAUTHORITY; Mesa software OpenGL; isolated synthetic user.home and saves. No browser workflow applies to this native Java game.\nExpected: Develop stress save fills target counts, creates real voxels and operators, repeat adds no duplicates, save/reload persists, Original city and F6 remain intact.\nRendering: district navigation synchronizes player and camera; World.stream preloads 81 columns, then 20 frames use the normal mesh budget. Fully meshed building columns required before capture. Streaming latency is not claimed.\nSteps: native Controls > City saves > load Stress Test Grid > Develop stress save > repeat > Save current > render each developed ring > F10 pan > save/reload > load Original > F6.\nObserved: Native Develop stress save added 192 houses, 80 businesses, 80 factories, 48 crop farms and filled the 128 citizen limit; real voxel floor and operators checked.\nObserved: Repeated native action kept buildings and citizens unchanged.\nObserved: Running simulation retained populated city; four populated districts rendered with 20 frames for terrain streaming.\nObserved: Save/reload kept all saved buildings, 128 residents, farms and business operators.\nObserved: Original save roads and residents unchanged; F6 toggle works.\nRendered frames: 131\n",
   "media": {
     "status": "passed",
     "source": "production F10 recorder in native Stress Grid playtest",
     "codec": "H264",
-    "bytes": 1498843,
+    "bytes": 1499053,
     "frames": 12,
     "width": 960,
     "height": 544,
-    "seconds": 23.716,
+    "seconds": 24.662,
     "checks": [
       "Every frame decoded",
       "Frame count matches metadata",
@@ -159,51 +953,178 @@
       "Below 6 MB"
     ]
   },
-  "visualInspection": "Inspected final housing, commercial, industrial and agricultural PNGs and decoded F10 middle frame. Actual voxel buildings, occupied housing and crop fields are visible. Outer terrain is still streaming; selected building columns were required to have complete meshes.",
+  "visualInspection": "Inspected final housing, commercial, industrial and agricultural PNGs and decoded F10 middle frame. Actual voxel buildings, occupied housing and crop fields are visible. Outer terrain is still streaming; selected building columns were required to have complete meshes. Fresh parcel protected-plot, editor-return and exact-cell road screenshots plus decoded F10 middle frame inspected. Parcel boundaries, rejection notice and built road are visible.",
   "publication": "Pending controller publication and independent review.",
   "artifacts": [
     {
       "filename": "populated-stress-businesses.png",
-      "sha256": "cf87bf9a51c90d744710186e0175f399e5b60a1e913c34c4e63fd4aa5639bc35",
-      "bytes": 579357,
+      "bytes": 579363,
+      "sha256": "7adedfaa9add79b0aeee89723fd9e5210862016d3a798db95d3062275ce1c11b",
       "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-businesses.png"
     },
     {
       "filename": "populated-stress-factories.png",
-      "sha256": "8c904d9560e59c8c54c19802fabf06fad1a702f543203d435ffde8c96cff9ac2",
       "bytes": 553052,
+      "sha256": "8c904d9560e59c8c54c19802fabf06fad1a702f543203d435ffde8c96cff9ac2",
       "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-factories.png"
     },
     {
       "filename": "populated-stress-farms.png",
-      "sha256": "2ea78a59a8b1b35ea3f718e60b01323e779ffe488c3ba4f7dbacbb88e4d1b787",
       "bytes": 599179,
+      "sha256": "2ea78a59a8b1b35ea3f718e60b01323e779ffe488c3ba4f7dbacbb88e4d1b787",
       "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-farms.png"
     },
     {
       "filename": "populated-stress-houses.png",
-      "sha256": "bb3c4f506aa32534c868ba1d260c2b62eaab6b5387d33ab1c0382f8c5adeb107",
-      "bytes": 795658,
+      "bytes": 781103,
+      "sha256": "3841dbf19e259f69e58aa3d29ae818f69d3acf3646d3eedb1ab3a97fa0988c63",
       "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-houses.png"
     },
     {
       "filename": "populated-stress-main.mp4",
-      "sha256": "3534e2e233c5d8dca40d59ba0779139d06543b781b53c7d1bc5c0aeac126e458",
-      "bytes": 1498843,
+      "bytes": 1499053,
+      "sha256": "f6c4570ec3f2e568f0b8bba9f06ddda21265ec0f876422dc83352aa265a9da5a",
       "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-main.mp4"
     },
     {
       "filename": "populated-stress-menu.png",
-      "sha256": "a9aca635bf6a1d08b75298a1b4f1b3b1f9db7ab2b340ee50171776e5c784338f",
-      "bytes": 47301,
+      "bytes": 42082,
+      "sha256": "5a8fb18f661bb0d17b1ba5bf993e265b63972629589cd984d7531ac4700a9223",
       "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-menu.png"
     },
     {
       "filename": "populated-stress-original.png",
-      "sha256": "85ef65e9aed24dd578a863ec63ff8c6a2855c77f1465aad7ee36a51333b1d189",
-      "bytes": 279444,
+      "bytes": 240891,
+      "sha256": "312be4ed7d2fe8e658888c4d3cf7452c6af58e57ead7bc30cf4513f83da02d4e",
       "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-original.png"
+    },
+    {
+      "filename": "populated-stress-parcel-editor-isolation.png",
+      "bytes": 201099,
+      "sha256": "5adeadfe038277bfcd2e5f58582d5548dad3d37ed6cf3193e4ad0a1556ebcce9",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-parcel-editor-isolation.png"
+    },
+    {
+      "filename": "populated-stress-parcel-editor-return.png",
+      "bytes": 618522,
+      "sha256": "666d8ec952dabbac20839cb0bf0956d0daae0bd59cf233ebd37d6fb7c4343c07",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-parcel-editor-return.png"
+    },
+    {
+      "filename": "populated-stress-parcel-grid.png",
+      "bytes": 264466,
+      "sha256": "ac238cb044d3869a1f24542d39e156a5ea4ebcf821cb4404833b9f944aa14792",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-parcel-grid.png"
+    },
+    {
+      "filename": "populated-stress-parcel-layout-0.png",
+      "bytes": 354312,
+      "sha256": "471d8ea4af0e304b2ffba3563945c1d29703be297f22e2e68156f7bc1f613f01",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-parcel-layout-0.png"
+    },
+    {
+      "filename": "populated-stress-parcel-layout-1.png",
+      "bytes": 447096,
+      "sha256": "b09b15ac5530479889ae4437a114941a463c85513fb5c9d375aa270cd09288dd",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-parcel-layout-1.png"
+    },
+    {
+      "filename": "populated-stress-parcel-layout-12.png",
+      "bytes": 595458,
+      "sha256": "362414e5e08e1f96896ecbfa62ee66da31fa6f63c504547eb3546dde8d5fea97",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-parcel-layout-12.png"
+    },
+    {
+      "filename": "populated-stress-parcel-layout-13.png",
+      "bytes": 595644,
+      "sha256": "4d4e658355887298651cf5ae5729b8a8ed180a9da6f531df2a21ba7df3222e6d",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-parcel-layout-13.png"
+    },
+    {
+      "filename": "populated-stress-parcel-layout-4.png",
+      "bytes": 579382,
+      "sha256": "dc72ef0d1a9632b6e660a9dd1d1db2d7b2d0d72dccab990a1905b96d308ef348",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-parcel-layout-4.png"
+    },
+    {
+      "filename": "populated-stress-parcel-layout-8.png",
+      "bytes": 588140,
+      "sha256": "a8a0855a9458f72ec2847dc72a27b7007215337684e1086fac265116885169d0",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-parcel-layout-8.png"
+    },
+    {
+      "filename": "populated-stress-parcel-main.mp4",
+      "bytes": 991245,
+      "sha256": "553af731a9884e7d31478383c4e4326466ffac41aff6c4943a1cce1903818897",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-parcel-main.mp4"
+    },
+    {
+      "filename": "populated-stress-parcel-protected-plot.png",
+      "bytes": 616015,
+      "sha256": "00e318a55469af9a49e507eace4f3a65ffa5431f4ef88d3970637261d21627ca",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-parcel-protected-plot.png"
+    },
+    {
+      "filename": "populated-stress-parcel-road-final.png",
+      "bytes": 690279,
+      "sha256": "c40234661a962a3bce232506cf203b27b8c79fa362e87ba99361dc4c0206eca4",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-parcel-road-final.png"
     }
   ],
-  "validationScope": "Historical pre-integration checks. Current-source recovery checks are in populated-stress-recovery.json. Final-head tests and fresh native media require controller rebase continuation and resumption."
+  "validationScope": "Integrated production source at recorded head; additional format-16 assertion and test-only capture wrappers validated locally. Controller will stage these edits and artifacts before review.",
+  "focusedRerun": {
+    "tests": 5,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "result": "exit 0; includes populated stress format-16 round trip added after full-suite start"
+  },
+  "head": "af818aed6926dcf7e903f89d29bb93cf99b7af4b",
+  "nativeAttempts": [
+    {
+      "workflow": "parcel",
+      "result": "failed",
+      "observed": "AssertionError: F11 returns to city",
+      "followup": "Separate test harness rerun with documented Enter return passed all 15 layouts, integration, edges and road regression; original merged harness unchanged."
+    }
+  ],
+  "parcelPlaytest": {
+    "status": "passed",
+    "layouts": 15,
+    "checks": [
+      "real UI zoning and grid parcels",
+      "15 layout choices applied",
+      "preview does not mutate zones",
+      "partition invariants",
+      "real save/reload",
+      "production construction fits parcel",
+      "purchased plot protects layout",
+      "engine workspace input isolation and paused clock",
+      "workspace save and return preserve parcels",
+      "road placement regression"
+    ],
+    "setup": "synthetic city; autonomous purchasing deferred during comparisons; one construction pass isolated to tested zone",
+    "profile": "isolated synthetic city",
+    "platform": "Linux inherited X11 Mesa",
+    "command": "python3 deploy/run_populated_stress_parcel_smoke.py --display \"$DISPLAY\"",
+    "environment": "Linux native Main; Java 25.0.3; inherited assigned DISPLAY/XAUTHORITY; Mesa software OpenGL; isolated synthetic user.home and world. Browser playtesting does not apply to this native Java game.",
+    "playtest": "Playtest: PASS. Real UI creates residential zone; apply and validate all 15 layouts; preview keeps saved layout; F11 opens workspace; parcel keys/clicks stay isolated and simulation clock pauses; save while open; Enter returns to city; save/reload keeps parcels; production construction buys a fitting parcel; occupied zone rejects layout changes; real road clicks retain exact cell (98,182). Expected each state assertion and partition invariant to hold. Observed all passed; production F10 recording and fresh screenshots saved.",
+    "attempts": "First attempt failed at F11 returns to city. Separate harness rerun used documented Enter return and passed. Original merged parcel harness unchanged. No production fix or F11 regression claim."
+  },
+  "parcelMedia": {
+    "status": "passed",
+    "source": "production F10 recorder in native parcel regression",
+    "codec": "H264",
+    "bytes": 991245,
+    "frames": 55,
+    "width": 960,
+    "height": 544,
+    "seconds": 70.884,
+    "checks": [
+      "Every frame decoded",
+      "Frame count matches metadata",
+      "First and last images differ",
+      "Below 6 MB"
+    ]
+  }
 }
