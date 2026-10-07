@@ -307,6 +307,48 @@ class RunContractTests(unittest.TestCase):
                 self.assertNotIn('stdout', report)
                 self.assertNotIn('stderr', report)
 
+    def test_cold_inventory_first_timeout_retries_once_then_provisions(self):
+        original = self.fake
+        failures = 0
+        waits = []
+        def cold_command(args, **kwargs):
+            nonlocal failures
+            result = original(args, **kwargs)
+            if args == ['xcrun', 'simctl', 'list', '--json'] and failures == 0:
+                failures += 1
+                raise checks.CheckError('command_failed')
+            return result
+        report = checks.run_checks(self.repo, self.output, HEAD, 'preflight', REQUEST,
+                                  run_command=cold_command, system_name='Darwin', wait=waits.append)
+        self.assertEqual(report['status'], 'passed')
+        self.assertEqual(report['inventoryAttempts'], 2)
+        self.assertEqual(waits, [5, 2])
+        inventories = [kw for args, kw in original.calls if args == ['xcrun', 'simctl', 'list', '--json']]
+        self.assertEqual(len(inventories), 2)
+        self.assertEqual([kw['timeout'] for kw in inventories], [180, 180])
+        self.assertEqual(len([a for a, _ in original.calls if a[:3] == ['xcrun', 'simctl', 'create']]), 1)
+        for operation, timeout in [('create', 120), ('boot', 120), ('bootstatus', 480)]:
+            calls = [kw for a, kw in original.calls if a[:3] == ['xcrun', 'simctl', operation]]
+            self.assertEqual(len(calls), 1)
+            self.assertEqual(calls[0]['timeout'], timeout)
+
+    def test_cold_inventory_second_failure_is_bounded_and_records_inventory_stage(self):
+        self.fake.failure_stage = 'list'
+        waits = []
+        report = checks.run_checks(self.repo, self.output, HEAD, 'preflight', REQUEST,
+                                  run_command=self.fake, system_name='Darwin', wait=waits.append)
+        self.assertEqual(report['status'], 'failed')
+        self.assertEqual(report['errorCode'], 'command_failed')
+        self.assertEqual(report['errorStage'], 'inventory')
+        self.assertEqual(report['inventoryAttempts'], 2)
+        inventories = [kw for a, kw in self.fake.calls if a == ['xcrun', 'simctl', 'list', '--json']]
+        self.assertEqual(len(inventories), 2)
+        self.assertEqual([kw['timeout'] for kw in inventories], [180, 180])
+        self.assertEqual(waits, [5])
+        self.assertFalse(any(a[:3] == ['xcrun', 'simctl', 'create'] for a, _ in self.fake.calls))
+        self.assertFalse(report['environmentReady'])
+        self.assertFalse(report['clientChecked'])
+
 
 class WorkflowContractTests(unittest.TestCase):
     def test_workflow_has_exact_head_read_only_permissions_and_scoped_triggers(self):

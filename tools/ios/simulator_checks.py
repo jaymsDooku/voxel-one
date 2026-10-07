@@ -183,12 +183,23 @@ def run_checks(repo, output, expected_head, mode, request_id, *, run_command=com
                                  'xcode': run(['xcodebuild', '-version']),
                                  'simulatorSDK': run(['xcrun', '--sdk', 'iphonesimulator', '--show-sdk-version'])}
         report['phase'] = 'inventory'
-        inventory = json.loads(run(['xcrun', 'simctl', 'list', '--json']))
+        # Cold hosted Macs may start CoreSimulatorService on this first query.
+        # Retry this read once, without retrying any device-creation mutation.
+        for inventory_attempt in (1, 2):
+            report['inventoryAttempts'] = inventory_attempt
+            try:
+                inventory_json = run(['xcrun', 'simctl', 'list', '--json'], timeout=180)
+                break
+            except CheckError:
+                if inventory_attempt == 2:
+                    raise
+                wait(5)
+        inventory = json.loads(inventory_json)
         report['phase'] = 'selection'
         runtime, device_type = select_iphone(inventory, max_sdk=report['environment']['simulatorSDK'])
         report.update(runtime=runtime, deviceType=device_type)
         report['phase'] = 'create'
-        udid = run(['xcrun', 'simctl', 'create', 'Voxel iOS ' + request_id[:8], device_type['identifier'], runtime['identifier']])
+        udid = run(['xcrun', 'simctl', 'create', 'Voxel iOS ' + request_id[:8], device_type['identifier'], runtime['identifier']], timeout=120)
         try:
             if str(uuid.UUID(udid)).upper() != udid.upper():
                 raise ValueError()
@@ -197,9 +208,9 @@ def run_checks(repo, output, expected_head, mode, request_id, *, run_command=com
             raise CheckError('simulator_creation_invalid') from None
         report['udid'] = udid
         report['phase'] = 'boot'
-        run(['xcrun', 'simctl', 'boot', udid])
+        run(['xcrun', 'simctl', 'boot', udid], timeout=120)
         report['phase'] = 'bootstatus'
-        run(['xcrun', 'simctl', 'bootstatus', udid, '-b'], timeout=240)
+        run(['xcrun', 'simctl', 'bootstatus', udid, '-b'], timeout=480)
         report['phase'] = 'boot_verify'
         booted = json.loads(run(['xcrun', 'simctl', 'list', 'devices', '--json']))
         if not any(d.get('udid') == udid and d.get('state') == 'Booted' and d.get('isAvailable') is True
