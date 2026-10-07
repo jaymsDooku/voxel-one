@@ -1,0 +1,5 @@
+{
+  "status": "passed",
+  "command": "RoadSpacingMediaCheck on all three fresh MP4s after report/progress/checkpoint writes; SHA-256 comparison with final report; source/historical fixture parity; git diff --check",
+  "observed": "All three videos decode at0/50/95percent, remain under6MB and match reported F10bytes; source hashes unchanged;628historical evidence/fixtures preserved; diff check passed."
+}

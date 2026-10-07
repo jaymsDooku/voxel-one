@@ -1,0 +1,57 @@
+{
+  "stage": "Rebase recovery; not final-head approval",
+  "environment": "Linux; worktree-local Maven cache and JVM temp directory; Linux natives; test JVM heap 512 MB",
+  "command": "MAVEN_OPTS=\"-Xmx256m -Djava.io.tmpdir=$PWD/target/tmp\" /tmp/apache-maven-3.9.11/bin/mvn --batch-mode -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux \"-DargLine=-Xmx512m -Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=ManufacturingTest,IndustrialProgressionTest,OperatingEnergyTest,FreightFallbackTest,AviationSaveCompatibilityTest,RoadSpacingTest test",
+  "expected": "Automatic staffing/production and maximum-gap delivery pass without manual jobs; existing industrial/energy/freight/save regressions pass",
+  "observed": {
+    "exit": 0,
+    "build": "BUILD SUCCESS",
+    "suites": [
+      {
+        "suite": "ManufacturingTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "IndustrialProgressionTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "OperatingEnergyTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "FreightFallbackTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "AviationSaveCompatibilityTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "RoadSpacingTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "tests": 28
+  },
+  "structural_checks": "JSON, conflict markers, unrelated dashboard entries, nine historical media HEAD-byte parity and git diff --check passed. Passenger speed retained.",
+  "playtest": "Playtest: final-head requested/edge/regression native workflows and fresh task-specific media pending controller continuation."
+}

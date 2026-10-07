@@ -1,0 +1,25 @@
+{
+  "stage": "Rebase recovery; controller continuation required",
+  "environment": "Assigned Linux feature worktree; no application launched",
+  "checks": [
+    {
+      "command": "Python JSON parse, HEAD field comparison and direct marker scan",
+      "expected": "Only assigned status/note changes; no markers",
+      "observed": "Passed"
+    },
+    {
+      "command": "git diff HEAD --name-only -- src deploy",
+      "observed": "Empty; runtime/test sources unchanged"
+    },
+    {
+      "command": "git diff HEAD --name-only --diff-filter=MD -- dashboard/evidence src/test/resources",
+      "observed": "Only task-specific artifacts changed; historical evidence/fixtures retained"
+    },
+    {
+      "command": "git diff --check",
+      "observed": "Passed"
+    }
+  ],
+  "tests": "No Maven rerun; prior28tests historical.",
+  "playtest": "Playtest: final-head requested behavior, edge case and regression workflows with fresh task-specific captures pending controller continuation."
+}

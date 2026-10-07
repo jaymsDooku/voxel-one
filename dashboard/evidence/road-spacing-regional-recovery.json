@@ -1,0 +1,54 @@
+{
+  "status": "recovery_checks_passed",
+  "head": "ae87fc592bc412634a5f06568776587118363b02",
+  "scope": "Intermediate rebase working files; controller must stage and continue before final-head acceptance.",
+  "resolution": "Checkpoint/progress conflicts resolved; regional population/district UI, protocol21 and format11 retained alongside actual factory/spacing fixes. Unrelated progress entries unchanged.",
+  "command": "MAVEN_OPTS=\"-Xmx256m -Djava.io.tmpdir=$PWD/target/tmp\" /tmp/apache-maven-3.9.11/bin/mvn --batch-mode -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux \"-DargLine=-Xmx512m -Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=RegionalPopulationTest,RegionalSaveCompatibilityTest,RoadSpacingTest,ManufacturingTest test > target/regional-factory-recovery-checks.txt 2>&1",
+  "environment": "Assigned Linux worktree; inherited Java; Maven3.9.11; synthetic fixtures; worktree-local target/tmp and target/maven-cache; Maven256MiB/test fork512MiB.",
+  "expected": "Regional population and format11 saves remain compatible; automatic factory production works without manual job overrides; maximum gaps and opposing/following spacing pass.",
+  "observed": "exit0;BUILD SUCCESS;24 tests,0failures/errors/skips.",
+  "suites": [
+    {
+      "name": "dev.jayms.ManufacturingTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.RegionalPopulationTest",
+      "tests": "9",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.RegionalSaveCompatibilityTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.net.city.RoadSpacingTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "checks": [
+    "Regional schema/UI/protocol and regression sources match HEAD.",
+    "Original automatic700-second factory regression has no job overrides.",
+    "JSON validation, conflict-marker checks and git diff --check passed."
+  ],
+  "mediaIssue": "Jeep artifact parses as verification report JSON, not MP4. Prior report finalization reused the report path variable in its artifact loop, then wrote JSON to the last video path. Use distinct report_path/media_path and verify all media after all report writes.",
+  "playtest": "Playtest: no native workflow run during this rebase stop. Browser does not apply to these synthetic state/save CLI integration checks. Final native workflows and fresh F10 media remain pending controller Git continuation.",
+  "remaining": [
+    "Controller stage/continue preserved rebase.",
+    "Inspect actual final combined source and run full regression and packaged CLI checks.",
+    "Run native spacing/zero/factory/typed-road/jeep/regional workflows on inherited display/auth with synthetic profiles.",
+    "Capture fresh media including replacement real Jeep MP4; inspect container and decoded frames and verify bytes after report finalization."
+  ],
+  "publication": "pending controller publication"
+}

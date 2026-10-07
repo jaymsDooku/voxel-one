@@ -1471,6 +1471,8 @@ public class Main {
                     gameExplicit = true;
                     LoginDialog.citySelected = cityGame;
                 }
+                case "--pedestrian-spacing", "--mounted-spacing" ->
+                    RoadSpacing.configure(args[i], args[++i]);
                 case "--production-config" -> productionFile = java.nio.file.Path.of(args[++i]);
                 case "--day-seconds" -> daySeconds = Double.parseDouble(args[++i]);
                 case "--start-hour" -> startHour = Double.parseDouble(args[++i]);
@@ -1484,7 +1486,7 @@ public class Main {
                 default ->
                         throw new IllegalArgumentException(
                                 "Usage: --server HOST --port PORT --fingerprint SHA256 --offline"
-                                        + " --world FILE --seed NUMBER --production-config FILE");
+                                        + " --world FILE --seed NUMBER --production-config FILE --pedestrian-spacing BLOCKS --mounted-spacing BLOCKS");
             }
         Main game = new Main();
         if (productionFile != null) game.productionCatalog = ProductionCatalog.load(productionFile);

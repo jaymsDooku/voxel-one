@@ -1,0 +1,14 @@
+{
+  "platform": "Linux X11 inherited DISPLAY/XAUTHORITY; Mesa software OpenGL",
+  "status": "passed",
+  "pedestrianGapBlocks": 0,
+  "mountedGapBlocks": 0,
+  "movingSamples": 173,
+  "nearbySeparatedPairSamples": 1534,
+  "mountedSamples": 100,
+  "overlapSamples": 96,
+  "minimumClearanceMarginBlocks": 0.0,
+  "lateClosestRoadPairBlocks": 0.0,
+  "regression": "Native inventory opens and closes",
+  "recording": "engine F10 recorder"
+}

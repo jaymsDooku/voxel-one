@@ -1,0 +1,10 @@
+{
+  "status": "passed",
+  "platform": "Linux Mesa surfaceless EGL",
+  "scope": "Historical evidence; does not validate the final implementation.",
+  "simulationSeconds": 0.5,
+  "citizens": 12,
+  "horses": 6,
+  "historical": true,
+  "supersededBy": "road-spacing-tests.json"
+}

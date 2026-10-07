@@ -2546,6 +2546,41 @@
       "status": "in_progress",
       "note": "Ready for independent review: 38 tests, cargo and aviation native workflows passed on aviation base. Protocol 22, format-12 saves and 734 checked base files preserved. Fresh media pending controller publication.",
       "updatedAt": "2026-10-06T20:35:10+00:00"
+    },
+    {
+      "id": "37653764393438302d353363332d346134312d626437312d626137346466336266356538",
+      "title": "Configurable road user spacing",
+      "description": "Inspecting road travel and configuration; implementation and playtest pending.",
+      "evidence": [
+        {
+          "label": "Final verification \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-final-tests.json",
+          "kind": "report"
+        },
+        {
+          "label": "Configured gaps \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-final-configured.mp4",
+          "kind": "video"
+        },
+        {
+          "label": "Zero gap \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-final-zero.mp4",
+          "kind": "video"
+        },
+        {
+          "label": "Automatic factory \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-final-factory.mp4",
+          "kind": "video"
+        },
+        {
+          "label": "Industrial progression \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-final-resource-progression-advanced.png",
+          "kind": "image"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Configurable gaps: 0\u20132 blocks; defaults 0.8 pedestrian and 1.4 mounted. Reviewed-base features and 628 historical evidence/fixtures preserved. Full verification passed 364 tests. Fresh spacing, zero-gap, factory and industrial playtests passed. Awaiting controller publication and independent review.",
+      "updatedAt": "2026-10-06T15:55:01+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

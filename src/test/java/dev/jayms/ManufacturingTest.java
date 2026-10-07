@@ -255,6 +255,39 @@ class ManufacturingTest {
     }
 
     @Test
+    void maximumRoadGapsKeepAutomaticFactoryProductionAndToolDelivery() {
+        String walking = System.getProperty("voxel.road.pedestrianSpacing");
+        String mounted = System.getProperty("voxel.road.mountedSpacing");
+        try {
+            System.setProperty("voxel.road.pedestrianSpacing", "2");
+            System.setProperty("voxel.road.mountedSpacing", "2");
+            var g = new CityTest.Ground();
+            var s = city(g);
+            var pose = new Protocol.Pose(1, 8, 40, 24, 0, 0);
+            s.command(new CityCommand(CityCommand.ROAD, 0,
+                    List.of(new Polygon.Point(-10, 24), new Polygon.Point(-60, 24))), 1, pose);
+            s.command(new CityCommand(CityCommand.ZONE, 2,
+                    CityTest.box(-50, 26, 40, 24).vertices()), 1, pose);
+            for (int second = 0; second < 700; second++) s.advance(1);
+            var factory = firm(s, 8);
+            assertTrue(s.economy.resources.production(factory.id).processed() > 0);
+            int building = s.economy.properties.stream().filter(p -> p.operator() == factory.id)
+                    .findFirst().orElseThrow().building();
+            assertTrue(s.frame().citizens().stream()
+                    .anyMatch(c -> c.job() == building && s.eligible(building, c.id())));
+            // Wider queues delay a delivery, but must not halt the automatic supply chain.
+            for (int second = 700; second < 1200; second++) s.advance(1);
+            assertEquals(2, s.economy.resources.productivity(firm(s, 2).id, 2));
+            assertEquals(2, s.economy.resources.productivity(firm(s, 3).id, 3));
+        } finally {
+            if (walking == null) System.clearProperty("voxel.road.pedestrianSpacing");
+            else System.setProperty("voxel.road.pedestrianSpacing", walking);
+            if (mounted == null) System.clearProperty("voxel.road.mountedSpacing");
+            else System.setProperty("voxel.road.mountedSpacing", mounted);
+        }
+    }
+
+    @Test
     void aStaffedFactoryBuildsAndTradesToolsDuringTheActualSimulation() throws Exception {
         var g = new CityTest.Ground();
         var s = city(g);

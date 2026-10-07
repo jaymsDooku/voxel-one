@@ -1,0 +1,89 @@
+[
+  {
+    "command": [
+      "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+      "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/37653764393438302d353363332d346134312d626437312d626137346466336266356538/target/tmp",
+      "-jar",
+      "target/voxel-one-1.0-SNAPSHOT-client.jar",
+      "--offline",
+      "--game",
+      "city",
+      "--pedestrian-spacing",
+      "NaN"
+    ],
+    "expected": "Exit1; Road spacing must be finite and between 0 and 2 blocks",
+    "observed": "Exit1; expected spacing validation error"
+  },
+  {
+    "command": [
+      "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+      "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/37653764393438302d353363332d346134312d626437312d626137346466336266356538/target/tmp",
+      "-jar",
+      "target/voxel-one-1.0-SNAPSHOT-client.jar",
+      "--offline",
+      "--game",
+      "city",
+      "--pedestrian-spacing",
+      "-1"
+    ],
+    "expected": "Exit1; Road spacing must be finite and between 0 and 2 blocks",
+    "observed": "Exit1; expected spacing validation error"
+  },
+  {
+    "command": [
+      "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+      "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/37653764393438302d353363332d346134312d626437312d626137346466336266356538/target/tmp",
+      "-jar",
+      "target/voxel-one-1.0-SNAPSHOT-client.jar",
+      "--offline",
+      "--game",
+      "city",
+      "--pedestrian-spacing",
+      "2.1"
+    ],
+    "expected": "Exit1; Road spacing must be finite and between 0 and 2 blocks",
+    "observed": "Exit1; expected spacing validation error"
+  },
+  {
+    "command": [
+      "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+      "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/37653764393438302d353363332d346134312d626437312d626137346466336266356538/target/tmp",
+      "-jar",
+      "target/voxel-one-1.0-SNAPSHOT-server.jar",
+      "--game",
+      "city",
+      "--pedestrian-spacing",
+      "NaN"
+    ],
+    "expected": "Exit1; Road spacing must be finite and between 0 and 2 blocks",
+    "observed": "Exit1; expected spacing validation error"
+  },
+  {
+    "command": [
+      "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+      "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/37653764393438302d353363332d346134312d626437312d626137346466336266356538/target/tmp",
+      "-jar",
+      "target/voxel-one-1.0-SNAPSHOT-server.jar",
+      "--game",
+      "city",
+      "--pedestrian-spacing",
+      "-1"
+    ],
+    "expected": "Exit1; Road spacing must be finite and between 0 and 2 blocks",
+    "observed": "Exit1; expected spacing validation error"
+  },
+  {
+    "command": [
+      "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+      "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/37653764393438302d353363332d346134312d626437312d626137346466336266356538/target/tmp",
+      "-jar",
+      "target/voxel-one-1.0-SNAPSHOT-server.jar",
+      "--game",
+      "city",
+      "--pedestrian-spacing",
+      "2.1"
+    ],
+    "expected": "Exit1; Road spacing must be finite and between 0 and 2 blocks",
+    "observed": "Exit1; expected spacing validation error"
+  }
+]

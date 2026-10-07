@@ -1,0 +1,88 @@
+{
+  "decision": "recover",
+  "scope": "Historical evidence; does not validate the final implementation.",
+  "commands": [
+    {
+      "command": "/tmp/apache-maven-3.9.11/bin/mvn -q -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux -DargLine=-Djava.io.tmpdir=$PWD/target/tmp -Dtest=RoadSpacingTest,CityTest,CityTimeTest,CityMultiplayerTest test",
+      "exitCode": 1,
+      "observed": "19 tests: 17 passed, 1 failure, 1 error"
+    },
+    {
+      "command": "/tmp/apache-maven-3.9.11/bin/mvn -q -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux -DargLine=-Djava.io.tmpdir=$PWD/target/tmp -Dtest=RoadSpacingTest,PopulationJourneyTest test",
+      "exitCode": 1,
+      "observed": "5 tests: 4 passed, 1 failure; accelerated walking and mounted spacing passed; disconnected school edge passed; full education journey failed"
+    }
+  ],
+  "suites": [
+    {
+      "name": "dev.jayms.CityTest",
+      "tests": "10",
+      "failures": "1",
+      "errors": "0",
+      "deficiencies": [
+        {
+          "case": "starterCityBuildsAllStructuresAndAssignsHouseholdsAndJobs",
+          "result": "failure",
+          "message": "expected: <true> but was: <false>"
+        }
+      ]
+    },
+    {
+      "name": "dev.jayms.CityTimeTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "1",
+      "deficiencies": [
+        {
+          "case": "dayLengthChangesRealDurationWithoutChangingHourlyNeedsAndPay",
+          "result": "error",
+          "message": "No value present"
+        }
+      ]
+    },
+    {
+      "name": "dev.jayms.CityMultiplayerTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "deficiencies": []
+    },
+    {
+      "name": "dev.jayms.net.city.RoadSpacingTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "deficiencies": []
+    },
+    {
+      "name": "dev.jayms.PopulationJourneyTest",
+      "tests": "2",
+      "failures": "1",
+      "errors": "0",
+      "deficiencies": [
+        {
+          "case": "housedChildrenCommuteGraduateFromZeroStudyAndTakeQualifiedJobs",
+          "result": "failure",
+          "message": "[1:NONE, 2:NONE, 2:PRIMARY]{102=0.0, 109=5.999444869087347, 110=0.0} ==> expected: <TECHNICAL> but was: <NONE>"
+        }
+      ]
+    }
+  ],
+  "mergeChecks": {
+    "conflictMarkersAbsent": true,
+    "allUpstreamProgressEntriesRetained": true,
+    "scaledTravelBudgetRetained": true,
+    "maximumCollisionStepBlocks": 0.25,
+    "spacingCheckedForEachStep": true,
+    "gaitUsesCommittedPathLength": true
+  },
+  "playtest": "Playtest: not run during the controller Git-recovery handoff. Native execution and fresh media remain required after the controller stages resolved files and resumes this work. Prior offscreen media and pre-recovery checks do not establish correctness of this combined implementation. Settlement and education failures must be fixed and retested before ready.",
+  "sourceHashes": {
+    "dashboard/progress.json": "3eb746880cf2eb0d778c31d9c8cfdad289ff694f1ab899fa44323a79bae963a3",
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "9ea197addf2e909bfb814ff3c34f19664e5455fe1e1d52a85d1e23d5bc004852",
+    "src/test/java/dev/jayms/net/city/RoadSpacingTest.java": "b55d89ffcce2da4db99312a22ac6692b6d6ac59bf833e7354a4367552aeb176c"
+  },
+  "publication": "pending controller publication",
+  "historical": true,
+  "supersededBy": "road-spacing-tests.json"
+}
