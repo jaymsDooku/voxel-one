@@ -188,7 +188,18 @@ public class RenderingSmoke {
             rendering.begin(WIDTH,HEIGHT,projection,view,eye,false,shader);camera(shader,projection,view);drawWorld(world,shader,rendering);rendering.finish();glFinish();
             int decalPixels=differences(beforeDecal,capture());require(decalPixels>20,"Projected decal changes the floor without world edits");
             ImageIO.write(capture(),"png",output.resolve("rendering-decals.png").toFile());rendering.clearDecals();
+            // Shallow pool: textured bed and a submerged vertical wall.
+            for(int x=5;x<=11;x++)for(int z=10;z<=13;z++)world.apply(new Protocol.Edit(x,72,z,(x+z)%2==0?Blocks.BRICKS:Blocks.PLANKS));
+            for(int z=10;z<=13;z++)world.apply(new Protocol.Edit(4,73,z,Blocks.BRICKS));
             for(int x=5;x<=11;x++)for(int z=10;z<=13;z++)world.apply(new Protocol.Edit(x,73,z,Blocks.WATER));chunk.checkMesh();
+            MeshData submerged=MeshDataGenerator.generate(chunk);int floorVertices=0,wallVertices=0;
+            for(int i=0;i<submerged.vertices().length;i+=9){
+                float[] v=submerged.vertices();if(submerged.surface()[i/3+2]==-2)continue;
+                if(v[i+4]==1&&v[i+1]==9&&v[i]>=5&&v[i]<=12&&v[i+2]>=10&&v[i+2]<=14)floorVertices++;
+                if(v[i+3]==1&&v[i]==5&&v[i+1]>=9&&v[i+1]<=10&&v[i+2]>=10&&v[i+2]<=14)wallVertices++;
+            }
+            require(floorVertices>=4&&wallVertices>=4,"Textured submerged floor and wall survive meshing");
+            eye.set(8.5f,77,15);view.identity().lookAt(eye,new Vector3f(8.5f,73,11.5f),new Vector3f(0,1,0));rendering.resetHistory();
             rendering.begin(WIDTH,HEIGHT,projection,view,eye,false,shader);camera(shader,projection,view);drawWorld(world,shader,rendering);
             rendering.water(world,models,projection,view,eye);rendering.finish();glFinish();
             BufferedImage wet=capture();require(differences(beforeDecal,wet)>20,"Water reflection/refraction changes the scene");

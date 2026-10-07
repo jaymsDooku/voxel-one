@@ -30,6 +30,23 @@ class RenderingAlgorithmsTest {
         assertEquals(30,MeshDataGenerator.generate(a).indices().length);assertEquals(30,MeshDataGenerator.generate(b).indices().length);
         b.setBlock(0,1,1,0);assertEquals(36,MeshDataGenerator.generate(a).indices().length);
     }
+    @Test void waterPreservesOpaqueFloorAndWallButHidesInternalWaterFaces(){
+        Chunk c=new Chunk();c.setBlock(1,1,1,Blocks.STONE);
+        c.setBlock(1,2,1,Blocks.WATER);c.setBlock(2,1,1,Blocks.WATER);
+        MeshData mesh=MeshDataGenerator.generate(c);int top=0,side=0;
+        for(int i=0;i<mesh.vertices().length;i+=9){
+            if(mesh.surface()[i/3+2]==-2)continue;
+            if(mesh.vertices()[i+4]==1)top++;
+            if(mesh.vertices()[i+3]==1)side++;
+        }
+        assertEquals(4,top);assertEquals(4,side);
+        Chunk water=new Chunk();water.setBlock(1,1,1,Blocks.WATER);water.setBlock(2,1,1,Blocks.WATER);
+        assertEquals(36,MeshDataGenerator.generate(water).indices().length);
+        World world=new World();Chunk floor=new Chunk(),neighbor=new Chunk();floor.setBlock(15,1,1,Blocks.STONE);neighbor.setBlock(0,1,1,Blocks.WATER);
+        world.addChunk(new ChunkPos(0,0,0),floor);world.addChunk(new ChunkPos(1,0,0),neighbor);
+        assertEquals(36,MeshDataGenerator.generate(floor).indices().length);
+        neighbor.setBlock(0,1,1,Blocks.STONE);assertEquals(30,MeshDataGenerator.generate(floor).indices().length);
+    }
     @Test void waterUsesDedicatedSurfaceMetadata(){
         Chunk c=new Chunk();c.setBlock(1,1,1,Blocks.WATER);MeshData mesh=MeshDataGenerator.generate(c);
         for(int i=2;i<mesh.surface().length;i+=3)assertEquals(-2,mesh.surface()[i]);

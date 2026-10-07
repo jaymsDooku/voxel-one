@@ -13,7 +13,7 @@ import static org.lwjgl.opengl.GL33.*;
 
 /** Exercises the production Main loop with a synthetic gallery and real X11 inputs. */
 public class RenderingMainPlaytest {
-    static final Main game=new Main();static Path out;static int frame,stage;static long changed;static int retries,recordingFrame,f6Presses;
+    static final Main game=new Main();static Path out;static int frame,stage;static long changed;static int recordingFrame,f6Presses,expectedF6Presses;
     static Vector3f start;static String windowId;
     static org.lwjgl.glfw.GLFWWindowFocusCallback initialFocus;
     static org.lwjgl.glfw.GLFWKeyCallback originalKeys;
@@ -40,10 +40,11 @@ public class RenderingMainPlaytest {
                 ((dev.jayms.ui.ControlsMenu)get("menu")).open=false;
                 var capture=Main.class.getDeclaredMethod("setCaptured",boolean.class);capture.setAccessible(true);capture.invoke(game,true);
                 World world=(World)get("world");
-                for(int x=2;x<15;x++)for(int z=2;z<15;z++)world.apply(new Protocol.Edit(x,72,z,Blocks.STONE));
+                for(int x=2;x<15;x++)for(int z=2;z<15;z++)world.apply(new Protocol.Edit(x,72,z,(x+z)%2==0?Blocks.BRICKS:Blocks.PLANKS));
                 for(int x=3;x<14;x++)for(int z=3;z<10;z++)world.apply(new Protocol.Edit(x,78,z,Blocks.PLANKS));
                 for(int x=3;x<14;x++)for(int y=73;y<78;y++)world.apply(new Protocol.Edit(x,y,3,Blocks.BRICKS));
                 world.apply(new Protocol.Edit(5,74,4,Blocks.LED).withColor(0xff3040));world.apply(new Protocol.Edit(8,74,4,Blocks.LED).withColor(0x30ff90));world.apply(new Protocol.Edit(11,74,4,Blocks.LED).withColor(0x3050ff));
+                for(int z=10;z<=13;z++)world.apply(new Protocol.Edit(4,73,z,Blocks.BRICKS));
                 for(int x=5;x<=11;x++)for(int z=10;z<=13;z++)world.apply(new Protocol.Edit(x,73,z,Blocks.WATER));
                 for(var e:world.getLoadedChunks().entrySet())if(e.getKey().chunkX()==0&&e.getKey().chunkZ()==0)e.getValue().checkMesh();
                 Player p=new Player(new Vector3f(8.5f,74.5f,14.5f),-90,-12,(dev.jayms.Camera)get("camera"));p.toggleFlight();set("player",p);set("isometric",false);capture.invoke(game,true);
@@ -58,16 +59,12 @@ public class RenderingMainPlaytest {
                 if(stage==0&&frame>=15&&r.lightingReady()&&!((dev.jayms.ui.ControlsMenu)get("menu")).open){
                     require(r.particleCount()==48,"Three LED emitters in production loop");image("rendering-main-gallery.png");start=p.position();recordingFrame=frame;input("key","F10");input("keydown","w");changed=System.nanoTime();stage++;
                 }else if(stage==1&&frame-recordingFrame>=8&&System.nanoTime()-changed>2_000_000_000L){
-                    input("keyup","w");require(p.position().distance(start)>.05,"Real W input moves camera");image("rendering-main-motion.png");input("key","F10");input("keydown","F6");changed=System.nanoTime();stage++;
-                }else if(stage==2&&System.nanoTime()-changed>1_000_000_000L){
-                    input("keyup","F6");
-                    if(!(boolean)get("isometric")){
-                        System.out.println("Render F6 check: presses="+f6Presses+" menu="+((dev.jayms.ui.ControlsMenu)get("menu")).open+" editor="+((dev.jayms.ui.ModelEditor)get("editor")).open+" inventory="+((dev.jayms.ui.InventoryHud)get("inventoryHud")).open);
-                        require(retries++<3,"F6 isometric regression");input("windowfocus",windowId);
-                        if(((dev.jayms.ui.ControlsMenu)get("menu")).open)input("key","Escape");
-                        stage=22;changed=System.nanoTime();return;
-                    }image("rendering-main-isometric.png");r.settings.renderScale=.65f;r.resetHistory();glfwSetWindowSize(handle,333,271);changed=System.nanoTime();stage++;
-                }else if(stage==22&&System.nanoTime()-changed>500_000_000L){input("keydown","F6");stage=2;changed=System.nanoTime();
+                    input("keyup","w");require(p.position().distance(start)>.05,"Real W input moves camera");image("rendering-main-motion.png");input("key","F10");expectedF6Presses=f6Presses+1;input("key","F6");changed=System.nanoTime();stage++;
+                }else if(stage==2&&f6Presses>=expectedF6Presses){
+                    // X11 delivery can lag a rendered frame. Never resend a toggle before its callback.
+                    require(f6Presses==expectedF6Presses,"Exactly one F6 press reaches the production callback");
+                    require((boolean)get("isometric"),"F6 isometric regression");
+                    image("rendering-main-isometric.png");r.settings.renderScale=.65f;r.resetHistory();glfwSetWindowSize(handle,333,271);changed=System.nanoTime();stage++;
                 }else if(stage==3&&System.nanoTime()-changed>1_000_000_000L){
                     require((int)get("framebufferWidth")==333&&(int)get("framebufferHeight")==271,"Odd window size edge");image("rendering-main-resize.png");input("key","Escape");changed=System.nanoTime();stage++;
                 }else if(stage==4&&System.nanoTime()-changed>800_000_000L){

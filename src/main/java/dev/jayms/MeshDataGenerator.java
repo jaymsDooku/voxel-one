@@ -30,7 +30,9 @@ public final class MeshDataGenerator {
                     int type=chunk.getBlock(p[0],p[1],p[2]);
                     if (type==0 || type==dev.jayms.net.Blocks.PARTIAL || dev.jayms.net.Blocks.isModel(type)) continue;
                     int n=chunk.neighbor(p[0]+face.dx(),p[1]+face.dy(),p[2]+face.dz());
-                    if (n!=0 && n!=dev.jayms.net.Blocks.PARTIAL && !dev.jayms.net.Blocks.isModel(n)) continue;
+                    // Water needs the opaque floor and walls behind its refracted surface.
+                    boolean submerged = n==dev.jayms.net.Blocks.WATER && type!=dev.jayms.net.Blocks.WATER;
+                    if (n!=0 && n!=dev.jayms.net.Blocks.PARTIAL && !dev.jayms.net.Blocks.isModel(n) && !submerged) continue;
                     mask[i+j*16]=chunk.value(p[0]*16,p[1]*16,p[2]*16);
                 }
                 for (int j=0;j<16;j++) for (int i=0;i<16;) {

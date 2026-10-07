@@ -3341,8 +3341,8 @@
         }
       ],
       "status": "in_progress",
-      "note": "Implementation and native validation ready for controller synchronization and independent review. 71 focused tests passed; strict 3.3, modern indirect rendering and 4x MSAA fixtures passed. Production automatic fallback, camera, isometric, resize and menu workflow passed. Fresh 8-frame F10 clip fully decoded: 8.297 seconds, 227240 bytes. Full suite is not claimed as passed. Media publication is reserved to the controller.",
-      "updatedAt": "2026-10-07T19:02:02.440787+00:00"
+      "note": "Review fixes ready for independent review. Submerged opaque floor and wall preserved. F6 harness now waits for the actual press instead of resending a delayed toggle. 72 focused tests passed. Production workflow passed twice; baseline 1x/4x MSAA and modern compute fixtures passed. Fresh water image and fully decoded 8-frame F10 clip saved. Media publication remains reserved to the controller.",
+      "updatedAt": "2026-10-07T19:45:43.567266+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

@@ -5,6 +5,7 @@ from pathlib import Path
 p=argparse.ArgumentParser();p.add_argument('--display',required=True);p.add_argument('--gl33',action='store_true');a=p.parse_args()
 root=Path(__file__).resolve().parents[1];os.chdir(root)
 shutil.rmtree(root/'target/render-main-home',ignore_errors=True)
+shutil.rmtree(root/'target/rendering-main',ignore_errors=True)
 for saved in (root/'target/render-profile').glob('synthetic-city.dat*'):saved.unlink(missing_ok=True)
 for name in ('render-main-home','render-profile','tmp'):(root/'target'/name).mkdir(parents=True,exist_ok=True)
 env=os.environ.copy();env['DISPLAY']=a.display;env['LIBGL_ALWAYS_SOFTWARE']='1';env.pop('WAYLAND_DISPLAY',None);env['ALSOFT_DRIVERS']='null'
