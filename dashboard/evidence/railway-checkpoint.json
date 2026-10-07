@@ -1,0 +1,12 @@
+{
+  "phase": "ready for controller publication and independent review",
+  "sourceBaseHead": "156cfeabeae39a6a87e2402975582d58dd10664a",
+  "note": "Shared airportSite rejects railway cells before edits, building changes or spending for both new airports and expanded runways.",
+  "tests": "66 targeted tests and native airport/rail overlap rejection, adjacent construction and reload passed. Full suite and CI not run.",
+  "evidence": "railway-airport-verification.json",
+  "remaining": [
+    "controller publication",
+    "independent review"
+  ],
+  "git": "No commit, push, merge or deployment performed."
+}

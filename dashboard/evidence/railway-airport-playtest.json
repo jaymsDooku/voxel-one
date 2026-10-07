@@ -1,0 +1,1 @@
+{"status":"passed","checks":["85-cell airport overlap atomic rejection","36-cell runway overlap atomic rejection","clear airport and adjacent runway expansion","rail and airport save reload"],"input":"native GLFW callbacks via xdotool","profile":"isolated synthetic","recording":"F10"}

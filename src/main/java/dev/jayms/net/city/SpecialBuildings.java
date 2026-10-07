@@ -6,20 +6,22 @@ package dev.jayms.net.city;
  * Keeping this metadata in the bounded building record preserves snapshot layout.
  */
 public final class SpecialBuildings {
-    public static final int EXCHANGE = 19, AIRPORT = 23, PORT = 24;
-    public static final String[] NAMES = {"Administration", "Primary school", "Secondary school", "University", "Police station", "Technical college", "Port (coast only)"};
-    public static boolean special(int type) { return type >= 4 && type <= PORT; }
+    public static final int EXCHANGE = 19, AIRPORT = 23, PORT = 24, RAIL_STATION = 25, RAIL_DEPOT = 26;
+    public static final String[] NAMES = {"Administration", "Primary school", "Secondary school", "University", "Police station", "Technical college", "Port (coast only)", "Airport", "Rail station", "Rail depot"};
+    public static boolean special(int type) { return type >= 4 && type <= RAIL_DEPOT; }
     public static int type(int kind, int level) {
-        if (kind < 0 || kind >= 7 || level < 1 || level > 3) throw new IllegalArgumentException("Invalid building or level");
+        if (kind < 0 || kind >= 10 || kind == 7 || level < 1 || level > 3) throw new IllegalArgumentException("Invalid building or level");
         if (kind == 6) return PORT;
+        if (kind >= 8) return 17 + kind;
         return kind == 5 ? 19 + level : 4 + kind * 3 + level - 1;
     }
-    public static int kind(int type) { return type == PORT ? 6 : type == AIRPORT ? 7 : type >= 20 ? 5 : (type - 4) / 3; }
-    public static int level(int type) { if (type == EXCHANGE || type == AIRPORT || type == PORT) return 1; return type >= 20 ? type - 19 : (type - 4) % 3 + 1; }
+    public static int kind(int type) { return type >= RAIL_STATION ? type - 17 : type == PORT ? 6 : type == AIRPORT ? 7 : type >= 20 ? 5 : (type - 4) / 3; }
+    public static int level(int type) { if (type == EXCHANGE || type == AIRPORT || type >= PORT) return 1; return type >= 20 ? type - 19 : (type - 4) % 3 + 1; }
     public static String name(int type) {
         if (type == PORT) return "Coastal port";
         if (type == EXCHANGE) return "Stock exchange";
         if (type == AIRPORT) return "Airport";
+        if (type == RAIL_STATION || type == RAIL_DEPOT) return NAMES[kind(type)];
         if (!special(type)) throw new IllegalArgumentException("Invalid special building");
         if ((type - 4) / 3 == 0) return new String[]{"Parish hall", "Town hall", "City hall"}[level(type)-1];
         return NAMES[kind(type)] + " level " + level(type);

@@ -1,0 +1,170 @@
+{
+  "status": "passed",
+  "sourceHead": "d77e0dba965c4f0cfd43c94277c4d90554406cb9",
+  "environment": "Linux; inherited assigned X11 DISPLAY/XAUTHORITY; Mesa software OpenGL; Java 21; isolated synthetic offline profiles in target; writable target/tmp. Native app, not a browser application.",
+  "versions": {
+    "saveFormat": 14,
+    "magic": "0x4349543E",
+    "base13Magic": "0x4349543D",
+    "protocol": 25,
+    "DELETE_ROAD": 12,
+    "EDIT_ROAD": 13,
+    "RAIL": 14
+  },
+  "integration": "Literal reviewed-base format13 empty ownership suffix and four owned road types loaded and migrated to14; ownership/roads preserved, new file fully consumed. Formats10\u201312 road fixtures passed. Old23/24 peers rejected; legacy22 compatibility kept. 90 targeted tests passed. Full suite and CI not run.",
+  "commands": [
+    {
+      "command": "JAVA_HOME=\"$(dirname \"$(dirname \"$(readlink -f /usr/bin/java)\")\")\" python3 deploy/run_railway_playtest.py --display \"$DISPLAY\"",
+      "exitCode": 0,
+      "Playtest": "Place rails through actual GLFW input. Reject a road crossing atomically. Match off-axis preview to 31-cell bend and reverse route. Place two stations and depot; observe stored locomotive, citizen boarding and arrival; save and reload; place dirt road. Expected all assertions and fresh F10 captures. Observed all passed.",
+      "results": "railway-playtest.json"
+    },
+    {
+      "command": "python3 deploy/run_railway_road_workflow.py --display \"$DISPLAY\"",
+      "exitCode": 0,
+      "Playtest": "Build dirt and paved 2/3/4-lane roads; chain sections; select, widen, narrow and delete; preserve neighbor; snap to zone edge; upgrade dirt; cancel endpoint and menu. Expected exact widths, correct snapped footprint and unchanged spending on cancellation. Observed all passed.",
+      "results": "railway-road-workflow-playtest.json"
+    },
+    {
+      "command": "python3 deploy/run_railway_road_ack.py --display \"$DISPLAY\" --scenario road",
+      "exitCode": 0,
+      "Playtest": "Reject placement on budget; retry from original anchor and advance chain only on success; edit/delete; preserve X-then-Z bend. Expected no rejected segment or gap and no diagonal. Observed all passed.",
+      "results": "railway-road-ack-road-playtest.json"
+    },
+    {
+      "command": "python3 deploy/run_railway_road_ack.py --display \"$DISPLAY\" --scenario mixed",
+      "exitCode": 143,
+      "Playtest": "Mixed-width crossing ownership: interrupted attempt, exit143; no pass claimed."
+    },
+    {
+      "command": "python3 deploy/run_railway_road_ack.py --display \"$DISPLAY\" --scenario mixed",
+      "attempt": 2,
+      "exitCode": 0,
+      "Playtest": "Place wide and narrow crossing roads; delete wide; reverse order then narrow and delete. Expected wide ownership147 cells, deletion63 surviving narrow cells, narrowing117 cells, final deletion narrow survivor only. Observed all assertions passed.",
+      "results": "railway-road-ack-mixed-playtest.json"
+    }
+  ],
+  "media": [
+    {
+      "path": "dashboard/evidence/railway-service.mp4",
+      "bytes": 524598,
+      "sha256": "c37002215eb620bd8a84fa1274df1f8402bd6d61715d529ebd93a4a9a6f477bf"
+    },
+    {
+      "path": "dashboard/evidence/railway-bend.mp4",
+      "bytes": 2064668,
+      "sha256": "b85768c491bb56b13491c4563258a9797f7653d217e2e30ccdeaede3f7f1b0ad"
+    },
+    {
+      "path": "dashboard/evidence/railway-bend-preview.png",
+      "bytes": 203798,
+      "sha256": "75f91b58a3291d4e8a239250109aa67c608922959715bb9f5594928c4bf1655e"
+    },
+    {
+      "path": "dashboard/evidence/railway-passenger.png",
+      "bytes": 303126,
+      "sha256": "7470d79ae4590f88b9c0e121b129c40cd5b1c7575dc622ec529e7a9e84e60400"
+    },
+    {
+      "path": "dashboard/evidence/railway-road-workflow-playtest.mp4",
+      "bytes": 3555988,
+      "sha256": "ba1424aa3f99c6c90618cf9cd97c0fb45a15a4c2686b4e1f3c78b06f21f68003"
+    },
+    {
+      "path": "dashboard/evidence/railway-road-workflow-snap.png",
+      "bytes": 805470,
+      "sha256": "ef8bee1b037953430628adb599554ff17af0e7d7c464e8729169aeaf1a12ecbb"
+    },
+    {
+      "path": "dashboard/evidence/railway-road-ack-road-playtest.mp4",
+      "bytes": 1970964,
+      "sha256": "df5391532544da1e610feaf72b6dfe982a6a59eab38f129ea0dd05ec12f0258a"
+    },
+    {
+      "path": "dashboard/evidence/railway-road-ack-mixed-playtest.mp4",
+      "bytes": 2663910,
+      "sha256": "cb5485e8fbf6ff81030f00ab9f16b07f1b08a860840ca2f4ec9995698321b17f"
+    },
+    {
+      "path": "dashboard/evidence/railway-road-ack-mixed-deleted.png",
+      "bytes": 588331,
+      "sha256": "78c3a564614b7de8d93d2af11a8035fd514c41dd8b9798a2fdc189811a1ecd40"
+    }
+  ],
+  "sources": [
+    {
+      "path": "src/main/java/dev/jayms/Main.java",
+      "bytes": 74832,
+      "sha256": "3b85d61f265597a8f5b6022e042ca2c13d79d4ef4bfce4c22bc146ab2d3b9999"
+    },
+    {
+      "path": "src/main/java/dev/jayms/net/city/CitySimulation.java",
+      "bytes": 139997,
+      "sha256": "af3a39192b64767d59a1b94fc9167505dd4ef0fef81f4c08c1e7974b8591a785"
+    },
+    {
+      "path": "src/main/java/dev/jayms/net/city/CityFrame.java",
+      "bytes": 19452,
+      "sha256": "43927a841070fa44a93c5c0ae014ad1124b876645345e0e6aa53cb81e0aa1f16"
+    },
+    {
+      "path": "src/main/java/dev/jayms/net/city/CityCommand.java",
+      "bytes": 4923,
+      "sha256": "3fd46137416bcd68f670355a55f1460bbeb4d836de157362299829d500f35288"
+    },
+    {
+      "path": "src/main/java/dev/jayms/net/Protocol.java",
+      "bytes": 13386,
+      "sha256": "1cda5d0cae555f64f8e5fc2d3b49cd20d6a2ddbebb67906e3d0d95f55b710f62"
+    },
+    {
+      "path": "src/main/java/dev/jayms/ui/CityTools.java",
+      "bytes": 36956,
+      "sha256": "8829d686233249fb806b8740f772e93a63545a1aa980070526488cf22618491d"
+    },
+    {
+      "path": "src/test/java/dev/jayms/RailwayOwnershipCompatibilityTest.java",
+      "bytes": 3433,
+      "sha256": "5316a7938651c794015ce8cc58f27ff76c9c1800e2cc7356ec6763a4b1ff2fc0"
+    },
+    {
+      "path": "deploy/RailwayPlaytest.java",
+      "bytes": 13803,
+      "sha256": "2874db62536dd335941b59b4ce32af4de927f1e07c21816084dfe6e9bb5b3718"
+    },
+    {
+      "path": "deploy/RoadWorkflowSmoke.java",
+      "bytes": 12955,
+      "sha256": "576e6605cb2cc30462173c1377956c3ba96aebfdfa286224c87881f64b14f20a"
+    },
+    {
+      "path": "deploy/RejectedRoadWorkflowSmoke.java",
+      "bytes": 8692,
+      "sha256": "5e32a6c29e8ab95263b06a9bce0aaff18255ee609c539ca30e589a1b49d1297d"
+    },
+    {
+      "path": "deploy/MixedRoadWorkflowSmoke.java",
+      "bytes": 17864,
+      "sha256": "4cb16b9838cdffaaac315d228ba497a091baaf68c3f57fd916205b13dcb6e00e"
+    },
+    {
+      "path": "deploy/run_railway_road_workflow.py",
+      "bytes": 2944,
+      "sha256": "6ade3a425b4849ee3551ca1b082a04bce75da9def52d8fc3dfcd0338f3c5ae2e"
+    },
+    {
+      "path": "deploy/run_railway_road_ack.py",
+      "bytes": 2967,
+      "sha256": "e84e18b108da2988580748ca8d11fd1c9d13f8d53fb9a85359a64068d815f1b0"
+    }
+  ],
+  "preservedBaseFiles": 455,
+  "publication": "pending controller publication; independent review required",
+  "inspection": "Fresh bend preview, passenger, snap preview, connected retry and mixed-width deletion images inspected. Five fresh F10 videos fully decoded, changing frames, each below 6 MB.",
+  "checks": [
+    "git diff --check: passed",
+    "Python harness compilation: passed",
+    "455 preserved baseline files match recovered HEAD",
+    "No unmerged files; no Git publication performed"
+  ]
+}

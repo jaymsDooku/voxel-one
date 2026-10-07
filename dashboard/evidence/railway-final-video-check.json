@@ -1,0 +1,22 @@
+[
+  {
+    "file": "railway-service.mp4",
+    "result": "{\"status\":\"passed\",\"codec\":\"H264\",\"width\":960,\"height\":540,\"frames\":29,\"changedFrames\":28,\"durationSeconds\":13.512,\"bytes\":524598}"
+  },
+  {
+    "file": "railway-bend.mp4",
+    "result": "{\"status\":\"passed\",\"codec\":\"H264\",\"width\":960,\"height\":540,\"frames\":85,\"changedFrames\":84,\"durationSeconds\":45.158,\"bytes\":2064668}"
+  },
+  {
+    "file": "railway-road-workflow-playtest.mp4",
+    "result": "{\"status\":\"passed\",\"codec\":\"H264\",\"width\":960,\"height\":540,\"frames\":131,\"changedFrames\":130,\"durationSeconds\":79.694,\"bytes\":3555988}"
+  },
+  {
+    "file": "railway-road-ack-road-playtest.mp4",
+    "result": "{\"status\":\"passed\",\"codec\":\"H264\",\"width\":960,\"height\":540,\"frames\":75,\"changedFrames\":74,\"durationSeconds\":29.747,\"bytes\":1970964}"
+  },
+  {
+    "file": "railway-road-ack-mixed-playtest.mp4",
+    "result": "{\"status\":\"passed\",\"codec\":\"H264\",\"width\":960,\"height\":540,\"frames\":120,\"changedFrames\":119,\"durationSeconds\":52.839,\"bytes\":2663910}"
+  }
+]

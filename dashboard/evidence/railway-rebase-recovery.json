@@ -1,0 +1,60 @@
+{
+  "status": "Road-spacing rebase file conflicts resolved. Controller must stage and continue before final-head workflow checks.",
+  "changes": [
+    "Travel retains target/passingPoints and adds railOrigin/railDestination/railCooldown.",
+    "Road clearance, passing, horse parking and both spacing CLI flags preserved.",
+    "Current master spacing tests, harnesses, docs and historical evidence preserved.",
+    "Rail IDs 25/26, ports24, generator3, protocol24 retained."
+  ],
+  "checks": [
+    {
+      "command": "mvn -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=RoadSpacingTest,RailwayTest,RailwaySaveCompatibilityTest,RailwayShippingCompatibilityTest,ProtocolCompatibilityTest test -q",
+      "result": "Exit 0. 15 tests, zero failures/errors/skips."
+    },
+    {
+      "command": "Compile target/spacing-cli-recovery/RoadSpacingCliCheck.java with target/classes and worktree-local dependency jars; run RoadSpacingCliCheck with user.home=target/spacing-cli-recovery/home and java.io.tmpdir=target/tmp",
+      "result": "Exit 0. Client and server accept both CLI spacing options; negative spacing rejected before runtime startup."
+    },
+    {
+      "command": "Compare spacing files and docs to git show HEAD:<path>",
+      "result": "117 files checked; all byte-identical."
+    },
+    {
+      "command": "Compare CitySimulation private travel through public command boundary to current master",
+      "result": "Movement, passing, clearance and horse-parking method block byte-identical."
+    }
+  ],
+  "playtest": "Playtest: CLI integration invoked Main.main and MultiplayerServer.main with --pedestrian-spacing 0.8 --mounted-spacing 1.4 and an intentional unknown stop flag. Expected configured gaps before safe parser termination; observed 0.8 and 1.4 blocks. Invoked each with --pedestrian-spacing -1; expected validation failure, observed Road spacing must be finite and between 0 and 2 blocks. No native window, server credentials or account store created. Browser playtesting does not apply to CLI parsing. Native spacing and railway workflows remain required after rebase continuation.",
+  "environment": "Linux; worktree-local Maven cache/temp directories; isolated synthetic CLI home.",
+  "history": "Previous railway media and test reports predate this road-spacing recovery. They are historical until renewed on the continued final head.",
+  "next": [
+    "Controller stages resolutions and continues rebase without publishing.",
+    "Inspect remaining replay conflicts.",
+    "Run final-head railway and road-spacing native workflows using inherited DISPLAY/XAUTHORITY and isolated synthetic profiles.",
+    "Capture and inspect fresh media, then hand off for independent review."
+  ],
+  "publication": "Pending controller publication.",
+  "replay_resolution": {
+    "conflict": "dashboard/progress.json",
+    "resolution": "Kept resolved shipping recovery progress; incoming historical ready note not restored.",
+    "checks": [
+      "Progress JSON parsed.",
+      "Source tree unchanged from controller-continued recovery HEAD.",
+      "git diff --check passed.",
+      "No conflict markers in src, deploy or dashboard/progress.json.",
+      "python3 -m py_compile deploy/run_railway_playtest.py deploy/run_railway_road_regression.py passed."
+    ],
+    "test_scope": "Prior 27 focused tests apply to unchanged source. No new Maven or native run in this replay step. Final-head checks remain pending.",
+    "handoff": "Controller must stage resolutions and continue the rebase."
+  },
+  "replay": {
+    "conflict": "dashboard/progress.json",
+    "resolution": "Kept recovery note and all current master progress entries; incoming readiness claims remain historical.",
+    "checks": [
+      "Progress JSON parsed.",
+      "src/main unchanged from controller-continued road-spacing recovery HEAD.",
+      "No new native or Maven checks claimed in this replay step."
+    ],
+    "next": "Controller stages and continues rebase, then resumes final-head workflow checks."
+  }
+}

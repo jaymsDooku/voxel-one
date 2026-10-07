@@ -124,7 +124,7 @@ class ProtocolCompatibilityTest {
             var task=new FutureTask<Void>(() -> {
                 try(var first=listener.accept()) {
                     first.setSoTimeout(10000);
-                    request(new DataInputStream(first.getInputStream()),24,false);
+                    request(new DataInputStream(first.getInputStream()),Protocol.VERSION,false);
                     reply(new DataOutputStream(first.getOutputStream()),22,false,"Client version mismatch");
                 }
                 try(var second=listener.accept()) {
@@ -175,7 +175,7 @@ class ProtocolCompatibilityTest {
     void incompatibleVersionsAreRejectedWithActionableDiagnostics() throws Exception {
         var identity = SecureTransport.server(temp.resolve("tls"));
         // Protocol 22 is a supported reconnect target, covered by the aviation retry tests.
-        for (int version : List.of(13, 21, Protocol.VERSION + 1)) {
+        for (int version : List.of(13, 21, 23, 24, Protocol.VERSION + 1)) {
             try (var listener = identity.context().getServerSocketFactory()
                     .createServerSocket(0, 1, InetAddress.getLoopbackAddress())) {
                 listener.setSoTimeout(10000);

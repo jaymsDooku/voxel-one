@@ -21,21 +21,21 @@ class ShippingAviationCompatibilityTest {
         assertEquals(frame,CitySimulation.load(path));
     }
 
-    @Test void aviationOnlyClientIsRejectedBeforeAuthentication() throws Exception {
+    @Test void aviationAndShippingClientsAreRejectedBeforeAuthentication() throws Exception {
         var identity=SecureTransport.server(temp.resolve("synthetic-tls"));
         var accounts=new AccountStore(temp.resolve("synthetic-accounts"));
         try(var server=new MultiplayerServer("127.0.0.1",0,temp.resolve("synthetic-world"),accounts,identity.context())) {
             var failure=new java.util.concurrent.atomic.AtomicReference<Throwable>();
             var worker=new Thread(() -> {try {server.run();} catch(Throwable e) {failure.set(e);}});
             worker.start();
-            try(var socket=SecureTransport.connect("127.0.0.1",server.port(),identity.fingerprint())) {
+            try { for(int peerVersion : new int[]{22,23}) try(var socket=SecureTransport.connect("127.0.0.1",server.port(),identity.fingerprint())) {
                 socket.setSoTimeout(5000);
                 var out=new DataOutputStream(socket.getOutputStream());
-                out.writeInt(Protocol.MAGIC);out.writeInt(22);out.flush();
+                out.writeInt(Protocol.MAGIC);out.writeInt(peerVersion);out.flush();
                 var in=new DataInputStream(socket.getInputStream());
                 assertEquals(Protocol.MAGIC,in.readInt());assertEquals(Protocol.VERSION,in.readInt());
                 assertFalse(in.readBoolean());assertTrue(in.readUTF().contains("Client version mismatch"));
-            } finally {server.close();worker.join(5000);assertFalse(worker.isAlive());assertNull(failure.get());}
+            }} finally {server.close();worker.join(5000);assertFalse(worker.isAlive());assertNull(failure.get());}
         }
     }
 

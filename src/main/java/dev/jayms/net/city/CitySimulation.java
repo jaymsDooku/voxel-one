@@ -56,8 +56,9 @@ public final class CitySimulation {
     }
 
     public static final class Travel {
-        public int target;
+        public int target, railOrigin, railDestination;
         public int passingPoints;
+        public double railCooldown;
         public double retryAt, mealUntil;
         public String activity = "Looking for home / work";
         public final ArrayDeque<Cell> route = new ArrayDeque<>();
@@ -74,6 +75,7 @@ public final class CitySimulation {
     private final RoadSpacing roadSpacing = RoadSpacing.configured();
     private final GameConfig config;
     private final CityHarvesting harvesting;
+    private Railway railway = new Railway();
     private final Map<Cell, Integer> roads = new LinkedHashMap<>();
     private final Map<Cell, Integer> roadTypes = new LinkedHashMap<>();
     private final List<CityFrame.Zone> zones = new ArrayList<>();
@@ -237,6 +239,7 @@ public final class CitySimulation {
     }
 
     private void restore(CityFrame f) {
+        railway = new Railway(f.railway());
         var savedAddresses=f.addresses();
         if(savedAddresses.streets().isEmpty() && !f.roads().isEmpty())
             savedAddresses=CityAddresses.migrate(f.roads(),f.buildings());
@@ -449,7 +452,9 @@ public final class CitySimulation {
             marketBuildings = buildings.size();
             economy.priceProperties(buildings);
         }
+        railTick(dt);
         lifeTick(dt);
+
         assign();
         aviationTick(dt);
         if (marketReview || hasUnpaidWorkers() || !graduationReviews.isEmpty()) chooseJobs(marketReview);
@@ -460,6 +465,7 @@ public final class CitySimulation {
             var t = ecs.get(id, Travel.class);
             if (flights.stream().anyMatch(f -> f.citizen() == id)) continue;
             var time = config.time(elapsed);
+            if (railway.aboard(id)) { t.activity="Riding steam train"; continue; }
             // Needs and wages follow simulated hours, independent of configured day length.
             float hours = (float) (dt * 24 / config.daySeconds());
             n.hunger =
@@ -500,8 +506,22 @@ public final class CitySimulation {
             if (target != t.target) {
                 t.target = target;
                 t.route.clear();
+                t.railOrigin=t.railDestination=0;
                 var b = workplace(target);
-                if (b != null && !(p.x > b.x() && p.x < b.x() + 6 && p.z > b.z() && p.z < b.z() + 7)) journey(id, p, b, t);
+                if (b != null && elapsed >= t.railCooldown && h.horse == 0) planRail(p,b,t);
+                if (b != null && !(p.x > b.x() && p.x < b.x() + 6 && p.z > b.z() && p.z < b.z() + 7)) journey(id, p, t.railOrigin!=0 ? building(t.railOrigin) : b, t);
+            }
+            if (t.railOrigin != 0) {
+                var station=building(t.railOrigin); var destination=building(t.railDestination);
+                if(station==null||destination==null||!railway.served(station,buildings)||!railway.connected(station,destination)) {
+                    t.railOrigin=t.railDestination=0;t.target=0;t.route.clear();continue;
+                }
+                if(!t.route.isEmpty()) {t.activity="Walking to rail station";travel(id,p,h,t,dt);continue;}
+                if(Math.hypot(p.x-station.x()-2.5f,p.z-station.z()-2.5f)>5) {
+                    t.railOrigin=t.railDestination=0;t.target=0;t.railCooldown=elapsed+15;continue;
+                }
+                t.activity=railway.board(id,t.railOrigin,t.railDestination)?"Boarding steam train":"Waiting at rail station";
+                continue;
             }
             if (!t.route.isEmpty()) {
                 travel(id, p, h, t, dt);
@@ -1156,6 +1176,30 @@ public final class CitySimulation {
         return nd <= sd ? b.z() - 1 : b.z() + 7;
     }
 
+    private void railTick(float dt) {
+        railway.tick(dt, buildings, new Railway.Riders() {
+            public boolean exists(int id) { return ecs.get(id, Household.class) != null; }
+            public void move(int id, float x, float y, float z, String activity, boolean arrived) {
+                var p=ecs.get(id,Position.class);var t=ecs.get(id,Travel.class);
+                if(p==null||t==null)return;
+                p.x=x;p.y=y;p.z=z;t.activity=activity;
+                if(arrived){t.target=0;t.route.clear();t.railOrigin=0;t.railDestination=0;t.railCooldown=elapsed+15;}
+            }
+        });
+
+    }
+
+    private void planRail(Position p, CityFrame.Building destination, Travel t) {
+        if(Math.hypot(p.x-destination.x(),p.z-destination.z())<24)return;
+        var stations=buildings.stream().filter(b->b.type()==SpecialBuildings.RAIL_STATION&&railway.served(b,buildings)).toList();
+        var source=stations.stream().min(Comparator.comparingDouble(b->Math.hypot(p.x-b.x()-2.5f,p.z-b.z()-2.5f))).orElse(null);
+        var end=stations.stream().min(Comparator.comparingDouble(b->Math.hypot(destination.x()-b.x(),destination.z()-b.z()))).orElse(null);
+        if(source!=null&&end!=null&&source.id()!=end.id()&&Math.hypot(p.x-source.x()-2.5f,p.z-source.z()-2.5f)<24
+                &&Math.hypot(destination.x()-end.x(),destination.z()-end.z())<24&&railway.connected(source,end)) {
+            t.railOrigin=source.id();t.railDestination=end.id();
+        }
+    }
+
     private void journey(int id, Position p, CityFrame.Building destination, Travel t) {
         t.passingPoints = 0;
         float x = p.x, z = p.z;
@@ -1206,7 +1250,7 @@ public final class CitySimulation {
                             door < destination.z() ? destination.z() + 1 : destination.z() + 5));
         if (SpecialBuildings.special(destination.type()) && destination.type() != SpecialBuildings.EXCHANGE) {
             int kind = SpecialBuildings.kind(destination.type());
-            if (kind == 1 || kind == 2 || kind == 3 || kind == 5) {
+            if (kind == 1 || kind == 2 || kind == 3 || kind == 5 || destination.type() == SpecialBuildings.RAIL_STATION) {
                 // School desks occupy the side stations used by houses and shops.
                 t.route.add(new Cell(destination.x() + 2, destination.z() + 3));
                 return;
@@ -1586,10 +1630,11 @@ public final class CitySimulation {
     public String command(CityCommand c, int player, Protocol.Pose pose) {
         if (!config.city()) return "Join Voxel City One to use city tools";
         try {
-            return switch (c.kind()) {
+            String result = switch (c.kind()) {
                 case CityCommand.ROAD -> road(c.points(), c.value());
                 case CityCommand.DELETE_ROAD -> changeRoad(c.value(), -1);
                 case CityCommand.EDIT_ROAD -> changeRoad(c.value(), (int)c.points().get(0).x());
+                case CityCommand.RAIL -> rail(c.points());
                 case CityCommand.ZONE -> zone(c.value(), new Polygon(c.points()));
                 case CityCommand.SPECIAL -> c.value() == SpecialBuildings.AIRPORT ? airport(c) : special(c);
                 case CityCommand.RUNWAY -> expandAirport(c);
@@ -1602,6 +1647,8 @@ public final class CitySimulation {
                 case CityCommand.FOCUS_DISTRICT -> { population.focus(c.value()); yield "District focus updated"; }
                 default -> "Unknown city tool";
             };
+            railTick(0);
+            return result;
         } catch (IllegalArgumentException e) {
             return e.getMessage();
         }
@@ -1689,6 +1736,7 @@ public final class CitySimulation {
         for (int dx = 0; dx < Aviation.WIDTH; dx++) for (int dz = start; dz < end; dz++) {
             int cx = x + dx, cz = z + dz;
             if (Math.abs((long)cx-8)>256 || Math.abs((long)cz-24)>256) throw new IllegalArgumentException("Airport outside city limits");
+            if (railway.contains(cx, cz)) throw new IllegalArgumentException("Airport cannot cover rails");
             if (roads.containsKey(new Cell(cx, cz))) throw new IllegalArgumentException("Airport cannot cover roads");
             for (var zone : zones) if (zone.polygon().contains(cx+.5f,cz+.5f)) throw new IllegalArgumentException("Airport cannot cover zones");
             for (var b : buildings) if (b.id() != ignore && cx >= b.x()-1 && cx <= b.x()+StructureBlueprint.width(b.type())
@@ -1842,6 +1890,7 @@ public final class CitySimulation {
             int cx = x+dx, cz = z+dz;
             if (Math.abs((long)cx-8)>256 || Math.abs((long)cz-24)>256)
                 throw new IllegalArgumentException("Building outside city limits");
+            if (railway.contains(cx,cz)) throw new IllegalArgumentException("Building cannot cover rails");
             if (roads.containsKey(new Cell(cx,cz))) throw new IllegalArgumentException("Building cannot cover roads");
             for (var zone : zones) if (zone.polygon().contains(cx+.5f,cz+.5f))
                 throw new IllegalArgumentException("Building cannot cover zones");
@@ -1864,6 +1913,10 @@ public final class CitySimulation {
                 throw new IllegalArgumentException("Clear the building site first");
         }
         if (!access) throw new IllegalArgumentException("Front entrance must touch a road");
+        if (type >= SpecialBuildings.RAIL_STATION && !railway.contains(x+2,z+8))
+            throw new IllegalArgumentException("Rail building needs a track at its rear dock (x+2, z+8)");
+        if (type == SpecialBuildings.RAIL_DEPOT && buildings.stream().filter(b -> b.type()==type).count() >= 32)
+            throw new IllegalArgumentException("Rail depot limit reached");
         var edits = new ArrayList<Protocol.Edit>();
         for (int dx=0;dx<6;dx++) for(int dz=-1;dz<=(port ? 2 : 7);dz++) level(x+dx,z+dz,edits);
         edits.addAll(StructureBlueprint.special(type,x,grade+1,z));
@@ -2016,6 +2069,41 @@ public final class CitySimulation {
         return "Stock exchange built for $600; four university graduate office roles";
     }
 
+    private String rail(List<Point> points) {
+        if (points.size() != 2) throw new IllegalArgumentException("Rails need two endpoints");
+        int x=(int)Math.floor(points.get(0).x()), z=(int)Math.floor(points.get(0).z());
+        int bx=(int)Math.floor(points.get(1).x()), bz=(int)Math.floor(points.get(1).z());
+        if (Math.abs((long)x-bx)+Math.abs((long)z-bz)>256) throw new IllegalArgumentException("Rail too long: use shorter sections");
+        var cells=new LinkedHashSet<Cell>();
+        var route = RoadRoute.points(points);
+        for (int i = 1; i < route.size(); i++) {
+            var a = route.get(i - 1);
+            var b = route.get(i);
+            x = (int) a.x(); z = (int) a.z();
+            bx = (int) b.x(); bz = (int) b.z();
+            while (true) {
+                cells.add(new Cell(x, z));
+                if (x == bx && z == bz) break;
+                if (x != bx) x += Integer.signum(bx - x);
+                else z += Integer.signum(bz - z);
+            }
+        }
+        long fresh=cells.stream().filter(c->!railway.contains(c.x(),c.z())).count();
+        if(railway.size()+fresh>8192) throw new IllegalArgumentException("Rail track limit reached");
+        for(var c:cells) {
+            if(Math.abs((long)c.x()-8)>256||Math.abs((long)c.z()-24)>256)throw new IllegalArgumentException("Rail outside city limits");
+            if(roads.containsKey(c))throw new IllegalArgumentException("Rail cannot cover roads");
+            if(specialCell(c.x(),c.z())||buildings.stream().anyMatch(b->c.x()>=b.x()-1&&c.x()<=b.x()+StructureBlueprint.width(b.type())&&c.z()>=b.z()-2&&c.z()<=b.z()+StructureBlueprint.depth(b.type())))throw new IllegalArgumentException("Rail cannot cover buildings or entrances");
+            if(economy.overlaps(c.x(),c.z(),1,1)||zones.stream().anyMatch(v->v.polygon().contains(c.x()+.5f,c.z()+.5f)))throw new IllegalArgumentException("Rail cannot cover owned plots or zones");
+            if(ground.occupied(c.x(),grade+1,c.z(),1,1))throw new IllegalArgumentException("Rail would intersect a player");
+            for(int y=grade+1;y<=Terrain.MAX_Y;y++)if(ground.type(c.x(),y,c.z())!=0)throw new IllegalArgumentException("Clear the rail site first");
+        }
+        if(!economy.roads((int)fresh*2))return "Mayor budget too low for rail: needs $"+(fresh*8);
+        var edits=new ArrayList<Protocol.Edit>();for(var c:cells)if(!railway.contains(c.x(),c.z()))level(c.x(),c.z(),edits);
+        ground.apply(edits);railway.add(cells,grade);
+        return "Rail built | Mayor paid $"+(fresh*8);
+    }
+
     private String road(List<Point> points) { return road(points, 0); }
 
     private String road(List<Point> points, int type) { return road(points,type,0); }
@@ -2036,6 +2124,7 @@ public final class CitySimulation {
                 || roads.size() + cells.stream().filter(c -> !roads.containsKey(c)).count() > 8192)
             throw new IllegalArgumentException("Road too long: use shorter sections");
         for (var cell : cells) {
+            if (railway.contains(cell.x(), cell.z())) throw new IllegalArgumentException("Road cannot cover rails");
             if (specialCell(cell.x(), cell.z())) throw new IllegalArgumentException("Road cannot cover a special building");
             if (Math.abs(cell.x() - 8) > 256 || Math.abs(cell.z() - 24) > 256)
                 throw new IllegalArgumentException("Road outside city limits");
@@ -2120,6 +2209,7 @@ public final class CitySimulation {
         var cells = polygon.cells();
         boolean adjacent = false;
         for (var c : cells) {
+            if (railway.contains(c.x(), c.z())) throw new IllegalArgumentException("Zones cannot cover rails");
             if (specialCell(c.x(), c.z())) throw new IllegalArgumentException("Zones cannot cover special buildings");
             if (roads.containsKey(c))
                 throw new IllegalArgumentException("Zones cannot cover roads");
@@ -2495,7 +2585,7 @@ public final class CitySimulation {
                 hs,
                 economy.state(),
                 addresses.state(buildings),
-                agriculture.state(), population.state(), new Aviation.State(flights));
+                agriculture.state(), population.state(), new Aviation.State(flights), railway.state());
     }
 
     public static CityFrame load(Path file) throws IOException {
@@ -2512,7 +2602,7 @@ public final class CitySimulation {
                     && magic != 0x43495438
                     && magic != 0x43495439
                     && magic != 0x4349543A
-                    && magic != 0x4349543B && magic != 0x4349543C && magic != 0x4349543D) throw new IOException("Invalid city save");
+                    && magic != 0x4349543B && magic != 0x4349543C && magic != 0x4349543D && magic != 0x4349543E) throw new IOException("Invalid city save");
             return CityFrame.read(
                     in,
                     magic == 0x43495431
@@ -2525,7 +2615,7 @@ public final class CitySimulation {
                                                     ? 4
                                                     : magic == 0x43495435
                                                             ? 5
-                                                            : magic == 0x43495436 ? 6 : magic == 0x43495437 ? 7 : magic == 0x43495438 ? 8 : magic == 0x43495439 ? 9 : magic == 0x4349543A ? 10 : magic == 0x4349543B ? 11 : magic == 0x4349543C ? 12 : 13);
+                                                            : magic == 0x43495436 ? 6 : magic == 0x43495437 ? 7 : magic == 0x43495438 ? 8 : magic == 0x43495439 ? 9 : magic == 0x4349543A ? 10 : magic == 0x4349543B ? 11 : magic == 0x4349543C ? 12 : magic == 0x4349543D ? 13 : 14);
         }
     }
 
@@ -2534,7 +2624,7 @@ public final class CitySimulation {
         Files.createDirectories(file.toAbsolutePath().getParent());
         Path tmp = file.resolveSibling(file.getFileName() + ".tmp");
         try (var out = new DataOutputStream(Files.newOutputStream(tmp))) {
-            out.writeInt(0x4349543D);
+            out.writeInt(0x4349543E);
             frame().write(out);
         }
         try {

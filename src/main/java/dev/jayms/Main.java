@@ -49,6 +49,7 @@ public class Main {
     private PlayerModel playerModel;
     private HorseModel horseModel;
     private PlaneModel planeModel;
+    private RailwayModel railwayModel;
     private Jeep jeep;
     private JeepModel jeepModel;
     private java.nio.file.Path jeepSave() { return offlineSave.resolveSibling(offlineSave.getFileName()+".jeep"); }
@@ -75,7 +76,7 @@ public class Main {
             notice = local.city.command(command, riderId(), player.pose(0));
             cityTools.roadResult(command, notice);
         } else if (!network.cityCommand(command, result -> cityTools.roadResult(command, result))) {
-            notice = "Disconnected: reconnect to use city tools";
+            notice = network.notice().isBlank() ? "Disconnected: reconnect to use city tools" : network.notice();
             cityTools.roadResult(command, notice);
         }
     }
@@ -274,6 +275,7 @@ public class Main {
         playerModel = new PlayerModel();
         horseModel = new HorseModel();
         planeModel = new PlaneModel();
+        railwayModel = new RailwayModel();
         farmModels = new FarmModels();
         if (network == null) {
             local = new LocalGame(offlineSave, seed);
@@ -1138,6 +1140,7 @@ public class Main {
             if (pose != null) farmModels.cow(cow, pose, shader);
         }
         for (var plane : Aviation.planes(city())) planeModel.render(plane, shader);
+        railwayModel.render(city(), shader);
         for (var h : city().horses()) {
             Protocol.Pose p =
                     new Protocol.Pose(
@@ -1502,6 +1505,7 @@ public class Main {
         if (playerModel != null) playerModel.close();
         if (horseModel != null) horseModel.close();
         if (planeModel != null) planeModel.close();
+        if (railwayModel != null) railwayModel.close();
         if (jeepModel != null) jeepModel.close();
         farmModels.close();
         if (modelRenderer != null) modelRenderer.close();

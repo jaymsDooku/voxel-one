@@ -1,0 +1,16 @@
+{
+  "platform": "Linux inherited assigned X11 display; Mesa software OpenGL",
+  "status": "passed",
+  "pedestrianGapBlocks": 0.8,
+  "mountedGapBlocks": 1.4,
+  "movingSamples": 175,
+  "nearbySeparatedPairSamples": 1672,
+  "mountedSamples": 100,
+  "overlapSamples": 0,
+  "minimumClearanceMarginBlocks": 0.005350246230198641,
+  "lateClosestRoadPairBlocks": 0.8165200531826061,
+  "regression": "Native inventory opens and closes",
+  "recording": "engine F10 recorder",
+  "profile": "fresh isolated synthetic",
+  "publication": "Pending controller publication"
+}
