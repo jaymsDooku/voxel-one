@@ -20,10 +20,10 @@
       "sampleRateHz": 22050,
       "sampleBits": 16,
       "durationSeconds": 1.0,
-      "rms": 1179.73,
-      "peak": 2411,
+      "rms": 1177.3,
+      "peak": 2425,
       "clippedSamples": 0,
-      "sha256": "fe51b346276344117197c1f02f2a1b5631096faed31ab792a631630d3260cb83"
+      "sha256": "3fa4819d73c1e9ef255f3b1a7e8b8c88d8dd82ea323182313be939cc0bc46e1a"
     },
     {
       "file": "vehicle-audio-train-moving.wav",
@@ -31,10 +31,10 @@
       "sampleRateHz": 22050,
       "sampleBits": 16,
       "durationSeconds": 1.0,
-      "rms": 993.82,
-      "peak": 3105,
+      "rms": 999.67,
+      "peak": 3123,
       "clippedSamples": 0,
-      "sha256": "63b7944ad846a87699ca97946c779e55dc69a3ec207056b3811951c43e5a5742"
+      "sha256": "04244a36046d0831785e147803e04547b2e0e632fbe4b95e18f813f91b779d81"
     },
     {
       "file": "vehicle-audio-plane-takeoff.wav",

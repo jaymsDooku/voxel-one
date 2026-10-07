@@ -1,0 +1,81 @@
+{
+  "sourceHead": "4c6f8033c7b1bd4c77c733edfd514a4e6a34a810",
+  "publication": "pending controller publication",
+  "artifacts": [
+    {
+      "file": "vehicle-audio-car.png",
+      "bytes": 640172,
+      "sha256": "5b976deb01e7ced88f5f87affb0d4e32d0845a69b76d803cc628e2e2da725bea"
+    },
+    {
+      "file": "vehicle-audio-train.png",
+      "bytes": 473889,
+      "sha256": "c5bfc29e57ed976d575097d304d400a046d2c8586d8309202baf391ad8abb830"
+    },
+    {
+      "file": "vehicle-audio-takeoff.png",
+      "bytes": 449221,
+      "sha256": "bdaeda0c7320bb20bdb63e7b79f3c723cffa362355f1693e9642fa0345c344a4"
+    },
+    {
+      "file": "vehicle-audio-train.mp4",
+      "bytes": 152295,
+      "sha256": "d643fdc80575a5a2c79fbfb0a08ddd0e5c53ed5e0d0ed0ee3773915a535b17af"
+    },
+    {
+      "file": "vehicle-audio-car-idle.wav",
+      "bytes": 88244,
+      "sha256": "26b097a7b5fe74548c4b0d6a2c915c9b85cbaea9fcf727cb948839a057ed2c27"
+    },
+    {
+      "file": "vehicle-audio-car-driving.wav",
+      "bytes": 88244,
+      "sha256": "3d74fc2695565abb2e74f05cf3dbd1735fba441b84c4ad88129b77eb908adcc1"
+    },
+    {
+      "file": "vehicle-audio-train-moving.wav",
+      "bytes": 88244,
+      "sha256": "1fe9246785dfe6f30d08baf2670de4154cf541c7cce3d6bf10e691451078b2d0"
+    },
+    {
+      "file": "vehicle-audio-plane-takeoff.wav",
+      "bytes": 88244,
+      "sha256": "ec49d313ba9a5a962d272ff5c96853e4727cf9bb3a3cf5ff4f7b120b0d68a098"
+    },
+    {
+      "file": "audio-final-road-menu.png",
+      "bytes": 413757,
+      "sha256": "37b03010e720426068303e2f5a8dc900c18d0795137753c42db92b1cfb91adc6"
+    },
+    {
+      "file": "audio-final-road-playtest.mp4",
+      "bytes": 4307626,
+      "sha256": "ef76d3c37fc304877c55bd2cc0ed04d04a34eefe6b17b80c52994bc2cd19afdd"
+    },
+    {
+      "file": "audio-final-road-road-diagonal-edited.png",
+      "bytes": 826067,
+      "sha256": "c59c7ee62d83f8fb338c8ae72502e66c31fd87651a67ff8c7966c49b48dd8552"
+    },
+    {
+      "file": "audio-final-road-road-diagonal.png",
+      "bytes": 829737,
+      "sha256": "3a71d722deb7f672b9c8534288d7ca15753b9b923a440bdcf9de2ade9bb6c9ec"
+    },
+    {
+      "file": "audio-final-road-road-rejected-anchor.png",
+      "bytes": 568783,
+      "sha256": "6bbe2560fb59a09b24bd89a57d1841d9edf0d64d60db783b1f4c5c8dcc22ad09"
+    },
+    {
+      "file": "audio-final-road-road-retry-connected.png",
+      "bytes": 559703,
+      "sha256": "8c21c86e910a0dbc050e8b9ef15f8dcd67ea02d1e0ad052c386c752dcf425b24"
+    },
+    {
+      "file": "audio-final-road-road-shallow.png",
+      "bytes": 454506,
+      "sha256": "b604607a04d50243c6bfde5889ce203d8ec6c99824bc3fc79e4ba2cc2103f189"
+    }
+  ]
+}

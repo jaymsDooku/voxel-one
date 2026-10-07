@@ -1,9 +1,8 @@
 {
   "status": "passed",
-  "scope": "affected vehicle/audio/aviation/railway/camera/save suites only",
-  "command": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 timeout 180s mvn -q -Dmaven.repo.local=target/maven-cache -Djava.io.tmpdir=\"$PWD/target/tmp\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=VehicleAudioTest,AviationTest,JeepTest,RailwayTest,IsometricCameraTest,CitySavesTest,RailwaySaveCompatibilityTest verify",
-  "exitCode": 0,
-  "tests": 37,
+  "sourceHead": "4c6f8033c7b1bd4c77c733edfd514a4e6a34a810",
+  "scope": "affected audio, vehicles, camera, saves, and restored road regressions",
+  "tests": 53,
   "suites": [
     {
       "name": "dev.jayms.VehicleAudioTest",
@@ -53,14 +52,36 @@
       "errors": "0",
       "failures": "0",
       "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.RoadTypesTest",
+      "tests": "9",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.RoadWorkflowTest",
+      "tests": "5",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.RoadBaseCompatibilityTest",
+      "tests": "2",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0"
     }
   ],
-  "fullSuitePassed": false,
-  "fullSuiteNote": "Unscoped verify interrupted; bounded offline unscoped verify timed out at 240 seconds. No full-suite pass claimed.",
+  "exitCode": 0,
   "packages": [
     "voxel-one-1.0-SNAPSHOT-launcher.jar",
     "voxel-one-1.0-SNAPSHOT-client.jar",
     "voxel-one-1.0-SNAPSHOT-server.jar",
     "voxel-one-1.0-SNAPSHOT.jar"
-  ]
+  ],
+  "fullSuitePassed": false,
+  "note": "Scoped verify passed on recovered head; no new full-suite pass claimed."
 }
