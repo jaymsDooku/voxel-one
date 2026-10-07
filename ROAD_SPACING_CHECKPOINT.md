@@ -1,7 +1,7 @@
-# Road spacing rebase recovery
+# Road spacing final-head verification
 
-Resolved checkpoint and progress conflicts in working files. All unrelated dashboard fields/entries retain HEAD. Runtime/test source, historical evidence and save fixtures unchanged. Task-specific spacing/cheat artifacts preserved.
+Full Linux Maven verify passed: 364 tests, zero failures, errors or skips. Client, server and launcher built. Native configured 1.0/1.4-block gaps, zero-gap overlap, movement and inventory checks passed. At 2-block gaps, the factory processed 10 items by 700 simulated seconds and delivered both tools by 1,200 seconds without manual job overrides. Native industrial progression through eight tiers, advanced recipes, freight and operating-energy edges, housing, demolition and save/reload passed. Six packaged invalid-value CLI checks passed.
 
-Prior focused run passed 28 tests, zero failures/errors/skips; BUILD SUCCESS. Not rerun in this source-unchanged stage. Current checks recorded in dashboard/evidence/road-spacing-progression-recovery-10.json. Index remains unmerged; controller must stage and continue. No abort/reset/commit/push performed.
+All 628 historical evidence and save-fixture files, plus 257 other inherited source, test and harness files, match the reviewed base. Source hashes are unchanged. Three fresh task-specific clips decoded at 0%, 50% and 95%; representative frames were inspected and bytes matched the F10 recordings. Full report: dashboard/evidence/road-spacing-final-tests.json. Post-write verification: dashboard/evidence/road-spacing-final-post-write.json.
 
-After replay inspect actual final source against reviewed base. Preserve industrial progression, advanced recipes, freight energy, passenger transport, vehicle purchases, save compatibility tests/fixtures and historical evidence. Retain automatic factory staffing, food, porch and clearance fixes and original factory regression without manual job overrides. Final-head full verification and native requested/edge/regression workflows with fresh task-specific media remain pending controller continuation. Verify actual video bytes after all report writes; preserve historical media.
+Post-write checks passed. Ready for controller publication and independent review. No commit, push, merge or deploy performed. Progress stays in_progress until independent approval.
