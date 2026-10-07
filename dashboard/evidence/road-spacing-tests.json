@@ -1,15 +1,15 @@
 {
   "status": "passed",
-  "testedHead": "ed10ce163d4baea0f198a27217a4aeb29dcc0295",
-  "reviewedBase": "5e05822fdedde872935214c75dbe7fdd34425201",
+  "testedHead": "5e1272db1c0cd43d98d0ee3769eb2da7c8382434",
+  "reviewedBase": "60628241773b1985572b5f1b723a09ab12f41672",
   "publication": "pending controller publication and independent exact-head review",
-  "implementation": "Spacing 0\u20132 blocks, defaults 0.8 pedestrian/1.4 mounted. Cargo bodies, Shift vehicle switching, cargo rendering and five-field saves retained. Airports, flights, protocol 22, version-12 saves, regional population and road types retained.",
+  "implementation": "Spacing 0\u20132 blocks, defaults 0.8 pedestrian/1.4 mounted. Terrain generator 3, open ocean, coastal ports, protocol 23 and shipping tests/evidence retained. Cargo, aviation, regional population and typed roads retained.",
   "verification": {
-    "command": "MAVEN_OPTS=\"-Xmx256m -Djava.io.tmpdir=$PWD/target/tmp\" /tmp/apache-maven-3.9.11/bin/mvn --batch-mode -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux \"-DargLine=-Xmx512m -Djava.io.tmpdir=$PWD/target/tmp\" verify > target/spacing-cargo-verify.txt 2>&1",
+    "command": "MAVEN_OPTS=\"-Xmx256m -Djava.io.tmpdir=$PWD/target/tmp\" /tmp/apache-maven-3.9.11/bin/mvn --batch-mode -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux \"-DargLine=-Xmx512m -Djava.io.tmpdir=$PWD/target/tmp\" verify > target/spacing-shipping-verify.txt 2>&1",
     "environment": "Linux; inherited Java; target 17; Maven 3.9.11; worktree-local dependency cache and JVM temp; Maven 256 MiB/test 512 MiB heaps.",
     "exitCode": 0,
     "totals": {
-      "tests": 336,
+      "tests": 347,
       "failures": 0,
       "errors": 0,
       "skipped": 0
@@ -39,6 +39,13 @@
       {
         "name": "dev.jayms.MarketEconomyTest",
         "tests": 13,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.ShippingProtocolCompatibilityTest",
+        "tests": 2,
         "failures": 0,
         "errors": 0,
         "skipped": 0
@@ -366,6 +373,13 @@
         "skipped": 0
       },
       {
+        "name": "dev.jayms.ShippingAviationCompatibilityTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
         "name": "dev.jayms.DemolitionTest",
         "tests": 3,
         "failures": 0,
@@ -375,6 +389,13 @@
       {
         "name": "dev.jayms.TerrainGenerationTest",
         "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.ShippingTest",
+        "tests": 6,
         "failures": 0,
         "errors": 0,
         "skipped": 0
@@ -425,18 +446,18 @@
     "observed": "BUILD SUCCESS; client/server/launcher built"
   },
   "focusedVerification": {
-    "command": "Same Maven options with -Dtest=JeepTest,RoadSpacingTest test",
-    "tests": 11,
+    "command": "Same Maven options with -Dtest=ShippingTest,ShippingProtocolCompatibilityTest,ShippingAviationCompatibilityTest,TerrainGenerationTest,RoadSpacingTest test",
+    "tests": 24,
     "failures": 0,
     "errors": 0,
     "skipped": 0,
     "exitCode": 0
   },
-  "saveRegression": "JeepTest.cargoBodiesDrivePersistAndKeepLegacySaves checks five-field saves for all five cargo bodies, legacy four-field saves, drive/re-entry and cycle wraparound. JeepTest.largerBodyRejectsWallsAndPlayerOverlap checks blocked body changes. Aviation protocol 22 and version-12 saves retained.",
+  "saveRegression": "ShippingTest covers coastal permit save/load, version-2 world persistence and legacy geography. TerrainGenerationTest covers current-version world reload and legacy migration. Native ShippingSmoke reloads the saved world and confirms generatorVersion==3 and the port permit. ShippingProtocolCompatibilityTest and ShippingAviationCompatibilityTest retain network/save/aviation compatibility.",
   "playtests": [
     {
       "label": "Playtest: Configured gaps",
-      "command": "JAVA_TOOL_OPTIONS=\"-Xmx512m\" python3 deploy/run_road_spacing_smoke.py --display \"$DISPLAY\" --output target/spacing-cargo-configured",
+      "command": "JAVA_TOOL_OPTIONS=\"-Xmx512m\" python3 deploy/run_road_spacing_smoke.py --display \"$DISPLAY\" --output target/spacing-shipping-configured",
       "environment": "Linux inherited assigned DISPLAY/XAUTHORITY; Mesa software OpenGL; isolated synthetic profiles; bounded 512 MiB JVM heap. Authentication cookie never read.",
       "stepsAndExpected": "1.0/1.4-block gaps hold; walking and riding traffic moves; inventory opens/closes.",
       "observed": {
@@ -444,9 +465,9 @@
         "status": "passed",
         "pedestrianGapBlocks": 1.0,
         "mountedGapBlocks": 1.4,
-        "movingSamples": 279,
-        "nearbySeparatedPairSamples": 1526,
-        "mountedSamples": 120,
+        "movingSamples": 240,
+        "nearbySeparatedPairSamples": 1560,
+        "mountedSamples": 117,
         "overlapSamples": 0,
         "minimumClearanceMarginBlocks": 0.0002651214599609375,
         "lateClosestRoadPairBlocks": 1.000265121459961,
@@ -456,9 +477,9 @@
       "exitCode": 0,
       "mediaDecode": {
         "status": "passed",
-        "frames": 38,
-        "seconds": 15.495,
-        "bytes": 832733,
+        "frames": 33,
+        "seconds": 15.439,
+        "bytes": 750089,
         "width": 960,
         "height": 544,
         "decodedFractions": [
@@ -473,7 +494,7 @@
     },
     {
       "label": "Playtest: Zero-gap edge",
-      "command": "JAVA_TOOL_OPTIONS=\"-Xmx512m\" python3 deploy/run_road_spacing_smoke.py --display \"$DISPLAY\" --output target/spacing-cargo-zero --pedestrian-spacing 0 --mounted-spacing 0",
+      "command": "JAVA_TOOL_OPTIONS=\"-Xmx512m\" python3 deploy/run_road_spacing_smoke.py --display \"$DISPLAY\" --output target/spacing-shipping-zero --pedestrian-spacing 0 --mounted-spacing 0",
       "environment": "Linux inherited assigned DISPLAY/XAUTHORITY; Mesa software OpenGL; isolated synthetic profiles; bounded 512 MiB JVM heap. Authentication cookie never read.",
       "stepsAndExpected": "Overlap allowed; walking/riding movement and inventory continue.",
       "observed": {
@@ -481,10 +502,10 @@
         "status": "passed",
         "pedestrianGapBlocks": 0,
         "mountedGapBlocks": 0,
-        "movingSamples": 230,
-        "nearbySeparatedPairSamples": 979,
-        "mountedSamples": 56,
-        "overlapSamples": 59,
+        "movingSamples": 177,
+        "nearbySeparatedPairSamples": 1066,
+        "mountedSamples": 79,
+        "overlapSamples": 76,
         "minimumClearanceMarginBlocks": 0.0,
         "lateClosestRoadPairBlocks": 0.010015010833740234,
         "regression": "Native inventory opens and closes",
@@ -493,9 +514,9 @@
       "exitCode": 0,
       "mediaDecode": {
         "status": "passed",
-        "frames": 39,
-        "seconds": 15.524,
-        "bytes": 788960,
+        "frames": 27,
+        "seconds": 15.588,
+        "bytes": 503496,
         "width": 960,
         "height": 544,
         "decodedFractions": [
@@ -509,30 +530,34 @@
       "browser": "Not applicable: native Java/OpenGL application."
     },
     {
-      "label": "Playtest: Cargo regression",
-      "command": "JAVA_TOOL_OPTIONS=\"-Xmx512m\" python3 deploy/run_cargo_smoke.py --display \"$DISPLAY\"",
+      "label": "Playtest: Shipping regression",
+      "command": "JAVA_TOOL_OPTIONS=\"-Xmx512m\" python3 deploy/run_shipping_smoke.py --display \"$DISPLAY\"",
       "environment": "Linux inherited assigned DISPLAY/XAUTHORITY; Mesa software OpenGL; isolated synthetic profiles; bounded 512 MiB JVM heap. Authentication cookie never read.",
-      "stepsAndExpected": "Select all five bodies with Shift+J; drive, brake, exit and re-enter; reject body switch while driving and exit while moving; save/load every body; reject larger body at a wall; cycle back to jeep.",
+      "stepsAndExpected": "Reject inland and overlapping ports; place coastal port; render carrier hull and containers; preserve ocean water; college UI regression; save/reload terrain version 3 and port permit.",
       "observed": {
         "status": "passed",
         "platform": "Linux X11 inherited role display; Mesa",
-        "profile": "isolated synthetic offline yard",
+        "profile": "isolated synthetic offline city on generated version 3 terrain",
         "checks": [
-          "all five bodies selected via real Shift+J",
-          "enter drive brake exit via real J/W",
-          "moving exit and driving body switch rejected",
-          "all body types survive save reload",
-          "longer truck rejects wall",
-          "cycle returns to original jeep"
+          "actual menu clicks reject inland port",
+          "technical college level 3 regression",
+          "actual coastal port permit",
+          "carrier hull and containers in world",
+          "ocean beside berth preserved",
+          "overlap rejected",
+          "two camera angles"
         ],
-        "media": "five production renderer captures"
+        "recording": "production F10 recorder",
+        "siteX": -100,
+        "siteZ": 210,
+        "saveReload": "passed"
       },
       "exitCode": 0,
       "mediaDecode": {
         "status": "passed",
-        "frames": 26,
-        "seconds": 33.975,
-        "bytes": 1004581,
+        "frames": 29,
+        "seconds": 29.109,
+        "bytes": 978264,
         "width": 960,
         "height": 544,
         "decodedFractions": [
@@ -541,8 +566,8 @@
           0.95
         ]
       },
-      "mediaDecodeCommand": "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Xmx256m -cp \"target/spacing-smoke:$(cat target/spacing-classpath.txt)\" RoadSpacingMediaCheck dashboard/evidence/road-spacing-cargo-container-drive.mp4 dashboard/evidence/road-spacing-cargo-container-drive-video-frame.png dashboard/evidence/road-spacing-cargo-container-drive-media.json",
-      "visualInspection": "Decoded container-driving midpoint and all five exterior body screenshots viewed; cargo body geometry present; synthetic gameplay only.",
+      "mediaDecodeCommand": "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Xmx256m -cp \"target/spacing-smoke:$(cat target/spacing-classpath.txt)\" RoadSpacingMediaCheck dashboard/evidence/road-spacing-shipping-placement-playtest.mp4 dashboard/evidence/road-spacing-shipping-placement-playtest-video-frame.png dashboard/evidence/road-spacing-shipping-placement-playtest-media.json",
+      "visualInspection": "Decoded midpoint and carrier still inspected; coastal port, containers, hull and ocean visible; synthetic gameplay only.",
       "browser": "Not applicable: native Java/OpenGL application."
     }
   ],
@@ -661,26 +686,26 @@
     "src/main/java/dev/jayms/ui/CapitalDashboard.java": "c2d91c91b955d6d7de04676693090a584259b5350f9b937866b27b27e133f810",
     "src/main/java/dev/jayms/ui/RegionalDashboard.java": "08373588af18f59437a408d7d293a1f2bf598d0e3d1083b62b83544a79425dba",
     "src/main/java/dev/jayms/ui/BuildingGuide.java": "3280cc6c6fe8825a806943ee9b5a958642066ff2801023f85d6e6f9db7bfd0a6",
-    "src/main/java/dev/jayms/ui/CityTools.java": "a9bce73f1fc7f842755eb3aaf35e3d2e12109da96327c8b885ba5bf0ac17c0ff",
+    "src/main/java/dev/jayms/ui/CityTools.java": "88a4a9047e60474915c4b213b78648631a8e8ce79f48dab937c64cf34f87289a",
     "src/main/java/dev/jayms/ui/InventoryHud.java": "9d94241bfea305d3159040fa1778ed2cd7e961fd7d67ca0867006f4866d1ab3f",
-    "src/main/java/dev/jayms/ui/BuildingInfo.java": "e6bd88c89ee42254909e5d1369a9d6fe7f09234f55fe300410fe1dfa0f935938",
+    "src/main/java/dev/jayms/ui/BuildingInfo.java": "fa5edd0e253939f1473ec99291e048ee29d0e2802777e6c8b5ad0d323b628a43",
     "src/main/java/dev/jayms/ui/Controls.java": "4e761eb2cc27ccce770983221347e117aa9915b0b5b2c1eafe7c818dd3f40857",
     "src/main/java/dev/jayms/ui/ModelSculptor.java": "b19add6b03ec41bfe00b760c0150a451bdc1beecc0c0a9cbaf84518b66d7dcb8",
     "src/main/java/dev/jayms/net/MultiplayerServer.java": "e48c7301b6a0c7ef008707dc37f8c9362285353bde80008ad99bd48aaa422b5a",
-    "src/main/java/dev/jayms/net/Terrain.java": "99c510ac91b33d031114852b1880db93189584420b73e7f157e099521bfc04b5",
+    "src/main/java/dev/jayms/net/Terrain.java": "3a2957d28603604d8cee8b6fd68889a2a59c43e4470d54a9a85383e47c989068",
     "src/main/java/dev/jayms/net/Inventory.java": "6a9f06f0f02d6a4db27c9879323b71375e789c28c8b95ad2011b40ecf6dd3899",
-    "src/main/java/dev/jayms/net/Geography.java": "0f7fe50478f0e688cd5df8c497e9b26b29f3858a8fa8149e25c2a24c32aac165",
+    "src/main/java/dev/jayms/net/Geography.java": "c6b79f348ff4b6e520b3d43ddc2707da05d7923a749bb9aa72c246e82d0c6e1c",
     "src/main/java/dev/jayms/net/Blocks.java": "9e9bbf8e036e7cc3eeba6823c4e3214849bb1e42145716ba1225c54edfe497f1",
     "src/main/java/dev/jayms/net/ItemDrop.java": "a37591de6091835572595bd737f0246cc4573de8b3bf0769e04d692ab41a0258",
     "src/main/java/dev/jayms/net/RemotePlayer.java": "1cc1ec5600b563e01a3077899ae427c47df2b6a86d52b6069c6500f3ffeef26c",
-    "src/main/java/dev/jayms/net/MultiplayerClient.java": "2a3e06edd0309e3794e2b1c2a4c7deb937e5e124c46a02c55f5f0a0250da2b2e",
+    "src/main/java/dev/jayms/net/MultiplayerClient.java": "1e81b9ea3d66ea70cc48f4e94e6de0f5660cca1ce960a00906d8fee6c102b301",
     "src/main/java/dev/jayms/net/AccountStore.java": "ff3417b39594262570ee5950321164eae21f51e0cba47dd0ab5ac6eed6a63137",
     "src/main/java/dev/jayms/net/WorldVoxels.java": "41d67d5f010a605400d80da384014264ef3ad603e061ded9a4feb9544d7c7408",
     "src/main/java/dev/jayms/net/Crafting.java": "2e670a726d0b9e721f6917b5be92c506ff24ca340e89508bded2e3c6afbbdd96",
     "src/main/java/dev/jayms/net/LocalGame.java": "776f7129ab0a27f696f43f9827c255f17147c2adf2c1b4783519088fa3f70d4b",
-    "src/main/java/dev/jayms/net/Protocol.java": "d500ccd12048e1481be3a653e9c0e478c7286dbbf95552bf290a880fdb8d89c7",
+    "src/main/java/dev/jayms/net/Protocol.java": "f8206e5ea9d1f6db33582143840f9f34e880ce4f28b91f6f4a41c217e63a0151",
     "src/main/java/dev/jayms/net/SecureTransport.java": "6d04aa968e17a151ba1694c1ac637722d4e84f33253ac44c1e59be10502b6d41",
-    "src/main/java/dev/jayms/net/city/CitySimulation.java": "b22060cd10685e1b06b4993078227334cd73c2d2fe3e93cd268d7ea7257cf8f8",
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "3e7db41768e8070feb55f8c6cd4425341ace0374e61abd56e36d8e37516d0866",
     "src/main/java/dev/jayms/net/city/CityStockExchange.java": "b407c53961601a4c9b3d81dae10d6ddb64aa8defcd2546b328cdff20442f1b56",
     "src/main/java/dev/jayms/net/city/ProductionCatalog.java": "5c6ec4bb7498a5981662688cc5193e06e4514e7a7df23533afd585308aa8ce43",
     "src/main/java/dev/jayms/net/city/CityBusinesses.java": "50a66c7ffc66a7e687822d3fde396338a9882ad3f1037beb8f7ff1363d6a7920",
@@ -696,13 +721,14 @@
     "src/main/java/dev/jayms/net/city/CityCapital.java": "3d3476cf157e5818adad8c8250186ebd1ee581a8207e8a0a96c29fcf9588b82d",
     "src/main/java/dev/jayms/net/city/RegionalPopulation.java": "5b40b74f336b296d53247605ee983ddaf312b705336da8d3e81622d784410258",
     "src/main/java/dev/jayms/net/city/CityMetrics.java": "a25acc7db89bfaec8b12f039b1e0b4765208ae44b10bd64d6d34ff7466c65786",
-    "src/main/java/dev/jayms/net/city/StructureBlueprint.java": "742df873fca7ad2c4a4c5e78a2b9691981c389ac98540fbbf411e99ef4224533",
+    "src/main/java/dev/jayms/net/city/StructureBlueprint.java": "ef25d3278af0f05b764bafa2fbf7d1f30e2522298d1bd3fb7d66959d944ccf3b",
     "src/main/java/dev/jayms/net/city/CityHarvesting.java": "5a456ec63ae20ee75b41960f1bacd837ec0bbfdb47c8d7618a2d11de23177277",
     "src/main/java/dev/jayms/net/city/Aviation.java": "aec5129c8d0ee506a0f5626217cf773af7152194b2d828ba106660f29b1a62ff",
     "src/main/java/dev/jayms/net/city/GameConfig.java": "4b6ddcd4a504fe9b0e465fb9d565a4984d07cfa3520673be49d4c189498f72f9",
+    "src/main/java/dev/jayms/net/city/Shipping.java": "af8433aa53085022d8482d58c91638beeba0eb848826a1f72ebdb433bed34c10",
     "src/main/java/dev/jayms/net/city/BusinessMetrics.java": "cdf18dc2c19c6653fb3227c5c8feb4a7a79df4ab7d6b48d8184a3c8e667f356e",
     "src/main/java/dev/jayms/net/city/FlightPath.java": "8446b174424086e965efa18428525f42d60f35a6ac41eb173ccf671cdafd01e5",
-    "src/main/java/dev/jayms/net/city/SpecialBuildings.java": "b4094e27eb629ea76d80bc09764668fe0a1d871b4961b2b94430078e1180bc7c",
+    "src/main/java/dev/jayms/net/city/SpecialBuildings.java": "4e6b3d8751fc0fbc2b2f858fd3c25b43c8be54b7a7a661fe33d8bd11179e977e",
     "src/main/java/dev/jayms/net/city/CityAddresses.java": "8e2ee06138357fc730bf601f051cfdf6a845327685739dcc1a6160f00833de26",
     "src/main/java/dev/jayms/net/city/Polygon.java": "31d9f1474f9563349bb24e6386a25d07eb6720fc54d471c4d791ae3ac21373be",
     "src/main/java/dev/jayms/net/city/CityTime.java": "06433762b2bb190236a0a85e13fa7b12225c0aca4cd4fa68e607f391f33fde8d",
@@ -715,19 +741,20 @@
     "src/main/java/dev/jayms/net/model/ModelLibrary.java": "af60d0ada4345640a37b6c094fb07b59c3547ed5a74680ba9f334f96ffe4ebb4",
     "src/test/java/dev/jayms/AccountStoreTest.java": "94d5127e954a61d5cb54e34b6a2b08410c9ed8a049106a32890bd73f1064b57e",
     "src/test/java/dev/jayms/RegionalPopulationTest.java": "e9f74bab14798ebc92b627d0cbdfade71a14fe9f15df82cb057be4740240df34",
-    "src/test/java/dev/jayms/ProtocolCompatibilityTest.java": "68524d0a6e271aef4c2b62ad7a2f86df5b998f1be7589d79879ac9b2d9bd02ad",
+    "src/test/java/dev/jayms/ProtocolCompatibilityTest.java": "6be0f3534f1a6b427ecc0d4106f168d12f86503dde7490e6bc1eb64cc215808c",
     "src/test/java/dev/jayms/CitizenLifeTest.java": "600ca49475610c2b89041d0de6775f6c594e2d3c9a82703180c3e07f3374ef25",
     "src/test/java/dev/jayms/CraftingTest.java": "a8b5ff657962334eab42716c7918f369a68350e883ba1953a4681e1fdadf62b5",
     "src/test/java/dev/jayms/InventoryHudTest.java": "1b6d5ad9ae0132344fac2790da213c3e52bb9cd0d546baa07b338002188cdcb0",
     "src/test/java/dev/jayms/CapitalInspectorTest.java": "8ade2fd48c3baad177756dbd75cea7f454cd3d005267fd5b28b3523929dd5a9d",
     "src/test/java/dev/jayms/PlayerAnimationTest.java": "68e2d7c7fd68df1821a5629366cb061e6e87fd66c93e9303daf26d45b4f127cf",
+    "src/test/java/dev/jayms/ShippingAviationCompatibilityTest.java": "36b4fee69dc9e878556965ec9c89195d96819db40ac671fe9832af3017c35d60",
     "src/test/java/dev/jayms/IsometricCameraTest.java": "5721276c57f8db889314b9c68f6c9f5e3a833c5ec8ceffcc98495df11f6274f9",
     "src/test/java/dev/jayms/ExchangeLabourMarketTest.java": "737d9d51b84c5f33813a3f773e009ca596c98700d1ed2ab79e4356fd65c5ef9c",
     "src/test/java/dev/jayms/CityAddressesTest.java": "a09dc2e3ad7be3f44ae5337f90f3770cd45fd679b185281bcf9500829de8dd22",
     "src/test/java/dev/jayms/MayorDashboardTest.java": "6eb037b46f257947c3953368ae4fccfb68573205f4eb1e24d7cbe0f32e2bc617",
     "src/test/java/dev/jayms/RoadTypesTest.java": "44fce1fc3cc56017e023f4c0f428df4037e0ecc133764e84532e5425bebc6b48",
     "src/test/java/dev/jayms/CityMaterialsTest.java": "d57872f917b248f3e804f2ec4e470dd9e1006bd2f837bfacd19349979ec9181b",
-    "src/test/java/dev/jayms/CityToolsTest.java": "1237887117043a0c7d2c715b11d4c67df6080940d81a6e69d07c1b8986c51671",
+    "src/test/java/dev/jayms/CityToolsTest.java": "962f05ae4b448b8d9b923adad04b369d1f46c4f6fad9cd66c237b8835f3df97b",
     "src/test/java/dev/jayms/PlayerCameraTest.java": "8d2360ef762b61b67e4874e082304c6f27debd0e7492f6b32d2a6c42836bfbc4",
     "src/test/java/dev/jayms/SurvivalTest.java": "9514766f58914d898023bdaa66ce5c5cf460d30c3987edc5d1a6968256936743",
     "src/test/java/dev/jayms/DistantTerrainTest.java": "c73e611b0be61ad6960994f258a463e25fa299eb6d33e94c1184a12f182b217f",
@@ -735,12 +762,14 @@
     "src/test/java/dev/jayms/BuildingInfoTest.java": "8f448fb8e57de259a934255beadfaddfcc930a7a5e5f479354c236c23a066d3d",
     "src/test/java/dev/jayms/AgricultureTest.java": "f662b3a9092ed82a68fd5a8ee90d0b093d01938fcf0b11aa980525baf50141fd",
     "src/test/java/dev/jayms/VoxelModelTest.java": "d8bf4cafb884044a6e7a6e7bdeea2fd04cca259abcf05e22c5d32d942d39cf22",
+    "src/test/java/dev/jayms/ShippingProtocolCompatibilityTest.java": "159677607f5464260c7fac3b9d9e98d4cee1646aae2aaecef10186c8765ed931",
     "src/test/java/dev/jayms/LightOcclusionTest.java": "0b156ceed4c1596c64e2ca443bcf0243ac5da005679e7c7b9a5f7667bf97dca8",
+    "src/test/java/dev/jayms/ShippingTest.java": "e667ab64984128204893b66df928f93bd6363a03a436a0a31fee1362b4a1cb8e",
     "src/test/java/dev/jayms/ControlsTest.java": "e30d5b4c419f495a358a59d2221893eec33a6819cc9cbf1498ea753040f6a4dc",
     "src/test/java/dev/jayms/TerrainGenerationTest.java": "e3c51d08417218e09c4308f5d66f649688a2fd94c15c680f1f3fdcaefd4b9226",
     "src/test/java/dev/jayms/ModelSculptorTest.java": "3efc446f042ab4bab05b42259a8f21c7e0bd30b2e993a6127f2ef671a88c7e69",
     "src/test/java/dev/jayms/LightingTest.java": "5d14822ae6121602399230f1f44ec6aba5229802ccbdc3d11981d7579733367f",
-    "src/test/java/dev/jayms/MarketEconomyTest.java": "1216c3f539b8048983f310a08cf181e19f8bb7370353ddd45d3c94f271863146",
+    "src/test/java/dev/jayms/MarketEconomyTest.java": "93650c81156263556bc6636f7feff450f0fddf14631f60aead6fa3d0bfca13e5",
     "src/test/java/dev/jayms/BuildingInfoRenderEvidence.java": "9b6e04ea04d2eca1d57e0829a1197e8b5fd84748427eee4bd25ebf1fcbe12fc3",
     "src/test/java/dev/jayms/IsometricOrbitDragTest.java": "813de79eb9c5074a361b1b1fa8abdca4ee9078b918b0984019c0ee1349f38fdd",
     "src/test/java/dev/jayms/BusinessDashboardTest.java": "a4878dbc826e27d9ff93063e16f06cad02a873a73010ef9171ba704ee3cabac5",
@@ -786,6 +815,7 @@
     "deploy/BusinessSmoke.java": "7c383be3be4da9492b72f05aa2c1a81d7af028efebe3db182cb2044cef544ed4",
     "deploy/BuildingGuideSmoke.java": "d65d97ea630e0e7d87febe7a0c14bf82ee24b422a8c6586a48791b7d08d88a74",
     "deploy/AviationSmoke.java": "6771ea4c0a180741df0de5107e79f648bd1ae31afbcd0ee2553264af4589250b",
+    "deploy/ShippingSmoke.java": "bf9706ec66d6291c2c5f703ac8be61fde718deacdc93ce21cf10aea313a69a2b",
     "deploy/CargoVehicleSmoke.java": "e79cc9987930e8ebc03e1ef4dace55b53274676f51fe92704c95cf2a5342ee83",
     "deploy/RenderingSmoke.java": "a15b6273b5ecab812af9dafd0725f6245538f0750bfd6f1e6a25e7810bda7b07",
     "deploy/AgricultureSmoke.java": "e909a45591ca8467546dc9d14796c095ed5f28d85eb43391cc03cb7930b08873",
@@ -794,10 +824,14 @@
     "deploy/CityTimeSmoke.java": "9ea53b511973ee95c768e83b58000f9d05c014685272c9eb79c3dd556a80b206",
     "deploy/CapitalRenderingSmoke.java": "3cfee110fde032fbc5aaa02515782aefe5a1b52ad9f3906c3177ee909f5b59cf",
     "deploy/SpecialBuildingsSmoke.java": "6c9e51f294e4d4b401e975afc56fee36b6c4323e5646f810300b0afbde03d72d",
+    "deploy/run_shipping_smoke.py": "eb5943fd86795fdc71b00dca896f03fcf2ae4ec0b3675e6e14fa53e08bcb0077",
+    "deploy/run_shipping_aviation_smoke.py": "7543227d448a4d5d9be270c9cb2d3f9e6df5e49e28365b652bca555e5eba2d61",
     "deploy/run_factory_staffing_smoke.py": "32df2dc849f3497385b893f0c175800a09ec069b46221c341fffdc8aef621e1b",
     "deploy/run_special_buildings_smoke.py": "7070012491afb85ab8c9e5668bacd1cf003ebccb81eb8c71e79006afcd415383",
+    "deploy/run_shipping_cargo_smoke.py": "50aad14134ce87d67690d6d231c7e80c2bd8d91ecba22883f38cde92f94d70b4",
     "deploy/run_aviation_smoke.py": "87b9063ca445accbb8ea5780feccc119b4f1e69bd5ee472c1fafc8376bfa90d6",
     "deploy/run_road_placement_smoke.py": "3b9dce85e7d9312cb7e2dac3d3d5c8d650973ff7d2658e7d203f559995599c3a",
+    "deploy/run_shipping_regional_smoke.py": "01e2bbf7a29a9ba564cb02e27adcde59b0a9d655e7a797930897fb8a5c155972",
     "deploy/run_isometric_orbit_smoke.py": "2e760e3a2ec9d33b0f1d444e1e7d689b6158f4295b1266be27aebf71e244180a",
     "deploy/run_building_guide_smoke.py": "9f6b3ffbb50e2bec251944f5239779deb570c7f085adc1bc80ef89609b6362c8",
     "deploy/run_metric_trends_smoke.py": "dd2155ca2a15dd9a62f69592e62a0d47c738f9e9061f857becb95bef2398207e",
@@ -809,61 +843,37 @@
       "label": "Configured gaps \u2014 pending controller publication",
       "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-native.mp4",
       "kind": "video",
-      "sha256": "3088e7fac722680ceb3779686b244ac5f1e0230f6a2f76dfe15de24f30e82255",
-      "bytes": 832733
+      "sha256": "b3ad19d4e976b9f8bcee378a645757d50e4871ba967d29ca88d6c41f66f51299",
+      "bytes": 750089
     },
     {
       "label": "Zero-gap edge \u2014 pending controller publication",
       "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-zero.mp4",
       "kind": "video",
-      "sha256": "3071d9e2043aad6fff61b40bc66e2eacdd10a57ebc0b82054c5bfb12f4f6d7cb",
-      "bytes": 788960
+      "sha256": "fd40543082918c6d3088da4b7942e98958fba7e7f572af86720f53e2f5b4e92e",
+      "bytes": 503496
     },
     {
-      "label": "Cargo regression \u2014 pending controller publication",
-      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-cargo-container-drive.mp4",
+      "label": "Shipping regression \u2014 pending controller publication",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-shipping-placement-playtest.mp4",
       "kind": "video",
-      "sha256": "7da35da7ba66f6e8aa968cfd8b191f2b5d019b42ca56b0637b8651870e843144",
-      "bytes": 1004581
+      "sha256": "94c2babe28312d1802201fbf6ecb3294f5f558a2d4d7c3ee357961f495396a97",
+      "bytes": 978264
     }
   ],
   "checks": [
-    "No deleted source/tests against reviewed base. Cargo source, UI integration, five-field persistence and both regression tests retained.",
+    "No deleted source/tests/evidence against merged shipping base. Terrain generator 3, ocean terrain, ports, protocol 23 and shipping tests/harness retained.",
     "Fresh media decoded at 0%, 50% and 95%, visually inspected, below 6 MB and matches isolated production F10 recordings.",
-    "Existing cargo evidence restored byte for byte; fresh artifacts use separate spacing names.",
+    "Existing shipping evidence restored byte for byte; fresh artifacts use separate spacing names.",
     "Source unchanged during validation; git diff --check passed."
   ],
   "ci": "Only local Linux verification claimed. Controller owns publication and platform CI.",
-  "bodyImages": [
+  "shippingImages": [
     {
-      "label": "Fresh jeep renderer capture \u2014 pending controller publication",
-      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-cargo-jeep.png",
+      "label": "Fresh coastal-port capture \u2014 pending controller publication",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-shipping-port-carrier.png",
       "kind": "image",
-      "sha256": "1cf8aec31f7d9dcb6d2db7d932fe14fad8d5450bfafb6a0739bfc28ff5ba4470"
-    },
-    {
-      "label": "Fresh container renderer capture \u2014 pending controller publication",
-      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-cargo-container.png",
-      "kind": "image",
-      "sha256": "cf593b07331f50c05000b20029a530312e75fd2713d536359c8e34caf1015b4e"
-    },
-    {
-      "label": "Fresh tanker renderer capture \u2014 pending controller publication",
-      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-cargo-tanker.png",
-      "kind": "image",
-      "sha256": "e71a87f7b935baa058f1188b9c983e9cde0bd984b3c79b34c661d118fc19c02e"
-    },
-    {
-      "label": "Fresh van renderer capture \u2014 pending controller publication",
-      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-cargo-van.png",
-      "kind": "image",
-      "sha256": "f1bf51853caeec7661fd5dd55af27e968524d08bd70d82697f23730c1d6a1232"
-    },
-    {
-      "label": "Fresh lorry renderer capture \u2014 pending controller publication",
-      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37653764393438302d353363332d346134312d626437312d626137346466336266356538/dashboard/evidence/road-spacing-cargo-lorry.png",
-      "kind": "image",
-      "sha256": "5b4ec9556c8462eadbf27abe201d02b7cae906dc6d3aa3e36beca72552cc7ed2"
+      "sha256": "f32e100d65711952fa405ddb98804f7af8d106b35d2a0ddc577f3dd9a051eeb0"
     }
   ],
   "postWriteMediaValidation": {
