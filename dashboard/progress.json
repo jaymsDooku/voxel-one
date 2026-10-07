@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T09:19:34+00:00",
+  "updatedAt": "2026-10-07T09:21:55+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -43,11 +43,31 @@
           "kind": "link",
           "label": "Audio preservation recovery checks \u2014 pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64313639356363352d646564652d343665352d383035322d626638613863656463643939/dashboard/evidence/carrier-audio-recovery-validation.json"
+        },
+        {
+          "kind": "link",
+          "label": "Final rebased-source validation \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64313639356363352d646564652d343665352d383035322d626638613863656463643939/dashboard/evidence/carrier-final-validation.json"
+        },
+        {
+          "kind": "image",
+          "label": "Fresh shallow-road regression \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64313639356363352d646564652d343665352d383035322d626638613863656463643939/dashboard/evidence/carrier-final-road-road-shallow.png"
+        },
+        {
+          "kind": "video",
+          "label": "Fresh road regression F10 clip \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64313639356363352d646564652d343665352d383035322d626638613863656463643939/dashboard/evidence/carrier-final-road-playtest.mp4"
+        },
+        {
+          "kind": "link",
+          "label": "Second recovery checks \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64313639356363352d646564652d343665352d383035322d626638613863656463643939/dashboard/evidence/carrier-second-recovery-validation.json"
         }
       ],
       "status": "in_progress",
-      "note": "Recovery files ready: vehicle audio and base progress preserved; 47 focused tests/verify passed. Controller must continue rebase. Edited-world route invalidation and fresh native return/reload checks remain required.",
-      "updatedAt": "2026-10-07T09:19:34+00:00"
+      "note": "Second recovery ready: 47 focused tests/verify passed; vehicle audio and roads preserved. Controller must stage/continue. Edited-world obstacles, cache invalidation and native return/reload remain open.",
+      "updatedAt": "2026-10-07T09:21:55+00:00"
     },
     {
       "id": "36623965383765392d303861652d343231642d393466392d633935633832613437313337",
