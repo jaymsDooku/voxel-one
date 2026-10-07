@@ -1,0 +1,68 @@
+{
+  "sourceHeadBeforeControllerCommit": "8d026b116f289cb9ac95b683cfa2573c1b0a8640",
+  "reviewBase": "41ed6e88d231435559810c788416832d2b13d136",
+  "change": "Wheel mounts rotate with the chassis; mount velocity includes angular motion. Suspension/traction forces act at ground contacts, adding contact-offset cross force torque. Traction requires compression and positive available load, capped by support and supplied load. Airborne drive/brake torque remains active without artificial traction.",
+  "commands": [
+    {
+      "command": "mvn -q -Dmaven.repo.local=target/maven-cache -Dmaven.compiler.release=17 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Djvm=/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Dtest=WheelContactTest,ContactTriggerTest,HingeInertiaTest,HingeSwingTest,PlatformCarryTest,DistanceLoadTest,PhysicsTest,CcdMotionTest,ForceInertiaTest,PlayerTest,JeepTest package > target/wheel-contact-build.txt 2>&1",
+      "result": "exit 0; 78 focused tests, zero failures/errors; package built"
+    },
+    {
+      "command": "python3 deploy/run_physics_smoke.py --display \"$DISPLAY\"",
+      "result": "exit 0; lab and production Main walker passed"
+    },
+    {
+      "command": "python3 deploy/run_physics_cli_smoke.py --display \"$DISPLAY\" --java /usr/lib/jvm/java-17-openjdk-amd64/bin/java",
+      "result": "exit 0; packaged lab opened and Escape closed it"
+    },
+    {
+      "command": "git diff --check",
+      "result": "exit 0"
+    }
+  ],
+  "Playtest": {
+    "environment": "Linux X11; inherited assigned DISPLAY/XAUTHORITY without reading cookie; Mesa software rendering; isolated synthetic profiles under target",
+    "steps": "Drive/reset sprung vehicle with native input. In running PhysicsLab, rotate chassis 0.4 radians about Y and support only one rotated wheel mount; call production PhysicsScene.step at 1/120 second and assert upward/angular response. Call airborne wheel force with spin 7 rad/s, no drive/brake, forward speed -10 and supplied load 7200; assert conserved spin and zero force. Capture fixture. Run all previous contact/trigger/hinge/load/platform/force/sliding fixtures, five lab scenes and Main stair/wall/jump/landing.",
+    "observed": {
+      "Playtest": "Production PhysicsScene suspension in running native PhysicsLab; rotated chassis, one supported wheel; isolated synthetic profile",
+      "expected": "Uneven support produces angular response; airborne wheel retains 7 rad/s without drive or brake",
+      "angularSpeedMagnitude": 0.11828313,
+      "airborneWheelRadPerSecond": 7.0,
+      "observed": "All assertions passed; prior physics and walker regressions follow"
+    },
+    "edges": "Focused tests passed zero-normal-load traction exclusion and airborne engine torque.",
+    "visual": "Fresh wheel-contact image inspected: rotated chassis and wheel fixture visible.",
+    "browser": "Not applicable: native Java LWJGL game."
+  },
+  "media": {
+    "status": "passed",
+    "source": "production F10 recorder in native physics collapse playtest",
+    "codec": "H264",
+    "bytes": 136452,
+    "decodedFrames": 10,
+    "width": 816,
+    "height": 544,
+    "durationSeconds": 4.221,
+    "checks": [
+      "Every frame decoded",
+      "Frame count matches MP4 metadata",
+      "First and last images differ",
+      "Below 6 MB artifact limit"
+    ]
+  },
+  "audit": "Entire diff against review base restricted to physics work, intended Main/Player/Jeep integration and retained reviewer artifacts. No deleted files. 189 upstream files and 71 prior progress entries preserved. Intentional Player axis-loop and Jeep inline-query replacements use shared voxel sweeps.",
+  "limits": [
+    "Full suite and macOS CI are not claimed passed; controller must verify CI.",
+    "Suspension uses vertical ground rays and horizontal projected forward traction as documented.",
+    "Advanced simulations remain explicit lab/API integrations.",
+    "Fresh media awaits controller publication; previous reports retain historical provenance."
+  ],
+  "sha256": {
+    "src/main/java/dev/jayms/physics/PhysicsScene.java": "4faefb8c0ca866788926c35b8a66d555596be7b6d8daf8ab6ce8354d84d342fc",
+    "src/main/java/dev/jayms/physics/VehicleForces.java": "55925aba7f960316fb0119f060967eeb0607ffeccf3cac313b7fdb1e2c0af2be",
+    "src/test/java/dev/jayms/physics/WheelContactTest.java": "ca0ca393aa9caadd3ca076d2654b17bbd380ee476c48f2736189984e55a4c501",
+    "deploy/PhysicsSmoke.java": "1368a0105901c81c7eafec81fabd0dad6fb6687d792ee9a785af824f9a2aca09",
+    "dashboard/evidence/physics-wheel-contact.png": "bdb2c2b82dffd4f9edbc5283c3ec90dc4620720cb06c6e5e6d72249d009e0d42",
+    "dashboard/evidence/physics-collapse.mp4": "9fcd5262b6aa9382cb41297d82066619f2cdc1e232a2a88a10b5b3509270e6c8"
+  }
+}

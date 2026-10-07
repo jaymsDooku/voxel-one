@@ -13,7 +13,9 @@ public final class VehicleForces {
             float compression=Math.max(0,restLength+radius-groundDistance);
             float support=Math.max(0,stiffness*compression-damping*verticalSpeed);
             float slip=angularSpeed*radius-forwardSpeed;
-            float traction=Math.max(-friction*normalLoad,Math.min(friction*normalLoad,slip*1200));
+            float availableLoad=compression>0?Math.min(support,Math.max(0,normalLoad)):0;
+            float limit=Math.max(0,friction)*availableLoad;
+            float traction=Math.max(-limit,Math.min(limit,slip*1200));
             float inertia=12*radius*radius;
             angularSpeed+=(driveTorque-traction*radius-Math.signum(angularSpeed)*Math.min(brakeTorque,Math.abs(angularSpeed)*inertia/dt))*dt/inertia;
             rotation+=angularSpeed*dt;previousCompression=compression;

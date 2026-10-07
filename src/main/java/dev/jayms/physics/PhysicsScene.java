@@ -51,10 +51,16 @@ public final class PhysicsScene implements AutoCloseable {
         platform.velocity.set(0,(float)Math.cos(time)*.8f,0);
         vehicle.force.add(VehicleForces.dragLift(vehicle.velocity,physics.wind,1.2f,4,.8f,.1f,new Vector3f(0,1,0)));
         for(int i=0;i<4;i++) {
-            Vector3f point=new Vector3f(vehicle.position).add(i%2==0?-.8f:.8f,0,i<2?-1.3f:1.3f);
+            Vector3f arm=vehicle.rotation.transform(new Vector3f(i%2==0?-.8f:.8f,0,i<2?-1.3f:1.3f));
+            Vector3f point=new Vector3f(vehicle.position).add(arm);
+            Vector3f forward=vehicle.rotation.transform(new Vector3f(1,0,0));forward.y=0;
+            if(forward.lengthSquared()>1e-8f)forward.normalize();else forward.zero();
+            Vector3f pointVelocity=new Vector3f(vehicle.angularVelocity).cross(arm).add(vehicle.velocity);
             var hit=physics.raycast(point,new Vector3f(0,-1,0),1.5f,1);
-            Vector3f force=wheels[i].force(hit==null?100:hit.distance(),vehicle.velocity.y,vehicle.velocity.x,drive*1600,drive==0?60:0,.8f,1200*24/4,dt);
+            Vector3f wheelForce=wheels[i].force(hit==null?100:hit.distance(),pointVelocity.y,pointVelocity.dot(forward),drive*1600,drive==0?60:0,.8f,1200*24/4,dt);
+            Vector3f force=forward.mul(wheelForce.x).add(0,wheelForce.y,0);
             vehicle.force.add(force);
+            if(hit!=null){Vector3f contactArm=new Vector3f(arm).add(0,-hit.distance(),0);vehicle.torque.add(contactArm.cross(force));}
         }
         if(scene==3) {
             int bx=Math.max(0,Math.min(11,(int)Math.floor(boat.position.x-1))),bz=Math.max(0,Math.min(7,(int)Math.floor(boat.position.z-2)));
