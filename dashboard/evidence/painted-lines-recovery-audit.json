@@ -1,0 +1,15 @@
+{
+  "status": "passed",
+  "reviewBase": "4de70d245c8af27fd2c76b86807daa34f0271d17",
+  "integratedMaster": "5b597007994ebd7131613eef51319cdd4f6daab8",
+  "deletedFiles": [],
+  "intendedDeletions": [],
+  "modifiedBaseFiles": [
+    "dashboard/progress.json",
+    "src/main/java/dev/jayms/Main.java",
+    "src/main/java/dev/jayms/render/MaterialTextures.java"
+  ],
+  "allBaseProgressEntriesUnchanged": true,
+  "baseFeatures": "All current-master files except road renderer integration, road texture mapping and task progress are unchanged. Stress-grid implementation, UI, terrain, tests, docs, media, protocol 26, version-15 save support and snapshot bounds checks are preserved.",
+  "phase": "Conflict contents resolved; controller must stage and continue rebase. Existing road media is historical until final-head rerun."
+}

@@ -1,0 +1,24 @@
+{
+  "status": "passed",
+  "testedHead": "4bed29ef5cb5a5c86487d1d4ee864082822b510c",
+  "reviewBase": "4de70d245c8af27fd2c76b86807daa34f0271d17",
+  "integratedMaster": "5b597007994ebd7131613eef51319cdd4f6daab8",
+  "deletedFiles": [],
+  "intendedDeletions": [],
+  "modifiedBaseFiles": [
+    "dashboard/progress.json",
+    "src/main/java/dev/jayms/Main.java",
+    "src/main/java/dev/jayms/render/MaterialTextures.java"
+  ],
+  "allBaseProgressEntriesUnchanged": true,
+  "baseFeatures": "All current-master files except road renderer integration, road texture mapping and task progress are unchanged. Stress-grid implementation, UI, terrain, tests, docs, media, protocol 26, version-15 save support and snapshot bounds checks are preserved.",
+  "testedSourceHashes": {
+    "src/main/java/dev/jayms/Main.java": "6863713cb6b78737150276a6f432218d246d13a810a993dbeb8f0a9dbcd54ab8",
+    "src/main/java/dev/jayms/render/MaterialTextures.java": "a3fe3b8917c0a484e2993d9160de7292efbd1b40c668a1c0a53d3acb52bca1f9",
+    "src/main/java/dev/jayms/net/city/RoadMarkings.java": "5d1245ba8bef134fe5c497d77ff5d3471f66de853a4e359173307739f6d83b66",
+    "src/main/java/dev/jayms/player/RoadMarkingModel.java": "cbb5790556636587bc192d79a2c007a642d42abfd9ed006f11666eaaf84c3dbc",
+    "src/test/java/dev/jayms/RoadMarkingsTest.java": "e44695865df5ca3a00d1c4e11d086174b40b3aff6af1317c21fea1af99e77860",
+    "src/test/java/dev/jayms/StressGridRoadMarkingsTest.java": "7ba067a0ec8f63d448250d7ff2168ed56ff4e9f15bfe29017b46357066de14c8"
+  },
+  "stressGridPaint": "Implicit grid ROAD_LINE textures now use asphalt; new bounded mesh preserves its cardinal painted dividers in detailed columns. StressGrid.java and terrain/snapshot/UI base source remain unchanged."
+}

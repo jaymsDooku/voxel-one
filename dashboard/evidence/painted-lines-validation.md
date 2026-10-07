@@ -1,0 +1,24 @@
+Superseded by painted-lines-integrated-validation.md. The same-named road PNGs and F10 video have now been replaced by fresh integrated-source captures. Earlier observations below are retained as test history; their old media size/frame counts do not describe the current artifacts.
+
+Recovery status: previous tests and media below predate master integration. See painted-lines-recovery.md. Fresh final-head native checks and media await controller rebase continuation.
+
+Continuous painted road markings
+
+Implementation: road stripe textures now use asphalt. A cached upward-facing mesh follows the saved street polyline. Lane separators are 0.125 blocks wide. Clip polygons to current visible owned road cells and use each cell's road height. Dirt has no paint. Road widths, ownership, save format and protocol are unchanged. Mixed-width sections use each owned cell's type. Bends share bounded miter endpoints. No unrelated feature deletion is intended.
+
+Environment: Linux, Maven 3.9.11, cached /tmp/voxel-m2 dependencies, Linux LWJGL natives, worktree-local target/tmp. Native checks use inherited role DISPLAY and XAUTHORITY, Mesa software rendering, and a fresh isolated synthetic offline profile. Credentials and runtime logs are excluded from evidence.
+
+Command: `MAVEN_OPTS="-Djava.io.tmpdir=$PWD/target/tmp" /tmp/apache-maven-3.9.11/bin/mvn -q -Dmaven.repo.local=/tmp/voxel-m2 -Dlwjgl.natives=natives-linux -DargLine="-Djava.io.tmpdir=$PWD/target/tmp" -Dtest=RoadMarkingsTest,RoadTypesTest,RoadWorkflowTest,MixedRoadOwnershipTest test > target/paint-tests-final-head.txt 2>&1`
+Expected: diagonal stripe area is exactly length times width, all paint lies on road cells, dirt has no paint, restart preserves mesh, deletion removes paint; existing road and ownership workflows pass. Observed: exit 0; 26 tests, zero failures/errors/skips. Dense interior samples also verify every divider at shallow, steep and reverse headings. End-cap paint is clipped to road cells; a preliminary strict full-area test failed on that expected clipping, then was replaced with interior coverage checks. Initial compilation failed because footprints have per-cell types; corrected by grouping visible cells by type. Those initial attempts are not counted as passing.
+
+Command: `python3 -m py_compile deploy/run_painted_lines_smoke.py`; observed exit 0. `git diff --check`; observed exit 0.
+
+Playtest: `python3 deploy/run_painted_lines_smoke.py --display "$DISPLAY" --scenario road > target/paint-native-flat.txt 2>&1` exited 0. Production Main ran on inherited X11 with Mesa software rendering. Isolated synthetic city profile: target/painted-lines-road-home; synthetic terrain test area flattened before clicks. Real X11 input opened Roads, tested zero-budget rejection and retry, chained a cardinal section, selected/widened/deleted it, built a diagonal, selected/widened/deleted it, then placed shallow-angle dirt, 2-lane, 3-lane and 4-lane roads. Expected: continuous route-aligned paint on paved roads, no paint on dirt, unchanged rejection/edit/delete behavior. Observed: all seven running-game assertion groups passed. Inspected fresh diagonal and shallow-angle PNGs: straight continuous dividers span the stepped asphalt blocks; shallow 2/3/4-lane roads display 1/2/3 dividers. Selected widened-road image captures the selection grid while terrain mesh updates; use the unselected diagonal/shallow images for paint inspection.
+
+Initial preserved harness failed its retry assertion because fixed-height projection clicked wrong cells on uneven terrain. Surface-aware rerun hit its viewport guard. Final harness projects actual surface heights and cell centers, seeds a flat synthetic test area, and changes synthetic budget on the game thread. Failed attempts are not passing evidence. Only final successful-run captures are attached.
+
+Fresh production F10 video: painted-lines-road-playtest.mp4, 4,017,302 bytes, within 6 MB limit. Artifacts are pending controller publication on this assigned feature branch. No stock or historical media used.
+
+Diff audit: local changes add road paint geometry, renderer integration, targeted checks, native harness and task evidence. No file deletions. No recorded synchronized review base was supplied in this turn; the controller must integrate latest master before review and request fresh checks if source changes. No Git publication or deployment performed.
+
+Media verification: `python3 deploy/verify_painted_lines_media.py --scenario road > target/paint-media-check.txt 2>&1` exited 0. All 170 H264 frames decoded; 960 x 544, 150.154 seconds, 4,017,302 bytes. Start, middle and near-end samples decoded. Fresh decoded near-end image inspected and matches shallow-angle road PNGs. All checks reflect this implementation.

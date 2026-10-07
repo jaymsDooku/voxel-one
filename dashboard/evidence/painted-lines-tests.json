@@ -1,0 +1,35 @@
+{
+  "platform": "Linux; Maven 3.9.11; Linux LWJGL natives; cached dependencies",
+  "command": "MAVEN_OPTS=\"-Djava.io.tmpdir=$PWD/target/tmp\" /tmp/apache-maven-3.9.11/bin/mvn -q -Dmaven.repo.local=/tmp/voxel-m2 -Dlwjgl.natives=natives-linux -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=RoadMarkingsTest,RoadTypesTest,RoadWorkflowTest,MixedRoadOwnershipTest test",
+  "exit": 0,
+  "suites": [
+    {
+      "suite": "RoadMarkingsTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "RoadTypesTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "RoadWorkflowTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "MixedRoadOwnershipTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ]
+}

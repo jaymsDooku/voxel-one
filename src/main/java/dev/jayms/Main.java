@@ -50,6 +50,7 @@ public class Main {
     private HorseModel horseModel;
     private PlaneModel planeModel;
     private RailwayModel railwayModel;
+    private RoadMarkingModel roadMarkingModel;
     private ShipModel shipModel;
     private final ShippingRoutes shippingRoutes = new ShippingRoutes();
     private Jeep jeep;
@@ -280,6 +281,7 @@ public class Main {
         horseModel = new HorseModel();
         planeModel = new PlaneModel();
         railwayModel = new RailwayModel();
+        roadMarkingModel = new RoadMarkingModel();
         shipModel = new ShipModel();
         farmModels = new FarmModels();
         if (network == null) {
@@ -1164,6 +1166,7 @@ public class Main {
             if (pose != null) farmModels.cow(cow, pose, shader);
         }
         for (var plane : Aviation.planes(city())) planeModel.render(plane, shader);
+        roadMarkingModel.render(city(), detailed, shader);
         railwayModel.render(city(), shader);
         for (var ship : shippingRoutes.ships(city(), world)) shipModel.render(ship, shader);
         for (var h : city().horses()) {
@@ -1537,6 +1540,7 @@ public class Main {
         if (horseModel != null) horseModel.close();
         if (planeModel != null) planeModel.close();
         if (railwayModel != null) railwayModel.close();
+        if (roadMarkingModel != null) roadMarkingModel.close();
         if (shipModel != null) shipModel.close();
         if (jeepModel != null) jeepModel.close();
         farmModels.close();
