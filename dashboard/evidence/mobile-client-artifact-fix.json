@@ -1,0 +1,29 @@
+{
+  "sourceHead": "ce29ef3709a74dfb5d78e7fd24536dfaa819192d",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/37701214985",
+  "remoteResult": {
+    "environmentReady": true,
+    "clientChecked": false,
+    "phase": "client_script",
+    "status": "failed"
+  },
+  "observed": "Downloaded artifact contains only report.json and preflight.png. No client-failure.json survived the workflow uploader. Inspected screenshot: fresh simulator home screen, no Voxel One gameplay.",
+  "fix": "Explicitly retain sanitized client-failure.json, client-result.json, native-workflow-results.json and native workflow/failure PNG attachments. Raw logs, profiles and xcresult excluded. Controller must dispatch from trusted workflow with updated upload paths; feature-source checkout alone cannot change trusted uploader.",
+  "tests": [
+    {
+      "command": "python3 -m unittest discover -s tools/ios -p 'test_*.py' -q",
+      "result": "28 passed; mock contract checks only."
+    },
+    {
+      "command": "bash -n ios/check-simulator.sh; git diff --check",
+      "result": "Passed."
+    },
+    {
+      "command": "python3 ios/check-results.py failure SYNTHETIC_REPO SYNTHETIC_EVIDENCE ce29ef3709a74dfb5d78e7fd24536dfaa819192d E9650DD0-28C5-4459-98E8-849B36376557",
+      "environment": "Linux; temporary synthetic fixture under assigned worktree target directory; IOS_CHECK_STAGE=native_build",
+      "expected": "Fixed stage and compiler diagnostic retained; runtime marker excluded. Workflow upload patterns include sanitized JSON/PNG outputs and exclude raw logs/profiles/xcresult.",
+      "observed": "All assertions passed. No actual compiler execution or native app validation claimed."
+    }
+  ],
+  "playtest": "Native app check failed before acceptance; build/test failure detail missing from uploaded artifact. No gameplay evidence exists for this run. CLI artifact integration exercised; browser playtesting does not apply to workflow upload paths."
+}
