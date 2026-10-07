@@ -1,0 +1,16 @@
+{
+  "status": "passed",
+  "source": "fresh production F10 long-road playtest, resized with unchanged frame timestamps",
+  "codec": "H264",
+  "bytes": 4417427,
+  "decodedFrames": 220,
+  "width": 720,
+  "height": 416,
+  "durationSeconds": 257.022,
+  "checks": [
+    "Every frame decoded",
+    "Frame count matches MP4 metadata",
+    "First and last images differ",
+    "Below 6 MB artifact limit"
+  ]
+}

@@ -2029,7 +2029,11 @@ public final class CitySimulation {
                     && (int)Math.floor(points.get(i-1).z()) == (int)Math.floor(points.get(i).z()))
                 throw new IllegalArgumentException("Road endpoints must differ");
         var surfaces = RoadGeometry.surfaces(points,type);
-        var cells = surfaces.keySet();        if (cells.size() > 768 || roads.size() + cells.stream().filter(c -> !roads.containsKey(c)).count() > 8192)
+        var cells = surfaces.keySet();
+        // Chaining can merge valid placements into a street larger than one placement.
+        // Existing streets may be edited within the same bounded city/ownership capacity.
+        if (cells.size() > (editing == 0 ? 768 : 8192)
+                || roads.size() + cells.stream().filter(c -> !roads.containsKey(c)).count() > 8192)
             throw new IllegalArgumentException("Road too long: use shorter sections");
         for (var cell : cells) {
             if (specialCell(cell.x(), cell.z())) throw new IllegalArgumentException("Road cannot cover a special building");

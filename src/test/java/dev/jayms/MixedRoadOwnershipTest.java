@@ -78,6 +78,46 @@ class MixedRoadOwnershipTest {
         restored.command(new CityCommand(CityCommand.DELETE_ROAD,legacy.addresses().nearest(95,90).id(),List.of()),1,null);
         assertSurvivor(restored,ground,1,vertical);
     }
+    @Test void longChainedStreetCanResizeSaveReloadAndDelete() throws Exception {
+        var ground=new CityTest.Ground(); var city=new CityTest().simulation(ground);
+        city.economy.budget=100000; // Synthetic funds isolate geometry from budget rejection.
+        for(int x=20;x<180;x+=20)
+            assertTrue(build(city,3,List.of(new Polygon.Point(x,90),new Polygon.Point(x+20,90))).contains("built:"));
+        int id=city.frame().addresses().nearest(30,90).id();
+        assertEquals(1127,RoadGeometry.section(city.frame(),id).size());
+        assertTrue(city.command(new CityCommand(CityCommand.EDIT_ROAD,id,List.of(new Polygon.Point(2,0))),1,null).contains("edited"));
+        assertEquals(805,RoadGeometry.section(city.frame(),id).size());
+        assertTrue(city.command(new CityCommand(CityCommand.EDIT_ROAD,id,List.of(new Polygon.Point(3,0))),1,null).contains("edited"));
+        assertEquals(1127,RoadGeometry.section(city.frame(),id).size());
+        var save=temp.resolve("long.city");city.save(save);
+        var loaded=CitySimulation.load(save); assertEquals(city.frame(),loaded);
+        var restored=new CitySimulation(loaded.config(),ground,ground.terrain,loaded);
+        assertEquals("Road section deleted",restored.command(new CityCommand(CityCommand.DELETE_ROAD,id,List.of()),1,null));
+        assertTrue(RoadGeometry.section(restored.frame(),id).isEmpty());
+    }
+    @Test void longWideningStillHonorsCityCapacityWithoutMutation() {
+        var ground=new CityTest.Ground(); var city=new CityTest().simulation(ground);city.economy.budget=100000;
+        for(int x=20;x<180;x+=20) build(city,2,List.of(new Polygon.Point(x,90),new Polygon.Point(x+20,90)));
+        var f=city.frame();var roads=new ArrayList<>(f.roads());
+        for(int x=20;x<240 && roads.size()<8192;x++) for(int z=120;z<200 && roads.size()<8192;z++)
+            roads.add(new CityFrame.Road(x,z,f.roads().get(0).y(),1));
+        assertEquals(8192,roads.size());
+        var full=new CityFrame(f.config(),f.elapsed(),roads,f.zones(),f.buildings(),f.citizens(),f.horses(),f.economy(),f.addresses(),f.agriculture(),f.population(),f.aviation());
+        var restored=new CitySimulation(full.config(),ground,ground.terrain,full);
+        int id=restored.frame().addresses().nearest(30,90).id();var before=restored.frame();var edits=new LinkedHashMap<>(ground.edits);
+        assertEquals("Road too long: use shorter sections",restored.command(new CityCommand(CityCommand.EDIT_ROAD,id,List.of(new Polygon.Point(3,0))),1,null));
+        assertEquals(before,restored.frame());assertEquals(edits,ground.edits);
+    }
+    @Test void placementLimitAndOccupiedLongEditStillRejectWithoutMutation() {
+        var ground=new CityTest.Ground(); var city=new CityTest().simulation(ground);
+        var before=city.frame(); var edits=new LinkedHashMap<>(ground.edits);
+        assertEquals("Road too long: use shorter sections",build(city,3,List.of(new Polygon.Point(20,90),new Polygon.Point(180,90))));
+        assertEquals(before,city.frame());assertEquals(edits,ground.edits);
+        for(int x=20;x<180;x+=20) build(city,3,List.of(new Polygon.Point(x,90),new Polygon.Point(x+20,90)));
+        int id=city.frame().addresses().nearest(30,90).id();before=city.frame();edits=new LinkedHashMap<>(ground.edits);ground.occupied=true;
+        assertEquals("Road would intersect a player",city.command(new CityCommand(CityCommand.EDIT_ROAD,id,List.of(new Polygon.Point(2,0))),1,null));
+        assertEquals(before,city.frame());assertEquals(edits,ground.edits);
+    }
     @Test void partialWidthUpgradeOnNamedRouteKeepsEachOwnedCellType() {
         var ground=new CityTest.Ground(); var city=new CityTest().simulation(ground);
         build(city,1,horizontal); build(city,3,List.of(new Polygon.Point(110,90),new Polygon.Point(120,90)));
