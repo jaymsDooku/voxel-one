@@ -1,0 +1,19 @@
+{
+  "Playtest": "Packaged Main --physics-lab entry point; Linux X11; inherited assigned DISPLAY/XAUTHORITY; isolated synthetic profile; Mesa software rendering",
+  "command": [
+    "/usr/lib/jvm/java-17-openjdk-amd64/bin/java",
+    "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/63386663653465302d303138612d346331372d396364302d353961636235626436613632/target/tmp",
+    "-Duser.home=/home/debian/codex/voxel-one-queue-worktrees/63386663653465302d303138612d346331372d396364302d353961636235626436613632/target/physics-cli-home",
+    "-jar",
+    "/home/debian/codex/voxel-one-queue-worktrees/63386663653465302d303138612d346331372d396364302d353961636235626436613632/target/voxel-one-1.0-SNAPSHOT-client.jar",
+    "--physics-lab"
+  ],
+  "steps": [
+    "Launch packaged client through Main --physics-lab",
+    "Find its own X11 window by process ID",
+    "Send Escape through X11 and wait for exit"
+  ],
+  "expected": "Window opens and Escape exits with code 0",
+  "observed": "Window opened; Escape exited with code 0",
+  "browser": "Not applicable: native LWJGL application."
+}

@@ -1,6 +1,6 @@
 {
   "status": "resolved_files_await_controller_rebase_continue",
-  "recordedAt": "2026-10-07T20:36:30.532685+00:00",
+  "recordedAt": "2026-10-07T20:37:45.213784+00:00",
   "checks": [
     {
       "command": "git show :2:dashboard/progress.json; git show :3:dashboard/progress.json (parsed privately; only relevant item inspected)",
@@ -37,6 +37,20 @@
       "resolution": "Preserved all upstream root metadata and nonphysics entries; inserted replayed physics entry with recovery note.",
       "checks": "JSON parses, unique IDs, exact upstream nonphysics entries, upstream city/network source and existing tests/populated media unchanged; no deletions or unrelated diff paths against new review base.",
       "pending": "Controller replays remaining physics corrections, including joint-load fix; final-head playtests/media not run during partial rebase."
+    },
+    {
+      "conflict": "dashboard/progress.json",
+      "resolution": "Retained stage2 root metadata and all 70 non-physics entries; replaced only physics entry with replayed stage3 physics validation data and a recovery note.",
+      "checks": "Valid JSON, unique IDs, upstream city source/coverage byte matches, no deleted files against reviewer base, git diff --check exit 0.",
+      "Playtest": "Deferred until controller completes rebase. Earlier media/tests describe historical source; final-head city and physics playtests and macOS CI remain pending."
+    },
+    {
+      "conflicts": [
+        "dashboard/progress.json",
+        "dashboard/evidence/physics-rebase-recovery.json"
+      ],
+      "resolution": "Preserved all upstream progress/root metadata; retained replayed physics entry; merged both recovery reports and deduplicated history lists.",
+      "Playtest": "Pending final rebase source; earlier validation remains historical. Remaining joint-load commits must replay."
     }
   ]
 }

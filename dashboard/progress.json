@@ -41,8 +41,8 @@
         }
       ],
       "status": "in_progress",
-      "note": "Rebase recovery: newest upstream features preserved. Remaining physics commits must replay, including velocity/load fixes for ropes and hinges. Final-head validation and fresh media pending controller continuation.",
-      "updatedAt": "2026-10-07T18:33:44.209532+00:00"
+      "note": "Rebase recovery: replayed physics validation retained and newest upstream features preserved. Remaining joint-load fixes and final-head checks await controller continuation.",
+      "updatedAt": "2026-10-07T18:45:41.242518+00:00"
     },
     {
       "id": "36346562663133302d383033312d343733612d616132342d393031326464616132313235",
