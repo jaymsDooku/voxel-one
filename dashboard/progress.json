@@ -73,6 +73,11 @@
           "kind": "link",
           "label": "Mixed-width validation \u2014 pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63363064363463302d316661372d346365352d386366352d346661663863373732396561/dashboard/evidence/road-mixed-validation.md"
+        },
+        {
+          "kind": "link",
+          "label": "Final road/shipping validation \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63363064363463302d316661372d346365352d386366352d346661663863373732396561/dashboard/evidence/road-shipping-final-validation.md"
         }
       ],
       "status": "in_progress",

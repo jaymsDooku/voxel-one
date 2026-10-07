@@ -1,0 +1,16 @@
+{
+  "status": "passed",
+  "source": "production F10 recorder in native mixed playtest",
+  "codec": "H264",
+  "bytes": 2579749,
+  "decodedFrames": 118,
+  "width": 960,
+  "height": 544,
+  "durationSeconds": 93.414,
+  "checks": [
+    "Every frame decoded",
+    "Frame count matches MP4 metadata",
+    "First and last images differ",
+    "Below 6 MB artifact limit"
+  ]
+}

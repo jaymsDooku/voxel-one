@@ -1,0 +1,14 @@
+{
+  "exitCode": 0,
+  "command": "MAVEN_OPTS=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/63363064363463302d316661372d346365352d386366352d346661663863373732396561/target/tmp /tmp/apache-maven-3.9.11/bin/mvn --batch-mode -q -Dmaven.repo.local=/tmp/voxel-m2 -Dlwjgl.natives=natives-linux -DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/63363064363463302d316661372d346365352d386366352d346661663863373732396561/target/tmp -Dtest=MultiplayerTest test",
+  "suites": [
+    {
+      "name": "dev.jayms.MultiplayerTest",
+      "tests": "15",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "time": "172.378"
+    }
+  ]
+}

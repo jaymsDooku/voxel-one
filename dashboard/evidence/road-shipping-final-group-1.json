@@ -1,0 +1,86 @@
+{
+  "exitCode": 0,
+  "command": "MAVEN_OPTS=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/63363064363463302d316661372d346365352d386366352d346661663863373732396561/target/tmp /tmp/apache-maven-3.9.11/bin/mvn --batch-mode -q -Dmaven.repo.local=/tmp/voxel-m2 -Dlwjgl.natives=natives-linux -DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/63363064363463302d316661372d346365352d386366352d346661663863373732396561/target/tmp -Dtest=AccountStoreTest,CapitalInspectorTest,ControlsTest,DemolitionTest,InventoryHudTest,ModelSculptorTest,RegionalSaveCompatibilityTest,VideoRecordingTest,ShippingAviationCompatibilityTest,RoadWorkflowTest test",
+  "suites": [
+    {
+      "name": "dev.jayms.AccountStoreTest",
+      "tests": "2",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "time": "5.722"
+    },
+    {
+      "name": "dev.jayms.CapitalInspectorTest",
+      "tests": "1",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "time": "0.03"
+    },
+    {
+      "name": "dev.jayms.ControlsTest",
+      "tests": "5",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "time": "0.14"
+    },
+    {
+      "name": "dev.jayms.DemolitionTest",
+      "tests": "3",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "time": "44.824"
+    },
+    {
+      "name": "dev.jayms.InventoryHudTest",
+      "tests": "2",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "time": "0.064"
+    },
+    {
+      "name": "dev.jayms.ModelSculptorTest",
+      "tests": "3",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "time": "0.065"
+    },
+    {
+      "name": "dev.jayms.RegionalSaveCompatibilityTest",
+      "tests": "4",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "time": "0.592"
+    },
+    {
+      "name": "dev.jayms.VideoRecordingTest",
+      "tests": "7",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "time": "0.719"
+    },
+    {
+      "name": "dev.jayms.ShippingAviationCompatibilityTest",
+      "tests": "3",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "time": "1.972"
+    },
+    {
+      "name": "dev.jayms.RoadWorkflowTest",
+      "tests": "5",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "time": "0.308"
+    }
+  ]
+}

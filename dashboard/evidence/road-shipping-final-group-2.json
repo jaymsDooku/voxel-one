@@ -1,0 +1,87 @@
+{
+  "exitCode": 0,
+  "command": "MAVEN_OPTS=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/63363064363463302d316661372d346365352d386366352d346661663863373732396561/target/tmp /tmp/apache-maven-3.9.11/bin/mvn --batch-mode -q -Dmaven.repo.local=/tmp/voxel-m2 -Dlwjgl.natives=natives-linux -DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/63363064363463302d316661372d346365352d386366352d346661663863373732396561/target/tmp -Dtest=AgricultureTest,CityStockExchangeTest,CraftingTest,ExchangeLabourMarketTest,LightingTest,PopulationJourneyTest,ShopRestockMarketTest,ShippingProtocolCompatibilityTest,MixedRoadOwnershipTest,RegionalPopulationTest test",
+  "collectorNote": "Maven exited0; wrapper initially failed namespace lookup. Collected existing fresh passing XML using unique class-name glob; no rerun claimed.",
+  "suites": [
+    {
+      "name": "dev.jayms.AgricultureTest",
+      "tests": "8",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "time": "153.287"
+    },
+    {
+      "name": "dev.jayms.net.city.CityStockExchangeTest",
+      "tests": "10",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "time": "0.06"
+    },
+    {
+      "name": "dev.jayms.CraftingTest",
+      "tests": "6",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "time": "0.102"
+    },
+    {
+      "name": "dev.jayms.ExchangeLabourMarketTest",
+      "tests": "6",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "time": "0.282"
+    },
+    {
+      "name": "dev.jayms.LightingTest",
+      "tests": "5",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "time": "0.094"
+    },
+    {
+      "name": "dev.jayms.PopulationJourneyTest",
+      "tests": "2",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "time": "33.988"
+    },
+    {
+      "name": "dev.jayms.ShopRestockMarketTest",
+      "tests": "4",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "time": "0.088"
+    },
+    {
+      "name": "dev.jayms.ShippingProtocolCompatibilityTest",
+      "tests": "2",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "time": "3.708"
+    },
+    {
+      "name": "dev.jayms.MixedRoadOwnershipTest",
+      "tests": "5",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "time": "2.707"
+    },
+    {
+      "name": "dev.jayms.RegionalPopulationTest",
+      "tests": "10",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "time": "0.955"
+    }
+  ]
+}

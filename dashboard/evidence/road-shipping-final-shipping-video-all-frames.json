@@ -1,0 +1,16 @@
+{
+  "status": "passed",
+  "source": "production F10 recorder in native shipping playtest",
+  "codec": "H264",
+  "bytes": 916896,
+  "decodedFrames": 30,
+  "width": 960,
+  "height": 544,
+  "durationSeconds": 24.188,
+  "checks": [
+    "Every frame decoded",
+    "Frame count matches MP4 metadata",
+    "First and last images differ",
+    "Below 6 MB artifact limit"
+  ]
+}
