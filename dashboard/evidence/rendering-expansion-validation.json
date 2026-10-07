@@ -1,143 +1,177 @@
 {
-  "status": "ready_for_independent_review",
-  "rendererSourceSha256": "48d0718193c5d1db4327fed5d76e2479ac8c623b3bfad5de0265aff117505f21",
+  "status": "Ready for independent review; fresh media pending controller publication",
+  "rendererSourceSha256": "5d57fa9b1917dc962ae97fd648851643a172d8b7c796ed2915c06f6deaad1453",
   "platform": "Linux assigned inherited X11 DISPLAY and XAUTHORITY; Mesa llvmpipe; verified native Java 21.0.5; compile source/target 17; isolated synthetic profiles",
   "focusedSuites": [
     {
       "name": "dev.jayms.RenderingAlgorithmsTest",
-      "time": "0.066",
+      "time": "0.061",
       "tests": "9",
       "errors": "0",
       "skipped": "0",
-      "failures": "0"
+      "failures": "0",
+      "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+      "version": "3.0.2"
     },
     {
       "name": "dev.jayms.LightingTest",
-      "time": "0.034",
+      "time": "0.072",
       "tests": "5",
       "errors": "0",
       "skipped": "0",
-      "failures": "0"
+      "failures": "0",
+      "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+      "version": "3.0.2"
     },
     {
       "name": "dev.jayms.LightOcclusionTest",
-      "time": "1.489",
+      "time": "1.576",
       "tests": "6",
       "errors": "0",
       "skipped": "0",
-      "failures": "0"
+      "failures": "0",
+      "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+      "version": "3.0.2"
     },
     {
       "name": "dev.jayms.FractionalWorldTest",
-      "time": "0.111",
+      "time": "0.1",
       "tests": "7",
       "errors": "0",
       "skipped": "0",
-      "failures": "0"
+      "failures": "0",
+      "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+      "version": "3.0.2"
     },
     {
       "name": "dev.jayms.DistantTerrainTest",
-      "time": "0.123",
+      "time": "0.121",
       "tests": "6",
       "errors": "0",
       "skipped": "0",
-      "failures": "0"
+      "failures": "0",
+      "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+      "version": "3.0.2"
     },
     {
       "name": "dev.jayms.StressGridLightingTest",
-      "time": "1.195",
+      "time": "1.762",
       "tests": "1",
       "errors": "0",
       "skipped": "0",
-      "failures": "0"
+      "failures": "0",
+      "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+      "version": "3.0.2"
     },
     {
       "name": "dev.jayms.CityMaterialsTest",
-      "time": "21.147",
+      "time": "27.598",
       "tests": "13",
       "errors": "0",
       "skipped": "0",
-      "failures": "0"
+      "failures": "0",
+      "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+      "version": "3.0.2"
     },
     {
       "name": "dev.jayms.PlayerCameraTest",
-      "time": "0.028",
+      "time": "0.045",
       "tests": "3",
       "errors": "0",
       "skipped": "0",
-      "failures": "0"
+      "failures": "0",
+      "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+      "version": "3.0.2"
     },
     {
       "name": "dev.jayms.RoadMarkingsTest",
-      "time": "0.399",
+      "time": "0.415",
       "tests": "4",
       "errors": "0",
       "skipped": "0",
-      "failures": "0"
+      "failures": "0",
+      "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+      "version": "3.0.2"
     },
     {
       "name": "dev.jayms.IsometricCameraTest",
-      "time": "0.068",
+      "time": "0.071",
       "tests": "8",
       "errors": "0",
       "skipped": "0",
-      "failures": "0"
+      "failures": "0",
+      "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+      "version": "3.0.2"
     },
     {
       "name": "dev.jayms.VoxelModelTest",
-      "time": "0.106",
+      "time": "0.142",
       "tests": "6",
       "errors": "0",
       "skipped": "0",
-      "failures": "0"
+      "failures": "0",
+      "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+      "version": "3.0.2"
     },
     {
       "name": "dev.jayms.EngineEditorTest",
-      "time": "0.042",
+      "time": "0.037",
       "tests": "3",
       "errors": "0",
       "skipped": "0",
-      "failures": "0"
+      "failures": "0",
+      "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+      "version": "3.0.2"
     },
     {
       "name": "dev.jayms.VehicleAudioTest",
-      "time": "0.002",
+      "time": "0.003",
       "tests": "1",
       "errors": "0",
       "skipped": "0",
-      "failures": "0"
+      "failures": "0",
+      "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+      "version": "3.0.2"
     },
     {
       "name": "dev.jayms.CityFormat16RegressionTest",
-      "time": "0.071",
+      "time": "0.087",
       "tests": "2",
       "errors": "0",
       "skipped": "0",
-      "failures": "0"
+      "failures": "0",
+      "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+      "version": "3.0.2"
     },
     {
       "name": "dev.jayms.EditHistoryTest",
-      "time": "0.022",
+      "time": "0.052",
       "tests": "1",
       "errors": "0",
       "skipped": "0",
-      "failures": "0"
+      "failures": "0",
+      "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+      "version": "3.0.2"
     },
     {
       "name": "dev.jayms.StressGridDevelopmentTest",
-      "time": "33.985",
+      "time": "45.682",
       "tests": "3",
       "errors": "0",
       "skipped": "0",
-      "failures": "0"
+      "failures": "0",
+      "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+      "version": "3.0.2"
     },
     {
       "name": "dev.jayms.CityTest",
-      "time": "6.595",
+      "time": "6.649",
       "tests": "10",
       "errors": "0",
       "skipped": "0",
-      "failures": "0"
+      "failures": "0",
+      "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+      "version": "3.0.2"
     }
   ],
   "focusedTotal": 88,
@@ -154,8 +188,11 @@
   ],
   "diffAudit": {
     "base": "41ed6e88d231435559810c788416832d2b13d136",
-    "deletedFiles": [],
-    "scope": "Full proposed tree audited against current recorded base. Unrelated Space game, website/navigation, tests, harnesses and historical evidence remain exact base matches. This revision adds finite LED segment shadows, GPU checks and a documented coarse-cell limit. Intentional rendering replacements in complete diff remain greedy faces, screen-error LOD, cascades, atmosphere, temporal post and held-item ordering. No unrelated deletions."
+    "deletedPaths": [],
+    "spaceFeaturePathsCompared": 34,
+    "spaceFeatureMismatches": [],
+    "scope": "Whole diff inspected: rendering code, shaders, test harnesses, documentation and task evidence/progress only. Historical restoration captures retained. No intended file deletions.",
+    "otherProgressEntriesMatchBase": true
   },
   "limits": [
     "Single-scattering atmosphere; screen-space effects miss offscreen geometry.",
@@ -165,93 +202,53 @@
     "Software Mesa playtesting does not establish physical GPU frame-rate targets.",
     "Full suite is not claimed as passed; controller CI and independent review remain required."
   ],
-  "completedAt": "2026-10-07T21:11:43.539294+00:00",
-  "playtest": "Playtest: production LED visibility helper executed on real GPU with actual transport data; 14 before/beyond/emitter/edge cases measured by float readback. Production native LWJGL gallery, real W/F10/F6, 333x271 resize at .65 scale and Escape menu exercised with inherited assigned X11 and isolated synthetic profile. Browser playtesting does not apply to this native shader fix; unrelated browser feature blobs remain unchanged.",
-  "visualInspection": "Fresh production LED gallery and fully decoded video midpoint inspected. Fresh GL3.3 4x water image shows submerged textured floor and wall. New native media excludes personal profiles and account data. Older restoration/browser artifacts remain historical evidence; no fresh browser check claimed for this shader change.",
+  "completedAt": "2026-10-07T21:40:44.177767+00:00",
+  "playtest": {
+    "environment": "Linux, inherited assigned DISPLAY/XAUTHORITY; Mesa llvmpipe; strict GL 3.3; isolated target/render-home and target/render-main-home synthetic profiles. Native application; browser playtesting does not apply.",
+    "steps": [
+      "Capture six probe faces after accepted GI and completed cascades; read back all four scene lighting switches and recursion switch.",
+      "Compare actual receiver pixels with shadows off and clustered lighting off; LED mesh is outside the receiver face.",
+      "Edit LED color without changing geometry; require invalidated readiness, an accepted GI bake, six fresh faces and changed receiver pixels.",
+      "Run existing temporal, water, emitter-removal, dynamic resolution and resize checks.",
+      "Run production W movement, F10 recording, F6, 333x271 resize at 0.65 scale, Escape menu."
+    ]
+  },
+  "visualInspection": "Fresh GL 3.3 HDR receiver readbacks show floor/wall lighting and changed LED tint. Fresh production video midpoint inspected: synthetic LED gallery, textured walls/floor, sky and HUD; no private data.",
   "media": [
     {
-      "file": "rendering-expansion-decals.png",
-      "sha256": "48cbccea1e827d3ca4dfb408c28934e9bff073a7d85cb65e8910d499060d01e3",
-      "bytes": 342285,
+      "file": "rendering-expansion-probe-lit.png",
+      "bytes": 5416,
+      "sha256": "6df727888496d65fad364cab914ece51569ff33c2ab8afc42d821dcedf66e08e",
       "publication": "pending controller publication",
-      "source": "fresh corrected LED rendering implementation"
+      "fresh": true
     },
     {
-      "file": "rendering-expansion-graded.png",
-      "sha256": "2be3e22b82da3fb52cd8fa23a544a36822a22253380def702e8e2adeefb2471a",
-      "bytes": 297688,
+      "file": "rendering-expansion-probe-led-edit.png",
+      "bytes": 5126,
+      "sha256": "eb3e61f3f7b199169f364b450ad4fea31b35a1a365183f52cc5f5f787dc31632",
       "publication": "pending controller publication",
-      "source": "fresh corrected LED rendering implementation"
+      "fresh": true
     },
     {
       "file": "rendering-expansion-main-gallery.png",
-      "sha256": "84a8feaf178b01eb3f3e2de10560abe4f12d287e92c8ab9c5b4045b1e31332ac",
-      "bytes": 306889,
+      "bytes": 312029,
+      "sha256": "853a7dc9ed074fb17d51e58a25c7897b8985976e4c269e4aedb2d34bcd97336a",
       "publication": "pending controller publication",
-      "source": "fresh corrected LED rendering implementation"
-    },
-    {
-      "file": "rendering-expansion-main-isometric.png",
-      "sha256": "f760fbc95fe9865823c45cfe208195488b8fa3c4500960c0f39d0d7d69baa563",
-      "bytes": 15914,
-      "publication": "pending controller publication",
-      "source": "fresh corrected LED rendering implementation"
-    },
-    {
-      "file": "rendering-expansion-main-menu.png",
-      "sha256": "ca2b43bf562ec2f509e68e0a622d1a419f1d19fa570d37bedae564a4ee8cde03",
-      "bytes": 4875,
-      "publication": "pending controller publication",
-      "source": "fresh corrected LED rendering implementation"
-    },
-    {
-      "file": "rendering-expansion-main-motion.png",
-      "sha256": "0da2f73a737ca033484d6ceaae36d13b154c62904fa5d869608697cc4afd9384",
-      "bytes": 319234,
-      "publication": "pending controller publication",
-      "source": "fresh corrected LED rendering implementation"
-    },
-    {
-      "file": "rendering-expansion-main-resize.png",
-      "sha256": "7849438d78c6763440ffae7b6d6fa22bdfaf1cc54f780a5f59fcd767472aed22",
-      "bytes": 8521,
-      "publication": "pending controller publication",
-      "source": "fresh corrected LED rendering implementation"
+      "fresh": true
     },
     {
       "file": "rendering-expansion-playtest.mp4",
-      "sha256": "4669c1cd78ba2cdf2c9436e10b011999ff6f93ab7bdf0d6b86fcced3065ddeec",
-      "bytes": 243712,
+      "bytes": 244867,
+      "sha256": "5faadb42f0199a9b23449a192abc6695bc2926c6094e1ab8b5607e743e2a56a6",
       "publication": "pending controller publication",
-      "source": "fresh corrected LED rendering implementation"
-    },
-    {
-      "file": "rendering-expansion-temporal.png",
-      "sha256": "0539b267939871f2aae0be572d657469372d45a1028fcd2b088901b73f393887",
-      "bytes": 305198,
-      "publication": "pending controller publication",
-      "source": "fresh corrected LED rendering implementation"
-    },
-    {
-      "file": "rendering-expansion-upscaled.png",
-      "sha256": "9e6085f6759c2ccd6742d69230b19f9a39d131fff7ca7928e9918ebdd2da3316",
-      "bytes": 316716,
-      "publication": "pending controller publication",
-      "source": "fresh corrected LED rendering implementation"
+      "fresh": true
     },
     {
       "file": "rendering-expansion-video-frame.png",
-      "sha256": "e9abc695a3e3217b6bbe19e4f57c9c9249d0c50f15a848299c4bba8e88e4b9ea",
-      "bytes": 420046,
+      "bytes": 422664,
+      "sha256": "e1a63738fa48bda3f6988eef264cb21e49c22cadc02fcc0ef8fa647f2306e57d",
       "publication": "pending controller publication",
-      "source": "fresh corrected LED rendering implementation"
-    },
-    {
-      "file": "rendering-expansion-water.png",
-      "sha256": "179f1ad863624f7fd5e8beaedeebe5c026f784b37d0e630a6ed9160bf4065bad",
-      "bytes": 458580,
-      "publication": "pending controller publication",
-      "source": "fresh corrected LED rendering implementation"
+      "fresh": true
     }
   ],
   "auditCorrection": "The earlier claim that city logic was retained was wrong for reviewed head 195857c3202638a72e2a377e2b935ca2125f06c0. Current source 321d096 restores the merged stress workflow, indexed edit history, city performance fixes, tests, harnesses and historical evidence. 42 restored files match blob hashes and modes from 11314f5. See rendering-restoration-audit.json.",
@@ -296,7 +293,7 @@
     }
   ],
   "previousValidationNote": "Earlier rendering commands passed on the previous renderer integration. Current restored-source commands are recorded below; no full Maven suite pass claimed.",
-  "allMainSourceSha256": "03751171d63b9cd4e89bcb80ae38b613a9771ac27acb0fee1c9360c4ef39dc4b",
+  "allMainSourceSha256": "9d4fc2578d18c57e34ad161d6c5775038b01c9910adf6bf7b4540b0aa01ab2e9",
   "priorRestoredSourceCommands": [
     {
       "command": "mvn -q -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=RenderingAlgorithmsTest,LightingTest,LightOcclusionTest,FractionalWorldTest,DistantTerrainTest,StressGridLightingTest,CityMaterialsTest,PlayerCameraTest,RoadMarkingsTest,IsometricCameraTest,VoxelModelTest,EngineEditorTest,VehicleAudioTest,CityFormat16RegressionTest,EditHistoryTest,StressGridDevelopmentTest,CityTest package",
@@ -411,53 +408,199 @@
   "commands": [
     {
       "command": "mvn -q -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=RenderingAlgorithmsTest,LightingTest,LightOcclusionTest,FractionalWorldTest,DistantTerrainTest,StressGridLightingTest,CityMaterialsTest,PlayerCameraTest,RoadMarkingsTest,IsometricCameraTest,VoxelModelTest,EngineEditorTest,VehicleAudioTest,CityFormat16RegressionTest,EditHistoryTest,StressGridDevelopmentTest,CityTest package",
-      "expected": "Renderer and retained city/history regressions pass; package includes fixed shader.",
-      "observed": "Exit 0; 88 tests; zero failures/errors/skips. Packaged shader bytes match current source."
+      "expected": "Package succeeds; selected tests pass",
+      "observed": "Exit 0; 88 tests, 0 failures/errors/skips."
+    },
+    {
+      "command": "python3 deploy/run_rendering_playtest.py --display \"$DISPLAY\" --gl33",
+      "expected": "Lit probe receiver, shadows, LED edit refresh, existing effects and resize pass",
+      "observed": "Playtest: PASS. Real reflection cubemap receiver face; irradiance/shadow/transport/cluster switches=1; recursive probe switch=0. Occluder shadow pixels=1498; clustered LED pixels=3487; LED edit pixels=4096. Accepted GI bake and six fresh faces after edit; no stale-ready cube. Fixture exit 0."
     },
     {
       "command": "python3 deploy/run_rendering_main_playtest.py --display \"$DISPLAY\" --gl33",
-      "expected": "Corrected LEDs render in production; real W/F10/F6 inputs, odd resize and Escape menu remain functional.",
-      "observed": "Playtest: PASS. Production Main, Linux assigned X11 display, synthetic voxel profile. LED gallery, GPU particles, water, actual W camera motion, F10 recording, F6 isometric, temporal upscale at odd 333x271 resize, Escape menu; no GL errors across 37 frames. Backend=false. Exit 0."
-    },
-    {
-      "command": "python3 deploy/run_rendering_led_shadow_playtest.py --display \"$DISPLAY\"",
-      "environment": "Inherited assigned DISPLAY/XAUTHORITY; Mesa llvmpipe strict GL3.3; isolated target/render-led-home; actual production shader helper and real TransportField data in production RGBA16F/R16F formats; float framebuffer readback.",
-      "expected": "Empty/emitter/beyond-light rays visible; blockers before emitter occlude; nearby, fractional, reverse and diagonal rays stay finite and correct.",
-      "observed": "Exit 0; 14 GPU cases passed. Playtest: PASS. Production pointShadow GLSL helper; real worker TransportField textures; inherited assigned X11; synthetic cells; 3.3 (Core Profile) Mesa 22.3.6; llvmpipe (LLVM 15.0.6, 256 bits).\nempty segment: expected=1.0, observed=1.0\ntarget LED excludes self-occlusion: expected=1.0, observed=1.0\nwall before LED: expected=0.0, observed=0.0\nwall adjacent before LED: expected=0.0, observed=0.0\nwall beyond LED: expected=1.0, observed=1.0\nbeyond empty endpoint: expected=1.0, observed=1.0\nnear emitter: expected=1.0, observed=1.0\nfractional emitter endpoint: expected=1.0, observed=1.0\ninside emitter: expected=1.0, observed=1.0\nreverse ray beyond light: expected=1.0, observed=1.0\nreverse ray before light: expected=0.0, observed=0.0\ndiagonal emitter: expected=1.0, observed=1.0\ndiagonal blocker: expected=0.0, observed=0.0\ncorner-only contact is clear: expected=1.0, observed=1.0"
-    },
-    {
-      "command": "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Djava.io.tmpdir=\"$PWD/target/tmp\" -cp target/voxel-one-1.0-SNAPSHOT-client.jar deploy/VerifyRenderingMedia.java dashboard/evidence/rendering-expansion-playtest.mp4 dashboard/evidence/rendering-expansion-video.json dashboard/evidence/rendering-expansion-video-frame.png",
-      "observed": {
-        "status": "passed",
-        "source": "fresh production Main F10 rendering workflow",
-        "codec": "H264",
-        "bytes": 243712,
-        "frames": 8,
-        "width": 640,
-        "height": 400,
-        "seconds": 10.886,
-        "allFramesDecoded": true,
-        "firstAndLastDiffer": true
-      }
-    },
-    {
-      "command": "python3 deploy/run_rendering_playtest.py --display \"$DISPLAY\" --gl33 --msaa 4",
-      "observed": "Exit 0; Playtest: native OpenGL synthetic gallery; assigned X11 display; GPU backend=false; decals changed pixels=44875; reflection probes, GPU emitters/removal, water, camera motion/TAA, exposure, LUT, temporal upscaling, measured dynamic resolution, resize and GL errors passed."
+      "expected": "Movement, recording, F6, odd resize and menu pass",
+      "observed": "Playtest: PASS. Production Main, Linux assigned X11 display, synthetic voxel profile. LED gallery, GPU particles, water, actual W camera motion, F10 recording, F6 isometric, temporal upscale at odd 333x271 resize, Escape menu; no GL errors across 39 frames. Backend=false. Exit 0."
     },
     {
       "command": "python3 deploy/run_rendering_playtest.py --display \"$DISPLAY\"",
-      "observed": "Exit 0; Playtest: native OpenGL synthetic gallery; assigned X11 display; GPU backend=true; decals changed pixels=44524; reflection probes, GPU emitters/removal, water, camera motion/TAA, exposure, LUT, temporal upscaling, measured dynamic resolution, resize and GL errors passed."
+      "expected": "Optional compute backend and lit reflection probe checks pass",
+      "observed": "Playtest: native OpenGL synthetic gallery; assigned X11 display; GPU backend=true; decals changed pixels=43788; reflection probes, GPU emitters/removal, water, camera motion/TAA, exposure, LUT, temporal upscaling, measured dynamic resolution, resize and GL errors passed. Playtest: PASS. Real reflection cubemap receiver face; irradiance/shadow/transport/cluster switches=1; recursive probe switch=0. Occluder shadow pixels=1498; clustered LED pixels=3487; LED edit pixels=4096. Accepted GI bake and six fresh faces after edit; no stale-ready cube. Exit 0."
     },
     {
-      "command": "git diff --check",
-      "observed": "Exit 0. Full diff audited against 41ed6e88; no deleted files. Space source, tests, website/navigation, historical evidence and progress record preserved."
+      "command": "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Djava.io.tmpdir=\"$PWD/target/tmp\" -cp target/voxel-one-1.0-SNAPSHOT-client.jar deploy/VerifyRenderingMedia.java dashboard/evidence/rendering-expansion-playtest.mp4 dashboard/evidence/rendering-expansion-video.json dashboard/evidence/rendering-expansion-video-frame.png",
+      "expected": "All frames decode; first and last differ; clip below 6 MB",
+      "observed": "8 H.264 frames decoded; 7.788 seconds; 244867 bytes; first/last differ."
     },
     {
-      "command": "python3 -m py_compile deploy/run_rendering_led_shadow_playtest.py",
-      "observed": "Exit 0."
+      "command": "python3 deploy/run_rendering_playtest.py --display \"$DISPLAY\" --gl33 --msaa 4",
+      "expected": "GL 3.3 multisample scene, probe lighting and all existing fixture checks pass",
+      "observed": "Playtest: PASS. Real reflection cubemap receiver face; irradiance/shadow/transport/cluster switches=1; recursive probe switch=0. Occluder shadow pixels=1498; clustered LED pixels=3487; LED edit pixels=4096. Accepted GI bake and six fresh faces after edit; no stale-ready cube. Playtest: native OpenGL synthetic gallery; assigned X11 display; GPU backend=false; decals changed pixels=44167; reflection probes, GPU emitters/removal, water, camera motion/TAA, exposure, LUT, temporal upscaling, measured dynamic resolution, resize and GL errors passed. Exit 0."
+    },
+    {
+      "command": "git diff --check; git diff 41ed6e88d231435559810c788416832d2b13d136 --name-status",
+      "expected": "No whitespace errors or unrelated deletions",
+      "observed": "Passed. No deleted paths; 34 Space Invaders paths and all other progress entries match base."
     }
   ],
   "ledShadowFix": "Clustered LEDs use finite voxel-cell traversal from the biased origin to the emitter, excluding its cell. Cells before the light block; cells beyond it are never sampled. This avoids interpolated emitter SDF self-occlusion. Directional sunlight retains the existing 24-unit SDF march. LED shadows use the bounded coarse opacity grid; separate fractional shapes inside the emitter cell cannot be resolved.",
-  "testedWorktreeParentCommit": "874f5d24ae0ee043997b5307986fd15601cc93e8",
-  "ledShadowShaderSha256": "3bd394808765e0f6c606f3016d3393e6c7a62f34a38bd9926bd89371092a77ed"
+  "testedWorktreeParentCommit": "98c6417b4debe2bdac8f96a49d0e28cf37c55840",
+  "ledShadowShaderSha256": "3bd394808765e0f6c606f3016d3393e6c7a62f34a38bd9926bd89371092a77ed",
+  "previousProbeFixValidation": {
+    "commands": [
+      {
+        "command": "mvn -q -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=RenderingAlgorithmsTest,LightingTest,LightOcclusionTest,FractionalWorldTest,DistantTerrainTest,StressGridLightingTest,CityMaterialsTest,PlayerCameraTest,RoadMarkingsTest,IsometricCameraTest,VoxelModelTest,EngineEditorTest,VehicleAudioTest,CityFormat16RegressionTest,EditHistoryTest,StressGridDevelopmentTest,CityTest package",
+        "expected": "Renderer and retained city/history regressions pass; package includes fixed shader.",
+        "observed": "Exit 0; 88 tests; zero failures/errors/skips. Packaged shader bytes match current source."
+      },
+      {
+        "command": "python3 deploy/run_rendering_main_playtest.py --display \"$DISPLAY\" --gl33",
+        "expected": "Corrected LEDs render in production; real W/F10/F6 inputs, odd resize and Escape menu remain functional.",
+        "observed": "Playtest: PASS. Production Main, Linux assigned X11 display, synthetic voxel profile. LED gallery, GPU particles, water, actual W camera motion, F10 recording, F6 isometric, temporal upscale at odd 333x271 resize, Escape menu; no GL errors across 37 frames. Backend=false. Exit 0."
+      },
+      {
+        "command": "python3 deploy/run_rendering_led_shadow_playtest.py --display \"$DISPLAY\"",
+        "environment": "Inherited assigned DISPLAY/XAUTHORITY; Mesa llvmpipe strict GL3.3; isolated target/render-led-home; actual production shader helper and real TransportField data in production RGBA16F/R16F formats; float framebuffer readback.",
+        "expected": "Empty/emitter/beyond-light rays visible; blockers before emitter occlude; nearby, fractional, reverse and diagonal rays stay finite and correct.",
+        "observed": "Exit 0; 14 GPU cases passed. Playtest: PASS. Production pointShadow GLSL helper; real worker TransportField textures; inherited assigned X11; synthetic cells; 3.3 (Core Profile) Mesa 22.3.6; llvmpipe (LLVM 15.0.6, 256 bits).\nempty segment: expected=1.0, observed=1.0\ntarget LED excludes self-occlusion: expected=1.0, observed=1.0\nwall before LED: expected=0.0, observed=0.0\nwall adjacent before LED: expected=0.0, observed=0.0\nwall beyond LED: expected=1.0, observed=1.0\nbeyond empty endpoint: expected=1.0, observed=1.0\nnear emitter: expected=1.0, observed=1.0\nfractional emitter endpoint: expected=1.0, observed=1.0\ninside emitter: expected=1.0, observed=1.0\nreverse ray beyond light: expected=1.0, observed=1.0\nreverse ray before light: expected=0.0, observed=0.0\ndiagonal emitter: expected=1.0, observed=1.0\ndiagonal blocker: expected=0.0, observed=0.0\ncorner-only contact is clear: expected=1.0, observed=1.0"
+      },
+      {
+        "command": "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Djava.io.tmpdir=\"$PWD/target/tmp\" -cp target/voxel-one-1.0-SNAPSHOT-client.jar deploy/VerifyRenderingMedia.java dashboard/evidence/rendering-expansion-playtest.mp4 dashboard/evidence/rendering-expansion-video.json dashboard/evidence/rendering-expansion-video-frame.png",
+        "observed": {
+          "status": "passed",
+          "source": "fresh production Main F10 rendering workflow",
+          "codec": "H264",
+          "bytes": 243712,
+          "frames": 8,
+          "width": 640,
+          "height": 400,
+          "seconds": 10.886,
+          "allFramesDecoded": true,
+          "firstAndLastDiffer": true
+        }
+      },
+      {
+        "command": "python3 deploy/run_rendering_playtest.py --display \"$DISPLAY\" --gl33 --msaa 4",
+        "observed": "Exit 0; Playtest: native OpenGL synthetic gallery; assigned X11 display; GPU backend=false; decals changed pixels=44875; reflection probes, GPU emitters/removal, water, camera motion/TAA, exposure, LUT, temporal upscaling, measured dynamic resolution, resize and GL errors passed."
+      },
+      {
+        "command": "python3 deploy/run_rendering_playtest.py --display \"$DISPLAY\"",
+        "observed": "Exit 0; Playtest: native OpenGL synthetic gallery; assigned X11 display; GPU backend=true; decals changed pixels=44524; reflection probes, GPU emitters/removal, water, camera motion/TAA, exposure, LUT, temporal upscaling, measured dynamic resolution, resize and GL errors passed."
+      },
+      {
+        "command": "git diff --check",
+        "observed": "Exit 0. Full diff audited against 41ed6e88; no deleted files. Space source, tests, website/navigation, historical evidence and progress record preserved."
+      },
+      {
+        "command": "python3 -m py_compile deploy/run_rendering_led_shadow_playtest.py",
+        "observed": "Exit 0."
+      }
+    ],
+    "playtest": "Playtest: production LED visibility helper executed on real GPU with actual transport data; 14 before/beyond/emitter/edge cases measured by float readback. Production native LWJGL gallery, real W/F10/F6, 333x271 resize at .65 scale and Escape menu exercised with inherited assigned X11 and isolated synthetic profile. Browser playtesting does not apply to this native shader fix; unrelated browser feature blobs remain unchanged.",
+    "media": [
+      {
+        "file": "rendering-expansion-decals.png",
+        "sha256": "48cbccea1e827d3ca4dfb408c28934e9bff073a7d85cb65e8910d499060d01e3",
+        "bytes": 342285,
+        "publication": "pending controller publication",
+        "source": "fresh corrected LED rendering implementation"
+      },
+      {
+        "file": "rendering-expansion-graded.png",
+        "sha256": "2be3e22b82da3fb52cd8fa23a544a36822a22253380def702e8e2adeefb2471a",
+        "bytes": 297688,
+        "publication": "pending controller publication",
+        "source": "fresh corrected LED rendering implementation"
+      },
+      {
+        "file": "rendering-expansion-main-gallery.png",
+        "sha256": "84a8feaf178b01eb3f3e2de10560abe4f12d287e92c8ab9c5b4045b1e31332ac",
+        "bytes": 306889,
+        "publication": "pending controller publication",
+        "source": "fresh corrected LED rendering implementation"
+      },
+      {
+        "file": "rendering-expansion-main-isometric.png",
+        "sha256": "f760fbc95fe9865823c45cfe208195488b8fa3c4500960c0f39d0d7d69baa563",
+        "bytes": 15914,
+        "publication": "pending controller publication",
+        "source": "fresh corrected LED rendering implementation"
+      },
+      {
+        "file": "rendering-expansion-main-menu.png",
+        "sha256": "ca2b43bf562ec2f509e68e0a622d1a419f1d19fa570d37bedae564a4ee8cde03",
+        "bytes": 4875,
+        "publication": "pending controller publication",
+        "source": "fresh corrected LED rendering implementation"
+      },
+      {
+        "file": "rendering-expansion-main-motion.png",
+        "sha256": "0da2f73a737ca033484d6ceaae36d13b154c62904fa5d869608697cc4afd9384",
+        "bytes": 319234,
+        "publication": "pending controller publication",
+        "source": "fresh corrected LED rendering implementation"
+      },
+      {
+        "file": "rendering-expansion-main-resize.png",
+        "sha256": "7849438d78c6763440ffae7b6d6fa22bdfaf1cc54f780a5f59fcd767472aed22",
+        "bytes": 8521,
+        "publication": "pending controller publication",
+        "source": "fresh corrected LED rendering implementation"
+      },
+      {
+        "file": "rendering-expansion-playtest.mp4",
+        "sha256": "4669c1cd78ba2cdf2c9436e10b011999ff6f93ab7bdf0d6b86fcced3065ddeec",
+        "bytes": 243712,
+        "publication": "pending controller publication",
+        "source": "fresh corrected LED rendering implementation"
+      },
+      {
+        "file": "rendering-expansion-temporal.png",
+        "sha256": "0539b267939871f2aae0be572d657469372d45a1028fcd2b088901b73f393887",
+        "bytes": 305198,
+        "publication": "pending controller publication",
+        "source": "fresh corrected LED rendering implementation"
+      },
+      {
+        "file": "rendering-expansion-upscaled.png",
+        "sha256": "9e6085f6759c2ccd6742d69230b19f9a39d131fff7ca7928e9918ebdd2da3316",
+        "bytes": 316716,
+        "publication": "pending controller publication",
+        "source": "fresh corrected LED rendering implementation"
+      },
+      {
+        "file": "rendering-expansion-video-frame.png",
+        "sha256": "e9abc695a3e3217b6bbe19e4f57c9c9249d0c50f15a848299c4bba8e88e4b9ea",
+        "bytes": 420046,
+        "publication": "pending controller publication",
+        "source": "fresh corrected LED rendering implementation"
+      },
+      {
+        "file": "rendering-expansion-water.png",
+        "sha256": "179f1ad863624f7fd5e8beaedeebe5c026f784b37d0e630a6ed9160bf4065bad",
+        "bytes": 458580,
+        "publication": "pending controller publication",
+        "source": "fresh corrected LED rendering implementation"
+      }
+    ],
+    "completedAt": "2026-10-07T21:11:43.539294+00:00",
+    "rendererSourceSha256": "48d0718193c5d1db4327fed5d76e2479ac8c623b3bfad5de0265aff117505f21",
+    "allMainSourceSha256": "03751171d63b9cd4e89bcb80ae38b613a9771ac27acb0fee1c9360c4ef39dc4b"
+  },
+  "reflectionProbeFix": {
+    "lightingSwitches": {
+      "uHasIrradiance": 1,
+      "uShadowEnabled": 1,
+      "uTransportReady": 1,
+      "uClusterReady": 1,
+      "uProbeReady": 0
+    },
+    "gl33Pixels": {
+      "occluderShadow": 1498,
+      "clusteredLED": 3487,
+      "LEDColorEdit": 4096
+    },
+    "capture": "Shared scene binder; capture after cascades. Emitter and accepted GI updates invalidate cube. Never bind captured cube as scene input."
+  },
+  "earlierProbeFixFailure": "Intermediate capture used setInt for float uTransparency, causing GL_INVALID_OPERATION (1282). Corrected to setFloat, rebuilt, then passed capture-stage GL checks and full fixtures.",
+  "modernContext": "OpenGL=4.5 (Core Profile) Mesa 22.3.6; GLSL=4.50; renderer=llvmpipe (LLVM 15.0.6, 256 bits); samples=1"
 }

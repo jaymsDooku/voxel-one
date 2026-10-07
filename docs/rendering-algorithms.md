@@ -58,3 +58,5 @@ Build with `mvn -Dmaven.repo.local=target/maven-cache -DargLine="-Djava.io.tmpdi
 Executed results and fresh media are recorded separately in `dashboard/evidence`. Harness source is not proof that a check ran.
 
 Clustered LED shadows traverse the finite segment from the biased receiver to the light. They exclude the target emitter cell and use exact cell crossings in the existing coarse transport opacity grid. Other opaque cells before the light block it; cells beyond the light do not. The coarse grid cannot resolve separate fractional shapes within the emitter cell. Directional sunlight keeps the bounded distance-field shadow march.
+
+Local reflection captures share the main scene lighting binder, including cascades, irradiance, voxel transport and clustered LEDs. Capture starts after valid shadow maps and an accepted lighting bake. Light edits and accepted GI updates invalidate the six-face capture. A face is captured each frame. Initial or invalidated probes use the sky fallback until all six are ready; periodic refresh keeps the rolling contents. The captured cube is never sampled recursively.

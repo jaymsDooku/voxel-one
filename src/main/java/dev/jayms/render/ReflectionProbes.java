@@ -22,7 +22,9 @@ public final class ReflectionProbes implements AutoCloseable {
         glBindRenderbuffer(GL_RENDERBUFFER,depth);glRenderbufferStorage(GL_RENDERBUFFER,GL_DEPTH_COMPONENT24,64,64);
         glBindFramebuffer(GL_FRAMEBUFFER,fbo);glFramebufferRenderbuffer(GL_FRAMEBUFFER,GL_DEPTH_ATTACHMENT,GL_RENDERBUFFER,depth);glBindFramebuffer(GL_FRAMEBUFFER,0);
     }
-    public void capture(World world,VoxelModelRenderer models,Vector3f eye,Vector3f sun,float daylight,float ambient,int environment,int material){
+    public void invalidate(){ready=false;face=-1;revision=-1;}
+    public void capture(World world,VoxelModelRenderer models,Vector3f eye,int environment,java.util.function.Consumer<ShaderProgram> lighting){
+        if(revision!=world.editsVersion())invalidate();
         if(face<0&&(revision!=world.editsVersion()||center.distanceSquared(eye)>256||frames++%120==0)){
             if(center.distanceSquared(eye)>256)ready=false;
             center.set(eye);revision=world.editsVersion();face=0;
@@ -38,13 +40,14 @@ public final class ReflectionProbes implements AutoCloseable {
         glActiveTexture(GL_TEXTURE0);glBindTexture(GL_TEXTURE_CUBE_MAP,environment);glBindVertexArray(vao);glDrawArrays(GL_TRIANGLES,0,3);glBindVertexArray(0);
         glEnable(GL_DEPTH_TEST);glEnable(GL_CULL_FACE);voxel.bind();
         voxel.setMatrix4("uProjection",projection);voxel.setMatrix4("uView",view);
-        voxel.setVector3("uCameraPosition",center.x,center.y,center.z);voxel.setVector3("uLightDirection",-sun.x,-sun.y,-sun.z);
-        voxel.setFloat("uDaylight",daylight);voxel.setFloat("uAmbient",ambient);voxel.setInt("uVertexColor",1);voxel.setInt("uInstanced",0);
-        for(int i=0;i<3;i++)voxel.setInt("uCascadeProbes["+i+"]",8+i);
-        voxel.setInt("uShadow",1);voxel.setInt("uIrradiance",3);voxel.setInt("uFineRoots",4);voxel.setInt("uFineLight",5);
-        voxel.setInt("uVoxelRadiance",6);voxel.setInt("uDistanceField",7);voxel.setInt("uClusters",11);voxel.setInt("uLightIndices",12);voxel.setInt("uLights",13);voxel.setInt("uReflectionProbe",14);
-        voxel.setInt("uLightingEnabled",1);voxel.setInt("uEnvironment",0);voxel.setInt("uMaterials",2);
-        glActiveTexture(GL_TEXTURE2);glBindTexture(GL_TEXTURE_2D_ARRAY,material);
+        lighting.accept(voxel);
+        voxel.setVector3("uCameraPosition",center.x,center.y,center.z);
+        voxel.setInt("uVertexColor",1);voxel.setInt("uInstanced",0);
+        voxel.setInt("uFog",0);voxel.setInt("uProbeReady",0);voxel.setFloat("uTransparency",0);
+        voxel.setFloat("uJitterX",0);voxel.setFloat("uJitterY",0);
+        // Do not bind the cube being rendered to any active sampler, even with recursion off.
+        glActiveTexture(GL_TEXTURE14);glBindTexture(GL_TEXTURE_CUBE_MAP,environment);
+        voxel.setInt("uReflectionProbe",14);
         for(var entry:world.getLoadedChunks().entrySet()){
             var p=entry.getKey();if(entry.getValue().getMesh()==null||!frustum.testAab(p.chunkX()*16,p.chunkY()*16,p.chunkZ()*16,p.chunkX()*16+16,p.chunkY()*16+16,p.chunkZ()*16+16))continue;
             voxel.setMatrix4("uModel",new Matrix4f().translation(p.chunkX()*16,p.chunkY()*16,p.chunkZ()*16));entry.getValue().getMesh().render();

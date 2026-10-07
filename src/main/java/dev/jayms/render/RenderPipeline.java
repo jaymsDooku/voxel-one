@@ -155,13 +155,14 @@ public final class RenderPipeline implements AutoCloseable {
     }
 
     public void update(World world, float x, float z) {
-        if (clusters.update(world,x,z)) particles.emitters(clusters.emitters());
+        if (clusters.update(world,x,z)) { particles.emitters(clusters.emitters()); probes.invalidate(); }
         if (worldRevision != world.editsVersion() || world.getLoadedChunks().values().stream().anyMatch(Chunk::dirty)) {
             hiZ.invalidate(); worldRevision = world.editsVersion();
         }
         LightVolume next = lighting.update(world, x, z, Math.round(ambient * 10) / 10f);
         if (next == null) return;
         volume = next;
+        probes.invalidate();
         transport.upload(next.transport);
         ByteBuffer buffer = MemoryUtil.memAlloc(next.rgba.length);
         try {
@@ -209,7 +210,6 @@ public final class RenderPipeline implements AutoCloseable {
     }
 
     public void renderShadows(World world, VoxelModelRenderer models, Vector3f position) {
-        probes.capture(world,models,position,sun,daylight,ambient,environment,materials.id);
         glBindFramebuffer(GL_FRAMEBUFFER, shadowFbo);
         glViewport(0, 0, shadowResolution, shadowResolution);
         glEnable(GL_DEPTH_TEST); glEnable(GL_CULL_FACE);
@@ -238,6 +238,7 @@ public final class RenderPipeline implements AutoCloseable {
             models.render(world, f, shadow);
         }
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        if (hasIrradiance) probes.capture(world,models,position,environment,this::bindSceneLighting);
     }
 
     public void begin(
@@ -288,33 +289,38 @@ public final class RenderPipeline implements AutoCloseable {
         voxel.setFloat("uJitterX", temporal.jitterX(width));
         voxel.setFloat("uJitterY", temporal.jitterY(height));
         voxel.setVector3("uCameraPosition", camera.x, camera.y, camera.z);
-        voxel.setFloat("uDaylight", daylight);
-        voxel.setFloat("uAmbient", ambient);
-        voxel.setInt("uLightingEnabled", 1);
-        voxel.setInt("uHasIrradiance", hasIrradiance ? 1 : 0);
-        voxel.setInt("uShadowEnabled", 1);
-        voxel.setInt("uHeld", 0);voxel.setInt("uOutputTone",0);
-        voxel.setFloat("uModelEmission", 0);
-        voxel.setVector3("uLightDirection", -sun.x, -sun.y, -sun.z);
-        for (int i=0;i<3;i++) voxel.setMatrix4("uShadowMatrix["+i+"]", shadowMatrices[i]);
+        bindSceneLighting(voxel);
+        probes.bind(voxel);
+        glActiveTexture(GL_TEXTURE0);
+    }
+
+    private void bindSceneLighting(ShaderProgram shader) {
+        shader.setFloat("uDaylight", daylight);
+        shader.setFloat("uAmbient", ambient);
+        shader.setInt("uLightingEnabled", 1);
+        shader.setInt("uHasIrradiance", hasIrradiance ? 1 : 0);
+        shader.setInt("uShadowEnabled", 1);
+        shader.setInt("uHeld", 0);shader.setInt("uOutputTone",0);
+        shader.setFloat("uModelEmission", 0);
+        shader.setVector3("uLightDirection", -sun.x, -sun.y, -sun.z);
+        for (int i=0;i<3;i++) shader.setMatrix4("uShadowMatrix["+i+"]", shadowMatrices[i]);
         if (volume != null) {
-            voxel.setVector3("uVolumeOrigin", volume.x, volume.y, volume.z);
-            voxel.setVector3("uVolumeSize", volume.width, volume.height, volume.length);
+            shader.setVector3("uVolumeOrigin", volume.x, volume.y, volume.z);
+            shader.setVector3("uVolumeSize", volume.width, volume.height, volume.length);
         }
         bind(0, GL_TEXTURE_CUBE_MAP, environment);
         bind(1, GL_TEXTURE_2D_ARRAY, shadowTexture);
         bind(2, GL_TEXTURE_2D_ARRAY, materials.id);
         bind(3, GL_TEXTURE_3D, irradiance);
-        voxel.setInt("uEnvironment", 0);
-        voxel.setInt("uShadow", 1);
-        voxel.setInt("uMaterials", 2);
-        voxel.setInt("uIrradiance", 3);
+        shader.setInt("uEnvironment", 0);
+        shader.setInt("uShadow", 1);
+        shader.setInt("uMaterials", 2);
+        shader.setInt("uIrradiance", 3);
         bind(4, GL_TEXTURE_3D, fineRoots);
         bind(5, GL_TEXTURE_BUFFER, fineLight);
-        voxel.setInt("uFineRoots", 4);
-        voxel.setInt("uFineLight", 5);
-        transport.bind(voxel); clusters.bind(voxel); probes.bind(voxel);
-        glActiveTexture(GL_TEXTURE0);
+        shader.setInt("uFineRoots", 4);
+        shader.setInt("uFineLight", 5);
+        transport.bind(shader); clusters.bind(shader);
     }
 
     public void distant(
