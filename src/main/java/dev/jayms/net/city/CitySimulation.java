@@ -239,6 +239,66 @@ public final class CitySimulation {
     }
 
     /** One finite starting stock: the paved grid has no nearby forest to bootstrap logging. */
+    /** Explicit benchmark fixture expansion. Never runs in ordinary cities or on reload. */
+    public String developStressGrid() {
+        if (stressGrid == null) throw new IllegalArgumentException("Load Stress Test Grid first.");
+        agriculture.initialize(economy, grade);
+        int[] targets = {192, 80, 80, 48}, starts = {0, 400000, 600000, 800000};
+        int added = 0;
+        for (int type = 0; type < 4; type++) {
+            final int t = type;
+            int count = (int)buildings.stream().filter(b -> b.type() == t).count();
+            for (int rank = starts[type]; count < targets[type] && rank < starts[type] + 8192; rank++) {
+                if (buildings.size() + economy.plots.stream().filter(p -> p.building() == 0).count() >= 512) break;
+                var zone = stressGrid.zone(StressGrid.indexForRank(rank));
+                var v = zone.polygon().vertices().get(0);
+                int x = (int)v.x()+1, z = (int)v.z()+1, y = grade+1;
+                if (buildings.stream().anyMatch(b -> b.zone() == zone.id())
+                        || economy.plots.stream().anyMatch(p -> p.zone() == zone.id())
+                        || ground.occupied(x,y,z,StructureBlueprint.width(type),StructureBlueprint.depth(type))) continue;
+                // Check every blueprint edit, including porches and underground factory work.
+                var blueprint = StructureBlueprint.generate(type,kindForBenchmark(type),x,y,z);
+                boolean clear = true;
+                for (var edit : blueprint)
+                    if (ground.type(edit.x(),edit.y(),edit.z()) != terrain.block(edit.x(),edit.y(),edit.z())) clear = false;
+                if (!clear) continue;
+                int kind = type == 3 ? CityMaterials.FARM : type;
+                ground.apply(blueprint);
+                var b = new CityFrame.Building(++buildingIds,zone.id(),type,x,y,z,type == 0 ? 4 : type == 3 ? 2 : 16,0);
+                buildings.add(b);
+                economy.adopt(List.of(b));
+                if (type != 0) {
+                    var firm = economy.companies().stream().filter(c -> c.kind == kind).findFirst().orElseThrow();
+                    var property = economy.property(b.id());
+                    economy.properties.set(economy.properties.indexOf(property),new CityEconomy.Property(
+                            b.id(),CityEconomy.COMPANY,firm.id,firm.id,property.price(),property.rent()));
+                    economy.businesses.open(b.id(),firm.id);
+                }
+                agriculture.completed(b,economy);
+                count++; added++;
+            }
+        }
+        var homes = buildings.stream().filter(b -> b.type() == 0).toList();
+        int people = ecs.query(Household.class).size(), newcomers = 0;
+        while (people < 128 && !homes.isEmpty()) {
+            var home = homes.get(people % homes.size());
+            if (occupants(home.id(),true) >= home.capacity()) break;
+            int id = ecs.create();
+            var h = new Household("Grid resident " + id, people % 3);
+            ecs.put(id,Household.class,h);
+            ecs.put(id,Position.class,new Position(home.x()+2.5f,home.y()+1.01f,home.z()+2.5f));
+            ecs.put(id,Needs.class,new Needs(72));
+            ecs.put(id,Travel.class,new Travel());
+            ecs.put(id,CitizenLife.class,CitizenLife.founder(people % 12));
+            if (economy.house(id,home)) h.home = home.id();
+            people++; newcomers++;
+        }
+        migrateLanePavements = true;
+        return "Added " + added + " buildings and " + newcomers + " residents. Save current to keep.";
+    }
+
+    private static int kindForBenchmark(int type) { return type == 3 ? CityMaterials.FARM : type; }
+
     private void seedGridSupplies() {
         for (var firm : economy.companies()) {
             if (firm.kind==CityEconomy.DEVELOPER) {
@@ -1034,7 +1094,11 @@ public final class CitySimulation {
         }
     }
 
-    private double jobRate(int job, int citizen) {
+    private record LabourQuote(int company, double reference) {}
+
+    private double jobRate(int job, int citizen) { return jobRate(job,citizen,null); }
+
+    private double jobRate(int job, int citizen, Map<LabourQuote,Double> quotes) {
         var workplace = building(job);
         if (workplace != null && workplace.type() == SpecialBuildings.EXCHANGE)
             return exchangeLabourRate(economy.capital.graduates.contains(citizen));
@@ -1043,18 +1107,22 @@ public final class CitySimulation {
         int company = plot == null ? employer(job) : plot.developer();
         if (company == 0) return 0;
         var b = building(job);
-        return economy.labourRate(
-                company, plot != null || b != null && b.type() == 1 ? 1.8 : 1.8 + cohort * .3);
+        double reference = plot != null || b != null && b.type() == 1 ? 1.8 : 1.8 + cohort * .3;
+        return quotes == null ? economy.labourRate(company,reference)
+                : quotes.computeIfAbsent(new LabourQuote(company,reference),
+                        quote -> economy.labourRate(quote.company(),quote.reference()));
     }
 
-    private boolean canPayJob(int job, int citizen) {
+    private boolean canPayJob(int job, int citizen) { return canPayJob(job,citizen,null); }
+
+    private boolean canPayJob(int job, int citizen, Map<LabourQuote,Double> quotes) {
         if (!eligible(job, citizen)) return false;
         var workplace = building(job);
         if (workplace != null && workplace.type() == SpecialBuildings.EXCHANGE)
-            return economy.budget >= jobRate(job, citizen);
+            return economy.budget >= jobRate(job, citizen, quotes);
         var plot = job < 0 ? economy.project(-job) : null;
         var firm = economy.company(plot == null ? employer(job) : plot.developer());
-        return firm != null && firm.cash >= jobRate(job, citizen);
+        return firm != null && firm.cash >= jobRate(job, citizen, quotes);
     }
 
     private boolean hasUnpaidWorkers() {
@@ -1100,20 +1168,22 @@ public final class CitySimulation {
             if (current != null && SpecialBuildings.special(current.type())
                     && current.type() != SpecialBuildings.EXCHANGE) continue;
             int minimum = current != null && current.type() == 1 ? 2 : 1;
-            boolean paid = canPayJob(h.job, id);
+            // Offers from one firm share a rate. Recompute after each citizen can change jobs.
+            Map<LabourQuote,Double> quotes = new HashMap<>();
+            boolean paid = canPayJob(h.job, id, quotes);
             if (paid && !graduationReviews.contains(id) && (!reviewPaid || occupants(h.job, false) <= minimum
                     && (current == null || current.type() != SpecialBuildings.EXCHANGE))) continue;
             int best =
                     offers.keySet().stream()
                             .filter(job -> job != h.job && occupants(job, false) < offers.get(job))
-                            .filter(job -> exchangeVacancy(job, id) && canPayJob(job, id))
+                            .filter(job -> exchangeVacancy(job, id) && canPayJob(job, id, quotes))
                             .max(
                                     Comparator.comparingInt((Integer job) -> graduationReviews.contains(id) ? careerRank(job, id) : 0)
-                                            .thenComparingDouble(job -> jobRate(job, id))
+                                            .thenComparingDouble(job -> jobRate(job, id, quotes))
                                             .thenComparingInt(job -> -job))
                             .orElse(0);
             if (best != 0 && (!paid || graduationReviews.contains(id) && careerRank(best, id) > careerRank(h.job, id)
-                    || jobRate(best, id) > jobRate(h.job, id) * 1.2)) {
+                    || jobRate(best, id, quotes) > jobRate(h.job, id, quotes) * 1.2)) {
                 h.job = best;
                 var travel = ecs.get(id, Travel.class);
                 travel.target = -9999;

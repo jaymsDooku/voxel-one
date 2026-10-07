@@ -1,0 +1,209 @@
+{
+  "status": "passed",
+  "environment": "Linux, Java 25.0.3; workspace-local synthetic saves and temp files. Native checks use inherited assigned DISPLAY/XAUTHORITY and Mesa software OpenGL. No authentication cookie was read or printed.",
+  "unitTests": {
+    "tests": 82,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "suites": [
+      {
+        "name": "dev.jayms.CityBusinessTest",
+        "tests": "9",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "13.609"
+      },
+      {
+        "name": "dev.jayms.CityEconomyTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "19.384"
+      },
+      {
+        "name": "dev.jayms.CitySavesTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.062"
+      },
+      {
+        "name": "dev.jayms.EditHistoryTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.062"
+      },
+      {
+        "name": "dev.jayms.ExchangeLabourMarketTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.351"
+      },
+      {
+        "name": "dev.jayms.MarketEconomyTest",
+        "tests": "13",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.482"
+      },
+      {
+        "name": "dev.jayms.RoadTrafficTest",
+        "tests": "26",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "2.097"
+      },
+      {
+        "name": "dev.jayms.StressGridDevelopmentTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "31.871"
+      },
+      {
+        "name": "dev.jayms.StressGridLightingTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "1.369"
+      },
+      {
+        "name": "dev.jayms.StressGridRoadMarkingsTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.017"
+      },
+      {
+        "name": "dev.jayms.StressGridTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "2.502"
+      },
+      {
+        "name": "dev.jayms.VoxelModelTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.324"
+      }
+    ]
+  },
+  "commands": [
+    "mvn -q -Dtest=StressGridDevelopmentTest,EditHistoryTest -DargLine=\"-Xmx1g -Djava.io.tmpdir=$PWD/target/stress-unit-tmp\" test",
+    "mvn -q -Dtest=StressGridTest,StressGridLightingTest,StressGridRoadMarkingsTest,CitySavesTest,CityEconomyTest,MarketEconomyTest,ExchangeLabourMarketTest,CityBusinessTest,VoxelModelTest,RoadTrafficTest -DargLine=\"-Xmx1g -Djava.io.tmpdir=$PWD/target/stress-unit-tmp\" test",
+    "python3 deploy/run_populated_stress_smoke.py --display \"$DISPLAY\"",
+    "python3 deploy/verify_populated_stress_media.py",
+    "git diff --check"
+  ],
+  "acceptance": [
+    "Explicit loaded stress-save action targets 192 houses, 80 commercial businesses, 80 industrial buildings, 48 crop farms and 128 detailed citizens.",
+    "Real voxel structures, 96 crop fields, property owners, business operators and housed residents persist in the save.",
+    "Repeat use adds no duplicates. Existing buildings, pending plots and player-modified blueprint sites are skipped. Surface and buried player blocks are checked.",
+    "Ordinary city rejects expansion without changing its state. Original city saves and F6 view switching are checked natively.",
+    "Existing 128-citizen and 512-building bounds stay in place; edited or occupied sites and existing projects can limit additions."
+  ],
+  "sourceSha256": {
+    "src/main/java/dev/jayms/Main.java": "bfd575aa8808a4cc212d1913337215d8d8a67ef14318a4041115e55064c9f62f",
+    "src/main/java/dev/jayms/net/LocalGame.java": "b4a812f71fba7d4925a524a8a573b9d063544a18e7ec6424eadaa8250aa71e42",
+    "src/main/java/dev/jayms/net/WorldVoxels.java": "2a42e44525047ee47227fdf79005aebcd4b602ce4367211db9266943cef54e85",
+    "src/main/java/dev/jayms/net/city/CityEconomy.java": "1d55fc85a4caf0058e156aa74b403dd5ae91bf6c3ac53b4ddb9d59390f6ed44f",
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "ac2b9eab34cc5c20c8e3f15daf952d71962b1a8ba17223a8ef4f2050b3f13dee",
+    "src/main/java/dev/jayms/ui/SavesMenu.java": "2996b42e3590055005ce88bd7cf6979f589222dbe0b0f836c7c3981186cfc79f",
+    "src/test/java/dev/jayms/CityTest.java": "2daf29e4295f1c7dbfc5f326ff5784b66ca7468d33f7d95387b6af9497ce2a60",
+    "src/test/java/dev/jayms/StressGridDevelopmentTest.java": "649fa56c32904fb9020b367b21dbe9b7d0afe653eca0879320d21604b0cb409b",
+    "src/test/java/dev/jayms/EditHistoryTest.java": "e0ca03fe32e6e973b95c66070e0bfeeb65ef83343eaf27a6d8452e255e67b1bf"
+  },
+  "diffAudit": {
+    "base": "88aff9a6cc09421ff03f753d12d578715b6271ea",
+    "deletedFiles": [],
+    "intendedReplacements": "Per-cell indexed voxel history replaces global edit scans. Shared wage quotes are cached only within one citizen job review. Existing history coverage and job-selection rules are retained. Test ground uses the same indexed history; the existing native driver allows subclassing. No unrelated file deletion. Controller review base and final integration remain controller-owned."
+  },
+  "limitations": [
+    "Benchmark assets are explicitly generated; they are not claimed to be earned through natural construction.",
+    "Native district captures warm 81 terrain columns through World.stream, then use the normal render mesh budget and require complete building columns. Streaming latency and smooth FPS are not claimed.",
+    "Mesa software rendering showed approximately 0-1 FPS under this workload.",
+    "Default /tmp test setup failed with Read-only file system. Workspace-local temp reruns passed. Early native capture-driver attempts were corrected and are not counted as final evidence.",
+    "Artifacts are pending controller publication. No commit, push, deployment or merge was performed."
+  ],
+  "playtest": "Playtest: PASS. See populated-stress-playtest.txt for commands, environment, steps, expected and observed results. Final native run completed all 29 stages with 135 rendered frames.",
+  "media": {
+    "status": "passed",
+    "source": "production F10 recorder in native Stress Grid playtest",
+    "codec": "H264",
+    "bytes": 1498843,
+    "frames": 12,
+    "width": 960,
+    "height": 544,
+    "seconds": 23.716,
+    "checks": [
+      "Every frame decoded",
+      "Frame count matches metadata",
+      "First and last images differ",
+      "Below 6 MB"
+    ]
+  },
+  "visualInspection": "Inspected final housing, commercial, industrial and agricultural PNGs and decoded F10 middle frame. Actual voxel buildings, occupied housing and crop fields are visible. Outer terrain is still streaming; selected building columns were required to have complete meshes.",
+  "publication": "Pending controller publication and independent review.",
+  "artifacts": [
+    {
+      "filename": "populated-stress-businesses.png",
+      "sha256": "cf87bf9a51c90d744710186e0175f399e5b60a1e913c34c4e63fd4aa5639bc35",
+      "bytes": 579357,
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-businesses.png"
+    },
+    {
+      "filename": "populated-stress-factories.png",
+      "sha256": "8c904d9560e59c8c54c19802fabf06fad1a702f543203d435ffde8c96cff9ac2",
+      "bytes": 553052,
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-factories.png"
+    },
+    {
+      "filename": "populated-stress-farms.png",
+      "sha256": "2ea78a59a8b1b35ea3f718e60b01323e779ffe488c3ba4f7dbacbb88e4d1b787",
+      "bytes": 599179,
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-farms.png"
+    },
+    {
+      "filename": "populated-stress-houses.png",
+      "sha256": "bb3c4f506aa32534c868ba1d260c2b62eaab6b5387d33ab1c0382f8c5adeb107",
+      "bytes": 795658,
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-houses.png"
+    },
+    {
+      "filename": "populated-stress-main.mp4",
+      "sha256": "3534e2e233c5d8dca40d59ba0779139d06543b781b53c7d1bc5c0aeac126e458",
+      "bytes": 1498843,
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-main.mp4"
+    },
+    {
+      "filename": "populated-stress-menu.png",
+      "sha256": "a9aca635bf6a1d08b75298a1b4f1b3b1f9db7ab2b340ee50171776e5c784338f",
+      "bytes": 47301,
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-menu.png"
+    },
+    {
+      "filename": "populated-stress-original.png",
+      "sha256": "85ef65e9aed24dd578a863ec63ff8c6a2855c77f1465aad7ee36a51333b1d189",
+      "bytes": 279444,
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-original.png"
+    }
+  ],
+  "validationScope": "Historical pre-integration checks. Current-source recovery checks are in populated-stress-recovery.json. Final-head tests and fresh native media require controller rebase continuation and resumption."
+}

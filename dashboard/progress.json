@@ -45,6 +45,61 @@
       "updatedAt": "2026-10-07T16:34:28+00:00"
     },
     {
+      "id": "33623833633839372d346136632d343332612d396337612d646566666436653930333533",
+      "title": "Populate the stress-test city",
+      "description": "Adding an explicit stress-save development action and native workflow checks.",
+      "evidence": [
+        {
+          "kind": "image",
+          "label": "populated-stress-houses.png - historical pre-integration evidence; recapture pending",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-houses.png"
+        },
+        {
+          "kind": "image",
+          "label": "populated-stress-businesses.png - historical pre-integration evidence; recapture pending",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-businesses.png"
+        },
+        {
+          "kind": "image",
+          "label": "populated-stress-factories.png - historical pre-integration evidence; recapture pending",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-factories.png"
+        },
+        {
+          "kind": "image",
+          "label": "populated-stress-farms.png - historical pre-integration evidence; recapture pending",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-farms.png"
+        },
+        {
+          "kind": "video",
+          "label": "populated-stress-main.mp4 - historical pre-integration evidence; recapture pending",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-main.mp4"
+        },
+        {
+          "kind": "report",
+          "label": "populated-stress-playtest.txt - historical pre-integration evidence; recapture pending",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-playtest.txt"
+        },
+        {
+          "kind": "report",
+          "label": "populated-stress-tests.json - historical pre-integration evidence; recapture pending",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-tests.json"
+        },
+        {
+          "kind": "report",
+          "label": "populated-stress-media.json - historical pre-integration evidence; recapture pending",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-media.json"
+        },
+        {
+          "kind": "report",
+          "label": "Compatibility recovery checks - pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-33623833633839372d346136632d343332612d396337612d646566666436653930333533/dashboard/evidence/populated-stress-recovery.json"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Conflict contents resolved; parcel features and format-16/protocol-27 support retained. New version-16 save regression and parcel/protocol tests passed. Controller must stage and continue rebase, then resume final-head checks and fresh media.",
+      "updatedAt": "2026-10-07T19:06:18.075671+00:00"
+    },
+    {
       "id": "36343134366466332d316366392d343637312d623364612d373436613466356165303163",
       "title": "Voxel One Game Engine Editor",
       "description": "Building native project workspace and validating City Builder entry and return.",

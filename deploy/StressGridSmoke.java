@@ -7,7 +7,7 @@ import java.util.*;
 import static org.lwjgl.glfw.GLFW.*;
 
 /** Real Main, native input, isolated saves. Writes only explicit assertions as evidence. */
-public final class StressGridSmoke extends CitySavesSmoke {
+public class StressGridSmoke extends CitySavesSmoke {
     @Override String id() throws Exception {
         long handle=((dev.jayms.window.Window)get(game,"window")).getHandle();
         return Long.toString(org.lwjgl.glfw.GLFWNativeX11.glfwGetX11Window(handle));

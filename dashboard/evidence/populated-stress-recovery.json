@@ -1,0 +1,53 @@
+{
+  "status": "resolved contents; controller rebase continuation required",
+  "reviewBase": "88aff9a6cc09421ff03f753d12d578715b6271ea",
+  "conflictResolution": "dashboard/progress.json retains both parcel and stress-population entries. No conflict markers remain. Index remains unmerged until controller stages the resolved file.",
+  "preservedFeatures": [
+    "ParcelPortfolio and ZoneParceling",
+    "Parcel UI, commands and placement",
+    "Parcel tests, docs, smoke harness and recorded evidence",
+    "Version-16 CityFrame read/write, save magic 0x43495440, protocol 27 and legacy readers"
+  ],
+  "newRegression": "CityFormat16RegressionTest verifies explicit 0x43495440 parcel snapshot loading, resaving with parcel IDs/cells/algorithm intact, protocol 27, version-16 stress snapshot loading, and version-15 stress save compatibility.",
+  "tests": [
+    {
+      "command": "mvn -q -Dtest=CityFormat16RegressionTest,ParcelPortfolioTest,ProtocolCompatibilityTest -DargLine=\"-Xmx1g -Djava.io.tmpdir=$PWD/target/stress-unit-tmp\" test",
+      "result": "passed",
+      "suites": [
+        {
+          "name": "dev.jayms.CityFormat16RegressionTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.ParcelPortfolioTest",
+          "tests": "9",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.ProtocolCompatibilityTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        }
+      ]
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed"
+    },
+    {
+      "command": "git diff 88aff9a6cc09421ff03f753d12d578715b6271ea --name-only --diff-filter=D",
+      "result": "no deleted files"
+    }
+  ],
+  "environment": "Linux; Java/Maven; workspace-local synthetic profiles and JUnit temp directory. No private game profile accessed.",
+  "playtest": "Playtest: not rerun during pending rebase recovery. Prior-head native media remains historical. Controller must continue the rebase, then resume final-head checks and fresh native stress and parcel workflow capture on inherited DISPLAY/XAUTHORITY.",
+  "diffAudit": "Entire diff against the supplied review base inspected. No file deletions. Intended replacements are indexed edit-history coverage, per-citizen wage-quote caching and save-menu action rendering; parcel features remain unchanged from current integration HEAD. Stress documentation now names protocol 27 and format 16 parcel snapshots.",
+  "publication": "Pending controller publication. No stage, commit, rebase continuation, push, merge or deployment performed."
+}

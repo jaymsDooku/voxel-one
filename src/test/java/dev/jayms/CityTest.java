@@ -29,7 +29,7 @@ class CityTest {
             voxels = new WorldVoxels(terrain);
         }
 
-        final Map<String, Protocol.Edit> edits = new LinkedHashMap<>();
+        final Map<String, Protocol.Edit> edits = new WorldVoxels.History();
         boolean occupied;
 
         public int type(int x, int y, int z) {
