@@ -43,6 +43,7 @@ public final class CityTools {
     }
 
     public boolean dashboardRequested;
+    public int stressFocus = -1;
     public int specialKind, specialLevel = 1, specialOwner;
     private int ownerIndex;
 
@@ -110,10 +111,15 @@ public final class CityTools {
             Matrix4f view,
             CityFrame city,
             Consumer<CityCommand> submit) {
+        if (city.stressGrid() != null && x >= width-224 && x < width-24 && y >= 180 && y < 380) {
+            int gx=Math.min(999,(int)((x-(width-224))*999/199)), gz=Math.min(999,(int)((y-180)*999/199));
+            stressFocus=gz*StressGrid.SIDE+gx; return;
+        }
         if (x >= width - 146 && x <= width - 24 && y >= 74 && y <= 100) {
             dashboardRequested = true;
             return;
         }
+        if (city.stressGrid() != null) { message="Stress grid geometry is fixed. Use another save for city editing."; return; }
         if (!roadMenu && tool == -1 && selectedStreet != 0 && x >= 16 && x <= Math.min(416,width-16)) {
             if(y>=205 && y<233) { editingStreet=selectedStreet; roadMenu=true; return; }
             if(y>=233 && y<261) {
@@ -287,11 +293,47 @@ public final class CityTools {
 
     public void hover(float x, float y, int w, int h, Matrix4f projection,
             Matrix4f view, CityFrame city) {
+        if (city.stressGrid() != null) { hover=null; return; }
         try {
             hover = cursorPoint(x, y, w, h, projection, view, city);
         } catch (IllegalArgumentException ignored) {
             hover = null;
         }
+    }
+
+    private List<CityFrame.Zone> visibleZones(CityFrame city, Matrix4f projection, Matrix4f view, int w, int h, float ground) {
+        if (city.stressGrid()==null) return city.zones();
+        Matrix4f inverse=new Matrix4f(projection).mul(view).invert();
+        float minX=Float.POSITIVE_INFINITY,minZ=minX,maxX=Float.NEGATIVE_INFINITY,maxZ=maxX;
+        for(float x:new float[]{-1,1}) for(float y:new float[]{-1,1}) {
+            Vector3f a=inverse.transformProject(new Vector3f(x,y,-1));
+            Vector3f b=inverse.transformProject(new Vector3f(x,y,1));
+            float t=(ground-a.y)/(b.y-a.y), px=a.x+t*(b.x-a.x), pz=a.z+t*(b.z-a.z);
+            minX=Math.min(minX,px); maxX=Math.max(maxX,px); minZ=Math.min(minZ,pz); maxZ=Math.max(maxZ,pz);
+        }
+        int x0=Math.max(0,(int)Math.floor((minX-StressGrid.MIN_X)/StressGrid.STRIDE)-1),
+            x1=Math.min(999,(int)Math.ceil((maxX-StressGrid.MIN_X)/StressGrid.STRIDE)+1),
+            z0=Math.max(0,(int)Math.floor((minZ-StressGrid.MIN_Z)/StressGrid.STRIDE)-1),
+            z1=Math.min(999,(int)Math.ceil((maxZ-StressGrid.MIN_Z)/StressGrid.STRIDE)+1);
+        if ((long)(x1-x0+1)*(z1-z0+1)>4096) return List.of();
+        var result=new ArrayList<CityFrame.Zone>();
+        for(int z=z0;z<=z1;z++) for(int x=x0;x<=x1;x++) result.add(city.stressGrid().zone(z*1000+x));
+        return result;
+    }
+    private void renderStressGrid(Overlay ui,int w,StressGrid grid) {
+        float l=w-236;
+        ui.rectangle(l,140,224,334,.025f,.04f,.065f,.96f);
+        ui.text("STRESS TEST GRID",l+12,150,1.4f);
+        for(int z=0;z<50;z++) for(int x=0;x<50;x++) {
+            int type=StressGrid.type(x*20+10,z*20+10);
+            float[] c=type==0?new float[]{.3f,.95f,.5f}:type==1?new float[]{.25f,.65f,1}:type==2?new float[]{1,.7f,.2f}:new float[]{.65f,.9f,.25f};
+            ui.rectangle(l+12+x*4,180+z*4,4,4,c[0],c[1],c[2],1);
+        }
+        ui.text("Click map to visit plots",l+12,387,1.2f);
+        ui.text("1,000,000 plots | 1000 x 1000",l+12,407,1.1f);
+        ui.text("16 x 16 | Paved 2 lanes",l+12,424,1.2f);
+        ui.text("R 400,000 | C 200,000",l+12,441,1.2f);
+        ui.text("I 200,000 | A 200,000",l+12,458,1.2f);
     }
 
     private void renderGuide(Overlay ui, int w, int h, Matrix4f projection,
@@ -474,8 +516,8 @@ public final class CityTools {
         }
         if (!isometric) return;
         if (!message.startsWith("Choose")) ui.text(message, 20, tool == 6 ? 140 + 13 * specialRowHeight(h) + 8 : 156, 1.3f, 1, .7f, .2f, 1);
-        float ground = city.roads().isEmpty() ? 32 : city.roads().get(0).y() + 1.04f;
-        for (var zone : city.zones()) {
+        float ground = city.stressGrid() != null ? city.stressGrid().grade()+1.04f : city.roads().isEmpty() ? 32 : city.roads().get(0).y() + 1.04f;
+        for (var zone : visibleZones(city, projection, view, w, h, ground)) {
             float[] color =
                     zone.type() == 0
                             ? new float[] {.3f, .95f, .5f}
@@ -509,6 +551,7 @@ public final class CityTools {
                         color[2],
                         1);
         }
+        if (city.stressGrid() != null) { renderStressGrid(ui,w,city.stressGrid()); return; }
         renderGuide(ui, w, h, projection, view, ground);
         boolean valid = true;
         if (tool == -1 && selectedCitizen == 0 && selectedStreet != 0) {

@@ -14,7 +14,7 @@ class RoadBaseCompatibilityTest {
     @TempDir Path temp;
 
     @Test void protocol22AviationPacketsKeepTheirMeaningAndAlignment() throws Exception {
-        assertEquals(25,Protocol.VERSION);
+        assertEquals(26,Protocol.VERSION);
         assertEquals(10,CityCommand.RUNWAY); assertEquals(11,CityCommand.FLIGHT);
         assertEquals(12,CityCommand.DELETE_ROAD); assertEquals(13,CityCommand.EDIT_ROAD);
         var bytes=new ByteArrayOutputStream(); var out=new DataOutputStream(bytes);

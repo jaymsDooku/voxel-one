@@ -57,7 +57,7 @@ class RailwayOwnershipCompatibilityTest {
             assertEquals(original.roads(), current.roads()); assertEquals(-1,in.read());
         }
         assertEquals(12,CityCommand.DELETE_ROAD); assertEquals(13,CityCommand.EDIT_ROAD);
-        assertEquals(14,CityCommand.RAIL); assertEquals(25,Protocol.VERSION);
+        assertEquals(14,CityCommand.RAIL); assertEquals(26,Protocol.VERSION);
         int street = loaded.addresses().roadFootprints().get(0).street();
         assertTrue(restored.command(new CityCommand(CityCommand.EDIT_ROAD,street,
                 List.of(new Polygon.Point(1,0))),1,null).startsWith("Road section edited:"));

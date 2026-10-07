@@ -15,7 +15,10 @@ public record CityFrame(
         CityEconomy.State economy,
         CityAddresses.State addresses,
         Agriculture.State agriculture,
-        RegionalPopulation.State population, Aviation.State aviation, Railway.State railway) {
+        RegionalPopulation.State population, Aviation.State aviation, Railway.State railway, StressGrid stressGrid) {
+    public CityFrame(GameConfig config, double elapsed, List<Road> roads, List<Zone> zones, List<Building> buildings, List<Citizen> citizens, List<Horse> horses, CityEconomy.State economy, CityAddresses.State addresses, Agriculture.State agriculture, RegionalPopulation.State population, Aviation.State aviation, Railway.State railway) {
+        this(config,elapsed,roads,zones,buildings,citizens,horses,economy,addresses,agriculture,population,aviation,railway,null);
+    }
     public CityFrame(GameConfig config, double elapsed, List<Road> roads, List<Zone> zones, List<Building> buildings, List<Citizen> citizens, List<Horse> horses, CityEconomy.State economy, CityAddresses.State addresses, Agriculture.State agriculture, RegionalPopulation.State population, Aviation.State aviation) {
         this(config, elapsed, roads, zones, buildings, citizens, horses, economy, addresses, agriculture, population, aviation, Railway.State.empty());
     }
@@ -137,8 +140,11 @@ public record CityFrame(
     public record Horse(int id, float x, float y, float z, float yaw, float phase, int rider) {}
 
     public CityFrame {
+        if (stressGrid != null && (!config.city() || !roads.isEmpty() || !buildings.isEmpty()
+                || !citizens.isEmpty() || !horses.isEmpty() || !economy.plots().isEmpty()))
+            throw new IllegalArgumentException("Stress grid snapshots require a vacant layout");
         roads = List.copyOf(roads);
-        zones = List.copyOf(zones);
+        zones = stressGrid == null ? List.copyOf(zones) : stressGrid.zones();
         buildings = List.copyOf(buildings);
         citizens = List.copyOf(citizens);
         horses = List.copyOf(horses);
@@ -159,7 +165,7 @@ public record CityFrame(
     }
 
     public void write(DataOutput out) throws IOException {
-        write(out, 14);
+        write(out, 15);
     }
 
     public void write(DataOutput out, int version) throws IOException {
@@ -169,6 +175,7 @@ public record CityFrame(
             throw new IOException("Regional population requires city format 11");
         if (version < 12 && (!aviation.flights().isEmpty() || buildings.stream().anyMatch(b -> b.type() == SpecialBuildings.AIRPORT)))
             throw new IOException("Airports need snapshot version 12");
+        if (stressGrid != null && version < 15) throw new IOException("Stress grids require snapshot version 15");
         config.write(out);
         out.writeDouble(elapsed);
         out.writeInt(roads.size());
@@ -178,8 +185,8 @@ public record CityFrame(
             out.writeInt(r.y);
             if (version >= 10) out.writeByte(r.type);
         }
-        out.writeInt(zones.size());
-        for (var z : zones) {
+        out.writeInt(stressGrid == null ? zones.size() : 0);
+        for (var z : stressGrid == null ? zones : List.<Zone>of()) {
             out.writeInt(z.id);
             out.writeByte(z.type);
             z.polygon.write(out);
@@ -235,6 +242,7 @@ public record CityFrame(
         if (version >= 12) Aviation.write(out, aviation);
         if (version >= 13) RoadOwnership.write(out, RoadOwnership.forFrame(this));
         if (version >= 14) railway.write(out);
+        if (version >= 15) { out.writeBoolean(stressGrid != null); if (stressGrid != null) stressGrid.write(out); }
     }
 
     private static int count(DataInput in, int max) throws IOException {
@@ -254,7 +262,7 @@ public record CityFrame(
     }
 
     public static CityFrame read(DataInput in, boolean legacy) throws IOException {
-        return read(in, legacy ? 1 : 14);
+        return read(in, legacy ? 1 : 15);
     }
 
     public static CityFrame read(DataInput in, int version) throws IOException {
@@ -395,6 +403,11 @@ public record CityFrame(
         var aviation = version >= 12 ? Aviation.read(in, buildings, citizens) : Aviation.State.empty();
         if(version>=13) addresses=new CityAddresses.State(addresses.streets(),addresses.addresses(),
                 RoadOwnership.read(in,addresses,roads));
+        var railway = version >= 14 ? Railway.State.read(in, buildings, citizens) : Railway.State.empty();
+        var grid = version >= 15 && in.readBoolean() ? StressGrid.read(in) : null;
+        if (grid != null && (!config.city() || !zones.isEmpty() || !roads.isEmpty() || !buildings.isEmpty()
+                || !citizens.isEmpty() || !horses.isEmpty() || !economy.plots().isEmpty()))
+            throw new IOException("Invalid stress grid snapshot");
         return new CityFrame(
                 config,
                 elapsed,
@@ -405,6 +418,6 @@ public record CityFrame(
                 horses,
                 economy,
                 addresses,
-                agriculture, population, aviation, version >= 14 ? Railway.State.read(in, buildings, citizens) : Railway.State.empty());
+                agriculture, population, aviation, railway, grid);
     }
 }

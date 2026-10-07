@@ -288,6 +288,10 @@ public class Main {
         } else seed = network.seed;
         int generatorVersion = network == null ? local.generatorVersion : network.generatorVersion;
         world = new World(seed, network == null ? local.models : network.models, generatorVersion);
+        if (network == null) {
+            var saved = CitySimulation.load(CitySaves.sidecar(offlineSave,".city"));
+            if (saved != null) world.terrain().stressGrid(saved.stressGrid());
+        }
         modelRenderer = new VoxelModelRenderer(world.models());
         editor = new ModelEditor();
         lightColors = new LightColorMenu(Controls.directory().resolve("light-colour.properties"));
@@ -357,11 +361,15 @@ public class Main {
         if (city().config().city()) {
             isometric = true;
             overview.cityMode();
+            overview.stressGrid(city().stressGrid() != null);
             overview.focus(16, 26, player.position().y);
         }
         player.resolvePenetration(world);
         if (local != null && city().config().city()) {
-            if (citySaves == null) citySaves = new CitySaves(offlineSave);
+            if (citySaves == null) {
+                citySaves = new CitySaves(offlineSave);
+                citySaves.ensureStressGrid(seed);
+            }
             menu.saves = new SavesMenu(citySaves, offlineSave, new SavesMenu.Actions() {
                 public void save() throws Exception { saveCurrentSimulation(); }
                 public void load(java.nio.file.Path path) throws Exception {
@@ -605,6 +613,13 @@ public class Main {
                                         || cityTools.selectedPlot != 0)) {
                             buildingInfo.show(cityTools.selectedBuilding, cityTools.selectedPlot);
                             setCaptured(false);
+                        }
+                        if (cityTools.stressFocus >= 0) {
+                            int plot = cityTools.stressFocus; cityTools.stressFocus=-1;
+                            float x=StressGrid.MIN_X+StressGrid.ROAD+(plot%1000)*StressGrid.STRIDE+8,
+                                  z=StressGrid.MIN_Z+StressGrid.ROAD+(plot/1000)*StressGrid.STRIDE+8;
+                            player.position().set(x,city().stressGrid().grade()+1,z);
+                            overview.focus(x,z,city().stressGrid().grade()+1);
                         }
                         if (cityTools.dashboardRequested) {
                             cityTools.dashboardRequested = false;

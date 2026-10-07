@@ -2953,6 +2953,21 @@
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64396536616564332d646233392d346366642d396435372d653830623731326233643537/dashboard/evidence/noncardinal-road-playtest.mp4"
         }
       ]
+    },
+    {
+      "id": "65333430666162362d326337392d343737612d623765382d623233306336383138396363",
+      "title": "Large-grid capacity",
+      "description": "Source limits checked. Awaiting a private geometry clarification before implementation. No gameplay checks or media claimed.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Validation report (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-65333430666162362d326337392d343737612d623765382d623233306336383138396363/dashboard/evidence/stress-grid-tests.json"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Rebase working-file conflict resolved. Controller continuation pending; development fixes and final-source validation must remain in the recovery sequence.",
+      "updatedAt": "2026-10-07T10:49:18+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

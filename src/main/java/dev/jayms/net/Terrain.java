@@ -20,6 +20,9 @@ public final class Terrain {
     public final int version;
     public final long seed;
     private final Geography geography;
+    private dev.jayms.net.city.StressGrid stressGrid;
+    public void stressGrid(dev.jayms.net.city.StressGrid grid) { stressGrid=grid; columns.clear(); }
+    public dev.jayms.net.city.StressGrid stressGrid() { return stressGrid; }
     private final Map<Long, Column> columns =
             new LinkedHashMap<>(4096, .75f, true) {
                 protected boolean removeEldestEntry(Map.Entry<Long, Column> e) {
@@ -70,11 +73,13 @@ public final class Terrain {
     }
 
     public int surfaceHeight(int x, int z) {
+        if (stressGrid != null && stressGrid.contains(x,z)) return stressGrid.grade();
         return Math.max(
                 column(x, z).height(), geography == null ? MIN_Y : fields(x, z).waterLevel());
     }
 
     public synchronized Column column(int x, int z) {
+        if (stressGrid != null && stressGrid.contains(x,z)) return new Column(stressGrid.grade(),Biome.PLAINS);
         long key = ((long) x << 32) ^ (z & 0xffffffffL);
         return columns.computeIfAbsent(
                 key,
@@ -111,6 +116,10 @@ public final class Terrain {
 
     public int block(int x, int y, int z) {
         if (y < MIN_Y || y > MAX_Y) return 0;
+        if (stressGrid != null && stressGrid.contains(x,z)) {
+            if (y > stressGrid.grade()) return Blocks.AIR;
+            return y == stressGrid.grade() ? stressGrid.surface(x,z) : y > stressGrid.grade()-5 ? Blocks.DIRT : Blocks.STONE;
+        }
         Column c = column(x, z);
         int h = c.height;
         if (y <= h) {

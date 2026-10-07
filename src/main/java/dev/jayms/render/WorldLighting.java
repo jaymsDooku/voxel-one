@@ -68,11 +68,14 @@ public final class WorldLighting implements AutoCloseable {
             var edits = world.editsSnapshot();
             long seed = world.terrain().seed;
             int generatorVersion = world.terrain().version;
+            var stressGrid = world.terrain().stressGrid();
             ModelLibrary models = world.models().copy();
             pending =
                     worker.submit(
                             () -> {
-                                WorldVoxels fallback = new WorldVoxels(new Terrain(seed, generatorVersion));
+                                var terrain = new Terrain(seed, generatorVersion);
+                                terrain.stressGrid(stressGrid);
+                                WorldVoxels fallback = new WorldVoxels(terrain);
                                 for (var edit : edits.values()) fallback.apply(edit);
                                 return LightVolume.bake(
                                         cx - 48,
