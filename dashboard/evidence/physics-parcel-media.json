@@ -1,0 +1,16 @@
+{
+  "status": "passed",
+  "source": "production F10 recorder in native parcel regression",
+  "codec": "H264",
+  "bytes": 1120925,
+  "frames": 54,
+  "width": 960,
+  "height": 544,
+  "seconds": 61.026,
+  "checks": [
+    "Every frame decoded",
+    "Frame count matches metadata",
+    "First and last images differ",
+    "Below 6 MB"
+  ]
+}

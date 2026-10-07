@@ -41,8 +41,8 @@
         }
       ],
       "status": "in_progress",
-      "note": "Rebase recovery: force/wake/world-inertia replay retained; upstream features preserved. Joint-load corrections and final-head checks/media await remaining controller replay.",
-      "updatedAt": "2026-10-07T19:39:39.015282+00:00"
+      "note": "Rebase recovery: integrated physics/city validation history retained; newest upstream features preserved. Joint-load fix replay and final-head tests/media await controller continuation.",
+      "updatedAt": "2026-10-07T20:19:28.343286+00:00"
     },
     {
       "id": "36346562663133302d383033312d343733612d616132342d393031326464616132313235",

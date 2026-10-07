@@ -1,0 +1,154 @@
+{
+  "status": "ready_for_independent_review",
+  "head": "bdb18a17fb96b23277b311a7ac680b4c67ca242a",
+  "recordedAt": "2026-10-07T20:19:28.343286+00:00",
+  "reviewBases": [
+    "5f1b711d467566491538d975d9de24d01f19bc1f",
+    "11314f5f2ebf39e0d8b335f90af8b8327722f35a"
+  ],
+  "scope": "Integrated physics systems and native lab; restored upstream city development, parcel features and indexed edit history. Advanced simulations retain documented lab/API integration scope.",
+  "commands": [
+    {
+      "command": "mvn -q -Dmaven.repo.local=target/maven-cache -Dmaven.compiler.release=17 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Djvm=/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Dtest=PhysicsTest,CcdMotionTest,ForceInertiaTest,PlayerTest,JeepTest,StressGridDevelopmentTest,StressGridTest,StressGridLightingTest,StressGridRoadMarkingsTest,WorldVoxelsTest package",
+      "expected": "Java 17-target package and affected physics/city tests pass",
+      "observed": "Exit 0; 63 tests in 9 matched classes passed. WorldVoxelsTest does not exist and was not executed; actual indexed history coverage executed separately."
+    },
+    {
+      "command": "mvn -q -Dmaven.repo.local=target/maven-cache -Dmaven.compiler.release=17 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Djvm=/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Dtest=EditHistoryTest,CitySavesTest,CityFormat16RegressionTest test",
+      "expected": "Indexed history and city save/format regressions pass",
+      "observed": "Exit 0; 5 tests passed."
+    },
+    {
+      "command": "python3 deploy/run_physics_smoke.py --display \"$DISPLAY\"",
+      "expected": "Native lab and sandbox behavior/edges/regressions pass with fresh media",
+      "observed": "Exit 0; all assertions passed; 11 collapse video frames decoded, 148526 bytes."
+    },
+    {
+      "command": "python3 target/run_physics_city_smoke.py --display \"$DISPLAY\"",
+      "preparation": "Copied deploy/run_populated_stress_smoke.py to target/run_physics_city_smoke.py and replaced dashboard/evidence with target/physics-city-capture. Same Java harness, assertions and synthetic profile; only capture destination changed.",
+      "expected": "Native development action, repeat, four districts, saves/reload and original-city regression pass",
+      "observed": "Exit 0; all native workflow assertions passed. Fresh captures copied under physics-city-*; upstream artifacts untouched."
+    },
+    {
+      "command": "python3 target/verify_physics_city_media.py",
+      "preparation": "Copied deploy/verify_populated_stress_media.py; changed only media folder to target/physics-city-capture.",
+      "expected": "All video frames decode, frame count matches metadata, moving frames and size below 6 MB",
+      "observed": "Exit 0; 12 frames, 1498966 bytes; all decoder assertions passed. Java warned temporary directory missing; created target/stress-unit-tmp before subsequent checks."
+    },
+    {
+      "command": "python3 target/run_physics_parcel_smoke.py --display \"$DISPLAY\"",
+      "preparation": "Copied deploy/run_populated_stress_parcel_smoke.py to target/run_physics_parcel_smoke.py; changed only evidence destination to target/physics-parcel-capture. Same Java harness/assertions/profile.",
+      "expected": "Retained parcel UI, all 15 layout choices, preview edge, construction, reload, workspace isolation and road regression pass",
+      "observed": "Retry exit 0; all assertions passed; fresh captures and F10 recording saved. First interrupted attempt retained above and not counted as pass."
+    },
+    {
+      "command": "python3 target/verify_physics_parcel_media.py",
+      "preparation": "Copied original parcel verifier and changed only evidence folder to target/physics-parcel-capture.",
+      "expected": "All frames decode and moving clip is below 6 MB",
+      "observed": "Exit 0; 54 frames decoded, 1120925 bytes; all decoder assertions passed."
+    },
+    {
+      "command": "python3 deploy/run_physics_cli_smoke.py --display \"$DISPLAY\" --java /usr/lib/jvm/java-17-openjdk-amd64/bin/java",
+      "expected": "Packaged lab opens on Java 17 and closes through real native Escape input",
+      "observed": "Exit 0; isolated window opened and closed."
+    },
+    {
+      "command": "git diff --check; git diff --name-status <recorded bases>; compare upstream source/tests/media to git show 11314f5f2ebf39e0d8b335f90af8b8327722f35a:<path>",
+      "expected": "Only intended physics changes, no unrelated deletions; upstream features preserved",
+      "observed": "All checks passed; no unmerged index; no file deletions against either recorded base. Upstream source/tests/populated media remain byte-identical."
+    }
+  ],
+  "audit": {
+    "oldBase": "No file deletions against 5f1b711d467566491538d975d9de24d01f19bc1f. Later upstream changes retained.",
+    "latestReviewerBase": "Against 11314f5f2ebf39e0d8b335f90af8b8327722f35a, only physics package/tests/harnesses/media/docs, Main dispatch, Player/Jeep integration and physics progress entry differ. All upstream network/city source, existing tests, populated harnesses/media and 70 nonphysics progress entries matched exact base bytes/parsed values.",
+    "intendedReplacements": "Player old axis movement and Jeep inline collision query replaced by shared voxel collision. No unrelated deleted files.",
+    "ci": "macOS CI not executed locally; controller must run/check final-head CI after publication. No full-suite or CI pass claimed."
+  },
+  "publication": "All new evidence pending controller publication. Existing upstream media preserved; fresh integration media uses physics-city/physics-parcel names.",
+  "sourceSha256": {
+    "src/main/java/dev/jayms/physics/PhysicsWorld.java": "d3392306efdb2fd14cf65b9a0483fd07da1f2a3e56b1b74ed9f7450df0ad4510",
+    "src/main/java/dev/jayms/physics/RigidBody.java": "18af895e616f4111c8d2e0caf1347470db0d46f24a271ba905b66c5cff1ee314",
+    "src/main/java/dev/jayms/net/LocalGame.java": "b4a812f71fba7d4925a524a8a573b9d063544a18e7ec6424eadaa8250aa71e42",
+    "src/main/java/dev/jayms/net/WorldVoxels.java": "2a42e44525047ee47227fdf79005aebcd4b602ce4367211db9266943cef54e85",
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "e80830c75de32b47d41577ed4bf4a796222eb6a85957e3ef4d8b119b1e34d06c",
+    "src/main/java/dev/jayms/ui/SavesMenu.java": "2996b42e3590055005ce88bd7cf6979f589222dbe0b0f836c7c3981186cfc79f"
+  },
+  "Playtest": {
+    "environment": "Linux native X11, inherited assigned DISPLAY/XAUTHORITY, Mesa software renderer, synthetic isolated profiles. Browser testing does not apply to native OpenGL game.",
+    "physics": {
+      "Playtest": "Production PhysicsLab; Linux X11; inherited assigned DISPLAY/XAUTHORITY; Mesa software rendering; isolated synthetic profile",
+      "steps": [
+        "D removes support: 28 debris voxels fall; independent anchored tower stays intact",
+        "D repeated: no change; R restores scene",
+        "X/F: explosion and stress fracture detach structures; pause freezes time",
+        "2 B: loaded ropes break",
+        "3: water mass 121.6 conserved; fire emits smoke",
+        "4 W G: cloth/soft body/SPH finite; GPU integration matches CPU and pinned particles stay fixed",
+        "5 Up: wheel torque moves sprung vehicle",
+        "Synthetic contact fixtures in production world: floor travel 10 blocks/s and wall tangent travel 6 blocks/s for at least one second",
+        "R: reset regression restores original cells",
+        "F10: collapse clip recorded"
+      ],
+      "expected": "All listed assertions pass",
+      "observed": "All listed assertions passed",
+      "gpuCompute": true
+    },
+    "forceInertia": {
+      "Playtest": "Synthetic bodies in production PhysicsLab/PhysicsWorld; inherited X11 display, Mesa, isolated profile",
+      "elapsedSeconds": 0.033332825,
+      "expectedForceVx": 1,
+      "observedForceVx": 1.0,
+      "expectedTorqueWx": 0.3,
+      "observedTorqueWx": 0.3,
+      "pointImpulseWx": 0.3,
+      "observed": "All wake, inertia and load-clearing assertions passed; R reset verified later"
+    },
+    "walker": {
+      "Playtest": "Production Main offline sandbox; Linux X11 inherited role display; Mesa; isolated synthetic profile",
+      "steps": [
+        "Gravity lands on floor",
+        "Hold W: climb 0.5-block partial voxel without jumping",
+        "Hold W: stop at 3-block wall with no overlap",
+        "Space: jump and land on original floor"
+      ],
+      "expected": "Step at y=109.5; wall stops at x=9.7; jump lands at y=109",
+      "observed": "All assertions passed"
+    },
+    "inspection": "Fresh force/inertia capture inspected: two rotated non-cubic fixtures visible. Fresh F10 video fully decoded.",
+    "city": "Playtest: PASS. Command: python3 deploy/run_populated_stress_smoke.py --display \"$DISPLAY\"\nEnvironment: Linux native Main; inherited assigned DISPLAY/XAUTHORITY; Mesa software OpenGL; isolated synthetic user.home and saves. No browser workflow applies to this native Java game.\nExpected: Develop stress save fills target counts, creates real voxels and operators, repeat adds no duplicates, save/reload persists, Original city and F6 remain intact.\nRendering: district navigation synchronizes player and camera; World.stream preloads 81 columns, then 20 frames use the normal mesh budget. Fully meshed building columns required before capture. Streaming latency is not claimed.\nSteps: native Controls > City saves > load Stress Test Grid > Develop stress save > repeat > Save current > render each developed ring > F10 pan > save/reload > load Original > F6.\nObserved: Native Develop stress save added 192 houses, 80 businesses, 80 factories, 48 crop farms and filled the 128 citizen limit; real voxel floor and operators checked.\nObserved: Repeated native action kept buildings and citizens unchanged.\nObserved: Running simulation retained populated city; four populated districts rendered with 20 frames for terrain streaming.\nObserved: Save/reload kept all saved buildings, 128 residents, farms and business operators.\nObserved: Original save roads and residents unchanged; F6 toggle works.\nRendered frames: 135\n",
+    "cityInspection": "Fresh residential screenshot inspected: houses, roads and citizens visible. Software rendering was slow; no frame-rate or streaming-latency pass claimed.",
+    "parcel": {
+      "status": "passed",
+      "layouts": 15,
+      "checks": [
+        "real UI zoning and grid parcels",
+        "15 layout choices applied",
+        "preview does not mutate zones",
+        "partition invariants",
+        "real save/reload",
+        "production construction fits parcel",
+        "purchased plot protects layout",
+        "engine workspace input isolation and paused clock",
+        "workspace save and return preserve parcels",
+        "road placement regression"
+      ],
+      "setup": "synthetic city; autonomous purchasing deferred during comparisons; one construction pass isolated to tested zone",
+      "profile": "isolated synthetic city",
+      "platform": "Linux inherited X11 Mesa"
+    },
+    "parcelInspection": "Fresh layout-8 screenshot inspected: parcel preview boundaries visible in the synthetic city.",
+    "videoInspection": "Inspected fresh city and parcel decoded middle frames; rendered houses/roads and parcel overlay visible. All three implementation clips fully decoded."
+  },
+  "parcelFirstAttempt": {
+    "command": "python3 target/run_physics_parcel_smoke.py --display \"$DISPLAY\"",
+    "observed": "Exit 143; no assertion-failure report written; not a pass. No matching owned Java test process remained. Retrying once with the same harness and isolated output adapter."
+  },
+  "mediaSha256": {
+    "dashboard/evidence/physics-collapse.mp4": "dfbc741124b62c586105932e1630b84a9d212ac901394b203e8fa9a1d222a3f4",
+    "dashboard/evidence/physics-force-inertia.png": "4e6ce1eafd967c6cc60149c56e3831fc2f570de94127530fb4b27403cca0fa83",
+    "dashboard/evidence/physics-city-main.mp4": "b19b61bbc03c5e3ee42e6e37791f886b6a2b58cd3c9147a68f7d5bd81e3bece4",
+    "dashboard/evidence/physics-city-houses.png": "09d28cbc2327d8c78933e078ec46a5e8509d11e80bb6dc9e4de36ca5d4a6099b",
+    "dashboard/evidence/physics-parcel-main.mp4": "298b657eb48075cded0d172debef67bd2f83a50396ca926c046c709771277564",
+    "dashboard/evidence/physics-parcel-layout-8.png": "774e99e75f9fe5954351517c419032d1afd591143b3d51f8c3a9e4edef7e1627"
+  }
+}
