@@ -186,6 +186,15 @@
       "updatedAt": "2026-10-08T10:38:59+00:00"
     },
     {
+      "id": "queue-38633935323630622d653665302d343665652d393062372d303635386235363063636366",
+      "title": "Mobile game support",
+      "description": "Native phone client with touch sandbox controls and server-authoritative city planning.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Native client and simulator harness implemented. Passed 26 Java tests, 15 gateway workflow checks/observations and 28 mock harness tests. Exact-source native Mac build, touch playtest and media inspection remain pending.",
+      "updatedAt": "2026-10-07T22:54:08+00:00"
+    },
+    {
       "id": "63386663653465302d303138612d346331372d396364302d353961636235626436613632",
       "title": "Voxel physics systems",
       "description": "Building collision, structural destruction, vehicle and environmental simulation with native playtests",

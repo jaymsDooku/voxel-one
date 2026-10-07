@@ -1,0 +1,64 @@
+package dev.jayms;
+
+import dev.jayms.net.*;
+import dev.jayms.net.mobile.*;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.io.TempDir;
+import java.nio.file.*;
+import java.net.*;
+import java.net.http.*;
+import java.util.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+class MobileGatewayTest {
+    @TempDir Path temp;
+    static final HttpClient HTTP=HttpClient.newHttpClient();
+    HttpResponse<String> post(MobileFixtureHost host,String route,String token,Map<String,Object> body)throws Exception{
+        var builder=HttpRequest.newBuilder(URI.create(host.url()+"/mobile/v1/"+route)).header("Content-Type","application/json").POST(HttpRequest.BodyPublishers.ofString(Json.write(body)));
+        if(token!=null)builder.header("Authorization","Bearer "+token);
+        return HTTP.send(builder.build(),HttpResponse.BodyHandlers.ofString());
+    }
+    String token(HttpResponse<String> response){var match=java.util.regex.Pattern.compile("\\\"token\\\":\\\"([A-Za-z0-9_-]+)\\\"").matcher(response.body());assertTrue(match.find());return match.group(1);}
+    @Test void loginWorldEditsReachAndLogoutUseExistingAuthoritativeServer()throws Exception{
+        try(var host=new MobileFixtureHost(temp.resolve("profile"))){
+            assertEquals(401,post(host,"state",null,Map.of()).statusCode());
+            assertEquals(400,post(host,"login",null,Map.of("game","other","username","ios_fixture","password","fixture-password-123")).statusCode());
+            var login=post(host,"login",null,Map.of("game","sandbox","username","ios_fixture","password","fixture-password-123"));assertEquals(200,login.statusCode());
+            String bearer=token(login);assertTrue(login.body().contains("\"cells\""));assertTrue(login.body().contains("\"game\":\"sandbox\""));
+            try(var observer=new MultiplayerClient("127.0.0.1",host.sandbox.port(),"observer","observer-pass-123".toCharArray(),true,host.fingerprint)){
+                var match=java.util.regex.Pattern.compile("\\\"pose\\\":\\[(.*?)\\]").matcher(login.body());assertTrue(match.find());
+                var pose=match.group(1).split(",");int x=(int)Math.floor(Double.parseDouble(pose[0])),ground=(int)Math.floor(Double.parseDouble(pose[1]))-1,z=(int)Math.floor(Double.parseDouble(pose[2]));
+                var edit=post(host,"action",bearer,Map.of("kind","edit","blockX",x,"blockY",ground,"blockZ",z,"type",0,"slot",0));assertEquals(200,edit.statusCode());
+                long end=System.nanoTime()+5_000_000_000L;boolean seen=false;
+                while(System.nanoTime()<end && !seen){seen=observer.poll().stream().anyMatch(e->e.x()==x && e.z()==z && e.type()==0);Thread.sleep(20);}
+                assertTrue(seen,"Desktop protocol observer must receive the phone edit");
+                var rejected=post(host,"action",bearer,Map.of("kind","edit","blockX",500,"blockY",ground,"blockZ",500,"type",0,"slot",0));
+                assertEquals(200,rejected.statusCode());assertTrue(rejected.body().contains("Placement rejected"));
+            }
+            assertEquals(200,post(host,"logout",bearer,Map.of()).statusCode());assertEquals(401,post(host,"state",bearer,Map.of()).statusCode());
+            var again=post(host,"login",null,Map.of("game","sandbox","username","ios_fixture","password","fixture-password-123"));assertEquals(200,again.statusCode());
+        }
+    }
+    @Test void cityCommandsAndEconomyAreServerOwned()throws Exception{
+        try(var host=new MobileFixtureHost(temp.resolve("city-profile"))){
+            var login=post(host,"login",null,Map.of("game","city","username","ios_fixture","password","fixture-password-123"));assertEquals(200,login.statusCode());String bearer=token(login);
+            assertTrue(login.body().contains("\"treasury\""));assertTrue(login.body().contains("\"citizens\""));
+            var road=post(host,"action",bearer,Map.of("kind","city","command",1,"value",0,"points",List.of(List.of(40,10),List.of(46,10))));assertEquals(200,road.statusCode());
+            assertTrue(road.body().contains("\"city\""));
+            var bad=post(host,"action",bearer,Map.of("kind","city","command",1,"value",0,"points",List.of()));assertEquals(200,bad.statusCode());assertTrue(bad.body().contains("two endpoints"),"City endpoint rejection was not reported");
+            assertEquals(400,post(host,"state",bearer,Map.of("focusX",Double.MAX_VALUE,"focusZ",0)).statusCode());
+        }
+    }
+    @Test void codecAndTransportRejectMalformedOrBrowserRequests()throws Exception{
+        assertThrows(IllegalArgumentException.class,()->Json.object("{\"a\":1,\"a\":2}"));
+        assertThrows(IllegalArgumentException.class,()->Json.object("{\"a\":NaN}"));
+        assertThrows(IllegalArgumentException.class,()->Json.object("{\"a\":1e999}"));
+        assertThrows(IllegalArgumentException.class,()->Json.object("{\"a\":1}junk"));
+        assertEquals("quote\" line\n",Json.text(Json.object(Json.write(Map.of("a","quote\" line\n"))),"a"));
+        try(var host=new MobileFixtureHost(temp.resolve("limits"))){
+            var request=HttpRequest.newBuilder(URI.create(host.url()+"/mobile/v1/login")).header("Origin","https://example.com").POST(HttpRequest.BodyPublishers.ofString("{}")).build();
+            assertEquals(403,HTTP.send(request,HttpResponse.BodyHandlers.ofString()).statusCode());
+            assertEquals(413,HTTP.send(HttpRequest.newBuilder(request.uri()).POST(HttpRequest.BodyPublishers.ofString("x".repeat(8193))).build(),HttpResponse.BodyHandlers.ofString()).statusCode());
+        }
+    }
+}

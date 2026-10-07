@@ -1,0 +1,83 @@
+{
+  "environment": "Linux x86_64; Java/Maven; isolated synthetic TLS games in assigned worktree",
+  "checks": [
+    {
+      "command": "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Dtest=MobileGatewayTest,MultiplayerTest,CityMultiplayerTest,FractionalWorldTest test",
+      "status": "passed",
+      "suites": [
+        {
+          "name": "MobileGatewayTest",
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "MultiplayerTest",
+          "tests": 15,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "CityMultiplayerTest",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "FractionalWorldTest",
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      ]
+    },
+    {
+      "command": "python3 -m unittest discover -s tools/ios -p 'test_*.py' -q",
+      "status": "passed",
+      "tests": 28,
+      "scope": "Mock contract tests only; not native-client execution"
+    },
+    {
+      "command": "bash -n ios/check-simulator.sh; python3 -m py_compile ios/check-results.py ios/make-project.py deploy/run_mobile_gateway_smoke.py",
+      "status": "passed"
+    },
+    {
+      "command": "python3 deploy/build_site.py",
+      "status": "passed",
+      "note": "Root README phone guide regenerated docs navigation. Unrelated generated progress fallback restored to HEAD text."
+    },
+    {
+      "command": "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Dtest=MobileGatewayTest,MultiplayerTest,CityMultiplayerTest,FractionalWorldTest test",
+      "status": "failed",
+      "tests": 26,
+      "failures": 1,
+      "errors": 0,
+      "observed": "Combined rerun: CityMultiplayerTest timed out at line 131 waiting for road deletion; 25 tests passed. The same case passed on an isolated rerun. No desktop game or regression-test source was changed.",
+      "scope": "Existing desktop city regression; its source and the game server source are unchanged."
+    },
+    {
+      "command": "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Dtest=CityMultiplayerTest test",
+      "status": "passed",
+      "tests": 1,
+      "note": "Isolated rerun of the existing road-deletion/reconnect regression. Combined-run timeout remains recorded above."
+    },
+    {
+      "command": "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Dtest=MobileGatewayTest test",
+      "status": "passed",
+      "tests": 3,
+      "note": "Final gateway source including ordered pose updates and city-receipt pacing."
+    },
+    {
+      "command": "python3 deploy/run_mobile_gateway_smoke.py --report dashboard/evidence/mobile-gateway-playtest.json",
+      "status": "passed",
+      "checksAndObservations": 18,
+      "scope": "Final gateway source; real Java worlds and wire transport. Includes ordered-pose replay, reach rejection, treasury debit and rapid invalid-city command handling."
+    }
+  ],
+  "playtest": "Actual Java gateway workflow recorded in mobile-gateway-playtest.json. Native iPhone touch build, playtest and media are pending the exact-source Mac run. No native checks are reported as passed.",
+  "diffAudit": "Only README phone guide, generated docs navigation and the assigned milestone change existing tracked content. Native sources, starter terrain, gateway, tests and harness are additions. No unrelated source deletions. Final review base has not yet been supplied."
+}
