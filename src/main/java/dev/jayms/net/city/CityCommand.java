@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 
 public record CityCommand(int kind, int value, List<Polygon.Point> points, int ownerKind, int ownerId, Capital capital) {
-    public static final int ROAD = 1, ZONE = 2, RIDE = 3, DEMOLISH = 4, SPECIAL = 5, EXCHANGE = 6, CAPITAL = 7, SETTLE_DISTRICT = 8, FOCUS_DISTRICT = 9, RUNWAY = 10, FLIGHT = 11, DELETE_ROAD = 12, EDIT_ROAD = 13, RAIL = 14;
+    public static final int ROAD = 1, ZONE = 2, RIDE = 3, DEMOLISH = 4, SPECIAL = 5, EXCHANGE = 6, CAPITAL = 7, SETTLE_DISTRICT = 8, FOCUS_DISTRICT = 9, RUNWAY = 10, FLIGHT = 11, DELETE_ROAD = 12, EDIT_ROAD = 13, RAIL = 14, PARCEL = 15;
 
     public record Capital(
             int action,
@@ -44,7 +44,7 @@ public record CityCommand(int kind, int value, List<Polygon.Point> points, int o
     public CityCommand {
         points = List.copyOf(points);
         if (kind < 1
-                || kind > 14
+                || kind > 15
                 || points.size() > 32
                 || (kind == CAPITAL) != (capital != null)
                 || kind == CAPITAL && !points.isEmpty())
@@ -59,6 +59,12 @@ public record CityCommand(int kind, int value, List<Polygon.Point> points, int o
                     || points.get(0).x()!=Math.floor(points.get(0).x())
                     || points.get(0).x()<0 || points.get(0).x()>3)))
             throw new IllegalArgumentException("Invalid road section command");
+        if (kind == PARCEL && (value <= 0 || points.size()!=1 || points.get(0).z()!=0
+                || points.get(0).x()!=Math.floor(points.get(0).x()) || points.get(0).x()<0
+                || points.get(0).x()>=dev.jayms.net.city.parcel.ParcelPortfolio.Algorithm.values().length))
+            throw new IllegalArgumentException("Invalid parcel command");
+        if (kind == ZONE && (value<0 || value>63 || value/4>15))
+            throw new IllegalArgumentException("Invalid zone parcel algorithm");
         if (kind == DEMOLISH && (value <= 0 || !points.isEmpty()))
             throw new IllegalArgumentException("Demolition needs a building ID and no points");
     }

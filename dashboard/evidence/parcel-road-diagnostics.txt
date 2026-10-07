@@ -1,0 +1,4 @@
+boundary probe=80,182; screen=425,206; picked=Point[x=80.0, z=182.0]
+target cell=80,182; points=[Point[x=80.5, z=182.5]]; message=Choose the first endpoint for Dirt road; notice=Parcel changes need a zone without buildings or purchased plots
+boundary probe=116,182; screen=855,454; picked=Point[x=116.0, z=182.0]
+target cell=116,182; points=[Point[x=116.5, z=182.5]]; message=Dirt road built: Meadow Lane | Mayor paid $468; notice=Dirt road built: Meadow Lane | Mayor paid $468

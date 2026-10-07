@@ -101,6 +101,10 @@ class ProtocolCompatibilityTest {
                         assertEquals(legacyVersion == 15, client.cityCommand(new CityCommand(
                                 CityCommand.SPECIAL, 1, List.of(), 0, 0)));
                         if (legacyVersion == 14) assertTrue(client.notice().contains("server update"));
+                        assertFalse(client.cityCommand(new CityCommand(CityCommand.PARCEL,1,
+                                List.of(new dev.jayms.net.city.Polygon.Point(2,0)))));
+                        assertFalse(client.cityCommand(new CityCommand(CityCommand.ZONE,12,List.of())));
+                        assertTrue(client.notice().contains("server update"));
                         assertTrue(client.cityCommand(new CityCommand(CityCommand.ROAD, 0, List.of())));
                         long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
                         while (!client.notice().equals("Road received") && System.nanoTime() < deadline) {

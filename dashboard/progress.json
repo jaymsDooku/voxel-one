@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T15:56:54.144534+00:00",
+  "updatedAt": "2026-10-07T16:34:28+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,36 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "36623333663562302d613731382d343833342d613735302d326666313839333532663035",
+      "title": "Zone parcel algorithm portfolio",
+      "description": "Adding common parcel API, selectable layouts and parcel-aware building placement.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Final-head parcel validation — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623333663562302d613731382d343833342d613735302d326666313839333532663035/dashboard/evidence/parcel-validation.json"
+        },
+        {
+          "kind": "image",
+          "label": "Fresh parcel protection — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623333663562302d613731382d343833342d613735302d326666313839333532663035/dashboard/evidence/parcel-protected-plot.png"
+        },
+        {
+          "kind": "image",
+          "label": "Fresh editor return — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623333663562302d613731382d343833342d613735302d326666313839333532663035/dashboard/evidence/parcel-editor-return.png"
+        },
+        {
+          "kind": "video",
+          "label": "Fresh final-head F10 playtest — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36623333663562302d613731382d343833342d613735302d326666313839333532663035/dashboard/evidence/parcel-playtest.mp4"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Review road harness hardened: center clicks retain exact cell (98,182) assertion. Two full native workflows passed, including all 15 layouts and edge/regression checks. Sanitized picker diagnostics, final road image and fresh 69.9-second F10 clip saved and inspected. Original reviewer failure not reproduced locally; awaiting controller publication and independent review.",
+      "updatedAt": "2026-10-07T16:34:28+00:00"
+    },
     {
       "id": "36343134366466332d316366392d343637312d623364612d373436613466356165303163",
       "title": "Voxel One Game Engine Editor",

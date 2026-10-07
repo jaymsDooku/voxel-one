@@ -1,5 +1,9 @@
 package dev.jayms.ui;
 
+import dev.jayms.net.city.parcel.ParcelGenerator.Parcel;
+import dev.jayms.net.city.parcel.ParcelPortfolio;
+import dev.jayms.net.city.parcel.ZoneParceling;
+
 import static org.lwjgl.glfw.GLFW.*;
 
 import dev.jayms.net.*;
@@ -42,6 +46,23 @@ public final class CityTools {
         return project(x, height(x, z, ignoredHeight), z, projection, view, w, h);
     }
 
+    private boolean parcelZoneVisible(List<Polygon.Point> vertices,Matrix4f projection,Matrix4f view,int w,int h,float ground) {
+        float minX=Float.POSITIVE_INFINITY,minY=minX,maxX=Float.NEGATIVE_INFINITY,maxY=maxX;
+        for(var v:vertices) {
+            var p=project(v.x(),ground,v.z(),projection,view,w,h);if(p==null)continue;
+            minX=Math.min(minX,p.x);maxX=Math.max(maxX,p.x);minY=Math.min(minY,p.y);maxY=Math.max(maxY,p.y);
+        }
+        return maxX>=0&&minX<=w&&maxY>=130&&minY<=h-196;
+    }
+    private void renderParcels(Overlay ui,List<Parcel> parcels,
+            Matrix4f projection,Matrix4f view,int w,int h,float ground,float[] color) {
+        int[][] edges={{-1,0,0,0,0,1},{1,0,1,0,1,1},{0,-1,0,0,1,0},{0,1,0,1,1,1}};
+        for(var parcel:parcels)for(var c:parcel.cells()) {
+            for(var e:edges)if(!parcel.cells().contains(new Polygon.Cell(c.x()+e[0],c.z()+e[1])))
+                edge(ui,project(c.x()+e[2],ground+.05f,c.z()+e[3],projection,view,w,h),
+                    project(c.x()+e[4],ground+.05f,c.z()+e[5],projection,view,w,h),color[0]*.8f,color[1]*.8f,color[2]*.8f);
+        }
+    }
     public boolean dashboardRequested;
     public int stressFocus = -1;
     public int specialKind, specialLevel = 1, specialOwner;
@@ -53,6 +74,16 @@ public final class CityTools {
         return 0;
     }
     private static int specialRowHeight(int height) { return Math.max(12, Math.min(28, (height - 340) / 13)); }
+    public int parcelAlgorithm=2;
+    public boolean parcelPreview, parcelApply;
+    private final Map<String,List<Parcel>> parcelPreviews=new LinkedHashMap<>();
+    private List<Parcel> previewParcels(CityFrame.Zone zone,CityFrame city) {
+        String key=zone.id()+":"+parcelAlgorithm+":"+zone.polygon().hashCode()+":"+city.roads().hashCode()+":"+zone.parcels().hashCode();
+        if(parcelPreviews.size()>128)parcelPreviews.clear();
+        return parcelPreviews.computeIfAbsent(key,k->ZoneParceling.generate(
+            new CityFrame.Zone(zone.id(),zone.type(),zone.polygon(),parcelAlgorithm,zone.parcels()),
+            city.roads().stream().map(r->new Polygon.Cell(r.x(),r.z())).toList(),c->1));
+    }
     public int roadType;
     public boolean roadMenu;
     private int editingStreet;
@@ -74,10 +105,18 @@ public final class CityTools {
     public String message = "Inspect: click a building, plot or citizen for details.";
 
     public boolean key(int key, Consumer<CityCommand> submit) {
+        if(tool>=0&&tool<4) {
+            if(key==GLFW_KEY_LEFT_BRACKET||key==GLFW_KEY_RIGHT_BRACKET) {
+                parcelAlgorithm=Math.floorMod(parcelAlgorithm+(key==GLFW_KEY_RIGHT_BRACKET?1:-1),15);return true;
+            }
+            if(key==GLFW_KEY_V){parcelPreview=!parcelPreview;return true;}
+            if(key==GLFW_KEY_P){parcelApply=true;points.clear();message="Click an empty zone to apply the selected parcel layout.";return true;}
+        }
         if (key == GLFW_KEY_ESCAPE && (!points.isEmpty() || tool != -1 || roadMenu || selectedStreet != 0)) {
             pendingRoad = null;
             points.clear();
             tool = -1;
+            parcelApply=false;parcelPreview=false;
             roadMenu = false;
             editingStreet = 0;
             selectedStreet = 0;
@@ -91,7 +130,7 @@ public final class CityTools {
         if (key == GLFW_KEY_ENTER && tool >= 0 && tool < 4) {
             try {
                 new Polygon(points);
-                submit.accept(new CityCommand(CityCommand.ZONE, tool, points));
+                submit.accept(new CityCommand(CityCommand.ZONE, tool+4*(parcelAlgorithm+1), points));
                 pendingRoad = null;
                 points.clear();
             } catch (IllegalArgumentException e) {
@@ -111,6 +150,9 @@ public final class CityTools {
             Matrix4f view,
             CityFrame city,
             Consumer<CityCommand> submit) {
+        if(tool>=0&&tool<4 && x>=16&&x<=Math.min(width-16,620)&&y>=183&&y<=213) {
+            parcelAlgorithm=(parcelAlgorithm+1)%15;return;
+        }
         if (city.stressGrid() != null && x >= width-224 && x < width-24 && y >= 180 && y < 380) {
             int gx=Math.min(999,(int)((x-(width-224))*999/199)), gz=Math.min(999,(int)((y-180)*999/199));
             stressFocus=gz*StressGrid.SIDE+gx; return;
@@ -164,6 +206,7 @@ public final class CityTools {
             tool = new int[] {-1, 4, 0, 1, 2, 3, 5, 6, 7}[Math.min(8, index)];
             pendingRoad = null;
             points.clear();
+            parcelApply=false;
             roadMenu = tool == 4;
             editingStreet = 0;
             selectedStreet = 0;
@@ -171,6 +214,14 @@ public final class CityTools {
         }
         if (roadMenu) return;
         if (y < 130 || y > height - 200) return;
+        if(parcelApply&&tool>=0&&tool<4) {
+            var position=cursorPoint(x,y,width,height,projection,view,city);
+            if(position!=null)for(var zone:city.zones())if(zone.polygon().contains(position.x(),position.z())) {
+                submit.accept(new CityCommand(CityCommand.PARCEL,zone.id(),List.of(new Polygon.Point(parcelAlgorithm,0))));
+                parcelApply=false;return;
+            }
+            message="Click inside an existing empty zone.";return;
+        }
         if (tool == 5) return;
         if (city.stressGrid()!=null && tool!=-1) {
             message="Prebuilt roads and zoning retained. Inspect buildings or use the dashboard."; return;
@@ -540,6 +591,10 @@ public final class CityTools {
                         color[1],
                         color[2]);
             }
+            if(city.stressGrid()==null && parcelZoneVisible(vs,projection,view,w,h,ground)) {
+                var parcels=parcelPreview&&tool>=0&&tool<4?previewParcels(zone,city):zone.parcels();
+                renderParcels(ui,parcels,projection,view,w,h,ground,color);
+            }
             var a = vs.get(0);
             var p = project(a.x(), ground + 1, a.z(), projection, view, w, h);
             if (p != null)
@@ -555,6 +610,12 @@ public final class CityTools {
         }
         if (city.stressGrid() != null) renderStressGrid(ui,w,city.stressGrid());
         renderGuide(ui, w, h, projection, view, ground);
+        if(tool>=0&&tool<4) {
+            ui.rectangle(16,183,Math.min(w-32,604),30,.025f,.04f,.065f,.96f);
+            ui.text("P"+ParcelPortfolio.Algorithm.values()[parcelAlgorithm].priority+" "+ParcelPortfolio.Algorithm.values()[parcelAlgorithm].label,24,192,1.1f);
+            ui.text("[ / ] or click: layout | V: compare preview | P: apply to empty zone",24,220,1.0f);
+            if(parcelPreview)ui.text("PREVIEW ONLY - terrain cost preview is flat; server uses real terrain",24,237,1.0f,1,.7f,.2f,1);
+        }
         boolean valid = true;
         if (tool == -1 && selectedCitizen == 0 && selectedStreet != 0) {
             ui.rectangle(16, 140, Math.min(400, w - 32), 121, .025f, .04f, .065f, .95f);

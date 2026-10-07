@@ -92,7 +92,7 @@ public final class MultiplayerClient implements AutoCloseable {
                 ItemDrop drop = ItemDrop.read(in);
                 if (drop.count() > 0) drops.put(drop.id(), drop);
             }
-            acceptCity(CityFrame.read(in, serverProtocol < 16 ? 6 : serverProtocol < 19 ? 8 : serverProtocol < 20 ? 9 : serverProtocol < 21 ? 10 : serverProtocol < 22 ? 11 : serverProtocol < 24 ? 12 : serverProtocol < 25 ? 13 : serverProtocol < 26 ? 14 : 15), System.nanoTime());
+            acceptCity(CityFrame.read(in, serverProtocol < 16 ? 6 : serverProtocol < 19 ? 8 : serverProtocol < 20 ? 9 : serverProtocol < 21 ? 10 : serverProtocol < 22 ? 11 : serverProtocol < 24 ? 12 : serverProtocol < 25 ? 13 : serverProtocol < 26 ? 14 : serverProtocol < 27 ? 15 : 16), System.nanoTime());
             out.writeByte(Protocol.READY);
             out.flush();
             socket.setSoTimeout(0);
@@ -218,6 +218,11 @@ public final class MultiplayerClient implements AutoCloseable {
     public boolean cityCommand(CityCommand command) { return cityCommand(command, null); }
 
     public synchronized boolean cityCommand(CityCommand command, java.util.function.Consumer<String> completion) {
+        if (serverProtocol < 27 && (command.kind() == CityCommand.PARCEL
+                || command.kind() == CityCommand.ZONE && command.value() >= 4)) {
+            notice = "Parcel layouts require a server update.";
+            return false;
+        }
         if (serverProtocol < 25 && (command.kind() == CityCommand.RAIL || command.kind() == CityCommand.SPECIAL
                 && (command.value() == SpecialBuildings.RAIL_STATION || command.value() == SpecialBuildings.RAIL_DEPOT))) {
             notice = "Railways require a server update.";
@@ -279,7 +284,7 @@ public final class MultiplayerClient implements AutoCloseable {
                 int type = in.readUnsignedByte();
                 Runnable event;
                 if (type == Protocol.CITY_STATE) {
-                    var state = CityFrame.read(in, serverProtocol < 16 ? 6 : serverProtocol < 19 ? 8 : serverProtocol < 20 ? 9 : serverProtocol < 21 ? 10 : serverProtocol < 22 ? 11 : serverProtocol < 24 ? 12 : serverProtocol < 25 ? 13 : serverProtocol < 26 ? 14 : 15);
+                    var state = CityFrame.read(in, serverProtocol < 16 ? 6 : serverProtocol < 19 ? 8 : serverProtocol < 20 ? 9 : serverProtocol < 21 ? 10 : serverProtocol < 22 ? 11 : serverProtocol < 24 ? 12 : serverProtocol < 25 ? 13 : serverProtocol < 26 ? 14 : serverProtocol < 27 ? 15 : 16);
                     long time = System.nanoTime();
                     event = () -> acceptCity(state, time);
                 } else if (type == Protocol.CITY_WORLD) {
