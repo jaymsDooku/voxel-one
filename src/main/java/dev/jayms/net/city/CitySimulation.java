@@ -1342,7 +1342,7 @@ public final class CitySimulation {
         if(!topology.center(first)) return false;
         var cells=new ArrayList<Cell>();
         for(var cell:t.route) {
-            if(!topology.center(cell) || !cells.isEmpty() && !topology.connected(cells.getLast(),cell)) break;
+            if(!topology.center(cell) || !cells.isEmpty() && !topology.connected(cells.get(cells.size()-1),cell)) break;
             cells.add(cell);
         }
         if(cells.size()<2) return false;
@@ -1368,7 +1368,7 @@ public final class CitySimulation {
         // A pavement miter may trim the final cell of a short leg. Keep its physical
         // endpoint when changing lanes, instead of restarting the road segment.
         if(t.lanes.isEmpty() && !points.isEmpty()) {
-            var end=points.getLast();t.lanes.add(end.point());t.laneSources.add(end.sourceIndex());
+            var end=points.get(points.size()-1);t.lanes.add(end.point());t.laneSources.add(end.sourceIndex());
         }
     }
 
@@ -1546,6 +1546,19 @@ public final class CitySimulation {
             if (!nearRoad(op.x,op.z) && (ot==null || ot.lanes.isEmpty())) continue;
             float gap = laneGap(h, t, p, ecs.get(other, Household.class), ecs.get(other, Travel.class), op);
             if (RoadTraffic.blocks(p.x, p.z, nx, nz, op.x, op.z, gap)) {
+                t.activity = "Waiting for traffic";
+                return;
+            }
+        }
+        // Rider households already reserve their mount's space. Unoccupied and
+        // player-ridden mounts have no household actor, so sweep against them here.
+        for (int horse : ecs.query(Position.class, Mount.class)) {
+            if (horse == h.horse) continue;
+            var mount = ecs.get(horse, Mount.class);
+            var rider = mount.rider < 0 ? ecs.get(-mount.rider, Household.class) : null;
+            if (rider != null && rider.horse == horse) continue;
+            var hp = ecs.get(horse, Position.class);
+            if (RoadTraffic.blocks(p.x, p.z, nx, nz, hp.x, hp.z, .65f)) {
                 t.activity = "Waiting for traffic";
                 return;
             }
@@ -1760,20 +1773,30 @@ public final class CitySimulation {
     }
 
     private void parkHorse(int horse, Position rider) {
-        var clearance = new Household("Traffic clearance", 0);
-        clearance.horse = horse;
-        var candidates = roads.keySet().stream()
-                .filter(c -> Math.hypot(c.x() + .5f - rider.x, c.z() + .5f - rider.z) <= 4)
-                .sorted(Comparator.comparingDouble(c -> Math.hypot(c.x() + .5f - rider.x, c.z() + .5f - rider.z)))
-                .toList();
-        for (var cell : candidates) {
-            float x = cell.x() + .5f, z = cell.z() + .5f;
-            if (Math.hypot(x - rider.x, z - rider.z) < roadSpacing.mounted()
-                    || !publicRoad(x, z) || !passable(x, z) || blocksDoorApproach(x, z)) continue;
-            var probe = new Position(x, roads.get(cell) + 1.01f, z);
-            if (!roadClear(-horse, probe, clearance, x, z)) continue;
-            var hp = ecs.get(horse, Position.class);
-            hp.x = x; hp.y = probe.y; hp.z = z;
+        // Routine dismounts use clear ground beside the road, never a travel lane.
+        var candidates = new ArrayList<RoadTraffic.Waypoint>();
+        for (int ix=-8;ix<=8;ix++) for (int iz=-8;iz<=8;iz++) {
+            float x=rider.x+ix*.5f,z=rider.z+iz*.5f;
+            double distance=Math.hypot(x-rider.x,z-rider.z);
+            if(distance<1.4 || distance>4 || nearRoad(x,z) || !passable(x,z)
+                    || blocksDoorApproach(x,z)) continue;
+            candidates.add(new RoadTraffic.Waypoint(x,z));
+        }
+        candidates.sort(Comparator.comparingDouble(w -> Math.hypot(w.x()-rider.x,w.z()-rider.z)));
+        for(var point:candidates) {
+            boolean occupied=false;
+            for(int other:ecs.query(Position.class,Household.class)) {
+                var p=ecs.get(other,Position.class);
+                if(Math.hypot(point.x()-p.x,point.z()-p.z)<.65) {occupied=true;break;}
+            }
+            for(int other:ecs.query(Position.class,Mount.class)) {
+                if(other==horse)continue;
+                var p=ecs.get(other,Position.class);
+                if(Math.hypot(point.x()-p.x,point.z()-p.z)<.65) {occupied=true;break;}
+            }
+            if(occupied)continue;
+            var hp=ecs.get(horse,Position.class);
+            hp.x=point.x();hp.z=point.z();hp.y=grade+1.01f;
             return;
         }
     }

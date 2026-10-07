@@ -333,6 +333,34 @@ class RoadTrafficTest {
     }
 
     @Test
+    void parkedMountBlocksSweptLaneMovementAndReleasesWithoutCountingOwnMount() throws Exception {
+        var ground=new CityTest.Ground();var city=new CityTest().simulation(ground);
+        var ids=city.ecs.query(CitySimulation.Position.class,CitySimulation.Household.class);
+        for(int id:ids) {var p=city.ecs.get(id,CitySimulation.Position.class);p.x=100;p.z=100;}
+        var horses=city.ecs.query(CitySimulation.Position.class,CitySimulation.Mount.class);
+        for(int horse:horses) {var p=city.ecs.get(horse,CitySimulation.Position.class);p.x=100;p.z=100;city.ecs.get(horse,CitySimulation.Mount.class).rider=0;}
+        int id=ids.get(0),own=horses.get(0),parked=horses.get(1);
+        var p=city.ecs.get(id,CitySimulation.Position.class);p.x=1.5f;p.z=25;
+        var h=city.ecs.get(id,CitySimulation.Household.class);h.horse=own;
+        city.ecs.get(own,CitySimulation.Mount.class).rider=-id;
+        var hp=city.ecs.get(own,CitySimulation.Position.class);hp.x=p.x;hp.z=p.z;
+        var obstacle=city.ecs.get(parked,CitySimulation.Position.class);obstacle.x=2.5f;obstacle.z=25;
+        var t=city.ecs.get(id,CitySimulation.Travel.class);t.route.clear();t.clearRoadLanes();t.lanes.add(new Waypoint(5.5f,25));
+        var travel=CitySimulation.class.getDeclaredMethod("travel",int.class,CitySimulation.Position.class,CitySimulation.Household.class,CitySimulation.Travel.class,float.class);travel.setAccessible(true);
+        for(int step=0;step<20;step++) {
+            travel.invoke(city,id,p,h,t,1f);
+            assertTrue(Math.hypot(p.x-obstacle.x,p.z-obstacle.z)>=.65-.0001,"Swept movement must not tunnel through parked horse");
+        }
+        assertTrue(p.x>1.5f && p.x<2.5f);assertFalse(t.lanes.isEmpty());assertEquals("Waiting for traffic",t.activity);
+        assertEquals(p.x,hp.x,.001);
+        obstacle.z=24; // Opposite lane remains clear at one metre separation.
+        for(int step=0;step<20 && !t.lanes.isEmpty();step++)travel.invoke(city,id,p,h,t,.1f);
+        assertTrue(t.lanes.isEmpty());assertEquals(5.5f,p.x,.001);
+        var near=CitySimulation.class.getDeclaredMethod("nearRoad",float.class,float.class);near.setAccessible(true);
+        assertFalse((boolean)near.invoke(city,hp.x,hp.z),"Routine dismount parks off the road");
+    }
+
+    @Test
     void privateForecourtCanPassAParkedMountWithoutReservingItsRoadHeadway() throws Exception {
         var ground=new CityTest.Ground();var city=new CityTest().simulation(ground);
         var ids=city.ecs.query(CitySimulation.Position.class,CitySimulation.Household.class);
@@ -341,9 +369,9 @@ class RoadTrafficTest {
             var p=city.ecs.get(id,CitySimulation.Position.class);p.x=100;p.z=100;
             city.ecs.get(id,CitySimulation.Mount.class).rider=0;
         }
-        int id=ids.getFirst(),horse=city.ecs.query(CitySimulation.Mount.class).getFirst();
+        int id=ids.get(0),horse=city.ecs.query(CitySimulation.Mount.class).get(0);
         var p=city.ecs.get(id,CitySimulation.Position.class);p.x=14.5f;p.z=22.3f;
-        int y=city.frame().roads().getFirst().y();p.y=y+1.01f;
+        int y=city.frame().roads().get(0).y();p.y=y+1.01f;
         for(int x=13;x<=15;x++)for(int z=22;z<=26;z++)ground.apply(List.of(
                 new dev.jayms.net.Protocol.Edit(x,y,z,dev.jayms.net.Blocks.DIRT),
                 new dev.jayms.net.Protocol.Edit(x,y+1,z,dev.jayms.net.Blocks.AIR),

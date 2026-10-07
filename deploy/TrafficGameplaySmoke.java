@@ -222,6 +222,33 @@ public class TrafficGameplaySmoke {
         Thread.sleep(2500);
     }
 
+    static void parkedMount(CitySimulation city, Path out) throws Exception {
+        var ids=city.ecs.query(CitySimulation.Position.class,CitySimulation.Household.class);
+        for(int id:ids) {var p=city.ecs.get(id,CitySimulation.Position.class);p.x=100;p.z=100;city.ecs.get(id,CitySimulation.Travel.class).route.clear();city.ecs.get(id,CitySimulation.Travel.class).clearRoadLanes();}
+        var horses=city.ecs.query(CitySimulation.Position.class,CitySimulation.Mount.class);
+        for(int horse:horses) {var p=city.ecs.get(horse,CitySimulation.Position.class);p.x=100;p.z=100;city.ecs.get(horse,CitySimulation.Mount.class).rider=0;}
+        int id=ids.get(0),own=horses.get(0),parked=horses.get(1);
+        var p=city.ecs.get(id,CitySimulation.Position.class);p.x=1.5f;p.z=25;
+        var h=city.ecs.get(id,CitySimulation.Household.class);h.horse=own;
+        city.ecs.get(own,CitySimulation.Mount.class).rider=-id;
+        var hp=city.ecs.get(own,CitySimulation.Position.class);hp.x=p.x;hp.z=p.z;hp.y=p.y;
+        var obstacle=city.ecs.get(parked,CitySimulation.Position.class);obstacle.x=2.5f;obstacle.z=25;obstacle.y=p.y;
+        var t=city.ecs.get(id,CitySimulation.Travel.class);t.lanes.add(new RoadTraffic.Waypoint(5.5f,25));
+        set("notice","Traffic edge: rider stops for a parked horse");
+        for(int step=0;step<20;step++) {
+            travel.invoke(city,id,p,h,t,1f);
+            require(Math.hypot(p.x-obstacle.x,p.z-obstacle.z)>=.65-.0001,"Swept parked horse clearance");
+        }
+        require(p.x>1.5f && p.x<2.5f && !t.lanes.isEmpty(),"Parked horse holds lane traffic");
+        Thread.sleep(2000);screenshot(out.resolve("road-traffic-game-parked-horse-waiting.png"));
+        obstacle.z=24;
+        for(int step=0;step<20 && !t.lanes.isEmpty();step++)move(city,id);
+        require(t.lanes.isEmpty() && Math.abs(p.x-5.5f)<.001,"Moving obstacle to opposite lane releases rider");
+        require(Math.hypot(hp.x-p.x,hp.z-p.z)<=4.001,"Routine dismount keeps mount nearby");
+        set("notice","Traffic edge: parked horse moved aside, rider resumes");
+        Thread.sleep(2000);screenshot(out.resolve("road-traffic-game-parked-horse-released.png"));
+    }
+
     static void crossing(CitySimulation city, Path out) throws Exception {
         var ids = city.ecs.query(CitySimulation.Position.class, CitySimulation.Household.class);
         var camera = (IsometricCamera) get("overview");
@@ -405,9 +432,9 @@ public class TrafficGameplaySmoke {
             var hp2=city.ecs.get(mount,CitySimulation.Position.class);hp2.x=100;hp2.z=100;
             city.ecs.get(mount,CitySimulation.Mount.class).rider=0;
         }
-        int walker=ids.getFirst(),parked=city.ecs.query(CitySimulation.Mount.class).getFirst();
+        int walker=ids.get(0),parked=city.ecs.query(CitySimulation.Mount.class).get(0);
         var wp=city.ecs.get(walker,CitySimulation.Position.class);wp.x=14.5f;wp.z=22.3f;
-        int grade=city.frame().roads().getFirst().y();wp.y=grade+1.01f;
+        int grade=city.frame().roads().get(0).y();wp.y=grade+1.01f;
         var gf=CitySimulation.class.getDeclaredField("ground");gf.setAccessible(true);
         var ground=(CitySimulation.Ground)gf.get(city);
         for(int x2=13;x2<=15;x2++)ground.apply(java.util.List.of(
@@ -430,6 +457,7 @@ public class TrafficGameplaySmoke {
         }
         require(wt.route.isEmpty() && wt.lanes.isEmpty(),"Forecourt route clears the parked mount");
         Thread.sleep(2000);screenshot(out.resolve("road-traffic-game-forecourt-cleared.png"));
+        parkedMount(city,out);
         x("key", "F10");
         Thread.sleep(2500);
     }
@@ -494,7 +522,7 @@ public class TrafficGameplaySmoke {
                                             + " retained\",\"routes retained\",\"actual"
                                             + " dirt/pavement geometry and derived lane"
                                             + " sides\",\"mixed same-direction lanes stay free\",\"crossing yields and drains in both update"
-                                            + " orders\",\"short merge clears in both update orders\",\"mixed opposing entries use one merge priority and queued entries clear; forecourt clears parked mount\"]}\n");
+                                            + " orders\",\"short merge clears in both update orders\",\"mixed opposing entries use one merge priority and queued entries clear; forecourt clears parked mount; lane rider stops for parked horse and resumes after release\"]}\n");
                             } catch (Throwable e) {
                                 failure = e;
                             } finally {

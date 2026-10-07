@@ -668,3 +668,8 @@ Retained roadContains stress-grid support with the incoming private-access speed
 ## Rebased source validated for independent review
 
 HEAD 8c437f3f00585fc3e2cb52215412824759b337c8; review base 6770d9b9fd0f2bf56674e5cf5ab77f499f5f71c5. No review-base files deleted; Main.java and Jeep.java unchanged. Focused Maven retry passed 94 tests across 17 suites; separate agriculture/time run passed 14 tests. Website checks passed 15 tests. Full Maven run interrupted with exit 143 after 139 tests in 21 suites passed; no full-suite pass claimed. Fresh native Main traffic and Jeep workflows passed with inherited assigned DISPLAY/XAUTHORITY and isolated synthetic profiles. Three traffic F10 clips plus Jeep clip decoded and inspected; all below 6 MiB. Source/media hashes verified. Report: dashboard/evidence/rebased-8c437f3-validation.json. Current-head CI, staging, commit and publication remain controller duties. No owner answer needed.
+
+
+## Java 17 and parked-mount corrections validated
+
+Parent head 26a221f18a29db1daf8db75419f23a0938179d39. Local fixes replace Java 21 list APIs, sweep lane movement against mount-only obstacles at 0.65 metres without duplicate NPC riders, and move routine NPC dismount parking off-road within four metres. Java 17 packaging passed; 40 traffic/time/agriculture tests passed with no failures/errors/skips. Fresh native Main queue, crossing, forecourt and parked-horse stop/release workflow passed. 24 screenshots and three F10 clips saved; clips decoded and inspected. Source/media hashes and git diff --check passed; no review-base files deleted. Report: dashboard/evidence/mount-fix-validation.json. Runner owns commit, publication and cross-platform CI retry. No remote CI pass claimed. No owner answer needed.
