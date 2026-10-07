@@ -3313,6 +3313,36 @@
       "status": "in_progress",
       "note": "Factory delivery restored without changing acceptance tests or equipment economics. Full suite passed: 454 tests across 84 suites. Fresh native traffic regression passed; 24 screenshots and three F10 clips decoded/inspected. Base features and history preserved. Ready for controller publication, current-head CI and independent review.",
       "updatedAt": "2026-10-07T14:57:55.883465+00:00"
+    },
+    {
+      "id": "36366335656566342d666164322d346465352d393433322d643761646233613636656364",
+      "title": "Rendering pipeline expansion",
+      "description": "Rendering pipeline expansion with OpenGL compatibility fallbacks.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "Rendering validation (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-expansion-validation.json"
+        },
+        {
+          "kind": "image",
+          "label": "Fresh production gallery (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-expansion-main-gallery.png"
+        },
+        {
+          "kind": "image",
+          "label": "Water reflection and refraction (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-expansion-water.png"
+        },
+        {
+          "kind": "video",
+          "label": "Fresh production F10 workflow (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-expansion-playtest.mp4"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Implementation and native validation ready for controller synchronization and independent review. 71 focused tests passed; strict 3.3, modern indirect rendering and 4x MSAA fixtures passed. Production automatic fallback, camera, isometric, resize and menu workflow passed. Fresh 8-frame F10 clip fully decoded: 8.297 seconds, 227240 bytes. Full suite is not claimed as passed. Media publication is reserved to the controller.",
+      "updatedAt": "2026-10-07T19:02:02.440787+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

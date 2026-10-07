@@ -15,42 +15,45 @@ public final class MeshDataGenerator {
         List<Integer> indices = new ArrayList<>();
 
         int vertexCount = 0;
-
-        for (int y = 0; y < Chunk.HEIGHT; y++) {
-            for (int z = 0; z < Chunk.LENGTH; z++) {
-                for (int x = 0; x < Chunk.WIDTH; x++) {
-                    if (chunk.getBlock(x, y, z) == 0
-                            || dev.jayms.net.Blocks.isModel(chunk.getBlock(x, y, z))) {
-                        continue;
+        // Fractional geometry keeps its exact sparse surface. Full cells merge by raw value,
+        // so RGB LEDs, material boundaries and chunk-neighbour visibility stay intact.
+        for (int y = 0; y < 16; y++) for (int z = 0; z < 16; z++) for (int x = 0; x < 16; x++)
+            if (chunk.getBlock(x,y,z) == dev.jayms.net.Blocks.PARTIAL)
+                vertexCount = addPartial(vertices, indices, chunk, x,y,z,vertexCount);
+        for (Face face : Face.values()) {
+            int axis = face.dx()!=0 ? 0 : face.dy()!=0 ? 1 : 2;
+            int u = (axis+1)%3, w = (axis+2)%3;
+            for (int slice=0; slice<16; slice++) {
+                int[] mask = new int[256];
+                for (int j=0;j<16;j++) for (int i=0;i<16;i++) {
+                    int[] p = new int[3]; p[axis]=slice; p[u]=i; p[w]=j;
+                    int type=chunk.getBlock(p[0],p[1],p[2]);
+                    if (type==0 || type==dev.jayms.net.Blocks.PARTIAL || dev.jayms.net.Blocks.isModel(type)) continue;
+                    int n=chunk.neighbor(p[0]+face.dx(),p[1]+face.dy(),p[2]+face.dz());
+                    if (n!=0 && n!=dev.jayms.net.Blocks.PARTIAL && !dev.jayms.net.Blocks.isModel(n)) continue;
+                    mask[i+j*16]=chunk.value(p[0]*16,p[1]*16,p[2]*16);
+                }
+                for (int j=0;j<16;j++) for (int i=0;i<16;) {
+                    int raw=mask[i+j*16]; if(raw==0) { i++; continue; }
+                    int width=1, height=1;
+                    while(i+width<16 && mask[i+width+j*16]==raw)width++;
+                    rows: while(j+height<16) {
+                        for(int k=0;k<width;k++)if(mask[i+k+(j+height)*16]!=raw)break rows;
+                        height++;
                     }
-
-                    if (chunk.getBlock(x, y, z) == dev.jayms.net.Blocks.PARTIAL) {
-                        vertexCount = addPartial(vertices, indices, chunk, x, y, z, vertexCount);
-                        continue;
+                    float[] origin=new float[3], scale={1,1,1};
+                    origin[axis]=slice; origin[u]=i; origin[w]=j; scale[u]=width; scale[w]=height;
+                    int type=dev.jayms.net.WorldVoxels.decode(raw);
+                    float[] color=dev.jayms.net.Blocks.color(type==1 && face.dy()<1?2:type);
+                    for(int vtx=0;vtx<4;vtx++) {
+                        for(int d=0;d<3;d++)vertices.add(origin[d]+face.vertices()[vtx*3+d]*scale[d]);
+                        vertices.add((float)face.dx());vertices.add((float)face.dy());vertices.add((float)face.dz());
+                        for(float component:color)vertices.add(component);
                     }
-                    for (Face face : Face.values()) {
-                        int nX = x + face.dx();
-                        int nY = y + face.dy();
-                        int nZ = z + face.dz();
-
-                        if (chunk.neighbor(nX, nY, nZ) != 0
-                                && chunk.neighbor(nX, nY, nZ) != dev.jayms.net.Blocks.PARTIAL
-                                && !dev.jayms.net.Blocks.isModel(chunk.neighbor(nX, nY, nZ))) {
-                            continue;
-                        }
-
-                        addFace(
-                                vertices,
-                                indices,
-                                face,
-                                x,
-                                y,
-                                z,
-                                vertexCount,
-                                chunk.getBlock(x, y, z));
-
-                        vertexCount += 4;
-                    }
+                    for(int idx:FACE_INDICES)indices.add(vertexCount+idx);
+                    vertexCount+=4;
+                    for(int y=0;y<height;y++)for(int x=0;x<width;x++)mask[i+x+(j+y)*16]=0;
+                    i+=width;
                 }
             }
         }
@@ -82,7 +85,7 @@ public final class MeshDataGenerator {
                                 ? .12f
                                 : type == dev.jayms.net.Blocks.LED ? .25f : .85f;
                 surface[i / 3 + 2] =
-                        dev.jayms.render.MaterialTextures.layer(
+                        type == dev.jayms.net.Blocks.WATER ? -2 : dev.jayms.render.MaterialTextures.layer(
                                 type == 1 && v[i + 4] < 1 ? 2 : type);
             }
         }

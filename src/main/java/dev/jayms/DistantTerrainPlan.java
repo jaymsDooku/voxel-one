@@ -32,8 +32,11 @@ public final class DistantTerrainPlan {
     private final List<Node> roots = new ArrayList<>();
     private final List<Tile> tiles = new ArrayList<>();
     private final WorldBounds bounds, coverageBounds;
+    private float projectionY; private int viewportHeight; private boolean orthographic; private float elevation;
 
-    public DistantTerrainPlan(int px, int pz) {
+    public DistantTerrainPlan(int px, int pz) { this(px,pz,0,0,false,0); }
+    public DistantTerrainPlan(int px,int pz,float projectionY,int viewportHeight,boolean orthographic,float elevation) {
+        this.projectionY=projectionY;this.viewportHeight=viewportHeight;this.orthographic=orthographic;this.elevation=elevation;
         int minX = Math.floorDiv(px - RADIUS, ROOT_SIZE) * ROOT_SIZE;
         int minZ = Math.floorDiv(pz - RADIUS, ROOT_SIZE) * ROOT_SIZE;
         int maxX = (Math.floorDiv(px + RADIUS - 1, ROOT_SIZE) + 1) * ROOT_SIZE;
@@ -53,7 +56,10 @@ public final class DistantTerrainPlan {
         Tile tile = new Tile(x, z, size);
         tiles.add(tile);
         int distance = distance(tile, px, pz);
-        int desired = distance < 128 ? 16 : distance < 512 ? 64 : distance < 1536 ? 256 : 1024;
+        int desired = viewportHeight==0 ? (distance < 128 ? 16 : distance < 512 ? 64 : distance < 1536 ? 256 : 1024)
+                : dev.jayms.render.ScreenError.tileSize((float)Math.hypot(Math.max(0,distance),elevation),projectionY,viewportHeight,orthographic,12);
+        // Keep complete nearby geometry available for the detailed-chunk replacement mask.
+        if(distance<96)desired=16;
         List<Node> children = new ArrayList<>();
         if (size > desired) {
             int half = size / 2;

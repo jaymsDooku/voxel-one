@@ -1,0 +1,296 @@
+{
+  "status": "ready_for_independent_review",
+  "rendererSourceSha256": "a48f573defeeaa186e87fa9dcb933cf002e62cad2ff2c0c75068fe093182fa9e",
+  "platform": "Linux assigned inherited X11 DISPLAY and XAUTHORITY; Mesa llvmpipe; verified native Java 21.0.5; compile source/target 17; isolated synthetic profiles",
+  "focusedSuites": [
+    {
+      "name": "dev.jayms.RenderingAlgorithmsTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.059"
+    },
+    {
+      "name": "dev.jayms.LightingTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.046"
+    },
+    {
+      "name": "dev.jayms.LightOcclusionTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "1.408"
+    },
+    {
+      "name": "dev.jayms.FractionalWorldTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.205"
+    },
+    {
+      "name": "dev.jayms.DistantTerrainTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.12"
+    },
+    {
+      "name": "dev.jayms.StressGridLightingTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "1.278"
+    },
+    {
+      "name": "dev.jayms.CityMaterialsTest",
+      "tests": "13",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "59.208"
+    },
+    {
+      "name": "dev.jayms.PlayerCameraTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.031"
+    },
+    {
+      "name": "dev.jayms.RoadMarkingsTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "8.414"
+    },
+    {
+      "name": "dev.jayms.IsometricCameraTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.073"
+    },
+    {
+      "name": "dev.jayms.VoxelModelTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.146"
+    },
+    {
+      "name": "dev.jayms.EngineEditorTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.036"
+    },
+    {
+      "name": "dev.jayms.VehicleAudioTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.002"
+    }
+  ],
+  "focusedTotal": 71,
+  "commands": [
+    {
+      "command": "mvn -q -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=RenderingAlgorithmsTest,LightingTest,LightOcclusionTest,FractionalWorldTest,DistantTerrainTest,StressGridLightingTest,CityMaterialsTest,PlayerCameraTest,RoadMarkingsTest,IsometricCameraTest,VoxelModelTest,EngineEditorTest,VehicleAudioTest package",
+      "exit": 0,
+      "result": "71 tests; zero failures, errors or skips; Linux client packaged"
+    },
+    {
+      "command": "python3 deploy/run_rendering_playtest.py --display \"$DISPLAY\"",
+      "exit": 0,
+      "context": "OpenGL=4.5 (Core Profile) Mesa 22.3.6; GLSL=4.50; renderer=llvmpipe (LLVM 15.0.6, 256 bits); samples=1",
+      "result": "Playtest: native OpenGL synthetic gallery; assigned X11 display; GPU backend=true; decals changed pixels=44666; reflection probes, GPU emitters/removal, water, camera motion/TAA, exposure, LUT, temporal upscaling, measured dynamic resolution, resize and GL errors passed."
+    },
+    {
+      "command": "python3 deploy/run_rendering_playtest.py --display \"$DISPLAY\" --gl33 --msaa 4",
+      "exit": 0,
+      "context": "OpenGL=3.3 (Core Profile) Mesa 22.3.6; GLSL=3.30; renderer=llvmpipe (LLVM 15.0.6, 256 bits); samples=4",
+      "result": "Playtest: native OpenGL synthetic gallery; assigned X11 display; GPU backend=false; decals changed pixels=45047; reflection probes, GPU emitters/removal, water, camera motion/TAA, exposure, LUT, temporal upscaling, measured dynamic resolution, resize and GL errors passed."
+    },
+    {
+      "command": "python3 deploy/run_rendering_playtest.py --display \"$DISPLAY\" --gl33",
+      "exit": 0,
+      "context": "OpenGL=3.3 (Core Profile) Mesa 22.3.6; GLSL=3.30; renderer=llvmpipe (LLVM 15.0.6, 256 bits); samples=1",
+      "result": "Playtest: native OpenGL synthetic gallery; assigned X11 display; GPU backend=false; decals changed pixels=44666; reflection probes, GPU emitters/removal, water, camera motion/TAA, exposure, LUT, temporal upscaling, measured dynamic resolution, resize and GL errors passed."
+    },
+    {
+      "command": "MESA_GL_VERSION_OVERRIDE=3.3 MESA_GLSL_VERSION_OVERRIDE=330 python3 deploy/run_rendering_main_playtest.py --display \"$DISPLAY\"",
+      "exit": 0,
+      "result": "Playtest: PASS. Production Main, Linux assigned X11 display, synthetic voxel profile. LED gallery, GPU particles, water, actual W camera motion, F10 recording, F6 isometric, temporal upscale at odd 333x271 resize, Escape menu; no GL errors across 40 frames. Backend=false.",
+      "expected": "A 4.3 context request fails, the Window retries 3.3, and production rendering/input remains usable.",
+      "observed": "Initial GLXBadFBConfig was logged; fallback then completed 40 clean frames with GPU backend=false. Fresh sandbox profile; initial synthetic focus events ignored for four frames, then the production focus callback restored."
+    },
+    {
+      "command": "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Djava.io.tmpdir=\"$PWD/target/tmp\" -cp target/voxel-one-1.0-SNAPSHOT-client.jar deploy/VerifyRenderingMedia.java dashboard/evidence/rendering-expansion-playtest.mp4 dashboard/evidence/rendering-expansion-video.json dashboard/evidence/rendering-expansion-video-frame.png",
+      "exit": 0,
+      "result": {
+        "status": "passed",
+        "source": "fresh production Main F10 rendering workflow",
+        "codec": "H264",
+        "bytes": 227240,
+        "frames": 8,
+        "width": 640,
+        "height": 400,
+        "seconds": 8.297,
+        "allFramesDecoded": true,
+        "firstAndLastDiffer": true
+      }
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0,
+      "result": "No whitespace errors; no unmerged index entries or deleted tracked files."
+    }
+  ],
+  "earlierFailures": [
+    "Default Maven cache was outside the writable worktree; reran with target/maven-cache.",
+    "Initial temp-directory tests could not write /tmp; reran with target/tmp.",
+    "Earlier broad suite exposed mixed-cell radiance lookup errors; fixed and all six LightOcclusionTest cases passed on final source. That stale broad suite was interrupted with exit 130 after long unrelated tests and is not claimed as passed.",
+    "Early production harness setup left mouse capture disabled after changing view mode; corrected setup. Short synthetic F6 input was unreliable; native hold/release then passed.",
+    "Fresh city profiles could still load a city sidecar and keep construction active. The final renderer workflow uses a fresh sandbox profile, deletes only its generated sidecars before launch, and separates synthetic F6 release/press across frames. The final complete run passed."
+  ],
+  "diffAudit": {
+    "base": "local HEAD; controller has not supplied the later synchronized review base",
+    "deletedFiles": [],
+    "scope": "Rendering source, render integration, focused tests, harnesses, algorithm documentation and this task milestone/media only. Existing city/road/shipping/editor logic retained. Replaced full-cell face emission, single shadow target and FXAA resolve deliberately. Removed world-depth clearing from before post-processing by moving held-item rendering after the world resolve."
+  },
+  "limits": [
+    "Single-scattering atmosphere; screen-space effects miss offscreen geometry.",
+    "Bounded nearby voxel GI; coarse distance approximation for fractional cells; exact sparse fine transport retained.",
+    "One rolling local reflection probe and one water reflection plane.",
+    "Compute commands are generated per chunk; CPU still submits dispatch/draw pairs.",
+    "Software Mesa playtesting does not establish physical GPU frame-rate targets.",
+    "Full suite is not claimed as passed; controller CI and independent review remain required."
+  ],
+  "completedAt": "2026-10-07T19:02:02.415541+00:00",
+  "playtest": {
+    "entry": "Playtest: production Main and actual renderer integration on assigned Linux X11, using only isolated synthetic profiles. No browser is involved in this native engine workflow.",
+    "steps": [
+      {
+        "step": "Render a roofed gallery with three RGB LEDs, textured stone/brick/plank surfaces and a water patch.",
+        "expected": "Visible lit geometry, shadows, sky/clouds, reflections, fog and emissive particles; no GL errors.",
+        "observed": "Passed on strict 3.3, modern compute/indirect path and 4x MSAA resolve. Native HDR gallery captures saved."
+      },
+      {
+        "step": "Build a maximum-depth hierarchy from a synthetic occluder. Test rear bounds, one uncovered depth sample, changed view and invalidated world.",
+        "expected": "Reject only fully hidden stable bounds; keep uncertain or stale cases visible.",
+        "observed": "All four visibility assertions passed."
+      },
+      {
+        "step": "Add a projected decal, capture a six-face probe, add water and remove LED sources.",
+        "expected": "Decal changes floor; complete local capture; reflected/refracted water changes pixels; GPU particles disappear after source removal.",
+        "observed": "Decal changed 44666 pixels on modern path; six faces completed; water assertion passed; 48 particles became 0."
+      },
+      {
+        "step": "Move the camera with TAA enabled, enable auto exposure, lower input scale, force the timing controller under measured load and apply a warm LUT.",
+        "expected": "Finite adapted exposure; valid temporal history; output stays at display size; dynamic scale falls; LUT visibly changes pixels.",
+        "observed": "All native assertions passed, including the actual GPU timing controller."
+      },
+      {
+        "step": "Use W, F10, F6 and Escape in production Main. Resize to 333x271 at input scale 0.65.",
+        "expected": "Camera moves, recording finishes, isometric mode switches, odd-size temporal resolve remains valid and the controls menu opens.",
+        "observed": "Passed; 40 clean production frames. Finished F10 clip has 8 differing frames, 8.297 seconds and 227240 bytes."
+      }
+    ]
+  },
+  "visualInspection": "Inspected the fresh production gallery, decoded MP4 midpoint and modern water capture. They show the implemented gallery, RGB lights, texture detail, sky/clouds and water; no prompts, answers, credentials or account data are visible.",
+  "media": [
+    {
+      "file": "rendering-expansion-decals.png",
+      "sha256": "a5eb69807d369db0ebae873ea810bf615eb77d8e64dec2b1d62045d9d0b3fc67",
+      "bytes": 334441,
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-expansion-decals.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "rendering-expansion-graded.png",
+      "sha256": "64db2a22c298c37602b5d4e35114fda9ead90834b6b47e715b20f847cb068aad",
+      "bytes": 251180,
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-expansion-graded.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "rendering-expansion-main-gallery.png",
+      "sha256": "b8aa963c851a02a19ec6e5ede3428add7f35f708942353691dfebbff419baf02",
+      "bytes": 294153,
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-expansion-main-gallery.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "rendering-expansion-main-isometric.png",
+      "sha256": "7adc7eedf1b7cb5db185abe7e79c8ae444974d5507db5bdc9104d01664748602",
+      "bytes": 15711,
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-expansion-main-isometric.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "rendering-expansion-main-menu.png",
+      "sha256": "af3ba2198cea5700e718c44338b756ab02438774330487d3af2bc76b7e9326e5",
+      "bytes": 4889,
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-expansion-main-menu.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "rendering-expansion-main-motion.png",
+      "sha256": "4af92d2f28a3a3e294e02988f7aab4df341b710d8945aa0f6c9720b81d63bb85",
+      "bytes": 317859,
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-expansion-main-motion.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "rendering-expansion-main-resize.png",
+      "sha256": "25a8997762698dbaf61f9ca2e8ae8753a012cb446bfd0c097f38917442fbd6de",
+      "bytes": 8761,
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-expansion-main-resize.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "rendering-expansion-playtest.mp4",
+      "sha256": "5f4d6f37f70db102b770bde018c9aed3d3ff5d434b952c3727e64f6449287b84",
+      "bytes": 227240,
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-expansion-playtest.mp4",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "rendering-expansion-temporal.png",
+      "sha256": "935926b808a3c7163bc28f283dd90823f92a2100c3bd4f9a65adda3a9b6ad020",
+      "bytes": 260933,
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-expansion-temporal.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "rendering-expansion-video-frame.png",
+      "sha256": "3689c79fd838dbbb8ca9a028e3761483dc587a151fc3d8dfff01ab9774e2e611",
+      "bytes": 415629,
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-expansion-video-frame.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "rendering-expansion-water.png",
+      "sha256": "5554e68ee1e058fe6a21c30ab55baa383837a73cde0265f221803dc69a1c2a0d",
+      "bytes": 288671,
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-expansion-water.png",
+      "publication": "pending controller publication"
+    }
+  ]
+}

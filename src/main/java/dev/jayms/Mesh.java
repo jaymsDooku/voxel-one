@@ -92,6 +92,16 @@ public final class Mesh implements AutoCloseable {
         glBindVertexArray(0);
     }
 
+    public int indexCount() { return indexCount; }
+    public void renderIndirect(int command) {
+        glBindVertexArray(vao);
+        if (surfaceBuffer == 0) org.lwjgl.opengl.GL20.glVertexAttrib3f(4, 0, .85f, -1);
+        glBindBuffer(org.lwjgl.opengl.GL40.GL_DRAW_INDIRECT_BUFFER, command);
+        org.lwjgl.opengl.GL40.glDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, 0L);
+        glBindBuffer(org.lwjgl.opengl.GL40.GL_DRAW_INDIRECT_BUFFER, 0);
+        glBindVertexArray(0);
+    }
+
     public void renderInstanced(float[] positions) {
         if (positions.length == 0) return;
         if (surfaceBuffer == 0) org.lwjgl.opengl.GL20.glVertexAttrib3f(4, 0, .85f, -1);

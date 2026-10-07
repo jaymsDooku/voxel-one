@@ -59,11 +59,11 @@ public class RenderingSmoke {
         if (!condition) throw new AssertionError(message);
     }
 
-    static void drawWorld(World world, ShaderProgram shader) {
+    static void drawWorld(World world, ShaderProgram shader, RenderPipeline rendering) {
         shader.setInt("uVertexColor", 1);
         shader.setInt("uInstanced", 0);
         shader.setMatrix4("uModel", new Matrix4f().translation(0, 64, 0));
-        world.getLoadedChunks().values().iterator().next().getMesh().render();
+        rendering.chunk(world.getLoadedChunks().values().iterator().next(),new ChunkPos(0,4,0));
     }
 
     static void camera(ShaderProgram shader, Matrix4f p, Matrix4f v) {
@@ -77,7 +77,7 @@ public class RenderingSmoke {
         Path output = Path.of(args[0]);
         Files.createDirectories(output);
         require(glfwInit(), "GLFW initialization");
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, Boolean.getBoolean("voxel.gl33") ? 3 : 4);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         long window = glfwCreateWindow(WIDTH, HEIGHT, "Voxel One rendering checks", 0, 0);
@@ -89,6 +89,7 @@ public class RenderingSmoke {
                 var rendering = new RenderPipeline();
                 var world = new World();
                 var models = new VoxelModelRenderer(world.models())) {
+            rendering.settings.taa=false;rendering.settings.autoExposure=false;rendering.settings.exposure=1;
             Matrix4f projection = new Matrix4f().perspective(1.2f, 1.6f, .1f, 4096);
             Vector3f eye = new Vector3f(8, 80, 24);
             Matrix4f view =
@@ -130,7 +131,7 @@ public class RenderingSmoke {
             rendering.renderShadows(world, models, eye);
             rendering.begin(WIDTH, HEIGHT, projection, view, eye, false, shader);
             camera(shader, projection, view);
-            drawWorld(world, shader);
+            drawWorld(world, shader, rendering);
             rendering.finish();
             glFinish();
             BufferedImage lit = capture();
@@ -138,7 +139,7 @@ public class RenderingSmoke {
             rendering.begin(WIDTH, HEIGHT, projection, view, eye, false, shader);
             camera(shader, projection, view);
             shader.setInt("uShadowEnabled", 0);
-            drawWorld(world, shader);
+            drawWorld(world, shader, rendering);
             rendering.finish();
             glFinish();
             int shadowPixels = differences(lit, capture());
@@ -147,7 +148,7 @@ public class RenderingSmoke {
             camera(shader, projection, view);
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-            drawWorld(world, shader);
+            drawWorld(world, shader, rendering);
             rendering.finish();
             glFinish();
             int reflectionPixels = differences(lit, capture());
@@ -162,6 +163,64 @@ public class RenderingSmoke {
                         glGetTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER) == GL_LINEAR,
                         "Linear magnification filter");
             }
+            // Conservative Hi-Z integration: a synthetic depth plane fully hides a rear AABB.
+            int testDepth=glGenTextures();glBindTexture(GL_TEXTURE_2D,testDepth);
+            float[] depthPlane=new float[WIDTH*HEIGHT];java.util.Arrays.fill(depthPlane,.2f);
+            glTexImage2D(GL_TEXTURE_2D,0,GL_R32F,WIDTH,HEIGHT,0,GL_RED,GL_FLOAT,depthPlane);
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+            try(var hierarchy=new HiZ()){
+                Matrix4f ortho=new Matrix4f().ortho(-32,32,-32,32,.1f,100);
+                hierarchy.build(testDepth,WIDTH,HEIGHT,ortho);require(!hierarchy.visible(ortho,-8,-8,-40),"Hi-Z rejects fully hidden rear bounds");
+                require(hierarchy.visible(new Matrix4f(ortho).translate(1,0,0),-8,-8,-40),"Camera change invalidates stale Hi-Z use");
+                depthPlane[WIDTH/2+HEIGHT/2*WIDTH]=1;glBindTexture(GL_TEXTURE_2D,testDepth);glTexSubImage2D(GL_TEXTURE_2D,0,0,0,WIDTH,HEIGHT,GL_RED,GL_FLOAT,depthPlane);
+                hierarchy.build(testDepth,WIDTH,HEIGHT,ortho);require(hierarchy.visible(ortho,-8,-8,-40),"An uncovered depth sample preserves conservative visibility");
+                hierarchy.invalidate();require(hierarchy.visible(ortho,-8,-8,-40),"World invalidation preserves visibility");
+            }glDeleteTextures(testDepth);
+            // Requested workflow: real renderer, editable LED gallery, water and post controls.
+            for(int i=0;i<6;i++)rendering.renderShadows(world,models,eye);
+            require(rendering.reflectionProbeReady(),"Six-face local reflection probe completes");
+            require(rendering.particleCount()==48,"Three emissive GPU particle sources");
+            require(rendering.gpuDriven()==(!Boolean.getBoolean("voxel.gl33")&&GL.getCapabilities().OpenGL43),"Compute backend or baseline indexed fallback");
+            rendering.resetHistory();
+            rendering.begin(WIDTH,HEIGHT,projection,view,eye,false,shader);camera(shader,projection,view);drawWorld(world,shader,rendering);rendering.finish();glFinish();
+            BufferedImage beforeDecal=capture();
+            rendering.addDecal(new Decal(new Vector3f(8.5f,73.02f,11.5f),new Vector3f(0,1,0),3,.1f,new Vector3f(1,0,0),.85f));
+            rendering.begin(WIDTH,HEIGHT,projection,view,eye,false,shader);camera(shader,projection,view);drawWorld(world,shader,rendering);rendering.finish();glFinish();
+            int decalPixels=differences(beforeDecal,capture());require(decalPixels>20,"Projected decal changes the floor without world edits");
+            ImageIO.write(capture(),"png",output.resolve("rendering-decals.png").toFile());rendering.clearDecals();
+            for(int x=5;x<=11;x++)for(int z=10;z<=13;z++)world.apply(new Protocol.Edit(x,73,z,Blocks.WATER));chunk.checkMesh();
+            rendering.begin(WIDTH,HEIGHT,projection,view,eye,false,shader);camera(shader,projection,view);drawWorld(world,shader,rendering);
+            rendering.water(world,models,projection,view,eye);rendering.finish();glFinish();
+            BufferedImage wet=capture();require(differences(beforeDecal,wet)>20,"Water reflection/refraction changes the scene");
+            ImageIO.write(wet,"png",output.resolve("rendering-water.png").toFile());
+            rendering.settings.taa=true;rendering.settings.autoExposure=true;rendering.resetHistory();
+            float oldExposure=rendering.exposure();
+            for(int i=0;i<12;i++){
+                eye.x+=.01f;view.identity().lookAt(eye,new Vector3f(8.5f,74.5f,4.5f),new Vector3f(0,1,0));
+                rendering.begin(WIDTH,HEIGHT,projection,view,eye,false,shader);camera(shader,projection,view);drawWorld(world,shader,rendering);
+                rendering.water(world,models,projection,view,eye);rendering.finish();glFinish();
+            }
+            require(rendering.historyFrames()>=12,"Moving camera temporal history rendered");
+            require(Float.isFinite(rendering.exposure())&&Math.abs(rendering.exposure()-oldExposure)>.001,"Auto exposure adapts to actual HDR luminance");
+            ImageIO.write(capture(),"png",output.resolve("rendering-temporal.png").toFile());
+            rendering.settings.renderScale=.65f;
+            rendering.begin(WIDTH,HEIGHT,projection,view,eye,false,shader);camera(shader,projection,view);drawWorld(world,shader,rendering);rendering.water(world,models,projection,view,eye);rendering.finish();glFinish();
+            require(glGetError()==GL_NO_ERROR,"Temporal upscale after dynamic input size change");
+            ImageIO.write(capture(),"png",output.resolve("rendering-upscaled.png").toFile());
+            float[] warm=ColourLut.identity(4).rgb();for(int i=0;i<warm.length;i+=3){warm[i]=Math.min(1,warm[i]*1.3f+.1f);warm[i+2]*=.35f;}
+            BufferedImage beforeGrade=capture();rendering.setColourLut(new ColourLut(4,warm));
+            rendering.begin(WIDTH,HEIGHT,projection,view,eye,false,shader);camera(shader,projection,view);drawWorld(world,shader,rendering);rendering.water(world,models,projection,view,eye);rendering.finish();glFinish();
+            require(differences(beforeGrade,capture())>20,"Custom 3D LUT changes visible grading");
+            ImageIO.write(capture(),"png",output.resolve("rendering-graded.png").toFile());
+            rendering.settings.dynamicResolution=true;rendering.settings.targetFrameMillis=.01f;float originalScale=rendering.settings.renderScale;
+            for(int i=0;i<35;i++){
+                rendering.begin(WIDTH,HEIGHT,projection,view,eye,false,shader);camera(shader,projection,view);drawWorld(world,shader,rendering);rendering.finish();glFinish();
+            }
+            require(rendering.settings.renderScale<originalScale,"GPU-time dynamic resolution lowers scale under measured load");
+            rendering.settings.dynamicResolution=false;
+            world.apply(new Protocol.Edit(5,74,4,0));world.apply(new Protocol.Edit(8,74,4,0));world.apply(new Protocol.Edit(11,74,4,0));rendering.update(world,eye.x,eye.z);
+            require(rendering.particleCount()==0,"Removing emissive sources removes their GPU particles");
+            rendering.settings.renderScale=1;
             rendering.begin(333, 271, projection, view, eye, true, shader);
             rendering.finish();
             glFinish();
@@ -187,7 +246,9 @@ public class RenderingSmoke {
                             + "}\n";
             Files.writeString(
                     output.resolve("rendering-gpu-" + rendering.samples + "x.json"), report);
-            System.out.println(report);
+            Files.writeString(output.resolve("context.txt"),"OpenGL="+glGetString(GL_VERSION)+"; GLSL="+glGetString(GL_SHADING_LANGUAGE_VERSION)+"; renderer="+driver+"; samples="+rendering.samples+"\n");
+            Files.writeString(output.resolve("expansion-checks.txt"),"Playtest: native OpenGL synthetic gallery; assigned X11 display; GPU backend="+rendering.gpuDriven()+"; decals changed pixels="+decalPixels+"; reflection probes, GPU emitters/removal, water, camera motion/TAA, exposure, LUT, temporal upscaling, measured dynamic resolution, resize and GL errors passed.\n");
+            System.out.println("Rendering integration checks passed");
         } finally {
             glfwDestroyWindow(window);
             glfwTerminate();
