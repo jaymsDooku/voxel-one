@@ -38,13 +38,17 @@ print('Railway application playtest exit:', result.returncode)
 if result.returncode:
     raise SystemExit(result.returncode)
 evidence = root / 'dashboard/evidence'
-for name in ('railway-built.png', 'railway-passenger.png', 'railway-arrival.png', 'results.json'):
+for name in ('railway-built.png', 'railway-passenger.png', 'railway-arrival.png', 'railway-bend-preview.png', 'railway-bend-built.png', 'results.json'):
     shutil.copy2(out / name, evidence / ('railway-playtest.json' if name == 'results.json' else name))
 clips = sorted((root / 'target/railway-home/.voxel-one/recordings').glob('*.mp4'))
-if not clips:
+if len(clips) < 2:
     raise SystemExit('F10 recording missing; playtest evidence incomplete.')
 clip = clips[-1]
 if clip.stat().st_size > 6_000_000:
     raise SystemExit('F10 clip exceeds 6 MB; shorten or encode before publication.')
 shutil.copy2(clip, evidence / 'railway-service.mp4')
+bend_clip = clips[-2]
+if bend_clip.stat().st_size > 6_000_000:
+    raise SystemExit('Rail bend F10 clip exceeds 6 MB.')
+shutil.copy2(bend_clip, evidence / 'railway-bend.mp4')
 print('Sanitized railway screenshots, video and results saved. Controller publication pending.')

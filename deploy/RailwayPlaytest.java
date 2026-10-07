@@ -72,13 +72,14 @@ public final class RailwayPlaytest {
     static CitySimulation city() throws Exception {return ((LocalGame)get("local")).city;}
     static CityTools tools() throws Exception {return (CityTools)get("cityTools");}
     static void click(int px,int py) throws Exception {x("mousemove","--sync",Integer.toString(px),Integer.toString(py));x("click","1");}
-    static void point(float wx,float wz) throws Exception {
+    static void hoverPoint(float wx,float wz) throws Exception {
         Matrix4f p=new Matrix4f((Matrix4f)get("projection")),v=new Matrix4f((Matrix4f)get("view"));
         int width=(int)get("framebufferWidth"),height=(int)get("framebufferHeight");
         var q=p.mul(v).transform(new Vector4f(wx,city().frame().roads().get(0).y()+1.03f,wz,1));
         int px=Math.round((q.x/q.w*.5f+.5f)*width),py=Math.round((.5f-q.y/q.w*.5f)*height);
-        require(py>=130&&py<=height-200,"World click lies in planning viewport: "+wx+","+wz+" -> "+px+","+py);click(px,py);
+        require(py>=130&&py<=height-200,"World click lies in planning viewport: "+wx+","+wz+" -> "+px+","+py);x("mousemove","--sync",Integer.toString(px),Integer.toString(py));
     }
+    static void point(float wx,float wz) throws Exception { hoverPoint(wx,wz);x("click","1"); }
     static void focus(float wx,float wz) throws Exception {renderEdit(()->{try{var o=(IsometricCamera)get("overview");o.focus(wx,wz,city().frame().roads().get(0).y()+1);o.zoom(-7);}catch(Throwable e){failure=e;}});Thread.sleep(300);}
     static void toolbar(int index) throws Exception {click(Math.round(16+(index+.5f)*((1280-32)/9f)),534);}
     static void permit(int row,float wx,float wz,int expected) throws Exception {
@@ -103,6 +104,21 @@ public final class RailwayPlaytest {
                 require(city().frame().railway().tracks().size()==85,"Two endpoint rail placement: "+get("notice").toString());
                 int tracks=city().frame().railway().tracks().size();point(48.2f,50.2f);point(60.2f,50.2f);
                 require(city().frame().railway().tracks().size()==tracks&&get("notice").toString().contains("roads"),"Road crossing rejected atomically");
+                // Exercise preview and placement with off-axis endpoints through real callbacks.
+                focus(58,77);
+                x("key","F10");
+                point(48.2f,72.2f);hoverPoint(68.2f,82.2f);
+                capture="railway-bend-preview.png";await(()->capture==null,"Bend preview captured");
+                Thread.sleep(700);point(68.2f,82.2f);
+                require(city().frame().railway().tracks().stream().anyMatch(t->t.x()==58&&t.z()==72),"Rail bend X leg");
+                require(city().frame().railway().tracks().stream().anyMatch(t->t.x()==68&&t.z()==77),"Rail bend Z leg");
+                require(city().frame().railway().tracks().stream().noneMatch(t->t.x()==58&&t.z()==77),"Rail has no diagonal shortcut");
+                require(city().frame().railway().tracks().size()==tracks+31,"Rail bend has 31 cells");
+                capture="railway-bend-built.png";await(()->capture==null,"Bend placement captured");Thread.sleep(1200);
+                point(68.2f,82.2f);point(48.2f,72.2f);
+                require(city().frame().railway().tracks().stream().anyMatch(t->t.x()==58&&t.z()==82),"Reverse rail X leg");
+                require(city().frame().railway().tracks().stream().anyMatch(t->t.x()==48&&t.z()==77),"Reverse rail Z leg");
+                x("key","F10");Thread.sleep(3500);
                 permit(9,50,52,1);permit(9,90,52,2);permit(10,120,52,3);
                 focus(90,56);toolbar(0);capture="railway-built.png";Thread.sleep(500);
                 require(city().frame().railway().trains().size()==1,"Depot creates a stored locomotive");
@@ -126,7 +142,7 @@ public final class RailwayPlaytest {
                 // Run the old road tool on clear ground after rail work.
                 focus(90,64);toolbar(1);click(200,149);point(80.2f,64.2f);point(84.2f,64.2f);
                 require(get("notice").toString().startsWith("Dirt road built"),"Road placement regression: "+get("notice").toString());
-                Files.writeString(output.resolve("results.json"),"{\"status\":\"passed\",\"platform\":\"Linux assigned X11 display, Mesa software OpenGL\",\"profile\":\"isolated synthetic\",\"input\":\"xdotool through production GLFW callbacks\",\"simulation\":\"accelerated by render observer after placement\",\"checks\":[\"rail toolbar and two endpoints\",\"road crossing rejected\",\"two rail station permits\",\"rail depot permit\",\"depot stored locomotive\",\"citizen waits, boards and leaves\",\"save round trip\",\"road placement regression\"],\"recording\":\"F10 engine recorder\"}\n");
+                Files.writeString(output.resolve("results.json"),"{\"status\":\"passed\",\"platform\":\"Linux assigned X11 display, Mesa software OpenGL\",\"profile\":\"isolated synthetic\",\"input\":\"xdotool through production GLFW callbacks\",\"simulation\":\"accelerated by render observer after placement\",\"checks\":[\"rail toolbar and two endpoints\",\"road crossing rejected\",\"off-axis preview and 31-cell rail bend\",\"no diagonal shortcut\",\"reverse-direction rail bend\",\"two rail station permits\",\"rail depot permit\",\"depot stored locomotive\",\"citizen waits, boards and leaves\",\"save round trip\",\"road placement regression\"],\"recording\":\"F10 engine recorder\"}\n");
             }catch(Throwable e){failure=e;try{Files.writeString(output.resolve("failure.txt"),e.getClass().getSimpleName()+": "+e.getMessage());}catch(Exception ignored){}}
             finally{done=true;if(handle!=0)glfwSetWindowShouldClose(handle,true);}
         });driver.setDaemon(true);
