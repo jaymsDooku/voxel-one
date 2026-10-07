@@ -1,0 +1,98 @@
+{
+  "status": "ready_for_independent_review",
+  "sourceHeadBeforeControllerCommit": "9d73103196eb3db4a37172c6a141126811cd6a26",
+  "reviewBase": "11314f5f2ebf39e0d8b335f90af8b8327722f35a",
+  "recordedAt": "2026-10-07T20:35:42.621494+00:00",
+  "changes": [
+    "Distance joint XPBD multiplier resets per substep, accumulates across iterations, carries only tension for rope and estimates force as abs(lambda)/dt squared.",
+    "Position corrections update velocity by correction/dt; no unbounded gravity velocity accumulation.",
+    "Hinge anchor corrections update velocity and accumulate reaction for consistent linear load estimates.",
+    "Constraints wake corrected sleeping dynamic bodies."
+  ],
+  "reproduction": [
+    {
+      "command": "mvn -q -Dmaven.repo.local=target/maven-cache -Dmaven.compiler.release=17 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Djvm=/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Dtest=DistanceLoadTest test",
+      "observed": "Before Distance fix: 5 tests, 3 failures (sustained load, compliance and timestep stability). After Distance fix, added hinge tests: 7 tests, 1 failure (sustained hinge load). Both defects reproduced; no failed run counted as pass."
+    }
+  ],
+  "scope": "Distance/hinge load fix. Advanced simulations retain prior documented lab/API scope. Prior city/parcel workflow evidence remains historical for the earlier integrated head; upstream city code/harnesses unchanged.",
+  "ci": "macOS CI and full suite not claimed passed. Controller runs publication and final CI gates.",
+  "commands": [
+    {
+      "command": "mvn -q -Dmaven.repo.local=target/maven-cache -Dmaven.compiler.release=17 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Djvm=/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Dtest=DistanceLoadTest,PhysicsTest,CcdMotionTest,ForceInertiaTest,PlayerTest,JeepTest package",
+      "expected": "58 tests and Java 17-target package pass",
+      "observed": "Exit 0; 7 joint-load, 25 physics, 5 CCD, 7 force/inertia, 6 player and 8 jeep tests passed."
+    },
+    {
+      "command": "python3 deploy/run_physics_smoke.py --display \"$DISPLAY\"",
+      "expected": "Sustained/overload/compliant ropes and hinge checks pass in rendered application; existing lab and sandbox regressions pass; fresh media fully decodes",
+      "observed": "Exit 0; all native assertions passed; fresh collapse video fully decoded: 16 frames, 195074 bytes."
+    },
+    {
+      "command": "python3 deploy/run_physics_cli_smoke.py --display \"$DISPLAY\" --java /usr/lib/jvm/java-17-openjdk-amd64/bin/java",
+      "expected": "Packaged lab opens on Java 17 and closes through native Escape",
+      "observed": "Exit 0; isolated native window opened and closed."
+    },
+    {
+      "command": "git diff --check",
+      "expected": "No whitespace errors",
+      "observed": "Exit 0"
+    }
+  ],
+  "Playtest": {
+    "environment": "Linux native X11; inherited assigned DISPLAY and XAUTHORITY; Mesa software renderer; isolated synthetic target/physics-home profile. Browser testing does not apply to this native OpenGL game.",
+    "requestedBehavior": {
+      "Playtest": "Production PhysicsLab/PhysicsWorld; inherited X11 Mesa; isolated synthetic rope fixtures",
+      "elapsedSeconds": 1.008318,
+      "sustainedY": 4.0,
+      "sustainedVy": 0.0,
+      "compliantY": 3.9976008,
+      "expected": "24 N retains 100 N rigid/compliant ropes and hinge; 120 N breaks 100 N rope",
+      "observed": "All assertions passed; reset regression follows"
+    },
+    "edge": "120 N breaks 100 N rope; slack rope does not resist inward motion; dt 1/60, 1/120 and 1/240 with 1, 10 and 20 solver iterations preserve/break at appropriate load. Unit and native assertions passed.",
+    "regression": {
+      "Playtest": "Production PhysicsLab; Linux X11; inherited assigned DISPLAY/XAUTHORITY; Mesa software rendering; isolated synthetic profile",
+      "steps": [
+        "D removes support: 28 debris voxels fall; independent anchored tower stays intact",
+        "D repeated: no change; R restores scene",
+        "X/F: explosion and stress fracture detach structures; pause freezes time",
+        "2 B: loaded ropes break",
+        "3: water mass 121.6 conserved; fire emits smoke",
+        "4 W G: cloth/soft body/SPH finite; GPU integration matches CPU and pinned particles stay fixed",
+        "5 Up: wheel torque moves sprung vehicle",
+        "Synthetic contact fixtures in production world: floor travel 10 blocks/s and wall tangent travel 6 blocks/s for at least one second",
+        "R: reset regression restores original cells",
+        "F10: collapse clip recorded"
+      ],
+      "expected": "All listed assertions pass",
+      "observed": "All listed assertions passed",
+      "gpuCompute": true
+    },
+    "walker": {
+      "Playtest": "Production Main offline sandbox; Linux X11 inherited role display; Mesa; isolated synthetic profile",
+      "steps": [
+        "Gravity lands on floor",
+        "Hold W: climb 0.5-block partial voxel without jumping",
+        "Hold W: stop at 3-block wall with no overlap",
+        "Space: jump and land on original floor"
+      ],
+      "expected": "Step at y=109.5; wall stops at x=9.7; jump lands at y=109",
+      "observed": "All assertions passed"
+    },
+    "inspection": "Fresh rope capture inspected: loaded intact cables, hinge fixture and detached overload body are visible."
+  },
+  "sourceSha256": {
+    "src/main/java/dev/jayms/physics/Constraints.java": "df1f4402130149a5870d807725650d5f0d76278ffdc5ac7dbeb880c0ad63fb8b",
+    "src/main/java/dev/jayms/physics/PhysicsWorld.java": "450064d29ffbe7b810c1428167f6fa992cc6b2ba006618a96d8408d1f695a64d",
+    "src/test/java/dev/jayms/physics/DistanceLoadTest.java": "853f60572ac6d84eb52883182fbd904fcd6b417415271888d1f9a22721f2e4b1",
+    "deploy/PhysicsSmoke.java": "fa26e5d6e1dec61298d447cb9e7db3cc8e4a8a1f099fd4fb8a65cf22860a8f92",
+    "deploy/run_physics_smoke.py": "4c2ea330c0ce05746f635116432829835620908b91b1e9c6e71967be38e47a5b"
+  },
+  "mediaSha256": {
+    "dashboard/evidence/physics-rope-load.png": "8a6740bf4afe8ad98ae61b05df633e8012c202e9f2acfa568ffc9adf7dee2208",
+    "dashboard/evidence/physics-collapse.mp4": "1ba0297e1e7ae25942bfef8a9f7c065e882410451e2582453a8d29aff2c9e9f5"
+  },
+  "publication": "Fresh developer media/report pending controller publication. Prior city/parcel media is historical; no city source changed in this joint fix.",
+  "audit": "Entire diff against 11314f5f2ebf39e0d8b335f90af8b8327722f35a audited. No deleted files or unrelated paths. Upstream city/network source, existing regression tests and populated-stress evidence remain byte-identical to base. Intended Player/Jeep old loops replaced by shared voxel collision."
+}

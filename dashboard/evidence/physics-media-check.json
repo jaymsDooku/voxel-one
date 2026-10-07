@@ -1,0 +1,1 @@
+{"status":"passed","source":"production F10 recorder in native physics collapse playtest","codec":"H264","bytes":136452,"decodedFrames":10,"width":816,"height":544,"durationSeconds":4.221,"checks":["Every frame decoded","Frame count matches MP4 metadata","First and last images differ","Below 6 MB artifact limit"]}

@@ -1,0 +1,1 @@
+{"Playtest":"Production PhysicsLab/PhysicsWorld; inherited X11 Mesa; isolated synthetic rope fixtures","elapsedSeconds":1.008318,"sustainedY":4.0,"sustainedVy":0.0,"compliantY":3.9976008,"expected":"24 N retains 100 N rigid/compliant ropes and hinge; 120 N breaks 100 N rope","observed":"All assertions passed; reset regression follows"}

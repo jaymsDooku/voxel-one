@@ -116,18 +116,9 @@ public final class Jeep {
         double a = Math.toRadians(yaw);
         float rx = (float)(Math.abs(Math.cos(a))*type.halfLength + Math.abs(Math.sin(a))*type.halfWidth);
         float rz = (float)(Math.abs(Math.sin(a))*type.halfLength + Math.abs(Math.cos(a))*type.halfWidth);
-        for (int x=(int)Math.floor(p.x-rx); x<=(int)Math.floor(p.x+rx-.001f); x++)
-            for (int y=(int)Math.floor(p.y); y<=(int)Math.floor(p.y+type.height-.001f); y++)
-                for (int z=(int)Math.floor(p.z-rz); z<=(int)Math.floor(p.z+rz-.001f); z++) {
-                    if (!world.isLoaded(x,y,z)) return true;
-                    int type = world.getBlock(x,y,z);
-                    if (type == Blocks.AIR) continue;
-                    if (type == Blocks.PARTIAL) {
-                        if (world.cell(x,y,z).intersects(p.x-rx-x,p.y-y,p.z-rz-z,
-                                p.x+rx-x,p.y+this.type.height-y,p.z+rz-z)) return true;
-                    } else return true;
-                }
-        return false;
+        return dev.jayms.physics.VoxelQueries.collides(world,
+                new dev.jayms.physics.VoxelQueries.Box(p.x-rx,p.y,p.z-rz,
+                        p.x+rx,p.y+type.height,p.z+rz));
     }
     public static Jeep spawn(World world, Vector3f player) {
         for (int radius=4; radius<=16; radius+=2)

@@ -1,0 +1,63 @@
+{
+  "sourceHeadBeforeControllerCommit": "b2961dfb968a3c2a5a12266947bb48c236ac4ef0",
+  "reviewBase": "41ed6e88d231435559810c788416832d2b13d136",
+  "environment": "Linux X11; inherited DISPLAY and XAUTHORITY; Mesa software rendering; isolated synthetic profiles under target; Java 17 target, JDK 21 test JVM",
+  "commands": [
+    {
+      "command": "mvn -q -Dmaven.repo.local=target/maven-cache -Dmaven.compiler.release=17 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Djvm=/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Dtest=DistanceLoadTest,PhysicsTest,CcdMotionTest,ForceInertiaTest,PlayerTest,JeepTest package",
+      "result": "exit 0; 58 tests, zero failures/errors; package built"
+    },
+    {
+      "command": "python3 deploy/run_physics_smoke.py --display \"$DISPLAY\"",
+      "result": "exit 0; native lab and production sandbox walker passed; fresh F10 video fully decoded"
+    },
+    {
+      "command": "python3 deploy/run_physics_cli_smoke.py --display \"$DISPLAY\" --java /usr/lib/jvm/java-17-openjdk-amd64/bin/java",
+      "result": "exit 0; packaged lab opened and Escape closed it"
+    }
+  ],
+  "Playtest": {
+    "steps": "Run all five lab scenes with real native input; cut support twice, reset, explode/fracture, pause, break joints, flow/fire, cloth/SPH/GPU, vehicle drive/reset. Then render synthetic sustained rigid/compliant ropes, overload rope and hinge for at least one second. Check sleeping loads, rotated inertia, floor/wall sliding. Run Main sandbox stair, tall-wall rejection and jump/landing. Open packaged lab on Java 17 and close with Escape.",
+    "expected": "24 N preserves 100 N ropes and hinge without velocity growth; 120 N breaks rope; compliant equilibrium y=3.9976. Prior lab, CCD, force, vehicle and character workflows still pass.",
+    "observed": {
+      "Playtest": "Production PhysicsLab/PhysicsWorld; inherited X11 Mesa; isolated synthetic rope fixtures",
+      "elapsedSeconds": 1.008318,
+      "sustainedY": 4.0,
+      "sustainedVy": 0.0,
+      "compliantY": 3.9976008,
+      "expected": "24 N retains 100 N rigid/compliant ropes and hinge; 120 N breaks 100 N rope",
+      "observed": "All assertions passed; reset regression follows"
+    },
+    "browser": "Browser playtesting does not apply: this is a native OpenGL Java game."
+  },
+  "media": {
+    "status": "passed",
+    "source": "production F10 recorder in native physics collapse playtest",
+    "codec": "H264",
+    "bytes": 233543,
+    "decodedFrames": 20,
+    "width": 816,
+    "height": 544,
+    "durationSeconds": 3.087,
+    "checks": [
+      "Every frame decoded",
+      "Frame count matches MP4 metadata",
+      "First and last images differ",
+      "Below 6 MB artifact limit"
+    ]
+  },
+  "audit": "Entire diff against review base audited: only physics paths and intended Main/Player/Jeep integration; no deleted files. 189 upstream regression/network/populated-stress/SavesMenu files and all 71 prior progress entries preserved byte-for-byte or parsed entry equality. Player axis loops and Jeep inline queries are intentionally replaced by shared voxel sweeps. City source is unchanged against base.",
+  "limits": [
+    "Full Maven suite and macOS CI are not claimed passed; controller must verify CI.",
+    "Advanced simulations remain explicit lab/API integrations as documented in docs/physics.md.",
+    "Fresh media and report await controller publication; prior city/parcel media retains historical provenance."
+  ],
+  "sha256": {
+    "src/main/java/dev/jayms/physics/Constraints.java": "df1f4402130149a5870d807725650d5f0d76278ffdc5ac7dbeb880c0ad63fb8b",
+    "src/main/java/dev/jayms/physics/PhysicsWorld.java": "450064d29ffbe7b810c1428167f6fa992cc6b2ba006618a96d8408d1f695a64d",
+    "src/test/java/dev/jayms/physics/DistanceLoadTest.java": "853f60572ac6d84eb52883182fbd904fcd6b417415271888d1f9a22721f2e4b1",
+    "deploy/PhysicsSmoke.java": "fa26e5d6e1dec61298d447cb9e7db3cc8e4a8a1f099fd4fb8a65cf22860a8f92",
+    "dashboard/evidence/physics-rope-load.png": "199213283ee44643d91435e22a0f2ff0318afe05b4b8b5b3fa5a41eb82941fe5",
+    "dashboard/evidence/physics-collapse.mp4": "6ef237c44b5d9623bce448cf42bf29b64e2f6a750c121269b8b8d24984e9d01b"
+  }
+}

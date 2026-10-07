@@ -1,0 +1,463 @@
+{
+  "status": "ready_for_independent_review",
+  "branch": "feature/queue-63386663653465302d303138612d346331372d396364302d353961636235626436613632",
+  "recordedAt": "2026-10-07T18:45:41.242518+00:00",
+  "scope": "Shared voxel collision and swept walker stairs; reusable rigid, constraint, structural, fluid, environmental, deformable and compute systems; interactive five-scene PhysicsLab.",
+  "commands": [
+    {
+      "command": "mvn -q -Dmaven.repo.local=target/maven-cache -Dmaven.compiler.release=17 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Djvm=/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Dtest=PhysicsTest,PlayerTest,JeepTest package",
+      "preparation": "Removed only target/classes, target/test-classes, target/maven-status and target/maven-archiver to force a fresh build; retained Maven cache.",
+      "expected": "Compile against Java 17 APIs; 39 tests pass; client/server/launcher jars build",
+      "observed": "Exit 0; 25 physics, 6 player and 8 jeep tests passed; package built; all 37 affected class files have major version 61"
+    },
+    {
+      "command": "python3 deploy/run_physics_smoke.py --display \"$DISPLAY\"",
+      "expected": "Native workflow assertions pass; fresh PNG/F10 MP4 captured and fully decoded",
+      "observed": "Exit 0; PhysicsLab and Main sandbox passed; OpenGL compute available; 20 frames fully decoded, 231074 bytes"
+    },
+    {
+      "command": "python3 deploy/run_physics_cli_smoke.py --display \"$DISPLAY\" --java /usr/lib/jvm/java-17-openjdk-amd64/bin/java",
+      "expected": "Packaged Main --physics-lab opens on Java 17 and Escape closes it",
+      "observed": "Exit 0; isolated native window opened and exited through real X11 Escape input"
+    },
+    {
+      "command": "git diff --check",
+      "expected": "No whitespace errors",
+      "observed": "Exit 0"
+    },
+    {
+      "command": "mvn -q -Dmaven.repo.local=target/maven-cache -Dmaven.compiler.release=17 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Djvm=/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Dtest=CityMultiplayerTest,MultiplayerTest,RegionalMultiplayerTest test",
+      "expected": "All 17 multiplayer tests pass on final integrated source without concurrent native checks",
+      "observed": "Exit 0; all 17 passed in one run; no assertion failures or errors"
+    }
+  ],
+  "Playtest": {
+    "environment": "Linux X11; assigned inherited DISPLAY and XAUTHORITY; Mesa software rendering; native JDK 25.0.3; isolated synthetic profiles under target/physics-home and target/physics-runtime",
+    "lab": {
+      "Playtest": "Production PhysicsLab; Linux X11; inherited assigned DISPLAY/XAUTHORITY; Mesa software rendering; isolated synthetic profile",
+      "steps": [
+        "D removes support: 28 debris voxels fall; independent anchored tower stays intact",
+        "D repeated: no change; R restores scene",
+        "X/F: explosion and stress fracture detach structures; pause freezes time",
+        "2 B: loaded ropes break",
+        "3: water mass 121.6 conserved; fire emits smoke",
+        "4 W G: cloth/soft body/SPH finite; GPU integration matches CPU and pinned particles stay fixed",
+        "5 Up: wheel torque moves sprung vehicle",
+        "R: reset regression restores original cells",
+        "F10: collapse clip recorded"
+      ],
+      "expected": "All listed assertions pass",
+      "observed": "All listed assertions passed",
+      "gpuCompute": true
+    },
+    "sandbox": {
+      "Playtest": "Production Main offline sandbox; Linux X11 inherited role display; Mesa; isolated synthetic profile",
+      "steps": [
+        "Gravity lands on floor",
+        "Hold W: climb 0.5-block partial voxel without jumping",
+        "Hold W: stop at 3-block wall with no overlap",
+        "Space: jump and land on original floor"
+      ],
+      "expected": "Step at y=109.5; wall stops at x=9.7; jump lands at y=109",
+      "observed": "All assertions passed"
+    },
+    "browser": "Not applicable: native LWJGL application, with real X11 input and framebuffer captures.",
+    "packagedCLI": {
+      "Playtest": "Packaged Main --physics-lab entry point; Linux X11; inherited assigned DISPLAY/XAUTHORITY; isolated synthetic profile; Mesa software rendering",
+      "command": [
+        "/usr/lib/jvm/java-17-openjdk-amd64/bin/java",
+        "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/63386663653465302d303138612d346331372d396364302d353961636235626436613632/target/tmp",
+        "-Duser.home=/home/debian/codex/voxel-one-queue-worktrees/63386663653465302d303138612d346331372d396364302d353961636235626436613632/target/physics-cli-home",
+        "-jar",
+        "/home/debian/codex/voxel-one-queue-worktrees/63386663653465302d303138612d346331372d396364302d353961636235626436613632/target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "--physics-lab"
+      ],
+      "steps": [
+        "Launch packaged client through Main --physics-lab",
+        "Find its own X11 window by process ID",
+        "Send Escape through X11 and wait for exit"
+      ],
+      "expected": "Window opens and Escape exits with code 0",
+      "observed": "Window opened; Escape exited with code 0",
+      "browser": "Not applicable: native LWJGL application.",
+      "runtime": "OpenJDK 17.0.20.1+1-1-deb12u1-Debian"
+    }
+  },
+  "finalTestReports": [
+    {
+      "suite": "physics.PhysicsTest",
+      "tests": 25,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 2.478
+    },
+    {
+      "suite": "PlayerTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.386
+    },
+    {
+      "suite": "JeepTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.674
+    },
+    {
+      "suite": "CityMultiplayerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 25.66
+    },
+    {
+      "suite": "MultiplayerTest",
+      "tests": 15,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 102.001
+    },
+    {
+      "suite": "RegionalMultiplayerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 7.439
+    }
+  ],
+  "mediaVerification": {
+    "status": "passed",
+    "source": "production F10 recorder in native physics collapse playtest",
+    "codec": "H264",
+    "bytes": 231074,
+    "decodedFrames": 20,
+    "width": 816,
+    "height": 544,
+    "durationSeconds": 2.93,
+    "checks": [
+      "Every frame decoded",
+      "Frame count matches MP4 metadata",
+      "First and last images differ",
+      "Below 6 MB artifact limit"
+    ]
+  },
+  "diffAudit": {
+    "base": "5f1b711d467566491538d975d9de24d01f19bc1f",
+    "basis": "Full final feature tree diff and untracked additions checked against recorded review base.",
+    "unrelatedAdditionsOrModifications": false,
+    "unrelatedDeletions": false,
+    "intendedReplacements": "Player endpoint/binary-search axis movement replaced by exact voxel sweep and step-up. Jeep inline voxel loop replaced by shared geometry query. Main adds only physics-lab dispatch. No files deleted.",
+    "upstreamPreserved": "Existing progress entries, evidence, notes and parcel reviewer feedback match recorded review base exactly; physics item retained separately.",
+    "baselineIssue": "Generated website/dist/client/progress.json stash markers already exist in recorded review base; file unchanged by physics work."
+  },
+  "limits": [
+    "Advanced world/environment simulations and force-based vehicles are explicit physics-lab/API callers; persistent city/multiplayer world formats are not changed.",
+    "Conservative rotated AABB contact proxies; contact solver changes linear velocity; body point impulses support angular velocity.",
+    "Lattice load/stress approximation, failed-cell fractures, individual detached voxel bodies; edge-constrained soft bodies and cloth.",
+    "Pairwise CPU SPH capped at 2048 particles; GPU accelerates particle integration only, with CPU fallback.",
+    "Gas pressure is an ideal-gas field; buoyancy samples columns without displacing water.",
+    "Earlier JDK 25 broad run had authentication EOF errors. Final integrated-source multiplayer rerun passed all 17 tests on JDK 21 in one run. No full-suite pass on JDK 25 is claimed."
+  ],
+  "sourceSha256": {
+    "deploy/PhysicsSmoke.java": "2da0d5338be4e5ee89ec19d6e4840b153a2d51e61b20140a0ffaada39360bff9",
+    "deploy/VerifyPhysicsMedia.java": "fff124dc90226d5155ce53ac41165a3aa8795ab492d3702dd7dfeef310193ae8",
+    "deploy/WalkerPhysicsSmoke.java": "a9bf128dd020bc7bc82bbdc415d91828118440800d80d4cb90fd558d6d76d1b6",
+    "deploy/run_physics_cli_smoke.py": "cb7607bf2d0e57fa15c99366d6076c33d0f937918a2820d7ec046180be30ac73",
+    "deploy/run_physics_smoke.py": "ad4fd8ffcfe4f6a6ada7048a0b40c3f6f15aefca74d321bc90aa3b4804140fca",
+    "docs/physics.md": "640ecea8a69873d7447a39ba515a7144d39bed51cd58c9d95257ada374360bbe",
+    "pom.xml": "15c4ad9c89be00993b512ecd497d8f7f9c38fc378cba67f4f2fb828e621b2e83",
+    "src/main/java/dev/jayms/Main.java": "6ca895f044fc16aeaab2d923d5b818d1f7fdaf4d4de74d31048d58f40859e078",
+    "src/main/java/dev/jayms/physics/Aabb.java": "dd84807d0e331d7471c8e06bcc1e068a98821b6f25add0aa4e819dfe67e095ca",
+    "src/main/java/dev/jayms/physics/CharacterController.java": "4ba56330d46b8a61f522177336b124836a6cee5f3f036a5b2ed94442ac562e25",
+    "src/main/java/dev/jayms/physics/ComputeParticles.java": "d931f5af68306feedeadebd74dc5391b123a8510960219a5223842594d6a872b",
+    "src/main/java/dev/jayms/physics/Constraints.java": "098476e224126307dec782919d66c3f6cd71445c1639098ec3dffa1fa2257eda",
+    "src/main/java/dev/jayms/physics/Deformable.java": "314c77895ca6073b19d1453ea75c5400f5d3dea9aa3f0aa089ad25065e39be56",
+    "src/main/java/dev/jayms/physics/Destruction.java": "2325e10203ffd3276ad181555a8802a61a596aad2c2355032ec270cd42d3e665",
+    "src/main/java/dev/jayms/physics/FluidGrid.java": "69b02d60d8b9a8fa86ed950edb2e28eb91ddb32f0f67f71c966d92b4fb1c65cd",
+    "src/main/java/dev/jayms/physics/ParticleFluid.java": "3fc6c83b3bd38b7a53493859ad02cd23e2df496ce5317048fa332718f35cc8c0",
+    "src/main/java/dev/jayms/physics/PhysicsLab.java": "aa9840c70db73adde6f491e8452e2b2170c97cb5bd28988df942e8c7ea2be41c",
+    "src/main/java/dev/jayms/physics/PhysicsScene.java": "94f6cdd0ea366f216c16469dc4f0c0a02db464deb7eb03f135ecba7bd0b35967",
+    "src/main/java/dev/jayms/physics/PhysicsWorld.java": "615d5254ccd36af35202fc966c622186428c71e9f0a47c37841d645a6d3906f6",
+    "src/main/java/dev/jayms/physics/RigidBody.java": "4d5182acc32efbe84e1b449b985ce974d2f54df0e5276944c8a40981f799871d",
+    "src/main/java/dev/jayms/physics/ShallowWater.java": "a9400001540a361ab3185b8d871936724171b3b2f7137f14b9468cc377149588",
+    "src/main/java/dev/jayms/physics/SpatialGrid.java": "3b12c720d800e7e619e206b315be974d41045a1fda011db01921d6d86ddc784a",
+    "src/main/java/dev/jayms/physics/VehicleForces.java": "49fb008e357a246702ccd6aaef49dcaec49785b8852f53ab0f725f601e4d7226",
+    "src/main/java/dev/jayms/physics/VoxelMotion.java": "920f3f7d2f394d28ad55d12a99844cd740ca4f0394ebc432751a9582873727d1",
+    "src/main/java/dev/jayms/physics/VoxelQueries.java": "363dad5f2243eba2752ba37745e703cba32a89979efb92f94b26202a1cf5e280",
+    "src/main/java/dev/jayms/physics/VoxelStructures.java": "a3be193502da9118352dc46d3fc8e1fc93fc7dc065c58150fc4d97efe05a3ddf",
+    "src/main/java/dev/jayms/player/Jeep.java": "ccef3689adfdbda29fe76a6ab3917f3759c8be7c208cefd2058df4853ed92c4e",
+    "src/main/java/dev/jayms/player/Player.java": "ee59a23b1b523cfb16a282470b1984f7dced46462e41727f1e36c2204e97c84a",
+    "src/test/java/dev/jayms/physics/PhysicsTest.java": "86790fae43a26f4a40f65d041189ecc3b782958f6134d309b6ad0fb9c5c6cdf8"
+  },
+  "artifacts": [
+    {
+      "file": "dashboard/evidence/physics-cloth-sph.png",
+      "bytes": 14559,
+      "sha256": "70000eb28a7ed330e80d017bb8a0e17a713b1da36227c1e6b3fd1e06080752f1",
+      "publication": "pending controller publication",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63386663653465302d303138612d346331372d396364302d353961636235626436613632/dashboard/evidence/physics-cloth-sph.png"
+    },
+    {
+      "file": "dashboard/evidence/physics-collapse.mp4",
+      "bytes": 231074,
+      "sha256": "b0cfc20ea286f6ea1d7e2fd51bcdd9dda28faad2c641eea9ada531d249a77982",
+      "publication": "pending controller publication",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63386663653465302d303138612d346331372d396364302d353961636235626436613632/dashboard/evidence/physics-collapse.mp4"
+    },
+    {
+      "file": "dashboard/evidence/physics-collapse.png",
+      "bytes": 16365,
+      "sha256": "d571ebba17afc646fc7134e9df7e936adf7933503ca9bf667afaab6926fd76dc",
+      "publication": "pending controller publication",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63386663653465302d303138612d346331372d396364302d353961636235626436613632/dashboard/evidence/physics-collapse.png"
+    },
+    {
+      "file": "dashboard/evidence/physics-explosion.png",
+      "bytes": 16511,
+      "sha256": "5b151f22960898c87c3757be71f723a26727bd09d305d978a6e9631a37010499",
+      "publication": "pending controller publication",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63386663653465302d303138612d346331372d396364302d353961636235626436613632/dashboard/evidence/physics-explosion.png"
+    },
+    {
+      "file": "dashboard/evidence/physics-fluid-fire.png",
+      "bytes": 32111,
+      "sha256": "842dad2121928c10ea721b435397522e9a653a9e1ab98b7652c40d284acade8d",
+      "publication": "pending controller publication",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63386663653465302d303138612d346331372d396364302d353961636235626436613632/dashboard/evidence/physics-fluid-fire.png"
+    },
+    {
+      "file": "dashboard/evidence/physics-fracture.png",
+      "bytes": 16083,
+      "sha256": "603732b75e9eb2412704a2a42323336683ccbd100a41ca3020213228e6a23fde",
+      "publication": "pending controller publication",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63386663653465302d303138612d346331372d396364302d353961636235626436613632/dashboard/evidence/physics-fracture.png"
+    },
+    {
+      "file": "dashboard/evidence/physics-intact.png",
+      "bytes": 15739,
+      "sha256": "61eda56a2b469e147413324ce3f97d9210e9869a9095fe2063162e30bd6b2952",
+      "publication": "pending controller publication",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63386663653465302d303138612d346331372d396364302d353961636235626436613632/dashboard/evidence/physics-intact.png"
+    },
+    {
+      "file": "dashboard/evidence/physics-joints.png",
+      "bytes": 15742,
+      "sha256": "114f862f22cd1999e875186b2ccb9a153a824c72aeca0f60c88dd5b2d1947d5d",
+      "publication": "pending controller publication",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63386663653465302d303138612d346331372d396364302d353961636235626436613632/dashboard/evidence/physics-joints.png"
+    },
+    {
+      "file": "dashboard/evidence/physics-reset.png",
+      "bytes": 15780,
+      "sha256": "4baf79443379c8cfa8946ac312113c47ae5ffce0b02ea7315009448d98f21405",
+      "publication": "pending controller publication",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63386663653465302d303138612d346331372d396364302d353961636235626436613632/dashboard/evidence/physics-reset.png"
+    },
+    {
+      "file": "dashboard/evidence/physics-settled.png",
+      "bytes": 16142,
+      "sha256": "290745521c0574c7487116615ca8aea7720694a405861990f6e1897c31dc6678",
+      "publication": "pending controller publication",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63386663653465302d303138612d346331372d396364302d353961636235626436613632/dashboard/evidence/physics-settled.png"
+    },
+    {
+      "file": "dashboard/evidence/physics-vehicle.png",
+      "bytes": 15357,
+      "sha256": "444c4d315f7d7e6015d84965ca47b843037f9e978177e1c10b5b6ad2d5274bf1",
+      "publication": "pending controller publication",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63386663653465302d303138612d346331372d396364302d353961636235626436613632/dashboard/evidence/physics-vehicle.png"
+    },
+    {
+      "file": "dashboard/evidence/physics-walker-landed.png",
+      "bytes": 617737,
+      "sha256": "9325afea2ec62596a32db50570dbe0807fc5170e620acff014880d770a194c07",
+      "publication": "pending controller publication",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63386663653465302d303138612d346331372d396364302d353961636235626436613632/dashboard/evidence/physics-walker-landed.png"
+    },
+    {
+      "file": "dashboard/evidence/physics-walker-start.png",
+      "bytes": 664545,
+      "sha256": "16ac0d6ee6c02dafecdd6cc97bbbc4342e5fd17482c1df50df692733086a81d2",
+      "publication": "pending controller publication",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63386663653465302d303138612d346331372d396364302d353961636235626436613632/dashboard/evidence/physics-walker-start.png"
+    },
+    {
+      "file": "dashboard/evidence/physics-walker-step.png",
+      "bytes": 657048,
+      "sha256": "14364cf5b5e660800dacfec04774113e2ce508da06dee41fe83c13b49e9fcb7e",
+      "publication": "pending controller publication",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63386663653465302d303138612d346331372d396364302d353961636235626436613632/dashboard/evidence/physics-walker-step.png"
+    },
+    {
+      "file": "dashboard/evidence/physics-walker-wall.png",
+      "bytes": 618098,
+      "sha256": "fb7bddc3646ab7f4fdbb01d13e3c92916fda55434adc5807b8122c5014ba79cf",
+      "publication": "pending controller publication",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63386663653465302d303138612d346331372d396364302d353961636235626436613632/dashboard/evidence/physics-walker-wall.png"
+    }
+  ],
+  "recovery": {
+    "reviewBase": "5f1b711d467566491538d975d9de24d01f19bc1f",
+    "resolvedFiles": [
+      "dashboard/progress.json"
+    ],
+    "preserved": "All existing progress entries, evidence and reviewer feedback from current upstream stage retained unchanged. Physics entry added separately.",
+    "audit": "No deleted files against recorded review base. Main adds only physics-lab dispatch. Player movement and Jeep inline collision loops are intentionally replaced with shared voxel collision code.",
+    "historicalEvidence": "Earlier results retained under historicalValidation. Current build, 56 tests, native workflows, Java 17 packaged entry point and fresh decoded media now pass.",
+    "baselineIssue": "website/dist/client/progress.json contains stash markers already present in recorded review base; this file is unchanged by physics work.",
+    "gitHandoff": "Controller completed rebase. Final integrated source rebuilt and tested; no new Git mutations by developer."
+  },
+  "historicalValidation": {
+    "stage": "Before controller integration; previous commands/results retained as historical",
+    "commands": [
+      {
+        "command": "mvn -q -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Djvm=/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Dtest=PhysicsTest,PlayerTest,JeepTest package",
+        "expected": "39 tests pass and client/server/launcher jars build",
+        "observed": "Exit 0; 25 physics, 6 player, 8 jeep tests passed; package built"
+      },
+      {
+        "command": "python3 deploy/run_physics_smoke.py --display \"$DISPLAY\"",
+        "expected": "Native lab and Main sandbox keyboard assertions pass; rendered geometry visible; no GL errors; fresh PNG/F10 MP4 saved and fully decoded",
+        "observed": "Exit 0; both native playtests passed; OpenGL compute available and matches CPU; 20 frames decoded, 231878 bytes"
+      },
+      {
+        "command": "mvn -q -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" test",
+        "stage": "Earlier broad run before final roof-load and bounds guards",
+        "expected": "All 478 tests pass on default JDK 25.0.3",
+        "observed": "Exit 1; 478 tests, 0 assertion failures, 14 authentication EOF errors in 3 existing multiplayer suites"
+      },
+      {
+        "command": "mvn -q -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Djvm=/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Dtest=CityMultiplayerTest,MultiplayerTest,RegionalMultiplayerTest test",
+        "expected": "Multiplayer tests pass on JDK 21.0.5",
+        "observed": "17 tests; 16 passed, CityMultiplayerTest timed out while native tests ran concurrently; no authentication EOF errors"
+      },
+      {
+        "command": "mvn -q -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Djvm=/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Dtest=CityMultiplayerTest test",
+        "expected": "City networking check passes in isolation",
+        "observed": "Exit 0; 1 test passed; final JDK 21 reports for all 17 multiplayer tests have no failures/errors"
+      },
+      {
+        "command": "git diff --check",
+        "expected": "No whitespace errors",
+        "observed": "Exit 0"
+      }
+    ],
+    "finalTestReports": [
+      {
+        "suite": "physics.PhysicsTest",
+        "tests": 25,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "PlayerTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "JeepTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "CityMultiplayerTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "MultiplayerTest",
+        "tests": 15,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "RegionalMultiplayerTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "mediaVerification": {
+      "status": "passed",
+      "source": "production F10 recorder in native physics collapse playtest",
+      "codec": "H264",
+      "bytes": 231878,
+      "decodedFrames": 20,
+      "width": 816,
+      "height": 544,
+      "durationSeconds": 2.871,
+      "checks": [
+        "Every frame decoded",
+        "Frame count matches MP4 metadata",
+        "First and last images differ",
+        "Below 6 MB artifact limit"
+      ]
+    }
+  },
+  "validatedHead": "96b1306fbd8eb5a4ff6b2b08fefe981419331a88",
+  "buildProvenance": {
+    "reviewedSourceHead": "96b1306fbd8eb5a4ff6b2b08fefe981419331a88",
+    "sourceHashesMatchEarlierPhysicsSource": true,
+    "compiledBytecodeMajor": 61,
+    "compiledClassSha256": {
+      "target/classes/dev/jayms/Main.class": "3084866a5863f860d498b5fe3555d6a2cd4f9aa25bc55cfe132cd838b68aedd5",
+      "target/classes/dev/jayms/physics/Aabb$Hit.class": "fc0be6cba2b6610c26954d8488ed95615c8a8657abd6a4f4833a2c77215c82d4",
+      "target/classes/dev/jayms/physics/Aabb.class": "75eab404a2971217d0dce7fd589b7067a09638f992ecd8b8d62c94b45a40e9c9",
+      "target/classes/dev/jayms/physics/CharacterController$Contact.class": "e217bc1b2327ddac3135ee0f8e720b473de66ec9af8b9225d6c96cd157fcffa3",
+      "target/classes/dev/jayms/physics/CharacterController.class": "852638f24db83fb0b4b1daf5c7cc2fbed589782bfecb3eee407442f9dbf9038b",
+      "target/classes/dev/jayms/physics/ComputeParticles.class": "128f0a0e1712dd1a9f83d73a7847fded503716dff992f4d867fde912a980f4e7",
+      "target/classes/dev/jayms/physics/Constraints$Distance.class": "60c2a652875ea3512c9973f6cc523043e8c1721cc00566cc92e277865c164d36",
+      "target/classes/dev/jayms/physics/Constraints$Hinge.class": "633c77c7050b547e2dce9f58e19f4ea5f8ba466d739424a5d4bae6a26aa3a88f",
+      "target/classes/dev/jayms/physics/Constraints$Joint.class": "fa9eb6c1701d0c29642d8544cd5043f48d3600922d9b55f81bc3ab9c2d03101a",
+      "target/classes/dev/jayms/physics/Constraints$Spring.class": "2136c97754630412e3d1bdb0c4930fd6a75338b3bea9a4991d4a5cafb16ffb6e",
+      "target/classes/dev/jayms/physics/Constraints.class": "8da303024bbc6980ae9b129564b29fa0457ec9d50e70fa505dd79df83ae82024",
+      "target/classes/dev/jayms/physics/Deformable$Link.class": "22b9e2b797042053642384bda6e534838a2de60ea69eea28c2c19007eaf1a6dd",
+      "target/classes/dev/jayms/physics/Deformable$Particle.class": "4f2271064a2a2c7aee3166e6b93dfd995239f1f5afac8075c156b72a90419947",
+      "target/classes/dev/jayms/physics/Deformable.class": "564b596211a64716fcfbb340a25368e29a01afa94d8376e44f108f5ec9b23870",
+      "target/classes/dev/jayms/physics/Destruction.class": "9e8cb42f265ac70f86c80fffe0ce33d7d50b49a21e7d22210a6c833c7afe2788",
+      "target/classes/dev/jayms/physics/FluidGrid.class": "9ec47ee15e54875189b22f1be71e64cca2426d698431bcf2dcff20b09d3f29d4",
+      "target/classes/dev/jayms/physics/ParticleFluid.class": "01b1e4d5ea08bb8320de1849db57aca172089d28fe76b2c9232ec6dc60b7f789",
+      "target/classes/dev/jayms/physics/PhysicsLab$Observer.class": "5f9d9ac846006c3196706d64a5d2de81d8603ad16a06b8f16353b4da9c4a65af",
+      "target/classes/dev/jayms/physics/PhysicsLab.class": "fd550c336a3523228501d67301ccc49bbb26354394af8482c79e494d1c4bdc29",
+      "target/classes/dev/jayms/physics/PhysicsScene.class": "a48049ef0e6df9ced7146e3ba2e83ea6fc8b93653200b158177f9ccf2838544b",
+      "target/classes/dev/jayms/physics/PhysicsWorld$Overlap.class": "3d953fc7860888032f80b2100f44429dbaa1a463b6b0d09187a86c1195081c38",
+      "target/classes/dev/jayms/physics/PhysicsWorld$RayHit.class": "4b1703dd87a45bce7e314558f96d258e34033e546c2a444b36959fcd11ab1897",
+      "target/classes/dev/jayms/physics/PhysicsWorld.class": "1fe67a7ff70e538f8da2d00dedbcd013aacfa4d804f96eb605147c2c01cfd4a6",
+      "target/classes/dev/jayms/physics/RigidBody.class": "11d791b09c137a4f6dcee223dd18b5d4b9f5a20a8c76ba631082cbc698c039bd",
+      "target/classes/dev/jayms/physics/ShallowWater.class": "4c248beae24f0f7a1a84ecc394facafc0ac8c770fa28d7583a28f48eaa9d8a35",
+      "target/classes/dev/jayms/physics/SpatialGrid$Key.class": "e276db10bb706b7b15211db909a9648494c7b87d8e55f3b96b0528e1c31e6d37",
+      "target/classes/dev/jayms/physics/SpatialGrid.class": "0f7b7ce9c382039f06db0db79c92f53a17a283dd9a355a8cdc2cb75d17d5760a",
+      "target/classes/dev/jayms/physics/VehicleForces$Wheel.class": "4bfde48078f21d22c765ab882e648f1e04002b689f6e8d0fec3507c1cb23c386",
+      "target/classes/dev/jayms/physics/VehicleForces.class": "d58ce5ef3dafd35fef1c47cbebca1dd2fb1660142b85430587ea8ecb5f123821",
+      "target/classes/dev/jayms/physics/VoxelMotion.class": "04e7031d71a36b711f79088daa4be3f9e3112d7fbb9627ca2769daf0b2aeb2da",
+      "target/classes/dev/jayms/physics/VoxelQueries$Box.class": "aa4207971f49067619501ea22df2f71112dc4b1519638104172264a0f48b6e1f",
+      "target/classes/dev/jayms/physics/VoxelQueries.class": "e2ff503eb7122dc7d4a4a41d8409e42cff1e596cad7d9cf8ebecd4c7b9dce412",
+      "target/classes/dev/jayms/physics/VoxelStructures$Analysis.class": "a307ac01bc889f52e8069dde4c0d3e10dada98516f526219cf8e58b676dbf648",
+      "target/classes/dev/jayms/physics/VoxelStructures$Cell.class": "8aee6ba18a6d380424a5c038497308435db13600d784455f64e522f2705a1a32",
+      "target/classes/dev/jayms/physics/VoxelStructures.class": "b3c2f74f5ffac68fc3f9f56ea19f5f59b30b698aca8b672deab3912e9b4926cb",
+      "target/classes/dev/jayms/player/Jeep.class": "d9193e1b651ef8f087ee40b15e792678f9adec92141a85938ed6d3a58a6d3034",
+      "target/classes/dev/jayms/player/Player.class": "1b5d1c35ddd373af564983cd1f750c8c0c7f8e6f8aa61141d9f0e2be44ad261e"
+    },
+    "clientJarSha256": "83e5dd05eb6885caa7a0bdcc317e4f6d94a61682bc978f60ecd21d39da766dc1",
+    "nativeClasspath": "Freshly rebuilt target/classes first, then harness classes and cached dependency jars. Packaged CLI runs the freshly built client jar.",
+    "sourceHashNote": "Existing engine sources match earlier recorded hashes; only a CLI validation harness and documentation were added after integration."
+  },
+  "testRuntime": "Oracle JDK 21.0.5+9-LTS-239"
+}

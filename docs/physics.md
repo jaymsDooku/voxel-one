@@ -1,0 +1,55 @@
+# Engine physics
+
+Launch the native playground with `java -jar target/voxel-one-1.0-SNAPSHOT-client.jar --physics-lab` after `mvn package`. The lab uses synthetic scenes. It does not open a network connection, load an account, or edit a city or sandbox save. Escape closes it. F10 records the framebuffer through the game's recorder.
+
+Use 1–5 to switch scenes. D cuts the central support; 28 connected voxels become falling debris. X applies a destructive blast. F fractures overloaded cells. R resets the scene, and Space pauses it. Left/Right orbit the camera; the mouse wheel zooms. I/J/K/L move the character and U jumps. Up/Down apply vehicle torque. B lowers joint break thresholds. W toggles wind. P switches PBD/XPBD. G enables compute integration when OpenGL 4.3 is present, with a CPU fallback otherwise.
+
+The engine package `dev.jayms.physics` exposes the following systems. Units are blocks/metres, seconds, kilograms and newtons. Simulations use bounded steps; the playground advances at 120 Hz.
+
+| Systems | Implementation and entry points |
+| --- | --- |
+| AABB; swept AABB/CCD | `Aabb.overlaps`, slab `sweep`, and relative body sweeps in `PhysicsWorld` |
+| voxel queries | `VoxelQueries` enumerates loaded full cells, partial octree leaves and model geometry; unloaded cells block motion; water does not |
+| spatial hashing | `SpatialGrid` inserts every touched cell, deduplicates queries, and supports negative coordinates |
+| controller; gravity; friction; restitution | `CharacterController`, `PhysicsWorld.gravity`, normal and Coulomb tangent impulses; low-speed restitution suppression |
+| rigid bodies; impulse resolution | `RigidBody` has mass, box inertia, orientation, forces, torque and point impulses; `PhysicsWorld` resolves contacts |
+| raycasting | `PhysicsWorld.raycast`; the existing `BlockRaycaster` remains the terrain picking path |
+| ground/slope; stairs | `VoxelMotion.groundNormal` samples three feet contacts; controller support normals and slope limits; production walker sweeps exact voxel leaves and climbs 0.6-block steps, mounted walkers 1 block |
+| platforms; triggers | `CharacterController` carries the supported character with a kinematic body; `PhysicsWorld` exposes overlaps, entered and exited sets |
+| destruction; support; components; debris | `Destruction` owns an explicitly registered voxel scene; six-neighbour `VoxelStructures.analyze` classifies anchored components, then removes unsupported cells and creates physical debris |
+| constrained bodies; hinges/doors; springs; cables | `Constraints.Distance`, `Hinge`, `Spring`; rope distance is unilateral, hinge aligns anchors and axes while leaving hinge rotation free |
+| suspension; wheels | `VehicleForces.Wheel` computes spring/damper support, slip-limited traction, brake torque and wheel angular speed; four contacts drive the lab vehicle |
+| buoyancy; cellular water | Submerged-volume force in `VehicleForces.buoyancy`; a floating box in scene 3; conservative bounded `FluidGrid` water transport with solid barriers |
+| wind; explosions; breakable joints | Relative-wind drag/lift, cloth wind acceleration, radial impulse falloff; force/strain break thresholds cease solving broken joints |
+| stacking/sleeping; layers/masks | Iterated contact correction and stable near-contact impulses; quiet bodies sleep and applied impulses wake them; bilateral masks filter collisions and triggers |
+| sequential impulses | `PhysicsWorld` iterates contact normal/friction velocity resolution and position correction |
+| PBD; XPBD; soft bodies; cloth | `Deformable`: particle distance constraints, compliance/lambda XPBD, tetrahedral soft body and cloth structural/shear/bending links with pinned top row |
+| particle fluids; SPH | `ParticleFluid`: compact density kernel, symmetric pressure and viscosity forces, substeps and floor response |
+| shallow water | `ShallowWater`: conservative Rusanov height/momentum flux, gravity waves, bed gradients and closed basin walls |
+| stress; cracks; collapse | `VoxelStructures.stress` propagates weight along connected shortest paths to anchors, preferring downward bonds; strength failures remove cells, then connectivity drives collapse |
+| erosion/landslides | `FluidGrid.erode` transports water/sediment, deposits soil and relaxes slopes above a talus angle; scene 3 shows the evolving height field |
+| fire; smoke/gas; heat; pressure | `FluidGrid`: ignition threshold/fuel consumption, heat production/diffusion/cooling, smoke diffusion and upward transport, ideal-gas pressure from gas density/heat |
+| drag/lift | `VehicleForces.dragLift` uses relative air velocity and dynamic pressure, with lift perpendicular to airflow |
+| GPU compute | `ComputeParticles`: OpenGL 4.3 compute shader, SSBO state, bounds guard, pinned-particle guard, memory barrier and readback; matched CPU path on older GL |
+
+These are bounded engine simulation primitives and an interactive lab, not a new server-authoritative world format. Production walkers and jeep collision queries share voxel geometry. Destruction, fluid, fire, vehicle force and advanced simulations remain explicit callers in the lab; they do not silently change persistent multiplayer worlds. A caller integrating `Destruction` into a saved world must also publish and persist every edit through its authoritative edit path.
+
+The box contact solver uses conservative rotated AABBs, not oriented-box narrowphase. Angular impulses are available through the body API; contact impulses currently act on linear velocity. Structural stress uses a lattice load approximation, not finite-element elasticity; cracks are failed cells. Detached components become individual voxel bodies. Cloth uses distance/bending links; the soft body is an edge-constrained tetrahedron. SPH has a 2,048-particle cap and pairwise CPU forces. GPU acceleration covers particle integration, not collision/SPH force evaluation. Cellular water and the shallow-water height field are separate representations. Gas pressure is an ideal-gas field, not a compressible Navier–Stokes solve. Buoyancy samples the water column; it does not displace fluid. These limits make the current algorithms inspectable and deterministic at the lab scale.
+
+## Validation
+
+Run `mvn -Dmaven.repo.local=target/maven-cache -DargLine="-Djava.io.tmpdir=$PWD/target/tmp" test` after creating `target/tmp`. Run `python3 deploy/run_physics_smoke.py --display "$DISPLAY"` on the assigned native display. The harness inherits XAUTHORITY, uses isolated synthetic profiles, drives the production lab and sandbox with X11 keyboard input, asserts observed state, checks visible rendered geometry and GL errors, and captures fresh PNG/F10 MP4 evidence. To check the packaged entry point on a chosen runtime, use `python3 deploy/run_physics_cli_smoke.py --display "$DISPLAY" --java /path/to/java`; the final validation used OpenJDK 17.0.20.1. Fresh builds use `-Dmaven.compiler.release=17` and a JDK 21 test JVM. JDK 25 authentication test failures are recorded separately from the successful JDK 21 network checks. Browser playtesting does not apply to this native LWJGL application.
+
+CCD advances all bodies to each earliest contact, resolves its impulse, then sweeps the remaining time. A normal-only clearance of 0.000001 blocks handles rounding. Each substep allows 256 contacts; if that budget is exhausted, remaining motion stays at the last checked pose. This bounds pathological contact piles and avoids unchecked tunnelling.
+
+Tests cover frictionless floor travel, diagonal wall sliding, same-step rebound, a second wall, equal-mass impact travel, high-speed thin-wall CCD, ray hits, negative broadphase coordinates, momentum/restitution, friction, stacking/sleep/wake, collision masks and trigger transitions, joints and breakage, anchored/detached components and traversal limits, water/soil conservation, heat/smoke transport, pinned cloth, soft bodies, SPH momentum, CPU integration, moving platforms and exact partial-voxel sweeps. Native checks include synthetic sliding fixtures rendered and advanced by the production lab world, plus support removal, repeated cuts, independent anchored content, reset, joint breaks, water/fire, deformables, GPU/CPU equivalence and vehicle drive. The sandbox check covers a half-voxel stair, tall-wall rejection and jump/landing regression.
+
+Applied force or torque wakes a sleeping dynamic body before integration. Loaded bodies do not sleep while torque is present. Angular impulses and torque use the world inverse inertia tensor `R * I_local^-1 * R^T`; static and kinematic bodies ignore these loads. Regression tests cover sleeping loads, rotated non-cubic boxes, oblique off-diagonal response, centre impulses and unloaded sleepers. Native synthetic fixtures exercise these paths in the rendered production lab.
+
+Distance joints reset their XPBD multiplier once per physics substep (`Joint.beginStep`), then accumulate it across solver iterations. Position corrections also update velocity by correction/time. Rope multipliers carry tension only; break force is the accumulated multiplier divided by substep time squared. This keeps sustained loads from becoming false overloads and retains compliance. Direct joint callers must call `beginStep()` once before each timestep’s solver iterations.
+
+Hinge anchor corrections likewise update linear velocity and accumulate anchor reaction per substep before estimating break force. Sustained-load and overload regressions cover this shared correction path.
+
+`PhysicsWorld.entered()` and `exited()` collect transitions across every substep and actual CCD motion segment of one `step` call. A complete trigger crossing can appear in both sets while `overlaps()` is empty at the final pose. The sets reset on the next positive-duration step. Swept trigger checks use relative linear AABB motion, bilateral masks and a positive overlap interval; grazing touches do not count. Solid obstacles limit the tested motion segments. Trigger events are pair sets, so repeated transitions of the same pair within one call are coalesced. Meaningful contact impulses also wake sleeping dynamic bodies, including slow impacts below the restitution threshold.
+
+The lab vehicle rotates wheel mount offsets with the chassis and samples mount velocity including `angularVelocity × offset`. Suspension uses vertical ground rays. Support acts vertically; traction follows the chassis's horizontal forward direction. Each wheel force adds `contactOffset × force` to chassis torque. Wheel traction requires compression and positive available normal load, capped by suspension support and the supplied load limit. An airborne wheel retains spin without drive/brake torque; engine and brake torque still affect free spin.
