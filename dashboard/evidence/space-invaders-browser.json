@@ -1,0 +1,21 @@
+{
+  "results": [
+    {
+      "browser": "Playwright WebKit",
+      "mobile": false,
+      "viewport": "1280x900",
+      "hud": "Score 80 · Lives 3 · Wave 1",
+      "observed": "Navigation, start, move/fire, pause/resume, blur pause, release/cancel input, viewport controls, injected boundary reversal, wave completion, game-over/restart passed",
+      "errors": []
+    },
+    {
+      "browser": "Playwright WebKit",
+      "mobile": true,
+      "viewport": "390x844, 844x390",
+      "hud": "Score 100 · Lives 3 · Wave 1",
+      "observed": "Navigation, start, move/fire, pause/resume, blur pause, release/cancel input, viewport controls, injected boundary reversal, wave completion, game-over/restart passed",
+      "errors": []
+    }
+  ],
+  "limitation": "WebKit mobile emulation, not a physical iPhone/iPad or native iOS app"
+}

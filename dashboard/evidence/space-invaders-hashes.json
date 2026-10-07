@@ -1,0 +1,11 @@
+{
+  "games/space-invaders/game.test.mjs": "77e5524ffcf6b3720d04cd231dea0538c0d6653af832e4662e9e29a27cfd83b6",
+  "games/space-invaders/game.mjs": "c782793a33e17def20a353f43a43d7152cd1493adbcc389c5ee24f6a8652ca5e",
+  "games/space-invaders/app.mjs": "015978ec14979d0ffdc58372b9574e4334608a1d34abe0cf0fdc18929b380661",
+  "games/space-invaders/style.css": "cae8935cae9d5224b5d63e2d781c3a3b34ef81a315016afc5f03b088798c7ccf",
+  "games/space-invaders/index.html": "e79ba309276a11612ea8285e9d6000c3f08aa9416e22d3307e9d22c4f450085b",
+  "games/space-invaders/README.md": "94a22542bd0680486eec95b6acea86d570d162276c0d91bef94a16295df46fbc",
+  "dashboard/evidence/space-invaders-touch.png": "1cb32f378736367569052c8bbf5cc87b90843dfa7434bda3f3cb06cf7e066bfe",
+  "dashboard/evidence/space-invaders-landscape.png": "8e376917019458d82a8f0c9cc142c0ba5645a4fb53654c2a5cd7ce7042760347",
+  "dashboard/evidence/space-invaders-desktop.png": "d2920ee93b98e395593c7f15fd5d4684c8de9e14a8b16f8c6265a6dca82013d6"
+}

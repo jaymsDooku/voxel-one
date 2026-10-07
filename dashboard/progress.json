@@ -15,6 +15,36 @@
   },
   "items": [
     {
+      "id": "36346562663133302d383033312d343733612d616132342d393031326464616132313235",
+      "title": "Voxel Space Invaders",
+      "description": "Browser game with voxel aliens and player spaceship, classic fleet combat and iOS touch controls.",
+      "status": "in_progress",
+      "note": "Implemented and tested: eight rule tests, ten website regression tests, desktop and mobile WebKit playtests. Awaiting controller synchronization and independent review. Physical iOS devices untested.",
+      "updatedAt": "2026-10-07T18:52:48.101591+00:00",
+      "evidence": [
+        {
+          "kind": "image",
+          "label": "Desktop gameplay — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36346562663133302d383033312d343733612d616132342d393031326464616132313235/dashboard/evidence/space-invaders-desktop.png"
+        },
+        {
+          "kind": "image",
+          "label": "Mobile touch gameplay — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36346562663133302d383033312d343733612d616132342d393031326464616132313235/dashboard/evidence/space-invaders-touch.png"
+        },
+        {
+          "kind": "image",
+          "label": "Mobile landscape gameplay — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36346562663133302d383033312d343733612d616132342d393031326464616132313235/dashboard/evidence/space-invaders-landscape.png"
+        },
+        {
+          "kind": "link",
+          "label": "Validation commands and limits — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36346562663133302d383033312d343733612d616132342d393031326464616132313235/dashboard/evidence/space-invaders-validation.md"
+        }
+      ]
+    },
+    {
       "id": "36623333663562302d613731382d343833342d613735302d326666313839333532663035",
       "title": "Zone parcel algorithm portfolio",
       "description": "Adding common parcel API, selectable layouts and parcel-aware building placement.",
