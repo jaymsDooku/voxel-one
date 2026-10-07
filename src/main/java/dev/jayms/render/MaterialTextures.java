@@ -27,8 +27,7 @@ public final class MaterialTextures implements AutoCloseable {
             case Blocks.GLASS -> 9;
             case Blocks.LED -> 10;
             case Blocks.ASPHALT -> 11;
-            case Blocks.ROAD_LINE_X -> 12;
-            case Blocks.ROAD_LINE_Z -> 13;
+            case Blocks.ROAD_LINE_X, Blocks.ROAD_LINE_Z -> 11;
             default -> -1;
         };
     }
