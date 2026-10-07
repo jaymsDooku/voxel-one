@@ -81,6 +81,42 @@ public class RenderingSmoke {
         var image=new BufferedImage(64,64,BufferedImage.TYPE_INT_RGB);
         for(int y=0;y<64;y++)for(int x=0;x<64;x++){int i=(x+y*64)*3,c=0;for(int k=0;k<3;k++){float v=Math.max(0,rgb[i+k]);c=(c<<8)|Math.min(255,Math.round(255*(float)Math.pow(v/(1+v),1/2.2)));}image.setRGB(x,63-y,c);}ImageIO.write(image,"png",path.toFile());
     }
+    static void streamingHiZChecks(int depth, Matrix4f camera, Path output) throws Exception {
+        try (var scene = new World(); var renderer = new RenderPipeline()) {
+            // Complete sentinel columns keep stream's removal pass isolated from generation.
+            for (int x=-4;x<=4;x++) for (int z=-4;z<=4;z++)
+                scene.addChunk(new ChunkPos(x,-2,z),new Chunk());
+            scene.getLoadedChunks().values().forEach(Chunk::checkMesh);
+            renderer.update(scene,0,0);
+            var hierarchy=(HiZ)field(renderer,"hiZ");
+            hierarchy.build(depth,WIDTH,HEIGHT,camera);
+            renderer.update(scene,0,0);
+            require((boolean)field(hierarchy,"valid"),"Unchanged stationary scene retains Hi-Z");
+            long edits=scene.editsVersion();
+            var added=new Chunk();added.setBlock(0,0,0,Blocks.STONE);
+            scene.addChunk(new ChunkPos(1,4,0),added);
+            scene.getLoadedChunks().values().forEach(Chunk::checkMesh);
+            require(!added.dirty()&&scene.editsVersion()==edits,"Streamed addition is clean without edit revision");
+            renderer.update(scene,0,0);
+            require(!(boolean)field(hierarchy,"valid"),"Meshed chunk addition invalidates stationary Hi-Z");
+            require(hierarchy.visible(camera,-8,-8,-40),"Added scene cannot use stale occlusion");
+            hierarchy.build(depth,WIDTH,HEIGHT,camera);
+            added.setBlock(1,0,0,Blocks.STONE);added.checkMesh();renderer.update(scene,0,0);
+            require(!(boolean)field(hierarchy,"valid"),"Rebuilt clean mesh invalidates stationary Hi-Z");
+            var distant=new Chunk();distant.setBlock(0,0,0,Blocks.STONE);
+            var distantPos=new ChunkPos(8,4,0);scene.addChunk(distantPos,distant);distant.checkMesh();renderer.update(scene,0,0);
+            hierarchy.build(depth,WIDTH,HEIGHT,camera);
+            require(!hierarchy.visible(camera,-8,-8,-40),"Fresh unchanged depth can reject hidden bounds");
+            scene.stream(0,0,1);scene.getLoadedChunks().values().forEach(Chunk::checkMesh);
+            require(!scene.getLoadedChunks().containsKey(distantPos)&&scene.editsVersion()==edits,"Streaming unload without edit revision");
+            renderer.update(scene,0,0);
+            require(!(boolean)field(hierarchy,"valid"),"Chunk removal invalidates stationary Hi-Z");
+            require(hierarchy.visible(camera,-8,-8,-40),"Removed occluder cannot leave stale hidden bounds");
+            clean("Stationary streaming Hi-Z");
+            Files.writeString(output.resolve("streaming-hiz-checks.txt"),"Playtest: PASS. Fixed camera and unchanged editsVersion. Addition after checkMesh, clean mesh replacement and stream removal all invalidate actual renderer Hi-Z. Unchanged scene retains valid depth; hidden bounds become conservatively visible after additions/removals. No GL errors.\n");
+        }
+    }
+
     static void probeChecks(World world,Chunk chunk,RenderPipeline rendering,VoxelModelRenderer models,Vector3f eye,Path output)throws Exception{
         var probe=(ReflectionProbes)field(rendering,"probes");var testEye=new Vector3f(11.5f,75,9.5f);
         probe.invalidate();for(int i=0;i<6;i++)rendering.renderShadows(world,models,testEye);require(probe.ready(),"Lit reflection probe completes");clean("Initial lit capture");
@@ -207,7 +243,10 @@ public class RenderingSmoke {
                 depthPlane[WIDTH/2+HEIGHT/2*WIDTH]=1;glBindTexture(GL_TEXTURE_2D,testDepth);glTexSubImage2D(GL_TEXTURE_2D,0,0,0,WIDTH,HEIGHT,GL_RED,GL_FLOAT,depthPlane);
                 hierarchy.build(testDepth,WIDTH,HEIGHT,ortho);require(hierarchy.visible(ortho,-8,-8,-40),"An uncovered depth sample preserves conservative visibility");
                 hierarchy.invalidate();require(hierarchy.visible(ortho,-8,-8,-40),"World invalidation preserves visibility");
-            }glDeleteTextures(testDepth);
+            }
+            java.util.Arrays.fill(depthPlane,.2f);glBindTexture(GL_TEXTURE_2D,testDepth);glTexSubImage2D(GL_TEXTURE_2D,0,0,0,WIDTH,HEIGHT,GL_RED,GL_FLOAT,depthPlane);
+            streamingHiZChecks(testDepth,new Matrix4f().ortho(-32,32,-32,32,.1f,100),output);
+            glDeleteTextures(testDepth);
             // Requested workflow: real renderer, editable LED gallery, water and post controls.
             for(int i=0;i<6;i++)rendering.renderShadows(world,models,eye);
             require(rendering.reflectionProbeReady(),"Six-face local reflection probe completes");

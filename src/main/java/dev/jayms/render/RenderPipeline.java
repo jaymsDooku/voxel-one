@@ -30,6 +30,8 @@ public final class RenderPipeline implements AutoCloseable {
     private final GpuDraw gpuDraw = new GpuDraw();
     private final Matrix4f viewProjection = new Matrix4f();
     private long worldRevision = -1;
+    private record SceneChunk(Chunk chunk, Mesh mesh) {}
+    private final java.util.Map<ChunkPos, SceneChunk> sceneChunks = new java.util.HashMap<>();
     public int visibleChunks, occludedChunks;
     private final ShaderProgram shadow =
             new ShaderProgram("shaders/shadow.vert", "shaders/shadow.frag");
@@ -154,9 +156,28 @@ public final class RenderPipeline implements AutoCloseable {
         return hasIrradiance;
     }
 
+    /** Mesh identities survive checkMesh clearing dirty; membership also catches streaming unloads. */
+    private boolean sceneChanged(World world) {
+        var loaded = world.getLoadedChunks();
+        boolean changed = sceneChunks.size() != loaded.size();
+        if (!changed) for (var entry : loaded.entrySet()) {
+            SceneChunk previous = sceneChunks.get(entry.getKey());
+            if (previous == null || previous.chunk() != entry.getValue()
+                    || previous.mesh() != entry.getValue().getMesh()) {
+                changed = true;
+                break;
+            }
+        }
+        if (changed) {
+            sceneChunks.clear();
+            loaded.forEach((pos, chunk) -> sceneChunks.put(pos, new SceneChunk(chunk, chunk.getMesh())));
+        }
+        return changed;
+    }
+
     public void update(World world, float x, float z) {
         if (clusters.update(world,x,z)) { particles.emitters(clusters.emitters()); probes.invalidate(); }
-        if (worldRevision != world.editsVersion() || world.getLoadedChunks().values().stream().anyMatch(Chunk::dirty)) {
+        if (sceneChanged(world) || worldRevision != world.editsVersion() || world.getLoadedChunks().values().stream().anyMatch(Chunk::dirty)) {
             hiZ.invalidate(); worldRevision = world.editsVersion();
         }
         LightVolume next = lighting.update(world, x, z, Math.round(ambient * 10) / 10f);

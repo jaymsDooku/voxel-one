@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T21:40:44.182209+00:00",
+  "updatedAt": "2026-10-07T21:56:33.839324+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -3366,8 +3366,8 @@
         }
       ],
       "status": "in_progress",
-      "note": "Fixed reflection probe scene lighting and edit invalidation. 88 selected tests passed. GPU switches and occluder/LED receiver pixels passed on GL 3.3 (1\u00d7/4\u00d7 samples) and the compute backend. Production controls, recording, resize and menu passed. Fresh probe images/video saved; ready for independent review and controller publication.",
-      "updatedAt": "2026-10-07T21:40:44.182123+00:00"
+      "note": "Fixed stale Hi-Z after streamed geometry changes. Actual GL 3.3 and compute-backend regressions passed stationary additions, mesh rebuilds and removals after dirty flags cleared; unchanged scenes retain depth history. 88 selected tests and 39 production frames passed. Fresh media saved for controller publication; ready for independent review.",
+      "updatedAt": "2026-10-07T21:56:33.839304+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
