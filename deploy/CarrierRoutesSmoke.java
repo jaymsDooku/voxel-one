@@ -15,6 +15,9 @@ public class CarrierRoutesSmoke {
     static Path out;
     static String windowId;
     static volatile String capture;
+    static volatile Protocol.Edit pendingEdit;
+    static volatile ShippingRoutes.Ship finalPose;
+    static double arrivalClock,returnClock;
     static volatile long frames;
     static volatile Matrix4f screenMatrix;
     static Object get(String name) throws Exception {
@@ -34,6 +37,17 @@ public class CarrierRoutesSmoke {
         long target=frames+2;
         for(int i=0;i<200 && frames<target;i++) Thread.sleep(50);
         return text;
+    }
+    static void edit(Protocol.Edit value) throws Exception {
+        pendingEdit=value;
+        long deadline=System.nanoTime()+30_000_000_000L;
+        while(pendingEdit!=null&&System.nanoTime()<deadline)Thread.sleep(50);
+        require(pendingEdit==null,"Render-thread edit completed");
+    }
+    static void photograph(String name) throws Exception {
+        capture=name;long deadline=System.nanoTime()+30_000_000_000L;
+        while(!Files.exists(out.resolve(name))&&System.nanoTime()<deadline)Thread.sleep(50);
+        require(Files.exists(out.resolve(name)),"Fresh capture saved: "+name);
     }
     static void require(boolean ok,String message) { if (!ok) throw new AssertionError(message); }
     static int width() throws Exception { return (int)get("framebufferWidth"); }
@@ -96,6 +110,20 @@ public class CarrierRoutesSmoke {
             WorldVoxels.remember(local.edits,new Protocol.Edit(40+dx,y,80+dz,0));
         local.save();
     }
+    static void captureFrame() throws Exception {
+                screenMatrix=new Matrix4f((Matrix4f)get("projection")).mul((Matrix4f)get("view"));
+                frames++;
+                String name=capture; if(name==null) return; capture=null;
+                int w=width(),h=height();
+                var bytes=java.nio.ByteBuffer.allocateDirect(w*h*4);
+                org.lwjgl.opengl.GL33.glReadPixels(0,0,w,h,org.lwjgl.opengl.GL33.GL_RGBA,org.lwjgl.opengl.GL33.GL_UNSIGNED_BYTE,bytes);
+                var image=new java.awt.image.BufferedImage(w,h,java.awt.image.BufferedImage.TYPE_INT_RGB);
+                for(int y=0;y<h;y++) for(int x=0;x<w;x++) {
+                    int i=(y*w+x)*4;
+                    image.setRGB(x,h-1-y,(bytes.get(i)&255)<<16 | (bytes.get(i+1)&255)<<8 | (bytes.get(i+2)&255));
+                }
+                javax.imageio.ImageIO.write(image,"png",out.resolve(name).toFile());
+    }
     public static void main(String[] args) throws Exception {
         out=Path.of(args[0]); Files.createDirectories(out);
         fixture(out.resolve("synthetic-world.dat"));
@@ -150,42 +178,60 @@ public class CarrierRoutesSmoke {
                 capture="carrier-routes-port-carrier.png"; Thread.sleep(1800);
                 camera.rotate(1); x("getwindowfocus"); capture="carrier-routes-port-reverse.png"; Thread.sleep(1500);
                 camera.rotate(-1); x("getwindowfocus");
-                var service=new ShippingRoutes();
-                require(service.ships(city(),world.terrain()).isEmpty(),"Single port has no shipping route");
+                var service=(ShippingRoutes)get("shippingRoutes");
+                require(service.ships(city(),world).isEmpty(),"Single port has no shipping route");
                 camera.focus(second[0],second[1],27); camera.zoom(2); x("getwindowfocus"); Thread.sleep(1500);
                 menu(6); point(second[0]+.2f,second[1]+.2f);
                 require(((String)get("notice")).equals("Permitted Coastal port"),"Second coastal permit");
-                require(service.routes(city(),world.terrain()).size()==1,"Water route created automatically");
+                require(service.routes(city(),world).size()==1,"Water route created automatically");
                 x("key","Escape");
-                var before=service.ships(city(),world.terrain()).get(0);
+                var open=service.routes(city(),world);
+                var corridor=open.get(0).points().get(1);
+                int obstacleX=(int)corridor.x(),obstacleZ=(int)corridor.z();
+                camera.focus(obstacleX,obstacleZ,16);x("getwindowfocus");
+                edit(new Protocol.Edit(obstacleX,15,obstacleZ,Blocks.STONE));
+                require(world.sample(obstacleX,15,obstacleZ)==Blocks.STONE,"Real world stone obstruction exists");
+                require(service.routes(city(),world).isEmpty(),"Cached production route invalidated by edit");
+                require(new ShippingRoutes().routes(city(),world).isEmpty(),"Fresh route rejects edited world obstacle");
+                require(service.ships(city(),world).isEmpty(),"Blocked service does not render a sailing ship");
+                photograph("carrier-routes-obstacle-blocked.png");
+                edit(new Protocol.Edit(obstacleX,15,obstacleZ,0));
+                require(service.routes(city(),world).size()==1,"Removing obstacle restores production route");
+                require(new ShippingRoutes().routes(city(),world).size()==1,"Fresh route restored after removal");
+                photograph("carrier-routes-obstacle-cleared.png");
+                var before=service.ships(city(),world).get(0);
                 camera.focus(before.x(),before.z(),16);camera.zoom(-2);x("getwindowfocus");
                 capture="carrier-routes-sailing.png"; Thread.sleep(2500);
-                var after=service.ships(city(),world.terrain()).get(0);
+                var after=service.ships(city(),world).get(0);
                 require(java.lang.Math.hypot(after.x()-before.x(),after.z()-before.z())>2,"Carrier moves in running game");
                 capture="carrier-routes-moved.png";Thread.sleep(1000);
                 camera.rotate(1);x("getwindowfocus");capture="carrier-routes-bridge.png";Thread.sleep(1500);
                 x("key","F10"); Thread.sleep(2000);
-                var route=service.routes(city(),world.terrain()).get(0);
+                var route=service.routes(city(),world).get(0);
                 var destination=route.points().get(route.points().size()-1);
                 boolean arrived=false;
-                for(int i=0;i<400;i++) {
-                    var ship=service.ships(city(),world.terrain()).get(0);
+                for(int i=0;i<800;i++) {
+                    var ship=service.ships(city(),world).get(0);
                     camera.focus(ship.x(),ship.z(),16);
                     if(!ship.sailing()&&java.lang.Math.hypot(ship.x()-destination.x(),ship.z()-destination.z())<.1) {arrived=true;break;}
                     Thread.sleep(500);
                 }
                 require(arrived,"Carrier completes water route to destination anchorage");
+                arrivalClock=city().elapsed();
                 camera.focus(destination.x(),destination.z()-14,20);camera.zoom(-2);
-                capture="carrier-routes-arrival.png";Thread.sleep(1000);
+                photograph("carrier-routes-arrival.png");
                 boolean returning=false;
-                for(int i=0;i<80;i++) {
-                    var ship=service.ships(city(),world.terrain()).get(0);
+                for(int i=0;i<480;i++) {
+                    var ship=service.ships(city(),world).get(0);
                     if(ship.sailing()&&ship.z()>destination.z()+1) {returning=true;break;}
                     Thread.sleep(500);
                 }
                 require(returning,"Carrier leaves destination on return voyage after dock wait");
-                capture="carrier-routes-return.png";Thread.sleep(1000);
-                Files.writeString(out.resolve("results.json"),"{\"status\":\"passed\",\"platform\":\"Linux X11 inherited role display; Mesa\",\"profile\":\"isolated synthetic offline city on generated version 3 terrain\",\"checks\":[\"actual menu clicks reject inland port\",\"technical college level 3 regression\",\"actual coastal port permit\",\"carrier hull and containers in world\",\"ocean beside berth preserved\",\"overlap rejected\",\"two camera angles\",\"single port edge: no service\",\"second port actual permit click creates water route\",\"carrier moves more than 2 blocks in running application\",\"complete outbound voyage reaches destination and dwells\",\"return voyage starts after destination dwell\"],\"recording\":\"production F10 recorder\",\"siteX\":"+coastal[0]+",\"siteZ\":"+coastal[1]+"}\n");
+                returnClock=city().elapsed();
+                require(returnClock>arrivalClock,"Real city time advanced through destination dwell");
+                photograph("carrier-routes-return.png");
+                finalPose=service.ships(city(),world).get(0);
+                Files.writeString(out.resolve("results.json"),"{\"status\":\"passed\",\"platform\":\"Linux X11 inherited role display; Mesa\",\"profile\":\"isolated synthetic offline city on generated version 3 terrain\",\"checks\":[\"actual menu clicks reject inland port\",\"technical college level 3 regression\",\"actual coastal port permit\",\"carrier hull and containers in world\",\"ocean beside berth preserved\",\"overlap rejected\",\"two camera angles\",\"single port edge: no service\",\"second port actual permit click creates water route\",\"carrier moves more than 2 blocks in running application\",\"complete outbound voyage reaches destination and dwells\",\"return voyage starts after destination dwell\",\"cached and fresh routes reject real world stone edit\",\"removing obstacle restores routes\"],\"recording\":\"production F10 recorder\",\"siteX\":"+coastal[0]+",\"siteZ\":"+coastal[1]+"}\n");
             } catch(Throwable e) {
                 failure=e;
                 try { Files.writeString(out.resolve("failure.txt"),e.getClass().getSimpleName()+": "+e.getMessage()); } catch(Exception ignored) {}
@@ -193,20 +239,15 @@ public class CarrierRoutesSmoke {
         });
         driver.setDaemon(true);driver.start();
         game.run(new Main.FrameObserver() {
-            public void afterFrame(Main main) throws Exception {
-                screenMatrix=new Matrix4f((Matrix4f)get("projection")).mul((Matrix4f)get("view"));
-                frames++;
-                String name=capture; if(name==null) return; capture=null;
-                int w=width(),h=height();
-                var bytes=java.nio.ByteBuffer.allocateDirect(w*h*4);
-                org.lwjgl.opengl.GL33.glReadPixels(0,0,w,h,org.lwjgl.opengl.GL33.GL_RGBA,org.lwjgl.opengl.GL33.GL_UNSIGNED_BYTE,bytes);
-                var image=new java.awt.image.BufferedImage(w,h,java.awt.image.BufferedImage.TYPE_INT_RGB);
-                for(int y=0;y<h;y++) for(int x=0;x<w;x++) {
-                    int i=(y*w+x)*4;
-                    image.setRGB(x,h-1-y,(bytes.get(i)&255)<<16 | (bytes.get(i+1)&255)<<8 | (bytes.get(i+2)&255));
+            public void beforeFrame(Main main) throws Exception {
+                var edit=pendingEdit;
+                if(edit!=null) {
+                    ((World)get("world")).apply(edit);
+                    WorldVoxels.remember(((LocalGame)get("local")).edits,edit);
+                    pendingEdit=null;
                 }
-                javax.imageio.ImageIO.write(image,"png",out.resolve(name).toFile());
             }
+            public void afterFrame(Main main) throws Exception { captureFrame(); }
         });
         driver.join(1000);
         if(failure!=null) throw new AssertionError("Shipping playtest failed",failure);
@@ -217,8 +258,40 @@ public class CarrierRoutesSmoke {
                 && e.z()==coastal[1]+14 && e.type()==Blocks.STONE),"Carrier persists across game shutdown and reload");
         var savedCity=CitySimulation.load(out.resolve("synthetic-world.dat.city"));
         require(savedCity.buildings().stream().anyMatch(b -> b.type()==SpecialBuildings.PORT),"Saved port permit reloads");
-        require(new ShippingRoutes().ships(savedCity,new Terrain(Terrain.DEFAULT_SEED)).size()==1,"Saved ports restore automatic shipping service");
+        var restoredWorld=new World(restored.seed,new dev.jayms.net.model.ModelLibrary(),restored.generatorVersion);
+        restored.edits.values().forEach(restoredWorld::apply);
+        var reloadedShips=new ShippingRoutes().ships(savedCity,restoredWorld);
+        require(reloadedShips.size()==1,"Saved ports restore automatic shipping service using replayed edits");
+        require(savedCity.elapsed()>=returnClock,"Reload preserves elapsed return voyage time");
+        require(reloadedShips.get(0).equals(ShippingRoutes.sample(new ShippingRoutes().routes(savedCity,restoredWorld).get(0),savedCity.elapsed())),"Reload pose follows persisted clock");
+        // Restart the production application, not just the snapshot codec.
+        game=new Main();set("offlineSave",out.resolve("synthetic-world.dat"));
+        set("gameConfig",new GameConfig(true,false,1200,10));
+        var reloadDriver=new Thread(() -> {
+            long handle=0;
+            try {
+                for(int i=0;i<240&&get("player")==null;i++)Thread.sleep(500);
+                require(get("player")!=null,"Reloaded application started");
+                handle=((dev.jayms.window.Window)get("window")).getHandle();
+                windowId=Long.toString(org.lwjgl.glfw.GLFWNativeX11.glfwGetX11Window(handle));
+                x("windowfocus",windowId);x("windowsize",windowId,"1280","720");
+                if(((ControlsMenu)get("menu")).open)x("key","Escape");
+                var liveWorld=(World)get("world");var service=(ShippingRoutes)get("shippingRoutes");
+                require(city().elapsed()>=savedCity.elapsed(),"Restarted application resumes saved city clock");
+                require(service.ships(city(),liveWorld).size()==1,"Restarted renderer restores shipping service");
+                var pose=service.ships(city(),liveWorld).get(0);
+                ((IsometricCamera)get("overview")).focus(pose.x(),pose.z(),16);
+                x("getwindowfocus");photograph("carrier-routes-reloaded.png");
+            } catch(Throwable e) {
+                failure=e;
+                try {Files.writeString(out.resolve("failure.txt"),e.getClass().getSimpleName()+": "+e.getMessage());}catch(Exception ignored){}
+            } finally {if(handle!=0)glfwSetWindowShouldClose(handle,true);}
+        });
+        reloadDriver.setDaemon(true);reloadDriver.start();
+        game.run(new Main.FrameObserver(){public void afterFrame(Main main)throws Exception{captureFrame();}});
+        reloadDriver.join(1000);if(failure!=null)throw new AssertionError("Native reload failed",failure);
+        require(Files.exists(out.resolve("carrier-routes-reloaded.png")),"Restarted application capture exists");
         String report=Files.readString(out.resolve("results.json")).trim();
-        Files.writeString(out.resolve("results.json"),report.substring(0,report.length()-1)+",\"saveReload\":\"passed\"}\n");
+        Files.writeString(out.resolve("results.json"),report.substring(0,report.length()-1)+",\"saveReload\":\"passed\",\"nativeRestart\":\"passed\",\"arrivalClock\":"+arrivalClock+",\"returnClock\":"+returnClock+",\"reloadedElapsed\":"+savedCity.elapsed()+"}\n");
     }
 }

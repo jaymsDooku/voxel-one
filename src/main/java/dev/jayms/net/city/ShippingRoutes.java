@@ -1,6 +1,7 @@
 package dev.jayms.net.city;
 
 import dev.jayms.net.*;
+import dev.jayms.World;
 import java.util.*;
 
 /** Automatic local cargo service. Saved city time gives identical poses on reload and clients. */
@@ -12,19 +13,20 @@ public final class ShippingRoutes {
         public Route { points=List.copyOf(points); }
     }
     public record Ship(int origin,int destination,float x,float z,float yaw,boolean sailing) {}
-    private Terrain terrain;
+    private World world;
+    private long revision;
     private List<CityFrame.Building> ports=List.of();
     private List<Route> cached=List.of();
-    public List<Route> routes(CityFrame city,Terrain ground) {
+    public List<Route> routes(CityFrame city,World ground) {
         var next=city.buildings().stream().filter(b->b.type()==SpecialBuildings.PORT)
                 .sorted(Comparator.comparingInt(CityFrame.Building::x).thenComparingInt(CityFrame.Building::id))
                 .limit(MAX_PORTS).toList();
-        if(ground==terrain&&next.equals(ports))return cached;
-        terrain=ground;ports=next;
+        if(ground==world&&ground.editsVersion()==revision&&next.equals(ports))return cached;
+        var terrain=ground.terrain();
         var result=new ArrayList<Route>();
         // Neighbor links form a bounded coastal network, without crossing routes at each port.
-        for(int i=1;i<ports.size();i++) {
-            var a=ports.get(i-1);var b=ports.get(i);
+        for(int i=1;i<next.size();i++) {
+            var a=next.get(i-1);var b=next.get(i);
             if(Math.hypot(a.x()-b.x(),a.z()-b.z())>MAX_DISTANCE)continue;
             var start=new Point(a.x()+3,a.z()+34);var end=new Point(b.x()+3,b.z()+34);
             float offshore=Math.max(300,Math.max(start.z(),end.z())+16);
@@ -36,13 +38,20 @@ public final class ShippingRoutes {
                 // Axis-aligned corridor, including turning circles and hull footprint.
                 for(int x=(int)Math.min(p.x(),q.x())-CLEARANCE;x<=Math.max(p.x(),q.x())+CLEARANCE&&clear;x++)
                     for(int z=(int)Math.min(p.z(),q.z())-CLEARANCE;z<=Math.max(p.z(),q.z())+CLEARANCE;z++)
-                        if(!ground.ocean(x,z)||ground.block(x,14,z)!=Blocks.WATER||ground.block(x,15,z)!=0) {clear=false;break;}
+                        if(!terrain.ocean(x,z)||!clearColumn(ground,x,z)) {clear=false;break;}
             }
             if(clear&&length>0)result.add(new Route(a.id(),b.id(),points,length));
         }
+        world=ground;revision=ground.editsVersion();ports=next;
         return cached=List.copyOf(result);
     }
-    public List<Ship> ships(CityFrame city,Terrain ground) {
+    private static boolean clearColumn(World world,int x,int z) {
+        if(world.sample(x,14,z)!=Blocks.WATER)return false;
+        // Include the hull, cargo and mast, including partial voxel obstructions.
+        for(int y=15;y<=23;y++)if(world.sample(x,y,z)!=0)return false;
+        return true;
+    }
+    public List<Ship> ships(CityFrame city,World ground) {
         return routes(city,ground).stream().map(r->sample(r,city.elapsed())).toList();
     }
     public static Ship sample(Route r,double elapsed) {

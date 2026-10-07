@@ -29,14 +29,14 @@ result_file.unlink(missing_ok=True)
 with (root/'target/carrier-routes-runtime/private-runtime.txt').open('w') as runtime:
     result=subprocess.run(['java','-Djava.io.tmpdir='+str(root/'target/tmp'),
         '-Duser.home='+str(root/'target/carrier-routes-home'),'-cp',cp,'CarrierRoutesSmoke',
-        str(root/'target/carrier-routes-runtime')],env=env,stdout=runtime,stderr=runtime,timeout=300)
+        str(root/'target/carrier-routes-runtime')],env=env,stdout=runtime,stderr=runtime,timeout=900)
 print('Shipping native playtest exit:',result.returncode)
 if result.returncode:
     failure=root/'target/carrier-routes-runtime/failure.txt'
     if failure.exists(): print(failure.read_text())
     raise SystemExit(result.returncode)
 shutil.copyfile(result_file,root/'dashboard/evidence/carrier-routes-placement-playtest.json')
-for name in ('carrier-routes-inland-rejection.png', 'carrier-routes-coastal-menu.png', 'carrier-routes-port-carrier.png', 'carrier-routes-port-reverse.png', 'carrier-routes-sailing.png', 'carrier-routes-moved.png', 'carrier-routes-bridge.png', 'carrier-routes-arrival.png', 'carrier-routes-return.png'):
+for name in ('carrier-routes-inland-rejection.png', 'carrier-routes-coastal-menu.png', 'carrier-routes-port-carrier.png', 'carrier-routes-port-reverse.png', 'carrier-routes-sailing.png', 'carrier-routes-moved.png', 'carrier-routes-bridge.png', 'carrier-routes-arrival.png', 'carrier-routes-return.png', 'carrier-routes-obstacle-blocked.png', 'carrier-routes-obstacle-cleared.png', 'carrier-routes-reloaded.png'):
     shutil.copyfile(root/'target/carrier-routes-runtime'/name, root/'dashboard/evidence'/name)
 clips=sorted((root/'target/carrier-routes-home/.voxel-one/recordings').glob('*.mp4'))
 if not clips: raise SystemExit('F10 video missing')

@@ -1150,7 +1150,7 @@ public class Main {
         }
         for (var plane : Aviation.planes(city())) planeModel.render(plane, shader);
         railwayModel.render(city(), shader);
-        for (var ship : shippingRoutes.ships(city(), world.terrain())) shipModel.render(ship, shader);
+        for (var ship : shippingRoutes.ships(city(), world)) shipModel.render(ship, shader);
         for (var h : city().horses()) {
             Protocol.Pose p =
                     new Protocol.Pose(

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T09:21:55+00:00",
+  "updatedAt": "2026-10-07T09:48:59+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -63,11 +63,16 @@
           "kind": "link",
           "label": "Second recovery checks \u2014 pending controller publication",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64313639356363352d646564652d343665352d383035322d626638613863656463643939/dashboard/evidence/carrier-second-recovery-validation.json"
+        },
+        {
+          "kind": "link",
+          "label": "Edited-world and native restart validation \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64313639356363352d646564652d343665352d383035322d626638613863656463643939/dashboard/evidence/carrier-obstacle-validation.json"
         }
       ],
       "status": "in_progress",
-      "note": "Second recovery ready: 47 focused tests/verify passed; vehicle audio and roads preserved. Controller must stage/continue. Edited-world obstacles, cache invalidation and native return/reload remain open.",
-      "updatedAt": "2026-10-07T09:21:55+00:00"
+      "note": "Ready for independent review: edited-world obstacles invalidate cached/fresh routes; removal restores service. Full verify 411 tests passed. Native return and actual restart passed; fresh ship/road videos decoded. Audio and roads preserved; controller publication pending.",
+      "updatedAt": "2026-10-07T09:48:59+00:00"
     },
     {
       "id": "36623965383765392d303861652d343231642d393466392d633935633832613437313337",

@@ -1,12 +1,12 @@
 {
   "status": "passed",
-  "source": "production F10 recorder in final-source road native workflow",
+  "source": "production F10 recorder in edited-world shipping road workflow",
   "codec": "H264",
-  "bytes": 4253039,
-  "decodedFrames": 177,
+  "bytes": 4316239,
+  "decodedFrames": 179,
   "width": 960,
   "height": 544,
-  "durationSeconds": 117.892,
+  "durationSeconds": 99.281,
   "checks": [
     "Every frame decoded",
     "Frame count matches MP4 metadata",
