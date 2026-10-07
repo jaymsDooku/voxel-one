@@ -136,6 +136,8 @@ public record CityFrame(
         buildings = List.copyOf(buildings);
         citizens = List.copyOf(citizens);
         horses = List.copyOf(horses);
+        if(addresses.roadFootprints().isEmpty() && !roads.isEmpty() && !addresses.streets().isEmpty())
+            addresses=new CityAddresses.State(addresses.streets(),addresses.addresses(),RoadOwnership.infer(roads,addresses));
     }
 
     /** Local residents and the bounded, individually simulated nearby district pool. */
@@ -151,7 +153,7 @@ public record CityFrame(
     }
 
     public void write(DataOutput out) throws IOException {
-        write(out, 12);
+        write(out, 13);
     }
 
     public void write(DataOutput out, int version) throws IOException {
@@ -223,6 +225,7 @@ public record CityFrame(
         if (version >= 6) Agriculture.write(out, agriculture);
         if (version >= 11) RegionalPopulation.write(out, population);
         if (version >= 12) Aviation.write(out, aviation);
+        if (version >= 13) RoadOwnership.write(out, RoadOwnership.forFrame(this));
     }
 
     private static int count(DataInput in, int max) throws IOException {
@@ -242,7 +245,7 @@ public record CityFrame(
     }
 
     public static CityFrame read(DataInput in, boolean legacy) throws IOException {
-        return read(in, legacy ? 1 : 12);
+        return read(in, legacy ? 1 : 13);
     }
 
     public static CityFrame read(DataInput in, int version) throws IOException {
@@ -380,6 +383,8 @@ public record CityFrame(
         }
         var population = version >= 11 ? RegionalPopulation.read(in) : RegionalPopulation.State.empty();
         var aviation = version >= 12 ? Aviation.read(in, buildings, citizens) : Aviation.State.empty();
+        if(version>=13) addresses=new CityAddresses.State(addresses.streets(),addresses.addresses(),
+                RoadOwnership.read(in,addresses,roads));
         return new CityFrame(
                 config,
                 elapsed,

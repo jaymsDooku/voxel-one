@@ -26,8 +26,8 @@ class RegionalSaveCompatibilityTest {
         var ground=new CityTest.Ground();var simulation=new CitySimulation(old.config(),ground,ground.terrain,old);
         Path upgraded=temp.resolve("empty-upgraded.city");simulation.save(upgraded);
         try(var in=new DataInputStream(Files.newInputStream(upgraded))) {
-            assertEquals(0x4349543C,in.readInt());
-            assertEquals(simulation.frame(),CityFrame.read(in,12));assertEquals(-1,in.read());
+            assertEquals(0x4349543D,in.readInt());
+            assertEquals(simulation.frame(),CityFrame.read(in,13));assertEquals(-1,in.read());
         }
         assertEquals(simulation.frame(),CitySimulation.load(upgraded));
     }

@@ -1,0 +1,77 @@
+{
+  "status": "passed",
+  "head": "edd8361bde0642d71dfc7bbd4195adb3ce007d3b",
+  "exitCode": 0,
+  "tests": 70,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "suites": [
+    {
+      "name": "dev.jayms.RoadBaseCompatibilityTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "name": "dev.jayms.RoadWorkflowTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "name": "dev.jayms.RoadTypesTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "name": "dev.jayms.AviationTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "name": "dev.jayms.RegionalPopulationTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "name": "dev.jayms.ProtocolCompatibilityTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "name": "dev.jayms.CityToolsTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "name": "dev.jayms.CityAddressesTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "name": "dev.jayms.CityTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "name": "dev.jayms.CityMultiplayerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "name": "dev.jayms.MarketEconomyTest",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0
+    }
+  ]
+}

@@ -60,7 +60,7 @@ class CityAddressesTest {
                 saved.addresses(),
                 new CitySimulation(saved.config(), g, g.terrain, saved).frame().addresses());
         var tools = new CityTools();
-        assertFalse(
+        assertTrue(
                 tools.selectRay(
                         new Vector3f(40.5f, 80, 24.5f), new Vector3f(0, -1, 0), 100, saved));
         assertEquals("Oak Road", saved.addresses().streetName(tools.selectedStreet));
@@ -80,7 +80,9 @@ class CityAddressesTest {
         assertEquals(s.frame().buildings(), old.buildings());
         assertEquals(CityCapitalTest.withoutCapital(s.frame().economy()), old.economy());
         assertEquals(s.frame().elapsed(), old.elapsed());
-        assertEquals(s.frame().addresses(), old.addresses());
+        assertEquals(s.frame().addresses().streets(), old.addresses().streets());
+        assertEquals(s.frame().addresses().addresses(), old.addresses().addresses());
+        assertTrue(old.addresses().roadFootprints().stream().allMatch(RoadOwnership.Footprint::inferred));
         assertEquals(
                 old.addresses(),
                 new CitySimulation(old.config(), g, g.terrain, old).frame().addresses());

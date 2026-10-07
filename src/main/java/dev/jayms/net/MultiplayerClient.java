@@ -92,7 +92,7 @@ public final class MultiplayerClient implements AutoCloseable {
                 ItemDrop drop = ItemDrop.read(in);
                 if (drop.count() > 0) drops.put(drop.id(), drop);
             }
-            acceptCity(CityFrame.read(in, serverProtocol < 16 ? 6 : serverProtocol < 19 ? 8 : serverProtocol < 20 ? 9 : serverProtocol < 21 ? 10 : serverProtocol < 22 ? 11 : 12), System.nanoTime());
+            acceptCity(CityFrame.read(in, serverProtocol < 16 ? 6 : serverProtocol < 19 ? 8 : serverProtocol < 20 ? 9 : serverProtocol < 21 ? 10 : serverProtocol < 22 ? 11 : serverProtocol < 24 ? 12 : 13), System.nanoTime());
             out.writeByte(Protocol.READY);
             out.flush();
             socket.setSoTimeout(0);
@@ -141,10 +141,10 @@ public final class MultiplayerClient implements AutoCloseable {
                 int magic = in.readInt();
                 int version = in.readInt();
                 if (magic != Protocol.MAGIC) throw new IOException("Invalid server protocol header");
-                // Protocols 14 and 15 use city frame format 6; 16 uses format 7.
+                // Protocols 14/15 use frame format 6; reviewed aviation protocol 22 uses format 12.
                 // Reconnect because old servers close on mismatch.
                 if (requested == Protocol.VERSION && version >= Protocol.CITY_BASE_VERSION
-                        && version <= Protocol.SPECIAL_BUILDINGS_VERSION) {
+                        && (version <= Protocol.SPECIAL_BUILDINGS_VERSION || version == 22)) {
                     if (in.readBoolean()) throw new IOException("Unexpected protocol acceptance");
                     Protocol.readText(in, 256);
                     socket.close();
@@ -213,10 +213,18 @@ public final class MultiplayerClient implements AutoCloseable {
                             time);
     }
 
-    public boolean cityCommand(CityCommand command) {
+    private final java.util.Queue<java.util.function.Consumer<String>> cityResults = new java.util.concurrent.ConcurrentLinkedQueue<>();
+
+    public boolean cityCommand(CityCommand command) { return cityCommand(command, null); }
+
+    public synchronized boolean cityCommand(CityCommand command, java.util.function.Consumer<String> completion) {
         if (serverProtocol < 23 && command.kind() == CityCommand.SPECIAL
                 && command.value() == SpecialBuildings.PORT) {
             notice = "Coastal ports require a server update.";
+            return false;
+        }
+        if (serverProtocol < 24 && (command.kind()==CityCommand.EDIT_ROAD || command.kind()==CityCommand.DELETE_ROAD)) {
+            notice = "Road section actions require a server update.";
             return false;
         }
         if (serverProtocol < 21 && (command.kind() == CityCommand.SETTLE_DISTRICT
@@ -239,12 +247,16 @@ public final class MultiplayerClient implements AutoCloseable {
             notice = "Special buildings require a server update.";
             return false;
         }
-        return send(
+        java.util.function.Consumer<String> pending = result -> { if (completion != null) completion.accept(result); };
+        cityResults.add(pending);
+        boolean sent = send(
                 () -> {
                     out.writeByte(Protocol.CITY_COMMAND);
                     command.write(out);
                     out.flush();
                 });
+        if (!sent) cityResults.remove(pending);
+        return sent;
     }
 
     private void join(Protocol.Pose p, String name) {
@@ -262,7 +274,7 @@ public final class MultiplayerClient implements AutoCloseable {
                 int type = in.readUnsignedByte();
                 Runnable event;
                 if (type == Protocol.CITY_STATE) {
-                    var state = CityFrame.read(in, serverProtocol < 16 ? 6 : serverProtocol < 19 ? 8 : serverProtocol < 20 ? 9 : serverProtocol < 21 ? 10 : serverProtocol < 22 ? 11 : 12);
+                    var state = CityFrame.read(in, serverProtocol < 16 ? 6 : serverProtocol < 19 ? 8 : serverProtocol < 20 ? 9 : serverProtocol < 21 ? 10 : serverProtocol < 22 ? 11 : serverProtocol < 24 ? 12 : 13);
                     long time = System.nanoTime();
                     event = () -> acceptCity(state, time);
                 } else if (type == Protocol.CITY_WORLD) {
@@ -278,7 +290,11 @@ public final class MultiplayerClient implements AutoCloseable {
                     event = () -> pendingEdits.addAll(batch);
                 } else if (type == Protocol.CITY_RESULT) {
                     String message = Protocol.readText(in, 512);
-                    event = () -> notice = message;
+                    event = () -> {
+                        notice = message;
+                        var completion = cityResults.poll();
+                        if (completion != null) completion.accept(message);
+                    };
                 } else if (type == Protocol.MOVE) {
                     var p = Protocol.Pose.read(in);
                     long received = System.nanoTime();
@@ -384,6 +400,10 @@ public final class MultiplayerClient implements AutoCloseable {
     public List<Protocol.Edit> poll() {
         Runnable event;
         while ((event = events.poll()) != null) event.run();
+        if (!connected) {
+            java.util.function.Consumer<String> completion;
+            while ((completion = cityResults.poll()) != null) completion.accept("Disconnected: road placement not confirmed");
+        }
         var result = new ArrayList<>(pendingEdits);
         pendingEdits.clear();
         return result;

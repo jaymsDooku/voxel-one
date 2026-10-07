@@ -13,10 +13,12 @@ public final class CityAddresses {
 
     public record Address(int building, int street, int number) {}
 
-    public record State(List<Street> streets, List<Address> addresses) {
+    public record State(List<Street> streets, List<Address> addresses, List<RoadOwnership.Footprint> roadFootprints) {
+        public State(List<Street> streets,List<Address> addresses) { this(streets,addresses,List.of()); }
         public State {
             streets = List.copyOf(streets);
             addresses = List.copyOf(addresses);
+            roadFootprints = List.copyOf(roadFootprints);
         }
 
         public String buildingName(int building) {
@@ -44,17 +46,19 @@ public final class CityAddresses {
 
     private final List<Street> streets = new ArrayList<>();
     private final List<Address> addresses = new ArrayList<>();
+    private List<RoadOwnership.Footprint> roadFootprints;
 
     public CityAddresses(State state) {
         streets.addAll(state.streets);
         addresses.addAll(state.addresses);
+        roadFootprints=state.roadFootprints;
     }
 
     public static State empty() {
         return new State(List.of(), List.of());
     }
 
-    private static double distance(Street street, float x, float z) {
+    public static double distance(Street street, float x, float z) {
         double best = Double.POSITIVE_INFINITY;
         for (int i = 1; i < street.route.size(); i++) {
             var a = street.route.get(i - 1);
@@ -91,7 +95,9 @@ public final class CityAddresses {
     }
 
     /** Collinear, touching extensions retain the street name and all existing addresses. */
-    public String road(List<Polygon.Point> points) {
+    public String road(List<Polygon.Point> points) { return road(points,0); }
+
+    public String road(List<Polygon.Point> points, int type) {
         points =
                 points.stream()
                         .map(
@@ -136,11 +142,21 @@ public final class CityAddresses {
         for (int i = 1; i < points.size(); i++) {
             var a = points.get(i - 1);
             var b = points.get(i);
-            if (a.x() != b.x() && a.z() != b.z()) route.add(new Polygon.Point(b.x(), a.z()));
+            if (type == 0 && a.x() != b.x() && a.z() != b.z()) route.add(new Polygon.Point(b.x(), a.z()));
             route.add(b);
         }
         streets.add(new Street(id, generated(id), route));
         return generated(id);
+    }
+
+    public void paintRoad(int id,int type,Map<Polygon.Cell,Integer> surfaces,boolean replace) {
+        roadFootprints=RoadOwnership.paint(roadFootprints,id,type,surfaces,replace);
+    }
+
+    public void removeStreet(int id) {
+        roadFootprints=roadFootprints.stream().filter(f->f.street()!=id).toList();
+        streets.removeIf(s -> s.id()==id);
+        addresses.removeIf(a -> a.street()==id);
     }
 
     public void demolish(int building) {
@@ -177,7 +193,7 @@ public final class CityAddresses {
                             + 1;
             addresses.add(new Address(b.id(), street.id, number));
         }
-        return new State(streets, addresses);
+        return new State(streets, addresses, roadFootprints);
     }
 
     /** Reconstruct center lines from old three-cell-wide roads without changing any world cells. */

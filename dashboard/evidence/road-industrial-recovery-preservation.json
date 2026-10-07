@@ -1,0 +1,458 @@
+{
+  "baseHead": "9e60a29cfa379097e647b1aecdc5f7159be0e756",
+  "status": "passed",
+  "allBaseProgressEntriesPreserved": true,
+  "noDeletedFiles": true,
+  "files": [
+    {
+      "file": "CHEATS.md",
+      "matchesBase": true,
+      "sha256": "df1599a9c9b82bb412c3195a61db1aad51129b51bfe483a53d154fbcd715e558"
+    },
+    {
+      "file": "README.md",
+      "matchesBase": true,
+      "sha256": "99cadfd533aaccace5c5c6457bc60f1f34cf06ff51ecbec7b9fe25afc8ee0ad5"
+    },
+    {
+      "file": "RESOURCE_PROGRESSION_CHECKPOINT.md",
+      "matchesBase": true,
+      "sha256": "48410d58c7282a28312c6536cc50d443cbda7e9c02012263c87cc27ec181e483"
+    },
+    {
+      "file": "dashboard/evidence/business-dashboard-compact-industrial.png",
+      "matchesBase": true,
+      "sha256": "6537503e1cfcda17caddec73a502f91638e62572c7403baef38099259d97a281"
+    },
+    {
+      "file": "dashboard/evidence/cheat-budget.png",
+      "matchesBase": true,
+      "sha256": "1537064018e5b08fb16890436d9d95de140a0b48e577f7b1796cc6315238b23d"
+    },
+    {
+      "file": "dashboard/evidence/cheat-carrier.png",
+      "matchesBase": true,
+      "sha256": "2790efdc89ec64c21e69412118421442fb9462080637535f6259a079afbe7134"
+    },
+    {
+      "file": "dashboard/evidence/cheat-flight.png",
+      "matchesBase": true,
+      "sha256": "d2dbbcd7241607403d3de8725a3802e5694e70efbdce880d322b8dbb227b651e"
+    },
+    {
+      "file": "dashboard/evidence/cheat-jet.png",
+      "matchesBase": true,
+      "sha256": "71c475d9720cfb3e427e1798bd568ef4323423450c47612d7ef27be874c966b0"
+    },
+    {
+      "file": "dashboard/evidence/cheat-mode.mp4",
+      "matchesBase": true,
+      "sha256": "96bf0217459cbb1042d995c314e4fa1db505512708e3e58a6fc220c369ecdd81"
+    },
+    {
+      "file": "dashboard/evidence/cheat-playtest.json",
+      "matchesBase": true,
+      "sha256": "c0ace9381b78f854a5ffca7eb3ee6adf7d595f27527c37fe6e5161a1b7594129"
+    },
+    {
+      "file": "dashboard/evidence/cheat-test-report.md",
+      "matchesBase": true,
+      "sha256": "b825ef4636be0709f97e7008bfc9978af176bd4c01148d09115ed3e74ec69fa5"
+    },
+    {
+      "file": "dashboard/evidence/cheat-unit-tests.json",
+      "matchesBase": true,
+      "sha256": "de3a57ff9651261b078649b91edb035397288564f1acd1b88a27b428713a7d87"
+    },
+    {
+      "file": "dashboard/evidence/cheat-vehicle-0.png",
+      "matchesBase": true,
+      "sha256": "89f7cdac05c29293710ccacedfafd16de057bc945583db10d3f8b31189ed983c"
+    },
+    {
+      "file": "dashboard/evidence/cheat-vehicle-1.png",
+      "matchesBase": true,
+      "sha256": "47e34598a9ffe9a81be2cf8fe1c34dac213b03f489e6f9b8817ed15f312ad286"
+    },
+    {
+      "file": "dashboard/evidence/cheat-vehicle-2.png",
+      "matchesBase": true,
+      "sha256": "65105864e8f1cccd23a8f9be8c515ed2aeca0c03ca778a9c96fdb584aac3e9ef"
+    },
+    {
+      "file": "dashboard/evidence/cheat-vehicle-3.png",
+      "matchesBase": true,
+      "sha256": "0091a2e15093299ef21572493398f9da72257bbd79a42844b8f5642a11eff997"
+    },
+    {
+      "file": "dashboard/evidence/cheat-vehicle-4.png",
+      "matchesBase": true,
+      "sha256": "f85fdfa47b364f1381c3191eb6a71b4f72971fccb72cb03a077738b7a5761d29"
+    },
+    {
+      "file": "dashboard/evidence/cheat-video.json",
+      "matchesBase": true,
+      "sha256": "d7cdaa19d46b715f4e5248154811df3f69f67ab088b61e528b159cec2aecb20e"
+    },
+    {
+      "file": "dashboard/evidence/resource-progression-advanced.png",
+      "matchesBase": true,
+      "sha256": "624690b1e78e9ec9bb68ffcbffdd46eac68f9a3e71943439dbd0628fc9f566d6"
+    },
+    {
+      "file": "dashboard/evidence/resource-progression-aviation-integration.json",
+      "matchesBase": true,
+      "sha256": "f5f4265c3a8e355e6b9b7b7d49d0df6cb4420aa92cbbacceb7182d9d8ef15669"
+    },
+    {
+      "file": "dashboard/evidence/resource-progression-fallback-tests.json",
+      "matchesBase": true,
+      "sha256": "973f7dbd86e89507effb1274ac54e5af778e2cf0fed92d4012a8485bf1701a89"
+    },
+    {
+      "file": "dashboard/evidence/resource-progression-food-fallback.png",
+      "matchesBase": true,
+      "sha256": "f15a6f8e877042bcdcccccc4a5f75fead373cdd1a348f92e6e28d191cdb051e3"
+    },
+    {
+      "file": "dashboard/evidence/resource-progression-manufacturing.png",
+      "matchesBase": true,
+      "sha256": "66fb6dc86d89f41ba447f52efd3e828116bbddbde04b8b7c3710e3a4682dd696"
+    },
+    {
+      "file": "dashboard/evidence/resource-progression-operating-energy-tests.json",
+      "matchesBase": true,
+      "sha256": "1c223da60444d932c8556b408abf863041c8557d646242c6fd08c15ef1668785"
+    },
+    {
+      "file": "dashboard/evidence/resource-progression-operating-energy.png",
+      "matchesBase": true,
+      "sha256": "34de6be2425c994ac489e2d6c584ddb22dac276b0f05667de13f524bf4763d79"
+    },
+    {
+      "file": "dashboard/evidence/resource-progression-playtest.json",
+      "matchesBase": true,
+      "sha256": "70f8555617378163f60622221ed6f024a530a8de12ae5dcf3acb5550c5c2c185"
+    },
+    {
+      "file": "dashboard/evidence/resource-progression-road-integration.json",
+      "matchesBase": true,
+      "sha256": "fce8aedeb1f1a242f4b5e622ddbdab927642993b22571e278546d7ff0c9d9e24"
+    },
+    {
+      "file": "dashboard/evidence/resource-progression-settlement.png",
+      "matchesBase": true,
+      "sha256": "c8883326da987087b73b75c92dba92a9182fcd387e6db45da6467bc0e6109b76"
+    },
+    {
+      "file": "dashboard/evidence/resource-progression-shipping-integration.json",
+      "matchesBase": true,
+      "sha256": "0dfca329c5b33ece392dd8236797fd34182d41deccad53a3a6e15c4e6ce70a28"
+    },
+    {
+      "file": "dashboard/evidence/resource-progression-tests.json",
+      "matchesBase": true,
+      "sha256": "533765688ce796924e12d79a29c82fe565139380cf92928bbf90478cde37a64f"
+    },
+    {
+      "file": "deploy/CheatPlaytest.java",
+      "matchesBase": true,
+      "sha256": "2af5c6bdea5074b403120944d2f5763d616ed63dae2cb4558d1a97f339b5bccd"
+    },
+    {
+      "file": "deploy/run_cheat_playtest.py",
+      "matchesBase": true,
+      "sha256": "f8042a0b5fbe0e396951051b12c20eef0b6a5fcf84706c97fbeb87f387890522"
+    },
+    {
+      "file": "deploy/run_resource_progression_smoke.py",
+      "matchesBase": true,
+      "sha256": "55e3b3520ceabaf4a952c739922244ac42bd2556359467679978c6b8ed179400"
+    },
+    {
+      "file": "docs/resource-progression.md",
+      "matchesBase": true,
+      "sha256": "9535f19eeb1d6989853ce3e1efd10776265a96226eb0becdd0f85fc0a73ab006"
+    },
+    {
+      "file": "src/main/java/dev/jayms/Main.java",
+      "matchesBase": true,
+      "sha256": "3599d37f3baab43695253071c54457937bb32782d5b8744ed9f6a2b7eb603556"
+    },
+    {
+      "file": "src/main/java/dev/jayms/net/city/CityEconomy.java",
+      "matchesBase": true,
+      "sha256": "e8cb508ef654fe039a015c8aef5a40b8d6a78f9485ecdc9bff1bab304e791093"
+    },
+    {
+      "file": "src/main/java/dev/jayms/net/city/CityMaterials.java",
+      "matchesBase": true,
+      "sha256": "8125841af8766549f00c6f77093dce9e0b5cf9b3e6addfa63e6befc355fae5fe"
+    },
+    {
+      "file": "src/main/java/dev/jayms/net/city/IndustrialLogistics.java",
+      "matchesBase": true,
+      "sha256": "23c59031bf4fa4ce09da7c78e6139d5d24d1f1c2972f8172c9213e5590a8deb5"
+    },
+    {
+      "file": "src/main/java/dev/jayms/net/city/IndustrialProgression.java",
+      "matchesBase": true,
+      "sha256": "2ed81783e6102f87605835028ed0c3e6c66bb3a32f6dc5ec57998c671ce9c108"
+    },
+    {
+      "file": "src/test/java/dev/jayms/IndustrialProgressionTest.java",
+      "matchesBase": true,
+      "sha256": "3ab1aa26ebe69dfeded0ad07c7eca7d185af388a40ca11aff9306074654ad3bb"
+    },
+    {
+      "file": "src/test/java/dev/jayms/OperatingEnergyTest.java",
+      "matchesBase": true,
+      "sha256": "3a214b7cfc4a9b60e5425c254e45164b6423e0c3aec43f041acccbc0faad9b90"
+    },
+    {
+      "file": "website/.gitignore",
+      "matchesBase": true,
+      "sha256": "e2ab9f20e436b8ebdc9f58ab9403ad6afe2153b4202d013bdc8a75ccd81b395b"
+    },
+    {
+      "file": "website/.openai/hosting.json",
+      "matchesBase": true,
+      "sha256": "6b288eea128353291f9c1af2ce468636f53ed4adf070a43951e19691d0c80dbd"
+    },
+    {
+      "file": "website/build.mjs",
+      "matchesBase": true,
+      "sha256": "d08bb8f14a24e9aeb6dfb1e5c1bf15439d14b500705cd61820d4c6ac7a2e9c96"
+    },
+    {
+      "file": "website/db/schema.ts",
+      "matchesBase": true,
+      "sha256": "34be99a0efccf2a0d902ea251a70d276d7afd78c6e2888a4074dcff8375dc756"
+    },
+    {
+      "file": "website/db/storage.mjs",
+      "matchesBase": true,
+      "sha256": "e8dd2e886994310185d921e5e87e926410f6edfc3beaff3c01684f81d1716f83"
+    },
+    {
+      "file": "website/dist/assets/business-dashboard-overview.png",
+      "matchesBase": true,
+      "sha256": "436dad9ce6f1a4ee1c6dc1ab3dde6933655a2eb37d67053430e77ed54abcce7e"
+    },
+    {
+      "file": "website/dist/assets/mayor-dashboard-overview.png",
+      "matchesBase": true,
+      "sha256": "524c2b4523f62a405f6f9e99f5e0cc81351168dbd1252322abcc01dd1fa7af64"
+    },
+    {
+      "file": "website/dist/assets/player-nameplates-city.png",
+      "matchesBase": true,
+      "sha256": "d67a6bc0b13205e6e1c65bd279756b71d5a027b733b0bb981df4ff214ed16993"
+    },
+    {
+      "file": "website/dist/assets/voxel-city-overview.png",
+      "matchesBase": true,
+      "sha256": "0ca2578cd62e0e909b8b4f653027629c4f1f6393e86d338984794655e3201c76"
+    },
+    {
+      "file": "website/dist/assets/voxel-features-3d-created.png",
+      "matchesBase": true,
+      "sha256": "880dd9deed0e86386b30576d9cf97d533081dbd0a42d2b3658f52373464fdc9b"
+    },
+    {
+      "file": "website/dist/assets/voxel-horizon-flying.png",
+      "matchesBase": true,
+      "sha256": "a647ffb7f256a84fb72b7a412545c9071679c61da73cd7f98932408fa32ec52d"
+    },
+    {
+      "file": "website/dist/assets/voxel-lighting-placed-purple.png",
+      "matchesBase": true,
+      "sha256": "5bcbdf1c2a7b2c868e24c644563103e5128dabf213f04a4317d30ef608f1c6e9"
+    },
+    {
+      "file": "website/dist/client/assets/business-dashboard-overview.png",
+      "matchesBase": true,
+      "sha256": "436dad9ce6f1a4ee1c6dc1ab3dde6933655a2eb37d67053430e77ed54abcce7e"
+    },
+    {
+      "file": "website/dist/client/assets/mayor-dashboard-overview.png",
+      "matchesBase": true,
+      "sha256": "524c2b4523f62a405f6f9e99f5e0cc81351168dbd1252322abcc01dd1fa7af64"
+    },
+    {
+      "file": "website/dist/client/assets/player-nameplates-city.png",
+      "matchesBase": true,
+      "sha256": "d67a6bc0b13205e6e1c65bd279756b71d5a027b733b0bb981df4ff214ed16993"
+    },
+    {
+      "file": "website/dist/client/assets/voxel-city-overview.png",
+      "matchesBase": true,
+      "sha256": "0ca2578cd62e0e909b8b4f653027629c4f1f6393e86d338984794655e3201c76"
+    },
+    {
+      "file": "website/dist/client/assets/voxel-features-3d-created.png",
+      "matchesBase": true,
+      "sha256": "880dd9deed0e86386b30576d9cf97d533081dbd0a42d2b3658f52373464fdc9b"
+    },
+    {
+      "file": "website/dist/client/assets/voxel-horizon-flying.png",
+      "matchesBase": true,
+      "sha256": "a647ffb7f256a84fb72b7a412545c9071679c61da73cd7f98932408fa32ec52d"
+    },
+    {
+      "file": "website/dist/client/assets/voxel-lighting-placed-purple.png",
+      "matchesBase": true,
+      "sha256": "5bcbdf1c2a7b2c868e24c644563103e5128dabf213f04a4317d30ef608f1c6e9"
+    },
+    {
+      "file": "website/dist/client/docs.html",
+      "matchesBase": true,
+      "sha256": "77301dc26e1a5de1f94270dd53971381fec21224eece1164722ac6594a78a6c3"
+    },
+    {
+      "file": "website/dist/client/index.html",
+      "matchesBase": true,
+      "sha256": "0610af3af6779ca7f786747086a878b118cebbc42b21260b61aa5681431428c7"
+    },
+    {
+      "file": "website/dist/client/progress.html",
+      "matchesBase": true,
+      "sha256": "0c906dd04bdca19cc2a81b413d0f4d42f61aeb5a30d4b5155e58393b68bc1d09"
+    },
+    {
+      "file": "website/dist/client/progress.js",
+      "matchesBase": true,
+      "sha256": "2507d3dc232dc92ddae3b5e3defc5ed8ab0671eb71bf0d71a9de5dcf198165d1"
+    },
+    {
+      "file": "website/dist/client/progress.json",
+      "matchesBase": true,
+      "sha256": "195730c8078c57aea027f653c6c53dc5416e456bf0d0b3061c5239d54d07e4a1"
+    },
+    {
+      "file": "website/dist/client/questions.js",
+      "matchesBase": true,
+      "sha256": "822f963d9b2f5097ed74a49874ea3df67fdff44177de4ff4d916981649636024"
+    },
+    {
+      "file": "website/dist/client/site.css",
+      "matchesBase": true,
+      "sha256": "24208a129a6a54bb98be2a5476ab85490009a419322fbfffcf01403fd35776af"
+    },
+    {
+      "file": "website/dist/docs.html",
+      "matchesBase": true,
+      "sha256": "77301dc26e1a5de1f94270dd53971381fec21224eece1164722ac6594a78a6c3"
+    },
+    {
+      "file": "website/dist/index.html",
+      "matchesBase": true,
+      "sha256": "0610af3af6779ca7f786747086a878b118cebbc42b21260b61aa5681431428c7"
+    },
+    {
+      "file": "website/dist/progress.html",
+      "matchesBase": true,
+      "sha256": "0c906dd04bdca19cc2a81b413d0f4d42f61aeb5a30d4b5155e58393b68bc1d09"
+    },
+    {
+      "file": "website/dist/progress.js",
+      "matchesBase": true,
+      "sha256": "2507d3dc232dc92ddae3b5e3defc5ed8ab0671eb71bf0d71a9de5dcf198165d1"
+    },
+    {
+      "file": "website/dist/progress.json",
+      "matchesBase": true,
+      "sha256": "195730c8078c57aea027f653c6c53dc5416e456bf0d0b3061c5239d54d07e4a1"
+    },
+    {
+      "file": "website/dist/questions.js",
+      "matchesBase": true,
+      "sha256": "822f963d9b2f5097ed74a49874ea3df67fdff44177de4ff4d916981649636024"
+    },
+    {
+      "file": "website/dist/server/index.js",
+      "matchesBase": true,
+      "sha256": "99dd2acca02e8525e302842244c50a163c549b1cfcb7d32a16be40daa48aedc9"
+    },
+    {
+      "file": "website/dist/server/progress_bridge.mjs",
+      "matchesBase": true,
+      "sha256": "398156441300e433dfaf65e4b724938ba3758ef54a2a57d1b614498680dfe651"
+    },
+    {
+      "file": "website/dist/server/storage.mjs",
+      "matchesBase": true,
+      "sha256": "e8dd2e886994310185d921e5e87e926410f6edfc3beaff3c01684f81d1716f83"
+    },
+    {
+      "file": "website/dist/server/video.mjs",
+      "matchesBase": true,
+      "sha256": "021f9236171cf9e65f92a9c500ec0897b6cc0899822b13b13df65702efea1e54"
+    },
+    {
+      "file": "website/dist/server/wrangler.json",
+      "matchesBase": true,
+      "sha256": "3122979f3fcd5d5730546be6cc409d317d9111f960acff5c5e72931fafac02a2"
+    },
+    {
+      "file": "website/dist/site.css",
+      "matchesBase": true,
+      "sha256": "24208a129a6a54bb98be2a5476ab85490009a419322fbfffcf01403fd35776af"
+    },
+    {
+      "file": "website/drizzle.config.ts",
+      "matchesBase": true,
+      "sha256": "39966f3818721bb8bbc31f33ed0eeeaa35878d81a330127a1936b1b334e39ab8"
+    },
+    {
+      "file": "website/drizzle/0000_windy_madripoor.sql",
+      "matchesBase": true,
+      "sha256": "3f9acb259f2a4041b952420be6961ad7c2a01b2e37287e22c6dd1cd45fb89857"
+    },
+    {
+      "file": "website/drizzle/meta/0000_snapshot.json",
+      "matchesBase": true,
+      "sha256": "2bd8528719bae5eb38b410c7dbf5fe850a170549d8d72cf11b7f9571de579b16"
+    },
+    {
+      "file": "website/drizzle/meta/_journal.json",
+      "matchesBase": true,
+      "sha256": "72749d8f3426576275de37a2da1c1c8862154bc91f4c7e2406fdf6d53001cd4a"
+    },
+    {
+      "file": "website/package-lock.json",
+      "matchesBase": true,
+      "sha256": "84adcc78ea474b3f4f62cab2234862de5677acf3a10f885f24cc1c2582c1f2ef"
+    },
+    {
+      "file": "website/package.json",
+      "matchesBase": true,
+      "sha256": "447b16fa0e22f0c98165c9f6292fd0916b5a751f69ec8d1228039b980d799959"
+    },
+    {
+      "file": "website/progress_bridge.mjs",
+      "matchesBase": true,
+      "sha256": "398156441300e433dfaf65e4b724938ba3758ef54a2a57d1b614498680dfe651"
+    },
+    {
+      "file": "website/test/general-progress-package.test.mjs",
+      "matchesBase": true,
+      "sha256": "d0a111bcd177da1549f17519eb8533ec1a0cdbeea874d7a4630fc26a724a8dc7"
+    },
+    {
+      "file": "website/test/general-progress.test.mjs",
+      "matchesBase": true,
+      "sha256": "fc2f6f32336fe0d669197a04c854a4f5e6ce7a46dfc0c5b5fca6e373d3951f06"
+    },
+    {
+      "file": "website/video.mjs",
+      "matchesBase": true,
+      "sha256": "021f9236171cf9e65f92a9c500ec0897b6cc0899822b13b13df65702efea1e54"
+    },
+    {
+      "file": "website/worker.mjs",
+      "matchesBase": true,
+      "sha256": "99dd2acca02e8525e302842244c50a163c549b1cfcb7d32a16be40daa48aedc9"
+    }
+  ]
+}

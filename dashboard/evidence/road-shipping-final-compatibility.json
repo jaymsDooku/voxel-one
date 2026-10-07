@@ -1,0 +1,1 @@
+{"status":"passed","checks":["generator3 synthetic world reload","format12 port type24 and mixed road cells retained","format13 exact port/ownership roundtrip","old12 resave to13 retains port"]}

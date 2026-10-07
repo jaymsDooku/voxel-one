@@ -1,0 +1,234 @@
+{
+  "baseHead": "5e05822fdedde872935214c75dbe7fdd34425201",
+  "status": "passed",
+  "airportProgressPreserved": true,
+  "unchangedFiles": 44,
+  "expectedChangedFile": "CityFrame.java appends format-13 road ownership; format-12 aviation layout retained",
+  "files": [
+    {
+      "file": "dashboard/evidence/airport-arrival.png",
+      "matchesBase": true,
+      "sha256": "3ce426ec9cd250594e624fa8153eae3cf73c5cb49080c7d1a8451c8538255cf7"
+    },
+    {
+      "file": "dashboard/evidence/airport-boarding.png",
+      "matchesBase": true,
+      "sha256": "64a4221a337f946b89c5779ae643414b3e5c023e71ee78c83a27028021816550"
+    },
+    {
+      "file": "dashboard/evidence/airport-checkpoint-draft-expanded.png",
+      "matchesBase": true,
+      "sha256": "4f13db84743bf6539c4e93a5cbd6d85052bbb3e10be5bed53095fd51595cdef8"
+    },
+    {
+      "file": "dashboard/evidence/airport-checkpoint-tests.json",
+      "matchesBase": true,
+      "sha256": "4c473a4a3cae646af98e8480732f7d4a46b03ddd9b3d93c817e0f7b901222c5a"
+    },
+    {
+      "file": "dashboard/evidence/airport-compact-menu.png",
+      "matchesBase": true,
+      "sha256": "0ec54810d906ab7a65db85de55d6ac6da63b8df05ab346d61839d241b9b10665"
+    },
+    {
+      "file": "dashboard/evidence/airport-exchange-rejected.png",
+      "matchesBase": true,
+      "sha256": "e750d2f092f9b494b259ec459755e1a1f22bd9e5eb9467c4281d9a11825d1077"
+    },
+    {
+      "file": "dashboard/evidence/airport-expanded.png",
+      "matchesBase": true,
+      "sha256": "cfd66d2761e0ab350ef4b361eb85f30b4bec99ed7c4d425ced95ef0c78161dd5"
+    },
+    {
+      "file": "dashboard/evidence/airport-flight.png",
+      "matchesBase": true,
+      "sha256": "add932e0ba43e2b7b558964324bb869d516f2d1f58ecf2964949cb9dca8ae674"
+    },
+    {
+      "file": "dashboard/evidence/airport-media.json",
+      "matchesBase": true,
+      "sha256": "e79cdd15510a7a7df80139b9c8e46d48b9b9ed66c739b527540c7eefb7cf42ec"
+    },
+    {
+      "file": "dashboard/evidence/airport-playtest.json",
+      "matchesBase": true,
+      "sha256": "dd9b4b9896bca69d46bbb8f016a986307fd149145b4ca1b1017cd924fae26948"
+    },
+    {
+      "file": "dashboard/evidence/airport-playtest.mp4",
+      "matchesBase": true,
+      "sha256": "b39bdec38efc2358fc091353e68707f2e53959cea847ab38a1b137f9250e0977"
+    },
+    {
+      "file": "dashboard/evidence/airport-recovery-tests.json",
+      "matchesBase": true,
+      "sha256": "8fb6843057244a171ee94cb6e82dd7820efb11079c7beb4ac37511584ae21638"
+    },
+    {
+      "file": "dashboard/evidence/airport-regional-regression.png",
+      "matchesBase": true,
+      "sha256": "0c66991ad502f2fc603ce8f49702f5166ad68414609fb7fa411082746edeb23c"
+    },
+    {
+      "file": "dashboard/evidence/airport-tests.json",
+      "matchesBase": true,
+      "sha256": "55cc3ccbbacac77dcaaab624980df8e5173ce979435847276aadfc4f3db04d6d"
+    },
+    {
+      "file": "dashboard/evidence/cargo-aviation-airport-arrival.png",
+      "matchesBase": true,
+      "sha256": "3ce426ec9cd250594e624fa8153eae3cf73c5cb49080c7d1a8451c8538255cf7"
+    },
+    {
+      "file": "dashboard/evidence/cargo-aviation-airport-boarding.png",
+      "matchesBase": true,
+      "sha256": "b186ca0c2e1f2b046e0bfe280e4a0b3a70c3dda269aa2d0795d6b433ac55ad13"
+    },
+    {
+      "file": "dashboard/evidence/cargo-aviation-airport-compact-menu.png",
+      "matchesBase": true,
+      "sha256": "0ec54810d906ab7a65db85de55d6ac6da63b8df05ab346d61839d241b9b10665"
+    },
+    {
+      "file": "dashboard/evidence/cargo-aviation-airport-exchange-rejected.png",
+      "matchesBase": true,
+      "sha256": "ccc4f4b4232d394ce619b8e34c2c8a7131f0cea3f02b5a0fca16fc8bce94ed79"
+    },
+    {
+      "file": "dashboard/evidence/cargo-aviation-airport-expanded.png",
+      "matchesBase": true,
+      "sha256": "cfd66d2761e0ab350ef4b361eb85f30b4bec99ed7c4d425ced95ef0c78161dd5"
+    },
+    {
+      "file": "dashboard/evidence/cargo-aviation-airport-flight.png",
+      "matchesBase": true,
+      "sha256": "deb030747ac21670578e4621e1728ac24794a75a65b820bb6847c9f65f98457a"
+    },
+    {
+      "file": "dashboard/evidence/cargo-aviation-airport-playtest.json",
+      "matchesBase": true,
+      "sha256": "dd9b4b9896bca69d46bbb8f016a986307fd149145b4ca1b1017cd924fae26948"
+    },
+    {
+      "file": "dashboard/evidence/cargo-aviation-airport-playtest.mp4",
+      "matchesBase": true,
+      "sha256": "1341bef1e50d7903978d831c9e73ba331386c1e492c9816453ea0971a6f5a217"
+    },
+    {
+      "file": "dashboard/evidence/cargo-aviation-airport-regional-regression.png",
+      "matchesBase": true,
+      "sha256": "51f8abde113711269b1c9906b78e5c126b64708da0bfba03f3587138fe37e71b"
+    },
+    {
+      "file": "dashboard/evidence/cargo-aviation-airport-video-check.json",
+      "matchesBase": true,
+      "sha256": "9b715287b89f0cf9b0d5d5f935b947ece3b22f1b7e6a72fdd8b63c9feb973df7"
+    },
+    {
+      "file": "dashboard/evidence/cargo-aviation-final-container-drive.mp4",
+      "matchesBase": true,
+      "sha256": "5c3fc9dd9d08be8f5435ffc095ed0ef4e46099d8132ceb8b2e89e2b279b4ee0a"
+    },
+    {
+      "file": "dashboard/evidence/cargo-aviation-final-container.png",
+      "matchesBase": true,
+      "sha256": "e80a8fdc00938bd74e809cd7706ec5c56a8e593f8c1049c300aa47e12b6099b4"
+    },
+    {
+      "file": "dashboard/evidence/cargo-aviation-final-jeep.png",
+      "matchesBase": true,
+      "sha256": "f7ed05cf63356399ea39355d915efa6323b337d70ffefa9e9726c3efaab11cca"
+    },
+    {
+      "file": "dashboard/evidence/cargo-aviation-final-lorry.png",
+      "matchesBase": true,
+      "sha256": "674588838244041e2083269fabf0b99713a901f65856fa036746bcdc4a03fe6d"
+    },
+    {
+      "file": "dashboard/evidence/cargo-aviation-final-playtest.json",
+      "matchesBase": true,
+      "sha256": "5d9da36006fbf3d5d1a098d1c818cb574cec64133973e98c5bea40785d407784"
+    },
+    {
+      "file": "dashboard/evidence/cargo-aviation-final-tanker.png",
+      "matchesBase": true,
+      "sha256": "13ad5a8736ca8368680058e999ca5c64218bc507e69d341a0007eaf6ffb3d16c"
+    },
+    {
+      "file": "dashboard/evidence/cargo-aviation-final-validation.md",
+      "matchesBase": true,
+      "sha256": "d9e31c012e42ffc2db5efb9743b09c096e80a5d49c3e2c7c73b6fe4e7fd47bd6"
+    },
+    {
+      "file": "dashboard/evidence/cargo-aviation-final-van.png",
+      "matchesBase": true,
+      "sha256": "48ac59b289f157b5e74de3898ec098f6f574daaac93ad97661d98f90b7d2424c"
+    },
+    {
+      "file": "dashboard/evidence/cargo-aviation-final-verification.json",
+      "matchesBase": true,
+      "sha256": "bc551896f48f816dbae098a1fde364f31c7d69c4d590a29b9e69b18b259110ac"
+    },
+    {
+      "file": "dashboard/evidence/cargo-aviation-final-video-check.json",
+      "matchesBase": true,
+      "sha256": "9ccb321b8d950d8a48056e15b3a02f732f6ca81f102e919244b464fcdb37404b"
+    },
+    {
+      "file": "dashboard/evidence/cargo-aviation-recovery.md",
+      "matchesBase": true,
+      "sha256": "06177d73fe4d1a2d8aee24fcac3b343b1b4248a09d64d4ec6c3f584b8b037085"
+    },
+    {
+      "file": "deploy/AviationSmoke.java",
+      "matchesBase": true,
+      "sha256": "6771ea4c0a180741df0de5107e79f648bd1ae31afbcd0ee2553264af4589250b"
+    },
+    {
+      "file": "deploy/VerifyAviationMedia.java",
+      "matchesBase": true,
+      "sha256": "0ae33d62214d00fa5bec9a4e6f1a2b47b948d7e0af257bf649052971b4de08db"
+    },
+    {
+      "file": "deploy/run_aviation_smoke.py",
+      "matchesBase": true,
+      "sha256": "87b9063ca445accbb8ea5780feccc119b4f1e69bd5ee472c1fafc8376bfa90d6"
+    },
+    {
+      "file": "src/main/java/dev/jayms/Main.java",
+      "matchesBase": true,
+      "sha256": "ed374d7620a018686760c61a5eb65e685a924bda4d1070356a9e1ed69a216152"
+    },
+    {
+      "file": "src/main/java/dev/jayms/net/city/Aviation.java",
+      "matchesBase": true,
+      "sha256": "aec5129c8d0ee506a0f5626217cf773af7152194b2d828ba106660f29b1a62ff"
+    },
+    {
+      "file": "src/main/java/dev/jayms/net/city/CityFrame.java",
+      "matchesBase": false,
+      "sha256": "9c042c19ca9a30caa19456b26acd23dbad7b0b9a891f52f3e78cb9a683685fb4"
+    },
+    {
+      "file": "src/main/java/dev/jayms/net/city/FlightPath.java",
+      "matchesBase": true,
+      "sha256": "8446b174424086e965efa18428525f42d60f35a6ac41eb173ccf671cdafd01e5"
+    },
+    {
+      "file": "src/main/java/dev/jayms/net/city/SpecialBuildings.java",
+      "matchesBase": true,
+      "sha256": "b4094e27eb629ea76d80bc09764668fe0a1d871b4961b2b94430078e1180bc7c"
+    },
+    {
+      "file": "src/main/java/dev/jayms/ui/MayorDashboard.java",
+      "matchesBase": true,
+      "sha256": "3ea2b5d7c86b35a0483d4357b8bafeaf8745539bd86aa0b68255dd549ea6bb6d"
+    },
+    {
+      "file": "src/test/java/dev/jayms/AviationTest.java",
+      "matchesBase": true,
+      "sha256": "26762ea634c586460551ff5a7885c297b76985d7694a8a84a0651e94ade3b534"
+    }
+  ]
+}

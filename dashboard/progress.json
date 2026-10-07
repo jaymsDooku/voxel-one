@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T03:20:28+00:00",
+  "updatedAt": "2026-10-07T03:57:01+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,76 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "63363064363463302d316661372d346365352d386366352d346661663863373732396561",
+      "title": "Road snapping, chains and section editing",
+      "description": "Inspecting road placement and selection; implementation and native tests pending.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "Executed tests and Playtest (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63363064363463302d316661372d346365352d386366352d346661663863373732396561/dashboard/evidence/road-workflow-tests.md"
+        },
+        {
+          "kind": "image",
+          "label": "Road section selection (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63363064363463302d316661372d346365352d386366352d346661663863373732396561/dashboard/evidence/road-workflow-selected.png"
+        },
+        {
+          "kind": "image",
+          "label": "Zone-edge snap guide (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63363064363463302d316661372d346365352d386366352d346661663863373732396561/dashboard/evidence/road-workflow-snap.png"
+        },
+        {
+          "kind": "video",
+          "label": "Native road workflow F10 video (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63363064363463302d316661372d346365352d386366352d346661663863373732396561/dashboard/evidence/road-workflow-playtest.mp4"
+        },
+        {
+          "kind": "report",
+          "label": "Final-head validation (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63363064363463302d316661372d346365352d386366352d346661663863373732396561/dashboard/evidence/road-final-validation.md"
+        },
+        {
+          "kind": "image",
+          "label": "Final road selection (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63363064363463302d316661372d346365352d386366352d346661663863373732396561/dashboard/evidence/road-final-selected.png"
+        },
+        {
+          "kind": "image",
+          "label": "Final zone-edge snap (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63363064363463302d316661372d346365352d386366352d346661663863373732396561/dashboard/evidence/road-final-snap.png"
+        },
+        {
+          "kind": "video",
+          "label": "Final road workflow F10 (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63363064363463302d316661372d346365352d386366352d346661663863373732396561/dashboard/evidence/road-final-playtest.mp4"
+        },
+        {
+          "kind": "image",
+          "label": "Preserved airport flight regression (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63363064363463302d316661372d346365352d386366352d346661663863373732396561/dashboard/evidence/road-final-airport-flight.png"
+        },
+        {
+          "kind": "video",
+          "label": "Final airport regression F10 (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63363064363463302d316661372d346365352d386366352d346661663863373732396561/dashboard/evidence/road-airport-final-playtest.mp4"
+        },
+        {
+          "kind": "link",
+          "label": "Mixed-width validation \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63363064363463302d316661372d346365352d386366352d346661663863373732396561/dashboard/evidence/road-mixed-validation.md"
+        },
+        {
+          "kind": "link",
+          "label": "Final road/shipping validation \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63363064363463302d316661372d346365352d386366352d346661663863373732396561/dashboard/evidence/road-shipping-final-validation.md"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Required base 6d1ec251 preserved: City saves files and unrelated history intact. 67 tests and packaging passed. Native save/copy/new/load, duplicate rejection, full road and rejection/retry workflows passed. Fresh images and two fully decoded videos inspected. Pending controller publication and independent review.",
+      "updatedAt": "2026-10-07T03:57:01+00:00"
+    },
     {
       "id": "35353439383837332d393262632d343536312d616464642d396661313231326632653537",
       "title": "Right-angle road routes",

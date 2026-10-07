@@ -1,0 +1,240 @@
+{
+  "publication": "pending controller publication",
+  "files": [
+    {
+      "file": "road-shipping-final-airport-arrival.png",
+      "bytes": 902834,
+      "sha256": "3ce426ec9cd250594e624fa8153eae3cf73c5cb49080c7d1a8451c8538255cf7"
+    },
+    {
+      "file": "road-shipping-final-airport-boarding.png",
+      "bytes": 806350,
+      "sha256": "64a4221a337f946b89c5779ae643414b3e5c023e71ee78c83a27028021816550"
+    },
+    {
+      "file": "road-shipping-final-airport-compact-menu.png",
+      "bytes": 671004,
+      "sha256": "e91536fd183e892878b0aff2434d23622d9043d92c75acaa77a2a7d7de75a00d"
+    },
+    {
+      "file": "road-shipping-final-airport-exchange-rejected.png",
+      "bytes": 1129461,
+      "sha256": "53531d569e1a25608c6a1d2ac4c2c2b6cefa450ab48ea7086396c988936afd2f"
+    },
+    {
+      "file": "road-shipping-final-airport-expanded.png",
+      "bytes": 688441,
+      "sha256": "76a3795d8caf3402d56ce31fd783cbc7860e9438e31d94dc3500a51584541cf3"
+    },
+    {
+      "file": "road-shipping-final-airport-flight.png",
+      "bytes": 303987,
+      "sha256": "add932e0ba43e2b7b558964324bb869d516f2d1f58ecf2964949cb9dca8ae674"
+    },
+    {
+      "file": "road-shipping-final-airport-playtest.json",
+      "bytes": 836,
+      "sha256": "dd9b4b9896bca69d46bbb8f016a986307fd149145b4ca1b1017cd924fae26948"
+    },
+    {
+      "file": "road-shipping-final-airport-playtest.mp4",
+      "bytes": 1610075,
+      "sha256": "2d35e704b5da52440b2c5236b0d6133e4fda9bacacd94a82755e6e65d11b3c0f"
+    },
+    {
+      "file": "road-shipping-final-airport-regional-regression.png",
+      "bytes": 15934,
+      "sha256": "7d54cb72d8b51bc4d991e9b2f2efe9e644916ad87f44e1ddca3708a9f438ca50"
+    },
+    {
+      "file": "road-shipping-final-airport-video-all-frames.json",
+      "bytes": 367,
+      "sha256": "d56791c766cda71ad94f7be05720398dc0b19be60e27b2ad2cca66886c83ca31"
+    },
+    {
+      "file": "road-shipping-final-airport-video-samples.json",
+      "bytes": 153,
+      "sha256": "71a453460bc3bcdbeaecd15ba16e877302eaf487a81b58336f48d465bbc74d98"
+    },
+    {
+      "file": "road-shipping-final-base-preservation.json",
+      "bytes": 11635,
+      "sha256": "71597f2cb40f3601b7bf473b95c551a7b8309bd6adbc921864d5294f93b7f46d"
+    },
+    {
+      "file": "road-shipping-final-compatibility.json",
+      "bytes": 195,
+      "sha256": "d521af33e07a81c07e0c3f0233a081c9bc5582ad370af9907ba91da3d8c3ffc8"
+    },
+    {
+      "file": "road-shipping-final-group-0.json",
+      "bytes": 674,
+      "sha256": "f1fb7a3c5a25e9e0799b0fb773c207bada3af9cba811826b9c6ad176d4af94dd"
+    },
+    {
+      "file": "road-shipping-final-group-1.json",
+      "bytes": 2372,
+      "sha256": "cfe2f58f7933be9efd5cd05caa6d3a2deed2ad389131ce54dbda6764ff32b981"
+    },
+    {
+      "file": "road-shipping-final-group-2.json",
+      "bytes": 2575,
+      "sha256": "5af8ec74c15b35d280b74714f1e974dbfc8f95d1188859c0fc5e3f5502f9b46d"
+    },
+    {
+      "file": "road-shipping-final-mixed-before.png",
+      "bytes": 504913,
+      "sha256": "931be5fab336f0b5b46e6699dead6347d31896905d6edd85f7702b61178cb1be"
+    },
+    {
+      "file": "road-shipping-final-mixed-deleted.png",
+      "bytes": 573058,
+      "sha256": "9601cbc38648996bbbf1f7209f789be1d4ad6d82ea78ddf09a4e78e25a458046"
+    },
+    {
+      "file": "road-shipping-final-mixed-menu.png",
+      "bytes": 734761,
+      "sha256": "95f78bc7fadfa868fd95da6c56a98d4099a065152111499e853dc17b7b5f01a5"
+    },
+    {
+      "file": "road-shipping-final-mixed-narrowed.png",
+      "bytes": 793374,
+      "sha256": "9f428f7f7e96bb3c90e767d712fce39a8373174d82d4c21c90c0e9b1897c2fdd"
+    },
+    {
+      "file": "road-shipping-final-mixed-playtest.json",
+      "bytes": 381,
+      "sha256": "4c8132bd62cec599c5dcb8d57a488ae0b13b963e06df6c1e0d1bf57ce87ceedf"
+    },
+    {
+      "file": "road-shipping-final-mixed-playtest.mp4",
+      "bytes": 2579749,
+      "sha256": "b6292ede8abe8fd9f98f46750a7b380517157bfed1037245aa4aba01e81675ff"
+    },
+    {
+      "file": "road-shipping-final-mixed-restored.png",
+      "bytes": 818639,
+      "sha256": "159855d935bec64d2f26e3f860dd67803a60ab704f0e82f6caf3c7e7a2d430dc"
+    },
+    {
+      "file": "road-shipping-final-mixed-video-all-frames.json",
+      "bytes": 368,
+      "sha256": "0cd5f5a3162bbb19029645b8aa3d9a1e64d4378bfafabc3135996ca327db481c"
+    },
+    {
+      "file": "road-shipping-final-mixed-video-samples.json",
+      "bytes": 156,
+      "sha256": "158e177e55c44ca89ccf907fd64c9c831da2a2ae3ca504532b22d39e88ee1b65"
+    },
+    {
+      "file": "road-shipping-final-road-edited.png",
+      "bytes": 810652,
+      "sha256": "1497e7bd28300311a2170e2f0523c88ae7b41c048455672d001d135594d3220c"
+    },
+    {
+      "file": "road-shipping-final-road-guide.png",
+      "bytes": 837057,
+      "sha256": "120883049a4ff3e11a5158b0bd795b5bae37f8f3823409762d64c90a74d28e6f"
+    },
+    {
+      "file": "road-shipping-final-road-menu.png",
+      "bytes": 805078,
+      "sha256": "809396f01cb4741492d2217a56cd2c7f3669efe1c08600aff1dbcd7b65826a9b"
+    },
+    {
+      "file": "road-shipping-final-road-playtest.json",
+      "bytes": 501,
+      "sha256": "58146b5d713cb97a1198aa47f32fcbf8aedf9765fbeb96c3d6bd19ae27c70f80"
+    },
+    {
+      "file": "road-shipping-final-road-playtest.mp4",
+      "bytes": 3439003,
+      "sha256": "0ee0420e3355796cc2a6e160c08d898b942a3d984fd4fc6cd836cd0ff56fafde"
+    },
+    {
+      "file": "road-shipping-final-road-selected.png",
+      "bytes": 768595,
+      "sha256": "c0d73d1d6dca485b6405983483c3fd3b877e70ada0bc5b66551f8c05437c6fcd"
+    },
+    {
+      "file": "road-shipping-final-road-snap.png",
+      "bytes": 806593,
+      "sha256": "b47b6aa645a741c0a834aec9524830628e39e7f2647952215632c341c0e69691"
+    },
+    {
+      "file": "road-shipping-final-road-surfaces.png",
+      "bytes": 838230,
+      "sha256": "61983a094d0eec72ec5fd034638e02ea8362e7c2a688a4d880fb553a195fe31b"
+    },
+    {
+      "file": "road-shipping-final-road-video-all-frames.json",
+      "bytes": 368,
+      "sha256": "111b85d4747f4984869f3bc714366d251afc0c2a756eabebaf4f5e934938fb23"
+    },
+    {
+      "file": "road-shipping-final-road-video-samples.json",
+      "bytes": 157,
+      "sha256": "e69ba3aa04f56603a0c793916462fdffa4956c58f44c80d43c5e52ee1c889f70"
+    },
+    {
+      "file": "road-shipping-final-shipping-coastal-menu.png",
+      "bytes": 761876,
+      "sha256": "88f9827e7f07746ebc233dff1bea8f69b731c20941852a81c7ebe0ba57540854"
+    },
+    {
+      "file": "road-shipping-final-shipping-inland-rejection.png",
+      "bytes": 819783,
+      "sha256": "42c64a4921a438edd8388c67e26c21f6e5dd4987ff2e6c7e91dd8dafad5c2578"
+    },
+    {
+      "file": "road-shipping-final-shipping-playtest.json",
+      "bytes": 460,
+      "sha256": "bfa078ae16ec7b930b06725bcf4efd3e1b076828da31048ba3425c98c07135fc"
+    },
+    {
+      "file": "road-shipping-final-shipping-playtest.mp4",
+      "bytes": 916896,
+      "sha256": "c4bf1c2c45f3520d870b6524f7dd196217c1072112ece96ba80fbc2018a83707"
+    },
+    {
+      "file": "road-shipping-final-shipping-port-carrier.png",
+      "bytes": 382382,
+      "sha256": "6f40b7affc2f7c0377fc003a9527cc643b4fb9cb0c3093f00d7ff960bead1d04"
+    },
+    {
+      "file": "road-shipping-final-shipping-port-reverse.png",
+      "bytes": 355624,
+      "sha256": "9227a4ef772cf7ea2b0bfb6556753b3f53c50034bc8037bd546526add505cb01"
+    },
+    {
+      "file": "road-shipping-final-shipping-video-all-frames.json",
+      "bytes": 369,
+      "sha256": "fff2bfcf46b659d1488bfca24d48c23e7f0c6c4805315226f59e23e0c6aa993e"
+    },
+    {
+      "file": "road-shipping-final-shipping-video-samples.json",
+      "bytes": 154,
+      "sha256": "4d0906abeaa72fa6a06c7aa9b35704c7600f9f4c320e09371d80a3855c58c99f"
+    },
+    {
+      "file": "road-shipping-final-source-preservation.json",
+      "bytes": 21822,
+      "sha256": "083525aca18b89d964f0e9ba0fb781a37316d4ede42a10b44ce2bc59123884f3"
+    },
+    {
+      "file": "road-shipping-final-test-plan.json",
+      "bytes": 3423,
+      "sha256": "54ac3631a72c871b697ab495479550c91424780f1ce9258f547725acfae12543"
+    },
+    {
+      "file": "road-shipping-final-tests.json",
+      "bytes": 12659,
+      "sha256": "7596d8485c7fcc46624cbccce752d1dee5ebe9cd3dc8d2515be00d5953daad18"
+    },
+    {
+      "file": "road-shipping-final-validation.md",
+      "bytes": 8886,
+      "sha256": "c174c9943b6a66c09f4a16666726711719d728503bcee48d82a2295bafdef6e9"
+    }
+  ]
+}

@@ -1,23 +1,21 @@
-Historical pre-continuation recovery check. Final-head validation is recorded in `road-selection-tests.md`.
+# Road and airport rebase recovery
 
-# Road and jeep rebase recovery
+This is a rebase handoff checkpoint, not a ready-for-review receipt.
 
-Resolved the sole conflicted file, `dashboard/progress.json`. Preserved every base progress entry unchanged, including the jeep entry, and retained the road entry. Progress IDs are unique and the JSON parses.
+Resolved content conflicts in `dashboard/progress.json`, `Protocol.java` and `CityCommand.java`. The airport feature, tests, media and progress entry from the current rebase base remain. `road-rebase-base-preservation.json` records byte equality for 45 airport/source/media files and preservation of the airport progress entry.
 
-Verified the worktree and stage-0 jeep source, model, tests, `Main.java`, `voxel.frag`, playtest tools, documentation and jeep media against base `34bcb3197904b27aa12bad31b5aedf659bbc991f`. All match byte for byte. No tracked or staged deletions remain. The road implementation remains in the rebased files.
+The reviewed base keeps RUNWAY=10 and FLIGHT=11. DELETE_ROAD=12 and EDIT_ROAD=13 are new IDs. Protocol is 23. The client blocks new road commands on protocol 22 and retries the reviewed aviation base protocol 22 after a handshake mismatch. The server accepts only its current protocol during handshake. Save format remains 12, with magic `0x4349543C`; airport state is read and written with that format.
 
-Environment: Linux, inherited Java configuration, Maven 3.9.11, Linux LWJGL natives, cached dependencies and worktree-local temporary files.
-
-Executed:
+Recovery checks run on Linux, Java 25, Maven 3.9.11, cached dependencies at `/tmp/voxel-m2`, Linux LWJGL natives, and worktree-local temporary synthetic data:
 
 ```sh
-MAVEN_OPTS="-Djava.io.tmpdir=$PWD/target/tmp" /tmp/apache-maven-3.9.11/bin/mvn -q -Dmaven.repo.local=/tmp/voxel-m2 -Dlwjgl.natives=natives-linux -DargLine="-Djava.io.tmpdir=$PWD/target/tmp" -Dtest=RoadTypesTest,CityToolsTest,CityTest,ProtocolCompatibilityTest,BusinessCatalogTest,MarketEconomyTest,CityMultiplayerTest,SurvivalTest,LightingTest,JeepTest test > target/road-jeep-recovery-tests.txt 2>&1
+MAVEN_OPTS="-Djava.io.tmpdir=$PWD/target/tmp" /tmp/apache-maven-3.9.11/bin/mvn -q -Dmaven.repo.local=/tmp/voxel-m2 -Dlwjgl.natives=natives-linux -DargLine="-Djava.io.tmpdir=$PWD/target/tmp" -Dtest=RoadBaseCompatibilityTest,RoadWorkflowTest,RoadTypesTest,AviationTest,RegionalPopulationTest,ProtocolCompatibilityTest test > target/road-rebase-compat-tests.txt 2>&1
 ```
 
-Expected: road selection, paved widths and markings, upgrades, persistence, multiplayer restart, historical save compatibility, survival and lighting remain valid; jeep driving, steering, collisions, entry/exit, respawn and persistence remain valid.
+Observed final run: exit 0; 34 tests passed, zero failures/errors. `git diff --check` passed and source conflict markers are gone. The index remains unmerged until the controller stages the resolved contents. The checks include literal protocol-22 aviation packets, format-12 airport save/load/resave, a synthetic protocol-22 TLS peer that receives runway/flight commands but no new road actions, road geometry and actions, airport behavior, and regional population behavior.
 
-Observed: exit 0; 65 tests passed, 0 failures, 0 errors, 0 skipped. Sanitized suite counts are in `road-jeep-recovery-tests.json`. `git diff --check` passed. A text scan found no conflict markers in source, tools, docs or progress JSON.
+Playtest: native final-head checks and fresh media are pending controller rebase continuation. This recovery stage does not claim a new native pass. Prior road recordings are retained as historical evidence from the earlier implementation; they do not validate the resolved head. After the controller stages and continues the rebase, rerun `python3 deploy/run_road_workflow_smoke.py --display "$DISPLAY"` and the preserved `deploy/run_aviation_smoke.py` workflow with the inherited role display and isolated synthetic profiles. Save fresh media before returning ready.
 
-Playtest: deferred until controller continuation creates the final rebased head. Final-head road and jeep native workflows and fresh road media must run after resumption on the inherited role display, with isolated synthetic profiles. Existing road results and media describe the previously submitted head, not final-head recovery validation.
+The developer did not stage, continue/abort the rebase, reset, commit, push, merge or deploy. The controller owns staging and rebase continuation. Resolved file contents remain in the assigned worktree.
 
-Controller handoff: stage the resolved `dashboard/progress.json` and recovery reports, then continue the existing rebase. The unmerged index remains for the controller to resolve by staging. The developer did not stage, continue, abort, reset, commit, push, merge or deploy. Resume the developer for final-head tests and media. No owner answer is needed.
+Earlier compatibility runs: the first live-peer check exposed missing protocol-22 retry support. After adding that retry, the fixture closed before queued commands reached the peer and raised EOFException. The fixture now waits for a peer acknowledgement. Neither failed run is counted as passing.

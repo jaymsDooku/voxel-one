@@ -1,0 +1,75 @@
+{
+  "publication": "pending controller publication",
+  "sourceUnchangedDuringNativeValidation": true,
+  "productionSourceSHA256": {
+    "src/main/java/dev/jayms/net/MultiplayerClient.java": "3171593210b78a8e3bbe2fefc58623fb988636b976a655870b57bb24e38caba3",
+    "src/main/java/dev/jayms/net/Protocol.java": "94d24784cc68cbd76feb73eab65d6601ce5d0448116189b6d8718b9cf4018f64",
+    "src/main/java/dev/jayms/net/city/CityAddresses.java": "15bad171f9f7bb9db72bc839ebb0580aad4baf2236abd538d20b7cef90b988dd",
+    "src/main/java/dev/jayms/net/city/CityCommand.java": "112516b29430217f558ff715eea9c3f703af8a7a8a36998ad0282bfd9306f4dd",
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "17b8eeaae2b054a7c6bad961a4eeda79a82fabb85577d04150ff9d0004c61d71",
+    "src/main/java/dev/jayms/ui/CityTools.java": "c2794c2a3231a64c794a534fb2f2a18dfb87939fde6c27e7076cce8f5efff77e",
+    "src/main/java/dev/jayms/net/city/RoadGeometry.java": "1a4fab731386e7b5aaa365a8007e9fbcb0c6957e399f7fd74a03de431ff0e40f"
+  },
+  "artifacts": [
+    {
+      "file": "road-workflow-edited.png",
+      "bytes": 810202,
+      "sha256": "b5b5d82e3f25a8573fdd04f925e2602f6202c1a3318ca332efafa89b8d017381"
+    },
+    {
+      "file": "road-workflow-full-suite-attempt.json",
+      "bytes": 339,
+      "sha256": "9b057dbcbd37ba75cdfa14f0d3ece2a1590f72d17d3207beaf8c6712cc04a172"
+    },
+    {
+      "file": "road-workflow-guide.png",
+      "bytes": 837155,
+      "sha256": "7f041790a0376c2bb5474b2ba031c94774b19eb969d1bf0fcf1585e31a603cd5"
+    },
+    {
+      "file": "road-workflow-integration-tests.json",
+      "bytes": 1379,
+      "sha256": "1bd6ca7a5c0c87a1e44370bff7f31e0b0fa2d6f15392140acf237adf0b46b8f9"
+    },
+    {
+      "file": "road-workflow-menu.png",
+      "bytes": 805886,
+      "sha256": "773874abd110b649ce4026dd5e615186ef4198a0c893066ad461fc016194c880"
+    },
+    {
+      "file": "road-workflow-playtest.json",
+      "bytes": 501,
+      "sha256": "58146b5d713cb97a1198aa47f32fcbf8aedf9765fbeb96c3d6bd19ae27c70f80"
+    },
+    {
+      "file": "road-workflow-playtest.mp4",
+      "bytes": 3401917,
+      "sha256": "7323d42c4ff711a5c9940f2fbbfdbf00c8889b87c0f9a5b72959c1004465d573"
+    },
+    {
+      "file": "road-workflow-selected.png",
+      "bytes": 787796,
+      "sha256": "3b3474fc865498c1aebe134d612f5b431345dccf46d12b469689024986b879fb"
+    },
+    {
+      "file": "road-workflow-snap.png",
+      "bytes": 807374,
+      "sha256": "b784ddb3ab19a15e66cab52768a525f48ffd1d56879fd121e768af07f30f1b7c"
+    },
+    {
+      "file": "road-workflow-surfaces.png",
+      "bytes": 838270,
+      "sha256": "6771460f4967748ae6a74a361d426eba91e952e06562479589f1cc76326ad143"
+    },
+    {
+      "file": "road-workflow-tests.md",
+      "bytes": 7468,
+      "sha256": "2984c908fc6dde0c2c38abd88297840f14aca1df46dca92becebe5884433eb4b"
+    },
+    {
+      "file": "road-workflow-video-validation.json",
+      "bytes": 157,
+      "sha256": "f13b9abafe8774d5eee29712a52a2f5d5ad2be0b9c5a1141b4d880b1b1863ce8"
+    }
+  ]
+}

@@ -28,19 +28,36 @@ public final class CityTools {
     private static int specialRowHeight(int height) { return Math.max(12, Math.min(28, (height - 340) / 13)); }
     public int roadType;
     public boolean roadMenu;
+    private int editingStreet;
     public int tool = -1, selectedCitizen, selectedBuilding, selectedPlot, selectedStreet;
     private final List<Polygon.Point> points = new ArrayList<>();
     private Polygon.Point hover;
+    private CityCommand pendingRoad;
+
+    public void roadResult(CityCommand command, String result) {
+        if (pendingRoad != command) return;
+        pendingRoad = null;
+        message = result;
+        if (tool == 4 && points.size() == 1 && result.contains(" built:")) {
+            pendingRoad = null;
+            points.clear();
+            points.add(command.points().get(1));
+        }
+    }
     public String message = "Inspect: click a building, plot or citizen for details.";
 
     public boolean key(int key, Consumer<CityCommand> submit) {
-        if (key == GLFW_KEY_ESCAPE && (!points.isEmpty() || tool != -1 || roadMenu)) {
+        if (key == GLFW_KEY_ESCAPE && (!points.isEmpty() || tool != -1 || roadMenu || selectedStreet != 0)) {
+            pendingRoad = null;
             points.clear();
             tool = -1;
             roadMenu = false;
+            editingStreet = 0;
+            selectedStreet = 0;
             return true;
         }
         if (key == GLFW_KEY_BACKSPACE && !points.isEmpty()) {
+            pendingRoad = null;
             points.remove(points.size() - 1);
             return true;
         }
@@ -48,6 +65,7 @@ public final class CityTools {
             try {
                 new Polygon(points);
                 submit.accept(new CityCommand(CityCommand.ZONE, tool, points));
+                pendingRoad = null;
                 points.clear();
             } catch (IllegalArgumentException e) {
                 message = e.getMessage();
@@ -70,11 +88,27 @@ public final class CityTools {
             dashboardRequested = true;
             return;
         }
+        if (!roadMenu && tool == -1 && selectedStreet != 0 && x >= 16 && x <= Math.min(416,width-16)) {
+            if(y>=205 && y<233) { editingStreet=selectedStreet; roadMenu=true; return; }
+            if(y>=233 && y<261) {
+                submit.accept(new CityCommand(CityCommand.DELETE_ROAD,selectedStreet,List.of()));
+                selectedStreet=0;
+                return;
+            }
+        }
         if (roadMenu) {
             if (x >= 16 && x <= Math.min(450, width - 16) && y >= 140 && y < 252) {
                 roadType = (int) ((y - 140) / 28);
                 roadMenu = false;
+                if (editingStreet != 0) {
+                    submit.accept(new CityCommand(CityCommand.EDIT_ROAD, editingStreet,
+                            List.of(new Polygon.Point(roadType,0))));
+                    editingStreet = 0;
+                    tool = -1;
+                    return;
+                }
                 tool = 4;
+                pendingRoad = null;
                 points.clear();
                 message = "Choose the first endpoint for " + RoadTypes.NAMES[roadType];
                 return;
@@ -93,8 +127,11 @@ public final class CityTools {
         if (y >= top && y <= top + 34 && x >= 16 && x < width - 16) {
             int index = (int) ((x - 16) / ((width - 32) / 9f));
             tool = new int[] {-1, 4, 0, 1, 2, 3, 5, 6, 7}[Math.min(8, index)];
+            pendingRoad = null;
             points.clear();
             roadMenu = tool == 4;
+            editingStreet = 0;
+            selectedStreet = 0;
             return;
         }
         if (roadMenu) return;
@@ -151,12 +188,21 @@ public final class CityTools {
                 tool = -1;
                 return;
             }
+            if (tool == 4 && !points.isEmpty()
+                    && Math.floor(points.get(0).x()) == Math.floor(candidate.x())
+                    && Math.floor(points.get(0).z()) == Math.floor(candidate.z())) {
+                message = "Choose a different endpoint on clear land";
+                return;
+            }
+            if (tool == 4 && pendingRoad != null) { message = "Waiting for road placement"; return; }
             points.add(candidate);
             if (tool == 4 && points.size() == 2) {
-                submit.accept(new CityCommand(CityCommand.ROAD, roadType, points));
-                points.clear();
+                pendingRoad = new CityCommand(CityCommand.ROAD, roadType, points);
+                points.remove(1);
+                submit.accept(pendingRoad);
             }
         } catch (IllegalArgumentException e) {
+            pendingRoad = null;
             message = e.getMessage();
         }
     }
@@ -186,7 +232,8 @@ public final class CityTools {
                 }
             }
         }
-        return tool < 4 ? BuildingGuide.snapRoad(best, city) : best;
+        return tool < 4 ? BuildingGuide.snapRoad(best, city)
+                : points.isEmpty() ? best : RoadGeometry.snapZone(points.get(0),best,roadType,city);
     }
 
     public void hover(float x, float y, int w, int h, Matrix4f projection,
@@ -297,13 +344,12 @@ public final class CityTools {
                         && x < road.x() + 1
                         && z >= road.z()
                         && z < road.z() + 1) {
-                    var street = city.addresses().nearest(x, z);
-                    if (street != null) selectedStreet = street.id();
+                    selectedStreet = RoadGeometry.streetAt(city,road);
                     break;
                 }
             }
         }
-        return selectedBuilding != 0 || selectedPlot != 0;
+        return selectedBuilding != 0 || selectedPlot != 0 || selectedStreet != 0;
     }
 
     private static Vector2f project(
@@ -410,9 +456,19 @@ public final class CityTools {
         renderGuide(ui, w, h, projection, view, ground);
         boolean valid = true;
         if (tool == -1 && selectedCitizen == 0 && selectedStreet != 0) {
-            ui.rectangle(16, 140, Math.min(400, w - 32), 65, .025f, .04f, .065f, .95f);
+            ui.rectangle(16, 140, Math.min(400, w - 32), 121, .025f, .04f, .065f, .95f);
             ui.text(city.addresses().streetName(selectedStreet), 28, 152, 1.5f);
             ui.text("Public road | Mayor-owned access", 28, 179, 1.2f);
+            ui.text("Edit road type (click)",28,210,1.2f);
+            ui.text("Delete section (click)",28,238,1.2f);
+            for(var r:RoadGeometry.section(city,selectedStreet)) {
+                var a=project(r.x(),r.y()+1.06f,r.z(),projection,view,w,h);
+                var b=project(r.x()+1,r.y()+1.06f,r.z(),projection,view,w,h);
+                var c=project(r.x()+1,r.y()+1.06f,r.z()+1,projection,view,w,h);
+                var d=project(r.x(),r.y()+1.06f,r.z()+1,projection,view,w,h);
+                edge(ui,a,b,1,1,.2f); edge(ui,b,c,1,1,.2f);
+                edge(ui,c,d,1,1,.2f); edge(ui,d,a,1,1,.2f);
+            }
         }
         try {
             if (points.size() >= 3) new Polygon(points);
@@ -499,7 +555,7 @@ public final class CityTools {
                         : tool == 9 ? "Click airport to add a runway | $1000 | Clear 36 x 16 strip to south | Maximum 3 runways"
                         : tool == 10 ? "Inspect an adult citizen, then click destination airport | Citizen walks to a connected origin"
                         : tool == 4
-                        ? roadMenu ? "Choose a road | Esc: cancel" : RoadTypes.NAMES[roadType] + " | Click two endpoints: X then Z bend | $4 per new or upgraded cell | Esc: cancel"
+                        ? roadMenu ? "Choose a road | Esc: cancel" : RoadTypes.NAMES[roadType] + " | Click to chain: X then Z bend | Zone edges snap | $4 per changed cell | Esc: finish"
                         : tool >= 0 && tool < 4
                                 ? "Click convex polygon corners | Enter: zone | Backspace: undo |"
                                         + " Esc: cancel"
