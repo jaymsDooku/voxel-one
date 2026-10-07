@@ -1,0 +1,107 @@
+{
+  "base": "69f11541824d573ad1e282be73dffc2a0df682d6",
+  "baseProgressEntriesPreserved": 62,
+  "noBaseDeletions": true,
+  "audioFileSha256": {
+    "dashboard/evidence/vehicle-audio-build-check.json": "87d3402a38e1fc98ff2b67e3c2ad426aa122505c818b87ce4791f15679889140",
+    "dashboard/evidence/vehicle-audio-car-driving.wav": "3d74fc2695565abb2e74f05cf3dbd1735fba441b84c4ad88129b77eb908adcc1",
+    "dashboard/evidence/vehicle-audio-car-idle.wav": "26b097a7b5fe74548c4b0d6a2c915c9b85cbaea9fcf727cb948839a057ed2c27",
+    "dashboard/evidence/vehicle-audio-car.png": "5b976deb01e7ced88f5f87affb0d4e32d0845a69b76d803cc628e2e2da725bea",
+    "dashboard/evidence/vehicle-audio-checkpoint.md": "6a52d6ebbcc9de51adce3c7b92eb61730f4ae2822b9cdb4cee658c860c0a813b",
+    "dashboard/evidence/vehicle-audio-final-media.json": "db821729f1216323c48aabe99f06cd09220eda18114aa11caa1d7dbcd1355f2d",
+    "dashboard/evidence/vehicle-audio-final-validation.md": "e687c0a329589e7fb5cde8ba0fe89fc2239a6451705d40b4a71bea2585a5b7ed",
+    "dashboard/evidence/vehicle-audio-pcm-check.json": "d826ccbb9fb66057723b21d6249f3bf221a555a1e2246ba77bdc8ffb6d10725f",
+    "dashboard/evidence/vehicle-audio-plane-takeoff.wav": "ec49d313ba9a5a962d272ff5c96853e4727cf9bb3a3cf5ff4f7b120b0d68a098",
+    "dashboard/evidence/vehicle-audio-playtest.json": "ea44ca7fdf03f9fc57e0e203861f496cb159d747f8cadad125d2f8668244cb5c",
+    "dashboard/evidence/vehicle-audio-road-recovery.md": "50feddf53abe982359698e7c3d7f066612d27971a185986c5dd01187adbb1c0b",
+    "dashboard/evidence/vehicle-audio-source-check.json": "983ff65276394d8ad79ac56661714ee13bd4064b219a8768e2997fccbd90d93b",
+    "dashboard/evidence/vehicle-audio-takeoff.png": "bdaeda0c7320bb20bdb63e7b79f3c723cffa362355f1693e9642fa0345c344a4",
+    "dashboard/evidence/vehicle-audio-train-moving.wav": "1fe9246785dfe6f30d08baf2670de4154cf541c7cce3d6bf10e691451078b2d0",
+    "dashboard/evidence/vehicle-audio-train.mp4": "d643fdc80575a5a2c79fbfb0a08ddd0e5c53ed5e0d0ed0ee3773915a535b17af",
+    "dashboard/evidence/vehicle-audio-train.png": "c5bfc29e57ed976d575097d304d400a046d2c8586d8309202baf391ad8abb830",
+    "dashboard/evidence/vehicle-audio-video-check.json": "869a4c88386dc57d5c7a18c3c48090c22ef0ddc94c55ee1b5a5e87397ec22b16",
+    "deploy/VehicleAudioDeviceCheck.java": "7a80c79c56ea4ee3edf3cd5d7182ab8bb79cd84c6e6cbb7d200228a12683b8c3",
+    "deploy/VehicleAudioPlaytest.java": "2130822063c7f8a2a97f2029e93eccedec40443c016d6e1cce1995bd591a0de9",
+    "deploy/VerifyVehicleAudioMedia.java": "f253a36e22e7f553ea83ad87eda0a8c1455a1303e2a2bc65651d6dcb08fa9672",
+    "deploy/check_vehicle_audio_pcm.py": "8c26437be4624d9c1ec572ae31bfd34f272f6122b3d0665a3f4dd12146f5d381",
+    "deploy/run_vehicle_audio_playtest.py": "6ef73ded3cdf661221074142b9aa1794e1eae6ff3335c4471a516496983f1970",
+    "src/main/java/dev/jayms/audio/VehicleAudio.java": "1e779440bbe84cd9a60488115872933b114fb064fd2b0535190c9943c8b2c0d8",
+    "src/test/java/dev/jayms/VehicleAudioTest.java": "822339cdf5b189bc3762b0870e1fe8f9073135662c465fd469a482a78044a4a6"
+  },
+  "status": "recovery_files_ready_for_controller",
+  "tests": [
+    {
+      "name": "dev.jayms.VehicleAudioTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.RoadTypesTest",
+      "tests": "9",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.ShippingRoutesTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.ShippingTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.ShippingProtocolCompatibilityTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.ShippingAviationCompatibilityTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.RailwayShippingCompatibilityTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.BuildingInfoTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.AviationTest",
+      "tests": "10",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.RailwayTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0"
+    }
+  ],
+  "totalTests": 47,
+  "commands": [
+    "/tmp/apache-maven-3.9.11/bin/mvn --batch-mode -q -Dmaven.repo.local=target/m2 -Dlwjgl.natives=natives-linux \"-DargLine=-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=VehicleAudioTest,RoadTypesTest,ShippingRoutesTest,ShippingTest,ShippingProtocolCompatibilityTest,ShippingAviationCompatibilityTest,RailwayShippingCompatibilityTest,BuildingInfoTest,AviationTest,RailwayTest verify",
+    "git diff --check HEAD"
+  ],
+  "resolution": "Preserved complete base progress structure and vehicle audio paths; added carrier-routes only. Main auto-merge preserves all vehicle audio lifecycle and update calls plus ship rendering. No base deletion or unrelated source change.",
+  "remaining": [
+    "ShippingRoutes currently checks generated terrain only. Must use edited-world blocks and invalidate cached routes after edits.",
+    "Native return failed in independent review. Must fix/retest return and shutdown/reload, with fresh media, after Git continuation.",
+    "Full suite may run with assigned-worktree java.io.tmpdir to avoid read-only /tmp errors."
+  ],
+  "playtest": "Playtest: no new native run during pending rebase recovery. Old ship media and earlier native results are historical. Resume final-source graphical checks with inherited role DISPLAY/XAUTHORITY and isolated synthetic profiles after controller continues the rebase. Browser playtesting does not apply to the native Java/OpenGL game.",
+  "handoff": "Controller must stage resolutions and continue the rebase. Developer did not stage, continue, abort/reset, commit, push, merge or deploy."
+}

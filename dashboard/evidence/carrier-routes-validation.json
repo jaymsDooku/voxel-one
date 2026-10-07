@@ -1,0 +1,178 @@
+{
+  "status": "ready_for_independent_review",
+  "environment": "Linux; Java 17; Maven 3.9.11; X11 inherited assigned role DISPLAY and XAUTHORITY; Mesa software rendering; isolated synthetic offline profile. Browser playtesting does not apply to this native Java/OpenGL game.",
+  "implementation": {
+    "ship": "23-block stepped hull, red waterline, 18 ribbed containers, aft accommodation and glazed bridge, funnel, mast, navigation lights and wake",
+    "routes": "Automatic west-to-east neighboring coastal port links, at most 16 ports, pair distance at most 2048 blocks. Offshore anchorages are 34 blocks south of each port entrance. Entire axis-aligned corridor plus 13-block hull/turn clearance must be generated open ocean. Ship speed 4 blocks/sec; dwell 8 sec at each port. Round trips use persisted/replicated city elapsed time; no wire/save format change.",
+    "scope": "Visible cargo traffic; no economic cargo transfer or ship boarding was requested or added."
+  },
+  "tests": [
+    {
+      "name": "dev.jayms.ShippingRoutesTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.ShippingTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.ShippingProtocolCompatibilityTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.ShippingAviationCompatibilityTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.RailwayShippingCompatibilityTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.BuildingInfoTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.AviationTest",
+      "tests": "10",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.RailwayTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0"
+    }
+  ],
+  "totalTests": 37,
+  "commands": [
+    "/tmp/apache-maven-3.9.11/bin/mvn --batch-mode -q -Dmaven.repo.local=target/m2 -Dlwjgl.natives=natives-linux \"-DargLine=-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=ShippingRoutesTest,ShippingTest,ShippingProtocolCompatibilityTest,ShippingAviationCompatibilityTest,RailwayShippingCompatibilityTest,BuildingInfoTest,AviationTest,RailwayTest verify",
+    "/tmp/apache-maven-3.9.11/bin/mvn --batch-mode -q -Dmaven.repo.local=target/m2 -Dlwjgl.natives=natives-linux -DskipTests package",
+    "python3 deploy/run_carrier_routes_smoke.py --display \"$DISPLAY\"",
+    "git diff --check",
+    "javac -cp target/m2/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar -d target/carrier-media deploy/VerifyAviationMedia.java deploy/VerifyRoadVideo.java",
+    "java -Xmx512m -Djava.io.tmpdir=\"$PWD/target/tmp\" -cp target/carrier-media:target/m2/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar VerifyAviationMedia dashboard/evidence/carrier-routes-placement-playtest.mp4 dashboard/evidence/carrier-routes-video-checks.json",
+    "java -Xmx512m -Djava.io.tmpdir=\"$PWD/target/tmp\" -cp target/carrier-media:target/m2/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar VerifyRoadVideo dashboard/evidence/carrier-routes-placement-playtest.mp4 target/carrier-routes-video-end.png dashboard/evidence/carrier-routes-video-samples.json"
+  ],
+  "setupNotes": [
+    "Copied non-secret Maven dependency cache into assigned worktree target/m2 because shared /tmp cache is read-only in the sandbox.",
+    "Initial test run could not create a temp directory; rerun used assigned worktree target/tmp.",
+    "An extended native attempt clicked the open menu over the world placement point; corrected harness camera focus to keep target at viewport center, then restarted."
+  ],
+  "sourceSha256": {
+    "src/main/java/dev/jayms/Main.java": "3e08ee310ad2dba11134becb627b788a224ddcb266501f2b1836510708360638",
+    "src/main/java/dev/jayms/net/city/ShippingRoutes.java": "37c6bf8b19c79a08b57117eb918d9a9c7a7352d560149b29011f7c16e0ff9afe",
+    "src/main/java/dev/jayms/player/ShipModel.java": "39b71605a993d8807fae7ba2428f3eeea8869d2f94319e7eb97cf47157082c96",
+    "src/main/java/dev/jayms/ui/BuildingInfo.java": "5372fc2a55a085ac93ba7148de775767ebef430e2ffb5f50b4e838f273c3f3ed",
+    "src/test/java/dev/jayms/ShippingRoutesTest.java": "804217109212a6cbb12db63ab1ebea4bc7936a67cf6f5dfba3259cc5bc7150bd",
+    "deploy/CarrierRoutesSmoke.java": "57b79de8587776e6d3245ae30cbd3afc301c3ee6ca5bdbe7606db8ed8d51e44c",
+    "deploy/run_carrier_routes_smoke.py": "8e12d9e9a22b7a1ccc792a2544f5f832bf9fb340ce073f7ed3c4a988d20754a7"
+  },
+  "publication": "Pending controller staging, commit and push. No commit, push, merge or deployment performed by developer.",
+  "playtest": {
+    "entry": "Playtest: production Main on Linux X11/Mesa, inherited assigned display and authentication, isolated synthetic offline city. Native menu clicks exercised placement and camera views; real city time exercised the complete outbound voyage, destination dwell and start of return voyage.",
+    "steps": [
+      {
+        "step": "Choose Port on inland land, then click the site",
+        "expected": "No port building is created; notice explains open ocean requirement",
+        "observed": "No port building created; open-ocean notice asserted"
+      },
+      {
+        "step": "Choose Technical college level 3 and place it",
+        "expected": "Building type 22 exists",
+        "observed": "Building type 22 asserted in city snapshot"
+      },
+      {
+        "step": "Choose Port and click generated coast entrance",
+        "expected": "Permitted Coastal port; hull and dock edits exist",
+        "observed": "Permit notice, carrier hull and water beside berth asserted"
+      },
+      {
+        "step": "Click the same coastal entrance again",
+        "expected": "No duplicate building is created",
+        "observed": "Building count remained unchanged"
+      },
+      {
+        "step": "Inspect carrier from two camera angles",
+        "expected": "Hull, cargo, bridge and funnel are visible",
+        "observed": "Fresh screenshots inspected"
+      },
+      {
+        "step": "Keep only one coastal port",
+        "expected": "No sailing service exists",
+        "observed": "ships() returned an empty list"
+      },
+      {
+        "step": "Place a second coastal port through the menu",
+        "expected": "One water route forms automatically",
+        "observed": "routes().size() == 1 asserted"
+      },
+      {
+        "step": "Follow the rendered sailing carrier with real city time",
+        "expected": "Ship changes position by more than 2 blocks",
+        "observed": "Displacement > 2 blocks asserted"
+      },
+      {
+        "step": "Follow the complete outbound voyage",
+        "expected": "Ship reaches destination anchorage and waits",
+        "observed": "Position within 0.1 block of destination and sailing() == false asserted"
+      },
+      {
+        "step": "Wait at destination",
+        "expected": "Ship begins its return voyage after dwell",
+        "observed": "sailing() == true and Z > destination Z + 1 asserted"
+      },
+      {
+        "step": "Exit game and reload the synthetic save",
+        "expected": "Ports and automatic service remain available",
+        "observed": "Port persistence and exactly one restored ship asserted"
+      }
+    ],
+    "saveReload": "Port permits and automatic shipping service restored after game shutdown/reload.",
+    "observedPerformance": "Native software-rendered captures showed 1-3 FPS; this run measures correctness."
+  },
+  "mediaValidation": {
+    "status": "passed",
+    "source": "production F10 recorder in native container carrier and port route playtest",
+    "codec": "H264",
+    "bytes": 1660817,
+    "decodedFrames": 57,
+    "width": 960,
+    "height": 544,
+    "durationSeconds": 46.417,
+    "checks": [
+      "Every frame decoded",
+      "Frame count matches MP4 metadata",
+      "First and last images differ",
+      "Below 6 MB artifact limit"
+    ]
+  },
+  "mediaInspection": "Inspected fresh sailing, bridge and destination arrival PNGs and the decoded final video sample. Colored container stacks, stepped hull, bridge, funnel and port-side arrival are visible.",
+  "artifactSha256": {
+    "dashboard/evidence/carrier-routes-arrival.png": "be8f9a5a4c16a9f8fb37022a58a60390b52b4f6fe861c3a1f752bf8a223e41fc",
+    "dashboard/evidence/carrier-routes-video-checks.json": "23ddb1f8851e17ae30254294272f8862bcaffb559c57fcbfbf33ed7629e6db83",
+    "dashboard/evidence/carrier-routes-port-reverse.png": "6bde6580148bff0286578d606d1327c4070dea48dea2711cd43742cab54319a3",
+    "dashboard/evidence/carrier-routes-port-carrier.png": "1dbd2cfc25240c0820cfc01b434cde3c73539cc52461047b8aa9f539c6774b8f",
+    "dashboard/evidence/carrier-routes-placement-playtest.json": "9a0927fe11bdb26fa9188391bc03bc367212980e5a2072badfa249cf1a0c4775",
+    "dashboard/evidence/carrier-routes-sailing.png": "1912c13c1e15c935c85d9d06c58a9112924f74a3408d9f1106181a0444fbfac6",
+    "dashboard/evidence/carrier-routes-placement-playtest.mp4": "24b618a099cc36f9a0b4e179fc672118d9a70f590d44f7f1d1e0c1d954f43156",
+    "dashboard/evidence/carrier-routes-bridge.png": "851c895a78d213588c301f9631c3a8b5b032ee9d4fe055ad51de7e5a5b4b903b",
+    "dashboard/evidence/carrier-routes-return.png": "90c3bb1cccde274a40c7b5dc3e1a0c3575126e291a02642386cb4e01eedaca17",
+    "dashboard/evidence/carrier-routes-coastal-menu.png": "1f81125e8363b4607476b319e586e84351cb635931a019fe7f7ca310e6275400",
+    "dashboard/evidence/carrier-routes-inland-rejection.png": "4bc28bff64c79b12738433a798950b54b9d2adf6cdad3c974b3f79214faeb8f8",
+    "dashboard/evidence/carrier-routes-moved.png": "a4aff22c0ba8a5a5e5ce0bc3c5dfc31652f192629135cdb3e5b43f4c3e29b971",
+    "dashboard/evidence/carrier-routes-video-samples.json": "73cbad2a30de3b732d297ba70bfe9d0ea7882f78aaf1457bdf0873d7ce54c566"
+  }
+}
