@@ -75,6 +75,11 @@ public final class PhysicsLab {
         glViewport(0,0,width,height);glClearColor(.075f,.11f,.17f,1);glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);glEnable(GL_DEPTH_TEST);glEnable(GL_CULL_FACE);
         shader.bind();
         shader.setInt("uEnvironment",0);shader.setInt("uShadow",1);shader.setInt("uIrradiance",2);shader.setInt("uFineRoots",3);shader.setInt("uFineLight",4);shader.setInt("uMaterials",5);
+        // Active sampler types must use distinct units even when scene lighting is disabled.
+        shader.setInt("uVoxelRadiance",6);shader.setInt("uDistanceField",7);
+        for(int i=0;i<3;i++)shader.setInt("uCascadeProbes["+i+"]",8+i);
+        shader.setInt("uClusters",11);shader.setInt("uLightIndices",12);shader.setInt("uLights",13);
+        shader.setInt("uReflectionProbe",14);
         Vector3f eye=new Vector3f(8+(float)Math.sin(yaw)*distance,12,8+(float)Math.cos(yaw)*distance);
         shader.setMatrix4("uProjection",new Matrix4f().perspective((float)Math.toRadians(48),(float)width/Math.max(1,height),.1f,100));
         shader.setMatrix4("uView",new Matrix4f().lookAt(eye,new Vector3f(8,2,8),new Vector3f(0,1,0)));

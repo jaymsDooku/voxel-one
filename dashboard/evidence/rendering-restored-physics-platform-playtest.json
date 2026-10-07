@@ -1,0 +1,1 @@
+{"Playtest":"Production PhysicsWorld and CharacterController in native PhysicsLab; isolated fixtures; 120 steps at 1/120 second","expected":"Rising feet 4.2, descending feet 2.2, horizontal x=9; ceiling bounds head at 5.201","observed":"All four assertions passed; lab reset and walker regressions follow"}

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T21:56:33.839324+00:00",
+  "updatedAt": "2026-10-07T22:24:20.890509+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -3366,8 +3366,8 @@
         }
       ],
       "status": "in_progress",
-      "note": "Fixed stale Hi-Z after streamed geometry changes. Actual GL 3.3 and compute-backend regressions passed stationary additions, mesh rebuilds and removals after dirty flags cleared; unchanged scenes retain depth history. 88 selected tests and 39 production frames passed. Fresh media saved for controller publication; ready for independent review.",
-      "updatedAt": "2026-10-07T21:56:33.839304+00:00"
+      "note": "Physics preserved, including swept Player/Jeep collisions. Fixed PhysicsLab sampler units for the expanded shader. Full package passed 543 tests. Physics lab, walker, production (40 frames), GL3.3 and compute fixtures passed. Fresh images/video saved; ready for independent review and controller publication.",
+      "updatedAt": "2026-10-07T22:24:20.890509+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

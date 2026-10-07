@@ -1,0 +1,6 @@
+{
+  "Playtest": "Production Main offline sandbox; Linux X11 inherited role display; Mesa; isolated synthetic profile",
+  "steps": ["Gravity lands on floor","Hold W: climb 0.5-block partial voxel without jumping","Hold W: stop at 3-block wall with no overlap","Space: jump and land on original floor"],
+  "expected": "Step at y=109.5; wall stops at x=9.7; jump lands at y=109",
+  "observed": "All assertions passed"
+}

@@ -1,0 +1,1 @@
+Playtest: CLI PASS. Synthetic world; forward delta=3: x=2.69999 (expected <=2.7); reverse delta=-3: x=4.30001 (expected >=4.3); empty space x=5.0 (expected 5); unloaded boundary x=15.699989 (expected <=15.7). Browser playtesting does not apply to this collision CLI.

@@ -1,0 +1,1 @@
+{"Playtest":"Production hinge solver in native PhysicsLab render callback; synthetic unequal boxes and opposite axes","expectedMomentum":20.0,"observedMomentum":20.0,"axesDot":1.0,"observed":"Momentum conservation and opposite-axis checks passed; swing, load and walker regressions follow"}
