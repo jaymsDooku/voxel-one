@@ -46,6 +46,18 @@ public class PhysicsSmoke {
         }catch(Throwable e){failure=e;try{Files.writeString(out.resolve("failure.txt"),e.getClass().getSimpleName()+": "+e.getMessage());}catch(Exception ignored){}}finally{if(active!=null)glfwSetWindowShouldClose(active.window,true);}},"physics-native-input");input.start();
         lab.run(l->{active=l;
             if(hingeSetup&&!hingeChecked){
+                var small=new RigidBody(new Vector3f(8,6,8),new Vector3f(1),1);
+                var large=new RigidBody(new Vector3f(8,6,8),new Vector3f(3),1);
+                var momentumHinge=new Constraints.Hinge(small,large,new Vector3f(),new Vector3f(),new Vector3f(0,1,0));small.angularVelocity.x=30;
+                float before=small.angularVelocity.x/small.inverseInertia.x;
+                for(int i=0;i<10;i++)momentumHinge.solve(1f/120);
+                float after=small.angularVelocity.x/small.inverseInertia.x+large.angularVelocity.x/large.inverseInertia.x;
+                require(Math.abs(before-after)<.001f&&Math.abs(small.angularVelocity.x-large.angularVelocity.x)<.001f,"Unequal inertia conserves angular momentum");
+                var fixed=new RigidBody(new Vector3f(),new Vector3f(1),0);large.rotation.rotateX((float)Math.PI);
+                var opposite=new Constraints.Hinge(fixed,large,new Vector3f(),new Vector3f(),new Vector3f(0,1,0));
+                for(int i=0;i<10;i++)opposite.solve(1f/120);
+                float axesDot=large.rotation.transform(new Vector3f(0,1,0)).y;require(axesDot>.999f,"Opposite hinge axes align");
+                Files.writeString(out.resolve("hinge-inertia-results.json"),"{\"Playtest\":\"Production hinge solver in native PhysicsLab render callback; synthetic unequal boxes and opposite axes\",\"expectedMomentum\":"+before+",\"observedMomentum\":"+after+",\"axesDot\":"+axesDot+",\"observed\":\"Momentum conservation and opposite-axis checks passed; swing, load and walker regressions follow\"}\n");
                 float gravityY=0,impulseOmega=0,anchorError=0;
                 for(int mode=0;mode<2;mode++){
                     var w=l.scene.physics;w.bodies.clear();w.joints.clear();w.gravity.set(0,mode==0?-24:0,0);

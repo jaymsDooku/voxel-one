@@ -67,10 +67,29 @@ public final class Constraints {
             if(error.lengthSquared()>0){if(wa>0&&a.sleeping)a.wake();if(wb>0&&b.sleeping)b.wake();}
             }
             Vector3f aa=a.rotation.transform(new Vector3f(axisA)),bb=b.rotation.transform(new Vector3f(axisB));
-            Vector3f cross=bb.cross(aa);float sine=cross.length();
-            if(sine>1e-6f){cross.div(sine);float angle=(float)Math.asin(Math.min(1,sine));if(wa>0)a.rotation.rotateAxis(-angle*wa/sum,cross.x,cross.y,cross.z);if(wb>0)b.rotation.rotateAxis(angle*wb/sum,cross.x,cross.y,cross.z);}
-            Vector3f relative=new Vector3f(b.angularVelocity).sub(a.angularVelocity);relative.sub(new Vector3f(aa).mul(relative.dot(aa)));
-            a.angularVelocity.fma(wa/sum,relative);b.angularVelocity.fma(-wb/sum,relative);
+            Vector3f cross=new Vector3f(bb).cross(aa);float sine=cross.length(),dot=bb.dot(aa);
+            if(sine>1e-6f||dot<0){
+                if(sine>1e-6f)cross.div(sine);else cross.set(tangent(aa));
+                Vector3f impulse=projectedImpulse(cross.mul((float)Math.atan2(sine,dot)),aa,wa,wb);
+                if(wa>0){var angular=a.inverseInertiaWorld(impulse).negate();a.rotation.integrate(1,angular.x,angular.y,angular.z).normalize();}
+                if(wb>0){var angular=b.inverseInertiaWorld(impulse);b.rotation.integrate(1,angular.x,angular.y,angular.z).normalize();}
+            }
+            aa=a.rotation.transform(new Vector3f(axisA));
+            Vector3f impulse=projectedImpulse(new Vector3f(b.angularVelocity).sub(a.angularVelocity),aa,wa,wb);
+            if(wa>0)a.angularVelocity.add(a.inverseInertiaWorld(impulse));
+            if(wb>0)b.angularVelocity.sub(b.inverseInertiaWorld(impulse));
+        }
+        private Vector3f tangent(Vector3f axis){return new Vector3f(axis).cross(Math.abs(axis.x)<.8f?new Vector3f(1,0,0):new Vector3f(0,1,0)).normalize();}
+        private Vector3f angularResponse(Vector3f impulse,float wa,float wb){
+            Vector3f result=new Vector3f();if(wa>0)result.add(a.inverseInertiaWorld(impulse));if(wb>0)result.add(b.inverseInertiaWorld(impulse));return result;
+        }
+        // Two constrained angular directions; spin around the hinge remains free.
+        private Vector3f projectedImpulse(Vector3f target,Vector3f axis,float wa,float wb){
+            Vector3f u=tangent(axis),v=new Vector3f(axis).cross(u),ku=angularResponse(u,wa,wb),kv=angularResponse(v,wa,wb);
+            float xx=u.dot(ku),xy=u.dot(kv),yy=v.dot(kv),det=xx*yy-xy*xy;
+            if(det<=1e-12f)return new Vector3f();
+            float x=target.dot(u),y=target.dot(v);
+            return u.mul((yy*x-xy*y)/det).fma((xx*y-xy*x)/det,v);
         }
         private Vector3f response(Vector3f direction,Vector3f ra,Vector3f rb,float wa,float wb) {
             Vector3f result=new Vector3f(direction).mul(wa+wb);

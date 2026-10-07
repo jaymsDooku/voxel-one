@@ -1,0 +1,74 @@
+{
+  "sourceHeadBeforeControllerCommit": "c83bf6e012b4f8cdce24e226416b7351d92265d7",
+  "reviewBase": "41ed6e88d231435559810c788416832d2b13d136",
+  "change": "Hinge-axis velocity constraints solve a 2x2 projection of summed world inverse inertia, then apply equal-and-opposite angular impulses. Alignment uses atan2 and a deterministic perpendicular axis at antiparallel orientations, with world-inertia pose corrections. Hinge-axis spin stays free.",
+  "commands": [
+    {
+      "command": "mvn -q -Dmaven.repo.local=target/maven-cache -Dmaven.compiler.release=17 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Djvm=/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Dtest=HingeInertiaTest,HingeSwingTest,PlatformCarryTest,DistanceLoadTest,PhysicsTest,CcdMotionTest,ForceInertiaTest,PlayerTest,JeepTest package > target/hinge-inertia-build.txt 2>&1",
+      "result": "exit 0; 68 focused tests, zero failures/errors; package built"
+    },
+    {
+      "command": "python3 deploy/run_physics_smoke.py --display \"$DISPLAY\"",
+      "result": "exit 0; lab and production Main walker passed"
+    },
+    {
+      "command": "python3 deploy/run_physics_cli_smoke.py --display \"$DISPLAY\" --java /usr/lib/jvm/java-17-openjdk-amd64/bin/java",
+      "result": "exit 0; packaged lab opened and Escape closed it"
+    },
+    {
+      "command": "git diff --check",
+      "result": "exit 0"
+    }
+  ],
+  "Playtest": {
+    "environment": "Linux X11; inherited assigned DISPLAY/XAUTHORITY without reading cookie; Mesa software rendering; isolated synthetic profiles under target",
+    "steps": "In running PhysicsLab render callback, solve unequal 1 kg boxes with half sizes 1 and 3, centre anchors and perpendicular angular motion for ten solves. Solve opposite axes ten times. Then exercise gravity/impulse swing, static anchors, sustained load and overload, all platform cases, force/inertia and CCD sliding; all five lab scenes and Main walker stair/wall/jump/landing.",
+    "expected": "Angular momentum remains 20 kg\u00b7m\u00b2/s; opposite-axis dot becomes 1. Free hinge-axis spin stays unchanged. Prior physics workflows pass.",
+    "observed": {
+      "Playtest": "Production hinge solver in native PhysicsLab render callback; synthetic unequal boxes and opposite axes",
+      "expectedMomentum": 20.0,
+      "observedMomentum": 20.0,
+      "axesDot": 1.0,
+      "observed": "Momentum conservation and opposite-axis checks passed; swing, load and walker regressions follow"
+    },
+    "regressions": {
+      "Playtest": "Production PhysicsWorld in native PhysicsLab; isolated fixtures, 120 Hz",
+      "expected": "Gravity lowers offset centre below 5.99 and rotates; centre impulse gives omega.z below -0.1; anchor error below 0.01; static anchor fixed",
+      "gravityY": 5.601623,
+      "impulseOmegaZ": -0.48647267,
+      "anchorError": 0.0,
+      "observed": "All assertions passed"
+    },
+    "visual": "Fresh hinge image inspected; rotated body and fixed anchor visible.",
+    "browser": "Not applicable: native Java LWJGL game."
+  },
+  "media": {
+    "status": "passed",
+    "source": "production F10 recorder in native physics collapse playtest",
+    "codec": "H264",
+    "bytes": 155723,
+    "decodedFrames": 12,
+    "width": 816,
+    "height": 544,
+    "durationSeconds": 3.017,
+    "checks": [
+      "Every frame decoded",
+      "Frame count matches MP4 metadata",
+      "First and last images differ",
+      "Below 6 MB artifact limit"
+    ]
+  },
+  "audit": "Entire diff against review base audited: physics work, intended Main/Player/Jeep integration and retained reviewer artifacts only. No deleted files. 189 upstream files and 71 prior progress entries preserved. Intentional Player axis-loop and Jeep inline-query replacements use shared voxel sweeps.",
+  "limits": [
+    "Full suite and macOS CI are not claimed passed; controller must verify CI.",
+    "Advanced simulations remain explicit lab/API integrations.",
+    "Fresh media awaits controller publication; prior reports retain historical provenance."
+  ],
+  "sha256": {
+    "src/main/java/dev/jayms/physics/Constraints.java": "0b157eb9f652e0953d066b50da4fb48473c84efe7d04923645c98cffea2d3772",
+    "src/test/java/dev/jayms/physics/HingeInertiaTest.java": "d9966ba4f052a9a2bb5bd54a4fb584122e2106d0b078c9828f8d11f139895fae",
+    "deploy/PhysicsSmoke.java": "c078e87ba3afc0524f280c6d9da1add5cf918403537195c795fdd5a67824cf3f",
+    "dashboard/evidence/physics-hinge-swing.png": "a4ec81799bdf7756ccb37a4ccf36c743350d4e12ae7d5b5f06f03eca88a8dec4",
+    "dashboard/evidence/physics-collapse.mp4": "3aad84618a8431fc3fbb9277f1f286f99a186a13f40cb998add5cd488bd1fd1e"
+  }
+}
