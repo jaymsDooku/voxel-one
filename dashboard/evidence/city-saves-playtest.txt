@@ -1,82 +1,60 @@
-Current rebase recovery status
-Authoritative reviewed base: bb657412e77bc87213dbf498730d372045716394. Earlier audit against 495cb40 omitted reviewed right-angle routing and is superseded.
-All right-angle source, preview, regression tests, harness and historical evidence match the authoritative base. Every base dashboard entry remains. Save feature and added validation harness remain. Controller must stage contents and finish rebase before final-head tests and fresh captures. Earlier 366-test results and native media below are historical and do not validate this recovered head.
+City saves: final recovered-head validation
+Tested application source: 18dce190da71830fc0264e98267013ef95ca093d
+Authoritative reviewed base: bb657412e77bc87213dbf498730d372045716394
+Status: local validation passed; controller publication and independent review pending.
 
-Historical validation record from the incoming commit:
-Current restored-base validation
-Source HEAD 1f621db; parent reviewed base 495cb40. Independent review and controller publication pending.
+Base audit: all 14 right-angle source, preview, regression tests, harness and historical evidence files match the reviewed base byte for byte. Every base dashboard entry remains unchanged. git diff --name-status bb657412e77bc87213dbf498730d372045716394 HEAD contains only save additions, Main/ControlsMenu integration and save dashboard data. No reviewed-base source, tests, docs or historical evidence was deleted. The previous audit against 495cb40 omitted the later right-angle feature and is superseded by this audit.
 
-Restoration audit: RoadSpacing, CitySimulation, MultiplayerServer, AgricultureTest, ManufacturingTest, RoadSpacingTest and docs match 495cb40 byte for byte. All base dashboard entries and 104 historical evidence/checkpoint files are preserved. HEAD^..HEAD contains only save-related changes.
+Executed Maven command (exit 0):
+mvn -q -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux -DargLine="-Djava.io.tmpdir=$PWD/target/tmp" -Dtest=CitySavesTest,RoadTypesTest,RoadSpacingTest,ManufacturingTest,AgricultureTest,CityTest,ControlsTest,JeepTest,CraftingTest,SurvivalTest test
+Expected: save storage, right-angle routes, spacing, graduate factory recruitment, agriculture, city persistence, controls, vehicles, crafting and survival pass.
+Observed: 61 tests across 10 suites; zero failures, errors or skips. RoadTypesTest ran 7 tests, including the exact type-2 road from (150,150) to (160,160): (158,150) exists and (155,155) is absent. Negative-coordinate floor routing, reverse/all-type bends, same-cell rejection and second-leg collision atomicity passed. Structured suite results are in city-saves-regression-results.json.
 
-Playtest: python3 deploy/run_city_saves_smoke.py --display "$DISPLAY" (exit 0). Linux inherited X11/XAUTHORITY, LIBGL_ALWAYS_SOFTWARE=1, synthetic target/city-saves-profile, temp target/tmp. No display server started or authentication cookie read. All workflow steps in the historical detailed record below were rerun and passed: save, copy, duplicate rejection, new city, list, load, independent state, same window across four scene starts, resume and F6. Both PNGs regenerated. Inspected images and raw ImageIO text counts: title 999, Save a copy 311, New city 247 in each. Initial driver compilation started before Maven finished rebuilding and failed with missing classes; only the later exit-0 run supports this result.
+Playtest: python3 deploy/run_city_saves_smoke.py --display "$DISPLAY" (exit 0).
+Environment: Linux inherited assigned X11 DISPLAY and XAUTHORITY; LIBGL_ALWAYS_SOFTWARE=1, WAYLAND_DISPLAY removed. Synthetic user.home target/city-saves-profile, temp target/tmp. Removed only the previous synthetic target/city-saves-profile before execution. No personal profile used. No display server started or authentication cookie read. Runtime logs stayed private and were not read.
+Steps, expected and observed:
+1. xdotool Escape and click opened Controls > City saves. Menu appeared.
+2. Save current wrote world/city files.
+3. Typed Harbour, clicked Save a copy. Harbour became active; original 200-second synthetic city clock, roads and building count survived.
+4. New city named Harbour rejected the duplicate without switching. Fresh city-saves-duplicate.png captured the error.
+5. Replaced name with Hills, clicked New city. Fresh clock below 30 seconds and city mode retained despite synthetic sandbox launch defaults. Set independent synthetic clock to 50 seconds.
+6. Reopened menu. Original city, Harbour and Hills listed; fresh city-saves-menu.png captured.
+7. Loaded Original city. Original clock at least 200 seconds and roads/building count restored. Original/Harbour and Hills persisted independently; Hills clock between 50 and 80 seconds.
+8. Escape resumed play; F6 toggled view off. Same native window survived all four scene starts.
+All expected assertions passed. Browser testing does not apply to this native desktop app.
 
-Playtest: python3 deploy/run_factory_staffing_smoke.py --display "$DISPLAY" --max-spacing (exit 0). Same inherited X11 display; isolated target/factory-home. Expected graduate staffing, commute, production, tool deliveries and shop coverage at 2-block pedestrian/mounted gaps. Observed all assertions passed, processedAt700=10, both tool deliveries and native inspector passed. Fresh F10 MP4, PNG and results saved as city-saves-restored-factory.* / city-saves-restored-factory-results.json. Historical road-spacing-factory evidence restored byte for byte after capture.
+Playtest: python3 deploy/run_city_saves_road_smoke.py --display "$DISPLAY" (exit 0).
+Environment: same inherited X11/XAUTHORITY and software OpenGL; isolated target/road-home, target/road-runtime and target/tmp. Launcher uses target/maven-cache and the unchanged reviewed-base RoadPlacementSmoke.java. No display server started. Runtime logs stayed private and were not read.
+Real mouse input selected each road type, clicked endpoints and placed roads. Expected correct dirt/paved 2/3/4-lane widths and direction guides; all passed. Off-axis type-2 road preview used an X-then-Z bend; placed cells on both legs, no diagonal shortcut. Reverse-direction bend passed. Dirt upgraded through the menu. Escape after the first endpoint left road cells and spending unchanged; cancelling the menu returned to inspect. Fresh preview/built PNGs inspected and show the guide and completed bend. Production F10 recording saved as city-saves-right-angle-playtest.mp4 (5,297,965 bytes, below 6 MB). Historical right-angle evidence remains unchanged. Results in city-saves-right-angle-playtest.json.
 
-Playtest: python3 deploy/run_road_spacing_smoke.py --display "$DISPLAY" --pedestrian-spacing 0 --mounted-spacing 0 --output target/city-saves-restored-zero (exit 0). Same inherited display; synthetic target/spacing-home. Expected zero-spacing movement and inventory regression. Observed 211 moving samples, 59 mounted samples, minimum clearance margin 0.0 blocks, inventory opened/closed. Fresh PNG and results saved as city-saves-restored-zero.png and city-saves-restored-zero-results.json. Harness hardcodes Xvfb in its result label; published JSON corrects that label to actual inherited X11. No Xvfb was started.
-
-CLI integration commands: javac -cp <contents of target/spacing-classpath.txt> -d target/test-classes deploy/CliSpacingProbe.java; java -cp target/test-classes:<same classpath> CliSpacingProbe. Executed via subprocess.run in Python; exit 0. Expected Main.main accepts both gaps at 0 and 2, rejects -1. Observed configuration equals 0 then 2; unknown --probe-stop triggers Usage only after values apply; -1 rejected before sentinel. Probe source retained in deploy/CliSpacingProbe.java. Browser testing does not apply to this native desktop app/CLI.
-
-python3 deploy/build_site.py (exit 0): built landing page, 19 documentation sections and dashboard. No publication performed.
-
-Full regression command (exit 0):
-mvn -q -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux -DargLine="-Djava.io.tmpdir=$PWD/target/tmp" test
-Expected: every existing and restored suite passes alongside the save feature.
-Observed: 366 tests across 66 suites; zero failures, errors or skips. Restored RoadSpacingTest: 3 tests; AgricultureTest: 8; ManufacturingTest: 8. CitySavesTest: 2. All passed. Completed Surefire XML covers all 66 test source classes.
-
-Exact CLI probe execution:
+CLI integration (exit 0), executed command:
 python3 - <<'PYCLI'
 from pathlib import Path
 import subprocess
-cp=Path('target/spacing-classpath.txt').read_text()
+cp=':'.join(['target/classes','target/test-classes']+[str(p) for p in Path('target/maven-cache').rglob('*.jar') if 'natives-windows' not in p.name])
 subprocess.run(['javac','-cp',cp,'-d','target/test-classes','deploy/CliSpacingProbe.java'],check=True)
-subprocess.run(['java','-cp','target/test-classes:'+cp,'CliSpacingProbe'],check=True)
+subprocess.run(['java','-cp',cp,'CliSpacingProbe'],check=True)
 PYCLI
-Observed exit 0 and PASS: Main CLI accepts 0 and 2 for both gaps; rejects -1 before app startup.
+Expected Main.main accepts pedestrian/mounted spacing 0 and 2, rejects -1. Observed configuration equals supplied boundaries; --probe-stop Usage sentinel reached only after valid values applied; negative rejected before sentinel. No app window opened by this parser check.
 
-Final hygiene: git diff --check (exit 0). Controller handles staging, commit, push and review. Fresh save, factory and zero-gap media is pending controller publication. No credentials, prompts, answers, account data or runtime logs are included.
+Earlier 366-test and factory/zero-spacing artifacts remain historical. They do not support current-head results. Fresh save and right-angle artifacts above were captured from this recovered implementation. No prompts, answers, credentials, private account data or runtime logs are included. Publication remains with the controller.
 
 Current source SHA-256:
 e6a9c4272b739a48d3a75c42979370c01fd37476e514c360a2b1c6d9b8d6d8f3  src/main/java/dev/jayms/Main.java
-2b9848977cdd057dac86a2f547e57e4e351e48ac8ab15ba52fc9df1df5721d10  src/main/java/dev/jayms/net/city/CitySimulation.java
-87e84a3a1895d81f4e44a2e7439af9d6cb73927ec134cdec8bbc78c9ddc61316  src/main/java/dev/jayms/net/city/RoadSpacing.java
+2b5720ab5efa6e08ffbe45f02f12f370e377592252e2c286a2d462d39d7cb6a7  src/main/java/dev/jayms/net/city/RoadRoute.java
+21314ca3d5d163a9403fd22209c5d30d0366bb6668f757ec8bc516cab603dd60  src/main/java/dev/jayms/net/city/CitySimulation.java
+46178c481aa64a32e64d3dbec1d0b0f285d114ca5dbeedaa69316d0b75ae28cb  src/main/java/dev/jayms/ui/CityTools.java
 9360e66ed566285b95973e6b0cb1e01fe1da6b84dcd14829863cb0031d51d5ca  src/main/java/dev/jayms/net/CitySaves.java
+04b6ec93372e3736cc5a0794b8351655edd78cce3b9b4b88ec889bd45ef6140d  src/main/java/dev/jayms/ui/SavesMenu.java
+2bba1ed0cd0e34f4d4b4e96cbe8be3d9b64a851fefe989b72c7f6249711124c6  src/test/java/dev/jayms/RoadTypesTest.java
 32ffe4ac8ec4a7f8d110e1086d165a48e53003f7c90aba95440c757c02521378  deploy/CitySavesSmoke.java
-f1573af9bb7daab68ad2da96946bda322edcacd997072fe735290ebd9e8e668b  deploy/CliSpacingProbe.java
+6c268ba4162e4afbee86390d09f377329f1e62b6f835335a76d37d8ef01b2d92  deploy/run_city_saves_road_smoke.py
 
-Historical detailed validation record (earlier head; current native steps repeated above):
-City saves: final developer validation
-Status: implementation and local checks finished; independent review and controller publication pending.
+Final checks: python3 deploy/build_site.py (exit 0), built landing page, 19 navigable documentation sections and dashboard; git diff --check (exit 0). Save and road PNGs inspected. No website or artifact publication performed.
 
-Behavior: Escape > City saves in local city mode lists existing saves, saves the current simulation, saves a named copy, creates a fresh city, and loads a selected city. The original city remains available. Each named slot owns world.dat, world.dat.city and world.dat.jeep. Loading saves the active city first. Scene resources and input callbacks are replaced while the window and GL context stay alive. City settings come from the active simulation, including a city loaded under sandbox launch defaults. Browsing pauses the city clock. Multiplayer persistence remains under server control.
-
-Executed command (exit 0):
-mvn -q -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux -DargLine="-Djava.io.tmpdir=$PWD/target/tmp" -Dtest=CitySavesTest,CityTest,ControlsTest,JeepTest,CraftingTest,SurvivalTest test
-Expected: named saves stay isolated; original files survive failed copies; invalid, duplicate and reserved names are rejected; existing city persistence, controls, vehicles, crafting and survival remain valid.
-Observed: 35 tests passed; zero failures, errors or skipped tests.
-CitySavesTest: 2 tests, 0 failures, 0 errors, 0 skipped
-CityTest: 10 tests, 0 failures, 0 errors, 0 skipped
-ControlsTest: 5 tests, 0 failures, 0 errors, 0 skipped
-JeepTest: 8 tests, 0 failures, 0 errors, 0 skipped
-CraftingTest: 6 tests, 0 failures, 0 errors, 0 skipped
-SurvivalTest: 4 tests, 0 failures, 0 errors, 0 skipped
-
-Playtest: python3 deploy/run_city_saves_smoke.py --display "$DISPLAY" (exit 0)
-Environment: Linux X11; inherited assigned role display and XAUTHORITY. No display server was started. Software rendering enabled with LIBGL_ALWAYS_SOFTWARE=1. Isolated synthetic user.home: target/city-saves-profile. Runtime temp directory: target/tmp. No personal profile or account data was used.
-Renderer: llvmpipe (LLVM 15.0.6, 256 bits)
-OpenGL: 4.5 (Core Profile) Mesa 22.3.6
-Steps, expected and observed results:
-1. Real xdotool Escape and mouse input opened Controls > City saves. Expected menu visible; observed menu open.
-2. Clicked Save current. Expected city sidecar written; observed world and city saves present.
-3. Typed Harbour and clicked Save a copy. Expected another active save with original state; observed Harbour active with the synthetic 200-second clock, saved roads and building count restored.
-4. Tried New city with name Harbour. Expected duplicate rejection with no switch; observed error "That name already exists. Choose another name." and unchanged active simulation. Captured city-saves-duplicate.png.
-5. Replaced the name with Hills and clicked New city. Expected a fresh clock and city mode despite synthetic sandbox launch defaults; observed elapsed time below 30 seconds and city mode retained. Marked Hills with an independent synthetic 50-second clock.
-6. Reopened the menu. Expected three saves; observed Original city, Harbour and Hills. Captured city-saves-menu.png.
-7. Selected Original city and clicked Load selected. Expected original state restored and Hills saved independently; observed original clock at least 200 seconds, matching roads and building count, three persistent slots, Harbour/original clocks at least 200 seconds and Hills clock between 50 and 80 seconds.
-8. Resumed with Escape and pressed F6. Expected normal view controls; observed menu closed and isometric view toggled off.
-9. Across four scene starts, expected one window and GL context; observed the same native window handle throughout.
-All workflow assertions ran. Browser playtesting does not apply to this native desktop application.
-
-Media: both 1280 x 720 PNGs were regenerated by the final native run. They capture this implementation with synthetic cities. Static images suit this menu; no motion recording was needed. A raw ImageIO pixel check confirmed intact title and action labels in both images: title 999 bright pixels, Save a copy 311, New city 247; these match the separate native menu render diagnostic. No image editing was performed.
-
-Other check: git diff --check (exit 0).
-Limits/history: the earlier full regression run was interrupted for the requested operator pause and is not claimed as a full-suite pass. Earlier 100-second native runs timed out; the final bounded harness uses 300 seconds and completed. An intermediate mixed-source compilation failed the newly added reserved-name assertion; rebuilding final sources passed it. Only the successful final-source commands above support this handoff. Image-preview misreads were checked against raw PNG pixels; no font-renderer defect is claimed.
+Fresh media SHA-256:
+ef9d1dd696e6e5f07679738ced6ce725d914d87f5d126572ff25e5343b3e16a7  city-saves-menu.png
+5ec544930a8970837cab4ce840de146440c1c01c1ca40119902ca362298412fb  city-saves-duplicate.png
+9e1d11732c8c778ccf9672a4f9883a2fb7db1ad9ec5c3157a6c2c800027b4deb  city-saves-right-angle-preview.png
+f42ea726ba5d48939f205fb2f87adc8cff256f01c49fea17216769926ad5cffa  city-saves-right-angle-built.png
+d2bc2ade8357233a46d63511ec2deba0ca3fe88547f019750796de31a90a989c  city-saves-right-angle-playtest.mp4
