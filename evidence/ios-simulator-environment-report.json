@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "expectedHead": "73f4fee94100e5b678a34c57a028bbe84a765b0f",
+  "sourceHead": "73f4fee94100e5b678a34c57a028bbe84a765b0f",
+  "requestId": "197b709a-43c3-4477-b145-e0fb40f88e8f",
+  "mode": "preflight",
+  "status": "passed",
+  "environmentReady": true,
+  "clientChecked": false,
+  "evidence": [
+    {
+      "path": "preflight.png",
+      "bytes": 176318,
+      "sha256": "14df05bbb4834ed32a941ebe8e1bc32b30e9c3d5bc69e63b830acb70e6db63b5",
+      "kind": "image",
+      "description": "Fresh iPhone simulator home screen; environment preflight, not Voxel One client evidence."
+    }
+  ],
+  "phase": "complete",
+  "environment": {
+    "macOS": "15.7.9",
+    "xcode": "Xcode 16.4\nBuild version 16F6",
+    "simulatorSDK": "18.5"
+  },
+  "inventoryAttempts": 1,
+  "runtime": {
+    "identifier": "com.apple.CoreSimulator.SimRuntime.iOS-18-5",
+    "name": "iOS 18.5",
+    "version": "18.5"
+  },
+  "deviceType": {
+    "identifier": "com.apple.CoreSimulator.SimDeviceType.iPhone-SE-3rd-generation",
+    "name": "iPhone SE (3rd generation)"
+  },
+  "udid": "D6A53F16-06BC-4CC0-BCD6-412EC9F78647",
+  "cleanup": "passed"
+}
