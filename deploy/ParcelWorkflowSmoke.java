@@ -122,6 +122,22 @@ public class ParcelWorkflowSmoke {
                         capture="parcel-layout-"+algorithm+".png";x("getwindowfocus");Thread.sleep(500);
                     }
                 }
+                // Check parcel input and state across the newly merged engine workspace.
+                var beforeEditor=zone;int beforeAlgorithm=tools.parcelAlgorithm;int beforeTool=tools.tool;
+                x("key","F11");var workspace=(EngineEditor)get("engineEditor");
+                require(workspace.open,"F11 opens engine workspace");double pausedTime=city().elapsed();
+                x("key","bracketright");x("key","v");x("key","p");click(80,265);x("key","Down");
+                require(tools.parcelAlgorithm==beforeAlgorithm&&tools.tool==beforeTool&&!tools.parcelApply&&!tools.parcelPreview,"Workspace isolates parcel input");
+                require(city().elapsed()==pausedTime,"Offline city clock pauses in workspace");
+                require(city().zones().stream().filter(z->z.id()==zoneId).findFirst().orElseThrow().equals(beforeEditor),"Workspace does not mutate parcels");
+                onFrame(()->{local.save();return null;});
+                var workspaceSave=CitySimulation.load(CitySaves.sidecar(out.resolve("synthetic-world.dat"),".city"));
+                require(workspaceSave.zones().stream().filter(z->z.id()==zoneId).findFirst().orElseThrow().equals(beforeEditor),"Save while workspace open preserves parcels");
+                capture="parcel-editor-isolation.png";x("getwindowfocus");
+                x("key","F11");require(!workspace.open,"F11 returns to city");x("getwindowfocus");
+                require(tools.parcelAlgorithm==beforeAlgorithm&&tools.tool==beforeTool,"Workspace return retains zoning choice");
+                require(city().elapsed()>pausedTime,"City clock resumes after workspace return");
+                capture="parcel-editor-return.png";x("getwindowfocus");
                 x("key","F10");
                 choose(tools,2);x("key","p");point(98,154);
                 zone=city().zones().stream().filter(z->z.id()==zoneId).findFirst().orElseThrow();
@@ -149,7 +165,7 @@ public class ParcelWorkflowSmoke {
                 camera.focus(98,182,city().roads().get(0).y()+1);x("getwindowfocus");menu(0);point(80,182);point(116,182);
                 require(city().roads().stream().anyMatch(r->r.x()==98&&r.z()==182),"Road placement regression");
                 x("key","Escape");x("key","F10");Thread.sleep(1500);
-                Files.writeString(out.resolve("results.json"),"{\"status\":\"passed\",\"layouts\":"+layouts+",\"checks\":[\"real UI zoning and grid parcels\",\"15 layout choices applied\",\"preview does not mutate zones\",\"partition invariants\",\"real save/reload\",\"production construction fits parcel\",\"purchased plot protects layout\",\"road placement regression\"],\"setup\":\"synthetic city; autonomous purchasing deferred during comparisons; one construction pass isolated to tested zone\",\"profile\":\"isolated synthetic city\",\"platform\":\"Linux inherited X11 Mesa\"}");
+                Files.writeString(out.resolve("results.json"),"{\"status\":\"passed\",\"layouts\":"+layouts+",\"checks\":[\"real UI zoning and grid parcels\",\"15 layout choices applied\",\"preview does not mutate zones\",\"partition invariants\",\"real save/reload\",\"production construction fits parcel\",\"purchased plot protects layout\",\"engine workspace input isolation and paused clock\",\"workspace save and return preserve parcels\",\"road placement regression\"],\"setup\":\"synthetic city; autonomous purchasing deferred during comparisons; one construction pass isolated to tested zone\",\"profile\":\"isolated synthetic city\",\"platform\":\"Linux inherited X11 Mesa\"}");
             } catch(Throwable e) {
                 failure=e;
                 try { Files.writeString(out.resolve("failure.txt"),e.getClass().getSimpleName()+": "+e.getMessage()); } catch(Exception ignored) {}
