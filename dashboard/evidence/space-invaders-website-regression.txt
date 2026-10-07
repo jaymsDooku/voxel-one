@@ -1,0 +1,60 @@
+TAP version 13
+# Subtest: deployment package includes the current queue worker and bridge
+ok 1 - deployment package includes the current queue worker and bridge
+  ---
+  duration_ms: 2.287954
+  ...
+# Subtest: packaged route returns all Voxel queue items without question database or saved assets
+ok 2 - packaged route returns all Voxel queue items without question database or saved assets
+  ---
+  duration_ms: 66.630988
+  ...
+# Subtest: packaged queue route preserves browser authentication requirement
+ok 3 - packaged queue route preserves browser authentication requirement
+  ---
+  duration_ms: 0.758675
+  ...
+# Subtest: bridge rejects anonymous and service callers without browser identity
+ok 4 - bridge rejects anonymous and service callers without browser identity
+  ---
+  duration_ms: 67.48743
+  ...
+# Subtest: unconfigured queue returns recoverable unavailable status
+ok 5 - unconfigured queue returns recoverable unavailable status
+  ---
+  duration_ms: 1.890561
+  ...
+# Subtest: fixed Voxel projection forwards credentials only to General Site and excludes private fields
+ok 6 - fixed Voxel projection forwards credentials only to General Site and excludes private fields
+  ---
+  duration_ms: 5.230713
+  ...
+# Subtest: upstream errors and invalid schema do not leak private diagnostics
+ok 7 - upstream errors and invalid schema do not leak private diagnostics
+  ---
+  duration_ms: 3.124453
+  ...
+# Subtest: queue remains available when AbortSignal.timeout is absent in the runtime
+ok 8 - queue remains available when AbortSignal.timeout is absent in the runtime
+  ---
+  duration_ms: 2.664166
+  ...
+# Subtest: optional recorded snapshot never prevents live queue delivery
+ok 9 - optional recorded snapshot never prevents live queue delivery
+  ---
+  duration_ms: 6.645684
+  ...
+# Subtest: bridge aborts the upstream request on timeout and clears its timer
+ok 10 - bridge aborts the upstream request on timeout and clears its timer
+  ---
+  duration_ms: 1.635007
+  ...
+1..10
+# tests 10
+# suites 0
+# pass 10
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 313.399181

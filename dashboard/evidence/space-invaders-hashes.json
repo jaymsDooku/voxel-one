@@ -1,0 +1,20 @@
+{
+  "games/space-invaders/game.test.mjs": "77e5524ffcf6b3720d04cd231dea0538c0d6653af832e4662e9e29a27cfd83b6",
+  "games/space-invaders/game.mjs": "c782793a33e17def20a353f43a43d7152cd1493adbcc389c5ee24f6a8652ca5e",
+  "games/space-invaders/app.mjs": "015978ec14979d0ffdc58372b9574e4334608a1d34abe0cf0fdc18929b380661",
+  "games/space-invaders/style.css": "04ae2841f244127efd0e745b591f925cdb17b09fbb242b0f12bcf4d792ac8fc8",
+  "games/space-invaders/index.html": "277d311e522059669576b04d35db885ac0f92a1b78e98a5826a48bf2e2a7ac3a",
+  "games/space-invaders/README.md": "6669442187b322412259c5d1c6b8e9b271a879eda5df4aa572f40d3269ef0e7b",
+  "deploy/test_space_invaders_layout.cjs": "dcc0c5fb2aab919cadca892e64b54f94c64d3e6c3ee10ecfb418ead2d53e5a25",
+  "dashboard/evidence/space-invaders-touch.png": "d0d6c6928a4e40c8795a969b2f8e427b60b5619998565c005f6c5fcfcdeaa182",
+  "dashboard/evidence/space-invaders-667x375-start.png": "c8b8b10f4c31e453b5800d9f6b0c3cd0b13426e49d29826b6b9cf6eefc2bbb43",
+  "dashboard/evidence/space-invaders-landscape.png": "bb484e056787eacf9008d3440ebd623ac54c541fbd36d80fcfb58980b3529bc3",
+  "dashboard/evidence/space-invaders-568x320-game-over.png": "9b90a56359594a24b913fb625bdc761c71b2fbbd6eeefa1798cb664b59094294",
+  "dashboard/evidence/space-invaders-568x320-playing.png": "2edef56d42f816819bfc0dbf7e6d8dd6e78cb0d528456d109ebf4d412348237d",
+  "dashboard/evidence/space-invaders-667x375-paused.png": "0057e32f272d4924486779975a306bb00373881cda5844ed198e1e9c149ac367",
+  "dashboard/evidence/space-invaders-667x375-game-over.png": "f3ff741cdf068742614a5dcda149d384b601be0fa1e9eda3b7e0324493d53a74",
+  "dashboard/evidence/space-invaders-667x375-playing.png": "dffd988e24db82d8ce09081cf5123d98ce16ad6050eb06d94c70084ced009a6a",
+  "dashboard/evidence/space-invaders-568x320-start.png": "23741d43b428d039edfae164b09a327f0247e70e1f7220374007f4f3b501a96a",
+  "dashboard/evidence/space-invaders-desktop.png": "8ec19778fc86c5ff2c988365c45dfbae03f1cb562723f8963a451cd837a98218",
+  "dashboard/evidence/space-invaders-568x320-paused.png": "c29e49dfbc476ae1644ff2c224192356cfbb64f1004217469062fba96c7f50a5"
+}

@@ -15,6 +15,71 @@
   },
   "items": [
     {
+      "id": "36346562663133302d383033312d343733612d616132342d393031326464616132313235",
+      "title": "Voxel Space Invaders",
+      "description": "Browser game with voxel aliens and player spaceship, classic fleet combat and iOS touch controls.",
+      "status": "in_progress",
+      "note": "Verified 43 restored files against newer reviewer base 11314f5. Passed 13 Java regression tests, 18 browser/rule tests, 16 layout checks and desktop/mobile playtests. Fresh media saved; awaiting independent review.",
+      "updatedAt": "2026-10-07T19:59:38.862198+00:00",
+      "evidence": [
+        {
+          "kind": "image",
+          "label": "Desktop gameplay — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36346562663133302d383033312d343733612d616132342d393031326464616132313235/dashboard/evidence/space-invaders-desktop.png"
+        },
+        {
+          "kind": "image",
+          "label": "Mobile touch gameplay — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36346562663133302d383033312d343733612d616132342d393031326464616132313235/dashboard/evidence/space-invaders-touch.png"
+        },
+        {
+          "kind": "image",
+          "label": "Mobile landscape gameplay — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36346562663133302d383033312d343733612d616132342d393031326464616132313235/dashboard/evidence/space-invaders-landscape.png"
+        },
+        {
+          "kind": "link",
+          "label": "Validation commands and limits — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36346562663133302d383033312d343733612d616132342d393031326464616132313235/dashboard/evidence/space-invaders-validation.md"
+        },
+        {
+          "kind": "image",
+          "label": "Small iPhone start layout — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36346562663133302d383033312d343733612d616132342d393031326464616132313235/dashboard/evidence/space-invaders-568x320-start.png"
+        },
+        {
+          "kind": "image",
+          "label": "Small iPhone gameplay — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36346562663133302d383033312d343733612d616132342d393031326464616132313235/dashboard/evidence/space-invaders-568x320-playing.png"
+        },
+        {
+          "kind": "image",
+          "label": "Small iPhone game over — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36346562663133302d383033312d343733612d616132342d393031326464616132313235/dashboard/evidence/space-invaders-568x320-game-over.png"
+        },
+        {
+          "kind": "image",
+          "label": "iPhone landscape pause — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36346562663133302d383033312d343733612d616132342d393031326464616132313235/dashboard/evidence/space-invaders-667x375-paused.png"
+        },
+        {
+          "kind": "link",
+          "label": "16 viewport/state layout results — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36346562663133302d383033312d343733612d616132342d393031326464616132313235/dashboard/evidence/space-invaders-layout.json"
+        },
+        {
+          "kind": "link",
+          "label": "Newer-base audit: 43 restored files — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36346562663133302d383033312d343733612d616132342d393031326464616132313235/dashboard/evidence/space-invaders-base-audit.json"
+        },
+        {
+          "kind": "link",
+          "label": "13 upstream Java regression tests — pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36346562663133302d383033312d343733612d616132342d393031326464616132313235/dashboard/evidence/space-invaders-upstream-regression.json"
+        }
+      ]
+    },
+    {
       "id": "36623333663562302d613731382d343833342d613735302d326666313839333532663035",
       "title": "Zone parcel algorithm portfolio",
       "description": "Adding common parcel API, selectable layouts and parcel-aware building placement.",
