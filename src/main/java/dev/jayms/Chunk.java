@@ -21,6 +21,8 @@ public class Chunk implements AutoCloseable {
     }
 
     private Mesh mesh;
+    private float waterHeight = Float.NaN;
+    public float waterHeight() { return waterHeight; }
     private World world;
     private ChunkPos position;
 
@@ -150,9 +152,14 @@ public class Chunk implements AutoCloseable {
 
     public void generateMesh() {
         if (mesh != null) mesh.close();
-        mesh = null;
+        mesh = null; waterHeight = Float.NaN;
         if (isEmpty()) return;
-        mesh = new Mesh(MeshDataGenerator.generate(this));
+        MeshData data = MeshDataGenerator.generate(this);
+        waterHeight = Float.NaN;
+        if (data.surface()!=null)for(int i=0;i<data.vertices().length;i+=9)
+            if(data.surface()[i/3+2]==-2&&data.vertices()[i+4]>.5f)
+                waterHeight=Float.isNaN(waterHeight)?data.vertices()[i+1]:Math.max(waterHeight,data.vertices()[i+1]);
+        mesh = new Mesh(data);
     }
 
     @Override

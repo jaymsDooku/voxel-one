@@ -1,0 +1,1 @@
+{"Playtest":"Production PhysicsWorld in running native PhysicsLab; synthetic slow contact and complete crossings","expectedSleeperVx":0.1,"observedSleeperVx":0.1,"crossingSpeeds":[10,1000],"expected":"Both enter and exit per crossing, no final overlap or stale events","observed":"All assertions passed; prior physics and walker regressions follow"}

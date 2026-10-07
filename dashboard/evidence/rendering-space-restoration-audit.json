@@ -1,0 +1,289 @@
+{
+  "reviewBase": "11314f5f2ebf39e0d8b335f90af8b8327722f35a",
+  "preservationBase": "41ed6e88d231435559810c788416832d2b13d136",
+  "sourceCommit": "12216ff59aa210c9df59ee413cc9919c8c948cd8",
+  "restoredFiles": [
+    {
+      "path": "dashboard/evidence/space-invaders-568x320-game-over.png",
+      "treeEntry": "100644 blob 18e6823a8bcf95632826fec7a562db8a4730170f\tdashboard/evidence/space-invaders-568x320-game-over.png"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-568x320-paused.png",
+      "treeEntry": "100644 blob 3ce487b428d078ae3807db014ae0d15971162c3b\tdashboard/evidence/space-invaders-568x320-paused.png"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-568x320-playing.png",
+      "treeEntry": "100644 blob 4d090e037895d6b35a5cd1f912b97fb72e617910\tdashboard/evidence/space-invaders-568x320-playing.png"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-568x320-start.png",
+      "treeEntry": "100644 blob 3bfa3866faad26cfbec4a6d122e89dccfd55a338\tdashboard/evidence/space-invaders-568x320-start.png"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-667x375-game-over.png",
+      "treeEntry": "100644 blob fa34941466af58e49695fa69880879c8529eeb11\tdashboard/evidence/space-invaders-667x375-game-over.png"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-667x375-paused.png",
+      "treeEntry": "100644 blob a1a71e81cc9b441a7bed1a74d5625db77b14a584\tdashboard/evidence/space-invaders-667x375-paused.png"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-667x375-playing.png",
+      "treeEntry": "100644 blob 8e9fd82e6f4b7204470c12dab1f4ae9111109a23\tdashboard/evidence/space-invaders-667x375-playing.png"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-667x375-start.png",
+      "treeEntry": "100644 blob 6d44f322f93d1d4867729403fccbbd2d21a92f16\tdashboard/evidence/space-invaders-667x375-start.png"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-base-audit.json",
+      "treeEntry": "100644 blob 2aa569e9fe3d9a43c14130a8935954cdc4772852\tdashboard/evidence/space-invaders-base-audit.json"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-browser.json",
+      "treeEntry": "100644 blob f26ea15a67b0dc55d187cc82132e2ac29c86e86a\tdashboard/evidence/space-invaders-browser.json"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-desktop.png",
+      "treeEntry": "100644 blob 9224ff0872f6a226582ac50bc432a35be7d89372\tdashboard/evidence/space-invaders-desktop.png"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-hashes.json",
+      "treeEntry": "100644 blob 90c6f30991dd061ac1b2f2c92b488b8ec56de8d3\tdashboard/evidence/space-invaders-hashes.json"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-landscape.png",
+      "treeEntry": "100644 blob 29c3a9985d762de34d3ab2737eb648059c30f408\tdashboard/evidence/space-invaders-landscape.png"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-layout.json",
+      "treeEntry": "100644 blob 63fa4f4009eb3741e42e6b0004f6840cd15d932e\tdashboard/evidence/space-invaders-layout.json"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-review-fix-unit-tests.txt",
+      "treeEntry": "100644 blob 4240bdabfe31cfa0e38f0f878f85f9482a35290b\tdashboard/evidence/space-invaders-review-fix-unit-tests.txt"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-rules.txt",
+      "treeEntry": "100644 blob d92fc36b62f9e78ea9b409db60fa1b77bdd8d7bd\tdashboard/evidence/space-invaders-rules.txt"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-touch.png",
+      "treeEntry": "100644 blob 79a897d4e5c1aea7857db92545d4c194bee212b9\tdashboard/evidence/space-invaders-touch.png"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-upstream-regression.json",
+      "treeEntry": "100644 blob 6854219c8298f218fbac8626f3beb05218f6904b\tdashboard/evidence/space-invaders-upstream-regression.json"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-validation.md",
+      "treeEntry": "100644 blob 8d8bfd46845bdb356d79d7690d442496ad5903a6\tdashboard/evidence/space-invaders-validation.md"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-website-regression.txt",
+      "treeEntry": "100644 blob 8e9767509a7562147fd39543e883a0067e1f3e69\tdashboard/evidence/space-invaders-website-regression.txt"
+    },
+    {
+      "path": "deploy/build_site.py",
+      "treeEntry": "100644 blob 2a6d6629662de21e7b5033dd2803f429a93ceb06\tdeploy/build_site.py"
+    },
+    {
+      "path": "deploy/test_space_invaders.cjs",
+      "treeEntry": "100644 blob 9f79a0344c4b76d62db381b0f8a67eddb0f1e993\tdeploy/test_space_invaders.cjs"
+    },
+    {
+      "path": "deploy/test_space_invaders_layout.cjs",
+      "treeEntry": "100644 blob 00ce1ef7a1dad82896ed6a08adcf6ce57581949c\tdeploy/test_space_invaders_layout.cjs"
+    },
+    {
+      "path": "games/space-invaders/README.md",
+      "treeEntry": "100644 blob dfd27b4b1db02acb456bacd5b77fba75040fc0ee\tgames/space-invaders/README.md"
+    },
+    {
+      "path": "games/space-invaders/app.mjs",
+      "treeEntry": "100644 blob 43c267fbb399013f831f1f913c72365ecc1f06c0\tgames/space-invaders/app.mjs"
+    },
+    {
+      "path": "games/space-invaders/game.mjs",
+      "treeEntry": "100644 blob 4f62715dd42ebbd730ea9f93a90aaccd141ffe28\tgames/space-invaders/game.mjs"
+    },
+    {
+      "path": "games/space-invaders/game.test.mjs",
+      "treeEntry": "100644 blob 472b7fa464a1d592366b14bd495ac784f5fb608f\tgames/space-invaders/game.test.mjs"
+    },
+    {
+      "path": "games/space-invaders/index.html",
+      "treeEntry": "100644 blob 26b60e2fa9c32162a418e253453dd934417dff2a\tgames/space-invaders/index.html"
+    },
+    {
+      "path": "games/space-invaders/style.css",
+      "treeEntry": "100644 blob 6bd8303ea4800c271d1cbba7cb2327dd55045dd3\tgames/space-invaders/style.css"
+    },
+    {
+      "path": "website/dist/games/space-invaders/app.mjs",
+      "treeEntry": "100644 blob 43c267fbb399013f831f1f913c72365ecc1f06c0\twebsite/dist/games/space-invaders/app.mjs"
+    },
+    {
+      "path": "website/dist/games/space-invaders/game.mjs",
+      "treeEntry": "100644 blob 4f62715dd42ebbd730ea9f93a90aaccd141ffe28\twebsite/dist/games/space-invaders/game.mjs"
+    },
+    {
+      "path": "website/dist/games/space-invaders/index.html",
+      "treeEntry": "100644 blob 26b60e2fa9c32162a418e253453dd934417dff2a\twebsite/dist/games/space-invaders/index.html"
+    },
+    {
+      "path": "website/dist/games/space-invaders/style.css",
+      "treeEntry": "100644 blob 6bd8303ea4800c271d1cbba7cb2327dd55045dd3\twebsite/dist/games/space-invaders/style.css"
+    },
+    {
+      "path": "website/dist/index.html",
+      "treeEntry": "100644 blob f761f167db7ff5845b1ba0e232a6aac399a51e51\twebsite/dist/index.html"
+    }
+  ],
+  "spaceProgressRecordMatches": true,
+  "deletedFilesAgainstPreservationBase": [],
+  "historicalEvidence": "Restored space-invaders-* artifacts retain original bytes. New validation uses rendering-restored-space-* names.",
+  "fullTreeUnexpectedChanges": [],
+  "allSpaceFeaturePathsCompared": 34,
+  "historicalSpaceEvidenceCount": 20,
+  "allSpaceFeaturePaths": [
+    {
+      "path": "dashboard/evidence/space-invaders-568x320-game-over.png",
+      "treeEntry": "100644 blob 18e6823a8bcf95632826fec7a562db8a4730170f"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-568x320-paused.png",
+      "treeEntry": "100644 blob 3ce487b428d078ae3807db014ae0d15971162c3b"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-568x320-playing.png",
+      "treeEntry": "100644 blob 4d090e037895d6b35a5cd1f912b97fb72e617910"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-568x320-start.png",
+      "treeEntry": "100644 blob 3bfa3866faad26cfbec4a6d122e89dccfd55a338"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-667x375-game-over.png",
+      "treeEntry": "100644 blob fa34941466af58e49695fa69880879c8529eeb11"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-667x375-paused.png",
+      "treeEntry": "100644 blob a1a71e81cc9b441a7bed1a74d5625db77b14a584"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-667x375-playing.png",
+      "treeEntry": "100644 blob 8e9fd82e6f4b7204470c12dab1f4ae9111109a23"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-667x375-start.png",
+      "treeEntry": "100644 blob 6d44f322f93d1d4867729403fccbbd2d21a92f16"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-base-audit.json",
+      "treeEntry": "100644 blob 2aa569e9fe3d9a43c14130a8935954cdc4772852"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-browser.json",
+      "treeEntry": "100644 blob f26ea15a67b0dc55d187cc82132e2ac29c86e86a"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-desktop.png",
+      "treeEntry": "100644 blob 9224ff0872f6a226582ac50bc432a35be7d89372"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-hashes.json",
+      "treeEntry": "100644 blob 90c6f30991dd061ac1b2f2c92b488b8ec56de8d3"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-landscape.png",
+      "treeEntry": "100644 blob 29c3a9985d762de34d3ab2737eb648059c30f408"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-layout.json",
+      "treeEntry": "100644 blob 63fa4f4009eb3741e42e6b0004f6840cd15d932e"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-review-fix-unit-tests.txt",
+      "treeEntry": "100644 blob 4240bdabfe31cfa0e38f0f878f85f9482a35290b"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-rules.txt",
+      "treeEntry": "100644 blob d92fc36b62f9e78ea9b409db60fa1b77bdd8d7bd"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-touch.png",
+      "treeEntry": "100644 blob 79a897d4e5c1aea7857db92545d4c194bee212b9"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-upstream-regression.json",
+      "treeEntry": "100644 blob 6854219c8298f218fbac8626f3beb05218f6904b"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-validation.md",
+      "treeEntry": "100644 blob 8d8bfd46845bdb356d79d7690d442496ad5903a6"
+    },
+    {
+      "path": "dashboard/evidence/space-invaders-website-regression.txt",
+      "treeEntry": "100644 blob 8e9767509a7562147fd39543e883a0067e1f3e69"
+    },
+    {
+      "path": "deploy/build_site.py",
+      "treeEntry": "100644 blob 2a6d6629662de21e7b5033dd2803f429a93ceb06"
+    },
+    {
+      "path": "deploy/test_space_invaders.cjs",
+      "treeEntry": "100644 blob 9f79a0344c4b76d62db381b0f8a67eddb0f1e993"
+    },
+    {
+      "path": "deploy/test_space_invaders_layout.cjs",
+      "treeEntry": "100644 blob 00ce1ef7a1dad82896ed6a08adcf6ce57581949c"
+    },
+    {
+      "path": "games/space-invaders/README.md",
+      "treeEntry": "100644 blob dfd27b4b1db02acb456bacd5b77fba75040fc0ee"
+    },
+    {
+      "path": "games/space-invaders/app.mjs",
+      "treeEntry": "100644 blob 43c267fbb399013f831f1f913c72365ecc1f06c0"
+    },
+    {
+      "path": "games/space-invaders/game.mjs",
+      "treeEntry": "100644 blob 4f62715dd42ebbd730ea9f93a90aaccd141ffe28"
+    },
+    {
+      "path": "games/space-invaders/game.test.mjs",
+      "treeEntry": "100644 blob 472b7fa464a1d592366b14bd495ac784f5fb608f"
+    },
+    {
+      "path": "games/space-invaders/index.html",
+      "treeEntry": "100644 blob 26b60e2fa9c32162a418e253453dd934417dff2a"
+    },
+    {
+      "path": "games/space-invaders/style.css",
+      "treeEntry": "100644 blob 6bd8303ea4800c271d1cbba7cb2327dd55045dd3"
+    },
+    {
+      "path": "website/dist/games/space-invaders/app.mjs",
+      "treeEntry": "100644 blob 43c267fbb399013f831f1f913c72365ecc1f06c0"
+    },
+    {
+      "path": "website/dist/games/space-invaders/game.mjs",
+      "treeEntry": "100644 blob 4f62715dd42ebbd730ea9f93a90aaccd141ffe28"
+    },
+    {
+      "path": "website/dist/games/space-invaders/index.html",
+      "treeEntry": "100644 blob 26b60e2fa9c32162a418e253453dd934417dff2a"
+    },
+    {
+      "path": "website/dist/games/space-invaders/style.css",
+      "treeEntry": "100644 blob 6bd8303ea4800c271d1cbba7cb2327dd55045dd3"
+    },
+    {
+      "path": "website/dist/index.html",
+      "treeEntry": "100644 blob f761f167db7ff5845b1ba0e232a6aac399a51e51"
+    }
+  ],
+  "fullTreeMethod": "Union of both recursive Git trees; exact file modes and blob IDs. Explicit rendering exclusions only. No deleted files.",
+  "postPlaytestPreservationCheck": "All 34 tracked Space feature/build/navigation/test/historical-evidence paths still match base blob IDs after browser tests."
+}

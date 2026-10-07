@@ -1,0 +1,6 @@
+Playtest: PASS. Current renderer, inherited assigned X11, synthetic city profile; 800x640 window, .65 render scale, GL3.3. Develop stress save, repeat action, populated districts, save/reload, original-city preservation and F6 regression.
+Native Develop stress save added 192 houses, 80 businesses, 80 factories, 48 crop farms and filled the 128 citizen limit; real voxel floor and operators checked.
+Repeated native action kept buildings and citizens unchanged.
+Running simulation retained populated city; four populated districts rendered with 20 frames for terrain streaming.
+Save/reload kept all saved buildings, 128 residents, farms and business operators.
+Original save roads and residents unchanged; F6 toggle works.

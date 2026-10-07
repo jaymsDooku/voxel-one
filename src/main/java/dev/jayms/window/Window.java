@@ -28,7 +28,8 @@ public class Window {
 
     public Window(int width, int height, String title, boolean visible, boolean resizable) {
         glfwDefaultWindowHints();
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        boolean modern = !Boolean.getBoolean("voxel.gl33");
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, modern ? 4 : 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
@@ -36,6 +37,11 @@ public class Window {
         glfwWindowHint(GLFW_RESIZABLE, glfwBool(resizable)); // the window will be resizable
 
         this.window = glfwCreateWindow(width, height, title, NULL, NULL);
+        if (window == NULL && modern) {
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+            window = glfwCreateWindow(width, height, title, NULL, NULL);
+        }
         if ( window == NULL )
             throw new RuntimeException("Failed to create the GLFW window");
     }

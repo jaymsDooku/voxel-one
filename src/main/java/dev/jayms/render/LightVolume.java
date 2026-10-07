@@ -25,6 +25,7 @@ public final class LightVolume {
     public final int[] roots;
 
     public int[] fine;
+    public TransportField transport;
     private final Map<Integer, Detail> details = new HashMap<>();
 
     private record Detail(int resolution, SparseVoxelOctree nodes) {}
@@ -197,6 +198,7 @@ public final class LightVolume {
                 packed.isEmpty()
                         ? new int[] {0}
                         : packed.stream().mapToInt(Integer::intValue).toArray();
+        v.transport = new TransportField(w,h,l,v.material,v.rgba);
         v.material = v.cell = v.geometry = v.queue = null;
         v.sky = v.red = v.green = v.blue = null;
         v.queued = null;
@@ -208,7 +210,7 @@ public final class LightVolume {
         int type = WorldVoxels.decode(value);
         // Collision solidity is independent of optical transmission. All other materials are
         // opaque.
-        return type == Blocks.AIR ? 0 : type == Blocks.GLASS ? 1 : 255;
+        return type == Blocks.AIR ? 0 : type == Blocks.GLASS || type == Blocks.WATER ? 1 : 255;
     }
 
     private void expand(SparseVoxelOctree tree, Detail d, int c, int a, int b, int z, int s) {

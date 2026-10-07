@@ -1,0 +1,370 @@
+{
+  "sourceCommit": "321d0965b21dcdc8d7e7a68629deefb3f0ee3826",
+  "restorationBaseline": "11314f5f2ebf39e0d8b335f90af8b8327722f35a",
+  "recordedReviewBase": "5f1b711d467566491538d975d9de24d01f19bc1f",
+  "lostReviewedHead": "195857c3202638a72e2a377e2b935ca2125f06c0",
+  "restoredFiles": [
+    {
+      "file": "dashboard/evidence/populated-stress-businesses.png",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob b3f3a24673883d89210c7ccfac6c3bf61450881c",
+      "currentTreeEntry": "100644 blob b3f3a24673883d89210c7ccfac6c3bf61450881c",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "dashboard/evidence/populated-stress-factories.png",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob 04a579f0729676777658c79f6d47a96ef6c3736e",
+      "currentTreeEntry": "100644 blob 04a579f0729676777658c79f6d47a96ef6c3736e",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "dashboard/evidence/populated-stress-farms.png",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob 40453ad2cc766f37a7c5a29be883bb3227723709",
+      "currentTreeEntry": "100644 blob 40453ad2cc766f37a7c5a29be883bb3227723709",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "dashboard/evidence/populated-stress-houses.png",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob 7345998c74f9f2c302a801b892dcc5fc9b510634",
+      "currentTreeEntry": "100644 blob 7345998c74f9f2c302a801b892dcc5fc9b510634",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "dashboard/evidence/populated-stress-main.mp4",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob 0952a46973dcbc1a80a5674b65ebc85f023951c5",
+      "currentTreeEntry": "100644 blob 0952a46973dcbc1a80a5674b65ebc85f023951c5",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "dashboard/evidence/populated-stress-media.json",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob ee02c01beac80084b86b67569c7942909b1f161e",
+      "currentTreeEntry": "100644 blob ee02c01beac80084b86b67569c7942909b1f161e",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "dashboard/evidence/populated-stress-menu.png",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob 70ed504c37e7d537becff08dd0fde7f01d69e599",
+      "currentTreeEntry": "100644 blob 70ed504c37e7d537becff08dd0fde7f01d69e599",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "dashboard/evidence/populated-stress-original.png",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob 7a8929414c568370274a86b7d4702b9c86b71082",
+      "currentTreeEntry": "100644 blob 7a8929414c568370274a86b7d4702b9c86b71082",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "dashboard/evidence/populated-stress-parcel-editor-isolation.png",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob b8452850d50b35482bdad0a276a700ae79e20a3e",
+      "currentTreeEntry": "100644 blob b8452850d50b35482bdad0a276a700ae79e20a3e",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "dashboard/evidence/populated-stress-parcel-editor-return.png",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob 4321b056ff961184e03dd309bf57a03572fb9304",
+      "currentTreeEntry": "100644 blob 4321b056ff961184e03dd309bf57a03572fb9304",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "dashboard/evidence/populated-stress-parcel-grid.png",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob 562a5bfa9215f1d9998f90f1352af5c7740064da",
+      "currentTreeEntry": "100644 blob 562a5bfa9215f1d9998f90f1352af5c7740064da",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "dashboard/evidence/populated-stress-parcel-layout-0.png",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob ff6d166b20d992fcf1d08d5aa0b8d190ce3988fc",
+      "currentTreeEntry": "100644 blob ff6d166b20d992fcf1d08d5aa0b8d190ce3988fc",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "dashboard/evidence/populated-stress-parcel-layout-1.png",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob 760d96f2c1bb42b921bd588e2825eaf2c4f7ec37",
+      "currentTreeEntry": "100644 blob 760d96f2c1bb42b921bd588e2825eaf2c4f7ec37",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "dashboard/evidence/populated-stress-parcel-layout-12.png",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob f628d4c2c7f5af70d491985cedb3334ac4a9288f",
+      "currentTreeEntry": "100644 blob f628d4c2c7f5af70d491985cedb3334ac4a9288f",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "dashboard/evidence/populated-stress-parcel-layout-13.png",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob 2fe61292ff0988e240421344f2f9f1444ffe8f63",
+      "currentTreeEntry": "100644 blob 2fe61292ff0988e240421344f2f9f1444ffe8f63",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "dashboard/evidence/populated-stress-parcel-layout-4.png",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob 28276911d3f142bb1c81a8c4a678ce7d753c7bc5",
+      "currentTreeEntry": "100644 blob 28276911d3f142bb1c81a8c4a678ce7d753c7bc5",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "dashboard/evidence/populated-stress-parcel-layout-8.png",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob 21c1abe15b4035446b1d09fe6f48922403ede77f",
+      "currentTreeEntry": "100644 blob 21c1abe15b4035446b1d09fe6f48922403ede77f",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "dashboard/evidence/populated-stress-parcel-main.mp4",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob d7098060d9d267be09746b63d845490727afdb3b",
+      "currentTreeEntry": "100644 blob d7098060d9d267be09746b63d845490727afdb3b",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "dashboard/evidence/populated-stress-parcel-media.json",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob a4511e61f26e96e605a37253fcefb5b0ade7eec2",
+      "currentTreeEntry": "100644 blob a4511e61f26e96e605a37253fcefb5b0ade7eec2",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "dashboard/evidence/populated-stress-parcel-playtest.json",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob a9d91d3410c36d30ebcf719da350a76752e7d764",
+      "currentTreeEntry": "100644 blob a9d91d3410c36d30ebcf719da350a76752e7d764",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "dashboard/evidence/populated-stress-parcel-protected-plot.png",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob c8605c53fd854f303a68fe5230c73f9a1a71f069",
+      "currentTreeEntry": "100644 blob c8605c53fd854f303a68fe5230c73f9a1a71f069",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "dashboard/evidence/populated-stress-parcel-road-final.png",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob 5b3dd494060f02bfd3171bf9565a49fdd53894e6",
+      "currentTreeEntry": "100644 blob 5b3dd494060f02bfd3171bf9565a49fdd53894e6",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "dashboard/evidence/populated-stress-playtest.txt",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob c3d358d987cc8bdd4b71cb907fddb1776703c8a8",
+      "currentTreeEntry": "100644 blob c3d358d987cc8bdd4b71cb907fddb1776703c8a8",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "dashboard/evidence/populated-stress-recovery.json",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob e448278bfe433005e3d098f09ef510dea0933b20",
+      "currentTreeEntry": "100644 blob e448278bfe433005e3d098f09ef510dea0933b20",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "dashboard/evidence/populated-stress-tests.json",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob c46efcd5759b20ba09342923fdd0e132d8a8a904",
+      "currentTreeEntry": "100644 blob c46efcd5759b20ba09342923fdd0e132d8a8a904",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "deploy/PopulatedStressParcelSmoke.java",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob eb3fc3fa37800b1969e9d7d1cd915e87c99a1c89",
+      "currentTreeEntry": "100644 blob eb3fc3fa37800b1969e9d7d1cd915e87c99a1c89",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "deploy/PopulatedStressSmoke.java",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob 6ff6789fce928d9b080c54f8f194a61812be402f",
+      "currentTreeEntry": "100644 blob 6ff6789fce928d9b080c54f8f194a61812be402f",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "deploy/StressGridSmoke.java",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob 09596e96097c55e166cbaea86e53318138d20c52",
+      "currentTreeEntry": "100644 blob 09596e96097c55e166cbaea86e53318138d20c52",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "deploy/run_populated_stress_parcel_smoke.py",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob 1093631c4766c8d9264373abd26e228f5f76b159",
+      "currentTreeEntry": "100644 blob 1093631c4766c8d9264373abd26e228f5f76b159",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "deploy/run_populated_stress_smoke.py",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob ea3566130227017e114561d8179c82b1b6bb60a3",
+      "currentTreeEntry": "100644 blob ea3566130227017e114561d8179c82b1b6bb60a3",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "deploy/verify_populated_stress_media.py",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob 3513e7976a8a9980fe9cef26a6b8ff69ae4278fe",
+      "currentTreeEntry": "100644 blob 3513e7976a8a9980fe9cef26a6b8ff69ae4278fe",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "deploy/verify_populated_stress_parcel_media.py",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob a256fd8a4c6af4c3df55ba8978f9039196ade66c",
+      "currentTreeEntry": "100644 blob a256fd8a4c6af4c3df55ba8978f9039196ade66c",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "docs/stress-test-grid.md",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob f31385b1bc38ddf293c96655d0968a7be6594a52",
+      "currentTreeEntry": "100644 blob f31385b1bc38ddf293c96655d0968a7be6594a52",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "src/main/java/dev/jayms/net/LocalGame.java",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob 9496e818e053dfd4068f4efee5091fb57bd5048d",
+      "currentTreeEntry": "100644 blob 9496e818e053dfd4068f4efee5091fb57bd5048d",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "src/main/java/dev/jayms/net/WorldVoxels.java",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob fa013f00d0d0d84b9861c65a76f9b5b8e10bac5b",
+      "currentTreeEntry": "100644 blob fa013f00d0d0d84b9861c65a76f9b5b8e10bac5b",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "src/main/java/dev/jayms/net/city/CityEconomy.java",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob d854372cf930ae7185d9148e5ad4c145987617e5",
+      "currentTreeEntry": "100644 blob d854372cf930ae7185d9148e5ad4c145987617e5",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "src/main/java/dev/jayms/net/city/CitySimulation.java",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob 8bd4deffce8b4ee28b6989a7b3fdc67e6218e541",
+      "currentTreeEntry": "100644 blob 8bd4deffce8b4ee28b6989a7b3fdc67e6218e541",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "src/main/java/dev/jayms/ui/SavesMenu.java",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob 0d1fbceb4944b107349da83adbe1893300c3d32e",
+      "currentTreeEntry": "100644 blob 0d1fbceb4944b107349da83adbe1893300c3d32e",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "src/test/java/dev/jayms/CityFormat16RegressionTest.java",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob 145ff2ccb6d93d39c994121a230dd6a3ffb1be8c",
+      "currentTreeEntry": "100644 blob 145ff2ccb6d93d39c994121a230dd6a3ffb1be8c",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "src/test/java/dev/jayms/CityTest.java",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob 23c5e9b27ae5d04d88ef03d8b03552d35692f015",
+      "currentTreeEntry": "100644 blob 23c5e9b27ae5d04d88ef03d8b03552d35692f015",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "src/test/java/dev/jayms/EditHistoryTest.java",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob 8daa411b208d2c787c88ce012876fcf47efc5f4b",
+      "currentTreeEntry": "100644 blob 8daa411b208d2c787c88ce012876fcf47efc5f4b",
+      "modeAndBlobMatch": true
+    },
+    {
+      "file": "src/test/java/dev/jayms/StressGridDevelopmentTest.java",
+      "matchesMergedSource": true,
+      "originalTreeEntry": "100644 blob e2e12ddc951a5b6d21b40ec4901f19ab46704490",
+      "currentTreeEntry": "100644 blob e2e12ddc951a5b6d21b40ec4901f19ab46704490",
+      "modeAndBlobMatch": true
+    }
+  ],
+  "documentation": "docs/stress-test-grid.md restored exactly: stress saves format 15, ordinary saves format 14, parcel cities format 16; wire protocol 27 includes format 16 snapshots.",
+  "scope": "These restored stress, edit-history and city changes come from the merged feature baseline, not this rendering feature. Historical evidence retains original bytes and describes historical tests; it is not new rendering evidence. Main preserves Develop stress save and adds only rendering integration relative to 11314f5.",
+  "renderingPathsAgainstMergedBaseline": [
+    "dashboard/evidence/rendering-expansion-decals.png",
+    "dashboard/evidence/rendering-expansion-graded.png",
+    "dashboard/evidence/rendering-expansion-main-gallery.png",
+    "dashboard/evidence/rendering-expansion-main-isometric.png",
+    "dashboard/evidence/rendering-expansion-main-menu.png",
+    "dashboard/evidence/rendering-expansion-main-motion.png",
+    "dashboard/evidence/rendering-expansion-main-resize.png",
+    "dashboard/evidence/rendering-expansion-playtest.mp4",
+    "dashboard/evidence/rendering-expansion-temporal.png",
+    "dashboard/evidence/rendering-expansion-upscaled.png",
+    "dashboard/evidence/rendering-expansion-validation.json",
+    "dashboard/evidence/rendering-expansion-video-frame.png",
+    "dashboard/evidence/rendering-expansion-video.json",
+    "dashboard/evidence/rendering-expansion-water.png",
+    "dashboard/progress.json",
+    "deploy/RenderingMainPlaytest.java",
+    "deploy/RenderingSmoke.java",
+    "deploy/VerifyRenderingMedia.java",
+    "deploy/run_rendering_main_playtest.py",
+    "deploy/run_rendering_playtest.py",
+    "docs/rendering-algorithms.md",
+    "src/main/java/dev/jayms/Chunk.java",
+    "src/main/java/dev/jayms/DistantTerrainPlan.java",
+    "src/main/java/dev/jayms/DistantTerrainRenderer.java",
+    "src/main/java/dev/jayms/Main.java",
+    "src/main/java/dev/jayms/Mesh.java",
+    "src/main/java/dev/jayms/MeshDataGenerator.java",
+    "src/main/java/dev/jayms/render/Atmosphere.java",
+    "src/main/java/dev/jayms/render/ClusteredLights.java",
+    "src/main/java/dev/jayms/render/ColourLut.java",
+    "src/main/java/dev/jayms/render/Decal.java",
+    "src/main/java/dev/jayms/render/FrameBudget.java",
+    "src/main/java/dev/jayms/render/GpuDraw.java",
+    "src/main/java/dev/jayms/render/GpuParticles.java",
+    "src/main/java/dev/jayms/render/HiZ.java",
+    "src/main/java/dev/jayms/render/LightVolume.java",
+    "src/main/java/dev/jayms/render/ReflectionProbes.java",
+    "src/main/java/dev/jayms/render/RenderPipeline.java",
+    "src/main/java/dev/jayms/render/RenderSettings.java",
+    "src/main/java/dev/jayms/render/ScreenError.java",
+    "src/main/java/dev/jayms/render/TemporalPost.java",
+    "src/main/java/dev/jayms/render/TransportField.java",
+    "src/main/java/dev/jayms/render/VoxelTransport.java",
+    "src/main/java/dev/jayms/render/WaterRenderer.java",
+    "src/main/java/dev/jayms/window/Window.java",
+    "src/main/resources/shaders/distant.frag",
+    "src/main/resources/shaders/effects.frag",
+    "src/main/resources/shaders/hiz.frag",
+    "src/main/resources/shaders/particles.frag",
+    "src/main/resources/shaders/particles.vert",
+    "src/main/resources/shaders/planar.frag",
+    "src/main/resources/shaders/probe-sky.frag",
+    "src/main/resources/shaders/shadow.vert",
+    "src/main/resources/shaders/sky.frag",
+    "src/main/resources/shaders/tonemap.frag",
+    "src/main/resources/shaders/voxel.frag",
+    "src/main/resources/shaders/voxel.vert",
+    "src/main/resources/shaders/water.frag",
+    "src/test/java/dev/jayms/RenderingAlgorithmsTest.java"
+  ],
+  "unexpectedPathsAgainstMergedBaseline": [],
+  "deletedFilesAgainstRecordedBase": [],
+  "nativeCaptureNote": "Fresh rendering-restored-stress-* captures are from this integrated source. Original populated-stress-* files remain byte-for-byte historical evidence.",
+  "nativeCommand": "python3 deploy/run_rendering_restoration_playtest.py --display \"$DISPLAY\"",
+  "nativeResult": "PASS; 29 stages, Develop/repeat/four districts/save-reload/original/F6"
+}

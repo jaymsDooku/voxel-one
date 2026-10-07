@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T19:26:01.175035+00:00",
+  "updatedAt": "2026-10-07T22:33:43.250351+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -3313,6 +3313,61 @@
       "status": "in_progress",
       "note": "Factory delivery restored without changing acceptance tests or equipment economics. Full suite passed: 454 tests across 84 suites. Fresh native traffic regression passed; 24 screenshots and three F10 clips decoded/inspected. Base features and history preserved. Ready for controller publication, current-head CI and independent review.",
       "updatedAt": "2026-10-07T14:57:55.883465+00:00"
+    },
+    {
+      "id": "36366335656566342d666164322d346465352d393433322d643761646233613636656364",
+      "title": "Rendering pipeline expansion",
+      "description": "Rendering pipeline expansion with OpenGL compatibility fallbacks.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "Rendering validation (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-expansion-validation.json"
+        },
+        {
+          "kind": "image",
+          "label": "Fresh production gallery (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-expansion-main-gallery.png"
+        },
+        {
+          "kind": "image",
+          "label": "Water reflection and refraction (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-expansion-water.png"
+        },
+        {
+          "kind": "video",
+          "label": "Fresh production F10 workflow (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-expansion-playtest.mp4"
+        },
+        {
+          "kind": "report",
+          "label": "Restored merged feature audit (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-restoration-audit.json"
+        },
+        {
+          "kind": "image",
+          "label": "Fresh Develop stress save workflow (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-restored-stress-menu.png"
+        },
+        {
+          "kind": "report",
+          "label": "Space preservation audit (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-space-restoration-audit.json"
+        },
+        {
+          "kind": "image",
+          "label": "Fresh restored Space game (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-restored-space-desktop.png"
+        },
+        {
+          "kind": "test",
+          "label": "LED segment GPU regressions (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-led-shadow-checks.txt"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Integrated source validated against bdec9af3: full package passed 543 tests. Physics lab/walker, production (41 frames), GL3.3 and compute fixtures passed. Fresh media decoded and inspected. Diff audit found no unrelated changes or deletions. Ready for independent review; controller publication pending.",
+      "updatedAt": "2026-10-07T22:33:43.250351+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

@@ -1126,6 +1126,7 @@ public class Main {
                             (float) framebufferWidth / framebufferHeight,
                             .1f,
                             DistantTerrainPlan.RADIUS * 2);
+        distant.screen(projection,framebufferHeight,isometric,(isometric ? overview.camera() : camera).position().y);
         view.set((isometric ? overview.camera() : camera).createViewMatrix());
         frustum.set(new Matrix4f(projection).mul(view));
         shader.bind();
@@ -1191,7 +1192,7 @@ public class Main {
                     "uModel",
                     new Matrix4f().translation(p.chunkX() * 16, p.chunkY() * 16, p.chunkZ() * 16));
             Chunk c = entry.getValue();
-            if (c.getMesh() != null) c.getMesh().render();
+            rendering.chunk(c, p);
         }
         modelRenderer.render(world, frustum, shader);
         if (jeep != null) jeepModel.render(jeep, shader);
@@ -1302,8 +1303,11 @@ public class Main {
             }
         if (jeep != null) jeepModel.glass(jeep, shader);
         for (var parked : cheatParked) jeepModel.glass(parked, shader);
+        rendering.water(world,modelRenderer,projection,view,(isometric ? overview.camera() : camera).position());
+        rendering.finish();
         if (!isometric && !player.thirdPerson() && !(jeep != null && jeep.driving())) {
             glClear(GL_DEPTH_BUFFER_BIT);
+            rendering.prepareHeld(shader);
             shader.setInt("uFog", 0);
             shader.setInt("uShadowEnabled", 0);
             shader.setInt("uHeld", 1);
@@ -1318,7 +1322,6 @@ public class Main {
             shader.setMatrix4("uView", new Matrix4f());
             playerModel.renderFirstPerson(player, shader, modelRenderer);
         }
-        rendering.finish();
     }
 
     private void renderOverlay() {

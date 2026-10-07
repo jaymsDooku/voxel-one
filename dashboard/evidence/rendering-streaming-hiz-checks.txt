@@ -1,0 +1,1 @@
+Playtest: PASS. Fixed camera and unchanged editsVersion. Addition after checkMesh, clean mesh replacement and stream removal all invalidate actual renderer Hi-Z. Unchanged scene retains valid depth; hidden bounds become conservatively visible after additions/removals. No GL errors.

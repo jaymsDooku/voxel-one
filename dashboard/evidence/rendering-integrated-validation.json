@@ -1,0 +1,1104 @@
+{
+  "status": "Ready for independent review; media pending controller publication",
+  "reviewBase": "bdec9af3f4aadb5d4c2f67d01b919ca6120c5e82",
+  "commands": [
+    {
+      "command": "python3 deploy/run_rendering_physics_validation.py --display \"$DISPLAY\"",
+      "environment": "Linux Mesa llvmpipe, inherited assigned DISPLAY/XAUTHORITY, isolated synthetic target/rendering-physics-home. PhysicsLab modern context; walker strict GL3.3.",
+      "expected": "Lab draws with clean GL; collapse/reset/constraints/fluids/cloth/vehicle; walker stair/wall/jump/landing pass",
+      "observed": "Lab exit 0; walker exit 0. Fresh physics clip decoded 13 frames."
+    },
+    {
+      "command": "python3 deploy/run_rendering_main_playtest.py --display \"$DISPLAY\" --gl33",
+      "expected": "Production LED/water gallery, W, F10, F6, odd resize at 0.65 scale and Escape menu pass",
+      "observed": "Playtest: PASS. Production Main, Linux assigned X11 display, synthetic voxel profile. LED gallery, GPU particles, water, actual W camera motion, F10 recording, F6 isometric, temporal upscale at odd 333x271 resize, Escape menu; no GL errors across 41 frames. Backend=false. Exit 0."
+    },
+    {
+      "command": "python3 deploy/run_rendering_playtest.py --display \"$DISPLAY\" --gl33",
+      "expected": "Effects, LED edits/removal, probes, stationary streaming invalidation, exposure, LUT, dynamic resolution and resize pass",
+      "observed": "Playtest: native OpenGL synthetic gallery; assigned X11 display; GPU backend=false; decals changed pixels=43794; reflection probes, GPU emitters/removal, water, camera motion/TAA, exposure, LUT, temporal upscaling, measured dynamic resolution, resize and GL errors passed. Playtest: PASS. Real reflection cubemap receiver face; irradiance/shadow/transport/cluster switches=1; recursive probe switch=0. Occluder shadow pixels=1498; clustered LED pixels=3487; LED edit pixels=4096. Accepted GI bake and six fresh faces after edit; no stale-ready cube. Playtest: PASS. Fixed camera and unchanged editsVersion. Addition after checkMesh, clean mesh replacement and stream removal all invalidate actual renderer Hi-Z. Unchanged scene retains valid depth; hidden bounds become conservatively visible after additions/removals. No GL errors. Exit 0."
+    },
+    {
+      "command": "python3 deploy/run_rendering_playtest.py --display \"$DISPLAY\"",
+      "expected": "Optional compute-generated indirect rendering and all fixture regressions pass",
+      "observed": "Playtest: native OpenGL synthetic gallery; assigned X11 display; GPU backend=true; decals changed pixels=43788; reflection probes, GPU emitters/removal, water, camera motion/TAA, exposure, LUT, temporal upscaling, measured dynamic resolution, resize and GL errors passed. Playtest: PASS. Fixed camera and unchanged editsVersion. Addition after checkMesh, clean mesh replacement and stream removal all invalidate actual renderer Hi-Z. Unchanged scene retains valid depth; hidden bounds become conservatively visible after additions/removals. No GL errors. Exit 0."
+    }
+  ],
+  "playtest": "Native app workflow; browser playtesting does not apply. All captures use synthetic profiles.",
+  "remaining": [],
+  "startedAt": "2026-10-07T22:28:31.143235+00:00",
+  "baselineContext": "OpenGL=3.3 (Core Profile) Mesa 22.3.6; GLSL=3.30; renderer=llvmpipe (LLVM 15.0.6, 256 bits); samples=1",
+  "allMainSourceSha256": "08b6a7140e1cecc5819b5ecede88f35d4a6375b89a8dfbd99105c8b848313038",
+  "videos": {
+    "production": {
+      "status": "passed",
+      "source": "fresh production Main F10 rendering workflow",
+      "codec": "H264",
+      "bytes": 242418,
+      "frames": 8,
+      "width": 640,
+      "height": 400,
+      "seconds": 7.888,
+      "allFramesDecoded": true,
+      "firstAndLastDiffer": true
+    },
+    "physics": {
+      "status": "passed",
+      "source": "production F10 recorder in native physics collapse playtest",
+      "codec": "H264",
+      "bytes": 167401,
+      "decodedFrames": 13,
+      "width": 816,
+      "height": 544,
+      "durationSeconds": 3.83,
+      "checks": [
+        "Every frame decoded",
+        "Frame count matches MP4 metadata",
+        "First and last images differ",
+        "Below 6 MB artifact limit"
+      ]
+    }
+  },
+  "visualInspection": "Fresh integrated physics collapse image and production decoded midpoint inspected. Synthetic profiles only; no private prompts, answers, credentials or account data.",
+  "media": [
+    {
+      "file": "rendering-expansion-main-gallery.png",
+      "bytes": 304324,
+      "sha256": "f6aebb9e942df36e0fb2e2a5233aa36ec88fa850eeb3ca3ba9a7c35abcb62516",
+      "publication": "pending controller publication",
+      "source": "fresh integrated native playtest"
+    },
+    {
+      "file": "rendering-expansion-playtest.mp4",
+      "bytes": 242418,
+      "sha256": "c46ed6b4701d1a24f1d9c9595843704b97ad3d94f03d725b8e8c0b2bd1ebf800",
+      "publication": "pending controller publication",
+      "source": "fresh integrated native playtest"
+    },
+    {
+      "file": "rendering-restored-physics-collapse.png",
+      "bytes": 16205,
+      "sha256": "bf723c2e6d598b09740b80414fc47ea16f02c3eafec9ef15f9b25646ec9e8c4c",
+      "publication": "pending controller publication",
+      "source": "fresh integrated native playtest"
+    },
+    {
+      "file": "rendering-restored-physics-collapse.mp4",
+      "bytes": 167401,
+      "sha256": "3ca436b1cd193e887d90e945d0fac247456228a7689179eef914a05a44e269f8",
+      "publication": "pending controller publication",
+      "source": "fresh integrated native playtest"
+    },
+    {
+      "file": "rendering-restored-physics-walker-wall.png",
+      "bytes": 993864,
+      "sha256": "5fd3b85d94d06d81f45f9b00e8bbc5ec93f5d4530fae63dcbcf1b5a08b40a52c",
+      "publication": "pending controller publication",
+      "source": "fresh integrated native playtest"
+    },
+    {
+      "file": "rendering-expansion-water.png",
+      "bytes": 451394,
+      "sha256": "cc38229c328dc74e8f70e9cb899bae3c094175c321fff33f2f1bdfb93d97cb0a",
+      "publication": "pending controller publication",
+      "source": "fresh integrated native playtest"
+    }
+  ],
+  "modernContext": "OpenGL=4.5 (Core Profile) Mesa 22.3.6; GLSL=4.50; renderer=llvmpipe (LLVM 15.0.6, 256 bits); samples=1",
+  "updatedAt": "2026-10-07T22:33:29.036666+00:00",
+  "fullMaven": {
+    "command": "mvn -q -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" package",
+    "expected": "Complete full package with physics and rendering coverage",
+    "observed": "Exit 0",
+    "totals": {
+      "tests": 543,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "suites": [
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.RailwayTest",
+        "time": "0.49",
+        "tests": "5",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.ExchangeLabourMarketTest",
+        "time": "0.154",
+        "tests": "6",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CraftingTest",
+        "time": "0.022",
+        "tests": "6",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.RenderingAlgorithmsTest",
+        "time": "0.056",
+        "tests": "9",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.BusinessDashboardTest",
+        "time": "0.035",
+        "tests": "3",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.MarketEconomyTest",
+        "time": "0.447",
+        "tests": "13",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.IndustrialProgressionTest",
+        "time": "0.223",
+        "tests": "10",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.ShippingProtocolCompatibilityTest",
+        "time": "3.121",
+        "tests": "3",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.EditHistoryTest",
+        "time": "0.034",
+        "tests": "1",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CityMaterialsTest",
+        "time": "22.395",
+        "tests": "13",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.ManufacturingTest",
+        "time": "26.961",
+        "tests": "8",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.AviationSaveCompatibilityTest",
+        "time": "0.042",
+        "tests": "1",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CityAddressesTest",
+        "time": "2.928",
+        "tests": "3",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.ParcelPortfolioTest",
+        "time": "0.475",
+        "tests": "9",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CityToolsTest",
+        "time": "0.117",
+        "tests": "10",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.MayorDashboardTest",
+        "time": "0.023",
+        "tests": "3",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CityCapitalTest",
+        "time": "2.689",
+        "tests": "11",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.StressGridRoadMarkingsTest",
+        "time": "0.001",
+        "tests": "1",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.net.city.CityStockExchangeTest",
+        "time": "0.017",
+        "tests": "10",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.DistantTerrainTest",
+        "time": "0.112",
+        "tests": "6",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.RailwaySaveCompatibilityTest",
+        "time": "0.098",
+        "tests": "3",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.ControlsTest",
+        "time": "0.023",
+        "tests": "5",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.physics.PhysicsTest",
+        "time": "3.467",
+        "tests": "25",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.EngineEditorTest",
+        "time": "0.013",
+        "tests": "3",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CapitalInspectorTest",
+        "time": "0.003",
+        "tests": "1",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.RemotePlayerTest",
+        "time": "0.002",
+        "tests": "1",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.JeepTest",
+        "time": "0.355",
+        "tests": "8",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.ModelSculptorTest",
+        "time": "0.01",
+        "tests": "3",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.PlayerCameraTest",
+        "time": "0.027",
+        "tests": "3",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.physics.WheelContactTest",
+        "time": "0.016",
+        "tests": "4",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.PopulationJourneyTest",
+        "time": "24.577",
+        "tests": "2",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.SpecialBuildingsTest",
+        "time": "0.212",
+        "tests": "6",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.ExchangePermitCompositionTest",
+        "time": "0.002",
+        "tests": "1",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CityMetricsTest",
+        "time": "0.005",
+        "tests": "5",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CityTimeTest",
+        "time": "19.936",
+        "tests": "6",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CitizenLifeTest",
+        "time": "0.064",
+        "tests": "8",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CapitalSettlementLimitsTest",
+        "time": "0.086",
+        "tests": "9",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CityMultiplayerTest",
+        "time": "25.499",
+        "tests": "1",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.BuildingInfoTest",
+        "time": "0.043",
+        "tests": "5",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.physics.HingeSwingTest",
+        "time": "0.051",
+        "tests": "3",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.physics.HingeInertiaTest",
+        "time": "0.004",
+        "tests": "3",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.physics.ContactTriggerTest",
+        "time": "0.01",
+        "tests": "6",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.VideoRecordingTest",
+        "time": "0.49",
+        "tests": "7",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.MixedRoadOwnershipTest",
+        "time": "0.767",
+        "tests": "8",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.OperatingEnergyTest",
+        "time": "0.149",
+        "tests": "4",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.ShippingRoutesTest",
+        "time": "0.875",
+        "tests": "6",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.LightingTest",
+        "time": "0.045",
+        "tests": "5",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.physics.ForceInertiaTest",
+        "time": "0.005",
+        "tests": "7",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.RoadTypesTest",
+        "time": "0.981",
+        "tests": "9",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.physics.DistanceLoadTest",
+        "time": "0.813",
+        "tests": "7",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.IsometricOrbitDragTest",
+        "time": "0.004",
+        "tests": "1",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.RoadGuideHeightTest",
+        "time": "0.056",
+        "tests": "1",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.PlayerTest",
+        "time": "0.093",
+        "tests": "6",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.StressGridTest",
+        "time": "0.458",
+        "tests": "7",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.RoadBaseCompatibilityTest",
+        "time": "0.105",
+        "tests": "2",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CitySavesTest",
+        "time": "0.02",
+        "tests": "2",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.UpdaterTest",
+        "time": "1.011",
+        "tests": "2",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.RoadMarkingsTest",
+        "time": "0.329",
+        "tests": "4",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.FreightFallbackTest",
+        "time": "0.05",
+        "tests": "2",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.RegionalPopulationTest",
+        "time": "0.857",
+        "tests": "10",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.RailwayShippingCompatibilityTest",
+        "time": "0.031",
+        "tests": "2",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.RoadCitySavesTest",
+        "time": "0.132",
+        "tests": "1",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.SurvivalTest",
+        "time": "0.704",
+        "tests": "4",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CityBusinessTest",
+        "time": "7.731",
+        "tests": "9",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.RailwayAirportCompatibilityTest",
+        "time": "0.116",
+        "tests": "2",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.LightOcclusionTest",
+        "time": "1.567",
+        "tests": "6",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.AccountStoreTest",
+        "time": "5.423",
+        "tests": "2",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.MultiplayerTest",
+        "time": "108.854",
+        "tests": "15",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.RailwayOwnershipCompatibilityTest",
+        "time": "0.128",
+        "tests": "2",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CapitalDashboardTest",
+        "time": "0.057",
+        "tests": "3",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.FractionalWorldTest",
+        "time": "0.075",
+        "tests": "7",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.MetricHistoryTest",
+        "time": "1.509",
+        "tests": "5",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.StressGridDevelopmentTest",
+        "time": "45.945",
+        "tests": "3",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.RegionalSaveCompatibilityTest",
+        "time": "0.045",
+        "tests": "4",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.RoadTrafficTest",
+        "time": "0.422",
+        "tests": "26",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CityTest",
+        "time": "8.614",
+        "tests": "10",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.ShopRestockMarketTest",
+        "time": "0.053",
+        "tests": "4",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.ProtocolCompatibilityTest",
+        "time": "5.229",
+        "tests": "3",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.physics.PlatformCarryTest",
+        "time": "0.064",
+        "tests": "4",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.RoadWorkflowTest",
+        "time": "0.11",
+        "tests": "5",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.physics.CcdMotionTest",
+        "time": "0.642",
+        "tests": "5",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.BusinessCatalogTest",
+        "time": "1.411",
+        "tests": "12",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.net.city.RoadSpacingTest",
+        "time": "0.068",
+        "tests": "3",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CityEconomyTest",
+        "time": "11.192",
+        "tests": "7",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.InventoryHudTest",
+        "time": "0.012",
+        "tests": "2",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.VehicleAudioTest",
+        "time": "0.002",
+        "tests": "1",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.ShippingAviationCompatibilityTest",
+        "time": "1.051",
+        "tests": "3",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.DemolitionTest",
+        "time": "19.008",
+        "tests": "3",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.TerrainGenerationTest",
+        "time": "0.972",
+        "tests": "10",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.ShippingTest",
+        "time": "0.111",
+        "tests": "6",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.PlayerAnimationTest",
+        "time": "0.181",
+        "tests": "6",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.CityFormat16RegressionTest",
+        "time": "0.052",
+        "tests": "2",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.AviationTest",
+        "time": "1.448",
+        "tests": "10",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.RegionalMultiplayerTest",
+        "time": "8.361",
+        "tests": "1",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.StressGridLightingTest",
+        "time": "1.305",
+        "tests": "1",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.AgricultureTest",
+        "time": "77.467",
+        "tests": "8",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.IsometricCameraTest",
+        "time": "0.034",
+        "tests": "8",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      },
+      {
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd",
+        "version": "3.0.2",
+        "name": "dev.jayms.VoxelModelTest",
+        "time": "0.123",
+        "tests": "6",
+        "errors": "0",
+        "skipped": "0",
+        "failures": "0"
+      }
+    ]
+  },
+  "testedWorktreeParentCommit": "1008665add45ffd42f29451e4d7eb30980c1e405",
+  "completedAt": "2026-10-07T22:33:43.250351+00:00"
+}

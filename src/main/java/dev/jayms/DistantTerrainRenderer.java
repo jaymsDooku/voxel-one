@@ -27,6 +27,16 @@ public final class DistantTerrainRenderer implements AutoCloseable {
     private Set<DistantTerrainPlan.Tile> wanted = Set.of();
     private int centerX = Integer.MIN_VALUE, centerZ = Integer.MIN_VALUE;
     private int rendered;
+    private int projectionPixels;
+    private float screenProjection,elevation; private int screenHeight; private boolean orthographic;
+    private final Map<DistantTerrainPlan.Tile,Float> transitionStart=new HashMap<>();
+    public void screen(Matrix4f projection,int height,boolean iso,float cameraY) {
+        // Quantize viewport scale to avoid rebuilding on tiny zoom changes.
+        int scale=Math.round(Math.abs(projection.m11())*height/32f)*32;
+        if(scale!=projectionPixels || iso!=orthographic || Math.abs(cameraY-elevation)>16) {
+            projectionPixels=scale;screenHeight=height;screenProjection=scale/(float)Math.max(1,height);orthographic=iso;elevation=cameraY;centerX=Integer.MIN_VALUE;
+        }
+    }
 
     public DistantTerrainRenderer(long seed) {
         this(seed, Terrain.CURRENT_VERSION);
@@ -59,7 +69,7 @@ public final class DistantTerrainRenderer implements AutoCloseable {
         if (plan == null || px != centerX || pz != centerZ) {
             centerX = px;
             centerZ = pz;
-            plan = new DistantTerrainPlan(px, pz);
+            plan = new DistantTerrainPlan(px,pz,screenProjection,screenHeight,orthographic,Math.max(0,elevation-24));
             wanted = new HashSet<>(plan.tiles());
             remove(t -> !wanted.contains(t));
         }
@@ -79,6 +89,7 @@ public final class DistantTerrainRenderer implements AutoCloseable {
             if (!entry.getValue().isDone()) continue;
             try {
                 meshes.put(entry.getKey(), new Mesh(entry.getValue().get()));
+                transitionStart.put(entry.getKey(),(float)org.lwjgl.glfw.GLFW.glfwGetTime());
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new IllegalStateException("Terrain generation interrupted", e);
@@ -102,7 +113,7 @@ public final class DistantTerrainRenderer implements AutoCloseable {
                 .removeIf(
                         e -> {
                             if (!obsolete.test(e.getKey())) return false;
-                            e.getValue().close();
+                            e.getValue().close();transitionStart.remove(e.getKey());
                             return true;
                         });
         pending.entrySet()
@@ -129,7 +140,18 @@ public final class DistantTerrainRenderer implements AutoCloseable {
         shader.setInt("uVertexColor", 1);
         shader.setInt("uInstanced", 0);
         rendered = 0;
-        for (var tile : plan.select(meshes.keySet())) {
+        java.util.Set<DistantTerrainPlan.Tile> selected=new HashSet<>(plan.select(meshes.keySet()));
+        java.util.Map<DistantTerrainPlan.Tile,Float> fadingParents=new HashMap<>();
+        float now=(float)org.lwjgl.glfw.GLFW.glfwGetTime();
+        for(var tile:selected) {
+            float age=now-transitionStart.getOrDefault(tile,now-1);
+            if(age<.4f&&tile.size()<1024) {
+                int size=tile.size()*2;var parent=new DistantTerrainPlan.Tile(Math.floorDiv(tile.x(),size)*size,Math.floorDiv(tile.z(),size)*size,size);
+                if(meshes.containsKey(parent)&&!selected.contains(parent))fadingParents.merge(parent,age/.4f,Math::min);
+            }
+        }
+        java.util.List<DistantTerrainPlan.Tile> draws=new ArrayList<>(selected);draws.addAll(fadingParents.keySet());
+        for (var tile : draws) {
             if (!frustum.testAab(
                     tile.x(),
                     Terrain.MIN_Y,
@@ -138,10 +160,15 @@ public final class DistantTerrainRenderer implements AutoCloseable {
                     Terrain.MAX_Y + 1,
                     tile.z() + tile.size())) continue;
             shader.setMatrix4("uModel", new Matrix4f().translation(tile.x(), 0, tile.z()));
+            Float fade=fadingParents.get(tile);
+            int parentSize=tile.size()*2;var parent=new DistantTerrainPlan.Tile(Math.floorDiv(tile.x(),parentSize)*parentSize,Math.floorDiv(tile.z(),parentSize)*parentSize,parentSize);
+            float childFade=fadingParents.getOrDefault(parent,1f);
+            shader.setFloat("uLodFade",fade==null?childFade:fade);shader.setInt("uLodParent",fade==null?0:1);
             meshes.get(tile).render();
             rendered++;
         }
         shader.setInt("uDistantTerrain", 0);
+        shader.setFloat("uLodFade",1);shader.setInt("uLodParent",0);
     }
 
     @Override
