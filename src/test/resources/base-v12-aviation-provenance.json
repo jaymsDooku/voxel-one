@@ -1,0 +1,11 @@
+{
+  "baseCommit": "1ecbf565c449d7b5c96a621310c1a012b80ae1aa",
+  "generation": "Compiled archived base src/main/java and base AviationTest.java plus deploy/WriteBaseAviationSave.java; isolated synthetic fixture. Base classes preceded dependency jars; no current classes on writer classpath.",
+  "citySaveMagic": "0x4349543C",
+  "networkProtocol": 22,
+  "contents": "Two synthetic airports; origin expanded to2 runways; one booked synthetic flight; default base access roads/citizens/economy. No private profiles/accounts.",
+  "sha256": {
+    "base-v12-aviation-city.dat": "741409ae34edf28c5a8b832a2ffec37aa47aa06899bccb781d965791d25abfbc",
+    "base-v12-aviation-state.txt": "0c67515794a70631901f8ffa4179180f73b1ef8a90461dce7b0ad0c298d29760"
+  }
+}

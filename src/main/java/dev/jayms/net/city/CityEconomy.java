@@ -410,6 +410,11 @@ public final class CityEconomy {
         // Legacy city frames had no economy firms. Seed their catalog before adopt() while
         // respecting configured catalogs whose starting roster is intentionally empty.
         if (state == null || state.firms().isEmpty()) ensureIndustries();
+        if (state != null && resources.catalog.equals(ProductionCatalog.settlementGame())) {
+            resources.catalog = ProductionCatalog.cityGame();
+            IndustrialProgression.importSettlementHistory(this);
+            ensureIndustries();
+        }
         capital =
                 new CityCapital(this, state == null ? CityCapital.State.empty() : state.capital());
     }
@@ -472,12 +477,14 @@ public final class CityEconomy {
 
     public Plot buyPlot(int zone, int type, int x, int y, int z, int businessKind) {
         if (type == 3 && !CityMaterials.farmer(businessKind)) return null;
+        if (type == 2 && !IndustrialProgression.unlocked(resources, businessKind)) return null;
         double land =
                 (type == 3 ? 48 : 24)
                         * pressure(
                                 ecs.query(CitySimulation.Household.class).size(),
                                 16 + plots.stream().filter(p -> p.type() == type).count() * 4);
-        var recipe = CityMaterials.requirements(type, businessKind);
+        int purpose = type == 0 && IndustrialLogistics.denseHousing(resources.state()) ? 50 : businessKind;
+        var recipe = CityMaterials.requirements(type, purpose);
         double cost =
                 recipe.stream()
                         .mapToDouble(
@@ -535,7 +542,7 @@ public final class CityEconomy {
                         0,
                         0);
         plots.add(p);
-        resources.plan(p, businessKind);
+        resources.plan(p, purpose);
         return p;
     }
 
@@ -776,7 +783,8 @@ public final class CityEconomy {
                                     / (double) CityMaterials.UNIT;
         }
         for (var firm : companies())
-            for (var recipe : resources.catalog.recipes(firm.kind))
+            for (var recipe : IndustrialProgression.unlocked(resources, firm.kind)
+                    ? resources.catalog.recipes(firm.kind) : List.<ProductionCatalog.Recipe>of())
                 demand +=
                         Math.max(
                                         0,
@@ -915,6 +923,7 @@ public final class CityEconomy {
                                                                     ? CityMaterials.farmer(c.kind)
                                                                     : b.type() == 2
                                                                             ? c.kind >= 2
+                                                                                    && IndustrialProgression.unlocked(resources, c.kind)
                                                                                     && !CityMaterials
                                                                                             .farmer(
                                                                                                     c.kind)
@@ -935,7 +944,68 @@ public final class CityEconomy {
         }
     }
 
-    /** Seller stocks and buyer cash are validated before either is moved. */
+    private List<CityFrame.Building> logisticsBuildings = List.of();
+
+    private double logisticsHours;
+    private final Map<Integer, Double> nextFleetVisit = new HashMap<>();
+
+    public void logisticsClock(double hours) { logisticsHours = hours; }
+
+    public void logisticsSites(List<CityFrame.Building> buildings) {
+        logisticsBuildings = List.copyOf(buildings);
+    }
+
+    private double[] site(int kind, int owner) {
+        if (kind == CITIZEN) {
+            var p = ecs.get(owner, CitySimulation.Position.class);
+            return p == null ? new double[]{8, 24} : new double[]{p.x, p.z};
+        }
+        var property = properties.stream().filter(p -> p.operator() == owner || p.ownerKind() == COMPANY && p.owner() == owner)
+                .findFirst().orElse(null);
+        if (property != null) {
+            var building = logisticsBuildings.stream().filter(b -> b.id() == property.building()).findFirst().orElse(null);
+            if (building != null) return new double[]{building.x(), building.z()};
+        }
+        var plot = plots.stream().filter(p -> p.developer() == owner).findFirst().orElse(null);
+        return plot == null ? new double[]{8, 24} : new double[]{plot.x(), plot.z()};
+    }
+
+    /** Road transit fares pay the private fleet owner; no public subsidy or free energy. */
+    public double passengerSpeed(int citizen, double hours) {
+        if (!IndustrialProgression.enabled(resources.catalog) || !Double.isFinite(hours) || hours <= 0) return 2.2;
+        int tier = IndustrialProgression.tier(resources);
+        var needs = ecs.get(citizen, CitySimulation.Needs.class);
+        if (needs == null) return 2.2;
+        // Cars remain owned by their buyer; fuel is replenished through normal private trade.
+        if (tier >= 6 && (resources.available(CITIZEN, citizen, IndustrialProgression.CAR) >= CityMaterials.UNIT
+                || tier >= 8 && resources.available(CITIZEN, citizen, IndustrialProgression.ADVANCED_VEHICLE) >= CityMaterials.UNIT)) {
+            long fuel = Math.max(1, (long) Math.ceil(hours * CityMaterials.UNIT));
+            if (resources.remove(CITIZEN, citizen, IndustrialProgression.FUEL, fuel))
+                return tier >= 8 && resources.available(CITIZEN, citizen, IndustrialProgression.ADVANCED_VEHICLE) >= CityMaterials.UNIT ? 9 : 7;
+        }
+        for (int asset : new int[]{IndustrialProgression.METRO, IndustrialProgression.TRAM, IndustrialProgression.BUS}) {
+            if (tier < (asset == IndustrialProgression.BUS ? 5 : 7)) continue;
+            int energy = asset == IndustrialProgression.BUS ? IndustrialProgression.FUEL : IndustrialProgression.POWER;
+            long use = Math.max(1, (long) Math.ceil(hours * CityMaterials.UNIT));
+            double fare = hours * .2;
+            for (var provider : companies()) {
+                if (resources.available(COMPANY, provider.id, asset) < CityMaterials.UNIT
+                        || needs.money < fare || !resources.remove(COMPANY, provider.id, energy, use)) continue;
+                needs.money -= (float) fare;
+                provider.cash += fare;
+                provider.receipts += fare;
+                return asset == IndustrialProgression.METRO ? 10 : asset == IndustrialProgression.TRAM ? 8 : 6;
+            }
+        }
+        return 2.2;
+    }
+
+    private double freightDistance(int sellerKind, int seller, int buyerKind, int buyer) {
+        var from = site(sellerKind, seller); var to = site(buyerKind, buyer);
+        return Math.hypot(from[0] - to[0], from[1] - to[1]);
+    }
+
+    /** Seller stocks, buyer cash and freight energy are checked before cargo is moved. */
     public boolean trade(
             int sellerKind, int seller, int buyerKind, int buyer, int material, long units) {
         return trade(
@@ -968,6 +1038,8 @@ public final class CityEconomy {
         double amount = units / (double) CityMaterials.UNIT * price;
         if (cash(sellerKind, seller) < 0 || cash(buyerKind, buyer) < amount) return false;
         if (resources.available(buyerKind, buyer, material) > 1_000_000_000L - units) return false;
+        if (!IndustrialLogistics.deliver(resources, buyerKind, buyer,
+                freightDistance(sellerKind, seller, buyerKind, buyer), units)) return false;
         resources.remove(sellerKind, seller, material, units);
         resources.add(buyerKind, buyer, material, units);
         cash(buyerKind, buyer, -amount);
@@ -984,7 +1056,19 @@ public final class CityEconomy {
         return true;
     }
 
+    private boolean provisioningFleet;
+
+    public void provisionFleet(int company) {
+        if (provisioningFleet || !IndustrialProgression.enabled(resources.catalog)
+                || logisticsHours < nextFleetVisit.getOrDefault(company, -1.0)) return;
+        nextFleetVisit.put(company, logisticsHours + .25);
+        provisioningFleet = true;
+        try { IndustrialLogistics.provision(this, company); }
+        finally { provisioningFleet = false; }
+    }
+
     public boolean purchase(int company, int material, long needed) {
+        if (!provisioningFleet && company(company) != null) provisionFleet(company);
         return purchase(COMPANY, company, material, needed);
     }
 
@@ -1000,11 +1084,12 @@ public final class CityEconomy {
     /** Fill shop inventory from the cheapest affordable nutrition, rechecking each portion. */
     public void restockFood(int buyer, long neededPortions) {
         if (company(buyer) == null || neededPortions < 0 || neededPortions > 1_000_000) return;
+        provisionFleet(buyer);
         long portions = resources.catalog.food().stream()
                 .mapToLong(food -> resources.available(COMPANY, buyer, food) / CityMaterials.UNIT)
                 .sum();
         while (portions < neededPortions) {
-            FoodSupply best = null;
+            var supplies = new ArrayList<FoodSupply>();
             for (int food : resources.catalog.food()) {
                 if (food == CityMaterials.FOOD) continue;
                 for (var seller : companies()) {
@@ -1015,14 +1100,19 @@ public final class CityEconomy {
                     double price = offer(COMPANY, seller.id, food);
                     if (cash(COMPANY, buyer) < price) continue;
                     double cost = price / resources.catalog.nutrition(food);
-                    if (best == null || cost < best.nutritionCost()
-                            || cost == best.nutritionCost() && (food < best.product()
-                                    || food == best.product() && seller.id < best.seller()))
-                        best = new FoodSupply(seller.id, food, price, cost);
+                    supplies.add(new FoodSupply(seller.id, food, price, cost));
                 }
             }
-            if (best == null || !trade(COMPANY, best.seller(), COMPANY, buyer, best.product(),
-                    CityMaterials.UNIT, best.price())) return;
+            supplies.sort(Comparator.comparingDouble(FoodSupply::nutritionCost)
+                    .thenComparingInt(FoodSupply::product).thenComparingInt(FoodSupply::seller));
+            boolean bought = false;
+            for (var supply : supplies)
+                if (trade(COMPANY, supply.seller(), COMPANY, buyer, supply.product(),
+                        CityMaterials.UNIT, supply.price())) {
+                    bought = true;
+                    break;
+                }
+            if (!bought) return;
             portions++;
         }
     }
@@ -1044,7 +1134,8 @@ public final class CityEconomy {
                                                         sellerDiscount(COMPANY, c.id, material))
                                         .thenComparingInt(c -> c.id))
                         .toList())
-            if (maySell(seller, buyerKind, buyer, material)) {
+            if (resources.available(COMPANY, seller.id, material) > 0
+                    && maySell(seller, buyerKind, buyer, material)) {
                 double price = offer(COMPANY, seller.id, material);
                 long affordable =
                         (long) Math.floor(cash(buyerKind, buyer) / price * CityMaterials.UNIT);

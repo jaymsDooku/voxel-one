@@ -113,7 +113,10 @@ public record BusinessCatalog(List<Type> types, List<Company> companies) {
     }
 
     public static BusinessCatalog load(Properties p, boolean agriculture) {
-        var defaults = defaults(agriculture);
+        return load(p, defaults(agriculture));
+    }
+
+    public static BusinessCatalog load(Properties p, BusinessCatalog defaults) {
         var types = new ArrayList<>(defaults.types);
         var configured = new HashSet<Integer>();
         for (String value : list(p.getProperty("business.types", ""))) {

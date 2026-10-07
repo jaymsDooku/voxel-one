@@ -1,0 +1,7 @@
+{
+  "result": "passed",
+  "platform": "Linux native GLFW/OpenGL; inherited role display",
+  "profile": "isolated synthetic trained crews and seeded input stocks; 60-second production rate at fixed workday hour",
+  "playtest": "Click Businesses then Resource progression; place industrial zone; run paid factory shifts through all eight eras; test unreachable cheapest food seller with local fallback, cart fallback with insufficient train coal, no-feasible-mode atomicity, locked work, freight energy and range, atomic boosted operating energy exact-stock and one-unit-short checks, advanced manufacturing, reserved dense housing and full-height demolition, and exact save/reload",
+  "unlockSamples": "tier 2: prerequisite batches earned in paid simulation; tier 3: prerequisite batches earned in paid simulation; tier 4: prerequisite batches earned in paid simulation; tier 5: prerequisite batches earned in paid simulation; tier 6: prerequisite batches earned in paid simulation; tier 7: prerequisite batches earned in paid simulation; tier 8: prerequisite batches earned in paid simulation"
+}

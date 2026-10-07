@@ -1,0 +1,195 @@
+{
+  "result": "passed",
+  "publication": "Pending controller publication from the assigned feature branch",
+  "environment": {
+    "platform": "Linux",
+    "java": "25.0.3",
+    "maven": "3.9.11",
+    "natives": "natives-linux",
+    "cache": "target/m2 (offline)",
+    "nativeDisplay": "Inherited assigned DISPLAY and XAUTHORITY; values and authentication data excluded"
+  },
+  "suiteReports": {
+    "tests": 305,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "classes": 52,
+    "note": "Aggregate reports, including earlier runs. Not a final-head full-suite pass."
+  },
+  "commands": [
+    {
+      "command": "JAVA_TOOL_OPTIONS=-Djava.io.tmpdir=$PWD/target/tmp timeout 900 /tmp/apache-maven-3.9.11/bin/mvn -q -o -Dmaven.repo.local=target/m2 -Dlwjgl.natives=natives-linux test",
+      "exitCode": 0,
+      "note": "Full suite passed before the final custom-catalog compatibility guard and removal of decorative industrial blueprint additions."
+    },
+    {
+      "command": "JAVA_TOOL_OPTIONS=-Djava.io.tmpdir=$PWD/target/tmp /tmp/apache-maven-3.9.11/bin/mvn -q -o -Dmaven.repo.local=target/m2 -Dlwjgl.natives=natives-linux -Dtest=IndustrialProgressionTest,BusinessCatalogTest,ManufacturingTest,DemolitionTest test",
+      "exitCode": 0,
+      "note": "Final source compatibility retest: 31 tests passed. Includes custom kind 35 extraction, default save upgrades, finite production, factory premises, construction, demolition and serialization."
+    },
+    {
+      "command": "python3 deploy/run_resource_progression_smoke.py --display \"$DISPLAY\" --profile target/resource-progression-profile-12",
+      "exitCode": 0,
+      "note": "Playtest: actual native game UI and paid CitySimulation production in a fresh synthetic profile."
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0
+    },
+    {
+      "command": "JAVA_TOOL_OPTIONS=-Djava.io.tmpdir=$PWD/target/tmp timeout 900 /tmp/apache-maven-3.9.11/bin/mvn -q -o -Dmaven.repo.local=target/m2 -Dlwjgl.natives=natives-linux test",
+      "exitCode": 143,
+      "note": "Rebased full-suite attempt terminated. No final-head full-suite pass claimed."
+    },
+    {
+      "command": "python3 deploy/run_resource_progression_smoke.py --display \"$DISPLAY\" --profile target/resource-progression-final-rebase-profile",
+      "exitCode": 0,
+      "note": "Playtest: fresh native progression workflow and media after rebase."
+    },
+    {
+      "command": "JAVA_HOME=\"$(dirname \"$(dirname \"$(readlink -f /usr/bin/java)\")\")\" python3 deploy/run_jeep_playtest.py --display \"$DISPLAY\"",
+      "exitCode": 0,
+      "note": "Playtest: actual Main GLFW callbacks and X11 input; isolated synthetic world and worktree-local home. target/maven-cache symlink points to target/m2. Fresh screenshots and F10 video. Application shutdown save reloads exact position and heading; restored jeep is parked."
+    },
+    {
+      "command": "JAVA_TOOL_OPTIONS=-Djava.io.tmpdir=$PWD/target/tmp /tmp/apache-maven-3.9.11/bin/mvn -q -o -Dmaven.repo.local=target/m2 -Dlwjgl.natives=natives-linux -Dtest=JeepTest,IndustrialProgressionTest,BusinessCatalogTest,ManufacturingTest,DemolitionTest test",
+      "exitCode": 0,
+      "note": "Final rebased source: 37 focused tests passed."
+    }
+  ],
+  "playtest": {
+    "fixture": "Fresh synthetic city; prebuilt factories, trained crews, seeded recipe inputs, private company funds, 60-second production rate at fixed workday hour. Crews are pinned at work sites to isolate production. This does not claim an unseeded city reached all eight eras.",
+    "steps": [
+      {
+        "step": "Click Businesses then Resource progression in the native Mayor dashboard; place roads and an industrial zone through game commands.",
+        "expected": "Settlement view, locked future eras and valid industrial zone.",
+        "observed": "Passed; settlement screenshot captured."
+      },
+      {
+        "step": "Attempt production work for the locked advanced company.",
+        "expected": "No production or material purchase.",
+        "observed": "Stocks and company cash unchanged; locked status reported."
+      },
+      {
+        "step": "Run paid simulation shifts until each era prerequisite is made.",
+        "expected": "Every era unlocks from completed batches; wages are paid.",
+        "observed": "All eight eras unlocked; multiple eras can unlock in one advance when their chains are ready."
+      },
+      {
+        "step": "Run all advanced lines with equipment and inputs.",
+        "expected": "Plastics, electronics, alloys, modern trains and advanced vehicles made; electricity consumed.",
+        "observed": "Every advanced recipe has completed batches; owned electricity decreased. Progress and paid manufacturing screenshots captured."
+      },
+      {
+        "step": "Reserve and finish dense housing, then demolish it.",
+        "expected": "Exact materials consumed, capacity eight and no roof left after demolition.",
+        "observed": "Finished eight-resident house; roof at y=36 cleared to air."
+      },
+      {
+        "step": "Isolate an owned coal freight train and station; haul 16 units across 300 cells; try 900 cells.",
+        "expected": "Coal used for the first delivery; second delivery rejected.",
+        "observed": "Delivery passed and coal decreased; out-of-range delivery rejected."
+      },
+      {
+        "step": "Save, read and restore the tested city.",
+        "expected": "Exact frame and tier-eight proofs retained.",
+        "observed": "Exact frame equality passed; restored era remains eight."
+      }
+    ],
+    "browser": "Browser playtesting does not apply to this native Java/OpenGL game and its production CLI integration."
+  },
+  "limitations": [
+    "Transport is modeled as private freight and commuter services; this change has no separate rail route editor or vehicle models.",
+    "Starter masonry, basic glass and lighting recipes remain for bootstrap and saved-world compatibility.",
+    "Earlier full attempts hit time limits or were interrupted during fixes; no pass is claimed for those attempts."
+  ],
+  "mediaSha256": {
+    "resource-progression-settlement.png": "58af635d064b4841f4e84d6fa920ee087aa90fe1b894f994fec4ff368cccea07",
+    "resource-progression-advanced.png": "c271e716548032b407f2ff20208dacb1ec5a0329050e1679ab061431916cbc55",
+    "resource-progression-manufacturing.png": "e2bb6de576a84ca4fc3152abafd63b03e32265c3d63f506050a2581e088b82f0",
+    "jeep-driving.mp4": "d6fa04792d9eed41718312c70eac2171394785763cdc3ea2c66b40cb3fb15efa",
+    "jeep-wall.png": "098a46ff675c9e3f06747e2f26d205c4423c363fa3d707876847f9632a3f2849",
+    "jeep-windshield.png": "5f5a030f84830fdcbe6ba9725c52ae0846594a8c2a552724f86b65fb13231d50",
+    "jeep-driver-seat.png": "c8fc7d1968cf6566c8fdb9fe0b8a1ffdc0311cdd257cbb1b3afb4c092ef94aa8",
+    "jeep-parked.png": "997a483dc87c87c638cf80e580d2edd721a7d29ea1b53c23b8b9d5e750de5a93"
+  },
+  "sourceSha256": {
+    "config/city-production.properties": "e2e1fa959add639f4081125b22d6db9512e1e000a3e0845322c10ba5024615db",
+    "deploy/ResourceProgressionSmoke.java": "f3d5ffca272cb0e1ac80ef0dbb6822c8432184c24c186a01ce925c4d4c6c5779",
+    "deploy/run_resource_progression_smoke.py": "55e3b3520ceabaf4a952c739922244ac42bd2556359467679978c6b8ed179400",
+    "src/main/java/dev/jayms/net/city/Agriculture.java": "42f2e8a6eb31b4ee68433db88c39c054cb05cb0b94fdcb9ea8485b2d9cb99514",
+    "src/main/java/dev/jayms/net/city/BusinessCatalog.java": "f76e78c26d436a7b033eab4658615168ed4bcbf0bcaa586e70f44bb08f483c51",
+    "src/main/java/dev/jayms/net/city/BusinessMetrics.java": "41087cc15596fa0495bdddd18b8ae1b37dcb0b279f3d23a8f9aaec4fde1d9b1f",
+    "src/main/java/dev/jayms/net/city/CitizenLife.java": "6a6954931f4536740fd6b4b6e20b57bf131cdfe329afe02b64363db733512a88",
+    "src/main/java/dev/jayms/net/city/CityAddresses.java": "8e2ee06138357fc730bf601f051cfdf6a845327685739dcc1a6160f00833de26",
+    "src/main/java/dev/jayms/net/city/CityBusinesses.java": "50a66c7ffc66a7e687822d3fde396338a9882ad3f1037beb8f7ff1363d6a7920",
+    "src/main/java/dev/jayms/net/city/CityCapital.java": "3d3476cf157e5818adad8c8250186ebd1ee581a8207e8a0a96c29fcf9588b82d",
+    "src/main/java/dev/jayms/net/city/CityCommand.java": "b050ea4251364d64e5ab28f3fc4a5e47403fda2bfc88c559b230466308c9da16",
+    "src/main/java/dev/jayms/net/city/CityEconomy.java": "e1a9ba1c217421aef20eb006abadfffa30e34dedbc7a23b1a95b18fc3945ce43",
+    "src/main/java/dev/jayms/net/city/CityFrame.java": "54df307db25a628c07c9ddc16de97f2af1ad3c7a3c47db42e3756913f98a79b5",
+    "src/main/java/dev/jayms/net/city/CityHarvesting.java": "c0996247ec8c3e91ffa1d39523ae2ff26644781309d48fe236a20c7d98c59a92",
+    "src/main/java/dev/jayms/net/city/CityMaterials.java": "25bed66fcf5f4ffea36571772bcf5953093ca8b2aa9711e1881403e945b19205",
+    "src/main/java/dev/jayms/net/city/CityMetrics.java": "2f4aa707c9150fdb5e32fc9154505a3274c8608af0e43de4c5e287c246259181",
+    "src/main/java/dev/jayms/net/city/CityOccupancy.java": "078e7e5c3c23944b5dcd8d76bc411b4813e2fb5a6c4d9953d078c3010d3631d6",
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "1d1916bda0caa9896c21544e251cad5b5ea7f7dc54ab1edbe7387e8517aa429c",
+    "src/main/java/dev/jayms/net/city/CityStockExchange.java": "b407c53961601a4c9b3d81dae10d6ddb64aa8defcd2546b328cdff20442f1b56",
+    "src/main/java/dev/jayms/net/city/CityTime.java": "06433762b2bb190236a0a85e13fa7b12225c0aca4cd4fa68e607f391f33fde8d",
+    "src/main/java/dev/jayms/net/city/Ecs.java": "45d0faac94eb4019db49bf122f3c885f1954ac748c6e59c7068abff63fae5578",
+    "src/main/java/dev/jayms/net/city/GameConfig.java": "4b6ddcd4a504fe9b0e465fb9d565a4984d07cfa3520673be49d4c189498f72f9",
+    "src/main/java/dev/jayms/net/city/IndustrialLogistics.java": "ef0ee5bcaf5a20a95159801559a1a2f106f2d00aa2c216348af68cd27f543bb2",
+    "src/main/java/dev/jayms/net/city/IndustrialProgression.java": "2ed81783e6102f87605835028ed0c3e6c66bb3a32f6dc5ec57998c671ce9c108",
+    "src/main/java/dev/jayms/net/city/Polygon.java": "31d9f1474f9563349bb24e6386a25d07eb6720fc54d471c4d791ae3ac21373be",
+    "src/main/java/dev/jayms/net/city/ProductionCatalog.java": "cdcbb91ab3477235e3c90453a436d523a1206e5596a3c8077c6ec06d6f296348",
+    "src/main/java/dev/jayms/net/city/SpecialBuildings.java": "5ef726d8342abac414429329aaee2ccdff84d3889dca475002e802e636c8267b",
+    "src/main/java/dev/jayms/net/city/StructureBlueprint.java": "0b25f150bec517a01d019e043d917ee6048dcfec05deb0afc85eeda59bc27e36",
+    "src/main/java/dev/jayms/ui/BusinessDashboard.java": "b91157aed2ee391e3167d6fa6f263ac7ab02ec3b665a7dd2ade56e0c6c01fad2",
+    "src/test/java/dev/jayms/AgricultureTest.java": "289f5834882a1b82bf9c5b20b2f675c9ea17ab513325520656c2a68a49102223",
+    "src/test/java/dev/jayms/CityMultiplayerTest.java": "358e47de5e83213d449167a5eeb3f1d511dd005d48bc867a8cb6afd785042669",
+    "src/test/java/dev/jayms/IndustrialProgressionTest.java": "3ab1aa26ebe69dfeded0ad07c7eca7d185af388a40ca11aff9306074654ad3bb",
+    "deploy/JeepPlaytest.java": "a8945f6a985a359060faf116dedfa4f3c43b9fd710860932c2a4f5f7feef4911",
+    "src/main/java/dev/jayms/player/Jeep.java": "fee90881847413cfdf28669bb43c2f658f336543ca74f4ca4cd94fb569717645",
+    "src/main/java/dev/jayms/player/JeepModel.java": "22c0d10ff0dc9552a912ba07cb8939f9343acd157f31ab3597977b002b33b08c",
+    "src/main/java/dev/jayms/Main.java": "7ec4978592d8cccf015a2fe76017dfa01c3f65688e350aa1b74ef0bfd7377871",
+    "src/main/java/dev/jayms/player/Player.java": "c37b83e829f008693ce324a45b149226f5c36aa4a19bca3d876a094fe6d11618",
+    "src/main/java/dev/jayms/ui/Controls.java": "1f82764d31e522a6ad7fc31324adc82ef53862133bf9a0be6fbf5923d76a66cf",
+    "src/main/resources/shaders/voxel.frag": "3305a32170e0d5a671c6039b2acf31d7ae74e0ab527eb9dc60cbe9f55aa71eb3"
+  },
+  "rebasedHead": "724b1831b694124dcb8a7b8f78925749406606f3",
+  "jeepRegression": {
+    "status": "passed",
+    "platform": "Linux assigned X11 display",
+    "profile": "isolated synthetic",
+    "checks": [
+      "driver entry",
+      "first-person windshield camera",
+      "third-person camera regression",
+      "W drive",
+      "Ctrl acceleration",
+      "S reverse",
+      "A/D steering",
+      "mouse steering",
+      "moving exit rejected",
+      "wall collision at boost speed",
+      "stopped exit",
+      "walking regression",
+      "application shutdown save",
+      "exact position and heading reload",
+      "restored jeep parked"
+    ],
+    "recording": "F10 engine recorder"
+  },
+  "finalHeadFocusedTests": {
+    "classes": [
+      "JeepTest",
+      "IndustrialProgressionTest",
+      "BusinessCatalogTest",
+      "ManufacturingTest",
+      "DemolitionTest"
+    ],
+    "tests": 37,
+    "failures": 0,
+    "errors": 0,
+    "result": "passed"
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "result": "passed",
+  "publication": "Pending controller publication",
+  "testedBaseHead": "6ab249660fe381d93808105758b730f856741c51",
+  "environment": {
+    "platform": "Linux native GLFW/OpenGL",
+    "java": "25.0.3",
+    "maven": "3.9.11",
+    "dependencies": "Offline target/m2; natives-linux",
+    "temporaryFiles": "Worktree-local target/tmp",
+    "display": "Inherited assigned DISPLAY and XAUTHORITY; no values/cookies recorded",
+    "profile": "Fresh synthetic target/resource-progression-operating-energy-profile"
+  },
+  "commands": [
+    {
+      "command": "JAVA_TOOL_OPTIONS=-Djava.io.tmpdir=$PWD/target/tmp /tmp/apache-maven-3.9.11/bin/mvn -q -o -Dmaven.repo.local=target/m2 -Dlwjgl.natives=natives-linux -Dtest=OperatingEnergyTest,IndustrialProgressionTest,FreightFallbackTest,AviationSaveCompatibilityTest,ManufacturingTest test",
+      "exitCode": 0,
+      "tests": 24,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "command": "python3 deploy/run_resource_progression_smoke.py --display \"$DISPLAY\" --profile target/resource-progression-operating-energy-profile",
+      "exitCode": 0
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0
+    }
+  ],
+  "steps": [
+    {
+      "step": "Playtest: equipped electrical factory with copper/glass recipe inputs, exactly1 electricity unit and0.25 game hours",
+      "expected": "Boosted batch requires recipe1 unit plus1/16 operating unit; no input/output mutation when energy is short",
+      "observed": "Zero completed batches; every stock unchanged."
+    },
+    {
+      "step": "Playtest: same factory with4351 fixed-point power units, one fixed-point unit below combined cost",
+      "expected": "No batch; all inputs retained",
+      "observed": "Zero completed batches; stocks unchanged."
+    },
+    {
+      "step": "Playtest: same factory with4352 fixed-point power units (1+1/16 electricity units)",
+      "expected": "Exactly1 boosted batch; all recipe inputs and operating power paid",
+      "observed": "Completed1; power0; electrical equipment3 units including1 preowned equipment unit. Fresh native company dashboard capture visually inspected."
+    },
+    {
+      "step": "Ordinary unboosted crafting with exact recipe power",
+      "expected": "Recipe-only power sufficient without operating debit",
+      "observed": "Passed unit regression; recipe output count returned and power0."
+    },
+    {
+      "step": "Playtest: all8 paid progression unlocks, locked-work edge, advanced lines, freight range/energy, dense housing demolition, exact save/reload and both seller/mode fallback regressions",
+      "expected": "Existing workflows retained",
+      "observed": "Native harness exited0; fresh progression and fallback images captured."
+    }
+  ],
+  "limitations": [
+    "No full-suite pass claimed.24 focused tests and native workflow passed.",
+    "Electrical energy fixtures use direct production work calls with synthetic exact stock; paid full-simulation shifts remain covered by progression workflow.",
+    "Browser testing does not apply to native Java/OpenGL game.",
+    "Seeded progression inputs do not claim natural unseeded tier8 growth."
+  ],
+  "sourceSha256": {
+    "src/main/java/dev/jayms/net/city/CityMaterials.java": "8125841af8766549f00c6f77093dce9e0b5cf9b3e6addfa63e6befc355fae5fe",
+    "src/main/java/dev/jayms/net/city/CityHarvesting.java": "329c40847a74525beae16669183c52aeab26844b7f46b2abef8b09ade7121ef1",
+    "src/test/java/dev/jayms/OperatingEnergyTest.java": "3a214b7cfc4a9b60e5425c254e45164b6423e0c3aec43f041acccbc0faad9b90",
+    "deploy/ResourceProgressionSmoke.java": "161f10604015b2e3657e35b0dbd8c1ee42410623c815dfcf5139ded492c53201"
+  },
+  "mediaSha256": {
+    "resource-progression-operating-energy.png": "34de6be2425c994ac489e2d6c584ddb22dac276b0f05667de13f524bf4763d79",
+    "resource-progression-advanced.png": "624690b1e78e9ec9bb68ffcbffdd46eac68f9a3e71943439dbd0628fc9f566d6",
+    "resource-progression-food-fallback.png": "f15a6f8e877042bcdcccccc4a5f75fead373cdd1a348f92e6e28d191cdb051e3"
+  }
+}

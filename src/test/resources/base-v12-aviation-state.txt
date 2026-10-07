@@ -1,0 +1,1 @@
+State[flights=[Flight[id=1, origin=1, destination=2, citizen=1, originRunway=0, destinationRunway=0, stage=0, clock=0.0]]]

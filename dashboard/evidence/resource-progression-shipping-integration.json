@@ -1,0 +1,96 @@
+{
+  "result": "passed",
+  "publication": "Pending controller publication",
+  "testedHead": "08bf1b15b67e57d54ca52b52291bf5945b727d79",
+  "environment": {
+    "platform": "Linux X11/GLFW/OpenGL; Mesa",
+    "java": "25.0.3",
+    "maven": "3.9.11",
+    "cache": "Offline target/m2; natives-linux",
+    "temporaryFiles": "Worktree-local target/tmp",
+    "display": "Inherited assigned DISPLAY/XAUTHORITY; values/cookies excluded",
+    "profiles": "Reset synthetic target/shipping-home and target/shipping-runtime; fresh target/resource-progression-shipping-integrated-profile"
+  },
+  "commands": [
+    {
+      "command": "JAVA_TOOL_OPTIONS=-Djava.io.tmpdir=$PWD/target/tmp /tmp/apache-maven-3.9.11/bin/mvn -q -o -Dmaven.repo.local=target/m2 -Dlwjgl.natives=natives-linux -Dtest=ShippingTest,ShippingProtocolCompatibilityTest,ShippingAviationCompatibilityTest,AviationSaveCompatibilityTest,OperatingEnergyTest,IndustrialProgressionTest,FreightFallbackTest test",
+      "exitCode": 0,
+      "tests": 28,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "command": "python3 deploy/run_shipping_smoke.py --display \"$DISPLAY\"",
+      "exitCode": 0
+    },
+    {
+      "command": "python3 deploy/run_resource_progression_smoke.py --display \"$DISPLAY\" --profile target/resource-progression-shipping-integrated-profile",
+      "exitCode": 0
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0
+    }
+  ],
+  "preservation": {
+    "reviewedBase": "60628241773b1985572b5f1b723a09ab12f41672",
+    "observed": "Shipping.java,Terrain.java,Protocol.java,MultiplayerServer.java,CityTools.java and all three shipping test classes have no diff against reviewed base. Protocol23 retained. AviationSaveCompatibilityTest assertion updated22\u219223; v12 base-save regression passed."
+  },
+  "playtests": [
+    {
+      "step": "Playtest: real Main/X11 menu clicks on generated version3 terrain; attempt inland port, place coastal port, inspect hull/containers and preserved berth ocean, retry overlap, technical college regression, two camera angles, save/reload",
+      "expected": "Inland/overlap placements rejected; coastal port valid; original permit and terrain/serialization behavior preserved",
+      "observed": "All native checks passed; four fresh screenshots and F10 video saved. Carrier screenshot inspected."
+    },
+    {
+      "step": "Playtest: Mayor progression, paid8-era production, locked work, advanced lines, freight range and seller/mode fallback, dense housing/demolition, exact save/reload, operating-energy exact and insufficient stock",
+      "expected": "All existing progression/energy workflows retained alongside shipping",
+      "observed": "Native harness exited0; fresh progression/factory captures saved."
+    }
+  ],
+  "shippingReceipt": {
+    "status": "passed",
+    "platform": "Linux X11 inherited role display; Mesa",
+    "profile": "isolated synthetic offline city on generated version 3 terrain",
+    "checks": [
+      "actual menu clicks reject inland port",
+      "technical college level 3 regression",
+      "actual coastal port permit",
+      "carrier hull and containers in world",
+      "ocean beside berth preserved",
+      "overlap rejected",
+      "two camera angles"
+    ],
+    "recording": "production F10 recorder",
+    "siteX": -100,
+    "siteZ": 210,
+    "saveReload": "passed"
+  },
+  "limitations": [
+    "No full-suite pass claimed.28 focused tests and two native playtests passed.",
+    "Synthetic seeded progression does not establish natural unseeded tier8 growth.",
+    "Browser testing does not apply to native Java/OpenGL game.",
+    "Historical receipts retained; media hashes below identify fresh captures."
+  ],
+  "sourceSha256": {
+    "src/main/java/dev/jayms/net/city/Shipping.java": "af8433aa53085022d8482d58c91638beeba0eb848826a1f72ebdb433bed34c10",
+    "src/main/java/dev/jayms/net/Terrain.java": "3a2957d28603604d8cee8b6fd68889a2a59c43e4470d54a9a85383e47c989068",
+    "src/main/java/dev/jayms/net/Protocol.java": "f8206e5ea9d1f6db33582143840f9f34e880ce4f28b91f6f4a41c217e63a0151",
+    "src/main/java/dev/jayms/net/MultiplayerServer.java": "e30acab0b23bbcd4c35839cebf21e76eb72341df08f8b09e0b9f671503e323ed",
+    "src/main/java/dev/jayms/ui/CityTools.java": "88a4a9047e60474915c4b213b78648631a8e8ce79f48dab937c64cf34f87289a",
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "4f772e200e9248288294e1c45b48f9ccd5411dd3a8b7aab584fb1b8af42aba46",
+    "src/main/java/dev/jayms/net/city/CityMaterials.java": "8125841af8766549f00c6f77093dce9e0b5cf9b3e6addfa63e6befc355fae5fe",
+    "src/main/java/dev/jayms/net/city/CityHarvesting.java": "329c40847a74525beae16669183c52aeab26844b7f46b2abef8b09ade7121ef1",
+    "src/test/java/dev/jayms/AviationSaveCompatibilityTest.java": "8304f289c6916e94c15caac7b3271a69264b2ca9fc26576f1f792fe44be07735"
+  },
+  "mediaSha256": {
+    "shipping-port-carrier.png": "305f101dc6065212c804cea45449777db394ec28c1fcaffd7e133c0b5f870da3",
+    "shipping-port-reverse.png": "0523c7d66421718c92bd50309e97dc7fa30203c48d49c4163c0e76e653d0c709",
+    "shipping-coastal-menu.png": "daeead8e2cc3a229d45de93f6e957a3a09af1a0d617c43c8ea1be2cf0d6cc9cd",
+    "shipping-inland-rejection.png": "2e4f16a7caa430a66ea05956cc7e37db5d41c94878b4e586a7a25f9971844a71",
+    "shipping-placement-playtest.mp4": "bd0746ace8b6a2ccb52293e6d97a8224a573fc6617a77d25eb69a2c0ff23d98a",
+    "resource-progression-advanced.png": "624690b1e78e9ec9bb68ffcbffdd46eac68f9a3e71943439dbd0628fc9f566d6",
+    "resource-progression-operating-energy.png": "34de6be2425c994ac489e2d6c584ddb22dac276b0f05667de13f524bf4763d79"
+  }
+}

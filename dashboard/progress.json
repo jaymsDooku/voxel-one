@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T00:38:08+00:00",
+  "updatedAt": "2026-10-07T00:53:35.724030+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -152,6 +152,106 @@
       "status": "in_progress",
       "note": "Offline jeep implemented and validated. 20 tests and native input workflow passed. Fresh screenshots and 3.10 MB F10 video saved; separate review and controller publication pending.",
       "updatedAt": "2026-10-06T17:31:33+00:00"
+    },
+    {
+      "id": "resource-progression",
+      "title": "Industrial resource progression",
+      "description": "Inspecting production, zone growth and saved resource catalogs. Implementation and evidence remain local for controller publication.",
+      "evidence": [
+        {
+          "kind": "image",
+          "label": "resource progression settlement.png (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/resource-progression-settlement.png"
+        },
+        {
+          "kind": "image",
+          "label": "resource progression advanced.png (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/resource-progression-advanced.png"
+        },
+        {
+          "kind": "report",
+          "label": "resource progression playtest.json (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/resource-progression-playtest.json"
+        },
+        {
+          "kind": "image",
+          "label": "Paid advanced manufacturing in synthetic city (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/resource-progression-manufacturing.png"
+        },
+        {
+          "kind": "report",
+          "label": "Resource progression tests and Playtest (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/resource-progression-tests.json"
+        },
+        {
+          "kind": "video",
+          "label": "Jeep integration regression \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/jeep-driving.mp4"
+        },
+        {
+          "kind": "report",
+          "label": "Road integration \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/resource-progression-road-integration.json"
+        },
+        {
+          "kind": "video",
+          "label": "Road integration \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/road-placement-playtest.mp4"
+        },
+        {
+          "kind": "image",
+          "label": "Fallback fixes \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/resource-progression-food-fallback.png"
+        },
+        {
+          "kind": "report",
+          "label": "Fallback fixes \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/resource-progression-fallback-tests.json"
+        },
+        {
+          "kind": "report",
+          "label": "Aviation integration \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/resource-progression-aviation-integration.json"
+        },
+        {
+          "kind": "video",
+          "label": "Aviation integration \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/airport-playtest.mp4"
+        },
+        {
+          "kind": "image",
+          "label": "Aviation integration \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/airport-flight.png"
+        },
+        {
+          "kind": "image",
+          "label": "Operating energy \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/resource-progression-operating-energy.png"
+        },
+        {
+          "kind": "report",
+          "label": "Operating energy \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/resource-progression-operating-energy-tests.json"
+        },
+        {
+          "kind": "report",
+          "label": "Shipping integration \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/resource-progression-shipping-integration.json"
+        },
+        {
+          "kind": "video",
+          "label": "Shipping integration \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/shipping-placement-playtest.mp4"
+        },
+        {
+          "kind": "image",
+          "label": "Shipping integration \u2014 pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36316330643330392d663438322d343933322d383435372d666131373734333839336432/dashboard/evidence/shipping-port-carrier.png"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Shipping and protocol23 retained.28 combined shipping/progression/energy/save tests plus native shipping and progression playtests passed. Fresh coastal video/images and sanitized receipt await controller publication and independent review.",
+      "updatedAt": "2026-10-07T00:53:35.724030+00:00"
     },
     {
       "id": "queue-38613638386362362d333266662d346339302d383566312d333861363332623962333363",

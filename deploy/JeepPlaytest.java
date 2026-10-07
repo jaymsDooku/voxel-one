@@ -145,5 +145,14 @@ public final class JeepPlaytest {
         });
         driver.join(1000); if(failure!=null) throw new AssertionError("Jeep playtest failed",failure);
         require(done&&Files.exists(output.resolve("results.json")),"Playtest completed");
+        Path saved=output.resolve("synthetic-world.dat.jeep");
+        require(Files.exists(saved),"Application shutdown saved jeep");
+        Jeep restored=Jeep.load(saved,(World)get("world"),player().position());
+        require(restored.position().equals(jeep().position()),"Application save restores exact jeep position");
+        require(restored.yaw()==jeep().yaw(),"Application save restores exact jeep heading");
+        require(!restored.driving() && restored.speed()==0,"Restored jeep is parked");
+        Path receipt=output.resolve("results.json");
+        Files.writeString(receipt,Files.readString(receipt).replace("\"walking regression\"",
+                "\"walking regression\",\"application shutdown save\",\"exact position and heading reload\",\"restored jeep parked\""));
     }
 }

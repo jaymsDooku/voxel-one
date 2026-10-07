@@ -18,8 +18,13 @@ public record ProductionCatalog(
                 products,
                 recipes,
                 equipment,
-                BusinessCatalog.defaults(
-                        products.stream().anyMatch(p -> p.id() == CityMaterials.WHEAT)));
+                defaultBusinesses(products));
+    }
+
+    private static BusinessCatalog defaultBusinesses(List<Product> products) {
+        var base = BusinessCatalog.defaults(products.stream().anyMatch(p -> p.id() == CityMaterials.WHEAT));
+        return products.stream().anyMatch(p -> p.id() == IndustrialProgression.STEEL)
+                ? IndustrialProgression.businesses(base) : base;
     }
 
     public record Product(int id, String name, double price, int nutrition) {
@@ -192,14 +197,17 @@ public record ProductionCatalog(
 
     private static final class Defaults {
         static final ProductionCatalog LEGACY = createToolEra();
-        static final ProductionCatalog CATALOG = createCityGame();
+        static final ProductionCatalog SETTLEMENT = createSettlementGame();
+        static final ProductionCatalog CATALOG = IndustrialProgression.extend(SETTLEMENT);
     }
 
     public static ProductionCatalog toolEra() {
         return Defaults.LEGACY;
     }
 
-    private static ProductionCatalog createCityGame() {
+    public static ProductionCatalog settlementGame() { return Defaults.SETTLEMENT; }
+
+    private static ProductionCatalog createSettlementGame() {
         var old = createToolEra();
         var p = new ArrayList<>(old.products);
         var r = new ArrayList<>(old.recipes);
@@ -358,8 +366,7 @@ public record ProductionCatalog(
                     products,
                     recipes,
                     equipment,
-                    BusinessCatalog.load(
-                            data, products.stream().anyMatch(p -> p.id() == CityMaterials.WHEAT)));
+                    BusinessCatalog.load(data, defaultBusinesses(products)));
         } catch (IllegalArgumentException e) {
             throw new IOException("Invalid production configuration: " + e.getMessage(), e);
         }
@@ -453,9 +460,7 @@ public record ProductionCatalog(
                     equipment,
                     version >= 7
                             ? BusinessCatalog.read(in)
-                            : BusinessCatalog.defaults(
-                                    products.stream()
-                                            .anyMatch(p -> p.id() == CityMaterials.WHEAT)));
+                            : defaultBusinesses(products));
         } catch (IllegalArgumentException e) {
             throw new IOException("Invalid production catalog", e);
         }
