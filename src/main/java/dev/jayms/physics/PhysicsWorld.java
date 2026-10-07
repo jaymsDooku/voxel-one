@@ -33,6 +33,7 @@ public final class PhysicsWorld {
                 b.rotation.integrate(h,b.angularVelocity.x,b.angularVelocity.y,b.angularVelocity.z).normalize();
             }
         }
+        for(var joint:joints)joint.beginStep();
         sweepMotion(h);
         for(int iteration=0;iteration<iterations;iteration++) {
             grid.rebuild(bodies,RigidBody::bounds);

@@ -14,6 +14,7 @@ public class PhysicsSmoke {
     static Path out;static volatile String capture;static volatile String captured;static volatile PhysicsLab active;
     static volatile Throwable failure;static volatile int debris,tab,broken;static volatile float vehicleX,waterMass,smoke;
     static volatile boolean reset,finite,gpu;static volatile int tower;static volatile boolean gpuChecked;
+    static volatile boolean ropeSetup,ropeStarted,ropeChecked;static float ropeStart;static Constraints.Hinge loadedHinge;static RigidBody hingeLoad;static Constraints.Distance sustainedRope,overloadRope,softRope;static RigidBody sustainedLoad,softLoad;
     static volatile boolean forceSetup,forceStarted,forceChecked;static float forceStart;static RigidBody forceBody,torqueBody;
     static volatile boolean contactSetup,contactStarted,contactChecked;static float contactStart;static RigidBody floorSlider,wallSlider;
     static void require(boolean value,String text){if(!value)throw new AssertionError(text);}
@@ -33,12 +34,32 @@ public class PhysicsSmoke {
             key(window,"3");Thread.sleep(1800);require(waterMass>121.59f&&waterMass<121.61f,"Cellular water conserves 121.6 units");require(smoke>0,"Fire emits rising smoke");shot("physics-fluid-fire.png");
             key(window,"4");key(window,"p");require(!active.scene.xpbd,"PBD toggle");key(window,"p");require(active.scene.xpbd,"XPBD toggle");key(window,"w");key(window,"g");Thread.sleep(800);require(gpuChecked,"GPU/CPU equivalence check executed");require(finite,"Cloth soft body and SPH stay finite");shot("physics-cloth-sph.png");
             key(window,"5");float start=vehicleX;x("keydown","--window",window,"Up");Thread.sleep(1400);x("keyup","--window",window,"Up");Thread.sleep(250);require(vehicleX>start+.1f,"Wheel torque drives sprung vehicle");shot("physics-vehicle.png");
+            ropeSetup=true;for(int i=0;i<600&&!ropeChecked;i++)Thread.sleep(20);require(ropeChecked,"Sustained rope load, overload and compliance native checks");shot("physics-rope-load.png");
             forceSetup=true;for(int i=0;i<300&&!forceChecked;i++)Thread.sleep(20);require(forceChecked,"Sleeping loads and rotated inertia native checks");shot("physics-force-inertia.png");
             contactSetup=true;for(int i=0;i<300&&!contactChecked;i++)Thread.sleep(20);require(contactChecked,"Floor and diagonal wall sliding preserve remaining time");shot("physics-contact-sliding.png");
             key(window,"r");require(debris==0&&tower==3,"Reset regression preserves anchored content");shot("physics-reset.png");
             Files.writeString(out.resolve("results.json"),"{\n  \"Playtest\": \"Production PhysicsLab; Linux X11; inherited assigned DISPLAY/XAUTHORITY; Mesa software rendering; isolated synthetic profile\",\n  \"steps\": [\"D removes support: 28 debris voxels fall; independent anchored tower stays intact\",\"D repeated: no change; R restores scene\",\"X/F: explosion and stress fracture detach structures; pause freezes time\",\"2 B: loaded ropes break\",\"3: water mass 121.6 conserved; fire emits smoke\",\"4 W G: cloth/soft body/SPH finite; GPU integration matches CPU and pinned particles stay fixed\",\"5 Up: wheel torque moves sprung vehicle\",\"Synthetic contact fixtures in production world: floor travel 10 blocks/s and wall tangent travel 6 blocks/s for at least one second\",\"R: reset regression restores original cells\",\"F10: collapse clip recorded\"],\n  \"expected\": \"All listed assertions pass\",\n  \"observed\": \"All listed assertions passed\",\n  \"gpuCompute\": "+gpu+"\n}\n");
         }catch(Throwable e){failure=e;try{Files.writeString(out.resolve("failure.txt"),e.getClass().getSimpleName()+": "+e.getMessage());}catch(Exception ignored){}}finally{if(active!=null)glfwSetWindowShouldClose(active.window,true);}},"physics-native-input");input.start();
         lab.run(l->{active=l;
+            if(ropeSetup&&!ropeStarted){
+                l.scene.physics.bodies.clear();l.scene.physics.joints.clear();l.scene.physics.gravity.set(0,-24,0);
+                for(int i=0;i<4;i++){
+                    var anchor=new RigidBody(new Vector3f(3+5*i,6,4+4*i),new Vector3f(.15f),0);
+                    var load=new RigidBody(new Vector3f(3+5*i,4,4+4*i),new Vector3f(.4f),i==1?5:1);
+                    var rope=new Constraints.Distance(anchor,load,2,i==2?.0001f:0,true);rope.breakForce=100;
+                    l.scene.physics.bodies.add(anchor);l.scene.physics.bodies.add(load);
+                    if(i==3){loadedHinge=new Constraints.Hinge(anchor,load,new Vector3f(0,-2,0),new Vector3f(),new Vector3f(0,0,1));loadedHinge.breakForce=100;hingeLoad=load;l.scene.physics.joints.add(loadedHinge);}else l.scene.physics.joints.add(rope);
+                    if(i==0){sustainedRope=rope;sustainedLoad=load;}else if(i==1)overloadRope=rope;else if(i==2){softRope=rope;softLoad=load;}
+                }
+                l.scene.scene=2;ropeStart=l.scene.time;ropeStarted=true;
+            }
+            if(ropeStarted&&!ropeChecked&&l.scene.time-ropeStart>=1){
+                require(!sustainedRope.broken()&&Math.abs(sustainedLoad.position.y-4)<.003f&&Math.abs(sustainedLoad.velocity.y)<.003f,"24 N load preserves 100 N rope and bounded velocity");
+                require(!loadedHinge.broken()&&Math.abs(hingeLoad.position.y-4)<.003f&&Math.abs(hingeLoad.velocity.y)<.003f,"24 N preserves 100 N hinge without velocity growth");
+                require(overloadRope.broken(),"120 N load breaks 100 N rope");
+                require(!softRope.broken()&&Math.abs(softLoad.position.y-3.9976f)<.003f,"Compliant rope supports sustained load");
+                Files.writeString(out.resolve("rope-results.json"),"{\"Playtest\":\"Production PhysicsLab/PhysicsWorld; inherited X11 Mesa; isolated synthetic rope fixtures\",\"elapsedSeconds\":"+(l.scene.time-ropeStart)+",\"sustainedY\":"+sustainedLoad.position.y+",\"sustainedVy\":"+sustainedLoad.velocity.y+",\"compliantY\":"+softLoad.position.y+",\"expected\":\"24 N retains 100 N rigid/compliant ropes and hinge; 120 N breaks 100 N rope\",\"observed\":\"All assertions passed; reset regression follows\"}\n");ropeChecked=true;
+            }
             if(forceSetup&&!forceStarted){
                 l.scene.physics.bodies.clear();l.scene.physics.joints.clear();l.scene.physics.gravity.zero();
                 forceBody=new RigidBody(new Vector3f(4,3,4),new Vector3f(.5f),1);forceBody.sleeping=true;forceBody.force.x=120;l.scene.physics.bodies.add(forceBody);

@@ -41,8 +41,8 @@
         }
       ],
       "status": "in_progress",
-      "note": "Rebase recovery: integrated physics/city validation history retained; newest upstream features preserved. Joint-load fix replay and final-head tests/media await controller continuation.",
-      "updatedAt": "2026-10-07T20:19:28.343286+00:00"
+      "note": "Rebase recovery: rope/hinge velocity and accumulated-load fixes replayed; newest upstream features preserved. Final-head tests and fresh media pending controller continuation.",
+      "updatedAt": "2026-10-07T20:35:42.621494+00:00"
     },
     {
       "id": "36346562663133302d383033312d343733612d616132342d393031326464616132313235",

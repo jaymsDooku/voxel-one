@@ -1,6 +1,6 @@
 {
   "status": "resolved_files_await_controller_rebase_continue",
-  "recordedAt": "2026-10-07T20:40:34.901719+00:00",
+  "recordedAt": "2026-10-07T20:41:39.087261+00:00",
   "checks": [
     {
       "command": "git show :2:dashboard/progress.json; git show :3:dashboard/progress.json (parsed privately; only relevant item inspected)",
@@ -87,6 +87,12 @@
       "resolution": "Preserved all upstream metadata/nonphysics entries; retained replayed physics/city validation entry with pending-recovery note.",
       "checks": "Valid JSON, unique IDs/no markers, upstream byte audit, whole-base no unrelated paths/deletions and clean whitespace.",
       "Playtest": "Earlier integration media historical; final-head testing awaits joint-fix replay and controller continuation."
+    },
+    {
+      "conflict": "dashboard/progress.json",
+      "resolution": "Preserved all upstream metadata/nonphysics entries and replayed joint-load physics entry.",
+      "checks": "Rope velocity corrections, hinge accumulated reaction and per-substep reset present; JSON/unique IDs/no markers; upstream byte audit and whole-base no unrelated paths/deletions.",
+      "Playtest": "Final-head tests and media await controller rebase completion; historical tests not claimed for current partial state."
     }
   ]
 }
