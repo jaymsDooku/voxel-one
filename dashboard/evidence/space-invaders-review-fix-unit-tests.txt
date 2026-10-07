@@ -1,0 +1,100 @@
+TAP version 13
+# Subtest: models contain voxel cells and three distinct aliens
+ok 1 - models contain voxel cells and three distinct aliens
+  ---
+  duration_ms: 1.942845
+  ...
+# Subtest: movement clamps, fire cooldown, pause and restart
+ok 2 - movement clamps, fire cooldown, pause and restart
+  ---
+  duration_ms: 81.955855
+  ...
+# Subtest: alien kill scores once; last kill advances and resets
+ok 3 - alien kill scores once; last kill advances and resets
+  ---
+  duration_ms: 0.564203
+  ...
+# Subtest: both sides erode shields
+ok 4 - both sides erode shields
+  ---
+  duration_ms: 0.690359
+  ...
+# Subtest: life loss, immunity, game over and invasion
+ok 5 - life loss, immunity, game over and invasion
+  ---
+  duration_ms: 3.998909
+  ...
+# Subtest: fleet reverses and descends; bottom shooters; saucer bonus
+ok 6 - fleet reverses and descends; bottom shooters; saucer bonus
+  ---
+  duration_ms: 0.626822
+  ...
+# Subtest: large background delta bounded and offscreen projectiles recycled
+ok 7 - large background delta bounded and offscreen projectiles recycled
+  ---
+  duration_ms: 1.210778
+  ...
+# Subtest: slow frame projectile sweeps across alien and shield
+ok 8 - slow frame projectile sweeps across alien and shield
+  ---
+  duration_ms: 4.421983
+  ...
+# Subtest: deployment package includes the current queue worker and bridge
+ok 9 - deployment package includes the current queue worker and bridge
+  ---
+  duration_ms: 29.017038
+  ...
+# Subtest: packaged route returns all Voxel queue items without question database or saved assets
+ok 10 - packaged route returns all Voxel queue items without question database or saved assets
+  ---
+  duration_ms: 124.789872
+  ...
+# Subtest: packaged queue route preserves browser authentication requirement
+ok 11 - packaged queue route preserves browser authentication requirement
+  ---
+  duration_ms: 0.747903
+  ...
+# Subtest: bridge rejects anonymous and service callers without browser identity
+ok 12 - bridge rejects anonymous and service callers without browser identity
+  ---
+  duration_ms: 128.081847
+  ...
+# Subtest: unconfigured queue returns recoverable unavailable status
+ok 13 - unconfigured queue returns recoverable unavailable status
+  ---
+  duration_ms: 0.734022
+  ...
+# Subtest: fixed Voxel projection forwards credentials only to General Site and excludes private fields
+ok 14 - fixed Voxel projection forwards credentials only to General Site and excludes private fields
+  ---
+  duration_ms: 15.84514
+  ...
+# Subtest: upstream errors and invalid schema do not leak private diagnostics
+ok 15 - upstream errors and invalid schema do not leak private diagnostics
+  ---
+  duration_ms: 14.890218
+  ...
+# Subtest: queue remains available when AbortSignal.timeout is absent in the runtime
+ok 16 - queue remains available when AbortSignal.timeout is absent in the runtime
+  ---
+  duration_ms: 2.710168
+  ...
+# Subtest: optional recorded snapshot never prevents live queue delivery
+ok 17 - optional recorded snapshot never prevents live queue delivery
+  ---
+  duration_ms: 21.366881
+  ...
+# Subtest: bridge aborts the upstream request on timeout and clears its timer
+ok 18 - bridge aborts the upstream request on timeout and clears its timer
+  ---
+  duration_ms: 1.008684
+  ...
+1..18
+# tests 18
+# suites 0
+# pass 18
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 662.21777
