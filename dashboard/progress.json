@@ -41,7 +41,7 @@
         }
       ],
       "status": "in_progress",
-      "note": "Rebase recovery: rope/hinge velocity and accumulated-load fixes replayed; newest upstream features preserved. Final-head tests and fresh media pending controller continuation.",
+      "note": "Joint loads fixed and validated after integration: 58 focused tests, native rope/hinge loads and regressions, fresh media, Java 17 packaged launch. Ready for independent review; CI needs controller verification.",
       "updatedAt": "2026-10-07T20:35:42.621494+00:00"
     },
     {
