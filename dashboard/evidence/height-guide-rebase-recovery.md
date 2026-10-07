@@ -25,3 +25,9 @@ Executed `mvn -q -o -Dmaven.repo.local=target/m2 -DargLine="-Djava.io.tmpdir=$PW
 Playtest: Not rerun during this conflict handoff. The native harness still needs reviewer-requested fixes: execute synthetic World edits and direct CityTools queries through game-thread FrameObserver; assert actual selected points for MAX_Y and flat-road clicks before Escape. After the controller stages resolutions and continues the rebase, fix the harness, audit against the recorded review base, and rerun final-source native checks with fresh media. Previous native media is historical and does not prove those harness fixes.
 
 This is a recovery handoff, not a ready-for-review result. No staging, rebase continuation, commits, pushes or deployment were performed.
+
+## Subsequent metadata conflict
+
+The next rebase step conflicted only on the top-level dashboard timestamp. Retained the incoming task update and later timestamp, plus all current-base non-task entries verbatim, including carrier routes and vehicle sounds. JSON parse and unique-ID assertions passed. `git diff --check` passed; no staged deletions were found. No application source changed in this step, so Maven was not repeated here.
+
+Playtest: Deferred until controller continuation. Reviewer-required game-thread harness setup/queries and actual MAX_Y/flat-road selection assertions remain unfinished. Existing native results and media predate those fixes. The developer did not stage or continue Git.

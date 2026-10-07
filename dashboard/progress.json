@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T09:48:59+00:00",
+  "updatedAt": "2026-10-07T09:57:46+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -26,8 +26,8 @@
         }
       ],
       "status": "in_progress",
-      "note": "Implementation verified: 25 focused tests and native unequal-height workflow, MAX_Y cancellation and flat-road regression passed. Media saved locally; awaiting controller publication and independent review.",
-      "updatedAt": "2026-10-07T09:12:43+00:00"
+      "note": "Recovered head verified: fresh compile/package, 26 focused tests and native unequal-height placement, MAX_Y cancellation and flat-road regression passed. Fresh F10 media decoded and inspected. Vehicle audio and all prior progress preserved. Awaiting controller publication and independent review.",
+      "updatedAt": "2026-10-07T09:57:46+00:00"
     },
     {
       "id": "carrier-routes",
