@@ -14,7 +14,7 @@ class AviationSaveCompatibilityTest {
         // Written by base 1ecbf565c449d7b5c96a621310c1a012b80ae1aa; not a fabricated header.
         Path save=Path.of("src/test/resources/base-v12-aviation-city.dat");
         try(var in=new DataInputStream(Files.newInputStream(save))) { assertEquals(0x4349543C,in.readInt()); }
-        assertEquals(25,Protocol.VERSION);
+        assertEquals(26,Protocol.VERSION);
         var state=CitySimulation.load(save);
         assertEquals(Files.readString(save.resolveSibling("base-v12-aviation-state.txt")).trim(),state.aviation().toString());
         assertEquals(2,state.buildings().stream().filter(b->b.type()==SpecialBuildings.AIRPORT).count());

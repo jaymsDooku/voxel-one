@@ -75,6 +75,36 @@ public final class CitySaves {
     public static Path sidecar(Path world, String suffix) {
         return world.resolveSibling(world.getFileName() + suffix);
     }
+    /** Install the built-in benchmark once, preserving every existing save with this name. */
+    public void ensureStressGrid(long seed) throws IOException {
+        if (Files.isDirectory(directory)) try (var slots=Files.list(directory)) {
+            if (slots.anyMatch(p -> p.getFileName().toString().equalsIgnoreCase(dev.jayms.net.city.StressGrid.NAME))) return;
+        }
+        createStressGrid(seed);
+    }
+
+    /** Create the benchmark as an independent save; never overwrite an existing slot. */
+    public Path createStressGrid(long seed) throws IOException {
+        Path slot = reserve(dev.jayms.net.city.StressGrid.NAME), target = slot.resolve("world.dat");
+        try {
+            new LocalGame(target, seed).save();
+            var frame = new dev.jayms.net.city.CityFrame(dev.jayms.net.city.GameConfig.cityGame(),0,
+                    List.of(),List.of(),List.of(),List.of(),List.of(),
+                    dev.jayms.net.city.CityEconomy.State.empty(),new dev.jayms.net.city.CityAddresses.State(List.of(),List.of()),
+                    dev.jayms.net.city.Agriculture.State.empty(),dev.jayms.net.city.RegionalPopulation.State.empty(),
+                    dev.jayms.net.city.Aviation.State.empty(),dev.jayms.net.city.Railway.State.empty(),
+                    dev.jayms.net.city.StressGrid.standard());
+            try (var out = new java.io.DataOutputStream(Files.newOutputStream(sidecar(target,".city")))) {
+                out.writeInt(0x4349543F); frame.write(out,15);
+            }
+            validate(target,seed);
+            return target;
+        } catch(IOException | RuntimeException e) {
+            Files.deleteIfExists(sidecar(target,".tmp"));
+            Files.deleteIfExists(sidecar(target,".city")); Files.deleteIfExists(target); Files.deleteIfExists(slot);
+            throw e;
+        }
+    }
     public static void validate(Path world, long seed) throws IOException {
         if (!Files.isRegularFile(world)) throw new IOException("Save is missing.");
         new LocalGame(world, seed);

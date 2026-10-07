@@ -78,7 +78,8 @@ public final class CitySimulation {
     private Railway railway = new Railway();
     private final Map<Cell, Integer> roads = new LinkedHashMap<>();
     private final Map<Cell, Integer> roadTypes = new LinkedHashMap<>();
-    private final List<CityFrame.Zone> zones = new ArrayList<>();
+    private List<CityFrame.Zone> zones = new ArrayList<>();
+    private StressGrid stressGrid;
     private final List<CityFrame.Building> buildings = new ArrayList<>();
     private double elapsed, accumulator, nextBuild;
     private int zoneIds, buildingIds, grade;
@@ -111,8 +112,9 @@ public final class CitySimulation {
                         ground,
                         terrain,
                         (x, z) ->
-                                roads.containsKey(new Cell(x, z))
-                                        || zones.stream()
+                                roadContains(new Cell(x, z))
+                                        || stressGrid != null && stressGrid.plotAt(x,z) >= 0
+                                        || stressGrid == null && zones.stream()
                                                 .anyMatch(
                                                         zone ->
                                                                 zone.polygon()
@@ -136,7 +138,15 @@ public final class CitySimulation {
                                 .limit(4)
                                 .map(CityFrame.Citizen::id)
                                 .toList());
-            agriculture = new Agriculture(ecs, saved.agriculture(), terrain);
+            boolean newGrid = stressGrid != null && saved.citizens().isEmpty()
+                    && saved.buildings().isEmpty() && saved.economy().plots().isEmpty();
+            if (newGrid) {
+                seedFounders();
+                seedGridSupplies();
+                economy.capital.graduates.addAll(ecs.query(Household.class).stream().skip(8).limit(4).toList());
+            }
+            agriculture = new Agriculture(ecs, newGrid
+                    ? Agriculture.State.migration(economy.resources.catalog) : saved.agriculture(), terrain);
             migrateMaterials = saved.economy().resources().equals(CityMaterials.State.empty());
             founding = false;
             return;
@@ -173,32 +183,7 @@ public final class CitySimulation {
                                 new Point(4, 13),
                                 new Point(4, 23),
                                 new Point(-8, 23))));
-        for (int i = 0; i < 12; i++) {
-            int id = ecs.create();
-            ecs.put(
-                    id,
-                    Position.class,
-                    new Position(9.5f + i * (Math.max(roadSpacing.pedestrians(), roadSpacing.mounted()) + .1f),
-                            grade + 1.01f, 25.1f));
-            ecs.put(
-                    id,
-                    Household.class,
-                    new Household(
-                            new String[] {
-                                        "Alex", "Robin", "Morgan", "Sam", "Taylor", "Jamie",
-                                        "River", "Casey", "Avery", "Rowan", "Jordan", "Sky"
-                                    }
-                                    [i],
-                            i / 4));
-            ecs.put(id, Needs.class, new Needs(12 + i / 4 * 24));
-            ecs.put(id, Travel.class, new Travel());
-            ecs.put(id, CitizenLife.class, CitizenLife.founder(i));
-        }
-        for (int i = 0; i < 6; i++) {
-            int id = ecs.create();
-            ecs.put(id, Position.class, new Position(8.5f, grade + 1.01f, 21.8f - i * (roadSpacing.mounted() + .1f)));
-            ecs.put(id, Mount.class, new Mount());
-        }
+        seedFounders();
         economy = new CityEconomy(ecs, null, catalog);
         agriculture = new Agriculture(ecs, Agriculture.State.empty(), terrain);
         // The founding settlement includes four graduates; education is independent of income.
@@ -238,14 +223,59 @@ public final class CitySimulation {
         founding = false;
     }
 
+    /** One finite starting stock: the paved grid has no nearby forest to bootstrap logging. */
+    private void seedGridSupplies() {
+        for (var firm : economy.companies()) {
+            if (firm.kind==CityEconomy.DEVELOPER) {
+                for (int type=0; type<3; type++) for (var amount:CityMaterials.requirements(type,type))
+                    economy.resources.add(CityEconomy.COMPANY,firm.id,amount.material(),amount.units()*8);
+            } else if (CityMaterials.farmer(firm.kind)) {
+                for (var amount:CityMaterials.requirements(3,firm.kind))
+                    economy.resources.add(CityEconomy.COMPANY,firm.id,amount.material(),amount.units()*2);
+            }
+        }
+    }
+
+    /** The grid uses the same founding households and horses as an ordinary city. */
+    private void seedFounders() {
+        for (int i = 0; i < 12; i++) {
+            int id = ecs.create();
+            ecs.put(
+                    id,
+                    Position.class,
+                    new Position(9.5f + i * (Math.max(roadSpacing.pedestrians(), roadSpacing.mounted()) + .1f),
+                            grade + 1.01f, 25.1f));
+            ecs.put(
+                    id,
+                    Household.class,
+                    new Household(
+                            new String[] {
+                                        "Alex", "Robin", "Morgan", "Sam", "Taylor", "Jamie",
+                                        "River", "Casey", "Avery", "Rowan", "Jordan", "Sky"
+                                    }
+                                    [i],
+                            i / 4));
+            ecs.put(id, Needs.class, new Needs(12 + i / 4 * 24));
+            ecs.put(id, Travel.class, new Travel());
+            ecs.put(id, CitizenLife.class, CitizenLife.founder(i));
+        }
+        for (int i = 0; i < 6; i++) {
+            int id = ecs.create();
+            ecs.put(id, Position.class, new Position(8.5f, grade + 1.01f, 21.8f - i * (roadSpacing.mounted() + .1f)));
+            ecs.put(id, Mount.class, new Mount());
+        }
+    }
+
     private void restore(CityFrame f) {
+        stressGrid = f.stressGrid();
+        if (stressGrid != null) { grade = stressGrid.grade(); terrain.stressGrid(stressGrid); }
         railway = new Railway(f.railway());
         var savedAddresses=f.addresses();
         if(savedAddresses.streets().isEmpty() && !f.roads().isEmpty())
             savedAddresses=CityAddresses.migrate(f.roads(),f.buildings());
         addresses = new CityAddresses(new CityAddresses.State(savedAddresses.streets(),savedAddresses.addresses(),
                 f.addresses().roadFootprints().isEmpty()?RoadOwnership.infer(new CityFrame(f.config(),f.elapsed(),f.roads(),f.zones(),
-                        f.buildings(),f.citizens(),f.horses(),f.economy(),savedAddresses,f.agriculture(),f.population(),f.aviation()))
+                        f.buildings(),f.citizens(),f.horses(),f.economy(),savedAddresses,f.agriculture(),f.population(),f.aviation(),f.railway(),f.stressGrid()))
                         :f.addresses().roadFootprints()));
         elapsed = f.elapsed();
         flights.addAll(f.aviation().flights());
@@ -256,9 +286,10 @@ public final class CitySimulation {
             roads.put(cell, r.y());
             roadTypes.put(cell, r.type());
         }
-        zones.addAll(f.zones());
+        if (stressGrid == null) zones.addAll(f.zones());
+        else zones = stressGrid.zones();
         buildings.addAll(f.buildings());
-        zoneIds = zones.stream().mapToInt(CityFrame.Zone::id).max().orElse(0);
+        zoneIds = stressGrid == null ? zones.stream().mapToInt(CityFrame.Zone::id).max().orElse(0) : StressGrid.COUNT;
         buildingIds = buildings.stream().mapToInt(CityFrame.Building::id).max().orElse(0);
         for (var c : f.citizens()) {
             ecs.restore(c.id());
@@ -1279,7 +1310,7 @@ public final class CitySimulation {
         if (h.horse == 0
                 && h.cohort > 0
                 && (site == null || Math.hypot(p.x - site.x() - 2.5f, p.z - entrance(site) - .5f) >= 2)
-                && roads.containsKey(new Cell((int) Math.floor(p.x), (int) Math.floor(p.z)))) {
+                && roadContains(new Cell((int) Math.floor(p.x), (int) Math.floor(p.z)))) {
             for (int horse : ecs.query(Mount.class)) {
                 var m = ecs.get(horse, Mount.class);
                 var hp = ecs.get(horse, Position.class);
@@ -1296,7 +1327,7 @@ public final class CitySimulation {
             }
         }
         // Only road routes use the private passenger fleet. Collision checks still apply.
-        double transit = roads.containsKey(new Cell((int) Math.floor(p.x), (int) Math.floor(p.z)))
+        double transit = roadContains(new Cell((int) Math.floor(p.x), (int) Math.floor(p.z)))
                 && !t.route.isEmpty() ? economy.passengerSpeed(id, dt * 24 / config.daySeconds()) : 2.2;
         // Travel must keep pace with needs and schedules when the city clock is accelerated.
         float speed = (float)(Math.max(transit, h.horse == 0 ? 2.2 : 5.5) * 1200 / config.daySeconds());
@@ -1501,7 +1532,7 @@ public final class CitySimulation {
                         && z > b.z() && z < b.z() + 7)) return false;
         int cx = (int)Math.floor(x), cz = (int)Math.floor(z);
         for (int dx = -3; dx <= 3; dx++) for (int dz = -3; dz <= 3; dz++)
-            if (roads.containsKey(new Cell(cx + dx, cz + dz))) return true;
+            if (roadContains(new Cell(cx + dx, cz + dz))) return true;
         return false;
     }
 
@@ -1510,12 +1541,12 @@ public final class CitySimulation {
                 && z > b.z() && z < b.z() + 7)) return false;
         int cx = (int) Math.floor(x), cz = (int) Math.floor(z);
         for (int dx = -1; dx <= 1; dx++) for (int dz = -1; dz <= 1; dz++)
-            if (roads.containsKey(new Cell(cx + dx, cz + dz))) return true;
+            if (roadContains(new Cell(cx + dx, cz + dz))) return true;
         return false;
     }
 
     private boolean publicRoad(float x, float z) {
-        return roads.containsKey(new Cell((int) Math.floor(x), (int) Math.floor(z)))
+        return roadContains(new Cell((int) Math.floor(x), (int) Math.floor(z)))
                 && buildings.stream().noneMatch(b -> x > b.x() && x < b.x() + 6
                         && z > b.z() && z < b.z() + 7);
     }
@@ -1567,6 +1598,12 @@ public final class CitySimulation {
     public List<Cell> route(float x, float z, float tx, float tz) {
         Cell a = nearest(x, z), b = nearest(tx, tz);
         if (a == null || b == null) return List.of();
+        if (stressGrid != null) {
+            var result = new ArrayList<>(stressGrid.route(a,b));
+            if (result.isEmpty() || result.stream().anyMatch(c -> !passable(c.x()+.5f,c.z()+.5f))) return List.of();
+            result.add(new Cell((int)Math.floor(tx),(int)Math.floor(tz)));
+            return result;
+        }
         var parents = new HashMap<Cell, Cell>();
         var queue = new ArrayDeque<Cell>();
         queue.add(a);
@@ -1575,7 +1612,7 @@ public final class CitySimulation {
             var c = queue.remove();
             if (c.equals(b)) break;
             for (var next : neighbours(c))
-                if (roads.containsKey(next)
+                if (roadContains(next)
                         && !parents.containsKey(next)
                         && passable(next.x() + .5f, next.z() + .5f)) {
                     parents.put(next, c);
@@ -1611,7 +1648,12 @@ public final class CitySimulation {
                 && ground.type(bx, by - 1, bz) != 0;
     }
 
+    private boolean roadContains(Cell cell) {
+        return roads.containsKey(cell) || stressGrid != null && stressGrid.road(cell.x(),cell.z());
+    }
+
     private Cell nearest(float x, float z) {
+        if (stressGrid != null) return stressGrid.nearestRoad(x,z);
         return roads.keySet().stream()
                 .min(
                         Comparator.comparingDouble(
@@ -1630,6 +1672,10 @@ public final class CitySimulation {
     public String command(CityCommand c, int player, Protocol.Pose pose) {
         if (!config.city()) return "Join Voxel City One to use city tools";
         try {
+            if (stressGrid != null && (c.kind() == CityCommand.ROAD || c.kind() == CityCommand.DELETE_ROAD || c.kind() == CityCommand.EDIT_ROAD || c.kind() == CityCommand.RAIL || c.kind() == CityCommand.ZONE || c.kind() == CityCommand.SPECIAL || c.kind() == CityCommand.EXCHANGE))
+                return "Prebuilt grid roads and zoning are fixed; buildings develop and can be inspected or demolished.";
+            for (var point : c.points()) if (Math.abs(point.x()-8)>256 || Math.abs(point.z()-24)>256)
+                throw new IllegalArgumentException("City limits: 512 x 512 blocks around spawn");
             String result = switch (c.kind()) {
                 case CityCommand.ROAD -> road(c.points(), c.value());
                 case CityCommand.DELETE_ROAD -> changeRoad(c.value(), -1);
@@ -1737,12 +1783,12 @@ public final class CitySimulation {
             int cx = x + dx, cz = z + dz;
             if (Math.abs((long)cx-8)>256 || Math.abs((long)cz-24)>256) throw new IllegalArgumentException("Airport outside city limits");
             if (railway.contains(cx, cz)) throw new IllegalArgumentException("Airport cannot cover rails");
-            if (roads.containsKey(new Cell(cx, cz))) throw new IllegalArgumentException("Airport cannot cover roads");
+            if (roadContains(new Cell(cx, cz))) throw new IllegalArgumentException("Airport cannot cover roads");
             for (var zone : zones) if (zone.polygon().contains(cx+.5f,cz+.5f)) throw new IllegalArgumentException("Airport cannot cover zones");
             for (var b : buildings) if (b.id() != ignore && cx >= b.x()-1 && cx <= b.x()+StructureBlueprint.width(b.type())
                     && cz >= b.z()-2 && cz <= b.z()+(b.type() == SpecialBuildings.AIRPORT ? Aviation.depth(Aviation.runways(b)) : StructureBlueprint.depth(b.type())))
                 throw new IllegalArgumentException("Airport overlaps another building or entrance");
-            if (dx < 6 && dz == -1 && roads.containsKey(new Cell(cx, cz-1))) access = true;
+            if (dx < 6 && dz == -1 && roadContains(new Cell(cx, cz-1))) access = true;
             if (ground.occupied(cx,grade+1,cz,1,1)) throw new IllegalArgumentException("Airport would intersect a player");
             for (int y=grade+1; y<=Terrain.MAX_Y; y++) if (ground.type(cx,y,cz)!=0) throw new IllegalArgumentException("Clear the airport site first");
         }
@@ -1891,13 +1937,13 @@ public final class CitySimulation {
             if (Math.abs((long)cx-8)>256 || Math.abs((long)cz-24)>256)
                 throw new IllegalArgumentException("Building outside city limits");
             if (railway.contains(cx,cz)) throw new IllegalArgumentException("Building cannot cover rails");
-            if (roads.containsKey(new Cell(cx,cz))) throw new IllegalArgumentException("Building cannot cover roads");
+            if (roadContains(new Cell(cx,cz))) throw new IllegalArgumentException("Building cannot cover roads");
             for (var zone : zones) if (zone.polygon().contains(cx+.5f,cz+.5f))
                 throw new IllegalArgumentException("Building cannot cover zones");
             for (var b : buildings) if (cx >= b.x()-1 && cx <= b.x()+StructureBlueprint.width(b.type())
                     && cz >= b.z()-2 && cz <= b.z()+(b.type() == SpecialBuildings.AIRPORT ? Aviation.depth(Aviation.runways(b)) : StructureBlueprint.depth(b.type())))
                 throw new IllegalArgumentException("Building overlaps another building or entrance");
-            if (dz == -1 && roads.containsKey(new Cell(cx,cz-1))) access = true;
+            if (dz == -1 && roadContains(new Cell(cx,cz-1))) access = true;
             if (port && dz>=3) {
                 for (int y=Geography.SEA_LEVEL; y<=grade+7; y++) {
                     int block=ground.type(cx,y,cz);
@@ -2092,7 +2138,7 @@ public final class CitySimulation {
         if(railway.size()+fresh>8192) throw new IllegalArgumentException("Rail track limit reached");
         for(var c:cells) {
             if(Math.abs((long)c.x()-8)>256||Math.abs((long)c.z()-24)>256)throw new IllegalArgumentException("Rail outside city limits");
-            if(roads.containsKey(c))throw new IllegalArgumentException("Rail cannot cover roads");
+            if(roadContains(c))throw new IllegalArgumentException("Rail cannot cover roads");
             if(specialCell(c.x(),c.z())||buildings.stream().anyMatch(b->c.x()>=b.x()-1&&c.x()<=b.x()+StructureBlueprint.width(b.type())&&c.z()>=b.z()-2&&c.z()<=b.z()+StructureBlueprint.depth(b.type())))throw new IllegalArgumentException("Rail cannot cover buildings or entrances");
             if(economy.overlaps(c.x(),c.z(),1,1)||zones.stream().anyMatch(v->v.polygon().contains(c.x()+.5f,c.z()+.5f)))throw new IllegalArgumentException("Rail cannot cover owned plots or zones");
             if(ground.occupied(c.x(),grade+1,c.z(),1,1))throw new IllegalArgumentException("Rail would intersect a player");
@@ -2121,7 +2167,7 @@ public final class CitySimulation {
         // Chaining can merge valid placements into a street larger than one placement.
         // Existing streets may be edited within the same bounded city/ownership capacity.
         if (cells.size() > (editing == 0 ? 768 : 8192)
-                || roads.size() + cells.stream().filter(c -> !roads.containsKey(c)).count() > 8192)
+                || roads.size() + cells.stream().filter(c -> !roadContains(c)).count() > 8192)
             throw new IllegalArgumentException("Road too long: use shorter sections");
         for (var cell : cells) {
             if (railway.contains(cell.x(), cell.z())) throw new IllegalArgumentException("Road cannot cover rails");
@@ -2134,8 +2180,8 @@ public final class CitySimulation {
             if (ground.occupied(cell.x(), grade + 1, cell.z(), 1, 1))
                 throw new IllegalArgumentException("Road would intersect a player");
         }
-        int newCells = (int) cells.stream().filter(c -> !roads.containsKey(c)).count();
-        int changedCells = (int) cells.stream().filter(c -> !roads.containsKey(c)
+        int newCells = (int) cells.stream().filter(c -> !roadContains(c)).count();
+        int changedCells = (int) cells.stream().filter(c -> !roadContains(c)
                 || roadTypes.getOrDefault(c, 0) != type).count();
         var nextAddresses = new CityAddresses(addresses.state(buildings));
         var existingStreet = addresses.state(buildings).nearest(points.get(0).x(), points.get(0).z());
@@ -2149,7 +2195,7 @@ public final class CitySimulation {
                     + (int) (changedCells * CityEconomy.ROAD_COST);
         var edits = new ArrayList<Protocol.Edit>();
         for (var c : cells) {
-            if (!roads.containsKey(c)) level(c.x(), c.z(), edits);
+            if (!roadContains(c)) level(c.x(), c.z(), edits);
             // Repainting overlapping cells lets the mayor upgrade an existing dirt road.
             edits.add(new Protocol.Edit(c.x(), grade, c.z(), surfaces.get(c)));
             roads.put(c, grade);
@@ -2211,7 +2257,7 @@ public final class CitySimulation {
         for (var c : cells) {
             if (railway.contains(c.x(), c.z())) throw new IllegalArgumentException("Zones cannot cover rails");
             if (specialCell(c.x(), c.z())) throw new IllegalArgumentException("Zones cannot cover special buildings");
-            if (roads.containsKey(c))
+            if (roadContains(c))
                 throw new IllegalArgumentException("Zones cannot cover roads");
             if (neighbours(c).stream().anyMatch(roads::containsKey)) adjacent = true;
             for (var z : zones)
@@ -2255,11 +2301,37 @@ public final class CitySimulation {
         return true;
     }
 
+    private final int[] gridConstructionCursor = {0,400_000,600_000,800_000};
+    private Iterable<CityFrame.Zone> constructionZones() {
+        if (stressGrid == null) return zones;
+        var candidates = new ArrayList<CityFrame.Zone>();
+        int[] begin = {0,400_000,600_000,800_000}, end = {400_000,600_000,800_000,1_000_000};
+        for (int type=0; type<4; type++) if (demand(type)) {
+            // Advance only when visited: unvisited candidates must not be lost on a successful purchase.
+            int rank=gridConstructionCursor[type];
+            for (int n=0; n<64; n++) {
+                candidates.add(stressGrid.zone(StressGrid.indexForRank(rank)));
+                rank++; if(rank==end[type]) rank=begin[type];
+            }
+        }
+        return candidates;
+    }
+
+    private boolean visitConstructionZone(CityFrame.Zone zone) {
+        if (stressGrid != null) {
+            int index=zone.id()-1, type=zone.type();
+            int next=StressGrid.rank(index%1000,index/1000)+1;
+            int[] begin={0,400_000,600_000,800_000}, end={400_000,600_000,800_000,1_000_000};
+            gridConstructionCursor[type]=next==end[type]?begin[type]:next;
+        }
+        return true;
+    }
+
     private void construct() {
         if (buildings.size() + economy.plots.stream().filter(p -> p.building() == 0).count() >= 512)
             return;
-        for (var zone : zones)
-            if (demand(zone.type()))
+        for (var zone : constructionZones())
+            if (visitConstructionZone(zone) && demand(zone.type()))
                 for (var c : zone.polygon().cells())
                     if (fits(zone.polygon(), c.x(), c.z(), zone.type())) {
                         int x = c.x(), z = c.z();
@@ -2320,7 +2392,7 @@ public final class CitySimulation {
                                                                                                             + 7));
                             if (blocked) continue;
                             for (var cell : path)
-                                if (!roads.containsKey(cell)) level(cell.x(), cell.z(), edits);
+                                if (!roadContains(cell)) level(cell.x(), cell.z(), edits);
                         }
                         int purpose =
                                 zone.type() == 2
@@ -2585,7 +2657,7 @@ public final class CitySimulation {
                 hs,
                 economy.state(),
                 addresses.state(buildings),
-                agriculture.state(), population.state(), new Aviation.State(flights), railway.state());
+                agriculture.state(), population.state(), new Aviation.State(flights), railway.state(), stressGrid);
     }
 
     public static CityFrame load(Path file) throws IOException {
@@ -2602,7 +2674,7 @@ public final class CitySimulation {
                     && magic != 0x43495438
                     && magic != 0x43495439
                     && magic != 0x4349543A
-                    && magic != 0x4349543B && magic != 0x4349543C && magic != 0x4349543D && magic != 0x4349543E) throw new IOException("Invalid city save");
+                    && magic != 0x4349543B && magic != 0x4349543C && magic != 0x4349543D && magic != 0x4349543E && magic != 0x4349543F) throw new IOException("Invalid city save");
             return CityFrame.read(
                     in,
                     magic == 0x43495431
@@ -2615,7 +2687,7 @@ public final class CitySimulation {
                                                     ? 4
                                                     : magic == 0x43495435
                                                             ? 5
-                                                            : magic == 0x43495436 ? 6 : magic == 0x43495437 ? 7 : magic == 0x43495438 ? 8 : magic == 0x43495439 ? 9 : magic == 0x4349543A ? 10 : magic == 0x4349543B ? 11 : magic == 0x4349543C ? 12 : magic == 0x4349543D ? 13 : 14);
+                                                            : magic == 0x43495436 ? 6 : magic == 0x43495437 ? 7 : magic == 0x43495438 ? 8 : magic == 0x43495439 ? 9 : magic == 0x4349543A ? 10 : magic == 0x4349543B ? 11 : magic == 0x4349543C ? 12 : magic == 0x4349543D ? 13 : magic == 0x4349543E ? 14 : 15);
         }
     }
 
@@ -2624,8 +2696,8 @@ public final class CitySimulation {
         Files.createDirectories(file.toAbsolutePath().getParent());
         Path tmp = file.resolveSibling(file.getFileName() + ".tmp");
         try (var out = new DataOutputStream(Files.newOutputStream(tmp))) {
-            out.writeInt(0x4349543E);
-            frame().write(out);
+            out.writeInt(stressGrid == null ? 0x4349543E : 0x4349543F);
+            frame().write(out, stressGrid == null ? 14 : 15);
         }
         try {
             Files.move(

@@ -53,6 +53,7 @@ public final class DistantTerrainRenderer implements AutoCloseable {
     }
 
     public void update(World world, float x, float z) {
+        if (terrain.stressGrid() != world.terrain().stressGrid()) terrain.stressGrid(world.terrain().stressGrid());
         int px = Math.floorDiv((int) Math.floor(x), 16) * 16;
         int pz = Math.floorDiv((int) Math.floor(z), 16) * 16;
         if (plan == null || px != centerX || pz != centerZ) {

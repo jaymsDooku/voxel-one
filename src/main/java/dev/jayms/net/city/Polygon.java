@@ -5,14 +5,23 @@ import java.util.*;
 
 /** Convex polygon in world X/Z; voxel centres decide enclosed ground cells. */
 public record Polygon(List<Point> vertices) {
-    public record Point(float x, float z) {
-        public Point {
-            if (!Float.isFinite(x)
-                    || !Float.isFinite(z)
-                    || Math.abs(x - 8) > 256
-                    || Math.abs(z - 24) > 256)
+    public static final class Point {
+        private final float x, z;
+        public Point(float x, float z) { this(x,z,false); }
+        private Point(float x, float z, boolean grid) {
+            int limit=grid?10000:256;
+            if (!Float.isFinite(x) || !Float.isFinite(z) || Math.abs(x-8)>limit || Math.abs(z-24)>limit)
                 throw new IllegalArgumentException("City limits: 512 x 512 blocks around spawn");
+            this.x=x; this.z=z;
         }
+        static Point grid(float x,float z) { return new Point(x,z,true); }
+        public float x() { return x; }
+        public float z() { return z; }
+        @Override public boolean equals(Object other) {
+            return other instanceof Point p && Float.compare(x,p.x)==0 && Float.compare(z,p.z)==0;
+        }
+        @Override public int hashCode() { return 31*Float.hashCode(x)+Float.hashCode(z); }
+        @Override public String toString() { return "Point[x="+x+", z="+z+"]"; }
     }
 
     public record Cell(int x, int z) {}

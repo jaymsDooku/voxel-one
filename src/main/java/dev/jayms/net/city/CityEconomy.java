@@ -260,8 +260,8 @@ public final class CityEconomy {
                 float work = in.readFloat();
                 int building = in.readInt();
                 if (type > 3
-                        || Math.abs((long) x - 8) > 256
-                        || Math.abs((long) z - 24) > 256
+                        || Math.abs((long) x - 8) > (version >= 15 ? 10000 : 256)
+                        || Math.abs((long) z - 24) > (version >= 15 ? 10000 : 256)
                         || y < -27
                         || y > 89
                         || !Float.isFinite(work)

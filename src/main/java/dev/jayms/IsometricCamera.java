@@ -15,6 +15,8 @@ public final class IsometricCamera {
     }
 
     private float panX, panZ, focusY = 32;
+    private boolean stressGrid;
+    public void stressGrid(boolean enabled) { stressGrid=enabled; }
 
     public void focus(float x, float z, float y) {
         focus(x, z);
@@ -46,8 +48,8 @@ public final class IsometricCamera {
 
     public void pan(float x, float z) {
         focused = true;
-        panX = Math.max(-248, Math.min(264, panX + x));
-        panZ = Math.max(-232, Math.min(280, panZ + z));
+        panX = Math.max(stressGrid ? -9493 : -248, Math.min(stressGrid ? 9509 : 264, panX + x));
+        panZ = Math.max(stressGrid ? -9477 : -232, Math.min(stressGrid ? 9525 : 280, panZ + z));
     }
 
     public IsometricCamera() {

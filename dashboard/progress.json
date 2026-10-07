@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T11:06:47+00:00",
+  "updatedAt": "2026-10-07T11:29:14.289000+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -2953,6 +2953,21 @@
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64396536616564332d646233392d346366642d396435372d653830623731326233643537/dashboard/evidence/noncardinal-road-playtest.mp4"
         }
       ]
+    },
+    {
+      "id": "65333430666162362d326337392d343737612d623765382d623233306336383138396363",
+      "title": "Large-grid capacity",
+      "description": "Source limits checked. Awaiting a private geometry clarification before implementation. No gameplay checks or media claimed.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Validation report (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-65333430666162362d326337392d343737612d623765382d623233306336383138396363/dashboard/evidence/stress-grid-tests.json"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Integrated head verified: 118 tests and native development/reload workflow passed. Fresh screenshots and F10 video inspected. Ready for independent review; controller publication pending.",
+      "updatedAt": "2026-10-07T11:29:14.289000+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
