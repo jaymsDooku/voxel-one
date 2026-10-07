@@ -16,6 +16,9 @@ a = p.parse_args()
 if not a.display or a.display != os.environ.get('DISPLAY'):
     raise SystemExit('The inherited assigned DISPLAY is required.')
 java_home = Path(os.environ.get('JAVA_HOME', '/usr/lib/jvm/jdk-21.0.5-oracle-x64'))
+# Each run starts with fresh synthetic state; old fixture saves may use older formats.
+for folder in ('target/railway-home', 'target/railway-playtest'):
+    shutil.rmtree(root / folder, ignore_errors=True)
 for folder in ('target/railway-smoke', 'target/railway-home', 'target/railway-playtest', 'target/tmp'):
     (root / folder).mkdir(parents=True, exist_ok=True)
 jars = [str(f) for f in (root / 'target/maven-cache').rglob('*.jar') if 'natives-windows' not in f.name]

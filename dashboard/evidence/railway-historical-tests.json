@@ -1,487 +1,438 @@
 {
-  "status": "Historical results before road ownership recovery; final-head checks pending.",
+  "status": "Historical 306-test run on earlier railway implementation; superseded by recovered-source results.",
   "command": "mvn -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" test -q",
   "exitCode": 0,
-  "environment": "Linux; worktree-local target/maven-cache and target/tmp; separate JVM fork per test class",
+  "environment": "Linux sandbox; Linux LWJGL natives; Java 17 target; temp files and Maven cache inside assigned worktree target/",
   "totals": {
-    "tests": 340,
+    "tests": 306,
     "failures": 0,
     "errors": 0,
     "skipped": 0
   },
   "suites": [
     {
-      "name": "dev.jayms.AccountStoreTest",
+      "suite": "dev.jayms.AccountStoreTest",
       "tests": 2,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 8.393
+      "seconds": 5.235
     },
     {
-      "name": "dev.jayms.AgricultureTest",
+      "suite": "dev.jayms.AgricultureTest",
       "tests": 8,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 197.839
+      "seconds": 155.566
     },
     {
-      "name": "dev.jayms.AviationTest",
-      "tests": 10,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0,
-      "seconds": 1.853
-    },
-    {
-      "name": "dev.jayms.BuildingInfoTest",
+      "suite": "dev.jayms.BuildingInfoTest",
       "tests": 5,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 0.181
+      "seconds": 0.029
     },
     {
-      "name": "dev.jayms.BusinessCatalogTest",
+      "suite": "dev.jayms.BusinessCatalogTest",
       "tests": 11,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 7.018
+      "seconds": 4.151
     },
     {
-      "name": "dev.jayms.BusinessDashboardTest",
+      "suite": "dev.jayms.BusinessDashboardTest",
       "tests": 3,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 0.177
+      "seconds": 0.018
     },
     {
-      "name": "dev.jayms.CapitalDashboardTest",
+      "suite": "dev.jayms.CapitalDashboardTest",
       "tests": 3,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 0.749
+      "seconds": 0.039
     },
     {
-      "name": "dev.jayms.CapitalInspectorTest",
+      "suite": "dev.jayms.CapitalInspectorTest",
       "tests": 1,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 0.185
+      "seconds": 0.003
     },
     {
-      "name": "dev.jayms.CapitalSettlementLimitsTest",
+      "suite": "dev.jayms.CapitalSettlementLimitsTest",
       "tests": 9,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 0.696
+      "seconds": 0.097
     },
     {
-      "name": "dev.jayms.CitizenLifeTest",
+      "suite": "dev.jayms.CitizenLifeTest",
       "tests": 8,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 1.015
+      "seconds": 0.062
     },
     {
-      "name": "dev.jayms.CityAddressesTest",
+      "suite": "dev.jayms.CityAddressesTest",
       "tests": 3,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 12.854
+      "seconds": 8.66
     },
     {
-      "name": "dev.jayms.CityBusinessTest",
+      "suite": "dev.jayms.CityBusinessTest",
       "tests": 9,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 23.025
+      "seconds": 17.953
     },
     {
-      "name": "dev.jayms.CityCapitalTest",
+      "suite": "dev.jayms.CityCapitalTest",
       "tests": 11,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 4.336
+      "seconds": 3.889
     },
     {
-      "name": "dev.jayms.CityEconomyTest",
+      "suite": "dev.jayms.CityEconomyTest",
       "tests": 7,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 16.453
+      "seconds": 13.448
     },
     {
-      "name": "dev.jayms.CityMaterialsTest",
+      "suite": "dev.jayms.CityMaterialsTest",
       "tests": 13,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 45.656
+      "seconds": 38.885
     },
     {
-      "name": "dev.jayms.CityMetricsTest",
+      "suite": "dev.jayms.CityMetricsTest",
       "tests": 5,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 0.365
+      "seconds": 0.006
     },
     {
-      "name": "dev.jayms.CityMultiplayerTest",
+      "suite": "dev.jayms.CityMultiplayerTest",
       "tests": 1,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 16.796
+      "seconds": 10.009
     },
     {
-      "name": "dev.jayms.CityTest",
+      "suite": "dev.jayms.CityTest",
       "tests": 10,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 17.42
+      "seconds": 10.291
     },
     {
-      "name": "dev.jayms.CityTimeTest",
+      "suite": "dev.jayms.CityTimeTest",
       "tests": 6,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 43.32
+      "seconds": 29.682
     },
     {
-      "name": "dev.jayms.CityToolsTest",
+      "suite": "dev.jayms.CityToolsTest",
       "tests": 9,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 0.717
+      "seconds": 0.111
     },
     {
-      "name": "dev.jayms.ControlsTest",
+      "suite": "dev.jayms.ControlsTest",
       "tests": 5,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 0.51
+      "seconds": 0.028
     },
     {
-      "name": "dev.jayms.CraftingTest",
+      "suite": "dev.jayms.CraftingTest",
       "tests": 6,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 0.67
+      "seconds": 0.021
     },
     {
-      "name": "dev.jayms.DemolitionTest",
+      "suite": "dev.jayms.DemolitionTest",
       "tests": 3,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 93.346
+      "seconds": 55.72
     },
     {
-      "name": "dev.jayms.DistantTerrainTest",
+      "suite": "dev.jayms.DistantTerrainTest",
       "tests": 6,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 0.421
+      "seconds": 0.176
     },
     {
-      "name": "dev.jayms.ExchangeLabourMarketTest",
+      "suite": "dev.jayms.ExchangeLabourMarketTest",
       "tests": 6,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 1.552
+      "seconds": 0.187
     },
     {
-      "name": "dev.jayms.ExchangePermitCompositionTest",
+      "suite": "dev.jayms.ExchangePermitCompositionTest",
       "tests": 1,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 0.347
+      "seconds": 0.004
     },
     {
-      "name": "dev.jayms.FractionalWorldTest",
+      "suite": "dev.jayms.FractionalWorldTest",
       "tests": 7,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 0.651
+      "seconds": 0.113
     },
     {
-      "name": "dev.jayms.InventoryHudTest",
+      "suite": "dev.jayms.InventoryHudTest",
       "tests": 2,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 0.422
+      "seconds": 0.012
     },
     {
-      "name": "dev.jayms.IsometricCameraTest",
+      "suite": "dev.jayms.IsometricCameraTest",
       "tests": 8,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 0.427
+      "seconds": 0.029
     },
     {
-      "name": "dev.jayms.IsometricOrbitDragTest",
+      "suite": "dev.jayms.IsometricOrbitDragTest",
       "tests": 1,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 0.093
+      "seconds": 0.002
     },
     {
-      "name": "dev.jayms.JeepTest",
-      "tests": 8,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0,
-      "seconds": 1.004
-    },
-    {
-      "name": "dev.jayms.LightOcclusionTest",
+      "suite": "dev.jayms.JeepTest",
       "tests": 6,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 1.799
+      "seconds": 0.147
     },
     {
-      "name": "dev.jayms.LightingTest",
+      "suite": "dev.jayms.LightOcclusionTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 1.775
+    },
+    {
+      "suite": "dev.jayms.LightingTest",
       "tests": 5,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 0.868
+      "seconds": 0.034
     },
     {
-      "name": "dev.jayms.ManufacturingTest",
+      "suite": "dev.jayms.ManufacturingTest",
       "tests": 7,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 30.478
+      "seconds": 34.462
     },
     {
-      "name": "dev.jayms.MarketEconomyTest",
+      "suite": "dev.jayms.MarketEconomyTest",
       "tests": 13,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 2.118
+      "seconds": 0.279
     },
     {
-      "name": "dev.jayms.MayorDashboardTest",
+      "suite": "dev.jayms.MayorDashboardTest",
       "tests": 3,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 0.409
+      "seconds": 0.096
     },
     {
-      "name": "dev.jayms.MetricHistoryTest",
+      "suite": "dev.jayms.MetricHistoryTest",
       "tests": 5,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 1.1
+      "seconds": 0.693
     },
     {
-      "name": "dev.jayms.ModelSculptorTest",
+      "suite": "dev.jayms.ModelSculptorTest",
       "tests": 3,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 0.494
+      "seconds": 0.007
     },
     {
-      "name": "dev.jayms.MultiplayerTest",
+      "suite": "dev.jayms.MultiplayerTest",
       "tests": 15,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 122.478
+      "seconds": 108.864
     },
     {
-      "name": "dev.jayms.PlayerAnimationTest",
+      "suite": "dev.jayms.PlayerAnimationTest",
       "tests": 6,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 0.344
+      "seconds": 0.206
     },
     {
-      "name": "dev.jayms.PlayerCameraTest",
+      "suite": "dev.jayms.PlayerCameraTest",
       "tests": 3,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 0.334
+      "seconds": 0.006
     },
     {
-      "name": "dev.jayms.PlayerTest",
+      "suite": "dev.jayms.PlayerTest",
       "tests": 6,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 0.612
+      "seconds": 0.117
     },
     {
-      "name": "dev.jayms.PopulationJourneyTest",
+      "suite": "dev.jayms.PopulationJourneyTest",
       "tests": 2,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 71.559
+      "seconds": 31.916
     },
     {
-      "name": "dev.jayms.ProtocolCompatibilityTest",
+      "suite": "dev.jayms.ProtocolCompatibilityTest",
       "tests": 2,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 4.04
+      "seconds": 3.8
     },
     {
-      "name": "dev.jayms.RailwaySaveCompatibilityTest",
-      "tests": 3,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0,
-      "seconds": 0.875
-    },
-    {
-      "name": "dev.jayms.RailwayTest",
+      "suite": "dev.jayms.RailwayTest",
       "tests": 5,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 2.386
+      "seconds": 0.449
     },
     {
-      "name": "dev.jayms.RegionalMultiplayerTest",
+      "suite": "dev.jayms.RemotePlayerTest",
       "tests": 1,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 13.822
+      "seconds": 0.001
     },
     {
-      "name": "dev.jayms.RegionalPopulationTest",
-      "tests": 10,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0,
-      "seconds": 2.852
-    },
-    {
-      "name": "dev.jayms.RegionalSaveCompatibilityTest",
+      "suite": "dev.jayms.ShopRestockMarketTest",
       "tests": 4,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 1.053
+      "seconds": 0.045
     },
     {
-      "name": "dev.jayms.RemotePlayerTest",
-      "tests": 1,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0,
-      "seconds": 0.16
-    },
-    {
-      "name": "dev.jayms.RoadTypesTest",
-      "tests": 4,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0,
-      "seconds": 0.746
-    },
-    {
-      "name": "dev.jayms.ShopRestockMarketTest",
-      "tests": 4,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0,
-      "seconds": 1.468
-    },
-    {
-      "name": "dev.jayms.SpecialBuildingsTest",
+      "suite": "dev.jayms.SpecialBuildingsTest",
       "tests": 6,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 0.649
+      "seconds": 0.076
     },
     {
-      "name": "dev.jayms.SurvivalTest",
+      "suite": "dev.jayms.SurvivalTest",
       "tests": 4,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 1.126
+      "seconds": 1.057
     },
     {
-      "name": "dev.jayms.TerrainGenerationTest",
+      "suite": "dev.jayms.TerrainGenerationTest",
       "tests": 10,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 3.016
+      "seconds": 0.945
     },
     {
-      "name": "dev.jayms.UpdaterTest",
+      "suite": "dev.jayms.UpdaterTest",
       "tests": 2,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 0.64
+      "seconds": 0.477
     },
     {
-      "name": "dev.jayms.VideoRecordingTest",
+      "suite": "dev.jayms.VideoRecordingTest",
       "tests": 7,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 1.337
+      "seconds": 0.32
     },
     {
-      "name": "dev.jayms.VoxelModelTest",
+      "suite": "dev.jayms.VoxelModelTest",
       "tests": 6,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 0.643
+      "seconds": 0.158
     },
     {
-      "name": "dev.jayms.net.city.CityStockExchangeTest",
+      "suite": "dev.jayms.net.city.CityStockExchangeTest",
       "tests": 10,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 0.26
+      "seconds": 0.022
     }
-  ],
-  "historical_notice": "Earlier media and test reports predate road workflow and ownership recovery; final-head validation remains pending."
+  ]
 }
