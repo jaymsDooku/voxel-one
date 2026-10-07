@@ -98,8 +98,13 @@ public class RejectedRoadWorkflowSmoke {
                 x("key","Escape");point(60,160);var tools=(CityTools)get("cityTools");require(tools.selectedStreet!=0,"Retry road selectable");
                 click(80,218);click(80,154+28*2);require(RoadGeometry.section(city(),tools.selectedStreet).stream().allMatch(r->r.type()==2),"Edit retry road");
                 click(80,246);require(city().roads().stream().noneMatch(r->r.x()==50&&r.z()==160),"Delete retry road");
-                x("key","F10");Thread.sleep(2000);
-                Files.writeString(out.resolve("results.json"),"{\"status\":\"passed\",\"checks\":[\"budget rejection retains anchor\",\"retry has no gap\",\"success advances chain\",\"selection/edit/delete regression\"],\"profile\":\"isolated synthetic city\",\"platform\":\"Linux inherited X11 Mesa\"}");
+                camera.focus(50,190,city().roads().get(0).y()+1);x("getwindowfocus");menu(1);point(40,180);point(60,200);
+                require(city().roads().stream().anyMatch(r->r.x()==50&&r.z()==180),"Right-angle first leg retained");
+                require(city().roads().stream().anyMatch(r->r.x()==60&&r.z()==190),"Right-angle second leg retained");
+                require(city().roads().stream().noneMatch(r->r.x()==50&&r.z()==190),"No diagonal shortcut");
+                capture="road-right-angle-regression.png";x("getwindowfocus");Thread.sleep(2000);
+                x("key","Escape");x("key","F10");Thread.sleep(2000);
+                Files.writeString(out.resolve("results.json"),"{\"status\":\"passed\",\"checks\":[\"budget rejection retains anchor\",\"retry has no gap\",\"success advances chain\",\"selection/edit/delete regression\",\"right-angle base route preserved\"],\"profile\":\"isolated synthetic city\",\"platform\":\"Linux inherited X11 Mesa\"}");
             } catch(Throwable e) {
                 failure=e;
                 try { Files.writeString(out.resolve("failure.txt"),e.getClass().getSimpleName()+": "+e.getMessage()); } catch(Exception ignored) {}
