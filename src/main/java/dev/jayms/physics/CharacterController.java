@@ -15,7 +15,7 @@ public final class CharacterController {
     public Aabb bounds(){return new Aabb(position.x-radius,position.y,position.z-radius,position.x+radius,position.y+height,position.z+radius);}
     public void step(PhysicsWorld world,float dt,Vector3f desired,boolean jump) {
         if(dt<=0||dt>.1f||!Float.isFinite(dt)||!desired.isFinite())throw new IllegalArgumentException("Invalid character step");
-        if(platform!=null&&world.bodies.contains(platform))move(world,new Vector3f(platform.position).sub(platformPosition),false);
+        if(platform!=null&&world.bodies.contains(platform))move(world,new Vector3f(platform.position).sub(platformPosition),false,platform);
         float response=1-(float)Math.exp(-20*dt);velocity.x+=(desired.x-velocity.x)*response;velocity.z+=(desired.z-velocity.z)*response;
         if(jump&&grounded){velocity.y=8;grounded=false;platform=null;}
         velocity.y+=world.gravity.y*dt;
@@ -30,10 +30,13 @@ public final class CharacterController {
     }
     private record Contact(RigidBody body,Vector3f normal) {}
     private Contact move(PhysicsWorld world,Vector3f delta,boolean stairs) {
+        return move(world,delta,stairs,null);
+    }
+    private Contact move(PhysicsWorld world,Vector3f delta,boolean stairs,RigidBody ignored) {
         Contact contact=null;
         for(int iteration=0;iteration<4&&delta.lengthSquared()>1e-12f;iteration++) {
             float fraction=1;RigidBody body=null;Vector3f normal=null;
-            for(var b:world.bodies)if(!b.trigger&&(b.layer&mask)!=0&&(b.mask&layer)!=0){var h=bounds().sweep(b.bounds(),delta);if(h!=null&&h.time()<fraction){fraction=h.time();normal=h.normal();body=b;}}
+            for(var b:world.bodies)if(b!=ignored&&!b.trigger&&(b.layer&mask)!=0&&(b.mask&layer)!=0){var h=bounds().sweep(b.bounds(),delta);if(h!=null&&h.time()<fraction){fraction=h.time();normal=h.normal();body=b;}}
             if(body==null){position.add(delta);break;}
             if(stairs&&normal.y==0&&canStep(world,delta)){return null;}
             position.fma(Math.max(0,fraction-.00001f),delta);contact=new Contact(body,normal);

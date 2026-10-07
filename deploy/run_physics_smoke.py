@@ -20,6 +20,7 @@ if result.returncode:
     raise SystemExit(result.returncode)
 for file in (root/'target/physics-runtime').glob('physics-*.png'):shutil.copyfile(file,root/'dashboard/evidence'/file.name)
 shutil.copyfile(root/'target/physics-runtime/results.json',root/'dashboard/evidence/physics-playtest.json')
+shutil.copyfile(root/'target/physics-runtime/platform-results.json',root/'dashboard/evidence/physics-platform-playtest.json')
 shutil.copyfile(root/'target/physics-runtime/rope-results.json',root/'dashboard/evidence/physics-rope-playtest.json')
 shutil.copyfile(root/'target/physics-runtime/force-results.json',root/'dashboard/evidence/physics-force-playtest.json')
 clips=sorted((root/'target/physics-home/.voxel-one/recordings').glob('*.mp4'))

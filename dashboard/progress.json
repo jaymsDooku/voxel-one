@@ -41,7 +41,7 @@
         }
       ],
       "status": "in_progress",
-      "note": "Joint loads fixed and validated after integration: 58 focused tests, native rope/hinge loads and regressions, fresh media, Java 17 packaged launch. Ready for independent review; CI needs controller verification.",
+      "note": "Moving platform carry fixed. 62 focused tests, native rising/descending/ceiling/horizontal cases and prior physics/walker regressions passed. Fresh media captured; Java 17 packaged launch passed. Ready for independent review; CI needs controller verification.",
       "updatedAt": "2026-10-07T20:35:42.621494+00:00"
     },
     {

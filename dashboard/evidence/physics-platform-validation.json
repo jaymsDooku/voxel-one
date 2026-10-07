@@ -1,0 +1,63 @@
+{
+  "sourceHeadBeforeControllerCommit": "84e956b83767cc5f9d6b6416ba6d7ed1c122b68b",
+  "reviewBase": "41ed6e88d231435559810c788416832d2b13d136",
+  "change": "Carry sweep excludes only the already-moved supporting platform. Other obstacles and collision masks remain active. Ordinary movement still collides with the support.",
+  "commands": [
+    {
+      "command": "mvn -q -Dmaven.repo.local=target/maven-cache -Dmaven.compiler.release=17 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Djvm=/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Dtest=PlatformCarryTest,DistanceLoadTest,PhysicsTest,CcdMotionTest,ForceInertiaTest,PlayerTest,JeepTest package",
+      "result": "exit 0; 62 tests, zero failures/errors; package built"
+    },
+    {
+      "command": "python3 deploy/run_physics_smoke.py --display \"$DISPLAY\"",
+      "result": "exit 0; all native assertions passed"
+    },
+    {
+      "command": "python3 deploy/run_physics_cli_smoke.py --display \"$DISPLAY\" --java /usr/lib/jvm/java-17-openjdk-amd64/bin/java",
+      "result": "exit 0; window opened, Escape closed it"
+    },
+    {
+      "command": "git diff --check",
+      "result": "exit 0"
+    }
+  ],
+  "Playtest": {
+    "environment": "Linux X11, inherited DISPLAY/XAUTHORITY without reading cookie; Mesa software rendering; isolated synthetic profiles under target",
+    "platform": {
+      "Playtest": "Production PhysicsWorld and CharacterController in native PhysicsLab; isolated fixtures; 120 steps at 1/120 second",
+      "expected": "Rising feet 4.2, descending feet 2.2, horizontal x=9; ceiling bounds head at 5.201",
+      "observed": "All four assertions passed; lab reset and walker regressions follow"
+    },
+    "regressions": "All five lab scenes: collapse, repeated cut/reset, explosion/fracture, joints, water/fire, cloth/SPH/GPU parity, vehicle. Sustained rope/hinge loads, sleeping force, rotated inertia and contact sliding passed. Production Main walker stair, tall-wall rejection and jump/landing passed.",
+    "browser": "Not applicable: native LWJGL Java game.",
+    "capture": "Inspected fresh physics-platform-carry.png: character rendered on horizontal platform after one block of carry."
+  },
+  "media": {
+    "status": "passed",
+    "source": "production F10 recorder in native physics collapse playtest",
+    "codec": "H264",
+    "bytes": 176918,
+    "decodedFrames": 14,
+    "width": 816,
+    "height": 544,
+    "durationSeconds": 3.002,
+    "checks": [
+      "Every frame decoded",
+      "Frame count matches MP4 metadata",
+      "First and last images differ",
+      "Below 6 MB artifact limit"
+    ]
+  },
+  "audit": "Entire proposed diff against review base restricted to physics work and intended Main/Player/Jeep integration. No deleted files. 189 upstream regression/network/populated-stress/SavesMenu files and 71 prior progress entries preserved. Intentional Player axis-loop and Jeep inline-query replacements use shared voxel sweeps.",
+  "limits": [
+    "Full suite and macOS CI are not claimed passed; controller must verify CI.",
+    "Advanced simulations remain explicit lab/API integrations.",
+    "Media awaits controller publication. Earlier reports retain historical provenance."
+  ],
+  "sha256": {
+    "src/main/java/dev/jayms/physics/CharacterController.java": "dc1b89769f4079399fb4c6e5025e7b3ed346dc37c5a2d0381de538157ce52339",
+    "src/test/java/dev/jayms/physics/PlatformCarryTest.java": "72ae8430ae310dc0b63e089fdc00bdd18d5f6e9640c565f94a9db6349a742a43",
+    "deploy/PhysicsSmoke.java": "70646ba3319014ff7fa78ffa1d27a16d3e07040e7c4f2b0a793531f9fd5532c6",
+    "dashboard/evidence/physics-platform-carry.png": "0fec71e08a7db45e9da6c6a2b15972c4b9714505b22002aa7a81b4fa64dd75bc",
+    "dashboard/evidence/physics-collapse.mp4": "33df9ad8b3fd0087dfec518d71c10c5d7ff0c1a45ff0c91bea4d7ab08d55e903"
+  }
+}
