@@ -111,11 +111,47 @@ public class Main {
     private final Matrix4f projection = new Matrix4f(), view = new Matrix4f();
     private final FrustumIntersection frustum = new FrustumIntersection();
     private String notice = "";
+    private final dev.jayms.physics.CityMissiles missiles = new dev.jayms.physics.CityMissiles();
     private boolean cheatMode;
     private int cheatVehicle;
     private int cheatSpawnCount;
     private final List<Jeep> cheatParked = new ArrayList<>();
     private final List<Aviation.Plane> cheatPlanes = new ArrayList<>();
+
+    private void dropCityMissile() {
+        if (!cheatMode || network != null || local == null || !city().config().city()) {
+            notice = "Missiles require offline City Builder cheat mode"; return;
+        }
+        Vector3f target;
+        if (isometric) {
+            int x=(int)Math.floor(overview.focusX()), z=(int)Math.floor(overview.focusZ());
+            int y=world.getLoadedChunks().keySet().stream().filter(p -> p.chunkX()==Math.floorDiv(x,16) && p.chunkZ()==Math.floorDiv(z,16)).mapToInt(p -> p.chunkY()*16+15).max().orElse(Terrain.MAX_Y);
+            while(y>Terrain.MIN_Y && (world.sample(x,y,z)==Blocks.AIR || world.sample(x,y,z)==Blocks.WATER)) y--;
+            target=new Vector3f(x+.5f,y+1,z+.5f);
+        } else {
+            var hit=BlockRaycaster.cast(world,player.eyePosition(),player.facingDirection(),120);
+            if(hit==null) { notice="Aim at loaded city terrain"; return; }
+            target=new Vector3f(hit.x()+.5f,hit.y()+1,hit.z()+.5f);
+        }
+        if (!world.isLoaded((int)target.x,(int)target.y,(int)target.z)
+                || !world.isLoaded((int)target.x,(int)target.y+28,(int)target.z)) {
+            notice="Wait for the target area to load"; return;
+        }
+        if(player.position().distance(target)<20) { notice="Move at least 20 blocks from the target"; return; }
+        notice=missiles.launch(target)?"Missile away!": "Wait for the current missile to land";
+    }
+
+    private void missileImpact(Vector3f origin) {
+        for(var b:new ArrayList<>(city().buildings())) {
+            int width=StructureBlueprint.width(b.type());
+            int depth=b.type()==SpecialBuildings.AIRPORT?Aviation.depth(Aviation.runways(b)):StructureBlueprint.depth(b.type());
+            float x=Math.max(b.x(),Math.min(origin.x,b.x()+width));
+            float z=Math.max(b.z(),Math.min(origin.z,b.z()+depth));
+            if(new Vector3f(x,origin.y,z).distanceSquared(origin)<=36)
+                local.city.demolishForOfflineBlast(b.id());
+        }
+        notice="Missile impact: city structures and terrain destroyed";
+    }
 
     private String cheatVehicleName() {
         int roads = dev.jayms.player.CargoVehicle.values().length;
@@ -778,6 +814,7 @@ public class Main {
             notice = cheatMode ? "Cheat mode enabled: flight on" : "Cheat mode disabled: flight off";
             return;
         }
+        if (controls.matches(CHEAT_MISSILE, code)) { dropCityMissile(); return; }
         if (controls.matches(CHEAT_SELECT, code) || controls.matches(CHEAT_SPAWN, code) || controls.matches(CHEAT_MONEY, code)) {
             if (!cheatMode || network != null || local == null) { notice = "Enter offline cheat mode first"; return; }
             if (controls.matches(CHEAT_SELECT, code)) {
@@ -979,6 +1016,7 @@ public class Main {
                 notice = "You respawned. Your inventory was kept.";
             }
             if (local != null && !engineEditor.open && !(menu.open && menu.saves != null && menu.saves.open)) local.city.advance(Math.min(dt, .25));
+            if (local != null && !menu.open && !engineEditor.open) missiles.update(world,dt,this::missileImpact,edit -> { world.apply(edit); WorldVoxels.remember(local.edits,edit); });
             var horse = riding();
             player.mount(
                     horse != null,
@@ -1195,6 +1233,7 @@ public class Main {
             rendering.chunk(c, p);
         }
         modelRenderer.render(world, frustum, shader);
+        missiles.render(shader);
         if (jeep != null) jeepModel.render(jeep, shader);
         for (var parked : cheatParked) jeepModel.render(parked, shader);
         for (var plane : cheatPlanes) planeModel.render(plane, shader);
@@ -1335,9 +1374,13 @@ public class Main {
         if (city().config().city() && (network == null || network.connected()))
             mayorDashboard.history.observe(city());
         overlay.begin(framebufferWidth, framebufferHeight);
-        if (cheatMode) overlay.text("CHEAT MODE | " + Controls.keyName(controls.code(CHEAT_SELECT)) + ": select " + cheatVehicleName()
-                + " | " + Controls.keyName(controls.code(CHEAT_SPAWN)) + ": spawn | " + Controls.keyName(controls.code(CHEAT_MONEY))
-                + ": +$10,000 | " + Controls.keyName(controls.code(CHEATS)) + ": leave", 20, framebufferHeight - 158, 1f, 1, .8f, .3f, 1);
+        if (cheatMode) {
+            overlay.text("CHEAT | " + Controls.keyName(controls.code(CHEAT_SELECT)) + ": select " + cheatVehicleName()
+                    + " | " + Controls.keyName(controls.code(CHEAT_SPAWN)) + ": spawn", 20, 184, 1f, 1, .8f, .3f, 1);
+            overlay.text(Controls.keyName(controls.code(CHEAT_MISSILE)) + ": city missile at view centre | "
+                    + Controls.keyName(controls.code(CHEAT_MONEY)) + ": +$10,000 | "
+                    + Controls.keyName(controls.code(CHEATS)) + ": leave", 20, 206, 1f, 1, .8f, .3f, 1);
+        }
         if (mayorDashboard.open) {
             mayorDashboard.render(
                     overlay,
@@ -1596,6 +1639,7 @@ public class Main {
     private void cleanup(boolean keepWindow) throws Exception {
         if (vehicleAudio != null) vehicleAudio.close();
         recorder.close();
+        missiles.close();
         if (local != null) local.save();
         if (jeep != null) jeep.save(jeepSave());
         if (network != null) network.close();

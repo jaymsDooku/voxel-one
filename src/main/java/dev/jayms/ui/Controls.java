@@ -46,6 +46,7 @@ public final class Controls {
         CHEATS("Enter / leave cheat mode (offline)", GLFW_KEY_F4),
         CHEAT_SELECT("Cheats: next vehicle", GLFW_KEY_PAGE_UP),
         CHEAT_SPAWN("Cheats: spawn selected vehicle", GLFW_KEY_PAGE_DOWN),
+        CHEAT_MISSILE("Cheats: drop city missile at view centre", GLFW_KEY_DELETE),
         CHEAT_MONEY("Cheats: add $10,000 to city budget", GLFW_KEY_INSERT),
         ENGINE_EDITOR("Game engine workspace", GLFW_KEY_F11);
         public final String label;
@@ -186,6 +187,7 @@ public final class Controls {
             case GLFW_KEY_PAGE_UP -> "Page Up";
             case GLFW_KEY_PAGE_DOWN -> "Page Down";
             case GLFW_KEY_INSERT -> "Insert";
+            case GLFW_KEY_DELETE -> "Delete";
             case GLFW_KEY_SPACE -> "Space";
             case GLFW_KEY_LEFT_SHIFT -> "Left Shift";
             case GLFW_KEY_RIGHT_SHIFT -> "Right Shift";

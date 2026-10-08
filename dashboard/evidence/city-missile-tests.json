@@ -1,0 +1,162 @@
+{
+  "status": "Historical developer validation; rebase recovery resolved in working files, awaiting controller continuation and final-head checks",
+  "branch": "feature/queue-36333562383531382d393238362d343233352d613535632d623066623433323933626465",
+  "localReviewBase": "ce91421b21163775c5f2addb749fec69c521c8a3",
+  "commands": [
+    "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 PATH=/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin:$PATH timeout 240 mvn -q -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=CityMissilesTest,CityTest,SpecialBuildingsTest,AviationTest,PhysicsTest,BusinessDashboardTest,UpdaterTest,MetricHistoryTest,PlatformCarryTest,ControlsTest,CityMultiplayerTest test > target/missile-tests-output.txt 2>&1",
+    "python3 deploy/run_missile_smoke.py --display \"$DISPLAY\"",
+    "python3 -m py_compile deploy/run_missile_smoke.py",
+    "git diff --check"
+  ],
+  "unitAndIntegration": [
+    {
+      "suite": "dev.jayms.CityMissilesTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "suite": "dev.jayms.CityTest",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "suite": "dev.jayms.SpecialBuildingsTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "suite": "dev.jayms.AviationTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "suite": "dev.jayms.physics.PhysicsTest",
+      "tests": 25,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "suite": "dev.jayms.BusinessDashboardTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "suite": "dev.jayms.UpdaterTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "suite": "dev.jayms.MetricHistoryTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "suite": "dev.jayms.physics.PlatformCarryTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "suite": "dev.jayms.ControlsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "suite": "dev.jayms.CityMultiplayerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0
+    }
+  ],
+  "Playtest": {
+    "Playtest": "Production Main offline City Builder; Linux X11 inherited DISPLAY/XAUTHORITY, Mesa software GL, isolated synthetic profile. Browser playtesting does not apply to native LWJGL.",
+    "steps": [
+      "Delete without cheats rejected",
+      "F4 enables cheats; Insert budget cheat still works",
+      "F10 starts recorder; Delete drops falling missile at city view centre",
+      "Second Delete rejected while missile falls",
+      "Impact removes hit building and terrain; keeps far building",
+      "Capture explosion and moving debris; F10 stops recorder",
+      "Save/reload preserves demolition and AIR edits",
+      "F4 disables cheats; Delete rejected"
+    ],
+    "expected": "One impact, 1..192 physical shards, persistent destruction, unaffected distant building and budget cheat",
+    "observed": "All assertions passed; shards=148, removed=148"
+  },
+  "environment": {
+    "nativeRuntime": "Java 25.0.3",
+    "testRuntime": "JDK 21.0.5",
+    "graphics": "Linux X11, inherited assigned DISPLAY and XAUTHORITY; Mesa software GL; 960x720 window; render scale 0.5; reflections, screen GI, volumetrics, clouds, AO and contact shadows disabled in the test fixture",
+    "profile": "isolated target/missile-home and synthetic target/missile-runtime saves; no accounts or network"
+  },
+  "media": {
+    "status": "passed",
+    "source": "production F10 recorder in native City Builder missile playtest",
+    "codec": "H264",
+    "bytes": 331420,
+    "decodedFrames": 13,
+    "width": 720,
+    "height": 544,
+    "durationSeconds": 21.464,
+    "checks": [
+      "Every frame decoded",
+      "Frame count matches MP4 metadata",
+      "First and last images differ",
+      "Below 6 MB artifact limit"
+    ]
+  },
+  "inspection": "Inspected fresh falling-missile and explosion PNGs and a decoded middle video frame. Missile nose, fins and exhaust visible; destroyed building, expanding flash and coloured shards visible. Clip decodes fully and changes across frames. Software-rendered check ran at low FPS; no hardware performance claim.",
+  "earlierChecks": "Initial native fixture omitted citizens needed by its synthetic capital ownership state; reload failed with Invalid capital ownership. Fixed the fixture. An earlier broad test run was invalidated by concurrent compilation, with 14 class-loading errors, then stopped. It is not claimed passed. All affected error suites and relevant feature suites were rerun serially: 73 tests, zero failures/errors. An attempted one-frame input wait raced the controls menu; restored two-frame waits. Final native run passed.",
+  "diffAudit": "Audited all local source changes against local HEAD. No deleted files. Intended replacements: cheat HUD moved to two visible lines; ordinary demolition delegates to a shared cleanup method, with the new offline-only blast caller bypassing occupancy protection. Existing normal demolition safety still passes. No unrelated feature removals. Controller must supply synchronized review base and request fresh checks if integration changes source.",
+  "limits": [
+    "Offline City Builder cheat only; no multiplayer missile command.",
+    "6-block crater; whole affected building footprints are demolished through city cleanup, including expanded airport depth.",
+    "Road route records remain and crater terrain may need repairs. Player health and citizen count are unchanged.",
+    "At most 192 transient shards; effects expire after 8 simulation seconds or are replaced by a new missile."
+  ],
+  "sourceSha256": {
+    "src/main/java/dev/jayms/Main.java": "ad681b7f9246ae6c60e51c3da6041a4b4a485133f074a2933cdd9eb2ddc5a1b7",
+    "src/main/java/dev/jayms/ui/Controls.java": "423a82b448448e33b74567151141621721d387956a8e2eba2bf7c92edcf4c176",
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "9216d555c59ffaf70c0f61a8d548844548b95bc1894705614cac70196003101c",
+    "src/main/java/dev/jayms/physics/CityMissiles.java": "3b7059c8da6b08058df7a2a985cce9dd8c86076e29797ea5fb491799821ca70c",
+    "src/test/java/dev/jayms/CityMissilesTest.java": "51358b8fb505093ff6b25016eb795a927d390199e491694b75eb3330e3ae0218",
+    "src/test/java/dev/jayms/CityTest.java": "ff90b42c8634061856d95a5ee1d6b12e9203ef989a52f65f2ee3ea03a5b488af",
+    "deploy/MissileSmoke.java": "4f1566106b96784040cafa9790c32d7419d65269737eaaf3bd57bf456ae35203",
+    "deploy/run_missile_smoke.py": "e9966491b972dc8465237907d480fe139a21e5098d00f30150ea8950eba5d271",
+    "deploy/VerifyMissileMedia.java": "0742aa2449ab4ca66cec8e6e00744b5b01535fecf722f16a787482588205eacb",
+    "CHEATS.md": "8e272621de9e5a51a813fec7b64987bf864d394d75d301b1a398fc1fe9b2b6f2",
+    "docs/physics.md": "f2a87b2b6f75bd937455aaed0e39b8a3231ad4156de0d1bd89828c03c1f457de"
+  },
+  "artifactSha256": {
+    "dashboard/evidence/city-missile-video-frame.png": "2b39a2d6f4fc9a7bfd1f49e6c20fe90411ef51fa0ecc51a6f13588c2e9ac8f6d",
+    "dashboard/evidence/city-missile-media-check.json": "91c143fb278b6d8b9fc6c9eab75a847259908ef895ec19f72adaa51cce3568fd",
+    "dashboard/evidence/city-missile-before.png": "397fc3d8037d5e0c3850ba86942bf810f9dc94b1115a76e05236f28acf7483db",
+    "dashboard/evidence/city-missile-playtest.json": "090b791ac293c7116cb5f26aad07d066b56cec58fc0441fb78eeab9ba21f8a3b",
+    "dashboard/evidence/city-missile-explosion.png": "7ff6232905942dc436ca48d027c16e57bbdfcbeb3860932a5976ca497f127ef6",
+    "dashboard/evidence/city-missile-debris.png": "87a52b1e2b6144bbcc19a90e7ab7d92871d31d9aff3f59711e5560f3034614f5",
+    "dashboard/evidence/city-missile-falling.png": "389bd88686dbabf9c685db42877ff460e35957f6edc4695cba2c54577b668e88",
+    "dashboard/evidence/city-missile.mp4": "6d608b2e0b66617e240ab2bc6dd15895c8015096a12401a133780f5836296e70"
+  },
+  "publication": "Media and report HTTPS links target the assigned feature branch and are pending controller publication. No commit, push, PR, merge or deployment performed.",
+  "rebaseRecovery": {
+    "reviewBase": "7df8c29f410aee018f93f14b7353e5c0d7d04615",
+    "resolvedFile": "dashboard/progress.json",
+    "checks": [
+      "JSON parses with unique task IDs",
+      "Both inserted work items and their evidence preserved",
+      "All other entries preserved",
+      "No deleted files relative to recorded review base",
+      "git diff --check against recorded review base passed"
+    ],
+    "intendedReplacements": "Cheat HUD moved to two visible lines; normal demolition delegates to shared cleanup. No unrelated file deletions.",
+    "handoff": "Controller must stage and continue the rebase. No index or Git history mutations performed here. Final-head tests and fresh native media remain."
+  }
+}
