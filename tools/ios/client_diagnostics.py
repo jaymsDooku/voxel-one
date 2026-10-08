@@ -181,8 +181,8 @@ def collect_client_diagnostics(repo, output, report):
 
 def stage_artifacts(repo, output, report, artifact_root, *, collect=False):
     """Finalize an allowlisted receipt artifact outside the client checkout."""
-    repo, artifact_root = repo.resolve(), artifact_root.resolve()
-    if artifact_root.is_relative_to(repo):
+    artifact_root = artifact_root.resolve()
+    if artifact_root.is_relative_to(repo.resolve()):
         raise ValueError('artifact_root_inside_source')
     stage = Path(tempfile.mkdtemp(prefix='voxel-ios-evidence-', dir=artifact_root))
     try:
