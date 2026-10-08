@@ -20,7 +20,8 @@ public final class MultiplayerServer implements AutoCloseable {
     private final AccountStore accounts;
     private final Map<Integer, Peer> peers = new HashMap<>();
     private final Set<String> sessions = new HashSet<>();
-    private final Map<String, Protocol.Edit> edits = new LinkedHashMap<>();
+    // City paving emits many edits. Index by cell so replacement never scans the whole world.
+    private final Map<String, Protocol.Edit> edits = new WorldVoxels.History();
     private final Map<String, Inventory> inventories = new HashMap<>();
     private final Map<String, Integer> health = new HashMap<>();
     private final Map<Integer, ItemDrop> drops = new LinkedHashMap<>();

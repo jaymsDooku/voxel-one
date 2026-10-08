@@ -1,0 +1,119 @@
+{
+  "environment": "Linux; synthetic loopback Java TLS game servers and native-client gateway; fresh profiles in assigned worktree target directory",
+  "command": "python3 deploy/run_mobile_gateway_smoke.py --report dashboard/evidence/mobile-indexed-city-playtest.json",
+  "playtest": "CLI integration: actual sandbox login, server block edit, reach rejection, logout and token revocation; actual city road, treasury, endpoint rejection and citizens. Native iPhone touch workflow is pending the remote simulator run.",
+  "tests": [
+    {
+      "name": "Unauthenticated world request",
+      "expected": 401,
+      "observed": 401,
+      "status": "passed"
+    },
+    {
+      "name": "Sandbox uses actual generator and health",
+      "expected": [
+        "sandbox",
+        20
+      ],
+      "observed": [
+        "sandbox",
+        20
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "Snapshot contains real solid terrain",
+      "expected": true,
+      "observed": true,
+      "status": "passed"
+    },
+    {
+      "name": "Native pose reaches existing multiplayer transport",
+      "expected": 200,
+      "observed": 200,
+      "status": "passed"
+    },
+    {
+      "name": "Ordered pose accepted",
+      "expected": 200,
+      "observed": 200,
+      "status": "passed"
+    },
+    {
+      "name": "Delayed pose cannot rewind player",
+      "expected": 8.5,
+      "observed": 8.5,
+      "status": "passed"
+    },
+    {
+      "name": "Break is confirmed by game server",
+      "expected": 200,
+      "observed": 200,
+      "status": "passed"
+    },
+    {
+      "name": "Broken ground removed from authoritative snapshot",
+      "expected": false,
+      "observed": false,
+      "status": "passed"
+    },
+    {
+      "name": "Out-of-reach edit rejected",
+      "expected": true,
+      "observed": true,
+      "status": "passed"
+    },
+    {
+      "name": "Logout revokes bearer",
+      "expected": 200,
+      "observed": 200,
+      "status": "passed"
+    },
+    {
+      "name": "Revoked token denied",
+      "expected": 401,
+      "observed": 401,
+      "status": "passed"
+    },
+    {
+      "name": "City road command reaches authoritative simulation",
+      "expected": 200,
+      "observed": 200,
+      "status": "passed"
+    },
+    {
+      "name": "City road result",
+      "status": "observed",
+      "observed": "Dirt road built: Stone Road | Mayor paid $108"
+    },
+    {
+      "name": "Road extends actual city grid",
+      "expected": true,
+      "observed": true,
+      "status": "passed"
+    },
+    {
+      "name": "Road debits actual treasury",
+      "expected": true,
+      "observed": true,
+      "status": "passed"
+    },
+    {
+      "name": "Missing road endpoints result",
+      "status": "observed",
+      "observed": "Roads need two endpoints"
+    },
+    {
+      "name": "Missing road points rejected",
+      "expected": true,
+      "observed": true,
+      "status": "passed"
+    },
+    {
+      "name": "City citizens populated",
+      "expected": true,
+      "observed": true,
+      "status": "passed"
+    }
+  ]
+}
