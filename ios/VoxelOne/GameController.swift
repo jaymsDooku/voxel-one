@@ -8,6 +8,7 @@ final class GameController:UIViewController,UITextFieldDelegate {
     private var gateway:Gateway?
     private var displayLink:CADisplayLink?
     private var lastTime:CFTimeInterval=0,lastPoll:CFTimeInterval=0,lastSave:CFTimeInterval=0,lastMove:CFTimeInterval=0
+    private var jumpOrigin:Float?;private var jumpRose=false
     private var moveBusy=false
     private var sessionID=UUID()
     private var queuedAction:([String:Any],String)?
@@ -56,7 +57,7 @@ final class GameController:UIViewController,UITextFieldDelegate {
     }
     private func showGame() {
         menu?.removeFromSuperview();menu=nil;top?.removeFromSuperview();bottom?.removeFromSuperview();crosshair.removeFromSuperview()
-        inMenu=false;paused=false;movement.removeAll();lastTime=0;message=""
+        inMenu=false;paused=false;jumpOrigin=nil;jumpRose=false;movement.removeAll();lastTime=0;message=""
         status=label("",id:"gameStatus");positionLabel=label("",size:11,id:"playerPosition");cityLabel=label("",size:12,id:"cityStatus")
         let menuButton=button("Menu","menuButton",#selector(openMenu))
         let pause=button("Pause","pauseButton",#selector(togglePause));pauseButton=pause
@@ -87,7 +88,11 @@ final class GameController:UIViewController,UITextFieldDelegate {
     @objc private func startMove(_ sender:UIButton){if !paused {movement.insert(sender.accessibilityIdentifier ?? "")}}
     @objc private func stopMove(_ sender:UIButton){movement.remove(sender.accessibilityIdentifier ?? "")}
     @objc private func selectSlot(_ sender:UIButton){world?.slot=sender.tag;refreshHUD()}
-    @objc private func jump(){if !paused && !renderer.planning {world?.jump()}}
+    @objc private func jump(){
+        if !paused && !renderer.planning,let world=world,world.grounded {
+            jumpOrigin=world.position.y;jumpRose=false;world.jump()
+        }
+    }
     @objc private func togglePause(){paused.toggle();movement.removeAll();pauseButton?.setTitle(paused ? "Resume":"Pause",for:.normal);notify(paused ? "Paused. The online city keeps running.":"Resumed.");saveOffline()}
     @objc private func togglePlan(){guard let world=world,world.snapshot.city != nil else{return};renderer.planning.toggle();lastPoll=0;renderer.focus=world.position;points.removeAll();renderer.mark(points,world:world);movement.removeAll();refreshHUD()}
     @objc private func chooseTool(){
@@ -174,6 +179,13 @@ final class GameController:UIViewController,UITextFieldDelegate {
             let forward:Float=(movement.contains("moveForward") ? 1:0)-(movement.contains("moveBack") ? 1:0)
             let side:Float=(movement.contains("moveRight") ? 1:0)-(movement.contains("moveLeft") ? 1:0)
             world.step(forward:forward,strafe:side,dt:dt)
+            if let origin=jumpOrigin {
+                if world.position.y>origin+0.2 {jumpRose=true}
+                if world.grounded {
+                    if jumpRose {notify("Jumped and landed.")}
+                    jumpOrigin=nil;jumpRose=false
+                }
+            }
         }
         renderer.updateCamera(world)
         if let gateway=gateway,!moveBusy,!paused,link.timestamp-lastMove>0.1 {

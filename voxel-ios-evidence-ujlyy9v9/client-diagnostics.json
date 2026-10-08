@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "sourceHead": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "requestId": "e3dc3d1a-7337-4c72-a372-89276285cd00",
+  "mode": "client",
+  "errorStage": "source_verify",
+  "errorCode": "source_head_changed",
+  "sources": [
+    {
+      "status": "missing",
+      "bytesRead": 0,
+      "truncated": false,
+      "log": "ios/build/java-build.log"
+    },
+    {
+      "status": "missing",
+      "bytesRead": 0,
+      "truncated": false,
+      "log": "ios/build/native-build.log"
+    },
+    {
+      "status": "missing",
+      "bytesRead": 0,
+      "truncated": false,
+      "log": "ios/build/native-tests.log"
+    }
+  ],
+  "lines": [],
+  "truncated": false,
+  "limits": {
+    "readBytesPerLog": 131072,
+    "linesPerLog": 8,
+    "lineBytes": 320,
+    "artifactBytes": 16384
+  }
+}

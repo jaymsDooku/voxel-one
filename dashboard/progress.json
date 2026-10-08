@@ -191,7 +191,7 @@
       "description": "Native phone client with touch sandbox controls and server-authoritative city planning.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Mac diagnostics now retained. Native UI tests failed: offline target expectation and online control wait. Fixed offline normal-look setup and added bounded control/HUD assertion context. 48 mock tooling tests passed. Requesting native workflow rerun; no native acceptance passed.",
+      "note": "Fixed observable jump completion and gateway keepalive for planning/modal idle. Four Java gateway tests passed, including 17-second city idle and logout revocation; CLI18 and mock49 passed. Native workflow rerun required; no native acceptance passed.",
       "updatedAt": "2026-10-07T22:54:08+00:00"
     },
     {

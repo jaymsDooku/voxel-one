@@ -34,7 +34,7 @@ final class NativeWorkflowTests:XCTestCase {
         let scene=app.otherElements["worldView"]
         scene.coordinate(withNormalizedOffset:CGVector(dx:0.55,dy:0.5)).press(forDuration:0.05,thenDragTo:scene.coordinate(withNormalizedOffset:CGVector(dx:0.8,dy:0.48)))
         textContains("playerPosition","Ground")
-        app.buttons["jumpButton"].tap();textContains("playerPosition","Air",timeout:3);capture("offline-touch")
+        app.buttons["jumpButton"].tap();textContains("gameStatus","Jumped and landed",timeout:5);textContains("playerPosition","Ground");capture("offline-touch")
         app.buttons["pauseButton"].tap();textContains("gameStatus","Paused")
         let paused=app.staticTexts["playerPosition"].label;app.buttons["moveForward"].press(forDuration:0.8);XCTAssertEqual(paused,app.staticTexts["playerPosition"].label)
         app.buttons["pauseButton"].tap()

@@ -39,6 +39,16 @@ class MobileGatewayTest {
             var again=post(host,"login",null,Map.of("game","sandbox","username","ios_fixture","password","fixture-password-123"));assertEquals(200,again.statusCode());
         }
     }
+    @Test void modalIdleKeepsGameConnectionButLogoutStillRevokesSession()throws Exception{
+        try(var host=new MobileFixtureHost(temp.resolve("idle-profile"))){
+            var login=post(host,"login",null,Map.of("game","city","username","ios_fixture","password","fixture-password-123"));
+            assertEquals(200,login.statusCode());String bearer=token(login);
+            Thread.sleep(17_000); // Longer than the actual game server's 15-second socket timeout; no HTTP activity.
+            assertEquals(200,post(host,"state",bearer,Map.of()).statusCode(),"Planning modal must retain server connection");
+            assertEquals(200,post(host,"logout",bearer,Map.of()).statusCode());
+            assertEquals(401,post(host,"state",bearer,Map.of()).statusCode());
+        }
+    }
     @Test void cityCommandsAndEconomyAreServerOwned()throws Exception{
         try(var host=new MobileFixtureHost(temp.resolve("city-profile"))){
             var login=post(host,"login",null,Map.of("game","city","username","ios_fixture","password","fixture-password-123"));assertEquals(200,login.statusCode());String bearer=token(login);

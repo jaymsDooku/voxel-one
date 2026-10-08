@@ -30,11 +30,24 @@ public final class MobileGateway implements AutoCloseable {
         this.sandbox=sandbox;this.city=city;
         server=HttpServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(),port),32);
         server.createContext("/mobile/v1/",this::handle);server.setExecutor(executor);
-        cleanup.scheduleAtFixedRate(this::expire,30,30,TimeUnit.SECONDS);
+        cleanup.scheduleAtFixedRate(this::maintain,1,1,TimeUnit.SECONDS);
     }
     public int port(){return server.getAddress().getPort();}
     public void start(){server.start();}
-    private void expire(){for(var e:sessions.entrySet())if(System.nanoTime()-e.getValue().lastUsed>idleNanos && sessions.remove(e.getKey(),e.getValue()))e.getValue().close();}
+    private void maintain(){
+        for(var e:sessions.entrySet()){
+            Session session=e.getValue();
+            synchronized(session){
+                if(System.nanoTime()-session.lastUsed>idleNanos){
+                    if(sessions.remove(e.getKey(),session))session.close();
+                }else if(session.client.connected()){
+                    // Modal UI and slow rendering must not trip the game socket's 15-second read timeout.
+                    // Keepalive does not count as phone activity or extend bearer expiry.
+                    session.poll();session.client.move(session.pose);
+                }
+            }
+        }
+    }
     private synchronized boolean authAllowed(String ip){
         long now=System.nanoTime();var list=attempts.computeIfAbsent(ip,k->new ArrayDeque<>());
         while(!list.isEmpty() && now-list.peekFirst()>Duration.ofMinutes(1).toNanos())list.removeFirst();
