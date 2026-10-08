@@ -25,7 +25,7 @@ public final class VerifyMissileMedia {
                         int k=(y*width+x)*3;
                         image.setRGB(x,y,((data[k]+128)&255)<<16|((data[k+1]+128)&255)<<8|((data[k+2]+128)&255));
                     }
-                    javax.imageio.ImageIO.write(image,"png",Path.of(args[1]).resolveSibling("city-missile-video-frame.png").toFile());
+                    javax.imageio.ImageIO.write(image,"png",Path.of(args[1]).resolveSibling("city-nuke-video-frame.png").toFile());
                 }
                 frames++;
             }

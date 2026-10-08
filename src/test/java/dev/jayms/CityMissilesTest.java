@@ -27,9 +27,16 @@ class CityMissilesTest {
         assertTrue(missiles.removed>0); assertEquals(missiles.removed,history.size());
         assertTrue(missiles.debris().size()>0&&missiles.debris().size()<=CityMissiles.MAX_DEBRIS);
         assertTrue(missiles.debris().stream().anyMatch(b->b.velocity.y>0));
+        assertTrue(missiles.debris().stream().anyMatch(b->b.velocity.x*b.position.x+b.velocity.z*b.position.z>0));
+        assertEquals(CityMissiles.MAX_SMOKE,missiles.smoke().size());
+        var puff=missiles.smoke().get(50);
+        float smokeY=puff.position().y, size=missiles.smokeSize(puff);
+        missiles.update(world,.2f,impacts::add,e->fail("Second impact"));
+        assertTrue(puff.position().y>smokeY);
+        assertTrue(missiles.smokeSize(puff)>size);
         for(var edit:history.values()) { assertEquals(Blocks.AIR,edit.type()); assertTrue(edit.valid()); assertEquals(Blocks.AIR,world.sample(edit.x(),edit.y(),edit.z())); assertTrue(new Vector3f(edit.x()+.5f,edit.y()+.5f,edit.z()+.5f).distance(impacts.get(0))<=CityMissiles.RADIUS); }
         assertEquals(Blocks.STONE,world.sample(8,20,8));
         for(int i=0;i<170;i++)missiles.update(world,.05f,impacts::add,e->fail("Second impact"));
-        assertTrue(missiles.debris().isEmpty()); assertTrue(missiles.launch(new Vector3f(.5f,21,.5f)));
+        assertTrue(missiles.smoke().isEmpty()); assertTrue(missiles.debris().isEmpty()); assertTrue(missiles.launch(new Vector3f(.5f,21,.5f)));
     }
 }
