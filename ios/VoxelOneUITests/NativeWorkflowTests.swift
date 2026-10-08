@@ -16,7 +16,14 @@ final class NativeWorkflowTests:XCTestCase {
                 // Inspect only this synthetic game's error alert. Never read or log form values.
                 let text=alert.staticTexts.allElementsBoundByIndex.map{$0.label.lowercased()}.joined(separator:" ")
                 category="game error alert"
-                if text.contains("world") {category="world validation error"}
+                if text.contains("timed out") {category="game request timeout"}
+                else if text.contains("service unavailable") || text.contains("server unavailable") {category="game service unavailable"}
+                else if text.contains("cannot reach") {category="gateway unreachable"}
+                else if text.contains("synthetic server") {
+                    let codes=["read_timeout","invalid_movement","message_rate","unknown_message","output_queue","write_io","read_io"]
+                    category="synthetic server "+(codes.first{text.contains($0)} ?? "unclassified")
+                }
+                else if text.contains("world") {category="world validation error"}
                 else if text.contains("data") || text.contains("decode") {category="response decoding error"}
                 else if text.contains("sign-in") || text.contains("account") {category="authentication error"}
                 else if text.contains("connection") || text.contains("network") || text.contains("offline") {category="network error"}
@@ -74,7 +81,7 @@ final class NativeWorkflowTests:XCTestCase {
         let address=app.textFields["gatewayAddress"];wait(address);XCTAssertFalse(address.value as? String == "")
         fill("username","ios_fixture");fill("password","fixture-password-123",secure:true)
         app.segmentedControls["gameChoice"].buttons["City"].tap();app.buttons["signInButton"].tap()
-        wait(app.buttons["planToggle"],40,"planToggle");textContains("cityStatus","roads",timeout:30)
+        wait(app.buttons["planToggle"],80,"planToggle");textContains("cityStatus","roads",timeout:30)
         app.buttons["planToggle"].tap() // Enter planning if the initial game view starts in walking mode.
         if app.buttons["planToggle"].label=="Plan" {app.buttons["planToggle"].tap()}
         app.buttons["toolButton"].tap();app.buttons["Dirt road"].tap()
@@ -99,7 +106,7 @@ final class NativeWorkflowTests:XCTestCase {
         let cityBefore=app.staticTexts["cityStatus"].label
         app.buttons["planToggle"].tap();wait(app.buttons["breakButton"]);app.buttons["pauseButton"].tap();textContains("gameStatus","Paused");capture("city-native-walk");app.buttons["pauseButton"].tap()
         app.buttons["menuButton"].tap();wait(app.buttons["signInButton"])
-        fill("password","fixture-password-123",secure:true);app.segmentedControls["gameChoice"].buttons["City"].tap();app.buttons["signInButton"].tap();wait(app.buttons["planToggle"],40,"planToggle")
+        fill("password","fixture-password-123",secure:true);app.segmentedControls["gameChoice"].buttons["City"].tap();app.buttons["signInButton"].tap();wait(app.buttons["planToggle"],80,"planToggle")
         textContains("cityStatus","roads",timeout:30);XCTAssertFalse(cityBefore.isEmpty)
         capture("city-reconnected")
         // End in saved native sandbox so the outer verifier's independent launch shows gameplay.

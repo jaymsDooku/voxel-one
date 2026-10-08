@@ -11,14 +11,27 @@ final class Gateway {
         guard let url=URL(string:address),let host=url.host,url.user==nil,url.password==nil,url.query==nil,url.fragment==nil,
               url.scheme=="https" || (url.scheme=="http" && ["127.0.0.1","localhost","::1"].contains(host)) else {throw GameError.invalidAddress}
         root=url
-        let config=URLSessionConfiguration.ephemeral;config.timeoutIntervalForRequest=15;config.timeoutIntervalForResource=30;config.httpCookieStorage=nil;config.urlCache=nil
+        let config=URLSessionConfiguration.ephemeral;config.timeoutIntervalForRequest=15;config.timeoutIntervalForResource=90;config.httpCookieStorage=nil;config.urlCache=nil
         session=URLSession(configuration:config)
     }
     private func post(_ route:String,_ body:[String:Any]) async throws -> Data {
         var request=URLRequest(url:root.appendingPathComponent("mobile/v1/\(route)"));request.httpMethod="POST"
+        // Login includes TLS account handshake and the first full terrain snapshot.
+        request.timeoutInterval = route=="login" ? 60 : 15
         request.httpBody=try JSONSerialization.data(withJSONObject:body);request.setValue("application/json",forHTTPHeaderField:"Content-Type")
         if !token.isEmpty {request.setValue("Bearer \(token)",forHTTPHeaderField:"Authorization")}
-        let (data,response)=try await session.data(for:request)
+        let data:Data;let response:URLResponse
+        do {(data,response)=try await session.data(for:request)}
+        catch let error as URLError {
+            // Fixed public messages contain no URL, account, token or raw transport detail.
+            switch error.code {
+            case .timedOut:throw GameError.message("Game request timed out. Try signing in again.")
+            case .cannotConnectToHost,.cannotFindHost,.dnsLookupFailed:throw GameError.message("Cannot reach the game gateway.")
+            case .networkConnectionLost,.notConnectedToInternet:throw GameError.message("Game network connection lost.")
+            case .secureConnectionFailed,.serverCertificateUntrusted,.serverCertificateHasBadDate,.serverCertificateNotYetValid,.serverCertificateHasUnknownRoot:throw GameError.message("Game HTTPS certificate could not be verified.")
+            default:throw GameError.message("Game network request failed.")
+            }
+        }
         guard data.count<=8_000_000 else {throw GameError.invalidWorld}
         guard let http=response as? HTTPURLResponse else {throw GameError.message("No game server response.")}
         guard http.statusCode==200 else {

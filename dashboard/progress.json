@@ -191,8 +191,8 @@
       "description": "Native phone client with touch sandbox controls and server-authoritative city planning.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Native online city check still disconnects. Added fixed synthetic transport diagnostics and aligned phone pose limits with the game protocol. Local integration passed; exact-source Mac rerun required.",
-      "updatedAt": "2026-10-08T12:41:25+00:00"
+      "note": "Latest native run failed before planning at sign-in. Added fixed network error labels and a 60-second initial world download timeout. Removed generated root upload staging from the proposed diff. Exact-source Mac validation remains required.",
+      "updatedAt": "2026-10-08T13:01:22+00:00"
     },
     {
       "id": "63386663653465302d303138612d346331372d396364302d353961636235626436613632",
