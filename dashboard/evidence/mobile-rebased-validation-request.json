@@ -1,0 +1,17 @@
+{
+  "sourceHead": "425adcc6a1d869967959cf837533e514d86e3642",
+  "base": "af66e69b16f3310e6b396693f91cd4149a1c5541",
+  "sourceComparison": "Native client, mobile gateway and MultiplayerServer paths match previously tested head 03f799e47f234817978fab638a80a836da6c48a3. Integrated source still requires its own Mac run.",
+  "commands": [
+    "python3 -m unittest discover -s tools/ios -p test_*.py -q",
+    "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Djunit.jupiter.tempdir.basedir=\"$PWD/target/mobile-test-tmp\" -Dtest=MobileGatewayTest#cityCommandsAndEconomyAreServerOwned test",
+    "bash -n ios/check-simulator.sh",
+    "git diff --check"
+  ],
+  "results": [
+    "Harness tests exited 0 (synthetic mocks, not native gameplay).",
+    "City integration: 1 test passed, 0 failures, 0 errors.",
+    "Shell syntax and diff whitespace passed. No deleted review-base paths."
+  ],
+  "Playtest": "Actual synthetic TLS city/gateway integration exercised server-owned road commands and economy rules. Native touch playtest and media on this rebased head are pending controller Mac dispatch; browser testing does not exercise this native app."
+}
