@@ -71,8 +71,8 @@ function draw(t){
  // A receding voxel deck beneath the ship, integrated into the space scene.
  ctx.strokeStyle='#53cbd324';ctx.lineWidth=1;
  const horizon=top+playHeight*.84;
- for(let i=-8;i<=8;i++){ctx.beginPath();ctx.moveTo(width/2+i*width/20,horizon);ctx.lineTo(width/2+i*width/6,height);ctx.stroke();}
- for(let i=1;i<7;i++){const y=horizon+(height-horizon)*(i/6)**2;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(width,y);ctx.stroke();}
+ if(game.perspective==='classic')for(let i=-8;i<=8;i++){ctx.beginPath();ctx.moveTo(width/2+i*width/20,horizon);ctx.lineTo(width/2+i*width/6,height);ctx.stroke();}
+ if(game.perspective==='classic')for(let i=1;i<7;i++){const y=horizon+(height-horizon)*(i/6)**2;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(width,y);ctx.stroke();}
  if(game.flight){for(const a of game.aliens){worldCube(a.x,a.y-18,3,'#ff9857');}if(game.perspective==='classic')worldCube(game.player,game.playerY+15,4,'#68dfff');}
  for(const a of game.aliens)worldModel(a.type,a.x,a.y,a.type==='squid'?'#cf88ff':a.type==='crab'?'#70f3da':'#ffcb72');
  if(game.saucer)worldModel('octopus',game.saucer.x,game.saucer.y,'#ff6a93');
@@ -81,13 +81,31 @@ function draw(t){
  for(const s of game.shots)worldCube(s.x,s.y,3,'#fff5af',-2);
  for(const s of game.enemyShots)worldCube(s.x,s.y,4,'#ff6386',-2);
  if(game.perspective==='cockpit'){
-  // Windshield rim and instruments leave the combat area unobstructed.
-  const bottom=top+playHeight*.94;
-  ctx.fillStyle='#0b1729';ctx.fillRect(0,bottom,width,height-bottom);
-  ctx.strokeStyle=game.invulnerable>0?'#ffb66d':'#70f3da';ctx.lineWidth=3;
-  ctx.beginPath();ctx.moveTo(0,height);ctx.lineTo(width*.08,bottom);ctx.lineTo(width*.92,bottom);ctx.lineTo(width,height);ctx.stroke();
-  const [cx,cy]=project(game.player,200);ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(cx-12,cy);ctx.lineTo(cx-4,cy);ctx.moveTo(cx+4,cy);ctx.lineTo(cx+12,cy);ctx.moveTo(cx,cy-12);ctx.lineTo(cx,cy-4);ctx.moveTo(cx,cy+4);ctx.lineTo(cx,cy+12);ctx.stroke();
-  ctx.fillStyle='#70f3da';ctx.font='12px system-ui';ctx.textAlign='center';ctx.fillText(`FIGHTER · ALT ${Math.round(530-game.playerY)} · WASD / ARROWS`,width/2,bottom+18);ctx.textAlign='start';
+  // Solid canopy ribs and a sloped console put the camera inside the hull.
+  // Keep the center windshield clear, including the nearest shield row.
+  const bottom=top+playHeight*.94, rim=Math.max(10,Math.min(width,height)*.025);
+  const hull=ctx.createLinearGradient(0,0,0,height);
+  hull.addColorStop(0,'#405369');hull.addColorStop(.45,'#15283e');hull.addColorStop(1,'#060e1c');
+  const panel=points=>{ctx.fillStyle=hull;ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill();ctx.strokeStyle='#69869d';ctx.lineWidth=2;ctx.stroke();};
+  panel([[0,0],[width,0],[width,rim],[width*.82,rim*1.8],[width*.18,rim*1.8],[0,rim]]);
+  panel([[0,0],[rim,0],[rim*1.6,bottom*.7],[width*.08,bottom],[0,height]]);
+  panel([[width,0],[width-rim,0],[width-rim*1.6,bottom*.7],[width*.92,bottom],[width,height]]);
+  panel([[0,height],[width*.08,bottom],[width*.26,bottom+rim],[width*.74,bottom+rim],[width*.92,bottom],[width,height]]);
+  ctx.strokeStyle='#70f3da70';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(rim*1.7,top);ctx.lineTo(rim*2.1,bottom*.7);ctx.moveTo(width-rim*1.7,top);ctx.lineTo(width-rim*2.1,bottom*.7);ctx.stroke();
+  // Recessed instrument screens sit above the touch controls on every layout.
+  const screenY=bottom+(height<500?4:rim*1.5),screenH=height<500?16:Math.max(16,Math.min(42,(height-bottom)*.33));
+  const screen=(x,w,label,value)=>{
+   ctx.fillStyle='#020b14';ctx.fillRect(x,screenY,w,screenH);ctx.strokeStyle='#35566c';ctx.strokeRect(x,screenY,w,screenH);
+   ctx.fillStyle='#70f3da';ctx.font=`${screenH<25?8:10}px monospace`;ctx.textAlign='center';
+   ctx.fillText(label,x+w/2,screenY+screenH*.38);ctx.fillText(value,x+w/2,screenY+screenH*.8);
+  };
+  screen(width*.2,width*.17,'HULL',`${game.lives} / 3`);
+  screen(width*.4,width*.2,'ALT',String(Math.round(530-game.playerY)));
+  screen(width*.63,width*.17,'SECTOR',String(game.wave).padStart(2,'0'));
+  ctx.textAlign='start';
+  ctx.strokeStyle=game.invulnerable>0?'#ffb66d':'#70f3da';ctx.lineWidth=1.5;
+  const [cx,cy]=project(game.player,200);ctx.beginPath();ctx.moveTo(cx-12,cy);ctx.lineTo(cx-4,cy);ctx.moveTo(cx+4,cy);ctx.lineTo(cx+12,cy);ctx.moveTo(cx,cy-12);ctx.lineTo(cx,cy-4);ctx.moveTo(cx,cy+4);ctx.lineTo(cx,cy+12);ctx.stroke();
  }
  canvas.dataset.perspective=game.perspective;
 }
