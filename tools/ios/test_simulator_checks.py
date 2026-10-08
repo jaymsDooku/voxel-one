@@ -366,7 +366,7 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertIn('git -C validator rev-parse HEAD', workflow)
         self.assertIn('unittest discover -s validator/tools/ios', workflow)
         self.assertIn('python3 validator/tools/ios/simulator_checks.py --repo "$GITHUB_WORKSPACE/source"', workflow)
-        self.assertIn('source/ios-evidence/report.json', workflow)
+        self.assertIn('path: ${{ steps.checks.outputs.artifactDir }}/*', workflow)
         self.assertIn('branches: [feature/ios-worker-bootstrap]', workflow)
         self.assertIn('if: always()', workflow)
         self.assertNotIn('pull_request_target', workflow)
@@ -378,7 +378,7 @@ class WorkflowContractTests(unittest.TestCase):
             repo = Path(tmp) / 'source'
             repo.mkdir()
             captured = {}
-            def execute(source, output, head, mode, request):
+            def execute(source, output, head, mode, request, **kwargs):
                 captured.update(repo=source, output=output, head=head)
                 return {'status': 'passed', 'sourceHead': HEAD, 'clientChecked': False}
             with mock.patch.object(checks, 'run_checks', side_effect=execute), contextlib.redirect_stdout(io.StringIO()):
