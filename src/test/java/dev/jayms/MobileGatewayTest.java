@@ -102,6 +102,27 @@ class MobileGatewayTest {
             assertEquals(200,post(host,"logout",bearer,Map.of()).statusCode());
         }
     }
+    @Test void phonePoseStreamSurvivesStalledCityReader()throws Exception{
+        try(var host=new MobileFixtureHost(temp.resolve("pose-stream-profile"))){
+            var login=post(host,"login",null,Map.of("game","city","username","ios_fixture","password","fixture-password-123"));
+            assertEquals(200,login.statusCode());String bearer=token(login);
+            var match=java.util.regex.Pattern.compile("\\\"pose\\\":\\[(.*?)\\]").matcher(login.body());assertTrue(match.find());
+            var pose=Arrays.stream(match.group(1).split(",")).map(Double::parseDouble).toList();
+            int sequence=0;
+            synchronized(host.city){
+                long end=System.nanoTime()+18_000_000_000L;
+                while(System.nanoTime()<end){
+                    var move=Map.<String,Object>of("x",pose.get(0),"y",pose.get(1),"z",pose.get(2),"yaw",sequence*0.001,"pitch",0,"sequence",++sequence);
+                    assertEquals(200,post(host,"move",bearer,move).statusCode());Thread.sleep(75);
+                }
+            }
+            assertTrue(sequence>120,"Actual phone pose requests must exceed server burst limit during stall");
+            Thread.sleep(1500); // Let the actual TLS reader drain after releasing the simulation lock.
+            assertNull(host.city.transportFailure(),"Coalesced poses must retain the unchanged server rate limit");
+            assertEquals(200,post(host,"state",bearer,Map.of()).statusCode());
+            assertEquals(200,post(host,"logout",bearer,Map.of()).statusCode());
+        }
+    }
     @Test void slowCityReceiptStillConfirmsWithoutRetry()throws Exception{
         try(var host=new MobileFixtureHost(temp.resolve("delayed-city-profile"))){
             var login=post(host,"login",null,Map.of("game","city","username","ios_fixture","password","fixture-password-123"));

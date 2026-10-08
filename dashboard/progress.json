@@ -191,8 +191,8 @@
       "description": "Native phone client with touch sandbox controls and server-authoritative city planning.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Reproduced city command timeout with an actual 3.2-second server stall: old wait returned504. Increased bounded receipt wait to8seconds; delayed road and city rule tests now pass. Native Mac rerun required.",
-      "updatedAt": "2026-10-08T13:41:10+00:00"
+      "note": "Native close reason MESSAGE_RATE reproduced with an18second city reader stall. Coalesce changing phone poses to4Hz and idle heartbeat to1Hz. Stalled-reader, sandbox edit and city tests passed. Exact-source Mac rerun required.",
+      "updatedAt": "2026-10-08T14:05:50+00:00"
     },
     {
       "id": "63386663653465302d303138612d346331372d396364302d353961636235626436613632",

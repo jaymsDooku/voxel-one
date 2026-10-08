@@ -36,7 +36,7 @@ public final class MobileGateway implements AutoCloseable {
         server=HttpServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(),port),32);
         server.createContext("/mobile/v1/",this::handle);server.setExecutor(executor);
         cleanup.scheduleAtFixedRate(this::maintain,1,1,TimeUnit.SECONDS);
-        cleanup.scheduleAtFixedRate(()->sessions.values().forEach(Session::heartbeat),1,1,TimeUnit.SECONDS);
+        cleanup.scheduleAtFixedRate(()->sessions.values().forEach(Session::heartbeat),250,250,TimeUnit.MILLISECONDS);
     }
     public int port(){return server.getAddress().getPort();}
     public void start(){server.start();}
@@ -131,9 +131,17 @@ public final class MobileGateway implements AutoCloseable {
     private static final class Session implements AutoCloseable{
         final Target target;final MultiplayerClient client;final Terrain terrain;final WorldVoxels world;volatile Protocol.Pose pose;final Object poseLock=new Object();
         volatile long lastUsed=System.nanoTime();boolean respawned;long lastSequence=-1,lastCityReceipt;
+        Protocol.Pose lastSentPose;long lastPoseSend;
         Session(MultiplayerClient client,Target target){this.target=target;this.client=client;terrain=new Terrain(client.seed,client.generatorVersion);world=new WorldVoxels(terrain);client.initialEdits.forEach(world::apply);pose=client.spawn;}
         // Short transport lock never waits for world snapshots and does not extend HTTP idle expiry.
-        void heartbeat(){synchronized(poseLock){if(client.connected())client.move(pose);}}
+        void heartbeat(){synchronized(poseLock){
+            long now=System.nanoTime();
+            // Coalesce phone updates instead of filling the TCP stream while city work blocks its reader.
+            // Unchanged sessions retain a1Hz keepalive; changed poses send at most4Hz.
+            if(client.connected() && (!pose.equals(lastSentPose) || now-lastPoseSend>=1_000_000_000L)){
+                client.move(pose);lastSentPose=pose;lastPoseSend=now;
+            }
+        }}
         void poll(){client.poll().forEach(world::apply);if(client.respawn!=null){synchronized(poseLock){pose=client.respawn;}client.respawn=null;respawned=true;}}
         void move(Map<String,Object> request){
             if(!request.containsKey("x"))return;
@@ -145,7 +153,7 @@ public final class MobileGateway implements AutoCloseable {
             float x=(float)Json.number(request,"x"),y=(float)Json.number(request,"y"),z=(float)Json.number(request,"z");
             float yaw=(float)Json.number(request,"yaw"),pitch=(float)Json.number(request,"pitch");
             if(Math.abs(x)>Terrain.LIMIT || Math.abs(z)>Terrain.LIMIT || y<Terrain.MIN_Y || y>Terrain.MAX_Y+32 || Math.abs(pitch)>Math.toRadians(89) || !Float.isFinite(yaw) || !Float.isFinite(pitch))throw new IllegalArgumentException("Invalid pose");
-            synchronized(poseLock){pose=new Protocol.Pose(client.id,x,y,z,(float)Math.toDegrees(yaw),(float)Math.toDegrees(pitch),0,0,false,0,0,false);client.move(pose);}
+            synchronized(poseLock){pose=new Protocol.Pose(client.id,x,y,z,(float)Math.toDegrees(yaw),(float)Math.toDegrees(pitch),0,0,false,0,0,false);}
         }
         Map<String,Object> state(Map<String,Object> request){
             poll();if(!respawned)move(request);var view=pose;
