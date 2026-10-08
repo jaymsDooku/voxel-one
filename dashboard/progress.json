@@ -191,8 +191,8 @@
       "description": "Native phone client with touch sandbox controls and server-authoritative city planning.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Exact-source Mac native build and all four workflow/regression tests passed. Inspected actual client image; saved camera looks down at uniform grass. Added normal-control horizon capture and request another Mac check for clear terrain evidence. Physical iPhone remains untested.",
-      "updatedAt": "2026-10-08T15:27:26+00:00"
+      "note": "Implementation ready for independent review. Exact-source Mac build and all four native workflow/regression tests passed on iPhone SE Simulator iOS 18.5. Inspected saved world image and touch controls; evidence saved for controller publication. Physical iPhone untested.",
+      "updatedAt": "2026-10-08T15:44:53+00:00"
     },
     {
       "id": "63386663653465302d303138612d346331372d396364302d353961636235626436613632",

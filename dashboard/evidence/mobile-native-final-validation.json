@@ -1,0 +1,59 @@
+{
+  "sourceHead": "03f799e47f234817978fab638a80a836da6c48a3",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/37801497450",
+  "environment": {
+    "macOS": "15.7.9",
+    "xcode": "Xcode 16.4\nBuild version 16F6",
+    "simulatorSDK": "18.5"
+  },
+  "device": "iPhone SE (3rd generation)",
+  "tests": [
+    {
+      "name": "testOfflineTouchBuildSavePauseAndLandscape",
+      "status": "passed"
+    },
+    {
+      "name": "testOnlineLoginCityPlanningAndReconnect",
+      "status": "passed"
+    },
+    {
+      "name": "testCollisionJumpRayAndEditRules",
+      "status": "passed"
+    },
+    {
+      "name": "testSnapshotValidationAndSaveRoundTrip",
+      "status": "passed"
+    }
+  ],
+  "commands": [
+    "xcodebuild build-for-testing -project ios/build/VoxelOne.xcodeproj -scheme VoxelOne \\\n  -sdk iphonesimulator -destination \"platform=iOS Simulator,id=$udid\" \\\n  -derivedDataPath ios/build/DerivedData CODE_SIGNING_ALLOWED=NO \\\n  > ios/build/native-build.log 2>&1",
+    "xcodebuild test-without-building -project ios/build/VoxelOne.xcodeproj -scheme VoxelOne \\\n  -destination \"platform=iOS Simulator,id=$udid\" -derivedDataPath ios/build/DerivedData \\\n  -parallel-testing-enabled NO -maximum-concurrent-test-simulator-destinations 1 \\\n  -resultBundlePath ios/build/NativeTests.xcresult CODE_SIGNING_ALLOWED=NO \\\n  > ios/build/native-tests.log 2>&1"
+  ],
+  "Playtest": {
+    "workflow": "Installed UIKit/SceneKit client: offline break/place, hold movement, drag look, jump and land, pause, save/resume/cold restart, landscape; online city login, select/undo road points, server confirmation and road count increase, walk, logout/reconnect.",
+    "edge": "Empty hotbar slot rejects placing; city confirm rejects fewer than two road points.",
+    "regression": "Collision/jump/ray/edit rules, invalid/duplicate snapshot rejection and save round trip.",
+    "expected": "All four native test cases pass on the assigned fresh simulator; independent app launch renders saved world and touch controls.",
+    "observed": "All four passed; inspected client image shows sky/grass horizon, player position, touch controls and edited Dirt inventory count 31."
+  },
+  "media": [
+    {
+      "file": "mobile-native-37801497450.png",
+      "description": "Actual independent native app launch; inspected. Saved sandbox world and controls. No account forms."
+    },
+    {
+      "file": "mobile-home-preflight-37801497450.png",
+      "description": "Simulator home screen only; environment evidence, not gameplay."
+    }
+  ],
+  "audit": {
+    "base": "a851730b411275ef50b09b4a28f0c9e9393c99b4",
+    "deletedPaths": [],
+    "notes": "Native client, loopback gateway, synthetic integration checks, simulator harness/docs and task evidence comprise the proposed change. No unrelated deletions. Prior generated root upload staging moved into ignored target storage."
+  },
+  "limits": [
+    "Simulator pass is not a physical iPhone test.",
+    "Device signing and install follow ios/BUILDING.txt.",
+    "Online access needs the documented HTTPS reverse proxy; offline world is a saved 49x49 terrain patch; desktop advanced editors and fractional blocks remain outside this client."
+  ]
+}
