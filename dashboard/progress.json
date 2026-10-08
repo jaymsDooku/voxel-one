@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-08T15:53:48+00:00",
+  "updatedAt": "2026-10-08T15:57:58+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -41,8 +41,8 @@
         }
       ],
       "status": "in_progress",
-      "note": "Progress JSON rebase conflict resolved. Both developer milestones retained. Awaiting controller rebase continuation, final-head tests and fresh media.",
-      "updatedAt": "2026-10-08T15:53:48+00:00"
+      "note": "Final rebased head 08ef5e16 validated: 7 focused tests and native startup/inventory/player-view workflow pass. Three fresh screenshots inspected. No unrelated deletions. Ready for independent review; controller publication pending.",
+      "updatedAt": "2026-10-08T15:57:58+00:00"
     },
     {
       "id": "36653463353062342d306135392d346433612d393762342d666262663538316532653965",

@@ -1,0 +1,13 @@
+{
+  "validatedHead": "08ef5e16ff17fa7f4d32135fa69cf8a15b28da40",
+  "reviewBase": "af66e69b16f3310e6b396693f91cd4149a1c5541",
+  "sha256": {
+    "src/main/java/dev/jayms/Main.java": "e95e29bd790aa33cf7ca87390047f2b01778c3fed9bb47334e08815ff66d4948",
+    "src/main/java/dev/jayms/ui/InventoryHud.java": "810e9c37242f03f2cb98f352178a67394f4cbed69c53183ce9d81f029051862c",
+    "deploy/IsometricHudSmoke.java": "87c6d7c0e8d3ec032dd3998ed0b242e43737b4f7ae36c2b2fe79fb9d883ec2f8",
+    "deploy/run_isometric_hud_smoke.py": "c01d1775c4a9966eef7ee0357b9f5df6e0a21e743bec06119047ecf999e93ad6",
+    "dashboard/evidence/isometric-hud-hidden.png": "99dae817749e4ef158ff08a880e6b7250a7b442db458f80d6f3e2270d154e57e",
+    "dashboard/evidence/isometric-inventory.png": "c291588a08b47ba8ce5761f8ec0c4f5131c2e8a8c32e8ce6c0a2aabb79a84556",
+    "dashboard/evidence/player-hud-restored.png": "046ebef7cfae38527d23370658c1751df728d16cef0cf9f272bdac2a29cb5d8f"
+  }
+}
