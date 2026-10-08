@@ -1,0 +1,118 @@
+{
+  "head": "30df4b8d904199091ad6fee9ceff763d98b32f88",
+  "failedPushRun": "https://github.com/jaymsDooku/voxel-one/actions/runs/37812339995/attempts/1",
+  "failedJob": "build (macos-15-intel, mac-intel)",
+  "failure": "CityMultiplayerTest.sharedRoadsZoningHorseOwnershipLateJoinAndRestart:126->until:21 City network timeout",
+  "counts": {
+    "tests": 547,
+    "failures": 1,
+    "errors": 0
+  },
+  "cancelledJob": "Mac ARM Maven passed; upload canceled after Intel Mac failure",
+  "successfulSameHeadPRRun": "https://github.com/jaymsDooku/voxel-one/actions/runs/37812344701",
+  "sameHeadIntelMacCounts": {
+    "tests": 547,
+    "failures": 0,
+    "errors": 0
+  },
+  "diagnosis": "Original road-edit snapshot timeout did not reproduce in the same-head PR matrix, local integration run, or exact-head CI retry. No source, test, timeout or workflow changes were needed.",
+  "status": "Exact published-head CI passed. No product source fix needed.",
+  "localCommand": "mvn -q -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=CityMultiplayerTest,CityActionBarTest,CityToolsTest,InventoryHudTest,ExchangePermitCompositionTest,RoadTypesTest,AviationTest test",
+  "localResults": {
+    "tests": 35,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "exitCode": 0
+  },
+  "retryCommand": "gh run rerun 37812339995 --failed --repo jaymsDooku/voxel-one",
+  "masterChecked": "642bc422c621fd1a6e1704ade1148cc85fad398d",
+  "Playtest:": "Historical checks at head30df4b8. Current refreshed-source Playtest: see hud-compact-validation.json.",
+  "mediaUnchangedFromActualPlaytests": false,
+  "diffAudit": "Audited complete diff against 642bc422c621fd1a6e1704ade1148cc85fad398d: no file deletions. Old full-width text toolbar drawing, hint background and hit coordinates were replaced intentionally. Prior sky-view HUD source, harness, six artifacts and progress entry preserved.",
+  "retryRun": "https://github.com/jaymsDooku/voxel-one/actions/runs/37812339995/attempts/2",
+  "retryAttempt": 2,
+  "retryConclusion": "success",
+  "checkedAt": "2026-10-08T18:25:40.720644+00:00",
+  "ciBuilds": [
+    {
+      "platform": "mac-intel",
+      "conclusion": "success",
+      "job": "https://github.com/jaymsDooku/voxel-one/actions/runs/37812339995/job/113467839271",
+      "tests": 547,
+      "failures": 0,
+      "errors": 0,
+      "multiplayerTests": 1,
+      "multiplayerFailures": 0
+    },
+    {
+      "platform": "mac-arm",
+      "conclusion": "success",
+      "job": "https://github.com/jaymsDooku/voxel-one/actions/runs/37812339995/job/113467839563",
+      "tests": 547,
+      "failures": 0,
+      "errors": 0,
+      "multiplayerTests": 1,
+      "multiplayerFailures": 0
+    },
+    {
+      "platform": "linux",
+      "conclusion": "success"
+    },
+    {
+      "platform": "windows",
+      "conclusion": "success"
+    }
+  ],
+  "prChecks": "gh pr checks 56 --repo jaymsDooku/voxel-one: all four build checks pass; publish skipped as expected on feature branch",
+  "browserPlaytesting": "This refresh exercises the noninteractive Maven/CI integration. Browser playtesting does not apply. Prior real native game playtests and eight screenshots remain verified against unchanged product source hashes.",
+  "recoveryStatus": "Rebase complete; refreshed published-head CI passed.",
+  "currentLocalValidation": {
+    "head": "60c32ead4c6dd401202f846113b038d9c4d997cf",
+    "checkedAt": "2026-10-08T18:45:48.102847+00:00",
+    "tests": 47,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "freshCityPlaytest": "passed",
+    "freshSandboxPlaytest": "retry passed; first attempt exited 143",
+    "media": "Eight fresh screenshots in hud-compact-validation.json",
+    "exactPublishedHeadCI": "pending controller publication"
+  },
+  "unchangedGameSourceSHA256Historical": {
+    "src/main/java/dev/jayms/Main.java": "e95e29bd790aa33cf7ca87390047f2b01778c3fed9bb47334e08815ff66d4948",
+    "src/main/java/dev/jayms/ui/InventoryHud.java": "810e9c37242f03f2cb98f352178a67394f4cbed69c53183ce9d81f029051862c",
+    "src/main/java/dev/jayms/ui/CityTools.java": "5fba2be174ff59d7513e67540ccaa85790389dbe45d02c127c890f7005bb7616",
+    "src/main/java/dev/jayms/ui/CityActionBar.java": "49d2c677196c57ddaebf6d39f5cb82beb8da3f572b806dce7348f236446f3fd0"
+  },
+  "currentPublishedValidation": {
+    "head": "9d0da97e642465a552ffbf83342106a9d895ae77",
+    "checkedAt": "2026-10-08T19:02:00.726101+00:00",
+    "pushRun": "https://github.com/jaymsDooku/voxel-one/actions/runs/37826874742",
+    "pullRequestRun": "https://github.com/jaymsDooku/voxel-one/actions/runs/37826873299",
+    "conclusion": "success",
+    "platforms": [
+      "mac-intel",
+      "mac-arm",
+      "linux",
+      "windows"
+    ],
+    "macIntelTests": 559,
+    "macArmTests": 559,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "productSourceAndHarnessHashesMatchExecutedPlaytest": true,
+    "eightPublishedImagesMatchCheckout": true,
+    "commands": [
+      "gh pr checks 56",
+      "gh run view 37826874742 --json headSha,event,conclusion,jobs,url",
+      "gh run view 37826873299 --json headSha,event,conclusion,status,name",
+      "gh api repos/jaymsDooku/voxel-one/actions/jobs/113481884734/logs | rg -m 4 test-summary-or-build-success",
+      "gh api repos/jaymsDooku/voxel-one/actions/jobs/113481884291/logs | rg -m 3 test-summary-or-build-success"
+    ],
+    "Playtest:": "Prior executed city and sandbox workflows remain valid: every Java source and harness hash matches; all eight exact-head published PNGs fetched and matched byte for byte. No new product edits.",
+    "noninteractiveCheck": "CI metadata and filtered Maven totals inspected through gh CLI. Browser playtesting does not apply to this CI evidence refresh.",
+    "publication": "Updated reports await controller publication. Any new submitted head still requires its own passing CI before review."
+  }
+}

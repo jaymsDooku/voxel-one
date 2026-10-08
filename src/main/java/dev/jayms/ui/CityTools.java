@@ -200,10 +200,9 @@ public final class CityTools {
             if (row >= 10) { tool = row - 2; message = row == 10 ? "Airport: click a cleared road-accessible site (2000)" : row == 11 ? "Expand: click an airport (1000 per runway, max 3)" : "Flight: inspect an adult citizen first, then click the destination airport"; }
             return;
         }
-        float top = height - 196;
-        if (y >= top && y <= top + 34 && x >= 16 && x < width - 16) {
-            int index = (int) ((x - 16) / ((width - 32) / 9f));
-            tool = new int[] {-1, 4, 0, 1, 2, 3, 5, 6, 7}[Math.min(8, index)];
+        int index = CityActionBar.hit(x, y, width, height);
+        if (index >= 0) {
+            tool = CityActionBar.TOOLS[index];
             pendingRoad = null;
             points.clear();
             parcelApply=false;
@@ -213,7 +212,7 @@ public final class CityTools {
             return;
         }
         if (roadMenu) return;
-        if (y < 130 || y > height - 200) return;
+        if (y < 130 || y > height - 100) return;
         if(parcelApply&&tool>=0&&tool<4) {
             var position=cursorPoint(x,y,width,height,projection,view,city);
             if(position!=null)for(var zone:city.zones())if(zone.polygon().contains(position.x(),position.z())) {
@@ -302,7 +301,7 @@ public final class CityTools {
     /** Shared by preview and click so the highlighted point is the submitted point. */
     public Polygon.Point cursorPoint(float x, float y, int w, int h,
             Matrix4f projection, Matrix4f view, CityFrame city) {
-        if (roadMenu || tool < 0 || (tool > 4 && (tool < 6 || tool > 11)) || y < 130 || y > h - 200) return null;
+        if (roadMenu || tool < 0 || (tool > 4 && (tool < 6 || tool > 11)) || y < 130 || y > h - 100) return null;
         var inverse = new Matrix4f(projection).mul(view).invert();
         var a = inverse.transformProject(new Vector3f(x / w * 2 - 1, 1 - y / h * 2, -1));
         var b = inverse.transformProject(new Vector3f(x / w * 2 - 1, 1 - y / h * 2, 1));
@@ -344,8 +343,11 @@ public final class CityTools {
                 : points.isEmpty() ? best : RoadGeometry.snapZone(points.get(0),best,roadType,city);
     }
 
+    private int hoveredAction = -1;
+
     public void hover(float x, float y, int w, int h, Matrix4f projection,
             Matrix4f view, CityFrame city) {
+        hoveredAction = CityActionBar.hit(x, y, w, h);
         if (city.stressGrid() != null) { hover=null; return; }
         try {
             hover = cursorPoint(x, y, w, h, projection, view, city);
@@ -408,7 +410,7 @@ public final class CityTools {
             for (int d = 3; d <= 60; d += 3) {
                 var p = guideProject(origin.x() + d * (float) Math.cos(angle), ground,
                         origin.z() + d * (float) Math.sin(angle), projection, view, w, h);
-                if (p != null && p.x >= 16 && p.x < w - 16 && p.y >= 130 && p.y < h - 200)
+                if (p != null && p.x >= 16 && p.x < w - 16 && p.y >= 130 && p.y < h - 100)
                     ui.rectangle(p.x - 1, p.y - 1, 3, 3, .6f, .85f, 1, .8f);
             }
         }
@@ -684,32 +686,8 @@ public final class CityTools {
                 ui.text((row == roadType ? "> " : "  ") + transport[row], 24, 149 + row * 28, 1.3f);
             }
         }
-        float bw = (w - 32) / 9f, top = h - 196;
-        String[] labels = {
-            "Inspect",
-            "Roads",
-            "Residential",
-            "Commercial",
-            "Industrial",
-            "Agriculture",
-            "Economy",
-            "Special", "Exchange"
-        };
-        for (int i = 0; i < 9; i++) {
-            boolean active = tool == new int[] {-1, 4, 0, 1, 2, 3, 5, 6, 7}[i];
-            ui.rectangle(
-                    16 + i * bw,
-                    top,
-                    bw - 5,
-                    34,
-                    active ? .12f : .035f,
-                    active ? .32f : .09f,
-                    active ? .36f : .13f,
-                    .95f);
-            ui.text(labels[i], 22 + i * bw, top + 11, w < 900 ? 1f : 1.3f);
-        }
-        ui.rectangle(16, top + 38, w - 32, 35, .015f, .025f, .04f, .85f);
-        ui.text(
+        CityActionBar.render(ui, w, h, tool, hoveredAction);
+        String hint =
                 tool == 6
                         ? specialKind >= 8 ? SpecialBuildings.NAMES[specialKind] + " | Front road: z-2 | Rear rail dock: x+2, z+8 | Esc: cancel" : specialKind == 6 ? "Port: dry entrance + road (-Z), open ocean berth (+Z) | 6 x 21 site | Esc: cancel" : "Select building, level and owner | Click clear unzoned land: 6 x 9 | Front faces north | Esc: cancel"
                         : tool == 7
@@ -727,10 +705,12 @@ public final class CityTools {
                                         ? "Private companies fund construction. Zoning is free."
                                                 + " Inspect a building for ownership."
                                         : "WASD: pan | Wheel: zoom | Home: horizon | F6: walk in"
-                                                + " the city",
-                24,
-                top + 48,
-                1.25f);
+                                                + " the city";
+        float hintScale = Math.min(1.25f, (w - 48f) / Math.max(1, ui.textWidth(hint, 1)));
+        float hintWidth = ui.textWidth(hint, hintScale);
+        ui.rectangle((w - hintWidth) / 2 - 8, h - 94, hintWidth + 16, 24,
+                .015f, .025f, .04f, .85f);
+        ui.text(hint, (w - hintWidth) / 2, h - 87, hintScale);
         var citizen =
                 city.visibleCitizens().stream()
                         .filter(c -> c.id() == selectedCitizen)

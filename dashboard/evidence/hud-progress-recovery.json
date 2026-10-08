@@ -1,0 +1,11 @@
+{
+  "status": "Controller completed rebase; final-source local checks passed",
+  "head": "60c32ead4c6dd401202f846113b038d9c4d997cf",
+  "integratedMaster": "9302e76c441839a2aba9d1ad344858feb14822c6",
+  "updatedAt": "2026-10-08T18:45:48.102847+00:00",
+  "unrelatedMasterProgressEntriesPreserved": 84,
+  "priorHudHarnessAndSixArtifactsPreserved": true,
+  "noFileDeletionsAgainstRecordedReviewBase": true,
+  "Playtest:": "Fresh city and sandbox retry passed; eight fresh screenshots inspected",
+  "exactPublishedHeadCI": "Pending controller publication"
+}

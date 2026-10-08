@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-08T18:10:33+00:00",
+  "updatedAt": "2026-10-08T19:02:00+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,46 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "63376532363935642d643939642d343933632d396236332d366331393033393032336566",
+      "title": "Compact city HUD action bar",
+      "description": "Replacing full-width text actions with a centered icon dock; validating real input and HUD rendering locally.",
+      "evidence": [
+        {
+          "kind": "image",
+          "label": "Compact HUD overview (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63376532363935642d643939642d343933632d396236332d366331393033393032336566/dashboard/evidence/hud-compact-overview.png"
+        },
+        {
+          "kind": "image",
+          "label": "Narrow HUD at 640x640 (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63376532363935642d643939642d343933632d396236332d366331393033393032336566/dashboard/evidence/hud-compact-narrow.png"
+        },
+        {
+          "kind": "report",
+          "label": "HUD validation (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63376532363935642d643939642d343933632d396236332d366331393033393032336566/dashboard/evidence/hud-compact-validation.json"
+        },
+        {
+          "kind": "image",
+          "label": "Sandbox sky HUD regression (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63376532363935642d643939642d343933632d396236332d366331393033393032336566/dashboard/evidence/hud-sandbox-sky.png"
+        },
+        {
+          "kind": "image",
+          "label": "Sandbox inventory stack movement (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63376532363935642d643939642d343933632d396236332d366331393033393032336566/dashboard/evidence/hud-sandbox-inventory.png"
+        },
+        {
+          "kind": "link",
+          "label": "Four-platform CI retry passed",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/37812339995/attempts/2"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Exact published-head CI passed all four desktop builds; both Mac jobs passed 559 tests. Product source matches executed city/sandbox playtests. Eight published images verified. Ready for controller PR refresh and independent review.",
+      "updatedAt": "2026-10-08T19:02:00+00:00"
+    },
     {
       "id": "61653837396463352d666237642d343239332d393666322d616363613032353030623264",
       "title": "Hide player HUD in isometric view",
