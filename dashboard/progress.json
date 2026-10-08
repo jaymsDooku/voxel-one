@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-08T14:48:31+00:00",
+  "updatedAt": "2026-10-08T15:02:53+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -3507,8 +3507,8 @@
       "description": "Adding a smooth level 1 to level 2 camera transition and browser validation.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Final source on new review base validated: 13 rules tests; three-size transition, cockpit and planet workflows; altitude/resize and landscape fighter regression passed. Fresh media inspected. No deletions; base milestones unchanged. Ready for independent review, pending controller publication.",
-      "updatedAt": "2026-10-08T14:48:31+00:00"
+      "note": "CI follow-up confirmed: both exact-head runs passed Linux, Windows, Intel Mac and Apple Silicon Mac; publish skipped. Earlier cancelled run was superseded. Source hashes match validated playtests. Ready for independent review.",
+      "updatedAt": "2026-10-08T15:02:53+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
