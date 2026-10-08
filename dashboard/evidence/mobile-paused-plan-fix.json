@@ -1,0 +1,17 @@
+{
+  "sourceHead": "d29cc056a263d8e30230fe3ccdf1c743a6c8a4e3",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/37771228098",
+  "observed": "Online road expected Mayor paid but HUD retained 2 plan points. Native acceptance failed.",
+  "fix": "Network failures remain visible until reconnect and disable Resume/planning controls. Already-open coordinate dialogs cannot alter plans while paused. Subsequent notifications cannot hide the network error. Test asserts Confirm enabled with bounded public HUD context before sending road, then still requires Mayor paid and increased road count.",
+  "tests": [
+    {
+      "command": "python3 -m unittest discover -s tools/ios -p 'test_*.py' -q",
+      "observed": "53 mock tests passed; not native app proof."
+    },
+    {
+      "command": "git diff --check; bash -n ios/check-simulator.sh",
+      "observed": "Passed."
+    }
+  ],
+  "playtest": "Observed native online workflow failed. Revised paused-plan/error handling needs exact-source Mac execution; underlying failure still requires observed native diagnostics. No gameplay pass or physical-device test claimed."
+}

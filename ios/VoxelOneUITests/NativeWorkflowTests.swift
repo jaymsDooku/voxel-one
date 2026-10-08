@@ -91,6 +91,7 @@ final class NativeWorkflowTests:XCTestCase {
             app.alerts.buttons["Add"].tap()
         }
         let roadsBefore=roadCount();XCTAssertGreaterThanOrEqual(roadsBefore,0)
+        XCTAssertTrue(app.buttons["confirmPlan"].isEnabled,"Plan blocked: \(app.staticTexts["gameStatus"].label.prefix(65))")
         app.buttons["confirmPlan"].tap();textContains("gameStatus","Mayor paid",timeout:30)
         let roadAdded=XCTNSPredicateExpectation(predicate:NSPredicate{_,_ in self.roadCount()>roadsBefore},object:app)
         XCTAssertEqual(XCTWaiter.wait(for:[roadAdded],timeout:30),.completed,"Authoritative road count must increase")

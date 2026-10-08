@@ -8,6 +8,7 @@ final class GameController:UIViewController,UITextFieldDelegate {
     private var gateway:Gateway?
     private var displayLink:CADisplayLink?
     private var lastTime:CFTimeInterval=0,lastPoll:CFTimeInterval=0,lastSave:CFTimeInterval=0,lastMove:CFTimeInterval=0
+    private var networkFailureText:String?
     private var jumpOrigin:Float?;private var jumpRose=false
     private var moveBusy=false
     private var sessionID=UUID()
@@ -57,7 +58,7 @@ final class GameController:UIViewController,UITextFieldDelegate {
     }
     private func showGame() {
         menu?.removeFromSuperview();menu=nil;top?.removeFromSuperview();bottom?.removeFromSuperview();crosshair.removeFromSuperview()
-        inMenu=false;paused=false;jumpOrigin=nil;jumpRose=false;movement.removeAll();lastTime=0;message="";messagePinned=false
+        inMenu=false;paused=false;networkFailureText=nil;jumpOrigin=nil;jumpRose=false;movement.removeAll();lastTime=0;message="";messagePinned=false
         status=label("",id:"gameStatus");positionLabel=label("",size:11,id:"playerPosition");cityLabel=label("",size:12,id:"cityStatus")
         let menuButton=button("Menu","menuButton",#selector(openMenu))
         let pause=button("Pause","pauseButton",#selector(togglePause));pauseButton=pause
@@ -101,12 +102,12 @@ final class GameController:UIViewController,UITextFieldDelegate {
         alert.addAction(UIAlertAction(title:"Cancel",style:.cancel));anchor(alert);present(alert,animated:true)
     }
     @objc private func addCoordinatePoint(){
-        guard renderer.planning else{return}
+        guard !paused,renderer.planning else{return}
         let alert=UIAlertController(title:"Plan point",message:"Add a road endpoint or zone corner on the world grid.",preferredStyle:.alert)
         for name in ["X","Z"] {alert.addTextField{field in field.placeholder=name;field.accessibilityIdentifier="point"+name;field.keyboardType = .numbersAndPunctuation}}
         alert.addAction(UIAlertAction(title:"Cancel",style:.cancel))
         alert.addAction(UIAlertAction(title:"Add",style:.default){[weak self] _ in
-            guard let self=self,let x=Float(alert.textFields?[0].text ?? ""),let z=Float(alert.textFields?[1].text ?? ""),x.isFinite,z.isFinite,abs(x)<999_970,abs(z)<999_970,self.points.count<32 else{self?.notify("Enter valid X and Z coordinates.");return}
+            guard let self=self,!self.paused,let x=Float(alert.textFields?[0].text ?? ""),let z=Float(alert.textFields?[1].text ?? ""),x.isFinite,z.isFinite,abs(x)<999_970,abs(z)<999_970,self.points.count<32 else{self?.notify("Enter valid X and Z coordinates.");return}
             self.points.append([Float(floor(x)),Float(floor(z))]);self.renderer.focus.x=x;self.renderer.focus.z=z;self.lastPoll=0
             if let world=self.world {self.renderer.mark(self.points,world:world)};self.notify("\(self.points.count) plan points.")
         });present(alert,animated:true)
@@ -190,13 +191,13 @@ final class GameController:UIViewController,UITextFieldDelegate {
         renderer.updateCamera(world)
         if let gateway=gateway,!moveBusy,!paused,link.timestamp-lastMove>0.1 {
             lastMove=link.timestamp;moveBusy=true;let id=sessionID
-            Task {do {try await gateway.move(world)}catch {if id==sessionID && !paused {notify(error.localizedDescription);paused=true;movement.removeAll();pauseButton?.setTitle("Resume",for:.normal)}};if id==sessionID {moveBusy=false}}
+            Task {do {try await gateway.move(world)}catch {if id==sessionID && !paused {failNetwork(error.localizedDescription)}};if id==sessionID {moveBusy=false}}
         }
         if let gateway=gateway,!busy,!paused,link.timestamp-lastPoll>1.5 {
             lastPoll=link.timestamp;busy=true;let id=sessionID
             let focus=renderer.planning ? SCNFocus(x:renderer.focus.x,z:renderer.focus.z):nil
             Task {do{let state=try await gateway.state(world,focus:focus);guard id==sessionID else{return};try world.replace(state);renderer.rebuild(world);renderer.mark(points,world:world)}catch{
-                if id==sessionID && !paused {notify(error.localizedDescription);paused=true;movement.removeAll();pauseButton?.setTitle("Resume",for:.normal)}
+                if id==sessionID && !paused {failNetwork(error.localizedDescription)}
             };if id==sessionID {busy=false;refreshHUD();runQueuedAction()}}
         }
         if gateway==nil,link.timestamp-lastSave>5 {lastSave=link.timestamp;saveOffline()}
@@ -215,15 +216,27 @@ final class GameController:UIViewController,UITextFieldDelegate {
         cityLabel.isHidden=world.snapshot.city==nil && view.bounds.width>view.bounds.height
         for (i,b) in slotButtons.enumerated(){let item=world.snapshot.inventory[i];b.setTitle(item[0]==0 ? "—":"\(String(VoxelWorld.name(item[0]).prefix(3)))\n\(item[1])",for:.normal);b.titleLabel?.numberOfLines=2;b.titleLabel?.textAlignment = .center;b.accessibilityLabel="\(VoxelWorld.name(item[0])) slot \(i+1), \(item[1]) blocks";b.layer.borderWidth=i==world.slot ? 2:0;b.layer.borderColor=UIColor.systemYellow.cgColor}
         if let rows=bottom?.arrangedSubviews,rows.count>=4 {rows[1].isHidden = !renderer.planning;rows[2].isHidden=renderer.planning;rows[3].isHidden=renderer.planning}
+        if let controls=bottom?.arrangedSubviews[1] as? UIStackView {
+            for case let control as UIButton in controls.arrangedSubviews {control.isEnabled = !paused}
+        }
         crosshair.isHidden=renderer.planning;planButton?.setTitle(renderer.planning ? "Walk":"Plan",for:.normal)
     }
-    private func notify(_ text:String,persistent:Bool=false){message=text;messagePinned=persistent;messageTime=CACurrentMediaTime();if !inMenu {status.text=text}}
+    private func failNetwork(_ text:String){
+        guard networkFailureText==nil else{return}
+        networkFailureText=text;paused=true;movement.removeAll();queuedAction=nil
+        message=text;messagePinned=true;messageTime=CACurrentMediaTime();status.text=text
+        pauseButton?.setTitle("Disconnected",for:.normal);pauseButton?.isEnabled=false
+    }
+    private func notify(_ text:String,persistent:Bool=false){
+        guard networkFailureText==nil else{return}
+        message=text;messagePinned=persistent;messageTime=CACurrentMediaTime();if !inMenu {status.text=text}
+    }
     func suspend(){active=false;movement.removeAll();saveOffline()}
     func becameActive(){active=true;lastTime=0}
     func saveOffline(){guard gateway==nil,let world=world else{return};do {try OfflineSave.write(world)}catch{notify("Save failed. Keep this session open and try again.")}}
     @objc private func openMenu(){saveOffline();movement.removeAll();let previous=gateway;sessionID=UUID();queuedAction=nil;busy=false;moveBusy=false;gateway=nil;world=nil;Task{await previous?.logout()};showMenu()}
     private func showMenu(){
-        inMenu=true;paused=false;top?.removeFromSuperview();bottom?.removeFromSuperview();crosshair.removeFromSuperview();menu?.removeFromSuperview();movement.removeAll()
+        inMenu=true;paused=false;networkFailureText=nil;top?.removeFromSuperview();bottom?.removeFromSuperview();crosshair.removeFromSuperview();menu?.removeFromSuperview();movement.removeAll()
         let scroll=UIScrollView();scroll.translatesAutoresizingMaskIntoConstraints=false;scroll.backgroundColor=UIColor(red:0.035,green:0.075,blue:0.1,alpha:0.98);view.addSubview(scroll);menu=scroll
         NSLayoutConstraint.activate([scroll.topAnchor.constraint(equalTo:view.safeAreaLayoutGuide.topAnchor),scroll.bottomAnchor.constraint(equalTo:view.safeAreaLayoutGuide.bottomAnchor),scroll.leadingAnchor.constraint(equalTo:view.safeAreaLayoutGuide.leadingAnchor),scroll.trailingAnchor.constraint(equalTo:view.safeAreaLayoutGuide.trailingAnchor)])
         address.placeholder="https://your-game-gateway.example";address.text=ProcessInfo.processInfo.environment["VOXEL_TEST_GATEWAY"] ?? UserDefaults.standard.string(forKey:"gatewayAddress");address.accessibilityIdentifier="gatewayAddress";address.keyboardType = .URL;address.autocapitalizationType = .none;address.autocorrectionType = .no
