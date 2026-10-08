@@ -191,7 +191,7 @@
       "description": "Native phone client with touch sandbox controls and server-authoritative city planning.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Public run metadata confirms Mac dispatch used the old trusted uploader at ad2dd8937b47eb0accc5e5e237d0694ae2c242f5, which omits client diagnostics. Awaiting controller integration of preserved upload fix before another exact-source native test. No native acceptance passed.",
+      "note": "Mac diagnostics now retained. Native UI tests failed: offline target expectation and online control wait. Fixed offline normal-look setup and added bounded control/HUD assertion context. 48 mock tooling tests passed. Requesting native workflow rerun; no native acceptance passed.",
       "updatedAt": "2026-10-07T22:54:08+00:00"
     },
     {

@@ -8,18 +8,22 @@ final class NativeWorkflowTests:XCTestCase {
         app=XCUIApplication();app.launchEnvironment["VOXEL_TEST_GATEWAY"]=ProcessInfo.processInfo.environment["VOXEL_TEST_GATEWAY"] ?? ""
         app.launch()
     }
-    func wait(_ element:XCUIElement,_ seconds:TimeInterval=20){XCTAssertTrue(element.waitForExistence(timeout:seconds))}
+    func wait(_ element:XCUIElement,_ seconds:TimeInterval=20){XCTAssertTrue(element.waitForExistence(timeout:seconds),"Missing control: \(element.identifier)")}
     func textContains(_ id:String,_ value:String,timeout:TimeInterval=15){
         let predicate=NSPredicate(format:"label CONTAINS[c] %@",value)
         let expectation=XCTNSPredicateExpectation(predicate:predicate,object:app.staticTexts[id])
-        XCTAssertEqual(XCTWaiter.wait(for:[expectation],timeout:timeout),.completed)
+        XCTAssertEqual(XCTWaiter.wait(for:[expectation],timeout:timeout),.completed,"HUD \(id) expected \(value); observed \(app.staticTexts[id].label.prefix(100))")
     }
     func capture(_ name:String){let attachment=XCTAttachment(screenshot:app.screenshot());attachment.name=name;attachment.lifetime = .keepAlways;add(attachment)}
     func menu(){if app.buttons["menuButton"].exists {app.buttons["menuButton"].tap()};wait(app.buttons["offlineNewButton"])}
     func newOffline(){menu();app.buttons["offlineNewButton"].tap();if app.alerts.buttons["New world"].waitForExistence(timeout:2){app.alerts.buttons["New world"].tap()};wait(app.buttons["breakButton"])}
     func testOfflineTouchBuildSavePauseAndLandscape()throws {
         newOffline();wait(app.otherElements["worldView"])
-        // A ground block is in reach at the game's normal starting view.
+        // Settle on the ground and aim down with the normal look gesture.
+        textContains("playerPosition","Ground")
+        let initialScene=app.otherElements["worldView"]
+        initialScene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.38)).press(forDuration:0.05,thenDragTo:initialScene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.56)))
+        capture("offline-aimed")
         app.buttons["breakButton"].tap();textContains("gameStatus","Block collected")
         app.buttons["placeButton"].tap();textContains("gameStatus","Placed Dirt")
         XCTAssertTrue(app.buttons["slot0"].label.contains("31 blocks"))
