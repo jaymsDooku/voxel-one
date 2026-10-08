@@ -1486,7 +1486,8 @@ public class Main {
                 controls,
                 world.models(),
                 (float) mouseX * framebufferWidth / windowSize[0],
-                (float) mouseY * framebufferHeight / windowSize[1]);
+                (float) mouseY * framebufferHeight / windowSize[1],
+                !isometric);
         if (!notice.isEmpty())
             overlay.text(notice, 20, city().config().city() ? 132 : 99, 1.4f, 1, .8f, .4f, 1);
         if (Blocks.material(player.heldItem()) == Blocks.LED)

@@ -1,0 +1,1 @@
+Playtest: PASS. Linux assigned X11 display, Mesa, production Main, isolated synthetic City Builder profile. Actual xdotool GLFW input: city starts in sky view; E opens inventory; Escape closes it; F6 restores player view. Screenshots capture each state for visual validation.
