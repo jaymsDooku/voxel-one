@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "expectedHead": "2cbab9043761782fc47b3fea5ef9f165597922bb",
+  "sourceHead": "2cbab9043761782fc47b3fea5ef9f165597922bb",
+  "requestId": "e3dc3d1a-7337-4c72-a372-89276285cd00",
+  "mode": "preflight",
+  "status": "failed",
+  "environmentReady": false,
+  "clientChecked": false,
+  "evidence": [],
+  "phase": "source",
+  "errorCode": "macos_required",
+  "errorStage": "source"
+}

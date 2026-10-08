@@ -8,7 +8,24 @@ final class NativeWorkflowTests:XCTestCase {
         app=XCUIApplication();app.launchEnvironment["VOXEL_TEST_GATEWAY"]=ProcessInfo.processInfo.environment["VOXEL_TEST_GATEWAY"] ?? ""
         app.launch()
     }
-    func wait(_ element:XCUIElement,_ seconds:TimeInterval=20){XCTAssertTrue(element.waitForExistence(timeout:seconds),"Missing control: \(element.identifier)")}
+    func wait(_ element:XCUIElement,_ seconds:TimeInterval=20,_ id:String="requested control"){
+        guard element.waitForExistence(timeout:seconds) else {
+            var category="no error alert"
+            let alert=app.alerts["Voxel One"]
+            if alert.exists {
+                // Inspect only this synthetic game's error alert. Never read or log form values.
+                let text=alert.staticTexts.allElementsBoundByIndex.map{$0.label.lowercased()}.joined(separator:" ")
+                category="game error alert"
+                if text.contains("world") {category="world validation error"}
+                else if text.contains("data") || text.contains("decode") {category="response decoding error"}
+                else if text.contains("sign-in") || text.contains("account") {category="authentication error"}
+                else if text.contains("connection") || text.contains("network") || text.contains("offline") {category="network error"}
+                else if text.contains("https") || text.contains("address") {category="gateway address error"}
+                else if text.contains("password") || text.contains("username") {category="input validation error"}
+            }
+            XCTFail("Missing \(id); \(category)");return
+        }
+    }
     func textContains(_ id:String,_ value:String,timeout:TimeInterval=15){
         let predicate=NSPredicate(format:"label CONTAINS[c] %@",value)
         let expectation=XCTNSPredicateExpectation(predicate:predicate,object:app.staticTexts[id])
@@ -57,7 +74,7 @@ final class NativeWorkflowTests:XCTestCase {
         let address=app.textFields["gatewayAddress"];wait(address);XCTAssertFalse(address.value as? String == "")
         fill("username","ios_fixture");fill("password","fixture-password-123",secure:true)
         app.segmentedControls["gameChoice"].buttons["City"].tap();app.buttons["signInButton"].tap()
-        wait(app.buttons["planToggle"],40);textContains("cityStatus","roads",timeout:30)
+        wait(app.buttons["planToggle"],40,"planToggle");textContains("cityStatus","roads",timeout:30)
         app.buttons["planToggle"].tap() // Enter planning if the initial game view starts in walking mode.
         if app.buttons["planToggle"].label=="Plan" {app.buttons["planToggle"].tap()}
         app.buttons["toolButton"].tap();app.buttons["Dirt road"].tap()
@@ -81,7 +98,7 @@ final class NativeWorkflowTests:XCTestCase {
         let cityBefore=app.staticTexts["cityStatus"].label
         app.buttons["planToggle"].tap();wait(app.buttons["breakButton"]);app.buttons["pauseButton"].tap();textContains("gameStatus","Paused");capture("city-native-walk");app.buttons["pauseButton"].tap()
         app.buttons["menuButton"].tap();wait(app.buttons["signInButton"])
-        fill("password","fixture-password-123",secure:true);app.segmentedControls["gameChoice"].buttons["City"].tap();app.buttons["signInButton"].tap();wait(app.buttons["planToggle"],40)
+        fill("password","fixture-password-123",secure:true);app.segmentedControls["gameChoice"].buttons["City"].tap();app.buttons["signInButton"].tap();wait(app.buttons["planToggle"],40,"planToggle")
         textContains("cityStatus","roads",timeout:30);XCTAssertFalse(cityBefore.isEmpty)
         capture("city-reconnected")
         // End in saved native sandbox so the outer verifier's independent launch shows gameplay.

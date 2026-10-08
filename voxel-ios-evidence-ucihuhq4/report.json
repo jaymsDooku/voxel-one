@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "expectedHead": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "sourceHead": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "requestId": "e3dc3d1a-7337-4c72-a372-89276285cd00",
+  "mode": "client",
+  "status": "failed",
+  "environmentReady": true,
+  "clientChecked": false,
+  "evidence": [
+    {
+      "path": "preflight.png",
+      "bytes": 609,
+      "sha256": "c18fd943a11db7159618f70cc9dd4ae4c96b2c130b085359005150ba0a31a172",
+      "kind": "image",
+      "description": "Fresh iPhone simulator home screen; environment preflight, not Voxel One client evidence."
+    }
+  ],
+  "phase": "client_script",
+  "environment": {
+    "macOS": "MOCK version; not actual Mac evidence",
+    "xcode": "MOCK version; not actual Mac evidence",
+    "simulatorSDK": "18.5"
+  },
+  "inventoryAttempts": 1,
+  "runtime": {
+    "identifier": "com.apple.CoreSimulator.SimRuntime.iOS-18-5",
+    "name": "iOS 18.5",
+    "version": "18.5"
+  },
+  "deviceType": {
+    "identifier": "com.apple.CoreSimulator.SimDeviceType.iPhone-16-Pro",
+    "name": "iPhone 16 Pro"
+  },
+  "udid": "C6832151-D858-43BF-B90D-05F63089554B",
+  "bootVerifyAttempts": 1,
+  "errorCode": "command_failed",
+  "errorStage": "client_script",
+  "exitCode": 1,
+  "cleanup": "passed",
+  "diagnostics": {
+    "path": "client-diagnostics.json",
+    "textPath": "client-diagnostics.txt",
+    "bytes": 990,
+    "sha256": "004c390485d2ded3bae39da937d4f16b671c134bfc5016c602e91db7d9aebf62",
+    "textBytes": 229,
+    "textSha256": "10384bf77ff8cfa4dd38379e3a8ad27307e460269e653871d2603cdf6f890900",
+    "lineCount": 1,
+    "truncated": false
+  }
+}

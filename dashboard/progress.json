@@ -191,7 +191,7 @@
       "description": "Native phone client with touch sandbox controls and server-authoritative city planning.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Repeated Mac post-boot inventory timeout prevented client tests. Added bounded185second total verification and one timeout-only retry, preserving exact-device checks. Mock53 passed. Awaiting controller trusted-verifier integration and native rerun; no native completion claimed.",
+      "note": "Mac test failed waiting for city controls; fixed helper lookup of missing control and added fixed sign-in error categories without form values. Mock53 and syntax/diff checks passed. Native login/road/reconnect rerun required; no native acceptance passed.",
       "updatedAt": "2026-10-07T22:54:08+00:00"
     },
     {
