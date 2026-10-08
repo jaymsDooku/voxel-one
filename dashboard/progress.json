@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-08T13:23:28+00:00",
+  "updatedAt": "2026-10-08T13:24:39+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -18,10 +18,31 @@
       "id": "38626531653763632d353339632d343035352d613466312d636466376638616233653664",
       "title": "Level 2 spaceship cockpit interior",
       "description": "Building a framed canopy and instrument console; browser validation pending.",
-      "evidence": [],
+      "evidence": [
+        {
+          "kind": "image",
+          "label": "Historical pre-fighter validation; recapture pending: invaders-level-2-1280.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38626531653763632d353339632d343035352d613466312d636466376638616233653664/dashboard/evidence/invaders-level-2-1280.png"
+        },
+        {
+          "kind": "image",
+          "label": "Historical pre-fighter validation; recapture pending: invaders-level-2-390.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38626531653763632d353339632d343035352d613466312d636466376638616233653664/dashboard/evidence/invaders-level-2-390.png"
+        },
+        {
+          "kind": "image",
+          "label": "Historical pre-fighter validation; recapture pending: invaders-level-2-844.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38626531653763632d353339632d343035352d613466312d636466376638616233653664/dashboard/evidence/invaders-level-2-844.png"
+        },
+        {
+          "kind": "report",
+          "label": "Historical pre-fighter validation; recapture pending: invaders-levels-playtest.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38626531653763632d353339632d343035352d613466312d636466376638616233653664/dashboard/evidence/invaders-levels-playtest.json"
+        }
+      ],
       "status": "in_progress",
-      "note": "Resolved cockpit integration with merged fighter flight; preserved fighter and City Builder progress history. Controller rebase continuation and final-head playtests pending.",
-      "updatedAt": "2026-10-08T13:23:28+00:00"
+      "note": "Resolved report and progress conflicts; preserved fighter and City Builder features and history. Prior captures marked historical. Controller rebase continuation and final-head tests/media pending.",
+      "updatedAt": "2026-10-08T13:24:39+00:00"
     },
     {
       "id": "61303435393238342d626561392d343965372d396138362d663030626530653839396437",

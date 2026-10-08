@@ -38,7 +38,7 @@
   },
   "repeatCheck": "An intermediate repeat failed the fixed 40 ms shot assertion. Replaced it with a bounded wait for a live shot; final three-viewport run passed.",
   "diffAudit": "Correction: the prior No file deletions / No unrelated source changes claim checked only the local edit diff, not the full PR against its review base. Review found unrelated City Builder missile deletions at 98eac56fde09c24a5d8a855dddae659c6344a102. Current rebase retains upstream City Builder code, controls, tests, docs, media and progress history. Against recorded base 7df8c29f410aee018f93f14b7353e5c0d7d04615 there are no deleted files in the resolved working contents. Intentional cockpit replacement removes the old minimal rim/text and limits the exterior deck to classic view.",
-  "validationState": "Historical browser results and images above predate fighter integration. Current conflict resolution preserves fighter flight, two-axis projection, engine glow and upstream harness; adds cockpit canopy and live altitude instrument. Final-head browser playtest and fresh cockpit media pending controller rebase continuation.",
+  "validationState": "Historical results and images predate fighter integration. Cockpit and fighter source integration retained. Final-head browser tests and fresh cockpit media pending controller rebase continuation.",
   "recoveryChecks": {
     "upstreamPreservation": "20 upstream feature files byte-identical to HEAD cb79fa71fd7052f8ae0d311659bcb72882fb0318; all upstream progress entries preserved unchanged.",
     "rules": "node --test games/space-invaders/game.test.mjs: 9 passed, 0 failed on resolved working contents.",
@@ -57,5 +57,78 @@
     ],
     "results": "Syntax checks pass; 11 rules tests pass; whitespace check passes.",
     "intentionalReplacement": "Replace minimal cockpit rim and fighter footer with canopy/console including ALT. Preserve fighter engine glow and two-axis camera. Draw exterior deck only in classic view."
+  },
+  "historicalPreFighterValidation": {
+    "state": "Historical only: tested before fighter integration; not validation of current source.",
+    "report": {
+      "command": "PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/test_space_invaders_levels.cjs",
+      "environment": "Linux, headless Playwright WebKit, isolated synthetic contexts; HTTP source server on 127.0.0.1:8767",
+      "playtest": "Playtest: Start level 1, fire to clear final alien, play first-person level 2, move/fire, pause/resume, lose final life, restart, cancel touch input, advance to level 3.",
+      "expected": "Levels alternate views, shots and movement stay aligned, pause freezes combat, restart restores classic, scores/lives carry forward.",
+      "results": [
+        {
+          "viewport": {
+            "width": 1280,
+            "height": 900
+          },
+          "observed": "PASS: classic start, real last-kill transition to cockpit, camera follows movement, fire, pause/resume, cockpit death/restart, touch cancel, level 3 and score/lives carryover",
+          "errors": []
+        },
+        {
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "observed": "PASS: classic start, real last-kill transition to cockpit, camera follows movement, fire, pause/resume, cockpit death/restart, touch cancel, level 3 and score/lives carryover",
+          "errors": []
+        },
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "observed": "PASS: classic start, real last-kill transition to cockpit, camera follows movement, fire, pause/resume, cockpit death/restart, touch cancel, level 3 and score/lives carryover",
+          "errors": []
+        }
+      ],
+      "limitation": "No physical iOS device test; this task changes the existing browser game.",
+      "testedHead": "bb7c4df8f4b3425a87de5472824d8ecd0f3047b5",
+      "testedAt": "2026-10-08T13:17:49+00:00",
+      "diffAudit": "Correction: the prior No file deletions / No unrelated source changes claim checked only the local edit diff, not the full PR against its review base. Review found unrelated City Builder missile deletions at 98eac56fde09c24a5d8a855dddae659c6344a102. Current rebase retains upstream City Builder code, controls, tests, docs, media and progress history. Against recorded base 7df8c29f410aee018f93f14b7353e5c0d7d04615 there are no deleted files in the resolved working contents. Intentional cockpit replacement removes the old minimal rim/text and limits the exterior deck to classic view.",
+      "validationState": "Final-head workflow rerun passed on the synchronized source. All three cockpit images were freshly captured and inspected. Only evidence and progress metadata changed after the test.",
+      "rulesCheck": {
+        "command": "node --test games/space-invaders/game.test.mjs",
+        "observed": "9 passed, 0 failed"
+      },
+      "preservationAudit": {
+        "recordedBase": "7df8c29f410aee018f93f14b7353e5c0d7d04615",
+        "upstream": "cb79fa71fd7052f8ae0d311659bcb72882fb0318",
+        "observed": "All 20 upstream feature files byte-identical to upstream. All upstream progress entries preserved unchanged. No deleted paths against recorded base. Only cockpit renderer, browser harness, progress, report and three images differ from upstream.",
+        "whitespace": "git diff --check 7df8c29f410aee018f93f14b7353e5c0d7d04615: passed.",
+        "exactChangeSet": "Exactly seven expected cockpit files differ from cb79fa71fd7052f8ae0d311659bcb72882fb0318; upstream is an ancestor of tested HEAD."
+      },
+      "visualInspection": "Fresh 1280x900, 390x844 and 844x390 images inspected: canopy, console instruments, combat area, reticle and controls visible; no clipped console labels.",
+      "sha256": {
+        "games/space-invaders/game.test.mjs": "fb987a4c080f117fe7a893947dfe0133778b65e89cb26f8d3da0b22ba38c472d",
+        "games/space-invaders/game.mjs": "fa187c0ac95e0890c1a22b37eaaa23657c3bc68d7d116deb3528969094b333a6",
+        "games/space-invaders/app.mjs": "66426406c712561b1ad4ef040ae8645023b363f681a7ce2f76ae3c65177fcbaf",
+        "games/space-invaders/style.css": "c7e6f7b5f8a03a69fafefc6f8c970e5a14a3c74a01271838803dee3de6aa9bb9",
+        "games/space-invaders/index.html": "df0d9f85e27ecf4160c55f8a97f2a221ee4f7d01923d73e0763ee8f1b9da0c97",
+        "games/space-invaders/README.md": "16b661af6bc87cb7dcd8bb3a12bca8467deb16b2a6e12e72020563a943a0770e",
+        "deploy/test_space_invaders_levels.cjs": "b7a4c01255044144acd66f683fbfc280a8be5142c49ee758315e863f0580a32a",
+        "dashboard/evidence/invaders-level-2-844.png": "753d653d6244095b33a71f9bd9acdba97de3e177ef225c643c83619feebbfad8",
+        "dashboard/evidence/invaders-level-2-1280.png": "8fa07c4933f2ee26375120e3ac531d37bcc0916cd89231fd1e08fd348c1e0dbc",
+        "dashboard/evidence/invaders-level-2-390.png": "652fa7bc85511a3928bbf7df5e776b09d1b650d3c0c53c17ca15d5ad44c7114a"
+      },
+      "browserHarness": "Explicit assertions check classic start; wave 2 transition; player moves right and sight remains centered; live shot exists; pause freezes alien position; last life ends game; restart Score 0 / Lives 3 / Wave 1; pointercancel clears active touch control; wave 3 Score 100 / Lives 2; zero page errors.",
+      "sourceUnchangedAfterValidation": true
+    }
+  },
+  "metadataRecoveryChecks": {
+    "observed": "Both JSON conflicts resolved in working contents. All base progress entries unchanged; no unrelated changed paths or deleted files against 584854454e2407b66af23ff636f982a77e5fcef3. Prior pre-fighter report retained as historical.",
+    "syntax": "node --check games/space-invaders/app.mjs: passed.",
+    "rules": "node --test games/space-invaders/game.test.mjs: 11 passed, 0 failed.",
+    "whitespace": "git diff --check: passed.",
+    "playtest": "Playtest: final-head workflow and fresh captures pending controller rebase continuation."
   }
 }
