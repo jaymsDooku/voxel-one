@@ -14,6 +14,10 @@ final class NativeWorkflowTests:XCTestCase {
         let expectation=XCTNSPredicateExpectation(predicate:predicate,object:app.staticTexts[id])
         XCTAssertEqual(XCTWaiter.wait(for:[expectation],timeout:timeout),.completed,"HUD \(id) expected \(value); observed \(app.staticTexts[id].label.prefix(100))")
     }
+    func roadCount()->Int {
+        let parts=app.staticTexts["cityStatus"].label.components(separatedBy:" · ")
+        return parts.compactMap{part -> Int? in part.hasSuffix(" roads") ? Int(part.components(separatedBy:" ").first ?? "") : nil}.first ?? -1
+    }
     func capture(_ name:String){let attachment=XCTAttachment(screenshot:app.screenshot());attachment.name=name;attachment.lifetime = .keepAlways;add(attachment)}
     func menu(){if app.buttons["menuButton"].exists {app.buttons["menuButton"].tap()};wait(app.buttons["offlineNewButton"])}
     func newOffline(){menu();app.buttons["offlineNewButton"].tap();if app.alerts.buttons["New world"].waitForExistence(timeout:2){app.alerts.buttons["New world"].tap()};wait(app.buttons["breakButton"])}
@@ -69,7 +73,10 @@ final class NativeWorkflowTests:XCTestCase {
             app.alerts.textFields["pointZ"].tap();app.alerts.textFields["pointZ"].typeText(pair.1)
             app.alerts.buttons["Add"].tap()
         }
+        let roadsBefore=roadCount();XCTAssertGreaterThanOrEqual(roadsBefore,0)
         app.buttons["confirmPlan"].tap();textContains("gameStatus","Mayor paid",timeout:30)
+        let roadAdded=XCTNSPredicateExpectation(predicate:NSPredicate{_,_ in self.roadCount()>roadsBefore},object:app)
+        XCTAssertEqual(XCTWaiter.wait(for:[roadAdded],timeout:30),.completed,"Authoritative road count must increase")
         capture("city-road-plan")
         let cityBefore=app.staticTexts["cityStatus"].label
         app.buttons["planToggle"].tap();wait(app.buttons["breakButton"]);app.buttons["pauseButton"].tap();textContains("gameStatus","Paused");capture("city-native-walk");app.buttons["pauseButton"].tap()

@@ -191,7 +191,7 @@
       "description": "Native phone client with touch sandbox controls and server-authoritative city planning.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Online road workflow still fails. Fixed paused polling that hid the first transport error; gateway now returns fixed sanitized disconnect reasons. Five Java tests, CLI18 and mock49 passed. Requesting native rerun; road acceptance unchanged and no native completion claimed.",
+      "note": "Online road wait now sees normal city HUD. Made action receipt durable and strengthened native test to verify authoritative road count increases. Mock49 and syntax/diff checks passed. Exact-source native rerun required; no native completion claimed.",
       "updatedAt": "2026-10-07T22:54:08+00:00"
     },
     {

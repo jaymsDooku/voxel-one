@@ -1,0 +1,18 @@
+{
+  "sourceHead": "cfa1d3faa84dc089f65b6ef4c7570c4d7c3c4c45",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/37766730905",
+  "observed": "Native online road expectation timed out; actual HUD was the normal Online city mode. Diagnostics do not prove whether the receipt was missed or the action did not complete.",
+  "change": "Keep confirmed asynchronous action receipt visible until the next notification/new game. Retain Mayor paid assertion and additionally require authoritative city road count to increase.",
+  "tests": [
+    {
+      "command": "python3 -m unittest discover -s tools/ios -p 'test_*.py' -q",
+      "observed": "49 mock tooling tests passed; not native client validation."
+    },
+    {
+      "command": "git diff --check; bash -n ios/check-simulator.sh",
+      "observed": "Passed."
+    }
+  ],
+  "playtest": "Actual native online workflow failed. Revised durable receipt and road-count assertion need an exact-source hosted Mac rerun; no native completion or gameplay media claimed. Browser does not run this UIKit client.",
+  "diffAudit": "No deleted paths against ce91421b21163775c5f2addb749fec69c521c8a3. Native assertions strengthened; no game-rule changes."
+}

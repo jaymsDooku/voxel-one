@@ -19,7 +19,7 @@ final class GameController:UIViewController,UITextFieldDelegate {
     private var slotButtons:[UIButton]=[]
     private var planButton:UIButton?,confirmButton:UIButton?,pauseButton:UIButton?
     private var points:[[Float]]=[];private var tool=0
-    private var message="";private var messageTime:CFTimeInterval=0
+    private var message="";private var messageTime:CFTimeInterval=0;private var messagePinned=false
     private let address=UITextField(),username=UITextField(),password=UITextField()
     private let game=UISegmentedControl(items:["Sandbox","City"])
     override var preferredStatusBarStyle:UIStatusBarStyle {.lightContent}
@@ -57,7 +57,7 @@ final class GameController:UIViewController,UITextFieldDelegate {
     }
     private func showGame() {
         menu?.removeFromSuperview();menu=nil;top?.removeFromSuperview();bottom?.removeFromSuperview();crosshair.removeFromSuperview()
-        inMenu=false;paused=false;jumpOrigin=nil;jumpRose=false;movement.removeAll();lastTime=0;message=""
+        inMenu=false;paused=false;jumpOrigin=nil;jumpRose=false;movement.removeAll();lastTime=0;message="";messagePinned=false
         status=label("",id:"gameStatus");positionLabel=label("",size:11,id:"playerPosition");cityLabel=label("",size:12,id:"cityStatus")
         let menuButton=button("Menu","menuButton",#selector(openMenu))
         let pause=button("Pause","pauseButton",#selector(togglePause));pauseButton=pause
@@ -155,7 +155,7 @@ final class GameController:UIViewController,UITextFieldDelegate {
             var visible=state
             if renderer.planning {visible=try await gateway.state(world,focus:SCNFocus(x:renderer.focus.x,z:renderer.focus.z))}
             guard id==sessionID else{return};try world.replace(visible);renderer.rebuild(world);renderer.mark(points,world:world)
-            notify(state.notice.isEmpty ? success:state.notice)
+            notify(state.notice.isEmpty ? success:state.notice,persistent:true)
         }catch{if id==sessionID && !paused {notify(error.localizedDescription)}};if id==sessionID {busy=false;refreshHUD();runQueuedAction()}}
     }
     private func runQueuedAction(){if let item=queuedAction {queuedAction=nil;action(item.0,success:item.1)}}
@@ -205,7 +205,7 @@ final class GameController:UIViewController,UITextFieldDelegate {
     private func refreshHUD(){guard let world=world,!inMenu else{return}
         if inMenu {return}
         let mode=gateway==nil ? "Offline sandbox":"Online \(world.snapshot.game)"
-        if paused || CACurrentMediaTime()-messageTime<7 {status.text=message}
+        if paused || messagePinned || CACurrentMediaTime()-messageTime<7 {status.text=message}
         else {status.text="\(mode) · HP \(world.snapshot.health) · \(renderer.planning ? "Two fingers pan; pinch zoom":"Drag world to look")"}
         positionLabel.isHidden=view.bounds.width>view.bounds.height
         status.numberOfLines=view.bounds.width>view.bounds.height ? 1:2
@@ -217,7 +217,7 @@ final class GameController:UIViewController,UITextFieldDelegate {
         if let rows=bottom?.arrangedSubviews,rows.count>=4 {rows[1].isHidden = !renderer.planning;rows[2].isHidden=renderer.planning;rows[3].isHidden=renderer.planning}
         crosshair.isHidden=renderer.planning;planButton?.setTitle(renderer.planning ? "Walk":"Plan",for:.normal)
     }
-    private func notify(_ text:String){message=text;messageTime=CACurrentMediaTime();if !inMenu {status.text=text}}
+    private func notify(_ text:String,persistent:Bool=false){message=text;messagePinned=persistent;messageTime=CACurrentMediaTime();if !inMenu {status.text=text}}
     func suspend(){active=false;movement.removeAll();saveOffline()}
     func becameActive(){active=true;lastTime=0}
     func saveOffline(){guard gateway==nil,let world=world else{return};do {try OfflineSave.write(world)}catch{notify("Save failed. Keep this session open and try again.")}}
