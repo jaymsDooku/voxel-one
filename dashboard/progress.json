@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-08T18:45:48+00:00",
+  "updatedAt": "2026-10-08T19:02:00+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -51,8 +51,8 @@
         }
       ],
       "status": "in_progress",
-      "note": "Refreshed source passed 47 Maven tests and live city/sandbox HUD checks. Eight fresh screenshots inspected. Prior work preserved. Controller publication, exact-head CI and independent review remain required.",
-      "updatedAt": "2026-10-08T18:45:48+00:00"
+      "note": "Exact published-head CI passed all four desktop builds; both Mac jobs passed 559 tests. Product source matches executed city/sandbox playtests. Eight published images verified. Ready for controller PR refresh and independent review.",
+      "updatedAt": "2026-10-08T19:02:00+00:00"
     },
     {
       "id": "61653837396463352d666237642d343239332d393666322d616363613032353030623264",

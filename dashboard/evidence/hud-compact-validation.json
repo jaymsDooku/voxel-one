@@ -1,6 +1,6 @@
 {
   "date": "2026-10-08T18:45:48.102847+00:00",
-  "status": "Local final-source validation passed; controller publication and exact published-head CI pending",
+  "status": "Local workflow validation passed; published-head 9d0da97e CI passed",
   "testedHead": "60c32ead4c6dd401202f846113b038d9c4d997cf",
   "reviewBase": "642bc422c621fd1a6e1704ade1148cc85fad398d",
   "gameSourceSHA256": {
@@ -213,7 +213,7 @@
     "masterMobileAndNetworkingPreserved": true,
     "integratedMaster": "9302e76c441839a2aba9d1ad344858feb14822c6"
   },
-  "limits": "No performance or full-suite claim. Local Maven and native city/sandbox checks executed on refreshed product source. Eight fresh screenshots inspected. Native application checks apply; browser playtesting does not apply to this Java/LWJGL HUD. Controller owns publication; exact published-head CI and independent review remain required.",
+  "limits": "No performance claim. Live workflows ran on identical product source. All eight exact-head published images match checkout. Four desktop builds passed at 9d0da97e; both Mac jobs passed 559 tests. Updated reports await controller publication. Independent review and passing CI at any new submitted head remain required.",
   "ciRefresh": {
     "historicalHead": "30df4b8d904199091ad6fee9ceff763d98b32f88",
     "historicalRun": "https://github.com/jaymsDooku/voxel-one/actions/runs/37812339995/attempts/2",
@@ -221,7 +221,11 @@
     "coversCurrentHead": false,
     "currentHead": "60c32ead4c6dd401202f846113b038d9c4d997cf",
     "currentHeadCI": "Pending controller publication; no CI pass claimed for refreshed head",
-    "report": "hud-ci-refresh.json"
+    "report": "hud-ci-refresh.json",
+    "exactPublishedHead": "9d0da97e642465a552ffbf83342106a9d895ae77",
+    "exactPublishedHeadConclusion": "success",
+    "exactPublishedHeadRun": "https://github.com/jaymsDooku/voxel-one/actions/runs/37826874742",
+    "macIntelAndArmTests": 559
   },
   "recoveryStatus": "Controller completed rebase. No unmerged paths. Final-source local tests and fresh media passed.",
   "integratedMaster": "9302e76c441839a2aba9d1ad344858feb14822c6",
@@ -396,5 +400,6 @@
     "src/main/java/dev/jayms/ui/SavesMenu.java": "2996b42e3590055005ce88bd7cf6979f589222dbe0b0f836c7c3981186cfc79f",
     "src/main/java/dev/jayms/window/KeyAction.java": "a2d892382438b9b81b69ad7773f192beeac17a1d739ec1a3248c2cc000dcdaf8",
     "src/main/java/dev/jayms/window/Window.java": "9953ca693c8c74631ebcb8d45b81587fc944afad15cec865edbe31dbc8f1a27d"
-  }
+  },
+  "currentReviewBase": "9302e76c441839a2aba9d1ad344858feb14822c6"
 }
