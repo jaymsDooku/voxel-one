@@ -45,7 +45,7 @@ export class Game {
     dt=Math.max(0,Math.min(dt,.05));
     if(this.scene){
       this.sceneTime+=dt;
-      const duration={crash:2,blackout:1.2,waking:3}[this.scene];
+      const duration={crash:8,blackout:1.2,waking:3}[this.scene];
       if(this.sceneTime>=duration){
         this.sceneTime=0;
         if(this.scene==='crash')this.scene='blackout';

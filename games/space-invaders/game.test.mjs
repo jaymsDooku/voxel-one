@@ -31,6 +31,7 @@ test('level 2 crash, unconscious blackout and level 3 wake preserve progress and
  assert.equal(g.scene,'crash');assert.equal(g.wave,2);
  const x=g.player;g.update(.05,{axis:1,fire:true});assert.equal(g.player,x);assert.equal(g.shots.length,0);
  g.pause();const time=g.sceneTime;g.update(10);assert.equal(g.sceneTime,time);g.pause();
+ for(let i=0;i<140;i++)g.update(.05,{axis:1,fire:true});assert.equal(g.scene,'crash');assert.equal(g.player,x);assert.equal(g.shots.length,0);
  while(g.scene==='crash')g.update(.05);assert.equal(g.scene,'blackout');assert.equal(g.wave,2);
  while(g.scene==='blackout')g.update(.05);assert.equal(g.scene,'waking');assert.equal(g.wave,3);assert.equal(g.aliens.length,0);
  while(g.scene)g.update(.05);assert.equal(g.aliens.length,18);assert.equal(g.score,800);assert.equal(g.lives,2);

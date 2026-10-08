@@ -1,0 +1,74 @@
+{
+  "command": "PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/test_space_invaders_entry.cjs",
+  "environment": "Linux headless WebKit; fresh synthetic contexts; local HTTP source on 127.0.0.1:8779",
+  "playtest": "Playtest: start, set synthetic final level 2 fighter, fire through real keyboard/frame loop; watch first-person approach, atmosphere, clouds, voxel descent, impact, pause/resume, unconscious blackout, wake under two moons, fly/fire on level 3, blur while waking, restart.",
+  "expected": "8-second first-person descent at end of level 2; planet approach, atmosphere, cloud passage and voxel impact in order; unconscious interval; level 3 opens on voxel landscape with two moons; no combat during story; pause freezes story; score/lives survive; restart restores level 1.",
+  "results": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "result": "PASS: real last-fighter kill, first-person approach, atmosphere, clouds, voxel descent, impact, pause/resume, blackout, awakening, score/lives, level 3 flight/fire, blur pause and restart; no browser errors"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "result": "PASS: real last-fighter kill, first-person approach, atmosphere, clouds, voxel descent, impact, pause/resume, blackout, awakening, score/lives, level 3 flight/fire, blur pause and restart; no browser errors"
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "result": "PASS: real last-fighter kill, first-person approach, atmosphere, clouds, voxel descent, impact, pause/resume, blackout, awakening, score/lives, level 3 flight/fire, blur pause and restart; no browser errors"
+    }
+  ],
+  "validatedHead": "6dd31674cc91b35c478bf95547a5a81d30298452",
+  "reviewBase": "a851730b411275ef50b09b4a28f0c9e9393c99b4",
+  "sourceHashes": {
+    "games/space-invaders/app.mjs": "917b7be20960d94a239f564cbfcf9121ef7ac86799cfc3851397dc0517074008",
+    "games/space-invaders/game.mjs": "f4cf0664a1861719710aca2f9d769b0ab600b4769e1b401a6e2d109e4da6a1c8"
+  },
+  "checks": [
+    "JavaScript syntax: PASS",
+    "Rules tests: 13/13 PASS",
+    "Camera blend regression: three WebKit viewports PASS",
+    "Source HTTP bytes and built source match: PASS",
+    "git diff --check: PASS"
+  ],
+  "mediaHashes": {
+    "dashboard/evidence/entry-waking-844.png": "2aca55ac948b8b80e53d50eb02bd330e9d501b023f4d24cd09daf3808093f072",
+    "dashboard/evidence/entry-regression-start-844.png": "eba43acace747314a17857dc68b286375ca213a97f3d3dd013ce5de8dc7f47c4",
+    "dashboard/evidence/entry-atmosphere-1280.png": "4da103c03a07bcc23aea734074d1d88b39fbfcf04badc87f63b65765efbff62c",
+    "dashboard/evidence/entry-clouds-844.png": "2102fbd60a5b015afba84b1bba94ca2eb680b00d262f3e2a090d1311554dc3b1",
+    "dashboard/evidence/entry-clouds-390.png": "b2867292cdbbbf97e0a7eace0bf2b15141d4aec110ca754b6d17ed4e6fcbf3e0",
+    "dashboard/evidence/entry-waking-1280.png": "d63fbd887682cadc4d529e0ee23af89bf9d7a4bcfbd9ab9015c3065b8a6dbbf0",
+    "dashboard/evidence/entry-crash-390.png": "ef0ede39fb8987c649a4fcefe03f18eab8f2f44e7351dfc4a007e81cebd72efa",
+    "dashboard/evidence/entry-atmosphere-844.png": "4e02f9eda47c7fb19804b43fa0e500258f173e48a6fa23227657cb5b4a548f48",
+    "dashboard/evidence/entry-clouds-1280.png": "07ba0a963d179ba91bfd563529c100969f52ed497021451a04cbdc294a402131",
+    "dashboard/evidence/entry-approach-390.png": "8bbccb8ca98db50694c2b165fc9231285fad39f40113bb66b7303668a3a12310",
+    "dashboard/evidence/entry-regression-end-844.png": "8fe19a910416747c9d1c53f2d2b95d2698c3e69a85372f976daf68a79d69c8d5",
+    "dashboard/evidence/entry-regression-mid-1280.png": "ea70e96de608b05f7edf97064a4517d82c4a404d21fc34ffa9ca4aae949b5cda",
+    "dashboard/evidence/entry-descent-844.png": "41d54a2a7eef34fb5527bd56f65231c16ce9a2064c0e73927cc5e727ed5ba6a6",
+    "dashboard/evidence/entry-playtest.webm": "1dd0238a5a9b2abf0de13ef1da53897786b576ef8246eb0a99edbb87bbf4bc4c",
+    "dashboard/evidence/entry-regression-end-1280.png": "fe42010f012bcf8bbed2fce16a215dd8cda3c3002d04388a258dddaa75fd0cac",
+    "dashboard/evidence/entry-regression-end-390.png": "46976ae2cd74d3fe822adfdd7f0db710d3b9bf85a5d3e35a3d82bac8152d8965",
+    "dashboard/evidence/entry-regression-mid-390.png": "8e7b3b8c48cd9e1099cd1393249ef0a043b1d17544b640885aebb71a2f3d5d0d",
+    "dashboard/evidence/entry-regression-mid-844.png": "92bf918fc540dd313196e6d5ef22f39ce8e51c926ddc6f03e48c191b21665b05",
+    "dashboard/evidence/entry-descent-1280.png": "6c6e7b2f27c3190f49d6a4ba8a0ed4ea4fda10a683b8f92538e13d744a00dd42",
+    "dashboard/evidence/entry-regression-start-1280.png": "428b02de6b1467aa49f8222e3d931e2a657c50f33abad2f2e25ec317ed84e647",
+    "dashboard/evidence/entry-approach-1280.png": "9b25afda1aa82f2f2a6e536cdb51c8b8b35244468d65c5738d18c5ad8433c3f7",
+    "dashboard/evidence/entry-waking-390.png": "b1257c681e6a178702c8859d51906de71111d87b6855cd57451f147c825b92fb",
+    "dashboard/evidence/entry-crash-1280.png": "cf0ad4fe18295508ed8a0cd163f4fe2dae334c68ccf1b69f00eafedb6759100b",
+    "dashboard/evidence/entry-atmosphere-390.png": "68d969765fca331dbbd045bfcbdc41be010c590adf102edd8e2cb37db274fe17",
+    "dashboard/evidence/entry-regression-playtest.webm": "648200468f3ce79a5ee3b4e91c1b0afcf8cdb23ba216282e18bd7d560cb08e67",
+    "dashboard/evidence/entry-crash-844.png": "10846e14a6454470b0a485624fc758327c52a234e644fe308673c48eb3462690",
+    "dashboard/evidence/entry-regression-start-390.png": "aac06b0509282d5616f9c150d877d71c866733ffc8a020106def7954bf8e0ec5",
+    "dashboard/evidence/entry-approach-844.png": "c2cc9fb9991752e49b4c5648a81daec988e57429f820d59b2f21c7541cc27b3f",
+    "dashboard/evidence/entry-descent-390.png": "23f957b34f50af4ba9730aec43dafb2e69f7910228c8812dfb74034f0674de8f"
+  },
+  "publication": "Pending controller publication"
+}

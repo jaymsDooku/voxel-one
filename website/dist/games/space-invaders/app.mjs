@@ -86,47 +86,7 @@ function planet(){
  // Wreckage anchors the wake-up view to the crash.
  ctx.save();ctx.translate(width*.18,height*.83);ctx.rotate(-.3);ctx.scale(Math.max(1,unit*2),Math.max(1,unit*2));model('ship',0,0,'#626c80');cube(10,7,5,'#de9866');ctx.restore();
 }
-function story(){
- const scene=game.scene;
- if(scene==='blackout'){ctx.fillStyle='#000';ctx.fillRect(0,0,width,height);}
- else {
-  planet();
-  if(scene==='crash'){
-   const progress=game.sceneTime/2;
-   ctx.save();ctx.translate(width*(.5-.32*progress),height*(.18+.65*progress));ctx.rotate(progress*1.4);ctx.scale(3*unit+1,3*unit+1);model('ship',0,0,'#8dcaff');cube(0,18,6,'#ff9857');ctx.restore();
-   ctx.fillStyle=`rgba(0,0,0,${Math.max(0,(progress-.65)/.35)})`;ctx.fillRect(0,0,width,height);
-  }else {
-   // Eyelids open slowly after the impact; terrain and both moons emerge.
-   const lid=height*.5*Math.max(0,1-game.sceneTime/2.2);ctx.fillStyle='#000';ctx.fillRect(0,0,width,lid);ctx.fillRect(0,height-lid,width,lid);
-  }
- }
- ctx.fillStyle='#fff';ctx.textAlign='center';ctx.font=`${height<500?14:20}px system-ui`;
- const line=scene==='crash'?'Hull damaged. Falling toward an alien planet…':scene==='blackout'?'Impact. You lose consciousness.':'Level 3 · You wake beneath two moons.';
- ctx.fillText(line,width/2,height*.72,Math.max(1,width-24));ctx.textAlign='start';
- canvas.dataset.scene=scene;
-}
-function draw(t){
- if(!backdrop)return;
- canvas.dataset.scene=game.scene||(game.wave===3?'planet':'space');
- canvas.dataset.perspective=game.perspective;
- if(game.scene){story();return;}
- if(game.wave===3)planet();else ctx.drawImage(backdrop,0,0,width,height);
- // A receding voxel deck beneath the ship, integrated into the space scene.
- ctx.strokeStyle='#53cbd324';ctx.lineWidth=1;
- const horizon=top+playHeight*.84;
- ctx.save();ctx.globalAlpha=1-game.cameraMix;
- for(let i=-8;i<=8;i++){ctx.beginPath();ctx.moveTo(width/2+i*width/20,horizon);ctx.lineTo(width/2+i*width/6,height);ctx.stroke();}
- for(let i=1;i<7;i++){const y=horizon+(height-horizon)*(i/6)**2;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(width,y);ctx.stroke();}
- ctx.restore();
- if(game.flight){for(const a of game.aliens){worldCube(a.x,a.y-18,3,'#ff9857');}if(game.perspective==='classic')worldCube(game.player,game.playerY+15,4,'#68dfff');}
- for(const a of game.aliens)worldModel(a.type,a.x,a.y,a.type==='squid'?'#cf88ff':a.type==='crab'?'#70f3da':'#ffcb72');
- if(game.saucer)worldModel('octopus',game.saucer.x,game.saucer.y,'#ff6a93');
- for(const b of game.shields)worldCube(b.x,b.y,5,'#459daa');
- if(game.cameraMix<1&&(game.transition||game.invulnerable<=0||Math.floor(t/100)%2)){ctx.save();ctx.globalAlpha=1-game.cameraMix;worldModel('ship',game.player,game.playerY,'#8dcaff');ctx.restore();}
- for(const s of game.shots)worldCube(s.x,s.y,3,'#fff5af',-2);
- for(const s of game.enemyShots)worldCube(s.x,s.y,4,'#ff6386',-2);
- if(game.cameraMix>0){
-  ctx.save();ctx.globalAlpha=game.cameraMix;
+function cockpit(){
   // Solid canopy ribs and a sloped console put the camera inside the hull.
   // Keep the center windshield clear, including the nearest shield row.
   const bottom=top+playHeight*.94, rim=Math.max(10,Math.min(width,height)*.025);
@@ -152,8 +112,100 @@ function draw(t){
   ctx.textAlign='start';
   ctx.strokeStyle=game.invulnerable>0?'#ffb66d':'#70f3da';ctx.lineWidth=1.5;
   const [cx,cy]=project(game.player,200);ctx.beginPath();ctx.moveTo(cx-12,cy);ctx.lineTo(cx-4,cy);ctx.moveTo(cx+4,cy);ctx.lineTo(cx+12,cy);ctx.moveTo(cx,cy-12);ctx.lineTo(cx,cy-4);ctx.moveTo(cx,cy+4);ctx.lineTo(cx,cy+12);ctx.stroke();
-  ctx.restore();
+}
+// The camera stays inside the damaged hull as air, clouds and ground rush past.
+function entry(){
+ const t=game.sceneTime;
+ canvas.dataset.entryPhase=t<1.6?'approach':t<3?'atmosphere':t<5?'clouds':t<7.4?'descent':'impact';
+ ctx.save();
+ const shake=t>7.4?8:t>1.6?2:0;
+ ctx.translate(Math.sin(t*47)*shake,Math.cos(t*39)*shake);
+ ctx.drawImage(backdrop,0,0,width,height);
+ const air=Math.max(0,Math.min(1,(t-1)/2));
+ const sky=ctx.createLinearGradient(0,0,0,height);
+ sky.addColorStop(0,`rgba(65,106,167,${air})`);
+ sky.addColorStop(1,`rgba(198,163,167,${air})`);
+ ctx.fillStyle=sky;ctx.fillRect(0,0,width,height);
+ if(t<3){
+  const radius=Math.min(width,height)*(.32+t*t*.35);
+  ctx.fillStyle='#538a9e';ctx.shadowColor='#a0eaff';ctx.shadowBlur=25*air+8;
+  ctx.beginPath();ctx.arc(width/2,height*.83+radius*.45,radius,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+  ctx.strokeStyle='#b7edff';ctx.lineWidth=4+air*10;ctx.stroke();
  }
+ if(t>3){
+  const approach=Math.max(0,(t-5)/2.4),horizon=height*(.53-.17*approach);
+  ctx.fillStyle='#456c61';ctx.fillRect(0,horizon,width,height);
+  for(let row=0;row<18;row++){
+   const depth=(row/18+t*.32)%1;
+   const size=Math.min(width,height)*(.018+depth*depth*(.09+approach*.16));
+   const y=horizon+(height-horizon)*depth*depth;
+   for(let col=-12;col<=12;col++){
+    const rise=(1+Math.sin(col*2+row)*.4)*size;
+    cube(width/2+col*size*1.3,y-rise,size,(col+row)%3===0?'#ba9872':'#72a18b');
+   }
+  }
+ }
+ if(t>2.4&&t<5.8){
+  const opacity=Math.min(1,(t-2.4)/.5,(5.8-t)/.6);
+  for(let i=0;i<24;i++){
+   const depth=(i/24+(t-2.4)*.4)%1,spread=.1+depth*depth*1.8;
+   const x=width/2+Math.sin(i*7.13)*width*spread;
+   const y=height*.42+Math.cos(i*4.7)*height*spread;
+   const radius=Math.min(width,height)*(.045+depth*.25);
+   const cloud=ctx.createRadialGradient(x,y,0,x,y,radius);
+   cloud.addColorStop(0,`rgba(245,249,255,${opacity*.85})`);
+   cloud.addColorStop(1,'rgba(225,238,255,0)');
+   ctx.fillStyle=cloud;ctx.fillRect(x-radius,y-radius,radius*2,radius*2);
+  }
+ }
+ if(t>1.6&&t<3.5){
+  ctx.strokeStyle=`rgba(255,146,72,${Math.sin((t-1.6)/1.9*Math.PI)*.8})`;ctx.lineWidth=5;
+  for(let i=0;i<16;i++){const x=i/15*width;ctx.beginPath();ctx.moveTo(x,height*.85);ctx.lineTo(width/2+(x-width/2)*1.5,height*.3);ctx.stroke();}
+ }
+ cockpit();ctx.restore();
+ if(t>7.4){
+  ctx.fillStyle=`rgba(255,222,175,${Math.max(0,1-(t-7.4)/.18)})`;ctx.fillRect(0,0,width,height);
+  ctx.fillStyle=`rgba(0,0,0,${Math.max(0,Math.min(1,(t-7.55)/.35))})`;ctx.fillRect(0,0,width,height);
+ }
+}
+function story(){
+ const scene=game.scene;
+ if(scene==='blackout'){ctx.fillStyle='#000';ctx.fillRect(0,0,width,height);}
+ else {
+  if(scene==='crash'){
+   entry();
+  }else {
+   planet();
+   // Eyelids open slowly after the impact; terrain and both moons emerge.
+   const lid=height*.5*Math.max(0,1-game.sceneTime/2.2);ctx.fillStyle='#000';ctx.fillRect(0,0,width,lid);ctx.fillRect(0,height-lid,width,lid);
+  }
+ }
+ ctx.fillStyle='#fff';ctx.textAlign='center';ctx.font=`${height<500?14:20}px system-ui`;
+ const line=scene==='crash'?({approach:'Planet ahead · Hull damaged',atmosphere:'Entering atmosphere',clouds:'Cloud cover · Visibility low',descent:'Voxel surface · Brace for impact',impact:'Impact'}[canvas.dataset.entryPhase]):scene==='blackout'?'Impact. You lose consciousness.':'Level 3 · You wake beneath two moons.';
+ ctx.fillText(line,width/2,height*.72,Math.max(1,width-24));ctx.textAlign='start';
+ canvas.dataset.scene=scene;
+}
+function draw(t){
+ if(!backdrop)return;
+ canvas.dataset.scene=game.scene||(game.wave===3?'planet':'space');
+ canvas.dataset.perspective=game.perspective;
+ if(game.scene){story();return;}
+ if(game.wave===3)planet();else ctx.drawImage(backdrop,0,0,width,height);
+ // A receding voxel deck beneath the ship, integrated into the space scene.
+ ctx.strokeStyle='#53cbd324';ctx.lineWidth=1;
+ const horizon=top+playHeight*.84;
+ ctx.save();ctx.globalAlpha=1-game.cameraMix;
+ for(let i=-8;i<=8;i++){ctx.beginPath();ctx.moveTo(width/2+i*width/20,horizon);ctx.lineTo(width/2+i*width/6,height);ctx.stroke();}
+ for(let i=1;i<7;i++){const y=horizon+(height-horizon)*(i/6)**2;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(width,y);ctx.stroke();}
+ ctx.restore();
+ if(game.flight){for(const a of game.aliens){worldCube(a.x,a.y-18,3,'#ff9857');}if(game.perspective==='classic')worldCube(game.player,game.playerY+15,4,'#68dfff');}
+ for(const a of game.aliens)worldModel(a.type,a.x,a.y,a.type==='squid'?'#cf88ff':a.type==='crab'?'#70f3da':'#ffcb72');
+ if(game.saucer)worldModel('octopus',game.saucer.x,game.saucer.y,'#ff6a93');
+ for(const b of game.shields)worldCube(b.x,b.y,5,'#459daa');
+ if(game.cameraMix<1&&(game.transition||game.invulnerable<=0||Math.floor(t/100)%2)){ctx.save();ctx.globalAlpha=1-game.cameraMix;worldModel('ship',game.player,game.playerY,'#8dcaff');ctx.restore();}
+ for(const s of game.shots)worldCube(s.x,s.y,3,'#fff5af',-2);
+ for(const s of game.enemyShots)worldCube(s.x,s.y,4,'#ff6386',-2);
+ if(game.cameraMix>0){ctx.save();ctx.globalAlpha=game.cameraMix;cockpit();ctx.restore();}
  if(game.transition){ctx.fillStyle='#d9f6ff';ctx.font='bold 16px system-ui';ctx.textAlign='center';ctx.fillText('LEVEL 2 · ENTERING COCKPIT',width/2,top+24);ctx.textAlign='start';}
  canvas.dataset.perspective=game.perspective;
  canvas.dataset.transition=game.transition?'entering-cockpit':'none';
