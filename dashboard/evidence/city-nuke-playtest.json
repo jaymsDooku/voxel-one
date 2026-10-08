@@ -1,0 +1,6 @@
+{
+"Playtest":"Production Main offline City Builder; Linux X11 inherited DISPLAY/XAUTHORITY, Mesa software GL, isolated synthetic profile. Browser playtesting does not apply to native LWJGL.",
+"steps":["Delete without cheats rejected","F4 enables cheats; Insert budget cheat still works","F10 starts recorder; Delete drops falling missile at city view centre","Second Delete rejected while missile falls","Impact removes hit building and terrain; keeps far building","Capture explosion, 96 smoke particles and moving debris; F10 stops recorder","Save/reload preserves demolition and AIR edits","F4 disables cheats; Delete rejected"],
+"expected":"One impact, 1..192 physical shards, 96 rising smoke puffs, cleanup after 8 seconds, persistent destruction, unaffected distant building and budget cheat",
+"observed":"All assertions passed; shards=0, removed=148"
+}

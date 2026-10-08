@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-08T14:00:32+00:00",
+  "updatedAt": "2026-10-08T14:22:03+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,31 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "66643263323964302d653432372d346437302d383165662d663935363539393032323064",
+      "title": "Nuke smoke and flying voxels",
+      "description": "Adding rising smoke and larger physical voxel debris; native playtest pending.",
+      "evidence": [
+        {
+          "kind": "image",
+          "label": "Native smoke and flying voxels (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-66643263323964302d653432372d346437302d383165662d663935363539393032323064/dashboard/evidence/city-nuke-debris.png"
+        },
+        {
+          "kind": "video",
+          "label": "Native F10 blast clip (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-66643263323964302d653432372d346437302d383165662d663935363539393032323064/dashboard/evidence/city-nuke.mp4"
+        },
+        {
+          "kind": "report",
+          "label": "Commands and validation (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-66643263323964302d653432372d346437302d383165662d663935363539393032323064/dashboard/evidence/city-nuke-validation.md"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Implementation verified: 37 focused tests and native smoke/debris playtest passed; fresh F10 media saved for controller publication and independent review.",
+      "updatedAt": "2026-10-08T14:22:03+00:00"
+    },
     {
       "id": "66633939323762632d353065392d343366652d386563362d303862613662346238633634",
       "title": "Alien planet crash and awakening",

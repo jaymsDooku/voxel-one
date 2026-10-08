@@ -1233,7 +1233,6 @@ public class Main {
             rendering.chunk(c, p);
         }
         modelRenderer.render(world, frustum, shader);
-        missiles.render(shader);
         if (jeep != null) jeepModel.render(jeep, shader);
         for (var parked : cheatParked) jeepModel.render(parked, shader);
         for (var plane : cheatPlanes) planeModel.render(plane, shader);
@@ -1340,6 +1339,7 @@ public class Main {
                     else playerModel.render(p, shader, modelRenderer);
                 }
             }
+        missiles.render(shader, (isometric ? overview.camera() : camera).position());
         if (jeep != null) jeepModel.glass(jeep, shader);
         for (var parked : cheatParked) jeepModel.glass(parked, shader);
         rendering.water(world,modelRenderer,projection,view,(isometric ? overview.camera() : camera).position());

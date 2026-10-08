@@ -33,14 +33,14 @@ if result.returncode:
     failure=root/'target/missile-runtime/failure.txt'
     if failure.exists(): print(failure.read_text())
     raise SystemExit(result.returncode)
-shutil.copyfile(result_file,root/'dashboard/evidence/city-missile-playtest.json')
+shutil.copyfile(result_file,root/'dashboard/evidence/city-nuke-playtest.json')
 for file in (root/'target/missile-runtime').glob('city-missile-*.png'):
-    shutil.copyfile(file,root/'dashboard/evidence'/file.name)
+    shutil.copyfile(file,root/'dashboard/evidence'/file.name.replace('city-missile-', 'city-nuke-'))
 clips=sorted((root/'target/missile-home/.voxel-one/recordings').glob('*.mp4'))
 if not clips: raise SystemExit('F10 video missing')
 clip=clips[-1]
 if clip.stat().st_size>6_000_000: raise SystemExit('F10 video exceeds 6 MB')
-shutil.copyfile(clip,root/'dashboard/evidence/city-missile.mp4')
+shutil.copyfile(clip,root/'dashboard/evidence/city-nuke.mp4')
 print('PASS: cheat gates, falling missile, repeated-drop edge, impact, debris, persistence and budget regression; fresh media saved')
 
-subprocess.run(['java','-cp',cp,'VerifyMissileMedia',str(root/'dashboard/evidence/city-missile.mp4'),str(root/'dashboard/evidence/city-missile-media-check.json')],check=True)
+subprocess.run(['java','-cp',cp,'VerifyMissileMedia',str(root/'dashboard/evidence/city-nuke.mp4'),str(root/'dashboard/evidence/city-nuke-media-check.json')],check=True)
