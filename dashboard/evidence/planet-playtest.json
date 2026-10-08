@@ -25,5 +25,10 @@
       },
       "result": "PASS: real last-fighter kill, crash, pause/resume, blackout, awakening, score/lives, level 3 flight/fire, blur pause and restart; no browser errors"
     }
-  ]
+  ],
+  "validatedHead": "608f248ce2a15406168f08fc5f53cee761d5b74b",
+  "sourceSha256": {
+    "games/space-invaders/game.mjs": "ba4c880c6ec6363f1de807baa0e996d0ea8f731f556c85b0b002693e83804ab9",
+    "games/space-invaders/app.mjs": "6419a4df14b6896ea196e5b80b51d097913ec37ce93e0a9605076441cb2c3cff"
+  }
 }

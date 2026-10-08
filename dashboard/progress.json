@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-08T13:53:42+00:00",
+  "updatedAt": "2026-10-08T14:00:32+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -20,8 +20,38 @@
       "description": "Implementing level 2 crash and level 3 awakening; validation pending.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Implementation and local validation complete: 12 unit tests and three-size WebKit playtests passed. Fresh crash/wake screenshots and MP4 await controller publication and independent review.",
-      "updatedAt": "2026-10-08T13:53:42+00:00"
+      "note": "Rebased source validated: 12 unit tests, three-size planet workflow and landscape fighter/cockpit regression passed. Fresh images and MP4 inspected; awaiting controller publication and independent review.",
+      "updatedAt": "2026-10-08T14:00:32+00:00"
+    },
+    {
+      "id": "38626531653763632d353339632d343035352d613466312d636466376638616233653664",
+      "title": "Level 2 spaceship cockpit interior",
+      "description": "Building a framed canopy and instrument console; browser validation pending.",
+      "evidence": [
+        {
+          "kind": "image",
+          "label": "Fresh integrated cockpit validation \u2014 pending controller publication: invaders-level-2-1280.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38626531653763632d353339632d343035352d613466312d636466376638616233653664/dashboard/evidence/invaders-level-2-1280.png"
+        },
+        {
+          "kind": "image",
+          "label": "Fresh integrated cockpit validation \u2014 pending controller publication: invaders-level-2-390.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38626531653763632d353339632d343035352d613466312d636466376638616233653664/dashboard/evidence/invaders-level-2-390.png"
+        },
+        {
+          "kind": "image",
+          "label": "Fresh integrated cockpit validation \u2014 pending controller publication: invaders-level-2-844.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38626531653763632d353339632d343035352d613466312d636466376638616233653664/dashboard/evidence/invaders-level-2-844.png"
+        },
+        {
+          "kind": "report",
+          "label": "Fresh integrated cockpit validation \u2014 pending controller publication: invaders-levels-playtest.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38626531653763632d353339632d343035352d613466312d636466376638616233653664/dashboard/evidence/invaders-levels-playtest.json"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Integrated cockpit/fighter source validated: 11 rules tests, three viewport workflow playtests, altitude and resize edge checks passed. Fresh PNGs inspected; landscape instruments clear touch controls. Upstream features/history retained. Awaiting publication and independent review.",
+      "updatedAt": "2026-10-08T13:34:06+00:00"
     },
     {
       "id": "61303435393238342d626561392d343965372d396138362d663030626530653839396437",
@@ -3445,36 +3475,6 @@
       "status": "in_progress",
       "note": "Integrated source validated against bdec9af3: full package passed 543 tests. Physics lab/walker, production (41 frames), GL3.3 and compute fixtures passed. Fresh media decoded and inspected. Diff audit found no unrelated changes or deletions. Ready for independent review; controller publication pending.",
       "updatedAt": "2026-10-07T22:33:43.250351+00:00"
-    },
-    {
-      "id": "38626531653763632d353339632d343035352d613466312d636466376638616233653664",
-      "title": "Level 2 spaceship cockpit interior",
-      "description": "Building a framed canopy and instrument console; browser validation pending.",
-      "evidence": [
-        {
-          "kind": "image",
-          "label": "Fresh integrated cockpit validation \u2014 pending controller publication: invaders-level-2-1280.png",
-          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38626531653763632d353339632d343035352d613466312d636466376638616233653664/dashboard/evidence/invaders-level-2-1280.png"
-        },
-        {
-          "kind": "image",
-          "label": "Fresh integrated cockpit validation \u2014 pending controller publication: invaders-level-2-390.png",
-          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38626531653763632d353339632d343035352d613466312d636466376638616233653664/dashboard/evidence/invaders-level-2-390.png"
-        },
-        {
-          "kind": "image",
-          "label": "Fresh integrated cockpit validation \u2014 pending controller publication: invaders-level-2-844.png",
-          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38626531653763632d353339632d343035352d613466312d636466376638616233653664/dashboard/evidence/invaders-level-2-844.png"
-        },
-        {
-          "kind": "report",
-          "label": "Fresh integrated cockpit validation \u2014 pending controller publication: invaders-levels-playtest.json",
-          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38626531653763632d353339632d343035352d613466312d636466376638616233653664/dashboard/evidence/invaders-levels-playtest.json"
-        }
-      ],
-      "status": "in_progress",
-      "note": "Integrated cockpit/fighter source validated: 11 rules tests, three viewport workflow playtests, altitude and resize edge checks passed. Fresh PNGs inspected; landscape instruments clear touch controls. Upstream features/history retained. Awaiting publication and independent review.",
-      "updatedAt": "2026-10-08T13:34:06+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
