@@ -46,7 +46,13 @@ def diagnostic_line(line, repo):
     if not line or _PRIVATE.search(line):
         return None
     line = _URL.sub('[url]', line)
-    line = line.replace(str(repo.resolve()) + '/', '').replace('\\', '/')
+    line = line.replace('\\', '/')
+    # macOS exposes /var through /private/var; compiler output may use either
+    # the supplied checkout spelling or its canonical path. Only strip exact
+    # checkout prefixes at path boundaries, never a sibling/outside pathname.
+    aliases = {str(repo.absolute()).replace('\\', '/'), str(repo.resolve()).replace('\\', '/')}
+    for alias in sorted(aliases, key=len, reverse=True):
+        line = re.sub(r'(?<![\w./-])' + re.escape(alias.rstrip('/') + '/'), '', line)
     line = _ABSOLUTE.sub(lambda m: '[external]/' + m.group(0).rstrip('/').split('/')[-1], line)
     # Maven prefixes are metadata, not license to export arbitrary log messages.
     text = re.sub(r'^\[ERROR\]\s*', '', line)

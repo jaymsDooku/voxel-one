@@ -79,6 +79,17 @@ class DiagnosticSecurityTests(unittest.TestCase):
             self.assertNotIn(marker, json.dumps(body))
         self.assertIn('public compiler declaration missing', text)
 
+    def test_checkout_symlink_alias_and_canonical_prefixes_preserve_relative_paths(self):
+        alias = Path(self.temp.name) / 'checkout-alias'
+        alias.symlink_to(self.repo, target_is_directory=True)
+        for root in (alias, self.repo.resolve()):
+            line = diagnostics.diagnostic_line(f'{root}/ios/native/Client.swift:12:3: error: unknown type', alias)
+            self.assertEqual(line['text'], 'ios/native/Client.swift:12:3: error: unknown type')
+        for outside in (str(alias) + '-sibling/Owner.swift', '/outside' + str(alias) + '/Owner.swift'):
+            line = diagnostics.diagnostic_line(f'{outside}:4:2: error: unknown type', alias)
+            self.assertEqual(line['text'], '[external]/Owner.swift:4:2: error: unknown type')
+            self.assertNotIn(str(alias), line['text'])
+
     def test_url_credentials_queries_and_external_paths_are_removed(self):
         (self.logs / 'java-build.log').write_text(
             '[ERROR] Could not resolve artifact fixture:library:1 from https://user:opaqueValue@host.test/repo?access=opaqueQuery\n'
