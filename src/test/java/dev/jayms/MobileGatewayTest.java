@@ -60,6 +60,18 @@ class MobileGatewayTest {
             assertEquals(401,post(host,"state",bearer,Map.of()).statusCode());
         }
     }
+    @Test void slowSnapshotDoesNotBlockTransportHeartbeat()throws Exception{
+        try(var host=new MobileFixtureHost(temp.resolve("slow-profile"))){
+            var login=post(host,"login",null,Map.of("game","city","username","ios_fixture","password","fixture-password-123"));
+            assertEquals(200,login.statusCode());String bearer=token(login);
+            // Reproduce a slow snapshot's exclusive world-state lock without machine-speed assumptions.
+            var field=MobileGateway.class.getDeclaredField("sessions");field.setAccessible(true);
+            Object session=((Map<?,?>)field.get(host.gateway)).values().iterator().next();
+            synchronized(session){Thread.sleep(17_000);}
+            assertEquals(200,post(host,"state",bearer,Map.of()).statusCode(),"Slow world snapshot must not disconnect game transport");
+            assertEquals(200,post(host,"logout",bearer,Map.of()).statusCode());
+        }
+    }
     @Test void cityCommandsAndEconomyAreServerOwned()throws Exception{
         try(var host=new MobileFixtureHost(temp.resolve("city-profile"))){
             var login=post(host,"login",null,Map.of("game","city","username","ios_fixture","password","fixture-password-123"));assertEquals(200,login.statusCode());String bearer=token(login);

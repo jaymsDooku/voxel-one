@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "expectedHead": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "sourceHead": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "requestId": "e3dc3d1a-7337-4c72-a372-89276285cd00",
+  "mode": "preflight",
+  "status": "failed",
+  "environmentReady": false,
+  "clientChecked": false,
+  "evidence": [],
+  "phase": "bootstatus",
+  "environment": {
+    "macOS": "MOCK version; not actual Mac evidence",
+    "xcode": "MOCK version; not actual Mac evidence",
+    "simulatorSDK": "18.5"
+  },
+  "inventoryAttempts": 1,
+  "runtime": {
+    "identifier": "com.apple.CoreSimulator.SimRuntime.iOS-18-5",
+    "name": "iOS 18.5",
+    "version": "18.5"
+  },
+  "deviceType": {
+    "identifier": "com.apple.CoreSimulator.SimDeviceType.iPhone-16-Pro",
+    "name": "iPhone 16 Pro"
+  },
+  "udid": "C6832151-D858-43BF-B90D-05F63089554B",
+  "errorCode": "command_failed",
+  "errorStage": "bootstatus",
+  "cleanup": "passed"
+}

@@ -1,0 +1,28 @@
+{
+  "sourceHead": "00d21a53f37e014e06cd681bf3c8e3cc75779432",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/37772440244",
+  "observed": "Actual native online road failed with Game server transport closed. No native acceptance pass.",
+  "fix": "Run transport heartbeat independently of world snapshot/event maintenance. Current pose uses a short separate lock for heartbeat, HTTP moves and respawn updates; snapshot lock cannot block heartbeat. HTTP idle expiry and game-server15second timeout unchanged.",
+  "tests": [
+    {
+      "command": "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Djunit.jupiter.tempdir.basedir=\"$PWD/target/mobile-test-tmp\" -Dtest=MobileGatewayTest test",
+      "environment": "Linux; actual isolated synthetic Java TLS game servers",
+      "expected": "Holding snapshot/session world lock for17secs must not disconnect transport; state and logout succeed. Prior idle, road, sandbox-edit and forced-closure regressions pass.",
+      "observed": "6 tests passed; 0 errors, 0 failures, 0 skipped."
+    },
+    {
+      "command": "python3 deploy/run_mobile_gateway_smoke.py --report dashboard/evidence/mobile-gateway-playtest.json",
+      "observed": "18 checks/observations passed."
+    },
+    {
+      "command": "python3 -m unittest discover -s tools/ios -p 'test_*.py' -q",
+      "observed": "53 mock tooling tests passed; not native proof."
+    },
+    {
+      "command": "git diff --check; bash -n ios/check-simulator.sh",
+      "observed": "Passed."
+    }
+  ],
+  "playtest": "Actual CLI workflow and17second stalled-snapshot integration exercised. Native online workflow failed; revised heartbeat needs exact-source Mac rerun. No physical device or native gameplay pass claimed. Browser does not execute native UIKit UI.",
+  "diffAudit": "No deleted paths against ce91421b21163775c5f2addb749fec69c521c8a3."
+}

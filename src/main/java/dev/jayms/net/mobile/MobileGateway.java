@@ -19,7 +19,7 @@ public final class MobileGateway implements AutoCloseable {
     }
     private final HttpServer server;
     private final ExecutorService executor=Executors.newFixedThreadPool(4);
-    private final ScheduledExecutorService cleanup=Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService cleanup=Executors.newScheduledThreadPool(2);
     private final Map<String,Session> sessions=new ConcurrentHashMap<>();
     private final Map<String,ArrayDeque<Long>> attempts=new LinkedHashMap<>();
     private final SecureRandom random=new SecureRandom();
@@ -31,6 +31,7 @@ public final class MobileGateway implements AutoCloseable {
         server=HttpServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(),port),32);
         server.createContext("/mobile/v1/",this::handle);server.setExecutor(executor);
         cleanup.scheduleAtFixedRate(this::maintain,1,1,TimeUnit.SECONDS);
+        cleanup.scheduleAtFixedRate(()->sessions.values().forEach(Session::heartbeat),1,1,TimeUnit.SECONDS);
     }
     public int port(){return server.getAddress().getPort();}
     public void start(){server.start();}
@@ -41,9 +42,8 @@ public final class MobileGateway implements AutoCloseable {
                 if(System.nanoTime()-session.lastUsed>idleNanos){
                     if(sessions.remove(e.getKey(),session))session.close();
                 }else if(session.client.connected()){
-                    // Modal UI and slow rendering must not trip the game socket's 15-second read timeout.
-                    // Keepalive does not count as phone activity or extend bearer expiry.
-                    session.poll();session.client.move(session.pose);
+                    // World-event maintenance may wait on a snapshot; heartbeat runs independently.
+                    session.poll();
                 }
             }
         }
@@ -122,10 +122,12 @@ public final class MobileGateway implements AutoCloseable {
         return "Game server transport closed";
     }
     private static final class Session implements AutoCloseable{
-        final MultiplayerClient client;final Terrain terrain;final WorldVoxels world;Protocol.Pose pose;
+        final MultiplayerClient client;final Terrain terrain;final WorldVoxels world;volatile Protocol.Pose pose;final Object poseLock=new Object();
         volatile long lastUsed=System.nanoTime();boolean respawned;long lastSequence=-1,lastCityReceipt;
         Session(MultiplayerClient client){this.client=client;terrain=new Terrain(client.seed,client.generatorVersion);world=new WorldVoxels(terrain);client.initialEdits.forEach(world::apply);pose=client.spawn;}
-        void poll(){client.poll().forEach(world::apply);if(client.respawn!=null){pose=client.respawn;client.respawn=null;respawned=true;}}
+        // Short transport lock never waits for world snapshots and does not extend HTTP idle expiry.
+        void heartbeat(){synchronized(poseLock){if(client.connected())client.move(pose);}}
+        void poll(){client.poll().forEach(world::apply);if(client.respawn!=null){synchronized(poseLock){pose=client.respawn;}client.respawn=null;respawned=true;}}
         void move(Map<String,Object> request){
             if(!request.containsKey("x"))return;
             if(request.containsKey("sequence")){
@@ -136,7 +138,7 @@ public final class MobileGateway implements AutoCloseable {
             float x=(float)Json.number(request,"x"),y=(float)Json.number(request,"y"),z=(float)Json.number(request,"z");
             float yaw=(float)Json.number(request,"yaw"),pitch=(float)Json.number(request,"pitch");
             if(Math.abs(x)>Terrain.LIMIT || Math.abs(z)>Terrain.LIMIT || y<Terrain.MIN_Y || y>Terrain.MAX_Y+64 || Math.abs(pitch)>1.6 || !Float.isFinite(yaw) || !Float.isFinite(pitch))throw new IllegalArgumentException("Invalid pose");
-            pose=new Protocol.Pose(client.id,x,y,z,(float)Math.toDegrees(yaw),(float)Math.toDegrees(pitch),0,0,false,0,0,false);client.move(pose);
+            synchronized(poseLock){pose=new Protocol.Pose(client.id,x,y,z,(float)Math.toDegrees(yaw),(float)Math.toDegrees(pitch),0,0,false,0,0,false);client.move(pose);}
         }
         Map<String,Object> state(Map<String,Object> request){
             poll();if(!respawned)move(request);var view=pose;

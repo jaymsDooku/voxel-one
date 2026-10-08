@@ -191,7 +191,7 @@
       "description": "Native phone client with touch sandbox controls and server-authoritative city planning.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Online confirmation still failed with two plan points. Fixed paused dialog callbacks and network-error lifetime; planning controls now reflect pause state, native test checks enabled Confirm before receipt/road count. Mock53 passed. Exact-source native validation pending.",
+      "note": "Native road error now identifies closed game transport. Separated heartbeat from snapshot lock; real17second stalled-snapshot regression passed. Java6, CLI18 and mock53 passed. Native online road/reconnect rerun required; no native acceptance passed.",
       "updatedAt": "2026-10-07T22:54:08+00:00"
     },
     {
