@@ -1,0 +1,70 @@
+TAP version 13
+# Subtest: models contain voxel cells and three distinct aliens
+ok 1 - models contain voxel cells and three distinct aliens
+  ---
+  duration_ms: 2.007815
+  ...
+# Subtest: movement clamps, fire cooldown, pause and restart
+ok 2 - movement clamps, fire cooldown, pause and restart
+  ---
+  duration_ms: 139.467905
+  ...
+# Subtest: alien kill scores once; last kill advances and resets
+ok 3 - alien kill scores once; last kill advances and resets
+  ---
+  duration_ms: 2.226305
+  ...
+# Subtest: both sides erode shields
+ok 4 - both sides erode shields
+  ---
+  duration_ms: 0.740837
+  ...
+# Subtest: life loss, immunity, game over and invasion
+ok 5 - life loss, immunity, game over and invasion
+  ---
+  duration_ms: 8.172118
+  ...
+# Subtest: fleet reverses and descends; bottom shooters; saucer bonus
+ok 6 - fleet reverses and descends; bottom shooters; saucer bonus
+  ---
+  duration_ms: 1.460307
+  ...
+# Subtest: large background delta bounded and offscreen projectiles recycled
+ok 7 - large background delta bounded and offscreen projectiles recycled
+  ---
+  duration_ms: 2.883484
+  ...
+# Subtest: slow frame projectile sweeps across alien and shield
+ok 8 - slow frame projectile sweeps across alien and shield
+  ---
+  duration_ms: 0.846812
+  ...
+# Subtest: levels alternate classic and cockpit; restart restores classic
+ok 9 - levels alternate classic and cockpit; restart restores classic
+  ---
+  duration_ms: 1.639684
+  ...
+# Subtest: fighter flight has momentum, diagonal speed limit, bounds and aimed attacks
+ok 10 - fighter flight has momentum, diagonal speed limit, bounds and aimed attacks
+  ---
+  duration_ms: 11.050117
+  ...
+# Subtest: fighter hits use current altitude and diagonal swept projectiles
+ok 11 - fighter hits use current altitude and diagonal swept projectiles
+  ---
+  duration_ms: 0.820644
+  ...
+# Subtest: level 2 crash, unconscious blackout and level 3 wake preserve progress and freeze combat
+ok 12 - level 2 crash, unconscious blackout and level 3 wake preserve progress and freeze combat
+  ---
+  duration_ms: 0.66073
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 351.768492

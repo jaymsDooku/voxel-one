@@ -1,0 +1,33 @@
+{
+  "command": "SPACE_INVADERS_URL=http://127.0.0.1:8779/games/space-invaders/index.html PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/test_space_invaders_fighters.cjs",
+  "environment": "Linux, headless Playwright WebKit, isolated synthetic contexts; HTTP source server on 127.0.0.1:8779",
+  "playtest": "Playtest: Start level 1, fire to clear final alien, play first-person level 2, fly up/right with momentum and fire, pause/resume, lose final life, restart, cancel touch input, advance to level 3, fly by touch, test flight boundaries.",
+  "expected": "Level 2+ has independent jet attack runs, two-axis keyboard/touch flight and aimed fire; views alternate, shots and movement stay aligned, pause freezes combat, restart restores classic, scores/lives carry forward.",
+  "results": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "observed": "PASS: level 1 regression, actual last-kill transition, level 2 independent jet paths and two-axis flight/fire, aimed enemy fire and altitude hit, cockpit camera, pause/resume, death/restart, level 3 fighter combat with score/lives, touch up/cancel and boundaries",
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "observed": "PASS: level 1 regression, actual last-kill transition, level 2 independent jet paths and two-axis flight/fire, aimed enemy fire and altitude hit, cockpit camera, pause/resume, death/restart, level 3 fighter combat with score/lives, touch up/cancel and boundaries",
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "observed": "PASS: level 1 regression, actual last-kill transition, level 2 independent jet paths and two-axis flight/fire, aimed enemy fire and altitude hit, cockpit camera, pause/resume, death/restart, level 3 fighter combat with score/lives, touch up/cancel and boundaries",
+      "errors": []
+    }
+  ],
+  "limitation": "No physical iOS device test; this task changes the existing browser game."
+}
