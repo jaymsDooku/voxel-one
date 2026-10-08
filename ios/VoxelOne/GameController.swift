@@ -149,6 +149,7 @@ final class GameController:UIViewController,UITextFieldDelegate {
         guard let gateway=gateway,let world=world else{return}
         if busy {queuedAction=(request,success);notify("Action queued.");return}
         busy=true;movement.removeAll();let id=sessionID
+        notify("Checking action with the game server…",persistent:true)
         Task {do {
             // Flush current player pose before the reach-checked action. Planning never moves the player.
             _ = try await gateway.state(world,focus:nil)
@@ -157,7 +158,7 @@ final class GameController:UIViewController,UITextFieldDelegate {
             if renderer.planning {visible=try await gateway.state(world,focus:SCNFocus(x:renderer.focus.x,z:renderer.focus.z))}
             guard id==sessionID else{return};try world.replace(visible);renderer.rebuild(world);renderer.mark(points,world:world)
             notify(state.notice.isEmpty ? success:state.notice,persistent:true)
-        }catch{if id==sessionID && !paused {notify(error.localizedDescription)}};if id==sessionID {busy=false;refreshHUD();runQueuedAction()}}
+        }catch{if id==sessionID && !paused {notify(error.localizedDescription,persistent:true)}};if id==sessionID {busy=false;refreshHUD();runQueuedAction()}}
     }
     private func runQueuedAction(){if let item=queuedAction {queuedAction=nil;action(item.0,success:item.1)}}
     @objc private func inventory(){

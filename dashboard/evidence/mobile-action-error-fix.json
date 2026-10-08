@@ -1,0 +1,13 @@
+{
+  "sourceHead": "da51a2a4f23172705db1610074b46ddc3a36ce19",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/37781358468",
+  "observed": "Native online test reached planning but Mayor paid wait failed. HUD had returned to default Online city message. No transport close code recorded and no native acceptance pass.",
+  "change": "Keep action progress and errors visible until another user action or session change. Put actual HUD first in bounded native test failure text so a30second wait cannot erase a7second error. No automatic command retries.",
+  "tests": [
+    "bash -n ios/check-simulator.sh passed.",
+    "git diff --check passed.",
+    "python3 deploy/run_mobile_gateway_smoke.py --report dashboard/evidence/mobile-gateway-playtest.json passed18checks/observations on Linux using actual isolated synthetic Java TLS servers."
+  ],
+  "playtest": "Playtest: Observed actual native online road workflow failure on the stated exact-source Mac run. Revised action error display requires native Mac rerun. Browser cannot exercise UIKit controls; no native media or physical device pass claimed.",
+  "diffAudit": "No deleted paths against cb79fa71fd7052f8ae0d311659bcb72882fb0318. Prior generated root upload staging cleanup preserved."
+}

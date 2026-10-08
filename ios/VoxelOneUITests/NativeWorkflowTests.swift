@@ -36,7 +36,9 @@ final class NativeWorkflowTests:XCTestCase {
     func textContains(_ id:String,_ value:String,timeout:TimeInterval=15){
         let predicate=NSPredicate(format:"label CONTAINS[c] %@",value)
         let expectation=XCTNSPredicateExpectation(predicate:predicate,object:app.staticTexts[id])
-        XCTAssertEqual(XCTWaiter.wait(for:[expectation],timeout:timeout),.completed,"HUD \(id) expected \(value); observed \(app.staticTexts[id].label.prefix(100))")
+        if XCTWaiter.wait(for:[expectation],timeout:timeout) != .completed {
+            XCTFail("HUD observed: \(app.staticTexts[id].label.prefix(80)); expected: \(value.prefix(25))")
+        }
     }
     func roadCount()->Int {
         let parts=app.staticTexts["cityStatus"].label.components(separatedBy:" · ")
