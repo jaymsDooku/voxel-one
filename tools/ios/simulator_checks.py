@@ -11,14 +11,18 @@ import re
 import struct
 import subprocess
 import time
+import tempfile
 import uuid
 import zlib
+from client_diagnostics import stage_artifacts
 
 
 class CheckError(Exception):
-    def __init__(self, code):
+    def __init__(self, code, *, exit_code=None, timed_out=False):
         super().__init__(code)
         self.code = code
+        self.exit_code = exit_code
+        self.timed_out = timed_out
 
 
 def command(args, *, cwd, timeout=60, env=None):
@@ -26,6 +30,10 @@ def command(args, *, cwd, timeout=60, env=None):
         result = subprocess.run(args, cwd=cwd, env=env, capture_output=True,
                                 text=True, timeout=timeout, check=True)
         return result.stdout.strip()
+    except subprocess.CalledProcessError as error:
+        raise CheckError('command_failed', exit_code=error.returncode) from None
+    except subprocess.TimeoutExpired:
+        raise CheckError('command_failed', timed_out=True) from None
     except (OSError, subprocess.SubprocessError):
         # Do not copy raw build output, environment or private runtime logs.
         raise CheckError('command_failed') from None
@@ -154,12 +162,13 @@ def client_receipt(repo, output, head, udid):
 
 
 def run_checks(repo, output, expected_head, mode, request_id, *, run_command=command,
-               system_name=None, wait=time.sleep):
+               system_name=None, wait=time.sleep, artifact_root=None):
     report = {'schemaVersion': 1, 'expectedHead': expected_head, 'sourceHead': None,
               'requestId': request_id, 'mode': mode, 'status': 'failed',
               'environmentReady': False, 'clientChecked': False, 'evidence': [], 'phase': 'request'}
     udid = None
     created_output = False
+    client_started = False
     def run(args, **kwargs):
         return run_command(args, cwd=repo, **kwargs)
     try:
@@ -228,8 +237,11 @@ def run_checks(repo, output, expected_head, mode, request_id, *, run_command=com
             if not script.is_file():
                 raise CheckError('native_client_script_missing')
             client_env = os.environ.copy()
+            for key in ('GITHUB_OUTPUT', 'GITHUB_ENV', 'GITHUB_PATH', 'GITHUB_STEP_SUMMARY'):
+                client_env.pop(key, None)
             client_env.update(IOS_SIMULATOR_UDID=udid, IOS_EVIDENCE_DIR=str(output), IOS_SOURCE_HEAD=expected_head,
                               IOS_RUNTIME_ID=runtime['identifier'])
+            client_started = True
             run(['bash', str(script), udid, str(output), expected_head], timeout=1200, env=client_env)
             report['phase'] = 'client_receipt'
             receipt, videos = client_receipt(repo, output, expected_head, udid)
@@ -262,6 +274,10 @@ def run_checks(repo, output, expected_head, mode, request_id, *, run_command=com
     except CheckError as error:
         report['errorCode'] = error.code
         report['errorStage'] = report['phase']
+        if isinstance(error.exit_code, int) and not isinstance(error.exit_code, bool):
+            report['exitCode'] = error.exit_code
+        if error.timed_out:
+            report['timedOut'] = True
         report['clientChecked'] = False
     except (ValueError, KeyError, TypeError, AttributeError, OSError):
         report['errorCode'] = 'invalid_simulator_metadata'
@@ -276,7 +292,15 @@ def run_checks(repo, output, expected_head, mode, request_id, *, run_command=com
                 except CheckError:
                     report['cleanup'] = 'failed'
         if created_output:
+            try:
+                stage = stage_artifacts(repo, output, report, Path(artifact_root or tempfile.gettempdir()),
+                                        collect=client_started and report['status'] == 'failed')
+            except (OSError, ValueError, KeyError):
+                stage = None
+                report['artifactStatus'] = 'unavailable'
             (output / 'report.json').write_text(json.dumps(report, indent=2) + '\n')
+            if stage:
+                report['_artifactDirectory'] = str(stage)
     return report
 
 
@@ -288,12 +312,17 @@ def main(argv=None):
     parser.add_argument('--repo', default=str(Path(__file__).resolve().parents[2]),
                         help='Requested source checkout; verifier can live in a separate trusted checkout')
     parser.add_argument('--evidence-dir', default='ios-evidence')
+    parser.add_argument('--artifact-root', default=tempfile.gettempdir(),
+                        help='Trusted parent for a fresh finalized artifact directory outside source')
     args = parser.parse_args(argv)
     repo = Path(args.repo).resolve()
     output = (repo / args.evidence_dir).resolve()
     if not output.is_relative_to(repo) or output == repo:
         raise SystemExit('Evidence directory must stay inside the source checkout')
-    report = run_checks(repo, output, args.expected_head, args.mode, args.request_id)
+    report = run_checks(repo, output, args.expected_head, args.mode, args.request_id, artifact_root=Path(args.artifact_root))
+    if os.environ.get('GITHUB_OUTPUT'):
+        with open(os.environ['GITHUB_OUTPUT'], 'a') as github_output:
+            github_output.write('artifactDir=' + report.get('_artifactDirectory', '') + '\n')
     print(json.dumps({'status': report['status'], 'mode': args.mode, 'sourceHead': report['sourceHead'],
                       'clientChecked': report['clientChecked'], 'errorCode': report.get('errorCode'),
                       'errorStage': report.get('errorStage')}))

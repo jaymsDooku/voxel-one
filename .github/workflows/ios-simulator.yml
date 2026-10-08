@@ -80,20 +80,17 @@ jobs:
           test "$(git -C validator rev-parse HEAD)" = "$GITHUB_SHA"
           python3 -m unittest discover -s validator/tools/ios -p 'test_*.py' -v
       - name: Boot fresh iPhone and collect evidence
+        id: checks
         env:
           EXPECTED_HEAD: ${{ steps.request.outputs.head }}
           IOS_CHECK_MODE: ${{ steps.request.outputs.mode }}
           IOS_REQUEST_ID: ${{ steps.request.outputs.requestId }}
         run: |
-          python3 validator/tools/ios/simulator_checks.py --repo "$GITHUB_WORKSPACE/source" --evidence-dir "$GITHUB_WORKSPACE/source/ios-evidence" --expected-head "$EXPECTED_HEAD" --mode "$IOS_CHECK_MODE" --request-id "$IOS_REQUEST_ID"
+          python3 validator/tools/ios/simulator_checks.py --repo "$GITHUB_WORKSPACE/source" --evidence-dir "$GITHUB_WORKSPACE/source/ios-evidence" --artifact-root "$RUNNER_TEMP" --expected-head "$EXPECTED_HEAD" --mode "$IOS_CHECK_MODE" --request-id "$IOS_REQUEST_ID"
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && steps.checks.outputs.artifactDir != ''
         with:
           name: ios-evidence
-          path: |
-            source/ios-evidence/report.json
-            source/ios-evidence/preflight.png
-            source/ios-evidence/client.png
-            source/ios-evidence/*.mp4
+          path: ${{ steps.checks.outputs.artifactDir }}/*
           if-no-files-found: warn
           retention-days: 7
