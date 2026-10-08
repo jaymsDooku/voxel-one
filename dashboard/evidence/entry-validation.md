@@ -1,0 +1,11 @@
+First-person planet entry validation
+
+Playtest: Linux headless WebKit, fresh synthetic contexts, exact local source served by `python3 -m http.server 8779 --bind 127.0.0.1`. `PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR="$PWD/.tmp/browser" node deploy/test_space_invaders_entry.cjs` passed at 1280×900, 390×844 and 844×390. Real Fire input killed a synthetic last level 2 fighter. Observed approach, atmosphere, clouds, descent and impact in order; cockpit remained visible. Pause during clouds froze sceneTime. Blackout, awakening, retained score/lives, level 3 flight/fire, blur pause and restart passed without page errors.
+
+`node --test games/space-invaders/game.test.mjs`: 12 passed. Includes combat freeze through the extended descent. `node --check games/space-invaders/app.mjs`, `python3 deploy/build_site.py`, and `git diff --check`: passed.
+
+Fresh screenshots visually inspected. Recording frame decoded and inspected using the installed Playwright ffmpeg. Recording: WebM, 34.88 s, 960×674, 25 fps, below 6 MB. MP4 conversion failed because this encoder has no MP4 muxer. PNG and WebM remain valid evidence. Media is pending controller publication. No physical iOS test claimed.
+
+Diff audited against starting HEAD. No unrelated deletions. External crash animation was intentionally removed; cockpit drawing was moved into a shared function. No controller review base supplied yet. Controller must integrate master and request fresh checks if source changes. No commit, push, merge or deployment performed.
+
+Rebase recovery: resolved dashboard timestamp and source/dist app conflicts. Preserved upstream level 1-to-2 camera projection, deck/ship/cockpit alpha blend, transition label and dataset. Preserved first-person planet descent. Syntax and all 13 rules tests passed; git diff --check passed. Audited all 29 changed paths against a851730b411275ef50b09b4a28f0c9e9393c99b4: no deleted files. Intended removals are the external crash ship and cockpit code relocated into a shared function. Unrelated existing conflict-marker text in generated client progress and two historical queue evidence files matches the review base and was left unchanged. Prior media and browser results are historical until final-head checks after controller continuation. No Git index or continuation command run.

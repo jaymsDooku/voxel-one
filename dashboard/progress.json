@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-08T15:02:53+00:00",
+  "updatedAt": "2026-10-08T15:20:12+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,15 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "36653463353062342d306135392d346433612d393762342d666262663538316532653965",
+      "title": "First-person planet entry",
+      "description": "Replacing external crash animation with cockpit atmosphere, clouds and voxel impact.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Rebase file conflicts resolved. Preserved level 1-to-2 camera blend and planet descent; 13 rules tests pass. Controller must continue Git before final-head playtest and fresh media.",
+      "updatedAt": "2026-10-08T15:20:12+00:00"
+    },
     {
       "id": "66643263323964302d653432372d346437302d383165662d663935363539393032323064",
       "title": "Nuke smoke and flying voxels",

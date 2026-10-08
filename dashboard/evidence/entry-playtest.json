@@ -1,0 +1,37 @@
+{
+  "command": "PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/test_space_invaders_entry.cjs",
+  "environment": "Linux headless WebKit; fresh synthetic contexts; local HTTP source on 127.0.0.1:8779",
+  "playtest": "Playtest: start, set synthetic final level 2 fighter, fire through real keyboard/frame loop; watch first-person approach, atmosphere, clouds, voxel descent, impact, pause/resume, unconscious blackout, wake under two moons, fly/fire on level 3, blur while waking, restart.",
+  "expected": "8-second first-person descent at end of level 2; planet approach, atmosphere, cloud passage and voxel impact in order; unconscious interval; level 3 opens on voxel landscape with two moons; no combat during story; pause freezes story; score/lives survive; restart restores level 1.",
+  "results": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "result": "PASS: real last-fighter kill, first-person approach, atmosphere, clouds, voxel descent, impact, pause/resume, blackout, awakening, score/lives, level 3 flight/fire, blur pause and restart; no browser errors"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "result": "PASS: real last-fighter kill, first-person approach, atmosphere, clouds, voxel descent, impact, pause/resume, blackout, awakening, score/lives, level 3 flight/fire, blur pause and restart; no browser errors"
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "result": "PASS: real last-fighter kill, first-person approach, atmosphere, clouds, voxel descent, impact, pause/resume, blackout, awakening, score/lives, level 3 flight/fire, blur pause and restart; no browser errors"
+    }
+  ],
+  "checks": [
+    "node --check games/space-invaders/app.mjs: PASS",
+    "node --test games/space-invaders/game.test.mjs: 12/12 PASS",
+    "python3 deploy/build_site.py: PASS",
+    "git diff --check: PASS"
+  ],
+  "audit": "Diff inspected against starting HEAD; no unrelated file deletions. Old external crash ship removed intentionally. Cockpit drawing moved into shared function unchanged. Review base not supplied; controller integration requires final-head validation if source changes.",
+  "media": "Fresh PNG and 34.88-second WebM (960x674, 25 fps, 3 MB). MP4 conversion unavailable in installed restricted encoder. Pending controller publication."
+}
