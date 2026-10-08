@@ -1,68 +1,24 @@
 * { box-sizing: border-box; }
-body { margin: 0; background: #070c1e; color: #e9f6ff; font: 16px system-ui, sans-serif; }
-main {
-  max-width: 580px;
-  margin: auto;
-  padding: 12px max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
-}
-header { display: flex; align-items: center; gap: 12px; }
+html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
+body { background: #030817; color: #e9f6ff; font: 16px system-ui, sans-serif; }
+main, .arena { position: fixed; inset: 0; }
+canvas { display: block; width: 100%; height: 100%; }
+header { position: absolute; z-index: 2; top: max(12px, env(safe-area-inset-top)); left: max(16px, env(safe-area-inset-left)); right: max(16px, env(safe-area-inset-right)); display: flex; align-items: center; gap: 12px; }
 a { color: #70f3da; }
-h1 { font-size: clamp(16px, 4vw, 24px); flex: 1; }
-button {
-  font: inherit; font-weight: 700; background: #152d48; color: #eefaff;
-  border: 1px solid #557594; border-radius: 10px; min-height: 48px;
-  padding: 10px 18px; cursor: pointer;
-}
+h1 { margin: 0; font-size: clamp(16px, 3vw, 24px); flex: 1; text-shadow: 0 2px 8px #000; }
+button { font: inherit; font-weight: 700; background: #10283bda; color: #eefaff; border: 1px solid #76bad580; border-radius: 10px; min-height: 48px; padding: 10px 18px; cursor: pointer; backdrop-filter: blur(8px); }
 button:focus-visible { outline: 3px solid #ffcf60; outline-offset: 2px; }
-#hud { text-align: center; font-variant-numeric: tabular-nums; padding: 8px; color: #70f3da; }
-.arena { position: relative; width: min(100%, calc((100svh - 230px) * 480 / 570)); margin: auto; }
-canvas { display: block; width: 100%; background: #0a1127; border: 1px solid #263a5c; border-radius: 12px; }
-#overlay {
-  position: absolute; inset: 0; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; text-align: center;
-  padding: 16px; background: #070c1edb; border-radius: 12px;
-}
+#hud { position: absolute; z-index: 2; top: max(70px, calc(env(safe-area-inset-top) + 58px)); left: max(16px, env(safe-area-inset-left)); padding: 6px 12px; border-radius: 8px; background: #061220bb; font-variant-numeric: tabular-nums; color: #70f3da; }
+#overlay { position: absolute; z-index: 3; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(90%, 500px); display: flex; flex-direction: column; align-items: center; text-align: center; padding: 24px; background: #071324e8; border: 1px solid #79b5d755; border-radius: 18px; box-shadow: 0 20px 80px #0008; }
 #overlay[hidden] { display: none; }
-#overlay p { line-height: 1.6; }
+#overlay h2 { margin: 0 0 12px; }
+#overlay p { line-height: 1.6; margin: 0 0 20px; }
 #start { background: #167865; }
-.controls { display: flex; gap: 12px; margin: 12px auto; max-width: 480px; }
-.controls button { flex: 1; min-height: 56px; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
-.controls button:last-child { flex: 1.6; background: #167865; }
+.controls { position: absolute; z-index: 2; bottom: max(28px, calc(env(safe-area-inset-bottom) + 16px)); left: max(16px, env(safe-area-inset-left)); right: max(16px, env(safe-area-inset-right)); display: flex; gap: 12px; pointer-events: none; }
+.controls button { width: 64px; min-height: 56px; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; pointer-events: auto; }
+.controls button:last-child { margin-left: auto; width: 100px; background: #167865cc; }
 .controls button.active { background: #ab6830; }
-.help { font-size: 12px; text-align: center; color: #a4b8d2; }
+.help { position: absolute; z-index: 2; bottom: 0; width: 100%; margin: 4px 0; font-size: 12px; text-align: center; color: #a4b8d2; pointer-events: none; }
 #status { position: absolute; width: 1px; height: 1px; overflow: hidden; }
-
-@media (max-height: 500px) and (orientation: landscape) {
-  /* Grid tracks reserve space for both side panels, including on small iPhones. */
-  main {
-    --top: max(8px, env(safe-area-inset-top));
-    --bottom: max(8px, env(safe-area-inset-bottom));
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr) auto;
-    gap: 8px;
-    width: 100%; max-width: 850px; height: 100svh;
-    padding: var(--top) max(8px, env(safe-area-inset-right)) var(--bottom) max(8px, env(safe-area-inset-left));
-  }
-  header {
-    grid-column: 1; grid-row: 1; align-self: center; min-width: 0;
-    flex-direction: column; gap: 8px; text-align: center; font-size: 14px;
-  }
-  header h1 { font-size: 18px; line-height: 1.2; margin: 0; flex: none; }
-  header button { padding: 8px 12px; }
-  #hud { grid-column: 1; grid-row: 2; padding: 0; font-size: 14px; }
-  .arena {
-    grid-column: 2; grid-row: 1 / 3; align-self: center; margin: 0;
-    width: min(calc((100svh - var(--top) - var(--bottom)) * 480 / 570), 45vw);
-  }
-  .controls {
-    grid-column: 3; grid-row: 1 / 3; align-self: center;
-    flex-direction: column; min-width: 0; width: 100%; margin: 0; gap: 8px;
-  }
-  .controls button, .controls button:last-child { flex: none; min-height: 48px; padding: 8px; }
-  #overlay { padding: 10px; gap: 10px; }
-  #overlay h2 { font-size: 18px; line-height: 1.2; margin: 0; }
-  #overlay p { font-size: 13px; line-height: 1.35; margin: 0; }
-  #overlay button { min-height: 44px; padding: 8px 12px; }
-  .help { display: none; }
-}
+@media (max-width: 480px) { header a { font-size: 12px; } header { gap: 8px; } header button { padding: 8px 12px; } .help { display: none; } }
+@media (max-height: 500px) { header { top: max(6px, env(safe-area-inset-top)); } header h1 { font-size: 18px; } #hud { top: max(10px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); font-size: 13px; } header h1 { visibility: hidden; } .controls { bottom: max(8px, env(safe-area-inset-bottom)); } .help { display: none; } #overlay { padding: 16px; width: min(70%, 500px); } #overlay p { font-size: 13px; line-height: 1.35; margin-bottom: 12px; } #overlay h2 { font-size: 20px; } }

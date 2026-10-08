@@ -9,7 +9,7 @@ async function checkLayout(page, viewport, state) {
       const r = document.querySelector(selector).getBoundingClientRect();
       return { x: r.x, y: r.y, width: r.width, height: r.height };
     };
-    const panels = Object.fromEntries(['header', '#hud', '.arena', '.controls'].map(s => [s, rect(s)]));
+    const panels = Object.fromEntries(['header a', 'header button', '#hud', '.arena', '.controls'].map(s => [s, rect(s)]));
     const targets = [...document.querySelectorAll('button:not(:disabled)')]
       .filter(b => b.getClientRects().length)
       .map(b => {
@@ -36,7 +36,9 @@ async function checkLayout(page, viewport, state) {
   };
   const screen = { x: 0, y: 0, ...viewport };
   for (const [label, r] of Object.entries(geometry.panels)) inside(r, screen, label);
-  noOverlap(Object.entries(geometry.panels));
+  // The arena fills the screen; HUD and controls intentionally overlay it.
+  noOverlap(Object.entries(geometry.panels).filter(([label]) => label !== '.arena'));
+  assert.deepEqual(geometry.panels['.arena'], screen, 'Arena fills the viewport');
   for (const target of geometry.targets) {
     inside(target, screen, target.label);
     assert(target.height >= 44 && target.width >= 44, `${state}: ${target.label} touch target too small`);
@@ -48,9 +50,9 @@ async function checkLayout(page, viewport, state) {
   }
   assert(geometry.scrollWidth <= viewport.width + 1 && geometry.scrollHeight <= viewport.height + 1, `${state}: viewport scroll overflow`);
   if (viewport.width === 568 || viewport.width === 667) {
-    await page.screenshot({ path: `dashboard/evidence/space-invaders-${viewport.width}x${viewport.height}-${state}.png` });
+    await page.screenshot({ path: `dashboard/evidence/space-invaders-space-${viewport.width}x${viewport.height}-${state}.png` });
   }
-  return { viewport, state, observed: 'Panels do not overlap; all controls fit and are reachable; overlay content fits arena; no viewport overflow', geometry };
+  return { viewport, state, observed: 'Canvas fills viewport; HUD and controls overlay scene without obscuring each other; all controls fit and are reachable; overlay content fits arena; no viewport overflow', geometry };
 }
 
 (async () => {
@@ -93,7 +95,7 @@ async function checkLayout(page, viewport, state) {
       assert.deepEqual(errors, []);
       await context.close();
     }
-    fs.writeFileSync('dashboard/evidence/space-invaders-layout.json', JSON.stringify({ browser: 'Playwright WebKit', syntheticProfiles: true, limitation: 'Mobile browser emulation; physical iOS devices untested', results }, null, 2) + '\n');
+    fs.writeFileSync('dashboard/evidence/space-invaders-space-layout.json', JSON.stringify({ browser: 'Playwright WebKit', syntheticProfiles: true, limitation: 'Mobile browser emulation; physical iOS devices untested', results }, null, 2) + '\n');
     console.log(`Playtest: ${results.length} viewport/state layout checks passed; touch start/move/fire/pause/resume/game-over/restart passed; no page errors.`);
   } finally {
     await browser.close();

@@ -25,14 +25,14 @@ const fs=require('node:fs');
    await page.keyboard.down('ArrowRight');await page.keyboard.down('Space');await page.waitForTimeout(1300);await page.keyboard.up('ArrowRight');await page.waitForTimeout(6000);await page.keyboard.up('Space');
   }
   const hud=await page.locator('#hud').innerText();assert(/Score \d+ · Lives [1-3] · Wave 1/.test(hud));assert(Number(hud.match(/Score (\d+)/)[1])>0);
-  await page.screenshot({path:`dashboard/evidence/space-invaders-${mobile?'touch':'desktop'}.png`});
+  await page.screenshot({path:`dashboard/evidence/space-invaders-space-${mobile?'touch':'desktop'}.png`});
   await page.locator('#pause').click();await page.waitForTimeout(100);assert.equal(await page.locator('#title').innerText(),'Paused');
   const pausedHud=await page.locator('#hud').innerText();await page.waitForTimeout(600);
   assert.equal(await page.locator('#hud').innerText(),pausedHud);
   await page.getByRole('button',{name:'Resume',exact:true}).last().click();await page.waitForTimeout(100);assert(await page.locator('#overlay').isHidden());
   await page.evaluate(()=>window.dispatchEvent(new Event('blur')));await page.waitForTimeout(100);assert.equal(await page.locator('#title').innerText(),'Paused');
   assert.equal(await page.locator('.active').count(),0);
-  if(mobile){await page.setViewportSize({width:844,height:390});await page.getByRole('button',{name:'Resume',exact:true}).last().click();await page.waitForTimeout(200);const controls=await page.locator('.controls').boundingBox();assert(controls.x>=0&&controls.x+controls.width<=844&&controls.y+controls.height<=390);await page.screenshot({path:'dashboard/evidence/space-invaders-landscape.png'});}
+  if(mobile){await page.setViewportSize({width:844,height:390});await page.getByRole('button',{name:'Resume',exact:true}).last().click();await page.waitForTimeout(200);const controls=await page.locator('.controls').boundingBox();assert(controls.x>=0&&controls.x+controls.width<=844&&controls.y+controls.height<=390);await page.screenshot({path:'dashboard/evidence/space-invaders-space-landscape.png'});}
   await page.evaluate(async()=>{const {game}=await import('./app.mjs');game.state='playing';game.shots=[];game.enemyShots=[];game.enemyClock=100;game.invulnerable=2;game.aliens=[{x:460,y:150,points:10,type:'squid'}];game.direction=1;});await page.waitForTimeout(200);
   assert(await page.evaluate(async()=>{const {game}=await import('./app.mjs');return game.direction===-1&&game.aliens[0].y===165;}));
   await page.evaluate(async()=>{const {game}=await import('./app.mjs');game.aliens=[{x:240,y:200,points:30,type:'squid'}];game.shots=[{x:240,y:205}];});await page.waitForTimeout(100);assert((await page.locator('#hud').innerText()).includes('Wave 2'));
@@ -40,5 +40,5 @@ const fs=require('node:fs');
   await page.getByRole('button',{name:'Play again',exact:true}).click();await page.waitForTimeout(100);assert.equal(await page.locator('#hud').innerText(),'Score 0 · Lives 3 · Wave 1');
   assert.deepEqual(errors,[]);results.push({browser:'Playwright WebKit',mobile,viewport:mobile?'390x844, 844x390':'1280x900',hud,observed:'Navigation, start, move/fire, pause/resume, blur pause, release/cancel input, viewport controls, injected boundary reversal, wave completion, game-over/restart passed',errors});await context.close();
  }
- await browser.close();fs.writeFileSync('dashboard/evidence/space-invaders-browser.json',JSON.stringify({results,limitation:'WebKit mobile emulation, not a physical iPhone/iPad or native iOS app'},null,2));console.log(JSON.stringify(results));
+ await browser.close();fs.writeFileSync('dashboard/evidence/space-invaders-space-browser.json',JSON.stringify({results,limitation:'WebKit mobile emulation, not a physical iPhone/iPad or native iOS app'},null,2));console.log(JSON.stringify(results));
 })().catch(e=>{console.error(e.stack);process.exit(1)});

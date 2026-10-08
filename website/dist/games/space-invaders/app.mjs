@@ -16,6 +16,56 @@ for(const b of document.querySelectorAll('[data-control]')){
 addEventListener('blur',()=>{clear();if(game.state==='playing')game.pause();});document.addEventListener('visibilitychange',()=>{if(document.hidden){clear();if(game.state==='playing')game.pause();}});
 function cube(x,y,size,color){ctx.fillStyle=color;ctx.fillRect(x,y,size,size);ctx.fillStyle='#ffffff50';ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+size*.3,y-size*.3);ctx.lineTo(x+size*1.3,y-size*.3);ctx.lineTo(x+size,y);ctx.fill();ctx.fillStyle='#00000050';ctx.beginPath();ctx.moveTo(x+size,y);ctx.lineTo(x+size*1.3,y-size*.3);ctx.lineTo(x+size*1.3,y+size*.7);ctx.lineTo(x+size,y+size);ctx.fill();}
 function model(name,x,y,color){const rows=models[name],s=4;rows.forEach((row,r)=>[...row].forEach((v,c)=>{if(v==='1')cube(x+(c-row.length/2)*s,y+(r-rows.length/2)*s,s,color);}));}
-function draw(t){ctx.clearRect(0,0,480,570);for(let i=0;i<70;i++){ctx.fillStyle=i%3?'#395174':'#9ec9eb';ctx.fillRect((i*137)%480,(i*79)%570,1,1);}for(const a of game.aliens)model(a.type,a.x,a.y,a.type==='squid'?'#cf88ff':a.type==='crab'?'#70f3da':'#ffcb72');if(game.saucer)model('octopus',game.saucer.x,game.saucer.y,'#ff6a93');for(const b of game.shields)cube(b.x,b.y,5,'#459daa');if(game.invulnerable<=0||Math.floor(t/100)%2)model('ship',game.player,520,'#8dcaff');for(const s of game.shots)cube(s.x-2,s.y,3,'#fff5af');for(const s of game.enemyShots)cube(s.x-2,s.y,4,'#ff6386');ctx.strokeStyle='#254867';ctx.beginPath();ctx.moveTo(0,544);ctx.lineTo(480,544);ctx.stroke();}
+// Keep the combat rules in their original coordinates. Project their positions
+// across the viewport, but keep each voxel square at every aspect ratio.
+let width=0,height=0,unit=1,top=0,playHeight=0,backdrop;
+function resize(){
+ width=canvas.clientWidth;height=canvas.clientHeight;
+ const dpr=Math.min(devicePixelRatio||1,2);
+ canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);
+ ctx.setTransform(dpr,0,0,dpr,0,0);
+ top=height<500?62:100;const bottom=height<500?72:112;
+ playHeight=Math.max(100,height-top-bottom);
+ unit=Math.min(width/480,playHeight/570);
+ game.renderScale={x:unit/(width/480),y:unit/(playHeight/570)};
+ backdrop=document.createElement('canvas');backdrop.width=canvas.width;backdrop.height=canvas.height;
+ const sky=backdrop.getContext('2d');sky.scale(dpr,dpr);
+ sky.fillStyle='#030817';sky.fillRect(0,0,width,height);
+ for(const [x,y,r,color] of [[.22,.3,.65,'#7137ab'],[.8,.48,.55,'#125d83'],[.56,.12,.4,'#a13b73']]){
+  const glow=sky.createRadialGradient(width*x,height*y,0,width*x,height*y,Math.max(width,height)*r);
+  glow.addColorStop(0,color+'85');glow.addColorStop(.45,color+'30');glow.addColorStop(1,color+'00');sky.fillStyle=glow;sky.fillRect(0,0,width,height);
+ }
+ for(let i=0;i<340;i++){
+  const x=((i*137.508)%997)/997*width,y=((i*79.731)%991)/991*height;
+  const size=i%19===0?2:1;sky.fillStyle=i%3?'#b2c9ee90':'#ffffff';sky.fillRect(x,y,size,size);
+  if(i%47===0){sky.fillStyle='#a5dfff55';sky.fillRect(x-3,y,7,1);sky.fillRect(x,y-3,1,7);}
+ }
+ // Distant block worlds establish the voxel setting without hiding combat.
+ for(const [x,y,r] of [[.08,.36,22],[.92,.7,34]]){
+  sky.fillStyle='#172941';sky.fillRect(width*x-r,height*y-r,r*2,r*2);
+  sky.fillStyle='#315472';sky.fillRect(width*x-r,height*y-r,r*2,6);
+  sky.fillStyle='#0b1428';sky.fillRect(width*x+r-7,height*y-r,7,r*2);
+  sky.fillStyle='#417284';sky.fillRect(width*x-r+5,height*y-r+10,8,8);
+ }
+}
+new ResizeObserver(resize).observe(canvas);
+function project(x,y){return [x/480*width,top+y/570*playHeight];}
+function worldModel(name,x,y,color){const [px,py]=project(x,y);ctx.save();ctx.translate(px,py);ctx.scale(unit,unit);model(name,0,0,color);ctx.restore();}
+function worldCube(x,y,size,color,offsetX=0){const [px,py]=project(x,y);ctx.save();ctx.translate(px,py);ctx.scale(unit,unit);cube(offsetX,0,size,color);ctx.restore();}
+function draw(t){
+ if(!backdrop)return;
+ ctx.drawImage(backdrop,0,0,width,height);
+ // A receding voxel deck beneath the ship, integrated into the space scene.
+ ctx.strokeStyle='#53cbd324';ctx.lineWidth=1;
+ const horizon=top+playHeight*.84;
+ for(let i=-8;i<=8;i++){ctx.beginPath();ctx.moveTo(width/2+i*width/20,horizon);ctx.lineTo(width/2+i*width/6,height);ctx.stroke();}
+ for(let i=1;i<7;i++){const y=horizon+(height-horizon)*(i/6)**2;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(width,y);ctx.stroke();}
+ for(const a of game.aliens)worldModel(a.type,a.x,a.y,a.type==='squid'?'#cf88ff':a.type==='crab'?'#70f3da':'#ffcb72');
+ if(game.saucer)worldModel('octopus',game.saucer.x,game.saucer.y,'#ff6a93');
+ for(const b of game.shields)worldCube(b.x,b.y,5,'#459daa');
+ if(game.invulnerable<=0||Math.floor(t/100)%2)worldModel('ship',game.player,520,'#8dcaff');
+ for(const s of game.shots)worldCube(s.x,s.y,3,'#fff5af',-2);
+ for(const s of game.enemyShots)worldCube(s.x,s.y,4,'#ff6386',-2);
+}
 function frame(t){const touch=[...pointers.values()];game.update((t-last)/1000,{axis:Number(keys.has('ArrowRight')||keys.has('KeyD')||touch.includes('right'))-Number(keys.has('ArrowLeft')||keys.has('KeyA')||touch.includes('left')),fire:keys.has('Space')||touch.includes('fire')});last=t;draw(t);hud.textContent=`Score ${game.score} · Lives ${game.lives} · Wave ${game.wave}`;if(oldState!==game.state){oldState=game.state;overlay.hidden=game.state==='playing';pause.disabled=!['playing','paused'].includes(game.state);pause.textContent=game.state==='paused'?'Resume':'Pause';if(game.state==='paused'){title.textContent='Paused';message.textContent='Your game is safe. Resume when ready.';start.textContent='Resume';}if(game.state==='over'){title.textContent='Game over';message.textContent=`Final score: ${game.score} · Wave ${game.wave}`;start.textContent='Play again';}status.textContent=game.state==='playing'?'Game started':title.textContent;}requestAnimationFrame(frame);}
 requestAnimationFrame(frame);
