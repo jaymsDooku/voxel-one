@@ -9,7 +9,7 @@
         "width": 1280,
         "height": 900
       },
-      "result": "PASS: real last kill, camera midpoint, frozen combat/input, pause/resume, cockpit combat, restart during transition, classic touch regression",
+      "result": "PASS: real last kill, camera midpoint, frozen combat/input, pause/resume, cockpit combat, restart during transition, classic touch regression, instrument text/alpha at midpoint and endpoint",
       "errors": []
     },
     {
@@ -17,7 +17,7 @@
         "width": 390,
         "height": 844
       },
-      "result": "PASS: real last kill, camera midpoint, frozen combat/input, pause/resume, cockpit combat, restart during transition, classic touch regression",
+      "result": "PASS: real last kill, camera midpoint, frozen combat/input, pause/resume, cockpit combat, restart during transition, classic touch regression, instrument text/alpha at midpoint and endpoint",
       "errors": []
     },
     {
@@ -25,7 +25,7 @@
         "width": 844,
         "height": 390
       },
-      "result": "PASS: real last kill, camera midpoint, frozen combat/input, pause/resume, cockpit combat, restart during transition, classic touch regression",
+      "result": "PASS: real last kill, camera midpoint, frozen combat/input, pause/resume, cockpit combat, restart during transition, classic touch regression, instrument text/alpha at midpoint and endpoint",
       "errors": []
     }
   ]
