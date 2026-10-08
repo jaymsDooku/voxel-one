@@ -22,7 +22,7 @@ public final class MobileFixtureHost implements AutoCloseable {
             var thread=new Thread(()->{try{server.run();}catch(java.io.IOException ignored){/* Closed by isolated test cleanup. */}},"synthetic-mobile-server");
             thread.setDaemon(true);thread.start();threads.add(thread);
         }
-        gateway=new MobileGateway(0,new MobileGateway.Target("127.0.0.1",sandbox.port(),fingerprint),new MobileGateway.Target("127.0.0.1",city.port(),fingerprint),target->target.port()==city.port()?city.transportFailure():sandbox.transportFailure());gateway.start();
+        gateway=new MobileGateway(0,new MobileGateway.Target("127.0.0.1",sandbox.port(),fingerprint),new MobileGateway.Target("127.0.0.1",city.port(),fingerprint),target->target.port()==city.port()?city.transportFailure():sandbox.transportFailure(),target->target.port()==city.port()?city.cityCommandStage():sandbox.cityCommandStage());gateway.start();
     }
     public String url(){return "http://127.0.0.1:"+gateway.port();}
     @Override public void close()throws Exception{gateway.close();sandbox.close();city.close();for(var thread:threads)thread.join(2000);}

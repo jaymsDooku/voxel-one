@@ -25,14 +25,15 @@ public final class MobileGateway implements AutoCloseable {
     private final SecureRandom random=new SecureRandom();
     private final Target sandbox,city;
     private final java.util.function.Function<Target,MultiplayerServer.TransportFailure> fixtureFailure;
+    private final java.util.function.Function<Target,MultiplayerServer.CityCommandStage> fixtureCityStage;
     private final long idleNanos=Duration.ofMinutes(15).toNanos();
     private final java.util.concurrent.atomic.AtomicInteger connecting=new java.util.concurrent.atomic.AtomicInteger();
     public MobileGateway(int port, Target sandbox, Target city) throws IOException {
-        this(port,sandbox,city,target->null);
+        this(port,sandbox,city,target->null,target->null);
     }
     // Only the isolated fixture supplies server diagnostics. Production returns generic safe errors.
-    MobileGateway(int port, Target sandbox, Target city, java.util.function.Function<Target,MultiplayerServer.TransportFailure> fixtureFailure) throws IOException {
-        this.sandbox=sandbox;this.city=city;this.fixtureFailure=fixtureFailure;
+    MobileGateway(int port, Target sandbox, Target city, java.util.function.Function<Target,MultiplayerServer.TransportFailure> fixtureFailure, java.util.function.Function<Target,MultiplayerServer.CityCommandStage> fixtureCityStage) throws IOException {
+        this.sandbox=sandbox;this.city=city;this.fixtureFailure=fixtureFailure;this.fixtureCityStage=fixtureCityStage;
         server=HttpServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(),port),32);
         server.createContext("/mobile/v1/",this::handle);server.setExecutor(executor);
         cleanup.scheduleAtFixedRate(this::maintain,1,1,TimeUnit.SECONDS);
@@ -100,7 +101,15 @@ public final class MobileGateway implements AutoCloseable {
                     result=switch(path){
                         case "/mobile/v1/state" -> session.state(request);
                         case "/mobile/v1/move" -> {session.poll();if(!session.respawned)session.move(request);yield Map.of("status","moved");}
-                        case "/mobile/v1/action" -> session.action(request);
+                        case "/mobile/v1/action" -> {
+                            try { yield session.action(request); }
+                            catch(Failure e) {
+                                var stage=fixtureCityStage.apply(session.target);
+                                if(e.status==504 && "city".equals(request.get("kind")) && stage!=null)
+                                    throw new Failure(504,"City receipt pending: "+stage.name());
+                                throw e;
+                            }
+                        }
                         case "/mobile/v1/logout" -> {sessions.remove(key,session);session.close();yield Map.of("status","signed_out");}
                         default -> throw new Failure(404,"Unknown route");
                     };

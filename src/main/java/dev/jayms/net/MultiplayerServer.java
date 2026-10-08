@@ -41,6 +41,9 @@ public final class MultiplayerServer implements AutoCloseable {
     private volatile boolean running = true;
     /** Fixed transport codes for isolated integration diagnostics; never includes account data. */
     public enum TransportFailure { READ_TIMEOUT, INVALID_MOVEMENT, MESSAGE_RATE, UNKNOWN_MESSAGE, OUTPUT_QUEUE, WRITE_IO, READ_IO }
+    public enum CityCommandStage { NONE, WAITING, RUNNING, REPLY_QUEUED }
+    private volatile CityCommandStage cityCommandStage = CityCommandStage.NONE;
+    public CityCommandStage cityCommandStage() { return cityCommandStage; }
     private final java.util.concurrent.atomic.AtomicReference<TransportFailure> transportFailure = new java.util.concurrent.atomic.AtomicReference<>();
     public TransportFailure transportFailure() { return transportFailure.get(); }
     private void recordTransportFailure(TransportFailure reason) { transportFailure.compareAndSet(null, reason); }
@@ -397,8 +400,10 @@ public final class MultiplayerServer implements AutoCloseable {
                 Protocol.Pose craftPose = type == Protocol.CRAFT ? Protocol.Pose.read(in) : null;
                 CityCommand cityCommand =
                         type == Protocol.CITY_COMMAND ? CityCommand.read(in) : null;
+                if (type == Protocol.CITY_COMMAND) cityCommandStage = CityCommandStage.WAITING;
                 synchronized (this) {
                     if (type == Protocol.CITY_COMMAND) {
+                        cityCommandStage = CityCommandStage.RUNNING;
                         String result;
                         long now = System.nanoTime();
                         if (now - peer.lastCity < 500_000_000L)
@@ -408,6 +413,7 @@ public final class MultiplayerServer implements AutoCloseable {
                             result = city.command(cityCommand, peer.pose.id(), peer.pose);
                         }
                         peer.enqueue(new Event(Protocol.CITY_RESULT, null, null, result, 0, true));
+                        cityCommandStage = CityCommandStage.REPLY_QUEUED;
                         broadcast(cityState());
                     } else if (type == Protocol.MOVE) {
                         checkPose(peer, pose);

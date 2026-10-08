@@ -125,6 +125,25 @@ class MobileGatewayTest {
             assertEquals(200,post(host,"logout",bearer,Map.of()).statusCode());
         }
     }
+    @Test void receiptTimeoutReportsOnlyFixedSyntheticStage()throws Exception{
+        try(var host=new MobileFixtureHost(temp.resolve("city-stage-profile"))){
+            var login=post(host,"login",null,Map.of("game","city","username","ios_fixture","password","fixture-password-123"));
+            assertEquals(200,login.statusCode());String bearer=token(login);
+            synchronized(host.city){
+                var response=java.util.concurrent.CompletableFuture.supplyAsync(()->{
+                    try{return post(host,"action",bearer,Map.of("kind","city","command",1,"value",0,"points",List.of(List.of(40,10),List.of(46,10))));}
+                    catch(Exception e){throw new java.util.concurrent.CompletionException(e);}
+                }).get(12,java.util.concurrent.TimeUnit.SECONDS);
+                assertEquals(504,response.statusCode());
+                assertTrue(response.body().matches(".*City receipt pending: (NONE|WAITING|RUNNING|REPLY_QUEUED).*"));
+                assertFalse(response.body().contains("ios_fixture"));assertFalse(response.body().contains("fixture-password"));
+            }
+            long end=System.nanoTime()+5_000_000_000L;
+            while(host.city.cityCommandStage()!=MultiplayerServer.CityCommandStage.REPLY_QUEUED && System.nanoTime()<end)Thread.sleep(20);
+            assertEquals(MultiplayerServer.CityCommandStage.REPLY_QUEUED,host.city.cityCommandStage());
+            assertEquals(200,post(host,"state",bearer,Map.of()).statusCode());
+        }
+    }
     @Test void slowCityReceiptStillConfirmsWithoutRetry()throws Exception{
         try(var host=new MobileFixtureHost(temp.resolve("delayed-city-profile"))){
             var login=post(host,"login",null,Map.of("game","city","username","ios_fixture","password","fixture-password-123"));
