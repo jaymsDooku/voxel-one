@@ -1,15 +1,13 @@
-Current status: rebase continuation required. Browser reports/media below describe prior validation and must be checked against the completed rebase before review.
+Space Invader transition: final-head validation
 
-Space Invader transition: final integrated validation
+Source tested: 857698f87a1d3d7d9c68dd324b5645a79bc702cb on 2026-10-08, after controller completed the rebase onto e18722a660b6a9132023f95a53f2416f1092823b. No game-source edits during this run. Reports include tested head and source SHA-256 hashes.
 
-Tested source: 04b2f8af0fbaa6b2ca0b4fd1270b9a891a201b59, 2026-10-08, after controller completed both preserved rebase steps. Game source did not change during this validation. Test-only fixes wait for rendered restart and for camera/story completion. Source hashes are in transition-playtest.json and planet-playtest.json.
+Level 1 completion moves the camera into the first-person cockpit over 1.6 seconds with smoothstep interpolation. Ship/deck fade out; the full existing canopy, sloped console and HULL/ALT/SECTOR instruments fade in. Combat/input/damage hold until completion. Pause freezes the move and restart clears it.
+Existing level 2 crash (2 seconds), blackout (1.2 seconds), level 3 awakening (3 seconds), two-moon voxel planet and fighter combat remain unchanged.
 
-Implemented level 1 to level 2 camera interpolation with a 1.6-second smoothstep move. Classic ship/deck fade out; solid canopy, sloped console and HULL/ALT/SECTOR instruments fade in. Combat/input/damage hold during the move. Pause freezes it; restart clears it.
-Preserved level 2 completion: crash (2 seconds), blackout (1.2 seconds), level 3 awakening (3 seconds), then combat on a voxel planet with two moons. Restart clears both cinematic states.
+Environment: Linux headless Playwright WebKit; isolated synthetic browser contexts without accounts. Served the exact worktree with python3 -m http.server 8778 --bind 127.0.0.1 and another server on 8779 for the planet harness.
 
-Environment: Linux headless Playwright WebKit; isolated synthetic contexts with no accounts. Exact worktree served by python3 -m http.server 8778 --bind 127.0.0.1 and the same command on port 8779 for the planet harness.
-
-Executed:
+Executed commands:
 node --test games/space-invaders/game.test.mjs
 PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR="$PWD/.tmp/browser" node deploy/test_space_invaders_transition.cjs
 PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR="$PWD/.tmp/browser" node deploy/test_space_invaders_cockpit.cjs
@@ -17,34 +15,20 @@ PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR="$PWD/.tmp/browser" n
 PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR="$PWD/.tmp/browser" node deploy/test_space_invaders_planet.cjs
 SPACE_INVADERS_VIEWPORT_WIDTH=844 SPACE_INVADERS_URL=http://127.0.0.1:8778/games/space-invaders/index.html PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR="$PWD/.tmp/browser" node deploy/test_space_invaders_fighters.cjs
 
-Rules: 13/13 passed. Transition hold/pause/end/restart, midpoint and endpoints, crash/blackout/waking, retained score/lives, collisions, bounds and fighter attacks passed. Output: transition-unit-tests.txt.
+Rules: 13/13 passed. Covers combat regressions, transition midpoint/endpoints/freeze/pause/restart and crash/blackout/waking with progress carry. Output: transition-unit-tests.txt.
 
-Playtest: Transition passed at 1280x900, 390x844 and 844x390. Start level 1; arrange a synthetic final alien; use real Fire key and application frame loop to kill it. Observe intermediate camera projection. Pause at a measured midpoint via game pause method, confirm time holds, resume with P. Hold right/fire before completion; observe fixed player/enemies and no shots. After completion observe cockpit movement/fire. Restart during another move; observe classic wave 1, score 0, lives 3. Touch left/cancel passes. HULL/ALT/SECTOR text and values 3 / 3, 10, 02 draw at cameraMix alpha at midpoint and at alpha 1 on completion. No page errors.
+Playtest: Transition passed at 1280x900, 390x844 and 844x390. Click Start; set one synthetic final alien; kill with real Space key and application frame loop. Observe moving projection. Pause via game pause method at a measured midpoint, verify elapsed time holds, resume with P. Hold right/fire during the move: player and enemies stay fixed and shots remain empty. After completion observe cockpit movement and fire. HULL/ALT/SECTOR labels and values 3 / 3, 10, 02 use transition alpha at midpoint and alpha 1 after completion. Restart during another move restores classic wave 1/score 0/lives 3; touch left and cancel still work. No page errors.
 
-Playtest: Cockpit passed at all three sizes. Real final kill, two-axis flight/momentum, independent fighter paths, player and aimed enemy fire, altitude collision, pause/resume, death/restart, touch cancellation, level 3 score/lives carry and flight bounds pass. The test waits through awakening before checking planet combat. Edge harness passed ALT 250/10/0, portrait-to-landscape resize, touch up/down/fire cancel and pause/resume.
-Playtest: Upstream fighter harness passed at 844x390, with camera/story delay waits added.
+Playtest: Cockpit passed at all three sizes: real final kill, independent fighters, two-axis flight/momentum, player and aimed enemy fire, altitude collision, pause/resume, death/restart, touch cancel, wave 3 progress carry and bounds. It waits through planet awakening before checking level 3 combat.
+Playtest: Cockpit edge harness passed ALT 250/10/0, portrait-to-landscape resize, touch up/down/fire cancellation and pause/resume.
+Playtest: Preserved fighter harness passed at 844x390.
 
-Playtest: Planet passed at all three sizes. Real final-fighter kill triggers crash; pause freezes story; blackout precedes waking under two moons; score 130/lives 2 survive; level 3 flight/fire works; blur pauses waking; restart returns to classic space. First attempt found a harness race: a fixed 100 ms wait read the previous rendered scene after restart. Replaced it with a rendered-state wait and reran the complete three-size workflow successfully. No game source fix needed.
+Playtest: Planet passed at all three sizes. Real final-fighter kill triggers crash; pause freezes story; blackout precedes waking beneath two moons. Score 130/lives 2 survive; level 3 flight/fire works; blur pauses waking; restart returns to classic space. No page errors.
 
-Expected behavior matched observed results in all final runs. Reports: transition-playtest.json, invaders-levels-playtest.json, planet-playtest.json and fighters-playtest.json. Earlier cockpit/planet report data is retained under previousValidation and labeled historical.
+Expected behavior matched observed results in every final run. Reports: transition-playtest.json, invaders-levels-playtest.json, planet-playtest.json and fighters-playtest.json. Historical report data remains labeled under previousValidation.
 
-Media: fresh transition and planet PNGs, transition-playtest.mp4 and planet-playtest.mp4. Inspected completed portrait canopy/instruments and landscape awakening with two moons. Decoded both fresh desktop videos with full FFmpeg to PNG frames; inspected intermediate cockpit fade, crash and awakening. MP4s use H.264/yuv420p, trimmed by 3 seconds to remove blank browser startup; each below 6 MB. Playwright records the actual browser game, which has no engine F10 recorder. No stock/old media used for these claims. Controller publication pending.
+Fresh media: transition-start/mid/end PNGs; planet-crash/waking PNGs; transition-playtest.mp4 and planet-playtest.mp4. Inspected portrait cockpit and landscape awakening screenshots. Decoded both actual recordings to PNG frames with full FFmpeg and inspected intermediate canopy fade, crash, eyelid opening and both moons. MP4 exports use H.264/yuv420p, trim 3 seconds of browser startup and remain below 6 MB each. Playwright captured the actual browser canvas; this game has no engine F10 recorder. No stock or historical media supports these current claims. Publication is pending the controller.
 
 Build/checks: python3 deploy/build_site.py passed. Source/dist app.mjs and game.mjs comparisons and git diff --check passed. Restored unrelated generated website/dist/progress.json.
 
-Second recovery, 2026-10-08:
-Resolved preserved conflicts with newer crash/planet work. Level 1 completion starts the 1.6-second camera transition. Level 2 completion still starts crash (2 seconds), blackout (1.2 seconds), then level 3 waking (3 seconds). Both update branches freeze combat and pause naturally; restart clears both state fields. Preserved planet rendering, both moons, story HUD/ARIA, canopy/instruments, planet regression harness, unit test, evidence and dashboard milestone. The cockpit harness now waits for planet awakening to finish before asserting wave 3 combat.
-
-Executed on resolved contents: node --check games/space-invaders/app.mjs; node --test games/space-invaders/game.test.mjs (13/13 passed); python3 deploy/build_site.py; source/dist app.mjs and game.mjs comparisons; git diff --check. All passed. No deleted files against review base 31cf8bceb3f9888d84edf696bba9cce9fb29cb97. Replaced lines combine both update and presentation paths rather than removing concurrent behavior. Retained upstream planet evidence; earlier transition media/report describe older source and require fresh captures after rebase completion. No fresh browser playtest claimed at this recovery handoff. Controller must stage resolutions and continue Git; no commit, reset, abort, push or deployment performed.
-
-New-base recovery: e18722a660b6a9132023f95a53f2416f1092823b.
-Resolved the sole current conflict, dashboard/progress.json updatedAt, retaining the later timestamp. No game source changed in this resolution. Verified all new-base milestone entries are unchanged, no files are deleted against the new base, and crash/blackout/waking plus planet rendering remain. Executed node --test games/space-invaders/game.test.mjs (13/13 passed), app syntax check, source/dist comparisons and git diff --check; all passed. Controller must stage/continue the pending rebase. Final-head workflow checks and media await completion; prior reports/media are historical until revalidated.
-
-The cockpit JSON retains its earlier report under previousValidation, labeled historical. Its current test fields and SHA-256 values describe this integrated run.
-
-Additional recovery: resolved only report/progress conflicts. Retained the newer integration checkpoint and historical cockpit report. No game source changed in this conflict step.
-
-Report-only recovery: retained both historical report context and the current new-base recovery checkpoint. Final-head browser validation remains pending controller rebase completion.
-
-Historical validation note from the replayed commit:
-Diff audit against 31cf8bceb3f9888d84edf696bba9cce9fb29cb97: no deleted files. Every recorded-base milestone entry remains unchanged; planet milestone and this task are additional entries. Preserved canopy/instruments, crash/blackout/waking, planet renderer, both moons, upstream planet tests/evidence and fighter/cockpit tests. Intentional replaced lines combine interpolation with scene progression and presentation; no existing feature is removed. Fresh regression images/reports intentionally replace earlier captures; historical report contents remain labeled. Generated game files match source. Changes outside this work item's transition include retained concurrent planet implementation, not regressions. No commit, push, merge, deployment or independent review approval performed. No physical-device validation claimed.
+Entire diff audited against e18722a660b6a9132023f95a53f2416f1092823b: no deleted files. All base milestone entries compare equal and remain unchanged. Planet progression, renderer, two moons, canopy/instruments, planet tests/evidence and dashboard milestone remain. Intentional replaced lines implement camera interpolation/fades and completion delay; existing scene progression is unchanged. Test harness changes wait for camera/story completion and rendered restart, with synchronous frame polling and correct two-axis velocity reset. New media/reports refresh affected regression evidence; historical report contents remain labeled. Generated game copies match source. No unrelated features removed. No commit, push, merge, deployment or independent review approval performed. No physical-device test claimed.
