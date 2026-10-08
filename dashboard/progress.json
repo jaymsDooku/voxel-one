@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-08T17:54:09+00:00",
+  "updatedAt": "2026-10-08T18:10:33+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -191,8 +191,8 @@
       "description": "Native phone client with touch sandbox controls and server-authoritative city planning.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Separated rejected authentication from transport timeout; mobile snapshot/login read limit45seconds tested with real20second server delay. Intel failure traced to throughput assertion; fixed140request test passes. Full scoped Maven verify557tests passed. Revised native and Mac Intel CI results required; sanitized summaries now upload.",
-      "updatedAt": "2026-10-08T17:54:09+00:00"
+      "note": "Revised native acceptance passed all four tests; gameplay media inspected and saved. Mac Intel and all other Maven verify platforms passed on identical source tree. Login failure classification and fixed140request regression validated. Ready for independent review; physical iPhone untested.",
+      "updatedAt": "2026-10-08T18:10:33+00:00"
     },
     {
       "id": "63386663653465302d303138612d346331372d396364302d353961636235626436613632",
