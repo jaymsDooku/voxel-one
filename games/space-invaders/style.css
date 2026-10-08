@@ -22,3 +22,5 @@ button:focus-visible { outline: 3px solid #ffcf60; outline-offset: 2px; }
 #status { position: absolute; width: 1px; height: 1px; overflow: hidden; }
 @media (max-width: 480px) { header a { font-size: 12px; } header { gap: 8px; } header button { padding: 8px 12px; } .help { display: none; } }
 @media (max-height: 500px) { header { top: max(6px, env(safe-area-inset-top)); } header h1 { font-size: 18px; } #hud { top: max(10px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); font-size: 13px; } header h1 { visibility: hidden; } .controls { bottom: max(8px, env(safe-area-inset-bottom)); } .help { display: none; } #overlay { padding: 16px; width: min(70%, 500px); } #overlay p { font-size: 13px; line-height: 1.35; margin-bottom: 12px; } #overlay h2 { font-size: 20px; } }
+
+@media (max-width: 480px) { .controls { gap: 6px; } .controls button { width: 48px; padding: 8px; } .controls button:last-child { width: 72px; } }

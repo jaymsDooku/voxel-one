@@ -1,0 +1,272 @@
+{
+  "command": "PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/test_space_invaders_fighter_edges.cjs",
+  "environment": "Linux headless WebKit, synthetic profiles, local source HTTP on port 8767",
+  "playtest": "Playtest: enter level 2 with synthetic setup; hold keyboard left with touch down/fire; release/cancel and drift; pause/resume; miss at old altitude; collide with a jet.",
+  "expected": "Controls and HUD fit; combined inputs move both axes and fire; drift decays; pause freezes state; hits use current altitude; jet contact removes one life.",
+  "results": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "geometry": {
+        "panels": [
+          {
+            "label": "header a",
+            "x": 16,
+            "y": 26.5,
+            "width": 79.9375,
+            "height": 19
+          },
+          {
+            "label": "#pause",
+            "x": 1172.140625,
+            "y": 12,
+            "width": 91.859375,
+            "height": 48
+          },
+          {
+            "label": "#hud",
+            "x": 16,
+            "y": 70,
+            "width": 387.765625,
+            "height": 31
+          },
+          {
+            "label": ".controls",
+            "x": 16,
+            "y": 816,
+            "width": 1248,
+            "height": 56
+          }
+        ],
+        "buttons": [
+          {
+            "x": 16,
+            "y": 816,
+            "width": 64,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "x": 92,
+            "y": 816,
+            "width": 64,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "x": 168,
+            "y": 816,
+            "width": 64,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "x": 244,
+            "y": 816,
+            "width": 64,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "x": 1164,
+            "y": 816,
+            "width": 100,
+            "height": 56,
+            "reachable": true
+          }
+        ]
+      },
+      "flying": {
+        "x": 197.07921154621425,
+        "y": 380.2583773674925,
+        "speed": 248.7037451529451,
+        "shots": 2
+      },
+      "drift": {
+        "x": 179.74343647893423,
+        "y": 396.3085882055333,
+        "speed": 18.620486691548663
+      },
+      "observed": "PASS: level 2 geometry, keyboard+touch down/fire, cancellation and drift decay, full pause freeze, old-altitude miss and fighter contact damage",
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "geometry": {
+        "panels": [
+          {
+            "label": "header a",
+            "x": 16,
+            "y": 29,
+            "width": 59.953125,
+            "height": 14
+          },
+          {
+            "label": "#pause",
+            "x": 294.140625,
+            "y": 12,
+            "width": 79.859375,
+            "height": 48
+          },
+          {
+            "label": "#hud",
+            "x": 16,
+            "y": 70,
+            "width": 374,
+            "height": 50
+          },
+          {
+            "label": ".controls",
+            "x": 16,
+            "y": 760,
+            "width": 358,
+            "height": 56
+          }
+        ],
+        "buttons": [
+          {
+            "x": 16,
+            "y": 760,
+            "width": 48,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "x": 70,
+            "y": 760,
+            "width": 48,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "x": 124,
+            "y": 760,
+            "width": 48,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "x": 178,
+            "y": 760,
+            "width": 48,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "x": 302,
+            "y": 760,
+            "width": 72,
+            "height": 56,
+            "reachable": true
+          }
+        ]
+      },
+      "flying": {
+        "x": 209.67700552258907,
+        "y": 380.32299447741093,
+        "speed": 239.92352101791363,
+        "shots": 2
+      },
+      "drift": {
+        "x": 193.57922870840585,
+        "y": 396.4207712915942,
+        "speed": 20.253349962815644
+      },
+      "observed": "PASS: level 2 geometry, keyboard+touch down/fire, cancellation and drift decay, full pause freeze, old-altitude miss and fighter contact damage",
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "geometry": {
+        "panels": [
+          {
+            "label": "header a",
+            "x": 16,
+            "y": 20.5,
+            "width": 79.9375,
+            "height": 19
+          },
+          {
+            "label": "#pause",
+            "x": 736.140625,
+            "y": 6,
+            "width": 91.859375,
+            "height": 48
+          },
+          {
+            "label": "#hud",
+            "x": 262,
+            "y": 10,
+            "width": 319.5625,
+            "height": 27
+          },
+          {
+            "label": ".controls",
+            "x": 16,
+            "y": 326,
+            "width": 812,
+            "height": 56
+          }
+        ],
+        "buttons": [
+          {
+            "x": 16,
+            "y": 326,
+            "width": 64,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "x": 92,
+            "y": 326,
+            "width": 64,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "x": 168,
+            "y": 326,
+            "width": 64,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "x": 244,
+            "y": 326,
+            "width": 64,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "x": 728,
+            "y": 326,
+            "width": 100,
+            "height": 56,
+            "reachable": true
+          }
+        ]
+      },
+      "flying": {
+        "x": 203.3938487476598,
+        "y": 386.6061512523402,
+        "speed": 249.95219530705648,
+        "shots": 2
+      },
+      "drift": {
+        "x": 175.9718815324313,
+        "y": 414.02811846756873,
+        "speed": 19.769427740827698
+      },
+      "observed": "PASS: level 2 geometry, keyboard+touch down/fire, cancellation and drift decay, full pause freeze, old-altitude miss and fighter contact damage",
+      "errors": []
+    }
+  ]
+}
