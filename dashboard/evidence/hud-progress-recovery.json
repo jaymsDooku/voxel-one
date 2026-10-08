@@ -1,8 +1,8 @@
 {
-  "status": "Second replay conflict resolved in working contents; controller staging/rebase continuation required",
+  "status": "Third replay conflict resolved in working contents; controller staging/rebase continuation required",
   "reviewBase": "642bc422c621fd1a6e1704ade1148cc85fad398d",
   "integrationBase": "9302e76c441839a2aba9d1ad344858feb14822c6",
-  "progressResolution": "Preserved all current-master and unrelated ours entries exactly. Retained updated HUD entry from the later replayed commit. Full union of work-item IDs retained without duplicates. updatedAt selected by parsed datetime instant.",
+  "progressResolution": "Retained later HUD work item and its evidence; all master/unrelated entries preserved exactly; full work-item ID union retained without duplicates. updatedAt selected by parsed datetime instant. HUD milestone note records final-source validation pending.",
   "checks": [
     "JSON parsed and item preservation assertions passed",
     "python3 deploy/update_progress.py set TASK_ID --status in_progress: parsed successfully; milestone unchanged",

@@ -2,7 +2,7 @@
   "date": "2026-10-08T16:52:51.470189+00:00",
   "status": "passed affected final-source checks; ready for independent review",
   "testedHead": "75547d84fb9914af56ef762331c49b6b212ee950",
-  "reviewBase": "af66e69b16f3310e6b396693f91cd4149a1c5541",
+  "reviewBase": "642bc422c621fd1a6e1704ade1148cc85fad398d",
   "gameSourceSHA256": {
     "src/main/java/dev/jayms/Main.java": "e95e29bd790aa33cf7ca87390047f2b01778c3fed9bb47334e08815ff66d4948",
     "src/main/java/dev/jayms/ui/InventoryHud.java": "810e9c37242f03f2cb98f352178a67394f4cbed69c53183ce9d81f029051862c",
@@ -194,5 +194,18 @@
     "intendedCodeDeletions": "Replace old full-width toolbar drawing and hit coordinates, and old full-width hint background. Expand world picking area to match shorter dock. Preserve prior sky-view InventoryHud overload and unconditional render call. All source/progress/media changes checked against recorded review base.",
     "rebase": "Completed by controller; index has no unmerged paths."
   },
-  "limits": "Focused final-source suites and actual native workflows passed. No full-suite pass or performance claim. Software-rendered screenshots show low frame rates. Git publication and independent review remain with controller."
+  "limits": "No performance claim. Native game source and eight screenshots are unchanged from the recorded actual playtests. CI retry passed all four platform builds, with 547 tests passing on each Mac architecture. Local CI-refresh integration and focused suites passed 35 tests. Git publication and independent review remain with controller.",
+  "ciRefresh": {
+    "validatedHead": "30df4b8d904199091ad6fee9ceff763d98b32f88",
+    "sourceMatchesNativeTestedHead": true,
+    "localTests": 35,
+    "localFailures": 0,
+    "localErrors": 0,
+    "run": "https://github.com/jaymsDooku/voxel-one/actions/runs/37812339995/attempts/2",
+    "conclusion": "success",
+    "fourPlatformBuilds": "passed",
+    "macIntelAndArmTestCounts": 547,
+    "report": "hud-ci-refresh.json"
+  },
+  "recoveryStatus": "Historical validation from before latest master integration. Final recovered-head workflow/media/CI validation pending controller continuation. Older head30df4b8 success does not satisfy refreshed-head CI."
 }
