@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-08T12:59:52+00:00",
+  "updatedAt": "2026-10-08T13:13:01+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -20,19 +20,19 @@
       "description": "Implementing two-axis flight and independent enemy manoeuvres; level 1 remains classic.",
       "evidence": [
         {
-          "kind": "link",
+          "kind": "video",
           "label": "Fighter combat video (pending controller publication)",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-61303435393238342d626561392d343965372d396138362d663030626530653839396437/dashboard/evidence/fighters-playtest.mp4"
         },
         {
-          "kind": "link",
+          "kind": "report",
           "label": "Validation report (pending controller publication)",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-61303435393238342d626561392d343965372d396138362d663030626530653839396437/dashboard/evidence/fighters-validation.md"
         }
       ],
       "status": "in_progress",
-      "note": "Progress conflict resolved while preserving upstream milestones. Recovery checks pass: 11 rule tests, valid JSON, unique IDs and matching generated game source. Awaiting controller rebase continuation, then final-head playtest/media.",
-      "updatedAt": "2026-10-08T12:59:52+00:00"
+      "note": "Rebased source verified: 11 rule tests, fighter workflows and extra flight-edge checks at three viewports, 16 layout checks and 20 collision checks pass. Fresh screenshots and MP4 inspected. Ready for controller publication and independent review.",
+      "updatedAt": "2026-10-08T13:13:01+00:00"
     },
     {
       "id": "36333562383531382d393238362d343233352d613535632d623066623433323933626465",

@@ -1,0 +1,31 @@
+{
+  "testedSourceHead": "316d24b6e4b69a3ac684fe77ff63f752a0a9b6fb",
+  "reviewBase": "cb79fa71fd7052f8ae0d311659bcb72882fb0318",
+  "sourceSHA256": {
+    "games/space-invaders/app.mjs": "d0f0223fd732b2737ad394dd97590cbef11cd62fee2566ce0afc8abf66410b39",
+    "games/space-invaders/game.mjs": "2ec2a79f4c22650414c0f10096b194d556b513336fb48a831d19d7eb574352e8",
+    "games/space-invaders/index.html": "309efdbeb34a383662f06f0a436f4ac3f2d24a2a813e816cc57fae3bde22ac75",
+    "games/space-invaders/style.css": "2bbba8b8a4675cdff1d299188ba6d494bc2c0f2be4edcfd270d2438f6b5892b0"
+  },
+  "mediaSHA256": {
+    "dashboard/evidence/fighters-layout-568x320-start.png": "59348d7fe3e3fa8e560a6a7a5bd7b52f6593c6f0b04b8fbb988cfe45cf1a49fa",
+    "dashboard/evidence/fighters-layout-568x320-playing.png": "bcb866daada7b01e01d730feaa61c8329ed6b782c7c08f5c61b954852164a4af",
+    "dashboard/evidence/fighters-layout-667x375-start.png": "708903da7be71ba9bf43854b39aeb0bfc66843ac72697f8c22aa4bb0cc0fa644",
+    "dashboard/evidence/fighters-level-3-1280.png": "08b96654cfe19cd477dc396bf921a5bacd1cdd54935540f139bfaa57a19fa83a",
+    "dashboard/evidence/fighters-layout-568x320-paused.png": "a4be3b12b3fae6ff61091c90ab3bfeb88d69410ac4ed3fb91cd95db3eecebdbb",
+    "dashboard/evidence/fighters-level-3-390.png": "f07db5bc536127ea8e9e6077f48a284cd91c3170d25b7861c76412e6e19bb1b5",
+    "dashboard/evidence/fighters-layout-568x320-game-over.png": "f8b7bf673fb3692aecf59a0daa20709ef3769ab19c12bca63b662d46fd6cae2e",
+    "dashboard/evidence/fighters-collision-regression-844.png": "1520bdb8ae51943fdfc771192d7b75e88078ad34fb33044e7372c0a56c9bc892",
+    "dashboard/evidence/fighters-layout-667x375-playing.png": "4671982e975966af716ff9f582b91cf570471d334ac7584a0dd21d82efade2be",
+    "dashboard/evidence/fighters-level-1-regression.png": "f1d9f3b6b217d7293e477b3651403123a4357c393ec02f0eaa0106f06e8892d3",
+    "dashboard/evidence/fighters-playtest.mp4": "f2f2cf8f4a52284f1106d7043731355e92d5f82f8679c893e7821f6e8b7ace50",
+    "dashboard/evidence/fighters-layout-667x375-paused.png": "1ca4abf9fc72f8eba68fbff64cdc8bc65811d2d3364a280281f7c12947ed1978",
+    "dashboard/evidence/fighters-layout-667x375-game-over.png": "b86fc41a925c7ff2f2c4253c8168481698b6d1b2a7bc1a09f0880cada99e467c",
+    "dashboard/evidence/fighters-level-2-390.png": "b032fd37ae626c8ff40727652938b6e5af166438f976762ffa3f3e0a113fdd8c",
+    "dashboard/evidence/fighters-collision-regression-390.png": "9c1f6814ad4d6a0e00b750cdc1f933e8b7172d15b92fa39027f102b30d8c01ba",
+    "dashboard/evidence/fighters-level-3-844.png": "e264e64db4616feb3d54fe10e7be33a35159ff6ba0a2a9e1818582e0390a46db",
+    "dashboard/evidence/fighters-level-2-844.png": "fb8a384d58fb64e991a2be5b6a7f90b641a8de6ebab54958aea3fdcee2383531",
+    "dashboard/evidence/fighters-level-2-1280.png": "7b609ca42fc3185509e0acf6b315df0264681de6b57d705f9d3b98bf58ba7442"
+  },
+  "publication": "Pending controller publication"
+}
