@@ -4,7 +4,7 @@
       "browser": "Playwright WebKit",
       "mobile": false,
       "viewport": "1280x900",
-      "hud": "Score 110 · Lives 3 · Wave 1",
+      "hud": "Score 70 · Lives 3 · Wave 1",
       "observed": "Navigation, start, move/fire, pause/resume, blur pause, release/cancel input, viewport controls, injected boundary reversal, wave completion, game-over/restart passed",
       "errors": []
     },
@@ -12,7 +12,7 @@
       "browser": "Playwright WebKit",
       "mobile": true,
       "viewport": "390x844, 844x390",
-      "hud": "Score 30 · Lives 3 · Wave 1",
+      "hud": "Score 60 · Lives 3 · Wave 1",
       "observed": "Navigation, start, move/fire, pause/resume, blur pause, release/cancel input, viewport controls, injected boundary reversal, wave completion, game-over/restart passed",
       "errors": []
     }

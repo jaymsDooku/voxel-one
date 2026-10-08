@@ -27,6 +27,7 @@ function resize(){
  top=height<500?62:100;const bottom=height<500?72:112;
  playHeight=Math.max(100,height-top-bottom);
  unit=Math.min(width/480,playHeight/570);
+ game.renderScale={x:unit/(width/480),y:unit/(playHeight/570)};
  backdrop=document.createElement('canvas');backdrop.width=canvas.width;backdrop.height=canvas.height;
  const sky=backdrop.getContext('2d');sky.scale(dpr,dpr);
  sky.fillStyle='#030817';sky.fillRect(0,0,width,height);
@@ -50,7 +51,7 @@ function resize(){
 new ResizeObserver(resize).observe(canvas);
 function project(x,y){return [x/480*width,top+y/570*playHeight];}
 function worldModel(name,x,y,color){const [px,py]=project(x,y);ctx.save();ctx.translate(px,py);ctx.scale(unit,unit);model(name,0,0,color);ctx.restore();}
-function worldCube(x,y,size,color){const [px,py]=project(x,y);cube(px,py,size*unit,color);}
+function worldCube(x,y,size,color,offsetX=0){const [px,py]=project(x,y);ctx.save();ctx.translate(px,py);ctx.scale(unit,unit);cube(offsetX,0,size,color);ctx.restore();}
 function draw(t){
  if(!backdrop)return;
  ctx.drawImage(backdrop,0,0,width,height);
@@ -63,8 +64,8 @@ function draw(t){
  if(game.saucer)worldModel('octopus',game.saucer.x,game.saucer.y,'#ff6a93');
  for(const b of game.shields)worldCube(b.x,b.y,5,'#459daa');
  if(game.invulnerable<=0||Math.floor(t/100)%2)worldModel('ship',game.player,520,'#8dcaff');
- for(const s of game.shots)worldCube(s.x-2,s.y,3,'#fff5af');
- for(const s of game.enemyShots)worldCube(s.x-2,s.y,4,'#ff6386');
+ for(const s of game.shots)worldCube(s.x,s.y,3,'#fff5af',-2);
+ for(const s of game.enemyShots)worldCube(s.x,s.y,4,'#ff6386',-2);
 }
 function frame(t){const touch=[...pointers.values()];game.update((t-last)/1000,{axis:Number(keys.has('ArrowRight')||keys.has('KeyD')||touch.includes('right'))-Number(keys.has('ArrowLeft')||keys.has('KeyA')||touch.includes('left')),fire:keys.has('Space')||touch.includes('fire')});last=t;draw(t);hud.textContent=`Score ${game.score} · Lives ${game.lives} · Wave ${game.wave}`;if(oldState!==game.state){oldState=game.state;overlay.hidden=game.state==='playing';pause.disabled=!['playing','paused'].includes(game.state);pause.textContent=game.state==='paused'?'Resume':'Pause';if(game.state==='paused'){title.textContent='Paused';message.textContent='Your game is safe. Resume when ready.';start.textContent='Resume';}if(game.state==='over'){title.textContent='Game over';message.textContent=`Final score: ${game.score} · Wave ${game.wave}`;start.textContent='Play again';}status.textContent=game.state==='playing'?'Game started':title.textContent;}requestAnimationFrame(frame);}
 requestAnimationFrame(frame);

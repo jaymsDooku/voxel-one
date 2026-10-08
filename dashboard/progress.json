@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-08T10:28:15+00:00",
+  "updatedAt": "2026-10-08T10:38:59+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -20,8 +20,8 @@
       "description": "Building a viewport-filling space scene with overlay HUD and touch controls.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Full-screen voxel space scene implemented. Eight rules tests, 16 WebKit viewport/state checks, desktop/mobile combat and resize checks passed. Captured fresh screenshots and WebM; awaiting controller publication and independent review.",
-      "updatedAt": "2026-10-08T10:28:15+00:00"
+      "note": "Collision bounds now follow visible voxels at each viewport scale. Twenty live hit/miss checks, eight rules tests, full gameplay and 16 layout checks passed. Fresh PNG/WebM captured; awaiting controller publication and review.",
+      "updatedAt": "2026-10-08T10:38:59+00:00"
     },
     {
       "id": "63386663653465302d303138612d346331372d396364302d353961636235626436613632",
