@@ -1,31 +1,35 @@
 {
-  "date": "2026-10-08T16:13:21.552242+00:00",
-  "status": "Historical pre-integration validation; final-source checks and fresh media pending controller rebase continuation",
-  "environment": "Linux, inherited assigned X11 display and XAUTHORITY, Mesa software rendering, JDK 21 game runtime; synthetic offline profile under target/hud-profile and target/hud-home",
-  "acceptance": "Nine icon-only actions centered at the bottom; dock at most 396 px with a 404 px background panel, 54 px panel height. Hover labels and selected accents. Context hint above dock. Block hotbar hidden only in closed-inventory city overview.",
+  "date": "2026-10-08T16:52:51.470189+00:00",
+  "status": "passed affected final-source checks; ready for independent review",
+  "testedHead": "75547d84fb9914af56ef762331c49b6b212ee950",
+  "reviewBase": "af66e69b16f3310e6b396693f91cd4149a1c5541",
+  "gameSourceSHA256": {
+    "src/main/java/dev/jayms/Main.java": "e95e29bd790aa33cf7ca87390047f2b01778c3fed9bb47334e08815ff66d4948",
+    "src/main/java/dev/jayms/ui/InventoryHud.java": "810e9c37242f03f2cb98f352178a67394f4cbed69c53183ce9d81f029051862c",
+    "src/main/java/dev/jayms/ui/CityTools.java": "5fba2be174ff59d7513e67540ccaa85790389dbe45d02c127c890f7005bb7616",
+    "src/main/java/dev/jayms/ui/CityActionBar.java": "49d2c677196c57ddaebf6d39f5cb82beb8da3f572b806dce7348f236446f3fd0"
+  },
+  "environment": "Linux, assigned inherited X11 display and XAUTHORITY, Mesa software rendering, JDK 21 game runtime; isolated synthetic profiles under target/hud-profile and target/hud-home. Sandbox retry used -Xmx768m -Dvoxel.gl33=true -Dvoxel.renderScale=.5. No credentials or private runtime logs included.",
+  "acceptance": "Nine icon-only actions centered at the bottom; 396 px cell strip with a 404 px background panel, 54 px panel height. Hover labels, selected accents and context hints preserved. Sky view hides player health/hotbar in both city and sandbox; inventory remains usable.",
   "commands": [
     {
-      "command": "mvn -q -Dmaven.repo.local=target/maven-cache test",
-      "result": "Failed: sandbox default temp directory was unavailable; stale old-toolbar coordinates also failed. No full-suite pass claimed."
-    },
-    {
-      "command": "mvn -q -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" test",
-      "result": "545 tests, 1 failure, 0 errors. RoadTypesTest clicked old toolbar coordinates; corrected, then reran affected suites."
-    },
-    {
-      "command": "mvn -q -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=CityActionBarTest,CityToolsTest,InventoryHudTest,ExchangePermitCompositionTest,RoadTypesTest,AviationTest -Dsurefire.reportsDirectory=target/hud-scoped-reports test",
-      "result": "Exit 0; 34 tests passed. This Surefire configuration wrote reports to target/surefire-reports."
+      "command": "mvn -q -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=CityActionBarTest,CityToolsTest,InventoryHudTest,ExchangePermitCompositionTest,RoadTypesTest,AviationTest test",
+      "result": "Exit 0; 34 tests, 0 failures, 0 errors, 0 skipped."
     },
     {
       "command": "python3 deploy/run_hud_action_bar_smoke.py --display \"$DISPLAY\"",
-      "result": "Exit 0 on final capture run. Actual Main game, real X11 input, production GLFW callbacks. Captures wait two rendered frames."
+      "result": "Exit 0; nine real icon clicks; road submenu; world zone click/cancel; outside dock; 640x640; open/closed inventory; walking. Native health screenshot assertions passed."
     },
     {
-      "command": "git diff --check",
-      "result": "Passed"
+      "command": "python3 deploy/run_hud_action_bar_smoke.py --display \"$DISPLAY\" --sandbox",
+      "result": "First attempt was terminated with exit 143 before completion; not claimed as passed. Retry with lower-memory rendering settings exited 0. Sky/inventory/walking screenshots and health pixel checks passed; 7 Stone moved by real inventory clicks."
     },
     {
       "command": "python3 -m py_compile deploy/run_hud_action_bar_smoke.py",
+      "result": "Passed"
+    },
+    {
+      "command": "git diff --check",
       "result": "Passed"
     }
   ],
@@ -75,50 +79,107 @@
   ],
   "Playtest:": [
     {
-      "steps": "Enter city overview at 1280x720; click all nine icons.",
+      "steps": "City overview at 1280x720: click all nine icons.",
       "expected": "Inspect, Roads, Residential, Commercial, Industrial, Agriculture, Economy, Special, Exchange selected in order.",
-      "observed": "All nine tool state assertions passed."
+      "observed": "All nine tool assertions passed."
     },
     {
-      "steps": "Click Roads, choose Dirt road in submenu, press Escape.",
-      "expected": "Road tool and type 0 selected; Escape returns to Inspect.",
-      "observed": "Passed; rendered road accent and hint captured."
+      "steps": "Choose Roads, Dirt road submenu, then Escape.",
+      "expected": "Tool 4 and road type 0 selected; Escape returns to Inspect.",
+      "observed": "Passed; selected road accent and hint captured."
     },
     {
-      "steps": "Select Residential, click world at 400,350, press Escape.",
-      "expected": "One polygon point; cancellation clears it.",
+      "steps": "Choose Residential, click world at 400,350, Escape; click at bottom left outside dock.",
+      "expected": "One zone point; cancel clears it; outside dock leaves Inspect selected.",
       "observed": "Passed."
     },
     {
-      "steps": "Click bottom left outside dock; hover Commercial.",
-      "expected": "No tool switch outside dock; Commercial tooltip above dock.",
-      "observed": "Passed; tooltip and compact dock visually inspected."
+      "steps": "Resize to 640x640 and select Exchange.",
+      "expected": "Last dock target reachable; capture remains 640x640 without dock clipping.",
+      "observed": "Passed; file dimensions verified and image inspected."
     },
     {
-      "steps": "Resize to 640x640; select last icon, Exchange.",
-      "expected": "All dock controls fit; last icon selects Exchange.",
-      "observed": "Passed; screenshot shows selected Exchange and hover label."
+      "steps": "City overview: E opens/closes inventory, F6 returns to walking.",
+      "expected": "Sky and inventory hide player HUD; walking restores health and block hotbar.",
+      "observed": "Passed by native health pixel checks and visual inspection."
     },
     {
-      "steps": "Open and close inventory with E, switch to walking with F6.",
-      "expected": "Inventory remains usable; city dock hidden in modal and walking; block hotbar and health shown.",
-      "observed": "Passed; inventory and walking screenshots visually inspected."
+      "steps": "Sandbox: F6 sky view, E inventory, click synthetic stack in hotbar slot 0 then inventory slot 9, E close, F6 walking.",
+      "expected": "Sky has no player HUD or city dock; inventory remains visible and moves 7 Stone; walking restores player HUD.",
+      "observed": "Passed. Stack state asserted at slot 9 count 7, slot 0 empty. All three images visually inspected."
     }
   ],
+  "pixelAssertions": "Health region: x=[w/2-252+90,w/2-252+427), y=[h-72-26,h-72-13). RGB reference (230,59,77), tolerance 2 per channel. Visible requires >2000 matching pixels; hidden requires <200. All six city/sandbox state assertions passed.",
   "media": [
-    "hud-compact-overview.png",
-    "hud-compact-roads.png",
-    "hud-compact-narrow.png",
-    "hud-inventory-regression.png",
-    "hud-walking-regression.png"
+    {
+      "file": "hud-compact-overview.png",
+      "width": 1280,
+      "height": 720,
+      "bytes": 697771,
+      "sha256": "c7ea56ecc125f8f6c557a084e43fa94d50ecebaa38e2496c2e54c84f91a9758c",
+      "visuallyInspected": true
+    },
+    {
+      "file": "hud-compact-roads.png",
+      "width": 1280,
+      "height": 720,
+      "bytes": 467334,
+      "sha256": "eea1bbf8a93de2fbbfe59e07791a9c6c28f8e83e905a676286cd6c7833730c0e",
+      "visuallyInspected": true
+    },
+    {
+      "file": "hud-compact-narrow.png",
+      "width": 640,
+      "height": 640,
+      "bytes": 376164,
+      "sha256": "12f81f1949cead48098a05faf66c8afcce173536166fe16f404a473e67f45e9b",
+      "visuallyInspected": true
+    },
+    {
+      "file": "hud-inventory-regression.png",
+      "width": 640,
+      "height": 640,
+      "bytes": 108105,
+      "sha256": "4375781f801fb1b952382e166d2042a1ee9b2a7036ff519511e53ab931222e0c",
+      "visuallyInspected": true
+    },
+    {
+      "file": "hud-walking-regression.png",
+      "width": 640,
+      "height": 640,
+      "bytes": 345649,
+      "sha256": "31b0486543aff40e5a5f55095605620883c8b3fb16f46e582047795be53d7b75",
+      "visuallyInspected": true
+    },
+    {
+      "file": "hud-sandbox-sky.png",
+      "width": 1280,
+      "height": 720,
+      "bytes": 60885,
+      "sha256": "dec9760d7c3066c6febde59b1d664f4f2d4a4c394b2236747d6c909317ece820",
+      "visuallyInspected": true
+    },
+    {
+      "file": "hud-sandbox-inventory.png",
+      "width": 1280,
+      "height": 720,
+      "bytes": 24862,
+      "sha256": "16e598cd042c7d61f8a0d60d1386b02ab8c32b55429f227fed294ea66f503b86",
+      "visuallyInspected": true
+    },
+    {
+      "file": "hud-sandbox-walking.png",
+      "width": 1280,
+      "height": 720,
+      "bytes": 755467,
+      "sha256": "9c2b365006ede16f1830540c01e568843fe4f83af0e08ed8181c123419448df2",
+      "visuallyInspected": true
+    }
   ],
-  "publication": "Pending controller publication to assigned feature branch. All media captured from this implementation; synthetic offline state only.",
-  "limits": "Software-rendered test observed FPS 0-1; no performance claim. Full suite was not rerun after correcting the final stale-coordinate test; its affected suite passed in the scoped run. Controller must rerun meaningful checks/media if master integration changes source.",
-  "diffAudit": "No pending rebase or unmerged index. Current proposed source diff removes old full-width toolbar drawing/hit geometry, replaces hint background geometry, and expands available world picking area to match the shorter dock. No unrelated files or merged features deleted. Recorded synchronized review base not yet supplied.",
-  "recovery": {
-    "reviewBase": "af66e69b16f3310e6b396693f91cd4149a1c5541",
-    "restoredReviewerBase": "642bc422",
-    "preservedFiles": [
+  "publication": "All eight fresh screenshots pending controller publication to assigned feature branch. Prior-task images retained unchanged and are historical evidence for that prior task.",
+  "diffAudit": {
+    "noFileDeletions": true,
+    "priorFilesPreservedByteForByte": [
       "deploy/IsometricHudSmoke.java",
       "deploy/run_isometric_hud_smoke.py",
       "dashboard/evidence/isometric-hud-hidden.png",
@@ -128,10 +189,10 @@
       "dashboard/evidence/isometric-inventory.png",
       "dashboard/evidence/player-hud-restored.png"
     ],
-    "priorProgressEntriesRetained": true,
-    "mainCall": "inventoryHud.render(..., !isometric) unconditionally",
-    "newRegressionCoverage": "City and sandbox sky-view hidden health; open inventory keeps HUD hidden; walking restores health. Native screenshot pixel assertions added; harness compilation passed, execution pending rebase continuation.",
-    "diffAudit": "Entire proposed diff audited against recorded review base: no file deletions. Earlier merged sky-view feature, its harness, artifacts and progress remain. Intended removed code is only the old full-width toolbar rendering/hit coordinates and old hint layout; compact dock shares draw/hit geometry.",
-    "handoff": "Conflict markers removed from dashboard/progress.json. Index remains unmerged for controller staging and rebase continuation; no Git mutation performed."
-  }
+    "priorProgressEntriesPreservedExactly": true,
+    "mainAndInventoryHudMatchReviewerBase642bc422": true,
+    "intendedCodeDeletions": "Replace old full-width toolbar drawing and hit coordinates, and old full-width hint background. Expand world picking area to match shorter dock. Preserve prior sky-view InventoryHud overload and unconditional render call. All source/progress/media changes checked against recorded review base.",
+    "rebase": "Completed by controller; index has no unmerged paths."
+  },
+  "limits": "Focused final-source suites and actual native workflows passed. No full-suite pass or performance claim. Software-rendered screenshots show low frame rates. Git publication and independent review remain with controller."
 }

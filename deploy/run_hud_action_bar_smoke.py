@@ -20,6 +20,7 @@ report.unlink(missing_ok=True)
 with open('target/hud-runtime-private.txt', 'w') as runtime:
     try:
         result = subprocess.run(['/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java',
+        *(['-Xmx768m', '-Dvoxel.gl33=true', '-Dvoxel.renderScale=.5'] if args.sandbox else []),
         '-Djava.io.tmpdir=' + str(root / 'target/tmp'), '-Duser.home=' + str(root / 'target/hud-home'),
         '-cp', cp, 'HudActionBarSmoke', str(root / 'dashboard/evidence'),
         'sandbox' if args.sandbox else 'city'],

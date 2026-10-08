@@ -56,6 +56,17 @@ public class HudActionBarSmoke {
         require(visible ? redPixels>2000 : redPixels<200,
                 "Player health HUD "+(visible ? "visible" : "hidden")+"; red pixels="+redPixels);
     }
+    static void exerciseSandboxInventory(String id) throws Exception {
+        var inventory = new dev.jayms.net.Inventory();
+        inventory.add(dev.jayms.net.Blocks.STONE,7);
+        ((dev.jayms.net.LocalGame)get("local")).inventory = inventory;
+        int w=(int)get("framebufferWidth"), h=(int)get("framebufferHeight");
+        int x=w/2-268+26, y=h/2-175;
+        x("mousemove","--window",id,""+x,""+(y+210)); x("click","1");
+        x("mousemove","--window",id,""+x,""+(y+20)); x("click","1");
+        await(() -> inventory.count(0)==0 && inventory.type(9)==dev.jayms.net.Blocks.STONE
+                && inventory.count(9)==7,"Sandbox inventory stack moved by real clicks");
+    }
     public static void main(String[] args) throws Exception {
         Path out = Path.of(args[0]); Files.createDirectories(out);
         glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
@@ -83,13 +94,14 @@ public class HudActionBarSmoke {
                     capture(id,out.resolve("hud-sandbox-sky.png"));
                     verifyPlayerHud(out.resolve("hud-sandbox-sky.png"),false);
                     x("key","e"); await(() -> ((InventoryHud)get("inventoryHud")).open,"Sandbox inventory opens");
+                    exerciseSandboxInventory(id);
                     capture(id,out.resolve("hud-sandbox-inventory.png"));
                     verifyPlayerHud(out.resolve("hud-sandbox-inventory.png"),false);
                     x("key","e"); await(() -> !((InventoryHud)get("inventoryHud")).open,"Sandbox inventory closes");
                     x("key","F6"); await(() -> !(boolean)get("isometric"),"Sandbox walking restored");
                     capture(id,out.resolve("hud-sandbox-walking.png"));
                     verifyPlayerHud(out.resolve("hud-sandbox-walking.png"),true);
-                    Files.writeString(out.resolve(resultName),"Playtest: PASS. Synthetic sandbox sky view hides player HUD; inventory opens and closes while HUD stays hidden; walking restores player HUD. Real X11 input and screenshot pixel checks.\n");
+                    Files.writeString(out.resolve(resultName),"Playtest: PASS. Synthetic sandbox sky view hides player HUD; inventory opens, moves 7 Stone from hotbar slot 0 to inventory slot 9 by real clicks, and closes while HUD stays hidden; walking restores player HUD. Real X11 input and screenshot pixel checks.\n");
                     return;
                 }
                 CityTools tools = (CityTools)get("cityTools");

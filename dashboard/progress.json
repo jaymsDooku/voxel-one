@@ -33,11 +33,21 @@
           "kind": "report",
           "label": "HUD validation (pending controller publication)",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63376532363935642d643939642d343933632d396236332d366331393033393032336566/dashboard/evidence/hud-compact-validation.json"
+        },
+        {
+          "kind": "image",
+          "label": "Sandbox sky HUD regression (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63376532363935642d643939642d343933632d396236332d366331393033393032336566/dashboard/evidence/hud-sandbox-sky.png"
+        },
+        {
+          "kind": "image",
+          "label": "Sandbox inventory stack movement (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63376532363935642d643939642d343933632d396236332d366331393033393032336566/dashboard/evidence/hud-sandbox-inventory.png"
         }
       ],
       "status": "in_progress",
-      "note": "Rebase conflict resolved in file contents. Retained prior HUD harness, evidence and progress. Restored unconditional InventoryHud rendering with !isometric; added city and sandbox sky-view regression checks. Awaiting controller rebase continuation before final-source tests and fresh media.",
-      "updatedAt": "2026-10-08T16:46:21+00:00"
+      "note": "Final recovered-source validation passed: 34 focused tests, city icon-dock playtest, and sandbox sky/inventory/walking regression with real stack movement. Eight fresh screenshots inspected. Prior HUD source, evidence and progress preserved exactly. Ready for controller publication and independent review.",
+      "updatedAt": "2026-10-08T16:52:51+00:00"
     },
     {
       "id": "61653837396463352d666237642d343239332d393666322d616363613032353030623264",

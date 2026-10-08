@@ -1,0 +1,1 @@
+Playtest: PASS. Synthetic sandbox sky view hides player HUD; inventory opens, moves 7 Stone from hotbar slot 0 to inventory slot 9 by real clicks, and closes while HUD stays hidden; walking restores player HUD. Real X11 input and screenshot pixel checks.
