@@ -25,3 +25,17 @@ changed in the controls menu. F6, F7, F8, F9 and F10 keep their existing functio
 Treasury grants, carrier blocks and the current road vehicle use existing saves.
 Extra parked road vehicles and spawned jets last for the session. Cheat mode and
 its selected vehicle reset when the game starts.
+
+In City Builder, **Delete** drops a missile at the isometric view centre. In the
+walking view, aim at terrain within 120 blocks. Move at least 20 blocks from the
+target. The target and launch space must be loaded. One missile can fall at a time.
+
+The falling missile uses gravity and swept voxel collision. Impact removes solid
+voxels within 6 blocks and demolishes buildings whose footprint meets that radius.
+Demolition clears city records through the normal city command. Whole building
+removal can extend beyond the crater. Nearby roads keep their route records and
+may need terrain repairs. The blast shows a fire flash, rising smoke and up to
+192 coloured physics shards. Shards bounce off voxel geometry and expire after
+8 simulation seconds. A new missile clears the prior blast's transient effects.
+City demolition and crater edits persist in the offline save. This cheat has no
+multiplayer command and does not change player health or city citizen counts.

@@ -2136,14 +2136,19 @@ public final class CitySimulation {
         return "District " + id + " settled with " + count + " immigrants";
     }
 
-    private String demolish(int id) {
+    /** Caller must enforce offline cheat mode. Normal demolition keeps player safety checks. */
+    public String demolishForOfflineBlast(int id) { return demolish(id, true); }
+
+    private String demolish(int id) { return demolish(id, false); }
+
+    private String demolish(int id, boolean blast) {
         var b = building(id);
         if (b == null) return "Building is no longer available";
-        if (b.type() == SpecialBuildings.PORT)
+        if (!blast && b.type() == SpecialBuildings.PORT)
             for (int y=Geography.SEA_LEVEL; y<b.y(); y+=7)
                 if (ground.playerOccupied(b.x(),y,b.z(),StructureBlueprint.width(b.type()),StructureBlueprint.depth(b.type())))
                     return "Move players out of the building before demolition";
-        if (ground.playerOccupied(
+        if (!blast && ground.playerOccupied(
                 b.x(),
                 b.y(),
                 b.z(),
@@ -2177,7 +2182,7 @@ public final class CitySimulation {
             var p = ecs.get(f.citizen(), Position.class);
             var h = ecs.get(f.citizen(), Household.class);
             if (h != null && h.horse != 0) { var m = ecs.get(h.horse, Mount.class); if (m != null) m.rider = 0; h.horse = 0; }
-            if (p != null) { p.x = safe.x() + 2.5f; p.y = safe.y() + 1.01f; p.z = safe.z() - .5f; }
+            if (p != null) { p.x = (safe == null ? b.x() : safe.x()) + 2.5f; p.y = (safe == null ? b.y() : safe.y()) + 1.01f; p.z = (safe == null ? b.z() : safe.z()) - .5f; }
             flights.remove(f);
         }
         buildings.remove(b);

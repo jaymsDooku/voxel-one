@@ -201,6 +201,21 @@ class CityTest {
     }
 
     @Test
+    void offlineBlastClearsOccupiedBuildingWhileNormalDemolitionStillProtectsPlayers() {
+        var ground = new Ground();
+        var sim = simulation(ground);
+        for (int i=0;i<160;i++) sim.advance(1);
+        var building = sim.frame().buildings().get(0);
+        ground.occupied = true;
+        assertTrue(sim.command(new CityCommand(CityCommand.DEMOLISH,building.id(),List.of()),1,null).contains("Move players"));
+        assertTrue(sim.frame().buildings().contains(building));
+        assertTrue(sim.demolishForOfflineBlast(building.id()).startsWith("Building demolished"));
+        assertFalse(sim.frame().buildings().stream().anyMatch(b -> b.id()==building.id()));
+        assertNull(sim.economy.property(building.id()));
+        assertTrue(ground.edits.values().stream().anyMatch(e -> e.type()==Blocks.AIR));
+    }
+
+    @Test
     void starterCityBuildsAllStructuresAndAssignsHouseholdsAndJobs() {
         var g = new Ground();
         var sim = simulation(g);
