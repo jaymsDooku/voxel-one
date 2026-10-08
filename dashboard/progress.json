@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T22:33:43.250351+00:00",
+  "updatedAt": "2026-10-08T10:28:15+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,15 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "35356131616330382d373362612d343264372d396562312d376335386464313036373835",
+      "title": "Full-screen voxel Space Invaders",
+      "description": "Building a viewport-filling space scene with overlay HUD and touch controls.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Full-screen voxel space scene implemented. Eight rules tests, 16 WebKit viewport/state checks, desktop/mobile combat and resize checks passed. Captured fresh screenshots and WebM; awaiting controller publication and independent review.",
+      "updatedAt": "2026-10-08T10:28:15+00:00"
+    },
     {
       "id": "63386663653465302d303138612d346331372d396364302d353961636235626436613632",
       "title": "Voxel physics systems",
