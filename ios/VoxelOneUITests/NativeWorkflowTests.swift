@@ -45,6 +45,20 @@ final class NativeWorkflowTests:XCTestCase {
         return parts.compactMap{part -> Int? in part.hasSuffix(" roads") ? Int(part.components(separatedBy:" ").first ?? "") : nil}.first ?? -1
     }
     func capture(_ name:String){let attachment=XCTAttachment(screenshot:app.screenshot());attachment.name=name;attachment.lifetime = .keepAlways;add(attachment)}
+    func aimAtHorizonForEvidence(){
+        let scene=app.otherElements["worldView"];wait(scene)
+        for _ in 0..<3 {
+            let aim=app.staticTexts["playerPosition"].label.components(separatedBy:" · Aim ").last ?? ""
+            let values=aim.components(separatedBy:" · ").first?.components(separatedBy:", ") ?? []
+            guard values.count==2,let pitch=Double(values[1]) else {XCTFail("Missing camera pitch");return}
+            if abs(pitch + 0.12)<0.05 {break}
+            let requested=CGFloat((pitch+0.12)/0.004)
+            let dy=max(-scene.frame.height*0.25,min(scene.frame.height*0.25,requested))
+            let start=scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.55))
+            start.press(forDuration:0.05,thenDragTo:start.withOffset(CGVector(dx:0,dy:dy)))
+        }
+        capture("offline-horizon")
+    }
     func menu(){if app.buttons["menuButton"].exists {app.buttons["menuButton"].tap()};wait(app.buttons["offlineNewButton"])}
     func newOffline(){menu();app.buttons["offlineNewButton"].tap();if app.alerts.buttons["New world"].waitForExistence(timeout:2){app.alerts.buttons["New world"].tap()};wait(app.buttons["breakButton"])}
     func testOfflineTouchBuildSavePauseAndLandscape()throws {
@@ -116,5 +130,9 @@ final class NativeWorkflowTests:XCTestCase {
         if app.buttons["offlineResumeButton"].exists {app.buttons["offlineResumeButton"].tap()}
         if !app.buttons["breakButton"].waitForExistence(timeout:5) {app.alerts.buttons["OK"].tap();newOffline()}
         wait(app.buttons["breakButton"])
+        aimAtHorizonForEvidence()
+        // Save this normal-control camera pose for the trusted verifier's independent launch.
+        app.buttons["menuButton"].tap();wait(app.buttons["offlineResumeButton"])
+        app.buttons["offlineResumeButton"].tap();wait(app.buttons["breakButton"])
     }
 }

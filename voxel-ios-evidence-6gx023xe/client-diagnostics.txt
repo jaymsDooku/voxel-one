@@ -1,6 +1,0 @@
-Source: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-Request: e3dc3d1a-7337-4c72-a372-89276285cd00
-Stage: client_script
-Error: command_failed
-Exit code: 1
-java-build.log (head:1) [error] ios/java/Bridge.java:[8,2] cannot find symbol

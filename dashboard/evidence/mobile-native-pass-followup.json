@@ -1,0 +1,37 @@
+{
+  "sourceHead": "7d71fdc70f9dd5c6489c27dfafc744eb22d17136",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/37799063007",
+  "environment": {
+    "macOS": "15.7.9",
+    "xcode": "Xcode 16.4\nBuild version 16F6",
+    "simulatorSDK": "18.5"
+  },
+  "device": "iPhone SE (3rd generation)",
+  "tests": [
+    {
+      "name": "testOfflineTouchBuildSavePauseAndLandscape",
+      "status": "passed"
+    },
+    {
+      "name": "testOnlineLoginCityPlanningAndReconnect",
+      "status": "passed"
+    },
+    {
+      "name": "testCollisionJumpRayAndEditRules",
+      "status": "passed"
+    },
+    {
+      "name": "testSnapshotValidationAndSaveRoundTrip",
+      "status": "passed"
+    }
+  ],
+  "Playtest": "Actual installed native app: offline touch break/place, movement/look/jump, pause, empty-slot rejection, save/restart/landscape; online city login, missing-point rejection, road receipt/count increase, walk and reconnect. All four native cases passed.",
+  "mediaInspection": "client.png shows native controls, saved edited inventory and offline player pose; view points down at uniform grass. preflight.png is only the simulator home screen. Neither depicts the city road workflow.",
+  "nextCheck": "Changed native workflow final pose using normal look gestures to face near the horizon; save and resume before independent verifier launch. Must rerun this test change.",
+  "cleanup": "Removed 33 generated root upload directories added since review base; contents preserved under ignored target/mobile-upload-staging-preserved/current-mac-pass. No merged features deleted.",
+  "limitations": [
+    "No physical iPhone test.",
+    "Online phone play needs the documented HTTPS gateway.",
+    "Clear terrain media remains required before ready."
+  ]
+}
