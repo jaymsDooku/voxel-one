@@ -191,8 +191,8 @@
       "description": "Native phone client with touch sandbox controls and server-authoritative city planning.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Rebase complete. Local harness and city integration checks pass. Native/mobile source matches the prior passed Mac run; request new exact-head Mac workflow and media before review.",
-      "updatedAt": "2026-10-08T15:46:57+00:00"
+      "note": "Rebased exact-source Mac build and all four native workflow/regression tests passed. Gameplay image inspected and saved for controller publication. Ready for independent review; physical iPhone remains untested.",
+      "updatedAt": "2026-10-08T15:56:42+00:00"
     },
     {
       "id": "63386663653465302d303138612d346331372d396364302d353961636235626436613632",
