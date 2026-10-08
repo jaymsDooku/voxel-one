@@ -307,6 +307,71 @@ class RunContractTests(unittest.TestCase):
                 self.assertNotIn('stdout', report)
                 self.assertNotIn('stderr', report)
 
+    def test_boot_verify_timeout_retries_once_and_still_checks_device_state(self):
+        failures = 0
+        waits = []
+        def slow_command(args, **kwargs):
+            nonlocal failures
+            result = self.fake(args, **kwargs)
+            if args == ['xcrun', 'simctl', 'list', 'devices', '--json'] and failures == 0:
+                failures += 1
+                self.assertEqual(kwargs['timeout'], 120)
+                raise checks.CheckError('command_failed', timed_out=True)
+            return result
+        report = checks.run_checks(self.repo, self.output, HEAD, 'preflight', REQUEST,
+                                  run_command=slow_command, system_name='Darwin', wait=waits.append)
+        self.assertEqual(report['status'], 'passed')
+        self.assertEqual(report['bootVerifyAttempts'], 2)
+        self.assertIn(5, waits)
+
+    def test_boot_verify_budget_exhaustion_prevents_retry(self):
+        attempts = 0
+        def exhausted_command(args, **kwargs):
+            nonlocal attempts
+            result = self.fake(args, **kwargs)
+            if args == ['xcrun', 'simctl', 'list', 'devices', '--json']:
+                attempts += 1
+                raise checks.CheckError('command_failed', timed_out=True)
+            return result
+        with mock.patch.object(checks.time, 'monotonic', side_effect=[0, 0, 181]):
+            report = checks.run_checks(self.repo, self.output, HEAD, 'client', REQUEST,
+                                      run_command=exhausted_command, system_name='Darwin', wait=lambda _: None)
+        self.assertEqual(attempts, 1)
+        self.assertEqual(report['status'], 'failed')
+        self.assertTrue(report['timedOut'])
+        self.assertEqual(self.fake.client_runs, 0)
+
+    def test_boot_verify_non_timeout_failure_is_not_retried(self):
+        attempts = 0
+        def failed_command(args, **kwargs):
+            nonlocal attempts
+            result = self.fake(args, **kwargs)
+            if args == ['xcrun', 'simctl', 'list', 'devices', '--json']:
+                attempts += 1
+                raise checks.CheckError('command_failed', exit_code=1)
+            return result
+        report = checks.run_checks(self.repo, self.output, HEAD, 'client', REQUEST,
+                                  run_command=failed_command, system_name='Darwin', wait=lambda _: None)
+        self.assertEqual(attempts, 1)
+        self.assertEqual(report['status'], 'failed')
+        self.assertEqual(report['errorStage'], 'boot_verify')
+        self.assertEqual(self.fake.client_runs, 0)
+
+    def test_boot_verify_repeated_timeout_fails_before_client_and_cleans_up(self):
+        def stuck_command(args, **kwargs):
+            result = self.fake(args, **kwargs)
+            if args == ['xcrun', 'simctl', 'list', 'devices', '--json']:
+                raise checks.CheckError('command_failed', timed_out=True)
+            return result
+        report = checks.run_checks(self.repo, self.output, HEAD, 'client', REQUEST,
+                                  run_command=stuck_command, system_name='Darwin', wait=lambda _: None)
+        self.assertEqual(report['status'], 'failed')
+        self.assertEqual(report['errorStage'], 'boot_verify')
+        self.assertTrue(report['timedOut'])
+        self.assertEqual(report['bootVerifyAttempts'], 2)
+        self.assertEqual(self.fake.client_runs, 0)
+        self.assertEqual(report['cleanup'], 'passed')
+
     def test_cold_inventory_first_timeout_retries_once_then_provisions(self):
         original = self.fake
         failures = 0
