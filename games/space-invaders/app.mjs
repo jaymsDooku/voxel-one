@@ -6,7 +6,7 @@ const keys=new Set(),pointers=new Map();let last=0,oldState='';
 function clear(){keys.clear();pointers.clear();document.querySelectorAll('.active').forEach(b=>b.classList.remove('active'));}
 function toggle(){clear();game.pause();}
 start.onclick=()=>{clear();if(game.state==='paused')game.pause();else game.restart();};pause.onclick=toggle;
-addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','Space','KeyA','KeyD','KeyP','Escape'].includes(e.code)){e.preventDefault();if(!e.repeat&&(e.code==='KeyP'||e.code==='Escape'))toggle();keys.add(e.code);}});
+addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Space','KeyA','KeyD','KeyW','KeyS','KeyP','Escape'].includes(e.code)){e.preventDefault();if(!e.repeat&&(e.code==='KeyP'||e.code==='Escape'))toggle();keys.add(e.code);}});
 addEventListener('keyup',e=>keys.delete(e.code));
 for(const b of document.querySelectorAll('[data-control]')){
  b.addEventListener('pointerdown',e=>{e.preventDefault();if(e.isTrusted)b.setPointerCapture(e.pointerId);pointers.set(e.pointerId,b.dataset.control);b.classList.add('active');});
@@ -52,6 +52,7 @@ new ResizeObserver(resize).observe(canvas);
 export function project(x,y){
  if(game.perspective==='classic')return [x/480*width,top+y/570*playHeight];
  // Camera sits inside the ship. Near objects spread out as they approach.
+ y=Math.max(0,y+(520-game.playerY));
  const depth=.38+.62*Math.max(0,y)/570;
  return [width/2+(x-game.player)/480*width*depth,top+playHeight*(.12+.78*(y/570)**1.35)];
 }
@@ -72,10 +73,11 @@ function draw(t){
  const horizon=top+playHeight*.84;
  for(let i=-8;i<=8;i++){ctx.beginPath();ctx.moveTo(width/2+i*width/20,horizon);ctx.lineTo(width/2+i*width/6,height);ctx.stroke();}
  for(let i=1;i<7;i++){const y=horizon+(height-horizon)*(i/6)**2;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(width,y);ctx.stroke();}
+ if(game.flight){for(const a of game.aliens){worldCube(a.x,a.y-18,3,'#ff9857');}if(game.perspective==='classic')worldCube(game.player,game.playerY+15,4,'#68dfff');}
  for(const a of game.aliens)worldModel(a.type,a.x,a.y,a.type==='squid'?'#cf88ff':a.type==='crab'?'#70f3da':'#ffcb72');
  if(game.saucer)worldModel('octopus',game.saucer.x,game.saucer.y,'#ff6a93');
  for(const b of game.shields)worldCube(b.x,b.y,5,'#459daa');
- if(game.perspective==='classic'&&(game.invulnerable<=0||Math.floor(t/100)%2))worldModel('ship',game.player,520,'#8dcaff');
+ if(game.perspective==='classic'&&(game.invulnerable<=0||Math.floor(t/100)%2))worldModel('ship',game.player,game.playerY,'#8dcaff');
  for(const s of game.shots)worldCube(s.x,s.y,3,'#fff5af',-2);
  for(const s of game.enemyShots)worldCube(s.x,s.y,4,'#ff6386',-2);
  if(game.perspective==='cockpit'){
@@ -85,9 +87,9 @@ function draw(t){
   ctx.strokeStyle=game.invulnerable>0?'#ffb66d':'#70f3da';ctx.lineWidth=3;
   ctx.beginPath();ctx.moveTo(0,height);ctx.lineTo(width*.08,bottom);ctx.lineTo(width*.92,bottom);ctx.lineTo(width,height);ctx.stroke();
   const [cx,cy]=project(game.player,200);ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(cx-12,cy);ctx.lineTo(cx-4,cy);ctx.moveTo(cx+4,cy);ctx.lineTo(cx+12,cy);ctx.moveTo(cx,cy-12);ctx.lineTo(cx,cy-4);ctx.moveTo(cx,cy+4);ctx.lineTo(cx,cy+12);ctx.stroke();
-  ctx.fillStyle='#70f3da';ctx.font='12px system-ui';ctx.textAlign='center';ctx.fillText('COCKPIT · STRAFE TO AIM',width/2,bottom+18);ctx.textAlign='start';
+  ctx.fillStyle='#70f3da';ctx.font='12px system-ui';ctx.textAlign='center';ctx.fillText(`FIGHTER · ALT ${Math.round(530-game.playerY)} · WASD / ARROWS`,width/2,bottom+18);ctx.textAlign='start';
  }
  canvas.dataset.perspective=game.perspective;
 }
-function frame(t){const touch=[...pointers.values()];game.update((t-last)/1000,{axis:Number(keys.has('ArrowRight')||keys.has('KeyD')||touch.includes('right'))-Number(keys.has('ArrowLeft')||keys.has('KeyA')||touch.includes('left')),fire:keys.has('Space')||touch.includes('fire')});last=t;draw(t);hud.textContent=`Score ${game.score} · Lives ${game.lives} · Wave ${game.wave}`;canvas.setAttribute('aria-label',`Level ${game.wave}: ${game.perspective==='cockpit'?'First-person spaceship cockpit':'Classic Space Invaders'}`);if(oldState!==game.state){oldState=game.state;overlay.hidden=game.state==='playing';pause.disabled=!['playing','paused'].includes(game.state);pause.textContent=game.state==='paused'?'Resume':'Pause';if(game.state==='paused'){title.textContent='Paused';message.textContent='Your game is safe. Resume when ready.';start.textContent='Resume';}if(game.state==='over'){title.textContent='Game over';message.textContent=`Final score: ${game.score} · Wave ${game.wave}`;start.textContent='Play again';}status.textContent=game.state==='playing'?'Game started':title.textContent;}requestAnimationFrame(frame);}
+function frame(t){const touch=[...pointers.values()];game.update((t-last)/1000,{axis:Number(keys.has('ArrowRight')||keys.has('KeyD')||touch.includes('right'))-Number(keys.has('ArrowLeft')||keys.has('KeyA')||touch.includes('left')),vertical:Number(keys.has('ArrowDown')||keys.has('KeyS')||touch.includes('down'))-Number(keys.has('ArrowUp')||keys.has('KeyW')||touch.includes('up')),fire:keys.has('Space')||touch.includes('fire')});last=t;draw(t);hud.textContent=`Score ${game.score} · Lives ${game.lives} · Wave ${game.wave}${game.flight?' · FIGHTER COMBAT':''}`;canvas.setAttribute('aria-label',`Level ${game.wave}: ${game.perspective==='cockpit'?'First-person fighter cockpit':game.flight?'Fighter space combat':'Classic Space Invaders'}`);if(oldState!==game.state){oldState=game.state;overlay.hidden=game.state==='playing';pause.disabled=!['playing','paused'].includes(game.state);pause.textContent=game.state==='paused'?'Resume':'Pause';if(game.state==='paused'){title.textContent='Paused';message.textContent='Your game is safe. Resume when ready.';start.textContent='Resume';}if(game.state==='over'){title.textContent='Game over';message.textContent=`Final score: ${game.score} · Wave ${game.wave}${game.flight?' · FIGHTER COMBAT':''}`;start.textContent='Play again';}status.textContent=game.state==='playing'?'Game started':title.textContent;}requestAnimationFrame(frame);}
 requestAnimationFrame(frame);
