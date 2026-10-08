@@ -1,0 +1,75 @@
+TAP version 13
+# Subtest: models contain voxel cells and three distinct aliens
+ok 1 - models contain voxel cells and three distinct aliens
+  ---
+  duration_ms: 2.515674
+  ...
+# Subtest: movement clamps, fire cooldown, pause and restart
+ok 2 - movement clamps, fire cooldown, pause and restart
+  ---
+  duration_ms: 304.797866
+  ...
+# Subtest: alien kill scores once; last kill advances and resets
+ok 3 - alien kill scores once; last kill advances and resets
+  ---
+  duration_ms: 1.438527
+  ...
+# Subtest: both sides erode shields
+ok 4 - both sides erode shields
+  ---
+  duration_ms: 0.696139
+  ...
+# Subtest: life loss, immunity, game over and invasion
+ok 5 - life loss, immunity, game over and invasion
+  ---
+  duration_ms: 8.56013
+  ...
+# Subtest: fleet reverses and descends; bottom shooters; saucer bonus
+ok 6 - fleet reverses and descends; bottom shooters; saucer bonus
+  ---
+  duration_ms: 9.420881
+  ...
+# Subtest: large background delta bounded and offscreen projectiles recycled
+ok 7 - large background delta bounded and offscreen projectiles recycled
+  ---
+  duration_ms: 2.79717
+  ...
+# Subtest: slow frame projectile sweeps across alien and shield
+ok 8 - slow frame projectile sweeps across alien and shield
+  ---
+  duration_ms: 8.231685
+  ...
+# Subtest: levels alternate classic and cockpit; restart restores classic
+ok 9 - levels alternate classic and cockpit; restart restores classic
+  ---
+  duration_ms: 1.299338
+  ...
+# Subtest: fighter flight has momentum, diagonal speed limit, bounds and aimed attacks
+ok 10 - fighter flight has momentum, diagonal speed limit, bounds and aimed attacks
+  ---
+  duration_ms: 11.955593
+  ...
+# Subtest: fighter hits use current altitude and diagonal swept projectiles
+ok 11 - fighter hits use current altitude and diagonal swept projectiles
+  ---
+  duration_ms: 1.709729
+  ...
+# Subtest: level 2 crash, unconscious blackout and level 3 wake preserve progress and freeze combat
+ok 12 - level 2 crash, unconscious blackout and level 3 wake preserve progress and freeze combat
+  ---
+  duration_ms: 1.495713
+  ...
+# Subtest: cockpit transition holds combat, pauses, ends and resets
+ok 13 - cockpit transition holds combat, pauses, ends and resets
+  ---
+  duration_ms: 0.856625
+  ...
+1..13
+# tests 13
+# suites 0
+# pass 13
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 608.763767

@@ -50,15 +50,17 @@ function resize(){
 }
 new ResizeObserver(resize).observe(canvas);
 export function project(x,y){
- if(game.perspective==='classic')return [x/480*width,top+y/570*playHeight];
+ const classic=[x/480*width,top+y/570*playHeight],mix=game.cameraMix;
+ if(mix===0)return classic;
  // Camera sits inside the ship. Near objects spread out as they approach.
  y=Math.max(0,y+(520-game.playerY));
  const depth=.38+.62*Math.max(0,y)/570;
- return [width/2+(x-game.player)/480*width*depth,top+playHeight*(.12+.78*(y/570)**1.35)];
+ const cockpit=[width/2+(x-game.player)/480*width*depth,top+playHeight*(.12+.78*(y/570)**1.35)];
+ return classic.map((v,i)=>v+(cockpit[i]-v)*mix);
 }
-function worldModel(name,x,y,color){if(game.perspective==='cockpit'){const rows=models[name];rows.forEach((row,r)=>[...row].forEach((v,c)=>{if(v==='1')worldCube(x,y,4,color,(c-row.length/2)*4,(r-rows.length/2)*4);}));return;}const [px,py]=project(x,y);ctx.save();ctx.translate(px,py);ctx.scale(unit,unit);model(name,0,0,color);ctx.restore();}
+function worldModel(name,x,y,color){if(game.cameraMix>0){const rows=models[name];rows.forEach((row,r)=>[...row].forEach((v,c)=>{if(v==='1')worldCube(x,y,4,color,(c-row.length/2)*4,(r-rows.length/2)*4);}));return;}const [px,py]=project(x,y);ctx.save();ctx.translate(px,py);ctx.scale(unit,unit);model(name,0,0,color);ctx.restore();}
 function worldCube(x,y,size,color,offsetX=0,offsetY=0){
- if(game.perspective==='cockpit'){
+ if(game.cameraMix>0){
   const polygon=(points,fill)=>{ctx.fillStyle=fill;ctx.beginPath();points.forEach(([dx,dy],i)=>{const [px,py]=project(x+(offsetX+dx)*game.renderScale.x,y+(offsetY+dy)*game.renderScale.y);if(i)ctx.lineTo(px,py);else ctx.moveTo(px,py);});ctx.closePath();ctx.fill();};
   polygon([[0,0],[size,0],[size,size],[0,size]],color);
   polygon([[0,0],[size*.3,-size*.3],[size*1.3,-size*.3],[size,0]],'#ffffff50');
@@ -112,16 +114,19 @@ function draw(t){
  // A receding voxel deck beneath the ship, integrated into the space scene.
  ctx.strokeStyle='#53cbd324';ctx.lineWidth=1;
  const horizon=top+playHeight*.84;
- if(game.perspective==='classic')for(let i=-8;i<=8;i++){ctx.beginPath();ctx.moveTo(width/2+i*width/20,horizon);ctx.lineTo(width/2+i*width/6,height);ctx.stroke();}
- if(game.perspective==='classic')for(let i=1;i<7;i++){const y=horizon+(height-horizon)*(i/6)**2;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(width,y);ctx.stroke();}
+ ctx.save();ctx.globalAlpha=1-game.cameraMix;
+ for(let i=-8;i<=8;i++){ctx.beginPath();ctx.moveTo(width/2+i*width/20,horizon);ctx.lineTo(width/2+i*width/6,height);ctx.stroke();}
+ for(let i=1;i<7;i++){const y=horizon+(height-horizon)*(i/6)**2;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(width,y);ctx.stroke();}
+ ctx.restore();
  if(game.flight){for(const a of game.aliens){worldCube(a.x,a.y-18,3,'#ff9857');}if(game.perspective==='classic')worldCube(game.player,game.playerY+15,4,'#68dfff');}
  for(const a of game.aliens)worldModel(a.type,a.x,a.y,a.type==='squid'?'#cf88ff':a.type==='crab'?'#70f3da':'#ffcb72');
  if(game.saucer)worldModel('octopus',game.saucer.x,game.saucer.y,'#ff6a93');
  for(const b of game.shields)worldCube(b.x,b.y,5,'#459daa');
- if(game.perspective==='classic'&&(game.invulnerable<=0||Math.floor(t/100)%2))worldModel('ship',game.player,game.playerY,'#8dcaff');
+ if(game.cameraMix<1&&(game.transition||game.invulnerable<=0||Math.floor(t/100)%2)){ctx.save();ctx.globalAlpha=1-game.cameraMix;worldModel('ship',game.player,game.playerY,'#8dcaff');ctx.restore();}
  for(const s of game.shots)worldCube(s.x,s.y,3,'#fff5af',-2);
  for(const s of game.enemyShots)worldCube(s.x,s.y,4,'#ff6386',-2);
- if(game.perspective==='cockpit'){
+ if(game.cameraMix>0){
+  ctx.save();ctx.globalAlpha=game.cameraMix;
   // Solid canopy ribs and a sloped console put the camera inside the hull.
   // Keep the center windshield clear, including the nearest shield row.
   const bottom=top+playHeight*.94, rim=Math.max(10,Math.min(width,height)*.025);
@@ -147,8 +152,11 @@ function draw(t){
   ctx.textAlign='start';
   ctx.strokeStyle=game.invulnerable>0?'#ffb66d':'#70f3da';ctx.lineWidth=1.5;
   const [cx,cy]=project(game.player,200);ctx.beginPath();ctx.moveTo(cx-12,cy);ctx.lineTo(cx-4,cy);ctx.moveTo(cx+4,cy);ctx.lineTo(cx+12,cy);ctx.moveTo(cx,cy-12);ctx.lineTo(cx,cy-4);ctx.moveTo(cx,cy+4);ctx.lineTo(cx,cy+12);ctx.stroke();
+  ctx.restore();
  }
+ if(game.transition){ctx.fillStyle='#d9f6ff';ctx.font='bold 16px system-ui';ctx.textAlign='center';ctx.fillText('LEVEL 2 · ENTERING COCKPIT',width/2,top+24);ctx.textAlign='start';}
  canvas.dataset.perspective=game.perspective;
+ canvas.dataset.transition=game.transition?'entering-cockpit':'none';
 }
-function frame(t){const touch=[...pointers.values()];game.update((t-last)/1000,{axis:Number(keys.has('ArrowRight')||keys.has('KeyD')||touch.includes('right'))-Number(keys.has('ArrowLeft')||keys.has('KeyA')||touch.includes('left')),vertical:Number(keys.has('ArrowDown')||keys.has('KeyS')||touch.includes('down'))-Number(keys.has('ArrowUp')||keys.has('KeyW')||touch.includes('up')),fire:keys.has('Space')||touch.includes('fire')});last=t;draw(t);hud.textContent=`Score ${game.score} · Lives ${game.lives} · Wave ${game.wave}${game.scene?' · '+game.scene.toUpperCase():game.flight?' · FIGHTER COMBAT':''}`;canvas.setAttribute('aria-label',`Level ${game.wave}: ${game.scene?game.scene+' on an alien voxel planet':game.wave===3?'Alien voxel planet with two moons; fighter combat':game.perspective==='cockpit'?'First-person fighter cockpit':game.flight?'Fighter space combat':'Classic Space Invaders'}`);if(oldState!==game.state){oldState=game.state;overlay.hidden=game.state==='playing';pause.disabled=!['playing','paused'].includes(game.state);pause.textContent=game.state==='paused'?'Resume':'Pause';if(game.state==='paused'){title.textContent='Paused';message.textContent='Your game is safe. Resume when ready.';start.textContent='Resume';}if(game.state==='over'){title.textContent='Game over';message.textContent=`Final score: ${game.score} · Wave ${game.wave}${game.flight?' · FIGHTER COMBAT':''}`;start.textContent='Play again';}status.textContent=game.state==='playing'?'Game started':title.textContent;}requestAnimationFrame(frame);}
+function frame(t){const touch=[...pointers.values()];game.update((t-last)/1000,{axis:Number(keys.has('ArrowRight')||keys.has('KeyD')||touch.includes('right'))-Number(keys.has('ArrowLeft')||keys.has('KeyA')||touch.includes('left')),vertical:Number(keys.has('ArrowDown')||keys.has('KeyS')||touch.includes('down'))-Number(keys.has('ArrowUp')||keys.has('KeyW')||touch.includes('up')),fire:keys.has('Space')||touch.includes('fire')});last=t;draw(t);hud.textContent=`Score ${game.score} · Lives ${game.lives} · Wave ${game.wave}${game.transition?' · ENTERING COCKPIT':game.scene?' · '+game.scene.toUpperCase():game.flight?' · FIGHTER COMBAT':''}`;canvas.setAttribute('aria-label',game.transition?'Level 2: Entering first-person fighter cockpit':`Level ${game.wave}: ${game.scene?game.scene+' on an alien voxel planet':game.wave===3?'Alien voxel planet with two moons; fighter combat':game.perspective==='cockpit'?'First-person fighter cockpit':game.flight?'Fighter space combat':'Classic Space Invaders'}`);if(oldState!==game.state){oldState=game.state;overlay.hidden=game.state==='playing';pause.disabled=!['playing','paused'].includes(game.state);pause.textContent=game.state==='paused'?'Resume':'Pause';if(game.state==='paused'){title.textContent='Paused';message.textContent='Your game is safe. Resume when ready.';start.textContent='Resume';}if(game.state==='over'){title.textContent='Game over';message.textContent=`Final score: ${game.score} · Wave ${game.wave}${game.flight?' · FIGHTER COMBAT':''}`;start.textContent='Play again';}status.textContent=game.state==='playing'?'Game started':title.textContent;}requestAnimationFrame(frame);}
 requestAnimationFrame(frame);

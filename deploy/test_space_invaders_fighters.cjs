@@ -12,7 +12,7 @@ const fs=require('node:fs');
   // Set up the last alien, then kill it with the real Fire key and frame loop.
   await page.evaluate(async()=>{const {game}=await import('./app.mjs');game.player=240;game.direction=0;game.aliens=[{x:240,y:480,type:'squid',points:30}];game.shields=[];game.enemyShots=[];game.enemyClock=100;});
   await page.keyboard.down('Space');await page.waitForFunction(()=>{const game=window.__qaGame;return game.wave===2;});await page.keyboard.up('Space');
-  await page.waitForFunction(()=>document.querySelector('canvas').dataset.perspective==='cockpit');assert.equal(await page.locator('canvas').getAttribute('data-perspective'),'cockpit');assert.match(await page.locator('#hud').innerText(),/Wave 2.*FIGHTER COMBAT/);
+  await page.waitForFunction(()=>document.querySelector('canvas').dataset.perspective==='cockpit'&&document.querySelector('canvas').dataset.transition==='none');assert.equal(await page.locator('canvas').getAttribute('data-perspective'),'cockpit');assert.match(await page.locator('#hud').innerText(),/Wave 2.*FIGHTER COMBAT/);
   assert(await page.evaluate(async()=>{const {game}=await import('./app.mjs');return game.shields.length===0&&game.aliens.every(a=>a.type==='fighter');}));
   const positions=await page.evaluate(async()=>{const {game}=await import('./app.mjs');return game.aliens.map(a=>({x:a.x,y:a.y}));});
   await page.keyboard.down('ArrowUp');await page.waitForFunction(()=>{const game=window.__qaGame;return game.playerY<450;});await page.keyboard.up('ArrowUp');

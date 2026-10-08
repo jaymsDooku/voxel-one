@@ -1,0 +1,25 @@
+{
+  "head": "0de6e407374f72b5718e7504f1c2eb62588a63cb",
+  "command": "gh pr checks 50; gh run view 37795655434 --json headSha,status,conclusion,jobs; gh run view 37795657085 --json headSha,status,conclusion,jobs",
+  "observed": "Both exact-head runs completed successfully. Linux, Windows, Intel Mac and Apple Silicon Mac builds passed. Publish skipped on the feature branch.",
+  "supersededRun": {
+    "id": 37795654006,
+    "conclusion": "cancelled",
+    "note": "Superseded by a newer run at the same head under cancel-in-progress concurrency; no failed source/test step."
+  },
+  "runs": [
+    {
+      "id": 37795655434,
+      "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/37795655434",
+      "conclusion": "success"
+    },
+    {
+      "id": 37795657085,
+      "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/37795657085",
+      "conclusion": "success"
+    }
+  ],
+  "playtest": "Playtest: existing three-size transition/cockpit/planet evidence remains valid; current source SHA-256 values match its recorded hashes. This follow-up inspects the CI integration; it changes no browser/game source.",
+  "localRules": "13/13 passed on this unchanged source in the preceding CI investigation turn.",
+  "audit": "No deleted files against e18722a660b6a9132023f95a53f2416f1092823b; all base milestone entries unchanged."
+}

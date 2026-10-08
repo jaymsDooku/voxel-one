@@ -18,8 +18,9 @@ function overlaps(a,b){return a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.
 export class Game {
   constructor(random=Math.random){this.random=random;this.renderScale={x:1,y:1};this.restart();this.state='title';}
   get perspective(){return this.wave%2===0?'cockpit':'classic';}
+  get cameraMix(){if(!this.transition)return this.perspective==='cockpit'?1:0;const p=this.transition.elapsed/this.transition.duration;return p*p*(3-2*p);}
   get flight(){return this.wave>=2;}
-  restart(){this.scene=null;this.sceneTime=0;this.score=0;this.lives=3;this.wave=1;this.player=240;this.playerY=520;this.velocity={x:0,y:0};this.shots=[];this.enemyShots=[];this.invulnerable=0;this.cooldown=0;this.state='playing';this.newWave();}
+  restart(){this.transition=null;this.scene=null;this.sceneTime=0;this.score=0;this.lives=3;this.wave=1;this.player=240;this.playerY=520;this.velocity={x:0,y:0};this.shots=[];this.enemyShots=[];this.invulnerable=0;this.cooldown=0;this.state='playing';this.newWave();}
   newWave(){
     this.aliens=[];this.shields=[];
     if(this.flight){
@@ -53,6 +54,8 @@ export class Game {
       }
       return;
     }
+    // The camera move owns this interval; no input, damage or enemy clocks advance.
+    if(this.transition){this.transition.elapsed=Math.min(this.transition.duration,this.transition.elapsed+dt);if(this.transition.elapsed>=this.transition.duration)this.transition=null;return;}
     this.cooldown-=dt;this.invulnerable-=dt;
     if(this.flight){
       const ax=Math.max(-1,Math.min(1,input.axis||0)),ay=Math.max(-1,Math.min(1,input.vertical||0));
@@ -104,6 +107,6 @@ export class Game {
     let hit=false;this.enemyShots=this.enemyShots.filter(s=>{if(shieldHit(s,true))return false;if(hits(s,modelBounds.ship,this.player,this.playerY,true)){if(this.invulnerable<=0)hit=true;return false;}return s.y>-20&&s.y<570&&s.x>-20&&s.x<500;});
     if(this.flight&&this.invulnerable<=0&&this.aliens.some(a=>overlaps(bounds(modelBounds[a.type||'crab'],a.x,a.y),bounds(modelBounds.ship,this.player,this.playerY))))hit=true;
     if(hit){this.lives--;this.invulnerable=2;this.enemyShots=[];if(this.lives<=0)this.state='over';}
-    if(!this.aliens.length&&this.state==='playing'){if(this.wave===2){this.scene='crash';this.sceneTime=0;this.shots=[];this.enemyShots=[];this.saucer=null;this.velocity={x:0,y:0};return;}this.wave++;this.shots=[];this.enemyShots=[];this.newWave();this.invulnerable=2;}
+    if(!this.aliens.length&&this.state==='playing'){if(this.wave===2){this.scene='crash';this.sceneTime=0;this.shots=[];this.enemyShots=[];this.saucer=null;this.velocity={x:0,y:0};return;}this.wave++;this.shots=[];this.enemyShots=[];this.newWave();this.invulnerable=2;if(this.wave===2)this.transition={elapsed:0,duration:1.6};}
   }
 }

@@ -1,25 +1,9 @@
 {
-  "command": "PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/test_space_invaders_fighters.cjs",
-  "environment": "Linux, headless Playwright WebKit, isolated synthetic contexts; HTTP source server on 127.0.0.1:8767",
+  "command": "SPACE_INVADERS_VIEWPORT_WIDTH=844 SPACE_INVADERS_URL=http://127.0.0.1:8778/games/space-invaders/index.html PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/test_space_invaders_fighters.cjs",
+  "environment": "Linux headless WebKit; isolated synthetic context; exact worktree HTTP on 127.0.0.1:8778",
   "playtest": "Playtest: Start level 1, fire to clear final alien, play first-person level 2, fly up/right with momentum and fire, pause/resume, lose final life, restart, cancel touch input, advance to level 3, fly by touch, test flight boundaries.",
   "expected": "Level 2+ has independent jet attack runs, two-axis keyboard/touch flight and aimed fire; views alternate, shots and movement stay aligned, pause freezes combat, restart restores classic, scores/lives carry forward.",
   "results": [
-    {
-      "viewport": {
-        "width": 1280,
-        "height": 900
-      },
-      "observed": "PASS: level 1 regression, actual last-kill transition, level 2 independent jet paths and two-axis flight/fire, aimed enemy fire and altitude hit, cockpit camera, pause/resume, death/restart, level 3 fighter combat with score/lives, touch up/cancel and boundaries",
-      "errors": []
-    },
-    {
-      "viewport": {
-        "width": 390,
-        "height": 844
-      },
-      "observed": "PASS: level 1 regression, actual last-kill transition, level 2 independent jet paths and two-axis flight/fire, aimed enemy fire and altitude hit, cockpit camera, pause/resume, death/restart, level 3 fighter combat with score/lives, touch up/cancel and boundaries",
-      "errors": []
-    },
     {
       "viewport": {
         "width": 844,
@@ -29,5 +13,33 @@
       "errors": []
     }
   ],
-  "limitation": "No physical iOS device test; this task changes the existing browser game."
+  "limitation": "No physical iOS device test; this task changes the existing browser game.",
+  "previousValidation": {
+    "label": "Historical report before current validation; images have since been refreshed.",
+    "report": {
+      "command": "SPACE_INVADERS_VIEWPORT_WIDTH=844 SPACE_INVADERS_URL=http://127.0.0.1:8778/games/space-invaders/index.html PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/test_space_invaders_fighters.cjs",
+      "environment": "Linux headless WebKit, isolated synthetic context, exact worktree HTTP source on 127.0.0.1:8778",
+      "playtest": "Playtest: Start level 1, fire to clear final alien, play first-person level 2, fly up/right with momentum and fire, pause/resume, lose final life, restart, cancel touch input, advance to level 3, fly by touch, test flight boundaries.",
+      "expected": "Level 2+ has independent jet attack runs, two-axis keyboard/touch flight and aimed fire; views alternate, shots and movement stay aligned, pause freezes combat, restart restores classic, scores/lives carry forward.",
+      "results": [
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "observed": "PASS: level 1 regression, actual last-kill transition, level 2 independent jet paths and two-axis flight/fire, aimed enemy fire and altitude hit, cockpit camera, pause/resume, death/restart, level 3 fighter combat with score/lives, touch up/cancel and boundaries",
+          "errors": []
+        }
+      ],
+      "limitation": "No physical iOS device test; this task changes the existing browser game.",
+      "testedHead": "04b2f8af0fbaa6b2ca0b4fd1270b9a891a201b59"
+    }
+  },
+  "testedHead": "857698f87a1d3d7d9c68dd324b5645a79bc702cb",
+  "testedAt": "2026-10-08T14:47:48.916604+00:00",
+  "sourceSha256": {
+    "games/space-invaders/app.mjs": "163d5bd15b5218dc6d462d5d31bced742c6b1b5e96966b9dbfd0bab7e45cccb3",
+    "games/space-invaders/game.mjs": "22f64051c8f7f7e3c5b066cff614304a2c4d97519c82ad60b1fe6139f9c5ea6a",
+    "games/space-invaders/game.test.mjs": "10ebccd38ef41b341afb7a2f6b22ccafe3fb8d839203142715e71e309ac76433"
+  }
 }
