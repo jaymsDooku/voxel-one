@@ -13,14 +13,14 @@ class ExchangePermitCompositionTest {
         var fixture = new CityToolsTest();
         var tools = new CityTools();
         var commands = new ArrayList<CityCommand>();
-        float width = (1280 - 32) / 9f;
-        tools.click(16 + 7.5f * width, 534, 1280, 720,
+        float width = dev.jayms.ui.CityActionBar.cell(1280);
+        tools.click(dev.jayms.ui.CityActionBar.left(1280) + 7.5f * width, 682, 1280, 720,
                 fixture.projection, fixture.view, fixture.frame, commands::add);
         assertEquals(6, tools.tool);
         fixture.click(tools, 0, 24, commands);
         assertEquals(CityCommand.SPECIAL, commands.get(0).kind());
         assertEquals(4, commands.get(0).value());
-        tools.click(16 + 8.5f * width, 534, 1280, 720,
+        tools.click(dev.jayms.ui.CityActionBar.left(1280) + 8.5f * width, 682, 1280, 720,
                 fixture.projection, fixture.view, fixture.frame, commands::add);
         assertEquals(7, tools.tool);
         fixture.click(tools, 0, 24, commands);

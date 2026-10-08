@@ -15,6 +15,31 @@
   },
   "items": [
     {
+      "id": "63376532363935642d643939642d343933632d396236332d366331393033393032336566",
+      "title": "Compact city HUD action bar",
+      "description": "Replacing full-width text actions with a centered icon dock; validating real input and HUD rendering locally.",
+      "evidence": [
+        {
+          "kind": "image",
+          "label": "Compact HUD overview (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63376532363935642d643939642d343933632d396236332d366331393033393032336566/dashboard/evidence/hud-compact-overview.png"
+        },
+        {
+          "kind": "image",
+          "label": "Narrow HUD at 640x640 (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63376532363935642d643939642d343933632d396236332d366331393033393032336566/dashboard/evidence/hud-compact-narrow.png"
+        },
+        {
+          "kind": "report",
+          "label": "HUD validation (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63376532363935642d643939642d343933632d396236332d366331393033393032336566/dashboard/evidence/hud-compact-validation.json"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Rebase conflict resolved in file contents. Retained prior HUD harness, evidence and progress. Restored unconditional InventoryHud rendering with !isometric; added city and sandbox sky-view regression checks. Awaiting controller rebase continuation before final-source tests and fresh media.",
+      "updatedAt": "2026-10-08T16:46:21+00:00"
+    },
+    {
       "id": "61653837396463352d666237642d343239332d393666322d616363613032353030623264",
       "title": "Hide player HUD in isometric view",
       "description": "Separating bottom player HUD from inventory panel; native view-toggle validation next.",

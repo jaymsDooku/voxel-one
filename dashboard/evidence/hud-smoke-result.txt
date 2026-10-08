@@ -1,0 +1,1 @@
+PASS: nine real icon clicks; road submenu; zone world click/cancel; outside dock; 640x640 resize; inventory; walking mode.

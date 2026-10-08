@@ -147,7 +147,7 @@ class RoadTypesTest {
         var ui = new CityTools();
         var frame = CityFrame.empty(GameConfig.cityGame());
         var commands = new ArrayList<CityCommand>();
-        ui.click(200,530,1280,720,new Matrix4f(),new Matrix4f(),frame,commands::add);
+        ui.click(dev.jayms.ui.CityActionBar.left(1280) + 1.5f * dev.jayms.ui.CityActionBar.cell(1280),682,1280,720,new Matrix4f(),new Matrix4f(),frame,commands::add);
         assertTrue(ui.roadMenu);
         assertNull(ui.cursorPoint(700,300,1280,720,new Matrix4f(),new Matrix4f(),frame));
         ui.click(40,230,1280,720,new Matrix4f(),new Matrix4f(),frame,commands::add);

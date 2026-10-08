@@ -1,0 +1,137 @@
+{
+  "date": "2026-10-08T16:13:21.552242+00:00",
+  "status": "Historical pre-integration validation; final-source checks and fresh media pending controller rebase continuation",
+  "environment": "Linux, inherited assigned X11 display and XAUTHORITY, Mesa software rendering, JDK 21 game runtime; synthetic offline profile under target/hud-profile and target/hud-home",
+  "acceptance": "Nine icon-only actions centered at the bottom; dock at most 396 px with a 404 px background panel, 54 px panel height. Hover labels and selected accents. Context hint above dock. Block hotbar hidden only in closed-inventory city overview.",
+  "commands": [
+    {
+      "command": "mvn -q -Dmaven.repo.local=target/maven-cache test",
+      "result": "Failed: sandbox default temp directory was unavailable; stale old-toolbar coordinates also failed. No full-suite pass claimed."
+    },
+    {
+      "command": "mvn -q -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" test",
+      "result": "545 tests, 1 failure, 0 errors. RoadTypesTest clicked old toolbar coordinates; corrected, then reran affected suites."
+    },
+    {
+      "command": "mvn -q -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=CityActionBarTest,CityToolsTest,InventoryHudTest,ExchangePermitCompositionTest,RoadTypesTest,AviationTest -Dsurefire.reportsDirectory=target/hud-scoped-reports test",
+      "result": "Exit 0; 34 tests passed. This Surefire configuration wrote reports to target/surefire-reports."
+    },
+    {
+      "command": "python3 deploy/run_hud_action_bar_smoke.py --display \"$DISPLAY\"",
+      "result": "Exit 0 on final capture run. Actual Main game, real X11 input, production GLFW callbacks. Captures wait two rendered frames."
+    },
+    {
+      "command": "git diff --check",
+      "result": "Passed"
+    },
+    {
+      "command": "python3 -m py_compile deploy/run_hud_action_bar_smoke.py",
+      "result": "Passed"
+    }
+  ],
+  "suites": [
+    {
+      "name": "CityActionBarTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "CityToolsTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "InventoryHudTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "ExchangePermitCompositionTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "RoadTypesTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "AviationTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "Playtest:": [
+    {
+      "steps": "Enter city overview at 1280x720; click all nine icons.",
+      "expected": "Inspect, Roads, Residential, Commercial, Industrial, Agriculture, Economy, Special, Exchange selected in order.",
+      "observed": "All nine tool state assertions passed."
+    },
+    {
+      "steps": "Click Roads, choose Dirt road in submenu, press Escape.",
+      "expected": "Road tool and type 0 selected; Escape returns to Inspect.",
+      "observed": "Passed; rendered road accent and hint captured."
+    },
+    {
+      "steps": "Select Residential, click world at 400,350, press Escape.",
+      "expected": "One polygon point; cancellation clears it.",
+      "observed": "Passed."
+    },
+    {
+      "steps": "Click bottom left outside dock; hover Commercial.",
+      "expected": "No tool switch outside dock; Commercial tooltip above dock.",
+      "observed": "Passed; tooltip and compact dock visually inspected."
+    },
+    {
+      "steps": "Resize to 640x640; select last icon, Exchange.",
+      "expected": "All dock controls fit; last icon selects Exchange.",
+      "observed": "Passed; screenshot shows selected Exchange and hover label."
+    },
+    {
+      "steps": "Open and close inventory with E, switch to walking with F6.",
+      "expected": "Inventory remains usable; city dock hidden in modal and walking; block hotbar and health shown.",
+      "observed": "Passed; inventory and walking screenshots visually inspected."
+    }
+  ],
+  "media": [
+    "hud-compact-overview.png",
+    "hud-compact-roads.png",
+    "hud-compact-narrow.png",
+    "hud-inventory-regression.png",
+    "hud-walking-regression.png"
+  ],
+  "publication": "Pending controller publication to assigned feature branch. All media captured from this implementation; synthetic offline state only.",
+  "limits": "Software-rendered test observed FPS 0-1; no performance claim. Full suite was not rerun after correcting the final stale-coordinate test; its affected suite passed in the scoped run. Controller must rerun meaningful checks/media if master integration changes source.",
+  "diffAudit": "No pending rebase or unmerged index. Current proposed source diff removes old full-width toolbar drawing/hit geometry, replaces hint background geometry, and expands available world picking area to match the shorter dock. No unrelated files or merged features deleted. Recorded synchronized review base not yet supplied.",
+  "recovery": {
+    "reviewBase": "af66e69b16f3310e6b396693f91cd4149a1c5541",
+    "restoredReviewerBase": "642bc422",
+    "preservedFiles": [
+      "deploy/IsometricHudSmoke.java",
+      "deploy/run_isometric_hud_smoke.py",
+      "dashboard/evidence/isometric-hud-hidden.png",
+      "dashboard/evidence/isometric-hud-results.txt",
+      "dashboard/evidence/isometric-hud-tested-source.json",
+      "dashboard/evidence/isometric-hud-validation.md",
+      "dashboard/evidence/isometric-inventory.png",
+      "dashboard/evidence/player-hud-restored.png"
+    ],
+    "priorProgressEntriesRetained": true,
+    "mainCall": "inventoryHud.render(..., !isometric) unconditionally",
+    "newRegressionCoverage": "City and sandbox sky-view hidden health; open inventory keeps HUD hidden; walking restores health. Native screenshot pixel assertions added; harness compilation passed, execution pending rebase continuation.",
+    "diffAudit": "Entire proposed diff audited against recorded review base: no file deletions. Earlier merged sky-view feature, its harness, artifacts and progress remain. Intended removed code is only the old full-width toolbar rendering/hit coordinates and old hint layout; compact dock shares draw/hit geometry.",
+    "handoff": "Conflict markers removed from dashboard/progress.json. Index remains unmerged for controller staging and rebase continuation; no Git mutation performed."
+  }
+}
