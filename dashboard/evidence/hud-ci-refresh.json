@@ -16,7 +16,7 @@
     "errors": 0
   },
   "diagnosis": "Original road-edit snapshot timeout did not reproduce in the same-head PR matrix, local integration run, or exact-head CI retry. No source, test, timeout or workflow changes were needed.",
-  "status": "Passed; ready for controller PR refresh and independent review",
+  "status": "Historical CI success only. Refreshed-source local checks passed; exact published-head CI pending controller publication.",
   "localCommand": "mvn -q -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=CityMultiplayerTest,CityActionBarTest,CityToolsTest,InventoryHudTest,ExchangePermitCompositionTest,RoadTypesTest,AviationTest test",
   "localResults": {
     "tests": 35,
@@ -27,14 +27,8 @@
   },
   "retryCommand": "gh run rerun 37812339995 --failed --repo jaymsDooku/voxel-one",
   "masterChecked": "642bc422c621fd1a6e1704ade1148cc85fad398d",
-  "Playtest:": "Prior actual city and sandbox workflows remain valid: all four product source file hashes and all eight image hashes match the validated implementation. No product source changes or new native execution in this CI-only refresh.",
-  "unchangedGameSourceSHA256": {
-    "src/main/java/dev/jayms/Main.java": "e95e29bd790aa33cf7ca87390047f2b01778c3fed9bb47334e08815ff66d4948",
-    "src/main/java/dev/jayms/ui/InventoryHud.java": "810e9c37242f03f2cb98f352178a67394f4cbed69c53183ce9d81f029051862c",
-    "src/main/java/dev/jayms/ui/CityTools.java": "5fba2be174ff59d7513e67540ccaa85790389dbe45d02c127c890f7005bb7616",
-    "src/main/java/dev/jayms/ui/CityActionBar.java": "49d2c677196c57ddaebf6d39f5cb82beb8da3f572b806dce7348f236446f3fd0"
-  },
-  "mediaUnchangedFromActualPlaytests": true,
+  "Playtest:": "Historical checks at head30df4b8. Current refreshed-source Playtest: see hud-compact-validation.json.",
+  "mediaUnchangedFromActualPlaytests": false,
   "diffAudit": "Audited complete diff against 642bc422c621fd1a6e1704ade1148cc85fad398d: no file deletions. Old full-width text toolbar drawing, hint background and hit coordinates were replaced intentionally. Prior sky-view HUD source, harness, six artifacts and progress entry preserved.",
   "retryRun": "https://github.com/jaymsDooku/voxel-one/actions/runs/37812339995/attempts/2",
   "retryAttempt": 2,
@@ -72,5 +66,23 @@
   ],
   "prChecks": "gh pr checks 56 --repo jaymsDooku/voxel-one: all four build checks pass; publish skipped as expected on feature branch",
   "browserPlaytesting": "This refresh exercises the noninteractive Maven/CI integration. Browser playtesting does not apply. Prior real native game playtests and eight screenshots remain verified against unchanged product source hashes.",
-  "recoveryStatus": "Historical validation from before latest master integration. Final recovered-head workflow/media/CI validation pending controller continuation. Older head30df4b8 success does not satisfy refreshed-head CI."
+  "recoveryStatus": "Controller completed rebase. No unmerged paths. Final-source local tests and fresh media passed.",
+  "currentLocalValidation": {
+    "head": "60c32ead4c6dd401202f846113b038d9c4d997cf",
+    "checkedAt": "2026-10-08T18:45:48.102847+00:00",
+    "tests": 47,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "freshCityPlaytest": "passed",
+    "freshSandboxPlaytest": "retry passed; first attempt exited 143",
+    "media": "Eight fresh screenshots in hud-compact-validation.json",
+    "exactPublishedHeadCI": "pending controller publication"
+  },
+  "unchangedGameSourceSHA256Historical": {
+    "src/main/java/dev/jayms/Main.java": "e95e29bd790aa33cf7ca87390047f2b01778c3fed9bb47334e08815ff66d4948",
+    "src/main/java/dev/jayms/ui/InventoryHud.java": "810e9c37242f03f2cb98f352178a67394f4cbed69c53183ce9d81f029051862c",
+    "src/main/java/dev/jayms/ui/CityTools.java": "5fba2be174ff59d7513e67540ccaa85790389dbe45d02c127c890f7005bb7616",
+    "src/main/java/dev/jayms/ui/CityActionBar.java": "49d2c677196c57ddaebf6d39f5cb82beb8da3f572b806dce7348f236446f3fd0"
+  }
 }

@@ -1,17 +1,11 @@
 {
-  "status": "Third replay conflict resolved in working contents; controller staging/rebase continuation required",
-  "reviewBase": "642bc422c621fd1a6e1704ade1148cc85fad398d",
-  "integrationBase": "9302e76c441839a2aba9d1ad344858feb14822c6",
-  "progressResolution": "Retained later HUD work item and its evidence; all master/unrelated entries preserved exactly; full work-item ID union retained without duplicates. updatedAt selected by parsed datetime instant. HUD milestone note records final-source validation pending.",
-  "checks": [
-    "JSON parsed and item preservation assertions passed",
-    "python3 deploy/update_progress.py set TASK_ID --status in_progress: parsed successfully; milestone unchanged",
-    "git diff --check passed",
-    "No file deletions against recorded review base",
-    "Current-master mobile/networking/workflow/docs source retained exactly"
-  ],
-  "intendedDeletions": "Only legacy full-width toolbar drawing/hit coordinates and hint layout replaced in the HUD source diff. No file deletions.",
-  "Playtest:": "Not rerun during this rebase handoff. Run final-head city and sandbox workflows and capture media after controller continuation, because master integration changes source.",
-  "ci": "Older head30df4b8 CI success is historical. Refreshed exact-head CI must pass before review; pending checks are not a pass.",
-  "handoff": "Only working files resolved; dashboard/progress.json remains unmerged in index. Controller stages and continues. No final-head CI or playtest pass claimed."
+  "status": "Controller completed rebase; final-source local checks passed",
+  "head": "60c32ead4c6dd401202f846113b038d9c4d997cf",
+  "integratedMaster": "9302e76c441839a2aba9d1ad344858feb14822c6",
+  "updatedAt": "2026-10-08T18:45:48.102847+00:00",
+  "unrelatedMasterProgressEntriesPreserved": 84,
+  "priorHudHarnessAndSixArtifactsPreserved": true,
+  "noFileDeletionsAgainstRecordedReviewBase": true,
+  "Playtest:": "Fresh city and sandbox retry passed; eight fresh screenshots inspected",
+  "exactPublishedHeadCI": "Pending controller publication"
 }
