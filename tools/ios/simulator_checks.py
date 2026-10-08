@@ -315,9 +315,11 @@ def main(argv=None):
     parser.add_argument('--artifact-root', default=tempfile.gettempdir(),
                         help='Trusted parent for a fresh finalized artifact directory outside source')
     args = parser.parse_args(argv)
-    repo = Path(args.repo).resolve()
+    # Retain the supplied checkout spelling for compiler-path sanitization;
+    # resolve only containment checks so aliases cannot widen the boundary.
+    repo = Path(args.repo).absolute()
     output = (repo / args.evidence_dir).resolve()
-    if not output.is_relative_to(repo) or output == repo:
+    if not output.is_relative_to(repo.resolve()) or output == repo.resolve():
         raise SystemExit('Evidence directory must stay inside the source checkout')
     report = run_checks(repo, output, args.expected_head, args.mode, args.request_id, artifact_root=Path(args.artifact_root))
     if os.environ.get('GITHUB_OUTPUT'):

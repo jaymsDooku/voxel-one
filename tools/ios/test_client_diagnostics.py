@@ -1,5 +1,7 @@
 """Synthetic log fixtures: test bounded diagnostics without private data."""
 import hashlib
+import contextlib
+import io
 import json
 import os
 from pathlib import Path
@@ -214,6 +216,51 @@ class DiagnosticSecurityTests(unittest.TestCase):
 
 
 class DiagnosticIntegrationTests(unittest.TestCase):
+    def test_failed_cli_parent_alias_preserves_paths_through_final_staging(self):
+        with tempfile.TemporaryDirectory(prefix='ios-cli-alias-fixture-') as tmp:
+            root = Path(tmp).resolve()
+            repo = root / 'source'
+            (repo / 'ios').mkdir(parents=True)
+            (repo / 'ios/check-simulator.sh').write_text('# mocked failing client\n')
+            parent_alias = root / 'parent-alias'
+            parent_alias.symlink_to(root, target_is_directory=True)
+            source_alias = parent_alias / 'source'
+            fake = FakeAppleCommands(repo)
+            def fail_build(args, **kwargs):
+                # OS commands reach the same source through either spelling.
+                self.assertEqual(kwargs['cwd'].resolve(), repo)
+                kwargs = {**kwargs, 'cwd': repo}
+                if args[0] == 'bash':
+                    logs = repo / 'ios/build'
+                    logs.mkdir()
+                    (logs / 'native-build.log').write_text(
+                        f'{source_alias}/ios/native/Alias.swift:12:3: error: unknown alias type\n'
+                        f'{repo}/ios/native/Canonical.swift:14:2: error: unknown canonical type\n'
+                        f'{source_alias}-sibling/Outside.swift:4:1: error: missing outside type\n')
+                    raise checks.CheckError('command_failed', exit_code=1)
+                return fake(args, **kwargs)
+            actual_run = checks.run_checks
+            def execute(*args, **kwargs):
+                return actual_run(*args, run_command=fail_build, system_name='Darwin', wait=lambda _: None, **kwargs)
+            output_control = root / 'github-output'
+            with mock.patch.object(checks, 'run_checks', side_effect=execute), \
+                    mock.patch.dict(os.environ, {'GITHUB_OUTPUT': str(output_control)}), \
+                    contextlib.redirect_stdout(io.StringIO()):
+                result = checks.main(['--repo', str(source_alias), '--artifact-root', str(root),
+                                     '--expected-head', HEAD, '--mode', 'client', '--request-id', REQUEST])
+            self.assertEqual(result, 1)
+            stage = Path(output_control.read_text().strip().removeprefix('artifactDir='))
+            self.assertFalse(stage.is_relative_to(repo))
+            receipt = json.loads((stage / 'report.json').read_text())
+            self.assertEqual(receipt['sourceHead'], HEAD)
+            self.assertEqual(receipt['requestId'], REQUEST)
+            text = (stage / receipt['diagnostics']['textPath']).read_text()
+            self.assertIn('ios/native/Alias.swift:12:3: error: unknown alias type', text)
+            self.assertIn('ios/native/Canonical.swift:14:2: error: unknown canonical type', text)
+            self.assertIn('[external]/Outside.swift:4:1: error: missing outside type', text)
+            self.assertNotIn(str(source_alias), text)
+            self.assertNotIn(str(repo), text)
+
     def test_successful_client_poisoned_reserved_files_never_reach_uploaded_stage(self):
         with tempfile.TemporaryDirectory(prefix='ios-success-poison-fixture-') as tmp:
             repo = Path(tmp)

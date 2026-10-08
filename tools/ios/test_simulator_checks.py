@@ -384,7 +384,7 @@ class WorkflowContractTests(unittest.TestCase):
             with mock.patch.object(checks, 'run_checks', side_effect=execute), contextlib.redirect_stdout(io.StringIO()):
                 result = checks.main(['--repo', str(repo), '--expected-head', HEAD, '--mode', 'preflight', '--request-id', REQUEST])
             self.assertEqual(result, 0)
-            self.assertEqual(captured['repo'], repo.resolve())
+            self.assertEqual(captured['repo'], repo.absolute())
             self.assertEqual(captured['output'], repo.resolve() / 'ios-evidence')
             self.assertEqual(captured['head'], HEAD)
 
@@ -413,9 +413,17 @@ class WorkflowContractTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix='ios-source-boundary-') as tmp:
             repo = Path(tmp) / 'source'
             repo.mkdir()
-            with self.assertRaisesRegex(SystemExit, 'inside the source checkout'):
-                checks.main(['--repo', str(repo), '--evidence-dir', '../validator/evidence', '--expected-head', HEAD,
-                             '--mode', 'preflight', '--request-id', REQUEST])
+            alias = Path(tmp) / 'source-alias'
+            alias.symlink_to(repo, target_is_directory=True)
+            outside = Path(tmp) / 'validator'
+            outside.mkdir()
+            (repo / 'escape').symlink_to(outside, target_is_directory=True)
+            for source in (repo, alias):
+                for evidence in ('../validator/evidence', 'escape/evidence', '.'):
+                    with self.subTest(source=source.name, evidence=evidence), \
+                            self.assertRaisesRegex(SystemExit, 'inside the source checkout'):
+                        checks.main(['--repo', str(source), '--evidence-dir', evidence, '--expected-head', HEAD,
+                                     '--mode', 'preflight', '--request-id', REQUEST])
 
 
 if __name__ == '__main__':
