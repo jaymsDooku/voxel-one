@@ -1,0 +1,21 @@
+{
+  "sourceHead": "1efefa20adba7afdcb7833d283a22f1976cb9de6",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/37796156170",
+  "observed": "Native timeout stageRUNNING: actual server received city command and was still processing after8seconds. Completion within60seconds is not yet verified on Mac.",
+  "change": "City receipt bound60seconds; phone action request90seconds; URLSession resource ceiling120seconds; login60seconds and normal movement/state15seconds unchanged. Native road wait120seconds. No automatic retry. Pending result text asks player to refresh before another command.",
+  "tests": [
+    {
+      "command": "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Djunit.jupiter.tempdir.basedir=\"$PWD/target/mobile-test-tmp\" \"-Dtest=MobileGatewayTest#slowCityReceiptStillConfirmsWithoutRetry+cityCommandsAndEconomyAreServerOwned+receiptTimeoutReportsOnlyFixedSyntheticStage\" test",
+      "environment": "Linux; actual isolated synthetic Java TLS game server and HTTP gateway",
+      "steps": "Delay one city command9.2seconds; confirmpaymentandusablecity. Holdservermonitoruntil60second receiptbound; verify504fixedstage; releaseandobserve lateREPLY_QUEUED/state200. Exercise normal cityvalidation.",
+      "expected": "Delayed commandconfirmed; timeoutbounded,latecommandhandledwithoutretry,sessionusable;normalrulespass.",
+      "observed": "3tests passed;0failures,0errors,0skips. Production pending-result wording changed afterward; behavior unchanged."
+    },
+    {
+      "command": "git diff --check; bash -n ios/check-simulator.sh",
+      "observed": "Passed."
+    }
+  ],
+  "playtest": "Playtest: Actual gateway city workflow tested9.2second delayedreceipt,60second deadline/late-result edge and normalcityregression. Revised native workflow still requires exact-source Mac execution/media. Browser cannot run UIKit controls. No physical iPhone pass claimed.",
+  "diffAudit": "No deleted paths againste18722a660b6a9132023f95a53f2416f1092823b."
+}

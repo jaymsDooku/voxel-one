@@ -11,13 +11,13 @@ final class Gateway {
         guard let url=URL(string:address),let host=url.host,url.user==nil,url.password==nil,url.query==nil,url.fragment==nil,
               url.scheme=="https" || (url.scheme=="http" && ["127.0.0.1","localhost","::1"].contains(host)) else {throw GameError.invalidAddress}
         root=url
-        let config=URLSessionConfiguration.ephemeral;config.timeoutIntervalForRequest=15;config.timeoutIntervalForResource=90;config.httpCookieStorage=nil;config.urlCache=nil
+        let config=URLSessionConfiguration.ephemeral;config.timeoutIntervalForRequest=15;config.timeoutIntervalForResource=120;config.httpCookieStorage=nil;config.urlCache=nil
         session=URLSession(configuration:config)
     }
     private func post(_ route:String,_ body:[String:Any]) async throws -> Data {
         var request=URLRequest(url:root.appendingPathComponent("mobile/v1/\(route)"));request.httpMethod="POST"
         // Login includes TLS account handshake and the first full terrain snapshot.
-        request.timeoutInterval = route=="login" ? 60 : 15
+        request.timeoutInterval = route=="action" ? 90 : route=="login" ? 60 : 15
         request.httpBody=try JSONSerialization.data(withJSONObject:body);request.setValue("application/json",forHTTPHeaderField:"Content-Type")
         if !token.isEmpty {request.setValue("Bearer \(token)",forHTTPHeaderField:"Authorization")}
         let data:Data;let response:URLResponse

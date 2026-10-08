@@ -133,7 +133,7 @@ class MobileGatewayTest {
                 var response=java.util.concurrent.CompletableFuture.supplyAsync(()->{
                     try{return post(host,"action",bearer,Map.of("kind","city","command",1,"value",0,"points",List.of(List.of(40,10),List.of(46,10))));}
                     catch(Exception e){throw new java.util.concurrent.CompletionException(e);}
-                }).get(12,java.util.concurrent.TimeUnit.SECONDS);
+                }).get(70,java.util.concurrent.TimeUnit.SECONDS);
                 assertEquals(504,response.statusCode());
                 assertTrue(response.body().matches(".*City receipt pending: (NONE|WAITING|RUNNING|REPLY_QUEUED).*"));
                 assertFalse(response.body().contains("ios_fixture"));assertFalse(response.body().contains("fixture-password"));
@@ -155,7 +155,7 @@ class MobileGatewayTest {
                     try{return post(host,"action",bearer,Map.of("kind","city","command",1,"value",0,"points",List.of(List.of(40,10),List.of(46,10))));}
                     catch(Exception e){throw new java.util.concurrent.CompletionException(e);}
                 });
-                Thread.sleep(3200);
+                Thread.sleep(9200);
             }
             var response=request.get(15,java.util.concurrent.TimeUnit.SECONDS);
             assertEquals(200,response.statusCode());assertTrue(response.body().contains("Mayor paid"));

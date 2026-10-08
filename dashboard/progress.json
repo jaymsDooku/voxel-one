@@ -191,8 +191,8 @@
       "description": "Native phone client with touch sandbox controls and server-authoritative city planning.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Native road receipt still times out. Added fixed synthetic-only command stages to identify reader, monitor, simulation or reply delay. Actual timeout/late-result and city tests pass locally. Request exact-source Mac stage diagnostics.",
-      "updatedAt": "2026-10-08T14:51:52+00:00"
+      "note": "Mac stageRUNNING confirms the city command reached execution but exceeded8seconds. Added60second receipt/90second native action limits without retry. Actual9.2second delay,60second timeout/late-result and city tests pass. Native confirmation still required.",
+      "updatedAt": "2026-10-08T15:11:39+00:00"
     },
     {
       "id": "63386663653465302d303138612d346331372d396364302d353961636235626436613632",
