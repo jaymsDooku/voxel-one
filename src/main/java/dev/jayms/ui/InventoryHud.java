@@ -156,39 +156,48 @@ public final class InventoryHud {
             ModelLibrary models,
             float mx,
             float my) {
-        float size = 56, left = w / 2f - size * 9 / 2, top = h - 72;
-        ui.rectangle(left - 7, top - 36, size * 9 + 11, 30, .02f, .05f, .09f, .85f);
-        ui.text("HEALTH", left + 4, top - 28, 1.5f);
-        for (int i = 0; i < 20; i++)
-            ui.rectangle(
-                    left + 90 + i * 17,
-                    top - 26,
-                    14,
-                    13,
-                    i < hp ? .9f : .12f,
-                    i < hp ? .23f : .16f,
-                    i < hp ? .3f : .20f,
-                    1);
-        ui.text(hp + "/20", left + 437, top - 28, 1.4f);
-        for (int i = 0; i < 9; i++) {
-            slot(ui, inv, i, left + i * size, top, size, i == selected, models);
+        render(ui, inv, hp, w, h, controls, models, mx, my, true);
+    }
+
+    /** Keep the inventory panel usable when the player HUD is hidden in sky view. */
+    public void render(
+            Overlay ui, Inventory inv, int hp, int w, int h, Controls controls,
+            ModelLibrary models, float mx, float my, boolean showPlayerHud) {
+        if (showPlayerHud) {
+            float size = 56, left = w / 2f - size * 9 / 2, top = h - 72;
+            ui.rectangle(left - 7, top - 36, size * 9 + 11, 30, .02f, .05f, .09f, .85f);
+            ui.text("HEALTH", left + 4, top - 28, 1.5f);
+            for (int i = 0; i < 20; i++)
+                ui.rectangle(
+                        left + 90 + i * 17,
+                        top - 26,
+                        14,
+                        13,
+                        i < hp ? .9f : .12f,
+                        i < hp ? .23f : .16f,
+                        i < hp ? .3f : .20f,
+                        1);
+            ui.text(hp + "/20", left + 437, top - 28, 1.4f);
+            for (int i = 0; i < 9; i++) {
+                slot(ui, inv, i, left + i * size, top, size, i == selected, models);
+                ui.text(
+                        Controls.keyName(
+                                controls.code(
+                                        Controls.Action.values()[
+                                                Controls.Action.SLOT_1.ordinal() + i])),
+                        left + i * size + 4,
+                        top + 3,
+                        1.1f);
+            }
             ui.text(
-                    Controls.keyName(
-                            controls.code(
-                                    Controls.Action.values()[
-                                            Controls.Action.SLOT_1.ordinal() + i])),
-                    left + i * size + 4,
-                    top + 3,
-                    1.1f);
+                    models.name(inv.type(selected))
+                            + " | "
+                            + Controls.keyName(controls.code(Controls.Action.INVENTORY))
+                            + ": inventory",
+                    left,
+                    top - 56,
+                    1.5f);
         }
-        ui.text(
-                models.name(inv.type(selected))
-                        + " | "
-                        + Controls.keyName(controls.code(Controls.Action.INVENTORY))
-                        + ": inventory",
-                left,
-                top - 56,
-                1.5f);
         if (!open) return;
         float x = w / 2f - 268, y = h / 2f - 175;
         ui.rectangle(0, 0, w, h, .01f, .025f, .045f, .65f);

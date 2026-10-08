@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-08T15:23:21+00:00",
+  "updatedAt": "2026-10-08T15:57:58+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,36 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "61653837396463352d666237642d343239332d393666322d616363613032353030623264",
+      "title": "Hide player HUD in isometric view",
+      "description": "Separating bottom player HUD from inventory panel; native view-toggle validation next.",
+      "evidence": [
+        {
+          "kind": "image",
+          "label": "isometric-hud-hidden.png (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-61653837396463352d666237642d343239332d393666322d616363613032353030623264/dashboard/evidence/isometric-hud-hidden.png"
+        },
+        {
+          "kind": "image",
+          "label": "isometric-inventory.png (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-61653837396463352d666237642d343239332d393666322d616363613032353030623264/dashboard/evidence/isometric-inventory.png"
+        },
+        {
+          "kind": "image",
+          "label": "player-hud-restored.png (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-61653837396463352d666237642d343239332d393666322d616363613032353030623264/dashboard/evidence/player-hud-restored.png"
+        },
+        {
+          "kind": "report",
+          "label": "isometric-hud-validation.md (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-61653837396463352d666237642d343239332d393666322d616363613032353030623264/dashboard/evidence/isometric-hud-validation.md"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Final rebased head 08ef5e16 validated: 7 focused tests and native startup/inventory/player-view workflow pass. Three fresh screenshots inspected. No unrelated deletions. Ready for independent review; controller publication pending.",
+      "updatedAt": "2026-10-08T15:57:58+00:00"
+    },
     {
       "id": "36653463353062342d306135392d346433612d393762342d666262663538316532653965",
       "title": "First-person planet entry",
