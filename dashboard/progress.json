@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-08T14:32:45+00:00",
+  "updatedAt": "2026-10-08T14:39:33+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -3507,8 +3507,8 @@
       "description": "Adding a smooth level 1 to level 2 camera transition and browser validation.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Resolved integration with crash/blackout/awakening and two-moon planet. Retained planet tests, media and milestone. 13 rules tests passed; awaiting controller rebase continuation before fresh workflow tests.",
-      "updatedAt": "2026-10-08T14:32:45+00:00"
+      "note": "Final integrated source validated: 13 rules tests; three-size transition, cockpit and crash/planet workflows; altitude/resize edges and landscape fighter regression passed. Fresh media inspected. Shared history preserved; ready for independent review, pending controller publication.",
+      "updatedAt": "2026-10-08T14:39:33+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

@@ -2,69 +2,74 @@ TAP version 13
 # Subtest: models contain voxel cells and three distinct aliens
 ok 1 - models contain voxel cells and three distinct aliens
   ---
-  duration_ms: 2.00603
+  duration_ms: 2.301337
   ...
 # Subtest: movement clamps, fire cooldown, pause and restart
 ok 2 - movement clamps, fire cooldown, pause and restart
   ---
-  duration_ms: 225.4372
+  duration_ms: 156.273686
   ...
 # Subtest: alien kill scores once; last kill advances and resets
 ok 3 - alien kill scores once; last kill advances and resets
   ---
-  duration_ms: 2.68717
+  duration_ms: 3.155057
   ...
 # Subtest: both sides erode shields
 ok 4 - both sides erode shields
   ---
-  duration_ms: 0.660508
+  duration_ms: 0.750708
   ...
 # Subtest: life loss, immunity, game over and invasion
 ok 5 - life loss, immunity, game over and invasion
   ---
-  duration_ms: 8.021487
+  duration_ms: 9.695575
   ...
 # Subtest: fleet reverses and descends; bottom shooters; saucer bonus
 ok 6 - fleet reverses and descends; bottom shooters; saucer bonus
   ---
-  duration_ms: 1.344448
+  duration_ms: 1.0696
   ...
 # Subtest: large background delta bounded and offscreen projectiles recycled
 ok 7 - large background delta bounded and offscreen projectiles recycled
   ---
-  duration_ms: 2.995712
+  duration_ms: 3.08038
   ...
 # Subtest: slow frame projectile sweeps across alien and shield
 ok 8 - slow frame projectile sweeps across alien and shield
   ---
-  duration_ms: 0.785772
+  duration_ms: 0.874241
   ...
 # Subtest: levels alternate classic and cockpit; restart restores classic
 ok 9 - levels alternate classic and cockpit; restart restores classic
   ---
-  duration_ms: 0.991051
+  duration_ms: 1.378532
   ...
 # Subtest: fighter flight has momentum, diagonal speed limit, bounds and aimed attacks
 ok 10 - fighter flight has momentum, diagonal speed limit, bounds and aimed attacks
   ---
-  duration_ms: 7.373701
+  duration_ms: 7.710074
   ...
 # Subtest: fighter hits use current altitude and diagonal swept projectiles
 ok 11 - fighter hits use current altitude and diagonal swept projectiles
   ---
-  duration_ms: 0.939934
+  duration_ms: 0.846063
+  ...
+# Subtest: level 2 crash, unconscious blackout and level 3 wake preserve progress and freeze combat
+ok 12 - level 2 crash, unconscious blackout and level 3 wake preserve progress and freeze combat
+  ---
+  duration_ms: 0.618193
   ...
 # Subtest: cockpit transition holds combat, pauses, ends and resets
-ok 12 - cockpit transition holds combat, pauses, ends and resets
+ok 13 - cockpit transition holds combat, pauses, ends and resets
   ---
-  duration_ms: 0.921067
+  duration_ms: 0.718105
   ...
-1..12
-# tests 12
+1..13
+# tests 13
 # suites 0
-# pass 12
+# pass 13
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 492.704796
+# duration_ms 361.550822

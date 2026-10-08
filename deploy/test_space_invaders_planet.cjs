@@ -21,7 +21,7 @@ const assert=require('node:assert/strict');const fs=require('node:fs');
   // Edge: backgrounding while waking pauses the story, then restart clears it.
   await page.evaluate(async()=>{const {game}=await import('./app.mjs');game.scene='waking';game.sceneTime=.3;window.dispatchEvent(new Event('blur'));});await page.waitForTimeout(100);
   assert(await page.evaluate(async()=>{const {game}=await import('./app.mjs');return game.state==='paused'&&game.sceneTime===.3;}));
-  await page.locator('#start').click();await page.evaluate(async()=>{const {game}=await import('./app.mjs');game.restart();});await page.waitForTimeout(100);
+  await page.locator('#start').click();await page.evaluate(async()=>{const {game}=await import('./app.mjs');game.restart();});await page.waitForFunction(()=>document.querySelector('canvas').dataset.scene==='space');
   assert.equal(await page.locator('canvas').getAttribute('data-scene'),'space');assert.match(await page.locator('#hud').innerText(),/Score 0 · Lives 3 · Wave 1/);assert.deepEqual(errors,[]);
   results.push({viewport,result:'PASS: real last-fighter kill, crash, pause/resume, blackout, awakening, score/lives, level 3 flight/fire, blur pause and restart; no browser errors'});
   const video=page.video();await context.close();if(video)await video.saveAs('dashboard/evidence/planet-playtest.webm');

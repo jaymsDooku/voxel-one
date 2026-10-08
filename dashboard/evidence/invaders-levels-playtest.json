@@ -31,10 +31,10 @@
   ],
   "limitation": "No physical iOS device test; this task changes the existing browser game.",
   "previousValidation": {
-    "label": "Historical cockpit validation before transition integration; images at these paths have since been refreshed.",
+    "label": "Historical report before current integration; captured images at the same paths have been refreshed.",
     "report": {
       "command": "PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/test_space_invaders_cockpit.cjs",
-      "environment": "Linux, headless Playwright WebKit, isolated synthetic contexts; HTTP source server on 127.0.0.1:8767",
+      "environment": "Linux, headless Playwright WebKit, isolated synthetic contexts; HTTP source server on 127.0.0.1:8778",
       "playtest": "Playtest: Start level 1, fire to clear final alien, play first-person level 2, fly up/right with momentum and fire, pause/resume, lose final life, restart, cancel touch input, advance to level 3, fly by touch, test flight boundaries.",
       "expected": "Level 2+ has independent jet attack runs, two-axis keyboard/touch flight and aimed fire; views alternate, shots and movement stay aligned, pause freezes combat, restart restores classic, scores/lives carry forward.",
       "results": [
@@ -64,60 +64,103 @@
         }
       ],
       "limitation": "No physical iOS device test; this task changes the existing browser game.",
-      "testedHead": "a5f2dfc1a77a5a61b76f7aeb59b626e00e914d71",
-      "testedSource": "Tested synchronized checkout plus landscape instrument spacing fix; source SHA-256 values below identify tested files.",
-      "testedAt": "2026-10-08T13:34:06+00:00",
+      "previousValidation": {
+        "label": "Historical cockpit validation before transition integration; images at these paths have since been refreshed.",
+        "report": {
+          "command": "PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/test_space_invaders_cockpit.cjs",
+          "environment": "Linux, headless Playwright WebKit, isolated synthetic contexts; HTTP source server on 127.0.0.1:8767",
+          "playtest": "Playtest: Start level 1, fire to clear final alien, play first-person level 2, fly up/right with momentum and fire, pause/resume, lose final life, restart, cancel touch input, advance to level 3, fly by touch, test flight boundaries.",
+          "expected": "Level 2+ has independent jet attack runs, two-axis keyboard/touch flight and aimed fire; views alternate, shots and movement stay aligned, pause freezes combat, restart restores classic, scores/lives carry forward.",
+          "results": [
+            {
+              "viewport": {
+                "width": 1280,
+                "height": 900
+              },
+              "observed": "PASS: level 1 regression, actual last-kill transition, level 2 independent jet paths and two-axis flight/fire, aimed enemy fire and altitude hit, cockpit camera, pause/resume, death/restart, level 3 fighter combat with score/lives, touch up/cancel and boundaries",
+              "errors": []
+            },
+            {
+              "viewport": {
+                "width": 390,
+                "height": 844
+              },
+              "observed": "PASS: level 1 regression, actual last-kill transition, level 2 independent jet paths and two-axis flight/fire, aimed enemy fire and altitude hit, cockpit camera, pause/resume, death/restart, level 3 fighter combat with score/lives, touch up/cancel and boundaries",
+              "errors": []
+            },
+            {
+              "viewport": {
+                "width": 844,
+                "height": 390
+              },
+              "observed": "PASS: level 1 regression, actual last-kill transition, level 2 independent jet paths and two-axis flight/fire, aimed enemy fire and altitude hit, cockpit camera, pause/resume, death/restart, level 3 fighter combat with score/lives, touch up/cancel and boundaries",
+              "errors": []
+            }
+          ],
+          "limitation": "No physical iOS device test; this task changes the existing browser game.",
+          "testedHead": "a5f2dfc1a77a5a61b76f7aeb59b626e00e914d71",
+          "testedSource": "Tested synchronized checkout plus landscape instrument spacing fix; source SHA-256 values below identify tested files.",
+          "testedAt": "2026-10-08T13:34:06+00:00",
+          "rulesCheck": {
+            "command": "node --test games/space-invaders/game.test.mjs",
+            "observed": "11 passed, 0 failed"
+          },
+          "edgePlaytest": {
+            "command": "PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/test_space_invaders_cockpit_edges.cjs",
+            "steps": "Playtest: render ALT at playerY 280/520/530, resize portrait to landscape, hold/cancel touch up/down/fire, pause and resume.",
+            "expected": "ALT 250/10/0; cockpit survives resize; cancel clears controls; pause/resume updates overlay.",
+            "observed": "Passed. Initial edge harness checked pause title before animation frame; changed it to wait for rendered state and reran successfully."
+          },
+          "diffAudit": "Correction: earlier No file deletions claim audited only local edits, not the PR base. The rejected old head removed unrelated City Builder work. Against current review base 584854454e2407b66af23ff636f982a77e5fcef3, all unrelated City Builder and fighter source/docs/tests/media remain unchanged, and every upstream progress entry remains unchanged. No files deleted. Intentional renderer replacement removes the minimal rim/footer, adds canopy/console with ALT, and restricts exterior deck to classic view. New dedicated cockpit harnesses preserve upstream fighter harness unchanged.",
+          "visualInspection": "Inspected fresh 1280x900, 390x844 and 844x390 cockpit PNGs after layout fix. Canopy, combat, sight, instruments and touch controls visible. Landscape instruments sit above Up/Down buttons.",
+          "videoLimitation": "ffmpeg unavailable; no finished video claimed. Fresh PNG captures provide media evidence.",
+          "sha256": {
+            "games/space-invaders/game.test.mjs": "eb5b899c7ad4ed8f305bd3c73f60830e75e02b9f870e6a035241ce03b910beca",
+            "games/space-invaders/game.mjs": "2ec2a79f4c22650414c0f10096b194d556b513336fb48a831d19d7eb574352e8",
+            "games/space-invaders/app.mjs": "07bc0bbf5d742e513147bdabac0e11df99b1851a40ab1e136b6077f1f2ae6321",
+            "games/space-invaders/style.css": "2bbba8b8a4675cdff1d299188ba6d494bc2c0f2be4edcfd270d2438f6b5892b0",
+            "games/space-invaders/index.html": "309efdbeb34a383662f06f0a436f4ac3f2d24a2a813e816cc57fae3bde22ac75",
+            "games/space-invaders/README.md": "92c9e29445324e2e0f7fe821415101e542ce0bdd547febc9b93816f5c3f1f310",
+            "deploy/test_space_invaders_cockpit.cjs": "81d38805c842a8802212166f2b41156f759a85f6e1d48de0ca22d2fa2390d511",
+            "deploy/test_space_invaders_cockpit_edges.cjs": "97d803237a9f88b6ba99766b8d75e7da2ba7fa768716e9645d40b3ae4cb4bab2",
+            "dashboard/evidence/invaders-level-2-844.png": "d7f8f069479df17c926ee3f336f42f84c3d378e109ea561430feea321b63b486",
+            "dashboard/evidence/invaders-level-2-1280.png": "2ce56caa00dee20a65fcfbd222ec97b1002ccc0b2ddef27f730634ad4948102c",
+            "dashboard/evidence/invaders-level-2-390.png": "ad304a27455d1972bcc5a6a0f491aa9760d3f33794fd82eb82da8f04547669be"
+          }
+        }
+      },
+      "testedHead": "7633b3928aadf3615a36b3312704923eec9c2673",
+      "testedAt": "2026-10-08T14:10:10.516745+00:00",
       "rulesCheck": {
         "command": "node --test games/space-invaders/game.test.mjs",
-        "observed": "11 passed, 0 failed"
+        "observed": "12 passed, 0 failed"
       },
       "edgePlaytest": {
         "command": "PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/test_space_invaders_cockpit_edges.cjs",
         "steps": "Playtest: render ALT at playerY 280/520/530, resize portrait to landscape, hold/cancel touch up/down/fire, pause and resume.",
         "expected": "ALT 250/10/0; cockpit survives resize; cancel clears controls; pause/resume updates overlay.",
-        "observed": "Passed. Initial edge harness checked pause title before animation frame; changed it to wait for rendered state and reran successfully."
+        "observed": "PASS"
       },
-      "diffAudit": "Correction: earlier No file deletions claim audited only local edits, not the PR base. The rejected old head removed unrelated City Builder work. Against current review base 584854454e2407b66af23ff636f982a77e5fcef3, all unrelated City Builder and fighter source/docs/tests/media remain unchanged, and every upstream progress entry remains unchanged. No files deleted. Intentional renderer replacement removes the minimal rim/footer, adds canopy/console with ALT, and restricts exterior deck to classic view. New dedicated cockpit harnesses preserve upstream fighter harness unchanged.",
-      "visualInspection": "Inspected fresh 1280x900, 390x844 and 844x390 cockpit PNGs after layout fix. Canopy, combat, sight, instruments and touch controls visible. Landscape instruments sit above Up/Down buttons.",
-      "videoLimitation": "ffmpeg unavailable; no finished video claimed. Fresh PNG captures provide media evidence.",
       "sha256": {
-        "games/space-invaders/game.test.mjs": "eb5b899c7ad4ed8f305bd3c73f60830e75e02b9f870e6a035241ce03b910beca",
-        "games/space-invaders/game.mjs": "2ec2a79f4c22650414c0f10096b194d556b513336fb48a831d19d7eb574352e8",
-        "games/space-invaders/app.mjs": "07bc0bbf5d742e513147bdabac0e11df99b1851a40ab1e136b6077f1f2ae6321",
+        "games/space-invaders/game.test.mjs": "b7964d7e5eff3c55c96071395d5afcc421103ecd9d61636bff180f6df5ab9d3c",
+        "games/space-invaders/game.mjs": "83ba1a43b6632679aa39adbb6015897475e95b38a240643f032c18de65db0cb6",
+        "games/space-invaders/app.mjs": "ebf44e0e25cba75e6dcb0ce19b518f8b963266c53ea4d6ef709023b7ed39612e",
         "games/space-invaders/style.css": "2bbba8b8a4675cdff1d299188ba6d494bc2c0f2be4edcfd270d2438f6b5892b0",
         "games/space-invaders/index.html": "309efdbeb34a383662f06f0a436f4ac3f2d24a2a813e816cc57fae3bde22ac75",
         "games/space-invaders/README.md": "92c9e29445324e2e0f7fe821415101e542ce0bdd547febc9b93816f5c3f1f310",
-        "deploy/test_space_invaders_cockpit.cjs": "81d38805c842a8802212166f2b41156f759a85f6e1d48de0ca22d2fa2390d511",
-        "deploy/test_space_invaders_cockpit_edges.cjs": "97d803237a9f88b6ba99766b8d75e7da2ba7fa768716e9645d40b3ae4cb4bab2",
-        "dashboard/evidence/invaders-level-2-844.png": "d7f8f069479df17c926ee3f336f42f84c3d378e109ea561430feea321b63b486",
-        "dashboard/evidence/invaders-level-2-1280.png": "2ce56caa00dee20a65fcfbd222ec97b1002ccc0b2ddef27f730634ad4948102c",
-        "dashboard/evidence/invaders-level-2-390.png": "ad304a27455d1972bcc5a6a0f491aa9760d3f33794fd82eb82da8f04547669be"
+        "deploy/test_space_invaders_cockpit.cjs": "4b24124547cf886ed602c229046913ed5761c72286e854ff29f5ed1573b08957",
+        "deploy/test_space_invaders_cockpit_edges.cjs": "7c552c936d5f562b39664848cef55f40410e27df601d200f5a202788fdc13e01",
+        "dashboard/evidence/invaders-level-2-844.png": "5ccfc6c807ca94ddb837d2c9e8d52523a28a39758e483f00acb48cd59ab5d9bd",
+        "dashboard/evidence/invaders-level-2-1280.png": "c479a6af32fc72d62ac05ff4fe7529cacb67a472d4fcac5bb4ea66f63544d29b",
+        "dashboard/evidence/invaders-level-2-390.png": "6dc9bcb5d9b29ebbd979ad320cbc198d1dec3c3b1d3747087e1b3276ec760d60"
       }
     }
   },
-  "testedHead": "7633b3928aadf3615a36b3312704923eec9c2673",
-  "testedAt": "2026-10-08T14:10:10.516745+00:00",
-  "rulesCheck": {
-    "command": "node --test games/space-invaders/game.test.mjs",
-    "observed": "12 passed, 0 failed"
-  },
-  "edgePlaytest": {
-    "command": "PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/test_space_invaders_cockpit_edges.cjs",
-    "steps": "Playtest: render ALT at playerY 280/520/530, resize portrait to landscape, hold/cancel touch up/down/fire, pause and resume.",
-    "expected": "ALT 250/10/0; cockpit survives resize; cancel clears controls; pause/resume updates overlay.",
-    "observed": "PASS"
-  },
-  "sha256": {
-    "games/space-invaders/game.test.mjs": "b7964d7e5eff3c55c96071395d5afcc421103ecd9d61636bff180f6df5ab9d3c",
-    "games/space-invaders/game.mjs": "83ba1a43b6632679aa39adbb6015897475e95b38a240643f032c18de65db0cb6",
-    "games/space-invaders/app.mjs": "ebf44e0e25cba75e6dcb0ce19b518f8b963266c53ea4d6ef709023b7ed39612e",
-    "games/space-invaders/style.css": "2bbba8b8a4675cdff1d299188ba6d494bc2c0f2be4edcfd270d2438f6b5892b0",
-    "games/space-invaders/index.html": "309efdbeb34a383662f06f0a436f4ac3f2d24a2a813e816cc57fae3bde22ac75",
-    "games/space-invaders/README.md": "92c9e29445324e2e0f7fe821415101e542ce0bdd547febc9b93816f5c3f1f310",
-    "deploy/test_space_invaders_cockpit.cjs": "4b24124547cf886ed602c229046913ed5761c72286e854ff29f5ed1573b08957",
-    "deploy/test_space_invaders_cockpit_edges.cjs": "7c552c936d5f562b39664848cef55f40410e27df601d200f5a202788fdc13e01",
-    "dashboard/evidence/invaders-level-2-844.png": "5ccfc6c807ca94ddb837d2c9e8d52523a28a39758e483f00acb48cd59ab5d9bd",
-    "dashboard/evidence/invaders-level-2-1280.png": "c479a6af32fc72d62ac05ff4fe7529cacb67a472d4fcac5bb4ea66f63544d29b",
-    "dashboard/evidence/invaders-level-2-390.png": "6dc9bcb5d9b29ebbd979ad320cbc198d1dec3c3b1d3747087e1b3276ec760d60"
+  "testedHead": "04b2f8af0fbaa6b2ca0b4fd1270b9a891a201b59",
+  "testedAt": "2026-10-08T14:39:33.517489+00:00",
+  "sourceSha256": {
+    "games/space-invaders/app.mjs": "163d5bd15b5218dc6d462d5d31bced742c6b1b5e96966b9dbfd0bab7e45cccb3",
+    "games/space-invaders/game.mjs": "22f64051c8f7f7e3c5b066cff614304a2c4d97519c82ad60b1fe6139f9c5ea6a",
+    "games/space-invaders/game.test.mjs": "10ebccd38ef41b341afb7a2f6b22ccafe3fb8d839203142715e71e309ac76433"
   }
 }
