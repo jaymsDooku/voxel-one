@@ -191,7 +191,7 @@
       "description": "Native phone client with touch sandbox controls and server-authoritative city planning.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Explicit sanitized client-report and native-screenshot upload paths are preserved. Requesting an exact-source Mac rerun using the updated trusted uploader. Local 28 mock tests, shell syntax and diff checks passed. Native build and touch workflow remain unvalidated.",
+      "note": "Public run metadata confirms Mac dispatch used the old trusted uploader at ad2dd8937b47eb0accc5e5e237d0694ae2c242f5, which omits client diagnostics. Awaiting controller integration of preserved upload fix before another exact-source native test. No native acceptance passed.",
       "updatedAt": "2026-10-07T22:54:08+00:00"
     },
     {

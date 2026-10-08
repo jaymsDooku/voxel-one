@@ -1,0 +1,19 @@
+{
+  "sourceHead": "8d476b86140ecae32111c6a07e72d63d3319eed9",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/37758112959",
+  "trustedWorkflowHead": "ad2dd8937b47eb0accc5e5e237d0694ae2c242f5",
+  "auditCommand": "Python urllib GET public GitHub actions/runs/37758112959, then contents/.github/workflows/ios-simulator.yml at returned head_sha; inspect only workflow upload paths.",
+  "observedUploadPaths": [
+    "source/ios-evidence/report.json",
+    "source/ios-evidence/preflight.png",
+    "source/ios-evidence/client.png",
+    "source/ios-evidence/*.mp4"
+  ],
+  "observedArtifactFiles": [
+    "preflight.png",
+    "report.json"
+  ],
+  "result": "Executed trusted workflow lacks preserved feature upload fix. client_script failed, environmentReady true, clientChecked false. Client build/test diagnostics cannot be inspected.",
+  "handoff": "Controller must integrate explicit sanitized artifact upload paths into the trusted dispatch workflow before rerunning. Request is already authorized. Do not rerun from ad2dd8937b47eb0accc5e5e237d0694ae2c242f5. Developer does not commit/push/merge or mutate master.",
+  "playtest": "Native client acceptance did not pass; no gameplay proof claimed."
+}
