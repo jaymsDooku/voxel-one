@@ -16,6 +16,7 @@ export function visualBounds(shape,x,y,scale={x:1,y:1}){
 function overlaps(a,b){return a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top;}
 export class Game {
   constructor(random=Math.random){this.random=random;this.renderScale={x:1,y:1};this.restart();this.state='title';}
+  get perspective(){return this.wave%2===0?'cockpit':'classic';}
   restart(){this.score=0;this.lives=3;this.wave=1;this.player=240;this.shots=[];this.enemyShots=[];this.invulnerable=0;this.cooldown=0;this.state='playing';this.newWave();}
   newWave(){this.aliens=[];for(let r=0;r<5;r++)for(let c=0;c<9;c++)this.aliens.push({x:55+c*42,y:75+r*34,type:r===0?'squid':r<3?'crab':'octopus',points:r===0?30:r<3?20:10});this.direction=1;this.enemyClock=1;this.saucer=null;this.saucerClock=12;this.shields=[];for(let b=0;b<4;b++)for(let r=0;r<5;r++)for(let c=0;c<9;c++)if(!(r>2&&c>2&&c<6)&&!(r===0&&(c===0||c===8)))this.shields.push({x:62+b*105+c*5,y:440+r*5});}
   pause(){if(this.state==='playing')this.state='paused';else if(this.state==='paused')this.state='playing';}

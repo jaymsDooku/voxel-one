@@ -10,3 +10,5 @@ test('fleet reverses and descends; bottom shooters; saucer bonus',()=>{const g=n
 test('large background delta bounded and offscreen projectiles recycled',()=>{const g=new Game();g.restart();g.shots=[{x:10,y:1}];g.enemyShots=[{x:10,y:569}];g.update(100,{axis:1});assert(g.player<=252);assert.equal(g.shots.length,0);assert.equal(g.enemyShots.length,0);});
 
 test('slow frame projectile sweeps across alien and shield',()=>{const g=new Game();g.restart();g.aliens=[{x:240,y:200,points:30}];g.shots=[{x:240,y:205}];g.update(.05);assert.equal(g.wave,2);assert.equal(g.score,30);g.shields=[{x:100,y:440}];g.shots=[{x:100,y:450}];g.update(.05);assert.equal(g.shields.length,0);});
+
+test('levels alternate classic and cockpit; restart restores classic',()=>{const g=new Game();g.restart();for(let wave=1;wave<=4;wave++){assert.equal(g.wave,wave);assert.equal(g.perspective,wave%2?'classic':'cockpit');g.aliens=[];g.update(.01);}g.restart();assert.equal(g.wave,1);assert.equal(g.perspective,'classic');});

@@ -1,0 +1,33 @@
+{
+  "command": "PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/test_space_invaders_levels.cjs",
+  "environment": "Linux, headless Playwright WebKit, isolated synthetic contexts; HTTP source server on 127.0.0.1:8767",
+  "playtest": "Playtest: Start level 1, fire to clear final alien, play first-person level 2, move/fire, pause/resume, lose final life, restart, cancel touch input, advance to level 3.",
+  "expected": "Levels alternate views, shots and movement stay aligned, pause freezes combat, restart restores classic, scores/lives carry forward.",
+  "results": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "observed": "PASS: classic start, real last-kill transition to cockpit, camera follows movement, fire, pause/resume, cockpit death/restart, touch cancel, level 3 and score/lives carryover",
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "observed": "PASS: classic start, real last-kill transition to cockpit, camera follows movement, fire, pause/resume, cockpit death/restart, touch cancel, level 3 and score/lives carryover",
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "observed": "PASS: classic start, real last-kill transition to cockpit, camera follows movement, fire, pause/resume, cockpit death/restart, touch cancel, level 3 and score/lives carryover",
+      "errors": []
+    }
+  ],
+  "limitation": "No physical iOS device test; this task changes the existing browser game."
+}

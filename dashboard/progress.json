@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-08T10:38:59+00:00",
+  "updatedAt": "2026-10-08T12:13:38+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,15 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "30376466343165322d396538662d346164382d383363392d323765643563343864643138",
+      "title": "Space Invaders level perspectives",
+      "description": "Implementing alternating classic and first-person cockpit levels; local validation pending.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Implemented classic level 1 and first-person cockpit level 2; alternating later levels. Rules and WebKit playtests pass at desktop, portrait and landscape sizes. Ready for controller synchronization and independent review; media pending publication.",
+      "updatedAt": "2026-10-08T12:13:38+00:00"
+    },
     {
       "id": "35356131616330382d373362612d343264372d396562312d376335386464313036373835",
       "title": "Full-screen voxel Space Invaders",

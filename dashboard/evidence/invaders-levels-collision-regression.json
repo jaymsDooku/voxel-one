@@ -1,0 +1,510 @@
+{
+  "browser": "WebKit 26.6",
+  "syntheticProfiles": true,
+  "results": [
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "target": "alien",
+      "hit": false,
+      "setup": {
+        "x": 255,
+        "y": 200,
+        "renderScale": {
+          "x": 0.2554252930905463,
+          "y": 1
+        }
+      },
+      "observed": {
+        "score": 0,
+        "lives": 3,
+        "shields": 0,
+        "player": 240,
+        "invulnerable": -0.07300000000000001,
+        "enemyShots": []
+      }
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "target": "alien",
+      "hit": true,
+      "setup": {
+        "x": 240,
+        "y": 200,
+        "renderScale": {
+          "x": 0.2554252930905463,
+          "y": 1
+        }
+      },
+      "observed": {
+        "score": 20,
+        "lives": 3,
+        "shields": 0,
+        "player": 240,
+        "invulnerable": -0.063,
+        "enemyShots": []
+      }
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "target": "ship",
+      "hit": false,
+      "setup": {
+        "x": 255,
+        "y": 520,
+        "renderScale": {
+          "x": 0.2554252930905463,
+          "y": 1
+        }
+      },
+      "observed": {
+        "score": 0,
+        "lives": 3,
+        "shields": 0,
+        "player": 240,
+        "invulnerable": -0.05,
+        "enemyShots": [
+          {
+            "x": 255,
+            "y": 528,
+            "previousY": 520
+          }
+        ]
+      }
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "target": "ship",
+      "hit": true,
+      "setup": {
+        "x": 240,
+        "y": 520,
+        "renderScale": {
+          "x": 0.2554252930905463,
+          "y": 1
+        }
+      },
+      "observed": {
+        "score": 0,
+        "lives": 2,
+        "shields": 0,
+        "player": 240,
+        "invulnerable": 1.977,
+        "enemyShots": []
+      }
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "target": "shield",
+      "hit": false,
+      "setup": {
+        "x": 236,
+        "y": 440,
+        "renderScale": {
+          "x": 0.2554252930905463,
+          "y": 1
+        }
+      },
+      "observed": {
+        "score": 0,
+        "lives": 3,
+        "shields": 1,
+        "player": 240,
+        "invulnerable": -0.033,
+        "enemyShots": []
+      }
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "target": "shield",
+      "hit": true,
+      "setup": {
+        "x": 240,
+        "y": 440,
+        "renderScale": {
+          "x": 0.2554252930905463,
+          "y": 1
+        }
+      },
+      "observed": {
+        "score": 0,
+        "lives": 3,
+        "shields": 0,
+        "player": 240,
+        "invulnerable": -0.042,
+        "enemyShots": []
+      }
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "target": "enemy-shield",
+      "hit": false,
+      "setup": {
+        "x": 236,
+        "y": 440,
+        "renderScale": {
+          "x": 0.2554252930905463,
+          "y": 1
+        }
+      },
+      "observed": {
+        "score": 0,
+        "lives": 3,
+        "shields": 1,
+        "player": 240,
+        "invulnerable": -0.043,
+        "enemyShots": [
+          {
+            "x": 236,
+            "y": 446.88,
+            "previousY": 443.2
+          }
+        ]
+      }
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "target": "enemy-shield",
+      "hit": true,
+      "setup": {
+        "x": 240,
+        "y": 440,
+        "renderScale": {
+          "x": 0.2554252930905463,
+          "y": 1
+        }
+      },
+      "observed": {
+        "score": 0,
+        "lives": 3,
+        "shields": 0,
+        "player": 240,
+        "invulnerable": -0.026,
+        "enemyShots": []
+      }
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "target": "saucer",
+      "hit": false,
+      "setup": {
+        "x": 255,
+        "y": 38,
+        "renderScale": {
+          "x": 0.2554252930905463,
+          "y": 1
+        }
+      },
+      "observed": {
+        "score": 0,
+        "lives": 3,
+        "shields": 0,
+        "player": 240,
+        "invulnerable": -0.055,
+        "enemyShots": []
+      }
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "target": "saucer",
+      "hit": true,
+      "setup": {
+        "x": 240,
+        "y": 38,
+        "renderScale": {
+          "x": 0.2554252930905463,
+          "y": 1
+        }
+      },
+      "observed": {
+        "score": 100,
+        "lives": 3,
+        "shields": 0,
+        "player": 240,
+        "invulnerable": -0.046,
+        "enemyShots": []
+      }
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "target": "alien",
+      "hit": false,
+      "setup": {
+        "x": 240,
+        "y": 186,
+        "renderScale": {
+          "x": 1,
+          "y": 0.7327927215189874
+        }
+      },
+      "observed": {
+        "score": 0,
+        "lives": 3,
+        "shields": 0,
+        "player": 240,
+        "invulnerable": -0.05,
+        "enemyShots": []
+      }
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "target": "alien",
+      "hit": true,
+      "setup": {
+        "x": 240,
+        "y": 200,
+        "renderScale": {
+          "x": 1,
+          "y": 0.7327927215189874
+        }
+      },
+      "observed": {
+        "score": 20,
+        "lives": 3,
+        "shields": 0,
+        "player": 240,
+        "invulnerable": -0.059,
+        "enemyShots": []
+      }
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "target": "ship",
+      "hit": false,
+      "setup": {
+        "x": 240,
+        "y": 533,
+        "renderScale": {
+          "x": 1,
+          "y": 0.7327927215189874
+        }
+      },
+      "observed": {
+        "score": 0,
+        "lives": 3,
+        "shields": 0,
+        "player": 240,
+        "invulnerable": -0.051000000000000004,
+        "enemyShots": [
+          {
+            "x": 240,
+            "y": 541.16,
+            "previousY": 537.16
+          }
+        ]
+      }
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "target": "ship",
+      "hit": true,
+      "setup": {
+        "x": 240,
+        "y": 520,
+        "renderScale": {
+          "x": 1,
+          "y": 0.7327927215189874
+        }
+      },
+      "observed": {
+        "score": 0,
+        "lives": 2,
+        "shields": 0,
+        "player": 240,
+        "invulnerable": 2,
+        "enemyShots": []
+      }
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "target": "shield",
+      "hit": false,
+      "setup": {
+        "x": 236,
+        "y": 440,
+        "renderScale": {
+          "x": 1,
+          "y": 0.7327927215189874
+        }
+      },
+      "observed": {
+        "score": 0,
+        "lives": 3,
+        "shields": 1,
+        "player": 240,
+        "invulnerable": -0.05,
+        "enemyShots": []
+      }
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "target": "shield",
+      "hit": true,
+      "setup": {
+        "x": 240,
+        "y": 440,
+        "renderScale": {
+          "x": 1,
+          "y": 0.7327927215189874
+        }
+      },
+      "observed": {
+        "score": 0,
+        "lives": 3,
+        "shields": 0,
+        "player": 240,
+        "invulnerable": -0.029,
+        "enemyShots": []
+      }
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "target": "enemy-shield",
+      "hit": false,
+      "setup": {
+        "x": 236,
+        "y": 440,
+        "renderScale": {
+          "x": 1,
+          "y": 0.7327927215189874
+        }
+      },
+      "observed": {
+        "score": 0,
+        "lives": 3,
+        "shields": 1,
+        "player": 240,
+        "invulnerable": -0.048,
+        "enemyShots": [
+          {
+            "x": 236,
+            "y": 447.68,
+            "previousY": 444.48
+          }
+        ]
+      }
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "target": "enemy-shield",
+      "hit": true,
+      "setup": {
+        "x": 240,
+        "y": 440,
+        "renderScale": {
+          "x": 1,
+          "y": 0.7327927215189874
+        }
+      },
+      "observed": {
+        "score": 0,
+        "lives": 3,
+        "shields": 0,
+        "player": 240,
+        "invulnerable": -0.026,
+        "enemyShots": []
+      }
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "target": "saucer",
+      "hit": false,
+      "setup": {
+        "x": 240,
+        "y": 24,
+        "renderScale": {
+          "x": 1,
+          "y": 0.7327927215189874
+        }
+      },
+      "observed": {
+        "score": 0,
+        "lives": 3,
+        "shields": 0,
+        "player": 240,
+        "invulnerable": -0.025,
+        "enemyShots": []
+      }
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "target": "saucer",
+      "hit": true,
+      "setup": {
+        "x": 240,
+        "y": 38,
+        "renderScale": {
+          "x": 1,
+          "y": 0.7327927215189874
+        }
+      },
+      "observed": {
+        "score": 100,
+        "lives": 3,
+        "shields": 0,
+        "player": 240,
+        "invulnerable": -0.04,
+        "enemyShots": []
+      }
+    }
+  ]
+}
