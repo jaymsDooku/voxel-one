@@ -9,9 +9,9 @@ test('life loss, immunity, game over and invasion',()=>{const g=new Game();g.res
 test('fleet reverses and descends; bottom shooters; saucer bonus',()=>{const g=new Game(()=>0);g.restart();g.aliens=[{x:460,y:100,points:10},{x:460,y:150,points:10}];g.enemyClock=0;g.update(.05);assert.equal(g.direction,-1);assert.equal(g.aliens[0].y,115);assert(g.enemyShots[0].y>165);g.saucer={x:240,y:38};g.shots=[{x:240,y:42}];g.update(.01);assert.equal(g.score,100);assert.equal(g.saucer,null);});
 test('large background delta bounded and offscreen projectiles recycled',()=>{const g=new Game();g.restart();g.shots=[{x:10,y:1}];g.enemyShots=[{x:10,y:569}];g.update(100,{axis:1});assert(g.player<=252);assert.equal(g.shots.length,0);assert.equal(g.enemyShots.length,0);});
 
-test('slow frame projectile sweeps across alien and shield',()=>{const g=new Game();g.restart();g.aliens=[{x:240,y:200,points:30}];g.shots=[{x:240,y:205}];g.update(.05);assert.equal(g.wave,2);assert.equal(g.score,30);g.shields=[{x:100,y:440}];g.shots=[{x:100,y:450}];g.update(.05);assert.equal(g.shields.length,0);});
+test('slow frame projectile sweeps across alien and shield',()=>{const g=new Game();g.restart();g.aliens=[{x:240,y:200,points:30}];g.shots=[{x:240,y:205}];g.update(.05);assert.equal(g.wave,2);assert.equal(g.score,30);while(g.transition)g.update(.05);g.shields=[{x:100,y:440}];g.shots=[{x:100,y:450}];g.update(.05);assert.equal(g.shields.length,0);});
 
-test('levels alternate classic and cockpit; restart restores classic',()=>{const g=new Game();g.restart();for(let wave=1;wave<=4;wave++){assert.equal(g.wave,wave);assert.equal(g.perspective,wave%2?'classic':'cockpit');g.aliens=[];g.update(.01);while(g.scene)g.update(.05);}g.restart();assert.equal(g.wave,1);assert.equal(g.perspective,'classic');});
+test('levels alternate classic and cockpit; restart restores classic',()=>{const g=new Game();g.restart();for(let wave=1;wave<=4;wave++){assert.equal(g.wave,wave);assert.equal(g.perspective,wave%2?'classic':'cockpit');g.aliens=[];g.update(.01);while(g.scene||g.transition)g.update(.05);}g.restart();assert.equal(g.wave,1);assert.equal(g.perspective,'classic');});
 
 test('fighter flight has momentum, diagonal speed limit, bounds and aimed attacks',()=>{
  const g=new Game(()=>0);g.restart();g.wave=2;g.newWave();assert.equal(g.shields.length,0);assert(g.aliens.every(a=>a.type==='fighter'));
@@ -35,4 +35,15 @@ test('level 2 crash, unconscious blackout and level 3 wake preserve progress and
  while(g.scene==='blackout')g.update(.05);assert.equal(g.scene,'waking');assert.equal(g.wave,3);assert.equal(g.aliens.length,0);
  while(g.scene)g.update(.05);assert.equal(g.aliens.length,18);assert.equal(g.score,800);assert.equal(g.lives,2);
  g.wave=2;g.aliens=[];g.update(.01);g.restart();assert.equal(g.scene,null);assert.equal(g.wave,1);
+});
+
+test('cockpit transition holds combat, pauses, ends and resets',()=>{
+ const g=new Game();g.restart();g.aliens=[];g.score=90;g.lives=2;g.update(.01);
+ assert.equal(g.cameraMix,0);const aliens=JSON.stringify(g.aliens),x=g.player;
+ for(let i=0;i<16;i++)g.update(.05,{axis:1,vertical:-1,fire:true});
+ assert(Math.abs(g.cameraMix-.5)<.001);assert.equal(g.player,x);assert.equal(JSON.stringify(g.aliens),aliens);assert.equal(g.shots.length,0);assert.equal(g.lives,2);assert.equal(g.score,90);
+ g.pause();const elapsed=g.transition.elapsed;g.update(.05);assert.equal(g.transition.elapsed,elapsed);g.pause();
+ while(g.transition)g.update(.05);assert.equal(g.cameraMix,1);g.update(.05,{axis:1,fire:true});assert(g.player>x);assert(g.shots.length);
+ g.restart();assert.equal(g.transition,null);assert.equal(g.cameraMix,0);
+ g.aliens=[];g.update(.01);g.restart();assert.equal(g.transition,null);
 });

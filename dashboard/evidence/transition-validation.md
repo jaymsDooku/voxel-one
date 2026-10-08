@@ -1,0 +1,31 @@
+Space Invader camera transition validation
+
+Implemented a 1.6-second smoothstep camera move from level 1's orthogonal view into level 2's first-person cockpit. The ship fades out and cockpit fades in. The level label and accessible canvas label identify the move. Combat, input, damage and combat clocks hold until it ends. Pause freezes its elapsed time. Restart clears it. Later alternating views retain their existing behavior.
+
+Playtest: Linux, headless Playwright WebKit, isolated synthetic browser contexts. Served this worktree with python3 -m http.server 8778 --bind 127.0.0.1. Ran:
+PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR="$PWD/.tmp/browser" node deploy/test_space_invaders_transition.cjs
+
+At 1280x900, 390x844 and 844x390: clicked Start; placed a synthetic final alien; killed it with the real Space key and application frame loop. Observed intermediate camera mix, retained score 30/lives 3, unchanged enemy positions and no movement/fire while transitioning. Paused at a measured midpoint using the game pause method; verified elapsed time held; resumed using P. Held right/fire through completion and observed first-person movement and shots. Restarted during another transition and observed classic wave 1, score 0/lives 3. Touch left and pointer cancellation passed. No page errors. Expected and observed results match. Full details: transition-playtest.json.
+
+Rules: node --test games/space-invaders/game.test.mjs — 12/12 passed. Covers combat regressions, bounded deltas, level alternation, fighter controls and attacks, transition freeze/pause/end/restart. Output: transition-unit-tests.txt.
+Build: python3 deploy/build_site.py — passed. cmp source and website/dist copies of app.mjs and game.mjs — identical. git diff --check — passed.
+Initial checks exposed old tests assuming instant combat and an asynchronous browser polling predicate; those tests were corrected, then the full checks above passed.
+
+Media: transition-start-*.png, transition-mid-*.png (paused midpoint), transition-end-*.png. transition-playtest.mp4 is the desktop session, trimmed by 3 seconds to remove blank browser startup; under 6 MB. Inspected screenshots and sampled recorded video frames showing the view change and restart. The browser game has no engine F10 recorder; Playwright captured its actual canvas workflow. No stock or historical media. Publication is pending the controller.
+
+Audit against local HEAD: only game transition source, associated tests, matching generated game copies, local milestone and new validation artifacts changed. No feature deletions. Restored the unrelated website/dist/progress.json regeneration. The controller has not yet supplied a synchronized review base; rerun checks if its integration changes source. No deployment, commit, push or review approval performed. No physical-device test.
+
+Recovery after review, 2026-10-08:
+Resolved rebase file contents without staging or continuing Git. Retained the upstream solid canopy, sloped console and HULL/ALT/SECTOR instrument code; the whole cockpit fades with cameraMix. The classic deck fades out. Preserved the upstream cockpit dashboard item and appended the transition item. Both cockpit harnesses and their evidence are present; the main harness waits for transition completion before combat and uses synchronous frame polling. Fixed its source-server port to 8778 and the edge harness velocity reset to the actual two-axis velocity field.
+
+Executed on these resolved file contents: node --check games/space-invaders/app.mjs; node --test games/space-invaders/game.test.mjs (12/12 passed); python3 deploy/build_site.py; cmp source/dist app.mjs and game.mjs; git diff --check. All passed. Restored unrelated generated website/dist/progress.json.
+
+Audited the proposed diff against recorded base 584854454e2407b66af23ff636f982a77e5fcef3: no deleted files. Upstream cockpit source, regression harnesses, media and shared milestone remain. Intended replaced lines implement camera interpolation and fade, not removal of cockpit features. Existing browser reports and transition media above describe the pre-recovery source; they must be replaced by final-source playtests after the controller stages resolutions and continues the rebase. No fresh browser playtest claimed for this recovery handoff.
+
+Second recovery, 2026-10-08:
+Resolved preserved conflicts with newer crash/planet work. Level 1 completion starts the 1.6-second camera transition. Level 2 completion still starts crash (2 seconds), blackout (1.2 seconds), then level 3 waking (3 seconds). Both update branches freeze combat and pause naturally; restart clears both state fields. Preserved planet rendering, both moons, story HUD/ARIA, canopy/instruments, planet regression harness, unit test, evidence and dashboard milestone. The cockpit harness now waits for planet awakening to finish before asserting wave 3 combat.
+
+Executed on resolved contents: node --check games/space-invaders/app.mjs; node --test games/space-invaders/game.test.mjs (13/13 passed); python3 deploy/build_site.py; source/dist app.mjs and game.mjs comparisons; git diff --check. All passed. No deleted files against review base 31cf8bceb3f9888d84edf696bba9cce9fb29cb97. Replaced lines combine both update and presentation paths rather than removing concurrent behavior. Retained upstream planet evidence; earlier transition media/report describe older source and require fresh captures after rebase completion. No fresh browser playtest claimed at this recovery handoff. Controller must stage resolutions and continue Git; no commit, reset, abort, push or deployment performed.
+
+New-base recovery: e18722a660b6a9132023f95a53f2416f1092823b.
+Resolved the sole current conflict, dashboard/progress.json updatedAt, retaining the later timestamp. No game source changed in this resolution. Verified all new-base milestone entries are unchanged, no files are deleted against the new base, and crash/blackout/waking plus planet rendering remain. Executed node --test games/space-invaders/game.test.mjs (13/13 passed), app syntax check, source/dist comparisons and git diff --check; all passed. Controller must stage/continue the pending rebase. Final-head workflow checks and media await completion; prior reports/media are historical until revalidated.

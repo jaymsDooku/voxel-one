@@ -1,0 +1,32 @@
+{
+  "command": "PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/test_space_invaders_transition.cjs",
+  "environment": "Linux headless WebKit; isolated synthetic browser contexts; exact worktree HTTP server on port 8778",
+  "playtest": "Playtest: start level 1; arrange final alien; kill with real Fire key; inspect moving camera; pause and resume mid-transition; hold movement/fire during transition; play cockpit; restart during transition; test touch movement/cancel in classic mode.",
+  "expected": "Camera moves smoothly for 1.6 seconds; combat holds; pause freezes camera; first-person combat starts at completion; restart clears transition; classic input still works.",
+  "results": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "result": "PASS: real last kill, camera midpoint, frozen combat/input, pause/resume, cockpit combat, restart during transition, classic touch regression",
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "result": "PASS: real last kill, camera midpoint, frozen combat/input, pause/resume, cockpit combat, restart during transition, classic touch regression",
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "result": "PASS: real last kill, camera midpoint, frozen combat/input, pause/resume, cockpit combat, restart during transition, classic touch regression",
+      "errors": []
+    }
+  ]
+}
