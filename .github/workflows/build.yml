@@ -33,6 +33,14 @@ jobs:
           java-version: '17'
           cache: maven
       - run: mvn --batch-mode verify
+      - name: Summarize Maven tests without runtime data
+        if: always()
+        run: python3 deploy/summarize_maven_tests.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: maven-test-summary-${{ matrix.platform }}
+          path: target/maven-test-summary.json
       - uses: actions/upload-artifact@v4
         with:
           name: voxel-one-${{ matrix.os }}

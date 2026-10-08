@@ -97,7 +97,7 @@ final class NativeWorkflowTests:XCTestCase {
         let address=app.textFields["gatewayAddress"];wait(address);XCTAssertFalse(address.value as? String == "")
         fill("username","ios_fixture");fill("password","fixture-password-123",secure:true)
         app.segmentedControls["gameChoice"].buttons["City"].tap();app.buttons["signInButton"].tap()
-        wait(app.buttons["planToggle"],80,"planToggle");textContains("cityStatus","roads",timeout:30)
+        wait(app.buttons["planToggle"],80,"initial city login");textContains("cityStatus","roads",timeout:30)
         app.buttons["planToggle"].tap() // Enter planning if the initial game view starts in walking mode.
         if app.buttons["planToggle"].label=="Plan" {app.buttons["planToggle"].tap()}
         app.buttons["toolButton"].tap();app.buttons["Dirt road"].tap()
@@ -122,7 +122,7 @@ final class NativeWorkflowTests:XCTestCase {
         let cityBefore=app.staticTexts["cityStatus"].label
         app.buttons["planToggle"].tap();wait(app.buttons["breakButton"]);app.buttons["pauseButton"].tap();textContains("gameStatus","Paused");capture("city-native-walk");app.buttons["pauseButton"].tap()
         app.buttons["menuButton"].tap();wait(app.buttons["signInButton"])
-        fill("password","fixture-password-123",secure:true);app.segmentedControls["gameChoice"].buttons["City"].tap();app.buttons["signInButton"].tap();wait(app.buttons["planToggle"],80,"planToggle")
+        fill("password","fixture-password-123",secure:true);app.segmentedControls["gameChoice"].buttons["City"].tap();app.buttons["signInButton"].tap();wait(app.buttons["planToggle"],80,"reconnected city login")
         textContains("cityStatus","roads",timeout:30);XCTAssertFalse(cityBefore.isEmpty)
         capture("city-reconnected")
         // End in saved native sandbox so the outer verifier's independent launch shows gameplay.

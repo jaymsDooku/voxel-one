@@ -78,8 +78,10 @@ public final class MobileGateway implements AutoCloseable {
                     if(target==null)throw new Failure(400,"Choose a game");
                     String name=Json.text(request,"username");char[] password=Json.text(request,"password").toCharArray();
                     MultiplayerClient client;
-                    try{client=new MultiplayerClient(target.host(),target.port(),name,password,Boolean.TRUE.equals(request.get("register")),target.fingerprint());}
-                    catch(IOException e){throw new Failure(401,"Sign-in failed. Check your account and game server.");}
+                    try{client=new MultiplayerClient(target.host(),target.port(),name,password,Boolean.TRUE.equals(request.get("register")),target.fingerprint(),45000);}
+                    catch(MultiplayerClient.AuthenticationException e){throw new Failure(401,"Sign-in failed. Check your account and game server.");}
+                    catch(SocketTimeoutException e){throw new Failure(504,"Game sign-in timed out. Try again.");}
+                    catch(IOException e){throw new Failure(503,"Game server connection failed. Try again.");}
                     finally{Arrays.fill(password,'\0');request.remove("password");}
                     var session=new Session(client,target);byte[] token=new byte[32];random.nextBytes(token);String key=Base64.getUrlEncoder().withoutPadding().encodeToString(token);
                     synchronized(sessions){if(sessions.size()>=32){session.close();throw new Failure(503,"Server full");}sessions.put(key,session);}

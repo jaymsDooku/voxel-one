@@ -39,6 +39,24 @@ class MobileGatewayTest {
             var again=post(host,"login",null,Map.of("game","sandbox","username","ios_fixture","password","fixture-password-123"));assertEquals(200,again.statusCode());
         }
     }
+    @Test void slowCityLoginIsNotAnAuthenticationFailure()throws Exception{
+        try(var host=new MobileFixtureHost(temp.resolve("slow-login-profile"))){
+            var bad=post(host,"login",null,Map.of("game","city","username","ios_fixture","password","wrong-password-123"));
+            assertEquals(401,bad.statusCode());
+            java.util.concurrent.CompletableFuture<HttpResponse<String>> pending;
+            synchronized(host.city){
+                pending=java.util.concurrent.CompletableFuture.supplyAsync(()->{
+                    try{return post(host,"login",null,Map.of("game","city","username","ios_fixture","password","fixture-password-123"));}
+                    catch(Exception e){throw new java.util.concurrent.CompletionException(e);}
+                });
+                Thread.sleep(20000); // Actual server snapshot lock delay exceeds the old 15-second read limit.
+            }
+            var login=pending.get(30,java.util.concurrent.TimeUnit.SECONDS);
+            assertEquals(200,login.statusCode());
+            assertEquals(200,post(host,"state",token(login),Map.of()).statusCode());
+            assertEquals(200,post(host,"logout",token(login),Map.of()).statusCode());
+        }
+    }
     @Test void modalIdleKeepsGameConnectionButLogoutStillRevokesSession()throws Exception{
         try(var host=new MobileFixtureHost(temp.resolve("idle-profile"))){
             var login=post(host,"login",null,Map.of("game","city","username","ios_fixture","password","fixture-password-123"));
@@ -111,12 +129,16 @@ class MobileGatewayTest {
             int sequence=0;
             synchronized(host.city){
                 long end=System.nanoTime()+18_000_000_000L;
-                while(System.nanoTime()<end){
+                // A fixed request count tests the burst even on slower CI hosts. Do not require
+                // a minimum HTTP throughput within a wall-clock window.
+                for(int i=0;i<140;i++){
                     var move=Map.<String,Object>of("x",pose.get(0),"y",pose.get(1),"z",pose.get(2),"yaw",sequence*0.001,"pitch",0,"sequence",++sequence);
-                    assertEquals(200,post(host,"move",bearer,move).statusCode());Thread.sleep(75);
+                    assertEquals(200,post(host,"move",bearer,move).statusCode());
                 }
+                long remaining=end-System.nanoTime();
+                if(remaining>0)Thread.sleep((remaining+999_999)/1_000_000);
             }
-            assertTrue(sequence>120,"Actual phone pose requests must exceed server burst limit during stall");
+            assertEquals(140,sequence,"Actual phone requests exceed the server burst limit during the stall");
             Thread.sleep(1500); // Let the actual TLS reader drain after releasing the simulation lock.
             assertNull(host.city.transportFailure(),"Coalesced poses must retain the unchanged server rate limit");
             var road=post(host,"action",bearer,Map.of("kind","city","command",1,"value",0,"points",List.of(List.of(40,10),List.of(46,10))));
