@@ -1,0 +1,26 @@
+{
+  "sourceHead": "0a5ddd3822710960f89fb03755a7c7eb7f3067c5",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/37783560447",
+  "observed": "Actual native road failed with City command not confirmed; refresh before trying again. Gateway receipt wait was2seconds.",
+  "change": "Increase only city command receipt wait from2to8seconds, below normal phone HTTP request timeout15seconds. Preserve2second next-city-frame wait and independent transport heartbeat. No automatic command retries or game rule changes.",
+  "tests": [
+    {
+      "command": "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Djunit.jupiter.tempdir.basedir=\"$PWD/target/mobile-test-tmp\" \"-Dtest=MobileGatewayTest#slowCityReceiptStillConfirmsWithoutRetry\" test",
+      "environment": "Linux; actual isolated synthetic Java TLS city server",
+      "steps": "Login; hold actual server simulation/command monitor3.2seconds while sending one road command; release; await receipt.",
+      "expected": "HTTP200 with Mayor paid and subsequent state200.",
+      "observedBeforeFix": "Failed: expected200but504. One test failure; no errors/skips."
+    },
+    {
+      "command": "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Djunit.jupiter.tempdir.basedir=\"$PWD/target/mobile-test-tmp\" \"-Dtest=MobileGatewayTest#slowCityReceiptStillConfirmsWithoutRetry+cityCommandsAndEconomyAreServerOwned\" test",
+      "expected": "Delayed receipt plus authoritative city/economy and invalid-command regressions pass.",
+      "observed": "2tests passed;0failures,0errors,0skips."
+    },
+    {
+      "command": "bash -n ios/check-simulator.sh; git diff --check",
+      "observed": "Passed."
+    }
+  ],
+  "playtest": "Playtest: Actual Java gateway city workflow exercised a3.2second server stall, one road request, confirmed payment, retained session and existing city validation regressions. Revised native road workflow requires exact-source Mac rerun; browser cannot exercise UIKit controls. No native gameplay media or physical iPhone pass claimed.",
+  "diffAudit": "No deleted paths against cb79fa71fd7052f8ae0d311659bcb72882fb0318."
+}

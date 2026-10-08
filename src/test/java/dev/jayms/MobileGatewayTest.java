@@ -102,6 +102,24 @@ class MobileGatewayTest {
             assertEquals(200,post(host,"logout",bearer,Map.of()).statusCode());
         }
     }
+    @Test void slowCityReceiptStillConfirmsWithoutRetry()throws Exception{
+        try(var host=new MobileFixtureHost(temp.resolve("delayed-city-profile"))){
+            var login=post(host,"login",null,Map.of("game","city","username","ios_fixture","password","fixture-password-123"));
+            assertEquals(200,login.statusCode());String bearer=token(login);
+            java.util.concurrent.CompletableFuture<HttpResponse<String>> request;
+            // The actual server serializes commands and simulation on this monitor.
+            synchronized(host.city){
+                request=java.util.concurrent.CompletableFuture.supplyAsync(()->{
+                    try{return post(host,"action",bearer,Map.of("kind","city","command",1,"value",0,"points",List.of(List.of(40,10),List.of(46,10))));}
+                    catch(Exception e){throw new java.util.concurrent.CompletionException(e);}
+                });
+                Thread.sleep(3200);
+            }
+            var response=request.get(15,java.util.concurrent.TimeUnit.SECONDS);
+            assertEquals(200,response.statusCode());assertTrue(response.body().contains("Mayor paid"));
+            assertEquals(200,post(host,"state",bearer,Map.of()).statusCode());
+        }
+    }
     @Test void cityCommandsAndEconomyAreServerOwned()throws Exception{
         try(var host=new MobileFixtureHost(temp.resolve("city-profile"))){
             var login=post(host,"login",null,Map.of("game","city","username","ios_fixture","password","fixture-password-123"));assertEquals(200,login.statusCode());String bearer=token(login);

@@ -186,7 +186,9 @@ public final class MobileGateway implements AutoCloseable {
                     if(wait>0)Thread.sleep((wait+999_999)/1_000_000);
                     var completed=new java.util.concurrent.atomic.AtomicBoolean();
                     sent=client.cityCommand(new CityCommand(command,value,points),message->completed.set(true));
-                    long end=System.nanoTime()+Duration.ofSeconds(2).toNanos();
+                    // Receipt may wait behind the server's serialized city simulation/terrain work.
+                    // Stay below the phone's15second HTTP deadline; never retry an uncertain command.
+                    long end=System.nanoTime()+Duration.ofSeconds(8).toNanos();
                     while(sent && !completed.get() && client.connected() && System.nanoTime()<end){Thread.sleep(10);poll();}
                     if(sent && !completed.get())throw new Failure(504,"City command not confirmed; refresh before trying again");
                     if(sent)lastCityReceipt=System.nanoTime();
