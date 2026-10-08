@@ -65,9 +65,50 @@ function worldCube(x,y,size,color,offsetX=0,offsetY=0){
   polygon([[size,0],[size*1.3,-size*.3],[size*1.3,size*.7],[size,size]],'#00000050');return;
  }
  const [px,py]=project(x,y);ctx.save();ctx.translate(px,py);ctx.scale(unit,unit);cube(offsetX,0,size,color);ctx.restore();}
+// Stepped terrain and cube moons share the game's voxel palette.
+function planet(){
+ const sky=ctx.createLinearGradient(0,0,0,height);sky.addColorStop(0,'#171b46');sky.addColorStop(.6,'#99658d');sky.addColorStop(1,'#c79b76');ctx.fillStyle=sky;ctx.fillRect(0,0,width,height);
+ for(const [x,y,size,color] of [[.32,.39,.095,'#c4b9e6'],[.72,.46,.065,'#81d4cd']]){
+  const cell=Math.max(3,Math.min(width,height)*size/8);
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++)if((c-3.5)**2+(r-3.5)**2<17)cube(width*x+(c-4)*cell,height*y+(r-4)*cell,cell,(c+r)%5===0?'#777ba6':color);
+ }
+ for(let layer=0;layer<3;layer++){
+  const cell=Math.max(6,Math.min(width/40,height/40)),base=height*(.6+layer*.12);
+  for(let i=0;i<width/cell+1;i++){
+   const rise=(2+Math.floor((Math.sin(i*.61+layer*2)+Math.sin(i*.23))*2))*cell;
+   ctx.fillStyle=['#493d68','#514d67','#395a65'][layer];ctx.fillRect(i*cell,base-rise,cell,height);
+   ctx.fillStyle=['#8a759c','#8c8190','#6d9790'][layer];ctx.fillRect(i*cell,base-rise,cell,cell*.22);
+  }
+ }
+ for(let i=0;i<12;i++)cube(((i*137)%997)/997*width,height*(.82+(i%3)*.04),Math.max(5,unit*14),i%2?'#996b9b':'#77bfb1');
+ // Wreckage anchors the wake-up view to the crash.
+ ctx.save();ctx.translate(width*.18,height*.83);ctx.rotate(-.3);ctx.scale(Math.max(1,unit*2),Math.max(1,unit*2));model('ship',0,0,'#626c80');cube(10,7,5,'#de9866');ctx.restore();
+}
+function story(){
+ const scene=game.scene;
+ if(scene==='blackout'){ctx.fillStyle='#000';ctx.fillRect(0,0,width,height);}
+ else {
+  planet();
+  if(scene==='crash'){
+   const progress=game.sceneTime/2;
+   ctx.save();ctx.translate(width*(.5-.32*progress),height*(.18+.65*progress));ctx.rotate(progress*1.4);ctx.scale(3*unit+1,3*unit+1);model('ship',0,0,'#8dcaff');cube(0,18,6,'#ff9857');ctx.restore();
+   ctx.fillStyle=`rgba(0,0,0,${Math.max(0,(progress-.65)/.35)})`;ctx.fillRect(0,0,width,height);
+  }else {
+   // Eyelids open slowly after the impact; terrain and both moons emerge.
+   const lid=height*.5*Math.max(0,1-game.sceneTime/2.2);ctx.fillStyle='#000';ctx.fillRect(0,0,width,lid);ctx.fillRect(0,height-lid,width,lid);
+  }
+ }
+ ctx.fillStyle='#fff';ctx.textAlign='center';ctx.font=`${height<500?14:20}px system-ui`;
+ const line=scene==='crash'?'Hull damaged. Falling toward an alien planet…':scene==='blackout'?'Impact. You lose consciousness.':'Level 3 · You wake beneath two moons.';
+ ctx.fillText(line,width/2,height*.72,Math.max(1,width-24));ctx.textAlign='start';
+ canvas.dataset.scene=scene;
+}
 function draw(t){
  if(!backdrop)return;
- ctx.drawImage(backdrop,0,0,width,height);
+ canvas.dataset.scene=game.scene||(game.wave===3?'planet':'space');
+ canvas.dataset.perspective=game.perspective;
+ if(game.scene){story();return;}
+ if(game.wave===3)planet();else ctx.drawImage(backdrop,0,0,width,height);
  // A receding voxel deck beneath the ship, integrated into the space scene.
  ctx.strokeStyle='#53cbd324';ctx.lineWidth=1;
  const horizon=top+playHeight*.84;
@@ -109,5 +150,5 @@ function draw(t){
  }
  canvas.dataset.perspective=game.perspective;
 }
-function frame(t){const touch=[...pointers.values()];game.update((t-last)/1000,{axis:Number(keys.has('ArrowRight')||keys.has('KeyD')||touch.includes('right'))-Number(keys.has('ArrowLeft')||keys.has('KeyA')||touch.includes('left')),vertical:Number(keys.has('ArrowDown')||keys.has('KeyS')||touch.includes('down'))-Number(keys.has('ArrowUp')||keys.has('KeyW')||touch.includes('up')),fire:keys.has('Space')||touch.includes('fire')});last=t;draw(t);hud.textContent=`Score ${game.score} · Lives ${game.lives} · Wave ${game.wave}${game.flight?' · FIGHTER COMBAT':''}`;canvas.setAttribute('aria-label',`Level ${game.wave}: ${game.perspective==='cockpit'?'First-person fighter cockpit':game.flight?'Fighter space combat':'Classic Space Invaders'}`);if(oldState!==game.state){oldState=game.state;overlay.hidden=game.state==='playing';pause.disabled=!['playing','paused'].includes(game.state);pause.textContent=game.state==='paused'?'Resume':'Pause';if(game.state==='paused'){title.textContent='Paused';message.textContent='Your game is safe. Resume when ready.';start.textContent='Resume';}if(game.state==='over'){title.textContent='Game over';message.textContent=`Final score: ${game.score} · Wave ${game.wave}${game.flight?' · FIGHTER COMBAT':''}`;start.textContent='Play again';}status.textContent=game.state==='playing'?'Game started':title.textContent;}requestAnimationFrame(frame);}
+function frame(t){const touch=[...pointers.values()];game.update((t-last)/1000,{axis:Number(keys.has('ArrowRight')||keys.has('KeyD')||touch.includes('right'))-Number(keys.has('ArrowLeft')||keys.has('KeyA')||touch.includes('left')),vertical:Number(keys.has('ArrowDown')||keys.has('KeyS')||touch.includes('down'))-Number(keys.has('ArrowUp')||keys.has('KeyW')||touch.includes('up')),fire:keys.has('Space')||touch.includes('fire')});last=t;draw(t);hud.textContent=`Score ${game.score} · Lives ${game.lives} · Wave ${game.wave}${game.scene?' · '+game.scene.toUpperCase():game.flight?' · FIGHTER COMBAT':''}`;canvas.setAttribute('aria-label',`Level ${game.wave}: ${game.scene?game.scene+' on an alien voxel planet':game.wave===3?'Alien voxel planet with two moons; fighter combat':game.perspective==='cockpit'?'First-person fighter cockpit':game.flight?'Fighter space combat':'Classic Space Invaders'}`);if(oldState!==game.state){oldState=game.state;overlay.hidden=game.state==='playing';pause.disabled=!['playing','paused'].includes(game.state);pause.textContent=game.state==='paused'?'Resume':'Pause';if(game.state==='paused'){title.textContent='Paused';message.textContent='Your game is safe. Resume when ready.';start.textContent='Resume';}if(game.state==='over'){title.textContent='Game over';message.textContent=`Final score: ${game.score} · Wave ${game.wave}${game.flight?' · FIGHTER COMBAT':''}`;start.textContent='Play again';}status.textContent=game.state==='playing'?'Game started':title.textContent;}requestAnimationFrame(frame);}
 requestAnimationFrame(frame);

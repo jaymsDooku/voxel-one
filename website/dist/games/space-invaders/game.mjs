@@ -19,7 +19,7 @@ export class Game {
   constructor(random=Math.random){this.random=random;this.renderScale={x:1,y:1};this.restart();this.state='title';}
   get perspective(){return this.wave%2===0?'cockpit':'classic';}
   get flight(){return this.wave>=2;}
-  restart(){this.score=0;this.lives=3;this.wave=1;this.player=240;this.playerY=520;this.velocity={x:0,y:0};this.shots=[];this.enemyShots=[];this.invulnerable=0;this.cooldown=0;this.state='playing';this.newWave();}
+  restart(){this.scene=null;this.sceneTime=0;this.score=0;this.lives=3;this.wave=1;this.player=240;this.playerY=520;this.velocity={x:0,y:0};this.shots=[];this.enemyShots=[];this.invulnerable=0;this.cooldown=0;this.state='playing';this.newWave();}
   newWave(){
     this.aliens=[];this.shields=[];
     if(this.flight){
@@ -41,7 +41,19 @@ export class Game {
   update(dt,input={}){
     if(this.state!=='playing')return;
     // Bound elapsed time: resuming a suspended mobile tab must not fast-forward combat.
-    dt=Math.max(0,Math.min(dt,.05));this.cooldown-=dt;this.invulnerable-=dt;
+    dt=Math.max(0,Math.min(dt,.05));
+    if(this.scene){
+      this.sceneTime+=dt;
+      const duration={crash:2,blackout:1.2,waking:3}[this.scene];
+      if(this.sceneTime>=duration){
+        this.sceneTime=0;
+        if(this.scene==='crash')this.scene='blackout';
+        else if(this.scene==='blackout'){this.wave=3;this.scene='waking';}
+        else {this.scene=null;this.newWave();this.invulnerable=2;}
+      }
+      return;
+    }
+    this.cooldown-=dt;this.invulnerable-=dt;
     if(this.flight){
       const ax=Math.max(-1,Math.min(1,input.axis||0)),ay=Math.max(-1,Math.min(1,input.vertical||0));
       const norm=Math.max(1,Math.hypot(ax,ay));
@@ -92,6 +104,6 @@ export class Game {
     let hit=false;this.enemyShots=this.enemyShots.filter(s=>{if(shieldHit(s,true))return false;if(hits(s,modelBounds.ship,this.player,this.playerY,true)){if(this.invulnerable<=0)hit=true;return false;}return s.y>-20&&s.y<570&&s.x>-20&&s.x<500;});
     if(this.flight&&this.invulnerable<=0&&this.aliens.some(a=>overlaps(bounds(modelBounds[a.type||'crab'],a.x,a.y),bounds(modelBounds.ship,this.player,this.playerY))))hit=true;
     if(hit){this.lives--;this.invulnerable=2;this.enemyShots=[];if(this.lives<=0)this.state='over';}
-    if(!this.aliens.length&&this.state==='playing'){this.wave++;this.shots=[];this.enemyShots=[];this.newWave();this.invulnerable=2;}
+    if(!this.aliens.length&&this.state==='playing'){if(this.wave===2){this.scene='crash';this.sceneTime=0;this.shots=[];this.enemyShots=[];this.saucer=null;this.velocity={x:0,y:0};return;}this.wave++;this.shots=[];this.enemyShots=[];this.newWave();this.invulnerable=2;}
   }
 }

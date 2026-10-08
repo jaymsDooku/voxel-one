@@ -1,0 +1,34 @@
+{
+  "command": "PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/test_space_invaders_planet.cjs",
+  "environment": "Linux headless WebKit; fresh synthetic contexts; local HTTP source on 127.0.0.1:8779",
+  "playtest": "Playtest: start, set synthetic final level 2 fighter, fire through real keyboard/frame loop; watch crash, pause/resume, unconscious blackout, wake under two moons, fly/fire on level 3, blur while waking, restart.",
+  "expected": "Crash at end of level 2; unconscious interval; level 3 opens on voxel landscape with two moons; no combat during story; pause freezes story; score/lives survive; restart restores level 1.",
+  "results": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "result": "PASS: real last-fighter kill, crash, pause/resume, blackout, awakening, score/lives, level 3 flight/fire, blur pause and restart; no browser errors"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "result": "PASS: real last-fighter kill, crash, pause/resume, blackout, awakening, score/lives, level 3 flight/fire, blur pause and restart; no browser errors"
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "result": "PASS: real last-fighter kill, crash, pause/resume, blackout, awakening, score/lives, level 3 flight/fire, blur pause and restart; no browser errors"
+    }
+  ],
+  "validatedHead": "608f248ce2a15406168f08fc5f53cee761d5b74b",
+  "sourceSha256": {
+    "games/space-invaders/game.mjs": "ba4c880c6ec6363f1de807baa0e996d0ea8f731f556c85b0b002693e83804ab9",
+    "games/space-invaders/app.mjs": "6419a4df14b6896ea196e5b80b51d097913ec37ce93e0a9605076441cb2c3cff"
+  }
+}

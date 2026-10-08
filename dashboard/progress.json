@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-08T13:34:06+00:00",
+  "updatedAt": "2026-10-08T14:00:32+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,15 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "66633939323762632d353065392d343366652d386563362d303862613662346238633634",
+      "title": "Alien planet crash and awakening",
+      "description": "Implementing level 2 crash and level 3 awakening; validation pending.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Rebased source validated: 12 unit tests, three-size planet workflow and landscape fighter/cockpit regression passed. Fresh images and MP4 inspected; awaiting controller publication and independent review.",
+      "updatedAt": "2026-10-08T14:00:32+00:00"
+    },
     {
       "id": "38626531653763632d353339632d343035352d613466312d636466376638616233653664",
       "title": "Level 2 spaceship cockpit interior",
