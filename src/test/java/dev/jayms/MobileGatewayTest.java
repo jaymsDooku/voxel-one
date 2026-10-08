@@ -60,6 +60,36 @@ class MobileGatewayTest {
             assertEquals(401,post(host,"state",bearer,Map.of()).statusCode());
         }
     }
+    @Test void invalidPoseIsRejectedWithoutClosingSession()throws Exception{
+        try(var host=new MobileFixtureHost(temp.resolve("pose-profile"))){
+            var login=post(host,"login",null,Map.of("game","city","username","ios_fixture","password","fixture-password-123"));
+            assertEquals(200,login.statusCode());String bearer=token(login);
+            var invalid=Map.<String,Object>of("x",0,"y",30,"z",0,"yaw",0,"pitch",1.6);
+            assertEquals(400,post(host,"move",bearer,invalid).statusCode());
+            assertEquals(200,post(host,"state",bearer,Map.of()).statusCode());
+            assertEquals(400,post(host,"move",bearer,Map.of("x",0,"y",Terrain.MAX_Y+33,"z",0,"yaw",0,"pitch",0)).statusCode());
+            assertEquals(200,post(host,"state",bearer,Map.of()).statusCode());
+            assertNull(host.city.transportFailure());
+        }
+    }
+    @Test void syntheticServerCloseReasonIsFixedAndContainsNoAccountData()throws Exception{
+        try(var host=new MobileFixtureHost(temp.resolve("reason-profile"))){
+            var login=post(host,"login",null,Map.of("game","city","username","ios_fixture","password","fixture-password-123"));
+            assertEquals(200,login.statusCode());String bearer=token(login);
+            var field=MobileGateway.class.getDeclaredField("sessions");field.setAccessible(true);
+            Object session=((Map<?,?>)field.get(host.gateway)).values().iterator().next();
+            var clientField=session.getClass().getDeclaredField("client");clientField.setAccessible(true);
+            var client=(MultiplayerClient)clientField.get(session);
+            client.move(new Protocol.Pose(client.id,0,30,0,0,90,0,0,false,0,0,false));
+            long end=System.nanoTime()+5_000_000_000L;
+            while(client.connected() && System.nanoTime()<end)Thread.sleep(20);
+            assertFalse(client.connected());
+            assertEquals(MultiplayerServer.TransportFailure.INVALID_MOVEMENT,host.city.transportFailure());
+            var response=post(host,"state",bearer,Map.of());
+            assertEquals(401,response.statusCode());assertTrue(response.body().contains("Synthetic server INVALID_MOVEMENT"));
+            assertFalse(response.body().contains("ios_fixture"));assertFalse(response.body().contains("fixture-password"));
+        }
+    }
     @Test void slowSnapshotDoesNotBlockTransportHeartbeat()throws Exception{
         try(var host=new MobileFixtureHost(temp.resolve("slow-profile"))){
             var login=post(host,"login",null,Map.of("game","city","username","ios_fixture","password","fixture-password-123"));

@@ -191,8 +191,8 @@
       "description": "Native phone client with touch sandbox controls and server-authoritative city planning.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Native road error now identifies closed game transport. Separated heartbeat from snapshot lock; real17second stalled-snapshot regression passed. Java6, CLI18 and mock53 passed. Native online road/reconnect rerun required; no native acceptance passed.",
-      "updatedAt": "2026-10-07T22:54:08+00:00"
+      "note": "Native online city check still disconnects. Added fixed synthetic transport diagnostics and aligned phone pose limits with the game protocol. Local integration passed; exact-source Mac rerun required.",
+      "updatedAt": "2026-10-08T12:41:25+00:00"
     },
     {
       "id": "63386663653465302d303138612d346331372d396364302d353961636235626436613632",

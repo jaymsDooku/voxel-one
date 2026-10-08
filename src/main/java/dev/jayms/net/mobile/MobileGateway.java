@@ -24,10 +24,15 @@ public final class MobileGateway implements AutoCloseable {
     private final Map<String,ArrayDeque<Long>> attempts=new LinkedHashMap<>();
     private final SecureRandom random=new SecureRandom();
     private final Target sandbox,city;
+    private final java.util.function.Function<Target,MultiplayerServer.TransportFailure> fixtureFailure;
     private final long idleNanos=Duration.ofMinutes(15).toNanos();
     private final java.util.concurrent.atomic.AtomicInteger connecting=new java.util.concurrent.atomic.AtomicInteger();
     public MobileGateway(int port, Target sandbox, Target city) throws IOException {
-        this.sandbox=sandbox;this.city=city;
+        this(port,sandbox,city,target->null);
+    }
+    // Only the isolated fixture supplies server diagnostics. Production returns generic safe errors.
+    MobileGateway(int port, Target sandbox, Target city, java.util.function.Function<Target,MultiplayerServer.TransportFailure> fixtureFailure) throws IOException {
+        this.sandbox=sandbox;this.city=city;this.fixtureFailure=fixtureFailure;
         server=HttpServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(),port),32);
         server.createContext("/mobile/v1/",this::handle);server.setExecutor(executor);
         cleanup.scheduleAtFixedRate(this::maintain,1,1,TimeUnit.SECONDS);
@@ -75,7 +80,7 @@ public final class MobileGateway implements AutoCloseable {
                     try{client=new MultiplayerClient(target.host(),target.port(),name,password,Boolean.TRUE.equals(request.get("register")),target.fingerprint());}
                     catch(IOException e){throw new Failure(401,"Sign-in failed. Check your account and game server.");}
                     finally{Arrays.fill(password,'\0');request.remove("password");}
-                    var session=new Session(client);byte[] token=new byte[32];random.nextBytes(token);String key=Base64.getUrlEncoder().withoutPadding().encodeToString(token);
+                    var session=new Session(client,target);byte[] token=new byte[32];random.nextBytes(token);String key=Base64.getUrlEncoder().withoutPadding().encodeToString(token);
                     synchronized(sessions){if(sessions.size()>=32){session.close();throw new Failure(503,"Server full");}sessions.put(key,session);}
                     result=Map.of("token",key,"state",session.state(Map.of()));
                 }finally{connecting.decrementAndGet();}
@@ -87,6 +92,8 @@ public final class MobileGateway implements AutoCloseable {
                 synchronized(session){
                     if(System.nanoTime()-session.lastUsed>idleNanos || !session.client.connected()){
                         String reason=session.client.connected()?"Session idle limit reached":transportReason(session.client.status());
+                        var fixtureCode=fixtureFailure.apply(session.target);
+                        if(reason.equals("Game server transport closed") && fixtureCode!=null)reason="Synthetic server "+fixtureCode.name();
                         sessions.remove(key,session);session.close();throw new Failure(401,reason+". Sign in again.");
                     }
                     session.lastUsed=System.nanoTime();
@@ -122,9 +129,9 @@ public final class MobileGateway implements AutoCloseable {
         return "Game server transport closed";
     }
     private static final class Session implements AutoCloseable{
-        final MultiplayerClient client;final Terrain terrain;final WorldVoxels world;volatile Protocol.Pose pose;final Object poseLock=new Object();
+        final Target target;final MultiplayerClient client;final Terrain terrain;final WorldVoxels world;volatile Protocol.Pose pose;final Object poseLock=new Object();
         volatile long lastUsed=System.nanoTime();boolean respawned;long lastSequence=-1,lastCityReceipt;
-        Session(MultiplayerClient client){this.client=client;terrain=new Terrain(client.seed,client.generatorVersion);world=new WorldVoxels(terrain);client.initialEdits.forEach(world::apply);pose=client.spawn;}
+        Session(MultiplayerClient client,Target target){this.target=target;this.client=client;terrain=new Terrain(client.seed,client.generatorVersion);world=new WorldVoxels(terrain);client.initialEdits.forEach(world::apply);pose=client.spawn;}
         // Short transport lock never waits for world snapshots and does not extend HTTP idle expiry.
         void heartbeat(){synchronized(poseLock){if(client.connected())client.move(pose);}}
         void poll(){client.poll().forEach(world::apply);if(client.respawn!=null){synchronized(poseLock){pose=client.respawn;}client.respawn=null;respawned=true;}}
@@ -137,7 +144,7 @@ public final class MobileGateway implements AutoCloseable {
             }
             float x=(float)Json.number(request,"x"),y=(float)Json.number(request,"y"),z=(float)Json.number(request,"z");
             float yaw=(float)Json.number(request,"yaw"),pitch=(float)Json.number(request,"pitch");
-            if(Math.abs(x)>Terrain.LIMIT || Math.abs(z)>Terrain.LIMIT || y<Terrain.MIN_Y || y>Terrain.MAX_Y+64 || Math.abs(pitch)>1.6 || !Float.isFinite(yaw) || !Float.isFinite(pitch))throw new IllegalArgumentException("Invalid pose");
+            if(Math.abs(x)>Terrain.LIMIT || Math.abs(z)>Terrain.LIMIT || y<Terrain.MIN_Y || y>Terrain.MAX_Y+32 || Math.abs(pitch)>Math.toRadians(89) || !Float.isFinite(yaw) || !Float.isFinite(pitch))throw new IllegalArgumentException("Invalid pose");
             synchronized(poseLock){pose=new Protocol.Pose(client.id,x,y,z,(float)Math.toDegrees(yaw),(float)Math.toDegrees(pitch),0,0,false,0,0,false);client.move(pose);}
         }
         Map<String,Object> state(Map<String,Object> request){
