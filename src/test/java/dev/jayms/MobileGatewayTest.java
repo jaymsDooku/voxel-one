@@ -49,6 +49,17 @@ class MobileGatewayTest {
             assertEquals(401,post(host,"state",bearer,Map.of()).statusCode());
         }
     }
+    @Test void closedGameReturnsFixedTransportReasonBeforeTokenRevocation()throws Exception{
+        try(var host=new MobileFixtureHost(temp.resolve("closed-profile"))){
+            var login=post(host,"login",null,Map.of("game","city","username","ios_fixture","password","fixture-password-123"));
+            assertEquals(200,login.statusCode());String bearer=token(login);host.city.close();
+            HttpResponse<String> response=null;long end=System.nanoTime()+5_000_000_000L;
+            do {Thread.sleep(50);response=post(host,"state",bearer,Map.of());}while(response.statusCode()==200 && System.nanoTime()<end);
+            assertEquals(401,response.statusCode());assertTrue(response.body().contains("Game server transport closed"));
+            assertFalse(response.body().contains("ios_fixture"));assertFalse(response.body().contains("fixture-password"));
+            assertEquals(401,post(host,"state",bearer,Map.of()).statusCode());
+        }
+    }
     @Test void cityCommandsAndEconomyAreServerOwned()throws Exception{
         try(var host=new MobileFixtureHost(temp.resolve("city-profile"))){
             var login=post(host,"login",null,Map.of("game","city","username","ios_fixture","password","fixture-password-123"));assertEquals(200,login.statusCode());String bearer=token(login);

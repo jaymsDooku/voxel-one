@@ -156,7 +156,7 @@ final class GameController:UIViewController,UITextFieldDelegate {
             if renderer.planning {visible=try await gateway.state(world,focus:SCNFocus(x:renderer.focus.x,z:renderer.focus.z))}
             guard id==sessionID else{return};try world.replace(visible);renderer.rebuild(world);renderer.mark(points,world:world)
             notify(state.notice.isEmpty ? success:state.notice)
-        }catch{if id==sessionID {notify(error.localizedDescription)}};if id==sessionID {busy=false;refreshHUD();runQueuedAction()}}
+        }catch{if id==sessionID && !paused {notify(error.localizedDescription)}};if id==sessionID {busy=false;refreshHUD();runQueuedAction()}}
     }
     private func runQueuedAction(){if let item=queuedAction {queuedAction=nil;action(item.0,success:item.1)}}
     @objc private func inventory(){
@@ -190,13 +190,13 @@ final class GameController:UIViewController,UITextFieldDelegate {
         renderer.updateCamera(world)
         if let gateway=gateway,!moveBusy,!paused,link.timestamp-lastMove>0.1 {
             lastMove=link.timestamp;moveBusy=true;let id=sessionID
-            Task {do {try await gateway.move(world)}catch {if id==sessionID {notify(error.localizedDescription);paused=true;movement.removeAll();pauseButton?.setTitle("Resume",for:.normal)}};if id==sessionID {moveBusy=false}}
+            Task {do {try await gateway.move(world)}catch {if id==sessionID && !paused {notify(error.localizedDescription);paused=true;movement.removeAll();pauseButton?.setTitle("Resume",for:.normal)}};if id==sessionID {moveBusy=false}}
         }
-        if let gateway=gateway,!busy,link.timestamp-lastPoll>1.5 {
+        if let gateway=gateway,!busy,!paused,link.timestamp-lastPoll>1.5 {
             lastPoll=link.timestamp;busy=true;let id=sessionID
             let focus=renderer.planning ? SCNFocus(x:renderer.focus.x,z:renderer.focus.z):nil
             Task {do{let state=try await gateway.state(world,focus:focus);guard id==sessionID else{return};try world.replace(state);renderer.rebuild(world);renderer.mark(points,world:world)}catch{
-                if id==sessionID {notify(error.localizedDescription);paused=true;movement.removeAll();pauseButton?.setTitle("Resume",for:.normal)}
+                if id==sessionID && !paused {notify(error.localizedDescription);paused=true;movement.removeAll();pauseButton?.setTitle("Resume",for:.normal)}
             };if id==sessionID {busy=false;refreshHUD();runQueuedAction()}}
         }
         if gateway==nil,link.timestamp-lastSave>5 {lastSave=link.timestamp;saveOffline()}
@@ -205,7 +205,7 @@ final class GameController:UIViewController,UITextFieldDelegate {
     private func refreshHUD(){guard let world=world,!inMenu else{return}
         if inMenu {return}
         let mode=gateway==nil ? "Offline sandbox":"Online \(world.snapshot.game)"
-        if CACurrentMediaTime()-messageTime<7 {status.text=message}
+        if paused || CACurrentMediaTime()-messageTime<7 {status.text=message}
         else {status.text="\(mode) · HP \(world.snapshot.health) · \(renderer.planning ? "Two fingers pan; pinch zoom":"Drag world to look")"}
         positionLabel.isHidden=view.bounds.width>view.bounds.height
         status.numberOfLines=view.bounds.width>view.bounds.height ? 1:2

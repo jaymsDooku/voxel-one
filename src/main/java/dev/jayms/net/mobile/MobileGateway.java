@@ -86,7 +86,8 @@ public final class MobileGateway implements AutoCloseable {
                 if(session==null)throw new Failure(401,"Session expired. Sign in again.");
                 synchronized(session){
                     if(System.nanoTime()-session.lastUsed>idleNanos || !session.client.connected()){
-                        sessions.remove(key,session);session.close();throw new Failure(401,"Disconnected. Sign in again.");
+                        String reason=session.client.connected()?"Session idle limit reached":transportReason(session.client.status());
+                        sessions.remove(key,session);session.close();throw new Failure(401,reason+". Sign in again.");
                     }
                     session.lastUsed=System.nanoTime();
                     result=switch(path){
@@ -109,6 +110,17 @@ public final class MobileGateway implements AutoCloseable {
         try(var out=exchange.getResponseBody()){out.write(data);}finally{exchange.close();}
     }
     private static final class Failure extends RuntimeException{final int status;Failure(int status,String message){super(message);this.status=status;}}
+    private static String transportReason(String status){
+        // Never return raw socket/exception text or account information to the phone.
+        if(status!=null){
+            String value=status.toLowerCase(Locale.ROOT);
+            if(value.contains("incoming queue full"))return "Incoming game queue full";
+            if(value.contains("outgoing queue full"))return "Outgoing game queue full";
+            if(value.contains("unknown server message"))return "Unknown game protocol message";
+            if(value.contains("read timed out"))return "Game socket read timed out";
+        }
+        return "Game server transport closed";
+    }
     private static final class Session implements AutoCloseable{
         final MultiplayerClient client;final Terrain terrain;final WorldVoxels world;Protocol.Pose pose;
         volatile long lastUsed=System.nanoTime();boolean respawned;long lastSequence=-1,lastCityReceipt;
