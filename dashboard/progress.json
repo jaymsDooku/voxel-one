@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-08T12:27:41+00:00",
+  "updatedAt": "2026-10-08T12:40:00+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -41,8 +41,8 @@
         }
       ],
       "status": "in_progress",
-      "note": "Rebase conflict resolved while preserving both work items and their evidence. Prior missile checks are historical; final-head tests and fresh media remain after controller continuation.",
-      "updatedAt": "2026-10-08T12:27:41+00:00"
+      "note": "Rebased source validated: 73 selected tests passed; native missile workflow, repeated-drop edge, save/reload, distant-building and budget regressions passed. Fresh PNGs inspected; F10 MP4 decoded: 13 frames, 331774 bytes. Awaiting controller publication and independent review.",
+      "updatedAt": "2026-10-08T12:40:00+00:00"
     },
     {
       "id": "30376466343165322d396538662d346164382d383363392d323765643563343864643138",
