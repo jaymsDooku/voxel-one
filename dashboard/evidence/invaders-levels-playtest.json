@@ -29,5 +29,33 @@
       "errors": []
     }
   ],
-  "limitation": "No physical iOS device test; this task changes the existing browser game."
+  "limitation": "No physical iOS device test; this task changes the existing browser game.",
+  "implementation": "Level 2 solid canopy frame, sloped console, live HULL/NAV/SECTOR screens; exterior deck remains in classic view only.",
+  "visualInspection": "Inspected fresh desktop, portrait and landscape captures. Fleet, shields, reticle and touch controls remain visible. Shortened NAV label fits portrait console.",
+  "rulesCheck": {
+    "command": "node --test games/space-invaders/game.test.mjs",
+    "observed": "9 passed, 0 failed"
+  },
+  "repeatCheck": "An intermediate repeat failed the fixed 40 ms shot assertion. Replaced it with a bounded wait for a live shot; final three-viewport run passed.",
+  "diffAudit": "Correction: the prior No file deletions / No unrelated source changes claim checked only the local edit diff, not the full PR against its review base. Review found unrelated City Builder missile deletions at 98eac56fde09c24a5d8a855dddae659c6344a102. Current rebase retains upstream City Builder code, controls, tests, docs, media and progress history. Against recorded base 7df8c29f410aee018f93f14b7353e5c0d7d04615 there are no deleted files in the resolved working contents. Intentional cockpit replacement removes the old minimal rim/text and limits the exterior deck to classic view.",
+  "validationState": "Historical browser results and images above predate fighter integration. Current conflict resolution preserves fighter flight, two-axis projection, engine glow and upstream harness; adds cockpit canopy and live altitude instrument. Final-head browser playtest and fresh cockpit media pending controller rebase continuation.",
+  "recoveryChecks": {
+    "upstreamPreservation": "20 upstream feature files byte-identical to HEAD cb79fa71fd7052f8ae0d311659bcb72882fb0318; all upstream progress entries preserved unchanged.",
+    "rules": "node --test games/space-invaders/game.test.mjs: 9 passed, 0 failed on resolved working contents.",
+    "diff": "git diff --check: passed; git diff --name-only --diff-filter=D 7df8c29f410aee018f93f14b7353e5c0d7d04615: no paths.",
+    "handoff": "dashboard/progress.json resolved in working contents; index intentionally left to controller. Final-head Playtest and media pending rebase continuation."
+  },
+  "currentReviewBase": "584854454e2407b66af23ff636f982a77e5fcef3",
+  "currentRecoveryChecks": {
+    "base": "584854454e2407b66af23ff636f982a77e5fcef3",
+    "observed": "No unrelated paths or deleted files. All upstream progress entries unchanged. Game rules and fighter/levels harness byte-identical to base. No conflict markers in resolved files.",
+    "commands": [
+      "node --check games/space-invaders/app.mjs",
+      "node --check deploy/test_space_invaders_levels.cjs",
+      "node --test games/space-invaders/game.test.mjs",
+      "git diff --check"
+    ],
+    "results": "Syntax checks pass; 11 rules tests pass; whitespace check passes.",
+    "intentionalReplacement": "Replace minimal cockpit rim and fighter footer with canopy/console including ALT. Preserve fighter engine glow and two-axis camera. Draw exterior deck only in classic view."
+  }
 }

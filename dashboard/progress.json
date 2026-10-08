@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-08T13:13:01+00:00",
+  "updatedAt": "2026-10-08T13:23:28+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,15 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "38626531653763632d353339632d343035352d613466312d636466376638616233653664",
+      "title": "Level 2 spaceship cockpit interior",
+      "description": "Building a framed canopy and instrument console; browser validation pending.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Resolved cockpit integration with merged fighter flight; preserved fighter and City Builder progress history. Controller rebase continuation and final-head playtests pending.",
+      "updatedAt": "2026-10-08T13:23:28+00:00"
+    },
     {
       "id": "61303435393238342d626561392d343965372d396138362d663030626530653839396437",
       "title": "Level 2 fighter combat",
