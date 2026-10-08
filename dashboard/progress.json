@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-08T13:24:39+00:00",
+  "updatedAt": "2026-10-08T13:34:06+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -21,28 +21,28 @@
       "evidence": [
         {
           "kind": "image",
-          "label": "Historical pre-fighter validation; recapture pending: invaders-level-2-1280.png",
+          "label": "Fresh integrated cockpit validation \u2014 pending controller publication: invaders-level-2-1280.png",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38626531653763632d353339632d343035352d613466312d636466376638616233653664/dashboard/evidence/invaders-level-2-1280.png"
         },
         {
           "kind": "image",
-          "label": "Historical pre-fighter validation; recapture pending: invaders-level-2-390.png",
+          "label": "Fresh integrated cockpit validation \u2014 pending controller publication: invaders-level-2-390.png",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38626531653763632d353339632d343035352d613466312d636466376638616233653664/dashboard/evidence/invaders-level-2-390.png"
         },
         {
           "kind": "image",
-          "label": "Historical pre-fighter validation; recapture pending: invaders-level-2-844.png",
+          "label": "Fresh integrated cockpit validation \u2014 pending controller publication: invaders-level-2-844.png",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38626531653763632d353339632d343035352d613466312d636466376638616233653664/dashboard/evidence/invaders-level-2-844.png"
         },
         {
           "kind": "report",
-          "label": "Historical pre-fighter validation; recapture pending: invaders-levels-playtest.json",
+          "label": "Fresh integrated cockpit validation \u2014 pending controller publication: invaders-levels-playtest.json",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38626531653763632d353339632d343035352d613466312d636466376638616233653664/dashboard/evidence/invaders-levels-playtest.json"
         }
       ],
       "status": "in_progress",
-      "note": "Resolved report and progress conflicts; preserved fighter and City Builder features and history. Prior captures marked historical. Controller rebase continuation and final-head tests/media pending.",
-      "updatedAt": "2026-10-08T13:24:39+00:00"
+      "note": "Integrated cockpit/fighter source validated: 11 rules tests, three viewport workflow playtests, altitude and resize edge checks passed. Fresh PNGs inspected; landscape instruments clear touch controls. Upstream features/history retained. Awaiting publication and independent review.",
+      "updatedAt": "2026-10-08T13:34:06+00:00"
     },
     {
       "id": "61303435393238342d626561392d343965372d396138362d663030626530653839396437",

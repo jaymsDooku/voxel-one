@@ -94,7 +94,7 @@ function draw(t){
   ctx.strokeStyle='#70f3da70';ctx.lineWidth=1;
   ctx.beginPath();ctx.moveTo(rim*1.7,top);ctx.lineTo(rim*2.1,bottom*.7);ctx.moveTo(width-rim*1.7,top);ctx.lineTo(width-rim*2.1,bottom*.7);ctx.stroke();
   // Recessed instrument screens sit above the touch controls on every layout.
-  const screenY=bottom+rim*1.5,screenH=Math.max(16,Math.min(42,(height-bottom)*.33));
+  const screenY=bottom+(height<500?4:rim*1.5),screenH=height<500?16:Math.max(16,Math.min(42,(height-bottom)*.33));
   const screen=(x,w,label,value)=>{
    ctx.fillStyle='#020b14';ctx.fillRect(x,screenY,w,screenH);ctx.strokeStyle='#35566c';ctx.strokeRect(x,screenY,w,screenH);
    ctx.fillStyle='#70f3da';ctx.font=`${screenH<25?8:10}px monospace`;ctx.textAlign='center';
