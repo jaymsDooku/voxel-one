@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-08T16:28:53+00:00",
+  "updatedAt": "2026-10-08T16:43:35+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -191,8 +191,8 @@
       "description": "Native phone client with touch sandbox controls and server-authoritative city planning.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Reviewer native city action timed out. Replaced multiplayer full-history edit scans with existing cell-indexed history. Replay/restart/city tests (3) and actual gateway playtest (18 checks) pass. Synthetic repaint timing improved 3112.538 ms to 6.221 ms. Revised native Mac check required.",
-      "updatedAt": "2026-10-08T16:28:53+00:00"
+      "note": "City performance fix passed revised exact-source Mac build and all four native tests, including road confirmation/reconnect. Gameplay image inspected and saved for controller publication. Ready for independent reviewer rerun; physical iPhone untested.",
+      "updatedAt": "2026-10-08T16:43:35+00:00"
     },
     {
       "id": "63386663653465302d303138612d346331372d396364302d353961636235626436613632",
