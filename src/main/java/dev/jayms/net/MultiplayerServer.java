@@ -185,7 +185,9 @@ public final class MultiplayerServer implements AutoCloseable {
         listener = tls.getServerSocketFactory().createServerSocket();
         ((SSLServerSocket) listener).setEnabledProtocols(new String[] {"TLSv1.3", "TLSv1.2"});
         listener.bind(new InetSocketAddress(bind, port));
-        saves.scheduleAtFixedRate(this::tickItems, 100, 100, TimeUnit.MILLISECONDS);
+        // Leave a command-processing window after slow city ticks. Fixed-rate catch-up can
+        // monopolize this server monitor; simulation time already uses actual elapsed time.
+        saves.scheduleWithFixedDelay(this::tickItems, 100, 100, TimeUnit.MILLISECONDS);
         saves.scheduleAtFixedRate(
                 () -> {
                     try {

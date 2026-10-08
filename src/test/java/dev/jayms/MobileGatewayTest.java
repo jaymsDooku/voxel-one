@@ -119,6 +119,8 @@ class MobileGatewayTest {
             assertTrue(sequence>120,"Actual phone pose requests must exceed server burst limit during stall");
             Thread.sleep(1500); // Let the actual TLS reader drain after releasing the simulation lock.
             assertNull(host.city.transportFailure(),"Coalesced poses must retain the unchanged server rate limit");
+            var road=post(host,"action",bearer,Map.of("kind","city","command",1,"value",0,"points",List.of(List.of(40,10),List.of(46,10))));
+            assertEquals(200,road.statusCode());assertTrue(road.body().contains("Mayor paid"),"City command must recover after the stalled tick/reader");
             assertEquals(200,post(host,"state",bearer,Map.of()).statusCode());
             assertEquals(200,post(host,"logout",bearer,Map.of()).statusCode());
         }
