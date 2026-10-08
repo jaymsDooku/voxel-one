@@ -1,0 +1,22 @@
+{
+  "sourceHead": "9cb6e556f02ba06c57a2d476ee9abf4dcad820f7",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/37790866742",
+  "observed": "Native city road still timed out waiting for command receipt. No native acceptance pass or game media.",
+  "analysis": "Fixed-rate100ms city ticks hold the same server monitor as commands. Slow ticks can catch up without a processing gap. This is a source-based starvation hypothesis, not a proven Mac root cause.",
+  "change": "Use fixed-delay100ms tick scheduling. City clock/economy still advance by actual monotonic elapsed time. Keep authentication, rate limit, command rules, receipt8second wait and persistence schedule unchanged.",
+  "tests": [
+    {
+      "command": "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Djunit.jupiter.tempdir.basedir=\"$PWD/target/mobile-test-tmp\" \"-Dtest=MobileGatewayTest#phonePoseStreamSurvivesStalledCityReader+cityCommandsAndEconomyAreServerOwned,CityMultiplayerTest\" test",
+      "environment": "Linux; actual isolated synthetic Java TLS city servers and HTTP gateway",
+      "steps": "Hold city reader/simulation monitor18seconds while sending more than120phoneposes; release, confirm one road/payment, state/logout. Exercise normal authoritative city/economy validation and existing multiplayer city workflow.",
+      "expected": "Connection stays open, road is confirmed after stall, state/logout200, city regressions pass.",
+      "observed": "3tests passed:2MobileGatewayTest and1CityMultiplayerTest;0failures,0errors,0skips."
+    },
+    {
+      "command": "git diff --check; bash -n ios/check-simulator.sh",
+      "observed": "Passed."
+    }
+  ],
+  "playtest": "Playtest: Executed real synthetic gateway stalled-reader road recovery and city multiplayer workflow locally. Native exact-source road/touch/save workflow must run on the next Mac check. Browser cannot exercise native UIKit controls. No physical iPhone pass claimed.",
+  "diffAudit": "No deleted paths against8d6fcb1958608bc90fcf3054d7fd9276918b262e. Scheduler replacement is intended; all other server features retained."
+}

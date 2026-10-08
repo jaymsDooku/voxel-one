@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-08T15:57:58+00:00",
+  "updatedAt": "2026-10-08T18:10:33+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -184,6 +184,15 @@
       "status": "in_progress",
       "note": "Collision bounds now follow visible voxels at each viewport scale. Twenty live hit/miss checks, eight rules tests, full gameplay and 16 layout checks passed. Fresh PNG/WebM captured; awaiting controller publication and review.",
       "updatedAt": "2026-10-08T10:38:59+00:00"
+    },
+    {
+      "id": "queue-38633935323630622d653665302d343665652d393062372d303635386235363063636366",
+      "title": "Mobile game support",
+      "description": "Native phone client with touch sandbox controls and server-authoritative city planning.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Revised native acceptance passed all four tests; gameplay media inspected and saved. Mac Intel and all other Maven verify platforms passed on identical source tree. Login failure classification and fixed140request regression validated. Ready for independent review; physical iPhone untested.",
+      "updatedAt": "2026-10-08T18:10:33+00:00"
     },
     {
       "id": "63386663653465302d303138612d346331372d396364302d353961636235626436613632",

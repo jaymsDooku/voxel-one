@@ -1,0 +1,43 @@
+{
+  "sourceHeadBeforeEdits": "b92dbf7f599bb27f239894eb293180fc6c0b1b0e",
+  "nativeFailure": {
+    "run": "https://github.com/jaymsDooku/voxel-one/actions/runs/37813610777",
+    "observed": "Missing planToggle; authentication error",
+    "analysis": "Gateway mapped all login IOException failures to401. Pinned TLS socket retained15second read timeout through authentication and initial snapshot, despite native60second login deadline. A delayed game server could therefore be reported as bad credentials. Exact original exception was not exported; revised diagnostics distinguish transport timeout from rejected authentication."
+  },
+  "changes": [
+    "Mobile initial login/snapshot socket reads have bounded45second inactivity limit. Desktop default15second reads and TLS handshake/connect limits remain unchanged. No automatic retry.",
+    "Explicit server authentication rejection returns401; socket timeout returns504; other connection failure returns503. Public messages exclude raw server exceptions and account data.",
+    "Native assertions identify initial login versus reconnect.",
+    "Fixed stalled-reader regression issues140 actual HTTP pose requests and holds the city reader at least18seconds, replacing CPU-dependent request-count assertion.",
+    "CI always uploads fixed test identities/counts/source head; no messages, properties, XML or logs."
+  ],
+  "intelFailure": {
+    "run": "https://github.com/jaymsDooku/voxel-one/actions/runs/37811084551",
+    "test": "MobileGatewayTest.phonePoseStreamSurvivesStalledCityReader",
+    "line": 119,
+    "cause": "At exact source b92dbf7f599bb27f239894eb293180fc6c0b1b0e line119 requires more than120 synchronous HTTP requests in18seconds. Bounded build diagnostics name this assertion; slower host throughput failed it. Fixed140request test passed locally.",
+    "diagnosticScope": "GitHub job113428361416; Range bytes=-131072; read capped131072bytes; exported only fixed test identity/counts/line number."
+  },
+  "commands": [
+    "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Djunit.jupiter.tempdir.basedir=\"$PWD/target/mobile-test-tmp\" -Dtest=MobileGatewayTest#slowCityLoginIsNotAnAuthenticationFailure+loginWorldEditsReachAndLogoutUseExistingAuthoritativeServer test",
+    "mvn --batch-mode -Dmaven.repo.local=\"$PWD/target/mobile-maven-repository\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Djunit.jupiter.tempdir.basedir=\"$PWD/target/mobile-test-tmp\" verify",
+    "mvn -q -Dmaven.repo.local=\"$PWD/target/mobile-maven-repository\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Djunit.jupiter.tempdir.basedir=\"$PWD/target/mobile-test-tmp\" -Dtest=MobileGatewayTest#phonePoseStreamSurvivesStalledCityReader test",
+    "python3 deploy/summarize_maven_tests.py --reports target/maven-summary-synthetic --output target/maven-summary-synthetic/safe.json"
+  ],
+  "results": [
+    "Focused login tests2passed; actual20second server lock delay succeeded; wrong credentials401; sandbox edit/logout regression passed.",
+    "Full Maven verify BUILD SUCCESS;557tests,0failures/errors/skipped. Full run compiled before fixed-count test edit; revised test checked separately.",
+    "Revised140request stalled-reader test1passed,0failures/errors.",
+    "Synthetic summary failure CLI exports identity only; private marker excluded.",
+    "Initial full verify attempts failed on cache write and filesystem test setup; scoped cache/temp directories allowed final successful run."
+  ],
+  "Playtest": "Actual synthetic TLS mobile gateway and real game server: delayed city login, wrong-credential rejection, state/logout; sandbox edit/reach/logout regression;140pose requests during city reader stall followed by paid road command/state/logout. Native UIKit workflow on revised source and Mac Intel verify are pending hosted runs. Browser testing does not exercise this native client.",
+  "pending": [
+    "Revised exact-source native acceptance/media with sanitized diagnostics.",
+    "Revised Mac Intel verify and sanitized summary artifact.",
+    "Independent reviewer rerun; no earlier pass clears these failures."
+  ],
+  "auditBase": "642bc422c621fd1a6e1704ade1148cc85fad398d",
+  "unrelatedDeletions": []
+}

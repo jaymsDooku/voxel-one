@@ -20,7 +20,8 @@ public final class MultiplayerServer implements AutoCloseable {
     private final AccountStore accounts;
     private final Map<Integer, Peer> peers = new HashMap<>();
     private final Set<String> sessions = new HashSet<>();
-    private final Map<String, Protocol.Edit> edits = new LinkedHashMap<>();
+    // City paving emits many edits. Index by cell so replacement never scans the whole world.
+    private final Map<String, Protocol.Edit> edits = new WorldVoxels.History();
     private final Map<String, Inventory> inventories = new HashMap<>();
     private final Map<String, Integer> health = new HashMap<>();
     private final Map<Integer, ItemDrop> drops = new LinkedHashMap<>();
@@ -39,6 +40,14 @@ public final class MultiplayerServer implements AutoCloseable {
     private final ScheduledExecutorService saves = Executors.newSingleThreadScheduledExecutor();
     private final Path save;
     private volatile boolean running = true;
+    /** Fixed transport codes for isolated integration diagnostics; never includes account data. */
+    public enum TransportFailure { READ_TIMEOUT, INVALID_MOVEMENT, MESSAGE_RATE, UNKNOWN_MESSAGE, OUTPUT_QUEUE, WRITE_IO, READ_IO }
+    public enum CityCommandStage { NONE, WAITING, RUNNING, REPLY_QUEUED }
+    private volatile CityCommandStage cityCommandStage = CityCommandStage.NONE;
+    public CityCommandStage cityCommandStage() { return cityCommandStage; }
+    private final java.util.concurrent.atomic.AtomicReference<TransportFailure> transportFailure = new java.util.concurrent.atomic.AtomicReference<>();
+    public TransportFailure transportFailure() { return transportFailure.get(); }
+    private void recordTransportFailure(TransportFailure reason) { transportFailure.compareAndSet(null, reason); }
 
     private record AttemptWindow(long start, int count) {}
 
@@ -180,7 +189,9 @@ public final class MultiplayerServer implements AutoCloseable {
         listener = tls.getServerSocketFactory().createServerSocket();
         ((SSLServerSocket) listener).setEnabledProtocols(new String[] {"TLSv1.3", "TLSv1.2"});
         listener.bind(new InetSocketAddress(bind, port));
-        saves.scheduleAtFixedRate(this::tickItems, 100, 100, TimeUnit.MILLISECONDS);
+        // Leave a command-processing window after slow city ticks. Fixed-rate catch-up can
+        // monopolize this server monitor; simulation time already uses actual elapsed time.
+        saves.scheduleWithFixedDelay(this::tickItems, 100, 100, TimeUnit.MILLISECONDS);
         saves.scheduleAtFixedRate(
                 () -> {
                     try {
@@ -377,7 +388,7 @@ public final class MultiplayerServer implements AutoCloseable {
                     second = System.nanoTime();
                     messages = 0;
                 }
-                if (++messages > 120) throw new IOException("Message rate exceeded");
+                if (++messages > 120) { recordTransportFailure(TransportFailure.MESSAGE_RATE); throw new IOException("Message rate exceeded"); }
                 Protocol.Pose pose = type == Protocol.MOVE ? Protocol.Pose.read(in) : null;
                 Protocol.BlockRequest request =
                         type == Protocol.BLOCK ? Protocol.BlockRequest.read(in) : null;
@@ -390,8 +401,10 @@ public final class MultiplayerServer implements AutoCloseable {
                 Protocol.Pose craftPose = type == Protocol.CRAFT ? Protocol.Pose.read(in) : null;
                 CityCommand cityCommand =
                         type == Protocol.CITY_COMMAND ? CityCommand.read(in) : null;
+                if (type == Protocol.CITY_COMMAND) cityCommandStage = CityCommandStage.WAITING;
                 synchronized (this) {
                     if (type == Protocol.CITY_COMMAND) {
+                        cityCommandStage = CityCommandStage.RUNNING;
                         String result;
                         long now = System.nanoTime();
                         if (now - peer.lastCity < 500_000_000L)
@@ -401,6 +414,7 @@ public final class MultiplayerServer implements AutoCloseable {
                             result = city.command(cityCommand, peer.pose.id(), peer.pose);
                         }
                         peer.enqueue(new Event(Protocol.CITY_RESULT, null, null, result, 0, true));
+                        cityCommandStage = CityCommandStage.REPLY_QUEUED;
                         broadcast(cityState());
                     } else if (type == Protocol.MOVE) {
                         checkPose(peer, pose);
@@ -575,10 +589,18 @@ public final class MultiplayerServer implements AutoCloseable {
                                         message,
                                         modelRequest,
                                         accepted));
-                    } else throw new IOException("Unknown message");
+                    } else { recordTransportFailure(TransportFailure.UNKNOWN_MESSAGE); throw new IOException("Unknown message"); }
                 }
             }
         } catch (IOException e) {
+            if (running && peer != null && !(e instanceof EOFException)) {
+                TransportFailure reason = e instanceof SocketTimeoutException ? TransportFailure.READ_TIMEOUT
+                        : "Invalid movement".equals(e.getMessage()) ? TransportFailure.INVALID_MOVEMENT
+                        : "Message rate exceeded".equals(e.getMessage()) ? TransportFailure.MESSAGE_RATE
+                        : "Unknown message".equals(e.getMessage()) ? TransportFailure.UNKNOWN_MESSAGE
+                        : TransportFailure.READ_IO;
+                recordTransportFailure(reason);
+            }
             if (running && !(e instanceof EOFException))
                 System.out.println("Connection closed: " + e.getMessage());
         } finally {
@@ -684,8 +706,10 @@ public final class MultiplayerServer implements AutoCloseable {
     }
 
     private void checkPose(Peer peer, Protocol.Pose pose) throws IOException {
-        if (!pose.valid() || pose.id() != peer.pose.id() || !models.has(pose.heldItem()))
+        if (!pose.valid() || pose.id() != peer.pose.id() || !models.has(pose.heldItem())) {
+            recordTransportFailure(TransportFailure.INVALID_MOVEMENT);
             throw new IOException("Invalid movement");
+        }
     }
 
     private int block(int x, int y, int z) {
@@ -850,7 +874,7 @@ public final class MultiplayerServer implements AutoCloseable {
         }
 
         void enqueue(Event e) {
-            if (!queue.offer(e)) disconnect();
+            if (!queue.offer(e)) { recordTransportFailure(TransportFailure.OUTPUT_QUEUE); disconnect(); }
         }
 
         void startWriter() {
@@ -900,6 +924,7 @@ public final class MultiplayerServer implements AutoCloseable {
                                 out.flush();
                             }
                         } catch (IOException | InterruptedException e) {
+                            if (running && !socket.isClosed() && e instanceof IOException) recordTransportFailure(TransportFailure.WRITE_IO);
                             disconnect();
                         }
                     });

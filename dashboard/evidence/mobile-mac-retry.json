@@ -1,0 +1,41 @@
+{
+  "sourceHead": "3780a0e328732ed48df5b6561024933542420763",
+  "environment": "Linux local checks; remote GitHub-hosted macOS 15.7.9, Xcode 16.4, SDK 18.5",
+  "remoteRun": "https://github.com/jaymsDooku/voxel-one/actions/runs/37700392040",
+  "remoteResult": {
+    "status": "failed",
+    "phase": "boot_verify",
+    "errorCode": "command_failed",
+    "environmentReady": false,
+    "clientChecked": false,
+    "media": []
+  },
+  "nextStep": "Request a fresh exact-source Mac run. Failure occurred in trusted simulator setup before ios/check-simulator.sh execution. No client source failure established.",
+  "tests": [
+    {
+      "command": "python3 deploy/run_mobile_gateway_smoke.py --report dashboard/evidence/mobile-gateway-playtest.json",
+      "result": "Passed 18 checks/observations with fresh synthetic Java game profiles."
+    },
+    {
+      "command": "python3 -m unittest discover -s tools/ios -p 'test_*.py' -q",
+      "result": "Passed 28 mock contract tests; not native client validation."
+    },
+    {
+      "command": "mvn -q -Dtest=MobileGatewayTest test",
+      "result": "Failed before test bodies: 3 temp-directory errors; /tmp is read-only."
+    },
+    {
+      "command": "git diff --check; bash -n ios/check-simulator.sh",
+      "result": "Passed."
+    },
+    {
+      "command": "mvn -q -Djava.io.tmpdir=\"$PWD/target/mobile-test-tmp\" -Dtest=MobileGatewayTest test",
+      "result": "Failed with the same 3 temp-directory errors: setting the property outside the forked JVM did not change the temp-directory initialization. Rerun passes it through argLine and sets the JUnit temp base."
+    },
+    {
+      "command": "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Djunit.jupiter.tempdir.basedir=\"$PWD/target/mobile-test-tmp\" -Dtest=MobileGatewayTest test",
+      "result": "Passed 3 tests; 0 failures, 0 errors, 0 skipped. Synthetic temporary profiles confined to assigned worktree."
+    }
+  ],
+  "playtest": "CLI integration passed: actual sandbox edit, reach rejection, ordered pose, logout; city road, treasury and endpoint rejection. Native touch workflow did not run; no native media exists from this attempt."
+}

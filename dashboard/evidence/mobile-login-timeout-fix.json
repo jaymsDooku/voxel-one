@@ -1,0 +1,24 @@
+{
+  "sourceHead": "f9edc1db793b4916a46e6d24dec8115d9c093f80",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/37778938235",
+  "observed": "Native online test failed before planning: Missing planToggle; game error alert. The alert category was not identified; no root cause or native acceptance pass claimed.",
+  "changes": [
+    "Initial login/world request timeout60seconds; normal movement/state/action requests remain15seconds; URLSession resource ceiling90seconds.",
+    "Fixed public URLError messages exclude URL/account/token/raw exceptions. UI failure classifier now identifies timeout, unavailable service, unreachable gateway and fixed synthetic server codes.",
+    "Removed874 generated upload staging files in340root directories, all absent from the recorded review base; preserved them locally under ignored target/mobile-upload-staging-preserved. Added root temporary staging ignore."
+  ],
+  "tests": [
+    {
+      "command": "python3 -m unittest discover -s tools/ios -p 'test_*.py' -q",
+      "environment": "Linux; mocked iOS tooling",
+      "expected": "Tooling contract regressions pass",
+      "observed": "53tests passed; not native client validation."
+    },
+    {
+      "command": "bash -n ios/check-simulator.sh; git diff --check",
+      "observed": "Passed."
+    }
+  ],
+  "playtest": "Playtest: Observed exact-source Mac online login failure in sanitized diagnostics. Revised native sign-in, city road, save/touch workflow and edge/regression checks must run on the next Mac check. No new native gameplay media or physical iPhone pass. Browser cannot execute UIKit controls.",
+  "diffAudit": "Final proposed diff has44files before this report/progress update, down from917. No deleted paths against7df8c29f410aee018f93f14b7353e5c0d7d04615. Intended removed lines replace server error handling, tooling boot verification/documentation, progress timestamp and generated website documentation; existing game features preserved."
+}

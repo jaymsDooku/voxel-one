@@ -1,0 +1,23 @@
+{
+  "sourceHead": "421c937d8e373e4d01bf0a2503a8b8d2103063e8",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/37775509496",
+  "observed": "Native online road still failed: Game server transport closed. No native acceptance pass or gameplay media.",
+  "changes": [
+    "Match gateway pose pitch and height limits to Protocol.Pose.valid(). Reject invalid poses before TLS send.",
+    "Add enum-only, atomic first-failure transport codes. Only isolated fixture gateway reads these codes; production errors remain generic. No raw exception or account data exported."
+  ],
+  "tests": [
+    "Existing 6 MobileGatewayTest tests passed before the final pose-limit change.",
+    "Final source: 2 focused MobileGatewayTest tests passed, 0 failures/errors/skips. Commands use -DargLine=-Djava.io.tmpdir=$PWD/target/mobile-test-tmp and -Djunit.jupiter.tempdir.basedir=$PWD/target/mobile-test-tmp.",
+    "Invalid pitch1.6rad and y=Terrain.MAX_Y+33 return400; following state returns200. Forced invalid TLS movement returns401 with Synthetic server INVALID_MOVEMENT and no account data.",
+    "bash -n ios/check-simulator.sh and git diff --check passed. No deleted paths against ce91421b21163775c5f2addb749fec69c521c8a3.",
+    "First CLI smoke attempt failed: synthetic game host exited. Retry run recorded separately.",
+    "CLI retry passed18checks/observations; report contains actual commands, environment and workflow results."
+  ],
+  "playtest": "Playtest: Linux actual isolated synthetic Java TLS server integration exercised invalid pose, retained session, forced server rejection and safe close diagnostics. Native online workflow remains failed; exact-source Mac rerun required. Browser cannot exercise native UIKit controls.",
+  "commands": [
+    "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Djunit.jupiter.tempdir.basedir=\"$PWD/target/mobile-test-tmp\" -Dtest=MobileGatewayTest test",
+    "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Djunit.jupiter.tempdir.basedir=\"$PWD/target/mobile-test-tmp\" \"-Dtest=MobileGatewayTest#invalidPoseIsRejectedWithoutClosingSession+syntheticServerCloseReasonIsFixedAndContainsNoAccountData\" test",
+    "python3 deploy/run_mobile_gateway_smoke.py --report dashboard/evidence/mobile-gateway-playtest.json"
+  ]
+}

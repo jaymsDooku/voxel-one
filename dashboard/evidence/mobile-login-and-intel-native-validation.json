@@ -1,0 +1,73 @@
+{
+  "sourceHead": "6936b77af1b07d548020c9ff27fc391527bcc3b1",
+  "nativeRun": "https://github.com/jaymsDooku/voxel-one/actions/runs/37820377450",
+  "environment": {
+    "macOS": "15.7.9",
+    "xcode": "Xcode 16.4\nBuild version 16F6",
+    "simulatorSDK": "18.5"
+  },
+  "device": "iPhone SE (3rd generation)",
+  "nativeTests": [
+    {
+      "name": "testOfflineTouchBuildSavePauseAndLandscape",
+      "status": "passed"
+    },
+    {
+      "name": "testOnlineLoginCityPlanningAndReconnect",
+      "status": "passed"
+    },
+    {
+      "name": "testCollisionJumpRayAndEditRules",
+      "status": "passed"
+    },
+    {
+      "name": "testSnapshotValidationAndSaveRoundTrip",
+      "status": "passed"
+    }
+  ],
+  "clientChecked": true,
+  "mediaReceipts": [
+    {
+      "path": "preflight.png",
+      "bytes": 174454,
+      "sha256": "6aafd134192e26f4b9d8b3545871065ba675f2f928c710be0c173bc678238386",
+      "kind": "image",
+      "description": "Fresh iPhone simulator home screen; environment preflight, not Voxel One client evidence."
+    },
+    {
+      "path": "client.png",
+      "bytes": 85753,
+      "sha256": "86321e067ff44a340257d986499fbe3625140f9f546cb4abb0a75684a8a9421c",
+      "kind": "image",
+      "description": "Actual launched native Voxel One simulator client; captured by the controller tooling."
+    }
+  ],
+  "mediaInspection": "Actual native terrain, touch controls and saved Dirt count31 inspected. Home-screen image is environment preflight only.",
+  "Playtest": [
+    "Hosted ios/check-simulator.sh acceptance: offline touch building, movement, look, jump, pause, empty-slot rejection, save/restart and landscape passed.",
+    "Hosted native city login, missing-point rejection, road confirmation and reconnect passed.",
+    "Collision/ray/edit rules and snapshot/save regressions passed. Browser playtesting does not exercise this native client."
+  ],
+  "buildRun": "https://github.com/jaymsDooku/voxel-one/actions/runs/37820387731",
+  "buildPlatforms": [
+    "mac-intel",
+    "mac-arm",
+    "linux",
+    "windows"
+  ],
+  "buildResult": "All four Maven verify steps passed. PR merge source117ec169e7ee8d7cedb1cfcbfb0b37bed87c16c2 has the same tree d3643c8088d1033f4840d271c4a6158b423649fa as the feature head.",
+  "intelCounts": {
+    "tests": 557,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "failureAnalysisReference": "mobile-login-and-intel-fix.json",
+  "failureAnalysisLimit": "Original intermittent login exception was not exported. Delayed-login failure mode was reproduced and fixed; explicit rejection, timeout and other connection failures now differ. Intel throughput assertion was replaced with140 actual requests.",
+  "auditBase": "642bc422c621fd1a6e1704ade1148cc85fad398d",
+  "unrelatedDeletions": [],
+  "limits": [
+    "Physical iPhone untested.",
+    "Independent reviewer rerun and publication verification still required."
+  ]
+}

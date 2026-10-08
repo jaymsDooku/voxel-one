@@ -1,0 +1,36 @@
+{
+  "sourceHeadBeforeFix": "9692d023129e8e062d5da223c847e3c3b95a00da",
+  "reviewFailure": {
+    "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/37805957434",
+    "test": "testOnlineLoginCityPlanningAndReconnect",
+    "observed": "Game request timed out. Try signing in again.",
+    "expected": "Mayor paid",
+    "status": "failed; earlier passes do not clear this result"
+  },
+  "change": "MultiplayerServer now uses existing WorldVoxels.History instead of LinkedHashMap for saved edit overrides. WorldVoxels.remember removes covered edits by cell index instead of scanning all saved world edits for every paving edit. Existing replay order, persistence, rules and request deadlines preserved.",
+  "commands": [
+    "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Djunit.jupiter.tempdir.basedir=\"$PWD/target/mobile-test-tmp\" -Dtest=EditHistoryTest,CityMultiplayerTest,MobileGatewayTest#cityCommandsAndEconomyAreServerOwned test",
+    "python3 deploy/run_mobile_gateway_smoke.py --report dashboard/evidence/mobile-indexed-city-playtest.json",
+    "java --class-path target/classes target/MobileHistoryTiming.java",
+    "git diff --check",
+    "bash -n ios/check-simulator.sh"
+  ],
+  "tests": {
+    "java": "3 tests passed; 0 failures/errors/skipped",
+    "cli": "18 checks/observations passed",
+    "syntheticHistoryTiming": {
+      "savedCells": 20000,
+      "repaintEdits": 2000,
+      "legacyMilliseconds": 3112.538,
+      "indexedMilliseconds": 6.221,
+      "replayEqual": true
+    }
+  },
+  "Playtest": "Actual isolated TLS gateway: sandbox login/break/reach rejection/logout; city road placement, treasury debit, missing endpoints, citizens. Multiplayer regression exercised road/zoning/ownership/late join and restart; indexed replay regression covers nested edits, removal and clear. Browser testing does not exercise this native client.",
+  "limits": [
+    "Timing check is synthetic Linux measurement, not a Mac performance guarantee.",
+    "Revised native city action remains unverified until new exact-source Mac playtest.",
+    "Reviewer failure is not cleared yet.",
+    "Physical iPhone untested."
+  ]
+}

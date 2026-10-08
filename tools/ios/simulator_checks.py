@@ -221,7 +221,19 @@ def run_checks(repo, output, expected_head, mode, request_id, *, run_command=com
         report['phase'] = 'bootstatus'
         run(['xcrun', 'simctl', 'bootstatus', udid, '-b'], timeout=480)
         report['phase'] = 'boot_verify'
-        booted = json.loads(run(['xcrun', 'simctl', 'list', 'devices', '--json']))
+        verify_deadline = time.monotonic() + 185
+        for attempt in (1, 2):
+            remaining = verify_deadline - time.monotonic()
+            if remaining <= 0:
+                raise CheckError('command_failed', timed_out=True)
+            report['bootVerifyAttempts'] = attempt
+            try:
+                booted = json.loads(run(['xcrun', 'simctl', 'list', 'devices', '--json'], timeout=min(120, remaining)))
+                break
+            except CheckError as error:
+                if not error.timed_out or attempt == 2 or verify_deadline - time.monotonic() <= 5:
+                    raise
+                wait(5)
         if not any(d.get('udid') == udid and d.get('state') == 'Booted' and d.get('isAvailable') is True
                    for d in booted.get('devices', {}).get(runtime['identifier'], [])):
             raise CheckError('simulator_not_booted')

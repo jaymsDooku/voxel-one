@@ -1,0 +1,23 @@
+{
+  "sourceHead": "088c1a62f971d53034eb76352d37c23ae0c58edf",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/37702587955",
+  "remoteResult": {
+    "status": "failed",
+    "environmentReady": true,
+    "clientChecked": false,
+    "phase": "client_script"
+  },
+  "archiveFiles": [
+    "preflight.png",
+    "report.json"
+  ],
+  "observed": "Inspected preflight screenshot: simulator home screen only. Client failure detail absent from downloaded artifact again. Feature workflow upload allowlist already includes sanitized client reports and native PNGs; trusted dispatcher workflow is separate.",
+  "requiredDependency": "Controller must use a trusted uploader retaining source/ios-evidence/client-failure.json and native workflow/failure PNGs, then provide sanitized stage/compiler/assertion diagnostics from an exact-source run. No raw logs requested.",
+  "playtest": "Native workflow acceptance not reached. No game-client checks or gameplay media claimed.",
+  "checks": [
+    "Verified exact local HEAD equals report sourceHead.",
+    "Inspected downloaded archive member list.",
+    "Verified feature workflow retains sanitized client report and screenshot paths.",
+    "No deleted paths against recorded review base."
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "sourceHead": "6fa5449d36652dce43086a8d8ad707e791f031c7",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/37786525190",
+  "observed": "Actual native city road failed with Synthetic server MESSAGE_RATE. Sign in again.",
+  "change": "Coalesce accepted phone pose updates into latest immutable pose. Independent250ms transport task sends changed poses at most4Hz and unchanged keepalives at1Hz. Server120message/s limit, HTTP idle expiry, command receipts and authoritative edit rules unchanged. No automatic command retries.",
+  "tests": [
+    {
+      "command": "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Djunit.jupiter.tempdir.basedir=\"$PWD/target/mobile-test-tmp\" \"-Dtest=MobileGatewayTest#phonePoseStreamSurvivesStalledCityReader\" test",
+      "environment": "Linux; actual isolated synthetic Java TLS city server and HTTP gateway",
+      "steps": "Login; block real city simulation/reader monitor18seconds while sending more than120changing phone poses; release; let TLS reader drain; check fixed server close reason and state/logout.",
+      "expected": "No server close reason; state and logout200.",
+      "observedBeforeFix": "Failed with actual MESSAGE_RATE. One failure; no errors/skips. Initial test setup attempt separately errored Request too large when using the bounded request parser on a world snapshot; corrected to extracting the pose field."
+    },
+    {
+      "command": "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Djunit.jupiter.tempdir.basedir=\"$PWD/target/mobile-test-tmp\" \"-Dtest=MobileGatewayTest#phonePoseStreamSurvivesStalledCityReader+loginWorldEditsReachAndLogoutUseExistingAuthoritativeServer+cityCommandsAndEconomyAreServerOwned\" test",
+      "expected": "Stalled-reader connection stays open; sandbox edit reaches ordinary protocol observer; reach rejection/logout/relogin and authoritative city/economy regressions pass.",
+      "observed": "3tests passed;0failures,0errors,0skips."
+    },
+    {
+      "command": "git diff --check; bash -n ios/check-simulator.sh",
+      "observed": "Passed."
+    }
+  ],
+  "playtest": "Playtest: Actual synthetic gateway workflow exercised18second reader stall, changing phone poses, restored state/logout, sandbox edits, reach rejection and normal city rules. Exact-source native Mac rerun still required. Browser does not run UIKit controls. No native gameplay media or physical iPhone pass claimed.",
+  "limitations": "Pose coalescing is bounded client traffic shaping, not server acknowledgement/backpressure. Longer moving-client stalls can still accumulate traffic; server protection remains active.",
+  "diffAudit": "No deleted paths against584854454e2407b66af23ff636f982a77e5fcef3. Preserved all other merged features."
+}

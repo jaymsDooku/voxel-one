@@ -1,0 +1,26 @@
+{
+  "sourceHead": "5254aeb5bdfa1b5c08b1fd6a88070699346ed6fc",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/37759670031",
+  "remoteObserved": "Native tests executed. Offline HUD expectation timed out; online control-existence wait failed. Diagnostics now retained. Native client acceptance failed.",
+  "changes": [
+    "Offline test now waits for grounded position and uses normal downward look drag before breaking terrain. No game rule or assertion removed.",
+    "Wait failures include control accessibility ID; HUD failures include expected text and bounded actual HUD label. No credentials or menu screenshots added."
+  ],
+  "localChecks": [
+    {
+      "command": "python3 -m unittest discover -s tools/ios -p 'test_*.py' -q",
+      "result": "48 mock tooling tests passed; not native client proof."
+    },
+    {
+      "command": "bash -n ios/check-simulator.sh; git diff --check",
+      "result": "Passed."
+    },
+    {
+      "command": "Python sampling ray from ios/Resources/sandbox.json using initial eye height 1.62, yaw 0, pitch -0.55, 0.01-block steps up to 5 blocks; repeat pitch -0.85/-0.95/-1.05",
+      "expected": "Determine whether original test starting view reaches solid terrain.",
+      "observed": "No hit at -0.55; grass hit at (0,25,-2) at 3.49/3.23/3.03 blocks for steeper angles. Source analysis only, not Swift execution."
+    }
+  ],
+  "playtest": "Actual hosted Mac UI workflows failed; edited normal-control workflow has not run yet. Request another exact-source Mac check. No native gameplay pass or physical-device test claimed.",
+  "diffAudit": "No deleted paths against eaaf6b009b0559da31cf334375ec77d1c400f750. Native workflow acceptance remains intact."
+}

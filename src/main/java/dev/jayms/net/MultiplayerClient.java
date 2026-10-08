@@ -52,7 +52,15 @@ public final class MultiplayerClient implements AutoCloseable {
             boolean register,
             String fingerprint)
             throws IOException {
-        Connection connection = authenticate(host, port, username, password, register, fingerprint);
+        this(host, port, username, password, register, fingerprint, 15000);
+    }
+
+    /** Bounded initial login/snapshot reads; steady-state transport retains its existing policy. */
+    public MultiplayerClient(String host, int port, String username, char[] password,
+            boolean register, String fingerprint, int loginReadTimeoutMillis) throws IOException {
+        if(loginReadTimeoutMillis<1 || loginReadTimeoutMillis>45000)
+            throw new IllegalArgumentException("Invalid login read deadline");
+        Connection connection = authenticate(host, port, username, password, register, fingerprint, loginReadTimeoutMillis);
         socket = connection.socket();
         in = connection.in();
         out = connection.out();
@@ -120,15 +128,20 @@ public final class MultiplayerClient implements AutoCloseable {
         writer.start();
     }
 
+    public static final class AuthenticationException extends IOException {
+        AuthenticationException(String message) { super(message); }
+    }
+
     private record Connection(
             Socket socket, DataInputStream in, DataOutputStream out, int version) {}
 
     private static Connection authenticate(
             String host, int port, String username, char[] password, boolean register,
-            String fingerprint) throws IOException {
+            String fingerprint, int loginReadTimeoutMillis) throws IOException {
         int requested = Protocol.VERSION;
         for (;;) {
             Socket socket = SecureTransport.connect(host, port, fingerprint);
+            socket.setSoTimeout(loginReadTimeoutMillis);
             try {
                 var in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
                 var out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
@@ -159,7 +172,7 @@ public final class MultiplayerClient implements AutoCloseable {
                                     : "The server needs an update."));
                 boolean success = in.readBoolean();
                 String message = Protocol.readText(in, 256);
-                if (!success) throw new IOException(message);
+                if (!success) throw new AuthenticationException(message);
                 return new Connection(socket, in, out, version);
             } catch (IOException e) {
                 socket.close();

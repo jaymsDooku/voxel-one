@@ -1,0 +1,17 @@
+{
+  "sourceHead": "c2217ee86729d07b33ab0c2cd7be2b58d0d6279b",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/37769992579",
+  "observed": "Online test failed while waiting for planToggle; helper attempted identifier lookup on absent element, producing snapshot matching error instead of intended assertion context.",
+  "fix": "Wait helper never queries a missing control. planToggle wait uses explicit fixed ID; if synthetic sign-in error alert exists, helper emits only fixed error category. Form values and raw alert text are never printed or saved. Acceptance timeout and game assertions unchanged.",
+  "tests": [
+    {
+      "command": "python3 -m unittest discover -s tools/ios -p 'test_*.py' -q",
+      "observed": "53 mock tooling tests passed; not native app validation."
+    },
+    {
+      "command": "git diff --check; bash -n ios/check-simulator.sh",
+      "observed": "Passed."
+    }
+  ],
+  "playtest": "Observed Mac online workflow failed. Revised missing-control diagnostics need exact-source native run; no gameplay media/pass claimed. Browser does not execute UIKit UI tests."
+}

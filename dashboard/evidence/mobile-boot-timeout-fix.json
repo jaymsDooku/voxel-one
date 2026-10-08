@@ -1,0 +1,20 @@
+{
+  "sourceHead": "7b674dea5dec6af1f068b49f501164d82a78b258",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/37769032773",
+  "observed": "boot_verify timed out; environmentReady=false, clientChecked=false, cleanup=passed. No client execution/media.",
+  "change": "Same post-boot inventory command now bounded to185secs total, at most120secs per attempt and2attempts with5second delay only on timeout and sufficient remaining budget. Non-timeout failures stop immediately. Exact assigned runtime/UDID/Booted/availability checks preserved.",
+  "tests": [
+    {
+      "command": "python3 -m unittest discover -s tools/ios -p 'test_*.py' -q",
+      "environment": "Linux; mocked Apple commands only",
+      "expected": "Transient timeout retries once; repeated timeout fails before client and cleans up; non-timeout failure does not retry; prior native-app and artifact trust contracts remain enforced.",
+      "observed": "53 mock tests passed. No native execution claimed."
+    },
+    {
+      "command": "git diff --check; git diff --name-only --diff-filter=D ce91421b21163775c5f2addb749fec69c521c8a3",
+      "observed": "No whitespace errors or deleted paths."
+    }
+  ],
+  "handoff": "Controller must integrate bounded timeout fix into trusted verifier before dispatch; feature checkout cannot replace verifier. Request scoped exact-source Mac check after that integration.",
+  "playtest": "Native gameplay did not execute because simulator setup failed. Revised provisioning integration exercised through mock contract tests only; browser does not apply to this native CLI."
+}

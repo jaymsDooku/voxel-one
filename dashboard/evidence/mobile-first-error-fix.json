@@ -1,0 +1,28 @@
+{
+  "sourceHead": "114e0dbbab934913fbab0e5983fd1ec1318e66e4",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/37765130283",
+  "observedNativeFailure": "Online road expectation failed with Session expired. Diagnostics do not establish the underlying transport cause.",
+  "fix": "Stop state polling while paused, preserve the first move/state error including in-flight failures, and keep that message visible while paused. Return only fixed allowlisted game transport reasons on disconnect; never raw exception text or account details. Road acceptance assertions unchanged.",
+  "tests": [
+    {
+      "command": "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Djunit.jupiter.tempdir.basedir=\"$PWD/target/mobile-test-tmp\" -Dtest=MobileGatewayTest test",
+      "environment": "Linux; isolated synthetic Java servers/profile in assigned worktree",
+      "expected": "Forced server closure returns fixed transport reason, excludes account identifiers, revokes token; idle17sec, city road, sandbox edit and invalid request regression checks pass.",
+      "observed": "5 tests passed; 0 failures, 0 errors, 0 skipped."
+    },
+    {
+      "command": "python3 deploy/run_mobile_gateway_smoke.py --report dashboard/evidence/mobile-gateway-playtest.json",
+      "observed": "18 checks/observations passed."
+    },
+    {
+      "command": "python3 -m unittest discover -s tools/ios -p 'test_*.py' -q",
+      "observed": "49 mock tooling tests passed, not native client proof."
+    },
+    {
+      "command": "git diff --check; bash -n ios/check-simulator.sh",
+      "observed": "Passed."
+    }
+  ],
+  "playtest": "Actual CLI integration exercised normal game commands, reach/endpoint rejection, forced transport failure, idle modal and logout regression. Native online workflow failed; modified error handling and road confirmation need exact-source Mac rerun. Browser playtesting does not apply to native iPhone UI. No gameplay media pass claimed.",
+  "diffAudit": "No deleted paths against 701118f1c3209dacb44c32128ee597f17626f640."
+}

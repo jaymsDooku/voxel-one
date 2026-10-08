@@ -1,0 +1,34 @@
+{
+  "sourceHead": "9c40d57bc2185aa1f32eed40e474e73b0dd7122a",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/37762784343",
+  "remoteObserved": [
+    "Offline workflow reached jump; short Air HUD wait timed out.",
+    "Online workflow reached road confirmation; HUD showed Session expired. Native acceptance failed."
+  ],
+  "changes": [
+    "Jump completion feedback occurs only after observed rise >0.2 blocks and subsequent landing; native test awaits completion and grounded state. Physics unchanged.",
+    "Gateway keeps each authenticated game connection active every second, polling events and sending its current pose under session monitor. HTTP idle timestamp is unchanged; 15-minute token expiry and logout remain intact."
+  ],
+  "tests": [
+    {
+      "command": "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Djunit.jupiter.tempdir.basedir=\"$PWD/target/mobile-test-tmp\" -Dtest=MobileGatewayTest test",
+      "environment": "Linux; fresh synthetic profiles confined to worktree",
+      "expected": "4 gateway tests pass, including 17-second no-HTTP city idle beyond server 15-second socket timeout; state still works and logout revokes token.",
+      "observed": "4 passed, 0 errors, 0 failures, 0 skipped."
+    },
+    {
+      "command": "python3 deploy/run_mobile_gateway_smoke.py --report dashboard/evidence/mobile-gateway-playtest.json",
+      "observed": "18 checks/observations passed against actual synthetic Java game servers."
+    },
+    {
+      "command": "python3 -m unittest discover -s tools/ios -p 'test_*.py' -q",
+      "observed": "49 mock tooling tests passed; not native client proof."
+    },
+    {
+      "command": "bash -n ios/check-simulator.sh; git diff --check",
+      "observed": "Passed."
+    }
+  ],
+  "playtest": "CLI integration and idle/modal regression actually executed. Browser playtesting does not apply to native client; hosted native UIKit workflows failed, revised jump and planning workflow awaits exact-source Mac execution. No gameplay media or physical iPhone pass claimed.",
+  "diffAudit": "No deleted paths against 701118f1c3209dacb44c32128ee597f17626f640. Only mobile source/tests and relevant progress/evidence modified in this turn."
+}

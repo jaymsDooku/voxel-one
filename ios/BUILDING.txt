@@ -1,0 +1,116 @@
+Voxel One native iPhone client
+
+This is a UIKit/SceneKit app, rendered natively through Apple's graphics stack.
+It does not open the desktop game in Safari or stream desktop screenshots.
+The first client supports offline whole-block sandbox building and online
+Voxel One sandbox / Voxel City One through the Java mobile gateway.
+
+Phone controls
+
+Hold the four direction buttons to walk. Drag the world to look. Jump, Break
+and Place use the selected hotbar stack. Scroll the hotbar to reach all nine
+slots. Bag swaps a stack into the selected hotbar slot. Pause stops local input;
+online simulation keeps running. Menu signs out of online play.
+
+Offline sandbox starts from Terrain.DEFAULT_SEED, generator version 3, exported
+by the actual Java Terrain and WorldVoxels code. The local area has 49 by 49
+columns. It includes a starter inventory. Breaking collects a whole block into
+the local inventory; placing consumes one. Saves are atomic, live in the app's
+Application Support directory, and resume on cold launch. New world asks before
+replacing that save. Saves are separate from Java offline-city.dat / offline.dat;
+this release does not import desktop saves or simulate an offline city.
+
+Online sandbox keeps the existing game server's inventory, health, item drops,
+authentication, multiplayer edits and crafting rules. The initial phone UI exposes
+walking, jumping, whole-block edits, hotbar and inventory swaps. The desktop model
+editor, fractional-block tools, mounts, crafting UI and specialized transport or
+finance tools are not exposed by this first phone UI. Subdivided/model cells use a
+whole-block approximation for display/collision; use the desktop client to edit
+those structures precisely.
+
+Online city starts in an isometric planning view. Plan/Walk switches views.
+Two fingers pan; pinch zooms. Tool selects Inspect, Dirt road, Residential,
+Commercial, Industrial or Agricultural. Tap ground for corners, or Point enters
+a precise X/Z grid coordinate. Undo removes the latest corner. Confirm sends the
+plan to the actual city server. Roads need two endpoints; zones need at least
+three convex corners. The server checks costs, zones, players and bounds.
+Clock, treasury, roads, zone overlays, buildings and citizens come from actual
+CityFrame snapshots. Inspect near a citizen shows their activity, hunger and cash.
+The city, roads and accounts are shared with desktop users; no phone balance or
+population is synthesized. Planning focus does not teleport the player's avatar.
+
+Build on a Mac
+
+Requires Xcode with an installed iPhone Simulator runtime and Java 17+/Maven
+for the gateway's isolated integration tests. No Apple account is needed for
+simulator builds. The controller's exact-source check runs:
+
+  bash ios/check-simulator.sh SIMULATOR_UDID ABSOLUTE_EVIDENCE_DIRECTORY SOURCE_HEAD
+
+The contract is documented in tools/ios/README.md. The script checks the exact
+Git head and clean tracked source, starts two fresh Java game worlds with
+in-memory synthetic accounts, generates an unsigned Xcode project in ios/build,
+builds the actual app, installs it and runs XCTest using normal UIKit controls.
+No source is rewritten while testing. Failed builds return sanitized compiler
+or assertion diagnostics; raw logs, TLS keys and account state stay out of evidence.
+
+For manual simulator play:
+
+  python3 ios/make-project.py
+  open ios/build/VoxelOne.xcodeproj
+
+Choose the VoxelOne scheme and an iPhone Simulator. Run the app and choose New
+offline sandbox. For a physical phone, use your own Mac and Apple account/team,
+change the app target's CODE_SIGNING_ALLOWED to YES and configure Signing &
+Capabilities before building to your connected iPhone. TestFlight/App Store
+publication and physical-device signing are separate steps; this check does not
+publish, sign for distribution, or prove physical-device performance.
+
+Online service
+
+Run the gateway alongside existing game servers. It connects to those servers
+as ordinary clients using administrator-supplied SHA-256 certificate fingerprints.
+Use the full client JAR on its classpath (the main class is explicitly the gateway;
+no graphical window is opened):
+
+  java -cp target/voxel-one-1.0-SNAPSHOT-client.jar dev.jayms.net.mobile.MobileGateway \
+    --server 127.0.0.1 --sandbox-port 25565 --city-port 25566 \
+    --sandbox-pin PUBLIC_SANDBOX_CERTIFICATE_FINGERPRINT \
+    --city-pin PUBLIC_CITY_CERTIFICATE_FINGERPRINT --listen-port 25567
+
+The gateway binds loopback only. Provide a normal, trusted HTTPS reverse proxy
+for /mobile/v1/ to that loopback port before using it from a phone. Keep the proxy
+from logging request bodies or Authorization headers. This feature does not deploy
+a proxy or alter the current live services. Enter that HTTPS origin in the native
+app, choose Sandbox or City, then sign in or create an account on that game server.
+The phone uses standard system TLS trust. HTTP is accepted only for localhost
+simulator fixtures; remote cleartext URLs are rejected by the app.
+
+The gateway never reads an account database. Passwords are forwarded only through
+the existing pinned-TLS login path, and no credentials are retained by the app.
+Bearers are memory-only, expire after 15 idle minutes and are revoked on logout.
+There are at most 32 sessions and 4 concurrent logins. Sign-in attempts are capped
+at 10 per minute per backend peer address; a loopback reverse proxy shares that
+limit. JSON requests are bounded to 8 KiB; snapshots use the player's surrounding
+33 by 33 columns and stream as the player or planning focus moves. Action replies
+wait for server receipts; a timed-out action is not automatically retried.
+
+Local checks
+
+  mkdir -p target/mobile-test-tmp
+  mvn -q -DargLine="-Djava.io.tmpdir=$PWD/target/mobile-test-tmp" \
+    -Dtest=MobileGatewayTest,MultiplayerTest,CityMultiplayerTest,FractionalWorldTest test
+  python3 deploy/run_mobile_gateway_smoke.py --report dashboard/evidence/mobile-gateway-playtest.json
+  python3 -m unittest discover -s tools/ios -p 'test_*.py' -v
+  bash -n ios/check-simulator.sh
+
+The Python tools/ios tests mock Apple tools; they do not prove a native app ran.
+The Java/CLI checks exercise actual game servers and the gateway, not iPhone touch
+controls. Native acceptance requires the controller's Mac run and inspection of
+its exact-source results, screenshots and any video. Physical iPhone signing,
+battery, GPU and thermal performance remain untested by Simulator.
+
+To regenerate the bundled starter terrain intentionally before committing source:
+
+  mvn -q -DskipTests compile
+  java -cp target/classes dev.jayms.net.mobile.MobileSnapshot ios/Resources/sandbox.json

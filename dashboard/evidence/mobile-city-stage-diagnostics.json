@@ -1,0 +1,22 @@
+{
+  "sourceHead": "4df4f13032509d5c4288bfffaee56f709f5c6936",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/37793408428",
+  "observed": "Native city road receipt still timed out. The fixed-delay tick change did not resolve the observed native failure.",
+  "change": "Track fixed city-command stages NONE,WAITING,RUNNING,REPLY_QUEUED. Only isolated fixture gateway includes the enum in a city504timeout. Production gateway errors remain unchanged. No raw logs, account data, command coordinates or exception text in diagnostics.",
+  "tests": [
+    {
+      "command": "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Djunit.jupiter.tempdir.basedir=\"$PWD/target/mobile-test-tmp\" \"-Dtest=MobileGatewayTest#receiptTimeoutReportsOnlyFixedSyntheticStage+cityCommandsAndEconomyAreServerOwned\" test",
+      "environment": "Linux; real isolated synthetic Java TLS city server and HTTP adapter",
+      "steps": "Login; hold server monitor during one city command until actual8second receipt deadline; verify504allowedstagewithoutaccountdata; release; await realREPLY_QUEUED and checkstate200. Exercise normalcitycommand/economyvalidation.",
+      "expected": "Only fixed stage codes; queued command can finish andsessionremainsusable; normalcityregressionspass.",
+      "observed": "2tests passed;0failures,0errors,0skips."
+    },
+    {
+      "command": "git diff --check; bash -n ios/check-simulator.sh",
+      "observed": "Passed."
+    }
+  ],
+  "limitations": "Stage is an aggregate diagnostic for the single-command synthetic run, not a per-command production trace. Native root cause remains unproven until next Mac stage observation.",
+  "playtest": "Playtest: Executed actual synthetic gateway city timeout and late-result integration locally. Native exact-source workflow must rerun; no native acceptance/media or physical device pass. Browser cannot execute UIKit controls.",
+  "diffAudit": "No deleted paths against8d6fcb1958608bc90fcf3054d7fd9276918b262e."
+}

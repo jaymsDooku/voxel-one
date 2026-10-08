@@ -1,0 +1,24 @@
+{
+  "sourceHead": "797fdd9422867f4f1aed4fbe642cad3eb70329f9",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/37789827818",
+  "environment": {
+    "macOS": "15.7.9",
+    "xcode": "Xcode16.4 build16F6",
+    "simulatorSDK": "18.5",
+    "device": "iPhone SE (3rd generation)"
+  },
+  "observed": "boot_verify command timed out; environmentReady=false; clientChecked=false; cleanup passed. No client build/playtest or media.",
+  "request": "Rerun exact-source client check. Ensure trusted verifier uses the already-preserved bounded boot verification fix:185second total deadline, at most120seconds per attempt, one retry after5seconds only for timeout while budget remains. Report has no bootVerifyAttempts field, so use of that fix is not confirmed. Do not weaken exact-device Booted/availability or source checks.",
+  "tests": [
+    {
+      "command": "python3 -m unittest discover -s tools/ios -p 'test_*.py' -q",
+      "observed": "53mock tooling tests passed; not native validation."
+    },
+    {
+      "command": "git diff --check; bash -n ios/check-simulator.sh",
+      "observed": "Passed."
+    }
+  ],
+  "playtest": "Playtest: No native client execution in this run because simulator setup failed. Prior actual local pose-coalescing integration passed; native exact-source validation and gameplay media still required. Browser cannot exercise UIKit controls. No physical iPhone pass claimed.",
+  "diffAudit": "No deleted paths against31cf8bceb3f9888d84edf696bba9cce9fb29cb97. No game source edits for this environment retry."
+}

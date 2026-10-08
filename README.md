@@ -20,6 +20,10 @@ GitHub Actions builds all four desktop variants. Download and extract your deskt
 - `voxel-one-1.0-SNAPSHOT-server.jar`: headless server without graphics dependencies.
 - `voxel-one-1.0-SNAPSHOT-launcher.jar`: small automatic updater without graphics dependencies.
 
+## Native iPhone client
+
+The native iPhone client source is in `ios/`. It has touch controls, a saved offline sandbox, and online sandbox/city play through the Java mobile gateway. Online city tools use the existing server’s simulation, costs and world edits. See the [iPhone build and play guide](https://github.com/jaymsDooku/voxel-one/blob/master/ios/BUILDING.txt) for Mac builds, simulator checks, signing and gateway setup. The first phone UI supports whole-block building and basic city planning; the desktop editor and advanced transport/finance tools remain on desktop.
+
 ## Connect and sign in
 
 ```sh
