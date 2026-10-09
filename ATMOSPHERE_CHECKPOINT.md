@@ -214,3 +214,17 @@ Current-source GL atmosphere workflow and existing rendering regression both com
 with exit 0. Refreshed sanitized regression media/reports. Next controller action:
 remote_ios_test for new native sunlight/shadow/disc code. Remain in progress; after
 Mac result continue angular integration and exposure gaps, budgets and final checks.
+
+
+## Continuation: quality and native visibility
+Observed Mac run 37978076544 passed six cases at f252571ae22c70fbbf5642526c46a3af8b158f08. Client screenshot inspected and copied with bounded report to dashboard/evidence/atmosphere-ios-solar*.
+Current scoped Maven command passed 29 cases with zero failures/errors. Linux iOS mocks passed 53 cases; bash syntax, Python compile and git diff --check passed. No deleted tracked paths against bcdcab56c6ae1c183621aaa1b4a7e3d0e1f0b3ba; no unmerged index.
+Desktop changes: 128-direction closure (32/64/128 path samples), one costly row per update; PBO/fence exposure with no blocking readback; reflection-specific ray origins; profile precision/origin bounds. Prior current-turn GL closure/glass/fine/tiny run passed before final reflection changes. Main passed 81 frames; F10 actual 41.128 seconds, 41 frames, 1145703 bytes. Decoded frames 1/4 inspected; HUD/held item clear and space stars visible.
+1080p all-quality software benchmark timed out at 900 seconds after Low/Medium; partial EMA results retained in atmosphere-performance.txt. HIGH unexecuted. Per-quality flag added. Do not claim hardware target or full-suite pass.
+New skyReferenceCheck first run aborted exit -6, free(): corrupted unsorted chunks. Texture dimension guards added; rerun in progress. Preserve failure; do not report this check passed without inspecting rerun.
+New native source needs exact-source Mac: five-ray whole-cell roof/window/glass visibility, gated diffuse emission with global ambient disabled in preview, seventh unit case, profile precision bounds, normal-control Sun framing. Mobile remains opt-in; native fine/model geometry and LED transport parity gaps remain. check-results.py now requires seven cases. No physical iPhone budget claimed.
+Next: finish GL rerun and reflection regression; focused HIGH benchmark; native Mac seven-case/media inspection; fresh final Main/media; controller master sync and full proposed diff audit; independent review. No Git/publication performed by developer.
+
+Guarded current-source GL rerun completed exit 0: sky max noon 0.0296122872, dawn 0.0070034346, dusk 0.0071296082, night 0; tolerance 0.25. All scene/quality/lifecycle cases passed. First native abort root cause not proven. RenderingSmoke regression now running.
+
+RenderingSmoke current-source regression passed exit 0; probe occluder shadows 1506 pixels, clustered LED 3448, LED edits 4096; fresh six faces, water/TAA/exposure/upscaling/resize/streaming Hi-Z all pass. Reports and water image copied to atmosphere-current-* evidence. HIGH performance and final master/source checks remain. Request next seven-case native Mac check.

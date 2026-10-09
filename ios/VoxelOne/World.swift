@@ -46,11 +46,11 @@ struct AtmosphereProfile:Codable,Equatable {
     static let earth=AtmosphereProfile(version:1,enabled:true,values:[6_360_000,100_000,1,24,0,0,0,0,1,0,5.8e-6,13.5e-6,33.1e-6,3.996e-6,3.996e-6,3.996e-6,4.44e-6,4.44e-6,4.44e-6,0.65e-6,1.881e-6,0.085e-6,8000,1200,25000,15000,0.76,0.1,0.1,0.1,18,18,18,0.004675])
     func validate()throws {
         guard version==1,values.count==34,values.allSatisfy({$0.isFinite}) else {throw GameError.invalidWorld}
-        let v=values
-        guard (1000...1e9).contains(v[0]),(1...min(1e7,v[0])).contains(v[1]),(0.001...1e6).contains(v[2]),abs(v[3])<=1e9,
-              abs(simd_length(vector(7))-1)<1e-9,(10..<22).allSatisfy({(0...0.01).contains(v[$0])}),
-              (0..<3).allSatisfy({v[13+$0]<=v[16+$0]}),(1...v[1]).contains(v[22]),(1...v[1]).contains(v[23]),
-              (0...v[1]).contains(v[24]),(1...v[1]).contains(v[25]),(-0.95...0.95).contains(v[26]),
+        let v=values,minimumScale=max(1,values[0]*1e-6)
+        guard (1000...1e9).contains(v[0]),(minimumScale...max(minimumScale,min(1e7,v[0]))).contains(v[1]),(0.001...1e6).contains(v[2]),abs(v[3])<=1e9,
+              (4..<7).allSatisfy({abs(v[$0])<=1e12}),abs(simd_length(vector(7))-1)<1e-9,(10..<22).allSatisfy({(0...0.01).contains(v[$0])}),
+              (0..<3).allSatisfy({v[13+$0]<=v[16+$0]}),(minimumScale...max(minimumScale,v[1])).contains(v[22]),(minimumScale...max(minimumScale,v[1])).contains(v[23]),
+              (0...v[1]).contains(v[24]),(minimumScale...max(minimumScale,v[1])).contains(v[25]),(-0.95...0.95).contains(v[26]),
               (27..<30).allSatisfy({(0...1).contains(v[$0])}),(30..<33).allSatisfy({(0...100).contains(v[$0])}),(0.00001...0.05).contains(v[33])
         else {throw GameError.invalidWorld}
     }
@@ -159,6 +159,27 @@ final class VoxelWorld {
         revision += 1
     }
     func type(_ key: GridKey) -> Int { types[key] ?? 0 }
+    /// Bounded low-quality outdoor visibility. Opaque whole cells block every ray;
+    /// glass transmits. Fine/model geometry is not present in schema-1 cell snapshots.
+    func skyVisibility(_ cell:GridKey)->Double {
+        let b=snapshot.bounds
+        let directions:[SIMD3<Double>]=[SIMD3(0,1,0),SIMD3(-1,0.25,0),SIMD3(1,0.25,0),SIMD3(0,0.25,-1),SIMD3(0,0.25,1)]
+        var result=0.0
+        for direction in directions {
+            var transmission=1.0;var previous:GridKey?=nil
+            for step in 0..<260 {
+                let p=SIMD3(Double(cell.x)+0.5,Double(cell.y)+0.5,Double(cell.z)+0.5)+direction*(Double(step)*0.5)
+                let key=GridKey(Int(floor(p.x)),Int(floor(p.y)),Int(floor(p.z)))
+                if key.x<b[0] || key.x>b[1] || key.y>b[3] || key.z<b[4] || key.z>b[5] {result+=transmission;break}
+                if key==previous {continue};previous=key
+                let value=type(key)
+                if value==167 {transmission*=0.7}
+                else if value != 0 {break}
+            }
+        }
+        return result/Double(directions.count)
+    }
+
     func within(_ p: SCNVector3) -> Bool { let b=snapshot.bounds
         return p.x-0.3>=Float(b[0]) && p.x+0.3<Float(b[1]+1) && p.z-0.3>=Float(b[4]) && p.z+0.3<Float(b[5]+1) && p.y>=Float(b[2])+0.01
     }

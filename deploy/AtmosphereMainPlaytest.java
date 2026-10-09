@@ -87,8 +87,9 @@ public class AtmosphereMainPlaytest {
                 }else if(stage==2&&f6Presses>=expectedF6Presses){
                     // X11 delivery can lag a rendered frame. Never resend a toggle before its callback.
                     require(f6Presses==expectedF6Presses,"Exactly one F6 press reaches the production callback");
-                    require((boolean)get("isometric"),"F6 isometric regression");
-                    var fit=image("atmosphere-main-isometric.png");int bottom=fit.getRGB(fit.getWidth()/2,fit.getHeight()-8);require((bottom&255)<=((bottom>>16)&255)+20,"Overview rays below virtual ground do not see through the planet");r.settings.renderScale=.65f;r.resetHistory();glfwSetWindowSize(handle,333,271);changed=System.nanoTime();stage++;
+                    require((boolean)get("isometric"),"F6 isometric regression");recordingFrame=frame;stage=15;
+                }else if(stage==15&&frame-recordingFrame>8){
+                    var fit=image("atmosphere-main-isometric.png");int bottom=fit.getRGB(fit.getWidth()/2,fit.getHeight()-8);require((bottom&255)<=((bottom>>16)&255)+20,"Overview rays below virtual ground do not see through the planet");r.settings.renderScale=.65f;r.resetHistory();glfwSetWindowSize(handle,333,271);changed=System.nanoTime();stage=3;
                 }else if(stage==3&&System.nanoTime()-changed>1_000_000_000L){
                     require((int)get("framebufferWidth")==333&&(int)get("framebufferHeight")==271,"Odd window size edge");image("atmosphere-main-resize.png");input("key","Escape");changed=System.nanoTime();stage++;
                 }else if(stage==4&&System.nanoTime()-changed>800_000_000L){

@@ -48,7 +48,7 @@ public final class WaterRenderer implements AutoCloseable {
         pass.bind();pass.setMatrix4("uProjection",projection);pass.setMatrix4("uView",reflectedView);pass.setInt("uVertexColor",1);pass.setInt("uInstanced",0);
         pass.setInt("uClipEnabled",1);pass.setFloat("uClipPlaneY",plane+.02f);
         pass.setVector3("uSun",sun.x,sun.y,sun.z);pass.setFloat("uAmbient",ambient);pass.setFloat("uDaylight",daylight);
-        if(lighting!=null){lighting.accept(pass);pass.setVector3("uCameraPosition",reflectedEye.x,reflectedEye.y,reflectedEye.z);pass.setInt("uProbeReady",0);pass.setInt("uFog",1);pass.setInt("uAtmosphereReflection",1);pass.setFloat("uAtmosphereReflectionPlane",plane);pass.setVector3("uAtmosphereReflectedEye",reflectedEye.x,reflectedEye.y,reflectedEye.z);}
+        if(lighting!=null){lighting.accept(pass);pass.setVector3("uCameraPosition",reflectedEye.x,reflectedEye.y,reflectedEye.z);pass.setVector3("uAtmosphereRayOrigin",reflectedEye.x,reflectedEye.y,reflectedEye.z);pass.setInt("uProbeReady",0);pass.setInt("uFog",1);pass.setInt("uAtmosphereReflection",1);pass.setFloat("uAtmosphereReflectionPlane",plane);pass.setVector3("uAtmosphereReflectedEye",reflectedEye.x,reflectedEye.y,reflectedEye.z);}
         FrustumIntersection frustum=new FrustumIntersection(reflected);
         for(var entry:world.getLoadedChunks().entrySet()){
             ChunkPos p=entry.getKey();if(entry.getValue().getMesh()==null||!frustum.testAab(p.chunkX()*16,p.chunkY()*16,p.chunkZ()*16,p.chunkX()*16+16,p.chunkY()*16+16,p.chunkZ()*16+16))continue;

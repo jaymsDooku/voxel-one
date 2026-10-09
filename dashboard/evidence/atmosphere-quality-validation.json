@@ -1,0 +1,64 @@
+{
+  "platform": "Linux; assigned X11; llvmpipe GL 3.3",
+  "tests": [
+    {
+      "name": "dev.jayms.AtmosphereReferenceTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.AtmosphereLightingTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.AtmosphereConfigTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.DaylightTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.AtmosphereServerTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.RenderingAlgorithmsTest",
+      "tests": "9",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "nativeObserved": {
+    "head": "f252571ae22c70fbbf5642526c46a3af8b158f08",
+    "run": "https://github.com/jaymsDooku/voxel-one/actions/runs/37978076544",
+    "passedCases": 6,
+    "physicalDevice": false
+  },
+  "nativePending": [
+    "profile precision bounds",
+    "roof/window/glass visibility",
+    "visibility-gated diffuse emission",
+    "normal-control solar-disc framing"
+  ],
+  "linuxIosHarnessTests": 53,
+  "performance": "Low/Medium partial report; all-quality run timed out at 900 seconds; High not passed",
+  "Playtest": "Current-source GL workflow passed noon/dawn/dusk/night, 8/90/120 km, sealed/window/glass/fractional/tiny/LED, quality/airless/lifecycle, clouds/water. Main prior current-turn 81-frame F5/F6/F10 video inspected. Broad rendering regression pending.",
+  "currentGlSkyReference": "Dimension-guarded rerun passed exit 0. Noon maximum normalized error 0.0296122872; dawn 0.0070034346; dusk 0.0071296082; night 0.0; tolerance 0.25. First native abort retained; root cause not proven.",
+  "broadRenderingRegression": "python3 deploy/run_atmosphere_playtest.py --display \"$DISPLAY\" --regression: exit 0; probe shadows/LED edits, six refreshed faces, water, temporal/resize/Hi-Z and GL errors passed. Water image inspected."
+}

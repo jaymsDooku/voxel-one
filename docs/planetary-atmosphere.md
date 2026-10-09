@@ -45,8 +45,8 @@ encoding. Swift validates it; absent legacy fields receive the same Earth profil
 ## Current rendering
 
 Transmittance uses raster integration with 64 samples and denser angular coordinates
-near the horizon. A compact isotropic multiple-scattering closure integrates 16 equal-solid-angle directions,
-32 view samples and diffuse ground reflection. Its feedback is capped at 0.95. The square
+near the horizon. A compact isotropic multiple-scattering closure integrates 128 equal-solid-angle directions,
+32/64/128 view samples for Low/Medium/High and diffuse ground reflection. Its feedback is capped at 0.95. The square
 table is packed below transmittance in the same atlas, preserving the 16 texture-unit limit.
 Sky view uses bounded scattering with this closure, with a larger horizon
 sample count and a bounded exterior-camera path. All LUT textures use RGBA16F.
@@ -60,12 +60,15 @@ Quality sizes and peak LUT allocation (two complete sets plus a temporary multip
 
 Static transmittance/multiple tables change only with physical parameters/quality.
 Coordinate-origin, sun and altitude changes reuse them. Low submits up to four rows every
-two frames; Medium eight rows per frame; High sixteen rows per frame. Initial Low output
+two frames; Medium eight rows per frame; High sixteen rows per frame. Multiple-scattering
+updates submit only one costly angular row per update. Initial Low output
 is initialized synchronously before first use. Later builds keep initialized output and
 swap only complete bundles. Rapid profile changes cancel unpublished resources.
 View tables change with sun or
-altitude thresholds. New textures replace old complete textures; no GPU readback occurs
-in production. The reflection environment samples the same sky table. Detailed and
+altitude thresholds. New textures replace old complete textures; no blocking GPU readback occurs
+in production. Auto exposure uses three 16-byte pixel-pack buffers and zero-timeout fences;
+it reads only completed 1x1 mip copies. Adaptation uses elapsed time and a 0.02 minimum
+exposure so bright daylight remains readable after night/space transitions. The reflection environment samples the same sky table. Detailed and
 distant surface shaders use the same bounded atmospheric integration in linear HDR.
 Their direct sunlight uses the profile's linear top-of-shell RGB irradiance times shared
 solar transmittance, planetary shadow, material BRDF and existing local occlusion. The
@@ -106,28 +109,38 @@ exercises quality changes and compares 16 GPU transmittance texels with a 4096-s
 double reference. See `dashboard/evidence/atmosphere-playtest.txt`. Software rendering
 checks correctness; it does not establish the 1080p desktop GPU target or an iPhone budget.
 
+Current closure comparisons cover nine GPU texels against a 256-direction double
+reference, including sunset near 28 km. The maximum normalized error was 0.1298811
+with tolerance 0.25 and denominator floor 0.01. Rendered glass admits light; the
+1/16 opaque wall and 1/32 model wall remain dark. Production controls passed 81
+frames and produced a 41.128-second F10 clip. The asynchronous exposure path keeps
+the inspected overview readable.
+
+Mac run 37978076544 passed six client tests for
+f252571ae22c70fbbf5642526c46a3af8b158f08. Its actual client image was inspected.
+New native visibility-gated diffuse lighting, a seventh roof/window/glass test and
+normal-control solar-disc framing require another exact-source Mac run. Native
+preview remains opt-in. Its bounded five-ray whole-cell visibility approximates
+open windows and glass; fractional/tiny geometry and local LED transport remain
+native parity gaps. Global ambient/environment intensity is zero in preview so
+unmasked outdoor diffuse light cannot enter a closed room.
+
+Custom profiles require height and density widths at least max(1 m, radius*1e-6),
+and local-origin components within +/-1e12 blocks. This rejects scales below the
+float shader precision contract. Reflection captures use their own ray origin
+while retaining the stable world-to-planet anchor.
+
 Still required before review/release:
 
-- Higher-angular-resolution multiple-scattering comparisons and measured fallback/update costs.
-- Diffuse environment approximation/reference comparisons and complete regression coverage.
-- Final water/local reflection/cloud/transparency depth audit and player-camera captures.
-- Sealed-room/window/glass/fractional/tiny-model/LED regression scenes and all player
-  cameras, full-world isometric fit, resize/context lifetime and temporal transitions.
-- High-sample radiance comparisons at sunset/horizon and diagnostic spherical limb scenes.
-- Recording-disabled CPU/GPU/frame/rebuild measurements and a declared hardware budget.
-- Hosted Mac run 37964789992 passed all six client tests for d4b9f4e5f19d52bf978df3817d91016b81d72943.
-  Run 37967934841 then passed all six tests for 05977d7d70f960c68fc503b7760280ab82a98c0d,
-  including saved opt-in/restart. Its inspected enabled image has a blue sky and clear HUD,
-  but a dark virtual-ground band above the local patch. The native cube now shades the
-  virtual diffuse ground with profile albedo, transmitted sunlight and view transmission.
-  This background adds no collision or voxels. Run 37969915051 passed all six cases for
-  5f6e84ddc1cef572a60f3502f59ca1015f746983; its client image confirms the ground band
-  is closed. New native solar RGB/tangent-frame, shadow and visible-disc changes await
-  another exact-source Mac check.
-  Physical-device performance/signing
-  evidence remains unavailable. Simulator preflight cannot replace a client playtest.
-- Full existing test suite, controller master synchronization, final diff audit against
-  the supplied review base, fresh final-source media and independent review.
+- Current-source sky/reference and reflection regressions pass; collect fresh final-source media after synchronization.
+- Complete High recording-disabled software measurements. Low/Medium measurements
+  are in atmosphere-performance.txt; the all-quality run timed out at 900 seconds.
+  GPU values are query EMAs after 15 sampled steady frames and can retain rebuild
+  history. They do not establish the <=2 ms hardware target.
+- A declared reference GPU and physical-device performance budget. Simulator results
+  cannot establish an iPhone budget; mobile remains disabled by default.
+- Full existing suite (the prior full run timed out at 600 seconds), controller master
+  synchronization, final diff audit and independent review.
 
 ## References
 
@@ -139,12 +152,3 @@ and [author implementation](https://github.com/sebh/UnrealEngineSkyAtmosphere).
 [Bruneton's reference and tests](https://ebruneton.github.io/precomputed_atmospheric_scattering/index.html)
 describe dimensional consistency and numerical reference validation. Any later adapted
 source must retain its attribution and license.
-
-Current desktop validation also covers production F5/F6/F10 controls, shared sky visibility,
-sealed room/window/LED scenes and shared water/cloud composition. The first production
-altitude fixture changed a copy of player position; that altitude result was withdrawn.
-The corrected fixture loads a bounded empty collision region and asserts actual height.
-Its fresh 73-frame run and F10 media show 120 km entry/return; overview exposure remains
-too bright after the transition. The full Maven suite
-hit its 600-second limit; it is not a full-suite pass. The first 1080p software benchmark
-hit its 900-second limit with no completed report; a shorter measured run is prepared.

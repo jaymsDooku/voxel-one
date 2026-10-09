@@ -8,6 +8,14 @@ import java.io.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class AtmosphereConfigTest {
+    @Test void rejectsProfilesBelowGpuPrecisionAndUnsafeOrigins()throws Exception{
+        assertThrows(IllegalArgumentException.class,()->AtmosphereConfig.earth().withThickness(.001));
+        for(int index:new int[]{4,23,25}){
+            var bytes=new ByteArrayOutputStream();AtmosphereConfig.earth().write(new DataOutputStream(bytes));
+            byte[] payload=bytes.toByteArray();java.nio.ByteBuffer.wrap(payload).putDouble(5+index*8,index==4?1e13:1);
+            assertThrows(IOException.class,()->AtmosphereConfig.read(new DataInputStream(new ByteArrayInputStream(payload))));
+        }
+    }
     @Test void profilesAreImmutableFiniteAndBounded() {
         var earth=AtmosphereConfig.earth();
         assertEquals(4.44e-6,earth.aerosolExtinction().x());

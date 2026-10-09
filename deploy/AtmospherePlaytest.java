@@ -26,7 +26,7 @@ public class AtmospherePlaytest {
     static Object field(Object owner,String name)throws Exception {var f=owner.getClass().getDeclaredField(name);f.setAccessible(true);return f.get(owner);}
     static double transmittanceReferenceCheck(RenderPipeline renderer)throws Exception {
         var atmosphere=(PlanetAtmosphere)field(renderer,"atmosphere");int texture=(int)field(atmosphere,"trans");
-        glActiveTexture(GL_TEXTURE15);glBindTexture(GL_TEXTURE_2D,texture);float[] table=new float[256*80*4];glGetTexImage(GL_TEXTURE_2D,0,GL_RGBA,GL_FLOAT,table);double worst=0;
+        glActiveTexture(GL_TEXTURE15);glBindTexture(GL_TEXTURE_2D,texture);require(glGetTexLevelParameteri(GL_TEXTURE_2D,0,GL_TEXTURE_WIDTH)==256&&glGetTexLevelParameteri(GL_TEXTURE_2D,0,GL_TEXTURE_HEIGHT)==80,"Reference requires complete Medium atlas");float[] table=new float[256*80*4];glGetTexImage(GL_TEXTURE_2D,0,GL_RGBA,GL_FLOAT,table);double worst=0;
         for(int y:new int[]{1,16,40,63})for(int x:new int[]{140,170,220,255}) {
             double mapped=(x+.5)/256*2-1,mu=mapped*Math.abs(mapped),altitude=Math.pow((y+.5)/64,2)*100_000;
             var expected=AtmosphereReference.transmittance(AtmosphereConfig.earth(),new Vec(0,6_360_000+altitude,0),new Vec(Math.sqrt(1-mu*mu),mu,0),13_000_000,4096);
@@ -34,18 +34,47 @@ public class AtmospherePlaytest {
         }
         glActiveTexture(GL_TEXTURE0);return worst;
     }
+    // Compare actual sky texels with the same physical equations at 256 path samples.
+    // The solar atlas has its separate double-precision transmittance comparison.
+    static double skyReferenceCheck(RenderPipeline renderer)throws Exception {
+        var atmosphere=(PlanetAtmosphere)field(renderer,"atmosphere");
+        glActiveTexture(GL_TEXTURE14);glBindTexture(GL_TEXTURE_2D,(int)field(atmosphere,"sky"));require(glGetTexLevelParameteri(GL_TEXTURE_2D,0,GL_TEXTURE_WIDTH)==192&&glGetTexLevelParameteri(GL_TEXTURE_2D,0,GL_TEXTURE_HEIGHT)==108,"Reference requires complete Medium sky");float[] table=new float[192*108*4];glGetTexImage(GL_TEXTURE_2D,0,GL_RGBA,GL_FLOAT,table);
+        int oldFbo=glGetInteger(GL_DRAW_FRAMEBUFFER_BINDING),oldRead=glGetInteger(GL_READ_FRAMEBUFFER_BINDING),oldVao=glGetInteger(GL_VERTEX_ARRAY_BINDING);int[] viewport=new int[4];glGetIntegerv(GL_VIEWPORT,viewport);
+        boolean depth=glIsEnabled(GL_DEPTH_TEST),blend=glIsEnabled(GL_BLEND),cull=glIsEnabled(GL_CULL_FACE),scissor=glIsEnabled(GL_SCISSOR_TEST);
+        int fbo=glGenFramebuffers(),texture=glGenTextures(),vao=glGenVertexArrays();double worst=0;
+        try(var pass=new ShaderProgram("shaders/fullscreen.vert","shaders/atmosphere-sky.frag")){
+            glBindTexture(GL_TEXTURE_2D,texture);glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA32F,1,1,0,GL_RGBA,GL_FLOAT,(ByteBuffer)null);
+            glBindFramebuffer(GL_FRAMEBUFFER,fbo);glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,texture,0);glDrawBuffer(GL_COLOR_ATTACHMENT0);glReadBuffer(GL_COLOR_ATTACHMENT0);
+            require(glCheckFramebufferStatus(GL_FRAMEBUFFER)==GL_FRAMEBUFFER_COMPLETE,"Reference framebuffer");
+            glBindVertexArray(vao);glDisable(GL_DEPTH_TEST);glDisable(GL_BLEND);glDisable(GL_CULL_FACE);glDisable(GL_SCISSOR_TEST);
+            pass.bind();atmosphere.bind(pass);pass.setInt("uAtmosphereSamples",256);
+            for(int y:new int[]{53,54,72})for(int x:new int[]{48,96,144}){
+                glViewport(-x,-y,192,108);glDrawArrays(GL_TRIANGLES,0,3);float[] reference=new float[4];glReadPixels(0,0,1,1,GL_RGBA,GL_FLOAT,reference);
+                for(int k=0;k<3;k++){
+                    double value=table[(x+y*192)*4+k],error=Math.abs(value-reference[k])/Math.max(.01,reference[k]);
+                    require(Float.isFinite(reference[k])&&reference[k]>=0,"Finite nonnegative high-sample sky");worst=Math.max(worst,error);
+                    require(error<=.25,"Sky 256-sample normalized error <=0.25; got "+error);
+                }
+            }
+        }finally{
+            glBindFramebuffer(GL_DRAW_FRAMEBUFFER,oldFbo);glBindFramebuffer(GL_READ_FRAMEBUFFER,oldRead);glBindVertexArray(oldVao);glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
+            if(depth)glEnable(GL_DEPTH_TEST);if(blend)glEnable(GL_BLEND);if(cull)glEnable(GL_CULL_FACE);if(scissor)glEnable(GL_SCISSOR_TEST);
+            glDeleteFramebuffers(fbo);glDeleteTextures(texture);glDeleteVertexArrays(vao);glActiveTexture(GL_TEXTURE0);
+        }
+        return worst;
+    }
     static double multipleReferenceCheck(RenderPipeline renderer)throws Exception {
         var atmosphere=(PlanetAtmosphere)field(renderer,"atmosphere");
         glActiveTexture(GL_TEXTURE15);glBindTexture(GL_TEXTURE_2D,(int)field(atmosphere,"trans"));
-        float[] table=new float[256*80*4];glGetTexImage(GL_TEXTURE_2D,0,GL_RGBA,GL_FLOAT,table);double worst=0;
-        for(int y:new int[]{0,5})for(int x:new int[]{7,8,14}) {
+        require(glGetTexLevelParameteri(GL_TEXTURE_2D,0,GL_TEXTURE_WIDTH)==256&&glGetTexLevelParameteri(GL_TEXTURE_2D,0,GL_TEXTURE_HEIGHT)==80,"Reference requires complete Medium atlas");float[] table=new float[256*80*4];glGetTexImage(GL_TEXTURE_2D,0,GL_RGBA,GL_FLOAT,table);double worst=0;
+        for(int y:new int[]{0,5,8})for(int x:new int[]{7,8,14}) {
             double mu=(x+.5)/16*2-1,altitude=Math.pow((y+.5)/16,2)*100_000;
-            Vec expected=AtmosphereReference.multiple(AtmosphereConfig.earth(),altitude,mu,16,256,256);
+            Vec expected=AtmosphereReference.multiple(AtmosphereConfig.earth(),altitude,mu,256,256,256);
             for(int k=0;k<3;k++) {
                 double value=table[(x+(64+y)*256)*4+k],error=Math.abs(value-expected.component(k));
                 require(Double.isFinite(value)&&value>=0,"Multiple-scattering finite nonnegative");
                 double relative=error/Math.max(.01,expected.component(k));worst=Math.max(worst,relative);
-                require(relative<=.6,"Multiple closure 256-step reference normalized error <= 0.6; got "+relative);
+                require(relative<=.25,"Multiple closure 256-step reference normalized error <= 0.25; got "+relative);
             }
         }
         glActiveTexture(GL_TEXTURE0);return worst;
@@ -75,7 +104,7 @@ public class AtmospherePlaytest {
         int beginError=glGetError();require(beginError==GL_NO_ERROR,"begin GL error "+beginError);
         shader.setMatrix4("uProjection",projection);shader.setMatrix4("uView",view);shader.setInt("uVertexColor",1);shader.setInt("uInstanced",0);shader.setInt("uFog",1);
         if(geometry)for(var e:world.getLoadedChunks().entrySet()){var p=e.getKey();shader.setMatrix4("uModel",new Matrix4f().translation(p.chunkX()*16,p.chunkY()*16,p.chunkZ()*16));renderer.chunk(e.getValue(),p);}
-        if(geometry&&models!=null)renderer.water(world,models,projection,view,eye);
+        if(geometry&&models!=null){models.render(world,new org.joml.FrustumIntersection(new Matrix4f(projection).mul(view)),shader);renderer.water(world,models,projection,view,eye);}
         renderer.finish();glFinish();int finishError=glGetError();require(finishError==GL_NO_ERROR,"finish GL error "+finishError);return capture();
     }
     static BufferedImage settled(RenderPipeline renderer,ShaderProgram shader,World world,Vector3f eye,boolean ortho,boolean geometry){
@@ -101,11 +130,12 @@ public class AtmospherePlaytest {
                 renderer.time(new GameConfig(false,true,1200,hour),0);var image=settled(renderer,shader,world,eye,false,false);
                 String name=hour==12?"noon":hour==6?"dawn":hour==18?"dusk":"night";
                 ImageIO.write(image,"png",evidence.resolve("atmosphere-"+name+".png").toFile());report.append(name+": mean "+mean(image)+", LUT rebuild CPU submission "+renderer.atmosphereRebuildMillis()+" ms; GL_NO_ERROR.\n");
+                report.append(name+": 9 actual sky texels (horizon and upper sky) vs 256-path-sample raster reference; max normalized RGB error "+skyReferenceCheck(renderer)+" <=0.25.\n");
                 if(hour==12)noon=image;if(hour==0)night=image;
             }
             require(mean(noon)>mean(night)+5,"Noon sky brighter than night at fixed exposure");
             report.append("16 GPU transmittance texels / 48 RGB components compared with double 4096-sample reference, upward and low-sun paths at four heights; maximum absolute error "+transmittanceReferenceCheck(renderer)+" <= 0.035. Readback used only for correctness, not performance.\n");
-            report.append("6 GPU multiple-scattering texels / 18 RGB components compared with same 16-direction closure at 256 view/sun samples; normalized error "+multipleReferenceCheck(renderer)+" <= 0.6. Approximation tolerance, not full transport parity.\n");
+            report.append("9 GPU multiple-scattering texels / 27 RGB components compared with 256-direction closure at 256 view/sun samples; normalized error "+multipleReferenceCheck(renderer)+" <= 0.25. Approximation tolerance, not full transport parity.\n");
             lifecycleCheck();report.append("Lifecycle: static sun reuse, retained initialized atlas, rapid profile cancellation, per-frame row limits and texture cleanup passed.\n");
             renderer.time(new GameConfig(false,true,1200,12),0);
             for(float altitude:new float[]{8000,90000,120000}) {
@@ -136,6 +166,24 @@ public class AtmospherePlaytest {
             var opened=settled(renderer,shader,world,eye,false,true);
             ImageIO.write(opened,"png",evidence.resolve("atmosphere-window-noon.png").toFile());
             require(mean(opened)>mean(closed)+1,"Open window admits atmosphere sky light");
+            world.setBlock(7,28,3,Blocks.GLASS);world.setBlock(7,29,3,Blocks.GLASS);
+            world.getLoadedChunks().values().forEach(Chunk::checkMesh);acceptLighting(renderer,world,8,8);
+            var glass=settled(renderer,shader,world,eye,false,true);ImageIO.write(glass,"png",evidence.resolve("atmosphere-glass-noon.png").toFile());
+            require(mean(glass)>mean(closed)+1,"Glass transmits outdoor lighting");
+            for(int y:new int[]{28,29}){
+                world.setBlock(7,y,3,0);
+                for(int ix=0;ix<16;ix++)for(int iy=0;iy<16;iy++)world.apply(new dev.jayms.net.Protocol.Edit(7,y,3,Blocks.STONE,4,ix,iy,8));
+            }
+            world.getLoadedChunks().values().forEach(Chunk::checkMesh);acceptLighting(renderer,world,8,8);
+            var fractional=settled(renderer,shader,world,eye,false,true);ImageIO.write(fractional,"png",evidence.resolve("atmosphere-fractional-noon.png").toFile());
+            require(mean(fractional)<1.5,"Opaque 1/16 wall blocks sky and aerial light");
+            var tree=new dev.jayms.net.model.SparseVoxelOctree(32);tree.fill(0,0,16,32,32,17,0xff8899aa);
+            var model=world.models().register(new dev.jayms.net.model.ModelDefinition("Atmosphere thin wall",tree),"synthetic");
+            world.setBlock(7,28,3,model.id());world.setBlock(7,29,3,model.id());
+            world.getLoadedChunks().values().forEach(Chunk::checkMesh);acceptLighting(renderer,world,8,8);
+            var tiny=settled(renderer,shader,world,eye,false,true);ImageIO.write(tiny,"png",evidence.resolve("atmosphere-tiny-wall-noon.png").toFile());
+            require(mean(tiny)<1.5,"Opaque 1/32 model wall blocks sky and aerial light");
+            report.append("Rendered glass/fractional/tiny regression: glass mean "+mean(glass)+", 1/16 wall "+mean(fractional)+", 1/32 model wall "+mean(tiny)+"; glass transmits, opaque fine walls remain dark.\n");
             world.setBlock(7,28,3,Blocks.STONE);world.setBlock(7,29,3,Blocks.STONE);world.setBlock(7,29,4,Blocks.LED);
             world.getLoadedChunks().values().forEach(Chunk::checkMesh);acceptLighting(renderer,world,8,8);
             renderer.time(new GameConfig(false,false,1200,0),0);

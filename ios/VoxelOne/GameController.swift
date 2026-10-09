@@ -98,7 +98,7 @@ final class GameController:UIViewController,UITextFieldDelegate {
     }
     @objc private func togglePause(){paused.toggle();movement.removeAll();pauseButton?.setTitle(paused ? "Resume":"Pause",for:.normal);notify(paused ? "Paused. The online city keeps running.":"Resumed.");saveOffline()}
     @objc private func togglePlan(){guard let world=world,world.snapshot.city != nil else{return};renderer.planning.toggle();lastPoll=0;renderer.focus=world.position;points.removeAll();renderer.mark(points,world:world);movement.removeAll();refreshHUD()}
-    @objc private func toggleAtmosphere(_ sender:UIButton){renderer.atmospherePreview.toggle();sender.accessibilityValue=renderer.atmospherePreview ? "On":"Off";if let world=world {renderer.updateCamera(world)};notify(renderer.atmospherePreview ? "Planet sky preview on (low quality).":"Planet sky preview off.")}
+    @objc private func toggleAtmosphere(_ sender:UIButton){renderer.atmospherePreview.toggle();sender.accessibilityValue=renderer.atmospherePreview ? "On":"Off";if let world=world {renderer.rebuild(world);renderer.updateCamera(world)};notify(renderer.atmospherePreview ? "Planet sky preview on (low quality).":"Planet sky preview off.")}
     @objc private func chooseTool(){
         let alert=UIAlertController(title:"City tool",message:"Tap ground to choose points. Roads need two points; zones need at least three. The server checks cost and space.",preferredStyle:.actionSheet)
         for (index,title) in ["Inspect","Dirt road","Residential","Commercial","Industrial","Agricultural"].enumerated(){alert.addAction(UIAlertAction(title:title,style:.default){[weak self] _ in self?.tool=index;self?.points.removeAll();self?.notify("\(title) selected.")})}

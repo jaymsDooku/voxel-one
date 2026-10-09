@@ -30,14 +30,16 @@ public record AtmosphereConfig(boolean enabled, double radius, double height,
     public AtmosphereConfig {
         range(radius,1_000,1e9,"planet radius");range(height,1,1e7,"atmosphere height");
         if(height>radius)throw new IllegalArgumentException("Atmosphere exceeds planet radius");
+        double minimumScale=Math.max(1,radius*1e-6);
+        range(height,minimumScale,1e7,"GPU-resolvable atmosphere height");
         range(metresPerBlock,.001,1e6,"block metres");range(seaLevel,-1e9,1e9,"sea level");
-        Objects.requireNonNull(origin);Objects.requireNonNull(up);
+        vectorRange(origin,-1e12,1e12,"local origin");Objects.requireNonNull(up);
         if(Math.abs(up.length()-1)>1e-9)throw new IllegalArgumentException("Local up must be unit length");
         coefficient(molecular);coefficient(aerosolScattering);coefficient(aerosolExtinction);coefficient(absorption);
         for(int i=0;i<3;i++)if(aerosolScattering.component(i)>aerosolExtinction.component(i))
             throw new IllegalArgumentException("Aerosol extinction below scattering");
-        range(molecularScale,1,height,"molecular scale height");range(aerosolScale,1,height,"aerosol scale height");
-        range(absorptionCentre,0,height,"absorption centre");range(absorptionWidth,1,height,"absorption width");
+        range(molecularScale,minimumScale,height,"molecular scale height");range(aerosolScale,minimumScale,height,"aerosol scale height");
+        range(absorptionCentre,0,height,"absorption centre");range(absorptionWidth,minimumScale,height,"absorption width");
         range(anisotropy,-.95,.95,"aerosol anisotropy");
         vectorRange(groundAlbedo,0,1,"ground albedo");vectorRange(solarIrradiance,0,100,"solar irradiance");
         range(solarRadius,.00001,.05,"solar angular radius");

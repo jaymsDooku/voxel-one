@@ -12,7 +12,9 @@ final class VoxelRenderer {
         set {UserDefaults.standard.set(newValue,forKey:"planetAtmospherePreview")}
     }
     private var atmosphereKey:String?
-    private let sunNode=SCNNode(),sunDisc=SCNNode()
+    private let sunNode=SCNNode(),sunDisc=SCNNode(),ambientNode=SCNNode()
+    private var skyDiffuse=SIMD3<Double>.zero
+    private var skyMaterials:[(SCNMaterial,Int,Double,Bool)]=[]
     private let faces:[(GridKey,SCNVector3,[SCNVector3])]=[
         (GridKey(1,0,0),SCNVector3(1,0,0),[SCNVector3(1,0,0),SCNVector3(1,1,0),SCNVector3(1,1,1),SCNVector3(1,0,1)]),
         (GridKey(-1,0,0),SCNVector3(-1,0,0),[SCNVector3(0,0,1),SCNVector3(0,1,1),SCNVector3(0,1,0),SCNVector3(0,0,0)]),
@@ -26,31 +28,37 @@ final class VoxelRenderer {
         view.accessibilityIdentifier="worldView";view.isAccessibilityElement=true;view.accessibilityLabel="Voxel world. Drag to look; two fingers pan the planning view."
         camera.camera=SCNCamera();camera.camera?.zNear=0.05;camera.camera?.zFar=180;camera.camera?.fieldOfView=72
         scene.rootNode.addChildNode(camera);scene.rootNode.addChildNode(terrain);scene.rootNode.addChildNode(people);scene.rootNode.addChildNode(markers);scene.rootNode.addChildNode(zones)
-        let ambient=SCNNode();ambient.light=SCNLight();ambient.light?.type = .ambient;ambient.light?.intensity=650;scene.rootNode.addChildNode(ambient)
+        let ambient=ambientNode;ambient.light=SCNLight();ambient.light?.type = .ambient;ambient.light?.intensity=650;scene.rootNode.addChildNode(ambient)
         let sun=sunNode;sun.light=SCNLight();sun.light?.type = .directional;sun.light?.intensity=950;sun.eulerAngles=SCNVector3(-0.7,-0.6,0);scene.rootNode.addChildNode(sun)
         sunDisc.isHidden=true;sunDisc.castsShadow=false;sunDisc.categoryBitMask=2;scene.rootNode.addChildNode(sunDisc)
         scene.fogStartDistance=65;scene.fogEndDistance=110;scene.fogColor=view.backgroundColor
     }
+    private struct MeshKey:Hashable {let chunk:GridKey;let colour:Int;let sky:Int;let emitter:Bool}
     private final class Mesh {var vertices:[SCNVector3]=[];var normals:[SCNVector3]=[];var colors:[Float]=[];var indices:[UInt32]=[]}
     func rebuild(_ world:VoxelWorld) {
-        var groups:[GridKey:Mesh]=[:]
+        var groups:[MeshKey:Mesh]=[:],visibility:[GridKey:Double]=[:];skyMaterials=[]
+        let outdoor=atmospherePreview
         for (key,type) in world.types {
             let chunk=GridKey(Int(floor(Double(key.x)/8)),Int(floor(Double(key.y)/8)),Int(floor(Double(key.z)/8)))
-            let mesh=groups[chunk] ?? Mesh()
             let color=world.colors[key] ?? VoxelWorld.color(type)
             for (neighbor,normal,corners) in faces {
                 let adjacent=world.type(key+neighbor)
                 if adjacent != 0 && (adjacent != 185 || type==185) {continue}
+                let air=key+neighbor
+                let visible:Double
+                if outdoor {if let cached=visibility[air] {visible=cached}else {visible=world.skyVisibility(air);visibility[air]=visible}}
+                else {visible=0}
+                let group=MeshKey(chunk:chunk,colour:(outdoor || type==180) ? color:0,sky:Int((visible*8).rounded()),emitter:type==180)
+                let mesh=groups[group] ?? Mesh()
                 let base=UInt32(mesh.vertices.count)
                 for p in corners {mesh.vertices.append(SCNVector3(Float(key.x)+p.x,Float(key.y)+p.y,Float(key.z)+p.z));mesh.normals.append(normal)
                     mesh.colors += [Float((color>>16)&255)/255,Float((color>>8)&255)/255,Float(color&255)/255,1]
                 }
-                mesh.indices += [base,base+1,base+2,base,base+2,base+3]
+                mesh.indices += [base,base+1,base+2,base,base+2,base+3];groups[group]=mesh
             }
-            groups[chunk]=mesh
         }
         terrain.childNodes.forEach{$0.removeFromParentNode()}
-        for mesh in groups.values where !mesh.indices.isEmpty {
+        for (key,mesh) in groups where !mesh.indices.isEmpty {
             let vertex=SCNGeometrySource(vertices:mesh.vertices),normal=SCNGeometrySource(normals:mesh.normals)
             let colorData=mesh.colors.withUnsafeBytes{Data($0)}
             let color=SCNGeometrySource(data:colorData,semantic:.color,vectorCount:mesh.vertices.count,usesFloatComponents:true,componentsPerVector:4,bytesPerComponent:4,dataOffset:0,dataStride:16)
@@ -58,6 +66,7 @@ final class VoxelRenderer {
             let element=SCNGeometryElement(data:indices,primitiveType:.triangles,primitiveCount:mesh.indices.count/3,bytesPerIndex:4)
             let geometry=SCNGeometry(sources:[vertex,normal,color],elements:[element])
             let material=SCNMaterial();material.diffuse.contents=UIColor.white;material.lightingModel = .lambert;material.isDoubleSided=false
+            if outdoor || key.emitter {skyMaterials.append((material,key.colour,Double(key.sky)/8,key.emitter));setSkyEmission(material,key.colour,Double(key.sky)/8,key.emitter)}
             geometry.materials=[material];terrain.addChildNode(SCNNode(geometry:geometry))
         }
         zones.childNodes.forEach{$0.removeFromParentNode()}
@@ -94,12 +103,19 @@ final class VoxelRenderer {
         }
         updateAtmosphere(world.snapshot)
     }
+    private func setSkyEmission(_ material:SCNMaterial,_ colour:Int,_ visibility:Double,_ emitter:Bool){
+        let albedo=SIMD3(Double((colour>>16)&255)/255,Double((colour>>8)&255)/255,Double(colour&255)/255)
+        let value=albedo*(skyDiffuse*visibility+SIMD3<Double>(repeating:emitter ? 4:0))
+        material.emission.contents=UIColor(cgColor:CGColor(colorSpace:CGColorSpace(name:CGColorSpace.extendedLinearSRGB)!,components:[CGFloat(value.x),CGFloat(value.y),CGFloat(value.z),1])!)
+    }
     private func updateAtmosphere(_ snapshot:Snapshot) {
         guard atmospherePreview else {
+            skyDiffuse = .zero;ambientNode.light?.intensity=650;scene.lightingEnvironment.intensity=1
             sunDisc.isHidden=true;sunNode.light?.castsShadow=false
             if atmosphereKey != nil {scene.background.contents=nil;sunNode.light?.color=UIColor.white;scene.lightingEnvironment.contents=nil;scene.fogStartDistance=65;scene.fogEndDistance=110;scene.fogColor=view.backgroundColor;sunNode.light?.intensity=950;sunNode.eulerAngles=SCNVector3(-0.7,-0.6,0);atmosphereKey=nil}
             return
         }
+        ambientNode.light?.intensity=0;scene.lightingEnvironment.intensity=0
         let profile=snapshot.atmosphere ?? .earth
         let value=snapshot.sun ?? [0.45,0.78,-0.45],sun=simd_normalize(SIMD3<Double>(value[0],value[1],value[2]))
         sunDisc.position=SCNVector3(camera.position.x+Float(sun.x*80),camera.position.y+Float(sun.y*80),camera.position.z+Float(sun.z*80))
@@ -108,7 +124,12 @@ final class VoxelRenderer {
         let key="\(profile)|\(Int(altitude/100))|\(Int(sun.x*100))|\(Int(sun.y*100))|\(Int(sun.z*100))"
         guard key != atmosphereKey else{return};atmosphereKey=key
         let cube=NativeAtmosphere.cube(profile,camera.position,sun);scene.background.contents=cube;scene.lightingEnvironment.contents=cube
-        let p=profile.position(camera.position),planetSun=simd_normalize(profile.ray(sun))
+        var p=profile.position(camera.position);if simd_length(p)<profile.values[0]+1 {p=simd_normalize(p)*(profile.values[0]+1)}
+        let planetSun=simd_normalize(profile.ray(sun));skyDiffuse = .zero
+        for direction in [SIMD3<Double>(-1,1,-1),SIMD3<Double>(1,1,-1),SIMD3<Double>(-1,1,1),SIMD3<Double>(1,1,1)] {
+            skyDiffuse += NativeAtmosphere.radiance(p,simd_normalize(profile.ray(direction)),planetSun,profile,includeSolarDisc:false)/4
+        }
+        for (material,colour,visible,emitter) in skyMaterials {setSkyEmission(material,colour,visible,emitter)}
         let irradiance=NativeAtmosphere.solarIrradiance(profile,camera.position,sun),peak=max(irradiance.x,max(irradiance.y,irradiance.z))
         let rgb=peak>0 ? irradiance/peak:SIMD3<Double>.zero
         let colour=UIColor(cgColor:CGColor(colorSpace:CGColorSpace(name:CGColorSpace.linearSRGB)!,components:[CGFloat(rgb.x),CGFloat(rgb.y),CGFloat(rgb.z),1])!)

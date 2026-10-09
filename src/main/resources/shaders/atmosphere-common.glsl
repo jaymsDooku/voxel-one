@@ -3,7 +3,7 @@ uniform int uAtmosphereEnabled,uAtmosphereSamples,uPlanetLighting;
 uniform float uPlanetRadius,uAtmosphereHeight,uRayleighScale,uMieScale,uOzoneCentre,uOzoneWidth,uMieG,uSolarRadius,uBlockKm;
 uniform vec3 uRayleigh,uMieScattering,uMieExtinction,uOzone,uSolar,uPlanetCamera,uAtmosphereSun;
 uniform mat3 uWorldToPlanet;
-uniform vec3 uAtmosphereWorldCamera,uAtmosphereViewDirection;
+uniform vec3 uAtmosphereWorldCamera,uAtmosphereViewDirection,uAtmosphereRayOrigin;
 uniform int uAtmosphereOrtho,uAtmosphereReflection;
 uniform float uAtmosphereReflectionPlane,uOverviewHaze;
 uniform vec3 uAtmosphereReflectedEye;
@@ -65,14 +65,14 @@ vec3 atmosphereDirect(vec3 cameraDelta){
 
 // Orthographic samples start on a separate camera-plane ray for each surface point.
 void atmosphereAerial(vec3 worldPoint,int count,out vec3 t,out vec3 light){
-    vec3 offset=worldPoint-uAtmosphereWorldCamera,origin=uPlanetCamera,delta;
+    vec3 offset=worldPoint-uAtmosphereRayOrigin,origin=uPlanetCamera+uWorldToPlanet*(uAtmosphereRayOrigin-uAtmosphereWorldCamera)*uBlockKm,delta;
     if(uAtmosphereOrtho==1){
         float distance=max(0.,dot(offset,uAtmosphereViewDirection));
         origin+=uWorldToPlanet*(offset-uAtmosphereViewDirection*distance)*uBlockKm;
         delta=uWorldToPlanet*uAtmosphereViewDirection*(distance*uBlockKm);
     }else delta=uWorldToPlanet*offset*uBlockKm;
 #ifdef ATM_SCENE
-    atmosphereWorldStart=uAtmosphereWorldCamera;
+    atmosphereWorldStart=uAtmosphereRayOrigin;
     if(uAtmosphereOrtho==1)atmosphereWorldStart+=offset-uAtmosphereViewDirection*max(0.,dot(offset,uAtmosphereViewDirection));
 #endif
     if(uAtmosphereReflection==1){

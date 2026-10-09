@@ -2,6 +2,19 @@ import XCTest
 import SceneKit
 
 final class WorldRulesTests:XCTestCase {
+    func testNativeSkyVisibilityBlocksRoofsAndTransmitsWindows()throws {
+        var enclosed=fixture()
+        for x in 1...7 {for y in 1...7 {for z in 1...7 {
+            if x==1 || x==7 || y==1 || y==7 || z==1 || z==7 {enclosed.cells.append([x,y,z,3,0x8899aa])}
+        }}}
+        let inside=GridKey(4,4,4)
+        XCTAssertEqual(try VoxelWorld(enclosed).skyVisibility(inside),0,"Opaque roof/walls block native outdoor emission")
+        enclosed.cells.removeAll{$0[0]==1 && ($0[1]==4 || $0[1]==5) && $0[2]==4}
+        let open=try VoxelWorld(enclosed).skyVisibility(inside);XCTAssertGreaterThan(open,0)
+        enclosed.cells.append([1,4,4,167,0xaaccdd]);enclosed.cells.append([1,5,4,167,0xaaccdd])
+        let glass=try VoxelWorld(enclosed).skyVisibility(inside)
+        XCTAssertGreaterThan(glass,0);XCTAssertLessThan(glass,open)
+    }
     func testAtmosphereProfileMigrationAndNumericalBounds()throws {
         let known=NativeAtmosphere.attenuation(SIMD3<Double>(0,1,2))
         XCTAssertEqual(known.x,1,accuracy:1e-12)
@@ -12,6 +25,9 @@ final class WorldRulesTests:XCTestCase {
         var invalid=profile;invalid.version=2;XCTAssertThrowsError(try invalid.validate())
         invalid=profile;invalid.values[0] = .nan;XCTAssertThrowsError(try invalid.validate())
         invalid=profile;invalid.values[13]=0.01;XCTAssertThrowsError(try invalid.validate())
+        invalid=profile;invalid.values[23]=1;XCTAssertThrowsError(try invalid.validate(),"Reject unresolved aerosol scales")
+        invalid=profile;invalid.values[25]=1;XCTAssertThrowsError(try invalid.validate(),"Reject unresolved absorption scales")
+        invalid=profile;invalid.values[4]=1e13;XCTAssertThrowsError(try invalid.validate(),"Bound GPU coordinate conversion")
         let decoded=try JSONDecoder().decode(Snapshot.self,from:JSONEncoder().encode(fixture()));XCTAssertNil(decoded.atmosphere)
         var updated=fixture();updated.atmosphere=profile;updated.sun=[0,1,0];try updated.validate()
         let restored=try JSONDecoder().decode(Snapshot.self,from:JSONEncoder().encode(updated));XCTAssertEqual(restored.atmosphere,profile)

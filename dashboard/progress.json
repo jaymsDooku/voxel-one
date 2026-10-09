@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-09T19:07:02+00:00",
+  "updatedAt": "2026-10-09T20:05:55+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -20,8 +20,8 @@
       "description": "Audited clean feature branch. Building shared validated atmosphere profile, tangent coordinates and CPU reference math before rendering integration.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Production controls and asserted 120 km entry/return passed 73 frames; fresh F10 media inspected. 90 Java and 53 Linux iOS contract cases pass. Angular reference and overview exposure gaps remain. New native RGB sunlight/shadows/disc needs exact-source Mac checks.",
-      "updatedAt": "2026-10-09T19:07:02+00:00"
+      "note": "Current-source GL sky comparisons and scene/lifecycle pass; broad probes/water/temporal/resize/Hi-Z regressions pass. 29 Java and 53 Linux iOS harness tests pass. Request seven-case native Mac check for new visibility and Sun framing. High performance and final synchronized-source validation remain.",
+      "updatedAt": "2026-10-09T20:05:55+00:00"
     },
     {
       "id": "62346636376631352d313735362d346166362d623730662d386437336533383939623861",

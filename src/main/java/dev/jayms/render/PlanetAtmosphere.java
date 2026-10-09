@@ -79,13 +79,14 @@ public final class PlanetAtmosphere implements AutoCloseable {
         try {
             int budget=initialized()?job.q.rows:Integer.MAX_VALUE;
             while(job!=null&&budget>0){Job j=job;int total=j.stage==0?j.q.transHeight:j.stage==1?j.q.multipleSize:j.q.skyHeight;
-                int rows=Math.min(total-j.row,budget),w=j.stage==0?j.q.transWidth:j.stage==1?j.q.multipleSize:j.q.skyWidth;
+                int rows=Math.min(total-j.row,j.stage==1&&initialized()?1:budget),w=j.stage==0?j.q.transWidth:j.stage==1?j.q.multipleSize:j.q.skyWidth;
                 ShaderProgram pass=j.stage==0?transPass:j.stage==1?multiplePass:skyPass;
                 attach(j.stage==0?j.atlas:j.stage==1?j.multiple:j.image,w,j.stage==0?j.q.transHeight+ j.q.multipleSize:total);
                 glViewport(0,0,w,total);glScissor(0,j.row,w,rows);pass.bind();uniforms(pass,j.profile,j.q,j.p,j.s,j.matrix);
                 pass.setInt("uMultipleScatteringEnabled",j.stage==2?1:0);
                 glActiveTexture(GL_TEXTURE15);glBindTexture(GL_TEXTURE_2D,j.stage==0?0:j.atlas);pass.setInt("uTransmittance",15);
                 glDrawArrays(GL_TRIANGLES,0,3);j.row+=rows;budget-=rows;lastRowsSubmitted+=rows;
+                if(j.stage==1&&initialized())budget=0; // One costly angular row per update.
                 if(j.row==total){
                     if(j.stage==1){glDisable(GL_SCISSOR_TEST);glActiveTexture(GL_TEXTURE15);glBindTexture(GL_TEXTURE_2D,j.atlas);glCopyTexSubImage2D(GL_TEXTURE_2D,0,0,j.q.transHeight,0,0,j.q.multipleSize,j.q.multipleSize);glEnable(GL_SCISSOR_TEST);}
                     if(j.stage==2){if(trans!=0&&j.ownsAtlas)glDeleteTextures(trans);if(sky!=0)glDeleteTextures(sky);glDeleteTextures(j.multiple);
@@ -109,7 +110,7 @@ public final class PlanetAtmosphere implements AutoCloseable {
     private void uniforms(ShaderProgram s,AtmosphereConfig config,Quality quality,Vec position,Vec sun,Matrix3f transform){
         s.setVector3("uAtmosphereLutSize",quality.transWidth,quality.transHeight,quality.transHeight+quality.multipleSize);
         vector(s,"uGroundAlbedo",config.groundAlbedo(),1);s.setInt("uMultipleScatteringEnabled",1);
-        s.setInt("uAtmosphereEnabled",config.enabled()?1:0);s.setInt("uAtmosphereSamples",quality.samples);
+        s.setInt("uAtmosphereEnabled",config.enabled()?1:0);s.setInt("uAtmosphereSamples",quality.samples);s.setInt("uMultipleSamples",quality==Quality.LOW?32:quality==Quality.MEDIUM?64:128);
         s.setFloat("uPlanetRadius",(float)(config.radius()*.001));s.setFloat("uAtmosphereHeight",(float)(config.height()*.001));
         s.setFloat("uRayleighScale",(float)(config.molecularScale()*.001));s.setFloat("uMieScale",(float)(config.aerosolScale()*.001));
         s.setFloat("uOzoneCentre",(float)(config.absorptionCentre()*.001));s.setFloat("uOzoneWidth",(float)(config.absorptionWidth()*.001));
@@ -118,7 +119,7 @@ public final class PlanetAtmosphere implements AutoCloseable {
         vector(s,"uMieExtinction",config.aerosolExtinction(),1000);vector(s,"uOzone",config.absorption(),1000);vector(s,"uSolar",config.solarIrradiance(),1);
         vector(s,"uPlanetCamera",position,.001);vector(s,"uAtmosphereSun",sun,1);s.setMatrix3("uWorldToPlanet",transform);
     }
-    public void bind(ShaderProgram s){uniforms(s);s.setInt("uPlanetLighting",1);s.setInt("uAtmosphereOrtho",orthographic?1:0);s.setFloat("uOverviewHaze",overviewHaze);s.setVector3("uAtmosphereViewDirection",viewDirection.x,viewDirection.y,viewDirection.z);s.setVector3("uAtmosphereWorldCamera",worldCamera.x,worldCamera.y,worldCamera.z);glActiveTexture(GL_TEXTURE15);glBindTexture(GL_TEXTURE_2D,trans);s.setInt("uTransmittance",15);
+    public void bind(ShaderProgram s){uniforms(s);s.setInt("uPlanetLighting",1);s.setInt("uAtmosphereOrtho",orthographic?1:0);s.setFloat("uOverviewHaze",overviewHaze);s.setVector3("uAtmosphereViewDirection",viewDirection.x,viewDirection.y,viewDirection.z);s.setVector3("uAtmosphereWorldCamera",worldCamera.x,worldCamera.y,worldCamera.z);s.setVector3("uAtmosphereRayOrigin",worldCamera.x,worldCamera.y,worldCamera.z);glActiveTexture(GL_TEXTURE15);glBindTexture(GL_TEXTURE_2D,trans);s.setInt("uTransmittance",15);
         glActiveTexture(GL_TEXTURE14);glBindTexture(GL_TEXTURE_2D,sky);s.setInt("uSkyView",14);glActiveTexture(GL_TEXTURE0);}
     public void environment(int cube) {
         int oldFbo=glGetInteger(GL_DRAW_FRAMEBUFFER_BINDING),oldRead=glGetInteger(GL_READ_FRAMEBUFFER_BINDING),oldVao=glGetInteger(GL_VERTEX_ARRAY_BINDING);int[] vp=new int[4];glGetIntegerv(GL_VIEWPORT,vp);
