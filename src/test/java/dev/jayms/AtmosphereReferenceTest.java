@@ -8,6 +8,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class AtmosphereReferenceTest {
     private final AtmosphereConfig c=AtmosphereConfig.earth();
+    @Test void multipleClosureIsFiniteNonnegativeVacuumAndAlbedoResponsive() {
+        assertEquals(Vec.gray(0),AtmosphereReference.multiple(AtmosphereConfig.airless(),100,0,16,32,32));
+        for(double mu:new double[]{-.04,0,.8}) {
+            Vec value=AtmosphereReference.multiple(c,100,mu,16,64,128);
+            assertTrue(value.x()>=0&&value.y()>=0&&value.z()>=0);
+        }
+        Vec dark=AtmosphereReference.multiple(c.withGroundAlbedo(Vec.gray(0)),100,.8,32,128,128);
+        Vec bright=AtmosphereReference.multiple(c.withGroundAlbedo(Vec.gray(.4)),100,.8,32,128,128);
+        assertTrue(bright.x()>dark.x()&&bright.y()>dark.y()&&bright.z()>dark.z());
+    }
     @Test void intersectionsIncludeInsideSurfaceOutsideGrazingAndMiss() {
         assertEquals(new AtmosphereReference.Interval(-10,10),AtmosphereReference.sphere(Vec.gray(0),new Vec(1,0,0),10));
         assertEquals(new AtmosphereReference.Interval(-20,0),AtmosphereReference.sphere(new Vec(10,0,0),new Vec(1,0,0),10));

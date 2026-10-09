@@ -1,0 +1,11 @@
+{
+  "scope": "Real OpenGL engine integration checks on the VPS, not a physical desktop",
+  "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+  "samples": 1,
+  "sunVisible": true,
+  "irradianceUploaded": true,
+  "shadowChangedPixels": 11514,
+  "reflectionChangedPixels": 168875,
+  "mipmapAndLinearFilters": true,
+  "resizeAndGlErrors": "passed"
+}

@@ -1,0 +1,40 @@
+{
+  "sourceHead": "d4b9f4e5f19d52bf978df3817d91016b81d72943",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/37964789992",
+  "status": "passed",
+  "clientChecked": true,
+  "tests": [
+    {
+      "name": "testOfflineTouchBuildSavePauseAndLandscape",
+      "status": "passed"
+    },
+    {
+      "name": "testOnlineLoginCityPlanningAndReconnect",
+      "status": "passed"
+    },
+    {
+      "name": "testCollisionJumpRayAndEditRules",
+      "status": "passed"
+    },
+    {
+      "name": "testSnapshotValidationAndSaveRoundTrip",
+      "status": "passed"
+    },
+    {
+      "name": "testAtmosphereProfileMigrationAndNumericalBounds",
+      "status": "passed"
+    },
+    {
+      "name": "testPlanetAtmosphereNativeToggleAndLegacyWorld",
+      "status": "passed"
+    }
+  ],
+  "environment": {
+    "macOS": "15.7.9",
+    "xcode": "Xcode 16.4\nBuild version 16F6",
+    "simulatorSDK": "18.5"
+  },
+  "device": "iPhone SE (3rd generation)",
+  "playtest": "Playtest: six actual native client tests passed on the hosted iPhone Simulator. Receipt and media hashes verified. Inspected client screenshot shows offline gameplay with clear touch HUD and fallback sky. It does not demonstrate enabled atmosphere visually. No physical-device result is claimed.",
+  "publication": "Copied media pending controller publication; further native enabled-view capture required"
+}

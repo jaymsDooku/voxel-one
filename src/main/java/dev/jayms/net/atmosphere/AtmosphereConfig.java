@@ -65,6 +65,9 @@ public record AtmosphereConfig(boolean enabled, double radius, double height,
     public AtmosphereConfig withEnabled(boolean value) {
         return copy(value,height,molecularScale,aerosolScale,absorptionCentre,absorptionWidth,aerosolScattering,aerosolExtinction);
     }
+    public AtmosphereConfig withGroundAlbedo(Vec value) {
+        return new AtmosphereConfig(enabled,radius,height,metresPerBlock,seaLevel,origin,up,molecular,aerosolScattering,aerosolExtinction,absorption,molecularScale,aerosolScale,absorptionCentre,absorptionWidth,anisotropy,value,solarIrradiance,solarRadius);
+    }
     public AtmosphereConfig withHaze(double factor) {
         range(factor,0,20,"haze multiplier");
         return copy(enabled,height,molecularScale,aerosolScale,absorptionCentre,absorptionWidth,

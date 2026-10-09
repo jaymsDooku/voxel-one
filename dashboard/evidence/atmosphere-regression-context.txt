@@ -1,0 +1,1 @@
+OpenGL=3.3 (Core Profile) Mesa 22.3.6; GLSL=3.30; renderer=llvmpipe (LLVM 15.0.6, 256 bits); samples=1

@@ -63,10 +63,19 @@ final class NativeWorkflowTests:XCTestCase {
     func newOffline(){menu();app.buttons["offlineNewButton"].tap();if app.alerts.buttons["New world"].waitForExistence(timeout:2){app.alerts.buttons["New world"].tap()};wait(app.buttons["breakButton"])}
     func testPlanetAtmosphereNativeToggleAndLegacyWorld()throws {
         newOffline();wait(app.buttons["atmosphereToggle"])
+        if app.buttons["atmosphereToggle"].value as? String == "On" {app.buttons["atmosphereToggle"].tap()}
         app.buttons["atmosphereToggle"].tap();textContains("gameStatus","Planet sky preview on")
         aimAtHorizonForEvidence();capture("atmosphere-native-enabled")
         XCTAssertTrue(app.buttons["breakButton"].exists,"World controls remain available")
         app.buttons["atmosphereToggle"].tap();textContains("gameStatus","Planet sky preview off");capture("atmosphere-native-fallback")
+        app.buttons["atmosphereToggle"].tap();textContains("gameStatus","Planet sky preview on")
+        aimAtHorizonForEvidence()
+        app.buttons["pauseButton"].tap();textContains("gameStatus","Paused")
+        app.buttons["pauseButton"].tap()
+        app.terminate();app.launch();wait(app.buttons["atmosphereToggle"])
+        XCTAssertEqual(app.buttons["atmosphereToggle"].value as? String,"On","Local sky opt-in survives restart")
+        XCTAssertTrue(app.buttons["breakButton"].exists,"World remains playable after restart")
+        capture("atmosphere-native-enabled-restarted")
     }
     func testOfflineTouchBuildSavePauseAndLandscape()throws {
         newOffline();wait(app.otherElements["worldView"])

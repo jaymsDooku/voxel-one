@@ -74,4 +74,38 @@ public final class AtmosphereReference {
         }
         return new Sample(expNegative(depth),radiance);
     }
+
+    /** Original isotropic closure reference. Angular midpoint/Fibonacci integration estimates
+     * the repeat-scattering probability; 0.95 caps feedback for finite conservative workloads.
+     * This is an approximation, not a full spectral or higher-order transport solver. */
+    public static Vec multiple(AtmosphereConfig c,double altitude,double sunCosine,int directions,int n,int sunSamples) {
+        if(!Double.isFinite(altitude)||altitude<0||altitude>c.height()||!Double.isFinite(sunCosine)||sunCosine<-1||sunCosine>1)
+            throw new IllegalArgumentException("Invalid multiple-scattering coordinate");
+        if(directions<4||directions>256)throw new IllegalArgumentException("Directions outside 4..256");samples(n);samples(sunSamples);
+        if(!c.enabled())return Vec.gray(0);
+        Vec p=new Vec(0,c.radius()+Math.max(1,altitude),0),sun=new Vec(Math.sqrt(1-sunCosine*sunCosine),sunCosine,0);
+        Vec meanLight=Vec.gray(0),meanFeedback=Vec.gray(0);
+        for(int j=0;j<directions;j++) {
+            double y=1-2*(j+.5)/directions,phi=j*2.39996323;
+            Vec d=new Vec(Math.sqrt(1-y*y)*Math.cos(phi),y,Math.sqrt(1-y*y)*Math.sin(phi));
+            Sample single=integrate(c,p,d,sun,2*(c.radius()+c.height()),n,sunSamples);
+            Vec light=single.radiance(),feedback=Vec.gray(0),viewT=Vec.gray(1);
+            Interval range=path(c,p,d,2*(c.radius()+c.height()));
+            if(range!=null){double step=(range.far-range.near)/n;
+                for(int i=0;i<n;i++){
+                    Vec q=p.add(d.mul(range.near+(i+.5)*step)),rho=density(c,q.length()-c.radius()),sigma=extinction(c,rho);
+                    Vec scatter=c.molecular().mul(rho.x()).add(c.aerosolScattering().mul(rho.y())),stepT=expNegative(sigma.mul(step));
+                    Vec fraction=new Vec((1-stepT.x())*scatter.x()/Math.max(1e-11,sigma.x()),(1-stepT.y())*scatter.y()/Math.max(1e-11,sigma.y()),(1-stepT.z())*scatter.z()/Math.max(1e-11,sigma.z()));
+                    feedback=feedback.add(product(viewT,fraction));viewT=product(viewT,stepT);
+                }
+                Interval ground=sphere(p,d,c.radius());
+                if(ground!=null&&ground.near>0&&ground.near<=range.far+1){Vec q=p.add(d.mul(ground.near)),up=q.unit();
+                    Vec bounced=product(product(c.groundAlbedo(),c.solarIrradiance()),sunlight(c,q.add(up.mul(2)),sun,sunSamples)).mul(Math.max(0,up.dot(sun))/Math.PI);
+                    light=light.add(product(single.transmittance(),bounced));feedback=feedback.add(product(viewT,c.groundAlbedo()));
+                }
+            }
+            meanLight=meanLight.add(light.mul(1.0/directions));meanFeedback=meanFeedback.add(feedback.mul(1.0/directions));
+        }
+        return new Vec(meanLight.x()/(1-Math.min(.95,meanFeedback.x())),meanLight.y()/(1-Math.min(.95,meanFeedback.y())),meanLight.z()/(1-Math.min(.95,meanFeedback.z())));
+    }
 }

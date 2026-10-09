@@ -6,7 +6,11 @@ import simd
 final class VoxelRenderer {
     let view=SCNView(); let scene=SCNScene(); let camera=SCNNode(); let terrain=SCNNode();let people=SCNNode();let markers=SCNNode();let zones=SCNNode()
     var planning=false;var focus=SCNVector3Zero;var distance:Float=38
-    var atmospherePreview=false
+    /// Local opt-in. Missing preference remains disabled until a device budget exists.
+    var atmospherePreview:Bool {
+        get {UserDefaults.standard.bool(forKey:"planetAtmospherePreview")}
+        set {UserDefaults.standard.set(newValue,forKey:"planetAtmospherePreview")}
+    }
     private var atmosphereKey:String?
     private let sunNode=SCNNode()
     private let faces:[(GridKey,SCNVector3,[SCNVector3])]=[

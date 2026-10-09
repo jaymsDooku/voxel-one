@@ -372,6 +372,7 @@ public final class RenderPipeline implements AutoCloseable {
 
     public void atmosphere(dev.jayms.net.atmosphere.AtmosphereConfig config) { atmosphere.profile(config); temporal.reset(); }
     public double atmosphereRebuildMillis() { return atmosphere.rebuildCpuMillis; }
+    public boolean atmosphereRebuilding() { return atmosphere.rebuilding(); }
     public void resetHistory() { temporal.reset(); }
     public float exposure() { return temporal.exposure(); }
     public int historyFrames() { return temporal.historyFrames(); }

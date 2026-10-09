@@ -53,3 +53,43 @@ override. The supplied review base is `bcdcab56c6ae1c183621aaa1b4a7e3d0e1f0b3ba`
 The exact-source Mac run for `bd8366626d044e0f9ea15863950852c0571e9aad` built the native client, but XCTest failed the sunlight transmittance bound at WorldRulesTests.swift:15. The trusted report has environmentReady=true and clientChecked=false. The only returned image is the fresh simulator home screen. It was inspected and copied as explicitly labeled environment evidence, not gameplay.
 
 Fixed a double-negated exponent: the old helper computed exp(-a), while sunlight and view radiance passed negative optical depth. The new attenuation(opticalDepth) helper takes positive depth, and both callers use that contract. Native tests now check exp(0), exp(-1), exp(-2) and Earth RGB transmission ordering. Linux iOS harness checks passed 53 tests; the new Swift checks have not yet run. Request another scoped exact-source remote_ios_test. See dashboard/evidence/atmosphere-ios-retry.json. Full implementation work listed above remains open.
+
+## Hosted Mac success and current continuation
+
+Inspected trusted run https://github.com/jaymsDooku/voxel-one/actions/runs/37964789992
+for d4b9f4e5f19d52bf978df3817d91016b81d72943. All six real native client XCTest cases
+passed on macOS 15.7.9, Xcode 16.4, iOS 18.5, iPhone SE (3rd generation) Simulator.
+Verified media hashes and inspected the actual client image. Copied sanitized images as
+atmosphere-ios-client-fallback.png and atmosphere-ios-passed-preflight.png. The client
+image shows fallback gameplay, not enabled atmospheric rendering. No physical-device
+performance result is claimed. See atmosphere-ios-passed.json.
+
+Current local source adds an original compact isotropic multiple-scattering closure,
+packed transmittance/multiple atlas, and amortized row-budget builds. Complete initialized
+output stays active while resources rebuild. Physical-parameter keys exclude coordinates,
+sun and altitude; view-only changes reuse static textures. The GL playtest passed with
+multiple-table comparison (six texels / 18 RGB components; normalized error 0.0342457
+against the same 16-direction closure at 256 view/sun samples, tolerance 0.6), static reuse,
+rapid cancellation, retained output, row limits and deleted textures. This comparison does
+not establish full multiple-scattering numerical accuracy. Main captures are refreshed.
+Java AtmosphereConfigTest (4) and AtmosphereReferenceTest (6) passed, including vacuum,
+finite multiple radiance and albedo response. Linux mocked iOS checks passed 53 tests.
+The delegate closure-design request failed transiently and was resolved self; all delegates
+are closed. Implementation and checks were independently performed locally.
+
+Native Sky opt-in now persists as a local UserDefaults choice. Missing preference remains
+false. The normal-control native test enables/disables it, enables it again, saves a
+horizon-facing pose, cold restarts and checks the accessible On value and game controls.
+This Swift change has NOT run on a Mac yet. Request remote_ios_test against the controller's
+published exact source. Require all six native tests and actual enabled client media.
+
+Full acceptance still requires sunlight/irradiance agreement, complete water/cloud and
+transparent composition, room/fractional/tiny-model/HUD/held-item/player camera regressions,
+transition recording, higher-angular-resolution numerical comparisons, hardware performance
+budgets, full suite and final master integration/source audit. Do not mark this work ready.
+The current review-base name-status diff again contains no deleted files; git diff --check
+passed. The controller retains all Git/publication responsibility.
+
+The existing engine RenderingSmoke regression reran on this source with the assigned display
+and isolated synthetic profile; exit 0. Refreshed reports/media copied to
+dashboard/evidence/atmosphere-regression-*. This is partial regression coverage, not full acceptance.

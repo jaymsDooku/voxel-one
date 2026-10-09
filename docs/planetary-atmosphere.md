@@ -45,17 +45,25 @@ encoding. Swift validates it; absent legacy fields receive the same Earth profil
 ## Current rendering
 
 Transmittance uses raster integration with 64 samples and denser angular coordinates
-near the horizon. Sky view uses bounded single scattering, with a larger horizon
+near the horizon. A compact isotropic multiple-scattering closure integrates 16 equal-solid-angle directions,
+32 view samples and diffuse ground reflection. Its feedback is capped at 0.95. The square
+table is packed below transmittance in the same atlas, preserving the 16 texture-unit limit.
+Sky view uses bounded scattering with this closure, with a larger horizon
 sample count and a bounded exterior-camera path. All LUT textures use RGBA16F.
-Quality sizes (transmittance / sky / normal sky sample count):
+Quality sizes and peak LUT allocation (two complete sets plus a temporary multiple table):
 
-| Quality | Transmittance | Sky | Samples | Two texture sets, bytes |
-| --- | --- | --- | --- | --- |
-| Low | 96x32 | 96x48 | 16 | 122,880 |
-| Medium | 256x64 | 192x108 | 32 | 593,920 |
-| High | 384x96 | 256x144 | 48 | 1,179,648 |
+| Quality | Transmittance | Multiple | Sky | Samples | Peak LUT bytes |
+| --- | --- | --- | --- | --- | --- |
+| Low | 96x32 | 8x8 | 96x48 | 16 | 135,680 |
+| Medium | 256x64 | 16x16 | 192x108 | 32 | 661,504 |
+| High | 384x96 | 32x32 | 256x144 | 48 | 1,384,448 |
 
-Static transmittance changes with the profile/quality. View tables change with sun or
+Static transmittance/multiple tables change only with physical parameters/quality.
+Coordinate-origin, sun and altitude changes reuse them. Low submits up to four rows every
+two frames; Medium eight rows per frame; High sixteen rows per frame. Initial Low output
+is initialized synchronously before first use. Later builds keep initialized output and
+swap only complete bundles. Rapid profile changes cancel unpublished resources.
+View tables change with sun or
 altitude thresholds. New textures replace old complete textures; no GPU readback occurs
 in production. The reflection environment samples the same sky table. Detailed and
 distant surface shaders use the same bounded atmospheric integration in linear HDR.
@@ -64,7 +72,8 @@ directions. Profile/table changes reset temporal history.
 
 iOS has a bounded 16x16 cube per face, precomputed by its CPU reference approximation,
 and a documented SceneKit built-in fog stage. `Sky` enables/disables this native preview.
-It is off by default pending physical-device performance measurements. UIKit HUD is
+Its local choice persists across app restarts; a missing choice stays off pending
+physical-device performance measurements. UIKit HUD is
 outside the fog pass. This path is not desktop aerial-perspective parity.
 
 ## Evidence and remaining work
@@ -78,21 +87,24 @@ checks correctness; it does not establish the 1080p desktop GPU target or an iPh
 
 Still required before review/release:
 
-- Multiple-scattering LUT and measured bounded update scheduling/fallbacks.
+- Higher-angular-resolution multiple-scattering comparisons and measured fallback/update costs.
 - Full sunlight/irradiance agreement without duplicate legacy daylight attenuation.
 - Water, local reflection, cloud depth and transparent-layer integration audit.
 - Sealed-room/window/glass/fractional/tiny-model/LED regression scenes and all player
   cameras, full-world isometric fit, resize/context lifetime and temporal transitions.
 - High-sample radiance comparisons at sunset/horizon and diagnostic spherical limb scenes.
 - Recording-disabled CPU/GPU/frame/rebuild measurements and a declared hardware budget.
-- Exact-source hosted Mac build and actual native workflow/screenshots; physical-device
-  performance/signing evidence where available. Simulator preflight cannot replace this.
+- Hosted Mac run 37964789992 passed all six client tests for d4b9f4e5f19d52bf978df3817d91016b81d72943.
+  Its inspected client image shows the fallback sky. The new persistent opt-in/restart test
+  needs another exact-source run and enabled-view image. Physical-device performance/signing
+  evidence remains unavailable. Simulator preflight cannot replace a client playtest.
 - Full existing test suite, controller master synchronization, final diff audit against
   the supplied review base, fresh final-source media and independent review.
 
 ## References
 
-The current code is original bounded RGB single scattering; it does not claim to implement
+The current code is original bounded RGB scattering with an isotropic multiple-scattering
+closure; it does not claim to implement
 the full Hillaire or Bruneton algorithms and copies no reference code. The intended compact
 table design is informed by [Hillaire's paper](https://onlinelibrary.wiley.com/doi/10.1111/cgf.14050)
 and [author implementation](https://github.com/sebh/UnrealEngineSkyAtmosphere).
