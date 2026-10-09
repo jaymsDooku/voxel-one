@@ -72,7 +72,8 @@ enum NativeAtmosphere {
     static func density(_ h:Double,_ profile:AtmosphereProfile)->SIMD3<Double>{let v=profile.values
         if h<0 || h>v[1] || !profile.enabled{return .zero};return SIMD3(exp(-h/v[22]),exp(-h/v[23]),max(0,1-abs(h-v[24])/v[25]))}
     static func extinction(_ rho:SIMD3<Double>,_ p:AtmosphereProfile)->SIMD3<Double>{p.vector(10)*rho.x+p.vector(16)*rho.y+p.vector(19)*rho.z}
-    static func exponential(_ a:SIMD3<Double>)->SIMD3<Double>{SIMD3(exp(-a.x),exp(-a.y),exp(-a.z))}
+    /// Beer-Lambert attenuation accepts positive optical depth, never a signed exponent.
+    static func attenuation(_ opticalDepth:SIMD3<Double>)->SIMD3<Double>{SIMD3(exp(-opticalDepth.x),exp(-opticalDepth.y),exp(-opticalDepth.z))}
     static func span(_ p:SIMD3<Double>,_ d:SIMD3<Double>,_ profile:AtmosphereProfile)->(Double,Double)? {
         let v=profile.values;guard let shell=sphere(p,d,v[0]+v[1]) else{return nil}
         let near=max(0,shell.0);var far=shell.1
@@ -85,7 +86,7 @@ enum NativeAtmosphere {
         guard let range=span(p,sun,profile) else{return SIMD3(repeating:1)}
         let step=(range.1-range.0)/16;var depth=SIMD3<Double>.zero
         for i in 0..<16 {depth += extinction(density(simd_length(p+sun*(range.0+(Double(i)+0.5)*step))-profile.values[0],profile),profile)*step}
-        return exponential(-depth)
+        return attenuation(depth)
     }
     static func radiance(_ p:SIMD3<Double>,_ d:SIMD3<Double>,_ sun:SIMD3<Double>,_ profile:AtmosphereProfile)->SIMD3<Double>{
         let v=profile.values;var color=SIMD3<Double>.zero
@@ -94,7 +95,7 @@ enum NativeAtmosphere {
             var depth=SIMD3<Double>.zero
             for i in 0..<24 {let q=p+d*(range.0+(Double(i)+0.5)*step),rho=density(simd_length(q)-v[0],profile),sigma=extinction(rho,profile)
                 let source=(profile.vector(10)*rho.x*phaseR+profile.vector(13)*rho.y*phaseM)*profile.vector(30)
-                color += exponential(-(depth+sigma*step*0.5))*source*sunlight(q,sun,profile)*step;depth += sigma*step
+                color += attenuation(depth+sigma*step*0.5)*source*sunlight(q,sun,profile)*step;depth += sigma*step
             }
         }
         if simd_dot(d,sun)>cos(v[33]) {color += profile.vector(30)*sunlight(p,sun,profile)}

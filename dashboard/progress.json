@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-09T16:55:52+00:00",
+  "updatedAt": "2026-10-09T17:12:06+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -20,8 +20,8 @@
       "description": "Audited clean feature branch. Building shared validated atmosphere profile, tangent coordinates and CPU reference math before rendering integration.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Profile/save/protocol foundation, CPU reference, GL 3.3 sky/transmittance prototype and opt-in native iOS adapter implemented. 38 scoped Java checks, 53 Linux iOS harness checks and software GL workflow/regression passed. Exact-source Mac client validation requested; scene completion, full acceptance and hardware budgets remain pending.",
-      "updatedAt": "2026-10-09T16:55:52+00:00"
+      "note": "Exact-source hosted Mac client built but failed the native transmittance bound test. Fixed double-negated optical depth in sunlight and radiance; added known-value attenuation checks. Native rerun pending; full atmosphere delivery remains in progress.",
+      "updatedAt": "2026-10-09T17:12:06+00:00"
     },
     {
       "id": "62346636376631352d313735362d346166362d623730662d386437336533383939623861",

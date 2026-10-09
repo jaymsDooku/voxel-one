@@ -46,5 +46,10 @@ is claimed. New save-header assertions retain the old fixture writers and old-fo
 
 No deleted files appear in the current diff. Intended code removals replace the old CPU
 analytic environment cube and two different fog formulas and remove isometric's flat-sky
-override. The controller has not yet supplied the synchronized review base. After integrating
-master, audit the whole diff, preserve merged features and rerun checks/media on final source.
+override. The supplied review base is `bcdcab56c6ae1c183621aaa1b4a7e3d0e1f0b3ba`; the full name-status diff was audited against it with no deleted files. After further master integration, repeat the diff audit and rerun checks/media on final source.
+
+## Hosted Mac failure and retry
+
+The exact-source Mac run for `bd8366626d044e0f9ea15863950852c0571e9aad` built the native client, but XCTest failed the sunlight transmittance bound at WorldRulesTests.swift:15. The trusted report has environmentReady=true and clientChecked=false. The only returned image is the fresh simulator home screen. It was inspected and copied as explicitly labeled environment evidence, not gameplay.
+
+Fixed a double-negated exponent: the old helper computed exp(-a), while sunlight and view radiance passed negative optical depth. The new attenuation(opticalDepth) helper takes positive depth, and both callers use that contract. Native tests now check exp(0), exp(-1), exp(-2) and Earth RGB transmission ordering. Linux iOS harness checks passed 53 tests; the new Swift checks have not yet run. Request another scoped exact-source remote_ios_test. See dashboard/evidence/atmosphere-ios-retry.json. Full implementation work listed above remains open.
