@@ -1,12 +1,17 @@
 import {Game,models} from './game.mjs';
+import {renderTerrain,attachTerrainControls,terrainRevision,excavateScreen,planetSky} from './terrain-view.mjs';
+export {configurePlanet} from './terrain-view.mjs';
+let terrainBackdrop=null,terrainKey='';
+attachTerrainControls(document.body,()=>{terrainKey='';});
 export const game=new Game();
 const canvas=document.querySelector('canvas'),ctx=canvas.getContext('2d');
 const hud=document.querySelector('#hud'),overlay=document.querySelector('#overlay'),title=document.querySelector('#title'),message=document.querySelector('#message'),start=document.querySelector('#start'),pause=document.querySelector('#pause'),status=document.querySelector('#status');
+canvas.addEventListener('click',async e=>{if(game.wave!==3)return;const r=canvas.getBoundingClientRect();try{const edit=await excavateScreen(e.clientX-r.left,e.clientY-r.top,r.width,r.height);if(edit)status.textContent=`Excavated ${edit.material} at ${edit.x},${edit.y},${edit.z}`;}catch(error){status.textContent=`Terrain survey failed: ${error.message}`;}});
 const keys=new Set(),pointers=new Map();let last=0,oldState='';
 function clear(){keys.clear();pointers.clear();document.querySelectorAll('.active').forEach(b=>b.classList.remove('active'));}
 function toggle(){clear();game.pause();}
 start.onclick=()=>{clear();if(game.state==='paused')game.pause();else game.restart();};pause.onclick=toggle;
-addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Space','KeyA','KeyD','KeyW','KeyS','KeyP','Escape'].includes(e.code)){e.preventDefault();if(!e.repeat&&(e.code==='KeyP'||e.code==='Escape'))toggle();keys.add(e.code);}});
+addEventListener('keydown',e=>{if(e.target.closest?.('#planet-lab'))return;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Space','KeyA','KeyD','KeyW','KeyS','KeyP','Escape'].includes(e.code)){e.preventDefault();if(!e.repeat&&(e.code==='KeyP'||e.code==='Escape'))toggle();keys.add(e.code);}});
 addEventListener('keyup',e=>keys.delete(e.code));
 for(const b of document.querySelectorAll('[data-control]')){
  b.addEventListener('pointerdown',e=>{e.preventDefault();if(e.isTrusted)b.setPointerCapture(e.pointerId);pointers.set(e.pointerId,b.dataset.control);b.classList.add('active');});
@@ -69,20 +74,14 @@ function worldCube(x,y,size,color,offsetX=0,offsetY=0){
  const [px,py]=project(x,y);ctx.save();ctx.translate(px,py);ctx.scale(unit,unit);cube(offsetX,0,size,color);ctx.restore();}
 // Stepped terrain and cube moons share the game's voxel palette.
 function planet(){
- const sky=ctx.createLinearGradient(0,0,0,height);sky.addColorStop(0,'#171b46');sky.addColorStop(.6,'#99658d');sky.addColorStop(1,'#c79b76');ctx.fillStyle=sky;ctx.fillRect(0,0,width,height);
+ const tones=planetSky(),sky=ctx.createLinearGradient(0,0,0,height);sky.addColorStop(0,tones[0]);sky.addColorStop(.6,tones[1]);sky.addColorStop(1,tones[2]);ctx.fillStyle=sky;ctx.fillRect(0,0,width,height);
  for(const [x,y,size,color] of [[.32,.39,.095,'#c4b9e6'],[.72,.46,.065,'#81d4cd']]){
   const cell=Math.max(3,Math.min(width,height)*size/8);
   for(let r=0;r<8;r++)for(let c=0;c<8;c++)if((c-3.5)**2+(r-3.5)**2<17)cube(width*x+(c-4)*cell,height*y+(r-4)*cell,cell,(c+r)%5===0?'#777ba6':color);
  }
- for(let layer=0;layer<3;layer++){
-  const cell=Math.max(6,Math.min(width/40,height/40)),base=height*(.6+layer*.12);
-  for(let i=0;i<width/cell+1;i++){
-   const rise=(2+Math.floor((Math.sin(i*.61+layer*2)+Math.sin(i*.23))*2))*cell;
-   ctx.fillStyle=['#493d68','#514d67','#395a65'][layer];ctx.fillRect(i*cell,base-rise,cell,height);
-   ctx.fillStyle=['#8a759c','#8c8190','#6d9790'][layer];ctx.fillRect(i*cell,base-rise,cell,cell*.22);
-  }
- }
- for(let i=0;i<12;i++)cube(((i*137)%997)/997*width,height*(.82+(i%3)*.04),Math.max(5,unit*14),i%2?'#996b9b':'#77bfb1');
+ const key=`${width},${height},${terrainRevision}`;
+ if(terrainKey!==key){terrainBackdrop=document.createElement('canvas');terrainBackdrop.width=Math.ceil(width);terrainBackdrop.height=Math.ceil(height);renderTerrain(terrainBackdrop.getContext('2d'),width,height);terrainKey=key;}
+ ctx.drawImage(terrainBackdrop,0,0);
  // Wreckage anchors the wake-up view to the crash.
  ctx.save();ctx.translate(width*.18,height*.83);ctx.rotate(-.3);ctx.scale(Math.max(1,unit*2),Math.max(1,unit*2));model('ship',0,0,'#626c80');cube(10,7,5,'#de9866');ctx.restore();
 }

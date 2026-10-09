@@ -1,0 +1,773 @@
+{
+  "command": "PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/test_alien_terrain.cjs",
+  "environment": "Linux, headless desktop Chromium and WebKit, 1280x900, isolated synthetic profiles, assigned worktree source on an ephemeral loopback HTTP port",
+  "hardware": {
+    "architecture": "x64",
+    "cpu": "Intel Core Processor (Haswell, no TSX)"
+  },
+  "playtest": "Playtest: enter synthetic level 3, regenerate fixed seed gallery, reject scale 0, survey all four biome signatures, view five overlays, excavate by canvas click in geology cutaway, check adjacent geology, race worker requests, fly/fire, pause/resume, restart.",
+  "expected": "Deterministic terrain, module Worker generation, zero checked seams, all objectives reachable, biome palettes/silhouettes, safe corridors, edited voxel becomes air with adjacent geology retained, latest scene wins, game controls still work.",
+  "observed": "PASS for all listed checks; screenshots require visual inspection.",
+  "results": [
+    {
+      "browser": "chromium",
+      "version": "153.0.8010.12",
+      "gallery": [
+        {
+          "seed": "acheron",
+          "cols": 72,
+          "rows": 48,
+          "generationMilliseconds": 441.1000003814697,
+          "chunks": 3,
+          "milliseconds": 6.800000190734863,
+          "maxChunkMilliseconds": 3.3999996185302734,
+          "seamsChecked": 34,
+          "seamMismatches": 0,
+          "inaccessibleObjectives": 0,
+          "biomes": {
+            "obsidian": 1090,
+            "crystal": 578,
+            "toxic": 386,
+            "impact": 1402
+          },
+          "hazards": {
+            "acid": 93,
+            "vent": 111,
+            "radiation-crystal": 0
+          },
+          "caveVoxels": 551,
+          "openColumns": 3339,
+          "coverColumns": 117,
+          "landmarkCount": 1
+        },
+        {
+          "seed": "glass-sea",
+          "cols": 72,
+          "rows": 48,
+          "generationMilliseconds": 559.8999996185303,
+          "chunks": 3,
+          "milliseconds": 5.699999809265137,
+          "maxChunkMilliseconds": 2.3000001907348633,
+          "seamsChecked": 34,
+          "seamMismatches": 0,
+          "inaccessibleObjectives": 0,
+          "biomes": {
+            "obsidian": 12,
+            "crystal": 482,
+            "toxic": 634,
+            "impact": 2328
+          },
+          "hazards": {
+            "acid": 317,
+            "vent": 3,
+            "radiation-crystal": 0
+          },
+          "caveVoxels": 2256,
+          "openColumns": 3239,
+          "coverColumns": 217,
+          "landmarkCount": 3
+        },
+        {
+          "seed": "silent-impact",
+          "cols": 72,
+          "rows": 48,
+          "generationMilliseconds": 411.20000076293945,
+          "chunks": 3,
+          "milliseconds": 3.8000001907348633,
+          "maxChunkMilliseconds": 1.6999998092651367,
+          "seamsChecked": 34,
+          "seamMismatches": 0,
+          "inaccessibleObjectives": 0,
+          "biomes": {
+            "obsidian": 1164,
+            "crystal": 1602,
+            "toxic": 318,
+            "impact": 372
+          },
+          "hazards": {
+            "acid": 185,
+            "vent": 83,
+            "radiation-crystal": 0
+          },
+          "caveVoxels": 7288,
+          "openColumns": 3349,
+          "coverColumns": 107,
+          "landmarkCount": 1
+        },
+        {
+          "seed": "fungal-moon",
+          "cols": 72,
+          "rows": 48,
+          "generationMilliseconds": 462.8999996185303,
+          "chunks": 3,
+          "milliseconds": 2.5000009536743164,
+          "maxChunkMilliseconds": 1.3000001907348633,
+          "seamsChecked": 34,
+          "seamMismatches": 0,
+          "inaccessibleObjectives": 0,
+          "biomes": {
+            "obsidian": 152,
+            "crystal": 1667,
+            "toxic": 915,
+            "impact": 722
+          },
+          "hazards": {
+            "acid": 305,
+            "vent": 11,
+            "radiation-crystal": 0
+          },
+          "caveVoxels": 7450,
+          "openColumns": 3228,
+          "coverColumns": 228,
+          "landmarkCount": 2
+        }
+      ],
+      "extremes": [
+        {
+          "config": {
+            "seed": "fungal-moon",
+            "scale": 16,
+            "roughness": 2,
+            "craterDensity": 1,
+            "biomes": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "palette": {
+              "obsidian": [
+                "#252f46",
+                "#a5becb",
+                "#d4ede9"
+              ],
+              "crystal": [
+                "#394c60",
+                "#a5becb",
+                "#d4ede9"
+              ],
+              "toxic": [
+                "#455660",
+                "#a5becb",
+                "#d4ede9"
+              ],
+              "impact": [
+                "#69788b",
+                "#a5becb",
+                "#d4ede9"
+              ]
+            }
+          },
+          "view": {
+            "cols": 72,
+            "rows": 48,
+            "step": 3,
+            "centerX": 0,
+            "centerZ": 66,
+            "cutaway": false
+          },
+          "stats": {
+            "generationMilliseconds": 538.2999992370605,
+            "chunks": 3,
+            "milliseconds": 5.199999809265137,
+            "maxChunkMilliseconds": 2.5,
+            "seamsChecked": 34,
+            "seamMismatches": 0,
+            "inaccessibleObjectives": 0,
+            "biomes": {
+              "obsidian": 869,
+              "crystal": 886,
+              "toxic": 700,
+              "impact": 1001
+            },
+            "hazards": {
+              "acid": 336,
+              "vent": 48,
+              "radiation-crystal": 0
+            },
+            "caveVoxels": 6466,
+            "openColumns": 3310,
+            "coverColumns": 146,
+            "landmarkCount": 2
+          }
+        },
+        {
+          "config": {
+            "seed": "fungal-moon",
+            "scale": 256,
+            "roughness": 2,
+            "craterDensity": 1,
+            "biomes": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "palette": {
+              "obsidian": [
+                "#252f46",
+                "#a5becb",
+                "#d4ede9"
+              ],
+              "crystal": [
+                "#394c60",
+                "#a5becb",
+                "#d4ede9"
+              ],
+              "toxic": [
+                "#455660",
+                "#a5becb",
+                "#d4ede9"
+              ],
+              "impact": [
+                "#69788b",
+                "#a5becb",
+                "#d4ede9"
+              ]
+            }
+          },
+          "view": {
+            "cols": 72,
+            "rows": 48,
+            "step": 3,
+            "centerX": 0,
+            "centerZ": 66,
+            "cutaway": false
+          },
+          "stats": {
+            "generationMilliseconds": 586.6000003814697,
+            "chunks": 3,
+            "milliseconds": 9.799999237060547,
+            "maxChunkMilliseconds": 6.800000190734863,
+            "seamsChecked": 34,
+            "seamMismatches": 0,
+            "inaccessibleObjectives": 0,
+            "biomes": {
+              "obsidian": 0,
+              "crystal": 0,
+              "toxic": 0,
+              "impact": 3456
+            },
+            "hazards": {
+              "acid": 0,
+              "vent": 0,
+              "radiation-crystal": 0
+            },
+            "caveVoxels": 8803,
+            "openColumns": 3456,
+            "coverColumns": 0,
+            "landmarkCount": 2
+          }
+        }
+      ],
+      "biomes": [
+        {
+          "biome": "obsidian",
+          "generationMilliseconds": 394.80000019073486,
+          "chunks": 3,
+          "milliseconds": 3,
+          "maxChunkMilliseconds": 1.3999996185302734,
+          "seamsChecked": 34,
+          "seamMismatches": 0,
+          "inaccessibleObjectives": 0,
+          "biomes": {
+            "obsidian": 3456,
+            "crystal": 0,
+            "toxic": 0,
+            "impact": 0
+          },
+          "hazards": {
+            "acid": 0,
+            "vent": 190,
+            "radiation-crystal": 0
+          },
+          "caveVoxels": 11065,
+          "openColumns": 3434,
+          "coverColumns": 22,
+          "landmarkCount": 3
+        },
+        {
+          "biome": "crystal",
+          "generationMilliseconds": 351.30000019073486,
+          "chunks": 3,
+          "milliseconds": 2.799999237060547,
+          "maxChunkMilliseconds": 1.2999992370605469,
+          "seamsChecked": 34,
+          "seamMismatches": 0,
+          "inaccessibleObjectives": 0,
+          "biomes": {
+            "obsidian": 0,
+            "crystal": 3456,
+            "toxic": 0,
+            "impact": 0
+          },
+          "hazards": {
+            "acid": 0,
+            "vent": 0,
+            "radiation-crystal": 0
+          },
+          "caveVoxels": 9000,
+          "openColumns": 3289,
+          "coverColumns": 167,
+          "landmarkCount": 2
+        },
+        {
+          "biome": "toxic",
+          "generationMilliseconds": 528.6999998092651,
+          "chunks": 3,
+          "milliseconds": 3.5000009536743164,
+          "maxChunkMilliseconds": 1.5,
+          "seamsChecked": 34,
+          "seamMismatches": 0,
+          "inaccessibleObjectives": 0,
+          "biomes": {
+            "obsidian": 0,
+            "crystal": 0,
+            "toxic": 3456,
+            "impact": 0
+          },
+          "hazards": {
+            "acid": 2005,
+            "vent": 0,
+            "radiation-crystal": 0
+          },
+          "caveVoxels": 0,
+          "openColumns": 2878,
+          "coverColumns": 578,
+          "landmarkCount": 1
+        },
+        {
+          "biome": "impact",
+          "generationMilliseconds": 461,
+          "chunks": 3,
+          "milliseconds": 3.8999996185302734,
+          "maxChunkMilliseconds": 1.6999998092651367,
+          "seamsChecked": 34,
+          "seamMismatches": 0,
+          "inaccessibleObjectives": 0,
+          "biomes": {
+            "obsidian": 0,
+            "crystal": 0,
+            "toxic": 0,
+            "impact": 3456
+          },
+          "hazards": {
+            "acid": 0,
+            "vent": 0,
+            "radiation-crystal": 0
+          },
+          "caveVoxels": 0,
+          "openColumns": 3456,
+          "coverColumns": 0,
+          "landmarkCount": 2
+        }
+      ],
+      "responsiveness": {
+        "workerWallMilliseconds": 550.3999996185303,
+        "framesDuringGeneration": 31,
+        "frameGapP95Milliseconds": 16.700000000000728,
+        "terrainDrawP95Milliseconds": 102.10000038146973,
+        "cachedBlitP95Milliseconds": 0.09999942779541016,
+        "maxChunkMilliseconds": 1.8000001907348633
+      },
+      "chunkBenchmark": {
+        "chunks": 64,
+        "size": 16,
+        "maxMilliseconds": 5.5,
+        "p95Milliseconds": 3.59999942779541
+      },
+      "budget": {
+        "result": "PASS",
+        "chunkP95LimitMilliseconds": 8,
+        "surveyLimitMilliseconds": 1500,
+        "scope": "Linux x64 Haswell reference; Chromium 153.0.8010.12; 1280x900; 16-voxel base chunks and 72x48-column Worker surveys"
+      },
+      "excavation": {
+        "x": -208,
+        "y": 25,
+        "z": 100,
+        "neighborPreserved": true
+      },
+      "errors": [],
+      "result": "PASS"
+    },
+    {
+      "browser": "webkit",
+      "version": "26.6",
+      "gallery": [
+        {
+          "seed": "acheron",
+          "cols": 72,
+          "rows": 48,
+          "generationMilliseconds": 740,
+          "chunks": 3,
+          "milliseconds": 8,
+          "maxChunkMilliseconds": 4,
+          "seamsChecked": 34,
+          "seamMismatches": 0,
+          "inaccessibleObjectives": 0,
+          "biomes": {
+            "obsidian": 1090,
+            "crystal": 578,
+            "toxic": 386,
+            "impact": 1402
+          },
+          "hazards": {
+            "acid": 93,
+            "vent": 111,
+            "radiation-crystal": 0
+          },
+          "caveVoxels": 551,
+          "openColumns": 3339,
+          "coverColumns": 117,
+          "landmarkCount": 1
+        },
+        {
+          "seed": "glass-sea",
+          "cols": 72,
+          "rows": 48,
+          "generationMilliseconds": 833,
+          "chunks": 3,
+          "milliseconds": 7,
+          "maxChunkMilliseconds": 4,
+          "seamsChecked": 34,
+          "seamMismatches": 0,
+          "inaccessibleObjectives": 0,
+          "biomes": {
+            "obsidian": 12,
+            "crystal": 482,
+            "toxic": 634,
+            "impact": 2328
+          },
+          "hazards": {
+            "acid": 317,
+            "vent": 3,
+            "radiation-crystal": 0
+          },
+          "caveVoxels": 2256,
+          "openColumns": 3239,
+          "coverColumns": 217,
+          "landmarkCount": 3
+        },
+        {
+          "seed": "silent-impact",
+          "cols": 72,
+          "rows": 48,
+          "generationMilliseconds": 653,
+          "chunks": 3,
+          "milliseconds": 10,
+          "maxChunkMilliseconds": 5,
+          "seamsChecked": 34,
+          "seamMismatches": 0,
+          "inaccessibleObjectives": 0,
+          "biomes": {
+            "obsidian": 1164,
+            "crystal": 1602,
+            "toxic": 318,
+            "impact": 372
+          },
+          "hazards": {
+            "acid": 185,
+            "vent": 83,
+            "radiation-crystal": 0
+          },
+          "caveVoxels": 7288,
+          "openColumns": 3349,
+          "coverColumns": 107,
+          "landmarkCount": 1
+        },
+        {
+          "seed": "fungal-moon",
+          "cols": 72,
+          "rows": 48,
+          "generationMilliseconds": 1021,
+          "chunks": 3,
+          "milliseconds": 5,
+          "maxChunkMilliseconds": 3,
+          "seamsChecked": 34,
+          "seamMismatches": 0,
+          "inaccessibleObjectives": 0,
+          "biomes": {
+            "obsidian": 152,
+            "crystal": 1667,
+            "toxic": 915,
+            "impact": 722
+          },
+          "hazards": {
+            "acid": 305,
+            "vent": 11,
+            "radiation-crystal": 0
+          },
+          "caveVoxels": 7450,
+          "openColumns": 3228,
+          "coverColumns": 228,
+          "landmarkCount": 2
+        }
+      ],
+      "extremes": [
+        {
+          "config": {
+            "seed": "fungal-moon",
+            "scale": 16,
+            "roughness": 2,
+            "craterDensity": 1,
+            "biomes": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "palette": {
+              "obsidian": [
+                "#252f46",
+                "#a5becb",
+                "#d4ede9"
+              ],
+              "crystal": [
+                "#394c60",
+                "#a5becb",
+                "#d4ede9"
+              ],
+              "toxic": [
+                "#455660",
+                "#a5becb",
+                "#d4ede9"
+              ],
+              "impact": [
+                "#69788b",
+                "#a5becb",
+                "#d4ede9"
+              ]
+            }
+          },
+          "view": {
+            "cols": 72,
+            "rows": 48,
+            "step": 3,
+            "centerX": 0,
+            "centerZ": 66,
+            "cutaway": false
+          },
+          "stats": {
+            "generationMilliseconds": 952,
+            "chunks": 3,
+            "milliseconds": 8,
+            "maxChunkMilliseconds": 4,
+            "seamsChecked": 34,
+            "seamMismatches": 0,
+            "inaccessibleObjectives": 0,
+            "biomes": {
+              "obsidian": 869,
+              "crystal": 886,
+              "toxic": 700,
+              "impact": 1001
+            },
+            "hazards": {
+              "acid": 336,
+              "vent": 48,
+              "radiation-crystal": 0
+            },
+            "caveVoxels": 6466,
+            "openColumns": 3310,
+            "coverColumns": 146,
+            "landmarkCount": 2
+          }
+        },
+        {
+          "config": {
+            "seed": "fungal-moon",
+            "scale": 256,
+            "roughness": 2,
+            "craterDensity": 1,
+            "biomes": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "palette": {
+              "obsidian": [
+                "#252f46",
+                "#a5becb",
+                "#d4ede9"
+              ],
+              "crystal": [
+                "#394c60",
+                "#a5becb",
+                "#d4ede9"
+              ],
+              "toxic": [
+                "#455660",
+                "#a5becb",
+                "#d4ede9"
+              ],
+              "impact": [
+                "#69788b",
+                "#a5becb",
+                "#d4ede9"
+              ]
+            }
+          },
+          "view": {
+            "cols": 72,
+            "rows": 48,
+            "step": 3,
+            "centerX": 0,
+            "centerZ": 66,
+            "cutaway": false
+          },
+          "stats": {
+            "generationMilliseconds": 851,
+            "chunks": 3,
+            "milliseconds": 10,
+            "maxChunkMilliseconds": 4,
+            "seamsChecked": 34,
+            "seamMismatches": 0,
+            "inaccessibleObjectives": 0,
+            "biomes": {
+              "obsidian": 0,
+              "crystal": 0,
+              "toxic": 0,
+              "impact": 3456
+            },
+            "hazards": {
+              "acid": 0,
+              "vent": 0,
+              "radiation-crystal": 0
+            },
+            "caveVoxels": 8803,
+            "openColumns": 3456,
+            "coverColumns": 0,
+            "landmarkCount": 2
+          }
+        }
+      ],
+      "biomes": [
+        {
+          "biome": "obsidian",
+          "generationMilliseconds": 856,
+          "chunks": 3,
+          "milliseconds": 7,
+          "maxChunkMilliseconds": 3,
+          "seamsChecked": 34,
+          "seamMismatches": 0,
+          "inaccessibleObjectives": 0,
+          "biomes": {
+            "obsidian": 3456,
+            "crystal": 0,
+            "toxic": 0,
+            "impact": 0
+          },
+          "hazards": {
+            "acid": 0,
+            "vent": 190,
+            "radiation-crystal": 0
+          },
+          "caveVoxels": 11065,
+          "openColumns": 3434,
+          "coverColumns": 22,
+          "landmarkCount": 3
+        },
+        {
+          "biome": "crystal",
+          "generationMilliseconds": 691,
+          "chunks": 3,
+          "milliseconds": 5,
+          "maxChunkMilliseconds": 2,
+          "seamsChecked": 34,
+          "seamMismatches": 0,
+          "inaccessibleObjectives": 0,
+          "biomes": {
+            "obsidian": 0,
+            "crystal": 3456,
+            "toxic": 0,
+            "impact": 0
+          },
+          "hazards": {
+            "acid": 0,
+            "vent": 0,
+            "radiation-crystal": 0
+          },
+          "caveVoxels": 9000,
+          "openColumns": 3289,
+          "coverColumns": 167,
+          "landmarkCount": 2
+        },
+        {
+          "biome": "toxic",
+          "generationMilliseconds": 1240,
+          "chunks": 3,
+          "milliseconds": 21,
+          "maxChunkMilliseconds": 10,
+          "seamsChecked": 34,
+          "seamMismatches": 0,
+          "inaccessibleObjectives": 0,
+          "biomes": {
+            "obsidian": 0,
+            "crystal": 0,
+            "toxic": 3456,
+            "impact": 0
+          },
+          "hazards": {
+            "acid": 2005,
+            "vent": 0,
+            "radiation-crystal": 0
+          },
+          "caveVoxels": 0,
+          "openColumns": 2878,
+          "coverColumns": 578,
+          "landmarkCount": 1
+        },
+        {
+          "biome": "impact",
+          "generationMilliseconds": 860,
+          "chunks": 3,
+          "milliseconds": 17,
+          "maxChunkMilliseconds": 11,
+          "seamsChecked": 34,
+          "seamMismatches": 0,
+          "inaccessibleObjectives": 0,
+          "biomes": {
+            "obsidian": 0,
+            "crystal": 0,
+            "toxic": 0,
+            "impact": 3456
+          },
+          "hazards": {
+            "acid": 0,
+            "vent": 0,
+            "radiation-crystal": 0
+          },
+          "caveVoxels": 0,
+          "openColumns": 3456,
+          "coverColumns": 0,
+          "landmarkCount": 2
+        }
+      ],
+      "responsiveness": {
+        "workerWallMilliseconds": 934,
+        "framesDuringGeneration": 14,
+        "frameGapP95Milliseconds": 76,
+        "terrainDrawP95Milliseconds": 24,
+        "cachedBlitP95Milliseconds": 0,
+        "maxChunkMilliseconds": 4
+      },
+      "chunkBenchmark": {
+        "chunks": 64,
+        "size": 16,
+        "maxMilliseconds": 35,
+        "p95Milliseconds": 23
+      },
+      "budget": null,
+      "excavation": {
+        "x": -208,
+        "y": 25,
+        "z": 100,
+        "neighborPreserved": true
+      },
+      "errors": [],
+      "result": "PASS"
+    }
+  ],
+  "limitations": "Performance limits apply to the specified Chromium reference only. WebKit is a workflow regression check. Canvas call timings do not measure GPU completion."
+}

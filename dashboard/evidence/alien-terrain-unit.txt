@@ -1,0 +1,126 @@
+TAP version 13
+# Subtest: models contain voxel cells and three distinct aliens
+ok 1 - models contain voxel cells and three distinct aliens
+  ---
+  duration_ms: 2.430654
+  ...
+# Subtest: movement clamps, fire cooldown, pause and restart
+ok 2 - movement clamps, fire cooldown, pause and restart
+  ---
+  duration_ms: 161.01384
+  ...
+# Subtest: alien kill scores once; last kill advances and resets
+ok 3 - alien kill scores once; last kill advances and resets
+  ---
+  duration_ms: 3.182247
+  ...
+# Subtest: both sides erode shields
+ok 4 - both sides erode shields
+  ---
+  duration_ms: 0.680868
+  ...
+# Subtest: life loss, immunity, game over and invasion
+ok 5 - life loss, immunity, game over and invasion
+  ---
+  duration_ms: 34.298446
+  ...
+# Subtest: fleet reverses and descends; bottom shooters; saucer bonus
+ok 6 - fleet reverses and descends; bottom shooters; saucer bonus
+  ---
+  duration_ms: 1.073095
+  ...
+# Subtest: large background delta bounded and offscreen projectiles recycled
+ok 7 - large background delta bounded and offscreen projectiles recycled
+  ---
+  duration_ms: 5.703111
+  ...
+# Subtest: slow frame projectile sweeps across alien and shield
+ok 8 - slow frame projectile sweeps across alien and shield
+  ---
+  duration_ms: 0.655552
+  ...
+# Subtest: levels alternate classic and cockpit; restart restores classic
+ok 9 - levels alternate classic and cockpit; restart restores classic
+  ---
+  duration_ms: 1.48723
+  ...
+# Subtest: fighter flight has momentum, diagonal speed limit, bounds and aimed attacks
+ok 10 - fighter flight has momentum, diagonal speed limit, bounds and aimed attacks
+  ---
+  duration_ms: 15.871797
+  ...
+# Subtest: fighter hits use current altitude and diagonal swept projectiles
+ok 11 - fighter hits use current altitude and diagonal swept projectiles
+  ---
+  duration_ms: 1.117208
+  ...
+# Subtest: level 2 crash, unconscious blackout and level 3 wake preserve progress and freeze combat
+ok 12 - level 2 crash, unconscious blackout and level 3 wake preserve progress and freeze combat
+  ---
+  duration_ms: 0.801511
+  ...
+# Subtest: cockpit transition holds combat, pauses, ends and resets
+ok 13 - cockpit transition holds combat, pauses, ends and resets
+  ---
+  duration_ms: 0.800609
+  ...
+# Subtest: serializable scene preserves cavities, cover, safe objectives and edited geology
+ok 14 - serializable scene preserves cavities, cover, safe objectives and edited geology
+  ---
+  duration_ms: 770.191001
+  ...
+# Subtest: biome profiles differ in palette, height and formations
+ok 15 - biome profiles differ in palette, height and formations
+  ---
+  duration_ms: 450.013446
+  ...
+# {"benchmark":"70 cold 1-voxel chunks","milliseconds":2.959264000000303}
+# Subtest: fixed gallery: generation order, negative borders, async parity and objective clearance
+ok 16 - fixed gallery: generation order, negative borders, async parity and objective clearance
+  ---
+  duration_ms: 822.89254
+  ...
+# Subtest: configuration changes worlds, rejects invalid settings and preserves geology on repeat sampling
+ok 17 - configuration changes worlds, rejects invalid settings and preserves geology on repeat sampling
+  ---
+  duration_ms: 55.535342
+  ...
+# Subtest: biome selection and sparse bounded cache
+ok 18 - biome selection and sparse bounded cache
+  ---
+  duration_ms: 6.761908
+  ...
+# Subtest: canonical feature caches do not change samples at 64/80 grid intersections
+ok 19 - canonical feature caches do not change samples at 64/80 grid intersections
+  ---
+  duration_ms: 273.256406
+  ...
+# Subtest: landmarks have biome suitability, exclusion and fixed world-space hollow volumes
+ok 20 - landmarks have biome suitability, exclusion and fixed world-space hollow volumes
+  ---
+  duration_ms: 156.382434
+  ...
+# Subtest: excavation changes only selected voxels, keeps strata and protects objectives
+ok 21 - excavation changes only selected voxels, keeps strata and protects objectives
+  ---
+  duration_ms: 36.641396
+  ...
+# Subtest: craters have multiple sizes, rims, central peaks, erosion and overlaps
+ok 22 - craters have multiple sizes, rims, central peaks, erosion and overlaps
+  ---
+  duration_ms: 2.169222
+  ...
+# Subtest: vegetation obeys biome, slope, altitude and route constraints
+ok 23 - vegetation obeys biome, slope, altitude and route constraints
+  ---
+  duration_ms: 1497.431348
+  ...
+1..23
+# tests 23
+# suites 0
+# pass 23
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3094.280211
