@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-08T19:02:00+00:00",
+  "updatedAt": "2026-10-09T14:33:55+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,31 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "62346636376631352d313735362d346166362d623730662d386437336533383939623861",
+      "title": "Alien Space Invader planet terrain",
+      "description": "Seeded generator and live planet lab implemented. Determinism, shared borders and route checks pass. Browser validation underway; target hardware and performance budget unset.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Validation report (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-62346636376631352d313735362d346166362d623730662d386437336533383939623861/dashboard/evidence/alien-terrain-validation.md"
+        },
+        {
+          "kind": "link",
+          "label": "Crystal formations (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-62346636376631352d313735362d346166362d623730662d386437336533383939623861/dashboard/evidence/alien-terrain-chromium-crystal.png"
+        },
+        {
+          "kind": "link",
+          "label": "Safe traversal (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-62346636376631352d313735362d346166362d623730662d386437336533383939623861/dashboard/evidence/alien-terrain-chromium-traversal-overlay.png"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Terrain implementation and local validation finished. 23 tests apply to unchanged source; refreshed Chromium/WebKit playtests and enforced desktop performance limits passed. Fresh media inspected. Ready for controller synchronization, publication and independent review.",
+      "updatedAt": "2026-10-09T14:33:55+00:00"
+    },
     {
       "id": "63376532363935642d643939642d343933632d396236332d366331393033393032336566",
       "title": "Compact city HUD action bar",
