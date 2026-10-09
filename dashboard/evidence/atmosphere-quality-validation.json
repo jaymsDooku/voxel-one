@@ -51,13 +51,10 @@
     "physicalDevice": false
   },
   "nativePending": [
-    "profile precision bounds",
-    "roof/window/glass visibility",
-    "visibility-gated diffuse emission",
-    "normal-control solar-disc framing"
+    "Corrected normal-control Sun framing; exact-source seven-case Mac run required"
   ],
   "linuxIosHarnessTests": 53,
-  "performance": "Low/Medium partial report; all-quality run timed out at 900 seconds; High not passed",
+  "performance": "Low/Medium retained from partial all-quality run; focused HIGH airless/enabled completed exit0 at1920x1080 recording off, llvmpipe. Full GPU EMA2792.8525/4303.0312ms; LUT allocation1384448bytes. EMA residual/rebuild and queue noise; hardware target unvalidated.",
   "Playtest": "Current-source GL workflow passed noon/dawn/dusk/night, 8/90/120 km, sealed/window/glass/fractional/tiny/LED, quality/airless/lifecycle, clouds/water. Main prior current-turn 81-frame F5/F6/F10 video inspected. Broad rendering regression pending.",
   "currentGlSkyReference": "Dimension-guarded rerun passed exit 0. Noon maximum normalized error 0.0296122872; dawn 0.0070034346; dusk 0.0071296082; night 0.0; tolerance 0.25. First native abort retained; root cause not proven.",
   "broadRenderingRegression": "python3 deploy/run_atmosphere_playtest.py --display \"$DISPLAY\" --regression: exit 0; probe shadows/LED edits, six refreshed faces, water, temporal/resize/Hi-Z and GL errors passed. Water image inspected."

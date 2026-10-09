@@ -64,17 +64,28 @@ final class NativeWorkflowTests:XCTestCase {
         // The synthetic offline world's authoritative fixed hour is 10.
         let targetYaw = -atan2(0.5,0.35),targetPitch=atan2(sqrt(0.75),sqrt(0.25+0.35*0.35))
         let scene=app.otherElements["worldView"];wait(scene)
-        for _ in 0..<6 {
+        for attempt in 0...16 {
             let aim=app.staticTexts["playerPosition"].label.components(separatedBy:" · Aim ").last ?? ""
             let values=aim.components(separatedBy:" · ").first?.components(separatedBy:", ") ?? []
             guard values.count==2,let yaw=Double(values[0]),let pitch=Double(values[1]) else {XCTFail("Missing solar camera pose");return}
             if abs(yaw-targetYaw)<0.03 && abs(pitch-targetPitch)<0.03 {capture("atmosphere-native-solar-disc");return}
-            let dx=max(-scene.frame.width*0.25,min(scene.frame.width*0.25,CGFloat((yaw-targetYaw)/0.004)))
-            let dy=max(-scene.frame.height*0.25,min(scene.frame.height*0.25,CGFloat((pitch-targetPitch)/0.004)))
+            if attempt==16 {break}
+            // A very short drag may never begin UIPanGestureRecognizer. Respect its
+            // recognition threshold, then close the loop using the actual HUD pose.
+            func correction(_ error:Double,_ limit:CGFloat)->CGFloat {
+                if abs(error)<0.03 {return 0}
+                let points=max(12.0,abs(error)/0.004)*(error>0 ? 1.0 : -1.0)
+                return max(-limit,min(limit,CGFloat(points)))
+            }
+            let dx=correction(yaw-targetYaw,scene.frame.width*0.25)
+            let dy=correction(pitch-targetPitch,scene.frame.height*0.25)
             let start=scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.45))
+            let previous=app.staticTexts["playerPosition"].label
             start.press(forDuration:0.05,thenDragTo:start.withOffset(CGVector(dx:dx,dy:dy)))
+            let changed=XCTNSPredicateExpectation(predicate:NSPredicate(format:"label != %@",previous),object:app.staticTexts["playerPosition"])
+            XCTAssertEqual(XCTWaiter.wait(for:[changed],timeout:5),.completed,"Look gesture updates the camera HUD")
         }
-        XCTFail("Normal look controls did not reach the synthetic sun direction")
+        XCTFail("Normal look controls did not reach the synthetic sun direction; observed \(app.staticTexts["playerPosition"].label)")
     }
     func newOffline(){menu();app.buttons["offlineNewButton"].tap();if app.alerts.buttons["New world"].waitForExistence(timeout:2){app.alerts.buttons["New world"].tap()};wait(app.buttons["breakButton"])}
     func testPlanetAtmosphereNativeToggleAndLegacyWorld()throws {

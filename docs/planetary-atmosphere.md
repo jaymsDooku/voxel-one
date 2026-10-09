@@ -119,7 +119,11 @@ the inspected overview readable.
 Mac run 37978076544 passed six client tests for
 f252571ae22c70fbbf5642526c46a3af8b158f08. Its actual client image was inspected.
 New native visibility-gated diffuse lighting, a seventh roof/window/glass test and
-normal-control solar-disc framing require another exact-source Mac run. Native
+normal-control solar-disc framing failed the Sun-framing workflow in Mac run 37984720498 at
+2c5a248b102ee7a783cbea91e2fbbf96b7dabbb7; the native app built, but clientChecked
+remained false. The normal-drag feedback loop now waits for HUD updates and keeps
+small gestures above recognition threshold. Pose tolerance remains 0.03 radians.
+These edits require another exact-source Mac run. Native
 preview remains opt-in. Its bounded five-ray whole-cell visibility approximates
 open windows and glass; fractional/tiny geometry and local LED transport remain
 native parity gaps. Global ambient/environment intensity is zero in preview so
@@ -133,8 +137,10 @@ while retaining the stable world-to-planet anchor.
 Still required before review/release:
 
 - Current-source sky/reference and reflection regressions pass; collect fresh final-source media after synchronization.
-- Complete High recording-disabled software measurements. Low/Medium measurements
-  are in atmosphere-performance.txt; the all-quality run timed out at 900 seconds.
+- Low/Medium measurements are in atmosphere-performance.txt; the all-quality run
+  timed out at 900 seconds. Focused High completed both modes with exit 0; see
+  atmosphere-performance-high.txt (full GPU EMA 2792.8525 ms airless, 4303.0312 ms enabled;
+  peak LUT allocation 1,384,448 bytes).
   GPU values are query EMAs after 15 sampled steady frames and can retain rebuild
   history. They do not establish the <=2 ms hardware target.
 - A declared reference GPU and physical-device performance budget. Simulator results
