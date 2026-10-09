@@ -1,0 +1,78 @@
+{
+  "status": "passed",
+  "platform": "Linux llvmpipe OpenGL 3.3, inherited assigned X11 display; isolated synthetic profiles",
+  "reviewBase": "bcdcab56c6ae1c183621aaa1b4a7e3d0e1f0b3ba",
+  "sourceSha256": {
+    "src/main/java/dev/jayms/Chunk.java": "3347f06bb23ae131f3d388bfc8386b4504e77bac5487a07f6acbe60d49d9b396",
+    "src/main/java/dev/jayms/render/LightVolume.java": "1a8dd55e7e1826a23f9aa9bd2a6181030edf42bd127f31ff09ac6b7ad2b122c8",
+    "src/main/java/dev/jayms/render/WorldLighting.java": "81557d128595cc75fef2e86392ed11f51cc5b50e1eab7f3ae012db78a24981a6",
+    "src/main/java/dev/jayms/render/WorldSkyVisibility.java": "f939c515806dcc4a7758401972032764deb3b50679f3f52d564c9ee16c1450f6",
+    "src/main/java/dev/jayms/render/RenderPipeline.java": "0b11c7e16228edb143eca6207cc3780f79ae2d825e0fcdfddc6b81128ede12bd",
+    "src/main/resources/shaders/irradiance.glsl": "9c172a44886a2f78459b97dd58992a8c323a4346474ed314577ba51b0bd63250",
+    "src/main/resources/shaders/voxel.frag": "8e58d71a3b794f6b1d9a22e6a81c9456c2eb1ba0e69b0764b23d58029e2249fa",
+    "src/main/resources/shaders/water.frag": "3240b3e903416d41333ba61dd6d5e7fa542cca8bdc6988121fb6103821d9d8aa"
+  },
+  "tests": [
+    {
+      "command": "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=WorldSkyVisibilityTest,AtmosphereLightingTest,LightingTest,AtmosphereReferenceTest,AtmosphereConfigTest,AtmosphereServerTest,CitySavesTest test",
+      "exit": 0,
+      "tests": 31,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "scope": "Final implementation source"
+    },
+    {
+      "command": "python3 deploy/run_atmosphere_playtest.py --display \"$DISPLAY\" --coverage",
+      "exit": 0,
+      "steps": "Render equal outdoor stone patches at x=8/40/56/72; probe x=47.99/48.01 across local volume boundary; render high terrain and sealed room; probe fine opaque/glass/1/32 model roof; fit full overview.",
+      "expected": "Outdoor patches lit; no boundary discontinuity; opaque and tiny roofs block sky; gaps and glass transmit; closed room dark; all geometry fits.",
+      "observed": "All nine GPU visibility probes matched expected within 0.001. Patch means 236.2933/236.3067/236.3467/236.36. High sealed-room mean0.0. GL_NO_ERROR. Fresh boundary and fitted overview images inspected."
+    },
+    {
+      "command": "python3 deploy/run_atmosphere_playtest.py --display \"$DISPLAY\"",
+      "exit": 0,
+      "steps": "Noon/dawn/dusk/night and altitude, quality/lifecycle, fixed time, orthographic, sealed room/window/glass/fractional/tiny model/LED, clouds and water.",
+      "observed": "Workflow passed. Closed room 0.0; window 77.7882; glass 66.2495; fractional wall 0.00168; tiny wall 0.00165; LED night 167.5904. GL_NO_ERROR."
+    },
+    {
+      "command": "python3 deploy/run_atmosphere_playtest.py --display \"$DISPLAY\" --main",
+      "exit": 0,
+      "frames": 96,
+      "GL": "GL_NO_ERROR"
+    }
+  ],
+  "Playtest": "Actual renderer, common irradiance shader and production Main executed on final source. Browser playtesting does not apply to the native GL client. Production Main passed 96 frames across W movement, all F5 cameras, authoritative day/night, 120 km space entry/return, water/LED, F6 overview, 333x271 resize, Escape and actual F10 recording. Fresh boundary, fitted overview and production overview images inspected; four video frames decoded and a fresh decoded frame inspected.",
+  "earlierFullJavaRun": {
+    "tests": 585,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "scope": "Completed before final cache refinement was compiled; not claimed as an exact final-source full run."
+  },
+  "audit": {
+    "deletedFiles": [],
+    "intentionalReplacement": "Outside-volume zero visibility replaced by exact sparse loaded-geometry sky paths. Local transport preserved. Geometry revision added for cache invalidation without changing voxel storage or wire/save formats."
+  },
+  "limits": [
+    "Glass/water fallback transmission0.7 is approximate.",
+    "Columns with more than 128 compact segments conservatively block below the highest occluder; unknown columns conservative.",
+    "Local RGB/GI remains local; fallback supplies outdoor visibility.",
+    "Hardware 2 ms target and physical iPhone budget remain unvalidated. Native source unchanged."
+  ],
+  "media": [
+    "atmosphere-coverage-boundary.png",
+    "atmosphere-coverage-high.png",
+    "atmosphere-coverage-room.png",
+    "atmosphere-coverage-overview.png",
+    "atmosphere-coverage-main-isometric.png",
+    "atmosphere-coverage-main-space.png",
+    "atmosphere-coverage-main-transitions.mp4"
+  ],
+  "video": {
+    "durationSeconds": 60.244,
+    "frames": 41,
+    "bytes": 1238948,
+    "decodedFrames": 4
+  }
+}

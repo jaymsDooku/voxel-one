@@ -1,0 +1,67 @@
+{
+  "status": "passed",
+  "platform": "Linux llvmpipe (LLVM 15.0.6, 256 bits), OpenGL 3.3; inherited assigned X11; isolated synthetic profiles",
+  "commands": [
+    {
+      "command": "mvn -q -DskipTests compile",
+      "exit": 0
+    },
+    {
+      "command": "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=AtmosphereConfigTest,AtmosphereReferenceTest,AtmosphereLightingTest,AtmosphereServerTest,CitySavesTest test",
+      "exit": 0,
+      "tests": 19,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "command": "python3 deploy/run_atmosphere_playtest.py --display \"$DISPLAY\" --sunlight",
+      "exit": 0,
+      "cases": 10,
+      "absoluteRgbTolerance": 0.001,
+      "boundaryContinuityTolerance": 0.001
+    },
+    {
+      "command": "python3 deploy/run_atmosphere_playtest.py --display \"$DISPLAY\" --limb",
+      "exit": 0,
+      "altitudesMetres": [
+        95000,
+        100000,
+        105000,
+        120000,
+        1000000
+      ],
+      "airless": true
+    },
+    {
+      "command": "python3 deploy/run_atmosphere_playtest.py --display \"$DISPLAY\" --main",
+      "exit": 0,
+      "frames": 80,
+      "GL": "GL_NO_ERROR"
+    }
+  ],
+  "Playtest": "Actual common shader compared with CPU 4096-sample reference; reported 120 km crossing now attenuates sunlight. Shell boundary, grazing, planet shadow and vacuum passed. Actual engine shell transition and airless workflow passed; fresh 120 km image inspected. Native GL application, so browser playtesting does not apply. Production Main passed 80 frames: W movement, all F5 cameras, authoritative day/night, 120 km space entry/return, water/LED gallery, F6 isometric, 333x271 resize, Escape menu and actual F10 recording.",
+  "limits": [
+    "No hardware 2 ms target validation.",
+    "No new physical iPhone validation; native source unchanged.",
+    "Prior failed probe include and interior LUT seam were fixed; only final completed runs counted."
+  ],
+  "audit": {
+    "base": "bcdcab56c6ae1c183621aaa1b4a7e3d0e1f0b3ba",
+    "deletedFiles": [],
+    "reviewFix": "Replaced exterior unit transmission with clipped shell extinction; blended top shell band for continuity. No unrelated deletion introduced."
+  },
+  "media": [
+    "atmosphere-limb-120000.png",
+    "atmosphere-exterior-main-isometric.png",
+    "atmosphere-exterior-main-space.png",
+    "atmosphere-exterior-main-transitions.mp4"
+  ],
+  "videoInspection": {
+    "durationSeconds": 45.351,
+    "frames": 41,
+    "bytes": 1130855,
+    "decodedFrames": 4,
+    "inspected": "Fresh decoded frame at 43.08345 seconds inspected; actual application space sky and clear HUD visible."
+  }
+}

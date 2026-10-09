@@ -1,17 +1,16 @@
 #version 330 core
+#define ATM_SCENE 1
+#include "shaders/atmosphere-common.glsl"
 in vec3 vColor,vNormal,vWorldPosition;
 flat in vec3 vSurface;
 out vec4 fragColor;
-uniform float uDaylight,uAmbient;
-uniform int uVertexColor,uFog,uLightingEnabled,uHasIrradiance,uShadowEnabled,uHeld;
-uniform vec3 uColor,uLightDirection,uCameraPosition,uVolumeOrigin,uVolumeSize;
+uniform float uDaylight;
+uniform int uVertexColor,uFog,uLightingEnabled,uShadowEnabled,uHeld;
+uniform vec3 uColor,uLightDirection,uCameraPosition;
 uniform float uModelEmission,uTransparency,uOutputExposure;
 uniform int uOutputTone;
 uniform samplerCube uEnvironment;
 uniform sampler2DArray uShadow;
-uniform sampler3D uIrradiance;
-uniform isampler3D uFineRoots;
-uniform isamplerBuffer uFineLight;
 uniform sampler2DArray uMaterials;
 uniform mat4 uShadowMatrix[3];
 uniform int uTransportReady,uClusterReady,uProbeReady;
@@ -35,33 +34,27 @@ float cascadeShadow(int layer,vec3 q,float bias){
         visible+=q.z-bias<=texture(uShadow,vec3(q.xy+disk(i,16)*texel*radius,layer)).r?1.:0.;
     return visible/16.;
 }
-float shadow(vec3 N,vec3 L){
+float shadowAt(vec3 worldPoint,vec3 N,vec3 L){
     if(uShadowEnabled==0||uHeld==1)return 1.;
     for(int layer=0;layer<3;layer++){
-        vec4 p=uShadowMatrix[layer]*vec4(vWorldPosition,1);vec3 q=p.xyz/p.w*.5+.5;
+        vec4 p=uShadowMatrix[layer]*vec4(worldPoint,1);vec3 q=p.xyz/p.w*.5+.5;
         if(any(lessThan(q,vec3(.015)))||any(greaterThan(q,vec3(.985))))continue;
         float bias=max(.00012*(1.-dot(N,L)),.00004);
         float result=cascadeShadow(layer,q,bias);
         float edge=max(abs(q.x-.5),abs(q.y-.5))*2.;
-        if(layer<2&&edge>.8){vec4 p2=uShadowMatrix[layer+1]*vec4(vWorldPosition,1);vec3 q2=p2.xyz/p2.w*.5+.5;
+        if(layer<2&&edge>.8){vec4 p2=uShadowMatrix[layer+1]*vec4(worldPoint,1);vec3 q2=p2.xyz/p2.w*.5+.5;
             result=mix(result,cascadeShadow(layer+1,q2,bias),smoothstep(.8,.97,edge));}
         return result;
     }
     return 1.;
 }
-vec4 irradiance(vec3 point){
-    vec3 local=point-uVolumeOrigin;
-    if(any(lessThan(local,vec3(0)))||any(greaterThanEqual(local,uVolumeSize)))return vec4(vec3(.24,.32,.45)*uAmbient,1.);
-    ivec3 cell=ivec3(floor(local));
-    int node=texelFetch(uFineRoots,cell,0).r;
-    if(node==0){vec4 c=texelFetch(uIrradiance,cell,0);return vec4(c.rgb*(255./127.),(c.a*255.-128.)/127.);}
-    if(node>0)node--;
-    vec3 p=fract(local);
-    for(int depth=0;depth<5&&node>=0;depth++){
-        p*=2.;ivec3 octant=ivec3(floor(p));p=fract(p);
-        node=texelFetch(uFineLight,node+octant.x+2*octant.y+4*octant.z).r;
-    }
-    return vec4(vec3(node&255,(node>>8)&255,(node>>16)&255)/127.,float((node>>24)&127)/127.);
+#include "shaders/irradiance.glsl"
+float shadow(vec3 N,vec3 L){return shadowAt(vWorldPosition,N,L);}
+vec2 atmosphereVisibility(vec3 point){
+    if(uPlanetLighting==0)return vec2(1);
+    if(uHasIrradiance==0&&uSkyColumns==0)return vec2(0);
+    float sky=clamp(irradiance(point).a,0.,1.);
+    return vec2(sky*shadowAt(point,normalize(-uLightDirection),normalize(-uLightDirection)),sky);
 }
 bool volumeInside(vec3 p){return all(greaterThanEqual(p,uVolumeOrigin))&&all(lessThan(p,uVolumeOrigin+uVolumeSize));}
 float sdf(vec3 p){return texture(uDistanceField,(p-uVolumeOrigin)/uVolumeSize).r;}
@@ -145,8 +138,13 @@ void main(){
     albedo=pow(max(albedo,vec3(0)),vec3(2.2));
     vec3 point=uHeld==1?uCameraPosition:vWorldPosition+N*.001;
     vec3 indirect=vec3(.24,.32,.45)*uAmbient;
-    float skyVisibility=1.;
-    if(uHasIrradiance==1){vec4 lighting=irradiance(point);indirect=lighting.rgb;skyVisibility=lighting.a;}
+    float skyVisibility=uPlanetLighting==1&&uHeld==0?0.:1.;
+    if(uPlanetLighting==1&&uHeld==0)indirect=vec3(0);
+    if(uHasIrradiance==1||(uPlanetLighting==1&&uHeld==0&&uSkyColumns>0)){vec4 lighting=irradiance(point);indirect=lighting.rgb;skyVisibility=lighting.a;}
+    if(uPlanetLighting==1&&uHeld==0){
+        // Coarse mip radiance approximates diffuse sky; visibility uses exact voxel transport.
+        indirect+=textureLod(uEnvironment,N,7.).rgb*skyVisibility;
+    }
     float sdfVisibility=1.;
     if(uTransportReady==1&&uHeld==0&&volumeInside(point)){
         float ao=0.;for(int i=1;i<=4;i++){float step=float(i)*.65;ao+=max(0.,step-sdf(point+N*step))/step*.09;}
@@ -161,7 +159,7 @@ void main(){
     vec3 V=uHeld==1?normalize(-vWorldPosition):normalize(uCameraPosition-vWorldPosition);
     float rough=uVertexColor==1?vSurface.y:.85;
     vec3 F=vec3(.04)+(1.-vec3(.04))*pow(1.-max(dot(N,V),0.),5.);
-    vec3 reflection=textureLod(uEnvironment,reflect(-V,N),rough*7.).rgb;
+    vec3 reflection=textureLod(uEnvironment,reflect(-V,N),rough*7.).rgb*(uPlanetLighting==1&&uHeld==0?skyVisibility:1.);
     if(uProbeReady==1&&uHeld==0&&all(lessThan(abs(vWorldPosition-uProbeCenter),vec3(32)))){
         vec3 direction=reflect(-V,N),safe=sign(direction)*max(abs(direction),vec3(.0001));
         vec3 bounds=uProbeCenter+sign(direction)*32.;vec3 times=(bounds-vWorldPosition)/safe;
@@ -178,8 +176,9 @@ void main(){
     float G=NoV/(NoV*(1.-k)+k)*NoL/(NoL*(1.-k)+k);
     vec3 Fs=vec3(.04)+vec3(.96)*pow(1.-max(dot(H,V),0.),5.);
     vec3 brdf=(1.-Fs)*albedo/PI+D*G*Fs/max(.001,4.*NoL*NoV);
-    vec3 color=albedo*indirect+brdf*vec3(4.5,4.14,3.45)*uDaylight*NoL*shadow(N,L)*sdfVisibility*skyVisibility
-        +reflection*F*(1.-rough*.65)*skyVisibility+albedo*emission;
+    vec3 solar=uPlanetLighting==1&&uHeld==0?atmosphereDirect(vWorldPosition-uAtmosphereWorldCamera):vec3(4.5,4.14,3.45)*uDaylight;
+    vec3 color=albedo*indirect+brdf*solar*NoL*shadow(N,L)*sdfVisibility*skyVisibility
+        +reflection*F*(1.-rough*.65)*(uPlanetLighting==1&&uHeld==0?1.:skyVisibility)+albedo*emission;
     if(uClusterReady==1&&uHeld==0){
         ivec3 cluster=ivec3(floor((vWorldPosition-uClusterOrigin)/8.));
         if(all(greaterThanEqual(cluster,ivec3(0)))&&all(lessThan(cluster,ivec3(12,16,12)))){
@@ -193,13 +192,10 @@ void main(){
             }
         }
     }
-    if(uFog==1){
-        vec3 ray=vWorldPosition-uCameraPosition;float dist=length(ray),dy=ray.y;
-        float base=.0006*exp(clamp(-(uCameraPosition.y-24.)*.025,-8.,4.));
-        float integral=abs(dy)<.001?1.:(1.-exp(clamp(-dy*.025,-20.,20.)))/(dy*.025);
-        float haze=1.-exp(-base*dist*integral);
-        color=mix(color,vec3(.32,.53,.8)*uAmbient,clamp(haze,0.,1.));
+    if(uFog==1&&uHeld==0){
+        vec3 t,l;atmosphereAerial(vWorldPosition,8,t,l);color=color*t+l;
     }
+
     if(uOutputTone==1){vec3 x=color*uOutputExposure;color=pow(clamp((x*(2.51*x+.03))/(x*(2.43*x+.59)+.14),0.,1.),vec3(1./2.2));}
     fragColor=vec4(color,1.-uTransparency);
 }

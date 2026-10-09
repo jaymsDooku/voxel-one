@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "expectedHead": "f252571ae22c70fbbf5642526c46a3af8b158f08",
+  "sourceHead": "f252571ae22c70fbbf5642526c46a3af8b158f08",
+  "requestId": "93854894-8e72-4736-be6e-4b661ccb118a",
+  "mode": "client",
+  "status": "passed",
+  "environmentReady": true,
+  "clientChecked": true,
+  "evidence": [
+    {
+      "path": "preflight.png",
+      "bytes": 173674,
+      "sha256": "4b73a808d4e01b6550b44a4d6b98f842edf0ae309e2b6657ed2fdf45619f4036",
+      "kind": "image",
+      "description": "Fresh iPhone simulator home screen; environment preflight, not Voxel One client evidence."
+    },
+    {
+      "path": "client.png",
+      "bytes": 148572,
+      "sha256": "5ded3f0c10a43b88c149d1dca520d4ab3316ef9d7a9a4d68aeeca840c5571174",
+      "kind": "image",
+      "description": "Actual launched native Voxel One simulator client; captured by the controller tooling."
+    }
+  ],
+  "phase": "complete",
+  "environment": {
+    "macOS": "15.7.9",
+    "xcode": "Xcode 16.4\nBuild version 16F6",
+    "simulatorSDK": "18.5"
+  },
+  "inventoryAttempts": 1,
+  "runtime": {
+    "identifier": "com.apple.CoreSimulator.SimRuntime.iOS-18-5",
+    "name": "iOS 18.5",
+    "version": "18.5"
+  },
+  "deviceType": {
+    "identifier": "com.apple.CoreSimulator.SimDeviceType.iPhone-SE-3rd-generation",
+    "name": "iPhone SE (3rd generation)"
+  },
+  "udid": "7B387087-5427-4CAF-91E9-D33A6E2A8A10",
+  "bootVerifyAttempts": 1,
+  "client": {
+    "bundleId": "dev.jayms.voxelone.ios",
+    "tests": [
+      {
+        "name": "testOfflineTouchBuildSavePauseAndLandscape",
+        "status": "passed"
+      },
+      {
+        "name": "testOnlineLoginCityPlanningAndReconnect",
+        "status": "passed"
+      },
+      {
+        "name": "testCollisionJumpRayAndEditRules",
+        "status": "passed"
+      },
+      {
+        "name": "testSnapshotValidationAndSaveRoundTrip",
+        "status": "passed"
+      },
+      {
+        "name": "testAtmosphereProfileMigrationAndNumericalBounds",
+        "status": "passed"
+      },
+      {
+        "name": "testPlanetAtmosphereNativeToggleAndLegacyWorld",
+        "status": "passed"
+      }
+    ]
+  },
+  "cleanup": "passed"
+}

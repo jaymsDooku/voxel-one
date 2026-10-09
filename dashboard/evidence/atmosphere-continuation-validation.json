@@ -1,0 +1,31 @@
+{
+  "platform": "Linux VPS; llvmpipe LLVM 15.0.6; GL 3.3; inherited assigned display",
+  "checks": [
+    {
+      "command": "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=AtmosphereConfigTest,AtmosphereReferenceTest test",
+      "observed": "10 tests, 0 failures, 0 errors, 0 skipped"
+    },
+    {
+      "command": "mvn -q -DskipTests compile",
+      "observed": "exit 0"
+    },
+    {
+      "command": "python3 -m unittest discover -s tools/ios -p 'test_*.py' -q",
+      "observed": "53 mocked tests passed; not native execution"
+    },
+    {
+      "command": "python3 deploy/run_atmosphere_playtest.py --display \"$DISPLAY\"",
+      "observed": "exit 0; Playtest: real GL sky day/night/altitude/airless/isometric, qualities, bounded rebuild/cancellation/cache/cleanup passed; transmittance error 0.000951528; multiple-closure normalized error 0.034245663; fresh PNG captures inspected"
+    },
+    {
+      "command": "git diff --check",
+      "observed": "exit 0; review-base name-status audit has no deleted files"
+    },
+    {
+      "command": "python3 deploy/run_atmosphere_playtest.py --display \"$DISPLAY\" --regression",
+      "observed": "exit 0; actual engine rendering smoke passed; refreshed sanitized regression reports and images copied into dashboard/evidence"
+    }
+  ],
+  "native": "Previous d4b9f4e5f19d52bf978df3817d91016b81d72943 actual simulator client checks passed; newly saved Sky preference/restart workflow requires exact-source Mac run.",
+  "limits": "No physical-device budget or desktop hardware GPU target measured. Full release acceptance remains unfinished. Media pending controller publication."
+}

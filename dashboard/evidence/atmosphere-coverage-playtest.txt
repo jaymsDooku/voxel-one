@@ -1,0 +1,25 @@
+Playtest: actual voxel renderer and common irradiance shader. Linux llvmpipe GL3.3, assigned X11, synthetic geometry, 640x400, fixed exposure1, no clouds/TAA. Four equal noon stone patches cross local GI boundary at x=48.
+Rendered stone patch x=8.0: mean RGB=236.29333333333332 >8/255.
+Rendered stone patch x=40.0: mean RGB=236.30666666666667 >8/255.
+Rendered stone patch x=56.0: mean RGB=236.34666666666666 >8/255.
+Rendered stone patch x=72.0: mean RGB=236.36 >8/255.
+GPU outdoor x=8.5: visibility=1.0; expected1.
+GPU outdoor x=47.99: visibility=1.0; expected1.
+GPU outdoor x=48.01: visibility=1.0; expected1.
+GPU outdoor x=72.5: visibility=1.0; expected1.
+GPU fine/glass/model roof point=[66.01, 139.0, 34.01, 0.0]: visibility=0.0.
+GPU fine/glass/model roof point=[66.2, 139.0, 34.2, 1.0]: visibility=1.0.
+GPU fine/glass/model roof point=[66.5, 139.0, 35.5, 0.7]: visibility=0.7.
+GPU fine/glass/model roof point=[67.5, 140.49, 34.5, 0.0]: visibility=0.0.
+GPU fine/glass/model roof point=[67.5, 140.55, 34.5, 1.0]: visibility=1.0.
+High terrain/roof at136-142 m outside volume rendered. Sealed room mean=0.0 <1.5/255.
+GPU streaming loaded point=[70.8, 170.0, 45.8, 1.0]: visibility=1.0; CPU agrees.
+GPU streaming loaded point=[70.2, 170.0, 45.2, 0.0]: visibility=0.0; CPU agrees.
+GPU streaming loaded point=[70.2, 181.0, 45.2, 1.0]: visibility=1.0; CPU agrees.
+GPU streaming unloaded point=[70.8, 170.0, 45.8, 1.0]: visibility=1.0; CPU agrees.
+GPU streaming unloaded point=[70.2, 170.0, 45.2, 0.0]: visibility=0.0; CPU agrees.
+GPU streaming unloaded point=[70.2, 181.0, 45.2, 1.0]: visibility=1.0; CPU agrees.
+GPU streaming reloaded point=[70.8, 170.0, 45.8, 1.0]: visibility=1.0; CPU agrees.
+GPU streaming reloaded point=[70.2, 170.0, 45.2, 0.0]: visibility=0.0; CPU agrees.
+GPU streaming reloaded point=[70.2, 181.0, 45.2, 1.0]: visibility=1.0; CPU agrees.
+Full synthetic city footprint overview with distant and elevated geometry: GL_NO_ERROR.

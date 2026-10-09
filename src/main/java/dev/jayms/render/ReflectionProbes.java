@@ -42,8 +42,9 @@ public final class ReflectionProbes implements AutoCloseable {
         voxel.setMatrix4("uProjection",projection);voxel.setMatrix4("uView",view);
         lighting.accept(voxel);
         voxel.setVector3("uCameraPosition",center.x,center.y,center.z);
+        voxel.setVector3("uAtmosphereRayOrigin",center.x,center.y,center.z);voxel.setInt("uAtmosphereOrtho",0);
         voxel.setInt("uVertexColor",1);voxel.setInt("uInstanced",0);
-        voxel.setInt("uFog",0);voxel.setInt("uProbeReady",0);voxel.setFloat("uTransparency",0);
+        voxel.setInt("uFog",1);voxel.setInt("uProbeReady",0);voxel.setFloat("uTransparency",0);
         voxel.setFloat("uJitterX",0);voxel.setFloat("uJitterY",0);
         // Do not bind the cube being rendered to any active sampler, even with recursion off.
         glActiveTexture(GL_TEXTURE14);glBindTexture(GL_TEXTURE_CUBE_MAP,environment);

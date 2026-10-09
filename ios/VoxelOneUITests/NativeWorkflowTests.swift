@@ -60,7 +60,62 @@ final class NativeWorkflowTests:XCTestCase {
         capture("offline-horizon")
     }
     func menu(){if app.buttons["menuButton"].exists {app.buttons["menuButton"].tap()};wait(app.buttons["offlineNewButton"])}
+    func aimAtSolarDiscForEvidence(){
+        // The synthetic offline world's authoritative fixed hour is 10.
+        let targetYaw = -atan2(0.5,0.35),targetPitch=atan2(sqrt(0.75),sqrt(0.25+0.35*0.35))
+        let scene=app.otherElements["worldView"];wait(scene)
+        func pose()->(Double,Double)? {
+            let aim=app.staticTexts["playerPosition"].label.components(separatedBy:" · Aim ").last ?? ""
+            let values=aim.components(separatedBy:" · ").first?.components(separatedBy:", ") ?? []
+            guard values.count==2,let yaw=Double(values[0]),let pitch=Double(values[1]) else {XCTFail("Missing solar camera pose");return nil}
+            return (yaw,pitch)
+        }
+        func drag(_ dx:CGFloat,_ dy:CGFloat){
+            guard let before=pose() else{return}
+            let previous=app.staticTexts["playerPosition"].label
+            let start=scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.45))
+            start.press(forDuration:0.05,thenDragTo:start.withOffset(CGVector(dx:dx,dy:dy)))
+            let changed=XCTNSPredicateExpectation(predicate:NSPredicate(format:"label != %@",previous),object:app.staticTexts["playerPosition"])
+            let result=XCTWaiter.wait(for:[changed],timeout:5)
+            XCTAssertEqual(result,.completed,"Look unchanged: aim=\(before.0),\(before.1) drag=\(dx),\(dy)")
+        }
+        for attempt in 0...16 {
+            guard let (yaw,pitch)=pose() else{return}
+            if abs(yaw-targetYaw)<0.03 && abs(pitch-targetPitch)<0.03 {capture("atmosphere-native-solar-disc");return}
+            if attempt==16 {break}
+            let horizontal=abs(yaw-targetYaw)>=abs(pitch-targetPitch)
+            let error=horizontal ? yaw-targetYaw:pitch-targetPitch
+            let limit=(horizontal ? scene.frame.width:scene.frame.height)*0.25
+            let points=max(-limit,min(limit,CGFloat(error/0.004)))
+            func axisDrag(_ amount:CGFloat){drag(horizontal ? amount:0,horizontal ? 0:amount)}
+            if abs(error)<0.12 {
+                // Both legs exceed pan recognition distance. Equal opposite legs
+                // cancel recognition loss while their net motion is the correction.
+                let away:CGFloat=error>0 ? -50:50
+                axisDrag(away);axisDrag(points-away)
+            } else {axisDrag(points)}
+        }
+        if let (yaw,pitch)=pose(){XCTFail("Sun aim missed: actual=\(yaw),\(pitch) target=\(targetYaw),\(targetPitch)")}
+    }
     func newOffline(){menu();app.buttons["offlineNewButton"].tap();if app.alerts.buttons["New world"].waitForExistence(timeout:2){app.alerts.buttons["New world"].tap()};wait(app.buttons["breakButton"])}
+    func testPlanetAtmosphereNativeToggleAndLegacyWorld()throws {
+        newOffline();wait(app.buttons["atmosphereToggle"])
+        if app.buttons["atmosphereToggle"].value as? String == "On" {app.buttons["atmosphereToggle"].tap()}
+        app.buttons["atmosphereToggle"].tap();textContains("gameStatus","Planet sky preview on")
+        aimAtHorizonForEvidence();capture("atmosphere-native-enabled")
+        aimAtSolarDiscForEvidence();aimAtHorizonForEvidence()
+        XCTAssertTrue(app.buttons["breakButton"].exists,"World controls remain available")
+        app.buttons["atmosphereToggle"].tap();textContains("gameStatus","Planet sky preview off");capture("atmosphere-native-fallback")
+        app.buttons["atmosphereToggle"].tap();textContains("gameStatus","Planet sky preview on")
+        aimAtHorizonForEvidence()
+        app.buttons["pauseButton"].tap();textContains("gameStatus","Paused")
+        app.buttons["pauseButton"].tap()
+        app.terminate();app.launch();wait(app.buttons["atmosphereToggle"])
+        XCTAssertEqual(app.buttons["atmosphereToggle"].value as? String,"On","Local sky opt-in survives restart")
+        XCTAssertTrue(app.buttons["breakButton"].exists,"World remains playable after restart")
+        capture("atmosphere-native-enabled-restarted")
+        aimAtSolarDiscForEvidence()
+    }
     func testOfflineTouchBuildSavePauseAndLandscape()throws {
         newOffline();wait(app.otherElements["worldView"])
         // Settle on the ground and aim down with the normal look gesture.

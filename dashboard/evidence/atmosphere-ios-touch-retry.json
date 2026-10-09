@@ -1,0 +1,13 @@
+{
+  "sourceHead": "fa6cbf2a45e1e5e7d7eb5091bd116b508227bb83",
+  "run": "https://github.com/jaymsDooku/voxel-one/actions/runs/37987207495",
+  "status": "failed",
+  "clientChecked": false,
+  "observed": "Native app built. Look gesture HUD-update wait timed out. Returned image is Simulator home screen only.",
+  "fix": "World gestures attached to common parent. Delegate rejects UIControl/UIScrollView ancestry and all menu/paused touches. HUD labels/empty stack space can route to world look/planning. Pose tolerance remains0.03rad.",
+  "tests": [
+    "53 Linux iOS mock harness cases passed",
+    "bash syntax, Python compile and git diff --check passed"
+  ],
+  "Playtest": "Actual Mac native workflow failed. Corrected parent touch routing requires exact-source native build/playtest; Linux mocks do not validate UIKit."
+}

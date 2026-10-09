@@ -1,9 +1,13 @@
 package dev.jayms.net.city;
 
 import java.io.*;
+import dev.jayms.net.atmosphere.AtmosphereConfig;
 
 /** Game-owned clock configuration. Sandbox keeps its familiar fixed daylight. */
-public record GameConfig(boolean city, boolean cycle, double daySeconds, double startHour) {
+public record GameConfig(boolean city, boolean cycle, double daySeconds, double startHour, AtmosphereConfig atmosphere) {
+    public GameConfig(boolean city, boolean cycle, double daySeconds, double startHour) {
+        this(city,cycle,daySeconds,startHour,AtmosphereConfig.earth());
+    }
     public static GameConfig sandbox() {
         return new GameConfig(false, false, 1200, 10);
     }
@@ -13,6 +17,7 @@ public record GameConfig(boolean city, boolean cycle, double daySeconds, double 
     }
 
     public GameConfig {
+        java.util.Objects.requireNonNull(atmosphere);
         if (!Double.isFinite(daySeconds)
                 || daySeconds < 60
                 || daySeconds > 86400
@@ -44,5 +49,17 @@ public record GameConfig(boolean city, boolean cycle, double daySeconds, double 
         } catch (IllegalArgumentException e) {
             throw new IOException(e);
         }
+    }
+
+    /** Only the versioned city envelope may add profile bytes. Legacy clock bytes stay unchanged. */
+    public void write(DataOutput out,int cityVersion)throws IOException {
+        if(cityVersion<17 && !atmosphere.equals(AtmosphereConfig.earth()))
+            throw new IOException("Custom atmosphere requires city snapshot version 17");
+        write(out);
+        if(cityVersion>=17)atmosphere.write(out);
+    }
+    public static GameConfig read(DataInput in,int cityVersion)throws IOException {
+        GameConfig clock=read(in);
+        return cityVersion<17 ? clock : new GameConfig(clock.city,clock.cycle,clock.daySeconds,clock.startHour,AtmosphereConfig.read(in));
     }
 }

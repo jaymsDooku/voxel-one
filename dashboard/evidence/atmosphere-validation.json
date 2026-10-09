@@ -1,0 +1,109 @@
+{
+  "state": "in_progress; native Mac client check requested; not ready for review",
+  "baseline": "bcdcab56c6ae1c183621aaa1b4a7e3d0e1f0b3ba",
+  "publication": "Evidence URLs pending controller publication on assigned feature branch",
+  "environment": "Linux VPS; assigned inherited X11 display; llvmpipe LLVM 15.0.6; OpenGL/GLSL 3.3; isolated synthetic game profiles; no recorder",
+  "javaChecks": [
+    {
+      "suite": "AtmosphereConfigTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "AtmosphereReferenceTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "AtmosphereServerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "CityFormat16RegressionTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "RailwayOwnershipCompatibilityTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "RegionalSaveCompatibilityTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "RenderingAlgorithmsTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "LightOcclusionTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "LightingTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "commands": [
+    {
+      "command": "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=AtmosphereConfigTest,AtmosphereReferenceTest,AtmosphereServerTest,CityFormat16RegressionTest,RailwayOwnershipCompatibilityTest,RegionalSaveCompatibilityTest,RenderingAlgorithmsTest,LightOcclusionTest,LightingTest test",
+      "observed": "38 tests, 0 failures, 0 errors; exit 0"
+    },
+    {
+      "command": "python3 -m unittest discover -s tools/ios -p test_*.py -q",
+      "observed": "53 Linux mock/security contract tests passed; not native validation"
+    },
+    {
+      "command": "python3 deploy/run_atmosphere_playtest.py --display \"$DISPLAY\"",
+      "observed": "Engine workflow and transmittance reference comparison passed; final source media refreshed"
+    },
+    {
+      "command": "python3 deploy/run_atmosphere_playtest.py --display \"$DISPLAY\" --regression",
+      "observed": "passed on final local source: actual GL gallery, water, lighting/probe edits, TAA/upscaling and resize; final fresh media copied"
+    },
+    {
+      "command": "mvn -q -DskipTests compile",
+      "observed": "passed"
+    },
+    {
+      "command": "git diff --check; python3 -m py_compile deploy/run_atmosphere_playtest.py ios/check-results.py; bash -n ios/check-simulator.sh",
+      "observed": "passed before final report/progress changes; rechecked at handoff"
+    }
+  ],
+  "playtest": "Playtest: actual Voxel One engine raster sky and surface rendering; noon/dawn/dusk/night, 8 km/90 km/120 km altitude, airless/re-enable, orthographic stone footprint and Low/Medium/High. Expected finite output, brighter noon than night, airless removes scattering, no GL errors. Observed expected results and fresh images. GPU transmittance texels compared with double 4096-sample reference; maximum absolute error 0.000952 under 0.035 tolerance. Separate existing regression checks actual shadows, LED edits, water, reflection probes and post processing. This is engine-fixture validation, not the full main-client camera/room scene acceptance.",
+  "earlierFailures": "Default /tmp was read-only; scoped worktree temp directory fixed execution. Legacy save expectations/read versions were updated for version 17 and preserved historical fixtures. Restart fixture usernames were corrected to the existing bounded account format. A broad Maven run was interrupted after a prolonged stall; full suite remains pending. Package goal could not fetch an absent shade plugin into the read-only shared Maven cache; compiled classes and cached public runtime jars were used for actual GL runs. No release package is claimed.",
+  "diffAudit": "No deleted files. Intentional removed code: CPU analytic reflection cube generation replaced by the GPU shared sky table; separate detailed/distant legacy fog replaced by one reference contract; isometric flat sky override removed. No supplied synchronized review base yet; controller integration and final-base audit still required.",
+  "pending": [
+    "Hosted Mac actual client build and six native workflow/numerical tests, screenshots/video inspection",
+    "Multiple scattering and bounded amortized update lifecycle/fallbacks",
+    "Sunlight/irradiance/legacy attenuation and complete water/cloud/transparency integration",
+    "Full player-camera, sealed-room/fractional/model/HUD/held-item regressions and transition recording",
+    "Full suite and final synchronized-source tests/media",
+    "Hardware steady-state/rebuild GPU/CPU measurements; mobile physical-device budget remains unset"
+  ],
+  "artifactChecks": "Fresh implementation screenshots inspected: noon, dawn, exterior limb at 120 km, orthographic footprint and LED/gallery. Media contain synthetic geometry only. No runtime logs, credentials or private account data included."
+}

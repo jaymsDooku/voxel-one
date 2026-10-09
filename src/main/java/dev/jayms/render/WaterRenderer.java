@@ -11,12 +11,14 @@ import static org.lwjgl.opengl.GL33.*;
 public final class WaterRenderer implements AutoCloseable {
     private final ShaderProgram water=new ShaderProgram("shaders/voxel.vert","shaders/water.frag");
     private final ShaderProgram capture=new ShaderProgram("shaders/voxel.vert","shaders/planar.frag");
+    private final ShaderProgram sceneCapture=new ShaderProgram("shaders/voxel.vert","shaders/voxel.frag");
     private final ShaderProgram sky=new ShaderProgram("shaders/fullscreen.vert","shaders/probe-sky.frag");
     private final int fbo=glGenFramebuffers(),color=glGenTextures(),depth=glGenRenderbuffers(),vao=glGenVertexArrays();
     private int width,height;private float plane;private boolean found;
     private final Matrix4f reflected=new Matrix4f();
     public boolean found(){return found;}
-    public void capture(World world,VoxelModelRenderer models,Matrix4f projection,Matrix4f view,Vector3f eye,int w,int h,int environment,Vector3f sun,float ambient,float daylight){
+    public void capture(World world,VoxelModelRenderer models,Matrix4f projection,Matrix4f view,Vector3f eye,int w,int h,int environment,Vector3f sun,float ambient,float daylight){capture(world,models,projection,view,eye,w,h,environment,sun,ambient,daylight,null);}
+    public void capture(World world,VoxelModelRenderer models,Matrix4f projection,Matrix4f view,Vector3f eye,int w,int h,int environment,Vector3f sun,float ambient,float daylight,java.util.function.Consumer<ShaderProgram> lighting){
         found=false;float nearest=Float.POSITIVE_INFINITY;
         // Water-bearing chunk surfaces come from the current mesh, including generated oceans.
         for(var entry:world.getLoadedChunks().entrySet()){
@@ -42,29 +44,33 @@ public final class WaterRenderer implements AutoCloseable {
         sky.bind();sky.setMatrix4("uInverseVP",new Matrix4f(reflected).invert());sky.setVector3("uCenter",reflectedEye.x,reflectedEye.y,reflectedEye.z);sky.setInt("uEnvironment",0);
         glActiveTexture(GL_TEXTURE0);glBindTexture(GL_TEXTURE_CUBE_MAP,environment);glBindVertexArray(vao);glDrawArrays(GL_TRIANGLES,0,3);
         glEnable(GL_DEPTH_TEST);glEnable(GL_CULL_FACE);glFrontFace(GL_CW);glEnable(GL_CLIP_DISTANCE0);
-        capture.bind();capture.setMatrix4("uProjection",projection);capture.setMatrix4("uView",reflectedView);capture.setInt("uVertexColor",1);capture.setInt("uInstanced",0);
-        capture.setInt("uClipEnabled",1);capture.setFloat("uClipPlaneY",plane+.02f);
-        capture.setVector3("uSun",sun.x,sun.y,sun.z);capture.setFloat("uAmbient",ambient);capture.setFloat("uDaylight",daylight);
+        ShaderProgram pass=lighting==null?capture:sceneCapture;
+        pass.bind();pass.setMatrix4("uProjection",projection);pass.setMatrix4("uView",reflectedView);pass.setInt("uVertexColor",1);pass.setInt("uInstanced",0);
+        pass.setInt("uClipEnabled",1);pass.setFloat("uClipPlaneY",plane+.02f);
+        pass.setVector3("uSun",sun.x,sun.y,sun.z);pass.setFloat("uAmbient",ambient);pass.setFloat("uDaylight",daylight);
+        if(lighting!=null){lighting.accept(pass);pass.setVector3("uCameraPosition",reflectedEye.x,reflectedEye.y,reflectedEye.z);pass.setVector3("uAtmosphereRayOrigin",reflectedEye.x,reflectedEye.y,reflectedEye.z);pass.setInt("uProbeReady",0);pass.setInt("uFog",1);pass.setInt("uAtmosphereReflection",1);pass.setFloat("uAtmosphereReflectionPlane",plane);pass.setVector3("uAtmosphereReflectedEye",reflectedEye.x,reflectedEye.y,reflectedEye.z);}
         FrustumIntersection frustum=new FrustumIntersection(reflected);
         for(var entry:world.getLoadedChunks().entrySet()){
             ChunkPos p=entry.getKey();if(entry.getValue().getMesh()==null||!frustum.testAab(p.chunkX()*16,p.chunkY()*16,p.chunkZ()*16,p.chunkX()*16+16,p.chunkY()*16+16,p.chunkZ()*16+16))continue;
-            capture.setMatrix4("uModel",new Matrix4f().translation(p.chunkX()*16,p.chunkY()*16,p.chunkZ()*16));entry.getValue().getMesh().render();
+            pass.setMatrix4("uModel",new Matrix4f().translation(p.chunkX()*16,p.chunkY()*16,p.chunkZ()*16));entry.getValue().getMesh().render();
         }
-        models.render(world,frustum,capture);glDisable(GL_CLIP_DISTANCE0);glFrontFace(GL_CCW);glBindFramebuffer(GL_FRAMEBUFFER,0);
+        models.render(world,frustum,pass);glDisable(GL_CLIP_DISTANCE0);glFrontFace(GL_CCW);glBindFramebuffer(GL_FRAMEBUFFER,0);
     }
-    public void render(World world,Matrix4f projection,Matrix4f view,Vector3f eye,int scene,int sceneDepth,int environment,int w,int h,float jitterX,float jitterY){
+    public void render(World world,Matrix4f projection,Matrix4f view,Vector3f eye,int scene,int sceneDepth,int environment,int w,int h,float jitterX,float jitterY){render(world,projection,view,eye,scene,sceneDepth,environment,w,h,jitterX,jitterY,null);}
+    public void render(World world,Matrix4f projection,Matrix4f view,Vector3f eye,int scene,int sceneDepth,int environment,int w,int h,float jitterX,float jitterY,java.util.function.Consumer<ShaderProgram> lighting){
         if(!found)return;Matrix4f vp=new Matrix4f().translation(jitterX,jitterY,0).mul(projection).mul(view);FrustumIntersection frustum=new FrustumIntersection(vp);
         water.bind();water.setFloat("uJitterX",jitterX);water.setFloat("uJitterY",jitterY);water.setMatrix4("uProjection",projection);water.setMatrix4("uView",view);water.setMatrix4("uInverseVP",new Matrix4f(vp).invert());water.setMatrix4("uReflectionVP",reflected);
         water.setFloat("uPlaneY",plane);water.setVector3("uCamera",eye.x,eye.y,eye.z);water.setFloat("uTime",(float)(System.nanoTime()/1e9%10000));water.setInt("uInstanced",0);water.setFloat("uWidth",w);water.setFloat("uHeight",h);water.setInt("uPlanarReady",eye.y>=plane?1:0);
+        if(lighting!=null)lighting.accept(water);else water.setInt("uPlanetLighting",0);
         glActiveTexture(GL_TEXTURE0);glBindTexture(GL_TEXTURE_CUBE_MAP,environment);water.setInt("uEnvironment",0);
         glActiveTexture(GL_TEXTURE1);glBindTexture(GL_TEXTURE_2D,scene);water.setInt("uScene",1);
         glActiveTexture(GL_TEXTURE2);glBindTexture(GL_TEXTURE_2D,sceneDepth);water.setInt("uDepth",2);
-        glActiveTexture(GL_TEXTURE3);glBindTexture(GL_TEXTURE_2D,color);water.setInt("uPlanar",3);
+        glActiveTexture(GL_TEXTURE13);glBindTexture(GL_TEXTURE_2D,color);water.setInt("uPlanar",13);
         for(var entry:world.getLoadedChunks().entrySet()){
             ChunkPos p=entry.getKey();Chunk chunk=entry.getValue();if(chunk.getMesh()==null||!Float.isFinite(chunk.waterHeight())||!frustum.testAab(p.chunkX()*16,p.chunkY()*16,p.chunkZ()*16,p.chunkX()*16+16,p.chunkY()*16+16,p.chunkZ()*16+16))continue;
             water.setMatrix4("uModel",new Matrix4f().translation(p.chunkX()*16,p.chunkY()*16,p.chunkZ()*16));chunk.getMesh().render();
         }
         glActiveTexture(GL_TEXTURE0);
     }
-    @Override public void close(){water.close();capture.close();sky.close();glDeleteFramebuffers(fbo);glDeleteTextures(color);glDeleteRenderbuffers(depth);glDeleteVertexArrays(vao);}
+    @Override public void close(){water.close();capture.close();sceneCapture.close();sky.close();glDeleteFramebuffers(fbo);glDeleteTextures(color);glDeleteRenderbuffers(depth);glDeleteVertexArrays(vao);}
 }

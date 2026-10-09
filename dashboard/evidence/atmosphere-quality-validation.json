@@ -1,0 +1,92 @@
+{
+  "platform": "Linux; assigned X11; llvmpipe GL 3.3",
+  "tests": [
+    {
+      "name": "dev.jayms.AtmosphereReferenceTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.AtmosphereLightingTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.AtmosphereConfigTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.DaylightTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.AtmosphereServerTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.RenderingAlgorithmsTest",
+      "tests": "9",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "nativeObserved": {
+    "head": "ac7f2ce230cc85c1f1e4cf69f8e73f2eed762749",
+    "run": "https://github.com/jaymsDooku/voxel-one/actions/runs/37990783149",
+    "passedCases": 7,
+    "clientChecked": true,
+    "physicalDevice": false,
+    "media": "atmosphere-ios-validated.png; byte count and SHA-256 verified; inspected blue sky, Sun disc and clear HUD"
+  },
+  "nativePending": [],
+  "linuxIosHarnessTests": 53,
+  "performance": "Low/Medium retained from partial all-quality run; focused HIGH airless/enabled completed exit0 at1920x1080 recording off, llvmpipe. Full GPU EMA2792.8525/4303.0312ms; LUT allocation1384448bytes. EMA residual/rebuild and queue noise; hardware target unvalidated.",
+  "Playtest": "Current-source GL workflow passed noon/dawn/dusk/night, 8/90/120 km, sealed/window/glass/fractional/tiny/LED, quality/airless/lifecycle, clouds/water. Main prior current-turn 81-frame F5/F6/F10 video inspected. Broad rendering regression pending.",
+  "currentGlSkyReference": "Dimension-guarded rerun passed exit 0. Noon maximum normalized error 0.0296122872; dawn 0.0070034346; dusk 0.0071296082; night 0.0; tolerance 0.25. First native abort retained; root cause not proven.",
+  "broadRenderingRegression": "python3 deploy/run_atmosphere_playtest.py --display \"$DISPLAY\" --regression: exit 0; probe shadows/LED edits, six refreshed faces, water, temporal/resize/Hi-Z and GL errors passed. Water image inspected.",
+  "limbPlaytest": "--limb completed exit0 at95/100/105/120/1000km and airless; actual sky shader/virtual spherical surface, GL_NO_ERROR; 95\u2013105km mean delta2.05565625/255<20/255. Curved blue rim media inspected.",
+  "productionPlaytest": {
+    "command": "python3 deploy/run_atmosphere_playtest.py --display \"$DISPLAY\" --main",
+    "exit": 0,
+    "frames": 79,
+    "videoSeconds": 51.92,
+    "videoFrames": 41,
+    "videoBytes": 1136385,
+    "observed": "Actual W/F5/F6/F10, clocknight/noon,120km entry/return,odd333x271resize/menu; noGLerrors. Decoded video frames1/4 andisometric image inspected; clearHUD/helditem,readableoverview."
+  },
+  "audit": {
+    "base": "bcdcab56c6ae1c183621aaa1b4a7e3d0e1f0b3ba",
+    "deletedFiles": [],
+    "intentionalRemovals": [
+      "CPU environment bake replaced withshared atmospheric cube",
+      "separate detailed/distant legacy fog removed",
+      "legacy post height fog replaced withshadowed atmospheric source",
+      "fixed skyRGB/normal-solid fakeglow removed from atmosphere lightingmode",
+      "hardcoded fixed-sandbox solar direction replaced withconfiguredclock"
+    ],
+    "preserved": "Voxel storage/collision/citysimulation retained; old18byteclock andcitysave1..16 readers retained. Other dashboard items unchanged.",
+    "integration": "Controller latestmaster synchronization andany changed-source checks remain mandatory."
+  },
+  "fullJavaSuite": {
+    "tests": 579,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "exit": 0,
+    "report": "atmosphere-full-java-tests.json"
+  }
+}

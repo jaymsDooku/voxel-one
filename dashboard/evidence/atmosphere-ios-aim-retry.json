@@ -1,0 +1,15 @@
+{
+  "sourceHead": "2c5a248b102ee7a783cbea91e2fbbf96b7dabbb7",
+  "run": "https://github.com/jaymsDooku/voxel-one/actions/runs/37984720498",
+  "status": "failed",
+  "clientChecked": false,
+  "observed": "Native app built; testPlanetAtmosphereNativeToggleAndLegacyWorld failed to reach the synthetic Sun pose. No client media returned. Preflight image is environment-only.",
+  "fix": "Normal-control feedback loop now permits 16 gestures, floors nonzero drags at 12 points, waits up to 5 seconds for HUD update, and reports final pose on failure. Pose tolerance remains 0.03 radians on both axes.",
+  "tests": [
+    "python3 -m unittest discover -s tools/ios -p test_*.py -q: 53 mock tests passed",
+    "bash -n ios/check-simulator.sh: passed",
+    "python3 -m py_compile ios/check-results.py: passed"
+  ],
+  "Playtest": "Mac workflow failed; corrected native gesture check is not executed on Linux. Exact-source Mac run required.",
+  "nativeValidation": "Pending exact-source Mac retry; no corrected workflow pass claimed"
+}

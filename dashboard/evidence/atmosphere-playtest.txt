@@ -1,0 +1,21 @@
+Playtest: Voxel One engine GL 3.3 raster atmosphere. Synthetic world/profile; 640x400, one sample, fixed exposure=1, TAA/clouds off. Driver: llvmpipe (LLVM 15.0.6, 256 bits)
+noon: mean 202.68620703125, LUT rebuild CPU submission 0.318389 ms; GL_NO_ERROR.
+noon: 9 actual sky texels (horizon and upper sky) vs 256-path-sample raster reference; max normalized RGB error 0.029604692790507436 <=0.25.
+dawn: mean 57.06158203125, LUT rebuild CPU submission 0.365347 ms; GL_NO_ERROR.
+dawn: 9 actual sky texels (horizon and upper sky) vs 256-path-sample raster reference; max normalized RGB error 0.007011908825366065 <=0.25.
+dusk: mean 57.05716796875, LUT rebuild CPU submission 0.450836 ms; GL_NO_ERROR.
+dusk: 9 actual sky texels (horizon and upper sky) vs 256-path-sample raster reference; max normalized RGB error 0.007138361395802252 <=0.25.
+night: mean 0.1345390625, LUT rebuild CPU submission 0.296089 ms; GL_NO_ERROR.
+night: 9 actual sky texels (horizon and upper sky) vs 256-path-sample raster reference; max normalized RGB error 0.0 <=0.25.
+16 GPU transmittance texels / 48 RGB components compared with double 4096-sample reference, upward and low-sun paths at four heights; maximum absolute error 9.515279722703829E-4 <= 0.035. Readback used only for correctness, not performance.
+9 GPU multiple-scattering texels / 27 RGB components compared with 256-direction closure at 256 view/sun samples; normalized error 0.1298811002336853 <= 0.25. Approximation tolerance, not full transport parity.
+Lifecycle: static sun reuse, retained initialized atlas, rapid profile cancellation, per-frame row limits and texture cleanup passed.
+Altitude 8000.0 m: finite render, GL_NO_ERROR, mean 186.97378255208332.
+Altitude 90000.0 m: finite render, GL_NO_ERROR, mean 72.81519791666666.
+Altitude 120000.0 m: finite render, GL_NO_ERROR, mean 64.61428776041667.
+Orthographic regression: visible synthetic stone surface, per-pixel sky ray origin, GL_NO_ERROR.
+Fixed sandbox clock: noon surface/sky brighter than midnight; no second daylight factor in bound atmospheric direct sunlight.
+Rendered glass/fractional/tiny regression: glass mean 66.24951041666667, 1/16 wall 0.0016822916666666666, 1/32 model wall 0.0016497395833333334; glass transmits, opaque fine walls remain dark.
+Sealed-room regression: noon mean 0.0, open window 77.78820572916666, sealed LED night 167.59039713541668; no outdoor sky/fog in closed room, window and local LED remain lit.
+Clouds and water with shared atmospheric lighting/composition rendered with GL_NO_ERROR.
+Low/Medium/High profile-preserving table rebuilds and airless/re-enable completed. Desktop GPU target and mobile budget remain unmeasured.

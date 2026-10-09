@@ -1,0 +1,35 @@
+{
+  "sourceHead": "bd8366626d044e0f9ea15863950852c0571e9aad",
+  "requestId": "52f94507-4f37-4480-a72c-29788cbbab54",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/37962871525",
+  "status": "failed",
+  "environmentReady": true,
+  "clientChecked": false,
+  "environment": {
+    "macOS": "15.7.9",
+    "xcode": "Xcode 16.4\nBuild version 16F6",
+    "simulatorSDK": "18.5"
+  },
+  "runtime": "18.5",
+  "deviceType": "iPhone SE (3rd generation)",
+  "observedFailure": "Native client built. XCTest failed the solar-transmittance [0,1] assertion in WorldRulesTests.swift:15. Full native test success is not claimed.",
+  "fix": "Beer-Lambert helper accepts positive optical depth. Removed the second negation in sunlight and view radiance. Added exact zero, unit and double optical-depth checks and RGB transmission ordering.",
+  "nativeValidation": "Required: new exact-source Mac client build and all six native XCTest cases; inspect actual client screenshots/video.",
+  "media": [
+    {
+      "file": "atmosphere-ios-failed-run-preflight.png",
+      "description": "Inspected fresh simulator home screen only. Environment evidence, not Voxel One gameplay or validation of the fix.",
+      "publication": "pending controller publication"
+    }
+  ],
+  "localChecks": {
+    "command": "python3 -m unittest discover -s tools/ios -p 'test_*.py' -q",
+    "result": "53 passed; Linux mock/contract/security tests only"
+  },
+  "diffAudit": {
+    "base": "bcdcab56c6ae1c183621aaa1b4a7e3d0e1f0b3ba",
+    "deletedFiles": [],
+    "intentionalCodeRemovals": "Original CPU analytic environment cube replaced by shared GPU sky; detailed/distant legacy fog replaced by shared atmosphere; flat isometric sky override removed. No unrelated deletion found."
+  },
+  "workStatus": "in_progress; full atmosphere delivery remains unfinished"
+}

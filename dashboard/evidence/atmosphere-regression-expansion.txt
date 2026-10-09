@@ -1,0 +1,1 @@
+Playtest: native OpenGL synthetic gallery; assigned X11 display; GPU backend=false; decals changed pixels=43840; reflection probes, GPU emitters/removal, water, camera motion/TAA, exposure, LUT, temporal upscaling, measured dynamic resolution, resize and GL errors passed.

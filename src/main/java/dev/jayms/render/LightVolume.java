@@ -11,6 +11,9 @@ public final class LightVolume {
     public interface Sampler {
         int value(int x, int y, int z);
 
+        /** Visibility entering the top boundary; roofs above a bounded GI grid still occlude it. */
+        default float skyVisibility(float x,float y,float z){return 1;}
+
         /** Required when value is mixed (-1). Values are encoded world materials, not model RGB. */
         default SparseVoxelOctree detail(int x, int y, int z) {
             return null;
@@ -26,6 +29,7 @@ public final class LightVolume {
 
     public int[] fine;
     public TransportField transport;
+    private boolean separateSky;
     private final Map<Integer, Detail> details = new HashMap<>();
 
     private record Detail(int resolution, SparseVoxelOctree nodes) {}
@@ -58,7 +62,13 @@ public final class LightVolume {
 
     public static LightVolume bake(
             int x, int y, int z, int w, int h, int l, float ambient, Sampler source) {
+        return bake(x,y,z,w,h,l,ambient,source,false);
+    }
+
+    /** Separate outdoor visibility from local RGB for profile-dependent sky shading. */
+    public static LightVolume bake(int x,int y,int z,int w,int h,int l,float ambient,Sampler source,boolean separateSky) {
         LightVolume v = new LightVolume(x, y, z, w, h, l);
+        v.separateSky=separateSky;
         int n = w * h * l;
         for (int c = 0; c < n; c++) {
             int dx = c % w, dy = c / w % h, dz = c / (w * h);
@@ -97,7 +107,7 @@ public final class LightVolume {
                 int r = detailed ? UNIT : 1;
                 for (int az = 0; az < r; az++)
                     for (int ax = 0; ax < r; ax++) {
-                        int light = FULL;
+                        int light = Math.round(FULL*Math.max(0,Math.min(1,source.skyVisibility(x+dx+(ax+.5f)/r,y+h,z+dz+(az+.5f)/r))));
                         for (int micro = h * UNIT - 1; micro >= 0; ) {
                             int id = v.at(dx * UNIT + ax, micro, dz * UNIT + az);
                             int side = v.side(id), op = opacity(v.material[id]);
@@ -120,7 +130,7 @@ public final class LightVolume {
                 v.green[i] = (short) ((color >> 8 & 255) * FULL / 255);
                 v.blue[i] = (short) ((color & 255) * FULL / 255);
                 v.offer(i);
-            } else if (opacity(v.material[i]) == 0 && v.sky[i] >= 8 * UNIT) {
+            } else if (!separateSky && opacity(v.material[i]) == 0 && v.sky[i] >= 8 * UNIT) {
                 int g = v.geometry[i], s = v.side(i), c = v.cell[i];
                 int a = c % w * UNIT + (g & 63),
                         b = c / w % h * UNIT + (g >> 6 & 63),
@@ -164,21 +174,22 @@ public final class LightVolume {
         for (int i = 0; i < v.count; i++) {
             float sky = v.sky[i] / (float) FULL;
             sky *= sky * ambient;
+            if(separateSky)sky=0;
             int r =
                     Math.min(
                             255,
                             Math.round(
-                                    (.015f + .24f * sky + v.red[i] / (float) FULL * 1.8f) * 127));
+                                    ((separateSky?0:.015f) + .24f * sky + v.red[i] / (float) FULL * 1.8f) * 127));
             int g =
                     Math.min(
                             255,
                             Math.round(
-                                    (.018f + .32f * sky + v.green[i] / (float) FULL * 1.8f) * 127));
+                                    ((separateSky?0:.018f) + .32f * sky + v.green[i] / (float) FULL * 1.8f) * 127));
             int b =
                     Math.min(
                             255,
                             Math.round(
-                                    (.025f + .45f * sky + v.blue[i] / (float) FULL * 1.8f) * 127));
+                                    ((separateSky?0:.025f) + .45f * sky + v.blue[i] / (float) FULL * 1.8f) * 127));
             int visibility = 128 + Math.round(v.sky[i] / (float) FULL * 127);
             colors[i] = visibility << 24 | b << 16 | g << 8 | r;
             if (i < n) {
@@ -198,7 +209,7 @@ public final class LightVolume {
                 packed.isEmpty()
                         ? new int[] {0}
                         : packed.stream().mapToInt(Integer::intValue).toArray();
-        v.transport = new TransportField(w,h,l,v.material,v.rgba);
+        v.transport = new TransportField(w,h,l,v.material,v.rgba,separateSky);
         v.material = v.cell = v.geometry = v.queue = null;
         v.sky = v.red = v.green = v.blue = null;
         v.queued = null;
@@ -353,18 +364,21 @@ public final class LightVolume {
     }
 
     /** Exact same nearest-cell / sparse-leaf lookup as the fragment shader. */
-    public float[] sample(float a, float b, float c) {
+    public float[] sample(float a,float b,float c){return Arrays.copyOf(sampleLighting(a,b,c),3);}
+
+    /** RGB local light plus outdoor visibility, including fractional voxel leaves. */
+    public float[] sampleLighting(float a,float b,float c) {
         a -= x;
         b -= y;
         c -= z;
         if (a < 0 || b < 0 || c < 0 || a >= width || b >= height || c >= length)
-            return new float[] {.24f, .32f, .45f};
+            return separateSky?new float[4]:new float[] {.24f,.32f,.45f,1};
         int i = index((int) a, (int) b, (int) c), node = roots[i];
         if (node == 0)
             return new float[] {
                 (rgba[i * 4] & 255) / 127f,
                 (rgba[i * 4 + 1] & 255) / 127f,
-                (rgba[i * 4 + 2] & 255) / 127f
+                (rgba[i * 4 + 2] & 255) / 127f, ((rgba[i*4+3]&255)-128)/127f
             };
         if (node > 0) node--;
         float fx = a - (int) a, fy = b - (int) b, fz = c - (int) c;
@@ -379,7 +393,7 @@ public final class LightVolume {
             node = fine[node + child];
         }
         return new float[] {
-            (node & 255) / 127f, (node >> 8 & 255) / 127f, (node >> 16 & 255) / 127f
+            (node & 255) / 127f, (node >> 8 & 255) / 127f, (node >> 16 & 255) / 127f, ((node>>>24)&127)/127f
         };
     }
 }

@@ -1043,6 +1043,7 @@ public final class MultiplayerServer implements AutoCloseable {
         long seed = Terrain.DEFAULT_SEED;
         boolean cityGame = false, cycle = true;
         double daySeconds = 1200, startHour = 8;
+        String atmospherePreset="earth";double atmosphereHaze=1,atmosphereThickness=1;
         Path save = Path.of("world.dat"),
                 accountFile = Path.of("accounts.db"),
                 tlsDirectory = Path.of("tls");
@@ -1061,6 +1062,9 @@ public final class MultiplayerServer implements AutoCloseable {
                 case "--day-seconds" -> daySeconds = Double.parseDouble(args[++i]);
                 case "--start-hour" -> startHour = Double.parseDouble(args[++i]);
                 case "--fixed-time" -> cycle = false;
+                case "--atmosphere" -> atmospherePreset=args[++i];
+                case "--atmosphere-haze" -> atmosphereHaze=Double.parseDouble(args[++i]);
+                case "--atmosphere-thickness" -> atmosphereThickness=Double.parseDouble(args[++i]);
                 case "--bind" -> bind = args[++i];
                 case "--seed" -> seed = Long.parseLong(args[++i]);
                 case "--port" -> port = Integer.parseInt(args[++i]);
@@ -1074,6 +1078,7 @@ public final class MultiplayerServer implements AutoCloseable {
                                         + " --tls-dir DIRECTORY --seed NUMBER --create-account NAME"
                                         + " --production-config FILE --pedestrian-spacing BLOCKS --mounted-spacing BLOCKS");
             }
+        var atmosphere=dev.jayms.net.atmosphere.AtmosphereConfig.preset(atmospherePreset).withHaze(atmosphereHaze).withThickness(atmosphereThickness);
         AccountStore accounts = new AccountStore(accountFile);
         if (create != null) {
             byte[] bytes = new byte[15];
@@ -1098,7 +1103,7 @@ public final class MultiplayerServer implements AutoCloseable {
                         accounts,
                         identity.context(),
                         seed,
-                        new GameConfig(cityGame, cityGame && cycle, daySeconds, startHour),
+                        new GameConfig(cityGame, cityGame && cycle, daySeconds, startHour,atmosphere),
                         productionFile == null
                                 ? ProductionCatalog.cityGame()
                                 : ProductionCatalog.load(productionFile))) {

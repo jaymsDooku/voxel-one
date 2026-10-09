@@ -3189,7 +3189,7 @@ public final class CitySimulation {
                     && magic != 0x43495438
                     && magic != 0x43495439
                     && magic != 0x4349543A
-                    && magic != 0x4349543B && magic != 0x4349543C && magic != 0x4349543D && magic != 0x4349543E && magic != 0x4349543F && magic != 0x43495440) throw new IOException("Invalid city save");
+                    && magic != 0x4349543B && magic != 0x4349543C && magic != 0x4349543D && magic != 0x4349543E && magic != 0x4349543F && magic != 0x43495440 && magic != 0x43495441) throw new IOException("Invalid city save");
             return CityFrame.read(
                     in,
                     magic == 0x43495431
@@ -3202,7 +3202,7 @@ public final class CitySimulation {
                                                     ? 4
                                                     : magic == 0x43495435
                                                             ? 5
-                                                            : magic == 0x43495436 ? 6 : magic == 0x43495437 ? 7 : magic == 0x43495438 ? 8 : magic == 0x43495439 ? 9 : magic == 0x4349543A ? 10 : magic == 0x4349543B ? 11 : magic == 0x4349543C ? 12 : magic == 0x4349543D ? 13 : magic == 0x4349543E ? 14 : magic == 0x4349543F ? 15 : 16);
+                                                            : magic == 0x43495436 ? 6 : magic == 0x43495437 ? 7 : magic == 0x43495438 ? 8 : magic == 0x43495439 ? 9 : magic == 0x4349543A ? 10 : magic == 0x4349543B ? 11 : magic == 0x4349543C ? 12 : magic == 0x4349543D ? 13 : magic == 0x4349543E ? 14 : magic == 0x4349543F ? 15 : magic == 0x43495440 ? 16 : 17);
         }
     }
 
@@ -3211,9 +3211,8 @@ public final class CitySimulation {
         Files.createDirectories(file.toAbsolutePath().getParent());
         Path tmp = file.resolveSibling(file.getFileName() + ".tmp");
         try (var out = new DataOutputStream(Files.newOutputStream(tmp))) {
-            boolean parcels=stressGrid == null && zones.stream().anyMatch(z->!z.parcels().isEmpty());
-            out.writeInt(parcels?0x43495440:stressGrid == null ? 0x4349543E : 0x4349543F);
-            frame().write(out,parcels?16:stressGrid == null ? 14 : 15);
+            out.writeInt(0x43495441);
+            frame().write(out,17);
         }
         try {
             Files.move(

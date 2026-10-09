@@ -15,6 +15,9 @@ public class Chunk implements AutoCloseable {
     private final dev.jayms.net.model.SparseVoxelOctree blocks =
             new dev.jayms.net.model.SparseVoxelOctree(256);
     private boolean dirty = true;
+    private long geometryVersion;
+    /** Geometry changes only; mesh/neighbor invalidation does not rebuild sky coverage. */
+    public long geometryVersion(){return geometryVersion;}
 
     public boolean isEmpty() {
         return blocks.nodes() == 0;
@@ -65,6 +68,7 @@ public class Chunk implements AutoCloseable {
         }
 
         int i = index(x, y, z);
+        geometryVersion++;
         blocks.fill(
                 x * 16,
                 y * 16,
@@ -119,6 +123,7 @@ public class Chunk implements AutoCloseable {
         int fx = x * 16 + edit.ix() * side,
                 fy = y * 16 + edit.iy() * side,
                 fz = z * 16 + edit.iz() * side;
+        geometryVersion++;
         blocks.fill(
                 fx,
                 fy,

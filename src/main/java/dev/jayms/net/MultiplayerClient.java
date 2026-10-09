@@ -100,7 +100,7 @@ public final class MultiplayerClient implements AutoCloseable {
                 ItemDrop drop = ItemDrop.read(in);
                 if (drop.count() > 0) drops.put(drop.id(), drop);
             }
-            acceptCity(CityFrame.read(in, serverProtocol < 16 ? 6 : serverProtocol < 19 ? 8 : serverProtocol < 20 ? 9 : serverProtocol < 21 ? 10 : serverProtocol < 22 ? 11 : serverProtocol < 24 ? 12 : serverProtocol < 25 ? 13 : serverProtocol < 26 ? 14 : serverProtocol < 27 ? 15 : 16), System.nanoTime());
+            acceptCity(CityFrame.read(in, serverProtocol < 16 ? 6 : serverProtocol < 19 ? 8 : serverProtocol < 20 ? 9 : serverProtocol < 21 ? 10 : serverProtocol < 22 ? 11 : serverProtocol < 24 ? 12 : serverProtocol < 25 ? 13 : serverProtocol < 26 ? 14 : serverProtocol < 27 ? 15 : serverProtocol < 28 ? 16 : 17), System.nanoTime());
             out.writeByte(Protocol.READY);
             out.flush();
             socket.setSoTimeout(0);
@@ -297,7 +297,7 @@ public final class MultiplayerClient implements AutoCloseable {
                 int type = in.readUnsignedByte();
                 Runnable event;
                 if (type == Protocol.CITY_STATE) {
-                    var state = CityFrame.read(in, serverProtocol < 16 ? 6 : serverProtocol < 19 ? 8 : serverProtocol < 20 ? 9 : serverProtocol < 21 ? 10 : serverProtocol < 22 ? 11 : serverProtocol < 24 ? 12 : serverProtocol < 25 ? 13 : serverProtocol < 26 ? 14 : serverProtocol < 27 ? 15 : 16);
+                    var state = CityFrame.read(in, serverProtocol < 16 ? 6 : serverProtocol < 19 ? 8 : serverProtocol < 20 ? 9 : serverProtocol < 21 ? 10 : serverProtocol < 22 ? 11 : serverProtocol < 24 ? 12 : serverProtocol < 25 ? 13 : serverProtocol < 26 ? 14 : serverProtocol < 27 ? 15 : serverProtocol < 28 ? 16 : 17);
                     long time = System.nanoTime();
                     event = () -> acceptCity(state, time);
                 } else if (type == Protocol.CITY_WORLD) {

@@ -26,6 +26,17 @@ public final class MobileSnapshot {
         result.put("bounds",List.of(cx-radius,cx+radius,low,high,cz-radius,cz+radius));
         result.put("pose",List.of(pose.x(),pose.y(),pose.z(),(float)Math.toRadians(pose.yaw()),(float)Math.toRadians(pose.pitch())));result.put("cells",cells);
         result.put("inventory",slots);result.put("health",health);result.put("notice",notice);
+        var atmosphere=city.config().atmosphere();
+        var values=new ArrayList<Double>();
+        for(double v:new double[]{atmosphere.radius(),atmosphere.height(),atmosphere.metresPerBlock(),atmosphere.seaLevel()})values.add(v);
+        for(var v:List.of(atmosphere.origin(),atmosphere.up(),atmosphere.molecular(),atmosphere.aerosolScattering(),atmosphere.aerosolExtinction(),atmosphere.absorption())){values.add(v.x());values.add(v.y());values.add(v.z());}
+        for(double v:new double[]{atmosphere.molecularScale(),atmosphere.aerosolScale(),atmosphere.absorptionCentre(),atmosphere.absorptionWidth(),atmosphere.anisotropy()})values.add(v);
+        for(var v:List.of(atmosphere.groundAlbedo(),atmosphere.solarIrradiance())){values.add(v.x());values.add(v.y());values.add(v.z());}values.add(atmosphere.solarRadius());
+        result.put("atmosphere",Map.of("version",1,"enabled",atmosphere.enabled(),"values",values));
+        double angle=(city.config().hour(city.elapsed())-6)/24*Math.PI*2;
+        double sx=Math.cos(angle),sy=Math.sin(angle),sz=-.35;
+        double length=Math.sqrt(sx*sx+sy*sy+sz*sz);
+        result.put("sun",List.of(sx/length,sy/length,sz/length));
         if(city.config().city()){
             var c=new LinkedHashMap<String,Object>();c.put("time",city.config().time(city.elapsed()).label());
             c.put("treasury",city.economy().budget());

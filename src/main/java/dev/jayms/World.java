@@ -162,19 +162,20 @@ public class World implements AutoCloseable {
         dirtyNeighbors(p);
     }
 
+    /** Remove resident geometry while retaining authoritative edits for reload. */
+    public void unloadChunk(ChunkPos position)throws Exception {
+        var chunk=loadedChunks.get(position);
+        if(chunk!=null){chunk.close();loadedChunks.remove(position);dirtyNeighbors(position);}
+    }
+
     /** Load nearest columns first; bounded generation per frame, unloading distant GPU buffers. */
     public void stream(float x, float z, int budget) throws Exception {
         int cx = Math.floorDiv((int) Math.floor(x), 16),
                 cz = Math.floorDiv((int) Math.floor(z), 16);
-        var it = loadedChunks.entrySet().iterator();
-        while (it.hasNext()) {
-            var e = it.next();
-            if (Math.abs(e.getKey().chunkX() - cx) > 6 || Math.abs(e.getKey().chunkZ() - cz) > 6) {
-                e.getValue().close();
-                it.remove();
-                dirtyNeighbors(e.getKey());
-            }
-        }
+        var distant=new ArrayList<ChunkPos>();
+        for(var position:loadedChunks.keySet())
+            if(Math.abs(position.chunkX()-cx)>6||Math.abs(position.chunkZ()-cz)>6)distant.add(position);
+        for(var position:distant)unloadChunk(position);
         int generated = 0;
         for (int ring = 0; ring <= 4; ring++)
             for (int a = -ring; a <= ring; a++)

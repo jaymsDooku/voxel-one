@@ -2,7 +2,7 @@ import UIKit
 import SceneKit
 
 @MainActor
-final class GameController:UIViewController,UITextFieldDelegate {
+final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecognizerDelegate {
     private let renderer=VoxelRenderer()
     private var world:VoxelWorld?
     private var gateway:Gateway?
@@ -28,14 +28,29 @@ final class GameController:UIViewController,UITextFieldDelegate {
         super.viewDidLoad();view.backgroundColor = .black
         renderer.view.translatesAutoresizingMaskIntoConstraints=false;view.addSubview(renderer.view)
         NSLayoutConstraint.activate([renderer.view.topAnchor.constraint(equalTo:view.topAnchor),renderer.view.bottomAnchor.constraint(equalTo:view.bottomAnchor),renderer.view.leadingAnchor.constraint(equalTo:view.leadingAnchor),renderer.view.trailingAnchor.constraint(equalTo:view.trailingAnchor)])
-        let look=UIPanGestureRecognizer(target:self,action:#selector(pan(_:)));look.maximumNumberOfTouches=1;renderer.view.addGestureRecognizer(look)
-        let two=UIPanGestureRecognizer(target:self,action:#selector(panPlanning(_:)));two.minimumNumberOfTouches=2;renderer.view.addGestureRecognizer(two)
-        renderer.view.addGestureRecognizer(UITapGestureRecognizer(target:self,action:#selector(tapWorld(_:))))
-        renderer.view.addGestureRecognizer(UIPinchGestureRecognizer(target:self,action:#selector(pinch(_:))))
+        let look=UIPanGestureRecognizer(target:self,action:#selector(pan(_:)));look.maximumNumberOfTouches=1;addWorldGesture(look)
+        let two=UIPanGestureRecognizer(target:self,action:#selector(panPlanning(_:)));two.minimumNumberOfTouches=2;addWorldGesture(two)
+        addWorldGesture(UITapGestureRecognizer(target:self,action:#selector(tapWorld(_:))))
+        addWorldGesture(UIPinchGestureRecognizer(target:self,action:#selector(pinch(_:))))
         displayLink=CADisplayLink(target:self,selector:#selector(frame(_:)));displayLink?.preferredFramesPerSecond=30;displayLink?.add(to:.main,forMode:.common)
         if FileManager.default.fileExists(atPath:OfflineSave.url.path) {
             do {try startOffline(OfflineSave.load())}catch{showMenu();notify(error.localizedDescription)}
         } else {showMenu()}
+    }
+    // HUD labels and empty stack space share world gestures. Controls keep their
+    // own touches, including movement buttons and the scrolling hotbar.
+    private func addWorldGesture(_ gesture:UIGestureRecognizer) {
+        gesture.delegate=self;view.addGestureRecognizer(gesture)
+    }
+    func gestureRecognizer(_ gestureRecognizer:UIGestureRecognizer,shouldReceive touch:UITouch)->Bool {
+        guard !inMenu,!paused else{return false}
+        var target=touch.view
+        while let current=target {
+            if current is UIControl || current is UIScrollView {return false}
+            if current === view {break}
+            target=current.superview
+        }
+        return true
     }
     private func label(_ text:String,size:CGFloat=14,id:String="")->UILabel {
         let l=UILabel();l.text=text;l.textColor = .white;l.font = .systemFont(ofSize:size,weight:.semibold);l.numberOfLines=2;l.accessibilityIdentifier=id;return l
@@ -63,7 +78,9 @@ final class GameController:UIViewController,UITextFieldDelegate {
         let menuButton=button("Menu","menuButton",#selector(openMenu))
         let pause=button("Pause","pauseButton",#selector(togglePause));pauseButton=pause
         let plan=button("Plan","planToggle",#selector(togglePlan));planButton=plan;plan.isHidden=world?.snapshot.city==nil
-        let toolbar=row([menuButton,pause,plan,button("Bag","inventoryButton",#selector(inventory))])
+        let sky=button("Sky","atmosphereToggle",#selector(toggleAtmosphere(_:)))
+        sky.accessibilityValue=renderer.atmospherePreview ? "On":"Off"
+        let toolbar=row([menuButton,pause,plan,button("Bag","inventoryButton",#selector(inventory)),sky])
         let t=UIStackView(arrangedSubviews:[toolbar,cityLabel,status,positionLabel]);t.axis = .vertical;t.spacing=2;top=t;overlay(t,atTop:true)
         crosshair=label("+",size:26);crosshair.textAlignment = .center;crosshair.translatesAutoresizingMaskIntoConstraints=false;view.addSubview(crosshair)
         NSLayoutConstraint.activate([crosshair.centerXAnchor.constraint(equalTo:view.centerXAnchor),crosshair.centerYAnchor.constraint(equalTo:view.centerYAnchor)])
@@ -96,6 +113,7 @@ final class GameController:UIViewController,UITextFieldDelegate {
     }
     @objc private func togglePause(){paused.toggle();movement.removeAll();pauseButton?.setTitle(paused ? "Resume":"Pause",for:.normal);notify(paused ? "Paused. The online city keeps running.":"Resumed.");saveOffline()}
     @objc private func togglePlan(){guard let world=world,world.snapshot.city != nil else{return};renderer.planning.toggle();lastPoll=0;renderer.focus=world.position;points.removeAll();renderer.mark(points,world:world);movement.removeAll();refreshHUD()}
+    @objc private func toggleAtmosphere(_ sender:UIButton){renderer.atmospherePreview.toggle();sender.accessibilityValue=renderer.atmospherePreview ? "On":"Off";if let world=world {renderer.rebuild(world);renderer.updateCamera(world)};notify(renderer.atmospherePreview ? "Planet sky preview on (low quality).":"Planet sky preview off.")}
     @objc private func chooseTool(){
         let alert=UIAlertController(title:"City tool",message:"Tap ground to choose points. Roads need two points; zones need at least three. The server checks cost and space.",preferredStyle:.actionSheet)
         for (index,title) in ["Inspect","Dirt road","Residential","Commercial","Industrial","Agricultural"].enumerated(){alert.addAction(UIAlertAction(title:title,style:.default){[weak self] _ in self?.tool=index;self?.points.removeAll();self?.notify("\(title) selected.")})}

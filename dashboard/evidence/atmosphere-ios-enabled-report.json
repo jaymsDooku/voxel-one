@@ -1,0 +1,38 @@
+{
+  "sourceHead": "05977d7d70f960c68fc503b7760280ab82a98c0d",
+  "status": "passed",
+  "clientChecked": true,
+  "environment": {
+    "macOS": "15.7.9",
+    "xcode": "Xcode 16.4\nBuild version 16F6",
+    "simulatorSDK": "18.5"
+  },
+  "tests": [
+    {
+      "name": "testOfflineTouchBuildSavePauseAndLandscape",
+      "status": "passed"
+    },
+    {
+      "name": "testOnlineLoginCityPlanningAndReconnect",
+      "status": "passed"
+    },
+    {
+      "name": "testCollisionJumpRayAndEditRules",
+      "status": "passed"
+    },
+    {
+      "name": "testSnapshotValidationAndSaveRoundTrip",
+      "status": "passed"
+    },
+    {
+      "name": "testAtmosphereProfileMigrationAndNumericalBounds",
+      "status": "passed"
+    },
+    {
+      "name": "testPlanetAtmosphereNativeToggleAndLegacyWorld",
+      "status": "passed"
+    }
+  ],
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/37967934841",
+  "playtest": "Playtest: six real native simulator client cases passed, including saved Sky choice and restart. Verified receipt/media hashes. Inspected enabled blue sky and clear HUD, with a dark virtual-ground band above local terrain. Ground-background fix pending another exact-source check. No physical iPhone test."
+}
