@@ -73,7 +73,21 @@ legacy clock strength is not multiplied into that direct term. Distant diffuse u
 Lambertian 1/pi factor. The fixed sandbox clock now uses its configured hour, like cycling
 worlds; mobile snapshots use the same solar-direction formula. Local-probe cameras use
 the same planet anchor rather than interpreting probe-relative positions as player-relative.
-Legacy indirect GI and cloud lighting still need profile agreement.
+The pipeline bake separates local RGB from exact outdoor visibility. It removes fixed blue
+sky RGB, fixed-direction sun-bounce seeds and non-emissive solid glow. LEDs and fractional
+visibility remain in voxel transport. A blurred shared environment approximation provides
+sky diffuse colour, gated by the existing visibility. Without accepted visibility it stays
+dark. Local probe reflections keep their own light independent of outdoor visibility.
+Scene aerial samples use the same voxel sky visibility and local solar shadow maps. The
+old post-pass height medium is suppressed in this path, so light shafts/air compose once.
+Orthographic aerial paths use per-pixel origins on the camera plane; local overview strength
+is `-Dvoxel.overviewHaze=0..1`, default 1, and does not change the world profile.
+Cloud illumination uses shared solar transmittance and sampled sky, with foreground air
+retained once in the cloud blend. Water captures use the same voxel scene shader and shade
+the physical surface-to-reflector leg. The water surface applies the foreground air to the
+reflected leg; refraction reuses the opaque HDR scene and preserves foreground scattering
+rather than applying a second fog layer. Native low-quality fog and underwater refraction
+remain approximations, not complete participating-water transport.
 Held objects skip it. Isometric sky rays reconstruct per-pixel origins and parallel
 directions. Profile/table changes reset temporal history.
 
@@ -95,8 +109,8 @@ checks correctness; it does not establish the 1080p desktop GPU target or an iPh
 Still required before review/release:
 
 - Higher-angular-resolution multiple-scattering comparisons and measured fallback/update costs.
-- Full sunlight/irradiance agreement without duplicate legacy daylight attenuation.
-- Water, local reflection, cloud depth and transparent-layer integration audit.
+- Diffuse environment approximation/reference comparisons and complete regression coverage.
+- Final water/local reflection/cloud/transparency depth audit and player-camera captures.
 - Sealed-room/window/glass/fractional/tiny-model/LED regression scenes and all player
   cameras, full-world isometric fit, resize/context lifetime and temporal transitions.
 - High-sample radiance comparisons at sunset/horizon and diagnostic spherical limb scenes.
@@ -106,7 +120,10 @@ Still required before review/release:
   including saved opt-in/restart. Its inspected enabled image has a blue sky and clear HUD,
   but a dark virtual-ground band above the local patch. The native cube now shades the
   virtual diffuse ground with profile albedo, transmitted sunlight and view transmission.
-  This background adds no collision or voxels. Its visual fix needs another exact-source run.
+  This background adds no collision or voxels. Run 37969915051 passed all six cases for
+  5f6e84ddc1cef572a60f3502f59ca1015f746983; its client image confirms the ground band
+  is closed. New native solar RGB/tangent-frame, shadow and visible-disc changes await
+  another exact-source Mac check.
   Physical-device performance/signing
   evidence remains unavailable. Simulator preflight cannot replace a client playtest.
 - Full existing test suite, controller master synchronization, final diff audit against
@@ -122,3 +139,12 @@ and [author implementation](https://github.com/sebh/UnrealEngineSkyAtmosphere).
 [Bruneton's reference and tests](https://ebruneton.github.io/precomputed_atmospheric_scattering/index.html)
 describe dimensional consistency and numerical reference validation. Any later adapted
 source must retain its attribution and license.
+
+Current desktop validation also covers production F5/F6/F10 controls, shared sky visibility,
+sealed room/window/LED scenes and shared water/cloud composition. The first production
+altitude fixture changed a copy of player position; that altitude result was withdrawn.
+The corrected fixture loads a bounded empty collision region and asserts actual height.
+Its fresh 73-frame run and F10 media show 120 km entry/return; overview exposure remains
+too bright after the transition. The full Maven suite
+hit its 600-second limit; it is not a full-suite pass. The first 1080p software benchmark
+hit its 900-second limit with no completed report; a shorter measured run is prepared.

@@ -3211,7 +3211,6 @@ public final class CitySimulation {
         Files.createDirectories(file.toAbsolutePath().getParent());
         Path tmp = file.resolveSibling(file.getFileName() + ".tmp");
         try (var out = new DataOutputStream(Files.newOutputStream(tmp))) {
-            boolean parcels=stressGrid == null && zones.stream().anyMatch(z->!z.parcels().isEmpty());
             out.writeInt(0x43495441);
             frame().write(out,17);
         }

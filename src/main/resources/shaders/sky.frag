@@ -20,7 +20,7 @@ void main(){
     float mu=dot(planetRay,uAtmosphereSun);
     vec2 skyUV=vec2(fract(atan(planetRay.x,planetRay.z)/(2.*ATM_PI)),asin(clamp(planetRay.y,-1.,1.))/ATM_PI+.5);
     vec3 color=texture(uSkyView,skyUV).rgb;
-    if(uIsometric==1||length(planetOrigin)>uPlanetRadius+uAtmosphereHeight){vec3 t;atmosphereIntegrate(planetOrigin,planetRay,uAtmosphereSun,2.*(uPlanetRadius+uAtmosphereHeight),length(planetOrigin)>uPlanetRadius+uAtmosphereHeight?256:uAtmosphereSamples,t,color);}
+    if(uIsometric==1||length(planetOrigin)>uPlanetRadius+uAtmosphereHeight){vec3 t;atmosphereIntegrate(planetOrigin,planetRay,uAtmosphereSun,2.*(uPlanetRadius+uAtmosphereHeight),length(planetOrigin)>uPlanetRadius+uAtmosphereHeight?max(64,uAtmosphereSamples*4):uAtmosphereSamples,t,color);color+=t*atmosphereGround(planetOrigin,planetRay);}
     vec3 solarT=atmosphereSunlight(planetOrigin,uAtmosphereSun);
     float disc=smoothstep(cos(uSolarRadius*1.1),cos(uSolarRadius*.9),mu);
     color+=uSolar*solarT*disc;
@@ -31,8 +31,13 @@ void main(){
             vec3 p=uCameraPosition+ray*(near+(float(i)+.5)*stepSize);float density=cloud(p);
             float attenuation=exp(-density*stepSize*.04);
             float lightDensity=0.;for(int j=1;j<=4;j++)lightDensity+=cloud(p+uSunDirection*float(j)*12.);
-            vec3 illumination=vec3(.18,.25,.36)*uAmbient+vec3(1.,.89,.68)*exp(-lightDensity*1.5)*uDaylight;
-            scattering+=transmittance*(1.-attenuation)*illumination;transmittance*=attenuation;
+            vec3 cloudPlanet=uPlanetCamera+uWorldToPlanet*(p-uCameraPosition)*uBlockKm;
+            vec3 skyLight=(texture(uSkyView,vec2(.125,.8)).rgb+texture(uSkyView,vec2(.375,.8)).rgb+texture(uSkyView,vec2(.625,.8)).rgb+texture(uSkyView,vec2(.875,.8)).rgb)*.25;
+            vec3 illumination=skyLight+uSolar*atmosphereSunlight(cloudPlanet,uAtmosphereSun)*exp(-lightDensity*1.5)/ATM_PI;
+            vec3 airT,airL;vec3 offset=uWorldToPlanet*(p-origin)*uBlockKm;float path=length(offset);
+            atmosphereIntegrate(planetOrigin,normalize(offset),uAtmosphereSun,path,4,airT,airL);
+            // Replace cloud-blocked background while preserving the foreground air once.
+            scattering+=transmittance*(1.-attenuation)*(illumination*airT+airL);transmittance*=attenuation;
         }
         color=color*transmittance+scattering;
     }

@@ -49,6 +49,15 @@ class AtmosphereReferenceTest {
         var space=AtmosphereReference.integrate(c,new Vec(0,c.radius()+120_000,0),new Vec(1,-.2,0).unit(),new Vec(0,1,0),1e7,256,128);
         assertTrue(space.radiance().length()>=0);
     }
+    @Test void sunsetAndHorizonConvergeAtDocumentedTolerance(){
+        Vec p=new Vec(0,c.radius()+100,0),ray=new Vec(1,.01,0).unit();
+        for(double elevation:new double[]{-.03,0,.03}){
+            Vec sun=new Vec(1,elevation,0).unit();
+            var low=AtmosphereReference.integrate(c,p,ray,sun,1e7,256,128);
+            var high=AtmosphereReference.integrate(c,p,ray,sun,1e7,1024,512);
+            for(int k=0;k<3;k++)assertEquals(high.radiance().component(k),low.radiance().component(k),Math.max(.003,high.radiance().component(k)*.08));
+        }
+    }
     @Test void controlledVerticalIntegrationConvergesAtDocumentedTolerance() {
         Vec p=new Vec(0,c.radius()+20,0),up=new Vec(0,1,0),sun=new Vec(1,1,0).unit();
         var a=AtmosphereReference.integrate(c,p,up,sun,1e7,256,128);var b=AtmosphereReference.integrate(c,p,up,sun,1e7,1024,512);

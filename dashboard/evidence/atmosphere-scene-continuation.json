@@ -1,0 +1,58 @@
+{
+  "status": "in_progress",
+  "environment": {
+    "desktop": "Linux assigned X11 display; llvmpipe LLVM 15.0.6; OpenGL 3.3; isolated synthetic profiles",
+    "nativeObservedHead": "5f6e84ddc1cef572a60f3502f59ca1015f746983",
+    "nativeRun": "https://github.com/jaymsDooku/voxel-one/actions/runs/37969915051"
+  },
+  "tests": [
+    {
+      "command": "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=AtmosphereReferenceTest,AtmosphereLightingTest,AtmosphereConfigTest,DaylightTest,LightingTest,LightOcclusionTest test",
+      "observed": "28 cases passed; sky visibility includes 1/16 and 1/32 opaque/glass roofs. Initial import/resolution errors corrected before this pass."
+    },
+    {
+      "command": "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=AtmosphereServerTest,RenderingAlgorithmsTest,CityFormat16RegressionTest,AviationSaveCompatibilityTest,BusinessCatalogTest,MarketEconomyTest,MixedRoadOwnershipTest,RailwayOwnershipCompatibilityTest,RailwaySaveCompatibilityTest,RailwayShippingCompatibilityTest,RegionalSaveCompatibilityTest,RoadBaseCompatibilityTest,ShippingProtocolCompatibilityTest test",
+      "observed": "62 cases passed; all 90 selected cases have zero failures/errors."
+    },
+    {
+      "command": "python3 -m unittest discover -s tools/ios -p test_*.py",
+      "observed": "53 Linux contract cases passed; no native execution claim."
+    },
+    {
+      "command": "bash -n ios/check-simulator.sh",
+      "observed": "Shell syntax passed."
+    },
+    {
+      "command": "python3 deploy/run_atmosphere_playtest.py --display \"$DISPLAY\" --main",
+      "expected": "Real W/F5/F6/F10 controls, asserted 120 km camera entry/return, clear HUD/held arm, odd resize/menu and no GL errors.",
+      "observed": "Playtest: passed assertions across 73 frames; media inspected. Overview brightness after night/space is excessive and remains unresolved."
+    },
+    {
+      "command": "python3 deploy/run_atmosphere_playtest.py --display \"$DISPLAY\"",
+      "observed": "Playtest: completed current GL3.3 workflow; closed noon mean 0, window 77.7063, sealed night LED 167.5895; clouds/water, altitude, quality and lifecycle passed. See atmosphere-playtest.txt. CPU angular convergence gap is separate."
+    },
+    {
+      "command": "java -cp target/classes deploy/AtmosphereAngularReference.java dashboard/evidence/atmosphere-angular-reference.txt",
+      "observed": "Measured 16/32/64/128 directions against 256, six altitude/sun cases each. Existing 16-direction closure differs up to 98.16%; 128 directions within 7.61%. This is an unresolved numerical acceptance gap."
+    },
+    {
+      "command": "java -cp /home/debian/.m2/repository/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar deploy/AtmosphereVideoInspection.java dashboard/evidence/atmosphere-main-transitions.mp4 target/atmosphere-video-inspection",
+      "observed": "Actual F10 H264 decoded and frames inspected; 50.07 s, 41 frames, 1121923 bytes."
+    },
+    {
+      "command": "python3 deploy/run_atmosphere_playtest.py --display \"$DISPLAY\" --regression",
+      "observed": "Playtest: existing actual engine rendering regression completed with exit 0 on current desktop source. Fresh sanitized reports and media copied; covers lighting, water, probes, temporal/upscale and context checks."
+    }
+  ],
+  "limits": [
+    "Full Maven run timed out at 600 s; no full-suite pass.",
+    "First recording/readback-free 1080p benchmark timed out at 900 s without a completed report. Shorter benchmark prepared, not executed.",
+    "No declared hardware <=2 ms GPU result or physical iPhone budget. Native remains opt-in.",
+    "New Swift sunlight/shadow/disc/interior-guard source awaits scoped exact-source Mac build/playtest.",
+    "Angular convergence and exposure transitions need fixes before review.",
+    "Controller master integration, final full-source audit and fresh final-source validation remain."
+  ],
+  "diffAudit": "git diff --check passed; no deleted tracked files against review base bcdcab56c6ae1c183621aaa1b4a7e3d0e1f0b3ba. Legacy shading/fog removals are intentional shared-medium replacements. No Git publication performed.",
+  "browser": "Browser playtesting does not apply to these native OpenGL/SceneKit clients. Actual native workflows used.",
+  "publication": "Evidence pending controller publication on assigned feature branch."
+}

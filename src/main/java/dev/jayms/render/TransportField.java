@@ -14,13 +14,14 @@ public final class TransportField {
     private byte[] light;
     private static final int[][] DIRECTIONS={{1,0,0},{-1,0,0},{0,1,0},{0,-1,0},{0,0,1},{0,0,-1},
             {1,1,1},{-1,1,1},{1,1,-1},{-1,1,-1},{1,-1,1},{-1,-1,1},{1,-1,-1},{-1,-1,-1}};
-    public TransportField(int width,int height,int length,int[] material,byte[] light){
+    public TransportField(int width,int height,int length,int[] material,byte[] light){this(width,height,length,material,light,false);}
+    public TransportField(int width,int height,int length,int[] material,byte[] light,boolean separateSky){
         this.width=width;this.height=height;this.length=length;this.material=material;this.light=light;
         int n=width*height*length;boolean[] solid=new boolean[n];radiance=new float[n*4];
         for(int i=0;i<n;i++){
             int type=WorldVoxels.decode(material[i]);solid[i]=type!=Blocks.AIR&&type!=Blocks.GLASS&&type!=Blocks.WATER;
             if(!solid[i])continue;
-            int color=material[i]==-1?0xff888888:WorldVoxels.surfaceColor(material[i]);float emission=type==Blocks.LED?4:.18f;
+            int color=material[i]==-1?0xff888888:WorldVoxels.surfaceColor(material[i]);float emission=type==Blocks.LED?4:separateSky?0:.18f;
             for(int c=0;c<3;c++)radiance[i*4+c]=((color>>(16-c*8))&255)/255f*emission+(light[i*4+c]&255)/127f*.15f;
             radiance[i*4+3]=1;
         }

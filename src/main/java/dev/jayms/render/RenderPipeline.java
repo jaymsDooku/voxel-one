@@ -143,7 +143,7 @@ public final class RenderPipeline implements AutoCloseable {
         if (sceneChanged(world) || worldRevision != world.editsVersion() || world.getLoadedChunks().values().stream().anyMatch(Chunk::dirty)) {
             hiZ.invalidate(); worldRevision = world.editsVersion();
         }
-        LightVolume next = lighting.update(world, x, z, Math.round(ambient * 10) / 10f);
+        LightVolume next = lighting.update(world, x, z, 1, true);
         if (next == null) return;
         volume = next;
         probes.invalidate();
@@ -233,10 +233,14 @@ public final class RenderPipeline implements AutoCloseable {
             Vector3f camera,
             boolean isometric,
             ShaderProgram voxel) {
+        temporal.atmosphereComposed=true;
         frameBudget.begin(settings);
+        frameBudget.atmosphereMark(0);
+        atmosphere.view(view,isometric,settings.overviewHaze);
         atmosphere.quality(settings.atmosphereQuality);
         atmosphere.update(camera,sun);
         if(atmosphereEnvironmentRevision!=atmosphere.revision) { updateEnvironment(); probes.invalidate(); temporal.reset(); }
+        frameBudget.atmosphereMark(1);
         viewProjection.set(projection).mul(view);
         visibleChunks = occludedChunks = 0;
         int rw = Math.max(1, Math.round(w * settings.renderScale));
@@ -248,6 +252,7 @@ public final class RenderPipeline implements AutoCloseable {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glDisable(GL_DEPTH_TEST);
         glDisable(GL_CULL_FACE);
+        frameBudget.atmosphereMark(2);
         sky.bind();
         atmosphere.bind(sky);
         sky.setMatrix4("uInverseViewProjection", new Matrix4f().translation(temporal.jitterX(width), temporal.jitterY(height), 0).mul(projection).mul(view).invert());
@@ -261,7 +266,7 @@ public final class RenderPipeline implements AutoCloseable {
         sky.setInt("uClouds", settings.clouds ? 1 : 0);
         sky.setFloat("uCloudCoverage", settings.cloudCoverage);
         sky.setFloat("uTime", (float)(System.nanoTime()/1e9 % 10000));
-        draw();
+        draw();frameBudget.atmosphereMark(3);
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
         far.bind();
@@ -286,7 +291,7 @@ public final class RenderPipeline implements AutoCloseable {
     }
 
     private void bindSceneLighting(ShaderProgram shader) {
-        atmosphere.bind(shader);
+        atmosphere.bind(shader);shader.setInt("uAtmosphereReflection",0);
         shader.setFloat("uDaylight", daylight);
         shader.setFloat("uAmbient", ambient);
         shader.setInt("uLightingEnabled", 1);
@@ -326,13 +331,13 @@ public final class RenderPipeline implements AutoCloseable {
     }
 
     public void water(World world,VoxelModelRenderer models,Matrix4f projection,Matrix4f view,Vector3f eye) {
-        water.capture(world,models,projection,view,eye,width,height,environment,sun,ambient,daylight);
+        water.capture(world,models,projection,view,eye,width,height,environment,sun,ambient,daylight,this::bindSceneLighting);
         if (!water.found())return;
         glBindFramebuffer(GL_READ_FRAMEBUFFER,hdrFbo);glBindFramebuffer(GL_DRAW_FRAMEBUFFER,resolveFbo);
         glBlitFramebuffer(0,0,width,height,0,0,width,height,GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT,GL_NEAREST);
         glBindFramebuffer(GL_FRAMEBUFFER,hdrFbo);glViewport(0,0,width,height);
         glEnable(GL_DEPTH_TEST);glEnable(GL_CULL_FACE);
-        water.render(world,projection,view,eye,resolveTexture,resolveDepth,environment,width,height,temporal.jitterX(width),temporal.jitterY(height));
+        water.render(world,projection,view,eye,resolveTexture,resolveDepth,environment,width,height,temporal.jitterX(width),temporal.jitterY(height),this::bindSceneLighting);
     }
 
     public void finish() {
@@ -352,6 +357,11 @@ public final class RenderPipeline implements AutoCloseable {
     public void addDecal(Decal decal) { temporal.addDecal(decal); }
     public void clearDecals() { temporal.clearDecals(); }
     public int particleCount() { return particles.count(); }
+    public float atmosphereGpuLast(){return frameBudget.atmosphereLast();}
+    public float atmosphereTableGpuLast(){return frameBudget.tableLast();}
+    public long atmosphereGpuSamples(){return frameBudget.atmosphereSamples();}
+    public float atmosphereGpuMillis(){return frameBudget.atmosphereMilliseconds();}
+    public float atmosphereTableGpuMillis(){return frameBudget.tableMilliseconds();}
     public float gpuMillis() { return frameBudget.milliseconds(); }
     public boolean gpuDriven() { return gpuDraw.enabled(); }
     public void chunk(Chunk chunk, ChunkPos p) {

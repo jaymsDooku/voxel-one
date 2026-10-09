@@ -132,3 +132,85 @@ exit 0, GL_NO_ERROR. Sanitized regression reports/media refreshed. git diff --ch
 no deleted files against the supplied review base. Full final diff audit remains before review.
 Next controller action: remote_ios_test for new native ground background/tests; preserve
 in-progress status and continue the listed remaining implementation after that result.
+
+## Sky/GI/composition continuation
+
+Trusted Mac run 37969915051 for 5f6e84ddc1cef572a60f3502f59ca1015f746983 passed all six
+native cases. Verified receipt and media hashes; inspected enabled client image confirms
+virtual ground closes the dark band. Fresh images/report copied as atmosphere-ios-ground*.
+No physical-device result. Native code is unchanged since that passed source.
+
+New desktop mode separates local RGB/LEDs from voxel sky visibility. Legacy bake overloads
+stay compatible. Pipeline bakes fixed visibility independent of clock, removes fixed blue
+sky/sun-bounce and normal-solid glow, and uses shared environment diffuse approximation.
+Mode participates in asynchronous cache acceptance. Exact fractional-leaf visibility is
+also available through sampleLighting; sample still returns legacy RGB. Material aerial
+samples now use voxel visibility/local sun shadows. A real sealed-room test found duplicate
+post height fog (mean 11.03); that legacy layer is suppressed where atmosphere is composed.
+Rerun passed closed noon mean 0, open window 77.71, sealed LED night 167.59. New GPU shader
+shares exact irradiance lookup with water. Orthographic aerial paths start per pixel.
+Water uses full scene capture with physical reflector-to-scene air and foreground air on
+reflection. Refraction reuses opaque HDR and preserves foreground air instead of adding fog.
+Cloud illumination/foreground medium now use the same physical profile. Virtual ground is
+also in the desktop sky table/environment. Combined GL workflow passed with clouds/water.
+
+Scoped Java run passed 44 tests after two new sky/LED tests. Their first attempt had an
+incorrect test assumption that sample returned alpha; fixed by explicit sampleLighting.
+Shared shader extraction first missed uAmbient in water; fixed before successful GL run.
+Developer helper failed transiently and was resolved self; all delegate tasks closed.
+
+Production Main harness added actual F5/F6/F10, synthetic clock and 120 km diagnostic view.
+First attempt hit classes removed during concurrent compilation; runner now copies stable
+compiled classes before launch. Second attempt lacked capture/focus at F5; harness now
+waits for normal menu/cursor controls and actual key callbacks. A rerun is required.
+Timestamp counters added inside FrameBudget for table/sky cost, without nested elapsed
+queries or blocking reads. 1080p recording/readback-free software benchmark is prepared
+but unexecuted. Full Maven suite is running under a 600-second timeout; no full pass claimed.
+
+Remaining: production controls/media, full suite completion, numerical angular comparisons,
+fractional/tiny/glass/held/HUD full regression coverage, measured 1080p software budget and
+hardware target evidence, final base/source audit and controller master integration.
+
+## Current continuation: native sunlight and production altitude
+
+Observed Mac run 37969915051 (source 5f6e84ddc1cef572a60f3502f59ca1015f746983)
+passed six client cases; inspected actual enabled client and copied ground report/media.
+New native code is not covered by that run: shared RGB solar irradiance/tangent basis,
+512x512 directional shadows, angular-radius solar geometry with depth occlusion,
+no duplicate disc in the coarse cube or fog colour, planetary-interior path guards.
+Native profile tests add zero-irradiance, rotated-frame and below-ground checks.
+Need exact-source Mac compilation and actual simulator playtest. Default remains off.
+
+90 cases in 19 selected Java suites passed: config/reference/sky lighting, Daylight,
+legacy lighting/occlusion, server late join, renderer algorithms and all changed city
+save/protocol compatibility suites. Commands recorded in continuation report. New
+sky visibility test covers supported 1/16 and 1/32 opaque/glass detail. Initial test
+missed an import, then tried unsupported detail resolution 64; both corrected.
+53 Linux iOS harness contract tests passed; bash -n ios/check-simulator.sh passed.
+Full Maven suite timed out after 600 seconds; no full-suite pass. First 1080p
+benchmark timed out after 900 seconds; no measured report or hardware target claim.
+A shorter benchmark now saves each completed mode; it has not run yet.
+
+Production altitude fixture first mutated a copy, then collision returned the player
+from unloaded chunks. It now changes actual player position and loads 27 empty
+diagnostic chunks around the camera. Production Main passed 73 frames: actual
+W/F5/F6/F10, three cameras, night, asserted 120 km altitude/return, resize and menu.
+Fresh space/overview images inspected; planet-interior sky band gone. Overview
+after night/space is too bright; exposure transition still needs work. F10 MP4
+50.07 seconds, 41 frames, 1121923 bytes; decoded actual frames for inspection.
+Higher-angle CPU report compares 16/32/64/128 directions with 256; maximum error
+for existing 16-direction closure is 98.16 percent, especially at 30 km sunset.
+128 directions stay within 7.61 percent for these six samples. Improve the GPU
+angular integration and compare its updated atlas before accepting numerical parity.
+
+Developer helper failed and was resolved self after independent source inspection.
+All helper tasks are closed; concurrency zero. No Git publication performed.
+Remaining acceptance: angular fix, exposure transitions/nonblocking exposure path,
+final water/cloud/transparency/fractional/tiny rendered regressions, budget metrics,
+physical reference GPU/device limits, full relevant source audit, controller master
+integration and fresh final-source checks/media; no ready/release claim.
+
+Current-source GL atmosphere workflow and existing rendering regression both completed
+with exit 0. Refreshed sanitized regression media/reports. Next controller action:
+remote_ios_test for new native sunlight/shadow/disc code. Remain in progress; after
+Mac result continue angular integration and exposure gaps, budgets and final checks.

@@ -23,12 +23,14 @@ public final class WorldLighting implements AutoCloseable {
     private long revision = -1, submittedRevision;
     private int submittedX, submittedZ;
     private float ambient = -1, submittedAmbient;
+    private boolean separateSky,submittedSeparateSky;
 
     public LightVolume update(World world, float px, float pz) {
         return update(world, px, pz, 1);
     }
 
-    public LightVolume update(World world, float px, float pz, float skyStrength) {
+    public LightVolume update(World world, float px, float pz, float skyStrength) {return update(world,px,pz,skyStrength,false);}
+    public LightVolume update(World world,float px,float pz,float skyStrength,boolean dynamicSky) {
         int cx = Math.floorDiv((int) Math.floor(px), 16) * 16,
                 cz = Math.floorDiv((int) Math.floor(pz), 16) * 16;
         LightVolume result = null;
@@ -38,10 +40,11 @@ public final class WorldLighting implements AutoCloseable {
                 if (submittedRevision == world.editsVersion()
                         && submittedX == cx
                         && submittedZ == cz
-                        && submittedAmbient == skyStrength) {
+                        && submittedAmbient == skyStrength && submittedSeparateSky==dynamicSky) {
                     result = baked;
                     revision = submittedRevision;
                     ambient = submittedAmbient;
+                    separateSky=submittedSeparateSky;
                     centerX = cx;
                     centerZ = cz;
                 }
@@ -55,8 +58,9 @@ public final class WorldLighting implements AutoCloseable {
                 && (cx != centerX
                         || cz != centerZ
                         || revision != world.editsVersion()
-                        || ambient != skyStrength)) {
+                        || ambient != skyStrength || separateSky!=dynamicSky)) {
             submittedAmbient = skyStrength;
+            submittedSeparateSky=dynamicSky;
             submittedX = cx;
             submittedZ = cz;
             submittedRevision = world.editsVersion();
@@ -117,7 +121,7 @@ public final class WorldLighting implements AutoCloseable {
                                                 return geometry.computeIfAbsent(
                                                         type, id -> modelGeometry(models.get(id)));
                                             }
-                                        });
+                                        },dynamicSky);
                             });
         }
         return result;

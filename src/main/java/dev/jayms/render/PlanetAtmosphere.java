@@ -5,6 +5,7 @@ import dev.jayms.net.atmosphere.AtmosphereConfig;
 import dev.jayms.net.atmosphere.AtmosphereConfig.Vec;
 import org.joml.Vector3f;
 import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 import static org.lwjgl.opengl.GL33.*;
 
 /** GL 3.3 raster LUT prototype. No compute shaders, readbacks or timing-query nesting.
@@ -40,7 +41,10 @@ public final class PlanetAtmosphere implements AutoCloseable {
         }
         void discard(){if(ownsAtlas)glDeleteTextures(atlas);glDeleteTextures(image);glDeleteTextures(multiple);}
     }
-    private final Vector3f worldCamera=new Vector3f();
+    private final Vector3f worldCamera=new Vector3f(),viewDirection=new Vector3f(0,0,-1);
+    private boolean orthographic;private float overviewHaze=1;
+    public void view(Matrix4f view,boolean ortho){view(view,ortho,1);}
+    public void view(Matrix4f view,boolean ortho,float haze){overviewHaze=Float.isFinite(haze)?Math.max(0,Math.min(1,haze)):1;orthographic=ortho;new Matrix4f(view).invert().transformDirection(new Vector3f(0,0,-1),viewDirection).normalize();}
     private Vec position=config.planetPosition(0,26,0),sun=new Vec(.45,.78,-.45).unit();
     private Matrix3f transform=new Matrix3f();
     private boolean dirty=true;
@@ -61,7 +65,11 @@ public final class PlanetAtmosphere implements AutoCloseable {
         double altitude=position.length()-config.radius(),sunCos=position.unit().dot(sun);
         boolean changed=dirty||lastDirection==null||sun.sub(lastDirection).length()>.002||!Double.isFinite(lastAltitude)||Math.abs(altitude-lastAltitude)>Math.max(2,altitude*.002)||Math.abs(sunCos-lastSun)>.002;
         lastRowsSubmitted=0;frame++;
-        if(job!=null&&(!job.profile.equals(requestedConfig)||job.q!=requestedQuality)){job.discard();job=null;}
+        if(job!=null){
+            Matrix3f requestedMatrix=matrix(requestedConfig);Vec nextPosition=planetPosition(requestedConfig,camera),nextSun=planetSun(requestedMatrix,worldSun);
+            double previousHeight=job.p.length()-job.profile.radius(),nextHeight=nextPosition.length()-requestedConfig.radius();
+            if(!job.profile.equals(requestedConfig)||job.q!=requestedQuality||Math.abs(nextHeight-previousHeight)>Math.max(100,Math.abs(previousHeight)*.1)||nextSun.sub(job.s).length()>.1){job.discard();job=null;dirty=true;}
+        }
         if(job==null&&changed){Matrix3f m=matrix(requestedConfig);job=new Job(requestedConfig,requestedQuality,planetPosition(requestedConfig,camera),planetSun(m,worldSun),m);}
         if(job==null||initialized()&&frame%requestedQuality.interval!=0)return;
         long start=System.nanoTime();int oldFbo=glGetInteger(GL_DRAW_FRAMEBUFFER_BINDING),oldRead=glGetInteger(GL_READ_FRAMEBUFFER_BINDING),oldVao=glGetInteger(GL_VERTEX_ARRAY_BINDING);
@@ -110,7 +118,7 @@ public final class PlanetAtmosphere implements AutoCloseable {
         vector(s,"uMieExtinction",config.aerosolExtinction(),1000);vector(s,"uOzone",config.absorption(),1000);vector(s,"uSolar",config.solarIrradiance(),1);
         vector(s,"uPlanetCamera",position,.001);vector(s,"uAtmosphereSun",sun,1);s.setMatrix3("uWorldToPlanet",transform);
     }
-    public void bind(ShaderProgram s){uniforms(s);s.setInt("uPlanetLighting",1);s.setVector3("uAtmosphereWorldCamera",worldCamera.x,worldCamera.y,worldCamera.z);glActiveTexture(GL_TEXTURE15);glBindTexture(GL_TEXTURE_2D,trans);s.setInt("uTransmittance",15);
+    public void bind(ShaderProgram s){uniforms(s);s.setInt("uPlanetLighting",1);s.setInt("uAtmosphereOrtho",orthographic?1:0);s.setFloat("uOverviewHaze",overviewHaze);s.setVector3("uAtmosphereViewDirection",viewDirection.x,viewDirection.y,viewDirection.z);s.setVector3("uAtmosphereWorldCamera",worldCamera.x,worldCamera.y,worldCamera.z);glActiveTexture(GL_TEXTURE15);glBindTexture(GL_TEXTURE_2D,trans);s.setInt("uTransmittance",15);
         glActiveTexture(GL_TEXTURE14);glBindTexture(GL_TEXTURE_2D,sky);s.setInt("uSkyView",14);glActiveTexture(GL_TEXTURE0);}
     public void environment(int cube) {
         int oldFbo=glGetInteger(GL_DRAW_FRAMEBUFFER_BINDING),oldRead=glGetInteger(GL_READ_FRAMEBUFFER_BINDING),oldVao=glGetInteger(GL_VERTEX_ARRAY_BINDING);int[] vp=new int[4];glGetIntegerv(GL_VIEWPORT,vp);

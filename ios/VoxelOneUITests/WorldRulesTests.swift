@@ -19,7 +19,17 @@ final class WorldRulesTests:XCTestCase {
         let t=NativeAtmosphere.sunlight(p,sun,profile);XCTAssertTrue(t.x>=0 && t.x<=1 && t.y>=0 && t.y<=1 && t.z>=0 && t.z<=1,"Upward solar transmission must remain in [0,1]")
         XCTAssertGreaterThan(t.x,t.y);XCTAssertGreaterThan(t.y,t.z,"Earth RGB molecular extinction attenuates blue most")
         XCTAssertEqual(NativeAtmosphere.sunlight(p,-sun,profile),.zero)
+        let buried=SIMD3<Double>(0,profile.values[0]-2,0)
+        XCTAssertNil(NativeAtmosphere.span(buried,sun,profile),"No path through the planetary interior")
+        XCTAssertEqual(NativeAtmosphere.sunlight(buried,sun,profile),.zero)
         var vacuum=profile;vacuum.enabled=false;XCTAssertEqual(NativeAtmosphere.sunlight(p,sun,vacuum),SIMD3<Double>(repeating:1))
+        let direct=NativeAtmosphere.solarIrradiance(profile,SCNVector3(0,26,0),sun)
+        XCTAssertEqual(direct.x,18*t.x,accuracy:1e-10)
+        var zeroSun=profile;zeroSun.values[30]=0;zeroSun.values[31]=0;zeroSun.values[32]=0
+        XCTAssertEqual(NativeAtmosphere.solarIrradiance(zeroSun,SCNVector3(0,26,0),sun),.zero,"Profile solar irradiance controls native sunlight")
+        var rotated=profile;rotated.values[7]=1;rotated.values[8]=0;rotated.values[9]=0
+        let turned=NativeAtmosphere.solarIrradiance(rotated,SCNVector3(0,26,0),sun)
+        XCTAssertEqual(turned.x,direct.x,accuracy:1e-10);XCTAssertEqual(turned.y,direct.y,accuracy:1e-10);XCTAssertEqual(turned.z,direct.z,accuracy:1e-10)
         let light=NativeAtmosphere.radiance(p,sun,sun,profile);XCTAssertTrue(light.x.isFinite && light.x>=0)
         let ground=NativeAtmosphere.radiance(p,-sun,sun,profile)
         XCTAssertTrue(ground.x.isFinite && ground.x>0,"Diffuse virtual surface closes the local patch background")

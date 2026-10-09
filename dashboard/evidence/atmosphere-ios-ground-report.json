@@ -1,0 +1,38 @@
+{
+  "sourceHead": "5f6e84ddc1cef572a60f3502f59ca1015f746983",
+  "status": "passed",
+  "clientChecked": true,
+  "environment": {
+    "macOS": "15.7.9",
+    "xcode": "Xcode 16.4\nBuild version 16F6",
+    "simulatorSDK": "18.5"
+  },
+  "tests": [
+    {
+      "name": "testOfflineTouchBuildSavePauseAndLandscape",
+      "status": "passed"
+    },
+    {
+      "name": "testOnlineLoginCityPlanningAndReconnect",
+      "status": "passed"
+    },
+    {
+      "name": "testCollisionJumpRayAndEditRules",
+      "status": "passed"
+    },
+    {
+      "name": "testSnapshotValidationAndSaveRoundTrip",
+      "status": "passed"
+    },
+    {
+      "name": "testAtmosphereProfileMigrationAndNumericalBounds",
+      "status": "passed"
+    },
+    {
+      "name": "testPlanetAtmosphereNativeToggleAndLegacyWorld",
+      "status": "passed"
+    }
+  ],
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/37969915051",
+  "playtest": "Playtest: all six real native client cases passed. Trusted receipt and image hashes verified. Enabled client image inspected: virtual ground closes the prior dark band; blue sky and clear touch HUD. No physical-device test or performance budget claimed."
+}

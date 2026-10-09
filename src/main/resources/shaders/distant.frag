@@ -15,12 +15,11 @@ void main(){
     if(c.x>=0&&c.x<16&&c.y>=0&&c.y<16&&(uDetailRows[c.y]&(1<<c.x))!=0)discard;
     vec3 N=normalize(vNormal),V=normalize(uCameraPosition-vWorldPosition);
     vec3 solar=uPlanetLighting==1?atmosphereDirect(vWorldPosition-uAtmosphereWorldCamera)/ATM_PI:vec3(1.5,1.38,1.15)*uDaylight;
-    vec3 color=pow(max(vColor,vec3(0)),vec3(2.2))*(vec3(.24,.32,.45)*uAmbient+solar*max(dot(N,normalize(-uLightDirection)),0.));
+    vec3 sky=uPlanetLighting==1?textureLod(uEnvironment,N,7.).rgb:vec3(.24,.32,.45)*uAmbient;
+    vec3 color=pow(max(vColor,vec3(0)),vec3(2.2))*(sky+solar*max(dot(N,normalize(-uLightDirection)),0.));
     color+=textureLod(uEnvironment,reflect(-V,N),6.).rgb*.018;
     if(uFog==1){
-        vec3 delta=uWorldToPlanet*(vWorldPosition-uCameraPosition)*uBlockKm;
-        float distance=length(delta);
-        if(distance>1e-6){vec3 t,l;atmosphereIntegrate(uPlanetCamera,delta/distance,uAtmosphereSun,distance,8,t,l);color=color*t+l;}
+        vec3 t,l;atmosphereAerial(vWorldPosition,8,t,l);color=color*t+l;
     }
 
     fragColor=vec4(color,1);

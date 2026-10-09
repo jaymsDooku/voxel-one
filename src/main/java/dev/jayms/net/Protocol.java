@@ -2,7 +2,7 @@ package dev.jayms.net;
 
 import java.io.*;
 
-/** Protocol 25 preserves road ownership and command IDs, and appends railway state. */
+/** Protocol 28 carries versioned atmosphere profiles while preserving road and railway state. */
 public final class Protocol {
     public static final int CITY_STATE = 16, CITY_COMMAND = 17, CITY_WORLD = 18, CITY_RESULT = 19;
     public static final int MAGIC = 0x564F5831, VERSION = 28, PORT = 25565;

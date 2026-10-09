@@ -75,12 +75,14 @@ enum NativeAtmosphere {
     /// Beer-Lambert attenuation accepts positive optical depth, never a signed exponent.
     static func attenuation(_ opticalDepth:SIMD3<Double>)->SIMD3<Double>{SIMD3(exp(-opticalDepth.x),exp(-opticalDepth.y),exp(-opticalDepth.z))}
     static func span(_ p:SIMD3<Double>,_ d:SIMD3<Double>,_ profile:AtmosphereProfile)->(Double,Double)? {
+        guard simd_length(p)>=profile.values[0]-0.001 else{return nil}
         let v=profile.values;guard let shell=sphere(p,d,v[0]+v[1]) else{return nil}
         let near=max(0,shell.0);var far=shell.1
         if let ground=sphere(p,d,v[0]),ground.1>0,ground.0 >= -0.001 {far=min(far,max(0,ground.0))}
         return far>near ? (near,far):nil
     }
     static func sunlight(_ p:SIMD3<Double>,_ sun:SIMD3<Double>,_ profile:AtmosphereProfile)->SIMD3<Double>{
+        if simd_length(p)<profile.values[0]-0.001{return .zero}
         if let ground=sphere(p,sun,profile.values[0]),ground.1>0,ground.0 >= -0.001{return .zero}
         if !profile.enabled{return SIMD3(repeating:1)}
         guard let range=span(p,sun,profile) else{return SIMD3(repeating:1)}
@@ -88,7 +90,12 @@ enum NativeAtmosphere {
         for i in 0..<16 {depth += extinction(density(simd_length(p+sun*(range.0+(Double(i)+0.5)*step))-profile.values[0],profile),profile)*step}
         return attenuation(depth)
     }
-    static func radiance(_ p:SIMD3<Double>,_ d:SIMD3<Double>,_ sun:SIMD3<Double>,_ profile:AtmosphereProfile)->SIMD3<Double>{
+    /// Same linear RGB top-of-shell irradiance and tangent transform as desktop.
+    static func solarIrradiance(_ profile:AtmosphereProfile,_ camera:SCNVector3,_ worldSun:SIMD3<Double>)->SIMD3<Double>{
+        let p=profile.position(camera),sun=simd_normalize(profile.ray(worldSun))
+        return profile.vector(30)*sunlight(p,sun,profile)
+    }
+    static func radiance(_ p:SIMD3<Double>,_ d:SIMD3<Double>,_ sun:SIMD3<Double>,_ profile:AtmosphereProfile,includeSolarDisc:Bool=true)->SIMD3<Double>{
         let v=profile.values;var color=SIMD3<Double>.zero,depth=SIMD3<Double>.zero
         if profile.enabled,let range=span(p,d,profile) {
             let step=(range.1-range.0)/24,mu=simd_dot(d,sun),g=v[26],phaseR=3*(1+mu*mu)/(16*Double.pi),phaseM=(1-g*g)/(4*Double.pi*pow(1+g*g-2*g*mu,1.5))
@@ -103,7 +110,7 @@ enum NativeAtmosphere {
             let q=p+d*ground.0,n=simd_normalize(q)
             color += attenuation(depth)*profile.vector(27)*profile.vector(30)*sunlight(q+n*2,sun,profile)*max(0,simd_dot(n,sun))/Double.pi
         }
-        if simd_dot(d,sun)>cos(v[33]) {color += profile.vector(30)*sunlight(p,sun,profile)}
+        if includeSolarDisc && simd_dot(d,sun)>cos(v[33]) {color += profile.vector(30)*sunlight(p,sun,profile)/(2*Double.pi*(1-cos(v[33])))}
         return color
     }
     static func cube(_ profile:AtmosphereProfile,_ camera:SCNVector3,_ worldSun:SIMD3<Double>)->[UIImage]{
@@ -113,7 +120,8 @@ enum NativeAtmosphere {
             var pixels=[UInt8](repeating:255,count:n*n*4)
             for y in 0..<n {for x in 0..<n {let a=(Double(x)+0.5)/Double(n)*2-1,b=(Double(y)+0.5)/Double(n)*2-1;let direction:SIMD3<Double>
                 switch face {case 0:direction=SIMD3(1,-b,-a);case 1:direction=SIMD3(-1,-b,a);case 2:direction=SIMD3(a,1,b);case 3:direction=SIMD3(a,-1,-b);case 4:direction=SIMD3(a,-b,1);default:direction=SIMD3(-a,-b,-1)}
-                let color=radiance(p,simd_normalize(profile.ray(direction)),sun,profile)
+                // The visible disc is separate geometry; a 16-pixel cube cannot resolve it.
+                let color=radiance(p,simd_normalize(profile.ray(direction)),sun,profile,includeSolarDisc:false)
                 for channel in 0..<3 {let value=max(0,color[channel]);let mapped=min(1,(value*(2.51*value+0.03))/(value*(2.43*value+0.59)+0.14));pixels[(x+y*n)*4+channel]=UInt8(min(255,max(0,pow(mapped,1/2.2)*255)))}
             }}
             let data=Data(pixels) as CFData;let provider=CGDataProvider(data:data)!
