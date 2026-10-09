@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-09T20:59:49+00:00",
+  "updatedAt": "2026-10-09T21:28:37+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -20,8 +20,8 @@
       "description": "Audited clean feature branch. Building shared validated atmosphere profile, tangent coordinates and CPU reference math before rendering integration.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Mac native build passed but look HUD-change check still failed. Small aim corrections now use opposing long drags; final 0.03-radian pose checks unchanged. Short diagnostics record aim/drag. 53 Linux harness mocks pass; exact-source Mac retry required.",
-      "updatedAt": "2026-10-09T20:59:49+00:00"
+      "note": "Ready for controller synchronization and independent review: 579 Java tests and seven exact-source native cases pass. Fresh 79-frame production playtest/F10 and spherical-limb captures inspected; source diff audited with no file deletions. Software timings recorded; hardware target unvalidated and native preview default off.",
+      "updatedAt": "2026-10-09T21:28:37+00:00"
     },
     {
       "id": "62346636376631352d313735362d346166362d623730662d386437336533383939623861",

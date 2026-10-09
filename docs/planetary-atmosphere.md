@@ -112,18 +112,15 @@ checks correctness; it does not establish the 1080p desktop GPU target or an iPh
 Current closure comparisons cover nine GPU texels against a 256-direction double
 reference, including sunset near 28 km. The maximum normalized error was 0.1298811
 with tolerance 0.25 and denominator floor 0.01. Rendered glass admits light; the
-1/16 opaque wall and 1/32 model wall remain dark. Production controls passed 81
-frames and produced a 41.128-second F10 clip. The asynchronous exposure path keeps
+1/16 opaque wall and 1/32 model wall remain dark. Fresh production controls passed 79
+frames and produced a 51.92-second, 41-frame, 1,136,385-byte F10 clip. The asynchronous exposure path keeps
 the inspected overview readable.
 
-Mac run 37978076544 passed six client tests for
-f252571ae22c70fbbf5642526c46a3af8b158f08. Its actual client image was inspected.
-New native visibility-gated diffuse lighting, a seventh roof/window/glass test and
-normal-control solar-disc framing failed the Sun-framing workflow in Mac run 37984720498 at
-2c5a248b102ee7a783cbea91e2fbbf96b7dabbb7; the native app built, but clientChecked
-remained false. The normal-drag feedback loop now waits for HUD updates and keeps
-small gestures above recognition threshold. Pose tolerance remains 0.03 radians.
-These edits require another exact-source Mac run. Native
+Mac run 37990783149 passed seven native cases for
+ac7f2ce230cc85c1f1e4cf69f8e73f2eed762749. Exact-source receipt and media hashes
+were checked. The inspected client image shows a solar disc against a blue sky,
+with a clear HUD. Offline/online touch workflows, profile/save compatibility,
+roof/window/glass visibility and preview restart passed. Native
 preview remains opt-in. Its bounded five-ray whole-cell visibility approximates
 open windows and glass; fractional/tiny geometry and local LED transport remain
 native parity gaps. Global ambient/environment intensity is zero in preview so
@@ -145,8 +142,8 @@ Still required before review/release:
   history. They do not establish the <=2 ms hardware target.
 - A declared reference GPU and physical-device performance budget. Simulator results
   cannot establish an iPhone budget; mobile remains disabled by default.
-- Full existing suite (the prior full run timed out at 600 seconds), controller master
-  synchronization, final diff audit and independent review.
+- Full Java suite now passes (see atmosphere-full-java-tests.json). Controller master
+  synchronization, any changed-source checks and independent review remain mandatory.
 
 ## References
 
@@ -159,13 +156,13 @@ and [author implementation](https://github.com/sebh/UnrealEngineSkyAtmosphere).
 describe dimensional consistency and numerical reference validation. Any later adapted
 source must retain its attribution and license.
 
-Native run 37987207495 built source fa6cbf2a45e1e5e7d7eb5091bd116b508227bb83 but
-failed waiting for a look-gesture HUD update. World gestures now live on the shared
-parent and reject controls/scroll views, menu and paused input. This fixes the path
-through sibling HUD label/stack space. Actual UIKit behavior awaits another Mac run.
+Spherical diagnostics use the actual sky shader and its virtual diffuse ground,
+with tangent cameras at 95/100/105/120/1,000 km. Inspected images show a curved
+blue atmospheric limb. The 95–105 km mean brightness difference is 2.05565625/255
+(tolerance20/255); this is not pixelwise equivalence. Airless renders without the
+blue rim. No gameplay terrain, collision or atmospheric voxels are added. Run
+`python3 deploy/run_atmosphere_playtest.py --display "$DISPLAY" --limb`.
 
-Native run 37988954691 built source 1f5f3ff48f0fe252673f60986b95a3e64ae7f759 but
-again timed out waiting for a look HUD change. Small pose corrections now use two
-long opposing normal drags rather than a short drag near the pan dead zone. Their
-net motion is the requested correction. Final pose tolerance remains 0.03 radians;
-actual gesture acceptance and Sun media still require the next Mac run.
+The LUT byte counts are declared logical allocations, excluding driver padding,
+programs, the reflection environment (786,420 logical RGB16F bytes including mips),
+48 exposure-buffer bytes and timestamp-query metadata. They are not total VRAM measurements.

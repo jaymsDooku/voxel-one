@@ -19,6 +19,7 @@ import javax.imageio.ImageIO;
 public class AtmospherePlaytest {
     static final int W=640,H=400;
     static VoxelModelRenderer models;
+    static boolean limbView;
     static void require(boolean b,String text){if(!b)throw new AssertionError(text);}
     static BufferedImage capture(){ByteBuffer rgb=MemoryUtil.memAlloc(W*H*3);var image=new BufferedImage(W,H,BufferedImage.TYPE_INT_RGB);
         try{glReadPixels(0,0,W,H,GL_RGB,GL_UNSIGNED_BYTE,rgb);for(int y=0;y<H;y++)for(int x=0;x<W;x++){int i=(x+y*W)*3;image.setRGB(x,H-1-y,(rgb.get(i)&255)<<16|(rgb.get(i+1)&255)<<8|(rgb.get(i+2)&255));}}finally{MemoryUtil.memFree(rgb);}return image;}
@@ -98,7 +99,9 @@ public class AtmospherePlaytest {
     }
     static BufferedImage scene(RenderPipeline renderer,ShaderProgram shader,World world,Vector3f eye,boolean ortho,boolean geometry){
         Matrix4f projection=ortho?new Matrix4f().ortho(-40,40,-25,25,.1f,4096):new Matrix4f().perspective(1.2f,W/(float)H,.1f,1e6f);
-        Matrix4f view=ortho?new Matrix4f().lookAt(eye,new Vector3f(8,26,8),new Vector3f(0,1,0)):new Matrix4f().lookAt(eye,new Vector3f(eye).add(0,100,-1000),new Vector3f(0,1,0));
+        double radius=6_360_000,ratio=radius/(radius+Math.max(1,eye.y-24));
+        Vector3f limbDirection=new Vector3f(0,(float)-Math.sqrt(Math.max(0,1-ratio*ratio)),(float)-ratio);
+        Matrix4f view=limbView?new Matrix4f().lookAt(eye,new Vector3f(eye).add(limbDirection.mul(1000)),new Vector3f(0,1,0)):ortho?new Matrix4f().lookAt(eye,new Vector3f(8,26,8),new Vector3f(0,1,0)):new Matrix4f().lookAt(eye,new Vector3f(eye).add(0,100,-1000),new Vector3f(0,1,0));
         require(glGetError()==GL_NO_ERROR,"Before begin GL errors");
         renderer.begin(W,H,projection,view,eye,ortho,shader);
         int beginError=glGetError();require(beginError==GL_NO_ERROR,"begin GL error "+beginError);
@@ -111,6 +114,26 @@ public class AtmospherePlaytest {
         BufferedImage image=scene(renderer,shader,world,eye,ortho,geometry);int frames=0;
         while(renderer.atmosphereRebuilding()&&frames++<160)image=scene(renderer,shader,world,eye,ortho,geometry);
         require(!renderer.atmosphereRebuilding(),"Bounded LUT build completes within 160 frames");return image;
+    }
+    static void limbChecks(RenderPipeline renderer,ShaderProgram shader,World world,Path evidence)throws Exception {
+        StringBuilder report=new StringBuilder("Playtest: actual engine spherical-shell/virtual-ground diagnostic. Gameplay terrain unchanged; no atmospheric voxels. GL3.3 llvmpipe; assigned X11; synthetic profile,640x400,fixed exposure1,clouds/TAA off.\n");
+        limbView=true;renderer.time(new GameConfig(false,false,1200,12),0);
+        double before=0,after=0;
+        try {
+            for(float altitude:new float[]{95000,100000,105000,120000,1000000}) {
+                var image=settled(renderer,shader,world,new Vector3f(0,24+altitude,0),false,false);
+                ImageIO.write(image,"png",evidence.resolve("atmosphere-limb-"+(int)altitude+".png").toFile());
+                double brightness=mean(image);if(altitude==95000)before=brightness;if(altitude==105000)after=brightness;
+                report.append("Tangent view altitude "+altitude+" m; mean "+brightness+"; GL_NO_ERROR.\n");
+            }
+            require(Math.abs(before-after)<20,"Shell entry/exit mean continuity within20/255");
+            report.append("95km/105km shell-entry/exit mean difference "+Math.abs(before-after)+" <20/255; actual finite raster output, not full pixelwise equivalence.\n");
+            renderer.atmosphere(AtmosphereConfig.airless());
+            var vacuum=settled(renderer,shader,world,new Vector3f(0,120024,0),false,false);
+            ImageIO.write(vacuum,"png",evidence.resolve("atmosphere-limb-airless.png").toFile());
+            report.append("Airless limb fallback rendered; GL_NO_ERROR. Browser playtesting does not apply to the native GL engine.\n");
+        }finally {limbView=false;}
+        Files.writeString(evidence.resolve("atmosphere-limb-playtest.txt"),report.toString());
     }
     static void acceptLighting(RenderPipeline renderer,World world,float x,float z)throws Exception {
         long deadline=System.nanoTime()+30_000_000_000L;
@@ -125,6 +148,7 @@ public class AtmospherePlaytest {
         try(var renderer=new RenderPipeline();var shader=new ShaderProgram("shaders/voxel.vert","shaders/voxel.frag");var world=new World()) {
             models=new VoxelModelRenderer(world.models());
             renderer.settings.autoExposure=false;renderer.settings.taa=false;renderer.settings.exposure=1;renderer.settings.clouds=false;renderer.settings.atmosphereQuality=PlanetAtmosphere.Quality.MEDIUM;
+            if(Boolean.getBoolean("voxel.limbOnly")){limbChecks(renderer,shader,world,evidence);models.close();models=null;return;}
             Vector3f eye=new Vector3f(8,30,24);BufferedImage noon=null,night=null;
             for(double hour:new double[]{12,6,18,0}) {
                 renderer.time(new GameConfig(false,true,1200,hour),0);var image=settled(renderer,shader,world,eye,false,false);
