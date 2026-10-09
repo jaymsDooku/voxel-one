@@ -1174,7 +1174,7 @@ public class Main {
         shader.setInt("uVertexColor", 1);
         shader.setInt("uInstanced", 0);
         shader.setInt("uDistantTerrain", 0);
-        shader.setInt("uFog", isometric ? 0 : 1);
+        shader.setInt("uFog", 1);
         shader.setVector3(
                 "uCameraPosition", camera.position().x, camera.position().y, camera.position().z);
         // Build complete nearby columns first, including their offscreen chunks, before replacing

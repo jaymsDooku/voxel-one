@@ -46,7 +46,7 @@ class RailwaySaveCompatibilityTest {
             var upgrade = directory.resolve("upgraded-" + version + ".city");
             city.save(upgrade);
             try (var in = new DataInputStream(Files.newInputStream(upgrade))) {
-                assertEquals(0x4349543E, in.readInt());
+                assertEquals(0x43495441, in.readInt());
             }
             var loaded = CitySimulation.load(upgrade);
             assertEquals(roads, loaded.roads());
@@ -64,7 +64,7 @@ class RailwaySaveCompatibilityTest {
         RailwayTest.build(city);
         for (int version : new int[]{10,11,12,13})
             assertThrows(IOException.class, () -> city.frame().write(new DataOutputStream(new ByteArrayOutputStream()),version));
-        assertEquals(27, Protocol.VERSION);
+        assertEquals(28, Protocol.VERSION);
         assertEquals(23, SpecialBuildings.AIRPORT);
         assertEquals(25, SpecialBuildings.RAIL_STATION);
         assertEquals(26, SpecialBuildings.RAIL_DEPOT);

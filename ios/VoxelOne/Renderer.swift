@@ -1,10 +1,14 @@
 import UIKit
 import SceneKit
+import simd
 
 /// Native SceneKit/Metal rendering. Meshes contain exposed faces, grouped in 8-block chunks.
 final class VoxelRenderer {
     let view=SCNView(); let scene=SCNScene(); let camera=SCNNode(); let terrain=SCNNode();let people=SCNNode();let markers=SCNNode();let zones=SCNNode()
     var planning=false;var focus=SCNVector3Zero;var distance:Float=38
+    var atmospherePreview=false
+    private var atmosphereKey:String?
+    private let sunNode=SCNNode()
     private let faces:[(GridKey,SCNVector3,[SCNVector3])]=[
         (GridKey(1,0,0),SCNVector3(1,0,0),[SCNVector3(1,0,0),SCNVector3(1,1,0),SCNVector3(1,1,1),SCNVector3(1,0,1)]),
         (GridKey(-1,0,0),SCNVector3(-1,0,0),[SCNVector3(0,0,1),SCNVector3(0,1,1),SCNVector3(0,1,0),SCNVector3(0,0,0)]),
@@ -19,7 +23,7 @@ final class VoxelRenderer {
         camera.camera=SCNCamera();camera.camera?.zNear=0.05;camera.camera?.zFar=180;camera.camera?.fieldOfView=72
         scene.rootNode.addChildNode(camera);scene.rootNode.addChildNode(terrain);scene.rootNode.addChildNode(people);scene.rootNode.addChildNode(markers);scene.rootNode.addChildNode(zones)
         let ambient=SCNNode();ambient.light=SCNLight();ambient.light?.type = .ambient;ambient.light?.intensity=650;scene.rootNode.addChildNode(ambient)
-        let sun=SCNNode();sun.light=SCNLight();sun.light?.type = .directional;sun.light?.intensity=950;sun.eulerAngles=SCNVector3(-0.7,-0.6,0);scene.rootNode.addChildNode(sun)
+        let sun=sunNode;sun.light=SCNLight();sun.light?.type = .directional;sun.light?.intensity=950;sun.eulerAngles=SCNVector3(-0.7,-0.6,0);scene.rootNode.addChildNode(sun)
         scene.fogStartDistance=65;scene.fogEndDistance=110;scene.fogColor=view.backgroundColor
     }
     private final class Mesh {var vertices:[SCNVector3]=[];var normals:[SCNVector3]=[];var colors:[Float]=[];var indices:[UInt32]=[]}
@@ -83,6 +87,28 @@ final class VoxelRenderer {
         } else {
             camera.camera?.usesOrthographicProjection=false;camera.position=world.eye;camera.eulerAngles=SCNVector3(world.pitch,world.yaw,0)
         }
+        updateAtmosphere(world.snapshot)
+    }
+    private func updateAtmosphere(_ snapshot:Snapshot) {
+        guard atmospherePreview else {
+            if atmosphereKey != nil {scene.background.contents=nil;scene.lightingEnvironment.contents=nil;scene.fogStartDistance=65;scene.fogEndDistance=110;scene.fogColor=view.backgroundColor;sunNode.light?.intensity=950;sunNode.eulerAngles=SCNVector3(-0.7,-0.6,0);atmosphereKey=nil}
+            return
+        }
+        let profile=snapshot.atmosphere ?? .earth
+        let value=snapshot.sun ?? [0.45,0.78,-0.45],sun=simd_normalize(SIMD3<Double>(value[0],value[1],value[2]))
+        let altitude=simd_length(profile.position(camera.position))-profile.values[0]
+        // Quantized view updates bound CPU work on the low-quality native path.
+        let key="\(profile)|\(Int(altitude/100))|\(Int(sun.x*100))|\(Int(sun.y*100))|\(Int(sun.z*100))"
+        guard key != atmosphereKey else{return};atmosphereKey=key
+        let cube=NativeAtmosphere.cube(profile,camera.position,sun);scene.background.contents=cube;scene.lightingEnvironment.contents=cube
+        let p=profile.position(camera.position),t=NativeAtmosphere.sunlight(p,sun,profile)
+        sunNode.light?.intensity=950*max(0,min(1,(t.x+t.y+t.z)/3));sunNode.position=SCNVector3Zero;sunNode.look(at:SCNVector3(Float(-sun.x),Float(-sun.y),Float(-sun.z)))
+        // SceneKit's low-quality single fog composition has no depth volume. Terrain, models,
+        // water and glass use its one built-in fog stage; UIKit HUD remains clear.
+        let density=NativeAtmosphere.extinction(NativeAtmosphere.density(max(0,altitude),profile),profile)
+        let sigma=(density.x+density.y+density.z)/3*profile.values[2]
+        if profile.enabled && sigma>0 {scene.fogStartDistance=0;scene.fogEndDistance=1/sigma;let l=NativeAtmosphere.radiance(p,SIMD3(1,0,0),sun,profile);scene.fogColor=UIColor(red:CGFloat(l.x/(1+l.x)),green:CGFloat(l.y/(1+l.y)),blue:CGFloat(l.z/(1+l.z)),alpha:1)}
+        else {scene.fogStartDistance=1e8;scene.fogEndDistance=1e9}
     }
     func point(at location:CGPoint) -> SCNVector3? {
         let hits=view.hitTest(location,options:[.rootNode:terrain,.firstFoundOnly:true])

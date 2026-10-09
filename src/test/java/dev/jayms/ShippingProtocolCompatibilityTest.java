@@ -37,7 +37,7 @@ class ShippingProtocolCompatibilityTest {
     }
 
     @Test void roadOwnershipProtocol24IsRejectedBeforeAuthentication() throws Exception {
-        assertEquals(27,Protocol.VERSION);
+        assertEquals(28,Protocol.VERSION);
         var identity=SecureTransport.server(temp.resolve("synthetic-tls"));
         var accounts=new AccountStore(temp.resolve("synthetic-accounts"));
         try(var server=new MultiplayerServer("127.0.0.1",0,temp.resolve("synthetic-world.dat"),accounts,identity.context())) {

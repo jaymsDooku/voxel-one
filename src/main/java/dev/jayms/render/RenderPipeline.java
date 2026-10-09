@@ -19,6 +19,7 @@ public final class RenderPipeline implements AutoCloseable {
     private final ShaderProgram far =
             new ShaderProgram("shaders/voxel.vert", "shaders/distant.frag");
     public final RenderSettings settings = RenderSettings.defaults();
+    private final PlanetAtmosphere atmosphere = new PlanetAtmosphere();
     private final TemporalPost temporal = new TemporalPost(settings);
     private final HiZ hiZ = new HiZ();
     private final WaterRenderer water = new WaterRenderer();
@@ -66,6 +67,7 @@ public final class RenderPipeline implements AutoCloseable {
     private int environmentPhase = -1;
 
     public void time(dev.jayms.net.city.GameConfig config, double elapsed) {
+        atmosphere.profile(config.atmosphere());
         var light = Daylight.at(config, elapsed);
         sun.set(light.sun());
         daylight = light.intensity();
@@ -73,13 +75,14 @@ public final class RenderPipeline implements AutoCloseable {
         int phase = (int) (config.hour(elapsed) * 4);
         if (config.cycle() && phase != environmentPhase) {
             environmentPhase = phase;
-            updateEnvironment();
+            // Environment follows the next complete atmosphere view table.
         }
     }
 
     private final Matrix4f[] shadowMatrices = { new Matrix4f(), new Matrix4f(), new Matrix4f() };
 
     public RenderPipeline() {
+        atmosphere.update(new Vector3f(0,26,0),sun);
         updateEnvironment();
         glBindTexture(GL_TEXTURE_2D_ARRAY, shadowTexture);
         glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT24, shadowResolution,
@@ -106,50 +109,10 @@ public final class RenderPipeline implements AutoCloseable {
                         + ", HDR, cascaded shadows, voxel/screen GI, local reflections");
     }
 
+    private long atmosphereEnvironmentRevision;
     private void updateEnvironment() {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, environment);
-        FloatBuffer data = MemoryUtil.memAllocFloat(128 * 128 * 3);
-        try {
-            for (int face = 0; face < 6; face++) {
-                data.clear();
-                for (int y = 0; y < 128; y++)
-                    for (int x = 0; x < 128; x++) {
-                        float a = (x + .5f) / 64 - 1, b = (y + .5f) / 64 - 1;
-                        Vector3f d =
-                                switch (face) {
-                                    case 0 -> new Vector3f(1, -b, -a);
-                                    case 1 -> new Vector3f(-1, -b, a);
-                                    case 2 -> new Vector3f(a, 1, b);
-                                    case 3 -> new Vector3f(a, -1, -b);
-                                    case 4 -> new Vector3f(a, -b, 1);
-                                    default -> new Vector3f(-a, -b, -1);
-                                };
-                        d.normalize();
-                        Vector3f radiance = Atmosphere.radiance(d, sun, daylight, ambient);
-                        data.put(radiance.x).put(radiance.y).put(radiance.z);
-                    }
-                data.flip();
-                glTexImage2D(
-                        GL_TEXTURE_CUBE_MAP_POSITIVE_X + face,
-                        0,
-                        GL_RGB16F,
-                        128,
-                        128,
-                        0,
-                        GL_RGB,
-                        GL_FLOAT,
-                        data);
-            }
-        } finally {
-            MemoryUtil.memFree(data);
-        }
-        glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+        atmosphere.environment(environment);
+        atmosphereEnvironmentRevision=atmosphere.revision;
     }
 
     public boolean lightingReady() {
@@ -271,6 +234,9 @@ public final class RenderPipeline implements AutoCloseable {
             boolean isometric,
             ShaderProgram voxel) {
         frameBudget.begin(settings);
+        atmosphere.quality(settings.atmosphereQuality);
+        atmosphere.update(camera,sun);
+        if(atmosphereEnvironmentRevision!=atmosphere.revision) { updateEnvironment(); probes.invalidate(); temporal.reset(); }
         viewProjection.set(projection).mul(view);
         visibleChunks = occludedChunks = 0;
         int rw = Math.max(1, Math.round(w * settings.renderScale));
@@ -283,7 +249,10 @@ public final class RenderPipeline implements AutoCloseable {
         glDisable(GL_DEPTH_TEST);
         glDisable(GL_CULL_FACE);
         sky.bind();
+        atmosphere.bind(sky);
         sky.setMatrix4("uInverseViewProjection", new Matrix4f().translation(temporal.jitterX(width), temporal.jitterY(height), 0).mul(projection).mul(view).invert());
+        sky.setMatrix4("uInverseProjection",new Matrix4f().translation(temporal.jitterX(width),temporal.jitterY(height),0).mul(projection).invert());
+        sky.setMatrix4("uInverseView",new Matrix4f(view).invert());
         sky.setVector3("uCameraPosition", camera.x, camera.y, camera.z);
         sky.setVector3("uSunDirection", sun.x, sun.y, sun.z);
         sky.setFloat("uDaylight", daylight);
@@ -302,7 +271,8 @@ public final class RenderPipeline implements AutoCloseable {
         far.setVector3("uCameraPosition", camera.x, camera.y, camera.z);
         far.setFloat("uDaylight", daylight);
         far.setFloat("uAmbient", ambient);
-        far.setInt("uFog", isometric ? 0 : 1);
+        far.setInt("uFog", 1);
+        atmosphere.bind(far);
         far.setInt("uEnvironment", 0);
         far.setFloat("uJitterX", temporal.jitterX(width));
         far.setFloat("uJitterY", temporal.jitterY(height));
@@ -316,6 +286,7 @@ public final class RenderPipeline implements AutoCloseable {
     }
 
     private void bindSceneLighting(ShaderProgram shader) {
+        atmosphere.bind(shader);
         shader.setFloat("uDaylight", daylight);
         shader.setFloat("uAmbient", ambient);
         shader.setInt("uLightingEnabled", 1);
@@ -399,6 +370,8 @@ public final class RenderPipeline implements AutoCloseable {
         shader.setInt("uOutputTone",1);shader.setFloat("uOutputExposure",exposure());
     }
 
+    public void atmosphere(dev.jayms.net.atmosphere.AtmosphereConfig config) { atmosphere.profile(config); temporal.reset(); }
+    public double atmosphereRebuildMillis() { return atmosphere.rebuildCpuMillis; }
     public void resetHistory() { temporal.reset(); }
     public float exposure() { return temporal.exposure(); }
     public int historyFrames() { return temporal.historyFrames(); }
@@ -483,6 +456,7 @@ public final class RenderPipeline implements AutoCloseable {
         glDeleteFramebuffers(shadowFbo);
         glDeleteVertexArrays(vao);
         materials.close();
+        atmosphere.close();
         sky.close();
         far.close();
         temporal.close();

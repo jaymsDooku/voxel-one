@@ -190,7 +190,7 @@ public record CityFrame(
     }
 
     public void write(DataOutput out) throws IOException {
-        write(out, 16);
+        write(out, 17);
     }
 
     public void write(DataOutput out, int version) throws IOException {
@@ -203,7 +203,7 @@ public record CityFrame(
         if (stressGrid != null && version < 15) throw new IOException("Stress grids require snapshot version 15");
         if (version < 16 && stressGrid == null && zones.stream().anyMatch(z -> !z.parcels().isEmpty()))
             throw new IOException("Parcels require city snapshot version 16");
-        config.write(out);
+        config.write(out, version);
         out.writeDouble(elapsed);
         out.writeInt(roads.size());
         for (var r : roads) {
@@ -296,11 +296,11 @@ public record CityFrame(
     }
 
     public static CityFrame read(DataInput in, boolean legacy) throws IOException {
-        return read(in, legacy ? 1 : 16);
+        return read(in, legacy ? 1 : 17);
     }
 
     public static CityFrame read(DataInput in, int version) throws IOException {
-        var config = GameConfig.read(in);
+        var config = GameConfig.read(in, version);
         double elapsed = in.readDouble();
         if (!Double.isFinite(elapsed) || elapsed < 0) throw new IOException("Invalid clock");
         var roads = new ArrayList<Road>();

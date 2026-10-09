@@ -63,7 +63,7 @@ final class GameController:UIViewController,UITextFieldDelegate {
         let menuButton=button("Menu","menuButton",#selector(openMenu))
         let pause=button("Pause","pauseButton",#selector(togglePause));pauseButton=pause
         let plan=button("Plan","planToggle",#selector(togglePlan));planButton=plan;plan.isHidden=world?.snapshot.city==nil
-        let toolbar=row([menuButton,pause,plan,button("Bag","inventoryButton",#selector(inventory))])
+        let toolbar=row([menuButton,pause,plan,button("Bag","inventoryButton",#selector(inventory)),button("Sky","atmosphereToggle",#selector(toggleAtmosphere))])
         let t=UIStackView(arrangedSubviews:[toolbar,cityLabel,status,positionLabel]);t.axis = .vertical;t.spacing=2;top=t;overlay(t,atTop:true)
         crosshair=label("+",size:26);crosshair.textAlignment = .center;crosshair.translatesAutoresizingMaskIntoConstraints=false;view.addSubview(crosshair)
         NSLayoutConstraint.activate([crosshair.centerXAnchor.constraint(equalTo:view.centerXAnchor),crosshair.centerYAnchor.constraint(equalTo:view.centerYAnchor)])
@@ -96,6 +96,7 @@ final class GameController:UIViewController,UITextFieldDelegate {
     }
     @objc private func togglePause(){paused.toggle();movement.removeAll();pauseButton?.setTitle(paused ? "Resume":"Pause",for:.normal);notify(paused ? "Paused. The online city keeps running.":"Resumed.");saveOffline()}
     @objc private func togglePlan(){guard let world=world,world.snapshot.city != nil else{return};renderer.planning.toggle();lastPoll=0;renderer.focus=world.position;points.removeAll();renderer.mark(points,world:world);movement.removeAll();refreshHUD()}
+    @objc private func toggleAtmosphere(){renderer.atmospherePreview.toggle();if let world=world {renderer.updateCamera(world)};notify(renderer.atmospherePreview ? "Planet sky preview on (low quality).":"Planet sky preview off.")}
     @objc private func chooseTool(){
         let alert=UIAlertController(title:"City tool",message:"Tap ground to choose points. Roads need two points; zones need at least three. The server checks cost and space.",preferredStyle:.actionSheet)
         for (index,title) in ["Inspect","Dirt road","Residential","Commercial","Industrial","Agricultural"].enumerated(){alert.addAction(UIAlertAction(title:title,style:.default){[weak self] _ in self?.tool=index;self?.points.removeAll();self?.notify("\(title) selected.")})}

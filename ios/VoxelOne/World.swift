@@ -1,6 +1,7 @@
 import Foundation
 import SceneKit
 import UIKit
+import simd
 
 struct GridKey: Hashable, Codable {
     var x: Int; var y: Int; var z: Int
@@ -23,7 +24,10 @@ struct Snapshot: Codable {
     var schema: Int; var game: String; var seed: String; var bounds: [Int]; var pose: [Float]
     var cells: [[Int]]; var inventory: [[Int]]; var health: Int; var notice: String
     var resetPose: Bool?; var city: CityState?; var players: [OtherPlayer]?; var drops: [GroundDrop]?
+    var atmosphere: AtmosphereProfile? = nil; var sun: [Double]? = nil
     func validate() throws {
+        try atmosphere?.validate()
+        if let sun=sun {guard sun.count==3,sun.allSatisfy({$0.isFinite}),abs(sqrt(sun.reduce(0){$0+$1*$1})-1)<0.001 else {throw GameError.invalidWorld}}
         guard schema==1, ["sandbox","city"].contains(game), bounds.count==6, pose.count==5,
               pose.allSatisfy({$0.isFinite}), bounds.allSatisfy({abs(Double($0))<=1_000_100}), (game=="city")==((city != nil)), abs(pose[0])<=1_000_000, abs(pose[2])<=1_000_000,
               bounds[0]<=bounds[1], bounds[2]<=bounds[3], bounds[4]<=bounds[5],
@@ -33,6 +37,83 @@ struct Snapshot: Codable {
               cells.allSatisfy({$0.count==5 && (1...189).contains($0[3]) && (0...0xffffff).contains($0[4]) && $0[0]>=bounds[0] && $0[0]<=bounds[1] && $0[1]>=bounds[2] && $0[1]<=bounds[3] && $0[2]>=bounds[4] && $0[2]<=bounds[5]})
         else { throw GameError.invalidWorld }
         guard Set(cells.map{GridKey($0[0],$0[1],$0[2])}).count==cells.count else { throw GameError.invalidWorld }
+    }
+}
+
+/// Version 1 mirrors the desktop's fixed 34-double profile payload. Missing legacy fields use Earth.
+struct AtmosphereProfile:Codable,Equatable {
+    var version:Int;var enabled:Bool;var values:[Double]
+    static let earth=AtmosphereProfile(version:1,enabled:true,values:[6_360_000,100_000,1,24,0,0,0,0,1,0,5.8e-6,13.5e-6,33.1e-6,3.996e-6,3.996e-6,3.996e-6,4.44e-6,4.44e-6,4.44e-6,0.65e-6,1.881e-6,0.085e-6,8000,1200,25000,15000,0.76,0.1,0.1,0.1,18,18,18,0.004675])
+    func validate()throws {
+        guard version==1,values.count==34,values.allSatisfy({$0.isFinite}) else {throw GameError.invalidWorld}
+        let v=values
+        guard (1000...1e9).contains(v[0]),(1...min(1e7,v[0])).contains(v[1]),(0.001...1e6).contains(v[2]),abs(v[3])<=1e9,
+              abs(simd_length(vector(7))-1)<1e-9,(10..<22).allSatisfy({(0...0.01).contains(v[$0])}),
+              (0..<3).allSatisfy({v[13+$0]<=v[16+$0]}),(1...v[1]).contains(v[22]),(1...v[1]).contains(v[23]),
+              (0...v[1]).contains(v[24]),(1...v[1]).contains(v[25]),(-0.95...0.95).contains(v[26]),
+              (27..<30).allSatisfy({(0...1).contains(v[$0])}),(30..<33).allSatisfy({(0...100).contains(v[$0])}),(0.00001...0.05).contains(v[33])
+        else {throw GameError.invalidWorld}
+    }
+    func vector(_ i:Int)->SIMD3<Double>{SIMD3(values[i],values[i+1],values[i+2])}
+    func position(_ p:SCNVector3)->SIMD3<Double>{
+        let up=vector(7),east=simd_normalize(abs(up.y)<0.99 ? simd_cross(SIMD3(0,1,0),up) : -simd_cross(SIMD3(0,0,1),up)),north=simd_cross(east,up)
+        return east*(Double(p.x)-values[4])*values[2]+up*(values[0]+(Double(p.y)-values[5]-values[3])*values[2])+north*(Double(p.z)-values[6])*values[2]
+    }
+    func ray(_ v:SIMD3<Double>)->SIMD3<Double>{let up=vector(7),east=simd_normalize(abs(up.y)<0.99 ? simd_cross(SIMD3(0,1,0),up) : -simd_cross(SIMD3(0,0,1),up));return east*v.x+up*v.y+simd_cross(east,up)*v.z}
+}
+
+/// Bounded low-quality CPU precomputation for native SceneKit's Metal cube background.
+/// The renderer remains opt-in until a physical-device budget is measured.
+enum NativeAtmosphere {
+    static func sphere(_ p:SIMD3<Double>,_ d:SIMD3<Double>,_ r:Double)->(Double,Double)? {
+        let b=simd_dot(p,d),length=simd_length(p),c=(length-r)*(length+r),disc=b*b-c
+        if disc<0{return nil};let root=sqrt(max(0,disc));return (-b-root,-b+root)
+    }
+    static func density(_ h:Double,_ profile:AtmosphereProfile)->SIMD3<Double>{let v=profile.values
+        if h<0 || h>v[1] || !profile.enabled{return .zero};return SIMD3(exp(-h/v[22]),exp(-h/v[23]),max(0,1-abs(h-v[24])/v[25]))}
+    static func extinction(_ rho:SIMD3<Double>,_ p:AtmosphereProfile)->SIMD3<Double>{p.vector(10)*rho.x+p.vector(16)*rho.y+p.vector(19)*rho.z}
+    static func exponential(_ a:SIMD3<Double>)->SIMD3<Double>{SIMD3(exp(-a.x),exp(-a.y),exp(-a.z))}
+    static func span(_ p:SIMD3<Double>,_ d:SIMD3<Double>,_ profile:AtmosphereProfile)->(Double,Double)? {
+        let v=profile.values;guard let shell=sphere(p,d,v[0]+v[1]) else{return nil}
+        let near=max(0,shell.0);var far=shell.1
+        if let ground=sphere(p,d,v[0]),ground.1>0,ground.0 >= -0.001 {far=min(far,max(0,ground.0))}
+        return far>near ? (near,far):nil
+    }
+    static func sunlight(_ p:SIMD3<Double>,_ sun:SIMD3<Double>,_ profile:AtmosphereProfile)->SIMD3<Double>{
+        if let ground=sphere(p,sun,profile.values[0]),ground.1>0,ground.0 >= -0.001{return .zero}
+        if !profile.enabled{return SIMD3(repeating:1)}
+        guard let range=span(p,sun,profile) else{return SIMD3(repeating:1)}
+        let step=(range.1-range.0)/16;var depth=SIMD3<Double>.zero
+        for i in 0..<16 {depth += extinction(density(simd_length(p+sun*(range.0+(Double(i)+0.5)*step))-profile.values[0],profile),profile)*step}
+        return exponential(-depth)
+    }
+    static func radiance(_ p:SIMD3<Double>,_ d:SIMD3<Double>,_ sun:SIMD3<Double>,_ profile:AtmosphereProfile)->SIMD3<Double>{
+        let v=profile.values;var color=SIMD3<Double>.zero
+        if profile.enabled,let range=span(p,d,profile) {
+            let step=(range.1-range.0)/24,mu=simd_dot(d,sun),g=v[26],phaseR=3*(1+mu*mu)/(16*Double.pi),phaseM=(1-g*g)/(4*Double.pi*pow(1+g*g-2*g*mu,1.5))
+            var depth=SIMD3<Double>.zero
+            for i in 0..<24 {let q=p+d*(range.0+(Double(i)+0.5)*step),rho=density(simd_length(q)-v[0],profile),sigma=extinction(rho,profile)
+                let source=(profile.vector(10)*rho.x*phaseR+profile.vector(13)*rho.y*phaseM)*profile.vector(30)
+                color += exponential(-(depth+sigma*step*0.5))*source*sunlight(q,sun,profile)*step;depth += sigma*step
+            }
+        }
+        if simd_dot(d,sun)>cos(v[33]) {color += profile.vector(30)*sunlight(p,sun,profile)}
+        return color
+    }
+    static func cube(_ profile:AtmosphereProfile,_ camera:SCNVector3,_ worldSun:SIMD3<Double>)->[UIImage]{
+        var p=profile.position(camera);if simd_length(p)<profile.values[0]+1 {p=simd_normalize(p)*(profile.values[0]+1)}
+        let sun=simd_normalize(profile.ray(worldSun));let n=16
+        return (0..<6).map{face in
+            var pixels=[UInt8](repeating:255,count:n*n*4)
+            for y in 0..<n {for x in 0..<n {let a=(Double(x)+0.5)/Double(n)*2-1,b=(Double(y)+0.5)/Double(n)*2-1;let direction:SIMD3<Double>
+                switch face {case 0:direction=SIMD3(1,-b,-a);case 1:direction=SIMD3(-1,-b,a);case 2:direction=SIMD3(a,1,b);case 3:direction=SIMD3(a,-1,-b);case 4:direction=SIMD3(a,-b,1);default:direction=SIMD3(-a,-b,-1)}
+                let color=radiance(p,simd_normalize(profile.ray(direction)),sun,profile)
+                for channel in 0..<3 {let value=max(0,color[channel]);let mapped=min(1,(value*(2.51*value+0.03))/(value*(2.43*value+0.59)+0.14));pixels[(x+y*n)*4+channel]=UInt8(min(255,max(0,pow(mapped,1/2.2)*255)))}
+            }}
+            let data=Data(pixels) as CFData;let provider=CGDataProvider(data:data)!
+            let image=CGImage(width:n,height:n,bitsPerComponent:8,bitsPerPixel:32,bytesPerRow:n*4,space:CGColorSpaceCreateDeviceRGB(),bitmapInfo:CGBitmapInfo(rawValue:CGImageAlphaInfo.premultipliedLast.rawValue),provider:provider,decode:nil,shouldInterpolate:true,intent:.defaultIntent)!
+            return UIImage(cgImage:image)
+        }
     }
 }
 enum GameError: LocalizedError {

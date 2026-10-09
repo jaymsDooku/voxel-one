@@ -2,6 +2,21 @@ import XCTest
 import SceneKit
 
 final class WorldRulesTests:XCTestCase {
+    func testAtmosphereProfileMigrationAndNumericalBounds()throws {
+        let profile=AtmosphereProfile.earth;try profile.validate()
+        XCTAssertEqual(profile.position(SCNVector3(0,24,0)),SIMD3<Double>(0,6_360_000,0))
+        var invalid=profile;invalid.version=2;XCTAssertThrowsError(try invalid.validate())
+        invalid=profile;invalid.values[0] = .nan;XCTAssertThrowsError(try invalid.validate())
+        invalid=profile;invalid.values[13]=0.01;XCTAssertThrowsError(try invalid.validate())
+        let decoded=try JSONDecoder().decode(Snapshot.self,from:JSONEncoder().encode(fixture()));XCTAssertNil(decoded.atmosphere)
+        var updated=fixture();updated.atmosphere=profile;updated.sun=[0,1,0];try updated.validate()
+        let restored=try JSONDecoder().decode(Snapshot.self,from:JSONEncoder().encode(updated));XCTAssertEqual(restored.atmosphere,profile)
+        let p=SIMD3<Double>(0,6_360_002,0),sun=SIMD3<Double>(0,1,0)
+        let t=NativeAtmosphere.sunlight(p,sun,profile);XCTAssertTrue(t.x>=0 && t.x<=1 && t.y>=0 && t.y<=1 && t.z>=0 && t.z<=1)
+        XCTAssertEqual(NativeAtmosphere.sunlight(p,-sun,profile),.zero)
+        var vacuum=profile;vacuum.enabled=false;XCTAssertEqual(NativeAtmosphere.sunlight(p,sun,vacuum),SIMD3<Double>(repeating:1))
+        let light=NativeAtmosphere.radiance(p,sun,sun,profile);XCTAssertTrue(light.x.isFinite && light.x>=0)
+    }
     func fixture() -> Snapshot {
         var inventory=Array(repeating:[0,0],count:36);inventory[0]=[2,4]
         var cells:[[Int]]=[]

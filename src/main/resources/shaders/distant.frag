@@ -1,4 +1,5 @@
 #version 330 core
+#include "shaders/atmosphere-common.glsl"
 in vec3 vColor,vNormal,vWorldPosition;
 out vec4 fragColor;
 uniform float uDaylight,uAmbient,uLodFade;
@@ -15,6 +16,11 @@ void main(){
     vec3 N=normalize(vNormal),V=normalize(uCameraPosition-vWorldPosition);
     vec3 color=pow(max(vColor,vec3(0)),vec3(2.2))*(vec3(.24,.32,.45)*uAmbient+vec3(1.5,1.38,1.15)*uDaylight*max(dot(N,normalize(-uLightDirection)),0.));
     color+=textureLod(uEnvironment,reflect(-V,N),6.).rgb*.018;
-    if(uFog==1){float haze=smoothstep(640.,1920.,length(vWorldPosition.xz-uCameraPosition.xz));color=mix(color,vec3(.32,.53,.8)*uAmbient,haze);}
+    if(uFog==1){
+        vec3 delta=uWorldToPlanet*(vWorldPosition-uCameraPosition)*uBlockKm;
+        float distance=length(delta);
+        if(distance>1e-6){vec3 t,l;atmosphereIntegrate(uPlanetCamera,delta/distance,uAtmosphereSun,distance,8,t,l);color=color*t+l;}
+    }
+
     fragColor=vec4(color,1);
 }

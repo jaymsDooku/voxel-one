@@ -61,6 +61,13 @@ final class NativeWorkflowTests:XCTestCase {
     }
     func menu(){if app.buttons["menuButton"].exists {app.buttons["menuButton"].tap()};wait(app.buttons["offlineNewButton"])}
     func newOffline(){menu();app.buttons["offlineNewButton"].tap();if app.alerts.buttons["New world"].waitForExistence(timeout:2){app.alerts.buttons["New world"].tap()};wait(app.buttons["breakButton"])}
+    func testPlanetAtmosphereNativeToggleAndLegacyWorld()throws {
+        newOffline();wait(app.buttons["atmosphereToggle"])
+        app.buttons["atmosphereToggle"].tap();textContains("gameStatus","Planet sky preview on")
+        aimAtHorizonForEvidence();capture("atmosphere-native-enabled")
+        XCTAssertTrue(app.buttons["breakButton"].exists,"World controls remain available")
+        app.buttons["atmosphereToggle"].tap();textContains("gameStatus","Planet sky preview off");capture("atmosphere-native-fallback")
+    }
     func testOfflineTouchBuildSavePauseAndLandscape()throws {
         newOffline();wait(app.otherElements["worldView"])
         // Settle on the ground and aim down with the normal look gesture.

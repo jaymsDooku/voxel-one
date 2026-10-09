@@ -1,4 +1,5 @@
 #version 330 core
+#include "shaders/atmosphere-common.glsl"
 in vec3 vColor,vNormal,vWorldPosition;
 flat in vec3 vSurface;
 out vec4 fragColor;
@@ -193,13 +194,12 @@ void main(){
             }
         }
     }
-    if(uFog==1){
-        vec3 ray=vWorldPosition-uCameraPosition;float dist=length(ray),dy=ray.y;
-        float base=.0006*exp(clamp(-(uCameraPosition.y-24.)*.025,-8.,4.));
-        float integral=abs(dy)<.001?1.:(1.-exp(clamp(-dy*.025,-20.,20.)))/(dy*.025);
-        float haze=1.-exp(-base*dist*integral);
-        color=mix(color,vec3(.32,.53,.8)*uAmbient,clamp(haze,0.,1.));
+    if(uFog==1&&uHeld==0){
+        vec3 delta=uWorldToPlanet*(vWorldPosition-uCameraPosition)*uBlockKm;
+        float distance=length(delta);
+        if(distance>1e-6){vec3 t,l;atmosphereIntegrate(uPlanetCamera,delta/distance,uAtmosphereSun,distance,8,t,l);color=color*t+l;}
     }
+
     if(uOutputTone==1){vec3 x=color*uOutputExposure;color=pow(clamp((x*(2.51*x+.03))/(x*(2.43*x+.59)+.14),0.,1.),vec3(1./2.2));}
     fragColor=vec4(color,1.-uTransparency);
 }

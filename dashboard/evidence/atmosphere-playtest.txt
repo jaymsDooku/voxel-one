@@ -1,0 +1,11 @@
+Playtest: Voxel One engine GL 3.3 raster atmosphere. Synthetic world/profile; 640x400, one sample, fixed exposure=1, TAA/clouds off. Driver: llvmpipe (LLVM 15.0.6, 256 bits)
+noon: mean 111.61387239583334, LUT rebuild CPU submission 249.583083 ms; GL_NO_ERROR.
+dawn: mean 42.96488671875, LUT rebuild CPU submission 0.676708 ms; GL_NO_ERROR.
+dusk: mean 42.959125, LUT rebuild CPU submission 0.440283 ms; GL_NO_ERROR.
+night: mean 0.1345390625, LUT rebuild CPU submission 0.387041 ms; GL_NO_ERROR.
+16 GPU transmittance texels / 48 RGB components compared with double 4096-sample reference, upward and low-sun paths at four heights; maximum absolute error 9.515279722703829E-4 <= 0.035. Readback used only for correctness, not performance.
+Altitude 8000.0 m: finite render, GL_NO_ERROR, mean 152.86322265625.
+Altitude 90000.0 m: finite render, GL_NO_ERROR, mean 58.50256640625.
+Altitude 120000.0 m: finite render, GL_NO_ERROR, mean 51.79400130208333.
+Orthographic regression: visible synthetic stone surface, per-pixel sky ray origin, GL_NO_ERROR.
+Low/Medium/High profile-preserving table rebuilds and airless/re-enable completed. Desktop GPU target and mobile budget remain unmeasured.

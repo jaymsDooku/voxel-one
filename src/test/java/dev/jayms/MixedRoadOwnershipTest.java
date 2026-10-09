@@ -72,7 +72,7 @@ class MixedRoadOwnershipTest {
         var ground=new CityTest.Ground(); var city=new CityTest().simulation(ground);
         build(city,1,vertical); build(city,3,horizontal);
         var before=city.frame(); var file=temp.resolve("mixed.city"); city.save(file);
-        try(var in=new DataInputStream(Files.newInputStream(file))) { assertEquals(0x4349543E,in.readInt()); }
+        try(var in=new DataInputStream(Files.newInputStream(file))) { assertEquals(0x43495441,in.readInt()); }
         var loaded=CitySimulation.load(file); assertEquals(before,loaded);
         var bytes=new ByteArrayOutputStream(); before.write(new DataOutputStream(bytes));
         assertEquals(before,CityFrame.read(new DataInputStream(new ByteArrayInputStream(bytes.toByteArray()))));
