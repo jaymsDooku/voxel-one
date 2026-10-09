@@ -67,6 +67,13 @@ View tables change with sun or
 altitude thresholds. New textures replace old complete textures; no GPU readback occurs
 in production. The reflection environment samples the same sky table. Detailed and
 distant surface shaders use the same bounded atmospheric integration in linear HDR.
+Their direct sunlight uses the profile's linear top-of-shell RGB irradiance times shared
+solar transmittance, planetary shadow, material BRDF and existing local occlusion. The
+legacy clock strength is not multiplied into that direct term. Distant diffuse uses the
+Lambertian 1/pi factor. The fixed sandbox clock now uses its configured hour, like cycling
+worlds; mobile snapshots use the same solar-direction formula. Local-probe cameras use
+the same planet anchor rather than interpreting probe-relative positions as player-relative.
+Legacy indirect GI and cloud lighting still need profile agreement.
 Held objects skip it. Isometric sky rays reconstruct per-pixel origins and parallel
 directions. Profile/table changes reset temporal history.
 
@@ -95,8 +102,12 @@ Still required before review/release:
 - High-sample radiance comparisons at sunset/horizon and diagnostic spherical limb scenes.
 - Recording-disabled CPU/GPU/frame/rebuild measurements and a declared hardware budget.
 - Hosted Mac run 37964789992 passed all six client tests for d4b9f4e5f19d52bf978df3817d91016b81d72943.
-  Its inspected client image shows the fallback sky. The new persistent opt-in/restart test
-  needs another exact-source run and enabled-view image. Physical-device performance/signing
+  Run 37967934841 then passed all six tests for 05977d7d70f960c68fc503b7760280ab82a98c0d,
+  including saved opt-in/restart. Its inspected enabled image has a blue sky and clear HUD,
+  but a dark virtual-ground band above the local patch. The native cube now shades the
+  virtual diffuse ground with profile albedo, transmitted sunlight and view transmission.
+  This background adds no collision or voxels. Its visual fix needs another exact-source run.
+  Physical-device performance/signing
   evidence remains unavailable. Simulator preflight cannot replace a client playtest.
 - Full existing test suite, controller master synchronization, final diff audit against
   the supplied review base, fresh final-source media and independent review.

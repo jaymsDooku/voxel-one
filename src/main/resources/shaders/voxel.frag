@@ -179,7 +179,8 @@ void main(){
     float G=NoV/(NoV*(1.-k)+k)*NoL/(NoL*(1.-k)+k);
     vec3 Fs=vec3(.04)+vec3(.96)*pow(1.-max(dot(H,V),0.),5.);
     vec3 brdf=(1.-Fs)*albedo/PI+D*G*Fs/max(.001,4.*NoL*NoV);
-    vec3 color=albedo*indirect+brdf*vec3(4.5,4.14,3.45)*uDaylight*NoL*shadow(N,L)*sdfVisibility*skyVisibility
+    vec3 solar=uPlanetLighting==1&&uHeld==0?atmosphereDirect(vWorldPosition-uAtmosphereWorldCamera):vec3(4.5,4.14,3.45)*uDaylight;
+    vec3 color=albedo*indirect+brdf*solar*NoL*shadow(N,L)*sdfVisibility*skyVisibility
         +reflection*F*(1.-rough*.65)*skyVisibility+albedo*emission;
     if(uClusterReady==1&&uHeld==0){
         ivec3 cluster=ivec3(floor((vWorldPosition-uClusterOrigin)/8.));

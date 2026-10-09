@@ -1,8 +1,8 @@
 Playtest: Voxel One engine GL 3.3 raster atmosphere. Synthetic world/profile; 640x400, one sample, fixed exposure=1, TAA/clouds off. Driver: llvmpipe (LLVM 15.0.6, 256 bits)
-noon: mean 121.40311197916667, LUT rebuild CPU submission 0.623245 ms; GL_NO_ERROR.
-dawn: mean 57.03250390625, LUT rebuild CPU submission 0.339083 ms; GL_NO_ERROR.
-dusk: mean 57.0281171875, LUT rebuild CPU submission 0.497309 ms; GL_NO_ERROR.
-night: mean 0.1345390625, LUT rebuild CPU submission 0.322817 ms; GL_NO_ERROR.
+noon: mean 121.40311197916667, LUT rebuild CPU submission 0.394015 ms; GL_NO_ERROR.
+dawn: mean 57.03250390625, LUT rebuild CPU submission 0.346909 ms; GL_NO_ERROR.
+dusk: mean 57.0281171875, LUT rebuild CPU submission 0.399165 ms; GL_NO_ERROR.
+night: mean 0.1345390625, LUT rebuild CPU submission 0.362754 ms; GL_NO_ERROR.
 16 GPU transmittance texels / 48 RGB components compared with double 4096-sample reference, upward and low-sun paths at four heights; maximum absolute error 9.515279722703829E-4 <= 0.035. Readback used only for correctness, not performance.
 6 GPU multiple-scattering texels / 18 RGB components compared with same 16-direction closure at 256 view/sun samples; normalized error 0.0342456629789982 <= 0.6. Approximation tolerance, not full transport parity.
 Lifecycle: static sun reuse, retained initialized atlas, rapid profile cancellation, per-frame row limits and texture cleanup passed.
@@ -10,4 +10,5 @@ Altitude 8000.0 m: finite render, GL_NO_ERROR, mean 172.73094140625.
 Altitude 90000.0 m: finite render, GL_NO_ERROR, mean 65.51428125.
 Altitude 120000.0 m: finite render, GL_NO_ERROR, mean 57.944903645833335.
 Orthographic regression: visible synthetic stone surface, per-pixel sky ray origin, GL_NO_ERROR.
+Fixed sandbox clock: noon surface/sky brighter than midnight; no second daylight factor in bound atmospheric direct sunlight.
 Low/Medium/High profile-preserving table rebuilds and airless/re-enable completed. Desktop GPU target and mobile budget remain unmeasured.

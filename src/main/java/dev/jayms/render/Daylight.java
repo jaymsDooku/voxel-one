@@ -7,8 +7,6 @@ import org.joml.Vector3f;
 /** Continuous solar clock with twilight and a dim moonlit night. */
 public record Daylight(Vector3f sun, float intensity, float ambient) {
     public static Daylight at(GameConfig config, double elapsed) {
-        if (!config.cycle() && !config.city())
-            return new Daylight(new Vector3f(RenderPipeline.SUN), 1, 1);
         double angle = (config.hour(elapsed) - 6) / 24 * Math.PI * 2;
         float height = (float) Math.sin(angle);
         Vector3f sun = new Vector3f((float) Math.cos(angle), height, -.35f).normalize();

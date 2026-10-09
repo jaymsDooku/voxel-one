@@ -1,1 +1,1 @@
-Playtest: PASS. Real reflection cubemap receiver face; irradiance/shadow/transport/cluster switches=1; recursive probe switch=0. Occluder shadow pixels=1498; clustered LED pixels=3501; LED edit pixels=4096. Accepted GI bake and six fresh faces after edit; no stale-ready cube.
+Playtest: PASS. Real reflection cubemap receiver face; irradiance/shadow/transport/cluster switches=1; recursive probe switch=0. Occluder shadow pixels=1506; clustered LED pixels=3469; LED edit pixels=4096. Accepted GI bake and six fresh faces after edit; no stale-ready cube.

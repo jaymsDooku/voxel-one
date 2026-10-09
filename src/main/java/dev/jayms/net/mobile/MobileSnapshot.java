@@ -35,7 +35,6 @@ public final class MobileSnapshot {
         result.put("atmosphere",Map.of("version",1,"enabled",atmosphere.enabled(),"values",values));
         double angle=(city.config().hour(city.elapsed())-6)/24*Math.PI*2;
         double sx=Math.cos(angle),sy=Math.sin(angle),sz=-.35;
-        if(!city.config().city()&&!city.config().cycle()){sx=.45;sy=.78;sz=-.45;}
         double length=Math.sqrt(sx*sx+sy*sy+sz*sz);
         result.put("sun",List.of(sx/length,sy/length,sz/length));
         if(city.config().city()){

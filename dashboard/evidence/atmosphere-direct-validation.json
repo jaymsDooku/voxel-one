@@ -1,0 +1,32 @@
+{
+  "platform": "Linux VPS llvmpipe LLVM 15.0.6 GL 3.3; assigned inherited display; synthetic profiles",
+  "checks": [
+    {
+      "command": "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=DaylightTest,AtmosphereConfigTest,AtmosphereReferenceTest,AtmosphereServerTest,CityFormat16RegressionTest,RailwayOwnershipCompatibilityTest,RegionalSaveCompatibilityTest,RenderingAlgorithmsTest,LightOcclusionTest,LightingTest test",
+      "observed": "41 tests passed before the additional mobile clock parity case"
+    },
+    {
+      "command": "mvn -q -DskipTests compile",
+      "observed": "exit 0"
+    },
+    {
+      "command": "python3 -m unittest discover -s tools/ios -p 'test_*.py' -q",
+      "observed": "53 mocked tests passed; no native execution"
+    },
+    {
+      "command": "python3 deploy/run_atmosphere_playtest.py --display \"$DISPLAY\"",
+      "observed": "exit 0; Playtest: real engine day/night, altitude, airless, orthographic, quality/lifecycle and numerical checks passed. Fixed sandbox noon surface brighter than midnight. Fresh isometric image inspected."
+    },
+    {
+      "command": "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=DaylightTest test",
+      "observed": "3 tests passed, including mobile snapshot solar direction matching desktop at fixed 00:00, 06:00, 12:00 and 18:00"
+    },
+    {
+      "command": "python3 deploy/run_atmosphere_playtest.py --display \"$DISPLAY\" --regression",
+      "observed": "exit 0; actual renderer regression passed local lighting/probe edit, water, temporal/camera, exposure/upscaling and resize checks; GL_NO_ERROR. Fresh media copied."
+    }
+  ],
+  "native": "Trusted head 05977d7d70f960c68fc503b7760280ab82a98c0d passed all six client cases. Enabled image inspected. New virtual-ground radiance/tests require another exact-source Mac run. No physical-device test.",
+  "scope": "Direct sunlight now shared. Legacy indirect GI, clouds, full water composition and full acceptance remain unfinished.",
+  "publication": "Media pending controller publication"
+}

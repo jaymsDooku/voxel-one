@@ -21,6 +21,11 @@ final class WorldRulesTests:XCTestCase {
         XCTAssertEqual(NativeAtmosphere.sunlight(p,-sun,profile),.zero)
         var vacuum=profile;vacuum.enabled=false;XCTAssertEqual(NativeAtmosphere.sunlight(p,sun,vacuum),SIMD3<Double>(repeating:1))
         let light=NativeAtmosphere.radiance(p,sun,sun,profile);XCTAssertTrue(light.x.isFinite && light.x>=0)
+        let ground=NativeAtmosphere.radiance(p,-sun,sun,profile)
+        XCTAssertTrue(ground.x.isFinite && ground.x>0,"Diffuse virtual surface closes the local patch background")
+        var black=profile;black.values[27]=0;black.values[28]=0;black.values[29]=0
+        XCTAssertGreaterThan(ground.x,NativeAtmosphere.radiance(p,-sun,sun,black).x,"Ground background follows profile albedo")
+        XCTAssertEqual(NativeAtmosphere.radiance(p,-sun,-sun,profile),.zero,"Planet shadows the virtual ground at night")
     }
     func fixture() -> Snapshot {
         var inventory=Array(repeating:[0,0],count:36);inventory[0]=[2,4]

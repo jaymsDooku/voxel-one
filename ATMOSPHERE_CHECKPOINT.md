@@ -93,3 +93,42 @@ passed. The controller retains all Git/publication responsibility.
 The existing engine RenderingSmoke regression reran on this source with the assigned display
 and isolated synthetic profile; exit 0. Refreshed reports/media copied to
 dashboard/evidence/atmosphere-regression-*. This is partial regression coverage, not full acceptance.
+
+## Native enabled evidence and direct sunlight phase
+
+Verified trusted report and both media hashes for head 05977d7d70f960c68fc503b7760280ab82a98c0d,
+run https://github.com/jaymsDooku/voxel-one/actions/runs/37967934841. All six native client
+tests passed, including saved Sky opt-in/restart. Inspected client.png shows actual enabled
+blue sky and clear touch HUD, plus a dark virtual-ground band above the local terrain.
+Copied fresh media as atmosphere-ios-enabled.png and atmosphere-ios-enabled-preflight.png;
+see atmosphere-ios-enabled-report.json. These are simulator results, not physical iPhone.
+
+New local source shades the native virtual ground with profile albedo, solar transmission,
+planet shadow and view attenuation. Native numerical tests check positive daylight ground,
+albedo response and zero night-side ground. This new Swift code is unexecuted on Mac.
+Request another exact-source remote_ios_test with all six client cases and actual client media.
+
+Fixed sandbox time now honors configured hour. Mobile snapshots share that solar formula.
+Detailed/distant terrain direct light now uses profile solar irradiance and RGB transmission
+without legacy clock attenuation. Existing voxel/local shadow and skylight visibility remain.
+Held/unbound previews retain their existing shader lighting path. Local reflection capture
+uses the main atmosphere coordinate anchor independently of its own camera. Profile irradiance
+18 is linear HDR, not 0.18; brightness changes are intentional physical-profile agreement.
+Legacy sky/indirect GI, clouds and complete water composition remain unfinished.
+
+Scoped Java run passed 41 tests (Daylight, atmosphere, restart/latejoin, migration,
+rendering algorithms, lighting/occlusion). Linux mocked iOS harness passed 53 tests.
+Direct-light reviewer helper findings were independently checked and accepted; no delegated
+execution claimed. All helper tasks are resolved and concurrency is zero.
+
+The added mobile snapshot solar-clock parity test passed. DaylightTest now has 3 passing
+cases; 42 unique scoped Java cases passed across the two commands. Main GL workflow reran
+on the direct-light source and passed fixed-sandbox noon/midnight surface checks and all
+prior numerical/lifecycle cases. Fresh orthographic image inspected. See
+dashboard/evidence/atmosphere-direct-validation.json.
+
+Existing real engine rendering regression also reran on the latest direct-light source:
+exit 0, GL_NO_ERROR. Sanitized regression reports/media refreshed. git diff --check passed;
+no deleted files against the supplied review base. Full final diff audit remains before review.
+Next controller action: remote_ios_test for new native ground background/tests; preserve
+in-progress status and continue the listed remaining implementation after that result.

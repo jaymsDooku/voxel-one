@@ -108,6 +108,13 @@ public class AtmospherePlaytest {
             renderer.atmosphere(AtmosphereConfig.earth());
             var chunk=new Chunk();for(int x=0;x<16;x++)for(int z=0;z<16;z++)chunk.setBlock(x,8,z,Blocks.STONE);world.addChunk(new ChunkPos(0,1,0),chunk);chunk.checkMesh();
             eye.set(42,60,42);var overview=settled(renderer,shader,world,eye,true,true);ImageIO.write(overview,"png",evidence.resolve("atmosphere-isometric.png").toFile());report.append("Orthographic regression: visible synthetic stone surface, per-pixel sky ray origin, GL_NO_ERROR.\n");
+            var lit=overview;
+            renderer.time(new GameConfig(false,false,1200,0),0);
+            var dark=settled(renderer,shader,world,eye,true,true);
+            ImageIO.write(dark,"png",evidence.resolve("atmosphere-fixed-midnight-surface.png").toFile());
+            require(mean(lit)>mean(dark)+5,"Fixed sandbox noon and midnight affect sky and surface");
+            renderer.time(new GameConfig(false,false,1200,12),0);settled(renderer,shader,world,eye,true,true);
+            report.append("Fixed sandbox clock: noon surface/sky brighter than midnight; no second daylight factor in bound atmospheric direct sunlight.\n");
             renderer.settings.atmosphereQuality=PlanetAtmosphere.Quality.LOW;settled(renderer,shader,world,eye,true,true);renderer.settings.atmosphereQuality=PlanetAtmosphere.Quality.HIGH;settled(renderer,shader,world,eye,true,true);
             report.append("Low/Medium/High profile-preserving table rebuilds and airless/re-enable completed. Desktop GPU target and mobile budget remain unmeasured.\n");
         } finally{glfwDestroyWindow(window);glfwTerminate();}

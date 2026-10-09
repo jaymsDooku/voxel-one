@@ -4,8 +4,8 @@
   "samples": 1,
   "sunVisible": true,
   "irradianceUploaded": true,
-  "shadowChangedPixels": 11514,
-  "reflectionChangedPixels": 168875,
+  "shadowChangedPixels": 12609,
+  "reflectionChangedPixels": 168759,
   "mipmapAndLinearFilters": true,
   "resizeAndGlErrors": "passed"
 }

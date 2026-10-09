@@ -1,8 +1,9 @@
 // Original bounded RGB model. GPU lengths in kilometres, coefficients per kilometre.
-uniform int uAtmosphereEnabled,uAtmosphereSamples;
+uniform int uAtmosphereEnabled,uAtmosphereSamples,uPlanetLighting;
 uniform float uPlanetRadius,uAtmosphereHeight,uRayleighScale,uMieScale,uOzoneCentre,uOzoneWidth,uMieG,uSolarRadius,uBlockKm;
 uniform vec3 uRayleigh,uMieScattering,uMieExtinction,uOzone,uSolar,uPlanetCamera,uAtmosphereSun;
 uniform mat3 uWorldToPlanet;
+uniform vec3 uAtmosphereWorldCamera;
 uniform sampler2D uTransmittance;
 uniform vec3 uAtmosphereLutSize,uGroundAlbedo;
 uniform int uMultipleScatteringEnabled;
@@ -40,4 +41,12 @@ void atmosphereIntegrate(vec3 p,vec3 d,vec3 sun,float distance,int count,out vec
         vec3 integral=vec3(sigma.x>1e-8?(1.-stepT.x)/sigma.x:stepSize,sigma.y>1e-8?(1.-stepT.y)/sigma.y:stepSize,sigma.z>1e-8?(1.-stepT.z)/sigma.z:stepSize);
         light+=transmittance*source*integral;transmittance*=stepT;
     }
+}
+
+// Incoming solar irradiance, before the material BRDF; no second clock attenuation.
+vec3 atmosphereDirect(vec3 cameraDelta){
+    vec3 p=uPlanetCamera+uWorldToPlanet*cameraDelta*uBlockKm;
+    // Offset only the virtual surface roundoff; never move a real exterior sample.
+    if(length(p)<uPlanetRadius+.001)p=normalize(p)*(uPlanetRadius+.001);
+    return uSolar*atmosphereSunlight(p,uAtmosphereSun);
 }

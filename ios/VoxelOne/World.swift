@@ -89,14 +89,19 @@ enum NativeAtmosphere {
         return attenuation(depth)
     }
     static func radiance(_ p:SIMD3<Double>,_ d:SIMD3<Double>,_ sun:SIMD3<Double>,_ profile:AtmosphereProfile)->SIMD3<Double>{
-        let v=profile.values;var color=SIMD3<Double>.zero
+        let v=profile.values;var color=SIMD3<Double>.zero,depth=SIMD3<Double>.zero
         if profile.enabled,let range=span(p,d,profile) {
             let step=(range.1-range.0)/24,mu=simd_dot(d,sun),g=v[26],phaseR=3*(1+mu*mu)/(16*Double.pi),phaseM=(1-g*g)/(4*Double.pi*pow(1+g*g-2*g*mu,1.5))
-            var depth=SIMD3<Double>.zero
             for i in 0..<24 {let q=p+d*(range.0+(Double(i)+0.5)*step),rho=density(simd_length(q)-v[0],profile),sigma=extinction(rho,profile)
                 let source=(profile.vector(10)*rho.x*phaseR+profile.vector(13)*rho.y*phaseM)*profile.vector(30)
                 color += attenuation(depth+sigma*step*0.5)*source*sunlight(q,sun,profile)*step;depth += sigma*step
             }
+        }
+        // Close the local patch with the configured diffuse virtual planetary surface.
+        // This is background only: no collision or world voxels are added.
+        if let ground=sphere(p,d,v[0]),ground.0>=0,ground.1>0 {
+            let q=p+d*ground.0,n=simd_normalize(q)
+            color += attenuation(depth)*profile.vector(27)*profile.vector(30)*sunlight(q+n*2,sun,profile)*max(0,simd_dot(n,sun))/Double.pi
         }
         if simd_dot(d,sun)>cos(v[33]) {color += profile.vector(30)*sunlight(p,sun,profile)}
         return color

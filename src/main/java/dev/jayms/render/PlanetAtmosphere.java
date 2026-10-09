@@ -40,6 +40,7 @@ public final class PlanetAtmosphere implements AutoCloseable {
         }
         void discard(){if(ownsAtlas)glDeleteTextures(atlas);glDeleteTextures(image);glDeleteTextures(multiple);}
     }
+    private final Vector3f worldCamera=new Vector3f();
     private Vec position=config.planetPosition(0,26,0),sun=new Vec(.45,.78,-.45).unit();
     private Matrix3f transform=new Matrix3f();
     private boolean dirty=true;
@@ -55,6 +56,7 @@ public final class PlanetAtmosphere implements AutoCloseable {
     private static Matrix3f matrix(AtmosphereConfig c){Vec up=c.up(),east=Math.abs(up.y())<.99?new Vec(0,1,0).cross(up).unit():new Vec(0,0,1).cross(up).unit().mul(-1);return new Matrix3f().set(floatVector(east),floatVector(up),floatVector(east.cross(up)));}
     private static Vec planetSun(Matrix3f m,Vector3f sun){return new Vec(m.m00()*sun.x+m.m10()*sun.y+m.m20()*sun.z,m.m01()*sun.x+m.m11()*sun.y+m.m21()*sun.z,m.m02()*sun.x+m.m12()*sun.y+m.m22()*sun.z).unit();}
     public void update(Vector3f camera,Vector3f worldSun) {
+        worldCamera.set(camera);
         position=planetPosition(config,camera);transform=matrix(config);sun=planetSun(transform,worldSun);
         double altitude=position.length()-config.radius(),sunCos=position.unit().dot(sun);
         boolean changed=dirty||lastDirection==null||sun.sub(lastDirection).length()>.002||!Double.isFinite(lastAltitude)||Math.abs(altitude-lastAltitude)>Math.max(2,altitude*.002)||Math.abs(sunCos-lastSun)>.002;
@@ -108,7 +110,7 @@ public final class PlanetAtmosphere implements AutoCloseable {
         vector(s,"uMieExtinction",config.aerosolExtinction(),1000);vector(s,"uOzone",config.absorption(),1000);vector(s,"uSolar",config.solarIrradiance(),1);
         vector(s,"uPlanetCamera",position,.001);vector(s,"uAtmosphereSun",sun,1);s.setMatrix3("uWorldToPlanet",transform);
     }
-    public void bind(ShaderProgram s){uniforms(s);glActiveTexture(GL_TEXTURE15);glBindTexture(GL_TEXTURE_2D,trans);s.setInt("uTransmittance",15);
+    public void bind(ShaderProgram s){uniforms(s);s.setInt("uPlanetLighting",1);s.setVector3("uAtmosphereWorldCamera",worldCamera.x,worldCamera.y,worldCamera.z);glActiveTexture(GL_TEXTURE15);glBindTexture(GL_TEXTURE_2D,trans);s.setInt("uTransmittance",15);
         glActiveTexture(GL_TEXTURE14);glBindTexture(GL_TEXTURE_2D,sky);s.setInt("uSkyView",14);glActiveTexture(GL_TEXTURE0);}
     public void environment(int cube) {
         int oldFbo=glGetInteger(GL_DRAW_FRAMEBUFFER_BINDING),oldRead=glGetInteger(GL_READ_FRAMEBUFFER_BINDING),oldVao=glGetInteger(GL_VERTEX_ARRAY_BINDING);int[] vp=new int[4];glGetIntegerv(GL_VIEWPORT,vp);
