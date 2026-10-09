@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-09T22:29:33+00:00",
+  "updatedAt": "2026-10-09T22:53:21+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -20,8 +20,8 @@
       "description": "Audited clean feature branch. Building shared validated atmosphere profile, tangent coordinates and CPU reference math before rendering integration.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Outdoor coverage review fix passes 31 final-source tests, GPU boundary/fine-roof checks, full atmosphere regressions and 96-frame production playtest. Fresh stills/F10 inspected. Ready for controller synchronization and independent review; hardware target unvalidated.",
-      "updatedAt": "2026-10-09T22:29:33+00:00"
+      "note": "Model roof footprints stay correct across unload/reload. 39 focused tests, 18 GPU probes and 96 production frames passed. Fresh media saved for controller publication; ready for synchronization and independent review.",
+      "updatedAt": "2026-10-09T22:53:21+00:00"
     },
     {
       "id": "62346636376631352d313735362d346166362d623730662d386437336533383939623861",

@@ -24,16 +24,7 @@ public final class WorldSkyVisibility {
             for(var leaf:entry.getValue().snapshot().leaves()){
                 int type=WorldVoxels.decode(leaf.color());if(type==Blocks.AIR)continue;
                 float x=p.chunkX()*16+leaf.x()/16f,y=p.chunkY()*16+leaf.y()/16f,z=p.chunkZ()*16+leaf.z()/16f,size=leaf.side()/16f;
-                if(Blocks.isModel(type)){
-                    var model=world.models().get(type);
-                    if(model==null){add(paths,new Segment(x,y,z,x+size,y+size,z+size,0));continue;}
-                    // A merged uniform octree leaf can contain several repeated model cells.
-                    if(size<1){add(paths,new Segment(x,y,z,x+size,y+size,z+size,0));continue;}
-                    float scale=1f/model.definition().voxels().size();
-                    var leaves=model.definition().voxels().leaves();
-                    for(int dx=0;dx<(int)size;dx++)for(int dy=0;dy<(int)size;dy++)for(int dz=0;dz<(int)size;dz++)
-                        for(var cell:leaves)add(paths,new Segment(x+dx+cell.x()*scale,y+dy+cell.y()*scale,z+dz+cell.z()*scale,x+dx+(cell.x()+cell.side())*scale,y+dy+(cell.y()+cell.side())*scale,z+dz+(cell.z()+cell.side())*scale,0));
-                }else add(paths,new Segment(x,y,z,x+size,y+size,z+size,type==Blocks.GLASS||type==Blocks.WATER?.7f:0));
+                expand(paths,world,type,x,y,z,size);
             }
         }
         // Unloaded edited roofs must also occlude the loaded geometry below them.
@@ -42,7 +33,7 @@ public final class WorldSkyVisibility {
             for(var leaf:world.cell(edit.x(),edit.y(),edit.z()).leaves()){
                 int type=WorldVoxels.decode(leaf.color());if(type==Blocks.AIR)continue;
                 float x=edit.x()+leaf.x()/16f,y=edit.y()+leaf.y()/16f,z=edit.z()+leaf.z()/16f,size=leaf.side()/16f;
-                add(paths,new Segment(x,y,z,x+size,y+size,z+size,type==Blocks.GLASS||type==Blocks.WATER?.7f:0));
+                expand(paths,world,type,x,y,z,size);
             }
         }
         paths.replaceAll((column,segments)->compact(segments));
@@ -58,6 +49,19 @@ public final class WorldSkyVisibility {
             for(var a:segments)for(float value:new float[]{a.x0,a.y0,a.z0,a.x1,a.y1,a.z1,a.transmission})packed[offset++]=Float.floatToRawIntBits(value);
         }
         return new WorldSkyVisibility(packed,count);
+    }
+    /** Same model footprint contract for streamed chunks and persisted edits. */
+    private static void expand(Map<Column,List<Segment>> paths,World world,int type,float x,float y,float z,float size){
+        if(Blocks.isModel(type)){
+            var model=world.models().get(type);
+            if(model==null){add(paths,new Segment(x,y,z,x+size,y+size,z+size,0));return;}
+            // A merged uniform octree leaf can contain several repeated model cells.
+            if(size<1){add(paths,new Segment(x,y,z,x+size,y+size,z+size,0));return;}
+            float scale=1f/model.definition().voxels().size();
+            var leaves=model.definition().voxels().leaves();
+            for(int dx=0;dx<(int)size;dx++)for(int dy=0;dy<(int)size;dy++)for(int dz=0;dz<(int)size;dz++)
+                for(var cell:leaves)add(paths,new Segment(x+dx+cell.x()*scale,y+dy+cell.y()*scale,z+dz+cell.z()*scale,x+dx+(cell.x()+cell.side())*scale,y+dy+(cell.y()+cell.side())*scale,z+dz+(cell.z()+cell.side())*scale,0));
+        }else add(paths,new Segment(x,y,z,x+size,y+size,z+size,type==Blocks.GLASS||type==Blocks.WATER?.7f:0));
     }
     private static List<Segment> compact(List<Segment> source){
         // Octrees split a 1/32 planar roof into many cubes. Merge only touching

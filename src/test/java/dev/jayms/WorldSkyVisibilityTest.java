@@ -71,4 +71,23 @@ class WorldSkyVisibilityTest {
             assertEquals(0,WorldSkyVisibility.build(world).sample(72.5f,140,8.5f));
         }
     }
+    @Test void modelRoofGapsSurviveUnloadAndReload()throws Exception{
+        try(var world=new World()){
+            var geometry=new dev.jayms.net.model.SparseVoxelOctree(32);
+            geometry.fill(0,16,0,16,17,16,0xff8899aa);
+            int type=world.models().register(new dev.jayms.net.model.ModelDefinition("Quarter roof",geometry),"synthetic").id();
+            var position=new ChunkPos(4,11,2);world.addChunk(position,new Chunk());
+            world.apply(new Protocol.Edit(70,180,45,type));
+            for(int state=0;state<3;state++){
+                if(state==1){world.unloadChunk(position);}
+                if(state==2)world.addChunk(position,new Chunk());
+                assertEquals(state!=1,world.isLoaded(70,180,45));
+                var sky=WorldSkyVisibility.build(world);
+                assertEquals(1,sky.sample(70.8f,170,45.8f),"Model gap state="+state);
+                assertEquals(0,sky.sample(70.2f,170,45.2f),"Opaque model footprint state="+state);
+                assertEquals(1,sky.sample(70.2f,181,45.2f),"Above roof state="+state);
+            }
+        }
+    }
+
 }

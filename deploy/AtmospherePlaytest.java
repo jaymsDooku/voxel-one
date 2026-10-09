@@ -81,6 +81,36 @@ public class AtmospherePlaytest {
         coverageTarget=new Vector3f(72,138,40);var altitude=settled(renderer,shader,world,new Vector3f(72,188,102),true,true);ImageIO.write(altitude,"png",evidence.resolve("atmosphere-coverage-high.png").toFile());
         coverageTarget=new Vector3f(72,140,39);var room=settled(renderer,shader,world,new Vector3f(72,140,42),false,true);ImageIO.write(room,"png",evidence.resolve("atmosphere-coverage-room.png").toFile());require(mean(room)<1.5,"Outside-volume sealed room remains dark: "+mean(room));
         report.append("High terrain/roof at136-142 m outside volume rendered. Sealed room mean="+mean(room)+" <1.5/255.\n");
+        // Streaming changes geometry residency, never the model's real sky footprint.
+        var partialRoof=new dev.jayms.net.model.SparseVoxelOctree(32);partialRoof.fill(0,16,0,16,17,16,0xff8899aa);
+        int partialType=world.models().register(new dev.jayms.net.model.ModelDefinition("Streaming quarter roof",partialRoof),"synthetic").id();
+        var roofPosition=new ChunkPos(4,11,2);world.addChunk(roofPosition,new Chunk());world.apply(new dev.jayms.net.Protocol.Edit(70,180,45,partialType));
+        var receiver=new Chunk();for(int x=5;x<9;x++)for(int z=12;z<16;z++)receiver.setBlock(x,8,z,Blocks.STONE);world.addChunk(new ChunkPos(4,10,2),receiver);
+        for(int state=0;state<3;state++){
+            String label=new String[]{"loaded","unloaded","reloaded"}[state];
+            if(state==1){world.unloadChunk(roofPosition);}
+            if(state==2)world.addChunk(roofPosition,new Chunk());
+            require(world.isLoaded(70,180,45)==(state!=1),"Roof residency "+label);
+            world.getLoadedChunks().values().forEach(Chunk::checkMesh);acceptLighting(renderer,world,8,8);
+            try(var probe=new ShaderProgram("shaders/fullscreen.vert","shaders/atmosphere-visibility-test.frag")){
+                var bind=RenderPipeline.class.getDeclaredMethod("bindSceneLighting",ShaderProgram.class);bind.setAccessible(true);
+                int fbo=glGenFramebuffers(),texture=glGenTextures(),vao=glGenVertexArrays();
+                try{
+                    glActiveTexture(GL_TEXTURE0);glBindTexture(GL_TEXTURE_2D,texture);glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA32F,1,1,0,GL_RGBA,GL_FLOAT,(ByteBuffer)null);
+                    glBindFramebuffer(GL_FRAMEBUFFER,fbo);glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,texture,0);glDrawBuffer(GL_COLOR_ATTACHMENT0);glReadBuffer(GL_COLOR_ATTACHMENT0);
+                    require(glCheckFramebufferStatus(GL_FRAMEBUFFER)==GL_FRAMEBUFFER_COMPLETE,"Streaming probe framebuffer");glBindVertexArray(vao);glViewport(0,0,1,1);glDisable(GL_DEPTH_TEST);glDisable(GL_BLEND);glDisable(GL_CULL_FACE);probe.bind();bind.invoke(renderer,probe);
+                    var reference=WorldSkyVisibility.build(world);
+                    for(float[] point:new float[][]{{70.8f,170,45.8f,1},{70.2f,170,45.2f,0},{70.2f,181,45.2f,1}}){
+                        require(reference.sample(point[0],point[1],point[2])==point[3],"CPU streaming footprint "+label);
+                        probe.setVector3("uTestPosition",point[0],point[1],point[2]);glDrawArrays(GL_TRIANGLES,0,3);float[] pixel=new float[4];glReadPixels(0,0,1,1,GL_RGBA,GL_FLOAT,pixel);
+                        require(Math.abs(pixel[0]-point[3])<.001,"GPU streaming footprint "+label+" "+java.util.Arrays.toString(point)+" got "+pixel[0]);require(glGetError()==GL_NO_ERROR,"Streaming GL_NO_ERROR");
+                        report.append("GPU streaming "+label+" point="+java.util.Arrays.toString(point)+": visibility="+pixel[0]+"; CPU agrees.\n");
+                    }
+                }finally{glBindFramebuffer(GL_FRAMEBUFFER,0);glBindVertexArray(0);glDeleteFramebuffers(fbo);glDeleteTextures(texture);glDeleteVertexArrays(vao);glEnable(GL_DEPTH_TEST);glEnable(GL_CULL_FACE);}
+            }
+            coverageSpanX=4;coverageSpanY=4;coverageTarget=new Vector3f(70,169,45);
+            var streaming=settled(renderer,shader,world,new Vector3f(74,174,51),true,true);ImageIO.write(streaming,"png",evidence.resolve("atmosphere-model-"+label+".png").toFile());
+        }
         coverageSpanX=150;coverageSpanY=100;coverageTarget=new Vector3f(40,80,24);var overview=settled(renderer,shader,world,new Vector3f(150,210,160),true,true);ImageIO.write(overview,"png",evidence.resolve("atmosphere-coverage-overview.png").toFile());report.append("Full synthetic city footprint overview with distant and elevated geometry: GL_NO_ERROR.\n");
         var fitVP=new Matrix4f().ortho(-150,150,-100,100,.1f,4096).mul(new Matrix4f().lookAt(new Vector3f(150,210,160),coverageTarget,new Vector3f(0,1,0)));
         for(var point:new Vector3f[]{new Vector3f(8,25,8),new Vector3f(40,25,8),new Vector3f(56,25,8),new Vector3f(72,25,8),new Vector3f(72,142,40)}){

@@ -1,0 +1,54 @@
+{
+  "result": "passed",
+  "sourceSHA256": {
+    "src/main/java/dev/jayms/World.java": "040ede3a582838724942409d63df67c27dd599ff953f489781270fd143c370f8",
+    "src/main/java/dev/jayms/render/WorldSkyVisibility.java": "55b4ba4336ad529471199f99578f7b312994a1fd10979f3c8778bab7e4457692",
+    "src/test/java/dev/jayms/WorldSkyVisibilityTest.java": "c801edde0b6ee07dfe97149e9808c44f5a2134bba2c088ef3b0e2e9a709ab52f",
+    "deploy/AtmospherePlaytest.java": "dc5c4246560119c5e48638813a50baaa6bcc5aeec033fb6b2692c6345430f2bf"
+  },
+  "platform": "Linux VPS, llvmpipe OpenGL 3.3 software renderer, assigned X11 display",
+  "profile": "Isolated synthetic world; fixed noon/exposure1; 640x400; clouds/TAA off",
+  "command": "python3 deploy/run_atmosphere_playtest.py --display \"$DISPLAY\" --coverage",
+  "playtest": "Production voxel renderer and common irradiance shader. Loaded, unloaded and reloaded quarter-model roof: gap (70.8,170,45.8) visibility1, occupied footprint (70.2,170,45.2) visibility0, above roof (70.2,181,45.2) visibility1. CPU agrees in every state.",
+  "GPUProbes": 18,
+  "tolerance": 0.001,
+  "regressions": [
+    "Four equal outdoor stone patches across the local GI boundary remain lit.",
+    "High-altitude sealed room mean0/255 (<1.5).",
+    "Glass transmission0.7, fractional gaps and tiny-model roofs remain correct.",
+    "Full synthetic overview geometry fits with margins."
+  ],
+  "media": [
+    "atmosphere-model-loaded.png",
+    "atmosphere-model-unloaded.png",
+    "atmosphere-model-reloaded.png"
+  ],
+  "GL": "GL_NO_ERROR",
+  "limits": [
+    "Hardware <=2 ms target unvalidated.",
+    "Native source unchanged; no physical iPhone check claimed.",
+    "Focused Java tests39 pass; no new full-suite pass claimed."
+  ],
+  "audit": "No deleted files against bcdcab56c6ae1c183621aaa1b4a7e3d0e1f0b3ba. Existing loaded model expansion moved into a shared helper; stream unload loop uses the shared unload operation. No unrelated deletions.",
+  "mediaSHA256": {
+    "atmosphere-model-loaded.png": "5527772f8c5892cf5173203db4f3436bb2b537d7e47051060df9617224436260",
+    "atmosphere-model-unloaded.png": "f6239c9a551e6f45207d2fdecfba0d08c426b1f94d2ada4bdcf9aafb37e52777",
+    "atmosphere-model-reloaded.png": "4beff2b65459514e39e593bcad43a8c170a46f3b00c9a5eafd21e6dae27176d7",
+    "atmosphere-model-main-transitions.mp4": "89af345a58553f972b0a98b13c29758008b03d1623dfadc26e693d0ef0d0975a"
+  },
+  "publication": "Pending controller publication",
+  "productionMain": {
+    "command": "python3 deploy/run_atmosphere_playtest.py --display \"$DISPLAY\" --main",
+    "result": "passed",
+    "frames": 96,
+    "GL": "GL_NO_ERROR",
+    "steps": "Movement, three F5 cameras, authoritative day/night, 120 km space view/return, water/LED, F10 recording, F6 isometric, 333x271 resize, Escape menu."
+  },
+  "F10": {
+    "filename": "atmosphere-model-main-transitions.mp4",
+    "seconds": 61.599,
+    "frames": 41,
+    "bytes": 1237017,
+    "decodedFrames": 4
+  }
+}

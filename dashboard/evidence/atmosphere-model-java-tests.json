@@ -1,0 +1,64 @@
+{
+  "command": "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=WorldSkyVisibilityTest,FractionalWorldTest,AtmosphereLightingTest,LightingTest,AtmosphereReferenceTest,AtmosphereConfigTest,AtmosphereServerTest,CitySavesTest test",
+  "result": "passed",
+  "tests": 39,
+  "suites": [
+    {
+      "suite": "WorldSkyVisibilityTest",
+      "tests": 8,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "FractionalWorldTest",
+      "tests": 7,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "AtmosphereLightingTest",
+      "tests": 3,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "LightingTest",
+      "tests": 5,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "AtmosphereReferenceTest",
+      "tests": 8,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "AtmosphereConfigTest",
+      "tests": 5,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "AtmosphereServerTest",
+      "tests": 1,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "CitySavesTest",
+      "tests": 2,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    }
+  ],
+  "scope": "Focused final-source tests; no full-suite rerun claimed."
+}
