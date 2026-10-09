@@ -2,7 +2,7 @@ import UIKit
 import SceneKit
 
 @MainActor
-final class GameController:UIViewController,UITextFieldDelegate {
+final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecognizerDelegate {
     private let renderer=VoxelRenderer()
     private var world:VoxelWorld?
     private var gateway:Gateway?
@@ -28,14 +28,29 @@ final class GameController:UIViewController,UITextFieldDelegate {
         super.viewDidLoad();view.backgroundColor = .black
         renderer.view.translatesAutoresizingMaskIntoConstraints=false;view.addSubview(renderer.view)
         NSLayoutConstraint.activate([renderer.view.topAnchor.constraint(equalTo:view.topAnchor),renderer.view.bottomAnchor.constraint(equalTo:view.bottomAnchor),renderer.view.leadingAnchor.constraint(equalTo:view.leadingAnchor),renderer.view.trailingAnchor.constraint(equalTo:view.trailingAnchor)])
-        let look=UIPanGestureRecognizer(target:self,action:#selector(pan(_:)));look.maximumNumberOfTouches=1;renderer.view.addGestureRecognizer(look)
-        let two=UIPanGestureRecognizer(target:self,action:#selector(panPlanning(_:)));two.minimumNumberOfTouches=2;renderer.view.addGestureRecognizer(two)
-        renderer.view.addGestureRecognizer(UITapGestureRecognizer(target:self,action:#selector(tapWorld(_:))))
-        renderer.view.addGestureRecognizer(UIPinchGestureRecognizer(target:self,action:#selector(pinch(_:))))
+        let look=UIPanGestureRecognizer(target:self,action:#selector(pan(_:)));look.maximumNumberOfTouches=1;addWorldGesture(look)
+        let two=UIPanGestureRecognizer(target:self,action:#selector(panPlanning(_:)));two.minimumNumberOfTouches=2;addWorldGesture(two)
+        addWorldGesture(UITapGestureRecognizer(target:self,action:#selector(tapWorld(_:))))
+        addWorldGesture(UIPinchGestureRecognizer(target:self,action:#selector(pinch(_:))))
         displayLink=CADisplayLink(target:self,selector:#selector(frame(_:)));displayLink?.preferredFramesPerSecond=30;displayLink?.add(to:.main,forMode:.common)
         if FileManager.default.fileExists(atPath:OfflineSave.url.path) {
             do {try startOffline(OfflineSave.load())}catch{showMenu();notify(error.localizedDescription)}
         } else {showMenu()}
+    }
+    // HUD labels and empty stack space share world gestures. Controls keep their
+    // own touches, including movement buttons and the scrolling hotbar.
+    private func addWorldGesture(_ gesture:UIGestureRecognizer) {
+        gesture.delegate=self;view.addGestureRecognizer(gesture)
+    }
+    func gestureRecognizer(_ gestureRecognizer:UIGestureRecognizer,shouldReceive touch:UITouch)->Bool {
+        guard !inMenu,!paused else{return false}
+        var target=touch.view
+        while let current=target {
+            if current is UIControl || current is UIScrollView {return false}
+            if current === view {break}
+            target=current.superview
+        }
+        return true
     }
     private func label(_ text:String,size:CGFloat=14,id:String="")->UILabel {
         let l=UILabel();l.text=text;l.textColor = .white;l.font = .systemFont(ofSize:size,weight:.semibold);l.numberOfLines=2;l.accessibilityIdentifier=id;return l

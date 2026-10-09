@@ -158,3 +158,8 @@ and [author implementation](https://github.com/sebh/UnrealEngineSkyAtmosphere).
 [Bruneton's reference and tests](https://ebruneton.github.io/precomputed_atmospheric_scattering/index.html)
 describe dimensional consistency and numerical reference validation. Any later adapted
 source must retain its attribution and license.
+
+Native run 37987207495 built source fa6cbf2a45e1e5e7d7eb5091bd116b508227bb83 but
+failed waiting for a look-gesture HUD update. World gestures now live on the shared
+parent and reject controls/scroll views, menu and paused input. This fixes the path
+through sibling HUD label/stack space. Actual UIKit behavior awaits another Mac run.

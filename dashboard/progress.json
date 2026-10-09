@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-09T20:28:01+00:00",
+  "updatedAt": "2026-10-09T20:42:54+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -20,8 +20,8 @@
       "description": "Audited clean feature branch. Building shared validated atmosphere profile, tangent coordinates and CPU reference math before rendering integration.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Native Sun-look test revised after inspected Mac failure; exact-source seven-case retry needed. 53 Linux harness mocks pass. Focused High 1080p llvmpipe benchmark completed both modes; software results recorded without hardware-target claim. Final synchronized-source validation remains.",
-      "updatedAt": "2026-10-09T20:28:01+00:00"
+      "note": "Native Mac built but look gesture produced no HUD update. Fixed world touch routing across sibling HUD stacks; controls/scroll/menu input excluded. 53 Linux harness mocks pass. Exact-source seven-case Mac retry required; final validation remains open.",
+      "updatedAt": "2026-10-09T20:42:54+00:00"
     },
     {
       "id": "62346636376631352d313735362d346166362d623730662d386437336533383939623861",

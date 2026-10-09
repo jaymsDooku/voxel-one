@@ -83,7 +83,7 @@ final class NativeWorkflowTests:XCTestCase {
             let previous=app.staticTexts["playerPosition"].label
             start.press(forDuration:0.05,thenDragTo:start.withOffset(CGVector(dx:dx,dy:dy)))
             let changed=XCTNSPredicateExpectation(predicate:NSPredicate(format:"label != %@",previous),object:app.staticTexts["playerPosition"])
-            XCTAssertEqual(XCTWaiter.wait(for:[changed],timeout:5),.completed,"Look gesture updates the camera HUD")
+            XCTAssertEqual(XCTWaiter.wait(for:[changed],timeout:5),.completed,"Look gesture updates the camera HUD; before \(previous); after \(app.staticTexts["playerPosition"].label)")
         }
         XCTFail("Normal look controls did not reach the synthetic sun direction; observed \(app.staticTexts["playerPosition"].label)")
     }
