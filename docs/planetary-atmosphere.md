@@ -166,3 +166,9 @@ blue rim. No gameplay terrain, collision or atmospheric voxels are added. Run
 The LUT byte counts are declared logical allocations, excluding driver padding,
 programs, the reflection environment (786,420 logical RGB16F bytes including mips),
 48 exposure-buffer bytes and timestamp-query metadata. They are not total VRAM measurements.
+
+### Exterior sunlight review fix
+
+Sun rays from outside the atmospheric shell now integrate extinction over the clipped shell interval with 128 midpoint samples. Vacuum intervals contribute no extinction. Planet shadow is checked before both the LUT and fallback paths. The top `min(1 km, 2% of shell height)` blends smoothly from the interior LUT to this bounded path to avoid a LUT seam during shell entry. This fallback adds work near and outside the shell; it does not establish the desktop hardware performance target.
+
+The executable `--sunlight` playtest probes the production common shader in a 1×1 floating-point framebuffer against the double-precision 4096-sample CPU integrator. It covers 99,999/100,000/100,001 m, the reported 120 km dense crossing, grazing hit/miss, outward/missing shell rays, planet shadow and airless. Readback is for correctness only. See `dashboard/evidence/atmosphere-exterior-sunlight.txt` for actual RGB values and tolerance.

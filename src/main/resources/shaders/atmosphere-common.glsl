@@ -24,11 +24,27 @@ vec2 atmospherePath(vec3 p,vec3 d,float distance){if(length(p)<uPlanetRadius-.00
     if(ground.y>0.&&ground.x>=-.001)b=min(b,max(0.,ground.x));return vec2(a,b);}
 vec3 atmosphereSunlight(vec3 p,vec3 sun){if(length(p)<uPlanetRadius-.001)return vec3(0);vec2 ground=atmosphereSphere(p,sun,uPlanetRadius);
     if(ground.y>0.&&ground.x>=-.001)return vec3(0);if(uAtmosphereEnabled==0)return vec3(1);float r=length(p);
-    if(r>=uPlanetRadius+uAtmosphereHeight)return vec3(1);
+    // Blend over the top min(1 km, 2% of shell height) to remove LUT entry seams.
+    float outer=uPlanetRadius+uAtmosphereHeight,band=min(1.,uAtmosphereHeight*.02);
+    vec3 shellT=vec3(1);float shellBlend=smoothstep(outer-band,outer,r);
+    if(shellBlend>0.){
+        // Exterior sunlight can cross the full shell. Integrate only its clipped
+        // interval, not the vacuum between the camera and atmospheric entry.
+        vec2 shell=atmosphereSphere(p,sun,uPlanetRadius+uAtmosphereHeight);
+        float entry=max(0.,shell.x),exit=shell.y;
+        if(exit<=entry)return vec3(1);
+        float stepSize=(exit-entry)/128.;vec3 depth=vec3(0);
+        for(int i=0;i<128;i++){
+            vec3 q=p+sun*(entry+(float(i)+.5)*stepSize);
+            depth+=atmosphereExtinction(atmosphereDensity(length(q)-uPlanetRadius))*stepSize;
+        }
+        shellT=exp(-depth);
+        if(r>=outer)return shellT;
+    }
     float h=clamp((r-uPlanetRadius)/uAtmosphereHeight,0.,1.);float mu=dot(p/r,sun);
     float mapped=sign(mu)*sqrt(abs(mu));
     vec2 uv=vec2(((mapped*.5+.5)*(uAtmosphereLutSize.x-1.)+.5)/uAtmosphereLutSize.x,(sqrt(h)*(uAtmosphereLutSize.y-1.)+.5)/uAtmosphereLutSize.z);
-    return texture(uTransmittance,uv).rgb;}
+    return mix(texture(uTransmittance,uv).rgb,shellT,shellBlend);}
 vec3 atmosphereMultiple(vec3 p,vec3 sun){
     if(uMultipleScatteringEnabled==0||uAtmosphereEnabled==0)return vec3(0);
     float r=length(p),size=uAtmosphereLutSize.z-uAtmosphereLutSize.y;

@@ -1,8 +1,8 @@
 Playtest: actual engine spherical-shell/virtual-ground diagnostic. Gameplay terrain unchanged; no atmospheric voxels. GL3.3 llvmpipe; assigned X11; synthetic profile,640x400,fixed exposure1,clouds/TAA off.
-Tangent view altitude 95000.0 m; mean 115.29755598958333; GL_NO_ERROR.
-Tangent view altitude 100000.0 m; mean 114.52671354166667; GL_NO_ERROR.
-Tangent view altitude 105000.0 m; mean 113.24189973958333; GL_NO_ERROR.
-Tangent view altitude 120000.0 m; mean 112.19145833333333; GL_NO_ERROR.
-Tangent view altitude 1000000.0 m; mean 95.90291927083334; GL_NO_ERROR.
-95km/105km shell-entry/exit mean difference 2.0556562499999984 <20/255; actual finite raster output, not full pixelwise equivalence.
+Tangent view altitude 95000.0 m; mean 115.21593098958333; GL_NO_ERROR.
+Tangent view altitude 100000.0 m; mean 114.50455598958334; GL_NO_ERROR.
+Tangent view altitude 105000.0 m; mean 113.2228671875; GL_NO_ERROR.
+Tangent view altitude 120000.0 m; mean 112.17694270833333; GL_NO_ERROR.
+Tangent view altitude 1000000.0 m; mean 95.89992057291667; GL_NO_ERROR.
+95km/105km shell-entry/exit mean difference 1.9930638020833271 <20/255; actual finite raster output, not full pixelwise equivalence.
 Airless limb fallback rendered; GL_NO_ERROR. Browser playtesting does not apply to the native GL engine.

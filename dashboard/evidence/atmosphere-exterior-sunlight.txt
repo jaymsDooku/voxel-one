@@ -1,0 +1,12 @@
+Playtest: actual shared atmosphereSunlight shader vs double 4096-sample CPU reference. Linux llvmpipe (LLVM 15.0.6, 256 bits); GL 3.3; synthetic profile; correctness readback only. Maximum absolute RGB tolerance 0.001.
+altitude=99999.0 m, radial sun=-0.17, enabled=1.0, GPU=[0.16065554, 0.0123133585, 1.3290772E-4, 1.0], CPU=Vec[x=0.16063897118280138, y=0.01230971689731739, z=1.3289957977765445E-4]
+altitude=100000.0 m, radial sun=-0.17, enabled=1.0, GPU=[0.1606846, 0.012318367, 1.3304852E-4, 1.0], CPU=Vec[x=0.16066927511541812, y=0.012314972773287258, z=1.3304559127115686E-4]
+altitude=100001.0 m, radial sun=-0.17, enabled=1.0, GPU=[0.16071224, 0.012323139, 1.3318482E-4, 1.0], CPU=Vec[x=0.16069958096561462, y=0.012320230320010827, z=1.3319174481934287E-4]
+altitude=120000.0 m, radial sun=-0.1866606458232702, enabled=1.0, GPU=[0.16502827, 0.013083815, 1.5560407E-4, 1.0], CPU=Vec[x=0.1650409435637329, y=0.013086821292885851, z=1.5559544673008068E-4]
+altitude=120000.0 m, radial sun=-0.07849677371590733, enabled=1.0, GPU=[1.0, 1.0, 1.0, 1.0], CPU=Vec[x=1.0, y=1.0, z=1.0]
+altitude=120000.0 m, radial sun=-0.07851677371590732, enabled=1.0, GPU=[0.9999996, 0.9999991, 0.999998, 1.0], CPU=Vec[x=0.9999996488287202, y=0.9999991826187633, z=0.9999979959034905]
+altitude=120000.0 m, radial sun=-0.05, enabled=1.0, GPU=[1.0, 1.0, 1.0, 1.0], CPU=Vec[x=1.0, y=1.0, z=1.0]
+altitude=120000.0 m, radial sun=1.0, enabled=1.0, GPU=[1.0, 1.0, 1.0, 1.0], CPU=Vec[x=1.0, y=1.0, z=1.0]
+altitude=120000.0 m, radial sun=-1.0, enabled=1.0, GPU=[0.0, 0.0, 0.0, 1.0], CPU=Vec[x=0.0, y=0.0, z=0.0]
+altitude=120000.0 m, radial sun=-0.1866606458232702, enabled=0.0, GPU=[1.0, 1.0, 1.0, 1.0], CPU=Vec[x=1.0, y=1.0, z=1.0]
+PASS: shell entry/exit, exterior dense crossing, shell grazing hit/miss, vacuum miss/outward, planet shadow and airless.

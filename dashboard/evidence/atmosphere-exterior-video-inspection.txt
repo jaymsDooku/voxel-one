@@ -1,0 +1,5 @@
+Playtest: actual engine F10 H264 movie decoded. Duration 45.351 seconds; 41 frames; 1130855 bytes. No profile/account files in media.
+Decoded frame at 11.33775 seconds: 640x400.
+Decoded frame at 22.6755 seconds: 640x400.
+Decoded frame at 34.01325 seconds: 640x400.
+Decoded frame at 43.08345 seconds: 640x400.

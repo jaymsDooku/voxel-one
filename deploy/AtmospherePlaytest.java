@@ -25,6 +25,42 @@ public class AtmospherePlaytest {
         try{glReadPixels(0,0,W,H,GL_RGB,GL_UNSIGNED_BYTE,rgb);for(int y=0;y<H;y++)for(int x=0;x<W;x++){int i=(x+y*W)*3;image.setRGB(x,H-1-y,(rgb.get(i)&255)<<16|(rgb.get(i+1)&255)<<8|(rgb.get(i+2)&255));}}finally{MemoryUtil.memFree(rgb);}return image;}
     static double mean(BufferedImage image){long total=0;for(int y=0;y<H;y++)for(int x=0;x<W;x++){int c=image.getRGB(x,y);total+=(c>>16&255)+(c>>8&255)+(c&255);}return total/(double)(W*H*3);}
     static Object field(Object owner,String name)throws Exception {var f=owner.getClass().getDeclaredField(name);f.setAccessible(true);return f.get(owner);}
+    static void sunlightReferenceCheck(RenderPipeline renderer,Path evidence)throws Exception {
+        var atmosphere=(PlanetAtmosphere)field(renderer,"atmosphere");
+        int oldFbo=glGetInteger(GL_DRAW_FRAMEBUFFER_BINDING),oldRead=glGetInteger(GL_READ_FRAMEBUFFER_BINDING),oldVao=glGetInteger(GL_VERTEX_ARRAY_BINDING);
+        int[] viewport=new int[4];glGetIntegerv(GL_VIEWPORT,viewport);
+        boolean depth=glIsEnabled(GL_DEPTH_TEST),blend=glIsEnabled(GL_BLEND),cull=glIsEnabled(GL_CULL_FACE),scissor=glIsEnabled(GL_SCISSOR_TEST);
+        int fbo=glGenFramebuffers(),texture=glGenTextures(),vao=glGenVertexArrays();
+        StringBuilder report=new StringBuilder("Playtest: actual shared atmosphereSunlight shader vs double 4096-sample CPU reference. Linux "+glGetString(GL_RENDERER)+"; GL 3.3; synthetic profile; correctness readback only. Maximum absolute RGB tolerance 0.001.\n");
+        float[] previous=null;int index=0;
+        double grazing=-Math.sqrt(1-Math.pow(6460000./6480000.,2));
+        double[][] cases={{99999,-.17,1},{100000,-.17,1},{100001,-.17,1},{120000,-.19/Math.sqrt(1+.19*.19),1},{120000,grazing+.00001,1},{120000,grazing-.00001,1},{120000,-.05,1},{120000,1,1},{120000,-1,1},{120000,-.19/Math.sqrt(1+.19*.19),0}};
+        try(var pass=new ShaderProgram("shaders/fullscreen.vert","shaders/atmosphere-sunlight-test.frag")){
+            glBindBuffer(GL_PIXEL_PACK_BUFFER,0);glBindBuffer(GL_PIXEL_UNPACK_BUFFER,0);
+            glActiveTexture(GL_TEXTURE0);glBindTexture(GL_TEXTURE_2D,texture);glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA32F,1,1,0,GL_RGBA,GL_FLOAT,(ByteBuffer)null);
+            glBindFramebuffer(GL_FRAMEBUFFER,fbo);glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,texture,0);glDrawBuffer(GL_COLOR_ATTACHMENT0);glReadBuffer(GL_COLOR_ATTACHMENT0);
+            require(glCheckFramebufferStatus(GL_FRAMEBUFFER)==GL_FRAMEBUFFER_COMPLETE,"Sunlight probe framebuffer");glBindVertexArray(vao);glViewport(0,0,1,1);
+            glDisable(GL_DEPTH_TEST);glDisable(GL_BLEND);glDisable(GL_CULL_FACE);glDisable(GL_SCISSOR_TEST);
+            pass.bind();atmosphere.bind(pass);
+            for(double[] test:cases){
+                Vec p=new Vec(0,6360000+test[0],0),sun=new Vec(Math.sqrt(1-test[1]*test[1]),test[1],0);
+                pass.setVector3("uTestPosition",0,(float)(p.y()/1000),0);pass.setVector3("uTestSun",(float)sun.x(),(float)sun.y(),0);pass.setInt("uAtmosphereEnabled",(int)test[2]);
+                glDrawArrays(GL_TRIANGLES,0,3);float[] actual=new float[4];glReadPixels(0,0,1,1,GL_RGBA,GL_FLOAT,actual);
+                Vec expected=AtmosphereReference.sunlight(test[2]==1?AtmosphereConfig.earth():AtmosphereConfig.airless(),p,sun,4096);
+                report.append("altitude="+test[0]+" m, radial sun="+test[1]+", enabled="+test[2]+", GPU="+java.util.Arrays.toString(actual)+", CPU="+expected+"\n");
+                for(int k=0;k<3;k++)require(Float.isFinite(actual[k])&&actual[k]>=0&&actual[k]<=1&&Math.abs(actual[k]-expected.component(k))<=.001,"Sunlight reference: "+report);
+                if(index>0&&index<3)for(int k=0;k<3;k++)require(Math.abs(actual[k]-previous[k])<.001,"Shell boundary continuity <0.001 RGB per metre");
+                previous=actual;index++;
+                require(glGetError()==GL_NO_ERROR,"Sunlight probe GL_NO_ERROR");
+            }
+            report.append("PASS: shell entry/exit, exterior dense crossing, shell grazing hit/miss, vacuum miss/outward, planet shadow and airless.\n");
+            Files.writeString(evidence.resolve("atmosphere-exterior-sunlight.txt"),report);
+        }finally{
+            glBindFramebuffer(GL_DRAW_FRAMEBUFFER,oldFbo);glBindFramebuffer(GL_READ_FRAMEBUFFER,oldRead);glBindVertexArray(oldVao);glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
+            if(depth)glEnable(GL_DEPTH_TEST);if(blend)glEnable(GL_BLEND);if(cull)glEnable(GL_CULL_FACE);if(scissor)glEnable(GL_SCISSOR_TEST);
+            glDeleteFramebuffers(fbo);glDeleteTextures(texture);glDeleteVertexArrays(vao);glActiveTexture(GL_TEXTURE0);
+        }
+    }
     static double transmittanceReferenceCheck(RenderPipeline renderer)throws Exception {
         var atmosphere=(PlanetAtmosphere)field(renderer,"atmosphere");int texture=(int)field(atmosphere,"trans");
         glActiveTexture(GL_TEXTURE15);glBindTexture(GL_TEXTURE_2D,texture);require(glGetTexLevelParameteri(GL_TEXTURE_2D,0,GL_TEXTURE_WIDTH)==256&&glGetTexLevelParameteri(GL_TEXTURE_2D,0,GL_TEXTURE_HEIGHT)==80,"Reference requires complete Medium atlas");float[] table=new float[256*80*4];glGetTexImage(GL_TEXTURE_2D,0,GL_RGBA,GL_FLOAT,table);double worst=0;
@@ -148,6 +184,7 @@ public class AtmospherePlaytest {
         try(var renderer=new RenderPipeline();var shader=new ShaderProgram("shaders/voxel.vert","shaders/voxel.frag");var world=new World()) {
             models=new VoxelModelRenderer(world.models());
             renderer.settings.autoExposure=false;renderer.settings.taa=false;renderer.settings.exposure=1;renderer.settings.clouds=false;renderer.settings.atmosphereQuality=PlanetAtmosphere.Quality.MEDIUM;
+            if(Boolean.getBoolean("voxel.sunlightOnly")){renderer.time(new GameConfig(false,true,1200,12),0);settled(renderer,shader,world,new Vector3f(8,30,24),false,false);sunlightReferenceCheck(renderer,evidence);models.close();models=null;return;}
             if(Boolean.getBoolean("voxel.limbOnly")){limbChecks(renderer,shader,world,evidence);models.close();models=null;return;}
             Vector3f eye=new Vector3f(8,30,24);BufferedImage noon=null,night=null;
             for(double hour:new double[]{12,6,18,0}) {

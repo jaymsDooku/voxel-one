@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Run the engine's atmosphere workflow on the assigned display and synthetic profile."""
 import argparse,os,pathlib,subprocess
-p=argparse.ArgumentParser();p.add_argument('--display',required=True);p.add_argument('--regression',action='store_true');p.add_argument('--main',action='store_true');p.add_argument('--limb',action='store_true');p.add_argument('--performance',action='store_true');p.add_argument('--performance-quality',choices=['LOW','MEDIUM','HIGH']);a=p.parse_args()
+p=argparse.ArgumentParser();p.add_argument('--display',required=True);p.add_argument('--regression',action='store_true');p.add_argument('--main',action='store_true');p.add_argument('--limb',action='store_true');p.add_argument('--sunlight',action='store_true');p.add_argument('--performance',action='store_true');p.add_argument('--performance-quality',choices=['LOW','MEDIUM','HIGH']);a=p.parse_args()
 root=pathlib.Path(__file__).resolve().parents[1]
 for name in ('atmosphere-home','atmosphere-tmp','atmosphere-native'):(root/'target'/name).mkdir(parents=True,exist_ok=True)
 # Public runtime libraries only. No runner files, credentials or account data.
@@ -21,7 +21,7 @@ if a.main:
  shutil.rmtree(root/'target/atmosphere-home',ignore_errors=True);(root/'target/atmosphere-home').mkdir()
  (root/'target/atmosphere-main-profile').mkdir(exist_ok=True)
  for saved in (root/'target/atmosphere-main-profile').glob('synthetic-city.dat*'):saved.unlink(missing_ok=True)
-command=['java',*(['-Dvoxel.limbOnly=true'] if a.limb else []),*(['-Dvoxel.performanceQuality='+a.performance_quality] if a.performance_quality else []),'-Djava.io.tmpdir='+str(root/'target/atmosphere-tmp'),'-Duser.home='+str(root/'target/atmosphere-home'),'-Dorg.lwjgl.system.SharedLibraryExtractPath='+str(root/'target/atmosphere-native'),'-Dvoxel.msaa=1','-Dvoxel.gl33=true','-cp',classpath,str(root/'deploy'/source),str(output)]
+command=['java',*(['-Dvoxel.sunlightOnly=true'] if a.sunlight else []),*(['-Dvoxel.limbOnly=true'] if a.limb else []),*(['-Dvoxel.performanceQuality='+a.performance_quality] if a.performance_quality else []),'-Djava.io.tmpdir='+str(root/'target/atmosphere-tmp'),'-Duser.home='+str(root/'target/atmosphere-home'),'-Dorg.lwjgl.system.SharedLibraryExtractPath='+str(root/'target/atmosphere-native'),'-Dvoxel.msaa=1','-Dvoxel.gl33=true','-cp',classpath,str(root/'deploy'/source),str(output)]
 logfile=root/'target'/('atmosphere-regression-runtime-private.txt' if a.regression else 'atmosphere-runtime-private.txt')
 with logfile.open('w') as log:
  try:result=subprocess.run(command,cwd=root,env=env,stdout=log,stderr=log,timeout=900 if a.performance else 420 if a.main or a.limb else 300)
