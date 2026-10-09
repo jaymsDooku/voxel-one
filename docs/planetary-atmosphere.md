@@ -163,3 +163,9 @@ Native run 37987207495 built source fa6cbf2a45e1e5e7d7eb5091bd116b508227bb83 but
 failed waiting for a look-gesture HUD update. World gestures now live on the shared
 parent and reject controls/scroll views, menu and paused input. This fixes the path
 through sibling HUD label/stack space. Actual UIKit behavior awaits another Mac run.
+
+Native run 37988954691 built source 1f5f3ff48f0fe252673f60986b95a3e64ae7f759 but
+again timed out waiting for a look HUD change. Small pose corrections now use two
+long opposing normal drags rather than a short drag near the pan dead zone. Their
+net motion is the requested correction. Final pose tolerance remains 0.03 radians;
+actual gesture acceptance and Sun media still require the next Mac run.

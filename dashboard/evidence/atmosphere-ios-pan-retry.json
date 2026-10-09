@@ -1,0 +1,9 @@
+{
+  "sourceHead": "1f5f3ff48f0fe252673f60986b95a3e64ae7f759",
+  "run": "https://github.com/jaymsDooku/voxel-one/actions/runs/37988954691",
+  "status": "failed",
+  "clientChecked": false,
+  "observed": "Native build succeeded; look HUD-change wait timed out. Bounded diagnostic cut off before aim coordinates. Only Simulator home-screen preflight returned.",
+  "fix": "Small aim corrections now use two opposing >=50-point normal drags with net desired motion, cancelling symmetric pan recognition loss. Larger corrections use normal bounded axis drag. Final pose tolerance remains0.03rad,16 correction cycles. Short failure message records actual aim and requested drag.",
+  "Playtest": "Mac workflow failed. New normal-gesture sequence requires exact-source seven-case Mac retry; Linux checks do not validate UIKit."
+}
