@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-09T23:44:25+00:00",
+  "updatedAt": "2026-10-09T23:51:51+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -20,8 +20,8 @@
       "description": "Adding saved rendering controls and performance presets; validation pending.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Rendering settings implemented. Build, 22 scoped tests and native GL3.3 playtest passed. Screenshots and report saved; awaiting controller publication and independent review.",
-      "updatedAt": "2026-10-09T23:44:25+00:00"
+      "note": "Shadow toggle fixed. Build, 22 scoped tests and warmed native GL3.3 movement/edit probe regression passed. Fresh screenshots and report saved for controller publication and review.",
+      "updatedAt": "2026-10-09T23:51:51+00:00"
     },
     {
       "id": "35336561653866652d643166312d343564312d623236382d346161333036333437363761",

@@ -14,7 +14,7 @@ command=[java,'-Duser.home='+str(root/'target/render-settings-home'),'-Djava.io.
 if a.gl33:
  command.append('-Dvoxel.gl33=true');env['MESA_GL_VERSION_OVERRIDE']='3.3';env['MESA_GLSL_VERSION_OVERRIDE']='330'
 command+=['-cp','target/voxel-one-1.0-SNAPSHOT-client.jar','deploy/RenderingSettingsPlaytest.java','target/rendering-settings']
-with open('target/render-settings-runtime-private.txt','w') as log:result=subprocess.run(command,env=env,stdout=log,stderr=log,timeout=300)
+with open('target/render-settings-runtime-private.txt','w') as log:result=subprocess.run(command,env=env,stdout=log,stderr=log,timeout=1500)
 print('Playtest: production Main; assigned X11; isolated synthetic home; exit',result.returncode)
 if result.returncode:
  for line in Path('target/render-settings-runtime-private.txt').read_text().splitlines():

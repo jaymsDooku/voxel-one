@@ -13,11 +13,12 @@ import static org.lwjgl.opengl.GL33.*;
 
 /** Exercises the production Main loop with a synthetic gallery and real X11 inputs. */
 public class RenderingSettingsPlaytest {
-    static final Main game=new Main();static Path out;static int frame,stage;static long changed;static int recordingFrame,f6Presses,expectedF6Presses;
+    static final Main game=new Main();static Path out;static int frame,stage=-4;static long changed;static int recordingFrame,f6Presses,expectedF6Presses;
     static Vector3f start;static String windowId;
     static org.lwjgl.glfw.GLFWWindowFocusCallback initialFocus;
     static org.lwjgl.glfw.GLFWKeyCallback originalKeys;
     static Object get(String name)throws Exception{var f=Main.class.getDeclaredField(name);f.setAccessible(true);return f.get(game);}
+    static Object field(Object object,String name)throws Exception{var f=object.getClass().getDeclaredField(name);f.setAccessible(true);return f.get(object);}
     static void set(String name,Object v)throws Exception{var f=Main.class.getDeclaredField(name);f.setAccessible(true);f.set(game,v);}
     static void require(boolean b,String m){if(!b)throw new AssertionError(m);}
     static void input(String... args)throws Exception{var c=new ArrayList<String>();c.add("xdotool");c.addAll(List.of(args));var p=new ProcessBuilder(c).redirectOutput(ProcessBuilder.Redirect.DISCARD).redirectError(ProcessBuilder.Redirect.DISCARD).start();require(p.waitFor()==0,"X11 input");}
@@ -48,6 +49,9 @@ public class RenderingSettingsPlaytest {
                 for(int x=5;x<=11;x++)for(int z=10;z<=13;z++)world.apply(new Protocol.Edit(x,73,z,Blocks.WATER));
                 for(var e:world.getLoadedChunks().entrySet())if(e.getKey().chunkX()==0&&e.getKey().chunkZ()==0)e.getValue().checkMesh();
                 Player p=new Player(new Vector3f(8.5f,74.5f,14.5f),-90,-12,(dev.jayms.Camera)get("camera"));p.toggleFlight();set("player",p);set("isometric",false);capture.invoke(game,true);
+                var r=(RenderPipeline)get("rendering");
+                r.settings.renderScale=.5f;r.settings.atmosphereQuality=PlanetAtmosphere.Quality.LOW;
+                r.settings.ao=r.settings.screenGi=r.settings.volumetrics=r.settings.bloom=false;
                 changed=System.nanoTime();
             }
             public void afterFrame(Main g)throws Exception{
@@ -56,7 +60,27 @@ public class RenderingSettingsPlaytest {
                 RenderPipeline r=(RenderPipeline)get("rendering");Player p=(Player)get("player");long handle=((dev.jayms.window.Window)get("window")).getHandle();
                 if(frame%10==0)System.out.println("Render phase="+stage+" lighting="+r.lightingReady()+" menu="+((dev.jayms.ui.ControlsMenu)get("menu")).open+" captured="+get("captured"));
                 var menu=(dev.jayms.ui.ControlsMenu)get("menu");
-                if(stage==0&&frame>=3) {input("key","Escape");stage++;changed=System.nanoTime();}
+                World world=(World)get("world");Object probe=field(r,"probes");
+                if(stage==-4&&r.lightingReady()&&r.reflectionProbeReady()){
+                    require((long)field(probe,"revision")==world.editsVersion(),"Initial warmed probe matches world");
+                    r.settings.shadows=false;
+                    start=p.position();
+                    Player moved=new Player(new Vector3f(start).add(18,0,0),-90,-12,(Camera)get("camera"));moved.toggleFlight();set("player",moved);
+                    stage=-3;changed=System.nanoTime();
+                }else if(stage==-3&&r.reflectionProbeReady()&&((Vector3f)field(probe,"center")).distance(p.position())<.5f){
+                    require(!r.settings.shadows&&r.lightingReady(),"Warmed lighting stays active with shadows off");
+                    require(p.position().distance(start)>16,"Camera moved beyond probe refresh threshold");
+                    image("render-settings-shadowless-moved.png");
+                    world.apply(new Protocol.Edit(25,74,4,Blocks.LED).withColor(0xff8040));
+                    for(var e:world.getLoadedChunks().entrySet())if(e.getKey().chunkX()==1&&e.getKey().chunkZ()==0)e.getValue().checkMesh();
+                    stage=-2;changed=System.nanoTime();
+                }else if(stage==-2&&r.reflectionProbeReady()&&(long)field(probe,"revision")==world.editsVersion()){
+                    require(!r.settings.shadows&&r.lightingReady(),"Probe recaptured edited world with shadows off");
+                    image("render-settings-shadowless-edited.png");
+                    System.out.println("Warmed shadowless movement/edit probe regression PASS; revision="+world.editsVersion());
+                    menu.rendering.key(GLFW_KEY_2,GLFW_PRESS);stage=0;changed=System.nanoTime();
+                }
+                else if(stage==0&&frame>=3) {input("key","Escape");stage++;changed=System.nanoTime();}
                 else if(stage==1&&menu.open){input("key","r");stage++;changed=System.nanoTime();}
                 else if(stage==2&&menu.rendering.open){image("render-settings-default.png");input("key","1");stage++;changed=System.nanoTime();}
                 else if(stage==3&&r.settings.renderScale==.5f&&!r.settings.shadows){
@@ -86,10 +110,10 @@ public class RenderingSettingsPlaytest {
                 else if(stage==9&&!menu.open){expectedF6Presses=f6Presses+1;input("key","F6");stage++;changed=System.nanoTime();}
                 else if(stage==10&&f6Presses>=expectedF6Presses){
                     require((boolean)get("isometric"),"F6 gameplay regression");
-                    Files.writeString(out.resolve("results.txt"),"Playtest: PASS. Production Main; Linux inherited X11; software GL; isolated synthetic profile. Real Escape/R inputs open settings. Low cost applies scale 0.5 and disables shadows/GI; Left clamps scale to 0.5; persisted settings reload; Defaults restores quality; 420x300 scroll reaches final option; Escape returns to controls then gameplay; F6 still toggles isometric; GL_NO_ERROR throughout.\n");
+                    Files.writeString(out.resolve("results.txt"),"Playtest: PASS. Warmed lighting and completed reflection probe; shadows off camera movement beyond 16 units recaptures probe at new center; world LED edit recaptures current revision; Defaults re-enables shadows. Production Main; Linux inherited X11; software GL; isolated synthetic profile. Real Escape/R inputs open settings. Low cost applies scale 0.5 and disables shadows/GI; Left clamps scale to 0.5; persisted settings reload; Defaults restores quality; 420x300 scroll reaches final option; Escape returns to controls then gameplay; F6 still toggles isometric; GL_NO_ERROR throughout.\n");
                     glfwSetWindowShouldClose(handle,true);stage++;
                 }
-                if(frame>240||System.nanoTime()-changed>120_000_000_000L)throw new AssertionError("Main playtest phase timeout "+stage);
+                if(frame>1200||System.nanoTime()-changed>(stage<0?600_000_000_000L:120_000_000_000L))throw new AssertionError("Main playtest phase timeout "+stage);
             }
         });if(originalKeys!=null)originalKeys.free();require(stage==11,"Production workflow completed");System.out.println("Production renderer Playtest passed");
     }
