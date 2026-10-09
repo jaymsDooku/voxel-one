@@ -31,6 +31,12 @@ public final class RenderPipeline implements AutoCloseable {
     private final GpuDraw gpuDraw = new GpuDraw();
     private final Matrix4f viewProjection = new Matrix4f();
     private long worldRevision = -1;
+    private WorldSkyVisibility worldSky;
+    private int skyBufferOffset;
+    private long skyWorldRevision=Long.MIN_VALUE;
+    private java.util.List<dev.jayms.net.model.ModelLibrary.Entry> skyModels=java.util.List.of();
+    private record SkyChunk(Chunk chunk,long revision){}
+    private final java.util.Map<ChunkPos,SkyChunk> skyChunks=new java.util.HashMap<>();
     private record SceneChunk(Chunk chunk, Mesh mesh) {}
     private final java.util.Map<ChunkPos, SceneChunk> sceneChunks = new java.util.HashMap<>();
     public int visibleChunks, occludedChunks;
@@ -140,10 +146,21 @@ public final class RenderPipeline implements AutoCloseable {
 
     public void update(World world, float x, float z) {
         if (clusters.update(world,x,z)) { particles.emitters(clusters.emitters()); probes.invalidate(); }
-        if (sceneChanged(world) || worldRevision != world.editsVersion() || world.getLoadedChunks().values().stream().anyMatch(Chunk::dirty)) {
+        boolean changed=sceneChanged(world) || worldRevision != world.editsVersion() || world.getLoadedChunks().values().stream().anyMatch(Chunk::dirty);
+        var models=java.util.List.copyOf(world.models().entries());
+        boolean skyChanged=!skyModels.equals(models)||worldSky==null||skyWorldRevision!=world.editsVersion()||skyChunks.size()!=world.getLoadedChunks().size();
+        if(!skyChanged)for(var entry:world.getLoadedChunks().entrySet()){
+            var old=skyChunks.get(entry.getKey());if(old==null||old.chunk()!=entry.getValue()||old.revision()!=entry.getValue().geometryVersion()){skyChanged=true;break;}
+        }
+        if (skyChanged) {
+            var rebuilt=WorldSkyVisibility.build(world);
+            if(worldSky==null||!java.util.Arrays.equals(worldSky.data,rebuilt.data)){worldSky=rebuilt;uploadFineAndSky();}
+            skyModels=models;skyWorldRevision=world.editsVersion();skyChunks.clear();world.getLoadedChunks().forEach((pos,chunk)->skyChunks.put(pos,new SkyChunk(chunk,chunk.geometryVersion())));
+        }
+        if (changed) {
             hiZ.invalidate(); worldRevision = world.editsVersion();
         }
-        LightVolume next = lighting.update(world, x, z, 1, true);
+        LightVolume next = lighting.update(world, x, z, 1, true,worldSky);
         if (next == null) return;
         volume = next;
         probes.invalidate();
@@ -165,32 +182,31 @@ public final class RenderPipeline implements AutoCloseable {
                     GL_RGBA,
                     GL_UNSIGNED_BYTE,
                     buffer);
-            glActiveTexture(GL_TEXTURE4);
-            glBindTexture(GL_TEXTURE_3D, fineRoots);
-            glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            glTexImage3D(
-                    GL_TEXTURE_3D,
-                    0,
-                    GL_R32I,
-                    next.width,
-                    next.height,
-                    next.length,
-                    0,
-                    GL_RED_INTEGER,
-                    GL_INT,
-                    next.roots);
-            glActiveTexture(GL_TEXTURE5);
-            glBindBuffer(GL_TEXTURE_BUFFER, fineBuffer);
-            glBufferData(GL_TEXTURE_BUFFER, next.fine, GL_DYNAMIC_DRAW);
-            glBindTexture(GL_TEXTURE_BUFFER, fineLight);
-            glTexBuffer(GL_TEXTURE_BUFFER, GL_R32I, fineBuffer);
-            glBindBuffer(GL_TEXTURE_BUFFER, 0);
+            uploadFineAndSky();
             hasIrradiance = true;
         } finally {
             MemoryUtil.memFree(buffer);
         }
         glActiveTexture(GL_TEXTURE0);
+    }
+
+    private void uploadFineAndSky(){
+        // Keep the fine-light buffer independent of world coverage: GL 3.3 permits
+        // only 65,536 buffer texels, but its integer 3D atlas can cover every column.
+        int w=volume==null?64:volume.width,h=volume==null?64:volume.height,l=volume==null?0:volume.length;
+        int skyLength=worldSky==null?0:worldSky.data.length,limit=glGetInteger(GL_MAX_3D_TEXTURE_SIZE);
+        int depth=l+(skyLength+w*h-1)/(w*h);
+        if(depth>limit){w=Math.max(w,256);h=Math.max(h,256);depth=l+(skyLength+w*h-1)/(w*h);}
+        if(w>limit||h>limit||depth>limit)throw new IllegalStateException("Sky visibility exceeds GL integer atlas capacity");
+        skyBufferOffset=w*h*l;depth=Math.max(1,depth);int[] roots=new int[w*h*depth];
+        if(volume!=null)for(int z=0;z<l;z++)for(int y=0;y<volume.height;y++)System.arraycopy(volume.roots,(z*volume.height+y)*volume.width,roots,(z*h+y)*w,volume.width);
+        if(worldSky!=null)System.arraycopy(worldSky.data,0,roots,skyBufferOffset,skyLength);
+        glActiveTexture(GL_TEXTURE4);glBindTexture(GL_TEXTURE_3D,fineRoots);
+        glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+        glTexImage3D(GL_TEXTURE_3D,0,GL_R32I,w,h,depth,0,GL_RED_INTEGER,GL_INT,roots);
+        int[] fine=volume==null?new int[]{0}:volume.fine;
+        glActiveTexture(GL_TEXTURE5);glBindBuffer(GL_TEXTURE_BUFFER,fineBuffer);glBufferData(GL_TEXTURE_BUFFER,fine,GL_DYNAMIC_DRAW);
+        glBindTexture(GL_TEXTURE_BUFFER,fineLight);glTexBuffer(GL_TEXTURE_BUFFER,GL_R32I,fineBuffer);glBindBuffer(GL_TEXTURE_BUFFER,0);glActiveTexture(GL_TEXTURE0);
     }
 
     public void renderShadows(World world, VoxelModelRenderer models, Vector3f position) {
@@ -296,6 +312,7 @@ public final class RenderPipeline implements AutoCloseable {
         shader.setFloat("uAmbient", ambient);
         shader.setInt("uLightingEnabled", 1);
         shader.setInt("uHasIrradiance", hasIrradiance ? 1 : 0);
+        shader.setInt("uSkyColumns",worldSky==null?0:worldSky.columns);shader.setInt("uSkyOffset",skyBufferOffset);
         shader.setInt("uShadowEnabled", 1);
         shader.setInt("uHeld", 0);shader.setInt("uOutputTone",0);
         shader.setFloat("uModelEmission", 0);

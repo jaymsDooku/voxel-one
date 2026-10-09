@@ -24,13 +24,15 @@ public final class WorldLighting implements AutoCloseable {
     private int submittedX, submittedZ;
     private float ambient = -1, submittedAmbient;
     private boolean separateSky,submittedSeparateSky;
+    private WorldSkyVisibility sky,submittedSky;
 
     public LightVolume update(World world, float px, float pz) {
         return update(world, px, pz, 1);
     }
 
     public LightVolume update(World world, float px, float pz, float skyStrength) {return update(world,px,pz,skyStrength,false);}
-    public LightVolume update(World world,float px,float pz,float skyStrength,boolean dynamicSky) {
+    public LightVolume update(World world,float px,float pz,float skyStrength,boolean dynamicSky) {return update(world,px,pz,skyStrength,dynamicSky,null);}
+    public LightVolume update(World world,float px,float pz,float skyStrength,boolean dynamicSky,WorldSkyVisibility globalSky) {
         int cx = Math.floorDiv((int) Math.floor(px), 16) * 16,
                 cz = Math.floorDiv((int) Math.floor(pz), 16) * 16;
         LightVolume result = null;
@@ -40,11 +42,11 @@ public final class WorldLighting implements AutoCloseable {
                 if (submittedRevision == world.editsVersion()
                         && submittedX == cx
                         && submittedZ == cz
-                        && submittedAmbient == skyStrength && submittedSeparateSky==dynamicSky) {
+                        && submittedAmbient == skyStrength && submittedSeparateSky==dynamicSky && submittedSky==globalSky) {
                     result = baked;
                     revision = submittedRevision;
                     ambient = submittedAmbient;
-                    separateSky=submittedSeparateSky;
+                    separateSky=submittedSeparateSky;sky=submittedSky;
                     centerX = cx;
                     centerZ = cz;
                 }
@@ -58,7 +60,8 @@ public final class WorldLighting implements AutoCloseable {
                 && (cx != centerX
                         || cz != centerZ
                         || revision != world.editsVersion()
-                        || ambient != skyStrength || separateSky!=dynamicSky)) {
+                        || ambient != skyStrength || separateSky!=dynamicSky || sky!=globalSky)) {
+            submittedSky=globalSky;
             submittedAmbient = skyStrength;
             submittedSeparateSky=dynamicSky;
             submittedX = cx;
@@ -90,6 +93,7 @@ public final class WorldLighting implements AutoCloseable {
                                         96,
                                         skyStrength,
                                         new LightVolume.Sampler() {
+                                            public float skyVisibility(float x,float y,float z){return globalSky==null?1:globalSky.sampleKnown(x,y,z,1);}
                                             private final Map<Integer, SparseVoxelOctree> geometry =
                                                     new HashMap<>();
 

@@ -2,7 +2,7 @@
 #define ATM_SCENE 1
 #include "shaders/atmosphere-common.glsl"
 #include "shaders/irradiance.glsl"
-vec2 atmosphereVisibility(vec3 point){return uPlanetLighting==0?vec2(1):uHasIrradiance==0?vec2(0):vec2(clamp(irradiance(point).a,0.,1.));}
+vec2 atmosphereVisibility(vec3 point){return uPlanetLighting==0?vec2(1):uHasIrradiance==0&&uSkyColumns==0?vec2(0):vec2(clamp(irradiance(point).a,0.,1.));}
 in vec3 vWorldPosition,vNormal;flat in vec3 vSurface;out vec4 fragColor;
 uniform sampler2D uScene,uDepth,uPlanar;uniform samplerCube uEnvironment;
 uniform mat4 uInverseVP,uReflectionVP;uniform vec3 uCamera;uniform float uTime,uWidth,uHeight,uPlaneY;uniform int uPlanarReady;

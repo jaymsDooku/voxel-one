@@ -11,6 +11,9 @@ public final class LightVolume {
     public interface Sampler {
         int value(int x, int y, int z);
 
+        /** Visibility entering the top boundary; roofs above a bounded GI grid still occlude it. */
+        default float skyVisibility(float x,float y,float z){return 1;}
+
         /** Required when value is mixed (-1). Values are encoded world materials, not model RGB. */
         default SparseVoxelOctree detail(int x, int y, int z) {
             return null;
@@ -104,7 +107,7 @@ public final class LightVolume {
                 int r = detailed ? UNIT : 1;
                 for (int az = 0; az < r; az++)
                     for (int ax = 0; ax < r; ax++) {
-                        int light = FULL;
+                        int light = Math.round(FULL*Math.max(0,Math.min(1,source.skyVisibility(x+dx+(ax+.5f)/r,y+h,z+dz+(az+.5f)/r))));
                         for (int micro = h * UNIT - 1; micro >= 0; ) {
                             int id = v.at(dx * UNIT + ax, micro, dz * UNIT + az);
                             int side = v.side(id), op = opacity(v.material[id]);

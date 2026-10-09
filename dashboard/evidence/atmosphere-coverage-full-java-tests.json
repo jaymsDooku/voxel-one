@@ -1,0 +1,10 @@
+{
+  "command": "timeout 900 mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" test",
+  "exit": 0,
+  "suites": 107,
+  "tests": 585,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "scope": "Full run passed before the final cache refinement was compiled. Final-source focused tests and rendered checks are recorded separately."
+}

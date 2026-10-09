@@ -20,11 +20,74 @@ public class AtmospherePlaytest {
     static final int W=640,H=400;
     static VoxelModelRenderer models;
     static boolean limbView;
+    static Vector3f coverageTarget;
+    static float coverageSpanX=60,coverageSpanY=35;
     static void require(boolean b,String text){if(!b)throw new AssertionError(text);}
     static BufferedImage capture(){ByteBuffer rgb=MemoryUtil.memAlloc(W*H*3);var image=new BufferedImage(W,H,BufferedImage.TYPE_INT_RGB);
         try{glReadPixels(0,0,W,H,GL_RGB,GL_UNSIGNED_BYTE,rgb);for(int y=0;y<H;y++)for(int x=0;x<W;x++){int i=(x+y*W)*3;image.setRGB(x,H-1-y,(rgb.get(i)&255)<<16|(rgb.get(i+1)&255)<<8|(rgb.get(i+2)&255));}}finally{MemoryUtil.memFree(rgb);}return image;}
     static double mean(BufferedImage image){long total=0;for(int y=0;y<H;y++)for(int x=0;x<W;x++){int c=image.getRGB(x,y);total+=(c>>16&255)+(c>>8&255)+(c&255);}return total/(double)(W*H*3);}
     static Object field(Object owner,String name)throws Exception {var f=owner.getClass().getDeclaredField(name);f.setAccessible(true);return f.get(owner);}
+    static void coverageChecks(RenderPipeline renderer,ShaderProgram shader,World world,Path evidence)throws Exception{
+        renderer.time(new GameConfig(false,false,1200,12),0);
+        for(int cx:new int[]{0,2,3,4}){
+            var chunk=new Chunk();for(int x=2;x<14;x++)for(int z=2;z<14;z++)chunk.setBlock(x,8,z,Blocks.STONE);
+            world.addChunk(new ChunkPos(cx,1,0),chunk);chunk.checkMesh();
+        }
+        acceptLighting(renderer,world,8,8);coverageTarget=new Vector3f(40,24,8);
+        var outdoor=settled(renderer,shader,world,new Vector3f(40,85,85),true,true);
+        ImageIO.write(outdoor,"png",evidence.resolve("atmosphere-coverage-boundary.png").toFile());
+        StringBuilder report=new StringBuilder("Playtest: actual voxel renderer and common irradiance shader. Linux llvmpipe GL3.3, assigned X11, synthetic geometry, 640x400, fixed exposure1, no clouds/TAA. Four equal noon stone patches cross local GI boundary at x=48.\n");
+        var vp=new Matrix4f().ortho(-60,60,-35,35,.1f,4096).mul(new Matrix4f().lookAt(new Vector3f(40,85,85),coverageTarget,new Vector3f(0,1,0)));
+        for(float x:new float[]{8,40,56,72}){
+            var ndc=new org.joml.Vector4f(x,25,8,1).mul(vp);int px=Math.round((ndc.x/ndc.w*.5f+.5f)*W),py=H-1-Math.round((ndc.y/ndc.w*.5f+.5f)*H);
+            long sum=0;for(int yy=py-2;yy<=py+2;yy++)for(int xx=px-2;xx<=px+2;xx++){int rgb=outdoor.getRGB(xx,yy);sum+=(rgb>>16&255)+(rgb>>8&255)+(rgb&255);}double brightness=sum/75.;
+            require(brightness>8,"Visible outdoor patch x="+x+" lit; brightness="+brightness);report.append("Rendered stone patch x="+x+": mean RGB="+brightness+" >8/255.\n");
+        }
+        try(var probe=new ShaderProgram("shaders/fullscreen.vert","shaders/atmosphere-visibility-test.frag")){
+            var bind=RenderPipeline.class.getDeclaredMethod("bindSceneLighting",ShaderProgram.class);bind.setAccessible(true);
+            int fbo=glGenFramebuffers(),texture=glGenTextures(),vao=glGenVertexArrays();
+            try{
+                glActiveTexture(GL_TEXTURE0);glBindTexture(GL_TEXTURE_2D,texture);glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA32F,1,1,0,GL_RGBA,GL_FLOAT,(ByteBuffer)null);
+                glBindFramebuffer(GL_FRAMEBUFFER,fbo);glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,texture,0);glDrawBuffer(GL_COLOR_ATTACHMENT0);glReadBuffer(GL_COLOR_ATTACHMENT0);
+                require(glCheckFramebufferStatus(GL_FRAMEBUFFER)==GL_FRAMEBUFFER_COMPLETE,"Coverage framebuffer");glBindVertexArray(vao);glViewport(0,0,1,1);glDisable(GL_DEPTH_TEST);glDisable(GL_BLEND);glDisable(GL_CULL_FACE);
+                probe.bind();bind.invoke(renderer,probe);
+                for(float x:new float[]{8.5f,47.99f,48.01f,72.5f}){
+                    probe.setVector3("uTestPosition",x,25.001f,8.5f);glDrawArrays(GL_TRIANGLES,0,3);float[] pixel=new float[4];glReadPixels(0,0,1,1,GL_RGBA,GL_FLOAT,pixel);
+                    require(pixel[0]>.99,"Outdoor visibility at x="+x+" was "+pixel[0]);report.append("GPU outdoor x="+x+": visibility="+pixel[0]+"; expected1.\n");
+                }
+            }finally{glBindFramebuffer(GL_FRAMEBUFFER,0);glBindVertexArray(0);glDeleteFramebuffers(fbo);glDeleteTextures(texture);glDeleteVertexArrays(vao);glEnable(GL_DEPTH_TEST);glEnable(GL_CULL_FACE);}
+        }
+        // A high-altitude closed gallery beyond all axes of the local volume.
+        var high=new Chunk();for(int x=2;x<14;x++)for(int z=2;z<14;z++)high.setBlock(x,8,z,Blocks.STONE);
+        for(int x=4;x<=11;x++)for(int y=9;y<=13;y++)for(int z=4;z<=11;z++)if(x==4||x==11||y==13||z==4||z==11)high.setBlock(x,y,z,Blocks.STONE);
+        world.addChunk(new ChunkPos(4,8,2),high);high.checkMesh();acceptLighting(renderer,world,8,8);
+        var sky=WorldSkyVisibility.build(world);require(sky.sample(72.5f,142.001f,40.5f)==1,"High roof exterior lit");require(sky.sample(72.5f,140,40.5f)==0,"High sealed room no roof leak");
+        world.apply(new dev.jayms.net.Protocol.Edit(66,140,34,Blocks.STONE,4,0,8,0));
+        world.apply(new dev.jayms.net.Protocol.Edit(66,140,35,Blocks.GLASS));
+        var tinyRoof=new dev.jayms.net.model.SparseVoxelOctree(32);tinyRoof.fill(0,16,0,32,17,32,0xff8899aa);
+        int tinyType=world.models().register(new dev.jayms.net.model.ModelDefinition("Coverage tiny roof",tinyRoof),"synthetic").id();world.apply(new dev.jayms.net.Protocol.Edit(67,140,34,tinyType));
+        world.getLoadedChunks().values().forEach(Chunk::checkMesh);acceptLighting(renderer,world,8,8);
+        try(var probe=new ShaderProgram("shaders/fullscreen.vert","shaders/atmosphere-visibility-test.frag")){
+            var bind=RenderPipeline.class.getDeclaredMethod("bindSceneLighting",ShaderProgram.class);bind.setAccessible(true);int fbo=glGenFramebuffers(),texture=glGenTextures(),vao=glGenVertexArrays();
+            try{
+                glActiveTexture(GL_TEXTURE0);glBindTexture(GL_TEXTURE_2D,texture);glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA32F,1,1,0,GL_RGBA,GL_FLOAT,(ByteBuffer)null);
+                glBindFramebuffer(GL_FRAMEBUFFER,fbo);glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,texture,0);glDrawBuffer(GL_COLOR_ATTACHMENT0);glReadBuffer(GL_COLOR_ATTACHMENT0);require(glCheckFramebufferStatus(GL_FRAMEBUFFER)==GL_FRAMEBUFFER_COMPLETE,"Fine coverage framebuffer");
+                glBindVertexArray(vao);glViewport(0,0,1,1);glDisable(GL_DEPTH_TEST);glDisable(GL_BLEND);glDisable(GL_CULL_FACE);probe.bind();bind.invoke(renderer,probe);
+                for(float[] point:new float[][]{{66.01f,139,34.01f,0},{66.2f,139,34.2f,1},{66.5f,139,35.5f,.7f},{67.5f,140.49f,34.5f,0},{67.5f,140.55f,34.5f,1}}){
+                    probe.setVector3("uTestPosition",point[0],point[1],point[2]);glDrawArrays(GL_TRIANGLES,0,3);float[] pixel=new float[4];glReadPixels(0,0,1,1,GL_RGBA,GL_FLOAT,pixel);require(Math.abs(pixel[0]-point[3])<.001,"Fine exterior visibility "+java.util.Arrays.toString(point)+" got "+pixel[0]);require(glGetError()==GL_NO_ERROR,"Fine coverage GL_NO_ERROR");report.append("GPU fine/glass/model roof point="+java.util.Arrays.toString(point)+": visibility="+pixel[0]+".\n");
+                }
+            }finally{glBindFramebuffer(GL_FRAMEBUFFER,0);glBindVertexArray(0);glDeleteFramebuffers(fbo);glDeleteTextures(texture);glDeleteVertexArrays(vao);glEnable(GL_DEPTH_TEST);glEnable(GL_CULL_FACE);}
+        }
+        coverageTarget=new Vector3f(72,138,40);var altitude=settled(renderer,shader,world,new Vector3f(72,188,102),true,true);ImageIO.write(altitude,"png",evidence.resolve("atmosphere-coverage-high.png").toFile());
+        coverageTarget=new Vector3f(72,140,39);var room=settled(renderer,shader,world,new Vector3f(72,140,42),false,true);ImageIO.write(room,"png",evidence.resolve("atmosphere-coverage-room.png").toFile());require(mean(room)<1.5,"Outside-volume sealed room remains dark: "+mean(room));
+        report.append("High terrain/roof at136-142 m outside volume rendered. Sealed room mean="+mean(room)+" <1.5/255.\n");
+        coverageSpanX=150;coverageSpanY=100;coverageTarget=new Vector3f(40,80,24);var overview=settled(renderer,shader,world,new Vector3f(150,210,160),true,true);ImageIO.write(overview,"png",evidence.resolve("atmosphere-coverage-overview.png").toFile());report.append("Full synthetic city footprint overview with distant and elevated geometry: GL_NO_ERROR.\n");
+        var fitVP=new Matrix4f().ortho(-150,150,-100,100,.1f,4096).mul(new Matrix4f().lookAt(new Vector3f(150,210,160),coverageTarget,new Vector3f(0,1,0)));
+        for(var point:new Vector3f[]{new Vector3f(8,25,8),new Vector3f(40,25,8),new Vector3f(56,25,8),new Vector3f(72,25,8),new Vector3f(72,142,40)}){
+            var clip=new org.joml.Vector4f(point,1).mul(fitVP);require(Math.abs(clip.x/clip.w)<.9&&Math.abs(clip.y/clip.w)<.9,"Full overview geometry fits with margins");
+        }
+        coverageTarget=null;coverageSpanX=60;coverageSpanY=35;Files.writeString(evidence.resolve("atmosphere-coverage-playtest.txt"),report);
+    }
     static void sunlightReferenceCheck(RenderPipeline renderer,Path evidence)throws Exception {
         var atmosphere=(PlanetAtmosphere)field(renderer,"atmosphere");
         int oldFbo=glGetInteger(GL_DRAW_FRAMEBUFFER_BINDING),oldRead=glGetInteger(GL_READ_FRAMEBUFFER_BINDING),oldVao=glGetInteger(GL_VERTEX_ARRAY_BINDING);
@@ -134,10 +197,11 @@ public class AtmospherePlaytest {
         require(glGetError()==GL_NO_ERROR,"Lifecycle GL_NO_ERROR");
     }
     static BufferedImage scene(RenderPipeline renderer,ShaderProgram shader,World world,Vector3f eye,boolean ortho,boolean geometry){
-        Matrix4f projection=ortho?new Matrix4f().ortho(-40,40,-25,25,.1f,4096):new Matrix4f().perspective(1.2f,W/(float)H,.1f,1e6f);
+        Matrix4f projection=ortho?new Matrix4f().ortho(coverageTarget==null?-40:-coverageSpanX,coverageTarget==null?40:coverageSpanX,coverageTarget==null?-25:-coverageSpanY,coverageTarget==null?25:coverageSpanY,.1f,4096):new Matrix4f().perspective(1.2f,W/(float)H,.1f,1e6f);
         double radius=6_360_000,ratio=radius/(radius+Math.max(1,eye.y-24));
         Vector3f limbDirection=new Vector3f(0,(float)-Math.sqrt(Math.max(0,1-ratio*ratio)),(float)-ratio);
         Matrix4f view=limbView?new Matrix4f().lookAt(eye,new Vector3f(eye).add(limbDirection.mul(1000)),new Vector3f(0,1,0)):ortho?new Matrix4f().lookAt(eye,new Vector3f(8,26,8),new Vector3f(0,1,0)):new Matrix4f().lookAt(eye,new Vector3f(eye).add(0,100,-1000),new Vector3f(0,1,0));
+        if(coverageTarget!=null)view=new Matrix4f().lookAt(eye,coverageTarget,new Vector3f(0,1,0));
         require(glGetError()==GL_NO_ERROR,"Before begin GL errors");
         renderer.begin(W,H,projection,view,eye,ortho,shader);
         int beginError=glGetError();require(beginError==GL_NO_ERROR,"begin GL error "+beginError);
@@ -184,6 +248,7 @@ public class AtmospherePlaytest {
         try(var renderer=new RenderPipeline();var shader=new ShaderProgram("shaders/voxel.vert","shaders/voxel.frag");var world=new World()) {
             models=new VoxelModelRenderer(world.models());
             renderer.settings.autoExposure=false;renderer.settings.taa=false;renderer.settings.exposure=1;renderer.settings.clouds=false;renderer.settings.atmosphereQuality=PlanetAtmosphere.Quality.MEDIUM;
+            if(Boolean.getBoolean("voxel.coverageOnly")){coverageChecks(renderer,shader,world,evidence);models.close();models=null;return;}
             if(Boolean.getBoolean("voxel.sunlightOnly")){renderer.time(new GameConfig(false,true,1200,12),0);settled(renderer,shader,world,new Vector3f(8,30,24),false,false);sunlightReferenceCheck(renderer,evidence);models.close();models=null;return;}
             if(Boolean.getBoolean("voxel.limbOnly")){limbChecks(renderer,shader,world,evidence);models.close();models=null;return;}
             Vector3f eye=new Vector3f(8,30,24);BufferedImage noon=null,night=null;

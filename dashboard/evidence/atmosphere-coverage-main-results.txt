@@ -1,0 +1,1 @@
+Playtest: PASS. Production Main, Linux assigned X11 display, synthetic voxel profile. LED gallery, GPU particles, water, actual W movement, all three F5 player cameras, authoritative synthetic day/night clock, diagnostic 120 km space view/return, F10 recording, F6 isometric, temporal upscale at odd 333x271 resize, Escape menu; no GL errors across 96 frames. Backend=false.

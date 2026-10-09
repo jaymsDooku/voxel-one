@@ -52,7 +52,7 @@ float shadowAt(vec3 worldPoint,vec3 N,vec3 L){
 float shadow(vec3 N,vec3 L){return shadowAt(vWorldPosition,N,L);}
 vec2 atmosphereVisibility(vec3 point){
     if(uPlanetLighting==0)return vec2(1);
-    if(uHasIrradiance==0)return vec2(0);
+    if(uHasIrradiance==0&&uSkyColumns==0)return vec2(0);
     float sky=clamp(irradiance(point).a,0.,1.);
     return vec2(sky*shadowAt(point,normalize(-uLightDirection),normalize(-uLightDirection)),sky);
 }
@@ -140,7 +140,7 @@ void main(){
     vec3 indirect=vec3(.24,.32,.45)*uAmbient;
     float skyVisibility=uPlanetLighting==1&&uHeld==0?0.:1.;
     if(uPlanetLighting==1&&uHeld==0)indirect=vec3(0);
-    if(uHasIrradiance==1){vec4 lighting=irradiance(point);indirect=lighting.rgb;skyVisibility=lighting.a;}
+    if(uHasIrradiance==1||(uPlanetLighting==1&&uHeld==0&&uSkyColumns>0)){vec4 lighting=irradiance(point);indirect=lighting.rgb;skyVisibility=lighting.a;}
     if(uPlanetLighting==1&&uHeld==0){
         // Coarse mip radiance approximates diffuse sky; visibility uses exact voxel transport.
         indirect+=textureLod(uEnvironment,N,7.).rgb*skyVisibility;
