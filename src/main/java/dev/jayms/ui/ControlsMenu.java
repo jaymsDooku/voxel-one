@@ -13,6 +13,7 @@ public final class ControlsMenu {
     }
 
     public void scroll(double direction) {
+        if (rendering != null && rendering.open) { rendering.scroll(direction); return; }
         if (saves != null && saves.open) { saves.scroll(direction); return; }
         selected =
                 Math.max(
@@ -26,6 +27,7 @@ public final class ControlsMenu {
     private String message = "Click a control or use Up/Down and Enter to change it.";
     public boolean open;
     public SavesMenu saves;
+    public RenderingMenu rendering;
 
     public ControlsMenu(Controls controls) {
         this.controls = controls;
@@ -42,6 +44,7 @@ public final class ControlsMenu {
 
     public boolean key(int key, int action) {
         if (!open) return false;
+        if (rendering != null && rendering.open) { rendering.key(key, action); return true; }
         if (saves != null && saves.open) { saves.key(key, action); return true; }
         if (action != GLFW_PRESS) return true;
         if (key == GLFW_KEY_ESCAPE) {
@@ -55,6 +58,7 @@ public final class ControlsMenu {
             assign(key);
             return true;
         }
+        if (key == GLFW_KEY_R && rendering != null) { rendering.show(); return true; }
         if (key == GLFW_KEY_UP)
             selected = Math.floorMod(selected - 1, Controls.Action.values().length);
         else if (key == GLFW_KEY_DOWN) selected = (selected + 1) % Controls.Action.values().length;
@@ -82,6 +86,7 @@ public final class ControlsMenu {
 
     public void click(int button, float x, float y, int width, int height, Runnable quit) {
         if (!open) return;
+        if (rendering != null && rendering.open) { rendering.click(button,x,y,width,height); return; }
         if (saves != null && saves.open) { saves.click(button, x, y, width, height); return; }
         if (editing) {
             assign(-button - 1);
@@ -91,6 +96,7 @@ public final class ControlsMenu {
         float left = width / 2f - 300, top = height / 2f - 290;
         if (x < left || x > left + 600) return;
         if (saves != null && y >= top + 18 && y < top + 50 && x >= left + 400) { saves.show(); return; }
+        if (rendering != null && y >= top + 18 && y < top + 50 && x >= left + 215 && x < left + 395) { rendering.show(); return; }
         int row = (int) ((y - top - 80) / 29);
         if (y >= top + 80 && row >= 0 && row < 13) {
             selected = row + offset();
@@ -126,6 +132,7 @@ public final class ControlsMenu {
 
     public void render(Overlay ui, int width, int height) {
         if (!open) return;
+        if (rendering != null && rendering.open) { rendering.render(ui,width,height); return; }
         if (saves != null && saves.open) { saves.render(ui, width, height); return; }
         float left = width / 2f - 300, top = height / 2f - 290;
         ui.rectangle(0, 0, width, height, .01f, .02f, .06f, .7f);
@@ -135,6 +142,8 @@ public final class ControlsMenu {
             ui.rectangle(left + 400, top + 18, 180, 32, .06f, .27f, .35f, 1);
             ui.text("City saves", left + 418, top + 27, 1.8f);
         }
+        ui.rectangle(left+215,top+18,180,32,.06f,.27f,.35f,1);
+        ui.text("Rendering (R)",left+225,top+27,1.6f);
         ui.text("CONTROLS", left + 24, top + 22, 3);
         ui.text("Escape resumes | Scroll or arrows for more controls", left + 24, top + 55, 1.6f);
         for (int i = offset(); i < Math.min(offset() + 13, Controls.Action.values().length); i++) {

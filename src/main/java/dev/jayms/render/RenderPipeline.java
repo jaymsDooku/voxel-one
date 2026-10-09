@@ -210,6 +210,7 @@ public final class RenderPipeline implements AutoCloseable {
     }
 
     public void renderShadows(World world, VoxelModelRenderer models, Vector3f position) {
+        if (!settings.shadows) return;
         glBindFramebuffer(GL_FRAMEBUFFER, shadowFbo);
         glViewport(0, 0, shadowResolution, shadowResolution);
         glEnable(GL_DEPTH_TEST); glEnable(GL_CULL_FACE);
@@ -313,7 +314,7 @@ public final class RenderPipeline implements AutoCloseable {
         shader.setInt("uLightingEnabled", 1);
         shader.setInt("uHasIrradiance", hasIrradiance ? 1 : 0);
         shader.setInt("uSkyColumns",worldSky==null?0:worldSky.columns);shader.setInt("uSkyOffset",skyBufferOffset);
-        shader.setInt("uShadowEnabled", 1);
+        shader.setInt("uShadowEnabled", settings.shadows ? 1 : 0);
         shader.setInt("uHeld", 0);shader.setInt("uOutputTone",0);
         shader.setFloat("uModelEmission", 0);
         shader.setVector3("uLightDirection", -sun.x, -sun.y, -sun.z);
@@ -358,7 +359,7 @@ public final class RenderPipeline implements AutoCloseable {
     }
 
     public void finish() {
-        particles.render(viewProjection,height);
+        if (settings.particles) particles.render(viewProjection,height);
         glBindFramebuffer(GL_READ_FRAMEBUFFER, hdrFbo);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, resolveFbo);
         glBlitFramebuffer(

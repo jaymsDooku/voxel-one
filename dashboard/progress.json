@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-09T22:53:21+00:00",
+  "updatedAt": "2026-10-09T23:44:25+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,15 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "66363430-7af3-4149-a83a-02c719487914",
+      "title": "Voxel rendering settings",
+      "description": "Adding saved rendering controls and performance presets; validation pending.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Rendering settings implemented. Build, 22 scoped tests and native GL3.3 playtest passed. Screenshots and report saved; awaiting controller publication and independent review.",
+      "updatedAt": "2026-10-09T23:44:25+00:00"
+    },
     {
       "id": "35336561653866652d643166312d343564312d623236382d346161333036333437363761",
       "title": "Planetary atmosphere for voxel worlds",
