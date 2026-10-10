@@ -312,6 +312,7 @@ public class Main {
     private void initScene() throws Exception {
         shader = new ShaderProgram("shaders/voxel.vert", "shaders/voxel.frag");
         rendering = new dev.jayms.render.RenderPipeline();
+        menu.rendering = new dev.jayms.ui.RenderingMenu(rendering);
         overlay = new Overlay();
         camera = new Camera();
         playerModel = new PlayerModel();

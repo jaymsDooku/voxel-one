@@ -210,34 +210,37 @@ public final class RenderPipeline implements AutoCloseable {
     }
 
     public void renderShadows(World world, VoxelModelRenderer models, Vector3f position) {
-        glBindFramebuffer(GL_FRAMEBUFFER, shadowFbo);
-        glViewport(0, 0, shadowResolution, shadowResolution);
-        glEnable(GL_DEPTH_TEST); glEnable(GL_CULL_FACE);
-        shadow.bind(); shadow.setInt("uInstanced", 0);
-        float[] extents = {32, 96, 256};
-        for (int cascade = 0; cascade < 3; cascade++) {
-            float extent = extents[cascade], texel = extent * 2 / shadowResolution;
-            Vector3f center = new Vector3f((float)Math.floor(position.x/texel)*texel,
-                    position.y, (float)Math.floor(position.z/texel)*texel);
-            Vector3f direction = daylight > .01f ? sun : new Vector3f(sun).negate();
-            Vector3f up = Math.abs(direction.y) > .98f ? new Vector3f(0,0,1) : new Vector3f(0,1,0);
-            Matrix4f lightView = new Matrix4f().lookAt(new Vector3f(center).fma(384,direction), center, up);
-            Matrix4f lightProjection = new Matrix4f().ortho(-extent, extent, -extent, extent, 1, 768);
-            shadowMatrices[cascade].set(lightProjection).mul(lightView);
-            FrustumIntersection f = new FrustumIntersection(shadowMatrices[cascade]);
-            glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, shadowTexture, 0, cascade);
-            glClear(GL_DEPTH_BUFFER_BIT);
-            shadow.setMatrix4("uProjection", lightProjection); shadow.setMatrix4("uView", lightView);
-            for (var entry : world.getLoadedChunks().entrySet()) {
-                var p = entry.getKey();
-                if (entry.getValue().getMesh()==null || !f.testAab(p.chunkX()*16,p.chunkY()*16,p.chunkZ()*16,
-                        p.chunkX()*16+16,p.chunkY()*16+16,p.chunkZ()*16+16)) continue;
-                shadow.setMatrix4("uModel",new Matrix4f().translation(p.chunkX()*16,p.chunkY()*16,p.chunkZ()*16));
-                entry.getValue().getMesh().render();
+        if (settings.shadows) {
+            glBindFramebuffer(GL_FRAMEBUFFER, shadowFbo);
+            glViewport(0, 0, shadowResolution, shadowResolution);
+            glEnable(GL_DEPTH_TEST); glEnable(GL_CULL_FACE);
+            shadow.bind(); shadow.setInt("uInstanced", 0);
+            float[] extents = {32, 96, 256};
+            for (int cascade = 0; cascade < 3; cascade++) {
+                float extent = extents[cascade], texel = extent * 2 / shadowResolution;
+                Vector3f center = new Vector3f((float)Math.floor(position.x/texel)*texel,
+                        position.y, (float)Math.floor(position.z/texel)*texel);
+                Vector3f direction = daylight > .01f ? sun : new Vector3f(sun).negate();
+                Vector3f up = Math.abs(direction.y) > .98f ? new Vector3f(0,0,1) : new Vector3f(0,1,0);
+                Matrix4f lightView = new Matrix4f().lookAt(new Vector3f(center).fma(384,direction), center, up);
+                Matrix4f lightProjection = new Matrix4f().ortho(-extent, extent, -extent, extent, 1, 768);
+                shadowMatrices[cascade].set(lightProjection).mul(lightView);
+                FrustumIntersection f = new FrustumIntersection(shadowMatrices[cascade]);
+                glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, shadowTexture, 0, cascade);
+                glClear(GL_DEPTH_BUFFER_BIT);
+                shadow.setMatrix4("uProjection", lightProjection); shadow.setMatrix4("uView", lightView);
+                for (var entry : world.getLoadedChunks().entrySet()) {
+                    var p = entry.getKey();
+                    if (entry.getValue().getMesh()==null || !f.testAab(p.chunkX()*16,p.chunkY()*16,p.chunkZ()*16,
+                            p.chunkX()*16+16,p.chunkY()*16+16,p.chunkZ()*16+16)) continue;
+                    shadow.setMatrix4("uModel",new Matrix4f().translation(p.chunkX()*16,p.chunkY()*16,p.chunkZ()*16));
+                    entry.getValue().getMesh().render();
+                }
+                models.render(world, f, shadow);
             }
-            models.render(world, f, shadow);
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
         }
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        // Local reflections update independently of the world-shadow quality switch.
         if (hasIrradiance) probes.capture(world,models,position,environment,this::bindSceneLighting);
     }
 
@@ -313,7 +316,7 @@ public final class RenderPipeline implements AutoCloseable {
         shader.setInt("uLightingEnabled", 1);
         shader.setInt("uHasIrradiance", hasIrradiance ? 1 : 0);
         shader.setInt("uSkyColumns",worldSky==null?0:worldSky.columns);shader.setInt("uSkyOffset",skyBufferOffset);
-        shader.setInt("uShadowEnabled", 1);
+        shader.setInt("uShadowEnabled", settings.shadows ? 1 : 0);
         shader.setInt("uHeld", 0);shader.setInt("uOutputTone",0);
         shader.setFloat("uModelEmission", 0);
         shader.setVector3("uLightDirection", -sun.x, -sun.y, -sun.z);
@@ -358,7 +361,7 @@ public final class RenderPipeline implements AutoCloseable {
     }
 
     public void finish() {
-        particles.render(viewProjection,height);
+        if (settings.particles) particles.render(viewProjection,height);
         glBindFramebuffer(GL_READ_FRAMEBUFFER, hdrFbo);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, resolveFbo);
         glBlitFramebuffer(

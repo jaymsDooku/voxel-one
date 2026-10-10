@@ -1,0 +1,44 @@
+Rendering settings: unavailable legacy fog controls and shadow-toggle validation
+Environment: Linux VPS; inherited assigned X11 display and XAUTHORITY; Mesa software OpenGL 3.3; isolated synthetic home and voxel save. No private account data.
+
+Commands:
+MAVEN_OPTS="-Djava.io.tmpdir=$PWD/target/tmp" /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=target/m2 -Dtest=RenderingAlgorithmsTest,ControlsTest,AtmosphereReferenceTest -DargLine=-Djava.io.tmpdir="$PWD/target/tmp" test package
+Result: exit 0; 22 tests; zero failures, errors or skips.
+RenderingAlgorithmsTest: tests=9, failures=0, errors=0, skipped=0
+ControlsTest: tests=5, failures=0, errors=0, skipped=0
+AtmosphereReferenceTest: tests=8, failures=0, errors=0, skipped=0
+MAVEN_OPTS="-Djava.io.tmpdir=$PWD/target/tmp" /tmp/apache-maven-3.9.11/bin/mvn -o -q -Dmaven.repo.local=target/m2 -DskipTests package
+Result: exit 0. Final unavailable-row labels and removal of adjustment arrows included in this package.
+
+Playtest: python3 deploy/run_rendering_settings_playtest.py --display "$DISPLAY" --gl33
+Result: exit 0.
+Playtest: PASS. Warmed lighting and completed reflection probe; shadows off camera movement beyond 16 units recaptures probe at new center; world LED edit recaptures current revision; Defaults re-enables shadows. Production Main; Linux inherited X11; software GL; isolated synthetic profile. Real Escape/R inputs open settings. Low cost applies scale 0.5 and disables shadows/GI; Left clamps scale to 0.5; persisted settings reload; Defaults restores quality; 420x300 scroll reaches final option; Escape returns to controls then gameplay; F6 still toggles isometric; GL_NO_ERROR throughout.
+
+Regression steps and expected/observed results:
+1. Run production Main with synthetic gallery. Wait for actual lightingReady=true and reflectionProbeReady=true, with probe revision matching world edits. PASS; no injected ready flag or lighting result.
+2. Set world shadows off. Move the flight camera by 18 units through the real Player used by Main (deterministic harness relocation, beyond the 16-unit probe threshold). Wait for a completed probe centered within 0.5 units of the new camera. PASS; shadows remain off, lighting stays ready.
+3. Apply a new orange LED voxel at (25,74,4), rebuild the affected mesh, and wait for ready probe revision to match current world edits. PASS; revision 337; shadows remain off and lighting ready.
+4. Real X11 Escape/R opens settings. Low-cost preset applies render scale 0.5 and disables shadows/GI. PASS. Direct click handler changes scale; Left at the lower bound stays 0.5. PASS.
+5. Reset live scale to 1 then reload saved properties; scale returns to 0.5. PASS. Defaults re-enables world shadows and GI at scale 1. PASS. All 19 available settings accept both directions; the two legacy fog rows ignore edits. Saved NaN scale and invalid atmosphere enum are ignored; coverage 99 clamps to 1. PASS.
+6. Resize to 420x300; use real Down inputs to reach overview haze, row 21/21. PASS. Escape returns to Controls, then gameplay. F6 callback toggles isometric. PASS. GL_NO_ERROR throughout.
+
+Media regenerated from this revision:
+render-settings-shadowless-moved.png: completed reflection capture after camera movement with shadows off.
+render-settings-shadowless-edited.png: completed reflection capture after LED edit with shadows off.
+render-settings-low.png: low-cost settings screen after warmed regression.
+render-settings-small.png: final setting at 420x300.
+All media pending controller publication. No browser check applies to this native GLFW application. Hardware GPU speed is not measured.
+
+Fix: shadow toggle gates only cascade rendering. Irradiance-gated reflection capture stays outside that gate.
+Audit base: 1ca97ff1b2c62484346425f60d756a1c7d3ca02b. Entire proposed diff inspected. No unrelated deletions. Removed shadow-block lines are preserved inside the conditional gate; the old unconditional shadow uniform and particle draw are replaced by quality switches. Other changes are settings UI, integration, docs, harness, progress and media. No other merged feature removed.
+Earlier pre-revision evidence did not establish warmed probe behavior; this report and regenerated media supersede it. Independent historical reviewer artifacts are not developer proof.
+
+Latest unavailable-control revision checks:
+Repeated the recorded Maven scoped test/package command: exit 0; 22 tests, zero failures/errors/skips. Repeated the final skipTests package command after removing arrows from unavailable rows: exit 0.
+Repeated Playtest: python3 deploy/run_rendering_settings_playtest.py --display "$DISPLAY" --gl33: exit 0.
+Playtest: PASS. Running Main active planet atmosphere. Disabled legacy volume/fog rows display N/A and Unavailable; keyboard/click, saved values and preset cannot alter legacy fields. Live effects uVolume=0 for both rows. No misleading enabled legacy scattering control.
+Expected/observed: set legacy volumetrics=true and fogDensity=0.012 in the test fixture. Keyboard and exact-row mouse-click handlers leave both values unchanged. PASS. With volumetrics=true, querying the live effects program reports uVolume=0 in both row checks, matching the active planet atmosphere replacing legacy scattering. PASS. Old properties requesting volumetrics=false/fogDensity=0.02 are ignored. PASS. Low-cost preset leaves both legacy values unchanged; saved properties omit both keys. PASS.
+The full warmed movement/edit, presets, persistence, small-window, Escape and F6 regression suite passed again with no GL errors.
+Media regenerated for this source: all prior developer screenshots refreshed; render-settings-unavailable-volume.png and render-settings-unavailable-fog.png show N/A without adjustment arrows and explicit Unavailable labels/footer. Images inspected for readability; pending controller publication.
+Correction: no new scattering path is introduced. Unsupported legacy fields are disabled in UI, load, save, and presets. Documentation no longer claims the low-cost preset disables active volumetric light or that Fog density changes active atmosphere. The 19 other controls retain their behavior.
+Entire diff re-audited against 1ca97ff1b2c62484346425f60d756a1c7d3ca02b. No unrelated deletions. Earlier gate removals remain code preserved under the shadow conditional. Current removals replace labels/claims and exclude unavailable fields only. git diff --check passed.

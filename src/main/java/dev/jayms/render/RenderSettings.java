@@ -4,6 +4,7 @@ package dev.jayms.render;
 public final class RenderSettings {
     public PlanetAtmosphere.Quality atmosphereQuality = PlanetAtmosphere.Quality.MEDIUM;
     public float overviewHaze = 1;
+    public boolean shadows = true, particles = true;
     public boolean taa = true, ao = true, contactShadows = true, reflections = true;
     public boolean screenGi = true, volumetrics = true, bloom = true, clouds = true;
     public boolean autoExposure = true, dynamicResolution = false;
