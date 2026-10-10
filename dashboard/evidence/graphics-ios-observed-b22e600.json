@@ -1,0 +1,62 @@
+{
+  "status": "observed passed Mac client check; actual Graphics image inspected",
+  "sourceHead": "b22e6001fc32f9b9bbd6f942070bd9f3a84856e1",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/38020773307",
+  "environment": {
+    "macOS": "15.7.9",
+    "xcode": "Xcode 16.4\nBuild version 16F6",
+    "simulatorSDK": "18.5"
+  },
+  "runtime": "iOS 18.5",
+  "device": "iPhone SE (3rd generation)",
+  "tests": [
+    {
+      "name": "testOfflineTouchBuildSavePauseAndLandscape",
+      "status": "passed"
+    },
+    {
+      "name": "testOnlineLoginCityPlanningAndReconnect",
+      "status": "passed"
+    },
+    {
+      "name": "testCollisionJumpRayAndEditRules",
+      "status": "passed"
+    },
+    {
+      "name": "testSnapshotValidationAndSaveRoundTrip",
+      "status": "passed"
+    },
+    {
+      "name": "testAtmosphereProfileMigrationAndNumericalBounds",
+      "status": "passed"
+    },
+    {
+      "name": "testPlanetAtmosphereNativeToggleAndLegacyWorld",
+      "status": "passed"
+    },
+    {
+      "name": "testNativeSkyVisibilityBlocksRoofsAndTransmitsWindows",
+      "status": "passed"
+    },
+    {
+      "name": "testGraphicsDraftApplyPersistenceAndLandscape",
+      "status": "passed"
+    },
+    {
+      "name": "testNativeGraphicsValidationMigrationAndPresets",
+      "status": "passed"
+    }
+  ],
+  "cleanup": "passed",
+  "clientImage": {
+    "file": "graphics-ios-sheet-b22e600.png",
+    "sha256": "06b1709d9046e339f9242749a1c9497ae15384ff0a901622894170a250d3691c",
+    "observed": "Actual scrollable Graphics sheet: Custom, AA 2x, frame cap 30 FPS, detail 180 blocks, Bloom off, experimental atmosphere on. Lower controls continue below viewport."
+  },
+  "preflightImage": "Environment only; not game-client validation.",
+  "limits": [
+    "Observed CI results, not a physical iPhone test.",
+    "No physical GPU/thermal performance or signing/distribution evidence."
+  ],
+  "publication": "pending controller publication"
+}

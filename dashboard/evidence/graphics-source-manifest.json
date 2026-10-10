@@ -1,7 +1,7 @@
 {
-  "status": "unpublished desktop-tested source; next native exact-source check required",
+  "status": "desktop-tested source matches committed Mac-tested head by file hashes",
   "reviewBase": "a7436345bfe20551935c4681331981619048b01a",
-  "committedHead": "62669fd6f264eb589262f01b36d71846ed858954",
+  "committedHead": "b22e6001fc32f9b9bbd6f942070bd9f3a84856e1",
   "packageSha256": "21835daf06f8cdc5f90c402f7845573df71e790aa2910c6ad9ebf32e1be7f77c",
   "revisionNote": "Local package revision unknown; hashes bind these tests to unpublished source. Controller assigns the next committed head.",
   "files": {
@@ -63,5 +63,6 @@
     "src/test/java/dev/jayms/render/GraphicsProfileTest.java": "24b4659f984c78116d5dc5ececc1e38618b0e6d933d6b227dd5d100b2a0c7c93",
     "src/test/java/dev/jayms/render/GraphicsTransactionTest.java": "26beb92fd77de92864402ff9f8f5636d32a3a4c08dfc607a6d9537a286f4932e",
     "src/test/java/dev/jayms/render/PerformanceRecorderTest.java": "7e4474fc7c2b6e5bf17ba8dd80e4917c0043f9db3b94b178ce41fc5d4211ddbe"
-  }
+  },
+  "nativeTestedHead": "b22e6001fc32f9b9bbd6f942070bd9f3a84856e1"
 }

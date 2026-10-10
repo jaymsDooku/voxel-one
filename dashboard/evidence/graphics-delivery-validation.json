@@ -1,5 +1,5 @@
 {
-  "status": "desktop integration checked; next exact-source native Graphics capture required",
+  "status": "implementation offered for independent review; desktop and current native functional checks passed; reference performance follow-ups remain",
   "reviewBase": "a7436345bfe20551935c4681331981619048b01a",
   "platform": "Linux Mesa 22.3.6 llvmpipe OpenGL 3.3; assigned inherited X11; isolated synthetic profiles",
   "cpuTests": {
@@ -12,10 +12,10 @@
     "nativeBuildExecuted": false
   },
   "observedNativeCI": {
-    "head": "62669fd6f264eb589262f01b36d71846ed858954",
+    "head": "b22e6001fc32f9b9bbd6f942070bd9f3a84856e1",
     "testsPassed": 9,
-    "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/38018162334",
-    "media": "Inspected gameplay image faces sky; Graphics sheet absent. New source still requires hosted Mac validation."
+    "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/38020773307",
+    "media": "Receipt verified and actual Graphics sheet inspected. Functional simulator evidence only."
   },
   "playtests": [
     "Final City actual Escape/mouse/G/R: 53 frames; no block click-through; draft, persistence, safe display changes, resource rejection, legacy shared preference/particle preservation and save failure rollback pass.",
@@ -27,7 +27,6 @@
   ],
   "limits": [
     "Software rendering functional checks are not Windows reference performance.",
-    "Next native exact-source build/touch checks and Graphics screenshot inspection required.",
     "Windows packaged workflow, reference 1080p Balanced thresholds, recorder overhead and long travel/edit runs remain follow-ups.",
     "Physical iPhone performance, signing and distribution not validated.",
     "No unrelated file deletions against recorded review base; independent review remains required."
@@ -117,6 +116,18 @@
       "bytes": 275718,
       "sha256": "26211cff330aa8884c06a33da9327617358037b54bbf54033bb4aa0d2bed9692",
       "historical": true
+    },
+    {
+      "file": "graphics-ios-sheet-b22e600.png",
+      "bytes": 116402,
+      "sha256": "06b1709d9046e339f9242749a1c9497ae15384ff0a901622894170a250d3691c",
+      "historical": false
+    },
+    {
+      "file": "graphics-ios-preflight-b22e600.png",
+      "bytes": 905057,
+      "sha256": "31e1042d732c485598ce55c168a8f8198b5a51ac12180fa2dcfb3c29027e406b",
+      "historical": false
     }
   ]
 }
