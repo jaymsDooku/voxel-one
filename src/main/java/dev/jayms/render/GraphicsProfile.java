@@ -89,7 +89,7 @@ public final class GraphicsProfile {
         for(Key k:Key.values()){String v=values.get(k);if(k==Key.RESOLUTION){if(v==null||!v.matches("[0-9]{3,4}x[0-9]{3,4}@[0-9]{2,3}")||width()<320||width()>8192||height()<240||height()>8192||refresh()<30||refresh()>360)throw new IllegalArgumentException("Invalid display mode");}
             else if(!k.values.contains(v)) {
                 float n;try{n=Float.parseFloat(v);}catch(Exception e){throw new IllegalArgumentException("Unsupported "+k.label);}
-                float min,max;switch(k){case SCALE,MIN_SCALE,MAX_SCALE->{min=.5f;max=1;}case HAZE->{min=0;max=1;}case EXPOSURE->{min=.25f;max=4;}case TARGET->{min=5;max=100;}default->throw new IllegalArgumentException("Unsupported "+k.label);}
+                float min,max;switch(k){case SCALE,MIN_SCALE,MAX_SCALE->{min=.5f;max=1;}case HAZE->{min=0;max=1;}case EXPOSURE->{min=.1f;max=4;}case TARGET->{min=5;max=100;}default->throw new IllegalArgumentException("Unsupported "+k.label);}
                 if(!Float.isFinite(n)||n<min||n>max)throw new IllegalArgumentException("Unsupported "+k.label);
             }}
         if(number(Key.MIN_SCALE)>number(Key.MAX_SCALE))throw new IllegalArgumentException("Minimum scale exceeds maximum scale");
@@ -112,7 +112,18 @@ public final class GraphicsProfile {
         if(preset!=Preset.CUSTOM&&!values.equals(preset(preset).values))preset=Preset.CUSTOM;
         return new GraphicsProfile(preset,values);
     }
-    public static Loaded load(Path file){GraphicsProfile p=preset(Preset.BALANCED);String warning="";
+    /** Import valid old shared rows. Graphics-owned values win after migration. */
+    public static GraphicsProfile fromLegacy(GraphicsProfile base,Properties legacy) {
+        GraphicsProfile p=base;
+        String[][] rows={{"renderScale","SCALE"},{"dynamicResolution","DYNAMIC"},{"targetFrameMillis","TARGET"},{"atmosphereQuality","ATMOSPHERE"},{"shadows","SHADOWS"},{"taa","AA"},{"ao","AO"},{"contactShadows","CONTACT"},{"reflections","REFLECTIONS"},{"screenGi","GI"},{"bloom","BLOOM"},{"clouds","CLOUDS"},{"autoExposure","AUTO_EXPOSURE"},{"exposure","EXPOSURE"},{"overviewHaze","HAZE"}};
+        for(String[] row:rows){String value=legacy.getProperty(row[0]);if(value==null)continue;Key key=Key.valueOf(row[1]);
+            try{if(List.of(Key.DYNAMIC,Key.SHADOWS,Key.AA,Key.AO,Key.CONTACT,Key.REFLECTIONS,Key.GI,Key.BLOOM,Key.CLOUDS,Key.AUTO_EXPOSURE).contains(key)){
+                if(!value.equals("true")&&!value.equals("false"))continue;boolean on=Boolean.parseBoolean(value);
+                value=key==Key.AA?(on?"TAA":p.get(key).startsWith("MSAA")?p.get(key):"OFF"):key==Key.SHADOWS?(on?(p.get(key).equals("OFF")?"HIGH":p.get(key)):"OFF"):on?"ON":"OFF";
+            }p=p.with(key,value);}catch(IllegalArgumentException ignored){}
+        }return p;
+    }
+    public static Loaded load(Path file){GraphicsProfile p=preset(Preset.BALANCED);String warning="";if(!Files.exists(file)){Path legacy=file.resolveSibling("rendering.properties");try{if(Files.isRegularFile(legacy)&&Files.size(legacy)<=65536){var props=new Properties();try(var reader=Files.newBufferedReader(legacy)){props.load(reader);}p=fromLegacy(p,props);warning="Imported saved Rendering preferences.";}}catch(IOException|IllegalArgumentException e){warning="Invalid legacy rendering preferences ignored.";}}
         try {if(Files.exists(file)){if(Files.size(file)>65536)throw new IOException("Profile too large");var props=new Properties();try(var reader=Files.newBufferedReader(file)){props.load(reader);}p=parse(props);}}
         catch(IOException|IllegalArgumentException e){warning="Invalid graphics profile; defaults restored.";}
         return applyOverrides(p,warning);

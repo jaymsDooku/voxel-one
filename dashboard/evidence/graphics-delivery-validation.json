@@ -1,8 +1,9 @@
 {
-  "status": "intermediate rebase recovery; prior playtests/media are historical until resulting source is retested",
-  "platform": "Linux Mesa 22.3.6 llvmpipe OpenGL 3.3; isolated synthetic profiles; inherited role X11 display",
+  "status": "desktop integration checked; next exact-source native Graphics capture required",
+  "reviewBase": "a7436345bfe20551935c4681331981619048b01a",
+  "platform": "Linux Mesa 22.3.6 llvmpipe OpenGL 3.3; assigned inherited X11; isolated synthetic profiles",
   "cpuTests": {
-    "passed": 34,
+    "passed": 35,
     "failures": 0,
     "errors": 0
   },
@@ -10,63 +11,112 @@
     "passed": 53,
     "nativeBuildExecuted": false
   },
+  "observedNativeCI": {
+    "head": "62669fd6f264eb589262f01b36d71846ed858954",
+    "testsPassed": 9,
+    "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/38018162334",
+    "media": "Inspected gameplay image faces sky; Graphics sheet absent. New source still requires hosted Mac validation."
+  },
   "playtests": [
-    "Graphics Sandbox/City workflow with Apply/Cancel/persistence/display confirmation/resource rejection/resize/control regression",
-    "Production Main: W, F10, F6, LED/water gallery, odd resize and Escape",
-    "Renderer fixture: GL 3.3 at 1x and 4x samples; completed nonblocking GPU queries",
-    "GROUND render-only: three runs, 12 warm-up + 24 measured frames each",
-    "TELEPORT production streaming: one run, 12 warm-up + 24 measured frames; bounded in-flight queue and no GL/upload error"
+    "Final City actual Escape/mouse/G/R: 53 frames; no block click-through; draft, persistence, safe display changes, resource rejection, legacy shared preference/particle preservation and save failure rollback pass.",
+    "Sandbox same 20-stage workflow: 65 frames, before Controls header/mouse-only change.",
+    "Final production Main: 43 frames; W/F10/F6, LED/particles/water, odd resize/Escape; no GL errors.",
+    "GL 3.3 renderer fixtures 1x and 4x: completed queries and fractional/LED geometry; no GL errors. 1x before header-only change; 4x final.",
+    "Final GROUND LOW render-only: three runs, 12 warm-up + 24 frames each; exports/comparison pass; empty/resolution mismatches rejected exit 2. Not a reference benchmark.",
+    "Final TELEPORT LOW production streaming: 12 warm-up + 24 measured frames; bounded queue and GL/upload assertions pass. Not a long travel memory test."
   ],
   "limits": [
-    "Software functional checks are not reference desktop performance",
-    "Native Swift/Xcode/touch workflow awaits actual hosted Mac results and media",
-    "Windows packaged workflow, long travel/edit runs, reference 1080p Balanced thresholds and observer costs remain follow-up gates",
-    "Physical iPhone performance/signing/distribution remain separate gates",
-    "Controller latest-master integration and final recorded review-base audit remain required"
+    "Software rendering functional checks are not Windows reference performance.",
+    "Next native exact-source build/touch checks and Graphics screenshot inspection required.",
+    "Windows packaged workflow, reference 1080p Balanced thresholds, recorder overhead and long travel/edit runs remain follow-ups.",
+    "Physical iPhone performance, signing and distribution not validated.",
+    "No unrelated file deletions against recorded review base; independent review remains required."
   ],
-  "publication": "pending controller publication on assigned feature branch",
+  "publication": "pending controller publication on assigned branch",
   "media": [
     {
       "file": "graphics-applied.png",
       "bytes": 42695,
-      "sha256": "f01cdbb2c836cf766533273c59983e6e9e774aba6ca1f8f5f58bb85ae707e470"
+      "sha256": "f01cdbb2c836cf766533273c59983e6e9e774aba6ca1f8f5f58bb85ae707e470",
+      "historical": false
     },
     {
       "file": "graphics-confirm.png",
-      "bytes": 197068,
-      "sha256": "8da815e45994a7e99173dd51a7f31b75546a0780f116d2c68a978af1ae43847e"
+      "bytes": 197067,
+      "sha256": "b538bd7e7d706bb8e436ec1ddcf10da47da73f482cd88f86b89598b3c5f604e7",
+      "historical": false
+    },
+    {
+      "file": "graphics-controls-entry.png",
+      "bytes": 44663,
+      "sha256": "5056bef1c0525a1a98f552415a8384c9c52c1b0e9ffe717447d22616d5912c6d",
+      "historical": false
     },
     {
       "file": "graphics-current-gl33-gallery.png",
-      "bytes": 270418,
-      "sha256": "8e4a9f6e4c24fd5b723332a1bbab86b277b225fce791e30d9fa419e1bf76a2cd"
+      "bytes": 218496,
+      "sha256": "62d8c20129e932b9796c4cdcde0869c8f1e73997b6d47fbcbc18ba6d89cd0c8e",
+      "historical": false
     },
     {
       "file": "graphics-current-isometric.png",
-      "bytes": 14958,
-      "sha256": "33a84d3532a7fb1e74e0978848c21b109cd8769a08d6e9d7c7b7350c443ebc27"
+      "bytes": 14927,
+      "sha256": "b00884d48b99527adeb12602a21e90ee0cbd3862763990e11c9e7bfa53385443",
+      "historical": false
     },
     {
       "file": "graphics-display-200-percent.png",
-      "bytes": 40179,
-      "sha256": "356726b53e56f08fa5ec57d996ac8620ee2424ab4c56333a984b223b0150436a"
+      "bytes": 40155,
+      "sha256": "c000c492140bb08800c2e78a52e8334af4ca88671eddfcb6381994ae14ff6b37",
+      "historical": false
+    },
+    {
+      "file": "graphics-ios-client-62669fd.png",
+      "bytes": 244287,
+      "sha256": "58cf46dad0a6cd6cc45266b4e3eb63d86299f0b98f9a2a18f9b36a2432e7ba59",
+      "historical": true
+    },
+    {
+      "file": "graphics-isometric.png",
+      "bytes": 56395,
+      "sha256": "0008c2392188bbe6d0fc2d25cf530634a5ccb6bafe3ac4afa1c1dcd81ee5f6e6",
+      "historical": false
+    },
+    {
+      "file": "graphics-legacy-rendering.png",
+      "bytes": 27640,
+      "sha256": "16b6527a66b6c23aced660e661a77ce82347f14263dbf3d873eea35d2e4fde02",
+      "historical": false
+    },
+    {
+      "file": "graphics-legacy-rollback.png",
+      "bytes": 28792,
+      "sha256": "e12009f44d93df089fbb7064e30b5524f66641aadd114f71ceb703b44d61ee17",
+      "historical": false
     },
     {
       "file": "graphics-performance.png",
-      "bytes": 180430,
-      "sha256": "92008522d347984d56c0ec748593c3872342c4533a64fd573fc0577036be126f"
+      "bytes": 180446,
+      "sha256": "022f171e34b7e01d4f2b611be0b4419807047269c91879de24a2b33669a491d4",
+      "historical": false
     },
     {
       "file": "graphics-render-playtest.mp4",
-      "bytes": 274063,
-      "sha256": "0789e45a8af34adfc53b43333590437882504b2950d38da9d79d9441201b9451"
+      "bytes": 274361,
+      "sha256": "c15ccb16649e7058248e04dc1e80c9dc6bdaaa8f43a3e8a1666e97daa300ee1a",
+      "historical": false
     },
     {
       "file": "graphics-small.png",
-      "bytes": 14040,
-      "sha256": "bcb816ef070c7c8870a3b6dc77df4e8448b7de35d4fbba41f7969937951f3c5e"
+      "bytes": 14171,
+      "sha256": "9837fd22152da017706d48a0359e297609e70d2ae754eb7465c51040e0e3421f",
+      "historical": false
+    },
+    {
+      "file": "graphics-timing-gl33-gallery.png",
+      "bytes": 275718,
+      "sha256": "26211cff330aa8884c06a33da9327617358037b54bbf54033bb4aa0d2bed9692",
+      "historical": true
     }
-  ],
-  "recoveryBase": "a7436345bfe20551935c4681331981619048b01a",
-  "recoveryNotes": "Working conflict markers resolved; controller must stage and continue. Shared legacy/Graphics preference precedence and migration need final integration checks."
+  ]
 }

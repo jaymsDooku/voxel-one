@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-10T02:45:49+00:00",
+  "updatedAt": "2026-10-10T03:29:43+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -20,8 +20,8 @@
       "description": "Graphics profiles, safe apply/revert, bounded async mesh streaming and local performance capture; native subset awaits exact-source Mac validation.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Resolved four rebase conflict files, preserving Rendering/Graphics menus, model shadows and particle controls. Compile and 22 focused tests pass. Controller staging/continuation required before preference integration checks, final-head playtests and fresh media.",
-      "updatedAt": "2026-10-10T02:45:49+00:00"
+      "note": "Integrated preference bridge and rollback validated. 35 CPU and 53 iOS mock checks pass. Fresh City Graphics, Main/F10, GL3.3 4x, three recorder exports and teleport streaming checks pass. Prior Mac passed nine native tests; new exact-source Graphics capture awaits Mac validation. Windows reference and physical-device budgets remain follow-ups.",
+      "updatedAt": "2026-10-10T03:29:43+00:00"
     },
     {
       "id": "66363430-7af3-4149-a83a-02c719487914",

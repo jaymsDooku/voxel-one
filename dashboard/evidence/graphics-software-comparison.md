@@ -1,12 +1,12 @@
-# Software recorder checks
+# Linux software recorder integration
 
-Three GROUND render-only runs; Low; 640x400; Mesa llvmpipe OpenGL 3.3; 12 warm-up and 24 measured frames each. Functional export check, not a Windows baseline or optimization comparison. No cold driver-cache claim. Package/source binding: graphics-source-manifest.json.
+Three same-source LOW GROUND runs, 12 warm-up + 24 measured frames each. Mesa llvmpipe OpenGL 3.3; these are functional export checks, not reference hardware benchmarks or measured optimization gains. No before/after comparison is available. Local package revision is unknown; source/JAR hashes are in graphics-source-manifest.json.
 
-| Measure | Median | Min | Max |
+| Metric | Median across runs | Minimum | Maximum |
 |---|---:|---:|---:|
-| p50FrameMs | 1221.089 | 1213.323 | 1240.224 |
-| p95FrameMs | 1572.551 | 1558.964 | 1901.141 |
-| p99FrameMs | 1765.508 | 1710.605 | 1977.319 |
-| onePercentLowFps | 0.566 | 0.506 | 0.585 |
+| p50FrameMs | 1230.278 | 1207.452 | 1232.752 |
+| p95FrameMs | 1588.777 | 1568.120 | 1671.463 |
+| p99FrameMs | 1660.851 | 1584.924 | 1771.049 |
+| onePercentLowFps | 0.602 | 0.565 | 0.631 |
 
-Recorder-copy CPU totals are in each JSON. Recorder-on/off and video-on/off observer cost still need equal-route reference hardware runs. Reduced-quality gains and unchanged-quality optimization gains have not been measured.
+`python3 deploy/compare_performance.py` accepted the three matching reports. Empty capture and changed-resolution cases returned exit 2 as expected. Recorder overhead is not measured separately by these checks.

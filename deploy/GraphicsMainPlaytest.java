@@ -13,6 +13,7 @@ import static org.lwjgl.opengl.GL33.*;
 
 /** Real Main render loop and X11 key callbacks. The replay world disables loading only in this fixture. */
 public class GraphicsMainPlaytest {
+    static long menuEditRevision;
     static Main game=new Main();static Path out;static int frame,stage;static long changed;static String windowId;static RenderPipeline original;static boolean cityMode;static int gKeys,received,expected;static org.lwjgl.glfw.GLFWWindowFocusCallback originalFocus;static org.lwjgl.glfw.GLFWKeyCallback originalKeys;
     static Object get(String name)throws Exception{var f=Main.class.getDeclaredField(name);f.setAccessible(true);return f.get(game);}
     static void set(String name,Object v)throws Exception{var f=Main.class.getDeclaredField(name);f.setAccessible(true);f.set(game,v);}
@@ -37,8 +38,8 @@ public class GraphicsMainPlaytest {
                 boolean advanced=true;
                 switch(stage){
                     case 0 -> {if(frame<12){advanced=false;break;}require(renderer.lightingReady(),"Synthetic lighting ready");int width=renderer.actualWidth();try{renderer.prepareTargets(Integer.MAX_VALUE,480);throw new AssertionError("Oversized target should fail");}catch(IllegalArgumentException expected){}require(renderer.actualWidth()==width,"Rejected target allocation keeps working target");keys("Escape");}
-                    case 1 -> {require(menu.open,"Escape opens Controls");if(cityMode)require(menu.saves!=null,"City Saves retained");keys("g");}
-                    case 2 -> {require(ui.open,"Graphics opens through G; callbacks="+gKeys+" menu="+menu.open+" editing="+menu.editing()+" engine="+((EngineEditor)get("engineEditor")).open);image("graphics-display-200-percent.png");keys("Right","c");}
+                    case 1 -> {require(menu.open,"Escape opens Controls");image("graphics-controls-entry.png");if(cityMode)require(menu.saves!=null,"City Saves retained");menuEditRevision=((World)get("world")).editsVersion();input("mousemove","--window",windowId,"385","42");input("click","1");}
+                    case 2 -> {require(((World)get("world")).editsVersion()==menuEditRevision,"Menu click cannot edit the world");require(ui.open,"Graphics opens through mouse; callbacks="+gKeys+" menu="+menu.open+" editing="+menu.editing()+" engine="+((EngineEditor)get("engineEditor")).open);image("graphics-display-200-percent.png");keys("Right","c");}
                     case 3 -> {require(!ui.open&&get("rendering")==original,"Cancel preserves renderer and display draft");keys("g");}
                     case 4 -> {keys("Down","Down","Down","Down","Left","a");}
                     case 5 -> {require(get("rendering")!=original,"Apply swaps prepared renderer");require(Math.abs(renderer.settings.renderScale-.85f)<.01,"UI scale maps to actual render target");require(graphics.transaction.requested().preset()==GraphicsProfile.Preset.CUSTOM,"Manual change selects Custom");require(GraphicsProfile.load(Controls.directory().resolve("graphics.properties")).profile().get(GraphicsProfile.Key.SCALE).equals("0.85"),"Relaunch profile load preserves applied scale");image("graphics-applied.png");keys("c","g","Right","a");}
@@ -48,11 +49,18 @@ public class GraphicsMainPlaytest {
                     case 9 -> {require(!graphics.transaction.pending(),"Keep confirms display");require(GraphicsProfile.load(Controls.directory().resolve("graphics.properties")).profile().get(GraphicsProfile.Key.DISPLAY_MODE).equals("BORDERLESS"),"Only confirmed display persists");keys("Tab","Tab","Tab","Tab","F9");}
                     case 10 -> {require(((PerformanceRecorder)get("performance")).active(),"F9 starts actual engine performance capture");image("graphics-performance.png");keys("F9");glfwSetWindowSize(handle,333,271);}
                     case 11 -> {require(!((PerformanceRecorder)get("performance")).active(),"F9 stops and exports capture");if((int)get("framebufferWidth")!=333||(int)get("framebufferHeight")!=271){advanced=false;break;}image("graphics-small.png");keys("c","Escape","F6");}
-                    case 12 -> {require(!menu.open&&!ui.open,"Graphics exit restores game input");require((boolean)get("isometric"),"F6 camera regression");image("graphics-isometric.png");Files.writeString(out.resolve("results.txt"),"Playtest: PASS. Production Main ("+(cityMode?"City":"Sandbox")+") on Linux Mesa llvmpipe OpenGL 3.3; isolated synthetic profile; real X11 Escape/G navigation, draft Cancel, actual render-scale Apply, Custom preset, atomic persistence/reload, borderless confirmation and explicit Revert and Keep, rejected oversized target rollback, F9 recorder start/stop, 333x271 edge, Controls exit and F6 camera regression; GL errors absent across "+frame+" frames. Windows and device performance not measured.\n");glfwSetWindowShouldClose(handle,true);}
+                    case 12 -> {require(!menu.open&&!ui.open,"Graphics exit restores game input");require((boolean)get("isometric"),"F6 camera regression");image("graphics-isometric.png");keys("Escape","r");}
+                    case 13 -> {require(menu.rendering.open,"Rendering route preserved after Graphics swaps");keys("Right");}
+                    case 14 -> {require(Math.abs(graphics.transaction.requested().number(GraphicsProfile.Key.SCALE)-.9f)<.01,"Legacy edit updates requested Graphics profile");require(Math.abs(GraphicsProfile.load(Controls.directory().resolve("graphics.properties")).profile().number(GraphicsProfile.Key.SCALE)-.9f)<.01,"Legacy shared edit persists in Graphics profile");image("graphics-legacy-rendering.png");keys("Down","Down","Down","Down","Down","Right");}
+                    case 15 -> {require(!renderer.settings.particles,"Legacy particle control maps to active renderer");keys("Escape","g","a");}
+                    case 16 -> {require(!renderer.settings.particles,"Legacy-only particle value survives Graphics replacement");keys("c","r");}
+                    case 17 -> {require(menu.rendering.open,"Rendering supplier follows latest replacement");Path file=Controls.directory().resolve("graphics.properties");Files.move(file,file.resolveSibling("graphics.backup"));Files.createDirectory(file);original=renderer;keys("Up","Up","Up","Up","Up","Right");}
+                    case 18 -> {require(renderer==original,"Failed legacy save keeps renderer");require(Math.abs(renderer.settings.renderScale-.9f)<.01,"Failed legacy Apply restores shared render state");require(Math.abs(graphics.transaction.requested().number(GraphicsProfile.Key.SCALE)-.9f)<.01,"Failed legacy Apply keeps requested profile");Path file=Controls.directory().resolve("graphics.properties");Files.delete(file);Files.move(file.resolveSibling("graphics.backup"),file);image("graphics-legacy-rollback.png");keys("Escape","Escape");}
+                    case 19 -> {require(!menu.open,"Legacy exit restores controls");Files.writeString(out.resolve("results.txt"),"Playtest: PASS. Production Main ("+(cityMode?"City":"Sandbox")+") on Linux Mesa llvmpipe OpenGL 3.3; isolated synthetic profile; actual Escape/G/R input; draft Cancel, real scale Apply, atomic persistence/reload, display Revert/Keep, oversized target rollback, F9 start/stop, 333x271 edge, F6 camera regression, legacy shared preference persistence, particle preservation across swaps, injected legacy save failure rollback; GL errors absent across "+frame+" frames. Windows/device performance not measured.\n");glfwSetWindowShouldClose(handle,true);}
                     default -> advanced=false;
                 }
                 if(advanced){stage++;changed=System.nanoTime();}if(frame>350||System.nanoTime()-changed>90_000_000_000L)throw new AssertionError("Graphics phase timeout "+stage);
             }
-        });require(stage==13,"Graphics workflow completed");System.out.println("Graphics production Playtest passed");
+        });require(stage==20,"Graphics workflow completed");System.out.println("Graphics production Playtest passed");
     }
 }

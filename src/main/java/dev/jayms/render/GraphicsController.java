@@ -52,6 +52,12 @@ public final class GraphicsController implements AutoCloseable {
         glfwSwapInterval(p.on(GraphicsProfile.Key.VSYNC)?1:0);
         if(glfwGetError(null)!=GLFW_NO_ERROR)throw new IllegalStateException("Display setup failed");
     }
+    public boolean applyLegacy(Properties rows){
+        GraphicsProfile draft=GraphicsProfile.fromLegacy(transaction.requested(),rows);
+        boolean success=transaction.apply(draft,System.nanoTime());
+        if(!success){activeRenderer.settings.apply(transaction.effective());activeRenderer.resetHistory();}
+        return success;
+    }
     public void tick(){transaction.tick(System.nanoTime(),glfwGetWindowAttrib(window.getHandle(),GLFW_FOCUSED)==GLFW_TRUE);}
     @Override public void close(){transaction.close();}
 }

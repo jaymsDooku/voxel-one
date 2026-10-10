@@ -38,6 +38,15 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
             do {try startOffline(OfflineSave.load())}catch{showMenu();notify(error.localizedDescription)}
         } else {showMenu()}
     }
+    override func viewDidAppear(_ animated:Bool) {
+        super.viewDidAppear(animated)
+        #if targetEnvironment(simulator)
+        // Scoped simulator evidence uses the same actual Graphics route as the toolbar.
+        if ProcessInfo.processInfo.arguments.contains("--graphics-evidence") && !graphicsOpen {
+            openGraphics()
+        }
+        #endif
+    }
     // HUD labels and empty stack space share world gestures. Controls keep their
     // own touches, including movement buttons and the scrolling hotbar.
     private func addWorldGesture(_ gesture:UIGestureRecognizer) {

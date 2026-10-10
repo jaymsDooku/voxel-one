@@ -326,6 +326,7 @@ public class Main {
         graphics=new GraphicsController(window,rendering,loaded,Controls.directory().resolve("graphics.properties"),next->rendering=next);
         graphics.initialize();
         menu.rendering = new dev.jayms.ui.RenderingMenu(() -> rendering);
+        menu.rendering.sharedApply(graphics::applyLegacy);
         menu.graphics=new GraphicsMenu(graphics,performance,this::togglePerformance,this::graphicsDiagnostics);
         float[] scaleX={1},scaleY={1};glfwGetWindowContentScale(window.getHandle(),scaleX,scaleY);menu.graphics.density(Math.max(scaleX[0],scaleY[0]));
         glfwSetWindowContentScaleCallback(window.getHandle(),(handle,x,y)->menu.graphics.density(Math.max(x,y)));

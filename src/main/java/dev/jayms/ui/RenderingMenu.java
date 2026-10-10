@@ -34,6 +34,7 @@ public final class RenderingMenu {
     public boolean open;
     private final java.util.function.Supplier<RenderPipeline> pipeline;
     private final Path file;
+    private java.util.function.Predicate<Properties> sharedApply;
     private int selected, offset, visible=10;
     private String message="Changes apply now and save automatically.";
     public RenderingMenu(RenderPipeline pipeline) {
@@ -46,6 +47,7 @@ public final class RenderingMenu {
         file=Path.of(System.getProperty("user.home"),".voxel-one","rendering.properties");
         load(true);
     }
+    public void sharedApply(java.util.function.Predicate<Properties> apply){sharedApply=apply;}
     public void show(){open=true;}
     public void scroll(double direction){select(selected-(int)Math.signum(direction));}
     private void select(int value){selected=Math.max(0,Math.min(OPTIONS.length-1,value));offset=Math.max(0,Math.min(offset,selected));if(selected>=offset+visible)offset=selected-visible+1;}
@@ -84,7 +86,7 @@ public final class RenderingMenu {
     }
     private void save(){
         pipeline.get().resetHistory();
-        try {Properties p=new Properties();for(Option o:OPTIONS)if(available(o))p.setProperty(o.field,value(o).toString());Files.createDirectories(file.getParent());Path temporary=file.resolveSibling("rendering.properties.tmp");try(var out=Files.newOutputStream(temporary)){p.store(out,"Voxel rendering quality");}Files.move(temporary,file,StandardCopyOption.REPLACE_EXISTING);message="Saved. Changes are live.";}
+        try {Properties p=new Properties();for(Option o:OPTIONS)if(available(o))p.setProperty(o.field,value(o).toString());if(sharedApply!=null&&!sharedApply.test(p)){message="Apply failed; kept the working Graphics profile.";return;}Files.createDirectories(file.getParent());Path temporary=file.resolveSibling("rendering.properties.tmp");try(var out=Files.newOutputStream(temporary)){p.store(out,"Voxel rendering quality");}Files.move(temporary,file,StandardCopyOption.REPLACE_EXISTING);message="Saved. Changes are live.";}
         catch(Exception e){message="Changes applied; could not save settings.";}
     }
     private void load(){load(false);}

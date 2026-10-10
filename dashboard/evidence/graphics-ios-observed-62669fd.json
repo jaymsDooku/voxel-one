@@ -1,0 +1,27 @@
+{
+  "sourceHead": "62669fd6f264eb589262f01b36d71846ed858954",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/38018162334",
+  "status": "observed CI passed on prior head; newer unpublished changes untested",
+  "nativeTestsPassed": 9,
+  "environment": {
+    "macOS": "15.7.9",
+    "xcode": "Xcode 16.4\nBuild version 16F6",
+    "simulatorSDK": "18.5"
+  },
+  "runtime": {
+    "identifier": "com.apple.CoreSimulator.SimRuntime.iOS-18-5",
+    "name": "iOS 18.5",
+    "version": "18.5"
+  },
+  "deviceType": {
+    "identifier": "com.apple.CoreSimulator.SimDeviceType.iPhone-SE-3rd-generation",
+    "name": "iPhone SE (3rd generation)"
+  },
+  "clientImage": {
+    "file": "graphics-ios-client-62669fd.png",
+    "bytes": 244287,
+    "sha256": "58cf46dad0a6cd6cc45266b4e3eb63d86299f0b98f9a2a18f9b36a2432e7ba59"
+  },
+  "mediaInspection": "Actual native controls visible; camera faces sky. Graphics sheet is not shown. Not physical-device performance evidence.",
+  "publication": "pending controller publication"
+}

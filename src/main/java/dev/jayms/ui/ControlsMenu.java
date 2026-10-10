@@ -98,7 +98,7 @@ public final class ControlsMenu {
             return;
         }
         if (button != GLFW_MOUSE_BUTTON_LEFT) return;
-        float left = width / 2f - 300, top = height / 2f - 290;
+        float left = width / 2f - 300, top = Math.max(8,height / 2f - 290);
         if (x < left || x > left + 600) return;
         if(graphics!=null&&y>=top+18&&y<top+50&&x>=left+300&&x<left+430){graphics.show();return;}
         if (saves != null && y >= top + 18 && y < top + 50 && x >= left + 440) { saves.show(); return; }
@@ -141,7 +141,7 @@ public final class ControlsMenu {
         if (rendering != null && rendering.open) { rendering.render(ui,width,height); return; }
         if(graphics!=null&&graphics.open){graphics.render(ui,width,height);return;}
         if (saves != null && saves.open) { saves.render(ui, width, height); return; }
-        float left = width / 2f - 300, top = height / 2f - 290;
+        float left = width / 2f - 300, top = Math.max(8,height / 2f - 290);
         ui.rectangle(0, 0, width, height, .01f, .02f, .06f, .7f);
         ui.rectangle(left, top, 600, 580, .025f, .06f, .11f, .98f);
         ui.rectangle(left, top, 600, 3, .1f, .85f, 1, 1);
@@ -152,7 +152,7 @@ public final class ControlsMenu {
         ui.rectangle(left+150,top+18,140,32,.06f,.27f,.35f,1);
         ui.text("Rendering (R)",left+158,top+27,1.3f);
         if(graphics!=null){ui.rectangle(left+300,top+18,130,32,.06f,.27f,.35f,1);ui.text("Graphics (G)",left+308,top+27,1.4f);}
-        ui.text("CONTROLS", left + 24, top + 22, 3);
+        ui.text("CONTROLS", left + 24, top + 22, 2);
         ui.text("Escape resumes | Scroll or arrows for more controls", left + 24, top + 55, 1.6f);
         for (int i = offset(); i < Math.min(offset() + 13, Controls.Action.values().length); i++) {
             Controls.Action a = Controls.Action.values()[i];
