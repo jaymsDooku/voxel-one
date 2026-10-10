@@ -14,6 +14,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
     private var sessionID=UUID()
     private var queuedAction:([String:Any],String)?
     private var busy=false,paused=false,inMenu=true,active=true
+    private var graphicsOpen=false
     private var movement:Set<String>=[]
     private var top:UIStackView?,bottom:UIStackView?,menu:UIView?
     private var status=UILabel(),positionLabel=UILabel(),cityLabel=UILabel(),crosshair=UILabel()
@@ -32,7 +33,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         let two=UIPanGestureRecognizer(target:self,action:#selector(panPlanning(_:)));two.minimumNumberOfTouches=2;addWorldGesture(two)
         addWorldGesture(UITapGestureRecognizer(target:self,action:#selector(tapWorld(_:))))
         addWorldGesture(UIPinchGestureRecognizer(target:self,action:#selector(pinch(_:))))
-        displayLink=CADisplayLink(target:self,selector:#selector(frame(_:)));displayLink?.preferredFramesPerSecond=30;displayLink?.add(to:.main,forMode:.common)
+        displayLink=CADisplayLink(target:self,selector:#selector(frame(_:)));displayLink?.preferredFramesPerSecond=renderer.graphics.effective().frames;displayLink?.add(to:.main,forMode:.common)
         if FileManager.default.fileExists(atPath:OfflineSave.url.path) {
             do {try startOffline(OfflineSave.load())}catch{showMenu();notify(error.localizedDescription)}
         } else {showMenu()}
@@ -43,7 +44,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         gesture.delegate=self;view.addGestureRecognizer(gesture)
     }
     func gestureRecognizer(_ gestureRecognizer:UIGestureRecognizer,shouldReceive touch:UITouch)->Bool {
-        guard !inMenu,!paused else{return false}
+        guard !inMenu,!paused,!graphicsOpen else{return false}
         var target=touch.view
         while let current=target {
             if current is UIControl || current is UIScrollView {return false}
@@ -81,7 +82,8 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         let sky=button("Sky","atmosphereToggle",#selector(toggleAtmosphere(_:)))
         sky.accessibilityValue=renderer.atmospherePreview ? "On":"Off"
         let toolbar=row([menuButton,pause,plan,button("Bag","inventoryButton",#selector(inventory)),sky])
-        let t=UIStackView(arrangedSubviews:[toolbar,cityLabel,status,positionLabel]);t.axis = .vertical;t.spacing=2;top=t;overlay(t,atTop:true)
+        let graphicsToolbar=row([button("Graphics","graphicsButton",#selector(openGraphics))])
+        let t=UIStackView(arrangedSubviews:[toolbar,graphicsToolbar,cityLabel,status,positionLabel]);t.axis = .vertical;t.spacing=2;top=t;overlay(t,atTop:true)
         crosshair=label("+",size:26);crosshair.textAlignment = .center;crosshair.translatesAutoresizingMaskIntoConstraints=false;view.addSubview(crosshair)
         NSLayoutConstraint.activate([crosshair.centerXAnchor.constraint(equalTo:view.centerXAnchor),crosshair.centerYAnchor.constraint(equalTo:view.centerYAnchor)])
         slotButtons=(0..<9).map{ i in let b=button("","slot\(i)",#selector(selectSlot(_:)));b.tag=i;return b }
@@ -113,7 +115,18 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
     }
     @objc private func togglePause(){paused.toggle();movement.removeAll();pauseButton?.setTitle(paused ? "Resume":"Pause",for:.normal);notify(paused ? "Paused. The online city keeps running.":"Resumed.");saveOffline()}
     @objc private func togglePlan(){guard let world=world,world.snapshot.city != nil else{return};renderer.planning.toggle();lastPoll=0;renderer.focus=world.position;points.removeAll();renderer.mark(points,world:world);movement.removeAll();refreshHUD()}
-    @objc private func toggleAtmosphere(_ sender:UIButton){renderer.atmospherePreview.toggle();sender.accessibilityValue=renderer.atmospherePreview ? "On":"Off";if let world=world {renderer.rebuild(world);renderer.updateCamera(world)};notify(renderer.atmospherePreview ? "Planet sky preview on (low quality).":"Planet sky preview off.")}
+    @objc private func openGraphics(){
+        movement.removeAll();graphicsOpen=true
+        let screen=NativeGraphicsScreen(renderer.graphics){[weak self] p in
+            guard let self=self else{return}
+            // Save before changing the working renderer. Failed persistence keeps the old profile.
+            try p.save();self.renderer.applyGraphics(p);self.displayLink?.preferredFramesPerSecond=p.effective().frames
+            if let world=self.world {self.renderer.rebuild(world);self.renderer.updateCamera(world)}
+        }
+        screen.onClose={[weak self] in self?.graphicsOpen=false;self?.lastTime=0;self?.movement.removeAll()}
+        present(screen,animated:true)
+    }
+    @objc private func toggleAtmosphere(_ sender:UIButton){var p=renderer.graphics;p.atmosphere = !renderer.atmospherePreview;p.preset="Custom";do{try p.save();renderer.applyGraphics(p)}catch{notify("Could not save graphics. Kept the current sky.");return};sender.accessibilityValue=renderer.atmospherePreview ? "On":"Off";if let world=world {renderer.rebuild(world);renderer.updateCamera(world)};notify(renderer.atmospherePreview ? "Planet sky preview on (low quality).":"Planet sky preview off.")}
     @objc private func chooseTool(){
         let alert=UIAlertController(title:"City tool",message:"Tap ground to choose points. Roads need two points; zones need at least three. The server checks cost and space.",preferredStyle:.actionSheet)
         for (index,title) in ["Inspect","Dirt road","Residential","Commercial","Industrial","Agricultural"].enumerated(){alert.addAction(UIAlertAction(title:title,style:.default){[weak self] _ in self?.tool=index;self?.points.removeAll();self?.notify("\(title) selected.")})}
@@ -195,7 +208,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
     @objc private func frame(_ link:CADisplayLink){
         guard !inMenu,active,let world=world else{lastTime=0;return}
         let dt=lastTime==0 ? Float(1.0/30):Float(link.timestamp-lastTime);lastTime=link.timestamp
-        if !paused && !renderer.planning {
+        if !paused && !graphicsOpen && !renderer.planning {
             let forward:Float=(movement.contains("moveForward") ? 1:0)-(movement.contains("moveBack") ? 1:0)
             let side:Float=(movement.contains("moveRight") ? 1:0)-(movement.contains("moveLeft") ? 1:0)
             world.step(forward:forward,strafe:side,dt:dt)

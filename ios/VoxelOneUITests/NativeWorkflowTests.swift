@@ -174,6 +174,7 @@ final class NativeWorkflowTests:XCTestCase {
         let roadAdded=XCTNSPredicateExpectation(predicate:NSPredicate{_,_ in self.roadCount()>roadsBefore},object:app)
         XCTAssertEqual(XCTWaiter.wait(for:[roadAdded],timeout:30),.completed,"Authoritative road count must increase")
         capture("city-road-plan")
+        app.buttons["graphicsButton"].tap();wait(app.segmentedControls["graphicsAA"]);app.swipeUp();wait(app.buttons["graphicsCancel"]);app.buttons["graphicsCancel"].tap();wait(app.buttons["planToggle"])
         let cityBefore=app.staticTexts["cityStatus"].label
         app.buttons["planToggle"].tap();wait(app.buttons["breakButton"]);app.buttons["pauseButton"].tap();textContains("gameStatus","Paused");capture("city-native-walk");app.buttons["pauseButton"].tap()
         app.buttons["menuButton"].tap();wait(app.buttons["signInButton"])
@@ -189,5 +190,37 @@ final class NativeWorkflowTests:XCTestCase {
         // Save this normal-control camera pose for the trusted verifier's independent launch.
         app.buttons["menuButton"].tap();wait(app.buttons["offlineResumeButton"])
         app.buttons["offlineResumeButton"].tap();wait(app.buttons["breakButton"])
+    }
+
+    func testGraphicsDraftApplyPersistenceAndLandscape(){
+        newOffline();app.buttons["graphicsButton"].tap();wait(app.segmentedControls["graphicsAA"])
+        app.segmentedControls["graphicsAA"].buttons["Off"].tap()
+        app.swipeUp();wait(app.buttons["graphicsCancel"]);app.buttons["graphicsCancel"].tap()
+        app.buttons["graphicsButton"].tap();wait(app.segmentedControls["graphicsPreset"])
+        app.segmentedControls["graphicsPreset"].buttons["Low"].tap()
+        app.segmentedControls["graphicsFrames"].buttons["60 FPS"].tap()
+        app.segmentedControls["graphicsDetail"].buttons["64"].tap();capture("graphics-native-draft")
+        app.swipeUp();wait(app.buttons["graphicsApply"]);app.buttons["graphicsApply"].tap();wait(app.buttons["breakButton"])
+        app.terminate();app.launch();wait(app.buttons["graphicsButton"])
+        app.buttons["graphicsButton"].tap();wait(app.segmentedControls["graphicsAA"])
+        XCTAssertTrue(app.segmentedControls["graphicsAA"].buttons["Off"].isSelected)
+        XCTAssertTrue(app.segmentedControls["graphicsFrames"].buttons["60 FPS"].isSelected)
+        XCTAssertTrue(app.segmentedControls["graphicsDetail"].buttons["64"].isSelected)
+        XCUIDevice.shared.orientation = .landscapeLeft;capture("graphics-native-landscape")
+        app.swipeUp();wait(app.buttons["graphicsReset"]);app.buttons["graphicsReset"].tap()
+        app.swipeUp();wait(app.buttons["graphicsCancel"]);app.buttons["graphicsCancel"].tap()
+        XCUIDevice.shared.orientation = .portrait;app.buttons["graphicsButton"].tap();wait(app.segmentedControls["graphicsAA"])
+        XCTAssertTrue(app.segmentedControls["graphicsAA"].buttons["Off"].isSelected,"Reset is only a draft until Apply")
+        app.swipeUp();wait(app.buttons["graphicsCancel"]);app.buttons["graphicsCancel"].tap()
+        app.buttons["pauseButton"].tap();textContains("gameStatus","Paused");app.buttons["pauseButton"].tap()
+        // Exercise the high requested AA path; effective samples remain device limited.
+        app.buttons["graphicsButton"].tap();wait(app.segmentedControls["graphicsPreset"])
+        app.segmentedControls["graphicsPreset"].buttons["High"].tap();app.swipeUp();wait(app.buttons["graphicsApply"]);app.buttons["graphicsApply"].tap()
+        wait(app.buttons["breakButton"]);app.buttons["graphicsButton"].tap();wait(app.segmentedControls["graphicsAA"])
+        XCTAssertTrue(app.segmentedControls["graphicsAA"].buttons["4x"].isSelected)
+        capture("graphics-native-high")
+        // Leave a neutral native profile for the independent launch and later sky regression.
+        app.segmentedControls["graphicsPreset"].buttons["Balanced"].tap();app.swipeUp();wait(app.buttons["graphicsApply"]);app.buttons["graphicsApply"].tap()
+        wait(app.buttons["breakButton"]);capture("graphics-native-applied")
     }
 }

@@ -1,0 +1,72 @@
+{
+  "status": "intermediate rebase recovery; prior playtests/media are historical until resulting source is retested",
+  "platform": "Linux Mesa 22.3.6 llvmpipe OpenGL 3.3; isolated synthetic profiles; inherited role X11 display",
+  "cpuTests": {
+    "passed": 34,
+    "failures": 0,
+    "errors": 0
+  },
+  "iosContractTests": {
+    "passed": 53,
+    "nativeBuildExecuted": false
+  },
+  "playtests": [
+    "Graphics Sandbox/City workflow with Apply/Cancel/persistence/display confirmation/resource rejection/resize/control regression",
+    "Production Main: W, F10, F6, LED/water gallery, odd resize and Escape",
+    "Renderer fixture: GL 3.3 at 1x and 4x samples; completed nonblocking GPU queries",
+    "GROUND render-only: three runs, 12 warm-up + 24 measured frames each",
+    "TELEPORT production streaming: one run, 12 warm-up + 24 measured frames; bounded in-flight queue and no GL/upload error"
+  ],
+  "limits": [
+    "Software functional checks are not reference desktop performance",
+    "Native Swift/Xcode/touch workflow awaits actual hosted Mac results and media",
+    "Windows packaged workflow, long travel/edit runs, reference 1080p Balanced thresholds and observer costs remain follow-up gates",
+    "Physical iPhone performance/signing/distribution remain separate gates",
+    "Controller latest-master integration and final recorded review-base audit remain required"
+  ],
+  "publication": "pending controller publication on assigned feature branch",
+  "media": [
+    {
+      "file": "graphics-applied.png",
+      "bytes": 42695,
+      "sha256": "f01cdbb2c836cf766533273c59983e6e9e774aba6ca1f8f5f58bb85ae707e470"
+    },
+    {
+      "file": "graphics-confirm.png",
+      "bytes": 197068,
+      "sha256": "8da815e45994a7e99173dd51a7f31b75546a0780f116d2c68a978af1ae43847e"
+    },
+    {
+      "file": "graphics-current-gl33-gallery.png",
+      "bytes": 270418,
+      "sha256": "8e4a9f6e4c24fd5b723332a1bbab86b277b225fce791e30d9fa419e1bf76a2cd"
+    },
+    {
+      "file": "graphics-current-isometric.png",
+      "bytes": 14958,
+      "sha256": "33a84d3532a7fb1e74e0978848c21b109cd8769a08d6e9d7c7b7350c443ebc27"
+    },
+    {
+      "file": "graphics-display-200-percent.png",
+      "bytes": 40179,
+      "sha256": "356726b53e56f08fa5ec57d996ac8620ee2424ab4c56333a984b223b0150436a"
+    },
+    {
+      "file": "graphics-performance.png",
+      "bytes": 180430,
+      "sha256": "92008522d347984d56c0ec748593c3872342c4533a64fd573fc0577036be126f"
+    },
+    {
+      "file": "graphics-render-playtest.mp4",
+      "bytes": 274063,
+      "sha256": "0789e45a8af34adfc53b43333590437882504b2950d38da9d79d9441201b9451"
+    },
+    {
+      "file": "graphics-small.png",
+      "bytes": 14040,
+      "sha256": "bcb816ef070c7c8870a3b6dc77df4e8448b7de35d4fbba41f7969937951f3c5e"
+    }
+  ],
+  "recoveryBase": "a7436345bfe20551935c4681331981619048b01a",
+  "recoveryNotes": "Working conflict markers resolved; controller must stage and continue. Shared legacy/Graphics preference precedence and migration need final integration checks."
+}

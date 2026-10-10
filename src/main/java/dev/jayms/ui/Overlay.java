@@ -9,6 +9,8 @@ import java.nio.*;
 
 /** Small core-profile UI renderer for menus, HUD, and projected holographic labels. */
 public final class Overlay implements AutoCloseable {
+    private float coordinateScale=1;
+    public void coordinateScale(float scale){if(!Float.isFinite(scale)||scale<=0)throw new IllegalArgumentException("UI scale");coordinateScale=scale;}
     private final int program, vao, vbo;
     private static final int[] CORNERS = {0, 1, 2, 0, 2, 3};
     private final ByteBuffer quads = MemoryUtil.memAlloc(128 * 1024);
@@ -89,7 +91,7 @@ public final class Overlay implements AutoCloseable {
     }
 
     private void vertex(float x, float y, float r, float g, float b, float alpha) {
-        vertices.put(x).put(y).put(r).put(g).put(b).put(alpha);
+        vertices.put(x*coordinateScale).put(y*coordinateScale).put(r).put(g).put(b).put(alpha);
     }
 
     public void rectangle(

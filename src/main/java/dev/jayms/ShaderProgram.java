@@ -11,6 +11,8 @@ import java.nio.FloatBuffer;
 public final class ShaderProgram implements AutoCloseable {
 
     private final int programId;
+    private final java.util.Map<String,Integer> locations=new java.util.HashMap<>();
+    private int location(String name){return locations.computeIfAbsent(name,n->glGetUniformLocation(programId,n));}
 
     public ShaderProgram(String vertexPath, String fragmentPath) {
         String vertexSource = readFile(vertexPath);
@@ -59,7 +61,7 @@ public final class ShaderProgram implements AutoCloseable {
     }
 
     public void setMatrix4(String name, Matrix4f matrix) {
-        int location = glGetUniformLocation(programId, name);
+        int location = location(name);
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
             FloatBuffer buffer = stack.mallocFloat(16);
@@ -70,25 +72,25 @@ public final class ShaderProgram implements AutoCloseable {
     }
 
     public void setInt(String name, int value) {
-        glUniform1i(glGetUniformLocation(programId, name), value);
+        glUniform1i(location(name), value);
     }
 
     public void setMatrix3(String name, org.joml.Matrix3f matrix) {
         try(MemoryStack stack=MemoryStack.stackPush()) {
-            glUniformMatrix3fv(glGetUniformLocation(programId,name),false,matrix.get(stack.mallocFloat(9)));
+            glUniformMatrix3fv(location(name),false,matrix.get(stack.mallocFloat(9)));
         }
     }
 
     public void setFloat(String name, float value) {
-        glUniform1f(glGetUniformLocation(programId, name), value);
+        glUniform1f(location(name), value);
     }
 
     public void setInts(String name, int[] values) {
-        glUniform1iv(glGetUniformLocation(programId, name), values);
+        glUniform1iv(location(name), values);
     }
 
     public void setVector3(String name, float x, float y, float z) {
-        int location = glGetUniformLocation(programId, name);
+        int location = location(name);
 
         glUniform3f(location, x, y, z);
     }

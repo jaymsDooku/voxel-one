@@ -6,6 +6,7 @@ flat in vec3 vSurface;
 out vec4 fragColor;
 uniform float uDaylight;
 uniform int uVertexColor,uFog,uLightingEnabled,uShadowEnabled,uHeld;
+uniform int uShadowCascades,uVoxelAO,uVoxelGI,uContactTransport,uLocalReflection;
 uniform vec3 uColor,uLightDirection,uCameraPosition;
 uniform float uModelEmission,uTransparency,uOutputExposure;
 uniform int uOutputTone;
@@ -36,13 +37,13 @@ float cascadeShadow(int layer,vec3 q,float bias){
 }
 float shadowAt(vec3 worldPoint,vec3 N,vec3 L){
     if(uShadowEnabled==0||uHeld==1)return 1.;
-    for(int layer=0;layer<3;layer++){
+    for(int layer=0;layer<uShadowCascades;layer++){
         vec4 p=uShadowMatrix[layer]*vec4(worldPoint,1);vec3 q=p.xyz/p.w*.5+.5;
         if(any(lessThan(q,vec3(.015)))||any(greaterThan(q,vec3(.985))))continue;
         float bias=max(.00012*(1.-dot(N,L)),.00004);
         float result=cascadeShadow(layer,q,bias);
         float edge=max(abs(q.x-.5),abs(q.y-.5))*2.;
-        if(layer<2&&edge>.8){vec4 p2=uShadowMatrix[layer+1]*vec4(worldPoint,1);vec3 q2=p2.xyz/p2.w*.5+.5;
+        if(layer<uShadowCascades-1&&edge>.8){vec4 p2=uShadowMatrix[layer+1]*vec4(worldPoint,1);vec3 q2=p2.xyz/p2.w*.5+.5;
             result=mix(result,cascadeShadow(layer+1,q2,bias),smoothstep(.8,.97,edge));}
         return result;
     }
@@ -147,20 +148,21 @@ void main(){
     }
     float sdfVisibility=1.;
     if(uTransportReady==1&&uHeld==0&&volumeInside(point)){
-        float ao=0.;for(int i=1;i<=4;i++){float step=float(i)*.65;ao+=max(0.,step-sdf(point+N*step))/step*.09;}
+        float ao=0.;if(uVoxelAO==1)for(int i=1;i<=4;i++){float step=float(i)*.65;ao+=max(0.,step-sdf(point+N*step))/step*.09;}
         indirect*=1.-clamp(ao,0.,.5);
+        if(uVoxelGI==1){
         vec3 tangent=normalize(abs(N.y)<.9?cross(N,vec3(0,1,0)):cross(N,vec3(1,0,0)));
         vec3 bitangent=cross(N,tangent);
         vec3 cones=cone(point+N*.6,N)+cone(point+N*.6,normalize(N+tangent))+cone(point+N*.6,normalize(N-tangent))
             +cone(point+N*.6,normalize(N+bitangent))+cone(point+N*.6,normalize(N-bitangent));
-        indirect+=cones*.025+probeIrradiance(point,N)*.08;
-        sdfVisibility=distanceShadow(point+N*.6,L);
+        indirect+=cones*.025+(uLocalReflection==1?probeIrradiance(point,N)*.08:vec3(0));}
+        if(uContactTransport==1)sdfVisibility=distanceShadow(point+N*.6,L);
     }
     vec3 V=uHeld==1?normalize(-vWorldPosition):normalize(uCameraPosition-vWorldPosition);
     float rough=uVertexColor==1?vSurface.y:.85;
     vec3 F=vec3(.04)+(1.-vec3(.04))*pow(1.-max(dot(N,V),0.),5.);
-    vec3 reflection=textureLod(uEnvironment,reflect(-V,N),rough*7.).rgb*(uPlanetLighting==1&&uHeld==0?skyVisibility:1.);
-    if(uProbeReady==1&&uHeld==0&&all(lessThan(abs(vWorldPosition-uProbeCenter),vec3(32)))){
+    vec3 reflection=uLocalReflection==1?textureLod(uEnvironment,reflect(-V,N),rough*7.).rgb*(uPlanetLighting==1&&uHeld==0?skyVisibility:1.):vec3(0);
+    if(uLocalReflection==1&&uProbeReady==1&&uHeld==0&&all(lessThan(abs(vWorldPosition-uProbeCenter),vec3(32)))){
         vec3 direction=reflect(-V,N),safe=sign(direction)*max(abs(direction),vec3(.0001));
         vec3 bounds=uProbeCenter+sign(direction)*32.;vec3 times=(bounds-vWorldPosition)/safe;
         float t=min(times.x,min(times.y,times.z));vec3 corrected=vWorldPosition+direction*t-uProbeCenter;

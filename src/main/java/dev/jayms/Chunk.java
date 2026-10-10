@@ -15,7 +15,8 @@ public class Chunk implements AutoCloseable {
     private final dev.jayms.net.model.SparseVoxelOctree blocks =
             new dev.jayms.net.model.SparseVoxelOctree(256);
     private boolean dirty = true;
-    private long geometryVersion;
+    private long geometryVersion, meshRevision;
+    public long meshRevision(){return meshRevision;}
     /** Geometry changes only; mesh/neighbor invalidation does not rebuild sky coverage. */
     public long geometryVersion(){return geometryVersion;}
 
@@ -39,7 +40,8 @@ public class Chunk implements AutoCloseable {
     }
 
     public void markDirty() {
-        dirty = true;
+        meshRevision++;
+        dirty = true;if(world!=null)world.meshDirty(position,this);
     }
 
     public boolean dirty() {
@@ -79,7 +81,7 @@ public class Chunk implements AutoCloseable {
                 dev.jayms.net.WorldVoxels.encode(color));
         if (dev.jayms.net.Blocks.isModel(color)) models.put(i, color);
         else models.remove(i);
-        dirty = true;
+        markDirty();
     }
 
     public dev.jayms.net.model.SparseVoxelOctree cell(int x, int y, int z) {
@@ -133,7 +135,7 @@ public class Chunk implements AutoCloseable {
                 fz + side,
                 dev.jayms.net.WorldVoxels.encode(edit));
         if (edit.depth() == 0) models.remove(index(x, y, z));
-        dirty = true;
+        markDirty();
     }
 
     public int index(int x, int y, int z) {
@@ -156,15 +158,20 @@ public class Chunk implements AutoCloseable {
     }
 
     public void generateMesh() {
-        if (mesh != null) mesh.close();
-        mesh = null; waterHeight = Float.NaN;
-        if (isEmpty()) return;
-        MeshData data = MeshDataGenerator.generate(this);
-        waterHeight = Float.NaN;
-        if (data.surface()!=null)for(int i=0;i<data.vertices().length;i+=9)
+        MeshData data=isEmpty()?null:MeshDataGenerator.generate(this);
+        Mesh replacement=data==null?null:new Mesh(data);
+        installMesh(replacement,data,meshRevision);
+    }
+
+    public boolean installMesh(Mesh replacement,MeshData data,long revision) {
+        if(meshRevision!=revision){if(replacement!=null)replacement.close();return false;}
+        Mesh old=mesh;mesh=replacement;waterHeight=Float.NaN;
+        if(data!=null&&data.surface()!=null)for(int i=0;i<data.vertices().length;i+=9)
             if(data.surface()[i/3+2]==-2&&data.vertices()[i+4]>.5f)
                 waterHeight=Float.isNaN(waterHeight)?data.vertices()[i+1]:Math.max(waterHeight,data.vertices()[i+1]);
-        mesh = new Mesh(data);
+        dirty=false;if(world!=null)world.meshClean(position,this);
+        if(old!=null)old.close();
+        return true;
     }
 
     @Override

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Native exact-source build and normal-control playtests, including the opt-in planetary atmosphere.
+# Native exact-source build and normal-control playtests, including local graphics drafts, persistence and the opt-in planetary atmosphere.
 set -euo pipefail
 udid="${1:?simulator UDID required}"
 evidence="${2:?absolute evidence directory required}"

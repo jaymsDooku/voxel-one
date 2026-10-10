@@ -1,7 +1,6 @@
 package dev.jayms;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 public final class MeshDataGenerator {
 
@@ -10,9 +9,11 @@ public final class MeshDataGenerator {
         2, 3, 0
     };
 
+    private static final class Scratch {final FloatBuilder vertices=new FloatBuilder();final IntBuilder indices=new IntBuilder();final int[] mask=new int[256];}
+    private static final ThreadLocal<Scratch> SCRATCH=ThreadLocal.withInitial(Scratch::new);
     public static MeshData generate(Chunk chunk) {
-        List<Float> vertices = new ArrayList<>();
-        List<Integer> indices = new ArrayList<>();
+        Scratch scratch=SCRATCH.get();FloatBuilder vertices=scratch.vertices;IntBuilder indices=scratch.indices;
+        vertices.reset();indices.reset();
 
         int vertexCount = 0;
         // Fractional geometry keeps its exact sparse surface. Full cells merge by raw value,
@@ -23,17 +24,19 @@ public final class MeshDataGenerator {
         for (Face face : Face.values()) {
             int axis = face.dx()!=0 ? 0 : face.dy()!=0 ? 1 : 2;
             int u = (axis+1)%3, w = (axis+2)%3;
+            int[] mask = scratch.mask;
             for (int slice=0; slice<16; slice++) {
-                int[] mask = new int[256];
+                if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
+                Arrays.fill(mask,0);
                 for (int j=0;j<16;j++) for (int i=0;i<16;i++) {
-                    int[] p = new int[3]; p[axis]=slice; p[u]=i; p[w]=j;
-                    int type=chunk.getBlock(p[0],p[1],p[2]);
+                    int px=axis==0?slice:u==0?i:j,py=axis==1?slice:u==1?i:j,pz=axis==2?slice:u==2?i:j;
+                    int type=chunk.getBlock(px,py,pz);
                     if (type==0 || type==dev.jayms.net.Blocks.PARTIAL || dev.jayms.net.Blocks.isModel(type)) continue;
-                    int n=chunk.neighbor(p[0]+face.dx(),p[1]+face.dy(),p[2]+face.dz());
+                    int n=chunk.neighbor(px+face.dx(),py+face.dy(),pz+face.dz());
                     // Water needs the opaque floor and walls behind its refracted surface.
                     boolean submerged = n==dev.jayms.net.Blocks.WATER && type!=dev.jayms.net.Blocks.WATER;
                     if (n!=0 && n!=dev.jayms.net.Blocks.PARTIAL && !dev.jayms.net.Blocks.isModel(n) && !submerged) continue;
-                    mask[i+j*16]=chunk.value(p[0]*16,p[1]*16,p[2]*16);
+                    mask[i+j*16]=chunk.value(px*16,py*16,pz*16);
                 }
                 for (int j=0;j<16;j++) for (int i=0;i<16;) {
                     int raw=mask[i+j*16]; if(raw==0) { i++; continue; }
@@ -95,8 +98,8 @@ public final class MeshDataGenerator {
     }
 
     private static void addFace(
-            List<Float> vertices,
-            List<Integer> indices,
+            FloatBuilder vertices,
+            IntBuilder indices,
             Face face,
             float blockX,
             float blockY,
@@ -107,8 +110,8 @@ public final class MeshDataGenerator {
     }
 
     private static void addFace(
-            List<Float> vertices,
-            List<Integer> indices,
+            FloatBuilder vertices,
+            IntBuilder indices,
             Face face,
             float blockX,
             float blockY,
@@ -141,8 +144,8 @@ public final class MeshDataGenerator {
     }
 
     private static int addPartial(
-            List<Float> vertices,
-            List<Integer> indices,
+            FloatBuilder vertices,
+            IntBuilder indices,
             Chunk chunk,
             int bx,
             int by,
@@ -171,23 +174,18 @@ public final class MeshDataGenerator {
         return count;
     }
 
-    private static float[] toFloatArray(List<Float> values) {
-        float[] result = new float[values.size()];
-
-        for (int i = 0; i < values.size(); i++) {
-            result[i] = values.get(i);
-        }
-
-        return result;
+    private static float[] toFloatArray(FloatBuilder values) {return values.array();}
+    private static int[] toIntArray(IntBuilder values) {return values.array();}
+    private static final class FloatBuilder {
+        private float[] data=new float[1024];private int count;
+        void reset(){count=0;if(data.length>262144)data=new float[1024];}
+        void add(float value){if(count==6_000_000)throw new IllegalStateException("Chunk mesh exceeds bounded vertex budget");if(count==data.length)data=Arrays.copyOf(data,Math.min(6_000_000,data.length*2));data[count++]=value;}
+        float[] array(){return Arrays.copyOf(data,count);}
     }
-
-    private static int[] toIntArray(List<Integer> values) {
-        int[] result = new int[values.size()];
-
-        for (int i = 0; i < values.size(); i++) {
-            result[i] = values.get(i);
-        }
-
-        return result;
+    private static final class IntBuilder {
+        private int[] data=new int[1024];private int count;
+        void reset(){count=0;if(data.length>262144)data=new int[1024];}
+        void add(int value){if(count==2_000_000)throw new IllegalStateException("Chunk mesh exceeds bounded index budget");if(count==data.length)data=Arrays.copyOf(data,Math.min(2_000_000,data.length*2));data[count++]=value;}
+        int[] array(){return Arrays.copyOf(data,count);}
     }
 }

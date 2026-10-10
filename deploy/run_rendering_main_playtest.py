@@ -17,6 +17,6 @@ command+=['-cp','target/voxel-one-1.0-SNAPSHOT-client.jar','deploy/RenderingMain
 with open('target/render-main-runtime-private.txt','w') as log:result=subprocess.run(command,env=env,stdout=log,stderr=log,timeout=300)
 print('Playtest: production Main; assigned X11; isolated synthetic home; exit',result.returncode)
 if result.returncode:
- for line in Path('target/render-main-runtime-private.txt').read_text().splitlines():
-  if line.startswith('Exception') or ('error:' in line and not line.startswith('ALSA')) or line.startswith('Caused by:'):print(line[:500])
+ failure=Path('target/rendering-main/failure.txt')
+ if failure.is_file():print(failure.read_text()[:500])
 raise SystemExit(result.returncode)

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-10T01:36:20+00:00",
+  "updatedAt": "2026-10-10T02:45:49+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,15 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "63643936666265622d343239332d346630652d616562312d366333356236366137626464",
+      "title": "Voxel world rendering performance and graphics settings",
+      "description": "Graphics profiles, safe apply/revert, bounded async mesh streaming and local performance capture; native subset awaits exact-source Mac validation.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Resolved four rebase conflict files, preserving Rendering/Graphics menus, model shadows and particle controls. Compile and 22 focused tests pass. Controller staging/continuation required before preference integration checks, final-head playtests and fresh media.",
+      "updatedAt": "2026-10-10T02:45:49+00:00"
+    },
     {
       "id": "66363430-7af3-4149-a83a-02c719487914",
       "title": "Voxel rendering settings",

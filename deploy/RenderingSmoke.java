@@ -157,6 +157,8 @@ public class RenderingSmoke {
                 var rendering = new RenderPipeline();
                 var world = new World();
                 var models = new VoxelModelRenderer(world.models())) {
+            require(Float.isNaN(rendering.gpuMillis()), "GPU time unavailable before first result");
+            require(Float.isNaN(rendering.shadowsGpuMillis()) && Float.isNaN(rendering.probesGpuMillis()), "Pass times unavailable before first result");
             rendering.settings.taa=false;rendering.settings.autoExposure=false;rendering.settings.exposure=1;
             Matrix4f projection = new Matrix4f().perspective(1.2f, 1.6f, .1f, 4096);
             Vector3f eye = new Vector3f(8, 80, 24);
@@ -309,6 +311,23 @@ public class RenderingSmoke {
             rendering.finish();
             glFinish();
             require(glGetError() == GL_NO_ERROR, "No GL errors, including resized targets");
+            // Synchronization is test-only. These values prove query wiring, not performance.
+            for(int i=0;i<8;i++) {
+                rendering.startFrame();
+                rendering.renderShadows(world,models,eye);
+                rendering.begin(WIDTH,HEIGHT,projection,view,eye,false,shader);
+                camera(shader,projection,view);drawWorld(world,shader,rendering);
+                rendering.finish();glFinish();
+            }
+            require(rendering.gpuSamples()>0 && Float.isFinite(rendering.gpuMillis()), "Frame query completed");
+            require(Float.isFinite(rendering.shadowsGpuMillis()) && rendering.shadowsGpuMillis()>=0, "Shadow timestamp query completed");
+            require(Float.isFinite(rendering.probesGpuMillis()) && rendering.probesGpuMillis()>=0, "Probe timestamp query completed");
+            require(glGetError()==GL_NO_ERROR, "No overlapping elapsed queries or timestamp errors");
+            ImageIO.write(capture(),"png",output.resolve("timing-gallery.png").toFile());
+            Files.writeString(output.resolve("timing-checks.txt"),
+                "Playtest: PASS. Synthetic fractional/LED gallery; cold timing is unavailable; shadow/probe/frame query results are finite after 8 complete frames; begin after shadows does not nest elapsed queries; GL errors=0. "
+                + "Frame EMA ms="+rendering.gpuMillis()+"; shadow last ms="+rendering.shadowsGpuMillis()+"; probe last ms="+rendering.probesGpuMillis()+"; samples="+rendering.gpuSamples()
+                + ". Test-only glFinish forces readiness; these are NOT baseline performance results.\n");
             String report =
                     "{\n"
                         + "  \"scope\": \"Real OpenGL engine integration checks on the VPS, not a"
