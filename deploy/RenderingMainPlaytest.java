@@ -49,6 +49,7 @@ public class RenderingMainPlaytest {
                 world.apply(new Protocol.Edit(5,74,4,Blocks.LED).withColor(0xff3040));world.apply(new Protocol.Edit(8,74,4,Blocks.LED).withColor(0x30ff90));world.apply(new Protocol.Edit(11,74,4,Blocks.LED).withColor(0x3050ff));
                 for(int z=10;z<=13;z++)world.apply(new Protocol.Edit(4,73,z,Blocks.BRICKS));
                 for(int x=5;x<=11;x++)for(int z=10;z<=13;z++)world.apply(new Protocol.Edit(x,73,z,Blocks.WATER));
+                world.apply(new Protocol.Edit(6,73,8,Blocks.FLOWER_POT));world.apply(new Protocol.Edit(10,73,8,Blocks.FLOWER_POT));
                 // Production scheduler builds the gallery off the render thread.
                 Player p=new Player(new Vector3f(8.5f,74.5f,14.5f),-90,-12,(dev.jayms.Camera)get("camera"));p.toggleFlight();set("player",p);set("isometric",false);capture.invoke(game,true);
                 changed=System.nanoTime();

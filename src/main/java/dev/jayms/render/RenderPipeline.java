@@ -247,7 +247,6 @@ public final class RenderPipeline implements AutoCloseable {
                 entry.getValue().getMesh().render();
             }
             models.render(world, f, shadow);
-            models.render(world, f, shadow);
         }
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         frameBudget.shadowsEnd();

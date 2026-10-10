@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-10T03:45:43+00:00",
+  "updatedAt": "2026-10-10T04:06:16+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -20,8 +20,8 @@
       "description": "Graphics profiles, safe apply/revert, bounded async mesh streaming and local performance capture; native subset awaits exact-source Mac validation.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Current Mac head b22e600 passed nine native tests; actual Graphics sheet inspected and receipt verified. Desktop-tested source hashes match. Fresh desktop/native media and validation reports are saved for controller publication and independent review. Windows reference performance and physical-device evidence remain follow-ups.",
-      "updatedAt": "2026-10-10T03:45:43+00:00"
+      "note": "Review fixes validated: one model draw per cascade and zero stationary draws. Sustained real streaming/edit soak passed 64 cycles, 130 seconds, 39873 ticks, 2584 unloads, 1216 edits and 128 GPU border comparisons; jobs peak 4 and geometry disposal returns to baseline. Main/F10 with models passed 43 frames. Fresh reports/media await controller publication and independent review.",
+      "updatedAt": "2026-10-10T04:06:16+00:00"
     },
     {
       "id": "66363430-7af3-4149-a83a-02c719487914",

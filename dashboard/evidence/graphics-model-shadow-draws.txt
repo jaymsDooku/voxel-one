@@ -1,0 +1,4 @@
+Playtest: model shadow submission, two instances of one model type.
+1 cascades: 1 draws, 3080 triangles
+2 cascades: 2 draws, 6160 triangles
+3 cascades: 3 draws, 9240 triangles

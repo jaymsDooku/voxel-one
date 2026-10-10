@@ -1,20 +1,24 @@
 {
-  "status": "desktop-tested source matches committed Mac-tested head by file hashes",
+  "status": "unpublished review fixes; current desktop package and test source binding",
   "reviewBase": "a7436345bfe20551935c4681331981619048b01a",
-  "committedHead": "b22e6001fc32f9b9bbd6f942070bd9f3a84856e1",
-  "packageSha256": "21835daf06f8cdc5f90c402f7845573df71e790aa2910c6ad9ebf32e1be7f77c",
-  "revisionNote": "Local package revision unknown; hashes bind these tests to unpublished source. Controller assigns the next committed head.",
+  "committedHead": "ec587684494585f479f1db5bfe2bcde1c7b6bf6e",
+  "packageSha256": "24a1a25331ac4fa15239cf1bb654abb6f533c249692a760819b5e059d89e3b41",
+  "nativeTestedHead": "b22e6001fc32f9b9bbd6f942070bd9f3a84856e1",
+  "nativeNote": "No ios/ source changes since the observed nine-test Mac run; this is not a new Mac run or physical-device evidence.",
+  "revisionNote": "Local package revision unknown; hashes identify unpublished renderer fix. Controller assigns final committed head.",
   "files": {
     "deploy/GraphicsMainPlaytest.java": "fbb48117f95d955c538f64de3c994bcb927cf288412d8e6a59f8a8fad67a0648",
     "deploy/RenderingBenchmark.java": "e7a0b9bc67929f61dcccc9ecc9a638d3e37abd027b46b202d4d06951717bad31",
-    "deploy/RenderingMainPlaytest.java": "49d2da7743ff50268eef655c91caeb8315327a8eadcba86bd8e5312aafef7617",
-    "deploy/RenderingSmoke.java": "363aa1d1de21f1c2377c7d6ebfb960868fd553e399207b2268707873fd9791fd",
+    "deploy/RenderingMainPlaytest.java": "42d4d443f69f5ab4aafe56a7b93948524dd3f0bef9b17f9af7c8ec2a1114be15",
+    "deploy/RenderingSmoke.java": "84f5d5dbfce2c4d84dbba67fe0f812c92708887f0b1b4a6c033587c09dbf86e0",
+    "deploy/StreamingSoak.java": "ae6647f38f3a9e72c1d72cdf359dea09f796a61f9b533a20e382a0a1ae277216",
     "deploy/compare_performance.py": "6bd5eb3205b59562a6f1da479c940fc27a8ad14e1250f66d8c39ddedd86954b3",
     "deploy/run_graphics_playtest.py": "9652e872009194120c2430e81f882443aa704b914a837f28554b3c358258081d",
     "deploy/run_rendering_benchmark.py": "f7ca2a36dd40f059cd25c087995722d87950203b896f1193306d7f952aebb0dd",
     "deploy/run_rendering_main_playtest.py": "88c3422407f3a6e055fccd353d901dab9655283ba5248ca5b328d7615bc1e34f",
     "deploy/run_rendering_playtest.py": "c507b3d21c9021d34c64d9a49d12064c1cec504e4239fdbbf03d9b9f2e1ff148",
-    "docs/graphics.md": "879cf744ddae76e4ecd8e02df22c3f65929c76ea0449a687a0a3d8f36d60f978",
+    "deploy/run_streaming_soak.py": "f47cdcb281ffc04dab7032a217c13d335491dd9ce45c45b8c6da662e17c38182",
+    "docs/graphics.md": "0724f33e639749532c35474988b75cefee0d2229e875180e66a4dd6d1a9380b7",
     "ios/VoxelOne/GameController.swift": "c322874ca8fb0fc067aab497bba64079d7dc1bfd76ded48b08a402b5088f67dd",
     "ios/VoxelOne/Graphics.swift": "5deb7c53df9fa9196306d6e23cf8a5c37e36d221376a47d09dc4327818aa27c3",
     "ios/VoxelOne/Renderer.swift": "eba7db3bcef4c9721ef309240405542ee0fa8fe233b3262763dfcc2db7d0c63e",
@@ -44,7 +48,7 @@
     "src/main/java/dev/jayms/render/GraphicsTransaction.java": "d5d2f2c1de68594ddd8c9b3a416babf1c07c07004f8282bf2d0c6a8efc1c2624",
     "src/main/java/dev/jayms/render/MaterialTextures.java": "73f79b9b26d238b2be88be67971f5eb938a32c51df4ad7b9d6d12e3a409513fa",
     "src/main/java/dev/jayms/render/PerformanceRecorder.java": "a4c4e7f9300bfe0e93ca5a0bd580bc5eb73f854aeed7f00acaec2b9e63f3b30c",
-    "src/main/java/dev/jayms/render/RenderPipeline.java": "a9ee1c468daba2b1683628a6679c74cf5449dee22730a7f12b4a10b8bec2c1ae",
+    "src/main/java/dev/jayms/render/RenderPipeline.java": "4c3c2ce8db751cf0b9ca1e221f77119c62b6404cc7fea5d1b159a6ad2b18a38f",
     "src/main/java/dev/jayms/render/RenderSettings.java": "07b3524a9521750fb8078db401f9009790b083e8f282b0b8f76bc7dfa3cbe6d7",
     "src/main/java/dev/jayms/render/TemporalPost.java": "244519566be4602b55f75b48cae3394a0dd23a9525084df481699e4871024020",
     "src/main/java/dev/jayms/render/VoxelTransport.java": "a716a29703084f95ce39d74590505efa9b7bb2079ced5b1ed31eebf682bb664d",
@@ -63,6 +67,5 @@
     "src/test/java/dev/jayms/render/GraphicsProfileTest.java": "24b4659f984c78116d5dc5ececc1e38618b0e6d933d6b227dd5d100b2a0c7c93",
     "src/test/java/dev/jayms/render/GraphicsTransactionTest.java": "26beb92fd77de92864402ff9f8f5636d32a3a4c08dfc607a6d9537a286f4932e",
     "src/test/java/dev/jayms/render/PerformanceRecorderTest.java": "7e4474fc7c2b6e5bf17ba8dd80e4917c0043f9db3b94b178ce41fc5d4211ddbe"
-  },
-  "nativeTestedHead": "b22e6001fc32f9b9bbd6f942070bd9f3a84856e1"
+  }
 }

@@ -139,6 +139,24 @@ public class RenderingSmoke {
         probe.invalidate();for(int i=0;i<6;i++)rendering.renderShadows(world,models,eye);
     }
 
+    static void modelShadowDrawChecks(Path output)throws Exception {
+        try(var w=new World();var models=new VoxelModelRenderer(w.models());var r=new RenderPipeline()) {
+            w.addChunk(new ChunkPos(0,0,0),new Chunk());
+            w.apply(new Protocol.Edit(2,1,2,Blocks.FLOWER_POT));
+            w.apply(new Protocol.Edit(4,1,2,Blocks.FLOWER_POT));
+            r.settings.reflections=false;r.settings.shadows=true;
+            StringBuilder report=new StringBuilder("Playtest: model shadow submission, two instances of one model type.\n");
+            for(int cascades=1;cascades<=3;cascades++) {
+                r.settings.shadowCascades=cascades;Mesh.beginFrame();
+                r.renderShadows(w,models,new Vector3f(8,8,8));
+                require(Mesh.drawCalls()==cascades,"Exactly one model group draw per cascade: "+cascades+" observed "+Mesh.drawCalls());
+                report.append(cascades+" cascades: "+Mesh.drawCalls()+" draws, "+Mesh.triangles()+" triangles\n");
+                Mesh.beginFrame();r.renderShadows(w,models,new Vector3f(8,8,8));
+                require(Mesh.drawCalls()==0,"Stationary shadow cache submits no duplicate draws");clean("model shadow draw count");
+            }
+            Files.writeString(output.resolve("model-shadow-draw-checks.txt"),report.toString());
+        }
+    }
     public static void main(String[] args) throws Exception {
         if (args.length != 1)
             throw new IllegalArgumentException("Provide an evidence output directory");
@@ -153,6 +171,7 @@ public class RenderingSmoke {
         glfwMakeContextCurrent(window);
         GL.createCapabilities();
         String driver = glGetString(GL_RENDERER);
+        modelShadowDrawChecks(output);
         try (var shader = new ShaderProgram("shaders/voxel.vert", "shaders/voxel.frag");
                 var rendering = new RenderPipeline();
                 var world = new World();
