@@ -21,6 +21,8 @@ public final class ScreenRecorder implements AutoCloseable {
         this.directory = directory;
     }
 
+    public boolean active(){return active;}
+
     public void toggle(int sourceWidth, int sourceHeight) {
         if (active) {
             active = false;

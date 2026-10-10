@@ -14,9 +14,4 @@ command+=['-cp','target/voxel-one-1.0-SNAPSHOT-client.jar','deploy/RenderingSmok
 with open('target/render-native-private.txt','w') as log:
  result=subprocess.run(command,env=env,stdout=log,stderr=log,timeout=240)
 print('Playtest: renderer fixture; inherited role X11 display; isolated synthetic profile; exit',result.returncode)
-if result.returncode:
- # Emit only the exception and shader compiler diagnostics, never the whole runtime log.
- lines=Path('target/render-native-private.txt').read_text().splitlines()
- for line in lines:
-  if line.startswith('Exception') or 'error:' in line or line.startswith('java.lang.'):print(line[:500])
 raise SystemExit(result.returncode)

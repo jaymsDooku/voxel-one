@@ -82,6 +82,12 @@ public final class MaterialTextures implements AutoCloseable {
             glTexParameterf(GL_TEXTURE_2D_ARRAY, 0x84FE, Math.min(8, glGetFloat(0x84FF)));
     }
 
+    public void configure(boolean pixel,boolean mipmaps,float anisotropy){
+        glBindTexture(GL_TEXTURE_2D_ARRAY,id);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_MIN_FILTER,mipmaps?(pixel?GL_NEAREST_MIPMAP_NEAREST:GL_LINEAR_MIPMAP_LINEAR):(pixel?GL_NEAREST:GL_LINEAR));
+        glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_MAG_FILTER,pixel?GL_NEAREST:GL_LINEAR);
+        if(GL.getCapabilities().GL_EXT_texture_filter_anisotropic)glTexParameterf(GL_TEXTURE_2D_ARRAY,0x84FE,Math.max(1,Math.min(anisotropy,glGetFloat(0x84FF))));
+    }
     @Override
     public void close() {
         glDeleteTextures(id);

@@ -10,6 +10,7 @@ import dev.jayms.net.city.*;
 import dev.jayms.net.model.*;
 import dev.jayms.player.*;
 import dev.jayms.ui.*;
+import dev.jayms.render.*;
 import dev.jayms.window.Window;
 
 import org.joml.FrustumIntersection;
@@ -31,6 +32,14 @@ public class Main {
     }
     private FrameObserver frameObserver;
     private Window window;
+    private GraphicsController graphics;
+    private final PerformanceRecorder performance=new PerformanceRecorder();
+    private final double[] performanceSample=new double[PerformanceRecorder.Metric.values().length];
+    private long updateNanos,streamNanos,renderNanos,overlayNanos,videoNanos;
+    private long previousAllocation=-1,previousGcCount,previousGcMillis;
+    private final java.util.List<java.lang.management.GarbageCollectorMXBean> gcBeans=java.lang.management.ManagementFactory.getGarbageCollectorMXBeans();
+    private boolean renderOnlyReplay;
+    private PerformanceRecorder.Route performanceRoute=PerformanceRecorder.Route.MANUAL;
     private final dev.jayms.recording.ScreenRecorder recorder =
             new dev.jayms.recording.ScreenRecorder(Controls.directory().resolve("recordings"));
     private MultiplayerClient network;
@@ -94,6 +103,7 @@ public class Main {
 
     private VoxelModelRenderer modelRenderer;
     private DistantTerrainRenderer distant;
+    private final DetailedMeshScheduler detailedMeshes=new DetailedMeshScheduler();
     private ModelEditor editor;
     private final EngineEditor engineEditor = new EngineEditor();
     private LightColorMenu lightColors;
@@ -311,8 +321,15 @@ public class Main {
 
     private void initScene() throws Exception {
         shader = new ShaderProgram("shaders/voxel.vert", "shaders/voxel.frag");
-        rendering = new dev.jayms.render.RenderPipeline();
-        menu.rendering = new dev.jayms.ui.RenderingMenu(rendering);
+        var loaded=GraphicsController.load(Controls.directory().resolve("graphics.properties"));
+        rendering = new dev.jayms.render.RenderPipeline(loaded.profile().effective(GraphicsController.capabilities()).profile());
+        graphics=new GraphicsController(window,rendering,loaded,Controls.directory().resolve("graphics.properties"),next->rendering=next);
+        graphics.initialize();
+        menu.rendering = new dev.jayms.ui.RenderingMenu(() -> rendering);
+        menu.rendering.sharedApply(graphics::applyLegacy);
+        menu.graphics=new GraphicsMenu(graphics,performance,this::togglePerformance,this::graphicsDiagnostics);
+        float[] scaleX={1},scaleY={1};glfwGetWindowContentScale(window.getHandle(),scaleX,scaleY);menu.graphics.density(Math.max(scaleX[0],scaleY[0]));
+        glfwSetWindowContentScaleCallback(window.getHandle(),(handle,x,y)->menu.graphics.density(Math.max(x,y)));
         overlay = new Overlay();
         camera = new Camera();
         playerModel = new PlayerModel();
@@ -452,6 +469,7 @@ public class Main {
         glfwSetKeyCallback(
                 window.getHandle(),
                 (handle, key, scancode, action, mods) -> {
+                    if(action==GLFW_PRESS&&key==GLFW_KEY_F9&&!menu.editing()&&!editor.open&&!lightColors.open&&!mayorDashboard.open){togglePerformance();return;}
                     if (action == GLFW_PRESS && recordInput(key)) return;
                     if (engineEditor.open) {
                         if (action == GLFW_PRESS) {
@@ -983,6 +1001,9 @@ public class Main {
     private void loop() throws Exception {
         double previous = glfwGetTime();
         while (!window.shouldClose()) {
+            long frameStart=System.nanoTime();
+            graphics.tick();
+            Mesh.beginFrame();
             if (frameObserver != null) frameObserver.beforeFrame(this);
             double now = glfwGetTime();
             double frameElapsed = now - previous;
@@ -1016,7 +1037,7 @@ public class Main {
                 network.respawn = null;
                 notice = "You respawned. Your inventory was kept.";
             }
-            if (local != null && !engineEditor.open && !(menu.open && menu.saves != null && menu.saves.open)) local.city.advance(Math.min(dt, .25));
+            if (local != null && !renderOnlyReplay && !engineEditor.open && !(menu.open && menu.saves != null && menu.saves.open)) local.city.advance(Math.min(dt, .25));
             if (local != null && !menu.open && !engineEditor.open) missiles.update(world,dt,this::missileImpact,edit -> { world.apply(edit); WorldVoxels.remember(local.edits,edit); });
             var horse = riding();
             player.mount(
@@ -1047,9 +1068,11 @@ public class Main {
                 streamX = overview.focusX();
                 streamZ = overview.focusZ();
             }
-            if (local != null && !mayorDashboard.open)
+            if (local != null && !renderOnlyReplay && !mayorDashboard.open)
                 local.city.population.focusNear(streamX, streamZ);
+            long streamingStart=System.nanoTime();
             world.stream(streamX, streamZ, 2);
+            streamNanos=System.nanoTime()-streamingStart;
             float forward =
                     captured
                             ? (controls.down(window.getHandle(), FORWARD) ? 1 : 0)
@@ -1133,14 +1156,19 @@ public class Main {
                     || framebufferWidth == 0 || framebufferHeight == 0);
             if (framebufferWidth > 0 && framebufferHeight > 0) {
                 renderCity = network == null ? local.city.frame() : network.city;
-                try { render(); renderOverlay(); }
+                updateNanos=System.nanoTime()-frameStart-streamNanos;
+                try {long stage=System.nanoTime();render();renderNanos=System.nanoTime()-stage;stage=System.nanoTime();renderOverlay();overlayNanos=System.nanoTime()-stage;}
                 finally { renderCity = null; }
                 if (frameObserver != null) frameObserver.afterFrame(this);
-                recorder.capture(framebufferWidth, framebufferHeight);
+                long videoStart=System.nanoTime();recorder.capture(framebufferWidth, framebufferHeight);videoNanos=System.nanoTime()-videoStart;
                 fpsFrames++;
             }
             window.swapBuffers();
+            int cap=graphics.transaction.effective().integer(GraphicsProfile.Key.FRAME_CAP);
+            if(cap>0){long wait=1_000_000_000L/cap-(System.nanoTime()-frameStart);if(wait>0)java.util.concurrent.locks.LockSupport.parkNanos(wait);}
             window.pollEvents();
+            double millis=(System.nanoTime()-frameStart)/1e6;menu.graphics.frame((float)millis);
+            if(performance.active())recordPerformance(millis);
         }
     }
 
@@ -1153,6 +1181,8 @@ public class Main {
         var location = player.position();
         if (isometric && city().config().city() && overview.focused())
             location.set(overview.focusX(), location.y, overview.focusZ());
+        rendering.startFrame();
+        distant.settings(graphics.transaction.effective().integer(GraphicsProfile.Key.HORIZON),graphics.transaction.effective().number(GraphicsProfile.Key.LOD));
         distant.update(world, location.x, location.z);
         if (isometric)
             projection.set(
@@ -1180,25 +1210,9 @@ public class Main {
                 "uCameraPosition", camera.position().x, camera.position().y, camera.position().z);
         // Build complete nearby columns first, including their offscreen chunks, before replacing
         // the background approximation. Air chunks consume neither GPU buffers nor mesh budget.
-        var chunks = new ArrayList<>(world.getLoadedChunks().entrySet());
-        chunks.sort(
-                Comparator.comparingDouble(
-                        e -> {
-                            float dx = e.getKey().chunkX() * 16 + 8 - location.x;
-                            float dz = e.getKey().chunkZ() * 16 + 8 - location.z;
-                            return dx * dx + dz * dz;
-                        }));
-        int meshBudget = 3;
-        for (var entry : chunks) {
-            Chunk c = entry.getValue();
-            if (!c.dirty()) continue;
-            if (c.isEmpty()) {
-                c.checkMesh();
-                continue;
-            }
-            c.checkMesh();
-            if (--meshBudget == 0) break;
-        }
+        int detailBlocks=graphics.transaction.effective().integer(GraphicsProfile.Key.DETAIL);
+        int passBlocks=Math.max(detailBlocks,Math.max(rendering.settings.shadows?rendering.settings.shadowDistance:0,rendering.settings.reflections?112:0));
+        detailedMeshes.update(world,location.x,location.z,frustum,detailBlocks,passBlocks,2_000_000L,2*1024*1024);
         rendering.time(
                 city().config(),
                 city().elapsed()
@@ -1215,7 +1229,7 @@ public class Main {
                 (isometric ? overview.camera() : camera).position(),
                 isometric,
                 shader);
-        var detailed = world.renderedColumns();
+        var detailed=world.renderedColumns(location.x,location.z,graphics.transaction.effective().integer(GraphicsProfile.Key.DETAIL));
         rendering.distant(distant, frustum, detailed, shader);
         for (var entry : world.getLoadedChunks().entrySet()) {
             ChunkPos p = entry.getKey();
@@ -1522,7 +1536,44 @@ public class Main {
         menu.render(overlay, framebufferWidth, framebufferHeight);
         lightColors.render(overlay, framebufferWidth, framebufferHeight);
         renderFps();
+        if(graphics.transaction.effective().on(GraphicsProfile.Key.DIAGNOSTICS)&&!menu.open){int y=52;for(String line:graphicsDiagnostics()){overlay.text(line,12,y,1.25f);y+=18;}}
         overlay.end();
+    }
+
+    private static String duration(float value){return Float.isFinite(value)?String.format(java.util.Locale.ROOT,"%.2f ms",value):"unavailable";}
+    private String[] graphicsDiagnostics(){return new String[]{
+        "CPU render "+String.format(java.util.Locale.ROOT,"%.2f ms",renderNanos/1e6)+" | GPU "+duration(rendering.gpuMillis()),
+        "Scene "+rendering.actualWidth()+"x"+rendering.actualHeight()+" | scale "+String.format(java.util.Locale.ROOT,"%.2f",rendering.settings.renderScale),
+        "Draws "+Mesh.drawCalls()+" | triangles "+Mesh.triangles(),
+        "Chunks "+world.getLoadedChunks().size()+" | visible "+rendering.visibleChunks+" | occluded "+rendering.occludedChunks,
+        "Mesh jobs "+detailedMeshes.queued()+" | waiting "+detailedMeshes.waiting()+" | oldest "+detailedMeshes.oldestMillis()+" ms",
+        "Heap "+((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory())/1048576)+" MB | geometry/targets ~"+((Mesh.estimatedResidentBytes()+rendering.estimatedTargetBytes())/1048576)+" MB (estimated)",
+        performance.status(),detailedMeshes.error};}
+    private void togglePerformance(){
+        try{if(performance.active()){performance.stop();return;}
+            String revision="unknown";try(var in=Main.class.getResourceAsStream("/build-info.properties")){if(in!=null){var p=new java.util.Properties();p.load(in);String candidate=p.getProperty("revision","");if(candidate.matches("[0-9a-f]{40}"))revision=candidate;}}
+            var metadata=new PerformanceRecorder.Metadata(System.getProperty("os.name"),System.getProperty("os.arch"),glGetString(GL_RENDERER),glGetString(GL_VENDOR),glGetString(GL_VERSION),System.getProperty("java.version"),revision,Runtime.getRuntime().availableProcessors(),Runtime.getRuntime().maxMemory(),framebufferWidth,framebufferHeight,graphics.transaction.effective(),performanceRoute,"MANUAL");
+            performance.start(Controls.directory().resolve("performance"),metadata,120);previousAllocation=-1;previousGcCount=gcCount();previousGcMillis=gcMillis();
+        }catch(Exception e){notice="Could not start performance recording. Wait for export and try again.";}
+    }
+    private long gcCount(){long value=0;for(var bean:gcBeans)value+=Math.max(0,bean.getCollectionCount());return value;}
+    private long gcMillis(){long value=0;for(var bean:gcBeans)value+=Math.max(0,bean.getCollectionTime());return value;}
+    private long allocation(){try{var bean=java.lang.management.ManagementFactory.getThreadMXBean();if(bean instanceof com.sun.management.ThreadMXBean extended&&extended.isThreadAllocatedMemorySupported()){if(!extended.isThreadAllocatedMemoryEnabled())extended.setThreadAllocatedMemoryEnabled(true);return extended.getThreadAllocatedBytes(Thread.currentThread().getId());}}catch(Exception ignored){}return -1;}
+    private void metric(PerformanceRecorder.Metric metric,double value){performanceSample[metric.ordinal()]=value;}
+    private void recordPerformance(double wallMillis){
+        java.util.Arrays.fill(performanceSample,Double.NaN);usingMetrics(wallMillis);
+        performance.sample(performanceSample);
+    }
+    private void usingMetrics(double wallMillis){
+        metric(PerformanceRecorder.Metric.FRAME_MS,wallMillis);metric(PerformanceRecorder.Metric.UPDATE_CPU_MS,updateNanos/1e6);metric(PerformanceRecorder.Metric.STREAM_CPU_MS,streamNanos/1e6);
+        metric(PerformanceRecorder.Metric.RENDER_CPU_MS,renderNanos/1e6);metric(PerformanceRecorder.Metric.OVERLAY_CPU_MS,overlayNanos/1e6);metric(PerformanceRecorder.Metric.VIDEO_CAPTURE_CPU_MS,videoNanos/1e6);
+        metric(PerformanceRecorder.Metric.SNAPSHOT_CPU_MS,detailedMeshes.snapshotNanos/1e6);metric(PerformanceRecorder.Metric.MESH_WORKER_MS,detailedMeshes.meshNanos/1e6);metric(PerformanceRecorder.Metric.UPLOAD_CPU_MS,detailedMeshes.uploadNanos/1e6);metric(PerformanceRecorder.Metric.UPLOAD_BYTES,detailedMeshes.uploadBytes);
+        metric(PerformanceRecorder.Metric.GPU_FRAME_EMA_MS,rendering.gpuMillis());metric(PerformanceRecorder.Metric.GPU_SHADOW_LAST_MS,rendering.shadowsGpuMillis());metric(PerformanceRecorder.Metric.GPU_PROBE_LAST_MS,rendering.probesGpuMillis());metric(PerformanceRecorder.Metric.GPU_TERRAIN_LAST_MS,rendering.terrainGpuMillis());metric(PerformanceRecorder.Metric.GPU_WATER_LAST_MS,rendering.waterGpuMillis());metric(PerformanceRecorder.Metric.GPU_ATMOSPHERE_LAST_MS,rendering.atmosphereGpuSamples()>0?rendering.atmosphereGpuLast():Double.NaN);metric(PerformanceRecorder.Metric.GPU_POST_LAST_MS,rendering.postGpuMillis());
+        metric(PerformanceRecorder.Metric.DRAWS,Mesh.drawCalls());metric(PerformanceRecorder.Metric.TRIANGLES,Mesh.triangles());metric(PerformanceRecorder.Metric.VISIBLE_CHUNKS,rendering.visibleChunks);metric(PerformanceRecorder.Metric.OCCLUDED_CHUNKS,rendering.occludedChunks);metric(PerformanceRecorder.Metric.LOADED_CHUNKS,world.getLoadedChunks().size());metric(PerformanceRecorder.Metric.MESH_JOBS,detailedMeshes.queued());metric(PerformanceRecorder.Metric.MESH_WAITING,detailedMeshes.waiting());metric(PerformanceRecorder.Metric.OLDEST_JOB_MS,detailedMeshes.oldestMillis());metric(PerformanceRecorder.Metric.DISTANT_TILES,distant.renderedTiles());
+        metric(PerformanceRecorder.Metric.HEAP_USED_BYTES,Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory());metric(PerformanceRecorder.Metric.ESTIMATED_VRAM_BYTES,Mesh.estimatedResidentBytes()+rendering.estimatedTargetBytes());metric(PerformanceRecorder.Metric.RENDER_SCALE,rendering.settings.renderScale);
+        long allocated=allocation();metric(PerformanceRecorder.Metric.ALLOCATION_BYTES,allocated<0||previousAllocation<0?Double.NaN:allocated-previousAllocation);previousAllocation=allocated;
+        long count=gcCount(),millis=gcMillis();metric(PerformanceRecorder.Metric.GC_COUNT,count-previousGcCount);metric(PerformanceRecorder.Metric.GC_MS,millis-previousGcMillis);previousGcCount=count;previousGcMillis=millis;
+        metric(PerformanceRecorder.Metric.VIDEO_ACTIVE,recorder.active()?1:0);
     }
 
     private void renderFps() {
@@ -1532,6 +1583,7 @@ public class Main {
         overlay.rectangle(x, 12, width, 30, .015f, .035f, .065f, .85f);
         overlay.text(label, x + 10, 21, scale);
         String recording = recorder.status(Controls.keyName(controls.code(RECORD)));
+        if(performance.active())overlay.text(performance.status(),12,12,1.3f);
         if (!recording.isEmpty()) {
             float rw = overlay.textWidth(recording, 1.3f) + 20;
             float rx = (framebufferWidth - rw) / 2f;
@@ -1640,11 +1692,14 @@ public class Main {
 
     private void cleanup(boolean keepWindow) throws Exception {
         if (vehicleAudio != null) vehicleAudio.close();
+        performance.close();
+        if(graphics!=null)graphics.close();
         recorder.close();
         missiles.close();
         if (local != null) local.save();
         if (jeep != null) jeep.save(jeepSave());
         if (network != null) network.close();
+        detailedMeshes.close();
         if (distant != null) distant.close();
         if (world != null) world.close();
         if (playerModel != null) playerModel.close();

@@ -72,6 +72,7 @@ public final class TemporalPost implements AutoCloseable {
         current.identity().translation(jitterX(w), jitterY(h), 0).mul(projection).mul(view);
         if (camera.distanceSquared(previousCamera) > 64) valid = false;
     }
+    public void prepare(int w,int h){if(w!=width||h!=height)resize(w,h);}
     public void reset() { valid = false; }
     public float exposure() { return exposure; }
     public int historyFrames() { return frame; }
@@ -104,7 +105,8 @@ public final class TemporalPost implements AutoCloseable {
         effects.setInt("uGI", settings.screenGi ? 1 : 0);
         effects.setInt("uVolume", settings.volumetrics && !atmosphereComposed ? 1 : 0);
         draw();
-        glBindTexture(GL_TEXTURE_2D, color[target]); glGenerateMipmap(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, color[target]);
+        if(settings.autoExposure||settings.bloom)glGenerateMipmap(GL_TEXTURE_2D);
         long now = System.nanoTime();
         float dt = lastTime == 0 ? 1 / 60f : Math.min(1, (now - lastTime) / 1e9f);
         lastTime = now;
@@ -129,8 +131,14 @@ public final class TemporalPost implements AutoCloseable {
         glActiveTexture(GL_TEXTURE0 + unit); glBindTexture(GL_TEXTURE_2D, texture);
     }
     private void draw() { glBindVertexArray(vao); glDrawArrays(GL_TRIANGLES, 0, 3); glBindVertexArray(0); }
-    private void resize(int w, int h) {
-        delete(); width = w; height = h; valid = false;
+    private void resize(int w,int h){
+        int[] oldFbo=fbo.clone(),oldColor=color.clone(),oldDepth=depth.clone();int oldWidth=width,oldHeight=height;boolean oldValid=valid;
+        java.util.Arrays.fill(fbo,0);java.util.Arrays.fill(color,0);java.util.Arrays.fill(depth,0);
+        try{allocate(w,h);}catch(RuntimeException e){delete();System.arraycopy(oldFbo,0,fbo,0,2);System.arraycopy(oldColor,0,color,0,2);System.arraycopy(oldDepth,0,depth,0,2);width=oldWidth;height=oldHeight;valid=oldValid;throw e;}
+        for(int i=0;i<2;i++){glDeleteFramebuffers(oldFbo[i]);glDeleteTextures(oldColor[i]);glDeleteTextures(oldDepth[i]);}
+    }
+    private void allocate(int w, int h) {
+        width = w; height = h; valid = false;
         for (int i = 0; i < 2; i++) {
             fbo[i] = glGenFramebuffers(); glBindFramebuffer(GL_FRAMEBUFFER, fbo[i]);
             color[i] = texture(GL_RGBA16F, GL_RGBA, GL_FLOAT);

@@ -15,6 +15,8 @@ public final class WaterRenderer implements AutoCloseable {
     private final ShaderProgram sky=new ShaderProgram("shaders/fullscreen.vert","shaders/probe-sky.frag");
     private final int fbo=glGenFramebuffers(),color=glGenTextures(),depth=glGenRenderbuffers(),vao=glGenVertexArrays();
     private int width,height;private float plane;private boolean found;
+    private boolean optics=true;
+    public void optics(boolean enabled){optics=enabled;}
     private final Matrix4f reflected=new Matrix4f();
     public boolean found(){return found;}
     public void capture(World world,VoxelModelRenderer models,Matrix4f projection,Matrix4f view,Vector3f eye,int w,int h,int environment,Vector3f sun,float ambient,float daylight){capture(world,models,projection,view,eye,w,h,environment,sun,ambient,daylight,null);}
@@ -26,7 +28,7 @@ public final class WaterRenderer implements AutoCloseable {
             ChunkPos p=entry.getKey();float d=new Vector3f(p.chunkX()*16+8,p.chunkY()*16+8,p.chunkZ()*16+8).distanceSquared(eye);
             if(d<nearest){nearest=d;plane=p.chunkY()*16+chunk.waterHeight();found=true;}
         }
-        if(!found||eye.y<plane)return;
+        if(!found||eye.y<plane||!optics)return;
         int rw=Math.max(1,w/2),rh=Math.max(1,h/2);
         glBindFramebuffer(GL_FRAMEBUFFER,fbo);
         if(rw!=width||rh!=height){
@@ -60,7 +62,7 @@ public final class WaterRenderer implements AutoCloseable {
     public void render(World world,Matrix4f projection,Matrix4f view,Vector3f eye,int scene,int sceneDepth,int environment,int w,int h,float jitterX,float jitterY,java.util.function.Consumer<ShaderProgram> lighting){
         if(!found)return;Matrix4f vp=new Matrix4f().translation(jitterX,jitterY,0).mul(projection).mul(view);FrustumIntersection frustum=new FrustumIntersection(vp);
         water.bind();water.setFloat("uJitterX",jitterX);water.setFloat("uJitterY",jitterY);water.setMatrix4("uProjection",projection);water.setMatrix4("uView",view);water.setMatrix4("uInverseVP",new Matrix4f(vp).invert());water.setMatrix4("uReflectionVP",reflected);
-        water.setFloat("uPlaneY",plane);water.setVector3("uCamera",eye.x,eye.y,eye.z);water.setFloat("uTime",(float)(System.nanoTime()/1e9%10000));water.setInt("uInstanced",0);water.setFloat("uWidth",w);water.setFloat("uHeight",h);water.setInt("uPlanarReady",eye.y>=plane?1:0);
+        water.setFloat("uPlaneY",plane);water.setVector3("uCamera",eye.x,eye.y,eye.z);water.setFloat("uTime",(float)(System.nanoTime()/1e9%10000));water.setInt("uInstanced",0);water.setFloat("uWidth",w);water.setFloat("uHeight",h);water.setInt("uPlanarReady",optics&&eye.y>=plane?1:0);water.setInt("uOptics",optics?1:0);
         if(lighting!=null)lighting.accept(water);else water.setInt("uPlanetLighting",0);
         glActiveTexture(GL_TEXTURE0);glBindTexture(GL_TEXTURE_CUBE_MAP,environment);water.setInt("uEnvironment",0);
         glActiveTexture(GL_TEXTURE1);glBindTexture(GL_TEXTURE_2D,scene);water.setInt("uScene",1);

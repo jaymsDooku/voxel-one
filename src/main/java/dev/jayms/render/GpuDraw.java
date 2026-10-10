@@ -9,7 +9,7 @@ import static org.lwjgl.opengl.GL43.*;
 public final class GpuDraw implements AutoCloseable {
     private int program, command;
     public GpuDraw() {
-        if (!GL.getCapabilities().OpenGL43 || Boolean.getBoolean("voxel.gl33")) return;
+        if (!Boolean.getBoolean("voxel.experimentalGpuDraw") || !GL.getCapabilities().OpenGL43 || Boolean.getBoolean("voxel.gl33")) return;
         String source="""
                 #version 430 core
                 layout(local_size_x=1) in;

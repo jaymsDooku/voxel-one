@@ -5,6 +5,7 @@ import simd
 /// Native SceneKit/Metal rendering. Meshes contain exposed faces, grouped in 8-block chunks.
 final class VoxelRenderer {
     let view=SCNView(); let scene=SCNScene(); let camera=SCNNode(); let terrain=SCNNode();let people=SCNNode();let markers=SCNNode();let zones=SCNNode()
+    private(set) var graphics=NativeGraphics.load()
     var planning=false;var focus=SCNVector3Zero;var distance:Float=38
     /// Local opt-in. Missing preference remains disabled until a device budget exists.
     var atmospherePreview:Bool {
@@ -14,6 +15,7 @@ final class VoxelRenderer {
     private var atmosphereKey:String?
     private let sunNode=SCNNode(),sunDisc=SCNNode(),ambientNode=SCNNode()
     private var skyDiffuse=SIMD3<Double>.zero
+    private var renderChunks:[(SCNNode,SIMD3<Float>)]=[]
     private var skyMaterials:[(SCNMaterial,Int,Double,Bool)]=[]
     private let faces:[(GridKey,SCNVector3,[SCNVector3])]=[
         (GridKey(1,0,0),SCNVector3(1,0,0),[SCNVector3(1,0,0),SCNVector3(1,1,0),SCNVector3(1,1,1),SCNVector3(1,0,1)]),
@@ -32,6 +34,17 @@ final class VoxelRenderer {
         let sun=sunNode;sun.light=SCNLight();sun.light?.type = .directional;sun.light?.intensity=950;sun.eulerAngles=SCNVector3(-0.7,-0.6,0);scene.rootNode.addChildNode(sun)
         sunDisc.isHidden=true;sunDisc.castsShadow=false;sunDisc.categoryBitMask=2;scene.rootNode.addChildNode(sunDisc)
         scene.fogStartDistance=65;scene.fogEndDistance=110;scene.fogColor=view.backgroundColor
+        applyGraphics(graphics)
+    }
+    func applyGraphics(_ requested:NativeGraphics) {
+        graphics=requested.validated();let p=graphics.effective()
+        view.preferredFramesPerSecond=p.frames
+        view.antialiasingMode=p.samples==4 ? .multisampling4X:p.samples==2 ? .multisampling2X:.none
+        camera.camera?.zFar=Double(p.detail);camera.camera?.wantsHDR=p.bloom
+        camera.camera?.bloomIntensity=p.bloom ? 0.35:0
+        atmospherePreview=p.atmosphere
+        if !p.atmosphere {scene.background.contents=nil;scene.lightingEnvironment.contents=nil;scene.fogStartDistance=65;scene.fogEndDistance=110;scene.fogColor=view.backgroundColor;sunNode.light?.color=UIColor.white;sunNode.light?.intensity=950;sunNode.eulerAngles=SCNVector3(-0.7,-0.6,0);sunDisc.isHidden=true;sunNode.light?.castsShadow=false;skyDiffuse = .zero}
+        atmosphereKey=nil
     }
     private struct MeshKey:Hashable {let chunk:GridKey;let colour:Int;let sky:Int;let emitter:Bool}
     private final class Mesh {var vertices:[SCNVector3]=[];var normals:[SCNVector3]=[];var colors:[Float]=[];var indices:[UInt32]=[]}
@@ -57,7 +70,7 @@ final class VoxelRenderer {
                 mesh.indices += [base,base+1,base+2,base,base+2,base+3];groups[group]=mesh
             }
         }
-        terrain.childNodes.forEach{$0.removeFromParentNode()}
+        terrain.childNodes.forEach{$0.removeFromParentNode()};renderChunks=[]
         for (key,mesh) in groups where !mesh.indices.isEmpty {
             let vertex=SCNGeometrySource(vertices:mesh.vertices),normal=SCNGeometrySource(normals:mesh.normals)
             let colorData=mesh.colors.withUnsafeBytes{Data($0)}
@@ -67,7 +80,7 @@ final class VoxelRenderer {
             let geometry=SCNGeometry(sources:[vertex,normal,color],elements:[element])
             let material=SCNMaterial();material.diffuse.contents=UIColor.white;material.lightingModel = .lambert;material.isDoubleSided=false
             if outdoor || key.emitter {skyMaterials.append((material,key.colour,Double(key.sky)/8,key.emitter));setSkyEmission(material,key.colour,Double(key.sky)/8,key.emitter)}
-            geometry.materials=[material];terrain.addChildNode(SCNNode(geometry:geometry))
+            geometry.materials=[material];let node=SCNNode(geometry:geometry);terrain.addChildNode(node);renderChunks.append((node,SIMD3<Float>(Float(key.chunk.x*8+4),Float(key.chunk.y*8+4),Float(key.chunk.z*8+4))))
         }
         zones.childNodes.forEach{$0.removeFromParentNode()}
         for zone in world.snapshot.city?.zonePolygons ?? [] {
@@ -101,6 +114,9 @@ final class VoxelRenderer {
         } else {
             camera.camera?.usesOrthographicProjection=false;camera.position=world.eye;camera.eulerAngles=SCNVector3(world.pitch,world.yaw,0)
         }
+        let detail=Float(graphics.detail)
+        let eye=SIMD3<Float>(camera.position.x,camera.position.y,camera.position.z)
+        for (node,center) in renderChunks {node.isHidden=simd_distance(center,eye)>detail+14}
         updateAtmosphere(world.snapshot)
     }
     private func setSkyEmission(_ material:SCNMaterial,_ colour:Int,_ visibility:Double,_ emitter:Bool){

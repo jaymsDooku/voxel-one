@@ -7,6 +7,17 @@ import java.util.*;
 
 public class World implements AutoCloseable {
     private final Map<ChunkPos, Chunk> loadedChunks = new HashMap<>();
+    private final Map<ChunkPos,Chunk> dirtyMeshes=new LinkedHashMap<>();
+    private final Map<ChunkPos,Set<ChunkPos>> columnMembers=new HashMap<>();
+    private final Set<ChunkPos> dirtyColumns=new HashSet<>(),completeColumns=new HashSet<>();
+    private Set<ChunkPos> visualColumns=Set.of();private long columnGeneration,visualGeneration=-1;
+    private int visualMinX,visualMaxX,visualMinZ,visualMaxZ;
+    private static ChunkPos column(ChunkPos p){return new ChunkPos(p.chunkX(),0,p.chunkZ());}
+    void meshDirty(ChunkPos p,Chunk c){if(loadedChunks.get(p)==c){dirtyMeshes.put(p,c);dirtyColumns.add(column(p));}}
+    void meshClean(ChunkPos p,Chunk c){if(loadedChunks.get(p)==c){dirtyMeshes.remove(p);dirtyColumns.add(column(p));}}
+    Map<ChunkPos,Chunk> dirtyMeshes(){return dirtyMeshes;}
+    private void updateColumns(){for(ChunkPos p:dirtyColumns){boolean complete=columnMembers.containsKey(p);for(ChunkPos member:columnMembers.getOrDefault(p,Set.of())){Chunk c=loadedChunks.get(member);if(!c.isEmpty()&&c.getMesh()==null){complete=false;break;}}boolean changed=complete?completeColumns.add(p):completeColumns.remove(p);if(changed)columnGeneration++;}dirtyColumns.clear();}
+
     private final Map<ChunkPos, Map<String, Protocol.Edit>> edits = new HashMap<>();
     private final Terrain terrain;
     private final WorldVoxels voxels;
@@ -43,14 +54,13 @@ public class World implements AutoCloseable {
 
     /** Full columns take over from distant terrain only once all nonempty chunks have a mesh. */
     public Set<ChunkPos> renderedColumns() {
-        Set<ChunkPos> columns = new HashSet<>(), incomplete = new HashSet<>();
-        for (var e : loadedChunks.entrySet()) {
-            ChunkPos p = new ChunkPos(e.getKey().chunkX(), 0, e.getKey().chunkZ());
-            columns.add(p);
-            if (!e.getValue().isEmpty() && e.getValue().getMesh() == null) incomplete.add(p);
-        }
-        columns.removeAll(incomplete);
-        return columns;
+        updateColumns();return new HashSet<>(completeColumns);
+    }
+    /** Cached rendering-only mask. Rebuild only at membership/mesh or distance-cell boundaries. */
+    public Set<ChunkPos> renderedColumns(float x,float z,int range){
+        updateColumns();int minX=(int)Math.ceil((x-range-8)/16),maxX=(int)Math.floor((x+range-8)/16),minZ=(int)Math.ceil((z-range-8)/16),maxZ=(int)Math.floor((z+range-8)/16);
+        if(visualGeneration!=columnGeneration||minX!=visualMinX||maxX!=visualMaxX||minZ!=visualMinZ||maxZ!=visualMaxZ){var selected=new HashSet<ChunkPos>();for(var p:completeColumns)if(p.chunkX()>=minX&&p.chunkX()<=maxX&&p.chunkZ()>=minZ&&p.chunkZ()<=maxZ)selected.add(p);visualColumns=Collections.unmodifiableSet(selected);visualGeneration=columnGeneration;visualMinX=minX;visualMaxX=maxX;visualMinZ=minZ;visualMaxZ=maxZ;}
+        return visualColumns;
     }
 
     public ModelLibrary models() {
@@ -68,7 +78,7 @@ public class World implements AutoCloseable {
     public void addChunk(ChunkPos p, Chunk c) {
         if (loadedChunks.putIfAbsent(p, c) != null)
             throw new IllegalStateException("Already loaded");
-        c.attach(this, p);
+        c.attach(this, p);columnMembers.computeIfAbsent(column(p),k->new HashSet<>()).add(p);meshDirty(p,c);
         for (var e : edits.getOrDefault(p, Map.of()).values()) c.apply(e);
         dirtyNeighbors(p);
     }
@@ -165,7 +175,7 @@ public class World implements AutoCloseable {
     /** Remove resident geometry while retaining authoritative edits for reload. */
     public void unloadChunk(ChunkPos position)throws Exception {
         var chunk=loadedChunks.get(position);
-        if(chunk!=null){chunk.close();loadedChunks.remove(position);dirtyNeighbors(position);}
+        if(chunk!=null){chunk.close();loadedChunks.remove(position);dirtyMeshes.remove(position);ChunkPos column=column(position);var members=columnMembers.get(column);members.remove(position);if(members.isEmpty())columnMembers.remove(column);dirtyColumns.add(column);dirtyNeighbors(position);}
     }
 
     /** Load nearest columns first; bounded generation per frame, unloading distant GPU buffers. */
@@ -193,5 +203,6 @@ public class World implements AutoCloseable {
     @Override
     public void close() throws Exception {
         for (Chunk c : loadedChunks.values()) c.close();
+        loadedChunks.clear();dirtyMeshes.clear();columnMembers.clear();dirtyColumns.clear();completeColumns.clear();visualColumns=Set.of();columnGeneration++;
     }
 }

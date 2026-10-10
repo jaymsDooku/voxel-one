@@ -24,6 +24,8 @@ public final class ModelLibrary {
     }
 
     private static final ModelDefinition POT = ModelGenerators.flowerPot();
+    private long revision;
+    public long revision(){return revision;}
     private final Map<Integer, Entry> entries = new LinkedHashMap<>();
     private final Map<String, Integer> fingerprints = new HashMap<>();
 
@@ -98,6 +100,7 @@ public final class ModelLibrary {
     }
 
     private void putUnchecked(Entry entry) {
+        revision++;
         entries.put(entry.id, entry);
         fingerprints.put(entry.definition.fingerprint(), entry.id);
     }

@@ -1,0 +1,173 @@
+{
+  "status": "review feedback addressed; current desktop model draw and sustained streaming checks passed",
+  "reviewBase": "a7436345bfe20551935c4681331981619048b01a",
+  "platform": "Linux Mesa 22.3.6 llvmpipe OpenGL 3.3; assigned inherited X11; isolated synthetic profiles",
+  "cpuTests": {
+    "passed": 35,
+    "failures": 0,
+    "errors": 0
+  },
+  "iosContractTests": {
+    "passed": 53,
+    "nativeBuildExecuted": false
+  },
+  "observedNativeCI": {
+    "head": "b22e6001fc32f9b9bbd6f942070bd9f3a84856e1",
+    "testsPassed": 9,
+    "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/38020773307",
+    "media": "Receipt verified and actual Graphics sheet inspected. Functional simulator evidence only."
+  },
+  "playtests": [
+    "Current CPU package: 35 tests passed.",
+    "Current model shadow GL draw/cache regression passed.",
+    "Current sustained production stream/edit/GL upload soak passed.",
+    "Current Main/F10 with models: 43 frames passed.",
+    "Other Graphics/native/benchmark checks are earlier runs; details and source limits in Markdown report."
+  ],
+  "limits": [
+    "Linux llvmpipe functional results are not Windows reference performance.",
+    "64-cycle soak verifies this fixed low-density workload; maximum-radius/population and longer hardware tests remain open.",
+    "Windows packaged workflow, reference 1080p Balanced thresholds and recorder overhead remain follow-ups.",
+    "Native source unchanged since observed b22e600 Mac run; no new Mac run or physical-device performance/signing/distribution result claimed.",
+    "No unrelated file deletions; controller integration and independent exact-head review remain required."
+  ],
+  "publication": "pending controller publication on assigned branch",
+  "media": [
+    {
+      "file": "graphics-applied.png",
+      "bytes": 42695,
+      "sha256": "f01cdbb2c836cf766533273c59983e6e9e774aba6ca1f8f5f58bb85ae707e470",
+      "currentDesktopReviewFix": false,
+      "sourceNote": "Prior run; native source unchanged. See Markdown report."
+    },
+    {
+      "file": "graphics-confirm.png",
+      "bytes": 197067,
+      "sha256": "b538bd7e7d706bb8e436ec1ddcf10da47da73f482cd88f86b89598b3c5f604e7",
+      "currentDesktopReviewFix": false,
+      "sourceNote": "Prior run; native source unchanged. See Markdown report."
+    },
+    {
+      "file": "graphics-controls-entry.png",
+      "bytes": 44663,
+      "sha256": "5056bef1c0525a1a98f552415a8384c9c52c1b0e9ffe717447d22616d5912c6d",
+      "currentDesktopReviewFix": false,
+      "sourceNote": "Prior run; native source unchanged. See Markdown report."
+    },
+    {
+      "file": "graphics-current-gl33-gallery.png",
+      "bytes": 218459,
+      "sha256": "60b9e3849076fdbd920a31948a5827b50a6259b8022efe165483622e6a95942b",
+      "currentDesktopReviewFix": true,
+      "sourceNote": "Current unpublished shadow fix"
+    },
+    {
+      "file": "graphics-current-isometric.png",
+      "bytes": 14951,
+      "sha256": "3733302e719de48d4d9ce84623494474b65eda8a37aacf87fc746a19a3e148a1",
+      "currentDesktopReviewFix": true,
+      "sourceNote": "Current unpublished shadow fix"
+    },
+    {
+      "file": "graphics-display-200-percent.png",
+      "bytes": 40155,
+      "sha256": "c000c492140bb08800c2e78a52e8334af4ca88671eddfcb6381994ae14ff6b37",
+      "currentDesktopReviewFix": false,
+      "sourceNote": "Prior run; native source unchanged. See Markdown report."
+    },
+    {
+      "file": "graphics-ios-client-62669fd.png",
+      "bytes": 244287,
+      "sha256": "58cf46dad0a6cd6cc45266b4e3eb63d86299f0b98f9a2a18f9b36a2432e7ba59",
+      "currentDesktopReviewFix": false,
+      "sourceNote": "Prior run; native source unchanged. See Markdown report."
+    },
+    {
+      "file": "graphics-ios-preflight-b22e600.png",
+      "bytes": 905057,
+      "sha256": "31e1042d732c485598ce55c168a8f8198b5a51ac12180fa2dcfb3c29027e406b",
+      "currentDesktopReviewFix": false,
+      "sourceNote": "Prior run; native source unchanged. See Markdown report."
+    },
+    {
+      "file": "graphics-ios-sheet-b22e600.png",
+      "bytes": 116402,
+      "sha256": "06b1709d9046e339f9242749a1c9497ae15384ff0a901622894170a250d3691c",
+      "currentDesktopReviewFix": false,
+      "sourceNote": "Prior run; native source unchanged. See Markdown report."
+    },
+    {
+      "file": "graphics-isometric.png",
+      "bytes": 56395,
+      "sha256": "0008c2392188bbe6d0fc2d25cf530634a5ccb6bafe3ac4afa1c1dcd81ee5f6e6",
+      "currentDesktopReviewFix": false,
+      "sourceNote": "Prior run; native source unchanged. See Markdown report."
+    },
+    {
+      "file": "graphics-legacy-rendering.png",
+      "bytes": 27640,
+      "sha256": "16b6527a66b6c23aced660e661a77ce82347f14263dbf3d873eea35d2e4fde02",
+      "currentDesktopReviewFix": false,
+      "sourceNote": "Prior run; native source unchanged. See Markdown report."
+    },
+    {
+      "file": "graphics-legacy-rollback.png",
+      "bytes": 28792,
+      "sha256": "e12009f44d93df089fbb7064e30b5524f66641aadd114f71ceb703b44d61ee17",
+      "currentDesktopReviewFix": false,
+      "sourceNote": "Prior run; native source unchanged. See Markdown report."
+    },
+    {
+      "file": "graphics-performance.png",
+      "bytes": 180446,
+      "sha256": "022f171e34b7e01d4f2b611be0b4419807047269c91879de24a2b33669a491d4",
+      "currentDesktopReviewFix": false,
+      "sourceNote": "Prior run; native source unchanged. See Markdown report."
+    },
+    {
+      "file": "graphics-render-playtest.mp4",
+      "bytes": 274908,
+      "sha256": "665b3a3ce9e5db1bfd38b66e0afdd6b1549f17a91f097764f080bf4451f02dd0",
+      "currentDesktopReviewFix": true,
+      "sourceNote": "Current unpublished shadow fix"
+    },
+    {
+      "file": "graphics-small.png",
+      "bytes": 14171,
+      "sha256": "9837fd22152da017706d48a0359e297609e70d2ae754eb7465c51040e0e3421f",
+      "currentDesktopReviewFix": false,
+      "sourceNote": "Prior run; native source unchanged. See Markdown report."
+    },
+    {
+      "file": "graphics-timing-gl33-gallery.png",
+      "bytes": 275718,
+      "sha256": "26211cff330aa8884c06a33da9327617358037b54bbf54033bb4aa0d2bed9692",
+      "currentDesktopReviewFix": false,
+      "sourceNote": "Prior run; native source unchanged. See Markdown report."
+    }
+  ],
+  "reviewFixes": {
+    "modelShadowDraws": [
+      1,
+      2,
+      3
+    ],
+    "stationaryDraws": 0,
+    "cycles": 64,
+    "ticks": 39873,
+    "seconds": 130,
+    "unloads": 2584,
+    "reloadEvents": 120,
+    "boundaryEdits": 1216,
+    "rejectedJobs": 192,
+    "gpuBorderComparisons": 128,
+    "maxJobs": 4,
+    "maxWaiting": 6,
+    "maxLoadedChunks": 40,
+    "maxGeometryBytes": 168912,
+    "postWarmupHeapBytes": 10546464,
+    "lastHeapBytes": 10893472,
+    "maxHeapBytes": 11660120,
+    "gpuDisposalBaselinePassed": true
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "status": "historical_partial",
+  "implementation": "Historical timing-only source, superseded by graphics implementation; not current-head validation",
+  "baseHead": "1ca97ff1b2c62484346425f60d756a1c7d3ca02b",
+  "sourceSha256": {
+    "src/main/java/dev/jayms/Main.java": "de5b1a486baf2feaee858b2b723f984d0cb63d9a61778d4e9875c5f6935be95a",
+    "src/main/java/dev/jayms/render/FrameBudget.java": "dcb56f9a4dfc0da09d1d91652ca2d6cb3f49b7e96046f77efc34a8506dd4e7bc",
+    "src/main/java/dev/jayms/render/GpuTimestampRing.java": "70616555bcde4c7ffe0bd0238ed174871c86b0a8b3ebeefcef97792547a20f7f",
+    "src/main/java/dev/jayms/render/RenderPipeline.java": "11a7810f55d49805b41bfeddf94cdf22f70f6c5afd8db0027b56bc89d92f2d3c",
+    "src/test/java/dev/jayms/render/GpuTimestampRingTest.java": "ae544e2cd534908054ed543e8008c7d7f5983c7289872a9a9a14f1441846ce79",
+    "deploy/RenderingSmoke.java": "363aa1d1de21f1c2377c7d6ebfb960868fd553e399207b2268707873fd9791fd",
+    "deploy/RenderingMainPlaytest.java": "17150e5c0c3b2fbb70a835ba83a7ef6b18ac4812cd14da90e66ee5f9b524d3c5"
+  },
+  "environment": {
+    "platform": "Linux VPS",
+    "display": "inherited assigned X11; inherited XAUTHORITY",
+    "profile": "isolated synthetic profiles under target",
+    "renderer": "OpenGL=3.3 (Core Profile) Mesa 22.3.6; GLSL=3.30; renderer=llvmpipe (LLVM 15.0.6, 256 bits); samples=1",
+    "resolutions": [
+      "640x400",
+      "333x271"
+    ]
+  },
+  "tests": [
+    {
+      "command": "mvn -q -Dmaven.repo.local=target/maven-repository -Dtest=GpuTimestampRingTest,RenderingAlgorithmsTest package",
+      "status": "passed",
+      "observed": "Packaged final source. 12 tests; 0 failures, 0 errors, 0 skipped. Busy 100-frame fake GPU remains at six query IDs; no unavailable results read; both timestamps required; nested stage rejected; close frees six IDs."
+    },
+    {
+      "command": "python3 deploy/run_rendering_playtest.py --display \"$DISPLAY\" --gl33",
+      "status": "passed",
+      "type": "Playtest",
+      "steps": "Synthetic gallery; cold timers; shadows and probes; 8 complete measured frames; LED and reflection edits; streaming HiZ invalidation; water, camera motion, temporal effects, dynamic resolution and odd resize.",
+      "expected": "Unavailable cold frame/pass results; finite completed results; preserved geometry and lighting regression assertions; GL errors=0.",
+      "observed": "Playtest: PASS. Synthetic fractional/LED gallery; cold timing is unavailable; shadow/probe/frame query results are finite after 8 complete frames; begin after shadows does not nest elapsed queries; GL errors=0. Frame EMA ms=1346.277; shadow last ms=6.334346; probe last ms=5.7E-5; samples=62. Test-only glFinish forces readiness; these are NOT baseline performance results.",
+      "regressions": "Playtest: native OpenGL synthetic gallery; assigned X11 display; GPU backend=false; decals changed pixels=44250; reflection probes, GPU emitters/removal, water, camera motion/TAA, exposure, LUT, temporal upscaling, measured dynamic resolution, resize and GL errors passed."
+    },
+    {
+      "command": "python3 deploy/run_rendering_main_playtest.py --display \"$DISPLAY\" --gl33",
+      "status": "failed",
+      "type": "Playtest",
+      "expected": "Production Main completes gallery, W movement, F10, F6, odd resize and Escape phases.",
+      "observed": "Final-source retry: AssertionError: Main playtest phase timeout 0. Later workflow phases were not reached. An earlier attempt failed with NoClassDefFoundError: org/lwjgl/glfw/Callbacks because the test JAR was rebuilt during execution; that attempt was invalidated and retried after the build."
+    },
+    {
+      "command": "git diff --check",
+      "status": "passed",
+      "observed": "No whitespace errors. Local diff audit found no unrelated deletions; final controller synchronization/review-base audit remains required."
+    }
+  ],
+  "performanceBaseline": false,
+  "limitations": [
+    "Test fixture glFinish is intentional readiness synchronization, not production timing or performance evidence. No runtime GPU completion was added.",
+    "No three-run reference baseline, percentiles, recorder-overhead measurement or Windows packaged graphical validation.",
+    "Full graphics profile/UI, scheduler, optimization and native iOS subset remain incomplete.",
+    "Final-source production Main playtest failed; task is not ready for review."
+  ],
+  "media": {
+    "file": "graphics-timing-gl33-gallery.png",
+    "sha256": "26211cff330aa8884c06a33da9327617358037b54bbf54033bb4aa0d2bed9692",
+    "bytes": 275718,
+    "description": "Final-source Linux GL 3.3 timing regression gallery with LEDs, fractional geometry, textures and roof lighting; no Graphics UI exists yet.",
+    "publication": "pending controller publication"
+  },
+  "publishing": "No commit, push, merge or deployment performed.",
+  "historical": true
+}

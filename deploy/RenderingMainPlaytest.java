@@ -19,7 +19,7 @@ public class RenderingMainPlaytest {
     static org.lwjgl.glfw.GLFWKeyCallback originalKeys;
     static Object get(String name)throws Exception{var f=Main.class.getDeclaredField(name);f.setAccessible(true);return f.get(game);}
     static void set(String name,Object v)throws Exception{var f=Main.class.getDeclaredField(name);f.setAccessible(true);f.set(game,v);}
-    static void require(boolean b,String m){if(!b)throw new AssertionError(m);}
+    static void require(boolean b,String m){if(!b){try{Files.writeString(out.resolve("failure.txt"),m+"\n");}catch(Exception ignored){}throw new AssertionError(m);}}
     static void input(String... args)throws Exception{var c=new ArrayList<String>();c.add("xdotool");c.addAll(List.of(args));var p=new ProcessBuilder(c).redirectOutput(ProcessBuilder.Redirect.DISCARD).redirectError(ProcessBuilder.Redirect.DISCARD).start();require(p.waitFor()==0,"X11 input");}
     static void image(String name)throws Exception{
         int w=(int)get("framebufferWidth"),h=(int)get("framebufferHeight");var bytes=java.nio.ByteBuffer.allocateDirect(w*h*4);glReadPixels(0,0,w,h,GL_RGBA,GL_UNSIGNED_BYTE,bytes);
@@ -28,6 +28,7 @@ public class RenderingMainPlaytest {
         javax.imageio.ImageIO.write(img,"png",out.resolve(name).toFile());
     }
     public static void main(String[] args)throws Exception{
+        GraphicsProfile.preset(GraphicsProfile.Preset.LOW).save(dev.jayms.ui.Controls.directory().resolve("graphics.properties"));
         out=Path.of(args[0]);Files.createDirectories(out);set("offlineSave",Path.of("target/render-profile/synthetic-city.dat").toAbsolutePath());set("gameConfig",GameConfig.sandbox());((EngineEditor)get("engineEditor")).open=false;
         glfwInitHint(GLFW_PLATFORM,GLFW_PLATFORM_X11);
         game.run(new Main.FrameObserver(){
@@ -39,24 +40,29 @@ public class RenderingMainPlaytest {
                 initialFocus=glfwSetWindowFocusCallback(handle,null);input("windowfocus",windowId);input("keyup","F6","w","F10");
                 ((dev.jayms.ui.ControlsMenu)get("menu")).open=false;
                 var capture=Main.class.getDeclaredMethod("setCaptured",boolean.class);capture.setAccessible(true);capture.invoke(game,true);
-                World world=(World)get("world");
+                ((World)get("world")).close();
+                World world=new World(){@Override public void stream(float x,float z,int budget){}};
+                for(int x=-1;x<=1;x++)for(int z=-1;z<=1;z++)world.addChunk(new ChunkPos(x,4,z),new Chunk());set("world",world);set("renderOnlyReplay",true);
                 for(int x=2;x<15;x++)for(int z=2;z<15;z++)world.apply(new Protocol.Edit(x,72,z,(x+z)%2==0?Blocks.BRICKS:Blocks.PLANKS));
                 for(int x=3;x<14;x++)for(int z=3;z<10;z++)world.apply(new Protocol.Edit(x,78,z,Blocks.PLANKS));
                 for(int x=3;x<14;x++)for(int y=73;y<78;y++)world.apply(new Protocol.Edit(x,y,3,Blocks.BRICKS));
                 world.apply(new Protocol.Edit(5,74,4,Blocks.LED).withColor(0xff3040));world.apply(new Protocol.Edit(8,74,4,Blocks.LED).withColor(0x30ff90));world.apply(new Protocol.Edit(11,74,4,Blocks.LED).withColor(0x3050ff));
                 for(int z=10;z<=13;z++)world.apply(new Protocol.Edit(4,73,z,Blocks.BRICKS));
                 for(int x=5;x<=11;x++)for(int z=10;z<=13;z++)world.apply(new Protocol.Edit(x,73,z,Blocks.WATER));
-                for(var e:world.getLoadedChunks().entrySet())if(e.getKey().chunkX()==0&&e.getKey().chunkZ()==0)e.getValue().checkMesh();
+                world.apply(new Protocol.Edit(6,73,8,Blocks.FLOWER_POT));world.apply(new Protocol.Edit(10,73,8,Blocks.FLOWER_POT));
+                // Production scheduler builds the gallery off the render thread.
                 Player p=new Player(new Vector3f(8.5f,74.5f,14.5f),-90,-12,(dev.jayms.Camera)get("camera"));p.toggleFlight();set("player",p);set("isometric",false);capture.invoke(game,true);
                 changed=System.nanoTime();
             }
             public void afterFrame(Main g)throws Exception{
-                frame++;if(frame==5&&initialFocus!=null){glfwSetWindowFocusCallback(((dev.jayms.window.Window)get("window")).getHandle(),initialFocus);initialFocus=null;}
+                frame++;require(((DetailedMeshScheduler)get("detailedMeshes")).error.isEmpty(),"Detailed upload has no hidden error");if(frame==5&&initialFocus!=null){glfwSetWindowFocusCallback(((dev.jayms.window.Window)get("window")).getHandle(),initialFocus);initialFocus=null;}
                 require(glGetError()==GL_NO_ERROR,"Production Main GL state is clean");
                 RenderPipeline r=(RenderPipeline)get("rendering");Player p=(Player)get("player");long handle=((dev.jayms.window.Window)get("window")).getHandle();
                 if(frame%10==0)System.out.println("Render phase="+stage+" lighting="+r.lightingReady()+" menu="+((dev.jayms.ui.ControlsMenu)get("menu")).open+" captured="+get("captured"));
                 if(stage==0&&((dev.jayms.ui.ControlsMenu)get("menu")).open){input("windowfocus",windowId);input("key","Escape");}
                 if(stage==0&&frame>=15&&r.lightingReady()&&!((dev.jayms.ui.ControlsMenu)get("menu")).open){
+                    require(r.gpuSamples()>0 && Float.isFinite(r.gpuMillis()),"Production frame timing available");
+                    require(Float.isFinite(r.shadowsGpuMillis()) && (Float.isNaN(r.probesGpuMillis()) || Float.isFinite(r.probesGpuMillis())),"Production shadow/probe timing available");
                     require(r.particleCount()==48,"Three LED emitters in production loop");image("rendering-main-gallery.png");start=p.position();recordingFrame=frame;input("key","F10");input("keydown","w");changed=System.nanoTime();stage++;
                 }else if(stage==1&&frame-recordingFrame>=8&&System.nanoTime()-changed>2_000_000_000L){
                     input("keyup","w");require(p.position().distance(start)>.05,"Real W input moves camera");image("rendering-main-motion.png");input("key","F10");expectedF6Presses=f6Presses+1;input("key","F6");changed=System.nanoTime();stage++;

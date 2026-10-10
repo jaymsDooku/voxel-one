@@ -43,7 +43,7 @@ void main(){
         if(dot(N,V)<0.)N=-N;
         float occlusion=0.;vec3 bounce=vec3(0);
         // Horizon AO: integrate the maximum elevation in four azimuths, bounded to 2 world units.
-        for(int axis=0;axis<4;axis++){
+        if(uAO==1||uGI==1)for(int axis=0;axis<4;axis++){
             float angle=float(axis)*PI*.5+noise(gl_FragCoord.xy)*.35;
             vec2 dir=vec2(cos(angle),sin(angle));float horizon=0.;
             for(int step=1;step<=4;step++){
@@ -54,7 +54,7 @@ void main(){
                 if(dist>.02&&dist<2.){
                     float cosine=max(0.,dot(N,delta/dist)-.12)*(1.-dist/2.);
                     horizon=max(horizon,cosine);
-                    bounce+=texture(uScene,uv).rgb*cosine*.018;
+                    if(uGI==1)bounce+=texture(uScene,uv).rgb*cosine*.018;
                 }
             }
             occlusion+=horizon;

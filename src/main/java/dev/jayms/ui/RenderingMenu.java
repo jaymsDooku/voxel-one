@@ -32,15 +32,22 @@ public final class RenderingMenu {
         new Option("overviewHaze", "Overview haze",0,1,.1f)
     };
     public boolean open;
-    private final RenderPipeline pipeline;
+    private final java.util.function.Supplier<RenderPipeline> pipeline;
     private final Path file;
+    private java.util.function.Predicate<Properties> sharedApply;
     private int selected, offset, visible=10;
     private String message="Changes apply now and save automatically.";
     public RenderingMenu(RenderPipeline pipeline) {
-        this.pipeline=pipeline;
+        this.pipeline=()->pipeline;
         file=Path.of(System.getProperty("user.home"),".voxel-one","rendering.properties");
         load();
     }
+    public RenderingMenu(java.util.function.Supplier<RenderPipeline> pipeline) {
+        this.pipeline=pipeline;
+        file=Path.of(System.getProperty("user.home"),".voxel-one","rendering.properties");
+        load(true);
+    }
+    public void sharedApply(java.util.function.Predicate<Properties> apply){sharedApply=apply;}
     public void show(){open=true;}
     public void scroll(double direction){select(selected-(int)Math.signum(direction));}
     private void select(int value){selected=Math.max(0,Math.min(OPTIONS.length-1,value));offset=Math.max(0,Math.min(offset,selected));if(selected>=offset+visible)offset=selected-visible+1;}
@@ -54,8 +61,8 @@ public final class RenderingMenu {
         else if(key==GLFW_KEY_1)preset(true);
         else if(key==GLFW_KEY_2)preset(false);
     }
-    private Object value(Option o)throws ReflectiveOperationException{return RenderSettings.class.getField(o.field).get(pipeline.settings);}
-    private void assign(Option o,Object value)throws ReflectiveOperationException{RenderSettings.class.getField(o.field).set(pipeline.settings,value);}
+    private Object value(Option o)throws ReflectiveOperationException{return RenderSettings.class.getField(o.field).get(pipeline.get().settings);}
+    private void assign(Option o,Object value)throws ReflectiveOperationException{RenderSettings.class.getField(o.field).set(pipeline.get().settings,value);}
     private static boolean available(Option o){
         // The active planet atmosphere replaces the legacy post-process fog path.
         return !o.field.equals("volumetrics") && !o.field.equals("fogDensity");
@@ -74,18 +81,19 @@ public final class RenderingMenu {
         RenderSettings defaults=new RenderSettings();
         try {for(Option o:OPTIONS)if(available(o))assign(o,RenderSettings.class.getField(o.field).get(defaults));}
         catch(ReflectiveOperationException e){throw new IllegalStateException(e);}
-        if(low){var s=pipeline.settings;s.renderScale=.5f;s.atmosphereQuality=PlanetAtmosphere.Quality.LOW;s.shadows=s.particles=s.ao=s.contactShadows=s.reflections=s.screenGi=s.bloom=s.clouds=false;}
+        if(low){var s=pipeline.get().settings;s.renderScale=.5f;s.atmosphereQuality=PlanetAtmosphere.Quality.LOW;s.shadows=s.particles=s.ao=s.contactShadows=s.reflections=s.screenGi=s.bloom=s.clouds=false;}
         save();
     }
     private void save(){
-        pipeline.resetHistory();
-        try {Properties p=new Properties();for(Option o:OPTIONS)if(available(o))p.setProperty(o.field,value(o).toString());Files.createDirectories(file.getParent());Path temporary=file.resolveSibling("rendering.properties.tmp");try(var out=Files.newOutputStream(temporary)){p.store(out,"Voxel rendering quality");}Files.move(temporary,file,StandardCopyOption.REPLACE_EXISTING);message="Saved. Changes are live.";}
+        pipeline.get().resetHistory();
+        try {Properties p=new Properties();for(Option o:OPTIONS)if(available(o))p.setProperty(o.field,value(o).toString());if(sharedApply!=null&&!sharedApply.test(p)){message="Apply failed; kept the working Graphics profile.";return;}Files.createDirectories(file.getParent());Path temporary=file.resolveSibling("rendering.properties.tmp");try(var out=Files.newOutputStream(temporary)){p.store(out,"Voxel rendering quality");}Files.move(temporary,file,StandardCopyOption.REPLACE_EXISTING);message="Saved. Changes are live.";}
         catch(Exception e){message="Changes applied; could not save settings.";}
     }
-    private void load(){
+    private void load(){load(false);}
+    private void load(boolean extrasOnly){
         if(!Files.isRegularFile(file))return;
         try{Properties p=new Properties();try(var in=Files.newInputStream(file)){p.load(in);}
-            for(Option o:OPTIONS){if(!available(o))continue;String raw=p.getProperty(o.field);if(raw==null)continue;
+            for(Option o:OPTIONS){if(!available(o)||extrasOnly&&!Set.of("particles","saturation","contrast","cloudCoverage").contains(o.field))continue;String raw=p.getProperty(o.field);if(raw==null)continue;
                 try{Object old=value(o);Object v;
                     if(old instanceof Boolean){if(!raw.equals("true")&&!raw.equals("false"))continue;v=Boolean.parseBoolean(raw);}
                     else if(old instanceof PlanetAtmosphere.Quality)v=PlanetAtmosphere.Quality.valueOf(raw);
