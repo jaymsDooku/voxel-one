@@ -20,14 +20,14 @@ public final class RenderingMenu {
         new Option("contactShadows", "Contact shadows",0,0,0),
         new Option("reflections", "Screen reflections",0,0,0),
         new Option("screenGi", "Screen global illumination",0,0,0),
-        new Option("volumetrics", "Volumetric light",0,0,0),
+        new Option("volumetrics", "Volumetric light (unavailable)",0,0,0),
         new Option("bloom", "Bloom",0,0,0),
         new Option("clouds", "Clouds",0,0,0),
         new Option("autoExposure", "Auto exposure",0,0,0),
         new Option("exposure", "Exposure",.1f,4,.1f),
         new Option("saturation", "Saturation",0,2,.1f),
         new Option("contrast", "Contrast",.5f,2,.1f),
-        new Option("fogDensity", "Fog density",0,.02f,.001f),
+        new Option("fogDensity", "Fog density (unavailable)",0,.02f,.001f),
         new Option("cloudCoverage", "Cloud coverage",0,1,.05f),
         new Option("overviewHaze", "Overview haze",0,1,.1f)
     };
@@ -56,7 +56,12 @@ public final class RenderingMenu {
     }
     private Object value(Option o)throws ReflectiveOperationException{return RenderSettings.class.getField(o.field).get(pipeline.settings);}
     private void assign(Option o,Object value)throws ReflectiveOperationException{RenderSettings.class.getField(o.field).set(pipeline.settings,value);}
+    private static boolean available(Option o){
+        // The active planet atmosphere replaces the legacy post-process fog path.
+        return !o.field.equals("volumetrics") && !o.field.equals("fogDensity");
+    }
     private void change(int direction){
+        if(!available(OPTIONS[selected])){message="Unavailable: use atmosphere quality / overview haze.";return;}
         try {
             Option o=OPTIONS[selected];Object v=value(o);
             if(v instanceof Boolean b)assign(o,!b);
@@ -67,20 +72,20 @@ public final class RenderingMenu {
     }
     private void preset(boolean low){
         RenderSettings defaults=new RenderSettings();
-        try {for(Option o:OPTIONS)assign(o,RenderSettings.class.getField(o.field).get(defaults));}
+        try {for(Option o:OPTIONS)if(available(o))assign(o,RenderSettings.class.getField(o.field).get(defaults));}
         catch(ReflectiveOperationException e){throw new IllegalStateException(e);}
-        if(low){var s=pipeline.settings;s.renderScale=.5f;s.atmosphereQuality=PlanetAtmosphere.Quality.LOW;s.shadows=s.particles=s.ao=s.contactShadows=s.reflections=s.screenGi=s.volumetrics=s.bloom=s.clouds=false;}
+        if(low){var s=pipeline.settings;s.renderScale=.5f;s.atmosphereQuality=PlanetAtmosphere.Quality.LOW;s.shadows=s.particles=s.ao=s.contactShadows=s.reflections=s.screenGi=s.bloom=s.clouds=false;}
         save();
     }
     private void save(){
         pipeline.resetHistory();
-        try {Properties p=new Properties();for(Option o:OPTIONS)p.setProperty(o.field,value(o).toString());Files.createDirectories(file.getParent());Path temporary=file.resolveSibling("rendering.properties.tmp");try(var out=Files.newOutputStream(temporary)){p.store(out,"Voxel rendering quality");}Files.move(temporary,file,StandardCopyOption.REPLACE_EXISTING);message="Saved. Changes are live.";}
+        try {Properties p=new Properties();for(Option o:OPTIONS)if(available(o))p.setProperty(o.field,value(o).toString());Files.createDirectories(file.getParent());Path temporary=file.resolveSibling("rendering.properties.tmp");try(var out=Files.newOutputStream(temporary)){p.store(out,"Voxel rendering quality");}Files.move(temporary,file,StandardCopyOption.REPLACE_EXISTING);message="Saved. Changes are live.";}
         catch(Exception e){message="Changes applied; could not save settings.";}
     }
     private void load(){
         if(!Files.isRegularFile(file))return;
         try{Properties p=new Properties();try(var in=Files.newInputStream(file)){p.load(in);}
-            for(Option o:OPTIONS){String raw=p.getProperty(o.field);if(raw==null)continue;
+            for(Option o:OPTIONS){if(!available(o))continue;String raw=p.getProperty(o.field);if(raw==null)continue;
                 try{Object old=value(o);Object v;
                     if(old instanceof Boolean){if(!raw.equals("true")&&!raw.equals("false"))continue;v=Boolean.parseBoolean(raw);}
                     else if(old instanceof PlanetAtmosphere.Quality)v=PlanetAtmosphere.Quality.valueOf(raw);
@@ -108,8 +113,8 @@ public final class RenderingMenu {
         for(int i=offset;i<Math.min(OPTIONS.length,offset+visible);i++){
             float y=105+(i-offset)*27;if(i==selected)ui.rectangle(l,y,width,25,.07f,.27f,.36f,1);
             ui.text(OPTIONS[i].label,l+8,y+6,Math.min(1.4f,width/440f));
-            try{Object v=value(OPTIONS[i]);String text=v instanceof Boolean b?(b?"On":"Off"):v instanceof Float f?String.format(Locale.ROOT,"%.3f",f):v.toString();ui.text("< "+text+" >",l+width*.72f,y+6,1.4f);}catch(ReflectiveOperationException e){throw new IllegalStateException(e);}
+            try{Object v=value(OPTIONS[i]);String text=!available(OPTIONS[i])?"N/A":v instanceof Boolean b?(b?"On":"Off"):v instanceof Float f?String.format(Locale.ROOT,"%.3f",f):v.toString();ui.text(available(OPTIONS[i])?"< "+text+" >":text,l+width*.72f,y+6,1.4f);}catch(ReflectiveOperationException e){throw new IllegalStateException(e);}
         }
-        ui.text((selected+1)+" / "+OPTIONS.length+"   "+message,l+8,h-30,1.2f);
+        ui.text((selected+1)+" / "+OPTIONS.length+"   "+(!available(OPTIONS[selected])?"Unavailable with planet atmosphere.":message),l+8,h-30,1.2f);
     }
 }

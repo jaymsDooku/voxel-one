@@ -14,6 +14,7 @@ import static org.lwjgl.opengl.GL33.*;
 /** Exercises the production Main loop with a synthetic gallery and real X11 inputs. */
 public class RenderingSettingsPlaytest {
     static final Main game=new Main();static Path out;static int frame,stage=-4;static long changed;static int recordingFrame,f6Presses,expectedF6Presses;
+    static float legacyFog;static boolean legacyVolume;static int effectProgram;
     static Vector3f start;static String windowId;
     static org.lwjgl.glfw.GLFWWindowFocusCallback initialFocus;
     static org.lwjgl.glfw.GLFWKeyCallback originalKeys;
@@ -111,10 +112,44 @@ public class RenderingSettingsPlaytest {
                 else if(stage==10&&f6Presses>=expectedF6Presses){
                     require((boolean)get("isometric"),"F6 gameplay regression");
                     Files.writeString(out.resolve("results.txt"),"Playtest: PASS. Warmed lighting and completed reflection probe; shadows off camera movement beyond 16 units recaptures probe at new center; world LED edit recaptures current revision; Defaults re-enables shadows. Production Main; Linux inherited X11; software GL; isolated synthetic profile. Real Escape/R inputs open settings. Low cost applies scale 0.5 and disables shadows/GI; Left clamps scale to 0.5; persisted settings reload; Defaults restores quality; 420x300 scroll reaches final option; Escape returns to controls then gameplay; F6 still toggles isometric; GL_NO_ERROR throughout.\n");
+                    menu.open=true;menu.rendering.show();
+                    r.settings.volumetrics=true;r.settings.fogDensity=.012f;
+                    legacyFog=r.settings.fogDensity;legacyVolume=r.settings.volumetrics;
+                    for(int i=0;i<9;i++)menu.rendering.key(GLFW_KEY_UP,GLFW_PRESS);
+                    menu.rendering.key(GLFW_KEY_RIGHT,GLFW_PRESS);
+                    require(r.settings.volumetrics==legacyVolume,"Unavailable volume keyboard leaves field unchanged");
+                    stage++;changed=System.nanoTime();
+                }else if(stage==11){
+                    Object temporal=field(r,"temporal"),effects=field(temporal,"effects");
+                    effectProgram=(int)field(effects,"programId");
+                    require(glGetUniformi(effectProgram,glGetUniformLocation(effectProgram,"uVolume"))==0,"Live legacy volumetric branch remains disabled");
+                    menu.rendering.click(GLFW_MOUSE_BUTTON_LEFT,400,110+(11-(int)field(menu.rendering,"offset"))*27,420,300);
+                    require(r.settings.volumetrics==legacyVolume,"Unavailable volume click leaves field unchanged");
+                    image("render-settings-unavailable-volume.png");
+                    for(int i=0;i<7;i++)menu.rendering.key(GLFW_KEY_DOWN,GLFW_PRESS);
+                    menu.rendering.key(GLFW_KEY_RIGHT,GLFW_PRESS);
+                    require(r.settings.fogDensity==legacyFog,"Unavailable fog keyboard leaves field unchanged");
+                    stage++;changed=System.nanoTime();
+                }else if(stage==12){
+                    require(glGetUniformi(effectProgram,glGetUniformLocation(effectProgram,"uVolume"))==0,"Unavailable fog does not enable legacy scattering");
+                    image("render-settings-unavailable-fog.png");
+                    // Selected row is visible; direct click uses the exact UI row coordinates.
+                    int offset=(int)field(menu.rendering,"offset");
+                    menu.rendering.click(GLFW_MOUSE_BUTTON_LEFT,400,110+(18-offset)*27,420,300);
+                    require(r.settings.fogDensity==legacyFog,"Unavailable fog click leaves field unchanged");
+                    Path saved=Path.of(System.getProperty("user.home"),".voxel-one","rendering.properties");
+                    Files.writeString(saved,"volumetrics="+!legacyVolume+"\nfogDensity=0.02\n");
+                    new dev.jayms.ui.RenderingMenu(r);
+                    require(r.settings.volumetrics==legacyVolume&&r.settings.fogDensity==legacyFog,"Saved legacy values ignored");
+                    menu.rendering.key(GLFW_KEY_1,GLFW_PRESS);
+                    require(r.settings.volumetrics==legacyVolume&&r.settings.fogDensity==legacyFog,"Preset leaves unavailable values unchanged");
+                    var stored=new java.util.Properties();try(var in=Files.newInputStream(saved)){stored.load(in);}
+                    require(!stored.containsKey("volumetrics")&&!stored.containsKey("fogDensity"),"Unavailable values not saved");
+                    Files.writeString(out.resolve("unavailable-results.txt"),"Playtest: PASS. Running Main active planet atmosphere. Disabled legacy volume/fog rows display N/A and Unavailable; keyboard/click, saved values and preset cannot alter legacy fields. Live effects uVolume=0 for both rows. No misleading enabled legacy scattering control.\n");
                     glfwSetWindowShouldClose(handle,true);stage++;
                 }
                 if(frame>1200||System.nanoTime()-changed>(stage<0?600_000_000_000L:120_000_000_000L))throw new AssertionError("Main playtest phase timeout "+stage);
             }
-        });if(originalKeys!=null)originalKeys.free();require(stage==11,"Production workflow completed");System.out.println("Production renderer Playtest passed");
+        });if(originalKeys!=null)originalKeys.free();require(stage==13,"Production workflow completed");System.out.println("Production renderer Playtest passed");
     }
 }
