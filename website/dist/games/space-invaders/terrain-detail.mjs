@@ -10,4 +10,7 @@ export function terrainTiles(scene,stride){
  }
  return tiles.sort((a,b)=>b.z-a.z);
 }
-export function terrainPlan(coarse,fine,quality){const limits=DETAIL_LIMITS[quality]||DETAIL_LIMITS.Low;return {coarse:terrainTiles(coarse,limits.coarse),fine:terrainTiles(fine,limits.fine),faceLimit:limits.faces};}
+export function terrainPlan(coarse,fine,quality){const limits=DETAIL_LIMITS[quality]||DETAIL_LIMITS.Low;return {coarse:terrainTiles(coarse,limits.coarse),fine:terrainTiles(fine,limits.fine).map(col=>({...col,detail:true})),faceLimit:limits.faces};}
+
+// World-space overlap fades child faces before their rectangular boundary.
+export function terrainFeather(col){const v=col.source.view,edge=Math.max(Math.abs(col.x-v.centerX)/(v.cols*v.step/2),Math.abs(col.z-v.centerZ)/(v.rows*v.step/2)),f=Math.max(0,Math.min(1,(1-edge)/.35));return f*f*(3-2*f);}

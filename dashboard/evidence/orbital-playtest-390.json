@@ -11,17 +11,17 @@
         "height": 844
       },
       "timing": {
-        "count": 420,
-        "p50": 16.700000000000728,
-        "p95": 66.69999999999891,
-        "p99": 83.40000000000146,
-        "worst": 150,
+        "count": 145,
+        "p50": 16.699999999999818,
+        "p95": 450,
+        "p99": 899.8999999999996,
+        "worst": 1333.2999999999993,
         "peakMainJsHeapBytes": 10000000
       },
       "preparation": {
-        "mainThreadMilliseconds": 36.5,
-        "cacheFrames": 48,
-        "cachePixelBytes": 5114880,
+        "mainThreadMilliseconds": 100.89999961853027,
+        "cacheFrames": 23,
+        "cachePixelBytes": 2450880,
         "fineTerrainReady": true
       },
       "scenes": [
@@ -43,17 +43,17 @@
         "height": 844
       },
       "timing": {
-        "count": 92,
-        "p50": 124,
-        "p95": 175,
-        "p99": 399,
-        "worst": 399,
+        "count": 81,
+        "p50": 172,
+        "p95": 700,
+        "p99": 1313,
+        "worst": 1313,
         "peakMainJsHeapBytes": null
       },
       "preparation": {
-        "mainThreadMilliseconds": 26,
-        "cacheFrames": 31,
-        "cachePixelBytes": 3303360,
+        "mainThreadMilliseconds": 32,
+        "cacheFrames": 26,
+        "cachePixelBytes": 2770560,
         "fineTerrainReady": true
       },
       "scenes": [

@@ -52,3 +52,5 @@ The initial visible-camera regression attempts failed: an asynchronous wait pred
 Recorded review base: `1d2c3b3266c9e2d9c82c2217594690c0a62334ef`. Entire proposed diff audited: no file deletions; Sandbox/recipe book and other merged features retained. Intended removed code is the old disc/gradient/conveyor descent, the polar fallback fan, unbounded per-frame terrain iteration and repeated unchanged HUD writes. Source/bundle checks and source/media SHA256 values are in `orbital-source-audit.json`. Controller owns the final commit and publication.
 
 Low is visibly coarse and cached motion uses quarter-second image blending. Main UI stays crisp. Medium/High add detail; High browser performance and physical Safari/GPU checks remain follow-up. Ready means ready for independent exact-head review of the available validation, not self-approval or an all-platform performance claim.
+
+This report is historical. The parent/local continuity and prewarm restart revision is recorded in orbital-continuity-validation.txt.

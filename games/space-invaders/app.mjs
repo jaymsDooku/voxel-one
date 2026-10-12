@@ -181,7 +181,7 @@ function draw(t){
  canvas.dataset.transition=game.transition?'entering-cockpit':'none';
 }
 function frame(t){
- if(entryFrozen&&!game.scene&&game.wave===1){cancelPlanetJobs();releasePlanet();entryRenderer.cancel();entryFrozen=false;}
+ if((entryFrozen||entryRenderer.profile)&&!game.scene&&game.wave===1){cancelPlanetJobs();releasePlanet();entryRenderer.cancel();entryFrozen=false;}
  if(game.wave>=2&&terrainScene&&(!entryFrozen||(!game.scene&&game.wave===3))){entryRenderer.prepare(planetWorld,terrainScene,canvas.clientWidth/canvas.clientHeight);setPlanetVisualProfile(entryRenderer.profile);}
  if(game.scene==='crash'&&!entryFrozen){const frozen=freezePlanet();entryRenderer.prepare(frozen.world,frozen.scene,canvas.clientWidth/canvas.clientHeight);setPlanetVisualProfile(entryRenderer.profile);entryFrozen=true;}
  if(entryFrozen&&!game.scene&&game.wave===3)releasePlanet();

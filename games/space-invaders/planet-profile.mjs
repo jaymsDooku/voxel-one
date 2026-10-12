@@ -18,8 +18,8 @@ export function macroSample(world,n){
  return {height,color:color.map(v=>Math.min(255,v*(.8+ridge*.5))),weights:weights.map(v=>v/total)};
 }
 export function sharedSample(world,profile,n){
- const local=sphericalLocal(profile,n),d=Math.max(Math.abs(local.x)/108,Math.abs(local.z-66)/72),macro=macroSample(world,n);
+ const local=sphericalLocal(profile,n),d=Math.max(Math.abs(local.x)/2400,Math.abs(local.z-66)/2400),macro=d>.6||n[1]<=0?macroSample(world,n):null;
  if(n[1]<=0||d>=1)return macro;
- const s=world.surface(Math.round(local.x),Math.round(local.z)),color=world.config.palette[s.biome][0].match(/[a-f0-9]{2}/gi).map(x=>parseInt(x,16)),f=Math.max(0,Math.min(1,(d-.96)/.04)),blend=f*f*(3-2*f);
+ const exact=Math.max(Math.abs(local.x)/108,Math.abs(local.z-66)/72)<1,step=exact?1:32,s=world.surface(Math.round(local.x/step)*step,Math.round(local.z/step)*step),color=world.config.palette[s.biome][0].match(/[a-f0-9]{2}/gi).map(x=>parseInt(x,16));if(!macro)return {height:s.height,color,local};const f=Math.max(0,Math.min(1,(d-.6)/.4)),blend=f*f*(3-2*f);
  return {height:s.height*(1-blend)+macro.height*blend,color:color.map((v,i)=>v*(1-blend)+macro.color[i]*blend),local};
 }

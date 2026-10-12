@@ -11,17 +11,17 @@
         "height": 320
       },
       "timing": {
-        "count": 533,
-        "p50": 16.700000000000728,
-        "p95": 33.400000000001455,
-        "p99": 66.59999999999854,
-        "worst": 116.69999999999891,
+        "count": 133,
+        "p50": 50.10000000000218,
+        "p95": 399.89999999999964,
+        "p99": 583.3999999999996,
+        "worst": 700.0999999999995,
         "peakMainJsHeapBytes": 10000000
       },
       "preparation": {
-        "mainThreadMilliseconds": 58.60000038146973,
-        "cacheFrames": 49,
-        "cachePixelBytes": 11289600,
+        "mainThreadMilliseconds": 47.30000019073486,
+        "cacheFrames": 15,
+        "cachePixelBytes": 3456000,
         "fineTerrainReady": true
       },
       "scenes": [
@@ -43,17 +43,17 @@
         "height": 320
       },
       "timing": {
-        "count": 120,
-        "p50": 94,
-        "p95": 152,
-        "p99": 300,
-        "worst": 374,
+        "count": 56,
+        "p50": 252,
+        "p95": 849,
+        "p99": 1134,
+        "worst": 1134,
         "peakMainJsHeapBytes": null
       },
       "preparation": {
-        "mainThreadMilliseconds": 41,
-        "cacheFrames": 25,
-        "cachePixelBytes": 5760000,
+        "mainThreadMilliseconds": 87,
+        "cacheFrames": 10,
+        "cachePixelBytes": 2304000,
         "fineTerrainReady": true
       },
       "scenes": [
@@ -63,6 +63,7 @@
         "waking",
         null,
         "crash",
+        "blackout",
         null
       ],
       "result": "PASS: real keyboard last kill, normal sequence, visible external-camera handoff, score/lives, active flight/fire, pause/resize, skip once, restart"

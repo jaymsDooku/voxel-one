@@ -1,4 +1,4 @@
-import {terrainPlan,DETAIL_LIMITS} from './terrain-detail.mjs';
+import {terrainPlan,DETAIL_LIMITS,terrainFeather} from './terrain-detail.mjs';
 import {combatCameraAt} from './entry-sequence.mjs';
 import {viewRay,coarseSample,surfaceRay} from './coarse-view.mjs';
 import {cloudDensity,cloudInterval} from './clouds.mjs';
@@ -7,7 +7,7 @@ import {cameraAt,EntrySequence} from './entry-sequence.mjs';
 export {cameraAt} from './entry-sequence.mjs';
 // Original browser adapter. SI metres, linear radiance; one display conversion.
 // No external assets. Byte textures avoid float-target/filter extension assumptions.
-import {createPlanetVisualProfile,macroSample} from './planet-profile.mjs';
+import {createPlanetVisualProfile,macroSample,sharedSample,localSphere,sphericalLocal} from './planet-profile.mjs';
 import {integrate,atmospherePreset,dot,sunlight,sampleMultiple} from './atmosphere.mjs';
 const vertex=`#version 300 es
 in vec2 position;out vec2 uv;
@@ -91,20 +91,23 @@ export class EntryRenderer {
   ctx.fillStyle=color;ctx.beginPath();projected.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill();
  }
  localTerrain(ctx,w,h,c,air){
-  if(c.altitude>60000||!this.scene)return;
-  if(this.planScene!==this.scene||this.planFine!==this.fineScene||this.planQuality!==this.quality){this.detailPlan=terrainPlan(this.scene,this.fineScene,this.quality);this.planScene=this.scene;this.planFine=this.fineScene;this.planQuality=this.quality;}const columns=c.altitude<4000&&this.fineScene?[...this.detailPlan.coarse,...this.detailPlan.fine.map(col=>({...col,detail:true}))]:this.detailPlan.coarse;const r=this.profile.radius,mpb=50;
+  if(c.altitude>6000||!this.scene)return;
+  if(this.planScene!==this.scene||this.planFine!==this.fineScene||this.planQuality!==this.quality){this.detailPlan=terrainPlan(this.scene,this.fineScene,this.quality);this.planScene=this.scene;this.planFine=this.fineScene;this.planQuality=this.quality;}const columns=c.altitude<4000&&this.fineScene?[...this.detailPlan.coarse,...this.detailPlan.fine]:this.detailPlan.coarse;const r=this.profile.radius,mpb=50;
   const solar=this.surfaceSolar??=sunlight(this.profile.atmosphere,[0,r+this.profile.landingHeight+2,0],this.profile.sun,8),topLight=.12+Math.max(0,this.profile.sun[1])*1.4;
   const atmosphere=this.profile.atmosphere,aerialCount=this.quality==='Low'?8:this.quality==='Medium'?12:16,aerialStep=20000/aerialCount,aerial=[];for(let i=0;i<=aerialCount;i++)aerial.push(integrate(atmosphere,c.eye,c.forward,this.profile.sun,i*aerialStep,this.quality==='Low'?4:8,this.quality==='Low'?2:4,this.multipleTable?(p,s)=>sampleMultiple(this.multipleTable,atmosphere,p,s):undefined));
-  const alpha=Math.min(1,Math.max(0,(60000-c.altitude)/54000));ctx.save();ctx.globalAlpha=alpha;
-  for(const col of columns){const source=col.source;ctx.globalAlpha=alpha*(col.detail?Math.max(0,Math.min(1,(4000-c.altitude)/2500)):1);const x=col.x*mpb,z=col.z*mpb,size=source.view.step*mpb*col.stride,y=r+col.height*mpb;
+  const alpha=Math.min(1,Math.max(0,(6000-c.altitude)/3000));ctx.save();ctx.globalAlpha=alpha;
+  for(const col of columns){const source=col.source;ctx.globalAlpha=alpha*terrainFeather(col)*(col.detail?Math.max(0,Math.min(1,(4000-c.altitude)/2500)):1);const x=col.x*mpb,z=col.z*mpb,size=source.view.step*mpb*col.stride,y=r+col.height*mpb;
    const front=this.project([x,y,z],c,w,h);if(!front)continue;
    const color=this.profile.palette[col.biome][0].match(/[a-f0-9]{2}/gi).map(x=>parseInt(x,16)),distance=Math.hypot(x-c.eye[0],y-c.eye[1],z-c.eye[2]),index=Math.min(aerialCount,Math.max(0,Math.round(distance/aerialStep))),sample=aerial[index];
    const shade=(light,mat=color)=>`rgb(${mat.map((v,i)=>{const surface=(v/255)**2.2*light*(.12+solar[i]*2.8),radiance=surface*sample.transmittance[i]+sample.radiance[i];return Math.round(255*(1-Math.exp(-radiance*(1.1+c.progress*.5)))**(1/2.2));}).join(',')})`;
-   this.polygon(ctx,[[x-size/2,y,z-size/2],[x+size/2,y,z-size/2],[x+size/2,y,z+size/2],[x-size/2,y,z+size/2]],shade(topLight),c,w,h);
+   const voxel=Math.max(0,Math.min(1,(1500-c.altitude)/1000)),parentCorners=col.parentCorners??=[[-1,-1],[1,-1],[1,1],[-1,1]].map(([dx,dz])=>{const px=x+dx*size/2,pz=z+dz*size/2,parent=sharedSample(this.world,this.profile,localSphere(this.profile,px/mpb,pz/mpb));return [px,r+parent.height*mpb,pz];}),corners=parentCorners.map(([px,py,pz])=>[px,py*(1-voxel)+y*voxel,pz]);
+   this.polygon(ctx,corners,shade(topLight),c,w,h);
+   // Regional surfaces slope into their parent. Exposed voxel faces grow only near ground.
+   const faceAlpha=ctx.globalAlpha;ctx.globalAlpha*=voxel*terrainFeather(col);
    const bottom=r+col.nextHeight*mpb;
    this.polygon(ctx,[[x-size/2,y,z-size/2],[x+size/2,y,z-size/2],[x+size/2,bottom,z-size/2],[x-size/2,bottom,z-size/2]],shade(.12+Math.max(0,-this.profile.sun[2])),c,w,h);
    for(const direction of [-1,1]){const adjacent=source.columns[col.row*source.view.cols+col.col+direction*col.stride];if(!adjacent||adjacent.row!==col.row||adjacent.height>=col.height)continue;const edge=x+direction*size/2,floor=r+adjacent.height*mpb;this.polygon(ctx,[[edge,y,z-size/2],[edge,y,z+size/2],[edge,floor,z+size/2],[edge,floor,z-size/2]],shade(.12+Math.max(0,direction*this.profile.sun[0])*1.4),c,w,h);}
-   const feature=col.landmark;for(const span of feature?.spans||[]){const x=feature.x*mpb,z=feature.z*mpb,size=source.view.step*mpb;if(span.top<=feature.height)continue;const top=r+(span.top+1)*mpb,bottom=r+Math.max(span.bottom,feature.height)*mpb,tint=MATERIAL_COLORS[span.material]?.match(/[a-f0-9]{2}/gi).map(v=>parseInt(v,16))||color;
+   ctx.globalAlpha=faceAlpha;const feature=col.landmark;for(const span of feature?.spans||[]){const x=feature.x*mpb,z=feature.z*mpb,size=source.view.step*mpb;if(span.top<=feature.height)continue;const top=r+(span.top+1)*mpb,bottom=r+Math.max(span.bottom,feature.height)*mpb,tint=MATERIAL_COLORS[span.material]?.match(/[a-f0-9]{2}/gi).map(v=>parseInt(v,16))||color;
     this.polygon(ctx,[[x-size/2,top,z-size/2],[x+size/2,top,z-size/2],[x+size/2,bottom,z-size/2],[x-size/2,bottom,z-size/2]],shade(.12+Math.max(0,-this.profile.sun[2])*1.4,tint),c,w,h);
     this.polygon(ctx,[[x-size/2,top,z-size/2],[x+size/2,top,z-size/2],[x+size/2,top,z+size/2],[x-size/2,top,z+size/2]],shade(topLight,tint),c,w,h);
     for(const direction of [-1,1]){const edge=x+direction*size/2;this.polygon(ctx,[[edge,top,z-size/2],[edge,top,z+size/2],[edge,bottom,z+size/2],[edge,bottom,z-size/2]],shade(.12+Math.max(0,direction*this.profile.sun[0])*1.4,tint),c,w,h);}
@@ -121,7 +124,7 @@ export class EntryRenderer {
   const index=Math.min(48,Math.floor(t*4)),a=c.combat?null:this.cache?.[index],b=this.cache?.[Math.min(48,index+1)];
   if(a){ctx.drawImage(a,0,0,w,h);if(b&&t<12){ctx.save();ctx.globalAlpha=t*4-index;ctx.drawImage(b,0,0,w,h);ctx.restore();}return;}
   const p=this.profile,config=p.atmosphere,r=p.radius,atlas={data:this.atlasData,width:this.atlasWidth,height:this.atlasHeight};
-  const sample=n=>coarseSample(p,atlas,this.patchData,n),exposure=1.1+c.progress*.5;
+  const sample=n=>sharedSample(this.world,p,n),exposure=1.1+c.progress*.5;
   const display=color=>`rgb(${color.map(v=>Math.round(255*(1-Math.exp(-Math.max(0,v)*exposure))**(1/2.2))).join(',')})`;
   // Thirteen reference rays supply aerial perspective. No per-pixel integration.
   const rows=[];for(let row=0;row<=12;row++){
@@ -135,7 +138,7 @@ export class EntryRenderer {
    const y=(row+.5)/meshRows,k=y*12,j=Math.min(11,Math.floor(k)),f=k-j,a=rows[j],b=rows[j+1],trans=mix(a.transmittance,b.transmittance,f),radiance=mix(a.radiance,b.radiance,f),solar=mix(a.solar,b.solar,f);
    for(let col=0;col<cols;col++){
     const d=viewRay(c,(col+.5)/cols,y,w/h),hit=surfaceRay(c,d,p,sample);let color=[.003,.006,.014];
-    if(hit){const light=Math.max(0,dot(hit.normal,p.sun));color=hit.material.color.map((v,i)=>(v/255)**2.2*(.035+solar[i]*light*2.8));}
+    if(hit){const local=sphericalLocal(p,hit.normal),step=Math.max(Math.abs(local.x)/108,Math.abs(local.z-66)/72)<1?3:32,dx=sample(localSphere(p,local.x+step,local.z)).height-sample(localSphere(p,local.x-step,local.z)).height,dz=sample(localSphere(p,local.x,local.z+step)).height-sample(localSphere(p,local.x,local.z-step)).height,normal=norm([hit.normal[0]-dx/(2*step),hit.normal[1],hit.normal[2]-dz/(2*step)]),light=Math.max(0,dot(normal,p.sun));color=hit.material.color.map((v,i)=>(v/255)**2.2*(.035+solar[i]*light*2.8));}
     if(config.enabled){const layers=[];for(const [altitude,thickness] of [[1800,450],[4500,600]]){const range=cloudInterval(c.eye,d,r,altitude,thickness,hit?.distance||Infinity);if(!range)continue;const distance=(range.near+range.far)/2,n=norm(c.eye.map((v,i)=>v+d[i]*distance)),opacity=Math.min(.55,1-Math.exp(-cloudDensity(n,p.cloudSeed,t)*(range.far-range.near)*.6/thickness));layers.push({distance,opacity,light:solar.map(v=>.01+v*Math.max(0,dot(n,p.sun))*.9)});}layers.sort((a,b)=>b.distance-a.distance);for(const layer of layers)color=color.map((v,i)=>v*(1-layer.opacity)+layer.light[i]*layer.opacity);}
     color=color.map((v,i)=>v*trans[i]+radiance[i]);
     ctx.fillStyle=display(color);ctx.fillRect(col*w/cols,row*h/meshRows,w/cols+.5,h/meshRows+.5);

@@ -15,8 +15,10 @@ export function coarseSample(profile,atlas,patch,n){
  return {height:patch[k+3]/255*128*(1-blend)+macro.height*blend,color:[0,1,2].map(i=>patch[k+i]*(1-blend)+macro.color[i]*blend)};
 }
 export function surfaceRay(camera,d,profile,sample){
- let hit=sphere(camera.eye,d,profile.radius+profile.landingHeight);
- if(!hit||hit.near<=0)return null;let distance=hit.near,n,material;
- for(let i=0;i<4;i++){n=unit(camera.eye.map((v,j)=>v+d[j]*distance));material=sample(n);hit=sphere(camera.eye,d,profile.radius+material.height*profile.metresPerBlock);if(!hit||hit.near<=0)return null;distance=hit.near;}
- n=unit(camera.eye.map((v,j)=>v+d[j]*distance));return {distance,normal:n,material:sample(n),position:camera.eye.map((v,j)=>v+d[j]*distance)};
+ const at=t=>{const position=camera.eye.map((v,i)=>v+d[i]*t),normal=unit(position),material=sample(normal);return {distance:t,normal,material,position,residual:Math.hypot(...position)-profile.radius-material.height*profile.metresPerBlock};};
+ const outer=sphere(camera.eye,d,profile.radius+6400),inner=sphere(camera.eye,d,profile.radius);if(!outer||outer.far<=0)return null;
+ const near=Math.max(0,outer.near),far=inner&&inner.near>near?inner.near:outer.far;
+ if(camera.altitude<60000){let previous=at(near);for(let i=1;i<=24;i++){const current=at(near+(far-near)*(i/24)**2);if(previous.residual>=0&&current.residual<=0){let lo=previous.distance,hi=current.distance;for(let j=0;j<8;j++){const mid=(lo+hi)/2;if(at(mid).residual>0)lo=mid;else hi=mid;}const point=at((lo+hi)/2),shell=sphere(camera.eye,d,profile.radius+point.material.height*profile.metresPerBlock);return shell&&shell.near>=lo&&shell.near<=hi?at(shell.near):point;}previous=current;}return null;}
+ let hit=sphere(camera.eye,d,profile.radius+profile.landingHeight);if(!hit||hit.near<=0)return null;let distance=hit.near;
+ for(let i=0;i<4;i++){const point=at(distance);hit=sphere(camera.eye,d,profile.radius+point.material.height*profile.metresPerBlock);if(!hit||hit.near<=0)return null;distance=hit.near;}return at(distance);
 }

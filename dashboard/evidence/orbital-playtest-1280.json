@@ -11,17 +11,17 @@
         "height": 900
       },
       "timing": {
-        "count": 401,
-        "p50": 33.29999999999927,
-        "p95": 50,
-        "p99": 66.60000000000036,
-        "worst": 83.29999999999927,
+        "count": 182,
+        "p50": 50,
+        "p95": 183.39999999999964,
+        "p99": 600,
+        "worst": 683.3000000000002,
         "peakMainJsHeapBytes": 10000000
       },
       "preparation": {
-        "mainThreadMilliseconds": 32.19999980926514,
-        "cacheFrames": 49,
-        "cachePixelBytes": 14112000,
+        "mainThreadMilliseconds": 53.69999980926514,
+        "cacheFrames": 31,
+        "cachePixelBytes": 8928000,
         "fineTerrainReady": true
       },
       "scenes": [
@@ -31,7 +31,6 @@
         "waking",
         null,
         "crash",
-        "blackout",
         null
       ],
       "result": "PASS: real keyboard last kill, normal sequence, visible external-camera handoff, score/lives, active flight/fire, pause/resize, skip once, restart"

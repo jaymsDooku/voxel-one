@@ -133,3 +133,5 @@ Latest authoritative reviewer-fix validation: `orbital-revision-validation.md`. 
 
 
 Superseded renderer/media validation: latest authoritative results are in `orbital-camera-performance-validation.md`. Physical hardware checks remain follow-up.
+
+This report is historical. The parent/local continuity and prewarm restart revision is recorded in orbital-continuity-validation.txt.

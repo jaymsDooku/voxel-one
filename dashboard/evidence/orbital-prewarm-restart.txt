@@ -1,0 +1,2 @@
+Playtest: Chromium  synthetic level 2 prewarm; restart before descent; worker/profile/cache remain cleared after 500 ms. PASS
+Playtest: WebKit  synthetic level 2 prewarm; restart before descent; worker/profile/cache remain cleared after 500 ms. PASS

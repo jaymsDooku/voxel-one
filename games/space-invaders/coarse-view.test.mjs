@@ -20,3 +20,8 @@ test('atlas wraps longitude and clamps poles; landing patch keeps anchored sampl
  for(const n of [[0,1,0],[0,-1,0],[1e-9,0,-1],[-1e-9,0,-1]])assert.deepEqual(atlasSample(data,4,4,n).color,[100,100,100]);
  const s=coarseSample(profile,{data,width:4,height:4},patch,localSphere(profile,0,66));assert.deepEqual(s.color,[80,80,80]);assert.equal(s.height,80/255*128);
 });
+test('near-ground rays intersect raised parent terrain instead of discarding a negative sphere root',()=>{
+ const profile=createPlanetVisualProfile(),camera=cameraAt(12,profile),ray=viewRay(camera,.5,.7,1280/900);
+ const hit=surfaceRay(camera,ray,profile,n=>({height:12+Math.max(0,n[2])*5000,color:[80,120,100]}));
+ assert(hit&&hit.distance>0);assert(Math.abs(Math.hypot(...hit.position)-profile.radius-hit.material.height*50)<20);
+});

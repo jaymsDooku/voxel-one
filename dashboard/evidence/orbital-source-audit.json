@@ -6,7 +6,7 @@
   "checks": [
     {
       "file": "games/space-invaders/app.mjs",
-      "sha256": "a22737be6c3cc0a9002ccf3c7676d339c8cf92eaba5b414e2401856a3cd0a486",
+      "sha256": "a5869f3c7222106bdd2bceb816a634b45a03bc69aa4914841ec7874e2c087950",
       "bundleMatches": true
     },
     {
@@ -31,7 +31,7 @@
     },
     {
       "file": "games/space-invaders/entry-renderer.mjs",
-      "sha256": "7de6efaba2834369745439c28172c6e578a68cdd5d8983b66a1add1b0e3bcaac",
+      "sha256": "adac8b5c3b59aeaf18a32b29891fce5c9ae43228f26fc224bac9ba92cff9f3f4",
       "bundleMatches": true
     },
     {
@@ -41,7 +41,7 @@
     },
     {
       "file": "games/space-invaders/entry-worker.mjs",
-      "sha256": "cef8d54dc1e78179864f04656d5e7b812cb3c1f758bdf4140eca142bd6b9c0e4",
+      "sha256": "6a17fad80fea2d47a09ab591df2954d75ba34fd58add427f2c20e81412a308fa",
       "bundleMatches": true
     },
     {
@@ -56,7 +56,7 @@
     },
     {
       "file": "games/space-invaders/planet-profile.mjs",
-      "sha256": "9d94fc9941c232b6c7133f014ecdeca650455a35c311569e6e8e9b49009a29be",
+      "sha256": "5a67d863c7cbb6f2fc2a42b364b00a3437723c6e12b315f7aff8b84c7c59c426",
       "bundleMatches": true
     },
     {
@@ -86,16 +86,16 @@
     },
     {
       "file": "games/space-invaders/coarse-view.mjs",
-      "sha256": "66106458cb27a348c02f00728227d28fd7c66eeac180a78f45f9bff7f031c0b9",
+      "sha256": "5af33a058511c692c4b72a57b80f9ad7909df4275c26a1ff28708d425741d27d",
       "bundleMatches": true
     },
     {
       "file": "games/space-invaders/terrain-detail.mjs",
-      "sha256": "dd3b75762ce4dc30438734190ae3dbb1964ffad4b8d9f26f95907823cf3db0d2",
+      "sha256": "43a6d89844207301ee8f592a75b3b86d9b41db310c9bd0ad4900ec11e98e9257",
       "bundleMatches": true
     }
   ],
-  "verification": "Final camera/performance source is unchanged after all recorded runs. All 18 source/bundle hashes match. Passed: 37 unit tests, eight visible-camera workflows, six isolated benchmark workflows, scoped memory sampling, GL/Worker-failure checks and collision/layout/touch/cockpit/fighter (390x844)/lab/launcher regressions. WebKit frame targets remain unmet. Physical hardware tests remain follow-up.",
+  "verification": "39 unit tests, eight final-source viewport workflows, prewarm restart/stale callback, Worker failure, context/airless/lab diagnostics, isolated Low benchmarks, scoped browser memory and launcher checks executed. All 18 runtime source/bundle assets match. Controller must assign the committed head and rerun meaningful checks if integration changes source.",
   "unchangedTerrainGenerator": "1f14765c2ad7bcd34f3cff542d3c8b80b022b7e52e49c7031c1659ead0fc482d",
   "sourceDeletions": [],
   "restoredHistoricalEvidence": [
@@ -178,14 +178,19 @@
   "media": [
     {
       "file": "dashboard/evidence/orbital-normal.mp4",
-      "bytes": 786196,
-      "sha256": "28e8d482e2c29a44c67e070fde80e8f3d29b1906bfea13c20ca268ff6ec30c22"
+      "bytes": 712605,
+      "sha256": "57fc20ebf0d7eb6ff596f65ea0962e2f222cdd02411e82112f1de43c83897097"
     },
     {
-      "file": "dashboard/evidence/orbital-chromium-1280-external.png",
-      "bytes": 197495,
-      "sha256": "65aff896543df4a7db766c61ee958be2fa25c647e2b29f158a5afe1bf3f20b9d"
+      "file": "dashboard/evidence/orbital-continuity-contact.png",
+      "bytes": 785919,
+      "sha256": "c44240f21a4ec3cf39c12c8c20169300387f4155768c910e1d08adae7f0bf865"
+    },
+    {
+      "file": "dashboard/evidence/orbital-cache-failure-chromium-4.5.png",
+      "bytes": 85988,
+      "sha256": "9967741021a66bf09b5ac60f2312231c0b49178f83f5e72aeb342b0ee5ca9e47"
     }
   ],
-  "testedStartingHead": "a7b9fee433353f711626ca32fa08bacfae33aad7"
+  "testedStartingHead": "be61a2e88a77fe6abe7a72241c2e88e66a9a99dd"
 }

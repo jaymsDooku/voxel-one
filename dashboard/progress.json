@@ -20,8 +20,8 @@
       "description": "Implementing a shared planet profile, browser atmosphere and continuous entry camera. Validation remains pending.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Ready for independent review: external camera handoff, 640/2048/4096-face bounds, precomposed capped Canvas buffers. 37 unit tests, eight visible-camera workflows and regressions pass. Isolated benchmarks/memory report and fresh video saved; WebKit targets unmet, physical checks follow-up, GL opt-in.",
-      "updatedAt": "2026-10-12T22:05:42+00:00"
+      "note": "Ready for independent review: parent-height mesh/voxel blend and prewarm restart cleanup. 39 units, eight workflows, failure/recovery checks, fresh media and scoped memory saved. Prepared Low p95 Chromium 16.7 ms/WebKit 45 ms; cold targets unmet, physical follow-up, GL opt-in.",
+      "updatedAt": "2026-10-12T23:23:18+00:00"
     },
     {
       "id": "36646561376136642d646639322d343635352d616365372d356135643135353263316664",
