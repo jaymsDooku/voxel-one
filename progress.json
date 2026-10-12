@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-12T11:45:39+00:00",
+  "updatedAt": "2026-10-12T20:17:13+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -3819,6 +3819,36 @@
       "status": "in_progress",
       "note": "CI follow-up confirmed: both exact-head runs passed Linux, Windows, Intel Mac and Apple Silicon Mac; publish skipped. Earlier cancelled run was superseded. Source hashes match validated playtests. Ready for independent review.",
       "updatedAt": "2026-10-08T15:02:53+00:00"
+    },
+    {
+      "id": "b8858cd1-4a0d-4bbe-876c-95470b4375aa",
+      "title": "Voxel One Hub: redesigned launcher for all games and engine work",
+      "description": "Controller recovery completed: authenticated developer/reviewer test displays enlarged to 3200x2000; prepared Hub feature source published for scoped Windows/macOS validation. Missing private Space Invaders web assets restored from reviewed master and production WebKit start/move/fire/pause/resume/reload passed. Platform checks and implementation review remain pending.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Scoped Windows and macOS validation",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/38303066989"
+        },
+        {
+          "kind": "link",
+          "label": "Restored private Space Invaders route",
+          "url": "https://voxel-one.jamesleaver1.chatgpt.site/games/space-invaders/"
+        },
+        {
+          "kind": "report",
+          "label": "hub production route report.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/hub-production-route-report.json"
+        },
+        {
+          "kind": "image",
+          "label": "hub published space invaders.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/hub-published-space-invaders.png"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Controller recovery completed: authenticated developer/reviewer test displays enlarged to 3200x2000; prepared Hub feature source published for scoped Windows/macOS validation. Missing private Space Invaders web assets restored from reviewed master and production WebKit start/move/fire/pause/resume/reload passed. Platform checks and implementation review remain pending.",
+      "updatedAt": "2026-10-12T20:17:13+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
