@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-10T04:06:16+00:00",
+  "updatedAt": "2026-10-12T11:16:32+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,41 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "8e8c9b62-2ac3-4cf2-a629-5e546f13c5c8",
+      "title": "Create Voxel Sandbox",
+      "description": "Implementing desktop game identity, launch selection, port defaults and save isolation; validation pending.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "Pending publication: validation report",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38653863396236322d326163332d346366322d613632392d356535343666313363356338/dashboard/evidence/voxel-sandbox-validation.json"
+        },
+        {
+          "kind": "image",
+          "label": "Pending publication: desktop Sandbox selection",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38653863396236322d326163332d346366322d613632392d356535343666313363356338/dashboard/evidence/voxel-sandbox-selection.png"
+        },
+        {
+          "kind": "video",
+          "label": "Pending publication: Linux F10 break/pickup/place clip",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38653863396236322d326163332d346366322d613632392d356535343666313363356338/dashboard/evidence/voxel-sandbox-place-break.mp4"
+        },
+        {
+          "kind": "image",
+          "label": "Pending publication: Linux crafting",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38653863396236322d326163332d346366322d613632392d356535343666313363356338/dashboard/evidence/voxel-sandbox-craft.png"
+        },
+        {
+          "kind": "image",
+          "label": "Pending publication: City planning regression",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38653863396236322d326163332d346366322d613632392d356535343666313363356338/dashboard/evidence/voxel-city-planning-entry.png"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Implementation and local validation finished: final 38 tests, Linux/Windows packages, Sandbox mechanics and City entry playtests. Reports and F10 media await controller publication and independent review.",
+      "updatedAt": "2026-10-12T11:16:32+00:00"
+    },
     {
       "id": "63643936666265622d343239332d346630652d616562312d366333356236366137626464",
       "title": "Voxel world rendering performance and graphics settings",

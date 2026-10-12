@@ -277,7 +277,7 @@ public class Main {
     }
 
     private void init() {
-        window = new Window(framebufferWidth, framebufferHeight, "Voxel One", false, true);
+        window = new Window(framebufferWidth, framebufferHeight, "Voxel One | " + GameIdentity.of(gameConfig.city()).title, false, true);
         glfwSetWindowSizeLimits(window.getHandle(), 640, 640, GLFW_DONT_CARE, GLFW_DONT_CARE);
         window.center();
         window.setOpenGlContext();
@@ -1124,7 +1124,7 @@ public class Main {
             }
             glfwSetWindowTitle(
                     window.getHandle(),
-                    "Voxel One | "
+                    "Voxel One | " + GameIdentity.of(city().config().city()).title + " | "
                             + (network == null ? "Offline" : network.status())
                             + " | "
                             + (isometric
@@ -1734,21 +1734,24 @@ public class Main {
             return;
         }
         String host = null, pin = null;
-        int port = Protocol.PORT;
+        Integer explicitPort = null;
         boolean offline = false, cityGame = false, gameExplicit = false, engineWorkspace = false;
         double daySeconds = 1200, startHour = 8;
         boolean cycle = true;
         long seed = Terrain.DEFAULT_SEED;
         java.nio.file.Path productionFile = null;
-        java.nio.file.Path save = Controls.directory().resolve("offline-world.dat");
-        for (int i = 0; i < args.length; i++)
+        java.nio.file.Path save = null;
+        for (int i = 0; i < args.length; i++) {
+            if (Set.of("--game", "--server", "--port", "--fingerprint", "--seed", "--world",
+                    "--production-config", "--pedestrian-spacing", "--mounted-spacing",
+                    "--day-seconds", "--start-hour").contains(args[i])
+                    && (i + 1 >= args.length || args[i + 1].startsWith("--")))
+                throw new IllegalArgumentException("Missing value for " + args[i]);
             switch (args[i]) {
                 case "--editor" -> engineWorkspace = true;
                 case "--game" -> {
                     String value = args[++i];
-                    if (!value.equals("city") && !value.equals("sandbox"))
-                        throw new IllegalArgumentException("Game must be city or sandbox");
-                    cityGame = value.equals("city");
+                    cityGame = GameIdentity.parse(value) == GameIdentity.CITY;
                     gameExplicit = true;
                     LoginDialog.citySelected = cityGame;
                 }
@@ -1759,26 +1762,32 @@ public class Main {
                 case "--start-hour" -> startHour = Double.parseDouble(args[++i]);
                 case "--fixed-time" -> cycle = false;
                 case "--server" -> host = args[++i];
-                case "--port" -> port = Integer.parseInt(args[++i]);
+                case "--port" -> explicitPort = Integer.parseInt(args[++i]);
                 case "--fingerprint" -> pin = args[++i];
                 case "--seed" -> seed = Long.parseLong(args[++i]);
-                case "--world" -> save = java.nio.file.Path.of(args[++i]);
+                case "--world" -> {
+                    String value = args[++i];
+                    if (value.isBlank()) throw new IllegalArgumentException("World path must not be blank");
+                    save = java.nio.file.Path.of(value);
+                }
                 case "--offline" -> offline = true;
                 default ->
                         throw new IllegalArgumentException(
                                 "Usage: --server HOST --port PORT --fingerprint SHA256 --offline"
                                         + " --editor --game city|sandbox --world FILE --seed NUMBER --production-config FILE --pedestrian-spacing BLOCKS --mounted-spacing BLOCKS");
             }
+        }
         if (engineWorkspace && !gameExplicit) cityGame = true;
+        LoginDialog.citySelected = cityGame;
+        int port = GameIdentity.of(cityGame).launchPort(explicitPort);
         Main game = new Main();
         game.engineEditor.open = engineWorkspace;
         if (productionFile != null) game.productionCatalog = ProductionCatalog.load(productionFile);
         game.seed = seed;
-        game.offlineSave = save;
         try {
             if (!offline) {
                 try {
-                    game.network = LoginDialog.open(host, port, pin);
+                    game.network = LoginDialog.open(host, port, pin, gameExplicit || engineWorkspace, explicitPort != null);
                 } catch (java.util.concurrent.CancellationException e) {
                     return;
                 } catch (java.util.concurrent.ExecutionException e) {
@@ -1788,8 +1797,8 @@ public class Main {
             }
             if (!offline && !gameExplicit && !engineWorkspace) cityGame = LoginDialog.citySelected;
             game.gameConfig = new GameConfig(cityGame, cityGame && cycle, daySeconds, startHour);
-            if (cityGame && save.equals(Controls.directory().resolve("offline-world.dat")))
-                game.offlineSave = Controls.directory().resolve("offline-city.dat");
+            game.offlineSave = GameIdentity.of(cityGame).savePath(Controls.directory(), save);
+            if (game.network == null) LocalGame.validateGame(game.offlineSave, game.gameConfig);
             game.run();
         } finally {
             if (game.network != null) game.network.close();

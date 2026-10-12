@@ -1,6 +1,7 @@
 package dev.jayms.ui;
 
 import dev.jayms.net.MultiplayerClient;
+import dev.jayms.GameIdentity;
 import dev.jayms.net.SecureTransport;
 
 import java.awt.*;
@@ -15,12 +16,17 @@ import javax.swing.*;
  * Login and registration happen before opening the game, without blocking the Swing event thread.
  */
 public final class LoginDialog {
-    public static volatile boolean citySelected = true;
+    public static volatile boolean citySelected = false;
 
     public static MultiplayerClient open(String initialHost, int initialPort, String explicitPin)
             throws Exception {
+        return open(initialHost, initialPort, explicitPin, false, false);
+    }
+
+    public static MultiplayerClient open(String initialHost, int initialPort, String explicitPin,
+            boolean gameExplicit, boolean portExplicit) throws Exception {
         CompletableFuture<MultiplayerClient> result = new CompletableFuture<>();
-        SwingUtilities.invokeLater(() -> show(initialHost, initialPort, explicitPin, result));
+        SwingUtilities.invokeLater(() -> show(initialHost, initialPort, explicitPin, gameExplicit, portExplicit, result));
         return result.get();
     }
 
@@ -28,6 +34,7 @@ public final class LoginDialog {
             String initialHost,
             int initialPort,
             String explicitPin,
+            boolean gameExplicit, boolean portExplicit,
             CompletableFuture<MultiplayerClient> result) {
         Properties settings = new Properties();
         Path file = Controls.directory().resolve("connections.properties");
@@ -62,15 +69,26 @@ public final class LoginDialog {
         JTextField username = new JTextField(settings.getProperty("username", "jayms"), 20);
         JPasswordField password = new JPasswordField(20);
         JLabel status = new JLabel("Sign in, create an account, or play offline.");
-        JComboBox<String> game =
-                new JComboBox<>(new String[] {"Voxel City One", "Voxel One sandbox"});
-        game.setSelectedIndex(citySelected ? 0 : 1);
-        if (initialPort == 25565 && citySelected) port.setText("25566");
-        game.addActionListener(
-                e -> {
-                    citySelected = game.getSelectedIndex() == 0;
-                    port.setText(citySelected ? "25566" : "25565");
-                });
+        JComboBox<GameIdentity> game = new JComboBox<>(GameIdentity.values());
+        game.setSelectedItem(GameIdentity.of(citySelected));
+        game.setEnabled(!gameExplicit);
+        JLabel description = new JLabel(GameIdentity.of(citySelected).description);
+        boolean[] customPort = {portExplicit}, changingPort = {false};
+        port.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            private void changed() { if (!changingPort[0]) customPort[0] = true; }
+            public void insertUpdate(javax.swing.event.DocumentEvent e) { changed(); }
+            public void removeUpdate(javax.swing.event.DocumentEvent e) { changed(); }
+            public void changedUpdate(javax.swing.event.DocumentEvent e) { changed(); }
+        });
+        game.addActionListener(e -> {
+            var previous = GameIdentity.of(citySelected);
+            var selected = (GameIdentity) game.getSelectedItem();
+            changingPort[0] = true;
+            try { port.setText(selected.selectedPort(previous, port.getText().trim(), customPort[0])); }
+            finally { changingPort[0] = false; }
+            citySelected = selected == GameIdentity.CITY;
+            description.setText(selected.description);
+        });
         String[] labels = {"Game", "Server", "Port", "Username", "Password"};
         JComponent[] fields = {game, host, port, username, password};
         c.gridx = 0;
@@ -104,6 +122,8 @@ public final class LoginDialog {
         hint.setFont(hint.getFont().deriveFont(11f));
         c.gridy = 8;
         panel.add(hint, c);
+        c.gridy = 9;
+        panel.add(description, c);
         Runnable[] connect = new Runnable[2];
         for (int action = 0; action < 2; action++) {
             boolean create = action == 1;
@@ -185,6 +205,11 @@ public final class LoginDialog {
                                     MultiplayerClient client =
                                             new MultiplayerClient(
                                                     address, number, name, secret, create, pin);
+                                    if (client.city.config().city() != citySelected) {
+                                        client.close();
+                                        throw new IOException("Server runs " + GameIdentity.of(client.city.config().city()).title
+                                                + "; select that game or change the server port.");
+                                    }
                                     try {
                                         settings.setProperty("host", address);
                                         settings.setProperty("username", name);
@@ -216,7 +241,7 @@ public final class LoginDialog {
                                             cause.getMessage() == null
                                                     ? "Connection failed"
                                                     : cause.getMessage());
-                                    game.setEnabled(true);
+                                    game.setEnabled(!gameExplicit);
                                     login.setEnabled(true);
                                     register.setEnabled(true);
                                     offline.setEnabled(true);
