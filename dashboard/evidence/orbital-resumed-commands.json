@@ -1,0 +1,64 @@
+[
+  {
+    "case": "cold-chromium-memory",
+    "command": "node deploy/run_orbital_web_check.cjs deploy/test_orbital_memory.cjs",
+    "settings": {
+      "ORBITAL_BROWSER": "Chromium",
+      "ORBITAL_QUALITY": "Low",
+      "ORBITAL_REPORT_SUFFIX": "-bounded-final-memory"
+    },
+    "exit": 0
+  },
+  {
+    "case": "cold-webkit",
+    "command": "node deploy/run_orbital_web_check.cjs deploy/test_orbital_benchmark.cjs",
+    "settings": {
+      "ORBITAL_BROWSER": "WebKit",
+      "ORBITAL_QUALITY": "Low",
+      "ORBITAL_REPORT_SUFFIX": "-bounded-final"
+    },
+    "exit": 0
+  },
+  {
+    "case": "worker-failure",
+    "command": "node deploy/run_orbital_web_check.cjs deploy/test_orbital_bounded_parent.cjs",
+    "settings": {},
+    "exit": 0
+  },
+  {
+    "case": "diagnostics",
+    "command": "node deploy/run_orbital_web_check.cjs deploy/test_orbital_diagnostics.cjs",
+    "settings": {},
+    "exit": 0
+  },
+  {
+    "case": "prewarm-restart",
+    "command": "node deploy/run_orbital_web_check.cjs deploy/test_orbital_prewarm_restart.cjs",
+    "settings": {},
+    "exit": 0
+  },
+  {
+    "case": "launcher",
+    "command": "node deploy/run_orbital_web_check.cjs deploy/test_orbital_launcher.cjs",
+    "settings": {},
+    "exit": 0
+  },
+  {
+    "case": "regressions",
+    "command": "node deploy/run_orbital_web_check.cjs deploy/run_orbital_regressions.cjs",
+    "settings": {},
+    "exit": 0
+  },
+  {
+    "case": "video-playback",
+    "command": "node deploy/run_orbital_web_check.cjs deploy/test_orbital_video.cjs",
+    "settings": {},
+    "exit": 0
+  },
+  {
+    "case": "contact-sheet",
+    "command": "node deploy/run_orbital_web_check.cjs .tmp/capture-bounded-contact.cjs",
+    "settings": {},
+    "exit": 0
+  }
+]

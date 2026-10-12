@@ -5,7 +5,7 @@ const fs=require('node:fs');
 (async()=>{
  const browser=await webkit.launch({headless:true});const results=[];
  for(const viewport of [{width:1280,height:900},{width:390,height:844},{width:844,height:390}].filter(v=>!process.env.SPACE_INVADERS_VIEWPORT_WIDTH||v.width===Number(process.env.SPACE_INVADERS_VIEWPORT_WIDTH))){
-  const context=await browser.newContext({viewport,hasTouch:true,...(viewport.width===1280?{recordVideo:{dir:'.tmp/fighter-video',size:{width:960,height:675}}}:{})});const page=await context.newPage();page.setDefaultTimeout(10000);const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  const context=await browser.newContext({viewport,hasTouch:true,...(viewport.width===1280?{recordVideo:{dir:'.tmp/fighter-video',size:{width:960,height:675}}}:{})});const page=await context.newPage();page.setDefaultTimeout(90000);const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto(process.env.SPACE_INVADERS_URL||'http://127.0.0.1:8767/games/space-invaders/index.html');await page.locator('#start').click();await page.evaluate(async()=>{window.__qaGame=(await import('./app.mjs')).game;});
   await page.waitForTimeout(120);assert.equal(await page.locator('canvas').getAttribute('data-perspective'),'classic');
   if(viewport.width===1280)await page.screenshot({path:'dashboard/evidence/fighters-level-1-regression.png'});

@@ -1,0 +1,7 @@
+{
+  "command": "PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node .tmp/check-launcher.cjs",
+  "playtest": "Playtest: open generated website launcher, follow Play Voxel Space Invaders, start, move right/fire through keyboard and real animation loop",
+  "expected": "Generated route loads aligned modules and supports normal combat",
+  "observed": "PASS",
+  "errors": []
+}

@@ -1,0 +1,22 @@
+const norm=v=>{const n=Math.hypot(...v);return v.map(x=>x/n);};
+const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+export const ENTRY_DURATION=12;
+export function cameraAt(t,profile){
+ if(!Number.isFinite(t))throw RangeError('Invalid entry time');
+ const p=Math.min(1,Math.max(0,t/ENTRY_DURATION)),ease=p*p*(3-2*p);
+ const keys=[12000000,120000,6000,1500,12],segment=Math.min(3,Math.floor(p*4)),fraction=p*4-segment,s=fraction*fraction*(3-2*fraction);
+ const altitude=Math.exp(Math.log(keys[segment])*(1-s)+Math.log(keys[segment+1])*s);
+ const a=-.30*Math.pow(Math.max(0,(altitude-12)/(12000000-12)),.7),r=profile.radius+altitude+profile.landingHeight;
+ const eye=[0,r*Math.cos(a),r*Math.sin(a)-250*(ease**8)];
+ const orbital=Math.min(1,Math.max(0,t/3)),focus=orbital*orbital*(3-2*orbital);
+ const target=[0,profile.radius+profile.landingHeight-profile.radius*.65*(1-focus),3300];
+ const forward=norm(target.map((x,i)=>x-eye[i])),right=norm(cross(forward,[0,1,0])),up=cross(right,forward);
+ const altitudeVelocity=p>=1?0:altitude*(Math.log(keys[segment+1])-Math.log(keys[segment]))*6*fraction*(1-fraction)*4/ENTRY_DURATION;
+ return {eye,forward,right,up,altitude,altitudeVelocity,progress:p};
+}
+
+export class EntrySequence {
+ constructor(profile){this.profile=profile;this.duration=ENTRY_DURATION;this.epoch=0;this.cancelled=false;}
+ sample(time){if(this.cancelled)return null;return cameraAt(time,this.profile);}
+ cancel(){this.cancelled=true;this.epoch++;}
+}

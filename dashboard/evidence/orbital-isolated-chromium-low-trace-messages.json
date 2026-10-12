@@ -1,0 +1,462 @@
+{
+  "command": "ORBITAL_BROWSER=Chromium ORBITAL_QUALITY=Low ORBITAL_PREWARM=3seconds PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/test_orbital_benchmark.cjs",
+  "environment": "Linux software headless browser,1280x900,Canvas,one browser at a time,no video or diagnostic workload concurrently; synthetic isolated final fighter; heap excludes worker/GPU/native peak",
+  "playtest": "Playtest: start,prewarm level2 for3seconds,real Space final kill,normal descent/waking,external-camera handoff,score/lives; capture rAF/world CPU percentiles and max face work",
+  "browser": "Chromium",
+  "quality": "Low",
+  "prewarm": "3seconds",
+  "result": {
+    "poses": [
+      {
+        "time": 0.26669999999999977,
+        "parent": 0,
+        "updates": 2,
+        "pending": true,
+        "cache": 1,
+        "rendered": 0,
+        "cameraAltitude": 12000000.000000011
+      },
+      {
+        "time": 0.5332999999999992,
+        "parent": 0,
+        "updates": 2,
+        "pending": true,
+        "cache": 1,
+        "rendered": 0,
+        "cameraAltitude": 12000000.000000011
+      },
+      {
+        "time": 0.7832999999999994,
+        "parent": 0,
+        "updates": 2,
+        "pending": true,
+        "cache": 1,
+        "rendered": 0,
+        "cameraAltitude": 12000000.000000011
+      },
+      {
+        "time": 1.0500000000000003,
+        "parent": 0,
+        "updates": 2,
+        "pending": true,
+        "cache": 1,
+        "rendered": 0,
+        "cameraAltitude": 12000000.000000011
+      },
+      {
+        "time": 1.3165999999999989,
+        "parent": 0,
+        "updates": 3,
+        "pending": true,
+        "cache": 2,
+        "rendered": 0,
+        "cameraAltitude": 12000000.000000011
+      },
+      {
+        "time": 1.5832999999999984,
+        "parent": 0,
+        "updates": 3,
+        "pending": true,
+        "cache": 2,
+        "rendered": 0,
+        "cameraAltitude": 12000000.000000011
+      },
+      {
+        "time": 1.849899999999998,
+        "parent": 0,
+        "updates": 3,
+        "pending": true,
+        "cache": 2,
+        "rendered": 0,
+        "cameraAltitude": 12000000.000000011
+      },
+      {
+        "time": 2.116499999999998,
+        "parent": 0,
+        "updates": 3,
+        "pending": true,
+        "cache": 2,
+        "rendered": 0,
+        "cameraAltitude": 12000000.000000011
+      },
+      {
+        "time": 2.383199999999997,
+        "parent": 0,
+        "updates": 3,
+        "pending": true,
+        "cache": 2,
+        "rendered": 0,
+        "cameraAltitude": 12000000.000000011
+      },
+      {
+        "time": 2.649799999999996,
+        "parent": 1.1332999999999993,
+        "updates": 4,
+        "pending": true,
+        "cache": 2,
+        "rendered": 1.1332999999999993,
+        "cameraAltitude": 2745213.3303285427
+      },
+      {
+        "time": 2.8998999999999957,
+        "parent": 1.1332999999999993,
+        "updates": 4,
+        "pending": true,
+        "cache": 3,
+        "rendered": 1.1332999999999993,
+        "cameraAltitude": 2745213.3303285427
+      },
+      {
+        "time": 3.166499999999995,
+        "parent": 1.1332999999999993,
+        "updates": 4,
+        "pending": true,
+        "cache": 3,
+        "rendered": 1.1332999999999993,
+        "cameraAltitude": 2745213.3303285427
+      },
+      {
+        "time": 3.4331999999999936,
+        "parent": 1.1332999999999993,
+        "updates": 4,
+        "pending": true,
+        "cache": 3,
+        "rendered": 1.1332999999999993,
+        "cameraAltitude": 2745213.3303285427
+      },
+      {
+        "time": 3.6997999999999935,
+        "parent": 1.1332999999999993,
+        "updates": 4,
+        "pending": true,
+        "cache": 3,
+        "rendered": 1.1332999999999993,
+        "cameraAltitude": 2745213.3303285427
+      },
+      {
+        "time": 3.9664999999999937,
+        "parent": 1.1332999999999993,
+        "updates": 4,
+        "pending": true,
+        "cache": 3,
+        "rendered": 1.1332999999999993,
+        "cameraAltitude": 2745213.3303285427
+      },
+      {
+        "time": 4.233099999999993,
+        "parent": 2.4998999999999967,
+        "updates": 5,
+        "pending": true,
+        "cache": 3,
+        "rendered": 2.4998999999999967,
+        "cameraAltitude": 168804.86315217608
+      },
+      {
+        "time": 4.483199999999996,
+        "parent": 4.2664999999999935,
+        "updates": 7,
+        "pending": true,
+        "cache": 3,
+        "rendered": 4.2664999999999935,
+        "cameraAltitude": 37960.73266678129
+      },
+      {
+        "time": 4.733199999999997,
+        "parent": 4.566399999999997,
+        "updates": 9,
+        "pending": true,
+        "cache": 3,
+        "rendered": 4.566399999999997,
+        "cameraAltitude": 24294.069295118978
+      },
+      {
+        "time": 4.999699999999999,
+        "parent": 4.699799999999998,
+        "updates": 10,
+        "pending": true,
+        "cache": 4,
+        "rendered": 4.699799999999998,
+        "cameraAltitude": 19927.92232578013
+      },
+      {
+        "time": 5.249700000000002,
+        "parent": 5.0331,
+        "updates": 12,
+        "pending": true,
+        "cache": 4,
+        "rendered": 5.0331,
+        "cameraAltitude": 12487.560392925554
+      },
+      {
+        "time": 5.499700000000004,
+        "parent": 5.266400000000003,
+        "updates": 14,
+        "pending": true,
+        "cache": 4,
+        "rendered": 5.266400000000003,
+        "cameraAltitude": 9407.94129275449
+      },
+      {
+        "time": 5.749700000000007,
+        "parent": 5.3998000000000035,
+        "updates": 15,
+        "pending": true,
+        "cache": 4,
+        "rendered": 5.3998000000000035,
+        "cameraAltitude": 8194.862032693829
+      },
+      {
+        "time": 5.999800000000009,
+        "parent": 5.799800000000008,
+        "updates": 17,
+        "pending": true,
+        "cache": 4,
+        "rendered": 5.799800000000008,
+        "cameraAltitude": 6233.898580952487
+      },
+      {
+        "time": 6.266400000000013,
+        "parent": 6.0664000000000105,
+        "updates": 19,
+        "pending": true,
+        "cache": 4,
+        "rendered": 6.0664000000000105,
+        "cameraAltitude": 5987.968222364155
+      },
+      {
+        "time": 6.516400000000017,
+        "parent": 6.233000000000013,
+        "updates": 20,
+        "pending": true,
+        "cache": 4,
+        "rendered": 6.233000000000013,
+        "cameraAltitude": 5858.956789369949
+      },
+      {
+        "time": 6.766400000000019,
+        "parent": 6.399700000000014,
+        "updates": 21,
+        "pending": true,
+        "cache": 4,
+        "rendered": 6.399700000000014,
+        "cameraAltitude": 5609.670133271795
+      },
+      {
+        "time": 7.016400000000021,
+        "parent": 6.566400000000018,
+        "updates": 22,
+        "pending": true,
+        "cache": 5,
+        "rendered": 6.566400000000018,
+        "cameraAltitude": 5270.75377259579
+      },
+      {
+        "time": 7.283000000000025,
+        "parent": 7.033100000000022,
+        "updates": 24,
+        "pending": true,
+        "cache": 5,
+        "rendered": 7.033100000000022,
+        "cameraAltitude": 4103.297233732715
+      },
+      {
+        "time": 7.533000000000029,
+        "parent": 7.166300000000023,
+        "updates": 25,
+        "pending": true,
+        "cache": 5,
+        "rendered": 7.166300000000023,
+        "cameraAltitude": 3766.324760893305
+      },
+      {
+        "time": 7.783000000000032,
+        "parent": 7.2997000000000245,
+        "updates": 26,
+        "pending": true,
+        "cache": 5,
+        "rendered": 7.2997000000000245,
+        "cameraAltitude": 3443.9685642286045
+      },
+      {
+        "time": 8.033000000000035,
+        "parent": 7.799700000000032,
+        "updates": 28,
+        "pending": true,
+        "cache": 5,
+        "rendered": 7.799700000000032,
+        "cameraAltitude": 2444.0105498322528
+      },
+      {
+        "time": 8.299600000000032,
+        "parent": 7.9330000000000345,
+        "updates": 29,
+        "pending": true,
+        "cache": 5,
+        "rendered": 7.9330000000000345,
+        "cameraAltitude": 2240.7622331395237
+      },
+      {
+        "time": 8.566300000000027,
+        "parent": 8.33300000000003,
+        "updates": 31,
+        "pending": true,
+        "cache": 5,
+        "rendered": 8.33300000000003,
+        "cameraAltitude": 1787.0667756736004
+      },
+      {
+        "time": 8.832900000000025,
+        "parent": 8.699700000000025,
+        "updates": 33,
+        "pending": true,
+        "cache": 5,
+        "rendered": 8.699700000000025,
+        "cameraAltitude": 1559.4859432256274
+      },
+      {
+        "time": 9.09960000000002,
+        "parent": 8.932900000000023,
+        "updates": 35,
+        "pending": true,
+        "cache": 5,
+        "rendered": 8.932900000000023,
+        "cameraAltitude": 1503.077450301509
+      },
+      {
+        "time": 9.366300000000015,
+        "parent": 9.166300000000017,
+        "updates": 37,
+        "pending": true,
+        "cache": 6,
+        "rendered": 9.166300000000017,
+        "cameraAltitude": 1437.060759217479
+      },
+      {
+        "time": 9.63290000000001,
+        "parent": 9.466200000000013,
+        "updates": 39,
+        "pending": true,
+        "cache": 6,
+        "rendered": 9.466200000000013,
+        "cameraAltitude": 1096.2608241684866
+      },
+      {
+        "time": 9.899600000000005,
+        "parent": 9.699600000000009,
+        "updates": 41,
+        "pending": true,
+        "cache": 6,
+        "rendered": 9.699600000000009,
+        "cameraAltitude": 771.2106803439456
+      },
+      {
+        "time": 10.166199999999998,
+        "parent": 9.932900000000004,
+        "updates": 43,
+        "pending": true,
+        "cache": 6,
+        "rendered": 9.932900000000004,
+        "cameraAltitude": 494.1815147254477
+      },
+      {
+        "time": 10.416299999999993,
+        "parent": 10.199499999999999,
+        "updates": 45,
+        "pending": true,
+        "cache": 6,
+        "rendered": 10.199499999999999,
+        "cameraAltitude": 274.4619584159759
+      },
+      {
+        "time": 10.682899999999988,
+        "parent": 10.53289999999999,
+        "updates": 48,
+        "pending": true,
+        "cache": 6,
+        "rendered": 10.53289999999999,
+        "cameraAltitude": 123.92177179996239
+      },
+      {
+        "time": 10.949499999999984,
+        "parent": 10.732899999999988,
+        "updates": 50,
+        "pending": true,
+        "cache": 6,
+        "rendered": 10.732899999999988,
+        "cameraAltitude": 76.80921599732739
+      },
+      {
+        "time": 11.19959999999998,
+        "parent": 11.06619999999998,
+        "updates": 53,
+        "pending": true,
+        "cache": 6,
+        "rendered": 11.06619999999998,
+        "cameraAltitude": 36.49177244753099
+      },
+      {
+        "time": 11.466199999999974,
+        "parent": 11.266199999999978,
+        "updates": 55,
+        "pending": true,
+        "cache": 7,
+        "rendered": 11.266199999999978,
+        "cameraAltitude": 24.784324489790716
+      },
+      {
+        "time": 11.732899999999969,
+        "parent": 11.532799999999975,
+        "updates": 58,
+        "pending": true,
+        "cache": 7,
+        "rendered": 11.532799999999975,
+        "cameraAltitude": 16.440292291549834
+      },
+      {
+        "time": 11.999499999999966,
+        "parent": 11.832799999999969,
+        "updates": 60,
+        "pending": true,
+        "cache": 7,
+        "rendered": 11.832799999999969,
+        "cameraAltitude": 12.531282169340892
+      }
+    ],
+    "frameMilliseconds": {
+      "count": 719,
+      "p50": 16.69999999999891,
+      "p95": 16.799999999999272,
+      "p99": 16.80000000000109,
+      "worst": 33.30000000000291
+    },
+    "worldCpuMilliseconds": {
+      "count": 719,
+      "p50": 0.20000076293945312,
+      "p95": 1.6000003814697266,
+      "p99": 1.9000005722045898,
+      "worst": 6
+    },
+    "maximumFaces": 0,
+    "faceLimit": 640,
+    "preparationFacePeak": 315,
+    "cacheComposePeakMilliseconds": 16.199999809265137,
+    "preparationMilliseconds": 276.69999980926514,
+    "cacheFrames": 9,
+    "worldResolution": {
+      "width": 320,
+      "height": 225
+    },
+    "parentSlicePeakMilliseconds": 10.899999618530273,
+    "parentPreparationMilliseconds": 455.5,
+    "parentUpdates": 64,
+    "parentLagSeconds": 0,
+    "uiCanvasPixels": {
+      "width": 1280,
+      "height": 900
+    },
+    "mainJsHeapBytes": 29400000
+  },
+  "expected": "bounded faces and visibly distinct external camera at same profile after waking",
+  "observed": "PASS workflow and face-bound assertions; timing values are measurements,not physical-device performance claims",
+  "errors": []
+}

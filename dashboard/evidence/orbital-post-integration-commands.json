@@ -1,0 +1,18 @@
+[
+  {
+    "command": "node deploy/run_orbital_web_check.cjs deploy/test_orbital_bounded_parent.cjs",
+    "exit": 0
+  },
+  {
+    "command": "node deploy/run_orbital_web_check.cjs deploy/test_orbital_diagnostics.cjs",
+    "exit": 0
+  },
+  {
+    "command": "node deploy/run_orbital_web_check.cjs deploy/test_orbital_prewarm_restart.cjs",
+    "exit": 0
+  },
+  {
+    "command": "node deploy/run_orbital_web_check.cjs deploy/test_orbital_launcher.cjs",
+    "exit": 0
+  }
+]

@@ -1,0 +1,49 @@
+{
+  "command": "PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/test_orbital_diagnostics.cjs",
+  "environment": "Linux headless Chromium software WebGL2; synthetic paused scene points; reduced motion checked in UI",
+  "playtest": "Playtest: start; choose WebGL2 preview and Reduced motion; synthesize last fighter completion, inspect fixed 0/3/6/9/11.5-second frames; lose WebGL context while paused; check same scene point and Canvas fallback; restart and choose airless; test locked lab generation and retry after restart.",
+  "results": [
+    {
+      "time": 0,
+      "observed": {
+        "backend": "WebGL2",
+        "failure": null,
+        "altitude": "12000000"
+      }
+    },
+    {
+      "time": 3,
+      "observed": {
+        "backend": "WebGL2",
+        "failure": null,
+        "altitude": "120000"
+      }
+    },
+    {
+      "time": 6,
+      "observed": {
+        "backend": "WebGL2",
+        "failure": null,
+        "altitude": "6000"
+      }
+    },
+    {
+      "time": 9,
+      "observed": {
+        "backend": "WebGL2",
+        "failure": null,
+        "altitude": "1500"
+      }
+    },
+    {
+      "time": 11.5,
+      "observed": {
+        "backend": "WebGL2",
+        "failure": null,
+        "altitude": "17"
+      }
+    }
+  ],
+  "edge": "PASS: context loss retained paused scene point; airless disabled atmosphere; lab generation locked during entry and allowed after restart",
+  "errors": []
+}

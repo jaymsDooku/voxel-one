@@ -1,0 +1,4 @@
+import {sphere,unit} from './atmosphere.mjs';
+export function cloudDensity(normal,seed,time){const n=unit(normal),phase=(seed%65536)/65536*Math.PI*2,cx=.03*Math.sin(phase),cz=.03*Math.cos(phase);const storm=.7*Math.exp(-((n[0]-cx)**2+(n[2]-cz)**2)/.04),detail=.25*Math.sin(n[0]*15+n[2]*11+phase+time*.015)*Math.sin(n[2]*21-n[0]*13+phase*1.7)+.08*Math.sin(n[0]*35+n[2]*39+phase*.4);return Math.max(0,Math.min(1,(storm+detail-.35)/.55));}
+// A bounded spherical medium, clipped by the visible solid surface.
+export function cloudInterval(eye,direction,radius,height,thickness,distance){const d=unit(direction),outer=sphere(eye,d,radius+height+thickness/2),inner=sphere(eye,d,radius+height-thickness/2);if(!outer)return null;let near=Math.max(0,outer.near),far=Math.min(distance,outer.far);if(inner){if(Math.hypot(...eye)<radius+height-thickness/2)near=Math.max(near,inner.far);else if(inner.near>=0)far=Math.min(far,inner.near);}return far>near?{near,far}:null;}

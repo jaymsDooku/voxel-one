@@ -1,0 +1,174 @@
+{
+  "branch": "feature/queue-32323739633831342d393930632d343438322d383036362d633363393732353338303631",
+  "provisionalBase": "136cef1940f13f9431c9f6e4400e19395145cbdb",
+  "reviewBase": "Audited against integrated HEAD 1d2c3b3266c9e2d9c82c2217594690c0a62334ef; no separately recorded review base supplied. Controller must retain this base or repeat audit after further synchronization.",
+  "intendedRemovals": "Replaced the original expanding disc, timed gradient/cloud blobs and repeating cube rows. Replaced fixed palette sky gradients with reference-based sky samples. No unrelated source deletions intended.",
+  "checks": [
+    {
+      "file": "games/space-invaders/app.mjs",
+      "sha256": "ebd0bcc75bde15ab9700879c7319754dc0d809082536f6eceb1c1286f1a4c274",
+      "bundleMatches": true
+    },
+    {
+      "file": "games/space-invaders/atmosphere-multiple-reference.json",
+      "sha256": "5760a297a05681ae2e5ee3a192233ce01a3e4d4955da30c14bb3c08ce163d7be",
+      "bundleMatches": true
+    },
+    {
+      "file": "games/space-invaders/atmosphere-reference.json",
+      "sha256": "a4f127d33db7e82c2c2e333a5bfdf74da0d5155bf5c7e390bc0d46c2c32f8746",
+      "bundleMatches": true
+    },
+    {
+      "file": "games/space-invaders/atmosphere.mjs",
+      "sha256": "c89790f08ecdd2b1cd98270ef1ab0dee90e8b496b8c8bd1f9f77a2396f4c2919",
+      "bundleMatches": true
+    },
+    {
+      "file": "games/space-invaders/clouds.mjs",
+      "sha256": "b90228f237d505a44e68853a923cd964f7c4158d2c0fc71915fa70d794b6fcc7",
+      "bundleMatches": true
+    },
+    {
+      "file": "games/space-invaders/entry-renderer.mjs",
+      "sha256": "c5a779a4c1d39f6c6bbd33fe4e84ac38f579f9f9f572dfc241b880b26307eace",
+      "bundleMatches": true
+    },
+    {
+      "file": "games/space-invaders/entry-sequence.mjs",
+      "sha256": "4aff613507578cd11bcadab53cc9dd6d473a8dbb9adc1c44d6037a942397734b",
+      "bundleMatches": true
+    },
+    {
+      "file": "games/space-invaders/entry-worker.mjs",
+      "sha256": "c58f4a64130931a292aeaffada851f3abea0053bc2d93e99bdf2c8324ffc9bbd",
+      "bundleMatches": true
+    },
+    {
+      "file": "games/space-invaders/game.mjs",
+      "sha256": "29377b3b8c1796aff03168566a4772c9d6b8569602c6198b6e455c75f21af350",
+      "bundleMatches": true
+    },
+    {
+      "file": "games/space-invaders/index.html",
+      "sha256": "309efdbeb34a383662f06f0a436f4ac3f2d24a2a813e816cc57fae3bde22ac75",
+      "bundleMatches": true
+    },
+    {
+      "file": "games/space-invaders/planet-profile.mjs",
+      "sha256": "9d94fc9941c232b6c7133f014ecdeca650455a35c311569e6e8e9b49009a29be",
+      "bundleMatches": true
+    },
+    {
+      "file": "games/space-invaders/style.css",
+      "sha256": "60335ebe510b931326ff39ecb9e6809f95c32b03a0d77a474ddf1c70f6de348d",
+      "bundleMatches": true
+    },
+    {
+      "file": "games/space-invaders/terrain-scene.mjs",
+      "sha256": "987ba986916f04635bca52a06d4381d49415a003eb30df29c339d92914f02412",
+      "bundleMatches": true
+    },
+    {
+      "file": "games/space-invaders/terrain-view.mjs",
+      "sha256": "83f906743f75a8ad1b2cd9e305315d3d8b3b3891b777862d0e9e72f3f73e4bd8",
+      "bundleMatches": true
+    },
+    {
+      "file": "games/space-invaders/terrain-worker.mjs",
+      "sha256": "852885762ff48bb061bcb8b82ebaa311855e8d8b1def67b0d1662ece7b28147a",
+      "bundleMatches": true
+    },
+    {
+      "file": "games/space-invaders/terrain.mjs",
+      "sha256": "1f14765c2ad7bcd34f3cff542d3c8b80b022b7e52e49c7031c1659ead0fc482d",
+      "bundleMatches": true
+    }
+  ],
+  "verification": "Final post-recovery validation complete for available browser scope:33 unit tests,8 Chromium/WebKit workflows,launcher pass. Prior GL/recovery/reduced-motion/airless/lab diagnostics and regressions cover unchanged source. Fresh video/contact sheet inspected. Physical Safari/named GPU tests follow-up; software performance gates fail; WebGL2 remains opt-in.",
+  "unchangedTerrainGenerator": "1f14765c2ad7bcd34f3cff542d3c8b80b022b7e52e49c7031c1659ead0fc482d",
+  "sourceDeletions": [],
+  "restoredHistoricalEvidence": [
+    "dashboard/evidence/alien-terrain-chromium-acheron.png",
+    "dashboard/evidence/alien-terrain-chromium-biome-overlay.png",
+    "dashboard/evidence/alien-terrain-chromium-cave-overlay.png",
+    "dashboard/evidence/alien-terrain-chromium-crystal.png",
+    "dashboard/evidence/alien-terrain-chromium-elevation-overlay.png",
+    "dashboard/evidence/alien-terrain-chromium-excavation.png",
+    "dashboard/evidence/alien-terrain-chromium-fungal-moon.png",
+    "dashboard/evidence/alien-terrain-chromium-glass-sea.png",
+    "dashboard/evidence/alien-terrain-chromium-impact.png",
+    "dashboard/evidence/alien-terrain-chromium-obsidian.png",
+    "dashboard/evidence/alien-terrain-chromium-silent-impact.png",
+    "dashboard/evidence/alien-terrain-chromium-slope-overlay.png",
+    "dashboard/evidence/alien-terrain-chromium-toxic.png",
+    "dashboard/evidence/alien-terrain-chromium-traversal-overlay.png",
+    "dashboard/evidence/alien-terrain-chromium-world.png",
+    "dashboard/evidence/alien-terrain-playtest.json",
+    "dashboard/evidence/alien-terrain-webkit-acheron.png",
+    "dashboard/evidence/alien-terrain-webkit-biome-overlay.png",
+    "dashboard/evidence/alien-terrain-webkit-cave-overlay.png",
+    "dashboard/evidence/alien-terrain-webkit-crystal.png",
+    "dashboard/evidence/alien-terrain-webkit-elevation-overlay.png",
+    "dashboard/evidence/alien-terrain-webkit-excavation.png",
+    "dashboard/evidence/alien-terrain-webkit-fungal-moon.png",
+    "dashboard/evidence/alien-terrain-webkit-glass-sea.png",
+    "dashboard/evidence/alien-terrain-webkit-impact.png",
+    "dashboard/evidence/alien-terrain-webkit-obsidian.png",
+    "dashboard/evidence/alien-terrain-webkit-silent-impact.png",
+    "dashboard/evidence/alien-terrain-webkit-slope-overlay.png",
+    "dashboard/evidence/alien-terrain-webkit-toxic.png",
+    "dashboard/evidence/alien-terrain-webkit-traversal-overlay.png",
+    "dashboard/evidence/alien-terrain-webkit-world.png",
+    "dashboard/evidence/cockpit-classic-regression.png",
+    "dashboard/evidence/cockpit-level-3-1280.png",
+    "dashboard/evidence/cockpit-level-3-390.png",
+    "dashboard/evidence/cockpit-level-3-844.png",
+    "dashboard/evidence/entry-crash-1280.png",
+    "dashboard/evidence/entry-descent-1280.png",
+    "dashboard/evidence/entry-regression-end-1280.png",
+    "dashboard/evidence/entry-regression-end-390.png",
+    "dashboard/evidence/entry-regression-end-844.png",
+    "dashboard/evidence/entry-regression-mid-1280.png",
+    "dashboard/evidence/entry-regression-mid-390.png",
+    "dashboard/evidence/entry-regression-mid-844.png",
+    "dashboard/evidence/entry-regression-playtest.json",
+    "dashboard/evidence/entry-regression-playtest.webm",
+    "dashboard/evidence/entry-regression-start-1280.png",
+    "dashboard/evidence/entry-regression-start-390.png",
+    "dashboard/evidence/entry-regression-start-844.png",
+    "dashboard/evidence/entry-waking-1280.png",
+    "dashboard/evidence/fighters-edge-playtest.json",
+    "dashboard/evidence/fighters-level-1-regression.png",
+    "dashboard/evidence/fighters-level-2-1280.png",
+    "dashboard/evidence/fighters-level-2-390.png",
+    "dashboard/evidence/fighters-level-2-844.png",
+    "dashboard/evidence/fighters-level-3-1280.png",
+    "dashboard/evidence/fighters-level-3-390.png",
+    "dashboard/evidence/fighters-level-3-844.png",
+    "dashboard/evidence/fighters-playtest.json",
+    "dashboard/evidence/invaders-level-2-1280.png",
+    "dashboard/evidence/invaders-level-2-390.png",
+    "dashboard/evidence/invaders-level-2-844.png",
+    "dashboard/evidence/invaders-levels-playtest.json",
+    "dashboard/evidence/space-invaders-collision-fix-390.png",
+    "dashboard/evidence/space-invaders-collision-fix-844.png",
+    "dashboard/evidence/space-invaders-collision-fix.json",
+    "dashboard/evidence/space-invaders-space-568x320-game-over.png",
+    "dashboard/evidence/space-invaders-space-568x320-paused.png",
+    "dashboard/evidence/space-invaders-space-568x320-playing.png",
+    "dashboard/evidence/space-invaders-space-568x320-start.png",
+    "dashboard/evidence/space-invaders-space-667x375-game-over.png",
+    "dashboard/evidence/space-invaders-space-667x375-paused.png",
+    "dashboard/evidence/space-invaders-space-667x375-playing.png",
+    "dashboard/evidence/space-invaders-space-667x375-start.png",
+    "dashboard/evidence/space-invaders-space-layout.json"
+  ],
+  "integratedBase": "1d2c3b3266c9e2d9c82c2217594690c0a62334ef",
+  "media": {
+    "file": "dashboard/evidence/orbital-normal.mp4",
+    "bytes": 615742,
+    "sha256": "a413ea6dc9c4576a5859ce13948a60a9a7e782598125e081a75f3189f486cb45",
+    "source": "16-file source SHA256 manifest; integrated base 1d2c3b3266c9e2d9c82c2217594690c0a62334ef; controller feature commit pending"
+  }
+}

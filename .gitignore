@@ -60,3 +60,6 @@ website/**/.wrangler/
 
 # Temporary sanitized Mac upload staging; accepted media belongs in dashboard/evidence.
 /voxel-ios-evidence-*/
+
+# Browser validation scratch files; finished media lives in dashboard/evidence.
+/.tmp/

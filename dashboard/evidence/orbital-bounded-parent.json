@@ -1,0 +1,60 @@
+{
+  "command": "PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/run_orbital_web_check.cjs deploy/test_orbital_bounded_parent.cjs",
+  "environment": "Linux software headless Chromium/WebKit; Canvas Low; isolated synthetic final fighter; no prewarm wait; Worker module aborted",
+  "playtest": "Playtest: real Space final kill immediately; pause at 3 seconds; inspect completed parent poses at 0/1.5/2.9/4.5/6/9/11.5; rotate portrait; resume to external level3 camera; fly/fire; restart",
+  "expected": "Retained coherent parent, no animation-thread cold trace, stable score130/lives2 and scene time while paused; restart drops sliced jobs and resources",
+  "results": [
+    {
+      "browser": "chromium",
+      "measurements": {
+        "animationTerrainCalls": 0,
+        "frame": {
+          "count": 535,
+          "p50": 16.699999999999818,
+          "p95": 16.799999999999272,
+          "p99": 16.800000000000182,
+          "worst": 16.80000000000109
+        },
+        "worldCpu": {
+          "count": 535,
+          "p50": 0.10000038146972656,
+          "p95": 1.8000001907348633,
+          "p99": 2.8000001907348633,
+          "worst": 8
+        },
+        "regionReady": true,
+        "parentReady": true,
+        "parentSlicePeakMilliseconds": 6.199999809265137,
+        "parentPreparationMilliseconds": 266.1000003814697,
+        "parentUpdates": 27
+      },
+      "observed": "PASS early real kill, fixed poses, unavailable Worker, empty cache, pause/rotation, full handoff, score/lives, flight/fire and restart cancellation"
+    },
+    {
+      "browser": "webkit",
+      "measurements": {
+        "animationTerrainCalls": 0,
+        "frame": {
+          "count": 245,
+          "p50": 43,
+          "p95": 81,
+          "p99": 224,
+          "worst": 1296
+        },
+        "worldCpu": {
+          "count": 245,
+          "p50": 0,
+          "p95": 1,
+          "p99": 1,
+          "worst": 3
+        },
+        "regionReady": true,
+        "parentReady": true,
+        "parentSlicePeakMilliseconds": 11,
+        "parentPreparationMilliseconds": 198,
+        "parentUpdates": 19
+      },
+      "observed": "PASS early real kill, fixed poses, unavailable Worker, empty cache, pause/rotation, full handoff, score/lives, flight/fire and restart cancellation"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+Playtest: Orbital descent and level 3 handoff.
+
+Environment: Linux headless Chromium and WebKit, software rendering, fresh isolated synthetic profiles, local HTTP source at `http://127.0.0.1:8779/games/space-invaders/index.html`. Viewports: 1280x900, 390x844, 844x390 and 568x320 in each browser. Canvas default, Medium quality, UI DPR capped at 2. Chromium desktop browser video recording enabled. Source hashes: `orbital-source-audit.json`; integrated base `1d2c3b3266c9e2d9c82c2217594690c0a62334ef`.
+
+Actual command: `PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR="$PWD/.tmp/browser" node deploy/test_orbital_descent.cjs`. This records the completed saved run; no new browser run was performed for this documentation correction.
+
+Steps: Start the game. Set the isolated synthetic final level 2 fighter, score 90 and lives 2. Fire with the real Space key through the animation loop. Capture approach, atmosphere, clouds, low descent and waking. Wait through blackout and waking. Move up and fire during active level 3. Repeat a synthetic transition; pause, rotate viewport, wait, skip twice, then restart.
+
+Expected: One descent from the actual final fighter kill; combat frozen during story; score 130 and lives 2 preserved; crash/blackout/waking followed by active level 3 flight/fire. Pause and rotation retain scene time. Skip completes once; second skip returns false. Restart returns to level 1 with no scene. No page errors.
+
+Observed: PASS in all eight browser/viewport cases. Scene history contains blackout and waking. Score 130/lives 2 assertions passed. Flight/fire, frozen pause/rotation time, one-time skip and restart assertions passed. No page errors. Recorded frames inspected; same terrain persists through impact and waking. Saved browser MP4: `orbital-normal.mp4`, 615,742 bytes. Software performance targets failed; physical Safari iPhone and named GPU checks remain unexecuted follow-up. WebGL2 remains opt-in.

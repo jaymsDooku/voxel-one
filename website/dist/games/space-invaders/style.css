@@ -37,3 +37,22 @@ button:focus-visible { outline: 3px solid #ffcf60; outline-offset: 2px; }
 .planet-key { line-height: 1.5; color: #b8c7d7; }
 @media (max-height: 500px) { #planet-lab { top: 60px; max-height: calc(100vh - 140px); } }
 .help { background: #061220aa; text-shadow: 0 1px 2px #000; }
+#skip-descent[hidden] { display: none; }
+.motion-setting { position: absolute; z-index: 2; right: max(16px, env(safe-area-inset-right)); top: max(72px, calc(env(safe-area-inset-top) + 60px)); font-size: 12px; background: #061220bb; padding: 6px; border-radius: 6px; }
+@media(max-height:500px) { .motion-setting { top: 62px; } #skip-descent { font-size: 12px; padding: 6px; min-height: 36px; } }
+@media(max-width:480px) { header h1 { font-size: 14px; } #skip-descent { position: absolute; right: 0; top: 96px; min-height: 36px; font-size: 12px; } }
+.motion-setting { top: max(108px, calc(env(safe-area-inset-top) + 96px)); right: max(140px, env(safe-area-inset-right)); }
+.motion-setting summary { cursor: pointer; }
+.motion-setting label { display: grid; gap: 4px; }
+.motion-setting select { min-height: 28px; }
+@media(max-width:480px) { .motion-setting { top: 110px; right: 145px; font-size: 11px; } }
+@media(max-height:500px) { .motion-setting { top: 70px; right: 145px; } }
+header:has(#skip-descent:not([hidden])) { z-index: 4; }
+@media(max-width:480px) { #skip-descent { top: 148px; } }
+.motion-setting { max-width: calc(100vw - 160px); }
+#planet-lab:not([open]) > :not(summary), .motion-setting:not([open]) > :not(summary) { display: none; }
+.motion-setting summary { min-height: 44px; min-width: 44px; display: flex; align-items: center; }
+.motion-setting[open] { max-height: calc(100vh - 240px); overflow: auto; }
+.motion-setting select, .motion-setting button { min-height: 44px; }
+@media(max-width:480px) { #skip-descent { top: 160px; min-height: 44px; } }
+@media(max-height:500px) { .motion-setting[open] { max-height: calc(100vh - 160px); } }

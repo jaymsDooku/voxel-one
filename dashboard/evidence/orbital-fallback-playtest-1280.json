@@ -1,0 +1,74 @@
+{
+  "command": "ORBITAL_REDUCED_MOTION=1 ORBITAL_WORKER_FAILURE=1 ORBITAL_BROWSER= ORBITAL_WIDTH=1280 PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/run_orbital_web_check.cjs deploy/test_orbital_descent.cjs",
+  "environment": "Linux headless Chromium/WebKit, Canvas Low default, synthetic isolated profiles, local source HTTP port 8779; software browser measurements do not establish physical Safari performance",
+  "playtest": "Playtest: start, synthetic final level 2 fighter, real Space fire and frame loop, watch 12-second descent/blackout/waking, fly/fire on level 3; repeat transition, pause, rotate viewport, skip twice, restart.",
+  "workerFailure": true,
+  "reducedMotion": true,
+  "expected": "One sequence, frozen combat, score 130/lives 2, continuous story, freeze while paused, one skip completion, restart level 1",
+  "results": [
+    {
+      "browser": "Chromium",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "timing": {
+        "count": 562,
+        "p50": 16.700000000000728,
+        "p95": 33.400000000000546,
+        "p99": 50,
+        "worst": 50.100000000000364,
+        "peakMainJsHeapBytes": 10000000
+      },
+      "preparation": {
+        "mainThreadMilliseconds": 236.80000019073486,
+        "cacheFrames": 0,
+        "cachePixelBytes": 0,
+        "fineTerrainReady": false
+      },
+      "videoNormalSeconds": 24.121,
+      "scenes": [
+        null,
+        "crash",
+        "blackout",
+        "waking",
+        null,
+        "crash",
+        null
+      ],
+      "result": "PASS: real keyboard last kill, normal sequence, visible external-camera handoff, score/lives, active flight/fire, pause/resize, skip once, restart"
+    },
+    {
+      "browser": "WebKit",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "timing": {
+        "count": 294,
+        "p50": 42,
+        "p95": 55,
+        "p99": 148,
+        "worst": 229,
+        "peakMainJsHeapBytes": null
+      },
+      "preparation": {
+        "mainThreadMilliseconds": 397,
+        "cacheFrames": 0,
+        "cachePixelBytes": 0,
+        "fineTerrainReady": false
+      },
+      "videoNormalSeconds": 27.69,
+      "scenes": [
+        null,
+        "crash",
+        "blackout",
+        "waking",
+        null,
+        "crash",
+        null
+      ],
+      "result": "PASS: real keyboard last kill, normal sequence, visible external-camera handoff, score/lives, active flight/fire, pause/resize, skip once, restart"
+    }
+  ]
+}
