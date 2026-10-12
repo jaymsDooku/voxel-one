@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-07T22:29:15+00:00",
+  "updatedAt": "2026-10-12T11:34:19+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -3408,6 +3408,407 @@
       "status": "in_progress",
       "note": "Factory delivery restored without changing acceptance tests or equipment economics. Full suite passed: 454 tests across 84 suites. Fresh native traffic regression passed; 24 screenshots and three F10 clips decoded/inspected. Base features and history preserved. Ready for controller publication, current-head CI and independent review.",
       "updatedAt": "2026-10-07T14:57:55.883465+00:00"
+    },
+    {
+      "id": "8e8c9b62-2ac3-4cf2-a629-5e546f13c5c8",
+      "title": "Create Voxel Sandbox",
+      "description": "Implementing desktop game identity, launch selection, port defaults and save isolation; validation pending.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "Pending publication: validation report",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38653863396236322d326163332d346366322d613632392d356535343666313363356338/dashboard/evidence/voxel-sandbox-validation.json"
+        },
+        {
+          "kind": "image",
+          "label": "Pending publication: desktop Sandbox selection",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38653863396236322d326163332d346366322d613632392d356535343666313363356338/dashboard/evidence/voxel-sandbox-selection.png"
+        },
+        {
+          "kind": "video",
+          "label": "Pending publication: Linux F10 break/pickup/place clip",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38653863396236322d326163332d346366322d613632392d356535343666313363356338/dashboard/evidence/voxel-sandbox-place-break.mp4"
+        },
+        {
+          "kind": "image",
+          "label": "Pending publication: Linux crafting",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38653863396236322d326163332d346366322d613632392d356535343666313363356338/dashboard/evidence/voxel-sandbox-craft.png"
+        },
+        {
+          "kind": "image",
+          "label": "Pending publication: City planning regression",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38653863396236322d326163332d346366322d613632392d356535343666313363356338/dashboard/evidence/voxel-city-planning-entry.png"
+        },
+        {
+          "kind": "link",
+          "label": "Merged implementation",
+          "url": "https://github.com/jaymsDooku/voxel-one/pull/61"
+        },
+        {
+          "kind": "link",
+          "label": "Exact submitted-head platform CI",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/38241753198"
+        },
+        {
+          "kind": "link",
+          "label": "Voxel Sandbox launch guide",
+          "url": "https://voxel-one.jamesleaver1.chatgpt.site/docs.html#voxel-sandbox"
+        },
+        {
+          "kind": "report",
+          "label": "voxel sandbox validation.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/voxel-sandbox-validation.json"
+        },
+        {
+          "kind": "video",
+          "label": "voxel sandbox place break.mp4",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/voxel-sandbox-place-break.mp4"
+        },
+        {
+          "kind": "image",
+          "label": "voxel sandbox selection.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/voxel-sandbox-selection.png"
+        }
+      ],
+      "status": "complete",
+      "note": "Implemented, independently reviewed and merged in PR 61. Voxel Sandbox has named selection, desktop shortcuts, isolated saves and preserved original gameplay. Linux playtests and platform CI passed; documentation is live. Automatic master release packaging is in progress; physical Windows playtesting remains a follow-up.",
+      "updatedAt": "2026-10-12T11:34:19+00:00"
+    },
+    {
+      "id": "63643936666265622d343239332d346630652d616562312d366333356236366137626464",
+      "title": "Voxel world rendering performance and graphics settings",
+      "description": "Graphics profiles, safe apply/revert, bounded async mesh streaming and local performance capture; native subset awaits exact-source Mac validation.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Review fixes validated: one model draw per cascade and zero stationary draws. Sustained real streaming/edit soak passed 64 cycles, 130 seconds, 39873 ticks, 2584 unloads, 1216 edits and 128 GPU border comparisons; jobs peak 4 and geometry disposal returns to baseline. Main/F10 with models passed 43 frames. Fresh reports/media await controller publication and independent review.",
+      "updatedAt": "2026-10-10T04:06:16+00:00"
+    },
+    {
+      "id": "66363430-7af3-4149-a83a-02c719487914",
+      "title": "Voxel rendering settings",
+      "description": "Adding saved rendering controls and performance presets; validation pending.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Legacy fog rows disabled with clear labels. Presets/docs corrected. Build, 22 tests, warmed regression and live shader/menu checks passed; fresh evidence awaits controller publication and review.",
+      "updatedAt": "2026-10-10T01:36:20+00:00"
+    },
+    {
+      "id": "35336561653866652d643166312d343564312d623236382d346161333036333437363761",
+      "title": "Planetary atmosphere for voxel worlds",
+      "description": "Audited clean feature branch. Building shared validated atmosphere profile, tangent coordinates and CPU reference math before rendering integration.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Model roof footprints stay correct across unload/reload. 39 focused tests, 18 GPU probes and 96 production frames passed. Fresh media saved for controller publication; ready for synchronization and independent review.",
+      "updatedAt": "2026-10-09T22:53:21+00:00"
+    },
+    {
+      "id": "62346636376631352d313735362d346166362d623730662d386437336533383939623861",
+      "title": "Alien Space Invader planet terrain",
+      "description": "Seeded generator and live planet lab implemented. Determinism, shared borders and route checks pass. Browser validation underway; target hardware and performance budget unset.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Validation report (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-62346636376631352d313735362d346166362d623730662d386437336533383939623861/dashboard/evidence/alien-terrain-validation.md"
+        },
+        {
+          "kind": "link",
+          "label": "Crystal formations (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-62346636376631352d313735362d346166362d623730662d386437336533383939623861/dashboard/evidence/alien-terrain-chromium-crystal.png"
+        },
+        {
+          "kind": "link",
+          "label": "Safe traversal (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-62346636376631352d313735362d346166362d623730662d386437336533383939623861/dashboard/evidence/alien-terrain-chromium-traversal-overlay.png"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Terrain implementation and local validation finished. 23 tests apply to unchanged source; refreshed Chromium/WebKit playtests and enforced desktop performance limits passed. Fresh media inspected. Ready for controller synchronization, publication and independent review.",
+      "updatedAt": "2026-10-09T14:33:55+00:00"
+    },
+    {
+      "id": "63376532363935642d643939642d343933632d396236332d366331393033393032336566",
+      "title": "Compact city HUD action bar",
+      "description": "Replacing full-width text actions with a centered icon dock; validating real input and HUD rendering locally.",
+      "evidence": [
+        {
+          "kind": "image",
+          "label": "Compact HUD overview (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63376532363935642d643939642d343933632d396236332d366331393033393032336566/dashboard/evidence/hud-compact-overview.png"
+        },
+        {
+          "kind": "image",
+          "label": "Narrow HUD at 640x640 (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63376532363935642d643939642d343933632d396236332d366331393033393032336566/dashboard/evidence/hud-compact-narrow.png"
+        },
+        {
+          "kind": "report",
+          "label": "HUD validation (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63376532363935642d643939642d343933632d396236332d366331393033393032336566/dashboard/evidence/hud-compact-validation.json"
+        },
+        {
+          "kind": "image",
+          "label": "Sandbox sky HUD regression (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63376532363935642d643939642d343933632d396236332d366331393033393032336566/dashboard/evidence/hud-sandbox-sky.png"
+        },
+        {
+          "kind": "image",
+          "label": "Sandbox inventory stack movement (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63376532363935642d643939642d343933632d396236332d366331393033393032336566/dashboard/evidence/hud-sandbox-inventory.png"
+        },
+        {
+          "kind": "link",
+          "label": "Four-platform CI retry passed",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/37812339995/attempts/2"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Exact published-head CI passed all four desktop builds; both Mac jobs passed 559 tests. Product source matches executed city/sandbox playtests. Eight published images verified. Ready for controller PR refresh and independent review.",
+      "updatedAt": "2026-10-08T19:02:00+00:00"
+    },
+    {
+      "id": "61653837396463352d666237642d343239332d393666322d616363613032353030623264",
+      "title": "Hide player HUD in isometric view",
+      "description": "Separating bottom player HUD from inventory panel; native view-toggle validation next.",
+      "evidence": [
+        {
+          "kind": "image",
+          "label": "isometric-hud-hidden.png (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-61653837396463352d666237642d343239332d393666322d616363613032353030623264/dashboard/evidence/isometric-hud-hidden.png"
+        },
+        {
+          "kind": "image",
+          "label": "isometric-inventory.png (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-61653837396463352d666237642d343239332d393666322d616363613032353030623264/dashboard/evidence/isometric-inventory.png"
+        },
+        {
+          "kind": "image",
+          "label": "player-hud-restored.png (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-61653837396463352d666237642d343239332d393666322d616363613032353030623264/dashboard/evidence/player-hud-restored.png"
+        },
+        {
+          "kind": "report",
+          "label": "isometric-hud-validation.md (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-61653837396463352d666237642d343239332d393666322d616363613032353030623264/dashboard/evidence/isometric-hud-validation.md"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Final rebased head 08ef5e16 validated: 7 focused tests and native startup/inventory/player-view workflow pass. Three fresh screenshots inspected. No unrelated deletions. Ready for independent review; controller publication pending.",
+      "updatedAt": "2026-10-08T15:57:58+00:00"
+    },
+    {
+      "id": "36653463353062342d306135392d346433612d393762342d666262663538316532653965",
+      "title": "First-person planet entry",
+      "description": "Replacing external crash animation with cockpit atmosphere, clouds and voxel impact.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Final rebased source validated: 13 rules tests and both three-viewport WebKit workflows pass. Fresh media and source hashes saved. Awaiting controller publication and independent review.",
+      "updatedAt": "2026-10-08T15:23:21+00:00"
+    },
+    {
+      "id": "66643263323964302d653432372d346437302d383165662d663935363539393032323064",
+      "title": "Nuke smoke and flying voxels",
+      "description": "Implemented translucent rising smoke, dust, flash and larger flying voxel chunks.",
+      "evidence": [
+        {
+          "kind": "image",
+          "label": "Native smoke and flying voxels (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-66643263323964302d653432372d346437302d383165662d663935363539393032323064/dashboard/evidence/city-nuke-debris.png"
+        },
+        {
+          "kind": "video",
+          "label": "Native F10 blast clip (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-66643263323964302d653432372d346437302d383165662d663935363539393032323064/dashboard/evidence/city-nuke.mp4"
+        },
+        {
+          "kind": "report",
+          "label": "Commands and validation (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-66643263323964302d653432372d346437302d383165662d663935363539393032323064/dashboard/evidence/city-nuke-validation.md"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Rebased source verified: 37 focused tests and native workflow passed, including measured smoke/voxel motion, cleanup and saved damage. Fresh images and F10 video inspected; awaiting controller publication and independent review.",
+      "updatedAt": "2026-10-08T14:29:27+00:00"
+    },
+    {
+      "id": "66633939323762632d353065392d343366652d386563362d303862613662346238633634",
+      "title": "Alien planet crash and awakening",
+      "description": "Implementing level 2 crash and level 3 awakening; validation pending.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Rebased source validated: 12 unit tests, three-size planet workflow and landscape fighter/cockpit regression passed. Fresh images and MP4 inspected; awaiting controller publication and independent review.",
+      "updatedAt": "2026-10-08T14:00:32+00:00"
+    },
+    {
+      "id": "38626531653763632d353339632d343035352d613466312d636466376638616233653664",
+      "title": "Level 2 spaceship cockpit interior",
+      "description": "Building a framed canopy and instrument console; browser validation pending.",
+      "evidence": [
+        {
+          "kind": "image",
+          "label": "Fresh integrated cockpit validation \u2014 pending controller publication: invaders-level-2-1280.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38626531653763632d353339632d343035352d613466312d636466376638616233653664/dashboard/evidence/invaders-level-2-1280.png"
+        },
+        {
+          "kind": "image",
+          "label": "Fresh integrated cockpit validation \u2014 pending controller publication: invaders-level-2-390.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38626531653763632d353339632d343035352d613466312d636466376638616233653664/dashboard/evidence/invaders-level-2-390.png"
+        },
+        {
+          "kind": "image",
+          "label": "Fresh integrated cockpit validation \u2014 pending controller publication: invaders-level-2-844.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38626531653763632d353339632d343035352d613466312d636466376638616233653664/dashboard/evidence/invaders-level-2-844.png"
+        },
+        {
+          "kind": "report",
+          "label": "Fresh integrated cockpit validation \u2014 pending controller publication: invaders-levels-playtest.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38626531653763632d353339632d343035352d613466312d636466376638616233653664/dashboard/evidence/invaders-levels-playtest.json"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Integrated cockpit/fighter source validated: 11 rules tests, three viewport workflow playtests, altitude and resize edge checks passed. Fresh PNGs inspected; landscape instruments clear touch controls. Upstream features/history retained. Awaiting publication and independent review.",
+      "updatedAt": "2026-10-08T13:34:06+00:00"
+    },
+    {
+      "id": "61303435393238342d626561392d343965372d396138362d663030626530653839396437",
+      "title": "Level 2 fighter combat",
+      "description": "Implementing two-axis flight and independent enemy manoeuvres; level 1 remains classic.",
+      "evidence": [
+        {
+          "kind": "video",
+          "label": "Fighter combat video (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-61303435393238342d626561392d343965372d396138362d663030626530653839396437/dashboard/evidence/fighters-playtest.mp4"
+        },
+        {
+          "kind": "report",
+          "label": "Validation report (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-61303435393238342d626561392d343965372d396138362d663030626530653839396437/dashboard/evidence/fighters-validation.md"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Rebased source verified: 11 rule tests, fighter workflows and extra flight-edge checks at three viewports, 16 layout checks and 20 collision checks pass. Fresh screenshots and MP4 inspected. Ready for controller publication and independent review.",
+      "updatedAt": "2026-10-08T13:13:01+00:00"
+    },
+    {
+      "id": "36333562383531382d393238362d343233352d613535632d623066623433323933626465",
+      "title": "City Builder cheat missiles",
+      "description": "Implementing offline missile impacts, persistent destruction and bounded physics debris.",
+      "evidence": [
+        {
+          "label": "Pending controller publication: city-missile-falling.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36333562383531382d393238362d343233352d613535632d623066623433323933626465/dashboard/evidence/city-missile-falling.png",
+          "kind": "image"
+        },
+        {
+          "label": "Pending controller publication: city-missile-explosion.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36333562383531382d393238362d343233352d613535632d623066623433323933626465/dashboard/evidence/city-missile-explosion.png",
+          "kind": "image"
+        },
+        {
+          "label": "Pending controller publication: city-missile.mp4",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36333562383531382d393238362d343233352d613535632d623066623433323933626465/dashboard/evidence/city-missile.mp4",
+          "kind": "video"
+        },
+        {
+          "label": "Pending controller publication: city-missile-tests.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36333562383531382d393238362d343233352d613535632d623066623433323933626465/dashboard/evidence/city-missile-tests.json",
+          "kind": "report"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Rebased source validated: 73 selected tests passed; native missile workflow, repeated-drop edge, save/reload, distant-building and budget regressions passed. Fresh PNGs inspected; F10 MP4 decoded: 13 frames, 331774 bytes. Awaiting controller publication and independent review.",
+      "updatedAt": "2026-10-08T12:40:00+00:00"
+    },
+    {
+      "id": "30376466343165322d396538662d346164382d383363392d323765643563343864643138",
+      "title": "Space Invaders level perspectives",
+      "description": "Implementing alternating classic and first-person cockpit levels; local validation pending.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Implemented classic level 1 and first-person cockpit level 2; alternating later levels. Rules and WebKit playtests pass at desktop, portrait and landscape sizes. Ready for controller synchronization and independent review; media pending publication.",
+      "updatedAt": "2026-10-08T12:13:38+00:00"
+    },
+    {
+      "id": "35356131616330382d373362612d343264372d396562312d376335386464313036373835",
+      "title": "Full-screen voxel Space Invaders",
+      "description": "Building a viewport-filling space scene with overlay HUD and touch controls.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Collision bounds now follow visible voxels at each viewport scale. Twenty live hit/miss checks, eight rules tests, full gameplay and 16 layout checks passed. Fresh PNG/WebM captured; awaiting controller publication and review.",
+      "updatedAt": "2026-10-08T10:38:59+00:00"
+    },
+    {
+      "id": "queue-38633935323630622d653665302d343665652d393062372d303635386235363063636366",
+      "title": "Mobile game support",
+      "description": "Native phone client with touch sandbox controls and server-authoritative city planning.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Revised native acceptance passed all four tests; gameplay media inspected and saved. Mac Intel and all other Maven verify platforms passed on identical source tree. Login failure classification and fixed140request regression validated. Ready for independent review; physical iPhone untested.",
+      "updatedAt": "2026-10-08T18:10:33+00:00"
+    },
+    {
+      "id": "36366335656566342d666164322d346465352d393433322d643761646233613636656364",
+      "title": "Rendering pipeline expansion",
+      "description": "Rendering pipeline expansion with OpenGL compatibility fallbacks.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "Rendering validation (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-expansion-validation.json"
+        },
+        {
+          "kind": "image",
+          "label": "Fresh production gallery (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-expansion-main-gallery.png"
+        },
+        {
+          "kind": "image",
+          "label": "Water reflection and refraction (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-expansion-water.png"
+        },
+        {
+          "kind": "video",
+          "label": "Fresh production F10 workflow (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-expansion-playtest.mp4"
+        },
+        {
+          "kind": "report",
+          "label": "Restored merged feature audit (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-restoration-audit.json"
+        },
+        {
+          "kind": "image",
+          "label": "Fresh Develop stress save workflow (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-restored-stress-menu.png"
+        },
+        {
+          "kind": "report",
+          "label": "Space preservation audit (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-space-restoration-audit.json"
+        },
+        {
+          "kind": "image",
+          "label": "Fresh restored Space game (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-restored-space-desktop.png"
+        },
+        {
+          "kind": "test",
+          "label": "LED segment GPU regressions (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36366335656566342d666164322d346465352d393433322d643761646233613636656364/dashboard/evidence/rendering-led-shadow-checks.txt"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Integrated source validated against bdec9af3: full package passed 543 tests. Physics lab/walker, production (41 frames), GL3.3 and compute fixtures passed. Fresh media decoded and inspected. Diff audit found no unrelated changes or deletions. Ready for independent review; controller publication pending.",
+      "updatedAt": "2026-10-07T22:33:43.250351+00:00"
+    },
+    {
+      "id": "66303532306266652d633163612d343039662d626436332d303437613436326234646333",
+      "title": "Space Invader level camera transition",
+      "description": "Adding a smooth level 1 to level 2 camera transition and browser validation.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "CI follow-up confirmed: both exact-head runs passed Linux, Windows, Intel Mac and Apple Silicon Mac; publish skipped. Earlier cancelled run was superseded. Source hashes match validated playtests. Ready for independent review.",
+      "updatedAt": "2026-10-08T15:02:53+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
