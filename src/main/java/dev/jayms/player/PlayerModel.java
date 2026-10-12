@@ -167,7 +167,7 @@ public class PlayerModel implements AutoCloseable {
             ShaderProgram shader,
             VoxelModelRenderer models) {
         if (type == 0) return;
-        if (Blocks.isModel(type)) models.renderHeld(type, transform, shader);
+        if (Blocks.isModel(type) || Items.get(type) != null && Items.get(type).model() != null) models.renderHeld(type, transform, shader);
         else {
             shader.setInt("uVertexColor", 0);
             float[] color =

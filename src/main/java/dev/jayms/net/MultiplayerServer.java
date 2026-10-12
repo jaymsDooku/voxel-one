@@ -95,7 +95,8 @@ public final class MultiplayerServer implements AutoCloseable {
                 if (in.readInt() != Protocol.MAGIC) throw new IOException("Invalid world save");
                 int count = in.readInt();
                 terrain = new Terrain(seed, Terrain.LEGACY_VERSION);
-                boolean versioned = count == -7;
+                boolean itemFormat = count == -8;
+                boolean versioned = count == -7 || itemFormat;
                 boolean colored = count == -6 || versioned;
                 boolean fractional = count == -5 || colored;
                 boolean withModels = count == -4 || fractional;
@@ -129,7 +130,7 @@ public final class MultiplayerServer implements AutoCloseable {
                         throw new IOException("Invalid player save");
                     for (int i = 0; i < players; i++) {
                         String name = Protocol.readText(in, 16);
-                        Inventory inventory = Inventory.read(in);
+                        Inventory inventory = Inventory.read(in,itemFormat);
                         for (int slot = 0; slot < Inventory.SIZE; slot++)
                             if (!models.has(inventory.type(slot)))
                                 throw new IOException("Missing inventory model");
@@ -141,7 +142,7 @@ public final class MultiplayerServer implements AutoCloseable {
                     int items = in.readInt();
                     if (items < 0 || items > 100000) throw new IOException("Invalid drops");
                     for (int i = 0; i < items; i++) {
-                        ItemDrop d = ItemDrop.read(in);
+                        ItemDrop d = ItemDrop.read(in,itemFormat);
                         if (!models.has(d.type())) throw new IOException("Missing dropped model");
                         drops.put(d.id(), d);
                         nextDrop = Math.max(nextDrop, d.id());
@@ -399,8 +400,11 @@ public final class MultiplayerServer implements AutoCloseable {
                 int modelRequest = type == Protocol.MODEL_CREATE ? in.readInt() : 0;
                 ModelDefinition model =
                         type == Protocol.MODEL_CREATE ? ModelDefinition.read(in) : null;
+                int craftRequest = type == Protocol.CRAFT || type == Protocol.DROP_ITEM ? in.readInt() : 0;
                 int recipe = type == Protocol.CRAFT ? in.readInt() : -1;
-                Protocol.Pose craftPose = type == Protocol.CRAFT ? Protocol.Pose.read(in) : null;
+                int batches = type == Protocol.CRAFT ? in.readInt() : 0;
+                int dropSlot = type == Protocol.DROP_ITEM ? in.readUnsignedByte() : -1;
+                Protocol.Pose craftPose = type == Protocol.CRAFT || type == Protocol.DROP_ITEM ? Protocol.Pose.read(in) : null;
                 CityCommand cityCommand =
                         type == Protocol.CITY_COMMAND ? CityCommand.read(in) : null;
                 if (type == Protocol.CITY_COMMAND) cityCommandStage = CityCommandStage.WAITING;
@@ -513,51 +517,49 @@ public final class MultiplayerServer implements AutoCloseable {
                             throw new IOException("Invalid inventory slot");
                         inventories.get(peer.name).swap(swapA, swapB);
                         sendInventory(peer);
-                    } else if (type == Protocol.CRAFT) {
+                    } else if (type == Protocol.CRAFT || type == Protocol.DROP_ITEM) {
                         checkPose(peer, craftPose);
                         peer.pose = craftPose;
-                        var result = Crafting.prepare(inventories.get(peer.name), recipe);
-                        boolean accepted =
-                                result.accepted()
-                                        && (result.excess() == 0 || drops.size() < 100000);
-                        if (accepted) {
-                            inventories.put(peer.name, result.inventory());
-                            if (result.excess() > 0) {
-                                var drop =
-                                        new ItemDrop(
-                                                ++nextDrop,
-                                                result.output(),
-                                                result.excess(),
-                                                peer.pose.x() + .4f,
-                                                peer.pose.y() + .35f,
-                                                peer.pose.z());
-                                drops.put(drop.id(), drop);
-                                broadcast(
-                                        new Event(
-                                                Protocol.DROP,
-                                                null,
-                                                null,
-                                                null,
-                                                0,
-                                                true,
-                                                null,
-                                                drop,
-                                                0));
+                        boolean accepted=false;
+                        String message;
+                        if(craftRequest<=peer.lastCraftRequest) message="Repeated inventory request.";
+                        else {
+                            peer.lastCraftRequest=craftRequest;
+                            Inventory current=inventories.get(peer.name);
+                            if(type==Protocol.DROP_ITEM) {
+                                if(dropSlot>=Inventory.HOTBAR||current.count(dropSlot)==0) message="Nothing to drop.";
+                                else if(drops.size()>=Crafting.MAX_DROPS||nextDrop==Integer.MAX_VALUE) message="Too many ground items.";
+                                else {
+                                    int item=current.type(dropSlot);
+                                    var drop=new ItemDrop(++nextDrop,item,1,Items.dropX(peer.pose.x()),peer.pose.y()+.35f,peer.pose.z());
+                                    current.take(dropSlot,item); drops.put(drop.id(),drop);
+                                    broadcast(new Event(Protocol.DROP,null,null,null,0,true,null,drop,0));
+                                    accepted=true; message="Dropped "+Items.name(item)+".";
+                                }
+                            } else {
+                                var result=Crafting.prepare(current,recipe,batches,Crafting.MAX_DROPS-drops.size());
+                                message=result.message();
+                                int needed=Crafting.dropSlots(result.output(),result.excess());
+                                if(result.accepted() && nextDrop>Integer.MAX_VALUE-needed) message="Ground item IDs exhausted.";
+                                else if(result.accepted()) {
+                                    List<ItemDrop> prepared=new ArrayList<>();
+                                    int excess=result.excess();
+                                    for(int i=1;excess>0;i++) {
+                                        int n=Math.min(excess,Items.stackLimit(result.output()));
+                                        prepared.add(new ItemDrop(nextDrop+i,result.output(),n,peer.pose.x()+.4f,peer.pose.y()+.35f,peer.pose.z()));
+                                        excess-=n;
+                                    }
+                                    inventories.put(peer.name,result.inventory());
+                                    for(var drop:prepared) {
+                                        drops.put(drop.id(),drop);
+                                        broadcast(new Event(Protocol.DROP,null,null,null,0,true,null,drop,0));
+                                    }
+                                    nextDrop+=needed; accepted=true;
+                                }
                             }
-                            sendInventory(peer);
                         }
-                        String message =
-                                result.accepted() && !accepted
-                                        ? "Too many ground items: collect some before crafting."
-                                        : result.message();
-                        peer.enqueue(
-                                new Event(
-                                        Protocol.CRAFT_RESULT,
-                                        null,
-                                        null,
-                                        message,
-                                        recipe,
-                                        accepted));
+                        if(accepted) sendInventory(peer);
+                        peer.enqueue(new Event(Protocol.CRAFT_RESULT,null,null,message,craftRequest,accepted));
                     } else if (type == Protocol.MODEL_CREATE) {
                         String message;
                         boolean accepted = false;
@@ -865,6 +867,7 @@ public final class MultiplayerServer implements AutoCloseable {
         volatile Protocol.Pose pose;
         float fallTop;
         long lastModel, lastCity;
+        int lastCraftRequest;
         final BlockingQueue<Event> queue = new ArrayBlockingQueue<>(512);
 
         Peer(Socket socket, DataOutputStream out, String name, Protocol.Pose pose) {
@@ -914,6 +917,7 @@ public final class MultiplayerServer implements AutoCloseable {
                                         out.writeUTF(e.name);
                                     }
                                     case Protocol.CRAFT_RESULT -> {
+                                        out.writeInt(e.request);
                                         out.writeBoolean(e.accepted);
                                         out.writeUTF(e.name);
                                     }
@@ -1001,7 +1005,7 @@ public final class MultiplayerServer implements AutoCloseable {
         Path temp = absolute.resolveSibling(absolute.getFileName() + ".tmp");
         try (var out = new DataOutputStream(Files.newOutputStream(temp))) {
             out.writeInt(Protocol.MAGIC);
-            out.writeInt(-7);
+            out.writeInt(-8);
             out.writeLong(terrain.seed);
             out.writeInt(terrain.version);
             models.write(out);

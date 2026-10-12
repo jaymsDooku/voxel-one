@@ -1,0 +1,25 @@
+{
+  "status": "passed",
+  "source": "fresh production Main F10 rendering workflow",
+  "codec": "H264",
+  "bytes": 737434,
+  "frames": 20,
+  "width": 960,
+  "height": 544,
+  "seconds": 20.0,
+  "allFramesDecoded": true,
+  "firstAndLastDiffer": true,
+  "command": "python3 deploy/check_recipe_book_video.py",
+  "presentation": "Seven scene cuts in source order; retained frame holds capped at one second. Linux software OpenGL, low frame rate.",
+  "sourceSha256": "0315838f784810e92c3aee60bfc2d002281176f23a1f2e408670e96f35b4db9e",
+  "highlightSha256": "c9b163520c73fe66f86b4b16b721f2d90a83f6d8642c8923cb50af11430a8351",
+  "scenes": [
+    "missing-ingredients",
+    "craft-wooden-pickaxe",
+    "browse-both-pickaxes",
+    "held-wooden-pickaxe",
+    "brick-goods-recipe",
+    "overflow-drops",
+    "overflow-pickup"
+  ]
+}

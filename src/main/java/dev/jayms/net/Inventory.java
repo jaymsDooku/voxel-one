@@ -16,11 +16,11 @@ public final class Inventory {
     }
 
     public int add(int type, int amount) {
-        if (!Blocks.valid(type) || type == 0 || amount < 0) throw new IllegalArgumentException();
+        if (!Items.valid(type) || type == 0 || amount < 0) throw new IllegalArgumentException();
         for (int pass = 0; pass < 2; pass++)
             for (int i = 0; i < SIZE && amount > 0; i++)
                 if (pass == 0 ? types[i] == type : counts[i] == 0) {
-                    int n = Math.min(STACK - counts[i], amount);
+                    int n = Math.min(Items.stackLimit(type) - counts[i], amount);
                     types[i] = type;
                     counts[i] += n;
                     amount -= n;
@@ -29,8 +29,9 @@ public final class Inventory {
     }
 
     public boolean hasSpace(int type) {
+        if (type == 0 || !Items.valid(type)) return false;
         for (int i = 0; i < SIZE; i++)
-            if (counts[i] == 0 || types[i] == type && counts[i] < STACK) return true;
+            if (counts[i] == 0 || types[i] == type && counts[i] < Items.stackLimit(type)) return true;
         return false;
     }
 
@@ -44,7 +45,7 @@ public final class Inventory {
         if (a < 0 || b < 0 || a >= SIZE || b >= SIZE) return;
         if (a == b) return;
         if (types[a] != 0 && types[a] == types[b]) {
-            int n = Math.min(STACK - counts[b], counts[a]);
+            int n = Math.min(Items.stackLimit(types[b]) - counts[b], counts[a]);
             counts[b] += n;
             counts[a] -= n;
             if (counts[a] == 0) types[a] = 0;
@@ -65,10 +66,14 @@ public final class Inventory {
     }
 
     public static Inventory read(DataInputStream in) throws IOException {
+        return read(in,true);
+    }
+
+    public static Inventory read(DataInputStream in, boolean itemFormat) throws IOException {
         Inventory inventory = new Inventory();
         for (int i = 0; i < SIZE; i++) {
             int t = in.readUnsignedByte(), n = in.readUnsignedByte();
-            if (!Blocks.valid(t) || n > STACK || (t == 0) != (n == 0))
+            if ((!itemFormat && t >= 190) || !Items.valid(t) || n > Items.stackLimit(t) || (t == 0) != (n == 0))
                 throw new IOException("Invalid inventory");
             inventory.types[i] = t;
             inventory.counts[i] = n;
@@ -85,7 +90,7 @@ public final class Inventory {
     public boolean consume(java.util.Map<Integer, Integer> required) {
         for (var entry : required.entrySet())
             if (entry.getKey() == 0
-                    || !Blocks.valid(entry.getKey())
+                    || !Items.valid(entry.getKey())
                     || entry.getValue() <= 0
                     || countType(entry.getKey()) < entry.getValue()) return false;
         for (var entry : required.entrySet()) {

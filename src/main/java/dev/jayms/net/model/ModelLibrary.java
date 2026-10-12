@@ -39,16 +39,18 @@ public final class ModelLibrary {
     }
 
     public Entry get(int type) {
-        return entries.get(type);
+        var item = Items.get(type);
+        return item != null && item.model() != null
+                ? new Entry(type, "engine", item.model()) : entries.get(type);
     }
 
     public boolean has(int type) {
-        return !Blocks.isModel(type) || entries.containsKey(type);
+        return Items.valid(type) && (!Blocks.isModel(type) || entries.containsKey(type));
     }
 
     public String name(int type) {
         Entry e = get(type);
-        return e == null ? Blocks.name(type) : e.definition.name();
+        return e == null ? Items.name(type) : e.definition.name();
     }
 
     public Collection<Entry> entries() {

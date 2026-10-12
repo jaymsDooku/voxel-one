@@ -1,0 +1,159 @@
+{
+  "status": "passed",
+  "environment": "Linux VPS, Java 17 bytecode target, Maven with worktree-local dependency cache and temporary directory",
+  "tests": 86,
+  "suites": [
+    {
+      "suite": "dev.jayms.AviationSaveCompatibilityTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.CityFormat16RegressionTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.CraftingTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.InventoryHudTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.ItemCraftingTest",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.ManufacturingTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.MarketEconomyTest",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.MultiplayerTest",
+      "tests": 15,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.ProtocolCompatibilityTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.RailwayOwnershipCompatibilityTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.RailwaySaveCompatibilityTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.RailwayShippingCompatibilityTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.RecipeMultiplayerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.RoadBaseCompatibilityTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.SandboxIdentityTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.ShippingProtocolCompatibilityTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.VoxelModelTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "command": "mvn -q -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp -Xmx768m\" -Dtest=ItemCraftingTest,CraftingTest,InventoryHudTest,RecipeMultiplayerTest,MultiplayerTest,ProtocolCompatibilityTest,SandboxIdentityTest,RoadBaseCompatibilityTest,RailwaySaveCompatibilityTest,AviationSaveCompatibilityTest,ShippingProtocolCompatibilityTest,CityFormat16RegressionTest,RailwayShippingCompatibilityTest,RailwayOwnershipCompatibilityTest,MarketEconomyTest,VoxelModelTest,ManufacturingTest test",
+  "playtest": "Separate native game commands and observed results will accompany this report; JUnit alone is not graphical playtesting.",
+  "initialFailures": [
+    "First test run used the sandbox-inaccessible default temporary directory. Retried with a worktree-local java.io.tmpdir; tests passed.",
+    "Graphics harness was corrected for the current book layout and waits for rendered hit regions.",
+    "Live search exposed stale released-cursor coordinates; production mouse clicks now query the current GLFW cursor position.",
+    "Small-window review found global HUD text overlapping book controls; those HUD overlays are suppressed while inventory is open."
+  ],
+  "diffAudit": {
+    "reference": "Worktree HEAD before controller synchronization; final review base is supplied by controller after master integration",
+    "trackedFileDeletions": [],
+    "intendedReplacements": [
+      "Six-row recipe list replaced by responsive book grid/details.",
+      "List-position recipe registration replaced by explicit legacy/new identities.",
+      "Single overflow-drop crafting branches replaced by bounded atomic stack-splitting transactions."
+    ],
+    "preservation": "No City production catalog, business manufacturing pipeline, or Space Invaders source changed. City minimum window height retained. Redundant local draft removed."
+  },
+  "sourceHashes": {
+    "src/main/java/dev/jayms/Main.java": "13f50824b2e5cdbac25e01dcf48c26c587528b4dfe977ea63e699e63cfcdbdf2",
+    "src/main/java/dev/jayms/net/Crafting.java": "49da89c1cef53bd0bac2da71f4f35109a406c258df2d938f5109e8074cc8ac6f",
+    "src/main/java/dev/jayms/net/Inventory.java": "251f649394c0a2bb7d4bea7bdefac27f9b3dc14f2ccb7403d934b0cae0b1567b",
+    "src/main/java/dev/jayms/net/Items.java": "fb52ebaa3c4ecca1c0f34a606561cb2ef28514349ab71b97ff890996c4958a49",
+    "src/main/java/dev/jayms/net/LocalGame.java": "f2ec4a31b1cf0204d1a0f10d565dc86b99cd2a30c313530ea1c0660b9196b98f",
+    "src/main/java/dev/jayms/net/MultiplayerClient.java": "f878cae9f0b33ae4dd41858dabaa54126729ca83f8a3b00cf7b95c0831707679",
+    "src/main/java/dev/jayms/net/MultiplayerServer.java": "b5d8ca10bcaeaefee912ff0d6f7caee2ce5c47f3327f5cf979772c515ee17757",
+    "src/main/java/dev/jayms/net/Protocol.java": "2b347a01cc5a499b821e573fad618f5dd59f21e679800d61d83c31080ca5b88f",
+    "src/main/java/dev/jayms/net/model/ModelLibrary.java": "ef351b8d3da6325b620378410fd49ca5ae77290511c5bb16441b37713b8649f4",
+    "src/main/java/dev/jayms/player/Player.java": "96889e6bf2847801a6c4b332c247ae4617d9cbb2d746775792fd95771cb1661c",
+    "src/main/java/dev/jayms/player/PlayerModel.java": "31c3c00a183906ef08aae1edba0f34f286706f3ffe04d9b3c03e869b63d80586",
+    "src/main/java/dev/jayms/ui/Controls.java": "cb9b043527aeeb45afc3091d9f01946772dbd829afa9b68fcb849f8d47637568",
+    "src/main/java/dev/jayms/ui/InventoryHud.java": "a510bfa32fe1bf74337818cb77daea423c94e5de1a9fb147deeb7ebb21d80259"
+  }
+}

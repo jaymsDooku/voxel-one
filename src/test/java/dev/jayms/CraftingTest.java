@@ -16,7 +16,7 @@ class CraftingTest {
 
     @Test
     void splittingAndJoiningPreserveMaterialVolumeAcrossEverySubdivision() {
-        assertEquals(95, Crafting.recipes().size());
+        assertEquals(104, Crafting.recipes().size());
         for (int material : new int[] {Blocks.STONE, Blocks.WOOD, Blocks.BRICKS}) {
             Inventory inventory = new Inventory();
             inventory.add(material, 1);
@@ -122,20 +122,18 @@ class CraftingTest {
     }
 
     @Test
-    void recipeTabSubmitsTheSelectedRecipeAndHidesInventoryHover() {
-        var hud = new InventoryHud();
-        hud.open = true;
-        var inventory = new Inventory();
-        inventory.add(Blocks.GRASS, 1);
-        List<Integer> requests = new ArrayList<>();
-        hud.click(800, 145, 1280, 720, inventory, inventory::swap, requests::add);
-        hud.click(450, 230, 1280, 720, inventory, inventory::swap, requests::add);
-        hud.click(800, 460, 1280, 720, inventory, inventory::swap, requests::add);
-        assertEquals(List.of(1), requests);
-        assertEquals(
-                "",
-                hud.hoveredName(
-                        inventory, new dev.jayms.net.model.ModelLibrary(), 392, 395, 1280, 720));
+    void recipeBookShowsToolsFirstAndNeverHidesMissingPathsByDefault() {
+        var hud=new InventoryHud(); hud.open=true; hud.openBook();
+        var inv=new Inventory();
+        assertEquals(8,hud.filtered(inv).stream().filter(r->r.category().equals("Tools")).count());
+        assertEquals(96,hud.filtered(inv).get(0).id());
+        hud.query("pickaxe"); assertEquals(2,hud.filtered(inv).size());
+        hud.craftableOnly(true); assertTrue(hud.filtered(inv).isEmpty());
+        inv.add(Blocks.PLANKS,3); inv.add(Items.STICKS,2);
+        assertEquals(1,hud.filtered(inv).size());
+        hud.selectRecipe(96); hud.ingredient(Items.STICKS); assertEquals(95,hud.selectedRecipe());
+        hud.back(); assertEquals(96,hud.selectedRecipe());
+        assertEquals("",hud.hoveredName(inv,new dev.jayms.net.model.ModelLibrary(),392,395,1280,720));
     }
 
     @Test

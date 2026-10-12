@@ -122,7 +122,7 @@ class MultiplayerTest {
         }
         try (var in = new java.io.DataInputStream(Files.newInputStream(save))) {
             assertEquals(Protocol.MAGIC, in.readInt());
-            assertEquals(-7, in.readInt());
+            assertEquals(-8, in.readInt());
             assertEquals(42, in.readLong());
             assertEquals(expectedVersion, in.readInt());
         }
@@ -177,7 +177,7 @@ class MultiplayerTest {
         }
         try (var in = new java.io.DataInputStream(Files.newInputStream(save))) {
             assertEquals(Protocol.MAGIC, in.readInt());
-            assertEquals(-7, in.readInt());
+            assertEquals(-8, in.readInt());
             assertEquals(42, in.readLong());
             assertEquals(Terrain.CURRENT_VERSION, in.readInt());
         }
@@ -364,7 +364,7 @@ class MultiplayerTest {
         }
         try (var in = new java.io.DataInputStream(Files.newInputStream(save))) {
             assertEquals(Protocol.MAGIC, in.readInt());
-            assertEquals(-7, in.readInt());
+            assertEquals(-8, in.readInt());
             assertEquals(Terrain.DEFAULT_SEED, in.readLong());
             assertEquals(Terrain.LEGACY_VERSION, in.readInt());
         }

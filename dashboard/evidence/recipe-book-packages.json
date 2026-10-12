@@ -1,0 +1,113 @@
+{
+  "environment": "Linux host; Java 17 target; local synthetic release metadata",
+  "physicalWindowsRun": false,
+  "physicalMacRun": false,
+  "published": false,
+  "platforms": [
+    {
+      "platform": "linux",
+      "buildCommand": [
+        "mvn",
+        "-q",
+        "-Dmaven.repo.local=target/maven-cache",
+        "-Dlwjgl.natives=natives-linux",
+        "-DskipTests",
+        "package"
+      ],
+      "buildExit": 0,
+      "checkCommand": [
+        "python3",
+        "deploy/check_sandbox_package.py",
+        "--platform",
+        "linux"
+      ],
+      "checkExit": 0,
+      "observed": "PASS: linux release ZIP preserves Voxel One, adds Sandbox shortcut, forwards args, includes native libraries and game identity; packaged server rejects invalid port before opening accounts/network. Local synthetic release metadata; nothing published.",
+      "classHashes": {
+        "dev/jayms/net/Items.class": "bedea7ab8e46d48c61133a1101142cfd235694649f555a93960ce5c254cee31d",
+        "dev/jayms/net/Crafting.class": "92c653446217247c786bd8a18bdaa96dcea2cf634f6497c2b29ddf497461d72c",
+        "dev/jayms/net/Protocol.class": "cbbba9a7bec332bb89ce775f4fc63d0cfcec7f8acd032ce7be36df5994311072",
+        "dev/jayms/ui/InventoryHud.class": "1159db302e934e2a048f9c5d28f69e870525bbe94279eb88cde4b83f4ba43478"
+      }
+    },
+    {
+      "platform": "windows",
+      "buildCommand": [
+        "mvn",
+        "-q",
+        "-Dmaven.repo.local=target/maven-cache",
+        "-Dlwjgl.natives=natives-windows",
+        "-DskipTests",
+        "package"
+      ],
+      "buildExit": 0,
+      "checkCommand": [
+        "python3",
+        "deploy/check_sandbox_package.py",
+        "--platform",
+        "windows"
+      ],
+      "checkExit": 0,
+      "observed": "PASS: windows release ZIP preserves Voxel One, adds Sandbox shortcut, forwards args, includes native libraries and game identity; packaged server rejects invalid port before opening accounts/network. Local synthetic release metadata; nothing published.",
+      "classHashes": {
+        "dev/jayms/net/Items.class": "bedea7ab8e46d48c61133a1101142cfd235694649f555a93960ce5c254cee31d",
+        "dev/jayms/net/Crafting.class": "92c653446217247c786bd8a18bdaa96dcea2cf634f6497c2b29ddf497461d72c",
+        "dev/jayms/net/Protocol.class": "cbbba9a7bec332bb89ce775f4fc63d0cfcec7f8acd032ce7be36df5994311072",
+        "dev/jayms/ui/InventoryHud.class": "1159db302e934e2a048f9c5d28f69e870525bbe94279eb88cde4b83f4ba43478"
+      }
+    },
+    {
+      "platform": "mac-intel",
+      "buildCommand": [
+        "mvn",
+        "-q",
+        "-Dmaven.repo.local=target/maven-cache",
+        "-Dlwjgl.natives=natives-macos",
+        "-DskipTests",
+        "package"
+      ],
+      "buildExit": 0,
+      "checkCommand": [
+        "python3",
+        "deploy/check_sandbox_package.py",
+        "--platform",
+        "mac-intel"
+      ],
+      "checkExit": 0,
+      "observed": "PASS: mac-intel release ZIP preserves Voxel One, adds Sandbox shortcut, forwards args, includes native libraries and game identity; packaged server rejects invalid port before opening accounts/network. Local synthetic release metadata; nothing published.",
+      "classHashes": {
+        "dev/jayms/net/Items.class": "bedea7ab8e46d48c61133a1101142cfd235694649f555a93960ce5c254cee31d",
+        "dev/jayms/net/Crafting.class": "92c653446217247c786bd8a18bdaa96dcea2cf634f6497c2b29ddf497461d72c",
+        "dev/jayms/net/Protocol.class": "cbbba9a7bec332bb89ce775f4fc63d0cfcec7f8acd032ce7be36df5994311072",
+        "dev/jayms/ui/InventoryHud.class": "1159db302e934e2a048f9c5d28f69e870525bbe94279eb88cde4b83f4ba43478"
+      }
+    },
+    {
+      "platform": "mac-arm",
+      "buildCommand": [
+        "mvn",
+        "-q",
+        "-Dmaven.repo.local=target/maven-cache",
+        "-Dlwjgl.natives=natives-macos-arm64",
+        "-DskipTests",
+        "package"
+      ],
+      "buildExit": 0,
+      "checkCommand": [
+        "python3",
+        "deploy/check_sandbox_package.py",
+        "--platform",
+        "mac-arm"
+      ],
+      "checkExit": 0,
+      "observed": "PASS: mac-arm release ZIP preserves Voxel One, adds Sandbox shortcut, forwards args, includes native libraries and game identity; packaged server rejects invalid port before opening accounts/network. Local synthetic release metadata; nothing published.",
+      "classHashes": {
+        "dev/jayms/net/Items.class": "bedea7ab8e46d48c61133a1101142cfd235694649f555a93960ce5c254cee31d",
+        "dev/jayms/net/Crafting.class": "92c653446217247c786bd8a18bdaa96dcea2cf634f6497c2b29ddf497461d72c",
+        "dev/jayms/net/Protocol.class": "cbbba9a7bec332bb89ce775f4fc63d0cfcec7f8acd032ce7be36df5994311072",
+        "dev/jayms/ui/InventoryHud.class": "1159db302e934e2a048f9c5d28f69e870525bbe94279eb88cde4b83f4ba43478"
+      }
+    }
+  ],
+  "status": "passed"
+}
