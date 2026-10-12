@@ -20,3 +20,11 @@ export class EntrySequence {
  sample(time){if(this.cancelled)return null;return cameraAt(time,this.profile);}
  cancel(){this.cancelled=true;this.epoch++;}
 }
+
+// External fighter camera: same anchor and FOV, raised after waking completes.
+export function combatCameraAt(elapsed,profile){
+ const landing=cameraAt(ENTRY_DURATION,profile),p=Math.max(0,Math.min(1,elapsed/.8)),blend=p*p*(3-2*p);
+ const destination=[0,profile.radius+profile.landingHeight+1800,-3500],eye=landing.eye.map((v,i)=>v+(destination[i]-v)*blend),target=[0,profile.radius+profile.landingHeight,3300];
+ const forward=norm(target.map((v,i)=>v-eye[i])),right=norm(cross(forward,[0,1,0])),up=cross(right,forward);
+ return {...landing,eye,forward,right,up,altitude:12+(1800-12)*blend,combat:true,handoff:blend};
+}

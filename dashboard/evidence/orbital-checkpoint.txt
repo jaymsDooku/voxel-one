@@ -1,1 +1,11 @@
-Recovery handoff: resolved checkpoint conflict while replaying 498c7df. Current-master progress entries and incoming orbital updates are preserved. All three durable developer helpers now return self, including the previously missed failed task; no failed proposal accepted or delegated execution claimed. Reviewer requirements remain bounded cold/cache-miss rendering, recognizable orbital geography/limb, early kills, resize and Worker failure. Saved fixes and source-specific validation/media remain intact. Controller must stage and continue; final recovered-source checks/media remain pending after replay. No staging, commit, reset, abort or publication performed.
+Recovery handoff: resolved checkpoint conflict at 746caa6. All three developer helper tasks are resolved as self. Reviewer requirements and saved fixes/media are preserved. Controller must stage and continue; final recovered-source checks/media remain pending. Incoming validation below is historical at this replay step, not a final-head pass. No staging, commit, reset, abort or publication performed.
+
+Recovery handoff: resolved be61a2e progress/checkpoint conflicts. Current-master progress entries are preserved. Incoming checkpoint below records historical validation at this replay step; final-source checks and fresh media remain pending until recovery completes. Controller must stage and continue; no Git staging or publication performed.
+
+Camera and performance review fixes are complete. All unpublished edits are preserved.
+
+Source/bundle manifest: orbital-source-audit.json (18 files). Validation: orbital-camera-performance-validation.md. Passed: 37 unit tests, eight visible-camera workflows, six isolated benchmark workflows, scoped memory sampling, GL/Worker-failure checks and regressions.
+
+Inspected orbital-normal.mp4 through the external-camera handoff; size 786,196 bytes. Canvas Low is default, capped at 640 terrain faces. Medium caps at 2,048; High at 4,096. WebKit frame targets remain unmet. Physical Safari/GPU checks remain follow-up. WebGL2 remains opt-in.
+
+Recorded review base: 1d2c3b3266c9e2d9c82c2217594690c0a62334ef. Controller owns commit, publication, master synchronization and independent review. Repeat meaningful checks/media if integration changes source.

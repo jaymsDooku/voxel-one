@@ -130,3 +130,6 @@ Observed: PASS in all eight browser/viewport cases. Scene history contains black
 
 
 Latest authoritative reviewer-fix validation: `orbital-revision-validation.md`. New source supersedes earlier renderer/media records. Final tests:35unit,8browser workflow,2Worker failure cases,GL diagnostics and launcher passed. Software frame targets fail; physical hardware checks remain follow-up. Recorded review base audit has no unrelated deletions.
+
+
+Superseded renderer/media validation: latest authoritative results are in `orbital-camera-performance-validation.md`. Physical hardware checks remain follow-up.

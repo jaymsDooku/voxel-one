@@ -26,3 +26,6 @@ Playtest: `PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR="$PWD/.tmp
 Video files: `orbital-normal.mp4` 596,490 bytes; `orbital-cache-failure.mp4` 656,398 bytes. Browser recordings, not Java F10. Both under 6 MB. Source/media hashes in `orbital-source-audit.json`. No source changes after final runs. Generated source and bundle match.
 
 Software performance targets fail. Concurrent software browser workloads/recording were used. Desktop Chromium p50 166.6 ms, p95 450.1 ms, p99/worst 549.9 ms; desktop WebKit p50 568 ms, p95 1580 ms, p99/worst 1899 ms. Full viewport frame/preparation/cache metrics remain in `orbital-playtest.json`. Peak main JS heap observation excludes workers/GPU/native allocations and is not total peak memory. Prior regression reports cover unchanged game/collision/input/lab logic; the new matrix and diagnostics exercise the changed renderer. Ready receipt requests independent review, not self-approval or hardware performance sign-off.
+
+
+Superseded renderer/media validation: latest authoritative results are in `orbital-camera-performance-validation.md`. Physical hardware checks remain follow-up.

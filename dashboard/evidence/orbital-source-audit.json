@@ -6,7 +6,7 @@
   "checks": [
     {
       "file": "games/space-invaders/app.mjs",
-      "sha256": "ebd0bcc75bde15ab9700879c7319754dc0d809082536f6eceb1c1286f1a4c274",
+      "sha256": "a22737be6c3cc0a9002ccf3c7676d339c8cf92eaba5b414e2401856a3cd0a486",
       "bundleMatches": true
     },
     {
@@ -31,12 +31,12 @@
     },
     {
       "file": "games/space-invaders/entry-renderer.mjs",
-      "sha256": "7bd33f3d071a4f9407bffc3cb43741d2cbdda3ef3055503798bb1aeed7b03e29",
+      "sha256": "7de6efaba2834369745439c28172c6e578a68cdd5d8983b66a1add1b0e3bcaac",
       "bundleMatches": true
     },
     {
       "file": "games/space-invaders/entry-sequence.mjs",
-      "sha256": "4aff613507578cd11bcadab53cc9dd6d473a8dbb9adc1c44d6037a942397734b",
+      "sha256": "4edea780264a17e0db27d1f2fca22383a5dce97e0f232b39df8c145ef052c33c",
       "bundleMatches": true
     },
     {
@@ -88,9 +88,14 @@
       "file": "games/space-invaders/coarse-view.mjs",
       "sha256": "66106458cb27a348c02f00728227d28fd7c66eeac180a78f45f9bff7f031c0b9",
       "bundleMatches": true
+    },
+    {
+      "file": "games/space-invaders/terrain-detail.mjs",
+      "sha256": "dd3b75762ce4dc30438734190ae3dbb1964ffad4b8d9f26f95907823cf3db0d2",
+      "bundleMatches": true
     }
   ],
-  "verification": "Final reviewer-fix35unit tests,8normal browser cases,2Worker failure cases,GL/context/reduced-motion/airless/lab diagnostics and launcher pass. Source17modules match bundle. Fresh media inspected; software performance fails; physical hardware remains follow-up.",
+  "verification": "Final camera/performance source is unchanged after all recorded runs. All 18 source/bundle hashes match. Passed: 37 unit tests, eight visible-camera workflows, six isolated benchmark workflows, scoped memory sampling, GL/Worker-failure checks and collision/layout/touch/cockpit/fighter (390x844)/lab/launcher regressions. WebKit frame targets remain unmet. Physical hardware tests remain follow-up.",
   "unchangedTerrainGenerator": "1f14765c2ad7bcd34f3cff542d3c8b80b022b7e52e49c7031c1659ead0fc482d",
   "sourceDeletions": [],
   "restoredHistoricalEvidence": [
@@ -173,14 +178,14 @@
   "media": [
     {
       "file": "dashboard/evidence/orbital-normal.mp4",
-      "bytes": 596490,
-      "sha256": "492ab7a7f89929cfdf5166322258031ac9c63fc00c8541d69d7bbeec002797c3"
+      "bytes": 786196,
+      "sha256": "28e8d482e2c29a44c67e070fde80e8f3d29b1906bfea13c20ca268ff6ec30c22"
     },
     {
-      "file": "dashboard/evidence/orbital-cache-failure.mp4",
-      "bytes": 656398,
-      "sha256": "3186db3866391abda5d5350f3ad146a42c6402d18d0b61395de098aa14092e17"
+      "file": "dashboard/evidence/orbital-chromium-1280-external.png",
+      "bytes": 197495,
+      "sha256": "65aff896543df4a7db766c61ee958be2fa25c647e2b29f158a5afe1bf3f20b9d"
     }
   ],
-  "testedStartingHead": "85a23e1d9225d76fbb54eb167b67bb5440507404"
+  "testedStartingHead": "a7b9fee433353f711626ca32fa08bacfae33aad7"
 }

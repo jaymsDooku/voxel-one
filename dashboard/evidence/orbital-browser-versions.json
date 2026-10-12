@@ -1,0 +1,7 @@
+{
+  "environment": "Linux x86_64,4 logical CPUs,Intel Core Processor (Haswell, no TSX),headless software browsers",
+  "versions": {
+    "Chromium": "153.0.8010.12",
+    "WebKit": "26.6"
+  }
+}

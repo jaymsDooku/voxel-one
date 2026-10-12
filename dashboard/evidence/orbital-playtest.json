@@ -1,6 +1,6 @@
 {
-  "command": "Four completed bounded runs: ORBITAL_WIDTH=1280,390,844,568 (one width per command) PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/test_orbital_descent.cjs",
-  "environment": "Linux headless Chromium/WebKit, Canvas default, synthetic isolated profiles, local source HTTP port 8779; software browser measurements do not establish physical Safari performance",
+  "command": "ORBITAL_WIDTH=1280,390,844,568 (one width per command) PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/test_orbital_descent.cjs; extra ORBITAL_BROWSER=Chromium ORBITAL_WIDTH=1280 run adds 1.5 seconds of active-camera footage.",
+  "environment": "Linux headless Chromium/WebKit, Canvas Low default, synthetic isolated profiles, local source HTTP port 8779; software browser measurements do not establish physical Safari performance",
   "playtest": "Playtest: start, synthetic final level 2 fighter, real Space fire and frame loop, watch 12-second descent/blackout/waking, fly/fire on level 3; repeat transition, pause, rotate viewport, skip twice, restart.",
   "expected": "One sequence, frozen combat, score 130/lives 2, continuous story, freeze while paused, one skip completion, restart level 1",
   "results": [
@@ -11,17 +11,17 @@
         "height": 900
       },
       "timing": {
-        "count": 75,
-        "p50": 166.60000000000036,
-        "p95": 450.10000000000036,
-        "p99": 549.8999999999996,
-        "worst": 549.8999999999996,
+        "count": 401,
+        "p50": 33.29999999999927,
+        "p95": 50,
+        "p99": 66.60000000000036,
+        "worst": 83.29999999999927,
         "peakMainJsHeapBytes": 10000000
       },
       "preparation": {
-        "mainThreadMilliseconds": 54.19999980926514,
-        "cacheFrames": 18,
-        "cachePixelBytes": 442368,
+        "mainThreadMilliseconds": 32.19999980926514,
+        "cacheFrames": 49,
+        "cachePixelBytes": 14112000,
         "fineTerrainReady": true
       },
       "scenes": [
@@ -34,7 +34,7 @@
         "blackout",
         null
       ],
-      "result": "PASS: real keyboard last kill, normal sequence, score/lives, active flight/fire, pause/resize, skip once, restart"
+      "result": "PASS: real keyboard last kill, normal sequence, visible external-camera handoff, score/lives, active flight/fire, pause/resize, skip once, restart"
     },
     {
       "browser": "WebKit",
@@ -43,49 +43,48 @@
         "height": 900
       },
       "timing": {
-        "count": 48,
-        "p50": 568,
-        "p95": 1580,
-        "p99": 1899,
-        "worst": 1899,
+        "count": 94,
+        "p50": 122,
+        "p95": 235,
+        "p99": 359,
+        "worst": 359,
         "peakMainJsHeapBytes": null
       },
       "preparation": {
-        "mainThreadMilliseconds": 60,
-        "cacheFrames": 17,
-        "cachePixelBytes": 417792,
-        "fineTerrainReady": true
-      },
-      "scenes": [
-        null,
-        "crash",
-        "blackout",
-        "waking",
-        null,
-        "crash",
-        "blackout",
-        null
-      ],
-      "result": "PASS: real keyboard last kill, normal sequence, score/lives, active flight/fire, pause/resize, skip once, restart"
-    },
-    {
-      "browser": "Chromium",
-      "viewport": {
-        "width": 390,
-        "height": 844
-      },
-      "timing": {
-        "count": 188,
-        "p50": 16.699999999999818,
-        "p95": 450,
-        "p99": 566.5,
-        "worst": 700,
-        "peakMainJsHeapBytes": 10000000
-      },
-      "preparation": {
-        "mainThreadMilliseconds": 23.5,
+        "mainThreadMilliseconds": 25,
         "cacheFrames": 26,
-        "cachePixelBytes": 638976,
+        "cachePixelBytes": 7488000,
+        "fineTerrainReady": true
+      },
+      "scenes": [
+        null,
+        "crash",
+        "blackout",
+        "waking",
+        null,
+        "crash",
+        null
+      ],
+      "result": "PASS: real keyboard last kill, normal sequence, visible external-camera handoff, score/lives, active flight/fire, pause/resize, skip once, restart"
+    },
+    {
+      "browser": "Chromium",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "timing": {
+        "count": 420,
+        "p50": 16.700000000000728,
+        "p95": 66.69999999999891,
+        "p99": 83.40000000000146,
+        "worst": 150,
+        "peakMainJsHeapBytes": 10000000
+      },
+      "preparation": {
+        "mainThreadMilliseconds": 36.5,
+        "cacheFrames": 48,
+        "cachePixelBytes": 5114880,
         "fineTerrainReady": true
       },
       "scenes": [
@@ -98,7 +97,7 @@
         "blackout",
         null
       ],
-      "result": "PASS: real keyboard last kill, normal sequence, score/lives, active flight/fire, pause/resize, skip once, restart"
+      "result": "PASS: real keyboard last kill, normal sequence, visible external-camera handoff, score/lives, active flight/fire, pause/resize, skip once, restart"
     },
     {
       "browser": "WebKit",
@@ -107,17 +106,17 @@
         "height": 844
       },
       "timing": {
-        "count": 49,
-        "p50": 431,
-        "p95": 1532,
-        "p99": 1798,
-        "worst": 1798,
+        "count": 92,
+        "p50": 124,
+        "p95": 175,
+        "p99": 399,
+        "worst": 399,
         "peakMainJsHeapBytes": null
       },
       "preparation": {
-        "mainThreadMilliseconds": 161,
-        "cacheFrames": 16,
-        "cachePixelBytes": 393216,
+        "mainThreadMilliseconds": 26,
+        "cacheFrames": 31,
+        "cachePixelBytes": 3303360,
         "fineTerrainReady": true
       },
       "scenes": [
@@ -129,7 +128,7 @@
         "crash",
         null
       ],
-      "result": "PASS: real keyboard last kill, normal sequence, score/lives, active flight/fire, pause/resize, skip once, restart"
+      "result": "PASS: real keyboard last kill, normal sequence, visible external-camera handoff, score/lives, active flight/fire, pause/resize, skip once, restart"
     },
     {
       "browser": "Chromium",
@@ -138,17 +137,17 @@
         "height": 390
       },
       "timing": {
-        "count": 49,
-        "p50": 366.7000000000007,
-        "p95": 1400,
-        "p99": 1633.2000000000007,
-        "worst": 1633.2000000000007,
+        "count": 479,
+        "p50": 16.700000000000728,
+        "p95": 50,
+        "p99": 83.29999999999927,
+        "worst": 150,
         "peakMainJsHeapBytes": 10000000
       },
       "preparation": {
-        "mainThreadMilliseconds": 47.19999980926514,
-        "cacheFrames": 12,
-        "cachePixelBytes": 294912,
+        "mainThreadMilliseconds": 70.60000038146973,
+        "cacheFrames": 47,
+        "cachePixelBytes": 8903680,
         "fineTerrainReady": true
       },
       "scenes": [
@@ -161,7 +160,7 @@
         "blackout",
         null
       ],
-      "result": "PASS: real keyboard last kill, normal sequence, score/lives, active flight/fire, pause/resize, skip once, restart"
+      "result": "PASS: real keyboard last kill, normal sequence, visible external-camera handoff, score/lives, active flight/fire, pause/resize, skip once, restart"
     },
     {
       "browser": "WebKit",
@@ -170,17 +169,17 @@
         "height": 390
       },
       "timing": {
-        "count": 49,
-        "p50": 604,
-        "p95": 2034,
-        "p99": 2138,
-        "worst": 2138,
+        "count": 127,
+        "p50": 87,
+        "p95": 158,
+        "p99": 288,
+        "worst": 291,
         "peakMainJsHeapBytes": null
       },
       "preparation": {
-        "mainThreadMilliseconds": 115,
-        "cacheFrames": 10,
-        "cachePixelBytes": 245760,
+        "mainThreadMilliseconds": 30,
+        "cacheFrames": 29,
+        "cachePixelBytes": 5493760,
         "fineTerrainReady": true
       },
       "scenes": [
@@ -192,7 +191,7 @@
         "crash",
         null
       ],
-      "result": "PASS: real keyboard last kill, normal sequence, score/lives, active flight/fire, pause/resize, skip once, restart"
+      "result": "PASS: real keyboard last kill, normal sequence, visible external-camera handoff, score/lives, active flight/fire, pause/resize, skip once, restart"
     },
     {
       "browser": "Chromium",
@@ -201,17 +200,17 @@
         "height": 320
       },
       "timing": {
-        "count": 49,
-        "p50": 433.2000000000007,
-        "p95": 1233.2000000000007,
-        "p99": 1566.7000000000007,
-        "worst": 1566.7000000000007,
+        "count": 533,
+        "p50": 16.700000000000728,
+        "p95": 33.400000000001455,
+        "p99": 66.59999999999854,
+        "worst": 116.69999999999891,
         "peakMainJsHeapBytes": 10000000
       },
       "preparation": {
-        "mainThreadMilliseconds": 66,
-        "cacheFrames": 13,
-        "cachePixelBytes": 319488,
+        "mainThreadMilliseconds": 58.60000038146973,
+        "cacheFrames": 49,
+        "cachePixelBytes": 11289600,
         "fineTerrainReady": true
       },
       "scenes": [
@@ -224,7 +223,7 @@
         "blackout",
         null
       ],
-      "result": "PASS: real keyboard last kill, normal sequence, score/lives, active flight/fire, pause/resize, skip once, restart"
+      "result": "PASS: real keyboard last kill, normal sequence, visible external-camera handoff, score/lives, active flight/fire, pause/resize, skip once, restart"
     },
     {
       "browser": "WebKit",
@@ -233,17 +232,17 @@
         "height": 320
       },
       "timing": {
-        "count": 49,
-        "p50": 525,
-        "p95": 1830,
-        "p99": 2346,
-        "worst": 2346,
+        "count": 120,
+        "p50": 94,
+        "p95": 152,
+        "p99": 300,
+        "worst": 374,
         "peakMainJsHeapBytes": null
       },
       "preparation": {
-        "mainThreadMilliseconds": 131,
-        "cacheFrames": 12,
-        "cachePixelBytes": 294912,
+        "mainThreadMilliseconds": 41,
+        "cacheFrames": 25,
+        "cachePixelBytes": 5760000,
         "fineTerrainReady": true
       },
       "scenes": [
@@ -255,8 +254,9 @@
         "crash",
         null
       ],
-      "result": "PASS: real keyboard last kill, normal sequence, score/lives, active flight/fire, pause/resize, skip once, restart"
+      "result": "PASS: real keyboard last kill, normal sequence, visible external-camera handoff, score/lives, active flight/fire, pause/resize, skip once, restart"
     }
   ],
+  "settings": "Canvas Low default; workflow/recording runs may overlap and do not replace isolated benchmarks",
   "sourceManifest": "orbital-source-audit.json"
 }
