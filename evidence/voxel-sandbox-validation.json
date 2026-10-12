@@ -1,0 +1,100 @@
+{
+  "title": "Voxel Sandbox desktop identity and launch validation",
+  "createdAt": "2026-10-12T11:16:32.106240+00:00",
+  "branch": "feature/queue-38653863396236322d326163332d346366322d613632392d356535343666313363356338",
+  "checkoutBase": "136cef1940f13f9431c9f6e4400e19395145cbdb",
+  "sourceStage": "Uncommitted feature-worktree source; controller owns commit, publication, master synchronization and independent review.",
+  "sourceSha256": {
+    "src/main/java/dev/jayms/GameIdentity.java": "ece2f1d5ddae403480a090c493611cc5150ac34ece727a477da47e82b5cdeabc",
+    "src/main/java/dev/jayms/Main.java": "06a2787b4e4cd60c55e506c2c3731a967ee3330409036a9467ef46f74f9dae90",
+    "src/main/java/dev/jayms/ui/LoginDialog.java": "3d2a0f296b930b3b875be1a99c9ed366169274fbdec55407b0eeb09a8be72f66",
+    "src/main/java/dev/jayms/net/LocalGame.java": "af038f7f76d36d49250e5985aeb2e8dd38415d84ba219715f182b5d3bbde5958",
+    "src/main/java/dev/jayms/net/MultiplayerServer.java": "964610be21b670742d7b35f3b9fd545455bd8c2379b579e64a59bb2535777dfa",
+    "src/test/java/dev/jayms/SandboxIdentityTest.java": "958d6758c3f786e761715d92b99aa714e61585dede59b579a6ff0f4a368b90a9",
+    "pom.xml": "f45d76da0a23c202136edc1a509912aa2f1e975ed7d4fbe2c6942de4c36207b9",
+    "deploy/package_release.py": "e1fd6271362a70a383c36c743bff12d4ff3ea38861181151efeb43a3f39426ca",
+    "deploy/check_sandbox_package.py": "c7bc4cc685a398e634efbedcfc4e574104fa6b46c7e43b3da6c6a61f61317d3b",
+    "deploy/SandboxPlaytest.java": "32268608b212a340eff9aee9d07b4e7d24727b4fc851678a9d696ae66301ca59",
+    "deploy/SandboxSelectionPlaytest.java": "786c0269cb3626577b43ec64844319723ba09a90f24da63ed57b4450b621045b",
+    "deploy/run_sandbox_playtest.py": "7228436a4465252f3b7ec12c33bc5b645d508c5714170e91ef4b4acfab5008c2",
+    "README.md": "c0a23ebe408547e76384d5a88bd293632442a5f2cee1917af5b159c9f311c24d",
+    "website/dist/docs.html": "62099b8f1353d0878a351f1ae48b9768345557b1cb707d7784c0067f3c86fcbc"
+  },
+  "environment": {
+    "build": "Linux x86_64, Maven, Oracle JDK 25.0.3, Java release target 17",
+    "desktop": "Linux X11 on assigned inherited DISPLAY/XAUTHORITY; Oracle JDK 21.0.5; software OpenGL; low preset, DETAIL=32, HORIZON=512, SHADOWS=OFF, AA=OFF, renderScale=.5. Captures show 0-1 FPS; no hardware performance claim.",
+    "profiles": "Fresh synthetic homes/worlds inside target/sandbox-home and target/sandbox-profile. No live services or real accounts used for captures."
+  },
+  "tests": [
+    {
+      "command": "mvn -B -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" verify",
+      "result": "PASS: full build and 114 suites / 611 tests; zero failures/errors. Before final server CLI port correction and duplicate-read cleanup; separate final-source rerun follows.",
+      "report": "voxel-sandbox-full-suite.json"
+    },
+    {
+      "command": "mvn -B -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp -Duser.home=$PWD/target/sandbox-test-home\" -Dtest=SandboxIdentityTest,SurvivalTest,CityTest,CityMultiplayerTest,MultiplayerTest,UpdaterTest verify",
+      "result": "PASS on final source: 38 tests, zero failures/errors/skips; client/server/launcher Linux JARs built. Identity/defaults, explicit custom ports, missing/invalid arguments, explicit-world preservation, legacy Sandbox save round trip, City/Sandbox sidecar rejection without changing world bytes, per-game inventory isolation, updater arguments on all desktop platforms and existing gameplay/TLS multiplayer regressions.",
+      "report": "voxel-sandbox-final-tests.json"
+    },
+    {
+      "command": "python3 deploy/check_sandbox_package.py --platform linux",
+      "result": "PASS: real Linux release ZIP, old and Sandbox shortcuts, argument forwarding, launcher bytes, Linux native library presence, shared identity in server/client JARs; packaged server invalid port rejected before account/network access. Synthetic local release metadata; nothing published."
+    },
+    {
+      "command": "mvn -B -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-windows -DskipTests verify",
+      "result": "PASS: actual Windows-native cross-build. Tests intentionally skipped for this packaging build; no Windows GUI execution."
+    },
+    {
+      "command": "python3 deploy/check_sandbox_package.py --platform windows",
+      "result": "PASS: Windows release ZIP and .cmd argument forwarding, old shortcut preserved, Windows native libraries and shared identity bundled; packaged server CLI exercised."
+    },
+    {
+      "command": "python3 deploy/build_site.py",
+      "result": "PASS: README rendered into website assets with a Voxel Sandbox navigation section. Generated progress snapshot restored to avoid unrelated stale-data churn; docs asset retained. No website publication."
+    },
+    {
+      "command": "git diff --check; git ls-files -u",
+      "result": "PASS: no whitespace errors or unmerged index. Diff audited against checkout base; no unrelated deletions. Removed lines are old Sandbox label/selection defaults, unconditional port replacement and path-equality save remapping, replaced within this task."
+    }
+  ],
+  "playtests": [
+    {
+      "label": "Playtest: Sandbox and selection PASS",
+      "command": "python3 deploy/run_sandbox_playtest.py --display \"$DISPLAY\" --sandbox",
+      "steps": [
+        "Open real desktop selector: Sandbox name/description; switch City/default port; preserve typed/explicit custom ports including default-number ports; explicit game locks selector; Play offline returns selected game without an account/server.",
+        "Start production Main with synthetic Sandbox config/world: first person; no City citizens/buildings or mayor UI. X11 window search ^Voxel One.*Voxel Sandbox succeeded while running.",
+        "Prepare near-surface Stone platform/aimed block on render thread; warm fixture column meshes for visible capture. Real left click breaks it; assert drop; hold W toward drop and assert pickup; reset aim fixture and right click to place; assert Stone at aimed face and consumed inventory; repeat with empty slot and assert rejection.",
+        "F toggles flight off/on; hold Space until upward movement is observed. E opens inventory; real Recipes/Craft clicks consume 1 Grass and produce 8 half-block pieces; repeat without inputs and assert no extra output.",
+        "F6 sky view hides health HUD; E opens inventory; real clicks move 7 synthetic Stone from hotbar 0 to inventory 9; close inventory and F6 returns first person with health visible.",
+        "F10 starts/stops production recording around break/drop/movement/pickup/placement; capture screenshots after rendered frames."
+      ],
+      "observed": "All assertions and screenshot pixel checks passed on final source.",
+      "report": "voxel-sandbox-smoke-result.txt"
+    },
+    {
+      "label": "Playtest: City regression PASS",
+      "command": "python3 deploy/run_sandbox_playtest.py --display \"$DISPLAY\"",
+      "steps": [
+        "Fresh City world opens in planning view with citizens and no player health HUD.",
+        "Real click selects road planning tool; Escape cancels.",
+        "F6 returns to first person and restores player health HUD; capture both views."
+      ],
+      "observed": "All assertions and screenshot pixel checks passed on final source.",
+      "report": "voxel-city-entry-result.txt"
+    }
+  ],
+  "media": {
+    "video": "voxel-sandbox-place-break.mp4",
+    "durationSeconds": 32.317,
+    "bytes": 303580,
+    "inspection": "Jcodec FrameGrab decoded frames at 0, 5, 10, 25 and 30 seconds using temporary target/InspectSandboxVideo.java; decoded frames and gameplay/selection/City screenshots visually inspected. Block before break, dropped item, and placed block seen. ffmpeg/ffprobe unavailable; Jcodec metadata reader used.",
+    "publication": "All evidence links are pending controller publication on this feature branch."
+  },
+  "limits": [
+    "Physical Windows desktop playtest not available on Linux. Actual Windows-native package built; existing four-platform GitHub CI workflow retained for controller publication. Windows owner playtest remains a follow-up.",
+    "Controller must synchronize master before PR. If integration changes source, rerun relevant final-source checks and media. The post-sync review base has not yet been supplied.",
+    "Developer has neither approved/merged this work nor published/deployed anything."
+  ],
+  "noninteractiveScope": "Package and argument/save checks exercise real Java/CLI/archive integrations. Browser playtesting does not apply to the native desktop game; website documentation assets were rebuilt only."
+}
