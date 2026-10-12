@@ -80,3 +80,9 @@ the visible solid surface and fade continuously at band boundaries.
 The default alien preset changes only validated RGB molecular scattering to
 [5.8e-6, 22e-6, 18e-6] per metre for teal air. Earth remains a reference control;
 thin, hazy and airless retain the original Java preset definitions.
+
+## Cache-miss surface
+
+The cold/failed-Worker path uses a bounded 64 by 24–48 screen-space surface grid. Camera rays intersect the shared sphere and refine against the wrapped macro atlas and anchored landing patch. Geographic polar quads are never projected across the camera near plane. Thirteen vertical reference rays supply reduced-quality aerial transmittance/radiance and colored solar attenuation. Spatial cloud shell intervals clip to surface distance; surface, air and clouds compose in linear light before one tone map. The shared landing mesh overlaps from 60,000 m down to ground, retaining the target region when detailed frames are late. No per-pixel CPU atmosphere integration or GPU readback is used.
+
+Limitations: cold fallback has blocky screen sampling, vertically interpolated atmosphere and coarse atlas detail; local faces retain the existing reduced cloud occlusion. It remains the same profile, camera, sun, cloud seed and landing terrain as cached playback. Worker failure cannot remove the surface or prevent skip/handoff/restart.

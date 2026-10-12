@@ -1,0 +1,71 @@
+{
+  "command": "ORBITAL_WIDTH=390 PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/test_orbital_descent.cjs",
+  "environment": "Linux headless Chromium/WebKit, Canvas default, synthetic isolated profiles, local source HTTP port 8779; software browser measurements do not establish physical Safari performance",
+  "playtest": "Playtest: start, synthetic final level 2 fighter, real Space fire and frame loop, watch 12-second descent/blackout/waking, fly/fire on level 3; repeat transition, pause, rotate viewport, skip twice, restart.",
+  "expected": "One sequence, frozen combat, score 130/lives 2, continuous story, freeze while paused, one skip completion, restart level 1",
+  "results": [
+    {
+      "browser": "Chromium",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "timing": {
+        "count": 188,
+        "p50": 16.699999999999818,
+        "p95": 450,
+        "p99": 566.5,
+        "worst": 700,
+        "peakMainJsHeapBytes": 10000000
+      },
+      "preparation": {
+        "mainThreadMilliseconds": 23.5,
+        "cacheFrames": 26,
+        "cachePixelBytes": 638976,
+        "fineTerrainReady": true
+      },
+      "scenes": [
+        null,
+        "crash",
+        "blackout",
+        "waking",
+        null,
+        "crash",
+        "blackout",
+        null
+      ],
+      "result": "PASS: real keyboard last kill, normal sequence, score/lives, active flight/fire, pause/resize, skip once, restart"
+    },
+    {
+      "browser": "WebKit",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "timing": {
+        "count": 49,
+        "p50": 431,
+        "p95": 1532,
+        "p99": 1798,
+        "worst": 1798,
+        "peakMainJsHeapBytes": null
+      },
+      "preparation": {
+        "mainThreadMilliseconds": 161,
+        "cacheFrames": 16,
+        "cachePixelBytes": 393216,
+        "fineTerrainReady": true
+      },
+      "scenes": [
+        null,
+        "crash",
+        "blackout",
+        "waking",
+        null,
+        "crash",
+        null
+      ],
+      "result": "PASS: real keyboard last kill, normal sequence, score/lives, active flight/fire, pause/resize, skip once, restart"
+    }
+  ]
+}

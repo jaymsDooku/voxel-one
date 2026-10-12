@@ -1,3 +1,5 @@
+import {viewRay,coarseSample,surfaceRay} from './coarse-view.mjs';
+import {cloudDensity,cloudInterval} from './clouds.mjs';
 import {MATERIAL_COLORS} from './terrain.mjs';
 import {cameraAt,EntrySequence} from './entry-sequence.mjs';
 export {cameraAt} from './entry-sequence.mjs';
@@ -28,10 +30,10 @@ void main(){vec2 xy=(uv*2.-1.)*vec2(1.,viewport.y/viewport.x);vec3 d=normalize(f
 if(dist<1e19){for(int j=0;j<6;j++){vec4 tex=ground(eye+d*dist);vec2 h=sphere(eye,d,radius+tex.a*6400.);if(h.x>0.)dist=h.x;}vec3 p=eye+d*dist,n=normalize(p);vec4 tex=ground(p);float light=max(0.,dot(n,sun));color=pow(tex.rgb,vec3(2.2))*(vec3(.035)+sunlight(p+n*2.)*light*2.8);}
 float mu=dot(d,sun),phaseR=3.*(1.+mu*mu)/(16.*3.14159265),g=.76,phaseM=(1.-g*g)/(4.*3.14159265*pow(1.+g*g-2.*g*mu,1.5));vec2 s=path(eye,d,dist);vec3 depth=vec3(0),air=vec3(0);float step=max(0.,s.y-s.x)/float(samples);
 for(int i=0;i<32;i++){if(i>=samples)break;vec3 p=eye+d*(s.x+(float(i)+.5)*step),rho=density(length(p)-radius),sig=sigma(rho)*enabled;vec3 source=(betaR*rho.x*phaseR+betaM*rho.y*phaseM)*enabled;air+=source*exp(-(depth+sig*step*.5))*sunlight(p)*18.*step;air+=(betaR*rho.x+betaM*rho.y)*exp(-(depth+sig*step*.5))*multipleLight(p)*enabled*step;depth+=sig*step;}
-color=color*exp(-depth)+air;
 // Separate bounded cloud shells; never in airless mode or behind solid ground.
 vec3 cloudLight[2];float cloudAlpha[2],cloudDistance[2];for(int j=0;j<2;j++){float h=j==0?4500.:1800.,thick=j==0?600.:450.;vec2 range=cloudPath(eye,d,h,thick,dist);cloudAlpha[j]=0.;cloudDistance[j]=0.;cloudLight[j]=vec3(0);if(range.y>range.x&&enabled>0.){float t=(range.x+range.y)*.5;vec3 p=eye+d*t,solar=sunlight(p);cloudDistance[j]=t;cloudAlpha[j]=min(.55,1.-exp(-cloud(p)*(range.y-range.x)*.6/thick));cloudLight[j]=vec3(.01)+solar*max(0.,dot(normalize(p),sun))*.9;}}
 if(cloudDistance[0]<cloudDistance[1]){color=mix(color,cloudLight[1],cloudAlpha[1]);color=mix(color,cloudLight[0],cloudAlpha[0]);}else{color=mix(color,cloudLight[0],cloudAlpha[0]);color=mix(color,cloudLight[1],cloudAlpha[1]);}
+color=color*exp(-depth)+air;
 if(dist>1e19){float stars=pow(max(0.,sin(dot(floor(xy*800.),vec2(12.9898,78.233)))*43758.5453-floor(sin(dot(floor(xy*800.),vec2(12.9898,78.233)))*43758.5453)),120.);float visibility=1.-smoothstep(.001,.05,dot(air,vec3(.2126,.7152,.0722)));color+=vec3(stars)*exp(-depth)*.4*visibility;}
 color=vec3(1)-exp(-max(color,vec3(0))*exposure);outColor=vec4(pow(color,vec3(1./2.2)),1);}`;
 const norm=v=>{const n=Math.hypot(...v);return v.map(x=>x/n);};
@@ -70,7 +72,7 @@ export class EntryRenderer {
  upload(){const gl=this.gl;if(!gl)return;for(const [i,data,w,h] of [[0,this.atlasData,this.atlasWidth,this.atlasHeight],[1,this.patchData,72,48]]){if(this.textures?.[i])gl.deleteTexture(this.textures[i]);this.textures??=[];const tex=gl.createTexture();this.textures[i]=tex;gl.activeTexture(gl.TEXTURE0+i);gl.bindTexture(gl.TEXTURE_2D,tex);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,w,h,0,gl.RGBA,gl.UNSIGNED_BYTE,data);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,i?gl.CLAMP_TO_EDGE:gl.REPEAT);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);}if(this.multipleTexture)gl.deleteTexture(this.multipleTexture);this.multipleTexture=gl.createTexture();gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,this.multipleTexture);const table=this.multipleTable||{width:1,height:1,data:new Float32Array(4)};gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,table.width,table.height,0,gl.RGBA,gl.FLOAT,table.data);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.NEAREST);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.NEAREST);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);}
  render(ctx,width,height,t,air=this.air||'earth'){
   if(!this.profile)return;if(!this.forceFallback&&!this.gl)this.initGL();const frozenKey=`${width},${height},${t},${this.air},${this.forceFallback},${this.quality},${!!this.cache?.[Math.min(48,Math.floor(t*4))]}`;if(this.frozenKey===frozenKey&&this.frozenFrame){ctx.drawImage(this.frozenFrame,0,0);return cameraAt(t,this.profile);}if(Math.abs((this.cacheAspect||1)-width/height)>.001)this.startCache(width/height);const camera=this.sequence.sample(t),gl=this.gl;
-  if(!gl||this.forceFallback){this.fallback(ctx,width,height,camera,t,air);if(t===12){this.frozenFrame=document.createElement('canvas');this.frozenFrame.width=width;this.frozenFrame.height=height;this.frozenFrame.getContext('2d').drawImage(ctx.canvas,0,0,ctx.canvas.width,ctx.canvas.height,0,0,width,height);this.frozenKey=frozenKey;}return camera;}
+  if(!gl||this.forceFallback){this.fallback(ctx,width,height,camera,t,air);{this.frozenFrame??=document.createElement('canvas');this.frozenFrame.width=width;this.frozenFrame.height=height;this.frozenFrame.getContext('2d').drawImage(ctx.canvas,0,0,ctx.canvas.width,ctx.canvas.height,0,0,width,height);this.frozenKey=frozenKey;}return camera;}
   const scale=this.quality==='Low'?.5:this.quality==='High'?1:.75;const rw=Math.min(640,Math.ceil(width*scale)),rh=Math.min(400,Math.ceil(height*scale));if(this.canvas.width!==rw||this.canvas.height!==rh){this.canvas.width=rw;this.canvas.height=rh;}gl.viewport(0,0,this.canvas.width,this.canvas.height);gl.useProgram(this.program);
   const loc=n=>gl.getUniformLocation(this.program,n),v=(n,a)=>gl.uniform3fv(loc(n),a),f=(n,a)=>gl.uniform1f(loc(n),a);
   gl.uniform2f(loc('viewport'),width,height);for(const n of ['eye','forward','right','up'])v(n,camera[n]);v('sun',this.profile.sun);f('radius',this.profile.radius);f('baseHeight',this.profile.landingHeight);f('time',t);f('cloudPhase',(this.profile.cloudSeed%65536)/65536*Math.PI*2);f('enabled',air==='airless'?0:1);f('airHeight',air==='thin'?50000:100000);f('exposure',1.1+camera.progress*.5);const haze=air==='thin'?.25:air==='hazy'?3:1;v('betaR',this.profile.atmosphere.molecular);v('betaM',[3.996e-6*haze,3.996e-6*haze,3.996e-6*haze]);v('betaE',[4.44e-6*haze,4.44e-6*haze,4.44e-6*haze]);v('absorption',[.65e-6,1.881e-6,.085e-6]);gl.uniform4f(loc('scales'),air==='thin'?4000:8000,air==='thin'?600:1200,air==='thin'?12500:25000,air==='thin'?7500:15000);gl.uniform1i(loc('samples'),this.quality==='Low'?8:this.quality==='High'?32:16);gl.uniform1i(loc('atlas'),0);gl.uniform1i(loc('landingPatch'),1);gl.uniform1i(loc('multipleLut'),2);gl.uniform2f(loc('multipleSize'),this.multipleTable?.width||1,this.multipleTable?.height||1);gl.drawArrays(gl.TRIANGLES,0,6);ctx.drawImage(this.canvas,0,0,width,height);this.moons(ctx,width,height,camera,air);this.localTerrain(ctx,width,height,camera,air);return camera;
@@ -85,11 +87,11 @@ export class EntryRenderer {
   ctx.fillStyle=color;ctx.beginPath();projected.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill();
  }
  localTerrain(ctx,w,h,c,air){
-  if(c.altitude>15000||!this.scene)return;
+  if(c.altitude>60000||!this.scene)return;
   const columns=c.altitude<4000&&this.fineScene?[...this.orderedCoarse,...this.orderedFine]:this.orderedCoarse;const r=this.profile.radius,mpb=50;
   const solar=sunlight(atmospherePreset(air),[0,r+this.profile.landingHeight+2,0],this.profile.sun,8),topLight=.12+Math.max(0,this.profile.sun[1])*1.4;
   const atmosphere=atmospherePreset(air),aerial=[];for(let i=0;i<=16;i++)aerial.push(integrate(atmosphere,c.eye,c.forward,this.profile.sun,i*1250,8,4,this.multipleTable?(p,s)=>sampleMultiple(this.multipleTable,atmosphere,p,s):undefined));
-  const alpha=Math.min(1,Math.max(0,(15000-c.altitude)/9000));ctx.save();ctx.globalAlpha=alpha;
+  const alpha=Math.min(1,Math.max(0,(60000-c.altitude)/54000));ctx.save();ctx.globalAlpha=alpha;
   for(const col of columns){const source=col.source;ctx.globalAlpha=alpha*(col.detail?Math.max(0,Math.min(1,(4000-c.altitude)/2500)):1);if(c.altitude>3000&&(col.col%2||col.row%2))continue;const x=col.x*mpb,z=col.z*mpb,size=source.view.step*mpb*(c.altitude>3000?2:1),y=r+col.height*mpb;
    const front=this.project([x,y,z],c,w,h);if(!front)continue;
    const color=this.profile.palette[col.biome][0].match(/[a-f0-9]{2}/gi).map(x=>parseInt(x,16)),distance=Math.hypot(x-c.eye[0],y-c.eye[1],z-c.eye[2]),index=Math.min(16,Math.max(0,Math.round(distance/1250))),sample=aerial[index];
@@ -114,20 +116,25 @@ export class EntryRenderer {
  fallback(ctx,w,h,c,t,air){
   const index=Math.min(48,Math.floor(t*4)),a=this.cache?.[index],b=this.cache?.[Math.min(48,index+1)];
   if(a){ctx.drawImage(a,0,0,w,h);if(b&&t<12){ctx.save();ctx.globalAlpha=t*4-index;ctx.drawImage(b,0,0,w,h);ctx.restore();}this.moons(ctx,w,h,c,air);this.localTerrain(ctx,w,h,c,air);return;}
-  const config=atmospherePreset(air),p=this.profile,r=p.radius;
-  ctx.fillStyle='#030817';ctx.fillRect(0,0,w,h);
-  // Bounded directional samples, never per-pixel CPU integration. Same reference clipping.
-  const colors=[];for(let i=0;i<=12;i++){const d=norm(c.forward.map((v,j)=>v+c.up[j]*(1-2*i/12)*.52*h/w)),sample=integrate(config,c.eye,d,p.sun,2*(Math.hypot(...c.eye)+r+config.height),8,4);colors.push(sample.radiance.map(v=>Math.round(255*(1-Math.exp(-v*1.2))**(1/2.2))));}
-  const sky=ctx.createLinearGradient(0,0,0,h);colors.forEach((color,i)=>sky.addColorStop(i/12,`rgb(${color.join(',')})`));ctx.fillStyle=sky;ctx.fillRect(0,0,w,h);
-  if(c.altitude>10000){
-   const tiles=[];for(let y=0;y<32;y++)for(let x=0;x<64;x++){
-    const lat=(y/32-.5)*Math.PI,lon=(x/64-.5)*Math.PI*2,n=[Math.cos(lat)*Math.sin(lon),Math.sin(lat),Math.cos(lat)*Math.cos(lon)];if(dot(n,c.eye)<r*.98)continue;
-    const points=[];for(const [dx,dy] of [[0,0],[1,0],[1,1],[0,1]]){const a=((y+dy)/32-.5)*Math.PI,b=((x+dx)/64-.5)*Math.PI*2;points.push([Math.cos(a)*Math.sin(b)*r,Math.sin(a)*r,Math.cos(a)*Math.cos(b)*r]);}
-    const k=(Math.min(this.atlasHeight-1,Math.floor(y/32*this.atlasHeight))*this.atlasWidth+Math.min(this.atlasWidth-1,Math.floor(x/64*this.atlasWidth)))*4,light=.1+Math.max(0,dot(n,p.sun))*.95,color=[0,1,2].map(j=>Math.round(this.atlasData[k+j]*light));tiles.push({points,color,depth:dot(n,c.eye)});
-   }
-   tiles.sort((a,b)=>a.depth-b.depth);for(const tile of tiles)this.polygon(ctx,tile.points,`rgb(${tile.color.join(',')})`,c,w,h);
-   if(config.enabled){const center=this.project([0,0,0],c,w,h),distance=Math.hypot(...c.eye),angular=Math.asin(r/distance),size=Math.tan(angular)*w/1.04;
-    if(center){ctx.save();ctx.strokeStyle='#81ccce55';ctx.lineWidth=Math.max(1,size*.004);ctx.beginPath();const angle=Math.atan2(-dot(p.sun,c.up),dot(p.sun,c.right));ctx.arc(center[0],center[1],size,angle-Math.PI/2,angle+Math.PI/2);ctx.stroke();ctx.restore();}
+  const p=this.profile,config=p.atmosphere,r=p.radius,atlas={data:this.atlasData,width:this.atlasWidth,height:this.atlasHeight};
+  const sample=n=>coarseSample(p,atlas,this.patchData,n),exposure=1.1+c.progress*.5;
+  const display=color=>`rgb(${color.map(v=>Math.round(255*(1-Math.exp(-Math.max(0,v)*exposure))**(1/2.2))).join(',')})`;
+  // Thirteen reference rays supply aerial perspective. No per-pixel integration.
+  const rows=[];for(let row=0;row<=12;row++){
+   const d=viewRay(c,.5,row/12,w/h),hit=surfaceRay(c,d,p,sample),distance=hit?.distance||2*(Math.hypot(...c.eye)+r+config.height);
+   const atmosphere=integrate(config,c.eye,d,p.sun,distance,8,4,this.multipleTable?(q,sun)=>sampleMultiple(this.multipleTable,config,q,sun):undefined);
+   const q=hit?hit.position.map((v,i)=>v+hit.normal[i]*2):[0,r+p.landingHeight+2,0];
+   rows.push({...atmosphere,solar:sunlight(config,q,p.sun,4)});
+  }
+  const mix=(a,b,f)=>a.map((v,i)=>v*(1-f)+b[i]*f),cols=64,meshRows=Math.max(24,Math.min(48,Math.round(64*h/w)));
+  for(let row=0;row<meshRows;row++){
+   const y=(row+.5)/meshRows,k=y*12,j=Math.min(11,Math.floor(k)),f=k-j,a=rows[j],b=rows[j+1],trans=mix(a.transmittance,b.transmittance,f),radiance=mix(a.radiance,b.radiance,f),solar=mix(a.solar,b.solar,f);
+   for(let col=0;col<cols;col++){
+    const d=viewRay(c,(col+.5)/cols,y,w/h),hit=surfaceRay(c,d,p,sample);let color=[.003,.006,.014];
+    if(hit){const light=Math.max(0,dot(hit.normal,p.sun));color=hit.material.color.map((v,i)=>(v/255)**2.2*(.035+solar[i]*light*2.8));}
+    if(config.enabled){const layers=[];for(const [altitude,thickness] of [[1800,450],[4500,600]]){const range=cloudInterval(c.eye,d,r,altitude,thickness,hit?.distance||Infinity);if(!range)continue;const distance=(range.near+range.far)/2,n=norm(c.eye.map((v,i)=>v+d[i]*distance)),opacity=Math.min(.55,1-Math.exp(-cloudDensity(n,p.cloudSeed,t)*(range.far-range.near)*.6/thickness));layers.push({distance,opacity,light:solar.map(v=>.01+v*Math.max(0,dot(n,p.sun))*.9)});}layers.sort((a,b)=>b.distance-a.distance);for(const layer of layers)color=color.map((v,i)=>v*(1-layer.opacity)+layer.light[i]*layer.opacity);}
+    color=color.map((v,i)=>v*trans[i]+radiance[i]);
+    ctx.fillStyle=display(color);ctx.fillRect(col*w/cols,row*h/meshRows,w/cols+.5,h/meshRows+.5);
    }
   }
   this.moons(ctx,w,h,c,air);this.localTerrain(ctx,w,h,c,air);

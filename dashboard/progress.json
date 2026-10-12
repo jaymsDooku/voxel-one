@@ -20,8 +20,8 @@
       "description": "Implementing a shared planet profile, browser atmosphere and continuous entry camera. Validation remains pending.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Ready for independent review: 33 unit tests, eight Chromium/WebKit workflows, diagnostics, regressions and launcher validated; fresh 615742-byte MP4 and source hashes saved. Physical hardware tests are follow-up. Software performance targets fail; Canvas limits documented; WebGL2 remains opt-in.",
-      "updatedAt": "2026-10-12T20:11:53+00:00"
+      "note": "Reviewer cache-miss fan fixed. Final 35 unit tests, eight browser workflows, two Worker-failure workflows, GL recovery diagnostics and launcher pass. Fresh videos/images saved. Awaiting independent review; software targets fail, physical tests follow-up, WebGL2 opt-in.",
+      "updatedAt": "2026-10-12T20:44:53+00:00"
     },
     {
       "id": "36646561376136642d646639322d343635352d616365372d356135643135353263316664",

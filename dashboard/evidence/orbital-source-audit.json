@@ -1,7 +1,7 @@
 {
   "branch": "feature/queue-32323739633831342d393930632d343438322d383036362d633363393732353338303631",
   "provisionalBase": "136cef1940f13f9431c9f6e4400e19395145cbdb",
-  "reviewBase": "Audited against integrated HEAD 1d2c3b3266c9e2d9c82c2217594690c0a62334ef; no separately recorded review base supplied. Controller must retain this base or repeat audit after further synchronization.",
+  "reviewBase": "1d2c3b3266c9e2d9c82c2217594690c0a62334ef",
   "intendedRemovals": "Replaced the original expanding disc, timed gradient/cloud blobs and repeating cube rows. Replaced fixed palette sky gradients with reference-based sky samples. No unrelated source deletions intended.",
   "checks": [
     {
@@ -31,7 +31,7 @@
     },
     {
       "file": "games/space-invaders/entry-renderer.mjs",
-      "sha256": "c5a779a4c1d39f6c6bbd33fe4e84ac38f579f9f9f572dfc241b880b26307eace",
+      "sha256": "7bd33f3d071a4f9407bffc3cb43741d2cbdda3ef3055503798bb1aeed7b03e29",
       "bundleMatches": true
     },
     {
@@ -41,7 +41,7 @@
     },
     {
       "file": "games/space-invaders/entry-worker.mjs",
-      "sha256": "c58f4a64130931a292aeaffada851f3abea0053bc2d93e99bdf2c8324ffc9bbd",
+      "sha256": "cef8d54dc1e78179864f04656d5e7b812cb3c1f758bdf4140eca142bd6b9c0e4",
       "bundleMatches": true
     },
     {
@@ -83,9 +83,14 @@
       "file": "games/space-invaders/terrain.mjs",
       "sha256": "1f14765c2ad7bcd34f3cff542d3c8b80b022b7e52e49c7031c1659ead0fc482d",
       "bundleMatches": true
+    },
+    {
+      "file": "games/space-invaders/coarse-view.mjs",
+      "sha256": "66106458cb27a348c02f00728227d28fd7c66eeac180a78f45f9bff7f031c0b9",
+      "bundleMatches": true
     }
   ],
-  "verification": "Final post-recovery validation complete for available browser scope:33 unit tests,8 Chromium/WebKit workflows,launcher pass. Prior GL/recovery/reduced-motion/airless/lab diagnostics and regressions cover unchanged source. Fresh video/contact sheet inspected. Physical Safari/named GPU tests follow-up; software performance gates fail; WebGL2 remains opt-in.",
+  "verification": "Final reviewer-fix35unit tests,8normal browser cases,2Worker failure cases,GL/context/reduced-motion/airless/lab diagnostics and launcher pass. Source17modules match bundle. Fresh media inspected; software performance fails; physical hardware remains follow-up.",
   "unchangedTerrainGenerator": "1f14765c2ad7bcd34f3cff542d3c8b80b022b7e52e49c7031c1659ead0fc482d",
   "sourceDeletions": [],
   "restoredHistoricalEvidence": [
@@ -165,10 +170,17 @@
     "dashboard/evidence/space-invaders-space-layout.json"
   ],
   "integratedBase": "1d2c3b3266c9e2d9c82c2217594690c0a62334ef",
-  "media": {
-    "file": "dashboard/evidence/orbital-normal.mp4",
-    "bytes": 615742,
-    "sha256": "a413ea6dc9c4576a5859ce13948a60a9a7e782598125e081a75f3189f486cb45",
-    "source": "16-file source SHA256 manifest; integrated base 1d2c3b3266c9e2d9c82c2217594690c0a62334ef; controller feature commit pending"
-  }
+  "media": [
+    {
+      "file": "dashboard/evidence/orbital-normal.mp4",
+      "bytes": 596490,
+      "sha256": "492ab7a7f89929cfdf5166322258031ac9c63fc00c8541d69d7bbeec002797c3"
+    },
+    {
+      "file": "dashboard/evidence/orbital-cache-failure.mp4",
+      "bytes": 656398,
+      "sha256": "3186db3866391abda5d5350f3ad146a42c6402d18d0b61395de098aa14092e17"
+    }
+  ],
+  "testedStartingHead": "85a23e1d9225d76fbb54eb167b67bb5440507404"
 }

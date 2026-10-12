@@ -127,3 +127,6 @@ Steps: Start the game. Set the isolated synthetic final level 2 fighter, score 9
 Expected: One descent from the actual final fighter kill; combat frozen during story; score 130 and lives 2 preserved; crash/blackout/waking followed by active level 3 flight/fire. Pause and rotation retain scene time. Skip completes once; second skip returns false. Restart returns to level 1 with no scene. No page errors.
 
 Observed: PASS in all eight browser/viewport cases. Scene history contains blackout and waking. Score 130/lives 2 assertions passed. Flight/fire, frozen pause/rotation time, one-time skip and restart assertions passed. No page errors. Recorded frames inspected; same terrain persists through impact and waking. Saved browser MP4: `orbital-normal.mp4`, 615,742 bytes. Software performance targets failed; physical Safari iPhone and named GPU checks remain unexecuted follow-up. WebGL2 remains opt-in.
+
+
+Latest authoritative reviewer-fix validation: `orbital-revision-validation.md`. New source supersedes earlier renderer/media records. Final tests:35unit,8browser workflow,2Worker failure cases,GL diagnostics and launcher passed. Software frame targets fail; physical hardware checks remain follow-up. Recorded review base audit has no unrelated deletions.

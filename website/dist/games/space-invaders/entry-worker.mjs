@@ -16,9 +16,10 @@ self.onmessage=({data})=>{try{
   if(hit&&hit.near>0){for(let j=0;j<4;j++){const q=c.eye.map((v,i)=>v+d[i]*dist),sample=sharedSample(world,profile,unit(q)),h=sphere(c.eye,d,r+sample.height*50);if(h&&h.near>0)dist=h.near;}
    const q=c.eye.map((v,i)=>v+d[i]*dist),n=unit(q),sample=sharedSample(world,profile,n),solar=sunlight(air,q.map((v,i)=>v+n[i]*2),profile.sun,4),light=Math.max(0,dot(n,profile.sun));color=sample.color.map((v,i)=>(v/255)**2.2*(.035+solar[i]*light*2.8));
   }
-  const a=integrate(air,c.eye,d,profile.sun,dist,data.quality==='High'?8:data.quality==='Low'?3:4,data.quality==='High'?4:2,(q,s)=>sampleMultiple(multipleTable,air,q,s));const brightness=a.radiance[0]*.2126+a.radiance[1]*.7152+a.radiance[2]*.0722,f=Math.max(0,Math.min(1,(brightness-.001)/.049)),starVisibility=1-f*f*(3-2*f);color=color.map((v,i)=>v*a.transmittance[i]+a.radiance[i]+stellar*a.transmittance[i]*starVisibility);
+  const a=integrate(air,c.eye,d,profile.sun,dist,data.quality==='High'?8:data.quality==='Low'?3:4,data.quality==='High'?4:2,(q,s)=>sampleMultiple(multipleTable,air,q,s));const brightness=a.radiance[0]*.2126+a.radiance[1]*.7152+a.radiance[2]*.0722,f=Math.max(0,Math.min(1,(brightness-.001)/.049)),starVisibility=1-f*f*(3-2*f);
   if(air.enabled){const layers=[];for(const [altitude,thickness] of [[1800,450],[4500,600]]){const range=cloudInterval(c.eye,d,r,altitude,thickness,dist);if(!range)continue;const t=(range.near+range.far)/2,q=c.eye.map((v,i)=>v+d[i]*t),n=unit(q),opacity=Math.min(.55,1-Math.exp(-cloudDensity(n,profile.cloudSeed,data.time)*(range.far-range.near)*.6/thickness)),solar=sunlight(air,q,profile.sun,4);layers.push({t,opacity,light:solar.map(v=>.01+v*Math.max(0,dot(n,profile.sun))*.9)});}layers.sort((a,b)=>b.t-a.t);for(const layer of layers)color=color.map((v,i)=>v*(1-layer.opacity)+layer.light[i]*layer.opacity);}
 
+  color=color.map((v,i)=>v*a.transmittance[i]+a.radiance[i]+stellar*a.transmittance[i]*starVisibility);
   const k=(y*width+x)*4;color.forEach((v,i)=>pixels[k+i]=255*(1-Math.exp(-Math.max(0,v)*(1.1+c.progress*.5)))**(1/2.2));pixels[k+3]=255;
  }
  self.postMessage({epoch:data.epoch,index:data.index,pixels,width,height,scene:data.index===0?fineScene:null,atlas:data.index===0?atlas:null,multiple:data.index===0?multipleTable:null},[pixels.buffer]);
