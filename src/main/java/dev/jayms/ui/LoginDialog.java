@@ -101,7 +101,9 @@ public final class LoginDialog {
         for (int i = 0; i < fields.length; i++) {
             c.gridy = i + 1;
             c.gridx = 0;
-            panel.add(new JLabel(labels[i]), c);
+            JLabel fieldLabel = new JLabel(labels[i]); fieldLabel.setLabelFor(fields[i]);
+            fields[i].getAccessibleContext().setAccessibleName(labels[i]);
+            panel.add(fieldLabel, c);
             c.gridx = 1;
             panel.add(fields[i], c);
         }
@@ -124,6 +126,18 @@ public final class LoginDialog {
         panel.add(hint, c);
         c.gridy = 9;
         panel.add(description, c);
+        JButton downloads = new JButton("Desktop hub downloads");
+        downloads.addActionListener(e -> new SwingWorker<Void, Void>() {
+            protected Void doInBackground() throws Exception {
+                if (!Desktop.isDesktopSupported() || !Desktop.getDesktop().isSupported(Desktop.Action.BROWSE))
+                    throw new IOException("Default browser unavailable");
+                Desktop.getDesktop().browse(java.net.URI.create("https://github.com/jaymsDooku/voxel-one/releases/latest"));
+                return null;
+            }
+            protected void done() { try { get(); } catch (Exception failure) { status.setText("Open the Voxel One GitHub releases page for desktop downloads."); } }
+        }.execute());
+        c.gridy = 10;
+        panel.add(downloads, c);
         Runnable[] connect = new Runnable[2];
         for (int action = 0; action < 2; action++) {
             boolean create = action == 1;

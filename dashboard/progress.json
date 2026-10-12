@@ -3873,6 +3873,15 @@
       "status": "in_progress",
       "note": "CI follow-up confirmed: both exact-head runs passed Linux, Windows, Intel Mac and Apple Silicon Mac; publish skipped. Earlier cancelled run was superseded. Source hashes match validated playtests. Ready for independent review.",
       "updatedAt": "2026-10-08T15:02:53+00:00"
+    },
+    {
+      "id": "62383835386364312d346130642d346262652d383736632d393534373062343337356161",
+      "title": "Voxel One Hub",
+      "description": "Building the catalog-driven desktop hub around verified client updates. Platform packaging and playtests remain required.",
+      "evidence": [],
+      "status": "blocked",
+      "note": "Scoped Windows/macOS validation workflow prepared. Linux F10 capture fixed and artifact checks passed. Remote checks await coordinator dispatch. Published game routes return 404 with supported private-site access.",
+      "updatedAt": "2026-10-12T17:57:03+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
