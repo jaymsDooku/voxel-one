@@ -1,0 +1,20 @@
+{
+  "baseCommit": "1d2c3b3266c9e2d9c82c2217594690c0a62334ef",
+  "state": "Paused by service/quota instruction; all unpublished edits preserved",
+  "tests": [
+    "Maven17 passed; zero failures/errors/skips",
+    "Publisher1 passed",
+    "Playtest: Hub navigation and local WebKit freshness passed",
+    "Playtest: synthetic City/Sandbox pinned TLS login and invalid-port edge passed",
+    "Recovered artifact integration passed",
+    "Native workflow first attempt failed editor F10 finalization; isolated focused rerun completed exit0"
+  ],
+  "media": "Fresh native clips await decoding and inspection; no final media acceptance claimed",
+  "pending": [
+    "Windows/macOS exact-source workflow execution",
+    "Actual monitor DPI and GPU gameplay",
+    "Production game route availability/playtesting",
+    "Formal review-base diff audit after controller synchronization"
+  ],
+  "resume": "Read docs/VOXEL_ONE_HUB_CHECKPOINT.md. No commit/push/deployment performed."
+}

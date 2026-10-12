@@ -1,0 +1,19 @@
+{
+  "scope": "Conflict resolution; final-head validation pending controller continuation",
+  "checks": [
+    {
+      "command": "Three-way progress JSON comparison and equality assertions",
+      "expected": "Retain master metadata and every non-Hub item; retain feature Hub item",
+      "observed": "Passed; recipe-book entry preserved unchanged"
+    },
+    {
+      "command": "python3 -m py_compile tools/hub/check_packages.py tools/hub/package.py tools/hub/site_probe.py tools/hub/summarize_tests.py",
+      "observed": "Passed"
+    },
+    {
+      "command": "git diff --check",
+      "observed": "Passed"
+    }
+  ],
+  "playtest": "Playtest: no application playtest repeated during pending Git recovery. Controller must continue recovery before final-head workflow tests and media. Earlier media is historical until source is validated."
+}

@@ -11,7 +11,7 @@ import javax.swing.border.EmptyBorder;
 
 /** Small dependency-free desktop bootstrap. The game and user saves live independently. */
 public final class Launcher {
-    private static Path cache() {
+    public static Path cache() {
         String local = System.getenv("LOCALAPPDATA");
         if (Platform.current() == Platform.WINDOWS && local != null && !local.isBlank())
             return Path.of(local).resolve("VoxelOne");
@@ -26,7 +26,8 @@ public final class Launcher {
                                 platform == Platform.WINDOWS ? "javaw.exe" : "java")
                         .toString();
         List<String> command =
-                new ArrayList<>(List.of(java, "-Duser.home=" + System.getProperty("user.home")));
+                new ArrayList<>(List.of(java, "-Duser.home=" + System.getProperty("user.home"),
+                        "-Djava.io.tmpdir=" + System.getProperty("java.io.tmpdir")));
         if (platform == Platform.MAC_ARM || platform == Platform.MAC_INTEL)
             command.add("-XstartOnFirstThread");
         command.add("-jar");
@@ -43,6 +44,28 @@ public final class Launcher {
 
     /** The updater is explicit so the complete launcher can use a local verified release in tests. */
     public static void run(String[] args, Updater updater) {
+        if (!Arrays.asList(args).contains("--update-only") && args.length == 0 && !GraphicsEnvironment.isHeadless()) {
+            SwingUtilities.invokeLater(() -> {
+                try { new HubFrame(cache()).setVisible(true); }
+                catch (IOException e) { JOptionPane.showMessageDialog(null, e.getMessage(), "Voxel One Hub", JOptionPane.ERROR_MESSAGE); }
+            });
+            return;
+        }
+        List<String> selectedArguments = new ArrayList<>(Arrays.asList(args));
+        int experienceIndex = selectedArguments.indexOf("--experience");
+        if (experienceIndex >= 0) {
+            try {
+                if (experienceIndex + 1 >= selectedArguments.size()) throw new IllegalArgumentException("--experience requires an ID");
+                String id = selectedArguments.remove(experienceIndex + 1); selectedArguments.remove(experienceIndex);
+                HubCatalog.Entry entry = new CatalogStore(cache()).cached().catalog().entries().stream()
+                        .filter(e -> e.id().equals(id)).findFirst().orElseThrow(() -> new IllegalArgumentException("Unknown experience ID"));
+                if (!entry.supported(Platform.current()) || !entry.adapter().equals("native")) throw new IllegalArgumentException("CLI supports native experiences only");
+                if (selectedArguments.contains("--game")) throw new IllegalArgumentException("Use either --game or --experience");
+                selectedArguments.addAll(0, List.of("--game", entry.target().equals("editor") ? "city" : entry.target()));
+                if (entry.target().equals("editor")) selectedArguments.add("--editor");
+            } catch (Exception e) { System.err.println(e.getMessage()); System.exit(1); return; }
+        }
+        args = selectedArguments.toArray(String[]::new);
         boolean updateOnly = Arrays.asList(args).contains("--update-only");
         List<String> launchArguments = new ArrayList<>(Arrays.asList(args));
         if (!updateOnly && !launchArguments.contains("--asset-manager") && !GraphicsEnvironment.isHeadless()) {
