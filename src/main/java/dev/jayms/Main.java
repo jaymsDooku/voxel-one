@@ -278,7 +278,7 @@ public class Main {
 
     private void init() {
         window = new Window(framebufferWidth, framebufferHeight, "Voxel One | " + GameIdentity.of(gameConfig.city()).title, false, true);
-        glfwSetWindowSizeLimits(window.getHandle(), 640, 640, GLFW_DONT_CARE, GLFW_DONT_CARE);
+        glfwSetWindowSizeLimits(window.getHandle(), 640, gameConfig.city() ? 640 : 480, GLFW_DONT_CARE, GLFW_DONT_CARE);
         window.center();
         window.setOpenGlContext();
         window.vSync();
@@ -328,8 +328,8 @@ public class Main {
         menu.rendering = new dev.jayms.ui.RenderingMenu(() -> rendering);
         menu.rendering.sharedApply(graphics::applyLegacy);
         menu.graphics=new GraphicsMenu(graphics,performance,this::togglePerformance,this::graphicsDiagnostics);
-        float[] scaleX={1},scaleY={1};glfwGetWindowContentScale(window.getHandle(),scaleX,scaleY);menu.graphics.density(Math.max(scaleX[0],scaleY[0]));
-        glfwSetWindowContentScaleCallback(window.getHandle(),(handle,x,y)->menu.graphics.density(Math.max(x,y)));
+        float[] scaleX={1},scaleY={1};glfwGetWindowContentScale(window.getHandle(),scaleX,scaleY);menu.graphics.density(Math.max(scaleX[0],scaleY[0]));inventoryHud.density(Math.max(scaleX[0],scaleY[0]));
+        glfwSetWindowContentScaleCallback(window.getHandle(),(handle,x,y)->{menu.graphics.density(Math.max(x,y));inventoryHud.density(Math.max(x,y));});
         overlay = new Overlay();
         camera = new Camera();
         playerModel = new PlayerModel();
@@ -459,7 +459,8 @@ public class Main {
                 && (menu.open && menu.saves != null && menu.saves.open
                         || mayorDashboard.open && mayorDashboard.searchFocus
                         || editor.open
-                        || lightColors.open)) return false;
+                        || lightColors.open
+                        || inventoryHud.open && inventoryHud.searchFocused())) return false;
         recorder.toggle(framebufferWidth, framebufferHeight);
         return true;
     }
@@ -518,6 +519,12 @@ public class Main {
                         if (!menu.open) setCaptured(true);
                         return;
                     }
+                    if(inventoryHud.open && (action==GLFW_PRESS||action==GLFW_REPEAT)) {
+                        if(!inventoryHud.searchFocused() && controls.matches(INVENTORY,key)) inventoryHud.close();
+                        else inventoryHud.key(key,inventory(),this::swapInventory,this::craft);
+                        if(!inventoryHud.open) setCaptured(!isometric);
+                        return;
+                    }
                     if (action == GLFW_PRESS) {
                         if (isometric
                                 && city().config().city()
@@ -562,6 +569,10 @@ public class Main {
         glfwSetMouseButtonCallback(
                 window.getHandle(),
                 (handle, button, action, mods) -> {
+                    if(!captured) {
+                        double[] cx={0},cy={0}; glfwGetCursorPos(handle,cx,cy);
+                        mouseX=cx[0]; mouseY=cy[0];
+                    }
                     if (button == GLFW_MOUSE_BUTTON_RIGHT
                             && action == GLFW_RELEASE
                             && orbitDrag.active()) {
@@ -657,7 +668,7 @@ public class Main {
                     if (inventoryHud.open) {
                         int[] size = window.getSize();
                         if (button == GLFW_MOUSE_BUTTON_LEFT)
-                            inventoryHud.click(
+                            inventoryHud.clickBatch(
                                     (float) mouseX * framebufferWidth / size[0],
                                     (float) mouseY * framebufferHeight / size[1],
                                     framebufferWidth,
@@ -667,11 +678,7 @@ public class Main {
                                         if (network == null) local.inventory.swap(a, b);
                                         else network.swap(a, b);
                                     },
-                                    id -> {
-                                        if (network == null)
-                                            notice = local.craft(id, player.pose(0));
-                                        else network.craft(id, player.pose(network.id));
-                                    });
+                                    this::craft);
                         return;
                     }
                     if (menu.open) {
@@ -736,6 +743,7 @@ public class Main {
                     else if (mayorDashboard.open) mayorDashboard.character(character);
                     else if (editor.open) editor.character(character);
                     else if (lightColors.open) lightColors.character(character);
+                    else if (inventoryHud.open) inventoryHud.character(character);
                 });
         glfwSetScrollCallback(
                 window.getHandle(),
@@ -820,7 +828,24 @@ public class Main {
         setCaptured(false);
     }
 
+    private void swapInventory(int a,int b) {
+        if(network==null) local.inventory.swap(a,b); else network.swap(a,b);
+    }
+    private void craft(int id,int quantity) {
+        if(network==null) { notice=local.craft(id,quantity,player.pose(0)); inventoryHud.feedback(notice); }
+        else { network.craft(id,quantity,player.pose(network.id)); inventoryHud.pending(network.craftPending()); }
+    }
     private void input(int code) {
+        if(inventoryHud.open) {
+            if(code==GLFW_KEY_ESCAPE||controls.matches(INVENTORY,code)) { inventoryHud.close(); setCaptured(!isometric); }
+            return;
+        }
+        if(controls.matches(DROP_ITEM,code)&&captured) {
+            if(network==null) notice=local.drop(inventoryHud.selected,player.pose(0));
+            else network.drop(inventoryHud.selected,player.pose(network.id));
+            return;
+        }
+
         if (controls.matches(ENGINE_EDITOR, code)) {
             openEngineWorkspace();
             return;
@@ -1115,6 +1140,7 @@ public class Main {
                 }
             }
             if (local != null) local.city.riderMoved(riderId(), player.pose(0));
+            inventoryHud.prepareIcons(world.models());
             player.heldItem(inventory().type(inventoryHud.selected));
             player.heldColor(lightColors.color());
             player.updateCamera(world);
@@ -1253,7 +1279,7 @@ public class Main {
         for (var plane : cheatPlanes) planeModel.render(plane, shader);
         for (ItemDrop drop : drops().values())
             if (player.position().distanceSquared(drop.x(), drop.y(), drop.z()) < 10000)
-                if (Blocks.isModel(drop.type()))
+                if (world.models().get(drop.type()) != null)
                     modelRenderer.renderDrop(drop, (float) glfwGetTime(), shader);
                 else playerModel.renderDrop(drop, (float) glfwGetTime(), shader);
         farmModels.crops(city().agriculture(), shader);
@@ -1492,6 +1518,8 @@ public class Main {
                 76,
                 1.4f);
         int[] windowSize = window.getSize();
+        inventoryHud.pending(network != null && network.craftPending());
+        inventoryHud.feedback(notice);
         inventoryHud.render(
                 overlay,
                 inventory(),
@@ -1503,9 +1531,9 @@ public class Main {
                 (float) mouseX * framebufferWidth / windowSize[0],
                 (float) mouseY * framebufferHeight / windowSize[1],
                 !isometric);
-        if (!notice.isEmpty())
+        if (!notice.isEmpty() && !inventoryHud.open)
             overlay.text(notice, 20, city().config().city() ? 132 : 99, 1.4f, 1, .8f, .4f, 1);
-        if (Blocks.material(player.heldItem()) == Blocks.LED)
+        if (!inventoryHud.open && Blocks.material(player.heldItem()) == Blocks.LED)
             overlay.text(
                     String.format(
                             "LED #%06X | %s: colour",
@@ -1577,6 +1605,7 @@ public class Main {
     }
 
     private void renderFps() {
+        if (inventoryHud.open) return;
         String label = fps < 0 ? "FPS --" : "FPS " + fps;
         float scale = 1.6f, width = Math.max(100, overlay.textWidth(label, scale) + 20);
         float x = framebufferWidth - width - 12;
@@ -1650,6 +1679,7 @@ public class Main {
                     "This slot is empty. Break blocks and collect drops, or craft building pieces.";
             return;
         }
+        if (place && !Items.placeable(type)) { notice = Items.name(type) + " cannot be placed."; return; }
         int depth = place ? Blocks.depth(type) : hit.depth();
         Vector3f point = player.eyePosition().fma(hit.distance(), player.facingDirection());
         double offset = place ? .0001 : -.0001;
@@ -1709,7 +1739,7 @@ public class Main {
         if (roadMarkingModel != null) roadMarkingModel.close();
         if (shipModel != null) shipModel.close();
         if (jeepModel != null) jeepModel.close();
-        farmModels.close();
+        if (farmModels != null) farmModels.close();
         if (modelRenderer != null) modelRenderer.close();
         if (editor != null) editor.close();
         if (overlay != null) overlay.close();

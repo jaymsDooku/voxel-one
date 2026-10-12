@@ -1,0 +1,303 @@
+{
+  "status": "passed locally; awaiting controller synchronization and independent exact-head review",
+  "publication": "All listed URLs are pending controller publication. No commit, push, PR, merge or deployment performed by developer.",
+  "environment": "Linux VPS; inherited assigned X11 display and XAUTHORITY; LIBGL_ALWAYS_SOFTWARE=1; Java heap 768 MiB; OpenGL 3.3 with renderScale=0.5; isolated synthetic profiles and two synthetic loopback TLS accounts; ordinary 1280x720 and small 640x480 windows.",
+  "commands": [
+    "mvn -q -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp -Xmx768m\" -Dtest=ItemCraftingTest,CraftingTest,InventoryHudTest,RecipeMultiplayerTest,MultiplayerTest,ProtocolCompatibilityTest,SandboxIdentityTest,RoadBaseCompatibilityTest,RailwaySaveCompatibilityTest,AviationSaveCompatibilityTest,ShippingProtocolCompatibilityTest,CityFormat16RegressionTest,RailwayShippingCompatibilityTest,RailwayOwnershipCompatibilityTest,MarketEconomyTest,VoxelModelTest,ManufacturingTest test",
+    "python3 deploy/check_recipe_book_packages.py",
+    "python3 deploy/run_recipe_book_playtest.py --display \"$DISPLAY\"",
+    "python3 deploy/run_recipe_book_playtest.py --display \"$DISPLAY\" --network",
+    "python3 deploy/check_recipe_book_video.py",
+    "git diff --check",
+    "git ls-files -u"
+  ],
+  "tests": "86 JUnit tests passed, zero failures/errors/skips. Covers catalog identities/costs/diagrams, all eight tools, multiple ingredient slots, stack limits, freed space, overflow, drop capacity and ID exhaustion rollback, bad recipe/quantity, arithmetic bounds, pending/replayed requests, item/save/protocol compatibility, LED/models and City manufacturing/economy/transport regressions.",
+  "Playtest": [
+    "Playtest: PASS. Linux X11, software OpenGL, isolated synthetic Sandbox profile, production GLFW callbacks and real X11 input. Raw-material fixture: one wood and one stone harvested and picked up; four wood and twenty stone supplied for the complete recipe tour. E releases mouse; pickaxe search exposes both unavailable variants; disabled crafting loses nothing; W suppressed while book open; Escape clears search focus first. Maximum five wood batches produce twenty planks; four stick batches produce sixteen sticks. Ingredient link and Back work; stone source shown. All eight tools crafted via book and equipped/dropped/picked up; seven additional variants use controlled slot swaps plus real hotbar and Q input; Tools and Materials categories verified with Tab/Enter; Craftable now becomes empty after consuming the last sticks with an extra stone shovel; wooden pickaxe moved into the hotbar by real inventory clicks with ingredient totals retained, equipped, right-click cannot place it, Q drops it, pickup restores it; all eight tools survive saved inventory reload. Brick goods recipe crafted. Ordinary 1280x720 and small 640x480 grid/detail captures. Legacy Stone cut ID16 creates eight overflow pieces with full inventory; freeing one slot picks them up. F10 records the tour. Expected results matched observed assertions.",
+    "Playtest: PASS. Linux X11 software OpenGL, two isolated synthetic TLS clients on loopback, on a saved synthetic flat stone platform. A crafted a wooden pickaxe through real recipe-book controls; B crafted a stone pickaxe through the same authoritative request API. A rendered B holding the stone pickaxe; A dropped the wooden tool with Q and both live snapshots received its model/type/count. A crafted and equipped another wooden pickaxe. The same native renderer then switched to B's live snapshot and rendered its stone hand plus A's wooden remote hand. Held-hand and ground-drop views captured for both snapshots. Both model fingerprints agree across clients. This is two network clients with one native render window, not two physical computers. Expected authoritative inventories, held poses, and ground tools matched observed assertions.",
+    "Visual inspection: ordinary search tiles, all-tool inventory, stone held pickaxe, small flower-pot ingredients/source and tool details, overflow pickup, both network held and ground views, and decoded F10 middle frame were readable and matched their scenarios. Native application playtesting applies; browser playtesting does not because the affected UI is GLFW/OpenGL desktop UI."
+  ],
+  "packages": "Linux-hosted package checks passed for Linux, Windows, Intel Mac and ARM Mac, including bundled native assets, Java 17 bytecode, matching changed class hashes and existing server CLI checks. No physical Windows or Mac gameplay run and no CI execution are claimed.",
+  "video": {
+    "status": "passed",
+    "source": "fresh production Main F10 rendering workflow",
+    "codec": "H264",
+    "bytes": 737434,
+    "frames": 20,
+    "width": 960,
+    "height": 544,
+    "seconds": 20.0,
+    "allFramesDecoded": true,
+    "firstAndLastDiffer": true,
+    "command": "python3 deploy/check_recipe_book_video.py",
+    "presentation": "Seven scene cuts in source order; retained frame holds capped at one second. Linux software OpenGL, low frame rate.",
+    "sourceSha256": "0315838f784810e92c3aee60bfc2d002281176f23a1f2e408670e96f35b4db9e",
+    "highlightSha256": "c9b163520c73fe66f86b4b16b721f2d90a83f6d8642c8923cb50af11430a8351",
+    "scenes": [
+      "missing-ingredients",
+      "craft-wooden-pickaxe",
+      "browse-both-pickaxes",
+      "held-wooden-pickaxe",
+      "brick-goods-recipe",
+      "overflow-drops",
+      "overflow-pickup"
+    ]
+  },
+  "fixtureLimits": "One wood and one stone were harvested and picked up in the native tour; extra raw materials and full-inventory cases were synthetic fixtures. Seven additional tool equip/drop tours used controlled slot swaps plus real hotbar/Q input. Network evidence uses two TLS clients and one native render window switching authoritative views, not two physical computers.",
+  "resolvedHarnessFailures": [
+    "Synthetic platform first used heights above Terrain.MAX_Y=95; corrected to 90 with air 91..95.",
+    "Idle second client hit existing 15-second transport timeout; harness now sends keepalive movement without changing game timeout rules.",
+    "Video trim encountered codec padding; cropped decoded pictures before colour conversion. Subsequent clip encoded and fully decoded."
+  ],
+  "diffAudit": {
+    "reference": "Worktree HEAD before controller synchronization; final review base is supplied by controller after master integration",
+    "trackedFileDeletions": [],
+    "intendedReplacements": [
+      "Six-row recipe list replaced by responsive book grid/details.",
+      "List-position recipe registration replaced by explicit legacy/new identities.",
+      "Single overflow-drop crafting branches replaced by bounded atomic stack-splitting transactions."
+    ],
+    "preservation": "No City production catalog, business manufacturing pipeline, or Space Invaders source changed. City minimum window height retained. Redundant local draft removed."
+  },
+  "sourceHashes": {
+    "src/main/java/dev/jayms/Main.java": "13f50824b2e5cdbac25e01dcf48c26c587528b4dfe977ea63e699e63cfcdbdf2",
+    "src/main/java/dev/jayms/net/Crafting.java": "49da89c1cef53bd0bac2da71f4f35109a406c258df2d938f5109e8074cc8ac6f",
+    "src/main/java/dev/jayms/net/Inventory.java": "251f649394c0a2bb7d4bea7bdefac27f9b3dc14f2ccb7403d934b0cae0b1567b",
+    "src/main/java/dev/jayms/net/Items.java": "fb52ebaa3c4ecca1c0f34a606561cb2ef28514349ab71b97ff890996c4958a49",
+    "src/main/java/dev/jayms/net/LocalGame.java": "f2ec4a31b1cf0204d1a0f10d565dc86b99cd2a30c313530ea1c0660b9196b98f",
+    "src/main/java/dev/jayms/net/MultiplayerClient.java": "f878cae9f0b33ae4dd41858dabaa54126729ca83f8a3b00cf7b95c0831707679",
+    "src/main/java/dev/jayms/net/MultiplayerServer.java": "b5d8ca10bcaeaefee912ff0d6f7caee2ce5c47f3327f5cf979772c515ee17757",
+    "src/main/java/dev/jayms/net/Protocol.java": "2b347a01cc5a499b821e573fad618f5dd59f21e679800d61d83c31080ca5b88f",
+    "src/main/java/dev/jayms/net/model/ModelLibrary.java": "ef351b8d3da6325b620378410fd49ca5ae77290511c5bb16441b37713b8649f4",
+    "src/main/java/dev/jayms/player/Player.java": "96889e6bf2847801a6c4b332c247ae4617d9cbb2d746775792fd95771cb1661c",
+    "src/main/java/dev/jayms/player/PlayerModel.java": "31c3c00a183906ef08aae1edba0f34f286706f3ffe04d9b3c03e869b63d80586",
+    "src/main/java/dev/jayms/ui/Controls.java": "cb9b043527aeeb45afc3091d9f01946772dbd829afa9b68fcb849f8d47637568",
+    "src/main/java/dev/jayms/ui/InventoryHud.java": "a510bfa32fe1bf74337818cb77daea423c94e5de1a9fb147deeb7ebb21d80259"
+  },
+  "artifacts": [
+    {
+      "file": "recipe-book-drop.png",
+      "bytes": 245906,
+      "sha256": "28e5903052440242a7af2312ff617fbb507d3f2b8afd34dd2deb3eddacb3beda",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63646664313639352d373131332d343630312d613763632d663637316565346137316332/dashboard/evidence/recipe-book-drop.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "recipe-book-empty.png",
+      "bytes": 81831,
+      "sha256": "1b5840d35a13207993da33024a3be7c1c08fabb5bd5927f5ef7f4a4b433c6c58",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63646664313639352d373131332d343630312d613763632d663637316565346137316332/dashboard/evidence/recipe-book-empty.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "recipe-book-goods.png",
+      "bytes": 83561,
+      "sha256": "8832069b5183382674da9922deeb81ad2853420c426135c32d1d1fc0a382487f",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63646664313639352d373131332d343630312d613763632d663637316565346137316332/dashboard/evidence/recipe-book-goods.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "recipe-book-held-192.png",
+      "bytes": 222563,
+      "sha256": "4b98c2619027f72bc7691b19309f2a99b182241dbeeaf2a2a57f2c551208c5ae",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63646664313639352d373131332d343630312d613763632d663637316565346137316332/dashboard/evidence/recipe-book-held-192.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "recipe-book-held-193.png",
+      "bytes": 222741,
+      "sha256": "d6cdd5504daabd66de55fc1d9ab3dfd25d7515d809c7d26115e3aca5da8137cd",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63646664313639352d373131332d343630312d613763632d663637316565346137316332/dashboard/evidence/recipe-book-held-193.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "recipe-book-held-194.png",
+      "bytes": 223648,
+      "sha256": "e3e8518d5acee726c1d11f498259e5b1c2a6fd34b2b3d7076966dad3cc6a2c96",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63646664313639352d373131332d343630312d613763632d663637316565346137316332/dashboard/evidence/recipe-book-held-194.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "recipe-book-held-195.png",
+      "bytes": 223081,
+      "sha256": "3fe4ed08409373bd3df0dbfe544ec37361fde80d5f37b0d1d6fc3535c1b750b0",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63646664313639352d373131332d343630312d613763632d663637316565346137316332/dashboard/evidence/recipe-book-held-195.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "recipe-book-held-196.png",
+      "bytes": 223239,
+      "sha256": "449672b173be5274f764875ede11f176f815e70cf8aaf154f1bbdd858af97483",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63646664313639352d373131332d343630312d613763632d663637316565346137316332/dashboard/evidence/recipe-book-held-196.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "recipe-book-held-197.png",
+      "bytes": 223409,
+      "sha256": "748c4f1ad86149c7d6a543af273d95895a81aedc2ad84372f662aa11f2b267f1",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63646664313639352d373131332d343630312d613763632d663637316565346137316332/dashboard/evidence/recipe-book-held-197.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "recipe-book-held-198.png",
+      "bytes": 223469,
+      "sha256": "161342ac216d58cfa1704f08052c7b2797c0492504cbee0851560eb4bc08acc1",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63646664313639352d373131332d343630312d613763632d663637316565346137316332/dashboard/evidence/recipe-book-held-198.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "recipe-book-held.png",
+      "bytes": 223096,
+      "sha256": "c98dbd1200d320f41753118645fc1339366955a841f105fc61a6ddd921e93862",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63646664313639352d373131332d343630312d613763632d663637316565346137316332/dashboard/evidence/recipe-book-held.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "recipe-book-missing.png",
+      "bytes": 82485,
+      "sha256": "a176bb0b37a823ad58d1779317cd5c0ae885cd54cf710b38e2eab613c5eeb520",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63646664313639352d373131332d343630312d613763632d663637316565346137316332/dashboard/evidence/recipe-book-missing.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "recipe-book-overflow-pickup.png",
+      "bytes": 84906,
+      "sha256": "ce9ec2afcf125ece0bbfd067e4888ebfa4fbbb759c3cb5810022d3d948b5307c",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63646664313639352d373131332d343630312d613763632d663637316565346137316332/dashboard/evidence/recipe-book-overflow-pickup.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "recipe-book-overflow.png",
+      "bytes": 84790,
+      "sha256": "c702729c946d1dcbd9f95a78464fe2e83118d0bb183cafa757488a4b05a17b2e",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63646664313639352d373131332d343630312d613763632d663637316565346137316332/dashboard/evidence/recipe-book-overflow.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "recipe-book-packages.json",
+      "bytes": 4815,
+      "sha256": "287e3e0b613ef6630cce8bce2c63fc8da15638169e055a555a7c69e71a819700",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63646664313639352d373131332d343630312d613763632d663637316565346137316332/dashboard/evidence/recipe-book-packages.json",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "recipe-book-playtest.txt",
+      "bytes": 1334,
+      "sha256": "5d12338b7e8dae90d6ca160d3ee310c2b00226b0c14cad9f8e12709a62abae7e",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63646664313639352d373131332d343630312d613763632d663637316565346137316332/dashboard/evidence/recipe-book-playtest.txt",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "recipe-book-regressions.json",
+      "bytes": 6061,
+      "sha256": "8b92f8fc24bf3ca08e6950c5a16abf9191890189505fb4d4f668320b6fe72c2a",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63646664313639352d373131332d343630312d613763632d663637316565346137316332/dashboard/evidence/recipe-book-regressions.json",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "recipe-book-small-detail.png",
+      "bytes": 11696,
+      "sha256": "a04ba8fba0ead517e8bbf1adf462507b996cb47e94703a293581b05c3452f3bd",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63646664313639352d373131332d343630312d613763632d663637316565346137316332/dashboard/evidence/recipe-book-small-detail.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "recipe-book-small-goods.png",
+      "bytes": 11629,
+      "sha256": "fd2733cd38e20badab7a8d41d9a4c2752995a9be4299690716be64e11fe61de8",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63646664313639352d373131332d343630312d613763632d663637316565346137316332/dashboard/evidence/recipe-book-small-goods.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "recipe-book-small-grid.png",
+      "bytes": 11263,
+      "sha256": "18f8e19e1d754fd8dc62d7459e2335a1709a0996a80a1fadabcddce2c13e6fd9",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63646664313639352d373131332d343630312d613763632d663637316565346137316332/dashboard/evidence/recipe-book-small-grid.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "recipe-book-stone-source.png",
+      "bytes": 83698,
+      "sha256": "3bb70acc6e34d9d989b13bf053950e1955c03aa6917064168a84ccfa01300721",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63646664313639352d373131332d343630312d613763632d663637316565346137316332/dashboard/evidence/recipe-book-stone-source.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "recipe-book-tools.png",
+      "bytes": 82277,
+      "sha256": "c0886d6062245ff28c0cf50bf23f1a2526c1a2eefb766f06a76a634d6df3b51b",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63646664313639352d373131332d343630312d613763632d663637316565346137316332/dashboard/evidence/recipe-book-tools.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "recipe-book-tour.mp4",
+      "bytes": 737434,
+      "sha256": "c9b163520c73fe66f86b4b16b721f2d90a83f6d8642c8923cb50af11430a8351",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63646664313639352d373131332d343630312d613763632d663637316565346137316332/dashboard/evidence/recipe-book-tour.mp4",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "recipe-book-video-frame.png",
+      "bytes": 544539,
+      "sha256": "45f57c743436a412a448fdc9dd7c4fd11d92f1aa48d514d38fe36dca9cae198a",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63646664313639352d373131332d343630312d613763632d663637316565346137316332/dashboard/evidence/recipe-book-video-frame.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "recipe-book-video.json",
+      "bytes": 818,
+      "sha256": "fb0f638d8b74c211aa99024cc9714f62e06180e2431a76a6dd2fc983a99b76b0",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63646664313639352d373131332d343630312d613763632d663637316565346137316332/dashboard/evidence/recipe-book-video.json",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "recipe-network-book.png",
+      "bytes": 92326,
+      "sha256": "0cc061aaee4513be70c3531e5b55d0b9c922c6274d840a736fe9ac33ccff9fdb",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63646664313639352d373131332d343630312d613763632d663637316565346137316332/dashboard/evidence/recipe-network-book.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "recipe-network-first-drop.png",
+      "bytes": 327221,
+      "sha256": "04c5b4f7dc27146fd98187068def055d3713490d8391e7da8bfd98de49013927",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63646664313639352d373131332d343630312d613763632d663637316565346137316332/dashboard/evidence/recipe-network-first-drop.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "recipe-network-first-hands.png",
+      "bytes": 239054,
+      "sha256": "d04e3b05f0eef1535b67825dfe516d4610e626580293741c77d43214c375bbfb",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63646664313639352d373131332d343630312d613763632d663637316565346137316332/dashboard/evidence/recipe-network-first-hands.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "recipe-network-playtest.txt",
+      "bytes": 845,
+      "sha256": "dffee1c6c4052c942f5582d9e64281d41a66dc4d75c292f01baa66784a137215",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63646664313639352d373131332d343630312d613763632d663637316565346137316332/dashboard/evidence/recipe-network-playtest.txt",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "recipe-network-second-drop.png",
+      "bytes": 355623,
+      "sha256": "04b8feebbf0224df39ab4f3a6f66e3c3e18f04aa236676dbbf655f96b4b39ecb",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63646664313639352d373131332d343630312d613763632d663637316565346137316332/dashboard/evidence/recipe-network-second-drop.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "recipe-network-second-hands.png",
+      "bytes": 338581,
+      "sha256": "9d2223dfa980f58bbf4a92dc582899ebd01e97721f70585f494506fa51467818",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63646664313639352d373131332d343630312d613763632d663637316565346137316332/dashboard/evidence/recipe-network-second-hands.png",
+      "publication": "pending controller publication"
+    },
+    {
+      "file": "recipe-video-scenes.tsv",
+      "bytes": 229,
+      "sha256": "c5e4eb7ac44e1363cd15cf26795f9422d3a1fc86b6dcae6c3dcc64372b2e014d",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63646664313639352d373131332d343630312d613763632d663637316565346137316332/dashboard/evidence/recipe-video-scenes.tsv",
+      "publication": "pending controller publication"
+    }
+  ]
+}

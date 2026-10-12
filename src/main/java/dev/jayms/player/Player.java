@@ -150,7 +150,7 @@ public class Player {
     }
 
     public void heldItem(int type) {
-        if (!dev.jayms.net.Blocks.valid(type))
+        if (!dev.jayms.net.Items.valid(type))
             throw new IllegalArgumentException("Invalid held item");
         heldItem = type;
     }

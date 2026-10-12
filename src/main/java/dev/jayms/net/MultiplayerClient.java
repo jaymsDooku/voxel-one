@@ -39,6 +39,9 @@ public final class MultiplayerClient implements AutoCloseable {
     private final BlockingQueue<Runnable> outgoing = new ArrayBlockingQueue<>(128);
     private final Map<Integer, Protocol.Edit> pending = new HashMap<>();
     private int nextRequest;
+    private int pendingCraft;
+    public boolean craftPending() { return pendingCraft != 0; }
+    public int craftResults;
     private volatile boolean connected = true;
     private volatile String error;
     private String notice = "";
@@ -77,7 +80,7 @@ public final class MultiplayerClient implements AutoCloseable {
                 throw new IOException("Unsupported terrain generator", e);
             }
             models = ModelLibrary.read(in);
-            inventory = Inventory.read(in);
+            inventory = Inventory.read(in,serverProtocol>=29);
             health = in.readUnsignedByte();
             int count = in.readInt();
             if (count < 0 || count > 2000000) throw new IOException("Invalid world snapshot");
@@ -97,7 +100,7 @@ public final class MultiplayerClient implements AutoCloseable {
             count = in.readInt();
             if (count < 0 || count > 100000) throw new IOException("Invalid item snapshot");
             for (int i = 0; i < count; i++) {
-                ItemDrop drop = ItemDrop.read(in);
+                ItemDrop drop = ItemDrop.read(in,serverProtocol>=29);
                 if (drop.count() > 0) drops.put(drop.id(), drop);
             }
             acceptCity(CityFrame.read(in, serverProtocol < 16 ? 6 : serverProtocol < 19 ? 8 : serverProtocol < 20 ? 9 : serverProtocol < 21 ? 10 : serverProtocol < 22 ? 11 : serverProtocol < 24 ? 12 : serverProtocol < 25 ? 13 : serverProtocol < 26 ? 14 : serverProtocol < 27 ? 15 : serverProtocol < 28 ? 16 : 17), System.nanoTime());
@@ -351,7 +354,7 @@ public final class MultiplayerClient implements AutoCloseable {
                                                     + " out of reach.";
                             };
                 } else if (type == Protocol.INVENTORY) {
-                    Inventory state = Inventory.read(in);
+                    Inventory state = Inventory.read(in,serverProtocol>=29);
                     int hp = in.readUnsignedByte();
                     if (hp > 20) throw new IOException("Invalid health");
                     event =
@@ -360,7 +363,7 @@ public final class MultiplayerClient implements AutoCloseable {
                                 health = hp;
                             };
                 } else if (type == Protocol.DROP) {
-                    ItemDrop d = ItemDrop.read(in);
+                    ItemDrop d = ItemDrop.read(in,serverProtocol>=29);
                     event =
                             () -> {
                                 if (d.count() == 0) drops.remove(d.id());
@@ -381,9 +384,10 @@ public final class MultiplayerClient implements AutoCloseable {
                                 }
                             };
                 } else if (type == Protocol.CRAFT_RESULT) {
+                    int requestId = serverProtocol >= 29 ? in.readInt() : 0;
                     in.readBoolean();
                     String message = Protocol.readText(in, 512);
-                    event = () -> notice = message;
+                    event = () -> { if(requestId==pendingCraft) pendingCraft=0; notice=message; craftResults++; };
                 } else if (type == Protocol.MODEL_RESULT) {
                     in.readInt();
                     in.readBoolean();
@@ -480,14 +484,29 @@ public final class MultiplayerClient implements AutoCloseable {
                 });
     }
 
-    public boolean craft(int recipe, Protocol.Pose pose) {
-        return send(
-                () -> {
-                    out.writeByte(Protocol.CRAFT);
-                    out.writeInt(recipe);
-                    pose.write(out);
-                    out.flush();
-                });
+    public boolean craft(int recipe, Protocol.Pose pose) { return craft(recipe,1,pose); }
+
+    public boolean craft(int recipe,int quantity,Protocol.Pose pose) {
+        if(serverProtocol<29) { notice="Update the server to use the recipe book."; return false; }
+        if(craftPending()||!connected) return false;
+        int request=++nextRequest; pendingCraft=request;
+        boolean queued=send(() -> {
+            out.writeByte(Protocol.CRAFT); out.writeInt(request); out.writeInt(recipe);
+            out.writeInt(quantity); pose.write(out); out.flush();
+        });
+        if(!queued) pendingCraft=0;
+        return queued;
+    }
+
+    public boolean drop(int slot,Protocol.Pose pose) {
+        if(serverProtocol<29||craftPending()||!connected) return false;
+        int request=++nextRequest; pendingCraft=request;
+        boolean queued=send(() -> {
+            out.writeByte(Protocol.DROP_ITEM); out.writeInt(request); out.writeByte(slot);
+            pose.write(out); out.flush();
+        });
+        if(!queued) pendingCraft=0;
+        return queued;
     }
 
     public boolean edit(Protocol.Edit e, Protocol.Pose pose) {

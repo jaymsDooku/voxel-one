@@ -28,7 +28,7 @@ public final class LocalGame {
         if (Files.exists(save))
             try (var in = new DataInputStream(Files.newInputStream(save))) {
                 int version = in.readInt();
-                if (version != 3 && version != 4 && version != 5 && version != 6 && version != 7)
+                if (version != 3 && version != 4 && version != 5 && version != 6 && version != 7 && version != 8)
                     throw new IOException("Invalid offline world");
                 worldSeed = in.readLong();
                 generator = version >= 7 ? in.readInt() : Terrain.LEGACY_VERSION;
@@ -38,7 +38,7 @@ public final class LocalGame {
                     throw new IOException("Unsupported terrain generator", e);
                 }
                 if (version >= 4) models = ModelLibrary.read(in);
-                inventory = Inventory.read(in);
+                inventory = Inventory.read(in,version>=8);
                 health = in.readUnsignedByte();
                 if (health > 20) throw new IOException("Invalid saved health");
                 int n = in.readInt();
@@ -56,7 +56,7 @@ public final class LocalGame {
                 n = in.readInt();
                 if (n < 0 || n > 100000) throw new IOException("Invalid drops");
                 for (int i = 0; i < n; i++) {
-                    ItemDrop d = ItemDrop.read(in);
+                    ItemDrop d = ItemDrop.read(in,version>=8);
                     drops.put(d.id(), d);
                     nextDrop = Math.max(nextDrop, d.id());
                 }
@@ -123,24 +123,36 @@ public final class LocalGame {
         return true;
     }
 
-    public String craft(int recipe, Protocol.Pose pose) {
-        var result = Crafting.prepare(inventory, recipe);
-        if (!result.accepted()) return result.message();
-        if (result.excess() > 0 && drops.size() >= 100000)
-            return "Too many ground items: collect some before crafting.";
-        inventory = result.inventory();
-        if (result.excess() > 0) {
-            var drop =
-                    new ItemDrop(
-                            ++nextDrop,
-                            result.output(),
-                            result.excess(),
-                            pose.x() + .4f,
-                            pose.y() + .35f,
-                            pose.z());
-            drops.put(drop.id(), drop);
+    public String craft(int recipe, Protocol.Pose pose) { return craft(recipe,1,pose); }
+
+    public String craft(int recipe,int quantity,Protocol.Pose pose) {
+        if (!pose.valid()) return "Invalid craft position.";
+        var result=Crafting.prepare(inventory,recipe,quantity,Crafting.MAX_DROPS-drops.size());
+        if(!result.accepted()) return result.message();
+        int needed=Crafting.dropSlots(result.output(),result.excess());
+        if(nextDrop>Integer.MAX_VALUE-needed) return "Ground item IDs exhausted.";
+        List<ItemDrop> prepared=new ArrayList<>();
+        int excess=result.excess();
+        for(int i=1;excess>0;i++) {
+            int n=Math.min(excess,Items.stackLimit(result.output()));
+            prepared.add(new ItemDrop(nextDrop+i,result.output(),n,pose.x()+.4f,pose.y()+.35f,pose.z()));
+            excess-=n;
         }
+        inventory=result.inventory();
+        for(var d:prepared) drops.put(d.id(),d);
+        nextDrop+=needed;
         return result.message();
+    }
+
+    public String drop(int slot,Protocol.Pose pose) {
+        if(!pose.valid()||slot<0||slot>=Inventory.HOTBAR||inventory.count(slot)==0) return "Nothing to drop.";
+        if(drops.size()>=Crafting.MAX_DROPS||nextDrop==Integer.MAX_VALUE) return "Too many ground items.";
+        int type=inventory.type(slot);
+        // Land beyond automatic pickup range; walk towards the item to collect it.
+        var d=new ItemDrop(nextDrop+1,type,1,Items.dropX(pose.x()),pose.y()+.35f,pose.z());
+        if(!inventory.take(slot,type)) return "Inventory changed.";
+        nextDrop++; drops.put(d.id(),d);
+        return "Dropped "+Items.name(type)+".";
     }
 
     public boolean tick(
@@ -189,7 +201,7 @@ public final class LocalGame {
         Files.createDirectories(save.toAbsolutePath().getParent());
         Path temp = save.resolveSibling(save.getFileName() + ".tmp");
         try (var out = new DataOutputStream(Files.newOutputStream(temp))) {
-            out.writeInt(7);
+            out.writeInt(8);
             out.writeLong(seed);
             out.writeInt(generatorVersion);
             models.write(out);

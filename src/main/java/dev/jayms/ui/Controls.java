@@ -48,7 +48,8 @@ public final class Controls {
         CHEAT_SPAWN("Cheats: spawn selected vehicle", GLFW_KEY_PAGE_DOWN),
         CHEAT_MISSILE("Cheats: drop city missile at view centre", GLFW_KEY_DELETE),
         CHEAT_MONEY("Cheats: add $10,000 to city budget", GLFW_KEY_INSERT),
-        ENGINE_EDITOR("Game engine workspace", GLFW_KEY_F11);
+        ENGINE_EDITOR("Game engine workspace", GLFW_KEY_F11),
+        DROP_ITEM("Drop one held item", GLFW_KEY_Q);
         public final String label;
         public final int defaultCode;
 

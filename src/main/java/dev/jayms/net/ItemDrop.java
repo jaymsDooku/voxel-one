@@ -13,6 +13,9 @@ public record ItemDrop(int id, int type, int count, float x, float y, float z) {
     }
 
     public static ItemDrop read(DataInputStream in) throws IOException {
+        return read(in,true);
+    }
+    public static ItemDrop read(DataInputStream in, boolean itemFormat) throws IOException {
         ItemDrop d =
                 new ItemDrop(
                         in.readInt(),
@@ -23,8 +26,10 @@ public record ItemDrop(int id, int type, int count, float x, float y, float z) {
                         in.readFloat());
         if (d.id <= 0
                 || d.type <= 0
-                || !Blocks.valid(d.type)
-                || d.count > 64
+                || (!itemFormat && d.type >= 190)
+                || !Items.valid(d.type)
+                || d.count < 0
+                || d.count > Items.stackLimit(d.type)
                 || !Float.isFinite(d.x)
                 || !Float.isFinite(d.y)
                 || !Float.isFinite(d.z)) throw new IOException("Invalid item drop");
