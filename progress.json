@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-12T11:34:19+00:00",
+  "updatedAt": "2026-10-12T11:45:39+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -3468,11 +3468,21 @@
           "kind": "image",
           "label": "voxel sandbox selection.png",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/voxel-sandbox-selection.png"
+        },
+        {
+          "kind": "link",
+          "label": "Published desktop release",
+          "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-506"
+        },
+        {
+          "kind": "link",
+          "label": "Successful four-platform release CI",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/38243337712"
         }
       ],
       "status": "complete",
-      "note": "Implemented, independently reviewed and merged in PR 61. Voxel Sandbox has named selection, desktop shortcuts, isolated saves and preserved original gameplay. Linux playtests and platform CI passed; documentation is live. Automatic master release packaging is in progress; physical Windows playtesting remains a follow-up.",
-      "updatedAt": "2026-10-12T11:34:19+00:00"
+      "note": "Implemented, independently reviewed, merged and released as playtest-506. Voxel Sandbox has named selection, desktop shortcuts, isolated saves and preserved original gameplay. Linux playtests and all four platform release builds passed. Published Windows shortcut and updater manifest verified against the merged commit; physical Windows desktop playtesting remains a follow-up. Documentation and recorded test evidence are available.",
+      "updatedAt": "2026-10-12T11:45:39+00:00"
     },
     {
       "id": "63643936666265622d343239332d346630652d616562312d366333356236366137626464",
