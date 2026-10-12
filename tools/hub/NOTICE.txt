@@ -1,0 +1,8 @@
+Voxel One Hub
+Original hub cover artwork is rendered by Voxel One source code.
+The application runtime is generated from the build JDK. Its legal directory is
+included in the runtime image and must remain in redistributed packages.
+No FlatLaf binaries are currently bundled. FlatLaf was evaluated as a future
+cross-platform theme option; the current prototype uses standard Swing.
+The native game client retains the existing LWJGL, JOML and JCodec dependencies
+and their license notices. Do not remove META-INF license notices from its JAR.

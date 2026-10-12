@@ -1,0 +1,32 @@
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  SIGSEGV (0xb) at pc=0x00007f244c56b13c, pid=59, tid=60
+#
+# JRE version: Java(TM) SE Runtime Environment (21.0.5+9) (build 21.0.5+9-LTS-239)
+# Java VM: Java HotSpot(TM) 64-Bit Server VM (21.0.5+9-LTS-239, mixed mode, tiered, compressed oops, compressed class ptrs, g1 gc, linux-amd64)
+# Problematic frame:
+# C  [libLLVM-15.so.1+0x136b13c]  llvm::MachineRegisterInfo::addRegOperandToUseList(llvm::MachineOperand*)+0x2c
+#
+# No core dump will be written. Core dumps have been disabled. To enable core dumping, try "ulimit -c unlimited" before starting Java again
+#
+# If you would like to submit a bug report, please visit:
+#   https://bugreport.java.com/bugreport/crash.jsp
+# The crash happened outside the Java Virtual Machine in native code.
+# See problematic frame for where to report the bug.
+#
+
+---------------  S U M M A R Y ------------
+
+Command Line: -Duser.home=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-integrated-46788-workflow-profile/run-8863835584184737 -Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-tmp /home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-integrated-46788-workflow-profile/run-8863835584184737/versions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/98c5d99b614b0528c9a7c6ca501d01c79a36469b03d42d4a20a8eff9770d273d/linux.jar --game city --offline
+
+Host: Intel Core Processor (Haswell, no TSX), 4 cores, 7G, Debian GNU/Linux 12 (bookworm)
+Time: Mon Oct 19 22:48:56 2026 UTC elapsed time: 17.114949 seconds (0d 0h 0m 17s)
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x00007f24b0028c20):  JavaThread "main"      [_thread_in_native, id=60, stack(0x00007f24b7f00000,0x00007f24b8000000) (1024K)]
+
+Stack: [0x00007f24b7f00000,0x00007f24b8000000],  sp=0x00007f24b7ffae28,  free space=1003k
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+C  [libLLVM-15.so.1+0x136b13c]  llvm::MachineRegisterInfo::addRegOperandToUseList(llvm::MachineOperand*)+0x2c

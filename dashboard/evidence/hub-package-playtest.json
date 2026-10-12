@@ -1,0 +1,10 @@
+{
+  "playtest": "Playtest: start bundled-runtime Linux app image with an empty PATH and synthetic user.home; open Games with Alt+2; capture home and library; terminate only this test process.",
+  "expected": "Hub opens without system java on PATH; Games opens through keyboard navigation.",
+  "observed": "Window opened and both UI views captured. Media must be inspected before acceptance.",
+  "startupWindowSeconds": 1.269,
+  "keyboardCaptureSeconds": 0.416,
+  "rss": "116856 kB",
+  "environment": "Linux x86_64; assigned inherited X11 display; bundled Oracle JDK 21.0.5 runtime; synthetic profile; no system Java on PATH.",
+  "limitation": "One Linux sample. No Windows timing/DPI/install proof and no gameplay claim."
+}
