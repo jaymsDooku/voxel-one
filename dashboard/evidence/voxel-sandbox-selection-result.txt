@@ -1,0 +1,1 @@
+Playtest: PASS. Linux X11 Swing desktop selection; clean synthetic home, loopback host, no network request. Default Sandbox selection, City switch with port 25566, typed/custom ports (including default-number values), explicit City/Sandbox locks, and Play offline without credentials all match expected behavior. Screenshot captured from running selection UI.

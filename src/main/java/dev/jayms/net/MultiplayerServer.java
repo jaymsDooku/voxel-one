@@ -1,5 +1,7 @@
 package dev.jayms.net;
 
+import dev.jayms.GameIdentity;
+
 import dev.jayms.net.city.*;
 import dev.jayms.net.model.*;
 
@@ -1039,7 +1041,7 @@ public final class MultiplayerServer implements AutoCloseable {
 
     public static void main(String[] args) throws Exception {
         String bind = "0.0.0.0", create = null;
-        int port = Protocol.PORT;
+        Integer explicitPort = null;
         long seed = Terrain.DEFAULT_SEED;
         boolean cityGame = false, cycle = true;
         double daySeconds = 1200, startHour = 8;
@@ -1067,7 +1069,7 @@ public final class MultiplayerServer implements AutoCloseable {
                 case "--atmosphere-thickness" -> atmosphereThickness=Double.parseDouble(args[++i]);
                 case "--bind" -> bind = args[++i];
                 case "--seed" -> seed = Long.parseLong(args[++i]);
-                case "--port" -> port = Integer.parseInt(args[++i]);
+                case "--port" -> explicitPort = Integer.parseInt(args[++i]);
                 case "--world" -> save = Path.of(args[++i]);
                 case "--accounts" -> accountFile = Path.of(args[++i]);
                 case "--tls-dir" -> tlsDirectory = Path.of(args[++i]);
@@ -1078,6 +1080,7 @@ public final class MultiplayerServer implements AutoCloseable {
                                         + " --tls-dir DIRECTORY --seed NUMBER --create-account NAME"
                                         + " --production-config FILE --pedestrian-spacing BLOCKS --mounted-spacing BLOCKS");
             }
+        int port = GameIdentity.of(cityGame).launchPort(explicitPort);
         var atmosphere=dev.jayms.net.atmosphere.AtmosphereConfig.preset(atmospherePreset).withHaze(atmosphereHaze).withThickness(atmosphereThickness);
         AccountStore accounts = new AccountStore(accountFile);
         if (create != null) {

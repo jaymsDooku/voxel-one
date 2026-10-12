@@ -73,6 +73,7 @@ public final class LocalGame {
             GameConfig config, CitySimulation.Ground ground, ProductionCatalog catalog)
             throws IOException {
         var stored = CitySimulation.load(save.resolveSibling(save.getFileName() + ".city"));
+        validateGame(stored, config);
         city =
                 new CitySimulation(
                         stored == null ? config : stored.config(),
@@ -80,6 +81,17 @@ public final class LocalGame {
                         new Terrain(seed, generatorVersion),
                         stored,
                         catalog);
+    }
+
+    /** Reject a cross-game path before any world edits or saves. Legacy sandbox saves have no sidecar. */
+    public static void validateGame(Path save, GameConfig config) throws IOException {
+        validateGame(CitySimulation.load(save.resolveSibling(save.getFileName() + ".city")), config);
+    }
+
+    private static void validateGame(CityFrame stored, GameConfig config) throws IOException {
+        if (stored != null && stored.config().city() != config.city())
+            throw new IOException("World belongs to " + (stored.config().city() ? "Voxel City One" : "Voxel Sandbox")
+                    + "; select that game or use a different --world path.");
     }
 
     public String createModel(ModelDefinition definition) throws IOException {

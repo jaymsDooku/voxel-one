@@ -37,9 +37,16 @@ def build(args):
         entry = zipfile.ZipInfo(script_name)
         entry.external_attr = 0o100755 << 16
         bundle.writestr(entry, script)
+        sandbox_name = script_name.replace('Voxel One', 'Voxel Sandbox')
+        sandbox_script = script.replace('voxel-one-launcher.jar" %*', 'voxel-one-launcher.jar" --game sandbox %*') if windows else script.replace('voxel-one-launcher.jar "$@"', 'voxel-one-launcher.jar --game sandbox "$@"')
+        sandbox_entry = zipfile.ZipInfo(sandbox_name)
+        sandbox_entry.external_attr = 0o100755 << 16
+        bundle.writestr(sandbox_entry, sandbox_script)
+
         bundle.writestr('Read me.txt',
             'VOXEL ONE\n\nRequires Java 17+ and an OpenGL 3.3 desktop.\n'
             f'Extract this folder, then run {script_name}.\n'
+            'Play Voxel Sandbox starts first-person exploration and building; add --offline for no-account play.\n'
             'The launcher checks GitHub on every start and downloads the latest client automatically.\n'
             'Sign in using your existing account. The default server is 198.100.154.156.\n'
             'If the update service is unavailable, a previously verified installation can still start.\n'

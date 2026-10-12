@@ -1,0 +1,53 @@
+{
+  "stage": "Final source: focused game launch, saves, survival, city, multiplayer and updater tests; mvn verify also built all Linux JAR classifiers.",
+  "suites": [
+    {
+      "name": "dev.jayms.SandboxIdentityTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.682"
+    },
+    {
+      "name": "dev.jayms.SurvivalTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "1.171"
+    },
+    {
+      "name": "dev.jayms.CityTest",
+      "tests": "11",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "16.774"
+    },
+    {
+      "name": "dev.jayms.CityMultiplayerTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "19.628"
+    },
+    {
+      "name": "dev.jayms.MultiplayerTest",
+      "tests": "15",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "147.206"
+    },
+    {
+      "name": "dev.jayms.UpdaterTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.918"
+    }
+  ]
+}

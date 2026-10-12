@@ -42,9 +42,26 @@ The deployed VPS address is `198.100.154.156`. The `jayms` test account's passwo
 
 On macOS, add `-XstartOnFirstThread` immediately after `java`. To skip the launcher and play offline, use `--offline`. Launching without arguments opens the launcher.
 
+## Voxel Sandbox
+
+**Voxel Sandbox** is the original first-person exploration and building game in Voxel One. Choose it in the desktop sign-in screen, or launch it directly:
+
+```sh
+java -jar voxel-one-1.0-SNAPSHOT-client.jar --game sandbox --offline
+java -jar voxel-one-1.0-SNAPSHOT-client.jar --game sandbox --server SERVER_IP
+```
+
+The release ZIP includes **Play Voxel Sandbox** alongside **Play Voxel One**. Add `--offline` to the shortcut command to skip sign-in. The updater also accepts `java -jar voxel-one-launcher.jar --game sandbox --offline`; its first client download needs internet. An installed client JAR plays offline without an account or server. On macOS add `-XstartOnFirstThread` after `java` when running the client JAR directly.
+
+Sandbox starts on foot in first person, with generated terrain and no city bootstrap, planning dock or mayor economy. **W/A/S/D** moves, mouse looks, **Space** jumps, **Shift** sprints, **left-click** breaks and drops a block, and walking near a drop picks it up. **Right-click** places the selected item. **1–9** or the wheel selects the hotbar. **E** opens the 36-slot inventory; click a stack then a destination to move it. Choose **Recipes**, select a recipe and click **Craft**. **F** toggles flight; Space rises and Ctrl descends. Health and falling damage remain active when walking. **F5** cycles external cameras, **F6** offers sky view, **F7** opens the tiny-voxel model editor, **F1** opens controls/graphics, and **F10** starts/stops recording. Fractional blocks, models, graphics settings and existing multiplayer remain available. This is the existing sandbox feature set; mobs and redstone are outside its scope.
+
+The stable catalog key is `sandbox` and the visible title is **Voxel Sandbox**. Multiplayer uses the existing TLS/account/inventory/world protocol on default port **25565**; City uses **25566**. Explicit `--port` values remain unchanged. Explicit `--game` locks the sign-in selection so login and offline fallback agree. Without a game argument the desktop selector starts on Sandbox and still offers City.
+
+Sandbox retains `~/.voxel-one/offline-world.dat` (the existing user profile directory on Windows), while City defaults to `offline-city.dat`. No files are migrated. `--world FILE` uses that exact path for either game; a saved sidecar belonging to the other game is rejected before saving. Keep each game's paths separate. Legacy Sandbox saves remain readable. A future Voxel One Hub catalog should reuse key `sandbox`, argument `--game sandbox`, and these save/port contracts; this desktop entry does not depend on the Hub.
+
 ## Voxel City One
 
-Voxel City One is the engine's first game: plan a settlement from above, then walk or ride through the same world. Select **Voxel City One** in the sign-in screen. The VPS city world uses **198.100.154.156:25566**; **Voxel One sandbox** uses **25565**. They have separate worlds, inventories and simulations. The existing `jayms` test credentials work on both; newly registered accounts belong to the selected server.
+Voxel City One is the city game: plan a settlement from above, then walk or ride through the same world. Select **Voxel City One** in the sign-in screen. The VPS city world uses **198.100.154.156:25566**; **Voxel Sandbox** uses **25565**. They have separate worlds, inventories and simulations. The existing `jayms` test credentials work on both; newly registered accounts belong to the selected server.
 
 New cities start with dirt roads, residential, commercial, industrial and agricultural land, eighteen citizens (including three farming families) and six horses. Private developers buy plots and employ citizens to build three houses, a shop and a mine as demand and funds allow. Construction starts over the first few seconds and completes as workers reach each site. Households then acquire homes and find company jobs. Three socioeconomic cohorts—labourers, skilled workers and prosperous settlers—have different starting savings, wage rates and access to horseback travel. Citizens have animated avatars and retain their names in Inspect and the mayor dashboard. Floating nameplates identify actual players. Click a citizen in **Inspect** mode to see their group, money, hunger, home, job and current activity.
 
