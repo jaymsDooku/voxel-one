@@ -1,0 +1,84 @@
+{
+  "sourceBase": "b17344808779c5a0556ff696e04bd7b85cf84d18",
+  "change": "Local validation wrapper and instructions; application source unchanged",
+  "command": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 PATH=/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin:\"$PATH\" python3 tools/hub/check_local.py",
+  "environment": "Linux, JDK 21; checkout-local Maven cache and temporary storage",
+  "exitCode": 0,
+  "javaSuites": [
+    {
+      "name": "dev.jayms.SandboxIdentityTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.HubCatalogTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.HubShellTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.launcher.HubShellActivationTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.UpdaterTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.AccountStoreTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.ProtocolCompatibilityTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.MultiplayerTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "pythonTests": 4,
+  "packaging": "passed",
+  "playtest": "Playtest: ran expanded tools/hub/check_local.py with JDK 21 and worktree-local Maven cache/temp. Expected scoped CI Java selection, package and publisher tests. Observed exit 0; 24 Java tests, package and 4 publisher tests passed. CLI-only change; browser playtesting does not apply. No new GPU or published-update pass claimed.",
+  "edgeAndRegression": "Existing shell activation/rollback, updater and malformed catalog regressions executed in the selected suites. Wrapper stops on any command failure.",
+  "deletions": "No deleted files against review base 26b8761ff9c355299aa1df83608a6f6ebcba7e0b",
+  "gates": [
+    "Native GPU gameplay remains unqualified",
+    "Windows physical DPI and performance remain pending",
+    "Published shell upgrades and native/web promotion plus cached browser reload remain pending",
+    "Controller publication bundle preserved at target/hub-b173448-regenerated-publication"
+  ],
+  "negativeControl": {
+    "command": "Synthetic worktree-local mvn exits 23; run tools/hub/check_local.py with fixture first on PATH",
+    "expected": "Exit 23 and do not start publisher stage",
+    "observed": "Exit 23; publisher stage absent",
+    "passed": true
+  },
+  "javaTestCount": 24,
+  "selection": "Matches scoped Hub workflow, including identity/save separation and MultiplayerTest#authenticationRegistrationDuplicateSessionsAndCertificatePin"
+}
