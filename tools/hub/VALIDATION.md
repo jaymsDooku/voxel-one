@@ -47,14 +47,42 @@ This option does not satisfy packaged GUI/platform acceptance. Local source SHA
 labels identify the base commit; working-tree fingerprints identify local edits.
 Remote checks run the exact published source SHA.
 
-The production Space Invaders route currently fails publication validation.
-Anonymous requests returned 403. Supported private service access returned 404
+The initial production probe returned anonymous403 and supported private-access404
 for both `/games/space-invaders/` and `/games/space-invaders/index.html`.
-Root must publish the actual game assets and tested web provenance through the
-authorized site publisher. Keep the catalog entry unavailable until that succeeds.
+Those results are historical after the coordinator's route restoration.
 Do not change site privacy or promote a merged source commit as a deployed build.
+
+Update after the scoped run at `dd38d8c1e15311cd820c08cb05998869d5ae5249`:
+the coordinator restored the private game route. Its sanitized production report
+records HTTP200, movement/fire, pause/resume and cached reload. The bundled web
+card now uses that published build and reviewed source. The earlier404 report is
+historical. Root's independent future catalog publication still uses tested and
+published receipts; the last native receipt can be reused for web-only updates.
+
+The first Mac run had a system local-network prompt over its captures. Passing
+assertions do not accept those images. The loopback server now skips hostname
+discovery. Do not grant permissions automatically or suppress the platform prompt.
+Inspect the next exact-source screenshots for unobstructed Hub content. Desktop
+setup selects only advertised display modes inside the fenced ephemeral Actions
+job; unsupported modes stay recorded and full-size checks remain required.
+Windows cached-shell process checks can use a Boolean query for the launched
+child when ProcessHandle omits arguments. They never upload a command line.
 
 Linux F10 checks must intersect the native process PID and game window title
 (`xdotool search --all`). An OR search can select the Hub window and falsely send
 F10 there. Hold one start/stop key event; wait for the new recording to encode.
 Sparse software-rendered frames prove recording/launch only, not smooth gameplay.
+
+The scoped checker also runs `NativeRenderProbe` against the verified platform
+client using bundled Java and an empty PATH. It uses the existing frame observer,
+an isolated LOW-profile game and four actual framebuffer frames for City,
+Sandbox and editor. This is renderer/module smoke, not interactive gameplay,
+launcher CLI coverage or GPU performance acceptance. Clips need decoding and
+human inspection. Linux software rendering produced only four sparse frames.
+
+The runtime module list includes `jdk.management` for the native allocation
+recorder and `jdk.httpserver`; these were identified by `jdeps`. Catalog
+receipts in `dashboard/evidence/hub-native-publication.json` and
+`hub-web-publication.json` describe independently published native/web builds.
+`hub-prepared-catalog.properties` is prepared metadata; it has not been promoted
+by this developer. Controller/Root retain publication control.
