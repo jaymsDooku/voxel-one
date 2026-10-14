@@ -9,24 +9,24 @@
       "measurements": {
         "animationTerrainCalls": 0,
         "frame": {
-          "count": 535,
+          "count": 629,
           "p50": 16.699999999999818,
           "p95": 16.799999999999272,
           "p99": 16.800000000000182,
           "worst": 16.80000000000109
         },
         "worldCpu": {
-          "count": 535,
+          "count": 629,
           "p50": 0.10000038146972656,
-          "p95": 1.8000001907348633,
-          "p99": 2.8000001907348633,
-          "worst": 8
+          "p95": 2,
+          "p99": 2.799999237060547,
+          "worst": 6.600000381469727
         },
         "regionReady": true,
         "parentReady": true,
-        "parentSlicePeakMilliseconds": 6.199999809265137,
-        "parentPreparationMilliseconds": 266.1000003814697,
-        "parentUpdates": 27
+        "parentSlicePeakMilliseconds": 12.90000057220459,
+        "parentPreparationMilliseconds": 220.4000005722046,
+        "parentUpdates": 25
       },
       "observed": "PASS early real kill, fixed poses, unavailable Worker, empty cache, pause/rotation, full handoff, score/lives, flight/fire and restart cancellation"
     },
@@ -35,24 +35,24 @@
       "measurements": {
         "animationTerrainCalls": 0,
         "frame": {
-          "count": 245,
-          "p50": 43,
-          "p95": 81,
-          "p99": 224,
-          "worst": 1296
+          "count": 262,
+          "p50": 42,
+          "p95": 73,
+          "p99": 309,
+          "worst": 1847
         },
         "worldCpu": {
-          "count": 245,
+          "count": 262,
           "p50": 0,
           "p95": 1,
           "p99": 1,
-          "worst": 3
+          "worst": 1
         },
         "regionReady": true,
         "parentReady": true,
-        "parentSlicePeakMilliseconds": 11,
-        "parentPreparationMilliseconds": 198,
-        "parentUpdates": 19
+        "parentSlicePeakMilliseconds": 14,
+        "parentPreparationMilliseconds": 212,
+        "parentUpdates": 18
       },
       "observed": "PASS early real kill, fixed poses, unavailable Worker, empty cache, pause/rotation, full handoff, score/lives, flight/fire and restart cancellation"
     }

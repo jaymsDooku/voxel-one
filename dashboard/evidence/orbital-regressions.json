@@ -1,6 +1,7 @@
 {
+  "legacyUrlAdaptation": "Temporary copies change only legacy localhost ports 8766/8767/8778 to 8779; source tests and assertions are preserved",
   "environment": "Linux headless WebKit/Chromium on assigned source worktree, synthetic isolated game contexts",
-  "command": "PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node .tmp/run-regressions.cjs",
+  "command": "PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/run_orbital_regressions.cjs",
   "playtest": "Playtest: exercise cockpit, fighter, swept collisions, multitouch, layout and lab generation/overlays/excavation through existing browser harnesses.",
   "results": [
     {
@@ -41,13 +42,7 @@
     {
       "test": "test_alien_terrain.cjs",
       "exit": 0,
-      "output": "[{\"browser\":\"chromium\",\"result\":\"PASS\",\"gallery\":[{\"seed\":\"acheron\",\"milliseconds\":616.7999992370605},{\"seed\":\"glass-sea\",\"milliseconds\":721.3999996185303},{\"seed\":\"silent-impact\",\"milliseconds\":692.2000007629395},{\"seed\":\"fungal-moon\",\"milliseconds\":566.6999998092651}]},{\"browser\":\"webkit\",\"result\":\"PASS\",\"gallery\":[{\"seed\":\"acheron\",\"milliseconds\":816},{\"seed\":\"glass-sea\",\"milliseconds\":961},{\"seed\":\"silent-impact\",\"milliseconds\":840},{\"seed\":\"fungal-moon\",\"milliseconds\":875}]}]\n"
+      "output": "[{\"browser\":\"chromium\",\"result\":\"PASS\",\"gallery\":[{\"seed\":\"acheron\",\"milliseconds\":552.3000001907349},{\"seed\":\"glass-sea\",\"milliseconds\":583.6999998092651},{\"seed\":\"silent-impact\",\"milliseconds\":470.5},{\"seed\":\"fungal-moon\",\"milliseconds\":440.5}]},{\"browser\":\"webkit\",\"result\":\"PASS\",\"gallery\":[{\"seed\":\"acheron\",\"milliseconds\":1074},{\"seed\":\"glass-sea\",\"milliseconds\":972},{\"seed\":\"silent-impact\",\"milliseconds\":766},{\"seed\":\"fungal-moon\",\"milliseconds\":974}]}]\n"
     }
-  ],
-  "finalRerun": "Final rerun passed transition, cockpit, fighters, fighter edges, cockpit edges and collisions before the long wrapper process ended with SIGTERM (143). Layout and lab were then executed separately and passed.",
-  "finalCommands": [
-    "PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/run_orbital_regressions.cjs",
-    "PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node .tmp/regression-test_space_invaders_layout.cjs",
-    "PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node .tmp/regression-test_alien_terrain.cjs"
   ]
 }

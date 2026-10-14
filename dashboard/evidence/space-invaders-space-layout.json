@@ -55,7 +55,7 @@
           {
             "label": "Start game",
             "x": 214.609375,
-            "y": 186.390625,
+            "y": 212.53125,
             "width": 138.859375,
             "height": 48,
             "reachable": true
@@ -77,6 +77,22 @@
             "reachable": true
           },
           {
+            "label": "▲",
+            "x": 168,
+            "y": 256,
+            "width": 64,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "▼",
+            "x": 244,
+            "y": 256,
+            "width": 64,
+            "height": 56,
+            "reachable": true
+          },
+          {
             "label": "FIRE",
             "x": 452,
             "y": 256,
@@ -88,19 +104,19 @@
         "overlay": {
           "#title": {
             "x": 180.84375,
-            "y": 85.75,
+            "y": 59.25,
             "width": 206.390625,
             "height": 24
           },
           "#message": {
-            "x": 139.546875,
-            "y": 121.75,
-            "width": 289,
-            "height": 52.640625
+            "x": 102.25,
+            "y": 95.25,
+            "width": 363.59375,
+            "height": 105.28125
           },
           "#start": {
             "x": 214.609375,
-            "y": 186.390625,
+            "y": 212.53125,
             "width": 138.859375,
             "height": 48
           }
@@ -169,6 +185,22 @@
           {
             "label": "▶",
             "x": 92,
+            "y": 256,
+            "width": 64,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "▲",
+            "x": 168,
+            "y": 256,
+            "width": 64,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "▼",
+            "x": 244,
             "y": 256,
             "width": 64,
             "height": 56,
@@ -256,6 +288,22 @@
           {
             "label": "▶",
             "x": 92,
+            "y": 256,
+            "width": 64,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "▲",
+            "x": 168,
+            "y": 256,
+            "width": 64,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "▼",
+            "x": 244,
             "y": 256,
             "width": 64,
             "height": 56,
@@ -360,6 +408,22 @@
             "reachable": true
           },
           {
+            "label": "▲",
+            "x": 168,
+            "y": 256,
+            "width": 64,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "▼",
+            "x": 244,
+            "y": 256,
+            "width": 64,
+            "height": 56,
+            "reachable": true
+          },
+          {
             "label": "FIRE",
             "x": 452,
             "y": 256,
@@ -444,7 +508,7 @@
           {
             "label": "Start game",
             "x": 264.015625,
-            "y": 213.890625,
+            "y": 240.03125,
             "width": 138.859375,
             "height": 48,
             "reachable": true
@@ -466,6 +530,22 @@
             "reachable": true
           },
           {
+            "label": "▲",
+            "x": 168,
+            "y": 311,
+            "width": 64,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "▼",
+            "x": 244,
+            "y": 311,
+            "width": 64,
+            "height": 56,
+            "reachable": true
+          },
+          {
             "label": "FIRE",
             "x": 551,
             "y": 311,
@@ -477,19 +557,19 @@
         "overlay": {
           "#title": {
             "x": 230.25,
-            "y": 113.25,
+            "y": 86.75,
             "width": 206.390625,
             "height": 24
           },
           "#message": {
-            "x": 188.9375,
-            "y": 149.25,
-            "width": 289,
-            "height": 52.640625
+            "x": 117,
+            "y": 122.75,
+            "width": 432.890625,
+            "height": 105.28125
           },
           "#start": {
             "x": 264.015625,
-            "y": 213.890625,
+            "y": 240.03125,
             "width": 138.859375,
             "height": 48
           }
@@ -558,6 +638,22 @@
           {
             "label": "▶",
             "x": 92,
+            "y": 311,
+            "width": 64,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "▲",
+            "x": 168,
+            "y": 311,
+            "width": 64,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "▼",
+            "x": 244,
             "y": 311,
             "width": 64,
             "height": 56,
@@ -645,6 +741,22 @@
           {
             "label": "▶",
             "x": 92,
+            "y": 311,
+            "width": 64,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "▲",
+            "x": 168,
+            "y": 311,
+            "width": 64,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "▼",
+            "x": 244,
             "y": 311,
             "width": 64,
             "height": 56,
@@ -749,6 +861,22 @@
             "reachable": true
           },
           {
+            "label": "▲",
+            "x": 168,
+            "y": 311,
+            "width": 64,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "▼",
+            "x": 244,
+            "y": 311,
+            "width": 64,
+            "height": 56,
+            "reachable": true
+          },
+          {
             "label": "FIRE",
             "x": 551,
             "y": 311,
@@ -833,7 +961,7 @@
           {
             "label": "Start game",
             "x": 352.5625,
-            "y": 221.390625,
+            "y": 238.984375,
             "width": 138.859375,
             "height": 48,
             "reachable": true
@@ -855,6 +983,22 @@
             "reachable": true
           },
           {
+            "label": "▲",
+            "x": 168,
+            "y": 326,
+            "width": 64,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "▼",
+            "x": 244,
+            "y": 326,
+            "width": 64,
+            "height": 56,
+            "reachable": true
+          },
+          {
             "label": "FIRE",
             "x": 728,
             "y": 326,
@@ -866,19 +1010,19 @@
         "overlay": {
           "#title": {
             "x": 318.796875,
-            "y": 120.75,
+            "y": 103.25,
             "width": 206.390625,
             "height": 24
           },
           "#message": {
-            "x": 277.5,
-            "y": 156.75,
-            "width": 289,
-            "height": 52.640625
+            "x": 189,
+            "y": 139.25,
+            "width": 466,
+            "height": 87.734375
           },
           "#start": {
             "x": 352.5625,
-            "y": 221.390625,
+            "y": 238.984375,
             "width": 138.859375,
             "height": 48
           }
@@ -947,6 +1091,22 @@
           {
             "label": "▶",
             "x": 92,
+            "y": 326,
+            "width": 64,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "▲",
+            "x": 168,
+            "y": 326,
+            "width": 64,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "▼",
+            "x": 244,
             "y": 326,
             "width": 64,
             "height": 56,
@@ -1034,6 +1194,22 @@
           {
             "label": "▶",
             "x": 92,
+            "y": 326,
+            "width": 64,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "▲",
+            "x": 168,
+            "y": 326,
+            "width": 64,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "▼",
+            "x": 244,
             "y": 326,
             "width": 64,
             "height": 56,
@@ -1138,6 +1314,22 @@
             "reachable": true
           },
           {
+            "label": "▲",
+            "x": 168,
+            "y": 326,
+            "width": 64,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "▼",
+            "x": 244,
+            "y": 326,
+            "width": 64,
+            "height": 56,
+            "reachable": true
+          },
+          {
             "label": "FIRE",
             "x": 728,
             "y": 326,
@@ -1222,7 +1414,7 @@
           {
             "label": "Start game",
             "x": 125.5625,
-            "y": 504.8125,
+            "y": 543.09375,
             "width": 138.859375,
             "height": 48,
             "reachable": true
@@ -1231,23 +1423,39 @@
             "label": "◀",
             "x": 16,
             "y": 760,
-            "width": 64,
+            "width": 48,
             "height": 56,
             "reachable": true
           },
           {
             "label": "▶",
-            "x": 92,
+            "x": 70,
             "y": 760,
-            "width": 64,
+            "width": 48,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "▲",
+            "x": 124,
+            "y": 760,
+            "width": 48,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "▼",
+            "x": 178,
+            "y": 760,
+            "width": 48,
             "height": 56,
             "reachable": true
           },
           {
             "label": "FIRE",
-            "x": 274,
+            "x": 302,
             "y": 760,
-            "width": 100,
+            "width": 72,
             "height": 56,
             "reachable": true
           }
@@ -1255,19 +1463,19 @@
         "overlay": {
           "#title": {
             "x": 71.171875,
-            "y": 291.25,
+            "y": 252.75,
             "width": 247.65625,
             "height": 28
           },
           "#message": {
             "x": 44.5,
-            "y": 331.25,
+            "y": 292.75,
             "width": 301,
-            "height": 153.5625
+            "height": 230.34375
           },
           "#start": {
             "x": 125.5625,
-            "y": 504.8125,
+            "y": 543.09375,
             "width": 138.859375,
             "height": 48
           }
@@ -1329,23 +1537,39 @@
             "label": "◀",
             "x": 16,
             "y": 760,
-            "width": 64,
+            "width": 48,
             "height": 56,
             "reachable": true
           },
           {
             "label": "▶",
-            "x": 92,
+            "x": 70,
             "y": 760,
-            "width": 64,
+            "width": 48,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "▲",
+            "x": 124,
+            "y": 760,
+            "width": 48,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "▼",
+            "x": 178,
+            "y": 760,
+            "width": 48,
             "height": 56,
             "reachable": true
           },
           {
             "label": "FIRE",
-            "x": 274,
+            "x": 302,
             "y": 760,
-            "width": 100,
+            "width": 72,
             "height": 56,
             "reachable": true
           }
@@ -1416,23 +1640,39 @@
             "label": "◀",
             "x": 16,
             "y": 760,
-            "width": 64,
+            "width": 48,
             "height": 56,
             "reachable": true
           },
           {
             "label": "▶",
-            "x": 92,
+            "x": 70,
             "y": 760,
-            "width": 64,
+            "width": 48,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "▲",
+            "x": 124,
+            "y": 760,
+            "width": 48,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "▼",
+            "x": 178,
+            "y": 760,
+            "width": 48,
             "height": 56,
             "reachable": true
           },
           {
             "label": "FIRE",
-            "x": 274,
+            "x": 302,
             "y": 760,
-            "width": 100,
+            "width": 72,
             "height": 56,
             "reachable": true
           }
@@ -1485,7 +1725,7 @@
           "#hud": {
             "x": 16,
             "y": 70,
-            "width": 240.234375,
+            "width": 230.046875,
             "height": 31
           },
           ".arena": {
@@ -1514,23 +1754,39 @@
             "label": "◀",
             "x": 16,
             "y": 760,
-            "width": 64,
+            "width": 48,
             "height": 56,
             "reachable": true
           },
           {
             "label": "▶",
-            "x": 92,
+            "x": 70,
             "y": 760,
-            "width": 64,
+            "width": 48,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "▲",
+            "x": 124,
+            "y": 760,
+            "width": 48,
+            "height": 56,
+            "reachable": true
+          },
+          {
+            "label": "▼",
+            "x": 178,
+            "y": 760,
+            "width": 48,
             "height": 56,
             "reachable": true
           },
           {
             "label": "FIRE",
-            "x": 274,
+            "x": 302,
             "y": 760,
-            "width": 100,
+            "width": 72,
             "height": 56,
             "reachable": true
           }
@@ -1543,9 +1799,9 @@
             "height": 28
           },
           "#message": {
-            "x": 99.875,
+            "x": 104.96875,
             "y": 395.25,
-            "width": 190.234375,
+            "width": 180.046875,
             "height": 25.59375
           },
           "#start": {

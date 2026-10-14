@@ -9,7 +9,11 @@ export function cameraAt(t,profile){
  const a=-.30*Math.pow(Math.max(0,(altitude-12)/(12000000-12)),.7),r=profile.radius+altitude+profile.landingHeight;
  const eye=[0,r*Math.cos(a),r*Math.sin(a)-250*(ease**8)];
  const orbital=Math.min(1,Math.max(0,t/3)),focus=orbital*orbital*(3-2*orbital);
- const target=[0,profile.radius+profile.landingHeight-profile.radius*.65*(1-focus),3300];
+ // Look along the curved surface while crossing the shell, then bring the
+ // same landing anchor into the low approach. A nadir aim hid the horizon.
+ const lookKeys=[3300,1200000,100000,3300,3300],lookDistance=Math.exp(Math.log(lookKeys[segment])*(1-s)+Math.log(lookKeys[segment+1])*s);
+ const surfaceY=Math.sqrt(Math.max(0,profile.radius*profile.radius-lookDistance*lookDistance));
+ const target=[0,surfaceY+profile.landingHeight-profile.radius*.65*(1-focus),lookDistance];
  const forward=norm(target.map((x,i)=>x-eye[i])),right=norm(cross(forward,[0,1,0])),up=cross(right,forward);
  const altitudeVelocity=p>=1?0:altitude*(Math.log(keys[segment+1])-Math.log(keys[segment]))*6*fraction*(1-fraction)*4/ENTRY_DURATION;
  return {eye,forward,right,up,altitude,altitudeVelocity,progress:p};

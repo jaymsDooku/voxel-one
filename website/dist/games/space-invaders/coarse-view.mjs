@@ -19,6 +19,11 @@ export function surfaceRay(camera,d,profile,sample){
  const outer=sphere(camera.eye,d,profile.radius+6400),inner=sphere(camera.eye,d,profile.radius);if(!outer||outer.far<=0)return null;
  const near=Math.max(0,outer.near),far=inner&&inner.near>near?inner.near:outer.far;
  if(camera.altitude<60000){let previous=at(near);for(let i=1;i<=24;i++){const current=at(near+(far-near)*(i/24)**2);if(previous.residual>=0&&current.residual<=0){let lo=previous.distance,hi=current.distance;for(let j=0;j<8;j++){const mid=(lo+hi)/2;if(at(mid).residual>0)lo=mid;else hi=mid;}const point=at((lo+hi)/2),shell=sphere(camera.eye,d,profile.radius+point.material.height*profile.metresPerBlock);return shell&&shell.near>=lo&&shell.near<=hi?at(shell.near):point;}previous=current;}return null;}
- let hit=sphere(camera.eye,d,profile.radius+profile.landingHeight);if(!hit||hit.near<=0)return null;let distance=hit.near;
- for(let i=0;i<4;i++){const point=at(distance);hit=sphere(camera.eye,d,profile.radius+point.material.height*profile.metresPerBlock);if(!hit||hit.near<=0)return null;distance=hit.near;}return at(distance);
+ // At orbital distances the relief is subpixel. One field lookup and one
+ // analytic radius correction avoid repeatedly sampling the same atlas texel.
+ // Close rays retain the full bounded march above.
+ let hit=sphere(camera.eye,d,profile.radius+profile.landingHeight);if(!hit||hit.near<=0)return null;
+ const point=at(hit.near);hit=sphere(camera.eye,d,profile.radius+point.material.height*profile.metresPerBlock);if(!hit||hit.near<=0)return null;
+ const position=camera.eye.map((v,i)=>v+d[i]*hit.near);
+ return {distance:hit.near,position,normal:unit(position),material:point.material,residual:0};
 }

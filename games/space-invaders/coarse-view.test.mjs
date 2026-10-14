@@ -25,3 +25,16 @@ test('near-ground rays intersect raised parent terrain instead of discarding a n
  const hit=surfaceRay(camera,ray,profile,n=>({height:12+Math.max(0,n[2])*5000,color:[80,120,100]}));
  assert(hit&&hit.distance>0);assert(Math.abs(Math.hypot(...hit.position)-profile.radius-hit.material.height*50)<20);
 });
+test('orbital radius correction uses one prepared field lookup',()=>{
+ const profile=createPlanetVisualProfile(),camera=cameraAt(1,profile);let queries=0;
+ const hit=surfaceRay(camera,viewRay(camera,.5,.5,1.4),profile,()=>{queries++;return {height:40,color:[80,120,100]};});
+ assert(hit);assert.equal(queries,1);assert(Math.abs(Math.hypot(...hit.position)-profile.radius-2000)<.001);
+});
+test('upper-atmosphere aim leaves the curved horizon inside the windshield',()=>{
+ const profile=createPlanetVisualProfile();
+ for(const time of [3,4.5,6]){const camera=cameraAt(time,profile);
+  assert.equal(surfaceRay(camera,viewRay(camera,.5,.05,1.4),profile,()=>({height:12,color:[100,90,80]})),null);
+  assert(surfaceRay(camera,viewRay(camera,.5,.95,1.4),profile,()=>({height:12,color:[100,90,80]})));
+ }
+ for(const time of [3,6,9]){const a=cameraAt(time-1e-5,profile),b=cameraAt(time+1e-5,profile);assert(Math.hypot(...a.forward.map((v,i)=>v-b.forward[i]))<1e-5);}
+});

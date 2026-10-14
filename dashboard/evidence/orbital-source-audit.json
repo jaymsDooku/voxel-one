@@ -1,196 +1,166 @@
 {
-  "branch": "feature/queue-32323739633831342d393930632d343438322d383036362d633363393732353338303631",
-  "provisionalBase": "136cef1940f13f9431c9f6e4400e19395145cbdb",
   "reviewBase": "1d2c3b3266c9e2d9c82c2217594690c0a62334ef",
-  "intendedRemovals": "Replaced the original expanding disc, timed gradient/cloud blobs and repeating cube rows. Replaced fixed palette sky gradients with reference-based sky samples. No unrelated source deletions intended.",
-  "checks": [
+  "baseHead": "6ca0cdd575d90e95210ffedf7655b1f05b5158fe",
+  "sourceState": "Tested working source with unpublished edits; controller owns final commit/publication and master integration",
+  "modules": [
     {
-      "file": "games/space-invaders/app.mjs",
-      "sha256": "a5869f3c7222106bdd2bceb816a634b45a03bc69aa4914841ec7874e2c087950",
-      "bundleMatches": true
+      "module": "app.mjs",
+      "sourceSha256": "24b6960450d3de500f8d18998dbbfaf5215134389b3a828a70e553e8114b17fe",
+      "bundleSha256": "24b6960450d3de500f8d18998dbbfaf5215134389b3a828a70e553e8114b17fe",
+      "matches": true
     },
     {
-      "file": "games/space-invaders/atmosphere-multiple-reference.json",
-      "sha256": "5760a297a05681ae2e5ee3a192233ce01a3e4d4955da30c14bb3c08ce163d7be",
-      "bundleMatches": true
+      "module": "atmosphere-multiple-reference.json",
+      "sourceSha256": "5760a297a05681ae2e5ee3a192233ce01a3e4d4955da30c14bb3c08ce163d7be",
+      "bundleSha256": "5760a297a05681ae2e5ee3a192233ce01a3e4d4955da30c14bb3c08ce163d7be",
+      "matches": true
     },
     {
-      "file": "games/space-invaders/atmosphere-reference.json",
-      "sha256": "a4f127d33db7e82c2c2e333a5bfdf74da0d5155bf5c7e390bc0d46c2c32f8746",
-      "bundleMatches": true
+      "module": "atmosphere-reference.json",
+      "sourceSha256": "a4f127d33db7e82c2c2e333a5bfdf74da0d5155bf5c7e390bc0d46c2c32f8746",
+      "bundleSha256": "a4f127d33db7e82c2c2e333a5bfdf74da0d5155bf5c7e390bc0d46c2c32f8746",
+      "matches": true
     },
     {
-      "file": "games/space-invaders/atmosphere.mjs",
-      "sha256": "c89790f08ecdd2b1cd98270ef1ab0dee90e8b496b8c8bd1f9f77a2396f4c2919",
-      "bundleMatches": true
+      "module": "atmosphere.mjs",
+      "sourceSha256": "c89790f08ecdd2b1cd98270ef1ab0dee90e8b496b8c8bd1f9f77a2396f4c2919",
+      "bundleSha256": "c89790f08ecdd2b1cd98270ef1ab0dee90e8b496b8c8bd1f9f77a2396f4c2919",
+      "matches": true
     },
     {
-      "file": "games/space-invaders/clouds.mjs",
-      "sha256": "b90228f237d505a44e68853a923cd964f7c4158d2c0fc71915fa70d794b6fcc7",
-      "bundleMatches": true
+      "module": "bootstrap-planet.mjs",
+      "sourceSha256": "dbe7257bbd1514211be135d2e55fe21b257706ec7a1575e3d3d7d560650bb570",
+      "bundleSha256": "dbe7257bbd1514211be135d2e55fe21b257706ec7a1575e3d3d7d560650bb570",
+      "matches": true
     },
     {
-      "file": "games/space-invaders/entry-renderer.mjs",
-      "sha256": "adac8b5c3b59aeaf18a32b29891fce5c9ae43228f26fc224bac9ba92cff9f3f4",
-      "bundleMatches": true
+      "module": "clouds.mjs",
+      "sourceSha256": "7a00b37a579969cb9093ee6f52d6c0cc1ed13389c35460b6c2a0230520299038",
+      "bundleSha256": "7a00b37a579969cb9093ee6f52d6c0cc1ed13389c35460b6c2a0230520299038",
+      "matches": true
     },
     {
-      "file": "games/space-invaders/entry-sequence.mjs",
-      "sha256": "4edea780264a17e0db27d1f2fca22383a5dce97e0f232b39df8c145ef052c33c",
-      "bundleMatches": true
+      "module": "coarse-view.mjs",
+      "sourceSha256": "51a4e96ad0223cc3c5220d55d182ccc91c3d8f8943469b7b78c7c14a8c15f978",
+      "bundleSha256": "51a4e96ad0223cc3c5220d55d182ccc91c3d8f8943469b7b78c7c14a8c15f978",
+      "matches": true
     },
     {
-      "file": "games/space-invaders/entry-worker.mjs",
-      "sha256": "6a17fad80fea2d47a09ab591df2954d75ba34fd58add427f2c20e81412a308fa",
-      "bundleMatches": true
+      "module": "entry-renderer.mjs",
+      "sourceSha256": "668f31f814360b56e7d7b23008ea665688163a107094e99df91c43d890df7a2e",
+      "bundleSha256": "668f31f814360b56e7d7b23008ea665688163a107094e99df91c43d890df7a2e",
+      "matches": true
     },
     {
-      "file": "games/space-invaders/game.mjs",
-      "sha256": "29377b3b8c1796aff03168566a4772c9d6b8569602c6198b6e455c75f21af350",
-      "bundleMatches": true
+      "module": "entry-sequence.mjs",
+      "sourceSha256": "958b61fb790c3b355f2fe5b26e07cdfb28a2c37bd54e678b29aab84590132e61",
+      "bundleSha256": "958b61fb790c3b355f2fe5b26e07cdfb28a2c37bd54e678b29aab84590132e61",
+      "matches": true
     },
     {
-      "file": "games/space-invaders/index.html",
-      "sha256": "309efdbeb34a383662f06f0a436f4ac3f2d24a2a813e816cc57fae3bde22ac75",
-      "bundleMatches": true
+      "module": "entry-worker.mjs",
+      "sourceSha256": "ff55bcba92c2af82c5763b0b433541baadb28bb8cb4fb3284ac2a3a81a0de09a",
+      "bundleSha256": "ff55bcba92c2af82c5763b0b433541baadb28bb8cb4fb3284ac2a3a81a0de09a",
+      "matches": true
     },
     {
-      "file": "games/space-invaders/planet-profile.mjs",
-      "sha256": "5a67d863c7cbb6f2fc2a42b364b00a3437723c6e12b315f7aff8b84c7c59c426",
-      "bundleMatches": true
+      "module": "game.mjs",
+      "sourceSha256": "29377b3b8c1796aff03168566a4772c9d6b8569602c6198b6e455c75f21af350",
+      "bundleSha256": "29377b3b8c1796aff03168566a4772c9d6b8569602c6198b6e455c75f21af350",
+      "matches": true
     },
     {
-      "file": "games/space-invaders/style.css",
-      "sha256": "60335ebe510b931326ff39ecb9e6809f95c32b03a0d77a474ddf1c70f6de348d",
-      "bundleMatches": true
+      "module": "index.html",
+      "sourceSha256": "309efdbeb34a383662f06f0a436f4ac3f2d24a2a813e816cc57fae3bde22ac75",
+      "bundleSha256": "309efdbeb34a383662f06f0a436f4ac3f2d24a2a813e816cc57fae3bde22ac75",
+      "matches": true
     },
     {
-      "file": "games/space-invaders/terrain-scene.mjs",
-      "sha256": "987ba986916f04635bca52a06d4381d49415a003eb30df29c339d92914f02412",
-      "bundleMatches": true
+      "module": "planet-profile.mjs",
+      "sourceSha256": "5a67d863c7cbb6f2fc2a42b364b00a3437723c6e12b315f7aff8b84c7c59c426",
+      "bundleSha256": "5a67d863c7cbb6f2fc2a42b364b00a3437723c6e12b315f7aff8b84c7c59c426",
+      "matches": true
     },
     {
-      "file": "games/space-invaders/terrain-view.mjs",
-      "sha256": "83f906743f75a8ad1b2cd9e305315d3d8b3b3891b777862d0e9e72f3f73e4bd8",
-      "bundleMatches": true
+      "module": "prepared-surface.mjs",
+      "sourceSha256": "e9b0fb679ae96e07c055849dbd7355e5759866077d5ed42175ce79fbad9bb18d",
+      "bundleSha256": "e9b0fb679ae96e07c055849dbd7355e5759866077d5ed42175ce79fbad9bb18d",
+      "matches": true
     },
     {
-      "file": "games/space-invaders/terrain-worker.mjs",
-      "sha256": "852885762ff48bb061bcb8b82ebaa311855e8d8b1def67b0d1662ece7b28147a",
-      "bundleMatches": true
+      "module": "style.css",
+      "sourceSha256": "60335ebe510b931326ff39ecb9e6809f95c32b03a0d77a474ddf1c70f6de348d",
+      "bundleSha256": "60335ebe510b931326ff39ecb9e6809f95c32b03a0d77a474ddf1c70f6de348d",
+      "matches": true
     },
     {
-      "file": "games/space-invaders/terrain.mjs",
-      "sha256": "1f14765c2ad7bcd34f3cff542d3c8b80b022b7e52e49c7031c1659ead0fc482d",
-      "bundleMatches": true
+      "module": "terrain-detail.mjs",
+      "sourceSha256": "43a6d89844207301ee8f592a75b3b86d9b41db310c9bd0ad4900ec11e98e9257",
+      "bundleSha256": "43a6d89844207301ee8f592a75b3b86d9b41db310c9bd0ad4900ec11e98e9257",
+      "matches": true
     },
     {
-      "file": "games/space-invaders/coarse-view.mjs",
-      "sha256": "5af33a058511c692c4b72a57b80f9ad7909df4275c26a1ff28708d425741d27d",
-      "bundleMatches": true
+      "module": "terrain-scene.mjs",
+      "sourceSha256": "987ba986916f04635bca52a06d4381d49415a003eb30df29c339d92914f02412",
+      "bundleSha256": "987ba986916f04635bca52a06d4381d49415a003eb30df29c339d92914f02412",
+      "matches": true
     },
     {
-      "file": "games/space-invaders/terrain-detail.mjs",
-      "sha256": "43a6d89844207301ee8f592a75b3b86d9b41db310c9bd0ad4900ec11e98e9257",
-      "bundleMatches": true
+      "module": "terrain-view.mjs",
+      "sourceSha256": "83f906743f75a8ad1b2cd9e305315d3d8b3b3891b777862d0e9e72f3f73e4bd8",
+      "bundleSha256": "83f906743f75a8ad1b2cd9e305315d3d8b3b3891b777862d0e9e72f3f73e4bd8",
+      "matches": true
+    },
+    {
+      "module": "terrain-worker.mjs",
+      "sourceSha256": "852885762ff48bb061bcb8b82ebaa311855e8d8b1def67b0d1662ece7b28147a",
+      "bundleSha256": "852885762ff48bb061bcb8b82ebaa311855e8d8b1def67b0d1662ece7b28147a",
+      "matches": true
+    },
+    {
+      "module": "terrain.mjs",
+      "sourceSha256": "1f14765c2ad7bcd34f3cff542d3c8b80b022b7e52e49c7031c1659ead0fc482d",
+      "bundleSha256": "1f14765c2ad7bcd34f3cff542d3c8b80b022b7e52e49c7031c1659ead0fc482d",
+      "matches": true
     }
   ],
-  "verification": "39 unit tests, eight final-source viewport workflows, prewarm restart/stale callback, Worker failure, context/airless/lab diagnostics, isolated Low benchmarks, scoped browser memory and launcher checks executed. All 18 runtime source/bundle assets match. Controller must assign the committed head and rerun meaningful checks if integration changes source.",
-  "unchangedTerrainGenerator": "1f14765c2ad7bcd34f3cff542d3c8b80b022b7e52e49c7031c1659ead0fc482d",
-  "sourceDeletions": [],
-  "restoredHistoricalEvidence": [
-    "dashboard/evidence/alien-terrain-chromium-acheron.png",
-    "dashboard/evidence/alien-terrain-chromium-biome-overlay.png",
-    "dashboard/evidence/alien-terrain-chromium-cave-overlay.png",
-    "dashboard/evidence/alien-terrain-chromium-crystal.png",
-    "dashboard/evidence/alien-terrain-chromium-elevation-overlay.png",
-    "dashboard/evidence/alien-terrain-chromium-excavation.png",
-    "dashboard/evidence/alien-terrain-chromium-fungal-moon.png",
-    "dashboard/evidence/alien-terrain-chromium-glass-sea.png",
-    "dashboard/evidence/alien-terrain-chromium-impact.png",
-    "dashboard/evidence/alien-terrain-chromium-obsidian.png",
-    "dashboard/evidence/alien-terrain-chromium-silent-impact.png",
-    "dashboard/evidence/alien-terrain-chromium-slope-overlay.png",
-    "dashboard/evidence/alien-terrain-chromium-toxic.png",
-    "dashboard/evidence/alien-terrain-chromium-traversal-overlay.png",
-    "dashboard/evidence/alien-terrain-chromium-world.png",
-    "dashboard/evidence/alien-terrain-playtest.json",
-    "dashboard/evidence/alien-terrain-webkit-acheron.png",
-    "dashboard/evidence/alien-terrain-webkit-biome-overlay.png",
-    "dashboard/evidence/alien-terrain-webkit-cave-overlay.png",
-    "dashboard/evidence/alien-terrain-webkit-crystal.png",
-    "dashboard/evidence/alien-terrain-webkit-elevation-overlay.png",
-    "dashboard/evidence/alien-terrain-webkit-excavation.png",
-    "dashboard/evidence/alien-terrain-webkit-fungal-moon.png",
-    "dashboard/evidence/alien-terrain-webkit-glass-sea.png",
-    "dashboard/evidence/alien-terrain-webkit-impact.png",
-    "dashboard/evidence/alien-terrain-webkit-obsidian.png",
-    "dashboard/evidence/alien-terrain-webkit-silent-impact.png",
-    "dashboard/evidence/alien-terrain-webkit-slope-overlay.png",
-    "dashboard/evidence/alien-terrain-webkit-toxic.png",
-    "dashboard/evidence/alien-terrain-webkit-traversal-overlay.png",
-    "dashboard/evidence/alien-terrain-webkit-world.png",
-    "dashboard/evidence/cockpit-classic-regression.png",
-    "dashboard/evidence/cockpit-level-3-1280.png",
-    "dashboard/evidence/cockpit-level-3-390.png",
-    "dashboard/evidence/cockpit-level-3-844.png",
-    "dashboard/evidence/entry-crash-1280.png",
-    "dashboard/evidence/entry-descent-1280.png",
-    "dashboard/evidence/entry-regression-end-1280.png",
-    "dashboard/evidence/entry-regression-end-390.png",
-    "dashboard/evidence/entry-regression-end-844.png",
-    "dashboard/evidence/entry-regression-mid-1280.png",
-    "dashboard/evidence/entry-regression-mid-390.png",
-    "dashboard/evidence/entry-regression-mid-844.png",
-    "dashboard/evidence/entry-regression-playtest.json",
-    "dashboard/evidence/entry-regression-playtest.webm",
-    "dashboard/evidence/entry-regression-start-1280.png",
-    "dashboard/evidence/entry-regression-start-390.png",
-    "dashboard/evidence/entry-regression-start-844.png",
-    "dashboard/evidence/entry-waking-1280.png",
-    "dashboard/evidence/fighters-edge-playtest.json",
-    "dashboard/evidence/fighters-level-1-regression.png",
-    "dashboard/evidence/fighters-level-2-1280.png",
-    "dashboard/evidence/fighters-level-2-390.png",
-    "dashboard/evidence/fighters-level-2-844.png",
-    "dashboard/evidence/fighters-level-3-1280.png",
-    "dashboard/evidence/fighters-level-3-390.png",
-    "dashboard/evidence/fighters-level-3-844.png",
-    "dashboard/evidence/fighters-playtest.json",
-    "dashboard/evidence/invaders-level-2-1280.png",
-    "dashboard/evidence/invaders-level-2-390.png",
-    "dashboard/evidence/invaders-level-2-844.png",
-    "dashboard/evidence/invaders-levels-playtest.json",
-    "dashboard/evidence/space-invaders-collision-fix-390.png",
-    "dashboard/evidence/space-invaders-collision-fix-844.png",
-    "dashboard/evidence/space-invaders-collision-fix.json",
-    "dashboard/evidence/space-invaders-space-568x320-game-over.png",
-    "dashboard/evidence/space-invaders-space-568x320-paused.png",
-    "dashboard/evidence/space-invaders-space-568x320-playing.png",
-    "dashboard/evidence/space-invaders-space-568x320-start.png",
-    "dashboard/evidence/space-invaders-space-667x375-game-over.png",
-    "dashboard/evidence/space-invaders-space-667x375-paused.png",
-    "dashboard/evidence/space-invaders-space-667x375-playing.png",
-    "dashboard/evidence/space-invaders-space-667x375-start.png",
-    "dashboard/evidence/space-invaders-space-layout.json"
-  ],
-  "integratedBase": "1d2c3b3266c9e2d9c82c2217594690c0a62334ef",
   "media": [
     {
-      "file": "dashboard/evidence/orbital-normal.mp4",
-      "bytes": 712605,
-      "sha256": "57fc20ebf0d7eb6ff596f65ea0962e2f222cdd02411e82112f1de43c83897097"
+      "file": "orbital-normal.mp4",
+      "bytes": 692059,
+      "sha256": "b5370ba0eec7b89179ba4b76f86b44106ba9e4e167bc529bece4242fdd52d194"
     },
     {
-      "file": "dashboard/evidence/orbital-continuity-contact.png",
-      "bytes": 785919,
-      "sha256": "c44240f21a4ec3cf39c12c8c20169300387f4155768c910e1d08adae7f0bf865"
+      "file": "orbital-fallback.mp4",
+      "bytes": 666317,
+      "sha256": "e63bd3780825213d7b3499e83e0d9dca652f86cc7f7cdeca1beb40bbc0f51688"
     },
     {
-      "file": "dashboard/evidence/orbital-cache-failure-chromium-4.5.png",
-      "bytes": 85988,
-      "sha256": "9967741021a66bf09b5ac60f2312231c0b49178f83f5e72aeb342b0ee5ca9e47"
+      "file": "orbital-bounded-contact.png",
+      "bytes": 860987,
+      "sha256": "422e7583f8ea6934f12090a78284f94e80fbb731feeb2f99cea1cc6ab46bc105"
+    },
+    {
+      "file": "orbital-bounded-chromium-0.png",
+      "bytes": 243024,
+      "sha256": "93ac105efb17a5ee8e7a03fb2b60db9a0ab350cfa92f2422b898c50b4d7fc40f"
+    },
+    {
+      "file": "orbital-bounded-chromium-4.5.png",
+      "bytes": 117412,
+      "sha256": "96ab99b13214fb3ee12b5269cb3432865466256402e3add61a77a02ce4bfad4b"
+    },
+    {
+      "file": "orbital-bounded-webkit-4.5.png",
+      "bytes": 87364,
+      "sha256": "69faa8618c9ca998fbf7d59a9f27b63b1162ee935f7b253eb7b2496cc52ddcec"
+    },
+    {
+      "file": "orbital-chromium-1280-external.png",
+      "bytes": 259324,
+      "sha256": "99387fc892c1eaf6b4d619f774b99820233ec10724b3e5542bb0ab48289cdb4e"
     }
   ],
-  "testedStartingHead": "be61a2e88a77fe6abe7a72241c2e88e66a9a99dd"
+  "deletionsAgainstReviewBase": [],
+  "integratedHead": "4b81c70dd7c6595b1719956665c7879c7663d45d"
 }
