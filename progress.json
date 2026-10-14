@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-12T20:17:13+00:00",
+  "updatedAt": "2026-10-14T19:14:22+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -3844,11 +3844,16 @@
           "kind": "image",
           "label": "hub published space invaders.png",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/hub-published-space-invaders.png"
+        },
+        {
+          "kind": "link",
+          "label": "Current exact-source Windows/macOS validation",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/38621773293"
         }
       ],
       "status": "in_progress",
-      "note": "Controller recovery completed: authenticated developer/reviewer test displays enlarged to 3200x2000; prepared Hub feature source published for scoped Windows/macOS validation. Missing private Space Invaders web assets restored from reviewed master and production WebKit start/move/fire/pause/resume/reload passed. Platform checks and implementation review remain pending.",
-      "updatedAt": "2026-10-12T20:17:13+00:00"
+      "note": "Controller integrated the preserved launcher fixes with current master and published exact feature head ba443accd34b5962b8ef11b06caf6716710e118b. Fresh Windows/macOS scoped validation is running; the developer has resumed final-source checks. Previous platform results are historical; review and release remain pending.",
+      "updatedAt": "2026-10-14T19:14:22+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
