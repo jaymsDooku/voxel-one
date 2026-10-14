@@ -26,8 +26,8 @@ class HubCatalogTest {
         assertFalse(e.supported(Platform.LINUX)); assertThrows(IllegalArgumentException.class, () -> e.arguments(true, "", 0));
         assertFalse(parse(text.replace("city.target=city", "city.target=arbitrary")).entries().get(0).supported(Platform.LINUX));
         assertThrows(IOException.class, () -> parse("x".repeat(HubCatalog.MAX_BYTES+1)));
-        assertFalse(parse(text).entries().get(2).supported(Platform.WINDOWS));
-        assertTrue(parse(text.replace("space-invaders.source=unpublished", "space-invaders.source="+"b".repeat(40))).entries().get(2).supported(Platform.WINDOWS));
+        assertTrue(parse(text).entries().get(2).supported(Platform.WINDOWS));
+        assertFalse(parse(text.replace("space-invaders.source=1d2c3b3266c9e2d9c82c2217594690c0a62334ef", "space-invaders.source=unpublished")).entries().get(2).supported(Platform.WINDOWS));
         assertFalse(HubCatalog.safeWeb("https://user@github.com/jaymsDooku/voxel-one/"));
     }
     @Test void cachedLibrarySurvivesMalformedSnapshot() throws Exception {

@@ -57,7 +57,9 @@ public final class HubFrame extends JFrame {
         light = settings.getProperty("theme", "dark").equals("light");
         theme();
         var snapshot = store.cached(); catalog = snapshot.catalog(); catalogStatus = snapshot.status();
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE); setMinimumSize(new Dimension(900, 600)); setSize(1280, 800);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE); setMinimumSize(new Dimension(900, 600));
+        Dimension desktop=Toolkit.getDefaultToolkit().getScreenSize();
+        setSize(Math.min(1280,Math.max(900,desktop.width)),Math.min(800,Math.max(600,desktop.height)));
         setLocationRelativeTo(null);
         JPanel root = new JPanel(new BorderLayout(24, 20)); root.setBorder(new EmptyBorder(22, 22, 18, 22));
         JPanel nav = new JPanel(); nav.setLayout(new BoxLayout(nav, BoxLayout.Y_AXIS)); nav.setPreferredSize(new Dimension(175, 0));
@@ -154,7 +156,9 @@ public final class HubFrame extends JFrame {
     private JPanel card(HubCatalog.Entry e) {
         JPanel card = new JPanel(new BorderLayout(8, 8)); card.setBorder(new EmptyBorder(12, 12, 12, 12));
         card.add(new Cover(e.artwork(), e.title()), BorderLayout.NORTH);
-        JPanel text = column(); text.add(title(e.title(), 21)); text.add(prose(e.summary())); text.add(new JLabel(availability(e)));
+        JPanel text = column(); text.add(title(e.title(), 21));
+        JTextArea summary=prose(e.summary());summary.setRows(3);text.add(summary);
+        text.add(new JLabel(availability(e)));
         card.add(text); card.add(button("View game →", () -> detail(e)), BorderLayout.SOUTH); return card;
     }
     private String availability(HubCatalog.Entry e) {
@@ -171,8 +175,9 @@ public final class HubFrame extends JFrame {
         selected = e; content.removeAll(); content.add(title(e.title(), 30), BorderLayout.NORTH);
         JPanel body = new JPanel(new BorderLayout(18, 18)); body.add(new Cover(e.artwork(), e.title()), BorderLayout.NORTH);
         JPanel info = column();
-        if (Set.of("city", "sandbox").contains(e.target())) {
-            var resource = HubFrame.class.getResource(e.target()+"-gameplay.png");
+        String previewKey=Set.of("city","sandbox").contains(e.target())?e.target():e.id().equals("space-invaders")?"space-invaders":null;
+        if (previewKey!=null) {
+            var resource = HubFrame.class.getResource(previewKey+"-gameplay.png");
             if (resource != null) {
                 Image image = new ImageIcon(resource).getImage().getScaledInstance(480, 270, Image.SCALE_SMOOTH);
                 JLabel preview = new JLabel(new ImageIcon(image)); preview.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -308,6 +313,9 @@ public final class HubFrame extends JFrame {
     }
     private static final class CardsPanel extends JPanel implements Scrollable {
         CardsPanel() { super(new GridLayout(0, 2, 18, 18)); }
+        private void columns() { ((GridLayout)getLayout()).setColumns(getWidth()<900?1:2); }
+        public Dimension getPreferredSize() { columns();return super.getPreferredSize(); }
+        public void doLayout() { columns();super.doLayout(); }
         public Dimension getPreferredScrollableViewportSize() { return new Dimension(700, 420); }
         public int getScrollableUnitIncrement(Rectangle visible, int orientation, int direction) { return 24; }
         public int getScrollableBlockIncrement(Rectangle visible, int orientation, int direction) { return 160; }

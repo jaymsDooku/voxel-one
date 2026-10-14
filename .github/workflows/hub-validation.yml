@@ -50,6 +50,14 @@ jobs:
       - name: Build and updater/account/TLS regressions
         shell: bash
         run: mvn -q '-Dtest=SandboxIdentityTest,HubCatalogTest,HubShellTest,UpdaterTest,AccountStoreTest,ProtocolCompatibilityTest,MultiplayerTest#authenticationRegistrationDuplicateSessionsAndCertificatePin' test package
+      - name: Select a supported Windows desktop mode
+        if: runner.os == 'Windows'
+        shell: bash
+        run: python tools/hub/windows_desktop.py
+      - name: Select a supported Mac desktop mode
+        if: runner.os == 'macOS'
+        shell: bash
+        run: swift tools/hub/mac_desktop.swift
       - name: Actual packaged runtime, GUI, shell update and locks
         shell: bash
         run: python tools/hub/check_packages.py --source-sha "$SOURCE_SHA" --jdk "$JAVA_HOME" --output "dashboard/evidence/hub-scoped-$PLATFORM"

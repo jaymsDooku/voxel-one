@@ -25,7 +25,7 @@ def package(output, version, installer=False, jdk=None, launcher_jar=None):
     command = [executable, '-J-Djava.io.tmpdir=' + str(temp), '--type', 'app-image', '--name', 'Voxel One Hub',
                '--app-version', version, '--input', str(inputs), '--main-jar', 'voxel-one-launcher.jar',
                '--main-class', 'dev.jayms.launcher.Bootstrap', '--dest', str(output),
-               '--add-modules', 'java.base,java.desktop,java.net.http,java.logging,java.naming,java.management,jdk.unsupported,jdk.crypto.ec',
+               '--add-modules', 'java.base,java.desktop,java.net.http,java.logging,java.naming,java.management,jdk.httpserver,jdk.management,jdk.unsupported,jdk.crypto.ec',
                '--jlink-options', '--no-man-pages --no-header-files',
                '--vendor', 'Voxel One']
     subprocess.run(command, check=True)
