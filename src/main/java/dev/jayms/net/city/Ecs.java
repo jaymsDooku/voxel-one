@@ -14,6 +14,12 @@ public final class Ecs {
         return id;
     }
 
+    /** Keep deleted historical entity IDs reserved after a save/reload. */
+    public void reserveAfter(int id) {
+        if(id<0 || id>1_000_000)throw new IllegalArgumentException("History entity bound");
+        next=Math.max(next,id);
+    }
+
     public void restore(int id) {
         if (id <= 0) throw new IllegalArgumentException("Entity id");
         entities.add(id);

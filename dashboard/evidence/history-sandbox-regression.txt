@@ -1,0 +1,1 @@
+Playtest: PASS. Running native sandbox, isolated synthetic profile, inherited role display. Real F9 started and stopped the existing performance recorder. No mayor opened. This checks the shortcut collision introduced by dashboard navigation.

@@ -189,6 +189,8 @@ public final class MultiplayerServer implements AutoCloseable {
                         terrain,
                         savedCity,
                         production);
+        city.loadHistory(citySave);
+        city.collectHistory();
         listener = tls.getServerSocketFactory().createServerSocket();
         ((SSLServerSocket) listener).setEnabledProtocols(new String[] {"TLSv1.3", "TLSv1.2"});
         listener.bind(new InetSocketAddress(bind, port));
@@ -397,6 +399,27 @@ public final class MultiplayerServer implements AutoCloseable {
                         type == Protocol.BLOCK ? Protocol.BlockRequest.read(in) : null;
                 int swapA = type == Protocol.SWAP ? in.readUnsignedByte() : -1;
                 int swapB = type == Protocol.SWAP ? in.readUnsignedByte() : -1;
+                if(type==Protocol.HISTORY_QUERY) {
+                    var historyRequest=HistoryWire.Request.read(in);
+                    long now=System.nanoTime();
+                    if(now-peer.lastHistory<250_000_000L || !peer.historyPending.compareAndSet(false,true))
+                        throw new IOException("History query rate exceeded");
+                    peer.lastHistory=now;
+                    final Peer historyPeer=peer;
+                    workers.submit(()->{
+                        try {
+                            var bytes=new ByteArrayOutputStream();var response=new DataOutputStream(bytes);
+                            response.writeLong(historyRequest.request());
+                            try {
+                                var reply=city.history.query(historyRequest.city(),historyRequest.request(),historyRequest.ids(),historyRequest.start(),historyRequest.end(),historyRequest.resolution(),historyRequest.limit());
+                                response.writeBoolean(true);HistoryWire.write(response,reply);
+                            }catch(IllegalArgumentException invalid){response.writeBoolean(false);response.writeUTF(invalid.getMessage());}
+                            historyPeer.enqueue(new Event(Protocol.HISTORY_REPLY,null,null,null,0,true,null,null,0,null,null,bytes.toByteArray()));
+                        }catch(IOException ignored){historyPeer.disconnect();}
+
+                    });
+                    continue;
+                }
                 int modelRequest = type == Protocol.MODEL_CREATE ? in.readInt() : 0;
                 ModelDefinition model =
                         type == Protocol.MODEL_CREATE ? ModelDefinition.read(in) : null;
@@ -866,7 +889,8 @@ public final class MultiplayerServer implements AutoCloseable {
         final String name;
         volatile Protocol.Pose pose;
         float fallTop;
-        long lastModel, lastCity;
+        long lastModel, lastCity, lastHistory;
+        final java.util.concurrent.atomic.AtomicBoolean historyPending=new java.util.concurrent.atomic.AtomicBoolean();
         int lastCraftRequest;
         final BlockingQueue<Event> queue = new ArrayBlockingQueue<>(512);
 
@@ -921,13 +945,14 @@ public final class MultiplayerServer implements AutoCloseable {
                                         out.writeBoolean(e.accepted);
                                         out.writeUTF(e.name);
                                     }
-                                    case Protocol.CITY_STATE, Protocol.CITY_WORLD ->
+                                    case Protocol.CITY_STATE, Protocol.CITY_WORLD, Protocol.HISTORY_REPLY ->
                                             out.write(e.payload);
                                     case Protocol.CITY_RESULT -> out.writeUTF(e.name);
                                     case Protocol.READY -> {}
                                     default -> throw new IOException("Unknown queued event");
                                 }
                                 out.flush();
+                                if(e.type==Protocol.HISTORY_REPLY)historyPending.set(false);
                             }
                         } catch (IOException | InterruptedException e) {
                             if (running && !socket.isClosed() && e instanceof IOException) recordTransportFailure(TransportFailure.WRITE_IO);

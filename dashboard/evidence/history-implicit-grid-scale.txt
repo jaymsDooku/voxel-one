@@ -1,0 +1,1 @@
+Implicit stress grid: plots=1000000 developed_buildings=0 local_residents=0 captures=1000 extraction_ms=266.694 mean_ms=0.266694 retained_catalog_entries=173. Exact road/zone/available-site counters checked. No claim of a million developed buildings.

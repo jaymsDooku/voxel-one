@@ -81,6 +81,8 @@ public final class LocalGame {
                         new Terrain(seed, generatorVersion),
                         stored,
                         catalog);
+        city.loadHistory(save.resolveSibling(save.getFileName()+".city"));
+        city.collectHistory();
     }
 
     /** Reject a cross-game path before any world edits or saves. Legacy sandbox saves have no sidecar. */

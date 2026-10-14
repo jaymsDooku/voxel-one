@@ -1,0 +1,1 @@
+Native overlay chart render CPU: frames=1559 mean_ms=1.361. Excludes Overlay.end GPU upload/draw, world render and F10 encode. JVM heap used including the running synthetic city and renderer: bytes=782237696. Tested comparisons: two employment series with hourly summaries and three company flows with daily summaries.

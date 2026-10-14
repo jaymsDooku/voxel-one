@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-12T18:51:38+00:00",
+  "updatedAt": "2026-10-14T04:11:20+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,15 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "dc0aba35-2d3f-4eac-abdb-2c27245b7f27",
+      "title": "Voxel City One: historical metrics and improved line-chart dashboards",
+      "description": "Authoritative collection, bounded CRC-checked persistence, authenticated queries and native charts are implemented. Final validation covers exact range edges, company comparisons, application reload and scaled UI. Fixed the progress ID to match this queue assignment.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Fixed/custom Overview queries, comparisons and sparklines now retain selected bounds. Final 18 focused tests, TLS range-change regression, packaging, 48-step dashboard and 57-step Overview runs passed. Fresh screenshots and three fully decoded F10 clips below 6 MB await controller publication and independent review.",
+      "updatedAt": "2026-10-14T04:11:20+00:00"
+    },
     {
       "id": "cdfd1695-7113-4601-a7cc-f671ee4a71c2",
       "title": "Voxel Sandbox recipe book for tools and goods",

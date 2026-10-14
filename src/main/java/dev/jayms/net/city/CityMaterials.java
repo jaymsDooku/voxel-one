@@ -100,6 +100,12 @@ public final class CityMaterials {
 
     private record Key(int kind, int owner, int material) {}
 
+    public interface HistoryListener {void flow(String action,int product,double units);}
+    public HistoryListener historyListener=(action,product,units)->{};
+    public void produced(int kind,int owner,int product,long units) {
+        add(kind,owner,product,units);
+        historyListener.flow("production",product,units/(double)UNIT);
+    }
     private final Map<Key, Long> stocks = new LinkedHashMap<>();
     private final Map<Integer, Production> production = new LinkedHashMap<>();
     private final Map<Integer, Project> projects = new LinkedHashMap<>();
@@ -273,9 +279,10 @@ public final class CityMaterials {
                         .anyMatch(e -> available(0, company, e.getKey()) < e.getValue() * UNIT))
             return 0;
         for (var e : recipe.inputs().entrySet())
-            remove(0, company, e.getKey(), e.getValue() * UNIT);
-        if (operatingPower > 0) remove(0, company, IndustrialProgression.POWER, operatingPower);
-        add(0, company, recipe.output(), recipe.count() * UNIT);
+            {remove(0, company, e.getKey(), e.getValue() * UNIT);
+            historyListener.flow("consumption",e.getKey(),e.getValue());}
+        if (operatingPower > 0) {remove(0, company, IndustrialProgression.POWER, operatingPower);historyListener.flow("consumption",IndustrialProgression.POWER,operatingPower/(double)UNIT);}
+        produced(0, company, recipe.output(), recipe.count() * UNIT);
         return recipe.count();
     }
 

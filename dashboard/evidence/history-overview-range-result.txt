@@ -1,0 +1,1 @@
+Playtest: Fixed 300-360s completed mean +995.00 people | Exact Overview and drill-down bounds 300-360 seconds stayed fixed through simulation updates; Home resumed Live. Linux X11/software OpenGL; isolated synthetic profile.
