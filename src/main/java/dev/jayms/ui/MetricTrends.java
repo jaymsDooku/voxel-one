@@ -41,7 +41,8 @@ public final class MetricTrends {
         if(remote!=null&&lastQuery>0&&remote.historyResponseRequest!=request)return;
         if(now-overviewClock<400_000_000L)return;
         double latest=city.elapsed(),span=day*new int[]{1,7,30,90,365}[range],begin=Math.max(0,latest-2*span-day);
-        int overviewResolution=span<=day?0:span<=15*day?1:2;
+        // Both equivalent periods must fit retention; detail holds only one day.
+        int overviewResolution=span<=15*day?1:2;
         String id=KPIS[overviewIndex++%KPIS.length];
         if(local!=null) {
             if(!local.identity().equals(cityId)){overview.clear();cityId=local.identity();reply=null;dirty=true;}
@@ -68,6 +69,14 @@ public final class MetricTrends {
             if(previous!=null&&p.start()<=previous.end()+1e-6)ui.line(px,py,ax,ay,1,.3f,.9f,.75f,1);
             px=ax;py=ay;previous=p;
         }
+        label(ui,overviewComparison(index),x,y+75,width);
+    }
+    /** Same completed-period summary used by the rendered Overview card. */
+    public String overviewComparison(int index) {
+        var s=index>=0&&index<KPIS.length?overview.get(KPIS[index]):null;
+        if(s==null)return error.isEmpty()?"History loading":error;
+        double last=s.points().stream().filter(p->!p.gap()&&!p.partial()).mapToDouble(CityHistory.Point::end).max().orElse(overviewReply==null?end:overviewReply.latest());
+        double span=day*new int[]{1,7,30,90,365}[range],begin=Math.max(0,last-span);
         var current=s.points().stream().filter(p->p.start()>=begin&&p.end()<=last&&!p.gap()&&!p.partial()).toList();
         var prior=s.points().stream().filter(p->p.start()>=begin-span&&p.end()<=begin&&!p.gap()&&!p.partial()).toList();
         String period=cycling?new String[]{"1d","7d","30d","90d","available"}[range]:String.format(Locale.ROOT,"%.0fs",span);
@@ -78,7 +87,7 @@ public final class MetricTrends {
             double b=flow?prior.stream().mapToDouble(CityHistory.Point::value).sum():prior.stream().mapToDouble(CityHistory.Point::numerator).sum()/Math.max(1e-12,prior.stream().mapToDouble(CityHistory.Point::denominator).sum());
             comparison=String.format(Locale.ROOT,"%s completed %s %+.2f %s",period,flow?"total":"mean",a-b,s.metric().unit());
         }
-        label(ui,comparison,x,y+75,width);
+        return comparison;
     }
     private UUID cityId;
     private Object provider;

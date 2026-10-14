@@ -164,3 +164,9 @@ reach all 12 KPI cards. Drawing and card hit regions use the same row offset;
 margins, gutters and off-screen rows cannot open a chart. The native Overview
 check exercises the four bottom-card links at 1280x720, 900x600 and 900x600 with
 125% UI scale, including scroll controls and return to world input.
+
+Overview Last day comparisons query retained hourly summaries for both completed
+days. The full Last day chart still offers recent detail. One day of history or
+a gap in either comparison period remains labelled insufficient coverage; it does
+not become a zero change. Regression coverage uses three fully sampled 288-second
+days and verifies a +10-person completed-day mean after two and three days.
