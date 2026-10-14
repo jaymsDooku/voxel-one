@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-14T19:14:22+00:00",
+  "updatedAt": "2026-10-14T19:14:40+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -3854,6 +3854,21 @@
       "status": "in_progress",
       "note": "Controller integrated the preserved launcher fixes with current master and published exact feature head ba443accd34b5962b8ef11b06caf6716710e118b. Fresh Windows/macOS scoped validation is running; the developer has resumed final-source checks. Previous platform results are historical; review and release remain pending.",
       "updatedAt": "2026-10-14T19:14:22+00:00"
+    },
+    {
+      "id": "2279c814-990c-4482-8066-c3c972538061",
+      "title": "Voxel Space Invaders: orbital planet and atmospheric descent",
+      "description": "Controller identified the outstanding helper-review condition. The developer explicitly resolved it through the supported local-takeover decision; no unresolved helper tasks remain. Preserved source and media are retained, and the original developer has resumed final-source validation and independent-review handoff.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Descent implementation and independent review",
+          "url": "https://github.com/jaymsDooku/voxel-one/pull/63"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Controller identified the outstanding helper-review condition. The developer explicitly resolved it through the supported local-takeover decision; no unresolved helper tasks remain. Preserved source and media are retained, and the original developer has resumed final-source validation and independent-review handoff.",
+      "updatedAt": "2026-10-14T19:14:40+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
