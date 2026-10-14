@@ -1,0 +1,9 @@
+{
+  "base": "19cb4ea57a2687c8c57168ec22a78f08fe9bc4bd",
+  "publication": "Pending controller publication and synchronization; these hashes identify the locally tested rendering source.",
+  "sha256": {
+    "src/main/java/dev/jayms/player/PlayerModel.java": "bcad6eb57a77dfff7db440aa2215e20fd7780476fdce2f3b7eefb301c42100d5",
+    "src/main/java/dev/jayms/player/HeldToolPose.java": "6c0d03d1423f6cac4c6e8274d0de561c6199bd905abad31416b12725e8ef928c",
+    "src/test/java/dev/jayms/HeldToolPoseTest.java": "8ad7ed4ce954a22892cade3df7b7c51c61f37ee6697ae5918f47da080191894f"
+  }
+}
