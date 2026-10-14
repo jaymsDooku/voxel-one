@@ -1,26 +1,32 @@
-# Hub candidate checkpoint
+# Voxel One Hub handoff
 
-Work stays on the assigned feature branch. No commit, push, deployment or merge was performed.
+Base head: `dd38d8c1e15311cd820c08cb05998869d5ae5249`.
+All new source, helpers and media are unpublished feature-worktree edits.
+No developer commit, push, merge or deployment occurred.
 
-The candidate includes a Swing library/detail shell, bounded catalog/cache/adapters, shared verified native artifacts, deferred shell updates, runtime packaging, migration support and independent web fingerprint/promotion helpers. Production catalog publication and root web promotion remain unconfigured. The bundled web card is disabled until verified published provenance is supplied.
+Inspected scoped run38303066989. Windows shell/MSI/UI and Mac ARM UI failed.
+Mac Intel assertions passed but a system prompt covered media. These do not
+satisfy cross-platform acceptance. Added fenced advertised-display setup,
+bounded failure messages, own-child Windows process verification and loopback
+server hostname-discovery removal. No security/privacy control was bypassed.
 
-Local checks and limits are recorded in `dashboard/evidence/hub-validation.json`. Final regression suite: 12 passed. Linux UI and packaged-runtime launch passed. The final native workflow rerun passed. Exact-head checks after controller synchronization remain required. Windows/macOS packaging, DPI, native self-update across two packages, Windows locks, real online sessions and published Space Invaders play are not accepted.
+Linux packaged checks passed: shared verified download, corrupt/partial/cancel,
+locks/concurrency/migration, two fixture shell generations, empty-PATH bundled
+launch, UI JVM scales1/1.5/2, synthetic online login and offline installation.
+Native City/Sandbox/editor rendered four frames with bundled Java. Clips were
+decoded and inspected; they are sparse software-rendered smoke, not smooth
+gameplay evidence. Commands/results are in hub-render-candidate-linux/report.json
+and hub-resume-validation.json under dashboard/evidence.
 
-No unrelated tracked file deletions or unmerged index were found. New hub evidence is pending controller publication. Sparse native F10 recordings show actual candidate frames, not smooth motion proof. Do not treat this checkpoint as release approval.
+Added missing runtime jdk.management/jdk.httpserver modules, narrow-screen cards,
+initial window clamping and real Space Invaders detail screenshot. Published
+playtest-509 and restored production browser evidence were inspected. Prepared
+catalog receipts remain unpromoted. Production software WebKit gameplay passed
+according to the inspected controller report; no physical performance claim.
 
-Recovery: resolved the progress JSON content conflict by retaining all upstream milestones unchanged and adding the hub milestone. Unique IDs and valid JSON checked. The controller must stage the resolution and continue Git. Existing media predates synchronization and is not final-head evidence.
-Recovery checks: Maven test/package passed (12 tests, zero failures/errors/skips); publisher integration passed. No tracked file deletions found. Final-head UI/native/media must run after controller continuation.
-
-Controller recovery completed; current base HEAD is 136cef1940f13f9431c9f6e4400e19395145cbdb. Fresh Linux UI captures and Maven/publisher repeats passed. Remote desktop/web reports remain absent. This is a validation handoff, not release approval.
-Fresh recovered-source native workflow, bundled-runtime launch and local web-cache reruns passed. New media was decoded/inspected. Clips remain sparse. Controller desktop/web checks and publication evidence remain required before review.
-
-2026-10-12 recovery: progress/Main/LoginDialog content conflicts resolved. Main now retains upstream GameIdentity port selection, explicit game lock and isolated saves. Login retains upstream selector/description/custom-port handling plus hub accessibility labels and download button. Old hub gameLocked/portExplicit duplicates were superseded by upstream APIs. Controller must stage and continue Git. Existing media is historical for this new merged source; rerun after continuation.
-Recovery Maven test/package passed: {'tests': 17, 'failures': 0, 'errors': 0, 'skipped': 0}. Publisher integration passed. No tracked file deletions. Final-head UI/native/media deferred until controller continues Git.
-
-Latest recovery base: 1f3b321a46f2684d9c6530c84513bbb8da51c737. 17 Maven tests/package, publisher integration, fresh hub UI/package and local web freshness passed. Native F10 failed with Native F10 produced no movie. Explicit --no-record launch/updater rerun passed; no fresh native gameplay/media claim. Fresh packaged startup1.269 seconds, RSS116856 kB. Required controller desktop/web reports remain absent. Existing native clips are historical.
-
-Current pause checkpoint: controller recovery base 1d2c3b3266c9e2d9c82c2217594690c0a62334ef. Unpublished edits remain preserved. No commit, push, merge or deployment performed. Maven test/package passed17 tests, zero failures/errors/skips. Publisher integration passed1 test. Fresh Hub navigation and local WebKit cache freshness passed. Synthetic City/Sandbox online login passed with fixed game identity, custom server/port, invalid-port rejection and pinned TLS; captures contain empty password fields. The scoped package checker now includes that online helper. Recovered artifact integration passed cancellation, corrupt/partial/malformed fallback, concurrent busy/retry, one shared download and legacy migration.
-Native workflow first rerun produced City/Sandbox clips but failed editor finalization with Native F10 produced no movie. A concurrent login test may have taken focus. Harness now focuses the native window before each F10 event; the second isolated native rerun was running when pause arrived. Check its terminal result before claiming acceptance. Debug window captures are not evidence. Existing editor media is historical until a new clip is decoded and inspected.
-Windows/macOS scoped workflow and dispatch instructions are prepared and remain unexecuted. Actual Windows monitor DPI, GPU gameplay, production browser game and production release self-update remain pending. Latest production probe observed anonymous403 and supported private-access404 for both game routes. Authorized coordinator dispatch and Root publication repair need no further owner permission. Resume with exact-source remote results when supplied; preserve privacy and publication fencing.
-
-Pause handoff result: the isolated native workflow completed with exit0 after the pause request. City/Sandbox/editor F10 clips were refreshed. These new clips have not yet been decoded or visually inspected; do that after service/quota permits resumption. No additional tests started after the pause request.
+Next: controller synchronizes current master, publishes resulting feature head
+and dispatches scoped workflow per tools/hub/VALIDATION.md. Inspect exact-head
+reports and media; fix any remaining failures. Windows MSI/shortcuts/file locks,
+macOS packaging, physical Windows DPI and published shell-version acceptance
+remain pending. No owner permission or report attachment is needed for the
+authorized controller dispatch. Audit against supplied review base before ready.

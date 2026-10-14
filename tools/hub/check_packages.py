@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import platform
 import subprocess
+import socketserver
 import threading
 import time
 import zipfile
@@ -29,6 +30,9 @@ def run(args):
     work.mkdir(parents=True, exist_ok=True);out.mkdir(parents=True, exist_ok=True)
     # All profiles, temporary files, fixtures and artifacts stay in this checkout.
     env=os.environ.copy();env['TMPDIR']=str(work);env['TEMP']=str(work);env['TMP']=str(work)
+    if args.display:
+        if args.display!=os.environ.get('DISPLAY'):raise ValueError('Use the inherited role display')
+        env['DISPLAY']=args.display
     env.pop('JAVA_TOOL_OPTIONS',None);env.pop('JDK_JAVA_OPTIONS',None)
     profile=work/'synthetic-home';profile.mkdir(exist_ok=True);env['LOCALAPPDATA']=str(work/'local-app-data')
     env['HOME']=str(profile);env['USERPROFILE']=str(profile)
@@ -38,26 +42,38 @@ def run(args):
             'checks':[],'limitations':['JVM UI scale 1/1.5/2 is not proof of changing Windows monitor DPI.',
             'No production release/site promotion occurs in this workflow.','Screenshots/video require human inspection.',
             'Native GPU sessions and MSI shortcuts must be validated separately if runner desktop access fails.']}
+    dirty=subprocess.run(['git','status','--porcelain','--','src/main','tools/hub','.github/workflows/hub-validation.yml'],stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,check=True)
+    report['sourceKind']='feature working tree' if dirty.stdout.strip() else 'exact commit checkout'
+    current_check=None
     for base in ('src/main/java','src/main/resources','tools/hub'):
         for p in sorted(Path(base).rglob('*')):
             if p.is_file() and '__pycache__' not in p.parts:report['sourceTreeSha256'][str(p)]=hashlib.sha256(p.read_bytes()).hexdigest()
     (out/'report.json').write_text(json.dumps(report,indent=2)+'\n')
     def command(argv, child_env=env, timeout=240, output=False):
-        p=subprocess.run([str(x) for x in argv],env=child_env,stdout=subprocess.PIPE if output else subprocess.DEVNULL,
+        if current_check is not None:current_check.setdefault('commands',[]).append([str(x) for x in argv])
+        p=subprocess.run([str(x) for x in argv],env=child_env,stdout=subprocess.PIPE,
                          stderr=subprocess.DEVNULL,timeout=timeout)
-        if p.returncode:raise AssertionError('Command exited '+str(p.returncode))
+        if p.returncode:
+            failure=next((line for line in p.stdout.decode(errors='replace').splitlines() if line.startswith('HUB_CHECK_FAILURE: ')),None)
+            raise AssertionError(failure[:240] if failure else Path(str(argv[0])).name+' exited '+str(p.returncode))
+        if output=='playtest':
+            return next((line[:400] for line in p.stdout.decode(errors='replace').splitlines() if line.startswith('Playtest: production native ')), 'Native smoke completed; detailed render line unavailable')
         return p.stdout.decode().strip() if output else None
     def check(name, expected, fn):
+        nonlocal current_check
         entry={'name':name,'expected':expected,'status':'failed','playtest':'Playtest: '+name};report['checks'].append(entry)
+        current_check=entry
         try:entry['observed']=fn() or 'Completed';entry['status']='passed'
         except Exception as error:entry['observed']=type(error).__name__+': '+str(error)[:220]
-        finally:(out/'report.json').write_text(json.dumps(report,indent=2)+'\n')
+        finally:
+            current_check=None
+            (out/'report.json').write_text(json.dumps(report,indent=2)+'\n')
     java=Path(args.jdk)/'bin'/('java.exe' if os.name=='nt' else 'java')
     javac=Path(args.jdk)/'bin'/('javac.exe' if os.name=='nt' else 'javac')
     classes=work/'classes';classes.mkdir(exist_ok=True)
     source_client=root/'target/voxel-one-1.0-SNAPSHOT-client.jar'
     command([javac,'--release','17','-cp',str(source_client),'-d',classes,'tools/hub/HubPlaytest.java',
-             'tools/hub/PackageUiProbe.java','tools/hub/UpdaterProbe.java','tools/hub/OnlineLoginPlaytest.java'])
+             'tools/hub/PackageUiProbe.java','tools/hub/UpdaterProbe.java','tools/hub/OnlineLoginPlaytest.java','tools/hub/NativeRenderProbe.java'])
     jars=[];apps=[]
     from package import package
     for i in (1,2):
@@ -87,7 +103,12 @@ def run(args):
                     self.wfile.write(body[pos:pos+65536]);self.wfile.flush()
                     if artifact['slow'] and self.path!='/manifest':time.sleep(.025)
             except (BrokenPipeError,ConnectionResetError):pass
-    server=http.server.ThreadingHTTPServer(('127.0.0.1',0),Handler);base='http://127.0.0.1:'+str(server.server_port)
+    class LoopbackServer(http.server.ThreadingHTTPServer):
+        def server_bind(self):
+            # The fixture needs no hostname discovery or LAN traffic.
+            socketserver.TCPServer.server_bind(self)
+            self.server_name='localhost';self.server_port=self.socket.getsockname()[1]
+    server=LoopbackServer(('127.0.0.1',0),Handler);base='http://127.0.0.1:'+str(server.server_port)
     threading.Thread(target=server.serve_forever,daemon=True).start();uri=base+'/manifest'
     native_cache=work/'native-cache';first=None;second=None
     def updater_checks():
@@ -197,9 +218,19 @@ def run(args):
         command([runtime,'-Djava.io.tmpdir='+str(work),'-cp',cp,'OnlineLoginPlaytest',work/'online-profile',out],timeout=120)
         return 'City/Sandbox locked selection; custom loopback port; invalid-port rejection; pinned TLS sign-in passed.'
     check('Synthetic online login handoff','Both native game identities authenticate to their selected TLS server',online)
+    for mode in ('city','sandbox','editor'):
+        def render(mode=mode):
+            native_env=env.copy();native_env['PATH']=str(empty);native_env['ALSOFT_DRIVERS']='null'
+            argv=[runtime,'-Djava.io.tmpdir='+str(work)]
+            if platform.system()=='Darwin':argv.append('-XstartOnFirstThread')
+            argv.extend(['-cp',os.pathsep.join(map(str,(classes,second))),'NativeRenderProbe',work/('native-'+mode),out/('native-'+mode),mode])
+            text=command(argv,native_env,timeout=180,output='playtest')
+            return text+' Renderer observer smoke; launcher CLI and interactive GPU performance remain separate checks.'
+        check('Native rendered '+mode,'Verified platform client renders four real frames with bundled Java',render)
     server.shutdown();server.server_close()
     check('Offline native installation','Last verified client usable without service',lambda:probe('installed',native_cache,uri))
     for p in out.rglob('*'):
+        if p.is_file() and p.suffix=='.partial':p.unlink();continue
         if p.is_file() and p.suffix in ('.png','.mp4') and p.stat().st_size>6*1024*1024:
             p.unlink();report['checks'].append({'name':'Artifact bound','status':'failed','observed':'Oversized media removed'})
     report['passed']=all(c['status']=='passed' for c in report['checks'])
@@ -210,6 +241,7 @@ def run(args):
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--source-sha',required=True);parser.add_argument('--jdk',required=True)
     parser.add_argument('--artifacts-only',action='store_true',help='Partial local artifact checks; does not satisfy full desktop validation')
+    parser.add_argument('--display',help='Inherited role display only; does not start a display server')
     parser.add_argument('--work',default='target/hub-scoped-check');parser.add_argument('--output',default='dashboard/evidence/hub-scoped')
     args=parser.parse_args()
     if len(args.source_sha)!=40 or any(c not in '0123456789abcdef' for c in args.source_sha):parser.error('Expected exact40hex source SHA')

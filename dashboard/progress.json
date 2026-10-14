@@ -4016,9 +4016,9 @@
       "title": "Voxel One Hub",
       "description": "Building the catalog-driven desktop hub around verified client updates. Platform packaging and playtests remain required.",
       "evidence": [],
-      "status": "blocked",
-      "note": "Scoped Windows/macOS validation workflow prepared. Linux F10 capture fixed and artifact checks passed. Remote checks await coordinator dispatch. Published game routes return 404 with supported private-site access.",
-      "updatedAt": "2026-10-12T17:57:03+00:00"
+      "status": "in_progress",
+      "note": "Inspected scoped Windows/macOS failures and media. Added scoped fixes and native-render checks. Linux package checks passed; sparse native media decoded. Exact-head platform rerun remains pending controller publication.",
+      "updatedAt": "2026-10-12T21:04:37+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
