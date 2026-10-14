@@ -92,7 +92,12 @@ saves start collection at load; this version does not import old business day re
 Calendar buckets align to the configured midnight. Frozen calendars use elapsed
 intervals. Cadence is checked inside simulation steps; the 0.1-second step quantizes
 capture time. Samples cannot fabricate coverage across a large jump. Exact flows
-use their accounting event time in half-open `[start,end)` buckets. Negative profit
+use their accounting event time in half-open `[start,end)` buckets. New business
+accounts register their bounded catalog entries before the first accounting event.
+Flow coverage uses observed intervals plus only the continuous, unsampled tail
+(up to 1.5 detail intervals); a missed capture marks every affected retained
+bucket missing at all three resolutions. Event totals remain stored through gaps,
+but charts do not present those incomplete totals as fully measured values. Negative profit
 is valid. A reset, invalid counter correction or nonfinite source marks missing
 coverage rather than a false spike. A custom range that cuts a completed bucket marks that edge as unavailable at the chosen resolution; choose a finer resolution. Each query reports its actual retained start;
 these limits do not promise a full year for a new or truncated history.

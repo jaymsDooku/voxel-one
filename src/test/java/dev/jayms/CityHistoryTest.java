@@ -100,4 +100,20 @@ class CityHistoryTest {
         assertTrue(CityHistory.load(file,world,clock,1).catalog().isEmpty());assertEquals("Valid city bytes",Files.readString(world));
     }
 
+    @Test void eventFlowCoverageNeverBridgesMissedSamples() {
+        var h=new CityHistory();h.events=true;
+        var metrics=List.of(metric("revenue","$",CityHistory.Kind.COUNTER));
+        h.observe(0,clock,metrics,Map.of("revenue",0.0));
+        h.event("revenue",.5,10,clock);
+        h.observe(1,clock,metrics,Map.of("revenue",10.0));
+        h.observe(24,clock,metrics,Map.of("revenue",10.0));
+        var hourly=points(h,"revenue",1,24);
+        assertEquals(2,hourly.size());
+        assertEquals(1,hourly.get(0).coverage());
+        assertEquals(0,hourly.get(1).coverage());
+        assertTrue(hourly.stream().allMatch(p->p.gap()&&p.partial()&&Double.isNaN(p.value())));
+        assertEquals(1,points(h,"revenue",2,24).get(0).coverage());
+        assertTrue(points(h,"revenue",2,24).get(0).gap());
+    }
+
 }

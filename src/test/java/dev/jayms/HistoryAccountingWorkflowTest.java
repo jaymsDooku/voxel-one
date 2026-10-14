@@ -32,4 +32,17 @@ class HistoryAccountingWorkflowTest {
         assertEquals(accounts.stream().mapToDouble(a->a.total().profit()).sum(),total(s,"company."+seller.id+".profit"),1e-6);
         assertEquals(s.economy.businesses.records().stream().mapToDouble(a->a.total().revenue()).sum(),total(s,"business.revenue"),1e-6); // Locations are not added again.
     }
+    @Test void firstNewWorkplaceSaleIsRegisteredBeforeAccountingEvent() {
+        var ground=new CityTest.Ground();
+        var s=new CitySimulation(new GameConfig(true,true,60,0),ground,ground.terrain,null,ProductionCatalog.toolEra());
+        s.collectHistory();
+        int company=s.economy.companies().get(0).id,building=-100;
+        s.economy.businesses.open(building,company);
+        s.economy.businesses.sale(building,1,10);
+        s.advance(.1);
+        assertEquals(10,total(s,"workplace."+building+"."+company+".revenue"),1e-6);
+        assertEquals(10,total(s,"company."+company+".revenue"),1e-6);
+        assertEquals(10,total(s,"business.revenue"),1e-6);
+    }
+
 }

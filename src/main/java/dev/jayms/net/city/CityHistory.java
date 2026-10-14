@@ -79,6 +79,17 @@ public final class CityHistory {
         return !Objects.equals(config,settings) || !Double.isFinite(last) || elapsed<last
                 || elapsed-last>=settings.daySeconds()/288;
     }
+    /** Register new entities before accounting emits their first event. Does not advance sampling time. */
+    public synchronized void register(double elapsed,List<Metric> metrics,Map<String,Double> values) {
+        var baseline=new LinkedHashMap<>(previous);
+        for(var m:metrics) if(!catalog.containsKey(m.id()) && catalog.size()<MAX_SERIES) {
+            metricStarts.put(m.id(),elapsed);catalog.put(m.id(),m);
+            data.put(m.id(),List.of(new ArrayDeque<>(),new ArrayDeque<>(),new ArrayDeque<>()));
+            Double value=values.get(m.id());
+            if(value!=null&&Double.isFinite(value))baseline.put(m.id(),value);
+        }
+        previous=Map.copyOf(baseline);
+    }
     public void observe(double elapsed,GameConfig settings,List<Metric> metrics,Map<String,Double> values) {
         observe(elapsed,settings,metrics,values,null);
     }
@@ -122,7 +133,7 @@ public final class CityHistory {
             for(int level=0;level<3;level++) {
                 double width=intervals[level];var rows=entry.getValue().get(level);
                 if(dt>0 && dt<=intervals[0]*1.5 && old!=null) {
-                    double cursor=last;
+                    double cursor=Math.max(last,metricStarts.get(m.id()));
                     while(cursor<elapsed-1e-9) {
                         Bucket b=bucket(rows,cursor,settings,width,epoch.id());
                         double duration=Math.min(elapsed,b.end)-cursor;
@@ -140,6 +151,14 @@ public final class CityHistory {
                         else b.gap=true;
                         b.lastCapture=Math.max(b.lastCapture,cursor+duration);
                         cursor+=duration;
+                    }
+                }
+                if(dt>intervals[0]*1.5) {
+                    // Mark the missed interval at every resolution, bounded by retained rows.
+                    double cursor=Math.max(Math.max(last,metricStarts.get(m.id())),elapsed-width*(limits[level]-1));
+                    while(cursor<elapsed-1e-9) {
+                        Bucket missed=bucket(rows,cursor,settings,width,epoch.id());missed.gap=true;
+                        double next=Math.min(elapsed,missed.end);if(next<=cursor+1e-9)break;cursor=next;
                     }
                 }
                 Bucket current=bucket(rows,elapsed,settings,width,epoch.id());
@@ -201,10 +220,17 @@ public final class CityHistory {
                 if(start<end&&b.end>start&&b.start<end) {
                     Point point=b.point(m.kind(),latest());
                     if(events&&flow(m.kind())) {
-                        double epochEnd=b.epoch+1<epochs.size()?epochs.get(b.epoch+1).start():latest();
-                        double knownEnd=Math.min(b.end,Math.min(latest(),epochEnd)),knownStart=Math.max(b.start,Math.max(metricStarts.get(id),epochs.get(b.epoch).start()));
-                        double coverage=Math.max(0,knownEnd-knownStart);boolean missing=b.gap||coverage<=0;
-                        point=new Point(b.start,b.end,missing?Double.NaN:b.sum,b.sum,b.sum,coverage,b.epoch,coverage<b.end-b.start-1e-6,missing,Math.max(b.start,knownEnd),b.sum,0);
+                        // Only the still-contiguous tail since the last capture is known.
+                        double tail=0,knownEnd=b.lastCapture;
+                        if(b.epoch==epochs.size()-1&&Double.isFinite(last)&&latest()>=last
+                                &&latest()-last<=epochs.get(b.epoch).daySeconds()/288*1.5) {
+                            double from=Math.max(b.start,Math.max(last,metricStarts.get(id)));
+                            double to=Math.min(b.end,latest());tail=Math.max(0,to-from);
+                            if(tail>0)knownEnd=Math.max(knownEnd,to);
+                        }
+                        double coverage=b.weight+tail;boolean missing=b.gap||coverage<=0;
+                        point=new Point(b.start,b.end,missing?Double.NaN:b.sum,b.sum,b.sum,coverage,b.epoch,
+                                coverage<b.end-b.start-1e-6,missing,knownEnd,b.sum,0);
                     }
                     if(Math.max(b.start,Math.max(metricStarts.get(id),epochs.get(b.epoch).start()))<start || point.coverageEnd()>end)
                         point=new Point(b.start,b.end,Double.NaN,Double.NaN,Double.NaN,0,b.epoch,true,true,Math.min(b.end,Math.max(b.start,end)),0,0);

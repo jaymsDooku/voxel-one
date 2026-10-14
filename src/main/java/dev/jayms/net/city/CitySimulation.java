@@ -534,6 +534,12 @@ public final class CitySimulation {
             history.events=true;
             economy.resources.historyListener=(action,product,units)->history.event("resource."+product+"."+action,elapsed,units,config);
             economy.historyFlow=(id,value)->history.event(id,elapsed,value,config);
+            economy.businesses.opened=(building,company)->{
+                if(config.city()) {
+                    var snapshot=HistoryCatalog.from(frame());
+                    history.register(elapsed,snapshot.metrics(),snapshot.values());
+                }
+            };
             economy.businesses.listener=(building,company,before,after)->{
                 String[] ids={"revenue","wages","inputs","rent","costs","profit"};
                 double[] delta={after.revenue()-before.revenue(),after.wages()-before.wages(),after.supplies()-before.supplies(),after.rent()-before.rent(),after.expenses()-before.expenses(),after.profit()-before.profit()};

@@ -118,6 +118,7 @@ public final class CityBusinesses {
 
     public interface Listener {void changed(int building,int company,Totals before,Totals after);}
     public Listener listener=(building,company,before,after)->{};
+    public java.util.function.BiConsumer<Integer,Integer> opened=(building,company)->{};
     private final Map<Integer, Account> accounts = new LinkedHashMap<>();
     private long day = 1;
 
@@ -145,7 +146,10 @@ public final class CityBusinesses {
     }
 
     public void open(int building, int company) {
-        accounts.computeIfAbsent(building, b -> new Account(b, company, day));
+        if(!accounts.containsKey(building)) {
+            accounts.put(building,new Account(building,company,day));
+            opened.accept(building,company);
+        }
     }
 
     private void update(int building, java.util.function.Consumer<Counters> action) {
