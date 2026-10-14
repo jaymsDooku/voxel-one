@@ -18,6 +18,8 @@ public final class MayorDashboard {
     public boolean open;
     public long chartRenderNanos,chartFrames;
     public int tab, filter, firstRow;
+    public int overviewFirstRow;
+    private int overviewMaxRow;
     public boolean sortBySavings, searchFocus;
     public String search = "";
     private List<CityFrame.Citizen> displayedRows = List.of();
@@ -60,6 +62,13 @@ public final class MayorDashboard {
             if (key == GLFW_KEY_ENTER) searchFocus = false;
             return;
         }
+        if (tab == 0) {
+            if (key == GLFW_KEY_DOWN || key == GLFW_KEY_PAGE_DOWN) overviewFirstRow++;
+            if (key == GLFW_KEY_UP || key == GLFW_KEY_PAGE_UP) overviewFirstRow--;
+            if (key == GLFW_KEY_HOME) overviewFirstRow=0;
+            if (key == GLFW_KEY_END) overviewFirstRow=overviewMaxRow;
+            overviewFirstRow=Math.max(0,Math.min(overviewMaxRow,overviewFirstRow));
+        }
         if (tab == 2) {
             if (key == GLFW_KEY_DOWN) firstRow++;
             if (key == GLFW_KEY_UP) firstRow = Math.max(0, firstRow - 1);
@@ -95,6 +104,7 @@ public final class MayorDashboard {
             businesses.scroll(amount);
             return;
         }
+        if (tab == 0) overviewFirstRow=Math.max(0,Math.min(overviewMaxRow,overviewFirstRow-(int)Math.signum(amount)));
         if (tab == 2) firstRow = Math.max(0, firstRow - (int) Math.signum(amount) * 3);
     }
 
@@ -176,7 +186,21 @@ public final class MayorDashboard {
             searchFocus = businesses.searchFocus;
             return;
         }
-        if(tab==0){trends.overviewClick(x,y,w);return;}
+        if(tab==0){
+            int columns=overviewColumns(w),rows=overviewRows(h);
+            clampOverview(columns,rows);
+            if(overviewMaxRow>0 && y>=h-64 && y<h-36) {
+                if(x>=w-232&&x<w-132)overviewFirstRow=Math.max(0,overviewFirstRow-rows);
+                if(x>=w-124&&x<w-24)overviewFirstRow=Math.min(overviewMaxRow,overviewFirstRow+rows);
+                return;
+            }
+            float cw=(w-48-(columns-1)*12)/(float)columns;
+            if(x<24||x>=w-24||y<TOP||y>=Math.min(h-72,TOP+rows*88))return;
+            int column=(int)((x-24)/(cw+12)),row=(int)((y-TOP)/88);
+            if(column<columns && x<24+column*(cw+12)+cw && y<TOP+row*88+84)
+                trends.overviewClick((overviewFirstRow+row)*columns+column);
+            return;
+        }
         if (tab != 2) return;
         if (y >= TOP && y <= TOP + 30 && x >= 24 && x < w - 24) {
             filter = Math.min(4, (int) ((x - 24) / ((w - 48) / 5f)));
@@ -290,7 +314,9 @@ public final class MayorDashboard {
         }
         text(
                 ui,
-                tab == 2
+                tab == 0 && overviewMaxRow>0
+                        ? "Wheel / arrows: scroll cards | Home / End: first / last | Esc: close"
+                        : tab == 2
                         ? "Click a citizen to locate and inspect | Wheel / arrows: scroll | Esc / "
                                 + closeKey
                                 + ": close"
@@ -303,8 +329,15 @@ public final class MayorDashboard {
                 1.1f);
     }
 
+    private static int overviewColumns(int w) {return w>=900?3:2;}
+    private static int overviewRows(int h) {return Math.max(0,(h-TOP-72)/88);}
+    private void clampOverview(int columns,int rows) {
+        overviewMaxRow=Math.max(0,(12+columns-1)/columns-rows);
+        overviewFirstRow=Math.max(0,Math.min(overviewMaxRow,overviewFirstRow));
+    }
     private void overview(Overlay ui, int w, int h, CityMetrics m, CityFrame city) {
-        int columns = w >= 900 ? 3 : 2;
+        int columns=overviewColumns(w),visibleRows=overviewRows(h);
+        clampOverview(columns,visibleRows);
         float cw = (w - 48 - (columns - 1) * 12) / (float) columns;
         String[][] data = {
             {"Population", "" + m.population(), "Local and regional residents"},
@@ -332,11 +365,12 @@ public final class MayorDashboard {
             {"Household savings",fmt("$%.1f",m.totalSavings()),"Includes regional estimates"},
             {"Unhoused residents",""+(m.population()-m.housed()),"Local and regional represented residents"}
         };
-        for (int i = 0; i < data.length; i++) {
+        for (int i=overviewFirstRow*columns;i<Math.min(data.length,(overviewFirstRow+visibleRows)*columns);i++) {
+            int visibleRow=i/columns-overviewFirstRow;
             card(
                     ui,
                     24 + i % columns * (cw + 12),
-                    TOP + i / columns * 88,
+                    TOP + visibleRow * 88,
                     cw,
                     data[i][0],
                     data[i][1],
@@ -344,11 +378,17 @@ public final class MayorDashboard {
                     i == 1
                             ? m.housingPercent()
                             : i == 2 ? m.employmentPercent() : i == 3 ? m.averageHunger() : -1);
-            trends.sparkline(ui,i,36+i%columns*(cw+12),TOP+i/columns*88,cw-24);
+            trends.sparkline(ui,i,36+i%columns*(cw+12),TOP+visibleRow*88,cw-24);
+        }
+        if(overviewMaxRow>0) {
+            text(ui,fmt("Cards %d-%d of %d",Math.min(data.length,overviewFirstRow*columns+1),Math.min(data.length,(overviewFirstRow+visibleRows)*columns),data.length),24,h-56,w-280,1.1f);
+            panel(ui,w-232,h-64,100,28);text(ui,"Previous",w-220,h-56,76,1.1f);
+            panel(ui,w-124,h-64,100,28);text(ui,"Next",w-112,h-56,76,1.1f);
+            return;
         }
         float y = TOP + ((data.length + columns - 1) / columns) * 88 + 4;
         if(y+132>h-40) {
-            text(ui,fmt("Needs attention: hungry %d | unhoused %d | no work %d",m.hungry(),m.population()-m.housed(),m.population()-m.employed()),24,y+8,w-48,1.1f);
+            if(y+20<h-40)text(ui,fmt("Needs attention: hungry %d | unhoused %d | no work %d",m.hungry(),m.population()-m.housed(),m.population()-m.employed()),24,y+8,w-48,1.1f);
             return;
         }
         panel(ui, 24, y, w - 48, 132);

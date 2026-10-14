@@ -29,11 +29,8 @@ public final class MetricTrends {
     private int overviewIndex;
     private long overviewClock;
     private CityHistory.Reply overviewReply;
-    public void overviewClick(float x,float y,int w) {
-        int columns=w>=900?3:2;float cw=(w-48-(columns-1)*12)/(float)columns;
-        int column=(int)((x-24)/(cw+12)),row=(int)((y-138)/88);
-        int i=row*columns+column;
-        if(column>=0&&column<columns&&row>=0&&i<KPIS.length){select(KPIS[i]);open=true;}
+    public void overviewClick(int index) {
+        if(index>=0&&index<KPIS.length){select(KPIS[index]);open=true;}
     }
     private void updateOverview(CityFrame city,CityHistory local,MultiplayerClient remote) {
         long now=System.nanoTime();

@@ -157,3 +157,10 @@ an F10 clip inside `dashboard/evidence`. Reports label actual scale, platform,
 coverage and publication state. A 125% UI test is not a claim of physical HiDPI
 hardware testing. The controller publishes source and evidence, then integrates
 master before final-head checks and independent review.
+
+Overview keeps complete card rows inside the content viewport. At small or scaled
+sizes, the wheel, Up/Down, Page Up/Page Down, Home/End and Previous/Next buttons
+reach all 12 KPI cards. Drawing and card hit regions use the same row offset;
+margins, gutters and off-screen rows cannot open a chart. The native Overview
+check exercises the four bottom-card links at 1280x720, 900x600 and 900x600 with
+125% UI scale, including scroll controls and return to world input.

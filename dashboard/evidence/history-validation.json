@@ -6,11 +6,11 @@
   "commands": [
     {
       "command": "mvn -q -DargLine=-Djava.io.tmpdir=\"$PWD/target/history-tmp\" test",
-      "observed": "PASS on corrected application source: Maven exited 0. Aggregate Surefire reports: {'tests': 641, 'failures': 0, 'errors': 0, 'skipped': 0}."
+      "observed": "Historical broader run before Overview layout fix: 641 tests passed, zero failures/errors/skips. Current UI source validated by focused tests and native workflows below."
     },
     {
-      "command": "mvn -q -Dtest=CityHistoryTest,CityHistoryIntegrationTest,CityHistoryNetworkTest,HistoryChartStateTest,HistoryProtocolCompatibilityTest,HistoryStressGridTest,HistoryAccountingWorkflowTest -Dvoxel.history.evidence=true -DargLine=-Djava.io.tmpdir=\"$PWD/target/history-tmp\" test",
-      "observed": "PASS on corrected application source: 16 focused tests, zero failures/errors."
+      "command": "mvn -q -Dtest=CityHistoryTest,CityHistoryIntegrationTest,CityHistoryNetworkTest,HistoryChartStateTest,HistoryProtocolCompatibilityTest,HistoryStressGridTest,HistoryAccountingWorkflowTest -DargLine=-Djava.io.tmpdir=\"$PWD/target/history-tmp\" test",
+      "observed": "PASS on current application source: 16 tests, zero failures/errors."
     },
     {
       "command": "mvn -q -s target/history-maven-settings.xml -Dmaven.repo.local=\"$PWD/target/history-maven-repository\" -DskipTests package",
@@ -18,14 +18,18 @@
     },
     {
       "command": "python3 deploy/run_history_dashboard_smoke.py --display \"$DISPLAY\"",
-      "observed": "PASS: native sandbox F9 regression and 41-step city dashboard workflow, actual application save/reload, compatible company daily revenue/cost/profit, no-data, fixed/Live, hover/keyboard, unchanged player X/Z and roads, 900x600 and 125% pointer/search."
+      "observed": "Core 41-step native workflow and sandbox F9 regression passed on current application source. Initial 57-step Overview run passed assertions, then artifact gate rejected its 7,825,544-byte clip. Shortened recording to scaled portion and reran standalone Overview check below."
     },
     {
       "command": "javac -cp <existing Maven jars and target classes> -d target/test-classes deploy/VerifyHistoryMedia.java; java -cp <same classpath> VerifyHistoryMedia <each F10 clip> <validation report>",
       "observed": "PASS: every H264 frame decoded in both actual F10 segments; each below 6 MB."
+    },
+    {
+      "command": "python3 deploy/run_overview_dashboard_smoke.py --display \"$DISPLAY\"",
+      "observed": "PASS: 57 steps, 12 bottom-card drill-downs at 1280x720/100%, 900x600/100%, 900x600/125%; margin/gutter rejection, Home/End, wheel, Next/Previous, world-input regression. Fresh F10 scaled portion below 6 MB."
     }
   ],
-  "Playtest": "Running native Java game on Linux X11 with software OpenGL, inherited role display and isolated synthetic profiles. No browser app changed; browser playtesting does not apply. No physical HiDPI hardware claim. Two authenticated clients, server collection without clients, completed-range equality and reconnect exercised through the actual TLS integration.",
+  "Playtest": "Running native Java game on Linux X11 with software OpenGL, inherited role display and isolated synthetic profiles. No browser app changed; browser playtesting does not apply. No physical HiDPI hardware claim. Two authenticated clients, server collection without clients, completed-range equality and reconnect exercised through the actual TLS integration. Overview: 57 additional real-X11-input steps and 12 bottom-card drill-downs at three sizes; see history-overview-playtest.txt.",
   "focused_tests": [
     {
       "class": "CityHistoryTest",
@@ -75,11 +79,11 @@
       "status": "passed",
       "source": "production F10 recorder in native history dashboard playtest",
       "codec": "H264",
-      "bytes": 1789028,
-      "decodedFrames": 106,
+      "bytes": 2154453,
+      "decodedFrames": 133,
       "width": 960,
       "height": 544,
-      "durationSeconds": 32.957,
+      "durationSeconds": 30.209,
       "checks": [
         "Every frame decoded",
         "Frame count matches MP4 metadata",
@@ -91,11 +95,27 @@
       "status": "passed",
       "source": "production F10 recorder in native history dashboard playtest",
       "codec": "H264",
-      "bytes": 1377204,
-      "decodedFrames": 76,
+      "bytes": 1367777,
+      "decodedFrames": 75,
       "width": 960,
       "height": 544,
-      "durationSeconds": 11.193,
+      "durationSeconds": 10.933,
+      "checks": [
+        "Every frame decoded",
+        "Frame count matches MP4 metadata",
+        "First and last images differ",
+        "Below 6 MB artifact limit"
+      ]
+    },
+    "history-overview-f10": {
+      "status": "passed",
+      "source": "Production F10 recorder; scaled 900x600 Overview portion of the 57-step native workflow",
+      "codec": "H264",
+      "bytes": 2254586,
+      "decodedFrames": 127,
+      "width": 816,
+      "height": 544,
+      "durationSeconds": 17.92,
       "checks": [
         "Every frame decoded",
         "Frame count matches MP4 metadata",
@@ -127,7 +147,8 @@
   },
   "audit": {
     "deleted_files": [],
-    "intentional_replacement": "MetricTrends now reads authoritative history. Original client-session widget retained as SessionMetricTrends for legacy servers. Version assertions updated to protocol 30; city-save format 17 unchanged. Snapshot/capital/region views retained. No unrelated deletion found against the recorded baseline."
+    "intentional_replacement": "MetricTrends now reads authoritative history. Original client-session widget retained as SessionMetricTrends for legacy servers. Version assertions updated to protocol 30; city-save format 17 unchanged. Snapshot/capital/region views retained. No unrelated deletion found against the recorded baseline.",
+    "overview_change": "Removed duplicate unbounded Overview hit geometry from MetricTrends; MayorDashboard now routes only visible card indices using its render layout. No unrelated file deletion against the recorded review base."
   },
   "coverage_notes": [
     "Stocks summarize held observations, not continuous measurements between captures.",
@@ -136,13 +157,14 @@
     "Copied named cities start a new history incarnation. Matching city/history reload retains identity.",
     "Evidence is from this working source and is pending controller publication. Rerun meaningful tests and media if controller integration changes application source."
   ],
-  "media_inspection": "Inspected fresh corrected-source cohort tooltip, daily company comparison, 900x600 and 125% screenshots. Every frame of both fresh F10 clips decoded; 106 and 76 frames, each below 6 MB.",
+  "media_inspection": "Inspected fresh scaled Overview first/final rows and 900x600 unscaled Overview. Treasury, Company sales and all four final cards are fully visible. All three fresh F10 clips decoded in full. The scaled recording captures bottom-card drill-down and scroll controls. Extracted and visually inspected the middle frame of the new Overview F10 clip using JCodec.",
   "review_fixes": {
     "first_workplace_event": "New accounts synchronously register bounded history metadata and zero baselines before their first event. Actual CitySimulation regression: first $10 sale is $10 in workplace, company and city revenue.",
     "sampling_gap": "Observations at 0, 1 and 24 seconds yield 1 second of coverage in [0,12), 0 seconds in [12,24), with both hourly buckets missing/partial. Daily coverage is 1 second and missing. All affected retained resolutions carry gaps.",
     "initial_fix_validation": "Initial focused run failed 2 accounting tests after removing inferred coverage. Added only the continuous unsampled tail, at most 1.5 detail intervals; rerun passed all 16 tests.",
     "regression_commands": "mvn -q -Dtest=CityHistoryTest,CityHistoryIntegrationTest,CityHistoryNetworkTest,HistoryChartStateTest,HistoryProtocolCompatibilityTest,HistoryStressGridTest,HistoryAccountingWorkflowTest -Dvoxel.history.evidence=true -DargLine=-Djava.io.tmpdir=\"$PWD/target/history-tmp\" test",
-    "expected_and_observed": "Expected and observed: first workplace sale produces $10 workplace/company/city revenue. Sampling gap reports only 1 second of measured coverage in the first hourly bucket and 0 seconds in the second, with NaN/missing values. Daily coverage is 1 second and missing."
+    "expected_and_observed": "Expected and observed: first workplace sale produces $10 workplace/company/city revenue. Sampling gap reports only 1 second of measured coverage in the first hourly bucket and 0 seconds in the second, with NaN/missing values. Daily coverage is 1 second and missing.",
+    "overview": "Only complete rows draw inside the viewport. Shared row offset and geometry bound clicks; wheel/keys and visible Previous/Next reach all 12 cards. Treasury, Company sales and final four cards fully visible at 900x600/125%. Snapshot controls and KPI values preserved."
   },
   "reviewed_head_before_fixes": "fde703d88bda80ff63e7e9e19de0ff2af1a2fafb",
   "full_suite": {
@@ -150,6 +172,8 @@
     "failures": 0,
     "errors": 0,
     "skipped": 0,
-    "report_classes": 123
-  }
+    "report_classes": 123,
+    "coverage": "Historical run before Overview layout fix; no new full-suite pass claimed."
+  },
+  "reviewed_head_before_overview_fix": "33b7e211c2f894cc264e539c33a30361b98d23ce"
 }
