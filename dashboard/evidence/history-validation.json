@@ -10,7 +10,7 @@
     },
     {
       "command": "mvn -q -Dtest=CityHistoryTest,CityHistoryIntegrationTest,CityHistoryNetworkTest,HistoryChartStateTest,HistoryProtocolCompatibilityTest,HistoryStressGridTest,HistoryAccountingWorkflowTest -DargLine=-Djava.io.tmpdir=\"$PWD/target/history-tmp\" test",
-      "observed": "PASS on current application source: 17 focused tests, zero failures/errors. After tightening the endpoint regression, HistoryChartStateTest reran: 2 passed, zero failures/errors."
+      "observed": "PASS on final application and test source: 18 focused tests, zero failures/errors, including authenticated pending-query range change, fixed/custom windows, Live cache state, short-history labels and repeated zoom/pan bounds."
     },
     {
       "command": "mvn -q -s target/history-maven-settings.xml -Dmaven.repo.local=\"$PWD/target/history-maven-repository\" -DskipTests package",
@@ -18,7 +18,7 @@
     },
     {
       "command": "python3 deploy/run_history_dashboard_smoke.py --display \"$DISPLAY\"",
-      "observed": "PASS on current application source: 43-step dashboard workflow including Last day Overview comparison, full charts, compatible comparisons, tooltip, fixed/Live, no-data, actual save/reload, company drill-down and world controls. Sandbox F9 and standalone 57-step normal/small/scaled Overview checks passed. Initial new Last day native assertion failed; split queued range/navigation clicks across separate rendered frames and verified selected range before checking the summary; rerun passed."
+      "observed": "PASS on final application source: 48 dashboard steps, sandbox F9 regression and 57 Overview steps (12 bottom-card links at normal/small/scaled sizes). Historical custom Overview and drill-down kept 300-360-second bounds through updates; Live resumed; actual save/reload, comparison/hover, fixed/future no-data and world controls passed."
     },
     {
       "command": "javac -cp <existing Maven jars and target classes> -d target/test-classes deploy/VerifyHistoryMedia.java; java -cp <same classpath> VerifyHistoryMedia <each F10 clip> <validation report>",
@@ -30,10 +30,10 @@
     },
     {
       "command": "mvn -q -Dtest=HistoryChartStateTest -DargLine=-Djava.io.tmpdir=\"$PWD/target/history-tmp\" test",
-      "observed": "PASS: 2 tests on final regression source; +10.00 people at exactly two and three fully sampled 288-second days, one-day-only insufficient coverage, sampling-gap insufficient coverage."
+      "observed": "Earlier targeted chart-state run passed. The final 18-test suite includes all 3 chart-state tests plus the extended TLS integration."
     }
   ],
-  "Playtest": "PASS: Linux X11/software OpenGL with inherited role display and isolated synthetic profiles. 43 native dashboard stages, including the actual Last day range control, returned Overview comparison, 30-day range, comparison, hover/keyboard, fixed/Live, no-data, actual save/reload and company drill-down. Separate Overview run passed 57 stages and 12 bottom-card links at normal/small/scaled sizes. Browser playtesting does not apply to the native game. Actual commands and detailed steps appear in history-native-playtest.txt and history-overview-playtest.txt.",
+  "Playtest": "PASS: native Linux X11/software OpenGL, inherited role display, isolated synthetic profiles. 48 dashboard stages plus 57 Overview stages and 12 bottom-card drill-downs at normal/small/scaled sizes. Custom 300-360-second Overview comparison and sparkline stayed fixed through later simulation updates; drill-down retained the range and Home resumed Live. Actual save/reload, hover/comparisons, future no-data and world controls passed. Browser playtesting does not apply to the native game. Detailed steps: history-native-playtest.txt and history-overview-playtest.txt.",
   "focused_tests": [
     {
       "class": "CityHistoryTest",
@@ -55,7 +55,7 @@
     },
     {
       "class": "HistoryChartStateTest",
-      "tests": 2,
+      "tests": 3,
       "failures": 0,
       "errors": 0
     },
@@ -83,11 +83,11 @@
       "status": "passed",
       "source": "production F10 recorder in native history dashboard playtest",
       "codec": "H264",
-      "bytes": 3331118,
-      "decodedFrames": 214,
+      "bytes": 4523945,
+      "decodedFrames": 296,
       "width": 960,
       "height": 544,
-      "durationSeconds": 36.917,
+      "durationSeconds": 43.747,
       "checks": [
         "Every frame decoded",
         "Frame count matches MP4 metadata",
@@ -99,11 +99,11 @@
       "status": "passed",
       "source": "production F10 recorder in native history dashboard playtest",
       "codec": "H264",
-      "bytes": 1419525,
-      "decodedFrames": 77,
+      "bytes": 1472769,
+      "decodedFrames": 81,
       "width": 960,
       "height": 544,
-      "durationSeconds": 11.305,
+      "durationSeconds": 11.027,
       "checks": [
         "Every frame decoded",
         "Frame count matches MP4 metadata",
@@ -115,11 +115,11 @@
       "status": "passed",
       "source": "production F10 recorder in native history dashboard playtest",
       "codec": "H264",
-      "bytes": 2244674,
-      "decodedFrames": 126,
+      "bytes": 2277097,
+      "decodedFrames": 134,
       "width": 816,
       "height": 544,
-      "durationSeconds": 18.019,
+      "durationSeconds": 17.976,
       "checks": [
         "Every frame decoded",
         "Frame count matches MP4 metadata",
@@ -153,7 +153,8 @@
     "deleted_files": [],
     "intentional_replacement": "MetricTrends now reads authoritative history. Original client-session widget retained as SessionMetricTrends for legacy servers. Version assertions updated to protocol 30; city-save format 17 unchanged. Snapshot/capital/region views retained. No unrelated deletion found against the recorded baseline.",
     "overview_change": "Removed duplicate unbounded Overview hit geometry from MetricTrends; MayorDashboard now routes only visible card indices using its render layout. No unrelated file deletion against the recorded review base.",
-    "last_day_change": "Comparison calculation moved into the shared rendered summary function without changing aggregation semantics. Only Overview query resolution changed. No unrelated deletion against the recorded review base."
+    "last_day_change": "Comparison calculation moved into the shared rendered summary function without changing aggregation semantics. Only Overview query resolution changed. No unrelated deletion against the recorded review base.",
+    "fixed_range_change": "Overview query and draw/summary bounds now share the selected range; range-scoped response IDs replace accepting chart responses as Overview data. No unrelated file deletion against the recorded review base. Zoom/pan bounds match the existing query maximum. No unrelated deletion."
   },
   "coverage_notes": [
     "Stocks summarize held observations, not continuous measurements between captures.",
@@ -162,7 +163,7 @@
     "Copied named cities start a new history incarnation. Matching city/history reload retains identity.",
     "Evidence is from this working source and is pending controller publication. Rerun meaningful tests and media if controller integration changes application source."
   ],
-  "media_inspection": "Inspected fresh Last day Overview showing +921.67 people, scaled bottom-card Overview and company daily comparisons. Every frame of all three fresh F10 clips decoded; each below 6 MB.",
+  "media_inspection": "Inspected final-source fixed/custom Overview showing Fixed 300-360s completed mean +995.00 people, and final 900x600/125% Overview showing all bottom cards and insufficient short-history labels. All three final F10 clips decoded fully; each below 6 MB.",
   "review_fixes": {
     "first_workplace_event": "New accounts synchronously register bounded history metadata and zero baselines before their first event. Actual CitySimulation regression: first $10 sale is $10 in workplace, company and city revenue.",
     "sampling_gap": "Observations at 0, 1 and 24 seconds yield 1 second of coverage in [0,12), 0 seconds in [12,24), with both hourly buckets missing/partial. Daily coverage is 1 second and missing. All affected retained resolutions carry gaps.",
@@ -173,7 +174,14 @@
     "last_day_comparison": {
       "change": "Use retained hourly summaries for Last day Overview comparisons so both equivalent completed days are available; keep detail chart selection separate. The renderer and tests share the same summary function.",
       "regression": "1d completed mean +10.00 people after exactly 576 seconds and 864 seconds. One-day-only and missed-sample history remain insufficient.",
-      "native_observed": "Actual Last day Overview showed 1d completed mean +921.67 people after seven district settlements across 30 simulation days, including one at the start of the last day. Screenshot history-overview-last-day.png captured this current implementation."
+      "native_observed": "Current native run verified a completed Last day comparison before testing fixed/custom views. The earlier +921.67 result is historical; current range evidence is history-overview-fixed-custom.png."
+    },
+    "fixed_custom_overview": {
+      "implementation": "Fixed/custom start/end drive queries, comparisons and sparkline bounds. Include the preceding equivalent window. Never substitute latest data for historical missing coverage. Selection/configuration changes clear old series and invalidate pending response IDs. Live cards share a completed-period endpoint. Fixed labels show exact elapsed bounds. Retain the 400-ms remote request timer and wait for the prior reply before replacing it. Label stale Live caches updating, but insufficient city-age coverage remains insufficient. Clamp zoom/pan to 1e12 seconds.",
+      "regression": "Daily means 10,20,40,80: selected 288-576 seconds returns +10.00 people and remains fixed after a fifth day of 160. A keyboard-panned window returns +30.00. Short/custom, fractional-edge and future no-data cases tested.",
+      "initial_fixture_correction": "First run failed Live expectation +80 because fifth-day value changed one second late. Corrected the sample at the day boundary; rerun passed.",
+      "native_observed": "Playtest: Fixed 300-360s completed mean +995.00 people | Exact Overview and drill-down bounds 300-360 seconds stayed fixed through simulation updates; Home resumed Live. Linux X11/software OpenGL; isolated synthetic profile.",
+      "validation_notes": "Initial fixture changed the fifth-day value one second late; corrected boundary sample. A later native run hit a Live cache delay; added updating labels and bounded waiting for the requested period. Final source and all final native/CLI checks passed. Recording starts at Last day navigation and covers Overview -> full chart -> custom range -> fixed Overview -> Live/comparison/hover/save-reload, keeping clips below 6 MB."
     }
   },
   "reviewed_head_before_fixes": "fde703d88bda80ff63e7e9e19de0ff2af1a2fafb",
@@ -189,5 +197,6 @@
   "reviewed_head_before_last_day_fix": "44245067c0638087f740036ed62d2b4a2afb3c48",
   "historical_artifacts_not_used_for_current_validation": [
     "history-population.png"
-  ]
+  ],
+  "reviewed_head_before_fixed_range_fix": "191709e5a97c7e3744ed40cbc28557ddb31fdc2d"
 }

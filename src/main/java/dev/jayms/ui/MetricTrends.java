@@ -29,29 +29,49 @@ public final class MetricTrends {
     private int overviewIndex;
     private long overviewClock;
     private CityHistory.Reply overviewReply;
+    private double overviewStart,overviewEnd,overviewSpan;
+    private String overviewSelection="";
+    private long overviewRequest=-1,pendingHistoryRequest=-1;
+    public double overviewRangeStart(){return overviewStart;}
+    public double overviewRangeEnd(){return overviewEnd;}
     public void overviewClick(int index) {
         if(index>=0&&index<KPIS.length){select(KPIS[index]);open=true;}
     }
     private void updateOverview(CityFrame city,CityHistory local,MultiplayerClient remote) {
         long now=System.nanoTime();
-        if(remote!=null&&remote.historyReply!=null&&remote.historyReply.request()==request) {
+        String selection=(live?"Live:"+range:"Fixed:"+start+":"+end)+":"+city.config();
+        if(!selection.equals(overviewSelection)) {
+            overviewSelection=selection;overview.clear();overviewIndex=0;overviewClock=0;
+            overviewRequest=-1;request++;
+        }
+        overviewSpan=live?day*new int[]{1,7,30,90,365}[range]:Math.max(0,end-start);
+        int overviewResolution=live&&range==4?2:overviewSpan<=15*day?1:2;
+        if(live) {
+            double width=overviewResolution==1?day/24:day;
+            double offset=city.config().cycle()?city.config().startHour()/24*day:0;
+            overviewEnd=Math.max(0,Math.floor((city.elapsed()+offset)/width+1e-9)*width-offset);
+            overviewStart=range==4?Math.max(0,start):Math.max(0,overviewEnd-overviewSpan);
+            if(range==4)overviewSpan=Math.max(0,overviewEnd-overviewStart);
+        } else {overviewStart=start;overviewEnd=end;}
+        if(remote!=null&&overviewRequest==request&&remote.historyReply!=null&&remote.historyReply.request()==overviewRequest) {
             overviewReply=remote.historyReply;cityId=overviewReply.city();
             for(var s:overviewReply.series())overview.put(s.metric().id(),s);
         }
-        if(remote!=null&&lastQuery>0&&remote.historyResponseRequest!=request)return;
+        if(remote!=null&&pendingHistoryRequest>=0&&remote.historyResponseRequest!=pendingHistoryRequest)return;
+        if(remote!=null&&now-lastQuery<400_000_000L)return;
         if(now-overviewClock<400_000_000L)return;
-        double latest=city.elapsed(),span=day*new int[]{1,7,30,90,365}[range],begin=Math.max(0,latest-2*span-day);
-        // Both equivalent periods must fit retention; detail holds only one day.
-        int overviewResolution=span<=15*day?1:2;
+        // Include the preceding equivalent period; never follow latest in a fixed view.
+        double begin=Math.max(0,overviewStart-overviewSpan);
         String id=KPIS[overviewIndex++%KPIS.length];
         if(local!=null) {
             if(!local.identity().equals(cityId)){overview.clear();cityId=local.identity();reply=null;dirty=true;}
-            overviewReply=local.query(cityId,++request,List.of(id),begin,Math.min(1e12,latest+Math.max(1,day/288)),overviewResolution,1000);
+            overviewReply=local.query(cityId,++request,List.of(id),begin,Math.min(1e12,overviewEnd),overviewResolution,1000);
             overview.put(id,overviewReply.series().get(0));
         } else if(remote!=null) {
             List<String> ids=overviewReply==null?List.of():List.of(id);
-            if(!remote.historyQuery(new HistoryWire.Request(cityId,++request,ids,begin,Math.min(1e12,latest+Math.max(1,day/288)),overviewResolution,1000)))error=remote.historyError;
-            lastQuery=now;
+            if(!remote.historyQuery(new HistoryWire.Request(cityId,++request,ids,begin,Math.min(1e12,overviewEnd),overviewResolution,1000)))error=remote.historyError;
+            else pendingHistoryRequest=request;
+            overviewRequest=request;lastQuery=now;
         }
         overviewClock=now;
     }
@@ -59,12 +79,13 @@ public final class MetricTrends {
         if(index>=KPIS.length)return;
         var s=overview.get(KPIS[index]);
         if(s==null){label(ui,error.isEmpty()?"History loading":error,x,y+75,width);return;}
-        double high=s.points().stream().filter(p->!p.gap()).mapToDouble(CityHistory.Point::value).max().orElse(1);
-        double low=s.points().stream().filter(p->!p.gap()).mapToDouble(CityHistory.Point::value).min().orElse(0);
+        var visible=s.points().stream().filter(p->!p.gap()&&p.start()>=overviewStart&&p.end()<=overviewEnd).toList();
+        double high=visible.stream().mapToDouble(CityHistory.Point::value).max().orElse(1);
+        double low=visible.stream().mapToDouble(CityHistory.Point::value).min().orElse(0);
         float sx=x+width-75,sy=y+20,px=0,py=0;CityHistory.Point previous=null;
-        double last=s.points().stream().filter(p->!p.gap()&&!p.partial()).mapToDouble(CityHistory.Point::end).max().orElse(overviewReply==null?end:overviewReply.latest()),span=day*new int[]{1,7,30,90,365}[range],begin=Math.max(0,last-span);
+        double last=overviewEnd,begin=overviewStart;
         for(var p:s.points()) {
-            if(p.gap()||p.end()<begin){previous=null;continue;}
+            if(p.gap()||p.start()<begin||p.end()>last){previous=null;continue;}
             float ax=sx+(float)((p.start()-begin)/Math.max(1,last-begin))*70,ay=sy+24-(float)((p.value()-low)/Math.max(1,high-low))*24;
             if(previous!=null&&p.start()<=previous.end()+1e-6)ui.line(px,py,ax,ay,1,.3f,.9f,.75f,1);
             px=ax;py=ay;previous=p;
@@ -75,13 +96,14 @@ public final class MetricTrends {
     public String overviewComparison(int index) {
         var s=index>=0&&index<KPIS.length?overview.get(KPIS[index]):null;
         if(s==null)return error.isEmpty()?"History loading":error;
-        double last=s.points().stream().filter(p->!p.gap()&&!p.partial()).mapToDouble(CityHistory.Point::end).max().orElse(overviewReply==null?end:overviewReply.latest());
-        double span=day*new int[]{1,7,30,90,365}[range],begin=Math.max(0,last-span);
+        double last=overviewEnd,span=overviewSpan,begin=overviewStart;
         var current=s.points().stream().filter(p->p.start()>=begin&&p.end()<=last&&!p.gap()&&!p.partial()).toList();
         var prior=s.points().stream().filter(p->p.start()>=begin-span&&p.end()<=begin&&!p.gap()&&!p.partial()).toList();
-        String period=cycling?new String[]{"1d","7d","30d","90d","available"}[range]:String.format(Locale.ROOT,"%.0fs",span);
+        String period=!live?"Fixed "+java.math.BigDecimal.valueOf(begin).stripTrailingZeros().toPlainString()+"-"+java.math.BigDecimal.valueOf(last).stripTrailingZeros().toPlainString()+"s":cycling?new String[]{"1d","7d","30d","90d","available"}[range]:String.format(Locale.ROOT,"%.0fs",span);
+        if(live&&begin>=span&&!s.points().isEmpty()&&s.points().stream().mapToDouble(CityHistory.Point::end).max().orElse(0)<last-1e-6)
+            return period+" comparison: updating";
         String comparison=period+" comparison: insufficient coverage";
-        if(current.stream().mapToDouble(CityHistory.Point::coverage).sum()>=span-1e-6&&prior.stream().mapToDouble(CityHistory.Point::coverage).sum()>=span-1e-6) {
+        if(span>0&&current.stream().mapToDouble(CityHistory.Point::coverage).sum()>=span-1e-6&&prior.stream().mapToDouble(CityHistory.Point::coverage).sum()>=span-1e-6) {
             boolean flow=s.metric().kind()==CityHistory.Kind.COUNTER||s.metric().kind()==CityHistory.Kind.SIGNED_COUNTER;
             double a=flow?current.stream().mapToDouble(CityHistory.Point::value).sum():current.stream().mapToDouble(CityHistory.Point::numerator).sum()/Math.max(1e-12,current.stream().mapToDouble(CityHistory.Point::denominator).sum());
             double b=flow?prior.stream().mapToDouble(CityHistory.Point::value).sum():prior.stream().mapToDouble(CityHistory.Point::numerator).sum()/Math.max(1e-12,prior.stream().mapToDouble(CityHistory.Point::denominator).sum());
@@ -105,7 +127,7 @@ public final class MetricTrends {
     public void update(CityFrame city,CityHistory local,MultiplayerClient remote) {
         Object nextProvider=local!=null?local:remote;
         if(provider!=nextProvider) {
-            provider=nextProvider;cityId=null;reply=null;overviewReply=null;overview.clear();
+            provider=nextProvider;cityId=null;reply=null;overviewReply=null;overview.clear();overviewSelection="";overviewRequest=-1;pendingHistoryRequest=-1;
             selected.clear();selected.add("population.total");hidden.clear();domain=0;live=true;dirty=true;error="";lastQuery=0;
         }
         stale=remote!=null&&!remote.connected();
@@ -124,7 +146,7 @@ public final class MetricTrends {
         if(reply!=null)choices=reply.catalog().stream().filter(m->m.domain().equals(DOMAINS[domain]))
                 .filter(m->(m.name()+" "+m.id()+" "+m.scope()).toLowerCase(Locale.ROOT).contains(search.toLowerCase(Locale.ROOT))).toList();
         long now=System.nanoTime();
-        if(remote!=null&&lastQuery>0&&remote.historyResponseRequest!=request)return;
+        if(remote!=null&&pendingHistoryRequest>=0&&remote.historyResponseRequest!=pendingHistoryRequest)return;
         if(remote!=null&&now-lastQuery<400_000_000L)return;
         if(!dirty&&(!live || now-lastQuery<1_000_000_000L))return;
         if(live) {end=city.elapsed();start=range==4?(reply==null?0:reply.availableStart()):Math.max(0,end-day*new int[]{1,7,30,90,365}[range]);}
@@ -137,6 +159,7 @@ public final class MetricTrends {
                 cityId=reply.city();if(live&&range==4)start=reply.availableStart();if(ids.isEmpty()){dirty=true;return;}
             } else if(remote!=null) {
                 if(!remote.historyQuery(query)){error=remote.historyError;lastQuery=now;dirty=false;return;}
+                pendingHistoryRequest=request;
             }
             error="";
         }catch(IllegalArgumentException failure){error=failure.getMessage();}
@@ -179,8 +202,8 @@ public final class MetricTrends {
     }
     public void character(int c){if(customEditing&&c>=32&&c<=126&&customText.length()<64){customText+=(char)c;return;}if(editing&&c>=32&&c<=126&&search.length()<48){search+=(char)c;selectorOffset=0;}}
     public void scroll(double amount){if(selector){selectorOffset=Math.max(0,Math.min(Math.max(0,choices.size()-1),selectorOffset-(int)Math.signum(amount)));}else zoom(amount>0?.8:1.25);}
-    private void zoom(double factor){live=false;double middle=(start+end)/2,span=Math.max(day/288,(end-start)*factor);start=Math.max(0,middle-span/2);end=middle+span/2;dirty=true;}
-    private void pan(double direction){live=false;double shift=(end-start)*direction;if(start+shift<0)shift=-start;start+=shift;end+=shift;dirty=true;}
+    private void zoom(double factor){live=false;double middle=(start+end)/2,span=Math.min(1e12,Math.max(day/288,(end-start)*factor));start=Math.max(0,Math.min(1e12-span,middle-span/2));end=start+span;dirty=true;}
+    private void pan(double direction){live=false;double shift=Math.max(-start,Math.min(1e12-end,(end-start)*direction));start+=shift;end+=shift;dirty=true;}
     private void choose(CityHistory.Metric m) {
         var first=reply==null?null:reply.catalog().stream().filter(v->selected.contains(v.id())).findFirst().orElse(null);
         if(selected.contains(m.id())){if(selected.size()>1)selected.remove(m.id());}

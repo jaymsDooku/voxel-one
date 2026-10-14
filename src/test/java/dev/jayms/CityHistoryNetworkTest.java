@@ -2,6 +2,8 @@ package dev.jayms;
 
 import dev.jayms.net.*;
 import dev.jayms.net.city.*;
+import dev.jayms.ui.MetricTrends;
+import static org.lwjgl.glfw.GLFW.*;
 import java.nio.file.*;
 import java.util.*;
 import java.util.function.BooleanSupplier;
@@ -40,6 +42,17 @@ class CityHistoryNetworkTest {
                 until(()->{a.poll();return a.historyReply!=null&&a.historyReply.request()==4;});
                 assertEquals(4,a.historyResponseRequest);
                 assertEquals(b.historyReply.series(),a.historyReply.series());
+                // Change selection while an authenticated Overview query is outstanding.
+                var ui=new MetricTrends();ui.update(simulation.frame(),null,b);
+                ui.open=true;ui.key(GLFW_KEY_C,GLFW_PRESS);
+                for(int i=0;i<64;i++)ui.key(GLFW_KEY_BACKSPACE,GLFW_PRESS);
+                "12.5,25".chars().forEach(ui::character);ui.key(GLFW_KEY_ENTER,GLFW_PRESS);ui.open=false;
+                ui.update(simulation.frame(),null,b);
+                until(()->{b.poll();ui.update(simulation.frame(),null,b);return ui.overviewComparison(0).startsWith("Fixed 12.5-25s completed mean");});
+                assertTrue(b.connected());assertTrue(b.historyError.isEmpty());
+                assertEquals(12.5,ui.overviewRangeStart());assertEquals(25,ui.overviewRangeEnd());
+                assertFalse(ui.live);
+
             }
             Thread.sleep(700);
             try(var again=new MultiplayerClient("127.0.0.1",server.port(),"historya","synthetic-test-a".toCharArray(),false,tls.fingerprint())) {

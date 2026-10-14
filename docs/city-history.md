@@ -170,3 +170,21 @@ days. The full Last day chart still offers recent detail. One day of history or
 a gap in either comparison period remains labelled insufficient coverage; it does
 not become a zero change. Regression coverage uses three fully sampled 288-second
 days and verifies a +10-person completed-day mean after two and three days.
+
+Overview sparklines and comparisons use the same selected window as the chart.
+Fixed/custom windows preserve their exact start/end while the simulation advances;
+the query includes the preceding equivalent window and never falls back to latest.
+Fixed comparison labels show elapsed bounds. Live uses a common completed hourly
+or daily endpoint for all cards. Range changes clear old cached series and reject
+pending replies for the previous selection. Partial or missing comparison windows
+remain insufficient instead of substituting a newer period.
+
+Changing a range keeps the shared remote request timer and waits for the pending
+bounded response before sending the replacement query. Old-range replies cannot
+populate the new Overview cache. The authenticated TLS regression changes range
+with a query outstanding and verifies the client remains connected and receives
+the selected fixed window.
+
+When Live advances beyond a card's cached samples, its comparison reads updating
+until the bounded refresh covers the new selected period. It never presents an
+older completed period as the current comparison.
