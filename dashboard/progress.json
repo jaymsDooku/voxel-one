@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-14T04:11:20+00:00",
+  "updatedAt": "2026-10-14T11:48:56+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,15 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "36646561376136642d646639322d343635352d616365372d356135643135353263316664",
+      "title": "Upright held-tool grips",
+      "description": "Inspecting model handle anchors and shared player attachment paths.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Implemented shared lower-handle grip. 37 focused tests, Sandbox placement, City compatibility and two-client rendered grip checks passed. Final media is local; controller publication, synchronization and independent review remain.",
+      "updatedAt": "2026-10-14T11:48:56+00:00"
+    },
     {
       "id": "dc0aba35-2d3f-4eac-abdb-2c27245b7f27",
       "title": "Voxel City One: historical metrics and improved line-chart dashboards",

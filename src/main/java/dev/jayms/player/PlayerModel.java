@@ -124,7 +124,9 @@ public class PlayerModel implements AutoCloseable {
         held(
                 player.heldItem(),
                 player.heldColor(),
-                new Matrix4f(rightArm)
+                Items.tool(player.heldItem())
+                        ? HeldToolPose.world(player.heldItem(), rightArm)
+                        : new Matrix4f(rightArm)
                         .translate(PIXEL, -9 * PIXEL, -2 * PIXEL)
                         .rotateX(-.35f)
                         .rotateY(.4f)
@@ -141,6 +143,9 @@ public class PlayerModel implements AutoCloseable {
                         player.walkAmount(),
                         player.swingProgress(),
                         player.placingSwing());
+        // Keep tool and fist together, farther from the lens and inside narrow viewports.
+        // Ordinary items retain their existing first-person presentation.
+        if (Items.tool(player.heldItem())) hand.translateLocal(-.26f, -.03f, -.20f);
         shader.setInt("uVertexColor", 0);
         shader.setInt("uInstanced", 0);
         skin(shader);
@@ -150,7 +155,9 @@ public class PlayerModel implements AutoCloseable {
         held(
                 player.heldItem(),
                 player.heldColor(),
-                new Matrix4f(hand)
+                Items.tool(player.heldItem())
+                        ? HeldToolPose.firstPerson(player.heldItem(), hand)
+                        : new Matrix4f(hand)
                         .translate(-.14f, .78f, .18f)
                         .rotateY(.55f)
                         .rotateX(-.2f)
