@@ -1,0 +1,2 @@
+HISTORY_SCALE: simulated_days=30 local_residents=12 regional_groups=3 represented_residents=1000012 simulation_ms=16465.096 history_bytes=19182493 query_bytes=71134 query_ms=0.075
+collection_samples=6001 collection_total_ms=4276.198 mean_collection_ms=0.713

@@ -1,0 +1,140 @@
+{
+  "status": "developer validation complete; pending controller publication, master integration and independent review",
+  "branch": "feature/queue-64633061626133352d326433662d346561632d616264622d326332373234356237663237",
+  "review_base_before_controller_sync": "1d2c3b3266c9e2d9c82c2217594690c0a62334ef",
+  "source_binding": "history-source-manifest.json hashes the working application source; no developer commit was made",
+  "commands": [
+    {
+      "command": "mvn -q -DargLine=-Djava.io.tmpdir=\"$PWD/target/history-tmp\" test",
+      "observed": "PASS: 638 tests, zero failures/errors. This broader run preceded the final resource-registration and sandbox-shortcut fixes."
+    },
+    {
+      "command": "mvn -q -Dtest=CityHistoryTest,CityHistoryIntegrationTest,CityHistoryNetworkTest,HistoryChartStateTest,HistoryProtocolCompatibilityTest,HistoryStressGridTest,HistoryAccountingWorkflowTest -Dvoxel.history.evidence=true -DargLine=-Djava.io.tmpdir=\"$PWD/target/history-tmp\" test",
+      "observed": "PASS on final application source: 14 focused tests, zero failures/errors."
+    },
+    {
+      "command": "mvn -q -s target/history-maven-settings.xml -Dmaven.repo.local=\"$PWD/target/history-maven-repository\" -DskipTests package",
+      "observed": "PASS: client, server, launcher and main jars built. Worktree-local writable Maven cache used after the shared cache could not resolve the shade plugin."
+    },
+    {
+      "command": "python3 deploy/run_history_dashboard_smoke.py --display \"$DISPLAY\"",
+      "observed": "PASS: native sandbox F9 regression and 41-step city dashboard workflow, actual application save/reload, compatible company daily revenue/cost/profit, no-data, fixed/Live, hover/keyboard, unchanged player X/Z and roads, 900x600 and 125% pointer/search."
+    },
+    {
+      "command": "javac -cp <existing Maven jars and target classes> -d target/test-classes deploy/VerifyHistoryMedia.java; java -cp <same classpath> VerifyHistoryMedia <each F10 clip> <validation report>",
+      "observed": "PASS: every H264 frame decoded in both actual F10 segments; each below 6 MB."
+    }
+  ],
+  "Playtest": "Running native Java game on Linux X11 with software OpenGL, inherited role display and isolated synthetic profiles. No browser app changed; browser playtesting does not apply. No physical HiDPI hardware claim. Two authenticated clients, server collection without clients, completed-range equality and reconnect exercised through the actual TLS integration.",
+  "focused_tests": [
+    {
+      "class": "CityHistoryTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "class": "CityHistoryIntegrationTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "class": "CityHistoryNetworkTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "class": "HistoryChartStateTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "class": "HistoryProtocolCompatibilityTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "class": "HistoryStressGridTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "class": "HistoryAccountingWorkflowTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0
+    }
+  ],
+  "media": {
+    "history-dashboard-f10": {
+      "status": "passed",
+      "source": "production F10 recorder in native history dashboard playtest",
+      "codec": "H264",
+      "bytes": 2115741,
+      "decodedFrames": 130,
+      "width": 960,
+      "height": 544,
+      "durationSeconds": 29.99,
+      "checks": [
+        "Every frame decoded",
+        "Frame count matches MP4 metadata",
+        "First and last images differ",
+        "Below 6 MB artifact limit"
+      ]
+    },
+    "history-company-f10": {
+      "status": "passed",
+      "source": "production F10 recorder in native history dashboard playtest",
+      "codec": "H264",
+      "bytes": 1401488,
+      "decodedFrames": 77,
+      "width": 960,
+      "height": 544,
+      "durationSeconds": 11.234,
+      "checks": [
+        "Every frame decoded",
+        "Frame count matches MP4 metadata",
+        "First and last images differ",
+        "Below 6 MB artifact limit"
+      ]
+    }
+  },
+  "scale_reports": [
+    "history-scale.txt",
+    "history-implicit-grid-scale.txt",
+    "history-chart-cost.txt"
+  ],
+  "limits": {
+    "series": 576,
+    "query_series": 4,
+    "points_per_series": 1000,
+    "history_bytes": 67108864,
+    "buckets_per_series": [
+      289,
+      721,
+      366
+    ],
+    "company_detail": 32,
+    "product_detail": 32,
+    "district_detail": 16,
+    "workplace_detail": 4,
+    "pending_history_replies_per_peer": 1
+  },
+  "audit": {
+    "deleted_files": [],
+    "intentional_replacement": "MetricTrends now reads authoritative history. Original client-session widget retained as SessionMetricTrends for legacy servers. Version assertions updated to protocol 30; city-save format 17 unchanged. Snapshot/capital/region views retained. No unrelated deletion found against the recorded baseline."
+  },
+  "coverage_notes": [
+    "Stocks summarize held observations, not continuous measurements between captures.",
+    "Unsupported arrivals/departures, eligible-worker unemployment, shortage-duration and traffic-volume metrics remain hidden. Regional needs/savings and medians remain labelled estimates.",
+    "Optional road/zone/building/company event markers and legacy business-day import are not included. Legacy saves begin collection now.",
+    "Copied named cities start a new history incarnation. Matching city/history reload retains identity.",
+    "Evidence is from this working source and is pending controller publication. Rerun meaningful tests and media if controller integration changes application source."
+  ],
+  "media_inspection": "Inspected final current-source population/cohort tooltip, company daily comparison, settled 900x600 and 125% screenshots. Tooltip values/date/unit and plot/tooltip bounds visible. Every MP4 frame independently decoded."
+}

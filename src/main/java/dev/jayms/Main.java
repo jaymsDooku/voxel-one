@@ -117,6 +117,10 @@ public class Main {
     private boolean captured = true, firstMouse = true;
     private double mouseX, mouseY, nextNetworkUpdate;
     private int framebufferWidth = 1280, framebufferHeight = 720;
+    private double dashboardScale=dashboardScaleSetting();
+    private static double dashboardScaleSetting(){try{double value=Double.parseDouble(System.getProperty("voxel.dashboard.scale","1"));return Double.isFinite(value)?Math.max(1,Math.min(1.5,value)):1;}catch(NumberFormatException invalid){return 1;}}
+    private int dashboardWidth(){return Math.max(1,(int)(window.getSize()[0]/dashboardScale));}
+    private int dashboardHeight(){return Math.max(1,(int)(window.getSize()[1]/dashboardScale));}
     private final Map<String, Protocol.Edit> predicted = new HashMap<>();
     private final Matrix4f projection = new Matrix4f(), view = new Matrix4f();
     private final FrustumIntersection frustum = new FrustumIntersection();
@@ -470,7 +474,7 @@ public class Main {
         glfwSetKeyCallback(
                 window.getHandle(),
                 (handle, key, scancode, action, mods) -> {
-                    if(action==GLFW_PRESS&&key==GLFW_KEY_F9&&!menu.editing()&&!editor.open&&!lightColors.open&&!mayorDashboard.open){togglePerformance();return;}
+                    if(action==GLFW_PRESS&&key==GLFW_KEY_F9&&(!city().config().city()||!controls.matches(MAYOR_DASHBOARD,key))&&!menu.editing()&&!editor.open&&!lightColors.open&&!mayorDashboard.open){togglePerformance();return;}
                     if (action == GLFW_PRESS && recordInput(key)) return;
                     if (engineEditor.open) {
                         if (action == GLFW_PRESS) {
@@ -618,12 +622,9 @@ public class Main {
                             if (button == GLFW_MOUSE_BUTTON_LEFT) {
                                 int[] size = window.getSize();
                                 mayorDashboard.click(
-                                        (float) mouseX * framebufferWidth / size[0],
-                                        (float) mouseY * framebufferHeight / size[1],
-                                        framebufferWidth,
-                                        framebufferHeight,
-                                        city(),
-                                        this::inspectCitizen);
+                                        (float)(mouseX/dashboardScale),
+                                        (float)(mouseY/dashboardScale),
+                                        dashboardWidth(),dashboardHeight(),city(),this::inspectCitizen);
                                 if (!mayorDashboard.open) setCaptured(true);
                             }
                         }
@@ -1412,8 +1413,12 @@ public class Main {
             overlay.end();
             return;
         }
-        if (city().config().city() && (network == null || network.connected()))
-            mayorDashboard.history.observe(city());
+        if(network!=null&&network.serverProtocol<30&&network.connected()&&city().config().city())mayorDashboard.history.observe(city());
+        if(mayorDashboard.open) {
+            int[] size=window.getSize();
+            mayorDashboard.trends.hover((float)(mouseX/dashboardScale),(float)(mouseY/dashboardScale));
+            mayorDashboard.trends.update(city(),local!=null&&local.city!=null?local.city.history:null,network);
+        }
         overlay.begin(framebufferWidth, framebufferHeight);
         if (cheatMode) {
             overlay.text("CHEAT | " + Controls.keyName(controls.code(CHEAT_SELECT)) + ": select " + cheatVehicleName()
@@ -1423,16 +1428,19 @@ public class Main {
                     + Controls.keyName(controls.code(CHEATS)) + ": leave", 20, 206, 1f, 1, .8f, .3f, 1);
         }
         if (mayorDashboard.open) {
+            overlay.begin(dashboardWidth(),dashboardHeight());
             mayorDashboard.render(
                     overlay,
-                    framebufferWidth,
-                    framebufferHeight,
+                    dashboardWidth(),
+                    dashboardHeight(),
                     city(),
                     Controls.keyName(controls.code(MAYOR_DASHBOARD)),
                     network == null || network.connected());
             if (notice != null && !notice.isEmpty())
                 overlay.text(
                         notice.length() > 120 ? notice.substring(0, 120) : notice, 24, 126, 1f);
+            overlay.end();
+            overlay.begin(framebufferWidth,framebufferHeight);
             renderFps();
             overlay.end();
             return;

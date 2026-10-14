@@ -64,7 +64,7 @@ class RailwaySaveCompatibilityTest {
         RailwayTest.build(city);
         for (int version : new int[]{10,11,12,13})
             assertThrows(IOException.class, () -> city.frame().write(new DataOutputStream(new ByteArrayOutputStream()),version));
-        assertEquals(29, Protocol.VERSION);
+        assertEquals(30, Protocol.VERSION);
         assertEquals(23, SpecialBuildings.AIRPORT);
         assertEquals(25, SpecialBuildings.RAIL_STATION);
         assertEquals(26, SpecialBuildings.RAIL_DEPOT);

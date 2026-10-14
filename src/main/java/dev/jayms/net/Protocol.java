@@ -2,15 +2,16 @@ package dev.jayms.net;
 
 import java.io.*;
 
-/** Protocol 29 adds inventory items and bounded, identified craft transactions. */
+/** Protocol 30 adds bounded authenticated history queries; city/save frames remain unchanged. */
 public final class Protocol {
     public static final int CITY_STATE = 16, CITY_COMMAND = 17, CITY_WORLD = 18, CITY_RESULT = 19;
-    public static final int MAGIC = 0x564F5831, VERSION = 29, PORT = 25565;
+    public static final int MAGIC = 0x564F5831, VERSION = 30, PORT = 25565;
     public static final int CITY_BASE_VERSION = 14, SPECIAL_BUILDINGS_VERSION = 15;
     public static final int MOVE = 1, BLOCK = 2, LEAVE = 3, READY = 4, JOIN = 5, EDIT_RESULT = 6;
     public static final int INVENTORY = 7, DROP = 8, SWAP = 9, RESPAWN = 10;
     public static final int MODEL_CREATE = 11, MODEL_DEFINE = 12, MODEL_RESULT = 13;
     public static final int CRAFT = 14, CRAFT_RESULT = 15, DROP_ITEM = 20;
+    public static final int HISTORY_QUERY=21, HISTORY_REPLY=22;
     public static final int LOGIN = 1, REGISTER = 2;
 
     public record Pose(

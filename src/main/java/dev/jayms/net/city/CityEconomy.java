@@ -372,6 +372,7 @@ public final class CityEconomy {
     public final CityBusinesses businesses;
     public final CityMaterials resources;
     public final CityCapital capital;
+    public java.util.function.BiConsumer<String,Double> historyFlow=(id,value)->{};
     public double budget = INITIAL_BUDGET, roadSpending, landRevenue, rentClock;
     public final List<Plot> plots = new ArrayList<>();
     public final List<Property> properties = new ArrayList<>();
@@ -472,6 +473,8 @@ public final class CityEconomy {
         if (budget < cost) return false;
         budget -= cost;
         roadSpending += cost;
+        historyFlow.accept("finance.spending",cost);
+        historyFlow.accept("finance.net",-cost);
         return true;
     }
 
@@ -532,6 +535,8 @@ public final class CityEconomy {
         developer.land += land;
         budget += land;
         landRevenue += land;
+        historyFlow.accept("finance.land",land);
+        historyFlow.accept("finance.net",land);
         var p =
                 new Plot(
                         plots.stream().mapToInt(Plot::id).max().orElse(0) + 1,
@@ -869,6 +874,8 @@ public final class CityEconomy {
                 COMPANY, p.operator(), food.product(), food.portions() * CityMaterials.UNIT);
         needs.money -= (float) food.price();
         meal(building, food.portions(), food.price());
+        resources.historyListener.flow("consumption",food.product(),food.portions());
+        if(food.price()>0)resources.historyListener.flow("sales",food.product(),food.portions());
         needs.hunger = Math.min(100, needs.hunger + food.nutrition());
         return food;
     }
@@ -1046,6 +1053,7 @@ public final class CityEconomy {
                 freightDistance(sellerKind, seller, buyerKind, buyer), units)) return false;
         resources.remove(sellerKind, seller, material, units);
         resources.add(buyerKind, buyer, material, units);
+        if(amount>0)resources.historyListener.flow("sales",material,units/(double)CityMaterials.UNIT);
         cash(buyerKind, buyer, -amount);
         cash(sellerKind, seller, amount);
         int count = (int) Math.max(1, units / CityMaterials.UNIT);

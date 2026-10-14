@@ -116,6 +116,8 @@ public final class CityBusinesses {
         }
     }
 
+    public interface Listener {void changed(int building,int company,Totals before,Totals after);}
+    public Listener listener=(building,company,before,after)->{};
     private final Map<Integer, Account> accounts = new LinkedHashMap<>();
     private long day = 1;
 
@@ -149,8 +151,10 @@ public final class CityBusinesses {
     private void update(int building, java.util.function.Consumer<Counters> action) {
         var a = accounts.get(building);
         if (a != null) {
+            var before=a.total.snapshot();
             action.accept(a.total);
             action.accept(a.today);
+            listener.changed(a.building,a.company,before,a.total.snapshot());
         }
     }
 

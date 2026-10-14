@@ -303,7 +303,7 @@ public final class Agriculture {
                 if (growth >= 1
                         && economy.resources.available(0, company, field.product)
                                 < 480 * CityMaterials.UNIT) {
-                    economy.resources.add(0, company, field.product, 32 * CityMaterials.UNIT);
+                    economy.resources.produced(0, company, field.product, 32 * CityMaterials.UNIT);
                     harvested += 32;
                     count++;
                     growth = 0;
@@ -379,7 +379,7 @@ public final class Agriculture {
                                                                     0, company, CityMaterials.MILK)
                                                             / CityMaterials.UNIT));
             if (quantity > 0) {
-                economy.resources.add(
+                economy.resources.produced(
                         0, company, CityMaterials.MILK, quantity * CityMaterials.UNIT);
                 harvested += quantity;
             }
@@ -411,7 +411,7 @@ public final class Agriculture {
                 if (victim != null) {
                     cows.remove(victim);
                     ecs.remove(victim.id);
-                    economy.resources.add(0, company, CityMaterials.BEEF, 8 * CityMaterials.UNIT);
+                    economy.resources.produced(0, company, CityMaterials.BEEF, 8 * CityMaterials.UNIT);
                     harvested += 8;
                     slaughter++;
                 }

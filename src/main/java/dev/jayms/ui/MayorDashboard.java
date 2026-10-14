@@ -16,6 +16,7 @@ public final class MayorDashboard {
     public final CapitalDashboard capital = new CapitalDashboard();
     public java.util.function.Consumer<CityCommand> submit = c -> {};
     public boolean open;
+    public long chartRenderNanos,chartFrames;
     public int tab, filter, firstRow;
     public boolean sortBySavings, searchFocus;
     public String search = "";
@@ -39,7 +40,7 @@ public final class MayorDashboard {
     }
 
     public void key(int key, int action) {
-        if (trends.open) return;
+        if (trends.open) {trends.key(key,action);return;}
         if (action != GLFW_PRESS && action != GLFW_REPEAT) return;
         if (tab == 5) {
             capital.key(key, action);
@@ -68,7 +69,7 @@ public final class MayorDashboard {
     }
 
     public void character(int c) {
-        if (trends.open) return;
+        if (trends.open) {trends.character(c);return;}
         if (open && tab == 5) {
             capital.character(c);
             return;
@@ -84,8 +85,8 @@ public final class MayorDashboard {
     }
 
     public void scroll(double amount) {
+        if (trends.open) {trends.scroll(amount);return;}
         if (tab == 6) { regions.scroll(amount); return; }
-        if (trends.open) return;
         if (tab == 5) {
             capital.scroll(amount);
             return;
@@ -137,7 +138,14 @@ public final class MayorDashboard {
         }
         if (x >= w - 260 && x <= w - 136 && y >= 48 && y <= 76) {
             trends.open = !trends.open;
-            if (trends.open) trends.selectDomain(tab == 3 ? 2 : tab == 4 ? 1 : 0);
+            if (trends.open) {
+                trends.selectDomain(tab == 3 ? 2 : tab == 4 ? 1 : 0);
+                if(tab==4&&businesses.selected!=0) {
+                    int building=businesses.selected;
+                    int company=building>=CityMaterials.YARD?building-CityMaterials.YARD:city.economy().properties().stream().filter(p->p.building()==building).mapToInt(CityEconomy.Property::operator).findFirst().orElse(0);
+                    if(company!=0)trends.select("company."+company+".revenue");
+                }
+            }
             searchFocus = businesses.searchFocus = false;
             return;
         }
@@ -168,6 +176,7 @@ public final class MayorDashboard {
             searchFocus = businesses.searchFocus;
             return;
         }
+        if(tab==0){trends.overviewClick(x,y,w);return;}
         if (tab != 2) return;
         if (y >= TOP && y <= TOP + 30 && x >= 24 && x < w - 24) {
             filter = Math.min(4, (int) ((x - 24) / ((w - 48) / 5f)));
@@ -241,7 +250,7 @@ public final class MayorDashboard {
         ui.rectangle(0, 0, w, h, .025f, .04f, .06f, 1);
         ui.text("MAYOR DASHBOARD", 24, 20, 2.1f);
         String clock =
-                city.config().time(city.elapsed()).label()
+                (city.config().cycle()?city.config().time(city.elapsed()).label():fmt("Elapsed %.1fs | frozen calendar",city.elapsed()))
                         + " | "
                         + (connected
                                 ? "Live city metrics"
@@ -261,14 +270,16 @@ public final class MayorDashboard {
             ui.text(TABS[i], 36 + i * bw, 98, 1.4f);
         }
         if (trends.open) {
+            long began=System.nanoTime();
             trends.render(ui, w, h, city, history);
+            chartRenderNanos+=System.nanoTime()-began;chartFrames++;
             return;
         }
         var m = CityMetrics.from(city);
         if (!city.population().groups().isEmpty() && tab < 2)
             ui.text("Regional needs and savings use cohort estimates", 24, 126, 1.0f);
         switch (tab) {
-            case 0 -> overview(ui, w, h, m);
+            case 0 -> overview(ui, w, h, m, city);
             case 1 -> groups(ui, w, h, m);
             case 2 -> citizens(ui, w, h, city);
             case 3 -> finances(ui, w, h, city, m);
@@ -292,7 +303,7 @@ public final class MayorDashboard {
                 1.1f);
     }
 
-    private void overview(Overlay ui, int w, int h, CityMetrics m) {
+    private void overview(Overlay ui, int w, int h, CityMetrics m, CityFrame city) {
         int columns = w >= 900 ? 3 : 2;
         float cw = (w - 48 - (columns - 1) * 12) / (float) columns;
         String[][] data = {
@@ -305,7 +316,7 @@ public final class MayorDashboard {
             {
                 "Employment",
                 m.employed() + " / " + m.population(),
-                fmt("%.0f%% employed", m.employmentPercent())
+                fmt("%.0f%% of all residents employed", m.employmentPercent())
             },
             {"Average hunger", fmt("%.1f / 100", m.averageHunger()), "Higher is better"},
             {
@@ -313,9 +324,15 @@ public final class MayorDashboard {
                 fmt("$%.1f", m.averageSavings()),
                 fmt("Estimated median $%.1f", m.medianSavings())
             },
-            {"Hungry citizens", "" + m.hungry(), m.criticalHunger() + " critical (below 10)"}
+            {"Hungry citizens", "" + m.hungry(), m.criticalHunger() + " critical (below 10)"},
+            {"Treasury", fmt("$%.1f",city.economy().budget()),"Current city balance"},
+            {"Company sales",fmt("$%.1f",city.economy().businesses().stream().mapToDouble(a->a.total().revenue()).sum()),"Cumulative revenue; chart shows period flows"},
+            {"Completed buildings",""+city.buildings().size(),"Local completed buildings"},
+            {"Operating profit",fmt("$%.1f",city.economy().businesses().stream().mapToDouble(a->a.total().profit()).sum()),"Cumulative result; chart shows period flows"},
+            {"Household savings",fmt("$%.1f",m.totalSavings()),"Includes regional estimates"},
+            {"Unhoused residents",""+(m.population()-m.housed()),"Local and regional represented residents"}
         };
-        for (int i = 0; i < data.length; i++)
+        for (int i = 0; i < data.length; i++) {
             card(
                     ui,
                     24 + i % columns * (cw + 12),
@@ -327,7 +344,13 @@ public final class MayorDashboard {
                     i == 1
                             ? m.housingPercent()
                             : i == 2 ? m.employmentPercent() : i == 3 ? m.averageHunger() : -1);
+            trends.sparkline(ui,i,36+i%columns*(cw+12),TOP+i/columns*88,cw-24);
+        }
         float y = TOP + ((data.length + columns - 1) / columns) * 88 + 4;
+        if(y+132>h-40) {
+            text(ui,fmt("Needs attention: hungry %d | unhoused %d | no work %d",m.hungry(),m.population()-m.housed(),m.population()-m.employed()),24,y+8,w-48,1.1f);
+            return;
+        }
         panel(ui, 24, y, w - 48, 132);
         ui.text("NEEDS ATTENTION", 36, y + 12, 1.4f);
         text(

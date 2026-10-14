@@ -185,7 +185,7 @@ public final class CityHarvesting {
                             >= type.capacity() * CityMaterials.UNIT) continue;
                     full = false;
                     if (harvest(material)) {
-                        stocks.add(0, firm.id, material, CityMaterials.UNIT);
+                        stocks.produced(0, firm.id, material, CityMaterials.UNIT);
                         harvested++;
                         processed++;
                     } else
@@ -209,7 +209,7 @@ public final class CityHarvesting {
                                     : "Searching for natural deposit";
                     break;
                 }
-                stocks.add(0, firm.id, raw, CityMaterials.UNIT);
+                stocks.produced(0, firm.id, raw, CityMaterials.UNIT);
                 harvested++;
                 if (raw == output) {
                     processed++;
@@ -221,7 +221,7 @@ public final class CityHarvesting {
                     status = "No fertile field";
                     break;
                 }
-                stocks.add(0, firm.id, CityMaterials.FOOD, CityMaterials.UNIT);
+                stocks.produced(0, firm.id, CityMaterials.FOOD, CityMaterials.UNIT);
                 harvested++;
                 processed++;
                 continue;

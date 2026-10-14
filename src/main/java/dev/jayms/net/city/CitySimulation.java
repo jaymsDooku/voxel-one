@@ -512,12 +512,54 @@ public final class CitySimulation {
         }
     }
 
+    public CityHistory history = new CityHistory();
+
+    public void loadHistory(Path cityFile) {
+        if(cityFile==null)return;
+        history=CityHistory.load(cityFile.resolveSibling(cityFile.getFileName()+".history"),cityFile,config,elapsed);
+        for(var metric:history.catalog()) {
+            var parts=metric.id().split("\\.");
+            try {
+                if(parts.length>2&&parts[0].equals("company")){int id=Integer.parseInt(parts[1]);if(id>0&&id<=1_000_000)ecs.reserveAfter(id);}
+                if(parts.length>3&&parts[0].equals("workplace")){int id=Integer.parseInt(parts[1]);if(id>0&&id<CityMaterials.YARD)buildingIds=Math.max(buildingIds,id);}
+            }catch(NumberFormatException ignored){/* Unrecognised extension IDs do not alter game identity counters. */}
+        }
+    }
+
+    private boolean historyConnected;
+    public long historySamples,historyCollectionNanos;
+    public void collectHistory() {
+        if(config.city())history.clock(elapsed);
+        if(!historyConnected) {
+            history.events=true;
+            economy.resources.historyListener=(action,product,units)->history.event("resource."+product+"."+action,elapsed,units,config);
+            economy.historyFlow=(id,value)->history.event(id,elapsed,value,config);
+            economy.businesses.listener=(building,company,before,after)->{
+                String[] ids={"revenue","wages","inputs","rent","costs","profit"};
+                double[] delta={after.revenue()-before.revenue(),after.wages()-before.wages(),after.supplies()-before.supplies(),after.rent()-before.rent(),after.expenses()-before.expenses(),after.profit()-before.profit()};
+                for(int i=0;i<ids.length;i++)if(delta[i]!=0){
+                    history.event("business."+ids[i],elapsed,delta[i],config);
+                    history.event("company."+company+"."+ids[i],elapsed,delta[i],config);
+                    history.event("workplace."+building+"."+company+"."+ids[i],elapsed,delta[i],config);
+                }
+            };
+            historyConnected=true;
+        }
+        if(config.city() && history.due(elapsed,config)) {
+            long started=System.nanoTime();
+            var snapshot=HistoryCatalog.from(frame());
+            history.observe(elapsed,config,snapshot.metrics(),snapshot.values(),snapshot.activeEntities());
+            historyCollectionNanos+=System.nanoTime()-started;historySamples++;
+        }
+    }
+
     public void advance(double dt) {
         if(migrateLanePavements) {var edits=new ArrayList<Protocol.Edit>();pave(edits);ground.apply(edits);migrateLanePavements=false;}
         if (!Double.isFinite(dt) || dt <= 0) return;
         accumulator += Math.min(dt, 2);
         while (accumulator >= .1) {
             step(.1f);
+            collectHistory();
             accumulator -= .1;
         }
     }
@@ -672,7 +714,7 @@ public final class CitySimulation {
                                                 < soil;
                                 i++)
                             if (harvesting.harvest(Blocks.DIRT)) {
-                                economy.resources.add(
+                                economy.resources.produced(
                                         0, project.developer(), Blocks.DIRT, CityMaterials.UNIT);
                                 dug++;
                             }
@@ -3209,6 +3251,7 @@ public final class CitySimulation {
     public void save(Path file) throws IOException {
         if (file == null) return;
         Files.createDirectories(file.toAbsolutePath().getParent());
+        collectHistory();
         Path tmp = file.resolveSibling(file.getFileName() + ".tmp");
         try (var out = new DataOutputStream(Files.newOutputStream(tmp))) {
             out.writeInt(0x43495441);
@@ -3220,5 +3263,6 @@ public final class CitySimulation {
         } catch (AtomicMoveNotSupportedException e) {
             Files.move(tmp, file, StandardCopyOption.REPLACE_EXISTING);
         }
+        if(config.city())history.save(file.resolveSibling(file.getFileName()+".history"),file);
     }
 }

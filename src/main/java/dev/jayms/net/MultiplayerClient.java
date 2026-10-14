@@ -160,7 +160,7 @@ public final class MultiplayerClient implements AutoCloseable {
                 // Protocols 14/15 use frame format 6; reviewed aviation protocol 22 uses format 12.
                 // Reconnect because old servers close on mismatch.
                 if (requested == Protocol.VERSION && version >= Protocol.CITY_BASE_VERSION
-                        && (version <= Protocol.SPECIAL_BUILDINGS_VERSION || version == 22)) {
+                        && (version <= Protocol.SPECIAL_BUILDINGS_VERSION || version == 22 || version == 29)) {
                     if (in.readBoolean()) throw new IOException("Unexpected protocol acceptance");
                     Protocol.readText(in, 256);
                     socket.close();
@@ -227,6 +227,16 @@ public final class MultiplayerClient implements AutoCloseable {
                                     h.rider() != 0 ? 1 : 0,
                                     false),
                             time);
+    }
+
+    private long newestHistoryRequest;
+    public CityHistory.Reply historyReply;
+    public long historyResponseRequest;
+    public String historyError="";
+    public boolean historyQuery(HistoryWire.Request request) {
+        if(serverProtocol<30){historyError="This server has no persistent history protocol (requires 30)";return false;}
+        newestHistoryRequest=request.request();
+        return send(()->{out.writeByte(Protocol.HISTORY_QUERY);request.write(out);out.flush();});
     }
 
     private final java.util.Queue<java.util.function.Consumer<String>> cityResults = new java.util.concurrent.ConcurrentLinkedQueue<>();
@@ -299,7 +309,12 @@ public final class MultiplayerClient implements AutoCloseable {
             while (connected) {
                 int type = in.readUnsignedByte();
                 Runnable event;
-                if (type == Protocol.CITY_STATE) {
+                if(type==Protocol.HISTORY_REPLY) {
+                    long request=in.readLong();boolean accepted=in.readBoolean();
+                    var reply=accepted?HistoryWire.read(in):null;
+                    String failure=accepted?"":Protocol.readText(in,512);
+                    event=()->{if(request==newestHistoryRequest){historyResponseRequest=request;historyReply=reply;historyError=failure;}};
+                } else if (type == Protocol.CITY_STATE) {
                     var state = CityFrame.read(in, serverProtocol < 16 ? 6 : serverProtocol < 19 ? 8 : serverProtocol < 20 ? 9 : serverProtocol < 21 ? 10 : serverProtocol < 22 ? 11 : serverProtocol < 24 ? 12 : serverProtocol < 25 ? 13 : serverProtocol < 26 ? 14 : serverProtocol < 27 ? 15 : serverProtocol < 28 ? 16 : 17);
                     long time = System.nanoTime();
                     event = () -> acceptCity(state, time);
