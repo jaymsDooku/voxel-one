@@ -1,3 +1,4 @@
+Historical documentation-only scope check at 11e011c parent. Superseded for runtime identity by orbital-shell-validation.md and orbital-shell-source-audit.json.
 Milestone 1 scope validation
 Runtime baseline: e3f31c3a878246d0095489c1c72d6899c4750658
 Commands: python3 deploy/build_site.py; Python local Markdown-link/tracker/progress-JSON/runtime-diff checks; git diff --check.

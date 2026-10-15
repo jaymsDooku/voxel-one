@@ -15,3 +15,5 @@ Validation: 53 unit tests passed. Chromium/WebKit ordinary-default and keyboard 
 Fresh normal/fallback MP4s played to completion at speed 1 and were inspected with frame strips. `orbital-preview-validation.md` records commands, failed attempts and successful reruns. `orbital-source-audit.json` records tested source/bundle/media hashes. The contact sheet shows default-off UI, explicit opt-in, ordinary entry, preview and fallback. All new artifacts await controller publication.
 
 Isolated software Low Canvas preview: Chromium frame p50/p95/p99/worst 16.7/16.7/16.8/33.4 ms; WebKit 62/87/196/274 ms. Preparation was 205.1/359 ms. These are software measurements; WebKit misses the proposed targets, and physical qualification remains unmet.
+
+Review fix: the WebGL2 atmosphere now canonicalizes empty intervals and skips vacuum integration. The rendered shell-crossing regression reproduces the old shader band and checks corrected exterior/interior shell frames plus airless control, real final kill and level 3 handoff. Fresh evidence is recorded in `orbital-shell-validation.md`. Milestone/default-rollout boundaries are unchanged.

@@ -1,0 +1,59 @@
+{
+  "baseHead": "11e011c1cca1f8145c293990f45c01762bfca90b",
+  "reviewBase": "aac5ca8ee0fa5ed6e5f84949c66e9949085f1d85",
+  "state": "uncommitted WebGL empty-path fix; controller assigns final commit",
+  "files": {
+    "games/space-invaders/entry-renderer.mjs": {
+      "sha256": "5a6657b18d8bafd893bff86cfc5e678198f3e2f573b7092570d6a77437070e7e",
+      "bytes": 32930
+    },
+    "deploy/test_orbital_shell_crossing.cjs": {
+      "sha256": "5ac7ee51c605ac7274c6ccce16c03bb25c33ae5c205f4c9c81e84adf856d2248",
+      "bytes": 5861
+    },
+    "dashboard/evidence/orbital-shell-4.png": {
+      "sha256": "b030d9df9d1c45e569774ec157b40a07137959a5fd9c80dfe363265794311e44",
+      "bytes": 227446
+    },
+    "dashboard/evidence/orbital-shell-level3.png": {
+      "sha256": "e0ce141253e15a2d7a4c164e022d0ba2c17a8a7c6ec2e946dee275aecf7cd50e",
+      "bytes": 246212
+    },
+    "dashboard/evidence/orbital-shell-before.png": {
+      "sha256": "4607feef7822deb4634ad8ff61999753154848406fb2ef3b95e2f4b89fcb9946",
+      "bytes": 167332
+    },
+    "dashboard/evidence/orbital-shell-video-strip.png": {
+      "sha256": "f973c0551cb34ec7f33c271ced7119cfff62d023ef4df992f3a07529b02a109c",
+      "bytes": 398193
+    },
+    "dashboard/evidence/orbital-shell-6.png": {
+      "sha256": "ad365ff2ccebdb88a69630aa5d838d365e56c4636eaadaa66e2e79969135926c",
+      "bytes": 141523
+    },
+    "dashboard/evidence/orbital-shell-3.5.png": {
+      "sha256": "7215ddd590436b8957e872364fd67663c7054eb28fae2c8eda64c2c141330ac9",
+      "bytes": 237239
+    },
+    "dashboard/evidence/orbital-shell-2.8.png": {
+      "sha256": "dd79af1298ea7916b474f53053c19778d452b6b2c2c765379d0b6c7cd9766fa0",
+      "bytes": 227467
+    },
+    "dashboard/evidence/orbital-shell-3.png": {
+      "sha256": "7c20db3fb577235da8a1d4485434f276b6f7e9d0172e873ebab7e33dbbb22e5b",
+      "bytes": 241060
+    },
+    "dashboard/evidence/orbital-shell-4.5.png": {
+      "sha256": "8e5b754bf4bc2a7fb8b7d89da5dd5af1381e98a41c66ac4554d3878d49dc0c56",
+      "bytes": 150498
+    },
+    "dashboard/evidence/orbital-shell-3.2.png": {
+      "sha256": "89ef5719debca8d44293101faf1b8867e5bd973ea178600226dad74730735606",
+      "bytes": 241888
+    },
+    "dashboard/evidence/orbital-shell-crossing.mp4": {
+      "sha256": "630c07e47958b41c467a3753dc5bb43c4c3fae0f0a41bcc08bf10c2df3741116",
+      "bytes": 801092
+    }
+  }
+}

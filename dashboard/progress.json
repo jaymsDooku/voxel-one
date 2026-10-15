@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-15T21:17:29+00:00",
+  "updatedAt": "2026-10-15T21:28:36+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -20,8 +20,8 @@
       "description": "Implementing a shared planet profile, browser atmosphere and continuous entry camera. Validation remains pending.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Preview submitted for independent review only. Original default-rollout goal remains open. games/space-invaders/ROLLOUT.md tracks R1\u2013R5: desktop/iPhone hardware qualification, visual limits, rollout regressions and a separately reviewed default switch. Both new renderers remain opt-in.",
-      "updatedAt": "2026-10-15T21:17:29+00:00"
+      "note": "Milestone 1 review fix validated: old-shader control reproduced black band; corrected WebGL exterior/shell poses and airless framebuffer checks passed. 53 units and Chromium/WebKit ordinary gate passed. New captures/video/report saved. Both renderers remain opt-in; R1\u2013R5 and hardware qualification stay open.",
+      "updatedAt": "2026-10-15T21:28:36+00:00"
     },
     {
       "id": "36646561376136642d646639322d343635352d616365372d356135643135353263316664",
