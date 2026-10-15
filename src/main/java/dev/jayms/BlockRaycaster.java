@@ -7,11 +7,32 @@ public class BlockRaycaster {
     private BlockRaycaster() {}
 
     public static BlockHit cast(World world, Vector3f origin, Vector3f direction, float reach) {
-        if (reach < 0 || direction.lengthSquared() == 0) {
+        if (!Float.isFinite(reach)
+                || reach < 0
+                || !Float.isFinite(origin.x)
+                || !Float.isFinite(origin.y)
+                || !Float.isFinite(origin.z)
+                || !Float.isFinite(direction.x)
+                || !Float.isFinite(direction.y)
+                || !Float.isFinite(direction.z)) {
             return null;
         }
 
-        Vector3f ray = new Vector3f(direction).normalize();
+        // Scale in double precision before squaring: finite float vectors can have
+        // lengths whose squares overflow or underflow float arithmetic.
+        double scale =
+                Math.max(
+                        Math.abs(direction.x),
+                        Math.max(Math.abs(direction.y), Math.abs(direction.z)));
+        if (scale == 0) {
+            return null;
+        }
+        double dx = direction.x / scale;
+        double dy = direction.y / scale;
+        double dz = direction.z / scale;
+        double length = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        Vector3f ray =
+                new Vector3f((float) (dx / length), (float) (dy / length), (float) (dz / length));
 
         int x = (int) Math.floor(origin.x);
         int y = (int) Math.floor(origin.y);

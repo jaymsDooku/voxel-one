@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-15T22:04:35+00:00",
+  "updatedAt": "2026-10-15T22:28:07+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,15 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "loop-3d3209e0-5089-49f5-a18e-fe5c4ed9afda",
+      "title": "Reject invalid shared-engine block raycast inputs",
+      "description": "Inspecting ray input validation and adding focused CPU regression checks.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Implementation and Java 17 CPU validation finished: 16 tests passed. Evidence saved locally; awaiting controller publication and independent review.",
+      "updatedAt": "2026-10-15T22:28:07+00:00"
+    },
     {
       "id": "7d0eaed5-c9e3-4f16-80fa-2b07c154a91d",
       "title": "Space Invaders level 3 ground combat",
