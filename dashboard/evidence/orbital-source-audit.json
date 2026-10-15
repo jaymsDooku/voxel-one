@@ -1,12 +1,24 @@
 {
-  "reviewBase": "1d2c3b3266c9e2d9c82c2217594690c0a62334ef",
-  "baseHead": "6ca0cdd575d90e95210ffedf7655b1f05b5158fe",
-  "sourceState": "Tested working source with unpublished edits; controller owns final commit/publication and master integration",
+  "reviewBase": "aac5ca8ee0fa5ed6e5f84949c66e9949085f1d85",
+  "baseHead": "7a6ab3adeb881d053f4cc8ac5216d4f505f23b74",
+  "sourceState": "Tested working source: session-only opt-in experimental preview; controller owns final source publication and master synchronization",
   "modules": [
     {
+      "module": "ENTRY.md",
+      "sourceSha256": "c7ce6a66084a2f839db463ff0e15fed3d14708f076b5c9efcdf4a001fd758537",
+      "bundleSha256": "c7ce6a66084a2f839db463ff0e15fed3d14708f076b5c9efcdf4a001fd758537",
+      "matches": true
+    },
+    {
+      "module": "TERRAIN.md",
+      "sourceSha256": "6aa1bf6cdd24821048199ba058f758c3ce1851ec5bb69a33520c542f45559346",
+      "bundleSha256": "6aa1bf6cdd24821048199ba058f758c3ce1851ec5bb69a33520c542f45559346",
+      "matches": true
+    },
+    {
       "module": "app.mjs",
-      "sourceSha256": "24b6960450d3de500f8d18998dbbfaf5215134389b3a828a70e553e8114b17fe",
-      "bundleSha256": "24b6960450d3de500f8d18998dbbfaf5215134389b3a828a70e553e8114b17fe",
+      "sourceSha256": "7b9ef81640645e3e5cbe8037cf7f0fb57e70982657f29d59f685c6cf85ef290d",
+      "bundleSha256": "7b9ef81640645e3e5cbe8037cf7f0fb57e70982657f29d59f685c6cf85ef290d",
       "matches": true
     },
     {
@@ -47,8 +59,8 @@
     },
     {
       "module": "entry-renderer.mjs",
-      "sourceSha256": "668f31f814360b56e7d7b23008ea665688163a107094e99df91c43d890df7a2e",
-      "bundleSha256": "668f31f814360b56e7d7b23008ea665688163a107094e99df91c43d890df7a2e",
+      "sourceSha256": "b9872874633e455a0f57166084d6bf54245ff75a2a2dc45f6cc2ef722a5bbf1c",
+      "bundleSha256": "b9872874633e455a0f57166084d6bf54245ff75a2a2dc45f6cc2ef722a5bbf1c",
       "matches": true
     },
     {
@@ -65,8 +77,8 @@
     },
     {
       "module": "game.mjs",
-      "sourceSha256": "29377b3b8c1796aff03168566a4772c9d6b8569602c6198b6e455c75f21af350",
-      "bundleSha256": "29377b3b8c1796aff03168566a4772c9d6b8569602c6198b6e455c75f21af350",
+      "sourceSha256": "f4fe1206c1d0026a58954fffbcb480adb977412e4587e212ce7ab1a53c7afc4f",
+      "bundleSha256": "f4fe1206c1d0026a58954fffbcb480adb977412e4587e212ce7ab1a53c7afc4f",
       "matches": true
     },
     {
@@ -89,8 +101,8 @@
     },
     {
       "module": "style.css",
-      "sourceSha256": "60335ebe510b931326ff39ecb9e6809f95c32b03a0d77a474ddf1c70f6de348d",
-      "bundleSha256": "60335ebe510b931326ff39ecb9e6809f95c32b03a0d77a474ddf1c70f6de348d",
+      "sourceSha256": "8aed8f295612e3a03a624c0a834ea63dae2cc407a2e2a679429c38245c763b94",
+      "bundleSha256": "8aed8f295612e3a03a624c0a834ea63dae2cc407a2e2a679429c38245c763b94",
       "matches": true
     },
     {
@@ -107,8 +119,8 @@
     },
     {
       "module": "terrain-view.mjs",
-      "sourceSha256": "83f906743f75a8ad1b2cd9e305315d3d8b3b3891b777862d0e9e72f3f73e4bd8",
-      "bundleSha256": "83f906743f75a8ad1b2cd9e305315d3d8b3b3891b777862d0e9e72f3f73e4bd8",
+      "sourceSha256": "b8a19ca7de852d0bc332e3578744b18b68ae9bef5371070edb35b51ae7f09a0e",
+      "bundleSha256": "b8a19ca7de852d0bc332e3578744b18b68ae9bef5371070edb35b51ae7f09a0e",
       "matches": true
     },
     {
@@ -127,40 +139,39 @@
   "media": [
     {
       "file": "orbital-normal.mp4",
-      "bytes": 692059,
-      "sha256": "b5370ba0eec7b89179ba4b76f86b44106ba9e4e167bc529bece4242fdd52d194"
+      "bytes": 746756,
+      "sha256": "a9777a0988998208d8784688f2fd5a572748d8ff2da5ea7539dfe6ff74b6783a"
     },
     {
       "file": "orbital-fallback.mp4",
-      "bytes": 666317,
-      "sha256": "e63bd3780825213d7b3499e83e0d9dca652f86cc7f7cdeca1beb40bbc0f51688"
+      "bytes": 686603,
+      "sha256": "3ca2ab4f2c4b94596b396b51c9860f6e3369e8659d2a16c58b5b6615f5d09ad6"
     },
     {
-      "file": "orbital-bounded-contact.png",
-      "bytes": 860987,
-      "sha256": "422e7583f8ea6934f12090a78284f94e80fbb731feeb2f99cea1cc6ab46bc105"
+      "file": "orbital-preview-contact.png",
+      "bytes": 461606,
+      "sha256": "e09e2e375e2c00ac5305e49ac525ad53194f2a7be71799b9babe08fa947c6eac"
     },
     {
-      "file": "orbital-bounded-chromium-0.png",
-      "bytes": 243024,
-      "sha256": "93ac105efb17a5ee8e7a03fb2b60db9a0ab350cfa92f2422b898c50b4d7fc40f"
+      "file": "orbital-preview-disabled-start.png",
+      "bytes": 764731,
+      "sha256": "53f07aa7b16d5e8196291c703ff676918e017248828ce54bc48ecef9d01d42f1"
     },
     {
-      "file": "orbital-bounded-chromium-4.5.png",
-      "bytes": 117412,
-      "sha256": "96ab99b13214fb3ee12b5269cb3432865466256402e3add61a77a02ce4bfad4b"
+      "file": "orbital-preview-enabled-start.png",
+      "bytes": 230382,
+      "sha256": "8f277f9e0eea9c371573a08c939d356c7c24a73ed5161820120920d0ad0bb47c"
     },
     {
-      "file": "orbital-bounded-webkit-4.5.png",
-      "bytes": 87364,
-      "sha256": "69faa8618c9ca998fbf7d59a9f27b63b1162ee935f7b253eb7b2496cc52ddcec"
+      "file": "orbital-ordinary-chromium-entry.png",
+      "bytes": 134453,
+      "sha256": "c53e79af9856daf911012fcc544f1c417e4205a02a1ee963953ebfb6d8b425e5"
     },
     {
-      "file": "orbital-chromium-1280-external.png",
-      "bytes": 259324,
-      "sha256": "99387fc892c1eaf6b4d619f774b99820233ec10724b3e5542bb0ab48289cdb4e"
+      "file": "orbital-ordinary-chromium-level3.png",
+      "bytes": 318242,
+      "sha256": "04a81fea08c4f7fd1b8315c86c7be68b83e7dba4fd68ee63057f0dc59d90b45b"
     }
   ],
-  "deletionsAgainstReviewBase": [],
-  "integratedHead": "4b81c70dd7c6595b1719956665c7879c7663d45d"
+  "deletionsAgainstReviewBase": []
 }

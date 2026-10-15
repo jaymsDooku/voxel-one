@@ -36,13 +36,13 @@
     },
     {
       "test": "test_space_invaders_layout.cjs",
-      "exit": 0,
-      "output": "Playtest: 16 viewport/state layout checks passed; touch start/move/fire/pause/resume/game-over/restart passed; no page errors.\n"
+      "exit": 1,
+      "output": "AssertionError [ERR_ASSERTION]: start: ▶ obscured\n    at checkLayout (/home/debian/codex/voxel-one-queue-worktrees/32323739633831342d393930632d343438322d383036362d633363393732353338303631/.tmp/regression-test_space_invaders_layout.cjs:45:5)\n    at async /home/debian/codex/voxel-one-queue-worktrees/32323739633831342d393930632d343438322d383036362d633363393732353338303631/.tmp/regression-test_space_invaders_layout.cjs:69:20\n"
     },
     {
       "test": "test_alien_terrain.cjs",
       "exit": 0,
-      "output": "[{\"browser\":\"chromium\",\"result\":\"PASS\",\"gallery\":[{\"seed\":\"acheron\",\"milliseconds\":552.3000001907349},{\"seed\":\"glass-sea\",\"milliseconds\":583.6999998092651},{\"seed\":\"silent-impact\",\"milliseconds\":470.5},{\"seed\":\"fungal-moon\",\"milliseconds\":440.5}]},{\"browser\":\"webkit\",\"result\":\"PASS\",\"gallery\":[{\"seed\":\"acheron\",\"milliseconds\":1074},{\"seed\":\"glass-sea\",\"milliseconds\":972},{\"seed\":\"silent-impact\",\"milliseconds\":766},{\"seed\":\"fungal-moon\",\"milliseconds\":974}]}]\n"
+      "output": "[{\"browser\":\"chromium\",\"result\":\"PASS\",\"gallery\":[{\"seed\":\"acheron\",\"milliseconds\":405.8999996185303},{\"seed\":\"glass-sea\",\"milliseconds\":566},{\"seed\":\"silent-impact\",\"milliseconds\":473.5999994277954},{\"seed\":\"fungal-moon\",\"milliseconds\":517.8999996185303}]},{\"browser\":\"webkit\",\"result\":\"PASS\",\"gallery\":[{\"seed\":\"acheron\",\"milliseconds\":809},{\"seed\":\"glass-sea\",\"milliseconds\":898},{\"seed\":\"silent-impact\",\"milliseconds\":811},{\"seed\":\"fungal-moon\",\"milliseconds\":831}]}]\n"
     }
   ]
 }

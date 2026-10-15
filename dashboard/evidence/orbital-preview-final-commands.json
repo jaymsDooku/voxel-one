@@ -1,0 +1,34 @@
+[
+  {
+    "case": "ordinary-keyboard-gate",
+    "command": "node deploy/run_orbital_web_check.cjs deploy/test_orbital_preview_gate.cjs",
+    "settings": {},
+    "exit": 0
+  },
+  {
+    "case": "preview-desktop",
+    "command": "node deploy/run_orbital_web_check.cjs deploy/test_orbital_descent.cjs",
+    "settings": {
+      "ORBITAL_WIDTH": "1280"
+    },
+    "exit": 0
+  },
+  {
+    "case": "preview-small-landscape",
+    "command": "node deploy/run_orbital_web_check.cjs deploy/test_orbital_descent.cjs",
+    "settings": {
+      "ORBITAL_WIDTH": "568"
+    },
+    "exit": 0
+  },
+  {
+    "case": "preview-cold-fallback",
+    "command": "node deploy/run_orbital_web_check.cjs deploy/test_orbital_descent.cjs",
+    "settings": {
+      "ORBITAL_WIDTH": "1280",
+      "ORBITAL_WORKER_FAILURE": "1",
+      "ORBITAL_REDUCED_MOTION": "1"
+    },
+    "exit": 1
+  }
+]

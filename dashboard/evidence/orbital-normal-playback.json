@@ -6,13 +6,13 @@
   "observed": {
     "ended": true,
     "error": null,
-    "presentedFrames": 646
+    "presentedFrames": 610
   },
   "info": {
-    "duration": 25.88,
+    "duration": 24.44,
     "width": 960,
     "height": 674,
     "playbackRate": 1
   },
-  "sha256": "b5370ba0eec7b89179ba4b76f86b44106ba9e4e167bc529bece4242fdd52d194"
+  "sha256": "a9777a0988998208d8784688f2fd5a572748d8ff2da5ea7539dfe6ff74b6783a"
 }

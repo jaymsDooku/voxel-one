@@ -1,11 +1,11 @@
 # Orbital entry adapter
 
-The default Canvas path and opt-in WebGL2 preview share a version 1 planet profile,
+Both the orbital Canvas path and WebGL2 renderer require the unchecked, session-only **Experimental orbital descent preview (unqualified)** checkbox before Start. Ordinary play retains the original eight-second entry and terrain palette/lighting, with no orbital profile, cache Worker or GL initialization. Refresh clears the opt-in. The checkbox is locked during play/pause; restart cancels preview jobs. The preview renderers share a version 1 planet profile,
 terrain generator version 1, SI atmosphere contract, fixed sun/moon directions,
 cloud seed and landing anchor. Existing seed galleries use the unchanged Planet
 terrain generator. No art assets are downloaded.
 
-The Game owns the 12-second crash/descent, 1.2-second blackout and 3-second waking
+When preview is enabled, the Game owns the 12-second crash/descent, 1.2-second blackout and 3-second waking
 states. Fine terrain arriving late can hold the approach for at most 1 second, with coarse parent data retained. `skipDescent()` and normal descent call `completeEntry()` once. Combat
 coordinates and hitboxes stay in the original 480 × 570 coordinate space. The
 renderer samples the story clock; pause, blur and hidden tabs freeze the camera,
@@ -37,7 +37,7 @@ node --test games/space-invaders/*.test.mjs
 The WebGL2 shader uses a fullscreen world pass, a coarse 32 × 16 RGBA8 spherical atlas refined to 128 × 64 by the bounded Worker and an
 RGBA8 local height/palette patch. It needs no float render targets or float
 filtering extensions. It uses linear lighting, colored solar transmittance,
-planetary shadow, bounded cloud shells and one tone map. The GL backend initializes only when selected, so shader compilation cannot stall the default combat route. Low/Medium/High use
+planetary shadow, bounded cloud shells and one tone map. The GL backend initializes only when selected, so shader compilation cannot stall the ordinary combat route. Low/Medium/High use
 8/16/32 view samples. World resolution is capped at 640 × 400; the Canvas HUD
 retains its separate DPR cap of 2. Shader/link/context failures keep Canvas usable.
 Context loss intentionally remains on Canvas for that session.
@@ -91,10 +91,10 @@ Limitations: cold fallback has blocky screen sampling, vertically interpolated a
 
 After waking, the background camera rises over 0.8 seconds from the impact view to an external fighter view 1,800 m above the same landing anchor. The target, profile revision, sun, moons, terrain and FOV stay fixed. Paused/focus-hidden game time does not advance this handoff. Wreckage uses the current world camera. Combat hitbox coordinates are unchanged.
 
-Low is the default Canvas setting. Local terrain plans are built once per terrain revision/quality from full-footprint parent tiles and sparse overlapping child tiles. Each tile retains one tall landmark at its original world position. Low/Medium/High have hard limits of 640/2,048/4,096 attempted faces per world pass, with bounded column counts. Low uses eight aerial-perspective bins and a 24-column coarse ray grid; higher settings add detail without changing the profile or timing. Frozen world frames and Canvas backing stores are reused.
+Low is the initial setting within the opt-in preview. Local terrain plans are built once per terrain revision/quality from full-footprint parent tiles and sparse overlapping child tiles. Each tile retains one tall landmark at its original world position. Low/Medium/High have hard limits of 640/2,048/4,096 attempted faces per world pass, with bounded column counts. Low uses eight aerial-perspective bins and a 24-column coarse ray grid; higher settings add detail without changing the profile or timing. Frozen world frames and Canvas backing stores are reused.
 
 Isolated benchmark runs use one browser at a time, no recording or concurrent diagnostics, three seconds of level 2 prewarming and a real keyboard final kill. Reports include frame/world CPU percentiles, maximum faces, preparation and cache count. These software results do not establish physical Safari/GPU performance.
 
-Canvas world buffers are capped at 320/480/640 pixels wide for Low/Medium/High, with a 3:4 maximum height bound. HUD/cockpit keep their existing full-resolution main Canvas. Worker images are composed with the bounded local terrain plan once during prewarming, then blended during playback. The cached frame count stays capped at 49 (about 14 MB of RGBA world images at desktop Low, about 32 MB Medium, at most about 60 MB High; native/GPU memory is separate). Missing frames still use the bounded cold path. Cold three-second-prewarm and fully ready benchmarks are reported separately.
+Canvas world buffers are capped at 320/480/640 pixels wide for Low/Medium/High, with a 3:4 maximum height bound. HUD/cockpit keep their existing full-resolution main Canvas. Worker images are composed with the bounded local terrain plan once during prewarming, then blended during playback. The cached frame count stays capped at 49 (about 14 MB of RGBA world images at desktop Low, about 32 MB Medium, at most about 60 MB High; native/GPU memory is separate). Missing frames retain a prepared parent image while bounded preparation jobs build a replacement; animation callbacks do not synchronously generate terrain. Cold three-second-prewarm and fully ready benchmarks are reported separately.
 
 Parent/local continuity revision: Canvas uses the same terrain seed around the landing patch out to 2400 blocks, with bounded 32-block regional samples and exact local samples. Near-ground surface rays bracket the height field before refinement, so raised terrain does not disappear when a concentric-sphere root is behind the camera. Regional mesh detail starts below 6 km and fades over the outer 35 percent of each footprint. Mesh corners use parent heights. Exposed voxel faces grow below 1.5 km and reach full strength at 500 m; boundary faces receive an extra feather factor. Parent corners are cached per terrain plan. Cold and cached surface shading use the same slope samples. Restart clears the entry profile and Worker during level 2 prewarming; stale callbacks are rejected by epoch. Regional sampling is reduced quality and does not add spherical gameplay or collisions.

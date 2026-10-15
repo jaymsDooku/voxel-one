@@ -13,20 +13,20 @@
         "height": 900
       },
       "timing": {
-        "count": 405,
-        "p50": 33.29999999999927,
-        "p95": 50,
-        "p99": 66.60000000000036,
-        "worst": 83.29999999999927,
-        "peakMainJsHeapBytes": 11200000
+        "count": 289,
+        "p50": 33.399999999999636,
+        "p95": 83.29999999999927,
+        "p99": 100,
+        "worst": 100,
+        "peakMainJsHeapBytes": 10600000
       },
       "preparation": {
-        "mainThreadMilliseconds": 230.69999980926514,
+        "mainThreadMilliseconds": 340,
         "cacheFrames": 49,
         "cachePixelBytes": 24480000,
         "fineTerrainReady": true
       },
-      "videoNormalSeconds": 24.451,
+      "videoNormalSeconds": 26.379,
       "scenes": [
         null,
         "crash",
@@ -34,6 +34,7 @@
         "waking",
         null,
         "crash",
+        "blackout",
         null
       ],
       "result": "PASS: real keyboard last kill, normal sequence, visible external-camera handoff, score/lives, active flight/fire, pause/resize, skip once, restart"
@@ -45,20 +46,20 @@
         "height": 844
       },
       "timing": {
-        "count": 721,
+        "count": 717,
         "p50": 16.69999999999891,
-        "p95": 16.700000000000728,
+        "p95": 16.799999999999272,
         "p99": 16.80000000000109,
-        "worst": 16.80000000000109,
+        "worst": 33.399999999999636,
         "peakMainJsHeapBytes": 10000000
       },
       "preparation": {
-        "mainThreadMilliseconds": 87.59999942779541,
+        "mainThreadMilliseconds": 152,
         "cacheFrames": 49,
         "cachePixelBytes": 9057600,
         "fineTerrainReady": true
       },
-      "videoNormalSeconds": 21.902,
+      "videoNormalSeconds": 22.738,
       "scenes": [
         null,
         "crash",
@@ -78,20 +79,20 @@
         "height": 390
       },
       "timing": {
-        "count": 721,
+        "count": 713,
         "p50": 16.69999999999891,
         "p95": 16.799999999999272,
         "p99": 16.80000000000109,
-        "worst": 16.80000000000109,
+        "worst": 116.60000000000036,
         "peakMainJsHeapBytes": 10000000
       },
       "preparation": {
-        "mainThreadMilliseconds": 170,
+        "mainThreadMilliseconds": 195.80000019073486,
         "cacheFrames": 49,
         "cachePixelBytes": 16102400,
         "fineTerrainReady": true
       },
-      "videoNormalSeconds": 23.974,
+      "videoNormalSeconds": 22.653,
       "scenes": [
         null,
         "crash",
@@ -111,20 +112,20 @@
         "height": 320
       },
       "timing": {
-        "count": 721,
+        "count": 699,
         "p50": 16.69999999999891,
         "p95": 16.799999999999272,
-        "p99": 16.80000000000109,
-        "worst": 16.80000000000109,
-        "peakMainJsHeapBytes": 11200000
+        "p99": 33.399999999999636,
+        "worst": 200,
+        "peakMainJsHeapBytes": 10600000
       },
       "preparation": {
-        "mainThreadMilliseconds": 216.5999994277954,
+        "mainThreadMilliseconds": 225.5999994277954,
         "cacheFrames": 49,
         "cachePixelBytes": 19614720,
         "fineTerrainReady": true
       },
-      "videoNormalSeconds": 22.021,
+      "videoNormalSeconds": 22.777,
       "scenes": [
         null,
         "crash",
@@ -144,20 +145,20 @@
         "height": 900
       },
       "timing": {
-        "count": 188,
-        "p50": 58,
-        "p95": 92,
-        "p99": 253,
-        "worst": 293,
+        "count": 134,
+        "p50": 84,
+        "p95": 129,
+        "p99": 257,
+        "worst": 339,
         "peakMainJsHeapBytes": null
       },
       "preparation": {
-        "mainThreadMilliseconds": 407,
-        "cacheFrames": 49,
-        "cachePixelBytes": 24480000,
+        "mainThreadMilliseconds": 475,
+        "cacheFrames": 24,
+        "cachePixelBytes": 17280000,
         "fineTerrainReady": true
       },
-      "videoNormalSeconds": 26.374,
+      "videoNormalSeconds": 28.997,
       "scenes": [
         null,
         "crash",
@@ -176,20 +177,20 @@
         "height": 844
       },
       "timing": {
-        "count": 290,
-        "p50": 36,
-        "p95": 65,
-        "p99": 155,
-        "worst": 221,
+        "count": 210,
+        "p50": 54,
+        "p95": 93,
+        "p99": 224,
+        "worst": 300,
         "peakMainJsHeapBytes": null
       },
       "preparation": {
-        "mainThreadMilliseconds": 108,
+        "mainThreadMilliseconds": 139,
         "cacheFrames": 49,
         "cachePixelBytes": 9057600,
         "fineTerrainReady": true
       },
-      "videoNormalSeconds": 25.389,
+      "videoNormalSeconds": 26.382,
       "scenes": [
         null,
         "crash",
@@ -208,20 +209,20 @@
         "height": 390
       },
       "timing": {
-        "count": 303,
-        "p50": 36,
-        "p95": 52,
-        "p99": 160,
-        "worst": 270,
+        "count": 231,
+        "p50": 48,
+        "p95": 81,
+        "p99": 153,
+        "worst": 328,
         "peakMainJsHeapBytes": null
       },
       "preparation": {
-        "mainThreadMilliseconds": 338,
-        "cacheFrames": 49,
-        "cachePixelBytes": 16102400,
+        "mainThreadMilliseconds": 377,
+        "cacheFrames": 32,
+        "cachePixelBytes": 12881920,
         "fineTerrainReady": true
       },
-      "videoNormalSeconds": 24.261,
+      "videoNormalSeconds": 26.428,
       "scenes": [
         null,
         "crash",
@@ -229,6 +230,7 @@
         "waking",
         null,
         "crash",
+        "blackout",
         null
       ],
       "result": "PASS: real keyboard last kill, normal sequence, visible external-camera handoff, score/lives, active flight/fire, pause/resize, skip once, restart"
@@ -240,20 +242,20 @@
         "height": 320
       },
       "timing": {
-        "count": 264,
-        "p50": 42,
-        "p95": 61,
-        "p99": 159,
-        "worst": 290,
+        "count": 177,
+        "p50": 67,
+        "p95": 136,
+        "p99": 199,
+        "worst": 686,
         "peakMainJsHeapBytes": null
       },
       "preparation": {
-        "mainThreadMilliseconds": 413,
-        "cacheFrames": 49,
-        "cachePixelBytes": 19614720,
+        "mainThreadMilliseconds": 408,
+        "cacheFrames": 11,
+        "cachePixelBytes": 10165760,
         "fineTerrainReady": true
       },
-      "videoNormalSeconds": 24.847,
+      "videoNormalSeconds": 28.46,
       "scenes": [
         null,
         "crash",

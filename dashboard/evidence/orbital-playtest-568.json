@@ -1,7 +1,9 @@
 {
-  "command": "ORBITAL_WIDTH=568 PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/test_orbital_descent.cjs",
-  "environment": "Linux headless Chromium/WebKit, Canvas Low default, synthetic isolated profiles, local source HTTP port 8779; software browser measurements do not establish physical Safari performance",
+  "command": "ORBITAL_REDUCED_MOTION=0 ORBITAL_WORKER_FAILURE=0 ORBITAL_BROWSER= ORBITAL_WIDTH=568 PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/run_orbital_web_check.cjs deploy/test_orbital_descent.cjs",
+  "environment": "Linux headless Chromium/WebKit, experimental preview explicitly enabled through UI, Canvas Low, synthetic isolated profiles, local source HTTP port 8779; software browser measurements do not establish physical Safari performance",
   "playtest": "Playtest: start, synthetic final level 2 fighter, real Space fire and frame loop, watch 12-second descent/blackout/waking, fly/fire on level 3; repeat transition, pause, rotate viewport, skip twice, restart.",
+  "workerFailure": false,
+  "reducedMotion": false,
   "expected": "One sequence, frozen combat, score 130/lives 2, continuous story, freeze while paused, one skip completion, restart level 1",
   "results": [
     {
@@ -11,19 +13,20 @@
         "height": 320
       },
       "timing": {
-        "count": 133,
-        "p50": 50.10000000000218,
-        "p95": 399.89999999999964,
-        "p99": 583.3999999999996,
-        "worst": 700.0999999999995,
+        "count": 721,
+        "p50": 16.69999999999891,
+        "p95": 16.700000000000728,
+        "p99": 16.800000000000182,
+        "worst": 16.80000000000109,
         "peakMainJsHeapBytes": 10000000
       },
       "preparation": {
-        "mainThreadMilliseconds": 47.30000019073486,
-        "cacheFrames": 15,
-        "cachePixelBytes": 3456000,
+        "mainThreadMilliseconds": 205.80000019073486,
+        "cacheFrames": 49,
+        "cachePixelBytes": 19614720,
         "fineTerrainReady": true
       },
+      "videoNormalSeconds": 22.301,
       "scenes": [
         null,
         "crash",
@@ -43,19 +46,20 @@
         "height": 320
       },
       "timing": {
-        "count": 56,
-        "p50": 252,
-        "p95": 849,
-        "p99": 1134,
-        "worst": 1134,
+        "count": 258,
+        "p50": 43,
+        "p95": 67,
+        "p99": 158,
+        "worst": 249,
         "peakMainJsHeapBytes": null
       },
       "preparation": {
-        "mainThreadMilliseconds": 87,
-        "cacheFrames": 10,
-        "cachePixelBytes": 2304000,
+        "mainThreadMilliseconds": 424,
+        "cacheFrames": 42,
+        "cachePixelBytes": 18001920,
         "fineTerrainReady": true
       },
+      "videoNormalSeconds": 26.32,
       "scenes": [
         null,
         "crash",
@@ -63,7 +67,6 @@
         "waking",
         null,
         "crash",
-        "blackout",
         null
       ],
       "result": "PASS: real keyboard last kill, normal sequence, visible external-camera handoff, score/lives, active flight/fire, pause/resize, skip once, restart"

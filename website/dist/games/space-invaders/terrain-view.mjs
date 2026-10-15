@@ -76,10 +76,17 @@ function drawSpan(ctx, x, base, cell, vertical, span, c, cutaway) {
   if (cutaway) return;
   // Shared fixed world sun: local face light agrees with the orbital renderer.
   if (span.top < c.height) return;
-  ctx.fillStyle = `rgba(229,226,219,${Math.max(0,(visualProfile?.sun||PLANET_SUN)[1])*.4})`; ctx.fillRect(x, y, cell, 2);
-  ctx.fillStyle = `rgba(17,21,33,${.15+Math.max(0,-(visualProfile?.sun||PLANET_SUN)[0])*.3})`; ctx.fillRect(x + cell * .78, y + 2, cell * .22, Math.max(1, bottom - y - 2));
+  ctx.fillStyle = visualProfile ? `rgba(229,226,219,${Math.max(0,(visualProfile?.sun||PLANET_SUN)[1])*.4})` : '#e5e2db30'; ctx.fillRect(x, y, cell, 2);
+  ctx.fillStyle = visualProfile ? `rgba(17,21,33,${.15+Math.max(0,-(visualProfile?.sun||PLANET_SUN)[0])*.3})` : '#11152150'; ctx.fillRect(x + cell * .78, y + 2, cell * .22, Math.max(1, bottom - y - 2));
 }
 export function planetSky() {
+ if(!visualProfile){const palettes = {obsidian: ['#17182f', '#765a78', '#a78787'], crystal: ['#102637', '#5b859a', '#9abcc2'],
+    toxic: ['#172b30', '#6b887d', '#afbc92'], impact: ['#201d38', '#a58286', '#d6b699']};
+  if (!terrainScene) return palettes.obsidian;
+  const dominant = BIOMES.reduce((a, b) => terrainScene.stats.biomes[a] >= terrainScene.stats.biomes[b] ? a : b);
+  return palettes[dominant];
+
+ }
  const key=`${terrainRevision},${visualProfile?.revision||''},${visualProfile?.atmosphere.enabled}`;
  if(skyCache&&skyKey===key)return skyCache;
  const c=visualProfile?.atmosphere||atmospherePreset('alien'),sun=visualProfile?.sun||PLANET_SUN,p=[0,c.radius+(visualProfile?.landingHeight||1200),0];

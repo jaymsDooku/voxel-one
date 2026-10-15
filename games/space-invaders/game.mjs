@@ -22,6 +22,7 @@ export class Game {
   get perspective(){return this.wave%2===0?'cockpit':'classic';}
   get cameraMix(){if(!this.transition)return this.perspective==='cockpit'?1:0;const p=this.transition.elapsed/this.transition.duration;return p*p*(3-2*p);}
   get flight(){return this.wave>=2;}
+  get entryDuration(){return this.orbitalPreview?ENTRY_DURATION:8;}
   restart(){this.entryReady=true;this.entryWait=0;this.transition=null;this.scene=null;this.sceneTime=0;this.score=0;this.lives=3;this.wave=1;this.player=240;this.playerY=520;this.velocity={x:0,y:0};this.shots=[];this.enemyShots=[];this.invulnerable=0;this.cooldown=0;this.state='playing';this.newWave();}
   newWave(){
     this.aliens=[];this.shields=[];
@@ -51,9 +52,9 @@ export class Game {
     // Bound elapsed time: resuming a suspended mobile tab must not fast-forward combat.
     dt=Math.max(0,Math.min(dt,this.scene ? .25 : .05));
     if(this.scene){
-      if(this.scene==='crash'&&this.sceneTime>=9&&!this.entryReady&&this.entryWait<1){this.entryWait=Math.min(1,this.entryWait+dt);return;}
+      if(this.orbitalPreview&&this.scene==='crash'&&this.sceneTime>=9&&!this.entryReady&&this.entryWait<1){this.entryWait=Math.min(1,this.entryWait+dt);return;}
       this.sceneTime+=dt;
-      const duration={crash:ENTRY_DURATION,blackout:1.2,waking:3}[this.scene];
+      const duration={crash:this.entryDuration,blackout:1.2,waking:3}[this.scene];
       if(this.sceneTime>=duration){
         this.sceneTime=0;
         if(this.scene==='crash')this.completeEntry();

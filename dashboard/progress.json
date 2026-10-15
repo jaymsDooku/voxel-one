@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-14T19:23:08+00:00",
+  "updatedAt": "2026-10-15T21:09:17+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -16,12 +16,12 @@
   "items": [
     {
       "id": "orbital-descent",
-      "title": "Space Invaders orbital planet and atmospheric descent",
+      "title": "Experimental orbital planet and atmospheric descent preview",
       "description": "Implementing a shared planet profile, browser atmosphere and continuous entry camera. Validation remains pending.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Final recovery validated: 52 units, desktop normal/cold fallback workflows, failure/recovery and launcher checks passed. Fresh media played and inspected. Three helper tasks resolved. Ready for independent review; WebKit targets unmet, physical follow-up, WebGL2 opt-in.",
-      "updatedAt": "2026-10-14T19:23:08+00:00"
+      "note": "Preview scope ready for independent review: both new Canvas/WebGL paths gated; ordinary default restored. 53 units, default/keyboard and preview workflows, failure checks, layout rerun and seven other regressions pass. Fresh media inspected; software p95 Chromium 16.7 ms/WebKit 87 ms. Physical rollout gates unmet.",
+      "updatedAt": "2026-10-15T21:09:17+00:00"
     },
     {
       "id": "36646561376136642d646639322d343635352d616365372d356135643135353263316664",

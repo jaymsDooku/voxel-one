@@ -9,24 +9,24 @@
       "measurements": {
         "animationTerrainCalls": 0,
         "frame": {
-          "count": 629,
-          "p50": 16.699999999999818,
+          "count": 628,
+          "p50": 16.69999999999891,
           "p95": 16.799999999999272,
-          "p99": 16.800000000000182,
-          "worst": 16.80000000000109
+          "p99": 16.80000000000109,
+          "worst": 33.30000000000109
         },
         "worldCpu": {
-          "count": 629,
-          "p50": 0.10000038146972656,
-          "p95": 2,
-          "p99": 2.799999237060547,
-          "worst": 6.600000381469727
+          "count": 628,
+          "p50": 0.19999980926513672,
+          "p95": 2.09999942779541,
+          "p99": 2.8000001907348633,
+          "worst": 3.40000057220459
         },
         "regionReady": true,
         "parentReady": true,
-        "parentSlicePeakMilliseconds": 12.90000057220459,
-        "parentPreparationMilliseconds": 220.4000005722046,
-        "parentUpdates": 25
+        "parentSlicePeakMilliseconds": 13.90000057220459,
+        "parentPreparationMilliseconds": 576.3999996185303,
+        "parentUpdates": 21
       },
       "observed": "PASS early real kill, fixed poses, unavailable Worker, empty cache, pause/rotation, full handoff, score/lives, flight/fire and restart cancellation"
     },
@@ -35,23 +35,23 @@
       "measurements": {
         "animationTerrainCalls": 0,
         "frame": {
-          "count": 262,
-          "p50": 42,
-          "p95": 73,
-          "p99": 309,
-          "worst": 1847
+          "count": 256,
+          "p50": 45,
+          "p95": 78,
+          "p99": 319,
+          "worst": 1509
         },
         "worldCpu": {
-          "count": 262,
+          "count": 256,
           "p50": 0,
           "p95": 1,
           "p99": 1,
-          "worst": 1
+          "worst": 3
         },
         "regionReady": true,
         "parentReady": true,
-        "parentSlicePeakMilliseconds": 14,
-        "parentPreparationMilliseconds": 212,
+        "parentSlicePeakMilliseconds": 19,
+        "parentPreparationMilliseconds": 244,
         "parentUpdates": 18
       },
       "observed": "PASS early real kill, fixed poses, unavailable Worker, empty cache, pause/rotation, full handoff, score/lives, flight/fire and restart cancellation"

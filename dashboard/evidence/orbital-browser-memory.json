@@ -1,8 +1,8 @@
 {
-  "command": "ORBITAL_BROWSER=Chromium ORBITAL_QUALITY=Low ORBITAL_PREWARM=3seconds ORBITAL_REPORT_SUFFIX=-bounded-final-memory PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/run_orbital_web_check.cjs deploy/test_orbital_memory.cjs",
+  "command": "ORBITAL_BROWSER=Chromium ORBITAL_QUALITY=Low ORBITAL_PREWARM=3seconds ORBITAL_REPORT_SUFFIX=-preview PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/run_orbital_web_check.cjs deploy/test_orbital_memory.cjs",
   "environment": "Linux,4096-byte pages,fresh synthetic Chromium; no concurrent test/recording workload from this work item",
   "sampling": "200 ms; CDP SystemInfo.getProcessInfo scopes PIDs; only numeric resident-page statm fields read; shared pages can be double counted; brief peaks between samples may be missed",
-  "peakSummedResidentBytes": 604217344,
+  "peakSummedResidentBytes": 597032960,
   "samples": 112,
   "processTypes": [
     "browser",

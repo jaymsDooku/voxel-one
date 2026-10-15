@@ -1,6 +1,6 @@
 {
   "command": "ORBITAL_REDUCED_MOTION=1 ORBITAL_WORKER_FAILURE=1 ORBITAL_BROWSER= ORBITAL_WIDTH=1280 PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/run_orbital_web_check.cjs deploy/test_orbital_descent.cjs",
-  "environment": "Linux headless Chromium/WebKit, Canvas Low default, synthetic isolated profiles, local source HTTP port 8779; software browser measurements do not establish physical Safari performance",
+  "environment": "Linux headless Chromium/WebKit, experimental preview explicitly enabled through UI, Canvas Low, synthetic isolated profiles, local source HTTP port 8779; software browser measurements do not establish physical Safari performance",
   "playtest": "Playtest: start, synthetic final level 2 fighter, real Space fire and frame loop, watch 12-second descent/blackout/waking, fly/fire on level 3; repeat transition, pause, rotate viewport, skip twice, restart.",
   "workerFailure": true,
   "reducedMotion": true,
@@ -13,20 +13,20 @@
         "height": 900
       },
       "timing": {
-        "count": 530,
+        "count": 516,
         "p50": 16.700000000000728,
-        "p95": 33.40000000000009,
+        "p95": 33.400000000000546,
         "p99": 50,
-        "worst": 299.89999999999986,
-        "peakMainJsHeapBytes": 10600000
+        "worst": 233.4000000000001,
+        "peakMainJsHeapBytes": 10000000
       },
       "preparation": {
-        "mainThreadMilliseconds": 267.30000019073486,
+        "mainThreadMilliseconds": 204,
         "cacheFrames": 0,
         "cachePixelBytes": 0,
         "fineTerrainReady": false
       },
-      "videoNormalSeconds": 21.917,
+      "videoNormalSeconds": 22.229,
       "scenes": [
         "crash",
         "blackout",
@@ -45,20 +45,20 @@
         "height": 900
       },
       "timing": {
-        "count": 282,
-        "p50": 43,
-        "p95": 58,
-        "p99": 143,
-        "worst": 241,
+        "count": 273,
+        "p50": 44,
+        "p95": 59,
+        "p99": 160,
+        "worst": 239,
         "peakMainJsHeapBytes": null
       },
       "preparation": {
-        "mainThreadMilliseconds": 405,
+        "mainThreadMilliseconds": 428,
         "cacheFrames": 0,
         "cachePixelBytes": 0,
         "fineTerrainReady": false
       },
-      "videoNormalSeconds": 30.001,
+      "videoNormalSeconds": 30.387,
       "scenes": [
         null,
         "crash",

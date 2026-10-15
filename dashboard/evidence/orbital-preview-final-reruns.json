@@ -1,0 +1,32 @@
+[
+  {
+    "case": "preview-cold-fallback",
+    "command": "node deploy/run_orbital_web_check.cjs deploy/test_orbital_descent.cjs",
+    "settings": {
+      "ORBITAL_WIDTH": "1280",
+      "ORBITAL_WORKER_FAILURE": "1",
+      "ORBITAL_REDUCED_MOTION": "1"
+    },
+    "exit": 0
+  },
+  {
+    "case": "benchmark-chromium",
+    "command": "node deploy/run_orbital_web_check.cjs deploy/test_orbital_memory.cjs",
+    "settings": {
+      "ORBITAL_BROWSER": "Chromium",
+      "ORBITAL_QUALITY": "Low",
+      "ORBITAL_REPORT_SUFFIX": "-preview"
+    },
+    "exit": 0
+  },
+  {
+    "case": "benchmark-webkit",
+    "command": "node deploy/run_orbital_web_check.cjs deploy/test_orbital_benchmark.cjs",
+    "settings": {
+      "ORBITAL_BROWSER": "WebKit",
+      "ORBITAL_QUALITY": "Low",
+      "ORBITAL_REPORT_SUFFIX": "-preview"
+    },
+    "exit": 0
+  }
+]
