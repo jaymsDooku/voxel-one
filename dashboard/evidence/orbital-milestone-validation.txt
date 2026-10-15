@@ -1,0 +1,6 @@
+Milestone 1 scope validation
+Runtime baseline: e3f31c3a878246d0095489c1c72d6899c4750658
+Commands: python3 deploy/build_site.py; Python local Markdown-link/tracker/progress-JSON/runtime-diff checks; git diff --check.
+Observed: site build passed (22 navigable sections); links resolve; R1–R5 are open; progress JSON parses; no unmerged files or deletions against aac5ca8ee0fa5ed6e5f84949c66e9949085f1d85; no runtime source edits.
+Playtest: no browser replay for this documentation-only scope change. Runtime remains the independently tested e3f31c3a878246d0095489c1c72d6899c4750658 implementation; its existing normal/fallback recordings remain supporting preview evidence, not a new hardware pass. No new runtime tests claimed.
+Milestone 1 is pending independent review. Original default-rollout acceptance remains open in games/space-invaders/ROLLOUT.md. Hardware 60 FPS desktop / stable 30 FPS physical Safari iPhone qualification remains unmet.

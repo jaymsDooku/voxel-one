@@ -1,4 +1,6 @@
-# Experimental orbital planet and atmospheric descent preview
+# Milestone 1: opt-in experimental orbital/descent preview
+
+This PR requests acceptance of Milestone 1 only. It does not complete the original default-rollout goal. `games/space-invaders/ROLLOUT.md` tracks open acceptance items R1–R5, required evidence and exit conditions. Hardware qualification, final visual/performance fixes, the rollout regression matrix and the separately reviewed default switch remain open. No follow-up work is auto-queued.
 
 Ordinary Space Invaders keeps its original eight-second entry, terrain palette and terrain lighting. The start overlay offers an unchecked **Experimental orbital descent preview (unqualified)** checkbox. Both the new Canvas and WebGL2 paths require that explicit choice. The choice is held for the page visit, locked while playing or paused, and cleared by reload. Ordinary play creates no orbital canvas, profile, cache Worker or GL context.
 

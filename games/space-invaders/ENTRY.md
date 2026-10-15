@@ -1,5 +1,7 @@
 # Orbital entry adapter
 
+Delivery scope: **Milestone 1, opt-in experimental preview**, pending independent review. The original default-rollout goal remains open. See the [remaining acceptance tracker](ROLLOUT.md) for R1–R5 and their exit criteria.
+
 Both the orbital Canvas path and WebGL2 renderer require the unchecked, session-only **Experimental orbital descent preview (unqualified)** checkbox before Start. Ordinary play retains the original eight-second entry and terrain palette/lighting, with no orbital profile, cache Worker or GL initialization. Refresh clears the opt-in. The checkbox is locked during play/pause; restart cancels preview jobs. The preview renderers share a version 1 planet profile,
 terrain generator version 1, SI atmosphere contract, fixed sun/moon directions,
 cloud seed and landing anchor. Existing seed galleries use the unchanged Planet

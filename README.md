@@ -4,6 +4,8 @@ A Java/LWJGL voxel playground with seeded procedural biomes, a survival inventor
 
 ## Space Invaders experimental orbital preview
 
+This is Milestone 1 for independent review. The original default-rollout goal remains open; [remaining acceptance work](games/space-invaders/ROLLOUT.md) tracks hardware, visual, compatibility and rollout gates.
+
 Ordinary play keeps its original eight-second level 2 entry and terrain rendering. Before Start, select **Experimental orbital descent preview (unqualified)** to try the twelve-second shared-planet sequence. Both the new Canvas path and WebGL2 are gated; the choice lasts only for this page visit. Canvas fallback within preview keeps its planet/profile and story handoff.
 
 Named desktop GPU and physical Safari iPhone qualification is pending. The 60 FPS desktop and stable 30 FPS iPhone targets are not established. See [entry documentation](games/space-invaders/ENTRY.md) and the [manual hardware test plan](dashboard/evidence/orbital-device-validation.md).
