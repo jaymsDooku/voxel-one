@@ -1,0 +1,42 @@
+{
+  "command": "GROUND_ORBITAL=1 TMPDIR=\"$PWD/.tmp/browser\" PLAYWRIGHT_BROWSERS_PATH=\"$PWD/.tmp/browsers\" node deploy/test_space_invaders_ground.cjs",
+  "environment": "Linux VPS; sandboxed headless Chromium/WebKit; synthetic profiles; source HTTP 127.0.0.1:8779; software browser results, no physical phone claim",
+  "results": [
+    {
+      "engine": "chromium",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "nativeLock": "Native API granted in headless automation",
+      "observed": "PASS",
+      "playtest": "Playtest: real last-fighter keyboard kill; normal desktop descent/waking or mobile Skip; explicit denied-lock Resume; walk/strafe and vertical aim; simultaneous synthetic touch move/look/fire, pointer cancellation; real F kill; Escape/resume; no ammo/reload; synthetic pickup/lethal/deduplicated respawn; context loss/restore or rotation; last-kill latch; Continue cockpit/fire; zero-life/restart.",
+      "limitations": "Touch pointer events are synthetic automation; actual capture and OS pointer lock need physical follow-up. Synthetic health/death fixtures test integration, not enemy-hit difficulty.",
+      "frameMs": {
+        "p50": 83.19999999999709,
+        "p95": 100,
+        "p99": 100,
+        "hitchesOver50": 111
+      },
+      "diagnostics": {
+        "renderer": {
+          "meshBytes": 2839680,
+          "chunks": 49,
+          "preparationMs": 513.8000030517578,
+          "maxJobMs": 20.199999809265137,
+          "coarsePreparationMs": 7.900002479553223,
+          "terrainMeshBytes": 2544192,
+          "sharedPilotMeshBytes": 74304,
+          "heldWeaponBytes": 5184,
+          "coarseMeshBytes": 178848,
+          "meshLimitBytes": 16777216,
+          "dynamicBytes": 37152
+        },
+        "worldCells": 250000
+      }
+    }
+  ],
+  "validatedBase": "9b069b275ab4d1d85518366ce969cd1225e64dbd",
+  "recordedAt": "2026-10-15T22:04:17.357870+00:00",
+  "sourceManifest": "ground-final-source-hashes.json"
+}

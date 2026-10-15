@@ -11,7 +11,7 @@ test('large background delta bounded and offscreen projectiles recycled',()=>{co
 
 test('slow frame projectile sweeps across alien and shield',()=>{const g=new Game();g.restart();g.aliens=[{x:240,y:200,points:30}];g.shots=[{x:240,y:205}];g.update(.05);assert.equal(g.wave,2);assert.equal(g.score,30);while(g.transition)g.update(.05);g.shields=[{x:100,y:440}];g.shots=[{x:100,y:450}];g.update(.05);assert.equal(g.shields.length,0);});
 
-test('levels alternate classic and cockpit; restart restores classic',()=>{const g=new Game();g.restart();for(let wave=1;wave<=4;wave++){assert.equal(g.wave,wave);assert.equal(g.perspective,wave%2?'classic':'cockpit');g.aliens=[];g.update(.01);while(g.scene||g.transition)g.update(.05);}g.restart();assert.equal(g.wave,1);assert.equal(g.perspective,'classic');});
+test('classic, fighter, ground, cockpit remain isolated',()=>{const g=new Game();g.restart();g.aliens=[];g.update(.01);while(g.transition)g.update(.05);assert.equal(g.wave,2);g.aliens=[];g.update(.01);g.skipEntry();assert.equal(g.wave,3);assert.equal(g.flight,false);assert.equal(g.ground.remaining,12);for(const e of g.ground.enemies)g.ground.defeat(e);g.continueGround();assert.equal(g.wave,4);assert.equal(g.perspective,'cockpit');assert.equal(g.ground,null);assert(g.aliens.length>0);g.restart();assert.equal(g.wave,1);assert(g.shields.length>0);});
 
 test('fighter flight has momentum, diagonal speed limit, bounds and aimed attacks',()=>{
  const g=new Game(()=>0);g.restart();g.wave=2;g.newWave();assert.equal(g.shields.length,0);assert(g.aliens.every(a=>a.type==='fighter'));
@@ -34,7 +34,7 @@ test('level 2 crash, unconscious blackout and level 3 wake preserve progress and
  for(let i=0;i<140;i++)g.update(.05,{axis:1,fire:true});assert.equal(g.scene,'crash');assert.equal(g.player,x);assert.equal(g.shots.length,0);
  while(g.scene==='crash')g.update(.05);assert.equal(g.scene,'blackout');assert.equal(g.wave,2);
  while(g.scene==='blackout')g.update(.05);assert.equal(g.scene,'waking');assert.equal(g.wave,3);assert.equal(g.aliens.length,0);
- while(g.scene)g.update(.05);assert.equal(g.aliens.length,18);assert.equal(g.score,800);assert.equal(g.lives,2);
+ while(g.scene)g.update(.05);assert.equal(g.state,'paused');assert.equal(g.aliens.length,0);assert.equal(g.ground.remaining,12);assert.equal(g.score,800);assert.equal(g.lives,2);
  g.wave=2;g.aliens=[];g.update(.01);g.restart();assert.equal(g.scene,null);assert.equal(g.wave,1);
 });
 

@@ -9,8 +9,9 @@ export let terrainMode = 'none';
 let frozen = false, visualProfile=null,skyCache=null,skyKey='';
 export function setPlanetVisualProfile(profile){if(visualProfile===profile)return;visualProfile=profile;skyCache=null;}
 export function cancelPlanetJobs(){newest++;for(const task of pending.values())task.resolve(null);pending.clear();worker?.terminate();worker=null;}
-export function freezePlanet(){frozen=true;cancelPlanetJobs();return {world:planetWorld,scene:terrainScene,revision:terrainRevision};}
-export function releasePlanet(){frozen=false;}
+export function freezePlanet(value=true){if(!value){releasePlanet();return;}frozen=true;cancelPlanetJobs();setLabFrozen(true);return {world:planetWorld,scene:terrainScene,revision:terrainRevision};}
+function setLabFrozen(value){const panel=typeof document==='undefined'?null:document.querySelector('#planet-lab');if(panel){panel.hidden=value;panel.querySelectorAll('input,button,select').forEach(e=>e.disabled=value);}}
+export function releasePlanet(){frozen=false;setLabFrozen(false);}
 let nextId = 0, worker = null, newest = 0, editing = false;
 const pending = new Map(), listeners = new Set();
 let currentView = {...VIEW};
@@ -41,7 +42,7 @@ function requestScene(world, view) {
   });
 }
 export async function configurePlanet(config = planetWorld.config, view = currentView, reuse = false) {
-  if(frozen)throw new Error('Planet is locked during descent and landing. Restart to generate a new world.');
+  if(frozen)throw new Error('Planet lab is locked and frozen during descent, landing and the ground mission. Restart to generate a new world.');
   const world = reuse instanceof Planet ? reuse : reuse ? planetWorld : new Planet(config), ticket = ++newest;
   const scene = await requestScene(world, view);
   if (ticket !== newest || frozen || !scene) return null;

@@ -1,0 +1,207 @@
+{
+  "command": "TMPDIR=\"$PWD/.tmp/browser\" PLAYWRIGHT_BROWSERS_PATH=\"$PWD/.tmp/browsers\" node deploy/test_space_invaders_ground.cjs",
+  "environment": "Linux VPS; sandboxed headless Chromium/WebKit; synthetic profiles; source HTTP 127.0.0.1:8779; software browser results, no physical phone claim",
+  "results": [
+    {
+      "engine": "chromium",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "nativeLock": "Native API granted in headless automation",
+      "observed": "PASS",
+      "playtest": "Playtest: real last-fighter keyboard kill; normal desktop descent/waking or mobile Skip; explicit denied-lock Resume; walk/strafe and vertical aim; simultaneous synthetic touch move/look/fire, pointer cancellation; real F kill; Escape/resume; no ammo/reload; synthetic pickup/lethal/deduplicated respawn; context loss/restore or rotation; last-kill latch; Continue cockpit/fire; zero-life/restart.",
+      "limitations": "Touch pointer events are synthetic automation; actual capture and OS pointer lock need physical follow-up. Synthetic health/death fixtures test integration, not enemy-hit difficulty.",
+      "frameMs": {
+        "p50": 83.29999999999563,
+        "p95": 83.40000000000146,
+        "p99": 100.09999999999854,
+        "hitchesOver50": 116
+      },
+      "diagnostics": {
+        "renderer": {
+          "meshBytes": 2838816,
+          "chunks": 49,
+          "preparationMs": 480.09999561309814,
+          "maxJobMs": 15.199999809265137,
+          "coarsePreparationMs": 9.300006866455078,
+          "terrainMeshBytes": 2544192,
+          "sharedPilotMeshBytes": 74304,
+          "heldWeaponBytes": 5184,
+          "coarseMeshBytes": 178848,
+          "meshLimitBytes": 16777216,
+          "dynamicBytes": 36288
+        },
+        "worldCells": 250000
+      }
+    },
+    {
+      "engine": "chromium",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "nativeLock": "Touch does not request pointer lock",
+      "observed": "PASS",
+      "playtest": "Playtest: real last-fighter keyboard kill; normal desktop descent/waking or mobile Skip; explicit denied-lock Resume; walk/strafe and vertical aim; simultaneous synthetic touch move/look/fire, pointer cancellation; real F kill; Escape/resume; no ammo/reload; synthetic pickup/lethal/deduplicated respawn; context loss/restore or rotation; last-kill latch; Continue cockpit/fire; zero-life/restart.",
+      "limitations": "Touch pointer events are synthetic automation; actual capture and OS pointer lock need physical follow-up. Synthetic health/death fixtures test integration, not enemy-hit difficulty.",
+      "frameMs": {
+        "p50": 33.29999999999927,
+        "p95": 33.400000000001455,
+        "p99": 50,
+        "hitchesOver50": 1
+      },
+      "diagnostics": {
+        "renderer": {
+          "meshBytes": 2839680,
+          "chunks": 49,
+          "preparationMs": 1863.4999980926514,
+          "maxJobMs": 38.5,
+          "coarsePreparationMs": 17.300003051757812,
+          "terrainMeshBytes": 2544192,
+          "sharedPilotMeshBytes": 74304,
+          "heldWeaponBytes": 5184,
+          "coarseMeshBytes": 178848,
+          "meshLimitBytes": 16777216,
+          "dynamicBytes": 37152
+        },
+        "worldCells": 250000
+      }
+    },
+    {
+      "engine": "chromium",
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "nativeLock": "Touch does not request pointer lock",
+      "observed": "PASS",
+      "playtest": "Playtest: real last-fighter keyboard kill; normal desktop descent/waking or mobile Skip; explicit denied-lock Resume; walk/strafe and vertical aim; simultaneous synthetic touch move/look/fire, pointer cancellation; real F kill; Escape/resume; no ammo/reload; synthetic pickup/lethal/deduplicated respawn; context loss/restore or rotation; last-kill latch; Continue cockpit/fire; zero-life/restart.",
+      "limitations": "Touch pointer events are synthetic automation; actual capture and OS pointer lock need physical follow-up. Synthetic health/death fixtures test integration, not enemy-hit difficulty.",
+      "frameMs": {
+        "p50": 16.700000000000728,
+        "p95": 33.400000000001455,
+        "p99": 33.400000000001455,
+        "hitchesOver50": 0
+      },
+      "diagnostics": {
+        "renderer": {
+          "meshBytes": 2839680,
+          "chunks": 49,
+          "preparationMs": 1930.6999959945679,
+          "maxJobMs": 42.90000057220459,
+          "coarsePreparationMs": 16.39999771118164,
+          "terrainMeshBytes": 2544192,
+          "sharedPilotMeshBytes": 74304,
+          "heldWeaponBytes": 5184,
+          "coarseMeshBytes": 178848,
+          "meshLimitBytes": 16777216,
+          "dynamicBytes": 37152
+        },
+        "worldCells": 250000
+      }
+    },
+    {
+      "engine": "webkit",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "nativeLock": "Native API unavailable/denied in headless automation",
+      "observed": "PASS",
+      "playtest": "Playtest: real last-fighter keyboard kill; normal desktop descent/waking or mobile Skip; explicit denied-lock Resume; walk/strafe and vertical aim; simultaneous synthetic touch move/look/fire, pointer cancellation; real F kill; Escape/resume; no ammo/reload; synthetic pickup/lethal/deduplicated respawn; context loss/restore or rotation; last-kill latch; Continue cockpit/fire; zero-life/restart.",
+      "limitations": "Touch pointer events are synthetic automation; actual capture and OS pointer lock need physical follow-up. Synthetic health/death fixtures test integration, not enemy-hit difficulty.",
+      "frameMs": {
+        "p50": 69,
+        "p95": 85,
+        "p99": 90,
+        "hitchesOver50": 120
+      },
+      "diagnostics": {
+        "renderer": {
+          "meshBytes": 2839680,
+          "chunks": 49,
+          "preparationMs": 460,
+          "maxJobMs": 18,
+          "coarsePreparationMs": 11,
+          "terrainMeshBytes": 2544192,
+          "sharedPilotMeshBytes": 74304,
+          "heldWeaponBytes": 5184,
+          "coarseMeshBytes": 178848,
+          "meshLimitBytes": 16777216,
+          "dynamicBytes": 37152
+        },
+        "worldCells": 250000
+      }
+    },
+    {
+      "engine": "webkit",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "nativeLock": "Touch does not request pointer lock",
+      "observed": "PASS",
+      "playtest": "Playtest: real last-fighter keyboard kill; normal desktop descent/waking or mobile Skip; explicit denied-lock Resume; walk/strafe and vertical aim; simultaneous synthetic touch move/look/fire, pointer cancellation; real F kill; Escape/resume; no ammo/reload; synthetic pickup/lethal/deduplicated respawn; context loss/restore or rotation; last-kill latch; Continue cockpit/fire; zero-life/restart.",
+      "limitations": "Touch pointer events are synthetic automation; actual capture and OS pointer lock need physical follow-up. Synthetic health/death fixtures test integration, not enemy-hit difficulty.",
+      "frameMs": {
+        "p50": 44,
+        "p95": 59,
+        "p99": 75,
+        "hitchesOver50": 21
+      },
+      "diagnostics": {
+        "renderer": {
+          "meshBytes": 2839680,
+          "chunks": 49,
+          "preparationMs": 1868,
+          "maxJobMs": 60,
+          "coarsePreparationMs": 35,
+          "terrainMeshBytes": 2544192,
+          "sharedPilotMeshBytes": 74304,
+          "heldWeaponBytes": 5184,
+          "coarseMeshBytes": 178848,
+          "meshLimitBytes": 16777216,
+          "dynamicBytes": 37152
+        },
+        "worldCells": 250000
+      }
+    },
+    {
+      "engine": "webkit",
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "nativeLock": "Touch does not request pointer lock",
+      "observed": "PASS",
+      "playtest": "Playtest: real last-fighter keyboard kill; normal desktop descent/waking or mobile Skip; explicit denied-lock Resume; walk/strafe and vertical aim; simultaneous synthetic touch move/look/fire, pointer cancellation; real F kill; Escape/resume; no ammo/reload; synthetic pickup/lethal/deduplicated respawn; context loss/restore or rotation; last-kill latch; Continue cockpit/fire; zero-life/restart.",
+      "limitations": "Touch pointer events are synthetic automation; actual capture and OS pointer lock need physical follow-up. Synthetic health/death fixtures test integration, not enemy-hit difficulty.",
+      "frameMs": {
+        "p50": 42,
+        "p95": 51,
+        "p99": 58,
+        "hitchesOver50": 8
+      },
+      "diagnostics": {
+        "renderer": {
+          "meshBytes": 2839680,
+          "chunks": 49,
+          "preparationMs": 2108,
+          "maxJobMs": 54,
+          "coarsePreparationMs": 28,
+          "terrainMeshBytes": 2544192,
+          "sharedPilotMeshBytes": 74304,
+          "heldWeaponBytes": 5184,
+          "coarseMeshBytes": 178848,
+          "meshLimitBytes": 16777216,
+          "dynamicBytes": 37152
+        },
+        "worldCells": 250000
+      }
+    }
+  ],
+  "validatedBase": "9b069b275ab4d1d85518366ce969cd1225e64dbd",
+  "recordedAt": "2026-10-15T22:04:17.357870+00:00",
+  "sourceManifest": "ground-final-source-hashes.json"
+}
