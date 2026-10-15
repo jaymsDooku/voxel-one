@@ -14,28 +14,28 @@
       "observed": "PASS",
       "diagnostics": {
         "renderer": {
-          "meshBytes": 1050336,
+          "meshBytes": 1049472,
           "chunks": 49,
-          "preparationMs": 87.80000495910645,
-          "maxJobMs": 14.699999809265137,
-          "coarsePreparationMs": 20.69999408721924,
+          "preparationMs": 64.69999885559082,
+          "maxJobMs": 10.100000381469727,
+          "coarsePreparationMs": 40.69999885559082,
           "terrainMeshBytes": 451584,
           "sharedPilotMeshBytes": 74304,
           "heldWeaponBytes": 5184,
           "sharedHumanMeshBytes": 20736,
           "coarseMeshBytes": 206496,
           "meshLimitBytes": 16777216,
-          "dynamicBytes": 292032
+          "dynamicBytes": 291168
         },
         "worldCells": 0,
-        "prepareCallMs": 2.1999998092651367,
+        "prepareCallMs": 2.5,
         "props": 339,
         "actors": 9
       },
       "frameMs": {
-        "p50": 16.700000000000728,
-        "p95": 33.400000000001455,
-        "max": 50
+        "p50": 49.900000000001455,
+        "p95": 66.70000000000073,
+        "max": 83.39999999999782
       },
       "playtest": "Playtest: synthetic 11-pilot setup; real last-pilot F shot and duplicate scoring guard; shot against portal; normal-speed keyboard or simultaneous touch move/look crossing; no automatic pointer lock; denied-lock resume; retained resources; walk to resistance contact/newspaper, actual occupation-guard projectile, real guard kill and three district objectives; chapter end; repeat run failure/cancel/successful retry, pause during loading, context recovery or rotation, reduced graphics/motion, restart loading, destination death and campaign restart.",
       "limitations": "Injected camera yaw for route steering; synthetic immunity isolates workflow. Failure, damage and context loss fixtures are explicit. Headless software browsers and synthetic touch events do not establish physical phone/GPU performance."

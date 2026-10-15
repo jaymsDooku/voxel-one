@@ -56,8 +56,8 @@
         }
       ],
       "status": "in_progress",
-      "note": "Implemented and validated: 86 unit tests; Chromium/WebKit portal and district workflows; reduced landscape; natural guard combat; prior-stage, collision, terrain/lab and launcher regressions. Clips and source hashes are local. Awaiting controller sync/publication and independent review; no deployment performed.",
-      "updatedAt": "2026-10-15T23:19:45+00:00"
+      "note": "Rebased onto reviewed master 3760edff; all game hashes unchanged. Final-source validation passed: 86 unit tests, four Chromium/WebKit portal workflows, reduced landscape, natural guard combat, six ground regressions and fresh/cached launcher. Fresh media saved below 6 MB. Awaiting controller publication and independent review; no deployment performed.",
+      "updatedAt": "2026-10-15T23:34:22+00:00"
     },
     {
       "id": "skip-unchanged-shared-engine-block-writes",
