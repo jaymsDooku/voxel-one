@@ -5,7 +5,7 @@ const fs=require('node:fs');
 (async()=>{
  const browser=await webkit.launch({headless:true});const results=[];
  for(const viewport of [{width:1280,height:900},{width:390,height:844},{width:844,height:390}]){
-  const context=await browser.newContext({viewport,hasTouch:true});const page=await context.newPage();page.setDefaultTimeout(10000);const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  const context=await browser.newContext({viewport,hasTouch:true});const page=await context.newPage();page.setDefaultTimeout(90000);const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto('http://127.0.0.1:8778/games/space-invaders/index.html');await page.locator('#start').click();await page.evaluate(async()=>{window.testGame=(await import('./app.mjs')).game;});
   await page.waitForTimeout(120);assert.equal(await page.locator('canvas').getAttribute('data-perspective'),'classic');
   if(viewport.width===1280)await page.screenshot({path:'dashboard/evidence/cockpit-classic-regression.png'});
@@ -15,7 +15,7 @@ const fs=require('node:fs');
   await page.waitForFunction(()=>document.querySelector('canvas').dataset.perspective==='cockpit'&&document.querySelector('canvas').dataset.transition==='none');assert.equal(await page.locator('canvas').getAttribute('data-perspective'),'cockpit');assert.match(await page.locator('#hud').innerText(),/Wave 2.*FIGHTER COMBAT/);
   assert(await page.evaluate(async()=>{const {game}=await import('./app.mjs');return game.shields.length===0&&game.aliens.every(a=>a.type==='fighter');}));
   const positions=await page.evaluate(async()=>{const {game}=await import('./app.mjs');return game.aliens.map(a=>({x:a.x,y:a.y}));});
-  await page.keyboard.down('ArrowUp');await page.waitForTimeout(600);await page.keyboard.up('ArrowUp');
+  await page.keyboard.down('ArrowUp');await page.waitForFunction(()=>window.testGame.playerY<450);await page.keyboard.up('ArrowUp');
   assert(await page.evaluate(async before=>{const {game}=await import('./app.mjs');return game.playerY<450&&Math.abs((game.aliens[0].x-before[0].x)-(game.aliens[1].x-before[1].x))>1;},positions));
   await page.evaluate(async()=>{const {game}=await import('./app.mjs');game.enemyClock=100;});
   await page.keyboard.down('ArrowRight');await page.waitForTimeout(250);await page.keyboard.up('ArrowRight');

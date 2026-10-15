@@ -1,0 +1,65 @@
+{
+  "command": "PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/run_orbital_web_check.cjs deploy/test_orbital_shell_crossing.cjs",
+  "environment": "Linux headless Chromium software WebGL2; 1280x900; explicit experimental opt-in; synthetic isolated final fighter, real Space kill",
+  "playtest": "Playtest: real final kill; pause and inspect rendered exterior/shell-crossing poses; assert no all-zero RGB fragments in actual GL framebuffer; airless control; resume full normal-speed descent through waking and active level 3; verify score/lives and move/fire.",
+  "expected": "No black NaN band, GL error 0, one story handoff, score 130/lives 2, active flight/fire",
+  "results": [
+    {
+      "time": 2.8,
+      "altitude": 127251.44642818603,
+      "blackPixels": 0,
+      "pixels": 162240,
+      "error": 0
+    },
+    {
+      "time": 3,
+      "altitude": 120000.00000000006,
+      "blackPixels": 0,
+      "pixels": 162240,
+      "error": 0
+    },
+    {
+      "time": 3.2,
+      "altitude": 115506.16377508974,
+      "blackPixels": 0,
+      "pixels": 162240,
+      "error": 0
+    },
+    {
+      "time": 3.5,
+      "altitude": 96118.86940249719,
+      "blackPixels": 0,
+      "pixels": 162240,
+      "error": 0
+    },
+    {
+      "time": 4,
+      "altitude": 55192.1323151179,
+      "blackPixels": 0,
+      "pixels": 162240,
+      "error": 0
+    },
+    {
+      "time": 4.5,
+      "altitude": 26832.81572999745,
+      "blackPixels": 0,
+      "pixels": 162240,
+      "error": 0
+    },
+    {
+      "time": 6,
+      "altitude": 5999.999999999995,
+      "blackPixels": 0,
+      "pixels": 162240,
+      "error": 0
+    }
+  ],
+  "airless": {
+    "black": 0,
+    "error": 0
+  },
+  "errors": [],
+  "normalStartSeconds": 52.649,
+  "normalEndSeconds": 93.071,
+  "qualification": "Software check only. Named GPU/physical Safari 60/30 FPS qualification remains unmet."
+}

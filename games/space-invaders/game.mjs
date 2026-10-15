@@ -1,3 +1,4 @@
+import {ENTRY_DURATION} from './entry-sequence.mjs';
 export const models = {
   squid:['00100','01110','11111','10101','01010'],
   crab:['0100010','0010100','0111110','1101011','1111111','1000001','0100010'],
@@ -15,12 +16,14 @@ export function visualBounds(shape,x,y,scale={x:1,y:1}){
  return {left:x+shape.left*scale.x,right:x+shape.right*scale.x,top:y+shape.top*scale.y,bottom:y+shape.bottom*scale.y};
 }
 function overlaps(a,b){return a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top;}
+export {ENTRY_DURATION} from './entry-sequence.mjs';
 export class Game {
   constructor(random=Math.random){this.random=random;this.renderScale={x:1,y:1};this.restart();this.state='title';}
   get perspective(){return this.wave%2===0?'cockpit':'classic';}
   get cameraMix(){if(!this.transition)return this.perspective==='cockpit'?1:0;const p=this.transition.elapsed/this.transition.duration;return p*p*(3-2*p);}
   get flight(){return this.wave>=2;}
-  restart(){this.transition=null;this.scene=null;this.sceneTime=0;this.score=0;this.lives=3;this.wave=1;this.player=240;this.playerY=520;this.velocity={x:0,y:0};this.shots=[];this.enemyShots=[];this.invulnerable=0;this.cooldown=0;this.state='playing';this.newWave();}
+  get entryDuration(){return this.orbitalPreview?ENTRY_DURATION:8;}
+  restart(){this.entryReady=true;this.entryWait=0;this.transition=null;this.scene=null;this.sceneTime=0;this.score=0;this.lives=3;this.wave=1;this.player=240;this.playerY=520;this.velocity={x:0,y:0};this.shots=[];this.enemyShots=[];this.invulnerable=0;this.cooldown=0;this.state='playing';this.newWave();}
   newWave(){
     this.aliens=[];this.shields=[];
     if(this.flight){
@@ -38,17 +41,23 @@ export class Game {
     }
     this.direction=1;this.enemyClock=1;this.saucer=null;this.saucerClock=12;
   }
+  skipDescent(){
+    if(this.scene!=='crash')return false;
+    this.completeEntry();return true;
+  }
+  completeEntry(){if(this.scene!=='crash')return;this.scene='blackout';this.sceneTime=0;}
   pause(){if(this.state==='playing')this.state='paused';else if(this.state==='paused')this.state='playing';}
   update(dt,input={}){
     if(this.state!=='playing')return;
     // Bound elapsed time: resuming a suspended mobile tab must not fast-forward combat.
-    dt=Math.max(0,Math.min(dt,.05));
+    dt=Math.max(0,Math.min(dt,this.scene ? .25 : .05));
     if(this.scene){
+      if(this.orbitalPreview&&this.scene==='crash'&&this.sceneTime>=9&&!this.entryReady&&this.entryWait<1){this.entryWait=Math.min(1,this.entryWait+dt);return;}
       this.sceneTime+=dt;
-      const duration={crash:8,blackout:1.2,waking:3}[this.scene];
+      const duration={crash:this.entryDuration,blackout:1.2,waking:3}[this.scene];
       if(this.sceneTime>=duration){
         this.sceneTime=0;
-        if(this.scene==='crash')this.scene='blackout';
+        if(this.scene==='crash')this.completeEntry();
         else if(this.scene==='blackout'){this.wave=3;this.scene='waking';}
         else {this.scene=null;this.newWave();this.invulnerable=2;}
       }
@@ -107,6 +116,6 @@ export class Game {
     let hit=false;this.enemyShots=this.enemyShots.filter(s=>{if(shieldHit(s,true))return false;if(hits(s,modelBounds.ship,this.player,this.playerY,true)){if(this.invulnerable<=0)hit=true;return false;}return s.y>-20&&s.y<570&&s.x>-20&&s.x<500;});
     if(this.flight&&this.invulnerable<=0&&this.aliens.some(a=>overlaps(bounds(modelBounds[a.type||'crab'],a.x,a.y),bounds(modelBounds.ship,this.player,this.playerY))))hit=true;
     if(hit){this.lives--;this.invulnerable=2;this.enemyShots=[];if(this.lives<=0)this.state='over';}
-    if(!this.aliens.length&&this.state==='playing'){if(this.wave===2){this.scene='crash';this.sceneTime=0;this.shots=[];this.enemyShots=[];this.saucer=null;this.velocity={x:0,y:0};return;}this.wave++;this.shots=[];this.enemyShots=[];this.newWave();this.invulnerable=2;if(this.wave===2)this.transition={elapsed:0,duration:1.6};}
+    if(!this.aliens.length&&this.state==='playing'){if(this.wave===2){this.scene='crash';this.sceneTime=0;this.entryWait=0;this.shots=[];this.enemyShots=[];this.saucer=null;this.velocity={x:0,y:0};return;}this.wave++;this.shots=[];this.enemyShots=[];this.newWave();this.invulnerable=2;if(this.wave===2)this.transition={elapsed:0,duration:1.6};}
   }
 }

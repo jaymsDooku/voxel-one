@@ -1,0 +1,44 @@
+{
+  "command": "ORBITAL_BROWSER=Chromium ORBITAL_QUALITY=Medium ORBITAL_PREWARM=ready PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/test_orbital_benchmark.cjs",
+  "environment": "Linux software headless browser,1280x900,Canvas,one browser at a time,no video or diagnostic workload concurrently; synthetic isolated final fighter; heap excludes worker/GPU/native peak",
+  "playtest": "Playtest: start,prewarm level2 for3seconds,real Space final kill,normal descent/waking,external-camera handoff,score/lives; capture rAF/world CPU percentiles and max face work",
+  "browser": "Chromium",
+  "quality": "Medium",
+  "prewarm": "ready",
+  "result": {
+    "frameMilliseconds": {
+      "count": 717,
+      "p50": 16.69999999999709,
+      "p95": 16.799999999995634,
+      "p99": 16.80000000000291,
+      "worst": 33.30000000000291
+    },
+    "worldCpuMilliseconds": {
+      "count": 717,
+      "p50": 0.6000003814697266,
+      "p95": 1,
+      "p99": 1.3000001907348633,
+      "worst": 3.3000001907348633
+    },
+    "maximumFaces": 0,
+    "faceLimit": 2048,
+    "preparationFacePeak": 787,
+    "cacheComposePeakMilliseconds": 30.40000057220459,
+    "preparationMilliseconds": 29.09999942779541,
+    "cacheFrames": 49,
+    "worldResolution": {
+      "width": 480,
+      "height": 338
+    },
+    "uiCanvasPixels": {
+      "width": 1280,
+      "height": 900
+    },
+    "mainJsHeapBytes": 15200000
+  },
+  "expected": "bounded faces and visibly distinct external camera at same profile after waking",
+  "observed": "PASS workflow and face-bound assertions; timing values are measurements,not physical-device performance claims",
+  "errors": [],
+  "sourceManifest": "orbital-source-audit.json",
+  "hardware": "4 logical CPUs; Intel Core Processor (Haswell, no TSX); Linux x86_64 VPS; software browsers"
+}

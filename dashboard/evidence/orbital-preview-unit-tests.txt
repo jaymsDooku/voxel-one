@@ -1,0 +1,276 @@
+TAP version 13
+# Subtest: bootstrap is deterministic, bounded and responds to the shared sun
+ok 1 - bootstrap is deterministic, bounded and responds to the shared sun
+  ---
+  duration_ms: 815.879606
+  ...
+# Subtest: airless bootstrap excludes scattering outside the solid globe
+ok 2 - airless bootstrap excludes scattering outside the solid globe
+  ---
+  duration_ms: 650.327143
+  ...
+# Subtest: coarse rays cover upper atmosphere without polar projection singularities
+ok 3 - coarse rays cover upper atmosphere without polar projection singularities
+  ---
+  duration_ms: 182.934598
+  ...
+# Subtest: atlas wraps longitude and clamps poles; landing patch keeps anchored samples
+ok 4 - atlas wraps longitude and clamps poles; landing patch keeps anchored samples
+  ---
+  duration_ms: 11.236898
+  ...
+# Subtest: near-ground rays intersect raised parent terrain instead of discarding a negative sphere root
+ok 5 - near-ground rays intersect raised parent terrain instead of discarding a negative sphere root
+  ---
+  duration_ms: 2.9317
+  ...
+# Subtest: orbital radius correction uses one prepared field lookup
+ok 6 - orbital radius correction uses one prepared field lookup
+  ---
+  duration_ms: 9.719153
+  ...
+# Subtest: upper-atmosphere aim leaves the curved horizon inside the windshield
+ok 7 - upper-atmosphere aim leaves the curved horizon inside the windshield
+  ---
+  duration_ms: 2.108117
+  ...
+# Subtest: preparation face budget survives animation-frame counter resets
+ok 8 - preparation face budget survives animation-frame counter resets
+  ---
+  duration_ms: 19.103826
+  ...
+# Subtest: browser adapter matches shared Java double reference fixtures
+ok 9 - browser adapter matches shared Java double reference fixtures
+  ---
+  duration_ms: 372.82096
+  ...
+# Subtest: profile is deep immutable and rejects inconsistent units
+ok 10 - profile is deep immutable and rejects inconsistent units
+  ---
+  duration_ms: 13.239144
+  ...
+# Subtest: sphere handles tangent, solid planet clipping and exterior vacuum
+ok 11 - sphere handles tangent, solid planet clipping and exterior vacuum
+  ---
+  duration_ms: 1.33726
+  ...
+# Subtest: camera altitude and position remain continuous across storyboard boundaries
+ok 12 - camera altitude and position remain continuous across storyboard boundaries
+  ---
+  duration_ms: 16.260224
+  ...
+# Subtest: macro fields wrap longitude/poles and local patch maps exact terrain samples
+ok 13 - macro fields wrap longitude/poles and local patch maps exact terrain samples
+  ---
+  duration_ms: 23.906144
+  ...
+# Subtest: real last kill freezes combat; skip and normal completion share one path
+ok 14 - real last kill freezes combat; skip and normal completion share one path
+  ---
+  duration_ms: 3.983229
+  ...
+# Subtest: late terrain result cannot replace locked profile and restart permits retry
+ok 15 - late terrain result cannot replace locked profile and restart permits retry
+  ---
+  duration_ms: 2537.142241
+  ...
+# Subtest: late fine assets cause only one bounded hold; pause, skip and restart remain safe
+ok 16 - late fine assets cause only one bounded hold; pause, skip and restart remain safe
+  ---
+  duration_ms: 2.20897
+  ...
+# Subtest: cloud layers are seeded, spatial, solid-clipped and continuous at their boundaries
+ok 17 - cloud layers are seeded, spatial, solid-clipped and continuous at their boundaries
+  ---
+  duration_ms: 4.826793
+  ...
+# Subtest: multiple-scattering closure matches shared Java double reference
+ok 18 - multiple-scattering closure matches shared Java double reference
+  ---
+  duration_ms: 50.258505
+  ...
+# Subtest: landing weather opening stays spatial and leaves a view of the anchor
+ok 19 - landing weather opening stays spatial and leaves a view of the anchor
+  ---
+  duration_ms: 1.221638
+  ...
+# Subtest: spatial cloud breaks stay continuous across noise cells and frozen time
+ok 20 - spatial cloud breaks stay continuous across noise cells and frozen time
+  ---
+  duration_ms: 15.324704
+  ...
+# Subtest: ordinary duration stays eight seconds; preview alone gets twelve and readiness hold
+ok 21 - ordinary duration stays eight seconds; preview alone gets twelve and readiness hold
+  ---
+  duration_ms: 2.757274
+  ...
+# Subtest: models contain voxel cells and three distinct aliens
+ok 22 - models contain voxel cells and three distinct aliens
+  ---
+  duration_ms: 2.514637
+  ...
+# Subtest: movement clamps, fire cooldown, pause and restart
+ok 23 - movement clamps, fire cooldown, pause and restart
+  ---
+  duration_ms: 265.538032
+  ...
+# Subtest: alien kill scores once; last kill advances and resets
+ok 24 - alien kill scores once; last kill advances and resets
+  ---
+  duration_ms: 2.367327
+  ...
+# Subtest: both sides erode shields
+ok 25 - both sides erode shields
+  ---
+  duration_ms: 0.9233
+  ...
+# Subtest: life loss, immunity, game over and invasion
+ok 26 - life loss, immunity, game over and invasion
+  ---
+  duration_ms: 8.030071
+  ...
+# Subtest: fleet reverses and descends; bottom shooters; saucer bonus
+ok 27 - fleet reverses and descends; bottom shooters; saucer bonus
+  ---
+  duration_ms: 1.319058
+  ...
+# Subtest: large background delta bounded and offscreen projectiles recycled
+ok 28 - large background delta bounded and offscreen projectiles recycled
+  ---
+  duration_ms: 2.372079
+  ...
+# Subtest: slow frame projectile sweeps across alien and shield
+ok 29 - slow frame projectile sweeps across alien and shield
+  ---
+  duration_ms: 1.543786
+  ...
+# Subtest: levels alternate classic and cockpit; restart restores classic
+ok 30 - levels alternate classic and cockpit; restart restores classic
+  ---
+  duration_ms: 2.030726
+  ...
+# Subtest: fighter flight has momentum, diagonal speed limit, bounds and aimed attacks
+ok 31 - fighter flight has momentum, diagonal speed limit, bounds and aimed attacks
+  ---
+  duration_ms: 10.268649
+  ...
+# Subtest: fighter hits use current altitude and diagonal swept projectiles
+ok 32 - fighter hits use current altitude and diagonal swept projectiles
+  ---
+  duration_ms: 0.876115
+  ...
+# Subtest: level 2 crash, unconscious blackout and level 3 wake preserve progress and freeze combat
+ok 33 - level 2 crash, unconscious blackout and level 3 wake preserve progress and freeze combat
+  ---
+  duration_ms: 1.554682
+  ...
+# Subtest: cockpit transition holds combat, pauses, ends and resets
+ok 34 - cockpit transition holds combat, pauses, ends and resets
+  ---
+  duration_ms: 1.228032
+  ...
+# Subtest: prepared region retains seeded heights and never generates terrain while sampling
+ok 35 - prepared region retains seeded heights and never generates terrain while sampling
+  ---
+  duration_ms: 1935.105768
+  ...
+# Subtest: slice cancellation rejects stale completion
+ok 36 - slice cancellation rejects stale completion
+  ---
+  duration_ms: 17.472557
+  ...
+# Subtest: slice runner yields between bounded work and completes once
+ok 37 - slice runner yields between bounded work and completes once
+  ---
+  duration_ms: 113.58402
+  ...
+# Subtest: coarse parent cannot raise the protected landing patch above the approach camera
+ok 38 - coarse parent cannot raise the protected landing patch above the approach camera
+  ---
+  duration_ms: 7.882522
+  ...
+# Subtest: regional LOD has no nearest-cell height or colour jump
+ok 39 - regional LOD has no nearest-cell height or colour jump
+  ---
+  duration_ms: 5.530733
+  ...
+# Subtest: landing colour detail grows without changing the sampled surface height
+ok 40 - landing colour detail grows without changing the sampled surface height
+  ---
+  duration_ms: 4.434479
+  ...
+# Subtest: terrain plans bound all faces, cover parent footprint and retain exact landmarks
+ok 41 - terrain plans bound all faces, cover parent footprint and retain exact landmarks
+  ---
+  duration_ms: 109.896163
+  ...
+# Subtest: external combat camera starts at landing and ends above same world anchor with stable FOV basis
+ok 42 - external combat camera starts at landing and ends above same world anchor with stable FOV basis
+  ---
+  duration_ms: 58.627637
+  ...
+# Subtest: child surface fades into parent before all four boundaries
+ok 43 - child surface fades into parent before all four boundaries
+  ---
+  duration_ms: 0.848316
+  ...
+# Subtest: serializable scene preserves cavities, cover, safe objectives and edited geology
+ok 44 - serializable scene preserves cavities, cover, safe objectives and edited geology
+  ---
+  duration_ms: 1288.948181
+  ...
+# Subtest: biome profiles differ in palette, height and formations
+ok 45 - biome profiles differ in palette, height and formations
+  ---
+  duration_ms: 772.198542
+  ...
+# {"benchmark":"70 cold 1-voxel chunks","milliseconds":2.77151399999957}
+# Subtest: fixed gallery: generation order, negative borders, async parity and objective clearance
+ok 46 - fixed gallery: generation order, negative borders, async parity and objective clearance
+  ---
+  duration_ms: 1087.610601
+  ...
+# Subtest: configuration changes worlds, rejects invalid settings and preserves geology on repeat sampling
+ok 47 - configuration changes worlds, rejects invalid settings and preserves geology on repeat sampling
+  ---
+  duration_ms: 79.147487
+  ...
+# Subtest: biome selection and sparse bounded cache
+ok 48 - biome selection and sparse bounded cache
+  ---
+  duration_ms: 7.910608
+  ...
+# Subtest: canonical feature caches do not change samples at 64/80 grid intersections
+ok 49 - canonical feature caches do not change samples at 64/80 grid intersections
+  ---
+  duration_ms: 528.96458
+  ...
+# Subtest: landmarks have biome suitability, exclusion and fixed world-space hollow volumes
+ok 50 - landmarks have biome suitability, exclusion and fixed world-space hollow volumes
+  ---
+  duration_ms: 202.369169
+  ...
+# Subtest: excavation changes only selected voxels, keeps strata and protects objectives
+ok 51 - excavation changes only selected voxels, keeps strata and protects objectives
+  ---
+  duration_ms: 60.967144
+  ...
+# Subtest: craters have multiple sizes, rims, central peaks, erosion and overlaps
+ok 52 - craters have multiple sizes, rims, central peaks, erosion and overlaps
+  ---
+  duration_ms: 2.5377
+  ...
+# Subtest: vegetation obeys biome, slope, altitude and route constraints
+ok 53 - vegetation obeys biome, slope, altitude and route constraints
+  ---
+  duration_ms: 1562.406145
+  ...
+1..53
+# tests 53
+# suites 0
+# pass 53
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 6985.508415

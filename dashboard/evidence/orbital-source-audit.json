@@ -1,0 +1,177 @@
+{
+  "reviewBase": "aac5ca8ee0fa5ed6e5f84949c66e9949085f1d85",
+  "baseHead": "7a6ab3adeb881d053f4cc8ac5216d4f505f23b74",
+  "sourceState": "Tested working source: session-only opt-in experimental preview; controller owns final source publication and master synchronization",
+  "modules": [
+    {
+      "module": "ENTRY.md",
+      "sourceSha256": "c7ce6a66084a2f839db463ff0e15fed3d14708f076b5c9efcdf4a001fd758537",
+      "bundleSha256": "c7ce6a66084a2f839db463ff0e15fed3d14708f076b5c9efcdf4a001fd758537",
+      "matches": true
+    },
+    {
+      "module": "TERRAIN.md",
+      "sourceSha256": "6aa1bf6cdd24821048199ba058f758c3ce1851ec5bb69a33520c542f45559346",
+      "bundleSha256": "6aa1bf6cdd24821048199ba058f758c3ce1851ec5bb69a33520c542f45559346",
+      "matches": true
+    },
+    {
+      "module": "app.mjs",
+      "sourceSha256": "7b9ef81640645e3e5cbe8037cf7f0fb57e70982657f29d59f685c6cf85ef290d",
+      "bundleSha256": "7b9ef81640645e3e5cbe8037cf7f0fb57e70982657f29d59f685c6cf85ef290d",
+      "matches": true
+    },
+    {
+      "module": "atmosphere-multiple-reference.json",
+      "sourceSha256": "5760a297a05681ae2e5ee3a192233ce01a3e4d4955da30c14bb3c08ce163d7be",
+      "bundleSha256": "5760a297a05681ae2e5ee3a192233ce01a3e4d4955da30c14bb3c08ce163d7be",
+      "matches": true
+    },
+    {
+      "module": "atmosphere-reference.json",
+      "sourceSha256": "a4f127d33db7e82c2c2e333a5bfdf74da0d5155bf5c7e390bc0d46c2c32f8746",
+      "bundleSha256": "a4f127d33db7e82c2c2e333a5bfdf74da0d5155bf5c7e390bc0d46c2c32f8746",
+      "matches": true
+    },
+    {
+      "module": "atmosphere.mjs",
+      "sourceSha256": "c89790f08ecdd2b1cd98270ef1ab0dee90e8b496b8c8bd1f9f77a2396f4c2919",
+      "bundleSha256": "c89790f08ecdd2b1cd98270ef1ab0dee90e8b496b8c8bd1f9f77a2396f4c2919",
+      "matches": true
+    },
+    {
+      "module": "bootstrap-planet.mjs",
+      "sourceSha256": "dbe7257bbd1514211be135d2e55fe21b257706ec7a1575e3d3d7d560650bb570",
+      "bundleSha256": "dbe7257bbd1514211be135d2e55fe21b257706ec7a1575e3d3d7d560650bb570",
+      "matches": true
+    },
+    {
+      "module": "clouds.mjs",
+      "sourceSha256": "7a00b37a579969cb9093ee6f52d6c0cc1ed13389c35460b6c2a0230520299038",
+      "bundleSha256": "7a00b37a579969cb9093ee6f52d6c0cc1ed13389c35460b6c2a0230520299038",
+      "matches": true
+    },
+    {
+      "module": "coarse-view.mjs",
+      "sourceSha256": "51a4e96ad0223cc3c5220d55d182ccc91c3d8f8943469b7b78c7c14a8c15f978",
+      "bundleSha256": "51a4e96ad0223cc3c5220d55d182ccc91c3d8f8943469b7b78c7c14a8c15f978",
+      "matches": true
+    },
+    {
+      "module": "entry-renderer.mjs",
+      "sourceSha256": "b9872874633e455a0f57166084d6bf54245ff75a2a2dc45f6cc2ef722a5bbf1c",
+      "bundleSha256": "b9872874633e455a0f57166084d6bf54245ff75a2a2dc45f6cc2ef722a5bbf1c",
+      "matches": true
+    },
+    {
+      "module": "entry-sequence.mjs",
+      "sourceSha256": "958b61fb790c3b355f2fe5b26e07cdfb28a2c37bd54e678b29aab84590132e61",
+      "bundleSha256": "958b61fb790c3b355f2fe5b26e07cdfb28a2c37bd54e678b29aab84590132e61",
+      "matches": true
+    },
+    {
+      "module": "entry-worker.mjs",
+      "sourceSha256": "ff55bcba92c2af82c5763b0b433541baadb28bb8cb4fb3284ac2a3a81a0de09a",
+      "bundleSha256": "ff55bcba92c2af82c5763b0b433541baadb28bb8cb4fb3284ac2a3a81a0de09a",
+      "matches": true
+    },
+    {
+      "module": "game.mjs",
+      "sourceSha256": "f4fe1206c1d0026a58954fffbcb480adb977412e4587e212ce7ab1a53c7afc4f",
+      "bundleSha256": "f4fe1206c1d0026a58954fffbcb480adb977412e4587e212ce7ab1a53c7afc4f",
+      "matches": true
+    },
+    {
+      "module": "index.html",
+      "sourceSha256": "309efdbeb34a383662f06f0a436f4ac3f2d24a2a813e816cc57fae3bde22ac75",
+      "bundleSha256": "309efdbeb34a383662f06f0a436f4ac3f2d24a2a813e816cc57fae3bde22ac75",
+      "matches": true
+    },
+    {
+      "module": "planet-profile.mjs",
+      "sourceSha256": "5a67d863c7cbb6f2fc2a42b364b00a3437723c6e12b315f7aff8b84c7c59c426",
+      "bundleSha256": "5a67d863c7cbb6f2fc2a42b364b00a3437723c6e12b315f7aff8b84c7c59c426",
+      "matches": true
+    },
+    {
+      "module": "prepared-surface.mjs",
+      "sourceSha256": "e9b0fb679ae96e07c055849dbd7355e5759866077d5ed42175ce79fbad9bb18d",
+      "bundleSha256": "e9b0fb679ae96e07c055849dbd7355e5759866077d5ed42175ce79fbad9bb18d",
+      "matches": true
+    },
+    {
+      "module": "style.css",
+      "sourceSha256": "8aed8f295612e3a03a624c0a834ea63dae2cc407a2e2a679429c38245c763b94",
+      "bundleSha256": "8aed8f295612e3a03a624c0a834ea63dae2cc407a2e2a679429c38245c763b94",
+      "matches": true
+    },
+    {
+      "module": "terrain-detail.mjs",
+      "sourceSha256": "43a6d89844207301ee8f592a75b3b86d9b41db310c9bd0ad4900ec11e98e9257",
+      "bundleSha256": "43a6d89844207301ee8f592a75b3b86d9b41db310c9bd0ad4900ec11e98e9257",
+      "matches": true
+    },
+    {
+      "module": "terrain-scene.mjs",
+      "sourceSha256": "987ba986916f04635bca52a06d4381d49415a003eb30df29c339d92914f02412",
+      "bundleSha256": "987ba986916f04635bca52a06d4381d49415a003eb30df29c339d92914f02412",
+      "matches": true
+    },
+    {
+      "module": "terrain-view.mjs",
+      "sourceSha256": "b8a19ca7de852d0bc332e3578744b18b68ae9bef5371070edb35b51ae7f09a0e",
+      "bundleSha256": "b8a19ca7de852d0bc332e3578744b18b68ae9bef5371070edb35b51ae7f09a0e",
+      "matches": true
+    },
+    {
+      "module": "terrain-worker.mjs",
+      "sourceSha256": "852885762ff48bb061bcb8b82ebaa311855e8d8b1def67b0d1662ece7b28147a",
+      "bundleSha256": "852885762ff48bb061bcb8b82ebaa311855e8d8b1def67b0d1662ece7b28147a",
+      "matches": true
+    },
+    {
+      "module": "terrain.mjs",
+      "sourceSha256": "1f14765c2ad7bcd34f3cff542d3c8b80b022b7e52e49c7031c1659ead0fc482d",
+      "bundleSha256": "1f14765c2ad7bcd34f3cff542d3c8b80b022b7e52e49c7031c1659ead0fc482d",
+      "matches": true
+    }
+  ],
+  "media": [
+    {
+      "file": "orbital-normal.mp4",
+      "bytes": 746756,
+      "sha256": "a9777a0988998208d8784688f2fd5a572748d8ff2da5ea7539dfe6ff74b6783a"
+    },
+    {
+      "file": "orbital-fallback.mp4",
+      "bytes": 686603,
+      "sha256": "3ca2ab4f2c4b94596b396b51c9860f6e3369e8659d2a16c58b5b6615f5d09ad6"
+    },
+    {
+      "file": "orbital-preview-contact.png",
+      "bytes": 461606,
+      "sha256": "e09e2e375e2c00ac5305e49ac525ad53194f2a7be71799b9babe08fa947c6eac"
+    },
+    {
+      "file": "orbital-preview-disabled-start.png",
+      "bytes": 764731,
+      "sha256": "53f07aa7b16d5e8196291c703ff676918e017248828ce54bc48ecef9d01d42f1"
+    },
+    {
+      "file": "orbital-preview-enabled-start.png",
+      "bytes": 230382,
+      "sha256": "8f277f9e0eea9c371573a08c939d356c7c24a73ed5161820120920d0ad0bb47c"
+    },
+    {
+      "file": "orbital-ordinary-chromium-entry.png",
+      "bytes": 134453,
+      "sha256": "c53e79af9856daf911012fcc544f1c417e4205a02a1ee963953ebfb6d8b425e5"
+    },
+    {
+      "file": "orbital-ordinary-chromium-level3.png",
+      "bytes": 318242,
+      "sha256": "04a81fea08c4f7fd1b8315c86c7be68b83e7dba4fd68ee63057f0dc59d90b45b"
+    }
+  ],
+  "deletionsAgainstReviewBase": []
+}

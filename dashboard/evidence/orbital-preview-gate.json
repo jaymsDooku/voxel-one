@@ -1,0 +1,16 @@
+{
+  "command": "node deploy/run_orbital_web_check.cjs deploy/test_orbital_preview_gate.cjs",
+  "environment": "Linux headless Chromium/WebKit; isolated synthetic final fighter; real Space fire; default ordinary route",
+  "playtest": "Playtest: default unchecked, real last kill, ordinary descent and active level3; pause/portrait resize/restart; preview checkbox/reload reset",
+  "expected": "Ordinary default needs no orbital profile, worker or GL; eight-second sequence; preview never remembered",
+  "results": [
+    {
+      "browser": "Chromium",
+      "result": "PASS ordinary last kill, eight-second entry, score/lives, level3, pause/resize/restart, no orbital jobs/GL/profile and session-only opt-in"
+    },
+    {
+      "browser": "WebKit",
+      "result": "PASS ordinary last kill, eight-second entry, score/lives, level3, pause/resize/restart, no orbital jobs/GL/profile and session-only opt-in"
+    }
+  ]
+}

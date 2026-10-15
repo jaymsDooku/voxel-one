@@ -1,0 +1,44 @@
+Orbital descent final working-source validation
+
+Review base: 1d2c3b3266c9e2d9c82c2217594690c0a62334ef. Base HEAD: 6ca0cdd575d90e95210ffedf7655b1f05b5158fe. Runtime hashes identify the tested unpublished source. No commit, push, merge or deployment performed.
+Environment: Linux x86_64; Intel Core Processor (Haswell, no TSX); 4 logical CPUs; headless software Chromium/WebKit; isolated synthetic game contexts; localhost HTTP port 8779.
+
+Implemented: prepared regional/landing fields, bounded 2 ms job scheduling with message tasks, retained parent views, higher orbital raster sampling up to 192x128, shared atmosphere/solar grids, smooth regional material sampling and colour LOD, coherent curved-horizon aim, spatial cloud layers, external combat-camera handoff, prewarm restart cleanup and stale-result rejection. WebGL2 remains opt-in.
+
+Playtest: entry. Command: PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR="$PWD/.tmp/browser" node deploy/run_orbital_web_check.cjs deploy/test_orbital_descent.cjs. Start the game; set an isolated synthetic final level 2 fighter; fire with real Space input; watch descent, blackout and waking; fly/fire in level 3; repeat, pause and rotate, skip twice, restart. Expected: one sequence, combat frozen, score 130/lives 2 retained, distinct external camera at the same profile, no paused clock advance, one skip completion and restart to level 1. Observed: all eight Chromium/WebKit cases passed at 1280x900, 390x844, 844x390 and 568x320.
+
+Playtest: reduced-motion fallback. Command: ORBITAL_WORKER_FAILURE=1 ORBITAL_REDUCED_MOTION=1 ORBITAL_WIDTH=1280 PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR="$PWD/.tmp/browser" node deploy/run_orbital_web_check.cjs deploy/test_orbital_descent.cjs. Abort the entry Worker, choose Reduced motion through the UI and kill the final fighter immediately without a prewarm wait. Expected: coarse surface remains, bounded readiness hold, normal completion, score/lives and controls preserved. Observed: Chromium and WebKit passed the full sequence and edge assertions; zero cached Worker frames and no fine scene in both runs.
+
+Playtest: fixed poses and failure edges. The bounded-parent harness aborted the Worker and inspected completed 0, 1.5, 2.9, 4.5, 6, 9 and 11.5-second views, then paused/rotated/resumed and restarted. Both browsers passed. Instrumented render callbacks made zero terrain-generation calls. GL preview fixed poses, actual context loss, paused scene point, airless control, reduced-motion selection and lab lock/retry passed. Prewarm restart rejected stale completions. The generated launcher route opened and accepted movement/fire.
+
+Playtest: regression checks. All eight existing entry, cockpit, fighter, fighter-edge, cockpit-edge, collision, layout/touch and Planet lab suites passed. Temporary harness copies changed only their legacy localhost port to 8779. The lab exercised seed galleries, overlays and excavation.
+
+Unit command: node --test games/space-invaders/*.test.mjs. Observed: 52 passed, 0 failed, including 30 atmosphere and 15 multiple-scattering shared Java double-reference fixtures. Build command: python3 deploy/build_site.py. Observed: generated website built; all 20 runtime asset hashes match. git diff --check passed; no unmerged files or file deletions against the review base. No terrain generator changes or seed-gallery migration.
+
+Isolated Low Canvas benchmarks: one browser at a time, desktop 1280x900, three seconds of prewarming, real final kill, normal sequence, no video/diagnostic workload concurrently. Memory sampling was scoped to a fresh Chromium instance.
+Chromium: frame p50/p95/p99/worst 16.7/16.7/16.8/33.4 ms; world callback p95/worst 1.8/5.9 ms; initial preparation 230.5 ms; peak measured parent slice 14.1 ms; preparation face peak 315; cached frames 49.
+WebKit: frame p50/p95/p99/worst 57.0/88.0/169.0/247.0 ms; world callback p95/worst 1.0/4.0 ms; initial preparation 355.0 ms; peak measured parent slice 27.0 ms; preparation face peak 315; cached frames 46.
+Sampled summed Chromium RSS peak: 604217344 bytes, 112 samples at 200 ms. Shared pages may be counted twice and brief peaks may be missed. Main JS heap excludes Worker/GPU/native allocations; WebKit heap measurement is unavailable.
+
+Limits: the 2 ms slice budget is a scheduling target, not a hard worst-case bound; one step, bitmap operation or GC can exceed it. Initial prewarming can hitch. Canvas is a reduced view and can blur enlarged detail or retain a prepared view while a replacement finishes. Software WebKit frame targets remain unmet. These results do not establish named desktop GPU or physical Safari iPhone performance; both remain follow-up checks. Advanced rendering stays opt-in.
+
+Media: actual browser recordings, H.264/yuv420p MP4 at normal speed. Clips end after normal level 3 flight, before the separate synthetic pause/rotation/skip checks. Both files played to ended at playbackRate 1 with no decode error. Decoded 0.5-second frame strips and fixed-pose images were inspected across orbit, shell/horizon, clouds, low terrain, impact, waking and external combat. The same pale basin palette, ridges and crystal landmarks persist. The contact sheet labels the historical 136cef1 baseline separately. Current media are pending controller publication; no Java F10 recording claim.
+
+Earlier diagnostic setup raced profile creation; its wait was fixed. A GLSL reserved identifier failed compilation and was renamed; the final GL rerun passed. Earlier reprojection experiments were removed after frame inspection. Only final-source results above are claimed as passes.
+
+Actual sequential check commands (all exit 0):
+cold-chromium-memory: node deploy/run_orbital_web_check.cjs deploy/test_orbital_memory.cjs; settings {"ORBITAL_BROWSER": "Chromium", "ORBITAL_QUALITY": "Low", "ORBITAL_REPORT_SUFFIX": "-bounded-final-memory"}
+cold-webkit: node deploy/run_orbital_web_check.cjs deploy/test_orbital_benchmark.cjs; settings {"ORBITAL_BROWSER": "WebKit", "ORBITAL_QUALITY": "Low", "ORBITAL_REPORT_SUFFIX": "-bounded-final"}
+worker-failure: node deploy/run_orbital_web_check.cjs deploy/test_orbital_bounded_parent.cjs; settings {}
+diagnostics: node deploy/run_orbital_web_check.cjs deploy/test_orbital_diagnostics.cjs; settings {}
+prewarm-restart: node deploy/run_orbital_web_check.cjs deploy/test_orbital_prewarm_restart.cjs; settings {}
+launcher: node deploy/run_orbital_web_check.cjs deploy/test_orbital_launcher.cjs; settings {}
+regressions: node deploy/run_orbital_web_check.cjs deploy/run_orbital_regressions.cjs; settings {}
+video-playback: node deploy/run_orbital_web_check.cjs deploy/test_orbital_video.cjs; settings {}
+contact-sheet: node deploy/run_orbital_web_check.cjs .tmp/capture-bounded-contact.cjs; settings {}
+Fallback playback: ORBITAL_MEDIA=orbital-fallback PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR="$PWD/.tmp/browser" node deploy/run_orbital_web_check.cjs deploy/test_orbital_video.cjs.
+Video conversion: local FFmpeg -t <recorded normal endpoint minus 0.2 seconds> -c:v libx264 -crf 27 -pix_fmt yuv420p -movflags +faststart -an. No playback speed change.
+
+Before review, controller integration that changes runtime source requires fresh meaningful checks and media. Source/media SHA256 values are recorded in orbital-source-audit.json. Independent exact-head review remains required.
+
+Delegate closure: both retained developer helper tasks were checked through deepseek_collect. Both are resolved with self takeover after delegate_failed; neither supplied an accepted proposal. deepseek_resize confirmed running 0 and pending 0. Implementation and validation were performed locally; no delegated execution is claimed.

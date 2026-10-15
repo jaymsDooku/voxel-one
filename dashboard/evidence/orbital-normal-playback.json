@@ -1,0 +1,18 @@
+{
+  "command": "ORBITAL_MEDIA=orbital-normal PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/run_orbital_web_check.cjs deploy/test_orbital_video.cjs",
+  "playtest": "Playtest: play actual recorded MP4 in Chromium at playbackRate 1 from start to ended; decode full clip and inspect frame strips separately.",
+  "environment": "Linux software Chromium; sanitized local recorded game clip, no account data",
+  "expected": "Playable normal-speed MP4 with no decode error",
+  "observed": {
+    "ended": true,
+    "error": null,
+    "presentedFrames": 610
+  },
+  "info": {
+    "duration": 24.44,
+    "width": 960,
+    "height": 674,
+    "playbackRate": 1
+  },
+  "sha256": "a9777a0988998208d8784688f2fd5a572748d8ff2da5ea7539dfe6ff74b6783a"
+}

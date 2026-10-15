@@ -1,0 +1,58 @@
+Orbital parent/local continuity and prewarm restart revision
+Starting review head: be61a2e88a77fe6abe7a72241c2e88e66a9a99dd.
+Recorded review base: 1d2c3b3266c9e2d9c82c2217594690c0a62334ef.
+
+Changes: Canvas parent sampling now uses the same seeded terrain around the landing region out to 2400 blocks, with bounded 32-block regional samples and exact local samples. Near-ground rays bracket the height field instead of discarding raised terrain when a concentric-sphere root is behind the camera. Cold and cached paths use matching slope-lighting samples. Regional mesh detail starts below 6 km, takes its corner heights from the parent field and fades across the outer 35 percent of its footprint. Exposed voxel faces grow below 1.5 km and reach full strength at 500 m. Boundary faces receive another feather factor. Parent corners are cached per plan. The 640/2048/4096 face limits remain. Restart clears a level 2 prewarm even when descent has not frozen the profile.
+
+Environment: Linux x86_64 VPS, 4 logical CPUs, Intel Core Processor (Haswell, no TSX). Headless Chromium and software WebKit. Local HTTP server command: python3 -m http.server 8779 --bind 127.0.0.1. Synthetic isolated game profiles, no private account data. UI 1280x900 with Canvas Low world buffer 320x225 for desktop benchmarks. Physical Safari iPhone and named desktop GPU tests remain follow-up. WebGL2 remains opt-in.
+
+Playtest: Restart during level 2 prewarming.
+Command: PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR="$PWD/.tmp/browser" node deploy/test_orbital_prewarm_restart.cjs
+Steps: start; wait for terrain; set synthetic wave 2; wait for live profile/Worker; restart before descent; invoke the saved stale Worker callback; wait 500 ms.
+Expected: wave 1, no profile, no Worker, empty cache; stale callback ignored.
+Observed: Chromium and WebKit assertions passed. Results in orbital-prewarm-restart.txt.
+
+Unit command: node --test games/space-invaders/*.test.mjs
+Observed: 39 passed, 0 failed. Includes shared Java reference comparisons, camera/terrain/lifecycle suites, footprint feathering and raised-parent ray regression. Results in orbital-continuity-unit-tests.txt.
+
+Playtest: Isolated prepared Low playback benchmark.
+Commands, executed serially without a concurrent test or recording:
+ORBITAL_BROWSER=Chromium ORBITAL_PREWARM=ready ORBITAL_QUALITY=Low ORBITAL_REPORT_SUFFIX=-continuity-final PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR="$PWD/.tmp/browser" node .tmp/run-web-check.cjs deploy/test_orbital_benchmark.cjs
+ORBITAL_BROWSER=WebKit ORBITAL_PREWARM=ready ORBITAL_QUALITY=Low ORBITAL_REPORT_SUFFIX=-continuity-final PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR="$PWD/.tmp/browser" node .tmp/run-web-check.cjs deploy/test_orbital_benchmark.cjs
+Steps: start; synthesize final level 2 fighter; wait for all 49 cached world frames; use real Space fire; play normal descent/waking; verify external camera, same profile, score 130/lives 2 and bounded faces.
+Expected: one handoff, stable identity, bounded work; measure actual frame times.
+Observed: final-source workflow assertions passed in both browsers. Chromium frame p50/p95/p99/worst: 16.7/16.7/16.8/16.8 ms; world CPU p95 0.5 ms; setup 33.2 ms, cache composition worst 40.4 ms, JS heap end snapshot 39,600,000 bytes. WebKit: 38/45/56/263 ms; world CPU p95 1 ms; setup 22 ms, cache composition worst 49 ms, heap unavailable. Both preparation face peaks 315 <= 640; playback uses 49 precomposed 320x225 frames. Setup timing excludes full Worker-cache readiness. Heap snapshots are not peak memory. These software results do not establish physical-device performance.
+
+Intermediate browser runs passed workflow assertions but do not establish final-source visual acceptance. One benchmark overlapped another run; it is labeled excluded. One capture attempt failed with net::ERR_CONNECTION_REFUSED; restarted the local server and retried. No pass claimed for that attempt. Cold/late-cache playback remains slower than prepared playback and does not meet the software frame targets.
+
+An earlier full run stopped after its separate HTTP server ended. No full pass is claimed for that run. The final-source eight-case playtest now uses a server owned by the test process. Final-source eight-case workflow assertions passed in Chromium and WebKit at 1280x900, 390x844, 844x390 and 568x320. Fresh Worker-failure and GL/context/airless/lab diagnostics passed. Fresh isolated benchmarks completed. Inspected the actual normal-speed video frames and before/after contact sheet. Camera rises after waking at the same profile, basin, crystal landmarks and wreckage anchor. Regional mesh replaces the distant slab faces; its border fades into the surrounding parent field.
+
+Audit: no file deletions against the recorded review base. Diff whitespace check passed. Source/bundle parity verified for 18 recorded assets. Terrain generator remains unchanged; seed galleries retain their generator.
+
+The first height-field ray unit iteration missed the constant-sphere tolerance. Analytic shell refinement within the bracket fixed it; the final 39-test suite passed.
+
+
+Playtest: Final-source normal sequence and edge cases.
+Actual command: PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR="$PWD/.tmp/browser" node .tmp/run-web-check.cjs deploy/test_orbital_descent.cjs
+Published reproduction: use deploy/run_orbital_web_check.cjs in place of .tmp/run-web-check.cjs. The published wrapper owns its HTTP server and propagates interrupted child failures.
+Steps: for Chromium/WebKit at 1280x900, 390x844, 844x390 and 568x320, start with an isolated synthetic final level 2 fighter; use real Space fire and the real frame loop; watch descent, blackout and waking; verify a visible external-camera handoff; fly/fire; repeat entry, pause, rotate, skip twice, restart.
+Expected: one sequence, score 130/lives 2, stable profile, frozen pause, single skip completion, restart to level 1.
+Observed: all eight cases passed. Full results: orbital-playtest.json. Cold recording timings are not isolated benchmarks; their p95 frame times ranged from 116.7 to 824 ms and miss the proposed targets. Prepared measurements above are separate. The video has no time scaling.
+
+Playtest: Worker failure and context recovery.
+Commands: same browser-path/TMPDIR environment; node .tmp/run-web-check.cjs deploy/test_orbital_cache_failure.cjs; node .tmp/run-web-check.cjs deploy/test_orbital_diagnostics.cjs.
+Expected: failed Worker retains same world through real kill/entry/handoff/restart; fixed poses have terrain; lost GL context retains paused scene point and continues with Canvas; airless and reduced-motion controls work; lab lock/retry remains valid.
+Observed: both Worker-failure browser cases passed; GL compilation/error, context recovery, reduced motion, airless and lab assertions passed. A combined supplemental run exited 143 after both prewarm-restart checks. No remaining pass was claimed from that interrupted run; the Worker-failure and diagnostic commands were rerun separately and passed.
+
+Playtest: Generated launcher route.
+Command: PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR="$PWD/.tmp/browser" node deploy/run_orbital_web_check.cjs deploy/test_orbital_launcher.cjs
+Steps: open website/dist/index.html, follow Play Voxel Space Invaders, start, move right and fire through real keyboard input/frame updates.
+Expected: aligned generated modules load and normal combat works.
+Observed: passed, no page errors. Report: orbital-launcher.json.
+
+Scoped memory command: ORBITAL_BROWSER=Chromium ORBITAL_PREWARM=ready ORBITAL_QUALITY=Low ORBITAL_REPORT_SUFFIX=-continuity-memory PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR="$PWD/.tmp/browser" node .tmp/run-web-check.cjs deploy/test_orbital_memory.cjs
+Observed peak summed resident bytes: 687,288,320 across 265 samples at 200 ms intervals. Only fresh synthetic Chromium processes reported by CDP were sampled; only numeric resident-page fields were read. Shared pages can be counted twice and brief peaks can be missed. This is not unique GPU memory or a physical-device peak. Report: orbital-browser-memory.json. The additional memory run is separate from the isolated timing comparison.
+
+Media: orbital-normal.mp4, 712,605 bytes, H.264/yuv420p/faststart, from real browser recording. FFmpeg conversion used CRF 30, omitted audio and did not change time. Decoded frames show orbital approach, haze, mesh/voxel approach, waking and active external combat. orbital-continuity-contact.png includes current implementation captures and clearly labeled historical baseline images. Media and reports are pending controller publication. Updated source/media hashes: orbital-source-audit.json.
+
+Ready for independent review. Physical Safari iPhone and desktop GPU measurements remain follow-up. WebKit and cold-path software targets are unmet; WebGL2 stays opt-in. No file deletions against the recorded review base; replaced old disc/gradient/cloud-row logic is intentional. Rerun meaningful checks and media if controller integration changes runtime source.

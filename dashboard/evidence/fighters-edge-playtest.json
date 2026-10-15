@@ -79,15 +79,15 @@
         ]
       },
       "flying": {
-        "x": 197.07921154621425,
-        "y": 380.2583773674925,
-        "speed": 248.7037451529451,
-        "shots": 2
+        "x": 207.90658010824714,
+        "y": 382.0934198917529,
+        "speed": 242.1061206937484,
+        "shots": 1
       },
       "drift": {
-        "x": 179.74343647893423,
-        "y": 396.3085882055333,
-        "speed": 18.620486691548663
+        "x": 192.0813855465457,
+        "y": 397.9186144534543,
+        "speed": 21.963371748176343
       },
       "observed": "PASS: level 2 geometry, keyboard+touch down/fire, cancellation and drift decay, full pause freeze, old-altitude miss and fighter contact damage",
       "errors": []
@@ -167,15 +167,15 @@
         ]
       },
       "flying": {
-        "x": 209.67700552258907,
-        "y": 380.32299447741093,
-        "speed": 239.92352101791363,
+        "x": 211.01177559164782,
+        "y": 378.9882244083522,
+        "speed": 236.5856686007585,
         "shots": 2
       },
       "drift": {
-        "x": 193.57922870840585,
-        "y": 396.4207712915942,
-        "speed": 20.253349962815644
+        "x": 195.08231661482284,
+        "y": 394.91768338517716,
+        "speed": 17.293148410810048
       },
       "observed": "PASS: level 2 geometry, keyboard+touch down/fire, cancellation and drift decay, full pause freeze, old-altitude miss and fighter contact damage",
       "errors": []
@@ -255,15 +255,15 @@
         ]
       },
       "flying": {
-        "x": 203.3938487476598,
-        "y": 386.6061512523402,
-        "speed": 249.95219530705648,
+        "x": 209.58354979056134,
+        "y": 380.4164502094387,
+        "speed": 239.27714009622755,
         "shots": 2
       },
       "drift": {
-        "x": 175.9718815324313,
-        "y": 414.02811846756873,
-        "speed": 19.769427740827698
+        "x": 193.4952668094973,
+        "y": 396.5047331905027,
+        "speed": 16.939064478831668
       },
       "observed": "PASS: level 2 geometry, keyboard+touch down/fire, cancellation and drift decay, full pause freeze, old-altitude miss and fighter contact damage",
       "errors": []

@@ -2,6 +2,14 @@
 
 A Java/LWJGL voxel playground with seeded procedural biomes, a survival inventory, walking, jumping, flight, editable controls, and an authenticated multiplayer server. Requires Java 17+ and an OpenGL 3.3 desktop. Use a JDK on the server for first-run certificate generation.
 
+## Space Invaders experimental orbital preview
+
+This is Milestone 1 for independent review. The original default-rollout goal remains open; [remaining acceptance work](games/space-invaders/ROLLOUT.md) tracks hardware, visual, compatibility and rollout gates.
+
+Ordinary play keeps its original eight-second level 2 entry and terrain rendering. Before Start, select **Experimental orbital descent preview (unqualified)** to try the twelve-second shared-planet sequence. Both the new Canvas path and WebGL2 are gated; the choice lasts only for this page visit. Canvas fallback within preview keeps its planet/profile and story handoff.
+
+Named desktop GPU and physical Safari iPhone qualification is pending. The 60 FPS desktop and stable 30 FPS iPhone targets are not established. See [entry documentation](games/space-invaders/ENTRY.md) and the [manual hardware test plan](dashboard/evidence/orbital-device-validation.md).
+
 ## Build and download
 
 For Windows, download [Voxel-One-windows.zip](https://github.com/jaymsDooku/voxel-one/releases/latest/download/Voxel-One-windows.zip), extract it, and double click **Play Voxel One.cmd**. Java 17+ must be installed and available on PATH. The included launcher checks for updates on every start, downloads the latest tested Windows client automatically, verifies its SHA-256 checksum, and opens the sign-in screen for the VPS at `198.100.154.156`. Keep using this launcher for future updates; you no longer need to copy a new game JAR manually. Close and reopen the game to receive a published update.

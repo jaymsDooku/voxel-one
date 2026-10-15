@@ -1,0 +1,8 @@
+import dev.jayms.net.atmosphere.AtmosphereConfig;
+import dev.jayms.net.atmosphere.AtmosphereConfig.Vec;
+import dev.jayms.render.AtmosphereReference;
+public class Generate {
+ static String vec(Vec v){return "["+v.x()+","+v.y()+","+v.z()+"]";}
+ static AtmosphereConfig profile(String name){var c=AtmosphereConfig.preset(name.equals("alien")?"earth":name);if(name.equals("alien"))c=new AtmosphereConfig(c.enabled(),c.radius(),c.height(),c.metresPerBlock(),c.seaLevel(),c.origin(),c.up(),new Vec(5.8e-6,22e-6,18e-6),c.aerosolScattering(),c.aerosolExtinction(),c.absorption(),c.molecularScale(),c.aerosolScale(),c.absorptionCentre(),c.absorptionWidth(),c.anisotropy(),c.groundAlbedo(),c.solarIrradiance(),c.solarRadius());return c;}
+ public static void main(String[] args){System.out.print("[");boolean first=true;for(String name:new String[]{"earth","alien","thin","hazy","airless"}){var c=profile(name);double r=c.radius();Vec[] positions={new Vec(0,r+200000,0),new Vec(0,r+100000,0),new Vec(0,r+100001,0),new Vec(0,r+99999,0),new Vec(0,r+1000,0),new Vec(0,r+10,0)};Vec[] directions={new Vec(0,1,0),new Vec(1,-.16,0),new Vec(0,-1,0),new Vec(0,-1,0),new Vec(1,0,0),new Vec(0,-1,0)};for(int i=0;i<positions.length;i++){Vec sun=i==4?new Vec(0,-1,0):new Vec(-.6,.7,.3);var a=AtmosphereReference.integrate(c,positions[i],directions[i],sun,15000000,64,32);if(!first)System.out.print(",");first=false;System.out.print("{\"profile\":\""+name+"\",\"case\":\""+new String[]{"vacuum","grazing","shell-outside","shell-inside","planet-shadow","ground-clipped"}[i]+"\",\"position\":"+vec(positions[i])+",\"direction\":"+vec(directions[i])+",\"sun\":"+vec(sun)+",\"transmittance\":"+vec(a.transmittance())+",\"radiance\":"+vec(a.radiance())+"}");}}System.out.println("]");}
+}

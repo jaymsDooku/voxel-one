@@ -1,9 +1,16 @@
+import {PLANET_SUN} from './planet-profile.mjs';
+import {atmospherePreset,integrate} from './atmosphere.mjs';
 import {Planet, BIOMES, SEEDS, MATERIAL_COLORS} from './terrain.mjs';
 import {buildTerrainScene, VIEW} from './terrain-scene.mjs';
 export let planetWorld = new Planet();
 export let terrainScene = null;
 export let terrainRevision = 0;
 export let terrainMode = 'none';
+let frozen = false, visualProfile=null,skyCache=null,skyKey='';
+export function setPlanetVisualProfile(profile){if(visualProfile===profile)return;visualProfile=profile;skyCache=null;}
+export function cancelPlanetJobs(){newest++;for(const task of pending.values())task.resolve(null);pending.clear();worker?.terminate();worker=null;}
+export function freezePlanet(){frozen=true;cancelPlanetJobs();return {world:planetWorld,scene:terrainScene,revision:terrainRevision};}
+export function releasePlanet(){frozen=false;}
 let nextId = 0, worker = null, newest = 0, editing = false;
 const pending = new Map(), listeners = new Set();
 let currentView = {...VIEW};
@@ -14,6 +21,7 @@ function requestScene(world, view) {
     try { resolve({...buildTerrainScene(world.config, view, [...world.edits]), backend: 'main-thread fallback'}); }
     catch (e) { reject(e); }
   }, 0));
+  if(worker&&pending.size){for(const task of pending.values())task.resolve(null);pending.clear();worker.terminate();worker=null;}
   if (!worker) {
     worker = new Worker(new URL('./terrain-worker.mjs', import.meta.url), {type: 'module'});
     worker.onmessage = ({data}) => {
@@ -33,9 +41,10 @@ function requestScene(world, view) {
   });
 }
 export async function configurePlanet(config = planetWorld.config, view = currentView, reuse = false) {
+  if(frozen)throw new Error('Planet is locked during descent and landing. Restart to generate a new world.');
   const world = reuse instanceof Planet ? reuse : reuse ? planetWorld : new Planet(config), ticket = ++newest;
   const scene = await requestScene(world, view);
-  if (ticket !== newest) return null;
+  if (ticket !== newest || frozen || !scene) return null;
   planetWorld = world; currentView = {...scene.view}; terrainScene = scene; changed();
   return scene;
 }
@@ -65,18 +74,25 @@ function drawSpan(ctx, x, base, cell, vertical, span, c, cutaway) {
   ctx.fillStyle = overlayColor(c) || color(span.material, c, terrainScene.config.palette);
   ctx.fillRect(x, y, cell + .5, Math.max(1, bottom - y));
   if (cutaway) return;
-  // Fixed north-west light: lit horizontal faces and dark east faces.
+  // Shared fixed world sun: local face light agrees with the orbital renderer.
   if (span.top < c.height) return;
-  ctx.fillStyle = '#e5e2db30'; ctx.fillRect(x, y, cell, 2);
-  ctx.fillStyle = '#11152150'; ctx.fillRect(x + cell * .78, y + 2, cell * .22, Math.max(1, bottom - y - 2));
+  ctx.fillStyle = visualProfile ? `rgba(229,226,219,${Math.max(0,(visualProfile?.sun||PLANET_SUN)[1])*.4})` : '#e5e2db30'; ctx.fillRect(x, y, cell, 2);
+  ctx.fillStyle = visualProfile ? `rgba(17,21,33,${.15+Math.max(0,-(visualProfile?.sun||PLANET_SUN)[0])*.3})` : '#11152150'; ctx.fillRect(x + cell * .78, y + 2, cell * .22, Math.max(1, bottom - y - 2));
 }
 export function planetSky() {
-  const palettes = {obsidian: ['#17182f', '#765a78', '#a78787'], crystal: ['#102637', '#5b859a', '#9abcc2'],
+ if(!visualProfile){const palettes = {obsidian: ['#17182f', '#765a78', '#a78787'], crystal: ['#102637', '#5b859a', '#9abcc2'],
     toxic: ['#172b30', '#6b887d', '#afbc92'], impact: ['#201d38', '#a58286', '#d6b699']};
   if (!terrainScene) return palettes.obsidian;
   const dominant = BIOMES.reduce((a, b) => terrainScene.stats.biomes[a] >= terrainScene.stats.biomes[b] ? a : b);
   return palettes[dominant];
+
+ }
+ const key=`${terrainRevision},${visualProfile?.revision||''},${visualProfile?.atmosphere.enabled}`;
+ if(skyCache&&skyKey===key)return skyCache;
+ const c=visualProfile?.atmosphere||atmospherePreset('alien'),sun=visualProfile?.sun||PLANET_SUN,p=[0,c.radius+(visualProfile?.landingHeight||1200),0];
+ skyCache=[[0,.8,.6],[0,.15,1],[0,0,1]].map(d=>{const color=integrate(c,p,d,sun,200000,16,8).radiance.map(v=>Math.round(255*(1-Math.exp(-v*1.6))**(1/2.2)));return `rgb(${color.join(',')})`;});skyKey=key;return skyCache;
 }
+
 export function renderTerrain(ctx, width, height) {
   if (!terrainScene) {
     ctx.fillStyle = '#e0dae4'; ctx.font = '12px monospace'; ctx.fillText('Surveying planet…', 12, height * .65); return;

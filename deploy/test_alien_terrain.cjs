@@ -37,7 +37,7 @@ async function snap(page, name) {
     await page.locator('#start').click();
     await page.evaluate(async () => {const {game} = await import('./app.mjs'); game.wave = 3; game.newWave(); game.invulnerable = 1000; game.enemyClock = 1000;});
     await snap(page, `alien-terrain-${name}-world.png`);
-    await page.locator('summary').click();
+    await page.locator('#planet-lab summary').click();
     // Edge: invalid configuration leaves the last valid world intact.
     const initial = await page.evaluate(async () => (await import('./terrain-view.mjs')).terrainScene.config.seed);
     await page.locator('[name=scale]').fill('0'); await page.locator('[name=generate]').click(); await ready(page);
@@ -52,7 +52,7 @@ async function snap(page, name) {
       assert.equal(data.seamMismatches, 0); assert.equal(data.seamsChecked, 34);
       assert.equal(data.inaccessibleObjectives, 0); assert(data.openColumns > data.coverColumns);
       gallery.push(data);
-      await page.locator('summary').click(); await snap(page, `alien-terrain-${name}-${seed}.png`); await page.locator('summary').click();
+      await page.locator('#planet-lab summary').click(); await snap(page, `alien-terrain-${name}-${seed}.png`); await page.locator('#planet-lab summary').click();
     }
     const extremes = [];
     for (const scale of [16, 256]) {
@@ -78,7 +78,7 @@ async function snap(page, name) {
         options.find(o => o.textContent.startsWith(preferred))?.value, {obsidian: 'caldera', crystal: 'crystal', toxic: 'fungus', impact: 'meteorite'}[biome]);
       assert(landmark, `no suitable landmark for ${biome}`);
       await page.locator('[name=landmarks]').selectOption(landmark); await ready(page);
-      await page.locator('summary').click(); await snap(page, `alien-terrain-${name}-${biome}.png`); await page.locator('summary').click();
+      await page.locator('#planet-lab summary').click(); await snap(page, `alien-terrain-${name}-${biome}.png`); await page.locator('#planet-lab summary').click();
       await page.locator('[name=centerX]').fill('0'); await page.locator('[name=centerZ]').fill('66');
     }
     for (let i = 0; i < 4; i++) await page.locator(`[name=biome${i}]`).fill('1');
@@ -98,7 +98,7 @@ async function snap(page, name) {
       const y = c.height - 3, rect = document.querySelector('canvas').getBoundingClientRect();
       return {x: c.x, z: c.z, y, screenX: (c.col + .5) / s.view.cols * rect.width, screenY: rect.height * .93 - (y + .5) * rect.height * .009, below: w.material(c.x, y - 1, c.z)};
     });
-    await page.locator('summary').click();
+    await page.locator('#planet-lab summary').click();
     await page.mouse.click(edit.screenX, edit.screenY);
     await page.waitForFunction(async ({x, y, z}) => (await import('./terrain-view.mjs')).planetWorld.material(x, y, z) === 'air', edit);
     await page.waitForFunction(async ({x, y, z}) => {const {terrainScene: s} = await import('./terrain-view.mjs'); const c = s.columns.find(c => c.x === x && c.z === z); return c && !c.spans.some(span => span.bottom <= y && span.top >= y);}, edit);
@@ -111,9 +111,9 @@ async function snap(page, name) {
       return (await import('./terrain-view.mjs')).terrainScene.config.seed;
     });
     assert.equal(latest, 'newer');
-    await page.locator('summary').click(); await page.locator('[name=cutaway]').uncheck(); await ready(page);
+    await page.locator('#planet-lab summary').click(); await page.locator('[name=cutaway]').uncheck(); await ready(page);
     await page.locator('[name=centerX]').fill('0'); await page.locator('[name=centerZ]').fill('66');
-    await page.locator('[name=generate]').click(); await ready(page); await page.locator('summary').click();
+    await page.locator('[name=generate]').click(); await ready(page); await page.locator('#planet-lab summary').click();
     const responsiveness = await page.evaluate(async () => {
       const view = await import('./terrain-view.mjs');
       let frames = 0, last = performance.now(), gaps = [], running = true;

@@ -9,6 +9,7 @@ const fs=require('node:fs');
   const context=await browser.newContext({viewport,isMobile:true,hasTouch:true});const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto('http://127.0.0.1:8766/games/space-invaders/index.html');await page.locator('#start').click();
   for(const target of ['alien','ship','shield','enemy-shield','saucer'])for(const hit of [false,true]){
+   await page.bringToFront();
    const setup=await page.evaluate(async({target,hit,wide})=>{
     const {game}=await import('./app.mjs');game.restart();game.enemyClock=100;game.saucerClock=100;game.invulnerable=0;game.shields=[];game.shots=[];game.enemyShots=[];
     game.aliens=[{x:240,y:200,type:'crab',points:20},{x:400,y:80,type:'squid',points:30}];
@@ -32,7 +33,7 @@ const fs=require('node:fs');
      return shots.length!==1||shots[0].y!==y;
     },{target,y:setup.y});
    }
-   assert(updated,'Combat update did not run');
+   assert(updated,'Combat update did not run: '+JSON.stringify(await page.evaluate(async()=>{const {game}=await import('./app.mjs');return {state:game.state,scene:game.scene,wave:game.wave,hidden:document.hidden,errors:[]};})));
    const observed=await page.evaluate(async()=>{const {game}=await import('./app.mjs');game.pause();return {score:game.score,lives:game.lives,shields:game.shields.length,player:game.player,invulnerable:game.invulnerable,enemyShots:game.enemyShots};});
    if(target==='alien')assert.equal(observed.score,hit?20:0,`${viewport.width} ${target} ${hit}`);
    if(target==='saucer')assert.equal(observed.score,hit?100:0,`${viewport.width} ${target} ${hit}`);

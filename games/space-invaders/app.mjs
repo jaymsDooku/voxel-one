@@ -1,17 +1,33 @@
+import {EntryRenderer,cameraAt} from './entry-renderer.mjs';
 import {Game,models} from './game.mjs';
-import {renderTerrain,attachTerrainControls,terrainRevision,excavateScreen,planetSky} from './terrain-view.mjs';
+import {renderTerrain,attachTerrainControls,terrainRevision,excavateScreen,planetSky,freezePlanet,releasePlanet,planetWorld,terrainScene,terrainMode,cancelPlanetJobs,setPlanetVisualProfile} from './terrain-view.mjs';
 export {configurePlanet} from './terrain-view.mjs';
 let terrainBackdrop=null,terrainKey='';
 attachTerrainControls(document.body,()=>{terrainKey='';});
 export const game=new Game();
+export const entryRenderer=new EntryRenderer();
+let entryFrozen=false,combatCameraTime=0;
+// Keep the dialog outside the fixed arena's stacking context on touch screens.
+document.querySelector('.arena').after(document.querySelector('#overlay'));
+// Session opt-in only: ordinary play never prepares or renders orbital assets.
+const previewLabel=document.createElement('label');previewLabel.className='orbital-preview-setting';previewLabel.innerHTML='<input id="orbital-preview" type="checkbox" autocomplete="off"> Experimental orbital descent preview (unqualified)';document.querySelector('#start').before(previewLabel);
+const previewInput=previewLabel.querySelector('input');previewInput.checked=false;
+previewInput.onchange=()=>{if(game.state==='playing'||game.state==='paused'){previewInput.checked=!!game.orbitalPreview;return;}game.orbitalPreview=previewInput.checked;if(!game.orbitalPreview){entryRenderer.cancel();entryRenderer.dispose();entryRenderer.attempted=false;releasePlanet();setPlanetVisualProfile(null);entryFrozen=false;terrainKey='';game.entryReady=true;}};
+const reduced=document.createElement('div');reduced.innerHTML='<label><input id="reduced-motion" type="checkbox"> Reduced motion</label>';const settings=document.createElement('details');settings.className='motion-setting';settings.innerHTML='<summary>Descent options</summary>';settings.append(reduced);document.querySelector('.help').after(settings);settings.hidden=true;
+const rendererSelect=document.createElement('select');rendererSelect.setAttribute('aria-label','Descent rendering');rendererSelect.innerHTML='<option value="canvas">Canvas</option><option value="gl">WebGL2 preview</option>';reduced.append(rendererSelect);entryRenderer.forceFallback=true;rendererSelect.onchange=()=>{entryRenderer.forceFallback=rendererSelect.value==='canvas';};
+const qualitySelect=document.createElement('select');qualitySelect.setAttribute('aria-label','Descent quality');qualitySelect.innerHTML='<option selected>Low</option><option>Medium</option><option>High</option>';reduced.append(qualitySelect);qualitySelect.onchange=()=>{entryRenderer.quality=qualitySelect.value;if(entryRenderer.profile)entryRenderer.startCache(canvas.clientWidth/canvas.clientHeight);};
+const airSelect=document.createElement('select');airSelect.setAttribute('aria-label','Atmosphere diagnostic');airSelect.innerHTML='<option>alien</option><option>earth</option><option>thin</option><option>hazy</option><option>airless</option>';reduced.append(airSelect);airSelect.onchange=()=>{entryRenderer.air=airSelect.value;entryRenderer.cancel();entryRenderer.dispose();entryRenderer.attempted=false;};
+const retry=document.createElement('button');retry.textContent='Retry detail';retry.type='button';retry.onclick=()=>{if(entryRenderer.profile)entryRenderer.startCache(canvas.clientWidth/canvas.clientHeight);};reduced.append(retry);
+const reducedInput=reduced.querySelector('input');reducedInput.checked=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const skip=document.createElement('button');skip.id='skip-descent';skip.textContent='Skip descent';skip.hidden=true;document.querySelector('header').append(skip);skip.onclick=()=>game.skipDescent();
 const canvas=document.querySelector('canvas'),ctx=canvas.getContext('2d');
 const hud=document.querySelector('#hud'),overlay=document.querySelector('#overlay'),title=document.querySelector('#title'),message=document.querySelector('#message'),start=document.querySelector('#start'),pause=document.querySelector('#pause'),status=document.querySelector('#status');
 canvas.addEventListener('click',async e=>{if(game.wave!==3)return;const r=canvas.getBoundingClientRect();try{const edit=await excavateScreen(e.clientX-r.left,e.clientY-r.top,r.width,r.height);if(edit)status.textContent=`Excavated ${edit.material} at ${edit.x},${edit.y},${edit.z}`;}catch(error){status.textContent=`Terrain survey failed: ${error.message}`;}});
 const keys=new Set(),pointers=new Map();let last=0,oldState='';
 function clear(){keys.clear();pointers.clear();document.querySelectorAll('.active').forEach(b=>b.classList.remove('active'));}
-function toggle(){clear();game.pause();}
-start.onclick=()=>{clear();if(game.state==='paused')game.pause();else game.restart();};pause.onclick=toggle;
-addEventListener('keydown',e=>{if(e.target.closest?.('#planet-lab'))return;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Space','KeyA','KeyD','KeyW','KeyS','KeyP','Escape'].includes(e.code)){e.preventDefault();if(!e.repeat&&(e.code==='KeyP'||e.code==='Escape'))toggle();keys.add(e.code);}});
+function toggle(){clear();game.pause();last=performance.now();}
+start.onclick=()=>{previewInput.disabled=true;clear();if(game.state==='paused')game.pause();else {game.restart();if(entryFrozen)cancelPlanetJobs();releasePlanet();entryRenderer.cancel();entryRenderer.dispose();entryRenderer.attempted=false;setPlanetVisualProfile(null);terrainKey='';entryFrozen=false;}last=performance.now();};pause.onclick=toggle;
+addEventListener('keydown',e=>{if(e.target.closest?.('#planet-lab, .orbital-preview-setting, .motion-setting'))return;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Space','KeyA','KeyD','KeyW','KeyS','KeyP','Escape'].includes(e.code)){e.preventDefault();if(!e.repeat&&(e.code==='KeyP'||e.code==='Escape'))toggle();keys.add(e.code);}});
 addEventListener('keyup',e=>keys.delete(e.code));
 for(const b of document.querySelectorAll('[data-control]')){
  b.addEventListener('pointerdown',e=>{e.preventDefault();if(e.isTrusted)b.setPointerCapture(e.pointerId);pointers.set(e.pointerId,b.dataset.control);b.classList.add('active');});
@@ -74,6 +90,7 @@ function worldCube(x,y,size,color,offsetX=0,offsetY=0){
  const [px,py]=project(x,y);ctx.save();ctx.translate(px,py);ctx.scale(unit,unit);cube(offsetX,0,size,color);ctx.restore();}
 // Stepped terrain and cube moons share the game's voxel palette.
 function planet(){
+ if(game.orbitalPreview&&entryFrozen && (game.scene || (terrainMode==='none' && !terrainScene?.view.cutaway))){if(game.scene){combatCameraTime=0;entryRenderer.render(ctx,width,height,12);canvas.dataset.planetCamera="landing";}else {entryRenderer.renderCombat(ctx,width,height,combatCameraTime);canvas.dataset.planetCamera="external";}drawWreckage();return;}
  const tones=planetSky(),sky=ctx.createLinearGradient(0,0,0,height);sky.addColorStop(0,tones[0]);sky.addColorStop(.6,tones[1]);sky.addColorStop(1,tones[2]);ctx.fillStyle=sky;ctx.fillRect(0,0,width,height);
  for(const [x,y,size,color] of [[.32,.39,.095,'#c4b9e6'],[.72,.46,.065,'#81d4cd']]){
   const cell=Math.max(3,Math.min(width,height)*size/8);
@@ -82,8 +99,11 @@ function planet(){
  const key=`${width},${height},${terrainRevision}`;
  if(terrainKey!==key){terrainBackdrop=document.createElement('canvas');terrainBackdrop.width=Math.ceil(width);terrainBackdrop.height=Math.ceil(height);renderTerrain(terrainBackdrop.getContext('2d'),width,height);terrainKey=key;}
  ctx.drawImage(terrainBackdrop,0,0);
- // Wreckage anchors the wake-up view to the crash.
- ctx.save();ctx.translate(width*.18,height*.83);ctx.rotate(-.3);ctx.scale(Math.max(1,unit*2),Math.max(1,unit*2));model('ship',0,0,'#626c80');cube(10,7,5,'#de9866');ctx.restore();
+ drawWreckage();
+}
+function drawWreckage(){
+ const point=game.orbitalPreview&&entryFrozen&&entryRenderer.profile?entryRenderer.project([0,entryRenderer.profile.radius+entryRenderer.profile.landingHeight,0],entryRenderer.lastCamera||cameraAt(12,entryRenderer.profile),width,height):null;
+ ctx.save();ctx.translate(point?.[0]??width*.18,point?.[1]??height*.83);ctx.rotate(-.3);ctx.scale(Math.max(1,unit*2),Math.max(1,unit*2));model('ship',0,0,'#626c80');cube(10,7,5,'#de9866');ctx.restore();
 }
 function cockpit(){
   // Solid canopy ribs and a sloped console put the camera inside the hull.
@@ -106,18 +126,17 @@ function cockpit(){
    ctx.fillText(label,x+w/2,screenY+screenH*.38);ctx.fillText(value,x+w/2,screenY+screenH*.8);
   };
   screen(width*.2,width*.17,'HULL',`${game.lives} / 3`);
-  screen(width*.4,width*.2,'ALT',String(Math.round(530-game.playerY)));
+  screen(width*.4,width*.2,'ALT',game.orbitalPreview&&game.scene==='crash'?`${Math.round(cameraAt(game.sceneTime,entryRenderer.profile).altitude)} m`:String(Math.round(530-game.playerY)));
   screen(width*.63,width*.17,'SECTOR',String(game.wave).padStart(2,'0'));
   ctx.textAlign='start';
   ctx.strokeStyle=game.invulnerable>0?'#ffb66d':'#70f3da';ctx.lineWidth=1.5;
   const [cx,cy]=project(game.player,200);ctx.beginPath();ctx.moveTo(cx-12,cy);ctx.lineTo(cx-4,cy);ctx.moveTo(cx+4,cy);ctx.lineTo(cx+12,cy);ctx.moveTo(cx,cy-12);ctx.lineTo(cx,cy-4);ctx.moveTo(cx,cy+4);ctx.lineTo(cx,cy+12);ctx.stroke();
 }
-// The camera stays inside the damaged hull as air, clouds and ground rush past.
-function entry(){
+function ordinaryEntry(){
  const t=game.sceneTime;
  canvas.dataset.entryPhase=t<1.6?'approach':t<3?'atmosphere':t<5?'clouds':t<7.4?'descent':'impact';
  ctx.save();
- const shake=t>7.4?8:t>1.6?2:0;
+ const shake=reducedInput.checked?0:t>7.4?8:t>1.6?2:0;
  ctx.translate(Math.sin(t*47)*shake,Math.cos(t*39)*shake);
  ctx.drawImage(backdrop,0,0,width,height);
  const air=Math.max(0,Math.min(1,(t-1)/2));
@@ -163,9 +182,23 @@ function entry(){
  }
  cockpit();ctx.restore();
  if(t>7.4){
-  ctx.fillStyle=`rgba(255,222,175,${Math.max(0,1-(t-7.4)/.18)})`;ctx.fillRect(0,0,width,height);
+  if(!reducedInput.checked){ctx.fillStyle=`rgba(255,222,175,${Math.max(0,1-(t-7.4)/.18)})`;ctx.fillRect(0,0,width,height);}
   ctx.fillStyle=`rgba(0,0,0,${Math.max(0,Math.min(1,(t-7.55)/.35))})`;ctx.fillRect(0,0,width,height);
  }
+}
+
+// The camera stays inside the damaged hull as air, clouds and ground rush past.
+function entry(){
+ if(!game.orbitalPreview){canvas.dataset.entryBackend='Ordinary Canvas';delete canvas.dataset.entryAltitude;ordinaryEntry();return;}
+ const t=game.sceneTime;
+ canvas.dataset.entryPhase=t<3?'approach':t<6?'atmosphere':t<9?'clouds':t<11.7?'descent':'impact';
+ const camera=entryRenderer.render(ctx,width,height,t);
+ canvas.dataset.entryBackend=entryRenderer.forceFallback?'Canvas fallback':entryRenderer.backend;
+ canvas.dataset.entryAltitude=String(Math.round(camera?.altitude||0));
+ const density=Math.exp(-(camera?.altitude||0)/(entryRenderer.profile?.atmosphere.molecularScale||8000)),speed=Math.min(1,Math.abs(camera?.altitudeVelocity||0)/3000);
+ if(entryRenderer.air!=='airless'&&!reducedInput.checked&&density>.02&&t<11.7){ctx.strokeStyle=`rgba(255,145,75,${Math.min(.3,density*speed)})`;ctx.lineWidth=3;for(const x of [width*.04,width*.96]){ctx.beginPath();ctx.moveTo(x,height*.8);ctx.lineTo(x+(x<width/2?-12:12),height*.4);ctx.stroke();}}
+ ctx.save();if(!reducedInput.checked&&t>11.7)ctx.translate(Math.sin(t*31)*2,Math.cos(t*27)*2);cockpit();ctx.restore();
+ if(t>11.8){ctx.fillStyle=`rgba(0,0,0,${Math.min(1,(t-11.8)/.2)})`;ctx.fillRect(0,0,width,height);}
 }
 function story(){
  const scene=game.scene;
@@ -209,5 +242,14 @@ function draw(t){
  canvas.dataset.perspective=game.perspective;
  canvas.dataset.transition=game.transition?'entering-cockpit':'none';
 }
-function frame(t){const touch=[...pointers.values()];game.update((t-last)/1000,{axis:Number(keys.has('ArrowRight')||keys.has('KeyD')||touch.includes('right'))-Number(keys.has('ArrowLeft')||keys.has('KeyA')||touch.includes('left')),vertical:Number(keys.has('ArrowDown')||keys.has('KeyS')||touch.includes('down'))-Number(keys.has('ArrowUp')||keys.has('KeyW')||touch.includes('up')),fire:keys.has('Space')||touch.includes('fire')});last=t;draw(t);hud.textContent=`Score ${game.score} · Lives ${game.lives} · Wave ${game.wave}${game.transition?' · ENTERING COCKPIT':game.scene?' · '+game.scene.toUpperCase():game.flight?' · FIGHTER COMBAT':''}`;canvas.setAttribute('aria-label',game.transition?'Level 2: Entering first-person fighter cockpit':`Level ${game.wave}: ${game.scene?game.scene+' on an alien voxel planet':game.wave===3?'Alien voxel planet with two moons; fighter combat':game.perspective==='cockpit'?'First-person fighter cockpit':game.flight?'Fighter space combat':'Classic Space Invaders'}`);if(oldState!==game.state){oldState=game.state;overlay.hidden=game.state==='playing';pause.disabled=!['playing','paused'].includes(game.state);pause.textContent=game.state==='paused'?'Resume':'Pause';if(game.state==='paused'){title.textContent='Paused';message.textContent='Your game is safe. Resume when ready.';start.textContent='Resume';}if(game.state==='over'){title.textContent='Game over';message.textContent=`Final score: ${game.score} · Wave ${game.wave}${game.flight?' · FIGHTER COMBAT':''}`;start.textContent='Play again';}status.textContent=game.state==='playing'?'Game started':title.textContent;}requestAnimationFrame(frame);}
+function frame(t){
+ previewInput.disabled=game.state==='playing'||game.state==='paused';settings.hidden=!game.orbitalPreview;canvas.dataset.orbitalPreview=String(!!game.orbitalPreview);
+ if((entryFrozen||entryRenderer.profile)&&!game.scene&&game.wave===1){cancelPlanetJobs();releasePlanet();entryRenderer.cancel();entryRenderer.dispose();entryRenderer.attempted=false;setPlanetVisualProfile(null);terrainKey='';entryFrozen=false;}
+ if(game.orbitalPreview&&game.wave>=2&&terrainScene&&(!entryFrozen||(!game.scene&&game.wave===3))){entryRenderer.prepare(planetWorld,terrainScene,canvas.clientWidth/canvas.clientHeight);setPlanetVisualProfile(entryRenderer.profile);}
+ if(game.orbitalPreview&&game.scene==='crash'&&!entryFrozen){const frozen=freezePlanet();entryRenderer.prepare(frozen.world,frozen.scene,canvas.clientWidth/canvas.clientHeight);setPlanetVisualProfile(entryRenderer.profile);entryFrozen=true;}
+ if(entryFrozen&&!game.scene&&game.wave===3)releasePlanet();
+ if(game.orbitalPreview&&game.scene==='crash')game.entryReady=!!entryRenderer.fineScene&&!!(entryRenderer.cache?.[36]||entryRenderer.parentPoseTime>=8.75);
+ airSelect.disabled=!!game.scene;
+ skip.hidden=game.scene!=='crash';
+ if(game.wave===1||game.scene)combatCameraTime=0;else if(game.wave===3&&entryFrozen&&game.state==='playing')combatCameraTime=Math.min(.8,combatCameraTime+Math.max(0,Math.min(.05,(t-last)/1000)));const touch=[...pointers.values()];game.update((t-last)/1000,{axis:Number(keys.has('ArrowRight')||keys.has('KeyD')||touch.includes('right'))-Number(keys.has('ArrowLeft')||keys.has('KeyA')||touch.includes('left')),vertical:Number(keys.has('ArrowDown')||keys.has('KeyS')||touch.includes('down'))-Number(keys.has('ArrowUp')||keys.has('KeyW')||touch.includes('up')),fire:keys.has('Space')||touch.includes('fire')});last=t;if(game.orbitalPreview&&game.scene==='crash'&&!entryFrozen){const frozen=freezePlanet();entryRenderer.prepare(frozen.world,frozen.scene,canvas.clientWidth/canvas.clientHeight);setPlanetVisualProfile(entryRenderer.profile);entryFrozen=true;}draw(t);const hudText=`Score ${game.score} · Lives ${game.lives} · Wave ${game.wave}${game.transition?' · ENTERING COCKPIT':game.scene?' · '+game.scene.toUpperCase():game.flight?' · FIGHTER COMBAT':''}`;if(hud.textContent!==hudText)hud.textContent=hudText;const ariaLabel=game.transition?'Level 2: Entering first-person fighter cockpit':`Level ${game.wave}: ${game.scene?game.scene+' on an alien voxel planet':game.wave===3?'Alien voxel planet with two moons; fighter combat':game.perspective==='cockpit'?'First-person fighter cockpit':game.flight?'Fighter space combat':'Classic Space Invaders'}`;if(canvas.getAttribute('aria-label')!==ariaLabel)canvas.setAttribute('aria-label',ariaLabel);if(oldState!==game.state){oldState=game.state;overlay.hidden=game.state==='playing';pause.disabled=!['playing','paused'].includes(game.state);pause.textContent=game.state==='paused'?'Resume':'Pause';if(game.state==='paused'){title.textContent='Paused';message.textContent='Your game is safe. Resume when ready.';start.textContent='Resume';}if(game.state==='over'){title.textContent='Game over';message.textContent=`Final score: ${game.score} · Wave ${game.wave}${game.flight?' · FIGHTER COMBAT':''}`;start.textContent='Play again';}status.textContent=game.state==='playing'?'Game started':title.textContent;}requestAnimationFrame(frame);}
 requestAnimationFrame(frame);

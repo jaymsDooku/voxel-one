@@ -1,0 +1,8 @@
+{
+  "source": "136cef1940f13f9431c9f6e4400e19395145cbdb; fresh copy of original committed game files under assigned worktree .tmp/baseline; no Git mutation",
+  "command": "PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node .tmp/capture-baseline.cjs",
+  "environment": "Linux headless Chromium, 960x675, synthetic isolated profile",
+  "playtest": "Playtest: start old source, arrange synthetic final level 2 fighter, kill with real Space/frame loop, capture approach at 0.5 seconds and low entry at 6 seconds, verify score 130/lives 2",
+  "observed": "Original expanding disc, gradient and unrelated repeating voxel rows; baseline captured freshly for before/after comparison",
+  "errors": []
+}

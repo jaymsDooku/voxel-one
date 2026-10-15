@@ -1,0 +1,16 @@
+{
+  "command": "PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/test_orbital_cache_failure.cjs",
+  "environment": "Linux headless software Chromium/WebKit; synthetic isolated final fighter; Canvas Medium; entry-worker.mjs request aborted",
+  "playtest": "Playtest: real keyboard last kill; force no Worker cache, inspect 3/4.5/6/9/11.5-second frames, pause/rotate, resume to waking and level 3, move/fire, restart.",
+  "expected": "Same geography with haze; no radial fan, empty surface or trapped story; score130/lives2",
+  "results": [
+    {
+      "browser": "chromium",
+      "result": "PASS: Worker module failure and empty cache retain surface, pause/rotation freeze, score/lives, full handoff, flight/fire and restart"
+    },
+    {
+      "browser": "webkit",
+      "result": "PASS: Worker module failure and empty cache retain surface, pause/rotation freeze, score/lives, full handoff, flight/fire and restart"
+    }
+  ]
+}

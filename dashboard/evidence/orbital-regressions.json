@@ -1,0 +1,48 @@
+{
+  "legacyUrlAdaptation": "Temporary copies change only legacy localhost ports 8766/8767/8778 to 8779; source tests and assertions are preserved",
+  "environment": "Linux headless WebKit/Chromium on assigned source worktree, synthetic isolated game contexts",
+  "command": "PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/.tmp/browser\" node deploy/run_orbital_regressions.cjs",
+  "playtest": "Playtest: exercise cockpit, fighter, swept collisions, multitouch, layout and lab generation/overlays/excavation through existing browser harnesses.",
+  "results": [
+    {
+      "test": "test_space_invaders_entry_regression.cjs",
+      "exit": 0,
+      "output": "[{\"viewport\":{\"width\":1280,\"height\":900},\"result\":\"PASS: real last kill, camera midpoint, frozen combat/input, pause/resume, cockpit combat, restart during transition, classic touch regression, instrument text/alpha at midpoint and endpoint\",\"errors\":[]},{\"viewport\":{\"width\":390,\"height\":844},\"result\":\"PASS: real last kill, camera midpoint, frozen combat/input, pause/resume, cockpit combat, restart during transition, classic touch regression, instrument text/alpha at midpoint and endpoint\",\"errors\":[]},{\"viewport\":{\"width\":844,\"height\":390},\"result\":\"PASS: real last kill, camera midpoint, frozen combat/input, pause/resume, cockpit combat, restart during transition, classic touch regression, instrument text/alpha at midpoint and endpoint\",\"errors\":[]}]\n"
+    },
+    {
+      "test": "test_space_invaders_cockpit.cjs",
+      "exit": 0,
+      "output": "[{\"viewport\":{\"width\":1280,\"height\":900},\"observed\":\"PASS: level 1 regression, actual last-kill transition, level 2 independent jet paths and two-axis flight/fire, aimed enemy fire and altitude hit, cockpit camera, pause/resume, death/restart, level 3 fighter combat with score/lives, touch up/cancel and boundaries\",\"errors\":[]},{\"viewport\":{\"width\":390,\"height\":844},\"observed\":\"PASS: level 1 regression, actual last-kill transition, level 2 independent jet paths and two-axis flight/fire, aimed enemy fire and altitude hit, cockpit camera, pause/resume, death/restart, level 3 fighter combat with score/lives, touch up/cancel and boundaries\",\"errors\":[]},{\"viewport\":{\"width\":844,\"height\":390},\"observed\":\"PASS: level 1 regression, actual last-kill transition, level 2 independent jet paths and two-axis flight/fire, aimed enemy fire and altitude hit, cockpit camera, pause/resume, death/restart, level 3 fighter combat with score/lives, touch up/cancel and boundaries\",\"errors\":[]}]\n"
+    },
+    {
+      "test": "test_space_invaders_fighters.cjs",
+      "exit": 0,
+      "output": "[{\"viewport\":{\"width\":1280,\"height\":900},\"observed\":\"PASS: level 1 regression, actual last-kill transition, level 2 independent jet paths and two-axis flight/fire, aimed enemy fire and altitude hit, cockpit camera, pause/resume, death/restart, level 3 fighter combat with score/lives, touch up/cancel and boundaries\",\"errors\":[]},{\"viewport\":{\"width\":390,\"height\":844},\"observed\":\"PASS: level 1 regression, actual last-kill transition, level 2 independent jet paths and two-axis flight/fire, aimed enemy fire and altitude hit, cockpit camera, pause/resume, death/restart, level 3 fighter combat with score/lives, touch up/cancel and boundaries\",\"errors\":[]},{\"viewport\":{\"width\":844,\"height\":390},\"observed\":\"PASS: level 1 regression, actual last-kill transition, level 2 independent jet paths and two-axis flight/fire, aimed enemy fire and altitude hit, cockpit camera, pause/resume, death/restart, level 3 fighter combat with score/lives, touch up/cancel and boundaries\",\"errors\":[]}]\n"
+    },
+    {
+      "test": "test_space_invaders_fighter_edges.cjs",
+      "exit": 0,
+      "output": "Playtest: fighter edge checks passed at all three viewports; no page errors.\n"
+    },
+    {
+      "test": "test_space_invaders_cockpit_edges.cjs",
+      "exit": 0,
+      "output": "PASS: ALT 250/10/0 drawn; portrait-to-landscape resize keeps cockpit; touch up/down/fire cancel and pause/resume work.\n"
+    },
+    {
+      "test": "test_space_invaders_collisions.cjs",
+      "exit": 0,
+      "output": "Playtest: 20 live alien, ship, shield and saucer hit/miss checks passed in 844x390 and 390x844; no page errors.\n"
+    },
+    {
+      "test": "test_space_invaders_layout.cjs",
+      "exit": 1,
+      "output": "AssertionError [ERR_ASSERTION]: start: ▶ obscured\n    at checkLayout (/home/debian/codex/voxel-one-queue-worktrees/32323739633831342d393930632d343438322d383036362d633363393732353338303631/.tmp/regression-test_space_invaders_layout.cjs:45:5)\n    at async /home/debian/codex/voxel-one-queue-worktrees/32323739633831342d393930632d343438322d383036362d633363393732353338303631/.tmp/regression-test_space_invaders_layout.cjs:69:20\n"
+    },
+    {
+      "test": "test_alien_terrain.cjs",
+      "exit": 0,
+      "output": "[{\"browser\":\"chromium\",\"result\":\"PASS\",\"gallery\":[{\"seed\":\"acheron\",\"milliseconds\":405.8999996185303},{\"seed\":\"glass-sea\",\"milliseconds\":566},{\"seed\":\"silent-impact\",\"milliseconds\":473.5999994277954},{\"seed\":\"fungal-moon\",\"milliseconds\":517.8999996185303}]},{\"browser\":\"webkit\",\"result\":\"PASS\",\"gallery\":[{\"seed\":\"acheron\",\"milliseconds\":809},{\"seed\":\"glass-sea\",\"milliseconds\":898},{\"seed\":\"silent-impact\",\"milliseconds\":811},{\"seed\":\"fungal-moon\",\"milliseconds\":831}]}]\n"
+    }
+  ]
+}
