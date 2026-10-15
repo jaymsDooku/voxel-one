@@ -1,0 +1,155 @@
+{
+  "command": "TMPDIR=\"$PWD/.tmp/browser\" PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers node deploy/test_space_invaders_portal.cjs",
+  "sourceManifest": "portal-source-sha256.json",
+  "environment": "Linux VPS; sandboxed headless Chromium and WebKit; software rendering; isolated synthetic profiles; source HTTP 8779",
+  "results": [
+    {
+      "engine": "chromium",
+      "version": "153.0.8010.12",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "reduced": false,
+      "observed": "PASS",
+      "diagnostics": {
+        "renderer": {
+          "meshBytes": 1558944,
+          "chunks": 121,
+          "preparationMs": 62.50000190734863,
+          "maxJobMs": 5,
+          "coarsePreparationMs": 14.49999713897705,
+          "terrainMeshBytes": 1013760,
+          "sharedPilotMeshBytes": 74304,
+          "heldWeaponBytes": 5184,
+          "sharedHumanMeshBytes": 20736,
+          "coarseMeshBytes": 153792,
+          "meshLimitBytes": 16777216,
+          "dynamicBytes": 291168
+        },
+        "worldCells": 0,
+        "prepareCallMs": 2.09999942779541,
+        "props": 339,
+        "actors": 9
+      },
+      "frameMs": {
+        "p50": 50,
+        "p95": 66.70000000000073,
+        "max": 66.70000000000073
+      },
+      "playtest": "Playtest: synthetic 11-pilot setup; real last-pilot F shot and duplicate scoring guard; shot against portal; normal-speed keyboard or simultaneous touch move/look crossing; no automatic pointer lock; denied-lock resume; retained resources; walk to resistance contact/newspaper, actual occupation-guard projectile, real guard kill and three district objectives; chapter end; repeat run failure/cancel/successful retry, pause during loading, context recovery or rotation, reduced graphics/motion, restart loading, destination death and campaign restart.",
+      "limitations": "Injected camera yaw for route steering; synthetic immunity isolates workflow. Failure, damage and context loss fixtures are explicit. Headless software browsers and synthetic touch events do not establish physical phone/GPU performance."
+    },
+    {
+      "engine": "chromium",
+      "version": "153.0.8010.12",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "reduced": false,
+      "observed": "PASS",
+      "diagnostics": {
+        "renderer": {
+          "meshBytes": 1558944,
+          "chunks": 121,
+          "preparationMs": 47.000006675720215,
+          "maxJobMs": 4,
+          "coarsePreparationMs": 17.999999046325684,
+          "terrainMeshBytes": 1013760,
+          "sharedPilotMeshBytes": 74304,
+          "heldWeaponBytes": 5184,
+          "sharedHumanMeshBytes": 20736,
+          "coarseMeshBytes": 153792,
+          "meshLimitBytes": 16777216,
+          "dynamicBytes": 291168
+        },
+        "worldCells": 0,
+        "prepareCallMs": 1.5,
+        "props": 339,
+        "actors": 9
+      },
+      "frameMs": {
+        "p50": 16.69999999999891,
+        "p95": 33.399999999999636,
+        "max": 33.5
+      },
+      "playtest": "Playtest: synthetic 11-pilot setup; real last-pilot F shot and duplicate scoring guard; shot against portal; normal-speed keyboard or simultaneous touch move/look crossing; no automatic pointer lock; denied-lock resume; retained resources; walk to resistance contact/newspaper, actual occupation-guard projectile, real guard kill and three district objectives; chapter end; repeat run failure/cancel/successful retry, pause during loading, context recovery or rotation, reduced graphics/motion, restart loading, destination death and campaign restart.",
+      "limitations": "Injected camera yaw for route steering; synthetic immunity isolates workflow. Failure, damage and context loss fixtures are explicit. Headless software browsers and synthetic touch events do not establish physical phone/GPU performance."
+    },
+    {
+      "engine": "webkit",
+      "version": "26.6",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "reduced": false,
+      "observed": "PASS",
+      "diagnostics": {
+        "renderer": {
+          "meshBytes": 1203264,
+          "chunks": 95,
+          "preparationMs": 76,
+          "maxJobMs": 2,
+          "coarsePreparationMs": 16,
+          "terrainMeshBytes": 811008,
+          "sharedPilotMeshBytes": 74304,
+          "heldWeaponBytes": 5184,
+          "sharedHumanMeshBytes": 20736,
+          "coarseMeshBytes": 0,
+          "meshLimitBytes": 16777216,
+          "dynamicBytes": 292032
+        },
+        "worldCells": 0,
+        "prepareCallMs": 1,
+        "props": 339,
+        "actors": 9
+      },
+      "frameMs": {
+        "p50": 61,
+        "p95": 71,
+        "max": 73
+      },
+      "playtest": "Playtest: synthetic 11-pilot setup; real last-pilot F shot and duplicate scoring guard; shot against portal; normal-speed keyboard or simultaneous touch move/look crossing; no automatic pointer lock; denied-lock resume; retained resources; walk to resistance contact/newspaper, actual occupation-guard projectile, real guard kill and three district objectives; chapter end; repeat run failure/cancel/successful retry, pause during loading, context recovery or rotation, reduced graphics/motion, restart loading, destination death and campaign restart.",
+      "limitations": "Injected camera yaw for route steering; synthetic immunity isolates workflow. Failure, damage and context loss fixtures are explicit. Headless software browsers and synthetic touch events do not establish physical phone/GPU performance."
+    },
+    {
+      "engine": "webkit",
+      "version": "26.6",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "reduced": false,
+      "observed": "PASS",
+      "diagnostics": {
+        "renderer": {
+          "meshBytes": 1406016,
+          "chunks": 121,
+          "preparationMs": 105,
+          "maxJobMs": 2,
+          "coarsePreparationMs": 25,
+          "terrainMeshBytes": 1013760,
+          "sharedPilotMeshBytes": 74304,
+          "heldWeaponBytes": 5184,
+          "sharedHumanMeshBytes": 20736,
+          "coarseMeshBytes": 0,
+          "meshLimitBytes": 16777216,
+          "dynamicBytes": 292032
+        },
+        "worldCells": 0,
+        "prepareCallMs": 3,
+        "props": 339,
+        "actors": 9
+      },
+      "frameMs": {
+        "p50": 40,
+        "p95": 51,
+        "max": 58
+      },
+      "playtest": "Playtest: synthetic 11-pilot setup; real last-pilot F shot and duplicate scoring guard; shot against portal; normal-speed keyboard or simultaneous touch move/look crossing; no automatic pointer lock; denied-lock resume; retained resources; walk to resistance contact/newspaper, actual occupation-guard projectile, real guard kill and three district objectives; chapter end; repeat run failure/cancel/successful retry, pause during loading, context recovery or rotation, reduced graphics/motion, restart loading, destination death and campaign restart.",
+      "limitations": "Injected camera yaw for route steering; synthetic immunity isolates workflow. Failure, damage and context loss fixtures are explicit. Headless software browsers and synthetic touch events do not establish physical phone/GPU performance."
+    }
+  ]
+}

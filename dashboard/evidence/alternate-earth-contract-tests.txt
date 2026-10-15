@@ -1,0 +1,95 @@
+TAP version 13
+# Subtest: explicit chapters end at Earth without wave parity
+ok 1 - explicit chapters end at Earth without wave parity
+  ---
+  duration_ms: 1.385238
+  ...
+# Subtest: swept crossing handles both directions and low-frame sprint
+ok 2 - swept crossing handles both directions and low-frame sprint
+  ---
+  duration_ms: 0.405049
+  ...
+# Subtest: frame, side, plane standing and vertical misses do not transfer
+ok 3 - frame, side, plane standing and vertical misses do not transfer
+  ---
+  duration_ms: 0.312432
+  ...
+# Subtest: handoff copies resources, freezes nested data and rejects same world
+ok 4 - handoff copies resources, freezes nested data and rejects same world
+  ---
+  duration_ms: 0.807324
+  ...
+# Subtest: models contain voxel cells and three distinct aliens
+ok 5 - models contain voxel cells and three distinct aliens
+  ---
+  duration_ms: 2.478439
+  ...
+# Subtest: movement clamps, fire cooldown, pause and restart
+ok 6 - movement clamps, fire cooldown, pause and restart
+  ---
+  duration_ms: 107.791249
+  ...
+# Subtest: alien kill scores once; last kill advances and resets
+ok 7 - alien kill scores once; last kill advances and resets
+  ---
+  duration_ms: 1.739665
+  ...
+# Subtest: both sides erode shields
+ok 8 - both sides erode shields
+  ---
+  duration_ms: 0.715245
+  ...
+# Subtest: life loss, immunity, game over and invasion
+ok 9 - life loss, immunity, game over and invasion
+  ---
+  duration_ms: 6.948388
+  ...
+# Subtest: fleet reverses and descends; bottom shooters; saucer bonus
+ok 10 - fleet reverses and descends; bottom shooters; saucer bonus
+  ---
+  duration_ms: 1.556434
+  ...
+# Subtest: large background delta bounded and offscreen projectiles recycled
+ok 11 - large background delta bounded and offscreen projectiles recycled
+  ---
+  duration_ms: 3.044391
+  ...
+# Subtest: slow frame projectile sweeps across alien and shield
+ok 12 - slow frame projectile sweeps across alien and shield
+  ---
+  duration_ms: 0.901937
+  ...
+# Subtest: levels alternate classic and cockpit; restart restores classic
+ok 13 - levels alternate classic and cockpit; restart restores classic
+  ---
+  duration_ms: 1.906997
+  ...
+# Subtest: fighter flight has momentum, diagonal speed limit, bounds and aimed attacks
+ok 14 - fighter flight has momentum, diagonal speed limit, bounds and aimed attacks
+  ---
+  duration_ms: 7.271476
+  ...
+# Subtest: fighter hits use current altitude and diagonal swept projectiles
+ok 15 - fighter hits use current altitude and diagonal swept projectiles
+  ---
+  duration_ms: 0.823697
+  ...
+# Subtest: level 2 crash, unconscious blackout and level 3 wake preserve progress and freeze combat
+ok 16 - level 2 crash, unconscious blackout and level 3 wake preserve progress and freeze combat
+  ---
+  duration_ms: 0.944669
+  ...
+# Subtest: cockpit transition holds combat, pauses, ends and resets
+ok 17 - cockpit transition holds combat, pauses, ends and resets
+  ---
+  duration_ms: 0.87422
+  ...
+1..17
+# tests 17
+# suites 0
+# pass 17
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 257.821777

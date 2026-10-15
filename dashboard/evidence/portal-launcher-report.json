@@ -1,0 +1,9 @@
+{
+  "command": "TMPDIR=\"$PWD/.tmp/browser\" PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers node deploy/test_portal_launcher.cjs",
+  "environment": "Linux headless Chromium; generated local website; synthetic context; source HTTP 8779",
+  "playtest": "Playtest: open generated website, follow game link, start, move/fire; reload in the same context and repeat; import new chapter modules on both launches.",
+  "expected": "Fresh and cached local launches load matched game modules and support classic combat. Reload starts a fresh session.",
+  "observed": "PASS",
+  "errors": [],
+  "limitations": "Local generated assets only. Production private Sites/Hub publication and CDN checks belong to controller/reviewer after review."
+}

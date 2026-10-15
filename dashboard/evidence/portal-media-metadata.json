@@ -1,0 +1,16 @@
+{
+  "portal-journey.mp4": {
+    "bytes": 1246239,
+    "duration": "00:00:44.40",
+    "dimensions": "960x540",
+    "audio": "silent browser recording",
+    "normalSpeed": true
+  },
+  "portal-natural-combat.mp4": {
+    "bytes": 344543,
+    "duration": "00:00:11.96",
+    "dimensions": "960x540",
+    "audio": "silent browser recording",
+    "normalSpeed": true
+  }
+}
