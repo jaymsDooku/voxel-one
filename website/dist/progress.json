@@ -56,8 +56,8 @@
         }
       ],
       "status": "in_progress",
-      "note": "Rebased onto reviewed master 3760edff; all game hashes unchanged. Final-source validation passed: 86 unit tests, four Chromium/WebKit portal workflows, reduced landscape, natural guard combat, six ground regressions and fresh/cached launcher. Fresh media saved below 6 MB. Awaiting controller publication and independent review; no deployment performed.",
-      "updatedAt": "2026-10-15T23:34:22+00:00"
+      "note": "Review reproduction check on f8ea0fb5: 86 unit tests and isolated Chromium portal/district/lifecycle playtest passed again. Published exact-head video and arrival image match local bytes. Fresh recheck report/media saved; no game fault reproduced or speculative code change made. Awaiting independent review.",
+      "updatedAt": "2026-10-15T23:37:21+00:00"
     },
     {
       "id": "skip-unchanged-shared-engine-block-writes",
