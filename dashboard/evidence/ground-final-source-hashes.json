@@ -1,0 +1,30 @@
+{
+  "localBase": "9b069b275ab4d1d85518366ce969cd1225e64dbd",
+  "reviewBaseSource": "controller-synchronized reviewed master; HEAD equals origin/master",
+  "capturedAt": "2026-10-15T22:03:05.581363+00:00",
+  "runtime": {
+    "app.mjs": "d38452c96bfe5b7ca759195940d3fbdef5ba15cd590893c22cdc9feb334b7c76",
+    "atmosphere.mjs": "c89790f08ecdd2b1cd98270ef1ab0dee90e8b496b8c8bd1f9f77a2396f4c2919",
+    "bootstrap-planet.mjs": "dbe7257bbd1514211be135d2e55fe21b257706ec7a1575e3d3d7d560650bb570",
+    "clouds.mjs": "7a00b37a579969cb9093ee6f52d6c0cc1ed13389c35460b6c2a0230520299038",
+    "coarse-view.mjs": "51a4e96ad0223cc3c5220d55d182ccc91c3d8f8943469b7b78c7c14a8c15f978",
+    "entry-renderer.mjs": "5a6657b18d8bafd893bff86cfc5e678198f3e2f573b7092570d6a77437070e7e",
+    "entry-sequence.mjs": "958b61fb790c3b355f2fe5b26e07cdfb28a2c37bd54e678b29aab84590132e61",
+    "entry-worker.mjs": "ff55bcba92c2af82c5763b0b433541baadb28bb8cb4fb3284ac2a3a81a0de09a",
+    "game.mjs": "c8c46fa36a73000d60c058f81c46ed8a3b18453f0a33dd05725df81f643aa18b",
+    "ground-controls.mjs": "43c33d1b98440301023241d26a87872cc62bf1ed7628bb4fc8b5e95e373083af",
+    "ground-entry.mjs": "6c03a858e857c2b9196893b0377fb2cf57b04056f192d4d74647e21ea519fa1d",
+    "ground-renderer.mjs": "54eec49e5d432cd91a589238d65198a97ac516cba6741a3dd8fe7e12cdd31647",
+    "ground.mjs": "a64b30cf56091d399117e86b326c6c1831d225b366be3649d1592f4ef831a644",
+    "index.html": "a70c6d3938201e3ad76766c91a87956f500ac4c09f7822c8372dbec0b81b154a",
+    "planet-profile.mjs": "5a67d863c7cbb6f2fc2a42b364b00a3437723c6e12b315f7aff8b84c7c59c426",
+    "prepared-surface.mjs": "e9b0fb679ae96e07c055849dbd7355e5759866077d5ed42175ce79fbad9bb18d",
+    "style.css": "ca54ecbbc5b09b5ff612d7b8d3bd128ade91864e897cd159324a1d8f4b8bf17f",
+    "terrain-detail.mjs": "43a6d89844207301ee8f592a75b3b86d9b41db310c9bd0ad4900ec11e98e9257",
+    "terrain-scene.mjs": "987ba986916f04635bca52a06d4381d49415a003eb30df29c339d92914f02412",
+    "terrain-view.mjs": "4d5ab8076e1abef0a8b902fd13d323b980efe993bc60e68b72e3fffcb7505e53",
+    "terrain-worker.mjs": "852885762ff48bb061bcb8b82ebaa311855e8d8b1def67b0d1662ece7b28147a",
+    "terrain.mjs": "1f14765c2ad7bcd34f3cff542d3c8b80b022b7e52e49c7031c1659ead0fc482d"
+  },
+  "generatedAssetsMatch": true
+}

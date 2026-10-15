@@ -1,0 +1,85 @@
+{
+  "command": "TMPDIR=\"$PWD/.tmp/browser\" PLAYWRIGHT_BROWSERS_PATH=\"$PWD/.tmp/browsers\" node deploy/test_space_invaders_ground_controls.cjs",
+  "environment": "Linux sandboxed headless Chromium and WebKit; fresh synthetic profiles; local source on localhost:8779",
+  "playtest": "Playtest: touch Resume under forced fine-pointer query must not lock; explicit mouse Resume calls a non-promise request once; pointer-lock error clears movement; settings freeze combat and Escape works from a focused slider; Resume closes settings; fire remaps F\u2192G; native Chromium CDP simultaneous captured touch move/look/fire and cancellation; rotate to 568\u00d7320, Resume and check action target reachability.",
+  "results": [
+    {
+      "engine": "chromium",
+      "observed": "PASS",
+      "touch": "PASS: three trusted native CDP touch pointers captured independently; simultaneous move/look/fire and cancellation",
+      "targets": [
+        {
+          "inside": true,
+          "reachable": true,
+          "width": 91.859375,
+          "height": 48
+        },
+        {
+          "inside": true,
+          "reachable": true,
+          "width": 48.109375,
+          "height": 48
+        },
+        {
+          "inside": true,
+          "reachable": true,
+          "width": 52.953125,
+          "height": 48
+        },
+        {
+          "inside": true,
+          "reachable": true,
+          "width": 71.796875,
+          "height": 48
+        },
+        {
+          "inside": true,
+          "reachable": true,
+          "width": 67.375,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "observed": "PASS",
+      "touch": "Synthetic coverage remains in the main WebKit suite",
+      "targets": [
+        {
+          "inside": true,
+          "reachable": true,
+          "width": 109.609375,
+          "height": 48
+        },
+        {
+          "inside": true,
+          "reachable": true,
+          "width": 48.109375,
+          "height": 48
+        },
+        {
+          "inside": true,
+          "reachable": true,
+          "width": 52.953125,
+          "height": 48
+        },
+        {
+          "inside": true,
+          "reachable": true,
+          "width": 71.796875,
+          "height": 48
+        },
+        {
+          "inside": true,
+          "reachable": true,
+          "width": 67.375,
+          "height": 48
+        }
+      ]
+    }
+  ],
+  "limitations": "Trusted CDP touch is browser automation, not a physical iPhone test; WebKit simultaneous touch remains synthetic. Resume uses a native mouse click on its checked visible/reachable centre because WebKit locator stability waits can stall after a remap while paused.",
+  "validatedBase": "9b069b275ab4d1d85518366ce969cd1225e64dbd",
+  "recordedAt": "2026-10-15T22:04:17.357870+00:00",
+  "sourceManifest": "ground-final-source-hashes.json"
+}

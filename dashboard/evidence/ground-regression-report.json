@@ -1,0 +1,11 @@
+{
+  "command": "TMPDIR=\"$PWD/.tmp/browser\" PLAYWRIGHT_BROWSERS_PATH=\"$PWD/.tmp/browsers\" node deploy/test_space_invaders_ground_regression.cjs",
+  "environment": "Linux headless WebKit 27.2; 844\u00d7390 synthetic context; current built assets on localhost:8766",
+  "playtest": "Playtest: launcher \u2192 game; planet seed gallery; real last-classic-kill transition; cockpit WASD and pause; last-fighter descent/Skip; frozen seed retention and lab rejection; ground settings remap forward to I; actual I movement; blur pause.",
+  "expected": "PASS: launcher, terrain/lab, classic-to-fighter, cockpit, ground snapshot, settings/remap and focus cleanup.",
+  "observed": "PASS; no page errors",
+  "limitations": "WebKit selectOption visibility wait stalled despite a visible open lab. Gallery selection uses a native click at its checked reachable centre, then Home/ArrowDown/Enter; resulting value is asserted.",
+  "validatedBase": "9b069b275ab4d1d85518366ce969cd1225e64dbd",
+  "recordedAt": "2026-10-15T22:04:17.357870+00:00",
+  "sourceManifest": "ground-final-source-hashes.json"
+}

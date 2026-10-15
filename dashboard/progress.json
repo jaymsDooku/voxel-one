@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-15T21:28:36+00:00",
+  "updatedAt": "2026-10-15T22:04:35+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,36 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "7d0eaed5-c9e3-4f16-80fa-2b07c154a91d",
+      "title": "Space Invaders level 3 ground combat",
+      "description": "Implementing isolated ground mission, frozen terrain handoff, perspective renderer and combat controls. Controller owns publication.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "ground-validation.md (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37643065613964352d633965332d346631362d383066612d326230376331353461393164/dashboard/evidence/ground-validation.md"
+        },
+        {
+          "kind": "video",
+          "label": "ground-playtest.mp4 (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37643065613964352d633965332d346631362d383066612d326230376331353461393164/dashboard/evidence/ground-playtest.mp4"
+        },
+        {
+          "kind": "image",
+          "label": "ground-after-chromium-390.png (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37643065613964352d633965332d346631362d383066612d326230376331353461393164/dashboard/evidence/ground-after-chromium-390.png"
+        },
+        {
+          "kind": "link",
+          "label": "Reviewed orbital-to-FPS video (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-37643065613964352d633965332d346631362d383066612d326230376331353461393164/dashboard/evidence/ground-orbital-playtest.mp4"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Implementation ready for independent review on synchronized base 9b069b2. 73 unit tests, six default Chromium/WebKit workflows, reviewed orbital-preview workflow, controls/edge/launcher regressions and 20 classic collision cases pass. Fresh normal-speed clips and screenshots saved; physical hardware and deployment checks remain follow-up. Controller owns publication.",
+      "updatedAt": "2026-10-15T22:04:35+00:00"
+    },
     {
       "id": "orbital-descent",
       "title": "Milestone 1: opt-in orbital descent preview",

@@ -1,0 +1,32 @@
+{
+  "command": "TMPDIR=\"$PWD/.tmp/browser\" PLAYWRIGHT_BROWSERS_PATH=\"$PWD/.tmp/browsers\" node deploy/test_space_invaders_ground_edges.cjs",
+  "environment": "Linux sandboxed headless Chromium; 844\u00d7390; fresh synthetic run; source HTTP localhost:8779",
+  "playtest": "Playtest: place player at the real outpost awning and press Space; walk into the real wreck with W; fire F through its wall while a pilot faces the player from the far side; move to the front hull corner and fire at a camera-visible pilot whose muzzle trace crosses the hull; fall 37 metres onto solid ground and observe exactly one life consumed and safe checkpoint respawn.",
+  "expected": "Awning stops head ascent; hull stops movement, perception and both sides shots; camera-visible target receives no damage when muzzle is blocked.",
+  "observed": {
+    "jump": {
+      "maxY": 13.316666666666666,
+      "y": 12.999999999999995,
+      "grounded": true
+    },
+    "wallX": -1.6200000000000003,
+    "wall": {
+      "pilotHealth": 68,
+      "playerHealth": 100,
+      "plasma": 0,
+      "ammo": 7
+    },
+    "fall": {
+      "lives": 2,
+      "health": 100,
+      "x": 0.5,
+      "z": 0.5,
+      "immune": 3
+    },
+    "muzzle": "PASS: camera ray clear, actual F shot spent ammo, pilot health stayed 68"
+  },
+  "limitations": "Positions are synthetic fixtures; all tested solids are the implementation\u2019s real mission structures.",
+  "validatedBase": "9b069b275ab4d1d85518366ce969cd1225e64dbd",
+  "recordedAt": "2026-10-15T22:04:17.357870+00:00",
+  "sourceManifest": "ground-final-source-hashes.json"
+}
