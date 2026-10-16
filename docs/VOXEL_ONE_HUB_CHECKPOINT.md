@@ -1,29 +1,35 @@
-# Hub review corrections handoff
+# Hub compatibility correction checkpoint
 
-Opt-in preview corrections are locally ready for independent review. Base head
-08108e70964666f46a92c31d5508900d68589ea4 plus unpublished worktree changes.
-Recorded base4f8a09aca177062a50d0ab2b68e36735318bfb22; preservation reference
-403033b9f53ce66063982879c6e2daff684a427b. No developer commit/push/deploy.
+Base head: 7fde413407a4388ecba47e6350b849c67157f6a8. Changes are unpublished.
+Review/preservation base: 403033b9f53ce66063982879c6e2daff684a427b.
+No developer commit, push, merge or deployment.
 
-Current-master portal/alternate-Earth source and website assets retained; all210
-previously deleted historical evidence files verified byte-for-byte. CI now runs
-portal/alternate-Earth/ground regressions and source/website copy checks.
+Native entries now require an explicit bounded source-set-v1 engine/client
+compatibility contract. Published source must be included. Update checks run
+under the installation lock before download/state changes; fallback and final
+Hub/experience CLI launches must match the permitted sources. Disabled update
+checks do not bypass this contract. Publisher and synthetic fixtures updated.
 
-Corrected MSI harness profile mismatch: keep installer and shortcut checks in OS
-context; only application data use synthetic Java home/cache. No HOME/USERPROFILE
-overrides or execution-policy change. Inspect two expected own shortcuts only.
-New Windows confirmation remains pending hosted feature-push CI, not a claimed
-pass. Physical GPU/DPI and stable rollout qualification remain pending.
+Maven selected suite/package: 19 passed, zero failures/errors/skips. Publisher:
+1 passed. Actual Linux Hub Play workflow passed: City, Sandbox/editor, one shared
+download, incompatible latest fallback, incompatible cache refusal with updates
+off, corrupt download, cancellation and offline cache. Two new captures viewed.
+Recording was explicitly disabled for this workflow; no native motion claim.
+Portal/Earth/ground regressions: 31 passed. All 10 Linux package checks passed before a final availability-label correction.
+Final rebuild passed all 19 tests. A fresh package 1.0.2 matched the final launcher
+JAR byte-for-byte; its bundled-runtime Hub workflow passed after correcting a
+null-label test-helper error. This retry also asserted the incompatible-latest
+status, fallback and refusal with updates disabled. Current captures inspected.
+No final-source full hardware qualification is claimed.
 
-Maven17, publisher1, portal runtime31 and CI preservation step passed locally.
-Real software WebKit final-shot/portal/pause/crossing/Earth/resource test passed;
-new screenshots inspected. All10 Linux bundled checks passed; fresh UI/native
-clips decoded and inspected. Native clips contain4 frames, not smooth gameplay
-proof. Source fingerprints matched. Helper failed and was resolved SELF; no open
-delegate remains. Reports/media are under dashboard/evidence with hub-revision-*
-and hub-restored-* names. See hub-revision-validation.json for commands/limits.
+Hosted run 38979556752 at 7fde413 inspected. Windows MSI install, native launch,
+desktop/menu links and uninstall preservation passed. All hosts passed updater,
+fixture shell generations, available UI extents and synthetic TLS login. Native
+GLFW creation failed on all hosts. Windows/Mac ARM full-size captures remain
+unqualified; physical GPU/DPI and two published shell generations remain pending.
+Reports are historical for these new compatibility edits. Rollout gates remain.
 
-Controller handles source integration, publication, PR and hosted CI. Reviewer
-checks exact published source, new Windows result and media. If integration
-changes source, rerun affected checks. Ordinary release behavior is retained;
-no stable promotion follows from the bounded preview handoff.
+Diff audit: no deleted files against preservation base. Space Invaders source
+and website assets unchanged. All changed evidence paths belong to Hub/review.
+Helper failed; resolved SELF with independent analysis. No open helper task.
+Controller owns final source sync/publication and exact-head hosted rerun.

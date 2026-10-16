@@ -31,6 +31,8 @@ def assemble(native_receipt, web_receipt, output):
         receipt = web if identity == 'space-invaders' else native
         if identity == 'space-invaders' and field == 'target':
             value = web['url']
+        if field == 'client-sources':
+            value = native['source']
         if field in ('source', 'build', 'notes'):
             value = receipt[field]
         if key == 'version':

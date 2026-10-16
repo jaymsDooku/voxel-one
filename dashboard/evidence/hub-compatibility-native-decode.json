@@ -1,0 +1,41 @@
+{
+  "results": [
+    {
+      "command": [
+        "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+        "-cp",
+        "target/voxel-one-1.0-SNAPSHOT-client.jar:target/hub-tmp",
+        "InspectMovie",
+        "dashboard/evidence/hub-compatibility-linux/native-city/Voxel-One_2026-10-16_23-17-28_8208628908425532956.mp4",
+        "dashboard/evidence/hub-compatibility-city-first-frame.png"
+      ],
+      "exitCode": 0,
+      "observed": "Actual movie: 4 frames, 21.129 seconds"
+    },
+    {
+      "command": [
+        "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+        "-cp",
+        "target/voxel-one-1.0-SNAPSHOT-client.jar:target/hub-tmp",
+        "InspectMovie",
+        "dashboard/evidence/hub-compatibility-linux/native-sandbox/Voxel-One_2026-10-16_23-17-58_17573723811996220805.mp4",
+        "dashboard/evidence/hub-compatibility-sandbox-first-frame.png"
+      ],
+      "exitCode": 0,
+      "observed": "Actual movie: 4 frames, 24.836 seconds"
+    },
+    {
+      "command": [
+        "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+        "-cp",
+        "target/voxel-one-1.0-SNAPSHOT-client.jar:target/hub-tmp",
+        "InspectMovie",
+        "dashboard/evidence/hub-compatibility-linux/native-editor/Voxel-One_2026-10-16_23-18-31_9713703434432003516.mp4",
+        "dashboard/evidence/hub-compatibility-editor-first-frame.png"
+      ],
+      "exitCode": 0,
+      "observed": "Actual movie: 4 frames, 24.208 seconds"
+    }
+  ],
+  "limitation": "Four-frame renderer smoke; no smooth gameplay or physical GPU performance claim. Native renderer source unchanged by subsequent availability-label correction."
+}

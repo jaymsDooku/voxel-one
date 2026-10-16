@@ -49,6 +49,7 @@ public final class Launcher {
             return;
         }
         List<String> selectedArguments = new ArrayList<>(Arrays.asList(args));
+        HubCatalog.Entry selectedEntry = null;
         int experienceIndex = selectedArguments.indexOf("--experience");
         if (experienceIndex >= 0) {
             try {
@@ -57,6 +58,7 @@ public final class Launcher {
                 HubCatalog.Entry entry = new CatalogStore(cache()).cached().catalog().entries().stream()
                         .filter(e -> e.id().equals(id)).findFirst().orElseThrow(() -> new IllegalArgumentException("Unknown experience ID"));
                 if (!entry.supported(Platform.current()) || !entry.adapter().equals("native")) throw new IllegalArgumentException("CLI supports native experiences only");
+                selectedEntry = entry;
                 if (selectedArguments.contains("--game")) throw new IllegalArgumentException("Use either --game or --experience");
                 selectedArguments.addAll(0, List.of("--game", entry.target().equals("editor") ? "city" : entry.target()));
                 if (entry.target().equals("editor")) selectedArguments.add("--editor");
@@ -93,7 +95,8 @@ public final class Launcher {
                                     text -> {
                                         System.out.println(text);
                                         SwingUtilities.invokeLater(() -> message.setText(text));
-                                    });
+                                    }, selectedEntry == null ? null : selectedEntry.clientSources());
+            if (selectedEntry != null) selectedEntry.requireClient(result);
             if (updateOnly) System.out.println(result.client());
             else {
                 SwingUtilities.invokeLater(() -> message.setText("Starting Voxel One..."));
