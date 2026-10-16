@@ -69,6 +69,11 @@ public class Chunk implements AutoCloseable {
             throw new IndexOutOfBoundsException("Block outside chunk: " + x + ", " + y + ", " + z);
         }
 
+        int value = dev.jayms.net.WorldVoxels.encode(color);
+        int current = blocks.uniform(x * 16, y * 16, z * 16, 16);
+        // -1 denotes mixed geometry, never a uniform cell (even for an encoded -1).
+        if (current != -1 && current == value) return;
+
         int i = index(x, y, z);
         geometryVersion++;
         blocks.fill(
@@ -78,7 +83,7 @@ public class Chunk implements AutoCloseable {
                 x * 16 + 16,
                 y * 16 + 16,
                 z * 16 + 16,
-                dev.jayms.net.WorldVoxels.encode(color));
+                value);
         if (dev.jayms.net.Blocks.isModel(color)) models.put(i, color);
         else models.remove(i);
         markDirty();

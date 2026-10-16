@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-16T01:01:40+00:00",
+  "updatedAt": "2026-10-16T03:03:48+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,26 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "skip-unchanged-shared-engine-block-writes",
+      "title": "Skip unchanged shared-engine block writes",
+      "description": "Checking encoded uniform-cell semantics and CPU-only Java regression coverage.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "CPU cell playtest image (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-6c6f6f702d64663263356131332d656263302d343233352d383361302d346232653365383135633137/dashboard/evidence/chunk-unchanged-write.png"
+        },
+        {
+          "kind": "link",
+          "label": "Java verification report (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-6c6f6f702d64663263356131332d656263302d343233352d383361302d346232653365383135633137/dashboard/evidence/chunk-unchanged-write-report.json"
+        }
+      ],
+      "status": "complete",
+      "note": "Implemented guard; 39 selected Java checks and CPU integration playtest passed. Awaiting independent review; evidence publication reserved to controller.",
+      "updatedAt": "2026-10-16T03:03:48+00:00"
+    },
     {
       "id": "shared-free-camera-speed",
       "title": "Normalize shared free-camera movement speed",
