@@ -70,45 +70,30 @@ public final class Camera {
             long window,
             float deltaTime
     ) {
-        float speed = 8.0f * deltaTime;
+        int forward = pressed(window, GLFW_KEY_W) - pressed(window, GLFW_KEY_S);
+        int strafe = pressed(window, GLFW_KEY_D) - pressed(window, GLFW_KEY_A);
+        int vertical = pressed(window, GLFW_KEY_SPACE) - pressed(window, GLFW_KEY_LEFT_SHIFT);
+        position.add(movementDelta(forward, strafe, vertical, deltaTime));
+    }
 
-        Vector3f forward = getDirection();
+    private static int pressed(long window, int key) {
+        return glfwGetKey(window, key) == GLFW_PRESS ? 1 : 0;
+    }
 
-        // Prevent flying vertically while moving forward.
-        forward.y = 0;
-        forward.normalize();
-
-        Vector3f right = new Vector3f(forward)
-                .cross(0, 1, 0)
-                .normalize();
-
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-            position().fma(speed, forward);
+    /** Computes free-camera displacement from signed input axes without polling GLFW.
+     * Horizontal movement follows yaw alone, regardless of the camera pitch.
+     */
+    public Vector3f movementDelta(int forward, int strafe, int vertical, float deltaTime) {
+        double radians = Math.toRadians(yaw);
+        float cosine = (float) Math.cos(radians);
+        float sine = (float) Math.sin(radians);
+        Vector3f movement = new Vector3f(
+                forward * cosine - strafe * sine,
+                vertical,
+                forward * sine + strafe * cosine);
+        if (movement.lengthSquared() > 0.0f) {
+            movement.normalize().mul(8.0f * deltaTime);
         }
-
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-            position().fma(-speed, forward);
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-            position().fma(speed, right);
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-            position().fma(-speed, right);
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-            position().y += speed;
-        }
-
-        if (
-                glfwGetKey(
-                        window,
-                        GLFW_KEY_LEFT_SHIFT
-                ) == GLFW_PRESS
-        ) {
-            position().y -= speed;
-        }
+        return movement;
     }
 }

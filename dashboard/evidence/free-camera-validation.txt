@@ -1,0 +1,41 @@
+Normalize shared free-camera movement speed — local validation
+
+Environment: Linux, Java 25.0.3 (Java 17 source target), Maven, inherited assigned
+X11 DISPLAY/XAUTHORITY, GLFW 3.4.1 and JOML 1.10.9. No account data loaded.
+
+Command: mvn -q -Dtest=CameraMovementTest,PlayerCameraTest,IsometricCameraTest test
+Observed: exit 0. CameraMovementTest 4, PlayerCameraTest 3, IsometricCameraTest 8;
+15 tests, zero failures/errors/skips.
+CPU checks: all 27 signed axis combinations have length 8 or zero; expected
+forward/diagonal/three-axis directions; zero and opposing input stay finite;
+partial cancellation; zero deltaTime and quarter-second scaling. Horizontal
+forward and right checked at yaw -180,-90,0,37,90,180,450 and pitch
+-89,-20,0,45,89, component and length tolerance 0.00001.
+
+Playtest: python3 deploy/run_camera_movement_smoke.py --display "$DISPLAY"
+Observed: exit 0. Focused graphical engine harness opens a real GLFW window,
+sends real xdotool keydown/keyup input, polls GLFW, and calls the production
+Camera.updateCamera(window, 1). Expected and observed: W, W+D, W+D+Space each
+8 units; W+S+D+A+Space+LeftShift and no input each zero; W+S+D moves right
+8 units. Each displacement direction and finite result is asserted. The
+window renders measured lines, then a results panel. Robot captures that live
+window in free-camera-movement.png. Inspected image: six passing measurements,
+readable and no private data. free-camera-glfw.txt contains measured results.
+The harness uses an isolated target/camera-smoke-home and loads no game profile.
+
+Scope: Main currently uses Player.updateCamera, not Camera.updateCamera; this
+check directly exercises the assigned shared free-camera method through its
+real GLFW input boundary. No claim of a Main gameplay session. Browser testing
+does not apply to this native Java camera calculation. The first harness run
+failed because xdotool rejects empty key lists; the harness now skips the empty
+command and the full check was rerun successfully. Maven dependency classpath
+plugin failed; the checked-in launcher uses cached LWJGL/JOML jars instead.
+
+Diff audit: only Camera movement code, its tests, focused smoke tooling,
+progress and new evidence change. Removed per-key displacement blocks are
+replaced by one normalized combined displacement. No unrelated deletions.
+No controller-provided synchronized review base was supplied this turn; final
+integration and any required retesting remain with the controller workflow.
+
+Image and report are local artifacts, pending controller branch publication.
+No commits, pushes, deployment, or master changes were made.
