@@ -48,13 +48,6 @@ jobs:
             target/*-client.jar
             target/*-server.jar
             target/*-launcher.jar
-      - name: Package bundled-runtime hub
-        shell: bash
-        run: python3 tools/hub/package.py --output target/hub-package --jdk "$JAVA_HOME"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: voxel-one-hub-${{ matrix.platform }}
-          path: target/hub-package/*.zip
       - name: Package desktop update
         shell: bash
         run: python3 deploy/package_release.py build --platform '${{ matrix.platform }}' --revision "$GITHUB_SHA" --tag 'playtest-${{ github.run_number }}'
@@ -75,13 +68,7 @@ jobs:
           pattern: voxel-one-release-*
           merge-multiple: true
           path: target/release
-      - uses: actions/download-artifact@v4
-        with:
-          pattern: voxel-one-hub-*
-          merge-multiple: true
-          path: target/release
       - run: python3 deploy/package_release.py assemble
-      - run: python3 tools/hub/shell_manifest.py --jar target/release/voxel-one-launcher.jar --revision "$GITHUB_SHA" --tag 'playtest-${{ github.run_number }}'
       - name: Publish verified update
         env:
           GH_TOKEN: ${{ github.token }}
@@ -100,8 +87,8 @@ jobs:
               exit 0
             fi
           else
-            printf 'Automatically built and tested for Windows, Linux, and both Mac architectures.\n\nCommit: %s\n\nVoxel-One-Hub ZIPs include a Java runtime and native launcher. Legacy Voxel-One platform ZIPs require Java 17+. Extract the desktop ZIP and use its launcher. OpenGL 3.3 is required.\n' "$GITHUB_SHA" > target/release-notes.md
+            printf 'Automatically built and tested for Windows, Linux, and both Mac architectures.\n\nCommit: %s\n\nDownload the ZIP for your desktop, extract it, and use the included launcher for automatic updates. Requires Java 17+ and OpenGL 3.3.\n' "$GITHUB_SHA" > target/release-notes.md
             gh release create "$RELEASE_TAG" --draft --target "$GITHUB_SHA" --title "Voxel One playtest ${GITHUB_SHA:0:7}" --notes-file target/release-notes.md
           fi
-          gh release upload "$RELEASE_TAG" target/release/*.jar target/release/*.zip target/release/update.properties target/release/shell.properties --clobber
+          gh release upload "$RELEASE_TAG" target/release/*.jar target/release/*.zip target/release/update.properties --clobber
           gh release edit "$RELEASE_TAG" --draft=false --latest

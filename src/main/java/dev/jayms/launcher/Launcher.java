@@ -39,7 +39,9 @@ public final class Launcher {
     }
 
     public static void main(String[] args) {
-        if (!Arrays.asList(args).contains("--update-only") && args.length == 0 && !GraphicsEnvironment.isHeadless()) {
+        boolean hubPreview = Boolean.getBoolean("voxel.hub.preview") || Arrays.asList(args).contains("--hub");
+        args = Arrays.stream(args).filter(a -> !a.equals("--hub")).toArray(String[]::new);
+        if (hubPreview && args.length == 0 && !GraphicsEnvironment.isHeadless()) {
             SwingUtilities.invokeLater(() -> {
                 try { new HubFrame(cache()).setVisible(true); }
                 catch (IOException e) { JOptionPane.showMessageDialog(null, e.getMessage(), "Voxel One Hub", JOptionPane.ERROR_MESSAGE); }

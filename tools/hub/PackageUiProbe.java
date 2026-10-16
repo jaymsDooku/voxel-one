@@ -82,14 +82,24 @@ public final class PackageUiProbe {
                 System.out.println("Playtest: initial hub window fits desktop at "+frame.getWidth()+"x"+frame.getHeight());
                 return;
             }
-            for(int[] size:new int[][]{{900,600},{1280,800}}) {
-                SwingUtilities.invokeAndWait(()->frame.setSize(size[0],size[1]));
+            capture(out.resolve("initial-fit.png"));
+            Rectangle usable=GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+            StringBuilder unavailable=new StringBuilder();
+            java.util.List<int[]> sizes=new java.util.ArrayList<>();
+            sizes.add(new int[]{frame.getWidth(),frame.getHeight()});
+            for(int[] requested:new int[][]{{900,600},{1280,800}}) {
+                if(requested[0]<=usable.width && requested[1]<=usable.height)sizes.add(requested);
+                else unavailable.append(requested[0]+"x"+requested[1]+" unavailable on "+usable.width+"x"+usable.height+" desktop; qualification pending\n");
+            }
+            Files.writeString(out.resolve("unavailable-extents.txt"),unavailable.toString());
+            for(int[] size:sizes) {
+                SwingUtilities.invokeAndWait(()->{frame.setSize(size[0],size[1]);frame.setLocationRelativeTo(null);});
                 for(String page:new String[]{"Home","Games","Engine & Tools","Downloads","Settings / Help"}) {
                     SwingUtilities.invokeAndWait(()->frame.showPage(page));
                     capture(out.resolve(page.replaceAll("[^a-zA-Z]","-")+"-"+size[0]+".png"));
                 }
             }
-            SwingUtilities.invokeAndWait(()->{frame.setSize(900,600);frame.showPage("Games");});
+            SwingUtilities.invokeAndWait(()->{frame.setSize(Math.min(900,usable.width),Math.min(600,usable.height));frame.setLocationRelativeTo(null);frame.showPage("Games");});
             boolean[] cards={false,false,false};
             SwingUtilities.invokeAndWait(()->{for(Component c:HubPlaytest.descendants(frame))if(c instanceof JLabel l){
                 cards[0]|=l.getText().equals("Voxel City One");cards[1]|=l.getText().contains("Sandbox");cards[2]|=l.getText().equals("Space Invaders");
