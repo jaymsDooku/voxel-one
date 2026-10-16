@@ -6,6 +6,12 @@ on:
         description: Exact current feature head (40 lowercase hex)
         required: true
         type: string
+      runner_pool:
+        description: Hosted diagnostics or provisioned GPU desktop runners
+        required: true
+        default: hosted
+        type: choice
+        options: [hosted, desktop]
   push:
     branches: [feature/queue-62383835386364312d346130642d346262652d383736632d393534373062343337356161]
     paths: ['src/**', 'tools/hub/**', 'pom.xml', '.github/workflows/hub-validation.yml']
@@ -21,10 +27,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - {runner: windows-2022, platform: windows}
-          - {runner: macos-15-intel, platform: mac-intel}
-          - {runner: macos-15, platform: mac-arm}
-    runs-on: ${{ matrix.runner }}
+          - {runner: '"windows-2022"', desktop: '["self-hosted","Windows","X64","voxel-hub-desktop"]', platform: windows}
+          - {runner: '"macos-15-intel"', desktop: '["self-hosted","macOS","X64","voxel-hub-desktop"]', platform: mac-intel}
+          - {runner: '"macos-15"', desktop: '["self-hosted","macOS","ARM64","voxel-hub-desktop"]', platform: mac-arm}
+    runs-on: ${{ fromJSON(inputs.runner_pool == 'desktop' && matrix.desktop || matrix.runner) }}
     timeout-minutes: 35
     env:
       SOURCE_SHA: ${{ inputs.source_sha || github.sha }}

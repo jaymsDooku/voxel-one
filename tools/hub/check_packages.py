@@ -201,9 +201,11 @@ def run(args):
                 finally:command([runtime,'-cp',cp,'PackageUiProbe',out,profile,'stop',process.pid],child_env);process.wait(timeout=15)
                 # Inspect only shortcuts for this synthetic installation on the ephemeral CI desktop.
                 powershell=Path(os.environ['SystemRoot'])/'System32/WindowsPowerShell/v1.0/powershell.exe'
-                shortcut_script="$target=$args[0];$s=New-Object -ComObject WScript.Shell;$n=0;@([Environment]::GetFolderPath('Desktop'),[Environment]::GetFolderPath('Programs')) | ForEach-Object {Get-ChildItem -LiteralPath $_ -Filter '*.lnk' -Recurse -ErrorAction SilentlyContinue | ForEach-Object {if($s.CreateShortcut($_.FullName).TargetPath -eq $target){$n++}}};if($n -lt 2){exit 1}"
-                script=work/'shortcuts.ps1';script.write_text(shortcut_script)
-                command([powershell,'-NoProfile','-File',script,installed/'Voxel One Hub.exe'])
+                shortcut_script="$target=$args[0];$s=New-Object -ComObject WScript.Shell;$n=0;@([Environment]::GetFolderPath('Desktop'),[Environment]::GetFolderPath('Programs')) | ForEach-Object {Get-ChildItem -LiteralPath $_ -Filter '*.lnk' -Recurse -ErrorAction SilentlyContinue | ForEach-Object {if($s.CreateShortcut($_.FullName).TargetPath -eq $target){$n++}}};Write-Output ('HUB_CHECK_FAILURE: MSI matching shortcut count=' + $n);if($n -lt 2){exit 1}"
+                # Invoke the fixed synthetic check directly; do not alter execution policy.
+                target_literal=str(installed/'Voxel One Hub.exe').replace("'","''")
+                shortcut_script=shortcut_script.replace('$target=$args[0];',"$target='"+target_literal+"';")
+                command([powershell,'-NoProfile','-NonInteractive','-Command',shortcut_script])
             finally:command(['C:/Windows/System32/msiexec.exe','/x',msi,'/qn','/norestart'],timeout=240)
             assert sentinel.read_text()=='synthetic-save'
             return 'Scoped MSI installed, native executable ran, desktop/menu shortcuts verified, uninstall retained synthetic save.'
@@ -212,7 +214,10 @@ def run(args):
         def ui(scale=scale):
             clean=env.copy();clean['PATH']=str(empty)
             command([runtime,'-Djava.io.tmpdir='+str(work),'-Dsun.java2d.uiScale='+scale,'-cp',cp,'PackageUiProbe',out/('scale-'+scale),work/('ui-'+scale)],clean)
-            return 'Production hub cards, requested extents and keyboard captured at JVM scale '+scale
+            missing=out/('scale-'+scale)/'unavailable-extents.txt'
+            unavailable=missing.read_text().strip() if missing.exists() else ''
+            if unavailable:report.setdefault('pendingQualification',[]).append('JVM scale '+scale+': '+unavailable)
+            return 'Production hub cards, available desktop extents and keyboard captured at JVM scale '+scale+('. Full-size qualification pending: '+unavailable if unavailable else '')
         check('UI at JVM scale '+scale,'900x600/1280x800 actual screenshots and bounded UI video',ui)
     def online():
         command([runtime,'-Djava.io.tmpdir='+str(work),'-cp',cp,'OnlineLoginPlaytest',work/'online-profile',out],timeout=120)
@@ -234,6 +239,8 @@ def run(args):
         if p.is_file() and p.suffix in ('.png','.mp4') and p.stat().st_size>6*1024*1024:
             p.unlink();report['checks'].append({'name':'Artifact bound','status':'failed','observed':'Oversized media removed'})
     report['passed']=all(c['status']=='passed' for c in report['checks'])
+    report['fullQualificationPassed']=False
+    report['releaseScope']='Opt-in feature preview only; physical GPU/monitor qualification and published shell releases remain untested.'
     (out/'report.json').write_text(json.dumps(report,indent=2)+'\n')
     return 0 if report['passed'] else 1
 
