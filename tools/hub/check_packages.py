@@ -35,7 +35,6 @@ def run(args):
         env['DISPLAY']=args.display
     env.pop('JAVA_TOOL_OPTIONS',None);env.pop('JDK_JAVA_OPTIONS',None)
     profile=work/'synthetic-home';profile.mkdir(exist_ok=True);env['LOCALAPPDATA']=str(work/'local-app-data')
-    env['HOME']=str(profile);env['USERPROFILE']=str(profile)
     cache=Path(env['LOCALAPPDATA'])/'VoxelOne' if platform.system()=='Windows' else profile/'.voxel-one/client'
     cache.mkdir(parents=True,exist_ok=True);(cache/'hub.properties').write_text('updates=false\n')
     report={'sourceSha':args.source_sha,'sourceTreeSha256':{},'platform':platform.system(),'architecture':platform.machine(),
@@ -188,12 +187,17 @@ def run(args):
     check('Native executable and two-version bootstrap update','Empty PATH works; active shell retained; new shell activates next start',shells)
     if os.name=='nt':
         def installer():
+            # Windows Installer resolves folders for the real ephemeral OS user.
+            # Keep the app's synthetic Java home/cache separate from that context.
+            installer_env=os.environ.copy()
+            for key in ('TMPDIR','TEMP','TMP'):installer_env[key]=str(work)
+            for key in ('JAVA_TOOL_OPTIONS','JDK_JAVA_OPTIONS'):installer_env.pop(key,None)
             destination=work/'installer';destination.mkdir()
             command([Path(args.jdk)/'bin/jpackage.exe','--type','msi','--name','Voxel One Hub','--app-image',apps[0],
-                     '--dest',destination,'--app-version','1.0.1','--win-shortcut','--win-menu','--win-menu-group','Voxel One','--win-per-user-install'])
+                     '--dest',destination,'--app-version','1.0.1','--win-shortcut','--win-menu','--win-menu-group','Voxel One','--win-per-user-install'],installer_env)
             msi=next(destination.glob('*.msi'));installed=work/'installed-app'
             sentinel=profile/'.voxel-one/save-preservation-sentinel';sentinel.parent.mkdir(exist_ok=True);sentinel.write_text('synthetic-save')
-            command(['C:/Windows/System32/msiexec.exe','/i',msi,'/qn','/norestart','INSTALLDIR='+str(installed)],timeout=240)
+            command(['C:/Windows/System32/msiexec.exe','/i',msi,'/qn','/norestart','INSTALLDIR='+str(installed)],installer_env,timeout=240)
             try:
                 if not (installed/'Voxel One Hub.exe').is_file():raise AssertionError('MSI did not honor scoped INSTALLDIR')
                 process=subprocess.Popen([str(installed/'Voxel One Hub.exe')],env=child_env,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
@@ -201,12 +205,13 @@ def run(args):
                 finally:command([runtime,'-cp',cp,'PackageUiProbe',out,profile,'stop',process.pid],child_env);process.wait(timeout=15)
                 # Inspect only shortcuts for this synthetic installation on the ephemeral CI desktop.
                 powershell=Path(os.environ['SystemRoot'])/'System32/WindowsPowerShell/v1.0/powershell.exe'
-                shortcut_script="$target=$args[0];$s=New-Object -ComObject WScript.Shell;$n=0;@([Environment]::GetFolderPath('Desktop'),[Environment]::GetFolderPath('Programs')) | ForEach-Object {Get-ChildItem -LiteralPath $_ -Filter '*.lnk' -Recurse -ErrorAction SilentlyContinue | ForEach-Object {if($s.CreateShortcut($_.FullName).TargetPath -eq $target){$n++}}};Write-Output ('HUB_CHECK_FAILURE: MSI matching shortcut count=' + $n);if($n -lt 2){exit 1}"
-                # Invoke the fixed synthetic check directly; do not alter execution policy.
+                # Inspect only this application's expected per-user links, never
+                # enumerate unrelated desktop or Start-menu contents.
+                shortcut_script="$ErrorActionPreference='Stop';$s=New-Object -ComObject WScript.Shell;$links=@((Join-Path ([Environment]::GetFolderPath('DesktopDirectory')) 'Voxel One Hub.lnk'),(Join-Path ([Environment]::GetFolderPath('Programs')) 'Voxel One\\Voxel One Hub.lnk'));$present=0;$matching=0;foreach($link in $links){if(Test-Path -LiteralPath $link){$present++;$actual=$s.CreateShortcut($link).TargetPath;if($actual -and [String]::Equals([IO.Path]::GetFullPath($actual),[IO.Path]::GetFullPath($target),[StringComparison]::OrdinalIgnoreCase)){$matching++}}};if($matching -ne 2){Write-Output ('HUB_CHECK_FAILURE: MSI expected links present='+$present+'; matching target='+$matching);exit 1}"
                 target_literal=str(installed/'Voxel One Hub.exe').replace("'","''")
-                shortcut_script=shortcut_script.replace('$target=$args[0];',"$target='"+target_literal+"';")
-                command([powershell,'-NoProfile','-NonInteractive','-Command',shortcut_script])
-            finally:command(['C:/Windows/System32/msiexec.exe','/x',msi,'/qn','/norestart'],timeout=240)
+                shortcut_script="$target='"+target_literal+"';"+shortcut_script
+                command([powershell,'-NoProfile','-NonInteractive','-Command',shortcut_script],installer_env)
+            finally:command(['C:/Windows/System32/msiexec.exe','/x',msi,'/qn','/norestart'],installer_env,timeout=240)
             assert sentinel.read_text()=='synthetic-save'
             return 'Scoped MSI installed, native executable ran, desktop/menu shortcuts verified, uninstall retained synthetic save.'
         check('Windows MSI, shortcuts and uninstall','Bundled runtime install/launch and saves survive uninstall',installer)
