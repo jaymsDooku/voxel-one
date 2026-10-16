@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-15T22:28:07+00:00",
+  "updatedAt": "2026-10-16T00:11:40+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,15 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "35646363663531322d366264352d343836662d396630622d383337616439623934383133",
+      "title": "Minecraft-style tool holding and swing presentation",
+      "description": "Inspecting current grip, animation and render harness; preparing fresh baseline captures.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Tool presentation implemented; 34 regressions, Sandbox and City workflows, final-source observer/FOV arc checks passed. Evidence saved; awaiting controller synchronization and independent review.",
+      "updatedAt": "2026-10-16T00:11:40+00:00"
+    },
     {
       "id": "loop-3d3209e0-5089-49f5-a18e-fe5c4ed9afda",
       "title": "Reject invalid shared-engine block raycast inputs",

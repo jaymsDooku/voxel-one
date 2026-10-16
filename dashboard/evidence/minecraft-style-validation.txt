@@ -1,0 +1,55 @@
+Minecraft-style tool holding and swing validation
+
+Branch: feature/queue-35646363663531322d366264352d343836662d396630622d383337616439623934383133
+Baseline: 3760edffdbcddc758f88c834ab03dbd600b4aa8a, captured before editing the grip or animation.
+Platform: Linux, inherited role X11 DISPLAY and XAUTHORITY, LIBGL_ALWAYS_SOFTWARE=1, OpenGL 3.3 renderer path, Java 21 for graphical harnesses. Main runs near 1 FPS on this software renderer. No physical GPU or other OS tested. All profiles and network accounts are isolated synthetic fixtures. No external game installation or proprietary assets used. The comparison is Minecraft-style; no legitimate Minecraft reference was inspected in this session.
+
+Change and visual comparison
+The original grip was upright but the forearm dominated the first-person image, the exposed blade was short, and every category had the same tilt/facing. World attack jumped directly from idle to shoulder height; first person had no upward wind-up.
+The existing HeldToolPose helper now keeps the same lower-handle anchor (8,4,8)/16 while choosing modest shaft tilt and head-facing yaw by category, shared between wooden/stone variants and world/first-person rendering. First-person display scale is .86 instead of .62; the fist and tool move inward, lower and farther from the lens as one transform. The comparison shows more exposed handle/blade relative to the forearm and a clear diagonal silhouette. Low-FOV clipping found during tuning was fixed. At high FOV, the lower sleeve now extends below the screen rather than exposing its base.
+Attack joins idle, rises to shoulder height over the first .18 of normalized progress, strikes down to .72, then recovers. Smoothstep joins avoid the previous first-frame snap. First-person hand lifts and then drops; placement retains quarter-strength motion. Anchor contact, positive scale, original meshes/textures, movement logic and network protocol are retained. No per-frame mesh rebuilding was added.
+
+Commands and observed results
+1. mvn -q -Dmaven.repo.local=target/maven-cache -Dlwjgl.natives=natives-linux test-compile
+   PASS. Downloaded dependencies and compiled the unchanged baseline.
+2. python3 deploy/run_tool_grip_render_check.py --display "$DISPLAY" --baseline
+   PASS after creating target/tmp. Fresh baseline sword and pickaxe captures saved as minecraft-style-before-*.png. The first attempt failed because target/tmp did not exist; the runner now creates it. Baseline mode now compiles PlayerModel, HeldToolPose and PlayerAnimation from HEAD together.
+3. mvn -q -o -Dmaven.repo.local=target/maven-cache -DargLine="-Djava.io.tmpdir=$PWD/target/tmp" -Dlwjgl.natives=natives-linux -Dtest=HeldToolPoseTest,PlayerAnimationTest,PlayerTest,PlayerCameraTest,ItemCraftingTest,InventoryHudTest,RemotePlayerTest test
+   PASS: 34 tests, zero failures/errors/skips. Covers all eight handle anchors and positive orientation, diagonal heads above fist, attack/placement shape, continuous phase boundaries, timing at 30/60/144 FPS, holding-jump repeat after landing, flight/walls, F5 cameras/aim, remote interpolation/reset, tool stacks/crafting/save/drop/pickup and inventory behavior. An earlier offline attempt lacked Surefire; downloaded it online. An earlier ItemCraftingTest run could not write /tmp; the command above uses the worktree. The old >.9 upright-axis assertion was updated to >.8 for the intended modest diagonal tilt.
+4. python3 deploy/run_tool_grip_playtest.py --display "$DISPLAY" --phase after --output target/minecraft-style-final-sandbox
+   Playtest: PASS. Production Main in Sandbox equipped IDs 191 through 198 and exercised first-person, rear and front camera transitions. F10, production swing, W movement, Space flight rise, empty hand and Stone were exercised. Placement consumed one Stone (8 -> 7) and placed it on the aimed face. Some window screenshots were obscured by another test window; those screenshots were discarded.
+5. python3 deploy/run_tool_grip_playtest.py --display "$DISPLAY" --phase after --quick --output target/minecraft-style-clear-sandbox
+   Playtest: PASS, separate window run. Sword/pickaxe, all three cameras, F10/movement and placement repeated. Clear placement screenshot retained. This run preceded the final lower-sleeve extension only.
+6. python3 deploy/run_tool_grip_playtest.py --display "$DISPLAY" --phase after --compatibility --output target/minecraft-style-city
+   Playtest: PASS. City config retained. Sword equipped in walking view, real Q input dropped it, production held item became empty, moving the player to the drop caused production pickup and re-equip. Counts 1 -> 0 -> 1 observed. Movement to the drop was harness-driven, not a keyboard walking claim. Clear City screenshots retained. Actual native screenshots are 1280x720; an early report's 640x480 label was incorrect and is not used here. This run preceded the final lower-sleeve extension only.
+7. python3 deploy/run_tool_grip_playtest.py --display "$DISPLAY" --phase after --framing --output target/minecraft-style-last-sandbox
+   Playtest: PASS on final production source. Clear sword/pickaxe first-person Sandbox captures inspected after the sleeve change. Crosshair remains clear, handle stays in fist, original hotbar icons remain visible. This scoped run does not claim movement or placement.
+
+8. python3 deploy/run_tool_grip_render_check.py --display "$DISPLAY" --output target/minecraft-style-verified
+   Playtest: PASS on final production source. All eight tools rendered at idle in first person, rear, front and oblique observer views. For every tool/view, attack and placement ran at progress 0, .18, .45, .72, .9 and 1 with gait, yaw/pitch and raised position. High/low arc captures inspected. Two real synthetic loopback TLS clients exchange held/swing snapshots; the observer's actual RemotePlayer.sample result is rendered by the production player renderer. The sweep is throttled below the server's 120 messages/second limit; an earlier unthrottled sweep disconnected and was fixed in the fixture only.
+   Real uProjection matrices use 50/70/95 degree FOV and actual 960x720/1280x720 viewports. Idle plus high/low first-person stroke were rendered for all four wooden categories at every size/FOV; matching stone categories share the same metadata. Main itself uses its existing fixed 70-degree projection. These are actual projection changes in the renderer fixture, not claims about a new Main FOV setting. Final inspected images show readable heads/blades, continuous handle contact, no reflected blade and no near-plane cut. The sleeve stays off screen at 95 degrees.
+   Generic empty hand, Stone, half/quarter pieces, flower pot, custom tiny model, LED and sticks rendered without GL errors. Their original idle transforms and assets are retained.
+   F10 was sent to the real GLFW window to start and stop the production ScreenRecorder. The final clip contains 210 frames, 23.594 seconds of wall-clock media, and 14 seconds of simulated movement at dt=1/15 second. It shows first-person and remote stone-pickaxe idle, attack/recovery, walk, jump, flight, look and gentler Stone placement. Software rendering slows wall-clock playback; this is not a hardware frame-rate benchmark. MP4 size is below 6 MB. Decoded representative frames were visually inspected with JCodec.
+9. python3 -m py_compile deploy/run_tool_grip_render_check.py deploy/run_tool_grip_playtest.py
+   PASS. git diff --check also PASS.
+
+Evidence files
+minecraft-style-comparison.png: fresh matching baseline/final sword and pickaxe, 960x720, FOV 70. Individual before/after captures are retained.
+minecraft-style-all-tools.png: eight items x four views; view 0 first person, 1 rear, 2 front, 3 oblique observer.
+minecraft-style-arcs.png: every tool high/low in first person and actual rendered observer view.
+minecraft-style-fov.png and minecraft-style-fov-arcs.png: real FOV/viewport and attack framing sweeps.
+minecraft-style-generic.png: ordinary item regression captures.
+minecraft-style-sandbox-tool-grip-verified-after-191-view0.png and -192-view0.png: clear final-source Main captures.
+minecraft-style-sandbox-tool-grip-placement.png: clear production placement result.
+minecraft-style-city-*.png: real City drop/pickup compatibility.
+minecraft-style-tools-f10.mp4: final-source F10 recording. Contact sheets only scale and label actual captures; they do not replace or repaint rendered content.
+All new evidence awaits controller publication on the assigned feature branch. Intended URL prefix:
+https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-35646363663531322d366264352d343836662d396630622d383337616439623934383133/dashboard/evidence/
+
+Final source fingerprints (SHA-256)
+HeldToolPose.java: 7f00c1c353c164d22099b8004bcc565d4ccf677b07469bb6b5627d8421a52fad
+PlayerAnimation.java: f4736172ff622b242da314a1eed2b6dcc3b8762d5128c0f441192e7f42f639d8
+PlayerModel.java: e1a863c7274f3d86b02437e716ecab3eeb418ad9650e47780f83813ae062db65
+
+Diff audit
+Audited the proposed diff against the starting HEAD above. No files deleted. Replaced old pose constants and the instant-start animation on purpose. Historical evidence files retained. Item/model definitions, IDs, recipes, saves, network production code, dropped-item code and Space Invaders renderer are unchanged. The controller still owns latest-master integration, commit/push/PR and independent review; if integration changes source, rerun meaningful tests/media before review.

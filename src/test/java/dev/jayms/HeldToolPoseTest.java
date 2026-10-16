@@ -35,7 +35,7 @@ class HeldToolPoseTest {
             var arm=new Matrix4f().rotateX(PlayerAnimation.pose(0,0,1,true).rightArm());
             for(var m:new Matrix4f[]{HeldToolPose.world(id,arm),HeldToolPose.firstPerson(id,PlayerAnimation.firstPersonHand(0,0,1,false))}) {
                 var up=m.transformDirection(new Vector3f(0,1,0)).normalize();
-                assertTrue(up.y>.9f,"Shaft rises above fist at idle");
+                assertTrue(up.y>.8f,"Diagonal shaft rises above fist at idle");
                 assertTrue(m.determinant()>0,"Head is not mirrored");
                 var base=m.transformPosition(anchor());
                 var head=m.transformPosition(new Vector3f(.5f,12f/16,.5f));

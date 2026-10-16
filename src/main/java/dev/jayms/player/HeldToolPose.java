@@ -14,20 +14,30 @@ public final class HeldToolPose {
         if (!Items.tool(type)) throw new IllegalArgumentException("Not a tool");
         // Skin's lower palm is centered at (1,-9,-2) rig pixels. Wrist flexion
         // compensates the resting arm, but stays local during gait and downward strikes.
-        return grip(new Matrix4f(arm).translate(PlayerAnimation.PIXEL, -9 * PlayerAnimation.PIXEL, -2 * PlayerAnimation.PIXEL)
+        return grip(type, new Matrix4f(arm).translate(PlayerAnimation.PIXEL, -9 * PlayerAnimation.PIXEL, -2 * PlayerAnimation.PIXEL)
                 .rotateZ(-.25f).rotateX(-.65f), 1.1f);
     }
 
     public static Matrix4f firstPerson(int type, Matrix4f hand) {
         if (!Items.tool(type)) throw new IllegalArgumentException("Not a tool");
         // Skin ends at .75; anchor sits inside the upper fist, not beyond its tip.
-        return grip(new Matrix4f(hand).translate(-.04f, .70f, -.04f), .62f);
+        return grip(type, new Matrix4f(hand).translate(-.04f, .70f, -.04f), .86f);
     }
 
-    private static Matrix4f grip(Matrix4f wrist, float scale) {
+    /** Tool-only camera framing; apply to the fist and tool together. */
+    public static Matrix4f firstPersonHand(Matrix4f hand) {
+        return new Matrix4f(hand).translateLocal(-.40f, -.17f, -.55f);
+    }
+
+    private static Matrix4f grip(int type, Matrix4f wrist, float scale) {
         // Wrist -> shaft tilt and head-facing yaw -> display scale -> negative anchor.
         // Positive scale and rotations preserve handedness, including front-facing F5.
-        return wrist.rotateX(.25f).rotateZ(-.12f).rotateY(-.8f).scale(scale)
+        // Both materials share category metadata. The broad face remains visible;
+        // axe cutting edges and sword guards keep the same handed orientation.
+        int category = (type - Items.WOODEN_PICKAXE) % 4;
+        float tilt = switch (category) { case 1 -> -.24f; case 2 -> -.18f; default -> -.30f; };
+        float facing = switch (category) { case 1 -> -.55f; case 3 -> -.70f; default -> -.85f; };
+        return wrist.rotateX(.25f).rotateZ(tilt).rotateY(facing).scale(scale)
                 .translate(-ANCHOR_X, -ANCHOR_Y, -ANCHOR_Z);
     }
 
