@@ -1,0 +1,25 @@
+{
+  "command": "TMPDIR=\"$PWD/target/hub-tmp\" PLAYWRIGHT_BROWSERS_PATH=\"$PWD/target/hub-browsers\" node tools/hub/portal-playtest.cjs",
+  "playtest": "Playtest: restored portal scene; synthetic first11 defeats and camera setup; actual final F shot, opening/ready portal, normal W crossing, Earth arrival and retained resources; pause/resume edge",
+  "environment": "Linux software WebKit; fresh synthetic context; loopback public website assets; no production publication or physical GPU claim",
+  "passed": true,
+  "observed": "Final shot retained playing source with ready portal; pause froze it; W crossing arrived at Earth once, paused safely, retained score/lives/health/ammo and resumed without page errors.",
+  "source": {
+    "state": "playing",
+    "wave": 3,
+    "score": 1075,
+    "lives": 2,
+    "health": 63,
+    "ammo": 7,
+    "portal": "ready"
+  },
+  "arrival": {
+    "state": "paused",
+    "wave": 4,
+    "score": 1075,
+    "lives": 2,
+    "health": 63,
+    "ammo": 7,
+    "portal": "consumed"
+  }
+}

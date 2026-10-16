@@ -123,3 +123,22 @@ played game's HTML also has a fresh address. The catalog promotion tool preserve
 that URL. `tools/hub/web-freshness-playtest.cjs` exercises two builds in the same
 browser context against a localhost host with deliberately immutable caching;
 this is a cache integration check, not a production deployment claim.
+
+## Review correction: preservation and installer checks
+
+The review at6a9187b found missing portal/alternate-Earth source, website assets
+and historical evidence. Current integration retains the current-master versions;
+all210 affected historical evidence files were verified byte-for-byte. The scoped
+Hub workflow now explicitly runs portal/alternate-Earth/ground regressions and
+checks their website/source module copies, preventing silent loss of these entry
+points during another Hub change. A source browser playtest covers the final shot,
+ready portal, pause/resume, walking to Earth and retained resources. It uses
+synthetic setup and software WebKit; it is not physical GPU qualification.
+
+The old Windows shortcut count mixed a synthetic USERPROFILE/LOCALAPPDATA with
+Windows Installer's OS folder resolution. Installer and shortcut lookup now use
+the real ephemeral OS context; only the launched app uses synthetic Java home
+and cache. The check inspects the two expected own Desktop/Start-menu links and
+requires both to target the installed executable. It does not enumerate other
+shortcuts or alter execution policy. The corrected Windows check needs the next
+exact-source hosted run; Linux success does not establish Windows MSI success.

@@ -1,0 +1,56 @@
+{
+  "scope": "Opt-in preview review corrections; no stable rollout qualification",
+  "baseHead": "08108e70964666f46a92c31d5508900d68589ea4",
+  "sourceKind": "feature working tree",
+  "recordedReviewBase": "4f8a09aca177062a50d0ab2b68e36735318bfb22",
+  "preservationReference": "403033b9f53ce66063982879c6e2daff684a427b",
+  "restoration": {
+    "historicalEvidenceFilesRestoredAndByteMatched": 210,
+    "portalSourceWebsiteDiffFromMaster": "none",
+    "unrelatedDeletedFiles": []
+  },
+  "windowsCorrection": {
+    "observedOldRun": "https://github.com/jaymsDooku/voxel-one/actions/runs/38977470430",
+    "oldHead": "6a9187b87339c19db1ca885f2d2631da5b9333e4",
+    "oldObserved": "MSI matching shortcut count=0",
+    "change": "Installer and shortcut lookup retain OS profile context; application alone uses synthetic Java home/cache. Removed HOME/USERPROFILE overrides; inspect only two expected own links and require both targets match. No execution-policy change.",
+    "validation": "Python syntax and Linux integration executed. New Windows MSI result remains pending exact-head hosted CI; no Windows pass claimed.",
+    "sourceReference": "https://raw.githubusercontent.com/openjdk/jdk21u/master/src/jdk.jpackage/windows/classes/jdk/jpackage/internal/WixAppImageFragmentBuilder.java"
+  },
+  "tests": [
+    {
+      "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/maven-cache\" -DargLine=-Djava.io.tmpdir=\"$PWD/target/hub-tmp\" -Dtest=SandboxIdentityTest,HubCatalogTest,HubShellTest,UpdaterTest,AccountStoreTest,ProtocolCompatibilityTest,MultiplayerTest#authenticationRegistrationDuplicateSessionsAndCertificatePin test package",
+      "observed": {
+        "tests": 17,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "command": "python3 tools/hub/test_publisher.py",
+      "observed": "1 passed"
+    },
+    {
+      "command": "node --test games/space-invaders/portal.test.mjs games/space-invaders/alternate-earth.test.mjs games/space-invaders/ground.test.mjs",
+      "observed": "31 passed; zero failed/skipped. CI preservation step executed locally with matching source/website modules."
+    },
+    {
+      "command": "TMPDIR=\"$PWD/target/hub-tmp\" PLAYWRIGHT_BROWSERS_PATH=\"$PWD/target/hub-browsers\" node tools/hub/portal-playtest.cjs",
+      "playtest": "Playtest: synthetic first11 defeats; actual final shot, pause/resume, normal walking portal crossing and Earth arrival with resources retained",
+      "observed": "Passed; screenshots inspected. Linux software WebKit, isolated context, local website assets. No production publication or physical-GPU claim."
+    },
+    {
+      "command": "python3 tools/hub/check_packages.py --display \"$DISPLAY\" --source-sha 08108e70964666f46a92c31d5508900d68589ea4 --jdk /usr/lib/jvm/jdk-21.0.5-oracle-x64 --work target/hub-revision-check --output dashboard/evidence/hub-revision-linux",
+      "playtest": "Playtest: real bundled Hub executable, fixture shell staging, updater errors/locks/migration, UI extents/scaling/keyboard, synthetic TLS login, native renderer and offline cache",
+      "observed": "All10 passed on Linux. Fingerprints matched; UI20-frame clip and native4-frame clips decoded and inspected. No smooth-native-gameplay claim."
+    }
+  ],
+  "pendingQualification": [
+    "New Windows MSI shortcut confirmation and exact-head hosted platform checks.",
+    "Physical GPU/monitor DPI and unavailable full-size desktop qualification.",
+    "Two published shell generations and stable release promotion."
+  ],
+  "rollout": "Original release behavior and explicit Hub preview gating retained.",
+  "privacy": "Accidental transient JVM crash dump excluded without reading; no runtime logs/credentials published."
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "scope": "scale-1",
+    "observed": "Actual movie: 20 frames, 2.917 seconds"
+  },
+  {
+    "scope": "native-city",
+    "observed": "Actual movie: 4 frames, 25.037 seconds"
+  },
+  {
+    "scope": "native-sandbox",
+    "observed": "Actual movie: 4 frames, 22.988 seconds"
+  },
+  {
+    "scope": "native-editor",
+    "observed": "Actual movie: 4 frames, 25.46 seconds"
+  }
+]
