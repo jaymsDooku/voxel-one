@@ -53,6 +53,24 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Preserve portal gameplay and website assets
+        shell: bash
+        run: |
+          python3 - <<'PYCODE'
+          import json, subprocess
+          from pathlib import Path
+          names=('app.mjs','game.mjs','ground.mjs','ground-controls.mjs','ground-renderer.mjs','portal.mjs','alternate-earth.mjs','earth-scene.mjs','style.css')
+          for name in names:
+              assert (Path('games/space-invaders')/name).read_bytes()==(Path('website/dist/games/space-invaders')/name).read_bytes(), 'Website/source mismatch: '+name
+          command=['node','--test','games/space-invaders/portal.test.mjs','games/space-invaders/alternate-earth.test.mjs','games/space-invaders/ground.test.mjs']
+          result=subprocess.run(command,capture_output=True,text=True)
+          output=Path('dashboard/evidence')/('hub-scoped-'+__import__('os').environ['PLATFORM']);output.mkdir(parents=True,exist_ok=True)
+          (output/'portal-regressions.json').write_text(json.dumps({'command':command,'exitCode':result.returncode,'sourceWebsiteAssetsMatched':list(names),'counts':[line for line in result.stdout.splitlines() if line.startswith(('# tests ','# pass ','# fail ','# skipped '))]},indent=2)+'\n')
+          raise SystemExit(result.returncode)
+          PYCODE
       - name: Build and updater/account/TLS regressions
         shell: bash
         run: mvn -q '-Dtest=SandboxIdentityTest,HubCatalogTest,HubShellTest,UpdaterTest,AccountStoreTest,ProtocolCompatibilityTest,MultiplayerTest#authenticationRegistrationDuplicateSessionsAndCertificatePin' test package
