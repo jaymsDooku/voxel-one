@@ -19,7 +19,7 @@ public class HubWorkflowPlaytest {
         throw new AssertionError("Button missing: " + text);
     }); }
     static boolean textPresent(String text) throws Exception { AtomicBoolean found = new AtomicBoolean(); SwingUtilities.invokeAndWait(() -> {
-        for (Component c : HubPlaytest.descendants(frame)) if (c instanceof JLabel l && l.getText().contains(text) || c instanceof JTextArea a && a.getText().contains(text)) found.set(true);
+        for (Component c : HubPlaytest.descendants(frame)) if (c instanceof JLabel l && l.getText() != null && l.getText().contains(text) || c instanceof JTextArea a && a.getText().contains(text)) found.set(true);
     }); return found.get(); }
     static void focusGame() throws Exception {
         boolean focused = false;
@@ -101,7 +101,12 @@ public class HubWorkflowPlaytest {
             SwingUtilities.invokeAndWait(()->frame.showPage("Downloads")); click("Retry / Repair client");
             for(int i=0;i<100&&!textPresent("Client ready.");i++)Thread.sleep(200);
             if(!textPresent("Client ready."))throw new AssertionError("Install did not finish"); capture("hub-install-complete");
-            HubCatalog catalog=HubCatalog.bundled();
+            String fixtureCatalog;
+            try (var in = HubCatalog.class.getResourceAsStream("catalog.properties")) {
+                fixtureCatalog = new String(in.readAllBytes(), java.nio.charset.StandardCharsets.ISO_8859_1)
+                        .replace("4f8a09aca177062a50d0ab2b68e36735318bfb22", "a".repeat(40));
+            }
+            HubCatalog catalog=HubCatalog.read(new java.io.ByteArrayInputStream(fixtureCatalog.getBytes(java.nio.charset.StandardCharsets.ISO_8859_1)));
             SwingUtilities.invokeAndWait(()->{
                 frame.detail(catalog.entries().get(0));
                 for(Component c:HubPlaytest.descendants(frame)) if(c instanceof JTextField f) {
@@ -115,7 +120,16 @@ public class HubWorkflowPlaytest {
             focusGame();
             recordGame(profile, "hub-native-city");
             ProcessHandle.current().descendants().forEach(ProcessHandle::destroy); Thread.sleep(1500);
-            SwingUtilities.invokeAndWait(()->frame.detail(catalog.entries().get(1))); click("Play / Install");
+            revision.set("b".repeat(40)); // Global latest is not in this experience's tested source set.
+            var checkClient = HubFrame.class.getDeclaredMethod("checkClient"); checkClient.setAccessible(true);
+            SwingUtilities.invokeAndWait(()->{try{checkClient.invoke(frame);}catch(Exception x){throw new RuntimeException(x);}});
+            boolean refreshNeeded = false;
+            for(int i=0;i<60;i++) {
+                Thread.sleep(100); SwingUtilities.invokeAndWait(()->frame.detail(catalog.entries().get(1)));
+                if(textPresent("catalog refresh needed")){refreshNeeded=true;break;}
+            }
+            if(!refreshNeeded)throw new AssertionError("Incompatible latest was incorrectly offered as an update");
+            capture("hub-incompatible-latest-status"); click("Play / Install");
             for(int i=0;i<100&&!textPresent("Game started.");i++)Thread.sleep(200);
             if(!textPresent("Game started."))throw new AssertionError("Sandbox did not launch"); Thread.sleep(10000);
             if (ProcessHandle.current().descendants().noneMatch(ProcessHandle::isAlive)) throw new AssertionError("Game exited before gameplay capture");
@@ -128,6 +142,17 @@ public class HubWorkflowPlaytest {
             focusGame(); recordGame(profile, "hub-native-editor");
             ProcessHandle.current().descendants().forEach(ProcessHandle::destroy); Thread.sleep(1000);
             if(downloads.get()!=1)throw new AssertionError("Shared client downloaded more than once");
+            capture("hub-compatible-cache-fallback");
+            if (!textPresent("compatible installed version")) throw new AssertionError("Incompatible latest did not explain compatible fallback");
+            HubCatalog incompatible = HubCatalog.read(new java.io.ByteArrayInputStream(fixtureCatalog.replace("a".repeat(40), "c".repeat(40)).getBytes(java.nio.charset.StandardCharsets.ISO_8859_1)));
+            SwingUtilities.invokeAndWait(()->frame.showPage("Settings / Help"));
+            click("Check library at startup and client before Play");
+            SwingUtilities.invokeAndWait(()->frame.detail(incompatible.entries().get(0))); click("Play / Install");
+            for(int i=0;i<100&&!textPresent("No incompatible client was launched");i++)Thread.sleep(100);
+            if(!textPresent("No incompatible client was launched"))throw new AssertionError("Incompatible cached client was not refused");
+            if(ProcessHandle.current().descendants().anyMatch(ProcessHandle::isAlive))throw new AssertionError("Incompatible cache spawned a game");
+            capture("hub-incompatible-cache-refused");
+            SwingUtilities.invokeAndWait(()->frame.showPage("Settings / Help")); click("Check library at startup and client before Play");
             revision.set("b".repeat(40));corrupt.set(true);
             SwingUtilities.invokeAndWait(()->frame.showPage("Downloads"));click("Retry / Repair client");
             for(int i=0;i<100&&!textPresent("Client ready.");i++)Thread.sleep(200);
@@ -135,7 +160,7 @@ public class HubWorkflowPlaytest {
             corrupt.set(false);slow.set(true);click("Retry / Repair client");Thread.sleep(600);click("Cancel");Thread.sleep(1500);capture("hub-download-cancelled");
             if(new Updater(profile,URI.create(base+"/manifest")).installed(Platform.current())==null)throw new AssertionError("Cancel lost installation");
             server.stop(0);click("Retry / Repair client");Thread.sleep(1800);capture("hub-offline-native-cache");
-            System.out.println("Playtest: real hub install, City offline launch, Sandbox and editor offline launch, invalid offline server/port ignored, one shared download, corrupt update fallback, cancel and service-offline verified cache exercised.");
+            System.out.println("Playtest: real hub install, City offline launch, Sandbox and editor offline launch, invalid offline server/port ignored, one shared download, incompatible latest fallback, incompatible cached launch refused, corrupt update fallback, cancel and service-offline verified cache exercised.");
         } finally { server.stop(0);ProcessHandle.current().descendants().forEach(ProcessHandle::destroy);if(frame!=null)SwingUtilities.invokeAndWait(()->frame.dispose()); }
     }
 }

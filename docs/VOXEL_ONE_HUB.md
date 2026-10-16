@@ -142,3 +142,29 @@ and cache. The check inspects the two expected own Desktop/Start-menu links and
 requires both to target the installed executable. It does not enumerate other
 shortcuts or alter execution policy. The corrected Windows check needs the next
 exact-source hosted run; Linux success does not establish Windows MSI success.
+
+### Engine/client compatibility
+
+Native catalog entries require `client-compatibility=source-set-v1` and
+`client-sources`, a list of at most eight full source revisions. The entry's
+published `source` must be included. Each revision identifies a tested shared
+engine/client release for that experience; this is an explicit compatibility
+set, not a numeric range inferred from commit IDs. The publisher emits only the
+native receipt's tested, published source. Adding older compatible sources
+requires testing and a reviewed catalog change. Browser receipts do not change
+this native contract. Artifact identity remains `voxel-client`, so experiences
+with the same source still share one verified download.
+
+The updater checks the allowed source set under its installation lock before
+transferring or changing installed metadata. An incompatible global latest
+release can fall back only to a verified compatible cached release. Both the
+Hub and `--experience` CLI check the returned revision again before launching.
+Turning off update checks does not bypass compatibility. Missing or unknown
+contracts invalidate native catalog snapshots; the last valid snapshot or
+bundled catalog supplies recovery. A mismatch gives a refresh/install message
+and does not launch an incompatible client. The legacy updater and
+`--update-only` without experience selection retain their existing behavior.
+
+These corrections do not qualify stable rollout. Windows installation/MSI,
+physical GPU/DPI, and upgrades across two published shell generations must
+retain their release gates until actual platform evidence passes.

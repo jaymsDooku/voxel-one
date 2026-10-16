@@ -15,10 +15,10 @@ class PublisherTest(unittest.TestCase):
             w={'tested':True,'published':True,'source':'b'*40,'build':'web-1','notes':'Public web release','url':'https://voxel-one.jamesleaver1.chatgpt.site/games/space-invaders/'}
             native.write_text(json.dumps(n));web.write_text(json.dumps(w));publisher.assemble(native,web,output);before=output.read_text()
             w['build']='web-2';web.write_text(json.dumps(w));publisher.assemble(native,web,output);after=output.read_text()
-            self.assertIn('city.build=playtest-1',after);self.assertIn('space-invaders.build=web-2',after)
+            self.assertIn('city.client-sources='+'a'*40,after);self.assertIn('sandbox.client-sources='+'a'*40,after);self.assertIn('city.build=playtest-1',after);self.assertIn('space-invaders.build=web-2',after)
             self.assertNotEqual(before,after)
             n['build']='playtest-2';n['source']='c'*40;native.write_text(json.dumps(n));publisher.assemble(native,web,output);after=output.read_text()
-            self.assertIn('city.build=playtest-2',after);self.assertIn('space-invaders.build=web-2',after)
+            self.assertIn('city.client-sources='+'c'*40,after);self.assertIn('city.build=playtest-2',after);self.assertIn('space-invaders.build=web-2',after)
             n['published']=False;native.write_text(json.dumps(n))
             with self.assertRaises(ValueError):publisher.assemble(native,web,output)
             self.assertEqual(after,output.read_text())

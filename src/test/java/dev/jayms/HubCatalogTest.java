@@ -30,6 +30,17 @@ class HubCatalogTest {
         assertFalse(parse(text.replace("space-invaders.source=1d2c3b3266c9e2d9c82c2217594690c0a62334ef", "space-invaders.source=unpublished")).entries().get(2).supported(Platform.WINDOWS));
         assertFalse(HubCatalog.safeWeb("https://user@github.com/jaymsDooku/voxel-one/"));
     }
+    @Test void compatibilityRequiresExplicitPublishedProvenance() throws Exception {
+        String text = bundled();
+        var entry = parse(text).entries().get(0);
+        assertEquals(java.util.Set.of(entry.source()), entry.clientSources());
+        entry.requireClient(new Updater.Result(java.nio.file.Path.of("verified.jar"), entry.source(), false, ""));
+        assertThrows(IOException.class, () -> entry.requireClient(new Updater.Result(java.nio.file.Path.of("other.jar"), "b".repeat(40), false, "")));
+        assertThrows(IOException.class, () -> parse(text.replace("source-set-v1", "any")));
+        assertThrows(IOException.class, () -> parse(text.replace("city.client-sources=" + entry.source(), "city.client-sources=" + "b".repeat(40))));
+        assertThrows(IOException.class, () -> parse(text.replace("city.client-sources=" + entry.source(), "city.client-sources=" + entry.source() + ",../bad")));
+        assertThrows(IOException.class, () -> parse(text.replace("city.client-compatibility=source-set-v1", "")));
+    }
     @Test void cachedLibrarySurvivesMalformedSnapshot() throws Exception {
         var dir = java.nio.file.Files.createTempDirectory("hub-catalog-test");
         try {

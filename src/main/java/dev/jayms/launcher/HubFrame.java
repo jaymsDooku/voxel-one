@@ -170,7 +170,9 @@ public final class HubFrame extends JFrame {
         if (e.adapter().equals("browser")) return "Web game · network required";
         if (e.adapter().equals("docs")) return "Documentation";
         if (installed == null) return clientOffline ? "Temporarily unavailable · no installed client" : "Desktop · Install to play";
+        if (!e.clientSources().contains(installed.revision())) return "Desktop · Compatible client required";
         if (clientOffline) return "Desktop · Offline cached";
+        if (availableRevision != null && !e.clientSources().contains(availableRevision)) return "Desktop · Ready to play · catalog refresh needed";
         if (availableRevision != null && !availableRevision.equals(installed.revision())) return "Desktop · Update available";
         return "Desktop · Ready to play";
     }
@@ -297,9 +299,10 @@ public final class HubFrame extends JFrame {
             protected Updater.Result doInBackground() throws Exception {
                 Updater updater = new Updater(installCache, clientManifest); activeUpdater = updater;
                 Updater.Result result = Boolean.parseBoolean(settings.getProperty("updates", "true")) || entry == null ? null : updater.installed(platform);
-                if (result == null) result = updater.update(platform, this::publish);
+                if (result == null) result = updater.update(platform, this::publish, entry == null ? null : entry.clientSources());
                 if (isCancelled()) throw new java.util.concurrent.CancellationException();
                 if (entry != null) {
+                    entry.requireClient(result);
                     Process process = new ProcessBuilder(Launcher.command(result.client(), platform, args)).redirectOutput(ProcessBuilder.Redirect.DISCARD).redirectError(ProcessBuilder.Redirect.DISCARD).start();
                     if (process.waitFor(1500, java.util.concurrent.TimeUnit.MILLISECONDS) && process.exitValue() != 0) throw new IOException("Game could not start. Check graphics support and client/server compatibility.");
                 }
@@ -310,7 +313,11 @@ public final class HubFrame extends JFrame {
                 cancel.setEnabled(false); activeUpdater = null;
                 try { installed = get(); clientOffline = !installed.warning().isBlank(); if (!clientOffline) availableRevision = installed.revision(); transfer.append(entry == null ? "Client ready.\n" : "Game started.\n"); status.setText(installed.warning().isBlank() ? "Ready to play" : installed.warning()); if (entry != null && Boolean.parseBoolean(settings.getProperty("close", "false"))) dispose(); }
                 catch (java.util.concurrent.CancellationException e) { transfer.append("Cancelled. Previous verified client kept.\n"); status.setText("Cancelled"); }
-                catch (Exception e) { transfer.append("Operation failed. Retry to repair; previous verified client kept.\n"); status.setText("Could not install or start the client."); }
+                catch (Exception e) { transfer.append("Operation failed. Retry to repair; previous verified client kept.\n"); Throwable cause = e.getCause() == null ? e : e.getCause();
+                    String message = cause.getMessage();
+                    status.setText(message != null && message.contains("Catalog/client mismatch")
+                            ? "Catalog/client mismatch. Refresh the catalog or install a compatible client." : "Could not install or start the client.");
+                    if (message != null && message.contains("Catalog/client mismatch")) transfer.append("Catalog/client mismatch. No incompatible client was launched.\n"); }
             }
         }; task.execute();
     }
