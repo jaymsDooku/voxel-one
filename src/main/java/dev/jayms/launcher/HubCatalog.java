@@ -9,7 +9,12 @@ public record HubCatalog(String version, List<Entry> entries) {
     public static final int MAX_BYTES = 65536;
     public record Entry(String id, String title, String summary, String adapter, String target,
                         String artifact, Set<String> platforms, String build, String source,
-                        String notes, String controls, String artwork) {
+                        String notes, String controls, String artwork, Set<String> clientSources) {
+        public Entry { platforms = Set.copyOf(platforms); clientSources = Set.copyOf(clientSources); }
+        public void requireClient(Updater.Result result) throws IOException {
+            if (result == null || !clientSources.contains(result.revision()))
+                throw new IOException("Catalog/client mismatch. Refresh the catalog or install a compatible published client.");
+        }
         public boolean supported(Platform platform) {
             return platforms.contains(platform.id()) && switch (adapter) {
                 case "native" -> Set.of("city", "sandbox", "editor").contains(target)
@@ -66,10 +71,21 @@ public record HubCatalog(String version, List<Entry> entries) {
             if (!Set.of("windows", "linux", "mac-intel", "mac-arm").containsAll(platforms)) throw new IOException("Invalid platform");
             String source = field(p, prefix + "source", 80);
             if (!source.matches("[0-9a-f]{40}|unpublished")) throw new IOException("Invalid source revision");
+            Set<String> clientSources = Set.of();
+            if (adapter.equals("native")) {
+                if (!"source-set-v1".equals(field(p, prefix + "client-compatibility", 32)))
+                    throw new IOException("Unsupported engine/client compatibility contract");
+                String[] revisions = field(p, prefix + "client-sources", 327).split(",", -1);
+                clientSources = new HashSet<>(Arrays.asList(revisions));
+                if (revisions.length > 8 || clientSources.size() != revisions.length
+                        || clientSources.stream().anyMatch(r -> !r.matches("[0-9a-f]{40}"))
+                        || !clientSources.contains(source))
+                    throw new IOException("Invalid compatible client sources or catalog provenance");
+            }
             entries.add(new Entry(id, field(p, prefix + "title", 120), field(p, prefix + "summary", 600),
                     adapter, target, field(p, prefix + "artifact", 64), Set.copyOf(platforms),
                     field(p, prefix + "build", 80), source, field(p, prefix + "notes", 4000),
-                    field(p, prefix + "controls", 1000), field(p, prefix + "artwork", 64)));
+                    field(p, prefix + "controls", 1000), field(p, prefix + "artwork", 64), clientSources));
         }
         return new HubCatalog(version, entries);
     }

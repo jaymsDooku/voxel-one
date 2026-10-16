@@ -116,6 +116,43 @@ class UpdaterTest {
     }
 
     @Test
+    void catalogRejectsIncompatibleLatestAndCachedClientsWithoutChangingInstallation() throws Exception {
+        byte[] client = jar("compatible");
+        AtomicReference<String> metadata = new AtomicReference<>();
+        AtomicInteger downloads = new AtomicInteger();
+        HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        server.createContext("/update", e -> {
+            byte[] bytes = metadata.get().getBytes(); e.sendResponseHeaders(200, bytes.length);
+            try (var out = e.getResponseBody()) { out.write(bytes); }
+        });
+        server.createContext("/game", e -> {
+            downloads.incrementAndGet(); e.sendResponseHeaders(200, client.length);
+            try (var out = e.getResponseBody()) { out.write(client); }
+        });
+        server.start();
+        String base = "http://127.0.0.1:" + server.getAddress().getPort();
+        Updater updater = new Updater(temp, URI.create(base + "/update"));
+        String a = "a".repeat(40), b = "b".repeat(40);
+        try {
+            metadata.set(manifest(a, base + "/game", client));
+            var first = updater.update(Platform.WINDOWS, s -> {}, Set.of(a));
+            byte[] state = Files.readAllBytes(temp.resolve("installed.properties"));
+            metadata.set(manifest(b, base + "/game", client));
+            var fallback = updater.update(Platform.WINDOWS, s -> {}, Set.of(a));
+            assertEquals(first.client(), fallback.client());
+            assertTrue(fallback.warning().contains("compatible"));
+            assertEquals(1, downloads.get(), "Incompatible latest must be rejected before transfer");
+            assertArrayEquals(state, Files.readAllBytes(temp.resolve("installed.properties")));
+            assertThrows(IOException.class, () -> updater.update(Platform.WINDOWS, s -> {}, Set.of("c".repeat(40))));
+            assertEquals(1, downloads.get());
+            server.stop(0);
+            assertThrows(IOException.class, () -> updater.update(Platform.WINDOWS, s -> {}, Set.of(b)));
+            assertEquals(a, updater.update(Platform.WINDOWS, s -> {}, Set.of(a)).revision());
+            assertArrayEquals(state, Files.readAllBytes(temp.resolve("installed.properties")));
+        } finally { server.stop(0); }
+    }
+
+    @Test
     void platformAndLaunchArgumentsPreserveOfflineModeAndExplicitServer() {
         assertEquals(Platform.WINDOWS, Platform.detect("Windows 11", "amd64"));
         assertEquals(Platform.MAC_ARM, Platform.detect("Mac OS X", "aarch64"));

@@ -1,0 +1,12 @@
+{
+  "command": [
+    "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+    "-cp",
+    "target/voxel-one-1.0-SNAPSHOT-client.jar:target/hub-tmp",
+    "InspectMovie",
+    "dashboard/evidence/hub-compatibility-linux/scale-1/Voxel-One_2026-10-16_23-16-34_17877899354220382702.mp4",
+    "dashboard/evidence/hub-compatibility-ui-first-frame.png"
+  ],
+  "exitCode": 0,
+  "observed": "Actual movie: 20 frames, 2.917 seconds\n"
+}
