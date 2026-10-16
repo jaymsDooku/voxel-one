@@ -3,10 +3,10 @@
   "expected": "Fresh HTML URL and fresh ESM filenames bypass primed immutable caches; native artifact stays unchanged.",
   "observed": "Both builds played; module URLs changed; pause/resume worked; no page errors; native client SHA-256 stayed unchanged.",
   "versions": [
-    "7d4e413b38ff4cf79a55",
-    "c3a69d05ede3121889f9"
+    "b2d3f024795199283533",
+    "008c43d185373cafd517"
   ],
-  "nativeClientSha256": "c2dacb68232999031b508059d9053ee330094b80991b790d9af4d8d2dacffdf8",
+  "nativeClientSha256": "aa6aed7f5a37fa73187ffa13a874d68211a282bd6efd9e97339a89cffb983df3",
   "environment": "Linux desktop WebKit; assigned inherited display; fresh synthetic browser context; localhost static host deliberately uses one-year immutable caching.",
   "limitation": "Local hosting integration only. No production website deployment or owner-private sign-in was performed."
 }

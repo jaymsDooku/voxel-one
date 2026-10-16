@@ -57,9 +57,10 @@ public final class HubFrame extends JFrame {
         light = settings.getProperty("theme", "dark").equals("light");
         theme();
         var snapshot = store.cached(); catalog = snapshot.catalog(); catalogStatus = snapshot.status();
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE); setMinimumSize(new Dimension(900, 600));
-        Dimension desktop=Toolkit.getDefaultToolkit().getScreenSize();
-        setSize(Math.min(1280,Math.max(900,desktop.width)),Math.min(800,Math.max(600,desktop.height)));
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        Rectangle usable=GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+        setMinimumSize(new Dimension(Math.min(900,usable.width),Math.min(600,usable.height)));
+        setSize(Math.min(1280,usable.width),Math.min(800,usable.height));
         setLocationRelativeTo(null);
         JPanel root = new JPanel(new BorderLayout(24, 20)); root.setBorder(new EmptyBorder(22, 22, 18, 22));
         JPanel nav = new JPanel(); nav.setLayout(new BoxLayout(nav, BoxLayout.Y_AXIS)); nav.setPreferredSize(new Dimension(175, 0));
@@ -73,7 +74,9 @@ public final class HubFrame extends JFrame {
             getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_1 + i, InputEvent.ALT_DOWN_MASK), destination);
             getRootPane().getActionMap().put(destination, new AbstractAction() { public void actionPerformed(ActionEvent e) { showPage(destination); } });
         }
-        root.add(nav, BorderLayout.WEST); root.add(content, BorderLayout.CENTER); root.add(status, BorderLayout.SOUTH);
+        JScrollPane navigation=new JScrollPane(nav,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        navigation.setBorder(null); navigation.setPreferredSize(new Dimension(175,0));
+        root.add(navigation, BorderLayout.WEST); root.add(content, BorderLayout.CENTER); root.add(status, BorderLayout.SOUTH);
         setContentPane(root); SwingUtilities.updateComponentTreeUI(this); transfer.setEditable(false); transfer.setLineWrap(true); transfer.setWrapStyleWord(true);
         cancel.addActionListener(e -> { if (activeUpdater != null) activeUpdater.cancel(); if (task != null) task.cancel(true); status.setText("Cancelling… verified installations will be kept."); });
         cancel.setEnabled(false); showPage("Home");

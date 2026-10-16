@@ -4017,8 +4017,8 @@
       "description": "Building the catalog-driven desktop hub around verified client updates. Platform packaging and playtests remain required.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Inspected scoped Windows/macOS failures and media. Added scoped fixes and native-render checks. Linux package checks passed; sparse native media decoded. Exact-head platform rerun remains pending controller publication.",
-      "updatedAt": "2026-10-12T21:04:37+00:00"
+      "note": "Review recovery: current-master portal/alternate-Earth source retained; historical evidence restored by integration. Progress conflict resolved. Controller continues Git before final-head tests and MSI correction.",
+      "updatedAt": "2026-10-16T22:43:32+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

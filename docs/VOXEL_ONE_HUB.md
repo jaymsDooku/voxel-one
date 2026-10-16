@@ -1,6 +1,8 @@
 # Voxel One Hub
 
-The new Swing hub opens when the launcher receives no arguments. Home, Games,
+The packaged preview opens the Swing hub. With a direct launcher JAR, use
+`--hub` or `-Dvoxel.hub.preview=true`; ordinary legacy invocation keeps its
+existing updater/login flow. Home, Games,
 details, Engine & Tools, Downloads and Settings / Help use the same public
 catalog. City and Sandbox retain the verified shared client updater and existing
 save, control, username and certificate-trust locations. Explicit game selection
@@ -81,15 +83,23 @@ new-package download link exists until the controller's tested release succeeds.
 
 ## Current validation limits
 
-This is an implementation candidate, not a released or accepted hub. Linux checks
-use the assigned X11 display and isolated synthetic profiles. Windows fresh
-install, MSI shortcuts, 100/150/200% DPI, file-lock recovery, macOS smoke tests,
-real online login/server compatibility, published browser gameplay, cross-website-
-deployment freshness and two packaged shell versions still need execution.
-The Linux display is 1280x720; a 1280x800 window exceeds that display, so those
-captures show the visible portion only. Full-height visual validation needs a
-larger assigned desktop. Final native/web promotion integration with the publication controller remains
-unconfigured. Native detail pages bundle real offline gameplay frames captured
+This is an opt-in feature preview, not a qualified desktop release. Normal
+release CI does not automatically promote the Hub. Linux checks use the assigned
+authenticated X11 desktop and isolated synthetic profiles. Current Linux captures
+include 1280x800 and small logical desktops; missing extents are recorded rather
+than captured clipped. JVM scaling does not establish physical Windows DPI.
+
+Hosted Windows/macOS updater, shell staging and synthetic TLS login have run.
+Windows shortcut validation and hosted native GLFW creation failed in the last
+published run; fixes/diagnostics need another exact-head dispatch. Mac Intel Hub
+captures were unobstructed, while Windows/Mac ARM could not fit all target sizes.
+The inspected production software WebKit report covers move/fire/pause/resume/
+reload. Physical GPU sessions, actual monitor scaling, MSI shortcut confirmation,
+full platform extents, two published shell generations and final publication
+integration remain pending. No smooth-performance or release-readiness claim
+follows from the sparse four-frame Linux render clips.
+
+Native detail pages bundle real offline gameplay frames captured
 from this candidate. The legacy login has a link to published desktop downloads. Install paths
 and per-experience server ports are configurable. An async manifest probe exposes
 available engine revisions, Update available and Offline cached states.

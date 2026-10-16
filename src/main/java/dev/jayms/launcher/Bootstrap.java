@@ -28,7 +28,7 @@ public final class Bootstrap {
             try {
                 List<String> command = new ArrayList<>(List.of(Path.of(System.getProperty("java.home"), "bin",
                         Platform.current() == Platform.WINDOWS ? "javaw.exe" : "java").toString(),
-                        "-Duser.home=" + System.getProperty("user.home"), "-Djava.io.tmpdir=" + System.getProperty("java.io.tmpdir"), "-jar", shell.client().toString()));
+                        "-Dvoxel.hub.preview=" + Boolean.getBoolean("voxel.hub.preview"), "-Duser.home=" + System.getProperty("user.home"), "-Djava.io.tmpdir=" + System.getProperty("java.io.tmpdir"), "-jar", shell.client().toString()));
                 command.addAll(Arrays.asList(args));
                 Process process = new ProcessBuilder(command).inheritIO().start();
                 started = !(process.waitFor(1500, java.util.concurrent.TimeUnit.MILLISECONDS) && process.exitValue() != 0);
