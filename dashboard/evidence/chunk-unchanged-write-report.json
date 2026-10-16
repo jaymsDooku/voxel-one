@@ -1,0 +1,60 @@
+{
+  "environment": "Linux x86-64; Java 25.0.3; Maven; CPU-only; no OpenGL context; synthetic in-memory chunks, no account/profile data",
+  "verificationCommand": "mvn -q -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=ChunkUnchangedWriteTest,FractionalWorldTest,WorldSkyVisibilityTest,DetailedMeshSchedulerTest,RenderingAlgorithmsTest,VoxelModelTest verify",
+  "verificationResult": "Exit 0; 39 tests, 0 failures, 0 errors, 0 skipped; packaging passed",
+  "suites": [
+    {
+      "suite": "ChunkUnchangedWriteTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "FractionalWorldTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "WorldSkyVisibilityTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "DetailedMeshSchedulerTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "RenderingAlgorithmsTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "VoxelModelTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "playtestCommand": "javac -cp target/classes -d target/test-classes deploy/ChunkWritePlaytest.java\njava -Djava.awt.headless=true -cp target/classes:target/test-classes dev.jayms.ChunkWritePlaytest dashboard/evidence",
+  "playtest": "Playtest: production Chunk and Protocol.Edit exercised by CPU integration CLI. Repeat a clean stone write; carve a half-cell; restore full stone; insert and remove a model; write out of bounds. Expected and observed: repeat leaves revisions and snapshot unchanged and dirty=false; carve advances revisions to 2; replacement advances revisions to 3 and restores full occupancy; model map clears on air replacement; invalid coordinate throws. Exit 0.",
+  "media": "chunk-unchanged-write.png shows actual production cell slices at z=0 and observed revisions. Inspected image: full, unchanged full, carved half-cell, restored full. CPU data visualization, not a game-window screenshot. Browser playtesting does not apply to this shared-engine API change; requested verification excludes OpenGL.",
+  "otherAttempts": [
+    "Initial 24 focused tests passed.",
+    "Default mvn verify failed fetching shade plugin into read-only shared Maven cache. Local cache packaging passed.",
+    "Unrestricted mvn test encountered read-only /tmp errors and was stopped; no full-suite pass claimed.",
+    "Initial selected verify with -Djava.io.tmpdir had 6 VoxelModelTest temp-directory errors; passing -Djava.io.tmpdir through -DargLine fixed forked JVM setup."
+  ],
+  "diffAudit": "No review-base value supplied by controller. Audited local diff against checkout HEAD; no unrelated deletions. Chunk.java only reuses the encoded value and adds the guarded return; mutation/model/invalidation path retained.",
+  "publication": "Artifacts await controller commit/push on assigned feature branch."
+}
