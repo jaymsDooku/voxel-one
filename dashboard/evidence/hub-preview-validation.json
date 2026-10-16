@@ -1,0 +1,31 @@
+{
+  "baseHead": "ba443accd34b5962b8ef11b06caf6716710e118b",
+  "sourceKind": "unpublished feature working tree",
+  "reviewBase": "aac5ca8ee0fa5ed6e5f84949c66e9949085f1d85",
+  "environment": "Linux x86_64, inherited authenticated display, isolated synthetic profiles, software rendering",
+  "checks": [
+    {
+      "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/maven-cache\" -DargLine=-Djava.io.tmpdir=\"$PWD/target/hub-tmp\" -Dtest=SandboxIdentityTest,HubCatalogTest,HubShellTest,UpdaterTest,AccountStoreTest,ProtocolCompatibilityTest,MultiplayerTest#authenticationRegistrationDuplicateSessionsAndCertificatePin test package",
+      "observed": "17 passed; zero failures/errors/skips"
+    },
+    {
+      "command": "java -Dsun.java2d.uiScale=3 -cp target/voxel-one-1.0-SNAPSHOT-client.jar:target/hub-tmp PackageUiProbe dashboard/evidence/hub-responsive-small target/hub-responsive-small-profile",
+      "playtest": "Playtest: navigate production Hub pages/cards/browser detail, keyboard Downloads; expected unclipped initial desktop fit and explicit missing large extents",
+      "observed": "Passed, 1067x667 initial capture viewed; 1280x800 explicitly unavailable"
+    },
+    {
+      "command": "java -Dsun.java2d.uiScale=6 -cp target/voxel-one-1.0-SNAPSHOT-client.jar:target/hub-tmp PackageUiProbe dashboard/evidence/hub-responsive-tiny target/hub-responsive-tiny-profile",
+      "playtest": "Playtest: same workflow on tiny logical desktop with scrollable navigation",
+      "observed": "Passed; 533x333 capture viewed. Both target extents remain unavailable; no monitor DPI proof."
+    }
+  ],
+  "pending": [
+    "Windows shortcut probe -Command change needs exact-head execution; no execution-policy changes.",
+    "Hosted Windows/macOS rerun; GLFW failures remain failures.",
+    "Physical GPU/monitor qualification and published shell generations."
+  ],
+  "rollout": "Opt-in preview; standard release workflow restored to reviewed base, no automatic Hub promotion.",
+  "intentionalDeletions": "Only previously added Hub auto-release steps and their release-note/upload additions were removed; ordinary release behavior preserved. No unrelated file deletions.",
+  "packageCommand": "python3 tools/hub/check_packages.py --display \"$DISPLAY\" --source-sha ba443accd34b5962b8ef11b06caf6716710e118b --jdk /usr/lib/jvm/jdk-21.0.5-oracle-x64 --work target/hub-preview-check --output dashboard/evidence/hub-preview-linux",
+  "packageObserved": "All10 Linux checks passed. Full qualification false. UI/native clips decoded; native clips sparse, not smooth performance proof."
+}

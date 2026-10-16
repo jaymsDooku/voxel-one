@@ -86,3 +86,47 @@ receipts in `dashboard/evidence/hub-native-publication.json` and
 `hub-web-publication.json` describe independently published native/web builds.
 `hub-prepared-catalog.properties` is prepared metadata; it has not been promoted
 by this developer. Controller/Root retain publication control.
+
+## Provisioned desktop dispatch
+
+Hosted run38621773293 could not create GLFW windows. Windows/Mac ARM also
+provided no advertised desktop mode large enough for required captures. Those
+checks remain failed. A manual `runner_pool=desktop` dispatch selects only
+controller-provisioned runners bearing `self-hosted`, `voxel-hub-desktop`,
+and the platform labels `Windows`/`X64`, `macOS`/`X64`, or `macOS`/`ARM64`.
+These labels are a provisioning contract, not a claim those runners exist.
+Use isolated disposable test machines with an active authenticated desktop,
+OpenGL3.3 or later, and sufficient advertised display modes. Preserve platform
+privacy/approval controls. No unrelated accounts or private data may be present.
+
+The controller dispatches the same command above with `-f runner_pool=desktop`
+after publishing this feature source. Push runs retain hosted diagnostics.
+No arbitrary runner label input is accepted. Exact-head checks, read-only
+permissions, synthetic profiles, bounded media and independent review remain
+required. The Windows MSI shortcut-count diagnostic must execute on that runner;
+it has only been syntax checked locally. Physical monitor DPI and real gameplay
+checks remain distinct from JVM-scale and four-frame renderer smoke.
+
+## Hosted preview scope
+
+The controller can dispatch the ordinary hosted pool now; self-hosted runner
+provisioning is optional and does not block hosted diagnostics. The Hub first
+window and minimum size use the usable desktop bounds. Navigation scrolls on
+small desktops. The probe always captures the fitted window, and records
+900x600/1280x800 in unavailable-extents.txt when the desktop cannot hold them.
+That is missing qualification, not a passing full-size capture. The report's
+fullQualificationPassed remains false. GLFW failures remain failed checks.
+
+The packaged executable opts into `voxel.hub.preview=true`; direct legacy
+launcher invocation keeps its prior flow unless `--hub` or that property is
+set. The stable bootstrap forwards this choice to a cached shell. Automatic
+Hub packaging/shell promotion was removed from the ordinary release workflow
+until qualification. The feature workflow builds preview packages only.
+
+The Windows shortcut probe now invokes its fixed synthetic check with
+PowerShell -Command, not a temporary .ps1 file. It changes no execution policy
+and prints only the matching shortcut count on failure. The prior generic
+powershell.exe exit1 did not prove missing shortcuts; the new exact-head run
+must determine the result. Windows physical DPI, real GPU play, full-size
+captures on small hosted desktops and two published shell generations remain
+unqualified. No unqualified rollout is authorized by a passing preview check.
