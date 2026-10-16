@@ -1,0 +1,31 @@
+{
+  "base": "3760edffdbcddc758f88c834ab03dbd600b4aa8a",
+  "files": {
+    "games/space-invaders/alternate-earth.mjs": "33508271d0a9476b952119748effe573a93c98013b16b87dbd73e368d64690a6",
+    "games/space-invaders/app.mjs": "3dd0917eb841a308ba6c8fe31266719b291215d475af59ce763b00453b60d732",
+    "games/space-invaders/atmosphere.mjs": "c89790f08ecdd2b1cd98270ef1ab0dee90e8b496b8c8bd1f9f77a2396f4c2919",
+    "games/space-invaders/bootstrap-planet.mjs": "dbe7257bbd1514211be135d2e55fe21b257706ec7a1575e3d3d7d560650bb570",
+    "games/space-invaders/clouds.mjs": "7a00b37a579969cb9093ee6f52d6c0cc1ed13389c35460b6c2a0230520299038",
+    "games/space-invaders/coarse-view.mjs": "51a4e96ad0223cc3c5220d55d182ccc91c3d8f8943469b7b78c7c14a8c15f978",
+    "games/space-invaders/earth-scene.mjs": "e37246fd3dca283a44f8b7efcc75b22b69733981ae2ba5da56e44f1acde9fa6a",
+    "games/space-invaders/entry-renderer.mjs": "5a6657b18d8bafd893bff86cfc5e678198f3e2f573b7092570d6a77437070e7e",
+    "games/space-invaders/entry-sequence.mjs": "958b61fb790c3b355f2fe5b26e07cdfb28a2c37bd54e678b29aab84590132e61",
+    "games/space-invaders/entry-worker.mjs": "ff55bcba92c2af82c5763b0b433541baadb28bb8cb4fb3284ac2a3a81a0de09a",
+    "games/space-invaders/game.mjs": "0fbf624156f3dbe9b6efe7bf20076451445179ff7961d3d7082bed33285b0010",
+    "games/space-invaders/ground-controls.mjs": "db4b5064656904d3a44e906b22b496d2dbbba64fa82689670822ca1086749288",
+    "games/space-invaders/ground-entry.mjs": "6c03a858e857c2b9196893b0377fb2cf57b04056f192d4d74647e21ea519fa1d",
+    "games/space-invaders/ground-renderer.mjs": "433da8b5a1d96c5f42157572060d04f18f54a71713b21764cd21f7a732d6c6c6",
+    "games/space-invaders/ground.mjs": "c6f1c6951d77ddcf9412ae29ed16c848e30cc4cea006be64c9a437f0d441a2ae",
+    "games/space-invaders/index.html": "a70c6d3938201e3ad76766c91a87956f500ac4c09f7822c8372dbec0b81b154a",
+    "games/space-invaders/planet-profile.mjs": "5a67d863c7cbb6f2fc2a42b364b00a3437723c6e12b315f7aff8b84c7c59c426",
+    "games/space-invaders/portal.mjs": "a68726c0815ef5f3e35e041f2171d16ff3d06ae4ec59353f789122627e5d74da",
+    "games/space-invaders/prepared-surface.mjs": "e9b0fb679ae96e07c055849dbd7355e5759866077d5ed42175ce79fbad9bb18d",
+    "games/space-invaders/style.css": "3c2991a249493c4f02c765784082fb7944267b3b79511665e494b3605b078b3b",
+    "games/space-invaders/terrain-detail.mjs": "43a6d89844207301ee8f592a75b3b86d9b41db310c9bd0ad4900ec11e98e9257",
+    "games/space-invaders/terrain-scene.mjs": "987ba986916f04635bca52a06d4381d49415a003eb30df29c339d92914f02412",
+    "games/space-invaders/terrain-view.mjs": "4d5ab8076e1abef0a8b902fd13d323b980efe993bc60e68b72e3fffcb7505e53",
+    "games/space-invaders/terrain-worker.mjs": "852885762ff48bb061bcb8b82ebaa311855e8d8b1def67b0d1662ece7b28147a",
+    "games/space-invaders/terrain.mjs": "1f14765c2ad7bcd34f3cff542d3c8b80b022b7e52e49c7031c1659ead0fc482d"
+  },
+  "testedHead": "c47f071d17a3232ef6b10626f784cca2ef86bfe4"
+}

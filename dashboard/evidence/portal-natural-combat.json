@@ -1,0 +1,22 @@
+{
+  "command": "TMPDIR=\"$PWD/.tmp/browser\" PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers node deploy/test_portal_natural_combat.cjs",
+  "environment": "Linux headless Chromium; synthetic localhost district entry; default rules; software rendering",
+  "playtest": "Playtest: walk to Mara, interact, advance into occupation guard sight, wait for natural projectiles after arrival protection expires, then aim and fire through real keyboard controls. No immunity, health, lives, enemy or damage overrides. Script steers camera yaw/pitch.",
+  "expected": "Default occupation AI fires; two guards can be defeated with the retained pulse blaster and normal resources.",
+  "observed": "PASS",
+  "before": {
+    "score": 0,
+    "health": 88,
+    "lives": 3
+  },
+  "after": {
+    "remaining": 4,
+    "score": 100,
+    "health": 76,
+    "lives": 3,
+    "immune": 0,
+    "status": "active"
+  },
+  "errors": [],
+  "limitations": "Development-only district entry, not a second portal journey. Browser recording is silent; no physical GPU performance claim."
+}

@@ -35,7 +35,7 @@ async function snap(page, name) {
     await page.goto(base); await ready(page);
     assert.equal(await page.locator('#planet-lab').getAttribute('data-backend'), 'module Worker');
     await page.locator('#start').click();
-    await page.evaluate(async () => {const {game} = await import('./app.mjs'); game.wave = 3; game.newWave(); game.invulnerable = 1000; game.enemyClock = 1000;});
+    await page.evaluate(async () => {const {game} = await import('./app.mjs'); game.wave = 3; /* Survey fixture: do not enter the campaign ground mission. */ game.invulnerable = 1000; game.enemyClock = 1000;});
     await snap(page, `alien-terrain-${name}-world.png`);
     await page.locator('#planet-lab summary').click();
     // Edge: invalid configuration leaves the last valid world intact.

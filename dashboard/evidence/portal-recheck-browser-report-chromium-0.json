@@ -1,0 +1,44 @@
+{
+  "command": "TMPDIR=\"$PWD/.tmp/browser\" PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers node .tmp/portal-review-recheck.cjs",
+  "sourceManifest": "portal-source-sha256.json",
+  "environment": "Linux VPS; sandboxed headless Chromium and WebKit; software rendering; isolated synthetic profiles; source HTTP 8779",
+  "results": [
+    {
+      "engine": "chromium",
+      "version": "153.0.8010.12",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "reduced": false,
+      "observed": "PASS",
+      "diagnostics": {
+        "renderer": {
+          "meshBytes": 1512864,
+          "chunks": 115,
+          "preparationMs": 59.89999580383301,
+          "maxJobMs": 7.59999942779541,
+          "coarsePreparationMs": 16.799997329711914,
+          "terrainMeshBytes": 967680,
+          "sharedPilotMeshBytes": 74304,
+          "heldWeaponBytes": 5184,
+          "sharedHumanMeshBytes": 20736,
+          "coarseMeshBytes": 153792,
+          "meshLimitBytes": 16777216,
+          "dynamicBytes": 291168
+        },
+        "worldCells": 0,
+        "prepareCallMs": 1.8999996185302734,
+        "props": 339,
+        "actors": 9
+      },
+      "frameMs": {
+        "p50": 50,
+        "p95": 66.70000000000073,
+        "max": 83.30000000000109
+      },
+      "playtest": "Playtest: synthetic 11-pilot setup; real last-pilot F shot and duplicate scoring guard; shot against portal; normal-speed keyboard or simultaneous touch move/look crossing; no automatic pointer lock; denied-lock resume; retained resources; walk to resistance contact/newspaper, actual occupation-guard projectile, real guard kill and three district objectives; chapter end; repeat run failure/cancel/successful retry, pause during loading, context recovery or rotation, reduced graphics/motion, restart loading, destination death and campaign restart.",
+      "limitations": "Injected camera yaw for route steering; synthetic immunity isolates workflow. Failure, damage and context loss fixtures are explicit. Headless software browsers and synthetic touch events do not establish physical phone/GPU performance."
+    }
+  ]
+}

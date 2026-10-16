@@ -85,3 +85,9 @@ header:has(#skip-descent:not([hidden])) { z-index: 7; }
 #hud { max-width:calc(100vw - 32px); font-size:14px; }
 #skip-entry { font-size:12px; padding:6px; }
 @media(max-height:500px){#ground-settings{top:112px;right:4px;width:170px;max-height:40vh;}#move-stick{width:82px;height:82px;bottom:65px;}#look-pad{height:65px;bottom:75px;}#hud{top:60px;font-size:12px;}#overlay{padding:12px;max-height:70vh;overflow:auto;}#overlay p{font-size:13px;}header h1{font-size:14px;}}
+
+/* Keep the collapsed settings control above story text on short ground views. */
+@media(max-height:500px){
+ #ground-settings:not([open]){top:6px;right:124px;width:144px;max-height:34px;padding:6px 8px;font-size:12px;}
+ body:has(#portal-retry:not([hidden])) #ground-settings:not([open]){display:none;}
+}
