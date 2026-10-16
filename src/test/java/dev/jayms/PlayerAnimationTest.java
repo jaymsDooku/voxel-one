@@ -76,7 +76,7 @@ class PlayerAnimationTest {
 
     @Test
     void attackStrikesDownFromShoulderAndPlacementHasSmallerMotion() {
-        var start = PlayerAnimation.pose(0, 0, 0, true, false);
+        var start = PlayerAnimation.pose(0, 0, .18f, true, false);
         var middle = PlayerAnimation.pose(0, 0, .36f, true, false);
         var end = PlayerAnimation.pose(0, 0, .72f, true, false);
         assertEquals(Math.PI / 2, start.rightArm(), .0001);
@@ -84,15 +84,44 @@ class PlayerAnimationTest {
         assertTrue(middle.rightArm() > end.rightArm());
         assertEquals(.3f, PlayerAnimation.pose(0, 0, 1, true, false).rightArm(), .0001);
         float placingRange =
-                PlayerAnimation.pose(0, 0, 0, true, true).rightArm()
+                PlayerAnimation.pose(0, 0, .18f, true, true).rightArm()
                         - PlayerAnimation.pose(0, 0, .72f, true, true).rightArm();
         assertTrue(placingRange < (start.rightArm() - end.rightArm()) / 3);
-        float top = wristHeight(0, false),
+        float top = wristHeight(.18f, false),
                 halfway = wristHeight(.36f, false),
                 bottom = wristHeight(.72f, false);
         assertTrue(top > halfway && halfway > bottom, "First-person wrist must move downward");
-        assertEquals(top, wristHeight(1, false), .0001);
-        assertTrue(wristHeight(0, true) - wristHeight(.72f, true) < (top - bottom) / 2);
+        assertEquals(wristHeight(0, false), wristHeight(1, false), .0001);
+        assertEquals(.3f, PlayerAnimation.pose(0,0,0,true,false).rightArm(), .0001);
+        assertTrue(wristHeight(.18f, true) - wristHeight(.72f, true) < (top - bottom) / 2);
+    }
+
+    @Test
+    void swingJoinsIdleAndPhaseBoundariesWithoutSnaps() {
+        for (boolean placing : new boolean[]{false, true}) {
+            for (float boundary : new float[]{0, .18f, .72f, 1}) {
+                float before = Math.max(0, boundary - .0001f);
+                float after = Math.min(1, boundary + .0001f);
+                assertEquals(PlayerAnimation.pose(0,0,before,true,placing).rightArm(),
+                        PlayerAnimation.pose(0,0,after,true,placing).rightArm(), .002f);
+                assertEquals(wristHeight(before,placing), wristHeight(after,placing), .002f);
+            }
+        }
+    }
+
+    @Test
+    void attackTimingAgreesAtThirtySixtyAndOneHundredFortyFourFps() {
+        World world = new World();
+        world.addChunk(new ChunkPos(0,0,0), new Chunk());
+        for (int fps : new int[]{30,60,144}) {
+            Player player = new Player(new Vector3f(8,5,8),0,0,new Camera());
+            player.swing();
+            for(int frame=0;frame<fps/6;frame++) player.step(world,1f/fps,0,0,false,false);
+            assertEquals(((float)(fps/6)/fps) / Player.SWING_SECONDS,
+                    player.swingProgress(), .0001f);
+            for(int frame=0;frame<fps;frame++) player.step(world,1f/fps,0,0,false,false);
+            assertEquals(1,player.swingProgress(), .0001f);
+        }
     }
 
     private float wristHeight(float progress, boolean placing) {

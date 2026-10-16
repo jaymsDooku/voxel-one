@@ -35,20 +35,22 @@ final class ToolGripNetworkFixture implements AutoCloseable {
             try{Thread.sleep(500);}catch(InterruptedException e){return;}}});keepalive.setDaemon(true);keepalive.start();
     }
     Protocol.Pose pose(int type,float progress,float phase,float gait,float yaw,float pitch,float lift,boolean placing) throws Exception {
+        // Keep the render sweep below the production 120 messages/second limit.
+        Thread.sleep(25);
         var s=subject.spawn;
         latest=new Protocol.Pose(subject.id,s.x(),s.y()+lift,s.z(),yaw,pitch,phase,gait,lift>0,progress,type,placing);
         subject.move(latest);
-        long limit=System.nanoTime()+3_000_000_000L;
+        long limit=System.nanoTime()+10_000_000_000L;
         while(System.nanoTime()<limit) {
             subject.poll();observer.poll();
             var p=observer.players.get(subject.id);
-            if(p!=null&&p.heldItem()==type&&java.lang.Math.abs(p.swingProgress()-progress)<.01f) {
+            if(p!=null&&p.heldItem()==type&&p.placingSwing()==placing&&java.lang.Math.abs(p.swingProgress()-progress)<.01f) {
                 var remote=observer.remotePlayers.get(subject.id);
                 if(remote!=null) return remote.sample(System.nanoTime()+100_000_000L);
             }
             Thread.sleep(5);
         }
-        throw new AssertionError("Observer did not receive held/swing state");
+        throw new AssertionError("Observer did not receive held/swing state: tool="+type+" progress="+progress+" placing="+placing);
     }
     public void close() throws Exception {stopped=true;subject.close();observer.close();server.close();thread.join(3000);}
 }

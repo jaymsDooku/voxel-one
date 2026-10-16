@@ -68,7 +68,10 @@ public class ToolGripRenderCheck {
             image.setRGB(x,y,((pixels.get(i)&255)<<16)|((pixels.get(i+1)&255)<<8)|(pixels.get(i+2)&255));}
         MemoryUtil.memFree(pixels);javax.imageio.ImageIO.write(image,"png",out.resolve(name+".png").toFile());
     }
-    public static void main(String[]args)throws Exception {
+    public static void main(String[] args) throws Exception {
+        try { run(args); } finally { if(network!=null) network.close(); }
+    }
+    static void run(String[]args)throws Exception {
         network=new ToolGripNetworkFixture();
         out=Path.of(args[0]);Files.createDirectories(out);glfwInitHint(GLFW_PLATFORM,GLFW_PLATFORM_X11);if(!glfwInit())throw new AssertionError("GLFW unavailable");
         var window=new dev.jayms.window.Window(width,height,"Voxel One tool grip render check",true,true);
@@ -82,11 +85,29 @@ public class ToolGripRenderCheck {
         for(int type=191;type<=(args.length>1&&args[1].equals("baseline")?192:198);type++)for(int view=0;view<4;view++){
             render(type,view,1,0,0,-90,0,0,70);capture("grip-render-"+type+"-view"+view);glfwSwapBuffers(h);glfwPollEvents();}
         if(args.length>1&&args[1].equals("baseline")) {
-            network.close();models.close();rig.close();shader.close();glfwDestroyWindow(h);glfwTerminate();return;
+            models.close();rig.close();shader.close();glfwDestroyWindow(h);glfwTerminate();return;
         }
+        // Exercise the full attached arc for every material/category and camera.
+        for(int type=191;type<=198;type++) for(int view=0;view<4;view++) {
+            for(boolean place:new boolean[]{false,true}) {
+                placing=place;
+                for(float progress:new float[]{0,.18f,.45f,.72f,.9f,1}) {
+                    render(type,view,progress,2,.35f,-75,15,.2f,70);
+                    if(!place && (progress==.18f || progress==.72f))
+                        capture("arc-"+type+"-view"+view+"-"+(progress==.18f?"high":"low"));
+                }
+            }
+        }
+        placing=false;
         for(int w:new int[]{960,1280})for(int fov:new int[]{50,70,95}) {
             width=w;height=720;glfwSetWindowSize(h,width,height);Thread.sleep(100);glfwPollEvents();glfwSwapBuffers(h);glfwPollEvents();
-            for(int type:new int[]{191,192,193,194}){render(type,0,1,0,0,-90,0,0,fov);capture("grip-framing-"+type+"-"+width+"-fov"+fov);}
+            for(int type:new int[]{191,192,193,194}) {
+                render(type,0,1,0,0,-90,0,0,fov);capture("grip-framing-"+type+"-"+width+"-fov"+fov);
+                for(float progress:new float[]{.18f,.72f}) {
+                    render(type,0,progress,0,0,-90,0,0,fov);
+                    capture("framing-arc-"+type+"-"+width+"-fov"+fov+"-"+(progress==.18f?"high":"low"));
+                }
+            }
         }
         width=960;height=720;glfwSetWindowSize(h,width,height);Thread.sleep(100);glfwPollEvents();glfwSwapBuffers(h);glfwPollEvents();
         for(int type:new int[]{0,Blocks.STONE,Blocks.piece(Blocks.STONE,1),Blocks.piece(Blocks.STONE,2),Blocks.FLOWER_POT,Blocks.LED,Items.STICKS,tiny}) {
@@ -120,7 +141,7 @@ public class ToolGripRenderCheck {
         }
         if(highest<1.5f||!flew||!walked)throw new AssertionError("Movement fixture did not exercise walk/jump/flight");
         new ProcessBuilder("xdotool","key","--window",xid,"F10").start().waitFor();glfwPollEvents();
-        recorder.close();network.close();models.close();rig.close();shader.close();glfwDestroyWindow(h);glfwTerminate();
-        Files.writeString(out.resolve("tool-render-result.txt"),"Playtest: Linux X11 software OpenGL. Production PlayerModel, original Item voxel meshes, ShaderProgram, ScreenRecorder. All eight tools captured first person, rear, front and oblique remote observer; two synthetic loopback TLS clients: subject sends held/swing snapshots, observer receives and renders actual RemotePlayer.sample avatars. Ordinary 960x720 and wide 1280x720 projections at 50/70/95 degrees; production Main currently uses fixed 70 degrees in both views. Generic empty, Stone, half/quarter Stone, pot, custom tiny model, blue LED and sticks. F10 starts/stops production recorder via X11; 14-second controlled 15 FPS clip: first-person and remote idle, downward attack/recovery, walking, gravity/jump, flight, yaw/pitch and a gentler Stone placement gesture. Animation and movement use Player.step at 1/15 second and the production swing durations; does not verify keyboard timing; live multiplayer observer rendering verified. No GL errors. Visual inspection required.\n");
+        recorder.close();models.close();rig.close();shader.close();glfwDestroyWindow(h);glfwTerminate();
+        Files.writeString(out.resolve("tool-render-result.txt"),"Playtest: Linux X11 software OpenGL. Production PlayerModel, original Item voxel meshes, ShaderProgram, ScreenRecorder. All eight tools captured first person, rear, front and oblique remote observer; two synthetic loopback TLS clients: subject sends held/swing snapshots, observer receives and renders actual RemotePlayer.sample avatars. Ordinary 960x720 and wide 1280x720 projections at 50/70/95 degrees; production Main currently uses fixed 70 degrees in both views. Generic empty, Stone, half/quarter Stone, pot, custom tiny model, blue LED and sticks. F10 starts/stops production recorder via X11; 14 seconds of simulated movement, dt=1/15 second, recorded with wall-clock timestamps: first-person and remote idle, downward attack/recovery, walking, gravity/jump, flight, yaw/pitch and a gentler Stone placement gesture. Animation and movement use Player.step at 1/15 second and the production swing durations; does not verify keyboard timing; live multiplayer observer rendering verified. No GL errors. Visual inspection required.\n");
     }
 }

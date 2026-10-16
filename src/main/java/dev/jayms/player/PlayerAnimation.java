@@ -32,13 +32,14 @@ public final class PlayerAnimation {
         float swing = attack(progress) * strength;
         float right = rest;
         if (progress < 1) {
-            // Lift immediately to shoulder height, strike down, then recover to the walk pose.
-            float start = placing ? .45f : (float) Math.PI / 2;
-            float end = placing ? .08f : -.18f;
-            right =
-                    progress <= .72f
-                            ? start + (end - start) * smooth(progress / .72f)
-                            : end + (rest - end) * smooth((progress - .72f) / .28f);
+            // A short wind-up joins idle continuously, then a downstroke and recovery.
+            float high = placing ? .45f : (float) Math.PI / 2;
+            float low = placing ? .08f : -.18f;
+            right = progress < .18f
+                    ? rest + (high - rest) * smooth(progress / .18f)
+                    : progress < .72f
+                            ? high + (low - high) * smooth((progress - .18f) / .54f)
+                            : low + (rest - low) * smooth((progress - .72f) / .28f);
         }
         return new Pose(-gait, right, gait * 1.4f, -gait * 1.4f, -swing * .18f, swing);
     }
@@ -52,19 +53,19 @@ public final class PlayerAnimation {
             float phase, float amount, float progress, boolean placing) {
         float strength = placing ? .25f : 1;
         float swing = attack(progress) * strength;
-        float drop =
-                progress >= 1
-                        ? 0
-                        : progress <= .72f
-                                ? smooth(progress / .72f)
-                                : 1 - smooth((progress - .72f) / .28f);
+        float lift = progress < .18f ? smooth(progress / .18f)
+                : progress < .72f ? 1 - smooth((progress - .18f) / .54f) : 0;
+        float drop = progress < .18f ? 0
+                : progress < .72f ? smooth((progress - .18f) / .54f)
+                : 1 - smooth((progress - .72f) / .28f);
+        lift *= strength;
         drop *= strength;
         float bob = (float) Math.sin(phase) * amount * .015f;
         return new Matrix4f()
-                .translate(.52f - swing * .16f, -.90f + bob - drop * .23f, -.7f - swing * .06f)
+                .translate(.52f - swing * .16f, -.90f + bob + lift * .18f - drop * .23f, -.7f - swing * .06f)
                 .rotateY(-.15f - swing * .3f)
                 .rotateZ(-.12f - swing * .15f)
-                .rotateX(-.35f - drop * .35f);
+                .rotateX(-.35f + lift * .32f - drop * .35f);
     }
 
     private static float smooth(float t) {

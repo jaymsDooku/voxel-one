@@ -1,0 +1,12 @@
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.026 s -- in dev.jayms.HeldToolPoseTest
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.375 s -- in dev.jayms.PlayerAnimationTest
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.607 s -- in dev.jayms.PlayerTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.037 s -- in dev.jayms.PlayerCameraTest
+Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.310 s -- in dev.jayms.ItemCraftingTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.097 s -- in dev.jayms.InventoryHudTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in dev.jayms.RemotePlayerTest
+
+Final production source SHA-256
+7f00c1c353c164d22099b8004bcc565d4ccf677b07469bb6b5627d8421a52fad  src/main/java/dev/jayms/player/HeldToolPose.java
+f4736172ff622b242da314a1eed2b6dcc3b8762d5128c0f441192e7f42f639d8  src/main/java/dev/jayms/player/PlayerAnimation.java
+e1a863c7274f3d86b02437e716ecab3eeb418ad9650e47780f83813ae062db65  src/main/java/dev/jayms/player/PlayerModel.java

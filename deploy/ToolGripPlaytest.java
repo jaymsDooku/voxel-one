@@ -7,6 +7,10 @@ import static org.lwjgl.glfw.GLFW.*;
 
 /** Real renderer and input, isolated synthetic inventory; shares the sandbox fixture driver. */
 public class ToolGripPlaytest extends SandboxPlaytest {
+    static void capture(String id, Path path) throws Exception {
+        x("windowraise",id);
+        SandboxPlaytest.capture(id,path);
+    }
     static void equip(int type) throws Exception {
         onFrame(() -> { var inv=new Inventory(); if(type!=0)inv.add(type,8); local().inventory=inv;
             ((InventoryHud)get("inventoryHud")).selected=0; return null; });
@@ -32,18 +36,19 @@ public class ToolGripPlaytest extends SandboxPlaytest {
                         for(int dy=1;dy<6;dy++)w.apply(new Protocol.Edit(dx,fixtureY+dy,dz,0)); }
                     var p=new dev.jayms.player.Player(new org.joml.Vector3f(8.5f,fixtureY+1,24.5f),-90,0,(Camera)get("camera"));
                     p.toggleFlight(); set("player",p); warmFixture(); return null; });
-                int[] tools=phase.equals("before")?new int[]{191,192}:new int[]{191,192};
+                int[] tools=(phase.equals("before") || args.length>2&&(args[2].equals("quick") || args[2].equals("framing")))?new int[]{191,192}:new int[]{191,192,193,194,195,196,197,198};
                 for(int tool:tools) {
                     equip(tool);
-                    for(int view=0;view<3;view++) {
+                    for(int view=0;view<(args.length>2&&args[2].equals("framing")?1:3);view++) {
                         require(player().cameraView().ordinal()==view,"Capture view "+view);
                         capture(id,out.resolve("tool-grip-verified-"+phase+"-"+tool+"-view"+view+".png"));
+                        if(args.length>2&&args[2].equals("framing")) continue;
                         onFrame(() -> {player().toggleView();return null;});
                         final int expected=(view+1)%3;
                         await(() -> player().cameraView().ordinal()==expected,"F5 view "+expected);
                     }
                 }
-                if(!phase.equals("before")) {
+                if(!phase.equals("before") && !(args.length>2&&args[2].equals("framing"))) {
                     equip(195); x("key","--window",id,"F10"); Thread.sleep(1000); onFrame(() -> {player().swing();return null;});
                     x("keydown","w"); Thread.sleep(700); x("keyup","w");
                     x("keydown","space"); Thread.sleep(300); x("keyup","space");
@@ -53,7 +58,7 @@ public class ToolGripPlaytest extends SandboxPlaytest {
                         equip(item); capture(id,out.resolve("tool-grip-generic-"+item+".png"));
                     }
                 }
-                if (!phase.equals("before")) {
+                if (!phase.equals("before") && !(args.length>2&&args[2].equals("framing"))) {
                     equip(Blocks.STONE);
                     onFrame(() -> {var p=new dev.jayms.player.Player(new org.joml.Vector3f(8.5f,fixtureY+1,24.5f),-90,0,(Camera)get("camera"));p.toggleFlight();set("player",p);
                         ((World)get("world")).apply(new Protocol.Edit(8,fixtureY+2,21,Blocks.STONE));warmFixture();return null;});
@@ -62,7 +67,7 @@ public class ToolGripPlaytest extends SandboxPlaytest {
                     require(((World)get("world")).sample(8,fixtureY+2,22)==Blocks.STONE,"Block placed on aimed face");
                     capture(id,out.resolve("tool-grip-placement.png"));
                 }
-                Files.writeString(out.resolve("tool-grip-"+phase+"-result.txt"),"Playtest: executed Linux X11 software OpenGL isolated Sandbox profile. Equipped tools "+java.util.Arrays.toString(tools)+"; captured first-person, rear and front F5 views. "+(phase.equals("before")?"Baseline captures.":"F10: idle, harness-triggered production attack/recovery, W movement, flight rise, rear and front views. Generic empty and Stone captured. Production placement callback consumes one Stone and places it on the aimed face. Visual inspection required.")+"\n");
+                Files.writeString(out.resolve("tool-grip-"+phase+"-result.txt"),"Playtest: executed Linux X11 software OpenGL isolated Sandbox profile. Equipped tools "+java.util.Arrays.toString(tools)+"; captured "+(args.length>2&&args[2].equals("framing")?"first-person views. ":"first-person, rear and front F5 views. ")+(phase.equals("before")?"Baseline captures.":args.length>2&&args[2].equals("framing")?"Final-source camera framing only; no movement or placement in this run.":"F10: idle, harness-triggered production attack/recovery, W movement, flight rise, rear and front views. Generic empty and Stone captured. Production placement callback consumes one Stone and places it on the aimed face. Visual inspection required.")+"\n");
             }catch(Throwable e){failure=e; try{Files.writeString(out.resolve("tool-grip-"+phase+"-result.txt"),"FAIL "+e.getClass().getSimpleName()+": "+e.getMessage());}catch(Exception ignored){}}
             finally {if(handle!=0)glfwSetWindowShouldClose(handle,true);}
         }); driver.setDaemon(true); driver.start();

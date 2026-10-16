@@ -145,13 +145,17 @@ public class PlayerModel implements AutoCloseable {
                         player.placingSwing());
         // Keep tool and fist together, farther from the lens and inside narrow viewports.
         // Ordinary items retain their existing first-person presentation.
-        if (Items.tool(player.heldItem())) hand.translateLocal(-.26f, -.03f, -.20f);
+        if (Items.tool(player.heldItem())) hand = HeldToolPose.firstPersonHand(hand);
         shader.setInt("uVertexColor", 0);
         shader.setInt("uInstanced", 0);
         skin(shader);
         box(shader, new Matrix4f(hand).translate(0, .25f, 0), LIMB_WIDTH, .5f, DEPTH);
         shirt(shader);
-        box(shader, hand, LIMB_WIDTH, .25f, DEPTH);
+        // The farther tool camera pose can expose the sleeve base at wide FOV.
+        // Extend only its lower end off screen; the fist and grip stay unchanged.
+        boolean tool = Items.tool(player.heldItem());
+        box(shader, tool ? new Matrix4f(hand).translate(0, -1.5f, 0) : hand,
+                LIMB_WIDTH, tool ? 1.75f : .25f, DEPTH);
         held(
                 player.heldItem(),
                 player.heldColor(),
