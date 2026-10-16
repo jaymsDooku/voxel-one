@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-16T03:03:48+00:00",
+  "updatedAt": "2026-10-16T22:21:35+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -56,8 +56,8 @@
         }
       ],
       "status": "in_progress",
-      "note": "Review reproduction check on f8ea0fb5: 86 unit tests and isolated Chromium portal/district/lifecycle playtest passed again. Published exact-head video and arrival image match local bytes. Fresh recheck report/media saved; no game fault reproduced or speculative code change made. Awaiting independent review.",
-      "updatedAt": "2026-10-15T23:37:21+00:00"
+      "note": "Git recovery complete on c6891730; game hashes unchanged. Fresh final-source checks passed: 86 unit tests and all four Chromium/WebKit desktop/touch portal, combat, objective and recovery workflows. Fresh 48-second video and screenshots saved. Awaiting controller publication and independent review; no deployment performed.",
+      "updatedAt": "2026-10-16T22:21:35+00:00"
     },
     {
       "id": "skip-unchanged-shared-engine-block-writes",
