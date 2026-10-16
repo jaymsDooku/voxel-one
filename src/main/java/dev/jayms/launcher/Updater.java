@@ -60,6 +60,12 @@ public final class Updater {
     }
 
     public Result update(Platform platform, Consumer<String> status) throws IOException {
+        return update(platform, status, null);
+    }
+
+    /** Catalog launches permit only explicitly tested engine/client source revisions. */
+    public Result update(Platform platform, Consumer<String> status, Set<String> clientSources) throws IOException {
+        Set<String> allowed = clientSources == null ? null : Set.copyOf(clientSources);
         if (cancelled) throw new IOException("Update cancelled");
         Files.createDirectories(cache);
         try (FileChannel channel =
@@ -75,6 +81,8 @@ public final class Updater {
                     properties.load(new ByteArrayInputStream(read(response, 32768, status, false)));
                 }
                 Release release = release(properties, platform);
+                if (allowed != null && !allowed.contains(release.revision))
+                    throw new IOException("Catalog/client mismatch: published client is not compatible. Refresh the catalog.");
                 Path target = path(release, platform);
                 boolean updated = false;
                 if (!verified(target, release) && verified(legacyPath(release, platform), release)) {
@@ -118,9 +126,12 @@ public final class Updater {
             } catch (IOException | IllegalArgumentException e) {
                 if (cancelled || Thread.currentThread().isInterrupted()) throw new IOException("Update cancelled", e);
                 Result old = installed(platform);
+                if (old != null && allowed != null && !allowed.contains(old.revision))
+                    throw new IOException("Catalog/client mismatch: installed client is not compatible and no compatible update is available.", e);
                 if (old == null)
                     throw new IOException("Unable to install Voxel One: " + e.getMessage(), e);
-                String warning = "Update unavailable. Starting your installed version.";
+                String warning = allowed == null ? "Update unavailable. Starting your installed version."
+                        : "Update unavailable or incompatible. Starting your compatible installed version.";
                 status.accept(warning);
                 return new Result(old.client, old.revision, false, warning);
             }
