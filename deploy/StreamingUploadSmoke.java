@@ -67,10 +67,20 @@ public class StreamingUploadSmoke {
         }
         check(glGetError()==GL_NO_ERROR,"Concurrent lane cleanup GL error absent");
     }
-    static void fullVolume(World world,Path out)throws Exception {
-        var volume=LightVolume.bake(-48,-32,-48,96,128,96,1,(x,y,z)->WorldVoxels.encode(y==0?Blocks.STONE:x==1&&y==1&&z==1?Blocks.LED:Blocks.AIR),true);
+    static void fullVolume(World world,Path out,boolean direct)throws Exception {fullVolume(world,out,direct,false);}
+    static void fullVolume(World world,Path out,boolean direct,boolean refined)throws Exception {
+        Files.createDirectories(out);
+        var detail=new dev.jayms.net.model.SparseVoxelOctree(16);
+        detail.fill(0,0,0,8,16,16,WorldVoxels.encode(Blocks.GLASS));
+        detail.fill(0,0,0,1,1,1,WorldVoxels.encode(new Protocol.Edit(1,1,1,Blocks.LED).withColor(0x30a0ff)));detail.freeze();
+        var volume=LightVolume.bake(-48,-32,-48,96,128,96,1,new LightVolume.Sampler(){
+            public int value(int x,int y,int z){return refined&&x==1&&y==1&&z==1?-1:WorldVoxels.encode(y==0?Blocks.STONE:x==1&&y==1&&z==1?Blocks.LED:Blocks.AIR);}
+            public dev.jayms.net.model.SparseVoxelOctree detail(int x,int y,int z){return detail;}
+        },true);
+        check(volume.uniformRoots()!=refined,"Requested full-volume root representation");
+        if(refined)check(volume.fine.length>1,"Refined fixture contains a real fine-light payload");
         var times=new ArrayList<Long>();var initialTimes=new ArrayList<Long>();var csv=new StringBuilder("generation,pump,elapsed_ms,bytes,phase\n");long total=0;int maximum=0,initialMaximum=0;int[] pixelIds;
-        try(var stores=new LightingStores()){
+        try(var stores=new LightingStores(direct)){
             pixelIds=stores.pixelBuffers.clone();stores.warmDefaults();glFlush();long allocations=stores.allocations;SceneLightingUpload.Resources active=null;
             for(int generation=0;generation<3;generation++){
                 long limit=System.nanoTime()+5_000_000_000L;while(!stores.available(true)&&System.nanoTime()<limit){glFlush();Thread.sleep(1);}check(stores.available(true),"Full-volume retired stores available");
@@ -86,7 +96,7 @@ public class StreamingUploadSmoke {
                             glBindBuffer(GL_TEXTURE_BUFFER,next.fineBuffer());
                             for(int worldCell:new int[]{1,2}){int cell=worldCell-volume.x+volume.width*(worldCell-volume.y+volume.height*(worldCell-volume.z));glBufferSubData(GL_TEXTURE_BUFFER,cell*4L,new int[]{Integer.MAX_VALUE});}
                             glBindBuffer(GL_TEXTURE_BUFFER,0);lookup(volume,next,active.atlas(),true);
-                        }
+                        }else lookup(volume,next,active.atlas(),true);
                     }else{
                     glBindTexture(GL_TEXTURE_3D,next.atlas());int aw=glGetTexLevelParameteri(GL_TEXTURE_3D,0,GL_TEXTURE_WIDTH),ah=glGetTexLevelParameteri(GL_TEXTURE_3D,0,GL_TEXTURE_HEIGHT),ad=glGetTexLevelParameteri(GL_TEXTURE_3D,0,GL_TEXTURE_DEPTH);var roots=MemoryUtil.memAllocInt(aw*ah*ad);try{glGetTexImage(GL_TEXTURE_3D,0,GL_RED_INTEGER,GL_INT,roots);for(int j=0;j<volume.roots.length;j++)check(roots.get(j)==volume.roots[j],"Full-size root readback");}finally{MemoryUtil.memFree(roots);}
                     }
@@ -98,7 +108,7 @@ public class StreamingUploadSmoke {
             glFlush();long cancelLimit=System.nanoTime()+5_000_000_000L;while(!stores.available(true)&&System.nanoTime()<cancelLimit){glFlush();Thread.sleep(1);}check(stores.available(true),"Cancellation target available");
             try(var cancelled=new SceneLightingUpload(world,volume,null,true,stores)){
                 cancelled.pump(System.nanoTime()+1_000_000L,256*1024);check(!cancelled.ready(),"Large PBO upload remains staged");
-                world.setBlock(3,2,3,Blocks.BRICKS);check(!cancelled.valid(world),"Edit cancels in-flight PBO replacement");
+                world.setBlock(3,2,3,direct?Blocks.STONE:Blocks.BRICKS);check(!cancelled.valid(world),"Edit cancels in-flight PBO replacement");
             }
             cancelLimit=System.nanoTime()+5_000_000_000L;while(!stores.available(true)&&System.nanoTime()<cancelLimit){glFlush();Thread.sleep(1);}check(stores.available(true),"Cancelled targets retire without owner-thread waits");
             try(var replacement=new SceneLightingUpload(world,volume,null,true,stores)){
@@ -108,10 +118,12 @@ public class StreamingUploadSmoke {
                 stores.releaseTexture(active.atlas());stores.releaseTexture(active.irradiance());stores.releaseTexture(active.fineTexture());stores.releaseBuffer(active.fineBuffer());active.transport().close();active=next;
             }
             stores.releaseTexture(active.atlas());stores.releaseTexture(active.irradiance());stores.releaseTexture(active.fineTexture());stores.releaseBuffer(active.fineBuffer());active.transport().close();
+            check(stores.largestPixelCopy>0&&stores.largestPixelCopy<=LightingStores.PIXEL_UNIT_BYTES,"Actual transfer units stay bounded");
+            check(direct?stores.directCopies>0&&stores.mappedCopies==0:stores.mappedCopies>0&&stores.directCopies==0,"Requested pixel path was exercised exclusively");
         }
         for(int id:pixelIds)check(!glIsBuffer(id),"All pixel staging buffers released on context thread");
         times.sort(Long::compare);Files.writeString(out.resolve("full-volume-pumps.csv"),csv);
-        Files.writeString(out.resolve("full-volume-result.txt"),"Playtest: PASS. Full96x128x96 volume, three prewarmed generations including buffer-prefix GI, initial8MiB/8ms and normal4MiB/1ms test pump caps;1MiB maximum transfer units. Exact roots/irradiance; all half-float radiance mips, distance and probes read back; zero new store allocations;in-flight edit cancellation/restart readback;16 fenced staging buffers (16MiB) cleaned up. Pump p50="+times.get(times.size()/2)/1e6+" ms; p99="+times.get(Math.min(times.size()-1,(int)Math.ceil(times.size()*.99)-1))/1e6+" ms; worst="+times.get(times.size()-1)/1e6+" ms; maximum pump bytes="+maximum+"; initial maximum bytes="+initialMaximum+"; initial worst ms="+initialTimes.stream().mapToLong(Long::longValue).max().orElse(0)/1e6+"; total bytes="+total+". Isolated GL integration, not game frame timing.\n");
+        Files.writeString(out.resolve("full-volume-result.txt"),"Playtest: PASS. Full96x128x96 volume, refined="+refined+"; three prewarmed generations including buffer-prefix GI, initial8MiB/8ms and normal4MiB/1ms test pump caps;256KiB maximum transfer units. Exact roots/irradiance; all half-float radiance mips, distance and probes read back; zero new store allocations;in-flight edit cancellation/restart readback;pixel path="+(direct?"direct client memory":"fenced mapped PBO")+";64 preallocated staging buffers (16MiB) cleaned up. Pump p50="+times.get(times.size()/2)/1e6+" ms; p99="+times.get(Math.min(times.size()-1,(int)Math.ceil(times.size()*.99)-1))/1e6+" ms; worst="+times.get(times.size()-1)/1e6+" ms; maximum pump bytes="+maximum+"; initial maximum bytes="+initialMaximum+"; initial worst ms="+initialTimes.stream().mapToLong(Long::longValue).max().orElse(0)/1e6+"; total bytes="+total+". Isolated GL integration, not game frame timing.\n");
     }
     static void set(Object object,String name,Object value)throws Exception{var f=object.getClass().getDeclaredField(name);f.setAccessible(true);f.set(object,value);}
     static void ownerBudgets()throws Exception{
@@ -128,7 +140,11 @@ public class StreamingUploadSmoke {
             set(renderer,"desiredVolume",LightVolume.bake(0,0,0,2,2,2,(x,y,z)->0));renderer.prepareFocus(world,0,0);check(renderer.ownerBudgetNanos==4_000_000L,"Useful prefetch upload gets bounded service before coverage is lost");set(renderer,"desiredVolume",null);
             try(var pendingSky=new SkyVisibilityScheduler()){set(renderer,"desiredSky",sky(pendingSky,world));renderer.prepareFocus(world,0,0);check(renderer.ownerBudgetNanos==4_000_000L,"Sky replacement gets bounded service while nearby GI remains usable");set(renderer,"desiredSky",null);}
             set(renderer,"lastVolumeLatency",60_000_000_000L);set(renderer,"previousFocusTime",System.nanoTime()-1_000_000_000L);
-            renderer.prepareFocus(world,1,0);var request=renderer.getClass().getDeclaredField("requestedX");request.setAccessible(true);check(request.getFloat(renderer)<=32&&request.getFloat(renderer)>=24,"Moving forecast stays within two chunk widths of active coverage");
+            renderer.prepareFocus(world,1,0);var request=renderer.getClass().getDeclaredField("requestedX");request.setAccessible(true);check(request.getFloat(renderer)<=33&&request.getFloat(renderer)>=24,"Moving forecast stays within two chunk widths of current camera");
+            set(renderer,"previousFocusTime",System.nanoTime()-1_000_000_000L);
+            renderer.prepareFocus(world,40,0);check(request.getFloat(renderer)>56&&request.getFloat(renderer)<=72,"Forward camera at old field edge must not forecast behind itself");
+            set(renderer,"previousFocusTime",System.nanoTime()-1_000_000_000L);
+            renderer.prepareFocus(world,39,0);check(request.getFloat(renderer)>=7&&request.getFloat(renderer)<23,"Reversal lead is bounded relative to actual camera");
             try(var other=new World(43)){check(!renderer.nearLightingReady(other,0,0),"Previous world cannot mark a new spawn ready");}
             world.setBlock(0,0,0,Blocks.STONE);renderer.prepareFocus(world,0,0);check(renderer.ownerBudgetNanos==4_000_000L,"Local edit invalidation restores catch-up allowance");renderer.prepareFocus(world,20,0);check(request.getFloat(renderer)==20,"Invalidated local coverage prioritizes the actual camera");
             renderer.prepareFocus(world,2048,0);check(renderer.ownerBudgetNanos==4_000_000L,"Teleport never receives a second startup allowance");check(request.getFloat(renderer)==2048,"Teleport bypasses old-field forecast clamp");
@@ -256,7 +272,10 @@ public class StreamingUploadSmoke {
                     }
                     stores.releaseTexture(active.atlas());stores.releaseTexture(active.irradiance());stores.releaseTexture(active.fineTexture());stores.releaseBuffer(active.fineBuffer());active.transport().close();pooledAllocations=stores.allocations;
                 }
-                fullVolume(world,out);
+                fullVolume(world,out.resolve("mapped"),false);
+                fullVolume(world,out.resolve("direct"),true);
+                fullVolume(world,out.resolve("mapped-refined"),false,true);
+                fullVolume(world,out.resolve("direct-refined"),true,true);
                 check(!glIsTexture(resources.atlas())&&!glIsTexture(resources.irradiance())&&!glIsBuffer(resources.fineBuffer()),"Resources released on context thread");check(glGetError()==GL_NO_ERROR,"Final GL error absent");
                 Files.writeString(out.resolve("result.txt"),"Playtest: PASS. GL 3.3 staged upload integration on inherited role display; Mesa llvmpipe; synthetic world. Exact GPU readback of sky/fine roots, fine nodes and irradiance; byte-cap progress, sky-only reuse, edit cancellation and context-thread cleanup. Pumps="+pumps+", max bytes="+maxBytes+", total bytes="+totalBytes+", max owner pump ms="+maxNanos/1e6+"; pooled max pump ms="+pooledMaxNanos/1e6+", pooled warm max pump ms="+pooledWarmMaxNanos/1e6+", two-generation allocations="+pooledAllocations+"; transport allocation ms="+transportAllocationNanos/1e6+", mipmap ms="+transportMipmapNanos/1e6+". Standalone integration, not a game frame-time claim.\n");
             }

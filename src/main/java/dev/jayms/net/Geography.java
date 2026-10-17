@@ -29,12 +29,7 @@ public final class Geography {
     private final boolean oceans;
     private final long seed;
     private final List<Reach> reaches;
-    private final Map<Long, Fields> cache =
-            new LinkedHashMap<>(4096, .75f, true) {
-                protected boolean removeEldestEntry(Map.Entry<Long, Fields> e) {
-                    return size() > 32768;
-                }
-            };
+    private final LongLruCache<Fields> cache = new LongLruCache<>(32768);
 
     public Geography(long seed) { this(seed, false); }
 
@@ -110,7 +105,8 @@ public final class Geography {
 
     public synchronized Fields fields(int x, int z) {
         long key = ((long) x << 32) ^ (z & 0xffffffffL);
-        return cache.computeIfAbsent(key, k -> sample(x, z));
+        Fields cached=cache.get(key);if(cached!=null)return cached;
+        Fields result=sample(x,z);cache.put(key,result);return result;
     }
 
     // A broad open sea beyond a seeded, gently curved shore; includes the pilot river mouth.

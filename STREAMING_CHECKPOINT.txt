@@ -1,7 +1,10 @@
-Ready for independent review of active sky cancellation fix. Prior headf33a94abc17b6b06e917a836ec9a694cefd2a414; reviewbase403033b9f53ce66063982879c6e2daff684a427b; PR73. No owner answer needed.
-Current JAR3aa4c03db94167b2c038acf573c9566958bb9141d79fa3bb66ae4b7906572f45; source/helper hashes sky-cancellation-source.json.
-Changes: track/cancel active TerrainScheduler preparation; cooperative sky build/traversal/sort/packing/merge checks; all-step Main/World cleanup with suppressed errors and original-error preservation. Failed switches destroy window/context. Defaults/quality/generator versions unchanged.
-Executed:160tests/package; active build/merge repro old5000ms watchdog withrunningbody -> fixed4.073/0.072ms exited/cancelled; native active-switch, failure-switch, failure-run; full GPU upload/readback/cancellation/reuse/cleanup;65frame offline100kedit native video workflow. F10sky-cancellation-f10.mp4 all10frames decoded,509123bytes,midpoint/final screenshot inspected.
-Evidence sky-cancellation-playtest.txt, validation.json, before/after.csv, tests.json, native mode receipts, uploadreports, source/artifacthashes and diffaudit. All local,pending controller publication. No active jobs/delegates. Helper failure resolvedself.
-Historical f33a94 matched performance/travel/soak results stay historical; no new FPS distributions claimed. Existing2ms tail/coverage limits and physical WindowsGPU stable-rollout gate remain. No unrelated deletions/conflicts/rebase; full diff audit preserves otherfeatures/progressitems.
-Controller owns commit/push/integration/publication/review/release. If integration changes source, rerun meaningful checks/media. Do not stage/commit/push/merge/deploy from agent.
+Ready for independent review. All implementation edits and sanitized evidence preserved, unpublished. No active test processes or delegate tasks remain.
+Branch: feature/queue-39633335636632622d376365352d343837342d393634392d313362663933393263323038
+Current committed HEAD: 8b4d3f9fdbab6199499c4ce82e9996835f069800
+Review base: 403033b9f53ce66063982879c6e2daff684a427b
+Source SHA256: fcf8e949d4e7b6e4ce47ed0eac8d2781050aff8cf0da75edbe0a86ead9f5d10e
+Feature JAR SHA256: 9ed588a908f7d5ac99ef016c49edb9ca32be9aa1453a79e0bce760fbfc873beb
+Validation: 164 tests passed; six matched unrecorded 166-sample runs; dense visual comparison; trace/JFR and CPU-only calibration; offline/video/multiplayer/City/world-switch/travel; four full-volume GPU upload paths; 64-cycle GL soak; active switch and both failure-cleanup checks. See dashboard/evidence/owner-direct-validation.json, owner-direct-summary.txt and owner-direct-playtest.txt.
+Cold owner elapsed p99 reduced 95.23–97.84%; cold frame p99 improved in all three pairs. Near visible GI coverage rose 59.37% to 89.62%, with no lower-coverage matched cold/reversal frame. Six cold gaps remain. The 2 ms elapsed target remains unmet; all-route tails are mixed. Physical Windows GPU qualification gates stable rollout.
+F10 owner-direct-f10.mp4: 530593 bytes,18.176 seconds; all 10 images decoded, midpoint inspected. Pending controller publication.
+Next: controller stages/commits/pushes existing feature branch and artifacts, runs hosted checks and hands exact head to independent review. Do not self-approve, merge or deploy. If master integration changes game source, rerun meaningful checks and media on resulting source. No owner answer needed.

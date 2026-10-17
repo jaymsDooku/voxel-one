@@ -74,6 +74,7 @@ final class SceneLightingUpload implements AutoCloseable {
     private static void configure(){glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_WRAP_R,GL_CLAMP_TO_EDGE);}
     int pump(long deadline,int byteBudget) {return pump(deadline,byteBudget,LightingStores.PIXEL_UNIT_BYTES);}
     int pump(long deadline,int byteBudget,int transferUnit) {
+        int trace=dev.jayms.OwnerTrace.begin("lighting.pump");try{
         if(transferUnit<=0||transferUnit>LightingStores.PIXEL_UNIT_BYTES)throw new IllegalArgumentException("Lighting transfer unit");
         int bytes=0;
         while(phase<4&&System.nanoTime()<deadline) {
@@ -126,6 +127,8 @@ final class SceneLightingUpload implements AutoCloseable {
             }
         }
         if(stores!=null)stores.flushPixels();glActiveTexture(GL_TEXTURE0);return bytes;
+
+        }finally{dev.jayms.OwnerTrace.end(trace,byteBudget);}
     }
     private static final int[] EMPTY={0};
     boolean ready(){return phase==4;}

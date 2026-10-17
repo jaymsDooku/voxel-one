@@ -64,6 +64,7 @@ public final class WorldLighting implements AutoCloseable {
         }
         void releasePayload(){chunks=null;overrides=null;}
         boolean pump(long deadline) {
+        int trace=dev.jayms.OwnerTrace.begin("gi.capture");try{
             int steps=0;
             while(System.nanoTime()<deadline&&steps++<1024) {
                 if(cells.hasNext()){
@@ -76,7 +77,9 @@ public final class WorldLighting implements AutoCloseable {
                 if(chunk!=null)chunks[i]=chunk.snapshot();else{editing=i;cells=world.editedCellsInChunk(p).iterator();}
             }
             return index==288&&!cells.hasNext();
-        }
+
+        }finally{dev.jayms.OwnerTrace.end(trace,index);}
+    }
     }
 
     static float skyVisibility(WorldSkyVisibility sky,boolean[] ceilings,int cx,int cz,float x,float y,float z){
@@ -113,6 +116,7 @@ public final class WorldLighting implements AutoCloseable {
         return updateInternal(world,px,pz,actualX,actualZ,skyStrength,dynamicSky,prepared==null?null:prepared.data,key,completionKey,deadline,allowPrepare,true,collect);
     }
     private LightVolume updateInternal(World world,float px,float pz,float actualX,float actualZ,float skyStrength,boolean dynamicSky,WorldSkyVisibility globalSky,Object globalSkyKey,Object completionKey,long deadline,boolean allowPrepare,boolean relevant,boolean collect){
+        int trace=dev.jayms.OwnerTrace.begin("gi.update");try{
         if(world.isClosed()||System.nanoTime()>=deadline)return null;
         int cx = Math.floorDiv((int) Math.floor(px), 16) * 16,
                 cz = Math.floorDiv((int) Math.floor(pz), 16) * 16;
@@ -137,7 +141,8 @@ public final class WorldLighting implements AutoCloseable {
                 pending = null;submittedCapture.releasePayload();submittedCapture=null;
             }
         }
-        if (allowPrepare && pending == null
+        // Let the caller occupy the GPU slot before considering another capture.
+        if (result == null && allowPrepare && pending == null
                 && (acceptedCapture==null||!acceptedCapture.valid(world,cx,cz)||acceptedModels!=world.models().revision()||acceptedWorld!=world||cx != centerX
                         || cz != centerZ
                         || revision != Capture.stamp(world,cx,cz)
@@ -216,6 +221,8 @@ public final class WorldLighting implements AutoCloseable {
                             });
         }
         return result;
+
+        }finally{dev.jayms.OwnerTrace.end(trace,0);}
     }
 
     /**

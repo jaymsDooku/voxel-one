@@ -89,11 +89,11 @@ public final class RenderPipeline implements AutoCloseable {
         requestedX=x+(Math.abs(vx)<.001f?0:Math.max(-80,Math.min(80,(float)(vx*horizon)+Math.copySign(24,vx))));
         requestedZ=z+(Math.abs(vz)<.001f?0:Math.max(-80,Math.min(80,(float)(vz*horizon)+Math.copySign(24,vz))));
         if(!SkyVisibilityScheduler.ceilingReady(desiredSky,world,requestedX,requestedZ)&&SkyVisibilityScheduler.ceilingReady(desiredSky,world,x,z)){requestedX=x;requestedZ=z;}
-        // Advance at most two chunk widths from usable coverage. Wider jumps create
-        // a gap between successive near-camera fields, even when upload is ready.
+        // Bound lead relative to the current camera. Clamping against the OLD
+        // field center can request terrain behind a moving camera near its edge.
         if(volume!=null&&x>=volume.x&&x<volume.x+volume.width&&z>=volume.z&&z<volume.z+volume.length&&activeVolumeFence!=null&&activeVolumeFence.valid(world,activeVolumeFence.x,activeVolumeFence.z)){
-            requestedX=Math.max(volume.x+16,Math.min(volume.x+80,requestedX));
-            requestedZ=Math.max(volume.z+16,Math.min(volume.z+80,requestedZ));
+            requestedX=Math.max(x-32,Math.min(x+32,requestedX));
+            requestedZ=Math.max(z-32,Math.min(z+32,requestedZ));
         }else{requestedX=x;requestedZ=z;} // Missing/stale coverage needs the camera's area first.
         focusWorld=world;previousFocusX=x;previousFocusZ=z;previousFocusTime=now;focusPrepared=true;
         boolean ready=nearLightingReady(world,x,z);
@@ -214,6 +214,7 @@ public final class RenderPipeline implements AutoCloseable {
         try{updateScene(world,x,z,start+Math.max(0,ownerNanos));}finally{lightingUploadNanos=Math.max(0,System.nanoTime()-start-skyBuildNanos-lightingNanos-sceneNanos);sceneNanos+=focusNanos;lightingStoreAllocations=lightingStores.allocations-allocations;lightingStoreNanos=lightingStores.allocationNanos-allocationNanos;focusPrepared=false;}
     }
     private void updateScene(World world,float x,float z,long deadline) {
+        int trace=dev.jayms.OwnerTrace.begin("render.prepare");try{
         long stage=System.nanoTime();
         if(desiredVolume!=volume&&desiredVolume!=null){
             float cx=desiredVolume.x+48,cz=desiredVolume.z+48;boolean outside=x<desiredVolume.x||x>=desiredVolume.x+desiredVolume.width||z<desiredVolume.z||z>=desiredVolume.z+desiredVolume.length;
@@ -240,7 +241,7 @@ public final class RenderPipeline implements AutoCloseable {
         // Baking replacements that cannot be installed only extends readiness latency.
         boolean volumeSlotFree=desiredVolume==volume&&(lightingUpload==null||!lightingUpload.replaceVolume);
         boolean localSkyReady=System.nanoTime()<deadline&&SkyVisibilityScheduler.ceilingReady(desiredSky,world,requestedX,requestedZ);
-        LightVolume next = System.nanoTime()<deadline?lighting.updatePredicted(world,requestedX,requestedZ,x,z,1,true,desiredSky,Math.min(deadline,stage+250_000L),localSkyReady,volumeSlotFree):null;
+        LightVolume next = System.nanoTime()<deadline?lighting.updatePredicted(world,requestedX,requestedZ,x,z,1,true,desiredSky,Math.min(deadline,stage+250_000L),localSkyReady&&volumeSlotFree,volumeSlotFree):null;
         lightingNanos=System.nanoTime()-stage;
         if(next!=null){
             // Same origin and unchanged local dependencies produce identical data.
@@ -252,6 +253,8 @@ public final class RenderPipeline implements AutoCloseable {
         if(desiredVolume!=volume&&(desiredVolumeFence==null||!desiredVolumeFence.valid(world,desiredVolumeFence.x,desiredVolumeFence.z)))desiredVolume=volume;
         pumpLighting(world,x,z,deadline);
         if(hasIrradiance&&skyVisibility.pending()==0&&desiredSky!=null&&desiredSky.data==worldSky&&desiredVolume==volume&&lighting.pendingAgeNanos()==0&&skyLightingUpload==null)lightingBootstrapped=true;
+
+        }finally{dev.jayms.OwnerTrace.end(trace,0);}
     }
     private boolean pendingRootBuffer(){return separateRootBuffer&&desiredVolume!=null&&desiredVolume.fine.length<=1_048_576;}
     /** Independent sky lane shares time, bytes, scratch and two prewarmed atlas generations.
@@ -270,6 +273,7 @@ public final class RenderPipeline implements AutoCloseable {
         return sent;
     }
     private void pumpLighting(World world,float x,float z,long deadline) {
+        int trace=dev.jayms.OwnerTrace.begin("lighting.update");try{
         lightingUploadBytes=skyGpuBytes=skyGpuNanos=0;
         if(System.nanoTime()>=deadline)return;
         int byteBudget=(initialLightingFrame?8:4)*1024*1024;
@@ -286,6 +290,8 @@ public final class RenderPipeline implements AutoCloseable {
             skyGpuNanos=System.nanoTime()-start;lightingUploadBytes+=skyGpuBytes;
         }
         if(System.nanoTime()<deadline)pumpMainLighting(world,x,z,deadline,byteBudget);
+
+        }finally{dev.jayms.OwnerTrace.end(trace,0);}
     }
     private void pumpMainLighting(World world,float x,float z,long deadline,int byteBudget){
         if(System.nanoTime()>=deadline)return;

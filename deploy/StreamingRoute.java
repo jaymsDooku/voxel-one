@@ -14,8 +14,9 @@ import static org.lwjgl.opengl.GL33.*;
 
 /** Matched resident/cold/transition route. Fresh travel is wholly outside the spawn preload. */
 public class StreamingRoute {
+    static Method traceFlush;static{try{traceFlush=Class.forName("dev.jayms.OwnerTrace").getMethod("flush",Path.class,int.class);}catch(ClassNotFoundException old){}catch(ReflectiveOperationException error){throw new ExceptionInInitializerError(error);}}
     static Main game=new Main();static int frame,first=-1;static Path out;static PerformanceRecorder recorder;
-    static final int TOTAL=166;static boolean visual;
+    static final int TOTAL=Integer.getInteger("voxel.route.samples",166);static boolean visual;
     static final StringBuilder coverage=new StringBuilder("frame,sample,x,has_gi,gi_x,gi_z,horizontal_coverage_9,active_age_frames,sky_known,pending_bake,capture_index,upload_phase,upload_bytes,sky_pending,source_age_ms,current_geometry,submitted_bakes,completed_bakes,rejected_bakes,pending_age_ms,initial_budget_updates,initial_budget_active,bake_done,worker_id,worker_wall_nanos,worker_cpu_nanos,stream_cpu_ms,mesh_cpu_ms,sky_cache_bytes,sky_cached_columns,sky_publications,sky_partial_publications,sky_rejected,local_sky_ready,sky_upload_preemptions,gi_ceiling_ready,obsolete_volumes,sky_gpu_pending,sky_gpu_age_ms,sky_gpu_bytes,sky_source_age_ms,sky_build_cpu_ms,scene_cpu_ms,gi_prepare_cpu_ms,lighting_upload_cpu_ms,sky_upload_owner_ms,sky_capture_chunk,sky_captured_tiles,sky_packing_columns,sky_cpu_building,sky_cpu_merging,owner_budget_ms,gpu_frame_ema_ms,reused_fields,wall_ms,sky_coverage_9\n");
     static Object activeVolume;static int activeSince;static long routeStarted;static volatile boolean firstObserved;
     static int terrainUiFrames,lightingUiFrames;static double lastInitialLightingMs=-1;static final java.util.Map<String,Integer> waits=new java.util.TreeMap<>();
@@ -114,6 +115,7 @@ public class StreamingRoute {
                 firstObserved=true;
                 int sample=first<0?-1:frame-first;
                 measureCoverage(sample);
+                if(traceFlush!=null)traceFlush.invoke(null,out.resolve("owner-operations.csv"),sample);
                 if(visual&&(sample==11||sample==64||sample==111||sample==127||sample==133||sample==165))capture(sample);
                 if(sample>=0&&sample<TOTAL){World world=(World)get("world");float px=x(sample);int pending=-1;try{pending=(int)World.class.getMethod("terrainPending").invoke(world);}catch(NoSuchMethodException baseline){}
                     residency.append(sample+","+segment(sample)+","+px+",8,"+resident(world,px,8,0)+","+resident(world,px,8,1)+","+pending+","+world.getLoadedChunks().size()+"\n");

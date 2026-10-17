@@ -1,0 +1,70 @@
+Voxel Sandbox streaming revision: results and limits
+
+Implementation SHA256: fcf8e949d4e7b6e4ce47ed0eac8d2781050aff8cf0da75edbe0a86ead9f5d10e
+Feature JAR SHA256: 9ed588a908f7d5ac99ef016c49edb9ca32be9aa1453a79e0bce760fbfc873beb
+Baseline JAR SHA256: 48ed98ac1f5fc55fe9c57feb5e29bc37031f369ddee8fc1ba4596933f1c7f78f
+Baseline engine: review base403033b9f53ce66063982879c6e2daff684a427b with the reviewed timing overlay.
+
+Environment: Linux/amd64; Java 21.0.5; 4 JVM-visible processors; heap 1610612736 bytes; llvmpipe (LLVM 15.0.6, 256 bits) SOFTWARE rendering; actual framebuffer 1280x720.
+All six runs match renderer/JVM/heap/processor/framebuffer/graphics/route metadata. Seed 748291; same 810 preloaded chunks; readiness-based warm-up; 166 samples per fresh synthetic profile. Recording/JFR/host probes were OFF. Full settings: owner-direct-provenance.json.
+Legacy *_cpu_ms and accountedStreamingCpuMs fields are elapsed owner stages, including waits. They are not thread CPU. Baseline mesh accounting includes snapshot/upload only and conservatively omits baseline scheduling. Percentiles use nearest rank.
+
+Cold-flight frames, ms (80 samples per row):
+trial phase | p50 | p95 | p99 | worst | 1% low FPS | >33/50/100ms
+1 before | 2210.542 | 2689.061 | 2827.471 | 2827.471 | 0.354 | 80/80/80
+1 after | 1921.217 | 2088.114 | 2147.014 | 2147.014 | 0.466 | 80/80/80
+2 before | 2197.698 | 2682.286 | 2965.759 | 2965.759 | 0.337 | 80/80/80
+2 after | 1983.647 | 2326.236 | 2401.563 | 2401.563 | 0.416 | 80/80/80
+3 before | 2283.100 | 2733.707 | 2836.205 | 2836.205 | 0.353 | 80/80/80
+3 after | 1939.780 | 2148.116 | 2256.904 | 2256.904 | 0.443 | 80/80/80
+
+Cold-flight accounted owner stages, ms:
+trial | before p50/p95/p99 | after p50/p95/p99 | terrain-stream p99 before/after | nearby resident frames
+1 | 264.339/533.807/608.420 | 4.109/7.886/29.044 | 92.543/1.436 | 76/80
+2 | 264.452/557.723/718.395 | 4.105/10.548/29.387 | 122.887/3.326 | 76/80
+3 | 290.673/568.993/637.657 | 4.126/6.872/13.743 | 91.578/1.154 | 76/80
+
+Cold-flight frame p99 improved in every pair. Terrain-stream p99 fell 97.29–98.74%; accounted owner-stage p99 fell 95.23–97.84%. The 2ms elapsed tail target remains UNMET. Source allowances are 2ms steady and 4ms catch-up, with initial 8ms limited to 64 updates. A stage can contain several bounded units.
+
+All-route frame p99, before/after ms:
+1: 2908.873/2307.643
+2: 2965.759/4874.363
+3: 2836.205/2309.994
+Do not substitute cold-flight results for all-route performance. A feature resident outlier was 8775.427ms: 8630.114ms in render(), about 0.399ms in streaming stages, GC0 and GPU EMA7233ms. The EMA is not a per-frame GPU distribution; exact host/driver cause is unproven. This host does not sustain 60FPS, so the physical 60FPS frame targets remain unqualified. Full per-stage/segment/queue/byte/heap distributions and raw CSV/JSON are retained.
+
+Separate 166-sample JFR/host attribution:
+mesh.update: wall 6.552ms; thread CPU 1.240ms; verified scheduler wait 5.295ms; GC overlap 0.000ms; safepoint overlap 0.000ms.
+sky.update: wall 12.500ms; thread CPU 1.042ms; verified scheduler wait 7.917ms; GC overlap 3.399ms; safepoint overlap 3.610ms.
+gl.pixels3D: wall 6.733ms; thread CPU 0.502ms; verified scheduler wait 6.229ms; GC overlap 0.000ms; safepoint overlap 0.000ms.
+lighting.pump: wall 15.258ms; thread CPU 0.545ms; verified scheduler wait 0.865ms; GC overlap 13.519ms; safepoint overlap 13.749ms.
+Overlap categories are not independent durations and must not be added. These diagnostic examples do not retrospectively classify every separate normal-run tail. A 9.539ms sky diagnostic outlier sampled the optional OwnerTrace.throttle file read itself, disabled in normal runs. Residual time without verified evidence stays unclassified. Raw JFR remains private; all whitelisted events, operation rows and clock anchors are exported in sanitized form.
+
+64-sample calibration, host probes and JFR OFF; maximum thread CPU ms:
+mesh.request: 0.1604
+mesh.snapshot: 0.0108
+mesh.allocate: 0.1112
+mesh.upload: 0.1033
+sky.capture: 0.0744
+sky.validate: 0.0144
+gi.capture: 0.2015
+gi.update: 0.3994
+gl.pixels3D: 0.4050
+sky.update: 1.0222
+mesh.update: 0.7051
+render.prepare: 3.7039
+The 3.704ms render.prepare maximum is an aggregate catch-up stage. Pixel units are capped at 256KiB; maximum observed was 245760 bytes. Captures are sliced, queues bounded, and full GPU stores prepared at startup. A prior 1MiB glBufferSubData unit used up to 2.897ms CPU. Smaller mapped copies replace it; llvmpipe/softpipe uses direct client-memory transfers. Other renderers retain fenced mapped PBO. Both paths passed exact full-volume readback, cancellation, reuse and cleanup. No quality/distance/resolution/horizon/format reduction was used.
+
+Allocation regression, not an FPS test:
+Terrain.block version3, seed748291, 1048576 warmed queries: allocation 270625504 -> 520 bytes; thread CPU 414327569 -> 219111215ns. Exact digest remained -6549953573917534351. Primitive bounded LRU lookups remove boxed keys/capturing lambdas; refined-light lookup uses a direct cell index. Generator algorithms/versions are unchanged.
+
+Lighting readiness, coverage and age:
+Trial 1: canonical warm-up 54.853s -> 52.960s; current center 80/80; nine-point coverage 69/80 versus baseline55/80; current-field capture age p99 77789.0ms.
+Trial 2: canonical warm-up 54.405s -> 60.867s; current center 80/80; nine-point coverage 70/80 versus baseline55/80; current-field capture age p99 78867.0ms.
+Trial 3: canonical warm-up 53.560s -> 55.566s; current center 80/80; nine-point coverage 78/80 versus baseline55/80; current-field capture age p99 85121.0ms.
+An unchanged field can be old; local geometry is validated separately from elapsed age.
+Dense resolved-depth checks match all 80 cold-flight and 16 reversal eye poses. Near-surface coverage: 59.3705% -> 89.6160%; zero/longest-zero frames: 25 -> 6. Every matched frame has equal or higher coverage. Reversal is 100% in both. Six uncovered cold frames remain. Cold frame64 and reversal112 image pairs were inspected.
+Ground-view visual warm-up was 78.131s baseline and 99.699s feature, including startup/resident preparation; this visual run is excluded from timing. Jump/teleport poses differ at six listed samples and are not matched visual qualification. Functional transitions are tested separately. Raw depth/coverage/images retain those differences.
+
+Media: actual F10 flight, 18.176s, 530593 bytes, 10 decoded images; midpoint inspected. Separate capture elapsed median142.264ms/worst202.984ms includes readback/waits; not thread CPU or net FPS penalty. No recording ran in the six profiling trials.
+
+Limits/handoff: the 2ms elapsed tail target, initial uncovered GI frames and physical Windows/GPU qualification remain open limits. Stable rollout stays gated on physical qualification. Windows steps: owner-direct-windows-playtest.txt. Final native travel/memory/soak/lifecycle results are in the validation receipt. Controller owns publication, CI, independent review and the existing client/launcher release pipeline.

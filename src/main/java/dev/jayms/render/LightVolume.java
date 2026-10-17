@@ -31,6 +31,7 @@ public final class LightVolume {
     public TransportField transport;
     private boolean separateSky;
     private final Map<Integer, Detail> details = new HashMap<>();
+    private Detail[] coarseDetails;
 
     /** No refined cells: every root is zero, so no root table needs transfer or lookup. */
     private boolean uniformRoots;
@@ -91,6 +92,8 @@ public final class LightVolume {
                     throw new IllegalArgumentException("Lighting detail resolution");
                 var d = new Detail(r, new SparseVoxelOctree(r));
                 v.details.put(c, d);
+                if(v.coarseDetails==null)v.coarseDetails=new Detail[n];
+                v.coarseDetails[c]=d;
                 v.expand(tree, d, c, 0, 0, 0, r);
             }
         }
@@ -222,7 +225,7 @@ public final class LightVolume {
         v.sky = v.red = v.green = v.blue = null;
         v.queued = null;
         v.uniformRoots=v.details.isEmpty();
-        v.details.clear();
+        v.details.clear();v.coarseDetails=null;
         return v;
     }
 
@@ -278,7 +281,7 @@ public final class LightVolume {
                 || b >= height * UNIT
                 || c >= length * UNIT) return -1;
         int i = index(a / UNIT, b / UNIT, c / UNIT);
-        var d = details.get(i);
+        var d = coarseDetails==null?null:coarseDetails[i];
         if (d == null) return i;
         int scale = UNIT / d.resolution;
         return d.nodes.get((a % UNIT) / scale, (b % UNIT) / scale, (c % UNIT) / scale) & 0xffffff;

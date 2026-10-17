@@ -22,11 +22,17 @@ final class LightingStores implements AutoCloseable {
     final ByteBuffer pixels=MemoryUtil.memAlloc(2*1024*1024);
     long allocations,allocationNanos;
     private boolean closed;
-    static final int PIXEL_UNIT_BYTES=1024*1024,PIXEL_SLOTS=16;
+    final boolean directPixels;
+    long directCopies,mappedCopies;int largestPixelCopy;
+    static final int PIXEL_UNIT_BYTES=256*1024,PIXEL_SLOTS=64;
     final int[] pixelBuffers=new int[PIXEL_SLOTS];
     private final long[] pixelFences=new long[PIXEL_SLOTS];
+    private final ByteBuffer[] pixelMappings=new ByteBuffer[PIXEL_SLOTS];
     private int pixelCursor;private boolean pixelFlush;
-    LightingStores(){
+    LightingStores(){this(softwareRenderer());}
+    private static boolean softwareRenderer(){String renderer=glGetString(GL_RENDERER);return renderer!=null&&(renderer.toLowerCase(java.util.Locale.ROOT).contains("llvmpipe")||renderer.toLowerCase(java.util.Locale.ROOT).contains("softpipe"));}
+    LightingStores(boolean directPixels){
+        this.directPixels=directPixels;
         int prior=glGetInteger(GL_PIXEL_UNPACK_BUFFER_BINDING);
         try{for(int i=0;i<PIXEL_SLOTS;i++){
             pixelBuffers[i]=glGenBuffers();if(pixelBuffers[i]==0)throw new IllegalStateException("Pixel staging buffer unavailable");
@@ -35,9 +41,23 @@ final class LightingStores implements AutoCloseable {
     }
     /** Nonblocking context-owned upload lane. A buffer cannot be rewritten until its copy fence signals. */
     boolean pixels3D(int level,int x,int y,int z,int w,int h,int d,int format,int type,java.nio.Buffer data,int bytes){
+        int trace=dev.jayms.OwnerTrace.begin("gl.pixels3D");try{
         if(closed)throw new IllegalStateException("Lighting stores closed");
         int stride=data instanceof ByteBuffer?1:data instanceof ShortBuffer?2:4;
-        if(bytes<0||bytes>PIXEL_UNIT_BYTES||data.remaining()*(long)stride!=bytes)throw new IllegalArgumentException("Pixel staging byte range");
+        if(!data.isDirect()||bytes<0||bytes>PIXEL_UNIT_BYTES||data.remaining()*(long)stride!=bytes)throw new IllegalArgumentException("Pixel staging byte range");
+        if(directPixels){
+            // Software renderers copy client data before this call returns. Avoid an
+            // extra PBO copy/fence lane; the same bounded transfer and formats apply.
+            int prior=glGetInteger(GL_PIXEL_UNPACK_BUFFER_BINDING);glBindBuffer(GL_PIXEL_UNPACK_BUFFER,0);
+            try{
+                if(data instanceof ByteBuffer b)glTexSubImage3D(GL_TEXTURE_3D,level,x,y,z,w,h,d,format,type,b);
+                else if(data instanceof ShortBuffer b)glTexSubImage3D(GL_TEXTURE_3D,level,x,y,z,w,h,d,format,type,b);
+                else if(data instanceof IntBuffer b)glTexSubImage3D(GL_TEXTURE_3D,level,x,y,z,w,h,d,format,type,b);
+                else if(data instanceof FloatBuffer b)glTexSubImage3D(GL_TEXTURE_3D,level,x,y,z,w,h,d,format,type,b);
+                else throw new IllegalArgumentException("Pixel staging buffer type");
+                directCopies++;largestPixelCopy=Math.max(largestPixelCopy,bytes);return true;
+            }finally{glBindBuffer(GL_PIXEL_UNPACK_BUFFER,prior);}
+        }
         int slot=-1;
         for(int i=0;i<PIXEL_SLOTS;i++){
             int candidate=(pixelCursor+i)%PIXEL_SLOTS;
@@ -47,16 +67,30 @@ final class LightingStores implements AutoCloseable {
         if(slot<0)return false;pixelCursor=(slot+1)%PIXEL_SLOTS;
         int prior=glGetInteger(GL_PIXEL_UNPACK_BUFFER_BINDING);glBindBuffer(GL_PIXEL_UNPACK_BUFFER,pixelBuffers[slot]);
         try{
-            if(data instanceof ByteBuffer b)glBufferSubData(GL_PIXEL_UNPACK_BUFFER,0,b);
-            else if(data instanceof ShortBuffer b)glBufferSubData(GL_PIXEL_UNPACK_BUFFER,0,b);
-            else if(data instanceof IntBuffer b)glBufferSubData(GL_PIXEL_UNPACK_BUFFER,0,b);
-            else if(data instanceof FloatBuffer b)glBufferSubData(GL_PIXEL_UNPACK_BUFFER,0,b);
+            // The slot fence has signaled. Mapping this bounded range cannot race an earlier copy.
+            if(!data.isDirect())throw new IllegalArgumentException("Pixel staging requires direct memory");
+            long address;
+            if(data instanceof ByteBuffer b)address=MemoryUtil.memAddress(b);
+            else if(data instanceof ShortBuffer b)address=MemoryUtil.memAddress(b);
+            else if(data instanceof IntBuffer b)address=MemoryUtil.memAddress(b);
+            else if(data instanceof FloatBuffer b)address=MemoryUtil.memAddress(b);
             else throw new IllegalArgumentException("Pixel staging buffer type");
+            ByteBuffer mapped=glMapBufferRange(GL_PIXEL_UNPACK_BUFFER,0,PIXEL_UNIT_BYTES,
+                    GL_MAP_WRITE_BIT|GL_MAP_UNSYNCHRONIZED_BIT,pixelMappings[slot]);
+            if(mapped==null)throw new IllegalStateException("Pixel staging mapping unavailable");
+            pixelMappings[slot]=mapped;
+            try{MemoryUtil.memCopy(address,MemoryUtil.memAddress(mapped),bytes);}
+            finally{if(!glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER))throw new IllegalStateException("Pixel staging mapping invalidated");}
             glTexSubImage3D(GL_TEXTURE_3D,level,x,y,z,w,h,d,format,type,0L);
-            pixelFences[slot]=glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE,0);if(pixelFences[slot]==0)throw new IllegalStateException("Pixel staging fence unavailable");pixelFlush=true;return true;
+            pixelFences[slot]=glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE,0);if(pixelFences[slot]==0)throw new IllegalStateException("Pixel staging fence unavailable");pixelFlush=true;mappedCopies++;largestPixelCopy=Math.max(largestPixelCopy,bytes);return true;
         }finally{glBindBuffer(GL_PIXEL_UNPACK_BUFFER,prior);}
+
+        }finally{dev.jayms.OwnerTrace.end(trace,bytes);}
     }
-    void flushPixels(){if(pixelFlush){glFlush();pixelFlush=false;}}
+    void flushPixels(){
+        int trace=dev.jayms.OwnerTrace.begin("gl.flush");try{if(pixelFlush){glFlush();pixelFlush=false;}
+        }finally{dev.jayms.OwnerTrace.end(trace,0);}
+    }
     int texture(String role){
         if(closed)throw new IllegalStateException("Lighting stores closed");
         for(var t:textures.values())if(t.role.equals(role)&&!t.borrowed&&ready(t)){t.borrowed=true;return t.id;}

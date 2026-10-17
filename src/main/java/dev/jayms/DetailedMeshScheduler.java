@@ -34,6 +34,7 @@ public final class DetailedMeshScheduler implements AutoCloseable {
     public static long bytes(MeshData d){return d==null?0:4L*(d.vertices().length+d.indices().length+(d.surface()==null?0:d.surface().length));}
     private boolean valid(World world,Job j){return world.getLoadedChunks().get(j.pos)==j.chunk&&j.chunk.meshRevision()==j.revision&&world.models().revision()==j.modelRevision;}
     public boolean request(World world,ChunkPos p) {
+        int trace=dev.jayms.OwnerTrace.begin("mesh.request");try{
         if(closed||capture!=null||queued()>=MAX_JOBS||jobs.containsKey(p)||uploading!=null&&uploading.position.equals(p))return false;
         Chunk c=world.getLoadedChunks().get(p);if(c==null||!c.dirty()||Objects.equals(failed.get(p),c.meshRevision()))return false;
         worker.purge();
@@ -42,6 +43,8 @@ public final class DetailedMeshScheduler implements AutoCloseable {
         stopWaiting(p);
         if(snapshot.complete())submit(next);else capture=next;
         return true;
+
+        }finally{dev.jayms.OwnerTrace.end(trace,0);}
     }
     private boolean valid(World world,Capture c){return world.getLoadedChunks().get(c.pos)==c.chunk&&c.chunk.meshRevision()==c.revision&&world.models().revision()==c.models;}
     private void submit(Capture c) {
@@ -49,11 +52,14 @@ public final class DetailedMeshScheduler implements AutoCloseable {
         jobs.put(c.pos,new Job(c.pos,c.chunk,c.revision,c.models,c.created,future));
     }
     private void capture(World world,long deadline) {
+        int trace=dev.jayms.OwnerTrace.begin("mesh.snapshot");try{
         if(capture==null)return;
         if(!valid(world,capture)){capture=null;rejected++;return;}
         long start=System.nanoTime();boolean complete=capture.snapshot.pump(world,capture.pos,deadline,1536);
         snapshotNanos+=System.nanoTime()-start;
         if(complete){submit(capture);capture=null;}
+
+        }finally{dev.jayms.OwnerTrace.end(trace,0);}
     }
     /** Pure result fencing is exposed for CPU checks; no GL work here. */
     public Result ready(World world) {
@@ -72,6 +78,7 @@ public final class DetailedMeshScheduler implements AutoCloseable {
         return null;
     }
     public void update(World world,float x,float z,FrustumIntersection frustum,int detailBlocks,int passBlocks,long nanosBudget,int bytesBudget) {
+        int trace=dev.jayms.OwnerTrace.begin("mesh.update");try{
         long updateStart=System.nanoTime();
         snapshotNanos=meshNanos=uploadNanos=uploadBytes=0;
         long deadline=System.nanoTime()+nanosBudget;
@@ -119,6 +126,8 @@ public final class DetailedMeshScheduler implements AutoCloseable {
             if(System.nanoTime()>=deadline||best==null||!request(world,best))break;
         }
         totalNanos=System.nanoTime()-updateStart;
+
+        }finally{dev.jayms.OwnerTrace.end(trace,0);}
     }
     @Override public void close(){closed=true;capture=null;for(var j:jobs.values())j.future.cancel(true);jobs.clear();waiting.clear();waitingAges.clear();failedScan=waitingScan=null;dirtyScan=null;priorityScan=null;worker.shutdownNow();if(upload!=null)upload.close();upload=null;uploading=null;}
 }

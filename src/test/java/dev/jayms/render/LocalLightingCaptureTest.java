@@ -104,12 +104,30 @@ class LocalLightingCaptureTest {
             var completed=pending.get(lighting);long submitted=lighting.submitted;
             for(int i=0;i<8;i++)assertNull(lighting.updatePredicted(world,48,0,16,0,1,true,null,System.nanoTime()+2_000_000,true,false));
             assertSame(completed,pending.get(lighting),"One completed CPU payload waits while the GPU slot is occupied");assertEquals(submitted,lighting.submitted,"Backpressure cannot create extra workers or results");
-            var result=lighting.updatePredicted(world,48,0,16,0,1,true,null,System.nanoTime()+2_000_000,false);
+            var result=lighting.updatePredicted(world,48,0,16,0,1,true,null,System.nanoTime()+2_000_000,true);
             assertNotNull(result,"A still-relevant completed field is not discarded at each chunk boundary");assertEquals(-16,result.x);
+            var capture=WorldLighting.class.getDeclaredField("capture");capture.setAccessible(true);assertNull(capture.get(lighting),"Collection must return before starting a new capture for an occupied GPU slot");assertNull(pending.get(lighting));
             lighting.invalidateAccepted();lighting.updatePredicted(world,48,0,16,0,1,true,null,System.nanoTime()+2_000_000,true);
             while(pending.get(lighting)==null&&System.nanoTime()<end)lighting.updatePredicted(world,48,0,16,0,1,true,null,System.nanoTime()+2_000_000,true);
             assertNotNull(pending.get(lighting));((java.util.concurrent.Future<?>)pending.get(lighting)).get(30,java.util.concurrent.TimeUnit.SECONDS);
             assertNull(lighting.updatePredicted(world,2048,0,2048,0,1,true,null,System.nanoTime()+2_000_000,false),"Teleport discards an irrelevant completion");
+        }
+    }
+    @Test void occupiedGpuSlotDoesNotFreezeAnObsoleteCapture()throws Exception {
+        try(var world=new World(42);var lighting=new WorldLighting()){
+            var capture=WorldLighting.class.getDeclaredField("capture");capture.setAccessible(true);
+            var pending=WorldLighting.class.getDeclaredField("pending");pending.setAccessible(true);
+            for(int x=128;x<192;x+=4){
+                assertNull(lighting.updatePredicted(world,x,0,x,0,1,true,null,Long.MAX_VALUE,false,false));
+                assertNull(capture.get(lighting));assertNull(pending.get(lighting));
+            }
+            // Once the slot is free, preparation uses the new forecast, not x128.
+            lighting.updatePredicted(world,224,0,192,0,1,true,null,0,true,true);
+            assertNull(capture.get(lighting),"An expired deadline must still do no work");
+            lighting.updatePredicted(world,224,0,192,0,1,true,null,Long.MAX_VALUE,true,true);
+            var current=(WorldLighting.Capture)capture.get(lighting);
+            if(current!=null)assertEquals(224,current.x);
+            else {var x=WorldLighting.class.getDeclaredField("submittedX");x.setAccessible(true);assertNotNull(pending.get(lighting));assertEquals(224,x.getInt(lighting));}
         }
     }
     @Test void negativeRegionEdgesAndModelChangesAreFenced()throws Exception {

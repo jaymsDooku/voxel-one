@@ -43,11 +43,14 @@ public final class SkyVisibilityScheduler implements AutoCloseable {
         private World checked;private long stamp=Long.MIN_VALUE,models=Long.MIN_VALUE;
         private Prepared(WorldSkyVisibility data,List<Cached> parts){this.data=data;this.tickets=parts.stream().map(Cached::ticket).toList();this.localParts=new HashMap<>();for(var c:parts)localParts.put(c.ticket.column,c);}
         public boolean valid(World world){
+        int trace=dev.jayms.OwnerTrace.begin("sky.validate");try{
             if(world.isClosed())return false;
             if(checked==world&&stamp==world.skyStamp()&&models==world.models().revision())return true;
             for(var ticket:tickets)if(!ticket.displayValid(world))return false;
             checked=world;stamp=world.skyStamp();models=world.models().revision();return true;
-        }
+
+        }finally{dev.jayms.OwnerTrace.end(trace,0);}
+    }
     }
     /** GI samples sky at y96; below-boundary natural tiles are not dependencies. */
     public static boolean ceilingReady(Prepared prepared,World world,float x,float z){
@@ -86,6 +89,7 @@ public final class SkyVisibilityScheduler implements AutoCloseable {
             this.models=models;edits=w.skyEdits(column);
         }
         boolean pump(World world,long deadline) {
+        int trace=dev.jayms.OwnerTrace.begin("sky.capture");try{
             while(chunk<ticket.positions.size()&&System.nanoTime()<deadline) {
                 chunks.add(new WorldSkyVisibility.Geometry(ticket.positions.get(chunk),ticket.chunks.get(chunk).snapshot()));chunk++;
             }
@@ -93,7 +97,9 @@ public final class SkyVisibilityScheduler implements AutoCloseable {
                 var e=edits.next();if(!world.isLoaded(e.x(),e.y(),e.z())&&seen.add(e.cellKey()))cells.add(new WorldSkyVisibility.EditedCell(e.x(),e.y(),e.z(),world.cell(e.x(),e.y(),e.z()).copy().freeze()));
             }
             return chunk==ticket.positions.size()&&!edits.hasNext();
-        }
+
+        }finally{dev.jayms.OwnerTrace.end(trace,chunk);}
+    }
         WorldSkyVisibility.Input input(){return new WorldSkyVisibility.Input(List.copyOf(chunks),List.copyOf(cells),models);}
     }
     private final Map<ChunkPos,Cached> cache=new ConcurrentHashMap<>();
@@ -125,6 +131,7 @@ public final class SkyVisibilityScheduler implements AutoCloseable {
     public Prepared update(World world,long nanos){return update(world,0,0,nanos);}
     public Prepared update(World world,float x,float z,long nanos) {return update(world,x,z,nanos,false);}
     public Prepared update(World world,float x,float z,long nanos,boolean initial) {
+        int trace=dev.jayms.OwnerTrace.begin("sky.update");try{
         int batch=initial?BATCH*2:BATCH;
         long start=System.nanoTime(),deadline=start+Math.max(0,nanos);Prepared ready=null;nearChecks=scanChecks=0;workerNanos=finishedWorkerNanos.getAndSet(0);
         if(closed||world.isClosed())return null;
@@ -208,6 +215,8 @@ public final class SkyVisibilityScheduler implements AutoCloseable {
         catch(RejectedExecutionException e){dirty=true;return ready;}
         catch(ExecutionException e){throw new IllegalStateException("Sky visibility preparation failed",e.getCause());}
         finally{ownerNanos=System.nanoTime()-start;}
+
+        }finally{dev.jayms.OwnerTrace.end(trace,0);}
     }
     @Override public void close(){closed=true;if(pending!=null)pending.cancel(true);if(packed!=null)packed.cancel(true);pending=null;packed=null;capture=null;cache.clear();tickets.clear();inputs.clear();packingParts=null;packingIterator=null;lastProduced=null;models=null;modelWorld=null;scan=null;cleaning=null;bytes=0;dirty=false;}
 }

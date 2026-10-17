@@ -15,6 +15,6 @@ print('Playtest: matched ground-view visual/depth route',a.phase,'exit',result.r
 if result.returncode==0:
  for f in list(out.glob('visual-*.png'))+list(out.glob('depth-*.json'))+[out/'coverage.csv']:
   shutil.copyfile(f,r/'dashboard/evidence'/f'{a.prefix}-{a.phase}-{f.name}')
- report={'phase':a.phase,'revision':revision,'fixtureSha256':hashlib.sha256((r/'deploy/LightingVisualRoute.java').read_bytes()).hexdigest(),'canonicalRouteSha256':hashlib.sha256((r/'deploy/StreamingRoute.java').read_bytes()).hexdigest(),'note':'Same seed, x positions and graphics settings; deterministic ground+4m feet and25degree down view expose near visible GI. All visual-run performance exports excluded from comparisons.','samples':[json.loads(f.read_text()) for f in sorted(out.glob('depth-*.json'))]}
+ report={'phase':a.phase,'revision':revision,'fixtureSha256':hashlib.sha256((r/'deploy/LightingVisualRoute.java').read_bytes()).hexdigest(),'canonicalRouteSha256':hashlib.sha256((r/'deploy/StreamingRoute.java').read_bytes()).hexdigest(),'note':'Same seed, x positions and graphics settings; ground+4m feet,25degree down view,180degree look turn throughout reversal. Every frame uses resolved visible depth; regular images expose transient near GI. All visual-run performance exports excluded from comparisons.','samples':[json.loads(f.read_text()) for f in sorted(out.glob('depth-*.json'))]}
  (r/'dashboard/evidence'/f'{a.prefix}-{a.phase}-report.json').write_text(json.dumps(report,indent=2)+'\n')
 raise SystemExit(result.returncode)

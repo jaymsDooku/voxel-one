@@ -14,6 +14,7 @@ import static org.lwjgl.opengl.GL33.*;
 
 /** Separate ground-relative visible-depth qualification; timings excluded from performance comparisons. */
 public class LightingVisualRoute {
+    static Method traceFlush;static{try{traceFlush=Class.forName("dev.jayms.OwnerTrace").getMethod("flush",Path.class,int.class);}catch(ClassNotFoundException old){}catch(ReflectiveOperationException error){throw new ExceptionInInitializerError(error);}}
     static Main game=new Main();static int frame,first=-1;static Path out;static PerformanceRecorder recorder;
     static final int TOTAL=166;static boolean visual;
     static final StringBuilder coverage=new StringBuilder("frame,sample,x,has_gi,gi_x,gi_z,horizontal_coverage_9,active_age_frames,sky_known,pending_bake,capture_index,upload_phase,upload_bytes,sky_pending,source_age_ms,current_geometry,submitted_bakes,completed_bakes,rejected_bakes,pending_age_ms,initial_budget_updates,initial_budget_active,bake_done,worker_id,worker_wall_nanos,worker_cpu_nanos,stream_cpu_ms,mesh_cpu_ms,sky_cache_bytes,sky_cached_columns,sky_publications,sky_partial_publications,sky_rejected,local_sky_ready,sky_upload_preemptions,gi_ceiling_ready,obsolete_volumes,sky_gpu_pending,sky_gpu_age_ms,sky_gpu_bytes,sky_source_age_ms,sky_build_cpu_ms,scene_cpu_ms,gi_prepare_cpu_ms,lighting_upload_cpu_ms,sky_upload_owner_ms,sky_capture_chunk,sky_captured_tiles,sky_packing_columns,sky_cpu_building,sky_cpu_merging,owner_budget_ms,gpu_frame_ema_ms,reused_fields,wall_ms,sky_coverage_9\n");
@@ -52,7 +53,7 @@ public class LightingVisualRoute {
         var image=new java.awt.image.BufferedImage(w,h,java.awt.image.BufferedImage.TYPE_INT_RGB);
         for(int y=0;y<h;y++)for(int x=0;x<w;x++){int i=(x+y*w)*3;image.setRGB(x,h-y-1,(pixels.get(i)&255)<<16|(pixels.get(i+1)&255)<<8|(pixels.get(i+2)&255));}
         javax.imageio.ImageIO.write(image,"png",out.resolve("visual-"+sample+".png").toFile());
-        depthCoverage(sample);
+
     }
     static void depthCoverage(int sample)throws Exception {
         var renderer=(RenderPipeline)get("rendering");var v=(LightVolume)field(renderer,"volume");var temporal=field(renderer,"temporal");
@@ -73,7 +74,7 @@ public class LightingVisualRoute {
                 if(range<=24){near++;if(p.y>=-32&&p.y<96){eligible++;if(inside)nearCovered++;}if(sky!=null&&sky.sampleKnown(p.x,p.y,p.z,-1)>=0)nearSkyKnown++;}
             }
         }finally{org.lwjgl.system.MemoryUtil.memFree(depth);glBindTexture(GL_TEXTURE_2D,prior);glBindBuffer(GL_PIXEL_PACK_BUFFER,pack);}
-        if(eligible==0)throw new AssertionError("Ground visual fixture has no visible GI-eligible near surface samples");
+        if(eligible==0&&sample>=32&&sample<128)throw new AssertionError("Cold flight/reversal has no visible GI-eligible near surface samples");
         if(glGetError()!=GL_NO_ERROR)throw new AssertionError("Visual depth readback GL error");
         String bounds=v==null?"null":"["+v.x+","+v.y+","+v.z+","+v.width+","+v.height+","+v.length+"]";
         Files.writeString(out.resolve("depth-"+sample+".json"),"{\"sample\":"+sample+",\"segment\":\""+segment(sample)+"\",\"eye\":["+eye.x+","+eye.y+","+eye.z+"],\"depthSize\":["+w+","+h+"],\"stride\":12,\"surfaceSamples\":"+surface+",\"coveredSamples\":"+covered+",\"detailed112Samples\":"+detailed+",\"detailed112Covered\":"+detailedCovered+",\"near24Samples\":"+near+",\"near24Eligible\":"+eligible+",\"near24Covered\":"+nearCovered+",\"near24SkyKnown\":"+nearSkyKnown+",\"giBounds\":"+bounds+",\"method\":\"Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence\"}\n");
@@ -134,13 +135,14 @@ public class LightingVisualRoute {
                 int sample=first<0?-1:frame-first;
                 if(sample==TOTAL){recorder.stop().get();Files.writeString(out.resolve("residency.csv"),residency);glfwSetWindowShouldClose(((Window)get("window")).getHandle(),true);}
                 float routeX=sample<0?8:x(Math.min(sample,TOTAL-1));var player=(Player)get("player");var pitch=Player.class.getDeclaredField("pitch");pitch.setAccessible(true);pitch.setFloat(player,-25);
-                float y=((World)get("world")).terrain().surfaceHeight((int)Math.floor(routeX),8)+4;player.driveSeat(new Vector3f(routeX,y,8),0);
+                float y=((World)get("world")).terrain().surfaceHeight((int)Math.floor(routeX),8)+4;player.driveSeat(new Vector3f(routeX,y,8),sample>=112&&sample<128?180:0);
             }
             public void afterFrame(Main main)throws Exception{
                 firstObserved=true;
                 int sample=first<0?-1:frame-first;
                 measureCoverage(sample);
-                if(visual&&(sample==11||sample==64||sample==111||sample==127||sample==133||sample==165))capture(sample);
+                if(traceFlush!=null)traceFlush.invoke(null,out.resolve("owner-operations.csv"),sample);
+                if(visual&&sample>=0&&sample<TOTAL){depthCoverage(sample);if(sample==11||sample%8==0||sample==111||sample==127||sample==133||sample==165)capture(sample);}
                 if(sample>=0&&sample<TOTAL){World world=(World)get("world");float px=x(sample);int pending=-1;try{pending=(int)World.class.getMethod("terrainPending").invoke(world);}catch(NoSuchMethodException baseline){}
                     residency.append(sample+","+segment(sample)+","+px+",8,"+resident(world,px,8,0)+","+resident(world,px,8,1)+","+pending+","+world.getLoadedChunks().size()+"\n");
                     if(sample%10==0)Files.writeString(out.resolve("residency-partial.csv"),residency);

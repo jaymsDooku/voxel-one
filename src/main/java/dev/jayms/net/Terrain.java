@@ -20,15 +20,10 @@ public final class Terrain {
     public final int version;
     public final long seed;
     private final Geography geography;
-    private dev.jayms.net.city.StressGrid stressGrid;
-    public void stressGrid(dev.jayms.net.city.StressGrid grid) { stressGrid=grid; columns.clear(); }
+    private volatile dev.jayms.net.city.StressGrid stressGrid;
+    public synchronized void stressGrid(dev.jayms.net.city.StressGrid grid) { stressGrid=grid; columns.clear(); }
     public dev.jayms.net.city.StressGrid stressGrid() { return stressGrid; }
-    private final Map<Long, Column> columns =
-            new LinkedHashMap<>(4096, .75f, true) {
-                protected boolean removeEldestEntry(Map.Entry<Long, Column> e) {
-                    return size() > 32768;
-                }
-            };
+    private final LongLruCache<Column> columns = new LongLruCache<>(32768);
 
     public Terrain(long seed) {
         this(seed, CURRENT_VERSION);
@@ -83,9 +78,12 @@ public final class Terrain {
     public synchronized Column column(int x, int z) {
         if (stressGrid != null && stressGrid.contains(x,z)) return new Column(stressGrid.grade(),Biome.PLAINS);
         long key = ((long) x << 32) ^ (z & 0xffffffffL);
-        return columns.computeIfAbsent(
-                key,
-                k -> {
+        Column cached=columns.get(key);
+        if(cached!=null)return cached;
+        Column result=sampleColumn(x,z);columns.put(key,result);return result;
+    }
+
+    private Column sampleColumn(int x,int z) {
                     if (geography != null) {
                         var f = fields(x, z);
                         Biome biome =
@@ -113,7 +111,6 @@ public final class Terrain {
                                     + noise(x / 12.0, z / 12.0, 11) * 2;
                     h += Math.max(0, (.36 - climate) / .36) * 32;
                     return new Column((int) Math.floor(h), biome);
-                });
     }
 
     public int block(int x, int y, int z) {
