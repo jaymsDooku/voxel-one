@@ -71,6 +71,10 @@ jobs:
           (output/'portal-regressions.json').write_text(json.dumps({'command':command,'exitCode':result.returncode,'sourceWebsiteAssetsMatched':list(names),'counts':[line for line in result.stdout.splitlines() if line.startswith(('# tests ','# pass ','# fail ','# skipped '))]},indent=2)+'\n')
           raise SystemExit(result.returncode)
           PYCODE
+      - name: Catalog and controller publication regressions
+        run: |
+          python3 tools/hub/test_publisher.py
+          python3 tools/hub/test_publication_bundle.py
       - name: Build and updater/account/TLS regressions
         shell: bash
         run: mvn -q '-Dtest=SandboxIdentityTest,HubCatalogTest,HubShellTest,UpdaterTest,AccountStoreTest,ProtocolCompatibilityTest,MultiplayerTest#authenticationRegistrationDuplicateSessionsAndCertificatePin' test package

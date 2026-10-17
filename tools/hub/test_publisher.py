@@ -9,6 +9,7 @@ publisher=importlib.util.module_from_spec(spec);spec.loader.exec_module(publishe
 
 class PublisherTest(unittest.TestCase):
     def test_independent_updates_and_unpublished_rejection(self):
+        Path('target/hub-tmp').mkdir(parents=True, exist_ok=True)
         with tempfile.TemporaryDirectory(dir='target/hub-tmp') as directory:
             root=Path(directory); native=root/'native.json';web=root/'web.json';output=root/'catalog.properties'
             n={'tested':True,'published':True,'source':'a'*40,'build':'playtest-1','notes':'Public native release'}

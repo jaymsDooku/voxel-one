@@ -1,0 +1,281 @@
+{
+  "run": "https://github.com/jaymsDooku/voxel-one/actions/runs/38981202633",
+  "reports": [
+    {
+      "sourceSha": "32d93e09768167a188e7507cd4fe65d1880443b7",
+      "sourceKind": "exact commit checkout",
+      "platform": "Darwin",
+      "architecture": "arm64",
+      "pendingQualification": [
+        "JVM scale 1: 1280x800 unavailable on 1024x684 desktop; qualification pending",
+        "JVM scale 1.5: 1280x800 unavailable on 1024x684 desktop; qualification pending",
+        "JVM scale 2: 1280x800 unavailable on 1024x684 desktop; qualification pending"
+      ],
+      "limitations": [
+        "JVM UI scale 1/1.5/2 is not proof of changing Windows monitor DPI.",
+        "No production release/site promotion occurs in this workflow.",
+        "Screenshots/video require human inspection.",
+        "Native GPU sessions and MSI shortcuts must be validated separately if runner desktop access fails."
+      ],
+      "passed": false,
+      "fullQualificationPassed": false,
+      "checks": [
+        {
+          "name": "Updater failures, locks, concurrency and migration",
+          "expected": "Previous verified installation retained; no duplicate transfer",
+          "status": "passed",
+          "playtest": "Playtest: Updater failures, locks, concurrency and migration",
+          "observed": "Verified immutable update under lock; corrupt/partial/malformed fallback; cancellation; two concurrent processes downloaded once; legacy migration reused bytes."
+        },
+        {
+          "name": "Native executable and two-version bootstrap update",
+          "expected": "Empty PATH works; active shell retained; new shell activates next start",
+          "status": "passed",
+          "playtest": "Playtest: Native executable and two-version bootstrap update",
+          "observed": "Two packaged fixture generations: bundled runtime launched verified v1; bootstrap staged v2 while v1 active; next start executed v2. No public release claim."
+        },
+        {
+          "name": "UI at JVM scale 1",
+          "expected": "900x600/1280x800 actual screenshots and bounded UI video",
+          "status": "passed",
+          "playtest": "Playtest: UI at JVM scale 1",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1. Full-size qualification pending: 1280x800 unavailable on 1024x684 desktop; qualification pending"
+        },
+        {
+          "name": "UI at JVM scale 1.5",
+          "expected": "900x600/1280x800 actual screenshots and bounded UI video",
+          "status": "passed",
+          "playtest": "Playtest: UI at JVM scale 1.5",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1.5. Full-size qualification pending: 1280x800 unavailable on 1024x684 desktop; qualification pending"
+        },
+        {
+          "name": "UI at JVM scale 2",
+          "expected": "900x600/1280x800 actual screenshots and bounded UI video",
+          "status": "passed",
+          "playtest": "Playtest: UI at JVM scale 2",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 2. Full-size qualification pending: 1280x800 unavailable on 1024x684 desktop; qualification pending"
+        },
+        {
+          "name": "Synthetic online login handoff",
+          "expected": "Both native game identities authenticate to their selected TLS server",
+          "status": "passed",
+          "playtest": "Playtest: Synthetic online login handoff",
+          "observed": "City/Sandbox locked selection; custom loopback port; invalid-port rejection; pinned TLS sign-in passed."
+        },
+        {
+          "name": "Native rendered city",
+          "expected": "Verified platform client renders four real frames with bundled Java",
+          "status": "failed",
+          "playtest": "Playtest: Native rendered city",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native city renderer: RuntimeException: Failed to create the GLFW window"
+        },
+        {
+          "name": "Native rendered sandbox",
+          "expected": "Verified platform client renders four real frames with bundled Java",
+          "status": "failed",
+          "playtest": "Playtest: Native rendered sandbox",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native sandbox renderer: RuntimeException: Failed to create the GLFW window"
+        },
+        {
+          "name": "Native rendered editor",
+          "expected": "Verified platform client renders four real frames with bundled Java",
+          "status": "failed",
+          "playtest": "Playtest: Native rendered editor",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native editor renderer: RuntimeException: Failed to create the GLFW window"
+        },
+        {
+          "name": "Offline native installation",
+          "expected": "Last verified client usable without service",
+          "status": "passed",
+          "playtest": "Playtest: Offline native installation",
+          "observed": "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache/versions/32d93e09768167a188e7507cd4fe65d1880443b7/1f9ef3e1ac1e8e4abfb278ac421993d6bfc9ed52f014f8315287288a69269397/mac-arm.jar"
+        }
+      ]
+    },
+    {
+      "sourceSha": "32d93e09768167a188e7507cd4fe65d1880443b7",
+      "sourceKind": "exact commit checkout",
+      "platform": "Darwin",
+      "architecture": "x86_64",
+      "limitations": [
+        "JVM UI scale 1/1.5/2 is not proof of changing Windows monitor DPI.",
+        "No production release/site promotion occurs in this workflow.",
+        "Screenshots/video require human inspection.",
+        "Native GPU sessions and MSI shortcuts must be validated separately if runner desktop access fails."
+      ],
+      "passed": false,
+      "fullQualificationPassed": false,
+      "checks": [
+        {
+          "name": "Updater failures, locks, concurrency and migration",
+          "expected": "Previous verified installation retained; no duplicate transfer",
+          "status": "passed",
+          "playtest": "Playtest: Updater failures, locks, concurrency and migration",
+          "observed": "Verified immutable update under lock; corrupt/partial/malformed fallback; cancellation; two concurrent processes downloaded once; legacy migration reused bytes."
+        },
+        {
+          "name": "Native executable and two-version bootstrap update",
+          "expected": "Empty PATH works; active shell retained; new shell activates next start",
+          "status": "passed",
+          "playtest": "Playtest: Native executable and two-version bootstrap update",
+          "observed": "Two packaged fixture generations: bundled runtime launched verified v1; bootstrap staged v2 while v1 active; next start executed v2. No public release claim."
+        },
+        {
+          "name": "UI at JVM scale 1",
+          "expected": "900x600/1280x800 actual screenshots and bounded UI video",
+          "status": "passed",
+          "playtest": "Playtest: UI at JVM scale 1",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1"
+        },
+        {
+          "name": "UI at JVM scale 1.5",
+          "expected": "900x600/1280x800 actual screenshots and bounded UI video",
+          "status": "passed",
+          "playtest": "Playtest: UI at JVM scale 1.5",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1.5"
+        },
+        {
+          "name": "UI at JVM scale 2",
+          "expected": "900x600/1280x800 actual screenshots and bounded UI video",
+          "status": "passed",
+          "playtest": "Playtest: UI at JVM scale 2",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 2"
+        },
+        {
+          "name": "Synthetic online login handoff",
+          "expected": "Both native game identities authenticate to their selected TLS server",
+          "status": "passed",
+          "playtest": "Playtest: Synthetic online login handoff",
+          "observed": "City/Sandbox locked selection; custom loopback port; invalid-port rejection; pinned TLS sign-in passed."
+        },
+        {
+          "name": "Native rendered city",
+          "expected": "Verified platform client renders four real frames with bundled Java",
+          "status": "failed",
+          "playtest": "Playtest: Native rendered city",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native city renderer: RuntimeException: Failed to create the GLFW window"
+        },
+        {
+          "name": "Native rendered sandbox",
+          "expected": "Verified platform client renders four real frames with bundled Java",
+          "status": "failed",
+          "playtest": "Playtest: Native rendered sandbox",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native sandbox renderer: RuntimeException: Failed to create the GLFW window"
+        },
+        {
+          "name": "Native rendered editor",
+          "expected": "Verified platform client renders four real frames with bundled Java",
+          "status": "failed",
+          "playtest": "Playtest: Native rendered editor",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native editor renderer: RuntimeException: Failed to create the GLFW window"
+        },
+        {
+          "name": "Offline native installation",
+          "expected": "Last verified client usable without service",
+          "status": "passed",
+          "playtest": "Playtest: Offline native installation",
+          "observed": "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache/versions/32d93e09768167a188e7507cd4fe65d1880443b7/18daa0900874016ce1cb53f32ea04b8bbfe0c2cdf5b58a6edc43ecb770c4ea30/mac-intel.jar"
+        }
+      ]
+    },
+    {
+      "sourceSha": "32d93e09768167a188e7507cd4fe65d1880443b7",
+      "sourceKind": "exact commit checkout",
+      "platform": "Windows",
+      "architecture": "AMD64",
+      "pendingQualification": [
+        "JVM scale 1: 1280x800 unavailable on 1024x728 desktop; qualification pending",
+        "JVM scale 1.5: 900x600 unavailable on 683x485 desktop; qualification pending\n1280x800 unavailable on 683x485 desktop; qualification pending",
+        "JVM scale 2: 900x600 unavailable on 512x364 desktop; qualification pending\n1280x800 unavailable on 512x364 desktop; qualification pending"
+      ],
+      "limitations": [
+        "JVM UI scale 1/1.5/2 is not proof of changing Windows monitor DPI.",
+        "No production release/site promotion occurs in this workflow.",
+        "Screenshots/video require human inspection.",
+        "Native GPU sessions and MSI shortcuts must be validated separately if runner desktop access fails."
+      ],
+      "passed": false,
+      "fullQualificationPassed": false,
+      "checks": [
+        {
+          "name": "Updater failures, locks, concurrency and migration",
+          "expected": "Previous verified installation retained; no duplicate transfer",
+          "status": "passed",
+          "playtest": "Playtest: Updater failures, locks, concurrency and migration",
+          "observed": "Verified immutable update under lock; corrupt/partial/malformed fallback; cancellation; two concurrent processes downloaded once; legacy migration reused bytes."
+        },
+        {
+          "name": "Native executable and two-version bootstrap update",
+          "expected": "Empty PATH works; active shell retained; new shell activates next start",
+          "status": "passed",
+          "playtest": "Playtest: Native executable and two-version bootstrap update",
+          "observed": "Two packaged fixture generations: bundled runtime launched verified v1; bootstrap staged v2 while v1 active; next start executed v2. No public release claim."
+        },
+        {
+          "name": "Windows MSI, shortcuts and uninstall",
+          "expected": "Bundled runtime install/launch and saves survive uninstall",
+          "status": "passed",
+          "playtest": "Playtest: Windows MSI, shortcuts and uninstall",
+          "observed": "Scoped MSI installed, native executable ran, desktop/menu shortcuts verified, uninstall retained synthetic save."
+        },
+        {
+          "name": "UI at JVM scale 1",
+          "expected": "900x600/1280x800 actual screenshots and bounded UI video",
+          "status": "passed",
+          "playtest": "Playtest: UI at JVM scale 1",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1. Full-size qualification pending: 1280x800 unavailable on 1024x728 desktop; qualification pending"
+        },
+        {
+          "name": "UI at JVM scale 1.5",
+          "expected": "900x600/1280x800 actual screenshots and bounded UI video",
+          "status": "passed",
+          "playtest": "Playtest: UI at JVM scale 1.5",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1.5. Full-size qualification pending: 900x600 unavailable on 683x485 desktop; qualification pending\n1280x800 unavailable on 683x485 desktop; qualification pending"
+        },
+        {
+          "name": "UI at JVM scale 2",
+          "expected": "900x600/1280x800 actual screenshots and bounded UI video",
+          "status": "passed",
+          "playtest": "Playtest: UI at JVM scale 2",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 2. Full-size qualification pending: 900x600 unavailable on 512x364 desktop; qualification pending\n1280x800 unavailable on 512x364 desktop; qualification pending"
+        },
+        {
+          "name": "Synthetic online login handoff",
+          "expected": "Both native game identities authenticate to their selected TLS server",
+          "status": "passed",
+          "playtest": "Playtest: Synthetic online login handoff",
+          "observed": "City/Sandbox locked selection; custom loopback port; invalid-port rejection; pinned TLS sign-in passed."
+        },
+        {
+          "name": "Native rendered city",
+          "expected": "Verified platform client renders four real frames with bundled Java",
+          "status": "failed",
+          "playtest": "Playtest: Native rendered city",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native city renderer: RuntimeException: Failed to create the GLFW window"
+        },
+        {
+          "name": "Native rendered sandbox",
+          "expected": "Verified platform client renders four real frames with bundled Java",
+          "status": "failed",
+          "playtest": "Playtest: Native rendered sandbox",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native sandbox renderer: RuntimeException: Failed to create the GLFW window"
+        },
+        {
+          "name": "Native rendered editor",
+          "expected": "Verified platform client renders four real frames with bundled Java",
+          "status": "failed",
+          "playtest": "Playtest: Native rendered editor",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native editor renderer: RuntimeException: Failed to create the GLFW window"
+        },
+        {
+          "name": "Offline native installation",
+          "expected": "Last verified client usable without service",
+          "status": "passed",
+          "playtest": "Playtest: Offline native installation",
+          "observed": "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\native-cache\\versions\\32d93e09768167a188e7507cd4fe65d1880443b7\\7de1a2dff20264251c96d94902b36220ac165af4cef0933088fef73fa68009bb\\windows.jar"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact published 32d93e source; predates new Bootstrap/publication edits. GLFW failures remain failures. No physical GPU/DPI qualification inferred."
+}

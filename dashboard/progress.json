@@ -4017,8 +4017,8 @@
       "description": "Building the catalog-driven desktop hub around verified client updates. Platform packaging and playtests remain required.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Compatibility correction validated: Maven19, publisher1, portal31; final bundled-runtime Hub workflow passed mismatch/fallback/refusal and launch regressions. Prior exact-head Windows MSI/shortcuts/uninstall passed. Current-head hosted rerun, physical GPU/DPI and two published shell generations remain release gates.",
-      "updatedAt": "2026-10-16T23:23:19+00:00"
+      "note": "Publication preparation and verified playtest-565 integration checked locally. Controller publication, current-head hosted gameplay, physical GPU/DPI and two published shell upgrades remain required. Stable rollout stays gated.",
+      "updatedAt": "2026-10-17T00:21:09+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

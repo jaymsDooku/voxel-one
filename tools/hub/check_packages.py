@@ -230,7 +230,9 @@ def run(args):
     check('Synthetic online login handoff','Both native game identities authenticate to their selected TLS server',online)
     for mode in ('city','sandbox','editor'):
         def render(mode=mode):
-            native_env=env.copy();native_env['PATH']=str(empty);native_env['ALSOFT_DRIVERS']='null'
+            # Bundled Java is invoked by absolute path. Preserve OS driver/utility paths;
+            # empty-PATH launcher/MSI checks above still verify runtime independence.
+            native_env=env.copy();native_env['ALSOFT_DRIVERS']='null'
             argv=[runtime,'-Djava.io.tmpdir='+str(work)]
             if platform.system()=='Darwin':argv.append('-XstartOnFirstThread')
             argv.extend(['-cp',os.pathsep.join(map(str,(classes,second))),'NativeRenderProbe',work/('native-'+mode),out/('native-'+mode),mode])

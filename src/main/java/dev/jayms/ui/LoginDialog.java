@@ -146,7 +146,7 @@ public final class LoginDialog {
             protected Void doInBackground() throws Exception {
                 if (!Desktop.isDesktopSupported() || !Desktop.getDesktop().isSupported(Desktop.Action.BROWSE))
                     throw new IOException("Default browser unavailable");
-                Desktop.getDesktop().browse(java.net.URI.create("https://github.com/jaymsDooku/voxel-one/releases/latest"));
+                Desktop.getDesktop().browse(java.net.URI.create("https://github.com/jaymsDooku/voxel-one/releases"));
                 return null;
             }
             protected void done() { try { get(); } catch (Exception failure) { status.setText("Open the Voxel One GitHub releases page for desktop downloads."); } }
