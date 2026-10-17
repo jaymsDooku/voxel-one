@@ -4017,8 +4017,8 @@
       "description": "Building the catalog-driven desktop hub around verified client updates. Platform packaging and playtests remain required.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Publication preparation and verified playtest-565 integration checked locally. Controller publication, current-head hosted gameplay, physical GPU/DPI and two published shell upgrades remain required. Stable rollout stays gated.",
-      "updatedAt": "2026-10-17T00:21:09+00:00"
+      "note": "Immutable native release correction validated: Java21 tests, publisher4 tests, packaged fresh public install/City launch and CLI passed. Full release remains gated by controller publication, exact-head native platform gameplay, physical GPU/DPI and published shell upgrades.",
+      "updatedAt": "2026-10-17T00:32:29+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
