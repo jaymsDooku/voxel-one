@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-17T14:53:50+00:00",
+  "updatedAt": "2026-10-17T15:15:52+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -20,8 +20,8 @@
       "description": "Bounded async Sandbox generation, staged mesh/lighting work, reusable GPU stores and worker-built mip levels; validated on the available Linux software renderer.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Ready for independent review. 154 tests/package, three166-sample matched pairs, rendered coverage comparison, native offline100k edits/multiplayer/City/world-switch/travel and64-cycle GL soak passed. Full readiness now50\u201355s matched baseline53\u201355s. Cold-flight ownerp99 reduced94.08\u201398.49%;2ms tails and GI gaps remain documented. Current F10 decoded/inspected; physical WindowsGPU gates stable rollout. Artifacts pending controller publication.",
-      "updatedAt": "2026-10-17T14:53:50+00:00"
+      "note": "Ready for independent review. Active sky build/merge shutdown fixed: old5000ms watchdog ->4.073/0.072ms, bodies exited/futures cancelled. 160tests/package, native active-world-switch and both cleanup-failure paths passed. GL readback/cancellation and65frame100kedit workflow passed; new509123byte F10 decoded/inspected. Prior performance/coverage/WindowsGPU limits retained; evidence pending controller publication.",
+      "updatedAt": "2026-10-17T15:15:52+00:00"
     },
     {
       "id": "607ad2ae-9047-4ee1-bff3-f41033b6a910",

@@ -22,6 +22,7 @@ public final class TerrainScheduler implements AutoCloseable {
     private final Map<ChunkPos, Job> jobs = new LinkedHashMap<>();
     private final ArrayDeque<FutureTask<?>> preparation=new ArrayDeque<>();
     private int preparing;
+    private FutureTask<?> activePreparation;
     private final Thread worker;
     /** Two coalesced sky tasks share this CPU lane; they cannot crowd out terrain. */
     public synchronized <T> Future<T> prepare(Callable<T> work) {
@@ -76,14 +77,16 @@ public final class TerrainScheduler implements AutoCloseable {
                 while(true) {
                     if(closed)return;
                     job=jobs.values().stream().filter(j->!j.running&&!j.done).findFirst().orElse(null);
-                    if(!preparation.isEmpty()&&(lastTerrain||job==null)){auxiliary=preparation.remove();lastTerrain=false;break;}
+                    if(!preparation.isEmpty()&&(lastTerrain||job==null)){auxiliary=preparation.remove();activePreparation=auxiliary;lastTerrain=false;break;}
                     if(job!=null){job.running=true;lastTerrain=true;break;}
                     try{wait();}catch(InterruptedException e){if(closed)return;}
                 }
             }
             if(auxiliary!=null) {
-                auxiliary.run();Thread.interrupted();
-                synchronized(this){preparing--;notifyAll();}
+                try{auxiliary.run();}finally{
+                    synchronized(this){activePreparation=null;preparing--;notifyAll();}
+                    Thread.interrupted();
+                }
                 continue;
             }
             Result result=null;Throwable failure=null;
@@ -101,7 +104,7 @@ public final class TerrainScheduler implements AutoCloseable {
         }
     }
     @Override public void close() {
-        synchronized(this){if(closed)return;closed=true;jobs.clear();for(var task:preparation)task.cancel(false);preparing-=preparation.size();preparation.clear();notifyAll();}
+        synchronized(this){closed=true;jobs.clear();for(var task:preparation)task.cancel(false);preparing-=preparation.size();preparation.clear();if(activePreparation!=null)activePreparation.cancel(true);notifyAll();}
         worker.interrupt();
         try{worker.join(5000);}catch(InterruptedException e){Thread.currentThread().interrupt();}
         if(worker.isAlive())throw new IllegalStateException("Terrain worker did not stop");

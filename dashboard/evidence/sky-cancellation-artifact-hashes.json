@@ -1,0 +1,86 @@
+{
+  "sourceSha256": "a697400ee556a6271ebf9ee3b72c999a1b93677f2d9c571a58448acb34d72337",
+  "jarSha256": "3aa4c03db94167b2c038acf573c9566958bb9141d79fa3bb66ae4b7906572f45",
+  "files": {
+    "dashboard/evidence/sky-cancellation-active-switch.txt": {
+      "sha256": "e6e73f55ce0e8ed7c093348d5d3071bcac331935571faa877d6c1aea998eddac",
+      "bytes": 353
+    },
+    "dashboard/evidence/sky-cancellation-after.csv": {
+      "sha256": "42c55c9ad7afb412a6e43387e88892f6b26bf9a8a065683d92089f4995b3ecdb",
+      "bytes": 129
+    },
+    "dashboard/evidence/sky-cancellation-before.csv": {
+      "sha256": "b080d7043b99caafb04c0cf9a3120dfa8c9944a0a5bcd94a6ed4cea358054af9",
+      "bytes": 181
+    },
+    "dashboard/evidence/sky-cancellation-diff-audit.json": {
+      "sha256": "b81997bfeeb6643d01b60fb3fad35e689758d850c0c6998e4b7959eb7f10f285",
+      "bytes": 1632
+    },
+    "dashboard/evidence/sky-cancellation-f10.mp4": {
+      "sha256": "d988b36a1286b45516cd9c48f2ecd9de614e5a1551312f15f974d5af314d2578",
+      "bytes": 509123
+    },
+    "dashboard/evidence/sky-cancellation-failure-run.txt": {
+      "sha256": "27430c0176310b46fc5d3464ea0020911ce8a442b7fa01c5d3aeef9627d5c98c",
+      "bytes": 343
+    },
+    "dashboard/evidence/sky-cancellation-failure-switch.txt": {
+      "sha256": "dbc695fb215a1bbfb5a6c38173f1897fb39cbdc69ea3176d600fdfa2e1e229e9",
+      "bytes": 346
+    },
+    "dashboard/evidence/sky-cancellation-midpoint.png": {
+      "sha256": "bd7357610feff97d8420d564c09d8bc913fc523a68dc9992cd62c0937d1d6807",
+      "bytes": 607984
+    },
+    "dashboard/evidence/sky-cancellation-offline-result.txt": {
+      "sha256": "f3d29ea77f21ab2380db84194bde66180e4a39aa4bffb864bb81d51ea0ed36a0",
+      "bytes": 244
+    },
+    "dashboard/evidence/sky-cancellation-offline-streaming-offline-edited.png": {
+      "sha256": "50bc4569b4e249fd70633b6e18138f551a24ffb49c2812ab91b2459550d73ddd",
+      "bytes": 384412
+    },
+    "dashboard/evidence/sky-cancellation-offline-streaming-offline-final.png": {
+      "sha256": "29ee1d9ff19d2fba30a8f2b22400da3bd5f37c94f39f6dddafd0da99d86f1bb0",
+      "bytes": 262330
+    },
+    "dashboard/evidence/sky-cancellation-offline-workflow.csv": {
+      "sha256": "1a6e4f69ee3779462d5fadb2bd73cabbd15cd0b430e3aad850b71319e172724f",
+      "bytes": 6406
+    },
+    "dashboard/evidence/sky-cancellation-playtest.txt": {
+      "sha256": "a195d17eebadff4840405d931d1534fdb3ab4529825b5b8a3dd681c5615343c6",
+      "bytes": 6737
+    },
+    "dashboard/evidence/sky-cancellation-source.json": {
+      "sha256": "85b8b04d5dbe61cd1abd95ebf01ca00ffc8850b6706c32ac7e431f26502844df",
+      "bytes": 1044
+    },
+    "dashboard/evidence/sky-cancellation-tests.json": {
+      "sha256": "64fa1c3a03a947e223cd0dca575ca52a1acbaa55a52b2c5aaeac3f665866c217",
+      "bytes": 361
+    },
+    "dashboard/evidence/sky-cancellation-upload-full-volume-pumps.csv": {
+      "sha256": "6b22c4c065e0fd6cb61f5c19b1205648a6814a6101f468ffe323277712a2ac82",
+      "bytes": 812
+    },
+    "dashboard/evidence/sky-cancellation-upload-full-volume-result.txt": {
+      "sha256": "67530f56d1eb1568c1acf48c1b5ec586a0841ca600ef60c775e5c1c4ff59c606",
+      "bytes": 586
+    },
+    "dashboard/evidence/sky-cancellation-upload-result.txt": {
+      "sha256": "fdf91acef25b851a8040daceaeb9ba829c8746c3520fbbf23693fa89cee01196",
+      "bytes": 522
+    },
+    "dashboard/evidence/sky-cancellation-validation.json": {
+      "sha256": "91aca65b375e54eb5856bb36079a95f79225777ad3e0e070f1743339785ea366",
+      "bytes": 3566
+    },
+    "dashboard/evidence/sky-cancellation-video.json": {
+      "sha256": "3d64e01567380c8d9d06ce244f33b07c6a345de88df289c98f90b5be5fa207f9",
+      "bytes": 210
+    }
+  }
+}

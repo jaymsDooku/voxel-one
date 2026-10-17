@@ -354,10 +354,13 @@ public class World implements AutoCloseable {
     @Override
     public void close() throws Exception {
         closed=true;skyStamp++;
-        if(terrainScheduler!=null)terrainScheduler.close();
+        var cleanup=new CloseSequence();
+        cleanup.run(()->{if(terrainScheduler!=null)terrainScheduler.close();});
         preparing=null;replay=null;streamingColumns.clear();skyEditChunks.clear();skyEditVersions.clear();skyPositions.clear();
-        for (Chunk c : loadedChunks.values()) c.close();
-        edits.clear();editedCells.clear();editedCeilings.clear();columnGeometryVersions.clear();voxels.clear();terrain.clearCaches();
+        for (Chunk c : loadedChunks.values()) cleanup.run(c::close);
+        edits.clear();editedCells.clear();editedCeilings.clear();columnGeometryVersions.clear();voxels.clear();
+        cleanup.run(terrain::clearCaches);
         loadedChunks.clear();dirtyMeshes.clear();columnMembers.clear();dirtyColumns.clear();completeColumns.clear();visualColumns=Set.of();columnGeneration++;
+        cleanup.finish();
     }
 }

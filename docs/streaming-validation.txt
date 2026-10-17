@@ -143,3 +143,23 @@ contains actual commands, environment, steps, expected and observed results.
 lighting-near-v2-performance.txt and validation.json record measured limits;
 lighting-near-v2-visual-comparison.json records rendered coverage and inspection.
 These reports supersede earlier candidate results for the current source.
+
+Active sky preparation shutdown revision:
+TerrainScheduler retains its active preparation FutureTask under the same monitor
+as dequeue/close. Close cancels queued and active preparation, interrupts the lane
+and waits for its body to exit. Sky build, octree collection, model expansion,
+compaction/sorting, packing, merge input scans and directory construction check
+interruption. Completed/cancelled work cannot publish into the next world.
+Main and World attempt every cleanup step, aggregate failures and preserve an
+original run error. A failed switch retires the window/context rather than reuse
+partly closed resources. Native fault-injection tests cover both failure paths.
+
+Reproduce with the current client JAR using inherited role display:
+  python3 deploy/run_streaming_shutdown.py --display "$DISPLAY" --mode active-switch
+  python3 deploy/run_streaming_shutdown.py --display "$DISPLAY" --mode failure-switch
+  python3 deploy/run_streaming_shutdown.py --display "$DISPLAY" --mode failure-run
+  java -Xmx512m -cp target/streaming-after-client.jar deploy/SkyShutdownRepro.java target/sky-shutdown.csv true
+The actual results and current-source hashes are in dashboard/evidence/sky-cancellation-*
+with a Playtest: receipt. The lighting-near-v2 frame trials remain historical
+measurements of f33a94abc17b6b06e917a836ec9a694cefd2a414, not this revision.
+The documented 2ms tail, GI coverage and physical Windows GPU limits still apply.

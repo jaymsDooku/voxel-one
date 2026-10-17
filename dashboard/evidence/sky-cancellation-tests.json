@@ -1,0 +1,12 @@
+{
+  "command": "Java21 offline Maven selected21classes package (same19classes plus ActivePreparationShutdownTest,CloseSequenceTest)",
+  "counts": {
+    "tests": 160,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "exitCode": 0,
+  "jarSha256": "3aa4c03db94167b2c038acf573c9566958bb9141d79fa3bb66ae4b7906572f45",
+  "classAndResourceMismatches": []
+}

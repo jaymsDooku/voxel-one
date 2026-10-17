@@ -1,0 +1,29 @@
+{
+  "reviewBase": "403033b9f53ce66063982879c6e2daff684a427b",
+  "priorReviewedHead": "f33a94abc17b6b06e917a836ec9a694cefd2a414",
+  "sourceSha256": "a697400ee556a6271ebf9ee3b72c999a1b93677f2d9c571a58448acb34d72337",
+  "jarSha256": "3aa4c03db94167b2c038acf573c9566958bb9141d79fa3bb66ae4b7906572f45",
+  "deletedFiles": [],
+  "unmerged": false,
+  "pendingRebase": false,
+  "unrelatedProgressItemsPreserved": true,
+  "trackedDiffFromReviewedHead": [
+    "STREAMING_CHECKPOINT.txt",
+    "dashboard/progress.json",
+    "docs/streaming-validation.txt",
+    "src/main/java/dev/jayms/Main.java",
+    "src/main/java/dev/jayms/TerrainScheduler.java",
+    "src/main/java/dev/jayms/World.java",
+    "src/main/java/dev/jayms/net/model/SparseVoxelOctree.java",
+    "src/main/java/dev/jayms/render/WorldSkyVisibility.java"
+  ],
+  "untrackedSourceAndHarnesses": [
+    "src/main/java/dev/jayms/CloseSequence.java",
+    "src/test/java/dev/jayms/ActivePreparationShutdownTest.java",
+    "src/test/java/dev/jayms/CloseSequenceTest.java",
+    "deploy/SkyShutdownRepro.java",
+    "deploy/StreamingShutdownWorkflow.java",
+    "deploy/run_streaming_shutdown.py"
+  ],
+  "audit": "Entire proposed diff against recorded review base retains all files and unrelated progress items. Source remains scoped to detached streaming, lighting, mesh/snapshot paths, physics loading readiness and tests. This revision intentionally replaces sequential cleanup with all-step cleanup, tracks active preparation and adds cooperative cancellation. No quality/distance/terrain-version change. No unrelated deletion. Earlier review comments and historical evidence retained."
+}

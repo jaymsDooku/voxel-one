@@ -269,6 +269,7 @@ public class Main {
             GLFWErrorCallback.createPrint(System.err).set();
             if (!glfwInit()) throw new IllegalStateException("Unable to initialize GLFW");
         }
+        Throwable runFailure = null;
         try {
             if (window == null) init();
             else reuseWindow();
@@ -276,8 +277,15 @@ public class Main {
             if (vehicleAudio == null) vehicleAudio = new dev.jayms.audio.VehicleAudio();
             if (frameObserver != null) frameObserver.started(this);
             loop();
+        } catch (Exception | Error error) {
+            runFailure = error;
+            throw error;
         } finally {
-            cleanup(requestedSave != null);
+            try { cleanup(requestedSave != null); }
+            catch (Exception | Error error) {
+                if (runFailure != null) runFailure.addSuppressed(error);
+                else throw error;
+            }
         }
     }
 
@@ -1791,41 +1799,45 @@ public class Main {
     }
 
     private void cleanup(boolean keepWindow) throws Exception {
-        if (vehicleAudio != null) vehicleAudio.close();
-        performance.close();
-        if(graphics!=null)graphics.close();
-        recorder.close();
-        missiles.close();
-        if (local != null) local.save();
-        if (jeep != null) jeep.save(jeepSave());
-        if (network != null) network.close();
-        detailedMeshes.close();
-        if (distant != null) distant.close();
-        if (world != null) world.close();
-        if (playerModel != null) playerModel.close();
-        if (horseModel != null) horseModel.close();
-        if (planeModel != null) planeModel.close();
-        if (railwayModel != null) railwayModel.close();
-        if (roadMarkingModel != null) roadMarkingModel.close();
-        if (shipModel != null) shipModel.close();
-        if (jeepModel != null) jeepModel.close();
-        if (farmModels != null) farmModels.close();
-        if (modelRenderer != null) modelRenderer.close();
-        if (editor != null) editor.close();
-        if (overlay != null) overlay.close();
-        if (rendering != null) rendering.close();
-        if (shader != null) shader.close();
-        // Retire scene resources before another simulation uses the same context.
-        if (overlay != null) glFinish();
-        if (window != null) {
-            if (keepWindow) org.lwjgl.glfw.Callbacks.glfwFreeCallbacks(window.getHandle());
-            else window.destroy();
+        var cleanup = new CloseSequence();
+        cleanup.run(() -> { if (vehicleAudio != null) vehicleAudio.close(); });
+        cleanup.run(() -> { performance.close(); });
+        cleanup.run(() -> { if(graphics!=null)graphics.close(); });
+        cleanup.run(() -> { recorder.close(); });
+        cleanup.run(() -> { missiles.close(); });
+        cleanup.run(() -> { if (local != null) local.save(); });
+        cleanup.run(() -> { if (jeep != null) jeep.save(jeepSave()); });
+        cleanup.run(() -> { if (network != null) network.close(); });
+        cleanup.run(() -> { detailedMeshes.close(); });
+        cleanup.run(() -> { if (distant != null) distant.close(); });
+        cleanup.run(() -> { if (world != null) world.close(); });
+        cleanup.run(() -> { if (playerModel != null) playerModel.close(); });
+        cleanup.run(() -> { if (horseModel != null) horseModel.close(); });
+        cleanup.run(() -> { if (planeModel != null) planeModel.close(); });
+        cleanup.run(() -> { if (railwayModel != null) railwayModel.close(); });
+        cleanup.run(() -> { if (roadMarkingModel != null) roadMarkingModel.close(); });
+        cleanup.run(() -> { if (shipModel != null) shipModel.close(); });
+        cleanup.run(() -> { if (jeepModel != null) jeepModel.close(); });
+        cleanup.run(() -> { if (farmModels != null) farmModels.close(); });
+        cleanup.run(() -> { if (modelRenderer != null) modelRenderer.close(); });
+        cleanup.run(() -> { if (editor != null) editor.close(); });
+        cleanup.run(() -> { if (overlay != null) overlay.close(); });
+        cleanup.run(() -> { if (rendering != null) rendering.close(); });
+        cleanup.run(() -> { if (shader != null) shader.close(); });
+        // Keep the context only when every scene resource retired successfully.
+        cleanup.run(() -> { if (overlay != null) glFinish(); });
+        boolean retainWindow = keepWindow && !cleanup.failed();
+        cleanup.run(() -> {
+            if (window != null) {
+                if (retainWindow) org.lwjgl.glfw.Callbacks.glfwFreeCallbacks(window.getHandle());
+                else window.destroy();
+            }
+        });
+        if (!retainWindow || cleanup.failed()) {
+            cleanup.run(() -> glfwTerminate());
+            cleanup.run(() -> { var error = glfwSetErrorCallback(null); if (error != null) error.free(); });
         }
-        if (!keepWindow) {
-            glfwTerminate();
-            var error = glfwSetErrorCallback(null);
-            if (error != null) error.free();
-        }
+        cleanup.finish();
     }
 
     public static void main(String[] args) throws Exception {
