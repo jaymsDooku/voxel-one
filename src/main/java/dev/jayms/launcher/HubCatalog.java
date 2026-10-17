@@ -11,6 +11,12 @@ public record HubCatalog(String version, List<Entry> entries) {
                         String artifact, Set<String> platforms, String build, String source,
                         String notes, String controls, String artwork, Set<String> clientSources) {
         public Entry { platforms = Set.copyOf(platforms); clientSources = Set.copyOf(clientSources); }
+        /** Fixed repository and immutable release tag; catalog values never supply an executable URL. */
+        public URI clientManifest() {
+            if (!adapter.equals("native") || !build.matches("playtest-[1-9][0-9]{0,9}"))
+                throw new IllegalArgumentException("Unsupported native release");
+            return URI.create("https://github.com/jaymsDooku/voxel-one/releases/download/" + build + "/update.properties");
+        }
         public void requireClient(Updater.Result result) throws IOException {
             if (result == null || !clientSources.contains(result.revision()))
                 throw new IOException("Catalog/client mismatch. Refresh the catalog or install a compatible published client.");
@@ -73,6 +79,8 @@ public record HubCatalog(String version, List<Entry> entries) {
             if (!source.matches("[0-9a-f]{40}|unpublished")) throw new IOException("Invalid source revision");
             Set<String> clientSources = Set.of();
             if (adapter.equals("native")) {
+                if (!field(p, prefix + "build", 80).matches("playtest-[1-9][0-9]{0,9}"))
+                    throw new IOException("Invalid immutable native release tag");
                 if (!"source-set-v1".equals(field(p, prefix + "client-compatibility", 32)))
                     throw new IOException("Unsupported engine/client compatibility contract");
                 String[] revisions = field(p, prefix + "client-sources", 327).split(",", -1);

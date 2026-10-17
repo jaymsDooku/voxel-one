@@ -41,6 +41,14 @@ class HubCatalogTest {
         assertThrows(IOException.class, () -> parse(text.replace("city.client-sources=" + entry.source(), "city.client-sources=" + entry.source() + ",../bad")));
         assertThrows(IOException.class, () -> parse(text.replace("city.client-compatibility=source-set-v1", "")));
     }
+    @Test void nativeArtifactsResolveToImmutableApprovedRelease() throws Exception {
+        String text = bundled();
+        var entry = parse(text).entries().get(0);
+        assertEquals("https://github.com/jaymsDooku/voxel-one/releases/download/" + entry.build() + "/update.properties", entry.clientManifest().toString());
+        for (String bad : java.util.List.of("latest", "../playtest-565", "playtest-0", "https://evil.example"))
+            assertThrows(IOException.class, () -> parse(text.replace("city.build=" + entry.build(), "city.build=" + bad)));
+        assertThrows(IllegalArgumentException.class, () -> parse(text).entries().get(2).clientManifest());
+    }
     @Test void cachedLibrarySurvivesMalformedSnapshot() throws Exception {
         var dir = java.nio.file.Files.createTempDirectory("hub-catalog-test");
         try {

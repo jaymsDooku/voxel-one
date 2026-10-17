@@ -1,0 +1,19 @@
+{
+  "checks": [
+    {
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/experience-catalog/catalog.properties",
+      "httpStatus": 404
+    },
+    {
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/experience-catalog/shell.properties",
+      "httpStatus": 404
+    },
+    {
+      "url": "https://github.com/jaymsDooku/voxel-one/releases/download/hub-preview-1/voxel-one-shell.jar",
+      "httpStatus": 404
+    }
+  ],
+  "passed": false,
+  "publishedShellGenerationUpgradeTested": false,
+  "stableRolloutQualified": false
+}

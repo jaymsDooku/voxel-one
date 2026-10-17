@@ -21,6 +21,8 @@ def assemble(native_receipt, web_receipt, output):
             raise ValueError('Invalid build ID')
         if any(c in receipt.get('notes', '') for c in '\r\n\\') or not 1 <= len(receipt.get('notes', '')) <= 4000:
             raise ValueError('Use single-line public release notes')
+    if not re.fullmatch(r'playtest-[1-9][0-9]{0,9}', native['build']):
+        raise ValueError('Native build must name an immutable playtest release')
     if not re.fullmatch(r'https://voxel-one\.jamesleaver1\.chatgpt\.site/games/space-invaders/(?:\?build=[0-9a-f]{20})?', web.get('url', '')):
         raise ValueError('Unexpected published web URL')
     template = Path('src/main/resources/dev/jayms/launcher/catalog.properties').read_text()
