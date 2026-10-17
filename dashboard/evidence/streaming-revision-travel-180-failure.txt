@@ -1,0 +1,1 @@
+AssertionError: Staged lighting became usable after settling at respawn

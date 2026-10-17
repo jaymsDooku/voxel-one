@@ -1076,7 +1076,7 @@ public class Main {
             }
             if (network != null && network.respawn != null) {
                 var p = network.respawn;
-                world.streamAsync(p.x(), p.y(), p.z(), 2_000_000L);
+                // The normal streaming pass below uses the new spawn position.
                 player = new Player(new Vector3f(p.x(), p.y(), p.z()), p.yaw(), p.pitch(), camera);
                 network.respawn = null;
                 notice = "You respawned. Your inventory was kept.";
@@ -1148,7 +1148,7 @@ public class Main {
                         e -> world.sample(e.x(), e.y(), e.z()))) {
                     if (jeep != null) jeep.releaseDriver();
                     float y = world.terrain().column(8, 24).height() + 1.01f;
-                    world.streamAsync(8, y, 24, 2_000_000L);
+                    // The next frame prioritizes spawn; unloaded collision cells stay solid.
                     player = new Player(new Vector3f(8.5f, y, 24.5f), -90, -20, camera);
                     notice = "You respawned. Your inventory was kept.";
                 }
@@ -1264,7 +1264,7 @@ public class Main {
                         + (network == null
                                 ? 0
                                 : Math.min(1, (System.nanoTime() - network.cityReceived) / 1e9)));
-        rendering.update(world, location.x, location.z);
+        rendering.update(world, location.x, location.z,Math.max(0,dev.jayms.render.FrameBudget.STREAMING_CPU_NANOS-streamNanos-detailedMeshes.totalNanos));
         rendering.renderShadows(world, modelRenderer, location);
         rendering.begin(
                 framebufferWidth,
@@ -1628,6 +1628,8 @@ public class Main {
         metric(PerformanceRecorder.Metric.SKY_CACHE_BYTES,rendering.skyCacheBytes());
         metric(PerformanceRecorder.Metric.SKY_WORKER_MS,rendering.skyWorkerNanos()/1e6);
         metric(PerformanceRecorder.Metric.LIGHTING_UPLOAD_BYTES,rendering.lightingUploadBytes);
+        metric(PerformanceRecorder.Metric.LIGHTING_STORE_ALLOCATIONS,rendering.lightingStoreAllocations);
+        metric(PerformanceRecorder.Metric.LIGHTING_STORE_CPU_MS,rendering.lightingStoreNanos/1e6);
         metric(PerformanceRecorder.Metric.SKY_BUILD_CPU_MS,rendering.skyBuildNanos/1e6);
         metric(PerformanceRecorder.Metric.LIGHTING_CPU_MS,rendering.lightingNanos/1e6);
         metric(PerformanceRecorder.Metric.LIGHTING_UPLOAD_CPU_MS,rendering.lightingUploadNanos/1e6);

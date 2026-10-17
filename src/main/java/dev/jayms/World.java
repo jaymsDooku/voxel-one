@@ -7,19 +7,21 @@ import java.util.*;
 
 public class World implements AutoCloseable {
     private final Map<ChunkPos, Chunk> loadedChunks = new HashMap<>();
-    private final Map<ChunkPos,Chunk> dirtyMeshes=new LinkedHashMap<>();
+    private final Map<ChunkPos,Chunk> dirtyMeshes=new java.util.concurrent.ConcurrentHashMap<>();
     private final Map<ChunkPos,Set<ChunkPos>> columnMembers=new HashMap<>();
     private final Set<ChunkPos> dirtyColumns=new HashSet<>(),completeColumns=new HashSet<>();
     private Set<ChunkPos> visualColumns=Set.of();private long columnGeneration,visualGeneration=-1;
     private int visualMinX,visualMaxX,visualMinZ,visualMaxZ;
     private static ChunkPos column(ChunkPos p){return new ChunkPos(p.chunkX(),0,p.chunkZ());}
     void meshDirty(ChunkPos p,Chunk c){if(loadedChunks.get(p)==c){skyStamp++;dirtyMeshes.put(p,c);dirtyColumns.add(column(p));}}
-    void meshClean(ChunkPos p,Chunk c){if(loadedChunks.get(p)==c){dirtyMeshes.remove(p);dirtyColumns.add(column(p));}}
+    void meshClean(ChunkPos p,Chunk c){if(loadedChunks.get(p)==c){dirtyMeshes.remove(p);dirtyColumns.add(column(p));sceneRevision++;}}
     Map<ChunkPos,Chunk> dirtyMeshes(){return dirtyMeshes;}
     private void updateColumns(){for(ChunkPos p:dirtyColumns){boolean complete=columnMembers.containsKey(p)&&(!streamingColumns.contains(p)||columnMembers.get(p).size()==10);for(ChunkPos member:columnMembers.getOrDefault(p,Set.of())){Chunk c=loadedChunks.get(member);if(!c.isEmpty()&&c.getMesh()==null){complete=false;break;}}boolean changed=complete?completeColumns.add(p):completeColumns.remove(p);if(changed)columnGeneration++;}dirtyColumns.clear();}
 
     private final Map<ChunkPos, Map<String, Protocol.Edit>> edits = new HashMap<>();
-    private long skyStamp;
+    private long skyStamp,sceneRevision;
+    /** Membership and installed-mesh changes, owned by the frame thread. */
+    public long sceneRevision(){return sceneRevision;}
     public long skyStamp(){return skyStamp;}
     private final Map<ChunkPos,Set<ChunkPos>> skyEditChunks=new HashMap<>();
     private final Map<ChunkPos,Long> skyEditVersions=new HashMap<>();
@@ -107,7 +109,7 @@ public class World implements AutoCloseable {
     private void attachChunk(ChunkPos p,Chunk c,boolean replayEdits) {
         if (loadedChunks.putIfAbsent(p, c) != null)
             throw new IllegalStateException("Already loaded");
-        skyPositions.put(column(p),true);
+        sceneRevision++;skyPositions.put(column(p),true);
         c.attach(this, p);columnMembers.computeIfAbsent(column(p),k->new HashSet<>()).add(p);meshDirty(p,c);
         if(replayEdits)for (var e : edits.getOrDefault(p, Map.of()).values()) c.apply(e);
         dirtyNeighbors(p);
@@ -212,7 +214,7 @@ public class World implements AutoCloseable {
         if(terrainScheduler!=null)terrainScheduler.cancel(position);
         if(preparing!=null&&preparing.position().equals(position)){preparing=null;replay=null;}
         var chunk=loadedChunks.get(position);
-        if(chunk!=null){skyStamp++;chunk.close();loadedChunks.remove(position);dirtyMeshes.remove(position);ChunkPos column=column(position);var members=columnMembers.get(column);members.remove(position);if(members.isEmpty()){columnMembers.remove(column);if(!skyEditChunks.containsKey(column))skyPositions.remove(column);}dirtyColumns.add(column);dirtyNeighbors(position);}
+        if(chunk!=null){skyStamp++;sceneRevision++;chunk.close();loadedChunks.remove(position);dirtyMeshes.remove(position);ChunkPos column=column(position);var members=columnMembers.get(column);members.remove(position);if(members.isEmpty()){columnMembers.remove(column);if(!skyEditChunks.containsKey(column))skyPositions.remove(column);}dirtyColumns.add(column);dirtyNeighbors(position);}
     }
 
     /** Synchronous bootstrap/CLI compatibility. Gameplay uses streamAsync; never call this from a frame. */
@@ -263,15 +265,9 @@ public class World implements AutoCloseable {
         if(terrainScheduler==null)terrainScheduler=new TerrainScheduler(terrain.seed,terrain.version);
         terrainScheduler.discardOutside(cx,cz,4);
         if(preparing!=null&&(Math.abs(preparing.position().chunkX()-cx)>4||Math.abs(preparing.position().chunkZ()-cz)>4)){preparing=null;replay=null;}
-        // A bounded disposal count also bounds worst-case driver calls; check time between chunks.
         long stage=System.nanoTime();
-        while(streamUnloaded<TerrainScheduler.CAPACITY&&System.nanoTime()<deadline) {
-            ChunkPos remove=null;
-            for(var p:loadedChunks.keySet())if(Math.abs(p.chunkX()-cx)>6||Math.abs(p.chunkZ()-cz)>6){remove=p;break;}
-            if(remove==null)break;unloadChunk(remove);streamUnloaded++;
-        }
-        streamDisposeNanos=System.nanoTime()-stage;
-        streamingColumns.removeIf(p->!columnMembers.containsKey(p)&&(Math.abs(p.chunkX()-cx)>4||Math.abs(p.chunkZ()-cz)>4));
+        requestNear(cx,cy,cz,Math.min(deadline,stage+Math.max(1,budgetNanos/4)));
+        streamRequestNanos+=System.nanoTime()-stage;
         while(streamAttached<TerrainScheduler.CAPACITY&&System.nanoTime()<deadline) {
             if(preparing==null){preparing=terrainScheduler.poll();replay=null;if(preparing==null)break;streamGenerationNanos+=preparing.generationNanos();}
             ChunkPos p=preparing.position();
@@ -285,8 +281,20 @@ public class World implements AutoCloseable {
             stage=System.nanoTime();attachChunk(p,preparing.chunk(),false);streamAttachNanos+=System.nanoTime()-stage;
             streamAttached++;preparing=null;replay=null;
         }
+        // Playable terrain gets ready work before any driver-facing disposal.
+        // Reserve a slice for cleanup, so neither stage can monopolize every frame.
+        long disposalDeadline=Math.min(deadline,System.nanoTime()+Math.max(1,budgetNanos/4));
         stage=System.nanoTime();
-        // Ring traversal is deterministic; the worker's bounded FIFO gives accepted jobs fairness.
+        while(streamUnloaded<TerrainScheduler.CAPACITY&&System.nanoTime()<disposalDeadline){
+            ChunkPos remove=null;for(var p:loadedChunks.keySet())if(Math.abs(p.chunkX()-cx)>6||Math.abs(p.chunkZ()-cz)>6){remove=p;break;}
+            if(remove==null)break;unloadChunk(remove);streamUnloaded++;
+        }
+        streamDisposeNanos=System.nanoTime()-stage;
+        streamingColumns.removeIf(p->!columnMembers.containsKey(p)&&(Math.abs(p.chunkX()-cx)>4||Math.abs(p.chunkZ()-cz)>4));
+        stage=System.nanoTime();requestNear(cx,cy,cz,deadline);streamRequestNanos+=System.nanoTime()-stage;
+    }
+    private void requestNear(int cx,int cy,int cz,long deadline){
+        // Deterministic rings plus bounded FIFO retain near priority and accepted-job fairness.
         outer:for(int ring=0;ring<=4;ring++)for(int a=-ring;a<=ring;a++)for(int b=-ring;b<=ring;b++) {
             if(Math.max(Math.abs(a),Math.abs(b))!=ring)continue;
             for(int d=0;d<=9;d++)for(int sign=d==0?0:-1;sign<=1;sign+=2) {
@@ -296,7 +304,6 @@ public class World implements AutoCloseable {
                 if(!loadedChunks.containsKey(p)&&(preparing==null||!preparing.position().equals(p))&&terrainScheduler.request(p,terrain.stressGrid()))streamingColumns.add(column(p));
             }
         }
-        streamRequestNanos=System.nanoTime()-stage;
     }
 
     @Override

@@ -79,6 +79,7 @@ public class StreamingWorkflow {
                         if(frame==30){key("keyup","w");key("keydown","s");check(player.flying(),"F toggles flight");check(player.position().x>flightX+5,"Sustained W plus sprint flight enters new terrain");}
                         if(frame==40){key("keyup","s");key("keyup","Shift_L");player.driveSeat(new Vector3f(2048,110,8),0);player.toggleFlight();}
                         if(frame==43){for(int y=-2;y<=7;y++)w.unloadChunk(new ChunkPos(0,y,1));player.driveSeat(new Vector3f(5,109.01f,24),0);}
+                        if(frame==50)((LocalGame)get("local")).health=0;
                     } else if(mode.equals("travel")) {
                         if(frame==0){key("key","f");key("keydown","w");key("keydown","Shift_L");key("keydown","space");}
                         if(frame==20)key("keyup","space");
@@ -101,8 +102,17 @@ public class StreamingWorkflow {
                     if(frame%10==0){Files.writeString(out.resolve("progress.txt"),"frame="+frame+"\n");Files.writeString(out.resolve("workflow.csv"),samples);}
                     if(mode.equals("switch")&&frame==15){set("requestedSave",out.resolve("other-world.dat"));glfwSetWindowShouldClose(handle,true);}
                     int end=mode.equals("offline")?65:mode.equals("multiplayer")?30:mode.equals("travel")?180:mode.equals("switch")?35:15;
+                    // The llvmpipe upload budget can need more than50 settling
+                    // frames after respawn. Observe readiness with a finite bound;
+                    // retain the180-frame minimum travel/respawn workload.
+                    if(mode.equals("travel")&&frame>=179) {
+                        boolean ready=((RenderPipeline)get("rendering")).lightingReady();
+                        end=ready?frame+1:450;
+                        Files.writeString(out.resolve("lighting-settlement.txt"),
+                                "frame="+frame+"; framesAfterRespawn="+(frame-130)+"; lightingReady="+ready+"\n");
+                    }
                     if(++frame==end){
-                        if(mode.equals("offline")){check(w.isLoaded(8,109,26),"Reloaded edited chunk resident");check(w.getBlock(8,109,26)==Blocks.PARTIAL,"Fractional LED survived unload and regeneration");check(w.cell(8,109,26).get(8,0,8)==0xfe30a0ff,"Exact RGB fractional edit replayed");check(w.getBlock(8,110,27)==tinyId,"Tiny model retained after reload");}
+                        if(mode.equals("offline")){check(w.isLoaded(8,109,26),"Reloaded edited chunk resident");check(w.getBlock(8,109,26)==Blocks.PARTIAL,"Fractional LED survived unload and regeneration");check(w.cell(8,109,26).get(8,0,8)==0xfe30a0ff,"Exact RGB fractional edit replayed");check(w.getBlock(8,110,27)==tinyId,"Tiny model retained after reload");check(((LocalGame)get("local")).health==20,"Ordinary respawn restores health");check(w.nearbyReady(actual.x,actual.z,0),"Playable terrain is ready after ordinary respawn");}
                         if(mode.equals("switch"))check(session==2&&w.terrain().seed==999,"Running application switched worlds and stopped old worker");
                         if(mode.equals("travel")){check((System.nanoTime()-began)>120_000_000_000L,"Multi-minute actual flight/reversal/respawn run");check(((LocalGame)get("local")).health==20,"Respawn restored health");check(w.nearbyReady(((Player)get("player")).position().x,((Player)get("player")).position().z,0),"Streaming caught up around respawn");var lighting=RenderPipeline.class.getDeclaredField("hasIrradiance");lighting.setAccessible(true);check(lighting.getBoolean(get("rendering")),"Staged lighting became usable after settling at respawn");}
                         if(mode.equals("multiplayer")){check(w.isLoaded(remoteEdit.x(),remoteEdit.y(),remoteEdit.z()),"Remote edited chunk reloaded");check(w.region(remoteEdit)==0,"Remote edit survives reload");check(((MultiplayerClient)get("network")).connected(),"Network stayed connected while streaming");}

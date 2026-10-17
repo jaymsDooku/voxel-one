@@ -1,0 +1,21 @@
+Review revision performance results
+Linux VPS / Mesa llvmpipe software rendering / Java21.0.5 / seed748291.
+Actual framebuffer1280x720; selected Balanced640x480 profile fell back during existing display startup. Daylight fixed10:00; unchanged render distances and quality. No video during timing captures.
+Each pair uses the same166-sample route,810preloaded/resident chunks, completed resident meshes and accepted latest lighting before capture. Cold walking/flight is outside preload edge x79, at x128..236. Samples are replayed per-frame positions, not a physical Windows speed claim.
+Three matched pairs:
+pair | cold-flight owner streaming p99 before -> after ms | reduction | frame p95 before -> after ms | frame p99 before -> after ms
+1 | 639.001 -> 11.658 | 98.18% | 2698.378 -> 2343.371 | 2881.887 -> 2436.631
+2 | 614.540 -> 16.352 | 97.34% | 2642.355 -> 2334.567 | 2744.847 -> 2455.181
+3 | 576.988 -> 13.030 | 97.74% | 2718.716 -> 2354.478 | 2892.450 -> 2490.951
+
+The >=50% owner streaming p99 reduction target is achieved in all three pairs. Total frame tails also improve consistently, but remain seconds/frame on this software GPU. This host does not sustain60FPS with resident terrain; the proposed25ms p95 /50ms p99 physical-GPU frame targets are not qualified.
+The shared2ms owner target is NOT achieved in the tails. Cold-flight owner p99 is11.658,16.352,13.030ms. Full CSVs retain every overrun, GC count/time, stages, bytes, queues and memory. Stage timers measure elapsed wall time on the owner, including safepoints, compilation and scheduling. Do not infer a GC cause for spikes without a reported pause.
+Remaining cold stage p99 ranges: mesh owner5.338..13.362ms; sky0.590..9.968ms; lighting metadata2.859..5.837ms; lighting upload0.113..3.215ms. Scene scan/copy removal reduced scene p99 to0.048..0.231ms. Existing mesh swap/disposal and sky/snapshot acceptance remain occasional over-budget units on this host. Their wall-time spikes remain visible; no hard real-time guarantee is claimed.
+GPU store allocations during all three final captures:0. The isolated GL readback probe measured old glGenerateMipmap176.79011ms of176.850875ms cold pump. An initial revised probe measured4.941328ms cold max and0.11386ms warmed pooled max. The final-source repeat measured7.790005ms cold max,3.230766ms pooled max including cold/init,0.158513ms warmed pooled max. GPU mip generation is absent from the revised upload.
+Loading: center column resident throughout all80cold-flight frames in each feature trial. Nearby3x3 resident76/80,75/80,76/80; warm reversal16/16 each; final tail8/8 each. Terrain queue sampled max8; final samples still have8 outer-terrain jobs, so full outer-radius completion is not claimed. Near terrain caught up after teleport.
+Sky cache max15,862,216bytes versus32,000,000byte cap; sampled heap max851,688,840bytes versus1536MiB JVM limit. Estimated VRAM about316MB includes retained lighting stores and is not equivalent to baseline estimates that omit them. Mesh waiting jobs age up to246,159ms on this slow host; far mesh completion latency remains a limit. Queue/memory safety is also checked separately by the repeated GL soak.
+Startup/warmup are exported separately and excluded from resident/cold/transition distributions. Feature graphics warmup135,201,208frames; startup plus warmup333..545seconds on llvmpipe. Do not hide this latency or claim physical GPU results.
+Historical119-sample route reports and intermediate feature profiles are excluded from this comparison. The source/JAR/route hashes are in streaming-sustained-source.json; per-trial settings and environment are in each JSON. Full segment distributions and1%lows/33/50/100ms counts are in streaming-sustained-comparison.json.
+Physical Windows GPU qualification remains pending and gates stable rollout. Windows reproduction steps are in docs/streaming-validation.txt.
+
+Native travel follow-up: the first180-frame keyboard flight/reversal/respawn run FAILED lighting readiness after50settlingframes despite terrain queue0. A finite450frame readiness observation rerun passed after283frames; lightingReady at282,152frames after respawn. No client change or quality reduction between these runs. The long llvmpipe lighting delay is an explicit throughput limit; the first failed run is preserved. Do not claim lighting settled within50frames.

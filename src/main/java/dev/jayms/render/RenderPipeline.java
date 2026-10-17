@@ -35,8 +35,8 @@ public final class RenderPipeline implements AutoCloseable {
     private ShadowRevision shadowRevision;
     private WorldSkyVisibility worldSky;
     private int skyBufferOffset;
-    private record SceneChunk(Chunk chunk, Mesh mesh) {}
-    private final java.util.Map<ChunkPos, SceneChunk> sceneChunks = new java.util.HashMap<>();
+    private World sceneWorld;
+    private long sceneRevision=Long.MIN_VALUE;
     public int visibleChunks, occludedChunks;
     private final ShaderProgram shadow =
             new ShaderProgram("shaders/shadow.vert", "shaders/shadow.frag");
@@ -69,8 +69,9 @@ public final class RenderPipeline implements AutoCloseable {
     private LightVolume volume,desiredVolume;
     private SkyVisibilityScheduler.Prepared desiredSky;
     private SceneLightingUpload lightingUpload;
+    private final LightingStores lightingStores=new LightingStores();
     private long desiredVolumeEdits,desiredVolumeModels,activeLightingBytes;
-    public long lightingUploadBytes;
+    public long lightingUploadBytes,lightingStoreAllocations,lightingStoreNanos;
     private Vector3f sun = new Vector3f(SUN);
     private float daylight = 1, ambient = 1;
     private int environmentPhase = -1;
@@ -93,6 +94,7 @@ public final class RenderPipeline implements AutoCloseable {
     public RenderPipeline(){this(null);}
     public RenderPipeline(GraphicsProfile profile) {
         try {
+        lightingStores.warmDefaults();
         if(profile==null){var defaults=GraphicsProfile.launchDefaults().profile();settings.apply(defaults);samples=Math.max(1,Math.min(defaults.samples(),glGetInteger(GL_MAX_SAMPLES)));}
         if(profile!=null){settings.apply(profile);samples=profile.samples();shadowResolution=profile.shadowSize();materials.configure(profile.get(GraphicsProfile.Key.TEXTURE).equals("PIXEL"),profile.on(GraphicsProfile.Key.MIPMAP),profile.number(GraphicsProfile.Key.ANISOTROPY));}
         atmosphere.quality(settings.atmosphereQuality);
@@ -134,40 +136,29 @@ public final class RenderPipeline implements AutoCloseable {
         return hasIrradiance;
     }
 
-    /** Mesh identities survive checkMesh clearing dirty; membership also catches streaming unloads. */
+    /** World mutations carry a stamp; do not scan/copy every resident chunk per frame. */
     private boolean sceneChanged(World world) {
-        var loaded = world.getLoadedChunks();
-        boolean changed = sceneChunks.size() != loaded.size();
-        if (!changed) for (var entry : loaded.entrySet()) {
-            SceneChunk previous = sceneChunks.get(entry.getKey());
-            if (previous == null || previous.chunk() != entry.getValue()
-                    || previous.mesh() != entry.getValue().getMesh()) {
-                changed = true;
-                break;
-            }
-        }
-        if (changed) {
-            sceneGeneration++;sceneChunks.clear();
-            loaded.forEach((pos, chunk) -> sceneChunks.put(pos, new SceneChunk(chunk, chunk.getMesh())));
-        }
-        return changed;
+        if(sceneWorld==world&&sceneRevision==world.sceneRevision())return false;
+        sceneWorld=world;sceneRevision=world.sceneRevision();sceneGeneration++;
+        return true;
     }
 
     public int skyPending(){return skyVisibility.pending();}
     public long skyCacheBytes(){return skyVisibility.cachedBytes();}
     public long skyWorkerNanos(){return skyVisibility.workerNanos;}
     public long skyBuildNanos, lightingNanos, sceneNanos, lightingUploadNanos, shadowCpuNanos, probeCpuNanos;
-    public void update(World world, float x, float z) {
-        long start=System.nanoTime();
+    public void update(World world,float x,float z){update(world,x,z,FrameBudget.STREAMING_CPU_NANOS);}
+    public void update(World world, float x, float z,long ownerNanos) {
+        long start=System.nanoTime(),allocations=lightingStores.allocations,allocationNanos=lightingStores.allocationNanos;
         skyBuildNanos=lightingNanos=sceneNanos=lightingUploadNanos=0;
-        try{updateScene(world,x,z);}finally{lightingUploadNanos=Math.max(0,System.nanoTime()-start-skyBuildNanos-lightingNanos-sceneNanos);}
+        try{updateScene(world,x,z,start+Math.max(0,ownerNanos));}finally{lightingUploadNanos=Math.max(0,System.nanoTime()-start-skyBuildNanos-lightingNanos-sceneNanos);lightingStoreAllocations=lightingStores.allocations-allocations;lightingStoreNanos=lightingStores.allocationNanos-allocationNanos;}
     }
-    private void updateScene(World world,float x,float z) {
+    private void updateScene(World world,float x,float z,long deadline) {
         long stage=System.nanoTime();
         if (clusters.update(world,x,z)) { particles.emitters(clusters.emitters()); probes.invalidate(); }
         boolean changed=sceneChanged(world) || worldRevision != world.editsVersion();
         sceneNanos=System.nanoTime()-stage;
-        var rebuilt=skyVisibility.update(world,x,z,250_000L);
+        var rebuilt=skyVisibility.update(world,x,z,Math.min(250_000L,Math.max(0,deadline-System.nanoTime())));
         skyBuildNanos=skyVisibility.ownerNanos;
         if(rebuilt!=null)desiredSky=rebuilt;
         if (changed) {
@@ -178,23 +169,24 @@ public final class RenderPipeline implements AutoCloseable {
         lightingNanos=System.nanoTime()-stage;
         if(next!=null){desiredVolume=next;desiredVolumeEdits=world.editsVersion();desiredVolumeModels=world.models().revision();}
         if(desiredVolume!=volume&&(desiredVolumeEdits!=world.editsVersion()||desiredVolumeModels!=world.models().revision()))desiredVolume=volume;
-        pumpLighting(world);
+        pumpLighting(world,deadline);
     }
-    private void pumpLighting(World world) {
+    private void pumpLighting(World world,long deadline) {
         lightingUploadBytes=0;
+        if(System.nanoTime()>=deadline)return;
         if(lightingUpload!=null&&!lightingUpload.valid(world)){lightingUpload.close();lightingUpload=null;}
-        if(lightingUpload==null&&(desiredVolume!=volume||(desiredSky!=null&&desiredSky.data!=worldSky))&&(desiredSky==null||desiredSky.valid(world)))
-            lightingUpload=new SceneLightingUpload(world,desiredVolume,desiredSky,desiredVolume!=volume);
+        if(lightingUpload==null&&(desiredVolume!=volume||(desiredSky!=null&&desiredSky.data!=worldSky))&&(desiredSky==null||desiredSky.valid(world))&&lightingStores.available(desiredVolume!=volume))
+            lightingUpload=new SceneLightingUpload(world,desiredVolume,desiredSky,desiredVolume!=volume,lightingStores);
         if(lightingUpload==null)return;
         lightingUpload.refreshSky(world,desiredSky);
-        lightingUploadBytes=lightingUpload.pump(System.nanoTime()+500_000L,2*1024*1024);
+        lightingUploadBytes=lightingUpload.pump(deadline,2*1024*1024);
         if(!lightingUpload.ready())return;
         if(!lightingUpload.valid(world)){lightingUpload.close();lightingUpload=null;return;}
         if(!lightingUpload.skyCurrent(world))return;
         var resources=lightingUpload.take();
-        glDeleteTextures(fineRoots);fineRoots=resources.atlas();
+        lightingStores.releaseTexture(fineRoots);fineRoots=resources.atlas();
         if(lightingUpload.replaceVolume){
-            glDeleteTextures(irradiance);glDeleteTextures(fineLight);glDeleteBuffers(fineBuffer);transport.close();
+            lightingStores.releaseTexture(irradiance);lightingStores.releaseTexture(fineLight);lightingStores.releaseBuffer(fineBuffer);transport.close();
             irradiance=resources.irradiance();fineLight=resources.fineTexture();fineBuffer=resources.fineBuffer();transport=resources.transport();
             volume=lightingUpload.volume;hasIrradiance=volume!=null;
         }
@@ -415,7 +407,7 @@ public final class RenderPipeline implements AutoCloseable {
     public float waterGpuMillis(){return frameBudget.waterMilliseconds();}
     public float postGpuMillis(){return frameBudget.postMilliseconds();}
     public int actualWidth(){return width;}public int actualHeight(){return height;}
-    public long estimatedTargetBytes(){return activeLightingBytes+(lightingUpload==null?0:lightingUpload.estimatedBytes())+(long)width*height*(samples*12+12)+(long)width*height*24+(long)shadowResolution*shadowResolution*3*4+settings.atmosphereQuality.bytes();}
+    public long estimatedTargetBytes(){return lightingStores.retainedBytes()+(long)width*height*(samples*12+12)+(long)width*height*24+(long)shadowResolution*shadowResolution*3*4+settings.atmosphereQuality.bytes();}
     public void prepareTargets(int w,int h){int rw=Math.max(1,Math.round(w*settings.renderScale)),rh=Math.max(1,Math.round(h*settings.renderScale));resize(rw,rh);temporal.prepare(w,h);}
     public boolean gpuDriven() { return gpuDraw.enabled(); }
     public void chunk(Chunk chunk, ChunkPos p) {
@@ -522,10 +514,10 @@ public final class RenderPipeline implements AutoCloseable {
         hiZ.close(); gpuDraw.close(); frameBudget.close(); transport.close(); clusters.close(); particles.close(); probes.close(); water.close();
         deleteTargets();
         glDeleteTextures(environment);
-        glDeleteTextures(irradiance);
-        glDeleteTextures(fineRoots);
-        glDeleteTextures(fineLight);
-        glDeleteBuffers(fineBuffer);
+        lightingStores.releaseTexture(irradiance);
+        lightingStores.releaseTexture(fineRoots);
+        lightingStores.releaseTexture(fineLight);
+        lightingStores.releaseBuffer(fineBuffer);lightingStores.close();
         glDeleteTextures(shadowTexture);
         glDeleteFramebuffers(shadowFbo);
         glDeleteVertexArrays(vao);

@@ -1,0 +1,16 @@
+Playtest: PASS (native revised-source offline workflow).
+Command: python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --mode offline --video
+Environment: Linux x86_64 VPS; Java 21.0.5; inherited assigned role DISPLAY and XAUTHORITY; Mesa llvmpipe software rendering with OpenGL 3.3 / GLSL 330; synthetic isolated profile; Balanced graphics; actual application framebuffer 1280x720. Browser playtesting does not apply to this native Java/OpenGL client.
+Steps: 65 production Main frames. Native W walking; F flight and Shift+W sprint; S direction reversal; whole/fractional RGB and tiny-model edited area; teleport to x2048; explicit unload and return; ordinary death/respawn. F10 records frames14..23 separately from performance trials.
+Expected: live workflow remains usable; nearby terrain catches up; current authoritative edits and model IDs survive unload/reload; respawn restores health20 and playable terrain; terrain/mesh queues and resident chunks stay within checked bounds; no GL errors or shutdown hang.
+Observed: command exited0. All production harness assertions passed, including exact fractional value0xfe30a0ff, tiny-model preservation, health20 and nearby readiness after respawn. GL error checks and queue/residency checks passed.
+Media: streaming-revision-f10.mp4, 18.344 seconds, 10 H264 frames, 529368 bytes, 960x544 encoded. Every frame decoded; first and last differ. Midpoint and final respawn screenshot visually inspected. Software-renderer low FPS is visible; this is not physical Windows/GPU qualification. Uploaded artifacts remain pending controller publication.
+Source SHA256: 0b16812187e472553b669e59a62b00a5791acb70fe0f9a7f520e3f51d03091f2
+Feature JAR SHA256: 0441e668eff4ba36a5e4066302b2d5af88c474c1de697711943928bd3f8ec396
+
+Playtest: PASS (native long keyboard travel with bounded lighting settlement).
+Command: python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --mode travel
+Environment: same revised engine JAR, Java21.0.5, inherited role display, Mesa llvmpipe/OpenGL3.3, synthetic profile, Balanced1280x720 actual framebuffer.
+Steps: W+Shift flight and ascent; reverse at frame60; resume forward at100; ordinary death/respawn at130; settle until lightingReady, retaining180frame minimum and finite450frame ceiling. Runtime exceeded120seconds as asserted by the harness.
+Expected: bounded queues and residency, no GL errors, respawn health20, nearby terrain ready, GPU mesh progress and usable staged lighting before the finite bound.
+Observed: exit0 after283frames. Lighting became usable at frame282,152frames after respawn; terrain jobs reached0, resident chunks990; health/terrain/lighting/mesh/GL assertions passed. The earlier180frame run failed lighting readiness after50settlingframes; its failure/CSV remain as streaming-revision-travel-180-*. No client change was made to turn that result into a pass. The rerun observes actual readiness; long lighting settlement remains a limitation of this measured host.

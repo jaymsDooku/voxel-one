@@ -14,6 +14,7 @@ public final class ClusteredLights implements AutoCloseable {
     private final int indexBuffer=glGenBuffers(),lightBuffer=glGenBuffers();
     private long revision=Long.MIN_VALUE;private int cx=Integer.MIN_VALUE,cz;
     private List<Light> emitters=List.of();
+    private boolean initialized;
     private final Vector3f origin=new Vector3f();
     public List<Light> emitters(){return emitters;}
     public boolean update(World world,float x,float z){
@@ -29,6 +30,10 @@ public final class ClusteredLights implements AutoCloseable {
             int c=edit.color();list.add(new Light(p,new Vector3f((c>>16&255)/255f,(c>>8&255)/255f,(c&255)/255f),12));
             if(list.size()==256)break;
         }
+        // Moving an empty light grid only changes its uniform origin. Its zero
+        // cluster/index stores already describe the same field everywhere.
+        if(initialized&&list.isEmpty()&&emitters.isEmpty())return false;
+        initialized=true;
         emitters=List.copyOf(list);float[] lightData=new float[Math.max(8,list.size()*8)];
         for(int i=0;i<list.size();i++){
             Light l=list.get(i);int a=i*8;lightData[a]=l.position.x;lightData[a+1]=l.position.y;lightData[a+2]=l.position.z;lightData[a+3]=l.radius;

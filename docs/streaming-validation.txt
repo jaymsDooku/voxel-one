@@ -1,12 +1,13 @@
 Sandbox streaming validation and Windows reproduction
 
 The normal frame path calls World.streamAsync with a 1 ms owner deadline. The
-existing DetailedMeshScheduler receives the remainder of a 1.5 ms CPU
-preparation allowance (minimum 0.25 ms). Cached sky capture has a 0.25 ms
-allowance, and staged lighting uploads have a 0.5 ms/2 MiB allowance. These
-cooperative deadlines include measured atomic-unit overruns; they are not
-a guarantee against JVM safepoints or a blocking GL driver call. GL driver calls and a single snapshot or
-edit operation cannot be preempted; the exported stage timings show overruns.
+existing DetailedMeshScheduler receives the remainder of a 1.5 ms preparation
+allowance. Lighting uses the remaining shared FrameBudget.STREAMING_CPU_NANOS
+allowance of 2 ms after measured terrain and mesh owner work. Sky capture uses
+at most 0.25 ms within that remainder. GPU transfers split into units of at most
+64 KiB and at most 2 MiB per frame. These are cooperative deadlines; atomic GL
+calls, JVM compilation and safepoints can still overrun a unit. Actual timings
+and byte counts are exported rather than treated as hard real-time guarantees.
 No graphics defaults, draw distance, resolution defaults or horizon settings
 change. The benchmark selects a synthetic Balanced 640x480 profile. The existing
 display startup fell back to an actual 1280x720 framebuffer on this assigned
@@ -26,15 +27,31 @@ Sky visibility caches immutable 16x16 tiles. Owner capture checks deadlines
 between chunk roots and edited cells. The worker expands/compacts only changed
 tiles, then merges packed tiles. World identity, column members, geometry/edit
 revisions and model revision fence each result. Packed cache data is capped at
-32 MB. A GPU atlas stays active until its replacement, fine nodes, irradiance
-and transport are fully uploaded. Sky-only updates reuse the existing volume.
-Rows and byte caps split transfers; one staging replacement and one latest
-requested result coalesce arrivals. Shader formats and OpenGL 3.3 stay intact.
+32 MB. A GPU atlas stays active until its replacement, fine nodes, irradiance and
+transport are ready. Sky-only updates reuse the existing volume. Two GPU store
+generations per role are prepared at startup for normal 96x128x96 lighting and
+the supported packed-sky bound. Normal chunk arrivals refill stores; capacity
+for exceptional fine-node data grows geometrically. Scratch memory is shared
+and bounded at 6 MiB. Retired stores have GL fences polled with zero timeout;
+new uploads defer until a store is safe rather than blocking on previous reads.
+The pool owns at most 16 textures and two buffers. Its estimated GPU store bytes
+include both generations; compare that estimate with its own bounds rather than
+assuming equivalence with baseline VRAM estimates that omit lighting stores.
+Radiance mip levels are built on the CPU lighting worker. Every level uploads
+in slices; no glGenerateMipmap remains in the transport upload path. Shader
+formats, mip filtering, visual settings and OpenGL 3.3 remain supported.
+
 
 Ordinary terrain snapshots copy only immutable roots and six neighbor roots.
 Only fractional cells touching a chunk face need fallback border cells; those
 are captured incrementally and fenced by the existing mesh revisions. Empty
 checks inspect the octree root instead of recursively counting nodes.
+Model-library snapshots copy independent lookup maps while sharing registered,
+frozen definitions. They preserve IDs and revision without revalidating or
+serializing model geometry on the owner thread.
+World membership and installed meshes carry a scene revision, replacing the
+per-frame resident-map comparison/copy. Moving an empty clustered-light grid
+updates its origin without rebuilding its unchanged zero-light GPU stores.
 
 The owning World instance is the session fence: workers cannot attach results.
 Travel discards requests outside the active load radius; explicit unload cancels
@@ -100,3 +117,16 @@ Integration checks (run separately from timing trials):
 
 These are reproducible commands, not a statement that every command has passed.
 See the current validation report for executed checks and remaining work.
+
+Review revision: use the sustained route for new performance qualification:
+  python3 deploy/run_streaming_sustained_matrix.py --display "$DISPLAY" --phase both --trials 1,2,3
+  python3 deploy/summarize_streaming_sustained.py
+The revised route records 166 samples after complete resident mesh preparation
+and accepted latest lighting with no pending bake, sky or upload. Resident,
+fresh entry, cold walking, sustained cold flight, warm reversal, teleport and
+catch-up have separate distributions. Fresh travel starts at x128 and reaches
+x236, beyond the original spawn preload ending at x79. The per-frame sidecar
+records center-column and 3x3 residency, pending jobs and resident chunks.
+Startup and warm-up durations are separate artifacts. Calibration runs retained
+under target/ are excluded from the formal three matched pairs. The final
+revision results and remaining qualification limits are recorded in evidence.

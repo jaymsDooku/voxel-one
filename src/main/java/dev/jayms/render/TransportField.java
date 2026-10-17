@@ -8,6 +8,8 @@ import java.util.Arrays;
 public final class TransportField {
     public final int width,height,length;
     public final float[] radiance,distance;
+    /** Worker-built linear mip pyramid; the owner only transfers bounded rows. */
+    public final float[][] radianceMips;
     public final float[][] probes=new float[3][];
     public final int[][] probeSize=new int[3][3];
     private int[] material;
@@ -29,7 +31,31 @@ public final class TransportField {
         float[] outside=distances(solid,true),inside=distances(solid,false);distance=new float[n];
         for(int i=0;i<n;i++)distance[i]=solid[i]?-(inside[i]-.5f):outside[i]-.5f;
         for(int cascade=2;cascade>=0;cascade--)bakeProbes(cascade,solid);
+        radianceMips=mipmaps(width,height,length,radiance);
         this.material=null;this.light=null;
+    }
+    static float[][] mipmaps(int width,int height,int length,float[] base) {
+        var levels=new java.util.ArrayList<float[]>();levels.add(base);
+        int w=width,h=height,l=length;float[] previous=base;
+        while(w>1||h>1||l>1){
+            int nw=Math.max(1,w/2),nh=Math.max(1,h/2),nl=Math.max(1,l/2);
+            float[] next=new float[nw*nh*nl*4];
+            // Linear filtering at destination texel centers, including odd dimensions.
+            for(int z=0;z<nl;z++)for(int y=0;y<nh;y++)for(int x=0;x<nw;x++){
+                if((x&31)==0&&Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
+                float sx=(x+.5f)*w/nw-.5f,sy=(y+.5f)*h/nh-.5f,sz=(z+.5f)*l/nl-.5f;
+                int ix=(int)Math.floor(sx),iy=(int)Math.floor(sy),iz=(int)Math.floor(sz);
+                float fx=sx-ix,fy=sy-iy,fz=sz-iz;
+                for(int dz=0;dz<2;dz++)for(int dy=0;dy<2;dy++)for(int dx=0;dx<2;dx++){
+                    float weight=(dx==0?1-fx:fx)*(dy==0?1-fy:fy)*(dz==0?1-fz:fz);
+                    int source=(Math.min(l-1,iz+dz)*h*w+Math.min(h-1,iy+dy)*w+Math.min(w-1,ix+dx))*4;
+                    int target=(z*nh*nw+y*nw+x)*4;
+                    for(int c=0;c<4;c++)next[target+c]+=previous[source+c]*weight;
+                }
+            }
+            levels.add(next);previous=next;w=nw;h=nh;l=nl;
+        }
+        return levels.toArray(float[][]::new);
     }
     private int index(int x,int y,int z){return x+width*(y+height*z);}
     private float[] distances(boolean[] solid,boolean target){

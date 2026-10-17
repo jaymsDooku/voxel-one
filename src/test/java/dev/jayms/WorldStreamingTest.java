@@ -12,6 +12,16 @@ class WorldStreamingTest {
         while(!w.getLoadedChunks().containsKey(p)&&System.nanoTime()<end){w.streamAsync(x,y,z,2_000_000);assertTrue(w.terrainPending()<=9);Thread.sleep(1);}
         assertTrue(w.getLoadedChunks().containsKey(p),"Near playable chunk becomes resident");
     }
+    @Test void sceneRevisionTracksMembershipAndInstalledMeshes()throws Exception {
+        try(var world=new World()) {
+            var pos=new ChunkPos(0,0,0);var chunk=new Chunk();long initial=world.sceneRevision();
+            world.addChunk(pos,chunk);assertTrue(world.sceneRevision()>initial);
+            long attached=world.sceneRevision();
+            chunk.installMesh(null,null,chunk.meshRevision());assertTrue(world.sceneRevision()>attached);
+            long installed=world.sceneRevision();
+            world.unloadChunk(pos);assertTrue(world.sceneRevision()>installed);
+        }
+    }
     @Test void currentEditsWinGenerationAndReloadIncludingFractionalColor()throws Exception {
         var p=new ChunkPos(0,4,0);
         try(var w=new World(748291)) {
@@ -48,5 +58,16 @@ class WorldStreamingTest {
             assertFalse(w.renderedColumns().contains(new ChunkPos(0,0,0)),"Partial streaming column retains distant parent");
         }finally{w.close();}
         assertEquals(0,w.terrainPending());assertTrue(w.editsSnapshot().isEmpty(),"Closed world releases its own edit index");assertThrows(IllegalStateException.class,()->w.streamAsync(8,65,8,2_000_000));
+    }
+    @org.junit.jupiter.api.Test void teleportPreparesPlayableTerrainWhileSlowOldChunksRetire() throws Exception {
+        try(var world=new World(42)){
+            for(int i=0;i<500;i++)world.addChunk(new ChunkPos(-1-i/10,-2+i%10,0),new Chunk(){
+                @Override public void close() throws Exception {java.util.concurrent.locks.LockSupport.parkNanos(2_000_000L);super.close();}
+            });
+            long deadline=System.nanoTime()+5_000_000_000L;
+            while(!world.isLoaded(2048,110,8)&&System.nanoTime()<deadline){world.streamAsync(2048,110,8,500_000L);Thread.sleep(1);}
+            org.junit.jupiter.api.Assertions.assertTrue(world.isLoaded(2048,110,8),"Collision-critical new terrain makes progress during slow retirement");
+            org.junit.jupiter.api.Assertions.assertTrue(world.getLoadedChunks().keySet().stream().anyMatch(p->p.chunkX()<0),"New terrain attaches before all old driver-facing chunks finish retiring");
+        }
     }
 }

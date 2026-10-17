@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-17T00:51:36+00:00",
+  "updatedAt": "2026-10-17T04:38:20+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -17,11 +17,11 @@
     {
       "id": "9c35cf2b-7ce5-4874-9649-13bf9392c208",
       "title": "Voxel Sandbox: eliminate frame drops when loading new chunks",
-      "description": "Inspecting baseline streaming path and preparing measured cold-route trials; implementation and validation pending.",
+      "description": "Bounded async Sandbox generation, staged mesh/lighting work, reusable GPU stores and worker-built mip levels; validated on the available Linux software renderer.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Post-integration head b163ca7 verified against measured source. Fresh 65-frame native offline/F10 workflow passed; new clip decoded and inspected. Review-base audit preserves all unrelated work. Ready for independent review; software-renderer targets and physical Windows GPU qualification remain pending.",
-      "updatedAt": "2026-10-17T00:51:36+00:00"
+      "note": "Ready for independent review. Three fresh-terrain pairs reduce owner streaming p99 by 97.34\u201398.18% and improve frame p99 in every pair. 128 tests, native offline/multiplayer/City/world-switch, GL readback/64-cycle soak and bounded travel readiness pass. First180-frame lighting failure retained; readiness took152frames afterrespawn. Shared2ms tails remain unmet; physical Windows GPU qualification gates stable rollout. New evidence awaits controller publication.",
+      "updatedAt": "2026-10-17T04:38:20+00:00"
     },
     {
       "id": "607ad2ae-9047-4ee1-bff3-f41033b6a910",
