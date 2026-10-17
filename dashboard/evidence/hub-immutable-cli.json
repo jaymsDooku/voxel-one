@@ -1,0 +1,39 @@
+{
+  "Playtest": "Bundled-runtime CLI experience update-only resolves approved immutable release; unknown entry rejected. No browser applies to this CLI workflow. Isolated synthetic user.home.",
+  "checks": [
+    {
+      "command": [
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-immutable-package/Voxel One Hub/lib/runtime/bin/java",
+        "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-tmp",
+        "-Duser.home=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-immutable-cli-profile",
+        "-cp",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-immutable-package/Voxel One Hub/lib/app/voxel-one-launcher.jar",
+        "dev.jayms.launcher.Launcher",
+        "--update-only",
+        "--experience",
+        "city"
+      ],
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "passed": true,
+      "unknownExperienceRejected": null
+    },
+    {
+      "command": [
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-immutable-package/Voxel One Hub/lib/runtime/bin/java",
+        "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-tmp",
+        "-Duser.home=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-immutable-cli-profile",
+        "-cp",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-immutable-package/Voxel One Hub/lib/app/voxel-one-launcher.jar",
+        "dev.jayms.launcher.Launcher",
+        "--update-only",
+        "--experience",
+        "unknown-game"
+      ],
+      "exitCode": 1,
+      "expectedExitCode": 1,
+      "passed": true,
+      "unknownExperienceRejected": true
+    }
+  ]
+}

@@ -1,0 +1,186 @@
+{
+  "run": "https://github.com/jaymsDooku/voxel-one/actions/runs/38985999099",
+  "scope": "Prior committed b098d7b source; does not validate current unpublished correction",
+  "reports": [
+    {
+      "sourceSha": "b098d7b5af2fcfc18ca36a9b67768c167f261c74",
+      "platform": "Windows",
+      "architecture": "AMD64",
+      "fullQualificationPassed": false,
+      "checks": [
+        {
+          "name": "Updater failures, locks, concurrency and migration",
+          "status": "passed",
+          "glfwCreationFailure": false
+        },
+        {
+          "name": "Native executable and two-version bootstrap update",
+          "status": "passed",
+          "glfwCreationFailure": false
+        },
+        {
+          "name": "Windows MSI, shortcuts and uninstall",
+          "status": "passed",
+          "glfwCreationFailure": false
+        },
+        {
+          "name": "UI at JVM scale 1",
+          "status": "passed",
+          "glfwCreationFailure": false
+        },
+        {
+          "name": "UI at JVM scale 1.5",
+          "status": "passed",
+          "glfwCreationFailure": false
+        },
+        {
+          "name": "UI at JVM scale 2",
+          "status": "passed",
+          "glfwCreationFailure": false
+        },
+        {
+          "name": "Synthetic online login handoff",
+          "status": "passed",
+          "glfwCreationFailure": false
+        },
+        {
+          "name": "Native rendered city",
+          "status": "failed",
+          "glfwCreationFailure": true
+        },
+        {
+          "name": "Native rendered sandbox",
+          "status": "failed",
+          "glfwCreationFailure": true
+        },
+        {
+          "name": "Native rendered editor",
+          "status": "failed",
+          "glfwCreationFailure": true
+        },
+        {
+          "name": "Offline native installation",
+          "status": "passed",
+          "glfwCreationFailure": false
+        }
+      ]
+    },
+    {
+      "sourceSha": "b098d7b5af2fcfc18ca36a9b67768c167f261c74",
+      "platform": "Darwin",
+      "architecture": "x86_64",
+      "fullQualificationPassed": false,
+      "checks": [
+        {
+          "name": "Updater failures, locks, concurrency and migration",
+          "status": "passed",
+          "glfwCreationFailure": false
+        },
+        {
+          "name": "Native executable and two-version bootstrap update",
+          "status": "passed",
+          "glfwCreationFailure": false
+        },
+        {
+          "name": "UI at JVM scale 1",
+          "status": "passed",
+          "glfwCreationFailure": false
+        },
+        {
+          "name": "UI at JVM scale 1.5",
+          "status": "passed",
+          "glfwCreationFailure": false
+        },
+        {
+          "name": "UI at JVM scale 2",
+          "status": "passed",
+          "glfwCreationFailure": false
+        },
+        {
+          "name": "Synthetic online login handoff",
+          "status": "passed",
+          "glfwCreationFailure": false
+        },
+        {
+          "name": "Native rendered city",
+          "status": "failed",
+          "glfwCreationFailure": true
+        },
+        {
+          "name": "Native rendered sandbox",
+          "status": "failed",
+          "glfwCreationFailure": true
+        },
+        {
+          "name": "Native rendered editor",
+          "status": "failed",
+          "glfwCreationFailure": true
+        },
+        {
+          "name": "Offline native installation",
+          "status": "passed",
+          "glfwCreationFailure": false
+        }
+      ]
+    },
+    {
+      "sourceSha": "b098d7b5af2fcfc18ca36a9b67768c167f261c74",
+      "platform": "Darwin",
+      "architecture": "arm64",
+      "fullQualificationPassed": false,
+      "checks": [
+        {
+          "name": "Updater failures, locks, concurrency and migration",
+          "status": "passed",
+          "glfwCreationFailure": false
+        },
+        {
+          "name": "Native executable and two-version bootstrap update",
+          "status": "passed",
+          "glfwCreationFailure": false
+        },
+        {
+          "name": "UI at JVM scale 1",
+          "status": "passed",
+          "glfwCreationFailure": false
+        },
+        {
+          "name": "UI at JVM scale 1.5",
+          "status": "passed",
+          "glfwCreationFailure": false
+        },
+        {
+          "name": "UI at JVM scale 2",
+          "status": "passed",
+          "glfwCreationFailure": false
+        },
+        {
+          "name": "Synthetic online login handoff",
+          "status": "passed",
+          "glfwCreationFailure": false
+        },
+        {
+          "name": "Native rendered city",
+          "status": "failed",
+          "glfwCreationFailure": true
+        },
+        {
+          "name": "Native rendered sandbox",
+          "status": "failed",
+          "glfwCreationFailure": true
+        },
+        {
+          "name": "Native rendered editor",
+          "status": "failed",
+          "glfwCreationFailure": true
+        },
+        {
+          "name": "Offline native installation",
+          "status": "passed",
+          "glfwCreationFailure": false
+        }
+      ]
+    }
+  ],
+  "mediaInspection": "Inspected prior-head Windows scale-1 Games-900.png and Mac ARM scale-2 Games-900.png. Library renders, with scrollable cards. These images do not prove physical monitor DPI or native game rendering."
+}

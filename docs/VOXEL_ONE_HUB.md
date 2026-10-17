@@ -233,3 +233,12 @@ and remains unqualified for stable rollout. The legacy download button opens
 the releases list so a Hub preview remains discoverable without changing the
 normal engine release's `latest` pointer. Published package links and actual
 platform qualification still require the controller handoff.
+
+Catalog native installs resolve `build=playtest-N` to the fixed repository's
+`releases/download/playtest-N/update.properties`. They do not follow the global
+latest release. A fresh machine can therefore install approved A after an
+incompatible B becomes latest. The manifest must still match the catalog's
+client source allowlist, and downloaded bytes must pass SHA-256, size and JAR
+checks. City, Sandbox and editor retain their shared verified cache. Native
+catalog tags outside the bounded `playtest-N` contract are rejected. Legacy
+launches without an experience selection keep their existing latest behavior.

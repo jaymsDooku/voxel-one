@@ -297,7 +297,7 @@ public final class HubFrame extends JFrame {
         transfer.setText("Checking shared client…\n"); cancel.setEnabled(true); showPage("Downloads");
         task = new SwingWorker<Updater.Result, String>() {
             protected Updater.Result doInBackground() throws Exception {
-                Updater updater = new Updater(installCache, clientManifest); activeUpdater = updater;
+                Updater updater = new Updater(installCache, entry != null && clientManifest.equals(Updater.MANIFEST) ? entry.clientManifest() : clientManifest); activeUpdater = updater;
                 Updater.Result result = Boolean.parseBoolean(settings.getProperty("updates", "true")) || entry == null ? null : updater.installed(platform);
                 if (result == null) result = updater.update(platform, this::publish, entry == null ? null : entry.clientSources());
                 if (isCancelled()) throw new java.util.concurrent.CancellationException();

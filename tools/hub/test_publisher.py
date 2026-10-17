@@ -20,6 +20,11 @@ class PublisherTest(unittest.TestCase):
             self.assertNotEqual(before,after)
             n['build']='playtest-2';n['source']='c'*40;native.write_text(json.dumps(n));publisher.assemble(native,web,output);after=output.read_text()
             self.assertIn('city.client-sources='+'c'*40,after);self.assertIn('city.build=playtest-2',after);self.assertIn('space-invaders.build=web-2',after)
+            for bad in ('latest', 'playtest-0', '../playtest-2'):
+                n['build']=bad;native.write_text(json.dumps(n))
+                with self.assertRaises(ValueError):publisher.assemble(native,web,output)
+                self.assertEqual(after,output.read_text())
+            n['build']='playtest-2'
             n['published']=False;native.write_text(json.dumps(n))
             with self.assertRaises(ValueError):publisher.assemble(native,web,output)
             self.assertEqual(after,output.read_text())

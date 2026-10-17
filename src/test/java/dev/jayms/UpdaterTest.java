@@ -45,6 +45,42 @@ class UpdaterTest {
                 + "\n";
     }
 
+    @Test void freshInstallFetchesCatalogApprovedReleaseAfterLatestAdvances() throws Exception {
+        var entry = HubCatalog.bundled().entries().get(0);
+        byte[] approved = jar("approved-A"), incompatible = jar("latest-B");
+        AtomicInteger approvedDownloads = new AtomicInteger(), latestRequests = new AtomicInteger();
+        HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        String base = "http://127.0.0.1:" + server.getAddress().getPort();
+        byte[] approvedManifest = manifest(entry.source(), base + "/approved.jar", approved).getBytes();
+        byte[] latestManifest = manifest("b".repeat(40), base + "/incompatible.jar", incompatible).getBytes();
+        server.createContext(entry.clientManifest().getPath(), e -> {
+            e.sendResponseHeaders(200, approvedManifest.length);
+            try (var out = e.getResponseBody()) { out.write(approvedManifest); }
+        });
+        server.createContext("/releases/latest/download/update.properties", e -> {
+            latestRequests.incrementAndGet(); e.sendResponseHeaders(200, latestManifest.length);
+            try (var out = e.getResponseBody()) { out.write(latestManifest); }
+        });
+        server.createContext("/approved.jar", e -> {
+            approvedDownloads.incrementAndGet(); e.sendResponseHeaders(200, approved.length);
+            try (var out = e.getResponseBody()) { out.write(approved); }
+        });
+        server.createContext("/incompatible.jar", e -> { latestRequests.incrementAndGet(); e.sendResponseHeaders(500, -1); e.close(); });
+        server.start();
+        try {
+            assertNull(new Updater(temp, URI.create(base + "/unused")).installed(Platform.WINDOWS));
+            URI pinned = URI.create(base + entry.clientManifest().getPath());
+            var updater = new Updater(temp, pinned);
+            var result = updater.update(Platform.WINDOWS, message -> {}, entry.clientSources());
+            entry.requireClient(result);
+            assertEquals(entry.source(), result.revision());
+            assertArrayEquals(approved, Files.readAllBytes(result.client()));
+            assertEquals(1, approvedDownloads.get()); assertEquals(0, latestRequests.get());
+            assertFalse(updater.update(Platform.WINDOWS, message -> {}, entry.clientSources()).updated());
+            assertEquals(1, approvedDownloads.get());
+        } finally { server.stop(0); }
+    }
+
     @Test
     void installsUpdatesAtomicallyRejectsTamperingAndUsesVerifiedOfflineCache() throws Exception {
         byte[] first = jar("first"), next = jar("next"), corrupt = next.clone();

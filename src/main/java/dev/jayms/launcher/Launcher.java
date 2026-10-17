@@ -100,7 +100,8 @@ public final class Launcher {
             Platform platform = Platform.current();
             Path cache = cache();
             Updater.Result result =
-                    updater.update(
+                    (selectedEntry == null ? updater : new Updater(cache, selectedEntry.clientManifest()))
+                            .update(
                                     platform,
                                     text -> {
                                         System.out.println(text);
