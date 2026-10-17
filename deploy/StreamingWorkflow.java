@@ -15,9 +15,9 @@ import static org.lwjgl.opengl.GL33.*;
 public class StreamingWorkflow {
     static Main game=new Main();static Path out;static int frame;static String mode;static boolean video;static int session;static long began,remoteSent;static float travelStart;
     static java.util.concurrent.Callable<MultiplayerClient> connectEditor;
-    static int meshPeak;static long snapshotPeak;
+    static int distantEdits;static int meshPeak;static long snapshotPeak;
     static float startX,flightX;static Vector3f previous;static double pathLength;static int tinyId;static long handle;static Protocol.Edit remoteEdit;static MultiplayerClient editor;
-    static final StringBuilder samples=new StringBuilder("frame,stream_cpu_ms,render_cpu_ms,previous_video_capture_cpu_ms,pending,oldest_ms,loaded,heap_bytes,mesh_jobs,mesh_waiting,lighting_upload_bytes\n");
+    static final StringBuilder samples=new StringBuilder("frame,stream_cpu_ms,render_cpu_ms,previous_video_capture_cpu_ms,pending,oldest_ms,loaded,heap_bytes,mesh_jobs,mesh_waiting,lighting_upload_bytes,scene_cpu_ms,lighting_prepare_cpu_ms\n");
     static Object get(String n)throws Exception{var f=Main.class.getDeclaredField(n);f.setAccessible(true);return f.get(game);}
     static void set(String n,Object v)throws Exception{var f=Main.class.getDeclaredField(n);f.setAccessible(true);f.set(game,v);}
     static void check(boolean ok,String message){if(!ok)throw new AssertionError(message);}
@@ -32,7 +32,7 @@ public class StreamingWorkflow {
         javax.imageio.ImageIO.write(image,"png",out.resolve(name).toFile());
     }
     public static void main(String[] args)throws Exception{
-        out=Path.of(args[0]);Files.createDirectories(out);began=System.nanoTime();mode=args[1];video=Boolean.parseBoolean(args[2]);
+        out=Path.of(args[0]);Files.createDirectories(out);began=System.nanoTime();mode=args[1];video=Boolean.parseBoolean(args[2]);distantEdits=args.length>3?Integer.parseInt(args[3]):0;
         GraphicsProfile.preset(GraphicsProfile.Preset.BALANCED).with(GraphicsProfile.Key.RESOLUTION,"640x480@60").save(dev.jayms.ui.Controls.directory().resolve("graphics.properties"));
         set("offlineSave",out.resolve("synthetic.dat"));set("seed",748291L);set("gameConfig",mode.equals("city")?GameConfig.cityGame():GameConfig.sandbox());
         if(mode.equals("switch")){var other=new LocalGame(out.resolve("other-world.dat"),999);other.save();}
@@ -63,6 +63,7 @@ public class StreamingWorkflow {
                         w.setBlock(11,110,26,Blocks.GLASS);w.setBlock(12,110,26,Blocks.WATER);
                         ((Player)get("player")).driveSeat(new Vector3f(5,109.01f,24),0);
                     }
+                    if(session==1)for(int i=0;i<distantEdits;i++)((World)get("world")).apply(new Protocol.Edit(100_000+i%1000,1000,100_000+i/1000,Blocks.STONE));
                     startX=((Player)get("player")).position().x;travelStart=((Player)get("player")).position().z;
                     Files.writeString(out.resolve("progress.txt"),"Application startup completed\n");
                 }
@@ -97,7 +98,7 @@ public class StreamingWorkflow {
                     var actual=((Player)get("player")).position();if(previous!=null)pathLength+=actual.distance(previous);previous=new Vector3f(actual);
                     var meshes=(DetailedMeshScheduler)get("detailedMeshes");meshPeak=Math.max(meshPeak,meshes.queued());snapshotPeak=Math.max(snapshotPeak,meshes.snapshotNanos);
                     check(w.terrainPending()<=9,"Bounded terrain completions");check(w.getLoadedChunks().size()<=1690,"Bounded resident chunks");check(glGetError()==GL_NO_ERROR,"No OpenGL error");
-                    samples.append(frame+","+((long)get("streamNanos"))/1e6+","+((long)get("renderNanos"))/1e6+","+((long)get("videoNanos"))/1e6+","+w.terrainPending()+","+w.terrainOldestMillis()+","+w.getLoadedChunks().size()+","+(Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory())+","+meshes.queued()+","+meshes.waiting()+","+((RenderPipeline)get("rendering")).lightingUploadBytes+"\n");
+                    samples.append(frame+","+((long)get("streamNanos"))/1e6+","+((long)get("renderNanos"))/1e6+","+((long)get("videoNanos"))/1e6+","+w.terrainPending()+","+w.terrainOldestMillis()+","+w.getLoadedChunks().size()+","+(Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory())+","+meshes.queued()+","+meshes.waiting()+","+((RenderPipeline)get("rendering")).lightingUploadBytes+","+((RenderPipeline)get("rendering")).sceneNanos/1e6+","+((RenderPipeline)get("rendering")).lightingNanos/1e6+"\n");
                     if(frame==8)capture("streaming-"+mode+"-edited.png");
                     if(frame%10==0){Files.writeString(out.resolve("progress.txt"),"frame="+frame+"\n");Files.writeString(out.resolve("workflow.csv"),samples);}
                     if(mode.equals("switch")&&frame==15){set("requestedSave",out.resolve("other-world.dat"));glfwSetWindowShouldClose(handle,true);}
@@ -119,7 +120,7 @@ public class StreamingWorkflow {
                         check(w.getLoadedChunks().values().stream().anyMatch(c->c.getMesh()!=null),"GPU mesh replacements became usable");
                         check(meshPeak>0&&snapshotPeak>0,"Detailed meshing made progress while streaming");
                         capture("streaming-"+mode+"-final.png");Files.writeString(out.resolve("workflow.csv"),samples);
-                        Files.writeString(out.resolve("result.txt"),"Playtest: PASS. Production Main "+mode+"; inherited role display; Mesa software renderer; synthetic profile; "+frame+" frames. Requested input/edit/reload checks, queue/residency bounds and GL checks passed. Video="+video+".\n");
+                        Files.writeString(out.resolve("result.txt"),"Playtest: PASS. Production Main "+mode+"; inherited role display; Mesa software renderer; synthetic profile; "+frame+" frames; distant synthetic edits="+distantEdits+". Requested input/edit/reload checks, queue/residency bounds and GL checks passed. Video="+video+".\n");
                         glfwSetWindowShouldClose(handle,true);
                     }
                 }

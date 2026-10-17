@@ -69,8 +69,9 @@ public final class RenderPipeline implements AutoCloseable {
     private LightVolume volume,desiredVolume;
     private SkyVisibilityScheduler.Prepared desiredSky;
     private SceneLightingUpload lightingUpload;
+    private WorldLighting.Capture desiredVolumeFence;
     private final LightingStores lightingStores=new LightingStores();
-    private long desiredVolumeEdits,desiredVolumeModels,activeLightingBytes;
+    private long activeLightingBytes;
     public long lightingUploadBytes,lightingStoreAllocations,lightingStoreNanos;
     private Vector3f sun = new Vector3f(SUN);
     private float daylight = 1, ambient = 1;
@@ -155,20 +156,20 @@ public final class RenderPipeline implements AutoCloseable {
     }
     private void updateScene(World world,float x,float z,long deadline) {
         long stage=System.nanoTime();
-        if (clusters.update(world,x,z)) { particles.emitters(clusters.emitters()); probes.invalidate(); }
+        if (clusters.update(world,x,z,Math.min(deadline,stage+250_000L))) { particles.emitters(clusters.emitters()); probes.invalidate(); }
         boolean changed=sceneChanged(world) || worldRevision != world.editsVersion();
         sceneNanos=System.nanoTime()-stage;
-        var rebuilt=skyVisibility.update(world,x,z,Math.min(250_000L,Math.max(0,deadline-System.nanoTime())));
-        skyBuildNanos=skyVisibility.ownerNanos;
+        SkyVisibilityScheduler.Prepared rebuilt=null;
+        if(System.nanoTime()<deadline){rebuilt=skyVisibility.update(world,x,z,Math.min(250_000L,Math.max(0,deadline-System.nanoTime())));skyBuildNanos=skyVisibility.ownerNanos;}
         if(rebuilt!=null)desiredSky=rebuilt;
         if (changed) {
             hiZ.invalidate();temporal.reset();worldRevision = world.editsVersion();
         }
         stage=System.nanoTime();
-        LightVolume next = lighting.update(world, x, z, 1, true,desiredSky==null?null:desiredSky.data,desiredSky==null?null:desiredSky.localKey(x,z));
+        LightVolume next = System.nanoTime()<deadline?lighting.update(world, x, z, 1, true,desiredSky==null?null:desiredSky.data,desiredSky==null?null:desiredSky.localKey(x,z),Math.min(deadline,stage+250_000L)):null;
         lightingNanos=System.nanoTime()-stage;
-        if(next!=null){desiredVolume=next;desiredVolumeEdits=world.editsVersion();desiredVolumeModels=world.models().revision();}
-        if(desiredVolume!=volume&&(desiredVolumeEdits!=world.editsVersion()||desiredVolumeModels!=world.models().revision()))desiredVolume=volume;
+        if(next!=null){desiredVolume=next;desiredVolumeFence=lighting.acceptedFence();}
+        if(desiredVolume!=volume&&(desiredVolumeFence==null||!desiredVolumeFence.valid(world,desiredVolumeFence.x,desiredVolumeFence.z)))desiredVolume=volume;
         pumpLighting(world,deadline);
     }
     private void pumpLighting(World world,long deadline) {
@@ -176,7 +177,7 @@ public final class RenderPipeline implements AutoCloseable {
         if(System.nanoTime()>=deadline)return;
         if(lightingUpload!=null&&!lightingUpload.valid(world)){lightingUpload.close();lightingUpload=null;}
         if(lightingUpload==null&&(desiredVolume!=volume||(desiredSky!=null&&desiredSky.data!=worldSky))&&(desiredSky==null||desiredSky.valid(world))&&lightingStores.available(desiredVolume!=volume))
-            lightingUpload=new SceneLightingUpload(world,desiredVolume,desiredSky,desiredVolume!=volume,lightingStores);
+            lightingUpload=new SceneLightingUpload(world,desiredVolume,desiredSky,desiredVolume!=volume,lightingStores,desiredVolume!=volume?desiredVolumeFence:null);
         if(lightingUpload==null)return;
         lightingUpload.refreshSky(world,desiredSky);
         lightingUploadBytes=lightingUpload.pump(deadline,2*1024*1024);

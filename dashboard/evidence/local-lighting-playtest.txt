@@ -1,0 +1,40 @@
+Playtest: PASS. Final-source production application, large edited world.
+Commands:
+  python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --mode offline --video --distant-edits 100000
+  python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --mode offline --distant-edits 100000
+Environment: Linux x86_64 VPS, four Haswell-class processors, Java 21.0.5, Mesa 22.3.6 llvmpipe / OpenGL 3.3, inherited assigned DISPLAY and XAUTHORITY. Isolated synthetic profiles. Balanced settings, actual1280x720 framebuffer. Browser playtesting does not apply to this native Java/OpenGL client.
+Steps: insert100,000 synthetic distant non-light edits; run65 production Main frames. Native W walking; F and Shift+W flight; S reversal; whole/fractional RGB and tiny-model edited area; glass/water; teleport to x2048; unload/return; ordinary death/respawn. F10 records frames14..23 in the separate video run.
+Expected: responsive bounded preparation without copying global edit history; current edits/models survive reload; health20 and nearby terrain after respawn; bounded terrain/mesh queues and residency; GPU mesh progress; no GL errors or shutdown hang.
+Observed: both commands exited0 and all functional assertions passed. Exact fractional0xfe30a0ff and tiny model survived reload. Respawn restored health20 and nearby readiness. Unrecorded scene-preparation elapsed maximum1.214331 ms; GI-preparation elapsed maximum7.088440 ms. These65-frame diagnostics do not establish every pump under2 ms; the GI outlier cause was not isolated.
+
+Playtest: PASS. Final-source multiplayer30frames, City/isometric15frames, world switch35frames.
+Commands: python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --mode multiplayer
+          python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --mode city
+          python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --mode switch
+Expected/observed: remote edit during streaming survives unload/reload, network remains connected; City renders with mesh progress and no GL errors; switching to seed999 stops the old worker and uses the new world. Each command exited0 and passed its assertions.
+
+Playtest: PASS. Local volume GPU dependency fence.
+Commands: /usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/javac -cp target/streaming-after-client.jar -d target/local-lighting/fence-classes deploy/LocalLightingFenceSmoke.java
+          LIBGL_ALWAYS_SOFTWARE=1 MESA_GL_VERSION_OVERRIDE=3.3 MESA_GLSL_VERSION_OVERRIDE=330 /usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -cp target/local-lighting/fence-classes:target/streaming-after-client.jar dev.jayms.render.LocalLightingFenceSmoke
+Expected/observed: an explicit16-byte cap keeps the GPU upload partial; a distant edit preserves its local fence, then a local edit invalidates it. Exit0, no GL errors, cleanup passed. Initial Java source-launch classloader access failed; compiling onto the normal application classpath fixed the harness launch. No application assertion was disabled.
+
+Playtest: PASS. Standalone large edited-world GL regression.
+Command pattern: python3 deploy/run_local_lighting_smoke.py --display "$DISPLAY" --jar JAR --label LABEL
+Executed before labels final-before-1,final-before-2,final-before-3 with target/local-lighting-before-client.jar; final labels release-after-1,release-after-2,release-after-3 with target/streaming-after-client.jar.
+Expected/observed:100,000 distant non-light edits do not enter local preparation; nearby LED references match GPU readback; local edit race updates current color; removed LED clears GPU references; world switch rejects old light data; cleanup succeeds. All six runs exited0. Pump p99 before117.606/135.064/120.613 ms, after0.260/0.270/0.261 ms. Max7pumps per new boundary. One new elapsed outlier7.375598 ms used0.110939 ms owner CPU with no GC; exact wait cause unknown. These are standalone pump timings, not game frame distributions.
+
+Playtest: PASS. Three final fresh-terrain game routes.
+Commands: python3 deploy/run_streaming_sustained_matrix.py --display "$DISPLAY" --phase after --trials 1,2,3 --after-prefix local-lighting-after --manifest-name local-lighting-source.json
+          python3 deploy/run_streaming_sustained_matrix.py --display "$DISPLAY" --phase after --trials 3 --after-prefix local-lighting-after --manifest-name local-lighting-source.json
+          python3 deploy/summarize_streaming_sustained.py --after-prefix local-lighting-after --output-prefix local-lighting-comparison
+Expected/observed: three166-sample exports with resident/cold/reversal/teleport/catch-up separation and bounded queues; all three final exports complete, nearby terrain ready in every final tail frame. Source/JAR and matched environment/settings verified. The third initial warmup FAILED the unchanged240-frame guard, produced no cold data, and remains preserved. One unchanged retry reached readiness at211 and passed. Do not count the failed attempt as passed. Successful warmups232/222/211frames remain slow. Shared2 ms tails and physical Windows GPU frame targets are not qualified.
+
+Playtest: PASS. GPU upload readback and streaming soak.
+Commands: python3 deploy/run_streaming_upload_smoke.py --display "$DISPLAY"
+          python3 deploy/run_async_streaming_soak.py --display "$DISPLAY" --cycles 64
+Observed: final-source upload check passed exact sky/fine/irradiance/radiance-mip/transport readback, cancellation, reuse, byte caps and cleanup. Warm pooled max0.150133 ms; cold max5.327232 ms. The64-cycle World/terrain/mesh soak passed130seconds,1,216boundary edits,120reloads,128GPU border comparisons, bounded queues/retained memory and cleanup. Its World/terrain/mesh classes are unchanged by the final GI-only array storage adjustment; the final-source snapshot worker race and native workflows cover that adjustment.
+
+Media: local-lighting-f10.mp4,580366bytes,18.292seconds,10H264 frames,960x544. All frames decoded; first and last differ. Midpoint and final respawn screenshot visually inspected. Software-renderer low FPS is visible. Media is pending controller publication. Physical Windows GPU qualification remains pending and gates stable rollout.
+
+Source SHA256: 1045df4d490097a047c188977d3d86897734a5145c4bd2b7694288bb1b9578b3
+Client JAR SHA256: 2e1029b195080b68298108be576c335350b3c2d73ecb966e3c1ed8d621fd2c63

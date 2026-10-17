@@ -13,6 +13,7 @@ final class SceneLightingUpload implements AutoCloseable {
     int width,height,depth,offset;
     private final World owner;
     private final LightingStores stores;
+    private final WorldLighting.Capture volumeFence;
     private final long edits,models;
     private int atlas,irradiance,fineTexture,fineBuffer;
     private IntBuffer integers;
@@ -28,6 +29,10 @@ final class SceneLightingUpload implements AutoCloseable {
         this(world,volume,sky,replaceVolume,null);
     }
     SceneLightingUpload(World world,LightVolume volume,SkyVisibilityScheduler.Prepared sky,boolean replaceVolume,LightingStores stores) {
+        this(world,volume,sky,replaceVolume,stores,null);
+    }
+    SceneLightingUpload(World world,LightVolume volume,SkyVisibilityScheduler.Prepared sky,boolean replaceVolume,LightingStores stores,WorldLighting.Capture volumeFence) {
+        this.volumeFence=volumeFence;
         this.stores=stores;this.owner=world;this.volume=volume;this.sky=sky;this.replaceVolume=replaceVolume;
         edits=world.editsVersion();models=world.models().revision();skyData=sky==null?new int[0]:sky.data.data;
         int w=volume==null?64:volume.width,h=volume==null?64:volume.height,l=volume==null?0:volume.length;
@@ -41,7 +46,11 @@ final class SceneLightingUpload implements AutoCloseable {
             if(replaceVolume){irradiance=stores==null?glGenTextures():stores.texture("irradiance");fineTexture=stores==null?glGenTextures():stores.texture("fine");fineBuffer=stores==null?glGenBuffers():stores.buffer();if(volume!=null)pixels=stores==null?MemoryUtil.memAlloc(2*1024*1024):stores.pixels;}
         }catch(RuntimeException e){close();throw e;}
     }
-    boolean valid(World world){return world==owner&&world.editsVersion()==edits&&world.models().revision()==models;}
+    boolean valid(World world){
+        if(world!=owner||world.models().revision()!=models)return false;
+        if(volumeFence!=null)return volumeFence.valid(world,volumeFence.x,volumeFence.z);
+        return replaceVolume?world.editsVersion()==edits:sky==null||sky.valid(world);
+    }
     boolean skyCurrent(World world){return sky==null||sky.valid(world);}
     void refreshSky(World world,SkyVisibilityScheduler.Prepared latest) {
         if(latest==null||!latest.valid(world)||latest==sky)return;

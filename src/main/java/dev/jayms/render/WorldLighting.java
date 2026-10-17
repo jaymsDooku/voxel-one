@@ -28,6 +28,51 @@ public final class WorldLighting implements AutoCloseable {
     private Object skyKey,submittedSkyKey;
     private World acceptedWorld,submittedWorld;
 
+    private Capture capture,submittedCapture,acceptedCapture;
+    private long acceptedModels=-1,submittedModels;
+    static final class Capture {
+        final World world;final int x,z;final long stamp,modelsRevision;
+        final ModelLibrary models;
+        final long[] geometry=new long[36];
+        SparseVoxelOctree[] chunks=new SparseVoxelOctree[288];
+        SparseVoxelOctree[][] overrides=new SparseVoxelOctree[288][];
+        int capturedCells,editing;
+        int index;Iterator<World.EditedCell> cells=Collections.emptyIterator();
+        Capture(World world,int x,int z) {
+            this.world=world;this.x=x;this.z=z;
+            stamp=stamp(world,x,z);modelsRevision=world.models().revision();models=world.models().copy();
+            for(int i=0;i<36;i++)geometry[i]=world.geometryRevision(Math.floorDiv(x-48,16)+i%6,Math.floorDiv(z-48,16)+i/6);
+        }
+        static long stamp(World w,int x,int z){return w.localRevision(x-48,x+47,z-48,z+47);}
+        boolean valid(World w,int x,int z){
+            if(world!=w||this.x!=x||this.z!=z||modelsRevision!=w.models().revision()||stamp!=stamp(w,x,z))return false;
+            for(int i=0;i<36;i++)if(geometry[i]!=w.geometryRevision(Math.floorDiv(x-48,16)+i%6,Math.floorDiv(z-48,16)+i/6))return false;
+            return true;
+        }
+        int slot(int px,int py,int pz){return (px-x+48)/16+6*((py+32)/16+8*((pz-z+48)/16));}
+        SparseVoxelOctree overrideAt(int px,int py,int pz){
+            if(px<x-48||px>x+47||py< -32||py>95||pz<z-48||pz>z+47)return null;
+            var cells=overrides[slot(px,py,pz)];return cells==null?null:cells[Math.floorMod(px,16)+16*(Math.floorMod(py,16)+16*Math.floorMod(pz,16))];
+        }
+        void releasePayload(){chunks=null;overrides=null;}
+        boolean pump(long deadline) {
+            int steps=0;
+            while(System.nanoTime()<deadline&&steps++<1024) {
+                if(cells.hasNext()){
+                    var c=cells.next();if(overrides[editing]==null)overrides[editing]=new SparseVoxelOctree[4096];
+                    overrides[editing][Math.floorMod(c.x(),16)+16*(Math.floorMod(c.y(),16)+16*Math.floorMod(c.z(),16))]=c.voxels();capturedCells++;continue;
+                }
+                if(index==288)return true;
+                int i=index++,cx=Math.floorDiv(x-48,16)+i%6,cy=-2+i/6%8,cz=Math.floorDiv(z-48,16)+i/48;
+                var p=new ChunkPos(cx,cy,cz);var chunk=world.getLoadedChunks().get(p);
+                if(chunk!=null)chunks[i]=chunk.snapshot();else{editing=i;cells=world.editedCellsInChunk(p).iterator();}
+            }
+            return index==288&&!cells.hasNext();
+        }
+    }
+
+    Capture acceptedFence(){return acceptedCapture;}
+
     public LightVolume update(World world, float px, float pz) {
         return update(world, px, pz, 1);
     }
@@ -36,18 +81,22 @@ public final class WorldLighting implements AutoCloseable {
     public LightVolume update(World world,float px,float pz,float skyStrength,boolean dynamicSky) {return update(world,px,pz,skyStrength,dynamicSky,null);}
     public LightVolume update(World world,float px,float pz,float skyStrength,boolean dynamicSky,WorldSkyVisibility globalSky) {return update(world,px,pz,skyStrength,dynamicSky,globalSky,globalSky);}
     public LightVolume update(World world,float px,float pz,float skyStrength,boolean dynamicSky,WorldSkyVisibility globalSky,Object globalSkyKey) {
+        return update(world,px,pz,skyStrength,dynamicSky,globalSky,globalSkyKey,System.nanoTime()+FrameBudget.STREAMING_CPU_NANOS);
+    }
+    public LightVolume update(World world,float px,float pz,float skyStrength,boolean dynamicSky,WorldSkyVisibility globalSky,Object globalSkyKey,long deadline) {
+        if(System.nanoTime()>=deadline)return null;
         int cx = Math.floorDiv((int) Math.floor(px), 16) * 16,
                 cz = Math.floorDiv((int) Math.floor(pz), 16) * 16;
         LightVolume result = null;
         if (pending != null && pending.isDone()) {
             try {
                 var baked = pending.get();
-                if (submittedWorld==world&&submittedRevision == world.editsVersion()
+                if (submittedCapture.valid(world,cx,cz)&&submittedModels==world.models().revision()&&submittedWorld==world&&submittedRevision == Capture.stamp(world,cx,cz)
                         && submittedX == cx
                         && submittedZ == cz
                         && submittedAmbient == skyStrength && submittedSeparateSky==dynamicSky && Objects.equals(submittedSkyKey,globalSkyKey)) {
                     result = baked;
-                    revision = submittedRevision;
+                    revision = submittedRevision;acceptedModels=submittedModels;acceptedCapture=submittedCapture;
                     ambient = submittedAmbient;
                     separateSky=submittedSeparateSky;sky=submittedSky;skyKey=submittedSkyKey;acceptedWorld=world;
                     centerX = cx;
@@ -56,37 +105,37 @@ public final class WorldLighting implements AutoCloseable {
             } catch (Exception e) {
                 throw new IllegalStateException("Voxel lighting failed", e);
             } finally {
-                pending = null;
+                pending = null;submittedCapture.releasePayload();submittedCapture=null;
             }
         }
         if (pending == null
-                && (acceptedWorld!=world||cx != centerX
+                && (acceptedCapture==null||!acceptedCapture.valid(world,cx,cz)||acceptedModels!=world.models().revision()||acceptedWorld!=world||cx != centerX
                         || cz != centerZ
-                        || revision != world.editsVersion()
+                        || revision != Capture.stamp(world,cx,cz)
                         || ambient != skyStrength || separateSky!=dynamicSky || !Objects.equals(skyKey,globalSkyKey))) {
+            if(capture==null||!capture.valid(world,cx,cz))capture=new Capture(world,cx,cz);
+            if(!capture.pump(deadline))return result;
+            if(!capture.valid(world,cx,cz)){capture=null;return result;}
+            var prepared=capture;capture=null;submittedCapture=prepared;
             submittedSky=globalSky;submittedSkyKey=globalSkyKey;submittedWorld=world;
             submittedAmbient = skyStrength;
             submittedSeparateSky=dynamicSky;
             submittedX = cx;
             submittedZ = cz;
-            submittedRevision = world.editsVersion();
-            Map<ChunkPos, SparseVoxelOctree> chunks = new HashMap<>();
-            for (var e : world.getLoadedChunks().entrySet())
-                if (Math.abs(e.getKey().chunkX() * 16 - cx) <= 64
-                        && Math.abs(e.getKey().chunkZ() * 16 - cz) <= 64)
-                    chunks.put(e.getKey(), e.getValue().snapshot());
-            var edits = world.editsSnapshot();
+            submittedRevision = prepared.stamp;submittedModels=prepared.modelsRevision;
+            var chunks=prepared.chunks;
+            var overrides=prepared.overrides;
             long seed = world.terrain().seed;
             int generatorVersion = world.terrain().version;
             var stressGrid = world.terrain().stressGrid();
-            ModelLibrary models = world.models().copy();
+            ModelLibrary models = prepared.models;
             pending =
                     worker.submit(
                             () -> {
                                 var terrain = new Terrain(seed, generatorVersion);
                                 terrain.stressGrid(stressGrid);
                                 WorldVoxels fallback = new WorldVoxels(terrain);
-                                for (var edit : edits.values()) fallback.apply(edit);
+
                                 return LightVolume.bake(
                                         cx - 48,
                                         -32,
@@ -101,10 +150,11 @@ public final class WorldLighting implements AutoCloseable {
                                                     new HashMap<>();
 
                                             private SparseVoxelOctree cell(int x, int y, int z) {
-                                                var octree =
-                                                        chunks.get(ChunkPos.fromBlock(x, y, z));
+                                                int slot=(x-cx+48)/16+6*((y+32)/16+8*((z-cz+48)/16));
+                                                var octree=chunks[slot];var cells=overrides[slot];
+                                                var override=cells==null?null:cells[Math.floorMod(x,16)+16*(Math.floorMod(y,16)+16*Math.floorMod(z,16))];
                                                 return octree == null
-                                                        ? fallback.cell(x, y, z)
+                                                        ? override==null?fallback.cell(x,y,z):override
                                                         : octree.region(
                                                                 Math.floorMod(x, 16) * 16,
                                                                 Math.floorMod(y, 16) * 16,
@@ -157,7 +207,7 @@ public final class WorldLighting implements AutoCloseable {
     @Override
     public void close() {
         if(pending!=null){pending.cancel(true);pending=null;}
-        sky=null;submittedSky=null;skyKey=null;submittedSkyKey=null;acceptedWorld=null;submittedWorld=null;
+        capture=submittedCapture=acceptedCapture=null;sky=null;submittedSky=null;skyKey=null;submittedSkyKey=null;acceptedWorld=null;submittedWorld=null;
         worker.shutdownNow();
         try{if(!worker.awaitTermination(3,TimeUnit.SECONDS))throw new IllegalStateException("Lighting worker did not stop");}
         catch(InterruptedException e){Thread.currentThread().interrupt();}

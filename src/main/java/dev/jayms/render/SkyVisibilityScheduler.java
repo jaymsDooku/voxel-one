@@ -78,6 +78,9 @@ public final class SkyVisibilityScheduler implements AutoCloseable {
     public SkyVisibilityScheduler(){}
     private void remove(ChunkPos p,Cached c){if(cache.remove(p,c)){bytes-=4L*c.data.data.length;generation++;dirty=true;}}
     private boolean current(World world,Cached c){return cache.get(c.ticket.column)==c&&c.ticket.valid(world);}
+    private static boolean remoteUnloaded(World world,ChunkPos p,float x,float z) {
+        return world.skyMembers(p).isEmpty()&&(Math.abs(p.chunkX()-Math.floorDiv((int)Math.floor(x),16))>6||Math.abs(p.chunkZ()-Math.floorDiv((int)Math.floor(z),16))>6);
+    }
     public Prepared update(World world,long nanos){return update(world,0,0,nanos);}
     public Prepared update(World world,float x,float z,long nanos) {
         long start=System.nanoTime(),deadline=start+Math.max(0,nanos);Prepared ready=null;workerNanos=finishedWorkerNanos.getAndSet(0);
@@ -102,7 +105,7 @@ public final class SkyVisibilityScheduler implements AutoCloseable {
             }
             if(cleaning==null||!cleaning.hasNext())cleaning=cache.entrySet().iterator();
             while(cleaning.hasNext()&&System.nanoTime()<deadline) {
-                var e=cleaning.next();if(!e.getValue().ticket.valid(world))remove(e.getKey(),e.getValue());
+                var e=cleaning.next();if(remoteUnloaded(world,e.getKey(),x,z)||!e.getValue().ticket.valid(world))remove(e.getKey(),e.getValue());
             }
             if(pending==null) {
                 if(scan==null||!scan.hasNext())scan=world.skyColumns().iterator();
@@ -121,6 +124,7 @@ public final class SkyVisibilityScheduler implements AutoCloseable {
                             }
                         }
                         if(p==null){if(!scan.hasNext())break;p=scan.next();}
+                        if(remoteUnloaded(world,p,x,z))continue;
                         boolean queued=false;for(var t:tickets)if(t.column.equals(p)){queued=true;break;}if(queued)continue;
                         var old=cache.get(p);
                         if(old!=null&&old.ticket.valid(world))continue;

@@ -130,3 +130,47 @@ records center-column and 3x3 residency, pending jobs and resident chunks.
 Startup and warm-up durations are separate artifacts. Calibration runs retained
 under target/ are excluded from the formal three matched pairs. The final
 revision results and remaining qualification limits are recorded in evidence.
+
+Large edited-world preparation regression (review P1):
+Cluster capture reads only the chunks intersecting its120 × 152 × 120 block influence
+bounds. GI capture reads288 chunk slots for its96 × 128 × 96 volume and only canonical
+edited cells in unloaded local chunks. It never copies/replays the full world
+edit history. Canonical cells are immutable octree roots indexed by chunk.
+Capture uses fixed chunk slots and lazily allocated4,096-reference cell arrays,
+so dense captures cannot trigger a whole-volume hash-map resize. Completed
+worker payloads are released by reference assignment, not a large Map.clear.
+
+Both preparation paths check the shared deadline before starting. Cluster and
+GI preparation each have at most 0.25 ms within the remaining 2 ms allowance;
+cooperative atomic units can still overrun. GI capture has at most 1,024 units per
+pump. Clusters have at most 512 units per pump,256 emitters,2,304 cells and32 indices
+per cell. Cluster transfers split at 64 KiB; two preallocated GPU generations
+contain 643,072 payload bytes, plus 65,536 bytes shared native scratch. The prior
+active grid/origin/list stay intact until a complete replacement is ready.
+Retirement fences are polled with zero timeout. Local edits, model revisions,
+world identity and a 36-column geometry version vector fence GI data through
+worker completion and GPU commit. Distant edits do not invalidate local data.
+Unloaded far edit-only sky columns outside the live radius are not cached.
+
+Reproduce with synthetic data on the inherited assigned display:
+  python3 deploy/run_local_lighting_smoke.py --display "$DISPLAY" \
+    --jar target/streaming-after-client.jar --label LABEL
+  python3 deploy/run_streaming_workflow.py --display "$DISPLAY" \
+    --mode offline --distant-edits 100000
+  python3 deploy/run_streaming_workflow.py --display "$DISPLAY" \
+    --mode offline --video --distant-edits 100000
+The standalone GL harness performs 20 warmup boundaries and 100 measured boundaries,
+checks real GPU references, local edit races, light removal, world switching and
+cleanup. CSV records elapsed pump time, owner thread CPU time and GC deltas.
+It is not a substitute for the production-client workflow or full frame data.
+
+New full-route evidence must use a distinct prefix from older reviewed data:
+  python3 deploy/run_streaming_sustained_matrix.py --display "$DISPLAY" \
+    --phase after --trials 1,2,3 --after-prefix local-lighting-after \
+    --manifest-name local-lighting-source.json
+  python3 deploy/summarize_streaming_sustained.py \
+    --after-prefix local-lighting-after --output-prefix local-lighting-comparison
+Preserved baseline trials are reusable only with unchanged baseline engine,
+route, JVM, hardware, framebuffer and settings. Intermediate and prior reviewed
+source evidence stays historical. Physical Windows GPU qualification remains
+pending; the Linux software-renderer results do not qualify stable rollout.

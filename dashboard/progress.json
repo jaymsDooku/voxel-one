@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-17T04:38:20+00:00",
+  "updatedAt": "2026-10-17T06:34:02+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -20,8 +20,8 @@
       "description": "Bounded async Sandbox generation, staged mesh/lighting work, reusable GPU stores and worker-built mip levels; validated on the available Linux software renderer.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Ready for independent review. Three fresh-terrain pairs reduce owner streaming p99 by 97.34\u201398.18% and improve frame p99 in every pair. 128 tests, native offline/multiplayer/City/world-switch, GL readback/64-cycle soak and bounded travel readiness pass. First180-frame lighting failure retained; readiness took152frames afterrespawn. Shared2ms tails remain unmet; physical Windows GPU qualification gates stable rollout. New evidence awaits controller publication.",
-      "updatedAt": "2026-10-17T04:38:20+00:00"
+      "note": "P1 fixed with bounded local lighting snapshots and revision fences. 133 tests and native edited-world workflows pass. Three 100000-edit cluster pairs reduce pump p99 to 0.260\u20130.270 ms. Three fresh-route pairs reduce owner streaming p99 by 98.20\u201398.76%; frame p99 improves in each. One warmup timeout retained; unchanged retry passed. Ready for independent review. The 2 ms tail target, slow lighting readiness and physical Windows GPU qualification remain rollout gates.",
+      "updatedAt": "2026-10-17T06:34:02+00:00"
     },
     {
       "id": "607ad2ae-9047-4ee1-bff3-f41033b6a910",

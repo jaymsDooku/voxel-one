@@ -1,0 +1,27 @@
+Local lighting preparation and streaming validation
+
+Measured cause: chunk-boundary preparation copied every world edit on the owner thread. Both clustered lights and GI used the full history. The revised code captures only local chunk histories or immutable local cell roots, checks deadlines, slices cluster build/upload and fences data through GPU commit.
+
+Environment: Linux x86_64 VPS; four Haswell-class virtual processors; Java 21.0.5; Mesa 22.3.6 llvmpipe / OpenGL 3.3. Synthetic profiles only. Game framebuffer 1280x720; Balanced selected 640x480 fell back during existing window startup. Scale 1, dynamic resolution off, detail 112, horizon 2048; identical settings per pair. Harness sets glfwSwapInterval(0).
+
+Large edited-world GL regression: 100,000 distant non-light edits and one nearby LED; 20 warmup boundaries then 100 measured boundaries per trial. Before is reviewed head bd3317631bdccccd34789511c5b48b185c205103; after is the current source/JAR. Standalone 320x240 GL integration, not game FPS.
+trial | old pump p99 ms | new pump p99 ms | new worst pump ms | new boundary total CPU-time p99 ms | max pumps/boundary
+1 | 117.605941 | 0.259762 | 7.375598 | 1.230479 | 7
+2 | 135.064393 | 0.270360 | 0.742941 | 1.219913 | 7
+3 | 120.613096 | 0.261264 | 0.289887 | 1.181434 | 7
+The boundary total is the sum of elapsed pump durations, despite the legacy JSON key boundaryCpuP99Ms. The separate owner_thread_cpu_ms CSV column is actual thread CPU time. The 7.375598 ms elapsed outlier used 0.110939 ms thread CPU with no reported GC; its exact wait cause is unknown. Keep it and the earlier 38.126379 ms intermediate outlier visible.
+
+Fresh-terrain route: three final feature runs matched to three preserved synchronous baseline runs. Each has 166 samples after completed resident meshes and accepted latest lighting. Seed 748291; daylight 10:00; cold walking/flight x128..236 beyond preload edge x79. Resident, cold, reversal, teleport and catch-up distributions are separate. No video or other tests during these profiles.
+pair | owner streaming p99 before -> after ms | reduction | frame p95 before -> after ms | frame p99 before -> after ms | nearby cold-flight ready
+1 | 639.001 -> 11.530 | 98.20% | 2698.378 -> 2422.869 | 2881.887 -> 2613.558 | 75/80
+2 | 614.540 -> 9.901 | 98.39% | 2642.355 -> 2339.504 | 2744.847 -> 2663.964 | 77/80
+3 | 576.988 -> 7.141 | 98.76% | 2718.716 -> 2334.692 | 2892.450 -> 2477.084 | 75/80
+
+Owner streaming p99 falls 98.20–98.76% versus the synchronous baseline. This includes earlier streaming work; it is not attributed solely to this local-preparation revision. Frame p99 is lower in all three software-rendered pairs. Frame timing alone does not prove matched transient GI coverage or physical-GPU responsiveness.
+The shared 2 ms tail target is NOT achieved: cold-flight owner p99 is 11.530,9.901,7.141 ms. Cold-flight scene preparation p99 is 0.258,0.267,0.852 ms; GI preparation p99 is 1.864,3.039,5.913 ms. The unrecorded 100,000-edit native workflow also saw a 7.088 ms GI-preparation elapsed maximum; its cause was not isolated. Deadlines bound cooperative work, not JVM/driver/scheduling pauses. Do not claim every pump stays under its allowance.
+This software renderer does not sustain 60 FPS with resident terrain. The 25 ms p95 / 50 ms p99 target remains unqualified. GPU EMA is delayed telemetry, not a per-frame GPU distribution. Physical Windows GPU qualification remains pending and gates stable rollout.
+Successful graphics warmups took 232,222,211 frames /603.56,564.62,530.54 seconds including startup. The third initial attempt exceeded the unchanged 240-frame guard and exited1 without any cold samples. It remains in local-lighting-warmup-timeout.json. One unchanged retry passed. This is a real readiness/latency shortfall, not a passed 240-frame attempt.
+Geometry caught up: nearby 3x3 ready in 75/80,77/80,75/80 cold-flight frames, and all 8 final tail frames in each trial. Terrain queues remained at most 8 in the sampled runs; final outer queues may remain pending. Old GI data stays active until replacements are usable; long lighting settlement remains a limit, especially during rapid movement. Do not infer completed current-camera GI from terrain residency.
+Raw stage/frame distributions, 1% lows,33/ 50/100 ms counts, bytes, GC, queue age and memory are in local-lighting-comparison.json and the six matched CSV/JSON sets. Per-trial startup and residency sidecars are included. Historical streaming-revision-* / streaming-sustained-* reports describe prior source and remain historical.
+
+Audit: no file deletions or unmerged entries against 403033b9f53ce66063982879c6e2daff684a427b. Intended replacements remove whole-history owner copies/replay, global loaded-root scans and global edit fences for local GI uploads. Other merged features and dashboard entries are preserved. No commit, push, merge or deployment was performed.
