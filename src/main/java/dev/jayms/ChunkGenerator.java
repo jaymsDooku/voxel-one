@@ -11,7 +11,8 @@ public final class ChunkGenerator {
 
     public static Chunk generate(ChunkPos p, Terrain terrain) {
         Chunk c = new Chunk();
-        for (int x = 0; x < 16; x++)
+        for (int x = 0; x < 16; x++) {
+            if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
             for (int z = 0; z < 16; z++)
                 for (int y = 0; y < 16; y++) {
                     int type =
@@ -19,6 +20,7 @@ public final class ChunkGenerator {
                                     p.chunkX() * 16 + x, p.chunkY() * 16 + y, p.chunkZ() * 16 + z);
                     if (type != 0) c.setBlock(x, y, z, type);
                 }
+        }
         return c;
     }
 

@@ -3,6 +3,7 @@ package dev.jayms.render;
 import dev.jayms.*;
 import dev.jayms.net.*;
 import java.util.*;
+import dev.jayms.net.model.*;
 
 /** Sparse vertical sky paths for loaded geometry beyond the local GI volume.
  * Exact leaf footprints block roofs without allocating a planet-wide light grid. */
@@ -12,6 +13,9 @@ public final class WorldSkyVisibility {
         public int compareTo(Column b){int c=Integer.compare(x,b.x);return c==0?Integer.compare(z,b.z):c;}
     }
     private record Segment(float x0,float y0,float z0,float x1,float y1,float z1,float transmission){}
+    public record Geometry(ChunkPos position,SparseVoxelOctree root) {}
+    public record EditedCell(int x,int y,int z,SparseVoxelOctree root) {}
+    public record Input(List<Geometry> chunks,List<EditedCell> edits,ModelLibrary models) {}
     public final int[] data;
     public final int columns;
     private WorldSkyVisibility(int[] data,int columns){this.data=data;this.columns=columns;}
@@ -24,7 +28,7 @@ public final class WorldSkyVisibility {
             for(var leaf:entry.getValue().snapshot().leaves()){
                 int type=WorldVoxels.decode(leaf.color());if(type==Blocks.AIR)continue;
                 float x=p.chunkX()*16+leaf.x()/16f,y=p.chunkY()*16+leaf.y()/16f,z=p.chunkZ()*16+leaf.z()/16f,size=leaf.side()/16f;
-                expand(paths,world,type,x,y,z,size);
+                expand(paths,world.models(),type,x,y,z,size);
             }
         }
         // Unloaded edited roofs must also occlude the loaded geometry below them.
@@ -33,9 +37,29 @@ public final class WorldSkyVisibility {
             for(var leaf:world.cell(edit.x(),edit.y(),edit.z()).leaves()){
                 int type=WorldVoxels.decode(leaf.color());if(type==Blocks.AIR)continue;
                 float x=edit.x()+leaf.x()/16f,y=edit.y()+leaf.y()/16f,z=edit.z()+leaf.z()/16f,size=leaf.side()/16f;
-                expand(paths,world,type,x,y,z,size);
+                expand(paths,world.models(),type,x,y,z,size);
             }
         }
+        return pack(paths);
+    }
+    /** Worker entry point. Inputs contain immutable roots and no live World or Chunk. */
+    public static WorldSkyVisibility build(Input input) {
+        var paths=new TreeMap<Column,List<Segment>>();
+        for(var geometry:input.chunks){
+            var p=geometry.position;
+            for(int x=0;x<16;x++)for(int z=0;z<16;z++)paths.computeIfAbsent(new Column(p.chunkX()*16+x,p.chunkZ()*16+z),k->new ArrayList<>());
+            for(var leaf:geometry.root.leaves()) {
+                int type=WorldVoxels.decode(leaf.color());if(type==Blocks.AIR)continue;
+                expand(paths,input.models,type,p.chunkX()*16+leaf.x()/16f,p.chunkY()*16+leaf.y()/16f,p.chunkZ()*16+leaf.z()/16f,leaf.side()/16f);
+            }
+        }
+        for(var cell:input.edits)for(var leaf:cell.root.leaves()) {
+            int type=WorldVoxels.decode(leaf.color());if(type==Blocks.AIR)continue;
+            expand(paths,input.models,type,cell.x+leaf.x()/16f,cell.y+leaf.y()/16f,cell.z+leaf.z()/16f,leaf.side()/16f);
+        }
+        return pack(paths);
+    }
+    private static WorldSkyVisibility pack(TreeMap<Column,List<Segment>> paths) {
         paths.replaceAll((column,segments)->compact(segments));
         int count=paths.size(),length=count*4;
         for(var segments:paths.values())length=Math.addExact(length,segments.size()<=MAX_COLUMN_SEGMENTS?segments.size()*7:0);
@@ -50,10 +74,27 @@ public final class WorldSkyVisibility {
         }
         return new WorldSkyVisibility(packed,count);
     }
+    /** Merge immutable, disjoint 16x16 column tiles without rebuilding their geometry. */
+    public static WorldSkyVisibility merge(List<WorldSkyVisibility> parts) {
+        int count=0,length=0;for(var p:parts){count=Math.addExact(count,p.columns);if(p.columns!=0)length=Math.addExact(length,p.data.length);}
+        if(length>MAX_INTS)throw new IllegalStateException("Loaded sky visibility exceeds bounded buffer capacity");
+        int[] data=new int[Math.max(1,length)];
+        final class Cursor { final WorldSkyVisibility p;int i;Cursor(WorldSkyVisibility p){this.p=p;} }
+        var queue=new PriorityQueue<Cursor>(Comparator.<Cursor>comparingInt(c->c.p.data[c.i]).thenComparingInt(c->c.p.data[c.i+1]));
+        for(var p:parts)if(p.columns!=0)queue.add(new Cursor(p));int header=0,offset=count*4;
+        while(!queue.isEmpty()) {
+            if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
+            var c=queue.remove();int n=c.p.data[c.i+3];data[header++]=c.p.data[c.i];data[header++]=c.p.data[c.i+1];
+            data[header++]=n<0?c.p.data[c.i+2]:offset;data[header++]=n;
+            if(n>=0){System.arraycopy(c.p.data,c.p.data[c.i+2],data,offset,n*7);offset+=n*7;}
+            c.i+=4;if(c.i<c.p.columns*4)queue.add(c);
+        }
+        return new WorldSkyVisibility(data,count);
+    }
     /** Same model footprint contract for streamed chunks and persisted edits. */
-    private static void expand(Map<Column,List<Segment>> paths,World world,int type,float x,float y,float z,float size){
+    private static void expand(Map<Column,List<Segment>> paths,ModelLibrary models,int type,float x,float y,float z,float size){
         if(Blocks.isModel(type)){
-            var model=world.models().get(type);
+            var model=models.get(type);
             if(model==null){add(paths,new Segment(x,y,z,x+size,y+size,z+size,0));return;}
             // A merged uniform octree leaf can contain several repeated model cells.
             if(size<1){add(paths,new Segment(x,y,z,x+size,y+size,z+size,0));return;}
@@ -82,6 +123,7 @@ public final class WorldSkyVisibility {
         }return result;
     }
     private static void add(Map<Column,List<Segment>> paths,Segment a){
+        if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
         for(int x=(int)Math.floor(a.x0);x<(int)Math.ceil(a.x1);x++)for(int z=(int)Math.floor(a.z0);z<(int)Math.ceil(a.z1);z++)paths.computeIfAbsent(new Column(x,z),k->new ArrayList<>()).add(a);
     }
     /** CPU mirror for coverage and fine-geometry regression checks. */

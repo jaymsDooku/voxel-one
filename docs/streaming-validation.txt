@@ -1,0 +1,102 @@
+Sandbox streaming validation and Windows reproduction
+
+The normal frame path calls World.streamAsync with a 1 ms owner deadline. The
+existing DetailedMeshScheduler receives the remainder of a 1.5 ms CPU
+preparation allowance (minimum 0.25 ms). Cached sky capture has a 0.25 ms
+allowance, and staged lighting uploads have a 0.5 ms/2 MiB allowance. These
+cooperative deadlines include measured atomic-unit overruns; they are not
+a guarantee against JVM safepoints or a blocking GL driver call. GL driver calls and a single snapshot or
+edit operation cannot be preempted; the exported stage timings show overruns.
+No graphics defaults, draw distance, resolution defaults or horizon settings
+change. The benchmark selects a synthetic Balanced 640x480 profile. The existing
+display startup fell back to an actual 1280x720 framebuffer on this assigned
+display. Comparisons use actual framebuffer dimensions from each JSON report;
+the selected profile and actual viewport are both recorded.
+
+One terrain worker owns its Terrain and Geography caches. It also runs at most
+one sky tile batch and one atlas pack, alternating queued sky tasks with terrain
+jobs. Sky work does not add another CPU thread or queue behind long GI bakes. Its FIFO retains at
+most eight queued/running/completed chunks, including obsolete running work.
+The owner may retain one additional result while replaying edits. Base terrain
+has at most 4096 full block cells per chunk; fractional authoritative edits are
+replayed only on the owner. Jobs contain positions and immutable stress-grid
+configuration, never live World maps, model libraries or GL resources.
+
+Sky visibility caches immutable 16x16 tiles. Owner capture checks deadlines
+between chunk roots and edited cells. The worker expands/compacts only changed
+tiles, then merges packed tiles. World identity, column members, geometry/edit
+revisions and model revision fence each result. Packed cache data is capped at
+32 MB. A GPU atlas stays active until its replacement, fine nodes, irradiance
+and transport are fully uploaded. Sky-only updates reuse the existing volume.
+Rows and byte caps split transfers; one staging replacement and one latest
+requested result coalesce arrivals. Shader formats and OpenGL 3.3 stay intact.
+
+Ordinary terrain snapshots copy only immutable roots and six neighbor roots.
+Only fractional cells touching a chunk face need fallback border cells; those
+are captured incrementally and fenced by the existing mesh revisions. Empty
+checks inspect the octree root instead of recursively counting nodes.
+
+The owning World instance is the session fence: workers cannot attach results.
+Travel discards requests outside the active load radius; explicit unload cancels
+that position, including an in-progress replay. Replays restart from the current
+ordered authoritative history when an edit arrives. Covering newer edits erase
+older replayed regions. Existing mesh identity/revision/model fences still
+reject stale meshes. A partial ten-chunk column retains distant-parent coverage.
+Unloaded collision cells remain solid. Startup draws and polls a loading screen
+until the nearby 3x3 columns are resident; respawn uses the regular frame loop.
+
+Windows playtest (physical Windows GPU results are not implied by Linux reports):
+1. Build or install the controller's exact feature revision with the existing
+   client/launcher pipeline. Keep the same Java version and graphics settings
+   for both baseline and feature runs. Use separate synthetic saves/profiles.
+2. Use seed 748291. Record resolution, Balanced profile, detailed distance 112,
+   horizon 2048, render scale 1, dynamic resolution off, and the GPU/CPU model.
+   Keep the same settings throughout. Warm the renderer consistently.
+3. F9 starts CSV/JSON timing capture, with video inactive. Walk across fresh
+   boundaries, hold flight plus sprint for several minutes, reverse, teleport
+   or respawn, then revisit the earlier route. Repeat three fresh-save trials
+   for each revision. Separate resident, cold, revisit and transition samples.
+4. Compare frame and stream CPU p50/p95/p99, worst frame, 1% lows, >33/50/100 ms
+   counts, generation/attachment/edit replay/disposal/scheduling, snapshot and
+   upload timings/bytes, lighting/sky/shadow/probe CPU and GPU timings, GC, heap,
+   resident geometry estimates, pending counts and oldest job age. GPU timing
+   frame EMA is delayed telemetry, not a per-frame GPU distribution.
+5. Place/break whole and fractional blocks, RGB LEDs, glass, water and tiny
+   models while a second synthetic multiplayer client edits chunk borders.
+   Leave and reload the area. Verify current edits, closed borders, shadows,
+   light occlusion, collision support and preserved older meshes during swaps.
+6. Switch to another seed/world and reconnect; repeat teleport/unload/reload.
+   Confirm no old-world chunks or edits appear and shutdown completes.
+7. Repeat the route with F10 recording separately. F10 again stops and saves
+   the engine MP4. Compare recording overhead against the unrecorded route.
+   Never copy account stores or full private runtime logs into evidence.
+
+Linux harness:
+  python3 deploy/run_streaming_route.py --display "$DISPLAY" --label LABEL \
+    --revision SOURCE --jar EXACT_CLIENT_CLASSPATH
+  python3 deploy/run_streaming_matrix.py --display "$DISPLAY"
+
+Build the baseline reproducibly, without changing the checkout or index:
+  python3 deploy/prepare_streaming_baseline.py
+
+The matrix requires the saved baseline jar, its timing-only overlay and the
+saved feature jar under target/. Use --phase before or --phase after to reuse
+completed baseline trials after measured implementation changes. --trials 2,3
+selects only those trial numbers. It can run interleaved pairs or separate before/after phases with
+fresh synthetic profiles and an identical route. The recorded baseline trials
+were completed before the final feature trials. Source and binary hashes are
+written to dashboard/evidence/streaming-source-manifest.json. Test commands,
+actual distributions, limitations and media are recorded separately as evidence.
+
+Integration checks (run separately from timing trials):
+  python3 deploy/run_streaming_upload_smoke.py --display "$DISPLAY"
+  python3 deploy/run_async_streaming_soak.py --display "$DISPLAY" --cycles 64
+  python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --mode offline
+  python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --mode offline --video
+  python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --mode multiplayer
+  python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --mode city
+  python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --mode switch
+  python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --mode travel
+
+These are reproducible commands, not a statement that every command has passed.
+See the current validation report for executed checks and remaining work.

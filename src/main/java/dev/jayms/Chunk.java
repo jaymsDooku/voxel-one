@@ -15,13 +15,15 @@ public class Chunk implements AutoCloseable {
     private final dev.jayms.net.model.SparseVoxelOctree blocks =
             new dev.jayms.net.model.SparseVoxelOctree(256);
     private boolean dirty = true;
+    private int fractionalCells;
+    public boolean hasFractional(){return fractionalCells!=0;}
     private long geometryVersion, meshRevision;
     public long meshRevision(){return meshRevision;}
     /** Geometry changes only; mesh/neighbor invalidation does not rebuild sky coverage. */
     public long geometryVersion(){return geometryVersion;}
 
     public boolean isEmpty() {
-        return blocks.nodes() == 0;
+        return blocks.isEmpty();
     }
 
     private Mesh mesh;
@@ -74,6 +76,7 @@ public class Chunk implements AutoCloseable {
         // -1 denotes mixed geometry, never a uniform cell (even for an encoded -1).
         if (current != -1 && current == value) return;
 
+        if(current==-1)fractionalCells--;
         int i = index(x, y, z);
         geometryVersion++;
         blocks.fill(
@@ -126,6 +129,7 @@ public class Chunk implements AutoCloseable {
             setBlock(x, y, z, edit.type());
             return;
         }
+        boolean wasFractional=getBlock(x,y,z)==dev.jayms.net.Blocks.PARTIAL;
         int side = 16 >> edit.depth();
         int fx = x * 16 + edit.ix() * side,
                 fy = y * 16 + edit.iy() * side,
@@ -139,6 +143,8 @@ public class Chunk implements AutoCloseable {
                 fy + side,
                 fz + side,
                 dev.jayms.net.WorldVoxels.encode(edit));
+        boolean nowFractional=getBlock(x,y,z)==dev.jayms.net.Blocks.PARTIAL;
+        if(wasFractional!=nowFractional)fractionalCells+=nowFractional?1:-1;
         if (edit.depth() == 0) models.remove(index(x, y, z));
         markDirty();
     }

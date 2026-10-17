@@ -63,4 +63,15 @@ class DetailedMeshSchedulerTest {
             assertTrue(w.renderedColumns().isEmpty());assertTrue(w.dirtyMeshes().isEmpty());
         }
     }
+    @Test void partialHintsAndDeferredBorderCaptureStayExact()throws Exception {
+        try(var world=new World();var scheduler=new DetailedMeshScheduler()) {
+            var p=new ChunkPos(0,4,0);var c=new Chunk();world.addChunk(p,c);
+            assertFalse(c.hasFractional());world.apply(new Protocol.Edit(15,64,0,Blocks.LED,4,15,0,0).withColor(0x123456));assertTrue(c.hasFractional());
+            assertTrue(scheduler.request(world,p));var result=await(scheduler,world);
+            var reference=MeshDataGenerator.generate(new ChunkSnapshot(world,p,c,true));
+            assertArrayEquals(reference.vertices(),result.data().vertices());assertArrayEquals(reference.indices(),result.data().indices());
+            world.apply(new Protocol.Edit(15,64,0,Blocks.STONE));assertFalse(c.hasFractional());
+            assertTrue(scheduler.request(world,p));world.apply(new Protocol.Edit(15,64,0,0));assertNull(scheduler.ready(world));
+        }
+    }
 }

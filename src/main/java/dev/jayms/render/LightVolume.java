@@ -71,6 +71,7 @@ public final class LightVolume {
         v.separateSky=separateSky;
         int n = w * h * l;
         for (int c = 0; c < n; c++) {
+            if((c&8191)==0&&Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
             int dx = c % w, dy = c / w % h, dz = c / (w * h);
             int value = source.value(x + dx, y + dy, z + dz);
             v.cell[c] = c;
@@ -98,6 +99,7 @@ public final class LightVolume {
         // Only columns containing detail need sub-voxel sky rays; ordinary terrain stays coarse.
         for (int dz = 0; dz < l; dz++)
             for (int dx = 0; dx < w; dx++) {
+                if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
                 boolean detailed = false;
                 for (int dy = 0; dy < h; dy++)
                     if (v.details.containsKey(v.index(dx, dy, dz))) {
@@ -123,6 +125,7 @@ public final class LightVolume {
             }
         v.propagate(true);
         for (int i = 0; i < v.count; i++) {
+            if((i&8191)==0&&Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
             if (v.material[i] == -1) continue;
             if (WorldVoxels.decode(v.material[i]) == Blocks.LED) {
                 int color = WorldVoxels.lightColor(v.material[i]);
@@ -172,6 +175,7 @@ public final class LightVolume {
         v.propagate(false);
         int[] colors = new int[v.count];
         for (int i = 0; i < v.count; i++) {
+            if((i&8191)==0&&Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
             float sky = v.sky[i] / (float) FULL;
             sky *= sky * ambient;
             if(separateSky)sky=0;
@@ -285,6 +289,7 @@ public final class LightVolume {
 
     private void propagate(boolean sunlight) {
         while (size > 0) {
+            if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
             int i = queue[head];
             head = (head + 1) % queue.length;
             size--;

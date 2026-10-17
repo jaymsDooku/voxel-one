@@ -106,6 +106,8 @@ public final class Geography {
         return 12 + curve((continent - .22) / .58) * 15 + mountains * 38;
     }
 
+    public synchronized void clearCache(){cache.clear();}
+
     public synchronized Fields fields(int x, int z) {
         long key = ((long) x << 32) ^ (z & 0xffffffffL);
         return cache.computeIfAbsent(key, k -> sample(x, z));

@@ -14,27 +14,45 @@ public final class DetailedMeshScheduler implements AutoCloseable {
     private final Map<ChunkPos,Job> jobs=new LinkedHashMap<>();
     private final Map<ChunkPos,Long> failed=new HashMap<>();
     private final Map<ChunkPos,Long> waiting=new HashMap<>();
+    private record Capture(ChunkPos pos,Chunk chunk,long revision,long models,long created,ChunkSnapshot snapshot) {}
+    private Capture capture;
     private Mesh.Upload upload;private Result uploading;
     private long uploadModels;
-    public long snapshotNanos,meshNanos,uploadNanos,uploadBytes,rejected;
+    public long totalNanos,snapshotNanos,meshNanos,uploadNanos,uploadBytes,rejected;
     public String error="";
     private boolean closed;
-    public int queued(){return jobs.size()+(upload==null?0:1);}
+    public int queued(){return jobs.size()+(upload==null?0:1)+(capture==null?0:1);}
     public int waiting(){return waiting.size();}
-    public long oldestMillis(){long now=System.nanoTime(),oldest=now;for(var j:jobs.values())oldest=Math.min(oldest,j.created);for(long t:waiting.values())oldest=Math.min(oldest,t);if(uploading!=null)oldest=Math.min(oldest,uploading.created);return (now-oldest)/1_000_000;}
+    public long oldestMillis(){long now=System.nanoTime(),oldest=now;for(var j:jobs.values())oldest=Math.min(oldest,j.created);for(long t:waiting.values())oldest=Math.min(oldest,t);if(uploading!=null)oldest=Math.min(oldest,uploading.created);if(capture!=null)oldest=Math.min(oldest,capture.created);return (now-oldest)/1_000_000;}
     public static long bytes(MeshData d){return d==null?0:4L*(d.vertices().length+d.indices().length+(d.surface()==null?0:d.surface().length));}
     private boolean valid(World world,Job j){return world.getLoadedChunks().get(j.pos)==j.chunk&&j.chunk.meshRevision()==j.revision&&world.models().revision()==j.modelRevision;}
     public boolean request(World world,ChunkPos p) {
-        if(closed||jobs.size()+(upload==null?0:1)>=MAX_JOBS||jobs.containsKey(p)||uploading!=null&&uploading.position.equals(p))return false;
+        if(closed||capture!=null||queued()>=MAX_JOBS||jobs.containsKey(p)||uploading!=null&&uploading.position.equals(p))return false;
         Chunk c=world.getLoadedChunks().get(p);if(c==null||!c.dirty()||Objects.equals(failed.get(p),c.meshRevision()))return false;
         worker.purge();
-        long start=System.nanoTime();var snapshot=new ChunkSnapshot(world,p,c,true);snapshotNanos+=System.nanoTime()-start;
-        long rev=c.meshRevision(),models=world.models().revision(),created=System.nanoTime();
-        var future=worker.submit(()->{long then=System.nanoTime();MeshData data=snapshot.isEmpty()?null:MeshDataGenerator.generate(snapshot);if(bytes(data)>MAX_RESULT_BYTES)throw new IllegalStateException("Chunk mesh exceeds bounded completion budget");return new Result(p,c,rev,data,System.nanoTime()-then,created);});
-        jobs.put(p,new Job(p,c,rev,models,created,future));waiting.remove(p);return true;
+        long start=System.nanoTime();var snapshot=ChunkSnapshot.begin(world,p,c,true);snapshotNanos+=System.nanoTime()-start;
+        var next=new Capture(p,c,c.meshRevision(),world.models().revision(),System.nanoTime(),snapshot);
+        waiting.remove(p);
+        if(snapshot.complete())submit(next);else capture=next;
+        return true;
+    }
+    private boolean valid(World world,Capture c){return world.getLoadedChunks().get(c.pos)==c.chunk&&c.chunk.meshRevision()==c.revision&&world.models().revision()==c.models;}
+    private void submit(Capture c) {
+        var future=worker.submit(()->{long then=System.nanoTime();MeshData data=c.snapshot.isEmpty()?null:MeshDataGenerator.generate(c.snapshot);if(bytes(data)>MAX_RESULT_BYTES)throw new IllegalStateException("Chunk mesh exceeds bounded completion budget");return new Result(c.pos,c.chunk,c.revision,data,System.nanoTime()-then,c.created);});
+        jobs.put(c.pos,new Job(c.pos,c.chunk,c.revision,c.models,c.created,future));
+    }
+    private void capture(World world,long deadline) {
+        if(capture==null)return;
+        if(!valid(world,capture)){capture=null;rejected++;return;}
+        long start=System.nanoTime();boolean complete=capture.snapshot.pump(world,capture.pos,deadline,1536);
+        snapshotNanos+=System.nanoTime()-start;
+        if(complete){submit(capture);capture=null;}
     }
     /** Pure result fencing is exposed for CPU checks; no GL work here. */
     public Result ready(World world) {
+        capture(world,System.nanoTime()+250_000L);return readyWithoutCapture(world);
+    }
+    private Result readyWithoutCapture(World world) {
         var it=jobs.values().iterator();
         while(it.hasNext()) {
             Job j=it.next();
@@ -47,15 +65,17 @@ public final class DetailedMeshScheduler implements AutoCloseable {
         return null;
     }
     public void update(World world,float x,float z,FrustumIntersection frustum,int detailBlocks,int passBlocks,long nanosBudget,int bytesBudget) {
+        long updateStart=System.nanoTime();
         snapshotNanos=meshNanos=uploadNanos=uploadBytes=0;
         long deadline=System.nanoTime()+nanosBudget;
         failed.keySet().removeIf(p->!world.getLoadedChunks().containsKey(p));
         waiting.keySet().removeIf(p->{Chunk c=world.getLoadedChunks().get(p);return c==null||!c.dirty()||(c.getMesh()==null&&(Math.abs(p.chunkX()*16+8-x)>passBlocks||Math.abs(p.chunkZ()*16+8-z)>passBlocks));});
         if(uploading!=null&&(world.getLoadedChunks().get(uploading.position)!=uploading.chunk||uploading.chunk.meshRevision()!=uploading.revision||world.models().revision()!=uploadModels)){upload.close();upload=null;uploading=null;rejected++;}
+        capture(world,deadline);
         long start=System.nanoTime();
         try {
         if(upload==null) {
-            Result next=ready(world);
+            Result next=readyWithoutCapture(world);
             if(next!=null){if(next.data==null)next.chunk.installMesh(null,null,next.revision);else{uploading=next;uploadModels=world.models().revision();upload=new Mesh.Upload(next.data);}}
         }
         if(upload!=null){uploadBytes=upload.pump(bytesBudget,deadline);if(upload.ready()){uploading.chunk.installMesh(upload.take(),uploading.data,uploading.revision);upload.close();upload=null;uploading=null;}}
@@ -63,12 +83,12 @@ public final class DetailedMeshScheduler implements AutoCloseable {
         uploadNanos=System.nanoTime()-start;
         var dirtyIterator=world.dirtyMeshes().entrySet().iterator();
         while(dirtyIterator.hasNext()){var e=dirtyIterator.next();
-            if(jobs.containsKey(e.getKey())||uploading!=null&&uploading.position.equals(e.getKey())||Objects.equals(failed.get(e.getKey()),e.getValue().meshRevision())){waiting.remove(e.getKey());continue;}
+            if(capture!=null&&capture.pos.equals(e.getKey())||jobs.containsKey(e.getKey())||uploading!=null&&uploading.position.equals(e.getKey())||Objects.equals(failed.get(e.getKey()),e.getValue().meshRevision())){waiting.remove(e.getKey());continue;}
             if(e.getValue().isEmpty()){dirtyIterator.remove();e.getValue().installMesh(null,null,e.getValue().meshRevision());waiting.remove(e.getKey());continue;}
             if(e.getValue().getMesh()!=null||Math.abs(e.getKey().chunkX()*16+8-x)<=passBlocks&&Math.abs(e.getKey().chunkZ()*16+8-z)<=passBlocks)waiting.putIfAbsent(e.getKey(),System.nanoTime());
         }
         // Select one minimum at a time only when slots are free; no full-frame list copy/sort.
-        while(queued()<MAX_JOBS&&System.nanoTime()<deadline) {
+        while(capture==null&&queued()<MAX_JOBS&&System.nanoTime()<deadline) {
             ChunkPos best=null;double score=Double.POSITIVE_INFINITY;long now=System.nanoTime();
             for(var e:waiting.entrySet()){
                 ChunkPos p=e.getKey();Chunk c=world.getLoadedChunks().get(p);
@@ -81,6 +101,7 @@ public final class DetailedMeshScheduler implements AutoCloseable {
             }
             if(best==null||!request(world,best))break;
         }
+        totalNanos=System.nanoTime()-updateStart;
     }
-    @Override public void close(){closed=true;for(var j:jobs.values())j.future.cancel(true);jobs.clear();waiting.clear();worker.shutdownNow();if(upload!=null)upload.close();upload=null;uploading=null;}
+    @Override public void close(){closed=true;capture=null;for(var j:jobs.values())j.future.cancel(true);jobs.clear();waiting.clear();worker.shutdownNow();if(upload!=null)upload.close();upload=null;uploading=null;}
 }

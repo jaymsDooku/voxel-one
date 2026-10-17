@@ -19,6 +19,7 @@ public final class TransportField {
         this.width=width;this.height=height;this.length=length;this.material=material;this.light=light;
         int n=width*height*length;boolean[] solid=new boolean[n];radiance=new float[n*4];
         for(int i=0;i<n;i++){
+            if((i&8191)==0&&Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
             int type=WorldVoxels.decode(material[i]);solid[i]=type!=Blocks.AIR&&type!=Blocks.GLASS&&type!=Blocks.WATER;
             if(!solid[i])continue;
             int color=material[i]==-1?0xff888888:WorldVoxels.surfaceColor(material[i]);float emission=type==Blocks.LED?4:separateSky?0:.18f;
@@ -35,7 +36,7 @@ public final class TransportField {
         int n=solid.length;float[] d=new float[n];Arrays.fill(d,Math.max(width,Math.max(height,length)));
         int[] queue=new int[n];int head=0,tail=0;
         for(int i=0;i<n;i++)if(solid[i]==target){d[i]=0;queue[tail++]=i;}
-        while(head<tail){int i=queue[head++],x=i%width,y=i/width%height,z=i/(width*height);
+        while(head<tail){if((head&8191)==0&&Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();int i=queue[head++],x=i%width,y=i/width%height,z=i/(width*height);
             for(int direction=0;direction<6;direction++){
                 int[] dir=DIRECTIONS[direction];
                 int a=x+dir[0],b=y+dir[1],c=z+dir[2];if(a<0||b<0||c<0||a>=width||b>=height||c>=length)continue;
@@ -71,6 +72,7 @@ public final class TransportField {
             }
         }
         for(int z=0;z<l;z++)for(int y=0;y<h;y++)for(int x=0;x<w;x++){
+            if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
             int ox=Math.min(width-1,x*spacing+spacing/2),oy=Math.min(height-1,y*spacing+spacing/2),oz=Math.min(length-1,z*spacing+spacing/2);
             boolean valid=!solid[index(ox,oy,oz)];
             for(int angle=0;angle<angles;angle++){

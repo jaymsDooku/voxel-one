@@ -1,0 +1,125 @@
+{
+  "Playtest": "PASS: three complete production Main baseline routes, fresh synthetic profiles, Mesa llvmpipe, actual framebuffer1280x720, selected Balanced profile requests640x480, seed748291; no video; 810 chunk preload and ten warm-up frames. Existing display startup fallback retained1280x720 in all three measured runs. Mesh backlog is included. Final feature comparison remains pending.",
+  "trials": [
+    {
+      "trial": 1,
+      "samples": 119,
+      "frame_ms": {
+        "p50": 2555.199778,
+        "p95": 6119.691963,
+        "p99": 10364.474494,
+        "worst": 11460.051863
+      },
+      "stream_cpu_ms": {
+        "p50": 0.418773,
+        "p95": 79.947614,
+        "p99": 240.831486,
+        "worst": 261.566114
+      },
+      "sky_build_cpu_ms": {
+        "p50": 0.0,
+        "p95": 304.614136,
+        "p99": 2403.249474,
+        "worst": 3621.591328
+      },
+      "snapshot_cpu_ms": {
+        "p50": 0.0,
+        "p95": 2.395148,
+        "p99": 13.003436,
+        "worst": 24.966581
+      },
+      "lighting_cpu_ms": {
+        "p50": 0.008285,
+        "p95": 10.929238,
+        "p99": 14.225149,
+        "worst": 16.196696
+      },
+      "lighting_upload_cpu_ms": {
+        "p50": 0.00291,
+        "p95": 1.424409,
+        "p99": 88.886694,
+        "worst": 153.556139
+      }
+    },
+    {
+      "trial": 2,
+      "samples": 119,
+      "frame_ms": {
+        "p50": 2414.463015,
+        "p95": 3914.377722,
+        "p99": 4835.545072,
+        "worst": 6727.288766
+      },
+      "stream_cpu_ms": {
+        "p50": 0.472677,
+        "p95": 74.054953,
+        "p99": 104.706923,
+        "worst": 178.171315
+      },
+      "sky_build_cpu_ms": {
+        "p50": 0.0,
+        "p95": 291.274425,
+        "p99": 332.620508,
+        "worst": 353.635109
+      },
+      "snapshot_cpu_ms": {
+        "p50": 0.0,
+        "p95": 1.879124,
+        "p99": 3.269838,
+        "worst": 31.607403
+      },
+      "lighting_cpu_ms": {
+        "p50": 0.007461,
+        "p95": 7.743824,
+        "p99": 10.854394,
+        "worst": 13.607489
+      },
+      "lighting_upload_cpu_ms": {
+        "p50": 0.002131,
+        "p95": 0.561093,
+        "p99": 109.060818,
+        "worst": 188.49784
+      }
+    },
+    {
+      "trial": 3,
+      "samples": 119,
+      "frame_ms": {
+        "p50": 2144.293352,
+        "p95": 3406.666391,
+        "p99": 4281.931152,
+        "worst": 8307.774047
+      },
+      "stream_cpu_ms": {
+        "p50": 0.389539,
+        "p95": 93.888146,
+        "p99": 113.024966,
+        "worst": 179.581895
+      },
+      "sky_build_cpu_ms": {
+        "p50": 0.0,
+        "p95": 260.188682,
+        "p99": 304.640118,
+        "worst": 327.497453
+      },
+      "snapshot_cpu_ms": {
+        "p50": 0.0,
+        "p95": 2.557764,
+        "p99": 20.036218,
+        "worst": 51.278239
+      },
+      "lighting_cpu_ms": {
+        "p50": 0.007511,
+        "p95": 10.920977,
+        "p99": 14.675087,
+        "worst": 18.420713
+      },
+      "lighting_upload_cpu_ms": {
+        "p50": 0.002536,
+        "p95": 5.324733,
+        "p99": 87.530446,
+        "worst": 102.09283
+      }
+    }
+  ]
+}

@@ -1,0 +1,168 @@
+Active continuation checkpoint; not a pause request and not ready for review.
+Assigned feature branch/worktree only. Controller owns commit/push/merge/deploy.
+Base and last observed remote master: 4f8a09aca177062a50d0ab2b68e36735318bfb22.
+No Git recovery/index conflict found. No commits, staging, push, merge or deployment.
+
+Three complete baseline trials are saved:
+ target/streaming-route/before-1/ before-2/ before-3/
+119 measured frames each, 810 resident-chunk preload and ten graphics warm-up
+frames. Selected Balanced profile requests640x480; ACTUAL framebuffer1280x720
+in all three JSON reports due existing startup fallback. Never label these
+640x480 measurements. Seed748291, render scale1, dynamic off, detail112,
+horizon2048. Mesa llvmpipe software rendering; no physical Windows/GPU claim.
+Sanitized baseline CSV/JSON and summary are in dashboard/evidence.
+
+Current implementation is much further than the old paused checkpoint:
+- TerrainScheduler: one worker, eight terrain jobs plus at most two coalesced
+  sky preparation tasks; alternate sky and terrain when both have work. One
+  owner result can be retained during edit replay. Per-World lifetime fences.
+- World.streamAsync commits individual chunks under time budget; cancellation,
+  current authoritative edit replay, resident cap1690 and partial-column parent
+  coverage. Startup draws/polls while nearby3x3 columns load. Respawn uses normal
+  frame path. Jeep startup uses readiness callback. Unloaded cells stay solid.
+- Constant-time SVO.isEmpty replaces recursive node counting in Chunk.isEmpty.
+  Fractional-cell count is maintained; ordinary snapshots copy six neighbor roots
+  without1536 fallback samples. Only partial outer-face cells need staged border
+  capture, fenced through existing DetailedMeshScheduler identity/revision guards.
+- SkyVisibilityScheduler caches16x16 column tiles, captures immutable roots and
+  unloaded edited cells incrementally, expands/merges on terrain CPU lane.
+  Model/edit/geometry/world/member fences; packed cache max32MB. Nearby columns
+  get three batch slots, persistent scan gets fourth. No new sky CPU thread.
+- WorldLighting uses local sky tile keys, so unrelated far chunk arrivals do not
+  force a GI rebake. LightVolume/TransportField poll cancellation, close joins.
+- SceneLightingUpload and VoxelTransport.Staging split GL3.3 uploads under0.5ms
+  cooperative/2MiB pump allowance. Whole rows/depth slabs are bounded by bytes.
+  Volume resources prepare before sky; membership changes can refresh the final
+  atlas without restarting valid GI transfers. Existing GPU resources stay active
+  until a replacement is ready. Authoritative edits/model/world changes fence it.
+- World close clears owned voxel/edit/index/terrain caches; sky close drops cursor
+  references. No external authoritative model library is cleared.
+- Added stage/queue/byte metrics, CPU/integration tests, native harnesses and docs.
+
+Important diagnostic result NOT a final after comparison:
+ target/streaming-route/after-terrain-only-1/
+It completed but had zero mesh jobs; this exposed starvation from recursive empty
+checks and the budget split. DO NOT use it as final performance proof or claim
+improvement from it. Those issues were addressed afterwards. The two older aborted
+baseline pilots also do not count as complete trials.
+
+Latest build/test operations:
+- Broad focused package:106 CPU tests passed (sanitized earlier counts in
+  dashboard/evidence/streaming-current-checks.json; refresh before final report).
+- Later focused package after final upload-order change exited0; see
+  target/streaming-final-build-private.txt and current sanitized Surefire counts.
+- Final fixed client snapshot: target/streaming-after-client.jar, copied after
+  the latest successful package. Do not overwrite while an app uses this jar.
+- python3 deploy/run_streaming_upload_smoke.py --display "$DISPLAY" passed on
+  this jar, including byte-exact integer/irradiance readback, half-float transport,
+  4096-byte backpressure, sky reuse, edit cancellation, refreshing membership mid
+  upload without restarting valid volume data, and GL cleanup.
+  Result: target/streaming-upload/result.txt. Cold max pump171.272031ms; this is
+  an honest cold integration overrun, NOT proof of a2ms game frame budget.
+- Two offline production Main65-frame keyboard/reload runs passed on preceding
+  lighting-upload iterations. Current source still needs final application/media
+  checks. Their target folders may be replaced on rerun. Do not call old images
+  exact-final-source evidence.
+
+RUNNING NOW (on inherited assigned role DISPLAY; do not start another app/test):
+ Unified exec session38493:
+ python3 deploy/run_streaming_matrix.py --display "$DISPLAY" --phase after --trials 1,2,3
+It runs three final after trials sequentially. Poll sparingly for completion while
+preparing docs/reports only; no CPU/runtime tests alongside profiling. Stop at a
+trial boundary if controller asks to pause: launcher checks
+ target/streaming-matrix-stop
+before starting a new trial. Write that marker to stop subsequent trials. If an
+immediate stop is required, close/kill ONLY the assigned synthetic test window;
+its nonzero exit stops the matrix. Preserve completed exports. Do not use partial
+or aborted trials. Source must remain unchanged during these exact-jar trials.
+
+Saved baseline reproduction assets:
+ target/streaming-baseline-client.jar, target/baseline-instrumented-src/,
+ target/baseline-instrumented-classes/. Timing-only baseline overlay, not new
+ rendering behavior. deploy/prepare_streaming_baseline.py recreates them entirely
+ under this worktree without checkout/index changes. DO NOT run it while baseline
+ jars/classes are in use. target/m2 and target/tmp are writable local build caches.
+
+Remaining after profiling:
+1. Inspect all three current after results. Verify mesh scheduling/upload progress
+   and practical load catch-up, not just lower CPU numbers. Run
+   python3 deploy/summarize_streaming_matrix.py
+   after three complete pairs. Copy/attach actual CSV/JSON, percentile table,
+   source/binary/settings hashes and hardware limits. Baseline estimated VRAM
+   excluded lighting; current estimate includes active/staged lighting, so do not
+   claim directly comparable VRAM reductions. Full software-frame targets cannot
+   be advertised as Windows qualification.
+2. Run FINAL-source production workflows separately from profiling:
+   python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --mode offline
+   python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --mode offline --video
+   python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --mode multiplayer
+   python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --mode city
+   python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --mode switch
+   python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --mode travel
+   These use fresh synthetic profiles. Offline checks actual W/F/sprint/reversal,
+   a96-model/96-fractional-LED edited platform, glass/water, teleport2048 and reload.
+   Video uses actual F10 at frames14/24. Compare video/plain CSV overhead honestly.
+   Multiplayer uses two generated loopback accounts/TLS under target ONLY. Never
+   export account/TLS/profile/runtime logs. City checks isometric regression;
+   switch exercises real Main world switch to seed999; travel holds actual flight
+   keys for multi-minute bounds/reversal/respawn. Harnesses must be executed and
+   inspected; their existence is not validation. Fix failures, rerun relevant
+   checks/media/profiles if source changes.
+3. Run GL/async soak:
+   python3 deploy/run_async_streaming_soak.py --display "$DISPLAY" --cycles 64
+   Reuses production generator, DetailedMeshScheduler and actual GPU comparisons
+   over repeated512-block regions; test-only GC for retained heap, not a frame
+   performance claim. Add actual counts/results to sanitized report.
+4. Inspect current screenshots and MP4. Copy final feature media inside
+   dashboard/evidence, keep engine F10 MP4<6MB, decode/ffprobe it. Record exact
+   source/hash/steps/expected/observed with Playtest:. Intended raw feature-branch
+   URLs may be marked pending controller publication; do not block for push.
+5. Rerun relevant deterministic/physics/lighting/multiplayer checks as needed on
+   final source. Multiplayer15 tests passed earlier before these rendering changes;
+   no current final multiplayer execution yet. Review entire diff against supplied
+   review base after controller master sync; preserve unrelated merged features.
+   Deletions so far are replaced streaming/render-upload implementations, not
+   unrelated feature removals. Controller owns final Git integration and review.
+
+All Pro tasks were resolved as self after helper failures; concurrency0, no
+outstanding delegates. No owner question pending. Do not read/print full private
+runtime logs, synthetic credentials, account stores, TLS material or runner config.
+Controller retains the private thread/lease/quota information.
+
+PAUSE CHECKPOINT — 2026-10-16
+New controller pause honored. No new implementation or tests started.
+Created target/streaming-matrix-stop to prevent further trial launches.
+Final-source after-1 reached frame=130 and has one CSV export; inspect completeness on resume before counting it. after-2 had started without exports and was interrupted; treat as incomplete and rerun with a fresh synthetic profile. after-3 remains pending.
+All unpublished source, baseline exports, current jar and local evidence preserved. No commit/push/publication.
+On authorized resume: verify no old route process remains; remove target/streaming-matrix-stop only then. Inspect after-1 exports; rerun incomplete trials 2 and 3. Follow remaining validation steps above. No final performance improvement or final feature media claimed.
+
+PAUSE CHECKPOINT — resumed matrix, then new controller pause
+Read AGENTS.md. No conflicts or Git mutations. after-1 has119 samples. Resumed after matrix for trials2,3 using unchanged feature jar/source. after-2 completed119 samples and process exit0. after-3 reachedframe10 before explicit pause; interrupted and NOT a complete trial. Stop marker target/streaming-matrix-stop restored.
+First final feature trial: terrain stream CPU p99=3.209732ms; frame p99=6519.415585ms on llvmpipe; mesh jobs and lighting uploads show progress. These are provisional numbers, not final acceptance. Lighting upload and mesh owner overruns remain to report.
+Only documentation/report wording changed: benchmark baseline trials preceded final feature trials; no claim of interleaving. Engine source and fixed jar unchanged.
+Resume: verify assigned old trial process is gone, inspect after-1/2 complete exports, remove stop marker only after authorization, run --phase after --trials3 with fresh synthetic profile. Then summarize and continue final workflows/media/soak described above. All local edits/evidence preserved; no publication. No new tests after pause.
+
+PAUSE CHECKPOINT — 2026-10-17, final matched trials complete
+New controller pause honored. Matrix after-3 finished exit0 with119 samples; all three before/after pairs now exported and summarized by deploy/summarize_streaming_matrix.py. Sanitized six CSV/JSON files and streaming-comparison.json/.txt are in dashboard/evidence. All actual framebuffers1280x720, Java21.0.5, llvmpipe. Terrain stream CPU p99 reduction96.97–98.67%; overall frame p99 did NOT consistently improve, all frames>100ms. Do not claim60FPS or elimination of total frame hitches.
+Final-source offline plain workflow passed65frames exit0: actual W walking, sprint flight/reversal, teleport2048, reload current fractionalRGB/model edits, GPU mesh progress, queue/resident bounds and no GLerrors. Its edited/final PNGs were visually inspected and copied into dashboard/evidence. Final image shows dark synthetic platform while lighting catches up; do not claim full visual readiness. Plain result/CSV stay target/streaming-workflow/offline-plain and should be copied as sanitized evidence at final reporting.
+Offline-video workflow reachedframe30 after F10 capture14–24, then interrupted for this pause. Preserve clip under synthetic home; not yet inspected/decoded/size-qualified or copied as final video evidence. Whole video workflow not passed. No new tests after pause.
+Next: verify old synthetic workflow process stopped, inspect recorded MP4 and size; rerun fresh video workflow if incomplete coverage needed, measure recorder overhead against exact-source plain CSV. Then pending multiplayer, city, switch, travel,64cycle async soak, final protocol tests and reports. Engine source/jar unchanged since matched trials.
+Local origin/master now403033b9f53ce66063982879c6e2daff684a427b; no src/pom changes relative baseline4f8a09a. Controller still owns final integration; audit resulting diff against provided reviewbase. No commits/push/deploy. All edits preserved.
+
+PAUSE CHECKPOINT — 2026-10-17, integration progress
+Explicit new pause honored; travel workflow interrupted with Ctrl-C, not passed. Partial progress/samples in target/streaming-workflow/travel-plain. Harness now saves workflow.csv every10frames so pause retains actual metrics. Stop marker present. No new tests after pause.
+Completed this continuation, all on unchanged profiled source/jar:
+-64cycle async GL soak PASS exit0:130seconds,39249ticks,2242chunks unloaded,120reload events,1216edits,128GPU border comparisons,129stale results rejected. Max jobs4/waiting6/chunks39/geometry168912bytes; retained heap10730784 to11155728bytes, max11708848. Cleanup restored GPU geometry baseline. Sanitized CSV/results copied dashboard/evidence.
+-Multiplayer Main PASS30frames: remote break during loading consumed by Main and survived explicit chunk unload/reload; game connected. Initial test failed because the second synthetic client idled through startup and hit existing15second server read timeout. Harness corrected to connect editor after Main startup, also asserted game client stayed connected through startup. No engine change needed. Synthetic account/TLS/profile data remain target only.
+-City/isometric PASS15frames, screenshot inspected; early actors dark while lighting converges, not proof of final lighting. World-switch PASS35frames with actual requestedSave transition fromseed748291 to999 and old worker shutdown. Sanitized CSV/results/images copied evidence.
+-F10 clip now copied dashboard/evidence/streaming-flight-f10.mp4. Existing deploy/VerifyRenderingMedia.java decoded every frame PASS:10frames,33.301seconds,960x544,561629bytes. Midpoint PNG viewed; actual W+sprint flight with inherited display on llvmpipe, very lowFPS honestly shown. Check metadata streaming-video-check.json includes pause-limited video workflow, source manifest/hash and pending publication. ffprobe absent; JCodec decoder used. Full video workflow had stoppedframe30; no overhead comparison yet.
+-Streaming-validation-limits.json records targets/shortfalls; no consistent frame-tail improvement or2ms total-stage claim. Engine source and fixed jar hashes verified identical to matrix manifest. git diff --check clean.
+Next: rerun full travel180frames from fresh synthetic profile; now also requires hasIrradiance true after settling at respawn. Verify long-route queue/memory bounds and actual motion. Rerun offline-video full65frames for capture-overhead CSV (existing clip preserved). Run final relevant protocol/CPU tests, inspect final lighting/media, compile accurate sanitized final report and audit full diff after controller integration. Physical Windows GPU qualification stays pending, gates claims/stable rollout; do not request desktop access. No outstanding delegates. No commit/push/deploy. All edits preserved.
+
+HANDOFF CHECKPOINT — available Linux validation finished
+Full travel180frames PASS with actual flight/reversal/respawn and usable irradiance after settling. Terrain pending ended0,max8; chunks990,max990; mesh jobs max4, waiting ended290; heap max583894840,last208172432bytes. Final screenshot inspected. Not a fully drained mesh queue. Early travel overlapped CPU tests, so not performance profiling.
+Final Maven121tests/17suites PASS exit0, sanitized streaming-final-tests.json. Full offline --video65frames PASS; new F10 clip25.897s,10frames,706639bytes, all decoded with existing JCodec helper and midpoint viewed. Owner capture median29.171874ms,worst201.209723ms vs inactive0.000782ms; separate from profiles. Evidence copied dashboard/evidence.
+Final report streaming-validation.txt, limits, source manifest and comparison table describe measured improvements and shortfalls. Engine source and fixed jar remain identical to profiled hashes. Local origin/master403033b has no src/pom changes from4f8a09a; controller owns final integration/reviewbase and any resulting retest handoff. No owner question or delegate outstanding. No Git mutations/publication. No stable rollout or physical GPU qualification claimed.
+
+REBASE RECOVERY HANDOFF — review base403033b9f53ce66063982879c6e2daff684a427b
+Only dashboard/progress.json was conflicted. Resolved from upstream stage2 metadata/items plus this task stage3 entry. All unrelated upstream items and release/verification/website metadata preserved; JSON parsing and marker checks pass. No tracked deletions against review base. Engine/test/route hash still matches measured manifest. git diff --check passes. Index intentionally left unmerged for controller staging/rebase continuation. No stage/continue/abort/reset/commit/push performed. Final-head verification remains after controller continuation; no new application tests claimed during recovery.

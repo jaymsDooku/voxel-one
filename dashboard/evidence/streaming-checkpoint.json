@@ -1,0 +1,89 @@
+{
+  "status": "paused by controller; not ready for review",
+  "base": "4f8a09aca177062a50d0ab2b68e36735318bfb22",
+  "branch": "feature/queue-39633335636632622d376365352d343837342d393634392d313362663933393263323038",
+  "tests": [
+    {
+      "name": "WorldStreamingTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "name": "TerrainSchedulerTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "name": "DetailedMeshSchedulerTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "name": "TerrainGenerationTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "name": "FractionalWorldTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "name": "PhysicsTest",
+      "tests": 25,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "name": "LightingTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "name": "WorldSkyVisibilityTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "name": "MultiplayerTest",
+      "tests": 15,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "name": "DistantTerrainTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0
+    }
+  ],
+  "total": 89,
+  "commands": [
+    "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 mvn -q -Dmaven.repo.local=target/m2 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=WorldStreamingTest,TerrainSchedulerTest,DetailedMeshSchedulerTest,TerrainGenerationTest,FractionalWorldTest,PhysicsTest,LightingTest,WorldSkyVisibilityTest,MultiplayerTest,DistantTerrainTest package",
+    "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -cp target/streaming-baseline-client.jar deploy/StreamingCost.java"
+  ],
+  "observed": [
+    "Latest invoked package operation exited 0; 89 focused tests, no failures/errors. World synchronous compatibility helper changed after compilation began: rebuild and rerun relevant checks before review.",
+    "Initial runs failed because /tmp is read-only. Passing run sets java.io.tmpdir at forked JVM startup with argLine.",
+    "Unchanged baseline one-column CLI: 324.78193 ms, ten chunks. Not an application frame distribution."
+  ],
+  "Playtest": {
+    "environment": "Production Main offline Sandbox; isolated synthetic profile; inherited assigned DISPLAY/XAUTHORITY; JDK 21.0.5; Mesa 22.3.6 llvmpipe LLVM 15.0.6; OpenGL 3.3; video off",
+    "commands": [
+      "python3 deploy/run_streaming_route.py --display \"$DISPLAY\" --label baseline-1 --revision 4f8a09aca177062a50d0ab2b68e36735318bfb22",
+      "python3 deploy/run_streaming_route.py --display \"$DISPLAY\" --label baseline-formal-1 --revision 4f8a09aca177062a50d0ab2b68e36735318bfb22 --jar target/streaming-baseline-client.jar"
+    ],
+    "expected": "Pilot establishes baseline costs and checks harness setup before matched trials.",
+    "observed": "Both pilots stopped deliberately. First requested window size was overridden to 1280x720 and controls menu was open. Second used explicit Balanced 640x480; F9 exported 16 early route samples. Median stream CPU 48.605269 ms; max 61.413397 ms. Median frame 2158.009977 ms; render CPU median 2069.582942 ms; GPU frame EMA median 3556.12353515625 ms. GPU EMA is delayed telemetry, not per-frame GPU percentiles. These are partial pilot samples, not matched cold-route results.",
+    "media": "streaming-baseline-assigned-display.png is a baseline-only 1280x720 pilot capture. It does not show the new implementation.",
+    "pending": "No feature application playtest, three matched trial pairs, final F10 video, recorder-overhead comparison, multi-minute travel or final-head validation has run."
+  },
+  "publication": "All artifacts unpublished; controller owns commit/push/publication. No review-ready claim."
+}

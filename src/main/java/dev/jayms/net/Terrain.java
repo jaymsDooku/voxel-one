@@ -78,6 +78,8 @@ public final class Terrain {
                 column(x, z).height(), geography == null ? MIN_Y : fields(x, z).waterLevel());
     }
 
+    public synchronized void clearCaches(){columns.clear();if(geography!=null)geography.clearCache();}
+
     public synchronized Column column(int x, int z) {
         if (stressGrid != null && stressGrid.contains(x,z)) return new Column(stressGrid.grade(),Biome.PLAINS);
         long key = ((long) x << 32) ^ (z & 0xffffffffL);

@@ -181,6 +181,9 @@ public final class SparseVoxelOctree {
         return this;
     }
 
+    /** Constant-time membership test; do not count the tree just to detect air. */
+    public boolean isEmpty() { return root==null; }
+
     public int nodes() {
         return nodes(root);
     }

@@ -25,6 +25,8 @@ public final class WorldLighting implements AutoCloseable {
     private float ambient = -1, submittedAmbient;
     private boolean separateSky,submittedSeparateSky;
     private WorldSkyVisibility sky,submittedSky;
+    private Object skyKey,submittedSkyKey;
+    private World acceptedWorld,submittedWorld;
 
     public LightVolume update(World world, float px, float pz) {
         return update(world, px, pz, 1);
@@ -32,21 +34,22 @@ public final class WorldLighting implements AutoCloseable {
 
     public LightVolume update(World world, float px, float pz, float skyStrength) {return update(world,px,pz,skyStrength,false);}
     public LightVolume update(World world,float px,float pz,float skyStrength,boolean dynamicSky) {return update(world,px,pz,skyStrength,dynamicSky,null);}
-    public LightVolume update(World world,float px,float pz,float skyStrength,boolean dynamicSky,WorldSkyVisibility globalSky) {
+    public LightVolume update(World world,float px,float pz,float skyStrength,boolean dynamicSky,WorldSkyVisibility globalSky) {return update(world,px,pz,skyStrength,dynamicSky,globalSky,globalSky);}
+    public LightVolume update(World world,float px,float pz,float skyStrength,boolean dynamicSky,WorldSkyVisibility globalSky,Object globalSkyKey) {
         int cx = Math.floorDiv((int) Math.floor(px), 16) * 16,
                 cz = Math.floorDiv((int) Math.floor(pz), 16) * 16;
         LightVolume result = null;
         if (pending != null && pending.isDone()) {
             try {
                 var baked = pending.get();
-                if (submittedRevision == world.editsVersion()
+                if (submittedWorld==world&&submittedRevision == world.editsVersion()
                         && submittedX == cx
                         && submittedZ == cz
-                        && submittedAmbient == skyStrength && submittedSeparateSky==dynamicSky && submittedSky==globalSky) {
+                        && submittedAmbient == skyStrength && submittedSeparateSky==dynamicSky && Objects.equals(submittedSkyKey,globalSkyKey)) {
                     result = baked;
                     revision = submittedRevision;
                     ambient = submittedAmbient;
-                    separateSky=submittedSeparateSky;sky=submittedSky;
+                    separateSky=submittedSeparateSky;sky=submittedSky;skyKey=submittedSkyKey;acceptedWorld=world;
                     centerX = cx;
                     centerZ = cz;
                 }
@@ -57,11 +60,11 @@ public final class WorldLighting implements AutoCloseable {
             }
         }
         if (pending == null
-                && (cx != centerX
+                && (acceptedWorld!=world||cx != centerX
                         || cz != centerZ
                         || revision != world.editsVersion()
-                        || ambient != skyStrength || separateSky!=dynamicSky || sky!=globalSky)) {
-            submittedSky=globalSky;
+                        || ambient != skyStrength || separateSky!=dynamicSky || !Objects.equals(skyKey,globalSkyKey))) {
+            submittedSky=globalSky;submittedSkyKey=globalSkyKey;submittedWorld=world;
             submittedAmbient = skyStrength;
             submittedSeparateSky=dynamicSky;
             submittedX = cx;
@@ -153,6 +156,10 @@ public final class WorldLighting implements AutoCloseable {
 
     @Override
     public void close() {
+        if(pending!=null){pending.cancel(true);pending=null;}
+        sky=null;submittedSky=null;skyKey=null;submittedSkyKey=null;acceptedWorld=null;submittedWorld=null;
         worker.shutdownNow();
+        try{if(!worker.awaitTermination(3,TimeUnit.SECONDS))throw new IllegalStateException("Lighting worker did not stop");}
+        catch(InterruptedException e){Thread.currentThread().interrupt();}
     }
 }
