@@ -1,0 +1,97 @@
+{
+  "baseHead": "b098d7b5af2fcfc18ca36a9b67768c167f261c74",
+  "sourceKind": "unpublished-working-tree",
+  "reviewBase": "403033b9f53ce66063982879c6e2daff684a427b",
+  "change": "Catalog native launch/install uses fixed repository releases/download/<approved playtest-N>/update.properties, with source/hash/size checks retained. Legacy no-experience latest behavior retained.",
+  "checks": [
+    {
+      "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/maven-cache\" -DargLine=-Djava.io.tmpdir=\"$PWD/target/hub-tmp\" -Dtest=SandboxIdentityTest,HubCatalogTest,HubShellTest,UpdaterTest,AccountStoreTest,ProtocolCompatibilityTest,MultiplayerTest#authenticationRegistrationDuplicateSessionsAndCertificatePin test package",
+      "exitCode": 0,
+      "tests": 21,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "command": "python3 tools/hub/test_publisher.py",
+      "tests": 1,
+      "exitCode": 0
+    },
+    {
+      "command": "python3 tools/hub/test_publication_bundle.py",
+      "tests": 3,
+      "exitCode": 0
+    }
+  ],
+  "regression": "Fresh empty cache installs approved A via immutable catalog path while incompatible latest B exists. No latest metadata or B artifact request occurs. Repeated update reuses A without another artifact transfer. Invalid native tags rejected by parser/publisher.",
+  "Playtest": {
+    "command": "LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null \"target/hub-immutable-package/Voxel One Hub/lib/runtime/bin/java\" -Djava.io.tmpdir=\"$PWD/target/hub-tmp\" -cp \"target/hub-immutable-package/Voxel One Hub/lib/app/voxel-one-launcher.jar:target/voxel-one-1.0-SNAPSHOT-client.jar:target/hub-tmp\" ImmutableReleasePlaytest target/hub-immutable-packaged-profile dashboard/evidence",
+    "environment": "Linux; inherited assigned DISPLAY/XAUTHORITY; bundled JDK21 runtime; normal OS PATH; llvmpipe software rendering; isolated new synthetic profile",
+    "expected": "Fresh catalog-approved public immutable release installs and starts City; source equals catalog; no account access",
+    "observed": "Passed exit0. Verified 403033b9f53ce66063982879c6e2daff684a427b client and live City window. Fresh download-progress capture inspected. Capture shows transfer, not completed gameplay. No recording or smooth-performance claim."
+  },
+  "package": {
+    "command": "python3 tools/hub/package.py --output target/hub-immutable-package --version 1.0.4 --jdk /usr/lib/jvm/jdk-21.0.5-oracle-x64",
+    "exitCode": 0,
+    "launcherJarSha256": "94c6f8e2485efcf07664cd325c3019277f7a4c9c492b3cf8acde10693478556e",
+    "packagedJarMatches": true
+  },
+  "audit": {
+    "deletedFiles": [],
+    "unrelatedDashboardEntriesPreserved": true,
+    "websiteAndOrdinaryReleaseWorkflowPreserved": true
+  },
+  "gates": [
+    "Current-head Windows/macOS native gameplay and physical GPU/DPI remain pending; b098d7b hosted reports inspected and native GLFW creation failed on all three hosts.",
+    "Catalog/shell/preview HEAD checks currently return404; controller publication remains incomplete.",
+    "Two actually published shell generations have not been tested. Local fixture generations do not satisfy this requirement.",
+    "Full acceptance and stable rollout remain gated."
+  ],
+  "sourceFingerprints": {
+    ".github/workflows/hub-publication-prepare.yml": "57fe208cd9f38ad4a5e5caaa5b78f037d9dae40184d2a74e3b8ade8e71f302e0",
+    ".github/workflows/hub-validation.yml": "57b5ac94027a528b12018b64bcd5d768986ca5f6fc474b3646b013ea639ed249",
+    "src/main/java/dev/jayms/launcher/Bootstrap.java": "7b7ca81a650f365f9b3e2d8c2d226bbc304d598b23915ba063df8e6ccb9718c8",
+    "src/main/java/dev/jayms/launcher/CatalogStore.java": "b317eb6520c73f5358613e3741897c2c8c35214f41eb13e883f96731534a7d22",
+    "src/main/java/dev/jayms/launcher/HubCatalog.java": "933aaaf707a15f7880d65a38fa87be1a8afb0002c0a4042281d9981cdd044519",
+    "src/main/java/dev/jayms/launcher/HubFrame.java": "57b5c8d2b57d8b42dc415253069b412faf2ffb6e1f527a41bc5f4513ab4f2d57",
+    "src/main/java/dev/jayms/launcher/Launcher.java": "8da6db2bec8f872b9aecf0a3eeec856ad602029b6edc4237b037a7af82b91e76",
+    "src/main/java/dev/jayms/launcher/Updater.java": "ae095e7fe81bcdf740a162c454388c57f431ae26f0d6fdf9d827bde1009166de",
+    "src/main/java/dev/jayms/ui/LoginDialog.java": "bed53038077a60cd445df85891e1950a114931fef80bede961bf14de50b4124d",
+    "src/main/resources/dev/jayms/launcher/catalog.properties": "5e3c9963d4bdfe84a3dcd9cc04a75dd9daf15dbd42e494ac70a9a40b5ed83690",
+    "src/main/resources/dev/jayms/launcher/city-gameplay.png": "9d77a0e77fb2dc6e7411c2ace46f68e7b48c11abba1a874e956e60913da3ef87",
+    "src/main/resources/dev/jayms/launcher/sandbox-gameplay.png": "d25e24551f05bc7e64623b16bc9de435ad8ed615876d30110503983d08da5d6e",
+    "src/main/resources/dev/jayms/launcher/space-invaders-gameplay.png": "4ae72aab98609eda88823d7a57e8340c2df53b35bec9191564b3398df2b31c26",
+    "src/test/java/dev/jayms/HubCatalogTest.java": "652d6e1a8e3a138d0d83090b8442e760f8b4d0e5d53c1beae3c2da916ab4531f",
+    "src/test/java/dev/jayms/HubShellTest.java": "50f967e0bc4544db3e581004fc17a5fec6029dc7582444b6d0b47fbdc2adf538",
+    "src/test/java/dev/jayms/UpdaterTest.java": "422eed9c7afbe6f433d321ecad4485c5852ea2f5a6f3b15d8783f21d82f017f7",
+    "tools/hub/HubPlaytest.java": "85c623cc888a88da29813ecca2560b783f1657ee0fa20a29238385a8b0371613",
+    "tools/hub/HubWorkflowPlaytest.java": "b86c84924489e0df4e2ecf528901b3d4c2e5981e316256f0073fef7529cecd4c",
+    "tools/hub/ImmutableReleasePlaytest.java": "f13568ffa386394b6a7a30bdc547f47a7cf9e3d6e6e8dd08433d6a80b6b39e14",
+    "tools/hub/InspectMovie.java": "c6f0f82132d42dc3932ea4a10015993ab656bf5b16e08fa116e1a5397ca3e8dd",
+    "tools/hub/NOTICE.txt": "cef0d784f6d5d7daeb765029133f79a3465c5c9ab774b2573502828e239225cc",
+    "tools/hub/NativeRenderProbe.java": "bfacf3d50686d9ebed01067be95cf85e7c0242984fd2c5629629f0d9cbf77bc1",
+    "tools/hub/OnlineLoginPlaytest.java": "6a00b19c62542660f336210ac977fc7084e685267fa561ad2e2274bbe9b81656",
+    "tools/hub/PackageUiProbe.java": "5d0f59d625af719657435dbe36f0c4212e94e51e9df42765284cec179970c1bf",
+    "tools/hub/UpdaterProbe.java": "699b8f884f095a372716eb9e4e7e26a187d4b438f4b9373b9d3718d88b9ee965",
+    "tools/hub/VALIDATION.md": "2c6c4dc97d8a21b142875c97f03993763a45793ae735eaf310b0e86e11b26316",
+    "tools/hub/browser-playtest.cjs": "93e0f08856860ef12eca2335a6a03d2e3936cea687362fce4688fe3c02994730",
+    "tools/hub/check_packages.py": "5ad85d547689c6714da11eb5856f08c053275bb711924092c767c6bafc9a5f3b",
+    "tools/hub/diagnose_native.py": "7ddb8263ecd11d2f5469c284985e12635b361a795d9f0c66a85c2396a1a1be6c",
+    "tools/hub/fingerprint_web.py": "48f98cd649650e5864e5621dfb38e3657a36fc99c5e52560072cb7fc5f084e99",
+    "tools/hub/mac_desktop.swift": "60426d123f2233a1482b910518066422d57492e032d54732844f1fe566f1636c",
+    "tools/hub/package.py": "5036caf0ff3d91fcc39617b74741c2f3b0e5d5b9eb86932b1d85209e5909c21d",
+    "tools/hub/package_playtest.py": "1b65af9c9b0b2586cd0f023c8e6ae5fd78972079c526eaf4f083ab82066bf774",
+    "tools/hub/portal-playtest.cjs": "e5114b83922c133490a34c53b9e024ab83939acebc76e67d07bebd21c44022cc",
+    "tools/hub/publication_bundle.py": "ecada49a81e6ae674994ff4a19a9ba99c01f800ad9a0b50049cdbe2f169c42e6",
+    "tools/hub/publish_catalog.py": "e38c19e438eeaf18ed3cfdbf8bdaf22afc41c7d5dfd5f837bbb003b006885b2c",
+    "tools/hub/run_playtest.py": "337ed5b81f9d37677f184a6b1625e80b4f048dab52a2c9f490ffc177530012bd",
+    "tools/hub/shell_manifest.py": "a78e6d8febb0642776807c005b297b2e695af58680f35e6ace10284f6d250aa3",
+    "tools/hub/site_probe.py": "e86580500e51686f9258df59325c4f448afa8703f2040eb092b668702104f5f2",
+    "tools/hub/summarize_tests.py": "1cc923892dfa36b9cad9496ff7398b10bfe0d12bb7373e73e231134478d4ba5f",
+    "tools/hub/test_publication_bundle.py": "25a2cd058cc41e73118ad68300d1f33fd3cfd4bb3dbcba8d8b9fa552814f2d37",
+    "tools/hub/test_publisher.py": "a4f73fd2f477dd9c647f974524fc0b83bbce15fbac3c3113605c853b4e0facca",
+    "tools/hub/web-freshness-playtest.cjs": "503c451408e9baac6b96241cd43c6a10ce38e071e3cc9ddec466657c41d95ebb",
+    "tools/hub/windows_desktop.py": "ae391bfae6c1844b918a0ece4ac14d2e783d6c0d0e3b34c27d92e3f9327bf88a"
+  },
+  "cliEvidence": "hub-immutable-cli.json: bundled-runtime --update-only --experience city and unknown-game edge passed."
+}

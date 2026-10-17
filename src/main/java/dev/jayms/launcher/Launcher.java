@@ -89,7 +89,7 @@ public final class Launcher {
             Platform platform = Platform.current();
             Path cache = cache();
             Updater.Result result =
-                    new Updater(cache, Updater.MANIFEST)
+                    new Updater(cache, selectedEntry == null ? Updater.MANIFEST : selectedEntry.clientManifest())
                             .update(
                                     platform,
                                     text -> {
