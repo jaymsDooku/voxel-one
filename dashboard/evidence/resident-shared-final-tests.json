@@ -1,0 +1,79 @@
+{
+  "java": "17",
+  "sourceManifest": "resident-shared-final-source.json",
+  "command": "mvn -o -q -Dmaven.repo.local=target/m2 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=ActivePreparationShutdownTest,CloseSequenceTest,DetailedMeshSchedulerTest,GraphicsProfileTest,GraphicsTransactionTest,LocalLightingCaptureTest,OwnerTraceTest,TerrainSchedulerTest,TransportMipTest,WorldStreamingTest package",
+  "tests": 50,
+  "suites": [
+    {
+      "name": "dev.jayms.render.GraphicsTransactionTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.ActivePreparationShutdownTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.WorldStreamingTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.OwnerTraceTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.CloseSequenceTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.DetailedMeshSchedulerTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.TerrainSchedulerTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.render.LocalLightingCaptureTest",
+      "tests": "12",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.render.GraphicsProfileTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.render.TransportMipTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "qualificationStatus": "Historical pre-camera-priority source. Current source: streaming-camera-priority-source.json."
+}

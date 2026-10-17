@@ -108,9 +108,15 @@ public final class ModelLibrary {
     }
 
     public ModelLibrary copy() {
-        ModelLibrary result = new ModelLibrary();
-        for (var e : entries.values()) if (e.id != Blocks.FLOWER_POT) result.putUnchecked(e);
-        return result;
+        return new ModelLibrary(this);
+    }
+
+    private ModelLibrary(ModelLibrary source) {
+        // Registration freezes definitions. A snapshot needs independent maps,
+        // but must not validate and serialize every immutable model again.
+        entries.putAll(source.entries);
+        fingerprints.putAll(source.fingerprints);
+        revision = source.revision;
     }
 
     public void write(DataOutputStream out) throws IOException {

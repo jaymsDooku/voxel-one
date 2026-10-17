@@ -1,0 +1,1 @@
+Playtest: PASS. mode=cancel; Linux/llvmpipe (LLVM 15.0.6, 256 bits); Java21.0.5; synthetic seed748291 Balanced requested640x480. terrainUIframes=64; lightingUIframes=1; gameplayFrames=0; elapsedMs=5247.36976. Expected responsive loading UI, current first-playable lighting and working walk, or native Escape before entry; observed expected behavior and closed world workers.

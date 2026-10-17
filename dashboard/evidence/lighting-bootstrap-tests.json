@@ -1,0 +1,12 @@
+{
+  "command": "Java21 offline Maven focused package;19 test classes; initial near-light readiness and bounded GI focus",
+  "exitCode": 0,
+  "counts": {
+    "tests": 154,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "jarSha256": "de3b45debe7b8a766f8045d3004fd3ddf7e7d2e043a962a343dfbb113c2fdf30",
+  "packageMismatches": []
+}

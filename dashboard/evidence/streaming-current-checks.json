@@ -1,0 +1,113 @@
+{
+  "status": "Historical intermediate check report; final available validation is in streaming-final-tests.json and streaming-validation.txt",
+  "command": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 mvn -q -Dmaven.repo.local=target/m2 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=WorldStreamingTest,TerrainSchedulerTest,DetailedMeshSchedulerTest,ChunkUnchangedWriteTest,WorldSkyVisibilityTest,SkyVisibilitySchedulerTest,TerrainGenerationTest,FractionalWorldTest,PhysicsTest,LightingTest,LightOcclusionTest,VoxelModelTest,DistantTerrainTest,StressGridLightingTest,JeepTest,PerformanceRecorderTest package",
+  "suites": [
+    {
+      "suite": "dev.jayms.WorldStreamingTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "suite": "dev.jayms.TerrainSchedulerTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "suite": "dev.jayms.DetailedMeshSchedulerTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "suite": "dev.jayms.ChunkUnchangedWriteTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "suite": "dev.jayms.WorldSkyVisibilityTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "suite": "dev.jayms.render.SkyVisibilitySchedulerTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "suite": "dev.jayms.TerrainGenerationTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "suite": "dev.jayms.FractionalWorldTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "suite": "dev.jayms.physics.PhysicsTest",
+      "tests": 25,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "suite": "dev.jayms.LightingTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "suite": "dev.jayms.LightOcclusionTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "suite": "dev.jayms.VoxelModelTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "suite": "dev.jayms.DistantTerrainTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "suite": "dev.jayms.StressGridLightingTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "suite": "dev.jayms.JeepTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "suite": "dev.jayms.render.PerformanceRecorderTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0
+    }
+  ],
+  "tests": 106,
+  "failures": 0,
+  "errors": 0,
+  "GLCommand": "python3 deploy/run_streaming_upload_smoke.py --display \"$DISPLAY\"",
+  "Playtest": "Playtest: PASS. GL 3.3 staged upload integration on inherited role display; Mesa llvmpipe; synthetic world. Exact GPU readback of sky/fine roots, fine nodes and irradiance; byte-cap progress, sky-only reuse, edit cancellation and context-thread cleanup. Pumps=9, max bytes=4096, total bytes=25984, max owner pump ms=169.665629. Standalone integration, not a game frame-time claim.",
+  "notes": [
+    "Native GL probe uses 4096-byte pumps and verifies GPU readback, half-float transport data, sky-only resource reuse, edit cancellation and cleanup.",
+    "Cold GL integration maximum pump is reported honestly; it is not a 2 ms application frame claim.",
+    "An initial GL source-launcher attempt failed due package-private class access across class loaders. Compiled application-loader probe passed.",
+    "A current sky test initially asserted the first valid partial atlas was the final complete atlas. It now waits for exact reference equality and verifies eventual full correctness."
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "status": "failed warmup;no cold-route data produced",
+  "command": "python3 deploy/run_streaming_sustained_matrix.py --display \"$DISPLAY\" --phase after --trials 1,2,3 --after-prefix local-lighting-after --manifest-name local-lighting-source.json",
+  "scenario": "third trial initial attempt",
+  "expected": "Latest requested lighting and sky active with no pending bake/sky/upload within240warmup frames",
+  "observed": "Graphics warmup did not become ready;last progress frame240/sample-1;process exited1",
+  "source": {
+    "reviewedHead": "bd3317631bdccccd34789511c5b48b185c205103",
+    "baseline": "4f8a09aca177062a50d0ab2b68e36735318bfb22+timing-overlay",
+    "sourceSha256": "1045df4d490097a047c188977d3d86897734a5145c4bd2b7694288bb1b9578b3",
+    "routeSha256": "3063c17cab589162467ef3024127cd84ae1003223559d41a99edfa6d4e20d857",
+    "baselineJarSha256": "48ed98ac1f5fc55fe9c57feb5e29bc37031f369ddee8fc1ba4596933f1c7f78f",
+    "featureJarSha256": "2e1029b195080b68298108be576c335350b3c2d73ecb966e3c1ed8d621fd2c63",
+    "method": "Fresh profiles;166 samples;resident mesh and accepted lighting warmup;actual framebuffer in JSON;no video;all sustained cold travel outside original spawn preload."
+  },
+  "action": "Preserved failed run in target/streaming-route/local-lighting-after-3-warmup-timeout;retry once unchanged. Do not count this attempt as passed."
+}

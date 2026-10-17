@@ -1,0 +1,16 @@
+{
+  "status": "passed",
+  "source": "fresh production Main F10 rendering workflow",
+  "codec": "H264",
+  "bytes": 706639,
+  "frames": 10,
+  "width": 960,
+  "height": 544,
+  "seconds": 25.897,
+  "allFramesDecoded": true,
+  "firstAndLastDiffer": true,
+  "Playtest": "Completed65-frame production Main offline workflow with actual W/F/Shift flight, reversal, teleport and exact fractionalRGB/model reload checks. F10 active14\u201323; all recorded frames decoded.",
+  "publication": "pending controller feature-branch publication",
+  "sourceManifest": "streaming-source-manifest.json",
+  "sha256": "0495296e524929b972effc4252294d99b7245de7f70280672907e95b3983f6eb"
+}

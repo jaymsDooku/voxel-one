@@ -1,0 +1,51 @@
+{
+  "status": "intermediate revision checks; final source build and matched trials pending",
+  "diagnosticBeforeMipFix": {
+    "command": "python3 deploy/run_streaming_upload_smoke.py --display \"$DISPLAY\"",
+    "maxPumpMs": 176.850875,
+    "transportAllocationMs": 0.081254,
+    "mipmapMs": 176.79011,
+    "scope": "Instrumented local revision of reviewed source; isolated8-cubed volume,GL3.3 llvmpipe. This isolated actual dominant GL call before changing mip preparation."
+  },
+  "afterMipAndPoolInitialCheck": {
+    "command": "python3 deploy/run_streaming_upload_smoke.py --display \"$DISPLAY\"",
+    "maxPumpMs": 5.336169,
+    "pooledMaxPumpMs": 3.520486,
+    "storeAllocationsForTwoGenerations": 22,
+    "transportAllocationMs": 0.068265,
+    "gpuMipmapMs": 0,
+    "scope": "Initial worker-mip and reusable-store implementation passed exact data checks. Later observability/test edits still require rebuilding."
+  },
+  "cpuSuites": [
+    {
+      "name": "dev.jayms.render.TransportMipTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.DetailedMeshSchedulerTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.WorldStreamingTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.LightingTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "dev.jayms.LightOcclusionTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0"
+    }
+  ]
+}

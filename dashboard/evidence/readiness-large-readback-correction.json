@@ -1,0 +1,7 @@
+{
+  "initial": "Native SIGSEGV / malloc assertion in added full-size readback harness. No qualification pass claimed.",
+  "cause": "Readback allocated logical atlas depth while preallocated GL texture has larger capacity.",
+  "fix": "Query GL_TEXTURE_WIDTH, HEIGHT and DEPTH before allocating readback buffer.",
+  "rerun": "Exit0: exact full-sized roots/irradiance plus all transport mip, distance and probe readbacks; three prewarmed generations; no new store allocations.",
+  "engineJarSha256": "4dac972cdcb91d6d26506ee378db37c175e1d1f6e0feb498eaa89067c2a62c45"
+}

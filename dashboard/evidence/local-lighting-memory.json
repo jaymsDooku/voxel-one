@@ -1,0 +1,62 @@
+{
+  "method": "Sampled game route metrics,not full RSS/VRAM measurement. Cluster GPU payload stores are separately fixed at643072 bytes,plus65536 native scratch bytes.",
+  "trials": [
+    {
+      "trial": 1,
+      "terrainPendingMax": 8.0,
+      "heapPeakBytes": 826586432.0,
+      "skyCacheMaxBytes": 13930432.0,
+      "meshOldestMaxMs": 245061.0,
+      "loadedMax": 941,
+      "finalResidency": {
+        "sample": "165",
+        "segment": "transitionTail",
+        "x": "2048.0",
+        "z": "8",
+        "center_resident": "true",
+        "nearby_resident": "true",
+        "pending": "8",
+        "loaded": "935"
+      },
+      "storeAllocations": 0.0
+    },
+    {
+      "trial": 2,
+      "terrainPendingMax": 8.0,
+      "heapPeakBytes": 710166000.0,
+      "skyCacheMaxBytes": 13646868.0,
+      "meshOldestMaxMs": 250519.0,
+      "loadedMax": 983,
+      "finalResidency": {
+        "sample": "165",
+        "segment": "transitionTail",
+        "x": "2048.0",
+        "z": "8",
+        "center_resident": "true",
+        "nearby_resident": "true",
+        "pending": "8",
+        "loaded": "983"
+      },
+      "storeAllocations": 0.0
+    },
+    {
+      "trial": 3,
+      "terrainPendingMax": 8.0,
+      "heapPeakBytes": 786100712.0,
+      "skyCacheMaxBytes": 12458300.0,
+      "meshOldestMaxMs": 241772.0,
+      "loadedMax": 930,
+      "finalResidency": {
+        "sample": "165",
+        "segment": "transitionTail",
+        "x": "2048.0",
+        "z": "8",
+        "center_resident": "true",
+        "nearby_resident": "true",
+        "pending": "8",
+        "loaded": "911"
+      },
+      "storeAllocations": 0.0
+    }
+  ]
+}

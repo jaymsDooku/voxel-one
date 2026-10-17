@@ -1,0 +1,13 @@
+{
+  "command": "Java21 offline Maven selected23testclasses package; includes OwnerTraceTest and LongLruCacheTest",
+  "counts": {
+    "tests": 163,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "exitCode": 0,
+  "jarSha256": "1db380465cdcc7ceedfb48f61e300eb9d22ca6efb75efbca40d937939e7eb8b5",
+  "classResourceMismatches": [],
+  "attributionParserRegression": "python3 deploy/test_owner_attribution.py:1passed"
+}

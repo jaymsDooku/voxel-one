@@ -1,0 +1,34 @@
+{
+  "status": "one completed unrecorded trial; three pairs and visual qualification pending",
+  "samples": 166,
+  "warmup": {
+    "graphicsWarmupFrames": 16,
+    "warmupWallMs": 73350.704763
+  },
+  "frameMs": {
+    "p50": 1976.363126,
+    "p95": 2324.308137,
+    "p99": 4400.379839,
+    "worst": 6803.649542
+  },
+  "terrainStreamingCpuMs": {
+    "p50": 0.312727,
+    "p95": 0.602169,
+    "p99": 3.441183,
+    "worst": 4.485394
+  },
+  "coldFlight": {
+    "samples": 80,
+    "centerGICovered": 54,
+    "allNineGICovered": 23,
+    "knownCenterSky": 77
+  },
+  "finalCoverage": {
+    "horizontal_coverage_9": "9",
+    "current_geometry": "true",
+    "sky_known": "true",
+    "pending_bake": "false",
+    "sky_gpu_pending": "false"
+  },
+  "environment": "Linux Mesa llvmpipe; no physical Windows GPU result"
+}

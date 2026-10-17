@@ -1,0 +1,145 @@
+{
+  "status": "passed",
+  "command": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 mvn -q -Dmaven.repo.local=target/m2 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=WorldStreamingTest,TerrainSchedulerTest,DetailedMeshSchedulerTest,ChunkUnchangedWriteTest,WorldSkyVisibilityTest,SkyVisibilitySchedulerTest,TerrainGenerationTest,FractionalWorldTest,PhysicsTest,LightingTest,LightOcclusionTest,VoxelModelTest,DistantTerrainTest,StressGridLightingTest,JeepTest,PerformanceRecorderTest,MultiplayerTest test",
+  "exit": 0,
+  "Playtest": "CPU/protocol regressions run alongside separate travel correctness run; matched performance trials ran independently. Native Main, GL soak and media checks have separate evidence.",
+  "suites": [
+    {
+      "name": "dev.jayms.DistantTerrainTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.432"
+    },
+    {
+      "name": "dev.jayms.WorldSkyVisibilityTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.484"
+    },
+    {
+      "name": "dev.jayms.physics.PhysicsTest",
+      "tests": "25",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "5.214"
+    },
+    {
+      "name": "dev.jayms.render.SkyVisibilitySchedulerTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.085"
+    },
+    {
+      "name": "dev.jayms.WorldStreamingTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.12"
+    },
+    {
+      "name": "dev.jayms.JeepTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.924"
+    },
+    {
+      "name": "dev.jayms.LightingTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.072"
+    },
+    {
+      "name": "dev.jayms.render.PerformanceRecorderTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "1.219"
+    },
+    {
+      "name": "dev.jayms.DetailedMeshSchedulerTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.263"
+    },
+    {
+      "name": "dev.jayms.TerrainSchedulerTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.242"
+    },
+    {
+      "name": "dev.jayms.LightOcclusionTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "3.831"
+    },
+    {
+      "name": "dev.jayms.MultiplayerTest",
+      "tests": "15",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "146.886"
+    },
+    {
+      "name": "dev.jayms.FractionalWorldTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.303"
+    },
+    {
+      "name": "dev.jayms.ChunkUnchangedWriteTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.075"
+    },
+    {
+      "name": "dev.jayms.TerrainGenerationTest",
+      "tests": "10",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "3.684"
+    },
+    {
+      "name": "dev.jayms.StressGridLightingTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "1.809"
+    },
+    {
+      "name": "dev.jayms.VoxelModelTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.342"
+    }
+  ],
+  "totalTests": 121
+}

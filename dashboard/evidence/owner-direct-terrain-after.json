@@ -1,0 +1,1 @@
+{"iterations":1048576,"digest":"-6549953573917534351","allocatedBytes":520,"threadCpuNs":219111215,"wallNs":219222956,"note":"Public Terrain.block fixed-seed warm access; standalone allocation regression, not game FPS"}

@@ -1,0 +1,2 @@
+HISTORICAL experiment; superseded by the resident-shared candidate. Original observations retained below.
+Playtest: PASS. Production lighting bindings, empty GPU faces; one initialization draw despite first face having no geometry; all73728 RGB channels bit-identical to no-warm-draw control over six faces; temporary mesh bytes returned to baseline; readiness, invalidation and cleanup passed. Renderer=llvmpipe (LLVM 15.0.6, 256 bits)

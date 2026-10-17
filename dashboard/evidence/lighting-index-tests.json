@@ -1,0 +1,12 @@
+{
+  "command": "Java21 offline Maven focused package;19 test classes; bounded sky row-directory lookup",
+  "exitCode": 0,
+  "counts": {
+    "tests": 154,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "jarSha256": "cc67218e3a59e3b399d0679fd4296d0846f67fbb9e07115ff458c8458aa30d31",
+  "packageMismatches": []
+}

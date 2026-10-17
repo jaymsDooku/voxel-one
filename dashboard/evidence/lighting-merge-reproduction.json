@@ -1,0 +1,9 @@
+{
+  "command": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 mvn -o -q -Dmaven.repo.local=target/m2 -Dtest=SkyVisibilitySchedulerTest#disjointArrivalsDoNotRestartAnInProgressMergeAndNewerTilesStillPublish+completedMergeSurvivesEquivalentGeneratedUnloadBeforeCollection test",
+  "before": "Exit1: two tests failed under the old restart/cache-membership policy. Cursor work was discarded; equivalent generated unload rejected a completed merge.",
+  "after": "Both regressions and the bounded continuous-arrival snapshot test passed in the full150-test package run.",
+  "nativeDiagnosis": "Actual client buffer mode active; fine.length=1; limit134217728. Sky publications stayed at6 during travel despite changing cache generations. No buffer-capacity guard change was needed.",
+  "qualification": "Fresh native route and visible-depth qualification still pending.",
+  "afterSchedulerSha256": "3997c0ce89de079d5a9a533a1c39f452ec4a7a74ae9f38066a1297808dad07ac",
+  "baselineEngineMatchesReviewBase": "git diff --stat 4f8a09aca177062a50d0ab2b68e36735318bfb22 403033b9f53ce66063982879c6e2daff684a427b -- src/main: exit0, no differences"
+}

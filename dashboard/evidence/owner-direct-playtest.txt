@@ -1,0 +1,61 @@
+Playtest: PASS, native offline workflow without recording.
+Command: python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --mode offline --distant-edits 100000
+Environment: Java21 Linux, Mesa llvmpipe software OpenGL3.3, inherited role display/XAUTHORITY, isolated synthetic profile, seed748291, Balanced graphics requested 640x480; actual screenshot/framebuffer 1280x720. Exact source digest fcf8e949d4e7b6e4ce47ed0eac8d2781050aff8cf0da75edbe0a86ead9f5d10e.
+Steps: actual W input on edited floor; F and Shift+W flight into terrain; S reversal; teleport to x2048; unload/reload the edited column; forced ordinary respawn. Added100000 distant non-light edits and a local fractional RGB/model-heavy patch with glass/water.
+Expected: responsive progress with terrain pending<=9 and residents<=1690; current authoritative edits survive reload; GPU replacements become usable; ordinary respawn restores health and resident playable terrain; no GL errors.
+Observed: all65 frames completed, walking displacement>0.5m, flight displacement>5m and flying mode verified; exact fractional value0xfe30a0ff and tiny-model ID retained after reload; health20 and spawn membership ready. Queue, GPU mesh progress and GL assertions passed.
+This is a functional run, separate from the six unrecorded performance trials. Video, multiplayer, City, world switching, sustained travel, GL soak and shutdown checks are complete; results follow below.
+
+Playtest: PASS, same65-frame native offline workflow with F10 recording.
+Command: python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --mode offline --video --distant-edits 100000
+Observed: all movement/edit/reload/respawn, queue and GL assertions passed. F10 captured actual flight separately from profiling.
+Media: owner-direct-f10.mp4;530593 bytes;18.176 seconds;10 decoded images. Bundled JCodec decoded every image and the midpoint was visually inspected. No physical Windows/GPU result is claimed.
+Recorder overhead: paired workflow CSV rows16–25 contain10 capture measurements; median elapsed capture 142.264 ms, worst202.984ms; inactive median 0.0007605 ms. This includes readback/waits and is not thread CPU or net FPS penalty. The six profiling runs had no recording.
+
+Playtest: PASS, native multiplayer edit during load.
+Command: python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --mode multiplayer
+Environment: same Java21/Mesa/inherited display; isolated synthetic local server and two synthetic clients.
+Steps: remote client breaks a nearby block at frame2; main client observes it by frame12; unload the edited chunk and allow it to reload.
+Expected: current authoritative break survives streaming/reload, connection stays active, queues and resident membership remain bounded, no GL errors.
+Observed: all30 frames passed; remote region remained air after reload, both delivery and connection assertions passed, GPU meshing made progress. Generated test identities stay in ignored target, not evidence.
+
+Playtest: PASS, native City regression.
+Command: python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --mode city
+Environment: same Java21/Mesa role display, new synthetic City profile.
+Steps: start City configuration, stream and mesh its terrain, run15 production frames, capture the resulting view.
+Expected: bounded resident/pending data, usable GPU replacements and no GL errors. Observed: all15 frames and assertions passed. Rendered view inspection is recorded separately.
+
+City visual inspection: the final screenshot shows the active isometric view, lots, citizens, vehicles and controls.
+
+Playtest: PASS, native world switch.
+Command: python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --mode switch
+Environment: same Java21/Mesa role display; two isolated synthetic worlds.
+Steps: stream the first seed748291 world, request the second save at frame15, reuse the application/context, then stream seed999.
+Expected: old world closes without a shutdown failure and the new world uses its own seed; GPU replacements progress without GL errors or queue overflow. Observed:35 total frames passed across both sessions; seed/session, resident/queue, mesh-progress and GL assertions passed.
+
+Playtest: PASS, sustained native travel/reversal and respawn settlement.
+Command: python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --mode travel
+Observed:180 frames, at least120 seconds of flight/reversal input, queue/resident bounds held;49 frames after respawn all nine near-camera GI points were covered with current geometry and spawn terrain ready. Maximum pending8, resident chunks1084, mesh jobs4, mesh waiting361. Observed heap ranged157.7–519.3MB; final-quarter high-water503.1MB. These heap values include collectible garbage; the GC-controlled resource soak is separate. The final valid static field had source age370974ms, so this is not a claim of a freshly captured field.
+
+Playtest: PASS, final GPU upload integration with uniform and refined full-size volumes.
+Command: python3 deploy/run_streaming_upload_smoke.py --display "$DISPLAY"
+Observed: both forced mapped-PBO and direct-client paths passed three-generation uniform and nonuniform96x128x96 volumes, root-prefix and fine payload readback, actual GLSL fractional RGB/sky lookup, mip/probe/distance readback, byte caps, cancellation/restart/reuse and cleanup. No new store allocation after prewarm. Initial refined fixture used the model-only set() API for a world LED; corrected it to world-cell fill() before the passing rerun. No game source changed.
+
+Playtest: PASS, 64-cycle GL mesh/edit/resource soak.
+Command: python3 deploy/run_streaming_soak.py --display "$DISPLAY" --cycles 64
+Environment: Java21/Mesa role display, isolated synthetic world; test-only GC and GPU readback, not a performance run.
+Steps: visit eight regions512 blocks apart; edit boundaries; unload/reload; cancel obsolete async mesh jobs; compare installed GPU border pixels and collect retained heap.
+Observed:64 cycles,130 seconds,2584 chunks unloaded,120 reload events,1216 edits,128 GPU border comparisons. Peak jobs4/waiting6/residents40; geometry168912 bytes; oldest107ms;192 rejected obsolete jobs. Retained heap after warm-up10952328 bytes, last11302552, max13365424; growth350224 bytes. GL assertions and final resource cleanup passed. This tests World.stream compatibility plus the real async mesh/GL path; Main async terrain travel is a separate check.
+
+Playtest: PASS, native active-work world switch.
+Command: python3 deploy/run_streaming_shutdown.py --display "$DISPLAY" --mode active-switch
+Observed: two sessions/six frames; active and queued sky cancellation and final window/context cleanup assertions passed. Switch to next startup4392.021ms includes new startup and is not isolated worker-close latency.
+
+Playtest: PASS, injected failure during world switching.
+Command: python3 deploy/run_streaming_shutdown.py --display "$DISPLAY" --mode failure-switch
+Expected: finish later cleanup actions, destroy the context/window and report the injected failure instead of retaining a broken scene. Observed: one session/three frames; failure aggregation and final context/window cleanup assertions passed. No successful second startup or zero-latency cancellation is claimed.
+
+Playtest: PASS, injected main-loop and cleanup failures.
+Command: python3 deploy/run_streaming_shutdown.py --display "$DISPLAY" --mode failure-run
+Environment: Java 21 Linux, inherited role display, Mesa llvmpipe software rendering, isolated synthetic saves.
+Steps: run production Main and inject main-loop plus cleanup failures. Expected: retain both failures, continue later cleanup and destroy the GL context/window. Observed: one session and three frames; failure aggregation and final context/window cleanup assertions passed.

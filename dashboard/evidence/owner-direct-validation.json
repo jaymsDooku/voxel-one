@@ -1,0 +1,65 @@
+{
+  "readyForIndependentReview": true,
+  "publication": "Pending controller commit/push and independent review; no deployment or approval claimed.",
+  "headBeforeUnpublishedEdits": "8b4d3f9fdbab6199499c4ce82e9996835f069800",
+  "reviewBase": "403033b9f53ce66063982879c6e2daff684a427b",
+  "sourceSha256": "fcf8e949d4e7b6e4ce47ed0eac8d2781050aff8cf0da75edbe0a86ead9f5d10e",
+  "featureJarSha256": "9ed588a908f7d5ac99ef016c49edb9ca32be9aa1453a79e0bce760fbfc873beb",
+  "packagedProjectFilesVerified": 478,
+  "environment": "Linux Java 21.0.5, Mesa llvmpipe software OpenGL, inherited role display, synthetic profiles; actual framebuffer 1280x720.",
+  "tests": {
+    "java": {
+      "passed": 164,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "report": "owner-direct-final-tests.json"
+    },
+    "matchedProfiling": "Three before/after pairs, 166 samples each; recorder, JFR and host probes off.",
+    "denseVisual": "All 80 cold-flight and 16 reversal poses matched. Near visible GI coverage 59.3705% to 89.6160%; no lower-coverage matched frame. Six zero-coverage cold frames remain.",
+    "nativeWorkflows": "Offline plain/video:65 frames each; multiplayer:30; City/isometric:15; world switch:35; sustained travel:180; active-switch and two injected-failure cleanup paths passed.",
+    "gpu": "Mapped/direct uniform/refined full-volume upload, shader/readback, byte caps, fencing, cancellation, reuse and cleanup passed.",
+    "soak": "64 cycles, 130 seconds, 1216 edits, 128 GPU border comparisons; retained heap growth 350224 bytes.",
+    "attribution": "Separate wall/thread-CPU/allocation/JFR/host trace plus host-probe-free calibration; verified GC/safepoint and scheduler-delay examples. Residual time remains unclassified; separate primary-run tails are not retrospectively attributed.",
+    "allocation": "1048576 warmed terrain queries:270625504 to 520 allocated bytes; exact output digest matched.",
+    "media": "F10 MP4:530593 bytes,18.176 seconds,10 decoded images; midpoint inspected. Recording excluded from profiling.",
+    "git": "Diff whitespace check passed; no deleted files against review base, unmerged entries or pending rebase."
+  },
+  "results": {
+    "coldFlightOwnerElapsedP99ReductionPercent": [
+      95.2264,
+      95.9094,
+      97.8449
+    ],
+    "coldFlightFrameP99": "Improved in every matched pair; software rendering remains far below 60 FPS.",
+    "lightingWarmupSecondsBefore": [
+      54.853,
+      54.405,
+      53.56
+    ],
+    "lightingWarmupSecondsAfter": [
+      52.96,
+      60.867,
+      55.566
+    ]
+  },
+  "limits": [
+    "2 ms elapsed owner streaming tail target remains unmet; catch-up budget is 4 ms.",
+    "Six uncovered cold-flight frames remain; full visual coverage is not claimed.",
+    "All-route frame tails do not consistently improve. Resident render outlier cause remains unproven.",
+    "Transition camera poses differ at six checkpoints; these are not matched transition quality evidence. Functional transitions passed separately.",
+    "Physical Windows GPU qualification remains pending and gates stable rollout.",
+    "Static valid-field source age is not freshness; full age/coverage data retained."
+  ],
+  "reports": [
+    "owner-direct-summary.txt",
+    "owner-direct-performance.json",
+    "owner-direct-visual-comparison.json",
+    "owner-direct-attribution.json",
+    "owner-direct-cpu-units.json",
+    "owner-direct-recording-overhead.json",
+    "owner-direct-playtest.txt",
+    "owner-direct-windows-playtest.txt"
+  ],
+  "deletions": "No files deleted; no unrelated feature deletions intended."
+}

@@ -1,0 +1,11 @@
+{
+  "reviewedHead": "35d5a8b3be0690f3955e90240838fcc326cbf11e",
+  "baseline": "4f8a09aca177062a50d0ab2b68e36735318bfb22+timing-overlay",
+  "sourceSha256": "fe14cb951712962a13395fca9922c3d4ffe79c285f33ae541489a31a01ab5f87",
+  "routeSha256": "ccd4ba4ab5d872f8f085c07a36b211a9a60e3b452f3044e91c75babd59240cbd",
+  "baselineJarSha256": "48ed98ac1f5fc55fe9c57feb5e29bc37031f369ddee8fc1ba4596933f1c7f78f",
+  "featureJarSha256": "4c36673cac76274b9e4012b090ac9c3787c9c1eb34d54823257d2d8116458e76",
+  "method": "Fresh profiles;166 samples;resident mesh and accepted lighting warmup;actual framebuffer in JSON;no video;all sustained cold travel outside original spawn preload.",
+  "reviewBase": "403033b9f53ce66063982879c6e2daff684a427b",
+  "physicalQualification": "Windows physical GPU pending; gates stable rollout"
+}

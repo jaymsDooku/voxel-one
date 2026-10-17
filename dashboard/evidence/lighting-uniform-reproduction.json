@@ -1,0 +1,12 @@
+{
+  "oldGuardUnitExit": 1,
+  "oldGuardUnitFailure": "Released bake scratch cannot erase refined-root dependencies ==> expected: <false> but was: <true>",
+  "oldGuardGLFailure": "Production lookup exact fractional RGB/sky; prefix=true channel=0 actual=0.0 expected=0.22834645 size=8,8,8 uniform=true rootMode=2 glError=0",
+  "cause": "Baking clears the temporary detail map before guard lookup. Preserve the invariant before cleanup.",
+  "correctedValidation": {
+    "packageTests": 153,
+    "failures": 0,
+    "GLExitCode": 0,
+    "checks": "Fractional RGB/sky and uniform mode2 poisoned-root-table shader outputs exact"
+  }
+}

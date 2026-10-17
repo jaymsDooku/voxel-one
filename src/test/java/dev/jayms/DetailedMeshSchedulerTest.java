@@ -63,4 +63,26 @@ class DetailedMeshSchedulerTest {
             assertTrue(w.renderedColumns().isEmpty());assertTrue(w.dirtyMeshes().isEmpty());
         }
     }
+    @Test void partialHintsAndDeferredBorderCaptureStayExact()throws Exception {
+        try(var world=new World();var scheduler=new DetailedMeshScheduler()) {
+            var p=new ChunkPos(0,4,0);var c=new Chunk();world.addChunk(p,c);
+            assertFalse(c.hasFractional());world.apply(new Protocol.Edit(15,64,0,Blocks.LED,4,15,0,0).withColor(0x123456));assertTrue(c.hasFractional());
+            assertTrue(scheduler.request(world,p));var result=await(scheduler,world);
+            var reference=MeshDataGenerator.generate(new ChunkSnapshot(world,p,c,true));
+            assertArrayEquals(reference.vertices(),result.data().vertices());assertArrayEquals(reference.indices(),result.data().indices());
+            world.apply(new Protocol.Edit(15,64,0,Blocks.STONE));assertFalse(c.hasFractional());
+            assertTrue(scheduler.request(world,p));world.apply(new Protocol.Edit(15,64,0,0));assertNull(scheduler.ready(world));
+        }
+    }
+    @org.junit.jupiter.api.Test void expiredBudgetDoesNotWalkTheDirtyWorldAndResumedScansFinish() throws Exception {
+        try(var world=new World(42);var scheduler=new DetailedMeshScheduler()){
+            for(int i=0;i<2048;i++)world.addChunk(new ChunkPos(i,7,0),new Chunk());
+            int initial=world.dirtyMeshes().size();
+            var frustum=new org.joml.FrustumIntersection(new org.joml.Matrix4f());
+            scheduler.update(world,0,0,frustum,0,0,0,4096);
+            org.junit.jupiter.api.Assertions.assertEquals(initial,world.dirtyMeshes().size());
+            for(int frame=0;frame<200&&!world.dirtyMeshes().isEmpty();frame++)scheduler.update(world,0,0,frustum,0,0,1_000_000,4096);
+            org.junit.jupiter.api.Assertions.assertTrue(world.dirtyMeshes().isEmpty(),"Resumed scans eventually retire every empty chunk without a full collection sweep");
+        }
+    }
 }

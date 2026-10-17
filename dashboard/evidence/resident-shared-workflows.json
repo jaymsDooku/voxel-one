@@ -1,0 +1,51 @@
+[
+  {
+    "mode": "offline",
+    "video": false,
+    "exitCode": 0,
+    "command": "python3 deploy/run_streaming_workflow.py --display \"$DISPLAY\" --java /usr/lib/jvm/java-17-openjdk-amd64/bin/java --mode offline --distant-edits 100000",
+    "fixtureSha256": "4c3725eb55ea713f4784f0562806c658a1df3714d3b5cf497cc470e57336564c"
+  },
+  {
+    "mode": "offline",
+    "video": true,
+    "exitCode": 0,
+    "command": "python3 deploy/run_streaming_workflow.py --display \"$DISPLAY\" --java /usr/lib/jvm/java-17-openjdk-amd64/bin/java --mode offline --distant-edits 100000 --video",
+    "fixtureSha256": "4c3725eb55ea713f4784f0562806c658a1df3714d3b5cf497cc470e57336564c"
+  },
+  {
+    "mode": "multiplayer",
+    "video": false,
+    "exitCode": 1,
+    "command": "python3 deploy/run_streaming_workflow.py --display \"$DISPLAY\" --java /usr/lib/jvm/java-17-openjdk-amd64/bin/java --mode multiplayer --distant-edits 100000",
+    "fixtureSha256": "4c3725eb55ea713f4784f0562806c658a1df3714d3b5cf497cc470e57336564c"
+  },
+  {
+    "mode": "multiplayer",
+    "video": false,
+    "exitCode": 1,
+    "fixtureSha256": "898d0c0d89a8087c4bde31dc4f90eca0fc8e53234ff70b945bf496a1eb816c52",
+    "command": "python3 deploy/run_streaming_workflow.py --display \"$DISPLAY\" --java /usr/lib/jvm/java-17-openjdk-amd64/bin/java --mode multiplayer --distant-edits 100000"
+  },
+  {
+    "mode": "multiplayer",
+    "video": false,
+    "exitCode": 0,
+    "fixtureSha256": "c16ed70daf179eb0793b60ea8212f3461335b5edb8377616f835fb5efa5c583c",
+    "command": "python3 deploy/run_streaming_workflow.py --display \"$DISPLAY\" --java /usr/lib/jvm/java-17-openjdk-amd64/bin/java --mode multiplayer --distant-edits 100000"
+  },
+  {
+    "mode": "city",
+    "video": false,
+    "exitCode": 0,
+    "fixtureSha256": "c16ed70daf179eb0793b60ea8212f3461335b5edb8377616f835fb5efa5c583c",
+    "command": "python3 deploy/run_streaming_workflow.py --display \"$DISPLAY\" --java /usr/lib/jvm/java-17-openjdk-amd64/bin/java --mode city --distant-edits 100000"
+  },
+  {
+    "mode": "switch",
+    "video": false,
+    "exitCode": 0,
+    "fixtureSha256": "c16ed70daf179eb0793b60ea8212f3461335b5edb8377616f835fb5efa5c583c",
+    "command": "python3 deploy/run_streaming_workflow.py --display \"$DISPLAY\" --java /usr/lib/jvm/java-17-openjdk-amd64/bin/java --mode switch --distant-edits 100000"
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "decodedFrames": 10,
+  "durationSeconds": 18.176,
+  "bytes": 530593,
+  "width": 960,
+  "height": 544,
+  "midpointIndex": 5,
+  "videoSha256": "9786381dfe2c5ff7734c6adaf5abc0ee3ae8e3587053bd1c31afff4118ea8273",
+  "note": "All10 image frames decoded with bundled JCodec. Midpoint inspected; no retiming. Dimensions are decoded coded-frame dimensions, including codec padding.",
+  "midpointVisuallyInspected": true,
+  "rendering": "Mesa llvmpipe software OpenGL; actual native F10 flight, synthetic profile"
+}

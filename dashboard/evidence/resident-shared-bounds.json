@@ -1,0 +1,98 @@
+{
+  "1": {
+    "terrain_pending": {
+      "max": 8.0,
+      "last": 8.0,
+      "last24Min": 0.0,
+      "last24Max": 8.0
+    },
+    "loaded_chunks": {
+      "max": 1311.0,
+      "last": 1311.0,
+      "last24Min": 1263.0,
+      "last24Max": 1311.0
+    },
+    "heap_used_bytes": {
+      "max": 469616944.0,
+      "last": 206368104.0,
+      "last24Min": 206368104.0,
+      "last24Max": 469616944.0
+    },
+    "estimated_vram_bytes": {
+      "max": 356747032.0,
+      "last": 319943728.0,
+      "last24Min": 306115432.0,
+      "last24Max": 319943728.0
+    },
+    "sky_cache_bytes": {
+      "max": 1313576.0,
+      "last": 1196864.0,
+      "last24Min": 1151040.0,
+      "last24Max": 1242688.0
+    }
+  },
+  "2": {
+    "terrain_pending": {
+      "max": 8.0,
+      "last": 8.0,
+      "last24Min": 8.0,
+      "last24Max": 8.0
+    },
+    "loaded_chunks": {
+      "max": 1236.0,
+      "last": 1236.0,
+      "last24Min": 1222.0,
+      "last24Max": 1236.0
+    },
+    "heap_used_bytes": {
+      "max": 595450256.0,
+      "last": 595450256.0,
+      "last24Min": 396482184.0,
+      "last24Max": 595450256.0
+    },
+    "estimated_vram_bytes": {
+      "max": 356702752.0,
+      "last": 319892488.0,
+      "last24Min": 306065728.0,
+      "last24Max": 319892488.0
+    },
+    "sky_cache_bytes": {
+      "max": 1267724.0,
+      "last": 1173952.0,
+      "last24Min": 1093760.0,
+      "last24Max": 1208320.0
+    }
+  },
+  "3": {
+    "terrain_pending": {
+      "max": 8.0,
+      "last": 8.0,
+      "last24Min": 1.0,
+      "last24Max": 8.0
+    },
+    "loaded_chunks": {
+      "max": 1290.0,
+      "last": 1290.0,
+      "last24Min": 1245.0,
+      "last24Max": 1290.0
+    },
+    "heap_used_bytes": {
+      "max": 513397016.0,
+      "last": 479217464.0,
+      "last24Min": 292868528.0,
+      "last24Max": 479217464.0
+    },
+    "estimated_vram_bytes": {
+      "max": 356773384.0,
+      "last": 319824520.0,
+      "last24Min": 306311440.0,
+      "last24Max": 319824520.0
+    },
+    "sky_cache_bytes": {
+      "max": 1302120.0,
+      "last": 1162496.0,
+      "last24Min": 1128128.0,
+      "last24Max": 1242688.0
+    }
+  }
+}

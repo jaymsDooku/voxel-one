@@ -1,0 +1,1108 @@
+{
+  "java": "17",
+  "sourceManifest": "streaming-camera-priority-source.json",
+  "command": "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 PATH=/usr/lib/jvm/java-17-openjdk-amd64/bin:$PATH mvn -o -q -Dmaven.repo.local=target/m2 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" package",
+  "exitCode": 0,
+  "tests": 715,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "suites": [
+    {
+      "name": "dev.jayms.RailwayTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.45"
+    },
+    {
+      "name": "dev.jayms.ExchangeLabourMarketTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.11"
+    },
+    {
+      "name": "dev.jayms.HistoryStressGridTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.14"
+    },
+    {
+      "name": "dev.jayms.render.GraphicsTransactionTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.02"
+    },
+    {
+      "name": "dev.jayms.ItemCraftingTest",
+      "tests": "12",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.07"
+    },
+    {
+      "name": "dev.jayms.HistoryAccountingWorkflowTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.033"
+    },
+    {
+      "name": "dev.jayms.CraftingTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.016"
+    },
+    {
+      "name": "dev.jayms.AtmosphereReferenceTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "9.27"
+    },
+    {
+      "name": "dev.jayms.RenderingAlgorithmsTest",
+      "tests": "9",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.066"
+    },
+    {
+      "name": "dev.jayms.BusinessDashboardTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.012"
+    },
+    {
+      "name": "dev.jayms.MarketEconomyTest",
+      "tests": "13",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.303"
+    },
+    {
+      "name": "dev.jayms.render.GraphicsDisplayRecoveryTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.009"
+    },
+    {
+      "name": "dev.jayms.IndustrialProgressionTest",
+      "tests": "10",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.111"
+    },
+    {
+      "name": "dev.jayms.ShippingProtocolCompatibilityTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "2.933"
+    },
+    {
+      "name": "dev.jayms.DaylightTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.011"
+    },
+    {
+      "name": "dev.jayms.EditHistoryTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.019"
+    },
+    {
+      "name": "dev.jayms.CityMaterialsTest",
+      "tests": "13",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "13.679"
+    },
+    {
+      "name": "dev.jayms.ManufacturingTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "27.532"
+    },
+    {
+      "name": "dev.jayms.AviationSaveCompatibilityTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.048"
+    },
+    {
+      "name": "dev.jayms.CityAddressesTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "2.462"
+    },
+    {
+      "name": "dev.jayms.ParcelPortfolioTest",
+      "tests": "9",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.55"
+    },
+    {
+      "name": "dev.jayms.HistoryChartStateTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.076"
+    },
+    {
+      "name": "dev.jayms.CityToolsTest",
+      "tests": "10",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.108"
+    },
+    {
+      "name": "dev.jayms.MayorDashboardTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.016"
+    },
+    {
+      "name": "dev.jayms.AtmosphereConfigTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.007"
+    },
+    {
+      "name": "dev.jayms.CityCapitalTest",
+      "tests": "11",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "2.823"
+    },
+    {
+      "name": "dev.jayms.StressGridRoadMarkingsTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.002"
+    },
+    {
+      "name": "dev.jayms.net.city.CityStockExchangeTest",
+      "tests": "10",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.016"
+    },
+    {
+      "name": "dev.jayms.DistantTerrainTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.143"
+    },
+    {
+      "name": "dev.jayms.CityMissilesTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "26.16"
+    },
+    {
+      "name": "dev.jayms.RailwaySaveCompatibilityTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.08"
+    },
+    {
+      "name": "dev.jayms.ControlsTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.016"
+    },
+    {
+      "name": "dev.jayms.ActivePreparationShutdownTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.029"
+    },
+    {
+      "name": "dev.jayms.WorldSkyVisibilityTest",
+      "tests": "10",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.115"
+    },
+    {
+      "name": "dev.jayms.physics.PhysicsTest",
+      "tests": "25",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "2.132"
+    },
+    {
+      "name": "dev.jayms.EngineEditorTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.011"
+    },
+    {
+      "name": "dev.jayms.render.SkyVisibilitySchedulerTest",
+      "tests": "13",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.59"
+    },
+    {
+      "name": "dev.jayms.CapitalInspectorTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.002"
+    },
+    {
+      "name": "dev.jayms.WorldStreamingTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "1.112"
+    },
+    {
+      "name": "dev.jayms.RemotePlayerTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.001"
+    },
+    {
+      "name": "dev.jayms.JeepTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.284"
+    },
+    {
+      "name": "dev.jayms.ModelSculptorTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.005"
+    },
+    {
+      "name": "dev.jayms.PlayerCameraTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.012"
+    },
+    {
+      "name": "dev.jayms.physics.WheelContactTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.006"
+    },
+    {
+      "name": "dev.jayms.PopulationJourneyTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "49.664"
+    },
+    {
+      "name": "dev.jayms.SpecialBuildingsTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.158"
+    },
+    {
+      "name": "dev.jayms.ExchangePermitCompositionTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.002"
+    },
+    {
+      "name": "dev.jayms.BlockRaycasterTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.007"
+    },
+    {
+      "name": "dev.jayms.CameraMovementTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.003"
+    },
+    {
+      "name": "dev.jayms.CityMetricsTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.004"
+    },
+    {
+      "name": "dev.jayms.CityTimeTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "20.073"
+    },
+    {
+      "name": "dev.jayms.CitizenLifeTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.1"
+    },
+    {
+      "name": "dev.jayms.CapitalSettlementLimitsTest",
+      "tests": "9",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.063"
+    },
+    {
+      "name": "dev.jayms.OwnerTraceTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.174"
+    },
+    {
+      "name": "dev.jayms.CityMultiplayerTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "11.291"
+    },
+    {
+      "name": "dev.jayms.BuildingInfoTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.033"
+    },
+    {
+      "name": "dev.jayms.HistoryProtocolCompatibilityTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "1.798"
+    },
+    {
+      "name": "dev.jayms.MobileGatewayTest",
+      "tests": "12",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "182.192"
+    },
+    {
+      "name": "dev.jayms.physics.HingeSwingTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.031"
+    },
+    {
+      "name": "dev.jayms.physics.HingeInertiaTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.002"
+    },
+    {
+      "name": "dev.jayms.physics.ContactTriggerTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.006"
+    },
+    {
+      "name": "dev.jayms.VideoRecordingTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.293"
+    },
+    {
+      "name": "dev.jayms.MixedRoadOwnershipTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.729"
+    },
+    {
+      "name": "dev.jayms.OperatingEnergyTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.119"
+    },
+    {
+      "name": "dev.jayms.ShippingRoutesTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.27"
+    },
+    {
+      "name": "dev.jayms.HeldToolPoseTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.012"
+    },
+    {
+      "name": "dev.jayms.LightingTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.035"
+    },
+    {
+      "name": "dev.jayms.physics.ForceInertiaTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.004"
+    },
+    {
+      "name": "dev.jayms.CloseSequenceTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.003"
+    },
+    {
+      "name": "dev.jayms.RoadTypesTest",
+      "tests": "9",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.522"
+    },
+    {
+      "name": "dev.jayms.CityActionBarTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.002"
+    },
+    {
+      "name": "dev.jayms.render.PerformanceRecorderTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.638"
+    },
+    {
+      "name": "dev.jayms.physics.DistanceLoadTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.381"
+    },
+    {
+      "name": "dev.jayms.IsometricOrbitDragTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.003"
+    },
+    {
+      "name": "dev.jayms.RoadGuideHeightTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.058"
+    },
+    {
+      "name": "dev.jayms.CityHistoryIntegrationTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "17.266"
+    },
+    {
+      "name": "dev.jayms.PlayerTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.103"
+    },
+    {
+      "name": "dev.jayms.StressGridTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.59"
+    },
+    {
+      "name": "dev.jayms.DetailedMeshSchedulerTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.123"
+    },
+    {
+      "name": "dev.jayms.RoadBaseCompatibilityTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.078"
+    },
+    {
+      "name": "dev.jayms.CitySavesTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.017"
+    },
+    {
+      "name": "dev.jayms.AtmosphereLightingTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.297"
+    },
+    {
+      "name": "dev.jayms.UpdaterTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.419"
+    },
+    {
+      "name": "dev.jayms.TerrainSchedulerTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.048"
+    },
+    {
+      "name": "dev.jayms.RoadMarkingsTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.289"
+    },
+    {
+      "name": "dev.jayms.render.LocalLightingCaptureTest",
+      "tests": "12",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "2.954"
+    },
+    {
+      "name": "dev.jayms.FreightFallbackTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.035"
+    },
+    {
+      "name": "dev.jayms.render.GraphicsProfileTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.025"
+    },
+    {
+      "name": "dev.jayms.RegionalPopulationTest",
+      "tests": "10",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.952"
+    },
+    {
+      "name": "dev.jayms.RailwayShippingCompatibilityTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.039"
+    },
+    {
+      "name": "dev.jayms.RoadCitySavesTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.203"
+    },
+    {
+      "name": "dev.jayms.SurvivalTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.523"
+    },
+    {
+      "name": "dev.jayms.CityBusinessTest",
+      "tests": "9",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "7.023"
+    },
+    {
+      "name": "dev.jayms.AtmosphereServerTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "4.405"
+    },
+    {
+      "name": "dev.jayms.RailwayAirportCompatibilityTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.053"
+    },
+    {
+      "name": "dev.jayms.LightOcclusionTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "1.323"
+    },
+    {
+      "name": "dev.jayms.AccountStoreTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "5.124"
+    },
+    {
+      "name": "dev.jayms.MultiplayerTest",
+      "tests": "15",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "90.088"
+    },
+    {
+      "name": "dev.jayms.RailwayOwnershipCompatibilityTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.16"
+    },
+    {
+      "name": "dev.jayms.CapitalDashboardTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.046"
+    },
+    {
+      "name": "dev.jayms.FractionalWorldTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.065"
+    },
+    {
+      "name": "dev.jayms.MetricHistoryTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.278"
+    },
+    {
+      "name": "dev.jayms.render.GpuTimestampRingTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.003"
+    },
+    {
+      "name": "dev.jayms.ChunkUnchangedWriteTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.008"
+    },
+    {
+      "name": "dev.jayms.StressGridDevelopmentTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "34.216"
+    },
+    {
+      "name": "dev.jayms.RegionalSaveCompatibilityTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.089"
+    },
+    {
+      "name": "dev.jayms.RoadTrafficTest",
+      "tests": "26",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.361"
+    },
+    {
+      "name": "dev.jayms.CityTest",
+      "tests": "11",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "7.346"
+    },
+    {
+      "name": "dev.jayms.SandboxIdentityTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.155"
+    },
+    {
+      "name": "dev.jayms.ShopRestockMarketTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.042"
+    },
+    {
+      "name": "dev.jayms.ProtocolCompatibilityTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "3.801"
+    },
+    {
+      "name": "dev.jayms.physics.PlatformCarryTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.027"
+    },
+    {
+      "name": "dev.jayms.RoadWorkflowTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.137"
+    },
+    {
+      "name": "dev.jayms.physics.CcdMotionTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.582"
+    },
+    {
+      "name": "dev.jayms.BusinessCatalogTest",
+      "tests": "12",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "1.471"
+    },
+    {
+      "name": "dev.jayms.net.city.RoadSpacingTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.087"
+    },
+    {
+      "name": "dev.jayms.RecipeMultiplayerTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "6.006"
+    },
+    {
+      "name": "dev.jayms.CityEconomyTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "7.517"
+    },
+    {
+      "name": "dev.jayms.InventoryHudTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.011"
+    },
+    {
+      "name": "dev.jayms.CityHistoryTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "1.167"
+    },
+    {
+      "name": "dev.jayms.VehicleAudioTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.002"
+    },
+    {
+      "name": "dev.jayms.ShippingAviationCompatibilityTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "1.011"
+    },
+    {
+      "name": "dev.jayms.DemolitionTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "18.105"
+    },
+    {
+      "name": "dev.jayms.CityHistoryNetworkTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "15.318"
+    },
+    {
+      "name": "dev.jayms.TerrainGenerationTest",
+      "tests": "10",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.759"
+    },
+    {
+      "name": "dev.jayms.ShippingTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.116"
+    },
+    {
+      "name": "dev.jayms.PlayerAnimationTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.08"
+    },
+    {
+      "name": "dev.jayms.CityFormat16RegressionTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.097"
+    },
+    {
+      "name": "dev.jayms.AviationTest",
+      "tests": "10",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "1.078"
+    },
+    {
+      "name": "dev.jayms.RegionalMultiplayerTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "7.538"
+    },
+    {
+      "name": "dev.jayms.StressGridLightingTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "1.209"
+    },
+    {
+      "name": "dev.jayms.net.LongLruCacheTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.118"
+    },
+    {
+      "name": "dev.jayms.AgricultureTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "68.802"
+    },
+    {
+      "name": "dev.jayms.IsometricCameraTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.037"
+    },
+    {
+      "name": "dev.jayms.VoxelModelTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.147"
+    },
+    {
+      "name": "dev.jayms.render.LightingPriorityTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.007"
+    },
+    {
+      "name": "dev.jayms.render.TransportMipTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.03"
+    }
+  ]
+}

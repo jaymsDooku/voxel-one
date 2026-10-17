@@ -1,0 +1,150 @@
+{
+  "status": "passed functional regression;wall-time overruns retained",
+  "method": "Three 100-boundary GL trials per version after 20 warmup boundaries each; 100,000 synthetic distant non-light edits plus one nearby LED; 320x240 / OpenGL 3.3 / Mesa llvmpipe; Java 21.0.5; no recording or concurrent checks. Old full-history copy versus local sliced capture/build/upload. These are owner pump timings, not full game frames. Thread CPU and GC deltas are in each CSV.",
+  "beforeReviewedHead": "bd3317631bdccccd34789511c5b48b185c205103",
+  "beforeJarSha256": "0441e668eff4ba36a5e4066302b2d5af88c474c1de697711943928bd3f8ec396",
+  "afterJarSha256": "2e1029b195080b68298108be576c335350b3c2d73ecb966e3c1ed8d621fd2c63",
+  "trials": {
+    "before-1": {
+      "status": "passed",
+      "distantEdits": 100000,
+      "boundaries": 100,
+      "warmupBoundaries": 20,
+      "sliced": false,
+      "pumpP50Ms": 16.35164,
+      "pumpP95Ms": 97.660471,
+      "pumpP99Ms": 117.605941,
+      "worstPumpMs": 217.295584,
+      "boundaryCpuP50Ms": 16.35164,
+      "boundaryCpuP99Ms": 117.605941,
+      "maxPumpsPerBoundary": 1
+    },
+    "after-1": {
+      "status": "passed",
+      "distantEdits": 100000,
+      "boundaries": 100,
+      "warmupBoundaries": 20,
+      "sliced": true,
+      "pumpP50Ms": 0.079613,
+      "pumpP95Ms": 0.213231,
+      "pumpP99Ms": 0.259762,
+      "worstPumpMs": 7.375598,
+      "boundaryCpuP50Ms": 0.60887,
+      "boundaryCpuP99Ms": 1.2304789999999999,
+      "maxPumpsPerBoundary": 7
+    },
+    "before-2": {
+      "status": "passed",
+      "distantEdits": 100000,
+      "boundaries": 100,
+      "warmupBoundaries": 20,
+      "sliced": false,
+      "pumpP50Ms": 16.051553,
+      "pumpP95Ms": 30.113,
+      "pumpP99Ms": 135.064393,
+      "worstPumpMs": 201.213154,
+      "boundaryCpuP50Ms": 16.051553,
+      "boundaryCpuP99Ms": 135.064393,
+      "maxPumpsPerBoundary": 1
+    },
+    "after-2": {
+      "status": "passed",
+      "distantEdits": 100000,
+      "boundaries": 100,
+      "warmupBoundaries": 20,
+      "sliced": true,
+      "pumpP50Ms": 0.068933,
+      "pumpP95Ms": 0.204751,
+      "pumpP99Ms": 0.27036,
+      "worstPumpMs": 0.742941,
+      "boundaryCpuP50Ms": 0.5355979999999999,
+      "boundaryCpuP99Ms": 1.219913,
+      "maxPumpsPerBoundary": 7
+    },
+    "before-3": {
+      "status": "passed",
+      "distantEdits": 100000,
+      "boundaries": 100,
+      "warmupBoundaries": 20,
+      "sliced": false,
+      "pumpP50Ms": 16.035923,
+      "pumpP95Ms": 64.202861,
+      "pumpP99Ms": 120.613096,
+      "worstPumpMs": 176.623668,
+      "boundaryCpuP50Ms": 16.035923,
+      "boundaryCpuP99Ms": 120.613096,
+      "maxPumpsPerBoundary": 1
+    },
+    "after-3": {
+      "status": "passed",
+      "distantEdits": 100000,
+      "boundaries": 100,
+      "warmupBoundaries": 20,
+      "sliced": true,
+      "pumpP50Ms": 0.098621,
+      "pumpP95Ms": 0.254185,
+      "pumpP99Ms": 0.261264,
+      "worstPumpMs": 0.289887,
+      "boundaryCpuP50Ms": 0.6530159999999999,
+      "boundaryCpuP99Ms": 1.1814339999999999,
+      "maxPumpsPerBoundary": 7
+    }
+  },
+  "outliers": [
+    {
+      "trial": "before-1",
+      "boundary": "0",
+      "pump": "0",
+      "pump_ms": "217.295584",
+      "owner_thread_cpu_ms": "19.574949",
+      "gc_count": "2.0",
+      "gc_ms": "196.0"
+    },
+    {
+      "trial": "after-1",
+      "boundary": "83",
+      "pump": "5",
+      "pump_ms": "7.375598",
+      "owner_thread_cpu_ms": "0.110939",
+      "gc_count": "0.0",
+      "gc_ms": "0.0"
+    },
+    {
+      "trial": "before-2",
+      "boundary": "12",
+      "pump": "0",
+      "pump_ms": "201.213154",
+      "owner_thread_cpu_ms": "27.551235",
+      "gc_count": "2.0",
+      "gc_ms": "173.0"
+    },
+    {
+      "trial": "after-2",
+      "boundary": "97",
+      "pump": "5",
+      "pump_ms": "0.742941",
+      "owner_thread_cpu_ms": "0.081433",
+      "gc_count": "0.0",
+      "gc_ms": "0.0"
+    },
+    {
+      "trial": "before-3",
+      "boundary": "4",
+      "pump": "0",
+      "pump_ms": "176.623668",
+      "owner_thread_cpu_ms": "19.879123",
+      "gc_count": "1.0",
+      "gc_ms": "156.0"
+    },
+    {
+      "trial": "after-3",
+      "boundary": "69",
+      "pump": "0",
+      "pump_ms": "0.289887",
+      "owner_thread_cpu_ms": "0.297487",
+      "gc_count": "0.0",
+      "gc_ms": "0.0"
+    }
+  ],
+  "limits": "Final after trial1 worst7.375598 ms elapsed with0.110939 ms owner CPU and0 GC delta. Exact wait source unknown; do not label it GC. Earlier intermediate38.126379 ms outlier remains in local-lighting-initial-* files. Cooperative deadlines are not hard real-time guarantees."
+}

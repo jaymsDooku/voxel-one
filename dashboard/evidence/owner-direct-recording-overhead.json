@@ -1,0 +1,27 @@
+{
+  "method": "Separate65-frame native offline runs, same source and100000 distant edits. These workflow samples are excluded from primary timing trials. Field records previous-frame capture elapsed time, not thread CPU; includes framebuffer readback/waits. Active capture rows are the10 observed rows above0.1ms; paired inactive rows use the same frame indices. This is capture-stage cost, not an estimate of net total FPS penalty. Percentile fields use nearest-rank selection; median is also reported explicitly.",
+  "csvRows": [
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25
+  ],
+  "inactiveCaptureMs": {
+    "p50": 0.000735,
+    "p95": 0.001054,
+    "worst": 0.001054,
+    "median": 0.0007605
+  },
+  "activeCaptureMs": {
+    "p50": 142.130712,
+    "p95": 202.984147,
+    "worst": 202.984147,
+    "median": 142.26373999999998
+  }
+}

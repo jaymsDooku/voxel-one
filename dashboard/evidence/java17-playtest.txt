@@ -1,0 +1,9 @@
+Playtest: PASS, Java 17 native production client.
+Command: python3 deploy/run_streaming_workflow.py --java /usr/lib/jvm/java-17-openjdk-amd64/bin/java --display "$DISPLAY" --mode offline --video --distant-edits 100000
+Environment: OpenJDK 17.0.20.1 Linux; Mesa llvmpipe software OpenGL; inherited role display and XAUTHORITY; isolated synthetic profile; seed 748291; requested Balanced 640x480, actual framebuffer 1280x720.
+Steps: W walking; F and Shift+W flight; S reversal; teleport to x2048; unload/reload the edited column; ordinary respawn. Local fractional RGB/tiny models/glass/water and 100000 distant non-light edits.
+Expected: movement progresses, authoritative edits survive reload, respawn restores health and playable residency, pending/resident queues stay within assertions, no GL errors.
+Observed: all 65 frames passed, including exact fractional/model preservation, movement, respawn, queue/residency and GL assertions.
+Media: java17-f10.mp4, 518188 bytes,18.060 seconds; all 10 images decoded with bundled JCodec under Java17. Midpoint visually inspected: actual flying terrain, horizon/water and HUD; no private account data. Software rendering is about 1 FPS and is not physical Windows/GPU qualification.
+Build: actual Java17 offline Maven package passed 713 tests, zero failures/errors/skips. OwnerTrace release17 compilation passed; packaged class major61 calls getId(), not threadId(). All482 packaged project files match target/classes.
+Performance: no new matched timing trials claimed for this API compatibility fix. Prior owner-direct reports remain tied to their original source digest. Tracing is disabled in normal rendering. The 2 ms tail target, six cold coverage gaps and physical Windows GPU qualification remain open; stable rollout is not qualified.

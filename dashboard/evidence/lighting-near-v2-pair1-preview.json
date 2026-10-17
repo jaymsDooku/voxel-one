@@ -1,0 +1,15 @@
+{
+  "note": "One pair only, final three-pair qualification pending. Baseline mesh total unavailable, snapshot/upload fallback conservative.",
+  "before": {
+    "coldFlightFrames": 80,
+    "frameP99Ms": 2788.113721,
+    "accountedOwnerP99Ms": 580.7961019999999,
+    "terrainStreamP99Ms": 107.117281
+  },
+  "after": {
+    "coldFlightFrames": 80,
+    "frameP99Ms": 2323.121236,
+    "accountedOwnerP99Ms": 28.379203999999998,
+    "terrainStreamP99Ms": 4.792421
+  }
+}

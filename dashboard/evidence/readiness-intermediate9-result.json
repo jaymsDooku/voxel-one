@@ -1,0 +1,11 @@
+{
+  "status": "Completed166-sample exploratory candidate; rejected sky GPU fairness qualification, not final evidence",
+  "warmup": {
+    "graphicsWarmupFrames": 18,
+    "warmupWallMs": 75773.601721
+  },
+  "lastSample": "166",
+  "coldFlightFrames": 80,
+  "skyKnownFrames": 0,
+  "cause": "Serial GI priority prevented independent sky GPU updates during sustained travel; adding bounded concurrent owner-thread lanes."
+}

@@ -1,0 +1,12 @@
+{
+  "command": "Java21 offline Maven focused package;19 test classes; bounded service for pending GI and sky work",
+  "exitCode": 0,
+  "counts": {
+    "tests": 154,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "jarSha256": "5fe8c15b8bb552aebe119c1922391a61e9771f76305f36c078ed5130da877333",
+  "packageMismatches": []
+}

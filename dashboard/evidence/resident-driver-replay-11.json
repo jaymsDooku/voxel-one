@@ -1,0 +1,23 @@
+{
+  "diagnostic_only": true,
+  "records": [
+    {
+      "sample": "-1",
+      "scope": "warm.slow.indexed.count3.cpu2352595201.wall2381801906"
+    },
+    {
+      "sample": "-1",
+      "scope": "warm.replay.indexed.count3.cpu200371.wall362258"
+    },
+    {
+      "sample": "-1",
+      "scope": "capture.slow.indexed.count1176.cpu2448573963.wall2459443322"
+    },
+    {
+      "sample": "-1",
+      "scope": "capture.replay.indexed.count1176.cpu223110.wall3034225"
+    }
+  ],
+  "method": "Immediate repeat of same native draw after glFinish and depth clear. Separate diagnostic, not matched performance qualification.",
+  "conclusion": "Both expensive draws become cheap on immediate replay. Owner work is one-time preparation, not sustained geometry cost. Exact internal driver key remains unidentified."
+}

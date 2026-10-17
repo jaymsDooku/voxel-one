@@ -1,0 +1,20 @@
+{
+  "status": "Available Linux validation finished; independent review and physical Windows GPU qualification pending",
+  "measuredCause": "Original synchronous World.stream generated ten vertical chunks per column on the owner thread. Matched terrain-stream CPU p99 was104.707\u2013240.831ms before and3.128\u20133.210ms after. Cached worker sky preparation also removes large owner rebuilds.",
+  "targets": {
+    "terrainStreamP99Reduction": "96.97\u201398.67%; exceeds proposed50% terrain-stage reduction",
+    "frameTails": "Not consistently improved across pairs. All captured frames exceeded100ms on llvmpipe. No60FPS or physical Windows/GPU claim.",
+    "ownerBudget": "Cooperative deadlines and byte caps, not hard guarantees. Mesh owner p99=6.307\u201319.146ms; sky owner p99=4.655\u201311.486ms; staged lighting upload p99=35.468\u201371.290ms. GL allocation/transfer/deletion and JVM scheduling cannot be preempted.2ms total streaming target not achieved on this host.",
+    "lightingVisuals": "Early City/edited-platform screenshots are dark during convergence. Multi-minute travel/respawn test later asserted usable irradiance and its final screenshot was inspected with lit Jeep/detailed terrain.",
+    "qualification": "Physical Windows GPU qualification remains pending and gates performance claims/stable rollout."
+  },
+  "methodLimits": [
+    "Baseline runs preceded final feature runs; they were not interleaved.",
+    "Ten graphics warmup frames followed matched810-chunk preloads. Residual mesh backlog remains part of captured workload.",
+    "Scripted route coordinates at y110 test chunk transitions; actual W/F/sprint walking and flying are separate workflow checks.",
+    "GPU frame telemetry is delayed EMA, not a per-frame GPU distribution. CPU stage elapsed times can include driver waits.",
+    "VRAM estimates now include staged lighting resources; do not infer a direct before/after VRAM reduction from different estimates.",
+    "Travel ended with0 pending terrain jobs,990 resident chunks and290 waiting mesh requests. Distant-parent coverage remains until detailed replacements are usable; full mesh backlog drain is not claimed.",
+    "Recording overhead measured separately over10 active capture samples from completed65-frame plain/video runs. It excludes encoder-worker CPU."
+  ]
+}

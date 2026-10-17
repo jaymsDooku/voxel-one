@@ -1,0 +1,17 @@
+Exact-source lighting readiness and streaming qualification (Linux/Mesa llvmpipe, Java21.0.5).
+Manifest: lighting-near-v2-source.json; all six166-frame runs exited0. Profiling has no video/depth capture.
+trial | full background warmup before/after s | cold flight owner p99 before/after ms | frame p99 before/after ms | center GI before/after frames
+1 | 55.336/52.061 | 580.796/28.379 | 2788.114/2323.121 | 55/65 of80
+2 | 54.059/50.325 | 665.861/39.411 | 2975.737/2336.487 | 55/78 of80
+3 | 53.253/55.312 | 658.979/9.935 | 2827.466/2339.284 | 55/80 of80
+
+Full background warmup now50.325–55.312s versus baseline53.253–55.336s. Initial UI near-ready7.304–7.948s. First rendered nine-GI/nine-sky coverage25.402–26.599s versus28.969–30.733s. The independent ground visual pair was slower in background settlement88.837s versus76.422s; do not omit this variation.
+Cold-flight accounted ownerp99 fell94.08–98.49%; framep99 fell16.68–21.48%. Baseline lacks full mesh-owner timing; snapshot/upload fallback understates baseline cost. All distributions,1%lows,33/50/100ms frame counts,stages,GC/bytes/memory are in comparison.json, segmented by resident,cold entry/walk/flight,reversal,teleport,catchup and tail.
+2ms owner-tail target remains unmet. Stage p99 exceedances include mesh22.677ms,sky capture/build29.919ms,GI preparation11.379ms,upload38.503ms andscene5.353ms. Deadline checks cannot preempt a JVM/driver call or host scheduling pause; these are measured owner elapsed times, not proof all over-budget pauses are GPU. No full-size GPU storage allocation occurred during captured frames.
+Resident frame times take seconds on llvmpipe. This machine does not meet the premise of a60FPS resident world. No physical Windows/GPU performance or stable-release qualification is claimed.
+Coverage limits: timing-route horizontal center coverage65/78/80 of80 cold-flight frames versus55/80baseline; nine-point coverage14/55/65 versus55baseline. Coverage gaps remain after the initial128m cold jump. Current field source age can be high because deterministic unchanged terrain remains valid; source-age/pending/sky-publication distributions are in coverage.json.
+Separate actual rendered-depth visual checkpoints at64/111 cover100% of eligible near24m surfaces with GI and sky in both versions. After teleport both lack GI at133; feature covers4509/4509 at165, baseline0/4564. Farther-than24m surfaces are not claimed100% covered. See visual-comparison.json and actual PNGs.
+Loading throughput: cold-flight nearby resident frames75/76/76 of80 versus80baseline; all8 final tail frames resident in each feature run. This is bounded asynchronous catch-up, not immediate terrain residency. Long native travel/soak and final workflow validation are recorded separately.
+F10 current-source10frames/530026bytes decoded entirely and midpoint inspected. Recorder captureCPU p50142.221ms versus0.000782ms plain; separate workflow comparison, not a pure recorder benchmark. No recorded samples enter performance pairs.
+
+All-route frame p99 before/after ms: 2836.974/2323.121, 2975.737/4732.328, 3151.159/2491.700. Feature resident windows contain a9.06–9.31s worst frame. This is retained in the raw/all/resident distributions, not excluded as startup. No claim that every frame or worst hitch improved.

@@ -1,0 +1,14 @@
+{
+  "priorReviewedHead": "f33a94abc17b6b06e917a836ec9a694cefd2a414",
+  "reviewBase": "403033b9f53ce66063982879c6e2daff684a427b",
+  "sourceSha256": "a697400ee556a6271ebf9ee3b72c999a1b93677f2d9c571a58448acb34d72337",
+  "jarSha256": "3aa4c03db94167b2c038acf573c9566958bb9141d79fa3bb66ae4b7906572f45",
+  "priorJarSha256": "5fe8c15b8bb552aebe119c1922391a61e9771f76305f36c078ed5130da877333",
+  "helpers": {
+    "deploy/SkyShutdownRepro.java": "f5dd964a4bcd953da9e64decc653ed4df5281521e454bb259af3006746b16ed9",
+    "deploy/StreamingShutdownWorkflow.java": "1ddd5b87af966ea66bd7a9521fff0581a6078cef78cdf5e2e674e68dd4f76aa6",
+    "deploy/run_streaming_shutdown.py": "69c8bc2b4715cac7a3b003612ee7e0e387bb2f0e091c6ae91e3cab52e6b73708",
+    "deploy/StreamingWorkflow.java": "4c3725eb55ea713f4784f0562806c658a1df3714d3b5cf497cc470e57336564c"
+  },
+  "scope": "Cooperative active sky preparation cancellation and failure-tolerant owner cleanup. Prior frame measurements belong to f33a94abc17b6b06e917a836ec9a694cefd2a414; no new frame-distribution claim."
+}

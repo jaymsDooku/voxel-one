@@ -1,0 +1,99 @@
+Sandbox streaming validation — Linux software renderer
+
+The normal render loop no longer generates full terrain columns. One bounded
+worker builds detached chunks with private terrain caches. The owner replays
+current edits and attaches individual chunks under a cooperative deadline.
+Existing DetailedMeshScheduler handles immutable snapshots and sliced uploads.
+Measured sky expansion moved to the same bounded preparation lane; cached local
+sky dependencies avoid unrelated GI rebakes. Lighting replacements upload in
+bounded rows/bytes while existing resources remain active. No graphics defaults,
+resolution defaults, draw distance, horizon coverage or generator version changed.
+
+Environment: Linux amd64, 4 logical processors, Oracle Java 21.0.5, 1536 MiB maximum
+heap, Mesa 22.3.6 OpenGL 3.3 llvmpipe LLVM 15.0.6. Requested Balanced 640x480 fell back
+through existing display initialization to actual 1280x720 in every trial. Seed
+748291, detailed distance 112, horizon 2048, scale 1, dynamic resolution off. Source
+and jar hashes are in streaming-source-manifest.json. Software rendering is not
+physical Windows GPU qualification.
+
+Playtest: three baseline and three feature fresh-profile production Main routes
+completed 119 captured frames each. Identical 810-chunk preload, 10 graphics warmup
+frames, scripted walk-speed/flight-speed/reversal/teleport2048/revisit coordinates,
+y=110. No video or concurrent tests during profiling. Baseline runs preceded final
+feature runs; they were not interleaved. Residual mesh backlog was part of both
+workloads. Commands: python3 deploy/run_streaming_matrix.py --display "$DISPLAY"
+--phase before --trials 1,2,3; feature runs used --phase after --trials 1,2,3,
+then --trials 2,3 and --trials 3 across resumptions.
+Generate numeric summaries: python3 deploy/summarize_streaming_matrix.py.
+See streaming-comparison.txt/.json and all six CSV/JSON exports for distributions,
+stage timings, queues, GC, memory,1% lows and >33/50/100ms counts.
+
+Terrain-stream CPU p99 improved 96.97–98.67%. Accounted streaming CPU p99 (terrain,
+mesh,snapshot/upload,sky,lighting metadata/upload) changed 2659.644→47.531,
+394.950→75.365 and409.795→41.630ms. Baseline lacks whole mesh-owner timing, so its
+mesh contribution includes only measured snapshot/upload. Total frame tails did
+not consistently improve. All recorded frames exceeded 100 ms.2 ms total streaming,
+25 ms p95 and 50 ms p99 frame targets are not achieved on this host. Atomic GL driver
+allocation/transfer/deletion and JVM scheduling can exceed cooperative deadlines;
+byte caps are enforced. Delayed GPU EMA is not a per-frame GPU distribution.
+See streaming-validation-limits.json. Do not claim the reported Windows stall is
+fully resolved on physical hardware or authorize stable rollout from these data.
+
+Playtest: python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --mode
+MODE ran offline (65 frames), multiplayer (30), city (15), switch (35), travel (180).
+Offline used actual W walking,F/Shift/W flight,S reversal,teleport and unload/reload
+of 96 fractional RGB LED edits and 96 tiny-model placements, glass and water. Exact
+RGB/model replay, usable GPU meshes, bounded queues/residency and GL checks passed.
+Multiplayer used two synthetic loopback clients; Main consumed a remote break
+during loading and retained it after reload, remaining connected. Its first harness
+attempt failed because the editor idled through startup and hit the server's
+15-second read timeout; connecting that editor after startup fixed the harness.
+City's isometric early screenshot was inspected; actors are dark before lighting
+convergence. Switch exercised actual Main saved-world transition 748291→999 and
+old worker shutdown. Travel exceeded 120 seconds, used actual flight/reversal,
+triggered health 0/respawn, then settled. Health 20, nearby readiness and usable
+irradiance passed; final detailed terrain/Jeep screenshot inspected. Terrain jobs
+ended 0, max 8; resident chunks ended 990; mesh jobs max 4; mesh waiting ended 290.
+This demonstrates terrain catch-up and bounded backlog, not a fully drained mesh
+queue. CPU/protocol tests ran concurrently during early travel; it is a correctness
+and bounds check, not a matched timing trial. See separate workflow CSV/results.
+
+Playtest: python3 deploy/run_async_streaming_soak.py --display "$DISPLAY" --cycles
+64 passed 130 seconds, 1216 edits, 2242 unloaded chunks, 120 reload events, 128 exact
+installed GPU border comparisons and 129 stale-result rejections. Max mesh jobs 4,
+retained heap 10730784→11155728bytes, max 11708848. GPU geometry returned to baseline
+on cleanup. Test-only GC/readback distinguishes this from performance profiling.
+
+Playtest: python3 deploy/run_streaming_upload_smoke.py --display "$DISPLAY" passed
+exact GPU sky/fine-root/fine-node/irradiance and transport readback, 4096-byte caps,
+small-budget progress,sky-only reuse,edit cancellation,membership refresh without
+GI restart and cleanup. Cold max pump 171.272031 ms is a limitation, not a frame-time
+pass. Final 121 CPU/protocol tests passed 17 suites; actual Maven command and counts
+are in streaming-final-tests.json. Build/package passed before the fixed feature
+jar was copied; no engine source or jar changed during final validation.
+
+Playtest: separate offline --video run completed 65 frames, including the same edit
+reload checks. Actual F10 capture 14–23 produced streaming-flight-f10.mp4. Existing
+VerifyRenderingMedia.java decoded every H264 frame; midpoint image inspected.
+Final clip 25.897 seconds, 10 frames, 706639 bytes, 960x544. Ten capture samples measured
+owner median 29.171874 ms, worst 201.209723 ms versus inactive median 0.000782 ms. Driver
+waits are included; encoder-worker CPU excluded. No recording during timing trials.
+Media and reports are local pending controller feature-branch publication.
+
+Diff audit: modified game paths are limited to generation/streaming/snapshot/
+lighting/upload diagnostics,cleanup and the Jeep startup-readiness callback.
+Replaced deletions remove synchronous frame generation,unconditional fine-border
+capture,recursive emptiness scans and monolithic sky/lighting upload code. There
+are no deleted tracked files or intended unrelated feature removals. The local
+origin/master 403033b has no src/pom changes from recorded base 4f8a09a. Controller
+owns final fetch/integration and supplies the review base; if source changes,
+rerun affected checks and capture media on that source before review. No commit,
+push,merge,deployment or self approval performed. Release uses existing controller
+client/launcher pipeline after independent review and required qualification.
+Reproducible physical Windows checks are in docs/streaming-validation.txt.
+
+Post-integration verification: see streaming-final-head-validation.json. Controller
+completed integration at b163ca7e9295e55200fbd6ade4342e82109404e1. Source/build inputs
+match measured inputs. A fresh65-frame Main offline/F10 workflow passed and new
+media was decoded and inspected. The complete diff was audited against review
+base403033b; no unrelated deletions or progress-entry changes remain.

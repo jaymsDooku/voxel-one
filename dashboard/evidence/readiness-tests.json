@@ -1,0 +1,10 @@
+{
+  "tests": 138,
+  "failures": 0,
+  "errors": 0,
+  "packageExit": 0,
+  "java": "21.0.5",
+  "command": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 mvn -o -q -Dmaven.repo.local=target/m2 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=LocalLightingCaptureTest,WorldStreamingTest,TerrainSchedulerTest,DetailedMeshSchedulerTest,ChunkUnchangedWriteTest,WorldSkyVisibilityTest,SkyVisibilitySchedulerTest,TerrainGenerationTest,FractionalWorldTest,PhysicsTest,LightingTest,LightOcclusionTest,VoxelModelTest,DistantTerrainTest,StressGridLightingTest,JeepTest,PerformanceRecorderTest,MultiplayerTest,TransportMipTest package",
+  "clientSha256": "19740589545bc7cb7f772a10a328c401f8732306ea6b67dc0c22de517a4dac44",
+  "note": "Full138-test offline package passed on finite initial-lighting budget source. All packaged application class bytes match tested target/classes. Native route must verify initial budget ends and never enters profiled streaming."
+}

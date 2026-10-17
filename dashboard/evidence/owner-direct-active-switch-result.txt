@@ -1,0 +1,1 @@
+Playtest: PASS. Production Main active-switch; llvmpipe (LLVM 15.0.6, 256 bits); Java21; inherited display; synthetic saves; sessions=2, frames=6. Active sky cancellation/queued cancellation or forced failure aggregation and final window/context cleanup verified. Switch-to-next-start ms=4392.021154 (includes next startup, not isolated close latency).

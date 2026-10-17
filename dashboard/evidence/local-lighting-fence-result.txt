@@ -1,0 +1,1 @@
+Playtest: PASS. Local volume GPU fence survives distant edits and rejects a local edit during partial upload; cleanup passed; OpenGL3.3 llvmpipe.

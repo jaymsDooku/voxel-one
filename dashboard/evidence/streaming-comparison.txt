@@ -1,0 +1,11 @@
+Matched production Sandbox route; Mesa llvmpipe software rendering.
+Frame and CPU stage milliseconds. Physical Windows GPU qualification is pending.
+trial | samples | frame p50/p95/p99/worst | stream CPU p50/p95/p99/worst | 1% low FPS | frames >33/50/100 ms
+before-1 | 119 | 2555.200/6119.692/10364.474/11460.052 | 0.419/79.948/240.831/261.566 | 0.092 | 119/119/119
+after-1 | 119 | 2000.514/3563.845/6519.416/8733.526 | 0.425/1.541/3.210/5.440 | 0.131 | 119/119/119
+before-2 | 119 | 2414.463/3914.378/4835.545/6727.289 | 0.473/74.055/104.707/178.171 | 0.173 | 119/119/119
+after-2 | 119 | 2383.065/4570.558/6541.105/8982.900 | 0.311/1.140/3.172/4.042 | 0.129 | 119/119/119
+before-3 | 119 | 2144.293/3406.666/4281.931/8307.774 | 0.390/93.888/113.025/179.582 | 0.159 | 119/119/119
+after-3 | 119 | 2018.453/3372.397/6527.057/9396.343 | 0.295/2.461/3.128/5.993 | 0.126 | 119/119/119
+Accounted streaming CPU p99 before/after (baseline lacks whole mesh-owner timing): 2659.644/47.531 ms, 394.950/75.365 ms, 409.795/41.630 ms
+Stream CPU p99 reduction by matched pair: 98.67%, 96.97%, 97.23%

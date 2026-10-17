@@ -1,0 +1,9 @@
+{
+  "oldPolicyExitCode": 1,
+  "oldPolicyFailures": "1",
+  "failure": "One opaque ceiling, two transparent layers and one exact fractional overhang ==> expected: <32> but was: <809>",
+  "purpose": "Bound redundant buried opaque sky data without changing transparent layers or fractional gaps; corrected policy checks pending.",
+  "correctedFocusedTests": 9,
+  "correctedFocusedFailures": 0,
+  "correctedPackageTests": 152
+}

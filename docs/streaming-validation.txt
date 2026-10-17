@@ -1,0 +1,165 @@
+Sandbox streaming validation and Windows reproduction
+
+Normal frames call World.streamAsync with a 0.5 ms owner deadline. The existing
+DetailedMeshScheduler receives the remainder of a 1 ms preparation allowance.
+Lighting receives the shared allowance minus measured terrain, mesh and focus
+work: 2 ms with current nearby lighting and no pending GI/sky work, 4 ms for
+missing coverage or pending useful GI/sky preparation or upload. Initial lighting can use 8 ms for at
+most 64 updates. This does not meet the proposed 2 ms loading-tail target.
+
+These are cooperative deadlines. A GL call, JVM compilation or safepoint can
+overrun a unit. Timings and bytes are exported; the limits are not hard real-time
+guarantees. GPU lanes alternate first service and reuse idle time. They share
+4 MiB per normal frame, 8 MiB initially. GI transfers use at most 1 MiB per unit;
+independent sky uses 256 KiB. Sixteen fenced 1 MiB staging buffers are polled
+without waiting. Two GPU store generations per role are prepared at startup.
+Normal arrivals refill them without allocating whole stores. Exceptional fine
+geometry retains the supported capacity-growth fallback. GPU work and cleanup
+stay on the context thread.
+
+A single terrain worker owns its Terrain and Geography caches. It also handles
+bounded sky tile and atlas work, alternating those tasks with terrain jobs. Its
+queue retains at most eight queued/running/completed chunks, including obsolete
+running work. The owner can retain one more result for incremental edit replay.
+Workers contain detached roots, positions, immutable settings and worker-owned
+terrain. They cannot reach live World maps, authoritative edits or GL objects.
+The existing mesh scheduler is reused; there is no second meshing system.
+
+World identity, position epochs, edit/model revisions and neighbor dependencies
+fence generation and mesh results. Current edits replay on the owner before
+attachment. Duplicate requests coalesce. Teleport/unload/shutdown cancel obsolete
+work. Generated terrain carries seed/version/grid/position provenance: equivalent
+residency changes do not invalidate lighting, but edits, custom geometry, model
+changes and a different or closed world do. Partial columns retain distant-parent
+coverage. Missing collision terrain remains solid.
+
+Startup keeps drawing and polling a cancellable loading screen while nearby
+terrain and the first current GI/sky field become usable. It does not render an
+unlit world merely to advance upload ticks. Normal gameplay, respawn and teleport
+use the bounded frame path. A fresh or invalidated area gets the actual camera
+position first. Moving GI forecasts advance at most 32 m from current usable
+coverage. Reversal drops work moving away from the player. A stationary camera
+keeps a current covering field. Equivalent results at the same origin and with
+unchanged dependencies reuse GPU data; its true capture age is retained.
+
+Sky visibility caches immutable 16x16 tiles. Capture checks deadlines between
+roots and edited cells. Completed inputs dispatch without waiting for another
+partial tile. Packing preserves progress under continuous arrivals, uses a
+capture-start bound, and leaves later additions for the next merge. Sky retains
+at most four pending states: worker jobs, partial capture and dirty/input work.
+Packed data stays within 8,000,000 ints. CPU sampling remains an independent
+binary-search reference.
+
+Worker sky packing clips footprints to integer columns. The highest full-column
+opaque ceiling makes all lower occluders redundant for vertical sky rays. Only
+those lower segments are removed. Transparent layers, fractional gaps and tiny
+model footprints above it remain exact. An optional GPU directory covers at most
+512 integer X rows: three ints per row, at most 6 KiB within the existing cap.
+Contiguous Z rows map directly to unchanged headers; sparse rows and wider worlds
+keep binary search. Merges strip input directory tails before appending one new
+index. No sampler, texture format or visual setting changes for this index.
+
+GI workers produce exact half-float transport mip data. The normal prefix path
+stores fine roots in the existing integer buffer. A field with no refined cells
+omits its zero-root table and uses uniform lookup mode2. Refined cells, including
+negative packed uniform-color roots, keep the full prefix path. The proof is
+saved before bake scratch is cleared. Legacy 3D roots remain supported. Accepted
+old resources remain active until replacements are ready; all buffers and fences
+are released on their owning thread.
+
+No graphics defaults, draw distance, quality or horizon settings are reduced.
+The test preset requests Balanced 640x480. On this assigned display it falls back
+to an actual 1280x720 framebuffer; each report records actual dimensions. Fixed
+route settings are seed748291,10:00, detail112, horizon2048, render scale1, dynamic
+resolution off and swap interval0. Each run uses a fresh synthetic profile. The
+fixture requires the exact same810 initial chunks, finishes their meshes, then
+warms graphics. Fresh travel starts at x128 and reaches x236, outside preload.
+Resident, cold entry, walking, flight, reversal, teleport and catch-up are separate
+segments. Startup and warm-up durations are recorded separately.
+
+Profiling commands (no concurrent checks or recording):
+  python3 deploy/run_lighting_readiness_matrix.py --display "$DISPLAY" --prefix PREFIX --phase both --trials 1,2,3
+  python3 deploy/summarize_lighting_readiness.py --prefix PREFIX
+  python3 deploy/summarize_streaming_sustained.py --before-prefix PREFIX-before --after-prefix PREFIX-after --output-prefix PREFIX
+
+The source manifest hashes the actual source, route and both JARs. Baseline
+4f8a09a src/main matches review base403033b9f53ce66063982879c6e2daff684a427b; its
+extra classes are timing overlays. The sidecar records geometry validity, field
+coverage, real capture age, CPU jobs, GPU upload state/bytes and reused fields.
+GPU frame EMA is delayed telemetry, not a per-frame GPU distribution. A first-frame
+watcher records only a narrow callsite if needed, never a full runtime log.
+
+Visual checks run separately and are excluded from performance comparisons:
+  python3 deploy/run_lighting_visual.py --display "$DISPLAY" --phase before --manifest PREFIX-source.json --prefix PREFIX-ground
+  python3 deploy/run_lighting_visual.py --display "$DISPLAY" --phase after --manifest PREFIX-source.json --prefix PREFIX-ground
+These use the same X route, ground+4 m feet and a25-degree downward view. Resolved
+depth is unprojected with the actual jittered view matrix. Reports distinguish
+visible near24 m GI-eligible surfaces, GI coverage, known sky and detailed112 m
+surfaces. Screenshots must be inspected; horizontal probes or an FPS overlay do
+not alone qualify current-camera coverage.
+
+Workflow checks, separate from profiling:
+  python3 deploy/run_streaming_bootstrap.py --display "$DISPLAY" --mode ready
+  python3 deploy/run_streaming_bootstrap.py --display "$DISPLAY" --mode cancel
+  python3 deploy/run_streaming_upload_smoke.py --display "$DISPLAY"
+  python3 deploy/run_async_streaming_soak.py --display "$DISPLAY" --cycles 64
+  python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --mode offline --distant-edits 100000
+  python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --mode offline --video --distant-edits 100000
+  python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --mode multiplayer
+  python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --mode city
+  python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --mode switch
+  python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --mode travel
+These are reproducible commands, not claims that every check passed on current
+source. See the current reports for actual execution and remaining work. Native
+application playtesting applies; browser playtesting does not apply to this client.
+
+Windows owner reproduction:
+1. Install/build the controller's exact feature revision through the existing
+   client/launcher pipeline. Keep the same JVM, GPU/CPU, resolution and settings
+   for baseline and feature. Use separate synthetic profiles/saves.
+2. Select seed748291,10:00, Balanced, detail112, horizon2048, render scale1 and
+   dynamic resolution off. Record actual settings and framebuffer resolution.
+3. Keep F10 off. Use F9 CSV/JSON capture after consistent warm-up. Walk into fresh
+   terrain, hold flight+sprint for several minutes, reverse, teleport/respawn,
+   then revisit the route. Repeat three fresh-save trials for each revision.
+4. Compare frame/stage p50/p95/p99, worst hitches,1% lows and >33/50/100 ms counts.
+   Include generation, owner attachment/edit replay, scheduling/snapshot/upload,
+   disposal, lighting, shadow/probe, network/GC, queues/age, bytes and memory.
+   Separate startup, cold, resident, revisit and transition samples.
+5. During load, place/break whole and fractional blocks, RGB LEDs, glass, water
+   and tiny models. Have a second synthetic multiplayer client edit a border.
+   Unload/reload; verify edits, occlusion, closed seams, collision and old coverage.
+6. Switch seed/world and reconnect. Repeat travel and shutdown. No old-world
+   results or lost edits may appear. Check loading UI Escape cancellation.
+7. Record a short representative F10 run separately. Stop F10 and compare its
+   overhead with an unrecorded run. Keep the MP4 below6 MB and exclude private data.
+
+Linux Mesa llvmpipe results do not qualify physical Windows GPU performance.
+Physical GPU qualification remains a stable-rollout gate. The controller owns
+commit, push, artifact publication, review and the existing release pipeline.
+
+Current executed qualification: dashboard/evidence/lighting-near-v2-playtest.txt
+contains actual commands, environment, steps, expected and observed results.
+lighting-near-v2-performance.txt and validation.json record measured limits;
+lighting-near-v2-visual-comparison.json records rendered coverage and inspection.
+These reports supersede earlier candidate results for the current source.
+
+Active sky preparation shutdown revision:
+TerrainScheduler retains its active preparation FutureTask under the same monitor
+as dequeue/close. Close cancels queued and active preparation, interrupts the lane
+and waits for its body to exit. Sky build, octree collection, model expansion,
+compaction/sorting, packing, merge input scans and directory construction check
+interruption. Completed/cancelled work cannot publish into the next world.
+Main and World attempt every cleanup step, aggregate failures and preserve an
+original run error. A failed switch retires the window/context rather than reuse
+partly closed resources. Native fault-injection tests cover both failure paths.
+
+Reproduce with the current client JAR using inherited role display:
+  python3 deploy/run_streaming_shutdown.py --display "$DISPLAY" --mode active-switch
+  python3 deploy/run_streaming_shutdown.py --display "$DISPLAY" --mode failure-switch
+  python3 deploy/run_streaming_shutdown.py --display "$DISPLAY" --mode failure-run
+  java -Xmx512m -cp target/streaming-after-client.jar deploy/SkyShutdownRepro.java target/sky-shutdown.csv true
+The actual results and current-source hashes are in dashboard/evidence/sky-cancellation-*
+with a Playtest: receipt. The lighting-near-v2 frame trials remain historical
+measurements of f33a94abc17b6b06e917a836ec9a694cefd2a414, not this revision.
+The documented 2ms tail, GI coverage and physical Windows GPU limits still apply.

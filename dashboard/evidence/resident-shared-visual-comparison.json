@@ -1,0 +1,301 @@
+{
+  "method": "Every frame uses actual resolved visible depth unprojected through its jittered camera. Near surface eligibility is within24m horizontally and fixed GI vertical range. Coverage is inside the complete active GPU field; exact GPU payloads checked separately. Frames with no eligible surface are reported, never counted as covered. No FPS claim.",
+  "fixtureSha256": "04d0d9bb436c0ea9a94453d3d4ed440b821db69ceebaddb2443aac5ddbc20b36",
+  "beforeRevision": "4f8a09a+timing-overlay",
+  "afterRevision": "c5704091423da747e03e7f08975a7b0541c78f2cd5a908b5cadf2ee97db3fa4f",
+  "cameraMismatchesOutsideColdFlightAndReversal": [
+    {
+      "sample": 12,
+      "segment": "coldEntry",
+      "before": [
+        128.30101,
+        46.470768,
+        8.0
+      ],
+      "after": [
+        128.0,
+        46.6,
+        8.0
+      ]
+    },
+    {
+      "sample": 128,
+      "segment": "teleport",
+      "before": [
+        2048.301,
+        30.470768,
+        8.0
+      ],
+      "after": [
+        8.5,
+        28.61,
+        24.5
+      ]
+    },
+    {
+      "sample": 129,
+      "segment": "teleport",
+      "before": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "after": [
+        2048.301,
+        30.470768,
+        8.0
+      ]
+    },
+    {
+      "sample": 13,
+      "segment": "coldEntry",
+      "before": [
+        128.0,
+        46.470768,
+        8.0
+      ],
+      "after": [
+        128.30101,
+        46.470768,
+        8.0
+      ]
+    },
+    {
+      "sample": 130,
+      "segment": "teleport",
+      "before": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "after": [
+        2048.301,
+        30.470768,
+        8.0
+      ]
+    },
+    {
+      "sample": 14,
+      "segment": "coldEntry",
+      "before": [
+        128.0,
+        46.470768,
+        8.0
+      ],
+      "after": [
+        128.30101,
+        46.470768,
+        8.0
+      ]
+    },
+    {
+      "sample": 15,
+      "segment": "coldEntry",
+      "before": [
+        128.0,
+        46.470768,
+        8.0
+      ],
+      "after": [
+        128.30101,
+        46.470768,
+        8.0
+      ]
+    }
+  ],
+  "qualificationScope": "Cold flight80 and reversal16 frames have matched eye poses and fixture hashes. Jump/teleport safety-boundary camera differences are listed; those segments have raw statistics only, not matched visual qualification.",
+  "segments": {
+    "catchup": {
+      "before": {
+        "frames": 24,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 0.0,
+        "medianFrameCoverage": 0.0,
+        "minimumFrameCoverage": 0.0,
+        "zeroCoverageFrames": 24,
+        "longestZeroRun": 24
+      },
+      "after": {
+        "frames": 24,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 0.5013253111500399,
+        "medianFrameCoverage": 0.5,
+        "minimumFrameCoverage": 0.0,
+        "zeroCoverageFrames": 12,
+        "longestZeroRun": 12
+      },
+      "worstMatchedFrameCoverageChange": 0.0,
+      "matchedFramesWithLowerCoverage": 0,
+      "framesDroppingMoreThanTwoPercentagePoints": []
+    },
+    "coldEntry": {
+      "before": {
+        "frames": 4,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 0.0,
+        "medianFrameCoverage": 0.0,
+        "minimumFrameCoverage": 0.0,
+        "zeroCoverageFrames": 4,
+        "longestZeroRun": 4
+      },
+      "after": {
+        "frames": 4,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 0.0,
+        "medianFrameCoverage": 0.0,
+        "minimumFrameCoverage": 0.0,
+        "zeroCoverageFrames": 4,
+        "longestZeroRun": 4
+      },
+      "worstMatchedFrameCoverageChange": null,
+      "matchedFramesWithLowerCoverage": 0,
+      "framesDroppingMoreThanTwoPercentagePoints": []
+    },
+    "coldFlight": {
+      "before": {
+        "frames": 80,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 0.5937051831669579,
+        "medianFrameCoverage": 1.0,
+        "minimumFrameCoverage": 0.0,
+        "zeroCoverageFrames": 25,
+        "longestZeroRun": 25
+      },
+      "after": {
+        "frames": 80,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 0.9940017291849997,
+        "medianFrameCoverage": 1.0,
+        "minimumFrameCoverage": 0.9141637685741385,
+        "zeroCoverageFrames": 0,
+        "longestZeroRun": 0
+      },
+      "worstMatchedFrameCoverageChange": -0.02010750547481588,
+      "matchedFramesWithLowerCoverage": 5,
+      "framesDroppingMoreThanTwoPercentagePoints": [
+        {
+          "sample": 73,
+          "before": 1.0,
+          "after": 0.9798924945251841,
+          "difference": -0.02010750547481588
+        }
+      ]
+    },
+    "coldWalk": {
+      "before": {
+        "frames": 16,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 0.0,
+        "medianFrameCoverage": 0.0,
+        "minimumFrameCoverage": 0.0,
+        "zeroCoverageFrames": 16,
+        "longestZeroRun": 16
+      },
+      "after": {
+        "frames": 16,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 0.06181352268614966,
+        "medianFrameCoverage": 0.0,
+        "minimumFrameCoverage": 0.0,
+        "zeroCoverageFrames": 15,
+        "longestZeroRun": 15
+      },
+      "worstMatchedFrameCoverageChange": 0.0,
+      "matchedFramesWithLowerCoverage": 0,
+      "framesDroppingMoreThanTwoPercentagePoints": []
+    },
+    "resident": {
+      "before": {
+        "frames": 12,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 1.0,
+        "medianFrameCoverage": 1.0,
+        "minimumFrameCoverage": 1.0,
+        "zeroCoverageFrames": 0,
+        "longestZeroRun": 0
+      },
+      "after": {
+        "frames": 12,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 1.0,
+        "medianFrameCoverage": 1.0,
+        "minimumFrameCoverage": 1.0,
+        "zeroCoverageFrames": 0,
+        "longestZeroRun": 0
+      },
+      "worstMatchedFrameCoverageChange": 0.0,
+      "matchedFramesWithLowerCoverage": 0,
+      "framesDroppingMoreThanTwoPercentagePoints": []
+    },
+    "teleport": {
+      "before": {
+        "frames": 6,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 0.0,
+        "medianFrameCoverage": 0.0,
+        "minimumFrameCoverage": 0.0,
+        "zeroCoverageFrames": 6,
+        "longestZeroRun": 6
+      },
+      "after": {
+        "frames": 6,
+        "zeroEligibleFrames": 1,
+        "aggregateNearCoverage": 0.0,
+        "medianFrameCoverage": 0.0,
+        "minimumFrameCoverage": 0.0,
+        "zeroCoverageFrames": 5,
+        "longestZeroRun": 4
+      },
+      "worstMatchedFrameCoverageChange": 0.0,
+      "matchedFramesWithLowerCoverage": 0,
+      "framesDroppingMoreThanTwoPercentagePoints": []
+    },
+    "transitionTail": {
+      "before": {
+        "frames": 8,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 0.0,
+        "medianFrameCoverage": 0.0,
+        "minimumFrameCoverage": 0.0,
+        "zeroCoverageFrames": 8,
+        "longestZeroRun": 8
+      },
+      "after": {
+        "frames": 8,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 1.0,
+        "medianFrameCoverage": 1.0,
+        "minimumFrameCoverage": 1.0,
+        "zeroCoverageFrames": 0,
+        "longestZeroRun": 0
+      },
+      "worstMatchedFrameCoverageChange": 1.0,
+      "matchedFramesWithLowerCoverage": 0,
+      "framesDroppingMoreThanTwoPercentagePoints": []
+    },
+    "warmReversal": {
+      "before": {
+        "frames": 16,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 1.0,
+        "medianFrameCoverage": 1.0,
+        "minimumFrameCoverage": 1.0,
+        "zeroCoverageFrames": 0,
+        "longestZeroRun": 0
+      },
+      "after": {
+        "frames": 16,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 1.0,
+        "medianFrameCoverage": 1.0,
+        "minimumFrameCoverage": 1.0,
+        "zeroCoverageFrames": 0,
+        "longestZeroRun": 0
+      },
+      "worstMatchedFrameCoverageChange": 0.0,
+      "matchedFramesWithLowerCoverage": 0,
+      "framesDroppingMoreThanTwoPercentagePoints": []
+    }
+  },
+  "qualificationSource": "Pre-settings-retention candidate: resident-shared-source.json. Final source is resident-shared-final-source.json; final qualification remains pending."
+}

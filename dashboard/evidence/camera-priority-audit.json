@@ -1,0 +1,16 @@
+{
+  "reviewBase": "403033b9f53ce66063982879c6e2daff684a427b",
+  "sourceMatchesManifest": true,
+  "measuredJarUnchanged": true,
+  "deletedFiles": [],
+  "unmerged": false,
+  "rebaseState": {
+    "rebase-merge": false,
+    "rebase-apply": false
+  },
+  "newEvidenceOver6MB": [],
+  "scope": "All proposed file statuses checked against review base; no files deleted. Previously reviewed streaming/lighting source preserved. New changes inspected:complete mips/shared ownership/graphics replacement/near-GI fair priority and test-fixture timing. No unrelated feature removed.",
+  "publication": "runner handoff",
+  "finalFullPackageClassesAndShadersMatchMeasuredJar": true,
+  "sourceStillMatchesAfterFullSuite": true
+}

@@ -1,0 +1,13 @@
+{
+  "packageExit": 0,
+  "tests": 21,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "suites": [
+    "ActivePreparationShutdownTest",
+    "LocalLightingCaptureTest",
+    "TransportMipTest"
+  ],
+  "note": "Java21 offline Maven package; same-call capture backpressure and software direct-transfer candidate. GL readback and dense visual checks pending."
+}

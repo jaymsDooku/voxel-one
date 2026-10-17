@@ -1,0 +1,75 @@
+{
+  "priorReviewedHead": "35d5a8b3be0690f3955e90240838fcc326cbf11e",
+  "sourceSha256": "1508f5fa0adb9f5fcdea999fb6f33bfc35c5a9a37a3872ee83733fb920ec0616",
+  "routeSha256": "ccd4ba4ab5d872f8f085c07a36b211a9a60e3b452f3044e91c75babd59240cbd",
+  "baseline": "4f8a09a+timing-overlay",
+  "baselineJarSha256": "48ed98ac1f5fc55fe9c57feb5e29bc37031f369ddee8fc1ba4596933f1c7f78f",
+  "featureJarSha256": "9190c31c45648014f8a2494a21c5cf12d82d8cddaf7e3c519cfddce03197074f",
+  "method": "Fresh synthetic profiles, same seed/settings/JVM/route; no media capture. Coverage probes are horizontal 3x3 at spacing24, not screen-pixel visibility. Source age starts at capture; valid static fields may be old.",
+  "java17Package": "PASS, actual OpenJDK17 offline Maven package with eight selected suites",
+  "tests": [
+    {
+      "name": "dev.jayms.OwnerTraceTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.WorldStreamingTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.TerrainSchedulerTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.DetailedMeshSchedulerTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.render.LocalLightingCaptureTest",
+      "tests": "12",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.ActivePreparationShutdownTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.CloseSequenceTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.render.TransportMipTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "totals": {
+    "tests": 42,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "status": "Historical experiment, superseded by resident-shared-source.json and resident-shared-performance.json. Retained numeric results are not final-candidate claims."
+}

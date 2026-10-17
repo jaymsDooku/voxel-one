@@ -1,0 +1,8 @@
+{
+  "status": "developer stopped incomplete diagnostic",
+  "reason": "Exact810 preload passed, active GI covered all9 with current geometry, but a needless stationary field requantization remained in upload under resident2ms allowance. Retain valid current anchor and coalesce equivalent results.",
+  "startup": {
+    "startupAndResidentPreparationMs": 10948.013459,
+    "residentChunks": 810
+  }
+}

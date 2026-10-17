@@ -1,0 +1,14 @@
+{
+  "status": "completed exploratory; failed cold sky coverage",
+  "profiledSamples": 166,
+  "warmup": {
+    "graphicsWarmupFrames": 20,
+    "warmupWallMs": 87587.878932
+  },
+  "coldFlight": {
+    "samples": 80,
+    "allNineGI": 16,
+    "knownCenterSky": 0
+  },
+  "reason": "GPU lanes both progress, but full sky atlas latency exceeds travel progress. Further lossless sky compaction required."
+}

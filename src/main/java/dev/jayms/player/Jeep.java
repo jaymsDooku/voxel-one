@@ -143,7 +143,11 @@ public final class Jeep {
         Files.writeString(temp, position.x+" "+position.y+" "+position.z+" "+yaw+" "+type.name()+"\n");
         Files.move(temp,file,StandardCopyOption.REPLACE_EXISTING);
     }
-    public static Jeep load(Path file, World world, Vector3f player) throws Exception {
+    @FunctionalInterface public interface TerrainReadiness { void prepare(float x,float y,float z)throws Exception; }
+    public static Jeep load(Path file,World world,Vector3f player)throws Exception {
+        return load(file,world,player,(x,y,z)->world.stream(x,z,9));
+    }
+    public static Jeep load(Path file, World world, Vector3f player,TerrainReadiness readiness) throws Exception {
         if (Files.exists(file)) {
             try {
                 String[] values = Files.readString(file).trim().split("\\s+");
@@ -151,7 +155,7 @@ public final class Jeep {
                     float x=Float.parseFloat(values[0]),y=Float.parseFloat(values[1]),z=Float.parseFloat(values[2]),a=Float.parseFloat(values[3]);
                     if (Float.isFinite(x)&&Float.isFinite(y)&&Float.isFinite(z)&&Float.isFinite(a)) {
                         if (!world.isLoaded((int)Math.floor(x),(int)Math.floor(y),(int)Math.floor(z)))
-                            world.stream(x,z,9);
+                            readiness.prepare(x,y,z);
                         Jeep jeep = new Jeep(new Vector3f(x,y,z),a);
                         if (values.length==5) jeep.type=CargoVehicle.valueOf(values[4]);
                         if (!jeep.collides(world,jeep.position)) return jeep;
