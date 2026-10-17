@@ -1,0 +1,1 @@
+Playtest: PASS. Production Main offline; inherited role display; Mesa software renderer; synthetic profile; 65 frames; distant synthetic edits=100000. Requested input/edit/reload checks, queue/residency bounds and GL checks passed. Video=false.

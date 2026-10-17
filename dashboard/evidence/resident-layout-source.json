@@ -1,0 +1,10 @@
+{
+  "priorReviewedHead": "35d5a8b3be0690f3955e90240838fcc326cbf11e",
+  "sourceSha256": "ec43443d47e8747e7854e34305ed35c4c0a3fe97fbee735280f6c3f200252377",
+  "routeSha256": "ccd4ba4ab5d872f8f085c07a36b211a9a60e3b452f3044e91c75babd59240cbd",
+  "baseline": "4f8a09a+timing-overlay",
+  "baselineJarSha256": "48ed98ac1f5fc55fe9c57feb5e29bc37031f369ddee8fc1ba4596933f1c7f78f",
+  "featureJarSha256": "a01f3936543df2a4353ec0f1f534d1d4ec9c966b372a8791f400d3cfe875c981",
+  "method": "Fresh synthetic profiles, same seed/settings/JVM/route; no media capture. Coverage probes are horizontal 3x3 at spacing24, not screen-pixel visibility. Source age starts at capture; valid static fields may be old.",
+  "status": "Historical experiment, superseded by resident-shared-source.json and resident-shared-performance.json. Retained numeric results are not final-candidate claims."
+}

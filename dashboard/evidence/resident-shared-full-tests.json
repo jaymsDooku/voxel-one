@@ -1,0 +1,10 @@
+{
+  "command": "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 PATH=/usr/lib/jvm/java-17-openjdk-amd64/bin:$PATH mvn -o -q -Dmaven.repo.local=target/m2 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" package",
+  "java": "17",
+  "exitCode": 0,
+  "tests": 713,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "qualificationSource": "Pre-settings-retention candidate: resident-shared-source.json. Final source is resident-shared-final-source.json; final qualification remains pending."
+}

@@ -1,0 +1,3044 @@
+{
+  "method": "Separate native diagnostic overlays; identical pass boundaries; timestamp pairs retain frame ID and only completed query pairs are read. 10ms Java/LWJGL callsite sampling perturbs execution; no recorder. These are not the normal matched performance trials. Software GPU timestamps measure llvmpipe driver execution, not a physical GPU.",
+  "regressedSource": "35d5a8b3be0690f3955e90240838fcc326cbf11e",
+  "regressedJarSha256": "57b5cdcc48ba1f63f111d34fb1eac5577daac857f354fdfc614648cefd2f83a5",
+  "baseline": [
+    {
+      "sample": "0",
+      "operation": "pipeline.shadows",
+      "wall_ms": 24.750331,
+      "thread_cpu_ms": 13.290839,
+      "gpu_ms": 473.52761
+    },
+    {
+      "sample": "0",
+      "operation": "pipeline.begin",
+      "wall_ms": 0.933398,
+      "thread_cpu_ms": 0.929538,
+      "gpu_ms": 1061.188235
+    },
+    {
+      "sample": "0",
+      "operation": "pipeline.distant",
+      "wall_ms": 7.562839,
+      "thread_cpu_ms": 7.557584,
+      "gpu_ms": 8.1e-05
+    },
+    {
+      "sample": "0",
+      "operation": "world.chunks",
+      "wall_ms": 1516.315921,
+      "thread_cpu_ms": 3.629715,
+      "gpu_ms": 553.724751
+    },
+    {
+      "sample": "0",
+      "operation": "world.models",
+      "wall_ms": 1.01443,
+      "thread_cpu_ms": 1.011099,
+      "gpu_ms": 0.000381
+    },
+    {
+      "sample": "0",
+      "operation": "pipeline.water",
+      "wall_ms": 558.707721,
+      "thread_cpu_ms": 7.121876,
+      "gpu_ms": 113.432592
+    },
+    {
+      "sample": "0",
+      "operation": "post.draw1",
+      "wall_ms": 0.263794,
+      "thread_cpu_ms": 0.222585,
+      "gpu_ms": 284.705836
+    },
+    {
+      "sample": "0",
+      "operation": "post.draw2",
+      "wall_ms": 0.344788,
+      "thread_cpu_ms": 0.199193,
+      "gpu_ms": 106.048914
+    },
+    {
+      "sample": "0",
+      "operation": "post.finish",
+      "wall_ms": 289.679757,
+      "thread_cpu_ms": 1.452867,
+      "gpu_ms": 393.916685
+    },
+    {
+      "sample": "0",
+      "operation": "pipeline.finish",
+      "wall_ms": 396.409576,
+      "thread_cpu_ms": 4.076151,
+      "gpu_ms": 398.124187
+    },
+    {
+      "sample": "0",
+      "operation": "world.held",
+      "wall_ms": 106.24513,
+      "thread_cpu_ms": 0.475611,
+      "gpu_ms": 85.461082
+    },
+    {
+      "sample": "0",
+      "operation": "main.render",
+      "wall_ms": 2614.561698,
+      "thread_cpu_ms": 40.73637,
+      "gpu_ms": 2685.463611
+    },
+    {
+      "sample": "1",
+      "operation": "pipeline.shadows",
+      "wall_ms": 0.927091,
+      "thread_cpu_ms": 0.921589,
+      "gpu_ms": 0.395527
+    },
+    {
+      "sample": "1",
+      "operation": "pipeline.begin",
+      "wall_ms": 1.174756,
+      "thread_cpu_ms": 1.162861,
+      "gpu_ms": 1221.926764
+    },
+    {
+      "sample": "1",
+      "operation": "pipeline.distant",
+      "wall_ms": 10.86973,
+      "thread_cpu_ms": 10.854655,
+      "gpu_ms": 0.000427
+    },
+    {
+      "sample": "1",
+      "operation": "world.chunks",
+      "wall_ms": 1222.799355,
+      "thread_cpu_ms": 4.630329,
+      "gpu_ms": 550.255819
+    },
+    {
+      "sample": "1",
+      "operation": "world.models",
+      "wall_ms": 1.139496,
+      "thread_cpu_ms": 1.136536,
+      "gpu_ms": 0.000319
+    },
+    {
+      "sample": "1",
+      "operation": "pipeline.water",
+      "wall_ms": 560.094731,
+      "thread_cpu_ms": 14.822232,
+      "gpu_ms": 130.532832
+    },
+    {
+      "sample": "1",
+      "operation": "post.draw1",
+      "wall_ms": 0.233059,
+      "thread_cpu_ms": 0.228591,
+      "gpu_ms": 311.970473
+    },
+    {
+      "sample": "1",
+      "operation": "post.draw2",
+      "wall_ms": 0.440416,
+      "thread_cpu_ms": 0.230294,
+      "gpu_ms": 125.603047
+    },
+    {
+      "sample": "1",
+      "operation": "post.finish",
+      "wall_ms": 317.644392,
+      "thread_cpu_ms": 1.71782,
+      "gpu_ms": 442.474842
+    },
+    {
+      "sample": "1",
+      "operation": "pipeline.finish",
+      "wall_ms": 435.692692,
+      "thread_cpu_ms": 4.726401,
+      "gpu_ms": 445.823981
+    },
+    {
+      "sample": "1",
+      "operation": "world.held",
+      "wall_ms": 125.632223,
+      "thread_cpu_ms": 0.496671,
+      "gpu_ms": 111.530822
+    },
+    {
+      "sample": "1",
+      "operation": "main.render",
+      "wall_ms": 2360.375715,
+      "thread_cpu_ms": 40.829882,
+      "gpu_ms": 2460.468856
+    },
+    {
+      "sample": "2",
+      "operation": "pipeline.shadows",
+      "wall_ms": 32.555838,
+      "thread_cpu_ms": 3.484258,
+      "gpu_ms": 34.179007
+    },
+    {
+      "sample": "2",
+      "operation": "pipeline.begin",
+      "wall_ms": 1.172221,
+      "thread_cpu_ms": 1.167231,
+      "gpu_ms": 1182.189659
+    },
+    {
+      "sample": "2",
+      "operation": "pipeline.distant",
+      "wall_ms": 9.621776,
+      "thread_cpu_ms": 9.580485,
+      "gpu_ms": 0.000356
+    },
+    {
+      "sample": "2",
+      "operation": "world.chunks",
+      "wall_ms": 1183.330866,
+      "thread_cpu_ms": 3.061961,
+      "gpu_ms": 535.361749
+    },
+    {
+      "sample": "2",
+      "operation": "world.models",
+      "wall_ms": 1.980301,
+      "thread_cpu_ms": 1.965952,
+      "gpu_ms": 0.00042
+    },
+    {
+      "sample": "2",
+      "operation": "pipeline.water",
+      "wall_ms": 539.146405,
+      "thread_cpu_ms": 8.11355,
+      "gpu_ms": 117.18098
+    },
+    {
+      "sample": "2",
+      "operation": "post.draw1",
+      "wall_ms": 0.314811,
+      "thread_cpu_ms": 0.308849,
+      "gpu_ms": 302.767132
+    },
+    {
+      "sample": "2",
+      "operation": "post.draw2",
+      "wall_ms": 0.441146,
+      "thread_cpu_ms": 0.234423,
+      "gpu_ms": 111.52991
+    },
+    {
+      "sample": "2",
+      "operation": "post.finish",
+      "wall_ms": 308.620056,
+      "thread_cpu_ms": 1.89511,
+      "gpu_ms": 419.264533
+    },
+    {
+      "sample": "2",
+      "operation": "pipeline.finish",
+      "wall_ms": 420.019287,
+      "thread_cpu_ms": 4.646959,
+      "gpu_ms": 422.547036
+    },
+    {
+      "sample": "2",
+      "operation": "world.held",
+      "wall_ms": 111.620744,
+      "thread_cpu_ms": 0.546892,
+      "gpu_ms": 77.550931
+    },
+    {
+      "sample": "2",
+      "operation": "main.render",
+      "wall_ms": 2302.528359,
+      "thread_cpu_ms": 35.680555,
+      "gpu_ms": 2369.012632
+    },
+    {
+      "sample": "3",
+      "operation": "pipeline.shadows",
+      "wall_ms": 0.136413,
+      "thread_cpu_ms": 0.129462,
+      "gpu_ms": 0.000398
+    },
+    {
+      "sample": "3",
+      "operation": "pipeline.begin",
+      "wall_ms": 24.058335,
+      "thread_cpu_ms": 3.667986,
+      "gpu_ms": 900.766408
+    },
+    {
+      "sample": "3",
+      "operation": "pipeline.distant",
+      "wall_ms": 897.296305,
+      "thread_cpu_ms": 10.048327,
+      "gpu_ms": 254.577706
+    },
+    {
+      "sample": "3",
+      "operation": "world.chunks",
+      "wall_ms": 250.360893,
+      "thread_cpu_ms": 5.735301,
+      "gpu_ms": 535.277849
+    },
+    {
+      "sample": "3",
+      "operation": "world.models",
+      "wall_ms": 1.177507,
+      "thread_cpu_ms": 1.173726,
+      "gpu_ms": 0.00025
+    },
+    {
+      "sample": "3",
+      "operation": "pipeline.water",
+      "wall_ms": 539.785035,
+      "thread_cpu_ms": 10.503738,
+      "gpu_ms": 109.863697
+    },
+    {
+      "sample": "3",
+      "operation": "post.draw1",
+      "wall_ms": 0.345882,
+      "thread_cpu_ms": 0.340132,
+      "gpu_ms": 289.503199
+    },
+    {
+      "sample": "3",
+      "operation": "post.draw2",
+      "wall_ms": 0.413541,
+      "thread_cpu_ms": 0.268631,
+      "gpu_ms": 121.377735
+    },
+    {
+      "sample": "3",
+      "operation": "post.finish",
+      "wall_ms": 294.256666,
+      "thread_cpu_ms": 2.013149,
+      "gpu_ms": 414.619469
+    },
+    {
+      "sample": "3",
+      "operation": "pipeline.finish",
+      "wall_ms": 396.198042,
+      "thread_cpu_ms": 5.178537,
+      "gpu_ms": 418.408343
+    },
+    {
+      "sample": "3",
+      "operation": "world.held",
+      "wall_ms": 121.67468,
+      "thread_cpu_ms": 0.695842,
+      "gpu_ms": 76.100552
+    },
+    {
+      "sample": "3",
+      "operation": "main.render",
+      "wall_ms": 2233.090521,
+      "thread_cpu_ms": 39.569574,
+      "gpu_ms": 2294.997374
+    },
+    {
+      "sample": "4",
+      "operation": "pipeline.shadows",
+      "wall_ms": 9.041305,
+      "thread_cpu_ms": 1.545122,
+      "gpu_ms": 13.964436
+    },
+    {
+      "sample": "4",
+      "operation": "pipeline.begin",
+      "wall_ms": 0.660669,
+      "thread_cpu_ms": 0.657353,
+      "gpu_ms": 1091.936625
+    },
+    {
+      "sample": "4",
+      "operation": "pipeline.distant",
+      "wall_ms": 9.804258,
+      "thread_cpu_ms": 9.742441,
+      "gpu_ms": 0.000565
+    },
+    {
+      "sample": "4",
+      "operation": "world.chunks",
+      "wall_ms": 1100.96801,
+      "thread_cpu_ms": 7.298617,
+      "gpu_ms": 520.31283
+    },
+    {
+      "sample": "4",
+      "operation": "world.models",
+      "wall_ms": 1.764826,
+      "thread_cpu_ms": 1.759544,
+      "gpu_ms": 9.9e-05
+    },
+    {
+      "sample": "4",
+      "operation": "pipeline.water",
+      "wall_ms": 520.227631,
+      "thread_cpu_ms": 10.227145,
+      "gpu_ms": 120.806059
+    },
+    {
+      "sample": "4",
+      "operation": "post.draw1",
+      "wall_ms": 0.297288,
+      "thread_cpu_ms": 0.288224,
+      "gpu_ms": 288.476112
+    },
+    {
+      "sample": "4",
+      "operation": "post.draw2",
+      "wall_ms": 0.505557,
+      "thread_cpu_ms": 0.259621,
+      "gpu_ms": 111.43928
+    },
+    {
+      "sample": "4",
+      "operation": "post.finish",
+      "wall_ms": 295.123728,
+      "thread_cpu_ms": 2.834052,
+      "gpu_ms": 404.65304
+    },
+    {
+      "sample": "4",
+      "operation": "pipeline.finish",
+      "wall_ms": 410.135446,
+      "thread_cpu_ms": 5.730261,
+      "gpu_ms": 409.028125
+    },
+    {
+      "sample": "4",
+      "operation": "world.held",
+      "wall_ms": 111.544956,
+      "thread_cpu_ms": 0.607535,
+      "gpu_ms": 79.972318
+    },
+    {
+      "sample": "4",
+      "operation": "main.render",
+      "wall_ms": 2166.762041,
+      "thread_cpu_ms": 40.231463,
+      "gpu_ms": 2236.023091
+    },
+    {
+      "sample": "5",
+      "operation": "pipeline.shadows",
+      "wall_ms": 13.493757,
+      "thread_cpu_ms": 1.719241,
+      "gpu_ms": 4.419465
+    },
+    {
+      "sample": "5",
+      "operation": "pipeline.begin",
+      "wall_ms": 0.794459,
+      "thread_cpu_ms": 0.790514,
+      "gpu_ms": 1211.633426
+    },
+    {
+      "sample": "5",
+      "operation": "pipeline.distant",
+      "wall_ms": 12.263466,
+      "thread_cpu_ms": 12.254901,
+      "gpu_ms": 0.000483
+    },
+    {
+      "sample": "5",
+      "operation": "world.chunks",
+      "wall_ms": 1204.729903,
+      "thread_cpu_ms": 3.754578,
+      "gpu_ms": 519.902528
+    },
+    {
+      "sample": "5",
+      "operation": "world.models",
+      "wall_ms": 1.329948,
+      "thread_cpu_ms": 1.325738,
+      "gpu_ms": 0.000463
+    },
+    {
+      "sample": "5",
+      "operation": "pipeline.water",
+      "wall_ms": 528.038047,
+      "thread_cpu_ms": 10.871214,
+      "gpu_ms": 129.785853
+    },
+    {
+      "sample": "5",
+      "operation": "post.draw1",
+      "wall_ms": 0.753107,
+      "thread_cpu_ms": 0.442226,
+      "gpu_ms": 284.54405
+    },
+    {
+      "sample": "5",
+      "operation": "post.draw2",
+      "wall_ms": 0.480632,
+      "thread_cpu_ms": 0.274727,
+      "gpu_ms": 119.109649
+    },
+    {
+      "sample": "5",
+      "operation": "post.finish",
+      "wall_ms": 290.134113,
+      "thread_cpu_ms": 2.354058,
+      "gpu_ms": 407.567326
+    },
+    {
+      "sample": "5",
+      "operation": "pipeline.finish",
+      "wall_ms": 410.900827,
+      "thread_cpu_ms": 6.240612,
+      "gpu_ms": 412.71636
+    },
+    {
+      "sample": "5",
+      "operation": "world.held",
+      "wall_ms": 119.295526,
+      "thread_cpu_ms": 0.768052,
+      "gpu_ms": 85.549196
+    },
+    {
+      "sample": "5",
+      "operation": "main.render",
+      "wall_ms": 2293.842727,
+      "thread_cpu_ms": 40.762456,
+      "gpu_ms": 2364.010557
+    },
+    {
+      "sample": "6",
+      "operation": "pipeline.shadows",
+      "wall_ms": 17.287354,
+      "thread_cpu_ms": 1.834476,
+      "gpu_ms": 8.381167
+    },
+    {
+      "sample": "6",
+      "operation": "pipeline.begin",
+      "wall_ms": 0.86777,
+      "thread_cpu_ms": 0.827723,
+      "gpu_ms": 1125.018594
+    },
+    {
+      "sample": "6",
+      "operation": "pipeline.distant",
+      "wall_ms": 13.200029,
+      "thread_cpu_ms": 13.194574,
+      "gpu_ms": 9.8e-05
+    },
+    {
+      "sample": "6",
+      "operation": "world.chunks",
+      "wall_ms": 1115.608714,
+      "thread_cpu_ms": 4.479782,
+      "gpu_ms": 540.576195
+    },
+    {
+      "sample": "6",
+      "operation": "world.models",
+      "wall_ms": 1.557677,
+      "thread_cpu_ms": 1.553688,
+      "gpu_ms": 0.000256
+    },
+    {
+      "sample": "6",
+      "operation": "pipeline.water",
+      "wall_ms": 544.02399,
+      "thread_cpu_ms": 10.813732,
+      "gpu_ms": 111.159438
+    },
+    {
+      "sample": "6",
+      "operation": "post.draw1",
+      "wall_ms": 0.305827,
+      "thread_cpu_ms": 0.300712,
+      "gpu_ms": 329.957075
+    },
+    {
+      "sample": "6",
+      "operation": "post.draw2",
+      "wall_ms": 0.500421,
+      "thread_cpu_ms": 0.317978,
+      "gpu_ms": 109.660029
+    },
+    {
+      "sample": "6",
+      "operation": "post.finish",
+      "wall_ms": 334.842831,
+      "thread_cpu_ms": 2.021564,
+      "gpu_ms": 443.624679
+    },
+    {
+      "sample": "6",
+      "operation": "pipeline.finish",
+      "wall_ms": 439.358613,
+      "thread_cpu_ms": 4.698039,
+      "gpu_ms": 446.813598
+    },
+    {
+      "sample": "6",
+      "operation": "world.held",
+      "wall_ms": 109.810861,
+      "thread_cpu_ms": 0.641163,
+      "gpu_ms": 95.601456
+    },
+    {
+      "sample": "6",
+      "operation": "main.render",
+      "wall_ms": 2244.927406,
+      "thread_cpu_ms": 41.262334,
+      "gpu_ms": 2327.552514
+    },
+    {
+      "sample": "7",
+      "operation": "pipeline.shadows",
+      "wall_ms": 19.325103,
+      "thread_cpu_ms": 14.310607,
+      "gpu_ms": 500.889925
+    },
+    {
+      "sample": "7",
+      "operation": "pipeline.begin",
+      "wall_ms": 1.193626,
+      "thread_cpu_ms": 1.162478,
+      "gpu_ms": 1148.670543
+    },
+    {
+      "sample": "7",
+      "operation": "pipeline.distant",
+      "wall_ms": 18.177282,
+      "thread_cpu_ms": 18.127353,
+      "gpu_ms": 0.000131
+    },
+    {
+      "sample": "7",
+      "operation": "world.chunks",
+      "wall_ms": 1618.002183,
+      "thread_cpu_ms": 2.680334,
+      "gpu_ms": 561.27722
+    },
+    {
+      "sample": "7",
+      "operation": "world.models",
+      "wall_ms": 0.927627,
+      "thread_cpu_ms": 0.924626,
+      "gpu_ms": 0.000212
+    },
+    {
+      "sample": "7",
+      "operation": "pipeline.water",
+      "wall_ms": 565.294205,
+      "thread_cpu_ms": 7.005025,
+      "gpu_ms": 105.18846
+    },
+    {
+      "sample": "7",
+      "operation": "post.draw1",
+      "wall_ms": 0.272332,
+      "thread_cpu_ms": 0.267258,
+      "gpu_ms": 280.180424
+    },
+    {
+      "sample": "7",
+      "operation": "post.draw2",
+      "wall_ms": 0.325555,
+      "thread_cpu_ms": 0.193852,
+      "gpu_ms": 117.281969
+    },
+    {
+      "sample": "7",
+      "operation": "post.finish",
+      "wall_ms": 284.444907,
+      "thread_cpu_ms": 1.637964,
+      "gpu_ms": 400.960572
+    },
+    {
+      "sample": "7",
+      "operation": "pipeline.finish",
+      "wall_ms": 385.009438,
+      "thread_cpu_ms": 4.427031,
+      "gpu_ms": 404.216868
+    },
+    {
+      "sample": "7",
+      "operation": "world.held",
+      "wall_ms": 117.511025,
+      "thread_cpu_ms": 0.536186,
+      "gpu_ms": 95.271124
+    },
+    {
+      "sample": "7",
+      "operation": "main.render",
+      "wall_ms": 2727.659509,
+      "thread_cpu_ms": 51.434472,
+      "gpu_ms": 2815.515806
+    },
+    {
+      "sample": "8",
+      "operation": "pipeline.shadows",
+      "wall_ms": 10.463168,
+      "thread_cpu_ms": 1.222075,
+      "gpu_ms": 2.690401
+    },
+    {
+      "sample": "8",
+      "operation": "pipeline.begin",
+      "wall_ms": 0.629815,
+      "thread_cpu_ms": 0.626781,
+      "gpu_ms": 1124.894288
+    },
+    {
+      "sample": "8",
+      "operation": "pipeline.distant",
+      "wall_ms": 12.020519,
+      "thread_cpu_ms": 10.536307,
+      "gpu_ms": 4.6e-05
+    },
+    {
+      "sample": "8",
+      "operation": "world.chunks",
+      "wall_ms": 1116.689456,
+      "thread_cpu_ms": 3.144536,
+      "gpu_ms": 566.562163
+    },
+    {
+      "sample": "8",
+      "operation": "world.models",
+      "wall_ms": 1.297291,
+      "thread_cpu_ms": 1.293499,
+      "gpu_ms": 0.000178
+    },
+    {
+      "sample": "8",
+      "operation": "pipeline.water",
+      "wall_ms": 571.929786,
+      "thread_cpu_ms": 10.295536,
+      "gpu_ms": 115.708615
+    },
+    {
+      "sample": "8",
+      "operation": "post.draw1",
+      "wall_ms": 0.234269,
+      "thread_cpu_ms": 0.229027,
+      "gpu_ms": 297.840095
+    },
+    {
+      "sample": "8",
+      "operation": "post.draw2",
+      "wall_ms": 0.453933,
+      "thread_cpu_ms": 0.294177,
+      "gpu_ms": 110.575298
+    },
+    {
+      "sample": "8",
+      "operation": "post.finish",
+      "wall_ms": 302.200831,
+      "thread_cpu_ms": 1.698319,
+      "gpu_ms": 411.85848
+    },
+    {
+      "sample": "8",
+      "operation": "pipeline.finish",
+      "wall_ms": 410.943282,
+      "thread_cpu_ms": 4.438556,
+      "gpu_ms": 415.075766
+    },
+    {
+      "sample": "8",
+      "operation": "world.held",
+      "wall_ms": 110.643761,
+      "thread_cpu_ms": 0.474577,
+      "gpu_ms": 78.998923
+    },
+    {
+      "sample": "8",
+      "operation": "main.render",
+      "wall_ms": 2236.651762,
+      "thread_cpu_ms": 34.092917,
+      "gpu_ms": 2303.931516
+    },
+    {
+      "sample": "9",
+      "operation": "pipeline.shadows",
+      "wall_ms": 22.935573,
+      "thread_cpu_ms": 3.509259,
+      "gpu_ms": 19.728786
+    },
+    {
+      "sample": "9",
+      "operation": "pipeline.begin",
+      "wall_ms": 0.660938,
+      "thread_cpu_ms": 0.657643,
+      "gpu_ms": 1188.902802
+    },
+    {
+      "sample": "9",
+      "operation": "pipeline.distant",
+      "wall_ms": 12.301037,
+      "thread_cpu_ms": 12.295338,
+      "gpu_ms": 0.000123
+    },
+    {
+      "sample": "9",
+      "operation": "world.chunks",
+      "wall_ms": 1179.323505,
+      "thread_cpu_ms": 3.063402,
+      "gpu_ms": 540.31308
+    },
+    {
+      "sample": "9",
+      "operation": "world.models",
+      "wall_ms": 1.146874,
+      "thread_cpu_ms": 1.143054,
+      "gpu_ms": 0.000416
+    },
+    {
+      "sample": "9",
+      "operation": "pipeline.water",
+      "wall_ms": 549.526006,
+      "thread_cpu_ms": 13.289947,
+      "gpu_ms": 122.477078
+    },
+    {
+      "sample": "9",
+      "operation": "post.draw1",
+      "wall_ms": 0.307401,
+      "thread_cpu_ms": 0.301728,
+      "gpu_ms": 300.567326
+    },
+    {
+      "sample": "9",
+      "operation": "post.draw2",
+      "wall_ms": 0.414069,
+      "thread_cpu_ms": 0.236122,
+      "gpu_ms": 111.949752
+    },
+    {
+      "sample": "9",
+      "operation": "post.finish",
+      "wall_ms": 305.376306,
+      "thread_cpu_ms": 1.758779,
+      "gpu_ms": 416.400139
+    },
+    {
+      "sample": "9",
+      "operation": "pipeline.finish",
+      "wall_ms": 417.774427,
+      "thread_cpu_ms": 4.897947,
+      "gpu_ms": 420.097022
+    },
+    {
+      "sample": "9",
+      "operation": "world.held",
+      "wall_ms": 112.151375,
+      "thread_cpu_ms": 0.724728,
+      "gpu_ms": 80.201786
+    },
+    {
+      "sample": "9",
+      "operation": "main.render",
+      "wall_ms": 2297.663416,
+      "thread_cpu_ms": 41.456308,
+      "gpu_ms": 2371.722654
+    },
+    {
+      "sample": "10",
+      "operation": "pipeline.shadows",
+      "wall_ms": 0.16634,
+      "thread_cpu_ms": 0.159293,
+      "gpu_ms": 0.000202
+    },
+    {
+      "sample": "10",
+      "operation": "pipeline.begin",
+      "wall_ms": 0.830192,
+      "thread_cpu_ms": 0.827203,
+      "gpu_ms": 874.423705
+    },
+    {
+      "sample": "10",
+      "operation": "pipeline.distant",
+      "wall_ms": 892.866568,
+      "thread_cpu_ms": 12.319816,
+      "gpu_ms": 271.65998
+    },
+    {
+      "sample": "10",
+      "operation": "world.chunks",
+      "wall_ms": 262.238575,
+      "thread_cpu_ms": 3.13823,
+      "gpu_ms": 519.145857
+    },
+    {
+      "sample": "10",
+      "operation": "world.models",
+      "wall_ms": 1.17942,
+      "thread_cpu_ms": 1.175725,
+      "gpu_ms": 0.000218
+    },
+    {
+      "sample": "10",
+      "operation": "pipeline.water",
+      "wall_ms": 524.387106,
+      "thread_cpu_ms": 9.274338,
+      "gpu_ms": 111.449239
+    },
+    {
+      "sample": "10",
+      "operation": "post.draw1",
+      "wall_ms": 0.179929,
+      "thread_cpu_ms": 0.175631,
+      "gpu_ms": 286.060029
+    },
+    {
+      "sample": "10",
+      "operation": "post.draw2",
+      "wall_ms": 0.340987,
+      "thread_cpu_ms": 0.212832,
+      "gpu_ms": 108.998587
+    },
+    {
+      "sample": "10",
+      "operation": "post.finish",
+      "wall_ms": 290.154832,
+      "thread_cpu_ms": 1.416249,
+      "gpu_ms": 398.31244
+    },
+    {
+      "sample": "10",
+      "operation": "pipeline.finish",
+      "wall_ms": 395.117296,
+      "thread_cpu_ms": 4.131917,
+      "gpu_ms": 401.502908
+    },
+    {
+      "sample": "10",
+      "operation": "world.held",
+      "wall_ms": 109.179189,
+      "thread_cpu_ms": 0.537472,
+      "gpu_ms": 77.239732
+    },
+    {
+      "sample": "10",
+      "operation": "main.render",
+      "wall_ms": 2188.677662,
+      "thread_cpu_ms": 34.313052,
+      "gpu_ms": 2255.423228
+    },
+    {
+      "sample": "11",
+      "operation": "pipeline.shadows",
+      "wall_ms": 0.149899,
+      "thread_cpu_ms": 0.14536,
+      "gpu_ms": 0.000173
+    },
+    {
+      "sample": "11",
+      "operation": "pipeline.begin",
+      "wall_ms": 2.489254,
+      "thread_cpu_ms": 0.794973,
+      "gpu_ms": 886.491107
+    },
+    {
+      "sample": "11",
+      "operation": "pipeline.distant",
+      "wall_ms": 910.431446,
+      "thread_cpu_ms": 13.703979,
+      "gpu_ms": 283.973351
+    },
+    {
+      "sample": "11",
+      "operation": "world.chunks",
+      "wall_ms": 273.769852,
+      "thread_cpu_ms": 3.807544,
+      "gpu_ms": 546.544325
+    },
+    {
+      "sample": "11",
+      "operation": "world.models",
+      "wall_ms": 1.58622,
+      "thread_cpu_ms": 1.57667,
+      "gpu_ms": 0.000247
+    },
+    {
+      "sample": "11",
+      "operation": "pipeline.water",
+      "wall_ms": 551.090769,
+      "thread_cpu_ms": 11.029506,
+      "gpu_ms": 127.048454
+    },
+    {
+      "sample": "11",
+      "operation": "post.draw1",
+      "wall_ms": 0.200615,
+      "thread_cpu_ms": 0.196571,
+      "gpu_ms": 334.436194
+    },
+    {
+      "sample": "11",
+      "operation": "post.draw2",
+      "wall_ms": 0.376557,
+      "thread_cpu_ms": 0.239066,
+      "gpu_ms": 114.616811
+    },
+    {
+      "sample": "11",
+      "operation": "post.finish",
+      "wall_ms": 341.664417,
+      "thread_cpu_ms": 1.830936,
+      "gpu_ms": 454.658032
+    },
+    {
+      "sample": "11",
+      "operation": "pipeline.finish",
+      "wall_ms": 462.067154,
+      "thread_cpu_ms": 4.712529,
+      "gpu_ms": 458.858671
+    },
+    {
+      "sample": "11",
+      "operation": "world.held",
+      "wall_ms": 114.748317,
+      "thread_cpu_ms": 0.520068,
+      "gpu_ms": 78.954778
+    },
+    {
+      "sample": "11",
+      "operation": "main.render",
+      "wall_ms": 2318.839071,
+      "thread_cpu_ms": 38.819472,
+      "gpu_ms": 2381.87649
+    }
+  ],
+  "regressed": [
+    {
+      "sample": "0",
+      "operation": "pipeline.shadows",
+      "wall_ms": 1.377646,
+      "thread_cpu_ms": 1.349957,
+      "gpu_ms": 1.576172
+    },
+    {
+      "sample": "0",
+      "operation": "pipeline.begin",
+      "wall_ms": 1.004764,
+      "thread_cpu_ms": 1.000085,
+      "gpu_ms": 1121.621454
+    },
+    {
+      "sample": "0",
+      "operation": "pipeline.distant",
+      "wall_ms": 12.639419,
+      "thread_cpu_ms": 9.806249,
+      "gpu_ms": 0.000102
+    },
+    {
+      "sample": "0",
+      "operation": "world.chunks",
+      "wall_ms": 1120.194447,
+      "thread_cpu_ms": 2.682544,
+      "gpu_ms": 201.946724
+    },
+    {
+      "sample": "0",
+      "operation": "world.models",
+      "wall_ms": 0.948922,
+      "thread_cpu_ms": 0.944258,
+      "gpu_ms": 0.00035
+    },
+    {
+      "sample": "0",
+      "operation": "pipeline.water",
+      "wall_ms": 206.149286,
+      "thread_cpu_ms": 7.291203,
+      "gpu_ms": 48.415853
+    },
+    {
+      "sample": "0",
+      "operation": "post.draw1",
+      "wall_ms": 0.175882,
+      "thread_cpu_ms": 0.171051,
+      "gpu_ms": 303.05941
+    },
+    {
+      "sample": "0",
+      "operation": "post.draw2",
+      "wall_ms": 0.368372,
+      "thread_cpu_ms": 0.189745,
+      "gpu_ms": 114.614648
+    },
+    {
+      "sample": "0",
+      "operation": "post.finish",
+      "wall_ms": 308.725478,
+      "thread_cpu_ms": 1.37211,
+      "gpu_ms": 421.524466
+    },
+    {
+      "sample": "0",
+      "operation": "pipeline.finish",
+      "wall_ms": 352.258899,
+      "thread_cpu_ms": 4.066757,
+      "gpu_ms": 425.713829
+    },
+    {
+      "sample": "0",
+      "operation": "world.held",
+      "wall_ms": 114.70254,
+      "thread_cpu_ms": 0.444044,
+      "gpu_ms": 42.516776
+    },
+    {
+      "sample": "0",
+      "operation": "main.render",
+      "wall_ms": 1811.025946,
+      "thread_cpu_ms": 29.379182,
+      "gpu_ms": 1841.792943
+    },
+    {
+      "sample": "1",
+      "operation": "pipeline.shadows",
+      "wall_ms": 19.355754,
+      "thread_cpu_ms": 2.859398,
+      "gpu_ms": 5.681785
+    },
+    {
+      "sample": "1",
+      "operation": "pipeline.begin",
+      "wall_ms": 0.757401,
+      "thread_cpu_ms": 0.753539,
+      "gpu_ms": 1157.23002
+    },
+    {
+      "sample": "1",
+      "operation": "pipeline.distant",
+      "wall_ms": 7.960608,
+      "thread_cpu_ms": 7.957035,
+      "gpu_ms": 0.000153
+    },
+    {
+      "sample": "1",
+      "operation": "world.chunks",
+      "wall_ms": 3647.934787,
+      "thread_cpu_ms": 2467.764674,
+      "gpu_ms": 5252.744657
+    },
+    {
+      "sample": "1",
+      "operation": "world.models",
+      "wall_ms": 2548.43135,
+      "thread_cpu_ms": 2536.830493,
+      "gpu_ms": 0.000228
+    },
+    {
+      "sample": "1",
+      "operation": "pipeline.water",
+      "wall_ms": 213.96301,
+      "thread_cpu_ms": 9.408326,
+      "gpu_ms": 46.271429
+    },
+    {
+      "sample": "1",
+      "operation": "post.draw1",
+      "wall_ms": 0.230194,
+      "thread_cpu_ms": 0.225238,
+      "gpu_ms": 303.807041
+    },
+    {
+      "sample": "1",
+      "operation": "post.draw2",
+      "wall_ms": 0.367152,
+      "thread_cpu_ms": 0.224732,
+      "gpu_ms": 111.706782
+    },
+    {
+      "sample": "1",
+      "operation": "post.finish",
+      "wall_ms": 308.680378,
+      "thread_cpu_ms": 1.645213,
+      "gpu_ms": 419.315056
+    },
+    {
+      "sample": "1",
+      "operation": "pipeline.finish",
+      "wall_ms": 349.24417,
+      "thread_cpu_ms": 4.943273,
+      "gpu_ms": 423.313023
+    },
+    {
+      "sample": "1",
+      "operation": "world.held",
+      "wall_ms": 2343.90367,
+      "thread_cpu_ms": 2232.331114,
+      "gpu_ms": 2276.69705
+    },
+    {
+      "sample": "1",
+      "operation": "main.render",
+      "wall_ms": 9132.91627,
+      "thread_cpu_ms": 7264.255618,
+      "gpu_ms": 9161.940026
+    },
+    {
+      "sample": "2",
+      "operation": "pipeline.shadows",
+      "wall_ms": 1.658926,
+      "thread_cpu_ms": 1.636004,
+      "gpu_ms": 0.417859
+    },
+    {
+      "sample": "2",
+      "operation": "pipeline.begin",
+      "wall_ms": 0.65131,
+      "thread_cpu_ms": 0.648065,
+      "gpu_ms": 1174.659767
+    },
+    {
+      "sample": "2",
+      "operation": "pipeline.distant",
+      "wall_ms": 9.992608,
+      "thread_cpu_ms": 8.720847,
+      "gpu_ms": 3.9e-05
+    },
+    {
+      "sample": "2",
+      "operation": "world.chunks",
+      "wall_ms": 1176.312125,
+      "thread_cpu_ms": 3.271308,
+      "gpu_ms": 207.401335
+    },
+    {
+      "sample": "2",
+      "operation": "world.models",
+      "wall_ms": 1.101593,
+      "thread_cpu_ms": 1.073269,
+      "gpu_ms": 0.000133
+    },
+    {
+      "sample": "2",
+      "operation": "pipeline.water",
+      "wall_ms": 210.625102,
+      "thread_cpu_ms": 7.479925,
+      "gpu_ms": 40.449105
+    },
+    {
+      "sample": "2",
+      "operation": "post.draw1",
+      "wall_ms": 0.233417,
+      "thread_cpu_ms": 0.22709,
+      "gpu_ms": 309.314398
+    },
+    {
+      "sample": "2",
+      "operation": "post.draw2",
+      "wall_ms": 0.253907,
+      "thread_cpu_ms": 0.159072,
+      "gpu_ms": 111.777078
+    },
+    {
+      "sample": "2",
+      "operation": "post.finish",
+      "wall_ms": 313.579787,
+      "thread_cpu_ms": 1.615373,
+      "gpu_ms": 424.617719
+    },
+    {
+      "sample": "2",
+      "operation": "pipeline.finish",
+      "wall_ms": 349.421611,
+      "thread_cpu_ms": 4.38051,
+      "gpu_ms": 427.882055
+    },
+    {
+      "sample": "2",
+      "operation": "world.held",
+      "wall_ms": 111.931407,
+      "thread_cpu_ms": 0.47439,
+      "gpu_ms": 39.68579
+    },
+    {
+      "sample": "2",
+      "operation": "main.render",
+      "wall_ms": 1863.266522,
+      "thread_cpu_ms": 29.287874,
+      "gpu_ms": 1890.497302
+    },
+    {
+      "sample": "3",
+      "operation": "pipeline.shadows",
+      "wall_ms": 1.608163,
+      "thread_cpu_ms": 1.599099,
+      "gpu_ms": 0.329017
+    },
+    {
+      "sample": "3",
+      "operation": "pipeline.begin",
+      "wall_ms": 22.00924,
+      "thread_cpu_ms": 4.697129,
+      "gpu_ms": 898.554397
+    },
+    {
+      "sample": "3",
+      "operation": "pipeline.distant",
+      "wall_ms": 907.302908,
+      "thread_cpu_ms": 20.696537,
+      "gpu_ms": 284.289003
+    },
+    {
+      "sample": "3",
+      "operation": "world.chunks",
+      "wall_ms": 267.233711,
+      "thread_cpu_ms": 3.829802,
+      "gpu_ms": 205.427086
+    },
+    {
+      "sample": "3",
+      "operation": "world.models",
+      "wall_ms": 1.619647,
+      "thread_cpu_ms": 1.522647,
+      "gpu_ms": 0.000163
+    },
+    {
+      "sample": "3",
+      "operation": "pipeline.water",
+      "wall_ms": 211.686095,
+      "thread_cpu_ms": 10.558008,
+      "gpu_ms": 42.430415
+    },
+    {
+      "sample": "3",
+      "operation": "post.draw1",
+      "wall_ms": 0.268917,
+      "thread_cpu_ms": 0.260608,
+      "gpu_ms": 298.218431
+    },
+    {
+      "sample": "3",
+      "operation": "post.draw2",
+      "wall_ms": 0.490848,
+      "thread_cpu_ms": 0.313162,
+      "gpu_ms": 112.722622
+    },
+    {
+      "sample": "3",
+      "operation": "post.finish",
+      "wall_ms": 303.987139,
+      "thread_cpu_ms": 2.252666,
+      "gpu_ms": 415.702037
+    },
+    {
+      "sample": "3",
+      "operation": "pipeline.finish",
+      "wall_ms": 338.695234,
+      "thread_cpu_ms": 5.782932,
+      "gpu_ms": 419.900125
+    },
+    {
+      "sample": "3",
+      "operation": "world.held",
+      "wall_ms": 113.012586,
+      "thread_cpu_ms": 0.806309,
+      "gpu_ms": 37.235206
+    },
+    {
+      "sample": "3",
+      "operation": "main.render",
+      "wall_ms": 1865.376958,
+      "thread_cpu_ms": 51.745211,
+      "gpu_ms": 1888.166577
+    },
+    {
+      "sample": "4",
+      "operation": "pipeline.shadows",
+      "wall_ms": 13.366296,
+      "thread_cpu_ms": 1.516297,
+      "gpu_ms": 7.595648
+    },
+    {
+      "sample": "4",
+      "operation": "pipeline.begin",
+      "wall_ms": 0.777258,
+      "thread_cpu_ms": 0.77374,
+      "gpu_ms": 1108.648552
+    },
+    {
+      "sample": "4",
+      "operation": "pipeline.distant",
+      "wall_ms": 9.828461,
+      "thread_cpu_ms": 9.823858,
+      "gpu_ms": 0.0005
+    },
+    {
+      "sample": "4",
+      "operation": "world.chunks",
+      "wall_ms": 1107.751868,
+      "thread_cpu_ms": 4.118645,
+      "gpu_ms": 230.791317
+    },
+    {
+      "sample": "4",
+      "operation": "world.models",
+      "wall_ms": 1.172358,
+      "thread_cpu_ms": 1.168707,
+      "gpu_ms": 0.000402
+    },
+    {
+      "sample": "4",
+      "operation": "pipeline.water",
+      "wall_ms": 235.098892,
+      "thread_cpu_ms": 8.652424,
+      "gpu_ms": 42.878673
+    },
+    {
+      "sample": "4",
+      "operation": "post.draw1",
+      "wall_ms": 0.276027,
+      "thread_cpu_ms": 0.270821,
+      "gpu_ms": 287.583155
+    },
+    {
+      "sample": "4",
+      "operation": "post.draw2",
+      "wall_ms": 0.459259,
+      "thread_cpu_ms": 0.261949,
+      "gpu_ms": 114.111625
+    },
+    {
+      "sample": "4",
+      "operation": "post.finish",
+      "wall_ms": 292.853878,
+      "thread_cpu_ms": 2.128715,
+      "gpu_ms": 406.218902
+    },
+    {
+      "sample": "4",
+      "operation": "pipeline.finish",
+      "wall_ms": 328.766423,
+      "thread_cpu_ms": 4.634828,
+      "gpu_ms": 409.115527
+    },
+    {
+      "sample": "4",
+      "operation": "world.held",
+      "wall_ms": 114.208893,
+      "thread_cpu_ms": 0.581858,
+      "gpu_ms": 31.320412
+    },
+    {
+      "sample": "4",
+      "operation": "main.render",
+      "wall_ms": 1813.140709,
+      "thread_cpu_ms": 33.420699,
+      "gpu_ms": 1830.354075
+    },
+    {
+      "sample": "5",
+      "operation": "pipeline.shadows",
+      "wall_ms": 10.411725,
+      "thread_cpu_ms": 1.396677,
+      "gpu_ms": 6.893663
+    },
+    {
+      "sample": "5",
+      "operation": "pipeline.begin",
+      "wall_ms": 0.619766,
+      "thread_cpu_ms": 0.616404,
+      "gpu_ms": 1091.747478
+    },
+    {
+      "sample": "5",
+      "operation": "pipeline.distant",
+      "wall_ms": 9.117679,
+      "thread_cpu_ms": 9.111507,
+      "gpu_ms": 0.000124
+    },
+    {
+      "sample": "5",
+      "operation": "world.chunks",
+      "wall_ms": 1088.942494,
+      "thread_cpu_ms": 4.078722,
+      "gpu_ms": 199.333294
+    },
+    {
+      "sample": "5",
+      "operation": "world.models",
+      "wall_ms": 1.284003,
+      "thread_cpu_ms": 1.280137,
+      "gpu_ms": 0.00032
+    },
+    {
+      "sample": "5",
+      "operation": "pipeline.water",
+      "wall_ms": 203.400054,
+      "thread_cpu_ms": 9.43933,
+      "gpu_ms": 40.681824
+    },
+    {
+      "sample": "5",
+      "operation": "post.draw1",
+      "wall_ms": 0.266562,
+      "thread_cpu_ms": 0.261211,
+      "gpu_ms": 291.360668
+    },
+    {
+      "sample": "5",
+      "operation": "post.draw2",
+      "wall_ms": 0.447199,
+      "thread_cpu_ms": 0.216393,
+      "gpu_ms": 109.615921
+    },
+    {
+      "sample": "5",
+      "operation": "post.finish",
+      "wall_ms": 296.665588,
+      "thread_cpu_ms": 2.086299,
+      "gpu_ms": 405.418767
+    },
+    {
+      "sample": "5",
+      "operation": "pipeline.finish",
+      "wall_ms": 330.783158,
+      "thread_cpu_ms": 4.729221,
+      "gpu_ms": 408.567433
+    },
+    {
+      "sample": "5",
+      "operation": "world.held",
+      "wall_ms": 109.794907,
+      "thread_cpu_ms": 0.61141,
+      "gpu_ms": 34.035867
+    },
+    {
+      "sample": "5",
+      "operation": "main.render",
+      "wall_ms": 1756.116373,
+      "thread_cpu_ms": 33.061744,
+      "gpu_ms": 1781.26114
+    },
+    {
+      "sample": "6",
+      "operation": "pipeline.shadows",
+      "wall_ms": 7.796254,
+      "thread_cpu_ms": 1.31028,
+      "gpu_ms": 2.848112
+    },
+    {
+      "sample": "6",
+      "operation": "pipeline.begin",
+      "wall_ms": 0.587517,
+      "thread_cpu_ms": 0.584962,
+      "gpu_ms": 1134.289312
+    },
+    {
+      "sample": "6",
+      "operation": "pipeline.distant",
+      "wall_ms": 12.57562,
+      "thread_cpu_ms": 12.509461,
+      "gpu_ms": 0.000131
+    },
+    {
+      "sample": "6",
+      "operation": "world.chunks",
+      "wall_ms": 1126.69236,
+      "thread_cpu_ms": 4.072645,
+      "gpu_ms": 200.394065
+    },
+    {
+      "sample": "6",
+      "operation": "world.models",
+      "wall_ms": 1.577438,
+      "thread_cpu_ms": 1.574354,
+      "gpu_ms": 0.00016
+    },
+    {
+      "sample": "6",
+      "operation": "pipeline.water",
+      "wall_ms": 205.422739,
+      "thread_cpu_ms": 11.712755,
+      "gpu_ms": 41.848139
+    },
+    {
+      "sample": "6",
+      "operation": "post.draw1",
+      "wall_ms": 0.241025,
+      "thread_cpu_ms": 0.236348,
+      "gpu_ms": 317.46017
+    },
+    {
+      "sample": "6",
+      "operation": "post.draw2",
+      "wall_ms": 0.317704,
+      "thread_cpu_ms": 0.194103,
+      "gpu_ms": 127.531513
+    },
+    {
+      "sample": "6",
+      "operation": "post.finish",
+      "wall_ms": 336.897166,
+      "thread_cpu_ms": 2.07146,
+      "gpu_ms": 463.532566
+    },
+    {
+      "sample": "6",
+      "operation": "pipeline.finish",
+      "wall_ms": 371.789238,
+      "thread_cpu_ms": 5.625771,
+      "gpu_ms": 467.672313
+    },
+    {
+      "sample": "6",
+      "operation": "world.held",
+      "wall_ms": 127.637638,
+      "thread_cpu_ms": 0.47425,
+      "gpu_ms": 34.512566
+    },
+    {
+      "sample": "6",
+      "operation": "main.render",
+      "wall_ms": 1855.956909,
+      "thread_cpu_ms": 39.778674,
+      "gpu_ms": 1881.566197
+    },
+    {
+      "sample": "7",
+      "operation": "pipeline.shadows",
+      "wall_ms": 21.372451,
+      "thread_cpu_ms": 10.827689,
+      "gpu_ms": 331.316861
+    },
+    {
+      "sample": "7",
+      "operation": "pipeline.begin",
+      "wall_ms": 0.959023,
+      "thread_cpu_ms": 0.921814,
+      "gpu_ms": 1157.824936
+    },
+    {
+      "sample": "7",
+      "operation": "pipeline.distant",
+      "wall_ms": 16.902713,
+      "thread_cpu_ms": 16.75023,
+      "gpu_ms": 0.000125
+    },
+    {
+      "sample": "7",
+      "operation": "world.chunks",
+      "wall_ms": 1462.701628,
+      "thread_cpu_ms": 2.76721,
+      "gpu_ms": 189.617406
+    },
+    {
+      "sample": "7",
+      "operation": "world.models",
+      "wall_ms": 0.996729,
+      "thread_cpu_ms": 0.993838,
+      "gpu_ms": 0.000138
+    },
+    {
+      "sample": "7",
+      "operation": "pipeline.water",
+      "wall_ms": 193.378503,
+      "thread_cpu_ms": 7.499268,
+      "gpu_ms": 38.001167
+    },
+    {
+      "sample": "7",
+      "operation": "post.draw1",
+      "wall_ms": 0.212888,
+      "thread_cpu_ms": 0.2093,
+      "gpu_ms": 282.266098
+    },
+    {
+      "sample": "7",
+      "operation": "post.draw2",
+      "wall_ms": 0.317722,
+      "thread_cpu_ms": 0.169776,
+      "gpu_ms": 108.893661
+    },
+    {
+      "sample": "7",
+      "operation": "post.finish",
+      "wall_ms": 286.357801,
+      "thread_cpu_ms": 1.400412,
+      "gpu_ms": 394.598169
+    },
+    {
+      "sample": "7",
+      "operation": "pipeline.finish",
+      "wall_ms": 319.555609,
+      "thread_cpu_ms": 3.923632,
+      "gpu_ms": 397.557462
+    },
+    {
+      "sample": "7",
+      "operation": "world.held",
+      "wall_ms": 109.031491,
+      "thread_cpu_ms": 0.493234,
+      "gpu_ms": 34.585437
+    },
+    {
+      "sample": "7",
+      "operation": "main.render",
+      "wall_ms": 2126.750856,
+      "thread_cpu_ms": 46.05506,
+      "gpu_ms": 2148.905014
+    },
+    {
+      "sample": "8",
+      "operation": "pipeline.shadows",
+      "wall_ms": 31.721667,
+      "thread_cpu_ms": 1.731449,
+      "gpu_ms": 33.775597
+    },
+    {
+      "sample": "8",
+      "operation": "pipeline.begin",
+      "wall_ms": 0.764889,
+      "thread_cpu_ms": 0.762416,
+      "gpu_ms": 1185.463024
+    },
+    {
+      "sample": "8",
+      "operation": "pipeline.distant",
+      "wall_ms": 11.438064,
+      "thread_cpu_ms": 10.94957,
+      "gpu_ms": 0.000989
+    },
+    {
+      "sample": "8",
+      "operation": "world.chunks",
+      "wall_ms": 1179.906372,
+      "thread_cpu_ms": 2.779724,
+      "gpu_ms": 214.016654
+    },
+    {
+      "sample": "8",
+      "operation": "world.models",
+      "wall_ms": 0.979495,
+      "thread_cpu_ms": 0.975978,
+      "gpu_ms": 0.000238
+    },
+    {
+      "sample": "8",
+      "operation": "pipeline.water",
+      "wall_ms": 218.20895,
+      "thread_cpu_ms": 7.454214,
+      "gpu_ms": 42.174066
+    },
+    {
+      "sample": "8",
+      "operation": "post.draw1",
+      "wall_ms": 0.246877,
+      "thread_cpu_ms": 0.239526,
+      "gpu_ms": 293.729267
+    },
+    {
+      "sample": "8",
+      "operation": "post.draw2",
+      "wall_ms": 0.344489,
+      "thread_cpu_ms": 0.193454,
+      "gpu_ms": 109.870687
+    },
+    {
+      "sample": "8",
+      "operation": "post.finish",
+      "wall_ms": 297.985117,
+      "thread_cpu_ms": 1.528812,
+      "gpu_ms": 406.882159
+    },
+    {
+      "sample": "8",
+      "operation": "pipeline.finish",
+      "wall_ms": 335.265666,
+      "thread_cpu_ms": 4.346192,
+      "gpu_ms": 410.375319
+    },
+    {
+      "sample": "8",
+      "operation": "world.held",
+      "wall_ms": 109.956499,
+      "thread_cpu_ms": 0.442286,
+      "gpu_ms": 32.646317
+    },
+    {
+      "sample": "8",
+      "operation": "main.render",
+      "wall_ms": 1892.742735,
+      "thread_cpu_ms": 31.361805,
+      "gpu_ms": 1918.453948
+    },
+    {
+      "sample": "9",
+      "operation": "pipeline.shadows",
+      "wall_ms": 15.707805,
+      "thread_cpu_ms": 2.782537,
+      "gpu_ms": 8.626719
+    },
+    {
+      "sample": "9",
+      "operation": "pipeline.begin",
+      "wall_ms": 0.582333,
+      "thread_cpu_ms": 0.579258,
+      "gpu_ms": 1169.018929
+    },
+    {
+      "sample": "9",
+      "operation": "pipeline.distant",
+      "wall_ms": 11.026071,
+      "thread_cpu_ms": 11.02141,
+      "gpu_ms": 0.000118
+    },
+    {
+      "sample": "9",
+      "operation": "world.chunks",
+      "wall_ms": 1160.817545,
+      "thread_cpu_ms": 3.070467,
+      "gpu_ms": 211.432266
+    },
+    {
+      "sample": "9",
+      "operation": "world.models",
+      "wall_ms": 2.063165,
+      "thread_cpu_ms": 2.058427,
+      "gpu_ms": 7e-05
+    },
+    {
+      "sample": "9",
+      "operation": "pipeline.water",
+      "wall_ms": 215.280413,
+      "thread_cpu_ms": 9.194499,
+      "gpu_ms": 39.666714
+    },
+    {
+      "sample": "9",
+      "operation": "post.draw1",
+      "wall_ms": 0.335868,
+      "thread_cpu_ms": 0.328225,
+      "gpu_ms": 292.707268
+    },
+    {
+      "sample": "9",
+      "operation": "post.draw2",
+      "wall_ms": 0.555383,
+      "thread_cpu_ms": 0.252947,
+      "gpu_ms": 117.56162
+    },
+    {
+      "sample": "9",
+      "operation": "post.finish",
+      "wall_ms": 297.926423,
+      "thread_cpu_ms": 1.946527,
+      "gpu_ms": 414.3494
+    },
+    {
+      "sample": "9",
+      "operation": "pipeline.finish",
+      "wall_ms": 332.9328,
+      "thread_cpu_ms": 6.087574,
+      "gpu_ms": 419.251206
+    },
+    {
+      "sample": "9",
+      "operation": "world.held",
+      "wall_ms": 117.74684,
+      "thread_cpu_ms": 0.764139,
+      "gpu_ms": 37.576787
+    },
+    {
+      "sample": "9",
+      "operation": "main.render",
+      "wall_ms": 1858.177733,
+      "thread_cpu_ms": 37.552849,
+      "gpu_ms": 1885.57414
+    },
+    {
+      "sample": "10",
+      "operation": "pipeline.shadows",
+      "wall_ms": 0.1599,
+      "thread_cpu_ms": 0.153589,
+      "gpu_ms": 0.000611
+    },
+    {
+      "sample": "10",
+      "operation": "pipeline.begin",
+      "wall_ms": 0.75929,
+      "thread_cpu_ms": 0.75584,
+      "gpu_ms": 887.032195
+    },
+    {
+      "sample": "10",
+      "operation": "pipeline.distant",
+      "wall_ms": 900.179178,
+      "thread_cpu_ms": 11.56343,
+      "gpu_ms": 270.161429
+    },
+    {
+      "sample": "10",
+      "operation": "world.chunks",
+      "wall_ms": 261.702803,
+      "thread_cpu_ms": 2.854742,
+      "gpu_ms": 192.156036
+    },
+    {
+      "sample": "10",
+      "operation": "world.models",
+      "wall_ms": 0.949288,
+      "thread_cpu_ms": 0.946398,
+      "gpu_ms": 0.0001
+    },
+    {
+      "sample": "10",
+      "operation": "pipeline.water",
+      "wall_ms": 198.004015,
+      "thread_cpu_ms": 9.377983,
+      "gpu_ms": 40.345695
+    },
+    {
+      "sample": "10",
+      "operation": "post.draw1",
+      "wall_ms": 0.293561,
+      "thread_cpu_ms": 0.286346,
+      "gpu_ms": 280.532496
+    },
+    {
+      "sample": "10",
+      "operation": "post.draw2",
+      "wall_ms": 0.288137,
+      "thread_cpu_ms": 0.194641,
+      "gpu_ms": 107.00927
+    },
+    {
+      "sample": "10",
+      "operation": "post.finish",
+      "wall_ms": 284.660068,
+      "thread_cpu_ms": 1.570835,
+      "gpu_ms": 391.014049
+    },
+    {
+      "sample": "10",
+      "operation": "pipeline.finish",
+      "wall_ms": 318.322861,
+      "thread_cpu_ms": 4.212517,
+      "gpu_ms": 394.081249
+    },
+    {
+      "sample": "10",
+      "operation": "world.held",
+      "wall_ms": 107.111863,
+      "thread_cpu_ms": 0.420771,
+      "gpu_ms": 30.395562
+    },
+    {
+      "sample": "10",
+      "operation": "main.render",
+      "wall_ms": 1790.803893,
+      "thread_cpu_ms": 32.129583,
+      "gpu_ms": 1814.174031
+    },
+    {
+      "sample": "11",
+      "operation": "pipeline.shadows",
+      "wall_ms": 0.104385,
+      "thread_cpu_ms": 0.099758,
+      "gpu_ms": 0.000168
+    },
+    {
+      "sample": "11",
+      "operation": "pipeline.begin",
+      "wall_ms": 0.622662,
+      "thread_cpu_ms": 0.619593,
+      "gpu_ms": 914.583138
+    },
+    {
+      "sample": "11",
+      "operation": "pipeline.distant",
+      "wall_ms": 937.240704,
+      "thread_cpu_ms": 12.744086,
+      "gpu_ms": 269.834072
+    },
+    {
+      "sample": "11",
+      "operation": "world.chunks",
+      "wall_ms": 259.654784,
+      "thread_cpu_ms": 3.446194,
+      "gpu_ms": 198.032399
+    },
+    {
+      "sample": "11",
+      "operation": "world.models",
+      "wall_ms": 0.890833,
+      "thread_cpu_ms": 0.857588,
+      "gpu_ms": 0.000263
+    },
+    {
+      "sample": "11",
+      "operation": "pipeline.water",
+      "wall_ms": 202.260688,
+      "thread_cpu_ms": 7.180984,
+      "gpu_ms": 37.970993
+    },
+    {
+      "sample": "11",
+      "operation": "post.draw1",
+      "wall_ms": 0.247971,
+      "thread_cpu_ms": 0.244498,
+      "gpu_ms": 290.639506
+    },
+    {
+      "sample": "11",
+      "operation": "post.draw2",
+      "wall_ms": 0.254154,
+      "thread_cpu_ms": 0.157865,
+      "gpu_ms": 129.720642
+    },
+    {
+      "sample": "11",
+      "operation": "post.finish",
+      "wall_ms": 309.124318,
+      "thread_cpu_ms": 1.487838,
+      "gpu_ms": 438.247191
+    },
+    {
+      "sample": "11",
+      "operation": "pipeline.finish",
+      "wall_ms": 342.20059,
+      "thread_cpu_ms": 4.008467,
+      "gpu_ms": 441.167601
+    },
+    {
+      "sample": "11",
+      "operation": "world.held",
+      "wall_ms": 130.022562,
+      "thread_cpu_ms": 0.476517,
+      "gpu_ms": 46.033578
+    },
+    {
+      "sample": "11",
+      "operation": "main.render",
+      "wall_ms": 1874.785426,
+      "thread_cpu_ms": 31.318207,
+      "gpu_ms": 1907.623331
+    }
+  ],
+  "fixed": [
+    {
+      "sample": "0",
+      "operation": "pipeline.shadows",
+      "wall_ms": 1.262402,
+      "thread_cpu_ms": 1.22802,
+      "gpu_ms": 0.607206
+    },
+    {
+      "sample": "0",
+      "operation": "pipeline.begin",
+      "wall_ms": 0.772344,
+      "thread_cpu_ms": 0.768907,
+      "gpu_ms": 1256.163049
+    },
+    {
+      "sample": "0",
+      "operation": "pipeline.distant",
+      "wall_ms": 13.115739,
+      "thread_cpu_ms": 9.405051,
+      "gpu_ms": 0.000415
+    },
+    {
+      "sample": "0",
+      "operation": "world.chunks",
+      "wall_ms": 1254.628355,
+      "thread_cpu_ms": 2.901815,
+      "gpu_ms": 284.041388
+    },
+    {
+      "sample": "0",
+      "operation": "world.models",
+      "wall_ms": 1.084178,
+      "thread_cpu_ms": 1.038713,
+      "gpu_ms": 0.000447
+    },
+    {
+      "sample": "0",
+      "operation": "pipeline.water",
+      "wall_ms": 295.078395,
+      "thread_cpu_ms": 8.573111,
+      "gpu_ms": 63.690108
+    },
+    {
+      "sample": "0",
+      "operation": "post.draw1",
+      "wall_ms": 0.32019,
+      "thread_cpu_ms": 0.31119,
+      "gpu_ms": 311.070895
+    },
+    {
+      "sample": "0",
+      "operation": "post.draw2",
+      "wall_ms": 0.363294,
+      "thread_cpu_ms": 0.175774,
+      "gpu_ms": 114.111362
+    },
+    {
+      "sample": "0",
+      "operation": "post.finish",
+      "wall_ms": 315.991017,
+      "thread_cpu_ms": 1.71031,
+      "gpu_ms": 429.395886
+    },
+    {
+      "sample": "0",
+      "operation": "pipeline.finish",
+      "wall_ms": 368.507218,
+      "thread_cpu_ms": 4.688663,
+      "gpu_ms": 433.460578
+    },
+    {
+      "sample": "0",
+      "operation": "world.held",
+      "wall_ms": 114.302048,
+      "thread_cpu_ms": 0.511634,
+      "gpu_ms": 42.957979
+    },
+    {
+      "sample": "0",
+      "operation": "main.render",
+      "wall_ms": 2050.569279,
+      "thread_cpu_ms": 31.012551,
+      "gpu_ms": 2080.923657
+    },
+    {
+      "sample": "1",
+      "operation": "pipeline.shadows",
+      "wall_ms": 11.693411,
+      "thread_cpu_ms": 3.22223,
+      "gpu_ms": 6.413796
+    },
+    {
+      "sample": "1",
+      "operation": "pipeline.begin",
+      "wall_ms": 1.501739,
+      "thread_cpu_ms": 1.250131,
+      "gpu_ms": 1132.653363
+    },
+    {
+      "sample": "1",
+      "operation": "pipeline.distant",
+      "wall_ms": 8.993502,
+      "thread_cpu_ms": 8.664187,
+      "gpu_ms": 8.9e-05
+    },
+    {
+      "sample": "1",
+      "operation": "world.chunks",
+      "wall_ms": 1128.701483,
+      "thread_cpu_ms": 4.013845,
+      "gpu_ms": 210.195611
+    },
+    {
+      "sample": "1",
+      "operation": "world.models",
+      "wall_ms": 1.68914,
+      "thread_cpu_ms": 1.536636,
+      "gpu_ms": 9.7e-05
+    },
+    {
+      "sample": "1",
+      "operation": "pipeline.water",
+      "wall_ms": 215.31754,
+      "thread_cpu_ms": 12.415915,
+      "gpu_ms": 44.629708
+    },
+    {
+      "sample": "1",
+      "operation": "post.draw1",
+      "wall_ms": 0.390426,
+      "thread_cpu_ms": 0.381263,
+      "gpu_ms": 296.163198
+    },
+    {
+      "sample": "1",
+      "operation": "post.draw2",
+      "wall_ms": 0.484013,
+      "thread_cpu_ms": 0.276148,
+      "gpu_ms": 117.851261
+    },
+    {
+      "sample": "1",
+      "operation": "post.finish",
+      "wall_ms": 301.812814,
+      "thread_cpu_ms": 2.369627,
+      "gpu_ms": 418.767309
+    },
+    {
+      "sample": "1",
+      "operation": "pipeline.finish",
+      "wall_ms": 339.422742,
+      "thread_cpu_ms": 5.951922,
+      "gpu_ms": 422.8543
+    },
+    {
+      "sample": "1",
+      "operation": "world.held",
+      "wall_ms": 118.106375,
+      "thread_cpu_ms": 0.849618,
+      "gpu_ms": 49.276919
+    },
+    {
+      "sample": "1",
+      "operation": "main.render",
+      "wall_ms": 1830.721029,
+      "thread_cpu_ms": 40.020732,
+      "gpu_ms": 1866.025657
+    },
+    {
+      "sample": "2",
+      "operation": "pipeline.shadows",
+      "wall_ms": 1.244281,
+      "thread_cpu_ms": 1.237521,
+      "gpu_ms": 0.352404
+    },
+    {
+      "sample": "2",
+      "operation": "pipeline.begin",
+      "wall_ms": 0.909448,
+      "thread_cpu_ms": 0.906447,
+      "gpu_ms": 1232.235476
+    },
+    {
+      "sample": "2",
+      "operation": "pipeline.distant",
+      "wall_ms": 13.647915,
+      "thread_cpu_ms": 11.573479,
+      "gpu_ms": 0.00012
+    },
+    {
+      "sample": "2",
+      "operation": "world.chunks",
+      "wall_ms": 1230.851129,
+      "thread_cpu_ms": 3.761619,
+      "gpu_ms": 198.665432
+    },
+    {
+      "sample": "2",
+      "operation": "world.models",
+      "wall_ms": 1.604254,
+      "thread_cpu_ms": 1.598046,
+      "gpu_ms": 0.000121
+    },
+    {
+      "sample": "2",
+      "operation": "pipeline.water",
+      "wall_ms": 202.128374,
+      "thread_cpu_ms": 12.21379,
+      "gpu_ms": 42.362232
+    },
+    {
+      "sample": "2",
+      "operation": "post.draw1",
+      "wall_ms": 0.404423,
+      "thread_cpu_ms": 0.395785,
+      "gpu_ms": 305.557169
+    },
+    {
+      "sample": "2",
+      "operation": "post.draw2",
+      "wall_ms": 0.377449,
+      "thread_cpu_ms": 0.238339,
+      "gpu_ms": 111.880905
+    },
+    {
+      "sample": "2",
+      "operation": "post.finish",
+      "wall_ms": 310.867473,
+      "thread_cpu_ms": 2.203868,
+      "gpu_ms": 421.605888
+    },
+    {
+      "sample": "2",
+      "operation": "pipeline.finish",
+      "wall_ms": 347.447328,
+      "thread_cpu_ms": 5.001925,
+      "gpu_ms": 425.199045
+    },
+    {
+      "sample": "2",
+      "operation": "world.held",
+      "wall_ms": 111.9737,
+      "thread_cpu_ms": 0.552396,
+      "gpu_ms": 33.552723
+    },
+    {
+      "sample": "2",
+      "operation": "main.render",
+      "wall_ms": 1911.903216,
+      "thread_cpu_ms": 38.978377,
+      "gpu_ms": 1932.379955
+    },
+    {
+      "sample": "3",
+      "operation": "pipeline.shadows",
+      "wall_ms": 1.181115,
+      "thread_cpu_ms": 1.176504,
+      "gpu_ms": 0.403751
+    },
+    {
+      "sample": "3",
+      "operation": "pipeline.begin",
+      "wall_ms": 16.665823,
+      "thread_cpu_ms": 4.293851,
+      "gpu_ms": 910.142799
+    },
+    {
+      "sample": "3",
+      "operation": "pipeline.distant",
+      "wall_ms": 915.695148,
+      "thread_cpu_ms": 14.882576,
+      "gpu_ms": 279.726116
+    },
+    {
+      "sample": "3",
+      "operation": "world.chunks",
+      "wall_ms": 266.549232,
+      "thread_cpu_ms": 2.777308,
+      "gpu_ms": 227.720294
+    },
+    {
+      "sample": "3",
+      "operation": "world.models",
+      "wall_ms": 1.049865,
+      "thread_cpu_ms": 1.047258,
+      "gpu_ms": 0.000174
+    },
+    {
+      "sample": "3",
+      "operation": "pipeline.water",
+      "wall_ms": 233.452093,
+      "thread_cpu_ms": 8.76826,
+      "gpu_ms": 83.874462
+    },
+    {
+      "sample": "3",
+      "operation": "post.draw1",
+      "wall_ms": 0.18859,
+      "thread_cpu_ms": 0.184704,
+      "gpu_ms": 306.747709
+    },
+    {
+      "sample": "3",
+      "operation": "post.draw2",
+      "wall_ms": 0.271248,
+      "thread_cpu_ms": 0.16875,
+      "gpu_ms": 108.604753
+    },
+    {
+      "sample": "3",
+      "operation": "post.finish",
+      "wall_ms": 310.76677,
+      "thread_cpu_ms": 1.442075,
+      "gpu_ms": 418.635134
+    },
+    {
+      "sample": "3",
+      "operation": "pipeline.finish",
+      "wall_ms": 388.056481,
+      "thread_cpu_ms": 4.179465,
+      "gpu_ms": 421.810306
+    },
+    {
+      "sample": "3",
+      "operation": "world.held",
+      "wall_ms": 108.746865,
+      "thread_cpu_ms": 0.446337,
+      "gpu_ms": 32.679972
+    },
+    {
+      "sample": "3",
+      "operation": "main.render",
+      "wall_ms": 1936.053831,
+      "thread_cpu_ms": 39.739054,
+      "gpu_ms": 1956.359035
+    },
+    {
+      "sample": "4",
+      "operation": "pipeline.shadows",
+      "wall_ms": 6.770277,
+      "thread_cpu_ms": 1.277287,
+      "gpu_ms": 7.160031
+    },
+    {
+      "sample": "4",
+      "operation": "pipeline.begin",
+      "wall_ms": 0.5704,
+      "thread_cpu_ms": 0.567699,
+      "gpu_ms": 1073.926157
+    },
+    {
+      "sample": "4",
+      "operation": "pipeline.distant",
+      "wall_ms": 8.15659,
+      "thread_cpu_ms": 8.153161,
+      "gpu_ms": 9.3e-05
+    },
+    {
+      "sample": "4",
+      "operation": "world.chunks",
+      "wall_ms": 1073.797696,
+      "thread_cpu_ms": 2.653769,
+      "gpu_ms": 217.773018
+    },
+    {
+      "sample": "4",
+      "operation": "world.models",
+      "wall_ms": 0.892761,
+      "thread_cpu_ms": 0.889983,
+      "gpu_ms": 0.000114
+    },
+    {
+      "sample": "4",
+      "operation": "pipeline.water",
+      "wall_ms": 221.843433,
+      "thread_cpu_ms": 7.896579,
+      "gpu_ms": 39.113134
+    },
+    {
+      "sample": "4",
+      "operation": "post.draw1",
+      "wall_ms": 0.201269,
+      "thread_cpu_ms": 0.196312,
+      "gpu_ms": 291.165428
+    },
+    {
+      "sample": "4",
+      "operation": "post.draw2",
+      "wall_ms": 0.22439,
+      "thread_cpu_ms": 0.147385,
+      "gpu_ms": 109.003909
+    },
+    {
+      "sample": "4",
+      "operation": "post.finish",
+      "wall_ms": 295.082357,
+      "thread_cpu_ms": 1.407028,
+      "gpu_ms": 403.550501
+    },
+    {
+      "sample": "4",
+      "operation": "pipeline.finish",
+      "wall_ms": 329.217039,
+      "thread_cpu_ms": 4.017127,
+      "gpu_ms": 406.469708
+    },
+    {
+      "sample": "4",
+      "operation": "world.held",
+      "wall_ms": 109.213492,
+      "thread_cpu_ms": 0.529836,
+      "gpu_ms": 31.637011
+    },
+    {
+      "sample": "4",
+      "operation": "main.render",
+      "wall_ms": 1752.569224,
+      "thread_cpu_ms": 28.112998,
+      "gpu_ms": 1776.080444
+    },
+    {
+      "sample": "5",
+      "operation": "pipeline.shadows",
+      "wall_ms": 5.132311,
+      "thread_cpu_ms": 1.429947,
+      "gpu_ms": 6.950362
+    },
+    {
+      "sample": "5",
+      "operation": "pipeline.begin",
+      "wall_ms": 0.512033,
+      "thread_cpu_ms": 0.509028,
+      "gpu_ms": 1080.474883
+    },
+    {
+      "sample": "5",
+      "operation": "pipeline.distant",
+      "wall_ms": 8.891544,
+      "thread_cpu_ms": 8.387683,
+      "gpu_ms": 9.4e-05
+    },
+    {
+      "sample": "5",
+      "operation": "world.chunks",
+      "wall_ms": 1078.588298,
+      "thread_cpu_ms": 2.883731,
+      "gpu_ms": 203.995993
+    },
+    {
+      "sample": "5",
+      "operation": "world.models",
+      "wall_ms": 1.08588,
+      "thread_cpu_ms": 1.082595,
+      "gpu_ms": 0.000115
+    },
+    {
+      "sample": "5",
+      "operation": "pipeline.water",
+      "wall_ms": 207.574465,
+      "thread_cpu_ms": 7.528149,
+      "gpu_ms": 37.594391
+    },
+    {
+      "sample": "5",
+      "operation": "post.draw1",
+      "wall_ms": 0.215084,
+      "thread_cpu_ms": 0.210772,
+      "gpu_ms": 287.909461
+    },
+    {
+      "sample": "5",
+      "operation": "post.draw2",
+      "wall_ms": 0.270677,
+      "thread_cpu_ms": 0.178308,
+      "gpu_ms": 110.098094
+    },
+    {
+      "sample": "5",
+      "operation": "post.finish",
+      "wall_ms": 291.771746,
+      "thread_cpu_ms": 1.461437,
+      "gpu_ms": 401.236096
+    },
+    {
+      "sample": "5",
+      "operation": "pipeline.finish",
+      "wall_ms": 324.76301,
+      "thread_cpu_ms": 4.165751,
+      "gpu_ms": 404.397132
+    },
+    {
+      "sample": "5",
+      "operation": "world.held",
+      "wall_ms": 110.265842,
+      "thread_cpu_ms": 0.493566,
+      "gpu_ms": 36.915442
+    },
+    {
+      "sample": "5",
+      "operation": "main.render",
+      "wall_ms": 1738.972138,
+      "thread_cpu_ms": 28.251875,
+      "gpu_ms": 1770.329621
+    },
+    {
+      "sample": "6",
+      "operation": "pipeline.shadows",
+      "wall_ms": 5.348678,
+      "thread_cpu_ms": 1.31057,
+      "gpu_ms": 6.34576
+    },
+    {
+      "sample": "6",
+      "operation": "pipeline.begin",
+      "wall_ms": 1.005389,
+      "thread_cpu_ms": 0.589746,
+      "gpu_ms": 1177.960343
+    },
+    {
+      "sample": "6",
+      "operation": "pipeline.distant",
+      "wall_ms": 8.469165,
+      "thread_cpu_ms": 8.451722,
+      "gpu_ms": 0.00012
+    },
+    {
+      "sample": "6",
+      "operation": "world.chunks",
+      "wall_ms": 1175.550823,
+      "thread_cpu_ms": 2.664658,
+      "gpu_ms": 202.363351
+    },
+    {
+      "sample": "6",
+      "operation": "world.models",
+      "wall_ms": 0.849174,
+      "thread_cpu_ms": 0.84656,
+      "gpu_ms": 0.00013
+    },
+    {
+      "sample": "6",
+      "operation": "pipeline.water",
+      "wall_ms": 210.122528,
+      "thread_cpu_ms": 10.958489,
+      "gpu_ms": 42.180457
+    },
+    {
+      "sample": "6",
+      "operation": "post.draw1",
+      "wall_ms": 0.207138,
+      "thread_cpu_ms": 0.202028,
+      "gpu_ms": 327.860469
+    },
+    {
+      "sample": "6",
+      "operation": "post.draw2",
+      "wall_ms": 0.281008,
+      "thread_cpu_ms": 0.176737,
+      "gpu_ms": 113.605278
+    },
+    {
+      "sample": "6",
+      "operation": "post.finish",
+      "wall_ms": 343.492171,
+      "thread_cpu_ms": 1.625952,
+      "gpu_ms": 456.387182
+    },
+    {
+      "sample": "6",
+      "operation": "pipeline.finish",
+      "wall_ms": 377.238769,
+      "thread_cpu_ms": 4.226253,
+      "gpu_ms": 459.490214
+    },
+    {
+      "sample": "6",
+      "operation": "world.held",
+      "wall_ms": 113.763658,
+      "thread_cpu_ms": 0.497433,
+      "gpu_ms": 44.331819
+    },
+    {
+      "sample": "6",
+      "operation": "main.render",
+      "wall_ms": 1893.768136,
+      "thread_cpu_ms": 30.99196,
+      "gpu_ms": 1932.674023
+    },
+    {
+      "sample": "7",
+      "operation": "pipeline.shadows",
+      "wall_ms": 19.688122,
+      "thread_cpu_ms": 11.016859,
+      "gpu_ms": 319.144351
+    },
+    {
+      "sample": "7",
+      "operation": "pipeline.begin",
+      "wall_ms": 0.621824,
+      "thread_cpu_ms": 0.618917,
+      "gpu_ms": 1280.169415
+    },
+    {
+      "sample": "7",
+      "operation": "pipeline.distant",
+      "wall_ms": 15.575024,
+      "thread_cpu_ms": 15.532509,
+      "gpu_ms": 4.5e-05
+    },
+    {
+      "sample": "7",
+      "operation": "world.chunks",
+      "wall_ms": 1573.95786,
+      "thread_cpu_ms": 2.646084,
+      "gpu_ms": 206.678648
+    },
+    {
+      "sample": "7",
+      "operation": "world.models",
+      "wall_ms": 0.932641,
+      "thread_cpu_ms": 0.930158,
+      "gpu_ms": 7.7e-05
+    },
+    {
+      "sample": "7",
+      "operation": "pipeline.water",
+      "wall_ms": 210.964931,
+      "thread_cpu_ms": 7.694337,
+      "gpu_ms": 39.380695
+    },
+    {
+      "sample": "7",
+      "operation": "post.draw1",
+      "wall_ms": 0.253289,
+      "thread_cpu_ms": 0.246838,
+      "gpu_ms": 293.619635
+    },
+    {
+      "sample": "7",
+      "operation": "post.draw2",
+      "wall_ms": 0.250251,
+      "thread_cpu_ms": 0.156929,
+      "gpu_ms": 112.113931
+    },
+    {
+      "sample": "7",
+      "operation": "post.finish",
+      "wall_ms": 297.977733,
+      "thread_cpu_ms": 1.47092,
+      "gpu_ms": 409.284584
+    },
+    {
+      "sample": "7",
+      "operation": "pipeline.finish",
+      "wall_ms": 332.481594,
+      "thread_cpu_ms": 4.213992,
+      "gpu_ms": 412.590682
+    },
+    {
+      "sample": "7",
+      "operation": "world.held",
+      "wall_ms": 112.264996,
+      "thread_cpu_ms": 0.478648,
+      "gpu_ms": 33.747666
+    },
+    {
+      "sample": "7",
+      "operation": "main.render",
+      "wall_ms": 2268.165743,
+      "thread_cpu_ms": 44.824141,
+      "gpu_ms": 2291.713508
+    },
+    {
+      "sample": "8",
+      "operation": "pipeline.shadows",
+      "wall_ms": 5.239097,
+      "thread_cpu_ms": 1.755239,
+      "gpu_ms": 10.128588
+    },
+    {
+      "sample": "8",
+      "operation": "pipeline.begin",
+      "wall_ms": 0.713639,
+      "thread_cpu_ms": 0.701854,
+      "gpu_ms": 1134.609156
+    },
+    {
+      "sample": "8",
+      "operation": "pipeline.distant",
+      "wall_ms": 12.179772,
+      "thread_cpu_ms": 12.136989,
+      "gpu_ms": 4.3e-05
+    },
+    {
+      "sample": "8",
+      "operation": "world.chunks",
+      "wall_ms": 1132.848552,
+      "thread_cpu_ms": 2.930143,
+      "gpu_ms": 240.749534
+    },
+    {
+      "sample": "8",
+      "operation": "world.models",
+      "wall_ms": 1.144344,
+      "thread_cpu_ms": 1.141161,
+      "gpu_ms": 0.00025
+    },
+    {
+      "sample": "8",
+      "operation": "pipeline.water",
+      "wall_ms": 245.120839,
+      "thread_cpu_ms": 8.315717,
+      "gpu_ms": 48.031903
+    },
+    {
+      "sample": "8",
+      "operation": "post.draw1",
+      "wall_ms": 0.265535,
+      "thread_cpu_ms": 0.258673,
+      "gpu_ms": 317.117776
+    },
+    {
+      "sample": "8",
+      "operation": "post.draw2",
+      "wall_ms": 0.262837,
+      "thread_cpu_ms": 0.164821,
+      "gpu_ms": 108.443869
+    },
+    {
+      "sample": "8",
+      "operation": "post.finish",
+      "wall_ms": 321.365972,
+      "thread_cpu_ms": 1.372407,
+      "gpu_ms": 428.641163
+    },
+    {
+      "sample": "8",
+      "operation": "pipeline.finish",
+      "wall_ms": 363.839787,
+      "thread_cpu_ms": 4.057266,
+      "gpu_ms": 432.221707
+    },
+    {
+      "sample": "8",
+      "operation": "world.held",
+      "wall_ms": 108.583886,
+      "thread_cpu_ms": 0.429472,
+      "gpu_ms": 28.997302
+    },
+    {
+      "sample": "8",
+      "operation": "main.render",
+      "wall_ms": 1871.282442,
+      "thread_cpu_ms": 33.117932,
+      "gpu_ms": 1894.752364
+    },
+    {
+      "sample": "9",
+      "operation": "pipeline.shadows",
+      "wall_ms": 13.741146,
+      "thread_cpu_ms": 2.834187,
+      "gpu_ms": 4.534196
+    },
+    {
+      "sample": "9",
+      "operation": "pipeline.begin",
+      "wall_ms": 0.490991,
+      "thread_cpu_ms": 0.48792,
+      "gpu_ms": 1121.148886
+    },
+    {
+      "sample": "9",
+      "operation": "pipeline.distant",
+      "wall_ms": 11.146102,
+      "thread_cpu_ms": 11.121927,
+      "gpu_ms": 0.000448
+    },
+    {
+      "sample": "9",
+      "operation": "world.chunks",
+      "wall_ms": 1112.181088,
+      "thread_cpu_ms": 2.557235,
+      "gpu_ms": 234.891109
+    },
+    {
+      "sample": "9",
+      "operation": "world.models",
+      "wall_ms": 0.903974,
+      "thread_cpu_ms": 0.901271,
+      "gpu_ms": 0.000106
+    },
+    {
+      "sample": "9",
+      "operation": "pipeline.water",
+      "wall_ms": 239.612766,
+      "thread_cpu_ms": 7.260637,
+      "gpu_ms": 45.849537
+    },
+    {
+      "sample": "9",
+      "operation": "post.draw1",
+      "wall_ms": 0.281723,
+      "thread_cpu_ms": 0.277306,
+      "gpu_ms": 298.449016
+    },
+    {
+      "sample": "9",
+      "operation": "post.draw2",
+      "wall_ms": 0.326855,
+      "thread_cpu_ms": 0.164286,
+      "gpu_ms": 111.497344
+    },
+    {
+      "sample": "9",
+      "operation": "post.finish",
+      "wall_ms": 302.854178,
+      "thread_cpu_ms": 1.486165,
+      "gpu_ms": 413.728097
+    },
+    {
+      "sample": "9",
+      "operation": "pipeline.finish",
+      "wall_ms": 343.586522,
+      "thread_cpu_ms": 4.285602,
+      "gpu_ms": 416.949419
+    },
+    {
+      "sample": "9",
+      "operation": "world.held",
+      "wall_ms": 111.600247,
+      "thread_cpu_ms": 0.454533,
+      "gpu_ms": 35.532198
+    },
+    {
+      "sample": "9",
+      "operation": "main.render",
+      "wall_ms": 1834.690854,
+      "thread_cpu_ms": 31.352012,
+      "gpu_ms": 1858.907878
+    },
+    {
+      "sample": "10",
+      "operation": "pipeline.shadows",
+      "wall_ms": 0.172339,
+      "thread_cpu_ms": 0.134102,
+      "gpu_ms": 0.000232
+    },
+    {
+      "sample": "10",
+      "operation": "pipeline.begin",
+      "wall_ms": 0.611448,
+      "thread_cpu_ms": 0.608514,
+      "gpu_ms": 997.524695
+    },
+    {
+      "sample": "10",
+      "operation": "pipeline.distant",
+      "wall_ms": 1021.044318,
+      "thread_cpu_ms": 15.417899,
+      "gpu_ms": 268.777929
+    },
+    {
+      "sample": "10",
+      "operation": "world.chunks",
+      "wall_ms": 256.081356,
+      "thread_cpu_ms": 2.62766,
+      "gpu_ms": 195.410874
+    },
+    {
+      "sample": "10",
+      "operation": "world.models",
+      "wall_ms": 0.859064,
+      "thread_cpu_ms": 0.856268,
+      "gpu_ms": 0.000108
+    },
+    {
+      "sample": "10",
+      "operation": "pipeline.water",
+      "wall_ms": 199.620212,
+      "thread_cpu_ms": 7.262556,
+      "gpu_ms": 40.072329
+    },
+    {
+      "sample": "10",
+      "operation": "post.draw1",
+      "wall_ms": 0.191726,
+      "thread_cpu_ms": 0.188275,
+      "gpu_ms": 282.665298
+    },
+    {
+      "sample": "10",
+      "operation": "post.draw2",
+      "wall_ms": 0.259713,
+      "thread_cpu_ms": 0.160103,
+      "gpu_ms": 106.350844
+    },
+    {
+      "sample": "10",
+      "operation": "post.finish",
+      "wall_ms": 286.863899,
+      "thread_cpu_ms": 1.376366,
+      "gpu_ms": 392.518449
+    },
+    {
+      "sample": "10",
+      "operation": "pipeline.finish",
+      "wall_ms": 322.266657,
+      "thread_cpu_ms": 4.027477,
+      "gpu_ms": 395.589537
+    },
+    {
+      "sample": "10",
+      "operation": "world.held",
+      "wall_ms": 106.467775,
+      "thread_cpu_ms": 0.430611,
+      "gpu_ms": 35.220838
+    },
+    {
+      "sample": "10",
+      "operation": "main.render",
+      "wall_ms": 1908.572597,
+      "thread_cpu_ms": 32.873279,
+      "gpu_ms": 1932.597967
+    },
+    {
+      "sample": "11",
+      "operation": "pipeline.shadows",
+      "wall_ms": 0.104834,
+      "thread_cpu_ms": 0.099986,
+      "gpu_ms": 0.000695
+    },
+    {
+      "sample": "11",
+      "operation": "pipeline.begin",
+      "wall_ms": 0.702823,
+      "thread_cpu_ms": 0.683738,
+      "gpu_ms": 933.445924
+    },
+    {
+      "sample": "11",
+      "operation": "pipeline.distant",
+      "wall_ms": 952.843859,
+      "thread_cpu_ms": 11.133102,
+      "gpu_ms": 280.821005
+    },
+    {
+      "sample": "11",
+      "operation": "world.chunks",
+      "wall_ms": 272.426733,
+      "thread_cpu_ms": 2.68903,
+      "gpu_ms": 212.097777
+    },
+    {
+      "sample": "11",
+      "operation": "world.models",
+      "wall_ms": 0.951983,
+      "thread_cpu_ms": 0.946068,
+      "gpu_ms": 0.000142
+    },
+    {
+      "sample": "11",
+      "operation": "pipeline.water",
+      "wall_ms": 217.108355,
+      "thread_cpu_ms": 8.590395,
+      "gpu_ms": 39.136282
+    },
+    {
+      "sample": "11",
+      "operation": "post.draw1",
+      "wall_ms": 0.210376,
+      "thread_cpu_ms": 0.205786,
+      "gpu_ms": 291.039527
+    },
+    {
+      "sample": "11",
+      "operation": "post.draw2",
+      "wall_ms": 0.362039,
+      "thread_cpu_ms": 0.167726,
+      "gpu_ms": 116.723038
+    },
+    {
+      "sample": "11",
+      "operation": "post.finish",
+      "wall_ms": 295.516008,
+      "thread_cpu_ms": 1.402994,
+      "gpu_ms": 411.612732
+    },
+    {
+      "sample": "11",
+      "operation": "pipeline.finish",
+      "wall_ms": 328.796859,
+      "thread_cpu_ms": 4.00585,
+      "gpu_ms": 414.557648
+    },
+    {
+      "sample": "11",
+      "operation": "world.held",
+      "wall_ms": 116.850781,
+      "thread_cpu_ms": 0.480372,
+      "gpu_ms": 34.537511
+    },
+    {
+      "sample": "11",
+      "operation": "main.render",
+      "wall_ms": 1891.166608,
+      "thread_cpu_ms": 30.03469,
+      "gpu_ms": 1914.598211
+    }
+  ],
+  "observedCause": "The reflection cube originally had only level0 with mipmap minification. At regressed sample1, cube3 gains level1 width32; other recorded GI roots/buffer formats and dimensions stay unchanged. That frame takes9132.92ms render/7264.26ms owner thread CPU, with chunk, glass and hand native indexed draw callsites. Baseline cube is already complete in resident frames. Allocating its full42 face/mip images at construction removes this transition; fixed diagnostic max2268.17ms render/44.82ms owner CPU. This isolates feature-exposed first-use driver work following sampler completeness; no exact LLVM compiler stack or external-host explanation is claimed.",
+  "fix": "ReflectionProbes allocates all seven mip levels for each of six faces as RGB16F before first draw. Same64x64 base size/filtering/capture and mip generation; ready=false hides data until all six faces captured. No settings, quality or coverage reduction.",
+  "limits": [
+    "Uninstrumented three-pair matrix is separate and still running at report creation.",
+    "A software driver timing does not qualify physical Windows GPUs.",
+    "Residual regular multi-second software render time is not fixed by this change."
+  ],
+  "abortedDiagnostics": "before1 and after2 were interrupted after a diagnostic overlay compile failure; excluded from comparisons. after1 used after-frame synchronous query drains and is preliminary only. after3/4/5 reproduced stalls; after6 is fixed nonblocking probe.",
+  "status": "Historical experiment, superseded by resident-shared-source.json and resident-shared-performance.json. Retained numeric results are not final-candidate claims."
+}

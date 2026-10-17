@@ -23,7 +23,8 @@ public final class RenderPipeline implements AutoCloseable {
     private final TemporalPost temporal = new TemporalPost(settings);
     private final HiZ hiZ = new HiZ();
     private final WaterRenderer water = new WaterRenderer();
-    private final ReflectionProbes probes = new ReflectionProbes();
+    private final ReflectionProbes probes;
+    private final ShaderProgram sharedVoxel;
     private final ClusteredLights clusters = new ClusteredLights();
     private final GpuParticles particles = new GpuParticles();
     private VoxelTransport transport = new VoxelTransport();
@@ -79,6 +80,7 @@ public final class RenderPipeline implements AutoCloseable {
     private World focusWorld;private float previousFocusX,previousFocusZ,motionX,motionZ,requestedX,requestedZ;
     public long focusNanos,ownerBudgetNanos=FrameBudget.STREAMING_CPU_NANOS;
     private boolean giFirst;
+    private int lightingPriorityTurn;
     private long previousFocusTime,lastVolumeLatency;private boolean focusPrepared;
     public void prepareFocus(World world,float x,float z){
         long now=System.nanoTime();float dx=focusWorld==world?x-previousFocusX:0,dz=focusWorld==world?z-previousFocusZ:0;
@@ -137,7 +139,10 @@ public final class RenderPipeline implements AutoCloseable {
     private final Matrix4f[] shadowMatrices = { new Matrix4f(), new Matrix4f(), new Matrix4f() };
 
     public RenderPipeline(){this(null);}
-    public RenderPipeline(GraphicsProfile profile) {
+    public RenderPipeline(GraphicsProfile profile) {this(profile,null);}
+    public RenderPipeline(GraphicsProfile profile,ShaderProgram sharedVoxel) {
+        this.sharedVoxel=sharedVoxel;
+        probes=new ReflectionProbes(sharedVoxel);
         try {
         lightingStores.warmDefaults();
         if(profile==null){var defaults=GraphicsProfile.launchDefaults().profile();settings.apply(defaults);samples=Math.max(1,Math.min(defaults.samples(),glGetInteger(GL_MAX_SAMPLES)));}
@@ -229,7 +234,10 @@ public final class RenderPipeline implements AutoCloseable {
         sceneNanos=System.nanoTime()-stage;
         SkyVisibilityScheduler.Prepared rebuilt=null;
         boolean uncovered=volume==null||x<volume.x||x>=volume.x+volume.width||z<volume.z||z>=volume.z+volume.length;
-        long skyAllowance=initialLightingFrame?3_000_000L:(!lightingBootstrapped||uncovered||skyWorkPending())?1_000_000L:250_000L;
+        boolean missingNearGi=desiredVolume!=volume&&pendingRootBuffer()&&!nearCovered(volume,x,z);
+        // Once a complete bake is waiting on GPU transfer, far sky capture must
+        // not consume the budget needed to restore the camera's GI coverage.
+        long skyAllowance=initialLightingFrame?3_000_000L:missingNearGi?250_000L:(!lightingBootstrapped||uncovered||skyWorkPending())?1_000_000L:250_000L;
         // Reserve half the remaining allowance for GI preparation and GPU progress.
         if(System.nanoTime()<deadline){rebuilt=skyVisibility.update(world,(x+requestedX)*.5f,(z+requestedZ)*.5f,Math.min(skyAllowance,Math.max(0,(deadline-System.nanoTime())/2)),initialLightingFrame);skyBuildNanos=skyVisibility.ownerNanos;}
         if(rebuilt!=null)desiredSky=rebuilt;
@@ -281,8 +289,12 @@ public final class RenderPipeline implements AutoCloseable {
         if(!independentSky&&skyLightingUpload!=null){skyLightingUpload.close();skyLightingUpload=null;}
         // Alternate first service: a single non-preemptible GL copy may consume its
         // share, but cannot prevent the other lane from starting on the next frame.
-        boolean mainFirst=independentSky&&(giFirst=!giFirst);
-        if(mainFirst)pumpMainLighting(world,x,z,Math.min(deadline,System.nanoTime()+Math.max(0,(deadline-System.nanoTime())/2)),byteBudget);
+        boolean missingNearGi=desiredVolume!=volume&&pendingRootBuffer()&&!nearCovered(volume,x,z);
+        boolean nearGiPriority=independentSky&&prioritizeNearGi(missingNearGi,++lightingPriorityTurn);
+        // Three urgent turns may use the remaining slice; every fourth starts
+        // sky first. Both lanes keep the same shared deadline and byte ceiling.
+        boolean mainFirst=independentSky&&(missingNearGi?nearGiPriority:(giFirst=!giFirst));
+        if(mainFirst)pumpMainLighting(world,x,z,nearGiPriority?deadline:Math.min(deadline,System.nanoTime()+Math.max(0,(deadline-System.nanoTime())/2)),byteBudget);
         if(independentSky&&System.nanoTime()<deadline){
             long start=System.nanoTime();
             long skyDeadline=mainFirst||desiredVolume==volume?deadline:Math.min(deadline,start+Math.max(0,(deadline-start)/2));
@@ -293,6 +305,7 @@ public final class RenderPipeline implements AutoCloseable {
 
         }finally{dev.jayms.OwnerTrace.end(trace,0);}
     }
+    static boolean prioritizeNearGi(boolean missing,int turn){return missing&&(turn&3)!=0;}
     private void pumpMainLighting(World world,float x,float z,long deadline,int byteBudget){
         if(System.nanoTime()>=deadline)return;
         if(desiredVolume!=volume&&lightingUpload!=null&&!lightingUpload.replaceVolume){lightingUpload.close();lightingUpload=null;skyUploadPreemptions++;}
@@ -375,6 +388,9 @@ public final class RenderPipeline implements AutoCloseable {
         frameBudget.probesEnd();
     }
 
+    /** Preserve borrowed program ownership through graphics apply/rollback candidates. */
+    RenderPipeline replacement(GraphicsProfile profile){return new RenderPipeline(profile,sharedVoxel);}
+
     public void begin(
             int w,
             int h,
@@ -433,6 +449,12 @@ public final class RenderPipeline implements AutoCloseable {
         far.setFloat("uJitterX", temporal.jitterX(width));
         far.setFloat("uJitterY", temporal.jitterY(height));
         voxel.bind();
+        // Reflection capture may share this program. Restore the camera and draw
+        // modes before the main pass instead of relying on pre-capture uniforms.
+        voxel.setMatrix4("uProjection",projection);voxel.setMatrix4("uView",view);
+        voxel.setInt("uVertexColor",1);voxel.setInt("uInstanced",0);
+        voxel.setInt("uDistantTerrain",0);voxel.setInt("uFog",1);
+        voxel.setFloat("uTransparency",0);
         voxel.setFloat("uJitterX", temporal.jitterX(width));
         voxel.setFloat("uJitterY", temporal.jitterY(height));
         voxel.setVector3("uCameraPosition", camera.x, camera.y, camera.z);

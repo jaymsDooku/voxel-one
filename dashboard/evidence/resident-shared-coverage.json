@@ -1,0 +1,110 @@
+{
+  "before-1": {
+    "cold": {
+      "frames": 100,
+      "meanNinePointCoveragePercent": 55.0,
+      "fullFrames": 55,
+      "zeroFrames": 45,
+      "sourceAgeP99Ms": -1.0,
+      "sourceAgeWorstMs": -1.0
+    },
+    "all": {
+      "frames": 166,
+      "meanNinePointCoveragePercent": 50.0,
+      "fullFrames": 83,
+      "zeroFrames": 83,
+      "sourceAgeP99Ms": -1.0,
+      "sourceAgeWorstMs": -1.0
+    }
+  },
+  "before-2": {
+    "cold": {
+      "frames": 100,
+      "meanNinePointCoveragePercent": 55.0,
+      "fullFrames": 55,
+      "zeroFrames": 45,
+      "sourceAgeP99Ms": -1.0,
+      "sourceAgeWorstMs": -1.0
+    },
+    "all": {
+      "frames": 166,
+      "meanNinePointCoveragePercent": 50.0,
+      "fullFrames": 83,
+      "zeroFrames": 83,
+      "sourceAgeP99Ms": -1.0,
+      "sourceAgeWorstMs": -1.0
+    }
+  },
+  "before-3": {
+    "cold": {
+      "frames": 100,
+      "meanNinePointCoveragePercent": 55.0,
+      "fullFrames": 55,
+      "zeroFrames": 45,
+      "sourceAgeP99Ms": -1.0,
+      "sourceAgeWorstMs": -1.0
+    },
+    "all": {
+      "frames": 166,
+      "meanNinePointCoveragePercent": 50.0,
+      "fullFrames": 83,
+      "zeroFrames": 83,
+      "sourceAgeP99Ms": -1.0,
+      "sourceAgeWorstMs": -1.0
+    }
+  },
+  "after-1": {
+    "cold": {
+      "frames": 100,
+      "meanNinePointCoveragePercent": 46.0,
+      "fullFrames": 15,
+      "zeroFrames": 33,
+      "sourceAgeP99Ms": 128476.0,
+      "sourceAgeWorstMs": 130442.0
+    },
+    "all": {
+      "frames": 166,
+      "meanNinePointCoveragePercent": 57.630522088353416,
+      "fullFrames": 62,
+      "zeroFrames": 48,
+      "sourceAgeP99Ms": 130442.0,
+      "sourceAgeWorstMs": 132244.0
+    }
+  },
+  "after-2": {
+    "cold": {
+      "frames": 100,
+      "meanNinePointCoveragePercent": 75.33333333333333,
+      "fullFrames": 50,
+      "zeroFrames": 12,
+      "sourceAgeP99Ms": 116479.0,
+      "sourceAgeWorstMs": 118429.0
+    },
+    "all": {
+      "frames": 166,
+      "meanNinePointCoveragePercent": 74.29718875502007,
+      "fullFrames": 98,
+      "zeroFrames": 30,
+      "sourceAgeP99Ms": 116479.0,
+      "sourceAgeWorstMs": 118429.0
+    }
+  },
+  "after-3": {
+    "cold": {
+      "frames": 100,
+      "meanNinePointCoveragePercent": 81.0,
+      "fullFrames": 79,
+      "zeroFrames": 18,
+      "sourceAgeP99Ms": 100147.0,
+      "sourceAgeWorstMs": 101873.0
+    },
+    "all": {
+      "frames": 166,
+      "meanNinePointCoveragePercent": 81.92771084337349,
+      "fullFrames": 134,
+      "zeroFrames": 29,
+      "sourceAgeP99Ms": 100147.0,
+      "sourceAgeWorstMs": 101873.0
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "run": "resident-probe-after-10",
+  "diagnostic_only": true,
+  "exit_code": 0,
+  "slow_draws": [
+    {
+      "sample": "-1",
+      "scope": "warm.slow.indexed.cpu2609078429.wall2640021257",
+      "matches_warm_descriptor": true
+    },
+    {
+      "sample": "4",
+      "scope": "capture.slow.indexed.cpu2542927827.wall2585829421",
+      "matches_warm_descriptor": true
+    }
+  ],
+  "driver_eviction_records": 0,
+  "limits": "No eviction observed. Matching recorded states do not establish compilation as the cause. Immediate draw replay is the next diagnostic."
+}

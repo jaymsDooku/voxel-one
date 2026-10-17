@@ -1,0 +1,13 @@
+{
+  "offline-plain": {
+    "captureWindow15Through24Samples": 10,
+    "p50CaptureMs": 0.0007425,
+    "worstCaptureMs": 0.001176
+  },
+  "offline-video": {
+    "captureWindow15Through24Samples": 10,
+    "p50CaptureMs": 33.9579965,
+    "worstCaptureMs": 98.959656
+  },
+  "method": "Same65-frame synthetic workflows,100000 distant edits, Java17. F10 pressed14/24; frames15..24 carry10 capture costs. Background work is asynchronous: not a pure recorder wall-time benchmark. Recorded runs excluded from profiling."
+}

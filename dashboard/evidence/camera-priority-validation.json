@@ -1,0 +1,96 @@
+{
+  "sourceManifest": "streaming-camera-priority-source.json",
+  "reviewBase": "403033b9f53ce66063982879c6e2daff684a427b",
+  "nativeWorkflowResults": [
+    {
+      "mode": "offline",
+      "video": false,
+      "exitCode": 0,
+      "fixtureSha256": "c16ed70daf179eb0793b60ea8212f3461335b5edb8377616f835fb5efa5c583c",
+      "sourceManifest": "streaming-camera-priority-source.json",
+      "command": "python3 deploy/run_streaming_workflow.py --display \"$DISPLAY\" --java /usr/lib/jvm/java-17-openjdk-amd64/bin/java --mode offline --distant-edits 100000"
+    },
+    {
+      "mode": "offline",
+      "video": true,
+      "exitCode": 0,
+      "fixtureSha256": "c16ed70daf179eb0793b60ea8212f3461335b5edb8377616f835fb5efa5c583c",
+      "sourceManifest": "streaming-camera-priority-source.json",
+      "command": "python3 deploy/run_streaming_workflow.py --display \"$DISPLAY\" --java /usr/lib/jvm/java-17-openjdk-amd64/bin/java --mode offline --distant-edits 100000 --video"
+    },
+    {
+      "mode": "multiplayer",
+      "video": false,
+      "exitCode": 0,
+      "fixtureSha256": "c16ed70daf179eb0793b60ea8212f3461335b5edb8377616f835fb5efa5c583c",
+      "sourceManifest": "streaming-camera-priority-source.json",
+      "command": "python3 deploy/run_streaming_workflow.py --display \"$DISPLAY\" --java /usr/lib/jvm/java-17-openjdk-amd64/bin/java --mode multiplayer --distant-edits 100000"
+    },
+    {
+      "mode": "city",
+      "video": false,
+      "exitCode": 0,
+      "fixtureSha256": "c16ed70daf179eb0793b60ea8212f3461335b5edb8377616f835fb5efa5c583c",
+      "sourceManifest": "streaming-camera-priority-source.json",
+      "command": "python3 deploy/run_streaming_workflow.py --display \"$DISPLAY\" --java /usr/lib/jvm/java-17-openjdk-amd64/bin/java --mode city --distant-edits 100000"
+    },
+    {
+      "mode": "switch",
+      "video": false,
+      "exitCode": 0,
+      "fixtureSha256": "c16ed70daf179eb0793b60ea8212f3461335b5edb8377616f835fb5efa5c583c",
+      "sourceManifest": "streaming-camera-priority-source.json",
+      "command": "python3 deploy/run_streaming_workflow.py --display \"$DISPLAY\" --java /usr/lib/jvm/java-17-openjdk-amd64/bin/java --mode switch --distant-edits 100000"
+    }
+  ],
+  "focusedTests": 52,
+  "fullSuite": {
+    "java": "17",
+    "tests": 715,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "exitCode": 0,
+    "command": "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 PATH=/usr/lib/jvm/java-17-openjdk-amd64/bin:$PATH mvn -o -q -Dmaven.repo.local=target/m2 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" package"
+  },
+  "video": {
+    "decodedFrames": 10,
+    "durationSeconds": 18.341,
+    "bytes": 570339,
+    "width": 960,
+    "height": 544,
+    "midpointIndex": 5,
+    "videoSha256": "eda7e6e9964fe9576d81e0961bb0a1eb576e92c118911713bb44c0342be2b4d9",
+    "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step."
+  },
+  "visualReport": "camera-priority-visual-comparison.json",
+  "performanceReport": "camera-priority-performance.json",
+  "limits": [
+    "2ms owner tail unmet",
+    "local GI/sky gaps documented",
+    "physical Windows GPU pending;stable rollout gated"
+  ],
+  "publication": "pending controller",
+  "noCommitPushMergeDeploy": true,
+  "audit": "camera-priority-audit.json",
+  "summary": "camera-priority-summary.txt",
+  "playtestReceipt": "camera-priority-playtest.txt",
+  "queueMemoryCoverage": "camera-priority-bounds-coverage.json",
+  "skyGridCoverage": "camera-priority-grid-comparison.json",
+  "sourceSha256": "fe14cb951712962a13395fca9922c3d4ffe79c285f33ae541489a31a01ab5f87",
+  "glOwnershipReadback": "camera-priority-readback.txt",
+  "inspection": {
+    "videoMidpointInspected": true,
+    "all10VideoFramesDecoded": true,
+    "currentVisualSamplesInspected": [
+      64,
+      111,
+      112,
+      127
+    ],
+    "cityIsometricInspected": true
+  },
+  "fullSuiteReport": "camera-priority-full-tests.json",
+  "decision": "ready for independent review; stable rollout remains gated",
+  "ordinaryHostedCi": "pending controller feature push"
+}

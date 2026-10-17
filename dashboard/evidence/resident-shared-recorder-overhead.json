@@ -1,0 +1,24 @@
+{
+  "offline-plain": {
+    "samples": 65,
+    "captureCpuMedianMs": 0.0008,
+    "captureCpuWorstMs": 0.01127,
+    "captureWindowFrames15Through24": {
+      "samples": 10,
+      "p50Ms": 0.0008625,
+      "worstMs": 0.001413
+    }
+  },
+  "offline-video": {
+    "samples": 65,
+    "captureCpuMedianMs": 0.000976,
+    "captureCpuWorstMs": 107.579618,
+    "captureWindowFrames15Through24": {
+      "samples": 10,
+      "p50Ms": 34.1198775,
+      "worstMs": 107.579618
+    }
+  },
+  "limits": "Separate identical65-frame workflows with100000 distant synthetic edits. Capture stage instrumented directly; asynchronous background work means this is not a pure recorder-only wall-time benchmark. No recorded samples enter matched profiling trials.",
+  "method": "F10 pressed at14 and24. Compare frames15..24 carrying previous capture stage for the10 recorded images; retain all65-frame stats too. No recorded run enters profiling."
+}

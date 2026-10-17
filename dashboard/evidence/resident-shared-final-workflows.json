@@ -1,0 +1,42 @@
+[
+  {
+    "mode": "offline",
+    "video": false,
+    "exitCode": 0,
+    "fixtureSha256": "c16ed70daf179eb0793b60ea8212f3461335b5edb8377616f835fb5efa5c583c",
+    "sourceManifest": "resident-shared-final-source.json",
+    "command": "python3 deploy/run_streaming_workflow.py --display \"$DISPLAY\" --java /usr/lib/jvm/java-17-openjdk-amd64/bin/java --mode offline --distant-edits 100000"
+  },
+  {
+    "mode": "offline",
+    "video": true,
+    "exitCode": 0,
+    "fixtureSha256": "c16ed70daf179eb0793b60ea8212f3461335b5edb8377616f835fb5efa5c583c",
+    "sourceManifest": "resident-shared-final-source.json",
+    "command": "python3 deploy/run_streaming_workflow.py --display \"$DISPLAY\" --java /usr/lib/jvm/java-17-openjdk-amd64/bin/java --mode offline --distant-edits 100000 --video"
+  },
+  {
+    "mode": "multiplayer",
+    "video": false,
+    "exitCode": 0,
+    "fixtureSha256": "c16ed70daf179eb0793b60ea8212f3461335b5edb8377616f835fb5efa5c583c",
+    "sourceManifest": "resident-shared-final-source.json",
+    "command": "python3 deploy/run_streaming_workflow.py --display \"$DISPLAY\" --java /usr/lib/jvm/java-17-openjdk-amd64/bin/java --mode multiplayer --distant-edits 100000"
+  },
+  {
+    "mode": "city",
+    "video": false,
+    "exitCode": 0,
+    "fixtureSha256": "c16ed70daf179eb0793b60ea8212f3461335b5edb8377616f835fb5efa5c583c",
+    "sourceManifest": "resident-shared-final-source.json",
+    "command": "python3 deploy/run_streaming_workflow.py --display \"$DISPLAY\" --java /usr/lib/jvm/java-17-openjdk-amd64/bin/java --mode city --distant-edits 100000"
+  },
+  {
+    "mode": "switch",
+    "video": false,
+    "exitCode": 0,
+    "fixtureSha256": "c16ed70daf179eb0793b60ea8212f3461335b5edb8377616f835fb5efa5c583c",
+    "sourceManifest": "resident-shared-final-source.json",
+    "command": "python3 deploy/run_streaming_workflow.py --display \"$DISPLAY\" --java /usr/lib/jvm/java-17-openjdk-amd64/bin/java --mode switch --distant-edits 100000"
+  }
+]

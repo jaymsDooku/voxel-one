@@ -52,7 +52,7 @@ public class StreamingWorkflow {
             game.run(new Main.FrameObserver(){
                 public void started(Main main)throws Exception{
                     game=main;session++;
-                    if(mode.equals("multiplayer")){check(((MultiplayerClient)get("network")).connected(),"Game client stayed connected through startup");editor=connectEditor.call();connectEditor=null;remoteEdit=new Protocol.Edit((int)editor.spawn.x()+1,(int)editor.spawn.y()-1,(int)editor.spawn.z(),0);}
+                    if(mode.equals("multiplayer")){check(((MultiplayerClient)get("network")).connected(),"Game client stayed connected through startup");}
                     if(mode.equals("switch"))check(((World)get("world")).terrain().seed==(session==1?748291:999),"New world uses its own seed");
                     handle=((Window)get("window")).getHandle();glfwSwapInterval(0);input("windowfocus",Long.toString(org.lwjgl.glfw.GLFWNativeX11.glfwGetX11Window(handle)));
                     if(mode.equals("offline")) {
@@ -88,8 +88,18 @@ public class StreamingWorkflow {
                         if(frame==100){key("keyup","s");key("keydown","w");}
                         if(frame>=130&&travelRespawn<0&&System.nanoTime()-travelBegan>=120_000_000_000L){travelRespawn=frame;key("keyup","w");key("keyup","Shift_L");((LocalGame)get("local")).health=0;}
                     } else if(mode.equals("multiplayer")) {
-                        if(frame==2){remoteSent=System.nanoTime();check(editor.edit(remoteEdit,editor.spawn),"Remote client sends authoritative break while chunks are loading");}
-                        editor.poll();
+                        if(frame==2){
+                            // Open the synthetic peer at its first input, after expensive
+                            // setup, so it does not idle through the server timeout.
+                            editor=connectEditor.call();connectEditor=null;
+                            remoteEdit=new Protocol.Edit((int)editor.spawn.x()+1,(int)editor.spawn.y()-1,(int)editor.spawn.z(),0);
+                            var reloading=ChunkPos.fromBlock(remoteEdit.x(),remoteEdit.y(),remoteEdit.z());
+                            for(int y=-2;y<=7;y++)w.unloadChunk(new ChunkPos(reloading.chunkX(),y,reloading.chunkZ()));
+                            w.streamAsync(editor.spawn.x(),editor.spawn.y(),editor.spawn.z(),500_000L);
+                            check(w.terrainPending()>0,"Terrain is streaming when remote edit is sent");
+                            remoteSent=System.nanoTime();check(editor.edit(remoteEdit,editor.spawn),"Remote client sends authoritative break while chunks are loading");
+                        }
+                        if(editor!=null){editor.move(editor.spawn);editor.poll();}
                         if(frame==12){Files.writeString(out.resolve("network-delivery.txt"),"Remote edit observed by frame12; upper-bound delivery ms="+(System.nanoTime()-remoteSent)/1e6+"\n");check(w.region(remoteEdit)==0,"Production Main consumed remote edit during load");w.unloadChunk(ChunkPos.fromBlock(remoteEdit.x(),remoteEdit.y(),remoteEdit.z()));}
                     }
                 }

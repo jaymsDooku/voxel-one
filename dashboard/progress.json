@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-17T19:07:21+00:00",
+  "updatedAt": "2026-10-17T23:24:23+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -20,8 +20,8 @@
       "description": "Bounded async Sandbox generation, staged mesh/lighting work, reusable GPU stores and worker-built mip levels; validated on the available Linux software renderer.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Java 17 compatibility fixed. Actual Java 17 package passed 713 tests; native 65-frame workflow and new inspected F10 clip passed. Ready for independent review. Prior performance/coverage limits and physical Windows GPU rollout gate remain open.",
-      "updatedAt": "2026-10-17T19:07:21+00:00"
+      "note": "Ready for independent review.715 Java17 tests and5native workflows passed.3matched pairs: cold ownerp99 fell96.75\u201398.01%;resident/cold/all framep99 improved in each. Visible near GI99.48%,0blank cold frames. F10 decoded/inspected;570339bytes.2ms tail/local lighting/physicalWindowsGPU gates remain. Publication,CI and release reserved to controller.",
+      "updatedAt": "2026-10-17T23:24:23+00:00"
     },
     {
       "id": "607ad2ae-9047-4ee1-bff3-f41033b6a910",

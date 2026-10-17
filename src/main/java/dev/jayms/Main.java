@@ -371,7 +371,7 @@ public class Main {
     private void initScene() throws Exception {
         shader = new ShaderProgram("shaders/voxel.vert", "shaders/voxel.frag");
         var loaded=GraphicsController.load(Controls.directory().resolve("graphics.properties"));
-        rendering = new dev.jayms.render.RenderPipeline(loaded.profile().effective(GraphicsController.capabilities()).profile());
+        rendering = new dev.jayms.render.RenderPipeline(loaded.profile().effective(GraphicsController.capabilities()).profile(),shader);
         graphics=new GraphicsController(window,rendering,loaded,Controls.directory().resolve("graphics.properties"),next->rendering=next);
         graphics.initialize();
         menu.rendering = new dev.jayms.ui.RenderingMenu(() -> rendering);

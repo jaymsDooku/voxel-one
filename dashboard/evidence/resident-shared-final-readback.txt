@@ -1,0 +1,2 @@
+HISTORICAL pre-camera-priority source; current readback: camera-priority-readback.txt.
+Playtest: PASS. Shared-program RGBA16F and private-program RGB16F terrain captures: 73728 bit-identical RGB channels; six-face readiness, invalidation, borrowed-program ownership, actual graphics rebuild/restore, discarded-candidate cleanup passed. Terrain meshes=4; Renderer=llvmpipe (LLVM 15.0.6, 256 bits)

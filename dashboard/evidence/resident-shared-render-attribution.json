@@ -1,0 +1,20 @@
+{
+  "baseline": {
+    "run": "resident-probe-before-2",
+    "residentSamples": 12,
+    "worstRenderWallMs": 2727.659509,
+    "sameFrameOwnerThreadCpuMs": 51.434472,
+    "sameFrameSoftwareGpuTimestampMs": 2815.515806,
+    "maxOwnerThreadCpuMs": 51.434472
+  },
+  "candidate": {
+    "run": "resident-probe-after-12",
+    "residentSamples": 12,
+    "worstRenderWallMs": 2157.773908,
+    "sameFrameOwnerThreadCpuMs": 44.20204,
+    "sameFrameSoftwareGpuTimestampMs": 2181.856397,
+    "maxOwnerThreadCpuMs": 53.180926
+  },
+  "limits": "Separate diagnostic overlays, not matched profiling trials. Mesa software GPU timestamps include command-submission gaps and software raster work; these are not physical GPU results. Immediate slow-draw replay changes diagnostic output and is excluded from visual and performance qualification.",
+  "qualificationSource": "Pre-settings-retention candidate: resident-shared-source.json. Final source is resident-shared-final-source.json; final qualification remains pending."
+}
