@@ -17,7 +17,7 @@ public final class OwnerTrace {
         final long[][] starts=new long[32][8],rows=new long[8192][11];
     }
     private static long cpu(){return CPU.isCurrentThreadCpuTimeSupported()?CPU.getCurrentThreadCpuTime():-1;}
-    private static long allocation(){return ALLOC==null?-1:ALLOC.getThreadAllocatedBytes(Thread.currentThread().threadId());}
+    private static long allocation(){return ALLOC==null?-1:ALLOC.getThreadAllocatedBytes(Thread.currentThread().getId());}
     private static long gc(boolean time){long n=0;for(var bean:GC)n+=Math.max(0,time?bean.getCollectionTime():bean.getCollectionCount());return n;}
     public static int begin(String operation){
         if(!ENABLED)return -1;State s=STATE.get();if(s.depth==32)throw new IllegalStateException("Trace nesting");int i=s.depth++;

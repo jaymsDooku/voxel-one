@@ -1,10 +1,7 @@
-Ready for independent review. All implementation edits and sanitized evidence preserved, unpublished. No active test processes or delegate tasks remain.
-Branch: feature/queue-39633335636632622d376365352d343837342d393634392d313362663933393263323038
-Current committed HEAD: 8b4d3f9fdbab6199499c4ce82e9996835f069800
-Review base: 403033b9f53ce66063982879c6e2daff684a427b
-Source SHA256: fcf8e949d4e7b6e4ce47ed0eac8d2781050aff8cf0da75edbe0a86ead9f5d10e
-Feature JAR SHA256: 9ed588a908f7d5ac99ef016c49edb9ca32be9aa1453a79e0bce760fbfc873beb
-Validation: 164 tests passed; six matched unrecorded 166-sample runs; dense visual comparison; trace/JFR and CPU-only calibration; offline/video/multiplayer/City/world-switch/travel; four full-volume GPU upload paths; 64-cycle GL soak; active switch and both failure-cleanup checks. See dashboard/evidence/owner-direct-validation.json, owner-direct-summary.txt and owner-direct-playtest.txt.
-Cold owner elapsed p99 reduced 95.23–97.84%; cold frame p99 improved in all three pairs. Near visible GI coverage rose 59.37% to 89.62%, with no lower-coverage matched cold/reversal frame. Six cold gaps remain. The 2 ms elapsed target remains unmet; all-route tails are mixed. Physical Windows GPU qualification gates stable rollout.
-F10 owner-direct-f10.mp4: 530593 bytes,18.176 seconds; all 10 images decoded, midpoint inspected. Pending controller publication.
-Next: controller stages/commits/pushes existing feature branch and artifacts, runs hosted checks and hands exact head to independent review. Do not self-approve, merge or deploy. If master integration changes game source, rerun meaningful checks and media on resulting source. No owner answer needed.
+Ready for independent review after Java17 compatibility fix. Preserved all edits/evidence.
+Changed only OwnerTrace.threadId() to getId() in production; harness accepts explicit --java.
+Source SHA256: e8073bae6120cd7e5bf5738eebc295e92b6a0033ece812009c8378d5f0744936
+Feature JAR SHA256: 57b5cdcc48ba1f63f111d34fb1eac5577daac857f354fdfc614648cefd2f83a5
+Actual Java17 Maven package passed 713 tests, zero failures/errors/skips; release17 compile passed. Native Java17 offline/video workflow passed65 frames with100000 distant edits. New F10 clip518188 bytes,18.060s,10 images decoded; midpoint inspected. See dashboard/evidence/java17-compatibility-validation.json and java17-playtest.txt.
+Prior performance reports remain historical exact-source measurements; no new matched performance claim. Existing 2ms tail target, six cold GI gaps and physical Windows GPU stable-rollout gate remain open.
+No active tests or delegates. No owner answer needed. Controller owns stage/commit/push/CI/review/integration. If integration changes source, rerun meaningful checks/media. Do not self-approve/merge/deploy.
