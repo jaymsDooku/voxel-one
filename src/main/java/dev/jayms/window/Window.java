@@ -42,8 +42,13 @@ public class Window {
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
             window = glfwCreateWindow(width, height, title, NULL, NULL);
         }
-        if ( window == NULL )
-            throw new RuntimeException("Failed to create the GLFW window");
+        if (window == NULL) {
+            // Capture the fixed numeric error before Main cleans up GLFW. Never include
+            // driver descriptions, environment data or a native stack in Hub evidence.
+            int error = glfwGetError((org.lwjgl.PointerBuffer) null);
+            throw new RuntimeException("Failed to create the GLFW window (GLFW error 0x"
+                    + Integer.toHexString(error) + ")");
+        }
     }
 
     public long getHandle() {

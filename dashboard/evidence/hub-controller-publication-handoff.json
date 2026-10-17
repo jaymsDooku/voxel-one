@@ -1,0 +1,68 @@
+{
+  "sourceSha": "d840a9815d454fe399a3eba71412c2038489d907",
+  "implementationChangedThisTurn": false,
+  "bundle": "target/hub-exact-d840-publication",
+  "sourceKind": "exact-commit",
+  "sourceFingerprintsMatchRecordedTests": true,
+  "controllerDispatch": {
+    "workflow": "hub-publication-prepare.yml",
+    "ref": "feature/queue-62383835386364312d346130642d346262652d383736632d393534373062343337356161",
+    "inputs": {
+      "source_sha": "d840a9815d454fe399a3eba71412c2038489d907",
+      "preview_tag": "hub-preview-1",
+      "expected_catalog_head": "absent"
+    },
+    "precondition": "Dispatch while remote feature head remains source_sha. If controller advances it, regenerate against the new exact reviewed head; never bypass the source fence."
+  },
+  "checks": [
+    {
+      "command": "python3 tools/hub/publication_bundle.py prepare --native-receipt dashboard/evidence/hub-native-publication.json --web-receipt dashboard/evidence/hub-web-publication.json --jar target/voxel-one-1.0-SNAPSHOT-launcher.jar --source-sha d840a9815d454fe399a3eba71412c2038489d907 --tag hub-preview-1 --expected-catalog-head absent --output target/hub-exact-d840-publication",
+      "exitCode": 0,
+      "observed": "Exact-commit bundle prepared, existing source fingerprints matched recorded validated source."
+    },
+    {
+      "command": "python3 tools/hub/publication_bundle.py verify --bundle target/hub-exact-d840-publication --report dashboard/evidence/hub-exact-d840-delivery.json",
+      "exitCode": 1,
+      "observed": "All three public targets404; publication integration failed."
+    },
+    {
+      "command": "TMPDIR=\"$PWD/target/hub-tmp\" PLAYWRIGHT_BROWSERS_PATH=\"$PWD/target/hub-browsers\" WEBKIT_DISABLE_COMPOSITING_MODE=1 LIBGL_ALWAYS_SOFTWARE=1 node tools/hub/browser-playtest.cjs",
+      "exitCode": 0,
+      "passed": false,
+      "Playtest": "Fresh isolated desktop WebKit context on inherited assigned DISPLAY/XAUTHORITY. Expected published game start/move/fire/pause/reload. Observed game start unavailable. Failed browser workflow; script exit0 does not mean passed. No authentication content, cookies or screenshot retained."
+    },
+    {
+      "command": "npm install --prefix target/hub-browser-qa --cache \"$PWD/target/npm-cache\" --ignore-scripts --no-audit --no-fund playwright@1.56.1",
+      "observed": "npm not found; existing installed Playwright dependency used by the checked-in harness instead. No npm dependency installed."
+    }
+  ],
+  "exactHeadCi": {
+    "conclusion": "",
+    "headSha": "d840a9815d454fe399a3eba71412c2038489d907",
+    "jobs": [
+      {
+        "conclusion": "failure",
+        "name": "packaged-client (\"windows-2022\", [\"self-hosted\",\"Windows\",\"X64\",\"voxel-hub-desktop\"], windows)"
+      },
+      {
+        "conclusion": "",
+        "name": "packaged-client (\"macos-15-intel\", [\"self-hosted\",\"macOS\",\"X64\",\"voxel-hub-desktop\"], mac-intel)"
+      },
+      {
+        "conclusion": "failure",
+        "name": "packaged-client (\"macos-15\", [\"self-hosted\",\"macOS\",\"ARM64\",\"voxel-hub-desktop\"], mac-arm)"
+      }
+    ],
+    "status": "in_progress"
+  },
+  "pending": [
+    "Controller validates native/web receipts, publishes immutable shell asset and CAS metadata, then actual public delivery and independent web/native promotion checks.",
+    "Two distinct reviewed published shell generations and actual packaged bootstrap upgrade.",
+    "Exact-head Windows/macOS native gameplay and physical GPU/DPI qualification; current CI still running.",
+    "Actual published browser gameplay after normal site access."
+  ],
+  "fullAcceptanceComplete": false,
+  "stableRolloutQualified": false,
+  "ownerAnswerNeeded": false,
+  "publicationPerformed": false
+}

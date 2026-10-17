@@ -1,0 +1,16 @@
+{
+  "command": [
+    "target/hub-immutable-package/Voxel One Hub/lib/runtime/bin/java",
+    "-cp",
+    "target/voxel-one-1.0-SNAPSHOT-client.jar:target/hub-tmp",
+    "InspectMovie",
+    "dashboard/evidence/hub-glfw-diagnostic-city/Voxel-One_2026-10-17_00-40-47_18008319698304735432.mp4",
+    "dashboard/evidence/hub-glfw-diagnostic-first-frame.png"
+  ],
+  "exitCode": 0,
+  "observed": "Actual movie: 4 frames, 18.062 seconds",
+  "movie": "dashboard/evidence/hub-glfw-diagnostic-city/Voxel-One_2026-10-17_00-40-47_18008319698304735432.mp4",
+  "bytes": 173728,
+  "limitation": "Four software-rendered frames; no smooth gameplay or physical GPU qualification.",
+  "compiledWindowMatchesPackagedClient": true
+}
