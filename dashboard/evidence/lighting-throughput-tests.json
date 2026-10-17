@@ -1,0 +1,10 @@
+{
+  "tests": 151,
+  "failures": 0,
+  "errors": 0,
+  "skips": 0,
+  "java": "21.0.5",
+  "jarSha256": "c0ab6ba44345ca12164af38a09c6534ef1914a305ce9c1fed906d153517036e8",
+  "command": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 mvn -o -q -Dmaven.repo.local=target/m2 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=LocalLightingCaptureTest,WorldStreamingTest,TerrainSchedulerTest,DetailedMeshSchedulerTest,ChunkUnchangedWriteTest,WorldSkyVisibilityTest,SkyVisibilitySchedulerTest,TerrainGenerationTest,FractionalWorldTest,PhysicsTest,LightingTest,LightOcclusionTest,VoxelModelTest,DistantTerrainTest,StressGridLightingTest,JeepTest,PerformanceRecorderTest,MultiplayerTest,TransportMipTest package",
+  "Playtest:": "python3 deploy/run_streaming_upload_smoke.py --display \"$DISPLAY\"; exit0. Linux/Mesa llvmpipe GL3.3, inherited role display, synthetic world. Concurrent sky/GI progress, shared byte cap, retained old atlas, exact production shader fractional RGB/sky and full96x128x96 prefix/legacy readback passed. Zero new full-size store allocations, cancellation/reuse and cleanup passed. Standalone integration; native travel and visual qualification pending."
+}

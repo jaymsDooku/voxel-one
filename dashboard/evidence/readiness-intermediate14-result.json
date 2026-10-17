@@ -1,0 +1,8 @@
+{
+  "status": "developer stopped incomplete visual qualification",
+  "warmup": {
+    "graphicsWarmupFrames": 17,
+    "warmupWallMs": 188590.532388
+  },
+  "reason": "Ground-view warmup188.59s vs baseline70.64s; zero-root prefix transfer/fetch remains redundant in terrain-only fields. No full visual pass claimed."
+}

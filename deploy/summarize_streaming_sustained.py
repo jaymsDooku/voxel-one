@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Sanitized stage/segment statistics and residency, with no runtime/profile data export."""
 import csv,json,math,shutil,argparse
-p=argparse.ArgumentParser();p.add_argument("--after-prefix",default="sustained-after");p.add_argument("--output-prefix",default="streaming-sustained-comparison");args=p.parse_args()
+p=argparse.ArgumentParser();p.add_argument("--before-prefix",default="sustained-before");p.add_argument("--after-prefix",default="sustained-after");p.add_argument("--output-prefix",default="streaming-sustained-comparison");args=p.parse_args()
 from pathlib import Path
 root=Path(__file__).resolve().parents[1];evidence=root/'dashboard/evidence'
 def percentile(v,q):
@@ -26,7 +26,7 @@ report={'method':'Three matched pairs on one available Linux llvmpipe host;no vi
 lines=['Sustained fresh terrain comparison; Mesa llvmpipe software rendering.','trial | segment | samples | frame p50/p95/p99/worst ms | accounted streaming CPU p99 ms | terrain-stream CPU p99 ms | nearby residency']
 for trial in range(1,4):
  for phase in ('before','after'):
-  label=f'sustained-before-{trial}' if phase=='before' else f'{args.after_prefix}-{trial}';folder=root/'target/streaming-route'/label;files=list(folder.glob('performance-*.csv'));assert len(files)==1,(label,len(files))
+  label=f'{args.before_prefix}-{trial}' if phase=='before' else f'{args.after_prefix}-{trial}';folder=root/'target/streaming-route'/label;files=list(folder.glob('performance-*.csv'));assert len(files)==1,(label,len(files))
   rows=list(csv.DictReader(files[0].open()));positions=list(csv.DictReader((folder/'residency.csv').open()));assert len(rows)==len(positions)==166,(label,len(rows),len(positions))
   data={'metadata':json.loads(files[0].with_suffix('.json').read_text()),'all':summary(rows),'segments':{}}
   for segment in ('resident','coldEntry','coldWalk','coldFlight','warmReversal','teleport','catchup','transitionTail'):

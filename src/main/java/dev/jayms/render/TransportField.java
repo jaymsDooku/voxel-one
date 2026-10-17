@@ -10,6 +10,9 @@ public final class TransportField {
     public final float[] radiance,distance;
     /** Worker-built linear mip pyramid; the owner only transfers bounded rows. */
     public final float[][] radianceMips;
+    /** Worker converts once to the exact GPU store format, avoiding owner-thread float conversion. */
+    final short[][] halfRadianceMips,halfProbes=new short[3][];
+    final short[] halfDistance;
     public final float[][] probes=new float[3][];
     public final int[][] probeSize=new int[3][3];
     private int[] material;
@@ -32,7 +35,28 @@ public final class TransportField {
         for(int i=0;i<n;i++)distance[i]=solid[i]?-(inside[i]-.5f):outside[i]-.5f;
         for(int cascade=2;cascade>=0;cascade--)bakeProbes(cascade,solid);
         radianceMips=mipmaps(width,height,length,radiance);
+        halfRadianceMips=new short[radianceMips.length][];
+        for(int i=0;i<radianceMips.length;i++)halfRadianceMips[i]=half(radianceMips[i]);
+        halfDistance=half(distance);for(int i=0;i<3;i++)halfProbes[i]=half(probes[i]);
         this.material=null;this.light=null;
+    }
+    static short half(float value){
+        int bits=Float.floatToRawIntBits(value),sign=bits>>>16&0x8000,e=(bits>>>23&255)-127,m=bits&0x7fffff;
+        if(e==128)return (short)(sign|0x7c00|(m==0?0:0x200));
+        if(e>15)return (short)(sign|0x7c00);
+        if(e< -25)return (short)sign;
+        int shift=e< -14?-e-1:13;
+        int significand=e< -14?m|0x800000:m;
+        int result=e< -14?significand>>>shift:((e+15)<<10)|(m>>>shift);
+        int remainder=significand&((1<<shift)-1),midpoint=1<<(shift-1);
+        if(remainder>midpoint||(remainder==midpoint&&(result&1)!=0))result++;
+        return (short)(sign|result);
+    }
+    private static short[] half(float[] values){
+        short[] result=new short[values.length];for(int i=0;i<values.length;i++){
+            if((i&8191)==0&&Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
+            result[i]=half(values[i]);
+        }return result;
     }
     static float[][] mipmaps(int width,int height,int length,float[] base) {
         var levels=new java.util.ArrayList<float[]>();levels.add(base);

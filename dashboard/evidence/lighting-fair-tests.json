@@ -1,0 +1,10 @@
+{
+  "tests": 147,
+  "failures": 0,
+  "errors": 0,
+  "skips": 0,
+  "java": "21.0.5",
+  "jarSha256": "00cb7fc7024f483614e231ab2fb4e6158fda7093191d539bdab51826f8868502",
+  "command": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 mvn -o -q -Dmaven.repo.local=target/m2 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=LocalLightingCaptureTest,WorldStreamingTest,TerrainSchedulerTest,DetailedMeshSchedulerTest,ChunkUnchangedWriteTest,WorldSkyVisibilityTest,SkyVisibilitySchedulerTest,TerrainGenerationTest,FractionalWorldTest,PhysicsTest,LightingTest,LightOcclusionTest,VoxelModelTest,DistantTerrainTest,StressGridLightingTest,JeepTest,PerformanceRecorderTest,MultiplayerTest,TransportMipTest package",
+  "Playtest:": "python3 deploy/run_streaming_upload_smoke.py --display \"$DISPLAY\"; exit0. Linux/Mesa llvmpipe GL3.3 on inherited role display, synthetic world. Expected two concurrent bounded sky/GI lanes to progress under shared8192-byte fixture cap, retain old atlas, use exact new sky data and preserve fractional RGB/sky shader lookup. Observed all assertions passed. Full96x128x96 prefix/legacy staging passed exact root/fine/irradiance/transport GPU readback, cancellation, reuse with zero new store allocations and cleanup. Standalone integration, not native travel qualification."
+}

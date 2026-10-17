@@ -1,0 +1,9 @@
+{
+  "tests": 145,
+  "failures": 0,
+  "errors": 0,
+  "skips": 0,
+  "java": "21.0.5",
+  "jarSha256": "8425e8ea3fb78aef2134ed6fcb3d7fbcea093a43dcd6b412fb6eca8b3ef84c47",
+  "command": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 mvn -o -q -Dmaven.repo.local=target/m2 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=LocalLightingCaptureTest,WorldStreamingTest,TerrainSchedulerTest,DetailedMeshSchedulerTest,ChunkUnchangedWriteTest,WorldSkyVisibilityTest,SkyVisibilitySchedulerTest,TerrainGenerationTest,FractionalWorldTest,PhysicsTest,LightingTest,LightOcclusionTest,VoxelModelTest,DistantTerrainTest,StressGridLightingTest,JeepTest,PerformanceRecorderTest,MultiplayerTest,TransportMipTest package"
+}

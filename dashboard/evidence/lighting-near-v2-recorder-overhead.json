@@ -1,0 +1,45 @@
+{
+  "method": "Separate65frame native workflow runs, same synthetic100k-edits fixture/settings. F10 captured frames14..23; captureCPU column is previous frame, compare15..24. Scheduling/driver noise and native dt differ; not a pure recorder benchmark. Excluded from all three profiling pairs.",
+  "runs": {
+    "plain": {
+      "previous_video_capture_cpu_ms": {
+        "p50": 0.000782,
+        "p95": 0.001632,
+        "worst": 0.001632,
+        "sum": 0.009879
+      },
+      "render_cpu_ms": {
+        "p50": 1666.552764,
+        "p95": 8905.727712,
+        "worst": 8905.727712,
+        "sum": 23736.066625
+      },
+      "stream_cpu_ms": {
+        "p50": 0.298217,
+        "p95": 1.018416,
+        "worst": 1.018416,
+        "sum": 3.641953
+      }
+    },
+    "video": {
+      "previous_video_capture_cpu_ms": {
+        "p50": 142.220545,
+        "p95": 214.75354,
+        "worst": 214.75354,
+        "sum": 1254.725167
+      },
+      "render_cpu_ms": {
+        "p50": 1687.95426,
+        "p95": 8901.677612,
+        "worst": 8901.677612,
+        "sum": 24407.370711999996
+      },
+      "stream_cpu_ms": {
+        "p50": 0.333986,
+        "p95": 3.521732,
+        "worst": 3.521732,
+        "sum": 6.737921
+      }
+    }
+  }
+}

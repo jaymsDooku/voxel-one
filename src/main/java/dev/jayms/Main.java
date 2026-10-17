@@ -27,6 +27,7 @@ public class Main {
     /** Optional render-thread observer for reproducible application playtests. */
     public interface FrameObserver {
         default void started(Main game) throws Exception {}
+        default void loading(Main game,String stage) throws Exception {}
         default void beforeFrame(Main game) throws Exception {}
         default void afterFrame(Main game) throws Exception {}
     }
@@ -331,14 +332,32 @@ public class Main {
             if(window.shouldClose()||glfwGetKey(window.getHandle(),GLFW_KEY_ESCAPE)==GLFW_PRESS)
                 throw new java.util.concurrent.CancellationException("Terrain loading cancelled");
             world.streamAsync(x,y,z,2_000_000L);
-            org.lwjgl.opengl.GL30.glBindFramebuffer(org.lwjgl.opengl.GL30.GL_FRAMEBUFFER,0);glViewport(0,0,framebufferWidth,framebufferHeight);
-            glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-            overlay.begin(framebufferWidth,framebufferHeight);
-            overlay.text("Loading nearby terrain...",24,40,2);
-            overlay.text("Escape: cancel",24,72,1.3f);overlay.end();
-            window.swapBuffers();window.pollEvents();
-            java.util.concurrent.locks.LockSupport.parkNanos(1_000_000L);
+            loadingFrame("terrain");
         }
+    }
+
+    private void loadingFrame(String stage)throws Exception{
+        if(framebufferWidth>0&&framebufferHeight>0){
+            org.lwjgl.opengl.GL30.glBindFramebuffer(org.lwjgl.opengl.GL30.GL_FRAMEBUFFER,0);glViewport(0,0,framebufferWidth,framebufferHeight);
+            glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);overlay.begin(framebufferWidth,framebufferHeight);
+            overlay.text(stage.equals("lighting")?"Loading nearby lighting...":"Loading nearby terrain...",24,40,2);
+            overlay.text("Escape: cancel",24,72,1.3f);overlay.end();
+            if(frameObserver!=null)frameObserver.loading(this,stage);
+        }
+        window.swapBuffers();window.pollEvents();java.util.concurrent.locks.LockSupport.parkNanos(1_000_000L);
+    }
+    /** Keep input/window events responsive instead of rendering an unlit world
+     * while the first detached field and bounded GPU transfers finish. */
+    private void awaitInitialLighting()throws Exception{
+        var p=new Vector3f(player.position());
+        while(!rendering.nearLightingReady(world,p.x,p.z)){
+            if(window.shouldClose()||glfwGetKey(window.getHandle(),GLFW_KEY_ESCAPE)==GLFW_PRESS)
+                throw new java.util.concurrent.CancellationException("Lighting loading cancelled");
+            long start=System.nanoTime();world.streamAsync(p.x,p.y,p.z,500_000L);rendering.prepareFocus(world,p.x,p.z);
+            rendering.update(world,p.x,p.z,Math.max(0,rendering.ownerBudgetNanos-(System.nanoTime()-start)));
+            loadingFrame("lighting");
+        }
+        rendering.resetFocus();
     }
 
     private void initScene() throws Exception {
@@ -465,6 +484,7 @@ public class Main {
                 }
             });
         }
+        awaitInitialLighting();
         configureInput();
         setCaptured(true);
     }
@@ -1115,7 +1135,7 @@ public class Main {
             if (local != null && !renderOnlyReplay && !mayorDashboard.open)
                 local.city.population.focusNear(streamX, streamZ);
             long streamingStart=System.nanoTime();
-            world.streamAsync(streamX, location.y, streamZ, 1_000_000L);
+            world.streamAsync(streamX, location.y, streamZ, 500_000L);
             streamNanos=System.nanoTime()-streamingStart;
             float forward =
                     captured
@@ -1257,14 +1277,16 @@ public class Main {
         // the background approximation. Air chunks consume neither GPU buffers nor mesh budget.
         int detailBlocks=graphics.transaction.effective().integer(GraphicsProfile.Key.DETAIL);
         int passBlocks=Math.max(detailBlocks,Math.max(rendering.settings.shadows?rendering.settings.shadowDistance:0,rendering.settings.reflections?112:0));
-        detailedMeshes.update(world,location.x,location.z,frustum,detailBlocks,passBlocks,Math.max(250_000L,1_500_000L-streamNanos),2*1024*1024);
+        rendering.prepareFocus(world,location.x,location.z);
+        detailedMeshes.update(world,location.x,location.z,frustum,detailBlocks,passBlocks,Math.max(0,1_000_000L-streamNanos),2*1024*1024);
         rendering.time(
                 city().config(),
                 city().elapsed()
                         + (network == null
                                 ? 0
                                 : Math.min(1, (System.nanoTime() - network.cityReceived) / 1e9)));
-        rendering.update(world, location.x, location.z,Math.max(0,dev.jayms.render.FrameBudget.STREAMING_CPU_NANOS-streamNanos-detailedMeshes.totalNanos));
+        long ownerAllowance=rendering.ownerBudgetNanos;
+        rendering.update(world, location.x, location.z,Math.max(0,ownerAllowance-streamNanos-detailedMeshes.totalNanos-rendering.focusNanos));
         rendering.renderShadows(world, modelRenderer, location);
         rendering.begin(
                 framebufferWidth,

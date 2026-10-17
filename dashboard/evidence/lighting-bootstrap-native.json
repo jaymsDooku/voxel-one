@@ -1,0 +1,15 @@
+{
+  "commands": [
+    "python3 deploy/run_streaming_bootstrap.py --display \"$DISPLAY\" --mode ready",
+    "python3 deploy/run_streaming_bootstrap.py --display \"$DISPLAY\" --mode cancel"
+  ],
+  "environment": "Java21.0.5 Linux Mesa llvmpipe; inherited role DISPLAY/XAUTHORITY; isolated synthetic profiles, seed748291 Balanced requested640x480",
+  "actualScreenshotResolution": [
+    1280,
+    720
+  ],
+  "expected": "Poll/draw while initial near lighting prepares; current first playable area, working walk, native Escape cancellation before entry, world workers close.",
+  "observed": "Both commands exited0. Ready:437 lighting UI frames,3 gameplay frames,26084.709355ms total. Cancel:1 lighting UI frame,0 gameplay frames,5247.36976ms. Loading and first-playable screenshots inspected.",
+  "timingLimit": "Standalone workflow totals include process setup and rendered gameplay; not matched performance trials.",
+  "publication": "pending controller publication"
+}

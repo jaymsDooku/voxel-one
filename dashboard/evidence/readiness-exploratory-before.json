@@ -1,0 +1,17 @@
+{
+  "kind": "Exploratory owner-thread state trace; not matched performance qualification",
+  "jarSha256": "2e1029b195080b68298108be576c335350b3c2d73ecb966e3c1ed8d621fd2c63",
+  "result": "exit0",
+  "warmup": {
+    "graphicsWarmupFrames": 219,
+    "warmupWallMs": 594867.882448
+  },
+  "fieldCommitFrames": [
+    79,
+    152,
+    218
+  ],
+  "interference": "Maven build work began after trace frame176. Do not use total pilot wall time as a matched result. Earlier field and upload progress establish repeated replacement work.",
+  "observed": "First GI field at79; later full field replacements at152 and218. Large fractions of initial frames spent in volume transport/atlas upload.",
+  "command": "python3 deploy/run_streaming_route.py --display \"$DISPLAY\" --label readiness-before-pilot --revision 6c480737 --jar target/streaming-after-client.jar --warmup-only"
+}

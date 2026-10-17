@@ -20,9 +20,43 @@ final class LightingStores implements AutoCloseable {
     private final Map<Integer,Buffer> buffers=new HashMap<>();
     final IntBuffer integers=MemoryUtil.memAllocInt(512*1024);
     final ByteBuffer pixels=MemoryUtil.memAlloc(2*1024*1024);
-    final FloatBuffer floats=MemoryUtil.memAllocFloat(512*1024);
     long allocations,allocationNanos;
     private boolean closed;
+    static final int PIXEL_UNIT_BYTES=1024*1024,PIXEL_SLOTS=16;
+    final int[] pixelBuffers=new int[PIXEL_SLOTS];
+    private final long[] pixelFences=new long[PIXEL_SLOTS];
+    private int pixelCursor;private boolean pixelFlush;
+    LightingStores(){
+        int prior=glGetInteger(GL_PIXEL_UNPACK_BUFFER_BINDING);
+        try{for(int i=0;i<PIXEL_SLOTS;i++){
+            pixelBuffers[i]=glGenBuffers();if(pixelBuffers[i]==0)throw new IllegalStateException("Pixel staging buffer unavailable");
+            glBindBuffer(GL_PIXEL_UNPACK_BUFFER,pixelBuffers[i]);long start=System.nanoTime();glBufferData(GL_PIXEL_UNPACK_BUFFER,PIXEL_UNIT_BYTES,GL_STREAM_DRAW);allocationNanos+=System.nanoTime()-start;allocations++;
+        }}catch(RuntimeException failure){close();throw failure;}finally{glBindBuffer(GL_PIXEL_UNPACK_BUFFER,prior);}
+    }
+    /** Nonblocking context-owned upload lane. A buffer cannot be rewritten until its copy fence signals. */
+    boolean pixels3D(int level,int x,int y,int z,int w,int h,int d,int format,int type,java.nio.Buffer data,int bytes){
+        if(closed)throw new IllegalStateException("Lighting stores closed");
+        int stride=data instanceof ByteBuffer?1:data instanceof ShortBuffer?2:4;
+        if(bytes<0||bytes>PIXEL_UNIT_BYTES||data.remaining()*(long)stride!=bytes)throw new IllegalArgumentException("Pixel staging byte range");
+        int slot=-1;
+        for(int i=0;i<PIXEL_SLOTS;i++){
+            int candidate=(pixelCursor+i)%PIXEL_SLOTS;
+            if(pixelFences[candidate]!=0){int state=glClientWaitSync(pixelFences[candidate],0,0);if(state==GL_WAIT_FAILED)throw new IllegalStateException("Pixel staging fence failed");if(state!=GL_ALREADY_SIGNALED&&state!=GL_CONDITION_SATISFIED)continue;glDeleteSync(pixelFences[candidate]);pixelFences[candidate]=0;}
+            slot=candidate;break;
+        }
+        if(slot<0)return false;pixelCursor=(slot+1)%PIXEL_SLOTS;
+        int prior=glGetInteger(GL_PIXEL_UNPACK_BUFFER_BINDING);glBindBuffer(GL_PIXEL_UNPACK_BUFFER,pixelBuffers[slot]);
+        try{
+            if(data instanceof ByteBuffer b)glBufferSubData(GL_PIXEL_UNPACK_BUFFER,0,b);
+            else if(data instanceof ShortBuffer b)glBufferSubData(GL_PIXEL_UNPACK_BUFFER,0,b);
+            else if(data instanceof IntBuffer b)glBufferSubData(GL_PIXEL_UNPACK_BUFFER,0,b);
+            else if(data instanceof FloatBuffer b)glBufferSubData(GL_PIXEL_UNPACK_BUFFER,0,b);
+            else throw new IllegalArgumentException("Pixel staging buffer type");
+            glTexSubImage3D(GL_TEXTURE_3D,level,x,y,z,w,h,d,format,type,0L);
+            pixelFences[slot]=glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE,0);if(pixelFences[slot]==0)throw new IllegalStateException("Pixel staging fence unavailable");pixelFlush=true;return true;
+        }finally{glBindBuffer(GL_PIXEL_UNPACK_BUFFER,prior);}
+    }
+    void flushPixels(){if(pixelFlush){glFlush();pixelFlush=false;}}
     int texture(String role){
         if(closed)throw new IllegalStateException("Lighting stores closed");
         for(var t:textures.values())if(t.role.equals(role)&&!t.borrowed&&ready(t)){t.borrowed=true;return t.id;}
@@ -35,9 +69,10 @@ final class LightingStores implements AutoCloseable {
     private boolean ready(Texture t){if(!signaled(t.fence))return false;if(t.fence!=0){glDeleteSync(t.fence);t.fence=0;}return true;}
     private boolean ready(Buffer b){if(!signaled(b.fence))return false;if(b.fence!=0){glDeleteSync(b.fence);b.fence=0;}return true;}
     /** Poll only. Never wait on a store still referenced by queued GPU reads. */
-    boolean available(boolean volume){
+    boolean available(boolean volume){return available(volume,true);}
+    boolean available(boolean volume,boolean atlas){
         String[] roles=volume?VOLUME_ROLES:SKY_ROLES;
-        for(String role:roles){int count=0;boolean free=false;for(var t:textures.values())if(t.role.equals(role)){count++;if(!t.borrowed&&ready(t))free=true;}if(!free&&count>=2)return false;}
+        for(String role:roles){if(!atlas&&role.equals("sky"))continue;int count=0;boolean free=false;for(var t:textures.values())if(t.role.equals(role)){count++;if(!t.borrowed&&ready(t))free=true;}if(!free&&count>=2)return false;}
         if(volume){boolean free=false;for(var b:buffers.values())if(!b.borrowed&&ready(b))free=true;if(!free&&buffers.size()>=2)return false;}
         return true;
     }
@@ -64,7 +99,7 @@ final class LightingStores implements AutoCloseable {
             int atlas=texture("sky");borrowed.add(atlas);glBindTexture(GL_TEXTURE_3D,atlas);
             int aw=96,ah=128;if(96+(WorldSkyVisibility.MAX_INTS+aw*ah-1)/(aw*ah)>glGetInteger(GL_MAX_3D_TEXTURE_SIZE)){aw=ah=256;}texture3D(atlas,0,GL_R32I,aw,ah,96+(WorldSkyVisibility.MAX_INTS+aw*ah-1)/(aw*ah),GL_RED_INTEGER,true);
             int irradiance=texture("irradiance");borrowed.add(irradiance);glBindTexture(GL_TEXTURE_3D,irradiance);texture3D(irradiance,0,GL_RGBA8,96,128,96,GL_RGBA,false);
-            int fine=texture("fine");borrowed.add(fine);int buffer=buffer();borrowedBuffers.add(buffer);glBindBuffer(GL_TEXTURE_BUFFER,buffer);bufferData(buffer,4L*Math.min(1_048_576,glGetInteger(GL_MAX_TEXTURE_BUFFER_SIZE)));glBindTexture(GL_TEXTURE_BUFFER,fine);glTexBuffer(GL_TEXTURE_BUFFER,GL_R32I,buffer);
+            int fine=texture("fine");borrowed.add(fine);int buffer=buffer();borrowedBuffers.add(buffer);glBindBuffer(GL_TEXTURE_BUFFER,buffer);bufferData(buffer,4L*Math.min(1_048_576+96*128*96,glGetInteger(GL_MAX_TEXTURE_BUFFER_SIZE)));glBindTexture(GL_TEXTURE_BUFFER,fine);glTexBuffer(GL_TEXTURE_BUFFER,GL_R32I,buffer);
             int radiance=texture("radiance");borrowed.add(radiance);glBindTexture(GL_TEXTURE_3D,radiance);
             int w=96,h=128,l=96,level=0;while(true){texture3D(radiance,level++,GL_RGBA16F,w,h,l,GL_RGBA,false);if(w==1&&h==1&&l==1)break;w=Math.max(1,w/2);h=Math.max(1,h/2);l=Math.max(1,l/2);}
             int distance=texture("distance");borrowed.add(distance);glBindTexture(GL_TEXTURE_3D,distance);texture3D(distance,0,GL_R16F,96,128,96,GL_RED,false);
@@ -73,6 +108,6 @@ final class LightingStores implements AutoCloseable {
         for(int id:borrowed)releaseTexture(id);for(int id:borrowedBuffers)releaseBuffer(id);
         glBindBuffer(GL_TEXTURE_BUFFER,0);glActiveTexture(GL_TEXTURE0);
     }
-    long retainedBytes(){long bytes=0;for(var t:textures.values())for(var s:t.levels.values()){int stride=s.internal==GL_RGBA16F?8:s.internal==GL_R16F?2:4;bytes+=(long)s.width*s.height*s.depth*stride;}for(var b:buffers.values())bytes+=b.capacity;return bytes;}
-    @Override public void close(){if(closed)return;closed=true;for(var t:textures.values()){if(t.fence!=0)glDeleteSync(t.fence);glDeleteTextures(t.id);}for(var b:buffers.values()){if(b.fence!=0)glDeleteSync(b.fence);glDeleteBuffers(b.id);}textures.clear();buffers.clear();MemoryUtil.memFree(integers);MemoryUtil.memFree(pixels);MemoryUtil.memFree(floats);}
+    long retainedBytes(){long bytes=(long)PIXEL_SLOTS*PIXEL_UNIT_BYTES;for(var t:textures.values())for(var s:t.levels.values()){int stride=s.internal==GL_RGBA16F?8:s.internal==GL_R16F?2:4;bytes+=(long)s.width*s.height*s.depth*stride;}for(var b:buffers.values())bytes+=b.capacity;return bytes;}
+    @Override public void close(){if(closed)return;closed=true;for(int i=0;i<PIXEL_SLOTS;i++){if(pixelFences[i]!=0){glDeleteSync(pixelFences[i]);pixelFences[i]=0;}if(pixelBuffers[i]!=0){glDeleteBuffers(pixelBuffers[i]);pixelBuffers[i]=0;}}for(var t:textures.values()){if(t.fence!=0)glDeleteSync(t.fence);glDeleteTextures(t.id);}for(var b:buffers.values()){if(b.fence!=0)glDeleteSync(b.fence);glDeleteBuffers(b.id);}textures.clear();buffers.clear();MemoryUtil.memFree(integers);MemoryUtil.memFree(pixels);}
 }

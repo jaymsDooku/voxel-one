@@ -9,7 +9,7 @@ import static org.lwjgl.opengl.GL33.*;
 final class SceneLightingUpload implements AutoCloseable {
     final LightVolume volume;
     SkyVisibilityScheduler.Prepared sky;
-    final boolean replaceVolume;
+    final boolean replaceVolume,separateRoots;
     int width,height,depth,offset;
     private final World owner;
     private final LightingStores stores;
@@ -32,6 +32,10 @@ final class SceneLightingUpload implements AutoCloseable {
         this(world,volume,sky,replaceVolume,stores,null);
     }
     SceneLightingUpload(World world,LightVolume volume,SkyVisibilityScheduler.Prepared sky,boolean replaceVolume,LightingStores stores,WorldLighting.Capture volumeFence) {
+        this(world,volume,sky,replaceVolume,stores,volumeFence,false);
+    }
+    SceneLightingUpload(World world,LightVolume volume,SkyVisibilityScheduler.Prepared sky,boolean replaceVolume,LightingStores stores,WorldLighting.Capture volumeFence,boolean separateRoots) {
+        this.separateRoots=separateRoots;
         this.volumeFence=volumeFence;
         this.stores=stores;this.owner=world;this.volume=volume;this.sky=sky;this.replaceVolume=replaceVolume;
         edits=world.editsVersion();models=world.models().revision();skyData=sky==null?new int[0]:sky.data.data;
@@ -42,17 +46,18 @@ final class SceneLightingUpload implements AutoCloseable {
         if(w>limit||h>limit||d>limit)throw new IllegalStateException("Sky visibility exceeds GL integer atlas capacity");
         width=w;height=h;depth=Math.max(1,d);offset=w*h*l;phase=replaceVolume?1:0;
         try {
-            atlas=stores==null?glGenTextures():stores.texture("sky");integers=stores==null?MemoryUtil.memAllocInt(512*1024):stores.integers;
+            atlas=separateRoots&&replaceVolume?0:stores==null?glGenTextures():stores.texture("sky");integers=stores==null?MemoryUtil.memAllocInt(512*1024):stores.integers;
             if(replaceVolume){irradiance=stores==null?glGenTextures():stores.texture("irradiance");fineTexture=stores==null?glGenTextures():stores.texture("fine");fineBuffer=stores==null?glGenBuffers():stores.buffer();if(volume!=null)pixels=stores==null?MemoryUtil.memAlloc(2*1024*1024):stores.pixels;}
         }catch(RuntimeException e){close();throw e;}
     }
     boolean valid(World world){
-        if(world!=owner||world.models().revision()!=models)return false;
+        if(world!=owner||world.isClosed()||world.models().revision()!=models)return false;
         if(volumeFence!=null)return volumeFence.valid(world,volumeFence.x,volumeFence.z);
         return replaceVolume?world.editsVersion()==edits:sky==null||sky.valid(world);
     }
     boolean skyCurrent(World world){return sky==null||sky.valid(world);}
     void refreshSky(World world,SkyVisibilityScheduler.Prepared latest) {
+        if(separateRoots&&replaceVolume)return;
         if(latest==null||!latest.valid(world)||latest==sky)return;
         // Finish the independent volume first. A changed far column must not restart
         // tens of MB of already valid irradiance/transport data.
@@ -67,12 +72,15 @@ final class SceneLightingUpload implements AutoCloseable {
         if(phase==0||phase==4){if(stores==null){glDeleteTextures(atlas);atlas=glGenTextures();}y=z=0;allocated=false;phase=0;}
     }
     private static void configure(){glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_WRAP_R,GL_CLAMP_TO_EDGE);}
-    int pump(long deadline,int byteBudget) {
+    int pump(long deadline,int byteBudget) {return pump(deadline,byteBudget,LightingStores.PIXEL_UNIT_BYTES);}
+    int pump(long deadline,int byteBudget,int transferUnit) {
+        if(transferUnit<=0||transferUnit>LightingStores.PIXEL_UNIT_BYTES)throw new IllegalArgumentException("Lighting transfer unit");
         int bytes=0;
         while(phase<4&&System.nanoTime()<deadline) {
             if(phase==0) {
+                if(separateRoots&&replaceVolume){phase=4;continue;}
                 if(!skyCurrent(owner))break;
-                int available=Math.min(64*1024,byteBudget-bytes),planes=1;
+                int available=Math.min(transferUnit,byteBudget-bytes),planes=1;
                 int rows=Math.min(height-y,available/(width*4));if(rows==0)break;
                 if(y==0&&rows==height)planes=Math.min(depth-z,available/(width*height*4));
                 int count=width*rows*planes;
@@ -89,26 +97,26 @@ final class SceneLightingUpload implements AutoCloseable {
                     if(z+plane<l){for(int row=0;row<rows&&y+row<volume.height;row++){integers.position((plane*rows+row)*width);integers.put(volume.roots,((z+plane)*volume.height+y+row)*volume.width,volume.width);}}
                     else{int source=(z+plane-l)*width*height+y*width,n=Math.min(width*rows,Math.max(0,skyData.length-source));if(n>0){integers.position(plane*rows*width);integers.put(skyData,source,n);}}
                 }
-                integers.position(0);integers.limit(count);glTexSubImage3D(GL_TEXTURE_3D,0,0,y,z,width,rows,planes,GL_RED_INTEGER,GL_INT,integers);
+                integers.position(0);integers.limit(count);if(stores==null)glTexSubImage3D(GL_TEXTURE_3D,0,0,y,z,width,rows,planes,GL_RED_INTEGER,GL_INT,integers);else if(!stores.pixels3D(0,0,y,z,width,rows,planes,GL_RED_INTEGER,GL_INT,integers,count*4))break;
                 bytes+=count*4;y+=rows;if(y==height){y=0;z+=planes;if(z==depth){z=0;phase=4;allocated=false;}}
             } else if(phase==1) {
                 glActiveTexture(GL_TEXTURE3);glBindTexture(GL_TEXTURE_3D,irradiance);
                 if(volume==null){if(stores==null)glTexImage3D(GL_TEXTURE_3D,0,GL_RGBA8,1,1,1,0,GL_RGBA,GL_UNSIGNED_BYTE,(ByteBuffer)null);else stores.texture3D(irradiance,0,GL_RGBA8,1,1,1,GL_RGBA,false);configure();phase=2;continue;}
-                int available=Math.min(64*1024,byteBudget-bytes),planes=1;
+                int available=Math.min(transferUnit,byteBudget-bytes),planes=1;
                 int rows=Math.min(volume.height-y,available/(volume.width*4));if(rows==0)break;
                 if(y==0&&rows==volume.height)planes=Math.min(volume.length-z,available/(volume.width*volume.height*4));
                 int count=volume.width*rows*planes*4;
                 if(!allocated){if(stores==null)glTexImage3D(GL_TEXTURE_3D,0,GL_RGBA8,volume.width,volume.height,volume.length,0,GL_RGBA,GL_UNSIGNED_BYTE,(ByteBuffer)null);else stores.texture3D(irradiance,0,GL_RGBA8,volume.width,volume.height,volume.length,GL_RGBA,false);configure();allocated=true;}
                 pixels.clear();pixels.put(volume.rgba,(z*volume.height+y)*volume.width*4,count).flip();
-                glTexSubImage3D(GL_TEXTURE_3D,0,0,y,z,volume.width,rows,planes,GL_RGBA,GL_UNSIGNED_BYTE,pixels);bytes+=count;y+=rows;
+                if(stores==null)glTexSubImage3D(GL_TEXTURE_3D,0,0,y,z,volume.width,rows,planes,GL_RGBA,GL_UNSIGNED_BYTE,pixels);else if(!stores.pixels3D(0,0,y,z,volume.width,rows,planes,GL_RGBA,GL_UNSIGNED_BYTE,pixels,count))break;bytes+=count;y+=rows;
                 if(y==volume.height){y=0;if((z+=planes)==volume.length){z=0;phase=2;allocated=false;}}
             } else if(phase==2) {
-                int[] fine=volume==null?EMPTY:volume.fine;int count=Math.min(Math.min(16*1024,fine.length-fineOffset),(byteBudget-bytes)/4);
-                if(count==0&&fineOffset<fine.length)break;
+                int[] fine=volume==null?EMPTY:volume.fine;int roots=separateRoots&&volume!=null&&!volume.uniformRoots()?volume.roots.length:0,total=roots+fine.length;int count=Math.min(Math.min(transferUnit/4,total-fineOffset),(byteBudget-bytes)/4);
+                if(count==0&&fineOffset<total)break;
                 glActiveTexture(GL_TEXTURE5);glBindBuffer(GL_TEXTURE_BUFFER,fineBuffer);
-                if(!allocated){if(stores==null)glBufferData(GL_TEXTURE_BUFFER,fine.length*4L,GL_DYNAMIC_DRAW);else stores.bufferData(fineBuffer,fine.length*4L);allocated=true;}
-                integers.clear();integers.put(fine,fineOffset,count).flip();glBufferSubData(GL_TEXTURE_BUFFER,fineOffset*4L,integers);bytes+=count*4;fineOffset+=count;
-                if(fineOffset==fine.length){glBindTexture(GL_TEXTURE_BUFFER,fineTexture);glTexBuffer(GL_TEXTURE_BUFFER,GL_R32I,fineBuffer);glBindBuffer(GL_TEXTURE_BUFFER,0);phase=3;allocated=false;}
+                if(!allocated){if(stores==null)glBufferData(GL_TEXTURE_BUFFER,total*4L,GL_DYNAMIC_DRAW);else stores.bufferData(fineBuffer,total*4L);allocated=true;}
+                integers.clear();int rootCount=Math.min(count,Math.max(0,roots-fineOffset));if(rootCount>0)integers.put(volume.roots,fineOffset,rootCount);if(rootCount<count)integers.put(fine,Math.max(0,fineOffset-roots),count-rootCount);integers.flip();glBufferSubData(GL_TEXTURE_BUFFER,fineOffset*4L,integers);bytes+=count*4;fineOffset+=count;
+                if(fineOffset==total){glBindTexture(GL_TEXTURE_BUFFER,fineTexture);glTexBuffer(GL_TEXTURE_BUFFER,GL_R32I,fineBuffer);glBindBuffer(GL_TEXTURE_BUFFER,0);phase=3;allocated=false;}
             } else {
                 if(volume==null){transport=new VoxelTransport();phase=0;continue;}
                 if(transportUpload==null)transportUpload=new VoxelTransport.Staging(volume.transport,stores);
@@ -117,7 +125,7 @@ final class SceneLightingUpload implements AutoCloseable {
                 if(transportUpload.ready()){transport=transportUpload.take();transportUpload.close();transportUpload=null;phase=0;}else break;
             }
         }
-        glActiveTexture(GL_TEXTURE0);return bytes;
+        if(stores!=null)stores.flushPixels();glActiveTexture(GL_TEXTURE0);return bytes;
     }
     private static final int[] EMPTY={0};
     boolean ready(){return phase==4;}

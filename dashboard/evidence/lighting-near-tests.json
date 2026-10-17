@@ -1,0 +1,12 @@
+{
+  "command": "Java21 offline Maven focused package;19 test classes; stationary current-field reuse and prefetched-upload allowance",
+  "exitCode": 0,
+  "counts": {
+    "tests": 154,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "jarSha256": "2a076fe4fe80dd25b6daef732eeb80698e6bacc5756ab14a9c56c989464de8a1",
+  "packageMismatches": []
+}

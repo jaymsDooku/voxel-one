@@ -1,0 +1,12 @@
+{
+  "command": "Java 21 offline Maven focused package; explicit 19 test classes",
+  "exitCode": 0,
+  "counts": {
+    "tests": 151,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "jarSha256": "9ad7ed8aed411f567bd58d5ff4091b6fe28217f7db8c810fee54ba0927f90450",
+  "packageMismatches": []
+}

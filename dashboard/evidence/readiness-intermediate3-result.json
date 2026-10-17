@@ -1,0 +1,8 @@
+{
+  "status": "interrupted intermediate; not a full qualification trial",
+  "warmup": {
+    "graphicsWarmupFrames": 62,
+    "warmupWallMs": 192434.154776
+  },
+  "reason": "192.434s readiness remains materially slower than baseline; add explicit finite initial-loading allowance. Normal streaming allowance remains2ms."
+}

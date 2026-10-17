@@ -32,6 +32,10 @@ public final class LightVolume {
     private boolean separateSky;
     private final Map<Integer, Detail> details = new HashMap<>();
 
+    /** No refined cells: every root is zero, so no root table needs transfer or lookup. */
+    private boolean uniformRoots;
+    public boolean uniformRoots(){return uniformRoots;}
+
     private record Detail(int resolution, SparseVoxelOctree nodes) {}
 
     private int[] material, cell, geometry, queue;
@@ -217,6 +221,7 @@ public final class LightVolume {
         v.material = v.cell = v.geometry = v.queue = null;
         v.sky = v.red = v.green = v.blue = null;
         v.queued = null;
+        v.uniformRoots=v.details.isEmpty();
         v.details.clear();
         return v;
     }

@@ -90,4 +90,42 @@ class WorldSkyVisibilityTest {
         }
     }
 
+    @Test void buriedOpaqueTerrainDoesNotDelayVisibleSky()throws Exception{
+        try(var world=new World()){
+            for(int y=-32;y<80;y++)world.apply(new Protocol.Edit(-1,y,-1,y%2==0?Blocks.STONE:Blocks.DIRT));
+            world.apply(new Protocol.Edit(-1,100,-1,Blocks.GLASS));
+            world.apply(new Protocol.Edit(-1,102,-1,Blocks.GLASS));
+            world.apply(new Protocol.Edit(-1,104,-1,Blocks.STONE,4,0,0,0));
+            var sky=WorldSkyVisibility.build(world);
+            assertEquals(1,sky.columns);assertEquals(4+4*7,sky.indexSpan==0?sky.data.length:sky.indexOffset,"One opaque ceiling, two transparent layers and one exact fractional overhang");
+            for(float x:new float[]{-.99f,-.8f,-.01f})for(float z:new float[]{-.99f,-.8f,-.01f}){
+                assertEquals(0,sky.sample(x,79,z));
+                boolean tiny=x<-.9375f&&z<-.9375f;
+                assertEquals(tiny?0:.49f,sky.sample(x,80,z),.00001);
+                assertEquals(tiny?0:.7f,sky.sample(x,101,z),.00001);
+                assertEquals(tiny?0:1,sky.sample(x,103,z));
+                assertEquals(x<-.9375f&&z<-.9375f?0:1,sky.sample(x,104,z));
+                assertEquals(1,sky.sample(x,104.0625f,z));
+            }
+        }
+    }
+
+    @Test void boundedRowDirectoryKeepsSparseAndNegativeColumnsExact()throws Exception{
+        try(var world=new World()){
+            for(int[] p:new int[][]{{-2,-3},{-2,-2},{-1,-3},{-1,-1},{1,4}})world.apply(new Protocol.Edit(p[0],10,p[1],Blocks.GLASS));
+            var sky=WorldSkyVisibility.build(world);assertEquals(-2,sky.indexOrigin);assertEquals(4,sky.indexSpan);
+            assertEquals(2,sky.data[sky.indexOffset+1]);assertEquals(-1,sky.data[sky.indexOffset+4]);
+            assertEquals(0,sky.data[sky.indexOffset+7]);assertEquals(1,sky.data[sky.indexOffset+10]);
+            int bytes=sky.data.length;
+            for(int i=0;i<10;i++){
+                sky=WorldSkyVisibility.merge(java.util.List.of(sky));assertEquals(bytes,sky.data.length,"Directory tails must not accumulate on repeated merge");
+                assertEquals(.7f,sky.sample(-1.5f,9,-2.5f),.00001);assertEquals(.7f,sky.sample(-.5f,9,-.5f),.00001);
+                assertEquals(-1,sky.sampleKnown(-.5f,9,-1.5f,-1));assertEquals(-1,sky.sampleKnown(.5f,9,4.5f,-1));
+            }
+            world.apply(new Protocol.Edit(1000,10,0,Blocks.STONE));sky=WorldSkyVisibility.build(world);
+            assertEquals(0,sky.indexSpan,"Widely separated edits keep binary lookup and bounded storage");
+            assertEquals(0,sky.sample(1000.5f,9,.5f));assertEquals(1,sky.sample(1000.5f,11,.5f));
+        }
+    }
+
 }

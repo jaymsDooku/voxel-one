@@ -52,6 +52,66 @@ class LocalLightingCaptureTest {
             world.unloadChunk(p);assertFalse(capture.valid(world,0,0));
         }
     }
+    @Test void meshOnlyInvalidationDoesNotInvalidateLightingGeometry()throws Exception {
+        try(var world=new World()){
+            var c=new Chunk();world.addChunk(new ChunkPos(0,0,0),c);
+            var capture=new WorldLighting.Capture(world,0,0);while(!capture.pump(Long.MAX_VALUE)){}
+            long sky=world.skyStamp();c.markDirty();
+            assertEquals(sky,world.skyStamp());assertTrue(capture.valid(world,0,0));
+            c.setBlock(0,0,0,Blocks.STONE);assertFalse(capture.valid(world,0,0));
+        }
+    }
+    @Test void deterministicTerrainResidencyDoesNotCancelEquivalentLightingButDirectEditsDo()throws Exception {
+        try(var world=new World(42)){
+            var p=new ChunkPos(0,4,0);var capture=new WorldLighting.Capture(world,0,0);
+            while(!capture.pump(Long.MAX_VALUE)){}
+            var generated=ChunkGenerator.generate(p,world.terrain());world.addChunk(p,generated);
+            assertTrue(capture.valid(world,0,0),"Generated attachment equals detached terrain");
+            world.unloadChunk(p);assertTrue(capture.valid(world,0,0),"Generated unload preserves canonical terrain");
+            generated=ChunkGenerator.generate(p,world.terrain());world.addChunk(p,generated);
+            generated.setBlock(0,0,0,Blocks.LED);assertFalse(capture.valid(world,0,0),"Direct resident mutation remains fenced");
+            var changed=new WorldLighting.Capture(world,0,0);while(!changed.pump(Long.MAX_VALUE)){}
+            world.unloadChunk(p);assertFalse(changed.valid(world,0,0),"Removing custom geometry remains fenced");
+            var wrongSeed=new WorldLighting.Capture(world,0,0);while(!wrongSeed.pump(Long.MAX_VALUE)){}
+            world.addChunk(p,ChunkGenerator.generate(p,new Terrain(999)));
+            assertFalse(wrongSeed.valid(world,0,0),"A generated chunk from another seed is custom geometry");
+            world.unloadChunk(p);var wrongPosition=new WorldLighting.Capture(world,0,0);while(!wrongPosition.pump(Long.MAX_VALUE)){}
+            world.addChunk(p,ChunkGenerator.generate(new ChunkPos(1,4,0),world.terrain()));
+            assertFalse(wrongPosition.valid(world,0,0),"Moving generated data to another position is custom geometry");
+        }
+    }
+    @Test void ceilingMaskIgnoresStaleAtlasAfterCustomRoofUnloads()throws Exception {
+        try(var world=new World(42)){
+            var p=new ChunkPos(0,8,0);var roof=new Chunk();roof.setBlock(0,0,0,Blocks.STONE);world.addChunk(p,roof);
+            var before=new WorldLighting.Capture(world,0,0);var oldSky=WorldSkyVisibility.build(world);
+            assertTrue(world.requiresSkyCeiling(0,0));assertEquals(0,WorldLighting.skyVisibility(oldSky,before.ceilings,0,0,.5f,96,.5f));
+            world.unloadChunk(p);assertFalse(before.valid(world,0,0));var after=new WorldLighting.Capture(world,0,0);
+            assertFalse(world.requiresSkyCeiling(0,0));assertEquals(1,WorldLighting.skyVisibility(oldSky,after.ceilings,0,0,.5f,96,.5f),"Stale atlas roof cannot darken a column with no remaining ceiling");
+        }
+    }
+    @Test void closedWorldCannotSubmitLightingWork()throws Exception {
+        try(var world=new World();var lighting=new WorldLighting()){
+            var capture=new WorldLighting.Capture(world,0,0);world.close();assertFalse(capture.valid(world,0,0));
+            assertNull(lighting.update(world,0,0));assertEquals(0,lighting.submitted);
+        }
+    }
+    @Test void predictedCompletionCanBeUsedAtANewRelevantFocus()throws Exception {
+        try(var world=new World(42);var lighting=new WorldLighting()){
+            for(int x=-3;x<=6;x++)for(int z=-3;z<3;z++)for(int y=-2;y<6;y++)world.addChunk(new ChunkPos(x,y,z),new Chunk());
+            var pending=WorldLighting.class.getDeclaredField("pending");pending.setAccessible(true);long end=System.nanoTime()+30_000_000_000L;
+            while(pending.get(lighting)==null&&System.nanoTime()<end)lighting.updatePredicted(world,32,0,0,0,1,true,null,System.nanoTime()+2_000_000,true);
+            assertNotNull(pending.get(lighting));((java.util.concurrent.Future<?>)pending.get(lighting)).get(30,java.util.concurrent.TimeUnit.SECONDS);
+            var completed=pending.get(lighting);long submitted=lighting.submitted;
+            for(int i=0;i<8;i++)assertNull(lighting.updatePredicted(world,48,0,16,0,1,true,null,System.nanoTime()+2_000_000,true,false));
+            assertSame(completed,pending.get(lighting),"One completed CPU payload waits while the GPU slot is occupied");assertEquals(submitted,lighting.submitted,"Backpressure cannot create extra workers or results");
+            var result=lighting.updatePredicted(world,48,0,16,0,1,true,null,System.nanoTime()+2_000_000,false);
+            assertNotNull(result,"A still-relevant completed field is not discarded at each chunk boundary");assertEquals(-16,result.x);
+            lighting.invalidateAccepted();lighting.updatePredicted(world,48,0,16,0,1,true,null,System.nanoTime()+2_000_000,true);
+            while(pending.get(lighting)==null&&System.nanoTime()<end)lighting.updatePredicted(world,48,0,16,0,1,true,null,System.nanoTime()+2_000_000,true);
+            assertNotNull(pending.get(lighting));((java.util.concurrent.Future<?>)pending.get(lighting)).get(30,java.util.concurrent.TimeUnit.SECONDS);
+            assertNull(lighting.updatePredicted(world,2048,0,2048,0,1,true,null,System.nanoTime()+2_000_000,false),"Teleport discards an irrelevant completion");
+        }
+    }
     @Test void negativeRegionEdgesAndModelChangesAreFenced()throws Exception {
         try(var world=new IndexedWorld()) {
             for(int x:new int[]{-65,-64,31,32})world.apply(new Protocol.Edit(x,0,0,Blocks.LED));
@@ -75,11 +135,29 @@ class LocalLightingCaptureTest {
             while(pending.get(lighting)==null&&System.nanoTime()<deadline){assertNull(lighting.update(world,0,0,0,true,null,null,System.nanoTime()+2_000_000));Thread.sleep(1);}
             assertNotNull(pending.get(lighting));
             world.apply(new Protocol.Edit(0,80,0,Blocks.LED,1,1,0,0).withColor(0xff1234));
+            ((java.util.concurrent.Future<?>)pending.get(lighting)).get(30,java.util.concurrent.TimeUnit.SECONDS);
+            assertNull(lighting.update(world,0,0,0,true,null,null,System.nanoTime()+2_000_000,false));
+            assertNull(pending.get(lighting),"Completion is collected even when new preparation is not allowed");assertEquals(1,lighting.submitted);assertEquals(1,lighting.rejected);
             LightVolume volume=null;
             while(volume==null&&System.nanoTime()<deadline){volume=lighting.update(world,0,0,0,true,null,null,System.nanoTime()+2_000_000);Thread.sleep(1);}
             assertNotNull(volume,"Current local snapshot eventually publishes");
             var rgb=volume.sample(.75f,80.25f,.25f);assertTrue(rgb[0]>rgb[2],"Stale blue result was rejected; current red fraction survived unloaded capture");
             assertTrue(lighting.acceptedFence().valid(world,0,0));assertNull(lighting.acceptedFence().chunks);assertNull(lighting.acceptedFence().overrides);
+            long submitted=lighting.submitted;lighting.invalidateAccepted();
+            long retry=System.nanoTime()+5_000_000_000L;
+            while(pending.get(lighting)==null&&System.nanoTime()<retry){lighting.update(world,0,0,0,true,null,null,System.nanoTime()+2_000_000);Thread.sleep(1);}
+            assertEquals(submitted+1,lighting.submitted,"Discarded payload is regenerated at the same focus");
+        }
+    }
+
+    @Test void canonicalEditedGenerationKeepsLightingValidAcrossUnloadAndReplay()throws Exception {
+        try(var world=new World(42)){
+            var position=new ChunkPos(0,4,0);world.addChunk(position,ChunkGenerator.generate(position,world.terrain()));
+            world.apply(new Protocol.Edit(0,65,0,Blocks.LED,1,1,0,0).withColor(0x123456));
+            var capture=new WorldLighting.Capture(world,0,0);while(!capture.pump(Long.MAX_VALUE)){}
+            world.unloadChunk(position);assertTrue(capture.valid(world,0,0),"Unloading generated terrain with unchanged canonical edits does not change lighting geometry");
+            world.addChunk(position,ChunkGenerator.generate(position,world.terrain()));assertTrue(capture.valid(world,0,0),"Canonical replay equals the detached snapshot");
+            assertEquals(0xfe123456,world.cell(0,65,0).get(8,0,0));world.apply(new Protocol.Edit(0,65,0,Blocks.AIR));assertFalse(capture.valid(world,0,0),"A newer authoritative edit still invalidates the result");
         }
     }
 

@@ -1,0 +1,8 @@
+{
+  "result": "failed",
+  "error": "BufferOverflowException",
+  "stage": "VoxelTransport.Staging.pump pooled path",
+  "cause": "Short view inherited previous byte buffer limit; native byte order also made explicit in correction.",
+  "qualification": "Must rerun exact GPU readback on final client; not claimed passed.",
+  "resolution": "Corrected pooled capacity and native byte order; final client37a3d4b79bbd2f19742827a5a1a34dd13798b2cb43c3c2548424e5722b119fc5 passed full staged GL readback, cancellation and cleanup."
+}

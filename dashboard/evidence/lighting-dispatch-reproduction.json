@@ -1,0 +1,6 @@
+{
+  "command": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 mvn -o -q -Dmaven.repo.local=target/m2 -Dtest=SkyVisibilitySchedulerTest#finishedTilesDispatchWhileTheNextTileStillNeedsCapture test",
+  "before": "Exit1; finished tile did not dispatch while another capture was partial.",
+  "fix": "Queue completed inputs immediately, keep one next partial capture, and restore the existing250us settled / up-to-half-remaining uncovered CPU allowance instead of100us during GI upload. Maximum two worker jobs plus one partial capture and one dirty/packing state remain bounded.",
+  "after": "Passed in the full151-test package run; zero failures/errors/skips."
+}

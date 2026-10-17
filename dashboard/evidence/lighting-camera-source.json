@@ -1,0 +1,9 @@
+{
+  "priorReviewedHead": "6c480737c3e2fbc748043b2c9844116ed866cd78",
+  "sourceSha256": "0cf54d09d0600c1bbe334bdfab285c6e2ab8eac68882b0b163b43a467c1774b6",
+  "routeSha256": "5c2a8a76022e2f4da485ab2032e42469be50f0c6ce524b620626c1ad1df556be",
+  "baseline": "4f8a09a+timing-overlay",
+  "baselineJarSha256": "48ed98ac1f5fc55fe9c57feb5e29bc37031f369ddee8fc1ba4596933f1c7f78f",
+  "featureJarSha256": "776fedb1a2513f65cea4a7ed4b5fe64934bd3945a80742282aeecfd16f418e52",
+  "method": "Fresh synthetic profiles, same seed/settings/JVM/route; no media capture. Coverage probes are horizontal 3x3 at spacing24, not screen-pixel visibility. Source age starts at capture; valid static fields may be old."
+}

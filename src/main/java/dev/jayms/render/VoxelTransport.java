@@ -37,13 +37,13 @@ public final class VoxelTransport implements AutoCloseable {
     }
     /** Detached GPU replacement: rows are uploaded under the shared byte/time allowance. */
     static final class Staging implements AutoCloseable {
-        private record Part(int id,int level,int internal,int format,int w,int h,int l,int channels,float[] data) {}
+        private record Part(int id,int level,int internal,int format,int w,int h,int l,int channels,short[] data) {}
         private VoxelTransport target;
         private final LightingStores stores;
         private final Part[] parts;
         private int part,y,z;private boolean allocated;
         long allocationNanos,mipmapNanos;
-        private java.nio.FloatBuffer scratch;
+        private java.nio.ShortBuffer scratch;
         Staging(TransportField f){this(f,null);}
         Staging(TransportField f,LightingStores stores) {
             this.stores=stores;target=new VoxelTransport(stores);
@@ -51,30 +51,30 @@ public final class VoxelTransport implements AutoCloseable {
             var transfers=new java.util.ArrayList<Part>();
             int w=f.width,h=f.height,l=f.length;
             for(int level=0;level<f.radianceMips.length;level++){
-                transfers.add(new Part(target.radiance,level,GL_RGBA16F,GL_RGBA,w,h,l,4,f.radianceMips[level]));
+                transfers.add(new Part(target.radiance,level,GL_RGBA16F,GL_RGBA,w,h,l,4,f.halfRadianceMips[level]));
                 w=Math.max(1,w/2);h=Math.max(1,h/2);l=Math.max(1,l/2);
             }
-            transfers.add(new Part(target.distance,0,GL_R16F,GL_RED,f.width,f.height,f.length,1,f.distance));
-            for(int i=0;i<3;i++){int[] d=f.probeSize[i];transfers.add(new Part(target.probes[i],0,GL_RGBA16F,GL_RGBA,d[0],d[1],d[2],4,f.probes[i]));}
+            transfers.add(new Part(target.distance,0,GL_R16F,GL_RED,f.width,f.height,f.length,1,f.halfDistance));
+            for(int i=0;i<3;i++){int[] d=f.probeSize[i];transfers.add(new Part(target.probes[i],0,GL_RGBA16F,GL_RGBA,d[0],d[1],d[2],4,f.halfProbes[i]));}
             parts=transfers.toArray(Part[]::new);
             int max=0;for(var p:parts)max=Math.max(max,p.w*Math.min(32,p.h)*p.channels);
-            scratch=stores==null?org.lwjgl.system.MemoryUtil.memAllocFloat(Math.max(max,512*1024)):stores.floats;
+            scratch=stores==null?org.lwjgl.system.MemoryUtil.memAllocShort(Math.max(max,LightingStores.PIXEL_UNIT_BYTES/2)):stores.pixels.duplicate().clear().order(java.nio.ByteOrder.nativeOrder()).asShortBuffer();
         }
         int pump(long deadline,int byteBudget) {
             int bytes=0;
             while(part<parts.length&&System.nanoTime()<deadline) {
-                Part p=parts[part];int available=Math.min(64*1024,byteBudget-bytes),planes=1;
-                int rows=Math.min(p.h-y,available/(p.w*p.channels*4));if(rows==0)break;
-                if(y==0&&rows==p.h)planes=Math.min(p.l-z,available/(p.w*p.h*p.channels*4));
+                Part p=parts[part];int available=Math.min(LightingStores.PIXEL_UNIT_BYTES,byteBudget-bytes),planes=1;
+                int rows=Math.min(p.h-y,available/(p.w*p.channels*2));if(rows==0)break;
+                if(y==0&&rows==p.h)planes=Math.min(p.l-z,available/(p.w*p.h*p.channels*2));
                 int count=p.w*rows*p.channels*planes;
-                if(count*4>byteBudget-bytes)break;
+                if(count*2>byteBudget-bytes)break;
                 glActiveTexture(GL_TEXTURE6);glBindTexture(GL_TEXTURE_3D,p.id);
                 if(!allocated){long started=System.nanoTime();if(stores==null)glTexImage3D(GL_TEXTURE_3D,p.level,p.internal,p.w,p.h,p.l,0,p.format,GL_FLOAT,(java.nio.FloatBuffer)null);else stores.texture3D(p.id,p.level,p.internal,p.w,p.h,p.l,p.format,false);allocationNanos+=System.nanoTime()-started;glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_WRAP_R,GL_CLAMP_TO_EDGE);allocated=true;}
                 scratch.clear();scratch.put(p.data,(z*p.h+y)*p.w*p.channels,count).flip();
-                glTexSubImage3D(GL_TEXTURE_3D,p.level,0,y,z,p.w,rows,planes,p.format,GL_FLOAT,scratch);bytes+=count*4;y+=rows;
+                if(stores==null)glTexSubImage3D(GL_TEXTURE_3D,p.level,0,y,z,p.w,rows,planes,p.format,GL_HALF_FLOAT,scratch);else if(!stores.pixels3D(p.level,0,y,z,p.w,rows,planes,p.format,GL_HALF_FLOAT,scratch,count*2))break;bytes+=count*2;y+=rows;
                 if(y==p.h){y=0;z+=planes;if(z==p.l){if(p.id==target.radiance&&p.level==fLevels()-1)glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);part++;z=0;allocated=false;}}
             }
-            return bytes;
+            if(stores!=null)stores.flushPixels();return bytes;
         }
         private int fLevels(){int n=0;for(var p:parts)if(p.id==target.radiance)n++;return n;}
         boolean ready(){return part==parts.length;}

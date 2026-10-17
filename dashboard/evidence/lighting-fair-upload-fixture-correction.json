@@ -1,0 +1,6 @@
+{
+  "observed": "First concurrent-lane integration exited1 at allocation assertion.",
+  "cause": "The8x8x8 fixture changes texture dimensions from the96x128x96 prewarmed production shape; those fixture setup reallocations were incorrectly treated as normal production allocations.",
+  "correction": "Concurrent small fixture checks shared caps, progress, retained old atlas and exact shader/data readback. Full-sized integration now alternates a buffer-prefix generation and requires zero new store allocations, with exact roots/fine data readback.",
+  "rerun": "Exit0. Concurrent lanes, exact old/new atlas and shader readback passed. Full production-sized prefix/legacy generations passed with zero new store allocations."
+}

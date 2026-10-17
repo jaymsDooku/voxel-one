@@ -1,0 +1,11 @@
+{
+  "status": "Completed166-sample exploratory candidate; failed CPU sky throughput qualification",
+  "warmup": {
+    "graphicsWarmupFrames": 24,
+    "warmupWallMs": 93339.662861
+  },
+  "coldFlightFrames": 80,
+  "skyKnownFrames": 0,
+  "diagnosis": "At sample84, six completed tile inputs waited while the build worker and merge worker were idle; a partial next capture kept the eight-tile batch gate closed. The100us CPU cap also constrained capture throughput.",
+  "next": "Dispatch completed partial batches and restore the existing near-view CPU allowance; no performance/visual qualification claimed."
+}

@@ -1,0 +1,6 @@
+{
+  "status": "interrupted intermediate diagnostic; not qualification",
+  "reason": "First GI bake started near70 warmup frames; no usable field by100. Stopped with normal WM_DELETE_WINDOW before full trial completion.",
+  "cli": "Original route incorrectly printed166frames on early window close. That is not a passed166-frame trial; harness completion assertion added afterward.",
+  "next": "Increase bounded sky service, coalesce stable partial publications, reduce GL transfer call overhead, then rerun matched qualification."
+}

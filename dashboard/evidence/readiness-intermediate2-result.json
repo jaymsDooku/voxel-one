@@ -1,0 +1,6 @@
+{
+  "status": "interrupted intermediate; exit1 expected from completion guard",
+  "lastFrame": "73",
+  "firstGiFrame": null,
+  "reason": "All81 sky tiles cached, but repeated near search consumed sky slice; urgent GI waited behind sky-only atlas upload. Stop marker closed at an owner-frame boundary. Not a completed matched trial."
+}

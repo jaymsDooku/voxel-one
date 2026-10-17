@@ -13,11 +13,11 @@ import static org.lwjgl.opengl.GL33.*;
 
 /** Real keyboard movement and F10, edited geometry, async reload and loopback multiplayer. */
 public class StreamingWorkflow {
-    static Main game=new Main();static Path out;static int frame;static String mode;static boolean video;static int session;static long began,remoteSent;static float travelStart;
+    static Main game=new Main();static Path out;static int frame;static String mode;static boolean video;static int session;static long began,remoteSent,travelBegan;static int travelRespawn=-1;static float travelStart;
     static java.util.concurrent.Callable<MultiplayerClient> connectEditor;
     static int distantEdits;static int meshPeak;static long snapshotPeak;
     static float startX,flightX;static Vector3f previous;static double pathLength;static int tinyId;static long handle;static Protocol.Edit remoteEdit;static MultiplayerClient editor;
-    static final StringBuilder samples=new StringBuilder("frame,stream_cpu_ms,render_cpu_ms,previous_video_capture_cpu_ms,pending,oldest_ms,loaded,heap_bytes,mesh_jobs,mesh_waiting,lighting_upload_bytes,scene_cpu_ms,lighting_prepare_cpu_ms\n");
+    static final StringBuilder samples=new StringBuilder("frame,stream_cpu_ms,render_cpu_ms,previous_video_capture_cpu_ms,pending,oldest_ms,loaded,heap_bytes,mesh_jobs,mesh_waiting,lighting_upload_bytes,scene_cpu_ms,lighting_prepare_cpu_ms,gi_covered_9,gi_current,gi_source_age_ms\n");
     static Object get(String n)throws Exception{var f=Main.class.getDeclaredField(n);f.setAccessible(true);return f.get(game);}
     static void set(String n,Object v)throws Exception{var f=Main.class.getDeclaredField(n);f.setAccessible(true);f.set(game,v);}
     static void check(boolean ok,String message){if(!ok)throw new AssertionError(message);}
@@ -82,11 +82,11 @@ public class StreamingWorkflow {
                         if(frame==43){for(int y=-2;y<=7;y++)w.unloadChunk(new ChunkPos(0,y,1));player.driveSeat(new Vector3f(5,109.01f,24),0);}
                         if(frame==50)((LocalGame)get("local")).health=0;
                     } else if(mode.equals("travel")) {
-                        if(frame==0){key("key","f");key("keydown","w");key("keydown","Shift_L");key("keydown","space");}
+                        if(frame==0){travelBegan=System.nanoTime();key("key","f");key("keydown","w");key("keydown","Shift_L");key("keydown","space");}
                         if(frame==20)key("keyup","space");
                         if(frame==60){key("keyup","w");key("keydown","s");}
                         if(frame==100){key("keyup","s");key("keydown","w");}
-                        if(frame==130){key("keyup","w");key("keyup","Shift_L");((LocalGame)get("local")).health=0;}
+                        if(frame>=130&&travelRespawn<0&&System.nanoTime()-travelBegan>=120_000_000_000L){travelRespawn=frame;key("keyup","w");key("keyup","Shift_L");((LocalGame)get("local")).health=0;}
                     } else if(mode.equals("multiplayer")) {
                         if(frame==2){remoteSent=System.nanoTime();check(editor.edit(remoteEdit,editor.spawn),"Remote client sends authoritative break while chunks are loading");}
                         editor.poll();
@@ -96,9 +96,10 @@ public class StreamingWorkflow {
                 public void afterFrame(Main main)throws Exception{
                     World w=(World)get("world");
                     var actual=((Player)get("player")).position();if(previous!=null)pathLength+=actual.distance(previous);previous=new Vector3f(actual);
+                    var gi=((RenderPipeline)get("rendering")).lightingCoverage(w,actual.x,actual.z);
                     var meshes=(DetailedMeshScheduler)get("detailedMeshes");meshPeak=Math.max(meshPeak,meshes.queued());snapshotPeak=Math.max(snapshotPeak,meshes.snapshotNanos);
                     check(w.terrainPending()<=9,"Bounded terrain completions");check(w.getLoadedChunks().size()<=1690,"Bounded resident chunks");check(glGetError()==GL_NO_ERROR,"No OpenGL error");
-                    samples.append(frame+","+((long)get("streamNanos"))/1e6+","+((long)get("renderNanos"))/1e6+","+((long)get("videoNanos"))/1e6+","+w.terrainPending()+","+w.terrainOldestMillis()+","+w.getLoadedChunks().size()+","+(Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory())+","+meshes.queued()+","+meshes.waiting()+","+((RenderPipeline)get("rendering")).lightingUploadBytes+","+((RenderPipeline)get("rendering")).sceneNanos/1e6+","+((RenderPipeline)get("rendering")).lightingNanos/1e6+"\n");
+                    samples.append(frame+","+((long)get("streamNanos"))/1e6+","+((long)get("renderNanos"))/1e6+","+((long)get("videoNanos"))/1e6+","+w.terrainPending()+","+w.terrainOldestMillis()+","+w.getLoadedChunks().size()+","+(Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory())+","+meshes.queued()+","+meshes.waiting()+","+((RenderPipeline)get("rendering")).lightingUploadBytes+","+((RenderPipeline)get("rendering")).sceneNanos/1e6+","+((RenderPipeline)get("rendering")).lightingNanos/1e6+","+gi.coveredOfNine()+","+gi.current()+","+gi.sourceAgeMillis()+"\n");
                     if(frame==8)capture("streaming-"+mode+"-edited.png");
                     if(frame%10==0){Files.writeString(out.resolve("progress.txt"),"frame="+frame+"\n");Files.writeString(out.resolve("workflow.csv"),samples);}
                     if(mode.equals("switch")&&frame==15){set("requestedSave",out.resolve("other-world.dat"));glfwSetWindowShouldClose(handle,true);}
@@ -107,15 +108,17 @@ public class StreamingWorkflow {
                     // frames after respawn. Observe readiness with a finite bound;
                     // retain the180-frame minimum travel/respawn workload.
                     if(mode.equals("travel")&&frame>=179) {
-                        boolean ready=((RenderPipeline)get("rendering")).lightingReady();
-                        end=ready?frame+1:450;
+                        boolean ready=gi.coveredOfNine()==9&&gi.current();
+                        boolean settledMinimum=travelRespawn>=0&&frame>=travelRespawn+49;
+                        if(travelRespawn>=0&&frame>=travelRespawn+320&&!ready)throw new AssertionError("Lighting did not settle within320 frames after respawn");
+                        end=ready&&settledMinimum?frame+1:Integer.MAX_VALUE;
                         Files.writeString(out.resolve("lighting-settlement.txt"),
-                                "frame="+frame+"; framesAfterRespawn="+(frame-130)+"; lightingReady="+ready+"\n");
+                                "frame="+frame+"; framesAfterRespawn="+(travelRespawn<0?-1:frame-travelRespawn)+"; currentNearGIReady="+ready+"; coveredOfNine="+gi.coveredOfNine()+"; currentGeometry="+gi.current()+"; sourceAgeMs="+gi.sourceAgeMillis()+"\n");
                     }
                     if(++frame==end){
                         if(mode.equals("offline")){check(w.isLoaded(8,109,26),"Reloaded edited chunk resident");check(w.getBlock(8,109,26)==Blocks.PARTIAL,"Fractional LED survived unload and regeneration");check(w.cell(8,109,26).get(8,0,8)==0xfe30a0ff,"Exact RGB fractional edit replayed");check(w.getBlock(8,110,27)==tinyId,"Tiny model retained after reload");check(((LocalGame)get("local")).health==20,"Ordinary respawn restores health");check(w.nearbyReady(actual.x,actual.z,0),"Playable terrain is ready after ordinary respawn");}
                         if(mode.equals("switch"))check(session==2&&w.terrain().seed==999,"Running application switched worlds and stopped old worker");
-                        if(mode.equals("travel")){check((System.nanoTime()-began)>120_000_000_000L,"Multi-minute actual flight/reversal/respawn run");check(((LocalGame)get("local")).health==20,"Respawn restored health");check(w.nearbyReady(((Player)get("player")).position().x,((Player)get("player")).position().z,0),"Streaming caught up around respawn");var lighting=RenderPipeline.class.getDeclaredField("hasIrradiance");lighting.setAccessible(true);check(lighting.getBoolean(get("rendering")),"Staged lighting became usable after settling at respawn");}
+                        if(mode.equals("travel")){check(travelRespawn>=130&&System.nanoTime()-travelBegan>=120_000_000_000L,"At least120 seconds of actual flight/reversal before respawn");check(((LocalGame)get("local")).health==20,"Respawn restored health");check(w.nearbyReady(((Player)get("player")).position().x,((Player)get("player")).position().z,0),"Streaming caught up around respawn");check(gi.coveredOfNine()==9&&gi.current(),"Current geometry and nine near-camera GI points covered after respawn");}
                         if(mode.equals("multiplayer")){check(w.isLoaded(remoteEdit.x(),remoteEdit.y(),remoteEdit.z()),"Remote edited chunk reloaded");check(w.region(remoteEdit)==0,"Remote edit survives reload");check(((MultiplayerClient)get("network")).connected(),"Network stayed connected while streaming");}
                         check(w.getLoadedChunks().values().stream().anyMatch(c->c.getMesh()!=null),"GPU mesh replacements became usable");
                         check(meshPeak>0&&snapshotPeak>0,"Detailed meshing made progress while streaming");

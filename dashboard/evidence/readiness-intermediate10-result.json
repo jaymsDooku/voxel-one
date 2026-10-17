@@ -1,0 +1,10 @@
+{
+  "status": "Developer interrupted inactive independent lane; incomplete, not qualification",
+  "lastSample": "91",
+  "coldFlightFrames": 60,
+  "skyKnownFrames": 0,
+  "skyLaneBytes": 20692992,
+  "reason": "Measure actual fine-light payload and GPU capacity; conservative fine-node guard appears to select legacy fallback.",
+  "correctedDiagnosis": "Buffer mode is active in the actual client and fine.length=1; no buffer guard change was needed. CPU sky publication stayed at6 during travel; investigate capture/merge progress. New counters added for CPU capture and packing.",
+  "glMaxBufferEntries": 134217728
+}

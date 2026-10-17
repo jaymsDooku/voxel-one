@@ -21,6 +21,7 @@ public final class ChunkGenerator {
                     if (type != 0) c.setBlock(x, y, z, type);
                 }
         }
+        c.terrainPosition=p;c.terrainSeed=terrain.seed;c.terrainVersion=terrain.version;c.terrainGrid=terrain.stressGrid();c.terrainEquivalent=true;
         return c;
     }
 

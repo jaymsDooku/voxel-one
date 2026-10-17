@@ -1,0 +1,9 @@
+{
+  "tests": 145,
+  "failures": 0,
+  "errors": 0,
+  "skips": 0,
+  "jarSha256": "aa91e2824e15fa53eb8b5f6e18111965cd90154eec2c6bc3f6761b97ff6ba24f",
+  "testCommand": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 mvn -o -q -Dmaven.repo.local=target/m2 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=LocalLightingCaptureTest,WorldStreamingTest,TerrainSchedulerTest,DetailedMeshSchedulerTest,ChunkUnchangedWriteTest,WorldSkyVisibilityTest,SkyVisibilitySchedulerTest,TerrainGenerationTest,FractionalWorldTest,PhysicsTest,LightingTest,LightOcclusionTest,VoxelModelTest,DistantTerrainTest,StressGridLightingTest,JeepTest,PerformanceRecorderTest,MultiplayerTest,TransportMipTest package",
+  "Playtest:": "python3 deploy/run_streaming_upload_smoke.py --display \"$DISPLAY\"; exit0. Linux/llvmpipe GL3.3, synthetic world. Expected exact production shader RGB and sky samples for uniform/fractional cells on legacy combined-atlas and buffer-prefix paths, unchanged prior sky during GI staging, cancellation, caps and cleanup. Observed all assertions passed. Full-volume readback and context-thread cleanup also passed. Standalone integration, not game-route qualification."
+}

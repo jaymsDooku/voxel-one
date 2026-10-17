@@ -18,6 +18,11 @@ public class Chunk implements AutoCloseable {
     private int fractionalCells;
     public boolean hasFractional(){return fractionalCells!=0;}
     private long geometryVersion, meshRevision;
+    // Only deterministic generation plus authoritative replay may retain this flag.
+    boolean terrainEquivalent;long terrainSeed;int terrainVersion;Object terrainGrid;ChunkPos terrainPosition;
+    boolean matchesTerrain(dev.jayms.net.Terrain terrain,ChunkPos position){return position.equals(terrainPosition)&&terrainSeed==terrain.seed&&terrainVersion==terrain.version&&terrainGrid==terrain.stressGrid();}
+    private long notifiedGeometryVersion=Long.MIN_VALUE;
+    boolean takeGeometryChange(){if(notifiedGeometryVersion==geometryVersion)return false;notifiedGeometryVersion=geometryVersion;return true;}
     public long meshRevision(){return meshRevision;}
     /** Geometry changes only; mesh/neighbor invalidation does not rebuild sky coverage. */
     public long geometryVersion(){return geometryVersion;}
@@ -35,6 +40,7 @@ public class Chunk implements AutoCloseable {
     public void attach(World world, ChunkPos position) {
         this.world = world;
         this.position = position;
+        notifiedGeometryVersion=Long.MIN_VALUE;
     }
 
     public ChunkPos position() {
@@ -78,7 +84,7 @@ public class Chunk implements AutoCloseable {
 
         if(current==-1)fractionalCells--;
         int i = index(x, y, z);
-        geometryVersion++;
+        terrainEquivalent=false;geometryVersion++;
         blocks.fill(
                 x * 16,
                 y * 16,
@@ -134,7 +140,7 @@ public class Chunk implements AutoCloseable {
         int fx = x * 16 + edit.ix() * side,
                 fy = y * 16 + edit.iy() * side,
                 fz = z * 16 + edit.iz() * side;
-        geometryVersion++;
+        terrainEquivalent=false;geometryVersion++;
         blocks.fill(
                 fx,
                 fy,

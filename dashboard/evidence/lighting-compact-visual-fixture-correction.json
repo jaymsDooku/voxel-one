@@ -1,0 +1,7 @@
+{
+  "failedCommand": "python3 deploy/run_lighting_visual.py --display \"$DISPLAY\" --phase before --manifest lighting-compact-source.json --prefix lighting-compact-visual",
+  "exitCode": 1,
+  "error": "Ground visual fixture has no visible GI-eligible near surface samples",
+  "observed": "Inspected sample11 screenshot: positive25degree pitch looks upward in Camera.forward. No depth coverage claim made.",
+  "correction": "Use pitch-25degrees for downward ground view; rerun both baseline and feature with lighting-compact-ground prefix. Production source and timing route unchanged."
+}
