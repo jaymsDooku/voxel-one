@@ -74,7 +74,10 @@ F10 there. Hold one start/stop key event; wait for the new recording to encode.
 Sparse software-rendered frames prove recording/launch only, not smooth gameplay.
 
 The scoped checker also runs `NativeRenderProbe` against the verified platform
-client using bundled Java and an empty PATH. It uses the existing frame observer,
+client using bundled Java by absolute path. Native rendering retains normal OS
+driver/utility PATH entries; the launcher/MSI tests still use an empty PATH.
+No external Java is invoked. This harness change is not proof that hosted GLFW
+failures are repaired; inspect the new actual renderer results. It uses the existing frame observer,
 an isolated LOW-profile game and four actual framebuffer frames for City,
 Sandbox and editor. This is renderer/module smoke, not interactive gameplay,
 launcher CLI coverage or GPU performance acceptance. Clips need decoding and

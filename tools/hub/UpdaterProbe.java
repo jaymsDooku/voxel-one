@@ -6,7 +6,11 @@ import java.nio.file.*;
 public final class UpdaterProbe {
     public static void main(String[] args) throws Exception {
         Updater updater=new Updater(Path.of(args[1]),URI.create(args[2]),Boolean.parseBoolean(args[3]));
-        if(args[0].equals("cancel")) {
+        if(args[0].equals("catalog")) {
+            var entry=HubCatalog.bundled().entries().stream().filter(e->e.id().equals("city")).findFirst().orElseThrow();
+            var result=updater.update(Platform.current(),s->{},entry.clientSources());
+            entry.requireClient(result);System.out.println(result.client());
+        } else if(args[0].equals("cancel")) {
             Thread cancel=new Thread(()->{try{Thread.sleep(750);updater.cancel();}catch(InterruptedException e){Thread.currentThread().interrupt();}});
             cancel.start();boolean cancelled=false;
             try {updater.update(Platform.current(),s->{});}catch(java.io.IOException e){cancelled=e.getMessage().contains("cancel");}

@@ -36,7 +36,7 @@ def assemble(native_receipt, web_receipt, output):
         if field in ('source', 'build', 'notes'):
             value = receipt[field]
         if key == 'version':
-            value = hashlib.sha256((native['build']+'\0'+web['build']).encode()).hexdigest()[:20]
+            value = hashlib.sha256(json.dumps({'native': native, 'web': web, 'template': template}, sort_keys=True, separators=(',', ':')).encode()).hexdigest()[:20]
         lines.append(key+sep+value)
     text = '\n'.join(lines)+'\n'
     text = ''.join(c if ord(c) < 128 else ''.join('\\u%04x' % int.from_bytes(c.encode('utf-16-be')[i:i+2], 'big') for i in range(0, len(c.encode('utf-16-be')), 2)) for c in text)

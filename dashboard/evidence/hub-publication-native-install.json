@@ -1,0 +1,22 @@
+{
+  "command": [
+    "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+    "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-tmp",
+    "-cp",
+    "target/voxel-one-1.0-SNAPSHOT-client.jar:target/hub-tmp",
+    "UpdaterProbe",
+    "catalog",
+    "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-native-published-565-cache",
+    "https://github.com/jaymsDooku/voxel-one/releases/latest/download/update.properties",
+    "false"
+  ],
+  "exitCode": 0,
+  "Playtest": "Fresh real HTTPS native update constrained by bundled City compatibility; no browser UI involved. Actual native gameplay follows in an isolated synthetic Hub workflow.",
+  "release": "playtest-565",
+  "expectedSource": "403033b9f53ce66063982879c6e2daff684a427b",
+  "client": "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-native-published-565-cache/versions/403033b9f53ce66063982879c6e2daff684a427b/da45fe181fbfe3d87fc5b7bbd6816fb321309e9c89fb311bdeeb3074c037b4aa/linux.jar",
+  "sha256": "da45fe181fbfe3d87fc5b7bbd6816fb321309e9c89fb311bdeeb3074c037b4aa",
+  "bytes": 23038398,
+  "manifestRevision": "403033b9f53ce66063982879c6e2daff684a427b",
+  "passed": true
+}

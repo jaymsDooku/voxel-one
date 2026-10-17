@@ -168,3 +168,68 @@ and does not launch an incompatible client. The legacy updater and
 These corrections do not qualify stable rollout. Windows installation/MSI,
 physical GPU/DPI, and upgrades across two published shell generations must
 retain their release gates until actual platform evidence passes.
+
+### Controller publication handoff
+
+The Hub catalog and stable bootstrap use separate files on the fixed
+`experience-catalog` branch: `catalog.properties` and `shell.properties`.
+The shell manifest names an immutable GitHub release asset. It no longer depends
+on the normal engine release's `latest` manifest; those releases do not publish
+a Hub shell. The legacy native `update.properties` path is unchanged. Existing
+bootstraps still require the documented one-time new-launcher download.
+
+The read-only `Prepare Hub preview publication` workflow accepts the exact
+reviewed feature source, a new `hub-preview-N` tag and the current destination
+head (or `absent`). It builds and tests the shell, then uploads a controller
+bundle. It has no write permission and does not create a release or branch.
+The bundle includes `publication-plan.json`, both metadata files and the shell
+JAR. Local dirty-source bundles are diagnostic only and must be regenerated
+from committed reviewed source. Never publish their base SHA as exact source.
+
+Controller sequence:
+
+1. Verify independent review, qualification scope, feature SHA and destination
+   branch head. Stop if either head differs from the plan. Preserve existing
+   branch files. The expected-head field is a controller compare-and-swap
+   precondition; this read-only tool does not perform the update itself.
+2. Publish the immutable preview shell asset first. Never clobber an existing
+   generation. Do not mark it latest or promote the Hub to stable.
+3. Verify asset SHA-256 and size, then atomically promote the two metadata files
+   through the fenced controller. No Java rebuild is needed for later catalog
+   changes using already reviewed native/web receipts.
+4. Run the read-only verifier shown below. All three fixed public URLs must
+   deliver matching bytes. A 404 or mismatched artifact is a failed integration check. The tool
+   prints no response bodies or signed redirect addresses.
+5. Run actual packaged bootstrap sessions against public metadata for generation
+   one, then a second reviewed published generation. Retain both immutable
+   assets and old installation data. Fixture-generation checks are separate
+   and do not satisfy this published-upgrade requirement.
+
+Physical GPU/DPI, current-head Windows/macOS gameplay, actual public catalog
+integration and two published shell generations remain release gates. A
+prepared bundle, synthetic HTTP test or preview label does not complete them.
+
+```sh
+python3 tools/hub/publication_bundle.py verify --bundle BUNDLE_DIR --report REPORT_JSON
+```
+
+For a later web-only catalog update, the controller can run only the existing
+assembler and promote `catalog.properties` with its branch-head fence. It must
+retain the last verified `shell.properties` and shell assets. No launcher/native
+JAR rebuild or second shell release is required for that metadata-only change.
+
+```sh
+python3 tools/hub/publish_catalog.py --native-receipt NATIVE_RECEIPT --web-receipt WEB_RECEIPT --output CATALOG_CANDIDATE
+```
+
+A published shell-upgrade demonstration must use two distinct reviewed shell
+artifacts. Renaming an unchanged artifact does not prove an upgrade. Capture the
+active immutable generation, next-start activation and retained synthetic saves.
+
+The preparation workflow also builds clean portable packages for Windows, Linux
+and both Mac architectures, plus a Windows MSI. Those artifacts use the source
+JAR, not the two-generation test fixture. Each has a source/hash/scope receipt
+and remains unqualified for stable rollout. The legacy download button opens
+the releases list so a Hub preview remains discoverable without changing the
+normal engine release's `latest` pointer. Published package links and actual
+platform qualification still require the controller handoff.

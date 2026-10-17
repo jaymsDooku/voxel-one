@@ -81,7 +81,7 @@ public class HubWorkflowPlaytest {
         System.setProperty("user.home", profile.toAbsolutePath().toString());
         Files.createDirectories(profile.resolve(".voxel-one"));
         dev.jayms.render.GraphicsProfile.preset(dev.jayms.render.GraphicsProfile.Preset.LOW).save(profile.resolve(".voxel-one/graphics.properties"));
-        byte[] client=Files.readAllBytes(Path.of("target/voxel-one-1.0-SNAPSHOT-client.jar"));
+        byte[] client=Files.readAllBytes(Path.of(System.getProperty("hub.playtest.clientJar", "target/voxel-one-1.0-SNAPSHOT-client.jar")));
         AtomicInteger downloads=new AtomicInteger(); AtomicBoolean corrupt=new AtomicBoolean(false), slow=new AtomicBoolean(false);
         AtomicReference<String> revision=new AtomicReference<>("a".repeat(40));
         HttpServer server=HttpServer.create(new InetSocketAddress("127.0.0.1",0),0);
@@ -104,7 +104,7 @@ public class HubWorkflowPlaytest {
             String fixtureCatalog;
             try (var in = HubCatalog.class.getResourceAsStream("catalog.properties")) {
                 fixtureCatalog = new String(in.readAllBytes(), java.nio.charset.StandardCharsets.ISO_8859_1)
-                        .replace("4f8a09aca177062a50d0ab2b68e36735318bfb22", "a".repeat(40));
+                        .replace(HubCatalog.bundled().entries().get(0).source(), "a".repeat(40));
             }
             HubCatalog catalog=HubCatalog.read(new java.io.ByteArrayInputStream(fixtureCatalog.getBytes(java.nio.charset.StandardCharsets.ISO_8859_1)));
             SwingUtilities.invokeAndWait(()->{
