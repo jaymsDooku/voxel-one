@@ -72,7 +72,7 @@ def run(args):
     classes=work/'classes';classes.mkdir(exist_ok=True)
     source_client=root/'target/voxel-one-1.0-SNAPSHOT-client.jar'
     command([javac,'--release','17','-cp',str(source_client),'-d',classes,'tools/hub/HubPlaytest.java',
-             'tools/hub/PackageUiProbe.java','tools/hub/UpdaterProbe.java','tools/hub/OnlineLoginPlaytest.java','tools/hub/NativeRenderProbe.java'])
+             'tools/hub/PackageUiProbe.java','tools/hub/UpdaterProbe.java','tools/hub/OnlineLoginPlaytest.java','tools/hub/NativeRenderProbe.java','tools/hub/WindowFailureProbe.java'])
     jars=[];apps=[]
     from package import package
     for i in (1,2):
@@ -228,6 +228,13 @@ def run(args):
         command([runtime,'-Djava.io.tmpdir='+str(work),'-cp',cp,'OnlineLoginPlaytest',work/'online-profile',out],timeout=120)
         return 'City/Sandbox locked selection; custom loopback port; invalid-port rejection; pinned TLS sign-in passed.'
     check('Synthetic online login handoff','Both native game identities authenticate to their selected TLS server',online)
+    def invalid_window():
+        argv=[runtime,'-Djava.io.tmpdir='+str(work)]
+        if platform.system()=='Darwin':argv.append('-XstartOnFirstThread')
+        argv.extend(['-cp',os.pathsep.join(map(str,(classes,second))),'WindowFailureProbe'])
+        command(argv,timeout=60)
+        return 'Invalid native width produced fixed GLFW_INVALID_VALUE code 0x10004; no native descriptions retained.'
+    check('Bounded native window failure','Native window failures expose a fixed numeric GLFW code',invalid_window)
     for mode in ('city','sandbox','editor'):
         def render(mode=mode):
             # Bundled Java is invoked by absolute path. Preserve OS driver/utility paths;

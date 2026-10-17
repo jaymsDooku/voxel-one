@@ -133,3 +133,11 @@ powershell.exe exit1 did not prove missing shortcuts; the new exact-head run
 must determine the result. Windows physical DPI, real GPU play, full-size
 captures on small hosted desktops and two published shell generations remain
 unqualified. No unqualified rollout is authorized by a passing preview check.
+
+Native window failures retain the fixed hexadecimal GLFW error code in the
+exception before cleanup. Raw callback descriptions and native stacks remain
+excluded from package reports. `WindowFailureProbe` exercises a real invalid
+width and expects `0x10004` (`GLFW_INVALID_VALUE`). This diagnoses a failure; it
+does not demonstrate that hosted Windows/macOS support the required renderer.
+The graphics context request and existing fallback are unchanged. Interpret
+codes using https://www.glfw.org/docs/latest/group__errors.html.
