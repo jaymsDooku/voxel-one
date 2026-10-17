@@ -8,8 +8,8 @@ import zipfile
 
 
 def assemble(jar, revision, tag, output):
-    if not re.fullmatch('[0-9a-f]{40}', revision) or not re.fullmatch('playtest-[0-9]+', tag):
-        raise ValueError('Use a full revision and immutable playtest tag')
+    if not re.fullmatch('[0-9a-f]{40}', revision) or not re.fullmatch(r'(?:playtest|hub-preview)-[1-9][0-9]*', tag):
+        raise ValueError('Use a full revision and immutable playtest or hub-preview tag')
     payload = Path(jar).read_bytes()
     if not 0 < len(payload) <= 100*1024*1024:
         raise ValueError('Shell size out of bounds')

@@ -7,7 +7,7 @@ import java.util.*;
 
 /** Stable package entry point. New shells are staged for the next hub start. */
 public final class Bootstrap {
-    public static final URI MANIFEST = URI.create("https://github.com/jaymsDooku/voxel-one/releases/latest/download/shell.properties");
+    public static final URI MANIFEST = URI.create("https://raw.githubusercontent.com/jaymsDooku/voxel-one/experience-catalog/shell.properties");
     /** Scoped loopback fixture for package validation; never accepts remote overrides. */
     private static URI manifest() {
         String fixture=System.getProperty("voxel.hub.shellManifest");
