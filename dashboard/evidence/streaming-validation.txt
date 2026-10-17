@@ -91,3 +91,9 @@ rerun affected checks and capture media on that source before review. No commit,
 push,merge,deployment or self approval performed. Release uses existing controller
 client/launcher pipeline after independent review and required qualification.
 Reproducible physical Windows checks are in docs/streaming-validation.txt.
+
+Post-integration verification: see streaming-final-head-validation.json. Controller
+completed integration at b163ca7e9295e55200fbd6ade4342e82109404e1. Source/build inputs
+match measured inputs. A fresh65-frame Main offline/F10 workflow passed and new
+media was decoded and inspected. The complete diff was audited against review
+base403033b; no unrelated deletions or progress-entry changes remain.
