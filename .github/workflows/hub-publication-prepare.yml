@@ -1,0 +1,128 @@
+name: Prepare Hub preview publication
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact reviewed feature source (40 lowercase hex)
+        required: true
+        type: string
+      preview_tag:
+        description: New immutable hub-preview-N generation
+        required: true
+        type: string
+      expected_catalog_head:
+        description: Expected experience-catalog branch head, or absent for first publication
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  prepare:
+    if: github.repository == 'jaymsDooku/voxel-one' && github.ref == 'refs/heads/feature/queue-62383835386364312d346130642d346262652d383736632d393534373062343337356161'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      PREVIEW_TAG: ${{ inputs.preview_tag }}
+      EXPECTED_CATALOG_HEAD: ${{ inputs.expected_catalog_head }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source_sha }}
+          persist-credentials: false
+      - name: Fence exact source
+        shell: bash
+        run: |
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          test "$SOURCE_SHA" = "$GITHUB_SHA"
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check publication contract and build reviewed shell
+        run: |
+          python3 tools/hub/test_publisher.py
+          python3 tools/hub/test_publication_bundle.py
+          mvn -q '-Dtest=SandboxIdentityTest,HubCatalogTest,HubShellTest,UpdaterTest,AccountStoreTest,ProtocolCompatibilityTest,MultiplayerTest#authenticationRegistrationDuplicateSessionsAndCertificatePin' test package
+      - name: Prepare controller-only bundle
+        shell: bash
+        run: |
+          python3 tools/hub/publication_bundle.py prepare --native-receipt dashboard/evidence/hub-native-publication.json --web-receipt dashboard/evidence/hub-web-publication.json --jar target/voxel-one-1.0-SNAPSHOT-launcher.jar --source-sha "$SOURCE_SHA" --tag "$PREVIEW_TAG" --expected-catalog-head "$EXPECTED_CATALOG_HEAD" --output target/hub-publication
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          plan=json.loads(Path('target/hub-publication/publication-plan.json').read_text())
+          assert plan['sourceKind']=='exact-commit', 'Regenerate from committed reviewed source'
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hub-publication-${{ inputs.source_sha }}
+          path: target/hub-publication/
+          if-no-files-found: error
+          retention-days: 14
+  packages:
+    needs: prepare
+    if: github.repository == 'jaymsDooku/voxel-one' && github.ref == 'refs/heads/feature/queue-62383835386364312d346130642d346262652d383736632d393534373062343337356161'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {runner: ubuntu-24.04, platform: linux}
+          - {runner: windows-2022, platform: windows}
+          - {runner: macos-15-intel, platform: mac-intel}
+          - {runner: macos-15, platform: mac-arm}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 35
+    env:
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      PREVIEW_TAG: ${{ inputs.preview_tag }}
+      PLATFORM: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source_sha }}
+          persist-credentials: false
+      - name: Fence exact source
+        shell: bash
+        run: |
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          test "$SOURCE_SHA" = "$GITHUB_SHA"
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build clean preview packages from reviewed source
+        shell: bash
+        run: |
+          mvn -q '-Dtest=SandboxIdentityTest,HubCatalogTest,HubShellTest,UpdaterTest,AccountStoreTest,ProtocolCompatibilityTest,MultiplayerTest#authenticationRegistrationDuplicateSessionsAndCertificatePin' test package
+          python3 - <<'PY'
+          import hashlib, json, os, sys
+          from pathlib import Path
+          sys.path.insert(0,'tools/hub')
+          from package import package
+          from publication_bundle import preview_tag
+          tag=os.environ['PREVIEW_TAG']
+          assert preview_tag(tag), 'Invalid preview generation'
+          output=Path('target/hub-clean-preview-package')
+          package(output,'0.1.'+tag.rsplit('-',1)[1],installer=os.environ['PLATFORM']=='windows',jdk=os.environ['JAVA_HOME'])
+          files={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in output.iterdir() if p.suffix in ('.zip','.msi')}
+          assert files, 'No preview packages produced'
+          (output/'package-scope.json').write_text(json.dumps({'sourceSha':os.environ['SOURCE_SHA'],'platform':os.environ['PLATFORM'],'previewTag':tag,'filesSha256':files,'fixtureGeneration':False,'stableRolloutQualified':False,'scope':'Clean source package, not a fixture generation. Packaging success alone does not satisfy native gameplay, physical DPI or published upgrade qualification.'},indent=2)+'\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hub-preview-package-${{ matrix.platform }}-${{ inputs.source_sha }}
+          path: |
+            target/hub-clean-preview-package/*.zip
+            target/hub-clean-preview-package/*.msi
+            target/hub-clean-preview-package/package-scope.json
+          if-no-files-found: error
+          retention-days: 14

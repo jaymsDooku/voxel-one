@@ -1,0 +1,38 @@
+{
+  "passed": true,
+  "playtest": "Restored private production Space Invaders route: start, actual keyboard movement/fire, pause/frozen state, resume and cached reload.",
+  "url": "https://voxel-one.jamesleaver1.chatgpt.site/games/space-invaders/",
+  "status": 200,
+  "sourceHead": "1d2c3b3266c9e2d9c82c2217594690c0a62334ef",
+  "siteCommit": "d939c5128013eeb532f6095f09b615233c88bca1",
+  "deploymentId": "appgdep_6acd3e285ff88191a66a91ab11521c55",
+  "environment": "Linux headless desktop WebKit; supported owner Site service access; fresh synthetic game state",
+  "before": {
+    "state": "playing",
+    "x": 240,
+    "shots": 0,
+    "score": 0,
+    "lives": 3
+  },
+  "moving": {
+    "state": "playing",
+    "x": 274.5,
+    "shots": 1,
+    "score": 0,
+    "lives": 3
+  },
+  "paused": {
+    "state": "paused",
+    "x": 274.5,
+    "shots": 1,
+    "score": 0,
+    "lives": 3
+  },
+  "reloadPassed": true,
+  "pageErrors": 0,
+  "videoPath": "/tmp/hub-controller-evidence/video/page@6bc8f32078897f93f175d20c0a8fb198.webm",
+  "limitations": [
+    "Software browser validation, not physical iPhone or named desktop GPU performance.",
+    "Reviewed master game assets only; pending orbital-descent feature was not deployed."
+  ]
+}

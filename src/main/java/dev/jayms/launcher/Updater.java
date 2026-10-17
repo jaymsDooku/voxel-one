@@ -20,6 +20,15 @@ public final class Updater {
     public static final long MAX_CLIENT_BYTES = 100L * 1024 * 1024;
     private final Path cache;
     private final URI manifest;
+    private final String mainClass;
+    private volatile InputStream activeBody;
+    private volatile boolean cancelled;
+
+    public void cancel() {
+        cancelled = true;
+        InputStream body = activeBody;
+        if (body != null) try { body.close(); } catch (IOException ignored) {}
+    }
     private final HttpClient http =
             HttpClient.newBuilder()
                     .connectTimeout(Duration.ofSeconds(10))
@@ -31,11 +40,33 @@ public final class Updater {
     private record Release(String revision, URI url, String sha256, long size) {}
 
     public Updater(Path cache, URI manifest) {
+        this(cache, manifest, false);
+    }
+
+    public Updater(Path cache, URI manifest, boolean shell) {
         this.cache = cache;
         this.manifest = manifest;
+        this.mainClass = shell ? "dev.jayms.launcher.Launcher" : "dev.jayms.Main";
+    }
+
+    public record Available(String revision, long bytes) {}
+    public Available available(Platform platform) throws IOException {
+        Properties properties = new Properties();
+        try (InputStream body = request(manifest)) {
+            properties.load(new ByteArrayInputStream(read(body, 32768, s -> {}, false)));
+        }
+        Release release = release(properties, platform);
+        return new Available(release.revision, release.size);
     }
 
     public Result update(Platform platform, Consumer<String> status) throws IOException {
+        return update(platform, status, null);
+    }
+
+    /** Catalog launches permit only explicitly tested engine/client source revisions. */
+    public Result update(Platform platform, Consumer<String> status, Set<String> clientSources) throws IOException {
+        Set<String> allowed = clientSources == null ? null : Set.copyOf(clientSources);
+        if (cancelled) throw new IOException("Update cancelled");
         Files.createDirectories(cache);
         try (FileChannel channel =
                         FileChannel.open(
@@ -50,8 +81,18 @@ public final class Updater {
                     properties.load(new ByteArrayInputStream(read(response, 32768, status, false)));
                 }
                 Release release = release(properties, platform);
+                if (allowed != null && !allowed.contains(release.revision))
+                    throw new IOException("Catalog/client mismatch: published client is not compatible. Refresh the catalog.");
                 Path target = path(release, platform);
                 boolean updated = false;
+                if (!verified(target, release) && verified(legacyPath(release, platform), release)) {
+                    Path migration = Files.createTempFile(cache, "migration-", ".tmp");
+                    try {
+                        Files.copy(legacyPath(release, platform), migration, StandardCopyOption.REPLACE_EXISTING);
+                        if (!verified(migration, release)) throw new IOException("Cached client changed during migration");
+                        validateJar(migration); Files.createDirectories(target.getParent()); move(migration, target);
+                    } finally { Files.deleteIfExists(migration); }
+                }
                 if (!verified(target, release)) {
                     status.accept("Downloading the latest Voxel One...");
                     Path temp = Files.createTempFile(cache, "download-", ".tmp");
@@ -59,6 +100,7 @@ public final class Updater {
                         try (InputStream body = request(release.url)) {
                             transfer(body, temp, release.size, status);
                         }
+                        if (cancelled) throw new IOException("Update cancelled");
                         if (!verified(temp, release))
                             throw new IOException(
                                     "The update failed its integrity check. Please try again.");
@@ -82,10 +124,14 @@ public final class Updater {
                 }
                 return new Result(target, release.revision, updated, "");
             } catch (IOException | IllegalArgumentException e) {
+                if (cancelled || Thread.currentThread().isInterrupted()) throw new IOException("Update cancelled", e);
                 Result old = installed(platform);
+                if (old != null && allowed != null && !allowed.contains(old.revision))
+                    throw new IOException("Catalog/client mismatch: installed client is not compatible and no compatible update is available.", e);
                 if (old == null)
                     throw new IOException("Unable to install Voxel One: " + e.getMessage(), e);
-                String warning = "Update unavailable. Starting your installed version.";
+                String warning = allowed == null ? "Update unavailable. Starting your installed version."
+                        : "Update unavailable or incompatible. Starting your compatible installed version.";
                 status.accept(warning);
                 return new Result(old.client, old.revision, false, warning);
             }
@@ -109,6 +155,7 @@ public final class Updater {
             }
             Release release = release(properties, platform);
             Path path = path(release, platform);
+            if (!verified(path, release)) path = legacyPath(release, platform);
             if (!verified(path, release)) return null;
             validateJar(path);
             return new Result(path, release.revision, false, "");
@@ -152,8 +199,13 @@ public final class Updater {
     private Path path(Release release, Platform platform) {
         return cache.resolve("versions")
                 .resolve(release.revision)
+                .resolve(release.sha256)
                 .resolve(platform.id() + ".jar")
                 .toAbsolutePath();
+    }
+
+    private Path legacyPath(Release release, Platform platform) {
+        return cache.resolve("versions").resolve(release.revision).resolve(platform.id()+".jar").toAbsolutePath();
     }
 
     private InputStream request(URI uri) throws IOException {
@@ -170,7 +222,9 @@ public final class Updater {
                 response.body().close();
                 throw new IOException("Download returned HTTP " + response.statusCode());
             }
-            return response.body();
+            activeBody = response.body();
+            if (cancelled) { activeBody.close(); throw new IOException("Update cancelled"); }
+            return activeBody;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new IOException("Download interrupted", e);
@@ -215,11 +269,12 @@ public final class Updater {
             long size = 0, last = 0;
             int n;
             while ((n = body.read(buffer)) != -1) {
+                if (Thread.currentThread().isInterrupted()) throw new IOException("Update cancelled");
                 size += n;
                 if (size > limit) throw new IOException("Download exceeds its advertised size");
                 out.write(buffer, 0, n);
                 if (progress && size - last >= 1024 * 1024) {
-                    status.accept("Downloading Voxel One: " + size / (1024 * 1024) + " MB");
+                    status.accept("Downloading Voxel One: " + size + " / " + limit + " bytes");
                     last = size;
                 }
             }
@@ -244,12 +299,12 @@ public final class Updater {
         }
     }
 
-    private static void validateJar(Path path) throws IOException {
+    private void validateJar(Path path) throws IOException {
         try (JarFile jar = new JarFile(path.toFile())) {
             if (jar.getManifest() == null
-                    || !"dev.jayms.Main"
+                    || !mainClass
                             .equals(jar.getManifest().getMainAttributes().getValue("Main-Class"))
-                    || jar.getEntry("dev/jayms/Main.class") == null)
+                    || jar.getEntry(mainClass.replace('.', '/') + ".class") == null)
                 throw new IOException("The downloaded file is not a Voxel One client");
         }
     }
