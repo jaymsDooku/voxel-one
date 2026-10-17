@@ -1,10 +1,10 @@
 {
   "tested": true,
   "published": true,
-  "source": "4f8a09aca177062a50d0ab2b68e36735318bfb22",
-  "build": "playtest-560",
-  "notes": "Published playtest-560. City, Sandbox and the engine workspace share one verified client.",
-  "release": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-560",
-  "ci": "https://github.com/jaymsDooku/voxel-one/actions/runs/38844729362",
-  "testScope": "Published native CI succeeded. This does not claim physical GPU, new Hub MSI or monitor DPI acceptance."
+  "source": "403033b9f53ce66063982879c6e2daff684a427b",
+  "build": "playtest-565",
+  "notes": "Published playtest-565. City, Sandbox and the engine workspace share one verified client.",
+  "release": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-565",
+  "ci": "https://github.com/jaymsDooku/voxel-one/actions/runs/38977822347",
+  "testScope": "Native release CI succeeded and published update.properties revision matched. Physical GPU/DPI and Hub rollout qualification remain separate gates."
 }

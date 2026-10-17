@@ -10,7 +10,7 @@ import javax.imageio.ImageIO;
 /** Isolated loopback TLS login playtest. Secrets remain in memory. */
 public final class OnlineLoginPlaytest {
     static JFrame window() {
-        for(Window w:Window.getWindows()) if(w instanceof JFrame f && f.isShowing() && f.getTitle().equals("Voxel One - Play")) return f;
+        for(Window w:Window.getWindows()) if(w instanceof JFrame f && f.isShowing() && "Voxel One - Play".equals(f.getTitle())) return f;
         return null;
     }
     static JComponent field(JFrame f,String name) {

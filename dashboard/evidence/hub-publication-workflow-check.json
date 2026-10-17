@@ -1,0 +1,29 @@
+{
+  "checks": [
+    {
+      "workflow": "hub-validation.yml",
+      "parsed": true,
+      "permissions": {
+        "contents": "read"
+      },
+      "featureFence": true
+    },
+    {
+      "workflow": "hub-publication-prepare.yml",
+      "parsed": true,
+      "permissions": {
+        "contents": "read"
+      },
+      "featureFence": true
+    }
+  ],
+  "scope": "YAML parse and read-only source/repository fencing inspection; no hosted workflow executed for unpublished edits.",
+  "cleanPackageTargets": [
+    "linux",
+    "windows",
+    "mac-intel",
+    "mac-arm"
+  ],
+  "cleanPackageScope": "Source JAR, not fixture generation; Windows portable ZIP/MSI. Workflow unexecuted for current unpublished edits; no platform success claim.",
+  "embeddedPythonCompiled": true
+}

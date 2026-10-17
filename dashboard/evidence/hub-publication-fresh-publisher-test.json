@@ -1,0 +1,9 @@
+{
+  "command": [
+    "python3",
+    "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/tools/hub/test_publisher.py"
+  ],
+  "cwd": "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-publisher-fresh-cwd",
+  "exitCode": 0,
+  "observed": "Publisher CLI creates its required temporary directory; synthetic receipts only. No Git/service mutation or browser UI involved."
+}
