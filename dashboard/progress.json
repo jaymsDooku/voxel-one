@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-17T00:32:29+00:00",
+  "updatedAt": "2026-10-17T00:42:27+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -3880,8 +3880,8 @@
       "description": "Building the catalog-driven desktop hub around verified client updates. Platform packaging and playtests remain required.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Immutable native release correction validated: Java21 tests, publisher4 tests, packaged fresh public install/City launch and CLI passed. Full release remains gated by controller publication, exact-head native platform gameplay, physical GPU/DPI and published shell upgrades.",
-      "updatedAt": "2026-10-17T00:32:29+00:00"
+      "note": "Added bounded numeric GLFW failure diagnostics. Java21 tests, real invalid-width failure and Linux renderer regression passed; clip decoded/inspected. All three d840 hosted native renderers failed. Exact-head retry and controller publication remain required; stable rollout gated.",
+      "updatedAt": "2026-10-17T00:42:27+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
