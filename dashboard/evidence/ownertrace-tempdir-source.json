@@ -1,0 +1,9 @@
+{
+  "reviewedHead": "64be3ec8a719c78e908c040a26eb61c0f3c669e2",
+  "productionSourceMatchesReviewedHead": true,
+  "productionSourceMatchesCleanBuildInput": true,
+  "productionTreeSha256": "1e7dc289ae6a227afa6e955dc8db07ab911ca51806388be25a551f79878ae977",
+  "productionDigestMethod": "SHA256 of concatenated sorted relative src/main file paths plus SHA256(file bytes), including resources",
+  "changedTestSha256": "ca4cd0ddeaefac3ab7eac5691fbd67918180ae9d1b160ef30c110e47335bc524",
+  "scope": "Test isolation only. Prior performance evidence remains historical evidence of identical production source; no new performance trial or physical GPU qualification is claimed."
+}

@@ -1,0 +1,7 @@
+{
+  "phase": "before fix",
+  "tests": "1",
+  "errors": "1",
+  "failure": "java.nio.file.NoSuchFileException",
+  "targetTmpAbsent": true
+}

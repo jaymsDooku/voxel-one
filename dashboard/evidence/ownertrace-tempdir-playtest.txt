@@ -1,0 +1,25 @@
+Playtest: PASS. Test isolation fix and freshly verified native client.
+
+Change: OwnerTraceTest uses JUnit @TempDir rather than requiring target/tmp. The child JVM, nested trace export and all CPU/host-accounting assertions remain unchanged. JUnit supplies a unique directory; the CSV does not exist until the probe writes it. No production source changed.
+
+CLI environment and steps:
+OpenJDK 17.0.20.1+1-1-deb12u1-Debian on Linux amd64. All files stay inside the assigned feature worktree. A fresh source/pom/config copy was made at target/ownertrace-clean-check. Before the fix, its build output and target/tmp were absent. The selected test reproduced java.nio.file.NoSuchFileException. After replacing only OwnerTraceTest with the fixed source, its entire build target was removed again. A separate java-tmp directory and synthetic-home were supplied to Surefire so VPS /tmp permissions cannot mask this test's prerequisite.
+Executed clean verification command:
+JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 PATH="/usr/lib/jvm/java-17-openjdk-amd64/bin:$PATH" mvn -q -o -f target/ownertrace-clean-check/pom.xml -Dmaven.repo.local="$PWD/target/m2" "-DargLine=-Djava.io.tmpdir=$PWD/target/ownertrace-clean-check/java-tmp -Duser.home=$PWD/target/ownertrace-clean-check/synthetic-home" verify
+Expected: probe creates CSV in its own temp directory; all assertions pass without creating target/tmp; full verification and packaging succeed.
+Observed: exit 0; 731 tests across 140 suites, zero failures/errors/skips. OwnerTraceTest passed. target/tmp stayed absent before and after. Sanitized red/green report files contain only suite counts and the failure type, not full Surefire properties or private build logs.
+This code change affects a CLI test, so browser playtesting does not apply.
+
+Additional native regression check, executed through target/run-ownertrace-tempdir-playtest.py using the fresh clean-verify client JAR. Shell-equivalent command (inherited DISPLAY and XAUTHORITY, not printed or copied):
+LIBGL_ALWAYS_SOFTWARE=1 MESA_GL_VERSION_OVERRIDE=3.3 MESA_GLSL_VERSION_OVERRIDE=330 /usr/lib/jvm/java-17-openjdk-amd64/bin/java -Xmx1536m "-Duser.home=$PWD/target/ownertrace-tempdir-workflow/home" "-Djava.io.tmpdir=$PWD/target/ownertrace-tempdir-workflow/java-tmp" -cp "$PWD/target/ownertrace-clean-check/target/voxel-one-1.0-SNAPSHOT-client.jar" deploy/StreamingWorkflow.java "$PWD/target/ownertrace-tempdir-workflow" offline true 100000
+Environment: Linux Mesa llvmpipe software OpenGL 3.3; isolated synthetic profile, seed 748291, 100,000 distant synthetic edits. Uses only the assigned inherited role display. Java 17. Actual framebuffer 1280×720; normal F10 encoding 960×544.
+Steps: walk, sprint flight, reversal, teleport, edited-chunk unload/reload, exact fractional RGB and tiny-model preservation, ordinary health-zero respawn, F10 start/stop.
+Expected: responsive workflow control checks, correct edits and health, bounded queues/residency, mesh progress, no GL errors, valid recording.
+Observed: all assertions passed in 65 frames. This is a correctness run, not a new performance comparison or physical GPU qualification.
+
+Video validation command:
+/usr/lib/jvm/java-17-openjdk-amd64/bin/java -Djava.io.tmpdir="$PWD/target/ownertrace-tempdir-workflow/java-tmp" -cp target/ownertrace-clean-check/target/voxel-one-1.0-SNAPSHOT-client.jar deploy/InspectStreamingVideo.java dashboard/evidence/ownertrace-tempdir-f10.mp4 dashboard/evidence/ownertrace-tempdir-midpoint.png dashboard/evidence/ownertrace-tempdir-video.json
+Observed: all 10 frames decoded; 530,086 bytes; 17.931 seconds. Midpoint inspected: current flight view shows terrain, shoreline, sky and synthetic HUD. Fresh media saved for controller publication.
+
+Review-base audit: no deleted files against 403033b9f53ce66063982879c6e2daff684a427b; no unmerged entries; git diff --check passed. The intentional test deletion is the project-relative temp-file allocation/delete sequence, replaced by a path inside JUnit's owned temp directory. No unrelated deletion or assertion removal.
+Prior streaming performance evidence still describes identical production source; this revision makes no new performance claim. The 2 ms target, transition/far lighting limits and physical Windows GPU qualification remain open. Stable rollout stays gated. Hosted CI rerun and all Git/media publication belong to the controller.

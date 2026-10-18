@@ -1,8 +1,10 @@
 package dev.jayms;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import java.nio.file.*;
 import static org.junit.jupiter.api.Assertions.*;
 class OwnerTraceTest {
+ @TempDir Path temp;
  public static class Probe {
   public static void main(String[] args)throws Exception{
    int parent=OwnerTrace.begin("test.parent"),child=OwnerTrace.begin("test.child");
@@ -10,7 +12,7 @@ class OwnerTraceTest {
   }
  }
  @Test void optInProbeExportsConsistentCpuAndOwnThreadAccounting()throws Exception{
-  Path output=Files.createTempFile(Path.of("target/tmp"),"owner-trace-test-",".csv");Files.delete(output);
+  Path output=temp.resolve("owner-trace-test.csv");
   try{
    var process=new ProcessBuilder(Path.of(System.getProperty("java.home"),"bin/java").toString(),"-Dvoxel.streaming.trace=true","-Dvoxel.streaming.hosttrace=true","-cp","target/test-classes"+java.io.File.pathSeparator+"target/classes",Probe.class.getName(),output.toString()).redirectError(ProcessBuilder.Redirect.DISCARD).redirectOutput(ProcessBuilder.Redirect.DISCARD).start();assertEquals(0,process.waitFor());
    var lines=Files.readAllLines(output);assertEquals(3,lines.size());assertTrue(lines.get(0).contains("scheduler_wait_ns"));assertTrue(lines.get(0).contains("cpu_steal_ticks,processor"));

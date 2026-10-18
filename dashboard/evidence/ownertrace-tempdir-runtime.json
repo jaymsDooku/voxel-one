@@ -1,0 +1,9 @@
+{
+  "java": "17",
+  "jarSha256": "cf571b7afc229847894a81c198813f008cbd6db666e1646e522b10a3353ddd77",
+  "jar": "fresh isolated clean Maven verify client",
+  "frames": 65,
+  "distantSyntheticEdits": 100000,
+  "result": "passed",
+  "mode": "offline/F10"
+}
