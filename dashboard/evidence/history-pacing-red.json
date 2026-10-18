@@ -1,0 +1,8 @@
+{
+  "reviewedHead": "7251a398f23f7a9e8ae57a98019b0cb3df7fd058",
+  "CI": "Mac ARM CityHistoryNetworkTest Overview timeout preceded by History query rate exceeded",
+  "localReproduction": "600ms gated outgoing writer then fixed selection while Overview request pending",
+  "tests": "1",
+  "failures": "1",
+  "failure": "History client disconnected after delayed send ==> expected: <true> but was: <false>"
+}

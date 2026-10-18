@@ -21,6 +21,15 @@ public class StreamingWorkflow {
     static Object get(String n)throws Exception{var f=Main.class.getDeclaredField(n);f.setAccessible(true);return f.get(game);}
     static void set(String n,Object v)throws Exception{var f=Main.class.getDeclaredField(n);f.setAccessible(true);f.set(game,v);}
     static void check(boolean ok,String message){if(!ok)throw new AssertionError(message);}
+    @FunctionalInterface interface Readiness {boolean ready()throws Exception;}
+    static int awaitReady(long timeoutNanos,Readiness condition,String message)throws Exception {
+        long deadline=System.nanoTime()+timeoutNanos;int attempts=0;
+        do {
+            attempts++;if(condition.ready())return attempts;
+            if(System.nanoTime()>=deadline)throw new AssertionError(message);
+            Thread.sleep(1);
+        }while(true);
+    }
     static void input(String...keys)throws Exception{
         var args=new ArrayList<String>(List.of("xdotool"));args.addAll(List.of(keys));var p=new ProcessBuilder(args).redirectOutput(ProcessBuilder.Redirect.DISCARD).redirectError(ProcessBuilder.Redirect.DISCARD).start();check(p.waitFor()==0,"Native keyboard input");
     }
@@ -95,8 +104,15 @@ public class StreamingWorkflow {
                             remoteEdit=new Protocol.Edit((int)editor.spawn.x()+1,(int)editor.spawn.y()-1,(int)editor.spawn.z(),0);
                             var reloading=ChunkPos.fromBlock(remoteEdit.x(),remoteEdit.y(),remoteEdit.z());
                             for(int y=-2;y<=7;y++)w.unloadChunk(new ChunkPos(reloading.chunkX(),y,reloading.chunkZ()));
-                            w.streamAsync(editor.spawn.x(),editor.spawn.y(),editor.spawn.z(),500_000L);
+                            long waitStart=System.nanoTime();
+                            int attempts=awaitReady(5_000_000_000L,()->{
+                                check(editor.connected(),"Editor stays connected while awaiting streaming requests");
+                                w.streamAsync(editor.spawn.x(),editor.spawn.y(),editor.spawn.z(),500_000L);
+                                if(w.terrainPending()>0)return true;
+                                editor.move(editor.spawn);editor.poll();return false;
+                            },"Terrain requests did not become pending within 5 seconds");
                             check(w.terrainPending()>0,"Terrain is streaming when remote edit is sent");
+                            Files.writeString(out.resolve("network-readiness.txt"),"attempts="+attempts+"; waitMs="+(System.nanoTime()-waitStart)/1e6+"; terrainPending="+w.terrainPending()+"\n");
                             remoteSent=System.nanoTime();check(editor.edit(remoteEdit,editor.spawn),"Remote client sends authoritative break while chunks are loading");
                         }
                         if(editor!=null){editor.move(editor.spawn);editor.poll();}

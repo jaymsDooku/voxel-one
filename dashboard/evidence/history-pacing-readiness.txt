@@ -1,0 +1,1 @@
+Playtest: PASS. CLI readiness integration; synthetic World; no GL. First three admission pumps deliberately have zero budget. Pending terrain then becomes observable after 4 pumps; load assertion preserved. Always-false condition times out (observed 11.899706ms); interruption propagates. Browser playtesting does not apply to this harness helper.

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-18T04:43:04+00:00",
+  "updatedAt": "2026-10-18T05:28:05+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -20,8 +20,8 @@
       "description": "Bounded async Sandbox generation, staged mesh/lighting work, reusable GPU stores and worker-built mip levels; validated on the available Linux software renderer.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Ready for review: OwnerTraceTest now uses JUnit @TempDir. Clean Java 17 verify passed 731 tests/140 suites with target/tmp absent. Fresh verified-client 65-frame offline/F10 workflow passed; new clip decoded and inspected. Runtime source and existing performance/physical-GPU rollout limits unchanged.",
-      "updatedAt": "2026-10-18T04:43:04+00:00"
+      "note": "Ready for controller push/review. Delayed-writer history race reproduced then fixed with reply-based pacing; 5 repeated regressions and full Java 17 verify passed (731 tests/140 suites). Bounded terrain-readiness helper and 3 native multiplayer runs passed, including a real two-pump case. Offline/F10 and City passed; fresh clip decoded/inspected. Hosted Mac ARM rerun pending push; physical-GPU/performance gates unchanged.",
+      "updatedAt": "2026-10-18T05:28:05+00:00"
     },
     {
       "id": "607ad2ae-9047-4ee1-bff3-f41033b6a910",

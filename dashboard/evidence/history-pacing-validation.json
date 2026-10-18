@@ -1,0 +1,38 @@
+{
+  "status": "ready_for_controller_publication_and_independent_review",
+  "reviewedHead": "7251a398f23f7a9e8ae57a98019b0cb3df7fd058",
+  "changes": [
+    "Reply-based400ms history pacing after delayed writer",
+    "Bounded5s pending-terrain wait preserves edit-during-load assertion"
+  ],
+  "redReproduction": "history-pacing-red.json",
+  "repeatedDelayedWriterTests": 5,
+  "fullJava17Verify": {
+    "tests": 731,
+    "suites": 140,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "readinessIntegration": "zero-budget admission,success,timeout,interruption passed",
+  "native": "three multiplayer30frame runs,offline65F10,City15 passed",
+  "media": {
+    "file": "history-pacing-f10.mp4",
+    "frames": 10,
+    "bytes": 530726,
+    "durationSeconds": 17.904,
+    "decodedAndInspected": true
+  },
+  "playtestReceipt": "history-pacing-playtest.txt",
+  "sourceManifest": "history-pacing-source.json",
+  "ci": "Mac ARM rerun pending controller feature push; no green hosted claim",
+  "limits": [
+    "2ms target unmet",
+    "Transition/far lighting limitations",
+    "Physical Windows GPU qualification and stable rollout gated"
+  ],
+  "diffAudit": "passed;no files deleted against recorded base;no unmerged entries",
+  "noOutstandingDelegates": true,
+  "publication": "pending controller",
+  "playtestEntry": "Playtest: PASS. Environment: Java 17, Linux Mesa llvmpipe software OpenGL 3.3, inherited role DISPLAY/XAUTHORITY, isolated synthetic profiles, seed 748291, 1280\u00d7720, 100000 distant edits. Command: python3 target/run-history-pacing-native.py (exact Java argument arrays in history-pacing-native-runs.json). Steps: three 30-frame multiplayer runs unload terrain, await pending jobs, send an authoritative edit during load, then verify delivery/reload/connection; 65-frame offline run covers walk, flight, reversal, teleport, fractional/model reload and respawn; 15-frame City regression. Expected: edit sent with terrainPending()>0, edits persist, connection stays live, queue/GL checks pass. Observed: all five runs passed; admission attempts 2/1/1 and terrainPending=16 at each send. Fresh F10: all 10 frames decoded and midpoint inspected, 530726 bytes, 17.904 seconds. This is saved execution evidence; no new run is claimed in this receipt-only update. Hosted Mac ARM rerun and physical Windows GPU qualification remain pending."
+}
