@@ -6,6 +6,18 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class WorldSkyVisibilityTest {
+    @org.junit.jupiter.api.Test void boundedRowPresenceMatchesExactLookup()throws Exception {
+        try(var world=new World(42)){
+            for(int x:new int[]{-40,0,40})for(int z:new int[]{-3,-1,0,3})world.addChunk(new ChunkPos(x,4,z),new Chunk());
+            var sky=dev.jayms.render.WorldSkyVisibility.build(world);
+            for(int x:new int[]{-640,-639,0,1,640,641,1000})for(int z:new int[]{-50,-16,0,20,Integer.MAX_VALUE-32})for(int count:new int[]{0,1,16,49,64}){
+                long expected=0;for(int i=0;i<count;i++){long position=(long)z+i;if(position<=Integer.MAX_VALUE&&sky.sampleKnown(x,80,(int)position,-1)>=0)expected|=1L<<i;}
+                org.junit.jupiter.api.Assertions.assertEquals(expected,sky.knownColumnMask(x,z,count));
+            }
+            org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,()->sky.knownColumnMask(0,0,65));
+        }
+    }
+
     @Test void visibleColumnsBeyondGiAndAtAltitudeHaveSkyButRoofsStayClosed()throws Exception{
         try(var world=new World()){
             for(int cx:new int[]{-5,0,4})for(int cy:new int[]{1,8}){

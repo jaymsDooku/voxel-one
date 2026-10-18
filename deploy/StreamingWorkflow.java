@@ -108,7 +108,7 @@ public class StreamingWorkflow {
                     var actual=((Player)get("player")).position();if(previous!=null)pathLength+=actual.distance(previous);previous=new Vector3f(actual);
                     var gi=((RenderPipeline)get("rendering")).lightingCoverage(w,actual.x,actual.z);
                     var meshes=(DetailedMeshScheduler)get("detailedMeshes");meshPeak=Math.max(meshPeak,meshes.queued());snapshotPeak=Math.max(snapshotPeak,meshes.snapshotNanos);
-                    check(w.terrainPending()<=9,"Bounded terrain completions");check(w.getLoadedChunks().size()<=1690,"Bounded resident chunks");check(glGetError()==GL_NO_ERROR,"No OpenGL error");
+                    check(w.terrainPending()<=TerrainScheduler.CAPACITY+1,"Bounded terrain completions");check(w.getLoadedChunks().size()<=1690,"Bounded resident chunks");check(glGetError()==GL_NO_ERROR,"No OpenGL error");
                     samples.append(frame+","+((long)get("streamNanos"))/1e6+","+((long)get("renderNanos"))/1e6+","+((long)get("videoNanos"))/1e6+","+w.terrainPending()+","+w.terrainOldestMillis()+","+w.getLoadedChunks().size()+","+(Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory())+","+meshes.queued()+","+meshes.waiting()+","+((RenderPipeline)get("rendering")).lightingUploadBytes+","+((RenderPipeline)get("rendering")).sceneNanos/1e6+","+((RenderPipeline)get("rendering")).lightingNanos/1e6+","+gi.coveredOfNine()+","+gi.current()+","+gi.sourceAgeMillis()+"\n");
                     if(frame==8)capture("streaming-"+mode+"-edited.png");
                     if(frame%10==0){Files.writeString(out.resolve("progress.txt"),"frame="+frame+"\n");Files.writeString(out.resolve("workflow.csv"),samples);}

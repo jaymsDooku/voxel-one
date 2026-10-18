@@ -67,6 +67,36 @@ public class StreamingUploadSmoke {
         }
         check(glGetError()==GL_NO_ERROR,"Concurrent lane cleanup GL error absent");
     }
+    static void coverageRebase(boolean direct)throws Exception {
+        try(var world=new World(42);var scheduler=new SkyVisibilityScheduler();var stores=new LightingStores(direct)){
+            world.addChunk(new ChunkPos(0,4,0),new Chunk());var original=sky(scheduler,world);
+            stores.warmDefaults();glFlush();long end=System.nanoTime()+5_000_000_000L;
+            while(!stores.available(false)&&System.nanoTime()<end){glFlush();Thread.sleep(1);}
+            check(stores.available(false),"Coverage stores ready");
+            SceneLightingUpload.Resources active;
+            try(var initial=new SceneLightingUpload(world,null,original,false,stores)){
+                int n=0;while(!initial.ready()&&n++<4096)initial.pump(System.nanoTime()+1_000_000L,4096);
+                check(initial.ready(),"Active atlas ready before rebase");active=initial.take();
+            }
+            world.addChunk(new ChunkPos(1,4,0),new Chunk());SkyVisibilityScheduler.Prepared latest=null;end=System.nanoTime()+10_000_000_000L;
+            while(System.nanoTime()<end){var next=scheduler.update(world,1_000_000L);if(next!=null&&next.data.columns==512&&next.valid(world)){latest=next;break;}Thread.sleep(1);}
+            check(latest!=null,"New coverage prepared");check(original.valid(world),"Disjoint arrival leaves current atlas valid");
+            end=System.nanoTime()+5_000_000_000L;while(!stores.available(false)&&System.nanoTime()<end){glFlush();Thread.sleep(1);}
+            check(stores.available(false),"Replacement atlas available");
+            try(var upload=new SceneLightingUpload(world,null,original,false,stores)){
+                int bytes=upload.pump(System.nanoTime()+10_000_000L,384,384);
+                check(bytes>0&&!upload.ready(),"Rebase starts after an actual partial GPU transfer");
+                upload.refreshSky(world,latest);check(upload.sky==original,"Unrelated default refresh cannot restart valid work");
+                upload.refreshSky(world,latest,true);check(upload.sky==latest,"Local coverage upgrade replaces staging payload");
+                atlas(active.atlas(),0,original.data.data);check(glIsTexture(active.atlas()),"Active sky stays unchanged during rebase");
+                int n=0;while(!upload.ready()&&n++<4096){int sent=upload.pump(System.nanoTime()+500_000L,4096);check(sent<=4096,"Rebased transfer byte cap");}
+                check(upload.ready()&&upload.valid(world),"Rebased atlas completes");var next=upload.take();
+                atlas(next.atlas(),0,latest.data.data);skyLookup(latest.data,next.atlas(),upload.offset);
+                atlas(active.atlas(),0,original.data.data);stores.releaseTexture(next.atlas());stores.releaseTexture(active.atlas());
+            }
+        }
+        check(glGetError()==GL_NO_ERROR,"Coverage rebase cleanup");
+    }
     static void fullVolume(World world,Path out,boolean direct)throws Exception {fullVolume(world,out,direct,false);}
     static void fullVolume(World world,Path out,boolean direct,boolean refined)throws Exception {
         Files.createDirectories(out);
@@ -118,12 +148,12 @@ public class StreamingUploadSmoke {
                 stores.releaseTexture(active.atlas());stores.releaseTexture(active.irradiance());stores.releaseTexture(active.fineTexture());stores.releaseBuffer(active.fineBuffer());active.transport().close();active=next;
             }
             stores.releaseTexture(active.atlas());stores.releaseTexture(active.irradiance());stores.releaseTexture(active.fineTexture());stores.releaseBuffer(active.fineBuffer());active.transport().close();
-            check(stores.largestPixelCopy>0&&stores.largestPixelCopy<=LightingStores.PIXEL_UNIT_BYTES,"Actual transfer units stay bounded");
+            check(stores.largestPixelCopy>0&&stores.largestPixelCopy<=64*1024,"Actual transfer units stay bounded");
             check(direct?stores.directCopies>0&&stores.mappedCopies==0:stores.mappedCopies>0&&stores.directCopies==0,"Requested pixel path was exercised exclusively");
         }
         for(int id:pixelIds)check(!glIsBuffer(id),"All pixel staging buffers released on context thread");
         times.sort(Long::compare);Files.writeString(out.resolve("full-volume-pumps.csv"),csv);
-        Files.writeString(out.resolve("full-volume-result.txt"),"Playtest: PASS. Full96x128x96 volume, refined="+refined+"; three prewarmed generations including buffer-prefix GI, initial8MiB/8ms and normal4MiB/1ms test pump caps;256KiB maximum transfer units. Exact roots/irradiance; all half-float radiance mips, distance and probes read back; zero new store allocations;in-flight edit cancellation/restart readback;pixel path="+(direct?"direct client memory":"fenced mapped PBO")+";64 preallocated staging buffers (16MiB) cleaned up. Pump p50="+times.get(times.size()/2)/1e6+" ms; p99="+times.get(Math.min(times.size()-1,(int)Math.ceil(times.size()*.99)-1))/1e6+" ms; worst="+times.get(times.size()-1)/1e6+" ms; maximum pump bytes="+maximum+"; initial maximum bytes="+initialMaximum+"; initial worst ms="+initialTimes.stream().mapToLong(Long::longValue).max().orElse(0)/1e6+"; total bytes="+total+". Isolated GL integration, not game frame timing.\n");
+        Files.writeString(out.resolve("full-volume-result.txt"),"Playtest: PASS. Full96x128x96 volume, refined="+refined+"; three prewarmed generations including buffer-prefix GI, initial8MiB/8ms and normal4MiB/1ms test pump caps;64KiB maximum transfer units. Exact roots/irradiance; all half-float radiance mips, distance and probes read back; zero new store allocations;in-flight edit cancellation/restart readback;pixel path="+(direct?"direct client memory":"fenced mapped PBO")+";64 preallocated staging buffers (16MiB) cleaned up. Pump p50="+times.get(times.size()/2)/1e6+" ms; p99="+times.get(Math.min(times.size()-1,(int)Math.ceil(times.size()*.99)-1))/1e6+" ms; worst="+times.get(times.size()-1)/1e6+" ms; maximum pump bytes="+maximum+"; initial maximum bytes="+initialMaximum+"; initial worst ms="+initialTimes.stream().mapToLong(Long::longValue).max().orElse(0)/1e6+"; total bytes="+total+". Isolated GL integration, not game frame timing.\n");
     }
     static void set(Object object,String name,Object value)throws Exception{var f=object.getClass().getDeclaredField(name);f.setAccessible(true);f.set(object,value);}
     static void ownerBudgets()throws Exception{
@@ -190,7 +220,7 @@ public class StreamingUploadSmoke {
         try {
             check(glfwInit(),"GLFW init");glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE);
             handle=glfwCreateWindow(320,240,"Voxel One staged upload integration",0,0);check(handle!=0,"GL 3.3 window");glfwMakeContextCurrent(handle);GL.createCapabilities();glfwSwapInterval(0);
-            ownerBudgets();skyDirectory();
+            ownerBudgets();skyDirectory();coverageRebase(false);coverageRebase(true);
             try(var world=new World(42);var scheduler=new SkyVisibilityScheduler()) {
                 world.addChunk(new ChunkPos(0,0,0),new Chunk());
                 for(int x=0;x<8;x++)for(int z=0;z<8;z++)world.setBlock(x,0,z,Blocks.STONE);

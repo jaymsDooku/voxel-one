@@ -61,23 +61,26 @@ public class LightingVisualRoute {
         var sky=(WorldSkyVisibility)field(renderer,"worldSky");int texture=(int)field(renderer,"resolveDepth");
         int prior=glGetInteger(GL_TEXTURE_BINDING_2D),pack=glGetInteger(GL_PIXEL_PACK_BUFFER_BINDING);glBindBuffer(GL_PIXEL_PACK_BUFFER,0);glBindTexture(GL_TEXTURE_2D,texture);
         int w=glGetTexLevelParameteri(GL_TEXTURE_2D,0,GL_TEXTURE_WIDTH),h=glGetTexLevelParameteri(GL_TEXTURE_2D,0,GL_TEXTURE_HEIGHT);if(w<=0||h<=0)throw new AssertionError("Resolved depth texture missing");
-        var depth=org.lwjgl.system.MemoryUtil.memAllocFloat(w*h);int surface=0,covered=0,near=0,eligible=0,nearCovered=0,nearSkyKnown=0,detailed=0,detailedCovered=0;
+        var depth=org.lwjgl.system.MemoryUtil.memAllocFloat(w*h);var colors=org.lwjgl.system.MemoryUtil.memAllocFloat(w*h*3);var probes=new StringBuilder("pixel,x,y,z,range,r,g,b,gi,sky\n");int surface=0,covered=0,near=0,eligible=0,nearCovered=0,nearSkyKnown=0,detailed=0,detailedCovered=0,detailedSkyKnown=0,detailedSourcePresent=0,nearSourcePresent=0,surfaceSkyKnown=0,surfaceSourcePresent=0;
         try {
             glGetTexImage(GL_TEXTURE_2D,0,GL_DEPTH_COMPONENT,GL_FLOAT,depth);
+            glBindTexture(GL_TEXTURE_2D,(int)field(renderer,"resolveTexture"));glGetTexImage(GL_TEXTURE_2D,0,GL_RGB,GL_FLOAT,colors);
             for(int py=6;py<h;py+=12)for(int px=6;px<w;px+=12){
                 float d=depth.get(px+py*w);if(d>=1||d<=0)continue;
                 var p=new org.joml.Vector4f((px+.5f)*2/w-1,(py+.5f)*2/h-1,d*2-1,1).mul(inverse);p.div(p.w);
                 if(!Float.isFinite(p.x)||!Float.isFinite(p.y)||!Float.isFinite(p.z))throw new AssertionError("Invalid depth unprojection");
                 boolean inside=v!=null&&p.x>=v.x&&p.x<v.x+v.width&&p.y>=v.y&&p.y<v.y+v.height&&p.z>=v.z&&p.z<v.z+v.length;
-                surface++;if(inside)covered++;float range=Math.max(Math.abs(p.x-eye.x),Math.abs(p.z-eye.z));
-                if(range<=112){detailed++;if(inside)detailedCovered++;}
-                if(range<=24){near++;if(p.y>=-32&&p.y<96){eligible++;if(inside)nearCovered++;}if(sky!=null&&sky.sampleKnown(p.x,p.y,p.z,-1)>=0)nearSkyKnown++;}
+                boolean knownSky=sky!=null&&sky.sampleKnown(p.x,p.y,p.z,-1)>=0;
+                surface++;if(inside)covered++;if(knownSky)surfaceSkyKnown++;if(inside||knownSky)surfaceSourcePresent++;float range=Math.max(Math.abs(p.x-eye.x),Math.abs(p.z-eye.z));
+                if(range<=112){int pixel=px+py*w,ci=pixel*3;float red=colors.get(ci),green=colors.get(ci+1),blue=colors.get(ci+2);if(!Float.isFinite(red)||!Float.isFinite(green)||!Float.isFinite(blue))throw new AssertionError("Nonfinite rendered surface radiance");probes.append(pixel+","+p.x+","+p.y+","+p.z+","+range+","+red+","+green+","+blue+","+inside+","+knownSky+"\n");detailed++;if(inside)detailedCovered++;if(knownSky)detailedSkyKnown++;if(inside||knownSky)detailedSourcePresent++;}
+                if(range<=24){near++;if(p.y>=-32&&p.y<96){eligible++;if(inside)nearCovered++;}if(knownSky)nearSkyKnown++;if(inside||knownSky)nearSourcePresent++;}
             }
-        }finally{org.lwjgl.system.MemoryUtil.memFree(depth);glBindTexture(GL_TEXTURE_2D,prior);glBindBuffer(GL_PIXEL_PACK_BUFFER,pack);}
+        }finally{org.lwjgl.system.MemoryUtil.memFree(colors);org.lwjgl.system.MemoryUtil.memFree(depth);glBindTexture(GL_TEXTURE_2D,prior);glBindBuffer(GL_PIXEL_PACK_BUFFER,pack);}
+        try(var gzip=new java.util.zip.GZIPOutputStream(Files.newOutputStream(out.resolve("surface-"+sample+".csv.gz")))){gzip.write(probes.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));}
         if(eligible==0&&sample>=32&&sample<128)throw new AssertionError("Cold flight/reversal has no visible GI-eligible near surface samples");
         if(glGetError()!=GL_NO_ERROR)throw new AssertionError("Visual depth readback GL error");
         String bounds=v==null?"null":"["+v.x+","+v.y+","+v.z+","+v.width+","+v.height+","+v.length+"]";
-        Files.writeString(out.resolve("depth-"+sample+".json"),"{\"sample\":"+sample+",\"segment\":\""+segment(sample)+"\",\"eye\":["+eye.x+","+eye.y+","+eye.z+"],\"depthSize\":["+w+","+h+"],\"stride\":12,\"surfaceSamples\":"+surface+",\"coveredSamples\":"+covered+",\"detailed112Samples\":"+detailed+",\"detailed112Covered\":"+detailedCovered+",\"near24Samples\":"+near+",\"near24Eligible\":"+eligible+",\"near24Covered\":"+nearCovered+",\"near24SkyKnown\":"+nearSkyKnown+",\"giBounds\":"+bounds+",\"method\":\"Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence\"}\n");
+        Files.writeString(out.resolve("depth-"+sample+".json"),"{\"sample\":"+sample+",\"segment\":\""+segment(sample)+"\",\"eye\":["+eye.x+","+eye.y+","+eye.z+"],\"depthSize\":["+w+","+h+"],\"stride\":12,\"surfaceSamples\":"+surface+",\"coveredSamples\":"+covered+",\"detailed112Samples\":"+detailed+",\"detailed112Covered\":"+detailedCovered+",\"detailed112SkyKnown\":"+detailedSkyKnown+",\"detailed112SourcePresent\":"+detailedSourcePresent+",\"surfaceSkyKnown\":"+surfaceSkyKnown+",\"surfaceSourcePresent\":"+surfaceSourcePresent+",\"near24SourcePresent\":"+nearSourcePresent+",\"near24Samples\":"+near+",\"near24Eligible\":"+eligible+",\"near24Covered\":"+nearCovered+",\"near24SkyKnown\":"+nearSkyKnown+",\"giBounds\":"+bounds+",\"method\":\"Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence\"}\n");
     }
     static final StringBuilder residency=new StringBuilder("sample,segment,x,z,center_resident,nearby_resident,pending,loaded\n");
     static Object get(String name)throws Exception{var f=Main.class.getDeclaredField(name);f.setAccessible(true);return f.get(game);}

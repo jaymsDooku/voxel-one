@@ -1,0 +1,2743 @@
+{
+  "method": "Every frame uses actual resolved visible depth unprojected through its jittered camera. Near surface eligibility is within24m horizontally and fixed GI vertical range. Coverage is inside the complete active GPU field; exact GPU payloads checked separately. Frames with no eligible surface are reported, never counted as covered. No FPS claim.",
+  "fixtureSha256": "17347b87dc9ef2b54cd058bb62bf8566ae1b23e822b23c19d562d64b407966e6",
+  "beforeRevision": "4f8a09a+timing-overlay",
+  "afterRevision": "0be574a54b4b3a977655ea75317902a30988f219eb33293f8978563f2276551c",
+  "cameraMismatchesOutsideColdFlightAndReversal": [
+    {
+      "sample": 12,
+      "segment": "coldEntry",
+      "before": [
+        128.30101,
+        46.470768,
+        8.0
+      ],
+      "after": [
+        128.0,
+        46.6,
+        8.0
+      ]
+    },
+    {
+      "sample": 128,
+      "segment": "teleport",
+      "before": [
+        2048.301,
+        30.470768,
+        8.0
+      ],
+      "after": [
+        8.5,
+        28.61,
+        24.5
+      ]
+    },
+    {
+      "sample": 129,
+      "segment": "teleport",
+      "before": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "after": [
+        2048.301,
+        30.470768,
+        8.0
+      ]
+    },
+    {
+      "sample": 13,
+      "segment": "coldEntry",
+      "before": [
+        128.0,
+        46.470768,
+        8.0
+      ],
+      "after": [
+        128.30101,
+        46.470768,
+        8.0
+      ]
+    },
+    {
+      "sample": 130,
+      "segment": "teleport",
+      "before": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "after": [
+        2048.301,
+        30.470768,
+        8.0
+      ]
+    },
+    {
+      "sample": 14,
+      "segment": "coldEntry",
+      "before": [
+        128.0,
+        46.470768,
+        8.0
+      ],
+      "after": [
+        128.30101,
+        46.470768,
+        8.0
+      ]
+    }
+  ],
+  "lightingSourceMethod": "Availability means a complete active GI field contains the resolved surface or its exact sky column is present, following voxel shader lookup. This is an availability check, not radiance equivalence; occlusion/readback and rendered screenshots are checked separately.",
+  "qualificationScope": "Cold flight80 and reversal16 frames have matched eye poses and fixture hashes. Jump/teleport safety-boundary camera differences are listed; those segments have raw statistics only, not matched visual qualification.",
+  "segments": {
+    "catchup": {
+      "sourceAvailabilityBefore": {
+        "nearSky": {
+          "available": 109436,
+          "samples": 109436,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "nearSource": {
+          "available": 109436,
+          "samples": 109436,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "detailSky": {
+          "available": 117951,
+          "samples": 123264,
+          "aggregate": 0.9568973909657321,
+          "minimumFrame": 0.9215342679127726,
+          "framesWithMissingSource": 24
+        },
+        "detailSource": {
+          "available": 117951,
+          "samples": 123264,
+          "aggregate": 0.9568973909657321,
+          "minimumFrame": 0.9215342679127726,
+          "framesWithMissingSource": 24
+        },
+        "allSource": {
+          "available": 117951,
+          "samples": 143711,
+          "aggregate": 0.820751369067086,
+          "minimumFrame": 0.7899566232899566,
+          "framesWithMissingSource": 24
+        }
+      },
+      "sourceAvailabilityAfter": {
+        "nearSky": {
+          "available": 105613,
+          "samples": 109058,
+          "aggregate": 0.9684113040767298,
+          "minimumFrame": 0.7574994275246164,
+          "framesWithMissingSource": 7
+        },
+        "nearSource": {
+          "available": 105613,
+          "samples": 109058,
+          "aggregate": 0.9684113040767298,
+          "minimumFrame": 0.7574994275246164,
+          "framesWithMissingSource": 7
+        },
+        "detailSky": {
+          "available": 110186,
+          "samples": 123264,
+          "aggregate": 0.893902518172378,
+          "minimumFrame": 0.6440809968847352,
+          "framesWithMissingSource": 24
+        },
+        "detailSource": {
+          "available": 110634,
+          "samples": 123264,
+          "aggregate": 0.8975369937694704,
+          "minimumFrame": 0.6440809968847352,
+          "framesWithMissingSource": 24
+        },
+        "allSource": {
+          "available": 110634,
+          "samples": 143680,
+          "aggregate": 0.7700027839643653,
+          "minimumFrame": 0.5542895442359249,
+          "framesWithMissingSource": 24
+        }
+      },
+      "before": {
+        "frames": 24,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 0.0,
+        "medianFrameCoverage": 0.0,
+        "minimumFrameCoverage": 0.0,
+        "zeroCoverageFrames": 24,
+        "longestZeroRun": 24
+      },
+      "after": {
+        "frames": 24,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 0.45914100753727377,
+        "medianFrameCoverage": 0.0,
+        "minimumFrameCoverage": 0.0,
+        "zeroCoverageFrames": 13,
+        "longestZeroRun": 13
+      },
+      "worstMatchedFrameCoverageChange": 0.0,
+      "matchedFramesWithLowerCoverage": 0,
+      "framesDroppingMoreThanTwoPercentagePoints": []
+    },
+    "coldEntry": {
+      "sourceAvailabilityBefore": {
+        "nearSky": {
+          "available": 22804,
+          "samples": 25680,
+          "aggregate": 0.888006230529595,
+          "minimumFrame": 0.7615264797507788,
+          "framesWithMissingSource": 3
+        },
+        "nearSource": {
+          "available": 22804,
+          "samples": 25680,
+          "aggregate": 0.888006230529595,
+          "minimumFrame": 0.7615264797507788,
+          "framesWithMissingSource": 3
+        },
+        "detailSky": {
+          "available": 22804,
+          "samples": 25680,
+          "aggregate": 0.888006230529595,
+          "minimumFrame": 0.7615264797507788,
+          "framesWithMissingSource": 3
+        },
+        "detailSource": {
+          "available": 22804,
+          "samples": 25680,
+          "aggregate": 0.888006230529595,
+          "minimumFrame": 0.7615264797507788,
+          "framesWithMissingSource": 3
+        },
+        "allSource": {
+          "available": 22804,
+          "samples": 25680,
+          "aggregate": 0.888006230529595,
+          "minimumFrame": 0.7615264797507788,
+          "framesWithMissingSource": 3
+        }
+      },
+      "sourceAvailabilityAfter": {
+        "nearSky": {
+          "available": 0,
+          "samples": 25680,
+          "aggregate": 0.0,
+          "minimumFrame": 0.0,
+          "framesWithMissingSource": 4
+        },
+        "nearSource": {
+          "available": 0,
+          "samples": 25680,
+          "aggregate": 0.0,
+          "minimumFrame": 0.0,
+          "framesWithMissingSource": 4
+        },
+        "detailSky": {
+          "available": 0,
+          "samples": 25680,
+          "aggregate": 0.0,
+          "minimumFrame": 0.0,
+          "framesWithMissingSource": 4
+        },
+        "detailSource": {
+          "available": 0,
+          "samples": 25680,
+          "aggregate": 0.0,
+          "minimumFrame": 0.0,
+          "framesWithMissingSource": 4
+        },
+        "allSource": {
+          "available": 0,
+          "samples": 25680,
+          "aggregate": 0.0,
+          "minimumFrame": 0.0,
+          "framesWithMissingSource": 4
+        }
+      },
+      "before": {
+        "frames": 4,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 0.0,
+        "medianFrameCoverage": 0.0,
+        "minimumFrameCoverage": 0.0,
+        "zeroCoverageFrames": 4,
+        "longestZeroRun": 4
+      },
+      "after": {
+        "frames": 4,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 0.0,
+        "medianFrameCoverage": 0.0,
+        "minimumFrameCoverage": 0.0,
+        "zeroCoverageFrames": 4,
+        "longestZeroRun": 4
+      },
+      "worstMatchedFrameCoverageChange": 0.0,
+      "matchedFramesWithLowerCoverage": 0,
+      "framesDroppingMoreThanTwoPercentagePoints": []
+    },
+    "coldFlight": {
+      "sourceAvailabilityBefore": {
+        "nearSky": {
+          "available": 389752,
+          "samples": 389752,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "nearSource": {
+          "available": 389752,
+          "samples": 389752,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "detailSky": {
+          "available": 403697,
+          "samples": 407331,
+          "aggregate": 0.9910785086330282,
+          "minimumFrame": 0.898949070331447,
+          "framesWithMissingSource": 25
+        },
+        "detailSource": {
+          "available": 403697,
+          "samples": 407331,
+          "aggregate": 0.9910785086330282,
+          "minimumFrame": 0.898949070331447,
+          "framesWithMissingSource": 25
+        },
+        "allSource": {
+          "available": 403697,
+          "samples": 456128,
+          "aggregate": 0.8850520029465413,
+          "minimumFrame": 0.6301473366074801,
+          "framesWithMissingSource": 45
+        }
+      },
+      "sourceAvailabilityAfter": {
+        "nearSky": {
+          "available": 389795,
+          "samples": 389796,
+          "aggregate": 0.999997434555511,
+          "minimumFrame": 0.9998442367601246,
+          "framesWithMissingSource": 1
+        },
+        "nearSource": {
+          "available": 389796,
+          "samples": 389796,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "detailSky": {
+          "available": 400496,
+          "samples": 407389,
+          "aggregate": 0.9830800537078812,
+          "minimumFrame": 0.836195148541837,
+          "framesWithMissingSource": 49
+        },
+        "detailSource": {
+          "available": 400605,
+          "samples": 407389,
+          "aggregate": 0.9833476112511629,
+          "minimumFrame": 0.836195148541837,
+          "framesWithMissingSource": 42
+        },
+        "allSource": {
+          "available": 400605,
+          "samples": 456232,
+          "aggregate": 0.8780729979484122,
+          "minimumFrame": 0.5797430083144369,
+          "framesWithMissingSource": 59
+        }
+      },
+      "before": {
+        "frames": 80,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 0.5936775180114534,
+        "medianFrameCoverage": 1.0,
+        "minimumFrameCoverage": 0.0,
+        "zeroCoverageFrames": 25,
+        "longestZeroRun": 25
+      },
+      "after": {
+        "frames": 80,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 0.833810506008271,
+        "medianFrameCoverage": 0.9852599249169319,
+        "minimumFrameCoverage": 0.0,
+        "zeroCoverageFrames": 8,
+        "longestZeroRun": 5
+      },
+      "worstMatchedFrameCoverageChange": -1.0,
+      "matchedFramesWithLowerCoverage": 28,
+      "framesDroppingMoreThanTwoPercentagePoints": [
+        {
+          "sample": 88,
+          "before": 1.0,
+          "after": 0.0,
+          "difference": -1.0
+        },
+        {
+          "sample": 89,
+          "before": 1.0,
+          "after": 0.0,
+          "difference": -1.0
+        },
+        {
+          "sample": 90,
+          "before": 1.0,
+          "after": 0.0,
+          "difference": -1.0
+        },
+        {
+          "sample": 91,
+          "before": 1.0,
+          "after": 0.0,
+          "difference": -1.0
+        },
+        {
+          "sample": 92,
+          "before": 1.0,
+          "after": 0.0,
+          "difference": -1.0
+        },
+        {
+          "sample": 87,
+          "before": 1.0,
+          "after": 0.1601396857071589,
+          "difference": -0.8398603142928411
+        },
+        {
+          "sample": 86,
+          "before": 1.0,
+          "after": 0.39146341463414636,
+          "difference": -0.6085365853658536
+        },
+        {
+          "sample": 85,
+          "before": 1.0,
+          "after": 0.5206812652068127,
+          "difference": -0.4793187347931873
+        },
+        {
+          "sample": 60,
+          "before": 1.0,
+          "after": 0.5221529941156109,
+          "difference": -0.4778470058843891
+        },
+        {
+          "sample": 59,
+          "before": 1.0,
+          "after": 0.5892857142857143,
+          "difference": -0.4107142857142857
+        },
+        {
+          "sample": 84,
+          "before": 1.0,
+          "after": 0.6225454545454545,
+          "difference": -0.3774545454545455
+        },
+        {
+          "sample": 83,
+          "before": 1.0,
+          "after": 0.7820922795797167,
+          "difference": -0.21790772042028328
+        },
+        {
+          "sample": 58,
+          "before": 1.0,
+          "after": 0.8108674621089971,
+          "difference": -0.18913253789100293
+        },
+        {
+          "sample": 57,
+          "before": 1.0,
+          "after": 0.8245614035087719,
+          "difference": -0.17543859649122806
+        },
+        {
+          "sample": 82,
+          "before": 1.0,
+          "after": 0.8309730470534491,
+          "difference": -0.1690269529465509
+        },
+        {
+          "sample": 81,
+          "before": 1.0,
+          "after": 0.8370585605721949,
+          "difference": -0.16294143942780515
+        },
+        {
+          "sample": 80,
+          "before": 1.0,
+          "after": 0.8829170383586084,
+          "difference": -0.11708296164139165
+        },
+        {
+          "sample": 79,
+          "before": 1.0,
+          "after": 0.8908851884312007,
+          "difference": -0.10911481156879932
+        },
+        {
+          "sample": 77,
+          "before": 1.0,
+          "after": 0.9370308590492077,
+          "difference": -0.06296914095079231
+        },
+        {
+          "sample": 78,
+          "before": 1.0,
+          "after": 0.9384005011484652,
+          "difference": -0.06159949885153482
+        },
+        {
+          "sample": 76,
+          "before": 1.0,
+          "after": 0.9585416666666666,
+          "difference": -0.041458333333333375
+        },
+        {
+          "sample": 75,
+          "before": 1.0,
+          "after": 0.9587414044592624,
+          "difference": -0.04125859554073763
+        },
+        {
+          "sample": 103,
+          "before": 1.0,
+          "after": 0.9668737060041408,
+          "difference": -0.0331262939958592
+        },
+        {
+          "sample": 104,
+          "before": 1.0,
+          "after": 0.9731254147312541,
+          "difference": -0.026874585268745865
+        },
+        {
+          "sample": 102,
+          "before": 1.0,
+          "after": 0.9758438120450033,
+          "difference": -0.024156187954996744
+        },
+        {
+          "sample": 73,
+          "before": 1.0,
+          "after": 0.9798924945251841,
+          "difference": -0.02010750547481588
+        }
+      ],
+      "renderedSurfaceRGB": {
+        "available": true,
+        "method": "Actual resolved linear HDR RGB before UI/postprocessing, stride12. Same-pixel probes match only when all world-coordinate differences are at most1/32m. Report unmatched/zero-match frames; never count them as unchanged. Ratios are candidate/baseline luminance; geometry, water, shadows and GI can legitimately change color, so ratios accompany source coverage and rendered image inspection rather than imply radiance equivalence.",
+        "detail": {
+          "count": 360023,
+          "p01": 0.9994668637003827,
+          "p05": 0.9999509515852422,
+          "median": 1.0,
+          "fractionDarkenedOver10Percent": 0.0005610752646358705,
+          "fractionDarkenedOver25Percent": 0.0005610752646358705
+        },
+        "near": {
+          "count": 357730,
+          "p01": 0.9994668637003827,
+          "p05": 0.9999509790086303,
+          "median": 1.0,
+          "fractionDarkenedOver10Percent": 0.0005255360187851173,
+          "fractionDarkenedOver25Percent": 0.0005255360187851173
+        },
+        "farStrict": {
+          "count": 2276,
+          "p01": 0.9994792855539926,
+          "p05": 0.999503165476086,
+          "median": 1.0,
+          "fractionDarkenedOver10Percent": 0.006151142355008787,
+          "fractionDarkenedOver25Percent": 0.006151142355008787
+        },
+        "farHorizontalSameVoxel": {
+          "count": 3436,
+          "p01": 0.99995849043058,
+          "p05": 1.0,
+          "median": 1.0,
+          "fractionDarkenedOver10Percent": 0.0,
+          "fractionDarkenedOver25Percent": 0.0
+        },
+        "farHorizontalMethod": "Far natural horizontal surfaces must lie within1/32m of the same integer Y plane, inside the central80percent of the same integer X/Z voxel, and match within1/32m vertically and1/4m horizontally. This excludes vertical faces and voxel edges. This broader terrain check does not qualify subvoxel equivalence; strict1/32m results are retained separately.",
+        "zeroFarHorizontalFrames": 44,
+        "zeroMatchedFrames": 0,
+        "frames": [
+          {
+            "sample": 32,
+            "beforeProbes": 6420,
+            "afterProbes": 6420,
+            "matchedSurfaceProbes": 6363,
+            "nearMatchedSurfaceProbes": 6269,
+            "farMatchedSurfaceProbes": 77,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 94,
+            "afterFarProbes": 77,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.00015715857300015716,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0001595150741745095
+          },
+          {
+            "sample": 33,
+            "beforeProbes": 6420,
+            "afterProbes": 6420,
+            "matchedSurfaceProbes": 6304,
+            "nearMatchedSurfaceProbes": 6304,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 0,
+            "afterFarProbes": 0,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 34,
+            "beforeProbes": 6420,
+            "afterProbes": 6420,
+            "matchedSurfaceProbes": 6216,
+            "nearMatchedSurfaceProbes": 6201,
+            "farMatchedSurfaceProbes": 15,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 15,
+            "afterFarProbes": 15,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 35,
+            "beforeProbes": 6420,
+            "afterProbes": 6420,
+            "matchedSurfaceProbes": 6185,
+            "nearMatchedSurfaceProbes": 6185,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 0,
+            "afterFarProbes": 0,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.00016168148746968473,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.00016168148746968473
+          },
+          {
+            "sample": 36,
+            "beforeProbes": 6420,
+            "afterProbes": 6420,
+            "matchedSurfaceProbes": 5842,
+            "nearMatchedSurfaceProbes": 5842,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 31,
+            "afterFarProbes": 31,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.00034234851078397807,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.00034234851078397807
+          },
+          {
+            "sample": 37,
+            "beforeProbes": 6420,
+            "afterProbes": 6420,
+            "matchedSurfaceProbes": 6347,
+            "nearMatchedSurfaceProbes": 6333,
+            "farMatchedSurfaceProbes": 14,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 14,
+            "afterFarProbes": 14,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.00015755475027572083,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.00015790304752881732
+          },
+          {
+            "sample": 38,
+            "beforeProbes": 6420,
+            "afterProbes": 6420,
+            "matchedSurfaceProbes": 6420,
+            "nearMatchedSurfaceProbes": 6416,
+            "farMatchedSurfaceProbes": 4,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 4,
+            "afterFarProbes": 4,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 39,
+            "beforeProbes": 6420,
+            "afterProbes": 6420,
+            "matchedSurfaceProbes": 6350,
+            "nearMatchedSurfaceProbes": 6242,
+            "farMatchedSurfaceProbes": 108,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 108,
+            "afterFarProbes": 109,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 40,
+            "beforeProbes": 6420,
+            "afterProbes": 6420,
+            "matchedSurfaceProbes": 6325,
+            "nearMatchedSurfaceProbes": 6325,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 0,
+            "afterFarProbes": 0,
+            "medianLuminanceRatio": 0.9999929508843397,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 0.9999929508843397,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 41,
+            "beforeProbes": 6420,
+            "afterProbes": 6420,
+            "matchedSurfaceProbes": 6155,
+            "nearMatchedSurfaceProbes": 6155,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 0,
+            "afterFarProbes": 0,
+            "medianLuminanceRatio": 0.999975798433243,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 0.999975798433243,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 42,
+            "beforeProbes": 6420,
+            "afterProbes": 6420,
+            "matchedSurfaceProbes": 5411,
+            "nearMatchedSurfaceProbes": 5411,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 3,
+            "afterFarProbes": 0,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 43,
+            "beforeProbes": 6420,
+            "afterProbes": 6420,
+            "matchedSurfaceProbes": 5466,
+            "nearMatchedSurfaceProbes": 5450,
+            "farMatchedSurfaceProbes": 16,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 16,
+            "afterFarProbes": 16,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 44,
+            "beforeProbes": 6420,
+            "afterProbes": 6420,
+            "matchedSurfaceProbes": 6130,
+            "nearMatchedSurfaceProbes": 6061,
+            "farMatchedSurfaceProbes": 69,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 137,
+            "afterFarProbes": 136,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0004893964110929853,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.000494967827091239
+          },
+          {
+            "sample": 45,
+            "beforeProbes": 6420,
+            "afterProbes": 6420,
+            "matchedSurfaceProbes": 6176,
+            "nearMatchedSurfaceProbes": 6171,
+            "farMatchedSurfaceProbes": 5,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 5,
+            "afterFarProbes": 5,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.00016191709844559586,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.00016204829039053638
+          },
+          {
+            "sample": 46,
+            "beforeProbes": 6420,
+            "afterProbes": 6420,
+            "matchedSurfaceProbes": 6258,
+            "nearMatchedSurfaceProbes": 6258,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 0,
+            "afterFarProbes": 0,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.00015979546180888463,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.00015979546180888463
+          },
+          {
+            "sample": 47,
+            "beforeProbes": 6420,
+            "afterProbes": 6420,
+            "matchedSurfaceProbes": 6241,
+            "nearMatchedSurfaceProbes": 6134,
+            "farMatchedSurfaceProbes": 107,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 107,
+            "afterFarProbes": 107,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0001602307322544464,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.00016302575806977502
+          },
+          {
+            "sample": 48,
+            "beforeProbes": 6420,
+            "afterProbes": 6420,
+            "matchedSurfaceProbes": 6185,
+            "nearMatchedSurfaceProbes": 6185,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 0,
+            "afterFarProbes": 0,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.00048504446240905415,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.00048504446240905415
+          },
+          {
+            "sample": 49,
+            "beforeProbes": 6420,
+            "afterProbes": 6420,
+            "matchedSurfaceProbes": 6213,
+            "nearMatchedSurfaceProbes": 6116,
+            "farMatchedSurfaceProbes": 97,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 98,
+            "afterFarProbes": 98,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.008852406244970223,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.008992805755395683
+          },
+          {
+            "sample": 50,
+            "beforeProbes": 6420,
+            "afterProbes": 6420,
+            "matchedSurfaceProbes": 6301,
+            "nearMatchedSurfaceProbes": 6205,
+            "farMatchedSurfaceProbes": 96,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 97,
+            "afterFarProbes": 97,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 51,
+            "beforeProbes": 6417,
+            "afterProbes": 6417,
+            "matchedSurfaceProbes": 5545,
+            "nearMatchedSurfaceProbes": 5467,
+            "farMatchedSurfaceProbes": 78,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 285,
+            "afterFarProbes": 285,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 52,
+            "beforeProbes": 6419,
+            "afterProbes": 6419,
+            "matchedSurfaceProbes": 5728,
+            "nearMatchedSurfaceProbes": 5728,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 97,
+            "afterFarProbes": 97,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 53,
+            "beforeProbes": 6420,
+            "afterProbes": 6420,
+            "matchedSurfaceProbes": 6288,
+            "nearMatchedSurfaceProbes": 6194,
+            "farMatchedSurfaceProbes": 94,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 94,
+            "afterFarProbes": 94,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 54,
+            "beforeProbes": 6313,
+            "afterProbes": 6313,
+            "matchedSurfaceProbes": 6088,
+            "nearMatchedSurfaceProbes": 5900,
+            "farMatchedSurfaceProbes": 188,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 188,
+            "afterFarProbes": 188,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 55,
+            "beforeProbes": 6313,
+            "afterProbes": 6313,
+            "matchedSurfaceProbes": 6198,
+            "nearMatchedSurfaceProbes": 6102,
+            "farMatchedSurfaceProbes": 96,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 96,
+            "afterFarProbes": 96,
+            "medianLuminanceRatio": 0.9999758760338792,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 0.9999759165385903,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 56,
+            "beforeProbes": 6099,
+            "afterProbes": 6206,
+            "matchedSurfaceProbes": 5935,
+            "nearMatchedSurfaceProbes": 5846,
+            "farMatchedSurfaceProbes": 89,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 107,
+            "afterFarProbes": 214,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 57,
+            "beforeProbes": 6206,
+            "afterProbes": 6206,
+            "matchedSurfaceProbes": 5750,
+            "nearMatchedSurfaceProbes": 5649,
+            "farMatchedSurfaceProbes": 101,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 107,
+            "afterFarProbes": 107,
+            "medianLuminanceRatio": 1.000023922210586,
+            "fractionDarkenedOver10Percent": 0.018608695652173914,
+            "nearMedianLuminanceRatio": 1.0000239358235892,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.01894140555850593
+          },
+          {
+            "sample": 58,
+            "beforeProbes": 6206,
+            "afterProbes": 6206,
+            "matchedSurfaceProbes": 6098,
+            "nearMatchedSurfaceProbes": 6094,
+            "farMatchedSurfaceProbes": 4,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 4,
+            "afterFarProbes": 4,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 59,
+            "beforeProbes": 5992,
+            "afterProbes": 5992,
+            "matchedSurfaceProbes": 5748,
+            "nearMatchedSurfaceProbes": 5748,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 1,
+            "afterFarProbes": 0,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.00017397355601948505,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.00017397355601948505
+          },
+          {
+            "sample": 60,
+            "beforeProbes": 5879,
+            "afterProbes": 5879,
+            "matchedSurfaceProbes": 4815,
+            "nearMatchedSurfaceProbes": 4815,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 101,
+            "afterFarProbes": 101,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 61,
+            "beforeProbes": 5881,
+            "afterProbes": 5881,
+            "matchedSurfaceProbes": 5631,
+            "nearMatchedSurfaceProbes": 5528,
+            "farMatchedSurfaceProbes": 103,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 103,
+            "afterFarProbes": 103,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 62,
+            "beforeProbes": 5883,
+            "afterProbes": 5883,
+            "matchedSurfaceProbes": 5765,
+            "nearMatchedSurfaceProbes": 5660,
+            "farMatchedSurfaceProbes": 105,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 105,
+            "afterFarProbes": 105,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 63,
+            "beforeProbes": 5671,
+            "afterProbes": 5671,
+            "matchedSurfaceProbes": 5088,
+            "nearMatchedSurfaceProbes": 4954,
+            "farMatchedSurfaceProbes": 134,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 143,
+            "afterFarProbes": 148,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 64,
+            "beforeProbes": 5457,
+            "afterProbes": 5457,
+            "matchedSurfaceProbes": 5065,
+            "nearMatchedSurfaceProbes": 4884,
+            "farMatchedSurfaceProbes": 181,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 214,
+            "afterFarProbes": 214,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 65,
+            "beforeProbes": 5457,
+            "afterProbes": 5457,
+            "matchedSurfaceProbes": 5004,
+            "nearMatchedSurfaceProbes": 4989,
+            "farMatchedSurfaceProbes": 15,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 15,
+            "afterFarProbes": 15,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0019984012789768186,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0020044097013429546
+          },
+          {
+            "sample": 66,
+            "beforeProbes": 5457,
+            "afterProbes": 5457,
+            "matchedSurfaceProbes": 4806,
+            "nearMatchedSurfaceProbes": 4803,
+            "farMatchedSurfaceProbes": 3,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 3,
+            "afterFarProbes": 3,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 67,
+            "beforeProbes": 5243,
+            "afterProbes": 5243,
+            "matchedSurfaceProbes": 4789,
+            "nearMatchedSurfaceProbes": 4789,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 0,
+            "afterFarProbes": 0,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 68,
+            "beforeProbes": 5243,
+            "afterProbes": 5243,
+            "matchedSurfaceProbes": 4586,
+            "nearMatchedSurfaceProbes": 4586,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 0,
+            "afterFarProbes": 0,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 69,
+            "beforeProbes": 5243,
+            "afterProbes": 5243,
+            "matchedSurfaceProbes": 4154,
+            "nearMatchedSurfaceProbes": 4154,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 0,
+            "afterFarProbes": 0,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 70,
+            "beforeProbes": 5112,
+            "afterProbes": 5112,
+            "matchedSurfaceProbes": 4387,
+            "nearMatchedSurfaceProbes": 4387,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 3,
+            "beforeFarProbes": 89,
+            "afterFarProbes": 89,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 71,
+            "beforeProbes": 5112,
+            "afterProbes": 5113,
+            "matchedSurfaceProbes": 4477,
+            "nearMatchedSurfaceProbes": 4477,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 2,
+            "beforeFarProbes": 89,
+            "afterFarProbes": 89,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 72,
+            "beforeProbes": 5110,
+            "afterProbes": 5109,
+            "matchedSurfaceProbes": 4268,
+            "nearMatchedSurfaceProbes": 4268,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 86,
+            "afterFarProbes": 86,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 73,
+            "beforeProbes": 5026,
+            "afterProbes": 5026,
+            "matchedSurfaceProbes": 4471,
+            "nearMatchedSurfaceProbes": 4471,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 3,
+            "afterFarProbes": 3,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 74,
+            "beforeProbes": 4892,
+            "afterProbes": 4892,
+            "matchedSurfaceProbes": 4276,
+            "nearMatchedSurfaceProbes": 4276,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 59,
+            "beforeFarProbes": 88,
+            "afterFarProbes": 88,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 75,
+            "beforeProbes": 4888,
+            "afterProbes": 4887,
+            "matchedSurfaceProbes": 3923,
+            "nearMatchedSurfaceProbes": 3923,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 3,
+            "beforeFarProbes": 88,
+            "afterFarProbes": 88,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 76,
+            "beforeProbes": 4805,
+            "afterProbes": 4805,
+            "matchedSurfaceProbes": 4120,
+            "nearMatchedSurfaceProbes": 4120,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 3,
+            "beforeFarProbes": 6,
+            "afterFarProbes": 5,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 77,
+            "beforeProbes": 4801,
+            "afterProbes": 4801,
+            "matchedSurfaceProbes": 4148,
+            "nearMatchedSurfaceProbes": 4148,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 3,
+            "beforeFarProbes": 5,
+            "afterFarProbes": 5,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 78,
+            "beforeProbes": 4800,
+            "afterProbes": 4795,
+            "matchedSurfaceProbes": 3529,
+            "nearMatchedSurfaceProbes": 3529,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 5,
+            "afterFarProbes": 6,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 79,
+            "beforeProbes": 4572,
+            "afterProbes": 4572,
+            "matchedSurfaceProbes": 3917,
+            "nearMatchedSurfaceProbes": 3917,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 7,
+            "beforeFarProbes": 8,
+            "afterFarProbes": 8,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 80,
+            "beforeProbes": 4555,
+            "afterProbes": 4555,
+            "matchedSurfaceProbes": 3894,
+            "nearMatchedSurfaceProbes": 3894,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 55,
+            "beforeFarProbes": 72,
+            "afterFarProbes": 71,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 81,
+            "beforeProbes": 4476,
+            "afterProbes": 4475,
+            "matchedSurfaceProbes": 3500,
+            "nearMatchedSurfaceProbes": 3500,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 0,
+            "afterFarProbes": 1,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 82,
+            "beforeProbes": 4452,
+            "afterProbes": 4452,
+            "matchedSurfaceProbes": 3948,
+            "nearMatchedSurfaceProbes": 3948,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 74,
+            "afterFarProbes": 74,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 83,
+            "beforeProbes": 4452,
+            "afterProbes": 4452,
+            "matchedSurfaceProbes": 3925,
+            "nearMatchedSurfaceProbes": 3925,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 57,
+            "beforeFarProbes": 74,
+            "afterFarProbes": 74,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 84,
+            "beforeProbes": 4212,
+            "afterProbes": 4212,
+            "matchedSurfaceProbes": 3240,
+            "nearMatchedSurfaceProbes": 3240,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 63,
+            "beforeFarProbes": 87,
+            "afterFarProbes": 87,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 85,
+            "beforeProbes": 4182,
+            "afterProbes": 4188,
+            "matchedSurfaceProbes": 3771,
+            "nearMatchedSurfaceProbes": 3771,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 59,
+            "beforeFarProbes": 79,
+            "afterFarProbes": 78,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 86,
+            "beforeProbes": 4119,
+            "afterProbes": 4119,
+            "matchedSurfaceProbes": 3728,
+            "nearMatchedSurfaceProbes": 3728,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 11,
+            "beforeFarProbes": 19,
+            "afterFarProbes": 19,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 87,
+            "beforeProbes": 4086,
+            "afterProbes": 4086,
+            "matchedSurfaceProbes": 2839,
+            "nearMatchedSurfaceProbes": 2839,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 46,
+            "beforeFarProbes": 77,
+            "afterFarProbes": 77,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 88,
+            "beforeProbes": 3999,
+            "afterProbes": 3999,
+            "matchedSurfaceProbes": 3584,
+            "nearMatchedSurfaceProbes": 3584,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 57,
+            "beforeFarProbes": 95,
+            "afterFarProbes": 95,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 89,
+            "beforeProbes": 3990,
+            "afterProbes": 3993,
+            "matchedSurfaceProbes": 3597,
+            "nearMatchedSurfaceProbes": 3597,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 62,
+            "beforeFarProbes": 108,
+            "afterFarProbes": 111,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 90,
+            "beforeProbes": 3910,
+            "afterProbes": 3911,
+            "matchedSurfaceProbes": 3296,
+            "nearMatchedSurfaceProbes": 3296,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 16,
+            "beforeFarProbes": 68,
+            "afterFarProbes": 68,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 91,
+            "beforeProbes": 3886,
+            "afterProbes": 3887,
+            "matchedSurfaceProbes": 3537,
+            "nearMatchedSurfaceProbes": 3537,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 21,
+            "beforeFarProbes": 65,
+            "afterFarProbes": 64,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 92,
+            "beforeProbes": 3857,
+            "afterProbes": 3856,
+            "matchedSurfaceProbes": 3395,
+            "nearMatchedSurfaceProbes": 3395,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 40,
+            "beforeFarProbes": 122,
+            "afterFarProbes": 122,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 93,
+            "beforeProbes": 3805,
+            "afterProbes": 3800,
+            "matchedSurfaceProbes": 3112,
+            "nearMatchedSurfaceProbes": 3112,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 24,
+            "beforeFarProbes": 122,
+            "afterFarProbes": 117,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 94,
+            "beforeProbes": 3745,
+            "afterProbes": 3759,
+            "matchedSurfaceProbes": 3436,
+            "nearMatchedSurfaceProbes": 3425,
+            "farMatchedSurfaceProbes": 11,
+            "farHorizontalSameVoxelProbes": 31,
+            "beforeFarProbes": 157,
+            "afterFarProbes": 148,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 95,
+            "beforeProbes": 3742,
+            "afterProbes": 3740,
+            "matchedSurfaceProbes": 3247,
+            "nearMatchedSurfaceProbes": 3247,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 45,
+            "beforeFarProbes": 240,
+            "afterFarProbes": 237,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 96,
+            "beforeProbes": 3716,
+            "afterProbes": 3685,
+            "matchedSurfaceProbes": 2290,
+            "nearMatchedSurfaceProbes": 2290,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 293,
+            "afterFarProbes": 267,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 97,
+            "beforeProbes": 3669,
+            "afterProbes": 3671,
+            "matchedSurfaceProbes": 3192,
+            "nearMatchedSurfaceProbes": 3192,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 62,
+            "beforeFarProbes": 358,
+            "afterFarProbes": 357,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 98,
+            "beforeProbes": 3653,
+            "afterProbes": 3662,
+            "matchedSurfaceProbes": 3109,
+            "nearMatchedSurfaceProbes": 3073,
+            "farMatchedSurfaceProbes": 36,
+            "farHorizontalSameVoxelProbes": 113,
+            "beforeFarProbes": 417,
+            "afterFarProbes": 420,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.000321646831778707,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 99,
+            "beforeProbes": 3717,
+            "afterProbes": 3697,
+            "matchedSurfaceProbes": 2926,
+            "nearMatchedSurfaceProbes": 2926,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 26,
+            "beforeFarProbes": 322,
+            "afterFarProbes": 314,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 100,
+            "beforeProbes": 3666,
+            "afterProbes": 3666,
+            "matchedSurfaceProbes": 3007,
+            "nearMatchedSurfaceProbes": 3007,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 104,
+            "beforeFarProbes": 391,
+            "afterFarProbes": 390,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 101,
+            "beforeProbes": 3661,
+            "afterProbes": 3674,
+            "matchedSurfaceProbes": 3153,
+            "nearMatchedSurfaceProbes": 3153,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 132,
+            "beforeFarProbes": 506,
+            "afterFarProbes": 519,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 102,
+            "beforeProbes": 3691,
+            "afterProbes": 3673,
+            "matchedSurfaceProbes": 2824,
+            "nearMatchedSurfaceProbes": 2824,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 102,
+            "beforeFarProbes": 669,
+            "afterFarProbes": 651,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 103,
+            "beforeProbes": 3650,
+            "afterProbes": 3661,
+            "matchedSurfaceProbes": 2843,
+            "nearMatchedSurfaceProbes": 2842,
+            "farMatchedSurfaceProbes": 1,
+            "farHorizontalSameVoxelProbes": 200,
+            "beforeFarProbes": 764,
+            "afterFarProbes": 763,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 104,
+            "beforeProbes": 3703,
+            "afterProbes": 3729,
+            "matchedSurfaceProbes": 2908,
+            "nearMatchedSurfaceProbes": 2908,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 134,
+            "beforeFarProbes": 696,
+            "afterFarProbes": 715,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 105,
+            "beforeProbes": 3722,
+            "afterProbes": 3687,
+            "matchedSurfaceProbes": 2368,
+            "nearMatchedSurfaceProbes": 2368,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 83,
+            "beforeFarProbes": 860,
+            "afterFarProbes": 837,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 106,
+            "beforeProbes": 3677,
+            "afterProbes": 3678,
+            "matchedSurfaceProbes": 2792,
+            "nearMatchedSurfaceProbes": 2622,
+            "farMatchedSurfaceProbes": 170,
+            "farHorizontalSameVoxelProbes": 206,
+            "beforeFarProbes": 1001,
+            "afterFarProbes": 1002,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0010744985673352436,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.00038138825324180017
+          },
+          {
+            "sample": 107,
+            "beforeProbes": 3672,
+            "afterProbes": 3686,
+            "matchedSurfaceProbes": 2447,
+            "nearMatchedSurfaceProbes": 2434,
+            "farMatchedSurfaceProbes": 13,
+            "farHorizontalSameVoxelProbes": 293,
+            "beforeFarProbes": 1150,
+            "afterFarProbes": 1157,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 108,
+            "beforeProbes": 3675,
+            "afterProbes": 3649,
+            "matchedSurfaceProbes": 2138,
+            "nearMatchedSurfaceProbes": 2138,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 227,
+            "beforeFarProbes": 1340,
+            "afterFarProbes": 1321,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 109,
+            "beforeProbes": 3700,
+            "afterProbes": 3700,
+            "matchedSurfaceProbes": 2402,
+            "nearMatchedSurfaceProbes": 2392,
+            "farMatchedSurfaceProbes": 10,
+            "farHorizontalSameVoxelProbes": 317,
+            "beforeFarProbes": 1261,
+            "afterFarProbes": 1255,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.00041631973355537054,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 110,
+            "beforeProbes": 3683,
+            "afterProbes": 3720,
+            "matchedSurfaceProbes": 2311,
+            "nearMatchedSurfaceProbes": 2129,
+            "farMatchedSurfaceProbes": 182,
+            "farHorizontalSameVoxelProbes": 377,
+            "beforeFarProbes": 1503,
+            "afterFarProbes": 1535,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0038944180008654264,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 111,
+            "beforeProbes": 3711,
+            "afterProbes": 3669,
+            "matchedSurfaceProbes": 1779,
+            "nearMatchedSurfaceProbes": 1725,
+            "farMatchedSurfaceProbes": 54,
+            "farHorizontalSameVoxelProbes": 393,
+            "beforeFarProbes": 1730,
+            "afterFarProbes": 1697,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0005621135469364812,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          }
+        ]
+      }
+    },
+    "coldWalk": {
+      "sourceAvailabilityBefore": {
+        "nearSky": {
+          "available": 102243,
+          "samples": 102243,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "nearSource": {
+          "available": 102243,
+          "samples": 102243,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "detailSky": {
+          "available": 102703,
+          "samples": 102720,
+          "aggregate": 0.9998345015576324,
+          "minimumFrame": 0.9978193146417446,
+          "framesWithMissingSource": 2
+        },
+        "detailSource": {
+          "available": 102703,
+          "samples": 102720,
+          "aggregate": 0.9998345015576324,
+          "minimumFrame": 0.9978193146417446,
+          "framesWithMissingSource": 2
+        },
+        "allSource": {
+          "available": 102703,
+          "samples": 102720,
+          "aggregate": 0.9998345015576324,
+          "minimumFrame": 0.9978193146417446,
+          "framesWithMissingSource": 2
+        }
+      },
+      "sourceAvailabilityAfter": {
+        "nearSky": {
+          "available": 83827,
+          "samples": 102226,
+          "aggregate": 0.8200164341752587,
+          "minimumFrame": 0.0,
+          "framesWithMissingSource": 8
+        },
+        "nearSource": {
+          "available": 83827,
+          "samples": 102226,
+          "aggregate": 0.8200164341752587,
+          "minimumFrame": 0.0,
+          "framesWithMissingSource": 8
+        },
+        "detailSky": {
+          "available": 84106,
+          "samples": 102720,
+          "aggregate": 0.8187889408099689,
+          "minimumFrame": 0.0,
+          "framesWithMissingSource": 16
+        },
+        "detailSource": {
+          "available": 84106,
+          "samples": 102720,
+          "aggregate": 0.8187889408099689,
+          "minimumFrame": 0.0,
+          "framesWithMissingSource": 16
+        },
+        "allSource": {
+          "available": 84106,
+          "samples": 102720,
+          "aggregate": 0.8187889408099689,
+          "minimumFrame": 0.0,
+          "framesWithMissingSource": 16
+        }
+      },
+      "before": {
+        "frames": 16,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 0.0,
+        "medianFrameCoverage": 0.0,
+        "minimumFrameCoverage": 0.0,
+        "zeroCoverageFrames": 16,
+        "longestZeroRun": 16
+      },
+      "after": {
+        "frames": 16,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 0.0,
+        "medianFrameCoverage": 0.0,
+        "minimumFrameCoverage": 0.0,
+        "zeroCoverageFrames": 16,
+        "longestZeroRun": 16
+      },
+      "worstMatchedFrameCoverageChange": 0.0,
+      "matchedFramesWithLowerCoverage": 0,
+      "framesDroppingMoreThanTwoPercentagePoints": []
+    },
+    "resident": {
+      "sourceAvailabilityBefore": {
+        "nearSky": {
+          "available": 51480,
+          "samples": 51480,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "nearSource": {
+          "available": 51480,
+          "samples": 51480,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "detailSky": {
+          "available": 60067,
+          "samples": 67917,
+          "aggregate": 0.8844177451889806,
+          "minimumFrame": 0.882363315696649,
+          "framesWithMissingSource": 12
+        },
+        "detailSource": {
+          "available": 60067,
+          "samples": 67917,
+          "aggregate": 0.8844177451889806,
+          "minimumFrame": 0.882363315696649,
+          "framesWithMissingSource": 12
+        },
+        "allSource": {
+          "available": 60067,
+          "samples": 74816,
+          "aggregate": 0.8028630239520959,
+          "minimumFrame": 0.8006080972955673,
+          "framesWithMissingSource": 12
+        }
+      },
+      "sourceAvailabilityAfter": {
+        "nearSky": {
+          "available": 51480,
+          "samples": 51480,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "nearSource": {
+          "available": 51480,
+          "samples": 51480,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "detailSky": {
+          "available": 60070,
+          "samples": 67985,
+          "aggregate": 0.8835772596896374,
+          "minimumFrame": 0.882363315696649,
+          "framesWithMissingSource": 12
+        },
+        "detailSource": {
+          "available": 60070,
+          "samples": 67985,
+          "aggregate": 0.8835772596896374,
+          "minimumFrame": 0.882363315696649,
+          "framesWithMissingSource": 12
+        },
+        "allSource": {
+          "available": 60070,
+          "samples": 74799,
+          "aggregate": 0.8030856027486999,
+          "minimumFrame": 0.80048,
+          "framesWithMissingSource": 12
+        }
+      },
+      "before": {
+        "frames": 12,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 1.0,
+        "medianFrameCoverage": 1.0,
+        "minimumFrameCoverage": 1.0,
+        "zeroCoverageFrames": 0,
+        "longestZeroRun": 0
+      },
+      "after": {
+        "frames": 12,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 1.0,
+        "medianFrameCoverage": 1.0,
+        "minimumFrameCoverage": 1.0,
+        "zeroCoverageFrames": 0,
+        "longestZeroRun": 0
+      },
+      "worstMatchedFrameCoverageChange": 0.0,
+      "matchedFramesWithLowerCoverage": 0,
+      "framesDroppingMoreThanTwoPercentagePoints": []
+    },
+    "teleport": {
+      "sourceAvailabilityBefore": {
+        "nearSky": {
+          "available": 23785,
+          "samples": 26444,
+          "aggregate": 0.8994478898805022,
+          "minimumFrame": 0.7572148419606046,
+          "framesWithMissingSource": 4
+        },
+        "nearSource": {
+          "available": 23785,
+          "samples": 26444,
+          "aggregate": 0.8994478898805022,
+          "minimumFrame": 0.7572148419606046,
+          "framesWithMissingSource": 4
+        },
+        "detailSky": {
+          "available": 24313,
+          "samples": 30816,
+          "aggregate": 0.7889732606438213,
+          "minimumFrame": 0.6436915887850467,
+          "framesWithMissingSource": 6
+        },
+        "detailSource": {
+          "available": 24313,
+          "samples": 30816,
+          "aggregate": 0.7889732606438213,
+          "minimumFrame": 0.6436915887850467,
+          "framesWithMissingSource": 6
+        },
+        "allSource": {
+          "available": 24313,
+          "samples": 35824,
+          "aggregate": 0.678679097811523,
+          "minimumFrame": 0.5539544235924933,
+          "framesWithMissingSource": 6
+        }
+      },
+      "sourceAvailabilityAfter": {
+        "nearSky": {
+          "available": 172,
+          "samples": 22453,
+          "aggregate": 0.007660446265532445,
+          "minimumFrame": 0.0,
+          "framesWithMissingSource": 5
+        },
+        "nearSource": {
+          "available": 172,
+          "samples": 22453,
+          "aggregate": 0.007660446265532445,
+          "minimumFrame": 0.0,
+          "framesWithMissingSource": 5
+        },
+        "detailSky": {
+          "available": 402,
+          "samples": 25515,
+          "aggregate": 0.0157554379776602,
+          "minimumFrame": 0.0,
+          "framesWithMissingSource": 5
+        },
+        "detailSource": {
+          "available": 402,
+          "samples": 25515,
+          "aggregate": 0.0157554379776602,
+          "minimumFrame": 0.0,
+          "framesWithMissingSource": 5
+        },
+        "allSource": {
+          "available": 402,
+          "samples": 29179,
+          "aggregate": 0.013777031426710992,
+          "minimumFrame": 0.0,
+          "framesWithMissingSource": 5
+        }
+      },
+      "before": {
+        "frames": 6,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 0.0,
+        "medianFrameCoverage": 0.0,
+        "minimumFrameCoverage": 0.0,
+        "zeroCoverageFrames": 6,
+        "longestZeroRun": 6
+      },
+      "after": {
+        "frames": 6,
+        "zeroEligibleFrames": 1,
+        "aggregateNearCoverage": 0.0,
+        "medianFrameCoverage": 0.0,
+        "minimumFrameCoverage": 0.0,
+        "zeroCoverageFrames": 5,
+        "longestZeroRun": 4
+      },
+      "worstMatchedFrameCoverageChange": 0.0,
+      "matchedFramesWithLowerCoverage": 0,
+      "framesDroppingMoreThanTwoPercentagePoints": []
+    },
+    "transitionTail": {
+      "sourceAvailabilityBefore": {
+        "nearSky": {
+          "available": 36500,
+          "samples": 36500,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "nearSource": {
+          "available": 36500,
+          "samples": 36500,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "detailSky": {
+          "available": 40260,
+          "samples": 41088,
+          "aggregate": 0.9798481308411215,
+          "minimumFrame": 0.9776090342679128,
+          "framesWithMissingSource": 8
+        },
+        "detailSource": {
+          "available": 40260,
+          "samples": 41088,
+          "aggregate": 0.9798481308411215,
+          "minimumFrame": 0.9776090342679128,
+          "framesWithMissingSource": 8
+        },
+        "allSource": {
+          "available": 40260,
+          "samples": 47882,
+          "aggregate": 0.840817008479178,
+          "minimumFrame": 0.8388443553774215,
+          "framesWithMissingSource": 8
+        }
+      },
+      "sourceAvailabilityAfter": {
+        "nearSky": {
+          "available": 36449,
+          "samples": 36449,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "nearSource": {
+          "available": 36449,
+          "samples": 36449,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "detailSky": {
+          "available": 39554,
+          "samples": 41088,
+          "aggregate": 0.9626654984423676,
+          "minimumFrame": 0.955607476635514,
+          "framesWithMissingSource": 8
+        },
+        "detailSource": {
+          "available": 39561,
+          "samples": 41088,
+          "aggregate": 0.9628358644859814,
+          "minimumFrame": 0.9567757009345794,
+          "framesWithMissingSource": 8
+        },
+        "allSource": {
+          "available": 39561,
+          "samples": 47881,
+          "aggregate": 0.8262358764436833,
+          "minimumFrame": 0.8208082832331329,
+          "framesWithMissingSource": 8
+        }
+      },
+      "before": {
+        "frames": 8,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 0.0,
+        "medianFrameCoverage": 0.0,
+        "minimumFrameCoverage": 0.0,
+        "zeroCoverageFrames": 8,
+        "longestZeroRun": 8
+      },
+      "after": {
+        "frames": 8,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 1.0,
+        "medianFrameCoverage": 1.0,
+        "minimumFrameCoverage": 1.0,
+        "zeroCoverageFrames": 0,
+        "longestZeroRun": 0
+      },
+      "worstMatchedFrameCoverageChange": 1.0,
+      "matchedFramesWithLowerCoverage": 0,
+      "framesDroppingMoreThanTwoPercentagePoints": []
+    },
+    "warmReversal": {
+      "sourceAvailabilityBefore": {
+        "nearSky": {
+          "available": 75090,
+          "samples": 75090,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "nearSource": {
+          "available": 75090,
+          "samples": 75090,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "detailSky": {
+          "available": 76099,
+          "samples": 76099,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "detailSource": {
+          "available": 76099,
+          "samples": 76099,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "allSource": {
+          "available": 76099,
+          "samples": 84850,
+          "aggregate": 0.8968650559811432,
+          "minimumFrame": 0.7960377358490566,
+          "framesWithMissingSource": 16
+        }
+      },
+      "sourceAvailabilityAfter": {
+        "nearSky": {
+          "available": 75091,
+          "samples": 75091,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "nearSource": {
+          "available": 75091,
+          "samples": 75091,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "detailSky": {
+          "available": 76093,
+          "samples": 76093,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "detailSource": {
+          "available": 76093,
+          "samples": 76093,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "allSource": {
+          "available": 76248,
+          "samples": 84850,
+          "aggregate": 0.8986210960518562,
+          "minimumFrame": 0.8070175438596491,
+          "framesWithMissingSource": 16
+        }
+      },
+      "before": {
+        "frames": 16,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 1.0,
+        "medianFrameCoverage": 1.0,
+        "minimumFrameCoverage": 1.0,
+        "zeroCoverageFrames": 0,
+        "longestZeroRun": 0
+      },
+      "after": {
+        "frames": 16,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 1.0,
+        "medianFrameCoverage": 1.0,
+        "minimumFrameCoverage": 1.0,
+        "zeroCoverageFrames": 0,
+        "longestZeroRun": 0
+      },
+      "worstMatchedFrameCoverageChange": 0.0,
+      "matchedFramesWithLowerCoverage": 0,
+      "framesDroppingMoreThanTwoPercentagePoints": [],
+      "renderedSurfaceRGB": {
+        "available": true,
+        "method": "Actual resolved linear HDR RGB before UI/postprocessing, stride12. Same-pixel probes match only when all world-coordinate differences are at most1/32m. Report unmatched/zero-match frames; never count them as unchanged. Ratios are candidate/baseline luminance; geometry, water, shadows and GI can legitimately change color, so ratios accompany source coverage and rendered image inspection rather than imply radiance equivalence.",
+        "detail": {
+          "count": 63504,
+          "p01": 0.9999584811358083,
+          "p05": 1.0,
+          "median": 1.0,
+          "fractionDarkenedOver10Percent": 0.0016849332325522802,
+          "fractionDarkenedOver25Percent": 0.0016849332325522802
+        },
+        "near": {
+          "count": 63504,
+          "p01": 0.9999584811358083,
+          "p05": 1.0,
+          "median": 1.0,
+          "fractionDarkenedOver10Percent": 0.0016849332325522802,
+          "fractionDarkenedOver25Percent": 0.0016849332325522802
+        },
+        "farStrict": {
+          "count": 0,
+          "p01": null,
+          "p05": null,
+          "median": null,
+          "fractionDarkenedOver10Percent": null,
+          "fractionDarkenedOver25Percent": null
+        },
+        "farHorizontalSameVoxel": {
+          "count": 225,
+          "p01": 0.9999584595481178,
+          "p05": 1.0,
+          "median": 1.0,
+          "fractionDarkenedOver10Percent": 0.0,
+          "fractionDarkenedOver25Percent": 0.0
+        },
+        "farHorizontalMethod": "Far natural horizontal surfaces must lie within1/32m of the same integer Y plane, inside the central80percent of the same integer X/Z voxel, and match within1/32m vertically and1/4m horizontally. This excludes vertical faces and voxel edges. This broader terrain check does not qualify subvoxel equivalence; strict1/32m results are retained separately.",
+        "zeroFarHorizontalFrames": 6,
+        "zeroMatchedFrames": 0,
+        "frames": [
+          {
+            "sample": 112,
+            "beforeProbes": 5231,
+            "afterProbes": 5232,
+            "matchedSurfaceProbes": 4793,
+            "nearMatchedSurfaceProbes": 4793,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 0,
+            "afterFarProbes": 0,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 113,
+            "beforeProbes": 5115,
+            "afterProbes": 5115,
+            "matchedSurfaceProbes": 4456,
+            "nearMatchedSurfaceProbes": 4456,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 1,
+            "beforeFarProbes": 99,
+            "afterFarProbes": 98,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 114,
+            "beforeProbes": 5125,
+            "afterProbes": 5124,
+            "matchedSurfaceProbes": 3942,
+            "nearMatchedSurfaceProbes": 3942,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 100,
+            "afterFarProbes": 101,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 115,
+            "beforeProbes": 5125,
+            "afterProbes": 5126,
+            "matchedSurfaceProbes": 4468,
+            "nearMatchedSurfaceProbes": 4468,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 3,
+            "beforeFarProbes": 102,
+            "afterFarProbes": 103,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.023948075201432408,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.023948075201432408
+          },
+          {
+            "sample": 116,
+            "beforeProbes": 4915,
+            "afterProbes": 4916,
+            "matchedSurfaceProbes": 4115,
+            "nearMatchedSurfaceProbes": 4115,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 5,
+            "beforeFarProbes": 112,
+            "afterFarProbes": 112,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 117,
+            "beforeProbes": 4916,
+            "afterProbes": 4916,
+            "matchedSurfaceProbes": 3923,
+            "nearMatchedSurfaceProbes": 3923,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 112,
+            "afterFarProbes": 113,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 118,
+            "beforeProbes": 4830,
+            "afterProbes": 4830,
+            "matchedSurfaceProbes": 4163,
+            "nearMatchedSurfaceProbes": 4163,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 10,
+            "beforeFarProbes": 27,
+            "afterFarProbes": 26,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 119,
+            "beforeProbes": 4815,
+            "afterProbes": 4815,
+            "matchedSurfaceProbes": 4152,
+            "nearMatchedSurfaceProbes": 4152,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 6,
+            "beforeFarProbes": 11,
+            "afterFarProbes": 11,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 120,
+            "beforeProbes": 4815,
+            "afterProbes": 4815,
+            "matchedSurfaceProbes": 3825,
+            "nearMatchedSurfaceProbes": 3825,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 5,
+            "beforeFarProbes": 11,
+            "afterFarProbes": 12,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 121,
+            "beforeProbes": 4601,
+            "afterProbes": 4601,
+            "matchedSurfaceProbes": 4005,
+            "nearMatchedSurfaceProbes": 4005,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 15,
+            "afterFarProbes": 15,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 122,
+            "beforeProbes": 4601,
+            "afterProbes": 4601,
+            "matchedSurfaceProbes": 3944,
+            "nearMatchedSurfaceProbes": 3944,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 68,
+            "beforeFarProbes": 99,
+            "afterFarProbes": 98,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 123,
+            "beforeProbes": 4506,
+            "afterProbes": 4494,
+            "matchedSurfaceProbes": 2971,
+            "nearMatchedSurfaceProbes": 2971,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 13,
+            "afterFarProbes": 2,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 124,
+            "beforeProbes": 4494,
+            "afterProbes": 4494,
+            "matchedSurfaceProbes": 3857,
+            "nearMatchedSurfaceProbes": 3857,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 0,
+            "beforeFarProbes": 2,
+            "afterFarProbes": 1,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": null,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": null,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 125,
+            "beforeProbes": 4494,
+            "afterProbes": 4494,
+            "matchedSurfaceProbes": 3997,
+            "nearMatchedSurfaceProbes": 3997,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 81,
+            "beforeFarProbes": 107,
+            "afterFarProbes": 107,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 126,
+            "beforeProbes": 4297,
+            "afterProbes": 4297,
+            "matchedSurfaceProbes": 3199,
+            "nearMatchedSurfaceProbes": 3199,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 9,
+            "beforeFarProbes": 133,
+            "afterFarProbes": 133,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          },
+          {
+            "sample": 127,
+            "beforeProbes": 4219,
+            "afterProbes": 4223,
+            "matchedSurfaceProbes": 3694,
+            "nearMatchedSurfaceProbes": 3694,
+            "farMatchedSurfaceProbes": 0,
+            "farHorizontalSameVoxelProbes": 37,
+            "beforeFarProbes": 66,
+            "afterFarProbes": 70,
+            "medianLuminanceRatio": 1.0,
+            "fractionDarkenedOver10Percent": 0.0,
+            "nearMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelMedianLuminanceRatio": 1.0,
+            "farHorizontalSameVoxelFractionDarkenedOver10Percent": 0.0,
+            "nearFractionDarkenedOver10Percent": 0.0
+          }
+        ]
+      }
+    }
+  }
+}

@@ -73,6 +73,7 @@ public final class RenderPipeline implements AutoCloseable {
     private SkyVisibilityScheduler.Prepared desiredSky;
     private SceneLightingUpload lightingUpload,skyLightingUpload;
     private SkyVisibilityScheduler.Prepared activeSky;
+    private boolean skyUploadRetargeted;
     private long skyUploadStarted;public long skyGpuBytes,skyGpuNanos;
     private WorldLighting.Capture desiredVolumeFence,activeVolumeFence;
     private boolean lightingBootstrapped,initialLightingFrame;
@@ -109,8 +110,28 @@ public final class RenderPipeline implements AutoCloseable {
     /** First playable area and per-frame budget use the same bounded readiness check. */
     public boolean nearLightingReady(World world,float x,float z){
         if(!hasIrradiance||!nearCovered(volume,x,z)||activeVolumeFence==null||!activeVolumeFence.valid(world,activeVolumeFence.x,activeVolumeFence.z)||worldSky==null||activeSky!=null&&!activeSky.belongsTo(world))return false;
-        for(int a=-1;a<=1;a++)for(int b=-1;b<=1;b++)if(worldSky.sampleKnown(x+a*24,110,z+b*24,-1)<0)return false;
+        return nearSkyCovered(x,z);
+    }
+    private boolean nearSkyCovered(float x,float z){return skyCovered(worldSky,x,z);}
+    private static boolean skyCovered(WorldSkyVisibility sky,float x,float z){
+        if(sky==null)return false;int x0=(int)Math.floor(x-24),x1=(int)Math.floor(x+24),z0=(int)Math.floor(z-24),z1=(int)Math.floor(z+24),width=z1-z0+1;
+        long full=width==64?-1L:(1L<<width)-1;
+        for(int column=x0;column<=x1;column++)if(sky.knownColumnMask(column,z0,width)!=full)return false;
         return true;
+    }
+    private static boolean losesSky(WorldSkyVisibility old,WorldSkyVisibility next,float x,float z){
+        if(old==null)return false;int x0=(int)Math.floor(x-24),x1=(int)Math.floor(x+24),z0=(int)Math.floor(z-24),width=(int)Math.floor(z+24)-z0+1;
+        for(int column=x0;column<=x1;column++){long before=old.knownColumnMask(column,z0,width),after=next==null?0:next.knownColumnMask(column,z0,width);if((before&~after)!=0)return true;}return false;
+    }
+    static boolean shouldRetargetSky(WorldSkyVisibility pending,WorldSkyVisibility latest,float x,float z,float dx,float dz,boolean retargeted){
+        if(retargeted||pending==null||latest==null||pending==latest||losesSky(pending,latest,x,z))return false;
+        if(losesSky(latest,pending,x,z))return true;
+        float aheadX=skyLead(x,dx),aheadZ=skyLead(z,dz);
+        return !losesSky(pending,latest,aheadX,aheadZ)&&losesSky(latest,pending,aheadX,aheadZ);
+    }
+    private static float skyLead(float position,float motion){return motion>0?position+16:motion<0?position-16:position;}
+    static boolean needsSkyCoverage(WorldSkyVisibility sky,float x,float z,float dx,float dz){
+        return !skyCovered(sky,x,z)||(dx!=0||dz!=0)&&!skyCovered(sky,skyLead(x,dx),skyLead(z,dz));
     }
     public void resetFocus(){focusWorld=null;previousFocusTime=0;focusPrepared=false;motionX=motionZ=0;}
     private boolean skyWorkPending(){return skyVisibility.pending()>0||skyLightingUpload!=null||desiredSky!=null&&desiredSky.data!=worldSky;}
@@ -235,11 +256,13 @@ public final class RenderPipeline implements AutoCloseable {
         SkyVisibilityScheduler.Prepared rebuilt=null;
         boolean uncovered=volume==null||x<volume.x||x>=volume.x+volume.width||z<volume.z||z>=volume.z+volume.length;
         boolean missingNearGi=desiredVolume!=volume&&pendingRootBuffer()&&!nearCovered(volume,x,z);
-        // Once a complete bake is waiting on GPU transfer, far sky capture must
-        // not consume the budget needed to restore the camera's GI coverage.
-        long skyAllowance=initialLightingFrame?3_000_000L:missingNearGi?250_000L:(!lightingBootstrapped||uncovered||skyWorkPending())?1_000_000L:250_000L;
+        // Missing camera sky is visible as darkness outside GI. Keep its capture
+        // lane active even while a completed GI bake waits for upload.
+        boolean missingCameraSky=needsSkyCoverage(worldSky,x,z,motionX,motionZ);
+        boolean preparedCameraSky=!needsSkyCoverage(desiredSky==null?null:desiredSky.data,x,z,motionX,motionZ);
+        long skyAllowance=initialLightingFrame?3_000_000L:missingCameraSky&&!preparedCameraSky?1_000_000L:skyWorkPending()?500_000L:missingNearGi?250_000L:(!lightingBootstrapped||uncovered)?1_000_000L:250_000L;
         // Reserve half the remaining allowance for GI preparation and GPU progress.
-        if(System.nanoTime()<deadline){rebuilt=skyVisibility.update(world,(x+requestedX)*.5f,(z+requestedZ)*.5f,Math.min(skyAllowance,Math.max(0,(deadline-System.nanoTime())/2)),initialLightingFrame);skyBuildNanos=skyVisibility.ownerNanos;}
+        if(System.nanoTime()<deadline){rebuilt=skyVisibility.update(world,skyLead(x,motionX),skyLead(z,motionZ),Math.min(skyAllowance,Math.max(0,(deadline-System.nanoTime())/2)),initialLightingFrame);skyBuildNanos=skyVisibility.ownerNanos;}
         if(rebuilt!=null)desiredSky=rebuilt;
         if (changed) {
             hiZ.invalidate();temporal.reset();worldRevision = world.editsVersion();
@@ -266,15 +289,20 @@ public final class RenderPipeline implements AutoCloseable {
     }
     private boolean pendingRootBuffer(){return separateRootBuffer&&desiredVolume!=null&&desiredVolume.fine.length<=1_048_576;}
     /** Independent sky lane shares time, bytes, scratch and two prewarmed atlas generations.
-     * A valid in-flight atlas finishes even when new GI or disjoint sky tiles arrive. */
-    private int pumpSky(World world,long deadline,int bytes){
+     * A valid atlas finishes through disjoint churn; one local coverage upgrade may rebase it. */
+    private int pumpSky(World world,float x,float z,long deadline,int bytes){
         if(skyLightingUpload!=null&&!skyLightingUpload.valid(world)){skyLightingUpload.close();skyLightingUpload=null;}
         if(skyLightingUpload==null&&desiredSky!=null&&desiredSky.data!=worldSky&&desiredSky.valid(world)&&lightingStores.available(false)){
-            skyLightingUpload=new SceneLightingUpload(world,null,desiredSky,false,lightingStores);skyUploadStarted=System.nanoTime();
+            skyLightingUpload=new SceneLightingUpload(world,null,desiredSky,false,lightingStores);skyUploadStarted=System.nanoTime();skyUploadRetargeted=false;
         }
         if(skyLightingUpload==null)return 0;
-        skyLightingUpload.refreshSky(world,desiredSky);int sent=skyLightingUpload.pump(deadline,bytes,256*1024);
-        if(skyLightingUpload.ready()&&skyLightingUpload.valid(world)&&skyLightingUpload.skyCurrent(world)){
+        boolean wouldLose=skyLightingUpload.ready()&&activeSky!=null&&activeSky.valid(world)&&losesSky(worldSky,skyLightingUpload.sky.data,x,z);
+        if((!skyLightingUpload.ready()||wouldLose)&&desiredSky!=null&&desiredSky.valid(world)&&shouldRetargetSky(skyLightingUpload.sky.data,desiredSky.data,x,z,motionX,motionZ,skyUploadRetargeted)){
+            skyLightingUpload.refreshSky(world,desiredSky,true);skyUploadRetargeted=true;skyUploadPreemptions++;
+        }else if(wouldLose){skyLightingUpload.close();skyLightingUpload=null;skyUploadPreemptions++;return 0;}
+        skyLightingUpload.refreshSky(world,desiredSky);int sent=skyLightingUpload.pump(deadline,bytes,64*1024);
+        if(skyLightingUpload.ready()&&skyLightingUpload.valid(world)&&skyLightingUpload.skyCurrent(world)
+                &&!(activeSky!=null&&activeSky.valid(world)&&losesSky(worldSky,skyLightingUpload.sky.data,x,z))){
             var data=skyLightingUpload.take();lightingStores.releaseTexture(fineRoots);fineRoots=data.atlas();worldSky=skyLightingUpload.sky.data;activeSky=skyLightingUpload.sky;skyBufferOffset=skyLightingUpload.offset;
             probes.invalidate();skyLightingUpload.close();skyLightingUpload=null;
         }
@@ -286,26 +314,28 @@ public final class RenderPipeline implements AutoCloseable {
         if(System.nanoTime()>=deadline)return;
         int byteBudget=(initialLightingFrame?8:4)*1024*1024;
         boolean independentSky=activeRootBuffer&&(desiredVolume==volume||pendingRootBuffer());
+        boolean missingNearSky=needsSkyCoverage(worldSky,x,z,motionX,motionZ);
         if(!independentSky&&skyLightingUpload!=null){skyLightingUpload.close();skyLightingUpload=null;}
         // Alternate first service: a single non-preemptible GL copy may consume its
         // share, but cannot prevent the other lane from starting on the next frame.
         boolean missingNearGi=desiredVolume!=volume&&pendingRootBuffer()&&!nearCovered(volume,x,z);
-        boolean nearGiPriority=independentSky&&prioritizeNearGi(missingNearGi,++lightingPriorityTurn);
+        boolean nearGiPriority=independentSky&&prioritizeNearGi(missingNearGi,missingNearSky,++lightingPriorityTurn);
         // Three urgent turns may use the remaining slice; every fourth starts
         // sky first. Both lanes keep the same shared deadline and byte ceiling.
-        boolean mainFirst=independentSky&&(missingNearGi?nearGiPriority:(giFirst=!giFirst));
+        boolean mainFirst=independentSky&&!missingNearSky&&(missingNearGi?nearGiPriority:(giFirst=!giFirst));
         if(mainFirst)pumpMainLighting(world,x,z,nearGiPriority?deadline:Math.min(deadline,System.nanoTime()+Math.max(0,(deadline-System.nanoTime())/2)),byteBudget);
         if(independentSky&&System.nanoTime()<deadline){
             long start=System.nanoTime();
             long skyDeadline=mainFirst||desiredVolume==volume?deadline:Math.min(deadline,start+Math.max(0,(deadline-start)/2));
-            skyGpuBytes=pumpSky(world,skyDeadline,Math.max(0,byteBudget-(int)lightingUploadBytes));
+            skyGpuBytes=pumpSky(world,x,z,skyDeadline,Math.max(0,byteBudget-(int)lightingUploadBytes));
             skyGpuNanos=System.nanoTime()-start;lightingUploadBytes+=skyGpuBytes;
         }
         if(System.nanoTime()<deadline)pumpMainLighting(world,x,z,deadline,byteBudget);
 
         }finally{dev.jayms.OwnerTrace.end(trace,0);}
     }
-    static boolean prioritizeNearGi(boolean missing,int turn){return missing&&(turn&3)!=0;}
+    static boolean prioritizeNearGi(boolean missing,int turn){return prioritizeNearGi(missing,false,turn);}
+    static boolean prioritizeNearGi(boolean missing,boolean missingSky,int turn){return missing&&!missingSky&&(turn&3)!=0;}
     private void pumpMainLighting(World world,float x,float z,long deadline,int byteBudget){
         if(System.nanoTime()>=deadline)return;
         if(desiredVolume!=volume&&lightingUpload!=null&&!lightingUpload.replaceVolume){lightingUpload.close();lightingUpload=null;skyUploadPreemptions++;}

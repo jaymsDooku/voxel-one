@@ -1,0 +1,9 @@
+{
+  "reviewedHead": "e8a69cdb7883ba6653edbb3d1d97d8aa1fa96e98",
+  "baseline": "4f8a09aca177062a50d0ab2b68e36735318bfb22+timing-overlay",
+  "sourceSha256": "136c375d94837381e37fa121ea858d23dc1415cbc0b6db6eace2b9fbebb1d40c",
+  "routeSha256": "ccd4ba4ab5d872f8f085c07a36b211a9a60e3b452f3044e91c75babd59240cbd",
+  "baselineJarSha256": "48ed98ac1f5fc55fe9c57feb5e29bc37031f369ddee8fc1ba4596933f1c7f78f",
+  "featureJarSha256": "8248d711197957a9b244714e9aecca56e68d2a189c340ff31750416db1028f54",
+  "method": "Fresh profiles;166 samples;resident mesh and accepted lighting warmup;actual framebuffer in JSON;no video;all sustained cold travel outside original spawn preload."
+}

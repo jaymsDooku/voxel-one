@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class WorldStreamingTest {
     static void resident(World w,ChunkPos p,float x,float y,float z)throws Exception {
         long end=System.nanoTime()+TimeUnit.SECONDS.toNanos(20);
-        while(!w.getLoadedChunks().containsKey(p)&&System.nanoTime()<end){w.streamAsync(x,y,z,2_000_000);assertTrue(w.terrainPending()<=9);Thread.sleep(1);}
+        while(!w.getLoadedChunks().containsKey(p)&&System.nanoTime()<end){w.streamAsync(x,y,z,2_000_000);assertTrue(w.terrainPending()<=TerrainScheduler.CAPACITY+1);Thread.sleep(1);}
         assertTrue(w.getLoadedChunks().containsKey(p),"Near playable chunk becomes resident");
     }
     @Test void sceneRevisionTracksMembershipAndInstalledMeshes()throws Exception {

@@ -1,0 +1,22 @@
+[
+  {
+    "mode": "offline-video",
+    "exitCode": 0
+  },
+  {
+    "mode": "multiplayer-plain",
+    "exitCode": 0
+  },
+  {
+    "mode": "city-plain",
+    "exitCode": 0
+  },
+  {
+    "mode": "switch-plain",
+    "exitCode": 0
+  },
+  {
+    "mode": "travel-plain",
+    "exitCode": 0
+  }
+]

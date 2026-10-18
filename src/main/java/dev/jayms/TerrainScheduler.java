@@ -7,7 +7,8 @@ import java.util.concurrent.*;
 
 /** Detached base terrain only. One worker owns its terrain caches; the caller owns all world edits. */
 public final class TerrainScheduler implements AutoCloseable {
-    public static final int CAPACITY = 8;
+    /** Fixed detached-chunk window; the owner still attaches one chunk per deadline check. */
+    public static final int CAPACITY = 16;
     public record Result(ChunkPos position, Chunk chunk, long generationNanos, long requestedNanos) {}
     @FunctionalInterface interface Generator { Chunk generate(ChunkPos position, Terrain terrain); }
     private static final class Job {
@@ -28,7 +29,7 @@ public final class TerrainScheduler implements AutoCloseable {
     public synchronized <T> Future<T> prepare(Callable<T> work) {
         if(closed)throw new IllegalStateException("Terrain scheduler closed");
         if(preparing>=2)throw new RejectedExecutionException("CPU preparation capacity reached");
-        var future=new FutureTask<T>(work);preparation.add(future);preparing++;notifyAll();return future;
+        var future=new PublishedFuture<T>(work);preparation.add(future);preparing++;notifyAll();return future;
     }
     private boolean closed;
     public long discarded;

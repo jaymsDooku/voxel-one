@@ -48,7 +48,8 @@ public final class DetailedMeshScheduler implements AutoCloseable {
     }
     private boolean valid(World world,Capture c){return world.getLoadedChunks().get(c.pos)==c.chunk&&c.chunk.meshRevision()==c.revision&&world.models().revision()==c.models;}
     private void submit(Capture c) {
-        var future=worker.submit(()->{long then=System.nanoTime();MeshData data=c.snapshot.isEmpty()?null:MeshDataGenerator.generate(c.snapshot);if(bytes(data)>MAX_RESULT_BYTES)throw new IllegalStateException("Chunk mesh exceeds bounded completion budget");return new Result(c.pos,c.chunk,c.revision,data,System.nanoTime()-then,c.created);});
+        var future=new PublishedFuture<Result>(()->{long then=System.nanoTime();MeshData data=c.snapshot.isEmpty()?null:MeshDataGenerator.generate(c.snapshot);if(bytes(data)>MAX_RESULT_BYTES)throw new IllegalStateException("Chunk mesh exceeds bounded completion budget");return new Result(c.pos,c.chunk,c.revision,data,System.nanoTime()-then,c.created);});
+        worker.execute(future);
         jobs.put(c.pos,new Job(c.pos,c.chunk,c.revision,c.models,c.created,future));
     }
     private void capture(World world,long deadline) {

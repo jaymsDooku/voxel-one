@@ -1,0 +1,30 @@
+Playtest: PASS for the checks below; performance and rollout limits remain open.
+Environment: assigned inherited DISPLAY and XAUTHORITY, never copied or printed. Linux amd64, Mesa llvmpipe LLVM 15 software OpenGL 3.3, four reported processors, synthetic isolated profiles. Native workflow uses Java 17; comparison routes, GL soak and diagnostic use Java 21. Actual game framebuffer 1280×720; F10 encoded 960×544. Seed 748291; settings and source/JAR hashes in sky-continuity-v17-source.json and raw performance metadata. No physical Windows GPU run.
+
+Executed commands:
+python3 deploy/run_streaming_upload_smoke.py --display "$DISPLAY"
+python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --java /usr/lib/jvm/java-17-openjdk-amd64/bin/java --mode offline --distant-edits 100000
+python3 deploy/run_streaming_workflow.py --display "$DISPLAY" --java /usr/lib/jvm/java-17-openjdk-amd64/bin/java --mode offline --distant-edits 100000 --video
+The same workflow command ran separately with --mode multiplayer, --mode city, --mode switch and --mode travel, without --video.
+python3 deploy/run_streaming_soak.py --display "$DISPLAY" --cycles 64
+python3 deploy/run_streaming_shutdown.py --display "$DISPLAY" --mode active-switch
+python3 deploy/run_streaming_shutdown.py --display "$DISPLAY" --mode failure-switch
+python3 deploy/run_streaming_shutdown.py --display "$DISPLAY" --mode failure-run
+/usr/lib/jvm/java-17-openjdk-amd64/bin/java -Djava.io.tmpdir="$PWD/target/tmp" -cp target/streaming-after-client.jar deploy/InspectStreamingVideo.java dashboard/evidence/sky-continuity-v17-f10.mp4 dashboard/evidence/sky-continuity-v17-midpoint.png dashboard/evidence/sky-continuity-v17-video.json
+Final Java 17 Maven test command and130 passing suite results: sky-continuity-v17-final-tests.json. Earlier Java 17 package passed the same 130 tests.
+
+Steps and expected/observed results:
+Offline:65 frames each, plain and F10. Walk, toggle flight and sprint, reverse, warp, unload/reload edited chunks, then ordinary health-zero respawn. Expected playable collision, retained exact fractionalRGB0xfe30a0ff and tiny model, health20, mesh progress, capped terrain jobs and no GL errors. All assertions passed with100,000 distant synthetic non-light edits.
+Multiplayer:30 frames. Loopback synthetic peer sends authoritative break with terrain jobs pending. Expected remote edit received, survives reload, connection stays live. Passed.
+City:15 frames. Existing City/isometric workflow and mesh/GL bounds passed.
+Switch:35 frames across two production worlds. Expected seed999 in new world and old worker stopped. Passed.
+Travel:180 frames, sustained flight with reversals at 60/100, at least120 seconds before frame 130respawn, then49 settlement frames. Expected terrain catches up, bounded queues/residency, health20 and current nine-point GI after respawn. Passed. Final pending0; loaded peak1095; heap samples peak653004776bytes, final 30-frame range294096960–328012272bytes. Final GI source age366644ms; this is slow lighting recovery, not immediate readiness. Raw window/age evidence retained.
+Soak:130 seconds,64cycles over eight512-block-separated regions.1216boundary edits,128GPU border comparisons,2584unloads,120reload events passed. Jobs≤4,waiting≤6; retained heap10.97–13.16 MB after warmup/testGC. No GL errors. GPU readback and forcedGC are correctness checks, not performance trials.
+GL integration: exact sky/fine roots/nodes/irradiance readback, partially transferred sky rebase, prior active data retention, cancellation, byte caps, pooled resource reuse and context cleanup passed. Largest standalone owner pump.369ms. This does not establish game-frame performance.
+Shutdown: active sky and queued work canceled during world switch; both forced cleanup-failure cases preserved the original/cleanup exceptions and still destroyed the context/window. Passed.
+F10: all 10 frames decoded,529,863 bytes,18.566 seconds. Midpoint and travel-respawn screenshot inspected. Terrain, sky, shoreline and restored-health respawn view present. Media contains only synthetic game state. Browser playtesting does not apply to this native OpenGL client.
+
+Performance is measured separately without recording: three matched166sample pairs. Commands and results are reproducible through deploy/run_streaming_sustained_matrix.py and deploy/summarize_streaming_sustained.py; retained baseline runs are resident-complete-before-{1,2,3}, final after runs sky-continuity-v17-after-{1,2,3}. Cold owner elapsed p99 improves96.48–98.22%; frame p99 improves each pair. Full distributions/settings/stage counters are attached. The 2 ms owner tail target remains unmet. Software rendering cannot qualify the 60 FPS conditional physical-GPU targets.
+Rendered-surface qualification is separate: full166frame same-fixture baseline/after, per-frame depth and linear HDR RGB. Cold/reversal near matched voxel faces show no >10% loss; far matched samples include7 with 10–25% loss. Three unrecorded cold-flight trials each have720/720 sky probes; instantaneous entry/teleport and catch-up have temporary gaps. Full per-segment coverage and source-age data remain attached. Do not claim complete transition/far coverage or all-pixel radiance equality.
+Attribution is separate: target-only trace overlays and selected JFR events, no video or other test load. Sanitized sky-continuity-v17-native-attribution.json explains measured GC overlaps, context switches and bounded copy units; unexplained low CPU gaps remain explicitly unattributed. Raw logs/JFR/profiles stay private under target.
+Publication, Git integration and hostedCI belong to the controller. Physical Windows GPU qualification and stable rollout remain pending.

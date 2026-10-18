@@ -1,0 +1,9 @@
+{
+  "candidate": "v12",
+  "complete": false,
+  "exitCode": 1,
+  "reason": "Developer stopped this failed candidate at safe frame marker;64-tile pack cap delayed local coverage",
+  "framesRetained": 95,
+  "coldNearMissing": 294,
+  "notQualificationEvidence": true
+}

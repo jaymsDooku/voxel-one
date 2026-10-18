@@ -1,0 +1,35 @@
+{
+  "java": "17",
+  "command": "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 PATH=/usr/lib/jvm/java-17-openjdk-amd64/bin:$PATH mvn -o -q -Dmaven.repo.local=target/m2 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=SkyVisibilitySchedulerTest,LightingPriorityTest,ActivePreparationShutdownTest,LocalLightingCaptureTest package",
+  "exitCode": 0,
+  "suites": [
+    {
+      "suite": "SkyVisibilitySchedulerTest",
+      "tests": 15,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "LightingPriorityTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "ActivePreparationShutdownTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "LocalLightingCaptureTest",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ]
+}

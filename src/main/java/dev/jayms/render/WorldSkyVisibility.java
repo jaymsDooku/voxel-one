@@ -35,6 +35,26 @@ public final class WorldSkyVisibility {
             data[p]=z;data[p+1]=(long)lastZ-z+1==count?count:-1;data[p+2]=first;
         }
     }
+    /** Bounded presence query for a row of at most64 world columns. No terrain sampling. */
+    public long knownColumnMask(int x,int minZ,int count){
+        if(count<0||count>64)throw new IllegalArgumentException("Sky query width");if(count==0)return 0;
+        if(indexSpan>0){
+            long row=(long)x-indexOrigin;if(row<0||row>=indexSpan)return 0;
+            int p=indexOffset+(int)row*3,n=data[p+1];if(n==0)return 0;
+            if(n>0){
+                long first=Math.max((long)minZ,data[p]),last=Math.min((long)minZ+count,(long)data[p]+n);
+                if(last<=first)return 0;int length=(int)(last-first),shift=(int)(first-minZ);
+                return (length==64?-1L:(1L<<length)-1)<<shift;
+            }
+        }
+        int low=0,high=columns;
+        while(low<high){int middle=(low+high)>>>1,p=middle*4;if(data[p]<x||data[p]==x&&data[p+1]<minZ)low=middle+1;else high=middle;}
+        long mask=0;
+        for(int i=low;i<columns&&data[i*4]==x;i++){
+            long bit=(long)data[i*4+1]-minZ;if(bit>=count)break;if(bit>=0)mask|=1L<<(int)bit;
+        }
+        return mask;
+    }
     private int payloadLength(){return indexSpan==0?data.length:indexOffset;}
     public static WorldSkyVisibility build(World world){
         cancelled();

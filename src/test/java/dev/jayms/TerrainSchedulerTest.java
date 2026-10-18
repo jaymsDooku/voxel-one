@@ -21,7 +21,7 @@ class TerrainSchedulerTest {
             var first=new ChunkPos(0,0,0);assertTrue(scheduler.request(first,null));assertTrue(started.await(2,TimeUnit.SECONDS));
             assertFalse(scheduler.request(first,null));
             for(int i=1;i<TerrainScheduler.CAPACITY;i++)assertTrue(scheduler.request(new ChunkPos(i,0,0),null));
-            assertFalse(scheduler.request(new ChunkPos(99,0,0),null));assertEquals(8,scheduler.pending());
+            assertFalse(scheduler.request(new ChunkPos(99,0,0),null));assertEquals(TerrainScheduler.CAPACITY,scheduler.pending());
             scheduler.discardOutside(100,100,4);assertEquals(1,scheduler.pending(),"obsolete running generation retains its slot");
             assertFalse(scheduler.request(first,null));
             var next=new ChunkPos(100,0,100);assertTrue(scheduler.request(next,null));release.countDown();

@@ -1,0 +1,31 @@
+{
+  "offline-plain": {
+    "renderAll": {
+      "samples": 65,
+      "p50Ms": 1742.024086,
+      "p99Ms": 12537.897958,
+      "maxMs": 12537.897958
+    },
+    "captureAligned16to25": {
+      "samples": 10,
+      "p50Ms": 0.000717,
+      "p99Ms": 0.001348,
+      "maxMs": 0.001348
+    }
+  },
+  "offline-video": {
+    "renderAll": {
+      "samples": 65,
+      "p50Ms": 1735.902496,
+      "p99Ms": 12570.488792,
+      "maxMs": 12570.488792
+    },
+    "captureAligned16to25": {
+      "samples": 10,
+      "p50Ms": 34.023679,
+      "p99Ms": 90.39637,
+      "maxMs": 90.39637
+    }
+  },
+  "limits": "Separate 65-frame runs, same synthetic profile/settings/JAR; capture16..25 corresponds to prior F10 frames15..24. Software renderer and host scheduling vary; render differences are descriptive, not controlled causal recorder cost. Performance trials never record."
+}

@@ -1,0 +1,292 @@
+{
+  "scope": {
+    "scope": "Diagnostic JAR before sky-priority and staged-publication changes; not final-source qualification",
+    "jarSha256": "e98ff89e889317064f63be6245d1bd9184624ceacd7809830ce10620b837f69d",
+    "recording": false
+  },
+  "method": "80 samples; opt-in host/accounting trace adds overhead. Not a matched performance trial. Scheduler wait and CPU counters do not establish the cause of unaccounted wall time.",
+  "worstMeasuredOperations": {
+    "sky.publish": [
+      {
+        "sample": 64,
+        "wall_ns": 411915,
+        "thread_cpu_ns": 408280,
+        "units": 88,
+        "scheduler_wait_ns": 0,
+        "cpu_throttled_us": 0,
+        "gc_ms": 0
+      },
+      {
+        "sample": 69,
+        "wall_ns": 245600,
+        "thread_cpu_ns": 243844,
+        "units": 106,
+        "scheduler_wait_ns": 0,
+        "cpu_throttled_us": 0,
+        "gc_ms": 0
+      },
+      {
+        "sample": 66,
+        "wall_ns": 245094,
+        "thread_cpu_ns": 243336,
+        "units": 100,
+        "scheduler_wait_ns": 0,
+        "cpu_throttled_us": 0,
+        "gc_ms": 0
+      },
+      {
+        "sample": 68,
+        "wall_ns": 241096,
+        "thread_cpu_ns": 238243,
+        "units": 101,
+        "scheduler_wait_ns": 0,
+        "cpu_throttled_us": 0,
+        "gc_ms": 0
+      },
+      {
+        "sample": 37,
+        "wall_ns": 235521,
+        "thread_cpu_ns": 233586,
+        "units": 86,
+        "scheduler_wait_ns": 0,
+        "cpu_throttled_us": 0,
+        "gc_ms": 0
+      }
+    ],
+    "sky.validate": [
+      {
+        "sample": 64,
+        "wall_ns": 258835,
+        "thread_cpu_ns": 254883,
+        "units": 82,
+        "scheduler_wait_ns": 0,
+        "cpu_throttled_us": 0,
+        "gc_ms": 0
+      },
+      {
+        "sample": 64,
+        "wall_ns": 234436,
+        "thread_cpu_ns": 232020,
+        "units": 88,
+        "scheduler_wait_ns": 0,
+        "cpu_throttled_us": 0,
+        "gc_ms": 0
+      },
+      {
+        "sample": 66,
+        "wall_ns": 181045,
+        "thread_cpu_ns": 179328,
+        "units": 82,
+        "scheduler_wait_ns": 0,
+        "cpu_throttled_us": 0,
+        "gc_ms": 0
+      },
+      {
+        "sample": 64,
+        "wall_ns": 170300,
+        "thread_cpu_ns": 168154,
+        "units": 82,
+        "scheduler_wait_ns": 0,
+        "cpu_throttled_us": 0,
+        "gc_ms": 0
+      },
+      {
+        "sample": 18,
+        "wall_ns": 169958,
+        "thread_cpu_ns": 167123,
+        "units": 82,
+        "scheduler_wait_ns": 0,
+        "cpu_throttled_us": 0,
+        "gc_ms": 0
+      }
+    ],
+    "sky.capture": [
+      {
+        "sample": 55,
+        "wall_ns": 652304,
+        "thread_cpu_ns": 112100,
+        "units": 0,
+        "scheduler_wait_ns": 537163,
+        "cpu_throttled_us": 0,
+        "gc_ms": 0
+      },
+      {
+        "sample": 78,
+        "wall_ns": 289962,
+        "thread_cpu_ns": 287653,
+        "units": 10,
+        "scheduler_wait_ns": 0,
+        "cpu_throttled_us": 0,
+        "gc_ms": 0
+      },
+      {
+        "sample": 64,
+        "wall_ns": 284012,
+        "thread_cpu_ns": 279285,
+        "units": 10,
+        "scheduler_wait_ns": 0,
+        "cpu_throttled_us": 0,
+        "gc_ms": 0
+      },
+      {
+        "sample": 42,
+        "wall_ns": 224063,
+        "thread_cpu_ns": 221329,
+        "units": 10,
+        "scheduler_wait_ns": 0,
+        "cpu_throttled_us": 0,
+        "gc_ms": 0
+      },
+      {
+        "sample": 23,
+        "wall_ns": 214607,
+        "thread_cpu_ns": 211577,
+        "units": 10,
+        "scheduler_wait_ns": 0,
+        "cpu_throttled_us": 0,
+        "gc_ms": 0
+      }
+    ],
+    "sky.update": [
+      {
+        "sample": 70,
+        "wall_ns": 2917176,
+        "thread_cpu_ns": 616042,
+        "units": 0,
+        "scheduler_wait_ns": 2290885,
+        "cpu_throttled_us": 0,
+        "gc_ms": 0
+      },
+      {
+        "sample": 28,
+        "wall_ns": 1655393,
+        "thread_cpu_ns": 422933,
+        "units": 0,
+        "scheduler_wait_ns": 1229725,
+        "cpu_throttled_us": 0,
+        "gc_ms": 0
+      },
+      {
+        "sample": 64,
+        "wall_ns": 1240546,
+        "thread_cpu_ns": 1235366,
+        "units": 0,
+        "scheduler_wait_ns": 0,
+        "cpu_throttled_us": 0,
+        "gc_ms": 0
+      },
+      {
+        "sample": 66,
+        "wall_ns": 1132329,
+        "thread_cpu_ns": 1129901,
+        "units": 0,
+        "scheduler_wait_ns": 0,
+        "cpu_throttled_us": 0,
+        "gc_ms": 0
+      },
+      {
+        "sample": 42,
+        "wall_ns": 1070735,
+        "thread_cpu_ns": 454915,
+        "units": 0,
+        "scheduler_wait_ns": 613051,
+        "cpu_throttled_us": 0,
+        "gc_ms": 0
+      }
+    ],
+    "lighting.pump": [
+      {
+        "sample": 17,
+        "wall_ns": 12673739,
+        "thread_cpu_ns": 1065622,
+        "units": 4194304,
+        "scheduler_wait_ns": 3961054,
+        "cpu_throttled_us": 0,
+        "gc_ms": 0
+      },
+      {
+        "sample": 78,
+        "wall_ns": 7056932,
+        "thread_cpu_ns": 6979963,
+        "units": 4194304,
+        "scheduler_wait_ns": 49032,
+        "cpu_throttled_us": 0,
+        "gc_ms": 0
+      },
+      {
+        "sample": 53,
+        "wall_ns": 5105312,
+        "thread_cpu_ns": 2576799,
+        "units": 4194304,
+        "scheduler_wait_ns": 2526061,
+        "cpu_throttled_us": 0,
+        "gc_ms": 0
+      },
+      {
+        "sample": 21,
+        "wall_ns": 4179994,
+        "thread_cpu_ns": 1374943,
+        "units": 4194304,
+        "scheduler_wait_ns": 2801983,
+        "cpu_throttled_us": 0,
+        "gc_ms": 0
+      },
+      {
+        "sample": 30,
+        "wall_ns": 2812632,
+        "thread_cpu_ns": 2811039,
+        "units": 4194304,
+        "scheduler_wait_ns": 0,
+        "cpu_throttled_us": 0,
+        "gc_ms": 0
+      }
+    ],
+    "gl.pixels3D": [
+      {
+        "sample": 17,
+        "wall_ns": 11784390,
+        "thread_cpu_ns": 175953,
+        "units": 49152,
+        "scheduler_wait_ns": 0,
+        "cpu_throttled_us": 0,
+        "gc_ms": 0
+      },
+      {
+        "sample": 78,
+        "wall_ns": 5263104,
+        "thread_cpu_ns": 5260339,
+        "units": 49152,
+        "scheduler_wait_ns": 0,
+        "cpu_throttled_us": 0,
+        "gc_ms": 0
+      },
+      {
+        "sample": 21,
+        "wall_ns": 3119343,
+        "thread_cpu_ns": 314900,
+        "units": 49152,
+        "scheduler_wait_ns": 2801983,
+        "cpu_throttled_us": 0,
+        "gc_ms": 0
+      },
+      {
+        "sample": 20,
+        "wall_ns": 1232033,
+        "thread_cpu_ns": 210278,
+        "units": 49152,
+        "scheduler_wait_ns": 1012280,
+        "cpu_throttled_us": 0,
+        "gc_ms": 0
+      },
+      {
+        "sample": 57,
+        "wall_ns": 943824,
+        "thread_cpu_ns": 940342,
+        "units": 33024,
+        "scheduler_wait_ns": 0,
+        "cpu_throttled_us": 0,
+        "gc_ms": 0
+      }
+    ]
+  }
+}

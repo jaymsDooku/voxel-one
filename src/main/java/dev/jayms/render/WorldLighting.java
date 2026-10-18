@@ -164,8 +164,8 @@ public final class WorldLighting implements AutoCloseable {
             int generatorVersion = world.terrain().version;
             var stressGrid = world.terrain().stressGrid();
             ModelLibrary models = prepared.models;
-            pending =
-                    worker.submit(
+            var task =
+                    new dev.jayms.PublishedFuture<LightVolume>(
                             () -> {
                                 long started=System.nanoTime();var bean=java.lang.management.ManagementFactory.getThreadMXBean();long cpu=bean.isCurrentThreadCpuTimeSupported()?bean.getCurrentThreadCpuTime():-1;
                                 var terrain = new Terrain(seed, generatorVersion);
@@ -219,6 +219,7 @@ public final class WorldLighting implements AutoCloseable {
                                         },dynamicSky);
                                 long endCpu=bean.isCurrentThreadCpuTimeSupported()?bean.getCurrentThreadCpuTime():-1;timing.set(new WorkerTiming(workerTicket,System.nanoTime()-started,cpu<0||endCpu<0?-1:endCpu-cpu));return bakedField;
                             });
+            pending=task;worker.execute(task);
         }
         return result;
 

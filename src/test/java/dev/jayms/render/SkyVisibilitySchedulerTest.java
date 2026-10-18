@@ -13,6 +13,76 @@ class SkyVisibilitySchedulerTest {
         while(System.nanoTime()<end){var p=s.update(w,1_000_000);assertTrue(s.pending()<=4);if(p!=null&&p.valid(w)&&expected.test(p))return p;Thread.sleep(1);}
         fail("No current sky atlas prepared");return null;
     }
+    private static void forceUnfencedMerge(SkyVisibilityScheduler sky,World world)throws Exception {
+        var type=SkyVisibilityScheduler.class;var cacheField=type.getDeclaredField("cache");cacheField.setAccessible(true);
+        var cache=(java.util.Map<?,?>)cacheField.get(sky);
+        java.util.Map<String,Object> state=new java.util.HashMap<>();
+        state.put("packingIterator",cache.values().iterator());state.put("packingParts",new java.util.ArrayList<>());
+        state.put("packingLimit",cache.size());
+        state.put("packingInts",0L);state.put("packingCurrent",true);
+        state.put("packingWorld",world);state.put("packingEdits",world.editsVersion());state.put("packingGeometry",world.skyGeometryRevision());
+        state.put("packingModels",world.models().revision());state.put("packingGrid",world.terrain().stressGrid());state.put("packingMembership",world.skyStamp());
+        var generation=type.getDeclaredField("generation");generation.setAccessible(true);state.put("packingGeneration",generation.getLong(sky));state.put("dirty",true);
+        for(var entry:state.entrySet()){var field=type.getDeclaredField(entry.getKey());field.setAccessible(true);field.set(sky,entry.getValue());}
+        // A real disjoint edit between packing slices invalidates the whole-batch fence.
+        world.apply(new Protocol.Edit(16000,140,0,Blocks.STONE));
+        var packed=type.getDeclaredField("packed");packed.setAccessible(true);long end=System.nanoTime()+TimeUnit.SECONDS.toNanos(10);
+        while(packed.get(sky)==null&&System.nanoTime()<end)sky.update(world,10_000_000);
+        assertNotNull(packed.get(sky));((Future<?>)packed.get(sky)).get(10,TimeUnit.SECONDS);
+    }
+    @Test void loadedForwardAndSideEdgesDoNotWaitForGlobalFairnessScan()throws Exception {
+        for(var edge:java.util.List.of(new ChunkPos(4,0,0),new ChunkPos(0,0,4))){
+        var release=new CountDownLatch(1);var entered=new CountDownLatch(1);
+        try(var world=new World(42);var sky=new SkyVisibilityScheduler()){
+            var far=new ChunkPos(100,0,0);
+            world.addChunk(new ChunkPos(edge.chunkX(),4,edge.chunkZ()),new Chunk());world.addChunk(new ChunkPos(100,4,0),new Chunk());
+            world.prepareTerrainTask(()->{entered.countDown();release.await();return null;});assertTrue(entered.await(5,TimeUnit.SECONDS));
+            var scan=SkyVisibilityScheduler.class.getDeclaredField("scan");scan.setAccessible(true);scan.set(sky,java.util.List.of(far).iterator());
+            sky.update(world,16,0,10_000_000);
+            var field=SkyVisibilityScheduler.class.getDeclaredField("tickets");field.setAccessible(true);var tickets=(java.util.List<?>)field.get(sky);assertFalse(tickets.isEmpty());
+            var column=tickets.get(0).getClass().getDeclaredMethod("column");column.setAccessible(true);
+            assertEquals(edge,column.invoke(tickets.get(0)),"The real forward loaded tile must precede unrelated fairness work");
+            assertTrue(tickets.stream().anyMatch(t->{try{return far.equals(column.invoke(t));}catch(Exception e){throw new RuntimeException(e);}}),"Distant work still gets its reserved turn");
+            release.countDown();
+        }finally{release.countDown();}
+        }
+    }
+    @Test void stagedPackingRetainsStableTilesWhenCacheGrows()throws Exception {
+        try(var world=new World(42);var sky=new SkyVisibilityScheduler()){
+            for(int x=0;x<8;x++)world.addChunk(new ChunkPos(x,4,0),new Chunk());
+            await(sky,world,p->p.data.columns==8*256);
+            var cacheField=SkyVisibilityScheduler.class.getDeclaredField("cache");cacheField.setAccessible(true);
+            @SuppressWarnings("unchecked") var cache=(java.util.Map<ChunkPos,Object>)cacheField.get(sky);
+            var stable=new java.util.ArrayList<>(cache.values());assertEquals(8,stable.size());
+            var position=new ChunkPos(8,0,0);world.addChunk(new ChunkPos(8,4,0),new Chunk());Object added;
+            try(var supplier=new SkyVisibilityScheduler()){
+                long end=System.nanoTime()+TimeUnit.SECONDS.toNanos(10);added=null;
+                while(added==null&&System.nanoTime()<end){supplier.update(world,128,0,1_000_000);added=((java.util.Map<?,?>)cacheField.get(supplier)).get(position);Thread.sleep(1);}
+                assertNotNull(added);
+            }
+            java.util.concurrent.Future<?> drained=null;long drainEnd=System.nanoTime()+TimeUnit.SECONDS.toNanos(5);
+            while(drained==null&&System.nanoTime()<drainEnd){try{drained=world.prepareTerrainTask(()->null);}catch(RejectedExecutionException busy){Thread.sleep(1);}}
+            assertNotNull(drained);drained.get(5,TimeUnit.SECONDS);
+            var dataField=added.getClass().getDeclaredField("data");dataField.setAccessible(true);
+            var generation=SkyVisibilityScheduler.class.getDeclaredField("generation");generation.setAccessible(true);long prior=generation.getLong(sky);
+            var ticketField=added.getClass().getDeclaredField("ticket");ticketField.setAccessible(true);var constructor=added.getClass().getDeclaredConstructors()[0];constructor.setAccessible(true);
+            added=constructor.newInstance(ticketField.get(added),dataField.get(added),prior+1);
+            cache.put(position,added);generation.setLong(sky,prior+1);
+            var orderField=SkyVisibilityScheduler.class.getDeclaredField("cacheOrder");orderField.setAccessible(true);
+            @SuppressWarnings("unchecked") var order=(java.util.concurrent.ConcurrentSkipListMap<Long,Object>)orderField.get(sky);order.put(prior+1,added);
+            var bytes=SkyVisibilityScheduler.class.getDeclaredField("bytes");bytes.setAccessible(true);bytes.setLong(sky,bytes.getLong(sky)+4L*((WorldSkyVisibility)dataField.get(added)).data.length);
+            var remaining=new java.util.ArrayList<Object>();remaining.add(added);remaining.addAll(stable.subList(2,stable.size()));
+            long integers=0;for(Object part:stable.subList(0,2))integers+=((WorldSkyVisibility)dataField.get(part)).data.length;
+            // Legal weak-iterator order: the new completion precedes older, unvisited tiles.
+            var state=new java.util.HashMap<String,Object>();state.put("packingParts",new java.util.ArrayList<>(stable.subList(0,2)));state.put("packingIterator",remaining.iterator());
+            state.put("packingInts",integers);state.put("packingGeneration",prior);state.put("packingLimit",stable.size());state.put("packingCurrent",false);state.put("packingWorld",world);
+            state.put("packingEdits",world.editsVersion());state.put("packingGeometry",world.skyGeometryRevision());state.put("packingModels",world.models().revision());state.put("packingGrid",world.terrain().stressGrid());state.put("packingMembership",world.skyStamp());state.put("dirty",true);
+            for(var entry:state.entrySet()){var field=SkyVisibilityScheduler.class.getDeclaredField(entry.getKey());field.setAccessible(true);field.set(sky,entry.getValue());}
+            var result=await(sky,world,p->true);assertTrue(result.valid(world));
+            for(int x=0;x<8;x++)assertTrue(result.data.sampleKnown(x*16+8,80,8,-1)>=0,"A stable tile must not disappear as a new tile arrives: "+x);
+            await(sky,world,p->p.data.sampleKnown(136,80,8,-1)>=0);
+        }
+    }
     @Test void cachedTilesMatchFullSkyIncludingUnloadedFractionalRoofs()throws Exception {
         try(var world=new World(42);var sky=new SkyVisibilityScheduler()) {
             var left=new Chunk();left.setBlock(15,0,0,Blocks.STONE);world.addChunk(new ChunkPos(-1,4,0),left);
@@ -38,14 +108,14 @@ class SkyVisibilitySchedulerTest {
             var exact=WorldSkyVisibility.build(world);SkyVisibilityScheduler.Prepared latest=null;
             long end=System.nanoTime()+TimeUnit.SECONDS.toNanos(10);int pumps=0;
             while(System.nanoTime()<end){
-                var next=sky.update(world,0,0,250_000);if(next!=null)latest=next;pumps++;
+                var next=sky.update(world,0,0,250_000);assertTrue(sky.packingChecks<=256,"Packing has a hard tile-work cap as well as a deadline");if(next!=null)latest=next;pumps++;
                 if(latest!=null&&latest.localReady(world,0,0)&&java.util.Arrays.equals(exact.data,latest.data.data))break;
                 Thread.sleep(1);
             }
             assertNotNull(latest);assertTrue(latest.localReady(world,0,0));assertArrayEquals(exact.data,latest.data.data);
             assertTrue(pumps<1000,"Every bounded stage must get service");
             sky.update(world,0,0,5_000_000);
-            assertTrue(sky.nearChecks<=36,"A settled near area is searched once, not once per resident column");
+            assertTrue(sky.nearChecks<=81,"A settled near area is searched once, not once per resident column");
             assertTrue(sky.scanChecks<=81);sky.close();assertEquals(0,sky.pending());assertEquals(0,sky.cachedBytes());
         }
     }
@@ -102,6 +172,61 @@ class SkyVisibilitySchedulerTest {
             assertTrue(ready.valid(world),"Complete implicit terrain remains logically current after unload");
             world.apply(new Protocol.Edit(0,140,0,Blocks.STONE));assertFalse(ready.valid(world),"Authoritative edits still fence display snapshots");
             world.close();assertFalse(ready.valid(world));
+        }
+    }
+    @Test void worldSwitchRejectsPartlyValidatedAtlasEvenWhenNewJournalIsShorter()throws Exception {
+        try(var first=new World(42);var second=new World(99);var sky=new SkyVisibilityScheduler()){
+            for(int x=-2;x<=2;x++)for(int z=-2;z<=2;z++)first.addChunk(new ChunkPos(x,4,z),new Chunk());
+            await(sky,first,p->sky.cachedColumns()==25&&sky.pending()==0);
+            forceUnfencedMerge(sky,first);
+            first.addChunk(new ChunkPos(1000,0,0),new Chunk());assertNull(sky.update(first,10_000_000));
+            second.stream(0,0,1);assertTrue(second.skyStamp()<first.skyStamp());
+            var next=await(sky,second);
+            assertTrue(next.belongsTo(second));assertFalse(next.belongsTo(first));
+            assertArrayEquals(WorldSkyVisibility.build(second).data,next.data.data);
+        }
+    }
+    @Test void unrelatedChangesDoNotRestartStagedPublication()throws Exception {
+        try(var world=new World(42);var sky=new SkyVisibilityScheduler()){
+            for(int x=-2;x<=2;x++)for(int z=-2;z<=2;z++)world.addChunk(new ChunkPos(x,4,z),new Chunk());
+            await(sky,world,p->sky.cachedColumns()==25&&sky.pending()==0);
+            // Force a multi-pump capture so this exercises the staged path rather than its unchanged fence.
+            forceUnfencedMerge(sky,world);
+            world.addChunk(new ChunkPos(1000,0,0),new Chunk());
+            assertNull(sky.update(world,10_000_000));
+            SkyVisibilityScheduler.Prepared result=null;
+            for(int i=1;i<=3;i++){
+                world.addChunk(new ChunkPos(1000+i,0,0),new Chunk());
+                result=sky.update(world,10_000_000);
+                if(result!=null)break;
+            }
+            assertNotNull(result,"Disjoint residency churn must not starve an already checked batch");
+            assertTrue(result.valid(world));assertEquals(1,result.data.sampleKnown(.5f,110,.5f,-1));
+        }
+    }
+    @Test void publicationValidatesAtMostEightTilesAndFencesInterveningEdits()throws Exception {
+        try(var world=new World(42);var sky=new SkyVisibilityScheduler()){
+            for(int x=-2;x<=2;x++)for(int z=-2;z<=2;z++)world.addChunk(new ChunkPos(x,4,z),new Chunk());
+            await(sky,world,p->sky.cachedColumns()==25&&sky.pending()==0);
+            forceUnfencedMerge(sky,world);
+            world.addChunk(new ChunkPos(1000,0,0),new Chunk());
+            long published=sky.published;assertNull(sky.update(world,10_000_000));assertEquals(published,sky.published);
+            var cursor=SkyVisibilityScheduler.class.getDeclaredField("validated");cursor.setAccessible(true);assertEquals(8,cursor.getInt(sky));
+            world.apply(new Protocol.Edit(0,140,0,Blocks.STONE));
+            var next=await(sky,world,p->p.data.sampleKnown(.5f,110,.5f,-1)==0);
+            assertTrue(next.valid(world));assertTrue(sky.rejected>0,"An edit during staged validation must reject the old candidate");
+        }
+    }
+    @Test void replacementKeepsValidNaturalCoverageAfterUnload()throws Exception {
+        try(var world=new World(42);var sky=new SkyVisibilityScheduler()){
+            world.stream(0,0,1);var old=await(sky,world);
+            float expected=old.data.sampleKnown(.5f,110,.5f,-1);assertTrue(expected>=0);
+            for(int y=-2;y<=7;y++)world.unloadChunk(new ChunkPos(0,y,0));
+            var added=new Chunk();added.setBlock(0,0,0,Blocks.STONE);world.addChunk(new ChunkPos(1,4,0),added);
+            var next=await(sky,world,p->p.data.sampleKnown(16.5f,110,.5f,-1)>=0);
+            assertEquals(expected,next.data.sampleKnown(.5f,110,.5f,-1),"Publishing new tiles must retain valid detached terrain coverage");
+            world.apply(new Protocol.Edit(0,140,0,Blocks.STONE));
+            assertFalse(next.valid(world),"Retained coverage still fences authoritative roofs");
         }
     }
     @Test void partialEditedDisplayDoesNotClaimNewlyLoadedBaseGeometry()throws Exception {

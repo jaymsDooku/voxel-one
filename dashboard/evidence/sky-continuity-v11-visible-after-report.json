@@ -1,0 +1,5985 @@
+{
+  "phase": "after",
+  "revision": "081c0c1bf5bb7ae9e014b052035c2a9c0d57e76f45128b3a9e35a4ffa92099fc",
+  "fixtureSha256": "104bcc12eb35ca0350088eb6388374b8132e246e6f027447787b4c4c22197607",
+  "canonicalRouteSha256": "ccd4ba4ab5d872f8f085c07a36b211a9a60e3b452f3044e91c75babd59240cbd",
+  "note": "Same seed, x positions and graphics settings; ground+4m feet,25degree down view,180degree look turn throughout reversal. Every frame uses resolved visible depth; regular images expose transient near GI. All visual-run performance exports excluded from comparisons.",
+  "samples": [
+    {
+      "sample": 0,
+      "segment": "resident",
+      "eye": [
+        8.0,
+        31.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6250,
+      "coveredSamples": 4716,
+      "detailed112Samples": 5602,
+      "detailed112Covered": 4716,
+      "detailed112SkyKnown": 5004,
+      "detailed112SourcePresent": 5004,
+      "surfaceSkyKnown": 5004,
+      "surfaceSourcePresent": 5004,
+      "near24SourcePresent": 4290,
+      "near24Samples": 4290,
+      "near24Eligible": 4290,
+      "near24Covered": 4290,
+      "near24SkyKnown": 4290,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 1,
+      "segment": "resident",
+      "eye": [
+        8.0,
+        31.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6246,
+      "coveredSamples": 4704,
+      "detailed112Samples": 5625,
+      "detailed112Covered": 4704,
+      "detailed112SkyKnown": 5003,
+      "detailed112SourcePresent": 5003,
+      "surfaceSkyKnown": 5003,
+      "surfaceSourcePresent": 5003,
+      "near24SourcePresent": 4290,
+      "near24Samples": 4290,
+      "near24Eligible": 4290,
+      "near24Covered": 4290,
+      "near24SkyKnown": 4290,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 10,
+      "segment": "resident",
+      "eye": [
+        8.0,
+        31.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6232,
+      "coveredSamples": 4704,
+      "detailed112Samples": 5670,
+      "detailed112Covered": 4704,
+      "detailed112SkyKnown": 5003,
+      "detailed112SourcePresent": 5003,
+      "surfaceSkyKnown": 5003,
+      "surfaceSourcePresent": 5003,
+      "near24SourcePresent": 4290,
+      "near24Samples": 4290,
+      "near24Eligible": 4290,
+      "near24Covered": 4290,
+      "near24SkyKnown": 4290,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 100,
+      "segment": "coldFlight",
+      "eye": [
+        221.0,
+        68.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5287,
+      "coveredSamples": 3281,
+      "detailed112Samples": 3666,
+      "detailed112Covered": 3281,
+      "detailed112SkyKnown": 3442,
+      "detailed112SourcePresent": 3442,
+      "surfaceSkyKnown": 3442,
+      "surfaceSourcePresent": 3442,
+      "near24SourcePresent": 3275,
+      "near24Samples": 3275,
+      "near24Eligible": 3275,
+      "near24Covered": 3275,
+      "near24SkyKnown": 3275,
+      "giBounds": [
+        160,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 101,
+      "segment": "coldFlight",
+      "eye": [
+        222.25,
+        68.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5290,
+      "coveredSamples": 3194,
+      "detailed112Samples": 3659,
+      "detailed112Covered": 3194,
+      "detailed112SkyKnown": 3374,
+      "detailed112SourcePresent": 3374,
+      "surfaceSkyKnown": 3374,
+      "surfaceSourcePresent": 3374,
+      "near24SourcePresent": 3155,
+      "near24Samples": 3155,
+      "near24Eligible": 3155,
+      "near24Covered": 3155,
+      "near24SkyKnown": 3155,
+      "giBounds": [
+        160,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 102,
+      "segment": "coldFlight",
+      "eye": [
+        223.5,
+        68.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5291,
+      "coveredSamples": 3058,
+      "detailed112Samples": 3663,
+      "detailed112Covered": 3058,
+      "detailed112SkyKnown": 3280,
+      "detailed112SourcePresent": 3280,
+      "surfaceSkyKnown": 3280,
+      "surfaceSourcePresent": 3280,
+      "near24SourcePresent": 3022,
+      "near24Samples": 3022,
+      "near24Eligible": 3022,
+      "near24Covered": 3022,
+      "near24SkyKnown": 3022,
+      "giBounds": [
+        160,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 103,
+      "segment": "coldFlight",
+      "eye": [
+        224.75,
+        68.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5288,
+      "coveredSamples": 2904,
+      "detailed112Samples": 3650,
+      "detailed112Covered": 2904,
+      "detailed112SkyKnown": 3205,
+      "detailed112SourcePresent": 3205,
+      "surfaceSkyKnown": 3205,
+      "surfaceSourcePresent": 3205,
+      "near24SourcePresent": 2886,
+      "near24Samples": 2886,
+      "near24Eligible": 2886,
+      "near24Covered": 2886,
+      "near24SkyKnown": 2886,
+      "giBounds": [
+        160,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 104,
+      "segment": "coldFlight",
+      "eye": [
+        226.0,
+        67.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5293,
+      "coveredSamples": 3039,
+      "detailed112Samples": 3703,
+      "detailed112Covered": 3039,
+      "detailed112SkyKnown": 3248,
+      "detailed112SourcePresent": 3248,
+      "surfaceSkyKnown": 3248,
+      "surfaceSourcePresent": 3248,
+      "near24SourcePresent": 3007,
+      "near24Samples": 3007,
+      "near24Eligible": 3007,
+      "near24Covered": 3007,
+      "near24SkyKnown": 3007,
+      "giBounds": [
+        160,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 105,
+      "segment": "coldFlight",
+      "eye": [
+        227.25,
+        67.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5294,
+      "coveredSamples": 2873,
+      "detailed112Samples": 3722,
+      "detailed112Covered": 2873,
+      "detailed112SkyKnown": 3178,
+      "detailed112SourcePresent": 3178,
+      "surfaceSkyKnown": 3178,
+      "surfaceSourcePresent": 3178,
+      "near24SourcePresent": 2862,
+      "near24Samples": 2862,
+      "near24Eligible": 2862,
+      "near24Covered": 2862,
+      "near24SkyKnown": 2862,
+      "giBounds": [
+        160,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 106,
+      "segment": "coldFlight",
+      "eye": [
+        228.5,
+        67.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5289,
+      "coveredSamples": 2732,
+      "detailed112Samples": 3677,
+      "detailed112Covered": 2732,
+      "detailed112SkyKnown": 3078,
+      "detailed112SourcePresent": 3078,
+      "surfaceSkyKnown": 3078,
+      "surfaceSourcePresent": 3078,
+      "near24SourcePresent": 2676,
+      "near24Samples": 2676,
+      "near24Eligible": 2676,
+      "near24Covered": 2676,
+      "near24SkyKnown": 2676,
+      "giBounds": [
+        160,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 107,
+      "segment": "coldFlight",
+      "eye": [
+        229.75,
+        67.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5291,
+      "coveredSamples": 2550,
+      "detailed112Samples": 3667,
+      "detailed112Covered": 2550,
+      "detailed112SkyKnown": 2992,
+      "detailed112SourcePresent": 2992,
+      "surfaceSkyKnown": 2992,
+      "surfaceSourcePresent": 2992,
+      "near24SourcePresent": 2522,
+      "near24Samples": 2522,
+      "near24Eligible": 2522,
+      "near24Covered": 2522,
+      "near24SkyKnown": 2522,
+      "giBounds": [
+        160,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 108,
+      "segment": "coldFlight",
+      "eye": [
+        231.0,
+        67.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5294,
+      "coveredSamples": 2355,
+      "detailed112Samples": 3675,
+      "detailed112Covered": 2355,
+      "detailed112SkyKnown": 2915,
+      "detailed112SourcePresent": 2915,
+      "surfaceSkyKnown": 2915,
+      "surfaceSourcePresent": 2915,
+      "near24SourcePresent": 2335,
+      "near24Samples": 2335,
+      "near24Eligible": 2335,
+      "near24Covered": 2335,
+      "near24SkyKnown": 2335,
+      "giBounds": [
+        160,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 109,
+      "segment": "coldFlight",
+      "eye": [
+        232.25,
+        66.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5292,
+      "coveredSamples": 2434,
+      "detailed112Samples": 3700,
+      "detailed112Covered": 2434,
+      "detailed112SkyKnown": 2943,
+      "detailed112SourcePresent": 2943,
+      "surfaceSkyKnown": 2943,
+      "surfaceSourcePresent": 2943,
+      "near24SourcePresent": 2439,
+      "near24Samples": 2439,
+      "near24Eligible": 2439,
+      "near24Covered": 2434,
+      "near24SkyKnown": 2439,
+      "giBounds": [
+        160,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 11,
+      "segment": "resident",
+      "eye": [
+        8.0,
+        31.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6232,
+      "coveredSamples": 4708,
+      "detailed112Samples": 5670,
+      "detailed112Covered": 4708,
+      "detailed112SkyKnown": 5006,
+      "detailed112SourcePresent": 5006,
+      "surfaceSkyKnown": 5006,
+      "surfaceSourcePresent": 5006,
+      "near24SourcePresent": 4290,
+      "near24Samples": 4290,
+      "near24Eligible": 4290,
+      "near24Covered": 4290,
+      "near24SkyKnown": 4290,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 110,
+      "segment": "coldFlight",
+      "eye": [
+        233.5,
+        66.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5293,
+      "coveredSamples": 2177,
+      "detailed112Samples": 3683,
+      "detailed112Covered": 2177,
+      "detailed112SkyKnown": 3119,
+      "detailed112SourcePresent": 3119,
+      "surfaceSkyKnown": 3119,
+      "surfaceSourcePresent": 3119,
+      "near24SourcePresent": 2180,
+      "near24Samples": 2180,
+      "near24Eligible": 2180,
+      "near24Covered": 2170,
+      "near24SkyKnown": 2180,
+      "giBounds": [
+        160,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 111,
+      "segment": "coldFlight",
+      "eye": [
+        234.75,
+        66.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5294,
+      "coveredSamples": 1956,
+      "detailed112Samples": 3711,
+      "detailed112Covered": 1956,
+      "detailed112SkyKnown": 3053,
+      "detailed112SourcePresent": 3053,
+      "surfaceSkyKnown": 3053,
+      "surfaceSourcePresent": 3053,
+      "near24SourcePresent": 1981,
+      "near24Samples": 1981,
+      "near24Eligible": 1981,
+      "near24Covered": 1951,
+      "near24SkyKnown": 1981,
+      "giBounds": [
+        160,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 112,
+      "segment": "warmReversal",
+      "eye": [
+        236.0,
+        65.47077,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5306,
+      "coveredSamples": 5231,
+      "detailed112Samples": 5231,
+      "detailed112Covered": 5231,
+      "detailed112SkyKnown": 5231,
+      "detailed112SourcePresent": 5231,
+      "surfaceSkyKnown": 5231,
+      "surfaceSourcePresent": 5231,
+      "near24SourcePresent": 5231,
+      "near24Samples": 5231,
+      "near24Eligible": 5231,
+      "near24Covered": 5231,
+      "near24SkyKnown": 5231,
+      "giBounds": [
+        160,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 113,
+      "segment": "warmReversal",
+      "eye": [
+        234.75,
+        66.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5305,
+      "coveredSamples": 5115,
+      "detailed112Samples": 5115,
+      "detailed112Covered": 5115,
+      "detailed112SkyKnown": 5115,
+      "detailed112SourcePresent": 5115,
+      "surfaceSkyKnown": 5115,
+      "surfaceSourcePresent": 5115,
+      "near24SourcePresent": 5016,
+      "near24Samples": 5016,
+      "near24Eligible": 5016,
+      "near24Covered": 5016,
+      "near24SkyKnown": 5016,
+      "giBounds": [
+        160,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 114,
+      "segment": "warmReversal",
+      "eye": [
+        233.5,
+        66.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5306,
+      "coveredSamples": 5125,
+      "detailed112Samples": 5125,
+      "detailed112Covered": 5125,
+      "detailed112SkyKnown": 5125,
+      "detailed112SourcePresent": 5125,
+      "surfaceSkyKnown": 5125,
+      "surfaceSourcePresent": 5125,
+      "near24SourcePresent": 5025,
+      "near24Samples": 5025,
+      "near24Eligible": 5025,
+      "near24Covered": 5025,
+      "near24SkyKnown": 5025,
+      "giBounds": [
+        160,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 115,
+      "segment": "warmReversal",
+      "eye": [
+        232.25,
+        66.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5303,
+      "coveredSamples": 5125,
+      "detailed112Samples": 5125,
+      "detailed112Covered": 5125,
+      "detailed112SkyKnown": 5125,
+      "detailed112SourcePresent": 5125,
+      "surfaceSkyKnown": 5125,
+      "surfaceSourcePresent": 5125,
+      "near24SourcePresent": 5023,
+      "near24Samples": 5023,
+      "near24Eligible": 5023,
+      "near24Covered": 5023,
+      "near24SkyKnown": 5023,
+      "giBounds": [
+        160,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 116,
+      "segment": "warmReversal",
+      "eye": [
+        231.0,
+        67.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5303,
+      "coveredSamples": 4915,
+      "detailed112Samples": 4915,
+      "detailed112Covered": 4915,
+      "detailed112SkyKnown": 4915,
+      "detailed112SourcePresent": 4915,
+      "surfaceSkyKnown": 4915,
+      "surfaceSourcePresent": 4915,
+      "near24SourcePresent": 4803,
+      "near24Samples": 4803,
+      "near24Eligible": 4803,
+      "near24Covered": 4803,
+      "near24SkyKnown": 4803,
+      "giBounds": [
+        160,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 117,
+      "segment": "warmReversal",
+      "eye": [
+        229.75,
+        67.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5304,
+      "coveredSamples": 4916,
+      "detailed112Samples": 4916,
+      "detailed112Covered": 4916,
+      "detailed112SkyKnown": 4916,
+      "detailed112SourcePresent": 4916,
+      "surfaceSkyKnown": 4916,
+      "surfaceSourcePresent": 4916,
+      "near24SourcePresent": 4804,
+      "near24Samples": 4804,
+      "near24Eligible": 4804,
+      "near24Covered": 4804,
+      "near24SkyKnown": 4804,
+      "giBounds": [
+        160,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 118,
+      "segment": "warmReversal",
+      "eye": [
+        228.5,
+        67.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5302,
+      "coveredSamples": 4830,
+      "detailed112Samples": 4830,
+      "detailed112Covered": 4830,
+      "detailed112SkyKnown": 4830,
+      "detailed112SourcePresent": 4830,
+      "surfaceSkyKnown": 4830,
+      "surfaceSourcePresent": 4830,
+      "near24SourcePresent": 4803,
+      "near24Samples": 4803,
+      "near24Eligible": 4803,
+      "near24Covered": 4803,
+      "near24SkyKnown": 4803,
+      "giBounds": [
+        160,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 119,
+      "segment": "warmReversal",
+      "eye": [
+        227.25,
+        67.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5303,
+      "coveredSamples": 4815,
+      "detailed112Samples": 4815,
+      "detailed112Covered": 4815,
+      "detailed112SkyKnown": 4815,
+      "detailed112SourcePresent": 4815,
+      "surfaceSkyKnown": 4815,
+      "surfaceSourcePresent": 4815,
+      "near24SourcePresent": 4804,
+      "near24Samples": 4804,
+      "near24Eligible": 4804,
+      "near24Covered": 4804,
+      "near24SkyKnown": 4804,
+      "giBounds": [
+        192,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 12,
+      "segment": "coldEntry",
+      "eye": [
+        128.0,
+        46.6,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 0,
+      "detailed112SourcePresent": 0,
+      "surfaceSkyKnown": 0,
+      "surfaceSourcePresent": 0,
+      "near24SourcePresent": 0,
+      "near24Samples": 6420,
+      "near24Eligible": 6420,
+      "near24Covered": 0,
+      "near24SkyKnown": 0,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 120,
+      "segment": "warmReversal",
+      "eye": [
+        226.0,
+        67.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5304,
+      "coveredSamples": 4815,
+      "detailed112Samples": 4815,
+      "detailed112Covered": 4815,
+      "detailed112SkyKnown": 4815,
+      "detailed112SourcePresent": 4815,
+      "surfaceSkyKnown": 4815,
+      "surfaceSourcePresent": 4815,
+      "near24SourcePresent": 4804,
+      "near24Samples": 4804,
+      "near24Eligible": 4804,
+      "near24Covered": 4804,
+      "near24SkyKnown": 4804,
+      "giBounds": [
+        192,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 121,
+      "segment": "warmReversal",
+      "eye": [
+        224.75,
+        68.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5302,
+      "coveredSamples": 4601,
+      "detailed112Samples": 4601,
+      "detailed112Covered": 4601,
+      "detailed112SkyKnown": 4601,
+      "detailed112SourcePresent": 4601,
+      "surfaceSkyKnown": 4601,
+      "surfaceSourcePresent": 4601,
+      "near24SourcePresent": 4586,
+      "near24Samples": 4586,
+      "near24Eligible": 4586,
+      "near24Covered": 4586,
+      "near24SkyKnown": 4586,
+      "giBounds": [
+        192,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 122,
+      "segment": "warmReversal",
+      "eye": [
+        223.5,
+        68.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5303,
+      "coveredSamples": 4601,
+      "detailed112Samples": 4601,
+      "detailed112Covered": 4601,
+      "detailed112SkyKnown": 4601,
+      "detailed112SourcePresent": 4601,
+      "surfaceSkyKnown": 4601,
+      "surfaceSourcePresent": 4601,
+      "near24SourcePresent": 4502,
+      "near24Samples": 4502,
+      "near24Eligible": 4502,
+      "near24Covered": 4502,
+      "near24SkyKnown": 4502,
+      "giBounds": [
+        192,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 123,
+      "segment": "warmReversal",
+      "eye": [
+        222.25,
+        68.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5304,
+      "coveredSamples": 4506,
+      "detailed112Samples": 4506,
+      "detailed112Covered": 4506,
+      "detailed112SkyKnown": 4506,
+      "detailed112SourcePresent": 4506,
+      "surfaceSkyKnown": 4524,
+      "surfaceSourcePresent": 4524,
+      "near24SourcePresent": 4493,
+      "near24Samples": 4493,
+      "near24Eligible": 4493,
+      "near24Covered": 4493,
+      "near24SkyKnown": 4493,
+      "giBounds": [
+        192,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 124,
+      "segment": "warmReversal",
+      "eye": [
+        221.0,
+        68.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5301,
+      "coveredSamples": 4494,
+      "detailed112Samples": 4494,
+      "detailed112Covered": 4494,
+      "detailed112SkyKnown": 4494,
+      "detailed112SourcePresent": 4494,
+      "surfaceSkyKnown": 4511,
+      "surfaceSourcePresent": 4511,
+      "near24SourcePresent": 4492,
+      "near24Samples": 4492,
+      "near24Eligible": 4492,
+      "near24Covered": 4492,
+      "near24SkyKnown": 4492,
+      "giBounds": [
+        192,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 125,
+      "segment": "warmReversal",
+      "eye": [
+        219.75,
+        68.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5302,
+      "coveredSamples": 4494,
+      "detailed112Samples": 4494,
+      "detailed112Covered": 4494,
+      "detailed112SkyKnown": 4494,
+      "detailed112SourcePresent": 4494,
+      "surfaceSkyKnown": 4511,
+      "surfaceSourcePresent": 4511,
+      "near24SourcePresent": 4387,
+      "near24Samples": 4387,
+      "near24Eligible": 4387,
+      "near24Covered": 4387,
+      "near24SkyKnown": 4387,
+      "giBounds": [
+        192,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 126,
+      "segment": "warmReversal",
+      "eye": [
+        218.5,
+        69.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5302,
+      "coveredSamples": 4186,
+      "detailed112Samples": 4297,
+      "detailed112Covered": 4186,
+      "detailed112SkyKnown": 4297,
+      "detailed112SourcePresent": 4297,
+      "surfaceSkyKnown": 4347,
+      "surfaceSourcePresent": 4347,
+      "near24SourcePresent": 4164,
+      "near24Samples": 4164,
+      "near24Eligible": 4164,
+      "near24Covered": 4164,
+      "near24SkyKnown": 4164,
+      "giBounds": [
+        192,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 127,
+      "segment": "warmReversal",
+      "eye": [
+        217.25,
+        69.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5300,
+      "coveredSamples": 4173,
+      "detailed112Samples": 4219,
+      "detailed112Covered": 4173,
+      "detailed112SkyKnown": 4219,
+      "detailed112SourcePresent": 4219,
+      "surfaceSkyKnown": 4277,
+      "surfaceSourcePresent": 4277,
+      "near24SourcePresent": 4153,
+      "near24Samples": 4153,
+      "near24Eligible": 4153,
+      "near24Covered": 4153,
+      "near24SkyKnown": 4153,
+      "giBounds": [
+        192,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 128,
+      "segment": "teleport",
+      "eye": [
+        8.5,
+        28.61,
+        24.5
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5464,
+      "coveredSamples": 0,
+      "detailed112Samples": 4969,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 426,
+      "detailed112SourcePresent": 426,
+      "surfaceSkyKnown": 426,
+      "surfaceSourcePresent": 426,
+      "near24SourcePresent": 172,
+      "near24Samples": 4567,
+      "near24Eligible": 4567,
+      "near24Covered": 0,
+      "near24SkyKnown": 172,
+      "giBounds": [
+        192,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 129,
+      "segment": "teleport",
+      "eye": [
+        2048.301,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 0,
+      "coveredSamples": 0,
+      "detailed112Samples": 0,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 0,
+      "detailed112SourcePresent": 0,
+      "surfaceSkyKnown": 0,
+      "surfaceSourcePresent": 0,
+      "near24SourcePresent": 0,
+      "near24Samples": 0,
+      "near24Eligible": 0,
+      "near24Covered": 0,
+      "near24SkyKnown": 0,
+      "giBounds": [
+        192,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 13,
+      "segment": "coldEntry",
+      "eye": [
+        128.30101,
+        46.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 0,
+      "detailed112SourcePresent": 0,
+      "surfaceSkyKnown": 0,
+      "surfaceSourcePresent": 0,
+      "near24SourcePresent": 0,
+      "near24Samples": 6420,
+      "near24Eligible": 6420,
+      "near24Covered": 0,
+      "near24SkyKnown": 0,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 130,
+      "segment": "teleport",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5887,
+      "coveredSamples": 0,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 0,
+      "detailed112SourcePresent": 0,
+      "surfaceSkyKnown": 0,
+      "surfaceSourcePresent": 0,
+      "near24SourcePresent": 0,
+      "near24Samples": 4585,
+      "near24Eligible": 4585,
+      "near24Covered": 0,
+      "near24SkyKnown": 0,
+      "giBounds": [
+        192,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 131,
+      "segment": "teleport",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5903,
+      "coveredSamples": 0,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 0,
+      "detailed112SourcePresent": 0,
+      "surfaceSkyKnown": 0,
+      "surfaceSourcePresent": 0,
+      "near24SourcePresent": 0,
+      "near24Samples": 4564,
+      "near24Eligible": 4564,
+      "near24Covered": 0,
+      "near24SkyKnown": 0,
+      "giBounds": [
+        192,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 132,
+      "segment": "teleport",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5969,
+      "coveredSamples": 0,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 0,
+      "detailed112SourcePresent": 0,
+      "surfaceSkyKnown": 0,
+      "surfaceSourcePresent": 0,
+      "near24SourcePresent": 0,
+      "near24Samples": 4367,
+      "near24Eligible": 4367,
+      "near24Covered": 0,
+      "near24SkyKnown": 0,
+      "giBounds": [
+        192,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 133,
+      "segment": "teleport",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5962,
+      "coveredSamples": 0,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 0,
+      "detailed112SourcePresent": 0,
+      "surfaceSkyKnown": 0,
+      "surfaceSourcePresent": 0,
+      "near24SourcePresent": 0,
+      "near24Samples": 4365,
+      "near24Eligible": 4365,
+      "near24Covered": 0,
+      "near24SkyKnown": 0,
+      "giBounds": [
+        192,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 134,
+      "segment": "catchup",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5962,
+      "coveredSamples": 0,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 0,
+      "detailed112SourcePresent": 0,
+      "surfaceSkyKnown": 0,
+      "surfaceSourcePresent": 0,
+      "near24SourcePresent": 0,
+      "near24Samples": 4366,
+      "near24Eligible": 4366,
+      "near24Covered": 0,
+      "near24SkyKnown": 0,
+      "giBounds": [
+        192,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 135,
+      "segment": "catchup",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5968,
+      "coveredSamples": 0,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 3308,
+      "detailed112SourcePresent": 3308,
+      "surfaceSkyKnown": 3308,
+      "surfaceSourcePresent": 3308,
+      "near24SourcePresent": 3308,
+      "near24Samples": 4367,
+      "near24Eligible": 4367,
+      "near24Covered": 0,
+      "near24SkyKnown": 3308,
+      "giBounds": [
+        192,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 136,
+      "segment": "catchup",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5962,
+      "coveredSamples": 0,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 3308,
+      "detailed112SourcePresent": 3308,
+      "surfaceSkyKnown": 3308,
+      "surfaceSourcePresent": 3308,
+      "near24SourcePresent": 3308,
+      "near24Samples": 4366,
+      "near24Eligible": 4366,
+      "near24Covered": 0,
+      "near24SkyKnown": 3308,
+      "giBounds": [
+        192,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 137,
+      "segment": "catchup",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5990,
+      "coveredSamples": 0,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 3306,
+      "detailed112SourcePresent": 3306,
+      "surfaceSkyKnown": 3306,
+      "surfaceSourcePresent": 3306,
+      "near24SourcePresent": 3306,
+      "near24Samples": 4586,
+      "near24Eligible": 4586,
+      "near24Covered": 0,
+      "near24SkyKnown": 3306,
+      "giBounds": [
+        192,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 138,
+      "segment": "catchup",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5995,
+      "coveredSamples": 0,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 3307,
+      "detailed112SourcePresent": 3307,
+      "surfaceSkyKnown": 3307,
+      "surfaceSourcePresent": 3307,
+      "near24SourcePresent": 3307,
+      "near24Samples": 4586,
+      "near24Eligible": 4586,
+      "near24Covered": 0,
+      "near24SkyKnown": 3307,
+      "giBounds": [
+        192,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 139,
+      "segment": "catchup",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5989,
+      "coveredSamples": 0,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 3434,
+      "detailed112SourcePresent": 3434,
+      "surfaceSkyKnown": 3434,
+      "surfaceSourcePresent": 3434,
+      "near24SourcePresent": 3434,
+      "near24Samples": 4585,
+      "near24Eligible": 4585,
+      "near24Covered": 0,
+      "near24SkyKnown": 3434,
+      "giBounds": [
+        192,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 14,
+      "segment": "coldEntry",
+      "eye": [
+        128.30101,
+        46.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 0,
+      "detailed112SourcePresent": 0,
+      "surfaceSkyKnown": 0,
+      "surfaceSourcePresent": 0,
+      "near24SourcePresent": 0,
+      "near24Samples": 6420,
+      "near24Eligible": 6420,
+      "near24Covered": 0,
+      "near24SkyKnown": 0,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 140,
+      "segment": "catchup",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5991,
+      "coveredSamples": 0,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 4280,
+      "detailed112SourcePresent": 4280,
+      "surfaceSkyKnown": 4280,
+      "surfaceSourcePresent": 4280,
+      "near24SourcePresent": 4280,
+      "near24Samples": 4586,
+      "near24Eligible": 4586,
+      "near24Covered": 0,
+      "near24SkyKnown": 4280,
+      "giBounds": [
+        192,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 141,
+      "segment": "catchup",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5995,
+      "coveredSamples": 0,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 4280,
+      "detailed112SourcePresent": 4280,
+      "surfaceSkyKnown": 4280,
+      "surfaceSourcePresent": 4280,
+      "near24SourcePresent": 4280,
+      "near24Samples": 4587,
+      "near24Eligible": 4587,
+      "near24Covered": 0,
+      "near24SkyKnown": 4280,
+      "giBounds": [
+        192,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 142,
+      "segment": "catchup",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5988,
+      "coveredSamples": 0,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 4775,
+      "detailed112SourcePresent": 4775,
+      "surfaceSkyKnown": 4775,
+      "surfaceSourcePresent": 4775,
+      "near24SourcePresent": 4585,
+      "near24Samples": 4585,
+      "near24Eligible": 4585,
+      "near24Covered": 0,
+      "near24SkyKnown": 4585,
+      "giBounds": [
+        192,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 143,
+      "segment": "catchup",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5990,
+      "coveredSamples": 0,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 4776,
+      "detailed112SourcePresent": 4776,
+      "surfaceSkyKnown": 4776,
+      "surfaceSourcePresent": 4776,
+      "near24SourcePresent": 4586,
+      "near24Samples": 4586,
+      "near24Eligible": 4586,
+      "near24Covered": 0,
+      "near24SkyKnown": 4586,
+      "giBounds": [
+        192,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 144,
+      "segment": "catchup",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5995,
+      "coveredSamples": 0,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 4744,
+      "detailed112SourcePresent": 4744,
+      "surfaceSkyKnown": 4744,
+      "surfaceSourcePresent": 4744,
+      "near24SourcePresent": 4586,
+      "near24Samples": 4586,
+      "near24Eligible": 4586,
+      "near24Covered": 0,
+      "near24SkyKnown": 4586,
+      "giBounds": [
+        192,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 145,
+      "segment": "catchup",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5989,
+      "coveredSamples": 0,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 4775,
+      "detailed112SourcePresent": 4775,
+      "surfaceSkyKnown": 4775,
+      "surfaceSourcePresent": 4775,
+      "near24SourcePresent": 4585,
+      "near24Samples": 4585,
+      "near24Eligible": 4585,
+      "near24Covered": 0,
+      "near24SkyKnown": 4585,
+      "giBounds": [
+        192,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 146,
+      "segment": "catchup",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5990,
+      "coveredSamples": 0,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 4743,
+      "detailed112SourcePresent": 4743,
+      "surfaceSkyKnown": 4743,
+      "surfaceSourcePresent": 4743,
+      "near24SourcePresent": 4586,
+      "near24Samples": 4586,
+      "near24Eligible": 4586,
+      "near24Covered": 0,
+      "near24SkyKnown": 4586,
+      "giBounds": [
+        192,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 147,
+      "segment": "catchup",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5995,
+      "coveredSamples": 0,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 4777,
+      "detailed112SourcePresent": 4777,
+      "surfaceSkyKnown": 4777,
+      "surfaceSourcePresent": 4777,
+      "near24SourcePresent": 4587,
+      "near24Samples": 4587,
+      "near24Eligible": 4587,
+      "near24Covered": 0,
+      "near24SkyKnown": 4587,
+      "giBounds": [
+        192,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 148,
+      "segment": "catchup",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5990,
+      "coveredSamples": 0,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 4775,
+      "detailed112SourcePresent": 4775,
+      "surfaceSkyKnown": 4775,
+      "surfaceSourcePresent": 4775,
+      "near24SourcePresent": 4585,
+      "near24Samples": 4585,
+      "near24Eligible": 4585,
+      "near24Covered": 0,
+      "near24SkyKnown": 4585,
+      "giBounds": [
+        192,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 149,
+      "segment": "catchup",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5990,
+      "coveredSamples": 0,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 4776,
+      "detailed112SourcePresent": 4776,
+      "surfaceSkyKnown": 4776,
+      "surfaceSourcePresent": 4776,
+      "near24SourcePresent": 4563,
+      "near24Samples": 4563,
+      "near24Eligible": 4563,
+      "near24Covered": 0,
+      "near24SkyKnown": 4563,
+      "giBounds": [
+        192,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 15,
+      "segment": "coldEntry",
+      "eye": [
+        128.0,
+        46.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 0,
+      "detailed112SourcePresent": 0,
+      "surfaceSkyKnown": 0,
+      "surfaceSourcePresent": 0,
+      "near24SourcePresent": 0,
+      "near24Samples": 6420,
+      "near24Eligible": 6420,
+      "near24Covered": 0,
+      "near24SkyKnown": 0,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 150,
+      "segment": "catchup",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5993,
+      "coveredSamples": 4915,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 4915,
+      "detailed112SkyKnown": 4769,
+      "detailed112SourcePresent": 4915,
+      "surfaceSkyKnown": 4769,
+      "surfaceSourcePresent": 4915,
+      "near24SourcePresent": 4510,
+      "near24Samples": 4510,
+      "near24Eligible": 4510,
+      "near24Covered": 4510,
+      "near24SkyKnown": 4510,
+      "giBounds": [
+        2000,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 151,
+      "segment": "catchup",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5981,
+      "coveredSamples": 4914,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 4914,
+      "detailed112SkyKnown": 4775,
+      "detailed112SourcePresent": 4914,
+      "surfaceSkyKnown": 4775,
+      "surfaceSourcePresent": 4914,
+      "near24SourcePresent": 4562,
+      "near24Samples": 4562,
+      "near24Eligible": 4562,
+      "near24Covered": 4562,
+      "near24SkyKnown": 4562,
+      "giBounds": [
+        2000,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 152,
+      "segment": "catchup",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5985,
+      "coveredSamples": 4914,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 4914,
+      "detailed112SkyKnown": 4807,
+      "detailed112SourcePresent": 4914,
+      "surfaceSkyKnown": 4807,
+      "surfaceSourcePresent": 4914,
+      "near24SourcePresent": 4562,
+      "near24Samples": 4562,
+      "near24Eligible": 4562,
+      "near24Covered": 4562,
+      "near24SkyKnown": 4562,
+      "giBounds": [
+        2000,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 153,
+      "segment": "catchup",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5990,
+      "coveredSamples": 4915,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 4915,
+      "detailed112SkyKnown": 4825,
+      "detailed112SourcePresent": 4915,
+      "surfaceSkyKnown": 4825,
+      "surfaceSourcePresent": 4915,
+      "near24SourcePresent": 4509,
+      "near24Samples": 4509,
+      "near24Eligible": 4509,
+      "near24Covered": 4509,
+      "near24SkyKnown": 4509,
+      "giBounds": [
+        2000,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 154,
+      "segment": "catchup",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5984,
+      "coveredSamples": 4914,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 4914,
+      "detailed112SkyKnown": 4834,
+      "detailed112SourcePresent": 4914,
+      "surfaceSkyKnown": 4834,
+      "surfaceSourcePresent": 4914,
+      "near24SourcePresent": 4562,
+      "near24Samples": 4562,
+      "near24Eligible": 4562,
+      "near24Covered": 4562,
+      "near24SkyKnown": 4562,
+      "giBounds": [
+        2000,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 155,
+      "segment": "catchup",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5987,
+      "coveredSamples": 4915,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 4915,
+      "detailed112SkyKnown": 4852,
+      "detailed112SourcePresent": 4915,
+      "surfaceSkyKnown": 4852,
+      "surfaceSourcePresent": 4915,
+      "near24SourcePresent": 4563,
+      "near24Samples": 4563,
+      "near24Eligible": 4563,
+      "near24Covered": 4563,
+      "near24SkyKnown": 4563,
+      "giBounds": [
+        2000,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 156,
+      "segment": "catchup",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5988,
+      "coveredSamples": 4915,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 4915,
+      "detailed112SkyKnown": 4852,
+      "detailed112SourcePresent": 4915,
+      "surfaceSkyKnown": 4852,
+      "surfaceSourcePresent": 4915,
+      "near24SourcePresent": 4563,
+      "near24Samples": 4563,
+      "near24Eligible": 4563,
+      "near24Covered": 4563,
+      "near24SkyKnown": 4563,
+      "giBounds": [
+        2000,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 157,
+      "segment": "catchup",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5986,
+      "coveredSamples": 4914,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 4914,
+      "detailed112SkyKnown": 4844,
+      "detailed112SourcePresent": 4914,
+      "surfaceSkyKnown": 4844,
+      "surfaceSourcePresent": 4914,
+      "near24SourcePresent": 4508,
+      "near24Samples": 4508,
+      "near24Eligible": 4508,
+      "near24Covered": 4508,
+      "near24SkyKnown": 4508,
+      "giBounds": [
+        2000,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 158,
+      "segment": "transitionTail",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5987,
+      "coveredSamples": 4915,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 4915,
+      "detailed112SkyKnown": 4852,
+      "detailed112SourcePresent": 4915,
+      "surfaceSkyKnown": 4852,
+      "surfaceSourcePresent": 4915,
+      "near24SourcePresent": 4563,
+      "near24Samples": 4563,
+      "near24Eligible": 4563,
+      "near24Covered": 4563,
+      "near24SkyKnown": 4563,
+      "giBounds": [
+        2000,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 159,
+      "segment": "transitionTail",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5988,
+      "coveredSamples": 4915,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 4915,
+      "detailed112SkyKnown": 4852,
+      "detailed112SourcePresent": 4915,
+      "surfaceSkyKnown": 4852,
+      "surfaceSourcePresent": 4915,
+      "near24SourcePresent": 4564,
+      "near24Samples": 4564,
+      "near24Eligible": 4564,
+      "near24Covered": 4564,
+      "near24SkyKnown": 4564,
+      "giBounds": [
+        2000,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 16,
+      "segment": "coldWalk",
+      "eye": [
+        128.0,
+        46.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 0,
+      "detailed112SourcePresent": 0,
+      "surfaceSkyKnown": 0,
+      "surfaceSourcePresent": 0,
+      "near24SourcePresent": 0,
+      "near24Samples": 6420,
+      "near24Eligible": 6420,
+      "near24Covered": 0,
+      "near24SkyKnown": 0,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 160,
+      "segment": "transitionTail",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5973,
+      "coveredSamples": 4914,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 4914,
+      "detailed112SkyKnown": 4852,
+      "detailed112SourcePresent": 4914,
+      "surfaceSkyKnown": 4852,
+      "surfaceSourcePresent": 4914,
+      "near24SourcePresent": 4562,
+      "near24Samples": 4562,
+      "near24Eligible": 4562,
+      "near24Covered": 4562,
+      "near24SkyKnown": 4562,
+      "giBounds": [
+        2000,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 161,
+      "segment": "transitionTail",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5986,
+      "coveredSamples": 4914,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 4914,
+      "detailed112SkyKnown": 4844,
+      "detailed112SourcePresent": 4914,
+      "surfaceSkyKnown": 4844,
+      "surfaceSourcePresent": 4914,
+      "near24SourcePresent": 4509,
+      "near24Samples": 4509,
+      "near24Eligible": 4509,
+      "near24Covered": 4509,
+      "near24SkyKnown": 4509,
+      "giBounds": [
+        2000,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 162,
+      "segment": "transitionTail",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5988,
+      "coveredSamples": 4915,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 4915,
+      "detailed112SkyKnown": 4852,
+      "detailed112SourcePresent": 4915,
+      "surfaceSkyKnown": 4852,
+      "surfaceSourcePresent": 4915,
+      "near24SourcePresent": 4563,
+      "near24Samples": 4563,
+      "near24Eligible": 4563,
+      "near24Covered": 4563,
+      "near24SkyKnown": 4563,
+      "giBounds": [
+        2000,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 163,
+      "segment": "transitionTail",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5985,
+      "coveredSamples": 4914,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 4914,
+      "detailed112SkyKnown": 4852,
+      "detailed112SourcePresent": 4914,
+      "surfaceSkyKnown": 4852,
+      "surfaceSourcePresent": 4914,
+      "near24SourcePresent": 4562,
+      "near24Samples": 4562,
+      "near24Eligible": 4562,
+      "near24Covered": 4562,
+      "near24SkyKnown": 4562,
+      "giBounds": [
+        2000,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 164,
+      "segment": "transitionTail",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5987,
+      "coveredSamples": 4915,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 4915,
+      "detailed112SkyKnown": 4852,
+      "detailed112SourcePresent": 4915,
+      "surfaceSkyKnown": 4852,
+      "surfaceSourcePresent": 4915,
+      "near24SourcePresent": 4563,
+      "near24Samples": 4563,
+      "near24Eligible": 4563,
+      "near24Covered": 4563,
+      "near24SkyKnown": 4563,
+      "giBounds": [
+        2000,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 165,
+      "segment": "transitionTail",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5988,
+      "coveredSamples": 4915,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 4915,
+      "detailed112SkyKnown": 4852,
+      "detailed112SourcePresent": 4915,
+      "surfaceSkyKnown": 4852,
+      "surfaceSourcePresent": 4915,
+      "near24SourcePresent": 4564,
+      "near24Samples": 4564,
+      "near24Eligible": 4564,
+      "near24Covered": 4564,
+      "near24SkyKnown": 4564,
+      "giBounds": [
+        2000,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 17,
+      "segment": "coldWalk",
+      "eye": [
+        128.5,
+        46.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 0,
+      "detailed112SourcePresent": 0,
+      "surfaceSkyKnown": 0,
+      "surfaceSourcePresent": 0,
+      "near24SourcePresent": 0,
+      "near24Samples": 6420,
+      "near24Eligible": 6420,
+      "near24Covered": 0,
+      "near24SkyKnown": 0,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 18,
+      "segment": "coldWalk",
+      "eye": [
+        129.0,
+        47.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 0,
+      "detailed112SourcePresent": 0,
+      "surfaceSkyKnown": 0,
+      "surfaceSourcePresent": 0,
+      "near24SourcePresent": 0,
+      "near24Samples": 6394,
+      "near24Eligible": 6394,
+      "near24Covered": 0,
+      "near24SkyKnown": 0,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 19,
+      "segment": "coldWalk",
+      "eye": [
+        129.5,
+        47.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 0,
+      "detailed112SourcePresent": 0,
+      "surfaceSkyKnown": 0,
+      "surfaceSourcePresent": 0,
+      "near24SourcePresent": 0,
+      "near24Samples": 6420,
+      "near24Eligible": 6420,
+      "near24Covered": 0,
+      "near24SkyKnown": 0,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 2,
+      "segment": "resident",
+      "eye": [
+        8.0,
+        31.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6232,
+      "coveredSamples": 4708,
+      "detailed112Samples": 5671,
+      "detailed112Covered": 4708,
+      "detailed112SkyKnown": 5008,
+      "detailed112SourcePresent": 5008,
+      "surfaceSkyKnown": 5008,
+      "surfaceSourcePresent": 5008,
+      "near24SourcePresent": 4290,
+      "near24Samples": 4290,
+      "near24Eligible": 4290,
+      "near24Covered": 4290,
+      "near24SkyKnown": 4290,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 20,
+      "segment": "coldWalk",
+      "eye": [
+        130.0,
+        47.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 4681,
+      "detailed112SourcePresent": 4681,
+      "surfaceSkyKnown": 4681,
+      "surfaceSourcePresent": 4681,
+      "near24SourcePresent": 4681,
+      "near24Samples": 6420,
+      "near24Eligible": 6420,
+      "near24Covered": 0,
+      "near24SkyKnown": 4681,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 21,
+      "segment": "coldWalk",
+      "eye": [
+        130.5,
+        47.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 6120,
+      "detailed112SourcePresent": 6120,
+      "surfaceSkyKnown": 6120,
+      "surfaceSourcePresent": 6120,
+      "near24SourcePresent": 6120,
+      "near24Samples": 6420,
+      "near24Eligible": 6420,
+      "near24Covered": 0,
+      "near24SkyKnown": 6120,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 22,
+      "segment": "coldWalk",
+      "eye": [
+        131.0,
+        47.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 6418,
+      "detailed112SourcePresent": 6418,
+      "surfaceSkyKnown": 6418,
+      "surfaceSourcePresent": 6418,
+      "near24SourcePresent": 6418,
+      "near24Samples": 6418,
+      "near24Eligible": 6418,
+      "near24Covered": 0,
+      "near24SkyKnown": 6418,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 23,
+      "segment": "coldWalk",
+      "eye": [
+        131.5,
+        47.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 6420,
+      "detailed112SourcePresent": 6420,
+      "surfaceSkyKnown": 6420,
+      "surfaceSourcePresent": 6420,
+      "near24SourcePresent": 6420,
+      "near24Samples": 6420,
+      "near24Eligible": 6420,
+      "near24Covered": 0,
+      "near24SkyKnown": 6420,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 24,
+      "segment": "coldWalk",
+      "eye": [
+        132.0,
+        48.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 6391,
+      "detailed112SourcePresent": 6391,
+      "surfaceSkyKnown": 6391,
+      "surfaceSourcePresent": 6391,
+      "near24SourcePresent": 6382,
+      "near24Samples": 6382,
+      "near24Eligible": 6382,
+      "near24Covered": 0,
+      "near24SkyKnown": 6382,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 25,
+      "segment": "coldWalk",
+      "eye": [
+        132.5,
+        48.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 6386,
+      "detailed112SourcePresent": 6386,
+      "surfaceSkyKnown": 6386,
+      "surfaceSourcePresent": 6386,
+      "near24SourcePresent": 6386,
+      "near24Samples": 6386,
+      "near24Eligible": 6386,
+      "near24Covered": 0,
+      "near24SkyKnown": 6386,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 26,
+      "segment": "coldWalk",
+      "eye": [
+        133.0,
+        48.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 6389,
+      "detailed112SourcePresent": 6389,
+      "surfaceSkyKnown": 6389,
+      "surfaceSourcePresent": 6389,
+      "near24SourcePresent": 6389,
+      "near24Samples": 6389,
+      "near24Eligible": 6389,
+      "near24Covered": 0,
+      "near24SkyKnown": 6389,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 27,
+      "segment": "coldWalk",
+      "eye": [
+        133.5,
+        48.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 6404,
+      "detailed112SourcePresent": 6404,
+      "surfaceSkyKnown": 6404,
+      "surfaceSourcePresent": 6404,
+      "near24SourcePresent": 6402,
+      "near24Samples": 6402,
+      "near24Eligible": 6402,
+      "near24Covered": 0,
+      "near24SkyKnown": 6402,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 28,
+      "segment": "coldWalk",
+      "eye": [
+        134.0,
+        48.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 6408,
+      "detailed112SourcePresent": 6408,
+      "surfaceSkyKnown": 6408,
+      "surfaceSourcePresent": 6408,
+      "near24SourcePresent": 6404,
+      "near24Samples": 6404,
+      "near24Eligible": 6404,
+      "near24Covered": 0,
+      "near24SkyKnown": 6404,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 29,
+      "segment": "coldWalk",
+      "eye": [
+        134.5,
+        48.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 6410,
+      "detailed112SourcePresent": 6410,
+      "surfaceSkyKnown": 6410,
+      "surfaceSourcePresent": 6410,
+      "near24SourcePresent": 6407,
+      "near24Samples": 6407,
+      "near24Eligible": 6407,
+      "near24Covered": 0,
+      "near24SkyKnown": 6407,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 3,
+      "segment": "resident",
+      "eye": [
+        8.0,
+        31.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6232,
+      "coveredSamples": 4708,
+      "detailed112Samples": 5670,
+      "detailed112Covered": 4708,
+      "detailed112SkyKnown": 5007,
+      "detailed112SourcePresent": 5007,
+      "surfaceSkyKnown": 5007,
+      "surfaceSourcePresent": 5007,
+      "near24SourcePresent": 4290,
+      "near24Samples": 4290,
+      "near24Eligible": 4290,
+      "near24Covered": 4290,
+      "near24SkyKnown": 4290,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 30,
+      "segment": "coldWalk",
+      "eye": [
+        135.0,
+        49.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 6396,
+      "detailed112SourcePresent": 6396,
+      "surfaceSkyKnown": 6396,
+      "surfaceSourcePresent": 6396,
+      "near24SourcePresent": 6236,
+      "near24Samples": 6236,
+      "near24Eligible": 6236,
+      "near24Covered": 0,
+      "near24SkyKnown": 6236,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 31,
+      "segment": "coldWalk",
+      "eye": [
+        135.5,
+        49.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 6420,
+      "detailed112SourcePresent": 6420,
+      "surfaceSkyKnown": 6420,
+      "surfaceSourcePresent": 6420,
+      "near24SourcePresent": 6320,
+      "near24Samples": 6320,
+      "near24Eligible": 6320,
+      "near24Covered": 0,
+      "near24SkyKnown": 6320,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 32,
+      "segment": "coldFlight",
+      "eye": [
+        136.0,
+        49.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 6418,
+      "detailed112SourcePresent": 6418,
+      "surfaceSkyKnown": 6418,
+      "surfaceSourcePresent": 6418,
+      "near24SourcePresent": 6326,
+      "near24Samples": 6326,
+      "near24Eligible": 6326,
+      "near24Covered": 0,
+      "near24SkyKnown": 6326,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 33,
+      "segment": "coldFlight",
+      "eye": [
+        137.25,
+        49.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 6420,
+      "detailed112SourcePresent": 6420,
+      "surfaceSkyKnown": 6420,
+      "surfaceSourcePresent": 6420,
+      "near24SourcePresent": 6420,
+      "near24Samples": 6420,
+      "near24Eligible": 6420,
+      "near24Covered": 0,
+      "near24SkyKnown": 6420,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 34,
+      "segment": "coldFlight",
+      "eye": [
+        138.5,
+        50.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 6420,
+      "detailed112SourcePresent": 6420,
+      "surfaceSkyKnown": 6420,
+      "surfaceSourcePresent": 6420,
+      "near24SourcePresent": 6405,
+      "near24Samples": 6405,
+      "near24Eligible": 6405,
+      "near24Covered": 0,
+      "near24SkyKnown": 6405,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 35,
+      "segment": "coldFlight",
+      "eye": [
+        139.75,
+        50.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 6420,
+      "detailed112SourcePresent": 6420,
+      "surfaceSkyKnown": 6420,
+      "surfaceSourcePresent": 6420,
+      "near24SourcePresent": 6420,
+      "near24Samples": 6420,
+      "near24Eligible": 6420,
+      "near24Covered": 0,
+      "near24SkyKnown": 6420,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 36,
+      "segment": "coldFlight",
+      "eye": [
+        141.0,
+        51.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 6420,
+      "detailed112SourcePresent": 6420,
+      "surfaceSkyKnown": 6420,
+      "surfaceSourcePresent": 6420,
+      "near24SourcePresent": 6389,
+      "near24Samples": 6389,
+      "near24Eligible": 6389,
+      "near24Covered": 0,
+      "near24SkyKnown": 6389,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 37,
+      "segment": "coldFlight",
+      "eye": [
+        142.25,
+        51.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 6420,
+      "detailed112SourcePresent": 6420,
+      "surfaceSkyKnown": 6420,
+      "surfaceSourcePresent": 6420,
+      "near24SourcePresent": 6406,
+      "near24Samples": 6406,
+      "near24Eligible": 6406,
+      "near24Covered": 0,
+      "near24SkyKnown": 6406,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 38,
+      "segment": "coldFlight",
+      "eye": [
+        143.5,
+        51.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 6420,
+      "detailed112SourcePresent": 6420,
+      "surfaceSkyKnown": 6420,
+      "surfaceSourcePresent": 6420,
+      "near24SourcePresent": 6416,
+      "near24Samples": 6416,
+      "near24Eligible": 6416,
+      "near24Covered": 0,
+      "near24SkyKnown": 6416,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 39,
+      "segment": "coldFlight",
+      "eye": [
+        143.69899,
+        52.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 6420,
+      "detailed112SourcePresent": 6420,
+      "surfaceSkyKnown": 6420,
+      "surfaceSourcePresent": 6420,
+      "near24SourcePresent": 6312,
+      "near24Samples": 6312,
+      "near24Eligible": 6312,
+      "near24Covered": 0,
+      "near24SkyKnown": 6312,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 4,
+      "segment": "resident",
+      "eye": [
+        8.0,
+        31.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6232,
+      "coveredSamples": 4710,
+      "detailed112Samples": 5671,
+      "detailed112Covered": 4710,
+      "detailed112SkyKnown": 5006,
+      "detailed112SourcePresent": 5006,
+      "surfaceSkyKnown": 5006,
+      "surfaceSourcePresent": 5006,
+      "near24SourcePresent": 4290,
+      "near24Samples": 4290,
+      "near24Eligible": 4290,
+      "near24Covered": 4290,
+      "near24SkyKnown": 4290,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 40,
+      "segment": "coldFlight",
+      "eye": [
+        146.0,
+        52.470768,
+        6.699
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 6420,
+      "detailed112SourcePresent": 6420,
+      "surfaceSkyKnown": 6420,
+      "surfaceSourcePresent": 6420,
+      "near24SourcePresent": 6420,
+      "near24Samples": 6420,
+      "near24Eligible": 6420,
+      "near24Covered": 0,
+      "near24SkyKnown": 6420,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 41,
+      "segment": "coldFlight",
+      "eye": [
+        147.25,
+        53.470768,
+        6.699
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 6420,
+      "detailed112SourcePresent": 6420,
+      "surfaceSkyKnown": 6420,
+      "surfaceSourcePresent": 6420,
+      "near24SourcePresent": 6420,
+      "near24Samples": 6420,
+      "near24Eligible": 6420,
+      "near24Covered": 0,
+      "near24SkyKnown": 6420,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 42,
+      "segment": "coldFlight",
+      "eye": [
+        148.5,
+        53.470768,
+        7.699
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 6420,
+      "detailed112SourcePresent": 6420,
+      "surfaceSkyKnown": 6420,
+      "surfaceSourcePresent": 6420,
+      "near24SourcePresent": 6420,
+      "near24Samples": 6420,
+      "near24Eligible": 6420,
+      "near24Covered": 0,
+      "near24SkyKnown": 6420,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 43,
+      "segment": "coldFlight",
+      "eye": [
+        149.75,
+        54.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 6420,
+      "detailed112SourcePresent": 6420,
+      "surfaceSkyKnown": 6420,
+      "surfaceSourcePresent": 6420,
+      "near24SourcePresent": 6401,
+      "near24Samples": 6401,
+      "near24Eligible": 6401,
+      "near24Covered": 0,
+      "near24SkyKnown": 6401,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 44,
+      "segment": "coldFlight",
+      "eye": [
+        151.0,
+        55.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 6420,
+      "detailed112SourcePresent": 6420,
+      "surfaceSkyKnown": 6420,
+      "surfaceSourcePresent": 6420,
+      "near24SourcePresent": 6283,
+      "near24Samples": 6283,
+      "near24Eligible": 6283,
+      "near24Covered": 0,
+      "near24SkyKnown": 6283,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 45,
+      "segment": "coldFlight",
+      "eye": [
+        152.25,
+        55.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 6420,
+      "detailed112SourcePresent": 6420,
+      "surfaceSkyKnown": 6420,
+      "surfaceSourcePresent": 6420,
+      "near24SourcePresent": 6415,
+      "near24Samples": 6415,
+      "near24Eligible": 6415,
+      "near24Covered": 0,
+      "near24SkyKnown": 6415,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 46,
+      "segment": "coldFlight",
+      "eye": [
+        153.5,
+        55.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 6420,
+      "detailed112SourcePresent": 6420,
+      "surfaceSkyKnown": 6420,
+      "surfaceSourcePresent": 6420,
+      "near24SourcePresent": 6420,
+      "near24Samples": 6420,
+      "near24Eligible": 6420,
+      "near24Covered": 0,
+      "near24SkyKnown": 6420,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 47,
+      "segment": "coldFlight",
+      "eye": [
+        154.75,
+        56.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 6420,
+      "detailed112SourcePresent": 6420,
+      "surfaceSkyKnown": 6420,
+      "surfaceSourcePresent": 6420,
+      "near24SourcePresent": 6313,
+      "near24Samples": 6313,
+      "near24Eligible": 6313,
+      "near24Covered": 0,
+      "near24SkyKnown": 6313,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 48,
+      "segment": "coldFlight",
+      "eye": [
+        156.0,
+        56.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 0,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 6420,
+      "detailed112SourcePresent": 6420,
+      "surfaceSkyKnown": 6420,
+      "surfaceSourcePresent": 6420,
+      "near24SourcePresent": 6420,
+      "near24Samples": 6420,
+      "near24Eligible": 6420,
+      "near24Covered": 0,
+      "near24SkyKnown": 6420,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 49,
+      "segment": "coldFlight",
+      "eye": [
+        157.25,
+        57.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 5991,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 5991,
+      "detailed112SkyKnown": 6420,
+      "detailed112SourcePresent": 6420,
+      "surfaceSkyKnown": 6420,
+      "surfaceSourcePresent": 6420,
+      "near24SourcePresent": 6322,
+      "near24Samples": 6322,
+      "near24Eligible": 6322,
+      "near24Covered": 5991,
+      "near24SkyKnown": 6322,
+      "giBounds": [
+        80,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 5,
+      "segment": "resident",
+      "eye": [
+        8.0,
+        31.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6231,
+      "coveredSamples": 4716,
+      "detailed112Samples": 5671,
+      "detailed112Covered": 4716,
+      "detailed112SkyKnown": 5007,
+      "detailed112SourcePresent": 5007,
+      "surfaceSkyKnown": 5007,
+      "surfaceSourcePresent": 5007,
+      "near24SourcePresent": 4290,
+      "near24Samples": 4290,
+      "near24Eligible": 4290,
+      "near24Covered": 4290,
+      "near24SkyKnown": 4290,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 50,
+      "segment": "coldFlight",
+      "eye": [
+        158.5,
+        57.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 6206,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 6206,
+      "detailed112SkyKnown": 6420,
+      "detailed112SourcePresent": 6420,
+      "surfaceSkyKnown": 6420,
+      "surfaceSourcePresent": 6420,
+      "near24SourcePresent": 6323,
+      "near24Samples": 6323,
+      "near24Eligible": 6323,
+      "near24Covered": 6206,
+      "near24SkyKnown": 6323,
+      "giBounds": [
+        80,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 51,
+      "segment": "coldFlight",
+      "eye": [
+        159.75,
+        58.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6417,
+      "coveredSamples": 5882,
+      "detailed112Samples": 6417,
+      "detailed112Covered": 5882,
+      "detailed112SkyKnown": 6417,
+      "detailed112SourcePresent": 6417,
+      "surfaceSkyKnown": 6417,
+      "surfaceSourcePresent": 6417,
+      "near24SourcePresent": 6132,
+      "near24Samples": 6132,
+      "near24Eligible": 6132,
+      "near24Covered": 5882,
+      "near24SkyKnown": 6132,
+      "giBounds": [
+        80,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 52,
+      "segment": "coldFlight",
+      "eye": [
+        161.0,
+        58.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6419,
+      "coveredSamples": 5564,
+      "detailed112Samples": 6419,
+      "detailed112Covered": 5564,
+      "detailed112SkyKnown": 6325,
+      "detailed112SourcePresent": 6325,
+      "surfaceSkyKnown": 6325,
+      "surfaceSourcePresent": 6325,
+      "near24SourcePresent": 6322,
+      "near24Samples": 6322,
+      "near24Eligible": 6322,
+      "near24Covered": 5564,
+      "near24SkyKnown": 6322,
+      "giBounds": [
+        80,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 53,
+      "segment": "coldFlight",
+      "eye": [
+        162.25,
+        58.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6420,
+      "coveredSamples": 5992,
+      "detailed112Samples": 6420,
+      "detailed112Covered": 5992,
+      "detailed112SkyKnown": 6420,
+      "detailed112SourcePresent": 6420,
+      "surfaceSkyKnown": 6420,
+      "surfaceSourcePresent": 6420,
+      "near24SourcePresent": 6326,
+      "near24Samples": 6326,
+      "near24Eligible": 6326,
+      "near24Covered": 5992,
+      "near24SkyKnown": 6326,
+      "giBounds": [
+        80,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 54,
+      "segment": "coldFlight",
+      "eye": [
+        163.5,
+        59.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6313,
+      "coveredSamples": 5564,
+      "detailed112Samples": 6313,
+      "detailed112Covered": 5564,
+      "detailed112SkyKnown": 6312,
+      "detailed112SourcePresent": 6312,
+      "surfaceSkyKnown": 6312,
+      "surfaceSourcePresent": 6312,
+      "near24SourcePresent": 6125,
+      "near24Samples": 6125,
+      "near24Eligible": 6125,
+      "near24Covered": 5564,
+      "near24SkyKnown": 6125,
+      "giBounds": [
+        80,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 55,
+      "segment": "coldFlight",
+      "eye": [
+        164.75,
+        59.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6313,
+      "coveredSamples": 5348,
+      "detailed112Samples": 6313,
+      "detailed112Covered": 5348,
+      "detailed112SkyKnown": 6228,
+      "detailed112SourcePresent": 6228,
+      "surfaceSkyKnown": 6228,
+      "surfaceSourcePresent": 6228,
+      "near24SourcePresent": 6217,
+      "near24Samples": 6217,
+      "near24Eligible": 6217,
+      "near24Covered": 5348,
+      "near24SkyKnown": 6217,
+      "giBounds": [
+        80,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 56,
+      "segment": "coldFlight",
+      "eye": [
+        166.0,
+        60.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6099,
+      "coveredSamples": 5136,
+      "detailed112Samples": 6099,
+      "detailed112Covered": 5136,
+      "detailed112SkyKnown": 6099,
+      "detailed112SourcePresent": 6099,
+      "surfaceSkyKnown": 6099,
+      "surfaceSourcePresent": 6099,
+      "near24SourcePresent": 5992,
+      "near24Samples": 5992,
+      "near24Eligible": 5992,
+      "near24Covered": 5136,
+      "near24SkyKnown": 5992,
+      "giBounds": [
+        80,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 57,
+      "segment": "coldFlight",
+      "eye": [
+        167.25,
+        60.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6206,
+      "coveredSamples": 5029,
+      "detailed112Samples": 6206,
+      "detailed112Covered": 5029,
+      "detailed112SkyKnown": 6206,
+      "detailed112SourcePresent": 6206,
+      "surfaceSkyKnown": 6206,
+      "surfaceSourcePresent": 6206,
+      "near24SourcePresent": 6099,
+      "near24Samples": 6099,
+      "near24Eligible": 6099,
+      "near24Covered": 5029,
+      "near24SkyKnown": 6099,
+      "giBounds": [
+        80,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 58,
+      "segment": "coldFlight",
+      "eye": [
+        168.5,
+        60.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6206,
+      "coveredSamples": 5029,
+      "detailed112Samples": 6206,
+      "detailed112Covered": 5029,
+      "detailed112SkyKnown": 6206,
+      "detailed112SourcePresent": 6206,
+      "surfaceSkyKnown": 6206,
+      "surfaceSourcePresent": 6206,
+      "near24SourcePresent": 6202,
+      "near24Samples": 6202,
+      "near24Eligible": 6202,
+      "near24Covered": 5029,
+      "near24SkyKnown": 6202,
+      "giBounds": [
+        80,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 59,
+      "segment": "coldFlight",
+      "eye": [
+        169.75,
+        61.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5992,
+      "coveredSamples": 4173,
+      "detailed112Samples": 5992,
+      "detailed112Covered": 4173,
+      "detailed112SkyKnown": 5992,
+      "detailed112SourcePresent": 5992,
+      "surfaceSkyKnown": 5992,
+      "surfaceSourcePresent": 5992,
+      "near24SourcePresent": 5991,
+      "near24Samples": 5991,
+      "near24Eligible": 5991,
+      "near24Covered": 4173,
+      "near24SkyKnown": 5991,
+      "giBounds": [
+        80,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 6,
+      "segment": "resident",
+      "eye": [
+        8.0,
+        31.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6232,
+      "coveredSamples": 4716,
+      "detailed112Samples": 5670,
+      "detailed112Covered": 4716,
+      "detailed112SkyKnown": 5008,
+      "detailed112SourcePresent": 5008,
+      "surfaceSkyKnown": 5008,
+      "surfaceSourcePresent": 5008,
+      "near24SourcePresent": 4290,
+      "near24Samples": 4290,
+      "near24Eligible": 4290,
+      "near24Covered": 4290,
+      "near24SkyKnown": 4290,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 60,
+      "segment": "coldFlight",
+      "eye": [
+        171.0,
+        62.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5879,
+      "coveredSamples": 2461,
+      "detailed112Samples": 5879,
+      "detailed112Covered": 2461,
+      "detailed112SkyKnown": 5879,
+      "detailed112SourcePresent": 5879,
+      "surfaceSkyKnown": 5879,
+      "surfaceSourcePresent": 5879,
+      "near24SourcePresent": 5778,
+      "near24Samples": 5778,
+      "near24Eligible": 5778,
+      "near24Covered": 2461,
+      "near24SkyKnown": 5778,
+      "giBounds": [
+        80,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 61,
+      "segment": "coldFlight",
+      "eye": [
+        172.25,
+        62.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5881,
+      "coveredSamples": 2568,
+      "detailed112Samples": 5881,
+      "detailed112Covered": 2568,
+      "detailed112SkyKnown": 5881,
+      "detailed112SourcePresent": 5881,
+      "surfaceSkyKnown": 5881,
+      "surfaceSourcePresent": 5881,
+      "near24SourcePresent": 5778,
+      "near24Samples": 5778,
+      "near24Eligible": 5778,
+      "near24Covered": 2568,
+      "near24SkyKnown": 5778,
+      "giBounds": [
+        80,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 62,
+      "segment": "coldFlight",
+      "eye": [
+        173.5,
+        62.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5883,
+      "coveredSamples": 1605,
+      "detailed112Samples": 5883,
+      "detailed112Covered": 1605,
+      "detailed112SkyKnown": 5883,
+      "detailed112SourcePresent": 5883,
+      "surfaceSkyKnown": 5883,
+      "surfaceSourcePresent": 5883,
+      "near24SourcePresent": 5778,
+      "near24Samples": 5778,
+      "near24Eligible": 5778,
+      "near24Covered": 1605,
+      "near24SkyKnown": 5778,
+      "giBounds": [
+        80,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 63,
+      "segment": "coldFlight",
+      "eye": [
+        174.75,
+        63.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5671,
+      "coveredSamples": 0,
+      "detailed112Samples": 5671,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 5671,
+      "detailed112SourcePresent": 5671,
+      "surfaceSkyKnown": 5671,
+      "surfaceSourcePresent": 5671,
+      "near24SourcePresent": 5554,
+      "near24Samples": 5554,
+      "near24Eligible": 5554,
+      "near24Covered": 0,
+      "near24SkyKnown": 5554,
+      "giBounds": [
+        80,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 64,
+      "segment": "coldFlight",
+      "eye": [
+        176.0,
+        64.47077,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5457,
+      "coveredSamples": 0,
+      "detailed112Samples": 5457,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 5457,
+      "detailed112SourcePresent": 5457,
+      "surfaceSkyKnown": 5457,
+      "surfaceSourcePresent": 5457,
+      "near24SourcePresent": 5243,
+      "near24Samples": 5243,
+      "near24Eligible": 5243,
+      "near24Covered": 0,
+      "near24SkyKnown": 5243,
+      "giBounds": [
+        80,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 65,
+      "segment": "coldFlight",
+      "eye": [
+        177.25,
+        64.47077,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5457,
+      "coveredSamples": 0,
+      "detailed112Samples": 5457,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 5457,
+      "detailed112SourcePresent": 5457,
+      "surfaceSkyKnown": 5457,
+      "surfaceSourcePresent": 5457,
+      "near24SourcePresent": 5442,
+      "near24Samples": 5442,
+      "near24Eligible": 5442,
+      "near24Covered": 0,
+      "near24SkyKnown": 5442,
+      "giBounds": [
+        80,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 66,
+      "segment": "coldFlight",
+      "eye": [
+        178.5,
+        64.47077,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5457,
+      "coveredSamples": 0,
+      "detailed112Samples": 5457,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 5457,
+      "detailed112SourcePresent": 5457,
+      "surfaceSkyKnown": 5457,
+      "surfaceSourcePresent": 5457,
+      "near24SourcePresent": 5454,
+      "near24Samples": 5454,
+      "near24Eligible": 5454,
+      "near24Covered": 0,
+      "near24SkyKnown": 5454,
+      "giBounds": [
+        80,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 67,
+      "segment": "coldFlight",
+      "eye": [
+        179.75,
+        65.47077,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5299,
+      "coveredSamples": 0,
+      "detailed112Samples": 5243,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 5243,
+      "detailed112SourcePresent": 5243,
+      "surfaceSkyKnown": 5243,
+      "surfaceSourcePresent": 5243,
+      "near24SourcePresent": 5243,
+      "near24Samples": 5243,
+      "near24Eligible": 5243,
+      "near24Covered": 0,
+      "near24SkyKnown": 5243,
+      "giBounds": [
+        80,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 68,
+      "segment": "coldFlight",
+      "eye": [
+        181.0,
+        65.47077,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5299,
+      "coveredSamples": 0,
+      "detailed112Samples": 5243,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 5243,
+      "detailed112SourcePresent": 5243,
+      "surfaceSkyKnown": 5243,
+      "surfaceSourcePresent": 5243,
+      "near24SourcePresent": 5243,
+      "near24Samples": 5243,
+      "near24Eligible": 5243,
+      "near24Covered": 0,
+      "near24SkyKnown": 5243,
+      "giBounds": [
+        80,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 69,
+      "segment": "coldFlight",
+      "eye": [
+        182.25,
+        65.47077,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5300,
+      "coveredSamples": 0,
+      "detailed112Samples": 5243,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 5243,
+      "detailed112SourcePresent": 5243,
+      "surfaceSkyKnown": 5243,
+      "surfaceSourcePresent": 5243,
+      "near24SourcePresent": 5243,
+      "near24Samples": 5243,
+      "near24Eligible": 5243,
+      "near24Covered": 0,
+      "near24SkyKnown": 5243,
+      "giBounds": [
+        80,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 7,
+      "segment": "resident",
+      "eye": [
+        8.0,
+        31.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6231,
+      "coveredSamples": 4720,
+      "detailed112Samples": 5669,
+      "detailed112Covered": 4720,
+      "detailed112SkyKnown": 5003,
+      "detailed112SourcePresent": 5003,
+      "surfaceSkyKnown": 5003,
+      "surfaceSourcePresent": 5003,
+      "near24SourcePresent": 4290,
+      "near24Samples": 4290,
+      "near24Eligible": 4290,
+      "near24Covered": 4290,
+      "near24SkyKnown": 4290,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 70,
+      "segment": "coldFlight",
+      "eye": [
+        183.5,
+        66.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5292,
+      "coveredSamples": 0,
+      "detailed112Samples": 5112,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 5112,
+      "detailed112SourcePresent": 5112,
+      "surfaceSkyKnown": 5112,
+      "surfaceSourcePresent": 5112,
+      "near24SourcePresent": 5023,
+      "near24Samples": 5023,
+      "near24Eligible": 5023,
+      "near24Covered": 0,
+      "near24SkyKnown": 5023,
+      "giBounds": [
+        80,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 71,
+      "segment": "coldFlight",
+      "eye": [
+        184.75,
+        66.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5293,
+      "coveredSamples": 0,
+      "detailed112Samples": 5112,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 5112,
+      "detailed112SourcePresent": 5112,
+      "surfaceSkyKnown": 5112,
+      "surfaceSourcePresent": 5112,
+      "near24SourcePresent": 5023,
+      "near24Samples": 5023,
+      "near24Eligible": 5023,
+      "near24Covered": 0,
+      "near24SkyKnown": 5023,
+      "giBounds": [
+        80,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 72,
+      "segment": "coldFlight",
+      "eye": [
+        186.0,
+        66.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5294,
+      "coveredSamples": 0,
+      "detailed112Samples": 5110,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 5110,
+      "detailed112SourcePresent": 5110,
+      "surfaceSkyKnown": 5110,
+      "surfaceSourcePresent": 5110,
+      "near24SourcePresent": 5024,
+      "near24Samples": 5024,
+      "near24Eligible": 5024,
+      "near24Covered": 0,
+      "near24SkyKnown": 5024,
+      "giBounds": [
+        80,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 73,
+      "segment": "coldFlight",
+      "eye": [
+        187.25,
+        66.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5293,
+      "coveredSamples": 0,
+      "detailed112Samples": 5026,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 5026,
+      "detailed112SourcePresent": 5026,
+      "surfaceSkyKnown": 5026,
+      "surfaceSourcePresent": 5026,
+      "near24SourcePresent": 5023,
+      "near24Samples": 5023,
+      "near24Eligible": 5023,
+      "near24Covered": 0,
+      "near24SkyKnown": 5023,
+      "giBounds": [
+        80,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 74,
+      "segment": "coldFlight",
+      "eye": [
+        188.5,
+        67.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5293,
+      "coveredSamples": 0,
+      "detailed112Samples": 4892,
+      "detailed112Covered": 0,
+      "detailed112SkyKnown": 4892,
+      "detailed112SourcePresent": 4892,
+      "surfaceSkyKnown": 4892,
+      "surfaceSourcePresent": 4892,
+      "near24SourcePresent": 4804,
+      "near24Samples": 4804,
+      "near24Eligible": 4804,
+      "near24Covered": 0,
+      "near24SkyKnown": 4804,
+      "giBounds": [
+        80,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 75,
+      "segment": "coldFlight",
+      "eye": [
+        189.75,
+        67.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5294,
+      "coveredSamples": 4888,
+      "detailed112Samples": 4888,
+      "detailed112Covered": 4888,
+      "detailed112SkyKnown": 4888,
+      "detailed112SourcePresent": 4888,
+      "surfaceSkyKnown": 4888,
+      "surfaceSourcePresent": 4888,
+      "near24SourcePresent": 4800,
+      "near24Samples": 4800,
+      "near24Eligible": 4800,
+      "near24Covered": 4800,
+      "near24SkyKnown": 4800,
+      "giBounds": [
+        128,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 76,
+      "segment": "coldFlight",
+      "eye": [
+        191.0,
+        67.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5290,
+      "coveredSamples": 4805,
+      "detailed112Samples": 4805,
+      "detailed112Covered": 4805,
+      "detailed112SkyKnown": 4805,
+      "detailed112SourcePresent": 4805,
+      "surfaceSkyKnown": 4805,
+      "surfaceSourcePresent": 4805,
+      "near24SourcePresent": 4799,
+      "near24Samples": 4799,
+      "near24Eligible": 4799,
+      "near24Covered": 4799,
+      "near24SkyKnown": 4799,
+      "giBounds": [
+        128,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 77,
+      "segment": "coldFlight",
+      "eye": [
+        192.25,
+        67.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5292,
+      "coveredSamples": 4801,
+      "detailed112Samples": 4801,
+      "detailed112Covered": 4801,
+      "detailed112SkyKnown": 4801,
+      "detailed112SourcePresent": 4801,
+      "surfaceSkyKnown": 4801,
+      "surfaceSourcePresent": 4801,
+      "near24SourcePresent": 4796,
+      "near24Samples": 4796,
+      "near24Eligible": 4796,
+      "near24Covered": 4796,
+      "near24SkyKnown": 4796,
+      "giBounds": [
+        128,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 78,
+      "segment": "coldFlight",
+      "eye": [
+        193.5,
+        67.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5294,
+      "coveredSamples": 4800,
+      "detailed112Samples": 4800,
+      "detailed112Covered": 4800,
+      "detailed112SkyKnown": 4800,
+      "detailed112SourcePresent": 4800,
+      "surfaceSkyKnown": 4800,
+      "surfaceSourcePresent": 4800,
+      "near24SourcePresent": 4795,
+      "near24Samples": 4795,
+      "near24Eligible": 4795,
+      "near24Covered": 4795,
+      "near24SkyKnown": 4795,
+      "giBounds": [
+        128,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 79,
+      "segment": "coldFlight",
+      "eye": [
+        194.75,
+        68.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5288,
+      "coveredSamples": 4572,
+      "detailed112Samples": 4572,
+      "detailed112Covered": 4572,
+      "detailed112SkyKnown": 4572,
+      "detailed112SourcePresent": 4572,
+      "surfaceSkyKnown": 4572,
+      "surfaceSourcePresent": 4572,
+      "near24SourcePresent": 4564,
+      "near24Samples": 4564,
+      "near24Eligible": 4564,
+      "near24Covered": 4564,
+      "near24SkyKnown": 4564,
+      "giBounds": [
+        128,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 8,
+      "segment": "resident",
+      "eye": [
+        8.0,
+        31.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6232,
+      "coveredSamples": 4704,
+      "detailed112Samples": 5672,
+      "detailed112Covered": 4704,
+      "detailed112SkyKnown": 5006,
+      "detailed112SourcePresent": 5006,
+      "surfaceSkyKnown": 5006,
+      "surfaceSourcePresent": 5006,
+      "near24SourcePresent": 4290,
+      "near24Samples": 4290,
+      "near24Eligible": 4290,
+      "near24Covered": 4290,
+      "near24SkyKnown": 4290,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 80,
+      "segment": "coldFlight",
+      "eye": [
+        196.0,
+        68.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5289,
+      "coveredSamples": 4484,
+      "detailed112Samples": 4555,
+      "detailed112Covered": 4484,
+      "detailed112SkyKnown": 4555,
+      "detailed112SourcePresent": 4555,
+      "surfaceSkyKnown": 4555,
+      "surfaceSourcePresent": 4555,
+      "near24SourcePresent": 4483,
+      "near24Samples": 4483,
+      "near24Eligible": 4483,
+      "near24Covered": 4483,
+      "near24SkyKnown": 4483,
+      "giBounds": [
+        128,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 81,
+      "segment": "coldFlight",
+      "eye": [
+        197.25,
+        68.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5290,
+      "coveredSamples": 4476,
+      "detailed112Samples": 4476,
+      "detailed112Covered": 4476,
+      "detailed112SkyKnown": 4476,
+      "detailed112SourcePresent": 4476,
+      "surfaceSkyKnown": 4476,
+      "surfaceSourcePresent": 4476,
+      "near24SourcePresent": 4476,
+      "near24Samples": 4476,
+      "near24Eligible": 4476,
+      "near24Covered": 4476,
+      "near24SkyKnown": 4476,
+      "giBounds": [
+        128,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 82,
+      "segment": "coldFlight",
+      "eye": [
+        198.5,
+        68.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5288,
+      "coveredSamples": 4378,
+      "detailed112Samples": 4452,
+      "detailed112Covered": 4378,
+      "detailed112SkyKnown": 4452,
+      "detailed112SourcePresent": 4452,
+      "surfaceSkyKnown": 4452,
+      "surfaceSourcePresent": 4452,
+      "near24SourcePresent": 4378,
+      "near24Samples": 4378,
+      "near24Eligible": 4378,
+      "near24Covered": 4378,
+      "near24SkyKnown": 4378,
+      "giBounds": [
+        128,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 83,
+      "segment": "coldFlight",
+      "eye": [
+        199.75,
+        68.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5289,
+      "coveredSamples": 4378,
+      "detailed112Samples": 4452,
+      "detailed112Covered": 4378,
+      "detailed112SkyKnown": 4452,
+      "detailed112SourcePresent": 4452,
+      "surfaceSkyKnown": 4452,
+      "surfaceSourcePresent": 4452,
+      "near24SourcePresent": 4378,
+      "near24Samples": 4378,
+      "near24Eligible": 4378,
+      "near24Covered": 4378,
+      "near24SkyKnown": 4378,
+      "giBounds": [
+        128,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 84,
+      "segment": "coldFlight",
+      "eye": [
+        201.0,
+        69.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5289,
+      "coveredSamples": 4133,
+      "detailed112Samples": 4212,
+      "detailed112Covered": 4133,
+      "detailed112SkyKnown": 4207,
+      "detailed112SourcePresent": 4207,
+      "surfaceSkyKnown": 4207,
+      "surfaceSourcePresent": 4207,
+      "near24SourcePresent": 4125,
+      "near24Samples": 4125,
+      "near24Eligible": 4125,
+      "near24Covered": 4125,
+      "near24SkyKnown": 4125,
+      "giBounds": [
+        128,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 85,
+      "segment": "coldFlight",
+      "eye": [
+        202.25,
+        69.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5287,
+      "coveredSamples": 4035,
+      "detailed112Samples": 4182,
+      "detailed112Covered": 4035,
+      "detailed112SkyKnown": 4176,
+      "detailed112SourcePresent": 4176,
+      "surfaceSkyKnown": 4176,
+      "surfaceSourcePresent": 4176,
+      "near24SourcePresent": 4100,
+      "near24Samples": 4100,
+      "near24Eligible": 4100,
+      "near24Covered": 4032,
+      "near24SkyKnown": 4100,
+      "giBounds": [
+        128,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 86,
+      "segment": "coldFlight",
+      "eye": [
+        203.5,
+        69.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5288,
+      "coveredSamples": 4018,
+      "detailed112Samples": 4103,
+      "detailed112Covered": 4018,
+      "detailed112SkyKnown": 4094,
+      "detailed112SourcePresent": 4094,
+      "surfaceSkyKnown": 4094,
+      "surfaceSourcePresent": 4094,
+      "near24SourcePresent": 4082,
+      "near24Samples": 4082,
+      "near24Eligible": 4082,
+      "near24Covered": 4014,
+      "near24SkyKnown": 4082,
+      "giBounds": [
+        128,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 87,
+      "segment": "coldFlight",
+      "eye": [
+        204.75,
+        69.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5289,
+      "coveredSamples": 3935,
+      "detailed112Samples": 4086,
+      "detailed112Covered": 3935,
+      "detailed112SkyKnown": 4079,
+      "detailed112SourcePresent": 4079,
+      "surfaceSkyKnown": 4079,
+      "surfaceSourcePresent": 4079,
+      "near24SourcePresent": 4009,
+      "near24Samples": 4009,
+      "near24Eligible": 4009,
+      "near24Covered": 3935,
+      "near24SkyKnown": 4009,
+      "giBounds": [
+        128,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 88,
+      "segment": "coldFlight",
+      "eye": [
+        206.0,
+        69.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5287,
+      "coveredSamples": 3824,
+      "detailed112Samples": 3999,
+      "detailed112Covered": 3824,
+      "detailed112SkyKnown": 3971,
+      "detailed112SourcePresent": 3971,
+      "surfaceSkyKnown": 3971,
+      "surfaceSourcePresent": 3971,
+      "near24SourcePresent": 3904,
+      "near24Samples": 3904,
+      "near24Eligible": 3904,
+      "near24Covered": 3824,
+      "near24SkyKnown": 3904,
+      "giBounds": [
+        128,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 89,
+      "segment": "coldFlight",
+      "eye": [
+        207.25,
+        69.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5288,
+      "coveredSamples": 3720,
+      "detailed112Samples": 3990,
+      "detailed112Covered": 3720,
+      "detailed112SkyKnown": 3949,
+      "detailed112SourcePresent": 3949,
+      "surfaceSkyKnown": 3949,
+      "surfaceSourcePresent": 3949,
+      "near24SourcePresent": 3882,
+      "near24Samples": 3882,
+      "near24Eligible": 3882,
+      "near24Covered": 3720,
+      "near24SkyKnown": 3882,
+      "giBounds": [
+        128,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 9,
+      "segment": "resident",
+      "eye": [
+        8.0,
+        31.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6231,
+      "coveredSamples": 4704,
+      "detailed112Samples": 5671,
+      "detailed112Covered": 4704,
+      "detailed112SkyKnown": 5006,
+      "detailed112SourcePresent": 5006,
+      "surfaceSkyKnown": 5006,
+      "surfaceSourcePresent": 5006,
+      "near24SourcePresent": 4290,
+      "near24Samples": 4290,
+      "near24Eligible": 4290,
+      "near24Covered": 4290,
+      "near24SkyKnown": 4290,
+      "giBounds": [
+        -48,
+        -32,
+        -32,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 90,
+      "segment": "coldFlight",
+      "eye": [
+        208.5,
+        69.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5289,
+      "coveredSamples": 3616,
+      "detailed112Samples": 3903,
+      "detailed112Covered": 3616,
+      "detailed112SkyKnown": 3851,
+      "detailed112SourcePresent": 3851,
+      "surfaceSkyKnown": 3851,
+      "surfaceSourcePresent": 3851,
+      "near24SourcePresent": 3842,
+      "near24Samples": 3842,
+      "near24Eligible": 3842,
+      "near24Covered": 3616,
+      "near24SkyKnown": 3842,
+      "giBounds": [
+        128,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 91,
+      "segment": "coldFlight",
+      "eye": [
+        209.75,
+        69.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5287,
+      "coveredSamples": 3823,
+      "detailed112Samples": 3882,
+      "detailed112Covered": 3823,
+      "detailed112SkyKnown": 3823,
+      "detailed112SourcePresent": 3823,
+      "surfaceSkyKnown": 3823,
+      "surfaceSourcePresent": 3823,
+      "near24SourcePresent": 3810,
+      "near24Samples": 3810,
+      "near24Eligible": 3810,
+      "near24Covered": 3810,
+      "near24SkyKnown": 3810,
+      "giBounds": [
+        160,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 92,
+      "segment": "coldFlight",
+      "eye": [
+        211.0,
+        69.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5288,
+      "coveredSamples": 3783,
+      "detailed112Samples": 3857,
+      "detailed112Covered": 3783,
+      "detailed112SkyKnown": 3783,
+      "detailed112SourcePresent": 3783,
+      "surfaceSkyKnown": 3783,
+      "surfaceSourcePresent": 3783,
+      "near24SourcePresent": 3735,
+      "near24Samples": 3735,
+      "near24Eligible": 3735,
+      "near24Covered": 3735,
+      "near24SkyKnown": 3735,
+      "giBounds": [
+        160,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 93,
+      "segment": "coldFlight",
+      "eye": [
+        212.25,
+        69.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5289,
+      "coveredSamples": 3695,
+      "detailed112Samples": 3805,
+      "detailed112Covered": 3695,
+      "detailed112SkyKnown": 3695,
+      "detailed112SourcePresent": 3695,
+      "surfaceSkyKnown": 3695,
+      "surfaceSourcePresent": 3695,
+      "near24SourcePresent": 3683,
+      "near24Samples": 3683,
+      "near24Eligible": 3683,
+      "near24Covered": 3683,
+      "near24SkyKnown": 3683,
+      "giBounds": [
+        160,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 94,
+      "segment": "coldFlight",
+      "eye": [
+        213.5,
+        69.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5287,
+      "coveredSamples": 3596,
+      "detailed112Samples": 3735,
+      "detailed112Covered": 3596,
+      "detailed112SkyKnown": 3596,
+      "detailed112SourcePresent": 3596,
+      "surfaceSkyKnown": 3596,
+      "surfaceSourcePresent": 3596,
+      "near24SourcePresent": 3588,
+      "near24Samples": 3588,
+      "near24Eligible": 3588,
+      "near24Covered": 3588,
+      "near24SkyKnown": 3588,
+      "giBounds": [
+        160,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 95,
+      "segment": "coldFlight",
+      "eye": [
+        214.75,
+        69.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5287,
+      "coveredSamples": 3531,
+      "detailed112Samples": 3739,
+      "detailed112Covered": 3531,
+      "detailed112SkyKnown": 3531,
+      "detailed112SourcePresent": 3531,
+      "surfaceSkyKnown": 3531,
+      "surfaceSourcePresent": 3531,
+      "near24SourcePresent": 3502,
+      "near24Samples": 3502,
+      "near24Eligible": 3502,
+      "near24Covered": 3502,
+      "near24SkyKnown": 3502,
+      "giBounds": [
+        160,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 96,
+      "segment": "coldFlight",
+      "eye": [
+        216.0,
+        69.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5289,
+      "coveredSamples": 3436,
+      "detailed112Samples": 3709,
+      "detailed112Covered": 3436,
+      "detailed112SkyKnown": 3436,
+      "detailed112SourcePresent": 3436,
+      "surfaceSkyKnown": 3436,
+      "surfaceSourcePresent": 3436,
+      "near24SourcePresent": 3423,
+      "near24Samples": 3423,
+      "near24Eligible": 3423,
+      "near24Covered": 3423,
+      "near24SkyKnown": 3423,
+      "giBounds": [
+        160,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 97,
+      "segment": "coldFlight",
+      "eye": [
+        217.25,
+        69.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5284,
+      "coveredSamples": 3364,
+      "detailed112Samples": 3669,
+      "detailed112Covered": 3364,
+      "detailed112SkyKnown": 3364,
+      "detailed112SourcePresent": 3364,
+      "surfaceSkyKnown": 3364,
+      "surfaceSourcePresent": 3364,
+      "near24SourcePresent": 3311,
+      "near24Samples": 3311,
+      "near24Eligible": 3311,
+      "near24Covered": 3311,
+      "near24SkyKnown": 3311,
+      "giBounds": [
+        160,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 98,
+      "segment": "coldFlight",
+      "eye": [
+        218.5,
+        69.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5287,
+      "coveredSamples": 3252,
+      "detailed112Samples": 3653,
+      "detailed112Covered": 3252,
+      "detailed112SkyKnown": 3252,
+      "detailed112SourcePresent": 3252,
+      "surfaceSkyKnown": 3252,
+      "surfaceSourcePresent": 3252,
+      "near24SourcePresent": 3236,
+      "near24Samples": 3236,
+      "near24Eligible": 3236,
+      "near24Covered": 3236,
+      "near24SkyKnown": 3236,
+      "giBounds": [
+        160,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 99,
+      "segment": "coldFlight",
+      "eye": [
+        219.75,
+        68.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5290,
+      "coveredSamples": 3401,
+      "detailed112Samples": 3717,
+      "detailed112Covered": 3401,
+      "detailed112SkyKnown": 3401,
+      "detailed112SourcePresent": 3401,
+      "surfaceSkyKnown": 3401,
+      "surfaceSourcePresent": 3401,
+      "near24SourcePresent": 3395,
+      "near24Samples": 3395,
+      "near24Eligible": 3395,
+      "near24Covered": 3395,
+      "near24SkyKnown": 3395,
+      "giBounds": [
+        160,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    }
+  ]
+}

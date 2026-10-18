@@ -63,7 +63,7 @@ public final class VoxelTransport implements AutoCloseable {
         int pump(long deadline,int byteBudget) {
             int bytes=0;
             while(part<parts.length&&System.nanoTime()<deadline) {
-                Part p=parts[part];int available=Math.min(LightingStores.PIXEL_UNIT_BYTES,byteBudget-bytes),planes=1;
+                Part p=parts[part];int available=Math.min(64*1024,byteBudget-bytes),planes=1;
                 int rows=Math.min(p.h-y,available/(p.w*p.channels*2));if(rows==0)break;
                 if(y==0&&rows==p.h)planes=Math.min(p.l-z,available/(p.w*p.h*p.channels*2));
                 int count=p.w*rows*p.channels*planes;

@@ -1,0 +1,7 @@
+{
+  "candidate": "v13",
+  "complete": false,
+  "reason": "Safe frame stop after observed cold near-sky gap; baselineRGB run is complete and retained",
+  "framesRetained": 119,
+  "coldNearMissing": 163
+}

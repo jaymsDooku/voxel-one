@@ -56,12 +56,13 @@ final class SceneLightingUpload implements AutoCloseable {
         return replaceVolume?world.editsVersion()==edits:sky==null||sky.valid(world);
     }
     boolean skyCurrent(World world){return sky==null||sky.valid(world);}
-    void refreshSky(World world,SkyVisibilityScheduler.Prepared latest) {
+    void refreshSky(World world,SkyVisibilityScheduler.Prepared latest) {refreshSky(world,latest,false);}
+    void refreshSky(World world,SkyVisibilityScheduler.Prepared latest,boolean coverageUpgrade) {
         if(separateRoots&&replaceVolume)return;
         if(latest==null||!latest.valid(world)||latest==sky)return;
         // Finish the independent volume first. A changed far column must not restart
         // tens of MB of already valid irradiance/transport data.
-        if((phase==0||phase==4)&&skyCurrent(world))return;
+        if((phase==0||phase==4)&&skyCurrent(world)&&(!coverageUpgrade||replaceVolume))return;
         sky=latest;skyData=latest.data.data;
         int w=volume==null?64:volume.width,h=volume==null?64:volume.height,l=volume==null?0:volume.length;
         int limit=glGetInteger(GL_MAX_3D_TEXTURE_SIZE),d=l+(skyData.length+w*h-1)/(w*h);
@@ -72,7 +73,7 @@ final class SceneLightingUpload implements AutoCloseable {
         if(phase==0||phase==4){if(stores==null){glDeleteTextures(atlas);atlas=glGenTextures();}y=z=0;allocated=false;phase=0;}
     }
     private static void configure(){glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_WRAP_R,GL_CLAMP_TO_EDGE);}
-    int pump(long deadline,int byteBudget) {return pump(deadline,byteBudget,LightingStores.PIXEL_UNIT_BYTES);}
+    int pump(long deadline,int byteBudget) {return pump(deadline,byteBudget,64*1024);}
     int pump(long deadline,int byteBudget,int transferUnit) {
         int trace=dev.jayms.OwnerTrace.begin("lighting.pump");try{
         if(transferUnit<=0||transferUnit>LightingStores.PIXEL_UNIT_BYTES)throw new IllegalArgumentException("Lighting transfer unit");
