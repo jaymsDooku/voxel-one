@@ -1,0 +1,18 @@
+{
+  "Playtest": "Separate full65-frame fresh-profile Main offline runs with and without F10 recording; same feature jar and input/edit route. F10 capture active14\u201323, preceding-frame metric sampled at15\u201324. No recording during matched cold-route trials.",
+  "plain": {
+    "samples": 10,
+    "p50CaptureMs": 0.000782,
+    "p95CaptureMs": 0.001072,
+    "worstCaptureMs": 0.001072,
+    "meanCaptureMs": 0.0007988
+  },
+  "recording": {
+    "samples": 10,
+    "p50CaptureMs": 29.171874,
+    "p95CaptureMs": 201.209723,
+    "worstCaptureMs": 201.209723,
+    "meanCaptureMs": 49.8559324
+  },
+  "limits": "Ten capture samples. Measures owner-thread readback/capture elapsed time including driver waits; excludes encoder-worker CPU. Variance in render duration is not a controlled FPS-overhead estimate."
+}

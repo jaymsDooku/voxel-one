@@ -1,0 +1,2134 @@
+{
+  "method": "Horizontal3x3 grid at24m spacing. Center checks x/z bounds only; flight eye is above GI height. These are not screen-space coverage claims. Separate resolved-depth visual runs measure visible near surfaces. Source age is since immutable capture; static current data need not be rebaked solely due to age. Warmup includes startup/resident preparation.",
+  "trials": {
+    "resident-complete-before-1": {
+      "warmup": {
+        "graphicsWarmupFrames": 10,
+        "warmupWallMs": 56818.313213
+      },
+      "geometryFenceAvailable": false,
+      "segments": {
+        "resident": {
+          "frames": 12,
+          "centerHorizontalCovered": 12,
+          "currentCenterCovered": null,
+          "nineHorizontalCovered": 12,
+          "knownSkyAtRouteColumn": 12,
+          "sourceAgeMsCurrentCenter": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "pendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyUploadedBytes": 0,
+          "skyOwnerComponentMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          }
+        },
+        "coldEntry": {
+          "frames": 4,
+          "centerHorizontalCovered": 0,
+          "currentCenterCovered": null,
+          "nineHorizontalCovered": 0,
+          "knownSkyAtRouteColumn": 4,
+          "sourceAgeMsCurrentCenter": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "pendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyUploadedBytes": 0,
+          "skyOwnerComponentMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          }
+        },
+        "coldWalk": {
+          "frames": 16,
+          "centerHorizontalCovered": 0,
+          "currentCenterCovered": null,
+          "nineHorizontalCovered": 0,
+          "knownSkyAtRouteColumn": 16,
+          "sourceAgeMsCurrentCenter": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "pendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyUploadedBytes": 0,
+          "skyOwnerComponentMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          }
+        },
+        "coldFlight": {
+          "frames": 80,
+          "centerHorizontalCovered": 55,
+          "currentCenterCovered": null,
+          "nineHorizontalCovered": 55,
+          "knownSkyAtRouteColumn": 80,
+          "sourceAgeMsCurrentCenter": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "pendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyUploadedBytes": 0,
+          "skyOwnerComponentMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          }
+        },
+        "warmReversal": {
+          "frames": 16,
+          "centerHorizontalCovered": 16,
+          "currentCenterCovered": null,
+          "nineHorizontalCovered": 16,
+          "knownSkyAtRouteColumn": 16,
+          "sourceAgeMsCurrentCenter": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "pendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyUploadedBytes": 0,
+          "skyOwnerComponentMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          }
+        },
+        "teleport": {
+          "frames": 6,
+          "centerHorizontalCovered": 0,
+          "currentCenterCovered": null,
+          "nineHorizontalCovered": 0,
+          "knownSkyAtRouteColumn": 6,
+          "sourceAgeMsCurrentCenter": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "pendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyUploadedBytes": 0,
+          "skyOwnerComponentMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          }
+        },
+        "catchup": {
+          "frames": 24,
+          "centerHorizontalCovered": 0,
+          "currentCenterCovered": null,
+          "nineHorizontalCovered": 0,
+          "knownSkyAtRouteColumn": 24,
+          "sourceAgeMsCurrentCenter": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "pendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyUploadedBytes": 0,
+          "skyOwnerComponentMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          }
+        },
+        "transitionTail": {
+          "frames": 8,
+          "centerHorizontalCovered": 0,
+          "currentCenterCovered": null,
+          "nineHorizontalCovered": 0,
+          "knownSkyAtRouteColumn": 8,
+          "sourceAgeMsCurrentCenter": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "pendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyUploadedBytes": 0,
+          "skyOwnerComponentMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          }
+        }
+      },
+      "firstRenderedNearCoverageWallMs": 31688.717679,
+      "initialLighting": {
+        "terrainUiFrames": 0,
+        "lightingUiFrames": 0,
+        "lastInitialLightingMs": -1.0
+      },
+      "readinessWaitsCsv": null,
+      "uniqueWorkers": [],
+      "lastCounters": null
+    },
+    "resident-complete-after-1": {
+      "warmup": {
+        "graphicsWarmupFrames": 10,
+        "warmupWallMs": 51211.187547
+      },
+      "geometryFenceAvailable": true,
+      "segments": {
+        "resident": {
+          "frames": 12,
+          "centerHorizontalCovered": 12,
+          "currentCenterCovered": 12,
+          "nineHorizontalCovered": 12,
+          "knownSkyAtRouteColumn": 12,
+          "sourceAgeMsCurrentCenter": {
+            "p50": 57944.0,
+            "p95": 69559.0,
+            "p99": 69559.0,
+            "worst": 69559.0
+          },
+          "pendingAgeMs": {
+            "p50": 0.0,
+            "p95": 0.0,
+            "p99": 0.0,
+            "worst": 0.0
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": 16722.0,
+            "p95": 28337.0,
+            "p99": 28337.0,
+            "worst": 28337.0
+          },
+          "skyUploadedBytes": 0,
+          "skyOwnerComponentMs": {
+            "p50": 0.001234,
+            "p95": 0.001735,
+            "p99": 0.001735,
+            "worst": 0.001735
+          }
+        },
+        "coldEntry": {
+          "frames": 4,
+          "centerHorizontalCovered": 0,
+          "currentCenterCovered": 0,
+          "nineHorizontalCovered": 0,
+          "knownSkyAtRouteColumn": 0,
+          "sourceAgeMsCurrentCenter": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "pendingAgeMs": {
+            "p50": 0.0,
+            "p95": 3872.0,
+            "p99": 3872.0,
+            "worst": 3872.0
+          },
+          "skyGpuPendingFrames": 1,
+          "skyGpuPendingAgeMs": {
+            "p50": 2009.0,
+            "p95": 2009.0,
+            "p99": 2009.0,
+            "worst": 2009.0
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": 3662.0,
+            "p95": 32378.0,
+            "p99": 32378.0,
+            "worst": 32378.0
+          },
+          "skyUploadedBytes": 1916928,
+          "skyOwnerComponentMs": {
+            "p50": 0.66125,
+            "p95": 7.799323,
+            "p99": 7.799323,
+            "worst": 7.799323
+          }
+        },
+        "coldWalk": {
+          "frames": 16,
+          "centerHorizontalCovered": 0,
+          "currentCenterCovered": 0,
+          "nineHorizontalCovered": 0,
+          "knownSkyAtRouteColumn": 16,
+          "sourceAgeMsCurrentCenter": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "pendingAgeMs": {
+            "p50": 0.0,
+            "p95": 0.0,
+            "p99": 0.0,
+            "worst": 0.0
+          },
+          "skyGpuPendingFrames": 5,
+          "skyGpuPendingAgeMs": {
+            "p50": 1709.0,
+            "p95": 3544.0,
+            "p99": 3544.0,
+            "worst": 3544.0
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": 3470.0,
+            "p95": 7156.0,
+            "p99": 7156.0,
+            "worst": 7156.0
+          },
+          "skyUploadedBytes": 9830400,
+          "skyOwnerComponentMs": {
+            "p50": 0.513309,
+            "p95": 1.937637,
+            "p99": 1.937637,
+            "worst": 1.937637
+          }
+        },
+        "coldFlight": {
+          "frames": 80,
+          "centerHorizontalCovered": 80,
+          "currentCenterCovered": 80,
+          "nineHorizontalCovered": 58,
+          "knownSkyAtRouteColumn": 80,
+          "sourceAgeMsCurrentCenter": {
+            "p50": 55852.0,
+            "p95": 83096.0,
+            "p99": 90551.0,
+            "worst": 90551.0
+          },
+          "pendingAgeMs": {
+            "p50": 0.0,
+            "p95": 0.0,
+            "p99": 8004.0,
+            "worst": 8004.0
+          },
+          "skyGpuPendingFrames": 17,
+          "skyGpuPendingAgeMs": {
+            "p50": 1941.0,
+            "p95": 7333.0,
+            "p99": 7333.0,
+            "worst": 7333.0
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": 3831.0,
+            "p95": 9133.0,
+            "p99": 13416.0,
+            "worst": 13416.0
+          },
+          "skyUploadedBytes": 43450368,
+          "skyOwnerComponentMs": {
+            "p50": 0.508117,
+            "p95": 1.107948,
+            "p99": 8.797997,
+            "worst": 8.797997
+          }
+        },
+        "warmReversal": {
+          "frames": 16,
+          "centerHorizontalCovered": 16,
+          "currentCenterCovered": 16,
+          "nineHorizontalCovered": 16,
+          "knownSkyAtRouteColumn": 16,
+          "sourceAgeMsCurrentCenter": {
+            "p50": 53762.0,
+            "p95": 70085.0,
+            "p99": 70085.0,
+            "worst": 70085.0
+          },
+          "pendingAgeMs": {
+            "p50": 0.0,
+            "p95": 6704.0,
+            "p99": 6704.0,
+            "worst": 6704.0
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": 2056.0,
+            "p95": 8327.0,
+            "p99": 8327.0,
+            "worst": 8327.0
+          },
+          "skyUploadedBytes": 12386304,
+          "skyOwnerComponentMs": {
+            "p50": 0.621265,
+            "p95": 2.498945,
+            "p99": 2.498945,
+            "worst": 2.498945
+          }
+        },
+        "teleport": {
+          "frames": 6,
+          "centerHorizontalCovered": 0,
+          "currentCenterCovered": 0,
+          "nineHorizontalCovered": 0,
+          "knownSkyAtRouteColumn": 2,
+          "sourceAgeMsCurrentCenter": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "pendingAgeMs": {
+            "p50": 0.0,
+            "p95": 1753.0,
+            "p99": 1753.0,
+            "worst": 1753.0
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": 1677.0,
+            "p95": 3339.0,
+            "p99": 3339.0,
+            "worst": 3339.0
+          },
+          "skyUploadedBytes": 6340608,
+          "skyOwnerComponentMs": {
+            "p50": 0.745601,
+            "p95": 1.886056,
+            "p99": 1.886056,
+            "worst": 1.886056
+          }
+        },
+        "catchup": {
+          "frames": 24,
+          "centerHorizontalCovered": 19,
+          "currentCenterCovered": 19,
+          "nineHorizontalCovered": 19,
+          "knownSkyAtRouteColumn": 24,
+          "sourceAgeMsCurrentCenter": {
+            "p50": 36055.0,
+            "p95": 51922.0,
+            "p99": 51922.0,
+            "worst": 51922.0
+          },
+          "pendingAgeMs": {
+            "p50": 0.0,
+            "p95": 0.0,
+            "p99": 0.0,
+            "worst": 0.0
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": 1704.0,
+            "p95": 3495.0,
+            "p99": 5136.0,
+            "worst": 5136.0
+          },
+          "skyUploadedBytes": 21430272,
+          "skyOwnerComponentMs": {
+            "p50": 0.65545,
+            "p95": 1.391062,
+            "p99": 9.26983,
+            "worst": 9.26983
+          }
+        },
+        "transitionTail": {
+          "frames": 8,
+          "centerHorizontalCovered": 8,
+          "currentCenterCovered": 8,
+          "nineHorizontalCovered": 8,
+          "knownSkyAtRouteColumn": 8,
+          "sourceAgeMsCurrentCenter": {
+            "p50": 59012.0,
+            "p95": 66829.0,
+            "p99": 66829.0,
+            "worst": 66829.0
+          },
+          "pendingAgeMs": {
+            "p50": 0.0,
+            "p95": 0.0,
+            "p99": 0.0,
+            "worst": 0.0
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": 1873.0,
+            "p95": 3425.0,
+            "p99": 3425.0,
+            "worst": 3425.0
+          },
+          "skyUploadedBytes": 8404992,
+          "skyOwnerComponentMs": {
+            "p50": 0.786094,
+            "p95": 1.67259,
+            "p99": 1.67259,
+            "worst": 1.67259
+          }
+        }
+      },
+      "firstRenderedNearCoverageWallMs": 24846.034898,
+      "initialLighting": {
+        "terrainUiFrames": 43,
+        "lightingUiFrames": 332,
+        "lastInitialLightingMs": 6817.238239
+      },
+      "readinessWaitsCsv": null,
+      "uniqueWorkers": [
+        {
+          "worker_id": "1",
+          "worker_wall_nanos": "2141300577",
+          "worker_cpu_nanos": "1356109275"
+        },
+        {
+          "worker_id": "2",
+          "worker_wall_nanos": "1366764074",
+          "worker_cpu_nanos": "1052759461"
+        },
+        {
+          "worker_id": "3",
+          "worker_wall_nanos": "762184397",
+          "worker_cpu_nanos": "643913771"
+        },
+        {
+          "worker_id": "4",
+          "worker_wall_nanos": "847282679",
+          "worker_cpu_nanos": "631608333"
+        },
+        {
+          "worker_id": "5",
+          "worker_wall_nanos": "775930467",
+          "worker_cpu_nanos": "531512175"
+        },
+        {
+          "worker_id": "6",
+          "worker_wall_nanos": "572534167",
+          "worker_cpu_nanos": "524294900"
+        },
+        {
+          "worker_id": "7",
+          "worker_wall_nanos": "1098544277",
+          "worker_cpu_nanos": "601378653"
+        },
+        {
+          "worker_id": "8",
+          "worker_wall_nanos": "552401388",
+          "worker_cpu_nanos": "437889775"
+        },
+        {
+          "worker_id": "9",
+          "worker_wall_nanos": "677466459",
+          "worker_cpu_nanos": "592603978"
+        }
+      ],
+      "lastCounters": {
+        "submitted_bakes": "9",
+        "completed_bakes": "9",
+        "rejected_bakes": "0",
+        "obsolete_volumes": "2"
+      }
+    },
+    "resident-complete-before-2": {
+      "warmup": {
+        "graphicsWarmupFrames": 10,
+        "warmupWallMs": 55268.331554
+      },
+      "geometryFenceAvailable": false,
+      "segments": {
+        "resident": {
+          "frames": 12,
+          "centerHorizontalCovered": 12,
+          "currentCenterCovered": null,
+          "nineHorizontalCovered": 12,
+          "knownSkyAtRouteColumn": 12,
+          "sourceAgeMsCurrentCenter": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "pendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyUploadedBytes": 0,
+          "skyOwnerComponentMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          }
+        },
+        "coldEntry": {
+          "frames": 4,
+          "centerHorizontalCovered": 0,
+          "currentCenterCovered": null,
+          "nineHorizontalCovered": 0,
+          "knownSkyAtRouteColumn": 4,
+          "sourceAgeMsCurrentCenter": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "pendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyUploadedBytes": 0,
+          "skyOwnerComponentMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          }
+        },
+        "coldWalk": {
+          "frames": 16,
+          "centerHorizontalCovered": 0,
+          "currentCenterCovered": null,
+          "nineHorizontalCovered": 0,
+          "knownSkyAtRouteColumn": 16,
+          "sourceAgeMsCurrentCenter": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "pendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyUploadedBytes": 0,
+          "skyOwnerComponentMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          }
+        },
+        "coldFlight": {
+          "frames": 80,
+          "centerHorizontalCovered": 55,
+          "currentCenterCovered": null,
+          "nineHorizontalCovered": 55,
+          "knownSkyAtRouteColumn": 80,
+          "sourceAgeMsCurrentCenter": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "pendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyUploadedBytes": 0,
+          "skyOwnerComponentMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          }
+        },
+        "warmReversal": {
+          "frames": 16,
+          "centerHorizontalCovered": 16,
+          "currentCenterCovered": null,
+          "nineHorizontalCovered": 16,
+          "knownSkyAtRouteColumn": 16,
+          "sourceAgeMsCurrentCenter": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "pendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyUploadedBytes": 0,
+          "skyOwnerComponentMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          }
+        },
+        "teleport": {
+          "frames": 6,
+          "centerHorizontalCovered": 0,
+          "currentCenterCovered": null,
+          "nineHorizontalCovered": 0,
+          "knownSkyAtRouteColumn": 6,
+          "sourceAgeMsCurrentCenter": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "pendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyUploadedBytes": 0,
+          "skyOwnerComponentMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          }
+        },
+        "catchup": {
+          "frames": 24,
+          "centerHorizontalCovered": 0,
+          "currentCenterCovered": null,
+          "nineHorizontalCovered": 0,
+          "knownSkyAtRouteColumn": 24,
+          "sourceAgeMsCurrentCenter": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "pendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyUploadedBytes": 0,
+          "skyOwnerComponentMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          }
+        },
+        "transitionTail": {
+          "frames": 8,
+          "centerHorizontalCovered": 0,
+          "currentCenterCovered": null,
+          "nineHorizontalCovered": 0,
+          "knownSkyAtRouteColumn": 8,
+          "sourceAgeMsCurrentCenter": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "pendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyUploadedBytes": 0,
+          "skyOwnerComponentMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          }
+        }
+      },
+      "firstRenderedNearCoverageWallMs": 30057.485322,
+      "initialLighting": {
+        "terrainUiFrames": 0,
+        "lightingUiFrames": 0,
+        "lastInitialLightingMs": -1.0
+      },
+      "readinessWaitsCsv": null,
+      "uniqueWorkers": [],
+      "lastCounters": null
+    },
+    "resident-complete-after-2": {
+      "warmup": {
+        "graphicsWarmupFrames": 10,
+        "warmupWallMs": 50020.311009
+      },
+      "geometryFenceAvailable": true,
+      "segments": {
+        "resident": {
+          "frames": 12,
+          "centerHorizontalCovered": 12,
+          "currentCenterCovered": 12,
+          "nineHorizontalCovered": 12,
+          "knownSkyAtRouteColumn": 12,
+          "sourceAgeMsCurrentCenter": {
+            "p50": 58811.0,
+            "p95": 70891.0,
+            "p99": 70891.0,
+            "worst": 70891.0
+          },
+          "pendingAgeMs": {
+            "p50": 0.0,
+            "p95": 0.0,
+            "p99": 0.0,
+            "worst": 0.0
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": 17075.0,
+            "p95": 29155.0,
+            "p99": 29155.0,
+            "worst": 29155.0
+          },
+          "skyUploadedBytes": 0,
+          "skyOwnerComponentMs": {
+            "p50": 0.001224,
+            "p95": 0.002014,
+            "p99": 0.002014,
+            "worst": 0.002014
+          }
+        },
+        "coldEntry": {
+          "frames": 4,
+          "centerHorizontalCovered": 0,
+          "currentCenterCovered": 0,
+          "nineHorizontalCovered": 0,
+          "knownSkyAtRouteColumn": 0,
+          "sourceAgeMsCurrentCenter": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "pendingAgeMs": {
+            "p50": 0.0,
+            "p95": 6115.0,
+            "p99": 6115.0,
+            "worst": 6115.0
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": 33154.0,
+            "p95": 37268.0,
+            "p99": 37268.0,
+            "worst": 37268.0
+          },
+          "skyUploadedBytes": 0,
+          "skyOwnerComponentMs": {
+            "p50": 0.0,
+            "p95": 0.002092,
+            "p99": 0.002092,
+            "worst": 0.002092
+          }
+        },
+        "coldWalk": {
+          "frames": 16,
+          "centerHorizontalCovered": 0,
+          "currentCenterCovered": 0,
+          "nineHorizontalCovered": 0,
+          "knownSkyAtRouteColumn": 15,
+          "sourceAgeMsCurrentCenter": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "pendingAgeMs": {
+            "p50": 0.0,
+            "p95": 0.0,
+            "p99": 0.0,
+            "worst": 0.0
+          },
+          "skyGpuPendingFrames": 2,
+          "skyGpuPendingAgeMs": {
+            "p50": 1687.0,
+            "p95": 1712.0,
+            "p99": 1712.0,
+            "worst": 1712.0
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": 1798.0,
+            "p95": 38997.0,
+            "p99": 38997.0,
+            "worst": 38997.0
+          },
+          "skyUploadedBytes": 10764288,
+          "skyOwnerComponentMs": {
+            "p50": 0.532551,
+            "p95": 1.420161,
+            "p99": 1.420161,
+            "worst": 1.420161
+          }
+        },
+        "coldFlight": {
+          "frames": 80,
+          "centerHorizontalCovered": 79,
+          "currentCenterCovered": 79,
+          "nineHorizontalCovered": 57,
+          "knownSkyAtRouteColumn": 80,
+          "sourceAgeMsCurrentCenter": {
+            "p50": 59237.0,
+            "p95": 92464.0,
+            "p99": 98680.0,
+            "worst": 98680.0
+          },
+          "pendingAgeMs": {
+            "p50": 0.0,
+            "p95": 0.0,
+            "p99": 5722.0,
+            "worst": 5722.0
+          },
+          "skyGpuPendingFrames": 17,
+          "skyGpuPendingAgeMs": {
+            "p50": 1966.0,
+            "p95": 6093.0,
+            "p99": 6093.0,
+            "worst": 6093.0
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": 3783.0,
+            "p95": 9875.0,
+            "p99": 12373.0,
+            "worst": 12373.0
+          },
+          "skyUploadedBytes": 43155456,
+          "skyOwnerComponentMs": {
+            "p50": 0.481904,
+            "p95": 1.259447,
+            "p99": 8.197237,
+            "worst": 8.197237
+          }
+        },
+        "warmReversal": {
+          "frames": 16,
+          "centerHorizontalCovered": 16,
+          "currentCenterCovered": 16,
+          "nineHorizontalCovered": 16,
+          "knownSkyAtRouteColumn": 16,
+          "sourceAgeMsCurrentCenter": {
+            "p50": 45393.0,
+            "p95": 61764.0,
+            "p99": 61764.0,
+            "worst": 61764.0
+          },
+          "pendingAgeMs": {
+            "p50": 0.0,
+            "p95": 6132.0,
+            "p99": 6132.0,
+            "worst": 6132.0
+          },
+          "skyGpuPendingFrames": 3,
+          "skyGpuPendingAgeMs": {
+            "p50": 4094.0,
+            "p95": 6174.0,
+            "p99": 6174.0,
+            "worst": 6174.0
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": 1999.0,
+            "p95": 8297.0,
+            "p99": 8297.0,
+            "worst": 8297.0
+          },
+          "skyUploadedBytes": 13664256,
+          "skyOwnerComponentMs": {
+            "p50": 0.703044,
+            "p95": 3.08625,
+            "p99": 3.08625,
+            "worst": 3.08625
+          }
+        },
+        "teleport": {
+          "frames": 6,
+          "centerHorizontalCovered": 0,
+          "currentCenterCovered": 0,
+          "nineHorizontalCovered": 0,
+          "knownSkyAtRouteColumn": 0,
+          "sourceAgeMsCurrentCenter": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "pendingAgeMs": {
+            "p50": 0.0,
+            "p95": 3153.0,
+            "p99": 3153.0,
+            "worst": 3153.0
+          },
+          "skyGpuPendingFrames": 4,
+          "skyGpuPendingAgeMs": {
+            "p50": 3115.0,
+            "p95": 6495.0,
+            "p99": 6495.0,
+            "worst": 6495.0
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": 3251.0,
+            "p95": 8203.0,
+            "p99": 8203.0,
+            "worst": 8203.0
+          },
+          "skyUploadedBytes": 2850816,
+          "skyOwnerComponentMs": {
+            "p50": 0.075311,
+            "p95": 0.738003,
+            "p99": 0.738003,
+            "worst": 0.738003
+          }
+        },
+        "catchup": {
+          "frames": 24,
+          "centerHorizontalCovered": 5,
+          "currentCenterCovered": 5,
+          "nineHorizontalCovered": 5,
+          "knownSkyAtRouteColumn": 18,
+          "sourceAgeMsCurrentCenter": {
+            "p50": 48210.0,
+            "p95": 51853.0,
+            "p99": 51853.0,
+            "worst": 51853.0
+          },
+          "pendingAgeMs": {
+            "p50": 0.0,
+            "p95": 0.0,
+            "p99": 0.0,
+            "worst": 0.0
+          },
+          "skyGpuPendingFrames": 8,
+          "skyGpuPendingAgeMs": {
+            "p50": 3432.0,
+            "p95": 11441.0,
+            "p99": 11441.0,
+            "worst": 11441.0
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": 3583.0,
+            "p95": 14665.0,
+            "p99": 16304.0,
+            "worst": 16304.0
+          },
+          "skyUploadedBytes": 15040512,
+          "skyOwnerComponentMs": {
+            "p50": 0.570042,
+            "p95": 1.197055,
+            "p99": 1.228252,
+            "worst": 1.228252
+          }
+        },
+        "transitionTail": {
+          "frames": 8,
+          "centerHorizontalCovered": 8,
+          "currentCenterCovered": 8,
+          "nineHorizontalCovered": 8,
+          "knownSkyAtRouteColumn": 8,
+          "sourceAgeMsCurrentCenter": {
+            "p50": 59612.0,
+            "p95": 67255.0,
+            "p99": 67255.0,
+            "worst": 67255.0
+          },
+          "pendingAgeMs": {
+            "p50": 0.0,
+            "p95": 0.0,
+            "p99": 0.0,
+            "worst": 0.0
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": 1812.0,
+            "p95": 4057.0,
+            "p99": 4057.0,
+            "worst": 4057.0
+          },
+          "skyUploadedBytes": 8306688,
+          "skyOwnerComponentMs": {
+            "p50": 0.641161,
+            "p95": 0.806089,
+            "p99": 0.806089,
+            "worst": 0.806089
+          }
+        }
+      },
+      "firstRenderedNearCoverageWallMs": 26528.714284,
+      "initialLighting": {
+        "terrainUiFrames": 48,
+        "lightingUiFrames": 255,
+        "lastInitialLightingMs": 7168.315
+      },
+      "readinessWaitsCsv": null,
+      "uniqueWorkers": [
+        {
+          "worker_id": "1",
+          "worker_wall_nanos": "2222338001",
+          "worker_cpu_nanos": "1396662162"
+        },
+        {
+          "worker_id": "2",
+          "worker_wall_nanos": "1727081786",
+          "worker_cpu_nanos": "1235949999"
+        },
+        {
+          "worker_id": "3",
+          "worker_wall_nanos": "792436478",
+          "worker_cpu_nanos": "591595351"
+        },
+        {
+          "worker_id": "4",
+          "worker_wall_nanos": "787812464",
+          "worker_cpu_nanos": "536674166"
+        },
+        {
+          "worker_id": "5",
+          "worker_wall_nanos": "541919121",
+          "worker_cpu_nanos": "505571163"
+        },
+        {
+          "worker_id": "6",
+          "worker_wall_nanos": "815763295",
+          "worker_cpu_nanos": "571434702"
+        },
+        {
+          "worker_id": "7",
+          "worker_wall_nanos": "572504839",
+          "worker_cpu_nanos": "527887529"
+        },
+        {
+          "worker_id": "8",
+          "worker_wall_nanos": "641625713",
+          "worker_cpu_nanos": "447698804"
+        },
+        {
+          "worker_id": "9",
+          "worker_wall_nanos": "730941078",
+          "worker_cpu_nanos": "619176470"
+        }
+      ],
+      "lastCounters": {
+        "submitted_bakes": "9",
+        "completed_bakes": "9",
+        "rejected_bakes": "0",
+        "obsolete_volumes": "2"
+      }
+    },
+    "resident-complete-before-3": {
+      "warmup": {
+        "graphicsWarmupFrames": 10,
+        "warmupWallMs": 60409.540463
+      },
+      "geometryFenceAvailable": false,
+      "segments": {
+        "resident": {
+          "frames": 12,
+          "centerHorizontalCovered": 12,
+          "currentCenterCovered": null,
+          "nineHorizontalCovered": 12,
+          "knownSkyAtRouteColumn": 12,
+          "sourceAgeMsCurrentCenter": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "pendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyUploadedBytes": 0,
+          "skyOwnerComponentMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          }
+        },
+        "coldEntry": {
+          "frames": 4,
+          "centerHorizontalCovered": 0,
+          "currentCenterCovered": null,
+          "nineHorizontalCovered": 0,
+          "knownSkyAtRouteColumn": 4,
+          "sourceAgeMsCurrentCenter": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "pendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyUploadedBytes": 0,
+          "skyOwnerComponentMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          }
+        },
+        "coldWalk": {
+          "frames": 16,
+          "centerHorizontalCovered": 0,
+          "currentCenterCovered": null,
+          "nineHorizontalCovered": 0,
+          "knownSkyAtRouteColumn": 16,
+          "sourceAgeMsCurrentCenter": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "pendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyUploadedBytes": 0,
+          "skyOwnerComponentMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          }
+        },
+        "coldFlight": {
+          "frames": 80,
+          "centerHorizontalCovered": 55,
+          "currentCenterCovered": null,
+          "nineHorizontalCovered": 55,
+          "knownSkyAtRouteColumn": 80,
+          "sourceAgeMsCurrentCenter": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "pendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyUploadedBytes": 0,
+          "skyOwnerComponentMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          }
+        },
+        "warmReversal": {
+          "frames": 16,
+          "centerHorizontalCovered": 16,
+          "currentCenterCovered": null,
+          "nineHorizontalCovered": 16,
+          "knownSkyAtRouteColumn": 16,
+          "sourceAgeMsCurrentCenter": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "pendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyUploadedBytes": 0,
+          "skyOwnerComponentMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          }
+        },
+        "teleport": {
+          "frames": 6,
+          "centerHorizontalCovered": 0,
+          "currentCenterCovered": null,
+          "nineHorizontalCovered": 0,
+          "knownSkyAtRouteColumn": 6,
+          "sourceAgeMsCurrentCenter": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "pendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyUploadedBytes": 0,
+          "skyOwnerComponentMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          }
+        },
+        "catchup": {
+          "frames": 24,
+          "centerHorizontalCovered": 0,
+          "currentCenterCovered": null,
+          "nineHorizontalCovered": 0,
+          "knownSkyAtRouteColumn": 24,
+          "sourceAgeMsCurrentCenter": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "pendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyUploadedBytes": 0,
+          "skyOwnerComponentMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          }
+        },
+        "transitionTail": {
+          "frames": 8,
+          "centerHorizontalCovered": 0,
+          "currentCenterCovered": null,
+          "nineHorizontalCovered": 0,
+          "knownSkyAtRouteColumn": 8,
+          "sourceAgeMsCurrentCenter": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "pendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyUploadedBytes": 0,
+          "skyOwnerComponentMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          }
+        }
+      },
+      "firstRenderedNearCoverageWallMs": 33491.948504,
+      "initialLighting": {
+        "terrainUiFrames": 0,
+        "lightingUiFrames": 0,
+        "lastInitialLightingMs": -1.0
+      },
+      "readinessWaitsCsv": null,
+      "uniqueWorkers": [],
+      "lastCounters": null
+    },
+    "resident-complete-after-3": {
+      "warmup": {
+        "graphicsWarmupFrames": 11,
+        "warmupWallMs": 54492.725616
+      },
+      "geometryFenceAvailable": true,
+      "segments": {
+        "resident": {
+          "frames": 12,
+          "centerHorizontalCovered": 12,
+          "currentCenterCovered": 12,
+          "nineHorizontalCovered": 12,
+          "knownSkyAtRouteColumn": 12,
+          "sourceAgeMsCurrentCenter": {
+            "p50": 64391.0,
+            "p95": 76353.0,
+            "p99": 76353.0,
+            "worst": 76353.0
+          },
+          "pendingAgeMs": {
+            "p50": 0.0,
+            "p95": 0.0,
+            "p99": 0.0,
+            "worst": 0.0
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": 9958.0,
+            "p95": 16830.0,
+            "p99": 16830.0,
+            "worst": 16830.0
+          },
+          "skyUploadedBytes": 983040,
+          "skyOwnerComponentMs": {
+            "p50": 0.001229,
+            "p95": 1.367973,
+            "p99": 1.367973,
+            "worst": 1.367973
+          }
+        },
+        "coldEntry": {
+          "frames": 4,
+          "centerHorizontalCovered": 0,
+          "currentCenterCovered": 0,
+          "nineHorizontalCovered": 0,
+          "knownSkyAtRouteColumn": 0,
+          "sourceAgeMsCurrentCenter": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "pendingAgeMs": {
+            "p50": 0.0,
+            "p95": 5747.0,
+            "p99": 5747.0,
+            "worst": 5747.0
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": 3886.0,
+            "p95": 17390.0,
+            "p99": 17390.0,
+            "worst": 17390.0
+          },
+          "skyUploadedBytes": 933888,
+          "skyOwnerComponentMs": {
+            "p50": 0.001571,
+            "p95": 1.202704,
+            "p99": 1.202704,
+            "worst": 1.202704
+          }
+        },
+        "coldWalk": {
+          "frames": 16,
+          "centerHorizontalCovered": 6,
+          "currentCenterCovered": 6,
+          "nineHorizontalCovered": 6,
+          "knownSkyAtRouteColumn": 16,
+          "sourceAgeMsCurrentCenter": {
+            "p50": 31035.0,
+            "p95": 36515.0,
+            "p99": 36515.0,
+            "worst": 36515.0
+          },
+          "pendingAgeMs": {
+            "p50": 0.0,
+            "p95": 5586.0,
+            "p99": 5586.0,
+            "worst": 5586.0
+          },
+          "skyGpuPendingFrames": 0,
+          "skyGpuPendingAgeMs": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": 1809.0,
+            "p95": 5675.0,
+            "p99": 5675.0,
+            "worst": 5675.0
+          },
+          "skyUploadedBytes": 10715136,
+          "skyOwnerComponentMs": {
+            "p50": 0.628262,
+            "p95": 1.145941,
+            "p99": 1.145941,
+            "worst": 1.145941
+          }
+        },
+        "coldFlight": {
+          "frames": 80,
+          "centerHorizontalCovered": 80,
+          "currentCenterCovered": 80,
+          "nineHorizontalCovered": 68,
+          "knownSkyAtRouteColumn": 80,
+          "sourceAgeMsCurrentCenter": {
+            "p50": 61295.0,
+            "p95": 89489.0,
+            "p99": 95362.0,
+            "worst": 95362.0
+          },
+          "pendingAgeMs": {
+            "p50": 0.0,
+            "p95": 0.0,
+            "p99": 8652.0,
+            "worst": 8652.0
+          },
+          "skyGpuPendingFrames": 19,
+          "skyGpuPendingAgeMs": {
+            "p50": 2014.0,
+            "p95": 5799.0,
+            "p99": 5799.0,
+            "worst": 5799.0
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": 3916.0,
+            "p95": 10093.0,
+            "p99": 11765.0,
+            "worst": 11765.0
+          },
+          "skyUploadedBytes": 41631744,
+          "skyOwnerComponentMs": {
+            "p50": 0.547011,
+            "p95": 1.063604,
+            "p99": 2.841822,
+            "worst": 2.841822
+          }
+        },
+        "warmReversal": {
+          "frames": 16,
+          "centerHorizontalCovered": 16,
+          "currentCenterCovered": 16,
+          "nineHorizontalCovered": 12,
+          "knownSkyAtRouteColumn": 16,
+          "sourceAgeMsCurrentCenter": {
+            "p50": 64008.0,
+            "p95": 101310.0,
+            "p99": 101310.0,
+            "worst": 101310.0
+          },
+          "pendingAgeMs": {
+            "p50": 0.0,
+            "p95": 4053.0,
+            "p99": 4053.0,
+            "worst": 4053.0
+          },
+          "skyGpuPendingFrames": 2,
+          "skyGpuPendingAgeMs": {
+            "p50": 1876.0,
+            "p95": 1982.0,
+            "p99": 1982.0,
+            "worst": 1982.0
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": 4025.0,
+            "p95": 10352.0,
+            "p99": 10352.0,
+            "worst": 10352.0
+          },
+          "skyUploadedBytes": 11894784,
+          "skyOwnerComponentMs": {
+            "p50": 0.611963,
+            "p95": 1.142847,
+            "p99": 1.142847,
+            "worst": 1.142847
+          }
+        },
+        "teleport": {
+          "frames": 6,
+          "centerHorizontalCovered": 0,
+          "currentCenterCovered": 0,
+          "nineHorizontalCovered": 0,
+          "knownSkyAtRouteColumn": 1,
+          "sourceAgeMsCurrentCenter": {
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "worst": null
+          },
+          "pendingAgeMs": {
+            "p50": 0.0,
+            "p95": 3236.0,
+            "p99": 3236.0,
+            "worst": 3236.0
+          },
+          "skyGpuPendingFrames": 2,
+          "skyGpuPendingAgeMs": {
+            "p50": 1513.0,
+            "p95": 3095.0,
+            "p99": 3095.0,
+            "worst": 3095.0
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": 1693.0,
+            "p95": 4861.0,
+            "p99": 4861.0,
+            "worst": 4861.0
+          },
+          "skyUploadedBytes": 4915200,
+          "skyOwnerComponentMs": {
+            "p50": 0.432864,
+            "p95": 1.185822,
+            "p99": 1.185822,
+            "worst": 1.185822
+          }
+        },
+        "catchup": {
+          "frames": 24,
+          "centerHorizontalCovered": 14,
+          "currentCenterCovered": 14,
+          "nineHorizontalCovered": 14,
+          "knownSkyAtRouteColumn": 24,
+          "sourceAgeMsCurrentCenter": {
+            "p50": 39175.0,
+            "p95": 51307.0,
+            "p99": 51307.0,
+            "worst": 51307.0
+          },
+          "pendingAgeMs": {
+            "p50": 0.0,
+            "p95": 0.0,
+            "p99": 0.0,
+            "worst": 0.0
+          },
+          "skyGpuPendingFrames": 1,
+          "skyGpuPendingAgeMs": {
+            "p50": 1636.0,
+            "p95": 1636.0,
+            "p99": 1636.0,
+            "worst": 1636.0
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": 1795.0,
+            "p95": 5244.0,
+            "p99": 6813.0,
+            "worst": 6813.0
+          },
+          "skyUploadedBytes": 18333696,
+          "skyOwnerComponentMs": {
+            "p50": 0.611644,
+            "p95": 1.028457,
+            "p99": 1.220184,
+            "worst": 1.220184
+          }
+        },
+        "transitionTail": {
+          "frames": 8,
+          "centerHorizontalCovered": 8,
+          "currentCenterCovered": 8,
+          "nineHorizontalCovered": 8,
+          "knownSkyAtRouteColumn": 8,
+          "sourceAgeMsCurrentCenter": {
+            "p50": 58424.0,
+            "p95": 65528.0,
+            "p99": 65528.0,
+            "worst": 65528.0
+          },
+          "pendingAgeMs": {
+            "p50": 0.0,
+            "p95": 0.0,
+            "p99": 0.0,
+            "worst": 0.0
+          },
+          "skyGpuPendingFrames": 2,
+          "skyGpuPendingAgeMs": {
+            "p50": 1696.0,
+            "p95": 3451.0,
+            "p99": 3451.0,
+            "worst": 3451.0
+          },
+          "skyAtlasPublicationAgeMs": {
+            "p50": 1736.0,
+            "p95": 5323.0,
+            "p99": 5323.0,
+            "worst": 5323.0
+          },
+          "skyUploadedBytes": 5750784,
+          "skyOwnerComponentMs": {
+            "p50": 0.343713,
+            "p95": 1.047405,
+            "p99": 1.047405,
+            "worst": 1.047405
+          }
+        }
+      },
+      "firstRenderedNearCoverageWallMs": 27208.285089,
+      "initialLighting": {
+        "terrainUiFrames": 39,
+        "lightingUiFrames": 281,
+        "lastInitialLightingMs": 7353.467319
+      },
+      "readinessWaitsCsv": "reason,frames\nsky CPU work,1\n",
+      "uniqueWorkers": [
+        {
+          "worker_id": "1",
+          "worker_wall_nanos": "2106537665",
+          "worker_cpu_nanos": "1411290141"
+        },
+        {
+          "worker_id": "2",
+          "worker_wall_nanos": "1118491430",
+          "worker_cpu_nanos": "989937084"
+        },
+        {
+          "worker_id": "3",
+          "worker_wall_nanos": "1070025356",
+          "worker_cpu_nanos": "805868983"
+        },
+        {
+          "worker_id": "4",
+          "worker_wall_nanos": "613794383",
+          "worker_cpu_nanos": "528365989"
+        },
+        {
+          "worker_id": "5",
+          "worker_wall_nanos": "719003531",
+          "worker_cpu_nanos": "544920087"
+        },
+        {
+          "worker_id": "6",
+          "worker_wall_nanos": "798267981",
+          "worker_cpu_nanos": "602773322"
+        },
+        {
+          "worker_id": "7",
+          "worker_wall_nanos": "486758139",
+          "worker_cpu_nanos": "466544059"
+        },
+        {
+          "worker_id": "8",
+          "worker_wall_nanos": "911618089",
+          "worker_cpu_nanos": "608752220"
+        }
+      ],
+      "lastCounters": {
+        "submitted_bakes": "8",
+        "completed_bakes": "8",
+        "rejected_bakes": "0",
+        "obsolete_volumes": "1"
+      }
+    }
+  },
+  "status": "Historical experiment, superseded by resident-shared-source.json and resident-shared-performance.json. Retained numeric results are not final-candidate claims."
+}

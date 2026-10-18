@@ -1,0 +1,125 @@
+{
+  "1": {
+    "bounds": {
+      "terrain_pending": {
+        "max": 8.0,
+        "last": 8.0,
+        "last24Min": 8.0,
+        "last24Max": 8.0
+      },
+      "loaded_chunks": {
+        "max": 1278.0,
+        "last": 1278.0,
+        "last24Min": 1221.0,
+        "last24Max": 1278.0
+      },
+      "heap_used_bytes": {
+        "max": 496959448.0,
+        "last": 207106256.0,
+        "last24Min": 145764560.0,
+        "last24Max": 496959448.0
+      },
+      "estimated_vram_bytes": {
+        "max": 356638384.0,
+        "last": 319574872.0,
+        "last24Min": 305808784.0,
+        "last24Max": 319574872.0
+      },
+      "sky_cache_bytes": {
+        "max": 1284896.0,
+        "last": 1173952.0,
+        "last24Min": 1116672.0,
+        "last24Max": 1185408.0
+      }
+    },
+    "coldNinePoint": {
+      "frames": 80,
+      "meanPercent": 95.0,
+      "fullFrames": 68,
+      "zeroFrames": 0
+    },
+    "finalEightNearbyResident": 8
+  },
+  "2": {
+    "bounds": {
+      "terrain_pending": {
+        "max": 8.0,
+        "last": 0.0,
+        "last24Min": 0.0,
+        "last24Max": 8.0
+      },
+      "loaded_chunks": {
+        "max": 1300.0,
+        "last": 1300.0,
+        "last24Min": 1275.0,
+        "last24Max": 1300.0
+      },
+      "heap_used_bytes": {
+        "max": 560089936.0,
+        "last": 323899384.0,
+        "last24Min": 145066464.0,
+        "last24Max": 560089936.0
+      },
+      "estimated_vram_bytes": {
+        "max": 356956120.0,
+        "last": 320291296.0,
+        "last24Min": 306409480.0,
+        "last24Max": 320291296.0
+      },
+      "sky_cache_bytes": {
+        "max": 1290664.0,
+        "last": 1242688.0,
+        "last24Min": 1139584.0,
+        "last24Max": 1242688.0
+      }
+    },
+    "coldNinePoint": {
+      "frames": 80,
+      "meanPercent": 92.08333333333333,
+      "fullFrames": 61,
+      "zeroFrames": 0
+    },
+    "finalEightNearbyResident": 8
+  },
+  "3": {
+    "bounds": {
+      "terrain_pending": {
+        "max": 8.0,
+        "last": 8.0,
+        "last24Min": 8.0,
+        "last24Max": 8.0
+      },
+      "loaded_chunks": {
+        "max": 1313.0,
+        "last": 1313.0,
+        "last24Min": 1272.0,
+        "last24Max": 1313.0
+      },
+      "heap_used_bytes": {
+        "max": 566368128.0,
+        "last": 275638800.0,
+        "last24Min": 145395680.0,
+        "last24Max": 566368128.0
+      },
+      "estimated_vram_bytes": {
+        "max": 356986792.0,
+        "last": 320327584.0,
+        "last24Min": 306439072.0,
+        "last24Max": 320327584.0
+      },
+      "sky_cache_bytes": {
+        "max": 1290664.0,
+        "last": 1173952.0,
+        "last24Min": 1139584.0,
+        "last24Max": 1208320.0
+      }
+    },
+    "coldNinePoint": {
+      "frames": 80,
+      "meanPercent": 100.0,
+      "fullFrames": 80,
+      "zeroFrames": 0
+    },
+    "finalEightNearbyResident": 8
+  }
+}

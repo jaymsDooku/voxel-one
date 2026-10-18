@@ -1,0 +1,23 @@
+{
+  "run": "resident-probe-after-9",
+  "diagnostic_only": true,
+  "exit_code": 0,
+  "driver_eviction_records": 0,
+  "reflection_cpu_over_100ms": [
+    {
+      "sample": "-1",
+      "operation": "reflection.capture",
+      "wall_ns": "2642032329",
+      "thread_cpu_ns": "2583268345",
+      "gpu_ns": "2593253880"
+    },
+    {
+      "sample": "-1",
+      "operation": "reflection.capture",
+      "wall_ns": "2522230094",
+      "thread_cpu_ns": "2502832913",
+      "gpu_ns": "2859050709"
+    }
+  ],
+  "limitation": "First-draw descriptors do not cover later mesh states within the same face. No cache-eviction cause established."
+}

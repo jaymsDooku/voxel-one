@@ -7,6 +7,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import java.nio.file.*;
 import java.util.*;
 import java.util.function.BooleanSupplier;
+import java.util.concurrent.*;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 import static org.junit.jupiter.api.Assertions.*;
@@ -43,12 +44,23 @@ class CityHistoryNetworkTest {
                 assertEquals(4,a.historyResponseRequest);
                 assertEquals(b.historyReply.series(),a.historyReply.series());
                 // Change selection while an authenticated Overview query is outstanding.
-                var ui=new MetricTrends();ui.update(simulation.frame(),null,b);
-                ui.open=true;ui.key(GLFW_KEY_C,GLFW_PRESS);
-                for(int i=0;i<64;i++)ui.key(GLFW_KEY_BACKSPACE,GLFW_PRESS);
-                "12.5,25".chars().forEach(ui::character);ui.key(GLFW_KEY_ENTER,GLFW_PRESS);ui.open=false;
-                ui.update(simulation.frame(),null,b);
-                until(()->{b.poll();ui.update(simulation.frame(),null,b);return ui.overviewComparison(0).startsWith("Fixed 12.5-25s completed mean");});
+                // Hold the writer beyond the UI's enqueue-time query interval.
+                // The first reply must start the next interval, even after a selection change.
+                var held=new CountDownLatch(1);var release=new CountDownLatch(1);
+                var outgoingField=MultiplayerClient.class.getDeclaredField("outgoing");outgoingField.setAccessible(true);
+                @SuppressWarnings("unchecked") var outgoing=(BlockingQueue<Runnable>)outgoingField.get(b);
+                assertTrue(outgoing.offer(()->{held.countDown();try{release.await();}catch(InterruptedException e){Thread.currentThread().interrupt();}}));
+                assertTrue(held.await(5,TimeUnit.SECONDS));
+                var ui=new MetricTrends();
+                try {
+                    ui.update(simulation.frame(),null,b);
+                    ui.open=true;ui.key(GLFW_KEY_C,GLFW_PRESS);
+                    for(int i=0;i<64;i++)ui.key(GLFW_KEY_BACKSPACE,GLFW_PRESS);
+                    "12.5,25".chars().forEach(ui::character);ui.key(GLFW_KEY_ENTER,GLFW_PRESS);ui.open=false;
+                    ui.update(simulation.frame(),null,b);
+                    Thread.sleep(600); // Deliberate transport latency, not a readiness assumption.
+                }finally{release.countDown();}
+                until(()->{b.poll();assertTrue(b.connected(),"History client disconnected after delayed send");ui.update(simulation.frame(),null,b);return ui.overviewComparison(0).startsWith("Fixed 12.5-25s completed mean");});
                 assertTrue(b.connected());assertTrue(b.historyError.isEmpty());
                 assertEquals(12.5,ui.overviewRangeStart());assertEquals(25,ui.overviewRangeEnd());
                 assertFalse(ui.live);

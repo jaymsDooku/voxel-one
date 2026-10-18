@@ -1,0 +1,494 @@
+{
+  "sourceSha256": "b2047bf7134053bc5d89afae0647cb59ddf593f5030fdaa3dee0f250845994c9",
+  "featureJarSha256": "5fe8c15b8bb552aebe119c1922391a61e9771f76305f36c078ed5130da877333",
+  "files": {
+    "dashboard/evidence/lighting-near-v2-after-1-coverage.csv": {
+      "sha256": "d52ac9076db58f8e6f8875254f541c65f861ec292e8df8595632ce7a153fa1eb",
+      "bytes": 50951
+    },
+    "dashboard/evidence/lighting-near-v2-after-1-residency.csv": {
+      "sha256": "979ea63fe6a73e3a09f660ccb5214e73c8e51e3dc5124e65806b974393f41c93",
+      "bytes": 6539
+    },
+    "dashboard/evidence/lighting-near-v2-after-1-startup.json": {
+      "sha256": "3bb2c571b45aea49f83b9ac4586f646c1cb58be7012d1805c4378420b0f373b0",
+      "bytes": 70
+    },
+    "dashboard/evidence/lighting-near-v2-after-1-warmup.json": {
+      "sha256": "d221fb735629f8fddf9acfe86562328c9ba2ba789f502e9eb1b340a2d7aa5c46",
+      "bytes": 55
+    },
+    "dashboard/evidence/lighting-near-v2-after-1.csv": {
+      "sha256": "7330d7f47f93442657572fa91b6af4c7c031a4c91c4a199f84576e8ac6c55fcc",
+      "bytes": 80807
+    },
+    "dashboard/evidence/lighting-near-v2-after-1.json": {
+      "sha256": "55e1d6b28e1892f16ccaee20a1aa3bd94c1d9c3ef0856cf58c2055af9446a025",
+      "bytes": 1830
+    },
+    "dashboard/evidence/lighting-near-v2-after-2-coverage.csv": {
+      "sha256": "6dadb5c0e93bd8db66a1eeb3cec37e690926740804c05f3f3d56fbb3cebc4278",
+      "bytes": 50956
+    },
+    "dashboard/evidence/lighting-near-v2-after-2-residency.csv": {
+      "sha256": "01a4be8cc85d5304567cb45fa3b682e81a9eca5eead19d2f2f815a75bb362f6a",
+      "bytes": 6532
+    },
+    "dashboard/evidence/lighting-near-v2-after-2-startup.json": {
+      "sha256": "4458f32d3bb28d503390fd405514f7f45c615d806dac9282a9ab3a56cd14be34",
+      "bytes": 70
+    },
+    "dashboard/evidence/lighting-near-v2-after-2-warmup.json": {
+      "sha256": "a52282c5e175de9b15468537286bd4bb400860b6c523fda7eeafdb0bb8a43f0c",
+      "bytes": 56
+    },
+    "dashboard/evidence/lighting-near-v2-after-2.csv": {
+      "sha256": "271da54da7d8a2e382d304bc665ce09bb19e8e74e473419f9a6b9b2b1b9db0d0",
+      "bytes": 80907
+    },
+    "dashboard/evidence/lighting-near-v2-after-2.json": {
+      "sha256": "b3928b0f3f0570b05a929012ee93dfbf93ca87031d4568d8b50baf971a40db84",
+      "bytes": 1832
+    },
+    "dashboard/evidence/lighting-near-v2-after-3-coverage.csv": {
+      "sha256": "062846f758ccfb27354f6d3dd2a13117b7c2e7feaaa159701fdd5358f018e1df",
+      "bytes": 51345
+    },
+    "dashboard/evidence/lighting-near-v2-after-3-residency.csv": {
+      "sha256": "9420b587d8e0047fd3f5a6e629a05f059f67a9a0dd1b82be40e2ce141d74b69a",
+      "bytes": 6538
+    },
+    "dashboard/evidence/lighting-near-v2-after-3-startup.json": {
+      "sha256": "a2ba9fd7208bfa68830363f710728486fc0a9145a9e498675f2e2f064473de76",
+      "bytes": 70
+    },
+    "dashboard/evidence/lighting-near-v2-after-3-warmup.json": {
+      "sha256": "8122db250fc42fe2376bb4cf1fa197d235cad0feb9312f993f316c3cc3f044d7",
+      "bytes": 56
+    },
+    "dashboard/evidence/lighting-near-v2-after-3.csv": {
+      "sha256": "4a343e13779aec14129c74e0f90c6f7a048d39f8ba06896ee03802517d98aabe",
+      "bytes": 81017
+    },
+    "dashboard/evidence/lighting-near-v2-after-3.json": {
+      "sha256": "5bc22f8b0e6070b832a10647c73b26e5178085f10ea4ef4f59c9a89c9d250327",
+      "bytes": 1832
+    },
+    "dashboard/evidence/lighting-near-v2-async-streaming-soak-borders.png": {
+      "sha256": "869390d11ff6d040ebf63d526247fc25f1e0ecba284f4abc223b09c04fd7da16",
+      "bytes": 2413
+    },
+    "dashboard/evidence/lighting-near-v2-async-streaming-soak-results.txt": {
+      "sha256": "7d18b76e1c63489e28ccf6400dcabc894ae7ef8000e777308229a862af548bd1",
+      "bytes": 496
+    },
+    "dashboard/evidence/lighting-near-v2-async-streaming-soak.csv": {
+      "sha256": "e0447c7a2dd7f280e7b1e6f6ce89d819da27c0ff2ce0ba367ea761432df58998",
+      "bytes": 2232
+    },
+    "dashboard/evidence/lighting-near-v2-baseline-retry-before-coverage.csv": {
+      "sha256": "361dbd956675ba115201d857f2fda4df41a385f533cf93373f7cfd5be9e84bb9",
+      "bytes": 46674
+    },
+    "dashboard/evidence/lighting-near-v2-baseline-retry-before-depth-11.json": {
+      "sha256": "b3294ad263eb4e93dc82cd36b4a4eb53b47a63250cc483caa7b3384d3796ea70",
+      "bytes": 445
+    },
+    "dashboard/evidence/lighting-near-v2-baseline-retry-before-depth-111.json": {
+      "sha256": "3ca5d7a714438b4369c49a7bdea9e1d84f562f569b260a92f15cd527ac787453",
+      "bytes": 451
+    },
+    "dashboard/evidence/lighting-near-v2-baseline-retry-before-depth-127.json": {
+      "sha256": "83ec43c6345fca6479a9ad45686f07471678c6dfad6111c74198b38255c1227d",
+      "bytes": 453
+    },
+    "dashboard/evidence/lighting-near-v2-baseline-retry-before-depth-133.json": {
+      "sha256": "a93af25462268d2c10f865e53c3875f88228578115766a518cf23cc93ed56e19",
+      "bytes": 440
+    },
+    "dashboard/evidence/lighting-near-v2-baseline-retry-before-depth-165.json": {
+      "sha256": "dd2253a5a0396ba0d81334f5f0d47e216fb1333dc7f926b79702eef59e735517",
+      "bytes": 446
+    },
+    "dashboard/evidence/lighting-near-v2-baseline-retry-before-depth-64.json": {
+      "sha256": "eac7fe5191169e1c71f215095b09458f795c56ad4ab510bcedc733eed150a5e3",
+      "bytes": 448
+    },
+    "dashboard/evidence/lighting-near-v2-baseline-retry-before-report.json": {
+      "sha256": "5db9853e069b3e40dca17731081b70f00531e7afcd402b3b39d47c7fe4606ca8",
+      "bytes": 4643
+    },
+    "dashboard/evidence/lighting-near-v2-baseline-retry-before-visual-11.png": {
+      "sha256": "32899500c359a944f500fa4aef360283f43f66b3a753addd4e6fcc5f91a1823b",
+      "bytes": 764985
+    },
+    "dashboard/evidence/lighting-near-v2-baseline-retry-before-visual-111.png": {
+      "sha256": "241f6ec504f091f5f67f4e6cb1a84e7328164dcf61d0eaed07d24adac9af6673",
+      "bytes": 627694
+    },
+    "dashboard/evidence/lighting-near-v2-baseline-retry-before-visual-127.png": {
+      "sha256": "cca7416d076654134f046a2a977ac848437aa6af2ca7ac5e5ae8779d5ace54f0",
+      "bytes": 446438
+    },
+    "dashboard/evidence/lighting-near-v2-baseline-retry-before-visual-133.png": {
+      "sha256": "cbb1d2ab3aad5806eb09f1b5acc643688b29760d31f7ad70f51d0c672c67ebff",
+      "bytes": 190281
+    },
+    "dashboard/evidence/lighting-near-v2-baseline-retry-before-visual-165.png": {
+      "sha256": "390bad02ee3ccba082226fedb9ed63daaa14e91ee4b475ff4f3f0aba55ac4427",
+      "bytes": 787400
+    },
+    "dashboard/evidence/lighting-near-v2-baseline-retry-before-visual-64.png": {
+      "sha256": "f1fcc48d3540dc29b1ad9383b4b4b00f90723554085a812a8949f7fed6abef1f",
+      "bytes": 259047
+    },
+    "dashboard/evidence/lighting-near-v2-before-1-coverage.csv": {
+      "sha256": "312c62ab7de5fff8bb22e1f3211aad210408040ac1e97c79859fbb56bd4aa2f8",
+      "bytes": 46731
+    },
+    "dashboard/evidence/lighting-near-v2-before-1-residency.csv": {
+      "sha256": "99293795570c4fefa85d8c226dc1759fff6186aaad0444c3fe476fe1e3e7b6a8",
+      "bytes": 6582
+    },
+    "dashboard/evidence/lighting-near-v2-before-1-startup.json": {
+      "sha256": "24cf6eea3777f5e7d1de0a9c6b3cd10d9d6030e7aa39560322f915f065d77d3d",
+      "bytes": 69
+    },
+    "dashboard/evidence/lighting-near-v2-before-1-warmup.json": {
+      "sha256": "4bd06d13ea067a2b117a1a07c0e61e394257942e2f10d080db2662304131b51c",
+      "bytes": 56
+    },
+    "dashboard/evidence/lighting-near-v2-before-1.csv": {
+      "sha256": "9ed0df836f3376f7c0d0f363a2bf733c062bbbe080b0ebefeee5b8deae0cdfb4",
+      "bytes": 64523
+    },
+    "dashboard/evidence/lighting-near-v2-before-1.json": {
+      "sha256": "11c0ca089084edd94532a213afbb644f11887b05c447e49b8b5a6c52322579f9",
+      "bytes": 1788
+    },
+    "dashboard/evidence/lighting-near-v2-before-2-coverage.csv": {
+      "sha256": "e29ddebafc85a7581eb4d726dd3464acae3535724e45331cee2085a8a51d00cf",
+      "bytes": 46728
+    },
+    "dashboard/evidence/lighting-near-v2-before-2-residency.csv": {
+      "sha256": "99293795570c4fefa85d8c226dc1759fff6186aaad0444c3fe476fe1e3e7b6a8",
+      "bytes": 6582
+    },
+    "dashboard/evidence/lighting-near-v2-before-2-startup.json": {
+      "sha256": "007ccfa3c674e0b82393850a5a7a0d58f8cea3cb648fd52263bd43659f43f26f",
+      "bytes": 69
+    },
+    "dashboard/evidence/lighting-near-v2-before-2-warmup.json": {
+      "sha256": "39d6b9e5b647d297dd9cc5f86dafb0d8e60a42ca2af23ff95724f7f048de7909",
+      "bytes": 56
+    },
+    "dashboard/evidence/lighting-near-v2-before-2.csv": {
+      "sha256": "daaba6f45d2c7082f7c524fd6c29bd27a0e117b8f9ca419ff229ca0057f83618",
+      "bytes": 64375
+    },
+    "dashboard/evidence/lighting-near-v2-before-2.json": {
+      "sha256": "41d045b22f4653c9d3c49ef6d8ea4ca42540c1ee3a557a4d1227c73eb89b6307",
+      "bytes": 1790
+    },
+    "dashboard/evidence/lighting-near-v2-before-3-coverage.csv": {
+      "sha256": "604f48256319e4aea168477b6448f475d7b73f008c070488ce0ab4587496977f",
+      "bytes": 46676
+    },
+    "dashboard/evidence/lighting-near-v2-before-3-residency.csv": {
+      "sha256": "99293795570c4fefa85d8c226dc1759fff6186aaad0444c3fe476fe1e3e7b6a8",
+      "bytes": 6582
+    },
+    "dashboard/evidence/lighting-near-v2-before-3-startup.json": {
+      "sha256": "32020f010dbbe9718e618b876583b98e43d5e4b302df0f7f367fb106fd4d6c60",
+      "bytes": 69
+    },
+    "dashboard/evidence/lighting-near-v2-before-3-warmup.json": {
+      "sha256": "d67f825ce8a7dc969bd6ef21f8c9c8265d30ab719fa8826f259ed3a5a6a9aee8",
+      "bytes": 56
+    },
+    "dashboard/evidence/lighting-near-v2-before-3.csv": {
+      "sha256": "11a4e52eb793f28897b6e2d38dff71c6bdd43c54abb8ce69fcddf6a917d7f032",
+      "bytes": 64328
+    },
+    "dashboard/evidence/lighting-near-v2-before-3.json": {
+      "sha256": "c1cf1230088b384147807c34a3ec661a3725f3000cb2fdba012b70f0c5e9457f",
+      "bytes": 1790
+    },
+    "dashboard/evidence/lighting-near-v2-bootstrap-cancel.txt": {
+      "sha256": "066e68f51b084fa65abf1ae7b86ed851f72d4efa06d2ac4fab5e8233d33c954d",
+      "bytes": 376
+    },
+    "dashboard/evidence/lighting-near-v2-bootstrap-ready.txt": {
+      "sha256": "7b4ec1971ec870c6358b66d2147f38ce4967ef9e9763a7a257fdf21401b14b16",
+      "bytes": 378
+    },
+    "dashboard/evidence/lighting-near-v2-city-result.txt": {
+      "sha256": "082182868268ed523e1843c62004d31c5df8594665d45ddbd8e90c2ad15dcb48",
+      "bytes": 237
+    },
+    "dashboard/evidence/lighting-near-v2-city-streaming-city-final.png": {
+      "sha256": "eb9ea476539944268a2ba540a47bbe4099aec914ccaeb632fc41a29d39660998",
+      "bytes": 162030
+    },
+    "dashboard/evidence/lighting-near-v2-city-workflow.csv": {
+      "sha256": "7d348e147c8c258318cc1454bda5cb58854fa81b68c880b0601ba4036f4dceed",
+      "bytes": 1617
+    },
+    "dashboard/evidence/lighting-near-v2-comparison.json": {
+      "sha256": "f886f9294340bfa8f1d899d2a10daff64606ba6efce12a932c6edd8944d0860d",
+      "bytes": 538051
+    },
+    "dashboard/evidence/lighting-near-v2-comparison.txt": {
+      "sha256": "47f66ffdd9046c4893c948adc5ebad7096c69615f4beac87e28b74535575f04e",
+      "bytes": 5255
+    },
+    "dashboard/evidence/lighting-near-v2-coverage.json": {
+      "sha256": "6bfd5aa70582e1c537dcf47fe2ecbc72fc3766d8c38cabb89154a0d3cecd6a41",
+      "bytes": 57597
+    },
+    "dashboard/evidence/lighting-near-v2-diff-audit.json": {
+      "sha256": "a441fe6f45f5feaa5a95755ee61495f3169902d7f127686458d03ac8b0f24eba",
+      "bytes": 15753
+    },
+    "dashboard/evidence/lighting-near-v2-f10.mp4": {
+      "sha256": "1d67f977d0d4fb86efd3d00764d9cfa95c004622d6c6fa6645fd9f52644fe17e",
+      "bytes": 530026
+    },
+    "dashboard/evidence/lighting-near-v2-fence-result.txt": {
+      "sha256": "1eb520223b8e8a4b7bd7a844750fa1f438b1a91188b75902d4aae862971288d2",
+      "bytes": 146
+    },
+    "dashboard/evidence/lighting-near-v2-first-playable.png": {
+      "sha256": "65910d8489b0d27f65ce8d102aa12b76f5faf5676e05cacf89975ffc125d79e2",
+      "bytes": 207505
+    },
+    "dashboard/evidence/lighting-near-v2-full-volume-pumps.csv": {
+      "sha256": "51ad19f287ffee64c82f94f8f4618deb83e07a49a23642cb87f3139624886513",
+      "bytes": 817
+    },
+    "dashboard/evidence/lighting-near-v2-full-volume-result.txt": {
+      "sha256": "f35133e4cac52925a23353f85f38ae1d7ec605887de9674597dd959e57d329d4",
+      "bytes": 590
+    },
+    "dashboard/evidence/lighting-near-v2-ground-after-coverage.csv": {
+      "sha256": "49fef3c103fadd21d3e629f4baaf604a3b0a8ee1f42fd1d6b8f93440f64a29ad",
+      "bytes": 51813
+    },
+    "dashboard/evidence/lighting-near-v2-ground-after-depth-11.json": {
+      "sha256": "b2bca2a77817fe7d7fda39e1c306681d9cc073b040d1ed359c1ad882f79fae47",
+      "bytes": 445
+    },
+    "dashboard/evidence/lighting-near-v2-ground-after-depth-111.json": {
+      "sha256": "61aff161e9cc3428fa0dced1a464a898730342ed38397e6e6662cbc21ff8b1d4",
+      "bytes": 451
+    },
+    "dashboard/evidence/lighting-near-v2-ground-after-depth-127.json": {
+      "sha256": "6c012f0b2239eff74d88b090f661b63ec18e43cc4d9adc56fb76d6f368e5ad71",
+      "bytes": 453
+    },
+    "dashboard/evidence/lighting-near-v2-ground-after-depth-133.json": {
+      "sha256": "7f3931aadf15eee18f8529223a85b932257a1574bae0ef2bf8ed55f589967a56",
+      "bytes": 440
+    },
+    "dashboard/evidence/lighting-near-v2-ground-after-depth-165.json": {
+      "sha256": "7ab05e56856fb20258ec82a013095ab1da169a9cb5d9e7d7bd85b3d287fcd27a",
+      "bytes": 456
+    },
+    "dashboard/evidence/lighting-near-v2-ground-after-depth-64.json": {
+      "sha256": "eac7fe5191169e1c71f215095b09458f795c56ad4ab510bcedc733eed150a5e3",
+      "bytes": 448
+    },
+    "dashboard/evidence/lighting-near-v2-ground-after-report.json": {
+      "sha256": "0e6c6abc38fce93d11f50b0c56875aa7e9cd27744b57d26b63f520470d417c62",
+      "bytes": 4694
+    },
+    "dashboard/evidence/lighting-near-v2-ground-after-visual-11.png": {
+      "sha256": "89a78cc4f2958c02fd85a656902b5a20a4ecf27287f0b851b45fd3cba1127521",
+      "bytes": 749213
+    },
+    "dashboard/evidence/lighting-near-v2-ground-after-visual-111.png": {
+      "sha256": "ac0e7f77b851787f4ee722d03852a44c48d6a8783435b8d8d9d316fa496795f3",
+      "bytes": 576314
+    },
+    "dashboard/evidence/lighting-near-v2-ground-after-visual-127.png": {
+      "sha256": "76305821864a48c78b96be86c5bb6bcf107ac7eb28c16a162e256868a24ed322",
+      "bytes": 437967
+    },
+    "dashboard/evidence/lighting-near-v2-ground-after-visual-133.png": {
+      "sha256": "991e6019af028a78bce7b675f7651176b2a1d054c8e4be53a8112e6ca70cd2f7",
+      "bytes": 190615
+    },
+    "dashboard/evidence/lighting-near-v2-ground-after-visual-165.png": {
+      "sha256": "1836f287bb0f8a941c19d3a72582079cdd2ba29276538ca5ae82662539bb56b5",
+      "bytes": 200127
+    },
+    "dashboard/evidence/lighting-near-v2-ground-after-visual-64.png": {
+      "sha256": "864885c563555a3445617170b79a2148b6a18aa66e323421a06e561acb7463e1",
+      "bytes": 258677
+    },
+    "dashboard/evidence/lighting-near-v2-large-world-pumps.csv": {
+      "sha256": "116650d8643691aa27124786014f0a32b2e53b8025dad1b67682c77ecfdefdff",
+      "bytes": 18657
+    },
+    "dashboard/evidence/lighting-near-v2-large-world-result.json": {
+      "sha256": "72221e16dd5eaa376832957aafb6cbcb80ffbcb199d9d34230eb0a355d1853e0",
+      "bytes": 268
+    },
+    "dashboard/evidence/lighting-near-v2-loading.png": {
+      "sha256": "205af73ee5ce7b442e0b9db5a91850f0fd14c6aa4f96c6e7b6cd7ceab8c9ed1e",
+      "bytes": 4976
+    },
+    "dashboard/evidence/lighting-near-v2-multiplayer-network-delivery.txt": {
+      "sha256": "13b5cf47fb4bde76d2c44ad53627544bc8d0b9356cecad8f466570edb3ecd7d1",
+      "bytes": 70
+    },
+    "dashboard/evidence/lighting-near-v2-multiplayer-result.txt": {
+      "sha256": "ffdcf8ac2c91bc1d45584d02ffbe5eb6a551c39e5c1c68052418e85143f8167d",
+      "bytes": 244
+    },
+    "dashboard/evidence/lighting-near-v2-multiplayer-streaming-multiplayer-final.png": {
+      "sha256": "8f0b209b807d2aad69ae404d22fdee31f4c2ba88cb12b7a9c25aa97b4ad08c73",
+      "bytes": 343357
+    },
+    "dashboard/evidence/lighting-near-v2-multiplayer-workflow.csv": {
+      "sha256": "0aa0114bee0252a4a807a4f4fa2348ccda50a4f460cdc4bc2bd3e521c94ee32f",
+      "bytes": 3064
+    },
+    "dashboard/evidence/lighting-near-v2-offline-plain-result.txt": {
+      "sha256": "11575d9ec041ee8ae89c81345755965c522472cc4a024681f7850741f62f3584",
+      "bytes": 245
+    },
+    "dashboard/evidence/lighting-near-v2-offline-plain-streaming-offline-edited.png": {
+      "sha256": "b5ab326a3f5ebe21446682386c53526857acbcbce83c79e469717ca2ecab79c6",
+      "bytes": 394501
+    },
+    "dashboard/evidence/lighting-near-v2-offline-plain-streaming-offline-final.png": {
+      "sha256": "531def9f27d1387de48be49afa1371c98896e08bc3564a4381a0c29d2c6a923a",
+      "bytes": 241590
+    },
+    "dashboard/evidence/lighting-near-v2-offline-plain-workflow.csv": {
+      "sha256": "6f8951993262d09512fe451e359d74e72dff054564c2687d05682337dcc74de1",
+      "bytes": 6425
+    },
+    "dashboard/evidence/lighting-near-v2-offline-video-result.txt": {
+      "sha256": "f3d29ea77f21ab2380db84194bde66180e4a39aa4bffb864bb81d51ea0ed36a0",
+      "bytes": 244
+    },
+    "dashboard/evidence/lighting-near-v2-offline-video-workflow.csv": {
+      "sha256": "8db3c83e8f0e51dd62516db5fa02c459984f9c258845d926a846aa9e1b4c9e4f",
+      "bytes": 6425
+    },
+    "dashboard/evidence/lighting-near-v2-pair1-preview.json": {
+      "sha256": "1f760d4bfc40c0bef0e705c4f3a3bf2dbf8d6fe21819315e16fcd07f64068cb2",
+      "bytes": 463
+    },
+    "dashboard/evidence/lighting-near-v2-performance.txt": {
+      "sha256": "74025856ff94ad72919bcabd4a6d86377d6c2d1df1481158feea1307d81cebcf",
+      "bytes": 3302
+    },
+    "dashboard/evidence/lighting-near-v2-playtest.txt": {
+      "sha256": "8a4928648059a7edffd73595eea3e3b93d19f7504b5be9c886478e1818512ca5",
+      "bytes": 8262
+    },
+    "dashboard/evidence/lighting-near-v2-recorder-overhead.json": {
+      "sha256": "ea114a4acb7711d0fa4889ea8292971b6aa8f7c7cf91464feecdb3f039667dbf",
+      "bytes": 1234
+    },
+    "dashboard/evidence/lighting-near-v2-source.json": {
+      "sha256": "03f8a2793c2b53f952aeee9ee9ce85892c9b295d612d8cce20f80b7646f09ee2",
+      "bytes": 691
+    },
+    "dashboard/evidence/lighting-near-v2-switch-result.txt": {
+      "sha256": "b3cbe559f7371c310303fdabbc9cb21d7eb9e426eeed543c943404a86ff6b6d4",
+      "bytes": 239
+    },
+    "dashboard/evidence/lighting-near-v2-switch-streaming-switch-final.png": {
+      "sha256": "8aa406fd23f54d444b811b2a109804cd66dbb49cada560cf9c79871877becd52",
+      "bytes": 95739
+    },
+    "dashboard/evidence/lighting-near-v2-switch-workflow.csv": {
+      "sha256": "4fd1a98c695274ccc780037fc9cd217afda971595f17f4bb083fffd3876a61e5",
+      "bytes": 3456
+    },
+    "dashboard/evidence/lighting-near-v2-tests.json": {
+      "sha256": "120c676f1192730eed8ddfe464a2dcb221df3ced7fbd1f5460c9106e8dee0ca3",
+      "bytes": 334
+    },
+    "dashboard/evidence/lighting-near-v2-travel-bounds.json": {
+      "sha256": "f6bb1b82d3a28bc158b2ebe95f274f548c00b5282397c24ab2eb8a8bd17c7286",
+      "bytes": 1299
+    },
+    "dashboard/evidence/lighting-near-v2-travel-lighting-settlement.txt": {
+      "sha256": "3de6419d32df52907a103c9821377732d80a887653514c251df20036b34752fe",
+      "bytes": 117
+    },
+    "dashboard/evidence/lighting-near-v2-travel-result.txt": {
+      "sha256": "676da7a0785063534688f2b57310ee1430f20edf999815d0468259ceba09ea6e",
+      "bytes": 240
+    },
+    "dashboard/evidence/lighting-near-v2-travel-streaming-travel-final.png": {
+      "sha256": "471263231275a6d390e8e5ce58b247c530b8cf5f035c79019c2e4a97708a9aef",
+      "bytes": 1124407
+    },
+    "dashboard/evidence/lighting-near-v2-travel-workflow.csv": {
+      "sha256": "1aef27b8bebcc7464cd3274d83218668aa7d2114267073e8e72048e284c4e481",
+      "bytes": 17433
+    },
+    "dashboard/evidence/lighting-near-v2-upload-result.txt": {
+      "sha256": "19e6227e4c86c6f7cc80352a869e7a78a68117687c20720b8ac211bd23889cf2",
+      "bytes": 883
+    },
+    "dashboard/evidence/lighting-near-v2-validation.json": {
+      "sha256": "6f08c565fa105b9550a1b6f82878f82a9970d5b339057fb68a2cfc2a43d74694",
+      "bytes": 2228
+    },
+    "dashboard/evidence/lighting-near-v2-video-midpoint.png": {
+      "sha256": "f5507769214e1791d0b20c0637aea48399bf78df4147bcef25afe41f1454a342",
+      "bytes": 613938
+    },
+    "dashboard/evidence/lighting-near-v2-video.json": {
+      "sha256": "fec21ec0367be45fffc1bc2c8c27f3686c11e3001238a9911c2a7d2ea34bbcc3",
+      "bytes": 210
+    },
+    "dashboard/evidence/lighting-near-v2-visual-comparison.json": {
+      "sha256": "efe2b6567bdaa519a62982ffd9b636f950f3b8fea6f53122c6fd42d8b5f6c034",
+      "bytes": 11872
+    },
+    "deploy/StreamingRoute.java": {
+      "sha256": "72fe1012b4262c2a257afa3abfe23371e29eef7b23d5449fceaaebbbcde93954",
+      "bytes": 18326
+    },
+    "deploy/LightingVisualRoute.java": {
+      "sha256": "a5d8d98468c8b58adec8a1a7db81827d3402740c0ef34312c3dd250641bc4a91",
+      "bytes": 21663
+    },
+    "deploy/StreamingWorkflow.java": {
+      "sha256": "4c3725eb55ea713f4784f0562806c658a1df3714d3b5cf497cc470e57336564c",
+      "bytes": 15152
+    },
+    "deploy/StreamingUploadSmoke.java": {
+      "sha256": "65651f8ab7a87eb82f46458313283acf4b4645286680fd6fe72a9d257edf2aaf",
+      "bytes": 35918
+    },
+    "deploy/StreamingBootstrap.java": {
+      "sha256": "4d02ff6e01463c4b236ef59bdb02ba22faca33a0af302d3774a5ed8e33818f05",
+      "bytes": 5353
+    },
+    "deploy/run_lighting_readiness_matrix.py": {
+      "sha256": "1fd23ed0f2261e8feb8fb2060d9da3c69fa582aa452bab897ecd661b8e405c73",
+      "bytes": 2288
+    },
+    "deploy/run_lighting_visual.py": {
+      "sha256": "d53bef00af70f950b08d589c0846b52855aa2d56804b936e6f1b86be380de1dd",
+      "bytes": 2360
+    },
+    "deploy/run_streaming_bootstrap.py": {
+      "sha256": "59b8a05f6adbdbb87ab11234cb0b90e3bd3eac4b0fd2d0561fe1a69150f0c210",
+      "bytes": 1170
+    },
+    "deploy/summarize_lighting_readiness.py": {
+      "sha256": "15aff557181525f6e050b9fb58cfba9ed47cb381408d4ea505a84260fa4918d8",
+      "bytes": 4299
+    }
+  }
+}

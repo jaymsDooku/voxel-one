@@ -1,0 +1,19 @@
+[
+  {
+    "test": "ReflectionCompletenessSmoke",
+    "exitCode": 0
+  },
+  {
+    "test": "deploy/run_streaming_upload_smoke.py",
+    "args": [],
+    "exitCode": 0
+  },
+  {
+    "test": "deploy/run_streaming_soak.py",
+    "args": [
+      "--cycles",
+      "64"
+    ],
+    "exitCode": 0
+  }
+]

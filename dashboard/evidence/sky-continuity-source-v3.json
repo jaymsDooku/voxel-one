@@ -1,0 +1,7 @@
+{
+  "reviewedBaseHead": "e8a69cdb7883ba6653edbb3d1d97d8aa1fa96e98",
+  "sourceSha256": "376e246b85cbef961033d1abe76a5844d93f49f41a2438b389a86ee4771bb0c8",
+  "routeSha256": "ccd4ba4ab5d872f8f085c07a36b211a9a60e3b452f3044e91c75babd59240cbd",
+  "featureJarSha256": "5ce6ce7a6f441c47e6b8f3678ad40dd6d39ca23ae6cb1a03dcf02119a53f5f65",
+  "package": "Java17 offline Maven package with tests skipped passed; focused final tests pending; full attempt interrupted and not claimed passed"
+}

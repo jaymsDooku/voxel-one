@@ -1,0 +1,154 @@
+{
+  "status": "128focused tests and package passed; final native,GL and matched-route validation completed with documented limits",
+  "totalTests": 128,
+  "suites": [
+    {
+      "name": "dev.jayms.DistantTerrainTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.WorldSkyVisibilityTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.physics.PhysicsTest",
+      "tests": "25",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.render.SkyVisibilitySchedulerTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.WorldStreamingTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.JeepTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.LightingTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.render.PerformanceRecorderTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.DetailedMeshSchedulerTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.TerrainSchedulerTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.LightOcclusionTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.MultiplayerTest",
+      "tests": "15",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.FractionalWorldTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.ChunkUnchangedWriteTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.TerrainGenerationTest",
+      "tests": "10",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.StressGridLightingTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.VoxelModelTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.render.TransportMipTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "commands": [
+    "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 mvn -q -Dmaven.repo.local=target/m2 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=WorldStreamingTest,TerrainSchedulerTest,DetailedMeshSchedulerTest,ChunkUnchangedWriteTest,WorldSkyVisibilityTest,SkyVisibilitySchedulerTest,TerrainGenerationTest,FractionalWorldTest,PhysicsTest,LightingTest,LightOcclusionTest,VoxelModelTest,DistantTerrainTest,StressGridLightingTest,JeepTest,PerformanceRecorderTest,MultiplayerTest,TransportMipTest package",
+    "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 mvn -q -Dmaven.repo.local=target/m2 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=TransportMipTest,DetailedMeshSchedulerTest,WorldStreamingTest,LightingTest,LightOcclusionTest package"
+  ],
+  "note": "See streaming-revision-validation.json for exact commands, passed workflows, first180frame travel failure and bounded-readiness rerun, performance shortfalls and physical GPU qualification gate.",
+  "sourceManifest": "streaming-sustained-source.json",
+  "modelSnapshotCost": {
+    "command": "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -cp target/classes:target/streaming-after-client.jar deploy/ModelSnapshotCost.java",
+    "samples": 100,
+    "warmupCopies": 100,
+    "before": {
+      "p50Ms": 0.323205,
+      "p99Ms": 2.629016,
+      "bytesPerCopy": 116612
+    },
+    "after": {
+      "p50Ms": 0.005139,
+      "p99Ms": 0.02775,
+      "bytesPerCopy": 328
+    },
+    "scope": "Default model library; isolated CPU check, not game frame measurements."
+  }
+}

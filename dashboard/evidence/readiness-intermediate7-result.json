@@ -1,0 +1,19 @@
+{
+  "status": "Completed166-sample exploratory candidate; newer source revision pending",
+  "warmup": {
+    "graphicsWarmupFrames": 26,
+    "warmupWallMs": 100437.47842
+  },
+  "coldFlightFrames": 80,
+  "centerCovered": 61,
+  "allNineCovered": 42,
+  "final": {
+    "sample": "166",
+    "gi_x": "2000",
+    "horizontal_coverage_9": "9",
+    "current_geometry": "true",
+    "completed_bakes": "7",
+    "rejected_bakes": "0",
+    "obsolete_volumes": "2"
+  }
+}

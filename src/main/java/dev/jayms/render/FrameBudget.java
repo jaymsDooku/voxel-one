@@ -4,6 +4,14 @@ import static org.lwjgl.opengl.GL33.*;
 
 /** Nonblocking GPU timing with hysteresis. Changes are at most 0.05 every 30 frames with an available result. */
 public final class FrameBudget implements AutoCloseable {
+    /** Shared owner CPU allowance; workers and GPU queries retain their existing limits. */
+    public static final long STREAMING_CPU_NANOS=2_000_000L;
+    /** Explicit catch-up allowance while nearby lighting is missing. */
+    public static final long CRITICAL_LIGHTING_CPU_NANOS=4_000_000L;
+    /** Initial lighting only: finite, interactive loading; never used for steady streaming. */
+    public static final long INITIAL_LIGHTING_CPU_NANOS=8_000_000L;
+    public static final int INITIAL_LIGHTING_UPDATES=64;
+
     private final int[] queries={glGenQueries(),glGenQueries(),glGenQueries()};
     private final boolean[] pending=new boolean[3],atmospherePending=new boolean[3];
     private final int[][] atmosphereQueries=new int[3][4];

@@ -1,0 +1,51 @@
+{
+  "recordedUtc": "2026-10-17 14:52:49 UTC",
+  "status": "ready_for_independent_review_with_documented_limits",
+  "source": {
+    "priorReviewedHead": "6c480737c3e2fbc748043b2c9844116ed866cd78",
+    "sourceSha256": "b2047bf7134053bc5d89afae0647cb59ddf593f5030fdaa3dee0f250845994c9",
+    "routeSha256": "72fe1012b4262c2a257afa3abfe23371e29eef7b23d5449fceaaebbbcde93954",
+    "baseline": "4f8a09a+timing-overlay",
+    "baselineJarSha256": "48ed98ac1f5fc55fe9c57feb5e29bc37031f369ddee8fc1ba4596933f1c7f78f",
+    "featureJarSha256": "5fe8c15b8bb552aebe119c1922391a61e9771f76305f36c078ed5130da877333",
+    "method": "Fresh synthetic profiles, same seed/settings/JVM/route; no media capture. Coverage probes are horizontal 3x3 at spacing24, not screen-pixel visibility. Source age starts at capture; valid static fields may be old."
+  },
+  "testCounts": {
+    "tests": 154,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "matchedTrials": {
+    "pairs": 3,
+    "samplesPerRun": 166,
+    "allExitZero": true
+  },
+  "playtestReceipt": "lighting-near-v2-playtest.txt",
+  "performance": "lighting-near-v2-performance.txt",
+  "coverage": "lighting-near-v2-coverage.json",
+  "visualComparison": "lighting-near-v2-visual-comparison.json",
+  "media": {
+    "status": "passed",
+    "source": "fresh production Main F10 rendering workflow",
+    "codec": "H264",
+    "bytes": 530026,
+    "frames": 10,
+    "width": 960,
+    "height": 544,
+    "seconds": 25.944,
+    "allFramesDecoded": true,
+    "firstAndLastDiffer": true
+  },
+  "diffAudit": "lighting-near-v2-diff-audit.json",
+  "limitations": [
+    "2ms owner tail target unmet",
+    "Air-route GI coverage gaps after cold jump remain measured",
+    "All-route framep99 worsened in pair2; cold-flight p99 improved all3",
+    "llvmpipe does not meet60FPS resident premise; physical WindowsGPU qualification pending and gates stable rollout",
+    "Controller publication and exact integrated-head review remain pending"
+  ],
+  "publication": "All new artifacts local, pending controller publication",
+  "workflowSha256": "4c3725eb55ea713f4784f0562806c658a1df3714d3b5cf497cc470e57336564c",
+  "visualFixtureSha256": "a5d8d98468c8b58adec8a1a7db81827d3402740c0ef34312c3dd250641bc4a91"
+}

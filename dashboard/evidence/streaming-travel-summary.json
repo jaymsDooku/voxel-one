@@ -1,0 +1,43 @@
+{
+  "status": "passed",
+  "Playtest": "Production Main actual F/W/Shift flight, S reversal at60, W again at100, health0 at130, ordinary respawn and stationary settling through180. Runtime assertion verified duration>120seconds, nearby readiness, health20 and usable staged irradiance. Final screenshot inspected. CPU/protocol regressions ran concurrently during early travel; this is a correctness/bounds run, not matched performance profiling.",
+  "frames": 180,
+  "bounds": {
+    "pending": {
+      "max": 8,
+      "last": 0,
+      "last30Min": 0,
+      "last30Max": 8
+    },
+    "loaded": {
+      "max": 990,
+      "last": 990,
+      "last30Min": 876,
+      "last30Max": 990
+    },
+    "mesh_jobs": {
+      "max": 4,
+      "last": 3,
+      "last30Min": 1,
+      "last30Max": 4
+    },
+    "mesh_waiting": {
+      "max": 302,
+      "last": 290,
+      "last30Min": 269,
+      "last30Max": 302
+    },
+    "heap_bytes": {
+      "max": 583894840,
+      "last": 208172432,
+      "last30Min": 173569424,
+      "last30Max": 576488816
+    },
+    "oldest_ms": {
+      "max": 17973,
+      "last": 0,
+      "last30Min": 0,
+      "last30Max": 15186
+    }
+  }
+}

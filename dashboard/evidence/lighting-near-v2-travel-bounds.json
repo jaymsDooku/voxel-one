@@ -1,0 +1,69 @@
+{
+  "frames": 180,
+  "flightMinimumSeconds": 120,
+  "respawnFrame": 130,
+  "final": {
+    "frame": "179",
+    "stream_cpu_ms": "0.247292",
+    "render_cpu_ms": "7910.494456",
+    "previous_video_capture_cpu_ms": "6.88E-4",
+    "pending": "0",
+    "oldest_ms": "0",
+    "loaded": "1037",
+    "heap_bytes": "638483584",
+    "mesh_jobs": "3",
+    "mesh_waiting": "272",
+    "lighting_upload_bytes": "0",
+    "scene_cpu_ms": "0.072924",
+    "lighting_prepare_cpu_ms": "0.033593",
+    "gi_covered_9": "9",
+    "gi_current": "true",
+    "gi_source_age_ms": "360691"
+  },
+  "max": {
+    "pending": 8.0,
+    "oldest_ms": 12817.0,
+    "loaded": 1076.0,
+    "heap_bytes": 669155864.0,
+    "mesh_jobs": 4.0,
+    "mesh_waiting": 339.0
+  },
+  "windows": [
+    {
+      "frames": [
+        0,
+        59
+      ],
+      "maxHeapBytes": 645432832,
+      "loadedRange": [
+        503,
+        853
+      ],
+      "maxTerrainPending": 8
+    },
+    {
+      "frames": [
+        60,
+        129
+      ],
+      "maxHeapBytes": 669155864,
+      "loadedRange": [
+        853,
+        1013
+      ],
+      "maxTerrainPending": 8
+    },
+    {
+      "frames": [
+        130,
+        179
+      ],
+      "maxHeapBytes": 638483584,
+      "loadedRange": [
+        1014,
+        1076
+      ],
+      "maxTerrainPending": 8
+    }
+  ]
+}

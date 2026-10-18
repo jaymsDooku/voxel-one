@@ -126,8 +126,9 @@ public final class PlanetAtmosphere implements AutoCloseable {
         boolean depth=glIsEnabled(GL_DEPTH_TEST),cull=glIsEnabled(GL_CULL_FACE),blend=glIsEnabled(GL_BLEND),scissor=glIsEnabled(GL_SCISSOR_TEST);glDisable(GL_DEPTH_TEST);glDisable(GL_CULL_FACE);glDisable(GL_BLEND);glDisable(GL_SCISSOR_TEST);
         glBindFramebuffer(GL_FRAMEBUFFER,fbo);glBindVertexArray(vao);environmentPass.bind();bind(environmentPass);
         glActiveTexture(GL_TEXTURE0);glBindTexture(GL_TEXTURE_CUBE_MAP,cube);
+        // Match local probes and the HDR target; the extra alpha channel is unused.
         for(int face=0;face<6;face++) {
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+face,0,GL_RGB16F,128,128,0,GL_RGB,GL_FLOAT,(java.nio.ByteBuffer)null);
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+face,0,GL_RGBA16F,128,128,0,GL_RGBA,GL_FLOAT,(java.nio.ByteBuffer)null);
             glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_CUBE_MAP_POSITIVE_X+face,cube,0);
             glViewport(0,0,128,128);environmentPass.setInt("uFace",face);glDrawArrays(GL_TRIANGLES,0,3);
         }

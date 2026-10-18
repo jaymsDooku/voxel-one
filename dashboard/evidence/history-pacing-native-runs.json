@@ -1,0 +1,97 @@
+[
+  {
+    "label": "multiplayer-1",
+    "exitCode": 0,
+    "mode": "multiplayer",
+    "video": false,
+    "command": [
+      "/usr/lib/jvm/java-17-openjdk-amd64/bin/java",
+      "-Xmx1536m",
+      "-Duser.home=/home/debian/codex/voxel-one-queue-worktrees/39633335636632622d376365352d343837342d393634392d313362663933393263323038/target/history-pacing-native/multiplayer-1/home",
+      "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/39633335636632622d376365352d343837342d393634392d313362663933393263323038/target/tmp",
+      "-cp",
+      "/home/debian/codex/voxel-one-queue-worktrees/39633335636632622d376365352d343837342d393634392d313362663933393263323038/target/voxel-one-1.0-SNAPSHOT-client.jar",
+      "deploy/StreamingWorkflow.java",
+      "/home/debian/codex/voxel-one-queue-worktrees/39633335636632622d376365352d343837342d393634392d313362663933393263323038/target/history-pacing-native/multiplayer-1",
+      "multiplayer",
+      "false",
+      "100000"
+    ]
+  },
+  {
+    "label": "multiplayer-2",
+    "exitCode": 0,
+    "mode": "multiplayer",
+    "video": false,
+    "command": [
+      "/usr/lib/jvm/java-17-openjdk-amd64/bin/java",
+      "-Xmx1536m",
+      "-Duser.home=/home/debian/codex/voxel-one-queue-worktrees/39633335636632622d376365352d343837342d393634392d313362663933393263323038/target/history-pacing-native/multiplayer-2/home",
+      "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/39633335636632622d376365352d343837342d393634392d313362663933393263323038/target/tmp",
+      "-cp",
+      "/home/debian/codex/voxel-one-queue-worktrees/39633335636632622d376365352d343837342d393634392d313362663933393263323038/target/voxel-one-1.0-SNAPSHOT-client.jar",
+      "deploy/StreamingWorkflow.java",
+      "/home/debian/codex/voxel-one-queue-worktrees/39633335636632622d376365352d343837342d393634392d313362663933393263323038/target/history-pacing-native/multiplayer-2",
+      "multiplayer",
+      "false",
+      "100000"
+    ]
+  },
+  {
+    "label": "multiplayer-3",
+    "exitCode": 0,
+    "mode": "multiplayer",
+    "video": false,
+    "command": [
+      "/usr/lib/jvm/java-17-openjdk-amd64/bin/java",
+      "-Xmx1536m",
+      "-Duser.home=/home/debian/codex/voxel-one-queue-worktrees/39633335636632622d376365352d343837342d393634392d313362663933393263323038/target/history-pacing-native/multiplayer-3/home",
+      "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/39633335636632622d376365352d343837342d393634392d313362663933393263323038/target/tmp",
+      "-cp",
+      "/home/debian/codex/voxel-one-queue-worktrees/39633335636632622d376365352d343837342d393634392d313362663933393263323038/target/voxel-one-1.0-SNAPSHOT-client.jar",
+      "deploy/StreamingWorkflow.java",
+      "/home/debian/codex/voxel-one-queue-worktrees/39633335636632622d376365352d343837342d393634392d313362663933393263323038/target/history-pacing-native/multiplayer-3",
+      "multiplayer",
+      "false",
+      "100000"
+    ]
+  },
+  {
+    "label": "offline-video",
+    "exitCode": 0,
+    "mode": "offline",
+    "video": true,
+    "command": [
+      "/usr/lib/jvm/java-17-openjdk-amd64/bin/java",
+      "-Xmx1536m",
+      "-Duser.home=/home/debian/codex/voxel-one-queue-worktrees/39633335636632622d376365352d343837342d393634392d313362663933393263323038/target/history-pacing-native/offline-video/home",
+      "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/39633335636632622d376365352d343837342d393634392d313362663933393263323038/target/tmp",
+      "-cp",
+      "/home/debian/codex/voxel-one-queue-worktrees/39633335636632622d376365352d343837342d393634392d313362663933393263323038/target/voxel-one-1.0-SNAPSHOT-client.jar",
+      "deploy/StreamingWorkflow.java",
+      "/home/debian/codex/voxel-one-queue-worktrees/39633335636632622d376365352d343837342d393634392d313362663933393263323038/target/history-pacing-native/offline-video",
+      "offline",
+      "true",
+      "100000"
+    ]
+  },
+  {
+    "label": "city",
+    "exitCode": 0,
+    "mode": "city",
+    "video": false,
+    "command": [
+      "/usr/lib/jvm/java-17-openjdk-amd64/bin/java",
+      "-Xmx1536m",
+      "-Duser.home=/home/debian/codex/voxel-one-queue-worktrees/39633335636632622d376365352d343837342d393634392d313362663933393263323038/target/history-pacing-native/city/home",
+      "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/39633335636632622d376365352d343837342d393634392d313362663933393263323038/target/tmp",
+      "-cp",
+      "/home/debian/codex/voxel-one-queue-worktrees/39633335636632622d376365352d343837342d393634392d313362663933393263323038/target/voxel-one-1.0-SNAPSHOT-client.jar",
+      "deploy/StreamingWorkflow.java",
+      "/home/debian/codex/voxel-one-queue-worktrees/39633335636632622d376365352d343837342d393634392d313362663933393263323038/target/history-pacing-native/city",
+      "city",
+      "false",
+      "100000"
+    ]
+  }
+]

@@ -181,6 +181,9 @@ public final class SparseVoxelOctree {
         return this;
     }
 
+    /** Constant-time membership test; do not count the tree just to detect air. */
+    public boolean isEmpty() { return root==null; }
+
     public int nodes() {
         return nodes(root);
     }
@@ -322,11 +325,20 @@ public final class SparseVoxelOctree {
 
     public java.util.List<Leaf> leaves() {
         var result = new java.util.ArrayList<Leaf>();
-        leaves(root, 0, 0, 0, size, result);
+        leaves(root, 0, 0, 0, size, result, false);
         return java.util.List.copyOf(result);
     }
 
-    private static void leaves(Node n, int x, int y, int z, int side, java.util.List<Leaf> out) {
+    /** Detached preparation can stop while collecting a large immutable tree. */
+    public java.util.List<Leaf> leavesInterruptibly() {
+        var result = new java.util.ArrayList<Leaf>();
+        leaves(root, 0, 0, 0, size, result, true);
+        if (Thread.currentThread().isInterrupted()) throw new java.util.concurrent.CancellationException();
+        return result; // Private worker-owned list; callers must not publish it as a mutable snapshot.
+    }
+
+    private static void leaves(Node n, int x, int y, int z, int side, java.util.List<Leaf> out, boolean interruptible) {
+        if (interruptible && Thread.currentThread().isInterrupted()) throw new java.util.concurrent.CancellationException();
         if (n == null) return;
         if (n.children == null) {
             out.add(new Leaf(x, y, z, side, n.color));
@@ -340,7 +352,7 @@ public final class SparseVoxelOctree {
                     y + ((i & 2) != 0 ? h : 0),
                     z + ((i & 4) != 0 ? h : 0),
                     h,
-                    out);
+                    out, interruptible);
     }
 
     public void write(DataOutputStream out) throws IOException {

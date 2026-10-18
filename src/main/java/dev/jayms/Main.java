@@ -27,6 +27,7 @@ public class Main {
     /** Optional render-thread observer for reproducible application playtests. */
     public interface FrameObserver {
         default void started(Main game) throws Exception {}
+        default void loading(Main game,String stage) throws Exception {}
         default void beforeFrame(Main game) throws Exception {}
         default void afterFrame(Main game) throws Exception {}
     }
@@ -268,6 +269,7 @@ public class Main {
             GLFWErrorCallback.createPrint(System.err).set();
             if (!glfwInit()) throw new IllegalStateException("Unable to initialize GLFW");
         }
+        Throwable runFailure = null;
         try {
             if (window == null) init();
             else reuseWindow();
@@ -275,8 +277,15 @@ public class Main {
             if (vehicleAudio == null) vehicleAudio = new dev.jayms.audio.VehicleAudio();
             if (frameObserver != null) frameObserver.started(this);
             loop();
+        } catch (Exception | Error error) {
+            runFailure = error;
+            throw error;
         } finally {
-            cleanup(requestedSave != null);
+            try { cleanup(requestedSave != null); }
+            catch (Exception | Error error) {
+                if (runFailure != null) runFailure.addSuppressed(error);
+                else throw error;
+            }
         }
     }
 
@@ -323,10 +332,46 @@ public class Main {
         }
     }
 
+    /** Startup keeps polling and drawing while the same bounded streaming path fills spawn.
+     * Respawn/teleport during play use the regular frame loop and its solid loading boundary.
+     */
+    private void awaitInitialTerrain(float x,float y,float z)throws Exception {
+        while(!world.nearbyReady(x,z,1)) {
+            if(window.shouldClose()||glfwGetKey(window.getHandle(),GLFW_KEY_ESCAPE)==GLFW_PRESS)
+                throw new java.util.concurrent.CancellationException("Terrain loading cancelled");
+            world.streamAsync(x,y,z,2_000_000L);
+            loadingFrame("terrain");
+        }
+    }
+
+    private void loadingFrame(String stage)throws Exception{
+        if(framebufferWidth>0&&framebufferHeight>0){
+            org.lwjgl.opengl.GL30.glBindFramebuffer(org.lwjgl.opengl.GL30.GL_FRAMEBUFFER,0);glViewport(0,0,framebufferWidth,framebufferHeight);
+            glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);overlay.begin(framebufferWidth,framebufferHeight);
+            overlay.text(stage.equals("lighting")?"Loading nearby lighting...":"Loading nearby terrain...",24,40,2);
+            overlay.text("Escape: cancel",24,72,1.3f);overlay.end();
+            if(frameObserver!=null)frameObserver.loading(this,stage);
+        }
+        window.swapBuffers();window.pollEvents();java.util.concurrent.locks.LockSupport.parkNanos(1_000_000L);
+    }
+    /** Keep input/window events responsive instead of rendering an unlit world
+     * while the first detached field and bounded GPU transfers finish. */
+    private void awaitInitialLighting()throws Exception{
+        var p=new Vector3f(player.position());
+        while(!rendering.nearLightingReady(world,p.x,p.z)){
+            if(window.shouldClose()||glfwGetKey(window.getHandle(),GLFW_KEY_ESCAPE)==GLFW_PRESS)
+                throw new java.util.concurrent.CancellationException("Lighting loading cancelled");
+            long start=System.nanoTime();world.streamAsync(p.x,p.y,p.z,500_000L);rendering.prepareFocus(world,p.x,p.z);
+            rendering.update(world,p.x,p.z,Math.max(0,rendering.ownerBudgetNanos-(System.nanoTime()-start)));
+            loadingFrame("lighting");
+        }
+        rendering.resetFocus();
+    }
+
     private void initScene() throws Exception {
         shader = new ShaderProgram("shaders/voxel.vert", "shaders/voxel.frag");
         var loaded=GraphicsController.load(Controls.directory().resolve("graphics.properties"));
-        rendering = new dev.jayms.render.RenderPipeline(loaded.profile().effective(GraphicsController.capabilities()).profile());
+        rendering = new dev.jayms.render.RenderPipeline(loaded.profile().effective(GraphicsController.capabilities()).profile(),shader);
         graphics=new GraphicsController(window,rendering,loaded,Controls.directory().resolve("graphics.properties"),next->rendering=next);
         graphics.initialize();
         menu.rendering = new dev.jayms.ui.RenderingMenu(() -> rendering);
@@ -373,16 +418,16 @@ public class Main {
                         spawn.yaw(),
                         spawn.pitch(),
                         camera);
-        world.stream(spawn.x(), spawn.z(), 9);
+        awaitInitialTerrain(spawn.x(),spawn.y(),spawn.z());
         if (network == null) {
             int surface = Terrain.MAX_Y;
             while (surface > Terrain.MIN_Y && world.sample(8, surface, 24) == 0) surface--;
             player = new Player(new Vector3f(8.5f, surface + 1.01f, 24.5f), -90, -20, camera);
         }
         if (local != null) {
-            jeep = Jeep.load(jeepSave(), world, player.position());
+            jeep = Jeep.load(jeepSave(), world, player.position(),this::awaitInitialTerrain);
             jeepModel = new JeepModel();
-            world.stream(player.position().x, player.position().z, 9);
+            awaitInitialTerrain(player.position().x,player.position().y,player.position().z);
         }
         distant = new DistantTerrainRenderer(seed, generatorVersion);
         distant.update(world, player.position().x, player.position().z);
@@ -447,6 +492,7 @@ public class Main {
                 }
             });
         }
+        awaitInitialLighting();
         configureInput();
         setCaptured(true);
     }
@@ -1058,7 +1104,7 @@ public class Main {
             }
             if (network != null && network.respawn != null) {
                 var p = network.respawn;
-                world.stream(p.x(), p.z(), 9);
+                // The normal streaming pass below uses the new spawn position.
                 player = new Player(new Vector3f(p.x(), p.y(), p.z()), p.yaw(), p.pitch(), camera);
                 network.respawn = null;
                 notice = "You respawned. Your inventory was kept.";
@@ -1097,7 +1143,7 @@ public class Main {
             if (local != null && !renderOnlyReplay && !mayorDashboard.open)
                 local.city.population.focusNear(streamX, streamZ);
             long streamingStart=System.nanoTime();
-            world.stream(streamX, streamZ, 2);
+            world.streamAsync(streamX, location.y, streamZ, 500_000L);
             streamNanos=System.nanoTime()-streamingStart;
             float forward =
                     captured
@@ -1130,7 +1176,7 @@ public class Main {
                         e -> world.sample(e.x(), e.y(), e.z()))) {
                     if (jeep != null) jeep.releaseDriver();
                     float y = world.terrain().column(8, 24).height() + 1.01f;
-                    world.stream(8, 24, 9);
+                    // The next frame prioritizes spawn; unloaded collision cells stay solid.
                     player = new Player(new Vector3f(8.5f, y, 24.5f), -90, -20, camera);
                     notice = "You respawned. Your inventory was kept.";
                 }
@@ -1239,14 +1285,16 @@ public class Main {
         // the background approximation. Air chunks consume neither GPU buffers nor mesh budget.
         int detailBlocks=graphics.transaction.effective().integer(GraphicsProfile.Key.DETAIL);
         int passBlocks=Math.max(detailBlocks,Math.max(rendering.settings.shadows?rendering.settings.shadowDistance:0,rendering.settings.reflections?112:0));
-        detailedMeshes.update(world,location.x,location.z,frustum,detailBlocks,passBlocks,2_000_000L,2*1024*1024);
+        rendering.prepareFocus(world,location.x,location.z);
+        detailedMeshes.update(world,location.x,location.z,frustum,detailBlocks,passBlocks,Math.max(0,1_000_000L-streamNanos),2*1024*1024);
         rendering.time(
                 city().config(),
                 city().elapsed()
                         + (network == null
                                 ? 0
                                 : Math.min(1, (System.nanoTime() - network.cityReceived) / 1e9)));
-        rendering.update(world, location.x, location.z);
+        long ownerAllowance=rendering.ownerBudgetNanos;
+        rendering.update(world, location.x, location.z,Math.max(0,ownerAllowance-streamNanos-detailedMeshes.totalNanos-rendering.focusNanos));
         rendering.renderShadows(world, modelRenderer, location);
         rendering.begin(
                 framebufferWidth,
@@ -1539,6 +1587,8 @@ public class Main {
                 (float) mouseX * framebufferWidth / windowSize[0],
                 (float) mouseY * framebufferHeight / windowSize[1],
                 !isometric);
+        if(!city().config().city()&&!world.nearbyReady(player.position().x,player.position().z,0)&&!inventoryHud.open)
+            overlay.text("Loading nearby terrain...",20,80,1.3f,1,.8f,.4f,1);
         if (!notice.isEmpty() && !inventoryHud.open)
             overlay.text(notice, 20, city().config().city() ? 132 : 99, 1.4f, 1, .8f, .4f, 1);
         if (!inventoryHud.open && Blocks.material(player.heldItem()) == Blocks.LED)
@@ -1603,6 +1653,26 @@ public class Main {
     private void usingMetrics(double wallMillis){
         metric(PerformanceRecorder.Metric.FRAME_MS,wallMillis);metric(PerformanceRecorder.Metric.UPDATE_CPU_MS,updateNanos/1e6);metric(PerformanceRecorder.Metric.STREAM_CPU_MS,streamNanos/1e6);
         metric(PerformanceRecorder.Metric.RENDER_CPU_MS,renderNanos/1e6);metric(PerformanceRecorder.Metric.OVERLAY_CPU_MS,overlayNanos/1e6);metric(PerformanceRecorder.Metric.VIDEO_CAPTURE_CPU_MS,videoNanos/1e6);
+        metric(PerformanceRecorder.Metric.MESH_OWNER_CPU_MS,detailedMeshes.totalNanos/1e6);
+        metric(PerformanceRecorder.Metric.SKY_PENDING,rendering.skyPending());
+        metric(PerformanceRecorder.Metric.SKY_CACHE_BYTES,rendering.skyCacheBytes());
+        metric(PerformanceRecorder.Metric.SKY_WORKER_MS,rendering.skyWorkerNanos()/1e6);
+        metric(PerformanceRecorder.Metric.LIGHTING_UPLOAD_BYTES,rendering.lightingUploadBytes);
+        metric(PerformanceRecorder.Metric.LIGHTING_STORE_ALLOCATIONS,rendering.lightingStoreAllocations);
+        metric(PerformanceRecorder.Metric.LIGHTING_STORE_CPU_MS,rendering.lightingStoreNanos/1e6);
+        metric(PerformanceRecorder.Metric.SKY_BUILD_CPU_MS,rendering.skyBuildNanos/1e6);
+        metric(PerformanceRecorder.Metric.LIGHTING_CPU_MS,rendering.lightingNanos/1e6);
+        metric(PerformanceRecorder.Metric.LIGHTING_UPLOAD_CPU_MS,rendering.lightingUploadNanos/1e6);
+        metric(PerformanceRecorder.Metric.SCENE_CPU_MS,rendering.sceneNanos/1e6);
+        metric(PerformanceRecorder.Metric.SHADOW_CPU_MS,rendering.shadowCpuNanos/1e6);
+        metric(PerformanceRecorder.Metric.PROBE_CPU_MS,rendering.probeCpuNanos/1e6);
+        metric(PerformanceRecorder.Metric.TERRAIN_ATTACH_CPU_MS,world.streamAttachNanos/1e6);
+        metric(PerformanceRecorder.Metric.TERRAIN_REPLAY_CPU_MS,world.streamReplayNanos/1e6);
+        metric(PerformanceRecorder.Metric.TERRAIN_DISPOSE_CPU_MS,world.streamDisposeNanos/1e6);
+        metric(PerformanceRecorder.Metric.TERRAIN_SCHEDULE_CPU_MS,world.streamRequestNanos/1e6);
+        metric(PerformanceRecorder.Metric.TERRAIN_WORKER_MS,world.streamGenerationNanos/1e6);
+        metric(PerformanceRecorder.Metric.TERRAIN_PENDING,world.terrainPending());
+        metric(PerformanceRecorder.Metric.TERRAIN_OLDEST_MS,world.terrainOldestMillis());
         metric(PerformanceRecorder.Metric.SNAPSHOT_CPU_MS,detailedMeshes.snapshotNanos/1e6);metric(PerformanceRecorder.Metric.MESH_WORKER_MS,detailedMeshes.meshNanos/1e6);metric(PerformanceRecorder.Metric.UPLOAD_CPU_MS,detailedMeshes.uploadNanos/1e6);metric(PerformanceRecorder.Metric.UPLOAD_BYTES,detailedMeshes.uploadBytes);
         metric(PerformanceRecorder.Metric.GPU_FRAME_EMA_MS,rendering.gpuMillis());metric(PerformanceRecorder.Metric.GPU_SHADOW_LAST_MS,rendering.shadowsGpuMillis());metric(PerformanceRecorder.Metric.GPU_PROBE_LAST_MS,rendering.probesGpuMillis());metric(PerformanceRecorder.Metric.GPU_TERRAIN_LAST_MS,rendering.terrainGpuMillis());metric(PerformanceRecorder.Metric.GPU_WATER_LAST_MS,rendering.waterGpuMillis());metric(PerformanceRecorder.Metric.GPU_ATMOSPHERE_LAST_MS,rendering.atmosphereGpuSamples()>0?rendering.atmosphereGpuLast():Double.NaN);metric(PerformanceRecorder.Metric.GPU_POST_LAST_MS,rendering.postGpuMillis());
         metric(PerformanceRecorder.Metric.DRAWS,Mesh.drawCalls());metric(PerformanceRecorder.Metric.TRIANGLES,Mesh.triangles());metric(PerformanceRecorder.Metric.VISIBLE_CHUNKS,rendering.visibleChunks);metric(PerformanceRecorder.Metric.OCCLUDED_CHUNKS,rendering.occludedChunks);metric(PerformanceRecorder.Metric.LOADED_CHUNKS,world.getLoadedChunks().size());metric(PerformanceRecorder.Metric.MESH_JOBS,detailedMeshes.queued());metric(PerformanceRecorder.Metric.MESH_WAITING,detailedMeshes.waiting());metric(PerformanceRecorder.Metric.OLDEST_JOB_MS,detailedMeshes.oldestMillis());metric(PerformanceRecorder.Metric.DISTANT_TILES,distant.renderedTiles());
@@ -1729,41 +1799,45 @@ public class Main {
     }
 
     private void cleanup(boolean keepWindow) throws Exception {
-        if (vehicleAudio != null) vehicleAudio.close();
-        performance.close();
-        if(graphics!=null)graphics.close();
-        recorder.close();
-        missiles.close();
-        if (local != null) local.save();
-        if (jeep != null) jeep.save(jeepSave());
-        if (network != null) network.close();
-        detailedMeshes.close();
-        if (distant != null) distant.close();
-        if (world != null) world.close();
-        if (playerModel != null) playerModel.close();
-        if (horseModel != null) horseModel.close();
-        if (planeModel != null) planeModel.close();
-        if (railwayModel != null) railwayModel.close();
-        if (roadMarkingModel != null) roadMarkingModel.close();
-        if (shipModel != null) shipModel.close();
-        if (jeepModel != null) jeepModel.close();
-        if (farmModels != null) farmModels.close();
-        if (modelRenderer != null) modelRenderer.close();
-        if (editor != null) editor.close();
-        if (overlay != null) overlay.close();
-        if (rendering != null) rendering.close();
-        if (shader != null) shader.close();
-        // Retire scene resources before another simulation uses the same context.
-        if (overlay != null) glFinish();
-        if (window != null) {
-            if (keepWindow) org.lwjgl.glfw.Callbacks.glfwFreeCallbacks(window.getHandle());
-            else window.destroy();
+        var cleanup = new CloseSequence();
+        cleanup.run(() -> { if (vehicleAudio != null) vehicleAudio.close(); });
+        cleanup.run(() -> { performance.close(); });
+        cleanup.run(() -> { if(graphics!=null)graphics.close(); });
+        cleanup.run(() -> { recorder.close(); });
+        cleanup.run(() -> { missiles.close(); });
+        cleanup.run(() -> { if (local != null) local.save(); });
+        cleanup.run(() -> { if (jeep != null) jeep.save(jeepSave()); });
+        cleanup.run(() -> { if (network != null) network.close(); });
+        cleanup.run(() -> { detailedMeshes.close(); });
+        cleanup.run(() -> { if (distant != null) distant.close(); });
+        cleanup.run(() -> { if (world != null) world.close(); });
+        cleanup.run(() -> { if (playerModel != null) playerModel.close(); });
+        cleanup.run(() -> { if (horseModel != null) horseModel.close(); });
+        cleanup.run(() -> { if (planeModel != null) planeModel.close(); });
+        cleanup.run(() -> { if (railwayModel != null) railwayModel.close(); });
+        cleanup.run(() -> { if (roadMarkingModel != null) roadMarkingModel.close(); });
+        cleanup.run(() -> { if (shipModel != null) shipModel.close(); });
+        cleanup.run(() -> { if (jeepModel != null) jeepModel.close(); });
+        cleanup.run(() -> { if (farmModels != null) farmModels.close(); });
+        cleanup.run(() -> { if (modelRenderer != null) modelRenderer.close(); });
+        cleanup.run(() -> { if (editor != null) editor.close(); });
+        cleanup.run(() -> { if (overlay != null) overlay.close(); });
+        cleanup.run(() -> { if (rendering != null) rendering.close(); });
+        cleanup.run(() -> { if (shader != null) shader.close(); });
+        // Keep the context only when every scene resource retired successfully.
+        cleanup.run(() -> { if (overlay != null) glFinish(); });
+        boolean retainWindow = keepWindow && !cleanup.failed();
+        cleanup.run(() -> {
+            if (window != null) {
+                if (retainWindow) org.lwjgl.glfw.Callbacks.glfwFreeCallbacks(window.getHandle());
+                else window.destroy();
+            }
+        });
+        if (!retainWindow || cleanup.failed()) {
+            cleanup.run(() -> glfwTerminate());
+            cleanup.run(() -> { var error = glfwSetErrorCallback(null); if (error != null) error.free(); });
         }
-        if (!keepWindow) {
-            glfwTerminate();
-            var error = glfwSetErrorCallback(null);
-            if (error != null) error.free();
-        }
+        cleanup.finish();
     }
 
     public static void main(String[] args) throws Exception {

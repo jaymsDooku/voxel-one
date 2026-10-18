@@ -1,0 +1,19 @@
+{
+  "reviewedHead": "7251a398f23f7a9e8ae57a98019b0cb3df7fd058",
+  "changedSourceSha256": {
+    "src/main/java/dev/jayms/ui/MetricTrends.java": "ba2ee86e64a1f00712d93ef2ffeb0f9827164dd25a320af4526faae28d157fa1",
+    "src/test/java/dev/jayms/CityHistoryNetworkTest.java": "896ad66f21193d882c566f16c8b645da3667d4050a8edfb092c205c9da0ddea2",
+    "deploy/StreamingWorkflow.java": "9a72366d6c0e965c9c79c9a1a727e47abd052db6252dd510a48bf8cd3b2d8cd8",
+    "deploy/StreamingReadinessSmoke.java": "080fbeade3a2a7fe9d26a599bb38bda8b58a92764558edc54cc2aa2ad689da90"
+  },
+  "diagnosis": "Mac ARM line51 Overview timeout followed server History query rate exceeded. Sender enqueue interval did not guarantee receive interval when outgoing writer was delayed.",
+  "productionChange": "Overview and open Trends share a nonblocking gate; acknowledge pending response once, anchor400ms quiet interval to observation of that response. Server250ms limit/pending guard unchanged.",
+  "harnessChange": "Up to5seconds repeated0.5ms streaming admission pumps;1ms yields only in harness; require terrainPending>0 immediately before authoritative edit. Record attempts/time/pending.",
+  "regression": "Real authenticated client writer held600ms; selection changed with query pending; pre-fixdisconnect reproduced; fixed focused run and five repeats passed. Existing fixed-range/stale/reconnect assertions retained.",
+  "limits": "Linux validation only so far. Hosted Mac ARM rerun requires controller feature push; do not claim green Mac CI yet. Prior2ms/transition/far-lighting/physical-GPU stable rollout gates remain.",
+  "clientJarSha256": "dc0556bd2171291bd1655f4beac4ffaba872f8b6027c008aa7af18b151b05517",
+  "unchangedStreamingEnginePaths": true,
+  "changedProductionPaths": [
+    "src/main/java/dev/jayms/ui/MetricTrends.java"
+  ]
+}

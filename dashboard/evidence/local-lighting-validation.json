@@ -1,0 +1,58 @@
+{
+  "status": "Ready for independent review with documented shortfalls",
+  "reviewBase": "403033b9f53ce66063982879c6e2daff684a427b",
+  "priorReviewedHead": "bd3317631bdccccd34789511c5b48b185c205103",
+  "source": {
+    "reviewedHead": "bd3317631bdccccd34789511c5b48b185c205103",
+    "baseline": "4f8a09aca177062a50d0ab2b68e36735318bfb22+timing-overlay",
+    "sourceSha256": "1045df4d490097a047c188977d3d86897734a5145c4bd2b7694288bb1b9578b3",
+    "routeSha256": "3063c17cab589162467ef3024127cd84ae1003223559d41a99edfa6d4e20d857",
+    "baselineJarSha256": "48ed98ac1f5fc55fe9c57feb5e29bc37031f369ddee8fc1ba4596933f1c7f78f",
+    "featureJarSha256": "2e1029b195080b68298108be576c335350b3c2d73ecb966e3c1ed8d621fd2c63",
+    "method": "Fresh profiles;166 samples;resident mesh and accepted lighting warmup;actual framebuffer in JSON;no video;all sustained cold travel outside original spawn preload."
+  },
+  "change": "Bounded spatial capture replaces whole-world edit copies in clustered lights and GI. Canonical immutable local cells, fixed chunk slots and small segmented arrays preserve current edits. Local edit/model/world/geometry fences survive worker and GPU stages. Cluster build/upload is sliced and double-buffered; far unloaded edit-only sky columns are not cached.",
+  "tests": {
+    "focusedTests": 133,
+    "failures": 0,
+    "errors": 0,
+    "packageExit": 0,
+    "native": "65frame large-edited-world runs with/withoutF10;multiplayer30;City15;world-switch35;GPU local fence and full upload readback passed",
+    "largeEditedWorld": "Three100-boundary pairs;100000distant edits;GPU references,races,removal,world-switch and cleanup passed",
+    "freshRoutes": "Three166-sample matched feature exports complete;initial third warmup failed,unchanged retry passed",
+    "soak": "64cycles/130seconds/1216edits/128GPU border readbacks;unchanged World/terrain/mesh paths;final GI array change covered by final worker/native tests"
+  },
+  "limits": [
+    "Shared2ms owner streaming tails remain unmet;full cold-flight owner p99 11.530/9.901/7.141ms.",
+    "A cluster pump took7.375598ms elapsed with0.110939ms thread CPU and no reported GC;exact wait cause unknown.",
+    "Large-world native GI-preparation elapsed maximum7.088440ms;cause not isolated.",
+    "Graphics readiness remained slow:232/222/211successful warmup frames,530.54\u2013603.56seconds including startup;one240-frame attempt failed and is preserved.",
+    "Transient GI coverage during rapid movement is not qualified by frame-time improvement;old fields remain active until replacements are usable.",
+    "Physical Windows GPU and25/50ms frame targets remain pending;stable rollout gated.",
+    "Hosted Hub/PR CI and artifact publication are controller handoffs,not claimed as locally executed."
+  ],
+  "reports": [
+    "local-lighting-playtest.txt",
+    "local-lighting-tests.json",
+    "local-lighting-cluster-comparison.json",
+    "local-lighting-performance.txt",
+    "local-lighting-comparison.json",
+    "local-lighting-memory.json",
+    "local-lighting-warmup-timeout.json"
+  ],
+  "media": {
+    "status": "passed",
+    "source": "fresh production Main F10 rendering workflow",
+    "codec": "H264",
+    "bytes": 580366,
+    "frames": 10,
+    "width": 960,
+    "height": 544,
+    "seconds": 18.292,
+    "allFramesDecoded": true,
+    "firstAndLastDiffer": true
+  },
+  "publication": "All new artifacts pending controller publication;no commit/push/merge/deployment performed.",
+  "audit": "No deleted files,unmerged index entries or whitespace issues against review base403033b9f53ce66063982879c6e2daff684a427b. Intended deletions replace full-history copying/replay,global root scans and global fences for local data. Other merged features/dashboard entries preserved. All delegate tasks resolved;no delegated execution claimed.",
+  "handoff": "Controller publishes branch/updatesPR73 and integrates latest master. Source changes require meaningful revalidation/media. No owner answer needed."
+}

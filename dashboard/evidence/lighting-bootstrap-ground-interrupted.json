@@ -1,0 +1,7 @@
+{
+  "status": "incomplete, not passed",
+  "command": "python3 deploy/run_lighting_visual.py --display \"$DISPLAY\" --phase after --manifest lighting-bootstrap-source.json --prefix lighting-bootstrap-ground",
+  "exitCode": 143,
+  "lastReceipt": "Resident preparation10160.613688ms,813chunks; no first-frame coverage or warmup export",
+  "next": "Correct the preload fixture to require the exact810 target chunks, then retry. No owner quota state inferred."
+}

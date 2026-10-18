@@ -1,0 +1,983 @@
+{
+  "method": "Every frame uses actual resolved visible depth unprojected through its jittered camera. Near surface eligibility is within24m horizontally and fixed GI vertical range. Coverage is inside the complete active GPU field; exact GPU payloads checked separately. Frames with no eligible surface are reported, never counted as covered. No FPS claim.",
+  "fixtureSha256": "104bcc12eb35ca0350088eb6388374b8132e246e6f027447787b4c4c22197607",
+  "beforeRevision": "4f8a09a+timing-overlay",
+  "afterRevision": "73faa0aeb980628eafb8cff689143aa4b9c51bf29d33984eb6bae4710a0b440c",
+  "cameraMismatchesOutsideColdFlightAndReversal": [
+    {
+      "sample": 12,
+      "segment": "coldEntry",
+      "before": [
+        128.30101,
+        46.470768,
+        8.0
+      ],
+      "after": [
+        128.0,
+        46.6,
+        8.0
+      ]
+    },
+    {
+      "sample": 128,
+      "segment": "teleport",
+      "before": [
+        2048.301,
+        30.470768,
+        8.0
+      ],
+      "after": [
+        8.5,
+        28.61,
+        24.5
+      ]
+    },
+    {
+      "sample": 129,
+      "segment": "teleport",
+      "before": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "after": [
+        2048.301,
+        30.470768,
+        8.0
+      ]
+    },
+    {
+      "sample": 13,
+      "segment": "coldEntry",
+      "before": [
+        128.0,
+        46.470768,
+        8.0
+      ],
+      "after": [
+        128.30101,
+        46.470768,
+        8.0
+      ]
+    }
+  ],
+  "lightingSourceMethod": "Availability means a complete active GI field contains the resolved surface or its exact sky column is present, following voxel shader lookup. This is an availability check, not radiance equivalence; occlusion/readback and rendered screenshots are checked separately.",
+  "qualificationScope": "Cold flight80 and reversal16 frames have matched eye poses and fixture hashes. Jump/teleport safety-boundary camera differences are listed; those segments have raw statistics only, not matched visual qualification.",
+  "segments": {
+    "catchup": {
+      "sourceAvailabilityBefore": {
+        "nearSky": {
+          "available": 109486,
+          "samples": 109486,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "nearSource": {
+          "available": 109486,
+          "samples": 109486,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "detailSky": {
+          "available": 117951,
+          "samples": 123264,
+          "aggregate": 0.9568973909657321,
+          "minimumFrame": 0.9215342679127726,
+          "framesWithMissingSource": 24
+        },
+        "detailSource": {
+          "available": 117951,
+          "samples": 123264,
+          "aggregate": 0.9568973909657321,
+          "minimumFrame": 0.9215342679127726,
+          "framesWithMissingSource": 24
+        },
+        "allSource": {
+          "available": 117951,
+          "samples": 143712,
+          "aggregate": 0.8207456579826319,
+          "minimumFrame": 0.7899566232899566,
+          "framesWithMissingSource": 24
+        }
+      },
+      "sourceAvailabilityAfter": {
+        "nearSky": {
+          "available": 98688,
+          "samples": 109031,
+          "aggregate": 0.905137071108217,
+          "minimumFrame": 0.7208896641953773,
+          "framesWithMissingSource": 9
+        },
+        "nearSource": {
+          "available": 98688,
+          "samples": 109031,
+          "aggregate": 0.905137071108217,
+          "minimumFrame": 0.7208896641953773,
+          "framesWithMissingSource": 9
+        },
+        "detailSky": {
+          "available": 101939,
+          "samples": 123264,
+          "aggregate": 0.8269973390446521,
+          "minimumFrame": 0.6434968847352025,
+          "framesWithMissingSource": 24
+        },
+        "detailSource": {
+          "available": 102814,
+          "samples": 123264,
+          "aggregate": 0.8340959241952233,
+          "minimumFrame": 0.6434968847352025,
+          "framesWithMissingSource": 24
+        },
+        "allSource": {
+          "available": 102814,
+          "samples": 143673,
+          "aggregate": 0.7156111447523195,
+          "minimumFrame": 0.5516263552960801,
+          "framesWithMissingSource": 24
+        }
+      },
+      "before": {
+        "frames": 24,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 0.0,
+        "medianFrameCoverage": 0.0,
+        "minimumFrameCoverage": 0.0,
+        "zeroCoverageFrames": 24,
+        "longestZeroRun": 24
+      },
+      "after": {
+        "frames": 24,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 0.33329053205051773,
+        "medianFrameCoverage": 0.0,
+        "minimumFrameCoverage": 0.0,
+        "zeroCoverageFrames": 16,
+        "longestZeroRun": 16
+      },
+      "worstMatchedFrameCoverageChange": 0.0,
+      "matchedFramesWithLowerCoverage": 0,
+      "framesDroppingMoreThanTwoPercentagePoints": []
+    },
+    "coldEntry": {
+      "sourceAvailabilityBefore": {
+        "nearSky": {
+          "available": 22804,
+          "samples": 25680,
+          "aggregate": 0.888006230529595,
+          "minimumFrame": 0.7615264797507788,
+          "framesWithMissingSource": 3
+        },
+        "nearSource": {
+          "available": 22804,
+          "samples": 25680,
+          "aggregate": 0.888006230529595,
+          "minimumFrame": 0.7615264797507788,
+          "framesWithMissingSource": 3
+        },
+        "detailSky": {
+          "available": 22804,
+          "samples": 25680,
+          "aggregate": 0.888006230529595,
+          "minimumFrame": 0.7615264797507788,
+          "framesWithMissingSource": 3
+        },
+        "detailSource": {
+          "available": 22804,
+          "samples": 25680,
+          "aggregate": 0.888006230529595,
+          "minimumFrame": 0.7615264797507788,
+          "framesWithMissingSource": 3
+        },
+        "allSource": {
+          "available": 22804,
+          "samples": 25680,
+          "aggregate": 0.888006230529595,
+          "minimumFrame": 0.7615264797507788,
+          "framesWithMissingSource": 3
+        }
+      },
+      "sourceAvailabilityAfter": {
+        "nearSky": {
+          "available": 0,
+          "samples": 25680,
+          "aggregate": 0.0,
+          "minimumFrame": 0.0,
+          "framesWithMissingSource": 4
+        },
+        "nearSource": {
+          "available": 0,
+          "samples": 25680,
+          "aggregate": 0.0,
+          "minimumFrame": 0.0,
+          "framesWithMissingSource": 4
+        },
+        "detailSky": {
+          "available": 0,
+          "samples": 25680,
+          "aggregate": 0.0,
+          "minimumFrame": 0.0,
+          "framesWithMissingSource": 4
+        },
+        "detailSource": {
+          "available": 0,
+          "samples": 25680,
+          "aggregate": 0.0,
+          "minimumFrame": 0.0,
+          "framesWithMissingSource": 4
+        },
+        "allSource": {
+          "available": 0,
+          "samples": 25680,
+          "aggregate": 0.0,
+          "minimumFrame": 0.0,
+          "framesWithMissingSource": 4
+        }
+      },
+      "before": {
+        "frames": 4,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 0.0,
+        "medianFrameCoverage": 0.0,
+        "minimumFrameCoverage": 0.0,
+        "zeroCoverageFrames": 4,
+        "longestZeroRun": 4
+      },
+      "after": {
+        "frames": 4,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 0.0,
+        "medianFrameCoverage": 0.0,
+        "minimumFrameCoverage": 0.0,
+        "zeroCoverageFrames": 4,
+        "longestZeroRun": 4
+      },
+      "worstMatchedFrameCoverageChange": 0.0,
+      "matchedFramesWithLowerCoverage": 0,
+      "framesDroppingMoreThanTwoPercentagePoints": []
+    },
+    "coldFlight": {
+      "sourceAvailabilityBefore": {
+        "nearSky": {
+          "available": 389753,
+          "samples": 389753,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "nearSource": {
+          "available": 389753,
+          "samples": 389753,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "detailSky": {
+          "available": 403697,
+          "samples": 407331,
+          "aggregate": 0.9910785086330282,
+          "minimumFrame": 0.898949070331447,
+          "framesWithMissingSource": 25
+        },
+        "detailSource": {
+          "available": 403697,
+          "samples": 407331,
+          "aggregate": 0.9910785086330282,
+          "minimumFrame": 0.898949070331447,
+          "framesWithMissingSource": 25
+        },
+        "allSource": {
+          "available": 403697,
+          "samples": 456128,
+          "aggregate": 0.8850520029465413,
+          "minimumFrame": 0.6301473366074801,
+          "framesWithMissingSource": 45
+        }
+      },
+      "sourceAvailabilityAfter": {
+        "nearSky": {
+          "available": 389571,
+          "samples": 389770,
+          "aggregate": 0.9994894424917259,
+          "minimumFrame": 0.9689305230288837,
+          "framesWithMissingSource": 1
+        },
+        "nearSource": {
+          "available": 389571,
+          "samples": 389770,
+          "aggregate": 0.9994894424917259,
+          "minimumFrame": 0.9689305230288837,
+          "framesWithMissingSource": 1
+        },
+        "detailSky": {
+          "available": 401336,
+          "samples": 407295,
+          "aggregate": 0.9853693269006494,
+          "minimumFrame": 0.8571813527351119,
+          "framesWithMissingSource": 31
+        },
+        "detailSource": {
+          "available": 401336,
+          "samples": 407295,
+          "aggregate": 0.9853693269006494,
+          "minimumFrame": 0.8571813527351119,
+          "framesWithMissingSource": 31
+        },
+        "allSource": {
+          "available": 401336,
+          "samples": 456128,
+          "aggregate": 0.8798758243300127,
+          "minimumFrame": 0.6008689081979599,
+          "framesWithMissingSource": 48
+        }
+      },
+      "before": {
+        "frames": 80,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 0.5936759947967046,
+        "medianFrameCoverage": 1.0,
+        "minimumFrameCoverage": 0.0,
+        "zeroCoverageFrames": 25,
+        "longestZeroRun": 25
+      },
+      "after": {
+        "frames": 80,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 0.8103035123277831,
+        "medianFrameCoverage": 0.9992990654205607,
+        "minimumFrameCoverage": 0.0,
+        "zeroCoverageFrames": 8,
+        "longestZeroRun": 6
+      },
+      "worstMatchedFrameCoverageChange": -1.0,
+      "matchedFramesWithLowerCoverage": 23,
+      "framesDroppingMoreThanTwoPercentagePoints": [
+        {
+          "sample": 63,
+          "before": 1.0,
+          "after": 0.0,
+          "difference": -1.0
+        },
+        {
+          "sample": 64,
+          "before": 1.0,
+          "after": 0.0,
+          "difference": -1.0
+        },
+        {
+          "sample": 62,
+          "before": 1.0,
+          "after": 0.2777777777777778,
+          "difference": -0.7222222222222222
+        },
+        {
+          "sample": 60,
+          "before": 1.0,
+          "after": 0.42592592592592593,
+          "difference": -0.5740740740740741
+        },
+        {
+          "sample": 61,
+          "before": 1.0,
+          "after": 0.4444444444444444,
+          "difference": -0.5555555555555556
+        },
+        {
+          "sample": 59,
+          "before": 1.0,
+          "after": 0.6965448172258387,
+          "difference": -0.3034551827741613
+        },
+        {
+          "sample": 58,
+          "before": 1.0,
+          "after": 0.8108674621089971,
+          "difference": -0.18913253789100293
+        },
+        {
+          "sample": 57,
+          "before": 1.0,
+          "after": 0.8245614035087719,
+          "difference": -0.17543859649122806
+        },
+        {
+          "sample": 67,
+          "before": 1.0,
+          "after": 0.9094030135418654,
+          "difference": -0.09059698645813463
+        },
+        {
+          "sample": 70,
+          "before": 1.0,
+          "after": 0.9106111885327494,
+          "difference": -0.08938881146725064
+        },
+        {
+          "sample": 74,
+          "before": 1.0,
+          "after": 0.9142381348875936,
+          "difference": -0.08576186511240635
+        },
+        {
+          "sample": 71,
+          "before": 1.0,
+          "after": 0.915190125423054,
+          "difference": -0.084809874576946
+        },
+        {
+          "sample": 68,
+          "before": 1.0,
+          "after": 0.9181766164409689,
+          "difference": -0.08182338355903107
+        },
+        {
+          "sample": 75,
+          "before": 1.0,
+          "after": 0.9210416666666666,
+          "difference": -0.07895833333333335
+        },
+        {
+          "sample": 72,
+          "before": 1.0,
+          "after": 0.9213773885350318,
+          "difference": -0.07862261146496818
+        },
+        {
+          "sample": 79,
+          "before": 1.0,
+          "after": 0.9241893076248905,
+          "difference": -0.07581069237510951
+        },
+        {
+          "sample": 76,
+          "before": 1.0,
+          "after": 0.9249843717441134,
+          "difference": -0.07501562825588659
+        },
+        {
+          "sample": 65,
+          "before": 1.0,
+          "after": 0.9252113193678795,
+          "difference": -0.07478868063212052
+        },
+        {
+          "sample": 66,
+          "before": 1.0,
+          "after": 0.9295929592959296,
+          "difference": -0.07040704070407044
+        },
+        {
+          "sample": 73,
+          "before": 1.0,
+          "after": 0.9305196097949433,
+          "difference": -0.0694803902050567
+        },
+        {
+          "sample": 77,
+          "before": 1.0,
+          "after": 0.9311926605504587,
+          "difference": -0.06880733944954132
+        },
+        {
+          "sample": 69,
+          "before": 1.0,
+          "after": 0.9313370207896242,
+          "difference": -0.06866297921037579
+        },
+        {
+          "sample": 78,
+          "before": 1.0,
+          "after": 0.9401459854014599,
+          "difference": -0.05985401459854012
+        }
+      ]
+    },
+    "coldWalk": {
+      "sourceAvailabilityBefore": {
+        "nearSky": {
+          "available": 102243,
+          "samples": 102243,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "nearSource": {
+          "available": 102243,
+          "samples": 102243,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "detailSky": {
+          "available": 102703,
+          "samples": 102720,
+          "aggregate": 0.9998345015576324,
+          "minimumFrame": 0.9978193146417446,
+          "framesWithMissingSource": 2
+        },
+        "detailSource": {
+          "available": 102703,
+          "samples": 102720,
+          "aggregate": 0.9998345015576324,
+          "minimumFrame": 0.9978193146417446,
+          "framesWithMissingSource": 2
+        },
+        "allSource": {
+          "available": 102703,
+          "samples": 102720,
+          "aggregate": 0.9998345015576324,
+          "minimumFrame": 0.9978193146417446,
+          "framesWithMissingSource": 2
+        }
+      },
+      "sourceAvailabilityAfter": {
+        "nearSky": {
+          "available": 86854,
+          "samples": 102258,
+          "aggregate": 0.8493614191554695,
+          "minimumFrame": 0.0,
+          "framesWithMissingSource": 6
+        },
+        "nearSource": {
+          "available": 86854,
+          "samples": 102258,
+          "aggregate": 0.8493614191554695,
+          "minimumFrame": 0.0,
+          "framesWithMissingSource": 6
+        },
+        "detailSky": {
+          "available": 87113,
+          "samples": 102720,
+          "aggregate": 0.8480626947040498,
+          "minimumFrame": 0.0,
+          "framesWithMissingSource": 15
+        },
+        "detailSource": {
+          "available": 87113,
+          "samples": 102720,
+          "aggregate": 0.8480626947040498,
+          "minimumFrame": 0.0,
+          "framesWithMissingSource": 15
+        },
+        "allSource": {
+          "available": 87113,
+          "samples": 102720,
+          "aggregate": 0.8480626947040498,
+          "minimumFrame": 0.0,
+          "framesWithMissingSource": 15
+        }
+      },
+      "before": {
+        "frames": 16,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 0.0,
+        "medianFrameCoverage": 0.0,
+        "minimumFrameCoverage": 0.0,
+        "zeroCoverageFrames": 16,
+        "longestZeroRun": 16
+      },
+      "after": {
+        "frames": 16,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 0.0,
+        "medianFrameCoverage": 0.0,
+        "minimumFrameCoverage": 0.0,
+        "zeroCoverageFrames": 16,
+        "longestZeroRun": 16
+      },
+      "worstMatchedFrameCoverageChange": 0.0,
+      "matchedFramesWithLowerCoverage": 0,
+      "framesDroppingMoreThanTwoPercentagePoints": []
+    },
+    "resident": {
+      "sourceAvailabilityBefore": {
+        "nearSky": {
+          "available": 51480,
+          "samples": 51480,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "nearSource": {
+          "available": 51480,
+          "samples": 51480,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "detailSky": {
+          "available": 60067,
+          "samples": 67900,
+          "aggregate": 0.884639175257732,
+          "minimumFrame": 0.882363315696649,
+          "framesWithMissingSource": 12
+        },
+        "detailSource": {
+          "available": 60067,
+          "samples": 67900,
+          "aggregate": 0.884639175257732,
+          "minimumFrame": 0.882363315696649,
+          "framesWithMissingSource": 12
+        },
+        "allSource": {
+          "available": 60067,
+          "samples": 74826,
+          "aggregate": 0.8027557266190897,
+          "minimumFrame": 0.8006080972955673,
+          "framesWithMissingSource": 12
+        }
+      },
+      "sourceAvailabilityAfter": {
+        "nearSky": {
+          "available": 51480,
+          "samples": 51480,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "nearSource": {
+          "available": 51480,
+          "samples": 51480,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "detailSky": {
+          "available": 60067,
+          "samples": 67905,
+          "aggregate": 0.8845740372579339,
+          "minimumFrame": 0.882363315696649,
+          "framesWithMissingSource": 12
+        },
+        "detailSource": {
+          "available": 60067,
+          "samples": 67905,
+          "aggregate": 0.8845740372579339,
+          "minimumFrame": 0.882363315696649,
+          "framesWithMissingSource": 12
+        },
+        "allSource": {
+          "available": 60067,
+          "samples": 74824,
+          "aggregate": 0.8027771837912969,
+          "minimumFrame": 0.80064,
+          "framesWithMissingSource": 12
+        }
+      },
+      "before": {
+        "frames": 12,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 1.0,
+        "medianFrameCoverage": 1.0,
+        "minimumFrameCoverage": 1.0,
+        "zeroCoverageFrames": 0,
+        "longestZeroRun": 0
+      },
+      "after": {
+        "frames": 12,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 1.0,
+        "medianFrameCoverage": 1.0,
+        "minimumFrameCoverage": 1.0,
+        "zeroCoverageFrames": 0,
+        "longestZeroRun": 0
+      },
+      "worstMatchedFrameCoverageChange": 0.0,
+      "matchedFramesWithLowerCoverage": 0,
+      "framesDroppingMoreThanTwoPercentagePoints": []
+    },
+    "teleport": {
+      "sourceAvailabilityBefore": {
+        "nearSky": {
+          "available": 23785,
+          "samples": 26444,
+          "aggregate": 0.8994478898805022,
+          "minimumFrame": 0.7572148419606046,
+          "framesWithMissingSource": 4
+        },
+        "nearSource": {
+          "available": 23785,
+          "samples": 26444,
+          "aggregate": 0.8994478898805022,
+          "minimumFrame": 0.7572148419606046,
+          "framesWithMissingSource": 4
+        },
+        "detailSky": {
+          "available": 24313,
+          "samples": 30816,
+          "aggregate": 0.7889732606438213,
+          "minimumFrame": 0.6436915887850467,
+          "framesWithMissingSource": 6
+        },
+        "detailSource": {
+          "available": 24313,
+          "samples": 30816,
+          "aggregate": 0.7889732606438213,
+          "minimumFrame": 0.6436915887850467,
+          "framesWithMissingSource": 6
+        },
+        "allSource": {
+          "available": 24313,
+          "samples": 35824,
+          "aggregate": 0.678679097811523,
+          "minimumFrame": 0.5539544235924933,
+          "framesWithMissingSource": 6
+        }
+      },
+      "sourceAvailabilityAfter": {
+        "nearSky": {
+          "available": 6785,
+          "samples": 22457,
+          "aggregate": 0.30213296522242505,
+          "minimumFrame": 0.0,
+          "framesWithMissingSource": 5
+        },
+        "nearSource": {
+          "available": 6785,
+          "samples": 22457,
+          "aggregate": 0.30213296522242505,
+          "minimumFrame": 0.0,
+          "framesWithMissingSource": 5
+        },
+        "detailSky": {
+          "available": 7039,
+          "samples": 25513,
+          "aggregate": 0.2758985615176577,
+          "minimumFrame": 0.0,
+          "framesWithMissingSource": 5
+        },
+        "detailSource": {
+          "available": 7039,
+          "samples": 25513,
+          "aggregate": 0.2758985615176577,
+          "minimumFrame": 0.0,
+          "framesWithMissingSource": 5
+        },
+        "allSource": {
+          "available": 7039,
+          "samples": 29178,
+          "aggregate": 0.2412434025635753,
+          "minimumFrame": 0.0,
+          "framesWithMissingSource": 5
+        }
+      },
+      "before": {
+        "frames": 6,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 0.0,
+        "medianFrameCoverage": 0.0,
+        "minimumFrameCoverage": 0.0,
+        "zeroCoverageFrames": 6,
+        "longestZeroRun": 6
+      },
+      "after": {
+        "frames": 6,
+        "zeroEligibleFrames": 1,
+        "aggregateNearCoverage": 0.0,
+        "medianFrameCoverage": 0.0,
+        "minimumFrameCoverage": 0.0,
+        "zeroCoverageFrames": 5,
+        "longestZeroRun": 4
+      },
+      "worstMatchedFrameCoverageChange": 0.0,
+      "matchedFramesWithLowerCoverage": 0,
+      "framesDroppingMoreThanTwoPercentagePoints": []
+    },
+    "transitionTail": {
+      "sourceAvailabilityBefore": {
+        "nearSky": {
+          "available": 36500,
+          "samples": 36500,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "nearSource": {
+          "available": 36500,
+          "samples": 36500,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "detailSky": {
+          "available": 40260,
+          "samples": 41088,
+          "aggregate": 0.9798481308411215,
+          "minimumFrame": 0.9776090342679128,
+          "framesWithMissingSource": 8
+        },
+        "detailSource": {
+          "available": 40260,
+          "samples": 41088,
+          "aggregate": 0.9798481308411215,
+          "minimumFrame": 0.9776090342679128,
+          "framesWithMissingSource": 8
+        },
+        "allSource": {
+          "available": 40260,
+          "samples": 47882,
+          "aggregate": 0.840817008479178,
+          "minimumFrame": 0.8388443553774215,
+          "framesWithMissingSource": 8
+        }
+      },
+      "sourceAvailabilityAfter": {
+        "nearSky": {
+          "available": 36450,
+          "samples": 36450,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "nearSource": {
+          "available": 36450,
+          "samples": 36450,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "detailSky": {
+          "available": 39205,
+          "samples": 41088,
+          "aggregate": 0.9541715342679128,
+          "minimumFrame": 0.9519080996884736,
+          "framesWithMissingSource": 8
+        },
+        "detailSource": {
+          "available": 39317,
+          "samples": 41088,
+          "aggregate": 0.9568973909657321,
+          "minimumFrame": 0.9567757009345794,
+          "framesWithMissingSource": 8
+        },
+        "allSource": {
+          "available": 39317,
+          "samples": 47882,
+          "aggregate": 0.821122760118625,
+          "minimumFrame": 0.8208082832331329,
+          "framesWithMissingSource": 8
+        }
+      },
+      "before": {
+        "frames": 8,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 0.0,
+        "medianFrameCoverage": 0.0,
+        "minimumFrameCoverage": 0.0,
+        "zeroCoverageFrames": 8,
+        "longestZeroRun": 8
+      },
+      "after": {
+        "frames": 8,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 1.0,
+        "medianFrameCoverage": 1.0,
+        "minimumFrameCoverage": 1.0,
+        "zeroCoverageFrames": 0,
+        "longestZeroRun": 0
+      },
+      "worstMatchedFrameCoverageChange": 1.0,
+      "matchedFramesWithLowerCoverage": 0,
+      "framesDroppingMoreThanTwoPercentagePoints": []
+    },
+    "warmReversal": {
+      "sourceAvailabilityBefore": {
+        "nearSky": {
+          "available": 75090,
+          "samples": 75090,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "nearSource": {
+          "available": 75090,
+          "samples": 75090,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "detailSky": {
+          "available": 76099,
+          "samples": 76099,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "detailSource": {
+          "available": 76099,
+          "samples": 76099,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "allSource": {
+          "available": 76099,
+          "samples": 84850,
+          "aggregate": 0.8968650559811432,
+          "minimumFrame": 0.7960377358490566,
+          "framesWithMissingSource": 16
+        }
+      },
+      "sourceAvailabilityAfter": {
+        "nearSky": {
+          "available": 75090,
+          "samples": 75090,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "nearSource": {
+          "available": 75090,
+          "samples": 75090,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "detailSky": {
+          "available": 76099,
+          "samples": 76099,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "detailSource": {
+          "available": 76099,
+          "samples": 76099,
+          "aggregate": 1.0,
+          "minimumFrame": 1.0,
+          "framesWithMissingSource": 0
+        },
+        "allSource": {
+          "available": 76259,
+          "samples": 84850,
+          "aggregate": 0.8987507365939894,
+          "minimumFrame": 0.8069811320754717,
+          "framesWithMissingSource": 16
+        }
+      },
+      "before": {
+        "frames": 16,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 1.0,
+        "medianFrameCoverage": 1.0,
+        "minimumFrameCoverage": 1.0,
+        "zeroCoverageFrames": 0,
+        "longestZeroRun": 0
+      },
+      "after": {
+        "frames": 16,
+        "zeroEligibleFrames": 0,
+        "aggregateNearCoverage": 1.0,
+        "medianFrameCoverage": 1.0,
+        "minimumFrameCoverage": 1.0,
+        "zeroCoverageFrames": 0,
+        "longestZeroRun": 0
+      },
+      "worstMatchedFrameCoverageChange": 0.0,
+      "matchedFramesWithLowerCoverage": 0,
+      "framesDroppingMoreThanTwoPercentagePoints": []
+    }
+  }
+}

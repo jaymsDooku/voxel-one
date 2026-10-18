@@ -1,0 +1,58 @@
+{
+  "status": "ready_for_independent_review",
+  "source": {
+    "priorReviewedHead": "f33a94abc17b6b06e917a836ec9a694cefd2a414",
+    "reviewBase": "403033b9f53ce66063982879c6e2daff684a427b",
+    "sourceSha256": "a697400ee556a6271ebf9ee3b72c999a1b93677f2d9c571a58448acb34d72337",
+    "jarSha256": "3aa4c03db94167b2c038acf573c9566958bb9141d79fa3bb66ae4b7906572f45",
+    "priorJarSha256": "5fe8c15b8bb552aebe119c1922391a61e9771f76305f36c078ed5130da877333",
+    "helpers": {
+      "deploy/SkyShutdownRepro.java": "f5dd964a4bcd953da9e64decc653ed4df5281521e454bb259af3006746b16ed9",
+      "deploy/StreamingShutdownWorkflow.java": "1ddd5b87af966ea66bd7a9521fff0581a6078cef78cdf5e2e674e68dd4f76aa6",
+      "deploy/run_streaming_shutdown.py": "69c8bc2b4715cac7a3b003612ee7e0e387bb2f0e091c6ae91e3cab52e6b73708",
+      "deploy/StreamingWorkflow.java": "4c3725eb55ea713f4784f0562806c658a1df3714d3b5cf497cc470e57336564c"
+    },
+    "scope": "Cooperative active sky preparation cancellation and failure-tolerant owner cleanup. Prior frame measurements belong to f33a94abc17b6b06e917a836ec9a694cefd2a414; no new frame-distribution claim."
+  },
+  "tests": {
+    "command": "Java21 offline Maven selected21classes package (same19classes plus ActivePreparationShutdownTest,CloseSequenceTest)",
+    "counts": {
+      "tests": 160,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "exitCode": 0,
+    "jarSha256": "3aa4c03db94167b2c038acf573c9566958bb9141d79fa3bb66ae4b7906572f45",
+    "classAndResourceMismatches": []
+  },
+  "nativeChecks": {
+    "active-switch": "Playtest: PASS. Production Main active-switch; llvmpipe (LLVM 15.0.6, 256 bits); Java21; inherited display; synthetic saves; sessions=2, frames=6. Active sky cancellation/queued cancellation or forced failure aggregation and final window/context cleanup verified. Switch-to-next-start ms=5466.763205 (includes next startup, not isolated close latency).",
+    "failure-switch": "Playtest: PASS. Production Main failure-switch; llvmpipe (LLVM 15.0.6, 256 bits); Java21; inherited display; synthetic saves; sessions=1, frames=3. Active sky cancellation/queued cancellation or forced failure aggregation and final window/context cleanup verified. Switch-to-next-start ms=0.0 (includes next startup, not isolated close latency).",
+    "failure-run": "Playtest: PASS. Production Main failure-run; llvmpipe (LLVM 15.0.6, 256 bits); Java21; inherited display; synthetic saves; sessions=1, frames=3. Active sky cancellation/queued cancellation or forced failure aggregation and final window/context cleanup verified. Switch-to-next-start ms=0.0 (includes next startup, not isolated close latency)."
+  },
+  "media": {
+    "status": "passed",
+    "source": "fresh production Main F10 rendering workflow",
+    "codec": "H264",
+    "bytes": 509123,
+    "frames": 10,
+    "width": 960,
+    "height": 544,
+    "seconds": 25.757,
+    "allFramesDecoded": true,
+    "firstAndLastDiffer": true
+  },
+  "inspection": [
+    "Decodedmidpoint and finalpostrespawnPNG inspected"
+  ],
+  "playtestReceipt": "sky-cancellation-playtest.txt",
+  "diffAudit": "sky-cancellation-diff-audit.json",
+  "performanceProvenance": "Prior fullframe measurements retained under lighting-near-v2 with f33a94 source; current revision only claims executed cancellation/correctness checks.",
+  "limits": [
+    "2ms tail target unmet in prior qualification",
+    "Cold-transition GI coverage gaps remain documented",
+    "Physical WindowsGPU qualification pending and gates stable rollout"
+  ],
+  "publication": "pending controller publication"
+}

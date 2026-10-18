@@ -170,6 +170,27 @@ class VoxelModelTest {
     }
 
     @Test
+    void modelSnapshotsKeepStableIdsAndIndependentRegistration() throws Exception {
+        var source = new ModelLibrary();
+        var definition = ModelGenerators.flowerPot();
+        definition.voxels().set(0, 0, 0, 0xffabcdef);
+        var first = source.register(definition, "alice");
+        var snapshot = source.copy();
+        assertEquals(source.revision(), snapshot.revision());
+        assertSame(first.definition(), snapshot.get(first.id()).definition());
+        assertEquals(first.id(), snapshot.find(definition));
+        assertThrows(RuntimeException.class,
+                () -> snapshot.get(first.id()).definition().voxels().set(0, 0, 0, 0));
+        definition.voxels().set(1, 0, 0, 0xff123456);
+        var second = snapshot.register(definition, "bob");
+        assertNull(source.get(second.id()));
+        assertEquals(-1, source.find(definition));
+        assertEquals(first.id(), source.find(first.definition()));
+        assertEquals(source.revision() + 1, snapshot.revision());
+        assertEquals(second.id(), source.register(definition, "alice").id());
+    }
+
+    @Test
     void customModelsAreImmutableDeduplicatedAndSavedOffline() throws Exception {
         ModelLibrary library = new ModelLibrary();
         var definition = ModelGenerators.flowerPot();

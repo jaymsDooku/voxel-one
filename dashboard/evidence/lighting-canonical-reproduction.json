@@ -1,0 +1,8 @@
+{
+  "command": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 mvn -o -q -Dmaven.repo.local=target/m2 -Dtest=LocalLightingCaptureTest#canonicalEditedGenerationKeepsLightingValidAcrossUnloadAndReplay test",
+  "beforeWorldSha256": "fe2690304c11cc11a7b678c4e4ad5d7c6dadb609cba6e31063129aa09bd35b2c",
+  "beforeObserved": "Exit1; one assertion failed: unchanged canonical edited terrain unload invalidated the lighting geometry fence.",
+  "cause": "World.apply restored generated equivalence only after the chunk dirty callback had recorded a resident-only geometry revision. Removing the last generated member reset that revision, despite unchanged canonical voxel data.",
+  "fix": "Canonical mutation remains spatially edit-revision fenced; its dirty callback does not add a second custom-geometry revision. Direct resident geometry and real edits remain fenced.",
+  "afterStatus": "Passed in the full147-test run; zero failures/errors/skips."
+}

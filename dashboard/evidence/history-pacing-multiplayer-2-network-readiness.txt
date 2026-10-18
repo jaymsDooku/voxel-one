@@ -1,0 +1,1 @@
+attempts=1; waitMs=1.188173; terrainPending=16

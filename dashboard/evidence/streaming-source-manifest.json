@@ -1,0 +1,13 @@
+{
+  "base": "4f8a09aca177062a50d0ab2b68e36735318bfb22",
+  "afterSourceSha256": "bf3d5cdb0e180be041384e3c5fd817d71359a417b74ca217e45728f387377df4",
+  "baselineJarSha256": "48ed98ac1f5fc55fe9c57feb5e29bc37031f369ddee8fc1ba4596933f1c7f78f",
+  "afterJarSha256": "1cf1f1cae7856429b1e2028afcd0f3feac06b5e51c2852df45a9ac50e2e2b9bb",
+  "baselineTimingOverlay": {
+    "target/baseline-instrumented-src/dev/jayms/Main.java": "cd3dcdfc7963f3fcb919caebff7e9ec2b28a3f9701c0a48f41e1f6d14adafdd5",
+    "target/baseline-instrumented-src/dev/jayms/render/PerformanceRecorder.java": "65b75b5fbf58d5f497a0750aa5b0ac686796b01e00cdd483cc28b8c631b69b57",
+    "target/baseline-instrumented-src/dev/jayms/render/RenderPipeline.java": "f30e4a2d33336317feb4baed920a1b8c2658c1497b066498ab750ede25712f82"
+  },
+  "routeSha256": "865c2e875ac7216da5b393ed3d0b033bfa78c294234b847e6cf56c1a067bd506",
+  "Playtest": "Production Main; fixed per-frame route; fresh synthetic profile each trial; no video; ten warm-up frames after matching 810 resident chunks. Mesa llvmpipe, not Windows hardware."
+}

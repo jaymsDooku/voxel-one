@@ -1,0 +1,72 @@
+{
+  "frames": 180,
+  "windows": [
+    {
+      "firstFrame": 0,
+      "lastFrame": 29,
+      "pendingMax": 16,
+      "loadedMax": 946,
+      "heapMinBytes": 265980416,
+      "heapMaxBytes": 529059920
+    },
+    {
+      "firstFrame": 30,
+      "lastFrame": 59,
+      "pendingMax": 16,
+      "loadedMax": 1082,
+      "heapMinBytes": 285842672,
+      "heapMaxBytes": 599183360
+    },
+    {
+      "firstFrame": 60,
+      "lastFrame": 89,
+      "pendingMax": 16,
+      "loadedMax": 1095,
+      "heapMinBytes": 282335280,
+      "heapMaxBytes": 603561200
+    },
+    {
+      "firstFrame": 90,
+      "lastFrame": 119,
+      "pendingMax": 16,
+      "loadedMax": 1044,
+      "heapMinBytes": 339850176,
+      "heapMaxBytes": 615046808
+    },
+    {
+      "firstFrame": 120,
+      "lastFrame": 149,
+      "pendingMax": 16,
+      "loadedMax": 1092,
+      "heapMinBytes": 293085192,
+      "heapMaxBytes": 653004776
+    },
+    {
+      "firstFrame": 150,
+      "lastFrame": 179,
+      "pendingMax": 0,
+      "loadedMax": 1084,
+      "heapMinBytes": 294096960,
+      "heapMaxBytes": 328012272
+    }
+  ],
+  "last": {
+    "frame": "179",
+    "stream_cpu_ms": "0.250786",
+    "render_cpu_ms": "7967.707217",
+    "previous_video_capture_cpu_ms": "6.82E-4",
+    "pending": "0",
+    "oldest_ms": "0",
+    "loaded": "1052",
+    "heap_bytes": "328012272",
+    "mesh_jobs": "4",
+    "mesh_waiting": "270",
+    "lighting_upload_bytes": "0",
+    "scene_cpu_ms": "0.090342",
+    "lighting_prepare_cpu_ms": "0.025983",
+    "gi_covered_9": "9",
+    "gi_current": "true",
+    "gi_source_age_ms": "366644"
+  },
+  "limits": "Heap samples include uncollected objects; window peaks/sawtooth are finite-route observations, not a universal memory ceiling. Frame stage times are elapsed; this is a correctness/travel run, not a matched performance trial."
+}

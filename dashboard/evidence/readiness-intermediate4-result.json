@@ -1,0 +1,9 @@
+{
+  "status": "166-frame intermediate run completed, but failed GI travel coverage; not qualified",
+  "warmup": {
+    "graphicsWarmupFrames": 18,
+    "warmupWallMs": 80315.459056
+  },
+  "reason": "Natural tile readiness gates collection/preparation despite terrain ending below GI top. Preserve trace and repeat after ceiling-specific dependencies/independent completion polling.",
+  "firstAllowances": "Initial allowance inactive in all profiled samples; bounded normal workload alone does not prove visual coverage."
+}

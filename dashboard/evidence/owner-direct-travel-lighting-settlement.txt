@@ -1,0 +1,1 @@
+frame=179; framesAfterRespawn=49; currentNearGIReady=true; coveredOfNine=9; currentGeometry=true; sourceAgeMs=370974

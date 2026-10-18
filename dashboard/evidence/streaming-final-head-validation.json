@@ -1,0 +1,33 @@
+{
+  "status": "passed available Linux final-head validation; independent review and physical Windows GPU qualification pending",
+  "reviewBase": "403033b9f53ce66063982879c6e2daff684a427b",
+  "testedSourceCommit": "b163ca7e9295e55200fbd6ade4342e82109404e1",
+  "sourceSha256": "bf3d5cdb0e180be041384e3c5fd817d71359a417b74ca217e45728f387377df4",
+  "jarSha256": "1cf1f1cae7856429b1e2028afcd0f3feac06b5e51c2852df45a9ac50e2e2b9bb",
+  "sourceComparison": "All engine/test Java and route sources match measured manifest. pom.xml and shader/resources unchanged. Prior matched trials,121 tests and native regression checks therefore cover identical source. Fresh Main workflow and media captured after integration.",
+  "command": "python3 deploy/run_streaming_workflow.py --display \"$DISPLAY\" --mode offline --video",
+  "Playtest": "Fresh synthetic offline profile; actual W walking,F/Shift/W flight,S reversal,F10 capture,teleport2048,explicit chunk unload and return. Expected exact RGB fractional and tiny-model edits after reload,usable GPU meshes,bounded queues/residency and no GL errors. Observed all65 frames passed; process exit0.",
+  "environment": "Inherited assigned display/XAUTHORITY; Linux amd64; Java21.0.5; OpenGL3.3 Mesa22.3.6 llvmpipe; actual1280x720, selected Balanced640x480; seed748291. Software rendering.",
+  "media": {
+    "status": "passed",
+    "source": "fresh production Main F10 rendering workflow",
+    "codec": "H264",
+    "bytes": 643928,
+    "frames": 10,
+    "width": 960,
+    "height": 544,
+    "seconds": 26.045,
+    "allFramesDecoded": true,
+    "firstAndLastDiffer": true
+  },
+  "visualInspection": "Decoded all10 frames; midpoint and final reload screenshot inspected. Flight terrain/horizon and synthetic tiny geometry visible. Reloaded platform remains dark during convergence, as already documented; no claim that this early edited-area lighting is settled. Longer unchanged-source travel test separately proved usable irradiance after respawn.",
+  "audit": "Entire proposed path set audited against review base. No deleted tracked files. Only assigned streaming source/tests/helpers/docs/evidence plus own progress entry/checkpoint differ. Every unrelated progress item and root release/verification/website field equals review base. Intended code removals replace synchronous terrain/full sky build/monolithic lighting upload/recursive emptiness and unconditional border capture. No unrelated feature removal.",
+  "limits": "Overall frame tails did not consistently improve on llvmpipe and2ms total-streaming target is not met. Physical Windows GPU qualification remains pending and gates claims/stable rollout. See streaming-validation-limits.json.",
+  "publication": "All new evidence pending controller feature-branch publication. No commit/push/merge/deploy performed.",
+  "artifactSha256": {
+    "streaming-final-head-f10.mp4": "f65e78cee0142cfbd43b6e684499740fd11681108b701be65974405a93a4b867",
+    "streaming-final-head-reload.png": "9517722e838a2318b8a02c60cf9f70d1b704eda3c0c53fce85ef635eb76af2b3",
+    "streaming-final-head-workflow.csv": "ac016a5e6112414b600ba8611fdd1a2acaa69aa3a0c1a9b6fed17a6d475b7fa1"
+  },
+  "playtestReceipt": "streaming-final-head-playtest.txt"
+}

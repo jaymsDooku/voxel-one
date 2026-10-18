@@ -1,0 +1,85 @@
+{
+  "java": "17",
+  "sourceManifest": "streaming-camera-priority-source.json",
+  "tests": 52,
+  "suites": [
+    {
+      "name": "dev.jayms.render.GraphicsTransactionTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.ActivePreparationShutdownTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.WorldStreamingTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.OwnerTraceTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.CloseSequenceTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.DetailedMeshSchedulerTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.TerrainSchedulerTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.render.LocalLightingCaptureTest",
+      "tests": "12",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.render.GraphicsProfileTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.render.LightingPriorityTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.render.TransportMipTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "command": "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 PATH=/usr/lib/jvm/java-17-openjdk-amd64/bin:$PATH mvn -o -q -Dmaven.repo.local=target/m2 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=LightingPriorityTest,GraphicsTransactionTest,GraphicsProfileTest,OwnerTraceTest,WorldStreamingTest,TerrainSchedulerTest,DetailedMeshSchedulerTest,LocalLightingCaptureTest,ActivePreparationShutdownTest,CloseSequenceTest,TransportMipTest package"
+}

@@ -1,0 +1,6 @@
+{
+  "method": "12 steady resident samples after identical latest-field, sky and completed reflection-capture readiness in both phases. Full166-sample original-readiness trials remain published, including startup transitions. Every regular render-loop frame before profiling retains wall/thread CPU and probe elapsed time; total loading/resident preparation is also recorded in warmup.json. No recorder/JFR/pass scopes.",
+  "routeSha256": "955c1eeb7eaef784512a129617be551c92ac36614a6844464a8477f6503d4ddc",
+  "engineManifest": "resident-complete-source.json",
+  "status": "Historical experiment, superseded by resident-shared-source.json and resident-shared-performance.json. Retained numeric results are not final-candidate claims."
+}

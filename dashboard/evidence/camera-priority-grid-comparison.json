@@ -1,0 +1,86 @@
+{
+  "before-1": {
+    "horizontal_coverage_9": {
+      "frames": 80,
+      "meanPercent": 68.75,
+      "fullFrames": 55,
+      "zeroFrames": 25
+    },
+    "sky_coverage_9": {
+      "frames": 80,
+      "meanPercent": 100.0,
+      "fullFrames": 80,
+      "zeroFrames": 0
+    }
+  },
+  "before-2": {
+    "horizontal_coverage_9": {
+      "frames": 80,
+      "meanPercent": 68.75,
+      "fullFrames": 55,
+      "zeroFrames": 25
+    },
+    "sky_coverage_9": {
+      "frames": 80,
+      "meanPercent": 100.0,
+      "fullFrames": 80,
+      "zeroFrames": 0
+    }
+  },
+  "before-3": {
+    "horizontal_coverage_9": {
+      "frames": 80,
+      "meanPercent": 68.75,
+      "fullFrames": 55,
+      "zeroFrames": 25
+    },
+    "sky_coverage_9": {
+      "frames": 80,
+      "meanPercent": 100.0,
+      "fullFrames": 80,
+      "zeroFrames": 0
+    }
+  },
+  "after-1": {
+    "horizontal_coverage_9": {
+      "frames": 80,
+      "meanPercent": 95.0,
+      "fullFrames": 68,
+      "zeroFrames": 0
+    },
+    "sky_coverage_9": {
+      "frames": 80,
+      "meanPercent": 82.91666666666667,
+      "fullFrames": 35,
+      "zeroFrames": 0
+    }
+  },
+  "after-2": {
+    "horizontal_coverage_9": {
+      "frames": 80,
+      "meanPercent": 92.08333333333333,
+      "fullFrames": 61,
+      "zeroFrames": 0
+    },
+    "sky_coverage_9": {
+      "frames": 80,
+      "meanPercent": 80.27777777777777,
+      "fullFrames": 25,
+      "zeroFrames": 0
+    }
+  },
+  "after-3": {
+    "horizontal_coverage_9": {
+      "frames": 80,
+      "meanPercent": 100.0,
+      "fullFrames": 80,
+      "zeroFrames": 0
+    },
+    "sky_coverage_9": {
+      "frames": 80,
+      "meanPercent": 87.08333333333333,
+      "fullFrames": 42,
+      "zeroFrames": 0
+    }
+  }
+}

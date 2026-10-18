@@ -82,8 +82,12 @@ public final class Mesh implements AutoCloseable {
         private final Mesh mesh;private final MeshData data;
         private final java.nio.ByteBuffer scratch;
         private int buffer,offset;private boolean taken,closed;
-        public Upload(MeshData data){this.data=data;mesh=new Mesh(data,true);try{if(org.lwjgl.opengl.GL11.glGetError()!=org.lwjgl.opengl.GL11.GL_NO_ERROR)throw new IllegalStateException("Mesh buffer allocation failed");scratch=MemoryUtil.memAlloc(256*1024);}catch(RuntimeException e){mesh.close();throw e;}}
+        public Upload(MeshData data){
+        int trace=dev.jayms.OwnerTrace.begin("mesh.allocate");try{this.data=data;mesh=new Mesh(data,true);try{if(org.lwjgl.opengl.GL11.glGetError()!=org.lwjgl.opengl.GL11.GL_NO_ERROR)throw new IllegalStateException("Mesh buffer allocation failed");scratch=MemoryUtil.memAlloc(256*1024);}catch(RuntimeException e){mesh.close();throw e;}
+        }finally{dev.jayms.OwnerTrace.end(trace,4L*(data.vertices().length+data.indices().length+(data.surface()==null?0:data.surface().length)));}
+    }
         public int pump(int byteBudget,long deadline) {
+        int trace=dev.jayms.OwnerTrace.begin("mesh.upload");try{
             int uploaded=0;
             while(buffer<3 && uploaded<byteBudget && System.nanoTime()<deadline) {
                 int length=buffer==0?data.vertices().length:buffer==1?data.indices().length:data.surface()==null?0:data.surface().length;
@@ -100,7 +104,9 @@ public final class Mesh implements AutoCloseable {
             glBindBuffer(GL_COPY_WRITE_BUFFER,0);
             if(org.lwjgl.opengl.GL11.glGetError()!=org.lwjgl.opengl.GL11.GL_NO_ERROR)throw new IllegalStateException("Mesh buffer upload failed");
             return uploaded;
-        }
+
+        }finally{dev.jayms.OwnerTrace.end(trace,byteBudget);}
+    }
         public boolean ready(){return buffer==3 || buffer==2 && data.surface()==null;}
         public Mesh take(){if(!ready())throw new IllegalStateException("Upload incomplete");taken=true;return mesh;}
         public void close(){if(closed)return;closed=true;MemoryUtil.memFree(scratch);if(!taken)mesh.close();}

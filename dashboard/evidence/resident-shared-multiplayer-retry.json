@@ -1,0 +1,17 @@
+{
+  "firstAttemptExitCode": 1,
+  "assertion": "Remote client sends authoritative break while chunks are loading",
+  "observedTimeoutMarker": true,
+  "cause": "Synthetic editor opened before100000-edit setup and initial render, then sent no traffic until frame2; server keeps its15-second socket idle timeout.",
+  "fixtureChange": "Connect editor at frame2 immediately before edit, assert terrainPending>0, send normal pose updates thereafter. Production networking/timeouts unchanged.",
+  "oldFixtureSha256": "4c3725eb55ea713f4784f0562806c658a1df3714d3b5cf497cc470e57336564c",
+  "newFixtureSha256": "c16ed70daf179eb0793b60ea8212f3461335b5edb8377616f835fb5efa5c583c",
+  "retry": "passed30frames with explicit target-column async generation pending, remote break request, reload preservation, and connected game client",
+  "secondAttempt": {
+    "exitCode": 1,
+    "assertion": "Terrain is streaming when remote edit is sent",
+    "fixtureSha256": "898d0c0d89a8087c4bde31dc4f90eca0fc8e53234ff70b945bf496a1eb816c52",
+    "finding": "Initial spawn terrain had already finished at frame2. No loading race was exercised."
+  },
+  "nextFixture": "Explicitly unload target column and request its normal streamAsync reload with500000ns owner budget before sending the remote break. Require terrainPending>0; preserve server timeout and pose updates."
+}

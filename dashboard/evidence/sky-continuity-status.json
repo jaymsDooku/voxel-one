@@ -1,0 +1,31 @@
+{
+  "status": "ready_for_independent_review_not_stable_rollout",
+  "currentCandidate": "v17",
+  "sourceManifest": "sky-continuity-v17-source.json",
+  "currentChecks": {
+    "java17Package": "130 tests passed; fresh130test rerun also passed",
+    "visual": "166frame HDR/depth comparison complete; cold sky720/720; same-face near has no>10percent loss; explicit far and transition limits",
+    "matchedPerformance": "Three matched pairs complete; cold owner p99 reduction96.48\u201398.22percent; cold/all-route frame p99 improved each pair;2ms target unmet",
+    "finalNativeMedia": "All workflows,soak,shutdown and GL checks passed; final F10 decoded/inspected",
+    "attribution": "Final v17 native-counter diagnostic complete; bounded work/GC/scheduling evidence and unresolved gaps recorded"
+  },
+  "historicalEvidence": {
+    "sky-continuity-f10.mp4": "Superseded v5 implementation; not current-source media",
+    "sky-continuity-final-focused-tests.json": "Superseded v5 selected tests, despite historical filename",
+    "sky-continuity-v8-*": "Superseded candidate; three matched performance trials complete; visual coverage incomplete",
+    "sky-prefetch-v9-*": "Superseded look-ahead candidate; visual coverage incomplete",
+    "sky-continuity-v10-*": "Superseded; near source coverage100%, detailed-range gaps remain",
+    "sky-continuity-v11-*": "Superseded forward-priority candidate; distant packing age remains high",
+    "sky-continuity-v12-*": "Superseded64-tile-cap candidate; unit/package, GPU and112-frame diagnostic passed; visual stopped after observed near gap; partial visual is not qualification",
+    "sky-continuity-v13-*": "Superseded256-tile candidate; near gap remained, partial visual safely stopped; completed fresh RGB baseline remains reusable",
+    "sky-surface-v15-*": "Complete interim RGB/source check; superseded by PublishedFuture and staged-packing cache-growth fix",
+    "sky-continuity-v16-*": "PublishedFuture129tests passed;112-frame native-counter diagnostic complete; superseded by packing cache-growth fix"
+  },
+  "limits": [
+    "No final candidate performance pass claimed.",
+    "Some diagnostic low-CPU wall gaps remain unattributed; no physical-driver cause claimed.",
+    "Physical Windows/GPU qualification pending; stable rollout gated.",
+    "Local artifacts pending controller publication."
+  ],
+  "validation": "sky-continuity-v17-validation.json"
+}

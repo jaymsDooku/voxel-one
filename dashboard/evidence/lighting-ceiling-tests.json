@@ -1,0 +1,11 @@
+{
+  "tests": 141,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "packageExit": 0,
+  "clientSha256": "3a768422a47d69e9218acfd516c3c9e730ffdf787b6b0004a478d77cad75885b",
+  "java": "21.0.5",
+  "command": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 mvn -o -q -Dmaven.repo.local=target/m2 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=LocalLightingCaptureTest,WorldStreamingTest,TerrainSchedulerTest,DetailedMeshSchedulerTest,ChunkUnchangedWriteTest,WorldSkyVisibilityTest,SkyVisibilitySchedulerTest,TerrainGenerationTest,FractionalWorldTest,PhysicsTest,LightingTest,LightOcclusionTest,VoxelModelTest,DistantTerrainTest,StressGridLightingTest,JeepTest,PerformanceRecorderTest,MultiplayerTest,TransportMipTest package",
+  "note": "All packaged application classes match tested target/classes. Initial compilation name collision and two partial-atlas test assumptions were corrected before this passing run."
+}

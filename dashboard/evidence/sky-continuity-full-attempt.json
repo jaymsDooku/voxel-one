@@ -1,0 +1,6 @@
+{
+  "result": "Interrupted with exit130 after completed-suite count stopped advancing. No full-suite or package pass claimed.",
+  "observedCompletedSuitesDuringRun": 28,
+  "observedCompletedTestsDuringRun": 172,
+  "note": "Counts were sampled while the process ran. Later focused checks replaced some XML reports; they are reported separately."
+}

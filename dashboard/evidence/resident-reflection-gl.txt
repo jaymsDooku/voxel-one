@@ -1,0 +1,2 @@
+HISTORICAL experiment; superseded by the resident-shared candidate. Original observations retained below.
+Playtest: PASS. Real OpenGL reflection probe: all42 face/mip images are RGB16F with correct dimensions before capture; unready contents stay hidden; invalidation, mip generation and cleanup passed. Renderer=llvmpipe (LLVM 15.0.6, 256 bits)

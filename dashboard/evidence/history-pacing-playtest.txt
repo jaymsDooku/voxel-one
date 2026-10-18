@@ -1,0 +1,40 @@
+Playtest: PASS. History query pacing and multiplayer-load readiness.
+
+Cause and fix:
+Mac ARM CI on reviewed head 7251a398f23f7a9e8ae57a98019b0cb3df7fd058 timed out in CityHistoryNetworkTest's fixed-range Overview check. The preceding server error was History query rate exceeded. Client enqueue timestamps did not guarantee receive spacing when the outgoing writer was delayed. A gated 600 ms writer in the existing authenticated-client test reproduced the disconnect locally before the fix.
+MetricTrends now acknowledges each pending reply once and starts the 400 ms quiet interval at reply observation. Both Overview and open Trends use the same nonblocking gate. The server's 250 ms receive limit and one-pending-response rule stay unchanged. Fixed ranges, stale-reply fencing, connection and reconnect assertions remain. No render-thread sleep was added.
+The native multiplayer harness now retries bounded 0.5 ms terrain admission pumps for up to 5 seconds, yielding 1 ms between unsuccessful attempts. It requires terrainPending()>0 immediately before sending the authoritative edit, as before. It does not wait until loading has completed. It records attempts, elapsed wait and pending count.
+
+CLI validation:
+OpenJDK 17 on Linux amd64; isolated synthetic homes and workspace temp directory. No browser is involved in this authenticated Java client/server integration.
+Initial reproduction command:
+JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 PATH="/usr/lib/jvm/java-17-openjdk-amd64/bin:$PATH" mvn -q -o -Dmaven.repo.local=target/m2 "-DargLine=-Djava.io.tmpdir=$PWD/target/tmp -Duser.home=$PWD/target/history-network-home" -Dtest=CityHistoryNetworkTest test
+Expected before fix: delay beyond enqueue-time pacing and change fixed selection while request is pending; server rejects the compressed follow-up.
+Observed before fix: one failure, History client disconnected after delayed send. Red report history-pacing-red.json. After fix: focused run passed, then the same command passed five independent additional invocations. No automatic failing-test retries used.
+Full verification command:
+JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 PATH="/usr/lib/jvm/java-17-openjdk-amd64/bin:$PATH" mvn -q -o -Dmaven.repo.local=target/m2 "-DargLine=-Djava.io.tmpdir=$PWD/target/tmp -Duser.home=$PWD/target/history-network-home" verify
+Observed: exit 0, 731 tests/140 suites, zero failures/errors/skips. Includes the delayed-writer regression and existing deterministic terrain, mesh, physics, lighting, model, history and protocol checks. Sanitized per-suite results in history-pacing-verify.json; raw logs stay private under target.
+
+Harness edge-case integration:
+Compile helpers with available JDK 21 javac --release17 against freshly verified client, then run on Java 17:
+/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/javac --release 17 -cp target/voxel-one-1.0-SNAPSHOT-client.jar -d target/history-pacing-native/classes deploy/StreamingWorkflow.java deploy/StreamingReadinessSmoke.java
+/usr/lib/jvm/java-17-openjdk-amd64/bin/java -Djava.io.tmpdir="$PWD/target/tmp" -cp target/history-pacing-native/classes:target/voxel-one-1.0-SNAPSHOT-client.jar StreamingReadinessSmoke dashboard/evidence/history-pacing-readiness.txt
+Expected: first three real World admission pumps with zero budget cannot satisfy the load precondition; subsequent normal pump admits work; false condition times out; interruption propagates.
+Observed: pending terrain on pump 4, load assertion intact ;10 ms false-condition deadline observed at 11.899706 ms; interruption propagated. This CLI check uses no GL or real account data. Initial native preflight found no Java 17 javac executable; no tests ran in that preflight. Corrected compiler invocation above succeeded; all runtime checks use Java 17.
+
+Native production workflow:
+Executed target/run-history-pacing-native.py. Exact argument arrays for all five native invocations are in history-pacing-native-runs.json. Each invokes the freshly verified target/voxel-one-1.0-SNAPSHOT-client.jar with deploy/StreamingWorkflow.java, synthetic home, workspace temp, mode and video flag, and 100000 distant synthetic edits. Uses only inherited role DISPLAY/XAUTHORITY; neither cookie nor environment dump is read or exported. Environment LIBGL_ALWAYS_SOFTWARE=1,MESA_GL_VERSION_OVERRIDE=3.3,MESA_GLSL_VERSION_OVERRIDE=330. Linux Mesa llvmpipe software renderer; actual framebuffer 1280×720, seed 748291. No physical Windows GPU test.
+Multiplayer: three independent 30-frame runs. Synthetic authenticated loopback peer joins, target column unloads, harness waits for pending work, sends authoritative break, checks receipt by frame 12, then reloads and verifies persistence, connection, queue/residency caps, usable GPU meshes and no GLerrors. All passed. Admission attempts 2/1/1, waits 2.555906/1.188173/0.882229ms, terrainPending=16 at send in each. The first actual native run exercised the formerly failing single-pump case. Network delivery reports are upper bounds at frame 12, not measured packet-latency distributions.
+Offline: 65 frames with F10. Walking, sprint flight, reversal, teleport, fractionalRGB/tiny-model unload/reload, ordinary respawn, health 20, mesh progress and queue/GL checks passed.
+City: 15-frame City/isometric regression passed. This is not a new streaming performance comparison. Streaming engine, renderer, physics and quality settings are unchanged in this revision; production change is confined to MetricTrends network pacing.
+
+Fresh media:
+/usr/lib/jvm/java-17-openjdk-amd64/bin/java -Djava.io.tmpdir="$PWD/target/tmp" -cp target/voxel-one-1.0-SNAPSHOT-client.jar deploy/InspectStreamingVideo.java dashboard/evidence/history-pacing-f10.mp4 dashboard/evidence/history-pacing-midpoint.png dashboard/evidence/history-pacing-video.json
+Observed: all 10 frames decoded,530,726 bytes,17.904 seconds. Midpoint inspected: current flight terrain, shoreline, sky and synthetic HUD. Multiplayer final image inspected: online two-player HUD and resident ground. Media is from this verified package; source/JAR digests in history-pacing-source.json. Recording is separate from historical unrecorded performance trials.
+
+Delivery and limits:
+git diff --check passed. No deleted files against review base 403033b9f53ce66063982879c6e2daff684a427b and no unmerged index entries. Intentional code deletions are the two duplicate enqueue-time gates, replaced by one reply-based gate, and the harness's single admission call, replaced by the bounded condition wait. No original assertions or unrelated features removed.
+Local checks are green. Hosted Mac ARM CI has NOT rerun on these unpublished edits; controller feature push triggers ordinary PR checks. Do not claim Mac CI green until those results arrive. Git staging/commit/push/PR and media publication remain controller handoffs, not missing owner permission. Prior 2 ms streaming-target shortfall, transition/far lighting limits and physical Windows GPU qualification remain open; stable rollout stays gated. No new frame-time or physical-GPU performance claim.
+
+Explicit controller receipt:
+Playtest: PASS. Environment: Java 17, Linux Mesa llvmpipe software OpenGL 3.3, inherited role DISPLAY/XAUTHORITY, isolated synthetic profiles, seed 748291, 1280×720, 100000 distant edits. Command: python3 target/run-history-pacing-native.py (exact Java argument arrays in history-pacing-native-runs.json). Steps: three 30-frame multiplayer runs unload terrain, await pending jobs, send an authoritative edit during load, then verify delivery/reload/connection; 65-frame offline run covers walk, flight, reversal, teleport, fractional/model reload and respawn; 15-frame City regression. Expected: edit sent with terrainPending()>0, edits persist, connection stays live, queue/GL checks pass. Observed: all five runs passed; admission attempts 2/1/1 and terrainPending=16 at each send. Fresh F10: all 10 frames decoded and midpoint inspected, 530726 bytes, 17.904 seconds. This is saved execution evidence; no new run is claimed in this receipt-only update. Hosted Mac ARM rerun and physical Windows GPU qualification remain pending.

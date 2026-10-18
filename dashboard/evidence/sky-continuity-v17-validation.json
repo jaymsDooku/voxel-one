@@ -1,0 +1,25 @@
+{
+  "status": "ready_for_independent_review_not_stable_rollout",
+  "sourceManifest": "sky-continuity-v17-source.json",
+  "reviewBase": "403033b9f53ce66063982879c6e2daff684a427b",
+  "sourceAndJarHashesVerified": true,
+  "deletedFiles": [],
+  "unmergedEntries": false,
+  "diffCheck": "passed",
+  "java17Tests": "130 passed;zero failures/errors/skips; fresh final rerun and earlier package",
+  "matchedPerformance": "three166sample pairs; see sky-continuity-v17-performance.json",
+  "native": "offline plain/video,multiplayer,City,world switch,180frame travel,64cycle GL soak,active sky switch,both forced cleanup failures,GL upload/readback passed",
+  "media": "sky-continuity-v17-f10.mp4; all10frames decoded; midpoint and travel-respawn image inspected; pending controller publication",
+  "attribution": "sky-continuity-v17-native-attribution.json; CPU,GC,context switches and bounded unit data; unexplained gaps not assigned a driver cause",
+  "renderedCoverage": "sky-surface-v17-visual-comparison.json; three unrecorded cold-flight sky720/720 each; explicit far/transition/unmatched limitations",
+  "openLimits": [
+    "2ms aggregate owner tail target unmet; cold p99 elapsed12.179\u201322.682ms",
+    "Instant entry/teleport/catch-up sky and GI gaps; post-respawn lighting recovery slow",
+    "Far-source footprint incomplete and seven matched far samples10\u201325percent darker; no all-surface equality claim",
+    "Software rendering cannot qualify physical WindowsGPU performance or conditional60FPS frame targets",
+    "Stable rollout remains gated on physical WindowsGPU qualification; hostedCI/controller integration/publication still handoffs"
+  ],
+  "playtestReceipt": "sky-continuity-v17-playtest.txt",
+  "noActiveRuns": true,
+  "noOutstandingDelegates": true
+}

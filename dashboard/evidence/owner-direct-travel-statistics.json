@@ -1,0 +1,49 @@
+{
+  "frames": 180,
+  "minimumFlightReversalSeconds": 120,
+  "maximumTerrainPending": 8,
+  "maximumResidents": 1084,
+  "maximumMeshJobs": 4,
+  "maximumMeshWaiting": 361,
+  "heapQuarters": [
+    {
+      "frames": [
+        0,
+        44
+      ],
+      "heapMinBytes": 157716360,
+      "heapMaxBytes": 285837504,
+      "heapMedianBytes": 229715912
+    },
+    {
+      "frames": [
+        45,
+        89
+      ],
+      "heapMinBytes": 164811208,
+      "heapMaxBytes": 412277264,
+      "heapMedianBytes": 312426824
+    },
+    {
+      "frames": [
+        90,
+        134
+      ],
+      "heapMinBytes": 158231176,
+      "heapMaxBytes": 519338680,
+      "heapMedianBytes": 313875664
+    },
+    {
+      "frames": [
+        135,
+        179
+      ],
+      "heapMinBytes": 366974072,
+      "heapMaxBytes": 503090432,
+      "heapMedianBytes": 492600744
+    }
+  ],
+  "finalCurrentNearGi": true,
+  "finalGiSourceAgeMs": "370974",
+  "note": "Actual Main flight/reversal controls; elapsed minimum asserted by harness. Heap includes live data and collectible garbage; quarter ranges are observations, not a proof of absence of every leak. GL resource cycling is a separate check."
+}

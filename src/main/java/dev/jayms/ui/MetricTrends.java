@@ -32,6 +32,16 @@ public final class MetricTrends {
     private double overviewStart,overviewEnd,overviewSpan;
     private String overviewSelection="";
     private long overviewRequest=-1,pendingHistoryRequest=-1;
+    private boolean remoteReady(MultiplayerClient remote,long now) {
+        if(remote==null)return true;
+        if(pendingHistoryRequest>=0) {
+            if(remote.historyResponseRequest!=pendingHistoryRequest)return false;
+            // Enqueue time is not server receive time: a delayed writer can
+            // otherwise compress two requests into the server's rate window.
+            pendingHistoryRequest=-1;lastQuery=now;
+        }
+        return now-lastQuery>=400_000_000L;
+    }
     public double overviewRangeStart(){return overviewStart;}
     public double overviewRangeEnd(){return overviewEnd;}
     public void overviewClick(int index) {
@@ -57,8 +67,7 @@ public final class MetricTrends {
             overviewReply=remote.historyReply;cityId=overviewReply.city();
             for(var s:overviewReply.series())overview.put(s.metric().id(),s);
         }
-        if(remote!=null&&pendingHistoryRequest>=0&&remote.historyResponseRequest!=pendingHistoryRequest)return;
-        if(remote!=null&&now-lastQuery<400_000_000L)return;
+        if(!remoteReady(remote,now))return;
         if(now-overviewClock<400_000_000L)return;
         // Include the preceding equivalent period; never follow latest in a fixed view.
         double begin=Math.max(0,overviewStart-overviewSpan);
@@ -146,8 +155,7 @@ public final class MetricTrends {
         if(reply!=null)choices=reply.catalog().stream().filter(m->m.domain().equals(DOMAINS[domain]))
                 .filter(m->(m.name()+" "+m.id()+" "+m.scope()).toLowerCase(Locale.ROOT).contains(search.toLowerCase(Locale.ROOT))).toList();
         long now=System.nanoTime();
-        if(remote!=null&&pendingHistoryRequest>=0&&remote.historyResponseRequest!=pendingHistoryRequest)return;
-        if(remote!=null&&now-lastQuery<400_000_000L)return;
+        if(!remoteReady(remote,now))return;
         if(!dirty&&(!live || now-lastQuery<1_000_000_000L))return;
         if(live) {end=city.elapsed();start=range==4?(reply==null?0:reply.availableStart()):Math.max(0,end-day*new int[]{1,7,30,90,365}[range]);}
         resolution=resolutionOverride>=0?resolutionOverride:live&&range==4?2:end-start<=day?0:end-start<=30*day?1:2;

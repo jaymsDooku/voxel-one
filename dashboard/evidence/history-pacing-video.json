@@ -1,0 +1,11 @@
+{
+  "decodedFrames": 10,
+  "durationSeconds": 17.904,
+  "bytes": 530726,
+  "width": 960,
+  "height": 544,
+  "midpointIndex": 5,
+  "videoSha256": "05da6b57a67a9a0234f1d588d26a2e04839ee79daec789f6a42324eed5ae9793",
+  "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step.",
+  "midpointVisuallyInspected": true
+}

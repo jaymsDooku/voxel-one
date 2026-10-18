@@ -1,0 +1,12 @@
+{
+  "before": "resident-shared-source.json",
+  "after": "resident-shared-final-source.json",
+  "changedClassesAndShaders": [
+    "dev/jayms/render/GraphicsController.class",
+    "dev/jayms/render/RenderPipeline$LightingCoverage.class",
+    "dev/jayms/render/RenderPipeline$ShadowRevision.class",
+    "dev/jayms/render/RenderPipeline$SkyProgress.class",
+    "dev/jayms/render/RenderPipeline.class"
+  ],
+  "note": "Prior713-test package and World/mesh upload soak apply to unchanged modules; final graphics/scheduler tests and native graphics ownership check ran on final source. No final full-suite pass is claimed."
+}

@@ -88,6 +88,8 @@ public final class WorldVoxels {
         return value == -1 ? Blocks.PARTIAL : value >>> 24 == 254 ? Blocks.LED : value & 255;
     }
 
+    public void clear(){cells.clear();}
+
     public SparseVoxelOctree cell(int x, int y, int z) {
         var existing = cells.get(x + "," + y + "," + z);
         if (existing != null) return existing;

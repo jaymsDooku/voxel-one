@@ -1,0 +1,11 @@
+{
+  "tests": 146,
+  "failures": 0,
+  "errors": 0,
+  "skips": 0,
+  "java": "21.0.5",
+  "jarSha256": "776fedb1a2513f65cea4a7ed4b5fe64934bd3945a80742282aeecfd16f418e52",
+  "testCommand": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 mvn -o -q -Dmaven.repo.local=target/m2 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=LocalLightingCaptureTest,WorldStreamingTest,TerrainSchedulerTest,DetailedMeshSchedulerTest,ChunkUnchangedWriteTest,WorldSkyVisibilityTest,SkyVisibilitySchedulerTest,TerrainGenerationTest,FractionalWorldTest,PhysicsTest,LightingTest,LightOcclusionTest,VoxelModelTest,DistantTerrainTest,StressGridLightingTest,JeepTest,PerformanceRecorderTest,MultiplayerTest,TransportMipTest test",
+  "packageCommand": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 mvn -o -q -Dmaven.repo.local=target/m2 -DskipTests package",
+  "Playtest:": "python3 deploy/run_streaming_upload_smoke.py --display \"$DISPLAY\"; exit0. Linux/llvmpipe GL3.3 on inherited role display; synthetic world. Expected exact production shader RGB/sky lookup on legacy combined-atlas and buffer-prefix paths, byte caps, old-sky retention, cancellation and cleanup. Observed all assertions passed. Full96x128x96 roots/irradiance/transport readback also passed. Standalone integration, not native travel qualification."
+}

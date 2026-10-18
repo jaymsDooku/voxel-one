@@ -1,0 +1,29 @@
+{
+  "offline-plain": {
+    "samples": 10,
+    "renderMs": {
+      "p50": 1724.900773,
+      "p95": 2087.005657,
+      "p99": 2087.005657
+    },
+    "previousCaptureMs": {
+      "p50": 0.000912,
+      "p95": 0.015117,
+      "p99": 0.015117
+    }
+  },
+  "offline-video": {
+    "samples": 10,
+    "renderMs": {
+      "p50": 1710.097163,
+      "p95": 2225.220206,
+      "p99": 2225.220206
+    },
+    "previousCaptureMs": {
+      "p50": 26.770429,
+      "p95": 88.263688,
+      "p99": 88.263688
+    }
+  },
+  "method": "Separate identical synthetic native65-frame workflows, same JAR/settings/seed/llvmpipe; F10 active14..23, previous-frame capture timings sampled15..24. No concurrent profiles. Small10-sample overhead window; render differences include runtime/GC variation and are not a controlled physical GPU result."
+}

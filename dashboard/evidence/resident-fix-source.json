@@ -1,0 +1,73 @@
+{
+  "sourceSha256": "1055cb7250c77bfc904ad5f1a3cca633fd0d03faf1a45048742eeb9b6655303a",
+  "featureJarSha256": "c7cbc76559ceda75971508009ba08872c875621b0434b9af2d0764019c4f57e8",
+  "priorReviewedHead": "35d5a8b3be0690f3955e90240838fcc326cbf11e",
+  "tests": [
+    {
+      "name": "dev.jayms.OwnerTraceTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.WorldStreamingTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.TerrainSchedulerTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.DetailedMeshSchedulerTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.render.LocalLightingCaptureTest",
+      "tests": "12",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.ActivePreparationShutdownTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.CloseSequenceTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.render.TransportMipTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "totals": {
+    "tests": 42,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "java": "OpenJDK17.0.20.1",
+  "command": "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 PATH=/usr/lib/jvm/java-17-openjdk-amd64/bin:$PATH mvn -o -q -Dmaven.repo.local=target/m2 -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=OwnerTraceTest,WorldStreamingTest,TerrainSchedulerTest,DetailedMeshSchedulerTest,LocalLightingCaptureTest,ActivePreparationShutdownTest,CloseSequenceTest,TransportMipTest test",
+  "package": "Java17 offline package with tests skipped passed after targeted tests.",
+  "status": "Historical experiment, superseded by resident-shared-source.json and resident-shared-performance.json. Retained numeric results are not final-candidate claims."
+}

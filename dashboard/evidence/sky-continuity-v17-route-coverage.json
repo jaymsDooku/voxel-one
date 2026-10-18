@@ -1,0 +1,458 @@
+{
+  "resident-complete-before-1": {
+    "coldEntry": {
+      "frames": 4,
+      "skyCoveredPoints": 8,
+      "skyPossiblePoints": 36,
+      "giNinePointFrames": 0,
+      "missingSkyFrames": [
+        12,
+        13,
+        14,
+        15
+      ]
+    },
+    "coldWalk": {
+      "frames": 16,
+      "skyCoveredPoints": 131,
+      "skyPossiblePoints": 144,
+      "giNinePointFrames": 0,
+      "missingSkyFrames": [
+        16,
+        17,
+        18,
+        19,
+        20
+      ]
+    },
+    "coldFlight": {
+      "frames": 80,
+      "skyCoveredPoints": 720,
+      "skyPossiblePoints": 720,
+      "giNinePointFrames": 55,
+      "missingSkyFrames": []
+    },
+    "warmReversal": {
+      "frames": 16,
+      "skyCoveredPoints": 144,
+      "skyPossiblePoints": 144,
+      "giNinePointFrames": 16,
+      "missingSkyFrames": []
+    },
+    "teleport": {
+      "frames": 6,
+      "skyCoveredPoints": 18,
+      "skyPossiblePoints": 54,
+      "giNinePointFrames": 0,
+      "missingSkyFrames": [
+        128,
+        129,
+        130,
+        131,
+        132,
+        133
+      ]
+    },
+    "catchup": {
+      "frames": 24,
+      "skyCoveredPoints": 211,
+      "skyPossiblePoints": 216,
+      "giNinePointFrames": 0,
+      "missingSkyFrames": [
+        134,
+        135,
+        136
+      ]
+    }
+  },
+  "resident-complete-before-2": {
+    "coldEntry": {
+      "frames": 4,
+      "skyCoveredPoints": 8,
+      "skyPossiblePoints": 36,
+      "giNinePointFrames": 0,
+      "missingSkyFrames": [
+        12,
+        13,
+        14,
+        15
+      ]
+    },
+    "coldWalk": {
+      "frames": 16,
+      "skyCoveredPoints": 131,
+      "skyPossiblePoints": 144,
+      "giNinePointFrames": 0,
+      "missingSkyFrames": [
+        16,
+        17,
+        18,
+        19,
+        20
+      ]
+    },
+    "coldFlight": {
+      "frames": 80,
+      "skyCoveredPoints": 720,
+      "skyPossiblePoints": 720,
+      "giNinePointFrames": 55,
+      "missingSkyFrames": []
+    },
+    "warmReversal": {
+      "frames": 16,
+      "skyCoveredPoints": 144,
+      "skyPossiblePoints": 144,
+      "giNinePointFrames": 16,
+      "missingSkyFrames": []
+    },
+    "teleport": {
+      "frames": 6,
+      "skyCoveredPoints": 18,
+      "skyPossiblePoints": 54,
+      "giNinePointFrames": 0,
+      "missingSkyFrames": [
+        128,
+        129,
+        130,
+        131,
+        132,
+        133
+      ]
+    },
+    "catchup": {
+      "frames": 24,
+      "skyCoveredPoints": 211,
+      "skyPossiblePoints": 216,
+      "giNinePointFrames": 0,
+      "missingSkyFrames": [
+        134,
+        135,
+        136
+      ]
+    }
+  },
+  "resident-complete-before-3": {
+    "coldEntry": {
+      "frames": 4,
+      "skyCoveredPoints": 8,
+      "skyPossiblePoints": 36,
+      "giNinePointFrames": 0,
+      "missingSkyFrames": [
+        12,
+        13,
+        14,
+        15
+      ]
+    },
+    "coldWalk": {
+      "frames": 16,
+      "skyCoveredPoints": 131,
+      "skyPossiblePoints": 144,
+      "giNinePointFrames": 0,
+      "missingSkyFrames": [
+        16,
+        17,
+        18,
+        19,
+        20
+      ]
+    },
+    "coldFlight": {
+      "frames": 80,
+      "skyCoveredPoints": 720,
+      "skyPossiblePoints": 720,
+      "giNinePointFrames": 55,
+      "missingSkyFrames": []
+    },
+    "warmReversal": {
+      "frames": 16,
+      "skyCoveredPoints": 144,
+      "skyPossiblePoints": 144,
+      "giNinePointFrames": 16,
+      "missingSkyFrames": []
+    },
+    "teleport": {
+      "frames": 6,
+      "skyCoveredPoints": 18,
+      "skyPossiblePoints": 54,
+      "giNinePointFrames": 0,
+      "missingSkyFrames": [
+        128,
+        129,
+        130,
+        131,
+        132,
+        133
+      ]
+    },
+    "catchup": {
+      "frames": 24,
+      "skyCoveredPoints": 211,
+      "skyPossiblePoints": 216,
+      "giNinePointFrames": 0,
+      "missingSkyFrames": [
+        134,
+        135,
+        136
+      ]
+    }
+  },
+  "sky-continuity-v17-after-1": {
+    "coldEntry": {
+      "frames": 4,
+      "skyCoveredPoints": 0,
+      "skyPossiblePoints": 36,
+      "giNinePointFrames": 0,
+      "missingSkyFrames": [
+        12,
+        13,
+        14,
+        15
+      ]
+    },
+    "coldWalk": {
+      "frames": 16,
+      "skyCoveredPoints": 60,
+      "skyPossiblePoints": 144,
+      "giNinePointFrames": 0,
+      "missingSkyFrames": [
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ]
+    },
+    "coldFlight": {
+      "frames": 80,
+      "skyCoveredPoints": 720,
+      "skyPossiblePoints": 720,
+      "giNinePointFrames": 50,
+      "missingSkyFrames": []
+    },
+    "warmReversal": {
+      "frames": 16,
+      "skyCoveredPoints": 144,
+      "skyPossiblePoints": 144,
+      "giNinePointFrames": 12,
+      "missingSkyFrames": []
+    },
+    "teleport": {
+      "frames": 6,
+      "skyCoveredPoints": 0,
+      "skyPossiblePoints": 54,
+      "giNinePointFrames": 0,
+      "missingSkyFrames": [
+        128,
+        129,
+        130,
+        131,
+        132,
+        133
+      ]
+    },
+    "catchup": {
+      "frames": 24,
+      "skyCoveredPoints": 85,
+      "skyPossiblePoints": 216,
+      "giNinePointFrames": 0,
+      "missingSkyFrames": [
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144,
+        145,
+        146,
+        147,
+        148
+      ]
+    }
+  },
+  "sky-continuity-v17-after-2": {
+    "coldEntry": {
+      "frames": 4,
+      "skyCoveredPoints": 0,
+      "skyPossiblePoints": 36,
+      "giNinePointFrames": 0,
+      "missingSkyFrames": [
+        12,
+        13,
+        14,
+        15
+      ]
+    },
+    "coldWalk": {
+      "frames": 16,
+      "skyCoveredPoints": 59,
+      "skyPossiblePoints": 144,
+      "giNinePointFrames": 0,
+      "missingSkyFrames": [
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30
+      ]
+    },
+    "coldFlight": {
+      "frames": 80,
+      "skyCoveredPoints": 720,
+      "skyPossiblePoints": 720,
+      "giNinePointFrames": 49,
+      "missingSkyFrames": []
+    },
+    "warmReversal": {
+      "frames": 16,
+      "skyCoveredPoints": 144,
+      "skyPossiblePoints": 144,
+      "giNinePointFrames": 16,
+      "missingSkyFrames": []
+    },
+    "teleport": {
+      "frames": 6,
+      "skyCoveredPoints": 0,
+      "skyPossiblePoints": 54,
+      "giNinePointFrames": 0,
+      "missingSkyFrames": [
+        128,
+        129,
+        130,
+        131,
+        132,
+        133
+      ]
+    },
+    "catchup": {
+      "frames": 24,
+      "skyCoveredPoints": 176,
+      "skyPossiblePoints": 216,
+      "giNinePointFrames": 12,
+      "missingSkyFrames": [
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141
+      ]
+    }
+  },
+  "sky-continuity-v17-after-3": {
+    "coldEntry": {
+      "frames": 4,
+      "skyCoveredPoints": 0,
+      "skyPossiblePoints": 36,
+      "giNinePointFrames": 0,
+      "missingSkyFrames": [
+        12,
+        13,
+        14,
+        15
+      ]
+    },
+    "coldWalk": {
+      "frames": 16,
+      "skyCoveredPoints": 72,
+      "skyPossiblePoints": 144,
+      "giNinePointFrames": 0,
+      "missingSkyFrames": [
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ]
+    },
+    "coldFlight": {
+      "frames": 80,
+      "skyCoveredPoints": 720,
+      "skyPossiblePoints": 720,
+      "giNinePointFrames": 49,
+      "missingSkyFrames": []
+    },
+    "warmReversal": {
+      "frames": 16,
+      "skyCoveredPoints": 144,
+      "skyPossiblePoints": 144,
+      "giNinePointFrames": 16,
+      "missingSkyFrames": []
+    },
+    "teleport": {
+      "frames": 6,
+      "skyCoveredPoints": 0,
+      "skyPossiblePoints": 54,
+      "giNinePointFrames": 0,
+      "missingSkyFrames": [
+        128,
+        129,
+        130,
+        131,
+        132,
+        133
+      ]
+    },
+    "catchup": {
+      "frames": 24,
+      "skyCoveredPoints": 116,
+      "skyPossiblePoints": 216,
+      "giNinePointFrames": 7,
+      "missingSkyFrames": [
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144,
+        145,
+        146,
+        147
+      ]
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "status": "developer-interrupted failed coverage trial; not a matched performance qualification",
+  "samples": 72,
+  "lastSample": "71",
+  "warmup": {
+    "graphicsWarmupFrames": 28,
+    "warmupWallMs": 95490.021561
+  },
+  "cause": "Whole combined sky atlas copy delayed GI until first cold replacement region was obsolete.",
+  "cameraCoveredFrames": 0
+}

@@ -31,6 +31,11 @@ public final class LightVolume {
     public TransportField transport;
     private boolean separateSky;
     private final Map<Integer, Detail> details = new HashMap<>();
+    private Detail[] coarseDetails;
+
+    /** No refined cells: every root is zero, so no root table needs transfer or lookup. */
+    private boolean uniformRoots;
+    public boolean uniformRoots(){return uniformRoots;}
 
     private record Detail(int resolution, SparseVoxelOctree nodes) {}
 
@@ -71,6 +76,7 @@ public final class LightVolume {
         v.separateSky=separateSky;
         int n = w * h * l;
         for (int c = 0; c < n; c++) {
+            if((c&8191)==0&&Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
             int dx = c % w, dy = c / w % h, dz = c / (w * h);
             int value = source.value(x + dx, y + dy, z + dz);
             v.cell[c] = c;
@@ -86,6 +92,8 @@ public final class LightVolume {
                     throw new IllegalArgumentException("Lighting detail resolution");
                 var d = new Detail(r, new SparseVoxelOctree(r));
                 v.details.put(c, d);
+                if(v.coarseDetails==null)v.coarseDetails=new Detail[n];
+                v.coarseDetails[c]=d;
                 v.expand(tree, d, c, 0, 0, 0, r);
             }
         }
@@ -98,6 +106,7 @@ public final class LightVolume {
         // Only columns containing detail need sub-voxel sky rays; ordinary terrain stays coarse.
         for (int dz = 0; dz < l; dz++)
             for (int dx = 0; dx < w; dx++) {
+                if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
                 boolean detailed = false;
                 for (int dy = 0; dy < h; dy++)
                     if (v.details.containsKey(v.index(dx, dy, dz))) {
@@ -123,6 +132,7 @@ public final class LightVolume {
             }
         v.propagate(true);
         for (int i = 0; i < v.count; i++) {
+            if((i&8191)==0&&Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
             if (v.material[i] == -1) continue;
             if (WorldVoxels.decode(v.material[i]) == Blocks.LED) {
                 int color = WorldVoxels.lightColor(v.material[i]);
@@ -172,6 +182,7 @@ public final class LightVolume {
         v.propagate(false);
         int[] colors = new int[v.count];
         for (int i = 0; i < v.count; i++) {
+            if((i&8191)==0&&Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
             float sky = v.sky[i] / (float) FULL;
             sky *= sky * ambient;
             if(separateSky)sky=0;
@@ -213,7 +224,8 @@ public final class LightVolume {
         v.material = v.cell = v.geometry = v.queue = null;
         v.sky = v.red = v.green = v.blue = null;
         v.queued = null;
-        v.details.clear();
+        v.uniformRoots=v.details.isEmpty();
+        v.details.clear();v.coarseDetails=null;
         return v;
     }
 
@@ -269,7 +281,7 @@ public final class LightVolume {
                 || b >= height * UNIT
                 || c >= length * UNIT) return -1;
         int i = index(a / UNIT, b / UNIT, c / UNIT);
-        var d = details.get(i);
+        var d = coarseDetails==null?null:coarseDetails[i];
         if (d == null) return i;
         int scale = UNIT / d.resolution;
         return d.nodes.get((a % UNIT) / scale, (b % UNIT) / scale, (c % UNIT) / scale) & 0xffffff;
@@ -285,6 +297,7 @@ public final class LightVolume {
 
     private void propagate(boolean sunlight) {
         while (size > 0) {
+            if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
             int i = queue[head];
             head = (head + 1) % queue.length;
             size--;

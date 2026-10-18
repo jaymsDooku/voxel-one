@@ -1,0 +1,1 @@
+Playtest: PASS. Production Main multiplayer; inherited role display; Mesa software renderer; synthetic profile; 30 frames; distant synthetic edits=0. Requested input/edit/reload checks, queue/residency bounds and GL checks passed. Video=false.

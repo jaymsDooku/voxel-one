@@ -1,0 +1,9 @@
+{
+  "status": "166-frame run completed but failed GI travel coverage; not qualified",
+  "warmup": {
+    "graphicsWarmupFrames": 21,
+    "warmupWallMs": 88252.22371
+  },
+  "observation": "Five bakes accepted, no stale rejections; zero nine-point GI coverage in all80 cold-flight samples. Upload progress could not catch up; three obsolete volume jobs discarded.",
+  "next": "Prioritize GI transfers, retain semantically valid full generated sky snapshots, increase bounded transfer granularity and add look-ahead/relevant result fencing."
+}

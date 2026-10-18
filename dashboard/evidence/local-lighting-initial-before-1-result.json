@@ -1,0 +1,1 @@
+{"status":"passed","distantEdits":100000,"boundaries":100,"warmupBoundaries":20,"sliced":false,"pumpP50Ms":15.560916,"pumpP95Ms":49.875342,"pumpP99Ms":111.02656,"worstPumpMs":142.366638,"boundaryCpuP50Ms":15.560916,"boundaryCpuP99Ms":111.02656,"maxPumpsPerBoundary":1}

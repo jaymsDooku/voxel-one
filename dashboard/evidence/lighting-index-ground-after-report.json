@@ -1,0 +1,195 @@
+{
+  "phase": "after",
+  "revision": "07e1f7bb31a2107f971314075464e8ae6770994682d59fee9182c15dc26429d0",
+  "fixtureSha256": "0fefe847fbbd13e85ab8dbf81dd461ec3541232afc3ec7d26f992e17823758e2",
+  "canonicalRouteSha256": "ccd43232e0ddd9f9449c5f3674fc82e301c7f87e9143c8f2d0187de6cd274542",
+  "note": "Same seed, x positions and graphics settings; deterministic ground+4m feet and25degree down view expose near visible GI. All visual-run performance exports excluded from comparisons.",
+  "samples": [
+    {
+      "sample": 11,
+      "segment": "resident",
+      "eye": [
+        8.0,
+        31.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 6231,
+      "coveredSamples": 4707,
+      "detailed112Samples": 5670,
+      "detailed112Covered": 4707,
+      "near24Samples": 4290,
+      "near24Eligible": 4290,
+      "near24Covered": 4290,
+      "near24SkyKnown": 4290,
+      "giBounds": [
+        -48,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 111,
+      "segment": "coldFlight",
+      "eye": [
+        234.75,
+        66.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5292,
+      "coveredSamples": 0,
+      "detailed112Samples": 3669,
+      "detailed112Covered": 0,
+      "near24Samples": 1973,
+      "near24Eligible": 1973,
+      "near24Covered": 0,
+      "near24SkyKnown": 1973,
+      "giBounds": [
+        96,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 127,
+      "segment": "warmReversal",
+      "eye": [
+        217.25,
+        69.470764,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5287,
+      "coveredSamples": 3367,
+      "detailed112Samples": 3740,
+      "detailed112Covered": 3367,
+      "near24Samples": 3315,
+      "near24Eligible": 3315,
+      "near24Covered": 3315,
+      "near24SkyKnown": 3315,
+      "giBounds": [
+        160,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 133,
+      "segment": "teleport",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5968,
+      "coveredSamples": 0,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 0,
+      "near24Samples": 4366,
+      "near24Eligible": 4366,
+      "near24Covered": 0,
+      "near24SkyKnown": 0,
+      "giBounds": [
+        160,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 165,
+      "segment": "transitionTail",
+      "eye": [
+        2048.0,
+        30.470768,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5972,
+      "coveredSamples": 4914,
+      "detailed112Samples": 5136,
+      "detailed112Covered": 4914,
+      "near24Samples": 4508,
+      "near24Eligible": 4508,
+      "near24Covered": 4508,
+      "near24SkyKnown": 4508,
+      "giBounds": [
+        2000,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    },
+    {
+      "sample": 64,
+      "segment": "coldFlight",
+      "eye": [
+        176.0,
+        64.47077,
+        8.0
+      ],
+      "depthSize": [
+        1280,
+        720
+      ],
+      "stride": 12,
+      "surfaceSamples": 5457,
+      "coveredSamples": 4815,
+      "detailed112Samples": 5457,
+      "detailed112Covered": 4815,
+      "near24Samples": 5337,
+      "near24Eligible": 5337,
+      "near24Covered": 4815,
+      "near24SkyKnown": 5337,
+      "giBounds": [
+        96,
+        -32,
+        -48,
+        96,
+        128,
+        96
+      ],
+      "method": "Resolved visible depth unprojected with actual jittered view matrix; ground-relative visual fixture; not timing evidence"
+    }
+  ]
+}

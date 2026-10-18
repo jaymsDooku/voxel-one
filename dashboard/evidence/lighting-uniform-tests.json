@@ -1,0 +1,12 @@
+{
+  "command": "Java21 offline Maven focused package;19 test classes; uniform proof saved before scratch cleanup",
+  "exitCode": 0,
+  "counts": {
+    "tests": 153,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "jarSha256": "121b862d5f15804c5e93c487d3e44997265144621aa73af7f0d0410a3d956936",
+  "packageMismatches": []
+}

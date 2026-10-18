@@ -1,0 +1,49 @@
+{
+  "decision": "FAILED cold-flight GI qualification",
+  "source": "owner-fresh-slot-source.json",
+  "complete166": true,
+  "segments": {
+    "catchup": {
+      "frames": 24,
+      "zeroEligibleFrames": 0,
+      "aggregateNearCoverage": 0.08366869872118073
+    },
+    "coldEntry": {
+      "frames": 4,
+      "zeroEligibleFrames": 0,
+      "aggregateNearCoverage": 0.0
+    },
+    "coldFlight": {
+      "frames": 80,
+      "zeroEligibleFrames": 0,
+      "aggregateNearCoverage": 0.06281987803908189
+    },
+    "coldWalk": {
+      "frames": 16,
+      "zeroEligibleFrames": 0,
+      "aggregateNearCoverage": 0.0
+    },
+    "resident": {
+      "frames": 12,
+      "zeroEligibleFrames": 0,
+      "aggregateNearCoverage": 1.0
+    },
+    "teleport": {
+      "frames": 6,
+      "zeroEligibleFrames": 1,
+      "aggregateNearCoverage": 0.0
+    },
+    "transitionTail": {
+      "frames": 8,
+      "zeroEligibleFrames": 0,
+      "aggregateNearCoverage": 1.0
+    },
+    "warmReversal": {
+      "frames": 16,
+      "zeroEligibleFrames": 0,
+      "aggregateNearCoverage": 0.9532960447463045
+    }
+  },
+  "inspection": "Inspected baseline and feature frame64 screenshots. Feature lacks current near GI in depth-derived bounds while baseline covers it. No quality pass claimed.",
+  "next": "Block same-call speculative capture; test direct software texture upload against mapped PBO with exact readback."
+}
