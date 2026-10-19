@@ -1,0 +1,65 @@
+{
+  "environment": "Inherited Linux role display; synthetic profiles; LIBGL_ALWAYS_SOFTWARE=1, MESA_GL_VERSION_OVERRIDE=2.1 deliberately removes required native GL contexts",
+  "checks": [
+    {
+      "label": "real-native",
+      "command": [
+        "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+        "-Dsun.java2d.opengl=false",
+        "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-tmp",
+        "-cp",
+        "target/voxel-one-1.0-SNAPSHOT-client.jar:target/hub-tmp",
+        "dev.jayms.launcher.PrePlayCatalogPlaytest",
+        "target/hub-promotion-gl-real-v2",
+        "dashboard/evidence/hub-promotion-gl-real-v2"
+      ],
+      "exitCode": 1,
+      "expectedExitCode": 1,
+      "observed": [
+        "HUB_CHECK_FAILURE: Pre-Play stage=native-start; type=AssertionError; nativeFailureVisible=true; promotedNativeInstalled=true"
+      ]
+    },
+    {
+      "label": "command-fixture",
+      "command": [
+        "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+        "-Dsun.java2d.opengl=false",
+        "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-tmp",
+        "-cp",
+        "target/voxel-one-1.0-SNAPSHOT-client.jar:target/hub-tmp",
+        "dev.jayms.launcher.PrePlayCatalogPlaytest",
+        "target/hub-promotion-gl-fixture",
+        "dashboard/evidence/hub-promotion-gl-fixture",
+        "target/hub-promotion-command-client.jar"
+      ],
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "observed": [
+        "Playtest: catalog native A-to-B and web URL B; responsive EDT; duplicate suppression; malformed fallback; removal; updates-off; one download; synthetic native command verified; not gameplay qualification."
+      ]
+    },
+    {
+      "label": "mandatory-native-render",
+      "command": [
+        "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+        "-Dsun.java2d.opengl=false",
+        "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-tmp",
+        "-cp",
+        "target/hub-rollback-final-packages/classes:target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "NativeRenderProbe",
+        "target/hub-promotion-gl-render",
+        "dashboard/evidence/hub-promotion-gl-render",
+        "city"
+      ],
+      "exitCode": 1,
+      "expectedExitCode": 1,
+      "observed": [
+        "HUB_CHECK_FAILURE: Native city renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10007)"
+      ]
+    }
+  ],
+  "allExpectedOutcomes": true,
+  "scope": "Fault injection diagnostics, not graphics qualification. Real native failures stay failed; command fixture covers catalog/runtime selection only.",
+  "Playtest:": "Actual Swing actions against a synthetic publisher under unavailable native OpenGL. Expected real-client start to fail after B verification, command fixture/browser dispatch to pass, and separate required native render to remain failed. Observed results recorded per command.",
+  "stableRolloutQualified": false
+}
