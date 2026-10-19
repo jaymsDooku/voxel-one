@@ -42,3 +42,41 @@ preview gating. No production catalog/site/preview release was published here.
 
 Evidence: dashboard/evidence/hub-disk-recovery-audit.json,
 hub-recovery-20261019-validation.json and hub-recovery-20261019-*.png.
+
+## Integrated-source validation, 19 October 2026
+
+Controller integration completed at `46788fe2f16115b5457d621353a7a41c5c08fbce`
+against review base `26b8761ff9c355299aa1df83608a6f6ebcba7e0b`.
+The full proposed diff has no deleted paths. Engine mesh, world, lighting,
+transport and render-pipeline source remains identical to the review base.
+Only this task's progress entry changed during validation.
+
+Fresh compilation/package and 68 selected Java tests passed, with no failures,
+errors or skips. Four publisher tests and 31 portal/ground/alternate-Earth tests
+passed. Nine website assets byte-match their game source. Live Hub navigation,
+empty search/catalog, synthetic catalog membership, refresh fallback, keyboard
+focus and light theme passed on the inherited Linux display with synthetic data.
+New media is named `dashboard/evidence/hub-integrated-46788-*`.
+
+Packaged Linux checks passed updater failure/cancel/concurrency/migration,
+empty-PATH bundled-runtime launch, two fixture shell generations, JVM scales
+1/1.5/2, synthetic pinned-TLS login and fixed GLFW failure reporting. The checker
+exited 143 after recording City and Sandbox rendering passes. It is not marked
+as a fully passing checker run. Editor rendering and offline installation were
+rerun separately and passed. Each native observer captured four frames on
+llvmpipe; these are software-renderer smoke checks, not GPU performance claims.
+See the package-completion and media-decode reports for exact commands/results.
+
+The fresh exact-commit publication bundle is preserved at
+`target/hub-integrated-46788-publication`. The controller must recheck the source,
+expected destination head and immutable tag availability, retain all existing
+fences, and publish only an accepted preview scope. Catalog metadata, shell
+metadata and the preview asset still returned HTTP 404. Earlier source plans
+remain historical. No production publication occurred in this developer turn.
+
+Return controller results for exact-source Windows/macOS packaged checks,
+physical GPU gameplay and Windows monitor DPI, published browser gameplay and
+cached reload, independent native/web promotion, and upgrades between two
+actually published shells. These remain acceptance gates. Stable rollout stays
+unqualified. The ready handoff covers local integration validation and controller
+publication/dispatch only; it does not declare full release acceptance.
