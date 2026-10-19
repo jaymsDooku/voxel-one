@@ -1,0 +1,72 @@
+{
+  "sourceSha": "0e1683eebb356a15b3f46d25a6937a523c3dbf98",
+  "implementationChanged": false,
+  "sourceFingerprintsMatch": true,
+  "sourceKind": "exact-commit",
+  "controllerBundle": "target/hub-exact-0e1683-publication",
+  "workflow": "hub-publication-prepare.yml",
+  "workflowRef": "feature/queue-62383835386364312d346130642d346262652d383736632d393534373062343337356161",
+  "workflowInputs": {
+    "source_sha": "0e1683eebb356a15b3f46d25a6937a523c3dbf98",
+    "preview_tag": "hub-preview-1",
+    "expected_catalog_head": "absent"
+  },
+  "destinationRefObservedAbsent": true,
+  "controllerMustRecheckSourceAndDestinationBeforeWrite": true,
+  "controllerMustDispatchBeforeFeatureHeadAdvances": true,
+  "checks": [
+    {
+      "command": "python3 tools/hub/publication_bundle.py prepare --native-receipt dashboard/evidence/hub-native-publication.json --web-receipt dashboard/evidence/hub-web-publication.json --jar target/voxel-one-1.0-SNAPSHOT-launcher.jar --source-sha 0e1683eebb356a15b3f46d25a6937a523c3dbf98 --tag hub-preview-1 --expected-catalog-head absent --output target/hub-exact-0e1683-publication",
+      "exitCode": 0
+    },
+    {
+      "command": "python3 tools/hub/publication_bundle.py verify --bundle target/hub-exact-0e1683-publication --report dashboard/evidence/hub-exact-0e1683-delivery.json",
+      "exitCode": 1,
+      "passed": false
+    }
+  ],
+  "Playtest": "Affected publication CLI exercised on Linux from assigned worktree; exact source bundle prepared, fixed public endpoints verified. Delivery failed (404); this is not a passed release integration check. No browser applies to bundle preparation. Actual browser and native platform qualification remain separate incomplete gates.",
+  "deliveryChecks": [
+    {
+      "file": "catalog.properties",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/experience-catalog/catalog.properties",
+      "expectedSha256": "afa00e37a6b7eac40bee1c908dae2ef0b603c2b279549d45f86235702d91ff71",
+      "status": "failed",
+      "httpStatus": 404
+    },
+    {
+      "file": "shell.properties",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/experience-catalog/shell.properties",
+      "expectedSha256": "f56aeeb85b530dfaaee0441fb086590d7c562af43e062eaf247afe6396dca869",
+      "status": "failed",
+      "httpStatus": 404
+    },
+    {
+      "file": "voxel-one-shell.jar",
+      "url": "https://github.com/jaymsDooku/voxel-one/releases/download/hub-preview-1/voxel-one-shell.jar",
+      "expectedSha256": "28a00fb2e68c7abda158ad1abbdd0322de967867e1eca1a9fb1c10b88dd1e2ab",
+      "status": "failed",
+      "httpStatus": 404
+    }
+  ],
+  "ci": {
+    "conclusion": "",
+    "headSha": "0e1683eebb356a15b3f46d25a6937a523c3dbf98",
+    "status": "in_progress"
+  },
+  "acceptanceReady": false,
+  "stableRolloutQualified": false,
+  "ownerAnswerNeeded": false,
+  "resumeWhen": [
+    "Exact-head CI38987616666 reports/media are available for inspection.",
+    "Controller publishes the prepared immutable preview asset and CAS metadata after validating receipts and scope; report actual published hashes/URLs."
+  ],
+  "remainingQualification": [
+    "Independent native/web publication promotion.",
+    "Two distinct reviewed actually published shell generations and actual packaged bootstrap upgrade.",
+    "Passing exact-head Windows/macOS native gameplay and physical GPU/Windows monitor DPI.",
+    "Published Space Invaders actual browser gameplay with cached reload."
+  ],
+  "doNotResumeForUnchangedHandoff": true,
+  "publicationPerformedByDeveloper": false
+}

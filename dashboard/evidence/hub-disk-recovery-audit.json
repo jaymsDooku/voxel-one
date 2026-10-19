@@ -1,0 +1,107 @@
+{
+  "featureHead": "0e1683eebb356a15b3f46d25a6937a523c3dbf98",
+  "integrationTarget": "26b8761ff9c355299aa1df83608a6f6ebcba7e0b",
+  "backup": "target/hub-disk-recovery-20261019",
+  "action": "Preserved all 11 truncated files byte-for-byte in ignored worktree-local backup; restored tracked contents from feature HEAD. No Git index/ref operation. Controller must integrate complete master features.",
+  "files": [
+    {
+      "path": "src/main/java/dev/jayms/ChunkSnapshot.java",
+      "truncatedBytes": 4096,
+      "masterBytes": 4334,
+      "localSha256": "b04c4a375c85eb1ce3cc31f3186f8cb59942003d8f5a32b3156e8576f631858c",
+      "featureHeadSha256": "e5940df5c9f9aed71ff51525ee651feb5ccdecb7e66c69ad49dab2542d4193e0",
+      "masterSha256": "aee5c5050ef70a44d0b599063fb14ddbc09cb53a93b4e54f66916e38b5af2658",
+      "exactMasterPrefix": true
+    },
+    {
+      "path": "src/main/java/dev/jayms/DetailedMeshScheduler.java",
+      "truncatedBytes": 8192,
+      "masterBytes": 10726,
+      "localSha256": "26c3af8925c1c271d60a0053bfbdc207508c27a8cf4e8ff3dd66789a020c1ed5",
+      "featureHeadSha256": "9f8d235dd6c324b79449d49df4b364c6de390c572c50ef648914eda4c0c1d32e",
+      "masterSha256": "3972c3073292257d17f48875ac15d75f76bcea307c71bb4f9e3a93fe249df682",
+      "exactMasterPrefix": true
+    },
+    {
+      "path": "src/main/java/dev/jayms/Main.java",
+      "truncatedBytes": 98304,
+      "masterBytes": 101630,
+      "localSha256": "76e19760300749bdd97e670371a683dd0ff10b62060a547157e97b3a5c107754",
+      "featureHeadSha256": "6fa7058f17fc15264185cb63cc7dd0d7dbca3612c648489c977af1122964d7ca",
+      "masterSha256": "b09a54624d998d71d0e91c97e137bb42c0930931a1098b313f73714ba6c7ed86",
+      "exactMasterPrefix": true
+    },
+    {
+      "path": "src/main/java/dev/jayms/World.java",
+      "truncatedBytes": 12288,
+      "masterBytes": 24421,
+      "localSha256": "17b25d000006adbc062ef4800d4e576fb323126e3330d70afbe7c6378b25e06b",
+      "featureHeadSha256": "9275974bef351fb0abff64cbf6543505b8a1ac1bea2882d1453b9a931b196a4b",
+      "masterSha256": "accbede64b546099407820a3abaad7480964ac5b3fd7892937b6f88352b744a3",
+      "exactMasterPrefix": true
+    },
+    {
+      "path": "src/main/java/dev/jayms/render/ClusteredLights.java",
+      "truncatedBytes": 8192,
+      "masterBytes": 8676,
+      "localSha256": "4e19121d496ca2151408ceb2fabfbd69a4a3783db85f0a8041ba1025d64bee5c",
+      "featureHeadSha256": "99c02bdf1efc52ed4fd3da843c5c36e21321f7f02b34dec5b13ec8950f22483b",
+      "masterSha256": "aa51a2df2fcd01fe6dba829dcc94c22b40d8b67c698031ee75f76bbb73048e6f",
+      "exactMasterPrefix": true
+    },
+    {
+      "path": "src/main/java/dev/jayms/render/RenderPipeline.java",
+      "truncatedBytes": 32768,
+      "masterBytes": 49361,
+      "localSha256": "b3b32faff0a10819d8c1b6097f61ca43bc8654918f591e5b3cd4c280ea86683c",
+      "featureHeadSha256": "4c3c2ce8db751cf0b9ca1e221f77119c62b6404cc7fea5d1b159a6ad2b18a38f",
+      "masterSha256": "95f23662eb91ae9dff7236028f62d4f86af89c6f67ae8a1ff5dfdc620b0645c0",
+      "exactMasterPrefix": true
+    },
+    {
+      "path": "src/main/java/dev/jayms/render/TransportField.java",
+      "truncatedBytes": 8192,
+      "masterBytes": 8929,
+      "localSha256": "24b7dc4ebfa230a042e9014de246d987a58c2ff58cf223c66943713fb29521bb",
+      "featureHeadSha256": "0a7bc1e1040fedcee8b79caa7f3df2d6bd2dd6539c9b25138be200c8d627de5c",
+      "masterSha256": "128701040d3cc728b05ef85d5c68228daae3265f8d3aec398f695448a527ea1d",
+      "exactMasterPrefix": true
+    },
+    {
+      "path": "src/main/java/dev/jayms/render/VoxelTransport.java",
+      "truncatedBytes": 4096,
+      "masterBytes": 7761,
+      "localSha256": "0285b27ed2f580b62e1ad8294f2e3ba186d758eec5646c13616921dd6413320d",
+      "featureHeadSha256": "a716a29703084f95ce39d74590505efa9b7bb2079ced5b1ed31eebf682bb664d",
+      "masterSha256": "74f81c52ebbffb199b2e82b7819a975fa257d9e7326842c1fe4346d1f9ba8474",
+      "exactMasterPrefix": true
+    },
+    {
+      "path": "src/main/java/dev/jayms/render/WorldLighting.java",
+      "truncatedBytes": 8192,
+      "masterBytes": 17210,
+      "localSha256": "68aaf2fd87eddf4a06fa8110108c22128c31862c4a4af6aefbeecdb57bd6f0ce",
+      "featureHeadSha256": "81557d128595cc75fef2e86392ed11f51cc5b50e1eab7f3ae012db78a24981a6",
+      "masterSha256": "ccab57a553b518f5ccad2165c6daf99605d0da1370e8a1e70ae839c8e6bebe0a",
+      "exactMasterPrefix": true
+    },
+    {
+      "path": "src/main/java/dev/jayms/render/WorldSkyVisibility.java",
+      "truncatedBytes": 8192,
+      "masterBytes": 12778,
+      "localSha256": "6c61c5ad45d724315ef15ae10781a1772a0007cb6aeb9486d96a79e95c0e6887",
+      "featureHeadSha256": "55b4ba4336ad529471199f99578f7b312994a1fd10979f3c8778bab7e4457692",
+      "masterSha256": "f364a4f59acac1ba7fdea40b26ffeebdc132b79410d90a5fff817da9e30fe51a",
+      "exactMasterPrefix": true
+    },
+    {
+      "path": "src/test/java/dev/jayms/WorldSkyVisibilityTest.java",
+      "truncatedBytes": 8192,
+      "masterBytes": 9092,
+      "localSha256": "292fb53b4ec47cb364f7027468870d9722f0d28cbb81bfc80f81714d64287a30",
+      "featureHeadSha256": "c801edde0b6ee07dfe97149e9808c44f5a2134bba2c088ef3b0e2e9a709ab52f",
+      "masterSha256": "adbde373826251d5c8b9fb4f58c924309811cc6f726b81ec6cb7e402a07d96a6",
+      "exactMasterPrefix": true
+    }
+  ]
+}

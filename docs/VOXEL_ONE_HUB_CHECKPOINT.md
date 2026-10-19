@@ -1,76 +1,44 @@
-# Hub controller publication checkpoint
+# Hub checkout recovery and controller integration handoff
 
-Source HEAD: d840a9815d454fe399a3eba71412c2038489d907
-Branch: feature/queue-62383835386364312d346130642d346262652d383736632d393534373062343337356161
+Feature HEAD: 0e1683eebb356a15b3f46d25a6937a523c3dbf98
+Observed origin/master: 26b8761ff9c355299aa1df83608a6f6ebcba7e0b
 Review base: 403033b9f53ce66063982879c6e2daff684a427b
 PR: https://github.com/jaymsDooku/voxel-one/pull/72
 
-No implementation change this turn. Recorded source fingerprints still match.
-No Git conflict. No deleted files against review base. Diff check passed.
-No open delegate tasks. No commit, push, release or deployment performed.
+All11 preserved dirty engine files were exact truncated prefixes of current
+master, cut on4KiB boundaries. Their complete original bytes/hashes are saved
+inside target/hub-disk-recovery-20261019. Restored these11 tracked contents to
+feature HEAD without modifying Git index or refs. No distinct valid local
+performance/lighting patch was discarded. Complete master versions must be
+imported by controller integration; do not carry truncated source forward.
+Old build class directories/status/JARs were preserved in that ignored backup,
+then compilation ran from empty classes/test-classes directories.
 
-Concrete controller handoff:
-1. Exact committed-source bundle is target/hub-exact-d840-publication.
-   sourceKind=exact-commit; controllerMustRegenerateFromCommittedSource=false.
-   Small plan copied to dashboard/evidence/hub-exact-d840-publication-plan.json.
-2. Dispatch hub-publication-prepare.yml on the assigned feature ref with
-   source_sha=d840a9815d454fe399a3eba71412c2038489d907,
-   preview_tag=hub-preview-1, expected_catalog_head=absent.
-   Dispatch before advancing the feature head. If head changes, regenerate
-   bundle and exact-source inputs; do not bypass the workflow fence.
-3. Controller validates native/web publication receipts. Preserve existing
-   stable/latest release behavior. Publish immutable preview shell asset first,
-   verify SHA/size, then atomically promote catalog.properties/shell.properties
-   with expected-head CAS. Git API confirmed destination ref absent; recheck.
-4. Resume developer for real delivery, independent native/web promotion and
-   packaged bootstrap tests. Publish a second distinct reviewed generation and
-   test the actual public upgrade. Fixture generations do not satisfy this.
+Executed baseline validation: Maven21 passed (zero failures/errors/skips),
+publisher integration4 passed, actual inherited-display HubPlaytest passed.
+Fresh library and empty-search captures inspected. No source deletion against
+review base; source/tools/workflow working contents now match feature HEAD.
+No open helper tasks. No developer commit/push/merge/deployment performed.
 
-This is an execution handoff, not a request for owner approval. Publication is
-reserved to the controller. Acceptance is not ready and stable rollout stays
-gated until remaining qualification passes.
+Controller next action: integrate latest master into this feature branch while
+preserving its complete performance/lighting features and the Hub changes.
+There is no current unmerged index or pending rebase for the developer to
+continue. Normal controller sync/commit/publication handoff is authorized.
+When source integration changes content, resume the developer for final-head
+checks and fresh media BEFORE independent review. These baseline checks do not
+qualify the future integrated source. Recheck whole diff for unrelated deletions.
 
-Executed this turn:
-- Exact-source bundle preparation passed; existing source/test fingerprints
-  matched. No rerun of unchanged Java tests is claimed (prior21 passed).
-- Public bundle verification exit1: catalog, shell manifest and preview asset404.
-- Fresh desktop WebKit browser attempt: start control unavailable; failed game
-  workflow. No sign-in content/cookies/screenshots retained. Exit0 from this
-  harness is not a pass; JSON passed=false. Current website receipt was not
-  changed to invent fresh browser validation.
-- Exact-head CI38986864061 remained in_progress at last inspection. Do not use
-  older platform results to qualify this head. Physical GPU/DPI remains pending.
-- No new native rendering or two-published-generation upgrade test was run.
+After integration/review, regenerate publication bundle and exact-source inputs
+from the resulting committed reviewed source. Existing0e1683 publication plans
+are historical and must not be relabelled. Controller retains all publication,
+lease, budget and approval fences. No new owner permission/session IDs needed.
 
-Reports: hub-controller-publication-handoff.json, hub-exact-d840-delivery.json,
-hub-exact-d840-catalog-ref.json, hub-browser-result.json under dashboard/evidence.
-All unpublished evidence preserved. No new owner answer is needed.
+Full acceptance remains incomplete. Prior exact-head hosted Windows native
+API0x10006 and Mac framebuffer format0x10009 failures are historical; they are
+not passes. Physical GPU/gameplay/monitor DPI and published browser reload,
+independent native/web promotion and two published shell-generation upgrades
+remain qualification gates. Keep normal stable release behavior and opt-in
+preview gating. No production catalog/site/preview release was published here.
 
-## Numeric GLFW diagnostic continuation
-
-Current unpublished change captures glfwGetError's fixed hexadecimal code when
-Window creation fails, before cleanup discards that context. OpenGL hints and
-4.3-to-3.3 fallback are unchanged. No graphics repair is claimed. This intended
-Window.java change supports platform failure diagnosis; unrelated engine,
-website, release workflow and historical evidence remain preserved.
-
-Maven selected suite/package21 passed; zero failures/errors/skips. Python
-harness syntax passed. Actual invalid-width GLFW workflow returned0x10004.
-Normal Linux City renderer regression passed four frames in23861ms on llvmpipe.
-Movie decoded:4 frames,18.062seconds. Native screenshot and decoded first frame
-inspected; controls overlay/scene visible. No smooth-performance claim.
-Commands, source fingerprints and limits are in
- dashboard/evidence/hub-glfw-diagnostic-validation.json.
-
-CI38986864061 is now complete: Windows, Mac ARM and Mac Intel all fail native
-City/Sandbox/editor window creation. All exact-source fingerprints checked
-(Windows CRLF conversion accounted for). Reports omit native descriptions, so
-no driver/context cause is established. New diagnostic source requires a fresh
-exact-head hosted run after controller publication. No open delegate tasks.
-
-The prior exact d840 publication bundle remains specific to d840. Regenerate
-from the resulting committed reviewed head if publishing the new source; do
-not relabel that bundle. Existing controller publication handoff still applies.
-Catalog/shell delivery, physical GPU/DPI, actual published browser gameplay and
-two published shell-generation upgrade checks remain incomplete. Stable rollout
-stays gated. No owner answer is needed. No commit/push/deploy performed.
+Evidence: dashboard/evidence/hub-disk-recovery-audit.json,
+hub-recovery-20261019-validation.json and hub-recovery-20261019-*.png.

@@ -4017,8 +4017,8 @@
       "description": "Building the catalog-driven desktop hub around verified client updates. Platform packaging and playtests remain required.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Added bounded numeric GLFW failure diagnostics. Java21 tests, real invalid-width failure and Linux renderer regression passed; clip decoded/inspected. All three d840 hosted native renderers failed. Exact-head retry and controller publication remain required; stable rollout gated.",
-      "updatedAt": "2026-10-17T00:42:27+00:00"
+      "note": "Recovery validated:11 truncated engine files preserved/restored to feature HEAD; fresh Maven21, publisher4 and live Hub workflow passed. Ready for controller master integration; resume final integrated-source tests/media before review. Stable rollout remains gated.",
+      "updatedAt": "2026-10-19T22:37:46+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
