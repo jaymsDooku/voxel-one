@@ -1,0 +1,18 @@
+{
+  "sourceSha": "46788fe2f16115b5457d621353a7a41c5c08fbce",
+  "scope": "Controller publication and exact-source qualification handoff; not release acceptance",
+  "bundle": "target/hub-integrated-46788-publication",
+  "publicationPlan": "dashboard/evidence/hub-integrated-46788-publication-plan.json",
+  "controllerSteps": [
+    "Publish assigned feature branch and artifacts; do not merge or mark stable.",
+    "Run exact-source hosted Hub checks on Windows/macOS; inspect reports and media.",
+    "Execute fenced preview publication plan only after its qualification scope is accepted; verify destination head and immutable tag availability first.",
+    "Return public metadata verification, independent native/web promotion, two published shell upgrades, physical GPU/DPI and published browser cached-reload results for developer inspection."
+  ],
+  "pending": [
+    "Public catalog, shell metadata and preview asset all returned HTTP 404 on this turn.",
+    "Current-source Windows/macOS packaged checks and physical GPU/DPI tests have not run here.",
+    "Published Space Invaders gameplay/cached reload and two published shell versions remain unverified."
+  ],
+  "stableRolloutQualified": false
+}

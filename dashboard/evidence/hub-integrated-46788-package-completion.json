@@ -1,0 +1,13 @@
+{
+  "sourceSha": "46788fe2f16115b5457d621353a7a41c5c08fbce",
+  "fullCheckerExitCode": 143,
+  "fullCheckerPassed": false,
+  "completedChecksReport": "dashboard/evidence/hub-integrated-46788-packages/report.json",
+  "supplementalEditor": {
+    "exitCode": 0,
+    "observed": "Playtest: production native editor renderer completed four frames in 23496 ms; renderer llvmpipe (LLVM 15.0.6, 256 bits); LOW preset; no smooth-performance claim.",
+    "command": "ALSOFT_DRIVERS=null LIBGL_ALWAYS_SOFTWARE=1 target/hub-integrated-46788-packages/package-1/Voxel One Hub/lib/runtime/bin/java -Djava.io.tmpdir=$PWD/target/hub-integrated-46788-packages -cp target/hub-integrated-46788-packages/classes:target/hub-integrated-46788-packages/client-two.jar NativeRenderProbe target/hub-integrated-46788-editor-retry dashboard/evidence/hub-integrated-46788-editor-retry editor"
+  },
+  "supplementalOffline": "dashboard/evidence/hub-integrated-46788-offline.json",
+  "stableRolloutQualified": false
+}
