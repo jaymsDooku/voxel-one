@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-14T19:14:40+00:00",
+  "updatedAt": "2026-10-19T22:27:02+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -3869,6 +3869,15 @@
       "status": "in_progress",
       "note": "Controller identified the outstanding helper-review condition. The developer explicitly resolved it through the supported local-takeover decision; no unresolved helper tasks remain. Preserved source and media are retained, and the original developer has resumed final-source validation and independent-review handoff.",
       "updatedAt": "2026-10-14T19:14:40+00:00"
+    },
+    {
+      "id": "vps-worktree-cleanup-20261019",
+      "title": "Recover VPS space from completed worktrees",
+      "description": "Audited queue ownership and running processes. Removing finished checkouts after preserving exact commits and verifying private archives of local changes and testing evidence; active launcher work is retained.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Audited queue ownership and running processes. Removing finished checkouts after preserving exact commits and verifying private archives of local changes and testing evidence; active launcher work is retained.",
+      "updatedAt": "2026-10-19T22:27:02+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
