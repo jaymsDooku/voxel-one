@@ -142,3 +142,80 @@ and publication sequence are recorded in
 `dashboard/evidence/hub-exact-edc5736-controller-handoff.json`. Publication remains
 controller-owned. Public catalog, shell metadata and preview asset still return
 404. No new owner permission is needed. Stable rollout remains gated.
+
+## Paused at owner/controller quota boundary: shell activation rollback
+
+Preserved branch `feature/queue-62383835386364312d346130642d346262652d383736632d393534373062343337356161`
+at base HEAD `6fc5bd1494c7349750286d361d6b63110aac1944`, PR #72. All unpublished
+source, tests, workflow changes, documentation, package fixtures and evidence stay
+in this worktree. No Git commit/push/merge or publication was performed.
+
+Implemented explicit startup readiness in Bootstrap/Launcher, separate verified
+`acknowledged.properties`, locked rollback to the last working downloaded shell,
+failed candidate rejection, and protection against overwriting newer staging.
+If acknowledgement cannot be persisted, a ready UI stays open but stages nothing.
+Added executable tests for exit after ready, live-but-unacknowledged timeout,
+later upgrade and candidate snapshot/concurrent staging. Hosted/package workflows
+now include these tests. The package harness stages a real exit-7 shell and checks
+that the downloaded working shell resumes, its pointer restores, failed bytes
+are not restaged and immutable JARs remain.
+
+Executed validation: 23 Java tests and four publisher tests passed. Full Linux
+packaged run `dashboard/evidence/hub-rollback-6fc5-packages/report.json` exited 0
+with all 13 checks passing, including executable failed-shell rollback. Inspected
+its recovered Hub center-crop image. Reports and working-tree source fingerprints
+are in `dashboard/evidence/hub-rollback-6fc5-validation.json`. No paths were deleted
+against review base 26b8761. The only subsequent application edit makes activation
+marker cleanup best-effort so cleanup errors cannot orphan an accepted child or
+mask interruption. A Maven test/package operation for that final small edit was
+already active when pause arrived; its completion is recorded below. No further
+implementation or new tests may start during this pause.
+
+Resume after authoritative quota/service clearance: inspect preserved source and
+active-build result, run final-source packaged workflow/media checks if still
+needed for the cleanup edit, update source fingerprints and reports, then
+regenerate the preview bundle from the resulting committed source through the
+controller. Current `target/hub-rollback-6fc5-publication` was prepared before the
+last cleanup edit; it must not be published as final source. Capture/decode final
+media and retain exact-source labels. Request controller commit/push and scoped
+Windows/macOS checks for the resulting exact head; older failed platform runs
+are historical. Public catalog/shell/preview targets last returned 404. Actual
+published upgrades, independent native/web promotion, browser gameplay/cached
+reload and physical GPU/DPI remain incomplete. Stable rollout remains gated.
+All helper tasks are resolved; no extra agents or background jobs were scheduled.
+
+Active operation completed before stopping: Maven selected
+`HubShellActivationTest,HubShellTest,UpdaterTest,HubCatalogTest` test/package exited
+0 with the final cleanup edit. No further tests were started after pause. The
+remaining resume task is final-source packaged workflow/media validation and
+report/bundle regeneration, followed by controller-owned publication/dispatch.
+
+## Resumed: final rollback source validated
+
+The final cleanup edit is now included in a fresh full Linux packaged run.
+`dashboard/evidence/hub-rollback-final-packages/report.json` exited 0 with all
+13 checks passing. A fresh full selected Java run passed 23 tests with zero
+failures/errors/skips; four publisher tests passed. These results supersede the
+pre-cleanup package snapshot for local validation. The new executable failure,
+timeout and snapshot-race tests are included in scoped platform workflows.
+
+Playtest: on the inherited Linux role display with synthetic profiles and the
+packaged Java runtime, staged an executable that exits 7, launched the native
+package, and verified that the acknowledged downloaded shell resumed and its
+pointer restored. Rejected bytes were not restaged; immutable JARs remained.
+The recovered-shell center crop and full library were inspected. Fresh launcher
+video decoded as 20 frames over 2.917 seconds; native City/Sandbox/editor clips
+each decoded four frames on software OpenGL. No smooth-play or physical GPU
+qualification is claimed. All recorded final application/tool fingerprints match.
+
+Final working-tree evidence and controller actions are in
+`dashboard/evidence/hub-rollback-final-validation.json` and
+`dashboard/evidence/hub-rollback-final-controller-handoff.json`. The fresh bundle
+is `target/hub-rollback-final-publication`; regenerate after the controller commits
+the resulting exact source. Include the new executable regression files when
+staging. Request new exact-head Windows/macOS reports/media, not historical
+6fc5bd14 or 45f8949 qualification. Public metadata and preview artifact still
+return 404. Published upgrades/browser cached reload/independent promotion,
+physical GPU/DPI and reference hardware performance remain acceptance gates.
+No source deletion against review base 26b8761; unrelated engine features remain
+preserved. No owner input, developer publication or extra agent is required.

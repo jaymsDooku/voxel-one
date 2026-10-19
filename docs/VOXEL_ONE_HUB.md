@@ -242,3 +242,16 @@ client source allowlist, and downloaded bytes must pass SHA-256, size and JAR
 checks. City, Sandbox and editor retain their shared verified cache. Native
 catalog tags outside the bounded `playtest-N` contract are rejected. Legacy
 launches without an experience selection keep their existing latest behavior.
+
+### Shell activation and rollback
+
+The bootstrap keeps the last acknowledged downloaded shell apart from the staged
+candidate. A new shell must explicitly report startup readiness after its Hub
+window is visible (or its legacy updater has initialized). A process merely
+staying alive is insufficient. Early failure or no acknowledgement within
+20 seconds stops the candidate and restores the working downloaded shell before
+using the bundled fallback. Staging and rollback use the same cache lock; rollback
+cannot replace a newer concurrent candidate. Failed artifact bytes are rejected
+on subsequent staging attempts. Immutable clients, shells and saves are retained.
+This protocol is included in the new bootstrap download; legacy bootstraps cannot
+replace their own implementation automatically.

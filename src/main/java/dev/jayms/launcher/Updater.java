@@ -21,6 +21,7 @@ public final class Updater {
     private final Path cache;
     private final URI manifest;
     private final String mainClass;
+    private final boolean shell;
     private volatile InputStream activeBody;
     private volatile boolean cancelled;
 
@@ -46,6 +47,7 @@ public final class Updater {
     public Updater(Path cache, URI manifest, boolean shell) {
         this.cache = cache;
         this.manifest = manifest;
+        this.shell = shell;
         this.mainClass = shell ? "dev.jayms.launcher.Launcher" : "dev.jayms.Main";
     }
 
@@ -81,6 +83,7 @@ public final class Updater {
                     properties.load(new ByteArrayInputStream(read(response, 32768, status, false)));
                 }
                 Release release = release(properties, platform);
+                if (shell && rejected(release, platform)) throw new IOException("Shell activation previously failed");
                 if (allowed != null && !allowed.contains(release.revision))
                     throw new IOException("Catalog/client mismatch: published client is not compatible. Refresh the catalog.");
                 Path target = path(release, platform);
@@ -145,6 +148,68 @@ public final class Updater {
         } catch (OverlappingFileLockException ignored) {
         }
         throw new IOException("Another launcher is updating Voxel One. Try again in a moment.");
+    }
+
+    /** Snapshot metadata belongs to the verified candidate, even if another bootstrap stages later. */
+    static final class ShellActivation {
+        private final Result result;
+        private final byte[] metadata;
+        private final Release release;
+        private ShellActivation(Result result, byte[] metadata, Release release) {
+            this.result = result; this.metadata = metadata; this.release = release;
+        }
+        Result result() { return result; }
+    }
+    private byte[] metadata(String name) throws IOException {
+        try (var in = Files.newInputStream(cache.resolve(name))) { return read(in, 32768, s -> {}, false); }
+    }
+    private Properties properties(byte[] bytes) throws IOException {
+        var p = new Properties(); p.load(new ByteArrayInputStream(bytes)); return p;
+    }
+    private ShellActivation activation(Platform platform, String name) {
+        try {
+            byte[] bytes = metadata(name); Release release = release(properties(bytes), platform);
+            Path file = path(release, platform);
+            if (!verified(file, release)) file = legacyPath(release, platform);
+            if (!verified(file, release)) return null;
+            validateJar(file);
+            return new ShellActivation(new Result(file, release.revision, false, ""), bytes, release);
+        } catch (IOException | IllegalArgumentException e) { return null; }
+    }
+    ShellActivation candidate(Platform platform) { return activation(platform, "installed.properties"); }
+    ShellActivation acknowledged(Platform platform) { return activation(platform, "acknowledged.properties"); }
+    private static boolean same(Release a, Release b) {
+        return a.revision.equals(b.revision) && a.sha256.equals(b.sha256) && a.size == b.size;
+    }
+    private boolean rejected(Release release, Platform platform) {
+        try { return same(release, release(properties(metadata("rejected.properties")), platform)); }
+        catch (IOException | IllegalArgumentException e) { return false; }
+    }
+    boolean rejected(ShellActivation candidate, Platform platform) { return rejected(candidate.release, platform); }
+    private void writeState(String name, byte[] bytes) throws IOException {
+        Path temp = Files.createTempFile(cache, "activation-", ".tmp");
+        try { Files.write(temp, bytes); move(temp, cache.resolve(name)); }
+        finally { Files.deleteIfExists(temp); }
+    }
+    void acknowledge(ShellActivation candidate) throws IOException {
+        try (var channel = FileChannel.open(cache.resolve("update.lock"), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+             var held = lock(channel)) {
+            if (!verified(candidate.result.client, candidate.release)) throw new IOException("Shell changed during activation");
+            validateJar(candidate.result.client);
+            writeState("acknowledged.properties", candidate.metadata);
+        }
+    }
+    void rejectAndRollback(ShellActivation failed, Platform platform) throws IOException {
+        try (var channel = FileChannel.open(cache.resolve("update.lock"), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+             var held = lock(channel)) {
+            writeState("rejected.properties", failed.metadata);
+            var current = candidate(platform); var working = acknowledged(platform);
+            // Never overwrite a newer candidate staged by a concurrent launcher.
+            if (current != null && same(current.release, failed.release)) {
+                if (working != null && !same(working.release, failed.release)) writeState("installed.properties", working.metadata);
+                else Files.deleteIfExists(cache.resolve("installed.properties"));
+            }
+        }
     }
 
     public Result installed(Platform platform) {

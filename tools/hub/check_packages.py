@@ -185,6 +185,23 @@ def run(args):
         command([runtime,'-cp',cp,'PackageUiProbe',out,profile,'stop',q.pid],child_env);q.wait(timeout=15)
         return 'Two packaged fixture generations: bundled runtime launched verified v1; bootstrap staged v2 while v1 active; next start executed v2. No public release claim.'
     check('Native executable and two-version bootstrap update','Empty PATH works; active shell retained; new shell activates next start',shells)
+    def failed_shell():
+        failed_classes=work/'failed-shell-classes';failed_classes.mkdir()
+        command([javac,'--release','17','-d',failed_classes,'tools/hub/FailedShell.java'])
+        broken=work/'failed-shell.jar'
+        with zipfile.ZipFile(broken,'w',zipfile.ZIP_DEFLATED) as jar:
+            jar.writestr('META-INF/MANIFEST.MF','Manifest-Version: 1.0\nMain-Class: dev.jayms.launcher.Launcher\n\n')
+            jar.write(failed_classes/'dev/jayms/launcher/Launcher.class','dev/jayms/launcher/Launcher.class')
+        previous=Path(probe('installed',shell_cache,uri,True))
+        artifact['file']=broken;bad=Path(probe('update',shell_cache,uri,True));assert bad!=previous
+        p=native_start(apps[1],previous,out/'shell-rollback')
+        try:
+            assert Path(probe('installed',shell_cache,uri,True))==previous
+            before=downloads[0];assert Path(probe('update',shell_cache,uri,True))==previous
+            assert downloads[0]==before and bad.is_file() and previous.is_file()
+        finally:command([runtime,'-cp',cp,'PackageUiProbe',out,profile,'stop',p.pid],child_env);p.wait(timeout=15)
+        return 'Executable shell exited 7 without acknowledgement; downloaded working shell resumed, installed pointer rolled back, rejected artifact not restaged, immutable JARs retained.'
+    check('Failed shell activation rollback','Failed downloaded shell returns to acknowledged downloaded shell, not bundled shell',failed_shell)
     if os.name=='nt':
         def installer():
             # Windows Installer resolves folders for the real ephemeral OS user.

@@ -4017,8 +4017,8 @@
       "description": "Building the catalog-driven desktop hub around verified client updates. Platform packaging and playtests remain required.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Inspected completed older-head platform run: native rendering/promotion failed on all three platforms; launcher clips decoded and source fingerprints verified. No scoped edc5736 run exists. Exact-head dispatch/publication handoff recorded; all public delivery targets still 404. Physical qualification and stable rollout remain gated.",
-      "updatedAt": "2026-10-19T23:10:48+00:00"
+      "note": "Final rollback source validated: 23 Java tests, 4 publisher tests and all 13 Linux package checks passed. Executable failure restored acknowledged downloaded shell; timeout/early-exit/concurrent staging tests passed. Fresh media inspected and final-source bundle/handoff saved. Controller exact-head Windows/macOS/publication next; stable rollout gated.",
+      "updatedAt": "2026-10-19T23:29:50+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

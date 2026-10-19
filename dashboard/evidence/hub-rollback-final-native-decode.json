@@ -1,0 +1,41 @@
+[
+  {
+    "command": [
+      "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+      "-cp",
+      "target/voxel-one-1.0-SNAPSHOT-client.jar:target/hub-tmp",
+      "InspectMovie",
+      "dashboard/evidence/hub-rollback-final-city.mp4",
+      "dashboard/evidence/hub-rollback-final-city-frame.png"
+    ],
+    "exitCode": 0,
+    "observed": "Actual movie: 4 frames, 14.148 seconds",
+    "sizeBytes": 267374
+  },
+  {
+    "command": [
+      "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+      "-cp",
+      "target/voxel-one-1.0-SNAPSHOT-client.jar:target/hub-tmp",
+      "InspectMovie",
+      "dashboard/evidence/hub-rollback-final-sandbox.mp4",
+      "dashboard/evidence/hub-rollback-final-sandbox-frame.png"
+    ],
+    "exitCode": 0,
+    "observed": "Actual movie: 4 frames, 15.254 seconds",
+    "sizeBytes": 198936
+  },
+  {
+    "command": [
+      "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+      "-cp",
+      "target/voxel-one-1.0-SNAPSHOT-client.jar:target/hub-tmp",
+      "InspectMovie",
+      "dashboard/evidence/hub-rollback-final-editor.mp4",
+      "dashboard/evidence/hub-rollback-final-editor-frame.png"
+    ],
+    "exitCode": 0,
+    "observed": "Actual movie: 4 frames, 14.547 seconds",
+    "sizeBytes": 101699
+  }
+]

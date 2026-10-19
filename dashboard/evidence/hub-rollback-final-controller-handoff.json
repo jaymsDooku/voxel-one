@@ -1,0 +1,16 @@
+{
+  "baseSha": "6fc5bd1494c7349750286d361d6b63110aac1944",
+  "sourceKind": "working tree; controller commit and regenerate exact-source bundle before publication",
+  "validation": "dashboard/evidence/hub-rollback-final-validation.json",
+  "bundle": "target/hub-rollback-final-publication",
+  "publicationPlan": "dashboard/evidence/hub-rollback-final-publication-plan.json",
+  "controllerNextActions": [
+    "Stage/commit/push only the assigned branch and sanitized evidence. Include new HubShellActivationTest.java and FailedShell.java regression files.",
+    "Run scoped packaged checks on the resulting exact committed head. Feature source push triggers hosted diagnostics; provisioned desktop checks use hub-validation.yml runner_pool=desktop and that exact source_sha.",
+    "Return finished Windows/macOS reports and media for inspection. Historical runs do not qualify this rollback fix.",
+    "Regenerate preview publication bundle after commit; verify source, immutable tag and destination-head fences. Execute the authorized publication handoff and verify public bytes.",
+    "Demonstrate actual published shell upgrades, independent native/web promotion and published browser gameplay/cached reload. Keep physical GPU/DPI and stable rollout gated."
+  ],
+  "ownerInputRequired": false,
+  "stableRolloutQualified": false
+}
