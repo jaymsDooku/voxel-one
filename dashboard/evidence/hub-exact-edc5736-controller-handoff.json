@@ -1,0 +1,24 @@
+{
+  "sourceSha": "edc5736a11c27679b54d273976e2aa5fa3df4a58",
+  "scope": "Controller exact-head dispatch/publication handoff; full acceptance incomplete",
+  "applicationToolWorkflowSourceMatches45f8949": true,
+  "oldRun": "https://github.com/jaymsDooku/voxel-one/actions/runs/39338968452",
+  "oldRunConclusion": "failure",
+  "oldRunResults": "dashboard/evidence/hub-45f894-hosted-results.json",
+  "oldRunMediaDecode": "dashboard/evidence/hub-45f894-hosted-media-decode.json",
+  "exactHeadScopedRunFound": false,
+  "dispatchCommand": "gh workflow run hub-validation.yml --ref feature/queue-62383835386364312d346130642d346262652d383736632d393534373062343337356161 -f source_sha=edc5736a11c27679b54d273976e2aa5fa3df4a58 -f runner_pool=desktop",
+  "dispatchFence": "Controller must verify assigned branch still points to source_sha. If it commits new evidence first, use that resulting exact head and regenerate source-specific bundle inputs. Never bypass workflow source fences.",
+  "bundle": "target/hub-exact-edc5736-publication",
+  "publicationPlan": "dashboard/evidence/hub-exact-edc5736-publication-plan.json",
+  "deliveryReport": "dashboard/evidence/hub-exact-edc5736-delivery.json",
+  "controllerNextActions": [
+    "Run scoped packaged checks for the exact submitted head and return reports/screenshots/video.",
+    "Execute saved fenced preview publication handoff; recheck tag availability and expected destination head.",
+    "Verify public metadata/artifact bytes, two actually published shell upgrades, independent native/web promotion and published browser gameplay with cached reload.",
+    "Keep physical GPU/DPI and stable rollout gated; no new owner permission is requested."
+  ],
+  "Playtest:": "This turn inspected remote packaged-workflow reports and media on Linux with Oracle JDK 21.0.5 media decoder. Steps: download only sanitized artifacts using worktree-local TMPDIR; compare source fingerprints to reviewed SHA; decode each platform launcher clip; inspect frames; prepare exact-current-source bundle; verify HTTPS delivery. Expected: reports match source, actual media decodes, failed qualification remains failed, public bytes match prepared bundle. Observed: source fingerprints match (Windows slash/CRLF normalization); all three videos decode as 20 frames/2.917 seconds and show Downloads UI. Older run failed native rendering/promotion; current head has no scoped run. All three delivery URLs return 404. Browser gameplay and GPU play were not rerun or claimed.",
+  "stableRolloutQualified": false,
+  "question": null
+}
