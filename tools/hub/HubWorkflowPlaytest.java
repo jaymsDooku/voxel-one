@@ -107,6 +107,7 @@ public class HubWorkflowPlaytest {
                         .replace(HubCatalog.bundled().entries().get(0).source(), "a".repeat(40));
             }
             HubCatalog catalog=HubCatalog.read(new java.io.ByteArrayInputStream(fixtureCatalog.getBytes(java.nio.charset.StandardCharsets.ISO_8859_1)));
+            Files.writeString(profile.resolve("catalog.properties"), fixtureCatalog);
             SwingUtilities.invokeAndWait(()->{
                 frame.detail(catalog.entries().get(0));
                 for(Component c:HubPlaytest.descendants(frame)) if(c instanceof JTextField f) {
@@ -145,6 +146,9 @@ public class HubWorkflowPlaytest {
             capture("hub-compatible-cache-fallback");
             if (!textPresent("compatible installed version")) throw new AssertionError("Incompatible latest did not explain compatible fallback");
             HubCatalog incompatible = HubCatalog.read(new java.io.ByteArrayInputStream(fixtureCatalog.replace("a".repeat(40), "c".repeat(40)).getBytes(java.nio.charset.StandardCharsets.ISO_8859_1)));
+            var currentCatalog = HubFrame.class.getDeclaredField("catalog"); currentCatalog.setAccessible(true);
+            // This case tests an incompatible current catalog, not an obsolete detail button.
+            SwingUtilities.invokeAndWait(()->{try{currentCatalog.set(frame,incompatible);}catch(Exception x){throw new RuntimeException(x);}});
             SwingUtilities.invokeAndWait(()->frame.showPage("Settings / Help"));
             click("Check library at startup and client before Play");
             SwingUtilities.invokeAndWait(()->frame.detail(incompatible.entries().get(0))); click("Play / Install");
@@ -152,6 +156,7 @@ public class HubWorkflowPlaytest {
             if(!textPresent("No incompatible client was launched"))throw new AssertionError("Incompatible cached client was not refused");
             if(ProcessHandle.current().descendants().anyMatch(ProcessHandle::isAlive))throw new AssertionError("Incompatible cache spawned a game");
             capture("hub-incompatible-cache-refused");
+            SwingUtilities.invokeAndWait(()->{try{currentCatalog.set(frame,catalog);}catch(Exception x){throw new RuntimeException(x);}});
             SwingUtilities.invokeAndWait(()->frame.showPage("Settings / Help")); click("Check library at startup and client before Play");
             revision.set("b".repeat(40));corrupt.set(true);
             SwingUtilities.invokeAndWait(()->frame.showPage("Downloads"));click("Retry / Repair client");

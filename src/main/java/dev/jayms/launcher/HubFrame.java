@@ -21,6 +21,8 @@ public final class HubFrame extends JFrame {
     private final Properties settings = new Properties();
     private final CatalogStore store;
     private final URI clientManifest;
+    @FunctionalInterface interface Browser { void open(URI uri) throws Exception; }
+    private final Browser browser;
     private HubCatalog catalog;
     private String catalogStatus;
     private final JPanel content = new JPanel(new BorderLayout(18, 18));
@@ -37,9 +39,16 @@ public final class HubFrame extends JFrame {
 
     public HubFrame(Path cache) throws IOException { this(cache, Updater.MANIFEST); }
     public HubFrame(Path cache, URI clientManifest) throws IOException {
+        this(cache, clientManifest, new CatalogStore(cache), uri -> {
+            if (!Desktop.isDesktopSupported() || !Desktop.getDesktop().isSupported(Desktop.Action.BROWSE))
+                throw new IOException("Default browser unavailable");
+            Desktop.getDesktop().browse(uri);
+        });
+    }
+    HubFrame(Path cache, URI clientManifest, CatalogStore store, Browser browser) throws IOException {
         super("Voxel One Hub");
         try { UIManager.setLookAndFeel(new javax.swing.plaf.metal.MetalLookAndFeel()); } catch (UnsupportedLookAndFeelException ignored) {}
-        this.cache = cache; this.clientManifest = clientManifest; store = new CatalogStore(cache);
+        this.cache = cache; this.clientManifest = clientManifest; this.store = store; this.browser = browser;
         Path preferences = cache.resolve("hub.properties");
         if (Files.isRegularFile(preferences)) try (InputStream in = Files.newInputStream(preferences)) { settings.load(in); }
         if (!settings.containsKey("server")) {
@@ -274,7 +283,7 @@ public final class HubFrame extends JFrame {
     private void browse(String url) {
         if (!HubCatalog.safeWeb(url)) { status.setText("Unsupported web target"); return; }
         new SwingWorker<Void, Void>() {
-            protected Void doInBackground() throws Exception { if (!Desktop.isDesktopSupported() || !Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) throw new IOException("Default browser unavailable"); Desktop.getDesktop().browse(URI.create(url)); return null; }
+            protected Void doInBackground() throws Exception { browser.open(URI.create(url)); return null; }
             protected void done() { try { get(); status.setText("Opened in your browser."); } catch (Exception e) { status.setText("Could not open the default browser. Try again from the website."); } }
         }.execute();
     }
@@ -283,6 +292,40 @@ public final class HubFrame extends JFrame {
         catch (NumberFormatException e) { if (offline) return 0; throw e; }
     }
     private void launch(HubCatalog.Entry entry, boolean offline, String host, int port) {
+        if (task != null && !task.isDone()) { status.setText("A client operation is already running."); return; }
+        String id = entry.id();
+        boolean updates = Boolean.parseBoolean(settings.getProperty("updates", "true"));
+        HubCatalog current = catalog;
+        String currentStatus = catalogStatus;
+        status.setText("Checking published library…");
+        task = new SwingWorker<CatalogStore.Snapshot, Void>() {
+            protected CatalogStore.Snapshot doInBackground() throws Exception {
+                if (!updates) return new CatalogStore.Snapshot(current, currentStatus);
+                try { return store.refresh(); }
+                catch (IOException unavailable) {
+                    var cached = store.cached();
+                    return new CatalogStore.Snapshot(cached.catalog(), "Offline cached / bundled library · catalog service unavailable");
+                }
+            }
+            protected void done() {
+                try {
+                    var snapshot = get(); catalog = snapshot.catalog(); catalogStatus = snapshot.status();
+                    // Never execute the entry captured by an old card/detail button.
+                    var fresh = catalog.entries().stream().filter(e -> e.id().equals(id)).findFirst();
+                    if (fresh.isEmpty() || !fresh.get().supported(platform)) {
+                        status.setText("This experience is no longer available for this platform. Refresh the library."); return;
+                    }
+                    if (selected != null && selected.id().equals(id)) detail(fresh.get());
+                    launchResolved(fresh.get(), offline, host, port);
+                } catch (java.util.concurrent.CancellationException ignored) {
+                    status.setText("Cancelled");
+                } catch (Exception failure) {
+                    status.setText("Could not check the library or launch this experience. Try again.");
+                }
+            }
+        }; task.execute();
+    }
+    private void launchResolved(HubCatalog.Entry entry, boolean offline, String host, int port) {
         if (!entry.supported(platform)) return;
         settings.setProperty("last", entry.id()); save();
         if (!entry.adapter().equals("native")) { browse(entry.target()); return; }

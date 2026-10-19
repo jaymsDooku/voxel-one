@@ -1,0 +1,19 @@
+{
+  "baseSha": "b249ce6e2a34169765577869e205e5df89cbaee3",
+  "sourceKind": "working tree",
+  "command": [
+    "target/hub-preplay-b249-packages/package-1/Voxel One Hub/lib/runtime/bin/java",
+    "-Dhub.playtest.skipRecording=true",
+    "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-tmp",
+    "-cp",
+    "target/voxel-one-1.0-SNAPSHOT-client.jar:target/hub-tmp",
+    "HubWorkflowPlaytest",
+    "dashboard/evidence/hub-preplay-b249-workflow",
+    "target/hub-preplay-b249-workflow-profile"
+  ],
+  "exitCode": 0,
+  "Playtest": [
+    "Playtest: real hub install, City offline launch, Sandbox and editor offline launch, invalid offline server/port ignored, one shared download, incompatible latest fallback, incompatible cached launch refused, corrupt update fallback, cancel and service-offline verified cache exercised."
+  ],
+  "error": null
+}

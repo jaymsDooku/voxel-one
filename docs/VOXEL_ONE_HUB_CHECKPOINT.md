@@ -80,3 +80,33 @@ cached reload, independent native/web promotion, and upgrades between two
 actually published shells. These remain acceptance gates. Stable rollout stays
 unqualified. The ready handoff covers local integration validation and controller
 publication/dispatch only; it does not declare full release acceptance.
+
+## Review fix: refresh before Play
+
+The review at `b249ce6e2a34169765577869e205e5df89cbaee3` found that open detail
+buttons retained old catalog entries. Play now refreshes off the Swing event
+thread, resolves the stable ID again and applies the fresh entry to both native
+launch and browser dispatch. It retains the last verified catalog on fetch or
+parse failure, refuses removed/unsupported entries and honors updates-off mode.
+The detail page also shows the refreshed entry. Repeated Play clicks cannot
+start another catalog/client operation while the first check is pending.
+
+Fresh Maven selected tests/package passed: 15 tests, no failures/errors/skips.
+Four Python publisher tests passed. The live synthetic promotion helper passed
+native A-to-B selection, browser URL A-to-B dispatch, responsiveness under a
+blocked fetch, duplicate clicks, malformed fallback, removal and updates-off.
+This helper is part of hosted packaged checks. New evidence starts with
+`hub-preplay-b249`; its source fingerprints identify working-tree changes.
+Controller must regenerate the publication bundle from the resulting committed
+source before fenced preview publication. No delivery or platform result is
+assumed from this local synthetic test. Stable rollout remains gated.
+
+The fresh full Linux packaged check completed with exit 0: all 12 checks passed,
+including catalog promotion before Play, three JVM scales, pinned-TLS login,
+bootstrap fixture generations, updater faults/concurrency/migration, all three
+native render modes and offline installation. This supersedes the interrupted
+Linux checker for this fix; it does not supersede missing Windows/macOS or
+physical qualification. Fresh shell and native clips decoded and were inspected.
+Each native clip contains four frames on software OpenGL; no smooth-performance
+or physical-GPU claim is made. Public metadata and preview delivery still return
+404. Controller publication and returned exact-source qualification remain next.
