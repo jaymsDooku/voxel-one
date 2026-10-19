@@ -1,0 +1,54 @@
+{
+  "baseSha": "6fc5bd1494c7349750286d361d6b63110aac1944",
+  "sourceKind": "feature working tree; final source fingerprints recorded separately",
+  "sourceReport": "dashboard/evidence/hub-rollback-final-source.json",
+  "environment": {
+    "os": "Linux x86_64 VPS",
+    "java": "Oracle JDK 21.0.5 bundled runtime for packaged tests; Maven build/test JDK",
+    "display": "Inherited assigned-role DISPLAY/XAUTHORITY; isolated synthetic profiles",
+    "graphics": "LIBGL_ALWAYS_SOFTWARE=1, llvmpipe; physical GPU and monitor DPI unqualified"
+  },
+  "commands": [
+    "mvn -q -Dmaven.repo.local=\"$PWD/target/maven-cache\" -DargLine=-Djava.io.tmpdir=\"$PWD/target/hub-tmp\" -Dtest=SandboxIdentityTest,HubCatalogTest,HubShellTest,HubShellActivationTest,UpdaterTest,AccountStoreTest,ProtocolCompatibilityTest,MultiplayerTest#authenticationRegistrationDuplicateSessionsAndCertificatePin test",
+    "python3 -m unittest discover -s tools/hub -p 'test_*.py'",
+    "LIBGL_ALWAYS_SOFTWARE=1 python3 tools/hub/check_packages.py --display \"$DISPLAY\" --source-sha 6fc5bd1494c7349750286d361d6b63110aac1944 --jdk /usr/lib/jvm/jdk-21.0.5-oracle-x64 --work target/hub-rollback-final-packages --output dashboard/evidence/hub-rollback-final-packages"
+  ],
+  "results": {
+    "javaTests": 23,
+    "failuresErrorsSkips": 0,
+    "publisherTests": 4,
+    "packagedChecks": 13,
+    "packageExitCode": 0
+  },
+  "Playtest:": {
+    "steps": [
+      "Run a healthy downloaded shell and persist explicit startup acknowledgement.",
+      "Stage a verified executable that exits 7 before acknowledgement, then launch the packaged executable with empty PATH.",
+      "Inspect child process identity, restored installed pointer, retained immutable JARs and rejection of another transfer of failed bytes.",
+      "Exercise ready-then-exit and alive-without-ready executables, timeout, later successful activation and newer concurrent staging.",
+      "Exercise UI scales, pinned TLS, pre-Play promotion, updater faults/locks/migration, native modes and offline installation."
+    ],
+    "expected": "Failed shell cannot replace the last working downloaded shell. Restore its pointer and process; do not overwrite newer staging, erase saves/JARs or repeatedly stage rejected bytes. Existing UI/login/update/native workflows continue.",
+    "observed": "All 23 Java tests, four publisher tests and 13 full Linux packaged checks passed on final source. Executable failure restored the acknowledged downloaded shell rather than the bundled shell; process and pointer checks passed. Two executable tests also cover timeout, early nonzero exit after ready, later successful upgrade and snapshot race. Fresh recovered-shell center crop, full library and decoded launcher frame inspected."
+  },
+  "media": [
+    "dashboard/evidence/hub-rollback-final-recovered-hub.png",
+    "dashboard/evidence/hub-rollback-final-library.png",
+    "dashboard/evidence/hub-rollback-final-launcher.mp4"
+  ],
+  "launcherDecode": "dashboard/evidence/hub-rollback-final-launcher-decode.json",
+  "nativeDecode": "dashboard/evidence/hub-rollback-final-native-decode.json",
+  "packageReport": "dashboard/evidence/hub-rollback-final-packages/report.json",
+  "javaReport": "dashboard/evidence/hub-rollback-final-java-tests.json",
+  "deliveryReport": "dashboard/evidence/hub-rollback-final-delivery.json",
+  "pending": [
+    "Resulting exact committed-head Windows/macOS scoped reports/media",
+    "Public catalog/shell/artifact delivery; latest check returned HTTP 404 for all three",
+    "Two actually published shell generations and independent native/web promotion",
+    "Published Space Invaders gameplay and cached reload",
+    "Physical GPU gameplay, actual Windows monitor DPI and reference hardware performance measurements"
+  ],
+  "stableRolloutQualified": false,
+  "mediaInspection": "Inspected recovered downloaded Hub center crop, full library, decoded launcher Downloads frame and decoded City/Sandbox/editor frames. Launcher: 20 frames, 2.917 seconds. Native clips: four frames each; software-renderer observer smoke only.",
+  "finalSourceFingerprintMatch": true
+}
