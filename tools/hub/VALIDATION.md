@@ -157,3 +157,23 @@ malformed metadata fallback, removal and updates-off behavior. The native case
 starts a child client; the browser dispatcher is captured to assert the selected
 URL. This is not a published browser gameplay or promotion qualification.
 `check_packages.py` runs this check using its bundled runtime on each platform.
+
+Shell activation now requires an explicit acknowledgement. The child sends it
+only after the Hub is visible or the legacy updater has initialized. The stable
+bootstrap waits up to 20 seconds, rejects early nonzero exits even if they wrote
+a ready marker, and stops unacknowledged candidates. `acknowledged.properties`
+keeps the last working downloaded shell independently of the staged
+`installed.properties` pointer. A failed candidate restores that downloaded
+shell. Rollback holds the updater lock and does not overwrite newer concurrent
+staging. Candidate identity includes the content checksum, not just source SHA.
+A rejected artifact is not restaged until its bytes/version change. Immutable
+JARs and saves remain intact. If a ready shell cannot persist its acknowledgement,
+it stays open but does not stage another shell.
+
+`HubShellActivationTest` executes real healthy, failing and unacknowledged JARs
+through Bootstrap. It covers early nonzero exit after a ready marker, timeout,
+working downloaded fallback, later successful upgrade and concurrent staging.
+The packaged checker also stages a real executable that exits 7, then verifies
+that the previously acknowledged downloaded shell process is running and the
+pointer was restored. Its `shell-rollback/native-executable.png` captures that
+actual recovered Hub. These are synthetic package tests, not published upgrades.

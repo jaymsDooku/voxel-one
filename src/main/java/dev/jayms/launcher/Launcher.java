@@ -48,7 +48,7 @@ public final class Launcher {
         args = Arrays.stream(args).filter(a -> !a.equals("--hub")).toArray(String[]::new);
         if (hubPreview && args.length == 0 && !GraphicsEnvironment.isHeadless()) {
             SwingUtilities.invokeLater(() -> {
-                try { new HubFrame(cache()).setVisible(true); }
+                try { new HubFrame(cache()).setVisible(true); Bootstrap.acknowledgeStartup(); }
                 catch (IOException e) { JOptionPane.showMessageDialog(null, e.getMessage(), "Voxel One Hub", JOptionPane.ERROR_MESSAGE); }
             });
             return;
@@ -97,6 +97,7 @@ public final class Launcher {
             frame.setVisible(true);
         }
         try {
+            Bootstrap.acknowledgeStartup();
             Platform platform = Platform.current();
             Path cache = cache();
             Updater.Result result =

@@ -77,7 +77,7 @@ jobs:
           python3 tools/hub/test_publication_bundle.py
       - name: Build and updater/account/TLS regressions
         shell: bash
-        run: mvn -q '-Dtest=SandboxIdentityTest,HubCatalogTest,HubShellTest,UpdaterTest,AccountStoreTest,ProtocolCompatibilityTest,MultiplayerTest#authenticationRegistrationDuplicateSessionsAndCertificatePin' test package
+        run: mvn -q '-Dtest=SandboxIdentityTest,HubCatalogTest,HubShellTest,HubShellActivationTest,UpdaterTest,AccountStoreTest,ProtocolCompatibilityTest,MultiplayerTest#authenticationRegistrationDuplicateSessionsAndCertificatePin' test package
       - name: Select a supported Windows desktop mode
         if: runner.os == 'Windows'
         shell: bash
