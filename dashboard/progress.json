@@ -4017,8 +4017,8 @@
       "description": "Building the catalog-driven desktop hub around verified client updates. Platform packaging and playtests remain required.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Review P1 fixed: Play refreshes off EDT and resolves stable ID again. Live native/web promotion and removal tests passed; 15 Java and 4 publisher tests passed. Full Linux package run passed all 12 checks; Hub play/update/offline regression passed. Fresh media inspected. Controller publication/exact-head platform handoff ready; stable rollout remains gated.",
-      "updatedAt": "2026-10-19T23:01:37+00:00"
+      "note": "Exact committed source 45f8949 matches prior validated application/tool fingerprints. Prepared exact-source preview bundle. Hosted Windows/Mac jobs still running without artifacts; all three public delivery targets remain HTTP 404. Controller publication and returned qualification are next. Stable rollout remains gated.",
+      "updatedAt": "2026-10-19T23:05:42+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
