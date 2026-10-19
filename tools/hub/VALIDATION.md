@@ -153,10 +153,14 @@ still apply after selection.
 `PrePlayCatalogPlaytest` runs actual Swing actions against a loopback publisher.
 It promotes native source A to B and a web URL while old detail buttons remain
 open, checks responsiveness during a blocked fetch, duplicate-click suppression,
-malformed metadata fallback, removal and updates-off behavior. The native case
-starts a child client; the browser dispatcher is captured to assert the selected
-URL. This is not a published browser gameplay or promotion qualification.
-`check_packages.py` runs this check using its bundled runtime on each platform.
+malformed metadata fallback, removal and updates-off behavior. By default the helper starts the real native client. An optional third argument
+selects a synthetic command-receiver JAR; it verifies exact `--game city
+--offline` arguments from the actual Hub launch. The browser dispatcher captures
+the selected URL. `check_packages.py` compiles this command fixture and uses it
+with the bundled runtime so catalog selection is independent of GPU creation.
+The separate mandatory City/Sandbox/editor rendering checks still use the real
+client and remain failed when native graphics is unavailable. Neither synthetic
+command dispatch nor browser dispatch qualifies gameplay or public promotion.
 
 Shell activation now requires an explicit acknowledgement. The child sends it
 only after the Hub is visible or the legacy updater has initialized. The stable
@@ -177,3 +181,13 @@ The packaged checker also stages a real executable that exits 7, then verifies
 that the previously acknowledged downloaded shell process is running and the
 pointer was restored. Its `shell-rollback/native-executable.png` captures that
 actual recovered Hub. These are synthetic package tests, not published upgrades.
+
+
+Promotion diagnostics emit only a fixed stage, exception type and Boolean status
+indicators through `HUB_CHECK_FAILURE:`. They never expose driver logs or account
+state. `promotedNativeInstalled=true` confirms the verified B revision was cached
+before a later native-start failure. The optional real-client mode remains useful
+for diagnosing that distinction. Linux Mesa 2.1 fault injection demonstrates the
+real-client promotion check failing at native-start after B installation while
+the command-only promotion check passes; the mandatory real rendering probe still
+fails. This is a negative-control test, not a reduced graphics requirement.
