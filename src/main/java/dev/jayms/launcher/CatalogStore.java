@@ -10,8 +10,16 @@ import java.time.Duration;
 public final class CatalogStore {
     public static final URI ENDPOINT = URI.create("https://raw.githubusercontent.com/jaymsDooku/voxel-one/experience-catalog/catalog.properties");
     private final Path cache;
+    private final URI endpoint;
     public record Snapshot(HubCatalog catalog, String status) {}
-    public CatalogStore(Path cache) { this.cache = cache.resolve("catalog.properties"); }
+    public CatalogStore(Path cache) { this(cache, ENDPOINT); }
+    // Package-local loopback seam for integration tests; production always uses ENDPOINT.
+    CatalogStore(Path cache, URI endpoint) {
+        if (!endpoint.equals(ENDPOINT) && !("http".equals(endpoint.getScheme())
+                && "127.0.0.1".equals(endpoint.getHost()) && endpoint.getUserInfo() == null))
+            throw new IllegalArgumentException("Unsupported catalog endpoint");
+        this.cache = cache.resolve("catalog.properties"); this.endpoint = endpoint;
+    }
     public Snapshot cached() throws IOException {
         if (Files.isRegularFile(cache)) {
             try (InputStream in = Files.newInputStream(cache)) { return new Snapshot(HubCatalog.read(in), "Offline cached catalog"); }
@@ -23,7 +31,7 @@ public final class CatalogStore {
         HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(8))
                 .followRedirects(HttpClient.Redirect.NEVER).build();
         try {
-            var response = client.send(HttpRequest.newBuilder(ENDPOINT).timeout(Duration.ofSeconds(12))
+            var response = client.send(HttpRequest.newBuilder(endpoint).timeout(Duration.ofSeconds(12))
                     .header("Cache-Control", "no-cache").GET().build(), HttpResponse.BodyHandlers.ofInputStream());
             try (InputStream body = response.body()) {
                 if (response.statusCode() != 200) throw new IOException("Catalog service unavailable");
