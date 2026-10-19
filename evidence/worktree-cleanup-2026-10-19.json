@@ -1,0 +1,36 @@
+{
+  "scenario": "VPS disk recovery and safe removal of obsolete Voxel One queue worktrees",
+  "verifiedAt": "2026-10-19T22:35:49+00:00",
+  "platform": "Linux VPS",
+  "removedCompletedWorktrees": 268,
+  "removedSupersededReviewWorktrees": 5,
+  "totalRemovedWorktrees": 273,
+  "removedAlreadyMissingRegistrations": 1,
+  "remainingWorktrees": 2,
+  "worktreeDirectoryBeforeGiB": 118.51,
+  "worktreeDirectoryAfterGiB": 10.09,
+  "privateRecoveryArchiveGiB": 4.61,
+  "filesystemFreeGiB": 104.54,
+  "observedFilesystemFreeIncreaseGiB": 103.79,
+  "checks": {
+    "allRemovedWorktreesQueueVerified": true,
+    "allRemovedSourceCommitsReadable": true,
+    "uniqueRemovedSourceCommits": 222,
+    "archivalRefsVerified": true,
+    "allLocalFileArchivesReadBackAndHashedBeforeRemoval": true,
+    "privateArchivesWithLocalFiles": 190,
+    "preservedLocalFiles": 68804,
+    "noSkippedRemovals": true,
+    "activeLauncherAndCurrentReviewCheckoutRetained": true,
+    "sourceBranchesDeleted": 0,
+    "gitObjectGarbageCollectionRun": false
+  },
+  "launcherRecovery": {
+    "localFileArchiveReadBackAndVerified": true,
+    "archivedLocalFiles": 4914,
+    "upstreamFileCollisionsPreservedAndCleared": 4869,
+    "uniqueTrackedChangesPreserved": 11,
+    "workStatusObservedAfterRestart": "in_progress",
+    "workerStateObservedAfterRestart": "running"
+  }
+}
