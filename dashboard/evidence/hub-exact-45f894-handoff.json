@@ -1,0 +1,48 @@
+{
+  "sourceSha": "45f894964164905bf0c687ec1aec1f5c512aaaf1",
+  "sourceKind": "exact committed application/tool source",
+  "ci": {
+    "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39338968452",
+    "headSha": "45f894964164905bf0c687ec1aec1f5c512aaaf1",
+    "status": "in_progress",
+    "conclusion": "",
+    "jobs": [
+      {
+        "name": "packaged-client (\"macos-15\", [\"self-hosted\",\"macOS\",\"ARM64\",\"voxel-hub-desktop\"], mac-arm)",
+        "status": "in_progress",
+        "conclusion": ""
+      },
+      {
+        "name": "packaged-client (\"macos-15-intel\", [\"self-hosted\",\"macOS\",\"X64\",\"voxel-hub-desktop\"], mac-intel)",
+        "status": "in_progress",
+        "conclusion": ""
+      },
+      {
+        "name": "packaged-client (\"windows-2022\", [\"self-hosted\",\"Windows\",\"X64\",\"voxel-hub-desktop\"], windows)",
+        "status": "in_progress",
+        "conclusion": ""
+      }
+    ]
+  },
+  "sourceFingerprintsMatchPriorValidation": true,
+  "priorValidation": "dashboard/evidence/hub-preplay-b249-validation.json",
+  "bundle": "target/hub-exact-45f894-publication",
+  "publicationPlan": "dashboard/evidence/hub-exact-45f894-publication-plan.json",
+  "publicDeliveryReport": "dashboard/evidence/hub-exact-45f894-delivery.json",
+  "commands": [
+    "gh run view 39338968452 --json headSha,status,conclusion,jobs",
+    "gh api repos/jaymsDooku/voxel-one/actions/runs/39338968452/artifacts",
+    "python3 tools/hub/publication_bundle.py prepare --native-receipt dashboard/evidence/hub-native-publication.json --web-receipt dashboard/evidence/hub-web-publication.json --jar target/voxel-one-1.0-SNAPSHOT-launcher.jar --source-sha 45f894964164905bf0c687ec1aec1f5c512aaaf1 --tag hub-preview-1 --expected-catalog-head absent --output target/hub-exact-45f894-publication",
+    "python3 tools/hub/publication_bundle.py verify --bundle target/hub-exact-45f894-publication --report dashboard/evidence/hub-exact-45f894-delivery.json"
+  ],
+  "Playtest": "This turn exercises read-only publication preparation/delivery CLI and exact-source comparison. No application source changed; no repeated UI playtest. Prior actual Swing/promotion/package workflow tests and inspected media apply because all recorded application/tool fingerprints match. Browser gameplay and published upgrades remain separate required qualification.",
+  "observed": "Exact-source preparation succeeded. Public catalog metadata, shell metadata and preview asset each returned HTTP 404. Hosted jobs were still running and no artifacts were uploaded when inspected. No remote pass claimed.",
+  "controllerNextActions": [
+    "Execute the saved fenced preview publication plan; source/tag/destination checks remain required.",
+    "Return finished exact-head Windows/macOS reports and media for inspection.",
+    "Demonstrate two published shell upgrades, independent native/web promotion and published browser gameplay/cached reload.",
+    "Keep physical GPU/DPI qualification and stable rollout gated."
+  ],
+  "stableRolloutQualified": false,
+  "ownerInputRequired": false
+}

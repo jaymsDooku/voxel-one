@@ -110,3 +110,12 @@ physical qualification. Fresh shell and native clips decoded and were inspected.
 Each native clip contains four frames on software OpenGL; no smooth-performance
 or physical-GPU claim is made. Public metadata and preview delivery still return
 404. Controller publication and returned exact-source qualification remain next.
+
+Playtest: the explicit environment/steps/expected/observed record for committed
+application source `45f894964164905bf0c687ec1aec1f5c512aaaf1` is
+`dashboard/evidence/hub-exact-45f894-playtest.json`. It records the executed
+promotion, shared-client launch, update/offline and 12 packaged Linux checks.
+All recorded application/tool fingerprints match this source. This documentation
+update reruns no application checks and claims no new platform result. Synthetic
+browser dispatch, fixture shell upgrades, software rendering and JVM scaling
+remain distinct from the pending published/physical acceptance checks.
