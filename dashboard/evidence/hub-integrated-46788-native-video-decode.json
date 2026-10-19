@@ -1,0 +1,41 @@
+[
+  {
+    "command": [
+      "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+      "-cp",
+      "target/voxel-one-1.0-SNAPSHOT-client.jar:target/hub-tmp",
+      "InspectMovie",
+      "dashboard/evidence/hub-integrated-46788-native-city.mp4",
+      "dashboard/evidence/hub-integrated-46788-city-video-frame.png"
+    ],
+    "exitCode": 0,
+    "observed": "Actual movie: 4 frames, 15.894 seconds",
+    "sizeBytes": 266848
+  },
+  {
+    "command": [
+      "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+      "-cp",
+      "target/voxel-one-1.0-SNAPSHOT-client.jar:target/hub-tmp",
+      "InspectMovie",
+      "dashboard/evidence/hub-integrated-46788-native-sandbox.mp4",
+      "dashboard/evidence/hub-integrated-46788-sandbox-video-frame.png"
+    ],
+    "exitCode": 0,
+    "observed": "Actual movie: 4 frames, 15.412 seconds",
+    "sizeBytes": 193024
+  },
+  {
+    "command": [
+      "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+      "-cp",
+      "target/voxel-one-1.0-SNAPSHOT-client.jar:target/hub-tmp",
+      "InspectMovie",
+      "dashboard/evidence/hub-integrated-46788-native-editor.mp4",
+      "dashboard/evidence/hub-integrated-46788-editor-video-frame.png"
+    ],
+    "exitCode": 0,
+    "observed": "Actual movie: 4 frames, 14.467 seconds",
+    "sizeBytes": 101704
+  }
+]

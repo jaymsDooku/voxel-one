@@ -1,0 +1,129 @@
+{
+  "sourceSha": "46788fe2f16115b5457d621353a7a41c5c08fbce",
+  "reviewBase": "26b8761ff9c355299aa1df83608a6f6ebcba7e0b",
+  "environment": {
+    "os": "Linux",
+    "architecture": "x86_64",
+    "javaBuild": "Maven default JDK; fresh classes/test-classes/maven-status after preserving previous outputs",
+    "javaPlaytest": "Oracle JDK 21.0.5; bundled jpackage runtime",
+    "graphics": "Inherited role display and authentication; synthetic profiles; software llvmpipe (LLVM 15.0.6, 256 bits), LOW preset"
+  },
+  "commands": [
+    "mvn -q -Dmaven.repo.local=\"$PWD/target/maven-cache\" -DargLine=-Djava.io.tmpdir=\"$PWD/target/hub-tmp\" -Dtest=SandboxIdentityTest,HubCatalogTest,HubShellTest,UpdaterTest,AccountStoreTest,ProtocolCompatibilityTest,MultiplayerTest#authenticationRegistrationDuplicateSessionsAndCertificatePin test package",
+    "mvn -q -Dmaven.repo.local=\"$PWD/target/maven-cache\" -DargLine=-Djava.io.tmpdir=\"$PWD/target/hub-tmp\" -Dtest=DetailedMeshSchedulerTest,WorldSkyVisibilityTest,SkyVisibilitySchedulerTest,LightingPriorityTest,TransportMipTest test",
+    "python3 -m unittest discover -s tools/hub -p 'test_*.py'",
+    "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/javac --release 17 -cp target/classes -d target/hub-tmp tools/hub/HubPlaytest.java",
+    "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Djava.io.tmpdir=\"$PWD/target/hub-tmp\" -cp target/classes:target/hub-tmp HubPlaytest dashboard/evidence/hub-integrated-46788-ui target/hub-integrated-46788-profile"
+  ],
+  "mavenTests": [
+    {
+      "name": "dev.jayms.SandboxIdentityTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.HubCatalogTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.HubShellTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.UpdaterTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.AccountStoreTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.ProtocolCompatibilityTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.MultiplayerTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.DetailedMeshSchedulerTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.WorldSkyVisibilityTest",
+      "tests": "11",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.render.SkyVisibilitySchedulerTest",
+      "tests": "19",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.render.LightingPriorityTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.render.TransportMipTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "pythonTests": {
+    "tests": 4,
+    "passed": true
+  },
+  "Playtest": "Actual Swing Hub on inherited Linux display: Home/library/detail/tools/downloads/settings; light theme at 900x600; keyboard focus; network refresh fallback; synthetic catalog entry; empty catalog and no-match search. Expected usable navigation, retained fallback and clear empty states. Observed helper exit 0; new library/empty-search/900x600 packaged images and decoded shell video inspected. Packaged integration results recorded separately. Actual Hub Play/Install workflow also passed City/Sandbox/editor offline child launch, one shared transfer, incompatible latest fallback, incompatible cache rejection, corrupt-download fallback, cancel and offline retention; recording disabled for that helper, rendered media captured separately.",
+  "packageReport": "dashboard/evidence/hub-integrated-46788-packages/report.json",
+  "portalReport": "dashboard/evidence/hub-integrated-46788-portal-regressions.json",
+  "deliveryReport": "dashboard/evidence/hub-integrated-46788-delivery.json",
+  "diffAudit": "dashboard/evidence/hub-integrated-46788-diff-audit.json",
+  "stableRolloutQualified": false,
+  "pending": [
+    "Current-source Windows/macOS packaged qualification and physical GPU gameplay",
+    "Windows actual monitor DPI 100/150/200%",
+    "Two actually published shell generations and independent native/web promotions",
+    "Published Space Invaders gameplay and cached reload",
+    "Startup/memory/responsiveness measurements on declared physical reference hardware"
+  ],
+  "historicalEvidence": "Earlier source reports remain historical; no previous platform pass or gameplay report is claimed for this integrated source.",
+  "packageCompletion": "dashboard/evidence/hub-integrated-46788-package-completion.json",
+  "nativeMediaDecode": "dashboard/evidence/hub-integrated-46788-native-video-decode.json",
+  "shellMediaDecode": "dashboard/evidence/hub-integrated-46788-shell-video-decode.json",
+  "mediaInspection": "Inspected fresh library, empty search, packaged 900x600 library, decoded shell Downloads frame, and decoded City/Sandbox/editor world frames. Native movies each contain four frames; no smooth-play claim.",
+  "packageCommand": "LIBGL_ALWAYS_SOFTWARE=1 python3 tools/hub/check_packages.py --display \"$DISPLAY\" --source-sha 46788fe2f16115b5457d621353a7a41c5c08fbce --jdk /usr/lib/jvm/jdk-21.0.5-oracle-x64 --work target/hub-integrated-46788-packages --output dashboard/evidence/hub-integrated-46788-packages",
+  "packageObserved": "Checker exit 143 after nine passing entries. Missing editor and offline checks separately passed; full checker is not labelled passed.",
+  "workflowReport": "dashboard/evidence/hub-integrated-46788-workflow-result.json"
+}

@@ -1,0 +1,17 @@
+{
+  "command": [
+    "target/hub-integrated-46788-packages/package-1/Voxel One Hub/lib/runtime/bin/java",
+    "-cp",
+    "target/hub-integrated-46788-packages/classes:target/voxel-one-1.0-SNAPSHOT-client.jar",
+    "UpdaterProbe",
+    "installed",
+    "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-integrated-46788-packages/native-cache",
+    "http://127.0.0.1:38857/manifest",
+    "false"
+  ],
+  "exitCode": 0,
+  "expected": "Verified client remains available after original fixture service stopped",
+  "observed": "Verified installed client located",
+  "correctedAttempt": "Initial rerun used different origin port 1; metadata trust correctly rejected that installation. Original stopped fixture origin restored for offline lookup.",
+  "Playtest": "Offline CLI installation lookup using bundled runtime. No browser applies to updater CLI."
+}
