@@ -4017,8 +4017,8 @@
       "description": "Building the catalog-driven desktop hub around verified client updates. Platform packaging and playtests remain required.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Promotion isolation validated locally: 4 publisher tests and all 13 scenarios across interrupted package run plus corrected direct completions passed. Fresh media inspected. Ready for controller source publication and exact-head checks; full acceptance and stable rollout remain gated.",
-      "updatedAt": "2026-10-19T23:53:06+00:00"
+      "note": "Exact93c34ff bundle prepared; delivery verification still HTTP404. All three scoped platform jobs remain running with no artifacts; no new platform pass claimed. Source fingerprints match prior local checks. Controller publication/results handoff pending; stable rollout gated.",
+      "updatedAt": "2026-10-19T23:56:28+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

@@ -299,3 +299,18 @@ Ready only for controller commit/push, exact resulting-head platform checks and
 authorized publication handoff. Include the new command-receiver fixture source.
 No application acceptance, hosted pass, public upgrade/browser reload or physical
 GPU/DPI/performance qualification is claimed. Stable rollout remains gated.
+
+
+## Exact93c34ff publication handoff
+
+Application/tool fingerprints match the completed local validation. No new
+application tests were run. Scoped run39344321446 is still in progress on all
+three platforms and has no published artifacts at inspection. No platform pass
+or media inspection is claimed for that run.
+
+Prepared exact-commit bundle `target/hub-exact-93c34ff-publication`. Bounded
+read-only delivery verification failed with HTTP404 on catalog, shell metadata
+and preview JAR. Results are in `hub-exact-93c34ff-delivery.json`; controller
+actions are in `hub-exact-93c34ff-controller-handoff.json` under dashboard/evidence.
+Controller publication and return of completed reports/media need no new owner
+permission. Stable rollout and all published/physical acceptance remain gated.
