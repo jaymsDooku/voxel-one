@@ -119,3 +119,26 @@ All recorded application/tool fingerprints match this source. This documentation
 update reruns no application checks and claims no new platform result. Synthetic
 browser dispatch, fixture shell upgrades, software rendering and JVM scaling
 remain distinct from the pending published/physical acceptance checks.
+
+## Platform report inspection for the next controller handoff
+
+Run 39338968452 has completed with failure at older source 45f8949. All three
+sanitized platform reports were downloaded and their source fingerprints checked;
+Windows path separators and 259 CRLF source files were normalized for comparison.
+No source mismatch remains. Launcher clips from Windows and both Macs each decode
+as 20 frames over 2.917 seconds; their Downloads frames were inspected.
+
+Native City/Sandbox/editor checks failed with GLFW 0x10006 on Windows and 0x10009
+on both Macs. The pre-Play promotion checks also failed and remain unqualified;
+the report does not establish a more specific cause. Updater, fixture bootstrap,
+login and Windows MSI/shortcut/uninstall checks passed. Windows and Mac ARM had
+unavailable full-size desktop extents. Do not call the overall runs passing or
+infer physical GPU/DPI qualification from launcher captures.
+
+No scoped packaged run exists for current submitted source edc5736. Its
+application/tool/workflow source is unchanged from 45f8949, but the required
+exact-head run is still pending. The controller command, source fences, bundle
+and publication sequence are recorded in
+`dashboard/evidence/hub-exact-edc5736-controller-handoff.json`. Publication remains
+controller-owned. Public catalog, shell metadata and preview asset still return
+404. No new owner permission is needed. Stable rollout remains gated.
