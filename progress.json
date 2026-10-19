@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-19T22:27:02+00:00",
+  "updatedAt": "2026-10-19T22:36:08+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -3874,10 +3874,16 @@
       "id": "vps-worktree-cleanup-20261019",
       "title": "Recover VPS space from completed worktrees",
       "description": "Audited queue ownership and running processes. Removing finished checkouts after preserving exact commits and verifying private archives of local changes and testing evidence; active launcher work is retained.",
-      "evidence": [],
-      "status": "in_progress",
-      "note": "Audited queue ownership and running processes. Removing finished checkouts after preserving exact commits and verifying private archives of local changes and testing evidence; active launcher work is retained.",
-      "updatedAt": "2026-10-19T22:27:02+00:00"
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "worktree cleanup 2026 10 19.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/worktree-cleanup-2026-10-19.json"
+        }
+      ],
+      "status": "complete",
+      "note": "Removed 273 obsolete worktrees, reducing the queue folder from 118.51 to 10.09 GiB and recovering 103.79 GiB of filesystem space. Exact commits, local edits and test evidence were preserved and verified; two current launcher checkouts remain. Repaired launcher checkout collisions and verified developer-2 resumed work.",
+      "updatedAt": "2026-10-19T22:36:08+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
