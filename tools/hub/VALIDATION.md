@@ -141,3 +141,19 @@ width and expects `0x10004` (`GLFW_INVALID_VALUE`). This diagnoses a failure; it
 does not demonstrate that hosted Windows/macOS support the required renderer.
 The graphics context request and existing fallback are unchanged. Interpret
 codes using https://www.glfw.org/docs/latest/group__errors.html.
+
+Play now refreshes the catalog before launch when update checks are enabled.
+The launch resolves the selected stable ID from that validated snapshot instead
+of using the entry held by an old card or detail button. Refresh failure uses
+the last valid cached/bundled catalog. A removed or unsupported entry cannot run
+through a stale button. With update checks off, Play uses the current catalog
+without a catalog request. Native compatibility and immutable release checks
+still apply after selection.
+
+`PrePlayCatalogPlaytest` runs actual Swing actions against a loopback publisher.
+It promotes native source A to B and a web URL while old detail buttons remain
+open, checks responsiveness during a blocked fetch, duplicate-click suppression,
+malformed metadata fallback, removal and updates-off behavior. The native case
+starts a child client; the browser dispatcher is captured to assert the selected
+URL. This is not a published browser gameplay or promotion qualification.
+`check_packages.py` runs this check using its bundled runtime on each platform.

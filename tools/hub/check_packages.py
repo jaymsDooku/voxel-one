@@ -72,7 +72,7 @@ def run(args):
     classes=work/'classes';classes.mkdir(exist_ok=True)
     source_client=root/'target/voxel-one-1.0-SNAPSHOT-client.jar'
     command([javac,'--release','17','-cp',str(source_client),'-d',classes,'tools/hub/HubPlaytest.java',
-             'tools/hub/PackageUiProbe.java','tools/hub/UpdaterProbe.java','tools/hub/OnlineLoginPlaytest.java','tools/hub/NativeRenderProbe.java','tools/hub/WindowFailureProbe.java'])
+             'tools/hub/PackageUiProbe.java','tools/hub/UpdaterProbe.java','tools/hub/OnlineLoginPlaytest.java','tools/hub/NativeRenderProbe.java','tools/hub/WindowFailureProbe.java','tools/hub/PrePlayCatalogPlaytest.java'])
     jars=[];apps=[]
     from package import package
     for i in (1,2):
@@ -228,6 +228,10 @@ def run(args):
         command([runtime,'-Djava.io.tmpdir='+str(work),'-cp',cp,'OnlineLoginPlaytest',work/'online-profile',out],timeout=120)
         return 'City/Sandbox locked selection; custom loopback port; invalid-port rejection; pinned TLS sign-in passed.'
     check('Synthetic online login handoff','Both native game identities authenticate to their selected TLS server',online)
+    def pre_play_catalog():
+        return command([runtime,'-Djava.io.tmpdir='+str(work),'-cp',cp,'dev.jayms.launcher.PrePlayCatalogPlaytest',
+                        work/'pre-play-profile',out/'pre-play-catalog'],timeout=180,output='playtest')
+    check('Catalog promotion before Play','Open Hub resolves fresh native/web entries by stable ID; safe fallback and removal',pre_play_catalog)
     def invalid_window():
         argv=[runtime,'-Djava.io.tmpdir='+str(work)]
         if platform.system()=='Darwin':argv.append('-XstartOnFirstThread')
