@@ -1,0 +1,28 @@
+{
+  "native": [
+    {
+      "mode": "city",
+      "exitCode": 0,
+      "observed": "Actual movie: 4 frames, 21.824 seconds",
+      "bytes": 267268
+    },
+    {
+      "mode": "sandbox",
+      "exitCode": 0,
+      "observed": "Actual movie: 4 frames, 15.474 seconds",
+      "bytes": 258573
+    },
+    {
+      "mode": "editor",
+      "exitCode": 0,
+      "observed": "Actual movie: 4 frames, 23.717 seconds",
+      "bytes": 101699
+    }
+  ],
+  "launcher": {
+    "frames": 20,
+    "durationSeconds": 2.917,
+    "scope": "Hub UI only"
+  },
+  "scope": "Four-frame software-renderer smoke; no gameplay smoothness/GPU qualification"
+}

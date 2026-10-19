@@ -56,7 +56,7 @@ def run(args):
             failure=next((line for line in p.stdout.decode(errors='replace').splitlines() if line.startswith('HUB_CHECK_FAILURE: ')),None)
             raise AssertionError(failure[:240] if failure else Path(str(argv[0])).name+' exited '+str(p.returncode))
         if output=='playtest':
-            return next((line[:400] for line in p.stdout.decode(errors='replace').splitlines() if line.startswith('Playtest: production native ')), 'Native smoke completed; detailed render line unavailable')
+            return next((line[:400] for line in p.stdout.decode(errors='replace').splitlines() if line.startswith('Playtest: ')), 'Native smoke completed; detailed render line unavailable')
         return p.stdout.decode().strip() if output else None
     def check(name, expected, fn):
         nonlocal current_check
@@ -246,9 +246,15 @@ def run(args):
         return 'City/Sandbox locked selection; custom loopback port; invalid-port rejection; pinned TLS sign-in passed.'
     check('Synthetic online login handoff','Both native game identities authenticate to their selected TLS server',online)
     def pre_play_catalog():
+        fixture_classes=work/'promotion-fixture-classes';fixture_classes.mkdir()
+        command([javac,'--release','17','-d',fixture_classes,'tools/hub/PromotionClient.java'])
+        fixture=work/'promotion-command-client.jar'
+        with zipfile.ZipFile(fixture,'w',zipfile.ZIP_DEFLATED) as jar:
+            jar.writestr('META-INF/MANIFEST.MF','Manifest-Version: 1.0\nMain-Class: dev.jayms.Main\n\n')
+            jar.write(fixture_classes/'dev/jayms/Main.class','dev/jayms/Main.class')
         return command([runtime,'-Djava.io.tmpdir='+str(work),'-cp',cp,'dev.jayms.launcher.PrePlayCatalogPlaytest',
-                        work/'pre-play-profile',out/'pre-play-catalog'],timeout=180,output='playtest')
-    check('Catalog promotion before Play','Open Hub resolves fresh native/web entries by stable ID; safe fallback and removal',pre_play_catalog)
+                        work/'pre-play-profile',out/'pre-play-catalog',fixture],timeout=180,output='playtest')
+    check('Catalog promotion before Play','Actual Hub/update/browser dispatch with synthetic native command; real rendering remains separately required',pre_play_catalog)
     def invalid_window():
         argv=[runtime,'-Djava.io.tmpdir='+str(work)]
         if platform.system()=='Darwin':argv.append('-XstartOnFirstThread')

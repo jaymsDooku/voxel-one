@@ -1,0 +1,52 @@
+{
+  "checks": [
+    {
+      "name": "sandbox",
+      "command": [
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages/package-1/Voxel One Hub/lib/runtime/bin/java",
+        "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages",
+        "-cp",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages/classes:/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages/shell-2.jar",
+        "NativeRenderProbe",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages/completion-sandbox",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/dashboard/evidence/hub-promotion-resumed-packages/completion-sandbox",
+        "sandbox"
+      ],
+      "exitCode": 1,
+      "observed": []
+    },
+    {
+      "name": "editor",
+      "command": [
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages/package-1/Voxel One Hub/lib/runtime/bin/java",
+        "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages",
+        "-cp",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages/classes:/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages/shell-2.jar",
+        "NativeRenderProbe",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages/completion-editor",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/dashboard/evidence/hub-promotion-resumed-packages/completion-editor",
+        "editor"
+      ],
+      "exitCode": 1,
+      "observed": []
+    },
+    {
+      "name": "offline installed retention",
+      "command": [
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages/package-1/Voxel One Hub/lib/runtime/bin/java",
+        "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages",
+        "-cp",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages/classes:/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "UpdaterProbe",
+        "installed",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages/native-cache",
+        "http://127.0.0.1:1/manifest",
+        "false"
+      ],
+      "exitCode": 1,
+      "observed": "Failed"
+    }
+  ],
+  "environment": "Inherited Linux display; bundled Java; synthetic profiles; software OpenGL; no physical GPU qualification",
+  "note": "Invalid direct-rerun classpath; failed attempts retained. Superseded by corrected report, no pass claimed."
+}

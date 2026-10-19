@@ -219,3 +219,83 @@ return 404. Published upgrades/browser cached reload/independent promotion,
 physical GPU/DPI and reference hardware performance remain acceptance gates.
 No source deletion against review base 26b8761; unrelated engine features remain
 preserved. No owner input, developer publication or extra agent is required.
+
+
+## Promotion test isolation after exact-head platform failures
+
+Reviewed run 39341981018 matches source 6307ffede5a191e917a3b6d248d7d44df2b361fc
+and failed overall on Windows and both Macs. Executable failed-shell rollback
+passed on all three. Native rendering failed with GLFW 0x10006 on Windows and
+0x10009 on both Macs. The old generic promotion failure does not identify its
+exact phase. Sanitized results and verified fingerprints are recorded in
+`dashboard/evidence/hub-promotion-6307-hosted-results.json`.
+
+The promotion helper previously required a real native graphics startup before
+checking the browser cases. Added fixed stage diagnostics and verified-install
+status, plus a separately compiled synthetic command receiver for packaged
+catalog tests. The actual Hub, updater and structured launch path still run.
+Real City/Sandbox/editor rendering checks remain mandatory and unchanged.
+No production Java source changed from 6307ffed in this follow-up.
+
+Playtest: on the inherited Linux display, isolated synthetic profiles, JDK 21
+and software Mesa, forced a graphics failure using test-only
+`MESA_GL_VERSION_OVERRIDE=2.1`. Expected the real-client helper to fail after
+installing B, the command receiver to verify `--game city --offline` and finish
+the remaining catalog checks, and the real renderer to fail independently.
+Observed all three expected outcomes. The real helper reported native-start
+failure with promotedNativeInstalled=true; the renderer reported 0x10007.
+This negative control does not qualify GPU gameplay or prove the old remote
+failure's precise cause. Commands and results are recorded in
+`dashboard/evidence/hub-promotion-isolation-diagnostic.json`.
+
+Controller must include `tools/hub/PromotionClient.java`, commit the final
+working source and dispatch new exact-head packaged checks. The new helper is
+never a shipped game client. Public delivery, two published shell upgrades,
+independent native/web publication, real browser gameplay/cached reload and
+physical GPU/DPI/performance remain acceptance gates. Stable rollout stays gated.
+
+
+## Controller pause: promotion diagnostics preserved
+
+Base HEAD remains 6307ffede5a191e917a3b6d248d7d44df2b361fc. Unpublished
+changes are confined to promotion test isolation, safe diagnostics, validation
+docs, this task's progress entry and sanitized evidence. New file
+`tools/hub/PromotionClient.java` must be included by the controller. No Git
+index/ref changes or publication were performed.
+
+Four publisher tests and the fault-injection playtest completed before pause.
+The first full package attempt exited 143 after four recorded passes. The retry
+was stopped on the new controller pause; only completed checks in
+`dashboard/evidence/hub-promotion-pause.json` count. Neither interrupted attempt
+is a full passing run. Diagnostic images were inspected. Public catalog, shell
+metadata and preview JAR independently still returned HTTP 404.
+
+Resume only after authoritative service/quota clearance. Run a fresh complete
+Linux packaged check with the preserved tools; inspect its reports/media and
+record final source fingerprints. Regenerate any publication bundle after the
+controller commits the resulting source. New exact-head Windows/macOS checks
+are required; 6307ffed hosted jobs failed overall. Keep real native render checks
+mandatory. Public upgrades/browser reload/independent promotion and physical
+GPU/DPI/performance remain pending; stable rollout stays gated.
+
+
+## Resumed promotion validation completed for controller handoff
+
+Four publisher tests passed. The fresh package run recorded ten passing checks
+then exited 143; it is not a full passing checker run. Direct corrected runs
+of Sandbox/editor rendering and offline installed resolution passed. All 13
+local scenarios therefore have passing executed results across these runs.
+An initial direct run used the wrong shell classpath and failed; its report
+is retained and explicitly superseded by the corrected-command report.
+
+Fresh launcher video decoded20 frames/2.917 seconds. City/Sandbox/editor clips
+decoded four frames each; all selected frames were inspected. Software rendering
+only. Source fingerprints match the preserved working tools/application files;
+production source remains unchanged from 6307ffed. No paths deleted against
+review base26b8761. Final results and exact commands are in
+`dashboard/evidence/hub-promotion-final-validation.json` and linked reports.
+
+Ready only for controller commit/push, exact resulting-head platform checks and
+authorized publication handoff. Include the new command-receiver fixture source.
+No application acceptance, hosted pass, public upgrade/browser reload or physical
+GPU/DPI/performance qualification is claimed. Stable rollout remains gated.

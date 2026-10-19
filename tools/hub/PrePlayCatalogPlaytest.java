@@ -17,6 +17,9 @@ import javax.swing.*;
 public final class PrePlayCatalogPlaytest {
     static HubFrame frame;
     static Path output;
+    static String stage = "setup";
+    static boolean nativeFailureVisible;
+    static boolean promotedNativeInstalled;
     static List<Component> children(Container root) {
         var all = new ArrayList<Component>();
         for (var c : root.getComponents()) { all.add(c); if (c instanceof Container nested) all.addAll(children(nested)); }
@@ -44,7 +47,16 @@ public final class PrePlayCatalogPlaytest {
         Thread.sleep(250);
         ImageIO.write(new Robot().createScreenCapture(frame.getBounds()), "png", output.resolve(name+".png").toFile());
     }
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
+        try { run(args); }
+        catch (Throwable failure) {
+            System.out.println("HUB_CHECK_FAILURE: Pre-Play stage=" + stage + "; type="
+                    + failure.getClass().getSimpleName() + "; nativeFailureVisible=" + nativeFailureVisible
+                    + "; promotedNativeInstalled=" + promotedNativeInstalled);
+            System.exit(1);
+        }
+    }
+    static void run(String[] args) throws Throwable {
         Path profile = Path.of(args[0]).toAbsolutePath(); output=Path.of(args[1]);
         Files.createDirectories(profile); Files.createDirectories(output);
         System.setProperty("user.home", profile.toString());
@@ -57,7 +69,10 @@ public final class PrePlayCatalogPlaytest {
                 .replace("playtest-565","playtest-566").replace(oldWeb,oldWeb+"?build=promoted-b");
         Files.writeString(profile.resolve("catalog.properties"),old);
         Files.writeString(profile.resolve("hub.properties"),"updates=false\n");
-        byte[] client=Files.readAllBytes(Path.of("target/voxel-one-1.0-SNAPSHOT-client.jar"));
+        boolean commandFixture = args.length > 2;
+        Path marker = profile.resolve("promotion-client-command.txt");
+        Files.deleteIfExists(marker);
+        byte[] client=Files.readAllBytes(Path.of(commandFixture ? args[2] : "target/voxel-one-1.0-SNAPSHOT-client.jar"));
         String hash=HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(client));
         var body=new AtomicReference<>(promoted); var catalogRequests=new AtomicInteger();var downloads=new AtomicInteger();
         var opened=new CopyOnWriteArrayList<URI>();
@@ -79,6 +94,7 @@ public final class PrePlayCatalogPlaytest {
                 frame=new HubFrame(profile,URI.create(base+"/manifest"),new CatalogStore(profile,URI.create(base+"/catalog")),opened::add);
                 frame.setSize(900,600);frame.setVisible(true);frame.showPage("Settings / Help");
             }catch(Exception e){throw new RuntimeException(e);}});
+            stage="native-refresh";
             click("Check library at startup and client before Play");
             SwingUtilities.invokeAndWait(()->frame.detail(oldCatalog.entries().get(0)));
             click("Play / Install");
@@ -86,30 +102,46 @@ public final class PrePlayCatalogPlaytest {
             // This EDT call must finish while the network handler remains blocked.
             click("Play / Install");
             if(catalogRequests.get()!=1)throw new AssertionError("Duplicate Play refresh");
-            release.countDown();await(()->text("Game started."));
+            stage="native-start";release.countDown();await(()->text("Game started."));
             var installed=new Updater(profile,URI.create(base+"/manifest")).installed(Platform.current());
             if(installed==null||!installed.revision().equals("b".repeat(40)))throw new AssertionError("Stale native source launched");
             if(downloads.get()!=1)throw new AssertionError("Unexpected native transfers");
+            if (commandFixture) {
+                stage="native-command";await(()->Files.isRegularFile(marker));
+                if (!Files.readString(marker).equals("command-fixture\n--game\ncity\n--offline\n"))
+                    throw new AssertionError("Unexpected structured native command");
+            }
             capture("native-promoted-before-play");
             ProcessHandle.current().descendants().forEach(ProcessHandle::destroy);
+            stage="browser-promotion";
             SwingUtilities.invokeAndWait(()->frame.detail(oldCatalog.entries().get(2)));
             click("Open in browser");await(()->opened.size()==1);
             if(!opened.get(0).toString().endsWith("?build=promoted-b"))throw new AssertionError("Stale browser URL opened");
             capture("web-promoted-before-play");
-            body.set("malformed catalog");
+            stage="malformed-fallback";body.set("malformed catalog");
             click("Open in browser");await(()->opened.size()==2);
             if(!opened.get(1).equals(opened.get(0)))throw new AssertionError("Malformed catalog lost verified entry");
-            body.set("format=1\nchannel=playtest\nversion=removed\nentries=\n");
+            stage="removed-entry";body.set("format=1\nchannel=playtest\nversion=removed\nentries=\n");
             click("Open in browser");await(()->text("no longer available"));
             if(opened.size()!=2)throw new AssertionError("Removed game opened stale URL");
             capture("removed-experience-refused");
+            stage="updates-off";
             // Updates off must not contact the catalog, even from an old detail button.
             SwingUtilities.invokeAndWait(()->frame.showPage("Settings / Help"));
             click("Check library at startup and client before Play");int before=catalogRequests.get();
             SwingUtilities.invokeAndWait(()->frame.detail(oldCatalog.entries().get(2)));
             click("Open in browser");await(()->text("no longer available"));
             if(catalogRequests.get()!=before||opened.size()!=2)throw new AssertionError("Updates-off or removal bypassed");
-            System.out.println("Playtest: open Hub refreshed native A to B and stale web URL to B before Play; EDT responsive during blocked fetch; duplicate Play suppressed; malformed catalog retained verified B; removed entry refused; updates-off made no catalog request; one native download.");
+            System.out.println("Playtest: catalog native A-to-B and web URL B; responsive EDT; duplicate suppression; malformed fallback; removal; updates-off; one download; "
+                    + (commandFixture ? "synthetic native command verified; not gameplay qualification." : "real native client process started; rendering qualification separate."));
+        } catch (Throwable failure) {
+            nativeFailureVisible=text("Could not install or start the client.");
+            try {
+                var verified=new Updater(profile,URI.create(base+"/manifest")).installed(Platform.current());
+                promotedNativeInstalled=verified!=null && verified.revision().equals("b".repeat(40));
+            } catch(Exception ignored) { }
+            try { capture("failure-"+stage); } catch (Exception ignored) { }
+            throw failure;
         } finally { release.countDown();server.stop(0);ProcessHandle.current().descendants().forEach(ProcessHandle::destroy);if(frame!=null)SwingUtilities.invokeAndWait(frame::dispose); }
     }
 }
