@@ -231,11 +231,17 @@ public final class LocalGame {
     }
 
     public dev.jayms.net.structure.StructureEngine.Authority structureAuthority(dev.jayms.World world) {
+        return structureAuthority(world, () -> null);
+    }
+
+    public dev.jayms.net.structure.StructureEngine.Authority structureAuthority(dev.jayms.World world, java.util.function.Supplier<Protocol.Pose> player) {
         return new dev.jayms.net.structure.StructureEngine.Authority() {
             public Object lock(){return LocalGame.this;}
             public ModelLibrary models(){return models;}
             public SparseVoxelOctree cell(int x,int y,int z){return world.cell(x,y,z);}
             public void commit(ModelLibrary prepared,Map<dev.jayms.net.structure.StructurePackage.Position,SparseVoxelOctree> cells)throws IOException {
+                var livePlayer=player.get();
+                dev.jayms.net.structure.StructureOccupancy.validate(cells,city==null?null:city.frame(),livePlayer==null?List.of():List.of(livePlayer));
                 var original=edits;var originalModels=models.copy();var next=new WorldVoxels.History();next.putAll(original);
                 var before=new LinkedHashMap<dev.jayms.net.structure.StructurePackage.Position,SparseVoxelOctree>();
                 for(var e:cells.entrySet()) {

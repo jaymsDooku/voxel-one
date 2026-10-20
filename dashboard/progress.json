@@ -4017,8 +4017,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Experimental structures ready for independent review: all eight hosted build jobs passed, 753 tests each. Native workflow and 32-session functional checks recorded. Reference city/max performance qualification and stable rollout remain gated.",
-      "updatedAt": "2026-10-20T19:22:21+00:00"
+      "note": "Collision review fix passed 32 focused tests, real TLS rejection/retry, 32-session regression and fresh native workflow/media. Revised-source hosted CI needs controller publication; qualification and rollout remain gated.",
+      "updatedAt": "2026-10-20T19:40:51+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

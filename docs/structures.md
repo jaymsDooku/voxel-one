@@ -28,7 +28,12 @@ and keeps the selected package available for repeated placement.
 Placement rejects every occupied destination cell corresponding to an occupied
 source cell, even if only a small fraction of that cell is occupied. Empty source
 cells do not erase destination terrain. Preview is advisory: the authority checks
-again before publication. Escape or `cancel` requests cancellation before commit.
+again before publication. Offline and server commits also reserve live player,
+citizen, horse and cow bodies. Every nonempty resulting cell is checked as a whole
+cell, including fractional geometry and model instances. Bodies entering after
+preview or staging reject the entire commit without dependency, geometry or save
+changes. The same check applies to undo restoring nonempty cells; undo removing
+geometry may proceed around bodies. Escape or `cancel` requests cancellation before commit.
 A completed commit cannot be cancelled. In multiplayer, cancellation is confirmed
 by the server and can arrive after upload; do not assume a request rolled back an
 already completed placement.
