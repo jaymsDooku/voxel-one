@@ -17,10 +17,14 @@ import static org.junit.jupiter.api.Assertions.*;
 class HubShellActivationTest {
     @TempDir Path temp;
     byte[] shell(String name, boolean ready, boolean fail) throws Exception {
+        return shell(name, ready, fail, 0);
+    }
+    byte[] shell(String name, boolean ready, boolean fail, long readyDelay) throws Exception {
         Path dir=Files.createDirectory(temp.resolve("compile-"+name));
         Path source=dir.resolve("Launcher.java");
         Files.writeString(source,"package dev.jayms.launcher; public class Launcher { public static void main(String[] a) throws Exception {"
                 +"java.nio.file.Files.writeString(java.nio.file.Path.of(System.getProperty(\"user.home\"),\"observed-shell\"),\""+name+"\");"
+                +"Thread.sleep("+readyDelay+");"
                 +(ready?"java.nio.file.Files.writeString(java.nio.file.Path.of(System.getProperty(\"voxel.hub.activation\")),\"ready\",java.nio.file.StandardOpenOption.CREATE_NEW);":"")
                 +(fail?"System.exit(7);":"Thread.sleep(60000);")+"} }");
         assertEquals(0,ToolProvider.getSystemJavaCompiler().run(null,OutputStream.nullOutputStream(),OutputStream.nullOutputStream(),"--release","17","-d",dir.toString(),source.toString()));
@@ -86,6 +90,26 @@ class HubShellActivationTest {
             updater.rejectAndRollback(failed,platform);assertEquals(newer.client(),updater.installed(platform).client());
             updater.acknowledge(first);assertEquals(first.result().client(),updater.acknowledged(platform).result().client());
             assertTrue(Files.isRegularFile(first.result().client()));assertTrue(Files.isRegularFile(failed.result().client()));
+        }
+    }
+    @Test void updatePreferenceIsCapturedBeforeWaitingForShellReadiness() throws Exception {
+        var platform=Platform.current();Path profile=Files.createDirectory(temp.resolve("preference-profile"));
+        Path base=platform==Platform.WINDOWS?profile.resolve("local/VoxelOne"):profile.resolve(".voxel-one/client");Files.createDirectories(base);
+        Files.writeString(base.resolve("hub.properties"),"updates=false\n");Process process=null;
+        try(var f=new Fixture()) {
+            var updater=new Updater(base.resolve("hub-shell"),f.uri,true);
+            f.blob.set(shell("delayed-a",true,false,2000));var first=updater.update(platform,s->{});
+            byte[] next=shell("next-b",true,false);
+            try {
+                process=bootstrap(profile,f.uri);
+                await(()->Files.isRegularFile(profile.resolve("observed-shell")));
+                f.blob.set(next);Files.writeString(base.resolve("hub.properties"),"updates=true\n");
+                await(()->updater.acknowledged(platform)!=null);
+                // The preference change belongs to the next bootstrap invocation.
+                Thread.sleep(1000);
+                assertEquals(1,f.downloads.get(),"Existing bootstrap must retain its startup update preference");
+                assertEquals(first.client(),updater.installed(platform).client());
+            } finally {stop(process);}
         }
     }
 }

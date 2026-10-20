@@ -382,3 +382,29 @@ evidence. Authorized preview publication remains a controller handoff; prepared
 bundle target/hub-exact-09706929-publication must be regenerated for changed
 source if required. Public upgrades, independent publication, browser cached
 reload and physical GPU/DPI/performance stay pending. Stable rollout gated.
+
+
+## Startup preference staging race reproduced and fixed
+
+At base2da57e18, added an executable Bootstrap regression that delays child
+readiness2s while another launcher changes updates=false to true and publishes
+fixture B. Before the fix it failed: expected1 transfer, observed2. Bootstrap
+now captures its update preference before starting/waiting for the shell.
+A later setting change applies to the next invocation. This reproduces a real
+race relevant to Intel shell-stage ordering; original remote failure resolution
+still requires new exact-source evidence. Windows CIM query timeouts are not fixed.
+
+Validation:18 selected Java tests and Maven package passed;4 publisher tests
+passed. Existing executable failure, timeout, rollback and snapshot-race checks
+passed. Playtest: launched actual rebuilt Bootstrap using bundled Java on the
+inherited Linux role display with synthetic profile; visible Hub and full desktop
+capture succeeded and were inspected. New image: hub-startup-snapshot-hub.png.
+Exact commands, baseline failure, current hashes and results are recorded in
+dashboard/evidence/hub-startup-snapshot-validation.json and playtest.json.
+
+Controller must commit/push preserved changes, dispatch resulting-head platform
+checks and return reports/media. Regenerate publication bundle from resulting
+source; old2da57e bundle predates this production change. No deleted paths
+against26b8761; no Git commit/push or publication performed here. Real native
+rendering/GPU/DPI/performance, public upgrades/independent promotion and browser
+cached reload remain pending. Stable rollout remains gated.

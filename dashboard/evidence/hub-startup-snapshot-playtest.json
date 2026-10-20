@@ -1,0 +1,21 @@
+{
+  "launchCommand": [
+    "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages/package-1/Voxel One Hub/lib/runtime/bin/java",
+    "-Dvoxel.hub.preview=true",
+    "-Duser.home=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-startup-snapshot-profile",
+    "-cp",
+    "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/voxel-one-1.0-SNAPSHOT-launcher.jar",
+    "dev.jayms.launcher.Bootstrap"
+  ],
+  "captureCommand": [
+    "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages/package-1/Voxel One Hub/lib/runtime/bin/java",
+    "-cp",
+    "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/voxel-one-1.0-SNAPSHOT-client.jar:/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-tmp",
+    "PackageUiProbe",
+    "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/dashboard/evidence/hub-startup-snapshot",
+    "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-startup-snapshot-profile",
+    "screen"
+  ],
+  "captureExitCode": 0,
+  "Playtest:": "Inherited Linux role display/XAUTHORITY; isolated synthetic profile; bundled Java. Launch actual rebuilt Bootstrap with updates=false, wait own Hub window, size1280x800, capture whole assigned display. Expected visible intact Hub and no shell staging; observed window/capture succeeded. Separate executable JUnit test flips preference during delayed readiness to exercise race; rollback tests exercise failure regression. No browser/GPU/platform qualification."
+}
