@@ -4017,8 +4017,8 @@
       "description": "Building the catalog-driven desktop hub around verified client updates. Platform packaging and playtests remain required.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Inspected completed hosted run 39493265003 with exact historical fingerprints and three Home images. Found Windows query capture-file lock failure. Replaced result file with bounded stdout drain; six actual process controls passed on bundled Linux Java, including large stdout/stderr. Five publisher tests and fresh Hub state playtest passed; image inspected. Probe fix needs exact-head hosted rerun. Current f1cc0e5b run pending; native GPU and public delivery qualification remain gated.",
-      "updatedAt": "2026-10-20T20:57:27+00:00"
+      "note": "Rebased source 3f40eaed: five publisher tests, six process controls and fresh unavailable-web Hub playtest passed. Workflow guards preserved; no unrelated deletions. Maven dependency retrieval failed; hosted packages, preview delivery and physical qualification remain pending.",
+      "updatedAt": "2026-10-20T22:42:29+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
