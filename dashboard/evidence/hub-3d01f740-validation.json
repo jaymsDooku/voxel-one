@@ -1,0 +1,109 @@
+{
+  "head": "3d01f7407cab4a9638b03c96b13969be10ea87aa",
+  "previous": "5b2d5f5e597e1d58bfdcfd8e7037910b8af7f4a0",
+  "srcMainAndHubToolsChanged": false,
+  "integratedPaths": [
+    ".github/workflows/voxel-street-native.yml"
+  ],
+  "preserved": "Other developer workflow retained; no unrelated deletion against recorded review base.",
+  "qualification": "Existing Linux llvmpipe media is historical. Fresh final-head Hub capture and scoped checks are being run. Hosted/platform/publication gates remain pending.",
+  "pythonTests": "5 passed",
+  "base": "b1d7b8d796b97a87a3d63bb08baf2bb9746b8ca6",
+  "javaCommand": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 PATH=/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin:$PATH mvn -o -q -Dmaven.repo.local=$PWD/target/maven-cache -Djava.io.tmpdir=$PWD/target/hub-tmp -DargLine=-Djava.io.tmpdir=$PWD/target/hub-tmp -Dtest=SandboxIdentityTest,HubCatalogTest,HubShellTest,HubShellActivationTest,UpdaterTest,AccountStoreTest,ProtocolCompatibilityTest,MultiplayerTest#authenticationRegistrationDuplicateSessionsAndCertificatePin test package",
+  "javaExitCode": 0,
+  "javaTests": [
+    {
+      "class": "dev.jayms.SandboxIdentityTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.HubCatalogTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.HubShellTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.launcher.HubShellActivationTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.UpdaterTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.AccountStoreTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.ProtocolCompatibilityTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.MultiplayerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "javaTotal": 24,
+  "package": "passed",
+  "pythonCommand": "python3 -m unittest discover -s tools/hub -p 'test_*.py'",
+  "queryControls": [
+    "Playtest: own-child query eof matched=true elapsedMs=421",
+    "Playtest: own-child query hang matched=false elapsedMs=316",
+    "Playtest: own-child query wrong matched=false elapsedMs=169",
+    "Playtest: own-child query overflow matched=false elapsedMs=223",
+    "Playtest: own-child query failed matched=false elapsedMs=212"
+  ],
+  "Playtest": "Directly compiled exact rebased launcher Java sources with --release 17 on JDK 21.0.5; actual Hub loaded the unavailable-web catalog with an isolated synthetic profile; three native entries supported, browser action disabled; exit 0. Fresh PNG inspected.",
+  "uiCommands": [
+    "javac --release 17 -d target/hub-3d01f740-classes src/main/java/dev/jayms/launcher/*.java",
+    "cp -r src/main/resources/dev target/hub-3d01f740-classes/",
+    "javac --release 17 -cp target/hub-3d01f740-classes -d target/hub-3d01f740-classes tools/hub/HubPlaytest.java tools/hub/UnavailableWebPlaytest.java",
+    "java -Djava.io.tmpdir=$PWD/target/hub-tmp -cp target/hub-3d01f740-classes UnavailableWebPlaytest target/hub-5b2d5f5e-publication/catalog.properties target/hub-3d01f740-profile dashboard/evidence/hub-3d01f740-web-unavailable.png"
+  ],
+  "environment": "JDK 21.0.5 on Linux; --release 17; inherited role DISPLAY/XAUTHORITY; synthetic profiles. No browser launch because entry explicitly unavailable.",
+  "bundle": "target/hub-3d01f740-publication",
+  "sourceKind": "exact-commit",
+  "pending": [
+    "Exact published-head Windows/macOS reports and inspected media",
+    "Authorized preview publication and two actually published shell generations",
+    "Deployed browser session/cache reload and independent web promotion",
+    "Physical GPU, Windows monitor DPI, reference performance; stable rollout gated"
+  ],
+  "priorHostedObservation": "Run 39493798715 for pre-rebase head 5b2d5f5e remained queued when checked. No result carries to the rebased head.",
+  "auditCommands": [
+    "git diff --quiet 5b2d5f5e597e1d58bfdcfd8e7037910b8af7f4a0..HEAD -- src/main tools/hub",
+    "git diff --name-only --diff-filter=D b1d7b8d796b97a87a3d63bb08baf2bb9746b8ca6",
+    "git diff --check"
+  ],
+  "auditResults": [
+    "Application source and Hub tools unchanged by integration",
+    "No unrelated deletions",
+    "Whitespace check passed"
+  ]
+}
