@@ -21,22 +21,38 @@ public final class PackageUiProbe {
         if(!desktop.contains(bounds)) throw new AssertionError("Requested UI extent "+bounds.width+"x"+bounds.height+" exceeds runner desktop "+desktop.width+"x"+desktop.height);
         ImageIO.write(new Robot().createScreenCapture(contentBounds()),"png",file.toFile());
     }
-    /** No inherited stdin or output pipe: PowerShell can wait for EOF on redirected input.
-     * Only the fixed MATCH token is retained. A stuck query is a non-match, never a pass. */
+    /** Drain stdout without a Windows-locked capture file or an unbounded buffer.
+     * Keep at most 17 bytes so oversized output can never become a MATCH. */
     static boolean boundedMatch(ProcessBuilder builder, long timeoutMillis) throws Exception {
-        Path result=Files.createTempFile("hub-own-child-", ".txt");
-        Process query=null;
+        Process query=builder.redirectOutput(ProcessBuilder.Redirect.PIPE)
+                .redirectError(ProcessBuilder.Redirect.DISCARD).start();
+        var token=new java.io.ByteArrayOutputStream(17);
+        var failed=new java.util.concurrent.atomic.AtomicBoolean();
+        Thread drain=new Thread(()->{
+            try {
+                byte[] buffer=new byte[4096];int count;
+                while((count=query.getInputStream().read(buffer))!=-1) {
+                    int keep=Math.min(count,17-token.size());
+                    if(keep>0)token.write(buffer,0,keep);
+                }
+            } catch(java.io.IOException error) { failed.set(true); }
+        },"hub-own-child-result");
+        drain.setDaemon(true);drain.start();
         try {
-            query=builder.redirectOutput(result.toFile()).redirectError(ProcessBuilder.Redirect.DISCARD).start();
             query.getOutputStream().close();
             if(!query.waitFor(timeoutMillis,java.util.concurrent.TimeUnit.MILLISECONDS))return false;
-            return query.exitValue()==0 && Files.size(result)<=16 && Files.readString(result).trim().equals("MATCH");
+            drain.join(1000);
+            return !drain.isAlive() && !failed.get() && query.exitValue()==0
+                    && token.size()<=16 && token.toString(java.nio.charset.StandardCharsets.UTF_8).trim().equals("MATCH");
         } finally {
-            if(query!=null && query.isAlive()) {
+            if(query.isAlive()) {
                 query.destroyForcibly();
                 query.waitFor(1,java.util.concurrent.TimeUnit.SECONDS);
             }
-            Files.deleteIfExists(result);
+            drain.join(1000);
+            // Never block closing a stream while its reader owns a blocking read.
+            // The daemon drains to EOF once the terminated child releases its handle.
+            if(!drain.isAlive())query.getInputStream().close();
         }
     }
     public static void main(String[] args) throws Exception {
