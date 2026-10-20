@@ -1,0 +1,111 @@
+{
+  "head": "5b2d5f5e597e1d58bfdcfd8e7037910b8af7f4a0",
+  "base": "b1d7b8d796b97a87a3d63bb08baf2bb9746b8ca6",
+  "commands": [
+    "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 PATH=/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin:$PATH mvn -o -q -Dmaven.repo.local=$PWD/target/maven-cache -Djava.io.tmpdir=$PWD/target/hub-tmp -DargLine=-Djava.io.tmpdir=$PWD/target/hub-tmp -Dtest=SandboxIdentityTest,HubCatalogTest,HubShellTest,HubShellActivationTest,UpdaterTest,AccountStoreTest,ProtocolCompatibilityTest,MultiplayerTest#authenticationRegistrationDuplicateSessionsAndCertificatePin test package",
+    "python3 -m unittest discover -s tools/hub -p test_*.py",
+    "python3 tools/hub/publication_bundle.py prepare --native-receipt dashboard/evidence/hub-preview-native-receipt.json --web-receipt dashboard/evidence/hub-preview-web-receipt.json --jar target/voxel-one-1.0-SNAPSHOT-launcher.jar --source-sha 5b2d5f5e597e1d58bfdcfd8e7037910b8af7f4a0 --tag hub-preview-1 --expected-catalog-head absent --output target/hub-5b2d5f5e-publication",
+    "bundled Java: UnavailableWebPlaytest target/hub-5b2d5f5e-publication/catalog.properties target/hub-5b2d5f5e-profile dashboard/evidence/hub-5b2d5f5e-web-unavailable.png",
+    "bundled Java: ProcessQueryProbeTest",
+    "python3 tools/hub/publication_bundle.py verify --bundle target/hub-5b2d5f5e-publication --report dashboard/evidence/hub-5b2d5f5e-public-delivery.json",
+    "git diff --check",
+    "git diff --name-only --diff-filter=D b1d7b8d796b97a87a3d63bb08baf2bb9746b8ca6"
+  ],
+  "java": {
+    "exitCode": 0,
+    "tests": [
+      {
+        "class": "dev.jayms.SandboxIdentityTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "dev.jayms.HubCatalogTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "dev.jayms.HubShellTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "dev.jayms.launcher.HubShellActivationTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "dev.jayms.UpdaterTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "dev.jayms.AccountStoreTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "dev.jayms.ProtocolCompatibilityTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "dev.jayms.MultiplayerTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "totalTests": 24,
+    "failures": 0,
+    "errors": 0,
+    "package": "passed"
+  },
+  "pythonTests": {
+    "passed": 5
+  },
+  "queryControls": [
+    "Playtest: own-child query eof matched=true elapsedMs=224",
+    "Playtest: own-child query hang matched=false elapsedMs=304",
+    "Playtest: own-child query wrong matched=false elapsedMs=103",
+    "Playtest: own-child query overflow matched=false elapsedMs=149",
+    "Playtest: own-child query failed matched=false elapsedMs=159"
+  ],
+  "Playtest": "Exact-source catalog loaded in actual Hub on inherited Linux display with bundled JDK and isolated profile. Three native entries remain supported; Space Invaders says Temporarily unavailable and Open in browser is disabled. Exit 0; screenshot inspected. Browser gameplay is deliberately disabled here; production browser qualification remains separate.",
+  "environment": "Linux x86_64; JDK 21.0.5; inherited DISPLAY/XAUTHORITY; no authentication material recorded",
+  "publicDelivery": {
+    "exitCode": 1,
+    "observed": "catalog.properties, shell.properties and preview shell asset each HTTP 404; experience-catalog ref also HTTP 404",
+    "passed": false
+  },
+  "hosted": {
+    "head": "5b2d5f5e597e1d58bfdcfd8e7037910b8af7f4a0",
+    "run": "https://github.com/jaymsDooku/voxel-one/actions/runs/39493798715",
+    "observedStatus": "pending",
+    "passed": null
+  },
+  "audit": "No unrelated deleted files against recorded base. No source implementation changes this turn.",
+  "bundle": "target/hub-5b2d5f5e-publication",
+  "sourceKind": "exact-commit",
+  "pending": [
+    "Controller preview catalog/shell publication and second-generation upgrade",
+    "Exact-head hosted platform results/media inspection",
+    "Actual deployed browser session and independent web promotion",
+    "Physical GPU/DPI/performance qualification; stable rollout gated"
+  ]
+}
