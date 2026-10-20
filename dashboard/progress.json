@@ -4010,6 +4010,15 @@
       "status": "in_progress",
       "note": "CI follow-up confirmed: both exact-head runs passed Linux, Windows, Intel Mac and Apple Silicon Mac; publish skipped. Earlier cancelled run was superseded. Source hashes match validated playtests. Ready for independent review.",
       "updatedAt": "2026-10-08T15:02:53+00:00"
+    },
+    {
+      "id": "38386339653031612d356232622d343634362d616262332d383538623938346339346437",
+      "title": "Reusable voxel structures alongside voxel models",
+      "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Experimental structures passed 753 regressions, 53 focused checks, native workflow/media and a 32-session integration at production cadence. Sanitized evidence is local. Awaiting assigned-feature publication and exact-head Java 17 hosted validation; reference qualification and stable rollout remain gated.",
+      "updatedAt": "2026-10-20T18:54:54+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

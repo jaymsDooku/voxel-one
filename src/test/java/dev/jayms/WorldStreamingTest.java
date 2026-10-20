@@ -12,6 +12,17 @@ class WorldStreamingTest {
         while(!w.getLoadedChunks().containsKey(p)&&System.nanoTime()<end){w.streamAsync(x,y,z,2_000_000);assertTrue(w.terrainPending()<=TerrainScheduler.CAPACITY+1);Thread.sleep(1);}
         assertTrue(w.getLoadedChunks().containsKey(p),"Near playable chunk becomes resident");
     }
+    @Test void highStructureKeepsNaturalBaseCoverageAndItsEditedChunkResident()throws Exception {
+        try(var world=new World(42)) {
+            world.apply(new Protocol.Edit(8,383,8,Blocks.BRICKS));
+            var scheduler=new TerrainScheduler(42,world.terrain().version,(position,terrain)->new Chunk());
+            var field=World.class.getDeclaredField("terrainScheduler");field.setAccessible(true);field.set(world,scheduler);
+            long end=System.nanoTime()+TimeUnit.SECONDS.toNanos(5);
+            while((!world.isLoaded(8,383,8)||!world.skyColumnReady(new ChunkPos(0,0,0)))&&System.nanoTime()<end){world.streamAsync(8,383,8,2_000_000);Thread.sleep(1);}
+            assertTrue(world.isLoaded(8,383,8));assertEquals(Blocks.BRICKS,world.getBlock(8,383,8));
+            for(int y=-2;y<=7;y++)assertTrue(world.getLoadedChunks().containsKey(new ChunkPos(0,y,0)),"Natural base coverage at high camera: "+y);
+        }
+    }
     @Test void sceneRevisionTracksMembershipAndInstalledMeshes()throws Exception {
         try(var world=new World()) {
             var pos=new ChunkPos(0,0,0);var chunk=new Chunk();long initial=world.sceneRevision();

@@ -27,7 +27,7 @@ class MarketEconomyTest {
             java.nio.file.Files.copy(input, file);
         }
         var saved = CitySimulation.load(file);
-        assertEquals(30, dev.jayms.net.Protocol.VERSION);
+        assertEquals(31,dev.jayms.net.Protocol.VERSION); // Structure envelopes; existing city frame IDs stay unchanged.
         assertTrue(saved.buildings().stream().anyMatch(b -> b.type() == SpecialBuildings.EXCHANGE));
         var capital = saved.economy().capital();
         assertFalse(capital.book().listings().isEmpty());

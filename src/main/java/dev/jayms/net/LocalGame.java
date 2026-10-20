@@ -14,7 +14,7 @@ public final class LocalGame {
     public Inventory inventory = new Inventory();
     public int health = 20;
     public final Map<Integer, ItemDrop> drops = new LinkedHashMap<>();
-    public final Map<String, Protocol.Edit> edits = new WorldVoxels.History();
+    public Map<String, Protocol.Edit> edits = new WorldVoxels.History();
     public final long seed;
     public final int generatorVersion;
     private int nextDrop;
@@ -28,7 +28,7 @@ public final class LocalGame {
         if (Files.exists(save))
             try (var in = new DataInputStream(Files.newInputStream(save))) {
                 int version = in.readInt();
-                if (version != 3 && version != 4 && version != 5 && version != 6 && version != 7 && version != 8)
+                if (version != 3 && version != 4 && version != 5 && version != 6 && version != 7 && version != 8 && version != 9)
                     throw new IOException("Invalid offline world");
                 worldSeed = in.readLong();
                 generator = version >= 7 ? in.readInt() : Terrain.LEGACY_VERSION;
@@ -37,7 +37,7 @@ public final class LocalGame {
                 } catch (IllegalArgumentException e) {
                     throw new IOException("Unsupported terrain generator", e);
                 }
-                if (version >= 4) models = ModelLibrary.read(in);
+                if (version >= 4) models = version>=9?ModelLibrary.readAll(in):ModelLibrary.read(in);
                 inventory = Inventory.read(in,version>=8);
                 health = in.readUnsignedByte();
                 if (health > 20) throw new IOException("Invalid saved health");
@@ -109,7 +109,7 @@ public final class LocalGame {
 
     public boolean edit(Protocol.Edit e, int old, int slot) {
         if (!e.valid()) return false;
-        if (e.type() == 0) {
+        if (e.type() == 0 && !Blocks.structureModel(old)) {
             if (old == 0 || old == Blocks.PARTIAL) return false;
             ItemDrop d =
                     new ItemDrop(
@@ -120,7 +120,7 @@ public final class LocalGame {
                             e.minY() + .35f,
                             e.minZ() + e.size() / 2);
             drops.put(d.id(), d);
-        } else if (!inventory.take(slot, e.type())) return false;
+        } else if (e.type()!=0 && !inventory.take(slot, e.type())) return false;
         WorldVoxels.remember(edits, e);
         return true;
     }
@@ -200,13 +200,18 @@ public final class LocalGame {
     }
 
     public void save() throws IOException {
+        saveWorld();
+        if (city != null) city.save(save.resolveSibling(save.getFileName() + ".city"));
+    }
+
+    private void saveWorld() throws IOException {
         Files.createDirectories(save.toAbsolutePath().getParent());
         Path temp = save.resolveSibling(save.getFileName() + ".tmp");
         try (var out = new DataOutputStream(Files.newOutputStream(temp))) {
-            out.writeInt(8);
+            out.writeInt(models.hasStructureModels()?9:8);
             out.writeLong(seed);
             out.writeInt(generatorVersion);
-            models.write(out);
+            if(models.hasStructureModels())models.writeAll(out);else models.write(out);
             inventory.write(out);
             out.writeByte(health);
             out.writeInt(edits.size());
@@ -223,6 +228,31 @@ public final class LocalGame {
         } catch (AtomicMoveNotSupportedException e) {
             Files.move(temp, save, StandardCopyOption.REPLACE_EXISTING);
         }
-        if (city != null) city.save(save.resolveSibling(save.getFileName() + ".city"));
+    }
+
+    public dev.jayms.net.structure.StructureEngine.Authority structureAuthority(dev.jayms.World world) {
+        return new dev.jayms.net.structure.StructureEngine.Authority() {
+            public Object lock(){return LocalGame.this;}
+            public ModelLibrary models(){return models;}
+            public SparseVoxelOctree cell(int x,int y,int z){return world.cell(x,y,z);}
+            public void commit(ModelLibrary prepared,Map<dev.jayms.net.structure.StructurePackage.Position,SparseVoxelOctree> cells)throws IOException {
+                var original=edits;var originalModels=models.copy();var next=new WorldVoxels.History();next.putAll(original);
+                var before=new LinkedHashMap<dev.jayms.net.structure.StructurePackage.Position,SparseVoxelOctree>();
+                for(var e:cells.entrySet()) {
+                    var p=e.getKey();before.put(p,world.cell(p.x(),p.y(),p.z()).copy().freeze());
+                    for(var edit:new Protocol.CellState(p.x(),p.y(),p.z(),e.getValue()).edits())WorldVoxels.remember(next,edit);
+                }
+                if(next.size()>2_000_000)throw new IOException("World edit persistence limit");
+                try {
+                    models.replaceWith(prepared);edits=next;
+                    for(var e:cells.entrySet()) {var p=e.getKey();for(var edit:new Protocol.CellState(p.x(),p.y(),p.z(),e.getValue()).edits())world.apply(edit);}
+                    saveWorld();
+                } catch(IOException|RuntimeException failure) {
+                    edits=original;models.replaceWith(originalModels);
+                    for(var e:before.entrySet()) {var p=e.getKey();for(var edit:new Protocol.CellState(p.x(),p.y(),p.z(),e.getValue()).edits())world.apply(edit);}
+                    throw failure;
+                }
+            }
+        };
     }
 }

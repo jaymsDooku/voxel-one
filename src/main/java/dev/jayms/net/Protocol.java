@@ -2,10 +2,12 @@ package dev.jayms.net;
 
 import java.io.*;
 
-/** Protocol 30 adds bounded authenticated history queries; city/save frames remain unchanged. */
+/** Protocol 31 adds world-only component definitions and atomic structure publications. */
 public final class Protocol {
+    public static final int MIN_BUILD_Y=-1024, MAX_BUILD_Y=1023;
     public static final int CITY_STATE = 16, CITY_COMMAND = 17, CITY_WORLD = 18, CITY_RESULT = 19;
-    public static final int MAGIC = 0x564F5831, VERSION = 30, PORT = 25565;
+    public static final int MAGIC = 0x564F5831, VERSION = 31, PORT = 25565;
+    public static final int STRUCTURE_REQUEST=23, STRUCTURE_COMMIT=24, STRUCTURE_RESULT=25;
     public static final int CITY_BASE_VERSION = 14, SPECIAL_BUILDINGS_VERSION = 15;
     public static final int MOVE = 1, BLOCK = 2, LEAVE = 3, READY = 4, JOIN = 5, EDIT_RESULT = 6;
     public static final int INVENTORY = 7, DROP = 8, SWAP = 9, RESPAWN = 10;
@@ -154,8 +156,8 @@ public final class Protocol {
                     && x <= Terrain.LIMIT
                     && z >= -Terrain.LIMIT
                     && z <= Terrain.LIMIT
-                    && y >= Terrain.MIN_Y
-                    && y <= Terrain.MAX_Y + 32
+                    && y >= MIN_BUILD_Y
+                    && y <= MAX_BUILD_Y + 32
                     && Math.abs(pitch) <= 89;
         }
     }
@@ -278,8 +280,8 @@ public final class Protocol {
                     && (type == 0 || Blocks.depth(type) == depth)
                     && Math.abs((long) x) <= Terrain.LIMIT
                     && Math.abs((long) z) <= Terrain.LIMIT
-                    && y >= Terrain.MIN_Y
-                    && y <= Terrain.MAX_Y
+                    && y >= MIN_BUILD_Y
+                    && y <= MAX_BUILD_Y
                     && Blocks.valid(type);
         }
 
@@ -302,7 +304,7 @@ public final class Protocol {
 
         public static CellState read(DataInputStream in) throws IOException {
             int x = in.readInt(), y = in.readInt(), z = in.readInt();
-            var tree = dev.jayms.net.model.SparseVoxelOctree.read(in);
+            var tree = dev.jayms.net.model.SparseVoxelOctree.read(in,16);
             if (tree.size() != 16) throw new IOException("Invalid world cell");
             for (var leaf : tree.leaves()) {
                 int material = WorldVoxels.decode(leaf.color());
