@@ -2,6 +2,7 @@ package dev.jayms.net;
 
 import dev.jayms.net.city.*;
 import dev.jayms.net.model.*;
+import dev.jayms.net.structure.*;
 
 import java.io.*;
 import java.net.*;
@@ -22,6 +23,11 @@ public final class MultiplayerClient implements AutoCloseable {
     public final ModelLibrary models;
     public String modelMessage = "";
     public int modelResults;
+    public String structureMessage="";
+    public int structureResults;
+    private boolean structurePending;
+    private int pendingStructureRequest,structureCancelRequest,structureCancelFor;
+    public boolean structurePending(){return structurePending;}
     public Inventory inventory;
     public int health = 20;
     public CityFrame city;
@@ -79,7 +85,7 @@ public final class MultiplayerClient implements AutoCloseable {
             } catch (IllegalArgumentException e) {
                 throw new IOException("Unsupported terrain generator", e);
             }
-            models = ModelLibrary.read(in);
+            models = serverProtocol>=31?ModelLibrary.readAll(in):ModelLibrary.read(in);
             inventory = Inventory.read(in,serverProtocol>=29);
             health = in.readUnsignedByte();
             int count = in.readInt();
@@ -160,7 +166,7 @@ public final class MultiplayerClient implements AutoCloseable {
                 // Protocols 14/15 use frame format 6; reviewed aviation protocol 22 uses format 12.
                 // Reconnect because old servers close on mismatch.
                 if (requested == Protocol.VERSION && version >= Protocol.CITY_BASE_VERSION
-                        && (version <= Protocol.SPECIAL_BUILDINGS_VERSION || version == 22 || version == 29)) {
+                        && (version <= Protocol.SPECIAL_BUILDINGS_VERSION || version == 22 || version == 29 || version == 30)) {
                     if (in.readBoolean()) throw new IOException("Unexpected protocol acceptance");
                     Protocol.readText(in, 256);
                     socket.close();
@@ -336,6 +342,29 @@ public final class MultiplayerClient implements AutoCloseable {
                         var completion = cityResults.poll();
                         if (completion != null) completion.accept(message);
                     };
+                } else if(type==Protocol.STRUCTURE_COMMIT) {
+                    var delta=StructureWire.decode(StructureWire.readPayload(in));
+                    event=()->{
+                        try {
+                            var staged=models.copy();for(var model:delta.models())staged.acceptWorldEntry(model);
+                            for(var cell:delta.cells())for(var leaf:cell.tree().leaves())
+                                if(!staged.has(WorldVoxels.decode(leaf.color())))throw new IOException("Missing structure dependency");
+                            var edits=new ArrayList<Protocol.Edit>();for(var cell:delta.cells())edits.addAll(cell.edits());
+                            models.replaceWith(staged);pendingEdits.addAll(edits);
+                        } catch(IOException invalid){error="Invalid structure synchronization";close();}
+                    };
+                } else if(type==Protocol.STRUCTURE_RESULT) {
+                    int request=in.readInt();boolean accepted=in.readBoolean();String message=Protocol.readText(in,512);
+                    event=()->{
+                        structureResults++;
+                        if(request==pendingStructureRequest) {
+                            structureMessage=message;
+                            if(!message.startsWith("Validating"))structurePending=false;
+                        } else if(request==structureCancelRequest&&structureCancelFor==pendingStructureRequest&&structurePending) {
+                            // Cancellation acknowledges a request; only the primary result finishes placement.
+                            structureMessage=message;
+                        }
+                    };
                 } else if (type == Protocol.MOVE) {
                     var p = Protocol.Pose.read(in);
                     long received = System.nanoTime();
@@ -487,6 +516,29 @@ public final class MultiplayerClient implements AutoCloseable {
                     model.write(out);
                     out.flush();
                 });
+    }
+
+    public boolean placeStructure(byte[] payload,StructurePackage.Position anchor,int rotation) {
+        if(serverProtocol<31||structurePending||payload.length>StructurePackage.COMPRESSED)return false;
+        int request=++nextRequest;
+        boolean queued=send(()->{
+            out.writeByte(Protocol.STRUCTURE_REQUEST);out.writeByte(0);out.writeInt(request);
+            out.writeInt(anchor.x());out.writeInt(anchor.y());out.writeInt(anchor.z());out.writeByte(rotation);
+            StructureWire.writePayload(out,payload);out.flush();
+        });
+        if(queued){pendingStructureRequest=request;structurePending=true;structureMessage="Uploading structure; world unchanged until server commit";}return queued;
+    }
+    public boolean undoStructure() {
+        if(serverProtocol<31||structurePending)return false;
+        int request=++nextRequest;boolean queued=send(()->{out.writeByte(Protocol.STRUCTURE_REQUEST);out.writeByte(1);out.writeInt(request);out.flush();});
+        if(queued){pendingStructureRequest=request;structurePending=true;structureMessage="Undo requested";}return queued;
+    }
+    public void cancelStructure() {
+        if(serverProtocol<31)return;int request=++nextRequest;
+        if(send(()->{out.writeByte(Protocol.STRUCTURE_REQUEST);out.writeByte(2);out.writeInt(request);out.flush();})) {
+            structureCancelRequest=request;structureCancelFor=pendingStructureRequest;
+            structureMessage="Cancel requested; awaiting authoritative result";
+        }
     }
 
     public void swap(int a, int b) {

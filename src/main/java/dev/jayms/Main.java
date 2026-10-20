@@ -108,6 +108,7 @@ public class Main {
     private ModelEditor editor;
     private final EngineEditor engineEditor = new EngineEditor();
     private LightColorMenu lightColors;
+    private StructureMenu structures;
     private int modelResults;
     private World world;
     private InventoryHud inventoryHud = new InventoryHud();
@@ -403,6 +404,7 @@ public class Main {
         modelRenderer = new VoxelModelRenderer(world.models());
         editor = new ModelEditor();
         lightColors = new LightColorMenu(Controls.directory().resolve("light-colour.properties"));
+        structures=new StructureMenu(Controls.directory().resolve("structures"));
         for (var e : network == null ? local.edits.values() : network.initialEdits) world.apply(e);
         Protocol.Pose spawn =
                 network == null
@@ -522,6 +524,20 @@ public class Main {
         glfwSetKeyCallback(
                 window.getHandle(),
                 (handle, key, scancode, action, mods) -> {
+                    if(structures.open) {
+                        if(action==GLFW_PRESS&&recordInput(key))return;
+                        if(action==GLFW_PRESS&&controls.matches(STRUCTURES,key))structures.open=false;
+                        else structures.key(key,action,mods,world,local,network);
+                        if(!structures.open)setCaptured(true);
+                        return;
+                    }
+                    if(action==GLFW_PRESS&&controls.matches(STRUCTURES,key)&&!engineEditor.open&&!editor.open&&!menu.open&&!lightColors.open&&!mayorDashboard.open&&!buildingInfo.open) {
+                        var hit=BlockRaycaster.cast(world,player.eyePosition(),player.facingDirection(),6);
+                        var point=new dev.jayms.net.structure.StructurePackage.Position((int)Math.floor(player.position().x),(int)Math.floor(player.position().y),(int)Math.floor(player.position().z));
+                        var mark=hit==null?point:new dev.jayms.net.structure.StructurePackage.Position(hit.x(),hit.y(),hit.z());
+                        var target=hit==null?point:new dev.jayms.net.structure.StructurePackage.Position(hit.x()+hit.normalX(),hit.y()+hit.normalY(),hit.z()+hit.normalZ());
+                        structures.show(mark,target);setCaptured(false);return;
+                    }
                     if(action==GLFW_PRESS&&key==GLFW_KEY_F9&&(!city().config().city()||!controls.matches(MAYOR_DASHBOARD,key))&&!menu.editing()&&!editor.open&&!lightColors.open&&!mayorDashboard.open){togglePerformance();return;}
                     if (action == GLFW_PRESS && recordInput(key)) return;
                     if (engineEditor.open) {
@@ -621,6 +637,7 @@ public class Main {
         glfwSetMouseButtonCallback(
                 window.getHandle(),
                 (handle, button, action, mods) -> {
+                    if(structures.open)return;
                     if(!captured) {
                         double[] cx={0},cy={0}; glfwGetCursorPos(handle,cx,cy);
                         mouseX=cx[0]; mouseY=cy[0];
@@ -788,7 +805,8 @@ public class Main {
         glfwSetCharCallback(
                 window.getHandle(),
                 (handle, character) -> {
-                    if (menu.open && menu.saves != null && menu.saves.open) menu.saves.character(character);
+                    if(structures.open)structures.character(character);
+                    else if (menu.open && menu.saves != null && menu.saves.open) menu.saves.character(character);
                     else if (mayorDashboard.open) mayorDashboard.character(character);
                     else if (editor.open) editor.character(character);
                     else if (lightColors.open) lightColors.character(character);
@@ -1091,6 +1109,7 @@ public class Main {
             previous = now;
             // World changes are applied before physics, including collision recovery for late
             // edits.
+            structures.pump();
             if (network != null) {
                 for (var e : network.poll()) world.apply(e);
                 predicted.entrySet().removeIf(e -> !network.pending(e.getValue()));
@@ -1125,7 +1144,7 @@ public class Main {
                     && !editor.open
                     && !lightColors.open
                     && !mayorDashboard.open
-                    && !buildingInfo.open) {
+                    && !buildingInfo.open && !structures.open) {
                 float speed = Math.min(dt, .1f) * 50 / Math.max(.25f, overview.zoom() / 64);
                 float
                         f =
@@ -1623,6 +1642,7 @@ public class Main {
         }
         menu.render(overlay, framebufferWidth, framebufferHeight);
         lightColors.render(overlay, framebufferWidth, framebufferHeight);
+        structures.render(overlay,framebufferWidth,framebufferHeight,projection,view,network);
         renderFps();
         if(graphics.transaction.effective().on(GraphicsProfile.Key.DIAGNOSTICS)&&!menu.open){int y=52;for(String line:graphicsDiagnostics()){overlay.text(line,12,y,1.25f);y+=18;}}
         overlay.end();
@@ -1823,6 +1843,7 @@ public class Main {
         cleanup.run(() -> { if (farmModels != null) farmModels.close(); });
         cleanup.run(() -> { if (modelRenderer != null) modelRenderer.close(); });
         cleanup.run(() -> { if (editor != null) editor.close(); });
+        cleanup.run(() -> { if (structures != null) structures.close(); });
         cleanup.run(() -> { if (overlay != null) overlay.close(); });
         cleanup.run(() -> { if (rendering != null) rendering.close(); });
         cleanup.run(() -> { if (shader != null) shader.close(); });

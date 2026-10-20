@@ -376,16 +376,21 @@ public final class SparseVoxelOctree {
     }
 
     public static SparseVoxelOctree read(DataInputStream in) throws IOException {
+        return read(in,0);
+    }
+
+    /** Reject a world-cell resolution before allocating any untrusted node graph. */
+    public static SparseVoxelOctree read(DataInputStream in,int expectedSize) throws IOException {
         int size = in.readUnsignedByte();
         if (size == 0) size = in.readUnsignedShort();
-        if (size < 1 || size > 256 || (size & (size - 1)) != 0)
+        if (size < 1 || size > 256 || (size & (size - 1)) != 0 || expectedSize!=0&&size!=expectedSize)
             throw new IOException("Invalid octree resolution");
         SparseVoxelOctree tree = new SparseVoxelOctree(size);
-        tree.root = read(in, size);
+        tree.root = readNode(in, size);
         return tree;
     }
 
-    private static Node read(DataInputStream in, int size) throws IOException {
+    private static Node readNode(DataInputStream in, int size) throws IOException {
         int tag = in.readUnsignedByte();
         if (tag == 0) return null;
         if (tag == 1) {
@@ -396,7 +401,7 @@ public final class SparseVoxelOctree {
         }
         if (tag != 2 || size == 1) throw new IOException("Invalid octree branch");
         Node[] children = new Node[8];
-        for (int i = 0; i < 8; i++) children[i] = read(in, size / 2);
+        for (int i = 0; i < 8; i++) children[i] = readNode(in, size / 2);
         return new Node(children);
     }
 }

@@ -1,0 +1,133 @@
+{
+  "schema": 1,
+  "environment_label": "LOCAL-VPS-CPU-SMOKE",
+  "qualification": "NOT QUALIFIED",
+  "scope": "Existing CPU chunk-mesher primitive only; no complete-fixture or instance-rendering benchmark",
+  "environment": {
+    "os": "Linux",
+    "kernel": "6.1.0-50-cloud-amd64",
+    "architecture": "x86_64",
+    "os_release": "Debian GNU/Linux 12 (bookworm)",
+    "logical_cpus": 4,
+    "affinity_cpus": 4,
+    "cpu_model": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)"
+  },
+  "command": [
+    "java",
+    "-Xms256m",
+    "-Xmx1g",
+    "-XX:+UseG1GC",
+    "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-probe-smoke",
+    "-cp",
+    "target/structure-probe-smoke/classes:target/classes",
+    "PrerequisiteProbe",
+    "1"
+  ],
+  "runs_per_density": 1,
+  "warmup_per_density": 3,
+  "game_head": "26b8761ff9c355299aa1df83608a6f6ebcba7e0b",
+  "production_source_sha256": {
+    "MeshDataGenerator.java": "a6f12df8651301ae1a6d9b7f90acf15fadfac13ace883b17b8f744b9ad63cf8a",
+    "Chunk.java": "7b1963f388e76e8b87e3f0191c879aba14b474369f919d741eeb3db966f5471b",
+    "MeshData.java": "3c6a4e949afdcdc07626f88f0c7141371cc6f990062b0bc9ba08b978a4dcedb1"
+  },
+  "source_sha256": "bcc5ab08e75a5c557d2688bf3e3e960bb2dca7482548039f3294dc8f4c1c0e08",
+  "trial_sha256": "aed718c485a3d3b4cb48facb3759e44a24a3b0c2b2ba59d119106135ec77592b",
+  "trials": [
+    {
+      "operation": "fragment_chunk_mesh",
+      "cells": 1,
+      "leaves": 2,
+      "run": 1,
+      "elapsed_ms": 14.692246,
+      "quads": 12,
+      "mesh_array_bytes": 2592,
+      "heap_pool_peak_sum_bytes": 2400976,
+      "process_peak_rss_kib": 60028
+    },
+    {
+      "operation": "fragment_chunk_mesh",
+      "cells": 8,
+      "leaves": 16,
+      "run": 1,
+      "elapsed_ms": 13.754962,
+      "quads": 96,
+      "mesh_array_bytes": 20736,
+      "heap_pool_peak_sum_bytes": 1637952,
+      "process_peak_rss_kib": 68572
+    },
+    {
+      "operation": "fragment_chunk_mesh",
+      "cells": 64,
+      "leaves": 128,
+      "run": 1,
+      "elapsed_ms": 69.214564,
+      "quads": 768,
+      "mesh_array_bytes": 165888,
+      "heap_pool_peak_sum_bytes": 2865840,
+      "process_peak_rss_kib": 78168
+    },
+    {
+      "operation": "fragment_chunk_mesh",
+      "cells": 512,
+      "leaves": 1024,
+      "run": 1,
+      "elapsed_ms": 548.410265,
+      "quads": 6144,
+      "mesh_array_bytes": 1327104,
+      "heap_pool_peak_sum_bytes": 20024792,
+      "process_peak_rss_kib": 112192
+    }
+  ],
+  "summary": {
+    "1": {
+      "elapsed_ms": {
+        "median": 14.692246,
+        "p95": 14.692246,
+        "worst": 14.692246
+      },
+      "quads": 12,
+      "mesh_array_bytes": 2592,
+      "heap_pool_peak_sum_bytes": 2400976,
+      "process_peak_rss_kib": 60028
+    },
+    "8": {
+      "elapsed_ms": {
+        "median": 13.754962,
+        "p95": 13.754962,
+        "worst": 13.754962
+      },
+      "quads": 96,
+      "mesh_array_bytes": 20736,
+      "heap_pool_peak_sum_bytes": 1637952,
+      "process_peak_rss_kib": 68572
+    },
+    "64": {
+      "elapsed_ms": {
+        "median": 69.214564,
+        "p95": 69.214564,
+        "worst": 69.214564
+      },
+      "quads": 768,
+      "mesh_array_bytes": 165888,
+      "heap_pool_peak_sum_bytes": 2865840,
+      "process_peak_rss_kib": 78168
+    },
+    "512": {
+      "elapsed_ms": {
+        "median": 548.410265,
+        "p95": 548.410265,
+        "worst": 548.410265
+      },
+      "quads": 6144,
+      "mesh_array_bytes": 1327104,
+      "heap_pool_peak_sum_bytes": 20024792,
+      "process_peak_rss_kib": 112192
+    }
+  },
+  "peak_memory_note": "Heap pool peaks are summed (conservative, not simultaneous). RSS is process lifetime high-water mark; -1 means unavailable. Excludes GPU memory.",
+  "timing_note": "Fixture setup and explicit pre-trial GC excluded. Existing mesher scratch is warmed. No frame, tick, network, durability or cold-load measurement.",
+  "regression": "Empty chunk, solid-chunk six-face merging, and interrupted-worker cancellation passed",
+  "pending": "Reference-target execution; full corpus pipeline; instance complexity; physical GPU; multi-host synchronization; supported limits"
+}

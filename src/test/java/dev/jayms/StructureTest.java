@@ -1,0 +1,162 @@
+package dev.jayms;
+
+import dev.jayms.net.*;
+import dev.jayms.net.model.*;
+import dev.jayms.net.structure.*;
+import static dev.jayms.net.structure.StructurePackage.*;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import java.io.*;
+import java.nio.file.*;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+class StructureTest {
+    @TempDir Path folder;
+    StructurePackage asset() throws Exception {
+        var geometry=new SparseVoxelOctree(16);geometry.fill(2,4,6,4,6,8,WorldVoxels.encode(new Protocol.Edit(0,0,0,Blocks.LED).withColor(0x987654)));
+        var model=new SparseVoxelOctree(32);model.set(1,3,5,0xff123456);
+        return new StructurePackage("House",new Bounds(80,256,16,1,2,3),List.of(new ModelDefinition("Component",model)),
+                List.of(new Cell(new Position(0,0,0),geometry,-1),new Cell(new Position(79,255,15),null,0)));
+    }
+    @Test void packageRoundtripKeepsFractionalColoursModel32AndLargeBounds() throws Exception {
+        var original=asset();var copy=StructurePackage.decode(original.encode());
+        assertEquals(original.bounds,copy.bounds);assertEquals(original.cells.get(0).geometry().leaves(),copy.cells.get(0).geometry().leaves());
+        assertEquals(32,copy.models.get(0).voxels().size());assertEquals(0xff123456,copy.models.get(0).voxels().get(1,3,5));
+        var path=folder.resolve("house.vstr");copy.save(path);assertEquals(copy.name,StructurePackage.load(path).name);
+    }
+    @Test void malformedAndTrailingCompressedDataAreRejected() throws Exception {
+        var bytes=asset().encode();bytes[bytes.length-8]^=1;
+        assertThrows(IOException.class,()->StructurePackage.decode(bytes));
+        var good=asset().encode();assertThrows(IOException.class,()->StructurePackage.decode(Arrays.copyOf(good,good.length+1)));
+        assertThrows(IOException.class,()->StructurePackage.decode(Arrays.copyOf(good,12)));
+        assertThrows(IllegalArgumentException.class,()->new Bounds(1025,1,1,0,0,0));
+        assertThrows(IllegalArgumentException.class,()->new Bounds(1,257,1,0,0,0));
+        assertThrows(IOException.class,()->new StructurePackage("Duplicate",new Bounds(1,1,1,0,0,0),List.of(),
+                List.of(new Cell(new Position(0,0,0),new SparseVoxelOctree(16),-1))));
+    }
+    @Test void tallSkyscraperAndLongRoadKeepCellDimensionsAcrossRestart()throws Exception {
+        var stone=new SparseVoxelOctree(16);stone.fill(0,0,0,16,16,16,WorldVoxels.encode(Blocks.STONE));
+        var cells=new ArrayList<Cell>();
+        for(int x=0;x<1024;x++)cells.add(new Cell(new Position(x,0,0),stone,-1));
+        for(int y=1;y<256;y++)cells.add(new Cell(new Position(0,y,0),stone,-1));
+        var asset=StructurePackage.decode(new StructurePackage("Road and skyscraper",new Bounds(1024,256,1,0,0,0),List.of(),cells).encode());
+        var file=folder.resolve("tall-road.dat");var local=new LocalGame(file,42);var world=new World(42,local.models);var engine=new StructureEngine();
+        try(var staged=engine.prepare(asset,new Position(320,128,320),0,world.structureSnapshot(),()->false,p->{})){staged.commit("me",local.structureAuthority(world));}
+        assertEquals(Blocks.STONE,world.sample(1343,128,320));assertEquals(Blocks.STONE,world.sample(320,383,320));
+        var loaded=new LocalGame(file,0);var restored=new World(loaded.seed,loaded.models);for(var edit:loaded.edits.values())restored.apply(edit);
+        assertEquals(Blocks.STONE,restored.sample(1343,128,320));assertEquals(Blocks.STONE,restored.sample(320,383,320));
+        engine.undo("me",local.structureAuthority(world));assertEquals(0,world.cell(320,383,320).occupied());
+    }
+    @Test void modelInstanceSurfaceBudgetsRejectComplexityBeforeMutation()throws Exception {
+        var tree=new SparseVoxelOctree(32);
+        for(int i=0;i<32768;i++)tree.set(i%32,(i/32)%32,i/1024,0xff000000|i);
+        var definition=new ModelDefinition("Dense component",tree);var cells=new ArrayList<Cell>();
+        for(int i=0;i<180;i++)cells.add(new Cell(new Position(i,0,0),null,0));
+        assertThrows(IOException.class,()->new StructurePackage("Too many surfaces",new Bounds(180,1,1,0,0,0),List.of(definition),cells));
+        cells.clear();for(int z=0;z<8;z++)for(int x=0;x<8;x++)cells.add(new Cell(new Position(x,0,z),null,0));
+        var asset=new StructurePackage("Dense cluster",new Bounds(8,1,8,0,0,0),List.of(definition),cells);
+        var local=new LocalGame(folder.resolve("dense-models.dat"),42);var world=new World(42,local.models);var engine=new StructureEngine();
+        assertThrows(IOException.class,()->engine.prepare(asset,new Position(320,128,320),0,world.structureSnapshot(),()->false,p->{}));
+        assertTrue(local.edits.isEmpty());assertFalse(local.models.hasStructureModels());assertFalse(engine.busy());
+    }
+    @Test void fragmentedChunkIsRejectedBeforePublication()throws Exception {
+        var tree=new SparseVoxelOctree(16);
+        for(int y=0;y<16;y++)for(int z=0;z<16;z++)for(int x=0;x<16;x++)
+            if((x+y+z)%2==0)tree.set(x,y,z,WorldVoxels.encode(Blocks.STONE));
+        var cells=new ArrayList<Cell>();
+        for(int z=0;z<8;z++)for(int x=0;x<8;x++)cells.add(new Cell(new Position(x,0,z),tree,-1));
+        var asset=new StructurePackage("Fragmented",new Bounds(8,1,8,0,0,0),List.of(),cells);
+        var local=new LocalGame(folder.resolve("fragmented.dat"),42);var world=new World(42,local.models);var engine=new StructureEngine();
+        assertThrows(IOException.class,()->engine.prepare(asset,new Position(320,128,320),0,world.structureSnapshot(),()->false,p->{}));
+        assertFalse(engine.busy());assertTrue(local.edits.isEmpty());assertEquals(0,world.cell(320,128,320).occupied());
+    }
+    @Test void worldOctreeResolutionRejectedBeforeReadingNodes() throws Exception {
+        var bytes=new ByteArrayOutputStream();var out=new DataOutputStream(bytes);
+        out.writeInt(0);out.writeInt(128);out.writeInt(0);out.writeByte(0);out.writeShort(256);
+        var failure=assertThrows(IOException.class,()->Protocol.CellState.read(new DataInputStream(new ByteArrayInputStream(bytes.toByteArray()))));
+        assertEquals("Invalid octree resolution",failure.getMessage());
+    }
+    @Test void durableSaveFailureRollsBackGeometryHistoryAndDependencies()throws Exception {
+        var path=folder.resolve("failed-world.dat");var local=new LocalGame(path,42);var world=new World(42,local.models);var engine=new StructureEngine();
+        Files.createDirectory(path);Files.writeString(path.resolve("keep"),"synthetic obstruction");
+        var history=Map.copyOf(local.edits);var models=local.models.entries().size();
+        try(var staged=engine.prepare(asset(),new Position(300,128,300),0,world.structureSnapshot(),()->false,p->{})) {
+            var positions=List.copyOf(staged.cells().keySet());
+            assertThrows(IOException.class,()->staged.commit("me",local.structureAuthority(world)));
+            assertEquals(history,local.edits);assertEquals(models,local.models.entries().size());
+            for(var p:positions)assertEquals(0,world.cell(p.x(),p.y(),p.z()).occupied());
+        }
+        assertFalse(engine.busy());assertEquals("synthetic obstruction",Files.readString(path.resolve("keep")));
+    }
+    @Test void undoRejectsChangedPlacedCellsAndNeverClobbersLaterEdits()throws Exception {
+        var local=new LocalGame(folder.resolve("undo-world.dat"),42);var world=new World(42,local.models);var engine=new StructureEngine();
+        Position changed;
+        try(var staged=engine.prepare(asset(),new Position(300,128,300),0,world.structureSnapshot(),()->false,p->{})) {changed=staged.cells().keySet().iterator().next();staged.commit("me",local.structureAuthority(world));}
+        world.apply(new Protocol.Edit(changed.x(),changed.y(),changed.z(),Blocks.STONE));
+        assertThrows(IOException.class,()->engine.undo("me",local.structureAuthority(world)));
+        assertEquals(Blocks.STONE,world.sample(changed.x(),changed.y(),changed.z()));
+    }
+    @Test void fourRotationsPreserveEveryLeafAndRestoreOrientation() throws Exception {
+        var asset=asset();var source=asset.cells.get(0).geometry();var current=source;
+        for(int r=0;r<4;r++) {
+            assertEquals(source.occupied(),StructureEngine.rotate(source,r).occupied());
+            var box=StructureEngine.footprint(asset,new Position(4,30,8),r);
+            assertEquals(r%2==0?80:16,box.width());assertEquals(r%2==0?16:80,box.depth());
+            current=StructureEngine.rotate(current,1);
+        }
+        assertEquals(source.leaves(),current.leaves());
+    }
+    @Test void dependencyNamespaceSupports512WithoutChangingInventories() throws Exception {
+        var library=new ModelLibrary();
+        for(int i=0;i<512;i++) {
+            var tree=new SparseVoxelOctree(8);tree.set(0,0,0,0xff000000|i);
+            int id=library.stageStructureModel(new ModelDefinition("Part "+i,tree)).id();
+            assertTrue(Blocks.structureModel(id));assertFalse(Items.valid(id));assertEquals(id,WorldVoxels.decode(WorldVoxels.encode(id)));
+        }
+        assertThrows(IOException.class,()->library.write(new DataOutputStream(new ByteArrayOutputStream())));
+        var bytes=new ByteArrayOutputStream();library.writeAll(new DataOutputStream(bytes));
+        var copy=ModelLibrary.readAll(new DataInputStream(new ByteArrayInputStream(bytes.toByteArray())));
+        assertEquals(513,copy.entries().size());
+        assertEquals(Inventory.SIZE*2,newInventoryBytes().length);
+    }
+    byte[] newInventoryBytes() throws Exception {var bytes=new ByteArrayOutputStream();new Inventory().write(new DataOutputStream(bytes));return bytes.toByteArray();}
+    @Test void offlinePlacementConflictCancellationUndoAndRestartAreAtomic() throws Exception {
+        var local=new LocalGame(folder.resolve("world.dat"),42);var world=new World(42,local.models);var engine=new StructureEngine();
+        var authority=local.structureAuthority(world);var asset=asset();var cancel=new AtomicBoolean();
+        try(var plan=engine.prepare(asset,new Position(100,120,100),1,world.structureSnapshot(),cancel::get,v->{})) {
+            cancel.set(true);assertThrows(java.util.concurrent.CancellationException.class,()->plan.commit("me",authority));
+        }
+        assertFalse(local.models.hasStructureModels());assertTrue(local.edits.isEmpty());cancel.set(false);
+        try(var plan=engine.prepare(asset,new Position(100,120,100),1,world.structureSnapshot(),cancel::get,v->{})) {plan.commit("me",authority);}
+        assertTrue(local.models.hasStructureModels());
+        assertThrows(IOException.class,()->engine.prepare(asset,new Position(100,120,100),1,world.structureSnapshot(),()->false,v->{}));
+        var restarted=new LocalGame(folder.resolve("world.dat"),0);assertEquals(local.edits,restarted.edits);assertTrue(restarted.models.hasStructureModels());
+        world.apply(new Protocol.Edit(800,120,800,Blocks.STONE));WorldVoxels.remember(local.edits,new Protocol.Edit(800,120,800,Blocks.STONE));
+        engine.undo("me",authority);assertEquals(Blocks.STONE,world.sample(800,120,800));
+        for(var cell:asset.cells) {var box=StructureEngine.footprint(asset,new Position(100,120,100),1);var p=StructureEngine.rotate(cell.position(),80,16,1);assertEquals(0,world.cell(box.minX()+p.x(),box.minY()+p.y(),box.minZ()+p.z()).occupied());}
+        try(var plan=engine.prepare(asset,new Position(100,120,100),0,world.structureSnapshot(),()->false,v->{})) {
+            var p=plan.cells().keySet().iterator().next();world.apply(new Protocol.Edit(p.x(),p.y(),p.z(),Blocks.STONE));
+            var history=Map.copyOf(local.edits);assertThrows(IOException.class,()->plan.commit("me",authority));assertEquals(history,local.edits);
+        }
+    }
+    @Test void editingSourceDefinitionsAndGeometryCannotChangePlacedCopies()throws Exception {
+        var geometry=new SparseVoxelOctree(16);geometry.set(1,2,3,WorldVoxels.encode(Blocks.BRICKS));
+        var voxels=new SparseVoxelOctree(32);voxels.set(2,4,6,0xff123456);
+        var asset=new StructurePackage("Independent",new Bounds(2,1,1,0,0,0),List.of(new ModelDefinition("Original",voxels)),List.of(new Cell(new Position(0,0,0),geometry,-1),new Cell(new Position(1,0,0),null,0)));
+        var local=new LocalGame(folder.resolve("independent.dat"),42);var world=new World(42,local.models);var engine=new StructureEngine();
+        try(var staged=engine.prepare(asset,new Position(320,128,320),0,world.structureSnapshot(),()->false,p->{})){staged.commit("me",local.structureAuthority(world));}
+        geometry.set(1,2,3,WorldVoxels.encode(Blocks.STONE));voxels.set(2,4,6,0xffabcdef);
+        assertEquals(WorldVoxels.encode(Blocks.BRICKS),world.cell(320,128,320).get(1,2,3));
+        int id=world.sample(321,128,320);assertEquals(0xff123456,local.models.get(id).definition().voxels().get(2,4,6));
+        asset.save(folder.resolve("asset.vstr"));
+        new StructurePackage("Independent",new Bounds(1,1,1,0,0,0),List.of(),List.of(new Cell(new Position(0,0,0),geometry,-1))).save(folder.resolve("asset.vstr"));
+        assertEquals(0xff123456,local.models.get(id).definition().voxels().get(2,4,6));
+    }
+    @Test void captureIncludesTerrainOverridesAndDeduplicatedDependencies() throws Exception {
+        var world=new World(42);world.apply(new Protocol.Edit(0,120,0,Blocks.FLOWER_POT));world.apply(new Protocol.Edit(2,120,0,Blocks.FLOWER_POT));
+        var result=StructurePackage.capture("Road",new Bounds(64,1,1,0,0,0),new Position(0,120,0),world.structureSnapshot(),()->false,p->{});
+        assertEquals(2,result.cells.size());assertEquals(1,result.models.size());
+    }
+}
