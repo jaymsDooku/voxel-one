@@ -1,9 +1,12 @@
 # Voxel Street
 
-A self-contained Voxel One browser game slice. Serve the repository root with
-`python3 -m http.server 8787 --bind 127.0.0.1`, then open
-`http://127.0.0.1:8787/games/voxel-street/` in a browser. No install, account,
-console commands, or developer tools are needed to play.
+Open the Voxel One website and select **Play Voxel Street** on the home page.
+The site package includes the full browser game. Players need no source checkout,
+Python server, install, account, console commands, or developer tools.
+
+For local site validation, run `python3 deploy/build_site.py` and serve only
+`website/dist` with a static web host. The home-page link opens
+`games/voxel-street/index.html` within that package.
 
 Click **Sit at trading desk** or press **E** to focus the desk. Read the brief,
 select a company and whole-share order, and inspect its preview. **Open market**

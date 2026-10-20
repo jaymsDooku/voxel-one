@@ -3,6 +3,10 @@
   "command": "TMPDIR=\"$PWD/.tmp/browser\" PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers node deploy/test_voxel_street.cjs",
   "steps": [
     {
+      "name": "Built site home launches Voxel Street and retains Space Invaders",
+      "result": "passed"
+    },
+    {
       "name": "Desk interaction enters readable focused view",
       "result": "passed"
     },
@@ -45,6 +49,5 @@
   ],
   "limitations": "Scripted first-use assessment, not an independent human study. Browser slice has no native F10 recorder; Playwright records the actual browser. No physical GPU qualification claimed.",
   "playtest": "Playtest: First-use scripted player chose Harbor for steady demand, previewed a 20-share exposure, bought at ask, saw expected/reported earnings and its recorded impulse, reduced at bid, located both executions and the outcome explanation in closing review, then carried 10 shares into day 2. Guidance was dismissed; no profit gate. A new player can link the trade rationale to the business description and locate facts versus interpretation; independent human usability remains for review.",
-  "videoSource": "/home/debian/codex/voxel-one-queue-worktrees/61353661313662322d303366332d343264362d613762342d653335666538313136623266/.tmp/street-video/page@54f68f247418534bf57aa61840bce962.webm",
-  "sourceHead": "2285f5c61383ea1a5b5595d7e19142d86f977585"
+  "videoSource": "/home/debian/codex/voxel-one-queue-worktrees/61353661313662322d303366332d343264362d613762342d653335666538313136623266/.tmp/street-video/page@efcec16581545ff593a0e2bf6d300a6d.webm"
 }
