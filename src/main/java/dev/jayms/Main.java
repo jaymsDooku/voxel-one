@@ -404,7 +404,7 @@ public class Main {
         modelRenderer = new VoxelModelRenderer(world.models());
         editor = new ModelEditor();
         lightColors = new LightColorMenu(Controls.directory().resolve("light-colour.properties"));
-        structures=new StructureMenu(Controls.directory().resolve("structures"));
+        structures=new StructureMenu(Controls.directory().resolve("structures"), () -> player==null?null:new Protocol.Pose(0,player.position().x,player.position().y,player.position().z,0,0));
         for (var e : network == null ? local.edits.values() : network.initialEdits) world.apply(e);
         Protocol.Pose spawn =
                 network == null

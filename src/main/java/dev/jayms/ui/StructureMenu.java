@@ -36,7 +36,9 @@ public final class StructureMenu implements AutoCloseable {
     private final AtomicBoolean closed=new AtomicBoolean();
     private record Completion(Runnable action,AutoCloseable resource,AtomicBoolean cancel) {}
     private interface Work {Completion run(AtomicBoolean cancel)throws Exception;}
-    public StructureMenu(Path directory){this.directory=directory;refresh();}
+    private final java.util.function.Supplier<Protocol.Pose> player;
+    public StructureMenu(Path directory){this(directory, () -> null);}
+    public StructureMenu(Path directory, java.util.function.Supplier<Protocol.Pose> player){this.directory=directory;this.player=player;refresh();}
     private void refresh() {
         try {Files.createDirectories(directory);try(var files=Files.list(directory)){saved=files.filter(p->p.getFileName().toString().endsWith(".vstr")).sorted().limit(256).toList();}}
         catch(IOException failure){message="Could not open structure library";}
@@ -101,7 +103,7 @@ public final class StructureMenu implements AutoCloseable {
             }
             if(verb.equals("undo")) {
                 if(network!=null){message=network.undoStructure()?"Undo sent to server":"Wait or update server to use structures";return;}
-                engine.undo("offline",local.structureAuthority(world));message="Structure placement undone";conflict=null;return;
+                engine.undo("offline",local.structureAuthority(world,player));message="Structure placement undone";conflict=null;return;
             }
             var asset=selected;if(asset==null)throw new IOException("Choose a saved structure with Up/Down first");
             if(verb.equals("export")) {
@@ -125,7 +127,7 @@ public final class StructureMenu implements AutoCloseable {
                 }
                 var snapshot=world.structureSnapshot();start("Staging placement; world unchanged...",cancel->{
                     var prepared=engine.prepare(asset,point,orientation,snapshot,cancel::get,p->progress=p);
-                    return new Completion(()->{try{prepared.commit("offline",local.structureAuthority(world));message="Placed and saved "+asset.name+". Move the target to place again.";conflict=true;}catch(Exception failure){message=failure.getMessage();}},prepared,cancel);
+                    return new Completion(()->{try{prepared.commit("offline",local.structureAuthority(world,player));message="Placed and saved "+asset.name+". Move the target to place again.";conflict=true;}catch(Exception failure){message=failure.getMessage();}},prepared,cancel);
                 });return;
             }
             message="Unknown command; use the commands shown below.";
