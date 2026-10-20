@@ -72,7 +72,7 @@ def run(args):
     classes=work/'classes';classes.mkdir(exist_ok=True)
     source_client=root/'target/voxel-one-1.0-SNAPSHOT-client.jar'
     command([javac,'--release','17','-cp',str(source_client),'-d',classes,'tools/hub/HubPlaytest.java',
-             'tools/hub/PackageUiProbe.java','tools/hub/UpdaterProbe.java','tools/hub/OnlineLoginPlaytest.java','tools/hub/NativeRenderProbe.java','tools/hub/WindowFailureProbe.java','tools/hub/PrePlayCatalogPlaytest.java'])
+             'tools/hub/PackageUiProbe.java','tools/hub/ProcessQueryProbeTest.java','tools/hub/UpdaterProbe.java','tools/hub/OnlineLoginPlaytest.java','tools/hub/NativeRenderProbe.java','tools/hub/WindowFailureProbe.java','tools/hub/PrePlayCatalogPlaytest.java'])
     jars=[];apps=[]
     from package import package
     for i in (1,2):
@@ -82,6 +82,8 @@ def run(args):
     elif platform.system()=='Darwin':runtime=apps[0]/'Contents/runtime/Contents/Home/bin/java';exe=lambda app:app/'Contents/MacOS/Voxel One Hub'
     else:runtime=apps[0]/'lib/runtime/bin/java';exe=lambda app:app/'bin/Voxel One Hub'
     cp=os.pathsep.join(map(str,(classes,source_client)))
+    check('Bounded own-child query controls','EOF completes; timeout, wrong/oversized output and nonzero exit cannot match',
+          lambda:command([runtime,'-Djava.io.tmpdir='+str(work),'-cp',cp,'ProcessQueryProbeTest'],timeout=30,output='playtest'))
     def probe(mode, path, uri, shell=False):
         return command([runtime,'-Djava.io.tmpdir='+str(work),'-cp',cp,'UpdaterProbe',mode,path,uri,str(shell).lower()],output=True)
     artifact={'file':source_client,'corrupt':False,'slow':False,'truncated':False,'revision':args.source_sha,'malformed':False}
