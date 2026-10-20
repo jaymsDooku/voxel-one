@@ -1,0 +1,252 @@
+{
+  "run": "https://github.com/jaymsDooku/voxel-one/actions/runs/39344321446",
+  "scope": "Completed parent head; not exact b8ef2e79 qualification",
+  "platforms": [
+    {
+      "platform": "mac-intel",
+      "sourceSha": "93c34ff306dceab57a39271f70a5e840261e9d8a",
+      "sourceMismatch": [],
+      "passed": false,
+      "checks": [
+        {
+          "name": "Updater failures, locks, concurrency and migration",
+          "status": "passed",
+          "observed": "Verified immutable update under lock; corrupt/partial/malformed fallback; cancellation; two concurrent processes downloaded once; legacy migration reused bytes."
+        },
+        {
+          "name": "Native executable and two-version bootstrap update",
+          "status": "failed",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: AssertionError: Expected verified shell JVM not running"
+        },
+        {
+          "name": "Failed shell activation rollback",
+          "status": "failed",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: AssertionError: Expected verified shell JVM not running"
+        },
+        {
+          "name": "UI at JVM scale 1",
+          "status": "passed",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1"
+        },
+        {
+          "name": "UI at JVM scale 1.5",
+          "status": "passed",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1.5"
+        },
+        {
+          "name": "UI at JVM scale 2",
+          "status": "passed",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 2"
+        },
+        {
+          "name": "Synthetic online login handoff",
+          "status": "passed",
+          "observed": "City/Sandbox locked selection; custom loopback port; invalid-port rejection; pinned TLS sign-in passed."
+        },
+        {
+          "name": "Catalog promotion before Play",
+          "status": "passed",
+          "observed": "Playtest: catalog native A-to-B and web URL B; responsive EDT; duplicate suppression; malformed fallback; removal; updates-off; one download; synthetic native command verified; not gameplay qualification."
+        },
+        {
+          "name": "Bounded native window failure",
+          "status": "passed",
+          "observed": "Invalid native width produced fixed GLFW_INVALID_VALUE code 0x10004; no native descriptions retained."
+        },
+        {
+          "name": "Native rendered city",
+          "status": "failed",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native city renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10009)"
+        },
+        {
+          "name": "Native rendered sandbox",
+          "status": "failed",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native sandbox renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10009)"
+        },
+        {
+          "name": "Native rendered editor",
+          "status": "failed",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native editor renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10009)"
+        },
+        {
+          "name": "Offline native installation",
+          "status": "passed",
+          "observed": "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache/versions/93c34ff306dceab57a39271f70a5e840261e9d8a/51d83fe8a823de2888eced10dec2660b375f40b8273619334b1b1cdffd588301/mac-intel.jar"
+        }
+      ],
+      "videoDecode": "Actual movie: 17 frames, 2.917 seconds",
+      "videoDecodeExit": 0,
+      "image": "hub-platform-93c34-mac-intel-frame.png"
+    },
+    {
+      "platform": "windows",
+      "sourceSha": "93c34ff306dceab57a39271f70a5e840261e9d8a",
+      "sourceMismatch": [],
+      "passed": false,
+      "checks": [
+        {
+          "name": "Updater failures, locks, concurrency and migration",
+          "status": "passed",
+          "observed": "Verified immutable update under lock; corrupt/partial/malformed fallback; cancellation; two concurrent processes downloaded once; legacy migration reused bytes."
+        },
+        {
+          "name": "Native executable and two-version bootstrap update",
+          "status": "passed",
+          "observed": "Two packaged fixture generations: bundled runtime launched verified v1; bootstrap staged v2 while v1 active; next start executed v2. No public release claim."
+        },
+        {
+          "name": "Failed shell activation rollback",
+          "status": "passed",
+          "observed": "Executable shell exited 7 without acknowledgement; downloaded working shell resumed, installed pointer rolled back, rejected artifact not restaged, immutable JARs retained."
+        },
+        {
+          "name": "Windows MSI, shortcuts and uninstall",
+          "status": "passed",
+          "observed": "Scoped MSI installed, native executable ran, desktop/menu shortcuts verified, uninstall retained synthetic save."
+        },
+        {
+          "name": "UI at JVM scale 1",
+          "status": "passed",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1. Full-size qualification pending: 1280x800 unavailable on 1024x728 desktop; qualification pending"
+        },
+        {
+          "name": "UI at JVM scale 1.5",
+          "status": "passed",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1.5. Full-size qualification pending: 900x600 unavailable on 683x485 desktop; qualification pending\n1280x800 unavailable on 683x485 desktop; qualification pending"
+        },
+        {
+          "name": "UI at JVM scale 2",
+          "status": "passed",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 2. Full-size qualification pending: 900x600 unavailable on 512x364 desktop; qualification pending\n1280x800 unavailable on 512x364 desktop; qualification pending"
+        },
+        {
+          "name": "Synthetic online login handoff",
+          "status": "passed",
+          "observed": "City/Sandbox locked selection; custom loopback port; invalid-port rejection; pinned TLS sign-in passed."
+        },
+        {
+          "name": "Catalog promotion before Play",
+          "status": "passed",
+          "observed": "Playtest: catalog native A-to-B and web URL B; responsive EDT; duplicate suppression; malformed fallback; removal; updates-off; one download; synthetic native command verified; not gameplay qualification."
+        },
+        {
+          "name": "Bounded native window failure",
+          "status": "passed",
+          "observed": "Invalid native width produced fixed GLFW_INVALID_VALUE code 0x10004; no native descriptions retained."
+        },
+        {
+          "name": "Native rendered city",
+          "status": "failed",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native city renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10006)"
+        },
+        {
+          "name": "Native rendered sandbox",
+          "status": "failed",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native sandbox renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10006)"
+        },
+        {
+          "name": "Native rendered editor",
+          "status": "failed",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native editor renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10006)"
+        },
+        {
+          "name": "Offline native installation",
+          "status": "passed",
+          "observed": "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\native-cache\\versions\\93c34ff306dceab57a39271f70a5e840261e9d8a\\d269dee633ab9f785ec30fca96e635624591cbed33acbbbe6afca49b9a758179\\windows.jar"
+        }
+      ],
+      "videoDecode": "Actual movie: 20 frames, 2.917 seconds",
+      "videoDecodeExit": 0,
+      "image": "hub-platform-93c34-windows-frame.png"
+    },
+    {
+      "platform": "mac-arm",
+      "sourceSha": "93c34ff306dceab57a39271f70a5e840261e9d8a",
+      "sourceMismatch": [],
+      "passed": false,
+      "checks": [
+        {
+          "name": "Updater failures, locks, concurrency and migration",
+          "status": "passed",
+          "observed": "Verified immutable update under lock; corrupt/partial/malformed fallback; cancellation; two concurrent processes downloaded once; legacy migration reused bytes."
+        },
+        {
+          "name": "Native executable and two-version bootstrap update",
+          "status": "passed",
+          "observed": "Two packaged fixture generations: bundled runtime launched verified v1; bootstrap staged v2 while v1 active; next start executed v2. No public release claim."
+        },
+        {
+          "name": "Failed shell activation rollback",
+          "status": "passed",
+          "observed": "Executable shell exited 7 without acknowledgement; downloaded working shell resumed, installed pointer rolled back, rejected artifact not restaged, immutable JARs retained."
+        },
+        {
+          "name": "UI at JVM scale 1",
+          "status": "passed",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1. Full-size qualification pending: 1280x800 unavailable on 1024x684 desktop; qualification pending"
+        },
+        {
+          "name": "UI at JVM scale 1.5",
+          "status": "passed",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1.5. Full-size qualification pending: 1280x800 unavailable on 1024x684 desktop; qualification pending"
+        },
+        {
+          "name": "UI at JVM scale 2",
+          "status": "passed",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 2. Full-size qualification pending: 1280x800 unavailable on 1024x684 desktop; qualification pending"
+        },
+        {
+          "name": "Synthetic online login handoff",
+          "status": "passed",
+          "observed": "City/Sandbox locked selection; custom loopback port; invalid-port rejection; pinned TLS sign-in passed."
+        },
+        {
+          "name": "Catalog promotion before Play",
+          "status": "passed",
+          "observed": "Playtest: catalog native A-to-B and web URL B; responsive EDT; duplicate suppression; malformed fallback; removal; updates-off; one download; synthetic native command verified; not gameplay qualification."
+        },
+        {
+          "name": "Bounded native window failure",
+          "status": "passed",
+          "observed": "Invalid native width produced fixed GLFW_INVALID_VALUE code 0x10004; no native descriptions retained."
+        },
+        {
+          "name": "Native rendered city",
+          "status": "failed",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native city renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10009)"
+        },
+        {
+          "name": "Native rendered sandbox",
+          "status": "failed",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native sandbox renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10009)"
+        },
+        {
+          "name": "Native rendered editor",
+          "status": "failed",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native editor renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10009)"
+        },
+        {
+          "name": "Offline native installation",
+          "status": "passed",
+          "observed": "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache/versions/93c34ff306dceab57a39271f70a5e840261e9d8a/ceb5b33bdf8c0c91ed1d588eed31f0a7cc86799fecf29b8d31c6d3e91376600d/mac-arm.jar"
+        }
+      ],
+      "videoDecode": "Actual movie: 20 frames, 2.917 seconds",
+      "videoDecodeExit": 0,
+      "image": "hub-platform-93c34-mac-arm-frame.png"
+    }
+  ],
+  "stableRolloutQualified": false,
+  "Playtest:": {
+    "environment": "GitHub-hosted Windows2022, macOS15 ARM64 and Intel; synthetic profiles; bundled Java. Parent source93c34ff only.",
+    "steps": "Downloaded sanitized artifacts with gh run download39344321446; verified every source fingerprint against git source with CRLF normalization; decoded three actual launcher clips with InspectMovie and inspected each extracted frame.",
+    "expected": "Completed packaged workflows including catalog selection, shell activation and native rendering.",
+    "observed": "Promotion passed all3. Windows/ARM shell fixture and rollback passed; Intel shell process checks failed. Native rendering failed0x10006 Windows and0x10009 both Macs. Launcher frames show Downloads; no native gameplay.",
+    "newApplicationExecution": "None locally this turn; remote executions reported by their sanitized reports."
+  },
+  "requestedExactHead": "b8ef2e791dc310099b7b3b58d89e18b36b4065dc",
+  "exactHeadRunFound": false,
+  "controllerDispatch": "gh workflow run hub-validation.yml --ref feature/queue-62383835386364312d346130642d346262652d383736632d393534373062343337356161 -f source_sha=b8ef2e791dc310099b7b3b58d89e18b36b4065dc -f runner_pool=hosted",
+  "dispatchFence": "Controller must recheck current branch head equals source_sha; if source changes dispatch resulting exact head. No developer dispatch performed.",
+  "playtestEntry": "Playtest: Environment: GitHub-hosted Windows2022 and macOS15 Intel/ARM64, bundled Java, isolated synthetic profiles; source93c34ff. Steps: inspect completed package reports, verify source fingerprints, decode actual launcher recordings and inspect extracted frames. Expected: catalog promotion, shell activation/rollback and native City/Sandbox/editor workflows pass. Observed: promotion passed all3; native rendering failed0x10006 Windows/0x10009 Macs; Intel shell process checks failed. Launcher clips decoded17 Intel/20 Windows/20 ARM frames over2.917s and were inspected. No exact b8ef2e79 result or physical GPU/DPI qualification claimed."
+}
