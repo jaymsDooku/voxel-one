@@ -1,0 +1,45 @@
+{
+  "format": 1,
+  "repository": "jaymsDooku/voxel-one",
+  "sourceSha": "8d74ac68b9ea5067a3fa09df92532190772dfe4a",
+  "sourceKind": "working-tree",
+  "controllerMustRegenerateFromCommittedSource": true,
+  "destinationBranch": "experience-catalog",
+  "expectedDestinationHead": "absent",
+  "releaseTag": "hub-preview-1",
+  "releaseKind": "opt-in preview; never mark latest or stable",
+  "filesSha256": {
+    "catalog.properties": "804b08528aa39ec14dab67bdf987932105022e5952a1ca5ea818a922e10881c7",
+    "shell.properties": "7920e6250a22b46eef22d7239879a47fd4f751ba5386aeaa095391268fe050c8",
+    "voxel-one-shell.jar": "f82e08cefc617a399963bb015d96909754a6ea63ddca4a34a3027e8fdebc365b"
+  },
+  "releaseAssets": [
+    "voxel-one-shell.jar"
+  ],
+  "branchFiles": [
+    "catalog.properties",
+    "shell.properties"
+  ],
+  "sequence": [
+    "Verify independent review and exact-source qualification scope; keep stable rollout gated.",
+    "Recheck sourceSha and expectedDestinationHead through the fenced controller; stop on a mismatch.",
+    "Publish the immutable preview shell asset first; never clobber an existing release asset.",
+    "Verify the published shell SHA-256 and size before exposing shell.properties.",
+    "Controller atomically promotes both metadata files with compare-and-swap against expectedDestinationHead; preserve other branch files.",
+    "Run publication_bundle.py verify and actual packaged bootstrap playtests against public metadata.",
+    "Repeat with a second reviewed published generation; retain both release assets and report the actual upgrade."
+  ],
+  "stableRolloutQualified": false,
+  "pending": [
+    "physical GPU/DPI qualification",
+    "two actually published shell generations",
+    "current-source packaged Windows/macOS gameplay"
+  ],
+  "webPublicationState": "Explicitly unavailable; browser launch disabled. Promote only after successful deployed browser checks and a real published receipt.",
+  "controllerReceiptInputs": [
+    "dashboard/evidence/hub-preview-native-receipt.json",
+    "dashboard/evidence/hub-preview-web-receipt.json"
+  ],
+  "preparedWebDirectory": "target/hub-repair-preview-web",
+  "instructionsAreDataOnly": true
+}

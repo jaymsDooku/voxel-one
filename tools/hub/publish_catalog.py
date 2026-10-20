@@ -13,10 +13,18 @@ def assemble(native_receipt, web_receipt, output):
     native = json.loads(Path(native_receipt).read_text())
     web = json.loads(Path(web_receipt).read_text())
     for receipt in (native, web):
-        if receipt.get('tested') is not True or receipt.get('published') is not True:
-            raise ValueError('Promotion requires tested and published receipts')
-        if not re.fullmatch('[0-9a-f]{40}', receipt.get('source', '')):
-            raise ValueError('A full public source revision is required')
+        if 'available' in receipt and type(receipt['available']) is not bool:
+            raise ValueError('Availability must be an explicit Boolean')
+        withheld = receipt is web and receipt.get('available') is False
+        if withheld:
+            if (receipt.get('tested') is not False or receipt.get('published') is not False
+                    or receipt.get('source') != 'unpublished' or receipt.get('build') != 'unpublished'):
+                raise ValueError('Unavailable web entries cannot claim tested or published provenance')
+        else:
+            if receipt.get('available') is False or receipt.get('tested') is not True or receipt.get('published') is not True:
+                raise ValueError('Promotion requires tested and published receipts')
+            if not re.fullmatch('[0-9a-f]{40}', receipt.get('source', '')):
+                raise ValueError('A full public source revision is required')
         if not re.fullmatch('[A-Za-z0-9._-]{1,80}', receipt.get('build', '')):
             raise ValueError('Invalid build ID')
         if any(c in receipt.get('notes', '') for c in '\r\n\\') or not 1 <= len(receipt.get('notes', '')) <= 4000:
