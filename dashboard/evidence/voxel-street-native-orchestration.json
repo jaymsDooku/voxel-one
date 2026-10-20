@@ -1,0 +1,14 @@
+{
+  "command": "python3 -m unittest discover -s deploy -p test_voxel_street_native.py -v",
+  "tests": 3,
+  "passed": 3,
+  "integrationChecks": [
+    "Workflow YAML parses and triggers only on assigned feature push",
+    "Read-only contents permission and checkout without persisted credentials",
+    "Upload restricted to sanitized artifact directory",
+    "CLI rejects missing assigned display with exit 2 before running any workflow",
+    "Failed synthetic runner clears stale passes and restores inherited report bytes in finally"
+  ],
+  "playtest": "Playtest: this change is validation orchestration, not gameplay. Exercised its CLI refusal and artifact collector for passed, failed and missing workflow results. Browser playtesting does not apply to Python/Actions orchestration; the preserved trading playthrough still matches unchanged game sources. Actual native workflows remain pending hosted execution.",
+  "nativeResult": "Not yet executed. Controller feature push triggers scoped hosted check; retrieve artifact voxel-street-native-<exact SHA> and inspect results/media before ready."
+}

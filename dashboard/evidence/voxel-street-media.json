@@ -1,27 +1,30 @@
 {
-  "platform": "Linux VPS / Chromium / software rendering",
+  "sourceHead": "2285f5c61383ea1a5b5595d7e19142d86f977585",
+  "recordedBase": "26b8761ff9c355299aa1df83608a6f6ebcba7e0b",
+  "integrationBase": "b1d7b8d796b97a87a3d63bb08baf2bb9746b8ca6",
+  "platform": "Linux VPS / headless Chromium / isolated synthetic profile / software rendering",
   "video": "voxel-street-playthrough-linux.mp4",
-  "bytes": 868279,
-  "duration": "00:03:07.25",
-  "decode": "Full MP4 decode passed with no errors. Review frame extracted at 182 seconds for visual inspection.",
-  "encoding": "ffmpeg 7.0.2 / H.264 / yuv420p / 8 FPS / original real-time duration / no audio",
-  "publication": "Pending controller feature-branch publication",
-  "sourceBaseline": "26b8761ff9c355299aa1df83608a6f6ebcba7e0b",
+  "bytes": 837990,
+  "duration": "00:03:06.13",
+  "decode": "Full MP4 decode passed without errors. Frame extracted at 182 seconds for inspection.",
+  "encoding": "ffmpeg 7.0.2 / H.264 / yuv420p / 8 FPS / real-time duration / no audio",
+  "publication": "Fresh post-recovery media pending controller publication",
   "sha256": {
     "games/voxel-street/app.mjs": "20cbf2381e3bc99c0ba7f13c2440890c6c8d66066e287d58baa5c3c51f2dfe7e",
     "games/voxel-street/market.test.mjs": "8fc74fdae0cc28a778cf1fd463764fcf21f33e441a1a7f86c1292d85f6cc276d",
     "games/voxel-street/style.css": "775c08454fc5b07119293a03bf5c2bf4c662ee1f161bd46d5ae3e5bfe9ae35e1",
+    "games/voxel-street/REVIEW.md": "2a8799f6dd94dcb1fb037ebe3a690e161f151a9d190d93a95ad41eec8cd0b06f",
     "games/voxel-street/index.html": "13af96e39fce0e92250b225a8fdcc224d3968f96b0cf6bd88f60c437c196d3b9",
     "games/voxel-street/market.mjs": "c172463670b7d3f39285fd6ede7ae700eea39771ffe1deceb3b82a7ce083d166",
     "games/voxel-street/README.md": "9e3cc2acbb5f08070523cd4ede9ce0d3ced66b2b4cb62b8e0cfb109c48f1a1f1",
     "deploy/test_voxel_street.cjs": "9a28ddfe8776682e4b9727eb1d355799c9aef204f363aae013e8b66977f4bd67",
-    "dashboard/evidence/voxel-street-playthrough-linux.mp4": "316a02feddc9b7d18ca4d5724004c73742e777b75cd2eaa528176a68ede8ba8e",
+    "dashboard/evidence/voxel-street-playthrough-linux.mp4": "e4598645c0fb13037b9777ac7df29badf0982653042d787625a9b2ae5ce41e5e",
     "dashboard/evidence/voxel-street-announcement.png": "661a5b5ba1a5ce4119852b02f9c03065667dee14f8f6782a3af089971a26e82c",
     "dashboard/evidence/voxel-street-desk.png": "a6fb8aaf9587d163c79cfa3c8d3f617dae59bce1a3370992acd1e679ef37980a",
     "dashboard/evidence/voxel-street-preparation.png": "c304364e6c3d8f506836dc3198f0d61f8ab276b2bb589563cb7d4ada0314abb4",
     "dashboard/evidence/voxel-street-next-day.png": "f720c0b6638904da8f0a8e1386098d4ed66d5ce8e10d68c53aa99696654d9350",
     "dashboard/evidence/voxel-street-review.png": "9696ce7a37d8bbc62bd0a6ad57594aed8f7ebe7e8675e76d02d4c7dbd28bbf4e",
-    "dashboard/evidence/voxel-street-market-event.png": "2a1f35a166fc47496529d8854883feb5b8a86ce7a90afc0be36d018640b91a74",
-    "games/voxel-street/REVIEW.md": "1c6e6d350c774b9eb93ce66e9cf9a1b451232d21f76da2fd0887715ef85cee6e"
-  }
+    "dashboard/evidence/voxel-street-market-event.png": "2a1f35a166fc47496529d8854883feb5b8a86ce7a90afc0be36d018640b91a74"
+  },
+  "nativeOrchestration": "Added after trading playtest; no game runtime source changed. Hosted native execution pending."
 }

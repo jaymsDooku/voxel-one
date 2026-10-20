@@ -1,0 +1,38 @@
+{
+  "sourceHead": "2285f5c61383ea1a5b5595d7e19142d86f977585",
+  "command": "mvn -q -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=MusicAnalysisTest,SandboxIdentityTest,ControlsTest test",
+  "suites": [
+    {
+      "name": "dev.jayms.MusicAnalysisTest",
+      "tests": "6",
+      "errors": "0",
+      "skipped": "0",
+      "failures": "0",
+      "time": "1.095"
+    },
+    {
+      "name": "dev.jayms.ControlsTest",
+      "tests": "5",
+      "errors": "0",
+      "skipped": "0",
+      "failures": "0",
+      "time": "0.139"
+    },
+    {
+      "name": "dev.jayms.SandboxIdentityTest",
+      "tests": "5",
+      "errors": "0",
+      "skipped": "0",
+      "failures": "0",
+      "time": "0.721"
+    }
+  ],
+  "total": 16,
+  "nativeGraphicalRegression": "Not run: this turn has no inherited DISPLAY or XAUTHORITY. No display or authentication cookie was read or fabricated.",
+  "graphicalHarnessPreflight": {
+    "command": "python3 deploy/run_music_regressions.py --display \"$DISPLAY\"",
+    "exitCode": 1,
+    "error": "Inherited assigned DISPLAY required",
+    "meaning": "No graphical application workflow was executed."
+  }
+}

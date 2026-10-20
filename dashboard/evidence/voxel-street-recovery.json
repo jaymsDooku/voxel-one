@@ -10,5 +10,7 @@
     "Resolved progress JSON parses; IDs unique; both work entries retained"
   ],
   "playtest": "Playtest: No new browser run in this Git-recovery phase. No Voxel Street source changed during conflict resolution. Final-head browser playtest, fresh media and affected native music/sandbox regressions remain required after controller continuation. Prior media is historical.",
-  "handoff": "Controller stages resolution and continues rebase. Developer has not staged, committed, pushed, aborted or reset Git."
+  "handoff": "Controller stages resolution and continues rebase. Developer has not staged, committed, pushed, aborted or reset Git.",
+  "historical": true,
+  "supersededBy": "Controller completed rebase; recovered source 2285f5c61383ea1a5b5595d7e19142d86f977585. See voxel-street-final-audit.json, voxel-street-native-unit.json and current validation notes."
 }

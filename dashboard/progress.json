@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-20T14:24:21+00:00",
+  "updatedAt": "2026-10-20T17:39:33+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -36,8 +36,8 @@
         }
       ],
       "status": "in_progress",
-      "note": "Resolving integration conflict while preserving the merged music visualizer and sandbox smoke fixes. Earlier no-deletions validation claim was incomplete. Final-head tests, media and independent review remain pending after controller rebase continuation.",
-      "updatedAt": "2026-10-20T14:24:21+00:00"
+      "note": "Added exact-source native regression CI on assigned feature push. Three local orchestration checks pass; 37 inherited music/sandbox files remain unchanged. Controller push triggers hosted software-rendered test and sanitized artifact. Trading media remains saved. Native graphical results and independent review pending.",
+      "updatedAt": "2026-10-20T17:39:33+00:00"
     },
     {
       "id": "music-visualizer",
