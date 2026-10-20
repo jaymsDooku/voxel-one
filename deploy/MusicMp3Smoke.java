@@ -56,6 +56,12 @@ public final class MusicMp3Smoke {
                 MusicSmoke.shot("music-mp3-"+name.substring(0,3)+".png");
                 key("space"); double[] pos={0}; render(() -> pos[0]=MusicSmoke.active.track.position()); Thread.sleep(350);
                 render(() -> require(!MusicSmoke.active.track.playing() && Math.abs(MusicSmoke.active.track.position()-pos[0])<.05, "MP3 pause holds clock"));
+                key("Right");
+                render(() -> require(!MusicSmoke.active.track.playing() && MusicSmoke.active.track.position() > 5 && MusicSmoke.active.track.position() < MusicSmoke.active.track.data().duration(), "MP3 keyboard seek moves forward while paused"));
+                key("Right");
+                render(() -> require(!MusicSmoke.active.track.playing() && MusicSmoke.active.track.position() > MusicSmoke.active.track.data().duration() - .01 && MusicSmoke.active.track.position() < MusicSmoke.active.track.data().duration(), "MP3 keyboard seek clamps below completion while paused"));
+                key("Left");
+                render(() -> require(!MusicSmoke.active.track.playing() && MusicSmoke.active.track.position() > .9 && MusicSmoke.active.track.position() < 1.1, "MP3 keyboard seek back preserves pause"));
                 key("space"); Thread.sleep(300);
                 render(() -> { require(MusicSmoke.active.track.playing(), "MP3 resumes"); MusicSmoke.active.seek(3.7); }); Thread.sleep(500);
                 render(() -> require(MusicSmoke.active.bands.mid()>.4 && MusicSmoke.active.bands.bass()<.03, "MP3 seek drives mid passage"));
@@ -78,7 +84,7 @@ public final class MusicMp3Smoke {
         app.run(a -> { MusicSmoke.active=a; FutureTask<Void> task; while((task=MusicSmoke.commands.poll())!=null)task.run(); });
         input.join(); if(MusicSmoke.failure!=null)throw new AssertionError("MP3 native workflow failed",MusicSmoke.failure);
         require(app.track.data()==null && app.window==0,"Exit releases MP3 audio and window");
-        Files.writeString(MusicSmoke.out.resolve("music-mp3-playtest.json"), "{\n\"Playtest\":\"Production MP3 file picker, renderer and OpenAL playback; inherited Linux X11 display; isolated synthetic profile; OpenAL Soft null output\",\n\"renderer\":\""+app.renderer+"\",\n\"checks\":[\"invalid MP3 error and retry\",\"CBR stereo and VBR mono MP3 load through real chooser and drive bass/mid visualization\",\"pause resume seek restart palette sensitivity motion\",\"WAV replacement regression\",\"F10 MP4 capture\",\"exit releases audio\"],\n\"observed\":\"All assertions passed; physical speakers/GPU and other desktop runtimes not qualified\"\n}\n");
+        Files.writeString(MusicSmoke.out.resolve("music-mp3-playtest.json"), "{\n\"Playtest\":\"Production MP3 file picker, renderer and OpenAL playback; inherited Linux X11 display; isolated synthetic profile; OpenAL Soft null output\",\n\"javaVersion\":\""+System.getProperty("java.version")+"\",\n\"renderer\":\""+app.renderer+"\",\n\"checks\":[\"invalid MP3 error and retry\",\"CBR stereo and VBR mono MP3 load through real chooser and drive bass/mid visualization\",\"pause resume keyboard seek boundary and restart palette sensitivity motion\",\"WAV replacement regression\",\"F10 MP4 capture\",\"exit releases audio\"],\n\"observed\":\"All assertions passed; physical speakers/GPU and other desktop runtimes not qualified\"\n}\n");
         System.out.println("PASS: native MP3 import/playback/visualization/retry workflow"); System.exit(0);
     }
 }

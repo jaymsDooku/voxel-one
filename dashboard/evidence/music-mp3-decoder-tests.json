@@ -1,5 +1,5 @@
 {
-  "scope": "Retained executed focused decoder/regression checks; not a full-verify or native-playtest pass. Initial combined run had 19 tests; final separate MP3 run had 4. MP3 main/test source unchanged since those runs.",
+  "scope": "Java 17 focused decoder/regression check on rebased source 2d75a6eb03d2945d8e5503a5a71f386256b467f4; 20 tests and package command exited 0. Not a full-suite pass.",
   "platform": "Linux amd64; OpenJDK 17",
   "suites": [
     {
@@ -46,6 +46,6 @@
       }
     ]
   },
-  "fullVerify": "pending; local final run interrupted with exit 130 during MobileGatewayTest",
-  "Playtest": "pending; assigned DISPLAY not inherited; no fresh native media captured"
+  "fullVerify": "Full verify passed on four hosted jobs for historical head c1e17f8c; final rebased-head hosted validation pending publication.",
+  "Playtest": "Native import/error retry/playback/controls/keyboard seek boundary/WAV regression passed on Java 25.0.3, inherited assigned X11 display, llvmpipe, OpenAL Soft null output. Fresh F10 media pending controller publication."
 }

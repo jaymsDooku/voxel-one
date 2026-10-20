@@ -22,7 +22,7 @@ for old in out.glob('music-mp3-*'):
 recordings = root/'target/music-mp3-home/.voxel-one/recordings'
 previous_clips = set(recordings.glob('*.mp4'))
 cp = os.pathsep.join([str(root/'target/voxel-one-1.0-SNAPSHOT-client.jar'), str(root/'target/music-mp3-smoke')])
-subprocess.run(['javac', '-cp', cp, '-d', 'target/music-mp3-smoke', 'deploy/MusicSmoke.java', 'deploy/MusicMp3Smoke.java'], check=True)
+subprocess.run(['javac', '--release', '17', '-cp', cp, '-d', 'target/music-mp3-smoke', 'deploy/MusicSmoke.java', 'deploy/MusicMp3Smoke.java'], check=True)
 env = os.environ.copy()
 env.update(DISPLAY=a.display, LIBGL_ALWAYS_SOFTWARE='1', MESA_SHADER_CACHE_DISABLE='true', ALSOFT_DRIVERS='null', TMPDIR=str(root/'target/tmp'), XDG_CACHE_HOME=str(root/'target/music-mp3-home/cache'))
 env.pop('WAYLAND_DISPLAY', None)

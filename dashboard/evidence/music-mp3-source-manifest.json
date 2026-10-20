@@ -1,22 +1,39 @@
 {
-  "scope": "Unpublished MP3 implementation source; hashes cover current proposed non-dashboard files, not an exact submitted Git head. Native media pending.",
+  "scope": "Rebased MP3 implementation plus local harness portability/keyboard seek coverage and license whitespace changes; final media captured from this working source. Not a final submitted Git receipt.",
   "auditBase": "b1d7b8d796b97a87a3d63bb08baf2bb9746b8ca6",
   "featureBranch": "feature/queue-61643037396437352d643830382d343361332d396664322d613831663766373738623861",
   "sha256": {
     ".github/workflows/build.yml": "cdbcd29294bf0796e2012f87e70bb7aed7ec5f45fe9468a79ec52774866c9e5b",
     "deploy/MusicMp3DecodeSmoke.java": "539d07d42f93494d363fd04ff4e31c2173c45b917435ebf23c4f7d92f339cd37",
-    "deploy/MusicMp3Smoke.java": "b13e01045293b04783af4538d81b56a626d2a6f1ca5285b5d9c4fd07f11969cb",
+    "deploy/MusicMp3Smoke.java": "a40af7668241efdf82fdc990b15e7fa3fbd1028ee5a194a8ac82a1e00dbfca1d",
     "deploy/generate_music_mp3_fixtures.py": "ef42a83a77d5f47ced8f3b3868df817b42e2187dc9c1b7ff54a5c90bd71974b4",
-    "deploy/run_music_mp3_smoke.py": "1bd8b638ee2ccf6b9a81aaa505132f585c740a828f34de5b5a848f48a1d9dba7",
-    "docs/MUSIC_VISUALIZER.md": "4c956d208ad050fb72cda1d4b9da4dfe6da91637b60f0da1a0ab3b844e75a635",
+    "deploy/run_music_mp3_smoke.py": "0c3438c7408c3cea8d04f6c01a19962b652f27db364f08a02a13400159e0fa5c",
+    "docs/MUSIC_VISUALIZER.md": "f8b63e052a0254462cd55351bbe691550d5df93856f8288d7705d38d8386f5cf",
     "pom.xml": "39459d48ca2f7f8fcc64ec1a968df53ffdd462649b7f9f2b49936169589116a7",
     "src/main/java/dev/jayms/music/MusicTrack.java": "60f87fe47f99908a12b37600f5a4dc958265602eb7440c7a69c5b9661639486d",
     "src/main/java/dev/jayms/music/MusicVisualizer.java": "1fa849e6a577d2cf3aae5cfb3d226dc01a1f23e94a7deada731bf64b40003271",
-    "src/main/resources/META-INF/licenses/JLayer.txt": "885a03f54b157961236f46843e79972abfcd6890b6cbb368bc7eca328ff95a12",
+    "src/main/resources/META-INF/licenses/JLayer.txt": "61d7416de2235aa0b3799083f047881b892ff56158731a3e6ba88f90ecae8b2e",
     "src/main/resources/META-INF/licenses/MP3-decoder-notice.txt": "33481de166e2c55861792cf11767d8f45ae59c0b1fe080b51b02d381b9baa491",
-    "src/main/resources/META-INF/licenses/MP3SPI.txt": "885a03f54b157961236f46843e79972abfcd6890b6cbb368bc7eca328ff95a12",
+    "src/main/resources/META-INF/licenses/MP3SPI.txt": "61d7416de2235aa0b3799083f047881b892ff56158731a3e6ba88f90ecae8b2e",
     "src/test/java/dev/jayms/MusicMp3Test.java": "cbe912f9a4e4baa171d9a8da2d0d1542e79c932a7493ec88e0c66c171231f008",
     "src/test/resources/music/cbr-stereo.mp3": "e74935802f3ddc80fc8fc8593dbf30bee7e5bfa7277a5000fb6ddf0e25243dd4",
     "src/test/resources/music/vbr-mono.mp3": "09332a3aa7997b2c42d2aea74d385a16e411baeecdc213e0ccff5a7e21a3c9a9"
+  },
+  "publishedImplementationHead": "c1e17f8c96e3bd17fd251520c7cd82a0ea43a20f",
+  "localHead": "2d75a6eb03d2945d8e5503a5a71f386256b467f4",
+  "integrationParent": "3f877c21c8e6776adba9d2130e2fd92e55853763",
+  "testedClientJarSha256": "00bd73336ca27754b208d1aab0f3c780ec274a3c83f4840ebe6e325f94d5ce98",
+  "mediaSha256": {
+    "dashboard/evidence/music-mp3-cbr.png": "7e1347b211a783d09bd8857553cd3b4f9a89176c003d81083a8592aba2037036",
+    "dashboard/evidence/music-mp3-error.png": "2ea13d4f002377e68633a2c8e34225d881a6b8c82b6fad11644dce06d23ae9a0",
+    "dashboard/evidence/music-mp3-vbr.png": "053ac82411fcb0c5b173857319ed703e98cabe14b80b5c60e7c1c0eba7e062e7",
+    "dashboard/evidence/music-mp3-video-contact.png": "a2ab3666e6a7f48011449fd5093aaaf2fe0e44ad99bf901afb02ee5e560cf485",
+    "dashboard/evidence/music-mp3.mp4": "872e3d8f0a6513c3d0b7e2c409d12c743d8748377144cd0c9e0fae4aac86f9c4"
+  },
+  "audit": {
+    "recordedBase": "b1d7b8d796b97a87a3d63bb08baf2bb9746b8ca6",
+    "integrationParent": "3f877c21c8e6776adba9d2130e2fd92e55853763",
+    "unchangedInheritedPaths": 91,
+    "deletedPaths": []
   }
 }

@@ -48,7 +48,7 @@ java -cp target/voxel-one-1.0-SNAPSHOT-client.jar deploy/MusicMp3DecodeSmoke.jav
 python3 deploy/run_music_mp3_smoke.py --display "$DISPLAY"
 ```
 
-The MP3 native harness uses the shipped shaded JAR, a real Swing file chooser and X11 keys. It checks invalid-file recovery, CBR/VBR playback and band response, pause/resume, seek/restart, controls and WAV replacement. It captures fresh screenshots and a short F10 recording. Its OpenAL null backend checks PCM upload and playback timing, not audible speakers. The inherited assigned display is required.
+The MP3 native harness uses the shipped shaded JAR, a real Swing file chooser and X11 keys. It needs a headful Java 17+ runtime and compiles its harness classes with `--release 17`. It checks invalid-file recovery, CBR/VBR playback and band response, pause/resume, paused keyboard seek/clamping, seek/restart, controls and WAV replacement. It captures fresh screenshots and a short F10 recording. Its OpenAL null backend checks PCM upload and playback timing, not audible speakers. The inherited assigned display is required.
 
 Fixtures in `src/test/resources/music/` are original six-second sine signals: 100 Hz for three seconds, then 1000 Hz for three seconds, amplitude 0.45. `deploy/generate_music_mp3_fixtures.py` reproduces them with system LAME (128 kbit/s CBR stereo and quality-4 VBR mono). LAME is only a fixture-generation tool; tests and the shipped client need no LAME installation. Encoder output is checked in so Maven tests run on all supported operating systems.
 
