@@ -4017,8 +4017,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Experimental structures passed 753 regressions, 53 focused checks, native workflow/media and a 32-session integration at production cadence. Sanitized evidence is local. Awaiting assigned-feature publication and exact-head Java 17 hosted validation; reference qualification and stable rollout remain gated.",
-      "updatedAt": "2026-10-20T18:54:54+00:00"
+      "note": "Experimental structures ready for independent review: all eight hosted build jobs passed, 753 tests each. Native workflow and 32-session functional checks recorded. Reference city/max performance qualification and stable rollout remain gated.",
+      "updatedAt": "2026-10-20T19:22:21+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

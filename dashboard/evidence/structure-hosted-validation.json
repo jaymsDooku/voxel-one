@@ -1,0 +1,204 @@
+{
+  "schema": 1,
+  "source_head": "72e9ff865b55f86ea188afbfa67feb4c56c888e6",
+  "review_base": "b1d7b8d796b97a87a3d63bb08baf2bb9746b8ca6",
+  "pull_request": "https://github.com/jaymsDooku/voxel-one/pull/76",
+  "observed_utc": "2026-10-20T19:22:15.949748+00:00",
+  "hosted_runs": [
+    {
+      "conclusion": "success",
+      "event": "push",
+      "head_sha": "72e9ff865b55f86ea188afbfa67feb4c56c888e6",
+      "html_url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39479041151",
+      "id": 39479041151,
+      "status": "completed",
+      "jobs": [
+        {
+          "active_steps": [],
+          "conclusion": "success",
+          "html_url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39479041151/job/118822478090",
+          "name": "build (macos-latest, mac-arm)",
+          "status": "completed"
+        },
+        {
+          "active_steps": [],
+          "conclusion": "success",
+          "html_url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39479041151/job/118822478432",
+          "name": "build (windows-latest, windows)",
+          "status": "completed"
+        },
+        {
+          "active_steps": [],
+          "conclusion": "success",
+          "html_url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39479041151/job/118822478456",
+          "name": "build (macos-15-intel, mac-intel)",
+          "status": "completed"
+        },
+        {
+          "active_steps": [],
+          "conclusion": "success",
+          "html_url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39479041151/job/118822478553",
+          "name": "build (ubuntu-latest, linux)",
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "conclusion": "success",
+      "event": "pull_request",
+      "head_sha": "72e9ff865b55f86ea188afbfa67feb4c56c888e6",
+      "html_url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39479051049",
+      "id": 39479051049,
+      "status": "completed",
+      "jobs": [
+        {
+          "active_steps": [],
+          "conclusion": "success",
+          "html_url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39479051049/job/118822512442",
+          "name": "build (ubuntu-latest, linux)",
+          "status": "completed"
+        },
+        {
+          "active_steps": [],
+          "conclusion": "success",
+          "html_url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39479051049/job/118822512891",
+          "name": "build (windows-latest, windows)",
+          "status": "completed"
+        },
+        {
+          "active_steps": [],
+          "conclusion": "success",
+          "html_url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39479051049/job/118822513099",
+          "name": "build (macos-latest, mac-arm)",
+          "status": "completed"
+        },
+        {
+          "active_steps": [],
+          "conclusion": "success",
+          "html_url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39479051049/job/118822513189",
+          "name": "build (macos-15-intel, mac-intel)",
+          "status": "completed"
+        }
+      ]
+    }
+  ],
+  "hosted_validation": "All eight Linux/Windows/Intel Mac/ARM Mac push and PR build jobs passed; 753 tests per job, zero failures/errors/skips",
+  "source_checks": {
+    "experimental_manifest_files": 354,
+    "native_manifest_files": 206,
+    "mismatches": 0,
+    "source_changed_since_local_playtest": false
+  },
+  "published_media": {
+    "structure-world-placed.png": {
+      "bytes": 339261,
+      "sha256": "37612a7c998d831af6f8ab5a787c3b6bc6286995e095e4f6e19ea690bcff14c9",
+      "published_source": "72e9ff865b55f86ea188afbfa67feb4c56c888e6"
+    },
+    "structure-preview-conflict.png": {
+      "bytes": 285634,
+      "sha256": "c163f2f5a4cc7cd779c7f4fdb52993562a67b57d834369a46c4abc7c5ada6350",
+      "published_source": "72e9ff865b55f86ea188afbfa67feb4c56c888e6"
+    },
+    "structure-workflow.mp4": {
+      "bytes": 270106,
+      "sha256": "d5649e5b4843e1f7cbac5f07b8da5279d3b103471e0b3fc2eb36ae3da5d38a33",
+      "published_source": "72e9ff865b55f86ea188afbfa67feb4c56c888e6"
+    },
+    "structure-native-source.json": {
+      "bytes": 25541,
+      "sha256": "dd18d4375f8c855d295b0d29ea338da756bd5b214f3664e6a3a20f5ae533a915",
+      "published_source": "72e9ff865b55f86ea188afbfa67feb4c56c888e6"
+    },
+    "structure-experimental-validation.json": {
+      "bytes": 7306,
+      "sha256": "023a4889e64159174a7d72589dc3adde6e6f43d0ffc3f7c2863078b6af72558b",
+      "published_source": "72e9ff865b55f86ea188afbfa67feb4c56c888e6"
+    }
+  },
+  "playtest": "Playtest: downloaded exact-head conflict image inspected; downloaded H264 video decoded to an inspected frame: 15 frames, 23.763 s. Published bytes match the running-application captures. No native rerun needed because tested production/harness source hashes are unchanged.",
+  "diff_audit": {
+    "files": 74,
+    "deleted_files": [],
+    "unmerged_paths": [],
+    "intended_replacements": "Model codec and integer IDs, atomic structure networking/transactions, high/low streaming, F12 UI; protocol-version assertions updated while existing city/save/command checks are retained. No unrelated files deleted."
+  },
+  "qualification": "Reference physical GPU, city/max 20-run budgets, distributed shaped-network topology and stable rollout remain gated",
+  "resume_condition": "Hosted validation complete. Experimental implementation can receive independent review. Physical-GPU, distributed shaped-network and city/max performance qualification and stable rollout remain gated.",
+  "publication": "This supplemental report is local pending controller publication",
+  "hosted_linux": {
+    "source_head": "72e9ff865b55f86ea188afbfa67feb4c56c888e6",
+    "totals": {
+      "tests": 753,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "artifact_id": 12291216797,
+    "pr_summary_source": "38c732c7509659fe8ccd8722b8272b2032989af2",
+    "note": "Push summary matches exact feature head; PR summary describes the merge commit. Other platforms pending."
+  },
+  "hosted_windows": {
+    "source_head": "72e9ff865b55f86ea188afbfa67feb4c56c888e6",
+    "totals": {
+      "tests": 753,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "artifact_id": 12291213132
+  },
+  "hosted_pr_windows": {
+    "source_head": "38c732c7509659fe8ccd8722b8272b2032989af2",
+    "totals": {
+      "tests": 753,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "artifact_id": 12289929939,
+    "scope": "PR merge commit"
+  },
+  "hosted_pr_mac_intel": {
+    "source_head": "38c732c7509659fe8ccd8722b8272b2032989af2",
+    "totals": {
+      "tests": 753,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "artifact_id": 12290699707,
+    "scope": "PR merge commit"
+  },
+  "hosted_mac_intel": {
+    "source_head": "72e9ff865b55f86ea188afbfa67feb4c56c888e6",
+    "totals": {
+      "tests": 753,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "artifact_id": 12290798215
+  },
+  "hosted_pr_mac_arm": {
+    "source_head": "38c732c7509659fe8ccd8722b8272b2032989af2",
+    "totals": {
+      "tests": 753,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "artifact_id": 12291079631,
+    "scope": "PR merge commit"
+  },
+  "hosted_mac_arm": {
+    "source_head": "72e9ff865b55f86ea188afbfa67feb4c56c888e6",
+    "totals": {
+      "tests": 753,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "artifact_id": 12290889611
+  }
+}
