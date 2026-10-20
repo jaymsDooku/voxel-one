@@ -69,11 +69,27 @@ public class SandboxPlaytest {
         finally { x("keyup","space"); }
         capture(id,out.resolve("voxel-sandbox-flight.png"));
         x("key","e"); await(() -> ((InventoryHud)get("inventoryHud")).open,"Inventory opens");
-        onFrame(() -> { local().inventory.add(dev.jayms.net.Blocks.GRASS,1); return null; });
-        int w=(int)get("framebufferWidth"), h=(int)get("framebufferHeight");
-        int left=w/2-268, top=h/2-175;
-        x("mousemove","--window",id,""+(left+430),""+(top-35)); x("click","1");
-        x("mousemove","--window",id,""+(left+430),""+(top+275)); x("click","1");
+        onFrame(() -> {
+            local().inventory.add(dev.jayms.net.Blocks.GRASS,1);
+            var hud=(InventoryHud)get("inventoryHud");hud.openBook();hud.selectRecipe(0);
+            return null;
+        });
+        // The recipe book replaced the old fixed-coordinate craft panel. Read its rendered hit box.
+        float[] craftButton=new float[2];
+        onFrame(() -> {
+            var hud=(InventoryHud)get("inventoryHud");
+            Field hits=InventoryHud.class.getDeclaredField("hits");hits.setAccessible(true);
+            boolean found=false;
+            for(Object hit:(java.util.List<?>)hits.get(hud)) {
+                var action=hit.getClass().getDeclaredMethod("action");action.setAccessible(true);
+                if(!action.invoke(hit).equals("craft"))continue;
+                String[] names={"x","y","w","h"};float[] bounds=new float[4];
+                for(int i=0;i<4;i++){var method=hit.getClass().getDeclaredMethod(names[i]);method.setAccessible(true);bounds[i]=(float)method.invoke(hit);}
+                craftButton[0]=bounds[0]+bounds[2]/2;craftButton[1]=bounds[1]+bounds[3]/2;found=true;break;
+            }
+            require(found,"Rendered recipe craft action available");return null;
+        });
+        x("mousemove","--window",id,""+(int)craftButton[0],""+(int)craftButton[1]); x("click","1");
         await(() -> local().inventory.countType(dev.jayms.net.Blocks.piece(dev.jayms.net.Blocks.GRASS,1))==8,"Craft cuts Grass into 8 fractional blocks");
         capture(id,out.resolve("voxel-sandbox-craft.png"));
         x("click","1");

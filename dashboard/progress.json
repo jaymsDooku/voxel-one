@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-18T05:28:05+00:00",
+  "updatedAt": "2026-10-20T13:29:14+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,31 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "music-visualizer",
+      "title": "Voxel Music Visualizer",
+      "description": "Building separate local music application using shared renderer and F10 recorder; validation pending.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "F10 MP4 (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36663630636537352d393361332d343631392d396238662d393665636466306164316163/dashboard/evidence/music-visualizer.mp4"
+        },
+        {
+          "kind": "link",
+          "label": "Validation report (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36663630636537352d393361332d343631392d396238662d393665636466306164316163/dashboard/evidence/music-validation.md"
+        },
+        {
+          "kind": "link",
+          "label": "Controls and beat memory (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36663630636537352d393361332d343631392d396238662d393665636466306164316163/dashboard/evidence/music-controls.png"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Implemented and locally validated; awaiting controller publication and independent review. 14 focused tests, final native music workflow, Main selection/return/relaunch, Sandbox/City regressions and package build pass. Linux llvmpipe 1100x720: 73.43 FPS mixed workflow. F10 MP4 1,974,134 bytes / 10.834 s; all 133 frames decode. Physical hardware qualification remains pending; no stable rollout claim.",
+      "updatedAt": "2026-10-20T13:29:14+00:00"
+    },
     {
       "id": "9c35cf2b-7ce5-4874-9649-13bf9392c208",
       "title": "Voxel Sandbox: eliminate frame drops when loading new chunks",

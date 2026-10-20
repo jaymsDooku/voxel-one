@@ -1,0 +1,30 @@
+{
+  "branch": "feature/queue-36663630636537352d393361332d343631392d396238662d393665636466306164316163",
+  "taskStartHead": "26b8761f",
+  "publication": "pending controller commit/push; source hashes bind local implementation to captured media",
+  "sourceSha256": {
+    "src/main/java/dev/jayms/GameIdentity.java": "51ff3f06341c54454706cfc4a22b663b34c91d91d5ea338b109c4efa465648f4",
+    "src/main/java/dev/jayms/Main.java": "3cafd3a516f9fd1b0f825e08703b3d5edf0420dfb6601f491ac30268870eb5e7",
+    "src/main/java/dev/jayms/music/MusicAnalysis.java": "1cf788d1485bbfa85c4d6204430a2035224c2f1259a897db70c20c097606f333",
+    "src/main/java/dev/jayms/music/MusicTrack.java": "7eb7dfbb401c5e442c9867cb61c9341ba6f733bdd3484da96bd3c431ed28aeb3",
+    "src/main/java/dev/jayms/music/MusicVisualizer.java": "22c5446c6781dba3f4b8848daca04238bb1d067cf1ac4852164779631bc19ffc",
+    "src/main/java/dev/jayms/ui/LoginDialog.java": "f94bb8ce9396ecd8d0acc77abddef6a6cb0d7f0517e17b211c7341bfaee908d3",
+    "src/main/resources/shaders/music.frag": "d5f1fc7a956fe38b9929fc5f44807c956eac4df4d051e797926387baf0b4efed",
+    "src/main/resources/shaders/music.vert": "22f2e4a14bdf8a9de2cb51122b084959f4cc123d895a1b6485d7d6409adcd579"
+  },
+  "mediaSha256": {
+    "dashboard/evidence/music-visualizer.mp4": "8d1768d710c478fe83e14380011b03ad7aaaf0bba19f4184205c519ce178ae13",
+    "dashboard/evidence/music-controls.png": "d510ca12dfec31068376347f74654e88ea231ac8b0ef4f1cd66aa0ffbfafb1b0",
+    "dashboard/evidence/music-video-contact.png": "f8c2382122f1948fa9af016504c4746cb7284655d88ce0713fbccd92e2804def"
+  },
+  "testSourceSha256": {
+    "deploy/MusicSmoke.java": "ffa08e5a2f37b45f576031616bde522781d37d2b0ef0cf8bd17c48f95f4089ce",
+    "deploy/MusicCatalogSmoke.java": "bf078882dccc4ee466ad6d0feb59e8282730e424026b6cfa5b6b3ccefde21d33",
+    "deploy/SandboxPlaytest.java": "e2d9d8324d148280b842974eb85d1f6ade9fe7bc388ef07f9561078969bbedc1",
+    "deploy/VerifyMusicMedia.java": "21ee6a24b2fd567ce2219d6028c8284b6d030d542b3ea98074bc8e7da1ea31de",
+    "deploy/run_music_smoke.py": "ed82fc8b49e611bf726ab7120f286dbd355381cfdc26a15b479c1b37e8c1699a",
+    "deploy/run_music_regressions.py": "ab0c1aed0e65706c5a66e51517b77caf9b079ac38bebf43e11d4088df85f2111",
+    "deploy/check_music_media.py": "b560ab1b847c497efb979324bbec98820049d10edcdd3a8e942cb5b027a8e918",
+    "src/test/java/dev/jayms/MusicAnalysisTest.java": "c014b43757a544ed4f440b07febd79620e3934fb748c50846c5c27d2d9e84b60"
+  }
+}

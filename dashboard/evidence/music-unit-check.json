@@ -1,0 +1,27 @@
+{
+  "command": "mvn -q -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=MusicAnalysisTest,SandboxIdentityTest,ControlsTest test",
+  "status": "passed",
+  "suites": [
+    {
+      "name": "dev.jayms.MusicAnalysisTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.SandboxIdentityTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.ControlsTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ]
+}

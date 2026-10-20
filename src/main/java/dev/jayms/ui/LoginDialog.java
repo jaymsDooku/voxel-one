@@ -17,6 +17,7 @@ import javax.swing.*;
  */
 public final class LoginDialog {
     public static volatile boolean citySelected = false;
+    public static volatile boolean musicSelected = false;
 
     public static MultiplayerClient open(String initialHost, int initialPort, String explicitPin)
             throws Exception {
@@ -25,6 +26,7 @@ public final class LoginDialog {
 
     public static MultiplayerClient open(String initialHost, int initialPort, String explicitPin,
             boolean gameExplicit, boolean portExplicit) throws Exception {
+        musicSelected = false;
         CompletableFuture<MultiplayerClient> result = new CompletableFuture<>();
         SwingUtilities.invokeLater(() -> show(initialHost, initialPort, explicitPin, gameExplicit, portExplicit, result));
         return result.get();
@@ -80,13 +82,18 @@ public final class LoginDialog {
             public void removeUpdate(javax.swing.event.DocumentEvent e) { changed(); }
             public void changedUpdate(javax.swing.event.DocumentEvent e) { changed(); }
         });
+        GameIdentity[] previousGame = {GameIdentity.of(citySelected)};
         game.addActionListener(e -> {
-            var previous = GameIdentity.of(citySelected);
+            var previous = previousGame[0];
             var selected = (GameIdentity) game.getSelectedItem();
             changingPort[0] = true;
-            try { port.setText(selected.selectedPort(previous, port.getText().trim(), customPort[0])); }
+            try { if (selected != GameIdentity.MUSIC) {
+                port.setText(selected.selectedPort(previous, port.getText().trim(), customPort[0]));
+                previousGame[0] = selected;
+            } }
             finally { changingPort[0] = false; }
             citySelected = selected == GameIdentity.CITY;
+            musicSelected = selected == GameIdentity.MUSIC;
             description.setText(selected.description);
         });
         String[] labels = {"Game", "Server", "Port", "Username", "Password"};
@@ -124,6 +131,14 @@ public final class LoginDialog {
         panel.add(hint, c);
         c.gridy = 9;
         panel.add(description, c);
+        game.addActionListener(e -> {
+            boolean music = game.getSelectedItem() == GameIdentity.MUSIC;
+            host.setEnabled(!music); port.setEnabled(!music); username.setEnabled(!music); password.setEnabled(!music);
+            login.setEnabled(!music); register.setEnabled(!music);
+            offline.setText(music ? "Open visualizer" : "Play offline");
+            status.setText(music ? "Local WAV, AIFF and AU playback. No sign-in needed." : "Sign in, create an account, or play offline.");
+            frame.getRootPane().setDefaultButton(music ? offline : login);
+        });
         Runnable[] connect = new Runnable[2];
         for (int action = 0; action < 2; action++) {
             boolean create = action == 1;

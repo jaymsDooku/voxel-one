@@ -5,7 +5,8 @@ import java.nio.file.Path;
 /** Stable desktop catalog keys. Save names and server ports retain the original contracts. */
 public enum GameIdentity {
     SANDBOX("sandbox", "Voxel Sandbox", "First-person exploration and building.", 25565, "offline-world.dat"),
-    CITY("city", "Voxel City One", "Plan a city, then explore its living world.", 25566, "offline-city.dat");
+    CITY("city", "Voxel City One", "Plan a city, then explore its living world.", 25566, "offline-city.dat"),
+    MUSIC("music", "Voxel Music Visualizer", "Local audio becomes a living voxel sculpture.", 0, "");
 
     public final String key, title, description, saveName;
     public final int port;
@@ -15,7 +16,7 @@ public enum GameIdentity {
     }
     public static GameIdentity parse(String key) {
         for (var game : values()) if (game.key.equals(key)) return game;
-        throw new IllegalArgumentException("Game must be city or sandbox");
+        throw new IllegalArgumentException("Game must be city, sandbox or music");
     }
     public static GameIdentity of(boolean city) { return city ? CITY : SANDBOX; }
     public int launchPort(Integer explicitPort) {
