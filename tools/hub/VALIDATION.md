@@ -246,3 +246,22 @@ Publication inputs must be real tested deployment/release receipts. Files under
 `target/hub-repair-preview-publication/controller-publication-data.json` records
 prepared assets and the remaining controller sequence as data. It is not an
 executable handoff and makes no deployment, physical GPU or stable release claim.
+
+## Independent native promotion while web is unavailable
+
+An explicit web receipt with `available=false`, `tested=false`, `published=false`,
+`source=unpublished` and `build=unpublished` retains the Space Invaders card with
+its existing unavailable label and disabled browser action. Native receipts
+still require a tested, published immutable release. Ambiguous availability
+values or publication claims on a withheld web entry are rejected before the
+last generated catalog is replaced. A later tested and published web receipt
+enables the browser entry without changing native identity or downloading its
+shared client again.
+
+The preview preparation workflow uses `hub-preview-native-receipt.json` and
+`hub-preview-web-receipt.json` from `dashboard/evidence/`. The initial native
+receipt names verified published `playtest-632`; web is explicitly withheld.
+Older publication evidence remains historical. The controller must validate
+current receipt provenance, review the exact committed publisher source and
+regenerate the bundle before any promotion. No unavailable receipt qualifies
+the required final browser session or full release acceptance.
