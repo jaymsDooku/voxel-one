@@ -10,11 +10,13 @@
   },
   "command": "python3 -m unittest discover -s deploy/tests -p test_hub_preview_registration.py -v",
   "exitCode": 0,
-  "output": "test_first_generation_and_existing_catalog (test_hub_preview_registration.RegistrationTest.test_first_generation_and_existing_catalog) ... ok\ntest_invalid_inputs_rejected_before_network (test_hub_preview_registration.RegistrationTest.test_invalid_inputs_rejected_before_network) ... ok\ntest_network_auth_and_service_errors_fail_closed (test_hub_preview_registration.RegistrationTest.test_network_auth_and_service_errors_fail_closed) ... ok\ntest_registration_and_preserved_build_contract (test_hub_preview_registration.RegistrationTest.test_registration_and_preserved_build_contract) ... ok\ntest_stale_source_catalog_and_reused_generation (test_hub_preview_registration.RegistrationTest.test_stale_source_catalog_and_reused_generation) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 0.066s\n\nOK\n",
+  "output": "test_first_generation_and_existing_catalog (test_hub_preview_registration.RegistrationTest.test_first_generation_and_existing_catalog) ... ok\ntest_invalid_inputs_rejected_before_network (test_hub_preview_registration.RegistrationTest.test_invalid_inputs_rejected_before_network) ... ok\ntest_network_auth_and_service_errors_fail_closed (test_hub_preview_registration.RegistrationTest.test_network_auth_and_service_errors_fail_closed) ... ok\ntest_registration_and_preserved_build_contract (test_hub_preview_registration.RegistrationTest.test_registration_and_preserved_build_contract) ... ok\ntest_stale_source_catalog_and_reused_generation (test_hub_preview_registration.RegistrationTest.test_stale_source_catalog_and_reused_generation) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 0.061s\n\nOK\n",
   "Playtest": "Executed the actual inline pre-checkout Python fence through the CLI against a synthetic GitHub API on Linux. Expected and observed: allowed first generation and matching catalog pass; malformed inputs fail before any request; stale source/catalog, duplicate tag/release and API 401/403/429/500 fail closed. Registration assertions verify read-only permissions, master dispatch, exact SHA checkout, prepare-before-package dependency, real publisher/updater/account/TLS checks and all four package runners. No game UI changes; browser/game playtesting does not apply to this CI registration task.",
   "additionalChecks": [
-    "Both workflow YAML files parsed with PyYAML BaseLoader; permissions contents:read verified; all embedded Bash passed bash -n.",
-    "git diff --check passed. Existing workflows unchanged; no tracked source deletions."
+    "hub-publication-prepare.yml: YAML permissions/structure and embedded Bash/Python syntax passed",
+    "hub-preview-registration-test.yml: YAML permissions/structure and embedded Bash/Python syntax passed",
+    "git diff --check passed.",
+    "Every pre-existing progress entry matches integrated master, including music-mp3."
   ],
   "decisions": [
     "Only the fixed launcher branch current head may be dispatched; source SHA is not the master workflow GITHUB_SHA.",
@@ -23,10 +25,13 @@
     "Publication is controller-owned and must recheck catalog CAS and generation absence at publication time. Preparation is read-only and does not reserve the generation."
   ],
   "pending": [
-    "Controller source synchronization, ordinary PR CI and independent review.",
-    "Workflow registration requires merge to master; actual opt-in dispatch and Linux/Windows/macOS package artifacts are not claimed here.",
-    "Parent launcher remains open; physical GPU/DPI, real published upgrade and stable rollout qualification are unchanged."
+    "Controller publication of refreshed evidence, ordinary PR CI and independent review.",
+    "Manual preview packaging requires registration on master; no hosted package build or publication claimed.",
+    "Parent launcher qualification remains open; physical GPU/DPI and published upgrades still gate stable rollout."
   ],
-  "diffAudit": "Only two new workflows, one executable registration fixture test, this item progress entry and sanitized evidence. Existing workflows and game source are unchanged. No intentional source deletions.",
-  "media": "hub-preview-registration-cli.png is a rendered capture of this exact CLI test output, using synthetic data; not game UI or hosted build evidence."
+  "diffAudit": "Entire diff against recorded review base audited. Music source, build workflow, documentation and assets are inherited from integrated master and match it byte for byte. Only Hub registration files and its progress/evidence differ from integrated master. No deleted files; inherited line removals belong to retained music changes. No Hub source deletions.",
+  "media": "hub-preview-registration-cli.png is a rendered capture of this exact CLI test output, using synthetic data; not game UI or hosted build evidence.",
+  "validatedHead": "f0b4084b91e0a5e0d7ff4281068f80907cc63614",
+  "integratedMaster": "2dae61300dd6a7a4a0cc5a9b5ece32b7acb50b15",
+  "reviewBase": "3f877c21c8e6776adba9d2130e2fd92e55853763"
 }

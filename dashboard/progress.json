@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-20T22:05:36+00:00",
+  "updatedAt": "2026-10-20T22:06:12+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -26,8 +26,8 @@
         }
       ],
       "status": "in_progress",
-      "note": "Resolved dashboard rebase conflict while retaining the Hub entry and every current-master entry, including music-mp3. Five registration CLI tests passed on resolved files. Controller must continue rebase before final-head checks and refreshed evidence.",
-      "updatedAt": "2026-10-20T22:05:36+00:00"
+      "note": "Rebase complete at f0b4084b. Five CLI registration tests, YAML and embedded Bash/Python syntax checks passed. Both Hub and music-mp3 entries retained; current-master music features and existing workflows preserved. Refreshed report/image saved locally. Ready for independent review; hosted packaging and parent launcher qualification remain pending.",
+      "updatedAt": "2026-10-20T22:06:12+00:00"
     },
     {
       "id": "music-mp3",

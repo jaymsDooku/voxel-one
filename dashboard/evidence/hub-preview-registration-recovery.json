@@ -1,5 +1,5 @@
 {
-  "status": "resolved-file-contents; controller rebase continuation required",
+  "status": "controller rebase completed; final-head local validation passed",
   "reviewBase": "3f877c21c8e6776adba9d2130e2fd92e55853763",
   "changedAgainstCurrentMaster": [
     ".github/workflows/hub-preview-registration-test.yml",
@@ -17,7 +17,7 @@
     "git diff --check passed after removing conflict markers."
   ],
   "pending": [
-    "Controller stages resolution and continues rebase without publishing.",
-    "Resume for final-head checks and refreshed media/report after rebase."
-  ]
+    "Controller publishes refreshed evidence and routes independent review."
+  ],
+  "validatedHead": "f0b4084b91e0a5e0d7ff4281068f80907cc63614"
 }
