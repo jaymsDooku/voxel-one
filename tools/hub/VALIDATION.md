@@ -202,3 +202,10 @@ raw process arguments are never emitted. Linux real-shell tests cover a five-
 second delayed child, immediate startup and a wrong-JAR negative case. This is
 a test timing fix, not proof of the prior Intel failure's cause. Intel and other
 platform package/activation checks must run against the resulting exact source.
+
+
+Startup screen evidence captures the whole primary desktop of the assigned
+synthetic display. It no longer invents a centered window rectangle with40px
+insets. This preserves full visible window borders at1280x800 and900x600;
+unused desktop may be black. This is not exact OS-window-bound capture or
+multi-monitor/physical-DPI qualification. Use only the owned synthetic display.
