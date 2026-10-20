@@ -182,3 +182,23 @@ Playtest: Linux headless Chromium, isolated synthetic profile, static Node HTTP 
 Playtest: `TMPDIR="$PWD/.tmp/browser" PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers node deploy/test_voxel_street.cjs` passed the complete real-time 180-second session from the packaged home-page link: desk focus, preview, fractional/unaffordable/oversell rejection, buy, both announcements, sale, desk return, close, next day and restart. Browser page errors: none. Inspected the new closing review capture; opening $10,000.00, closing $9,999.04, daily -$0.96 reconciles with realized -$2.42 plus unrealized $1.46. New-player assessment remains scripted, not an independent human study.
 
 Recorded the built-site playthrough with Playwright (browser slice has no F10 recorder), encoded with `.tmp/street-ffmpeg` at 8 fps / H.264 CRF 32, and decoded the full MP4 without errors. Media and updated website package await controller publication. A bounded helper review remains queued; local packaging review and execution were completed independently. No helper validation is claimed.
+
+
+### Published entry-fix head checkpoint
+
+HEAD bcb27d39c7560a821898b10a92a632aef9a48c5a verified. Published MP4 (1,171,912 bytes) and review PNG (141,525 bytes) match local SHA-256 bytes. `python3 -m unittest deploy/test_voxel_street_site.py`: 1 passed. No deleted paths relative to review base b1d7b8d796b97a87a3d63bb08baf2bb9746b8ca6. The full built-site playtest above covers this implementation; no source changed after that playtest.
+
+Hosted results inspected: native run 39482033022 in progress; Build and test 39482032923 queued; Build and test 39482040777 pending. None is claimed passed. Resume by inspecting those runs and the exact-head native artifact. Helper packaging review ce38ba47-589c-489c-9535-9be47ccdbba9 remains queued; resolve before ready. Physical-GPU qualification remains pending and gates stable rollout. Independent reviewer approval remains required.
+
+
+Continuation: helper packaging review was interrupted and explicitly closed with self takeover. Independent local analysis and the recorded distribution-only playtest cover the finding; no delegate validation is claimed. Exact head remains bcb27d39c7560a821898b10a92a632aef9a48c5a. Hosted native run 39482033022 is still installing software-rendered graphical tools; compilation and playtest steps have not run yet. Build runs 39482032923 and 39482040777 remain queued/pending. No new passes claimed. Resume on completion of these actual runs; do not repeat publication or weaken physical-GPU/stable-rollout gates.
+
+
+### Exact-head native result bcb27d39
+
+GitHub Actions run 39482033022 completed successfully for bcb27d39c7560a821898b10a92a632aef9a48c5a. Downloaded only allowlisted reports/captures; verified sourceHead, exitCode 0, all three workflow passes and every artifact SHA-256. Inspected Sandbox craft and City planning captures and sanitized workflow results. Playtest: Linux X11 / Mesa software OpenGL / isolated synthetic profiles; actual Music launch/return/relaunch, Sandbox actions/craft/invalid craft/camera/HUD, and City road/cancel/walking passed. Copied sanitized artifacts into dashboard/evidence for controller publication. The two ordinary build runs remain unfinished. Physical-GPU and speaker qualification remain pending; stable rollout stays gated.
+
+
+### Final build results for entry fix
+
+Both Build and test runs 39482040777 and 39482032923 completed successfully for exact head bcb27d39c7560a821898b10a92a632aef9a48c5a, including Mac ARM. Native regression run 39482033022 passed and its reports, hashes and captures were inspected. The full distribution-only browser playtest and published 1,171,912-byte MP4 cover this unchanged implementation. All delegate tasks are resolved. Only sanitized native evidence and validation notes remain for controller publication; no implementation source changed after testing. Ready for independent review, not developer approval or completion. Physical-GPU qualification remains pending and gates stable rollout. Website deployment remains runner-owned; no live deployment is claimed.
