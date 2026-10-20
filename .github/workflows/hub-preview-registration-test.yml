@@ -1,0 +1,26 @@
+name: Hub preview registration contract
+on:
+  push:
+    paths:
+      - '.github/workflows/hub-publication-prepare.yml'
+      - '.github/workflows/hub-preview-registration-test.yml'
+      - 'deploy/tests/test_hub_preview_registration.py'
+  pull_request:
+    paths:
+      - '.github/workflows/hub-publication-prepare.yml'
+      - '.github/workflows/hub-preview-registration-test.yml'
+      - 'deploy/tests/test_hub_preview_registration.py'
+permissions:
+  contents: read
+jobs:
+  registration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python3 -m unittest discover -s deploy/tests -p test_hub_preview_registration.py -v

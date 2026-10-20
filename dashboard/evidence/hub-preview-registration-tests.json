@@ -1,0 +1,37 @@
+{
+  "workItem": "register-hub-preview-build-2026-10-20",
+  "platform": "Linux; Python 3.11.2",
+  "baseHead": "3f877c21c8e6776adba9d2130e2fd92e55853763",
+  "launcherReference": "2f896b9d8def0e40d1913470ce38d91e8d934cba",
+  "sourceFilesSha256": {
+    ".github/workflows/hub-publication-prepare.yml": "4d71edcc1f423a7abaf3a1317803b5e250958df66c7775cdba3e26b9cefc9590",
+    ".github/workflows/hub-preview-registration-test.yml": "8232276a5620e6c5fbe8e76d604c007ed2f2892645013503dc9dee5994a477c9",
+    "deploy/tests/test_hub_preview_registration.py": "d3c4ac05334fb0f61cead9b850f8d0e07c4d25cc1856fddf8ee46a3bfe95d71e"
+  },
+  "command": "python3 -m unittest discover -s deploy/tests -p test_hub_preview_registration.py -v",
+  "exitCode": 0,
+  "output": "test_first_generation_and_existing_catalog (test_hub_preview_registration.RegistrationTest.test_first_generation_and_existing_catalog) ... ok\ntest_invalid_inputs_rejected_before_network (test_hub_preview_registration.RegistrationTest.test_invalid_inputs_rejected_before_network) ... ok\ntest_network_auth_and_service_errors_fail_closed (test_hub_preview_registration.RegistrationTest.test_network_auth_and_service_errors_fail_closed) ... ok\ntest_registration_and_preserved_build_contract (test_hub_preview_registration.RegistrationTest.test_registration_and_preserved_build_contract) ... ok\ntest_stale_source_catalog_and_reused_generation (test_hub_preview_registration.RegistrationTest.test_stale_source_catalog_and_reused_generation) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 0.061s\n\nOK\n",
+  "Playtest": "Executed the actual inline pre-checkout Python fence through the CLI against a synthetic GitHub API on Linux. Expected and observed: allowed first generation and matching catalog pass; malformed inputs fail before any request; stale source/catalog, duplicate tag/release and API 401/403/429/500 fail closed. Registration assertions verify read-only permissions, master dispatch, exact SHA checkout, prepare-before-package dependency, real publisher/updater/account/TLS checks and all four package runners. No game UI changes; browser/game playtesting does not apply to this CI registration task.",
+  "additionalChecks": [
+    "hub-publication-prepare.yml: YAML permissions/structure and embedded Bash/Python syntax passed",
+    "hub-preview-registration-test.yml: YAML permissions/structure and embedded Bash/Python syntax passed",
+    "git diff --check passed.",
+    "Every pre-existing progress entry matches integrated master, including music-mp3."
+  ],
+  "decisions": [
+    "Only the fixed launcher branch current head may be dispatched; source SHA is not the master workflow GITHUB_SHA.",
+    "Preview generation accepts 1..65535 without leading zeroes. Catalog expectation is exact SHA or absent.",
+    "No default-branch Hub scripts are required before fencing and exact-source checkout. Token is restricted to the API fence step; checkout persists no credentials.",
+    "Publication is controller-owned and must recheck catalog CAS and generation absence at publication time. Preparation is read-only and does not reserve the generation."
+  ],
+  "pending": [
+    "Controller publication of refreshed evidence, ordinary PR CI and independent review.",
+    "Manual preview packaging requires registration on master; no hosted package build or publication claimed.",
+    "Parent launcher qualification remains open; physical GPU/DPI and published upgrades still gate stable rollout."
+  ],
+  "diffAudit": "Entire diff against recorded review base audited. Music source, build workflow, documentation and assets are inherited from integrated master and match it byte for byte. Only Hub registration files and its progress/evidence differ from integrated master. No deleted files; inherited line removals belong to retained music changes. No Hub source deletions.",
+  "media": "hub-preview-registration-cli.png is a rendered capture of this exact CLI test output, using synthetic data; not game UI or hosted build evidence.",
+  "validatedHead": "f0b4084b91e0a5e0d7ff4281068f80907cc63614",
+  "integratedMaster": "2dae61300dd6a7a4a0cc5a9b5ece32b7acb50b15",
+  "reviewBase": "3f877c21c8e6776adba9d2130e2fd92e55853763"
+}

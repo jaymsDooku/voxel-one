@@ -1,0 +1,23 @@
+{
+  "status": "controller rebase completed; final-head local validation passed",
+  "reviewBase": "3f877c21c8e6776adba9d2130e2fd92e55853763",
+  "changedAgainstCurrentMaster": [
+    ".github/workflows/hub-preview-registration-test.yml",
+    ".github/workflows/hub-publication-prepare.yml",
+    "dashboard/evidence/hub-preview-registration-cli.png",
+    "dashboard/evidence/hub-preview-registration-tests.json",
+    "dashboard/progress.json",
+    "deploy/tests/test_hub_preview_registration.py"
+  ],
+  "preserved": "Every current-master progress entry, including music-mp3, retained. Existing workflows and all music source/assets match current master.",
+  "audit": "Full diff against recorded review base includes inherited music-mp3 changes already on current master. Those changes are retained. No unrelated file deletion introduced by this item; current-master music edits account for inherited line deletions.",
+  "tests": [
+    "Playtest: Linux CLI synthetic GitHub API integration rerun on resolved files: five tests passed. No game UI changes; browser playtesting does not apply.",
+    "Both workflow YAML structures parsed and embedded Bash passed bash -n.",
+    "git diff --check passed after removing conflict markers."
+  ],
+  "pending": [
+    "Controller publishes refreshed evidence and routes independent review."
+  ],
+  "validatedHead": "f0b4084b91e0a5e0d7ff4281068f80907cc63614"
+}
