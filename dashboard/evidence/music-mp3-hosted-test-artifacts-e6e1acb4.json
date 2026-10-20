@@ -1,0 +1,83 @@
+{
+  "sourceHead": "e6e1acb4e9202f5a216f4de62aaae42fde9b5b93",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/39497933277",
+  "validation": "Downloaded actual sanitized Maven summary artifacts; checked exact sourceHead, aggregate counts and four MP3 tests on each platform. No raw runtime logs or properties exported.",
+  "platforms": [
+    {
+      "platform": "linux",
+      "artifactId": 12299251341,
+      "sourceHead": "e6e1acb4e9202f5a216f4de62aaae42fde9b5b93",
+      "suiteCount": 142,
+      "totals": {
+        "tests": 741,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "mp3Suite": {
+        "name": "dev.jayms.MusicMp3Test",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "platform": "windows",
+      "artifactId": 12299766076,
+      "sourceHead": "e6e1acb4e9202f5a216f4de62aaae42fde9b5b93",
+      "suiteCount": 142,
+      "totals": {
+        "tests": 741,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "mp3Suite": {
+        "name": "dev.jayms.MusicMp3Test",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "platform": "mac-intel",
+      "artifactId": 12300510445,
+      "sourceHead": "e6e1acb4e9202f5a216f4de62aaae42fde9b5b93",
+      "suiteCount": 142,
+      "totals": {
+        "tests": 741,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "mp3Suite": {
+        "name": "dev.jayms.MusicMp3Test",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "platform": "mac-arm",
+      "artifactId": 12301341377,
+      "sourceHead": "e6e1acb4e9202f5a216f4de62aaae42fde9b5b93",
+      "suiteCount": 142,
+      "totals": {
+        "tests": 741,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "mp3Suite": {
+        "name": "dev.jayms.MusicMp3Test",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    }
+  ]
+}

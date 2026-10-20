@@ -1,0 +1,51 @@
+{
+  "scope": "Java 17 focused decoder/regression check on rebased source 2d75a6eb03d2945d8e5503a5a71f386256b467f4; 20 tests and package command exited 0. Not a full-suite pass.",
+  "platform": "Linux amd64; OpenJDK 17",
+  "suites": [
+    {
+      "name": "dev.jayms.MusicMp3Test",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.MusicAnalysisTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.ControlsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.SandboxIdentityTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "packagedDecoderCheck": {
+    "exitCode": 0,
+    "fixtures": [
+      {
+        "name": "cbr-stereo.mp3",
+        "rateHz": 44100,
+        "durationSeconds": 6.06
+      },
+      {
+        "name": "vbr-mono.mp3",
+        "rateHz": 44100,
+        "durationSeconds": 6.06
+      }
+    ]
+  },
+  "fullVerify": "Exact source e6e1acb4: local Java 17 full Maven verify passed; push and PR workflows passed all four desktop build jobs. Downloaded push-run artifacts each confirm 741 tests / 142 suites, zero failures/errors/skips, including four MP3 tests. Native playtest remains separately verified.",
+  "Playtest": "Native import/error retry/playback/controls/keyboard seek boundary/WAV regression passed on Java 25.0.3, inherited assigned X11 display, llvmpipe, OpenAL Soft null output. Fresh F10 media pending controller publication."
+}

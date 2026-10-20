@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-20T17:39:33+00:00",
+  "updatedAt": "2026-10-20T21:48:14+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,46 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "music-mp3",
+      "title": "Music Visualizer MP3 loading",
+      "description": "Inspecting Java Sound import; retain 32 MiB input and decoded limits. Adding decoder and native workflow checks.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "MP3 validation report (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-61643037396437352d643830382d343361332d396664322d613831663766373738623861/dashboard/evidence/music-mp3-validation.md"
+        },
+        {
+          "kind": "link",
+          "label": "Exact-head hosted validation (queued at inspection)",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39493586227"
+        },
+        {
+          "kind": "link",
+          "label": "Fresh MP3 workflow video (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-61643037396437352d643830382d343361332d396664322d613831663766373738623861/dashboard/evidence/music-mp3.mp4"
+        },
+        {
+          "kind": "link",
+          "label": "Native MP3 validation and media (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-61643037396437352d643830382d343361332d396664322d613831663766373738623861/dashboard/evidence/music-mp3-validation.md"
+        },
+        {
+          "kind": "link",
+          "label": "Exact-source Linux CI passed",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39497933277/job/118887726813"
+        },
+        {
+          "kind": "link",
+          "label": "Exact-head four-platform CI passed",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39497933277"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Implemented and validated; ready for independent review. Exact source e6e1acb4 passed local full Java 17 verify and all four hosted desktop jobs; downloaded artifacts each confirm 741 tests / 142 suites, zero failures/errors/skips. Native MP3 workflow and published media independently verified. Awaiting reviewer; physical speaker/GPU stable-rollout gates retained.",
+      "updatedAt": "2026-10-20T21:48:14+00:00"
+    },
     {
       "id": "61353661313662322d303366332d343264362d613762342d653335666538313136623266",
       "title": "Voxel Street \u2014 first playable trading day",

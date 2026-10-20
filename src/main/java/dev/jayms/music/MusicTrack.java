@@ -22,7 +22,7 @@ public final class MusicTrack implements AutoCloseable {
     private double queuedPosition = -1;
     public static Decoded decode(Path path) throws Exception {
         if (!Files.isRegularFile(path) || Files.size(path) > MAX_PCM_BYTES)
-            throw new IOException("Choose a WAV, AIFF or AU file below 32 MB.");
+            throw new IOException("Choose an MP3, WAV, AIFF or AU file at most 32 MiB.");
         try (var original = AudioSystem.getAudioInputStream(path.toFile())) {
             var f = original.getFormat();
             if (f.getChannels() < 1 || f.getChannels() > 2 || f.getSampleRate() < 8000 || f.getSampleRate() > 96000)
@@ -32,7 +32,7 @@ public final class MusicTrack implements AutoCloseable {
             try (var input = AudioSystem.getAudioInputStream(pcm, original)) {
                 byte[] bytes = input.readNBytes(MAX_PCM_BYTES + 4);
                 if (bytes.length > MAX_PCM_BYTES || bytes.length < pcm.getFrameSize())
-                    throw new IOException("Audio is empty or exceeds the 32 MB decoded limit.");
+                    throw new IOException("Audio is empty or exceeds the 32 MiB decoded limit.");
                 int frames = bytes.length / pcm.getFrameSize();
                 short[] stereo = new short[frames * 2];
                 for (int i = 0; i < frames; i++) {

@@ -1,0 +1,12 @@
+MP3 decoding dependencies (unmodified upstream code):
+- MP3SPI 1.9.5.4, JavaZoom, LGPL 2.1 or later.
+- JLayer 1.0.1.4, JavaZoom and its contributors, LGPL 2.1 or later.
+- Tritonus Share 0.3.7.4, Tritonus contributors, LGPL 2.1 or later.
+
+License text: MP3SPI.txt and JLayer.txt in this directory (LGPL 2.1).
+Corresponding source artifacts are published alongside each binary on Maven Central:
+https://repo.maven.apache.org/maven2/com/googlecode/soundlibs/mp3spi/1.9.5.4/mp3spi-1.9.5.4-sources.jar
+https://repo.maven.apache.org/maven2/com/googlecode/soundlibs/jlayer/1.0.1.4/jlayer-1.0.1.4-sources.jar
+https://repo.maven.apache.org/maven2/com/googlecode/soundlibs/tritonus-share/0.3.7.4/tritonus-share-0.3.7.4-sources.jar
+Upstream packaging/source: https://github.com/pdudits/soundlibs
+Java Sound service descriptors are merged when packaging the client JAR.

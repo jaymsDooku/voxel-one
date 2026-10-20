@@ -1,0 +1,36 @@
+{
+  "publishedHead": "e6e1acb4e9202f5a216f4de62aaae42fde9b5b93",
+  "verification": "GitHub Contents API exact-head blob SHA and byte size compared with local captured media",
+  "media": [
+    {
+      "path": "dashboard/evidence/music-mp3.mp4",
+      "gitBlobSha": "8ae2ca149930eea1962c93d996ef95bcf7b5ac44",
+      "bytes": 1677272,
+      "matchesLocal": true
+    },
+    {
+      "path": "dashboard/evidence/music-mp3-cbr.png",
+      "gitBlobSha": "d9943d04cb5cff70ab4fd873223b12525d76a492",
+      "bytes": 43881,
+      "matchesLocal": true
+    },
+    {
+      "path": "dashboard/evidence/music-mp3-vbr.png",
+      "gitBlobSha": "ed2dd5c7a8b2e4dba57cde39eaa27e011ab82759",
+      "bytes": 45891,
+      "matchesLocal": true
+    },
+    {
+      "path": "dashboard/evidence/music-mp3-error.png",
+      "gitBlobSha": "a41dabe3b5cecf7d7e13d33bfa56941f010a5ed9",
+      "bytes": 40817,
+      "matchesLocal": true
+    },
+    {
+      "path": "dashboard/evidence/music-mp3-video-contact.png",
+      "gitBlobSha": "9164ac0e0126c4a0195fb11d3db8f471498b6d8f",
+      "bytes": 604331,
+      "matchesLocal": true
+    }
+  ]
+}

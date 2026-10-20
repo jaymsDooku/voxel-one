@@ -1,0 +1,113 @@
+{
+  "sourceHead": "e6e1acb4e9202f5a216f4de62aaae42fde9b5b93",
+  "observation": "Terminal GitHub API results inspected: push and PR workflows succeeded on exact source head. All four build jobs passed Maven verify and packaged MP3 decoding. Actual sanitized Maven artifacts were downloaded and checked separately; 741 tests / 142 suites with zero failures/errors/skips on each platform.",
+  "runs": [
+    {
+      "id": 39497933277,
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39497933277"
+    },
+    {
+      "id": 39497939561,
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39497939561"
+    }
+  ],
+  "pushJobs": [
+    {
+      "name": "build (ubuntu-latest, linux)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39497933277/job/118887726813",
+      "checks": [
+        {
+          "name": "Run mvn --batch-mode verify",
+          "conclusion": "success"
+        },
+        {
+          "name": "Check bundled MP3 decoder in shipped client",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "name": "build (windows-latest, windows)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39497933277/job/118887727146",
+      "checks": [
+        {
+          "name": "Run mvn --batch-mode verify",
+          "conclusion": "success"
+        },
+        {
+          "name": "Check bundled MP3 decoder in shipped client",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "name": "build (macos-15-intel, mac-intel)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39497933277/job/118887727640",
+      "checks": [
+        {
+          "name": "Run mvn --batch-mode verify",
+          "conclusion": "success"
+        },
+        {
+          "name": "Check bundled MP3 decoder in shipped client",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "name": "build (macos-latest, mac-arm)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39497933277/job/118887727304",
+      "checks": [
+        {
+          "name": "Run mvn --batch-mode verify",
+          "conclusion": "success"
+        },
+        {
+          "name": "Check bundled MP3 decoder in shipped client",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "pullRequestJobs": [
+    {
+      "name": "build (ubuntu-latest, linux)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39497939561/job/118887749282"
+    },
+    {
+      "name": "build (windows-latest, windows)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39497939561/job/118887749839"
+    },
+    {
+      "name": "build (macos-15-intel, mac-intel)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39497939561/job/118887749887"
+    },
+    {
+      "name": "build (macos-latest, mac-arm)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39497939561/job/118887749759"
+    }
+  ],
+  "publishJobs": "Skipped on both feature/PR workflows as expected; no deployment performed."
+}

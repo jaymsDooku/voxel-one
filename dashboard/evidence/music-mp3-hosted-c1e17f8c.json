@@ -1,0 +1,67 @@
+{
+  "sourceHead": "c1e17f8c96e3bd17fd251520c7cd82a0ea43a20f",
+  "scope": "Historical published implementation before master rebase; not final rebased head qualification",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/39493586227",
+  "jobs": [
+    {
+      "name": "build (macos-latest, mac-arm)",
+      "conclusion": "success",
+      "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39493586227/job/118872746119",
+      "checks": [
+        {
+          "name": "Run mvn --batch-mode verify",
+          "conclusion": "success"
+        },
+        {
+          "name": "Check bundled MP3 decoder in shipped client",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "name": "build (ubuntu-latest, linux)",
+      "conclusion": "success",
+      "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39493586227/job/118872746645",
+      "checks": [
+        {
+          "name": "Run mvn --batch-mode verify",
+          "conclusion": "success"
+        },
+        {
+          "name": "Check bundled MP3 decoder in shipped client",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "name": "build (windows-latest, windows)",
+      "conclusion": "success",
+      "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39493586227/job/118872746646",
+      "checks": [
+        {
+          "name": "Run mvn --batch-mode verify",
+          "conclusion": "success"
+        },
+        {
+          "name": "Check bundled MP3 decoder in shipped client",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "name": "build (macos-15-intel, mac-intel)",
+      "conclusion": "success",
+      "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39493586227/job/118872746841",
+      "checks": [
+        {
+          "name": "Run mvn --batch-mode verify",
+          "conclusion": "success"
+        },
+        {
+          "name": "Check bundled MP3 decoder in shipped client",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ]
+}
