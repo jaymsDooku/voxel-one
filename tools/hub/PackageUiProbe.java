@@ -75,9 +75,9 @@ public final class PackageUiProbe {
             Robot robot=new Robot();robot.keyPress(KeyEvent.VK_ALT);robot.keyPress(KeyEvent.VK_2);
             robot.keyRelease(KeyEvent.VK_2);robot.keyRelease(KeyEvent.VK_ALT);Thread.sleep(700);
             Dimension desktop=Toolkit.getDefaultToolkit().getScreenSize();
-            int width=Math.min(1280,desktop.width),height=Math.min(800,desktop.height);
-            Rectangle ownContent=new Rectangle((desktop.width-width)/2+40,(desktop.height-height)/2+40,width-80,height-80);
-            ImageIO.write(robot.createScreenCapture(ownContent),"png",out.resolve("native-executable.png").toFile());
+            // Preserve every edge of the window. A guessed center inset cropped
+            // startup evidence on both small desktops and larger role displays.
+            ImageIO.write(robot.createScreenCapture(new Rectangle(desktop)),"png",out.resolve("native-executable.png").toFile());
             return;
         }
         System.setProperty("user.home",profile.toAbsolutePath().toString());

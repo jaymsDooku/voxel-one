@@ -355,3 +355,30 @@ Controller must commit/push the new tools source to trigger exact-resulting-head
 Windows/macOS checks, then return reports/media. Complete the authorized
 publication handoff and verify actual published upgrades/browser cached reload.
 Physical GPU/DPI/performance acceptance and stable rollout remain gated.
+
+
+## Full startup evidence and exact09706929 reports
+
+Inspected completed run39345961161: exact09706929 fingerprints match all
+platform reports. Shell update/rollback passed on Windows and both Macs,
+including Intel. Real City/Sandbox/editor rendering still failed0x10006 on
+Windows and0x10009 on Macs. All three launcher clips decoded20 frames/2.917s
+and extracted frames were inspected. Compact evidence:
+`dashboard/evidence/hub-platform-097069-inspection.json`.
+
+Removed guessed40px startup screen insets from PackageUiProbe. Whole primary
+assigned desktop now captures every visible Hub edge. Playtest: inherited Linux
+role display, bundled Java, synthetic profile; launched actual Hub, set own
+window1280x800 then900x600, captured through modified probe. Both captures
+succeeded and were inspected; Hub is fully visible, unused desktop black.
+Four publisher tests, helper compilation and diff whitespace checks passed.
+No production source changed; no deleted paths against26b8761.
+
+New report: dashboard/evidence/hub-full-window-validation.json. New full
+desktop images: hub-full-desktop-1280.png and hub-full-desktop-900.png. These
+replace cropped startup evidence for the new implementation. Controller must
+commit/push resulting tools source for exact-head checks and publish sanitized
+evidence. Authorized preview publication remains a controller handoff; prepared
+bundle target/hub-exact-09706929-publication must be regenerated for changed
+source if required. Public upgrades, independent publication, browser cached
+reload and physical GPU/DPI/performance stay pending. Stable rollout gated.
