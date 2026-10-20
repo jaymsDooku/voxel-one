@@ -4017,8 +4017,8 @@
       "description": "Building the catalog-driven desktop hub around verified client updates. Platform packaging and playtests remain required.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Exact09706929 reports inspected: shell update/rollback passed all3 including Intel; real rendering failed all3. Removed startup screenshot inset and tested uncropped full Hub at1280x800/900x600. Controller publication and physical qualification remain pending; stable rollout gated.",
-      "updatedAt": "2026-10-20T00:20:48+00:00"
+      "note": "Startup staging race reproduced (2 downloads instead of1) and fixed with per-invocation update preference snapshot. 18 Java tests/package and4 publisher tests passed; rebuilt Bootstrap Hub capture inspected. Remote confirmation, Windows query timeout, publication and physical qualification remain pending; stable rollout gated.",
+      "updatedAt": "2026-10-20T01:20:43+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

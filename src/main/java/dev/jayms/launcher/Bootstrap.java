@@ -20,6 +20,13 @@ public final class Bootstrap {
     }
     public static void main(String[] args) {
         Path cache = Launcher.cache().resolve("hub-shell");
+        // One startup uses one preference snapshot. A slow child must not pick
+        // up another launcher's later settings change and race its staging.
+        Properties preferences=new Properties();
+        try {Path file=Launcher.cache().resolve("hub.properties");if(Files.isRegularFile(file)&&Files.size(file)<=4096)
+            try(var in=Files.newInputStream(file)){preferences.load(in);}}
+        catch(IOException ignored) { }
+        boolean updatesAtStartup=Boolean.parseBoolean(preferences.getProperty("updates","true"));
         Updater updater = new Updater(cache, manifest(), true);
         var candidate = updater.candidate(Platform.current());
         boolean started = false;
@@ -52,11 +59,7 @@ public final class Bootstrap {
         }
         if (!started) Launcher.main(args);
         // Immediate bundled/cached UI. Do not replace the current process or a locked JAR.
-        Properties preferences=new Properties();
-        try {Path file=Launcher.cache().resolve("hub.properties");if(Files.isRegularFile(file)&&Files.size(file)<=4096)
-            try(var in=Files.newInputStream(file)){preferences.load(in);}}
-        catch(IOException ignored) { }
-        if(stageAllowed && Boolean.parseBoolean(preferences.getProperty("updates","true"))) {
+        if(stageAllowed && updatesAtStartup) {
           Thread stage = new Thread(() -> {
             try { updater.update(Platform.current(), text -> {}); } catch (IOException ignored) { }
           }, "hub-shell-stage");
