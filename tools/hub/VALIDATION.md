@@ -1,5 +1,20 @@
 # Scoped Hub validation
 
+Run local Java regressions, packaging and publisher tests with a supported JDK
+on `PATH` (`JAVA_HOME` may select it):
+
+```sh
+python3 tools/hub/check_local.py
+```
+
+This command uses `target/maven-cache` and `target/hub-tmp` inside this checkout.
+Its Java selection matches the scoped workflow, including game identity,
+save separation and the pinned TLS registration/login regression.
+It preserves existing artifacts, stops on failure and allows Maven to fetch
+missing dependencies. It does not publish or run platform gameplay checks.
+Passing these local checks does not satisfy GPU, Windows DPI/performance,
+published shell upgrades or browser cached-reload acceptance.
+
 The coordinator publishes only the assigned feature branch. Its push starts
 `.github/workflows/hub-validation.yml`. The workflow has read-only repository
 access. It does not publish releases, deploy sites or use account credentials.

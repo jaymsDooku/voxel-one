@@ -408,3 +408,44 @@ source; old2da57e bundle predates this production change. No deleted paths
 against26b8761; no Git commit/push or publication performed here. Real native
 rendering/GPU/DPI/performance, public upgrades/independent promotion and browser
 cached reload remain pending. Stable rollout remains gated.
+
+
+## Exact b173448 qualification and controller handoff
+
+Run 39355282918 returned Windows, Intel Mac and ARM Mac reports for
+`b17344808779c5a0556ff696e04bd7b85cf84d18`. All 264 recorded source
+fingerprints per platform matched Git, accounting for Windows CRLF checkout
+bytes. Three launcher clips decoded to 20 frames and 2.917 seconds each; their
+Downloads frames were inspected. These clips do not establish gameplay.
+Shell staging and rollback passed on all three platforms. City, Sandbox and
+editor rendering failed: GLFW `0x10006` on Windows and `0x10009` on both Macs.
+Physical GPU, Windows monitor DPI and declared reference performance remain
+pending. Stable rollout remains gated.
+
+The pending local check command ran successfully with JDK 21: 18 Java tests,
+Maven packaging and 4 publisher tests. Its failure control returned exit 23 and
+skipped the publisher stage. Run `python3 tools/hub/check_local.py` after the
+controller commits these edits and integrates master. Repeat live checks and
+media if integration changes application source.
+
+The controller must regenerate the publication bundle from that committed head.
+`target/hub-b173448-regenerated-publication` preserves the prior exact-head
+bundle. Delivery verification still returned HTTP 404 for catalog metadata,
+shell metadata and the preview shell JAR. Publication is reserved to the
+controller: preserve immutable assets and destination compare-and-swap guards.
+Return actual receipts for two published shell generations, independent native
+and web promotion, and latest browser gameplay with cached reload before
+claiming those acceptance checks passed. No owner permission is missing.
+
+Diff audit: no files were deleted against review base
+`26b8761ff9c355299aa1df83608a6f6ebcba7e0b`. Replaced lines in Launcher,
+Updater, LoginDialog and Window implement structured experience launch, verified
+immutable shell/client updates, labelled login fields and fixed numeric GLFW
+diagnostics. The legacy updater path and save locations remain supported.
+
+Local validation selection now matches the scoped workflow. The expanded command
+completed with exit 0: 24 Java tests, Maven packaging and 4 publisher tests
+passed using JDK 21 and checkout-local cache/temp. This includes Sandbox identity,
+save separation and the selected Multiplayer pinned TLS login regression.
+See `dashboard/evidence/hub-local-check-validation.json` for suite counts.
+The earlier 18-test result records the narrower selection, not a failed run.
