@@ -163,3 +163,9 @@ graphical execution remains pending and is not claimed passed.
 Run 39475756266 compiled the exact source and passed its native unit step. The graphical step failed with exit code 1. Its sanitized artifact reports catalog, sandbox and city as unpassed and contains no captures. No graphical pass is claimed. Physical-GPU qualification remains pending.
 
 Added fixed diagnostic codes to the artifact wrapper; raw runtime text is never returned or published. Ran `TMPDIR="$PWD/.tmp" python3 -m unittest discover -s deploy -p test_voxel_street_native.py -q`: 4 passed. `git diff --check` passed. Playtest: hosted graphical attempt failed before producing usable workflow evidence; another exact-source hosted run is required.
+
+### Hosted native regression result
+
+Exact source `1e251eed6c9d85e2c8a4e03fdf0767298c85fa50`, GitHub Actions run 39476341506: success. Downloaded the allowlisted artifact and inspected its sourceHead, exitCode 0, all three workflow passes, result notes, Sandbox craft capture and City planning capture. Playtest: Linux X11 / Mesa software OpenGL, isolated synthetic profiles. Actual Main music launch/Escape/relaunch passed; Sandbox input/craft/invalid craft/camera/HUD passed; City road selection/cancel/walking passed. Sanitized reports and captures copied here. Physical GPU and speakers remain unqualified; stable-rollout claims remain gated. The two ordinary Build and test jobs were still running at inspection.
+
+Both ordinary Build and test runs 39476350715 and 39476341585 completed successfully for `1e251eed6c9d85e2c8a4e03fdf0767298c85fa50`. Native run 39476341506 also succeeded. Only sanitized evidence and these notes were added after that tested source; no game or harness source changed. Ready for independent review, subject to runner publication of evidence and final-head checks. Physical-GPU qualification remains pending and stable rollout stays gated.

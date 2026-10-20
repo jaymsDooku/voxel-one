@@ -1,0 +1,1 @@
+Playtest: PASS. Actual Main.main, isolated synthetic profile, Linux X11. Select Music, launch dedicated window, Escape returns to selection, relaunch Music, Escape returns again, close picker. Switching through Music preserves City 25566 and Sandbox 25565 defaults; Music disables sign-in. No network request or account used.
