@@ -330,3 +330,28 @@ in dashboard/evidence/hub-platform-93c34-inspection.json. Controller must return
 new exact-current-head reports/media; source changes require final checks.
 Published-delivery and physical GPU/DPI/performance acceptance stay pending.
 No production changes or developer publication occurred; stable rollout gated.
+
+
+## Shell process observer race addressed
+
+At base9dd20aec, changed only the package test observer to poll25 seconds for
+the exact expected shell JAR, with100ms backoff and a live-parent guard.
+Bootstrap permits20 seconds of startup; the old observer checked only once
+after3 seconds. Windows own-child fallback remains inside the repeated scan.
+No production source changed and no test requirement was removed. Fixed
+failure fields expose counts/liveness only. This does not prove the historical
+Intel failure was only a race; new exact-head Intel confirmation remains required.
+
+Playtest: inherited Linux display, isolated synthetic profiles, actual Hub shell
+JAR and JDK21. Delayed5-second and immediate shell startup passed; a live wrong-
+JAR edge failed as expected. Desktop captures succeeded and delayed capture
+was inspected. Four publication tests passed. Initial javac omitted helper
+source and failed; compiling both helper sources succeeded, including final
+formatting. Exact commands/results and probe hash are preserved in
+dashboard/evidence/hub-process-wait-validation.json. No deleted paths against
+review base26b8761. No commit/push/dispatch/publication performed.
+
+Controller must commit/push the new tools source to trigger exact-resulting-head
+Windows/macOS checks, then return reports/media. Complete the authorized
+publication handoff and verify actual published upgrades/browser cached reload.
+Physical GPU/DPI/performance acceptance and stable rollout remain gated.

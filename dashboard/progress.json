@@ -4017,8 +4017,8 @@
       "description": "Building the catalog-driven desktop hub around verified client updates. Platform packaging and playtests remain required.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Inspected completed parent93c34ff reports/media: promotion passed all3; native rendering failed all3; Intel shell process checks also failed. No b8ef2e79 scoped run found. Exact-head controller dispatch and publication remain pending; stable rollout gated.",
-      "updatedAt": "2026-10-20T00:01:16+00:00"
+      "note": "Fixed one-shot shell-process observer race without relaxing exact-JAR matching. Actual Linux delayed/immediate shell tests passed; wrong-JAR edge failed as expected. New exact-head Intel/other platform results and publication remain pending; stable rollout gated.",
+      "updatedAt": "2026-10-20T00:09:21+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

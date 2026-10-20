@@ -40,19 +40,29 @@ public final class PackageUiProbe {
             String expected=args[4];
             if(!expected.equals("-")) {
                 boolean found=false;
-                for(var child:parent.descendants().toList()) {
-                    if(java.util.Arrays.asList(child.info().arguments().orElse(new String[0])).contains(expected)) {found=true;break;}
-                    // Windows ProcessHandle may omit arguments. Query only our own child,
-                    // return a Boolean, and never print its command line.
-                    if(System.getProperty("os.name").startsWith("Windows")) {
-                        Path powershell=Path.of(System.getenv("SystemRoot"),"System32","WindowsPowerShell","v1.0","powershell.exe");
-                        String code="$p=Get-CimInstance Win32_Process -Filter 'ProcessId = "+child.pid()+"'; if($p -and $p.CommandLine.Contains('"+expected.replace("'","''")+"')) {'MATCH'}";
-                        Process query=new ProcessBuilder(powershell.toString(),"-NoProfile","-NonInteractive","-Command",code).redirectError(ProcessBuilder.Redirect.DISCARD).start();
-                        if(!query.waitFor(10,java.util.concurrent.TimeUnit.SECONDS)){query.destroyForcibly();throw new AssertionError("Own child process query timed out");}
-                        if(new String(query.getInputStream().readAllBytes()).trim().equals("MATCH")){found=true;break;}
+                long deadline=System.nanoTime()+java.util.concurrent.TimeUnit.SECONDS.toNanos(25);
+                int childrenSeen=0, argumentsSeen=0;
+                while(parent.isAlive() && System.nanoTime()<deadline && !found) {
+                    childrenSeen=0;argumentsSeen=0;
+                    for(var child:parent.descendants().toList()) {
+                        childrenSeen++;
+                        var arguments=child.info().arguments();
+                        if(arguments.isPresent())argumentsSeen++;
+                        if(java.util.Arrays.asList(arguments.orElse(new String[0])).contains(expected)) {found=true;break;}
+                        // Windows ProcessHandle may omit arguments. Query only our own child,
+                        // return a Boolean, and never print its command line.
+                        if(System.getProperty("os.name").startsWith("Windows")) {
+                            Path powershell=Path.of(System.getenv("SystemRoot"),"System32","WindowsPowerShell","v1.0","powershell.exe");
+                            String code="$p=Get-CimInstance Win32_Process -Filter 'ProcessId = "+child.pid()+"'; if($p -and $p.CommandLine.Contains('"+expected.replace("'","''")+"')) {'MATCH'}";
+                            Process query=new ProcessBuilder(powershell.toString(),"-NoProfile","-NonInteractive","-Command",code).redirectError(ProcessBuilder.Redirect.DISCARD).start();
+                            if(!query.waitFor(10,java.util.concurrent.TimeUnit.SECONDS)){query.destroyForcibly();throw new AssertionError("Own child process query timed out");}
+                            if(new String(query.getInputStream().readAllBytes()).trim().equals("MATCH")){found=true;break;}
+                        }
                     }
+                    if(!found)Thread.sleep(100);
                 }
-                if(!found)throw new AssertionError("Expected verified shell JVM not running");
+                if(!found)throw new AssertionError("Expected verified shell JVM not running; parentAlive="
+                        +parent.isAlive()+"; children="+childrenSeen+"; argumentLists="+argumentsSeen);
             }
             return;
         }

@@ -191,3 +191,14 @@ for diagnosing that distinction. Linux Mesa 2.1 fault injection demonstrates the
 real-client promotion check failing at native-start after B installation while
 the command-only promotion check passes; the mandatory real rendering probe still
 fails. This is a negative-control test, not a reduced graphics requirement.
+
+
+The package process observer now waits up to25 seconds for the exact expected
+JAR among the launched native process's descendants. This aligns the observer
+with Bootstrap's20-second startup allowance instead of assuming three seconds
+is enough. It still fails for the wrong JAR or an exited parent. Failure details
+contain only parent liveness, descendant count and argument-list availability;
+raw process arguments are never emitted. Linux real-shell tests cover a five-
+second delayed child, immediate startup and a wrong-JAR negative case. This is
+a test timing fix, not proof of the prior Intel failure's cause. Intel and other
+platform package/activation checks must run against the resulting exact source.
