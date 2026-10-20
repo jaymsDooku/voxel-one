@@ -4017,8 +4017,8 @@
       "description": "Building the catalog-driven desktop hub around verified client updates. Platform packaging and playtests remain required.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Exact93c34ff bundle prepared; delivery verification still HTTP404. All three scoped platform jobs remain running with no artifacts; no new platform pass claimed. Source fingerprints match prior local checks. Controller publication/results handoff pending; stable rollout gated.",
-      "updatedAt": "2026-10-19T23:56:28+00:00"
+      "note": "Inspected completed parent93c34ff reports/media: promotion passed all3; native rendering failed all3; Intel shell process checks also failed. No b8ef2e79 scoped run found. Exact-head controller dispatch and publication remain pending; stable rollout gated.",
+      "updatedAt": "2026-10-20T00:01:16+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

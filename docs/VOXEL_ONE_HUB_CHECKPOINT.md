@@ -314,3 +314,19 @@ and preview JAR. Results are in `hub-exact-93c34ff-delivery.json`; controller
 actions are in `hub-exact-93c34ff-controller-handoff.json` under dashboard/evidence.
 Controller publication and return of completed reports/media need no new owner
 permission. Stable rollout and all published/physical acceptance remain gated.
+
+
+## Completed parent-platform reports inspected on20 October
+
+Run39344321446 finished failed on parent93c34ff; no scoped b8ef2e79 run
+was found. Downloaded sanitized artifacts, verified all source hashes and
+inspected all three decoded launcher frames. Windows/ARM clips contain20
+frames; Intel17; each lasts2.917s. Promotion passed all3. Real rendering still
+failed0x10006 Windows/0x10009 Macs. Intel also failed expected-shell-process
+checks; this is not qualified as a pass or assumed to be only a test issue.
+
+Compact results, Playtest entry and exact-head controller dispatch command are
+in dashboard/evidence/hub-platform-93c34-inspection.json. Controller must return
+new exact-current-head reports/media; source changes require final checks.
+Published-delivery and physical GPU/DPI/performance acceptance stay pending.
+No production changes or developer publication occurred; stable rollout gated.
