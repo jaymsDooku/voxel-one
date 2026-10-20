@@ -9,6 +9,7 @@ public final class ProcessQueryProbeTest {
                 case "eof" -> { while(System.in.read()!=-1) { } System.out.print("MATCH"); }
                 case "hang" -> Thread.sleep(60000);
                 case "wrong" -> System.out.print("NOT_MATCH");
+                case "stderr" -> { System.err.print("x".repeat(500000)); System.out.print("MATCH"); }
                 case "overflow" -> System.out.print("MATCH".repeat(100000));
                 case "failed" -> { System.out.print("MATCH"); System.exit(7); }
                 default -> throw new AssertionError("Unknown fixture");
@@ -16,11 +17,11 @@ public final class ProcessQueryProbeTest {
             return;
         }
         String java=Path.of(System.getProperty("java.home"),"bin",System.getProperty("os.name").startsWith("Windows")?"java.exe":"java").toString();
-        for(String mode:List.of("eof","hang","wrong","overflow","failed")) {
+        for(String mode:List.of("eof","hang","wrong","overflow","failed","stderr")) {
             long start=System.nanoTime();
             boolean match=PackageUiProbe.boundedMatch(new ProcessBuilder(java,"-cp",System.getProperty("java.class.path"),"ProcessQueryProbeTest",mode),mode.equals("hang")?300:3000);
             long elapsed=(System.nanoTime()-start)/1_000_000;
-            if(match!=mode.equals("eof"))throw new AssertionError("Unexpected match: "+mode);
+            if(match!= (mode.equals("eof")||mode.equals("stderr")))throw new AssertionError("Unexpected match: "+mode);
             if(elapsed>4500)throw new AssertionError("Query exceeded bound: "+mode);
             System.out.println("Playtest: own-child query "+mode+" matched="+match+" elapsedMs="+elapsed);
         }
