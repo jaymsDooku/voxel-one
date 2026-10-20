@@ -1,0 +1,201 @@
+{
+  "integrated_head": "b1d7b8d796b97a87a3d63bb08baf2bb9746b8ca6",
+  "scope": "Prerequisite fixture/probe tools only. No reusable-structure game feature or reference qualification.",
+  "tests": [
+    {
+      "command": "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=VoxelModelTest,FractionalWorldTest,ProtocolCompatibilityTest,ModelSculptorTest test",
+      "result": "Exit0; 20 tests; zero failures/errors/skips"
+    },
+    {
+      "command": "python3 tools/structures/test_handoff.py",
+      "result": "7 passed"
+    },
+    {
+      "command": "python3 tools/structures/test_probe.py",
+      "result": "5 passed"
+    },
+    {
+      "command": "python3 tools/structures/test_fixtures.py",
+      "result": "6 passed"
+    },
+    {
+      "command": "python3 tools/structures/build_handoff.py",
+      "result": {
+        "bytes": 88012800,
+        "path": "target/structure-handoff/structure-prerequisite-v1.tar",
+        "publication": "Local only; controller owns artifact transfer/publication",
+        "sha256": "d889241647e2deeb0ef48984f9a7d63ab4e274c22e560c118b1f7212d23a65b5"
+      }
+    },
+    {
+      "command": "python3 tools/structures/verify_handoff.py target/structure-handoff/structure-prerequisite-v1.tar --manifest dashboard/evidence/structure-execution-handoff.json",
+      "result": "Exit0;16 archive members;202 exact checkout sources verified"
+    },
+    {
+      "command": "python3 tools/structures/run_probe.py --runs 1 --label LOCAL-VPS-INTEGRATED-SMOKE --output target/structure-integrated-probe",
+      "result": "Exit0; all4 densities, empty/solid regressions and interruption cancellation passed"
+    },
+    {
+      "command": "python3 tools/structures/plot_probe.py target/structure-integrated-probe/report.json dashboard/evidence/structure-integrated-probe.png",
+      "result": "Exit0; fresh plot visually inspected, 1-trial smoke and NOT QUALIFIED labels visible"
+    },
+    {
+      "command": "git diff HEAD --check",
+      "result": "Exit0"
+    }
+  ],
+  "probe": {
+    "schema": 1,
+    "environment_label": "LOCAL-VPS-INTEGRATED-SMOKE",
+    "qualification": "NOT QUALIFIED",
+    "scope": "Existing CPU chunk-mesher primitive only; no complete-fixture or instance-rendering benchmark",
+    "environment": {
+      "os": "Linux",
+      "kernel": "6.1.0-50-cloud-amd64",
+      "architecture": "x86_64",
+      "os_release": "Debian GNU/Linux 12 (bookworm)",
+      "logical_cpus": 4,
+      "affinity_cpus": 4,
+      "cpu_model": "Intel Core Processor (Haswell, no TSX)",
+      "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)"
+    },
+    "command": [
+      "java",
+      "-Xms256m",
+      "-Xmx1g",
+      "-XX:+UseG1GC",
+      "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-integrated-probe",
+      "-cp",
+      "target/structure-integrated-probe/classes:target/classes",
+      "PrerequisiteProbe",
+      "1"
+    ],
+    "runs_per_density": 1,
+    "warmup_per_density": 3,
+    "game_head": "b1d7b8d796b97a87a3d63bb08baf2bb9746b8ca6",
+    "production_source_sha256": {
+      "MeshDataGenerator.java": "a6f12df8651301ae1a6d9b7f90acf15fadfac13ace883b17b8f744b9ad63cf8a",
+      "Chunk.java": "7b1963f388e76e8b87e3f0191c879aba14b474369f919d741eeb3db966f5471b",
+      "MeshData.java": "3c6a4e949afdcdc07626f88f0c7141371cc6f990062b0bc9ba08b978a4dcedb1"
+    },
+    "source_sha256": "bcc5ab08e75a5c557d2688bf3e3e960bb2dca7482548039f3294dc8f4c1c0e08",
+    "trial_sha256": "afb1c3360c774610635aa791d2d75c32b355ac6cb10c496b312df393ff2a57b2",
+    "trials": [
+      {
+        "operation": "fragment_chunk_mesh",
+        "cells": 1,
+        "leaves": 2,
+        "run": 1,
+        "elapsed_ms": 2.830374,
+        "quads": 12,
+        "mesh_array_bytes": 2592,
+        "heap_pool_peak_sum_bytes": 2400976,
+        "process_peak_rss_kib": 61580
+      },
+      {
+        "operation": "fragment_chunk_mesh",
+        "cells": 8,
+        "leaves": 16,
+        "run": 1,
+        "elapsed_ms": 11.777252,
+        "quads": 96,
+        "mesh_array_bytes": 20736,
+        "heap_pool_peak_sum_bytes": 1637952,
+        "process_peak_rss_kib": 71808
+      },
+      {
+        "operation": "fragment_chunk_mesh",
+        "cells": 64,
+        "leaves": 128,
+        "run": 1,
+        "elapsed_ms": 67.382937,
+        "quads": 768,
+        "mesh_array_bytes": 165888,
+        "heap_pool_peak_sum_bytes": 2865840,
+        "process_peak_rss_kib": 84492
+      },
+      {
+        "operation": "fragment_chunk_mesh",
+        "cells": 512,
+        "leaves": 1024,
+        "run": 1,
+        "elapsed_ms": 578.699802,
+        "quads": 6144,
+        "mesh_array_bytes": 1327104,
+        "heap_pool_peak_sum_bytes": 20024792,
+        "process_peak_rss_kib": 109800
+      }
+    ],
+    "summary": {
+      "1": {
+        "elapsed_ms": {
+          "median": 2.830374,
+          "p95": 2.830374,
+          "worst": 2.830374
+        },
+        "quads": 12,
+        "mesh_array_bytes": 2592,
+        "heap_pool_peak_sum_bytes": 2400976,
+        "process_peak_rss_kib": 61580
+      },
+      "8": {
+        "elapsed_ms": {
+          "median": 11.777252,
+          "p95": 11.777252,
+          "worst": 11.777252
+        },
+        "quads": 96,
+        "mesh_array_bytes": 20736,
+        "heap_pool_peak_sum_bytes": 1637952,
+        "process_peak_rss_kib": 71808
+      },
+      "64": {
+        "elapsed_ms": {
+          "median": 67.382937,
+          "p95": 67.382937,
+          "worst": 67.382937
+        },
+        "quads": 768,
+        "mesh_array_bytes": 165888,
+        "heap_pool_peak_sum_bytes": 2865840,
+        "process_peak_rss_kib": 84492
+      },
+      "512": {
+        "elapsed_ms": {
+          "median": 578.699802,
+          "p95": 578.699802,
+          "worst": 578.699802
+        },
+        "quads": 6144,
+        "mesh_array_bytes": 1327104,
+        "heap_pool_peak_sum_bytes": 20024792,
+        "process_peak_rss_kib": 109800
+      }
+    },
+    "peak_memory_note": "Heap pool peaks are summed (conservative, not simultaneous). RSS is process lifetime high-water mark; -1 means unavailable. Excludes GPU memory.",
+    "timing_note": "Fixture setup and explicit pre-trial GC excluded. Existing mesher scratch is warmed. No frame, tick, network, durability or cold-load measurement.",
+    "regression": "Empty chunk, solid-chunk six-face merging, and interrupted-worker cancellation passed",
+    "pending": "Reference-target execution; full corpus pipeline; instance complexity; physical GPU; multi-host synchronization; supported limits"
+  },
+  "playtest": "Playtest: post-integration Linux CLI exercised production meshing, exact fixture-bundle/source verification, malformed-input cases and offline model save/load plus live protocol compatibility tests. Expected unchanged existing workflows, exact fragment counts and clean rejection/cancellation; observed38 tests and4-density smoke pass. Noninteractive prerequisite tools have no browser flow. No structure capture/import/placement UI exists; no game workflow, reference GPU,32-client or stable limit claim.",
+  "media": {
+    "path": "dashboard/evidence/structure-integrated-probe.png",
+    "sha256": "6eb7e8d4148dae712c6d943fa0cf54835525c9dc2d72f614ddead29dd600c691",
+    "meaning": "Fresh current-integrated-source CPU smoke plot, not a game screenshot"
+  },
+  "diff_audit": {
+    "comparison": "Current integrated HEAD b1d7b8d796b97a87a3d63bb08baf2bb9746b8ca6; separate recorded review base not provided",
+    "unrelated_deletions": "None; git diff HEAD --name-only --diff-filter=D is empty",
+    "game_source_changes": "None from this assignment; merged music feature retained",
+    "progress": "Only structure task entry added; upstream entries preserved"
+  },
+  "sourcing": {
+    "lead": "Keywords Studios hardware compatibility testing",
+    "source": "https://www.keywordsstudios.com/en/services/globalize/qa-testing/hardware-compatibility-testing/",
+    "status": "Historical provider research only; no inquiry submitted. Commercial sourcing is not an active implementation path.",
+    "cloud_alternative": "GitHub/AWS T4 offerings differ from reference; no substitution or allocation made",
+    "draft": "See execution sourcing section in docs/structure-benchmark-preparation.md; approval covers inquiry only, no spend/private artifact transfer"
+  },
+  "pending": "Benchmark-before-implementation ordering decision; reference GPU/network qualification and full structure implementation remain pending.",
+  "publication": "Local evidence and rebuilt88,012,800-byte archive pending controller publication. No commit, push, merge, deployment or other worktree edits."
+}

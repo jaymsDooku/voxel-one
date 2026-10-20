@@ -4,6 +4,7 @@ import dev.jayms.GameIdentity;
 
 import dev.jayms.net.city.*;
 import dev.jayms.net.model.*;
+import dev.jayms.net.structure.*;
 
 import java.io.*;
 import java.net.*;
@@ -23,7 +24,9 @@ public final class MultiplayerServer implements AutoCloseable {
     private final Map<Integer, Peer> peers = new HashMap<>();
     private final Set<String> sessions = new HashSet<>();
     // City paving emits many edits. Index by cell so replacement never scans the whole world.
-    private final Map<String, Protocol.Edit> edits = new WorldVoxels.History();
+    private Map<String, Protocol.Edit> edits = new WorldVoxels.History();
+    private final StructureEngine structureEngine=new StructureEngine();
+    private final java.util.concurrent.atomic.AtomicBoolean structureOperation=new java.util.concurrent.atomic.AtomicBoolean();
     private final Map<String, Inventory> inventories = new HashMap<>();
     private final Map<String, Integer> health = new HashMap<>();
     private final Map<Integer, ItemDrop> drops = new LinkedHashMap<>();
@@ -95,7 +98,8 @@ public final class MultiplayerServer implements AutoCloseable {
                 if (in.readInt() != Protocol.MAGIC) throw new IOException("Invalid world save");
                 int count = in.readInt();
                 terrain = new Terrain(seed, Terrain.LEGACY_VERSION);
-                boolean itemFormat = count == -8;
+                boolean structureFormat=count == -9;
+                boolean itemFormat = count == -8 || structureFormat;
                 boolean versioned = count == -7 || itemFormat;
                 boolean colored = count == -6 || versioned;
                 boolean fractional = count == -5 || colored;
@@ -109,7 +113,7 @@ public final class MultiplayerServer implements AutoCloseable {
                     } catch (IllegalArgumentException e) {
                         throw new IOException("Unsupported terrain generator", e);
                     }
-                    if (withModels) models = ModelLibrary.read(in);
+                    if (withModels) models = structureFormat?ModelLibrary.readAll(in):ModelLibrary.read(in);
                     count = in.readInt();
                 }
                 if (count < 0 || count > 2000000) throw new IOException("Invalid edit count");
@@ -332,7 +336,7 @@ public final class MultiplayerServer implements AutoCloseable {
             out.writeUTF(username);
             out.writeLong(terrain.seed);
             out.writeInt(terrain.version);
-            initialModels.write(out);
+            initialModels.writeAll(out);
             initialInventory.write(out);
             out.writeByte(initialHealth);
             out.writeInt(snapshot.size());
@@ -349,11 +353,11 @@ public final class MultiplayerServer implements AutoCloseable {
             if (in.readUnsignedByte() != Protocol.READY) throw new IOException("Expected ready");
             synchronized (this) {
                 peer.enqueue(new Event(Protocol.READY, null, null, null, 0, false));
-                for (var model : models.entries())
-                    if (initialModels.get(model.id()) == null) peer.enqueue(modelEvent(model));
-                for (var e : edits.values())
-                    if (!e.equals(snapshot.get(e.key())))
-                        peer.enqueue(new Event(Protocol.BLOCK, null, e, null, 0, true));
+                var changedModels=new ArrayList<ModelLibrary.Entry>();
+                for(var model:models.entries())if(initialModels.get(model.id())==null)changedModels.add(model);
+                var changedCells=new LinkedHashMap<String,Protocol.CellState>();
+                for(var e:edits.values())if(!e.equals(snapshot.get(e.key())))changedCells.put(e.cellKey(),new Protocol.CellState(e.x(),e.y(),e.z(),voxels.cell(e.x(),e.y(),e.z())));
+                if(!changedModels.isEmpty()||!changedCells.isEmpty())peer.enqueue(structureEvent(new StructureWire.Delta(changedModels,new ArrayList<>(changedCells.values()))));
                 for (var p : peers.values())
                     peer.enqueue(new Event(Protocol.JOIN, p.pose, null, p.name, 0, true));
                 sendInventory(peer);
@@ -394,6 +398,7 @@ public final class MultiplayerServer implements AutoCloseable {
                     messages = 0;
                 }
                 if (++messages > 120) { recordTransportFailure(TransportFailure.MESSAGE_RATE); throw new IOException("Message rate exceeded"); }
+                if(type==Protocol.STRUCTURE_REQUEST){handleStructure(peer,in);continue;}
                 Protocol.Pose pose = type == Protocol.MOVE ? Protocol.Pose.read(in) : null;
                 Protocol.BlockRequest request =
                         type == Protocol.BLOCK ? Protocol.BlockRequest.read(in) : null;
@@ -490,7 +495,7 @@ public final class MultiplayerServer implements AutoCloseable {
                         if (accepted) {
                             if (e.type() != 0)
                                 inventories.get(peer.name).take(request.slot(), e.type());
-                            else {
+                            else if(!Blocks.structureModel(current)) {
                                 ItemDrop drop =
                                         new ItemDrop(
                                                 ++nextDrop,
@@ -811,6 +816,76 @@ public final class MultiplayerServer implements AutoCloseable {
         return new Event(Protocol.MODEL_DEFINE, null, null, null, 0, true, null, null, 0, model);
     }
 
+    private Event structureEvent(StructureWire.Delta delta)throws IOException {
+        var bytes=new ByteArrayOutputStream();StructureWire.writePayload(new DataOutputStream(bytes),StructureWire.encode(delta));
+        return new Event(Protocol.STRUCTURE_COMMIT,null,null,null,0,true,null,null,0,null,null,bytes.toByteArray());
+    }
+    private void structureResult(Peer peer,int request,boolean accepted,String message) {
+        peer.enqueue(new Event(Protocol.STRUCTURE_RESULT,null,null,message,request,accepted));
+    }
+    private StructurePackage.Source structureSnapshot() {
+        synchronized(this) {
+            var geometry=voxels.snapshot();var library=models.copy();
+            return new StructurePackage.Source() {
+                public dev.jayms.net.model.SparseVoxelOctree cell(int x,int y,int z){return geometry.cell(x,y,z);}
+                public ModelLibrary models(){return library;}
+            };
+        }
+    }
+    private StructureEngine.Authority structureAuthority() {
+        return new StructureEngine.Authority() {
+            public Object lock(){return MultiplayerServer.this;}
+            public ModelLibrary models(){return models;}
+            public SparseVoxelOctree cell(int x,int y,int z){return voxels.cell(x,y,z);}
+            public void commit(ModelLibrary staged,Map<StructurePackage.Position,SparseVoxelOctree> cells)throws IOException {
+                if(!running)throw new IOException("Server stopping");
+                var next=new WorldVoxels.History();next.putAll(edits);var geometry=voxels.snapshot();var states=new ArrayList<Protocol.CellState>();
+                for(var entry:cells.entrySet()) {
+                    var p=entry.getKey();var state=new Protocol.CellState(p.x(),p.y(),p.z(),entry.getValue());
+                    int type=WorldVoxels.decode(entry.getValue().uniform(0,0,0,16));
+                    if(entry.getValue().occupied()!=0&&peers.values().stream().anyMatch(peer->overlaps(peer.pose,new Protocol.Edit(p.x(),p.y(),p.z(),type))))
+                        throw new IOException("Structure would overlap a player");
+                    for(var edit:state.edits()){WorldVoxels.remember(next,edit);geometry.apply(edit);}states.add(state);
+                }
+                if(next.size()>2_000_000)throw new IOException("World persistence edit limit");
+                var definitions=staged.entries().stream().filter(e->models.get(e.id())==null).toList();
+                Event publication=structureEvent(new StructureWire.Delta(definitions,states));
+                saveWorld(staged,next);models=staged;edits=next;voxels=geometry;broadcast(publication);
+            }
+        };
+    }
+    private void handleStructure(Peer peer,DataInputStream in)throws IOException {
+        int action=in.readUnsignedByte(),request=in.readInt();
+        if(action==2){if(peer.structureActive.get()){peer.structureCancel.set(true);structureResult(peer,request,false,"Cancellation requested before commit");}else structureResult(peer,request,false,"No cancellable operation; placement may already be committed");return;}
+        if(action!=0&&action!=1)throw new IOException("Invalid structure action");
+        StructurePackage.Position anchor=null;int rotation=0;byte[] bytes=null;
+        boolean reserved=structureOperation.compareAndSet(false,true);
+        try {
+            if(action==0) {
+                anchor=new StructurePackage.Position(in.readInt(),in.readInt(),in.readInt());rotation=in.readUnsignedByte();
+                if(!reserved) {
+                    int length=in.readInt();if(length<0||length>StructurePackage.COMPRESSED)throw new IOException("Structure upload limit");in.skipNBytes(length);
+                } else bytes=StructureWire.readPayload(in);
+            }
+            if(!reserved){structureResult(peer,request,false,"Another large placement is running; retry");return;}
+            peer.structureCancel.set(false);peer.structureActive.set(true);structureResult(peer,request,false,"Validating structure; cancellation available");
+            final var destination=anchor;final int orientation=rotation;final byte[] payload=bytes;
+            workers.submit(()->{
+                try {
+                    if(action==1)structureEngine.undo(peer.name,structureAuthority());
+                    else {
+                        var asset=StructurePackage.decode(payload);
+                        try(var prepared=structureEngine.prepare(asset,destination,orientation,structureSnapshot(),peer.structureCancel::get,p->{})) {
+                            prepared.commit(peer.name,structureAuthority());
+                        }
+                    }
+                    structureResult(peer,request,true,action==1?"Structure placement undone":"Structure placed and saved");
+                } catch(IOException|RuntimeException failure) {structureResult(peer,request,false,"Structure rejected: "+failure.getMessage());}
+                finally {peer.structureActive.set(false);structureOperation.set(false);}
+            });
+        } catch(IOException|RuntimeException failure) {if(reserved)structureOperation.set(false);throw failure;}
+    }
+
     private void broadcast(Event event) {
         for (var p : peers.values()) p.enqueue(event);
     }
@@ -891,6 +966,8 @@ public final class MultiplayerServer implements AutoCloseable {
         float fallTop;
         long lastModel, lastCity, lastHistory;
         final java.util.concurrent.atomic.AtomicBoolean historyPending=new java.util.concurrent.atomic.AtomicBoolean();
+        final java.util.concurrent.atomic.AtomicBoolean structureCancel=new java.util.concurrent.atomic.AtomicBoolean();
+        final java.util.concurrent.atomic.AtomicBoolean structureActive=new java.util.concurrent.atomic.AtomicBoolean();
         int lastCraftRequest;
         final BlockingQueue<Event> queue = new ArrayBlockingQueue<>(512);
 
@@ -935,7 +1012,7 @@ public final class MultiplayerServer implements AutoCloseable {
                                     case Protocol.DROP -> e.drop.write(out);
                                     case Protocol.RESPAWN -> e.pose.write(out);
                                     case Protocol.MODEL_DEFINE -> e.model.write(out);
-                                    case Protocol.MODEL_RESULT -> {
+                                    case Protocol.MODEL_RESULT,Protocol.STRUCTURE_RESULT -> {
                                         out.writeInt(e.request);
                                         out.writeBoolean(e.accepted);
                                         out.writeUTF(e.name);
@@ -945,7 +1022,7 @@ public final class MultiplayerServer implements AutoCloseable {
                                         out.writeBoolean(e.accepted);
                                         out.writeUTF(e.name);
                                     }
-                                    case Protocol.CITY_STATE, Protocol.CITY_WORLD, Protocol.HISTORY_REPLY ->
+                                    case Protocol.CITY_STATE, Protocol.CITY_WORLD, Protocol.HISTORY_REPLY,Protocol.STRUCTURE_COMMIT ->
                                             out.write(e.payload);
                                     case Protocol.CITY_RESULT -> out.writeUTF(e.name);
                                     case Protocol.READY -> {}
@@ -962,6 +1039,7 @@ public final class MultiplayerServer implements AutoCloseable {
         }
 
         void disconnect() {
+            structureCancel.set(true);
             try {
                 socket.close();
             } catch (IOException ignored) {
@@ -1024,16 +1102,21 @@ public final class MultiplayerServer implements AutoCloseable {
     }
 
     private synchronized void persist() throws IOException {
+        saveWorld(models,edits);
+        if(save!=null)city.save(citySave);
+    }
+
+    private void saveWorld(ModelLibrary models,Map<String,Protocol.Edit> edits)throws IOException {
         if (save == null) return;
         Path absolute = save.toAbsolutePath();
         Files.createDirectories(absolute.getParent());
         Path temp = absolute.resolveSibling(absolute.getFileName() + ".tmp");
         try (var out = new DataOutputStream(Files.newOutputStream(temp))) {
             out.writeInt(Protocol.MAGIC);
-            out.writeInt(-8);
+            out.writeInt(models.hasStructureModels()?-9:-8);
             out.writeLong(terrain.seed);
             out.writeInt(terrain.version);
-            models.write(out);
+            if(models.hasStructureModels())models.writeAll(out);else models.write(out);
             out.writeInt(edits.size());
             for (var e : edits.values()) e.write(out);
             out.writeInt(inventories.size());
@@ -1054,7 +1137,6 @@ public final class MultiplayerServer implements AutoCloseable {
         } catch (AtomicMoveNotSupportedException e) {
             Files.move(temp, absolute, StandardCopyOption.REPLACE_EXISTING);
         }
-        city.save(citySave);
     }
 
     @Override

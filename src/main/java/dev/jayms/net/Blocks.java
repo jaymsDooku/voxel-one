@@ -36,7 +36,7 @@ public final class Blocks {
     };
 
     public static boolean valid(int type) {
-        return type >= 0 && type < 190;
+        return type >= 0 && type < 190 || structureModel(type);
     }
 
     public static String name(int type) {
@@ -65,8 +65,11 @@ public final class Blocks {
     }
 
     public static boolean isModel(int type) {
-        return type >= FLOWER_POT && type < 137;
+        return type >= FLOWER_POT && type < 137 || structureModel(type);
     }
+
+    /** World-only detailed structure components; never inventory byte IDs. */
+    public static boolean structureModel(int type) { return type>=1024 && type<66560; }
 
     public static boolean isPiece(int type) {
         return type >= 137 && type <= 164

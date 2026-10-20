@@ -66,6 +66,13 @@ public final class WorldVoxels {
         this.terrain = terrain;
     }
 
+    /** Persistent octree roots are shared; subsequent edits always replace a copied tree. */
+    public WorldVoxels snapshot() {
+        var copy=new WorldVoxels(terrain);
+        cells.forEach((key,value)->copy.cells.put(key,value.copy().freeze()));
+        return copy;
+    }
+
     public static int encode(int type) {
         return type == 0 ? 0 : type == Blocks.LED ? 0xfeffffff : 0xff000000 | type;
     }
@@ -85,7 +92,7 @@ public final class WorldVoxels {
     }
 
     public static int decode(int value) {
-        return value == -1 ? Blocks.PARTIAL : value >>> 24 == 254 ? Blocks.LED : value & 255;
+        return value == -1 ? Blocks.PARTIAL : value >>> 24 == 254 ? Blocks.LED : value & 0xffffff;
     }
 
     public void clear(){cells.clear();}

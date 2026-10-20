@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "scope": "Experimental reusable physical structures; qualification and stable rollout gated",
+  "publication": "Local evidence pending controller publication",
+  "source_manifest": "structure-experimental-source.json",
+  "native_source_manifest": "structure-native-source.json",
+  "integrated_head": "b1d7b8d796b97a87a3d63bb08baf2bb9746b8ca6",
+  "review_base": "Current integrated HEAD only; controller synchronization/review base receipt pending",
+  "environment": {
+    "os_kernel": "Linux 6.1.0-50-cloud-amd64 x86_64",
+    "cpu": "Intel Core Processor (Haswell, no TSX), 4 reported CPUs",
+    "java": "Oracle Java 25.0.3+9-LTS-195; target/release 17 compilation",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "native_heap": "-Xmx1g",
+    "display": "Inherited assigned DISPLAY and XAUTHORITY; no replacement display",
+    "profiles": "Isolated synthetic offline and protocol/TLS/account fixtures"
+  },
+  "checks": [
+    {
+      "label": "Focused regressions",
+      "command": "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=StructureTest,StructureMultiplayerTest,WorldStreamingTest,WorldStreamingPriorityTest,HistoryProtocolCompatibilityTest,AviationSaveCompatibilityTest,CityFormat16RegressionTest,MarketEconomyTest,RailwayOwnershipCompatibilityTest,RailwaySaveCompatibilityTest,RailwayShippingCompatibilityTest,RoadBaseCompatibilityTest,ShippingProtocolCompatibilityTest test",
+      "observed": "53 tests passed, 0 failures/errors; includes late cancellation reply correlation, all rotations, 512 dependencies, source independence, dense geometry/model limits, capture/import/export codec, save failure rollback, undo guards, restart, high-camera base coverage, legacy protocol fallback"
+    },
+    {
+      "label": "Complete regressions",
+      "command": "mvn -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dsurefire.timeout=1200 surefire:test",
+      "observed": "753 tests passed, 0 failures/errors/skips; BUILD SUCCESS; 13:20 min. Production source matches native manifest. Later load-fixture-only cadence/diagnostics update is checked separately by the 32-session retry."
+    },
+    {
+      "label": "Playtest: native structure workflow",
+      "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+      "expected": "Capture a bounded house with anchor and model32/fractional geometry; browse/export/import; preview and place four rotations; reject overlap; preserve occupied terrain under empty source; cancel without dependencies/geometry; undo once; reject malformed import; save/reload; retain inventory and model editor",
+      "observed": "Passed in production Main with real GLFW/X11 input. Exact rotated model leaves/colours checked. Source/placed house images and decoded video frame inspected. Native source hashes unchanged after the run. Browser playtesting does not apply to this native Java/OpenGL client."
+    },
+    {
+      "label": "Tool integration",
+      "command": "python3 -m unittest discover -s tools/structures -p 'test_*.py'",
+      "observed": "18 tests passed. Fixture/probe/bundle CLI integration; no game-performance qualification."
+    },
+    {
+      "label": "Execution bundle",
+      "command": "python3 tools/structures/build_handoff.py; python3 tools/structures/verify_handoff.py target/structure-handoff/structure-prerequisite-v1.tar --manifest dashboard/evidence/structure-execution-handoff.json --checkout .",
+      "observed": "Verified 16 archive members and 206 production checkout sources. Archive remains local and unqualified."
+    },
+    {
+      "label": "Diff audit",
+      "command": "git diff HEAD --check; git diff HEAD --name-only --diff-filter=D; git diff --name-only --diff-filter=U",
+      "observed": "Whitespace check passed; no tracked file deletions or unmerged paths. Existing city frame/command/save checks retained; protocol-envelope assertions moved from 30 to 31."
+    }
+  ],
+  "cohort32": {
+    "status": "passed",
+    "command": "mvn -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=StructureMultiplayerTest -Dvoxel.structure.clients=32 -Dsurefire.reportNameSuffix=cohort32 -Dsurefire.timeout=900 surefire:test",
+    "scope": "Exactly 32 independently authenticated production-protocol sessions on loopback, one JVM; 50 ms movement cadence matches Main. Login throttle honored with a 306-second cohort interval. This is functional validation, not the separate-machine/32-client performance topology.",
+    "observed": "1 integration scenario passed in 340.9 seconds, 0 failures/errors. All four rotations, transfer of 512 dependencies into empty caches, overlap rejection, movement state, cancellation without partial state, late cancel reply correlation, two actors contesting one destination, single-operation undo, late join and server restart.",
+    "duration_seconds": 340.9
+  },
+  "failure_history": [
+    {
+      "check": "32-session synthetic stress at 25 ms movement interval",
+      "observed": "Failed after 424.1 seconds while waiting for observer movement after placement at a 25 ms movement interval. Root cause was not established. The retry added fail-fast connection diagnostics and used the production desktop interval of 50 ms; it passed. This does not qualify the failed doubled-rate case or any reference performance budget.",
+      "test_source_sha256": "c2d31f0ffb855ee0105b7f8ab43e4b46b61938511769138d803162dd6527eaa2"
+    },
+    {
+      "check": "Native asynchronous command harness",
+      "observed": "An earlier attempt checked selected capture before the render-thread callback completed. Added dispatch/completion barriers; subsequent real application playtest passed. Interrupted runs are excluded from pass totals."
+    }
+  ],
+  "media": {
+    "video": "structure-workflow.mp4",
+    "codec": "H264",
+    "frames": 15,
+    "duration_seconds": 23.763,
+    "bytes": 270106,
+    "images": [
+      "structure-library-capture.png",
+      "structure-preview-0.png",
+      "structure-preview-1.png",
+      "structure-preview-2.png",
+      "structure-preview-3.png",
+      "structure-preview-conflict.png",
+      "structure-placed.png",
+      "structure-world-placed.png"
+    ],
+    "limits": "Dark interior closeup does not visually prove component colour; executable assertions check exact leaves/colours. Software rendering is not a reference FPS result."
+  },
+  "pending": [
+    "Hosted Java 17 mvn verify on Linux, Windows, mac-intel and mac-arm after assigned feature push",
+    "Controller integration and exact-head/review-base receipt; rerun meaningful checks/media if source changes",
+    "Physical-GPU desktop, shaped-network, distributed 32-client, 20-run city and maximum-fragmented qualification",
+    "Final supported geometry/instance limits, responsiveness, frame/tick budgets, full-city support and stable rollout"
+  ],
+  "implementation_limits": [
+    "Provisional caps in docs/structures.md deliberately reject full city/maximum geometry",
+    "Existing world-history ceiling is 2,000,000 edits",
+    "Final commit/application and persistence remain synchronous and unqualified against stall/tick budgets",
+    "Existing server tick schedule has a 100 ms fixed delay; requested 20 Hz is not qualified"
+  ],
+  "generated_utc": "2026-10-20T18:54:54.786643+00:00"
+}
