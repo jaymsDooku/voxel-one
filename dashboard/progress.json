@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-20T21:08:19+00:00",
+  "updatedAt": "2026-10-20T21:48:14+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -38,11 +38,21 @@
           "kind": "link",
           "label": "Native MP3 validation and media (pending controller publication)",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-61643037396437352d643830382d343361332d396664322d613831663766373738623861/dashboard/evidence/music-mp3-validation.md"
+        },
+        {
+          "kind": "link",
+          "label": "Exact-source Linux CI passed",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39497933277/job/118887726813"
+        },
+        {
+          "kind": "link",
+          "label": "Exact-head four-platform CI passed",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39497933277"
         }
       ],
       "status": "in_progress",
-      "note": "Resumed with source/media hashes unchanged. Java 17 focused tests/package and native MP3 workflow remain verified. Fresh 9.973 s, 118-frame, 824x540 F10 clip and screenshots preserved. Awaiting runner publication of rebased source/media for final exact-head hosted validation; no final CI or review-ready claim.",
-      "updatedAt": "2026-10-20T21:08:19+00:00"
+      "note": "Implemented and validated; ready for independent review. Exact source e6e1acb4 passed local full Java 17 verify and all four hosted desktop jobs; downloaded artifacts each confirm 741 tests / 142 suites, zero failures/errors/skips. Native MP3 workflow and published media independently verified. Awaiting reviewer; physical speaker/GPU stable-rollout gates retained.",
+      "updatedAt": "2026-10-20T21:48:14+00:00"
     },
     {
       "id": "61353661313662322d303366332d343264362d613762342d653335666538313136623266",

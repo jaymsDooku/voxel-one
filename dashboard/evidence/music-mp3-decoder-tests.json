@@ -46,6 +46,6 @@
       }
     ]
   },
-  "fullVerify": "Full verify passed on four hosted jobs for historical head c1e17f8c; final rebased-head hosted validation pending publication.",
+  "fullVerify": "Exact source e6e1acb4: local Java 17 full Maven verify passed; push and PR workflows passed all four desktop build jobs. Downloaded push-run artifacts each confirm 741 tests / 142 suites, zero failures/errors/skips, including four MP3 tests. Native playtest remains separately verified.",
   "Playtest": "Native import/error retry/playback/controls/keyboard seek boundary/WAV regression passed on Java 25.0.3, inherited assigned X11 display, llvmpipe, OpenAL Soft null output. Fresh F10 media pending controller publication."
 }

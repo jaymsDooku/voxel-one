@@ -4,7 +4,7 @@ Implementation: MP3SPI 1.9.5.4 supplies Java Sound decoding through the existing
 
 ## Tested source and diff audit
 
-Local rebased implementation head: `2d75a6eb03d2945d8e5503a5a71f386256b467f4`, plus local harness portability/seek-coverage refinements and license whitespace cleanup. Main MP3 runtime code is unchanged by those follow-ups. Source and media hashes are in `music-mp3-source-manifest.json`. This is not a final submitted-head receipt.
+Published implementation head: `e6e1acb4e9202f5a216f4de62aaae42fde9b5b93` ([PR #77](https://github.com/jaymsDooku/voxel-one/pull/77)). Saved hashes for every tested non-dashboard source file and all captured media match the published checkout. No runtime-source changes followed the passing native run. Controller publication was completed; this evidence-status update changes metadata only.
 
 Audited the entire proposed diff against recorded base `b1d7b8d796b97a87a3d63bb08baf2bb9746b8ca6`. No file deletions are proposed. The 91 inherited paths outside this MP3 change match integrated master parent `3f877c21c8e6776adba9d2130e2fd92e55853763` exactly, including Voxel Street, its website package and its evidence. All non-MP3 upstream progress entries were preserved during conflict recovery. Intended line replacements update supported-format/error text and merge Java Sound service resources in the shaded client. License cleanup changes trailing whitespace/line endings only. `git diff --check b1d7b8d796b97a87a3d63bb08baf2bb9746b8ca6` passed on the full proposed working tree.
 
@@ -19,7 +19,15 @@ mvn -q -Dmaven.repo.local=target/maven-cache -DargLine="-Djava.io.tmpdir=$PWD/ta
 /usr/lib/jvm/java-17-openjdk-amd64/bin/java -cp target/voxel-one-1.0-SNAPSHOT-client.jar deploy/MusicMp3DecodeSmoke.java
 ```
 
-Both exited 0 on the rebased implementation. The 20 focused tests passed with zero failures/errors/skips: four MP3 decoder/limits/container tests, six analysis tests, five control tests and five identity tests. Coverage includes actual CBR/VBR decode and bass/mid response, mono duplication, corrupt/empty/oversize input and retry, compressed input exceeding decoded cap, WAV/AIFF/AU compatibility and existing analysis/control behavior. The shaded JAR alone decoded both fixtures to 44100 Hz PCM, 6.060 seconds. Provider service descriptors and decoder license notices were verified in the JAR. Focused tests are not a full-suite pass. Earlier local full-verify attempts were interrupted and are not claimed passed.
+Both exited 0 on the rebased implementation. The 20 focused tests passed with zero failures/errors/skips: four MP3 decoder/limits/container tests, six analysis tests, five control tests and five identity tests. Coverage includes actual CBR/VBR decode and bass/mid response, mono duplication, corrupt/empty/oversize input and retry, compressed input exceeding decoded cap, WAV/AIFF/AU compatibility and existing analysis/control behavior. The shaded JAR alone decoded both fixtures to 44100 Hz PCM, 6.060 seconds. Provider service descriptors and decoder license notices were verified in the JAR. The focused check was followed by a complete local Maven verify on published source `e6e1acb4e9202f5a216f4de62aaae42fde9b5b93`: 741 tests across 142 suites, zero failures/errors/skips, exit 0, elapsed 11 minutes 18 seconds. Earlier interrupted attempts are not counted as passes. Sanitized fresh reports are in `music-mp3-full-verify-e6e1acb4.json`; only files with this full run's unique report suffix were counted.
+
+Full local verification command, with Java 17 in JAVA_HOME/PATH:
+
+```
+timeout 1200s mvn -B -Dmaven.repo.local=target/maven-cache -DargLine="-Djava.io.tmpdir=$PWD/target/tmp" -Dsurefire.reportNameSuffix=mp3-e6-final verify
+```
+
+Observed: `BUILD SUCCESS`, 741 tests, no failures/errors/skips. This completed before the execution cap. No required tests were skipped or gates weakened. Main runtime source and captured media remain unchanged from the published source.
 
 ## Playtest: native MP3 import and controls — passed
 
@@ -38,7 +46,7 @@ Environment: inherited assigned authenticated X11 display; Linux amd64; managed 
 
 Final native command exited 0. `music-mp3-playtest.json` records assertions and runtime. Initial harness attempts exposed Java 25 compiler output on a Java 17 runtime and a headless Java 17 installation; compilation now uses `--release 17`, while native execution uses the managed headful Java 25 runtime. A timing-dependent seek assertion was replaced by two Right presses to force clamping independent of startup timing. The final run includes the corrected coverage and fresh captures.
 
-## Fresh media — pending controller publication
+## Fresh media — published and verified
 
 - `music-mp3-error.png`: readable invalid-input retry message.
 - `music-mp3-cbr.png`: live CBR bass response and native playback clock.
@@ -51,12 +59,18 @@ javac --release 17 -cp target/voxel-one-1.0-SNAPSHOT-client.jar -d target/music-
 java -cp target/voxel-one-1.0-SNAPSHOT-client.jar:target/music-mp3-smoke VerifyMusicMedia dashboard/evidence/music-mp3.mp4 dashboard/evidence/music-mp3-media-check.json dashboard/evidence/music-mp3-video-contact.png
 ```
 
-Both exited 0. Every H.264 frame decoded, metadata frame count matched, first/last image hashes differed, four frames were extracted and the clip stayed below 6 MB. The final screenshots and contact sheet were visually inspected. Media and reports are local, sanitized and pending runner publication to the assigned feature branch.
+Both exited 0. Every H.264 frame decoded, metadata frame count matched, first/last image hashes differed, four frames were extracted and the clip stayed below 6 MB. The final screenshots and contact sheet were visually inspected. All five captures were verified at published head `e6e1acb4e9202f5a216f4de62aaae42fde9b5b93` using GitHub Contents API blob hashes and byte sizes against the local captures. `music-mp3-published-media.json` records that verification; this metadata update awaits runner recording.
 
 ## Hosted checks and remaining gates
 
 Actual GitHub job/step results were inspected for historical source `c1e17f8c96e3bd17fd251520c7cd82a0ea43a20f`: [run 39493586227](https://github.com/jaymsDooku/voxel-one/actions/runs/39493586227) completed successfully. All four jobs (Linux, Windows, Intel Mac, ARM Mac) passed `mvn --batch-mode verify` and the packaged-JAR MP3 decoder check. Sanitized exact-source job results are in `music-mp3-hosted-c1e17f8c.json`. These passes predate the master rebase and do not qualify the final rebased head.
 
-Controller publication is required for final exact-head hosted checks. The new handoff must publish the rebased source, harness refinements and fresh media; it must not submit review or claim pending checks passed. No repeat of the unchanged old-source handoff is needed.
+Controller published source and media at `e6e1acb4e9202f5a216f4de62aaae42fde9b5b93`. Terminal GitHub API results were independently inspected: [push run 39497933277](https://github.com/jaymsDooku/voxel-one/actions/runs/39497933277) and [PR run 39497939561](https://github.com/jaymsDooku/voxel-one/actions/runs/39497939561) both succeeded. Linux, Windows, Intel Mac and ARM Mac build jobs all passed Maven verify and the packaged-JAR MP3 decode check. Publish jobs were skipped as expected; no deployment occurred.
 
-Native PCM upload/clock was tested through OpenAL Soft null output, not audible speakers. Software rendering does not qualify physical-GPU performance. Other desktop native playback and physical hardware qualification remain pending; existing stable-rollout gates are retained. Do not mark ready before required final-source validation.
+Downloaded the four actual sanitized Maven summary artifacts from the exact-head push run. Each artifact's sourceHead equals `e6e1acb4e9202f5a216f4de62aaae42fde9b5b93`. Each reports 741 tests across 142 suites, zero failures/errors/skips, including all four MusicMp3Test cases. Verified aggregate counts and MP3 suite counts; no raw runtime logs, XML properties or account data were exported. Artifact IDs and counts are in `music-mp3-hosted-test-artifacts-e6e1acb4.json`; terminal job results are in `music-mp3-hosted-e6e1acb4.json`.
+
+All required implementation validation is complete. Completed CI supplements the independently executed native workflow and inspected media; it does not constitute reviewer approval. Only sanitized evidence/progress metadata changed after tested head `e6e1acb4`; runtime/test/CI sources and all media still match recorded hashes. Ready for independent review, with runner publication of these final metadata updates pending.
+
+Final audit against the updated recorded review base `3f877c21c8e6776adba9d2130e2fd92e55853763`: 28 changed paths at publication, all within the MP3 implementation, test, documentation, licensing and evidence scope. No deletions. Every non-MP3 progress entry matches the review base unchanged. Full diff check passed.
+
+Native PCM upload/clock was tested through OpenAL Soft null output, not audible speakers. Software rendering does not qualify physical-GPU performance. Other desktop native playback and physical hardware qualification remain pending; existing stable-rollout gates are retained. Required final-source implementation checks have passed. Independent review is required; hardware/stable-rollout qualification remains separate and pending as described above.

@@ -19,7 +19,7 @@
     "src/test/resources/music/cbr-stereo.mp3": "e74935802f3ddc80fc8fc8593dbf30bee7e5bfa7277a5000fb6ddf0e25243dd4",
     "src/test/resources/music/vbr-mono.mp3": "09332a3aa7997b2c42d2aea74d385a16e411baeecdc213e0ccff5a7e21a3c9a9"
   },
-  "publishedImplementationHead": "c1e17f8c96e3bd17fd251520c7cd82a0ea43a20f",
+  "publishedImplementationHead": "e6e1acb4e9202f5a216f4de62aaae42fde9b5b93",
   "localHead": "2d75a6eb03d2945d8e5503a5a71f386256b467f4",
   "integrationParent": "3f877c21c8e6776adba9d2130e2fd92e55853763",
   "testedClientJarSha256": "00bd73336ca27754b208d1aab0f3c780ec274a3c83f4840ebe6e325f94d5ce98",
@@ -35,5 +35,7 @@
     "integrationParent": "3f877c21c8e6776adba9d2130e2fd92e55853763",
     "unchangedInheritedPaths": 91,
     "deletedPaths": []
-  }
+  },
+  "currentReviewBase": "3f877c21c8e6776adba9d2130e2fd92e55853763",
+  "publishedSourceAndMediaMatchSavedHashes": true
 }
