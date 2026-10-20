@@ -229,16 +229,20 @@ multi-monitor/physical-DPI qualification. Use only the owned synthetic display.
 
 `PackageUiProbe` closes the query process input stream immediately. The prior
 probe left redirected PowerShell stdin open, so a query could wait for EOF.
-The probe writes only a fixed result token to a temporary file, never a process
-command line. It accepts `MATCH` only on exit code 0 and at most 16 output bytes.
-Each CIM call has a 2-second operation limit; each helper has at most 3 seconds
+The probe drains stdout through a daemon reader and retains at most 17 bytes,
+never a process command line. It accepts `MATCH` only on exit code 0, a finished
+reader and at most 16 output bytes. A 17th byte rejects oversized output. The
+pipe replaces the temporary output file that remained locked in hosted Windows
+cleanup. No capture file is created or deleted.
+Each CIM call has a 2-second operation limit; each helper process wait has at most 3 seconds
 within the original 25-second overall deadline. Timeout remains a non-match.
+Reader completion and forced shutdown each have a 1-second cleanup bound.
 The fallback queries only descendants whose argument list is unavailable and
 requires the exact escaped `-jar` target. Hosted Windows validation must confirm
 the actual PowerShell behavior; Linux controls alone do not prove that fix.
 
 `ProcessQueryProbeTest` executes real child controls for EOF, timeout, wrong
-output, oversized output and exit code 7. The packaged check runs these controls
+output, oversized output, exit code 7 and stderr backpressure. The packaged check runs these controls
 with its bundled Java runtime before the updater and UI checks.
 
 Publication inputs must be real tested deployment/release receipts. Files under

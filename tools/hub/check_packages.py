@@ -82,7 +82,7 @@ def run(args):
     elif platform.system()=='Darwin':runtime=apps[0]/'Contents/runtime/Contents/Home/bin/java';exe=lambda app:app/'Contents/MacOS/Voxel One Hub'
     else:runtime=apps[0]/'lib/runtime/bin/java';exe=lambda app:app/'bin/Voxel One Hub'
     cp=os.pathsep.join(map(str,(classes,source_client)))
-    check('Bounded own-child query controls','EOF completes; timeout, wrong/oversized output and nonzero exit cannot match',
+    check('Bounded own-child query controls','EOF and stderr pressure complete; timeout, wrong/oversized output and nonzero exit cannot match',
           lambda:command([runtime,'-Djava.io.tmpdir='+str(work),'-cp',cp,'ProcessQueryProbeTest'],timeout=30,output='playtest'))
     def probe(mode, path, uri, shell=False):
         return command([runtime,'-Djava.io.tmpdir='+str(work),'-cp',cp,'UpdaterProbe',mode,path,uri,str(shell).lower()],output=True)
