@@ -1,0 +1,92 @@
+{
+  "checks": [
+    {
+      "name": "delayed",
+      "command": [
+        "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+        "-cp",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/voxel-one-1.0-SNAPSHOT-client.jar:/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-tmp",
+        "PackageUiProbe",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/dashboard/evidence/hub-process-wait/delayed",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-process-wait/delayed",
+        "process",
+        "26",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/voxel-one-1.0-SNAPSHOT-launcher.jar"
+      ],
+      "childCommand": [
+        "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+        "-Dvoxel.hub.preview=true",
+        "-Duser.home=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-process-wait/delayed",
+        "-jar",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/voxel-one-1.0-SNAPSHOT-launcher.jar"
+      ],
+      "delaySeconds": 5,
+      "expectedExitCode": 0,
+      "exitCode": 0,
+      "observed": [],
+      "captureExitCode": 0
+    },
+    {
+      "name": "wrong-shell",
+      "command": [
+        "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+        "-cp",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/voxel-one-1.0-SNAPSHOT-client.jar:/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-tmp",
+        "PackageUiProbe",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/dashboard/evidence/hub-process-wait/wrong-shell",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-process-wait/wrong-shell",
+        "process",
+        "115",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/voxel-one-1.0-SNAPSHOT-launcher.jar.wrong"
+      ],
+      "childCommand": [
+        "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+        "-Dvoxel.hub.preview=true",
+        "-Duser.home=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-process-wait/wrong-shell",
+        "-jar",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/voxel-one-1.0-SNAPSHOT-launcher.jar"
+      ],
+      "delaySeconds": 0,
+      "expectedExitCode": 1,
+      "exitCode": 1,
+      "observed": [
+        "HUB_CHECK_FAILURE: AssertionError: Expected verified shell JVM not running; parentAlive=true; children=1; argumentLists=1"
+      ]
+    },
+    {
+      "name": "immediate",
+      "command": [
+        "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+        "-cp",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/voxel-one-1.0-SNAPSHOT-client.jar:/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-tmp",
+        "PackageUiProbe",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/dashboard/evidence/hub-process-wait/immediate",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-process-wait/immediate",
+        "process",
+        "183",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/voxel-one-1.0-SNAPSHOT-launcher.jar"
+      ],
+      "childCommand": [
+        "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+        "-Dvoxel.hub.preview=true",
+        "-Duser.home=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-process-wait/immediate",
+        "-jar",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/voxel-one-1.0-SNAPSHOT-launcher.jar"
+      ],
+      "delaySeconds": 0,
+      "expectedExitCode": 0,
+      "exitCode": 0,
+      "observed": [],
+      "captureExitCode": 0
+    }
+  ],
+  "Playtest:": "Inherited Linux role display; synthetic profiles; actual Hub shell launched with bundled library. Expected delayed5s and immediate correct shell to pass and live wrong-JAR edge to fail. Commands and observed results recorded per check. Desktop captures exclude private data. Intel Mac confirmation remains pending.",
+  "platformScope": "Linux smoke only; no Mac or GPU claim",
+  "sourceSha": "9dd20aecde662319a8b98553e7e866414085f1ca",
+  "sourceKind": "Working tree; test-only change",
+  "probeSha256": "131ecad08466533c537c1d4f197ad798f5280bd87fae2bd30e26513a29d80a58",
+  "expectedOutcomesPassed": true,
+  "inspectedMedia": "hub-process-wait-delayed-hub.png; actual delayed Hub desktop capture inspected",
+  "pending": "Exact resulting-head Windows/macOS checks, Intel shell activation confirmation, published delivery/upgrades/browser reload and physical GPU/DPI/performance",
+  "stableRolloutQualified": false
+}
