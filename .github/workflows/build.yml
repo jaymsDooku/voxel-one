@@ -33,6 +33,8 @@ jobs:
           java-version: '17'
           cache: maven
       - run: mvn --batch-mode verify
+      - name: Check bundled MP3 decoder in shipped client
+        run: java -cp target/voxel-one-1.0-SNAPSHOT-client.jar deploy/MusicMp3DecodeSmoke.java
       - name: Summarize Maven tests without runtime data
         if: always()
         run: python3 deploy/summarize_maven_tests.py

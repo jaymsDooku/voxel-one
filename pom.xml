@@ -31,6 +31,7 @@
     </dependencyManagement>
 
     <dependencies>
+        <dependency><groupId>com.googlecode.soundlibs</groupId><artifactId>mp3spi</artifactId><version>1.9.5.4</version></dependency>
         <dependency><groupId>org.jcodec</groupId><artifactId>jcodec</artifactId><version>0.2.5</version></dependency>
         <dependency><groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter</artifactId><version>5.12.2</version><scope>test</scope></dependency>
         <dependency>
@@ -134,7 +135,7 @@
       <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-surefire-plugin</artifactId><version>3.5.3</version></plugin>
       <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-shade-plugin</artifactId><version>3.6.0</version><executions><execution><phase>package</phase><goals><goal>shade</goal></goals><configuration>
         <shadedArtifactAttached>true</shadedArtifactAttached><shadedClassifierName>client</shadedClassifierName><createDependencyReducedPom>false</createDependencyReducedPom>
-        <transformers><transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer"><mainClass>dev.jayms.Main</mainClass></transformer></transformers>
+        <transformers><transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/><transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer"><mainClass>dev.jayms.Main</mainClass></transformer></transformers>
       </configuration></execution></executions></plugin>
       <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-jar-plugin</artifactId><version>3.4.2</version><executions><execution><id>server</id><goals><goal>jar</goal></goals><configuration><classifier>server</classifier><includes><include>dev/jayms/net/**</include><include>dev/jayms/GameIdentity*</include></includes><archive><manifest><mainClass>dev.jayms.net.MultiplayerServer</mainClass></manifest></archive></configuration></execution><execution><id>launcher</id><goals><goal>jar</goal></goals><configuration><classifier>launcher</classifier><includes><include>dev/jayms/launcher/**</include></includes><archive><manifest><mainClass>dev.jayms.launcher.Launcher</mainClass></manifest></archive></configuration></execution></executions></plugin>
     </plugins></build>

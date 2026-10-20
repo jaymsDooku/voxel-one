@@ -25,7 +25,7 @@ public final class MusicVisualizer {
     public final MusicTrack track = new MusicTrack();
     public final MusicAnalysis analysis = new MusicAnalysis();
     public final ArrayList<Double> memories = new ArrayList<>();
-    public String status = "Load local WAV, AIFF or AU audio to begin.";
+    public String status = "Load local MP3, WAV, AIFF or AU audio to begin.";
     public String renderer;
     private final AtomicReference<Path> requested = new AtomicReference<>();
     private final ExecutorService loader = Executors.newSingleThreadExecutor(r -> {var t = new Thread(r,"music-decode");t.setDaemon(true);return t;});
@@ -47,8 +47,8 @@ public final class MusicVisualizer {
         if (choosing) return;
         choosing = true;
         SwingUtilities.invokeLater(() -> {
-            try {var picker = new JFileChooser();activeChooser=picker;picker.setDialogTitle("Load local audio: WAV / AIFF / AU");
-                picker.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Audio (WAV, AIFF, AU)","wav","aiff","aif","au"));
+            try {var picker = new JFileChooser();activeChooser=picker;picker.setDialogTitle("Load local audio: MP3 / WAV / AIFF / AU");
+                picker.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Audio (MP3, WAV, AIFF, AU)","mp3","wav","aiff","aif","au"));
                 if(picker.showOpenDialog(null)==JFileChooser.APPROVE_OPTION)requestLoad(picker.getSelectedFile().toPath());
             } finally { activeChooser=null;choosing=false; }
         });
@@ -101,7 +101,7 @@ public final class MusicVisualizer {
         }
         if(loading!=null&&loading.isDone()) {
             try { track.load(loading.get());trackLabel="Local audio";status="Playing. SPACE pauses; arrows seek 5 seconds."; }
-            catch(Exception | LinkageError e) { status="Cannot play audio. Use WAV / AIFF / AU and an audio output; O retries."; }
+            catch(Exception | LinkageError e) { status="Cannot play audio. File may be invalid or over 32 MiB; check audio output. O retries."; }
             loading=null;
         }
         double pos=track.position();boolean playing=track.playing();var data=track.data();

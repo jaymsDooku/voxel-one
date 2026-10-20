@@ -1,0 +1,51 @@
+{
+  "scope": "Retained executed focused decoder/regression checks; not a full-verify or native-playtest pass. Initial combined run had 19 tests; final separate MP3 run had 4. MP3 main/test source unchanged since those runs.",
+  "platform": "Linux amd64; OpenJDK 17",
+  "suites": [
+    {
+      "name": "dev.jayms.MusicMp3Test",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.MusicAnalysisTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.ControlsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "dev.jayms.SandboxIdentityTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "packagedDecoderCheck": {
+    "exitCode": 0,
+    "fixtures": [
+      {
+        "name": "cbr-stereo.mp3",
+        "rateHz": 44100,
+        "durationSeconds": 6.06
+      },
+      {
+        "name": "vbr-mono.mp3",
+        "rateHz": 44100,
+        "durationSeconds": 6.06
+      }
+    ]
+  },
+  "fullVerify": "pending; local final run interrupted with exit 130 during MobileGatewayTest",
+  "Playtest": "pending; assigned DISPLAY not inherited; no fresh native media captured"
+}
