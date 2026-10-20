@@ -69,6 +69,7 @@ public final class MusicSmoke {
             // Let the audio cross into silence without seeking or clearing the scene.
             Thread.sleep(7000);render(()->{require(active.track.ended(),"Natural completion");require(active.bands.bass()<.005&&active.bands.mid()<.005&&active.bands.treble()<.005,"Natural silence eases envelopes to calm");require(active.landscape.ripples.count()==0,"Natural ripple expiry");});shot("music-natural-calm.png");
             key("F10");render(()->require(!active.recording(),"F10 stops after natural transition to calm"));
+            Thread.sleep(14000);render(()->require(active.landscape.ripples.count()+active.landscape.particles.count()+active.landscape.memory.count()==0,"All effects expire naturally within 20 seconds"));shot("music-expired.png");
             key("space");
 
             String clickWindow=Long.toString(org.lwjgl.glfw.GLFWNativeX11.glfwGetX11Window(active.window));

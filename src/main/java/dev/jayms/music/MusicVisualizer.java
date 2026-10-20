@@ -151,6 +151,13 @@ public final class MusicVisualizer {
         int i=boxCount++*9;boxes[i]=x;boxes[i+1]=y;boxes[i+2]=z;
         boxes[i+3]=sx;boxes[i+4]=sy;boxes[i+5]=sz;boxes[i+6]=r;boxes[i+7]=g;boxes[i+8]=b;
     }
+    /** Exact visible cell top, including water only where a water box is rendered. */
+    private float visibleSurface(float x,float z) {
+        double cx=java.lang.Math.rint(x),cz=java.lang.Math.rint(z);
+        double top=landscape.surface(cx,cz,motion);
+        if(MusicLandscape.base(cx,cz)<.9)top=java.lang.Math.max(top,landscape.water(cx,cz,motion)+.05);
+        return (float)top;
+    }
     private void landscape() {
         float[] c=COLORS[palette];float light=(float)(.70+landscape.atmosphere*.3);
         box(0,-.4f,0,15, .6f,15,.13f,.19f,.22f);
@@ -183,16 +190,16 @@ public final class MusicVisualizer {
                 double angle=j*java.lang.Math.PI/16;
                 float x=(float)(landscape.ripples.x[i]+java.lang.Math.cos(angle)*radius),z=(float)(landscape.ripples.z[i]+java.lang.Math.sin(angle)*radius);
                 if(java.lang.Math.abs(x)>7||java.lang.Math.abs(z)>7)continue;
-                float y=(float)java.lang.Math.max(landscape.surface(x,z,motion),landscape.water(x,z,motion));
+                float y=visibleSurface(x,z);
                 float size=.14f*fade*(float)java.lang.Math.min(1,motion);
-                box(x,y+.07f,z,size,.035f,size,c[0]*.45f*fade,c[1]*.45f*fade,c[2]*.45f*fade);
+                box(x,y+.018f,z,size,.035f,size,c[0]*.45f*fade,c[1]*.45f*fade,c[2]*.45f*fade);
             }
         }
         for(int i=0;i<MusicLandscape.MEMORY_CAP;i++)if(landscape.memory.age[i]<20){
-            float fade=(float)java.lang.Math.pow(1-landscape.memory.age[i]/20,2);
+            float remaining=(float)(1-landscape.memory.age[i]/20),fade=remaining*remaining;
             float x=(float)java.lang.Math.rint(landscape.memory.x[i]),z=(float)java.lang.Math.rint(landscape.memory.z[i]);
-            float y=(float)java.lang.Math.max(landscape.surface(x,z,motion),landscape.water(x,z,motion));
-            box(x,y+.035f,z,.52f,.07f,.52f,.22f+c[0]*fade*.45f,.31f+c[1]*fade*.45f,.21f+c[2]*fade*.45f);
+            float y=visibleSurface(x,z);
+            box(x,y+.035f*remaining,z,.52f*remaining,.07f*remaining,.52f*remaining,.22f+c[0]*fade*.45f,.31f+c[1]*fade*.45f,.21f+c[2]*fade*.45f);
         }
         for(int i=0;i<MusicLandscape.PARTICLE_CAP;i++)if(landscape.particles.age[i]<8&&motion>0){
             double age=landscape.particles.age[i];float fade=(float)(java.lang.Math.min(1,age/.3)*(1-age/8));

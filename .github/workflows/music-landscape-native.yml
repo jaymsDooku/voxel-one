@@ -32,7 +32,7 @@ jobs:
           distribution: temurin
           java-version: '17'
       - name: Install disposable hosted graphical test tools
-        run: sudo apt-get update && sudo apt-get install -y xvfb xauth xdotool libgl1-mesa-dri libopenal1
+        run: sudo apt-get update && sudo apt-get install -y xvfb xauth xdotool imagemagick libgl1-mesa-dri libopenal1
       - name: Compile and test exact source
         shell: bash
         run: |

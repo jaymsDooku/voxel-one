@@ -9,27 +9,27 @@
         "resolution": "1100x720",
         "warmupSeconds": 5,
         "seconds": 20.0,
-        "frames": 1872,
-        "medianMs": 7.666866,
-        "p95Ms": 11.570164,
+        "frames": 2040,
+        "medianMs": 7.116734,
+        "p95Ms": 9.347134,
         "trackedMeshBytes": 1296,
-        "heapUsedBytes": 21564744,
-        "rss": "VmRSS:   314580 kB"
+        "heapUsedBytes": 32997808,
+        "rss": "VmRSS:   318144 kB"
       },
       "landscape": {
         "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
         "resolution": "1100x720",
         "warmupSeconds": 5,
         "seconds": 20.0,
-        "frames": 2182,
-        "medianMs": 6.605331,
-        "p95Ms": 9.282235,
+        "frames": 1940,
+        "medianMs": 7.38801,
+        "p95Ms": 10.271334,
         "trackedMeshBytes": 148752,
-        "heapUsedBytes": 17642128,
-        "rss": "VmRSS:   292472 kB"
+        "heapUsedBytes": 15400088,
+        "rss": "VmRSS:   297312 kB"
       },
-      "medianMsChangePercent": -13.845748706185812,
-      "p95MsChangePercent": -19.774386949052758,
+      "medianMsChangePercent": 3.8118046845645903,
+      "p95MsChangePercent": 9.887522742265165,
       "within10Percent": true
     },
     {
@@ -39,27 +39,27 @@
         "resolution": "1100x720",
         "warmupSeconds": 5,
         "seconds": 20.0,
-        "frames": 1818,
-        "medianMs": 7.880821,
-        "p95Ms": 10.989313,
+        "frames": 1699,
+        "medianMs": 8.390839,
+        "p95Ms": 12.116408,
         "trackedMeshBytes": 1296,
-        "heapUsedBytes": 23553576,
-        "rss": "VmRSS:   313472 kB"
+        "heapUsedBytes": 10951272,
+        "rss": "VmRSS:   321172 kB"
       },
       "landscape": {
         "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
         "resolution": "1100x720",
         "warmupSeconds": 5,
         "seconds": 20.0,
-        "frames": 2076,
-        "medianMs": 6.966279,
-        "p95Ms": 9.572547,
+        "frames": 2136,
+        "medianMs": 6.807119,
+        "p95Ms": 9.018096,
         "trackedMeshBytes": 148752,
-        "heapUsedBytes": 17552424,
-        "rss": "VmRSS:   293876 kB"
+        "heapUsedBytes": 16283352,
+        "rss": "VmRSS:   295884 kB"
       },
-      "medianMsChangePercent": -11.604653880604577,
-      "p95MsChangePercent": -12.89221628321988,
+      "medianMsChangePercent": -18.87439384786194,
+      "p95MsChangePercent": -25.571208892932628,
       "within10Percent": true
     },
     {
@@ -69,27 +69,27 @@
         "resolution": "1100x720",
         "warmupSeconds": 5,
         "seconds": 20.0,
-        "frames": 1981,
-        "medianMs": 7.17863,
-        "p95Ms": 10.29633,
+        "frames": 1639,
+        "medianMs": 8.9362,
+        "p95Ms": 11.510735,
         "trackedMeshBytes": 1296,
-        "heapUsedBytes": 34255176,
-        "rss": "VmRSS:   320952 kB"
+        "heapUsedBytes": 79052360,
+        "rss": "VmRSS:   319644 kB"
       },
       "landscape": {
         "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
         "resolution": "1100x720",
         "warmupSeconds": 5,
         "seconds": 20.0,
-        "frames": 2260,
-        "medianMs": 6.364724,
-        "p95Ms": 9.097716,
+        "frames": 2279,
+        "medianMs": 6.365953,
+        "p95Ms": 8.551124,
         "trackedMeshBytes": 148752,
-        "heapUsedBytes": 18512008,
-        "rss": "VmRSS:   301088 kB"
+        "heapUsedBytes": 17174520,
+        "rss": "VmRSS:   298996 kB"
       },
-      "medianMsChangePercent": -11.337901521599525,
-      "p95MsChangePercent": -11.641177001902614,
+      "medianMsChangePercent": -28.762191983169572,
+      "p95MsChangePercent": -25.711746469708498,
       "within10Percent": true
     }
   ],

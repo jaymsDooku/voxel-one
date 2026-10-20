@@ -1,1 +1,1 @@
-{"renderer":"llvmpipe (LLVM 15.0.6, 256 bits)","resolution":"1100x720","warmupSeconds":5,"seconds":20.0,"frames":1872,"medianMs":7.666866,"p95Ms":11.570164,"trackedMeshBytes":1296,"heapUsedBytes":21564744,"rss":"VmRSS:   314580 kB"}
+{"renderer":"llvmpipe (LLVM 15.0.6, 256 bits)","resolution":"1100x720","warmupSeconds":5,"seconds":20.0,"frames":2040,"medianMs":7.116734,"p95Ms":9.347134,"trackedMeshBytes":1296,"heapUsedBytes":32997808,"rss":"VmRSS:   318144 kB"}

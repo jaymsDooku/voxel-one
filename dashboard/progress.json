@@ -17,7 +17,7 @@
     {
       "id": "living-landscape",
       "title": "Living music landscape",
-      "description": "Inspecting Resonance Core baseline; preserving native audio, controls and recorder. Validation and media pending.",
+      "description": "Living voxel terrain, rooted vegetation, water and bounded audio reactions in the existing music client.",
       "evidence": [
         {
           "kind": "report",
@@ -53,11 +53,16 @@
           "kind": "video",
           "label": "F10 contrasting passages and natural calm (pending controller publication)",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-32303665306237372d623933612d346464642d383435342d346162633836393964313931/dashboard/evidence/landscape-live.mp4"
+        },
+        {
+          "kind": "image",
+          "label": "Natural all-effect expiry (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-32303665306237372d623933612d346464642d383435342d346162633836393964313931/dashboard/evidence/landscape-live-expired.png"
         }
       ],
       "status": "in_progress",
-      "note": "Resolved progress JSON rebase conflict while retaining the Hub preview registration and Music MP3 entries. Controller must stage and continue the rebase. Earlier tests/media are historical until final-head validation; hosted soak and physical GPU/audio qualification remain pending.",
-      "updatedAt": "2026-10-20T23:01:54+00:00"
+      "note": "Rebase audited; trail fading/visible-surface placement fixed. Local 24 tests/package, WAV/MP3 lifecycle, natural all-effect expiry, catalog/Sandbox/City integration and all three timing pairs passed. Fresh F10: 233 decoded frames, 18.409 s, 2742106 bytes. Controller publication, hosted exact-source checks and 1800-second soak remain pending; physical GPU/audio qualification still gates rollout.",
+      "updatedAt": "2026-10-20T23:26:53+00:00"
     },
     {
       "id": "2ae7c6f2-358b-4d7a-8906-4c3687cda4ff",
