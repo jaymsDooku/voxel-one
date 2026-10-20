@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-18T05:28:05+00:00",
+  "updatedAt": "2026-10-20T13:59:47+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,36 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "music-visualizer",
+      "title": "Voxel Music Visualizer",
+      "description": "Local music application with independent stereo-channel energy analysis, bounded voxel effects and playback controls; awaiting independent review.",
+      "evidence": [
+        {
+          "kind": "video",
+          "label": "F10 MP4 (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36663630636537352d393361332d343631392d396238662d393665636466306164316163/dashboard/evidence/music-visualizer.mp4"
+        },
+        {
+          "kind": "report",
+          "label": "Validation report (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36663630636537352d393361332d343631392d396238662d393665636466306164316163/dashboard/evidence/music-validation.md"
+        },
+        {
+          "kind": "image",
+          "label": "Controls and beat memory (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36663630636537352d393361332d343631392d396238662d393665636466306164316163/dashboard/evidence/music-controls.png"
+        },
+        {
+          "kind": "image",
+          "label": "Antiphase bass response (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36663630636537352d393361332d343631392d396238662d393665636466306164316163/dashboard/evidence/music-antiphase.png"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Stereo phase cancellation fixed without changing playback PCM. 16 focused tests pass, including decoded antiphase and left/right-only tones. Fresh native stereo workflow and Main/Sandbox/City regressions pass; package build passes. Linux llvmpipe 1100x720: 68.10 FPS. Fresh F10 MP4 1,394,976 bytes, 94 decoded frames, 11.34 s. Revised evidence awaits controller publication; physical GPU/speaker qualification remains pending.",
+      "updatedAt": "2026-10-20T13:59:47+00:00"
+    },
     {
       "id": "9c35cf2b-7ce5-4874-9649-13bf9392c208",
       "title": "Voxel Sandbox: eliminate frame drops when loading new chunks",

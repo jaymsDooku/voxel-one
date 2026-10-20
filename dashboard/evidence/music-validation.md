@@ -1,0 +1,34 @@
+# Voxel Music Visualizer validation
+
+Publication: revised source and fresh media are local, pending controller commit/push and independent review. Physical GPU and speaker qualification remain pending; this is not a stable-rollout receipt.
+
+The application is separately selectable and has its own local playback interface and scene. It uses shared voxel meshes, overlay, GLFW and F10 recording. Bass expands the floating core, mids rotate alternating layers, treble brightens outer voxels, and onsets create floor pulses and dissolving stacks. The mirrored floor reflects the core. Traces expire after 3 seconds and are capped at 12. Sensitivity, motion, palette, fullscreen, seek, return and recorder controls are included.
+
+Stereo correction: the decoder preserves signed stereo PCM without a mono downmix. Analysis runs an independent 2048-sample Hann-windowed FFT for each playback channel. It averages squared magnitudes per bin, then takes the square root for onset flux and sums bin powers for bands. Opposite-phase channels cannot cancel. In-phase and antiphase equal-amplitude tones have equal responses. One active channel has 1/sqrt(2) of the two-channel amplitude response. Original stereo playback samples remain unchanged. Mono files are duplicated into the playback channels as before. Frequency bands, playback clock, smoothing, seek resets, silence gate and bounded effects are retained.
+
+Platform: Linux amd64 VPS; 4 vCPUs, Intel Core Processor (Haswell, no TSX); Java 25.0.3 with source/target 17; inherited assigned X11 DISPLAY/XAUTHORITY; llvmpipe (LLVM 15.0.6, 256 bits). Native tests run serially, with isolated synthetic profiles, generated WAV files, software rendering and OpenAL Soft null output. Audio tests exercise native PCM upload and source state/clock, not audible physical speakers. F10 produces silent MP4s through the shared recorder.
+
+Commands:
+
+```sh
+mvn -q -Dmaven.repo.local=target/maven-cache -DargLine="-Djava.io.tmpdir=$PWD/target/tmp" -Dtest=MusicAnalysisTest,SandboxIdentityTest,ControlsTest test
+python3 deploy/run_music_smoke.py --display "$DISPLAY"
+python3 deploy/check_music_media.py
+python3 deploy/run_music_regressions.py --display "$DISPLAY"
+mvn -q -Dmaven.repo.local=target/maven-cache -DskipTests package
+git diff --check
+```
+
+Focused JUnit: 16 tests passed, 0 failures, 0 errors. New decoded-WAV checks cover in-phase versus antiphase 100/1000/6000 Hz signals, left-only and right-only channels, unchanged playback PCM, antiphase pulsed onsets, pause decay and stereo silence. Existing checks cover band isolation, sensitivity, onset bounds, stationary clocks, reset, decode errors, catalog/save/port contracts and recorder bindings. No result is claimed for an interrupted broader Maven run or pending hosted CI.
+
+Playtest: Production catalog, MusicVisualizer and file picker; real X11 keyboard and mouse input; native OpenAL clock; OpenGL rendering and engine F10 recorder. The fresh 44.1 kHz stereo fixture uses opposite-phase channels for all passages: 100 Hz bass, 1000 Hz mids, 6000 Hz treble, pulsed beats and silence. Expected/observed: each passage drives its distinct visual property; antiphase beat onsets leave bounded traces; pause fixes the clock and settles motion; resume restores response; seek clears history; silence reaches zero bands and traces; completion stops; completion-seek resumes at its chosen position; restart and track replacement reset state. Native left-only and right-only 100 Hz files both play and drive isolated bass. Invalid/missing files recover, palette/sensitivity/motion controls affect the scene, fullscreen returns to windowed mode, F10 starts/stops, and exit/relaunch recreates audio/window resources. Exit with an open picker closes the dialog. All visualizer assertions passed.
+
+Fresh visualizer measurement: 68.10 FPS at 1100x720 over the mixed workflow, including pause, seeks, controls and active F10 recording. Scene: 80 ring voxels plus center and mirrored copy, floor grid, up to 12 traces with 40 pulse voxels and 4 memory voxels each. Sensitivity starts at 1 then 0.75; motion starts at 1 then 1.25; later checks exercise zero motion and sensitivity 0.25/2. Palettes cycle cyan, ember and lime. Fullscreen is checked separately.
+
+Fresh F10 MP4: 1,394,976 bytes, 94 H264 frames, 824x540, 11.34 seconds. Every frame decoded, count matched metadata, and first/last image hashes differ. The contact sheet and separate screenshots are captured from this revision; the inspected contact sheet shows cyan settled/treble and ember treble/beat passages with control changes. The antiphase bass screenshot shows bass 0.88 with mid/treble 0.00 and an expanded core.
+
+The prior Sandbox capture wait required two new rendered frames within 20 seconds. It now retains that same requirement with a bounded 90-second deadline and reports expected/observed frame counts on failure, allowing slow software-renderer startup. Its render-thread fixture deadline is also 90 seconds; the subprocess deadline is 420 seconds. No assertion is skipped. An executed retry exposed a second harness race: recipe setup and hit-box inspection could both run before the next draw. The harness now waits for two completed rendered frames after opening/selecting the recipe book, then reads the live hit box and performs the native click. The failed attempt is not counted as passed. The existing harness also retains the earlier update from obsolete craft-panel coordinates to the current rendered recipe-book button. No Sandbox/City product behavior changed for these test updates.
+
+Diff audit against recorded review base `26b8761ff9c355299aa1df83608a6f6ebcba7e0b`: only the Music application/resources, desktop catalog/dispatch integration, tests, docs and task progress/evidence are changed. No files or unrelated features are deleted. Intended replacements are catalog/dispatch additions, the stereo analysis pipeline, and obsolete test coordinates/deadlines. City/Sandbox save names, ports and merged product features remain intact. Controller integration that changes source requires new checks/media before review. No commit, push, merge or deployment was performed by this developer.
+
+Final serial regression results: PASS. Actual Main catalog launch/return/relaunch and normal port transitions passed. Sandbox passed break/drop, walking/pickup, placement, empty-slot rejection, flight, crafting/missing-material rejection, F10 recording, sky/walking camera changes, HUD visibility and moving a 7-Stone inventory stack. City passed planning launch with citizens, road-tool selection/cancel, and F6 walking/HUD checks. Final `mvn -q -Dmaven.repo.local=target/maven-cache -DskipTests package` and `git diff --check` passed. Reports and source/test/media SHA-256 hashes are attached beside this file. All revised evidence remains pending controller publication and independent exact-head review.

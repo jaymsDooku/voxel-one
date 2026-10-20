@@ -1847,7 +1847,7 @@ public class Main {
         }
         String host = null, pin = null;
         Integer explicitPort = null;
-        boolean offline = false, cityGame = false, gameExplicit = false, engineWorkspace = false;
+        boolean offline = false, cityGame = false, gameExplicit = false, engineWorkspace = false, musicGame = false;
         double daySeconds = 1200, startHour = 8;
         boolean cycle = true;
         long seed = Terrain.DEFAULT_SEED;
@@ -1861,9 +1861,12 @@ public class Main {
                 throw new IllegalArgumentException("Missing value for " + args[i]);
             switch (args[i]) {
                 case "--editor" -> engineWorkspace = true;
+                case "--music-visualizer" -> musicGame = true;
                 case "--game" -> {
                     String value = args[++i];
-                    cityGame = GameIdentity.parse(value) == GameIdentity.CITY;
+                    GameIdentity selected = GameIdentity.parse(value);
+                    cityGame = selected == GameIdentity.CITY;
+                    musicGame = selected == GameIdentity.MUSIC;
                     gameExplicit = true;
                     LoginDialog.citySelected = cityGame;
                 }
@@ -1886,8 +1889,13 @@ public class Main {
                 default ->
                         throw new IllegalArgumentException(
                                 "Usage: --server HOST --port PORT --fingerprint SHA256 --offline"
-                                        + " --editor --game city|sandbox --world FILE --seed NUMBER --production-config FILE --pedestrian-spacing BLOCKS --mounted-spacing BLOCKS");
+                                        + " --editor --game city|sandbox|music --world FILE --seed NUMBER --production-config FILE --pedestrian-spacing BLOCKS --mounted-spacing BLOCKS");
             }
+        }
+        if (musicGame) {
+            new dev.jayms.music.MusicVisualizer().run(null);
+            main(new String[0]);
+            return;
         }
         if (engineWorkspace && !gameExplicit) cityGame = true;
         LoginDialog.citySelected = cityGame;
@@ -1899,7 +1907,10 @@ public class Main {
         try {
             if (!offline) {
                 try {
-                    game.network = LoginDialog.open(host, port, pin, gameExplicit || engineWorkspace, explicitPort != null);
+                    do {
+                        game.network = LoginDialog.open(host, port, pin, gameExplicit || engineWorkspace, explicitPort != null);
+                        if (LoginDialog.musicSelected) new dev.jayms.music.MusicVisualizer().run(null);
+                    } while (LoginDialog.musicSelected);
                 } catch (java.util.concurrent.CancellationException e) {
                     return;
                 } catch (java.util.concurrent.ExecutionException e) {

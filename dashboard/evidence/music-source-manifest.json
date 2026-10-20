@@ -1,0 +1,31 @@
+{
+  "branch": "feature/queue-36663630636537352d393361332d343631392d396238662d393665636466306164316163",
+  "reviewBase": "26b8761ff9c355299aa1df83608a6f6ebcba7e0b",
+  "publication": "pending controller commit/push; fresh stereo-energy implementation and media",
+  "sourceSha256": {
+    "src/main/java/dev/jayms/GameIdentity.java": "51ff3f06341c54454706cfc4a22b663b34c91d91d5ea338b109c4efa465648f4",
+    "src/main/java/dev/jayms/Main.java": "3cafd3a516f9fd1b0f825e08703b3d5edf0420dfb6601f491ac30268870eb5e7",
+    "src/main/java/dev/jayms/music/MusicAnalysis.java": "1db54514f6cdb4807aa1f835aed622a3ed9071a992bc82fd4d4c8c6909288825",
+    "src/main/java/dev/jayms/music/MusicTrack.java": "c54cc80c6dcb08bef82de77822ba12337e140288537108b1cb94b530ab5a96c9",
+    "src/main/java/dev/jayms/music/MusicVisualizer.java": "c2b2545cdf2dade9f1e83ad038f5c8812db3766e3a3c65714c5d40162c87cef6",
+    "src/main/java/dev/jayms/ui/LoginDialog.java": "f94bb8ce9396ecd8d0acc77abddef6a6cb0d7f0517e17b211c7341bfaee908d3",
+    "src/main/resources/shaders/music.frag": "d5f1fc7a956fe38b9929fc5f44807c956eac4df4d051e797926387baf0b4efed",
+    "src/main/resources/shaders/music.vert": "22f2e4a14bdf8a9de2cb51122b084959f4cc123d895a1b6485d7d6409adcd579"
+  },
+  "testSourceSha256": {
+    "deploy/MusicSmoke.java": "4c54b6e15342c3a865b4328e901f5e1f4d001f5d2b15ad1e747943788ac09e26",
+    "deploy/MusicCatalogSmoke.java": "bf078882dccc4ee466ad6d0feb59e8282730e424026b6cfa5b6b3ccefde21d33",
+    "deploy/SandboxPlaytest.java": "ddeb33f16a5c92d69fcb9d24dbdcf9673b996d75627b8b4045d12fd746b261d7",
+    "deploy/VerifyMusicMedia.java": "21ee6a24b2fd567ce2219d6028c8284b6d030d542b3ea98074bc8e7da1ea31de",
+    "deploy/run_music_smoke.py": "ed82fc8b49e611bf726ab7120f286dbd355381cfdc26a15b479c1b37e8c1699a",
+    "deploy/run_music_regressions.py": "faefa320b52f61d518a30a8195748da56f0449ca1a033a2dc7872dadd207a953",
+    "deploy/check_music_media.py": "b560ab1b847c497efb979324bbec98820049d10edcdd3a8e942cb5b027a8e918",
+    "src/test/java/dev/jayms/MusicAnalysisTest.java": "4a0dad2ab66312e3be17a40c21b4a3bcbd1a14acc560c4540b8fcdb3bdbdcf4f"
+  },
+  "mediaSha256": {
+    "dashboard/evidence/music-visualizer.mp4": "3356a4b19297391002cd48cdb0697e862b2d12ace1e77566b3363fcc35b5206e",
+    "dashboard/evidence/music-antiphase.png": "ec5af745a3776ca5ec667bd42ea56ac37d9b010a05bb776592bc794b52e088f6",
+    "dashboard/evidence/music-controls.png": "8bce3458d703b1127435c7cada3306cbb3e50fc88d274354154212fe139676f2",
+    "dashboard/evidence/music-video-contact.png": "b0d00a3ff10a34898b8a4dcff68434fbbd1e83ab79c4f7894c5d6bfb77e4cd19"
+  }
+}

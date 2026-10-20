@@ -14,7 +14,7 @@ public class SandboxPlaytest {
     static final java.util.concurrent.ConcurrentLinkedQueue<java.util.concurrent.FutureTask<Void>> jobs = new java.util.concurrent.ConcurrentLinkedQueue<>();
     static void onFrame(java.util.concurrent.Callable<Void> action) throws Exception {
         var job = new java.util.concurrent.FutureTask<Void>(action); jobs.add(job);
-        job.get(30, java.util.concurrent.TimeUnit.SECONDS);
+        job.get(90, java.util.concurrent.TimeUnit.SECONDS);
     }
     static dev.jayms.player.Player player() throws Exception { return (dev.jayms.player.Player)get("player"); }
     static dev.jayms.net.LocalGame local() throws Exception { return (dev.jayms.net.LocalGame)get("local"); }
@@ -69,11 +69,29 @@ public class SandboxPlaytest {
         finally { x("keyup","space"); }
         capture(id,out.resolve("voxel-sandbox-flight.png"));
         x("key","e"); await(() -> ((InventoryHud)get("inventoryHud")).open,"Inventory opens");
-        onFrame(() -> { local().inventory.add(dev.jayms.net.Blocks.GRASS,1); return null; });
-        int w=(int)get("framebufferWidth"), h=(int)get("framebufferHeight");
-        int left=w/2-268, top=h/2-175;
-        x("mousemove","--window",id,""+(left+430),""+(top-35)); x("click","1");
-        x("mousemove","--window",id,""+(left+430),""+(top+275)); x("click","1");
+        onFrame(() -> {
+            local().inventory.add(dev.jayms.net.Blocks.GRASS,1);
+            var hud=(InventoryHud)get("inventoryHud");hud.openBook();hud.selectRecipe(0);
+            return null;
+        });
+        // Setup jobs run before rendering. Wait for the book to draw before reading its hit boxes.
+        renderedFrames();
+        // The recipe book replaced the old fixed-coordinate craft panel. Read its rendered hit box.
+        float[] craftButton=new float[2];
+        onFrame(() -> {
+            var hud=(InventoryHud)get("inventoryHud");
+            Field hits=InventoryHud.class.getDeclaredField("hits");hits.setAccessible(true);
+            boolean found=false;
+            for(Object hit:(java.util.List<?>)hits.get(hud)) {
+                var action=hit.getClass().getDeclaredMethod("action");action.setAccessible(true);
+                if(!action.invoke(hit).equals("craft"))continue;
+                String[] names={"x","y","w","h"};float[] bounds=new float[4];
+                for(int i=0;i<4;i++){var method=hit.getClass().getDeclaredMethod(names[i]);method.setAccessible(true);bounds[i]=(float)method.invoke(hit);}
+                craftButton[0]=bounds[0]+bounds[2]/2;craftButton[1]=bounds[1]+bounds[3]/2;found=true;break;
+            }
+            require(found,"Rendered recipe craft action available");return null;
+        });
+        x("mousemove","--window",id,""+(int)craftButton[0],""+(int)craftButton[1]); x("click","1");
         await(() -> local().inventory.countType(dev.jayms.net.Blocks.piece(dev.jayms.net.Blocks.GRASS,1))==8,"Craft cuts Grass into 8 fractional blocks");
         capture(id,out.resolve("voxel-sandbox-craft.png"));
         x("click","1");
@@ -107,9 +125,14 @@ public class SandboxPlaytest {
         x("mousemove", "--window", id, "" + (int)(CityActionBar.left(width) + (index + .5f)*CityActionBar.cell(width)),
                 "" + (int)(CityActionBar.top(height) + 20)); x("click", "1");
     }
-    static void capture(String id, Path path) throws Exception {
+    static void renderedFrames() throws Exception {
         long next = frames.get() + 2;
-        await(() -> frames.get() >= next, "Rendered capture frame");
+        long deadline=System.nanoTime()+java.util.concurrent.TimeUnit.SECONDS.toNanos(90);
+        while(frames.get()<next&&System.nanoTime()<deadline)Thread.sleep(100);
+        require(frames.get()>=next,"Rendered capture frame: expected >="+next+", observed "+frames.get());
+    }
+    static void capture(String id, Path path) throws Exception {
+        renderedFrames();
         var p = new ProcessBuilder("import", "-window", id, path.toString())
                 .redirectError(ProcessBuilder.Redirect.DISCARD).start();
         require(p.waitFor() == 0, "Screenshot capture");

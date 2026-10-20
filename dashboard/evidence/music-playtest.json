@@ -1,0 +1,9 @@
+{
+"Playtest":"Production catalog and MusicVisualizer; Linux X11 inherited role display; isolated synthetic profile; OpenAL Soft null output (physical speakers not tested)",
+"platform":"Linux amd64; llvmpipe (LLVM 15.0.6, 256 bits)",
+"resolution":"1100x720; F11 tested separately",
+"settings":"80 ring voxels plus center and planar mirrored copy; floor grid; up to 12 traces, each 40 pulse voxels and 4 memory voxels; sensitivity 1 then 0.75, motion 1 then 1.25; palette 0 then 1; vsync requested; F10 active during contrasting passages",
+"observedAverageFps":68.09721342173998,
+"checks":["selection launch exit return relaunch","missing and unsupported audio recover","antiphase stereo WAV plays using native clock and drives all bands/onsets","left-only and right-only stereo WAVs drive isolated bass","100 Hz bass, 1000 Hz rotation, 6000 Hz illumination","pause stable clock and decay, resume","seek clears effects","onset memory bounded and expires; silence no jitter","completion seek, resume and restart","track replacement clears clock, analysis and effects","zero motion halts rotation and native sensitivity gain changes response","palette sensitivity motion fullscreen and F10","exit frees audio and window"],
+"observed":"All assertions passed"
+}
