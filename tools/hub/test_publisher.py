@@ -29,4 +29,29 @@ class PublisherTest(unittest.TestCase):
             with self.assertRaises(ValueError):publisher.assemble(native,web,output)
             self.assertEqual(after,output.read_text())
 
+    def test_native_promotion_with_explicitly_unavailable_web(self):
+        Path('target/hub-tmp').mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(dir='target/hub-tmp') as directory:
+            root=Path(directory);native=root/'native.json';web=root/'web.json';output=root/'catalog.properties'
+            n={'tested':True,'published':True,'source':'a'*40,'build':'playtest-1','notes':'Native release'}
+            w={'available':False,'tested':False,'published':False,'source':'unpublished','build':'unpublished',
+               'notes':'Temporarily unavailable; publication unverified.',
+               'url':'https://voxel-one.jamesleaver1.chatgpt.site/games/space-invaders/'}
+            native.write_text(json.dumps(n));web.write_text(json.dumps(w));publisher.assemble(native,web,output)
+            before=output.read_text();self.assertIn('space-invaders.source=unpublished',before)
+            n.update(source='c'*40,build='playtest-2');native.write_text(json.dumps(n));publisher.assemble(native,web,output)
+            after=output.read_text();self.assertIn('city.build=playtest-2',after)
+            self.assertIn('sandbox.client-sources='+'c'*40,after)
+            self.assertIn('space-invaders.source=unpublished',after)
+            for change in ({'tested':True},{'published':True},{'source':'b'*40},{'build':'web-1'},
+                           {'available':'false'},{'available':True}):
+                web.write_text(json.dumps(w|change))
+                with self.assertRaises(ValueError):publisher.assemble(native,web,output)
+                self.assertEqual(after,output.read_text())
+            # A later tested publication enables only the web entry; native mapping stays fixed.
+            live=w|{'available':True,'tested':True,'published':True,'source':'b'*40,'build':'web-1'}
+            web.write_text(json.dumps(live));publisher.assemble(native,web,output)
+            self.assertIn('space-invaders.source='+'b'*40,output.read_text())
+            self.assertIn('city.build=playtest-2',output.read_text())
+
 if __name__=='__main__':unittest.main()

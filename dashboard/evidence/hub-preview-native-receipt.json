@@ -1,0 +1,10 @@
+{
+  "tested": true,
+  "published": true,
+  "source": "b1d7b8d796b97a87a3d63bb08baf2bb9746b8ca6",
+  "build": "playtest-632",
+  "notes": "Published native playtest-632; release build and publication CI passed. Physical GPU and Hub rollout qualification remain pending.",
+  "release": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-632",
+  "ci": "https://github.com/jaymsDooku/voxel-one/actions/runs/39437770105",
+  "testScope": "Published update.properties revision matched; no physical gameplay claim."
+}
