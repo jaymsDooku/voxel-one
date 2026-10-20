@@ -1,0 +1,49 @@
+{
+  "platform": "Linux VPS / headless Chromium / isolated synthetic browser profile / software rendering",
+  "command": "TMPDIR=\"$PWD/.tmp/browser\" PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers node deploy/test_voxel_street.cjs",
+  "steps": [
+    {
+      "name": "Desk interaction enters readable focused view",
+      "result": "passed"
+    },
+    {
+      "name": "Preparation preview and optional guidance dismissal",
+      "result": "passed"
+    },
+    {
+      "name": "Open market and reject fractional, unaffordable and oversell orders",
+      "result": "passed"
+    },
+    {
+      "name": "Buy 20 Harbor shares at ask; inspect cash, basis and execution",
+      "result": "passed"
+    },
+    {
+      "name": "Real-time company announcement at 1:00 with expected/reported results",
+      "result": "passed"
+    },
+    {
+      "name": "Reduce to 10 shares after announcement at actual bid",
+      "result": "passed"
+    },
+    {
+      "name": "Leave and return to voxel desk while market runs",
+      "result": "passed"
+    },
+    {
+      "name": "Broader market event at 2:00 with distinct recorded impulses",
+      "result": "passed"
+    },
+    {
+      "name": "Close at 3:00, reject further execution, review company reconciliation and timeline",
+      "result": "passed"
+    },
+    {
+      "name": "Next day preserves shares and basis; restart selected seed clears account",
+      "result": "passed"
+    }
+  ],
+  "limitations": "Scripted first-use assessment, not an independent human study. Browser slice has no native F10 recorder; Playwright records the actual browser. No physical GPU qualification claimed.",
+  "playtest": "Playtest: First-use scripted player chose Harbor for steady demand, previewed a 20-share exposure, bought at ask, saw expected/reported earnings and its recorded impulse, reduced at bid, located both executions and the outcome explanation in closing review, then carried 10 shares into day 2. Guidance was dismissed; no profit gate. A new player can link the trade rationale to the business description and locate facts versus interpretation; independent human usability remains for review.",
+  "videoSource": "/home/debian/codex/voxel-one-queue-worktrees/61353661313662322d303366332d343264362d613762342d653335666538313136623266/.tmp/street-video/page@8087b4d49a511894089053dcc45b16e5.webm"
+}
