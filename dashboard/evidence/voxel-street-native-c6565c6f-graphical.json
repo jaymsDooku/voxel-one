@@ -1,0 +1,37 @@
+{
+  "sourceHead": "c6565c6f6b4f3bb3cc8f75b513048010afb26888",
+  "command": "python3 deploy/check_voxel_street_native.py --display \"$DISPLAY\" --expected-head \"$EXPECTED_HEAD\"",
+  "underlyingCommand": "python3 deploy/run_music_regressions.py --display \"$DISPLAY\"",
+  "platform": "Linux X11 / Mesa software OpenGL / isolated synthetic profiles",
+  "exitCode": 0,
+  "workflows": [
+    {
+      "workflow": "catalog",
+      "passed": true
+    },
+    {
+      "workflow": "sandbox",
+      "passed": true
+    },
+    {
+      "workflow": "city",
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "failure": null,
+  "diagnosticCodes": [],
+  "playtest": "Playtest: actual Main music selection/launch/Escape/relaunch; Sandbox break/pickup/place/craft/invalid craft and camera/HUD; City entry/road tool/cancel/walking. Per-workflow results identify observed outcomes.",
+  "limitations": "Software rendering only; no physical GPU or speaker qualification. Raw runtime logs and profiles are excluded.",
+  "artifacts": {
+    "voxel-street-native-music-catalog.txt": "ca0ea979675b546f93b107613850656ce34a379ffdd8e59d040dd871edd2cdf7",
+    "voxel-street-native-voxel-city-entry-result.txt": "234b74ce15282ae092d9f93106501b2d9375edac8670ca31cadb0bf5df938c45",
+    "voxel-street-native-voxel-city-planning-entry.png": "b043344621445f7822439fbf4a57ba2650f3c53254061209e9c23ceb1fa4bbee",
+    "voxel-street-native-voxel-city-walking-entry.png": "84c9d0d737e5f18e069d0506caebdd45cd15cf90a3abffcd839a95737e14ca29",
+    "voxel-street-native-voxel-sandbox-craft.png": "df196fe5ebb4b9874924f7053fc54a093f7389396ebf6ce907106a570f6990a2",
+    "voxel-street-native-voxel-sandbox-first-launch.png": "981630c3d7939a0744f551d4d613fca349dced5bc0ece3d7a2833454bca580ce",
+    "voxel-street-native-voxel-sandbox-sky.png": "7cbdaf2b3b30ec9d0108da9398f095ede654bab6169bb1ab7bd490f1c7d45f1d",
+    "voxel-street-native-voxel-sandbox-smoke-result.txt": "12aa1cdec71b64a849ede070480b9480dee2a868458fb76590d611438aa8a421",
+    "voxel-street-native-voxel-sandbox-walking.png": "f4324725e0c7c9cfb0920f7baaf31fba45c0f12fba143f69e5e85d5fbb5704d1"
+  }
+}

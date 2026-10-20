@@ -1,0 +1,1 @@
+Playtest: PASS. Linux X11 software OpenGL; isolated City profile. City opens in planning view with citizens; player health HUD hidden; real click selects road tool, Escape cancels, F6 returns to first person with player health visible. Separate City save from Sandbox.

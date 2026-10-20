@@ -202,3 +202,11 @@ GitHub Actions run 39482033022 completed successfully for bcb27d39c7560a821898b1
 ### Final build results for entry fix
 
 Both Build and test runs 39482040777 and 39482032923 completed successfully for exact head bcb27d39c7560a821898b10a92a632aef9a48c5a, including Mac ARM. Native regression run 39482033022 passed and its reports, hashes and captures were inspected. The full distribution-only browser playtest and published 1,171,912-byte MP4 cover this unchanged implementation. All delegate tasks are resolved. Only sanitized native evidence and validation notes remain for controller publication; no implementation source changed after testing. Ready for independent review, not developer approval or completion. Physical-GPU qualification remains pending and gates stable rollout. Website deployment remains runner-owned; no live deployment is claimed.
+
+### Native validation retry for c6565c6f
+
+Inspected the allowlisted report from run 39489061897 for exact head c6565c6f6b4f3bb3cc8f75b513048010afb26888. Exit code 1; all three workflows incomplete; no captures; diagnostic code unclassified_native_failure. No passing native playtest is claimed for this head. Ran `gh run rerun 39489061897 --failed` once; retry queued. Platform build 39489071085 remains in progress. Resume after these runs finish; inspect the retry report and captures before resubmission. Physical-GPU qualification remains pending and gates stable rollout.
+
+Native retry 39489061897 passed for c6565c6f6b4f3bb3cc8f75b513048010afb26888. Downloaded artifact 12294699073; verified all nine listed SHA-256 hashes. Report exit 0, catalog/Sandbox/City all passed. Read all three Playtest: PASS reports and visually inspected Sandbox craft and City planning captures. Saved allowlisted reports and captures with c6565c6f filenames. The first failure did not repeat; its cause remains unknown. Platform build 39489071085 remains pending; physical-GPU qualification remains pending.
+
+Required platform build 39489071085 completed successfully for c6565c6f6b4f3bb3cc8f75b513048010afb26888. Native retry also passed for that head. Ready for independent review after controller publication of saved evidence and PR text update. No physical-GPU pass or stable rollout is claimed.
