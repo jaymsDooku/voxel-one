@@ -44,7 +44,7 @@ public final class StructureMenu implements AutoCloseable {
         catch(IOException failure){message="Could not open structure library";}
     }
     public void show(Position mark,Position target){this.mark=mark;this.target=target;open=true;conflict=null;}
-    public void character(int value){if(input.length()<240&&value>=32&&value<127)input+=(char)value;}
+    public void character(int value){if(input.length()<4096&&value>=32&&value<127)input+=(char)value;}
     private void start(String label,Work work) {
         if(closed.get())return;
         if(busy){message="Wait for the current operation, or cancel it.";return;}

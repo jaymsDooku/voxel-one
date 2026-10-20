@@ -35,8 +35,8 @@
     "src/main/java/dev/jayms/launcher/Platform.java": "7adbe7ff30190e6cdf597deef2c5f9f12a2f057cda2bf76377a9926c9b5fd299",
     "src/main/java/dev/jayms/launcher/Updater.java": "2c06c8fc836aee299d1dd1a28a678214e3814316c8fcd69b768cc55bde8b8a30",
     "src/main/java/dev/jayms/music/MusicAnalysis.java": "1db54514f6cdb4807aa1f835aed622a3ed9071a992bc82fd4d4c8c6909288825",
-    "src/main/java/dev/jayms/music/MusicTrack.java": "c54cc80c6dcb08bef82de77822ba12337e140288537108b1cb94b530ab5a96c9",
-    "src/main/java/dev/jayms/music/MusicVisualizer.java": "c2b2545cdf2dade9f1e83ad038f5c8812db3766e3a3c65714c5d40162c87cef6",
+    "src/main/java/dev/jayms/music/MusicTrack.java": "60f87fe47f99908a12b37600f5a4dc958265602eb7440c7a69c5b9661639486d",
+    "src/main/java/dev/jayms/music/MusicVisualizer.java": "1fa849e6a577d2cf3aae5cfb3d226dc01a1f23e94a7deada731bf64b40003271",
     "src/main/java/dev/jayms/net/AccountStore.java": "ff3417b39594262570ee5950321164eae21f51e0cba47dd0ab5ac6eed6a63137",
     "src/main/java/dev/jayms/net/Blocks.java": "707ffc3a3ab7422ac4ed5779773ff7721defd1ff0a465b44319667e58f07a13a",
     "src/main/java/dev/jayms/net/CitySaves.java": "5dab751a40d9baff814b861b2ae8706eaa3d7fced23ca5501d2f6bdef03138ec",
@@ -204,10 +204,10 @@
     "src/main/java/dev/jayms/ui/RenderingMenu.java": "8d3f24a7118b098d4b31331532563ef7768e6cba7003b23af478559c582bfa00",
     "src/main/java/dev/jayms/ui/SavesMenu.java": "2996b42e3590055005ce88bd7cf6979f589222dbe0b0f836c7c3981186cfc79f",
     "src/main/java/dev/jayms/ui/SessionMetricTrends.java": "5d3e7a3a5fbfa8447e6800e4092d463abf3a29c755079f49f733cbd1d7394f05",
-    "src/main/java/dev/jayms/ui/StructureMenu.java": "77e9504b1553d6b1a97f71e06a3d7a8b59fb007cb9ef305b43981fecfb4d219c",
+    "src/main/java/dev/jayms/ui/StructureMenu.java": "b92a9439f3f7a6cb56ad1458f10856b85d2e2c3ee6471872175f6470928fc0b4",
     "src/main/java/dev/jayms/window/KeyAction.java": "a2d892382438b9b81b69ad7773f192beeac17a1d739ec1a3248c2cc000dcdaf8",
     "src/main/java/dev/jayms/window/Window.java": "9953ca693c8c74631ebcb8d45b81587fc944afad15cec865edbe31dbc8f1a27d",
-    "deploy/StructurePlaytest.java": "b3ae446acd63526a96aaf773399239262a629f282073ce85f7c3559c6e289ef8"
+    "deploy/StructurePlaytest.java": "3474b5586d8e60d027559113c1662225a5c2a973137d92ae572418ea1da0e200"
   },
   "scope": "Production Java plus native workflow harness; isolated synthetic profile"
 }

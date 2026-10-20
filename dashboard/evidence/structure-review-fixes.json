@@ -1,0 +1,78 @@
+{
+  "schema": 1,
+  "base_head": "8466c194264d48e355ce9297f4a5aa3bdeb666a9",
+  "status": "Reviewer fixes partially complete; full acceptance not met",
+  "changes": [
+    "Rebase preserves MP3 decoder/dependencies, fixtures/tests, packaged smoke checks and Hub workflow/registration tests from master",
+    "Structure command cap 240 -> 4096; native harness imports >240-character path with spaces; harness rejects out-of-bound fixture commands before typing",
+    "Native classpath includes restored MP3 SPI dependencies and worktree-local Maven cache"
+  ],
+  "commands": [
+    "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=MusicMp3Test,StructureTest,StructureOccupancyTest test",
+    "python3 -m unittest deploy.tests.test_hub_preview_registration",
+    "python3 -m unittest discover -s tools/structures -p test_*.py",
+    "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DskipTests package",
+    "javac --release 17 -cp target/voxel-one-1.0-SNAPSHOT-client.jar -d target/structure-mp3-decode deploy/MusicMp3DecodeSmoke.java",
+    "java -cp target/voxel-one-1.0-SNAPSHOT-client.jar:target/structure-mp3-decode MusicMp3DecodeSmoke",
+    "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\""
+  ],
+  "java_tests": [
+    {
+      "name": "dev.jayms.MusicMp3Test",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.StructureTest",
+      "tests": "14",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.StructureOccupancyTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "python_tests": {
+    "hub": 5,
+    "structure_tools": 18,
+    "failures": 0
+  },
+  "packaged_decoder": "Shaded client JAR only: CBR and VBR fixtures each 44100 Hz, 6.060 s PCM",
+  "native": {
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_manifest": "structure-native-source.json",
+    "source_manifest_sha256": "3528d4f80397ec29d80dd1a867a4ce742e0fcb0b534178aaf8149f4cb88c550f",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "publication": "Local evidence pending controller publication"
+  },
+  "media_inspection": "Fresh player-conflict screenshot and decoded F10 frame inspected; H264 17 frames, 29.751 s",
+  "prior_failure": "Initial Maven dependency resolution failed because shared cache was not writable; worktree-local cache retry passed",
+  "remaining": [
+    "131072-leaf and 256-chunk development caps still reject required city/max fixtures; implementation unfinished",
+    "20-run city/max benchmarks and memory/frame/tick/traffic budgets unresolved",
+    "Physical GPU and shaped-network 32-client qualification unavailable and pending",
+    "Independent final-source workflow review and hosted exact-source validation required"
+  ],
+  "publication": "Pending controller publication; no ready claim",
+  "media": {
+    "structure-workflow.mp4": {
+      "sha256": "315029afe979095fda3d66363955bfb733f99466e4188fdfdf945fd8173c8900",
+      "bytes": 409420
+    },
+    "structure-player-conflict.png": {
+      "sha256": "e293e75d7d33803fdb02efdad74b30dc76416fd64cafc596015ca5d6e5368743",
+      "bytes": 146795
+    }
+  }
+}
