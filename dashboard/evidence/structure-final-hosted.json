@@ -1,0 +1,104 @@
+{
+  "schema": 1,
+  "feature_head": "02081b07f5c50622216bd7b61878e2b441b5fd57",
+  "results": [
+    {
+      "run": 39496320307,
+      "platform": "mac-arm",
+      "source_head": "02081b07f5c50622216bd7b61878e2b441b5fd57",
+      "artifact": 12298937665,
+      "totals": {
+        "tests": 758,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "run": 39496320307,
+      "platform": "windows",
+      "source_head": "02081b07f5c50622216bd7b61878e2b441b5fd57",
+      "artifact": 12298697246,
+      "totals": {
+        "tests": 758,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "run": 39496320307,
+      "platform": "mac-intel",
+      "source_head": "02081b07f5c50622216bd7b61878e2b441b5fd57",
+      "artifact": 12298678253,
+      "totals": {
+        "tests": 758,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "run": 39496320307,
+      "platform": "linux",
+      "source_head": "02081b07f5c50622216bd7b61878e2b441b5fd57",
+      "artifact": 12298346675,
+      "totals": {
+        "tests": 758,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "run": 39496323358,
+      "platform": "mac-arm",
+      "source_head": "6c8ea51517813f82d3c6ea3b4628ee9752507952",
+      "artifact": 12299414511,
+      "totals": {
+        "tests": 758,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "run": 39496323358,
+      "platform": "mac-intel",
+      "source_head": "6c8ea51517813f82d3c6ea3b4628ee9752507952",
+      "artifact": 12299051624,
+      "totals": {
+        "tests": 758,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "run": 39496323358,
+      "platform": "windows",
+      "source_head": "6c8ea51517813f82d3c6ea3b4628ee9752507952",
+      "artifact": 12297619554,
+      "totals": {
+        "tests": 758,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "run": 39496323358,
+      "platform": "linux",
+      "source_head": "6c8ea51517813f82d3c6ea3b4628ee9752507952",
+      "artifact": 12297509486,
+      "totals": {
+        "tests": 758,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    }
+  ],
+  "qualification": "Functional CI only. City/max, physical GPU, shaped-network and 20-run performance pending; stable rollout gated.",
+  "publication": "Local evidence pending controller publication"
+}

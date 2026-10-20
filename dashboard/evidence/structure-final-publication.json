@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "source_head": "02081b07f5c50622216bd7b61878e2b441b5fd57",
+  "review_base": "3f877c21c8e6776adba9d2130e2fd92e55853763",
+  "hosted_runs": [
+    {
+      "id": 39496320307,
+      "event": "push",
+      "observed_status": "queued"
+    },
+    {
+      "id": 39496323358,
+      "event": "pull_request",
+      "observed_status": "queued"
+    }
+  ],
+  "publication": "Exact-head raw GitHub bytes verified identical for structure-workflow.mp4, structure-player-conflict.png, structure-native-source.json and structure-rebase-validation.json",
+  "source": "No production Java or harness changes since completed native and 32-client validation; published manifest hashes match current source",
+  "diff_audit": "git diff --check passed; no deleted files against current review base; no unmerged paths. Existing master features preserved. Line replacements are structure integration, compatibility and collision guard changes; no whole-file deletions intended.",
+  "pending": "Hosted exact-head checks; city/max fixtures, physical GPU, shaped network, 20-run performance and stable rollout remain gated"
+}
