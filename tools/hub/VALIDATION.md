@@ -224,3 +224,25 @@ synthetic display. It no longer invents a centered window rectangle with40px
 insets. This preserves full visible window borders at1280x800 and900x600;
 unused desktop may be black. This is not exact OS-window-bound capture or
 multi-monitor/physical-DPI qualification. Use only the owned synthetic display.
+
+## Own-child process query repair
+
+`PackageUiProbe` closes the query process input stream immediately. The prior
+probe left redirected PowerShell stdin open, so a query could wait for EOF.
+The probe writes only a fixed result token to a temporary file, never a process
+command line. It accepts `MATCH` only on exit code 0 and at most 16 output bytes.
+Each CIM call has a 2-second operation limit; each helper has at most 3 seconds
+within the original 25-second overall deadline. Timeout remains a non-match.
+The fallback queries only descendants whose argument list is unavailable and
+requires the exact escaped `-jar` target. Hosted Windows validation must confirm
+the actual PowerShell behavior; Linux controls alone do not prove that fix.
+
+`ProcessQueryProbeTest` executes real child controls for EOF, timeout, wrong
+output, oversized output and exit code 7. The packaged check runs these controls
+with its bundled Java runtime before the updater and UI checks.
+
+Publication inputs must be real tested deployment/release receipts. Files under
+`target/hub-receipts` are synthetic test fixtures and cannot authorize promotion.
+`target/hub-repair-preview-publication/controller-publication-data.json` records
+prepared assets and the remaining controller sequence as data. It is not an
+executable handoff and makes no deployment, physical GPU or stable release claim.

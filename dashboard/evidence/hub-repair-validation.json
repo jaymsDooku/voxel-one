@@ -1,0 +1,64 @@
+{
+  "sourceHead": "b26b2179ba6674dda62669ebae4f0393a638954d",
+  "sourceKind": "feature working tree; harness changes pending controller commit",
+  "diagnosis": "Old helper left redirected stdin open; EOF-waiting child reproduces the hang mechanism. Closing stdin makes EOF control complete. Actual Windows CIM behavior requires hosted exact-head rerun.",
+  "change": "Close stdin; fixed-token file output; successful exit and <=16 bytes required; exact escaped -jar boundary; 2-second CIM operation and <=3-second helper within original 25-second overall deadline. Timeout is never a match.",
+  "commands": [
+    "javac --release 17 -cp target/voxel-one-1.0-SNAPSHOT-client.jar -d target/hub-tmp tools/hub/HubPlaytest.java tools/hub/PackageUiProbe.java tools/hub/ProcessQueryProbeTest.java",
+    "bundled package-1 runtime/bin/java -Djava.io.tmpdir=$PWD/target/hub-tmp -cp target/hub-tmp:target/voxel-one-1.0-SNAPSHOT-client.jar ProcessQueryProbeTest",
+    "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 mvn -o -q -Dmaven.repo.local=$PWD/target/maven-cache -Djava.io.tmpdir=$PWD/target/hub-tmp -DskipTests package",
+    "python3 -m unittest discover -s tools/hub -p test_*.py",
+    "TMPDIR=$PWD/target/hub-tmp PLAYWRIGHT_BROWSERS_PATH=$PWD/target/hub-browsers node tools/hub/web-freshness-playtest.cjs"
+  ],
+  "queryControls": [
+    "Playtest: own-child query eof matched=true elapsedMs=431",
+    "Playtest: own-child query hang matched=false elapsedMs=330",
+    "Playtest: own-child query wrong matched=false elapsedMs=295",
+    "Playtest: own-child query overflow matched=false elapsedMs=403",
+    "Playtest: own-child query failed matched=false elapsedMs=514"
+  ],
+  "build": "passed; tests skipped explicitly during packaging",
+  "pythonTests": "4 passed",
+  "browser": "Playtest: local desktop WebKit played two fingerprinted builds through a primed immutable cache, fired/moved/paused/resumed; no page errors; native SHA-256 unchanged. Screenshot inspected. Production deployment remains pending.",
+  "audit": "No pre-existing master file deletions against review base b1d7b8d796b97a87a3d63bb08baf2bb9746b8ca6. Removed hs_err_pid59.log, an accidental generated JVM crash report introduced by this feature; contents were not read. Existing hs_err_pid*.log ignore rule already applies. Historical evidence preserved.",
+  "limits": [
+    "No hosted Windows probe pass claimed",
+    "No physical GPU/DPI/performance pass claimed",
+    "Native observer rendering is a four-frame smoke, not full interactive gameplay qualification",
+    "No published catalog or two public shell generations claimed"
+  ],
+  "publicationData": "target/hub-repair-preview-publication/controller-publication-data.json; real shell asset and fingerprinted web tree prepared; synthetic receipts excluded",
+  "nativeCommands": {
+    "sandbox": "LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null timeout --signal=TERM --kill-after=5s 180s \"target/hub-repair-linux/package-1/Voxel One Hub/lib/runtime/bin/java\" -Djava.io.tmpdir=\"$PWD/target/hub-tmp\" -cp target/hub-repair-linux/classes:target/voxel-one-1.0-SNAPSHOT-client.jar NativeRenderProbe target/hub-repair-native-sandbox dashboard/evidence/hub-repair-native-sandbox sandbox",
+    "city": "LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null timeout --signal=TERM --kill-after=5s 180s \"target/hub-repair-linux/package-1/Voxel One Hub/lib/runtime/bin/java\" -Djava.io.tmpdir=\"$PWD/target/hub-tmp\" -cp target/hub-repair-linux/classes:target/voxel-one-1.0-SNAPSHOT-client.jar NativeRenderProbe target/hub-repair-native-city-2 dashboard/evidence/hub-repair-native-city-2 city",
+    "editor": "LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null timeout --signal=TERM --kill-after=5s 180s \"target/hub-repair-linux/package-1/Voxel One Hub/lib/runtime/bin/java\" -Djava.io.tmpdir=\"$PWD/target/hub-tmp\" -cp target/hub-repair-linux/classes:target/voxel-one-1.0-SNAPSHOT-client.jar NativeRenderProbe target/hub-repair-native-editor dashboard/evidence/hub-repair-native-editor editor"
+  },
+  "nativeResults": {
+    "sandbox": [
+      "Playtest: production native sandbox renderer completed four frames in 46359 ms; renderer llvmpipe (LLVM 15.0.6, 256 bits); LOW preset; no smooth-performance claim."
+    ],
+    "city": [
+      "Playtest: production native city renderer completed four frames in 52503 ms; renderer llvmpipe (LLVM 15.0.6, 256 bits); LOW preset; no smooth-performance claim."
+    ],
+    "editor": [
+      "Playtest: production native editor renderer completed four frames in 56021 ms; renderer llvmpipe (LLVM 15.0.6, 256 bits); LOW preset; no smooth-performance claim."
+    ]
+  },
+  "nativeInitialAttempt": "First City attempt interrupted with exit 130 before completion. No pass claimed; a fresh bounded attempt later completed.",
+  "mediaInspection": [
+    "Sandbox PNG inspected",
+    "City PNG inspected",
+    "Sandbox MP4 decoded: four frames, 32.514 seconds; decoded frame inspected; no smooth-performance claim",
+    "Packaged Downloads at JVM scale 2 PNG inspected",
+    "Web freshness screenshot inspected",
+    "Editor PNG inspected"
+  ],
+  "packagedLinux": {
+    "command": "LIBGL_ALWAYS_SOFTWARE=1 python3 tools/hub/check_packages.py --source-sha b26b2179ba6674dda62669ebae4f0393a638954d --jdk /usr/lib/jvm/jdk-21.0.5-oracle-x64 --display \"$DISPLAY\" --work target/hub-repair-linux --output dashboard/evidence/hub-repair-linux",
+    "exitCode": 0,
+    "passedChecks": 13,
+    "scope": "Working-tree package run; check_packages.py was extended with new controls after this run started. Five controls were separately compiled and passed on the bundled runtime. Exact final committed source requires hosted rerun.",
+    "report": "hub-repair-linux/report.json"
+  },
+  "handoff": "Controller publishes only assigned feature edits/evidence and returns exact head; hosted Windows/macOS validation follows. Preview publication data is separate and requires reviewed real receipts."
+}

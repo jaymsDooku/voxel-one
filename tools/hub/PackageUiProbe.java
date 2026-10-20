@@ -21,6 +21,24 @@ public final class PackageUiProbe {
         if(!desktop.contains(bounds)) throw new AssertionError("Requested UI extent "+bounds.width+"x"+bounds.height+" exceeds runner desktop "+desktop.width+"x"+desktop.height);
         ImageIO.write(new Robot().createScreenCapture(contentBounds()),"png",file.toFile());
     }
+    /** No inherited stdin or output pipe: PowerShell can wait for EOF on redirected input.
+     * Only the fixed MATCH token is retained. A stuck query is a non-match, never a pass. */
+    static boolean boundedMatch(ProcessBuilder builder, long timeoutMillis) throws Exception {
+        Path result=Files.createTempFile("hub-own-child-", ".txt");
+        Process query=null;
+        try {
+            query=builder.redirectOutput(result.toFile()).redirectError(ProcessBuilder.Redirect.DISCARD).start();
+            query.getOutputStream().close();
+            if(!query.waitFor(timeoutMillis,java.util.concurrent.TimeUnit.MILLISECONDS))return false;
+            return query.exitValue()==0 && Files.size(result)<=16 && Files.readString(result).trim().equals("MATCH");
+        } finally {
+            if(query!=null && query.isAlive()) {
+                query.destroyForcibly();
+                query.waitFor(1,java.util.concurrent.TimeUnit.SECONDS);
+            }
+            Files.deleteIfExists(result);
+        }
+    }
     public static void main(String[] args) throws Exception {
         try { run(args); }
         catch(Throwable error) {
@@ -49,14 +67,16 @@ public final class PackageUiProbe {
                         var arguments=child.info().arguments();
                         if(arguments.isPresent())argumentsSeen++;
                         if(java.util.Arrays.asList(arguments.orElse(new String[0])).contains(expected)) {found=true;break;}
-                        // Windows ProcessHandle may omit arguments. Query only our own child,
-                        // return a Boolean, and never print its command line.
-                        if(System.getProperty("os.name").startsWith("Windows")) {
+                        // Query only a descendant whose arguments Java cannot read. CIM is bounded
+                        // independently, and failure may retry within the original overall deadline.
+                        if(arguments.isEmpty() && System.getProperty("os.name").startsWith("Windows")) {
                             Path powershell=Path.of(System.getenv("SystemRoot"),"System32","WindowsPowerShell","v1.0","powershell.exe");
-                            String code="$p=Get-CimInstance Win32_Process -Filter 'ProcessId = "+child.pid()+"'; if($p -and $p.CommandLine.Contains('"+expected.replace("'","''")+"')) {'MATCH'}";
-                            Process query=new ProcessBuilder(powershell.toString(),"-NoProfile","-NonInteractive","-Command",code).redirectError(ProcessBuilder.Redirect.DISCARD).start();
-                            if(!query.waitFor(10,java.util.concurrent.TimeUnit.SECONDS)){query.destroyForcibly();throw new AssertionError("Own child process query timed out");}
-                            if(new String(query.getInputStream().readAllBytes()).trim().equals("MATCH")){found=true;break;}
+                            String jar=expected.replace("'","''");
+                            String code="$ErrorActionPreference='Stop'; $p=Get-CimInstance Win32_Process -OperationTimeoutSec 2 -Filter 'ProcessId = "+child.pid()+"'; "
+                                    +"$target='"+jar+"'; if($p -and ($p.CommandLine -cmatch ('(?:^|\\s)-jar\\s+(?:'+[regex]::Escape([string][char]34+$target+[char]34)+'|'+[regex]::Escape($target)+')(?=\\s|$)'))) { [Console]::Out.Write('MATCH') }; exit 0";
+                            String encoded=java.util.Base64.getEncoder().encodeToString(code.getBytes(java.nio.charset.StandardCharsets.UTF_16LE));
+                            long remaining=java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(deadline-System.nanoTime());
+                            if(remaining>0 && boundedMatch(new ProcessBuilder(powershell.toString(),"-NoLogo","-NoProfile","-NonInteractive","-EncodedCommand",encoded),Math.min(3000,remaining))){found=true;break;}
                         }
                     }
                     if(!found)Thread.sleep(100);
