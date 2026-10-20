@@ -2,7 +2,7 @@
 """Exercise real Main dispatch, then existing Sandbox and City workflows on the assigned display."""
 import argparse, os, subprocess, shutil
 from pathlib import Path
-p=argparse.ArgumentParser();p.add_argument('--display',required=True);a=p.parse_args()
+p=argparse.ArgumentParser();p.add_argument('--display',required=True);p.add_argument('--evidence-prefix',default='music-regression');a=p.parse_args()
 if not a.display or a.display!=os.environ.get('DISPLAY'):raise SystemExit('Inherited assigned DISPLAY required')
 root=Path(__file__).resolve().parents[1];os.chdir(root)
 for name in ('music-regressions','music-regression-home','music-regression-classes','tmp'):(root/'target'/name).mkdir(parents=True,exist_ok=True)
@@ -20,5 +20,5 @@ for label,main,extra in [('catalog','MusicCatalogSmoke',[]),('sandbox','SandboxP
             if (output/name).exists():print((output/name).read_text())
         raise SystemExit(result.returncode)
     for report in output.glob('*.txt'):
-        if report.name!='private-runtime.txt':shutil.copyfile(report,root/'dashboard/evidence'/('music-regression-'+report.name))
+        if report.name!='private-runtime.txt':shutil.copyfile(report,root/'dashboard/evidence'/(a.evidence_prefix+'-'+report.name))
 print('PASS: actual Main music dispatch/return/relaunch; existing Sandbox and City integration workflows')

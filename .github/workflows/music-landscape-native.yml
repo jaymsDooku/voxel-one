@@ -1,0 +1,53 @@
+name: Music landscape native qualification
+on:
+  push:
+    branches:
+      - feature/queue-32303665306237372d623933612d346464642d383435342d346162633836393964313931
+    paths-ignore: ['dashboard/**', 'docs/**', 'MUSIC_LANDSCAPE_CHECKPOINT.md', 'AGENTS.md']
+  workflow_dispatch:
+    inputs:
+      expectedHead:
+        description: Exact feature-source commit SHA
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: music-landscape-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  native:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    env:
+      EXPECTED_HEAD: ${{ inputs.expectedHead || github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.EXPECTED_HEAD }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install disposable hosted graphical test tools
+        run: sudo apt-get update && sudo apt-get install -y xvfb xauth xdotool libgl1-mesa-dri libopenal1
+      - name: Compile and test exact source
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          mkdir -p target/tmp
+          mvn --batch-mode -q -Dmaven.repo.local=target/maven-cache -DargLine="-Djava.io.tmpdir=$PWD/target/tmp" -Dtest=MusicAnalysisTest,MusicLandscapeTest,MusicMp3Test,SandboxIdentityTest,ControlsTest test package
+      - name: Native controls, media, integration, matched timing and real 30-minute soak
+        shell: bash
+        run: |
+          xvfb-run -a -s '-screen 0 1600x1000x24' sh -c 'python3 deploy/check_landscape_hosted.py --display "$DISPLAY" --expected-head "$EXPECTED_HEAD"'
+      - name: Upload only synthetic landscape evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: music-landscape-${{ env.EXPECTED_HEAD }}
+          path: dashboard/evidence/landscape-*
+          if-no-files-found: warn
+          retention-days: 7

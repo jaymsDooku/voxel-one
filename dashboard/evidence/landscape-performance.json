@@ -1,0 +1,98 @@
+{
+  "Playtest": "Linux assigned X11, llvmpipe software GL, OpenAL null output; 1100x720; sensitivity/motion 1; cyan; drift off; vsync off; 20 s per run, 5 s warm-up; original 24-second stereo fixture; baseline and landscape alternated three times. Browser playtesting does not apply to this native client.",
+  "baselineHead": "2dae61300dd6a7a4a0cc5a9b5ece32b7acb50b15",
+  "trials": [
+    {
+      "trial": 1,
+      "baseline": {
+        "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+        "resolution": "1100x720",
+        "warmupSeconds": 5,
+        "seconds": 20.0,
+        "frames": 1872,
+        "medianMs": 7.666866,
+        "p95Ms": 11.570164,
+        "trackedMeshBytes": 1296,
+        "heapUsedBytes": 21564744,
+        "rss": "VmRSS:   314580 kB"
+      },
+      "landscape": {
+        "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+        "resolution": "1100x720",
+        "warmupSeconds": 5,
+        "seconds": 20.0,
+        "frames": 2182,
+        "medianMs": 6.605331,
+        "p95Ms": 9.282235,
+        "trackedMeshBytes": 148752,
+        "heapUsedBytes": 17642128,
+        "rss": "VmRSS:   292472 kB"
+      },
+      "medianMsChangePercent": -13.845748706185812,
+      "p95MsChangePercent": -19.774386949052758,
+      "within10Percent": true
+    },
+    {
+      "trial": 2,
+      "baseline": {
+        "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+        "resolution": "1100x720",
+        "warmupSeconds": 5,
+        "seconds": 20.0,
+        "frames": 1818,
+        "medianMs": 7.880821,
+        "p95Ms": 10.989313,
+        "trackedMeshBytes": 1296,
+        "heapUsedBytes": 23553576,
+        "rss": "VmRSS:   313472 kB"
+      },
+      "landscape": {
+        "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+        "resolution": "1100x720",
+        "warmupSeconds": 5,
+        "seconds": 20.0,
+        "frames": 2076,
+        "medianMs": 6.966279,
+        "p95Ms": 9.572547,
+        "trackedMeshBytes": 148752,
+        "heapUsedBytes": 17552424,
+        "rss": "VmRSS:   293876 kB"
+      },
+      "medianMsChangePercent": -11.604653880604577,
+      "p95MsChangePercent": -12.89221628321988,
+      "within10Percent": true
+    },
+    {
+      "trial": 3,
+      "baseline": {
+        "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+        "resolution": "1100x720",
+        "warmupSeconds": 5,
+        "seconds": 20.0,
+        "frames": 1981,
+        "medianMs": 7.17863,
+        "p95Ms": 10.29633,
+        "trackedMeshBytes": 1296,
+        "heapUsedBytes": 34255176,
+        "rss": "VmRSS:   320952 kB"
+      },
+      "landscape": {
+        "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+        "resolution": "1100x720",
+        "warmupSeconds": 5,
+        "seconds": 20.0,
+        "frames": 2260,
+        "medianMs": 6.364724,
+        "p95Ms": 9.097716,
+        "trackedMeshBytes": 148752,
+        "heapUsedBytes": 18512008,
+        "rss": "VmRSS:   301088 kB"
+      },
+      "medianMsChangePercent": -11.337901521599525,
+      "p95MsChangePercent": -11.641177001902614,
+      "within10Percent": true
+    }
+  ],
+  "allPairsWithin10Percent": true,
+  "limitations": "Shared VPS CPU scheduling varies. Physical GPU/audio qualification remains pending. Heap/RSS samples are snapshots, not a soak or leak qualification."
+}

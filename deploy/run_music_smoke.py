@@ -18,11 +18,11 @@ if result.returncode:
     failure=root/"target/music-runtime/failure.txt"
     if failure.exists():print(failure.read_text())
     raise SystemExit(result.returncode)
-for file in (root/'target/music-runtime').glob('music-*.png'):shutil.copyfile(file,root/'dashboard/evidence'/file.name)
-shutil.copyfile(root/'target/music-runtime/music-playtest.json',root/'dashboard/evidence/music-playtest.json')
+for file in (root/'target/music-runtime').glob('music-*.png'):shutil.copyfile(file,root/'dashboard/evidence'/file.name.replace('music-','landscape-live-'))
+shutil.copyfile(root/'target/music-runtime/music-playtest.json',root/'dashboard/evidence/landscape-live-playtest.json')
 clips=sorted((root/'target/music-home/.voxel-one/recordings').glob('*.mp4'))
 if not clips:raise SystemExit('F10 clip missing')
 clip=clips[-1]
 if clip.stat().st_size>6_000_000:raise SystemExit('F10 clip exceeds 6 MB')
-shutil.copyfile(clip,root/'dashboard/evidence/music-visualizer.mp4')
+shutil.copyfile(clip,root/'dashboard/evidence/landscape-live.mp4')
 print('PASS: native catalog/audio/visualizer workflow; fresh F10 MP4 bytes:',clip.stat().st_size)

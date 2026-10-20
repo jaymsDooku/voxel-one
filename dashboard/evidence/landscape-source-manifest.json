@@ -1,0 +1,41 @@
+{
+  "baselineHead": "2dae61300dd6a7a4a0cc5a9b5ece32b7acb50b15",
+  "featureBranch": "feature/queue-32303665306237372d623933612d346464642d383435342d346162633836393964313931",
+  "sourceSha256": {
+    ".github/workflows/music-landscape-native.yml": "b3b741998c9b31a5f0fa623e32181688d97c8afb7e45a3522d9166a9a16a2a64",
+    "deploy/MusicLandscapeBench.java": "a5c5137ab9cf62cabc1bbcc0331aea1f79549a3f7cf1b12cfa51c7721f6c2901",
+    "deploy/MusicLandscapeSoak.java": "e4e85e4c6cf0ee140fbd23975bbd82f62b3839fd03cc6e28116fa7d7ebc99a16",
+    "deploy/MusicSmoke.java": "23087c6f8052692d8d4ffe75e0aff802bc919e5d8d6cc26aad3e1bd3c61c336c",
+    "deploy/check_landscape_hosted.py": "72b85f408f237322893a6ed6bb5ca56353bbabe289968b69e3b355b489860996",
+    "deploy/check_music_media.py": "90d420f59fc4b75ad99284458e011195aba34cf62571864d326c4adebb199aa3",
+    "deploy/run_landscape_bench.py": "802abbf9c0b82f600e950cf205d32d2e90a425db287269d6bb71af7dfab88065",
+    "deploy/run_landscape_comparison.py": "452171b7e1c846b365e86ae02ae121233a567a9c7d0f91cb19b74837e16b0f94",
+    "deploy/run_landscape_soak.py": "69c4cbeac10b231e9b783fa00d3380b83bcbca13328a3511bc7f2182f7e83168",
+    "deploy/run_music_mp3_smoke.py": "a179d91f11ac90f628ecbd9708daa49940ed9026146f828d984be34edc2270da",
+    "deploy/run_music_regressions.py": "d22a18916e349fe5aab23081dc64e7fa3919db5c3f4594b637e3da6b90b710c1",
+    "deploy/run_music_smoke.py": "a675f0fb082605540f0647df5a45df12113d5e03860acaffdf75ed78d7617a77",
+    "src/main/java/dev/jayms/Mesh.java": "7ab4da914e206db3407ab30d74fc0cc1adca0ed7c8b787b5310c1ecb2adbba15",
+    "src/main/java/dev/jayms/music/MusicAnalysis.java": "7fa0050956302705f92eb4502f7b503c87ff6bb9507623b1686ac875ecb687be",
+    "src/main/java/dev/jayms/music/MusicLandscape.java": "7637f8c5818ffd3abee6cbb35899a39743b24cef85d889d3bf5a80994cc2eb5c",
+    "src/main/java/dev/jayms/music/MusicVisualizer.java": "6a8905773ec70fdacde176d0ba6644dfaee93db08bff5c34a36e751fe0c38738",
+    "src/main/resources/shaders/music.frag": "0692f48877877444a64468854896426e5a40954b870b334144b77c23c0d07553",
+    "src/main/resources/shaders/music.vert": "7d0dbcca4c274b8e39d21ab54bd0b449b78f5bd6ca874b4b3a8639ac85eacc79",
+    "src/test/java/dev/jayms/MusicAnalysisTest.java": "41fcfebc16ee6b02465f63d3a5bafc94fe356c58cb729cbfc7d3412ee1a06cb4",
+    "src/test/java/dev/jayms/MusicLandscapeTest.java": "50a67b510fe2d84f9617fe4b00e11910869585024b5907597264cfe47f1b8f6f"
+  },
+  "publication": "Local evidence pending controller publication. Final integrated head must be checked again if source changes.",
+  "localArtifactsSha256": {
+    "landscape-live.mp4": "f8b520f610ef73d7a17cc94ae6347607cd21470da099d0d2cad1ad2d2d9d8e93",
+    "landscape-live-bass.png": "9e726ab86be3402ac420107acf0e79fa8acdcdf3016bea965b00f9cd58313da9",
+    "landscape-live-treble.png": "c75159bf426ef58f52bbd5db351917e505c9be4e1c82e4e1eb80ed5817048f04",
+    "landscape-live-natural-calm.png": "5d4573c169d91a8705f7ee058e3208d704e69c8aab70a9d0c2c1116074c5c838",
+    "landscape-live-playtest.json": "ab915ff58e1d90dd837fc89d0b307ad763b86df2dd04f16943ae9688230b252d",
+    "landscape-live-media-check.json": "b1ef9af38cb2135204459baa03bc0fea51b247ed57fff0a1199c52775342c2c9",
+    "landscape-live-video-contact.png": "9027a7feda6a8021bd9d03cddfab8883d4744becfa6aafabc63c6998f6d21e46",
+    "landscape-mp3.mp4": "b0c07d7c89619db943c613fa45d94474cc29086dcbf5f36f9a3d64472b75758b",
+    "landscape-mp3-playtest.json": "bb090b216e9bd841a4f48bf078fce982ffa416a157af6fdb8e051b56789cf007",
+    "landscape-performance.json": "53b729e6581f523e49bded208559bc753e202d7ee6b745e5db3d9853747b2b27",
+    "landscape-unit-check.json": "b7250b8d16c01f654c9c34a8251cf4789c75b81af8f09b0ee56b110ae04e8556",
+    "landscape-validation.md": "e96a7732bf328126f9d73a4f5103dfdc453ef4f0c00a966c74e3f7a18ea4934e"
+  }
+}

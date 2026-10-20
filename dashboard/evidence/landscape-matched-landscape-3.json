@@ -1,0 +1,1 @@
+{"renderer":"llvmpipe (LLVM 15.0.6, 256 bits)","resolution":"1100x720","warmupSeconds":5,"seconds":20.0,"frames":2260,"medianMs":6.364724,"p95Ms":9.097716,"trackedMeshBytes":148752,"heapUsedBytes":18512008,"rss":"VmRSS:   301088 kB"}
