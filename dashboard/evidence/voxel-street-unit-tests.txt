@@ -1,0 +1,110 @@
+TAP version 13
+# Subtest: models contain voxel cells and three distinct aliens
+ok 1 - models contain voxel cells and three distinct aliens
+  ---
+  duration_ms: 2.102607
+  ...
+# Subtest: movement clamps, fire cooldown, pause and restart
+ok 2 - movement clamps, fire cooldown, pause and restart
+  ---
+  duration_ms: 156.713084
+  ...
+# Subtest: alien kill scores once; last kill advances and resets
+ok 3 - alien kill scores once; last kill advances and resets
+  ---
+  duration_ms: 3.560597
+  ...
+# Subtest: both sides erode shields
+ok 4 - both sides erode shields
+  ---
+  duration_ms: 0.708693
+  ...
+# Subtest: life loss, immunity, game over and invasion
+ok 5 - life loss, immunity, game over and invasion
+  ---
+  duration_ms: 8.052794
+  ...
+# Subtest: fleet reverses and descends; bottom shooters; saucer bonus
+ok 6 - fleet reverses and descends; bottom shooters; saucer bonus
+  ---
+  duration_ms: 1.995936
+  ...
+# Subtest: large background delta bounded and offscreen projectiles recycled
+ok 7 - large background delta bounded and offscreen projectiles recycled
+  ---
+  duration_ms: 5.896069
+  ...
+# Subtest: slow frame projectile sweeps across alien and shield
+ok 8 - slow frame projectile sweeps across alien and shield
+  ---
+  duration_ms: 3.643409
+  ...
+# Subtest: classic, fighter and ground remain isolated; completion retains control for portal
+ok 9 - classic, fighter and ground remain isolated; completion retains control for portal
+  ---
+  duration_ms: 40.405523
+  ...
+# Subtest: fighter flight has momentum, diagonal speed limit, bounds and aimed attacks
+ok 10 - fighter flight has momentum, diagonal speed limit, bounds and aimed attacks
+  ---
+  duration_ms: 7.772376
+  ...
+# Subtest: fighter hits use current altitude and diagonal swept projectiles
+ok 11 - fighter hits use current altitude and diagonal swept projectiles
+  ---
+  duration_ms: 0.787415
+  ...
+# Subtest: level 2 crash, unconscious blackout and level 3 wake preserve progress and freeze combat
+ok 12 - level 2 crash, unconscious blackout and level 3 wake preserve progress and freeze combat
+  ---
+  duration_ms: 33.70099
+  ...
+# Subtest: cockpit transition holds combat, pauses, ends and resets
+ok 13 - cockpit transition holds combat, pauses, ends and resets
+  ---
+  duration_ms: 1.107558
+  ...
+# Subtest: whole-share validation, phase boundaries, immediate fills and weighted basis
+ok 14 - whole-share validation, phase boundaries, immediate fills and weighted basis
+  ---
+  duration_ms: 12.090977
+  ...
+# Subtest: unchanged round trip pays spread and review reconciles
+ok 15 - unchanged round trip pays spread and review reconciles
+  ---
+  duration_ms: 1.152117
+  ...
+# Subtest: positive quotes, event delivery and distinct sensitivities across seeds
+ok 16 - positive quotes, event delivery and distinct sensitivities across seeds
+  ---
+  duration_ms: 78.156921
+  ...
+# Subtest: seeded timed replay and position-independent prices
+ok 17 - seeded timed replay and position-independent prices
+  ---
+  duration_ms: 1.258602
+  ...
+# Subtest: next day preserves account, reconciles carried basis and restart clears history
+ok 18 - next day preserves account, reconciles carried basis and restart clears history
+  ---
+  duration_ms: 1.536459
+  ...
+# Subtest: cash-only progression, selected seed and invalid transitions
+ok 19 - cash-only progression, selected seed and invalid transitions
+  ---
+  duration_ms: 1.000913
+  ...
+# Subtest: opening history rolls actual closes and both events reset each day
+ok 20 - opening history rolls actual closes and both events reset each day
+  ---
+  duration_ms: 2.316964
+  ...
+1..20
+# tests 20
+# suites 0
+# pass 20
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 599.877398

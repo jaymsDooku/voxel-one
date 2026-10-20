@@ -1,0 +1,16 @@
+{
+  "state": "Conflict contents resolved; unmerged index intentionally left for controller staging and rebase continuation.",
+  "recordedBase": "26b8761ff9c355299aa1df83608a6f6ebcba7e0b",
+  "integrationHead": "b1d7b8d796b97a87a3d63bb08baf2bb9746b8ca6",
+  "audit": "No deleted paths against recorded base. All changes relative to integration HEAD are confined to Voxel Street files and the merged progress JSON. Music entry preserved exactly.",
+  "checks": [
+    "node --test games/voxel-street/market.test.mjs games/space-invaders/game.test.mjs: 20 passed, 0 failed",
+    "node --check games/voxel-street/app.mjs: passed",
+    "git diff --check: passed",
+    "Resolved progress JSON parses; IDs unique; both work entries retained"
+  ],
+  "playtest": "Playtest: No new browser run in this Git-recovery phase. No Voxel Street source changed during conflict resolution. Final-head browser playtest, fresh media and affected native music/sandbox regressions remain required after controller continuation. Prior media is historical.",
+  "handoff": "Controller stages resolution and continues rebase. Developer has not staged, committed, pushed, aborted or reset Git.",
+  "historical": true,
+  "supersededBy": "Controller completed rebase; recovered source 2285f5c61383ea1a5b5595d7e19142d86f977585. See voxel-street-final-audit.json, voxel-street-native-unit.json and current validation notes."
+}

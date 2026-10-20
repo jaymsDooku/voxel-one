@@ -1,0 +1,50 @@
+name: Voxel Street native regressions
+on:
+  push:
+    branches:
+      - feature/queue-61353661313662322d303366332d343264362d613762342d653335666538313136623266
+  workflow_dispatch:
+    inputs:
+      expectedHead:
+        description: Exact feature-source commit SHA
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: voxel-street-native-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  native:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 35
+    env:
+      EXPECTED_HEAD: ${{ inputs.expectedHead || github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.EXPECTED_HEAD }}
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install software-rendered graphical test tools
+        run: sudo apt-get update && sudo apt-get install -y xvfb xauth xdotool libgl1-mesa-dri libopenal1
+      - name: Compile exact source and run native unit regressions
+        shell: bash
+        run: |
+          mkdir -p target/tmp
+          mvn --batch-mode -q -Dmaven.repo.local=target/maven-cache -DargLine="-Djava.io.tmpdir=$PWD/target/tmp" -Dtest=MusicAnalysisTest,SandboxIdentityTest,ControlsTest test
+      - name: Exercise native workflows on disposable hosted display
+        shell: bash
+        run: |
+          xvfb-run -a -s '-screen 0 1600x1000x24' sh -c 'python3 deploy/check_voxel_street_native.py --display "$DISPLAY" --expected-head "$EXPECTED_HEAD"'
+      - name: Upload allowlisted synthetic results only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: voxel-street-native-${{ env.EXPECTED_HEAD }}
+          path: target/voxel-street-native-evidence/*
+          if-no-files-found: warn
+          retention-days: 7

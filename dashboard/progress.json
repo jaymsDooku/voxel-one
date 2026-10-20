@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-20T13:59:47+00:00",
+  "updatedAt": "2026-10-20T17:39:33+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,31 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "61353661313662322d303366332d343264362d613762342d653335666538313136623266",
+      "title": "Voxel Street \u2014 first playable trading day",
+      "description": "Implementing deterministic trading simulation, focused voxel desk, and full-loop tests. Publication is reserved to the controller.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Linux full-loop MP4 (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-61353661313662322d303366332d343264362d613762342d653335666538313136623266/dashboard/evidence/voxel-street-playthrough-linux.mp4"
+        },
+        {
+          "kind": "link",
+          "label": "Closing review image (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-61353661313662322d303366332d343264362d613762342d653335666538313136623266/dashboard/evidence/voxel-street-review.png"
+        },
+        {
+          "kind": "link",
+          "label": "Validation notes (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-61353661313662322d303366332d343264362d613762342d653335666538313136623266/dashboard/evidence/voxel-street-validation.md"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Review fix: website package now includes Voxel Street and a home-page launch link. Package integration check passed; full real-time playtest from the built site is running. Physical-GPU qualification remains pending.",
+      "updatedAt": "2026-10-20T17:39:33+00:00"
+    },
     {
       "id": "music-visualizer",
       "title": "Voxel Music Visualizer",
