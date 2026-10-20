@@ -20,10 +20,10 @@ home=folder/'home';profile=home/'.voxel-one';profile.mkdir(parents=True)
 for name in ('structure-native-result.json','structure-native-failure.txt'):
     (root/'dashboard/evidence'/name).unlink(missing_ok=True)
 classes=folder/'classes';classes.mkdir();temporary=folder/'tmp';temporary.mkdir()
-repo=Path('/home/debian/.m2/repository')
 jars=[]
-for group in ('org/lwjgl','org/joml','org/jcodec'):
-    jars.extend(str(p) for p in (repo/group).rglob('*.jar') if 'natives-windows' not in p.name and 'natives-macos' not in p.name)
+for repo in (root/'target/structure-m2', Path('/home/debian/.m2/repository')):
+    for group in ('org/lwjgl','org/joml','org/jcodec','com/googlecode/soundlibs'):
+        jars.extend(str(p) for p in (repo/group).rglob('*.jar') if 'natives-windows' not in p.name and 'natives-macos' not in p.name)
 classpath=str(root/'target/classes')+':'+':'.join(jars)
 subprocess.run(['javac','--release','17','-cp',classpath,'-d',str(classes),'deploy/StructurePlaytest.java'],cwd=root,check=True)
 env=os.environ.copy();env['DISPLAY']=args.display;env.pop('WAYLAND_DISPLAY',None);env['ALSOFT_DRIVERS']='null';env['MAGICK_TMPDIR']=str(temporary);env['LP_NUM_THREADS']='2';env['LIBGL_ALWAYS_SOFTWARE']='1'

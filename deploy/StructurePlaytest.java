@@ -32,6 +32,7 @@ public class StructurePlaytest {
         require(process.waitFor()==0,"X11 input "+args[0]);Thread.sleep(100);return result;
     }
     static void command(String text)throws Exception {
+        require(text.length()<=4096,"Command exceeds bounded input limit");
         x("type","--clearmodifiers","--delay","2",text);waitFor(()->menu().input.equals(text),"Text entry: "+text);x("key","Return");
         waitFor(()->menu().input.isEmpty(),"Command dispatched");onFrame(()->null);
         waitFor(()->!menu().busy,"Structure operation completed");onFrame(()->null);
@@ -82,7 +83,10 @@ public class StructurePlaytest {
                 require(menu().selected.cells.stream().anyMatch(c->c.model()<0&&c.geometry().leaves().stream().anyMatch(l->l.side()<16)),"Fractional geometry captured");
                 capture(window,output.resolve("structure-library-capture.png"));
                 command("export");Path exported=Controls.directory().resolve("structures/exports/Demo house.vstr");require(Files.exists(exported),"Self-contained export");
-                onFrame(()->{menu().selected=null;return null;});command("import "+exported);require(menu().selected!=null,"Self-contained import");
+                Path longImport=exported.getParent().resolve("long import path "+"a".repeat(100)).resolve("b".repeat(100)).resolve("Demo house.vstr");
+                Files.createDirectories(longImport.getParent());Files.copy(exported,longImport);
+                require(("import "+longImport).length()>240,"Long import path regression exceeds former cap");
+                onFrame(()->{menu().selected=null;return null;});command("import "+longImport);require(menu().selected!=null,"Self-contained import");
                 onFrame(()->{menu().selected=null;return null;});x("key","Down");waitFor(()->!menu().busy&&menu().selected!=null,"Saved library browsing");
                 command("at 20 128 26");
                 // Commit must use the live player pose, including movement after preview.

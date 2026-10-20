@@ -4017,8 +4017,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Experimental candidate validated for independent review: all eight hosted platform builds passed 758 tests each; native workflow and 32-client functional checks passed. City/GPU/network performance qualification and stable rollout remain gated.",
-      "updatedAt": "2026-10-20T21:59:53+00:00"
+      "note": "Reviewer fixes: MP3/Hub preserved; long import-path regression and full native workflow passed. Packaged MP3, 23 Java and 23 Python tests passed. City/max implementation and performance qualification remain unfinished; not ready.",
+      "updatedAt": "2026-10-20T23:41:05+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

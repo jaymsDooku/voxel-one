@@ -20,6 +20,15 @@ class StructureTest {
         return new StructurePackage("House",new Bounds(80,256,16,1,2,3),List.of(new ModelDefinition("Component",model)),
                 List.of(new Cell(new Position(0,0,0),geometry,-1),new Cell(new Position(79,255,15),null,0)));
     }
+    @Test void importCommandRetainsLongPathsAndBoundsInput() throws Exception {
+        try(var menu=new dev.jayms.ui.StructureMenu(folder)) {
+            String command="import /"+"nested directory/".repeat(30)+"house.vstr";
+            command.chars().forEach(menu::character);
+            assertEquals(command,menu.input);
+            for(int i=0;i<5000;i++)menu.character(97);
+            assertEquals(4096,menu.input.length());
+        }
+    }
     @Test void packageRoundtripKeepsFractionalColoursModel32AndLargeBounds() throws Exception {
         var original=asset();var copy=StructurePackage.decode(original.encode());
         assertEquals(original.bounds,copy.bounds);assertEquals(original.cells.get(0).geometry().leaves(),copy.cells.get(0).geometry().leaves());
