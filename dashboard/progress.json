@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-20T21:48:14+00:00",
+  "updatedAt": "2026-10-20T22:05:36+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,21 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "register-hub-preview-build-2026-10-20",
+      "title": "Register controller-only Hub preview package preparation",
+      "description": "Inspecting exact launcher workflow and adding read-only source, generation and catalog fences. Publication remains controller-owned.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Local registration test report (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-31333464633235302d303833302d346363332d613065382d353937613231663538316535/dashboard/evidence/hub-preview-registration-tests.json"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Resolved dashboard rebase conflict while retaining the Hub entry and every current-master entry, including music-mp3. Five registration CLI tests passed on resolved files. Controller must continue rebase before final-head checks and refreshed evidence.",
+      "updatedAt": "2026-10-20T22:05:36+00:00"
+    },
     {
       "id": "music-mp3",
       "title": "Music Visualizer MP3 loading",
