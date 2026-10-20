@@ -839,12 +839,10 @@ public final class MultiplayerServer implements AutoCloseable {
             public SparseVoxelOctree cell(int x,int y,int z){return voxels.cell(x,y,z);}
             public void commit(ModelLibrary staged,Map<StructurePackage.Position,SparseVoxelOctree> cells)throws IOException {
                 if(!running)throw new IOException("Server stopping");
+                dev.jayms.net.structure.StructureOccupancy.validate(cells,city.frame(),peers.values().stream().map(peer->peer.pose).toList());
                 var next=new WorldVoxels.History();next.putAll(edits);var geometry=voxels.snapshot();var states=new ArrayList<Protocol.CellState>();
                 for(var entry:cells.entrySet()) {
                     var p=entry.getKey();var state=new Protocol.CellState(p.x(),p.y(),p.z(),entry.getValue());
-                    int type=WorldVoxels.decode(entry.getValue().uniform(0,0,0,16));
-                    if(entry.getValue().occupied()!=0&&peers.values().stream().anyMatch(peer->overlaps(peer.pose,new Protocol.Edit(p.x(),p.y(),p.z(),type))))
-                        throw new IOException("Structure would overlap a player");
                     for(var edit:state.edits()){WorldVoxels.remember(next,edit);geometry.apply(edit);}states.add(state);
                 }
                 if(next.size()>2_000_000)throw new IOException("World persistence edit limit");

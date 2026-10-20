@@ -17,7 +17,7 @@
     "src/main/java/dev/jayms/GameIdentity.java": "51ff3f06341c54454706cfc4a22b663b34c91d91d5ea338b109c4efa465648f4",
     "src/main/java/dev/jayms/IsometricCamera.java": "4d20a47c1085f8f4d855863b31ab5061ab19e16ddacc592e6c41c4b885fe150d",
     "src/main/java/dev/jayms/IsometricOrbitDrag.java": "248088f834705c3acc3c2f1a950f2f06ac7ade5a11e77727909747016163bd2e",
-    "src/main/java/dev/jayms/Main.java": "18119a53963bc05ab81bee17d2ef8e4d0643b80ad10ddf173111790b6242da23",
+    "src/main/java/dev/jayms/Main.java": "caceafaa3efe684adc008b8ef39fcc7b4aac33c15b382eeb524efa4bdf5298fb",
     "src/main/java/dev/jayms/Mesh.java": "a25421de5932338dad359540da1fc213adbbb61fa930875c77bda5fb1ea3b75a",
     "src/main/java/dev/jayms/MeshData.java": "3c6a4e949afdcdc07626f88f0c7141371cc6f990062b0bc9ba08b978a4dcedb1",
     "src/main/java/dev/jayms/MeshDataGenerator.java": "a6f12df8651301ae1a6d9b7f90acf15fadfac13ace883b17b8f744b9ad63cf8a",
@@ -45,10 +45,10 @@
     "src/main/java/dev/jayms/net/Inventory.java": "251f649394c0a2bb7d4bea7bdefac27f9b3dc14f2ccb7403d934b0cae0b1567b",
     "src/main/java/dev/jayms/net/ItemDrop.java": "2249a4531a2354761a514755999c87fca085becf892bdb23b50e9c3543d9d946",
     "src/main/java/dev/jayms/net/Items.java": "fb52ebaa3c4ecca1c0f34a606561cb2ef28514349ab71b97ff890996c4958a49",
-    "src/main/java/dev/jayms/net/LocalGame.java": "15fede0b58e7197b3398ea38c132c48ec5000b5213c483b40a5a1d840e8a4ffa",
+    "src/main/java/dev/jayms/net/LocalGame.java": "22e34e089df8a70667301f831067b56dfaad69f7c28aa84cb2308eced7c8939f",
     "src/main/java/dev/jayms/net/LongLruCache.java": "6dfb38f20d138bf5e3ca2faf021b9b533005ed14ddf824297179c92d42f2e9e1",
     "src/main/java/dev/jayms/net/MultiplayerClient.java": "251b0b66037d29b970c93f15fc1b2798d7043a0f8365cd915020b9ad0a25488a",
-    "src/main/java/dev/jayms/net/MultiplayerServer.java": "c12278d4536e833c92c7340f30bc5c8c1d3ec20c6fa34ca8976de7be9d2e1b37",
+    "src/main/java/dev/jayms/net/MultiplayerServer.java": "19e06f5ddfbf5e2f93cf84d8d4004d8fd41ab0839182c8669515dae8437c0739",
     "src/main/java/dev/jayms/net/Protocol.java": "1a8d4be6114f8bdd2d07cd33bf85147533e347d04c1b93df1734c3bb29985393",
     "src/main/java/dev/jayms/net/RemotePlayer.java": "1cc1ec5600b563e01a3077899ae427c47df2b6a86d52b6069c6500f3ffeef26c",
     "src/main/java/dev/jayms/net/SecureTransport.java": "6d04aa968e17a151ba1694c1ac637722d4e84f33253ac44c1e59be10502b6d41",
@@ -110,6 +110,7 @@
     "src/main/java/dev/jayms/net/model/ModelMesher.java": "b85adae767a186b23dbec8ad81900186983f3300b49761c7faa3e1584e3a2699",
     "src/main/java/dev/jayms/net/model/SparseVoxelOctree.java": "d42f3a86728e5f0dd75a4308b4d9a20461e44d7d88998ce9205cfe6a794f4ebb",
     "src/main/java/dev/jayms/net/structure/StructureEngine.java": "8b3c8c85619b5b103892730afb20028dd6aeaedc07cdb9e86cb7e22aa4de466f",
+    "src/main/java/dev/jayms/net/structure/StructureOccupancy.java": "bb97427bbda906adf79da66a5beab86bc0d29c7ef37d76442347c80538ff4486",
     "src/main/java/dev/jayms/net/structure/StructurePackage.java": "246ab459b983e72cc1c685d53b65353fe4571e6ed4b3b8326d634542ca3aa2ef",
     "src/main/java/dev/jayms/net/structure/StructureWire.java": "49eb1bc6fabb9d78177f5547e6bf4ae99509c86bc7cfebd69e7b59e9d8f33006",
     "src/main/java/dev/jayms/physics/Aabb.java": "dd84807d0e331d7471c8e06bcc1e068a98821b6f25add0aa4e819dfe67e095ca",
@@ -203,10 +204,10 @@
     "src/main/java/dev/jayms/ui/RenderingMenu.java": "8d3f24a7118b098d4b31331532563ef7768e6cba7003b23af478559c582bfa00",
     "src/main/java/dev/jayms/ui/SavesMenu.java": "2996b42e3590055005ce88bd7cf6979f589222dbe0b0f836c7c3981186cfc79f",
     "src/main/java/dev/jayms/ui/SessionMetricTrends.java": "5d3e7a3a5fbfa8447e6800e4092d463abf3a29c755079f49f733cbd1d7394f05",
-    "src/main/java/dev/jayms/ui/StructureMenu.java": "70d3da40299b9b60703caa91362799917a825b0daa365583d2063c736571ad10",
+    "src/main/java/dev/jayms/ui/StructureMenu.java": "77e9504b1553d6b1a97f71e06a3d7a8b59fb007cb9ef305b43981fecfb4d219c",
     "src/main/java/dev/jayms/window/KeyAction.java": "a2d892382438b9b81b69ad7773f192beeac17a1d739ec1a3248c2cc000dcdaf8",
     "src/main/java/dev/jayms/window/Window.java": "9953ca693c8c74631ebcb8d45b81587fc944afad15cec865edbe31dbc8f1a27d",
-    "deploy/StructurePlaytest.java": "5cbb4c752f5bc92a7aa011b1911a6f1b48fde65733c396f79caec8c0e85f1379"
+    "deploy/StructurePlaytest.java": "b3ae446acd63526a96aaf773399239262a629f282073ce85f7c3559c6e289ef8"
   },
   "scope": "Production Java plus native workflow harness; isolated synthetic profile"
 }

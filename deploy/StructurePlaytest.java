@@ -85,6 +85,13 @@ public class StructurePlaytest {
                 onFrame(()->{menu().selected=null;return null;});command("import "+exported);require(menu().selected!=null,"Self-contained import");
                 onFrame(()->{menu().selected=null;return null;});x("key","Down");waitFor(()->!menu().busy&&menu().selected!=null,"Saved library browsing");
                 command("at 20 128 26");
+                // Commit must use the live player pose, including movement after preview.
+                onFrame(()->{var p=new dev.jayms.player.Player(new org.joml.Vector3f(20.5f,128,26.5f),-90,-26,(Camera)get("camera"));p.toggleFlight();set("player",p);return null;});
+                int collisionEdits=local().edits.size(),collisionModels=local().models.entries().size();
+                command("place");require(menu().message.contains("overlap a player"),"Live player rejects structure: "+menu().message);
+                require(local().edits.size()==collisionEdits&&local().models.entries().size()==collisionModels,"Body rejection leaves world and dependencies unchanged");
+                capture(window,output.resolve("structure-player-conflict.png"));
+                onFrame(()->{var p=new dev.jayms.player.Player(new org.joml.Vector3f(22,135,40),-90,-26,(Camera)get("camera"));p.toggleFlight();set("player",p);return null;});
                 x("key","F10");
                 for(int rotation=0;rotation<4;rotation++) {
                     final int r=rotation;Position preserved=destination(r,new Position(2,2,2));
@@ -123,7 +130,7 @@ public class StructurePlaytest {
                 onFrame(()->{var player=new dev.jayms.player.Player(new org.joml.Vector3f(30,131,24),180,-12,(Camera)get("camera"));player.toggleFlight();set("player",player);return null;});
                 capture(window,output.resolve("structure-component-closeup.png"));x("key","e");waitFor(()->((InventoryHud)get("inventoryHud")).open,"Inventory regression");x("key","e");x("key","F7");waitFor(()->((ModelEditor)get("editor")).open,"Existing model editor regression");x("key","F7");
                 onFrame(()->{renderer=org.lwjgl.opengl.GL11.glGetString(org.lwjgl.opengl.GL11.GL_RENDERER);return null;});
-                Files.writeString(output.resolve("structure-native-result.json"),"{\"status\":\"passed\",\"playtest\":\"Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, one-operation undo, cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.\",\"renderer\":\""+renderer+"\",\"qualification\":\"Experimental functional checks only; physical GPU and city/network budgets pending\"}\n");
+                Files.writeString(output.resolve("structure-native-result.json"),"{\"status\":\"passed\",\"playtest\":\"Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.\",\"renderer\":\""+renderer+"\",\"qualification\":\"Experimental functional checks only; physical GPU and city/network budgets pending\"}\n");
             }catch(Throwable problem){failure=problem;try{Files.writeString(output.resolve("structure-native-failure.txt"),problem.getClass().getSimpleName()+": "+problem.getMessage());}catch(Exception ignored){}}
             finally {if(handle!=0)glfwSetWindowShouldClose(handle,true);}
         },"structure-playtest-input");driver.setDaemon(true);driver.start();
