@@ -4017,8 +4017,8 @@
       "description": "Building the catalog-driven desktop hub around verified client updates. Platform packaging and playtests remain required.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Published head 8d74ac68 hosted run 39493265003 is in progress; no hosted pass claimed. Fixed publisher coupling: explicit unavailable web receipt now permits independently verified native promotion. Five Python tests and actual Hub unavailable-web playtest passed; screenshot inspected. Full catalog/shell preview bundle prepared with real playtest-632 provenance and web disabled; workflow uses current preview receipts, preserving historical evidence. New publisher edits need exact-head hosted validation. Public delivery and physical qualification remain gated.",
-      "updatedAt": "2026-10-20T20:38:51+00:00"
+      "note": "Post-rebase head 3d01f740 validated: 24 Java tests and package passed; 5 publisher tests and 5 bounded query controls passed. Directly compiled rebased launcher and exercised unavailable-web UI with an isolated profile; fresh screenshot inspected. Other developer native workflow preserved; src/main and Hub tools unchanged by integration; no unrelated deletions. Exact-commit preview bundle regenerated. Controller feature publication is needed for final-head hosted checks; public delivery and physical qualification remain pending.",
+      "updatedAt": "2026-10-20T20:53:06+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

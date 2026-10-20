@@ -1,0 +1,48 @@
+{
+  "format": 1,
+  "repository": "jaymsDooku/voxel-one",
+  "sourceSha": "3d01f7407cab4a9638b03c96b13969be10ea87aa",
+  "sourceKind": "exact-commit",
+  "controllerMustRegenerateFromCommittedSource": false,
+  "destinationBranch": "experience-catalog",
+  "expectedDestinationHead": "absent",
+  "releaseTag": "hub-preview-1",
+  "releaseKind": "opt-in preview; never mark latest or stable",
+  "filesSha256": {
+    "catalog.properties": "804b08528aa39ec14dab67bdf987932105022e5952a1ca5ea818a922e10881c7",
+    "shell.properties": "3ce3abc71a7da50af825997abc015149e675d44cb3d71e07d9679f363fbccfd9",
+    "voxel-one-shell.jar": "048a3be35010e9660147655b82bf3aa88b83b5984a12676e91994be1974845f8"
+  },
+  "releaseAssets": [
+    "voxel-one-shell.jar"
+  ],
+  "branchFiles": [
+    "catalog.properties",
+    "shell.properties"
+  ],
+  "sequence": [
+    "Verify independent review and exact-source qualification scope; keep stable rollout gated.",
+    "Recheck sourceSha and expectedDestinationHead through the fenced controller; stop on a mismatch.",
+    "Publish the immutable preview shell asset first; never clobber an existing release asset.",
+    "Verify the published shell SHA-256 and size before exposing shell.properties.",
+    "Controller atomically promotes both metadata files with compare-and-swap against expectedDestinationHead; preserve other branch files.",
+    "Run publication_bundle.py verify and actual packaged bootstrap playtests against public metadata.",
+    "Repeat with a second reviewed published generation; retain both release assets and report the actual upgrade."
+  ],
+  "stableRolloutQualified": false,
+  "pending": [
+    "Exact published-head Windows/macOS reports and inspected media",
+    "Authorized preview publication and two actually published shell generations",
+    "Deployed browser session/cache reload and independent web promotion",
+    "Physical GPU, Windows monitor DPI, reference performance; stable rollout gated"
+  ],
+  "instructionsAreDataOnly": true,
+  "requiresIndependentReviewBeforePromotion": true,
+  "receiptInputs": [
+    "dashboard/evidence/hub-preview-native-receipt.json",
+    "dashboard/evidence/hub-preview-web-receipt.json"
+  ],
+  "webPublicationState": "Explicitly unavailable; do not enable until actual deployment and browser qualification.",
+  "preparedWebDirectory": "target/hub-5b2d5f5e-web",
+  "controllerStep": "Publish rebased assigned feature branch and evidence first. Recheck source/tag/destination fences; regenerate bundle if published source head changes. Use existing fenced publication controls, never execute this JSON."
+}
