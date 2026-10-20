@@ -13,6 +13,15 @@ spec.loader.exec_module(native)
 
 
 class EvidenceCollectionTest(unittest.TestCase):
+    def test_diagnostics_return_fixed_codes_only(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            runtime = root / 'private.txt'
+            runtime.write_text('private fixture java.lang.UnsatisfiedLinkError secret\n')
+            self.assertEqual(native.diagnose(root, runtime), ['native_library_load_failed'])
+            runtime.write_text('private unknown failure')
+            self.assertEqual(native.diagnose(root, runtime), ['unclassified_native_failure'])
+
     def test_only_allowlisted_synthetic_artifacts_leave_runtime(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

@@ -40,6 +40,34 @@ def collect(output, destination):
     return workflows
 
 
+def diagnose(output, runtime):
+    """Map known failures to fixed codes. Never return private log text."""
+    patterns = {
+        'java.lang.UnsatisfiedLinkError': 'native_library_load_failed',
+        'GLX': 'opengl_context_failure',
+        'Failed to create the GLFW window': 'glfw_window_failed',
+        'Main did not return to selection': 'catalog_picker_missing',
+        'Main dispatch creates visualizer': 'catalog_visualizer_missing',
+        'cannot find symbol': 'harness_compile_failed',
+        'package dev.jayms does not exist': 'compiled_classes_missing',
+        'TimeoutExpired': 'workflow_timeout',
+        'NoClassDefFoundError': 'runtime_class_missing',
+    }
+    codes = set()
+    sources = [runtime]
+    for label in RESULTS:
+        sources.extend([output / label / 'private-runtime.txt',
+                        output / label / 'catalog-failure.txt'])
+    for source in sources:
+        if source.is_file():
+            with source.open(errors='replace') as stream:
+                for line in stream:
+                    for needle, code in patterns.items():
+                        if needle in line:
+                            codes.add(code)
+    return sorted(codes) or ['unclassified_native_failure']
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--display', required=True)
@@ -90,6 +118,7 @@ def main():
         'workflows': workflows,
         'passed': exit_code == 0 and all(w['passed'] for w in workflows),
         'failure': failure,
+        'diagnosticCodes': [] if exit_code == 0 else diagnose(output, runtime),
         'playtest': 'Playtest: actual Main music selection/launch/Escape/relaunch; Sandbox break/pickup/place/craft/invalid craft and camera/HUD; City entry/road tool/cancel/walking. Per-workflow results identify observed outcomes.',
         'limitations': 'Software rendering only; no physical GPU or speaker qualification. Raw runtime logs and profiles are excluded.',
         'artifacts': {p.name: hashlib.sha256(p.read_bytes()).hexdigest()

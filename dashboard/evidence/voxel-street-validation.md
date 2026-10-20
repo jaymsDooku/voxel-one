@@ -157,3 +157,9 @@ The native check starts automatically. Return artifact
 inspection. Keep the work out of review until those results pass. This is an
 authorized runner/CI handoff; no new owner question is required. Actual native
 graphical execution remains pending and is not claimed passed.
+
+### Hosted validation of 2ec9e8edc8fca4a61758b639356a2191ee79365f
+
+Run 39475756266 compiled the exact source and passed its native unit step. The graphical step failed with exit code 1. Its sanitized artifact reports catalog, sandbox and city as unpassed and contains no captures. No graphical pass is claimed. Physical-GPU qualification remains pending.
+
+Added fixed diagnostic codes to the artifact wrapper; raw runtime text is never returned or published. Ran `TMPDIR="$PWD/.tmp" python3 -m unittest discover -s deploy -p test_voxel_street_native.py -q`: 4 passed. `git diff --check` passed. Playtest: hosted graphical attempt failed before producing usable workflow evidence; another exact-source hosted run is required.
