@@ -4,7 +4,7 @@
   "suites": [
     {
       "name": "dev.jayms.MusicAnalysisTest",
-      "tests": "4",
+      "tests": "6",
       "failures": "0",
       "errors": "0",
       "skipped": "0"

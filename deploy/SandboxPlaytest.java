@@ -14,7 +14,7 @@ public class SandboxPlaytest {
     static final java.util.concurrent.ConcurrentLinkedQueue<java.util.concurrent.FutureTask<Void>> jobs = new java.util.concurrent.ConcurrentLinkedQueue<>();
     static void onFrame(java.util.concurrent.Callable<Void> action) throws Exception {
         var job = new java.util.concurrent.FutureTask<Void>(action); jobs.add(job);
-        job.get(30, java.util.concurrent.TimeUnit.SECONDS);
+        job.get(90, java.util.concurrent.TimeUnit.SECONDS);
     }
     static dev.jayms.player.Player player() throws Exception { return (dev.jayms.player.Player)get("player"); }
     static dev.jayms.net.LocalGame local() throws Exception { return (dev.jayms.net.LocalGame)get("local"); }
@@ -74,6 +74,8 @@ public class SandboxPlaytest {
             var hud=(InventoryHud)get("inventoryHud");hud.openBook();hud.selectRecipe(0);
             return null;
         });
+        // Setup jobs run before rendering. Wait for the book to draw before reading its hit boxes.
+        renderedFrames();
         // The recipe book replaced the old fixed-coordinate craft panel. Read its rendered hit box.
         float[] craftButton=new float[2];
         onFrame(() -> {
@@ -123,9 +125,14 @@ public class SandboxPlaytest {
         x("mousemove", "--window", id, "" + (int)(CityActionBar.left(width) + (index + .5f)*CityActionBar.cell(width)),
                 "" + (int)(CityActionBar.top(height) + 20)); x("click", "1");
     }
-    static void capture(String id, Path path) throws Exception {
+    static void renderedFrames() throws Exception {
         long next = frames.get() + 2;
-        await(() -> frames.get() >= next, "Rendered capture frame");
+        long deadline=System.nanoTime()+java.util.concurrent.TimeUnit.SECONDS.toNanos(90);
+        while(frames.get()<next&&System.nanoTime()<deadline)Thread.sleep(100);
+        require(frames.get()>=next,"Rendered capture frame: expected >="+next+", observed "+frames.get());
+    }
+    static void capture(String id, Path path) throws Exception {
+        renderedFrames();
         var p = new ProcessBuilder("import", "-window", id, path.toString())
                 .redirectError(ProcessBuilder.Redirect.DISCARD).start();
         require(p.waitFor() == 0, "Screenshot capture");

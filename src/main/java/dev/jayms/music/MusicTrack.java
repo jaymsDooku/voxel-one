@@ -11,8 +11,8 @@ import static org.lwjgl.openal.ALC10.*;
 
 /** Bounded local PCM decode and an OpenAL playback clock. Native calls stay on render thread. */
 public final class MusicTrack implements AutoCloseable {
-    public record Decoded(short[] stereo, float[] mono, int rate) {
-        public double duration() { return mono.length / (double) rate; }
+    public record Decoded(short[] stereo, int rate) {
+        public double duration() { return stereo.length / (2.0 * rate); }
     }
     public static final int MAX_PCM_BYTES = 32 * 1024 * 1024;
     private long device, context;
@@ -34,15 +34,14 @@ public final class MusicTrack implements AutoCloseable {
                 if (bytes.length > MAX_PCM_BYTES || bytes.length < pcm.getFrameSize())
                     throw new IOException("Audio is empty or exceeds the 32 MB decoded limit.");
                 int frames = bytes.length / pcm.getFrameSize();
-                short[] stereo = new short[frames * 2]; float[] mono = new float[frames];
+                short[] stereo = new short[frames * 2];
                 for (int i = 0; i < frames; i++) {
                     int p = i * pcm.getFrameSize();
                     short left = (short)((bytes[p] & 255) | bytes[p+1] << 8);
                     short right = f.getChannels() == 1 ? left : (short)((bytes[p+2] & 255) | bytes[p+3] << 8);
                     stereo[i*2] = left; stereo[i*2+1] = right;
-                    mono[i] = (left + right) / 65536f;
                 }
-                return new Decoded(stereo, mono, Math.round(pcm.getSampleRate()));
+                return new Decoded(stereo, Math.round(pcm.getSampleRate()));
             }
         }
     }

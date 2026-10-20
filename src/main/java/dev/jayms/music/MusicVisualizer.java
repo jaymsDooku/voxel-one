@@ -105,7 +105,7 @@ public final class MusicVisualizer {
             loading=null;
         }
         double pos=track.position();boolean playing=track.playing();var data=track.data();
-        bands=analysis.sample(data==null?new float[0]:data.mono(),data==null?44100:data.rate(),pos,dt,playing,sensitivity);
+        bands=analysis.sample(data==null?new short[0]:data.stereo(),data==null?44100:data.rate(),pos,dt,playing,sensitivity);
         for(int i=memories.size()-1;i>=0;i--){double age=memories.get(i)+dt;if(age>=3)memories.remove(i);else memories.set(i,age);}
         if(bands.beat()&&playing){if(memories.size()==12)memories.remove(0);memories.add(0d);}
         rotation+=dt*bands.mid()*motion*1.8;

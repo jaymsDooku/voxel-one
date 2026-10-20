@@ -23,9 +23,14 @@ public final class MusicSmoke {
     static void shot(String name)throws Exception {render(()->{try{var a=active;ByteBuffer pixels=org.lwjgl.system.MemoryUtil.memAlloc(a.width*a.height*3);try{glPixelStorei(GL_PACK_ALIGNMENT,1);glReadPixels(0,0,a.width,a.height,GL_RGB,GL_UNSIGNED_BYTE,pixels);BufferedImage image=new BufferedImage(a.width,a.height,BufferedImage.TYPE_INT_RGB);int colored=0;for(int y=0;y<a.height;y++)for(int xx=0;xx<a.width;xx++){int p=(y*a.width+xx)*3;int rgb=(pixels.get(p)&255)<<16|(pixels.get(p+1)&255)<<8|(pixels.get(p+2)&255);image.setRGB(xx,a.height-1-y,rgb);if(y>120&&y<a.height-120&&((rgb&255)>70||(rgb>>8&255)>70||(rgb>>16&255)>70))colored++;}require(colored>500,"Scene visible");require(glGetError()==GL_NO_ERROR,"GL error");ImageIO.write(image,"png",out.resolve(name).toFile());}finally{org.lwjgl.system.MemoryUtil.memFree(pixels);}}catch(Exception e){throw new RuntimeException(e);}});}
     static void load(Path file)throws Exception {render(()->active.requestLoad(file));Thread.sleep(350);for(int i=0;i<200;i++){boolean[] done={false};render(()->done[0]=!active.loading());if(done[0])return;Thread.sleep(25);}throw new AssertionError("Load timed out");}
     static void fixture()throws Exception {
-        int rate=44100;byte[] pcm=new byte[rate*18*2];
-        for(int i=0;i<rate*18;i++){double t=i/(double)rate;double hz=t<4?100:t<8?1000:t<12?6000:100;double amp=t>=15?0:t>=12?(t%0.5<.14?.7:0):.45;short v=(short)(Math.sin(2*Math.PI*hz*t)*amp*32767);pcm[2*i]=(byte)v;pcm[2*i+1]=(byte)(v>>8);}
-        try(var in=new AudioInputStream(new java.io.ByteArrayInputStream(pcm),new AudioFormat(rate,16,1,true,false),rate*18)){AudioSystem.write(in,AudioFileFormat.Type.WAVE,fixture.toFile());}
+        int rate=44100;byte[] pcm=new byte[rate*18*4];
+        for(int i=0;i<rate*18;i++){double t=i/(double)rate;double hz=t<4?100:t<8?1000:t<12?6000:100;double amp=t>=15?0:t>=12?(t%0.5<.14?.7:0):.45;short v=(short)(Math.sin(2*Math.PI*hz*t)*amp*32767);short r=(short)-v;pcm[4*i]=(byte)v;pcm[4*i+1]=(byte)(v>>8);pcm[4*i+2]=(byte)r;pcm[4*i+3]=(byte)(r>>8);}
+        try(var in=new AudioInputStream(new java.io.ByteArrayInputStream(pcm),new AudioFormat(rate,16,2,true,false),rate*18)){AudioSystem.write(in,AudioFileFormat.Type.WAVE,fixture.toFile());}
+    }
+    static Path singleChannel(String name,boolean left)throws Exception {
+        int rate=44100;byte[] pcm=new byte[rate*3*4];
+        for(int i=0;i<rate*3;i++){short v=(short)(.45*32767*Math.sin(2*Math.PI*100*i/rate));int at=i*4+(left?0:2);pcm[at]=(byte)v;pcm[at+1]=(byte)(v>>8);}
+        Path file=out.resolve(name);try(var in=new AudioInputStream(new java.io.ByteArrayInputStream(pcm),new AudioFormat(rate,16,2,true,false),rate*3)){AudioSystem.write(in,AudioFileFormat.Type.WAVE,file.toFile());}return file;
     }
     static void chooseMusic()throws Exception {
         CompletableFuture<Void> clicked=new CompletableFuture<>();
@@ -36,7 +41,7 @@ public final class MusicSmoke {
         for(java.awt.Component c:root.getComponents())if(c instanceof JButton b&&b.getText().equals("Open visualizer"))b.doClick();
     }
     public static void main(String[]args)throws Exception {
-        out=Path.of(args[0]);Files.createDirectories(out);Thread.setDefaultUncaughtExceptionHandler((thread,error)->{try{Throwable cause=error;while(cause.getCause()!=null)cause=cause.getCause();Files.writeString(out.resolve("failure.txt"),cause.getClass().getSimpleName()+": "+cause.getMessage());}catch(Exception ignored){}System.exit(1);});fixture=out.resolve("controlled.wav");fixture();
+        out=Path.of(args[0]);Files.createDirectories(out);Thread.setDefaultUncaughtExceptionHandler((thread,error)->{try{Throwable cause=error;while(cause.getCause()!=null)cause=cause.getCause();Files.writeString(out.resolve("failure.txt"),cause.getClass().getSimpleName()+": "+cause.getMessage());}catch(Exception ignored){}System.exit(1);});fixture=out.resolve("controlled-antiphase.wav");fixture();
         // Exercise real catalog selection before both launches, without reading a saved profile.
         Thread input=new Thread(()->{try{
             Thread.sleep(700);chooseMusic();while(active==null)Thread.sleep(25);
@@ -46,7 +51,7 @@ public final class MusicSmoke {
             key("o");Thread.sleep(400);SwingUtilities.invokeAndWait(()->{for(java.awt.Window w:java.awt.Window.getWindows())if(w.isShowing())approve(w);});Thread.sleep(900);
             render(()->require(active.track.playing(),"File picker load starts audio"));
             key("F10");render(()->require(active.recording(),"F10 starts engine recorder"));
-            Thread.sleep(850);render(()->require(active.bands.bass()>.4&&active.bands.mid()<.02&&active.bands.treble()<.02,"100 Hz expands bass only"));shot("music-bass.png");
+            Thread.sleep(850);render(()->require(active.bands.bass()>.4&&active.bands.mid()<.02&&active.bands.treble()<.02,"100 Hz expands bass only"));shot("music-bass.png");shot("music-antiphase.png");
             key("space");double[] position={0};render(()->position[0]=active.track.position());Thread.sleep(1900);render(()->{require(!active.track.playing(),"Pause stops audio");require(Math.abs(position[0]-active.track.position())<.025,"Paused clock stable");require(active.bands.bass()<.01,"Pause settles bass");});shot("music-paused.png");
             key("space");Thread.sleep(500);render(()->require(active.bands.bass()>.4,"Resume restores response"));
             key("Right");render(()->require(active.memories.size()<=1,"Seek clears old effects"));Thread.sleep(500);
@@ -68,6 +73,11 @@ public final class MusicSmoke {
             key("r");Thread.sleep(350);render(()->require(active.track.playing()&&active.track.position()<2,"Restart returns to beginning"));
             render(()->active.seek(5));Thread.sleep(500);render(()->require(active.bands.mid()>.4,"Mid passage before replacing track"));
             load(fixture);Thread.sleep(400);render(()->{require(active.track.playing()&&active.track.position()<1.5,"Track replacement starts at new clock");require(active.bands.mid()<.02&&active.memories.size()<=1,"Track replacement clears old analysis and beat history");});
+            for(boolean left:new boolean[]{true,false}){
+                Path channel=singleChannel(left?"left-only.wav":"right-only.wav",left);
+                render(()->active.sensitivity=1);load(channel);Thread.sleep(450);
+                render(()->{require(active.track.playing()&&active.bands.bass()>.4,"Either single channel drives native bass response");require(active.bands.mid()<.02&&active.bands.treble()<.02,"Single-channel band isolation");});
+            }
             key("Escape");
         }catch(Throwable t){failure=t;if(active!=null)glfwSetWindowShouldClose(active.window,true);}},"native-music-input");input.start();
         LoginDialog.open("localhost",25565,null);require(LoginDialog.musicSelected,"Catalog registers Music Visualizer");
@@ -78,7 +88,7 @@ public final class MusicSmoke {
         Thread again=new Thread(()->{try{Thread.sleep(500);chooseMusic();while(active==null)Thread.sleep(20);load(fixture);render(()->require(active.track.playing(),"Relaunch audio recreated"));shot("music-relaunch.png");key("o");Thread.sleep(400);render(()->glfwSetWindowShouldClose(active.window,true));}catch(Throwable t){failure=t;if(active!=null)glfwSetWindowShouldClose(active.window,true);}});again.start();
         LoginDialog.open("localhost",25565,null);require(LoginDialog.musicSelected,"Return to catalog");new MusicVisualizer().run(a->{active=a;FutureTask<Void> task;while((task=commands.poll())!=null)task.run();});again.join();if(failure!=null)throw new AssertionError("Relaunch failed",failure);
         SwingUtilities.invokeAndWait(()->{for(java.awt.Window w:java.awt.Window.getWindows())if(w.isShowing())require(!hasChooser(w),"Exit closes a pending file picker");});
-        Files.writeString(out.resolve("music-playtest.json"),"{\n\"Playtest\":\"Production catalog and MusicVisualizer; Linux X11 inherited role display; isolated synthetic profile; OpenAL Soft null output (physical speakers not tested)\",\n\"platform\":\""+System.getProperty("os.name")+" "+System.getProperty("os.arch")+"; "+app.renderer+"\",\n\"resolution\":\"1100x720; F11 tested separately\",\n\"settings\":\"80 ring voxels plus center and planar mirrored copy; floor grid; up to 12 traces, each 40 pulse voxels and 4 memory voxels; sensitivity 1 then 0.75, motion 1 then 1.25; palette 0 then 1; vsync requested; F10 active during contrasting passages\",\n\"observedAverageFps\":"+fps[0]+",\n\"checks\":[\"selection launch exit return relaunch\",\"missing and unsupported audio recover\",\"file picker WAV plays using native clock\",\"100 Hz bass, 1000 Hz rotation, 6000 Hz illumination\",\"pause stable clock and decay, resume\",\"seek clears effects\",\"onset memory bounded and expires; silence no jitter\",\"completion seek, resume and restart\",\"track replacement clears clock, analysis and effects\",\"zero motion halts rotation and native sensitivity gain changes response\",\"palette sensitivity motion fullscreen and F10\",\"exit frees audio and window\"],\n\"observed\":\"All assertions passed\"\n}\n");
+        Files.writeString(out.resolve("music-playtest.json"),"{\n\"Playtest\":\"Production catalog and MusicVisualizer; Linux X11 inherited role display; isolated synthetic profile; OpenAL Soft null output (physical speakers not tested)\",\n\"platform\":\""+System.getProperty("os.name")+" "+System.getProperty("os.arch")+"; "+app.renderer+"\",\n\"resolution\":\"1100x720; F11 tested separately\",\n\"settings\":\"80 ring voxels plus center and planar mirrored copy; floor grid; up to 12 traces, each 40 pulse voxels and 4 memory voxels; sensitivity 1 then 0.75, motion 1 then 1.25; palette 0 then 1; vsync requested; F10 active during contrasting passages\",\n\"observedAverageFps\":"+fps[0]+",\n\"checks\":[\"selection launch exit return relaunch\",\"missing and unsupported audio recover\",\"antiphase stereo WAV plays using native clock and drives all bands/onsets\",\"left-only and right-only stereo WAVs drive isolated bass\",\"100 Hz bass, 1000 Hz rotation, 6000 Hz illumination\",\"pause stable clock and decay, resume\",\"seek clears effects\",\"onset memory bounded and expires; silence no jitter\",\"completion seek, resume and restart\",\"track replacement clears clock, analysis and effects\",\"zero motion halts rotation and native sensitivity gain changes response\",\"palette sensitivity motion fullscreen and F10\",\"exit frees audio and window\"],\n\"observed\":\"All assertions passed\"\n}\n");
         System.out.println("PASS: music native workflow; average FPS "+fps[0]);System.exit(0);
     }
     static boolean hasChooser(java.awt.Container c){for(java.awt.Component child:c.getComponents()){if(child instanceof JFileChooser)return true;if(child instanceof java.awt.Container group&&hasChooser(group))return true;}return false;}

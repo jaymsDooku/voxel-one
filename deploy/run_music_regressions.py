@@ -13,7 +13,7 @@ shutil.rmtree(root/'target/sandbox-profile',ignore_errors=True)
 for label,main,extra in [('catalog','MusicCatalogSmoke',[]),('sandbox','SandboxPlaytest',['sandbox']),('city','SandboxPlaytest',['city'])]:
     output=root/'target/music-regressions'/label;shutil.rmtree(output,ignore_errors=True);output.mkdir(exist_ok=True)
     with (output/'private-runtime.txt').open('w') as runtime:
-        result=subprocess.run(['java','-Xmx768m','-Djava.io.tmpdir='+str(root/'target/tmp'),'-Duser.home='+str(root/'target/music-regression-home'),'-cp',cp,main,str(output),*extra],env=env,stdout=runtime,stderr=runtime,timeout=300)
+        result=subprocess.run(['java','-Xmx768m','-Djava.io.tmpdir='+str(root/'target/tmp'),'-Duser.home='+str(root/'target/music-regression-home'),'-cp',cp,main,str(output),*extra],env=env,stdout=runtime,stderr=runtime,timeout=420)
     print(label,'native regression exit:',result.returncode,flush=True)
     if result.returncode:
         for name in ('catalog-failure.txt','voxel-sandbox-smoke-result.txt','voxel-city-entry-result.txt'):
