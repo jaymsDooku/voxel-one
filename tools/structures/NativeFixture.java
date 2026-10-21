@@ -65,7 +65,7 @@ public final class NativeFixture {
         try(var gzip=new GZIPOutputStream(bytes);var out=new DataOutputStream(gzip)) {
             out.writeInt(StructurePackage.MAGIC);out.writeInt(StructurePackage.VERSION);out.writeUTF(expected.name);
             for(int n:new int[]{1024,256,1024,0,0,0})out.writeInt(n);
-            out.writeInt(1);definition.write(out);out.writeInt(expected.cells.size());
+            out.writeInt(1);StructureModelCodec.write(out,definition);out.writeInt(expected.cells.size());
             for(var cell:expected.cells){var p=cell.position();cellHeader(out,order(p.x(),p.y(),p.z()),cell.model());if(cell.model()<0)cell.geometry().write(out);}
         }
         if(!Arrays.equals(expected.encode(),bytes.toByteArray()))throw new AssertionError("Native wire differs from production encoder");
@@ -100,7 +100,7 @@ public final class NativeFixture {
                     var name=new String(in.readNBytes(n),java.nio.charset.StandardCharsets.US_ASCII);var tree=new SparseVoxelOctree(f.resolution);
                     for(int v=0;v<f.resolution*f.resolution*f.resolution;v++)tree.set(v%f.resolution,(v/f.resolution)%f.resolution,v/(f.resolution*f.resolution),in.readInt());
                     // This corpus uses the same quarter turn for every occurrence of a dependency.
-                    new ModelDefinition(name,StructureEngine.rotate(tree,id%4)).write(out);
+                    StructureModelCodec.write(out,new ModelDefinition(name,StructureEngine.rotate(tree,id%4)));
                 }
                 byte[] raw=in.readNBytes(Math.multiplyExact(f.leaves,RECORD_BYTES));
                 if(raw.length!=f.leaves*RECORD_BYTES)throw new EOFException("Fixture leaves");

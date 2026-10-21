@@ -328,3 +328,91 @@ fresh F10 MP4 (17 frames, 27.687 seconds) and the player-conflict screenshot.
 Production/harness source hashes match after execution. Media remains local,
 pending controller publication. Publish source and evidence for fresh hosted
 checks; full acceptance remains unfinished. Not ready.
+
+
+## VSTR v2 dependency encoding
+
+Inspected seven available parent `4902a95b` hosted summaries: 784 tests each,
+zero failures/errors and one optional skip each. Verified exact push source
+hashes and PR merge parents against the assigned head/base. No unavailable eighth
+artifact is claimed. Report: `structure-4902-hosted.json`.
+
+New exports use VSTR v2; decoding retains the v1 path. Dependencies use their
+existing octree bytes when smaller, otherwise a bounded occupancy bitmap and
+opaque RGB triples. Standalone model codecs, fingerprints, saved worlds and
+network model transfer remain unchanged. Legacy redundant octree branches retain
+their original bytes so dependency identity survives. Model names, 8/16/32 sizes,
+200,000-byte/8,192-quad limits and package byte limits remain enforced. Dependency
+occupancy, identity and surface caps are now checked during decoding, before
+retaining later dependencies or reading cells. No admission cap was raised.
+
+Final targeted reports contain 52 passing cases: 45 existing regressions and
+seven codec tests. They cover v1 read/resave, all resolutions, air versus opaque
+black, independent bitmap/RGB byte layout, colours/positions, canonical and
+redundant-tree identity, truncated data, unknown modes and early duplicate
+rejection. Native fixture self-test matches the production writer and decoder.
+
+The same city corpus fell from 38,191,053 to 30,258,485 compressed bytes and from
+58,000,837 to 41,073,093 decoded bytes. It now fits 16–32 MiB, but rejects the
+unchanged dependency surface cap. Maximum fell from 55,607,892 to 53,637,310
+compressed bytes and from 309,713,208 to 305,479,992 decoded bytes; it still rejects
+the geometry cap. Two conversions per corpus produce identical SHA-256 hashes.
+These are byte sizes and admission failures, not performance qualification.
+Generated large files remain under target. Report: `structure-v2-validation.json`.
+
+The first graphical run was discarded by its source-hash guard after a legacy
+identity fix. The final native harness adds a dense 8-resolution dependency to
+exercise packed capture/export/import and all four placement rotations alongside
+the existing 32-resolution lamp. Fresh frozen-source validation is required.
+All delegate tasks resolved. No file deletions against the current review base.
+Full city/max admission, atomic chunk publication, persistence beyond 2,000,000
+edits, main-thread budgets and physical GPU/shaped-network system qualification
+remain unfinished. Supported-limit publication and stable rollout remain gated.
+
+
+## Pause checkpoint — VSTR v2 unpublished
+
+Paused on explicit shared-quota/service-control instruction. Parent head is
+`4902a95b47c5e1434b8093e4bd13a292e2fd9d0e` on the assigned feature branch.
+All local code, tests, docs and media remain unpublished and preserved. No Git
+mutation or publication was performed.
+
+Final frozen-source native process exited 0 immediately before the pause. Its
+sanitized report is retained in `structure-native-result.json`. The fresh video
+and screenshots have not yet been independently inspected or hashed for this
+final run. No new tests or implementation started after the pause request.
+
+Resume only when authorized: inspect fresh media, verify source/media hashes,
+finish `structure-v2-validation.json`, then request feature publication and fresh
+exact-head hosted checks. Final targeted reports contain 52 passing tests; native
+VSTR v2 city/maximum conversions repeat byte-identically. City is 30,258,485 bytes
+compressed but rejects dependency surface cap; maximum is 53,637,310 bytes and
+rejects geometry cap. Full city/max implementation and reference qualification
+remain unfinished. Safety caps and rollout gates remain in place. Not ready.
+
+
+## Resume — VSTR v2 media verified
+
+Resumed under current controller authorization. The final native run passed with
+both the existing 32-resolution lamp and a dense 8-resolution component selected
+to exercise packed encoding. Verified the complete production/harness path set
+and hashes. Decoded the fresh 17-frame, 27.033-second F10 clip; inspected a decoded
+frame, player-conflict screenshot and component closeup. Video SHA-256:
+`66d922cfb08acbc6bfbc55587e5b66dd0682d723389de7450b0f4333fbba5671`.
+
+Playtest: real Main/GLFW/X11 workflow on inherited display and isolated synthetic
+profile, llvmpipe LOW/detail32/horizon512/scale0.5 with shadows/AA/dynamic OFF.
+Capture/export/import, both model encodings, all four rotations, conflict and
+live-player rejection, empty-space preservation, cancellation, malformed import,
+undo, repeat placement, restart, inventory and model-editor regressions passed.
+The 52 targeted test results are retained from before the pause; no unnecessary
+rerun is claimed. Updated `structure-v2-validation.json` contains commands,
+observed results and the media receipt. No file deletions against the review
+base. All helper tasks resolved; no pending assets.
+
+Implementation, docs and media are still unpublished. Request controller feature
+validation to publish the assigned branch and get fresh exact-head checks.
+City now fits the package-size target but still rejects dependency surface cap;
+maximum still rejects geometry cap. Full admission/storage/atomic chunk work,
+2,000,000-edit persistence ceiling and 20-run reference GPU/network/system
+qualification remain unfinished. Gates stay closed. Not ready.
