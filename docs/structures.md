@@ -57,7 +57,7 @@ geometry; model definitions are copied and frozen.
 
 ## Format and safety limits
 
-VSTR version 1 is a strict gzip-compressed binary package with name, dimensions,
+VSTR version 2 is a strict gzip-compressed binary package with name, dimensions,
 anchor, deduplicated model definitions and occupied cells ordered by 16-cell
 spatial sections. Geometry keeps its original 1/16-cell detail; voxel models keep
 their own 8/16/32 resolution, colours and 8,192-quad/200,000-byte per-model limits.
@@ -73,7 +73,7 @@ and lengths. Invalid dimensions/counts fail before world publication.
 Validated packages retain cell coordinates and model references in primitive arrays,
 with frozen geometry references. Reading a cell creates a temporary record; the
 public list remains immutable and spatially ordered. This reduces retained
-per-cell objects without changing v1 export bytes or increasing admission limits.
+per-cell objects without increasing admission limits.
 Constructor validation uses primitive sort keys for canonical ordering and duplicate
 detection. Capture/decode accumulate cells in bounded primitive buffers and pass a temporary
 read-only view through full constructor validation. Capture copies source trees
@@ -151,3 +151,28 @@ footprint bounds limit each coordinate key to 28 bits. Sorted keys use binary
 search for lookups; the authority still receives the same immutable Map API.
 This reduces retained staging storage on the measured small fixture. It does
 not remove owner-thread commit, mesh, persistence, history or admission limits.
+
+
+VSTR readers accept versions 1 and 2; new exports use version 2. Version 1 readers
+reject version 2 packages. Existing standalone voxel-model files, model transfer,
+model fingerprints and saved-world formats are unchanged. A v1 package is decoded
+with its original model codec and can be exported as v2 without changing content.
+
+Version 2 adds one encoding byte per model dependency. Mode 0 contains the
+existing length-prefixed `ModelDefinition` representation. Mode 1 contains the
+name (Java modified UTF, validated as 1–32 ASCII name characters), a resolution
+byte (8, 16 or 32), a fixed occupancy bitmap of resolution³/8 bytes, then RGB
+triples for occupied voxels. Index order is x fastest, then y, then z; voxel i
+uses bit `1 << (i & 7)` of byte `i >>> 3`. Air has no RGB triple; opaque black has
+a set occupancy bit and three zero bytes. Alpha is restored as 255. Encoding
+chooses the smaller representation before writing. Legacy definitions containing
+redundant octree branches retain mode 0 so their exact fingerprints survive. Sparse/uniform components
+usually retain their existing octree bytes; dense components avoid per-voxel
+alpha and octree-node overhead. Decoding still enforces existing model limits,
+package budgets, surface/geometry limits and dependency validation. This format
+change does not qualify city admission or performance.
+
+
+Import validates each dependency's identity, occupancy and surface budget as it
+is decoded, before retaining later definitions or reading world cells. The final
+package validation still checks references, geometry, counts and byte integrity.

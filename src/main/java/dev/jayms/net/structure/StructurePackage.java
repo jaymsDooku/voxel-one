@@ -10,7 +10,7 @@ import java.util.zip.*;
 
 /** Experimental, immutable physical construction. No entities, inventory or simulation state. */
 public final class StructurePackage {
-    public static final int MAGIC=0x56535452, VERSION=1;
+    public static final int MAGIC=0x56535452, VERSION=2;
     public static final long COMPRESSED=64L*1024*1024, DECODED=512L*1024*1024;
     public static final int MAX_CELLS=4_000_000, MAX_MODELS=512;
     // Development safety caps, NOT supported-city/performance qualifications.
@@ -120,7 +120,7 @@ public final class StructurePackage {
         try(var compressed=new BudgetOutput(bytes,COMPRESSED);var gzip=new GZIPOutputStream(compressed);var out=new DataOutputStream(new BudgetOutput(gzip,DECODED))) {
             out.writeInt(MAGIC);out.writeInt(VERSION);out.writeUTF(name);
             out.writeInt(bounds.x);out.writeInt(bounds.y);out.writeInt(bounds.z);out.writeInt(bounds.ax);out.writeInt(bounds.ay);out.writeInt(bounds.az);
-            out.writeInt(models.size());for(var model:models)model.write(out);
+            out.writeInt(models.size());for(var model:models)StructureModelCodec.write(out,model);
             out.writeInt(cells.size());
             for(var cell:cells) {
                 out.writeShort(cell.position.x/16);out.writeByte(cell.position.y/16);out.writeShort(cell.position.z/16);
@@ -136,12 +136,20 @@ public final class StructurePackage {
             throw new IOException("Invalid structure gzip header");
         var payload=new ByteArrayInputStream(bytes,10,bytes.length-18);var inflater=new Inflater(true);var crc=new CRC32();
         try(var raw=new InflaterInputStream(payload,inflater);var checked=new CheckedInputStream(raw,crc);var budget=new BudgetInput(checked,DECODED);var in=new DataInputStream(budget)) {
-            if(in.readInt()!=MAGIC||in.readInt()!=VERSION)throw new IOException("Unsupported structure package");
+            if(in.readInt()!=MAGIC)throw new IOException("Unsupported structure package");
+            int version=in.readInt();if(version!=1&&version!=VERSION)throw new IOException("Unsupported structure package");
             String name=Protocol.readText(in,48);Bounds bounds;
             try {bounds=new Bounds(in.readInt(),in.readInt(),in.readInt(),in.readInt(),in.readInt(),in.readInt());}
             catch(IllegalArgumentException e){throw new IOException(e.getMessage(),e);}
             int n=in.readInt();if(n<0||n>MAX_MODELS)throw new IOException("512 dependency limit");
-            var models=new ArrayList<ModelDefinition>();for(int i=0;i<n;i++)models.add(ModelDefinition.read(in));
+            var models=new ArrayList<ModelDefinition>();var identities=new HashSet<String>();long dependencyQuads=0;
+            for(int i=0;i<n;i++) {
+                cancelled(()->false);var model=version==1?ModelDefinition.read(in):StructureModelCodec.read(in);
+                if(model.voxels().occupied()==0||!identities.add(model.fingerprint()))throw new IOException("Empty or duplicate dependency");
+                dependencyQuads+=ModelMesher.mesh(model.voxels()).quads();
+                if(dependencyQuads>MAX_DEPENDENCY_QUADS)throw new IOException("Experimental dependency surface cap");
+                models.add(model);
+            }
             n=in.readInt();if(n<1||n>MAX_CELLS)throw new IOException("Occupied cell limit");
             var cells=new StructureCells.Builder();long last=-1;int leaves=0,instances=0;
             for(int i=0;i<n;i++) {
