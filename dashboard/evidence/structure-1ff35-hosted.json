@@ -1,0 +1,104 @@
+{
+  "sourceHead": "1ff35d4f1b27a9da76ca84430fb4423e3e521aad",
+  "base": "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+  "qualification": "Hosted regression checks only; city/max qualification pending",
+  "summaries": [
+    {
+      "run": 39612953917,
+      "name": "maven-test-summary-windows",
+      "sourceHead": "1ff35d4f1b27a9da76ca84430fb4423e3e521aad",
+      "totals": {
+        "tests": 776,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39612953917,
+      "name": "maven-test-summary-linux",
+      "sourceHead": "1ff35d4f1b27a9da76ca84430fb4423e3e521aad",
+      "totals": {
+        "tests": 776,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39612953917,
+      "name": "maven-test-summary-mac-arm",
+      "sourceHead": "1ff35d4f1b27a9da76ca84430fb4423e3e521aad",
+      "totals": {
+        "tests": 776,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39612953917,
+      "name": "maven-test-summary-mac-intel",
+      "sourceHead": "1ff35d4f1b27a9da76ca84430fb4423e3e521aad",
+      "totals": {
+        "tests": 776,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39612958778,
+      "name": "maven-test-summary-mac-intel",
+      "sourceHead": "6e2f18dedf70f95b7db2597c8306911122cbe1d2",
+      "totals": {
+        "tests": 776,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39612958778,
+      "name": "maven-test-summary-mac-arm",
+      "sourceHead": "6e2f18dedf70f95b7db2597c8306911122cbe1d2",
+      "totals": {
+        "tests": 776,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39612958778,
+      "name": "maven-test-summary-linux",
+      "sourceHead": "6e2f18dedf70f95b7db2597c8306911122cbe1d2",
+      "totals": {
+        "tests": 776,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39612958778,
+      "name": "maven-test-summary-windows",
+      "sourceHead": "6e2f18dedf70f95b7db2597c8306911122cbe1d2",
+      "totals": {
+        "tests": 776,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    }
+  ],
+  "prMergeParents": [
+    "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+    "1ff35d4f1b27a9da76ca84430fb4423e3e521aad"
+  ],
+  "publishedMedia": {
+    "path": "dashboard/evidence/structure-workflow.mp4",
+    "sha256": "b3e8bbb78bd8ce4228637cb6f3ef84ee60a7d2fc70d3009ea3ad77577df35074",
+    "matchesPublishedHead": true
+  }
+}
