@@ -26,6 +26,8 @@ public final class StructurePackage {
     public record Cell(Position position,SparseVoxelOctree geometry,int model) {}
     public interface Source {
         SparseVoxelOctree cell(int x,int y,int z);
+        /** Conservative snapshot hint: true means empty; false may mean unknown. */
+        default boolean emptyCell(int x,int y,int z){return false;}
         ModelLibrary models();
     }
     public final String name;
@@ -85,19 +87,21 @@ public final class StructurePackage {
         for(int y=0;y<bounds.y;y++)for(int z=0;z<bounds.z;z++)for(int x=0;x<bounds.x;x++) {
             cancelled(cancel);var p=new Position(x,y,z);
             if(!new Protocol.Edit(origin.x+x,origin.y+y,origin.z+z,0).valid())throw new IOException("Capture outside world");
-            var tree=source.cell(origin.x+x,origin.y+y,origin.z+z);
-            int type=WorldVoxels.decode(tree.uniform(0,0,0,16));
-            if(Blocks.isModel(type)) {
-                var entry=source.models().get(type);if(entry==null)throw new IOException("Missing captured model");
-                var definition=entry.definition();var fingerprint=definition.fingerprint();Integer id=ids.get(fingerprint);
-                if(id==null) {id=definitions.size();if(id>=MAX_MODELS)throw new IOException("512 dependency limit");ids.put(fingerprint,id);definitions.add(definition);}
-                if(++instances>MAX_INSTANCES)throw new IOException("Experimental instance cap");
-                cells.add(new Cell(p,null,id));
-            } else if(tree.occupied()!=0) {
-                leaves+=tree.leaves().size();if(leaves>MAX_LEAVES)throw new IOException("Experimental geometry cap");
-                cells.add(new Cell(p,tree,-1));
+            if(!source.emptyCell(origin.x+x,origin.y+y,origin.z+z)) {
+                var tree=source.cell(origin.x+x,origin.y+y,origin.z+z);
+                int type=WorldVoxels.decode(tree.uniform(0,0,0,16));
+                if(Blocks.isModel(type)) {
+                    var entry=source.models().get(type);if(entry==null)throw new IOException("Missing captured model");
+                    var definition=entry.definition();var fingerprint=definition.fingerprint();Integer id=ids.get(fingerprint);
+                    if(id==null) {id=definitions.size();if(id>=MAX_MODELS)throw new IOException("512 dependency limit");ids.put(fingerprint,id);definitions.add(definition);}
+                    if(++instances>MAX_INSTANCES)throw new IOException("Experimental instance cap");
+                    cells.add(new Cell(p,null,id));
+                } else if(tree.occupied()!=0) {
+                    leaves+=tree.leaves().size();if(leaves>MAX_LEAVES)throw new IOException("Experimental geometry cap");
+                    cells.add(new Cell(p,tree,-1));
+                }
+                if(cells.size()>MAX_CELLS)throw new IOException("Occupied cell limit");
             }
-            if(cells.size()>MAX_CELLS)throw new IOException("Occupied cell limit");
             if((++done&1023)==0)progress.accept((int)(done*100/volume));
         }
         cancelled(cancel);progress.accept(100);return new StructurePackage(name,bounds,definitions,cells);
