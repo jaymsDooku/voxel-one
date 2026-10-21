@@ -1,0 +1,32 @@
+{
+  "complete": true,
+  "sourceHead": "63cc43a80b0d3eef5543f32b58f1d5c1133477f7",
+  "results": [
+    {
+      "scenario": "compile",
+      "exitCode": 0,
+      "artifactsSha256": {}
+    },
+    {
+      "scenario": "catalog",
+      "exitCode": 0,
+      "artifactsSha256": {
+        "landscape-regression-music-catalog.txt": "ca0ea979675b546f93b107613850656ce34a379ffdd8e59d040dd871edd2cdf7"
+      }
+    },
+    {
+      "scenario": "sandbox",
+      "exitCode": 0,
+      "artifactsSha256": {
+        "landscape-regression-voxel-sandbox-smoke-result.txt": "12aa1cdec71b64a849ede070480b9480dee2a868458fb76590d611438aa8a421"
+      }
+    },
+    {
+      "scenario": "city",
+      "exitCode": 0,
+      "artifactsSha256": {
+        "landscape-regression-voxel-city-entry-result.txt": "234b74ce15282ae092d9f93106501b2d9375edac8670ca31cadb0bf5df938c45"
+      }
+    }
+  ]
+}

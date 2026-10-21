@@ -17,7 +17,7 @@
     {
       "id": "living-landscape",
       "title": "Living music landscape",
-      "description": "Living voxel terrain, rooted vegetation, water and bounded audio reactions in the existing music client.",
+      "description": "Living voxel terrain, rooted vegetation, water and bounded musical effects; controls and native audio retained.",
       "evidence": [
         {
           "kind": "report",
@@ -61,8 +61,8 @@
         }
       ],
       "status": "in_progress",
-      "note": "Rebase audited; trail fading/visible-surface placement fixed. Local 24 tests/package, WAV/MP3 lifecycle, natural all-effect expiry, catalog/Sandbox/City integration and all three timing pairs passed. Fresh F10: 233 decoded frames, 18.409 s, 2742106 bytes. Controller publication, hosted exact-source checks and 1800-second soak remain pending; physical GPU/audio qualification still gates rollout.",
-      "updatedAt": "2026-10-20T23:26:53+00:00"
+      "note": "Rebase recovered; retained other features. Local 24 tests/package, catalog/Sandbox/City and full music lifecycle passed. Fixed regression fixture to leave retained Recipe Book through real Escape; fresh report hashes prevent stale PASS evidence. Fresh F10: 2121375 bytes, 177 decoded frames, 18.951 s; screenshots inspected. Historical hosted 1800.05 s soak/resources/performance reviewed separately. New exact-head hosted qualification and physical GPU/audio remain pending; rollout gated.",
+      "updatedAt": "2026-10-21T11:55:08+00:00"
     },
     {
       "id": "2ae7c6f2-358b-4d7a-8906-4c3687cda4ff",
