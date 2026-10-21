@@ -4017,8 +4017,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Corrected hosted builds passed on all platforms. City preparation now shares repeated immutable geometry and retains undo above the history target; 21 focused/integration tests and bounded 16,384-cell allocation probe passed. Full city/max implementation and qualification remain unfinished.",
-      "updatedAt": "2026-10-21T10:56:36+00:00"
+      "note": "Body-local collision probes passed 24 tests, 800 reference comparisons and full native workflow. CPU-only 1m-cell/32-pose guard p95 2.216 ms vs parent 86.661 ms. City/max implementation and full qualification remain unfinished.",
+      "updatedAt": "2026-10-21T11:28:25+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

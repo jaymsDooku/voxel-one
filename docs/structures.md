@@ -33,15 +33,19 @@ citizen, horse and cow bodies. Every nonempty resulting cell is checked as a who
 cell, including fractional geometry and model instances. Bodies entering after
 preview or staging reject the entire commit without dependency, geometry or save
 changes. The same check applies to undo restoring nonempty cells; undo removing
-geometry may proceed around bodies. Escape or `cancel` requests cancellation before commit.
+geometry may proceed around bodies. Commit-time validation probes changed cells
+under each live body instead of scanning the full structure for every body;
+reservation sizes and authority locking remain the same. Escape or `cancel`
+requests cancellation before commit.
 A completed commit cannot be cancelled. In multiplayer, cancellation is confirmed
 by the server and can arrive after upload; do not assume a request rolled back an
 already completed placement.
 
 `undo` reverses the most recent retained placement as one operation. It refuses
 to overwrite cells changed since placement; unrelated cells are preserved. Undo
-history is session-local, at most eight records per actor and 262,144 occupied
-cells across the world. Old records can age out. Dependencies remain deduplicated
+history is session-local, with at most eight records per actor and a global target
+of 262,144 occupied cells. Older records age out first; the newest admitted
+placement remains undoable even when it exceeds that target. Dependencies remain deduplicated
 after undo so other placed copies continue to work.
 
 `export` writes the selected self-contained package to the library's `exports`
