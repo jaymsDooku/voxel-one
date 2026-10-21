@@ -20,6 +20,37 @@ class StructureTest {
         return new StructurePackage("House",new Bounds(80,256,16,1,2,3),List.of(new ModelDefinition("Component",model)),
                 List.of(new Cell(new Position(0,0,0),geometry,-1),new Cell(new Position(79,255,15),null,0)));
     }
+    @Test void compactPackageCellsKeepCoordinateExtremesModelsAndImmutableSnapshots() throws Exception {
+        var stone=new SparseVoxelOctree(16);stone.fill(0,0,0,16,16,16,WorldVoxels.encode(Blocks.STONE));
+        var component=new SparseVoxelOctree(32);component.set(31,31,31,0xffabcdef);
+        var input=new ArrayList<Cell>();
+        input.add(new Cell(new Position(1023,255,1023),stone,-1));
+        input.add(new Cell(new Position(0,0,0),null,0));
+        input.add(new Cell(new Position(1023,0,0),stone,-1));
+        input.add(new Cell(new Position(0,255,1023),stone,-1));
+        var asset=new StructurePackage("Coordinate extremes",new Bounds(1024,256,1024,0,0,0),
+            List.of(new ModelDefinition("Corner component",component)),input);
+        input.clear();stone.set(0,0,0,0);component.set(31,31,31,0);
+        assertEquals(4,asset.cells.size());
+        assertEquals(new Position(0,0,0),asset.cells.get(0).position());assertEquals(0,asset.cells.get(0).model());
+        var positions=new HashSet<Position>();
+        for(var cell:asset.cells) {
+            positions.add(cell.position());
+            if(cell.model()<0){assertEquals(4096,cell.geometry().occupied());assertThrows(IllegalStateException.class,()->cell.geometry().set(0,0,0,0));}
+        }
+        assertEquals(Set.of(new Position(0,0,0),new Position(1023,255,1023),new Position(1023,0,0),new Position(0,255,1023)),positions);
+        assertEquals(1,asset.models.get(0).voxels().occupied());
+        assertThrows(IndexOutOfBoundsException.class,()->asset.cells.get(-1));
+        assertThrows(IndexOutOfBoundsException.class,()->asset.cells.get(4));
+        assertThrows(UnsupportedOperationException.class,()->asset.cells.set(0,asset.cells.get(0)));
+        assertThrows(UnsupportedOperationException.class,()->asset.cells.add(asset.cells.get(0)));
+        assertThrows(UnsupportedOperationException.class,()->asset.cells.remove(0));
+        assertThrows(UnsupportedOperationException.class,()->asset.cells.subList(0,1).clear());
+        var loaded=StructurePackage.decode(asset.encode());
+        assertEquals(asset.cells.stream().map(Cell::position).toList(),loaded.cells.stream().map(Cell::position).toList());
+        assertEquals(asset.cells.stream().map(Cell::model).toList(),loaded.cells.stream().map(Cell::model).toList());
+        assertArrayEquals(asset.encode(),loaded.encode());
+    }
     @Test void importCommandRetainsLongPathsAndBoundsInput() throws Exception {
         try(var menu=new dev.jayms.ui.StructureMenu(folder)) {
             String command="import /"+"nested directory/".repeat(30)+"house.vstr";

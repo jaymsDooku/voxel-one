@@ -74,7 +74,7 @@ public final class StructurePackage {
         }
         // Spatial partition order: 16-cell sections, then local cell index.
         entries.sort(Comparator.comparingLong(c->order(c.position)));
-        this.cells=List.copyOf(entries);leafCount=leaves;instanceCount=instances;
+        this.cells=new StructureCells(entries);leafCount=leaves;instanceCount=instances;
     }
     private static long order(Position p) {
         long section=(p.y/16L*64+p.z/16)*64+p.x/16;
