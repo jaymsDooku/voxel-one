@@ -4017,8 +4017,8 @@
       "description": "Building the catalog-driven desktop hub around verified client updates. Platform packaging and playtests remain required.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Rebased source 3f40eaed: five publisher tests, six process controls and fresh unavailable-web Hub playtest passed. Workflow guards preserved; no unrelated deletions. Maven dependency retrieval failed; hosted packages, preview delivery and physical qualification remain pending.",
-      "updatedAt": "2026-10-20T22:42:29+00:00"
+      "note": "Recovered7006610f includes positive-major preview packaging fix. Five publisher tests, six process controls and fresh unavailable-web Hub playtest passed; screenshot inspected. Source checks passed, no unrelated deletions. Controller publication and native/physical/public-upgrade qualification remain pending.",
+      "updatedAt": "2026-10-21T11:35:21+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
