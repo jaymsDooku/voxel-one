@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "parent_head": "5b655182c5cfe0d3392a0857796813417716905f",
+  "change": "Functional sky ticket ordering/fairness test uses bounded 10-second scheduling allowance instead of 10 ms; production scheduler unchanged; priority and distant-fairness assertions retained",
+  "reason": "Shared-runner/cold-start preemption can consume the 7.5 ms capture window. Suspected timing dependence; retained failure artifact names the test but exact assertion was not available in scoped logs. No proven Windows pass claimed.",
+  "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=dev.jayms.render.SkyVisibilitySchedulerTest test",
+  "results": {
+    "tests": "19",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0"
+  },
+  "playtest": "Playtest: test-only change exercised through actual Maven scheduler suite. Browser/native rerun does not apply to the changed test; production and native harness hashes verified identical to completed long-import-path Main/GLFW playtest manifest. Existing media remains valid for production source.",
+  "audit": "No file deletions against review base; git diff --check passed; MP3 and Hub changes retained",
+  "qualification": "City/max implementation, physical GPU, shaped-network and 20-run performance remain unfinished. Not ready.",
+  "publication": "Pending controller publication and new Windows/Mac hosted validation"
+}
