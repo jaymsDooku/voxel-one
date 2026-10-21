@@ -70,6 +70,12 @@ Enforced format ceilings are 1,024×256×1,024 cells, 4,000,000 occupied cells,
 the version, order, duplicate positions, material values, references, gzip CRC
 and lengths. Invalid dimensions/counts fail before world publication.
 
+Validated packages retain cell coordinates and model references in primitive arrays,
+with frozen geometry references. Reading a cell creates a temporary record; the
+public list remains immutable and spatially ordered. This reduces retained
+per-cell objects without changing v1 export bytes or increasing admission limits.
+Constructor validation and placement staging still need further memory work.
+
 Additional provisional development caps are 131,072 geometry leaves and 16,384
 model instances per package, 1,048,576 model-definition surface quads,
 1,048,576 instance-weighted model quads, and 262,144 instance-weighted
