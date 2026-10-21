@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-21T12:06:01+00:00",
+  "updatedAt": "2026-10-21T12:35:35+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4017,8 +4017,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Body-local collision probes passed 24 tests, 800 reference comparisons and full native workflow. CPU-only 1m-cell/32-pose guard p95 2.216 ms vs parent 86.661 ms. City/max implementation and full qualification remain unfinished.",
-      "updatedAt": "2026-10-21T11:28:25+00:00"
+      "note": "Rebased source: sparse capture hint passed 31 Java tests, six Hub tests and full native workflow. CPU probe kept identical package bytes with one octree read instead of 1,048,576. City/max implementation and full qualification remain unfinished.",
+      "updatedAt": "2026-10-21T12:35:35+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

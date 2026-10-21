@@ -249,6 +249,7 @@ public class World implements AutoCloseable {
         var geometry=voxels.snapshot();var definitions=models().copy();
         return new dev.jayms.net.structure.StructurePackage.Source() {
             public SparseVoxelOctree cell(int x,int y,int z){return geometry.cell(x,y,z);}
+            public boolean emptyCell(int x,int y,int z){return geometry.type(x,y,z)==0;}
             public ModelLibrary models(){return definitions;}
         };
     }
