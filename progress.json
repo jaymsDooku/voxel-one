@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-19T22:36:08+00:00",
+  "updatedAt": "2026-10-21T12:22:26+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -3884,6 +3884,15 @@
       "status": "complete",
       "note": "Removed 273 obsolete worktrees, reducing the queue folder from 118.51 to 10.09 GiB and recovering 103.79 GiB of filesystem space. Exact commits, local edits and test evidence were preserved and verified; two current launcher checkouts remain. Repaired launcher checkout collisions and verified developer-2 resumed work.",
       "updatedAt": "2026-10-19T22:36:08+00:00"
+    },
+    {
+      "id": "agent-recovery-2026-10-21",
+      "title": "Restore reliable work-queue execution",
+      "description": "Reviewed native startup, source-context recovery, reviewer media and passive-wait shutdown fixes are installed. Final optional-helper integration is under independent review; preserved game work is resuming.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Reviewed native startup, source-context recovery, reviewer media and passive-wait shutdown fixes are installed. Final optional-helper integration is under independent review; preserved game work is resuming.",
+      "updatedAt": "2026-10-21T12:22:26+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
