@@ -70,7 +70,8 @@ public final class StructureEngine {
         private final BooleanSupplier cancel;
         private boolean closed;
         private Prepared(Map<Position,SparseVoxelOctree> after,ModelLibrary staged,long revision,BooleanSupplier cancel,SparseVoxelOctree empty) {
-            this.after=Map.copyOf(after);this.before=emptyBeforeImage(this.after,empty);this.staged=staged;modelRevision=revision;this.cancel=cancel;
+            // prepare supplies an immutable compact map; copying would recreate every key/entry.
+            this.after=after;this.before=emptyBeforeImage(this.after,empty);this.staged=staged;modelRevision=revision;this.cancel=cancel;
         }
         public Map<Position,SparseVoxelOctree> cells(){return after;}
         public void commit(String owner,Authority authority) throws IOException {
@@ -123,7 +124,7 @@ public final class StructureEngine {
                 cancelled(cancel);var def=asset.models.get(i);
                 modelIds[i]=staged.stageStructureModel(new ModelDefinition(def.name(),rotate(def.voxels(),rotation))).id();
             }
-            var after=new LinkedHashMap<Position,SparseVoxelOctree>();int count=0;
+            var cells=new StructurePlacementCells.Builder(box,asset.cells.size());int count=0;
             var empty=new SparseVoxelOctree(16).freeze();
             var uniformGeometry=new HashMap<Integer,SparseVoxelOctree>();
             var instances=new HashMap<Integer,SparseVoxelOctree>();
@@ -143,8 +144,9 @@ public final class StructureEngine {
                     if(uniform==-1)next=rotate(cell.geometry(),rotation);
                     else {next=uniformGeometry.get(uniform);if(next==null){next=rotate(cell.geometry(),rotation);uniformGeometry.put(uniform,next);}}
                 }
-                after.put(p,next);if((++count&127)==0)progress.accept(count*100/asset.cells.size());
+                cells.add(p,next);if((++count&127)==0)progress.accept(count*100/asset.cells.size());
             }
+            var after=cells.build();
             validateChunks(after,snapshot,staged,cancel);
             cancelled(cancel);progress.accept(100);var result=new Prepared(after,staged,revision,cancel,empty);complete=true;return result;
         } finally {if(!complete)busy.set(false);}

@@ -143,3 +143,11 @@ image is empty. The authority still checks for later changes before undo.
 Detached chunk validation checks staged cells first. For untouched cells, the
 snapshot may skip an octree lookup only when its conservative hint proves air.
 Unknown hints retain the full cell read; mesh and model budgets still apply.
+
+
+Placement staging retains immutable relative-coordinate arrays and frozen tree
+references instead of one object key and hash-map entry per occupied cell. The
+footprint bounds limit each coordinate key to 28 bits. Sorted keys use binary
+search for lookups; the authority still receives the same immutable Map API.
+This reduces retained staging storage on the measured small fixture. It does
+not remove owner-thread commit, mesh, persistence, history or admission limits.
