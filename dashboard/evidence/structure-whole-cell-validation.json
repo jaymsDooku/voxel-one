@@ -1,0 +1,124 @@
+{
+  "schema": 1,
+  "parentHead": "9eea982587a4b3f4cb8bc9faaa2f7a4eea556712",
+  "change": "Server structure staging replaces complete cells in its private copy-on-write geometry snapshot instead of replaying leaves. History replay, save-before-publication order, admission caps and formats remain unchanged. Replacement copies the tree wrapper before freezing; persistent nodes are shared. Ordinary apply now routes through replacement and adds a wrapper copy; no universal ordinary-edit speedup is claimed.",
+  "tests": {
+    "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=WorldVoxelSnapshotTest,StructureTest,StructureMultiplayerTest,StructureOccupancyTest test",
+    "suites": [
+      {
+        "name": "dev.jayms.WorldVoxelSnapshotTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.434"
+      },
+      {
+        "name": "dev.jayms.StructureTest",
+        "tests": "24",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "4.456"
+      },
+      {
+        "name": "dev.jayms.StructureMultiplayerTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "23.609"
+      },
+      {
+        "name": "dev.jayms.StructureOccupancyTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "7.705"
+      }
+    ],
+    "total": 37,
+    "initial_attempt": "One new test fixture errored because SparseVoxelOctree.set rejects LED alpha 254. Changed fixture to fill, which handles world materials. Repeated selected suites passed. No runtime validation was relaxed.",
+    "focused_rerun": "Repeated WorldVoxelSnapshotTest after adding an explicit 0xfe123456 sentinel to strengthen aliasing/air-replacement assertions: four tests passed, zero failures/errors/skips. Production source unchanged."
+  },
+  "probe": {
+    "compile": "javac --release 17 -cp target/classes -d target tools/structures/WholeCellProbe.java",
+    "command": "java -Xms512m -Xmx512m -cp target:target/classes WholeCellProbe > target/structure-whole-cell-probe.jsonl",
+    "results": [
+      {
+        "operation": "replay",
+        "cells": 64,
+        "leaves_per_cell": 512,
+        "warmups": 3,
+        "runs": 20,
+        "median_ms": 20.047156,
+        "p95_ms": 28.671589,
+        "worst_ms": 38.647318,
+        "median_thread_allocated_bytes": 13577760
+      },
+      {
+        "operation": "replace",
+        "cells": 64,
+        "leaves_per_cell": 512,
+        "warmups": 3,
+        "runs": 20,
+        "median_ms": 0.012723,
+        "p95_ms": 0.027545,
+        "worst_ms": 0.031195,
+        "median_thread_allocated_bytes": 7840
+      }
+    ],
+    "scope": "Geometry-only CPU staging of 64 cells with 512 fractional leaves each. Three warmups and 20 samples per path; input construction, history, save, transfer, rendering and package admission excluded. Thread allocated bytes are not peak memory. Negative coordinates and unchanged snapshot/unrelated cell verified every sample. This is not a city/max benchmark. Both measured paths use the current apply/replace API in one JVM; this is not a timed parent-revision comparison."
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": {
+      "Architecture": "x86_64",
+      "CPU(s)": "4",
+      "Model name": "Intel Core Processor (Haswell, no TSX)",
+      "Thread(s) per core": "1",
+      "Core(s) per socket": "1",
+      "Socket(s)": "4"
+    },
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "scope": "Development VPS; not reference physical GPU/network qualification."
+  },
+  "qualification": "Full city/max admission, atomic chunk publication, 2,000,000-edit history ceiling, reference physical GPU/shaped-network/32 rendered-client and 20-run system budgets remain unfinished. No supported-city or ready claim.",
+  "delegate": "Helper failed without a proposal; explicitly resolved self. Inspected and tested implementation independently.",
+  "audit": "No files deleted against review base 4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a. Intended removed lines replace the global cell map with chunk COW storage, add structure protocol 31 alongside legacy client fallbacks, validate world-cell resolution before decoding, and avoid inventory icons for world-only dependencies. Compatibility tests update protocol expectations while retaining existing city/save assertions. MP3, Hub and Asset Manager features retained. This milestone replaces only server geometry leaf replay and shares the cell install path; diff check passed.",
+  "publication": "Local source/report/media require controller publication and fresh exact-source checks. Parent hosted report is historical for these edits.",
+  "Playtest": {
+    "status": "passed",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "platform": "Native Main/GLFW/X11, inherited display and authentication, isolated synthetic profile; browser testing does not apply to this native game workflow.",
+    "observed": {
+      "status": "passed",
+      "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+      "source_manifest": "structure-native-source.json",
+      "source_manifest_sha256": "7ea4a9a0be288efbc41b4d243c6896e602eb91112024337d29ae2db2a848100c",
+      "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+      "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+      "publication": "Local evidence pending controller publication"
+    },
+    "expected": "Complete native capture/export/import/preview/four rotations, conflict rejection without mutation, cancellation, undo, repeated placement and restart, plus inventory/model editor regressions.",
+    "media_inspection": "Viewed decoded F10 frame, live-player conflict screenshot and component close-up from this run. Synthetic profile only; no private data.",
+    "video": {
+      "file": "structure-workflow.mp4",
+      "codec": "H264",
+      "frames": 17,
+      "seconds": 27.148,
+      "bytes": 362256,
+      "sha256": "9ce34c04f7b03883f375fb24d308558f463f9b72cf16cb0cfd771f4c34f1ef63"
+    },
+    "qualification": "llvmpipe software rendering about 1 FPS; no physical GPU/30 FPS claim. Native offline workflow is a regression check; the real TLS multiplayer test exercises the changed server staging path."
+  },
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/WorldVoxels.java": "6fa711e8e4781821a2168ce2bf53461396ba6faf992a44709eae1a4f3151a483",
+    "src/main/java/dev/jayms/net/MultiplayerServer.java": "29cb44be87f91ab6e5ac86121af78805e491a9b1c90c7d904699b9b61943b474",
+    "src/test/java/dev/jayms/WorldVoxelSnapshotTest.java": "6bbca8ee0e6fa5933bf221371c20895d0cda0b3d8de0af4ae1d3a30a574f7609",
+    "tools/structures/WholeCellProbe.java": "0daf4606ef8ea46a6cf3027db69093c2269453db107a06438bfc3e7e53c10ffa"
+  }
+}
