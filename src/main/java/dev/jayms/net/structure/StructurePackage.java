@@ -81,7 +81,7 @@ public final class StructurePackage {
     }
     public static StructurePackage capture(String name,Bounds bounds,Position origin,Source source,
                                            BooleanSupplier cancel,IntConsumer progress) throws IOException {
-        var cells=new ArrayList<Cell>();var definitions=new ArrayList<ModelDefinition>();var ids=new HashMap<String,Integer>();int leaves=0,instances=0;
+        var cells=new StructureCells.Builder();var definitions=new ArrayList<ModelDefinition>();var ids=new HashMap<String,Integer>();int leaves=0,instances=0;
         long volume=(long)bounds.x*bounds.y*bounds.z,done=0;
         for(int y=0;y<bounds.y;y++)for(int z=0;z<bounds.z;z++)for(int x=0;x<bounds.x;x++) {
             cancelled(cancel);var p=new Position(x,y,z);
@@ -94,16 +94,16 @@ public final class StructurePackage {
                     var definition=entry.definition();var fingerprint=definition.fingerprint();Integer id=ids.get(fingerprint);
                     if(id==null) {id=definitions.size();if(id>=MAX_MODELS)throw new IOException("512 dependency limit");ids.put(fingerprint,id);definitions.add(definition);}
                     if(++instances>MAX_INSTANCES)throw new IOException("Experimental instance cap");
-                    cells.add(new Cell(p,null,id));
+                    cells.add(p,null,id);
                 } else if(tree.occupied()!=0) {
                     leaves+=tree.leaves().size();if(leaves>MAX_LEAVES)throw new IOException("Experimental geometry cap");
-                    cells.add(new Cell(p,tree,-1));
+                    cells.add(p,tree.copy().freeze(),-1);
                 }
                 if(cells.size()>MAX_CELLS)throw new IOException("Occupied cell limit");
             }
             if((++done&1023)==0)progress.accept((int)(done*100/volume));
         }
-        cancelled(cancel);progress.accept(100);return new StructurePackage(name,bounds,definitions,cells);
+        cancelled(cancel);progress.accept(100);return new StructurePackage(name,bounds,definitions,cells.view());
     }
     public static void cancelled(BooleanSupplier cancel) {
         if(cancel.getAsBoolean()||Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException("Structure operation cancelled");
@@ -136,7 +136,7 @@ public final class StructurePackage {
             int n=in.readInt();if(n<0||n>MAX_MODELS)throw new IOException("512 dependency limit");
             var models=new ArrayList<ModelDefinition>();for(int i=0;i<n;i++)models.add(ModelDefinition.read(in));
             n=in.readInt();if(n<1||n>MAX_CELLS)throw new IOException("Occupied cell limit");
-            var cells=new ArrayList<Cell>();long last=-1;int leaves=0,instances=0;
+            var cells=new StructureCells.Builder();long last=-1;int leaves=0,instances=0;
             for(int i=0;i<n;i++) {
                 cancelled(()->false);
                 int sx=in.readUnsignedShort(),sy=in.readUnsignedByte(),sz=in.readUnsignedShort(),index=in.readUnsignedShort(),model=in.readShort();
@@ -146,14 +146,14 @@ public final class StructurePackage {
                 SparseVoxelOctree tree=null;
                 if(model<0){tree=SparseVoxelOctree.read(in,16);if(tree.occupied()==0)throw new IOException("Invalid/empty cell");leaves+=tree.leaves().size();if(leaves>MAX_LEAVES)throw new IOException("Experimental geometry cap");}
                 else if(++instances>MAX_INSTANCES)throw new IOException("Experimental instance cap");
-                cells.add(new Cell(p,tree,model));
+                cells.add(p,tree==null?null:tree.freeze(),model);
             }
             if(in.read()!=-1)throw new IOException("Trailing structure bytes");
             if(!inflater.finished()||inflater.getRemaining()!=0||payload.available()!=0
                     ||crc.getValue()!=littleInt(bytes,bytes.length-8)
                     ||((DECODED-budget.remaining)&0xffffffffL)!=littleInt(bytes,bytes.length-4))
                 throw new IOException("Structure gzip length/checksum/trailing data");
-            return new StructurePackage(name,bounds,models,cells);
+            return new StructurePackage(name,bounds,models,cells.view());
         } finally {inflater.end();}
     }
     private static long littleInt(byte[] bytes,int start) {
