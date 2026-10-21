@@ -75,8 +75,10 @@ with frozen geometry references. Reading a cell creates a temporary record; the
 public list remains immutable and spatially ordered. This reduces retained
 per-cell objects without changing v1 export bytes or increasing admission limits.
 Constructor validation uses primitive sort keys for canonical ordering and duplicate
-detection. Capture/decode input lists and placement staging still need further
-memory work.
+detection. Capture/decode accumulate cells in bounded primitive buffers and pass a temporary
+read-only view through full constructor validation. Capture copies source trees
+before freezing them. Decoded trees are owned by the importer. Validation still
+creates final storage separately, and placement staging needs further memory work.
 
 Additional provisional development caps are 131,072 geometry leaves and 16,384
 model instances per package, 1,048,576 model-definition surface quads,
