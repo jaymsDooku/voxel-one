@@ -96,6 +96,11 @@ terrain remains unchanged. High/low edited chunks and nearby air use the existin
 bounded terrain worker. Such worlds have a provisional 2,048-chunk residency cap;
 ordinary terrain retains its 1,690-chunk cap.
 
+Capture asks immutable world snapshots whether a cell is known empty before
+materializing its octree. Unknown answers retain the original one-read capture
+path. Bounds checks, cancellation and progress still run for every coordinate;
+fractional geometry and model dependencies follow the same package validation.
+
 Staging reuses immutable trees for repeated whole-cell materials and repeated
 instances of the same dependency. Identity rotations retain persistent octree
 nodes through frozen snapshots. Editing one placed cell still creates independent

@@ -45,6 +45,43 @@ class StructureTest {
             }
         }
     }
+    @Test void sparseCaptureSkipsEmptyOctreeReadsWithoutSkippingProgressOrValidation()throws Exception {
+        var geometry=new SparseVoxelOctree(16);geometry.fill(2,3,4,3,4,5,WorldVoxels.encode(new Protocol.Edit(0,0,0,Blocks.LED).withColor(0x22aaff)));
+        int[] reads={0},progress={0};var library=new ModelLibrary();
+        Source fast=new Source(){
+            public SparseVoxelOctree cell(int x,int y,int z){reads[0]++;if(x!=0||y!=180||z!=0)throw new AssertionError("Empty snapshot read");return geometry;}
+            public boolean emptyCell(int x,int y,int z){return x!=0||y!=180||z!=0;}
+            public ModelLibrary models(){return library;}
+        };
+        var asset=StructurePackage.capture("Sparse",new Bounds(128,1,128,0,0,0),new Position(0,180,0),fast,()->false,p->progress[0]=p);
+        assertEquals(1,reads[0]);assertEquals(1,asset.cells.size());assertEquals(100,progress[0]);
+        assertEquals(geometry.leaves(),asset.cells.get(0).geometry().leaves());
+        assertThrows(IOException.class,()->StructurePackage.capture("Outside",new Bounds(1,2,1,0,0,0),new Position(0,1023,0),fast,()->false,p->{}));
+        assertThrows(java.util.concurrent.CancellationException.class,()->StructurePackage.capture("Cancel",new Bounds(1,1,1,0,0,0),new Position(0,180,0),fast,()->true,p->{}));
+    }
+    @Test void defaultCaptureSourceIsReadOnlyOncePerCoordinate()throws Exception {
+        int[] reads={0};var library=new ModelLibrary();var tree=new SparseVoxelOctree(16);
+        tree.fill(0,0,0,16,16,16,WorldVoxels.encode(Blocks.STONE));
+        Source source=new Source(){
+            public SparseVoxelOctree cell(int x,int y,int z){reads[0]++;return x==1?tree:new SparseVoxelOctree(16);}
+            public ModelLibrary models(){return library;}
+        };
+        var asset=StructurePackage.capture("Default source",new Bounds(3,1,1,0,0,0),new Position(0,180,0),source,()->false,p->{});
+        assertEquals(3,reads[0]);assertEquals(new Position(1,0,0),asset.cells.get(0).position());
+    }
+    @Test void worldSnapshotEmptyQueryKeepsTerrainFractionalAndModelCells()throws Exception {
+        try(var world=new World(42)) {
+            world.apply(new Protocol.Edit(0,180,0,Blocks.LED,3,1,2,3,0x123456));
+            var modelTree=new SparseVoxelOctree(8);modelTree.set(0,0,0,0xff123456);
+            int model=world.models().register(new ModelDefinition("Snapshot component",modelTree),"fixture").id();
+            world.apply(new Protocol.Edit(1,180,0,model));
+            var source=world.structureSnapshot();
+            for(int x=-2;x<=2;x++)for(int z=-2;z<=2;z++)for(int y:new int[]{0,64,127,180,181})
+                assertEquals(source.cell(x,y,z).isEmpty(),source.emptyCell(x,y,z));
+            world.apply(new Protocol.Edit(0,180,0,0));
+            assertFalse(source.emptyCell(0,180,0),"Captured snapshot does not follow later world edits");
+        }
+    }
     @Test void packageRoundtripKeepsFractionalColoursModel32AndLargeBounds() throws Exception {
         var original=asset();var copy=StructurePackage.decode(original.encode());
         assertEquals(original.bounds,copy.bounds);assertEquals(original.cells.get(0).geometry().leaves(),copy.cells.get(0).geometry().leaves());
