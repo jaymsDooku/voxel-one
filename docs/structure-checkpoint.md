@@ -251,3 +251,35 @@ Playtest: this is noninteractive server/protocol integration; a browser does not
 This qualifies functional loopback behavior on the small fixture only. It does not qualify city/max, physical GPU, shaped network or memory/frame/tick/traffic budgets; total JUnit elapsed time includes login pacing and is not an operation latency. No production or test source changed. No delegates remain pending. Full acceptance and supported-limit publication remain gated.
 
 Next engineering work must address bounded placement storage, atomic chunk publication and persistence beyond the 2,000,000-edit history ceiling before actual city/max admission. Existing 131,072-leaf and 256-chunk development caps remain; do not raise them without the required fixtures and measurements. Not ready. Publish the new validation evidence, then continue implementation.
+
+
+## Native corpus admission
+
+Inspected both hosted runs for `57c477db1f6f2512d678fc52a5d8215ea8e660b8`.
+All eight Maven summaries contain 782 tests, zero failures/errors and one skip.
+Verified push source hashes and PR merge parents against the assigned head/base.
+Report: `structure-57c4-hosted.json`.
+
+Added the offline `tools/structures/NativeFixture.java` converter. It uses
+production model/octree codecs, native section order and bounded output, without
+constructing an admitted package or changing a world. Both complete corpora now
+reach the actual production VSTR loader. Both fail with `Experimental geometry
+cap`. City native bytes are 38,191,053 compressed / 58,000,837 decoded; maximum
+bytes are 55,607,892 compressed / 309,713,208 decoded. The native city also misses
+the required 16–32 MiB package range. These are failed scale gates.
+
+Playtest: noninteractive CLI integration, so browser playtesting does not apply.
+Compiled current production classes; the converter's self-test matches the
+production encoder byte for byte and roundtrips maximum section coordinates,
+whole/half/1/16 LED geometry and model rotation. Three malformed CLI inputs reject
+without a destination file. Six existing fixture-parser tests passed. The
+production and native-harness hashes still match the recorded graphical run;
+verified the exact-head published MP4 SHA-256, decoded 16 frames / 25.467 seconds
+and inspected a frame. No fresh gameplay run is claimed for this tooling change.
+
+No file deletions against base `4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a`.
+No gameplay source changed. All delegate tasks resolved. The new tool and reports
+need controller publication. Full city/max storage, atomic chunk publication,
+persistence beyond the 2,000,000-edit history ceiling, 20-run system budgets and
+physical GPU/shaped-network qualification remain unfinished. Keep safety caps
+and rollout gates. Not ready.
