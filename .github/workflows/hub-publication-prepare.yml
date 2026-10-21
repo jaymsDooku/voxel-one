@@ -151,7 +151,8 @@ jobs:
           tag=os.environ['PREVIEW_TAG']
           assert preview_tag(tag), 'Invalid preview generation'
           output=Path('target/hub-clean-preview-package')
-          package(output,'0.1.'+tag.rsplit('-',1)[1],installer=os.environ['PLATFORM']=='windows',jdk=os.environ['JAVA_HOME'])
+          # Positive major for macOS jpackage; generation remains bounded at 1..65535.
+          package(output,'1.0.'+tag.rsplit('-',1)[1],installer=os.environ['PLATFORM']=='windows',jdk=os.environ['JAVA_HOME'])
           files={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in output.iterdir() if p.suffix in ('.zip','.msi')}
           assert files, 'No preview packages produced'
           (output/'package-scope.json').write_text(json.dumps({'sourceSha':os.environ['SOURCE_SHA'],'platform':os.environ['PLATFORM'],'previewTag':tag,'filesSha256':files,'fixtureGeneration':False,'stableRolloutQualified':False,'scope':'Clean source package, not a fixture generation. Packaging success alone does not satisfy native gameplay, physical DPI or published upgrade qualification.'},indent=2)+'\n')

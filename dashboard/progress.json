@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-20T22:06:12+00:00",
+  "updatedAt": "2026-10-21T11:09:06+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,15 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "2ae7c6f2-358b-4d7a-8906-4c3687cda4ff",
+      "title": "Unblock Hub preview packaging: use a macOS-compatible package version",
+      "description": "Checking the registered workflow package version and boundary-generation contract. Publication is runner-owned.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Implemented 1.0.N package versions. Six registration/packaging tests and workflow syntax checks pass; old mapping fails all eight boundary/platform cases. Local report and rendered CLI evidence await runner publication and independent review. Native packaging rerun follows merge; physical qualification remains pending.",
+      "updatedAt": "2026-10-21T11:09:06+00:00"
+    },
     {
       "id": "register-hub-preview-build-2026-10-20",
       "title": "Register controller-only Hub preview package preparation",

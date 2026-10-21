@@ -5,6 +5,9 @@ import json
 import os
 from pathlib import Path
 import re
+import sys
+import tempfile
+import types
 import unittest
 from unittest.mock import patch
 import urllib.error
@@ -77,6 +80,55 @@ class RegistrationTest(unittest.TestCase):
                 self.run_fence(remote={'git/ref/heads/experience-catalog': status})
         with self.assertRaises(urllib.error.HTTPError):
             self.run_fence(remote={BRANCH: 404})
+
+    def test_package_workflow_boundary_versions_and_scope(self):
+        # Execute the actual workflow entry point without native builds or publication.
+        text = WORKFLOW.read_text()
+        block = text.split('      - name: Build clean preview packages from reviewed source', 1)[1]
+        block = block.split("          python3 - <<'PY'\n", 1)[1].split('          PY', 1)[0]
+        source = '\n'.join(line[10:] for line in block.splitlines())
+        package_module = types.ModuleType('package')
+        publication_module = types.ModuleType('publication_bundle')
+        publication_module.preview_tag = lambda tag: bool(
+            re.fullmatch(r'hub-preview-([1-9][0-9]{0,4})', tag)
+            and int(tag.rsplit('-', 1)[1]) <= 65535)
+        for platform in ('linux', 'windows', 'mac-intel', 'mac-arm'):
+            for generation in (1, 65535):
+                with self.subTest(platform=platform, generation=generation), tempfile.TemporaryDirectory() as directory:
+                    calls = []
+
+                    def package(output, version, installer=False, jdk=None):
+                        calls.append((version, installer, jdk))
+                        output.mkdir(parents=True)
+                        (output / 'preview.zip').write_bytes(b'synthetic package contract fixture')
+                        if installer:
+                            (output / 'preview.msi').write_bytes(b'synthetic installer contract fixture')
+
+                    package_module.package = package
+                    tag = f'hub-preview-{generation}'
+                    previous = Path.cwd()
+                    try:
+                        os.chdir(directory)
+                        with patch.dict(os.environ, {'PREVIEW_TAG': tag, 'PLATFORM': platform,
+                                                     'JAVA_HOME': '/synthetic-jdk', 'SOURCE_SHA': SOURCE}, clear=True), \
+                             patch.dict(sys.modules, {'package': package_module,
+                                                      'publication_bundle': publication_module}), \
+                             patch.object(sys, 'path', list(sys.path)):
+                            exec(compile(source, str(WORKFLOW), 'exec'), {})
+                        scope = json.loads(Path('target/hub-clean-preview-package/package-scope.json').read_text())
+                    finally:
+                        os.chdir(previous)
+                    self.assertEqual([(f'1.0.{generation}', platform == 'windows', '/synthetic-jdk')], calls)
+                    self.assertEqual(tag, scope['previewTag'])
+                    self.assertEqual(SOURCE, scope['sourceSha'])
+                    self.assertEqual(platform, scope['platform'])
+                    self.assertIs(False, scope['fixtureGeneration'])
+                    self.assertIs(False, scope['stableRolloutQualified'])
+                    self.assertIn('Packaging success alone does not satisfy', scope['scope'])
+                    self.assertEqual({'preview.zip', 'preview.msi'} if platform == 'windows' else {'preview.zip'},
+                                     set(scope['filesSha256']))
+                    for digest in scope['filesSha256'].values():
+                        self.assertRegex(digest, r'^[0-9a-f]{64}$')
 
     def test_registration_and_preserved_build_contract(self):
         text = WORKFLOW.read_text()
