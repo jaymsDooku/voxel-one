@@ -32,13 +32,24 @@ public final class Launcher {
         command.add("-jar");
         command.add(client.toString());
         command.addAll(arguments);
-        if (!arguments.contains("--offline") && !arguments.contains("--server"))
+        if (!arguments.contains("--asset-manager") && !arguments.contains("--offline") && !arguments.contains("--server"))
             command.addAll(List.of("--server", "198.100.154.156"));
         return command;
     }
 
     public static void main(String[] args) {
+        run(args, new Updater(cache(), Updater.MANIFEST));
+    }
+
+    /** The updater is explicit so the complete launcher can use a local verified release in tests. */
+    public static void run(String[] args, Updater updater) {
         boolean updateOnly = Arrays.asList(args).contains("--update-only");
+        List<String> launchArguments = new ArrayList<>(Arrays.asList(args));
+        if (!updateOnly && !launchArguments.contains("--asset-manager") && !GraphicsEnvironment.isHeadless()) {
+            int selected = chooseApplication();
+            if (selected < 0) return;
+            if (selected == 1) launchArguments.add("--asset-manager");
+        }
         JFrame frame = null;
         JLabel message = new JLabel("Checking for Voxel One updates...");
         if (!updateOnly && !GraphicsEnvironment.isHeadless()) {
@@ -62,8 +73,7 @@ public final class Launcher {
             Platform platform = Platform.current();
             Path cache = cache();
             Updater.Result result =
-                    new Updater(cache, Updater.MANIFEST)
-                            .update(
+                    updater.update(
                                     platform,
                                     text -> {
                                         System.out.println(text);
@@ -72,7 +82,7 @@ public final class Launcher {
             if (updateOnly) System.out.println(result.client());
             else {
                 SwingUtilities.invokeLater(() -> message.setText("Starting Voxel One..."));
-                List<String> arguments = new ArrayList<>(Arrays.asList(args));
+                List<String> arguments = new ArrayList<>(launchArguments);
                 arguments.remove("--update-only");
                 Process game =
                         new ProcessBuilder(command(result.client(), platform, arguments))
@@ -95,6 +105,12 @@ public final class Launcher {
         } finally {
             if (frame != null) frame.dispose();
         }
+    }
+
+    public static int chooseApplication() {
+        Object[] choices = {"Play Voxel One", "Asset Manager"};
+        return JOptionPane.showOptionDialog(null, "Choose what to open", "Voxel One Launcher",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, choices, choices[0]);
     }
 
     private Launcher() {}

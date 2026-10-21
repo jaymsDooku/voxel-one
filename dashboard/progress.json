@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-21T11:09:06+00:00",
+  "updatedAt": "2026-10-21T12:06:01+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -132,6 +132,15 @@
       "status": "in_progress",
       "note": "Stereo phase cancellation fixed without changing playback PCM. 16 focused tests pass, including decoded antiphase and left/right-only tones. Fresh native stereo workflow and Main/Sandbox/City regressions pass; package build passes. Linux llvmpipe 1100x720: 68.10 FPS. Fresh F10 MP4 1,394,976 bytes, 94 decoded frames, 11.34 s. Revised evidence awaits controller publication; physical GPU/speaker qualification remains pending.",
       "updatedAt": "2026-10-20T13:59:47+00:00"
+    },
+    {
+      "id": "voxel-asset-manager",
+      "title": "Voxel Asset Manager",
+      "description": "Inspected launcher and existing model serialization/library. Original skyscraper geometry requested; implementation and workflow validation remain pending.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Rebased source validated: 15 tests/package, Launcher-browser-engine and native both-seed workflow pass. Fresh media captured and decoded. Awaiting controller feature publication and exact-source CI.",
+      "updatedAt": "2026-10-21T12:06:01+00:00"
     },
     {
       "id": "9c35cf2b-7ce5-4874-9649-13bf9392c208",

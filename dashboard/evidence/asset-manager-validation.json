@@ -1,0 +1,118 @@
+{
+  "status": "implementation and local functional validation complete; pending controller publication and independent review",
+  "base": "8c68a1cd72ec3f344711ef721cdcaffd86c45638",
+  "scope": "Local single-user web Asset Manager opened by Launcher. Two immutable engine seeds, text search, details/voxel previews, native .vxm uploads with author/description, native downloads, selected offline-game import at next launch. No public marketplace or hosted account service.",
+  "commands": [
+    {
+      "command": "PLAYWRIGHT_BROWSERS_PATH=/tmp/voxel-web-qa/browsers TMPDIR=\"$PWD/target/asset-test-tmp\" mvn -q -Dmaven.repo.local=\"$PWD/target/maven-cache\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/asset-test-tmp -Dasset.browser=true\" -Dtest=AssetCatalogTest,AssetManagerIntegrationTest,VoxelModelTest,UpdaterTest package",
+      "result": "PASS: 15 tests, zero failures/errors/skips; shaded client and launcher/server package build passed. This is the focused suite, not the full repository suite."
+    },
+    {
+      "command": "python3 deploy/run_asset_launcher_e2e.py --display \"$DISPLAY\"",
+      "result": "PASS after making the synthetic browser executable fixture independent of checkout mode. Production Launcher selection, SHA-256-verified loopback exact-source client download, child Main --asset-manager, Chromium browser workflow, then engine intake of tower and upload."
+    },
+    {
+      "command": "python3 deploy/run_asset_manager_smoke.py --display \"$DISPLAY\"",
+      "result": "PASS after targeting X11 keys at the game window and asserting actual tower selection plus two rendered frames. Fresh synthetic profile, both seeds plus upload in native Main inventory, held tower rendered, E inventory controls, save/reload and no duplicate gifts, F10 capture."
+    },
+    {
+      "command": "java -cp target/asset-native/classes:/home/debian/.m2/repository/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar RecordingProbe dashboard/evidence/asset-manager-inventory.mp4",
+      "result": "PASS: all6 H264 frames decoded; metadata864x540, duration4.220s, size380975 bytes."
+    },
+    {
+      "command": "java -cp target/asset-native/classes:/home/debian/.m2/repository/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar AtmosphereVideoInspection dashboard/evidence/asset-manager-inventory.mp4 target/asset-native/decoded",
+      "result": "PASS: four samples decoded; sampled frame2 visually inspected."
+    },
+    {
+      "command": "git diff --check",
+      "result": "PASS. No files deleted against current base."
+    }
+  ],
+  "Playtest": {
+    "environment": "Linux; headless Chromium with chromiumSandbox:true; native X11 inherited assigned DISPLAY/XAUTHORITY; isolated synthetic homes; Mesa software rendering requested, low graphics profile, 960x600 native viewport. No real accounts or private user profiles.",
+    "expected": "Launcher opens Asset Manager; both seeds browse/search/preview; invalid uploads fail clearly; valid upload persists and can be searched; selected game receives models in engine library/inventory; full inventory retry and reload preserve state.",
+    "observed": "PASS for all listed workflows and assertions. Physical-GPU/performance qualification not claimed.",
+    "browser_steps": [
+      "Open Launcher and choose Asset Manager. Download verified client from owned local release fixture, start child client and open Chromium through configured BROWSER executable.",
+      "Browse initial2 seed entries. Search skyscraper; select Hudson Crown Tower, inspect details/voxel preview, add to Sandbox and capture screenshot.",
+      "Search nonexistent text, then FLOWER. Upload truncated native file with metadata and observe clear validation error. Upload valid Balcony flower model, find it afterward by text, inspect details/preview and add to Sandbox.",
+      "Clear search; select original Flower pot, choose City, add it with feedback.",
+      "Load Sandbox through actual engine LocalGame: tower and upload arrive. Load City: flower pot arrives and tower is absent, proving game isolation."
+    ],
+    "native_steps": [
+      "Production Main starts from fresh synthetic profile with both seeds plus upload selected. Assert tower/custom library entries and all three inventory items; compare original flower-pot fingerprint.",
+      "Focus assigned game window, start F10, send actual hotbar key, wait for selected slot and two rendered frames. Capture live tower in hand with its name and hotbar icon.",
+      "Use actual E input to open/close inventory; capture both seeds and upload. Stop F10 and exit.",
+      "Reload actual save, verify model library/items persist and intake receipt prevents duplicate gifts."
+    ],
+    "edge_regression": [
+      "Full inventory leaves import pending with error; freeing one slot and restarting intake succeeds.",
+      "Missing bearer, foreign Origin and invalid Host rejected. Native download round-trips through engine parser.",
+      "Wrong extension, missing metadata, truncated/trailing/oversize/empty models rejected before catalog persistence.",
+      "Existing VoxelModelTest and UpdaterTest pass."
+    ]
+  },
+  "asset": {
+    "name": "Hudson Crown Tower",
+    "resolution": 32,
+    "occupiedVoxels": 7246,
+    "packetBytes": 32194,
+    "packetSha256": "b425bf8aeb1f43cfcdf8818694b78dfc80c81b2d7ed5504fa7cfee3b0f546287",
+    "verification": "Actual specialist geometry inspected and locally previewed before explicit acceptance. Imported only after acceptance through fenced asset tool. Imported hashes match delivery manifest. Actual delivered SVG inspected after import. Bundled native packet matches all32768 cells of specialist geometry and meshes within engine cap; normalized vertex coordinates remain within one block. No political insignia."
+  },
+  "media": {
+    "publication": "All pending controller publication on assigned feature branch.",
+    "files": [
+      "asset-manager-catalog.png",
+      "asset-manager-skyscraper.png",
+      "asset-manager-invalid.png",
+      "asset-manager-upload.png",
+      "asset-manager-launcher.png",
+      "asset-manager-tower-engine.png",
+      "asset-manager-inventory.png",
+      "asset-manager-inventory.mp4"
+    ],
+    "inspection": "Fresh browser tower screenshot, native held-tower screenshot and native inventory screenshot visually inspected. F10 fully decoded and sampled. Screenshots exclude session token, credentials, prompts, answers and private account data."
+  },
+  "failed_attempts": [
+    "Historical /tmp test setup and shared Maven-cache write failures were resolved with worktree temp/cache paths.",
+    "Historical native startup30s timeout resolved with low profile and90s allowance.",
+    "Final Launcher harness initially timed out because recovery removed executable bit from synthetic browser helper. Wrapper now creates its own executable copy under target; full path rerun passed.",
+    "Initial native capture showed flower pot still selected. Harness now targets the exact game window and waits for asserted tower selection plus rendered frames; rerun passed.",
+    "ffprobe/ffmpeg absent on PATH; JCodec full decode used instead."
+  ],
+  "diff_audit": "Audited all task additions and modifications against base8c68a1cd. No deleted files. Four replaced Launcher lines implement argument routing and explicit updater used by local end-to-end test. Main adds only asset-service entry and offline intake. Existing flower-pot generator, native model format and save serialization unchanged. All imported asset files are geometry/native packet/preview; no raw delegation prompts or credentials.",
+  "qualification_limits": [
+    "Functional Linux/browser/software-renderer checks only. No physical-GPU or performance pass, stable rollout or deployment claim.",
+    "Imports target selected offline game identity and are consumed at next startup; multiplayer uses existing in-game permissions.",
+    "Controller owns commit/push/media publication and independent review; any subsequent source integration requires meaningful reruns."
+  ],
+  "source_sha256": {
+    "src/main/java/dev/jayms/assets/AssetIntake.java": "b55658797dff3a8075803a54cf364a1a1c20874c9a04038e7aa7bf863c93d3cf",
+    "src/main/java/dev/jayms/assets/AssetCatalog.java": "7f976ea150e77272872227a7d865674f2976019eecde360da2aa7984eeb9879c",
+    "src/main/java/dev/jayms/assets/AssetManagerServer.java": "19c1c3286b49bff50eb63cf304d8f6c3597e7049da2ebb30c79359df1ad6799d",
+    "src/main/resources/asset-manager/style.css": "3059f4bd04709c285fb0322109c01ed9c8876f24f3cfcbdb2f6f69da48b04859",
+    "src/main/resources/asset-manager/app.js": "0f174f6d28d431891a5145f01380c0755433e4774559722c19f85316039282cd",
+    "src/main/resources/asset-manager/index.html": "9b04efe79fb6eadba0572b5cc7c14992e0f83b01ce32a4f29da70e2f7106f254",
+    "src/main/resources/asset-manager/hudson-crown.vxm": "b425bf8aeb1f43cfcdf8818694b78dfc80c81b2d7ed5504fa7cfee3b0f546287",
+    "src/test/java/dev/jayms/assets/AssetCatalogTest.java": "c7086d910b9c5af156ed0d216aafc236534fa9e0c6196a672719164f6b3b5549",
+    "src/test/java/dev/jayms/assets/AssetManagerIntegrationTest.java": "e86bbb1785f83f542a4749cca1a20335efda80eaea412a7f82179edfce687202",
+    "src/main/java/dev/jayms/Main.java": "87256adbe10e29508434dd6cc6d4eb2457fc78a5eb419b6790665ef658d00c19",
+    "src/main/java/dev/jayms/launcher/Launcher.java": "d86759faeb2a72c82c524b309fcf7dd7dbe93a3ac28b33bcb83483675c616438",
+    "deploy/AssetManagerSmoke.java": "0d27010c48850b9691d072fa9f50a18a90149e31a4aa65df1cdf7fdfce5b926d",
+    "deploy/run_asset_manager_smoke.py": "9176e2f9565eee312c57f838ad1644253677ffd786e9d9a73eff95337cfba4d8",
+    "deploy/AssetLauncherEndToEndSmoke.java": "911278952d4dc0e716a0cdef044088773a8ee7290ea026809670863b0f3e6f26",
+    "deploy/run_asset_launcher_e2e.py": "3b403f0a8b13beaabf00fb9877b07c9fa5fe5e6f6189a735dff79f34ce787b75",
+    "deploy/asset_test_browser.py": "3545fefe44ffef8ef612793d52bfea9ce6baf6fdc0e2afcbfb8b112170238d0d",
+    "deploy/test_asset_manager.cjs": "42dbe53a0013602ad254ae2720d16c746c461614d149ab55f06a10d059134b88"
+  },
+  "rebase_validation": {
+    "head": "aad3aa7b2736c6c7cbf37a61029c72d18917e9b2",
+    "review_base": "8c68a1cd72ec3f344711ef721cdcaffd86c45638",
+    "focused_tests": "PASS: 15 tests, package; rerun after rebase",
+    "launcher_playtest": "PASS: production Launcher, verified client, Chromium search/upload, selected-game engine intake",
+    "diff_audit": "No files deleted against recorded review base. Changes since published head preserve Hub publication workflow, regression tests and evidence. Only progress timestamp conflict required resolution.",
+    "hosted_checks": "Published PR80 head46d830b5 build checks pass; new local head requires controller publication and exact-source CI.",
+    "native_playtest": "PASS: fresh profile; both seeds and upload, held tower, inventory, save/reload and F10. New clip fully decoded: 7 frames, 5.619 seconds, 476692 bytes, H264 864x540. Held-tower screenshot visually inspected. Software rendering only; physical GPU performance unqualified."
+  }
+}
