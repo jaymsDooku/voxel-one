@@ -113,7 +113,17 @@ public final class PackageUiProbe {
             Dimension desktop=Toolkit.getDefaultToolkit().getScreenSize();
             // Preserve every edge of the window. A guessed center inset cropped
             // startup evidence on both small desktops and larger role displays.
-            ImageIO.write(robot.createScreenCapture(new Rectangle(desktop)),"png",out.resolve("native-executable.png").toFile());
+            BufferedImage screen=robot.createScreenCapture(new Rectangle(desktop));
+            ImageIO.write(screen,"png",out.resolve("native-executable.png").toFile());
+            // Menu bars and docks alone must not qualify a hidden/black shell capture.
+            int visible=0,total=0;
+            for(int y=screen.getHeight()/5;y<screen.getHeight()*4/5;y+=4)
+                for(int x=screen.getWidth()/5;x<screen.getWidth()*4/5;x+=4) {
+                    int rgb=screen.getRGB(x,y);total++;
+                    if(Math.max((rgb>>16)&255,Math.max((rgb>>8)&255,rgb&255))>32)visible++;
+                }
+            if(total==0 || visible*100L<total)
+                throw new AssertionError("Native shell capture is mostly black; visible desktop qualification pending");
             return;
         }
         System.setProperty("user.home",profile.toAbsolutePath().toString());
