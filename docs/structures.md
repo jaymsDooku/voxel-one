@@ -135,3 +135,7 @@ The benchmark corpus and CPU probes in `structure-benchmark-preparation.md` rema
 prerequisite tools. Their timings are not capture/placement or 32-client city
 qualification. Final supported geometry/instance limits and stable rollout stay
 gated until the agreed city and fragmented scenarios pass all budgets.
+
+Placement undo stores an immutable empty-value view over the placed cell keys.
+This relies on the occupied-destination rejection policy: every admitted before
+image is empty. The authority still checks for later changes before undo.

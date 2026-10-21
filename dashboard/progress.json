@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Private capture/import validation now reuses owned frozen buffers without skipping checks. 35 regressions and native workflow passed; fresh media saved. City/max transaction design and qualification remain unfinished.",
-      "updatedAt": "2026-10-21T16:01:58+00:00"
+      "note": "Undo before-images now share immutable placed keys and frozen air values under reject-overlap policy. 36 regressions and native workflow passed; fresh media saved. City/max transactions and qualification remain unfinished.",
+      "updatedAt": "2026-10-21T16:30:05+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
