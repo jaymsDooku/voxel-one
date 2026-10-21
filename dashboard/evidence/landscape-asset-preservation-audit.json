@@ -70,5 +70,8 @@
     "src/test/java/dev/jayms/assets/AssetCatalogTest.java",
     "src/test/java/dev/jayms/assets/AssetManagerIntegrationTest.java"
   ],
-  "qualification": "File preservation verified; runtime checks recorded separately."
+  "qualification": "File preservation verified; runtime checks recorded separately.",
+  "verifiedHead": "2e688dc6af88994cce70cca315ebe95b25a876a6",
+  "reviewBase": "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+  "noTrackedDeletionsAgainstReviewBase": true
 }

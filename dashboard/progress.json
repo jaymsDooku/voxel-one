@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-21T13:06:22+00:00",
+  "updatedAt": "2026-10-21T13:47:06+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -83,11 +83,26 @@
           "kind": "image",
           "label": "Restored native model intake and inventory (pending controller publication)",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-32303665306237372d623933612d346464642d383435342d346162633836393964313931/dashboard/evidence/landscape-restored-asset-manager-inventory.png"
+        },
+        {
+          "kind": "report",
+          "label": "Restored-source exact-head qualification (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-32303665306237372d623933612d346464642d383435342d346162633836393964313931/dashboard/evidence/landscape-restored-hosted-review.md"
+        },
+        {
+          "kind": "video",
+          "label": "Restored-source hosted F10 (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-32303665306237372d623933612d346464642d383435342d346162633836393964313931/dashboard/evidence/landscape-restored-hosted-live.mp4"
+        },
+        {
+          "kind": "image",
+          "label": "Restored-source hosted decoded frames (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-32303665306237372d623933612d346464642d383435342d346162633836393964313931/dashboard/evidence/landscape-restored-hosted-live-video-contact.png"
         }
       ],
       "status": "in_progress",
-      "note": "Reviewer fix validated locally: 32 protected Asset Manager/Main/Launcher files match current master; audit correction recorded. 29 tests passed, 1 optional browser unit skipped; separate real browser E2E and native intake passed. Fresh catalog/Sandbox/City, music lifecycle and F10 passed: 2237264 bytes / 185 decoded frames / 18.837 s. New exact-head hosted qualification pending controller publication; physical GPU/audio remains pending and rollout gated.",
-      "updatedAt": "2026-10-21T13:06:22+00:00"
+      "note": "Ready for independent review after Asset Manager restoration. Exact head 2e688dc6: 29 tests passed, 1 optional browser unit skipped; native asset intake, WAV/MP3 lifecycle and catalog/Sandbox/City passed. Real 1800.07 s soak bounded and stable; all 3 timing pairs improved. Hosted F10 2843596 bytes / 249 frames inspected; hashes verified. 32 protected files match current master; audit corrected. New evidence awaits controller publication. Physical GPU/audio remains pending and gates stable rollout.",
+      "updatedAt": "2026-10-21T13:47:06+00:00"
     },
     {
       "id": "2ae7c6f2-358b-4d7a-8906-4c3687cda4ff",
