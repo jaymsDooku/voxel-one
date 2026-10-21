@@ -1,0 +1,23 @@
+{
+  "source": "7006610f4db4b28bfec4149636c9ddd7580888a1",
+  "environment": "Linux; JDK21.0.5; inherited DISPLAY/XAUTHORITY; isolated synthetic profile",
+  "commands": [
+    "python3 -m unittest discover -s tools/hub -p test_*.py",
+    "java -Djava.io.tmpdir=$PWD/target/hub-tmp -cp target/hub-3f40eaed-classes UnavailableWebPlaytest target/hub-2f896b9d-publication/catalog.properties target/hub-7006610f-profile dashboard/evidence/hub-7006610f-web-unavailable.png",
+    "java -Djava.io.tmpdir=$PWD/target/hub-tmp -cp target/hub-3f40eaed-classes:target/voxel-one-1.0-SNAPSHOT-client.jar ProcessQueryProbeTest"
+  ],
+  "results": [
+    "5 publisher tests passed",
+    "6 real subprocess controls passed",
+    "Playtest: expected three native entries and disabled unverified web action; observed matching state; fresh screenshot inspected",
+    "Compiled launcher and probe sources unchanged from locally compiled3f40eaed; Git diff verified",
+    "Positive1.0.N workflow, YAML, embedded Python and trust guards passed",
+    "Whitespace passed; no deletions against recorded8c68a1cd base"
+  ],
+  "pending": [
+    "Exact-source hosted checks after controller publishes rebased branch",
+    "Root trusted preview publication receipts",
+    "Windows/macOS native graphics and capture qualification",
+    "Physical GPU, monitor DPI, reference performance, live web freshness and two public shell generations"
+  ]
+}
