@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "sourceHead": "d10f8c633bdc9f1f0d1b3c02b61ab3b08773efad",
+  "reviewBase": "fa010c1aa8fa61383aa63569f2bd952611aaa095",
+  "status": "Local functional validation passed; full acceptance unfinished",
+  "integration": "Asset Manager merge 4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a is an ancestor. No files deleted against review base. Existing MP3 and Hub files retained.",
+  "tests": [
+    {
+      "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=StructureTest,StructureOccupancyTest,StructureMultiplayerTest,MusicMp3Test,AssetCatalogTest,AssetManagerIntegrationTest test",
+      "result": "36 passed, 1 optional browser case skipped, zero failures/errors"
+    },
+    {
+      "command": "TMPDIR=\"$PWD/target/structure-audit-tmp\" PLAYWRIGHT_BROWSERS_PATH=\"$PWD/target/structure-browsers\" mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp -Dasset.browser=true\" -Dtest=AssetManagerIntegrationTest test",
+      "result": "3 passed; zero failures/errors/skips. Earlier browser attempts failed due read-only /tmp then missing browser binary; worktree-local temp and browser install fixed environment. Chromium sandbox retained."
+    },
+    {
+      "command": "python3 -m unittest deploy.tests.test_hub_preview_registration",
+      "result": "6 passed"
+    },
+    {
+      "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+      "result": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions."
+    }
+  ],
+  "environment": "Linux VPS; inherited X11 display, llvmpipe LLVM15.0.6 256bits; synthetic isolated offline profile. Browser test uses sandboxed Chromium. Not physical-GPU qualification.",
+  "media": "Fresh F10 H264 clip decoded and frame inspected:15 frames,28.023s. Player-conflict screenshot inspected. Production Java/harness hashes verified unchanged.",
+  "pending": [
+    "City/maximum admission and compact storage/transaction implementation",
+    "20-run city/maximum performance, memory/frame/tick/traffic budgets",
+    "Physical-GPU and shaped-network 32-player qualification",
+    "Fresh exact-head hosted checks"
+  ],
+  "rollout": "Not ready; qualification gates retained",
+  "publication": "Local report and fresh media pending controller publication"
+}
