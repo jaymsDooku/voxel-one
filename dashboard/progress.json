@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-21T18:55:19+00:00",
+  "updatedAt": "2026-10-21T19:38:32+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4017,8 +4017,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Resumed and verified fresh VSTR v2 gameplay media and complete source/harness hashes. Retained 52 passing targeted tests. Dense/sparse dependency capture, import/export and all rotations passed in the native workflow. City compressed size is 30,258,485 bytes, within 16\u201332 MiB, but city/max admission and reference system qualification remain unfinished. Source/media await controller publication and fresh exact-head checks.",
-      "updatedAt": "2026-10-21T18:55:19+00:00"
+      "note": "Chunk copy-on-write snapshots validated: 66 targeted cases and fresh native gameplay passed; inspected new F10 media and verified source hashes. Compact snapshot allocation fell from 7,697,416 to 17,560 bytes in a 100,000-cell probe; first edits cost a bucket copy and scattered source memory stayed approximately unchanged. Diagnostics do not qualify city/system budgets. Source/media await controller publication and fresh checks; full city/max gates remain closed.",
+      "updatedAt": "2026-10-21T19:38:32+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

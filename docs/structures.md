@@ -176,3 +176,19 @@ change does not qualify city admission or performance.
 Import validates each dependency's identity, occupancy and surface budget as it
 is decoded, before retaining later definitions or reading world cells. The final
 package validation still checks references, geometry, counts and byte integrity.
+
+
+World snapshots share frozen cell trees through chunk buckets. Each snapshot
+copies the chunk index; the first subsequent edit to a shared bucket copies that
+bucket before replacing a cell. Single-cell buckets store one local key directly;
+other buckets use local integer keys. Repeated and nested snapshots remain
+independent, including after clear/replay. Cell reads are immutable; world edits
+use `WorldVoxels.apply`. Snapshot creation and mutation remain owner-thread
+operations. A handed-off snapshot can be read independently; concurrent mutation
+of the same WorldVoxels instance is not supported. No save or wire format changes.
+
+This bounds per-bucket copying to 4,096 cell slots but still copies the whole
+edited-chunk index. Widely scattered edits can therefore increase snapshot work.
+Measured CPU probes cover compact and scattered 100,000-cell worlds; they are
+not city/max, peak-memory or reference GPU/network qualification. Owner-thread
+application, persistence and other outstanding gates above remain unresolved.

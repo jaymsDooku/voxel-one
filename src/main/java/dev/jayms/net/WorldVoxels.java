@@ -1,5 +1,6 @@
 package dev.jayms.net;
 
+import dev.jayms.ChunkPos;
 import dev.jayms.net.model.SparseVoxelOctree;
 
 import java.util.*;
@@ -60,16 +61,38 @@ public final class WorldVoxels {
     }
 
     private final Terrain terrain;
-    private final Map<String, SparseVoxelOctree> cells = new HashMap<>();
+    private static final class CellBucket {
+        final Object owner;
+        private int singleKey=-1;
+        private SparseVoxelOctree singleTree;
+        private Map<Integer,SparseVoxelOctree> cells;
+        CellBucket(Object owner,CellBucket source) {
+            this.owner=owner;
+            if(source!=null) {
+                singleKey=source.singleKey;singleTree=source.singleTree;
+                if(source.cells!=null)cells=new HashMap<>(source.cells);
+            }
+        }
+        SparseVoxelOctree get(int key){return cells==null?(key==singleKey?singleTree:null):cells.get(key);}
+        void put(int key,SparseVoxelOctree tree) {
+            if(cells!=null){cells.put(key,tree);return;}
+            if(singleKey<0||singleKey==key){singleKey=key;singleTree=tree;return;}
+            cells=new HashMap<>(4);cells.put(singleKey,singleTree);cells.put(key,tree);singleKey=-1;singleTree=null;
+        }
+    }
+    private final Map<ChunkPos,CellBucket> chunks=new HashMap<>();
+    private Object owner=new Object();
 
     public WorldVoxels(Terrain terrain) {
         this.terrain = terrain;
     }
 
-    /** Persistent octree roots are shared; subsequent edits always replace a copied tree. */
+    /** Owner-thread snapshot: share frozen cells and clone a bucket on its next edit. */
     public WorldVoxels snapshot() {
         var copy=new WorldVoxels(terrain);
-        cells.forEach((key,value)->copy.cells.put(key,value.copy().freeze()));
+        copy.chunks.putAll(chunks);
+        // Neither world may mutate a bucket owned before this sharing boundary.
+        owner=new Object();
         return copy;
     }
 
@@ -95,18 +118,25 @@ public final class WorldVoxels {
         return value == -1 ? Blocks.PARTIAL : value >>> 24 == 254 ? Blocks.LED : value & 0xffffff;
     }
 
-    public void clear(){cells.clear();}
+    public void clear(){chunks.clear();}
 
+    private SparseVoxelOctree editedCell(int x,int y,int z) {
+        var bucket=chunks.get(ChunkPos.fromBlock(x,y,z));
+        return bucket==null?null:bucket.get(localCell(x,y,z));
+    }
+    private static int localCell(int x,int y,int z){return (x&15)|((z&15)<<4)|((y&15)<<8);}
+
+    /** Read-only cell. World changes go through apply, including on a mutable snapshot. */
     public SparseVoxelOctree cell(int x, int y, int z) {
-        var existing = cells.get(x + "," + y + "," + z);
+        var existing = editedCell(x,y,z);
         if (existing != null) return existing;
         var tree = new SparseVoxelOctree(16);
         tree.fill(0, 0, 0, 16, 16, 16, encode(terrain.block(x, y, z)));
-        return tree;
+        return tree.freeze();
     }
 
     public int type(int x, int y, int z) {
-        var existing = cells.get(x + "," + y + "," + z);
+        var existing = editedCell(x,y,z);
         return existing == null ? terrain.block(x, y, z) : decode(existing.uniform(0, 0, 0, 16));
     }
 
@@ -134,7 +164,13 @@ public final class WorldVoxels {
                 y = edit.iy() * side,
                 z = edit.iz() * side;
         tree.fill(x, y, z, x + side, y + side, z + side, encode(edit));
-        cells.put(edit.cellKey(), tree);
+        var position=ChunkPos.fromBlock(edit.x(),edit.y(),edit.z());
+        var bucket=chunks.get(position);
+        if(bucket==null||bucket.owner!=owner) {
+            bucket=new CellBucket(owner,bucket);
+            chunks.put(position,bucket);
+        }
+        bucket.put(localCell(edit.x(),edit.y(),edit.z()),tree.freeze());
     }
 
     /** Preserve replay order and remove overrides fully covered by the new region. */
