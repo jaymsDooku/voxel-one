@@ -183,7 +183,12 @@ copies the chunk index; the first subsequent edit to a shared bucket copies that
 bucket before replacing a cell. Single-cell buckets store one local key directly;
 other buckets use local integer keys. Repeated and nested snapshots remain
 independent, including after clear/replay. Cell reads are immutable; world edits
-use `WorldVoxels.apply`. Snapshot creation and mutation remain owner-thread
+use `WorldVoxels.apply`, or `replaceCell` for a validated complete 16³ cell.
+Whole-cell replacement copies the tree wrapper and shares persistent nodes, so
+caller edits and snapshots remain independent. Server structure staging uses
+this path instead of replaying every leaf into its private geometry snapshot.
+Edit history is still generated and saved in the existing format; this does not
+remove history limits or make the full commit asynchronous. Snapshot creation and mutation remain owner-thread
 operations. A handed-off snapshot can be read independently; concurrent mutation
 of the same WorldVoxels instance is not supported. No save or wire format changes.
 

@@ -164,13 +164,22 @@ public final class WorldVoxels {
                 y = edit.iy() * side,
                 z = edit.iz() * side;
         tree.fill(x, y, z, x + side, y + side, z + side, encode(edit));
-        var position=ChunkPos.fromBlock(edit.x(),edit.y(),edit.z());
+        replaceCell(edit.x(),edit.y(),edit.z(),tree);
+    }
+
+    /** Replace one validated world cell without replaying its leaves. Owner thread only. */
+    public void replaceCell(int x,int y,int z,SparseVoxelOctree tree) {
+        Objects.requireNonNull(tree,"tree");
+        if(tree.size()!=RESOLUTION)throw new IllegalArgumentException("Invalid world cell resolution");
+        // Copy the wrapper so later caller edits cannot change this world or freeze the caller.
+        var stored=tree.copy().freeze();
+        var position=ChunkPos.fromBlock(x,y,z);
         var bucket=chunks.get(position);
         if(bucket==null||bucket.owner!=owner) {
             bucket=new CellBucket(owner,bucket);
             chunks.put(position,bucket);
         }
-        bucket.put(localCell(edit.x(),edit.y(),edit.z()),tree.freeze());
+        bucket.put(localCell(x,y,z),stored);
     }
 
     /** Preserve replay order and remove overrides fully covered by the new region. */

@@ -6,6 +6,34 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class WorldVoxelSnapshotTest {
+    @Test void wholeCellReplacementMatchesReplayWithoutAliasingCallerOrSnapshots() {
+        var world=new WorldVoxels(new Terrain(42));
+        var replay=new WorldVoxels(new Terrain(42));
+        var tree=new dev.jayms.net.model.SparseVoxelOctree(16);
+        var random=new Random(44);
+        for(int i=0;i<1500;i++) {
+            int x=random.nextInt(16),y=random.nextInt(16),z=random.nextInt(16);
+            tree.fill(x,y,z,x+1,y+1,z+1,WorldVoxels.encode(new Protocol.Edit(0,0,0,Blocks.LED).withColor(random.nextInt(0x1000000))));
+        }
+        tree.fill(0,0,0,1,1,1,WorldVoxels.encode(new Protocol.Edit(0,0,0,Blocks.LED).withColor(0x123456)));
+        var before=world.snapshot();
+        world.replaceCell(-17,128,-1,tree);
+        for(var edit:new Protocol.CellState(-17,128,-1,tree).edits())replay.apply(edit);
+        var after=world.snapshot();
+        for(int y=0;y<16;y++)for(int z=0;z<16;z++)for(int x=0;x<16;x++)
+            assertEquals(replay.cell(-17,128,-1).get(x,y,z),world.cell(-17,128,-1).get(x,y,z));
+        assertEquals(0,before.type(-17,128,-1));
+        int saved=after.cell(-17,128,-1).get(0,0,0);assertEquals(0xfe123456,saved);
+        tree.set(0,0,0,WorldVoxels.encode(Blocks.STONE));
+        assertEquals(saved,world.cell(-17,128,-1).get(0,0,0));
+        world.replaceCell(-17,128,-1,new dev.jayms.net.model.SparseVoxelOctree(16));
+        assertEquals(0,world.type(-17,128,-1));
+        assertEquals(saved,after.cell(-17,128,-1).get(0,0,0));
+        assertThrows(IllegalStateException.class,()->after.cell(-17,128,-1).set(0,0,0,0));
+        assertThrows(IllegalArgumentException.class,()->world.replaceCell(0,128,0,new dev.jayms.net.model.SparseVoxelOctree(8)));
+        assertThrows(NullPointerException.class,()->world.replaceCell(0,128,0,null));
+        assertEquals(0,world.type(-17,128,-1));
+    }
     @Test void everyLocalCoordinateSurvivesFullBucketCopyOnWrite() {
         var world=new WorldVoxels(new Terrain(42));
         for(int y=0;y<16;y++)for(int z=0;z<16;z++)for(int x=0;x<16;x++)
