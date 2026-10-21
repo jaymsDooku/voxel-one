@@ -269,3 +269,5 @@ Older publication evidence remains historical. The controller must validate
 current receipt provenance, review the exact committed publisher source and
 regenerate the bundle before any promotion. No unavailable receipt qualifies
 the required final browser session or full release acceptance.
+
+The scoped package check also runs `NativeContextProbe`: four hidden 64x64 context attempts (4.3 core, 3.3 core, 3.3 without Retina framebuffer, and 3.3 with unconstrained color/depth/stencil bits and single buffering). It records only fixed variant IDs, creation booleans and GLFW codes. This diagnoses hosted API/pixel-format failures; diagnostic completion does not qualify native rendering, gameplay, physical GPU or DPI. Production context requirements are unchanged.

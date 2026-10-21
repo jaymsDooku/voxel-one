@@ -1,0 +1,75 @@
+{
+  "source": "aacc2008df348db5d428c7b3cf2690a3180fc9b7",
+  "hostedReportsInspected": [
+    {
+      "platform": "Darwin",
+      "architecture": "x86_64",
+      "failedChecks": [
+        {
+          "name": "Native rendered city",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native city renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10009)"
+        },
+        {
+          "name": "Native rendered sandbox",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native sandbox renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10009)"
+        },
+        {
+          "name": "Native rendered editor",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native editor renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10009)"
+        }
+      ],
+      "passedCheckCount": 11
+    },
+    {
+      "platform": "Windows",
+      "architecture": "AMD64",
+      "failedChecks": [
+        {
+          "name": "Native rendered city",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native city renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10006)"
+        },
+        {
+          "name": "Native rendered sandbox",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native sandbox renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10006)"
+        },
+        {
+          "name": "Native rendered editor",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native editor renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10006)"
+        }
+      ],
+      "passedCheckCount": 12
+    },
+    {
+      "platform": "Darwin",
+      "architecture": "arm64",
+      "failedChecks": [
+        {
+          "name": "Native rendered city",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native city renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10009)"
+        },
+        {
+          "name": "Native rendered sandbox",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native sandbox renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10009)"
+        },
+        {
+          "name": "Native rendered editor",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native editor renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10009)"
+        }
+      ],
+      "passedCheckCount": 11
+    }
+  ],
+  "change": "Added bounded NativeContextProbe and scoped execution; production renderer requirements unchanged",
+  "tests": [
+    "Playtest: javac --release17 compiled NativeContextProbe against packaged client; LIBGL_ALWAYS_SOFTWARE=1 java NativeContextProbe on inherited DISPLAY created four64x64 contexts, all code0x0; diagnostic only",
+    "python3 -m unittest discover -s tools/hub -p test_*.py:5 passed",
+    "python3 -m py_compile tools/hub/check_packages.py passed",
+    "git diff --check passed"
+  ],
+  "pending": [
+    "Windows/macOS context variants and actual rendered gameplay",
+    "Physical GPU, monitor DPI, performance",
+    "Root preview publication and two public generation upgrades"
+  ],
+  "browser": "No browser playtest applies to the native diagnostic CLI; prior actual Hub media retained."
+}

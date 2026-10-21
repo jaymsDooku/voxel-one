@@ -72,7 +72,7 @@ def run(args):
     classes=work/'classes';classes.mkdir(exist_ok=True)
     source_client=root/'target/voxel-one-1.0-SNAPSHOT-client.jar'
     command([javac,'--release','17','-cp',str(source_client),'-d',classes,'tools/hub/HubPlaytest.java',
-             'tools/hub/PackageUiProbe.java','tools/hub/ProcessQueryProbeTest.java','tools/hub/UpdaterProbe.java','tools/hub/OnlineLoginPlaytest.java','tools/hub/NativeRenderProbe.java','tools/hub/WindowFailureProbe.java','tools/hub/PrePlayCatalogPlaytest.java'])
+             'tools/hub/PackageUiProbe.java','tools/hub/ProcessQueryProbeTest.java','tools/hub/UpdaterProbe.java','tools/hub/OnlineLoginPlaytest.java','tools/hub/NativeRenderProbe.java','tools/hub/WindowFailureProbe.java','tools/hub/NativeContextProbe.java','tools/hub/PrePlayCatalogPlaytest.java'])
     jars=[];apps=[]
     from package import package
     for i in (1,2):
@@ -264,6 +264,12 @@ def run(args):
         command(argv,timeout=60)
         return 'Invalid native width produced fixed GLFW_INVALID_VALUE code 0x10004; no native descriptions retained.'
     check('Bounded native window failure','Native window failures expose a fixed numeric GLFW code',invalid_window)
+    def context_diagnosis():
+        argv=[runtime,'-Djava.io.tmpdir='+str(work)]
+        if platform.system()=='Darwin':argv.append('-XstartOnFirstThread')
+        argv.extend(['-cp',os.pathsep.join(map(str,(classes,second))),'NativeContextProbe'])
+        return command(argv,env.copy(),timeout=30,output=True)[:700]+' Diagnostic completion only; native rendering gates remain required.'
+    check('Bounded context diagnosis','Four context variants report fixed codes; no driver text or gameplay claim',context_diagnosis)
     for mode in ('city','sandbox','editor'):
         def render(mode=mode):
             # Bundled Java is invoked by absolute path. Preserve OS driver/utility paths;
