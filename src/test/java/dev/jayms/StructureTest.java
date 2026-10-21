@@ -51,6 +51,36 @@ class StructureTest {
         assertEquals(asset.cells.stream().map(Cell::model).toList(),loaded.cells.stream().map(Cell::model).toList());
         assertArrayEquals(asset.encode(),loaded.encode());
     }
+    @Test void shuffledPackageCellsKeepGeometryModelAssociationsAndCanonicalSectionOrder() throws Exception {
+        var random=new Random(20261021);var input=new ArrayList<Cell>();var expected=new HashMap<Position,Cell>();
+        var model=new SparseVoxelOctree(32);model.set(31,31,31,0xffabcdef);
+        while(input.size()<2000) {
+            var p=new Position(random.nextInt(1024),random.nextInt(256),random.nextInt(1024));
+            if(expected.containsKey(p))continue;
+            Cell cell;
+            if(input.size()%5==0)cell=new Cell(p,null,0);
+            else {
+                var tree=new SparseVoxelOctree(16);
+                tree.fill(1,2,3,2,3,4,WorldVoxels.encode(new Protocol.Edit(0,0,0,Blocks.LED).withColor(input.size()+1)));
+                cell=new Cell(p,tree,-1);
+            }
+            expected.put(p,cell);input.add(cell);
+        }
+        Collections.shuffle(input,random);
+        var asset=new StructurePackage("Shuffled sections",new Bounds(1024,256,1024,0,0,0),List.of(new ModelDefinition("Component",model)),input);
+        var canonical=new ArrayList<>(expected.keySet());
+        canonical.sort(Comparator.comparingInt((Position p)->p.y()/16).thenComparingInt(p->p.z()/16)
+            .thenComparingInt(p->p.x()/16).thenComparingInt(p->p.y()%16).thenComparingInt(p->p.z()%16).thenComparingInt(p->p.x()%16));
+        assertEquals(canonical,asset.cells.stream().map(Cell::position).toList());
+        for(var cell:asset.cells) {
+            var original=expected.get(cell.position());assertEquals(original.model(),cell.model());
+            if(cell.model()<0)assertEquals(original.geometry().leaves(),cell.geometry().leaves());
+        }
+        var reloaded=StructurePackage.decode(asset.encode());
+        assertArrayEquals(asset.encode(),reloaded.encode());
+        input.add(200,input.get(1777));
+        assertThrows(IOException.class,()->new StructurePackage("Nonadjacent duplicate",asset.bounds,asset.models,input));
+    }
     @Test void importCommandRetainsLongPathsAndBoundsInput() throws Exception {
         try(var menu=new dev.jayms.ui.StructureMenu(folder)) {
             String command="import /"+"nested directory/".repeat(30)+"house.vstr";

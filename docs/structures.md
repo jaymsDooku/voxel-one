@@ -74,7 +74,9 @@ Validated packages retain cell coordinates and model references in primitive arr
 with frozen geometry references. Reading a cell creates a temporary record; the
 public list remains immutable and spatially ordered. This reduces retained
 per-cell objects without changing v1 export bytes or increasing admission limits.
-Constructor validation and placement staging still need further memory work.
+Constructor validation uses primitive sort keys for canonical ordering and duplicate
+detection. Capture/decode input lists and placement staging still need further
+memory work.
 
 Additional provisional development caps are 131,072 geometry leaves and 16,384
 model instances per package, 1,048,576 model-definition surface quads,
