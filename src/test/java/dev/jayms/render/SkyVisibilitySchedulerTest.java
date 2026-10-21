@@ -38,7 +38,10 @@ class SkyVisibilitySchedulerTest {
             world.addChunk(new ChunkPos(edge.chunkX(),4,edge.chunkZ()),new Chunk());world.addChunk(new ChunkPos(100,4,0),new Chunk());
             world.prepareTerrainTask(()->{entered.countDown();release.await();return null;});assertTrue(entered.await(5,TimeUnit.SECONDS));
             var scan=SkyVisibilityScheduler.class.getDeclaredField("scan");scan.setAccessible(true);scan.set(sky,java.util.List.of(far).iterator());
-            sky.update(world,16,0,10_000_000);
+            // This checks ticket priority/fairness, not a frame-time budget. Cold JVMs and
+            // shared CI runners may consume 10 ms before both tickets can be captured.
+            // Keep production budgets unchanged; let this bounded functional step finish.
+            sky.update(world,16,0,TimeUnit.SECONDS.toNanos(10));
             var field=SkyVisibilityScheduler.class.getDeclaredField("tickets");field.setAccessible(true);var tickets=(java.util.List<?>)field.get(sky);assertFalse(tickets.isEmpty());
             var column=tickets.get(0).getClass().getDeclaredMethod("column");column.setAccessible(true);
             assertEquals(edge,column.invoke(tickets.get(0)),"The real forward loaded tile must precede unrelated fairness work");
