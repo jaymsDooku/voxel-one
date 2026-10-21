@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-21T12:06:01+00:00",
+  "updatedAt": "2026-10-21T13:04:38+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4017,8 +4017,8 @@
       "description": "Building the catalog-driven desktop hub around verified client updates. Platform packaging and playtests remain required.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Inspected aacc2008 packaged failures: native context creation still fails on Windows and both Macs. Added bounded context variants to isolate API/pixel-format limits; four variants executed successfully on assigned Linux software renderer. Five publisher tests passed. Hosted gameplay and physical/publication gates remain pending.",
-      "updatedAt": "2026-10-21T12:01:16+00:00"
+      "note": "Integrated47d1daf4 preserves reviewed Asset Manager and Hub. Actual --hub startup and unavailable-web playtests passed; Asset Manager/offline/explicit-port command regressions passed; fresh screenshot inspected. Five publisher tests and launcher compilation passed. No unrelated deletions. Exact-head packaged and physical/publication qualification pending.",
+      "updatedAt": "2026-10-21T13:04:38+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
