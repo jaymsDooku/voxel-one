@@ -105,5 +105,14 @@
     "deploy/run_asset_launcher_e2e.py": "3b403f0a8b13beaabf00fb9877b07c9fa5fe5e6f6189a735dff79f34ce787b75",
     "deploy/asset_test_browser.py": "3545fefe44ffef8ef612793d52bfea9ce6baf6fdc0e2afcbfb8b112170238d0d",
     "deploy/test_asset_manager.cjs": "42dbe53a0013602ad254ae2720d16c746c461614d149ab55f06a10d059134b88"
+  },
+  "rebase_validation": {
+    "head": "aad3aa7b2736c6c7cbf37a61029c72d18917e9b2",
+    "review_base": "8c68a1cd72ec3f344711ef721cdcaffd86c45638",
+    "focused_tests": "PASS: 15 tests, package; rerun after rebase",
+    "launcher_playtest": "PASS: production Launcher, verified client, Chromium search/upload, selected-game engine intake",
+    "diff_audit": "No files deleted against recorded review base. Changes since published head preserve Hub publication workflow, regression tests and evidence. Only progress timestamp conflict required resolution.",
+    "hosted_checks": "Published PR80 head46d830b5 build checks pass; new local head requires controller publication and exact-source CI.",
+    "native_playtest": "PASS: fresh profile; both seeds and upload, held tower, inventory, save/reload and F10. New clip fully decoded: 7 frames, 5.619 seconds, 476692 bytes, H264 864x540. Held-tower screenshot visually inspected. Software rendering only; physical GPU performance unqualified."
   }
 }
