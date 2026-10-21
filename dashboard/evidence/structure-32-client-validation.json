@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "testedHead": "86622511b6ef416009c4e9af50d1258fe0d4c3ba",
+  "reviewBase": "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+  "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp -Dvoxel.structure.clients=32\" -Dtest=StructureMultiplayerTest test",
+  "result": {
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "junitElapsedSeconds": 341.577,
+  "clients": 32,
+  "fixture": "512 occupied model-instance cells across 512\u00d71\u00d71 cells, with 512 unique model definitions at resolution 8; cancellation uses 128 dense dependencies at resolution 32.",
+  "playtest": "Playtest: production TLS server and 32 local headless protocol clients. Four rotations, empty-cache dependency synchronization to all clients, overlap rejection, one-operation undo, cancellation without leaked dependencies/geometry, 512-cell concurrent single-winner placement, late join and restart recovery assertions passed. Production login pacing retained, including 306-second batch delay.",
+  "environment": "Linux VPS, loopback TLS, synthetic isolated accounts/TLS/save under worktree target temporary directory; no rendering or shaped network in this integration test. Browser playtesting does not apply to the server/protocol test.",
+  "media": {
+    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/86622511b6ef416009c4e9af50d1258fe0d4c3ba/dashboard/evidence/structure-workflow.mp4",
+    "sha256": "4379208d5319d5cbfdf8f3dcad593f7de87810cd35ad78352915d6b23231118a",
+    "inspection": "Published bytes match exact-head Git. H264 video: 16 frames, 25.467 seconds; decoded and frame inspected. Existing native manifest matches unchanged production/harness source. This video shows the native structure workflow, not 32 rendered clients."
+  },
+  "qualification": "Functional 32-client loopback correctness only. Does not qualify city/max, physical GPU, shaped network, peak memory/frame/tick/traffic budgets or full acceptance. Test elapsed time includes login pacing and is not an operation performance metric.",
+  "pending": [
+    "Full city/max implementation and admission beyond development caps",
+    "20-run city/max reference-system performance and shaped-network 32-client qualification",
+    "Physical GPU qualification and supported-limit publication"
+  ],
+  "publication": "Local validation report pending controller publication"
+}
