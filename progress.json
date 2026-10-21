@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-21T12:22:26+00:00",
+  "updatedAt": "2026-10-21T12:48:37+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -3891,8 +3891,8 @@
       "description": "Reviewed native startup, source-context recovery, reviewer media and passive-wait shutdown fixes are installed. Final optional-helper integration is under independent review; preserved game work is resuming.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Reviewed native startup, source-context recovery, reviewer media and passive-wait shutdown fixes are installed. Final optional-helper integration is under independent review; preserved game work is resuming.",
-      "updatedAt": "2026-10-21T12:22:26+00:00"
+      "note": "Reviewed startup, source recovery, reviewer media, shutdown and helper fixes are installed; launcher development resumed. Final restart verification exposed a passive-wait lease recovery gap. A regression reproduces it and the assigned developer is repairing it.",
+      "updatedAt": "2026-10-21T12:48:37+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
