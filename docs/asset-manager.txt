@@ -1,0 +1,41 @@
+Voxel Asset Manager
+
+Open the Voxel One Launcher and choose Asset Manager. The launcher updates the
+client as usual, then opens the local library in your default browser. Keep the
+Asset Manager desktop window open while using the browser. Close that window to
+stop the service. Reopen it from the Launcher to start a new browser session.
+The client also accepts --asset-manager for a direct launch. On desktops without
+a default-browser handler, BROWSER may name one executable that accepts the URL
+as its first argument. Shell expressions and command templates are not used.
+
+Search names, descriptions and authors. Select an asset for its voxel preview,
+author, description, resolution and occupied voxel count. Download .vxm exports
+the same native packet used by the model editor's Save draft / Load draft actions.
+
+To upload, choose a .vxm file saved by the model editor and enter the author and
+a short description. The model's embedded name is its catalog title. Supported
+resolutions are 8, 16 and 32 voxels per axis, with opaque colors and a nonempty
+model. Maximum packet size is 200004 bytes; the engine's mesh complexity cap also
+applies. Invalid files are rejected before entering the catalog. Uploading the
+same model twice returns the existing entry and preserves its original metadata.
+
+Choose Voxel Sandbox or Voxel City One and click Add to selected game. The asset
+is staged for that game's next offline startup. Each offline world for that game
+receives it once in its inventory, using its own stable model IDs. Already running
+games must restart. The engine reports import errors, such as full inventory or
+a full model library, and retries on the next startup. Make room before retrying.
+Imports do not modify live saves. Multiplayer publication remains subject to the
+world's existing permissions and is done through the in-game model editor.
+
+Models occupy one engine block; a skyscraper is a miniature decorative model at
+that scale, not a full-size habitable city building. The existing flower pot is
+preserved as the original engine model. Hudson Crown Tower is an original
+monumental art deco skyscraper with no political insignia. Both are bundled
+read-only seed entries; uploads cannot replace them.
+
+The library is local to the desktop user. It uses the existing .voxel-one profile:
+asset-catalog stores uploaded catalog records, asset-imports/<game> stores selected
+models, and <world-save>.assets records intake receipts. No remote account or
+public asset sharing is introduced. The web service binds only to 127.0.0.1 and
+uses a fresh browser session token, with Host and Origin checks. Browser session
+links must not be shared. No service credentials are logged or saved by the app.

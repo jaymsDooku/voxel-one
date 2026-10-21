@@ -390,6 +390,8 @@ public class Main {
         farmModels = new FarmModels();
         if (network == null) {
             local = new LocalGame(offlineSave, seed);
+            String assetNotice = dev.jayms.assets.AssetIntake.apply(Controls.directory(), GameIdentity.of(gameConfig.city()), offlineSave, local);
+            if (!assetNotice.isEmpty()) notice = assetNotice;
             seed = local.seed;
         } else seed = network.seed;
         int generatorVersion = network == null ? local.generatorVersion : network.generatorVersion;
@@ -1841,6 +1843,10 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
+        if (java.util.Arrays.asList(args).contains("--asset-manager")) {
+            dev.jayms.assets.AssetManagerServer.open(Controls.directory());
+            return;
+        }
         if (args.length == 1 && args[0].equals("--physics-lab")) {
             dev.jayms.physics.PhysicsLab.main(new String[0]);
             return;

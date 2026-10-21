@@ -134,6 +134,15 @@
       "updatedAt": "2026-10-20T13:59:47+00:00"
     },
     {
+      "id": "voxel-asset-manager",
+      "title": "Voxel Asset Manager",
+      "description": "Inspected launcher and existing model serialization/library. Original skyscraper geometry requested; implementation and workflow validation remain pending.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Implementation complete; awaiting independent review. Both seeds, Launcher/web upload/search and selected-game intake pass. 15 tests/package, full Launcher-browser-engine and native tower/inventory/reload pass; fresh screenshots/F10 decoded. Media pending controller publication.",
+      "updatedAt": "2026-10-21T10:47:10+00:00"
+    },
+    {
       "id": "9c35cf2b-7ce5-4874-9649-13bf9392c208",
       "title": "Voxel Sandbox: eliminate frame drops when loading new chunks",
       "description": "Bounded async Sandbox generation, staged mesh/lighting work, reusable GPU stores and worker-built mip levels; validated on the available Linux software renderer.",
