@@ -27,6 +27,53 @@ class StructureOccupancyTest {
                 List.of(new Cell(new Position(0,0,0),null,0),new Cell(new Position(1,0,0),solid(),-1)));
     }
     static SparseVoxelOctree solid(){var t=new SparseVoxelOctree(16);t.fill(0,0,0,16,16,16,WorldVoxels.encode(Blocks.STONE));return t.freeze();}
+    static CityFrame bodyFrame(int kind,float x,float y,float z) {
+        var base=CityFrame.empty(GameConfig.sandbox());
+        var citizens=kind==0?List.of(new CityFrame.Citizen(1,"Synthetic",0,x,y,z,0,0,0,0,0,0,0,"Idle")):List.<CityFrame.Citizen>of();
+        var horses=kind==1?List.of(new CityFrame.Horse(1,x,y,z,0,0,0)):List.<CityFrame.Horse>of();
+        var cows=kind==2?List.of(new Agriculture.Cow(1,0,0,true,x,y,z,0,0,2,1)):List.<Agriculture.Cow>of();
+        return new CityFrame(base.config(),0,List.of(),List.of(),List.of(),citizens,horses,base.economy(),base.addresses(),
+            new Agriculture.State(false,false,List.of(),List.of(),cows,List.of()));
+    }
+    @Test void bodyLocalProbesMatchExhaustiveReferenceAtNegativeAndFractionalBoundaries() throws Exception {
+        var random=new Random(91723);var cells=new HashMap<Position,SparseVoxelOctree>();
+        for(int y=-3;y<=3;y++)for(int z=-3;z<=3;z++)for(int x=-3;x<=3;x++)
+            if(random.nextBoolean())cells.put(new Position(x,y,z),random.nextBoolean()?solid():new SparseVoxelOctree(16));
+        for(int kind=0;kind<4;kind++)for(int trial=0;trial<200;trial++) {
+            float x=(random.nextInt(49)-24)/4f,y=(random.nextInt(49)-24)/4f,z=(random.nextInt(49)-24)/4f;
+            var frame=bodyFrame(kind,x,y,z);var players=kind==3?List.of(new Protocol.Pose(1,x,y,z,0,0)):List.<Protocol.Pose>of();
+            boolean expected=false;
+            for(var entry:cells.entrySet())if(!entry.getValue().isEmpty()) {
+                var p=entry.getKey();
+                expected|=CityOccupancy.overlaps(frame,p.x(),p.y(),p.z(),1,1,1);
+                for(var player:players)expected|=player.x()+.3>p.x()&&player.x()-.3<(double)p.x()+1
+                    &&player.y()+1.8>p.y()&&player.y()<(double)p.y()+1
+                    &&player.z()+.3>p.z()&&player.z()-.3<(double)p.z()+1;
+            }
+            boolean rejected=false;try{StructureOccupancy.validate(cells,frame,players);}catch(IOException blocked){rejected=true;}
+            assertEquals(expected,rejected,"body kind="+kind+" at "+x+","+y+","+z);
+        }
+    }
+    @Test void collisionWorkIsBodyLocalAndExtremeFinitePositionsCannotWrap()throws Exception {
+        int[] probes={0};
+        Map<Position,SparseVoxelOctree> cells=new AbstractMap<>() {
+            @Override public Set<Entry<Position,SparseVoxelOctree>> entrySet(){throw new AssertionError("Must not scan structure cells");}
+            @Override public SparseVoxelOctree get(Object key){probes[0]++;return null;}
+        };
+        StructureOccupancy.validate(cells,bodyFrame(1,-.5f,0,-.5f),List.of(new Protocol.Pose(1,-.5f,0,-.5f,0,0)));
+        assertTrue(probes[0]>0&&probes[0]<=64,"Work bounded by body size, independent of placement size");
+        probes[0]=0;
+        for(float far:new float[]{Float.MAX_VALUE,-Float.MAX_VALUE})
+            StructureOccupancy.validate(cells,bodyFrame(1,far,far,far),List.of(new Protocol.Pose(1,far,far,far,0,0)));
+        assertEquals(0,probes[0],"Finite out-of-grid coordinates must not wrap into huge loops");
+        assertThrows(IOException.class,()->StructureOccupancy.validate(cells,null,List.of(new Protocol.Pose(1,Float.NaN,0,0,0,0))));
+    }
+    @Test void exactBodyFaceAndEmptyUndoDoNotBlockButOccupiedNegativeCellDoes()throws Exception {
+        var player=new Protocol.Pose(1,-.5f,0,-.5f,0,0);
+        StructureOccupancy.validate(Map.of(new Position(-1,-1,-1),solid()),null,List.of(player));
+        StructureOccupancy.validate(Map.of(new Position(-1,0,-1),new SparseVoxelOctree(16)),null,List.of(player));
+        assertThrows(IOException.class,()->StructureOccupancy.validate(Map.of(new Position(-1,0,-1),solid()),null,List.of(player)));
+    }
     @Test void offlineHorseEnteringAfterStagingRejectsWithoutDependenciesGeometryOrSave()throws Exception {
         var save=folder.resolve("offline.dat");var local=new LocalGame(save,42);local.city=city(false);
         var world=new World(42,local.models);var engine=new StructureEngine();int models=local.models.entries().size();
