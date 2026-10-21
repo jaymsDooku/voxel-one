@@ -492,3 +492,48 @@ Source/docs/media remain local, pending controller publication and exact-head
 checks. City/max admission, atomic chunk publication, 2,000,000-edit history
 ceiling and reference GPU/shaped-network/system qualification remain unfinished.
 No caps raised or supported limits published. Not ready.
+
+## Whole-cell server staging
+
+Published parent `9eea982587a4b3f4cb8bc9faaa2f7a4eea556712` passed all eight
+hosted platform summaries: 794 tests each, zero failures/errors, one skip each.
+Verified feature source hashes and PR merge parents. Receipt:
+`dashboard/evidence/structure-9eea-hosted.json`. These parent results do not
+qualify the new edits.
+
+Server structure staging now installs each complete cell into its private COW
+geometry snapshot instead of rebuilding it through leaf edits. The new
+`WorldVoxels.replaceCell` checks resolution, copies the caller's tree wrapper,
+freezes the copy and detaches shared chunk buckets before changing them. Nodes
+remain persistent and shared. Ordinary apply uses the same install path, with
+one additional wrapper copy. Save-before-publication order, history generation,
+formats and caps are unchanged. No whole-operation atomicity or city support
+is inferred from the faster geometry step.
+
+37 selected tests passed, including TLS multiplayer placement/undo and offline
+occupancy regressions. The new test compares every voxel against replay,
+checks a known coloured sentinel, caller mutation, snapshot isolation, explicit
+air and bad inputs. A fixture initially used set for LED alpha 254; corrected
+to fill, then reran all selected suites. A stricter sentinel assertion passed
+in a subsequent four-test focused run. Helper failed without a proposal and
+was explicitly resolved self; local inspection and execution supplied evidence.
+
+Geometry-only probe: 64 cells, 512 fractional leaves per cell, three warmups and
+20 samples. Replay median/p95/worst: 20.047156/28.671589/38.647318 ms;
+replacement: 0.012723/0.027545/0.031195 ms. Median thread allocations:
+13,577,760/7,840 bytes. Both paths use current APIs, not different source heads.
+Checks compare every voxel and preserve snapshots/unrelated geometry each run.
+History, save, rendering and networking excluded; not peak memory or city/max
+qualification. Commands and details: `structure-whole-cell-validation.json`.
+
+Fresh native Main/GLFW workflow passed on inherited display with isolated
+synthetic profile. Inspected live-player conflict and component screenshots and
+a decoded F10 frame: 17 frames, 27.148 s, 362,256 bytes. Complete production Java
+and harness path set and hashes verified unchanged. Video SHA-256:
+`9ce34c04f7b03883f375fb24d308558f463f9b72cf16cb0cfd771f4c34f1ef63`.
+llvmpipe rendered about 1 FPS; no physical GPU/frame-time qualification.
+Source, report and fresh media await controller publication and new checks.
+No files deleted against recorded review base; existing MP3/Hub/Asset Manager
+features retained. Full city/max admission, 2,000,000-edit persistence ceiling,
+chunk transaction/publication, reference GPU/network and 20-run system budgets
+remain unfinished. No readiness claim or rollout-gate changes.
