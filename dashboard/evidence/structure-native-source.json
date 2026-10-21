@@ -56,7 +56,7 @@
     "src/main/java/dev/jayms/net/RemotePlayer.java": "1cc1ec5600b563e01a3077899ae427c47df2b6a86d52b6069c6500f3ffeef26c",
     "src/main/java/dev/jayms/net/SecureTransport.java": "6d04aa968e17a151ba1694c1ac637722d4e84f33253ac44c1e59be10502b6d41",
     "src/main/java/dev/jayms/net/Terrain.java": "785697c38780c39c25dd9d47f3ab2772d5d1f199865654f055fa296c3293402f",
-    "src/main/java/dev/jayms/net/WorldVoxels.java": "bf8244e1af8ec7d08fa76ca0feaba9321f62cb350fe557030564f61156ca9c84",
+    "src/main/java/dev/jayms/net/WorldVoxels.java": "73c34fb01670ff4b86e3d479112b58da9a299186021ea625226118857db199d8",
     "src/main/java/dev/jayms/net/atmosphere/AtmosphereConfig.java": "d14101f2b0f8a1e6b155be95c3ff3d5cc47c918f75bdf0c980eabc209dbc8308",
     "src/main/java/dev/jayms/net/city/Agriculture.java": "61cbe6f28d3c16407f1074860edab0407fad35f6d9498c8bd9d7fce16e96eeb7",
     "src/main/java/dev/jayms/net/city/Aviation.java": "aec5129c8d0ee506a0f5626217cf773af7152194b2d828ba106660f29b1a62ff",

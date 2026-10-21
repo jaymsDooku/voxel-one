@@ -1,0 +1,77 @@
+{
+  "sourceHead": "a6486ea7d2bb5240969d4a36de8a9a29b06f697e",
+  "base": "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+  "push_run": 39657093896,
+  "pr_run": 39657097252,
+  "summaries": [
+    {
+      "artifact": 12373230341,
+      "head": "a6486ea7d2bb5240969d4a36de8a9a29b06f697e",
+      "tests": 791,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "artifact": 12372631888,
+      "head": "a6486ea7d2bb5240969d4a36de8a9a29b06f697e",
+      "tests": 791,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "artifact": 12372587308,
+      "head": "a6486ea7d2bb5240969d4a36de8a9a29b06f697e",
+      "tests": 791,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "artifact": 12371313578,
+      "head": "a6486ea7d2bb5240969d4a36de8a9a29b06f697e",
+      "tests": 791,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "artifact": 12373611491,
+      "head": "2efd08a71a9331f633114cd78cdef987aa6f344e",
+      "tests": 791,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "artifact": 12373075620,
+      "head": "2efd08a71a9331f633114cd78cdef987aa6f344e",
+      "tests": 791,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "artifact": 12372083816,
+      "head": "2efd08a71a9331f633114cd78cdef987aa6f344e",
+      "tests": 791,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "artifact": 12371779807,
+      "head": "2efd08a71a9331f633114cd78cdef987aa6f344e",
+      "tests": 791,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    }
+  ],
+  "verified_pr_merge_parents": [
+    "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+    "a6486ea7d2bb5240969d4a36de8a9a29b06f697e"
+  ],
+  "scope": "Eight parent Maven summaries inspected: 791 tests each, zero failures/errors, one skip each. Does not qualify subsequent snapshot edits or city/GPU/network budgets."
+}

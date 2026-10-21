@@ -416,3 +416,79 @@ City now fits the package-size target but still rejects dependency surface cap;
 maximum still rejects geometry cap. Full admission/storage/atomic chunk work,
 2,000,000-edit persistence ceiling and 20-run reference GPU/network/system
 qualification remain unfinished. Gates stay closed. Not ready.
+
+
+## Pause checkpoint — chunk copy-on-write snapshots unpublished
+
+Paused on explicit shared-quota/service-control instruction. Parent head is
+`a6486ea7d2bb5240969d4a36de8a9a29b06f697e` on the assigned feature branch.
+Unpublished changes: `WorldVoxels.java` now uses chunk buckets and ownership tokens
+to share frozen cell trees across snapshots and clone a bucket on its next edit.
+Cell reads are frozen; edits still go through apply. Persistence formats and
+admission caps are unchanged. Added `WorldVoxelSnapshotTest` for nested snapshots,
+negative chunk edges, frozen reads, fractional LED edits and randomized fork/edit/
+clear isolation. No performance improvement has been measured yet.
+
+The already-running Maven command finished with exit 0 after the pause request.
+Its selected reports contain 65 tests; metadata is retained in
+`target/structure-snapshot-tests-summary.json`. Command:
+`mvn -q -Dmaven.repo.local="$PWD/target/structure-m2" -DargLine="-Djava.io.tmpdir=$PWD/target/structure-audit-tmp" -Dtest=WorldVoxelSnapshotTest,FractionalWorldTest,RegionalSaveCompatibilityTest,StructureModelCodecTest,StructurePlacementCellsTest,StructureTest,StructureOccupancyTest,WorldStreamingTest,MusicMp3Test,StructureMultiplayerTest test`.
+No new tests or implementation started after the pause request.
+
+Delegate review `bc893ed1-8508-4b17-b23f-d05029656665` was submitted before the
+pause. Collection returned an authorization/pause notice, no proposal. Do not
+retry inference until authorized; resolve or take over this task on resume.
+No delegate conclusions were used as evidence.
+
+Resume only when authorized: inspect/resolve the pending design review, audit
+bucket aliasing and frozen-cell callers, measure snapshot allocation/time and
+edit cost, then run the fresh native workflow and capture/inspect media for this
+changed source. Current published v2 media does not qualify the snapshot edits.
+Hosted artifact IDs for the parent were listed but summaries were not downloaded
+in this continuation; inspect actual scoped results before claiming them. No Git
+mutation or publication performed. Full city/max admission, 2,000,000-edit history
+ceiling, atomic chunk publication and reference GPU/network/system qualification
+remain unfinished. Caps and rollout gates stay in place. Not ready.
+
+
+## Chunk copy-on-write snapshot validation
+
+Resumed under current controller authorization. Took over the interrupted helper
+review independently and resolved its task. Audited callers: world cell values
+are read/copied; edits use apply. Snapshot ownership invalidation ensures neither
+side can mutate a shared bucket. Nested snapshots and clearing remain isolated.
+Single-cell buckets use one direct local index; larger buckets use local integer
+keys. This removes the first prototype's scattered-edit memory increase. No save,
+wire or admission-limit changes. No files deleted against the review base.
+
+Final targeted reports contain 66 passing cases: the selected 65-case run plus
+the subsequently added full 4,096-coordinate case in a successful focused rerun.
+Coverage includes forks/clear, negative boundaries, singleton/map transitions,
+frozen reads, fractional geometry, compatibility, offline/TLS structures,
+occupancy, streaming and MP3. All eight parent `a6486ea7` hosted summaries have
+791 tests, zero failures/errors and one optional skip each. Exact push hashes
+and PR merge parents were verified; parent results do not qualify local edits.
+
+Measured parent/current snapshot allocations for 100,000 compact cells:
+7,697,416/17,560 bytes; median/p95/worst 30.824161/80.081332/202.031732 ms and
+0.154970/0.272457/0.316526 ms. Scattered snapshot allocations:
+7,697,416/4,248,696 bytes. Scattered source retained-heap samples were
+17,562,304/17,595,672 bytes, approximately unchanged within GC-sensitive noise.
+Compact source retained samples fell from 17,547,208 to 11,566,872 bytes. First
+compact edit allocation rises from 208 to 10,528 bytes to copy the shared bucket;
+first-edit latency also increases. Report includes all measured operations and
+tradeoffs. Separate JVMs, 3 warmups and 20 samples per operation; not peak memory
+or city/max/system qualification. Parent classes came from exact parent source.
+
+Playtest: fresh Main/GLFW workflow passed on inherited X11 with isolated synthetic
+profile and llvmpipe, including capture/import/export, four rotations, empty-space
+preservation, overlap/live-player rejection, cancellation, malformed-import
+atomicity, one-operation undo, repeated placement, restart, inventory and editor
+regressions. Verified full production/harness path set and hashes. Decoded and
+inspected a frame from the fresh 17-frame, 27.983-second F10 clip, plus the player
+conflict and component screenshots. Report: `structure-snapshot-validation.json`.
+
+Source/docs/media remain local, pending controller publication and exact-head
+checks. City/max admission, atomic chunk publication, 2,000,000-edit history
+ceiling and reference GPU/shaped-network/system qualification remain unfinished.
+No caps raised or supported limits published. Not ready.
