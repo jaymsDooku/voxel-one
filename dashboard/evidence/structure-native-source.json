@@ -114,8 +114,9 @@
     "src/main/java/dev/jayms/net/model/SparseVoxelOctree.java": "d42f3a86728e5f0dd75a4308b4d9a20461e44d7d88998ce9205cfe6a794f4ebb",
     "src/main/java/dev/jayms/net/structure/StructureCells.java": "2c8a0b8f123b6628adb2777011d7ede1bd52a23f8987ed62db3eea10138ce54f",
     "src/main/java/dev/jayms/net/structure/StructureEngine.java": "871ff117dcd475006aec83acb0e563f5458cab4886ae45570432b61155c49bc8",
+    "src/main/java/dev/jayms/net/structure/StructureModelCodec.java": "7b211dd7e8214a6186e2c356b87bccc6a08ea24b6760670e0d64e3ac4daec98b",
     "src/main/java/dev/jayms/net/structure/StructureOccupancy.java": "2fe8c88af2f4b8edbee3f096e513dec88dd592165139578dfb2633c996635bcb",
-    "src/main/java/dev/jayms/net/structure/StructurePackage.java": "f571375b340146a0077b3ab3dfb2a46f2d28f07988f70a2d372a20ce61ae871e",
+    "src/main/java/dev/jayms/net/structure/StructurePackage.java": "cd27c74e461e5bd2d6c6089c28b1d433e3387c7a6b8d9af9d046d9affde567ee",
     "src/main/java/dev/jayms/net/structure/StructurePlacementCells.java": "27625d145ea15d7973cc277a10b66ec67be2b3379594676fcbc315d7bf13f73c",
     "src/main/java/dev/jayms/net/structure/StructureWire.java": "49eb1bc6fabb9d78177f5547e6bf4ae99509c86bc7cfebd69e7b59e9d8f33006",
     "src/main/java/dev/jayms/physics/Aabb.java": "dd84807d0e331d7471c8e06bcc1e068a98821b6f25add0aa4e819dfe67e095ca",
@@ -212,7 +213,7 @@
     "src/main/java/dev/jayms/ui/StructureMenu.java": "b92a9439f3f7a6cb56ad1458f10856b85d2e2c3ee6471872175f6470928fc0b4",
     "src/main/java/dev/jayms/window/KeyAction.java": "a2d892382438b9b81b69ad7773f192beeac17a1d739ec1a3248c2cc000dcdaf8",
     "src/main/java/dev/jayms/window/Window.java": "9953ca693c8c74631ebcb8d45b81587fc944afad15cec865edbe31dbc8f1a27d",
-    "deploy/StructurePlaytest.java": "3474b5586d8e60d027559113c1662225a5c2a973137d92ae572418ea1da0e200"
+    "deploy/StructurePlaytest.java": "74bc39a2f8ed86a04634e1522dec0a950b90a05013ea8fd2caa825647cf0cd81"
   },
   "scope": "Production Java plus native workflow harness; isolated synthetic profile"
 }

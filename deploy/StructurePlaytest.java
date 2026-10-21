@@ -73,13 +73,17 @@ public class StructurePlaytest {
                     for(int xx=6;xx<=7;xx++)for(int y=129;y<=130;y++)edit(new Protocol.Edit(xx,y,16,0));
                     var tree=new SparseVoxelOctree(32);tree.fill(2,0,2,30,2,30,0xff998855);tree.fill(14,2,14,18,27,18,0xff55ccaa);tree.set(31,31,31,0xffff5533);
                     int model=local().models.register(new ModelDefinition("Structure lamp",tree),"fixture").id();edit(new Protocol.Edit(6,129,14,model));
+                    var dense=new SparseVoxelOctree(8);for(int i=0;i<512;i++)dense.set(i%8,(i/8)%8,i/64,0xff000000|((i*1664525+1013904223)&0xffffff));
+                    int packed=local().models.register(new ModelDefinition("Dense component",dense),"fixture").id();edit(new Protocol.Edit(7,129,14,packed));
                     var player=new dev.jayms.player.Player(new org.joml.Vector3f(22,135,40),-90,-26,(Camera)get("camera"));player.toggleFlight();set("player",player);
                     return null;
                 });
                 Thread.sleep(2000);x("key","F12");waitFor(()->menu().open,"F12 library opens");
                 onFrame(()->{menu().mark=new Position(4,128,12);return null;});command("first");command("anchor");
                 onFrame(()->{menu().mark=new Position(8,131,16);return null;});command("second");command("capture Demo house");
-                require(menu().selected!=null&&menu().selected.models.size()==1,"Named capture with custom dependency: "+menu().message+"; corners="+menu().first+" / "+menu().second);
+                require(menu().selected!=null&&menu().selected.models.size()==2,"Named capture with custom dependencies: "+menu().message+"; corners="+menu().first+" / "+menu().second);
+                var packedCheck=new java.io.ByteArrayOutputStream();StructureModelCodec.write(new java.io.DataOutputStream(packedCheck),menu().selected.models.get(1));
+                require(packedCheck.toByteArray()[0]==1,"Dense component exercises packed dependency encoding");
                 require(menu().selected.cells.stream().anyMatch(c->c.model()<0&&c.geometry().leaves().stream().anyMatch(l->l.side()<16)),"Fractional geometry captured");
                 capture(window,output.resolve("structure-library-capture.png"));
                 command("export");Path exported=Controls.directory().resolve("structures/exports/Demo house.vstr");require(Files.exists(exported),"Self-contained export");
@@ -107,6 +111,8 @@ public class StructurePlaytest {
                     require(world().models().get(id).definition().voxels().size()==32,"32 resolution retained");
                     require(world().models().get(id).definition().voxels().occupied()==menu().selected.models.get(0).voxels().occupied(),"Model geometry retained");
                     require(world().models().get(id).definition().voxels().leaves().equals(StructureEngine.rotate(menu().selected.models.get(0).voxels(),r).leaves()),"Detailed model orientation and colours retained");
+                    Position densePosition=destination(r,new Position(3,1,2));int denseId=world().sample(densePosition.x(),densePosition.y(),densePosition.z());
+                    require(world().models().get(denseId).definition().voxels().leaves().equals(StructureEngine.rotate(menu().selected.models.get(1).voxels(),r).leaves()),"Packed model orientation and colours retained");
                     command("place");require(menu().message.contains("Occupied destination"),"Overlap rejected");
                     if(r==1){command("preview");capture(window,output.resolve("structure-preview-conflict.png"));}
                     if(r==0)x("key","F10");
