@@ -18,6 +18,13 @@ public final class StructureEngine {
         /** Owner-thread atomic replacement, including durable world state; rollback on IOException. */
         void commit(ModelLibrary staged,Map<Position,SparseVoxelOctree> cells) throws IOException;
     }
+    private final int undoCellBudget;
+    public StructureEngine(){this(262144);}
+    /** History target; retain the newest admitted placement even when it exceeds the target. */
+    public StructureEngine(int undoCellBudget){
+        if(undoCellBudget<1||undoCellBudget>MAX_CELLS)throw new IllegalArgumentException("Undo history budget");
+        this.undoCellBudget=undoCellBudget;
+    }
     private final AtomicBoolean busy=new AtomicBoolean();
     private final Map<String,Deque<Record>> undo=new HashMap<>();
     private final Deque<Record> chronology=new ArrayDeque<>();
@@ -43,7 +50,11 @@ public final class StructureEngine {
         };
     }
     public static SparseVoxelOctree rotate(SparseVoxelOctree source,int rotation) {
-        checkRotation(rotation);int size=source.size();var result=new SparseVoxelOctree(size);
+        checkRotation(rotation);int size=source.size();
+        // Persistent nodes let immutable snapshots share safely. No rotation is needed
+        // for a whole-cell uniform tree, regardless of the requested quarter turn.
+        if(rotation==0||source.uniform(0,0,0,size)!=-1)return source.copy().freeze();
+        var result=new SparseVoxelOctree(size);
         for(var leaf:source.leaves()) {
             int x=leaf.x(),z=leaf.z(),s=leaf.side();
             int rx=switch(rotation){case 1 -> size-z-s;case 2 -> size-x-s;case 3 -> z;default -> x;};
@@ -75,7 +86,7 @@ public final class StructureEngine {
                     var records=undo.computeIfAbsent(owner,k->new ArrayDeque<>());
                     var record=new Record(++sequence,owner,before,after);records.addLast(record);chronology.addLast(record);undoCells+=after.size();
                     while(records.size()>8) {var expired=records.removeFirst();chronology.remove(expired);undoCells-=expired.after.size();}
-                    while(undoCells>262144) {var expired=chronology.removeFirst();undo.get(expired.owner).remove(expired);undoCells-=expired.after.size();}
+                    while(undoCells>undoCellBudget&&chronology.size()>1) {var expired=chronology.removeFirst();undo.get(expired.owner).remove(expired);undoCells-=expired.after.size();}
                 }
             } finally {close();}
         }
@@ -93,6 +104,9 @@ public final class StructureEngine {
                 modelIds[i]=staged.stageStructureModel(new ModelDefinition(def.name(),rotate(def.voxels(),rotation))).id();
             }
             var before=new LinkedHashMap<Position,SparseVoxelOctree>();var after=new LinkedHashMap<Position,SparseVoxelOctree>();int count=0;
+            var empty=new SparseVoxelOctree(16).freeze();
+            var uniformGeometry=new HashMap<Integer,SparseVoxelOctree>();
+            var instances=new HashMap<Integer,SparseVoxelOctree>();
             for(var cell:asset.cells) {
                 cancelled(cancel);var relative=rotate(cell.position(),asset.bounds.x(),asset.bounds.z(),rotation);
                 long x=(long)box.minX+relative.x(),y=(long)box.minY+relative.y(),z=(long)box.minZ+relative.z();
@@ -100,9 +114,15 @@ public final class StructureEngine {
                         ||!new Protocol.Edit((int)x,(int)y,(int)z,0).valid())throw new IOException("Destination outside world");
                 var p=new Position((int)x,(int)y,(int)z);var old=snapshot.cell(p.x(),p.y(),p.z());
                 if(old.occupied()!=0)throw new IOException("Occupied destination cell; empty source space is preserved");
-                before.put(p,old.copy().freeze());SparseVoxelOctree next;
-                if(cell.model()>=0) {next=new SparseVoxelOctree(16);next.fill(0,0,0,16,16,16,WorldVoxels.encode(modelIds[cell.model()]));next.freeze();}
-                else next=rotate(cell.geometry(),rotation);
+                before.put(p,empty);SparseVoxelOctree next;
+                if(cell.model()>=0) {
+                    int id=modelIds[cell.model()];next=instances.get(id);
+                    if(next==null){next=new SparseVoxelOctree(16);next.fill(0,0,0,16,16,16,WorldVoxels.encode(id));next.freeze();instances.put(id,next);}
+                } else {
+                    int uniform=cell.geometry().uniform(0,0,0,16);
+                    if(uniform==-1)next=rotate(cell.geometry(),rotation);
+                    else {next=uniformGeometry.get(uniform);if(next==null){next=rotate(cell.geometry(),rotation);uniformGeometry.put(uniform,next);}}
+                }
                 after.put(p,next);if((++count&127)==0)progress.accept(count*100/asset.cells.size());
             }
             validateChunks(after,snapshot,staged,cancel);

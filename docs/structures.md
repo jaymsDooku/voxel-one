@@ -92,6 +92,14 @@ terrain remains unchanged. High/low edited chunks and nearby air use the existin
 bounded terrain worker. Such worlds have a provisional 2,048-chunk residency cap;
 ordinary terrain retains its 1,690-chunk cap.
 
+Staging reuses immutable trees for repeated whole-cell materials and repeated
+instances of the same dependency. Identity rotations retain persistent octree
+nodes through frozen snapshots. Editing one placed cell still creates independent
+world geometry. Undo history targets 262,144 retained cells and evicts older
+operations first; the newest admitted placement remains one undoable operation
+even when it exceeds that target. This history policy does not increase package,
+world, geometry or affected-chunk admission limits.
+
 ## Remaining qualification work
 
 Reference hardware and network qualification is deferred. The current commit
