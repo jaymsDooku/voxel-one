@@ -1,0 +1,25 @@
+Hub preview packaging validation
+
+Environment: Linux VPS, Python 3.11.2; PyYAML 6.0
+Command: python3 -m unittest discover -s deploy/tests -v
+test_first_generation_and_existing_catalog (test_hub_preview_registration.RegistrationTest.test_first_generation_and_existing_catalog) ... ok
+test_invalid_inputs_rejected_before_network (test_hub_preview_registration.RegistrationTest.test_invalid_inputs_rejected_before_network) ... ok
+test_network_auth_and_service_errors_fail_closed (test_hub_preview_registration.RegistrationTest.test_network_auth_and_service_errors_fail_closed) ... ok
+test_package_workflow_boundary_versions_and_scope (test_hub_preview_registration.RegistrationTest.test_package_workflow_boundary_versions_and_scope) ... ok
+test_registration_and_preserved_build_contract (test_hub_preview_registration.RegistrationTest.test_registration_and_preserved_build_contract) ... ok
+test_stale_source_catalog_and_reused_generation (test_hub_preview_registration.RegistrationTest.test_stale_source_catalog_and_reused_generation) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.056s
+
+OK
+
+Syntax: YAML parsed; all 6 workflow run blocks checked with Python compile / bash -n.
+Regression: substituting old 0.1.N mapping caused all 8 platform/boundary cases to fail as expected.
+
+Playtest: CLI integration; browser/game playtesting does not apply to a workflow-only version change.
+Steps: execute actual embedded package workflow Python with synthetic package outputs for linux, windows, mac-intel, mac-arm at generations 1 and 65535.
+Expected/observed: package receives 1.0.1 / 1.0.65535; only Windows requests installer; immutable tags, exact source, hashes and stableRolloutQualified:false retained. PASS.
+Edge/regression: invalid generation, stale source/catalog, reused tags and network failures remain fail-closed. PASS.
+Scope: package invocation contract uses synthetic modules; no native package build or macOS jpackage execution claimed. Trusted packaging workflow re-dispatch follows merge. Physical GPU/DPI/native qualification remains pending.
+Diff audit: workflow version/comment and contract coverage only; local progress/evidence added. No launcher source or unrelated deletions. Final review-base audit must follow controller synchronization.
