@@ -162,7 +162,11 @@ public final class StructureEngine {
             for(int y=0;y<16;y++)for(int z=0;z<16;z++)for(int x=0;x<16;x++) {
                 if((x&7)==0)cancelled(cancel);
                 var p=new Position(position.chunkX()*16+x,position.chunkY()*16+y,position.chunkZ()*16+z);
-                var tree=after.get(p);if(tree==null)tree=source.cell(p.x(),p.y(),p.z());
+                var tree=after.get(p);
+                if(tree==null) {
+                    if(source.emptyCell(p.x(),p.y(),p.z()))continue;
+                    tree=source.cell(p.x(),p.y(),p.z());
+                }
                 if(tree.occupied()!=0)for(var edit:new Protocol.CellState(p.x(),p.y(),p.z(),tree).edits())chunk.apply(edit);
             }
             long instanceQuads=0;

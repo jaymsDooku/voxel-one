@@ -139,3 +139,7 @@ gated until the agreed city and fragmented scenarios pass all budgets.
 Placement undo stores an immutable empty-value view over the placed cell keys.
 This relies on the occupied-destination rejection policy: every admitted before
 image is empty. The authority still checks for later changes before undo.
+
+Detached chunk validation checks staged cells first. For untouched cells, the
+snapshot may skip an octree lookup only when its conservative hint proves air.
+Unknown hints retain the full cell read; mesh and model budgets still apply.

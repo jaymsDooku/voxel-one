@@ -134,6 +134,25 @@ class StructureTest {
         assertNull(removed.get(unrelated));assertFalse(removed.containsKey(unrelated));
         assertEquals(4096,authority.state.get(unrelated).occupied());
     }
+    @Test void chunkValidationSkipsOnlyKnownEmptyUnstagedCells()throws Exception {
+        var stone=new SparseVoxelOctree(16);stone.fill(0,0,0,16,16,16,WorldVoxels.encode(Blocks.STONE));
+        var fraction=new SparseVoxelOctree(16);fraction.fill(1,2,3,2,3,4,WorldVoxels.encode(new Protocol.Edit(0,0,0,Blocks.LED).withColor(0x123456)));
+        var empty=new SparseVoxelOctree(16).freeze();var library=new ModelLibrary();
+        var asset=new StructurePackage("Single cell",new Bounds(1,1,1,0,0,0),List.of(),List.of(new Cell(new Position(0,0,0),stone,-1)));
+        for(boolean hint:new boolean[]{false,true}) {
+            int[] reads={0},neighborReads={0};
+            Source source=new Source(){
+                public boolean emptyCell(int x,int y,int z){return hint&&!(x==-15&&y==180&&z==-16);}
+                public SparseVoxelOctree cell(int x,int y,int z){reads[0]++;if(x==-15&&y==180&&z==-16){neighborReads[0]++;return fraction;}return empty;}
+                public ModelLibrary models(){return library;}
+            };
+            try(var plan=new StructureEngine().prepare(asset,new Position(-16,180,-16),0,source,()->false,p->{})) {
+                assertEquals(4096,plan.cells().get(new Position(-16,180,-16)).occupied());
+                assertEquals(hint?2:4096,reads[0]);assertEquals(1,neighborReads[0]);
+                assertEquals(1,fraction.occupied());
+            }
+        }
+    }
     @Test void importCommandRetainsLongPathsAndBoundsInput() throws Exception {
         try(var menu=new dev.jayms.ui.StructureMenu(folder)) {
             String command="import /"+"nested directory/".repeat(30)+"house.vstr";
@@ -246,6 +265,9 @@ class StructureTest {
         var asset=new StructurePackage("Fragmented",new Bounds(8,1,8,0,0,0),List.of(),cells);
         var local=new LocalGame(folder.resolve("fragmented.dat"),42);var world=new World(42,local.models);var engine=new StructureEngine();
         assertThrows(IOException.class,()->engine.prepare(asset,new Position(320,128,320),0,world.structureSnapshot(),()->false,p->{}));
+        var air=new SparseVoxelOctree(16).freeze();
+        Source knownAir=new Source(){public boolean emptyCell(int x,int y,int z){return true;}public SparseVoxelOctree cell(int x,int y,int z){return air;}public ModelLibrary models(){return local.models;}};
+        assertThrows(IOException.class,()->engine.prepare(asset,new Position(320,128,320),0,knownAir,()->false,p->{}));
         assertFalse(engine.busy());assertTrue(local.edits.isEmpty());assertEquals(0,world.cell(320,128,320).occupied());
     }
     @Test void worldOctreeResolutionRejectedBeforeReadingNodes() throws Exception {

@@ -1,0 +1,85 @@
+{
+  "sourceHead": "2edf60a505f719bb8975b4178e3be5494ba965ba",
+  "summaries": [
+    {
+      "run": 39635384184,
+      "name": "maven-test-summary-mac-arm",
+      "sourceHead": "2edf60a505f719bb8975b4178e3be5494ba965ba",
+      "totals": {
+        "tests": 781,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39635384184,
+      "name": "maven-test-summary-windows",
+      "sourceHead": "2edf60a505f719bb8975b4178e3be5494ba965ba",
+      "totals": {
+        "tests": 781,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39635384184,
+      "name": "maven-test-summary-linux",
+      "sourceHead": "2edf60a505f719bb8975b4178e3be5494ba965ba",
+      "totals": {
+        "tests": 781,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39635389170,
+      "name": "maven-test-summary-mac-arm",
+      "sourceHead": "650cf51286cecadd33c19b1cf2d358ba26a389ce",
+      "totals": {
+        "tests": 781,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39635389170,
+      "name": "maven-test-summary-mac-intel",
+      "sourceHead": "650cf51286cecadd33c19b1cf2d358ba26a389ce",
+      "totals": {
+        "tests": 781,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39635389170,
+      "name": "maven-test-summary-linux",
+      "sourceHead": "650cf51286cecadd33c19b1cf2d358ba26a389ce",
+      "totals": {
+        "tests": 781,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39635389170,
+      "name": "maven-test-summary-windows",
+      "sourceHead": "650cf51286cecadd33c19b1cf2d358ba26a389ce",
+      "totals": {
+        "tests": 781,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    }
+  ],
+  "prMergeParentsVerified": true,
+  "observation": "PR four platforms passed; push Mac Intel was in progress and is not claimed passed.",
+  "qualification": "Hosted regressions only; city/max qualification pending."
+}
