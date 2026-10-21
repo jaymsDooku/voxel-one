@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-21T14:42:49+00:00",
+  "updatedAt": "2026-10-21T15:17:06+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4017,8 +4017,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Constructor now uses primitive sort keys instead of a cell hash set and second record list. Ordering/duplicate tests and 33 regressions passed. Native workflow validation running; city/max qualification remains pending.",
-      "updatedAt": "2026-10-21T14:42:49+00:00"
+      "note": "Capture/import now use bounded primitive buffers and retain full validation. 34 regressions passed; 100,000-cell pre-validation heap sample reduced. Native workflow running. City/max qualification remains unfinished.",
+      "updatedAt": "2026-10-21T15:17:06+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

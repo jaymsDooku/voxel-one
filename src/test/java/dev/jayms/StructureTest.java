@@ -81,6 +81,19 @@ class StructureTest {
         input.add(200,input.get(1777));
         assertThrows(IOException.class,()->new StructurePackage("Nonadjacent duplicate",asset.bounds,asset.models,input));
     }
+    @Test void captureGrowthKeepsSourceEditableAndRejectsEmptyPackages() throws Exception {
+        var tree=new SparseVoxelOctree(16);tree.fill(0,0,0,16,16,16,WorldVoxels.encode(Blocks.STONE));
+        var library=new ModelLibrary();
+        Source source=new Source(){public SparseVoxelOctree cell(int x,int y,int z){return tree;}public ModelLibrary models(){return library;}};
+        var captured=StructurePackage.capture("Builder growth",new Bounds(40,1,25,0,0,0),new Position(0,180,0),source,()->false,p->{});
+        assertEquals(1000,captured.cells.size());
+        tree.set(0,0,0,0);
+        for(var cell:captured.cells)assertEquals(4096,cell.geometry().occupied());
+        var decoded=StructurePackage.decode(captured.encode());assertArrayEquals(captured.encode(),decoded.encode());
+        var empty=new SparseVoxelOctree(16);
+        Source air=new Source(){public SparseVoxelOctree cell(int x,int y,int z){return empty;}public ModelLibrary models(){return library;}};
+        assertThrows(IOException.class,()->StructurePackage.capture("Empty",new Bounds(1,1,1,0,0,0),new Position(0,180,0),air,()->false,p->{}));
+    }
     @Test void importCommandRetainsLongPathsAndBoundsInput() throws Exception {
         try(var menu=new dev.jayms.ui.StructureMenu(folder)) {
             String command="import /"+"nested directory/".repeat(30)+"house.vstr";
