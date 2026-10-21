@@ -1,0 +1,85 @@
+{
+  "schema": 1,
+  "parentHead": "2edf60a505f719bb8975b4178e3be5494ba965ba",
+  "change": "Detached chunk validation skips octree lookup only for unstaged cells marked known-empty by the existing conservative Source hint. Staged geometry always wins; unknown sources retain one-read fallback. All mesh/model/chunk caps and commit checks remain.",
+  "tests": {
+    "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=StructureTest,StructureOccupancyTest,StructureMultiplayerTest,MusicMp3Test test",
+    "suites": [
+      {
+        "name": "StructureTest",
+        "tests": 24,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "StructureOccupancyTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "StructureMultiplayerTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "MusicMp3Test",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "coverage": "Negative coordinates, one-read fallback, nonempty fractional neighbor, staged geometry overrides empty hint; known-empty fragmented staged fixture still fails CPU mesh cap; offline/TLS multiplayer, cancellation and undo regressions."
+  },
+  "probe": {
+    "commands": [
+      "java -Xms256m -Xmx256m -cp target/structure-chunk-parent-classes:target:target/classes ChunkHintProbe 262144",
+      "java -Xms256m -Xmx256m -cp target:target/classes ChunkHintProbe 16384"
+    ],
+    "parent": {
+      "cells": 16384,
+      "chunks": 64,
+      "snapshot_cell_reads": 262144,
+      "warmups": 3,
+      "runs": 20,
+      "median_ms": 107.442,
+      "p95_ms": 157.195,
+      "worst_ms": 203.019,
+      "qualification": "bounded CPU staging only; not city/max or GPU/network qualification"
+    },
+    "current": {
+      "cells": 16384,
+      "chunks": 64,
+      "snapshot_cell_reads": 16384,
+      "warmups": 3,
+      "runs": 20,
+      "median_ms": 158.881,
+      "p95_ms": 275.818,
+      "worst_ms": 361.166,
+      "qualification": "bounded CPU staging only; not city/max or GPU/network qualification"
+    },
+    "limits": "16384 uniform cells,64 chunks,3 warmups/20 samples; cached empty octree source. Parent engine/nested classes compiled from exact parent Git source. Native software rendering active concurrently. Cell-read count fell but elapsed timing rose; no speedup, city/max, peak memory, GPU or network qualification claimed."
+  },
+  "pending": [
+    "Fresh hosted checks for changed source",
+    "Bounded placement data/atomic transactions and full city/max qualification"
+  ],
+  "publication": "Local evidence pending controller publication",
+  "playtest": {
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_manifest": "structure-native-source.json",
+    "source_manifest_sha256": "fab810e45396a105dcac7e028e48d8e908768b9d2f4e1a59724346c97066f28a",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "publication": "Local evidence pending controller publication"
+  },
+  "mediaInspection": "Fresh player rejection screenshot inspected. F10 H264 clip decoded and frame inspected:16 frames,25.467s. Source hashes match."
+}

@@ -113,7 +113,7 @@
     "src/main/java/dev/jayms/net/model/ModelMesher.java": "b85adae767a186b23dbec8ad81900186983f3300b49761c7faa3e1584e3a2699",
     "src/main/java/dev/jayms/net/model/SparseVoxelOctree.java": "d42f3a86728e5f0dd75a4308b4d9a20461e44d7d88998ce9205cfe6a794f4ebb",
     "src/main/java/dev/jayms/net/structure/StructureCells.java": "2c8a0b8f123b6628adb2777011d7ede1bd52a23f8987ed62db3eea10138ce54f",
-    "src/main/java/dev/jayms/net/structure/StructureEngine.java": "df4868f2f9e088ae969b343281e6f4fb060abc0815d43eb71dadef34e3d2efc3",
+    "src/main/java/dev/jayms/net/structure/StructureEngine.java": "888675826044fd703414878b44d805622720363ebab30947b477dcd05b9e64e6",
     "src/main/java/dev/jayms/net/structure/StructureOccupancy.java": "2fe8c88af2f4b8edbee3f096e513dec88dd592165139578dfb2633c996635bcb",
     "src/main/java/dev/jayms/net/structure/StructurePackage.java": "f571375b340146a0077b3ab3dfb2a46f2d28f07988f70a2d372a20ce61ae871e",
     "src/main/java/dev/jayms/net/structure/StructureWire.java": "49eb1bc6fabb9d78177f5547e6bf4ae99509c86bc7cfebd69e7b59e9d8f33006",

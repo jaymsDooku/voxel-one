@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-21T16:30:05+00:00",
+  "updatedAt": "2026-10-21T16:56:39+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4017,8 +4017,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Undo before-images now share immutable placed keys and frozen air values under reject-overlap policy. 36 regressions and native workflow passed; fresh media saved. City/max transactions and qualification remain unfinished.",
-      "updatedAt": "2026-10-21T16:30:05+00:00"
+      "note": "Chunk validation uses conservative known-empty hints after checking staged cells. 37 regressions and native workflow passed; fresh media saved. Probe reads reduced but timing rose, so no speedup claimed. City/max qualification unfinished.",
+      "updatedAt": "2026-10-21T16:56:39+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
