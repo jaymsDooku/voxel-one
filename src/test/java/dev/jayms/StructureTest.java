@@ -102,6 +102,38 @@ class StructureTest {
         assertThrows(IOException.class,()->StructurePackage.capture("Outside world",new Bounds(1,2,1,0,0,0),new Position(0,1023,0),source,()->false,p->{}));
         invalid.set(0,0,0,0); // Capture must not freeze its source, including on failure.
     }
+    @Test void undoEmptySnapshotSharesOnlyKeysAndPreservesUnrelatedEdits()throws Exception {
+        var stone=new SparseVoxelOctree(16);stone.fill(0,0,0,16,16,16,WorldVoxels.encode(Blocks.STONE));
+        var empty=new SparseVoxelOctree(16).freeze();
+        class Authority implements StructureEngine.Authority {
+            final Map<Position,SparseVoxelOctree> state=new HashMap<>();
+            final List<Map<Position,SparseVoxelOctree>> commits=new ArrayList<>();ModelLibrary library=new ModelLibrary();
+            public Object lock(){return this;}
+            public ModelLibrary models(){return library;}
+            public SparseVoxelOctree cell(int x,int y,int z){return state.getOrDefault(new Position(x,y,z),empty);}
+            public void commit(ModelLibrary staged,Map<Position,SparseVoxelOctree> cells){
+                assertThrows(UnsupportedOperationException.class,()->cells.clear());
+                assertThrows(UnsupportedOperationException.class,()->cells.entrySet().iterator().next().setValue(empty));
+                commits.add(cells);state.putAll(cells);library=staged;
+            }
+        }
+        var authority=new Authority();var cells=new ArrayList<Cell>();
+        for(int x:new int[]{0,16,39})cells.add(new Cell(new Position(x,0,0),stone,-1));
+        var asset=new StructurePackage("Sparse undo",new Bounds(40,1,1,0,0,0),List.of(),cells);
+        var engine=new StructureEngine();
+        try(var plan=engine.prepare(asset,new Position(-41,180,-17),0,authority,()->false,p->{})){plan.commit("fixture",authority);}
+        var unrelated=new Position(-40,180,-17);authority.state.put(unrelated,stone.copy().freeze());
+        engine.undo("fixture",authority);
+        var placed=authority.commits.get(0);var removed=authority.commits.get(1);
+        assertEquals(placed.keySet(),removed.keySet());assertEquals(3,removed.size());
+        for(var p:placed.keySet()) {
+            assertEquals(4096,placed.get(p).occupied());assertTrue(removed.containsKey(p));assertTrue(removed.get(p).isEmpty());
+            assertThrows(IllegalStateException.class,()->removed.get(p).set(0,0,0,0));
+            assertTrue(authority.state.get(p).isEmpty());
+        }
+        assertNull(removed.get(unrelated));assertFalse(removed.containsKey(unrelated));
+        assertEquals(4096,authority.state.get(unrelated).occupied());
+    }
     @Test void importCommandRetainsLongPathsAndBoundsInput() throws Exception {
         try(var menu=new dev.jayms.ui.StructureMenu(folder)) {
             String command="import /"+"nested directory/".repeat(30)+"house.vstr";
