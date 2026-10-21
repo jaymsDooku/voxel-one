@@ -1,0 +1,316 @@
+{
+  "schema": 1,
+  "parentHead": "a6486ea7d2bb5240969d4a36de8a9a29b06f697e",
+  "change": "Chunk-index copy-on-write snapshots share frozen cells. Shared buckets clone on edit. One-cell buckets store a direct local index; larger buckets use local integer keys. Stored/implicit cell reads are frozen. Apply remains the mutation API; no save/wire/limit changes.",
+  "tests": {
+    "commands": [
+      "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=WorldVoxelSnapshotTest,FractionalWorldTest,RegionalSaveCompatibilityTest,StructureModelCodecTest,StructurePlacementCellsTest,StructureTest,StructureOccupancyTest,WorldStreamingTest,MusicMp3Test,StructureMultiplayerTest test",
+      "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=WorldVoxelSnapshotTest test"
+    ],
+    "suites": [
+      {
+        "name": "WorldVoxelSnapshotTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "FractionalWorldTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "RegionalSaveCompatibilityTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "StructureModelCodecTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "StructurePlacementCellsTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "StructureTest",
+        "tests": 24,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "StructureOccupancyTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "WorldStreamingTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "MusicMp3Test",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "StructureMultiplayerTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "total": 66,
+    "scope": "The full selected run passed 65 tests; the focused rerun passed all three snapshot tests including the subsequently added 4096-coordinate case. Final retained reports total 66 distinct cases.",
+    "coverage": "Nested forks, clear/replay, negative chunk boundaries, all 4096 local indices, immutable cells, single-to-multi bucket transitions and 1000 randomized edit/fork/clear steps against independent reference maps; fractional geometry, saves, offline/TLS structures, occupancy, streaming and MP3 regressions."
+  },
+  "probe": {
+    "source": "tools/structures/WorldSnapshotProbe.java",
+    "source_sha256": "866cf45713d62ef2430bf9e273731adc298a16216564835714e1b26022230944",
+    "commands": [
+      "git show HEAD:src/main/java/dev/jayms/net/WorldVoxels.java",
+      "javac --release 17 -cp target/classes -d target/structure-snapshot-parent-classes target/structure-snapshot-parent-src/dev/jayms/net/WorldVoxels.java",
+      "javac --release 17 -cp target/classes -d target tools/structures/WorldSnapshotProbe.java",
+      "java -Xms512m -Xmx512m -cp target/structure-snapshot-parent-classes:target:target/classes WorldSnapshotProbe compact",
+      "java -Xms512m -Xmx512m -cp target/structure-snapshot-parent-classes:target:target/classes WorldSnapshotProbe scattered",
+      "java -Xms512m -Xmx512m -cp target:target/classes WorldSnapshotProbe compact",
+      "java -Xms512m -Xmx512m -cp target:target/classes WorldSnapshotProbe scattered"
+    ],
+    "layout": "Each JVM builds 100,000 Stone cells at x=0..499, z=0..199, y=128. Compact spacing 1 uses 416 chunks; scattered spacing 16 uses 100,000 chunks and deliberately represents global-world edits outside one structure footprint. Fixture setup and GC are excluded from timed operations.",
+    "parent": {
+      "compact": [
+        {
+          "layout": "compact",
+          "cells": 100000,
+          "source_retained_heap_delta_bytes": 17547208,
+          "scope": "single GC-sensitive sample, not peak memory"
+        },
+        {
+          "layout": "compact",
+          "operation": "snapshot",
+          "cells": 100000,
+          "warmups": 3,
+          "runs": 20,
+          "median_thread_allocated_bytes": 7697416,
+          "median_ms": 30.824161,
+          "p95_ms": 80.081332,
+          "worst_ms": 202.031732
+        },
+        {
+          "layout": "compact",
+          "operation": "first_edit_after_snapshot",
+          "cells": 100000,
+          "warmups": 3,
+          "runs": 20,
+          "median_thread_allocated_bytes": 208,
+          "median_ms": 0.018924,
+          "p95_ms": 0.100644,
+          "worst_ms": 0.672369
+        },
+        {
+          "layout": "compact",
+          "operation": "owned_bucket_edit",
+          "cells": 100000,
+          "warmups": 3,
+          "runs": 20,
+          "median_thread_allocated_bytes": 208,
+          "median_ms": 0.00322,
+          "p95_ms": 0.017797,
+          "worst_ms": 0.691549
+        }
+      ],
+      "scattered": [
+        {
+          "layout": "scattered",
+          "cells": 100000,
+          "source_retained_heap_delta_bytes": 17562304,
+          "scope": "single GC-sensitive sample, not peak memory"
+        },
+        {
+          "layout": "scattered",
+          "operation": "snapshot",
+          "cells": 100000,
+          "warmups": 3,
+          "runs": 20,
+          "median_thread_allocated_bytes": 7697416,
+          "median_ms": 34.585212,
+          "p95_ms": 130.668499,
+          "worst_ms": 146.212499
+        },
+        {
+          "layout": "scattered",
+          "operation": "first_edit_after_snapshot",
+          "cells": 100000,
+          "warmups": 3,
+          "runs": 20,
+          "median_thread_allocated_bytes": 208,
+          "median_ms": 0.01718,
+          "p95_ms": 0.060393,
+          "worst_ms": 0.06445
+        },
+        {
+          "layout": "scattered",
+          "operation": "owned_bucket_edit",
+          "cells": 100000,
+          "warmups": 3,
+          "runs": 20,
+          "median_thread_allocated_bytes": 208,
+          "median_ms": 0.00478,
+          "p95_ms": 0.075141,
+          "worst_ms": 0.14191
+        }
+      ]
+    },
+    "current": {
+      "compact": [
+        {
+          "layout": "compact",
+          "cells": 100000,
+          "source_retained_heap_delta_bytes": 11566872,
+          "scope": "single GC-sensitive sample, not peak memory"
+        },
+        {
+          "layout": "compact",
+          "operation": "snapshot",
+          "cells": 100000,
+          "warmups": 3,
+          "runs": 20,
+          "median_thread_allocated_bytes": 17560,
+          "median_ms": 0.15497,
+          "p95_ms": 0.272457,
+          "worst_ms": 0.316526
+        },
+        {
+          "layout": "compact",
+          "operation": "first_edit_after_snapshot",
+          "cells": 100000,
+          "warmups": 3,
+          "runs": 20,
+          "median_thread_allocated_bytes": 10528,
+          "median_ms": 0.092001,
+          "p95_ms": 0.185779,
+          "worst_ms": 0.237432
+        },
+        {
+          "layout": "compact",
+          "operation": "owned_bucket_edit",
+          "cells": 100000,
+          "warmups": 3,
+          "runs": 20,
+          "median_thread_allocated_bytes": 144,
+          "median_ms": 0.004328,
+          "p95_ms": 0.021496,
+          "worst_ms": 0.022418
+        }
+      ],
+      "scattered": [
+        {
+          "layout": "scattered",
+          "cells": 100000,
+          "source_retained_heap_delta_bytes": 17595672,
+          "scope": "single GC-sensitive sample, not peak memory"
+        },
+        {
+          "layout": "scattered",
+          "operation": "snapshot",
+          "cells": 100000,
+          "warmups": 3,
+          "runs": 20,
+          "median_thread_allocated_bytes": 4248696,
+          "median_ms": 11.383853,
+          "p95_ms": 28.6543,
+          "worst_ms": 67.623451
+        },
+        {
+          "layout": "scattered",
+          "operation": "first_edit_after_snapshot",
+          "cells": 100000,
+          "warmups": 3,
+          "runs": 20,
+          "median_thread_allocated_bytes": 176,
+          "median_ms": 0.030459,
+          "p95_ms": 0.877254,
+          "worst_ms": 0.907023
+        },
+        {
+          "layout": "scattered",
+          "operation": "owned_bucket_edit",
+          "cells": 100000,
+          "warmups": 3,
+          "runs": 20,
+          "median_thread_allocated_bytes": 144,
+          "median_ms": 0.007827,
+          "p95_ms": 0.065221,
+          "worst_ms": 0.536311
+        }
+      ]
+    },
+    "tradeoff": "Snapshot allocation falls in both layouts. Compact first-edit allocation rises from 208 to 10,528 bytes because it clones a 256-cell bucket. Source retained-heap samples: compact 17,547,208/11,566,872 bytes, scattered 17,562,304/17,595,672 bytes (parent/current). Scattered memory is approximately unchanged within GC-sensitive sample noise. First-edit latency increases and scattered timings are noisy. Subsequent edits use the owned bucket.",
+    "limits": "One GC-sensitive retained-source sample per fixture/JVM is not peak memory. Three warmups and 20 timed samples per operation are synthetic CPU diagnostics while software native rendering runs; not city/max or frame/tick/network qualification.",
+    "parent_source_capture": "Python subprocess.check_output captured the parent Git source into target/structure-snapshot-parent-src/dev/jayms/net/WorldVoxels.java before compilation."
+  },
+  "qualification": "NOT PASSED. Full city/max admission, the 2,000,000-edit history ceiling, atomic chunk publication, owner-thread application/persistence and 20-run reference GPU/shaped 32-client network/system budgets remain unfinished. No safety caps raised or supported limits published.",
+  "publication": "Local report pending controller publication",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": {
+      "Architecture": "x86_64",
+      "CPU(s)": "4",
+      "Model name": "Intel Core Processor (Haswell, no TSX)",
+      "Thread(s) per core": "1",
+      "Core(s) per socket": "1",
+      "Socket(s)": "4"
+    },
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "scope": "Development VPS; not reference physical GPU/network qualification."
+  },
+  "Playtest": {
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "expected": "Full production structure workflow and rejection/cancellation edges pass, along with persistence, inventory and model-editor regressions.",
+    "observed": {
+      "status": "passed",
+      "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+      "source_manifest": "structure-native-source.json",
+      "source_manifest_sha256": "a7ca43b1ea4bb91e64ce303f17e95b9a8b1f21f51d0e041b133e309ed8661b0e",
+      "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+      "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+      "publication": "Local evidence pending controller publication"
+    },
+    "display": "Inherited assigned DISPLAY/XAUTHORITY; no cookie read or printed.",
+    "source_hashes": "Complete production Java and harness path set/hashes match structure-native-source.json after execution.",
+    "video": {
+      "file": "structure-workflow.mp4",
+      "bytes": 368923,
+      "sha256": "21afc7389d872c87f1dbae6389c5d2a1cd272c95631d1333e24ddfaea18dda1f",
+      "frames": 17,
+      "seconds": 27.983,
+      "inspection": "Decoded and inspected a fresh video frame, player-conflict screenshot and component closeup.",
+      "publication": "Pending controller publication"
+    },
+    "note": "Earlier graphical run discarded by source-hash guard after sparse-bucket refinement. Only this fresh frozen-source run qualifies the changed implementation."
+  },
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/WorldVoxels.java": "73c34fb01670ff4b86e3d479112b58da9a299186021ea625226118857db199d8"
+  }
+}
