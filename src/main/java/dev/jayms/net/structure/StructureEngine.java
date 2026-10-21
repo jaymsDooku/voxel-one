@@ -69,8 +69,8 @@ public final class StructureEngine {
         private final long modelRevision;
         private final BooleanSupplier cancel;
         private boolean closed;
-        private Prepared(Map<Position,SparseVoxelOctree> before,Map<Position,SparseVoxelOctree> after,ModelLibrary staged,long revision,BooleanSupplier cancel) {
-            this.before=Map.copyOf(before);this.after=Map.copyOf(after);this.staged=staged;modelRevision=revision;this.cancel=cancel;
+        private Prepared(Map<Position,SparseVoxelOctree> after,ModelLibrary staged,long revision,BooleanSupplier cancel,SparseVoxelOctree empty) {
+            this.after=Map.copyOf(after);this.before=emptyBeforeImage(this.after,empty);this.staged=staged;modelRevision=revision;this.cancel=cancel;
         }
         public Map<Position,SparseVoxelOctree> cells(){return after;}
         public void commit(String owner,Authority authority) throws IOException {
@@ -92,6 +92,26 @@ public final class StructureEngine {
         }
         @Override public void close(){if(!closed){closed=true;busy.set(false);}}
     }
+    /** Admission rejects occupied destinations, so undo only needs the same keys and frozen air. */
+    private static Map<Position,SparseVoxelOctree> emptyBeforeImage(Map<Position,SparseVoxelOctree> after,SparseVoxelOctree empty) {
+        return Collections.unmodifiableMap(new AbstractMap<>() {
+            @Override public int size(){return after.size();}
+            @Override public boolean containsKey(Object key){return after.containsKey(key);}
+            @Override public SparseVoxelOctree get(Object key){return after.containsKey(key)?empty:null;}
+            @Override public Set<Entry<Position,SparseVoxelOctree>> entrySet() {
+                return new AbstractSet<>() {
+                    @Override public int size(){return after.size();}
+                    @Override public Iterator<Entry<Position,SparseVoxelOctree>> iterator() {
+                        var keys=after.keySet().iterator();
+                        return new Iterator<>() {
+                            @Override public boolean hasNext(){return keys.hasNext();}
+                            @Override public Entry<Position,SparseVoxelOctree> next(){return new SimpleImmutableEntry<>(keys.next(),empty);}
+                        };
+                    }
+                };
+            }
+        });
+    }
     public Prepared prepare(StructurePackage asset,Position anchor,int rotation,Source snapshot,
                             BooleanSupplier cancel,IntConsumer progress)throws IOException {
         if(!busy.compareAndSet(false,true))throw new IOException("Another large placement is running");
@@ -103,7 +123,7 @@ public final class StructureEngine {
                 cancelled(cancel);var def=asset.models.get(i);
                 modelIds[i]=staged.stageStructureModel(new ModelDefinition(def.name(),rotate(def.voxels(),rotation))).id();
             }
-            var before=new LinkedHashMap<Position,SparseVoxelOctree>();var after=new LinkedHashMap<Position,SparseVoxelOctree>();int count=0;
+            var after=new LinkedHashMap<Position,SparseVoxelOctree>();int count=0;
             var empty=new SparseVoxelOctree(16).freeze();
             var uniformGeometry=new HashMap<Integer,SparseVoxelOctree>();
             var instances=new HashMap<Integer,SparseVoxelOctree>();
@@ -114,7 +134,7 @@ public final class StructureEngine {
                         ||!new Protocol.Edit((int)x,(int)y,(int)z,0).valid())throw new IOException("Destination outside world");
                 var p=new Position((int)x,(int)y,(int)z);var old=snapshot.cell(p.x(),p.y(),p.z());
                 if(old.occupied()!=0)throw new IOException("Occupied destination cell; empty source space is preserved");
-                before.put(p,empty);SparseVoxelOctree next;
+                SparseVoxelOctree next;
                 if(cell.model()>=0) {
                     int id=modelIds[cell.model()];next=instances.get(id);
                     if(next==null){next=new SparseVoxelOctree(16);next.fill(0,0,0,16,16,16,WorldVoxels.encode(id));next.freeze();instances.put(id,next);}
@@ -126,7 +146,7 @@ public final class StructureEngine {
                 after.put(p,next);if((++count&127)==0)progress.accept(count*100/asset.cells.size());
             }
             validateChunks(after,snapshot,staged,cancel);
-            cancelled(cancel);progress.accept(100);var result=new Prepared(before,after,staged,revision,cancel);complete=true;return result;
+            cancelled(cancel);progress.accept(100);var result=new Prepared(after,staged,revision,cancel,empty);complete=true;return result;
         } finally {if(!complete)busy.set(false);}
     }
     /** Detached CPU meshes conservatively count exposed chunk edges. Never touches GPU state. */
