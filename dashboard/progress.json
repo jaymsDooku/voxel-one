@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-21T17:25:12+00:00",
+  "updatedAt": "2026-10-21T17:49:50+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4017,8 +4017,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "32-client TLS loopback workflow passed with 512-cell/512-dependency fixture, login pacing, rotations, undo, cancellation, contention, late join and restart. Exact-head hosted summaries and published native media verified. City/max implementation and qualification remain unfinished.",
-      "updatedAt": "2026-10-21T17:25:12+00:00"
+      "note": "Added native VSTR corpus conversion and exercised production admission. City and 4,000,000-cell maximum both reject the unchanged geometry cap. Native city is 38,191,053 bytes, above the required 16\u201332 MiB range. Exact-head hosted checks passed; full scale implementation and reference qualification remain gated.",
+      "updatedAt": "2026-10-21T17:49:50+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
