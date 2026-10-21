@@ -1,0 +1,31 @@
+[
+  {
+    "command": [
+      "python3",
+      "deploy/run_music_regressions.py",
+      "--display",
+      ":119",
+      "--evidence-prefix",
+      "landscape-regression"
+    ],
+    "exitCode": 0
+  },
+  {
+    "command": [
+      "python3",
+      "deploy/run_music_smoke.py",
+      "--display",
+      ":119"
+    ],
+    "exitCode": 0
+  },
+  {
+    "command": [
+      "python3",
+      "deploy/check_music_media.py",
+      "--prefix",
+      "landscape-live"
+    ],
+    "exitCode": 0
+  }
+]

@@ -38,7 +38,7 @@ jobs:
         run: |
           test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
           mkdir -p target/tmp
-          mvn --batch-mode -q -Dmaven.repo.local=target/maven-cache -DargLine="-Djava.io.tmpdir=$PWD/target/tmp" -Dtest=MusicAnalysisTest,MusicLandscapeTest,MusicMp3Test,SandboxIdentityTest,ControlsTest test package
+          mvn --batch-mode -q -Dmaven.repo.local=target/maven-cache -DargLine="-Djava.io.tmpdir=$PWD/target/tmp" -Dtest=MusicAnalysisTest,MusicLandscapeTest,MusicMp3Test,SandboxIdentityTest,ControlsTest,AssetCatalogTest,AssetManagerIntegrationTest test package
       - name: Native controls, media, integration, matched timing and real 30-minute soak
         shell: bash
         run: |

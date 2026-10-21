@@ -10,12 +10,13 @@ head=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
 if head!=a.expected_head:raise SystemExit('Exact-source checkout mismatch')
 # Export fresh counts from this checkout; local evidence committed earlier is not a hosted result.
 suites=[]
-for name in ('MusicAnalysisTest','MusicLandscapeTest','MusicMp3Test','SandboxIdentityTest','ControlsTest'):
+for name in ('MusicAnalysisTest','MusicLandscapeTest','MusicMp3Test','SandboxIdentityTest','ControlsTest','assets.AssetCatalogTest','assets.AssetManagerIntegrationTest'):
  report=ET.parse(root/('target/surefire-reports/TEST-dev.jayms.'+name+'.xml')).getroot()
  suites.append({'name':name,**{key:int(report.get(key,'0')) for key in ('tests','failures','errors','skipped')}})
 (root/'dashboard/evidence/landscape-hosted-units.json').write_text(json.dumps({'sourceHead':head,'suites':suites},indent=2)+'\n')
 if any(suite['failures'] or suite['errors'] for suite in suites):raise SystemExit('Exact-source unit qualification failed')
 commands=[
+ ['deploy/run_landscape_asset_regression.py','--display',a.display],
  ['deploy/run_music_smoke.py','--display',a.display],
  ['deploy/check_music_media.py','--prefix','landscape-live'],
  ['deploy/run_music_mp3_smoke.py','--display',a.display,'--evidence-prefix','landscape-mp3'],

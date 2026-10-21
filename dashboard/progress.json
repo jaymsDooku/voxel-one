@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-21T12:44:52+00:00",
+  "updatedAt": "2026-10-21T13:06:22+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -73,11 +73,21 @@
           "kind": "image",
           "label": "Hosted decoded F10 frames (pending controller publication)",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-32303665306237372d623933612d346464642d383435342d346162633836393964313931/dashboard/evidence/landscape-final-hosted-live-video-contact.png"
+        },
+        {
+          "kind": "report",
+          "label": "Restored Asset Manager and current landscape validation (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-32303665306237372d623933612d346464642d383435342d346162633836393964313931/dashboard/evidence/landscape-restoration-validation.md"
+        },
+        {
+          "kind": "image",
+          "label": "Restored native model intake and inventory (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-32303665306237372d623933612d346464642d383435342d346162633836393964313931/dashboard/evidence/landscape-restored-asset-manager-inventory.png"
         }
       ],
       "status": "in_progress",
-      "note": "Reviewer fix in progress: current-master Asset Manager implementation, launcher/intake, resources, tests and evidence preserved. Historical landscape qualification remains recorded; restored Asset Manager integration and final-source navigation/media must be tested after controller completes rebase. Prior deletion audit used obsolete base and is corrected. Physical GPU/audio qualification remains pending and gates rollout.",
-      "updatedAt": "2026-10-21T12:44:52+00:00"
+      "note": "Reviewer fix validated locally: 32 protected Asset Manager/Main/Launcher files match current master; audit correction recorded. 29 tests passed, 1 optional browser unit skipped; separate real browser E2E and native intake passed. Fresh catalog/Sandbox/City, music lifecycle and F10 passed: 2237264 bytes / 185 decoded frames / 18.837 s. New exact-head hosted qualification pending controller publication; physical GPU/audio remains pending and rollout gated.",
+      "updatedAt": "2026-10-21T13:06:22+00:00"
     },
     {
       "id": "2ae7c6f2-358b-4d7a-8906-4c3687cda4ff",
