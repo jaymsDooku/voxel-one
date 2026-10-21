@@ -37,6 +37,13 @@ public final class StructurePackage {
     public final int leafCount, instanceCount;
 
     public StructurePackage(String name,Bounds bounds,List<ModelDefinition> models,List<Cell> cells) throws IOException {
+        this(name,bounds,models,cells,null);
+    }
+    /** Only capture/decode may supply a buffer of detached, frozen trees. All validation still runs. */
+    private StructurePackage(String name,Bounds bounds,List<ModelDefinition> models,StructureCells.Builder owned) throws IOException {
+        this(name,bounds,models,owned.view(),owned);
+    }
+    private StructurePackage(String name,Bounds bounds,List<ModelDefinition> models,List<Cell> cells,StructureCells.Builder owned) throws IOException {
         if(name==null||!name.matches("[A-Za-z0-9 _-]{1,48}"))throw new IOException("Use 1-48 letters, digits, spaces, underscores or dashes");
         if(bounds==null||models.size()>MAX_MODELS||cells.isEmpty()||cells.size()>MAX_CELLS)throw new IOException("Structure count limit");
         this.name=name;this.bounds=bounds;
@@ -51,7 +58,7 @@ public final class StructurePackage {
             definitions.add(frozen);
         }
         this.models=List.copyOf(definitions);
-        var entries=new StructureCells.Builder(cells.size());int leaves=0,instances=0;
+        var entries=owned==null?new StructureCells.Builder(cells.size()):owned;int leaves=0,instances=0;
         for(var cell:cells) {
             cancelled(()->false);
             var p=cell.position();
@@ -59,17 +66,17 @@ public final class StructurePackage {
             if(cell.model>=0) {
                 if(cell.geometry!=null||cell.model>=models.size()||++instances>MAX_INSTANCES)throw new IOException("Structure instance limit/reference");
                 instanceQuads+=quads[cell.model];if(instanceQuads>MAX_INSTANCE_QUADS)throw new IOException("Experimental instance surface cap");
-                entries.add(p,null,cell.model);
+                if(owned==null)entries.add(p,null,cell.model);
             } else {
                 if(cell.model!=-1||cell.geometry==null||cell.geometry.size()!=16||cell.geometry.occupied()==0)throw new IOException("Invalid structure geometry");
-                var tree=cell.geometry.copy().freeze();
+                var tree=owned==null?cell.geometry.copy().freeze():cell.geometry;
                 for(var leaf:tree.leaves()) {
                     int type=WorldVoxels.decode(leaf.color());
                     if(!Blocks.valid(type)||type==0||Blocks.isModel(type)||Blocks.isPiece(type)
                             ||leaf.side()<16&&!Blocks.subdividable(type))throw new IOException("Invalid geometry material");
                     if(++leaves>MAX_LEAVES)throw new IOException("Experimental geometry cap exceeded; city support unqualified");
                 }
-                entries.add(p,tree,-1);
+                if(owned==null)entries.add(p,tree,-1);
             }
         }
         // Spatial partition order: 16-cell sections, then local cell index.
@@ -103,7 +110,7 @@ public final class StructurePackage {
             }
             if((++done&1023)==0)progress.accept((int)(done*100/volume));
         }
-        cancelled(cancel);progress.accept(100);return new StructurePackage(name,bounds,definitions,cells.view());
+        cancelled(cancel);progress.accept(100);return new StructurePackage(name,bounds,definitions,cells);
     }
     public static void cancelled(BooleanSupplier cancel) {
         if(cancel.getAsBoolean()||Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException("Structure operation cancelled");
@@ -153,7 +160,7 @@ public final class StructurePackage {
                     ||crc.getValue()!=littleInt(bytes,bytes.length-8)
                     ||((DECODED-budget.remaining)&0xffffffffL)!=littleInt(bytes,bytes.length-4))
                 throw new IOException("Structure gzip length/checksum/trailing data");
-            return new StructurePackage(name,bounds,models,cells.view());
+            return new StructurePackage(name,bounds,models,cells);
         } finally {inflater.end();}
     }
     private static long littleInt(byte[] bytes,int start) {
