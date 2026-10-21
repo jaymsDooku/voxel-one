@@ -51,15 +51,15 @@ public final class StructurePackage {
             definitions.add(frozen);
         }
         this.models=List.copyOf(definitions);
-        var entries=new ArrayList<Cell>();var positions=new HashSet<Position>();int leaves=0,instances=0;
+        var entries=new StructureCells.Builder(cells.size());int leaves=0,instances=0;
         for(var cell:cells) {
             cancelled(()->false);
             var p=cell.position();
-            if(p.x<0||p.x>=bounds.x||p.y<0||p.y>=bounds.y||p.z<0||p.z>=bounds.z||!positions.add(p))throw new IOException("Invalid or duplicate structure cell");
+            if(p.x<0||p.x>=bounds.x||p.y<0||p.y>=bounds.y||p.z<0||p.z>=bounds.z)throw new IOException("Invalid or duplicate structure cell");
             if(cell.model>=0) {
                 if(cell.geometry!=null||cell.model>=models.size()||++instances>MAX_INSTANCES)throw new IOException("Structure instance limit/reference");
                 instanceQuads+=quads[cell.model];if(instanceQuads>MAX_INSTANCE_QUADS)throw new IOException("Experimental instance surface cap");
-                entries.add(cell);
+                entries.add(p,null,cell.model);
             } else {
                 if(cell.model!=-1||cell.geometry==null||cell.geometry.size()!=16||cell.geometry.occupied()==0)throw new IOException("Invalid structure geometry");
                 var tree=cell.geometry.copy().freeze();
@@ -69,14 +69,13 @@ public final class StructurePackage {
                             ||leaf.side()<16&&!Blocks.subdividable(type))throw new IOException("Invalid geometry material");
                     if(++leaves>MAX_LEAVES)throw new IOException("Experimental geometry cap exceeded; city support unqualified");
                 }
-                entries.add(new Cell(p,tree,-1));
+                entries.add(p,tree,-1);
             }
         }
         // Spatial partition order: 16-cell sections, then local cell index.
-        entries.sort(Comparator.comparingLong(c->order(c.position)));
-        this.cells=new StructureCells(entries);leafCount=leaves;instanceCount=instances;
+        this.cells=entries.build();leafCount=leaves;instanceCount=instances;
     }
-    private static long order(Position p) {
+    static long order(Position p) {
         long section=(p.y/16L*64+p.z/16)*64+p.x/16;
         return section*4096+(p.y%16*16+p.z%16)*16+p.x%16;
     }
