@@ -1,0 +1,77 @@
+{
+  "sourceHead": "e8a32faf5b48be24f371f89090a4bef1ba09ead3",
+  "base": "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+  "push_run": 39647531877,
+  "pr_run": 39647538506,
+  "summaries": [
+    {
+      "artifact": 12368660933,
+      "head": "e8a32faf5b48be24f371f89090a4bef1ba09ead3",
+      "tests": 782,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "artifact": 12368647460,
+      "head": "e8a32faf5b48be24f371f89090a4bef1ba09ead3",
+      "tests": 782,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "artifact": 12367534446,
+      "head": "e8a32faf5b48be24f371f89090a4bef1ba09ead3",
+      "tests": 782,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "artifact": 12367488642,
+      "head": "e8a32faf5b48be24f371f89090a4bef1ba09ead3",
+      "tests": 782,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "artifact": 12370460073,
+      "head": "1d28429569c517d7f1cdf9e39e65058fccb0c4c1",
+      "tests": 782,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "artifact": 12369060364,
+      "head": "1d28429569c517d7f1cdf9e39e65058fccb0c4c1",
+      "tests": 782,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "artifact": 12368068461,
+      "head": "1d28429569c517d7f1cdf9e39e65058fccb0c4c1",
+      "tests": 782,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "artifact": 12367099863,
+      "head": "1d28429569c517d7f1cdf9e39e65058fccb0c4c1",
+      "tests": 782,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    }
+  ],
+  "verified_pr_merge_parents": [
+    "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+    "e8a32faf5b48be24f371f89090a4bef1ba09ead3"
+  ],
+  "scope": "Parent hosted checks only; compact placement map is a subsequent local change. Not city/max or physical GPU qualification."
+}

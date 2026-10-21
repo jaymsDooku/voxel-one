@@ -283,3 +283,48 @@ need controller publication. Full city/max storage, atomic chunk publication,
 persistence beyond the 2,000,000-edit history ceiling, 20-run system budgets and
 physical GPU/shaped-network qualification remain unfinished. Keep safety caps
 and rollout gates. Not ready.
+
+
+## Compact placement storage
+
+All eight hosted summaries for parent `e8a32faf` contain 782 tests, zero failures
+and errors, and one optional browser skip. Verified the exact push source hashes
+and PR merge parents against the assigned head/base. Report:
+`structure-e8a-hosted.json`.
+
+Placement staging now stores sorted 28-bit relative coordinates and frozen tree
+references in arrays. An immutable Map view retains the existing authority API.
+The private Prepared constructor retains that immutable view instead of copying
+its entries back into an object map. Conflict revalidation, cancellation, geometry
+budgets, atomic authority publication and undo semantics are unchanged. No caps
+were raised. Lookups use binary search, which is a deliberate memory/time tradeoff.
+
+The 43 existing targeted regressions passed, including TLS multiplayer, offline
+placement, occupancy, streaming and MP3 support. Two new compact-map tests passed
+after correcting non-opaque test colours and the expected frozen-tree exception.
+They compare 2,000 shuffled entries with a reference map, exercise coordinate
+extremes, reject duplicate/incomplete buffers and reject mutation through views.
+
+A single GC-sensitive 16,384-cell retained Prepared sample fell from 656,808 to
+131,392 bytes. The 64-chunk CPU staging probe used three warmups and 20 samples:
+parent median/p95/worst 115.908/179.802/210.429 ms; compact
+103.245/153.117/155.950 ms. Background software rendering was active. These are
+small-fixture diagnostics, not peak-memory or reference city/max qualification.
+Parent engine classes were compiled from the exact parent Git source.
+
+Report: `structure-placement-storage-validation.json`. No file deletions against
+base `4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a`; all delegate tasks resolved.
+City/max admission, atomic chunk publication, persistence beyond 2,000,000 edits,
+main-thread work and physical GPU/shaped-network system qualification remain
+unfinished. Supported-limit publication and stable rollout remain gated.
+
+
+Playtest: fresh full native Main/GLFW workflow passed on the inherited X11 display
+with an isolated synthetic profile and llvmpipe. Verified all four rotations,
+overlap/live-player rejection, empty-space preservation, cancellation, atomic
+malformed-import failure, repeated placement, one-operation undo, persistence,
+inventory and model editor regressions. Decoded and inspected a frame from the
+fresh F10 MP4 (17 frames, 27.687 seconds) and the player-conflict screenshot.
+Production/harness source hashes match after execution. Media remains local,
+pending controller publication. Publish source and evidence for fresh hosted
+checks; full acceptance remains unfinished. Not ready.
