@@ -94,6 +94,14 @@ class StructureTest {
         Source air=new Source(){public SparseVoxelOctree cell(int x,int y,int z){return empty;}public ModelLibrary models(){return library;}};
         assertThrows(IOException.class,()->StructurePackage.capture("Empty",new Bounds(1,1,1,0,0,0),new Position(0,180,0),air,()->false,p->{}));
     }
+    @Test void ownedCaptureBufferStillValidatesGeometryAndBounds() throws Exception {
+        var invalid=new SparseVoxelOctree(16);invalid.fill(0,0,0,16,16,16,0xffabcdef);
+        var library=new ModelLibrary();
+        Source source=new Source(){public SparseVoxelOctree cell(int x,int y,int z){return invalid;}public ModelLibrary models(){return library;}};
+        assertThrows(IOException.class,()->StructurePackage.capture("Invalid material",new Bounds(1,1,1,0,0,0),new Position(0,180,0),source,()->false,p->{}));
+        assertThrows(IOException.class,()->StructurePackage.capture("Outside world",new Bounds(1,2,1,0,0,0),new Position(0,1023,0),source,()->false,p->{}));
+        invalid.set(0,0,0,0); // Capture must not freeze its source, including on failure.
+    }
     @Test void importCommandRetainsLongPathsAndBoundsInput() throws Exception {
         try(var menu=new dev.jayms.ui.StructureMenu(folder)) {
             String command="import /"+"nested directory/".repeat(30)+"house.vstr";

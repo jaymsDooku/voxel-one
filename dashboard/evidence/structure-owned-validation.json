@@ -1,0 +1,116 @@
+{
+  "schema": 1,
+  "parentHead": "18b60ad166d1e3aa9a7637b625ff1d2ec9da5b79",
+  "change": "Private capture/import path reuses its detached frozen buffer during full validation. Public constructor still copies caller geometry. No material, reference, surface, count, bound, ordering or duplicate checks bypassed; caps and v1 bytes unchanged.",
+  "tests": {
+    "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=StructureTest,StructureOccupancyTest,StructureMultiplayerTest,MusicMp3Test test",
+    "suites": [
+      {
+        "name": "StructureTest",
+        "tests": 22,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "StructureOccupancyTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "StructureMultiplayerTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "MusicMp3Test",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "coverage": "Private capture invalid materials and world bounds; failed capture leaves source editable; existing public-input mutation isolation, imports, rotations, cancellation, undo and TLS multiplayer regressions."
+  },
+  "probe": {
+    "commands": [
+      "java -Xms256m -Xmx256m -cp target/structure-owned-parent-classes:target:target/classes StreamAllocationProbe",
+      "java -Xms256m -Xmx256m -cp target:target/classes StreamAllocationProbe"
+    ],
+    "parent": [
+      {
+        "operation": "capture",
+        "cells": 100000,
+        "warmups": 3,
+        "runs": 20,
+        "median_thread_allocated_bytes": 43761448,
+        "median_ms": 27.905,
+        "p95_ms": 147.825,
+        "worst_ms": 211.606
+      },
+      {
+        "operation": "decode",
+        "cells": 100000,
+        "warmups": 3,
+        "runs": 20,
+        "median_thread_allocated_bytes": 45361000,
+        "median_ms": 261.956,
+        "p95_ms": 299.271,
+        "worst_ms": 314.908
+      },
+      {
+        "encoded_sha256": "8079579d5aa2361d0ee571e37be05983bfa48e738e5019597d832bff42ffda33",
+        "qualification": "synthetic capture/import allocations exclude other threads; not peak memory or city/GPU/network qualification"
+      }
+    ],
+    "current": [
+      {
+        "operation": "capture",
+        "cells": 100000,
+        "warmups": 3,
+        "runs": 20,
+        "median_thread_allocated_bytes": 40361368,
+        "median_ms": 18.537,
+        "p95_ms": 62.257,
+        "worst_ms": 68.315
+      },
+      {
+        "operation": "decode",
+        "cells": 100000,
+        "warmups": 3,
+        "runs": 20,
+        "median_thread_allocated_bytes": 44360920,
+        "median_ms": 265.998,
+        "p95_ms": 324.598,
+        "worst_ms": 331.973
+      },
+      {
+        "encoded_sha256": "8079579d5aa2361d0ee571e37be05983bfa48e738e5019597d832bff42ffda33",
+        "qualification": "synthetic capture/import allocations exclude other threads; not peak memory or city/GPU/network qualification"
+      }
+    ],
+    "limits": "Synthetic 100000 uniform cells; 3 warmups/20 samples. Parent storage/package classes compiled from exact parent Git source. Counts only construction thread allocations, excludes other threads; not process peak memory, city/max fixture or GPU/network qualification. Decode median slightly higher; no overall performance qualification claimed."
+  },
+  "pending": [
+    "Fresh hosted checks for changed source",
+    "Bounded atomic placement transactions and full city/max admission",
+    "20-run system budgets and physical GPU/network qualification"
+  ],
+  "publication": "Local report pending controller publication",
+  "playtest": {
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_manifest": "structure-native-source.json",
+    "source_manifest_sha256": "58a430a8e76794f47977dfdacc3a9a8b9665ab25bb672a16430e9176f643eade",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "publication": "Local evidence pending controller publication"
+  },
+  "mediaInspection": "Player rejection screenshot inspected; fresh F10 H264 clip decoded and frame inspected:16 frames,29.406s. Production/harness hashes verified unchanged."
+}

@@ -115,7 +115,7 @@
     "src/main/java/dev/jayms/net/structure/StructureCells.java": "2c8a0b8f123b6628adb2777011d7ede1bd52a23f8987ed62db3eea10138ce54f",
     "src/main/java/dev/jayms/net/structure/StructureEngine.java": "a2b2d25981c5ed1acbc8d30c20170dc1c60e8b1a5c870c409b08c68f7dc5c0c6",
     "src/main/java/dev/jayms/net/structure/StructureOccupancy.java": "2fe8c88af2f4b8edbee3f096e513dec88dd592165139578dfb2633c996635bcb",
-    "src/main/java/dev/jayms/net/structure/StructurePackage.java": "3b9f3ae78d12283e86fb4c0d5a321a3862d406c133a60e22129fb0512234eb02",
+    "src/main/java/dev/jayms/net/structure/StructurePackage.java": "f571375b340146a0077b3ab3dfb2a46f2d28f07988f70a2d372a20ce61ae871e",
     "src/main/java/dev/jayms/net/structure/StructureWire.java": "49eb1bc6fabb9d78177f5547e6bf4ae99509c86bc7cfebd69e7b59e9d8f33006",
     "src/main/java/dev/jayms/physics/Aabb.java": "dd84807d0e331d7471c8e06bcc1e068a98821b6f25add0aa4e819dfe67e095ca",
     "src/main/java/dev/jayms/physics/CharacterController.java": "dc1b89769f4079399fb4c6e5025e7b3ed346dc37c5a2d0381de538157ce52339",
