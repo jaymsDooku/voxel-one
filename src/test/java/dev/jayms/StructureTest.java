@@ -29,6 +29,22 @@ class StructureTest {
             assertEquals(4096,menu.input.length());
         }
     }
+    @Test void stagedUniformCellsShareImmutableTreesWithoutLinkingWorldEdits() throws Exception {
+        var stone=new SparseVoxelOctree(16);stone.fill(0,0,0,16,16,16,WorldVoxels.encode(Blocks.STONE));
+        var asset=new StructurePackage("Repeated blocks",new Bounds(3,1,1,0,0,0),List.of(),List.of(
+            new Cell(new Position(0,0,0),stone,-1),new Cell(new Position(1,0,0),stone,-1)));
+        try(var world=new World(42)) {
+            var engine=new StructureEngine();
+            try(var plan=engine.prepare(asset,new Position(0,180,0),0,world.structureSnapshot(),()->false,p->{})) {
+                var first=plan.cells().get(new Position(0,180,0));var second=plan.cells().get(new Position(1,180,0));
+                assertSame(first,second,"Repeated uniform materials need one immutable staging tree");
+                assertThrows(IllegalStateException.class,()->first.set(0,0,0,0));
+                stone.set(0,0,0,0);assertEquals(4096,first.occupied());
+                var editable=first.copy();editable.set(0,0,0,0);
+                assertEquals(4096,second.occupied());assertEquals(4095,editable.occupied());
+            }
+        }
+    }
     @Test void packageRoundtripKeepsFractionalColoursModel32AndLargeBounds() throws Exception {
         var original=asset();var copy=StructurePackage.decode(original.encode());
         assertEquals(original.bounds,copy.bounds);assertEquals(original.cells.get(0).geometry().leaves(),copy.cells.get(0).geometry().leaves());
@@ -132,7 +148,8 @@ class StructureTest {
     }
     byte[] newInventoryBytes() throws Exception {var bytes=new ByteArrayOutputStream();new Inventory().write(new DataOutputStream(bytes));return bytes.toByteArray();}
     @Test void offlinePlacementConflictCancellationUndoAndRestartAreAtomic() throws Exception {
-        var local=new LocalGame(folder.resolve("world.dat"),42);var world=new World(42,local.models);var engine=new StructureEngine();
+        var local=new LocalGame(folder.resolve("world.dat"),42);var world=new World(42,local.models);var engine=new StructureEngine(1);
+        // A two-cell operation must retain one-operation undo even above a one-cell history target.
         var authority=local.structureAuthority(world);var asset=asset();var cancel=new AtomicBoolean();
         try(var plan=engine.prepare(asset,new Position(100,120,100),1,world.structureSnapshot(),cancel::get,v->{})) {
             cancel.set(true);assertThrows(java.util.concurrent.CancellationException.class,()->plan.commit("me",authority));
