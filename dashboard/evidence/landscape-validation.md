@@ -88,6 +88,8 @@ Playtest: `python3 deploy/run_music_smoke.py --display "$DISPLAY"` passed again 
 
 Final-source hosted validation is required after publishing these harness and evidence changes. The historical hosted soak/performance are not relabeled as the resulting head. No source changes to the renderer/audio pipeline were needed during this reconciliation.
 
+Final exact-source hosted validation passed and was inspected. See `landscape-final-hosted-review.md` and the SHA-indexed hosted reports. This supersedes earlier hosted-pending notes for software qualification only. Physical GPU/audio remains pending and stable rollout stays gated.
+
 ## Review correction: preserve Asset Manager
 
 Earlier “no tracked deletions” claims used an obsolete review base and did not establish preservation against current master `4a0bbd6a`. That audit was insufficient. Reviewer identified removed Asset Manager implementation/resources/tests/evidence and Main launcher/intake paths; this blocks approval. The preserved rebase now includes those current-master features. Checked all Asset Manager-named paths and Main byte-for-byte against `4a0bbd6a`: identical. No deletion is intended for that feature. Resolved the current progress timestamp conflict while preserving other dashboard entries and release data. Controller must stage and continue rebase before final-source tests. After recovery, rerun Asset Manager integration/native launcher/intake and landscape navigation checks; prior landscape passes do not qualify restored navigation. Physical GPU/audio remains pending.

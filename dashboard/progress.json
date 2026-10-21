@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-21T12:06:01+00:00",
+  "updatedAt": "2026-10-21T12:44:52+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -58,11 +58,26 @@
           "kind": "image",
           "label": "Natural all-effect expiry (pending controller publication)",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-32303665306237372d623933612d346464642d383435342d346162633836393964313931/dashboard/evidence/landscape-live-expired.png"
+        },
+        {
+          "kind": "report",
+          "label": "Final exact-head hosted results (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-32303665306237372d623933612d346464642d383435342d346162633836393964313931/dashboard/evidence/landscape-final-hosted-review.md"
+        },
+        {
+          "kind": "video",
+          "label": "Hosted F10 contrasting passages and calm (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-32303665306237372d623933612d346464642d383435342d346162633836393964313931/dashboard/evidence/landscape-final-hosted-live.mp4"
+        },
+        {
+          "kind": "image",
+          "label": "Hosted decoded F10 frames (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-32303665306237372d623933612d346464642d383435342d346162633836393964313931/dashboard/evidence/landscape-final-hosted-live-video-contact.png"
         }
       ],
       "status": "in_progress",
-      "note": "Rebase recovered; retained other features. Local 24 tests/package, catalog/Sandbox/City and full music lifecycle passed. Fixed regression fixture to leave retained Recipe Book through real Escape; fresh report hashes prevent stale PASS evidence. Fresh F10: 2121375 bytes, 177 decoded frames, 18.951 s; screenshots inspected. Historical hosted 1800.05 s soak/resources/performance reviewed separately. New exact-head hosted qualification and physical GPU/audio remain pending; rollout gated.",
-      "updatedAt": "2026-10-21T11:55:08+00:00"
+      "note": "Reviewer fix in progress: current-master Asset Manager implementation, launcher/intake, resources, tests and evidence preserved. Historical landscape qualification remains recorded; restored Asset Manager integration and final-source navigation/media must be tested after controller completes rebase. Prior deletion audit used obsolete base and is corrected. Physical GPU/audio qualification remains pending and gates rollout.",
+      "updatedAt": "2026-10-21T12:44:52+00:00"
     },
     {
       "id": "2ae7c6f2-358b-4d7a-8906-4c3687cda4ff",

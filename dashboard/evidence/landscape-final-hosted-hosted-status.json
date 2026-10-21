@@ -1,0 +1,57 @@
+{
+  "head": "fb6a551890658e76fc8a46747a72ecd3f4826e4e",
+  "results": [
+    {
+      "command": [
+        "deploy/run_music_smoke.py",
+        "--display",
+        ":99"
+      ],
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "deploy/check_music_media.py",
+        "--prefix",
+        "landscape-live"
+      ],
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "deploy/run_music_mp3_smoke.py",
+        "--display",
+        ":99",
+        "--evidence-prefix",
+        "landscape-mp3"
+      ],
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "deploy/run_music_regressions.py",
+        "--display",
+        ":99",
+        "--evidence-prefix",
+        "landscape-regression"
+      ],
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "deploy/run_landscape_comparison.py",
+        "--display",
+        ":99"
+      ],
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "deploy/run_landscape_soak.py",
+        "--display",
+        ":99"
+      ],
+      "exitCode": 0
+    }
+  ]
+}
