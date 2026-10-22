@@ -82,18 +82,20 @@ public final class WorldVoxels {
     private final Terrain terrain;
     private static final class CellBucket {
         final Object owner;
+        private long revision;
         private int singleKey=-1;
         private SparseVoxelOctree singleTree;
         private Map<Integer,SparseVoxelOctree> cells;
         CellBucket(Object owner,CellBucket source) {
             this.owner=owner;
             if(source!=null) {
-                singleKey=source.singleKey;singleTree=source.singleTree;
+                revision=source.revision;singleKey=source.singleKey;singleTree=source.singleTree;
                 if(source.cells!=null)cells=new HashMap<>(source.cells);
             }
         }
         SparseVoxelOctree get(int key){return cells==null?(key==singleKey?singleTree:null):cells.get(key);}
         void put(int key,SparseVoxelOctree tree) {
+            revision++;
             if(cells!=null){cells.put(key,tree);return;}
             if(singleKey<0||singleKey==key){singleKey=key;singleTree=tree;return;}
             cells=new HashMap<>(4);cells.put(singleKey,singleTree);cells.put(key,tree);singleKey=-1;singleTree=null;
@@ -113,6 +115,15 @@ public final class WorldVoxels {
         // Neither world may mutate a bucket owned before this sharing boundary.
         owner=new Object();
         return copy;
+    }
+
+    private record ChunkStamp(Terrain terrain,long terrainRevision,CellBucket bucket,long revision) {}
+    public long terrainRevision(){return terrain.geometryRevision();}
+    /** Trusted in-process stamp for one chunk. Compare only under the authority's lock. */
+    public Object chunkStamp(ChunkPos position) {
+        long generation=terrain.geometryRevision();if((generation&1)!=0)return null;
+        var bucket=chunks.get(position);
+        return new ChunkStamp(terrain,generation,bucket,bucket==null?0:bucket.revision);
     }
 
     public static int encode(int type) {

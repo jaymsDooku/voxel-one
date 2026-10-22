@@ -243,3 +243,16 @@ counts, matching leaf replay; validation still runs the same CPU mesh and
 instance budgets. This reduces staging work without changing world publication,
 file/wire formats, geometry detail or admission caps. The detached assembly
 probe is documented separately from full city/max and system qualification.
+
+
+Server staging records opaque, process-local geometry stamps for successfully
+validated chunks. Final commit reuses that CPU mesh validation only if the live
+stamp still matches under the authority lock. Stamps include terrain identity
+and a stable generation, chunk-bucket identity and its edit revision. Snapshot
+trust is lost after any terrain generation change, including a change away and
+back. Changed chunks and unknown stamps always run full validation. This cache
+belongs only to one prepared placement and retains at most 256 chunk stamps.
+Offline/default sources keep full validation. Destination occupancy, model
+revision, cancellation and live-body checks still run at commit. This removes
+one repeated validation phase for unchanged server chunks; it does not remove
+history/save costs, expand admission or qualify city/max and tick/frame budgets.
