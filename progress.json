@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-22T20:11:45+00:00",
+  "updatedAt": "2026-10-22T20:48:32+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -3908,6 +3908,36 @@
       "status": "in_progress",
       "note": "Investigating current planner startup diagnostic and repeated hosted-check handoffs. Preserving feature branches, receipts and real acceptance gates.",
       "updatedAt": "2026-10-22T20:11:45+00:00"
+    },
+    {
+      "id": "hub-preview-publication-2026-10-22",
+      "title": "Publish initial Hub preview and catalog",
+      "description": "Published the source-fenced initial Hub prerelease and its catalog. All four platform packages passed; public metadata and shell hashes verified. Actual Linux packaged Hub staged and activated the public shell across two launches; Games sidebar inspected. Further game, physical and second-generation qualification remains pending.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Initial Hub preview",
+          "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/hub-preview-1"
+        },
+        {
+          "kind": "link",
+          "label": "Four-platform package preparation",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39848099805"
+        },
+        {
+          "kind": "report",
+          "label": "hub preview publication 2026 10 22.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/hub-preview-publication-2026-10-22.json"
+        },
+        {
+          "kind": "image",
+          "label": "hub preview public games 2026 10 22.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/hub-preview-public-games-2026-10-22.png"
+        }
+      ],
+      "status": "complete",
+      "note": "Published the source-fenced initial Hub prerelease and its catalog. All four platform packages passed; public metadata and shell hashes verified. Actual Linux packaged Hub staged and activated the public shell across two launches; Games sidebar inspected. Further game, physical and second-generation qualification remains pending.",
+      "updatedAt": "2026-10-22T20:48:32+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
