@@ -232,3 +232,14 @@ existing destination. Save progress stays below 100 until return; the UI marks
 file; later cancellation does not hide that success or undo the file. Callbacks
 run only before this commit boundary. This does not add fsync durability or
 qualify latency, city admission or world-placement persistence budgets.
+
+
+Detached structure chunk validation installs complete 16³ world cells through
+aligned persistent octree subtree replacement. It visits source nodes to
+normalize legacy redundant branches, shares unchanged immutable nodes and
+copies destination ancestor paths. The source tree and encoded identity stay
+unchanged. Chunk metadata records whole-cell model IDs and fractional-cell
+counts, matching leaf replay; validation still runs the same CPU mesh and
+instance budgets. This reduces staging work without changing world publication,
+file/wire formats, geometry detail or admission caps. The detached assembly
+probe is documented separately from full city/max and system qualification.
