@@ -1,0 +1,83 @@
+{
+  "sourceHead": "98e80d57d338328719fffb5817619e4d517260ad",
+  "base": "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+  "summaries": [
+    {
+      "run": 39667081886,
+      "artifact": 12378875858,
+      "head": "98e80d57d338328719fffb5817619e4d517260ad",
+      "tests": 795,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39667081886,
+      "artifact": 12378407732,
+      "head": "98e80d57d338328719fffb5817619e4d517260ad",
+      "tests": 795,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39667081886,
+      "artifact": 12378312892,
+      "head": "98e80d57d338328719fffb5817619e4d517260ad",
+      "tests": 795,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39667081886,
+      "artifact": 12377883240,
+      "head": "98e80d57d338328719fffb5817619e4d517260ad",
+      "tests": 795,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39667086468,
+      "artifact": 12379370381,
+      "head": "c42a6783390cf357b7d4229a7aaf50fd1396c1f5",
+      "tests": 795,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39667086468,
+      "artifact": 12378506924,
+      "head": "c42a6783390cf357b7d4229a7aaf50fd1396c1f5",
+      "tests": 795,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39667086468,
+      "artifact": 12377963453,
+      "head": "c42a6783390cf357b7d4229a7aaf50fd1396c1f5",
+      "tests": 795,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39667086468,
+      "artifact": 12377679560,
+      "head": "c42a6783390cf357b7d4229a7aaf50fd1396c1f5",
+      "tests": 795,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    }
+  ],
+  "verified_pr_merge_parents": [
+    "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+    "98e80d57d338328719fffb5817619e4d517260ad"
+  ],
+  "scope": "Parent hosted summaries only; new history edits and full city/max qualification not covered."
+}
