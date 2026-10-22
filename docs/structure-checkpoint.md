@@ -537,3 +537,46 @@ No files deleted against recorded review base; existing MP3/Hub/Asset Manager
 features retained. Full city/max admission, 2,000,000-edit persistence ceiling,
 chunk transaction/publication, reference GPU/network and 20-run system budgets
 remain unfinished. No readiness claim or rollout-gate changes.
+
+## Compact per-cell history index
+
+Resumed with completed `98e80d57` checks. Independently inspected all eight
+sanitized Maven summaries: 795 tests each, zero failures/errors and one skip.
+Verified feature hashes and merge parents. No repeated completed-check wait.
+Receipt: `dashboard/evidence/structure-98e80-hosted.json`.
+
+Unpublished history index now stores one key directly for single-edit cells;
+multiple keys promote to an ordered set and removal demotes back to one key.
+Global replay order and save/wire formats remain unchanged. Explicit read-only
+key/value views match the existing documented collection-view contract.
+38 selected tests passed, including 5,000 seeded operations versus unindexed
+history, promotion/demotion/replacement, snapshots, fractional geometry,
+offline placement and actual TLS multiplayer regression. Earlier compile type
+error and inherited mutable values-view behavior were corrected, then all
+selected tests rerun. Delegate failed without output and was resolved self.
+
+100,000-edit diagnostic: parent/current single-cell retained-heap samples
+47,447,120/29,813,792 bytes; copy allocations 40,164,480/22,564,480 bytes.
+Single-copy median/p95/worst 110.389284/214.227179/223.786557 ms versus
+89.522193/170.099534/176.431547 ms. Fractional layout (25,000 cells, four
+edits each) retained samples 27,793,416/28,392,320 bytes; allocations
+30,487,584/31,087,584 bytes. Fractional median/p95/worst
+71.032499/173.765805/234.258529 ms versus
+62.088027/202.613545/303.684588 ms. Three warmups/20 samples in separate
+JVMs; heap samples are GC-sensitive, not peak memory. Fractional memory and
+tail-latency costs are recorded. These are storage diagnostics, not city/max
+or main-thread qualification; full-history copy remains O(edits) and too slow.
+Report: `structure-history-index-validation.json`.
+
+Fresh native workflow passed on inherited X11 with a synthetic profile.
+Complete production/harness source set and hashes verified. Inspected fresh
+conflict/component screenshots and decoded F10 frame: H264, 17 frames,
+29.365 s, 367,895 bytes. SHA-256:
+`8c302317fa5ca8405d0b69e269fa56c8ee7750aca9d2bda978f545fd6058fd68`.
+llvmpipe about 1 FPS; not reference GPU performance. Source, report and media
+need controller publication and fresh exact-source checks, including current
+master integration by the controller. No completed old check wait requested.
+Next larger work remains versioned region transactions and moving full-history
+construction/save/publication off the interactive owner path, with concurrent
+edit revalidation and bounded persistence/synchronization. No limits raised.
+City/max admission and reference GPU/network/system qualification unfinished.

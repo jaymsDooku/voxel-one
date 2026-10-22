@@ -12,16 +12,35 @@ public final class WorldVoxels {
     /** Ordered edit history with a cell index. Collection views are read-only. */
     public static final class History extends AbstractMap<String, Protocol.Edit> {
         private final Map<String, Protocol.Edit> ordered = new LinkedHashMap<>();
-        private final Map<String, Set<String>> cells = new HashMap<>();
+        /** Most cells have one edit; allocate a set only for fractional edit histories. */
+        private static final class CellKeys {
+            private String single;
+            private LinkedHashSet<String> many;
+            void add(String key) {
+                if(many!=null){many.add(key);return;}
+                if(single==null||single.equals(key)){single=key;return;}
+                many=new LinkedHashSet<>();many.add(single);many.add(key);single=null;
+            }
+            void remove(Object key) {
+                if(many==null){if(Objects.equals(key,single))single=null;return;}
+                many.remove(key);
+                if(many.size()==1){single=many.iterator().next();many=null;}
+            }
+            boolean isEmpty(){return many==null?single==null:many.isEmpty();}
+            List<String> snapshot(){return many==null?(single==null?List.of():List.of(single)):List.copyOf(many);}
+        }
+        private final Map<String, CellKeys> cells = new HashMap<>();
         @Override public Set<Entry<String, Protocol.Edit>> entrySet() {
             return Collections.unmodifiableMap(ordered).entrySet();
         }
+        @Override public Set<String> keySet() { return Collections.unmodifiableSet(ordered.keySet()); }
+        @Override public Collection<Protocol.Edit> values() { return Collections.unmodifiableCollection(ordered.values()); }
         @Override public Protocol.Edit get(Object key) { return ordered.get(key); }
         @Override public int size() { return ordered.size(); }
         @Override public boolean containsKey(Object key) { return ordered.containsKey(key); }
         @Override public Protocol.Edit put(String key, Protocol.Edit edit) {
             if (!key.equals(edit.key())) throw new IllegalArgumentException("Edit key mismatch");
-            cells.computeIfAbsent(edit.cellKey(), k -> new LinkedHashSet<>()).add(key);
+            cells.computeIfAbsent(edit.cellKey(), k -> new CellKeys()).add(key);
             return ordered.put(key,edit);
         }
         @Override public Protocol.Edit remove(Object key) {
@@ -35,7 +54,7 @@ public final class WorldVoxels {
         @Override public void clear() { ordered.clear(); cells.clear(); }
         private void remember(Protocol.Edit edit) {
             var keys = cells.get(edit.cellKey());
-            if (keys != null) for (var key : List.copyOf(keys)) {
+            if (keys != null) for (var key : keys.snapshot()) {
                 var old = ordered.get(key);
                 if (covered(old,edit)) remove(key);
             }

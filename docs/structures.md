@@ -197,3 +197,15 @@ edited-chunk index. Widely scattered edits can therefore increase snapshot work.
 Measured CPU probes cover compact and scattered 100,000-cell worlds; they are
 not city/max, peak-memory or reference GPU/network qualification. Owner-thread
 application, persistence and other outstanding gates above remain unresolved.
+
+
+Edit histories index a single edit key directly for cells with one retained edit.
+A second distinct key promotes the cell index to an ordered set; removal back
+to one key releases that set. Global replay order remains in the existing
+ordered history map. Collection views are read-only; callers mutate through
+put/remove/clear so the cell index stays consistent. This changes no file or
+wire representation and does not remove the 2,000,000-edit persistence limit.
+The compact index saves memory for single-edit cells, with an extra wrapper
+for cells that retain multiple fractional edits. Measured tradeoffs are recorded
+in the history-index validation report; they do not establish supported city
+limits or qualify whole-operation timing budgets.
