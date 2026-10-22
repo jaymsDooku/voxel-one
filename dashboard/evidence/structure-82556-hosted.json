@@ -1,0 +1,83 @@
+{
+  "sourceHead": "82556042bd9339ee43479b2728fa43e7eee0d213",
+  "base": "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+  "summaries": [
+    {
+      "run": 39848704230,
+      "artifact": 12457552368,
+      "head": "82556042bd9339ee43479b2728fa43e7eee0d213",
+      "tests": 797,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39848704230,
+      "artifact": 12457346138,
+      "head": "82556042bd9339ee43479b2728fa43e7eee0d213",
+      "tests": 797,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39848704230,
+      "artifact": 12456648511,
+      "head": "82556042bd9339ee43479b2728fa43e7eee0d213",
+      "tests": 797,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39848704230,
+      "artifact": 12455834306,
+      "head": "82556042bd9339ee43479b2728fa43e7eee0d213",
+      "tests": 797,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39848708975,
+      "artifact": 12457511846,
+      "head": "7270aba75f9039463a9095217ed07a530f33427c",
+      "tests": 797,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39848708975,
+      "artifact": 12456851888,
+      "head": "7270aba75f9039463a9095217ed07a530f33427c",
+      "tests": 797,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39848708975,
+      "artifact": 12456774287,
+      "head": "7270aba75f9039463a9095217ed07a530f33427c",
+      "tests": 797,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39848708975,
+      "artifact": 12455609145,
+      "head": "7270aba75f9039463a9095217ed07a530f33427c",
+      "tests": 797,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    }
+  ],
+  "verified_pr_merge_parents": [
+    "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+    "82556042bd9339ee43479b2728fa43e7eee0d213"
+  ],
+  "scope": "Parent hosted summaries only; cancellation edits and full city/max qualification not covered."
+}

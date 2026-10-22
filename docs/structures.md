@@ -209,3 +209,14 @@ The compact index saves memory for single-edit cells, with an extra wrapper
 for cells that retain multiple fractional edits. Measured tradeoffs are recorded
 in the history-index validation report; they do not establish supported city
 limits or qualify whole-operation timing budgets.
+
+
+Package loading and decoding have cancellable worker APIs. Saved-library loads
+and imports pass their operation flag through dependency parsing, cell parsing
+and final validation. Server placement decode uses the peer cancellation flag
+before staging. Import progress reports 0–99 during parse and 100 after gzip
+integrity and package validation. A cancellation raised by a progress callback
+still aborts delivery. Existing decode/load entry points preserve their formats
+and validation rules. Cancellation is checked between bounded decode/validation
+units, not by interrupting an individual file read, model mesh or final cell
+sort. This does not qualify city-scale latency or change placement admission.

@@ -37,20 +37,23 @@ public final class StructurePackage {
     public final int leafCount, instanceCount;
 
     public StructurePackage(String name,Bounds bounds,List<ModelDefinition> models,List<Cell> cells) throws IOException {
-        this(name,bounds,models,cells,null);
+        this(name,bounds,models,cells,null,()->false);
     }
     /** Only capture/decode may supply a buffer of detached, frozen trees. All validation still runs. */
     private StructurePackage(String name,Bounds bounds,List<ModelDefinition> models,StructureCells.Builder owned) throws IOException {
-        this(name,bounds,models,owned.view(),owned);
+        this(name,bounds,models,owned.view(),owned,()->false);
     }
-    private StructurePackage(String name,Bounds bounds,List<ModelDefinition> models,List<Cell> cells,StructureCells.Builder owned) throws IOException {
+    private StructurePackage(String name,Bounds bounds,List<ModelDefinition> models,StructureCells.Builder owned,BooleanSupplier cancel) throws IOException {
+        this(name,bounds,models,owned.view(),owned,cancel);
+    }
+    private StructurePackage(String name,Bounds bounds,List<ModelDefinition> models,List<Cell> cells,StructureCells.Builder owned,BooleanSupplier cancel) throws IOException {
         if(name==null||!name.matches("[A-Za-z0-9 _-]{1,48}"))throw new IOException("Use 1-48 letters, digits, spaces, underscores or dashes");
         if(bounds==null||models.size()>MAX_MODELS||cells.isEmpty()||cells.size()>MAX_CELLS)throw new IOException("Structure count limit");
         this.name=name;this.bounds=bounds;
         var definitions=new ArrayList<ModelDefinition>();var identities=new HashSet<String>();
         int[] quads=new int[models.size()];long dependencyQuads=0,instanceQuads=0;
         for(var model:models) {
-            cancelled(()->false);
+            cancelled(cancel);
             var frozen=new ModelDefinition(model.name(),model.voxels().copy().freeze());
             if(frozen.voxels().occupied()==0||!identities.add(frozen.fingerprint()))throw new IOException("Empty or duplicate dependency");
             int faces=ModelMesher.mesh(frozen.voxels()).quads();quads[definitions.size()]=faces;dependencyQuads+=faces;
@@ -60,7 +63,7 @@ public final class StructurePackage {
         this.models=List.copyOf(definitions);
         var entries=owned==null?new StructureCells.Builder(cells.size()):owned;int leaves=0,instances=0;
         for(var cell:cells) {
-            cancelled(()->false);
+            cancelled(cancel);
             var p=cell.position();
             if(p.x<0||p.x>=bounds.x||p.y<0||p.y>=bounds.y||p.z<0||p.z>=bounds.z)throw new IOException("Invalid or duplicate structure cell");
             if(cell.model>=0) {
@@ -80,7 +83,7 @@ public final class StructurePackage {
             }
         }
         // Spatial partition order: 16-cell sections, then local cell index.
-        this.cells=entries.build();leafCount=leaves;instanceCount=instances;
+        cancelled(cancel);this.cells=entries.build();cancelled(cancel);leafCount=leaves;instanceCount=instances;
     }
     static long order(Position p) {
         long section=(p.y/16L*64+p.z/16)*64+p.x/16;
@@ -131,6 +134,12 @@ public final class StructurePackage {
         return bytes.toByteArray();
     }
     public static StructurePackage decode(byte[] bytes) throws IOException {
+        return decode(bytes,()->false,p->{});
+    }
+    /** Worker-thread decode. Cancellation never publishes a package or mutates the world. */
+    public static StructurePackage decode(byte[] bytes,BooleanSupplier cancel,IntConsumer progress) throws IOException {
+        Objects.requireNonNull(cancel,"cancel");Objects.requireNonNull(progress,"progress");
+        cancelled(cancel);progress.accept(0);cancelled(cancel);
         if(bytes.length<1||bytes.length>COMPRESSED)throw new IOException("64 MiB compressed structure limit");
         if(bytes.length<18||bytes[0]!=(byte)31||bytes[1]!=(byte)139||bytes[2]!=8||bytes[3]!=0)
             throw new IOException("Invalid structure gzip header");
@@ -144,16 +153,17 @@ public final class StructurePackage {
             int n=in.readInt();if(n<0||n>MAX_MODELS)throw new IOException("512 dependency limit");
             var models=new ArrayList<ModelDefinition>();var identities=new HashSet<String>();long dependencyQuads=0;
             for(int i=0;i<n;i++) {
-                cancelled(()->false);var model=version==1?ModelDefinition.read(in):StructureModelCodec.read(in);
+                cancelled(cancel);var model=version==1?ModelDefinition.read(in):StructureModelCodec.read(in);
                 if(model.voxels().occupied()==0||!identities.add(model.fingerprint()))throw new IOException("Empty or duplicate dependency");
                 dependencyQuads+=ModelMesher.mesh(model.voxels()).quads();
                 if(dependencyQuads>MAX_DEPENDENCY_QUADS)throw new IOException("Experimental dependency surface cap");
-                models.add(model);
+                models.add(model);progress.accept((i+1)*25/n);cancelled(cancel);
             }
+            progress.accept(25);cancelled(cancel);
             n=in.readInt();if(n<1||n>MAX_CELLS)throw new IOException("Occupied cell limit");
             var cells=new StructureCells.Builder();long last=-1;int leaves=0,instances=0;
             for(int i=0;i<n;i++) {
-                cancelled(()->false);
+                cancelled(cancel);
                 int sx=in.readUnsignedShort(),sy=in.readUnsignedByte(),sz=in.readUnsignedShort(),index=in.readUnsignedShort(),model=in.readShort();
                 if(sx>=64||sy>=16||sz>=64||index>=4096||model< -1||model>=models.size())throw new IOException("Invalid section/model reference");
                 var p=new Position(sx*16+index%16,sy*16+index/256,sz*16+(index/16)%16);
@@ -162,13 +172,15 @@ public final class StructurePackage {
                 if(model<0){tree=SparseVoxelOctree.read(in,16);if(tree.occupied()==0)throw new IOException("Invalid/empty cell");leaves+=tree.leaves().size();if(leaves>MAX_LEAVES)throw new IOException("Experimental geometry cap");}
                 else if(++instances>MAX_INSTANCES)throw new IOException("Experimental instance cap");
                 cells.add(p,tree==null?null:tree.freeze(),model);
+                if((i&127)==127||i==n-1){progress.accept(25+(int)((long)(i+1)*74/n));cancelled(cancel);}
             }
             if(in.read()!=-1)throw new IOException("Trailing structure bytes");
             if(!inflater.finished()||inflater.getRemaining()!=0||payload.available()!=0
                     ||crc.getValue()!=littleInt(bytes,bytes.length-8)
                     ||((DECODED-budget.remaining)&0xffffffffL)!=littleInt(bytes,bytes.length-4))
                 throw new IOException("Structure gzip length/checksum/trailing data");
-            return new StructurePackage(name,bounds,models,cells);
+            cancelled(cancel);var result=new StructurePackage(name,bounds,models,cells,cancel);
+            cancelled(cancel);progress.accept(100);cancelled(cancel);return result;
         } finally {inflater.end();}
     }
     private static long littleInt(byte[] bytes,int start) {
@@ -181,8 +193,12 @@ public final class StructurePackage {
         finally {Files.deleteIfExists(temp);}
     }
     public static StructurePackage load(Path path) throws IOException {
+        return load(path,()->false,p->{});
+    }
+    public static StructurePackage load(Path path,BooleanSupplier cancel,IntConsumer progress) throws IOException {
+        cancelled(cancel);
         if(Files.size(path)>COMPRESSED)throw new IOException("64 MiB compressed structure limit");
-        try(var in=Files.newInputStream(path)) {return decode(in.readNBytes((int)COMPRESSED+1));}
+        try(var in=Files.newInputStream(path)) {return decode(in.readNBytes((int)COMPRESSED+1),cancel,progress);}
     }
     static final class BudgetInput extends FilterInputStream {
         long remaining;BudgetInput(InputStream in,long limit){super(in);remaining=limit;}

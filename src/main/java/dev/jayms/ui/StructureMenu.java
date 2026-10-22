@@ -73,7 +73,7 @@ public final class StructureMenu implements AutoCloseable {
         if(!input.isEmpty())return;
         if(key==GLFW_KEY_UP||key==GLFW_KEY_DOWN) {
             if(saved.isEmpty())return;index=Math.floorMod(index+(key==GLFW_KEY_DOWN?1:-1),saved.size());
-            Path file=saved.get(index);start("Loading "+file.getFileName(),cancel->{var asset=StructurePackage.load(file);return new Completion(()->{selected=asset;message="Selected "+asset.name;conflict=null;},null,cancel);});
+            Path file=saved.get(index);start("Loading "+file.getFileName(),cancel->{var asset=StructurePackage.load(file,cancel::get,p->progress=p);return new Completion(()->{selected=asset;message="Selected "+asset.name;conflict=null;},null,cancel);});
         }
     }
     public void execute(String command,World world,LocalGame local,MultiplayerClient network) {
@@ -99,7 +99,7 @@ public final class StructureMenu implements AutoCloseable {
             }
             if(verb.equals("import")) {
                 Path file=Path.of(command.substring(verb.length()).trim());
-                start("Validating imported package...",cancel->{var asset=StructurePackage.load(file);StructurePackage.cancelled(cancel::get);asset.save(directory.resolve(asset.name+".vstr"));return new Completion(()->{selected=asset;refresh();conflict=null;message="Imported "+asset.name;},null,cancel);});return;
+                start("Validating imported package...",cancel->{var asset=StructurePackage.load(file,cancel::get,p->progress=p);StructurePackage.cancelled(cancel::get);asset.save(directory.resolve(asset.name+".vstr"));return new Completion(()->{selected=asset;refresh();conflict=null;message="Imported "+asset.name;},null,cancel);});return;
             }
             if(verb.equals("undo")) {
                 if(network!=null){message=network.undoStructure()?"Undo sent to server":"Wait or update server to use structures";return;}
