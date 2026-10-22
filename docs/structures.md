@@ -252,7 +252,10 @@ and a stable generation, chunk-bucket identity and its edit revision. Snapshot
 trust is lost after any terrain generation change, including a change away and
 back. Changed chunks and unknown stamps always run full validation. This cache
 belongs only to one prepared placement and retains at most 256 chunk stamps.
-Offline/default sources keep full validation. Destination occupancy, model
-revision, cancellation and live-body checks still run at commit. This removes
-one repeated validation phase for unchanged server chunks; it does not remove
+Offline/default sources keep full validation. Final commit also reuses the staged
+empty-destination proof when every affected chunk has a matching non-null live
+stamp. A missing or changed stamp anywhere restores the full destination scan.
+That fallback checks cancellation every 128 destinations. Model revision,
+cancellation and live-body checks still run at commit. This removes repeated
+validation and occupancy reads for unchanged server chunks; it does not remove
 history/save costs, expand admission or qualify city/max and tick/frame budgets.

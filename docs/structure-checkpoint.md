@@ -734,3 +734,47 @@ need controller publication and fresh exact-source checks. Full city/max admissi
 persistence, atomic world transaction and reference GPU/network/system gates
 remain unfinished. No caps raised; not ready. Controller owns latest-master
 integration, publication and fresh exact-source checks for these new edits.
+
+## Reuse of the staged empty-destination proof
+
+Inspected seven available hosted summaries for parent `bbe453df`: three feature
+platforms and all four PR merge platforms. Each reports 811 tests, zero failures
+and errors, one skip. Verified merge parents against the feature head and review
+base. Live feature Intel Mac was still running despite the controller success
+observation; no feature Intel pass inferred. Details: `structure-bbe453-hosted.json`.
+
+Final server commit now reuses the staged empty-destination proof only when every
+affected chunk has a matching non-null trusted stamp under the authority lock.
+Any changed or missing stamp restores the complete destination scan. The fallback
+checks cancellation every 128 destinations. Model revisions, mesh caps, final
+cancellation and live-body guards remain active. Unknown/offline sources still
+scan fully. Preparation counts affected chunks in a temporary bounded set; no
+peak-memory or end-to-end performance improvement claimed. Admission caps remain.
+
+43 selected tests passed, including real TLS multiplayer, offline, occupancy and
+snapshot regressions. Added late scan cancellation coverage, then all seven stamp
+tests passed: 44 distinct tests across both runs, zero failures/errors/skips.
+Unchanged trusted chunks perform zero repeated destination reads. Partial/changed
+trust cannot hide a conflict in a second chunk. Cancellation after 128 reads
+leaves destinations unchanged and performs no commit. Mesh surface overflow,
+terrain ABA and dependency changes still reject safely. Review helper failed and
+was resolved self; all reported execution was local.
+
+No files deleted against review base `4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a`.
+Intended source-line replacement guards reuse of an existing validated proof;
+full fallback remains. MP3, Hub and Asset Manager features retained. Full city/max
+admission, 2,000,000-edit persistence ceiling, atomic chunk publication and 20-run
+reference GPU/network/system qualification remain unfinished. Not ready; rollout
+gates stay closed. Controller owns latest-master integration and publication.
+
+Fresh native playtest passed on the unchanged production/harness source set:
+213 paths and hashes verified. Inspected 180-degree preview, player-conflict
+screenshot and decoded F10 frame. H264: 16 frames, 26.309 s, 357,491 bytes;
+SHA-256 `e33738a71efb03b0e0b6088a8c116b0bbb87fd7d107e524fea5e7f83fc6baa5e`.
+Native manifest digest: `2b75840ac8c75edfb3b74f5f197dd36a3437d2267bc603e4834dc35ae7203955`.
+llvmpipe about 1 FPS; native functional regression only. Full workflow included
+capture, export/import, four rotations, preview, conflicts, empty-space
+preservation, cancellation, undo, repeated placement, restart and inventory/model
+editor regressions. Changed server shortcut exercised by real TLS tests.
+Report: `structure-empty-proof-validation.json`. Local media pending controller
+publication; request fresh exact-source hosted validation after integration.
