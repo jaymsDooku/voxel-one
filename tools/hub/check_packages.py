@@ -8,11 +8,18 @@ import json
 import os
 from pathlib import Path
 import platform
+import re
 import subprocess
 import socketserver
 import threading
 import time
 import zipfile
+
+
+def contexts_unavailable(text):
+    """Only a complete four-attempt failure permits deferring redundant renders."""
+    attempts=re.findall(r'^Context diagnosis: variant=([0-3]) created=(true|false) code=0x([0-9a-f]+)$', text.replace('\r',''), re.M)
+    return len(attempts)==4 and {v for v,_,_ in attempts}=={'0','1','2','3'} and all(created=='false' and code!='0' for _,created,code in attempts)
 
 
 def generation(source, output, version):
@@ -264,13 +271,21 @@ def run(args):
         command(argv,timeout=60)
         return 'Invalid native width produced fixed GLFW_INVALID_VALUE code 0x10004; no native descriptions retained.'
     check('Bounded native window failure','Native window failures expose a fixed numeric GLFW code',invalid_window)
+    context_result=[]
     def context_diagnosis():
         argv=[runtime,'-Djava.io.tmpdir='+str(work)]
         if platform.system()=='Darwin':argv.append('-XstartOnFirstThread')
         argv.extend(['-cp',os.pathsep.join(map(str,(classes,second))),'NativeContextProbe'])
-        return command(argv,env.copy(),timeout=30,output=True)[:700]+' Diagnostic completion only; native rendering gates remain required.'
+        text=command(argv,env.copy(),timeout=30,output=True)
+        context_result.append(text)
+        return text[:700]+' Diagnostic completion only; native rendering gates remain required.'
     check('Bounded context diagnosis','Four context variants report fixed codes; no driver text or gameplay claim',context_diagnosis)
     for mode in ('city','sandbox','editor'):
+        if context_result and contexts_unavailable(context_result[0]):
+            reason='No tested native OpenGL context could be created on this runner; actual '+mode+' rendering remains pending.'
+            report.setdefault('pendingQualification',[]).append(reason)
+            report['checks'].append({'name':'Native rendered '+mode,'expected':'Verified platform client renders four real frames with bundled Java','status':'pending','playtest':'Playtest: Native rendered '+mode,'observed':reason})
+            continue
         def render(mode=mode):
             # Bundled Java is invoked by absolute path. Preserve OS driver/utility paths;
             # empty-PATH launcher/MSI checks above still verify runtime independence.
