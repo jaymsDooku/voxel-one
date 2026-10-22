@@ -68,11 +68,12 @@ public final class StructureEngine {
         private final ModelLibrary staged;
         private final long modelRevision;
         private final Map<ChunkPos,Object> validatedChunks;
+        private final int affectedChunkCount;
         private final BooleanSupplier cancel;
         private boolean closed;
-        private Prepared(Map<Position,SparseVoxelOctree> after,ModelLibrary staged,long revision,BooleanSupplier cancel,SparseVoxelOctree empty,Map<ChunkPos,Object> validatedChunks) {
+        private Prepared(Map<Position,SparseVoxelOctree> after,ModelLibrary staged,long revision,BooleanSupplier cancel,SparseVoxelOctree empty,Map<ChunkPos,Object> validatedChunks,int affectedChunkCount) {
             // prepare supplies an immutable compact map; copying would recreate every key/entry.
-            this.after=after;this.before=emptyBeforeImage(this.after,empty);this.staged=staged;modelRevision=revision;this.cancel=cancel;this.validatedChunks=validatedChunks;
+            this.after=after;this.before=emptyBeforeImage(this.after,empty);this.staged=staged;modelRevision=revision;this.cancel=cancel;this.validatedChunks=validatedChunks;this.affectedChunkCount=affectedChunkCount;
         }
         public Map<Position,SparseVoxelOctree> cells(){return after;}
         public void commit(String owner,Authority authority) throws IOException {
@@ -81,8 +82,16 @@ public final class StructureEngine {
                     if(closed)throw new IOException("Structure staging closed");
                     cancelled(cancel);
                     if(authority.models().revision()!=modelRevision)throw new IOException("Model library changed; retry placement");
-                    for(var p:after.keySet())if(authority.cell(p.x(),p.y(),p.z()).occupied()!=0)
-                        throw new IOException("Destination changed or occupied; nothing placed");
+                    // prepare proved every destination empty. Reuse that proof only when every
+                    // affected chunk still has its trusted stamp under this same authority lock.
+                    if(!destinationsUnchanged(authority)) {
+                        int checked=0;
+                        for(var p:after.keySet()) {
+                            if((checked++&127)==0)cancelled(cancel);
+                            if(authority.cell(p.x(),p.y(),p.z()).occupied()!=0)
+                                throw new IOException("Destination changed or occupied; nothing placed");
+                        }
+                    }
                     validateChunks(after,authority,staged,cancel,validatedChunks);
                     cancelled(cancel);authority.commit(staged,after);
                     var records=undo.computeIfAbsent(owner,k->new ArrayDeque<>());
@@ -91,6 +100,15 @@ public final class StructureEngine {
                     while(undoCells>undoCellBudget&&chronology.size()>1) {var expired=chronology.removeFirst();undo.get(expired.owner).remove(expired);undoCells-=expired.after.size();}
                 }
             } finally {close();}
+        }
+        private boolean destinationsUnchanged(Authority authority) {
+            if(validatedChunks.size()!=affectedChunkCount)return false;
+            for(var entry:validatedChunks.entrySet()) {
+                cancelled(cancel);
+                var current=authority.chunkStamp(entry.getKey());
+                if(current==null||!entry.getValue().equals(current))return false;
+            }
+            return true;
         }
         @Override public void close(){if(!closed){closed=true;busy.set(false);}}
     }
@@ -126,6 +144,7 @@ public final class StructureEngine {
                 modelIds[i]=staged.stageStructureModel(new ModelDefinition(def.name(),rotate(def.voxels(),rotation))).id();
             }
             var cells=new StructurePlacementCells.Builder(box,asset.cells.size());int count=0;
+            var affectedChunks=new HashSet<ChunkPos>();
             var empty=new SparseVoxelOctree(16).freeze();
             var uniformGeometry=new HashMap<Integer,SparseVoxelOctree>();
             var instances=new HashMap<Integer,SparseVoxelOctree>();
@@ -145,11 +164,13 @@ public final class StructureEngine {
                     if(uniform==-1)next=rotate(cell.geometry(),rotation);
                     else {next=uniformGeometry.get(uniform);if(next==null){next=rotate(cell.geometry(),rotation);uniformGeometry.put(uniform,next);}}
                 }
+                affectedChunks.add(ChunkPos.fromBlock(p.x(),p.y(),p.z()));
+                if(affectedChunks.size()>256)throw new IOException("Experimental placement exceeds 256 affected chunks");
                 cells.add(p,next);if((++count&127)==0)progress.accept(count*100/asset.cells.size());
             }
             var after=cells.build();
             var validated=validateChunks(after,snapshot,staged,cancel,Map.of());
-            cancelled(cancel);progress.accept(100);var result=new Prepared(after,staged,revision,cancel,empty,validated);complete=true;return result;
+            cancelled(cancel);progress.accept(100);var result=new Prepared(after,staged,revision,cancel,empty,validated,affectedChunks.size());complete=true;return result;
         } finally {if(!complete)busy.set(false);}
     }
     /** Detached CPU meshes conservatively count exposed chunk edges. Never touches GPU state. */
