@@ -242,7 +242,7 @@ public final class LocalGame {
             public void commit(ModelLibrary prepared,Map<dev.jayms.net.structure.StructurePackage.Position,SparseVoxelOctree> cells)throws IOException {
                 var livePlayer=player.get();
                 dev.jayms.net.structure.StructureOccupancy.validate(cells,city==null?null:city.frame(),livePlayer==null?List.of():List.of(livePlayer));
-                var original=edits;var originalModels=models.copy();var next=new WorldVoxels.History();next.putAll(original);
+                var original=edits;var originalModels=models.copy();var next=WorldVoxels.History.copyOf(original);
                 var before=new LinkedHashMap<dev.jayms.net.structure.StructurePackage.Position,SparseVoxelOctree>();
                 for(var e:cells.entrySet()) {
                     var p=e.getKey();before.put(p,world.cell(p.x(),p.y(),p.z()).copy().freeze());

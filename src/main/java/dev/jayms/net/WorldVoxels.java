@@ -11,9 +11,32 @@ import java.util.*;
 public final class WorldVoxels {
     /** Ordered edit history with a cell index. Collection views are read-only. */
     public static final class History extends AbstractMap<String, Protocol.Edit> {
-        private final Map<String, Protocol.Edit> ordered = new LinkedHashMap<>();
+        private final Map<String, Protocol.Edit> ordered;
+        private final Map<String, CellKeys> cells;
+        private Object owner=new Object();
+        public History(){ordered=new LinkedHashMap<>();cells=new HashMap<>();}
+        private History(History source) {
+            ordered=new LinkedHashMap<>(source.ordered);cells=new HashMap<>(source.cells);
+            // Neither copy may mutate the index entries shared at this boundary.
+            source.owner=new Object();
+        }
+        /** Owner-thread transaction copy. Retains order; shares index entries until edited. */
+        public static History copyOf(Map<String,Protocol.Edit> source) {
+            if(source instanceof History history)return new History(history);
+            var copy=new History();copy.putAll(source);return copy;
+        }
+        private CellKeys writable(String cell) {
+            var keys=cells.get(cell);
+            if(keys==null||keys.owner!=owner){keys=new CellKeys(owner,keys);cells.put(cell,keys);}
+            return keys;
+        }
         /** Most cells have one edit; allocate a set only for fractional edit histories. */
         private static final class CellKeys {
+            final Object owner;
+            CellKeys(Object owner,CellKeys source) {
+                this.owner=owner;
+                if(source!=null){single=source.single;if(source.many!=null)many=new LinkedHashSet<>(source.many);}
+            }
             private String single;
             private LinkedHashSet<String> many;
             void add(String key) {
@@ -29,7 +52,6 @@ public final class WorldVoxels {
             boolean isEmpty(){return many==null?single==null:many.isEmpty();}
             List<String> snapshot(){return many==null?(single==null?List.of():List.of(single)):List.copyOf(many);}
         }
-        private final Map<String, CellKeys> cells = new HashMap<>();
         @Override public Set<Entry<String, Protocol.Edit>> entrySet() {
             return Collections.unmodifiableMap(ordered).entrySet();
         }
@@ -40,13 +62,13 @@ public final class WorldVoxels {
         @Override public boolean containsKey(Object key) { return ordered.containsKey(key); }
         @Override public Protocol.Edit put(String key, Protocol.Edit edit) {
             if (!key.equals(edit.key())) throw new IllegalArgumentException("Edit key mismatch");
-            cells.computeIfAbsent(edit.cellKey(), k -> new CellKeys()).add(key);
+            writable(edit.cellKey()).add(key);
             return ordered.put(key,edit);
         }
         @Override public Protocol.Edit remove(Object key) {
             var old = ordered.remove(key);
             if (old != null) {
-                var keys = cells.get(old.cellKey()); keys.remove(key);
+                var keys = writable(old.cellKey()); keys.remove(key);
                 if (keys.isEmpty()) cells.remove(old.cellKey());
             }
             return old;
