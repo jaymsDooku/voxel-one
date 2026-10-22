@@ -825,10 +825,11 @@ public final class MultiplayerServer implements AutoCloseable {
     }
     private StructurePackage.Source structureSnapshot() {
         synchronized(this) {
-            var geometry=voxels.snapshot();var library=models.copy();
+            var geometry=voxels.snapshot();var library=models.copy();long terrainRevision=geometry.terrainRevision();
             return new StructurePackage.Source() {
                 public dev.jayms.net.model.SparseVoxelOctree cell(int x,int y,int z){return geometry.cell(x,y,z);}
                 public ModelLibrary models(){return library;}
+                public Object chunkStamp(dev.jayms.ChunkPos position){return geometry.terrainRevision()==terrainRevision?geometry.chunkStamp(position):null;}
             };
         }
     }
@@ -837,6 +838,7 @@ public final class MultiplayerServer implements AutoCloseable {
             public Object lock(){return MultiplayerServer.this;}
             public ModelLibrary models(){return models;}
             public SparseVoxelOctree cell(int x,int y,int z){return voxels.cell(x,y,z);}
+            public Object chunkStamp(dev.jayms.ChunkPos position){return voxels.chunkStamp(position);}
             public void commit(ModelLibrary staged,Map<StructurePackage.Position,SparseVoxelOctree> cells)throws IOException {
                 if(!running)throw new IOException("Server stopping");
                 dev.jayms.net.structure.StructureOccupancy.validate(cells,city.frame(),peers.values().stream().map(peer->peer.pose).toList());

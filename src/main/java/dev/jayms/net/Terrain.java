@@ -21,7 +21,13 @@ public final class Terrain {
     public final long seed;
     private final Geography geography;
     private volatile dev.jayms.net.city.StressGrid stressGrid;
-    public synchronized void stressGrid(dev.jayms.net.city.StressGrid grid) { stressGrid=grid; columns.clear(); }
+    private volatile long geometryRevision;
+    /** Even generations are stable; odd generations mark an in-progress surface change. */
+    public long geometryRevision(){return geometryRevision;}
+    public synchronized void stressGrid(dev.jayms.net.city.StressGrid grid) {
+        geometryRevision++;
+        try {stressGrid=grid;columns.clear();} finally {geometryRevision++;}
+    }
     public dev.jayms.net.city.StressGrid stressGrid() { return stressGrid; }
     private final LongLruCache<Column> columns = new LongLruCache<>(32768);
 

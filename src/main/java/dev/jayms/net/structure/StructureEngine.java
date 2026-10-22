@@ -67,11 +67,12 @@ public final class StructureEngine {
         private final Map<Position,SparseVoxelOctree> before,after;
         private final ModelLibrary staged;
         private final long modelRevision;
+        private final Map<ChunkPos,Object> validatedChunks;
         private final BooleanSupplier cancel;
         private boolean closed;
-        private Prepared(Map<Position,SparseVoxelOctree> after,ModelLibrary staged,long revision,BooleanSupplier cancel,SparseVoxelOctree empty) {
+        private Prepared(Map<Position,SparseVoxelOctree> after,ModelLibrary staged,long revision,BooleanSupplier cancel,SparseVoxelOctree empty,Map<ChunkPos,Object> validatedChunks) {
             // prepare supplies an immutable compact map; copying would recreate every key/entry.
-            this.after=after;this.before=emptyBeforeImage(this.after,empty);this.staged=staged;modelRevision=revision;this.cancel=cancel;
+            this.after=after;this.before=emptyBeforeImage(this.after,empty);this.staged=staged;modelRevision=revision;this.cancel=cancel;this.validatedChunks=validatedChunks;
         }
         public Map<Position,SparseVoxelOctree> cells(){return after;}
         public void commit(String owner,Authority authority) throws IOException {
@@ -82,7 +83,7 @@ public final class StructureEngine {
                     if(authority.models().revision()!=modelRevision)throw new IOException("Model library changed; retry placement");
                     for(var p:after.keySet())if(authority.cell(p.x(),p.y(),p.z()).occupied()!=0)
                         throw new IOException("Destination changed or occupied; nothing placed");
-                    validateChunks(after,authority,staged,cancel);
+                    validateChunks(after,authority,staged,cancel,validatedChunks);
                     cancelled(cancel);authority.commit(staged,after);
                     var records=undo.computeIfAbsent(owner,k->new ArrayDeque<>());
                     var record=new Record(++sequence,owner,before,after);records.addLast(record);chronology.addLast(record);undoCells+=after.size();
@@ -147,20 +148,22 @@ public final class StructureEngine {
                 cells.add(p,next);if((++count&127)==0)progress.accept(count*100/asset.cells.size());
             }
             var after=cells.build();
-            validateChunks(after,snapshot,staged,cancel);
-            cancelled(cancel);progress.accept(100);var result=new Prepared(after,staged,revision,cancel,empty);complete=true;return result;
+            var validated=validateChunks(after,snapshot,staged,cancel,Map.of());
+            cancelled(cancel);progress.accept(100);var result=new Prepared(after,staged,revision,cancel,empty,validated);complete=true;return result;
         } finally {if(!complete)busy.set(false);}
     }
     /** Detached CPU meshes conservatively count exposed chunk edges. Never touches GPU state. */
-    private static void validateChunks(Map<Position,SparseVoxelOctree> after,Source source,ModelLibrary models,BooleanSupplier cancel)throws IOException {
+    private static Map<ChunkPos,Object> validateChunks(Map<Position,SparseVoxelOctree> after,Source source,ModelLibrary models,BooleanSupplier cancel,Map<ChunkPos,Object> reusable)throws IOException {
         var chunks=new HashSet<ChunkPos>();
         for(var p:after.keySet()) {
             chunks.add(ChunkPos.fromBlock(p.x(),p.y(),p.z()));
             if(chunks.size()>256)throw new IOException("Experimental placement exceeds 256 affected chunks");
         }
-        var modelQuads=new HashMap<Integer,Integer>();
+        var modelQuads=new HashMap<Integer,Integer>();var validated=new HashMap<ChunkPos,Object>();
         for(var position:chunks) {
-            cancelled(cancel);var chunk=new Chunk();
+            cancelled(cancel);var stamp=source.chunkStamp(position);
+            if(stamp!=null&&stamp.equals(reusable.get(position))){validated.put(position,stamp);continue;}
+            var chunk=new Chunk();
             for(int y=0;y<16;y++)for(int z=0;z<16;z++)for(int x=0;x<16;x++) {
                 if((x&7)==0)cancelled(cancel);
                 var p=new Position(position.chunkX()*16+x,position.chunkY()*16+y,position.chunkZ()*16+z);
@@ -179,7 +182,9 @@ public final class StructureEngine {
             }
             try {MeshDataGenerator.generate(chunk);}
             catch(IllegalStateException failure){throw new IOException("Structure would exceed chunk geometry budget",failure);}
+            if(stamp!=null&&stamp.equals(source.chunkStamp(position)))validated.put(position,stamp);
         }
+        return Map.copyOf(validated);
     }
     public void undo(String owner,Authority authority)throws IOException {
         if(!busy.compareAndSet(false,true))throw new IOException("Another large placement is running");
