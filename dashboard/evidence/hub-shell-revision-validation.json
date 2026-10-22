@@ -12,5 +12,13 @@
     "Manual property test is not bootstrap end-to-end activation validation",
     "Screenshot viewport does not show lower revision text; direct Java version formatter assertion passed",
     "Second public shell generation and native/physical qualification pending"
-  ]
+  ],
+  "childProcessRegression": {
+    "source": "e393b264077adfd61500ccb2f4d8684a8e32e69f plus test assertion",
+    "command": "Compile launcher and HubShellActivationTest with JDK 21 javac --release 17; run dev.jayms.launcher.RevisionActivationProbe with isolated target/hub-tmp profile.",
+    "expected": "Verified revision reaches child; executable failure and missing acknowledgement retain the downloaded working shell.",
+    "observed": "Passed. RevisionActivationProbe exited 0.",
+    "Playtest": "Actual bootstrap launches synthetic child JARs; revision marker asserted after acknowledgement, then failed/unacknowledged shell rollback exercised. Browser playtesting does not apply to this process/CLI integration.",
+    "limits": "No public second-generation release or physical platform qualification claimed."
+  }
 }
