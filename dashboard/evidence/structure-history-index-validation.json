@@ -1,0 +1,168 @@
+{
+  "schema": 1,
+  "parentHead": "98e80d57d338328719fffb5817619e4d517260ad",
+  "change": "History per-cell index stores one key directly and allocates an ordered set only for multiple keys. Promotion/demotion preserves insertion order. Global ordered edit map and codecs unchanged. Read-only key/value views now explicitly reject mutation, matching the existing documented contract.",
+  "tests": {
+    "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=WorldHistoryIndexTest,WorldVoxelSnapshotTest,FractionalWorldTest,StructureTest,StructureMultiplayerTest test",
+    "total": 38,
+    "suites": [
+      {
+        "name": "dev.jayms.WorldHistoryIndexTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.129"
+      },
+      {
+        "name": "dev.jayms.WorldVoxelSnapshotTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.077"
+      },
+      {
+        "name": "dev.jayms.FractionalWorldTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.17"
+      },
+      {
+        "name": "dev.jayms.StructureTest",
+        "tests": "24",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "3.134"
+      },
+      {
+        "name": "dev.jayms.StructureMultiplayerTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "24.726"
+      }
+    ],
+    "coverage": "5,000 seeded mixed put/remove/remember/clear operations compare exact replay order and values with the unindexed LinkedHashMap implementation. Explicit singleton/set transitions, replacement, wrong key and immutable views; existing snapshot/fractional/offline/real TLS placement/undo/late join/restart regressions.",
+    "earlier_attempts": [
+      "Compile failed because remove(Object) passed Object to a String-only helper; corrected helper signature before execution.",
+      "New readonly-view assertion exposed inherited values().clear() behavior. Added explicit unmodifiable key/value views and repeated all selected suites. No validation gate relaxed."
+    ]
+  },
+  "probe": {
+    "source": "tools/structures/HistoryIndexProbe.java",
+    "compile": "javac --release 17 -cp target/classes -d target tools/structures/HistoryIndexProbe.java",
+    "parent_compile": "git show HEAD:src/main/java/dev/jayms/net/WorldVoxels.java > target/structure-history-parent-src/dev/jayms/net/WorldVoxels.java\njavac --release 17 -cp target/classes -d target/structure-history-parent-classes target/structure-history-parent-src/dev/jayms/net/WorldVoxels.java",
+    "results": {
+      "single": {
+        "parent": {
+          "layout": "single",
+          "edits": 100000,
+          "warmups": 3,
+          "runs": 20,
+          "source_retained_heap_delta_bytes": 47447120,
+          "median_copy_allocated_bytes": 40164480,
+          "median_copy_ms": 110.389284,
+          "p95_copy_ms": 214.227179,
+          "worst_copy_ms": 223.786557
+        },
+        "current": {
+          "layout": "single",
+          "edits": 100000,
+          "warmups": 3,
+          "runs": 20,
+          "source_retained_heap_delta_bytes": 29813792,
+          "median_copy_allocated_bytes": 22564480,
+          "median_copy_ms": 89.522193,
+          "p95_copy_ms": 170.099534,
+          "worst_copy_ms": 176.431547
+        }
+      },
+      "fractional": {
+        "parent": {
+          "layout": "fractional",
+          "edits": 100000,
+          "warmups": 3,
+          "runs": 20,
+          "source_retained_heap_delta_bytes": 27793416,
+          "median_copy_allocated_bytes": 30487584,
+          "median_copy_ms": 71.032499,
+          "p95_copy_ms": 173.765805,
+          "worst_copy_ms": 234.258529
+        },
+        "current": {
+          "layout": "fractional",
+          "edits": 100000,
+          "warmups": 3,
+          "runs": 20,
+          "source_retained_heap_delta_bytes": 28392320,
+          "median_copy_allocated_bytes": 31087584,
+          "median_copy_ms": 62.088027,
+          "p95_copy_ms": 202.613545,
+          "worst_copy_ms": 303.684588
+        }
+      }
+    },
+    "interpretation": "100,000 edits per layout. Single: 100,000 cells; fractional: 25,000 cells with four small edits each. Three warmups/20 copy samples. Single layout saves memory/allocations; fractional layout retains about 0.6 MB more and allocates about 0.6 MB more per copy. Timing variance and fractional p95/worst regressions recorded, not concealed. Full-history copy remains O(edits), with observed p95 above 100 ms; this does not meet main-thread/city budgets. Retained heap is one GC-sensitive sample per fresh JVM, not peak memory. Copy order/source isolation verified every sample. Final current probe rerun after readonly-view changes; parent classes from exact parent source.",
+    "parent_commands": [
+      "java -Xms512m -Xmx512m -cp target/structure-history-parent-classes:target:target/classes HistoryIndexProbe single > target/structure-history-parent-single.json",
+      "java -Xms512m -Xmx512m -cp target/structure-history-parent-classes:target:target/classes HistoryIndexProbe fractional > target/structure-history-parent-fractional.json"
+    ],
+    "current_commands": [
+      "java -Xms512m -Xmx512m -cp target:target/classes HistoryIndexProbe single > target/structure-history-current-single.json",
+      "java -Xms512m -Xmx512m -cp target:target/classes HistoryIndexProbe fractional > target/structure-history-current-fractional.json"
+    ]
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": {
+      "Architecture": "x86_64",
+      "CPU(s)": "4",
+      "Model name": "Intel Core Processor (Haswell, no TSX)",
+      "Thread(s) per core": "1",
+      "Core(s) per socket": "1",
+      "Socket(s)": "4"
+    },
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "scope": "Development VPS; not reference physical GPU/network qualification."
+  },
+  "Playtest": {
+    "status": "passed",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "scope": "Native Main/GLFW/X11 on inherited display/authentication and isolated synthetic profile. Browser testing does not apply to the native game workflow.",
+    "result": {
+      "status": "passed",
+      "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+      "source_manifest": "structure-native-source.json",
+      "source_manifest_sha256": "367c0dafa24892e61dd7055669fa950e23cc88499c2e268e305181e1119180f1",
+      "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+      "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+      "publication": "Local evidence pending controller publication"
+    },
+    "expected": "Complete capture/export/import/browse, four rotations, overlap/live-player rejection, cancellation, malformed import atomicity, undo, repeated placement/restart, inventory/model editor regression.",
+    "observed": "Harness exited 0; fresh conflict and component screenshots and decoded F10 frame visually inspected. Complete production/harness path set and hashes match. Isolated synthetic profile; llvmpipe about 1 FPS, not physical-GPU/frame budget qualification.",
+    "media": {
+      "file": "structure-workflow.mp4",
+      "codec": "H264",
+      "frames": 17,
+      "seconds": 29.365,
+      "bytes": 367895,
+      "sha256": "8c302317fa5ca8405d0b69e269fa56c8ee7750aca9d2bda978f545fd6058fd68"
+    }
+  },
+  "qualification": "City/max admission, 2,000,000-edit persistence ceiling, bounded atomic chunk publication and reference physical-GPU/shaped-network/32 rendered-client/20-run system budgets remain unfinished. No cap increases, supported limits or readiness claim.",
+  "delegate": "Helper failed without output and was explicitly resolved self. Invariants independently inspected and tests executed locally.",
+  "audit": "No deleted files against review base 4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a. Intended replacement removes per-cell unconditional sets and uses singleton/promoted set index. Existing MP3/Hub/Asset Manager changes retained. Controller integrates current master before review; source changes require renewed checks/media.",
+  "publication": "Local edits/report/media need controller publication and fresh exact-source checks. Parent completed CI is not requested again.",
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/WorldVoxels.java": "2b5817c043ad75a8d53d8a68ecb6bb4cc2cb3c32c4fa7e880f237c4ccdcf14d0",
+    "src/test/java/dev/jayms/WorldHistoryIndexTest.java": "f95220cbb5b78977e94e66e10003b22b62a865e5253fe11335eedd8156b51951",
+    "tools/structures/HistoryIndexProbe.java": "87c2b14659daf194bc4ec0f8cf4e4c507788d076e0b5c83272a0c9f52635edc4"
+  }
+}
