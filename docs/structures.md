@@ -270,3 +270,13 @@ shared fractional indexes clone their key sets. Full-history serialization and
 the 2,000,000-edit persistence ceiling remain; see
 `dashboard/evidence/structure-history-copy-validation.json` for scoped allocation
 measurements and explicit exclusions from city/max/system qualification.
+
+Offline/server world saves buffer primitive writes in 64 KiB before closing the
+temp file and performing the existing rename. Save schemas and bytes stay the
+same. The actual offline version-8/version-9 save/reload probe compares complete
+file hashes against the parent implementation; see
+`dashboard/evidence/structure-buffered-save-validation.json`. Its 20-sample timings
+use a warm cache and exclude load/verification work. Neither file forcing nor
+directory durability barriers are added. Power-loss durability and full city/max
+durable-save qualification remain pending, alongside full-history serialization
+and the 2,000,000-edit persistence ceiling.
