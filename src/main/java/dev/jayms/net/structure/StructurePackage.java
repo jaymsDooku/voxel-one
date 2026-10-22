@@ -113,25 +113,34 @@ public final class StructurePackage {
             }
             if((++done&1023)==0)progress.accept((int)(done*100/volume));
         }
-        cancelled(cancel);progress.accept(100);return new StructurePackage(name,bounds,definitions,cells);
+        cancelled(cancel);var result=new StructurePackage(name,bounds,definitions,cells,cancel);
+        cancelled(cancel);progress.accept(100);cancelled(cancel);return result;
     }
     public static void cancelled(BooleanSupplier cancel) {
         if(cancel.getAsBoolean()||Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException("Structure operation cancelled");
     }
     public byte[] encode() throws IOException {
+        return encode(()->false,p->{});
+    }
+    public byte[] encode(BooleanSupplier cancel,IntConsumer progress) throws IOException {
+        Objects.requireNonNull(cancel,"cancel");Objects.requireNonNull(progress,"progress");
+        cancelled(cancel);progress.accept(0);cancelled(cancel);
         var bytes=new ByteArrayOutputStream();
         try(var compressed=new BudgetOutput(bytes,COMPRESSED);var gzip=new GZIPOutputStream(compressed);var out=new DataOutputStream(new BudgetOutput(gzip,DECODED))) {
             out.writeInt(MAGIC);out.writeInt(VERSION);out.writeUTF(name);
             out.writeInt(bounds.x);out.writeInt(bounds.y);out.writeInt(bounds.z);out.writeInt(bounds.ax);out.writeInt(bounds.ay);out.writeInt(bounds.az);
-            out.writeInt(models.size());for(var model:models)StructureModelCodec.write(out,model);
-            out.writeInt(cells.size());
+            out.writeInt(models.size());int modelIndex=0;
+            for(var model:models){cancelled(cancel);StructureModelCodec.write(out,model);progress.accept(++modelIndex*25/models.size());cancelled(cancel);}
+            progress.accept(25);cancelled(cancel);out.writeInt(cells.size());int cellIndex=0;
             for(var cell:cells) {
+                cancelled(cancel);
                 out.writeShort(cell.position.x/16);out.writeByte(cell.position.y/16);out.writeShort(cell.position.z/16);
                 out.writeShort((cell.position.y%16*16+cell.position.z%16)*16+cell.position.x%16);
                 out.writeShort(cell.model);if(cell.model<0)cell.geometry.write(out);
+                if((++cellIndex&127)==0||cellIndex==cells.size()){progress.accept(25+(int)((long)cellIndex*74/cells.size()));cancelled(cancel);}
             }
         }
-        return bytes.toByteArray();
+        cancelled(cancel);var result=bytes.toByteArray();progress.accept(100);cancelled(cancel);return result;
     }
     public static StructurePackage decode(byte[] bytes) throws IOException {
         return decode(bytes,()->false,p->{});
@@ -187,10 +196,22 @@ public final class StructurePackage {
         return (bytes[start]&255L)|((bytes[start+1]&255L)<<8)|((bytes[start+2]&255L)<<16)|((bytes[start+3]&255L)<<24);
     }
     public void save(Path path) throws IOException {
-        byte[] bytes=encode();Files.createDirectories(path.toAbsolutePath().getParent());
-        Path temp=Files.createTempFile(path.toAbsolutePath().getParent(),"structure-",".tmp");
-        try {Files.write(temp,bytes);Files.move(temp,path,StandardCopyOption.ATOMIC_MOVE,StandardCopyOption.REPLACE_EXISTING);}
-        finally {Files.deleteIfExists(temp);}
+        save(path,()->false,p->{});
+    }
+    /** Cancellation ends at atomic file replacement. A successful replacement is committed. */
+    public void save(Path path,BooleanSupplier cancel,IntConsumer progress) throws IOException {
+        byte[] bytes=encode(cancel,p->progress.accept(p*90/100));cancelled(cancel);
+        Files.createDirectories(path.toAbsolutePath().getParent());
+        Path temp=Files.createTempFile(path.toAbsolutePath().getParent(),"structure-",".tmp");boolean committed=false;
+        try {
+            try(var out=Files.newOutputStream(temp)) {
+                for(int offset=0;offset<bytes.length;) {
+                    cancelled(cancel);int count=Math.min(65536,bytes.length-offset);out.write(bytes,offset,count);offset+=count;
+                    progress.accept(90+(int)((long)offset*9/bytes.length));cancelled(cancel);
+                }
+            }
+            cancelled(cancel);Files.move(temp,path,StandardCopyOption.ATOMIC_MOVE,StandardCopyOption.REPLACE_EXISTING);committed=true;
+        } finally {if(!committed)Files.deleteIfExists(temp);}
     }
     public static StructurePackage load(Path path) throws IOException {
         return load(path,()->false,p->{});
