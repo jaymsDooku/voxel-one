@@ -1,0 +1,89 @@
+{
+  "recordedAt": "2026-10-22T20:48:32.068501+00:00",
+  "publication": {
+    "source": "c41afd216a4a5dfbff3fe20c39902bbd39d9557d",
+    "workflow": 39848099805,
+    "previewRelease": "https://github.com/jaymsDooku/voxel-one/releases/tag/hub-preview-1",
+    "catalogCommit": "1ce62377566c13e6b71783092073412a3289c93f",
+    "assetsSha256": {
+      "voxel-one-shell.jar": "501f9c51f2907df5f91b2e8a6fc207f79db0c83a314cb1b25d438ffc239a2c34",
+      "Voxel One Hub-1.0.1.msi": "ae5daa71427ef9977d3eb1d02fad79cb76be8da624595986ca42401bb7f80529",
+      "Voxel-One-Hub-win32-amd64.zip": "9bc4ceb503070dfa843c59d9c45b1d80cccdc713c7e8fbe65b4b6a075caa4e8b",
+      "Voxel-One-Hub-linux-x86_64.zip": "6dc3c08ff38cad9f59f4790b1bbf844ec41391aa6a7e61038520041eb770ca13",
+      "Voxel-One-Hub-darwin-x86_64.zip": "f304076352cedbae7cb5ea3d1c9a1518aeec10a25e9385fbf098d7b3566579cd",
+      "Voxel-One-Hub-darwin-arm64.zip": "865585458d31f9c23568d057a56136cf37b71f614c2bbcf6145a806ef9ff2de1"
+    },
+    "publicShellDigestVerified": true,
+    "stableRolloutQualified": false
+  },
+  "publicByteVerification": {
+    "sourceSha": "c41afd216a4a5dfbff3fe20c39902bbd39d9557d",
+    "sourceKind": "exact-commit",
+    "generation": "hub-preview-1",
+    "checks": [
+      {
+        "file": "catalog.properties",
+        "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/experience-catalog/catalog.properties",
+        "expectedSha256": "804b08528aa39ec14dab67bdf987932105022e5952a1ca5ea818a922e10881c7",
+        "observedSha256": "804b08528aa39ec14dab67bdf987932105022e5952a1ca5ea818a922e10881c7",
+        "status": "passed",
+        "bytes": 2858
+      },
+      {
+        "file": "shell.properties",
+        "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/experience-catalog/shell.properties",
+        "expectedSha256": "062665804dfd04276a08a77b8508ccbeb6896942019dc4f5807f0604cf3a6b00",
+        "observedSha256": "062665804dfd04276a08a77b8508ccbeb6896942019dc4f5807f0604cf3a6b00",
+        "status": "passed",
+        "bytes": 875
+      },
+      {
+        "file": "voxel-one-shell.jar",
+        "url": "https://github.com/jaymsDooku/voxel-one/releases/download/hub-preview-1/voxel-one-shell.jar",
+        "expectedSha256": "501f9c51f2907df5f91b2e8a6fc207f79db0c83a314cb1b25d438ffc239a2c34",
+        "observedSha256": "501f9c51f2907df5f91b2e8a6fc207f79db0c83a314cb1b25d438ffc239a2c34",
+        "status": "passed",
+        "bytes": 885236
+      }
+    ],
+    "passed": true,
+    "stableRolloutQualified": false,
+    "Playtest": "Read-only HTTPS metadata and shell-artifact integration; no browser UI is involved. Physical GPU/DPI and published generation upgrade playtests are separate release gates."
+  },
+  "packagedLinuxPlaytest": {
+    "scenario": "Actual packaged Linux Hub with bundled runtime and no system Java on PATH; public shell staging, relaunch and Games navigation by clicking the sidebar",
+    "environment": "Linux x86_64, isolated Xvfb/software display, synthetic user.home",
+    "source": "c41afd216a4a5dfbff3fe20c39902bbd39d9557d",
+    "observed": [
+      {
+        "launch": 1,
+        "startupSeconds": 1.461,
+        "visibleWindow": true,
+        "metadata": [
+          {
+            "file": ".voxel-one/client/hub-shell/installed.properties",
+            "containsPublishedSource": true
+          }
+        ]
+      },
+      {
+        "launch": 2,
+        "startupSeconds": 1.829,
+        "visibleWindow": true,
+        "metadata": [
+          {
+            "file": ".voxel-one/client/hub-shell/acknowledged.properties",
+            "containsPublishedSource": true
+          },
+          {
+            "file": ".voxel-one/client/hub-shell/installed.properties",
+            "containsPublishedSource": true
+          }
+        ]
+      }
+    ],
+    "passed": true,
+    "limitation": "One public shell generation tested through two launches. No second-generation upgrade, Windows/macOS gameplay, physical GPU/DPI or stable qualification is claimed."
+  },
+  "qualification": "Initial opt-in preview. First catalog pins published native playtest-632. Second public shell generation, current Windows/macOS gameplay, physical GPU/DPI and stable rollout remain pending."
+}
