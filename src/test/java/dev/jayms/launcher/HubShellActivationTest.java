@@ -24,6 +24,7 @@ class HubShellActivationTest {
         Path source=dir.resolve("Launcher.java");
         Files.writeString(source,"package dev.jayms.launcher; public class Launcher { public static void main(String[] a) throws Exception {"
                 +"java.nio.file.Files.writeString(java.nio.file.Path.of(System.getProperty(\"user.home\"),\"observed-shell\"),\""+name+"\");"
+                +"java.nio.file.Files.writeString(java.nio.file.Path.of(System.getProperty(\"user.home\"),\"observed-revision\"),System.getProperty(\"voxel.hub.shellRevision\",\"missing\"));"
                 +"Thread.sleep("+readyDelay+");"
                 +(ready?"java.nio.file.Files.writeString(java.nio.file.Path.of(System.getProperty(\"voxel.hub.activation\")),\"ready\",java.nio.file.StandardOpenOption.CREATE_NEW);":"")
                 +(fail?"System.exit(7);":"Thread.sleep(60000);")+"} }");
@@ -67,7 +68,9 @@ class HubShellActivationTest {
             var updater=new Updater(base.resolve("hub-shell"),f.uri,true);
             f.blob.set(shell("good-a",true,false));var a=updater.update(platform,s->{});
             try {
-                process=bootstrap(profile,f.uri);await(()->updater.acknowledged(platform)!=null);assertEquals(a.client(),updater.acknowledged(platform).result().client());stop(process);process=null;
+                process=bootstrap(profile,f.uri);await(()->updater.acknowledged(platform)!=null);assertEquals(a.client(),updater.acknowledged(platform).result().client());
+                assertEquals(a.revision(),Files.readString(profile.resolve("observed-revision")),"Child must receive the verified shell revision");
+                stop(process);process=null;
                 f.blob.set(shell("bad-b",true,true));var b=updater.update(platform,s->{});assertNotEquals(a.client(),b.client());Files.delete(marker);
                 process=bootstrap(profile,f.uri);await(()->{try{return Files.readString(marker).equals("good-a")&&updater.installed(platform).client().equals(a.client());}catch(Exception e){return false;}});
                 assertTrue(process.isAlive());assertEquals(a.client(),updater.acknowledged(platform).result().client());assertTrue(Files.isRegularFile(a.client()));
