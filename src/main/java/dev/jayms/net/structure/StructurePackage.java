@@ -28,6 +28,10 @@ public final class StructurePackage {
         SparseVoxelOctree cell(int x,int y,int z);
         /** Conservative snapshot hint: true means empty; false may mean unknown. */
         default boolean emptyCell(int x,int y,int z){return false;}
+        /** Trusted stamp must change for any observable chunk geometry change under the authority lock.
+         * Snapshot sources must be detached; live authorities are queried under their lock.
+         * Null means always revalidate. Never accept wire tokens. */
+        default Object chunkStamp(dev.jayms.ChunkPos position){return null;}
         ModelLibrary models();
     }
     public final String name;

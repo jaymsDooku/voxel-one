@@ -690,3 +690,47 @@ base; merged MP3/Hub/Asset Manager features retained. Required city/max fixtures
 still fail unchanged provisional admission limits. Full history persistence,
 atomic world transaction and reference GPU/network/system qualification remain
 unfinished. No supported-city/readiness claim; rollout gates stay closed.
+
+## Trusted server chunk-validation reuse
+
+Parent `1f90b789` has eight inspected hosted summaries: 806 tests each, zero
+failures/errors, one skip. Exact feature hashes and merge parents verified in
+`structure-1f90-hosted.json`; no repeated completed-check wait.
+
+Server snapshots now supply trusted per-chunk geometry stamps. Stamps cover
+terrain identity/stable generation and bucket identity/edit revision. Surface
+generation changes use odd/even revision fencing; snapshot trust is lost after
+any change, including ABA. Validation caches only a matching before/after stamp
+for each successfully validated chunk, bounded by unchanged 256-chunk admission.
+Commit reuses only matching stamps under the authority lock. Unknown/offline
+sources retain full validation. Destination occupancy, dependency revision,
+cancellation and authority live-body guards remain active. No wire tokens.
+
+42 selected tests passed: unchanged reuse, unknown fallback, same-chunk and
+outside-chunk edits, terrain ABA, repeated owned-bucket edits, snapshot stability,
+changed destination/models and cancellation. A stronger test adds 171 fragmented
+model neighbours after staging and proves the existing chunk surface cap still
+rejects before commit, preserving neighbour edits and leaving destination empty.
+Existing real TLS, offline, occupancy and snapshot regressions passed. Initial
+41-case run passed before this added case. Helper failed and was resolved self.
+
+CPU diagnostic: 16 unchanged 512-leaf cells in one chunk, three warmups and 20
+samples per source mode in separate JVMs. Unknown/stamped final cell reads:
+4,096/16. Median/p95/worst: 62.724459/120.903876/131.616655 ms versus
+0.234065/0.447535/0.514930 ms. Median thread allocations:
+74,834,720/6,600 bytes. Fixture authority installs geometry only; real history,
+disk save, body simulation, traffic and rendering excluded. Not peak memory or
+full commit/city/system qualification. Source: `PreparedValidationProbe.java`;
+report: `structure-validation-stamp-validation.json`. Current VPS hardware/OS
+checked separately. Per-bucket revision adds storage overhead, not a memory claim.
+
+Fresh native offline regression passed, retaining full unknown-source validation.
+Changed server reuse path exercised by actual TLS tests. Inspected fresh conflict
+screenshot and decoded F10 frame: H264, 16 frames, 26.62 s, 439,154 bytes;
+SHA-256 `591134870b071fb669a8d24d68706588d2e5200dff546777e27b71fccb7eb73a`.
+All 213 production/harness source paths and hashes verified unchanged. llvmpipe
+about 1 FPS, not reference GPU/frame-time qualification. New source/report/media
+need controller publication and fresh exact-source checks. Full city/max admission, history
+persistence, atomic world transaction and reference GPU/network/system gates
+remain unfinished. No caps raised; not ready. Controller owns latest-master
+integration, publication and fresh exact-source checks for these new edits.
