@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-22T20:52:43+00:00",
+  "updatedAt": "2026-10-22T21:08:53+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -3909,11 +3909,16 @@
           "kind": "link",
           "label": "Published initial Hub preview",
           "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/hub-preview-1"
+        },
+        {
+          "kind": "link",
+          "label": "Reviewed recovery fix",
+          "url": "https://github.com/jaymsDooku/codex-development-dashboard/pull/60"
         }
       ],
       "status": "in_progress",
-      "note": "Developers resumed. The missing Hub preview/catalog is published and real Linux bootstrap staging/relaunch verified. Controller fixes for repeated completed-check waits, hidden CI failures and legacy planner recovery are passing tests and addressing independent review feedback before rollout.",
-      "updatedAt": "2026-10-22T20:52:43+00:00"
+      "note": "PR60 independently approved and merged after corrected-head CI. Matching owner-private dashboard API deployed successfully; installing the reviewed VPS coordinator while preserving sessions, then verifying actual worker recovery.",
+      "updatedAt": "2026-10-22T21:08:53+00:00"
     },
     {
       "id": "hub-preview-publication-2026-10-22",
