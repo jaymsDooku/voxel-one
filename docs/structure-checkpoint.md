@@ -778,3 +778,60 @@ preservation, cancellation, undo, repeated placement, restart and inventory/mode
 editor regressions. Changed server shortcut exercised by real TLS tests.
 Report: `structure-empty-proof-validation.json`. Local media pending controller
 publication; request fresh exact-source hosted validation after integration.
+
+## Shared transaction history indexes
+
+Parent `2f08be25` has eight inspected hosted summaries: 813 tests each, zero
+failures/errors and one skip. Exact feature hashes and PR merge parents verified
+against review base in `structure-2f08-hosted.json`; no repeated completed wait.
+
+Offline/server structure staging now uses `WorldVoxels.History.copyOf` to clone
+ordered maps and share per-cell index entries. Each fork rotates the source's
+owner token and gives the copy a unique token. Either side clones a shared index
+entry before put/remove. Fractional key sets retain insertion order. Generic map
+sources retain validated rebuilding. Clear only drops map entries. This preserves
+rollback sources and replay order without rebuilding every cell key/index.
+
+55 selected tests passed: nested independent copies, source/copy edits, clear,
+promotion/demotion, generic map fallback, read-only views, 5,000 seeded mixed
+operations across up to 12 histories, actual TLS multiplayer, offline
+persistence/undo/failure, occupancy, snapshots and fractional-world regressions.
+Review helper failed and was resolved self. Only local executed checks claimed.
+
+Copy-only diagnostic: 100,000 edits, three warmups and 20 measured runs in separate
+JVMs per layout/mode. Single-cell rebuild/shared median/p95/worst:
+68.177886/192.465249/235.413659 ms versus
+17.122267/20.852202/75.093599 ms. Median copy thread allocations:
+22,564,496/9,297,424 bytes. Fractional (25,000 cells, four edits each):
+53.048838/108.863314/133.103174 ms versus
+10.905382/25.684047/77.299449 ms; allocations:
+33,487,600/6,110,992 bytes. First-remove allocations rise from 96 to 120 bytes
+(single) and 48 to 424 bytes (fractional). Exact replay order and source
+immutability checked outside timed copy regions in every sample.
+
+Copies remain O(history size); both top-level maps still clone under the existing
+lock. No peak-memory/full save/tick/frame/traffic improvement claimed. Full city/max
+admission, atomic chunk publication, persistence beyond the 2,000,000-edit ceiling,
+and reference GPU/network/system qualification remain unfinished. No caps raised;
+rollout gates stay closed. No files deleted against the review base. Intended
+source-line replacements select the shared-index copy for structure staging.
+MP3, Hub and Asset Manager retained. Source: `HistoryCopyProbe.java`; report:
+`structure-history-copy-validation.json`. Controller owns publication/integration
+and new exact-source hosted validation after fresh native media is complete.
+
+The strengthened offline save-failure test also passed independently. Two valid
+fractional air-history entries at a destination force the staged history to
+replace a shared multi-key index. Failed persistence restores original ordered
+history, geometry and dependencies; a subsequent whole-cell edit still matches
+the unindexed reference, proving the restored cell index remains usable.
+
+Fresh native workflow passed on all 213 unchanged production/harness paths and
+hashes. Capture/export/import, all four rotations, preview/conflicts, empty-space
+preservation, live-player rejection, cancellation, undo, repeated placement,
+restart and inventory/model-editor regressions passed. Inspected fresh conflict
+image and decoded F10 frame. H264: 17 frames, 31.983 s, 364,851 bytes;
+SHA-256 `1a3e2a2b636784db38031c18ed6a026e7658ebfb46f4c3b07a7174f4af68307f`.
+Native manifest digest: `aa844f6336e8042ea913a6f86abbd584d69bfa3c80040fea56376e876af95c63`.
+llvmpipe about 1 FPS; no physical GPU/frame qualification. Local report and media
+pending controller publication. Request feature_validation for new exact-source
+hosted checks; this is not ready for review or a city/max support claim.
