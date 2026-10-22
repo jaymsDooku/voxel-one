@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-22T20:48:32+00:00",
+  "updatedAt": "2026-10-22T20:52:43+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -3904,10 +3904,16 @@
       "id": "agent-recovery-2026-10-22",
       "title": "Recover stalled workers and prevent repeated internal holds",
       "description": "Investigating current planner startup diagnostic and repeated hosted-check handoffs. Preserving feature branches, receipts and real acceptance gates.",
-      "evidence": [],
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Published initial Hub preview",
+          "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/hub-preview-1"
+        }
+      ],
       "status": "in_progress",
-      "note": "Investigating current planner startup diagnostic and repeated hosted-check handoffs. Preserving feature branches, receipts and real acceptance gates.",
-      "updatedAt": "2026-10-22T20:11:45+00:00"
+      "note": "Developers resumed. The missing Hub preview/catalog is published and real Linux bootstrap staging/relaunch verified. Controller fixes for repeated completed-check waits, hidden CI failures and legacy planner recovery are passing tests and addressing independent review feedback before rollout.",
+      "updatedAt": "2026-10-22T20:52:43+00:00"
     },
     {
       "id": "hub-preview-publication-2026-10-22",
