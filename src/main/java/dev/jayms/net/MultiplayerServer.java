@@ -873,7 +873,7 @@ public final class MultiplayerServer implements AutoCloseable {
                 try {
                     if(action==1)structureEngine.undo(peer.name,structureAuthority());
                     else {
-                        var asset=StructurePackage.decode(payload);
+                        var asset=StructurePackage.decode(payload,peer.structureCancel::get,p->{});
                         try(var prepared=structureEngine.prepare(asset,destination,orientation,structureSnapshot(),peer.structureCancel::get,p->{})) {
                             prepared.commit(peer.name,structureAuthority());
                         }

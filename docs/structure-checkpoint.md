@@ -580,3 +580,37 @@ Next larger work remains versioned region transactions and moving full-history
 construction/save/publication off the interactive owner path, with concurrent
 edit revalidation and bounded persistence/synchronization. No limits raised.
 City/max admission and reference GPU/network/system qualification unfinished.
+
+## Cancellable import and server decode
+
+Verified all eight completed parent `82556042` Maven summaries: 797 tests each,
+zero failures/errors, one skip. Feature hashes and PR merge parents checked;
+receipt `structure-82556-hosted.json`. No repeated old check wait requested.
+
+Decode/load now accept cancellation and progress callbacks while old entry
+points preserve their codec/limits. UI saved browsing/import passes its flag
+and progress. Server decode observes peer cancellation before staging. Parsing
+and final constructor validation poll the flag between bounded units; gzip
+integrity, byte limits and material/dependency checks remain intact. Individual
+file reads, model meshing and final cell sort are not preempted. Export/save
+cancellation is unchanged. No responsiveness timing budget is claimed.
+
+35 selected tests passed: three new cancellation/CRC/roundtrip/retry cases,
+24 structure cases, seven model-codec cases and one actual TLS multiplayer
+regression. New cases also pass in a focused rerun after closing a test stream.
+Helper failed without output and was explicitly resolved self. Inspected UI
+completion gating, server cancellation/failure cleanup and decoder cleanup.
+
+Fresh native workflow now includes cancelling a heavy import and checking that
+selection, asset library, geometry and definitions remain unchanged, alongside
+all existing workflow/regression steps. Run passed; inspected fresh import-cancellation screenshot and decoded F10
+frame. H264: 16 frames, 30.776 s, 458,140 bytes; SHA-256
+`030984005a3915ded68423aa7695c3eaedda1b7bee13d5cd85ab0433d7a3043e`.
+All 213 production/harness source paths and hashes verified unchanged.
+Captures show llvmpipe 0–1 FPS; functional evidence only. Source and media need
+controller publication and fresh exact-source checks. Report:
+`dashboard/evidence/structure-decode-cancel-validation.json`.
+Full city/max admission, 2,000,000-edit persistence ceiling, atomic chunk
+publication and reference GPU/network/system qualification remain unfinished.
+No caps raised and no readiness claim. Controller owns latest-master integration
+and subsequent publication/checks; source changes require renewed validation.
