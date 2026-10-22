@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-22",
+  "reviewedRecoveryDeployed": true,
+  "ownerPrivateApiDeployment": "succeeded",
+  "vpsService": "active",
+  "actualQuotaAvailable": true,
+  "installedRegressionTests": {
+    "passed": 7,
+    "failed": 0
+  },
+  "reviewedSourceHashesVerified": 12,
+  "verifiedAt": "2026-10-22T21:10:57.616483+00:00",
+  "blockedWorkItemsAtVerification": 0,
+  "unansweredOwnerQuestions": 0,
+  "changes": [
+    "Known CI failures delivered before unrelated pending checks",
+    "One bounded correction for repeated completed-check waits",
+    "Persisted bounded planner startup reconciliation"
+  ],
+  "preserved": [
+    "Independent review",
+    "Lease and source fencing",
+    "Actual quota controls",
+    "Owner decisions",
+    "Native release qualification"
+  ],
+  "scope": "Addresses reproduced operational stalls; future external dependencies and software faults can still require repair."
+}
