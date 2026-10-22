@@ -1,0 +1,270 @@
+{
+  "source": "91988655c3061160899befe5cef24092a3b9390d",
+  "run": "https://github.com/jaymsDooku/voxel-one/actions/runs/39608447045",
+  "platforms": [
+    {
+      "platform": "Windows",
+      "architecture": "AMD64",
+      "fingerprintMismatches": [],
+      "checks": [
+        {
+          "name": "Bounded own-child query controls",
+          "status": "passed",
+          "observed": "Playtest: own-child query eof matched=true elapsedMs=142"
+        },
+        {
+          "name": "Updater failures, locks, concurrency and migration",
+          "status": "passed",
+          "observed": "Verified immutable update under lock; corrupt/partial/malformed fallback; cancellation; two concurrent processes downloaded once; legacy migration reused bytes."
+        },
+        {
+          "name": "Native executable and two-version bootstrap update",
+          "status": "passed",
+          "observed": "Two packaged fixture generations: bundled runtime launched verified v1; bootstrap staged v2 while v1 active; next start executed v2. No public release claim."
+        },
+        {
+          "name": "Failed shell activation rollback",
+          "status": "passed",
+          "observed": "Executable shell exited 7 without acknowledgement; downloaded working shell resumed, installed pointer rolled back, rejected artifact not restaged, immutable JARs retained."
+        },
+        {
+          "name": "Windows MSI, shortcuts and uninstall",
+          "status": "passed",
+          "observed": "Scoped MSI installed, native executable ran, desktop/menu shortcuts verified, uninstall retained synthetic save."
+        },
+        {
+          "name": "UI at JVM scale 1",
+          "status": "passed",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1. Full-size qualification pending: 1280x800 unavailable on 1024x728 desktop; qualification pending"
+        },
+        {
+          "name": "UI at JVM scale 1.5",
+          "status": "passed",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1.5. Full-size qualification pending: 900x600 unavailable on 683x485 desktop; qualification pending\n1280x800 unavailable on 683x485 desktop; qualification pending"
+        },
+        {
+          "name": "UI at JVM scale 2",
+          "status": "passed",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 2. Full-size qualification pending: 900x600 unavailable on 512x364 desktop; qualification pending\n1280x800 unavailable on 512x364 desktop; qualification pending"
+        },
+        {
+          "name": "Synthetic online login handoff",
+          "status": "passed",
+          "observed": "City/Sandbox locked selection; custom loopback port; invalid-port rejection; pinned TLS sign-in passed."
+        },
+        {
+          "name": "Catalog promotion before Play",
+          "status": "passed",
+          "observed": "Playtest: catalog native A-to-B and web URL B; responsive EDT; duplicate suppression; malformed fallback; removal; updates-off; one download; synthetic native command verified; not gameplay qualification."
+        },
+        {
+          "name": "Bounded native window failure",
+          "status": "passed",
+          "observed": "Invalid native width produced fixed GLFW_INVALID_VALUE code 0x10004; no native descriptions retained."
+        },
+        {
+          "name": "Bounded context diagnosis",
+          "status": "passed",
+          "observed": "Context diagnosis: variant=0 created=false code=0x10006\r\nContext diagnosis: variant=1 created=false code=0x10006\r\nContext diagnosis: variant=2 created=false code=0x10006\r\nContext diagnosis: variant=3 created=false code=0x10006\r\nPlaytest: four bounded context attempts completed; diagnostic only, no gameplay qualification. Diagnostic completion only; native rendering gates remain required."
+        },
+        {
+          "name": "Native rendered city",
+          "status": "failed",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native city renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10006)"
+        },
+        {
+          "name": "Native rendered sandbox",
+          "status": "failed",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native sandbox renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10006)"
+        },
+        {
+          "name": "Native rendered editor",
+          "status": "failed",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native editor renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10006)"
+        },
+        {
+          "name": "Offline native installation",
+          "status": "passed",
+          "observed": "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\native-cache\\versions\\91988655c3061160899befe5cef24092a3b9390d\\3139451f58aa38a8eeace1c5789ad1b584f53dbd38424a77b6aba3a62b966cc9\\windows.jar"
+        }
+      ],
+      "pendingQualification": [
+        "JVM scale 1: 1280x800 unavailable on 1024x728 desktop; qualification pending",
+        "JVM scale 1.5: 900x600 unavailable on 683x485 desktop; qualification pending\n1280x800 unavailable on 683x485 desktop; qualification pending",
+        "JVM scale 2: 900x600 unavailable on 512x364 desktop; qualification pending\n1280x800 unavailable on 512x364 desktop; qualification pending"
+      ]
+    },
+    {
+      "platform": "Darwin",
+      "architecture": "x86_64",
+      "fingerprintMismatches": [],
+      "checks": [
+        {
+          "name": "Bounded own-child query controls",
+          "status": "passed",
+          "observed": "Playtest: own-child query eof matched=true elapsedMs=187"
+        },
+        {
+          "name": "Updater failures, locks, concurrency and migration",
+          "status": "passed",
+          "observed": "Verified immutable update under lock; corrupt/partial/malformed fallback; cancellation; two concurrent processes downloaded once; legacy migration reused bytes."
+        },
+        {
+          "name": "Native executable and two-version bootstrap update",
+          "status": "passed",
+          "observed": "Two packaged fixture generations: bundled runtime launched verified v1; bootstrap staged v2 while v1 active; next start executed v2. No public release claim."
+        },
+        {
+          "name": "Failed shell activation rollback",
+          "status": "passed",
+          "observed": "Executable shell exited 7 without acknowledgement; downloaded working shell resumed, installed pointer rolled back, rejected artifact not restaged, immutable JARs retained."
+        },
+        {
+          "name": "UI at JVM scale 1",
+          "status": "passed",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1"
+        },
+        {
+          "name": "UI at JVM scale 1.5",
+          "status": "passed",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1.5"
+        },
+        {
+          "name": "UI at JVM scale 2",
+          "status": "passed",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 2"
+        },
+        {
+          "name": "Synthetic online login handoff",
+          "status": "passed",
+          "observed": "City/Sandbox locked selection; custom loopback port; invalid-port rejection; pinned TLS sign-in passed."
+        },
+        {
+          "name": "Catalog promotion before Play",
+          "status": "passed",
+          "observed": "Playtest: catalog native A-to-B and web URL B; responsive EDT; duplicate suppression; malformed fallback; removal; updates-off; one download; synthetic native command verified; not gameplay qualification."
+        },
+        {
+          "name": "Bounded native window failure",
+          "status": "passed",
+          "observed": "Invalid native width produced fixed GLFW_INVALID_VALUE code 0x10004; no native descriptions retained."
+        },
+        {
+          "name": "Bounded context diagnosis",
+          "status": "passed",
+          "observed": "Context diagnosis: variant=0 created=false code=0x10009\nContext diagnosis: variant=1 created=false code=0x10009\nContext diagnosis: variant=2 created=false code=0x10009\nContext diagnosis: variant=3 created=false code=0x10009\nPlaytest: four bounded context attempts completed; diagnostic only, no gameplay qualification. Diagnostic completion only; native rendering gates remain required."
+        },
+        {
+          "name": "Native rendered city",
+          "status": "failed",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native city renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10009)"
+        },
+        {
+          "name": "Native rendered sandbox",
+          "status": "failed",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native sandbox renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10009)"
+        },
+        {
+          "name": "Native rendered editor",
+          "status": "failed",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native editor renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10009)"
+        },
+        {
+          "name": "Offline native installation",
+          "status": "passed",
+          "observed": "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache/versions/91988655c3061160899befe5cef24092a3b9390d/a724314063bfdeb8424c0b1f11b355b67e183ad4d16ccc08d73f31b486ef7966/mac-intel.jar"
+        }
+      ],
+      "pendingQualification": []
+    },
+    {
+      "platform": "Darwin",
+      "architecture": "arm64",
+      "fingerprintMismatches": [],
+      "checks": [
+        {
+          "name": "Bounded own-child query controls",
+          "status": "passed",
+          "observed": "Playtest: own-child query eof matched=true elapsedMs=88"
+        },
+        {
+          "name": "Updater failures, locks, concurrency and migration",
+          "status": "passed",
+          "observed": "Verified immutable update under lock; corrupt/partial/malformed fallback; cancellation; two concurrent processes downloaded once; legacy migration reused bytes."
+        },
+        {
+          "name": "Native executable and two-version bootstrap update",
+          "status": "passed",
+          "observed": "Two packaged fixture generations: bundled runtime launched verified v1; bootstrap staged v2 while v1 active; next start executed v2. No public release claim."
+        },
+        {
+          "name": "Failed shell activation rollback",
+          "status": "passed",
+          "observed": "Executable shell exited 7 without acknowledgement; downloaded working shell resumed, installed pointer rolled back, rejected artifact not restaged, immutable JARs retained."
+        },
+        {
+          "name": "UI at JVM scale 1",
+          "status": "passed",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1. Full-size qualification pending: 1280x800 unavailable on 1024x684 desktop; qualification pending"
+        },
+        {
+          "name": "UI at JVM scale 1.5",
+          "status": "passed",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1.5. Full-size qualification pending: 1280x800 unavailable on 1024x684 desktop; qualification pending"
+        },
+        {
+          "name": "UI at JVM scale 2",
+          "status": "passed",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 2. Full-size qualification pending: 1280x800 unavailable on 1024x684 desktop; qualification pending"
+        },
+        {
+          "name": "Synthetic online login handoff",
+          "status": "passed",
+          "observed": "City/Sandbox locked selection; custom loopback port; invalid-port rejection; pinned TLS sign-in passed."
+        },
+        {
+          "name": "Catalog promotion before Play",
+          "status": "passed",
+          "observed": "Playtest: catalog native A-to-B and web URL B; responsive EDT; duplicate suppression; malformed fallback; removal; updates-off; one download; synthetic native command verified; not gameplay qualification."
+        },
+        {
+          "name": "Bounded native window failure",
+          "status": "passed",
+          "observed": "Invalid native width produced fixed GLFW_INVALID_VALUE code 0x10004; no native descriptions retained."
+        },
+        {
+          "name": "Bounded context diagnosis",
+          "status": "passed",
+          "observed": "Context diagnosis: variant=0 created=false code=0x10009\nContext diagnosis: variant=1 created=false code=0x10009\nContext diagnosis: variant=2 created=false code=0x10009\nContext diagnosis: variant=3 created=false code=0x10009\nPlaytest: four bounded context attempts completed; diagnostic only, no gameplay qualification. Diagnostic completion only; native rendering gates remain required."
+        },
+        {
+          "name": "Native rendered city",
+          "status": "failed",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native city renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10009)"
+        },
+        {
+          "name": "Native rendered sandbox",
+          "status": "failed",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native sandbox renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10009)"
+        },
+        {
+          "name": "Native rendered editor",
+          "status": "failed",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native editor renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10009)"
+        },
+        {
+          "name": "Offline native installation",
+          "status": "passed",
+          "observed": "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache/versions/91988655c3061160899befe5cef24092a3b9390d/475ce95f7d0ba3b5de5c600ccd4f11673d61c911d6593fb8f0c7a2a6652a8e2f/mac-arm.jar"
+        }
+      ],
+      "pendingQualification": [
+        "JVM scale 1: 1280x800 unavailable on 1024x684 desktop; qualification pending",
+        "JVM scale 1.5: 1280x800 unavailable on 1024x684 desktop; qualification pending",
+        "JVM scale 2: 1280x800 unavailable on 1024x684 desktop; qualification pending"
+      ]
+    }
+  ],
+  "qualification": "Native gameplay, physical GPU/DPI/performance and public upgrades remain pending.",
+  "mediaInspection": "All three exact-head shell-one captures inspected and show Hub. Black-capture rejection active; no native gameplay visible."
+}

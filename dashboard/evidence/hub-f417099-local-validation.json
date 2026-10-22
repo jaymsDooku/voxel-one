@@ -1,0 +1,54 @@
+{
+  "sourceSha": "f41709945f792452e0f26639482f7a5988288d85",
+  "command": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 PATH=/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin:\"$PATH\" TMPDIR=\"$PWD/target/hub-tmp\" mvn -q -o -Dmaven.repo.local=\"$PWD/target/maven-cache\" -Djava.io.tmpdir=\"$PWD/target/hub-tmp\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/hub-tmp\" -Dtest=HubCatalogTest,HubShellTest,HubShellActivationTest,UpdaterTest,AccountStoreTest,ProtocolCompatibilityTest test",
+  "exitCode": 0,
+  "suites": [
+    {
+      "name": "dev.jayms.HubCatalogTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.HubShellTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.launcher.HubShellActivationTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.UpdaterTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.AccountStoreTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.ProtocolCompatibilityTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "Playtest:": "CLI/integration validation on Linux/JDK21 with worktree-local Maven cache/temp. Expected catalog, updater, activation/rollback, accounts and protocol regressions pass; observed exit0 and recorded suite results. Browser UI does not apply to this CLI check. No new graphical execution or native gameplay claimed. Prior inspected Hub media remains applicable; application/tool source unchanged fromd11bed03.",
+  "publicationBundle": "target/hub-exact-f417099-publication",
+  "delivery": "catalog/shell/preview JAR HTTP404",
+  "platformQualification": "Inherited d11bed03 rendering failures remain unqualified; no newer pass claimed",
+  "stableRolloutQualified": false
+}

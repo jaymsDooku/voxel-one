@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+    "-cp",
+    "target/voxel-one-1.0-SNAPSHOT-client.jar:target/hub-tmp",
+    "InspectMovie",
+    "dashboard/evidence/hub-rollback-final-launcher.mp4",
+    "dashboard/evidence/hub-rollback-final-launcher-frame.png"
+  ],
+  "exitCode": 0,
+  "observed": "Actual movie: 20 frames, 2.917 seconds",
+  "sizeBytes": 326323
+}

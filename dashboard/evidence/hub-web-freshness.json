@@ -1,0 +1,12 @@
+{
+  "playtest": "Playtest: play the first fingerprinted build in desktop WebKit; move/fire and pause; replace hosted files with a second web-only build; reopen in the same browser context through its new build URL; start/fire/pause/resume.",
+  "expected": "Fresh HTML URL and fresh ESM filenames bypass primed immutable caches; native artifact stays unchanged.",
+  "observed": "Both builds played; module URLs changed; pause/resume worked; no page errors; native client SHA-256 stayed unchanged.",
+  "versions": [
+    "dacf9106628eb0cb01d3",
+    "d2b61b860a6c13cc7c2b"
+  ],
+  "nativeClientSha256": "d640188cbe587e2576bbae9437f1ee9f6bb37dc546474e2e445376621d50d49c",
+  "environment": "Linux desktop WebKit; assigned inherited display; fresh synthetic browser context; localhost static host deliberately uses one-year immutable caching.",
+  "limitation": "Local hosting integration only. No production website deployment or owner-private sign-in was performed."
+}

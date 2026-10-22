@@ -1,0 +1,38 @@
+{
+  "baseHead": "6307ffede5a191e917a3b6d248d7d44df2b361fc",
+  "sourceKind": "Uncommitted feature working tree; production source unchanged from base head",
+  "sourceFingerprints": "hub-promotion-resumed-packages/report.json sourceTreeSha256; verified matching all current source files",
+  "changes": "Catalog promotion test now uses an explicit synthetic command receiver; fixed failure-stage diagnostics retained. Real native rendering checks remain mandatory and unchanged.",
+  "commands": [
+    "LIBGL_ALWAYS_SOFTWARE=1 python3 tools/hub/check_packages.py --display \"$DISPLAY\" --source-sha 6307ffede5a191e917a3b6d248d7d44df2b361fc --jdk /usr/lib/jvm/jdk-21.0.5-oracle-x64 --work target/hub-promotion-resumed-packages --output dashboard/evidence/hub-promotion-resumed-packages",
+    "python3 -m unittest discover -s tools/hub -p 'test_*.py'",
+    "Direct completion commands recorded verbatim in hub-promotion-package-completion-corrected.json"
+  ],
+  "results": {
+    "publisherTests": 4,
+    "checkerExitCode": 143,
+    "checkerCompletedPasses": 10,
+    "directCompletionPasses": 3,
+    "fullCheckerPass": false,
+    "all13LocalScenariosPassedAcrossExecutions": true,
+    "invalidDirectAttempt": "hub-promotion-package-completion.json retained; incorrect shell classpath caused failures, superseded by corrected commands",
+    "JavaSuite": "No Java application source changed; previous 23-test result retained, not rerun this turn"
+  },
+  "Playtest:": {
+    "environment": "Inherited Linux role display/XAUTHORITY; bundled JDK21 runtime; synthetic profiles; LIBGL_ALWAYS_SOFTWARE=1; llvmpipe; no private accounts",
+    "steps": "Install/update fixture artifacts; activate/fail/rollback shells; navigate 900x600 and 1280x800 UI at JVM scale1/1.5/2; synthetic pinned-TLS login; promote catalog while detail stays open; duplicate click, malformed and removal edges; render City/Sandbox/editor; resolve retained installation with publisher stopped.",
+    "expected": "Fresh stable-ID selection, exact --game city --offline arguments, browser URL B, safe fallback/removal; immutable installs and acknowledged shell retained; each real native mode renders four frames.",
+    "observed": "Ten checker scenarios passed before exit143. Sandbox/editor/offline direct completions passed. Native clips decoded four frames each and were inspected; launcher decoded20 frames/2.917s. Synthetic browser dispatch does not prove browser gameplay."
+  },
+  "diagnostic": "hub-promotion-isolation-diagnostic.json: B installed before injected real-native failure; command fixture passed; required real renderer remained failed. Old remote failure phase not proven by its generic diagnostic.",
+  "hosted": "39341981018 matches base source and failed overall on all three platforms; rollback passed. New resulting-head run required.",
+  "delivery": "hub-promotion-delivery-status.json: catalog, shell and preview JAR return404.",
+  "audit": "git diff --check passed; no unmerged paths; no deleted paths against review base26b8761; no production source edits this follow-up.",
+  "pendingGates": [
+    "Exact resulting-head Windows/macOS reports and inspected media",
+    "Published metadata/artifacts; two actual published shell upgrades",
+    "Independent native/web promotion; published browser gameplay and cached reload",
+    "Physical GPU, monitor DPI and reference-hardware performance"
+  ],
+  "stableRolloutQualified": false
+}

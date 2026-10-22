@@ -1,0 +1,102 @@
+name: Scoped Hub validation
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact current feature head (40 lowercase hex)
+        required: true
+        type: string
+      runner_pool:
+        description: Hosted diagnostics or provisioned GPU desktop runners
+        required: true
+        default: hosted
+        type: choice
+        options: [hosted, desktop]
+  push:
+    branches: [feature/queue-62383835386364312d346130642d346262652d383736632d393534373062343337356161]
+    paths: ['src/**', 'tools/hub/**', 'pom.xml', '.github/workflows/hub-validation.yml']
+permissions:
+  contents: read
+concurrency:
+  group: hub-validation-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  packaged-client:
+    if: github.repository == 'jaymsDooku/voxel-one' && github.ref == 'refs/heads/feature/queue-62383835386364312d346130642d346262652d383736632d393534373062343337356161'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {runner: '"windows-2022"', desktop: '["self-hosted","Windows","X64","voxel-hub-desktop"]', platform: windows}
+          - {runner: '"macos-15-intel"', desktop: '["self-hosted","macOS","X64","voxel-hub-desktop"]', platform: mac-intel}
+          - {runner: '"macos-15"', desktop: '["self-hosted","macOS","ARM64","voxel-hub-desktop"]', platform: mac-arm}
+    runs-on: ${{ fromJSON(inputs.runner_pool == 'desktop' && matrix.desktop || matrix.runner) }}
+    timeout-minutes: 35
+    env:
+      SOURCE_SHA: ${{ inputs.source_sha || github.sha }}
+      PLATFORM: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source_sha || github.sha }}
+          persist-credentials: false
+      - name: Fence exact source
+        shell: bash
+        run: |
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          test "$SOURCE_SHA" = "$GITHUB_SHA"
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Preserve portal gameplay and website assets
+        shell: bash
+        run: |
+          python3 - <<'PYCODE'
+          import json, subprocess
+          from pathlib import Path
+          names=('app.mjs','game.mjs','ground.mjs','ground-controls.mjs','ground-renderer.mjs','portal.mjs','alternate-earth.mjs','earth-scene.mjs','style.css')
+          for name in names:
+              assert (Path('games/space-invaders')/name).read_bytes()==(Path('website/dist/games/space-invaders')/name).read_bytes(), 'Website/source mismatch: '+name
+          command=['node','--test','games/space-invaders/portal.test.mjs','games/space-invaders/alternate-earth.test.mjs','games/space-invaders/ground.test.mjs']
+          result=subprocess.run(command,capture_output=True,text=True)
+          output=Path('dashboard/evidence')/('hub-scoped-'+__import__('os').environ['PLATFORM']);output.mkdir(parents=True,exist_ok=True)
+          (output/'portal-regressions.json').write_text(json.dumps({'command':command,'exitCode':result.returncode,'sourceWebsiteAssetsMatched':list(names),'counts':[line for line in result.stdout.splitlines() if line.startswith(('# tests ','# pass ','# fail ','# skipped '))]},indent=2)+'\n')
+          raise SystemExit(result.returncode)
+          PYCODE
+      - name: Catalog and controller publication regressions
+        run: |
+          python3 tools/hub/test_publisher.py
+          python3 tools/hub/test_publication_bundle.py
+      - name: Build and updater/account/TLS regressions
+        shell: bash
+        run: mvn -q '-Dtest=SandboxIdentityTest,HubCatalogTest,HubShellTest,HubShellActivationTest,UpdaterTest,AccountStoreTest,ProtocolCompatibilityTest,MultiplayerTest#authenticationRegistrationDuplicateSessionsAndCertificatePin' test package
+      - name: Select a supported Windows desktop mode
+        if: runner.os == 'Windows'
+        shell: bash
+        run: python tools/hub/windows_desktop.py
+      - name: Select a supported Mac desktop mode
+        if: runner.os == 'macOS'
+        shell: bash
+        run: swift tools/hub/mac_desktop.swift
+      - name: Actual packaged runtime, GUI, shell update and locks
+        shell: bash
+        run: python tools/hub/check_packages.py --source-sha "$SOURCE_SHA" --jdk "$JAVA_HOME" --output "dashboard/evidence/hub-scoped-$PLATFORM"
+      - name: Compact test summary (no logs or system properties)
+        if: always()
+        shell: bash
+        run: python tools/hub/summarize_tests.py --source-sha "$SOURCE_SHA" --output "dashboard/evidence/hub-scoped-$PLATFORM/maven-summary.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hub-${{ matrix.platform }}-${{ inputs.source_sha || github.sha }}
+          path: dashboard/evidence/hub-scoped-${{ matrix.platform }}/
+          if-no-files-found: error
+          retention-days: 14

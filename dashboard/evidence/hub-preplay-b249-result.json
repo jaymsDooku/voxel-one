@@ -1,0 +1,19 @@
+{
+  "baseSha": "b249ce6e2a34169765577869e205e5df89cbaee3",
+  "sourceKind": "working tree",
+  "command": [
+    "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+    "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-tmp",
+    "-cp",
+    "target/voxel-one-1.0-SNAPSHOT-client.jar:target/hub-tmp",
+    "dev.jayms.launcher.PrePlayCatalogPlaytest",
+    "target/hub-preplay-b249-profile",
+    "dashboard/evidence/hub-preplay-b249"
+  ],
+  "exitCode": 0,
+  "Playtest": [
+    "Playtest: open Hub refreshed native A to B and stale web URL to B before Play; EDT responsive during blocked fetch; duplicate Play suppressed; malformed catalog retained verified B; removed entry refused; updates-off made no catalog request; one native download."
+  ],
+  "error": null,
+  "scope": "Synthetic publisher and browser dispatcher; actual published browser gameplay is separate."
+}

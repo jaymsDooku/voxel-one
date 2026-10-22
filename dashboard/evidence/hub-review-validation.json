@@ -1,0 +1,72 @@
+{
+  "scope": "Opt-in Hub preview for independent review; not stable rollout qualification",
+  "baseHead": "dbe3c7a077a07cd1482a4cb099f73350868d39bb",
+  "sourceKind": "feature working tree",
+  "reviewBase": "aac5ca8ee0fa5ed6e5f84949c66e9949085f1d85",
+  "environment": "Linux x86_64 VPS; inherited authenticated display and XAUTHORITY; bundled Oracle JDK21.0.5 test runtime; software rendering; isolated synthetic profiles",
+  "integrationAudit": {
+    "unmergedIndex": false,
+    "pendingRebase": false,
+    "deletedFilesAgainstReviewBase": 0,
+    "mergedNonHubPathsUnchangedFromRecoveredHead": 109,
+    "intentionalRemovedLines": "Earlier Hub auto-package, shell-manifest promotion and release-note/upload additions were removed from normal build.yml. Existing ordinary release behavior is retained."
+  },
+  "checks": [
+    {
+      "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/maven-cache\" -DargLine=-Djava.io.tmpdir=\"$PWD/target/hub-tmp\" -Dtest=SandboxIdentityTest,HubCatalogTest,HubShellTest,UpdaterTest,AccountStoreTest,ProtocolCompatibilityTest,MultiplayerTest#authenticationRegistrationDuplicateSessionsAndCertificatePin test package",
+      "observed": "17 tests passed; zero failures/errors/skips after recovery."
+    },
+    {
+      "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/maven-cache\" -DargLine=-Djava.io.tmpdir=\"$PWD/target/hub-tmp\" -Dtest=HubCatalogTest test package",
+      "observed": "3 catalog tests passed after refreshing verified published native metadata."
+    },
+    {
+      "command": "python3 tools/hub/test_publisher.py",
+      "observed": "1 passed."
+    },
+    {
+      "command": "java -Djava.io.tmpdir=\"$PWD/target/hub-tmp\" -cp target/classes:target/hub-tmp HubPlaytest dashboard/evidence/hub-recovered-visual target/hub-recovered-visual-profile",
+      "playtest": "Playtest: production Hub navigation, detail, search empty edge, themes, keyboard, network fallback, synthetic supported entry and empty catalog",
+      "observed": "Passed on recovered Hub source. Native metadata was subsequently refreshed and parser-tested; final package checks use refreshed metadata."
+    },
+    {
+      "command": "TMPDIR=\"$PWD/target/hub-tmp\" PLAYWRIGHT_BROWSERS_PATH=\"$PWD/target/hub-browsers\" node tools/hub/web-freshness-playtest.cjs",
+      "playtest": "Playtest: local desktop WebKit start/move/fire/pause; web-only fingerprint deployment; reopen/start/fire/pause/resume in same browser context",
+      "observed": "Passed; module URLs changed, no page errors, native artifact SHA stayed unchanged. Earlier attempts failed on read-only /tmp and missing default browser cache; using existing worktree caches fixed environment only."
+    },
+    {
+      "command": "python3 tools/hub/check_packages.py --display \"$DISPLAY\" --source-sha dbe3c7a077a07cd1482a4cb099f73350868d39bb --jdk /usr/lib/jvm/jdk-21.0.5-oracle-x64 --work target/hub-review-final --output dashboard/evidence/hub-review-final-linux",
+      "playtest": "Playtest: bundled executable/empty PATH, two fixture shell generations, updater errors/locking/migration, UI scales1/1.5/2, synthetic TLS login, City/Sandbox/editor render smoke and offline installation",
+      "observed": "All10 passed. Source fingerprint check had zero mismatches. Clips decoded and inspected: UI20 frames/2.917 seconds; native4 frames each. FullQualificationPassed false."
+    },
+    {
+      "command": "python3 tools/hub/run_playtest.py --display \"$DISPLAY\" --workflow --no-record",
+      "playtest": "Playtest: actual Hub install and Play actions for City, Sandbox and editor; invalid offline host/port; shared download; corrupt fallback; cancel; offline cache",
+      "observed": "Exit0. Native recording deliberately disabled for this workflow run; separate fresh renderer/UI clips were decoded and inspected."
+    },
+    {
+      "command": "python3 target/hub-review-startup.py",
+      "playtest": "Playtest: start freshly packaged preview with empty PATH and isolated profile; select only own PID window; click Home to focus UI, then Alt+2; capture Home and Games; terminate own process",
+      "observed": "Packaged Hub opened. Inspected captures show Home and then Games with City, Sandbox and Space Invaders. Initial unfocused shortcut attempts remained Home and are recorded separately.",
+      "startupWindowSeconds": 2.903,
+      "keyboardCaptureSeconds": 1.782,
+      "rss": "91008 kB",
+      "limitation": "Window visibility timing, not fully loaded content latency. No Windows timing, monitor-DPI, physical-GPU or smooth-gameplay claim."
+    }
+  ],
+  "publication": {
+    "nativeBuild": "playtest-560",
+    "source": "4f8a09aca177062a50d0ab2b68e36735318bfb22",
+    "release": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-560",
+    "ci": "https://github.com/jaymsDooku/voxel-one/actions/runs/38844729362",
+    "observed": "Published release and successful native CI inspected; web metadata retains independently verified publication source."
+  },
+  "pendingQualification": [
+    "Windows MSI shortcut confirmation on new source.",
+    "Exact-head hosted Windows/macOS rerun, including unsupported GLFW diagnostics.",
+    "Physical GPU sessions, monitor DPI and full-size captures where hosted desktop cannot fit them.",
+    "Two published shell generations and final independent publication promotion."
+  ],
+  "readiness": "Ready for independent review of the bounded opt-in preview. Stable rollout and physical/platform qualification remain gated.",
+  "mediaInspection": "Current Hub, WebKit and decoded UI/native captures inspected. Native clips are sparse four-frame smoke; no smooth-gameplay claim."
+}

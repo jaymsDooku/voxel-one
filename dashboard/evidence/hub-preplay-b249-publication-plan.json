@@ -1,0 +1,38 @@
+{
+  "format": 1,
+  "repository": "jaymsDooku/voxel-one",
+  "sourceSha": "b249ce6e2a34169765577869e205e5df89cbaee3",
+  "sourceKind": "working-tree",
+  "controllerMustRegenerateFromCommittedSource": true,
+  "destinationBranch": "experience-catalog",
+  "expectedDestinationHead": "absent",
+  "releaseTag": "hub-preview-1",
+  "releaseKind": "opt-in preview; never mark latest or stable",
+  "filesSha256": {
+    "catalog.properties": "afa00e37a6b7eac40bee1c908dae2ef0b603c2b279549d45f86235702d91ff71",
+    "shell.properties": "acd43ad350bd5664702a67d205ec6f69d60cb1bde2754467880b5974e26eb5eb",
+    "voxel-one-shell.jar": "26131eb21df37855c77cd7d4b5115abfae339f49bddcde02b2ece4ab724a0a41"
+  },
+  "releaseAssets": [
+    "voxel-one-shell.jar"
+  ],
+  "branchFiles": [
+    "catalog.properties",
+    "shell.properties"
+  ],
+  "sequence": [
+    "Verify independent review and exact-source qualification scope; keep stable rollout gated.",
+    "Recheck sourceSha and expectedDestinationHead through the fenced controller; stop on a mismatch.",
+    "Publish the immutable preview shell asset first; never clobber an existing release asset.",
+    "Verify the published shell SHA-256 and size before exposing shell.properties.",
+    "Controller atomically promotes both metadata files with compare-and-swap against expectedDestinationHead; preserve other branch files.",
+    "Run publication_bundle.py verify and actual packaged bootstrap playtests against public metadata.",
+    "Repeat with a second reviewed published generation; retain both release assets and report the actual upgrade."
+  ],
+  "stableRolloutQualified": false,
+  "pending": [
+    "physical GPU/DPI qualification",
+    "two actually published shell generations",
+    "current-source packaged Windows/macOS gameplay"
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "sourceSha": "45f894964164905bf0c687ec1aec1f5c512aaaf1",
+  "entry": "Playtest: actual Hub promotion, launch, update and offline workflows on inherited Linux display with isolated synthetic profiles.",
+  "recordType": "Explicit record of executed checks; no new application playtest this turn. All application/tool fingerprints match this committed source.",
+  "environment": {
+    "os": "Linux x86_64 VPS",
+    "java": "Oracle JDK 21.0.5 and jpackage bundled runtime",
+    "display": "Inherited role DISPLAY and XAUTHORITY; no new X server",
+    "graphics": "LIBGL_ALWAYS_SOFTWARE=1, llvmpipe (LLVM 15.0.6, 256 bits), LOW native preset",
+    "data": "Isolated synthetic profiles under the assigned worktree; loopback publisher/TLS services; browser dispatcher capture"
+  },
+  "scenarios": [
+    {
+      "steps": [
+        "Keep old native and web detail buttons open in the actual Swing Hub.",
+        "Promote synthetic catalog A to B, block its fetch, click Play twice, then release the fetch.",
+        "Supply malformed catalog metadata, then remove the experience, then disable update checks."
+      ],
+      "expected": "Use native source B and web URL B; keep EDT responsive; suppress concurrent Play; retain last verified B on malformed response; refuse removed entries; make no catalog request with updates off.",
+      "observed": "Playtest: open Hub refreshed native A to B and stale web URL to B before Play; EDT responsive during blocked fetch; duplicate Play suppressed; malformed catalog retained verified B; removed entry refused; updates-off made no catalog request; one native download.",
+      "exitCode": 0,
+      "command": [
+        "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+        "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-tmp",
+        "-cp",
+        "target/voxel-one-1.0-SNAPSHOT-client.jar:target/hub-tmp",
+        "dev.jayms.launcher.PrePlayCatalogPlaytest",
+        "target/hub-preplay-b249-profile",
+        "dashboard/evidence/hub-preplay-b249"
+      ]
+    },
+    {
+      "steps": [
+        "Install through Hub Downloads, launch City/Sandbox/editor offline and inspect shared download count.",
+        "Present incompatible latest and cached sources.",
+        "Supply corrupt update, cancel a transfer and stop the service."
+      ],
+      "expected": "Launch compatible clients with one shared download; reject incompatible cached code; preserve verified installation across corrupt updates, cancellation and service loss.",
+      "observed": "Playtest: real hub install, City offline launch, Sandbox and editor offline launch, invalid offline server/port ignored, one shared download, incompatible latest fallback, incompatible cached launch refused, corrupt update fallback, cancel and service-offline verified cache exercised.",
+      "exitCode": 0,
+      "command": [
+        "target/hub-preplay-b249-packages/package-1/Voxel One Hub/lib/runtime/bin/java",
+        "-Dhub.playtest.skipRecording=true",
+        "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-tmp",
+        "-cp",
+        "target/voxel-one-1.0-SNAPSHOT-client.jar:target/hub-tmp",
+        "HubWorkflowPlaytest",
+        "dashboard/evidence/hub-preplay-b249-workflow",
+        "target/hub-preplay-b249-workflow-profile"
+      ]
+    },
+    {
+      "steps": [
+        "Build packaged fixture generations and run the native executable with empty PATH.",
+        "Exercise updater faults, locks, migration, JVM scales 1/1.5/2, pinned-TLS login and pre-Play promotion.",
+        "Render City, Sandbox and editor; look up installed client after service shutdown."
+      ],
+      "expected": "Bundled runtime works; immutable cache retained; UI and launch regressions pass; each native observer records four real frames; offline cache remains usable.",
+      "observed": "Full packaged Linux checker exited 0; all 12 checks passed. Shell movie decoded as 20 frames over 2.917 seconds; each native clip decoded as four frames. Fresh shell, native and removal captures were inspected.",
+      "exitCode": 0,
+      "command": "LIBGL_ALWAYS_SOFTWARE=1 python3 tools/hub/check_packages.py --display \"$DISPLAY\" --source-sha b249ce6e2a34169765577869e205e5df89cbaee3 --jdk /usr/lib/jvm/jdk-21.0.5-oracle-x64 --work target/hub-preplay-b249-packages --output dashboard/evidence/hub-preplay-b249-packages"
+    }
+  ],
+  "evidence": [
+    "dashboard/evidence/hub-preplay-b249-result.json",
+    "dashboard/evidence/hub-preplay-b249-workflow-result.json",
+    "dashboard/evidence/hub-preplay-b249-packages/report.json",
+    "dashboard/evidence/hub-preplay-b249-shell-decode.json",
+    "dashboard/evidence/hub-preplay-b249-native-decode.json",
+    "dashboard/evidence/hub-preplay-b249-removed-experience-refused.png"
+  ],
+  "limits": [
+    "Synthetic promotion and browser dispatch do not prove actual public promotion or published browser gameplay/cached reload.",
+    "Two packaged fixture shells do not prove two published shell upgrades.",
+    "Software rendering and JVM scaling do not qualify physical GPU gameplay or Windows monitor DPI.",
+    "Public catalog/shell/preview delivery returned 404 in the separate delivery check; hosted Windows/macOS reports were still pending at the last inspection."
+  ],
+  "stableRolloutQualified": false
+}

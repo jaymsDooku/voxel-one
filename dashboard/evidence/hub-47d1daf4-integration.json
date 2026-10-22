@@ -1,0 +1,22 @@
+{
+  "source": "47d1daf4f03247b8d2484c1c9a1652f99944268e",
+  "environment": "Linux inherited DISPLAY/XAUTHORITY; JDK21.0.5; isolated profiles inside target",
+  "commands": [
+    "javac --release17 -d target/hub-recovery-classes src/main/java/dev/jayms/launcher/*.java",
+    "javac --release17 -cp target/hub-recovery-classes -d target/hub-recovery-classes tools/hub/HubPlaytest.java tools/hub/UnavailableWebPlaytest.java",
+    "java -Djava.io.tmpdir=$PWD/target/hub-tmp -cp target/hub-recovery-classes UnavailableWebPlaytest target/hub-2f896b9d-publication/catalog.properties target/hub-47d1daf4-profile dashboard/evidence/hub-47d1daf4-web-unavailable.png",
+    "java -Duser.home=$PWD/target/hub-47d1daf4-launcher-profile -Djava.io.tmpdir=$PWD/target/hub-tmp -cp target/hub-recovery-classes LauncherIntegrationProbe",
+    "python3 -m unittest discover -s tools/hub -p test_*.py"
+  ],
+  "observed": [
+    "Compilation passed",
+    "Playtest: Launcher.main --hub showed actual visible Hub; command checks preserved Asset Manager without default server, offline Sandbox and explicit online loopback port",
+    "Playtest: actual Hub retained3native entries, unavailable web detail and disabled browser action; screenshot inspected",
+    "5Python tests passed",
+    "Whitespace passed; no deletions versus recorded review base"
+  ],
+  "limits": [
+    "Command checks do not claim actual Asset Manager or native gameplay execution",
+    "Full Maven, packaged platforms, GPU/DPI/performance and public two-generation delivery remain pending"
+  ]
+}

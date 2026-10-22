@@ -1,0 +1,70 @@
+{
+  "sourceBase": "7fde413407a4388ecba47e6350b849c67157f6a8",
+  "sourceKind": "unpublished working tree; not an exact published-head result",
+  "reviewBase": "403033b9f53ce66063982879c6e2daff684a427b",
+  "sourceFingerprints": {
+    "src/main/java/dev/jayms/launcher/HubCatalog.java": "85009c2814f57269265d6caaa00795d264c087d4abc620fb3cd870b4990ef089",
+    "src/main/java/dev/jayms/launcher/Updater.java": "ae095e7fe81bcdf740a162c454388c57f431ae26f0d6fdf9d827bde1009166de",
+    "src/main/java/dev/jayms/launcher/HubFrame.java": "988649e976aa0f36945828cea29a51698cfadd182cae8524c2f5b932074c9cc7",
+    "src/main/java/dev/jayms/launcher/Launcher.java": "4fc0b5f32f411ab0a10e1485a32efbff62b3ada4b99bed41103acf24e00cdec3",
+    "src/main/resources/dev/jayms/launcher/catalog.properties": "6fdf4f0693fdf3955bcf1170b093f52dd2d88a5c928bd15376dc9b4e0a7d04cf",
+    "tools/hub/publish_catalog.py": "df4fa076846a3482bf002364a277421311fc42fb808c4792a20947531389fdaa",
+    "tools/hub/HubWorkflowPlaytest.java": "d6bfffb5746703c1a9c1228c8f6d8ef11efb5dd89f5c837b7525f5c72b3a6c23"
+  },
+  "environment": "Linux VPS; inherited authenticated role DISPLAY/XAUTHORITY; Java 21.0.5; software GL; LOW preset; isolated synthetic profiles. Authentication cookies were not read or recorded.",
+  "checks": [
+    {
+      "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/maven-cache\" -DargLine=-Djava.io.tmpdir=\"$PWD/target/hub-tmp\" -Dtest=SandboxIdentityTest,HubCatalogTest,HubShellTest,UpdaterTest,AccountStoreTest,ProtocolCompatibilityTest,MultiplayerTest#authenticationRegistrationDuplicateSessionsAndCertificatePin test package",
+      "expected": "Catalog mismatch rejected before transfer/state mutation; compatible fallback and legacy updater/account/TLS behavior retained.",
+      "observed": "19 tests; zero failures/errors/skips; package exit 0. New tests assert incompatible latest performs no transfer, installed metadata remains byte-identical, incompatible cached/network-offline fallback fails, and compatible offline cache succeeds."
+    },
+    {
+      "command": "python3 tools/hub/test_publisher.py",
+      "expected": "Web-only publication leaves native compatibility unchanged; native promotion updates permitted sources.",
+      "observed": "1 passed."
+    },
+    {
+      "command": "python3 tools/hub/run_playtest.py --display \"$DISPLAY\" --workflow --no-record",
+      "playtest": "Playtest: actual Hub install/Play and mismatch refusal",
+      "steps": [
+        "Install one synthetic verified shared client at revision a.",
+        "Use synthetic catalog with source a; launch City.",
+        "Change global latest to b, keep catalog a; launch Sandbox and editor through compatible cache.",
+        "Turn update checks off; select catalog c with cached a; press Play.",
+        "Restore updates; corrupt download; cancel slow retry; stop fixture service and retry."
+      ],
+      "expected": "Compatible cached games start; incompatible latest never downloads during Play; incompatible cached client never spawns a game; clear mismatch message; existing fallback/cancel/offline behavior remains.",
+      "observed": "Exit 0; all workflow assertions passed; one shared download before repair tests; mismatch refusal and compatible fallback captures viewed. Recording explicitly disabled; no workflow video claim."
+    },
+    {
+      "command": "node --test games/space-invaders/portal.test.mjs games/space-invaders/alternate-earth.test.mjs games/space-invaders/ground.test.mjs",
+      "expected": "Retain portal/Earth/ground gameplay.",
+      "observed": "31 passed; zero failures/skips. Browser gameplay source and website copies unchanged from review base."
+    }
+  ],
+  "hostedHistory": "See hub-compatibility-hosted-history.json. Run 38979556752 at 7fde413: Windows MSI/shortcuts/uninstall passed; native GLFW rendering failed all hosts. These results predate compatibility edits.",
+  "diffAudit": {
+    "deletedFiles": 0,
+    "unrelatedGameWebsiteChanges": 0,
+    "note": "Entire proposed path diff reviewed against current review base. Only Hub/reviewer evidence paths differ; no intended deletions. Original release workflow and unrelated merged game features preserved."
+  },
+  "pending": [
+    "Controller source integration/publication and current-head hosted rerun",
+    "Required physical GPU/monitor/DPI qualification",
+    "Required update across two actually published shell generations, beyond local fixture generations"
+  ],
+  "fullOriginalAcceptanceComplete": false,
+  "stableRolloutQualified": false,
+  "packageChecks": {
+    "command": "python3 tools/hub/check_packages.py --display \"$DISPLAY\" --source-sha 7fde413407a4388ecba47e6350b849c67157f6a8 --jdk /usr/lib/jvm/jdk-21.0.5-oracle-x64 --work target/hub-compatibility-check --output dashboard/evidence/hub-compatibility-linux",
+    "observed": "10 passed; exit 0. Includes UI scales, fixture shell update, updater failures/locks/migration, TLS handoff and native four-frame smoke. A subsequent availability-label correction requires the final rebuild and affected packaged-runtime workflow rerun.",
+    "sourceLimitation": "See exact fingerprints in hub-compatibility-linux/report.json; not a claim that the final label/harness edits were in this package."
+  },
+  "mediaInspection": "Mismatch/fallback images and packaged Games image viewed. UI clip decoded: 20 frames/2.917 s. Native city/sandbox/editor clips decoded: four frames each, 21.129/24.836/24.208 s; all first frames viewed. No smooth-performance claim.",
+  "finalWorkflow": {
+    "report": "hub-compatibility-final-workflow.json",
+    "observed": "Final package 1.0.2 built from final launcher JAR; byte equality verified. Bundled-runtime workflow retry exit 0 after null-safe helper correction. Native City/Sandbox/editor launched; incompatible latest status/fallback and incompatible cached launch refusal passed, including updates disabled. Shared download, corrupt/cancel/offline checks passed. Current mismatch/fallback captures viewed.",
+    "initialAttempt": "Initial test helper failed on null text in an image-only JLabel. Retained compact failure receipt; helper fixed and retry passed. No application fix or unexecuted pass was claimed."
+  },
+  "browserScope": "Native compatibility enforcement and publisher metadata CLI are affected. Browser/game source and route are unchanged; no new production-browser or physical-device test is claimed. Prior browser evidence remains historical."
+}

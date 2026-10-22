@@ -1,0 +1,50 @@
+{
+  "sourceHead": "0e1683eebb356a15b3f46d25a6937a523c3dbf98",
+  "reviewBase": "403033b9f53ce66063982879c6e2daff684a427b",
+  "observedMaster": "26b8761ff9c355299aa1df83608a6f6ebcba7e0b",
+  "phase": "Recovered feature baseline; controller master integration required before final-head validation/review",
+  "recoveryAudit": "hub-disk-recovery-audit.json",
+  "checks": [
+    {
+      "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/maven-cache\" -DargLine=-Djava.io.tmpdir=\"$PWD/target/hub-tmp\" -Dtest=SandboxIdentityTest,HubCatalogTest,HubShellTest,UpdaterTest,AccountStoreTest,ProtocolCompatibilityTest,MultiplayerTest#authenticationRegistrationDuplicateSessionsAndCertificatePin test package",
+      "exitCode": 0,
+      "tests": 21,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "environment": "Linux; JDK21; old classes/test-classes/maven-status and JARs preserved in ignored recovery backup before fresh compilation."
+    },
+    {
+      "command": "python3 -m unittest discover -s tools/hub -p 'test_*.py'",
+      "exitCode": 0,
+      "tests": 4
+    }
+  ],
+  "Playtest": {
+    "compile": "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/javac --release 17 -cp target/classes -d target/hub-tmp tools/hub/HubPlaytest.java",
+    "command": "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -Djava.io.tmpdir=\"$PWD/target/hub-tmp\" -cp target/classes:target/hub-tmp HubPlaytest dashboard/evidence/hub-recovery-20261019-ui target/hub-recovery-20261019-profile",
+    "environment": "Inherited assigned DISPLAY/XAUTHORITY; no X server created; isolated synthetic profile; Java helper has no --display option. Freshly compiled restored feature source.",
+    "expected": "Hub navigation, details/tools/downloads/settings, keyboard, themes, 900x600, empty search, catalog fallback, synthetic new entry and empty catalog work.",
+    "observed": "Passed exit0. Fresh library and empty-search captures inspected. This is baseline recovery validation, not current-master integration, native gameplay or physical GPU/DPI qualification."
+  },
+  "audit": {
+    "truncatedFilesPreserved": 11,
+    "trackedSourceNowEqualsFeatureHead": true,
+    "deletedFilesAgainstReviewBase": [],
+    "gitDiffCheck": "passed",
+    "gitIndexOrRefsMutated": false
+  },
+  "controllerHandoff": {
+    "nextAction": "Integrate latest master into assigned feature branch via controller, preserving complete performance/lighting changes and Hub features.",
+    "afterIntegration": "Resume developer before review when source changes; rerun meaningful final-head checks and capture fresh media.",
+    "publication": "Regenerate exact-source publication bundle and dispatch inputs from resulting reviewed committed head; previous0e1683 bundle is historical. Controller owns sync/commit/push/dispatch/publication.",
+    "doNotSubmitForReviewBeforeFinalIntegratedValidation": true
+  },
+  "gates": [
+    "Actual Windows/macOS native GPU gameplay and physical Windows monitor DPI incomplete. Prior hosted native failures remain historical evidence.",
+    "Published catalog/shell integration, independent native/web promotion, two actually published shell generations and published browser cached-reload checks incomplete.",
+    "Stable rollout remains gated."
+  ],
+  "openDelegates": 0,
+  "acceptanceComplete": false
+}

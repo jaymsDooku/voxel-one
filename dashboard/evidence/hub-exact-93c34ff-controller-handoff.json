@@ -1,0 +1,20 @@
+{
+  "head": "93c34ff306dceab57a39271f70a5e840261e9d8a",
+  "platformRun": "https://github.com/jaymsDooku/voxel-one/actions/runs/39344321446",
+  "observedPlatformState": "All three jobs in_progress; artifact listing empty; no completed platform report/media available.",
+  "bundle": "target/hub-exact-93c34ff-publication",
+  "bundleSourceKind": "exact-commit",
+  "deliveryReport": "hub-exact-93c34ff-delivery.json",
+  "deliveryPassed": false,
+  "controllerActions": [
+    "Retain existing fences and perform authorized preview publication from the prepared exact-source bundle; publication remains controller-owned.",
+    "Return completed run39344321446 sanitized reports and media for inspection; do not treat in-progress jobs as passing.",
+    "If resulting source changes through master integration, rerun meaningful checks and capture fresh media.",
+    "Return actual published shell upgrades, independent native/web promotion and real published browser gameplay with cached reload."
+  ],
+  "Playtest:": "Read-only HTTPS delivery integration: prepared exact93c34ff bundle, verified expected artifact digests, requested bounded metadata/artifact URLs. Expected matching published bytes; observed HTTP404 for all three. Browser UI not applicable to metadata verification; published browser gameplay remains separate and unexecuted.",
+  "localEvidenceApplicability": "All application/tool fingerprints match the prior executed local checks; no application tests rerun this turn.",
+  "sourceAudit": "No deleted paths against26b8761; no unmerged index or production edits.",
+  "physicalQualification": "Pending, no new GPU/DPI/performance pass claimed.",
+  "stableRolloutQualified": false
+}

@@ -1,0 +1,12 @@
+{
+  "sourceSha": "b17344808779c5a0556ff696e04bd7b85cf84d18",
+  "workflow": "hub-validation.yml",
+  "runId": 39355282918,
+  "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39355282918",
+  "observedStatus": "queued",
+  "dispatchCommand": "gh workflow run hub-validation.yml --ref feature/queue-62383835386364312d346130642d346262652d383736632d393534373062343337356161 -f source_sha=b17344808779c5a0556ff696e04bd7b85cf84d18 -f runner_pool=hosted",
+  "dispatchExitCode": 0,
+  "qualification": "pending; no pass claimed",
+  "next": "Resume after completion. Download compact reports and media into assigned worktree, verify exact source hashes, decode and inspect media. Do not duplicate dispatch or busy-poll. Local wrapper edits remain uncommitted and are outside this run.",
+  "stableRolloutQualified": false
+}

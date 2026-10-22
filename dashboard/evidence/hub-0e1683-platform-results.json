@@ -1,0 +1,309 @@
+{
+  "run": "https://github.com/jaymsDooku/voxel-one/actions/runs/38987616666",
+  "reports": [
+    {
+      "sourceSha": "0e1683eebb356a15b3f46d25a6937a523c3dbf98",
+      "platform": "Windows",
+      "architecture": "AMD64",
+      "sourceFingerprintsMatchGitSource": true,
+      "windowsCRLFConversions": 250,
+      "checks": [
+        {
+          "name": "Updater failures, locks, concurrency and migration",
+          "status": "passed"
+        },
+        {
+          "name": "Native executable and two-version bootstrap update",
+          "status": "passed"
+        },
+        {
+          "name": "Windows MSI, shortcuts and uninstall",
+          "status": "passed"
+        },
+        {
+          "name": "UI at JVM scale 1",
+          "status": "passed"
+        },
+        {
+          "name": "UI at JVM scale 1.5",
+          "status": "passed"
+        },
+        {
+          "name": "UI at JVM scale 2",
+          "status": "passed"
+        },
+        {
+          "name": "Synthetic online login handoff",
+          "status": "passed"
+        },
+        {
+          "name": "Bounded native window failure",
+          "status": "passed"
+        },
+        {
+          "name": "Native rendered city",
+          "status": "failed",
+          "glfwErrorCode": "0x10006",
+          "commands": [
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-Djava.io.tmpdir=D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\native-cache\\versions\\0e1683eebb356a15b3f46d25a6937a523c3dbf98\\6a5e49bb05522d1abd1ce855172e2ddfbf4385488295a9ce112ea5ffb56f744c\\windows.jar",
+              "NativeRenderProbe",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\native-city",
+              "D:\\a\\voxel-one\\voxel-one\\dashboard\\evidence\\hub-scoped-windows\\native-city",
+              "city"
+            ]
+          ]
+        },
+        {
+          "name": "Native rendered sandbox",
+          "status": "failed",
+          "glfwErrorCode": "0x10006",
+          "commands": [
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-Djava.io.tmpdir=D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\native-cache\\versions\\0e1683eebb356a15b3f46d25a6937a523c3dbf98\\6a5e49bb05522d1abd1ce855172e2ddfbf4385488295a9ce112ea5ffb56f744c\\windows.jar",
+              "NativeRenderProbe",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\native-sandbox",
+              "D:\\a\\voxel-one\\voxel-one\\dashboard\\evidence\\hub-scoped-windows\\native-sandbox",
+              "sandbox"
+            ]
+          ]
+        },
+        {
+          "name": "Native rendered editor",
+          "status": "failed",
+          "glfwErrorCode": "0x10006",
+          "commands": [
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-Djava.io.tmpdir=D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\native-cache\\versions\\0e1683eebb356a15b3f46d25a6937a523c3dbf98\\6a5e49bb05522d1abd1ce855172e2ddfbf4385488295a9ce112ea5ffb56f744c\\windows.jar",
+              "NativeRenderProbe",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\native-editor",
+              "D:\\a\\voxel-one\\voxel-one\\dashboard\\evidence\\hub-scoped-windows\\native-editor",
+              "editor"
+            ]
+          ]
+        },
+        {
+          "name": "Offline native installation",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "sourceSha": "0e1683eebb356a15b3f46d25a6937a523c3dbf98",
+      "platform": "Darwin",
+      "architecture": "arm64",
+      "sourceFingerprintsMatchGitSource": true,
+      "windowsCRLFConversions": 0,
+      "checks": [
+        {
+          "name": "Updater failures, locks, concurrency and migration",
+          "status": "passed"
+        },
+        {
+          "name": "Native executable and two-version bootstrap update",
+          "status": "passed"
+        },
+        {
+          "name": "UI at JVM scale 1",
+          "status": "passed"
+        },
+        {
+          "name": "UI at JVM scale 1.5",
+          "status": "passed"
+        },
+        {
+          "name": "UI at JVM scale 2",
+          "status": "passed"
+        },
+        {
+          "name": "Synthetic online login handoff",
+          "status": "passed"
+        },
+        {
+          "name": "Bounded native window failure",
+          "status": "passed"
+        },
+        {
+          "name": "Native rendered city",
+          "status": "failed",
+          "glfwErrorCode": "0x10009",
+          "commands": [
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-XstartOnFirstThread",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache/versions/0e1683eebb356a15b3f46d25a6937a523c3dbf98/4f37f80a4f384978aae63f54c766c9629b4af12f2ba4f4bb79ef6deecf10bbef/mac-arm.jar",
+              "NativeRenderProbe",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-city",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-arm/native-city",
+              "city"
+            ]
+          ]
+        },
+        {
+          "name": "Native rendered sandbox",
+          "status": "failed",
+          "glfwErrorCode": "0x10009",
+          "commands": [
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-XstartOnFirstThread",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache/versions/0e1683eebb356a15b3f46d25a6937a523c3dbf98/4f37f80a4f384978aae63f54c766c9629b4af12f2ba4f4bb79ef6deecf10bbef/mac-arm.jar",
+              "NativeRenderProbe",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-sandbox",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-arm/native-sandbox",
+              "sandbox"
+            ]
+          ]
+        },
+        {
+          "name": "Native rendered editor",
+          "status": "failed",
+          "glfwErrorCode": "0x10009",
+          "commands": [
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-XstartOnFirstThread",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache/versions/0e1683eebb356a15b3f46d25a6937a523c3dbf98/4f37f80a4f384978aae63f54c766c9629b4af12f2ba4f4bb79ef6deecf10bbef/mac-arm.jar",
+              "NativeRenderProbe",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-editor",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-arm/native-editor",
+              "editor"
+            ]
+          ]
+        },
+        {
+          "name": "Offline native installation",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "sourceSha": "0e1683eebb356a15b3f46d25a6937a523c3dbf98",
+      "platform": "Darwin",
+      "architecture": "x86_64",
+      "sourceFingerprintsMatchGitSource": true,
+      "windowsCRLFConversions": 0,
+      "checks": [
+        {
+          "name": "Updater failures, locks, concurrency and migration",
+          "status": "passed"
+        },
+        {
+          "name": "Native executable and two-version bootstrap update",
+          "status": "passed"
+        },
+        {
+          "name": "UI at JVM scale 1",
+          "status": "passed"
+        },
+        {
+          "name": "UI at JVM scale 1.5",
+          "status": "passed"
+        },
+        {
+          "name": "UI at JVM scale 2",
+          "status": "passed"
+        },
+        {
+          "name": "Synthetic online login handoff",
+          "status": "passed"
+        },
+        {
+          "name": "Bounded native window failure",
+          "status": "passed"
+        },
+        {
+          "name": "Native rendered city",
+          "status": "failed",
+          "glfwErrorCode": "0x10009",
+          "commands": [
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-XstartOnFirstThread",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache/versions/0e1683eebb356a15b3f46d25a6937a523c3dbf98/5435d62ea12db59ecd21b1f96bfb4f168d47e4d32787d0307f1e5ee408a95bde/mac-intel.jar",
+              "NativeRenderProbe",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-city",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-intel/native-city",
+              "city"
+            ]
+          ]
+        },
+        {
+          "name": "Native rendered sandbox",
+          "status": "failed",
+          "glfwErrorCode": "0x10009",
+          "commands": [
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-XstartOnFirstThread",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache/versions/0e1683eebb356a15b3f46d25a6937a523c3dbf98/5435d62ea12db59ecd21b1f96bfb4f168d47e4d32787d0307f1e5ee408a95bde/mac-intel.jar",
+              "NativeRenderProbe",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-sandbox",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-intel/native-sandbox",
+              "sandbox"
+            ]
+          ]
+        },
+        {
+          "name": "Native rendered editor",
+          "status": "failed",
+          "glfwErrorCode": "0x10009",
+          "commands": [
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-XstartOnFirstThread",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache/versions/0e1683eebb356a15b3f46d25a6937a523c3dbf98/5435d62ea12db59ecd21b1f96bfb4f168d47e4d32787d0307f1e5ee408a95bde/mac-intel.jar",
+              "NativeRenderProbe",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-editor",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-intel/native-editor",
+              "editor"
+            ]
+          ]
+        },
+        {
+          "name": "Offline native installation",
+          "status": "passed"
+        }
+      ]
+    }
+  ],
+  "errorReference": "https://www.glfw.org/docs/latest/group__errors.html",
+  "interpretation": {
+    "Windows": "0x10006 = GLFW_API_UNAVAILABLE. Requested graphics API unavailable via current context creation path. Driver or host capability issue is indicated; no physical-GPU conclusion or repaired platform claim.",
+    "MacARM": "0x10009 = GLFW_FORMAT_UNAVAILABLE. No matching requested framebuffer format. Exact rejected format constraint and physical hardware cause are not established.",
+    "MacIntel": "0x10009 = GLFW_FORMAT_UNAVAILABLE; requested framebuffer format unavailable. No exact driver/format repair established."
+  },
+  "Playtest": "Actual bundled-runtime Windows/Mac ARM CI workflows exercised updater/bootstrap/MSI where applicable, UI scales, login, bounded invalid-width error and native City/Sandbox/editor. Numeric diagnostic passed; all three native renderer workflows failed on each host. Commands for failed native workflows retained; raw native logs/descriptions excluded.",
+  "qualification": {
+    "nativePlatformGameplayPassed": false,
+    "physicalGPUQualified": false,
+    "windowsMonitorDPIQualified": false,
+    "publishedShellUpgradesTested": false,
+    "stableRolloutQualified": false
+  },
+  "remaining": "Controller publication, qualifying native GPU/physical monitor DPI sessions, browser gameplay and two published shell generations remain required. No pending result from this run remains.",
+  "ciStatus": "completed",
+  "ciConclusion": "failure",
+  "mediaInspection": "Exact-head Windows/Mac ARM library captures and Mac Intel scale-2 Home-1280 capture inspected. They show Swing UI only and do not qualify native GPU gameplay or physical monitor DPI."
+}

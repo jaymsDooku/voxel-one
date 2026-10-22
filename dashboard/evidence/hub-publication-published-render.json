@@ -1,0 +1,55 @@
+{
+  "nativeRelease": "playtest-565",
+  "nativeSha256": "da45fe181fbfe3d87fc5b7bbd6816fb321309e9c89fb311bdeeb3074c037b4aa",
+  "environment": "Linux software GL, LOW preset, inherited authenticated display, bundled Java absolute path, normal OS PATH retained, isolated synthetic profiles. No physical GPU/performance claim.",
+  "checks": [
+    {
+      "command": [
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-publication-final-package/Voxel One Hub/lib/runtime/bin/java",
+        "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-tmp",
+        "-cp",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-tmp:/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-native-published-565-cache/versions/403033b9f53ce66063982879c6e2daff684a427b/da45fe181fbfe3d87fc5b7bbd6816fb321309e9c89fb311bdeeb3074c037b4aa/linux.jar",
+        "NativeRenderProbe",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-published-render-city",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/dashboard/evidence/hub-published-565-render/city",
+        "city"
+      ],
+      "exitCode": 0,
+      "observed": [
+        "Playtest: production native city renderer completed four frames in 19906 ms; renderer llvmpipe (LLVM 15.0.6, 256 bits); LOW preset; no smooth-performance claim."
+      ]
+    },
+    {
+      "command": [
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-publication-final-package/Voxel One Hub/lib/runtime/bin/java",
+        "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-tmp",
+        "-cp",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-tmp:/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-native-published-565-cache/versions/403033b9f53ce66063982879c6e2daff684a427b/da45fe181fbfe3d87fc5b7bbd6816fb321309e9c89fb311bdeeb3074c037b4aa/linux.jar",
+        "NativeRenderProbe",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-published-render-sandbox",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/dashboard/evidence/hub-published-565-render/sandbox",
+        "sandbox"
+      ],
+      "exitCode": 0,
+      "observed": [
+        "Playtest: production native sandbox renderer completed four frames in 19412 ms; renderer llvmpipe (LLVM 15.0.6, 256 bits); LOW preset; no smooth-performance claim."
+      ]
+    },
+    {
+      "command": [
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-publication-final-package/Voxel One Hub/lib/runtime/bin/java",
+        "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-tmp",
+        "-cp",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-tmp:/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-native-published-565-cache/versions/403033b9f53ce66063982879c6e2daff684a427b/da45fe181fbfe3d87fc5b7bbd6816fb321309e9c89fb311bdeeb3074c037b4aa/linux.jar",
+        "NativeRenderProbe",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-published-render-editor",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/dashboard/evidence/hub-published-565-render/editor",
+        "editor"
+      ],
+      "exitCode": 0,
+      "observed": [
+        "Playtest: production native editor renderer completed four frames in 19872 ms; renderer llvmpipe (LLVM 15.0.6, 256 bits); LOW preset; no smooth-performance claim."
+      ]
+    }
+  ]
+}

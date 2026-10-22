@@ -1,0 +1,36 @@
+{
+  "head": "b26b2179ba6674dda62669ebae4f0393a638954d",
+  "base": "b1d7b8d796b97a87a3d63bb08baf2bb9746b8ca6",
+  "javaChecks": [
+    {
+      "name": "HubCatalogTest",
+      "tests": 5,
+      "errors": 0,
+      "failures": 0
+    },
+    {
+      "name": "HubShellTest",
+      "tests": 1,
+      "errors": 0,
+      "failures": 0
+    },
+    {
+      "name": "UpdaterTest",
+      "tests": 4,
+      "errors": 0,
+      "failures": 0
+    }
+  ],
+  "command": "mvn -o -q -Dmaven.repo.local=\"$PWD/target/maven-cache\" -Djava.io.tmpdir=\"$PWD/target/hub-tmp\" \"-DargLine=-Djava.io.tmpdir=$PWD/target/hub-tmp\" -Dtest=HubCatalogTest,HubShellTest,HubShellActivationTest,UpdaterTest test",
+  "exitCode": 0,
+  "hostedHubRun": 39476901987,
+  "hostedStatusObserved": "queued",
+  "catalogHttp": 404,
+  "deletedFilesAgainstBase": [],
+  "Playtest": "Prior 8c6f0ab direct-source Swing run remains source-applicable: src diff is empty. New head changes validation documentation/evidence only. No packaged gameplay qualification claimed.",
+  "pending": [
+    "Hosted exact-head reports and media",
+    "Published catalog/native/web promotion and two published shell versions",
+    "Physical GPU, Windows DPI and performance"
+  ]
+}
