@@ -220,3 +220,15 @@ still aborts delivery. Existing decode/load entry points preserve their formats
 and validation rules. Cancellation is checked between bounded decode/validation
 units, not by interrupting an individual file read, model mesh or final cell
 sort. This does not qualify city-scale latency or change placement admission.
+
+
+Encoding and asset-file saving also accept cancellation/progress callbacks.
+Capture, import, export and upload preparation use those flags. File saves stage
+bytes in a temporary file in the destination directory, check cancellation
+between writes of at most 64 KiB and immediately before atomic replacement,
+and clean failed staging files. Cancellation before replacement preserves an
+existing destination. Save progress stays below 100 until return; the UI marks
+100 on successful completion. A successful atomic replacement commits the asset
+file; later cancellation does not hide that success or undo the file. Callbacks
+run only before this commit boundary. This does not add fsync durability or
+qualify latency, city admission or world-placement persistence budgets.

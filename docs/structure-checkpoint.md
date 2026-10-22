@@ -614,3 +614,39 @@ Full city/max admission, 2,000,000-edit persistence ceiling, atomic chunk
 publication and reference GPU/network/system qualification remain unfinished.
 No caps raised and no readiness claim. Controller owns latest-master integration
 and subsequent publication/checks; source changes require renewed validation.
+
+## Cancellable encoding and atomic asset-file save
+
+Parent `96315221` push and PR checks completed. Inspected all eight sanitized
+summaries: 800 tests each, zero failures/errors, one skip. Exact feature hashes
+and PR merge parents verified in `structure-96315-hosted.json`.
+
+New encode/save overloads preserve default APIs and byte formats while checking
+cancellation between models, cells and temporary-file writes of at most 64 KiB.
+Capture final validation now polls its flag. UI capture/import/export and upload
+preparation use cancellation/progress. Asset files stage beside their destination
+and check cancellation before atomic replacement; failed staging cleans its temp.
+A successful replacement commits the file. No callbacks/cancellation checks or
+cleanup errors follow success; the UI uses a fresh completion token so late
+Cancel does not misreport a committed save as cancelled. Save progress stays
+below 100 during preparation; owner-thread completion marks 100. No fsync or
+power-loss durability claim. World save/commit design is unchanged.
+
+38 selected tests passed: encoding cancellation/identity, interrupted entry,
+old-file preservation, fresh-file cancellation, callback error and temp cleanup,
+retry, decoder regressions, offline placement, codecs and actual TLS multiplayer.
+Helper failed without output and was explicitly resolved self. Inspected commit
+boundary, cleanup and callback/late-cancel behavior independently.
+
+Fresh native Main/GLFW workflow includes heavy export cancellation with no
+published package, then existing import cancellation and all prior workflow
+checks. Run passed; inspected fresh export-cancellation screenshot and decoded F10
+frame. H264: 16 frames, 24.874 s, 355,502 bytes; SHA-256
+`a3ade5feca837cf02b27ead3e2b5e845f058bda0c8925e34a51de07c33c43aec`.
+All 213 production/harness source paths and hashes verified unchanged.
+llvmpipe about 1 FPS; no physical-GPU/frame-time qualification. New source
+and media need controller publication and fresh exact-source checks. Report: `structure-encode-cancel-validation.json`.
+Full city/max admission, history persistence ceiling, atomic world chunk commit,
+physical-GPU/shaped-network/32 rendered-client and 20-run system budgets remain
+unfinished. No caps raised; not ready. Controller integrates current master and
+publishes the assigned feature source for fresh hosted validation.

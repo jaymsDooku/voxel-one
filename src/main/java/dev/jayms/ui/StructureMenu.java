@@ -92,14 +92,14 @@ public final class StructureMenu implements AutoCloseable {
                 var bounds=new Bounds(Math.abs(first.x()-second.x())+1,Math.abs(first.y()-second.y())+1,Math.abs(first.z()-second.z())+1,a.x()-origin.x(),a.y()-origin.y(),a.z()-origin.z());
                 String name=command.substring(verb.length()).trim();var snapshot=world.structureSnapshot();
                 start("Capturing physical construction...",cancel->{
-                    var asset=StructurePackage.capture(name,bounds,origin,snapshot,cancel::get,p->progress=p);StructurePackage.cancelled(cancel::get);
-                    asset.save(directory.resolve(asset.name+".vstr"));
-                    return new Completion(()->{selected=asset;refresh();message="Captured "+asset.name;conflict=null;},null,cancel);
+                    var asset=StructurePackage.capture(name,bounds,origin,snapshot,cancel::get,p->progress=p/2);StructurePackage.cancelled(cancel::get);
+                    asset.save(directory.resolve(asset.name+".vstr"),cancel::get,p->progress=50+p/2);
+                    return new Completion(()->{progress=100;selected=asset;refresh();message="Captured "+asset.name;conflict=null;},null,new AtomicBoolean());
                 });return;
             }
             if(verb.equals("import")) {
                 Path file=Path.of(command.substring(verb.length()).trim());
-                start("Validating imported package...",cancel->{var asset=StructurePackage.load(file,cancel::get,p->progress=p);StructurePackage.cancelled(cancel::get);asset.save(directory.resolve(asset.name+".vstr"));return new Completion(()->{selected=asset;refresh();conflict=null;message="Imported "+asset.name;},null,cancel);});return;
+                start("Validating imported package...",cancel->{var asset=StructurePackage.load(file,cancel::get,p->progress=p/2);StructurePackage.cancelled(cancel::get);asset.save(directory.resolve(asset.name+".vstr"),cancel::get,p->progress=50+p/2);return new Completion(()->{progress=100;selected=asset;refresh();conflict=null;message="Imported "+asset.name;},null,new AtomicBoolean());});return;
             }
             if(verb.equals("undo")) {
                 if(network!=null){message=network.undoStructure()?"Undo sent to server":"Wait or update server to use structures";return;}
@@ -107,7 +107,7 @@ public final class StructureMenu implements AutoCloseable {
             }
             var asset=selected;if(asset==null)throw new IOException("Choose a saved structure with Up/Down first");
             if(verb.equals("export")) {
-                Path file=directory.resolve("exports").resolve(asset.name+".vstr");start("Exporting self-contained package...",cancel->{asset.save(file);return new Completion(()->message="Exported "+file,null,cancel);});return;
+                Path file=directory.resolve("exports").resolve(asset.name+".vstr");start("Exporting self-contained package...",cancel->{asset.save(file,cancel::get,p->progress=p);return new Completion(()->{progress=100;message="Exported "+file;},null,new AtomicBoolean());});return;
             }
             if(verb.equals("preview")) {
                 var snapshot=world.structureSnapshot();var point=target;int orientation=rotation;
@@ -123,7 +123,7 @@ public final class StructureMenu implements AutoCloseable {
             if(verb.equals("place")) {
                 var point=target;int orientation=rotation;
                 if(network!=null) {
-                    start("Preparing structure upload...",cancel->{byte[] payload=asset.encode();return new Completion(()->message=network.placeStructure(payload,point,orientation)?"Upload queued; wait for server result":"Wait or update server to use structures",null,cancel);});return;
+                    start("Preparing structure upload...",cancel->{byte[] payload=asset.encode(cancel::get,p->progress=p);return new Completion(()->message=network.placeStructure(payload,point,orientation)?"Upload queued; wait for server result":"Wait or update server to use structures",null,cancel);});return;
                 }
                 var snapshot=world.structureSnapshot();start("Staging placement; world unchanged...",cancel->{
                     var prepared=engine.prepare(asset,point,orientation,snapshot,cancel::get,p->progress=p);
