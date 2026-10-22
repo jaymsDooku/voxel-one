@@ -143,6 +143,42 @@ public final class SparseVoxelOctree {
         return result;
     }
 
+    /** Replace an aligned region by sharing persistent nodes; caller wrappers stay independent. */
+    public void replaceRegion(int x,int y,int z,SparseVoxelOctree source) {
+        if(frozen)throw new IllegalStateException("Published octrees are immutable");
+        java.util.Objects.requireNonNull(source,"source");int side=source.size;
+        if(side>size||x<0||y<0||z<0||x>size-side||y>size-side||z>size-side
+                ||x%side!=0||y%side!=0||z%side!=0)
+            throw new IllegalArgumentException("Aligned octree region required");
+        root=replaceRegion(root,size,x,y,z,side,canonical(source.root));
+    }
+    // Legacy streams may contain redundant branches. Normalize only the destination;
+    // never alter the source representation or model fingerprint.
+    private static Node canonical(Node node) {
+        if(node==null||node.children==null)return node;
+        Node[] children=node.children,copy=null;
+        for(int i=0;i<8;i++) {
+            Node child=canonical(children[i]);
+            if(child!=children[i]){if(copy==null)copy=children.clone();copy[i]=child;}
+        }
+        if(copy!=null)children=copy;
+        int first=children[0]==null?0:children[0].color;
+        for(Node child:children)if(child!=null&&child.children!=null||(child==null?0:child.color)!=first)
+            return copy==null?node:new Node(children);
+        return first==0?null:children[0];
+    }
+    private static Node replaceRegion(Node node,int span,int x,int y,int z,int side,Node replacement) {
+        if(span==side)return replacement;
+        int half=span/2;
+        Node[] children=node!=null&&node.children!=null?node.children.clone():new Node[8];
+        if(node!=null&&node.children==null)java.util.Arrays.fill(children,node);
+        int index=(x>=half?1:0)|(y>=half?2:0)|(z>=half?4:0);
+        children[index]=replaceRegion(children[index],half,x%half,y%half,z%half,side,replacement);
+        int first=children[0]==null?0:children[0].color;
+        for(Node child:children)if(child!=null&&child.children!=null||(child==null?0:child.color)!=first)return new Node(children);
+        return first==0?null:new Node(first);
+    }
+
     private Node regionNode(int x, int y, int z, int side) {
         if (side < 1
                 || side > size

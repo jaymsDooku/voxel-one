@@ -650,3 +650,43 @@ Full city/max admission, history persistence ceiling, atomic world chunk commit,
 physical-GPU/shaped-network/32 rendered-client and 20-run system budgets remain
 unfinished. No caps raised; not ready. Controller integrates current master and
 publishes the assigned feature source for fresh hosted validation.
+
+## Detached chunk subtree grafting
+
+Parent `b598be2b` has eight inspected hosted Maven summaries: 803 tests each,
+zero failures/errors, one skip. Exact feature hashes and PR merge parents
+verified in `structure-b598-hosted.json`. No repeated completed-check wait.
+
+Added aligned octree subtree replacement using persistent immutable nodes.
+Destination-only normalization handles legacy redundant branches without
+changing source bytes or fingerprints. Chunk.replaceCell updates model IDs,
+fractional-cell count and invalidation metadata once per complete cell.
+Detached structure chunk validation now uses this instead of replaying leaves;
+existing CPU mesh/instance budgets and world commit paths remain unchanged.
+
+41 selected tests passed on final source, including 100 seeded replacement
+comparisons against replay, exact generated meshes, model/LED/air metadata,
+source/snapshot independence, neighbours, uniform collapse, bad regions and
+legacy source-byte preservation. Earlier 40-case source passed before the
+legacy normalization refinement; final selected run includes its new case.
+Helper failed without output and was explicitly resolved self.
+
+Assembly diagnostic: 16 cells sharing a 512-leaf fractional LED pattern,
+three warmups/20 samples per path in separate JVMs. Replay median/p95/worst:
+16.207705/21.599483/24.641474 ms; graft:
+0.339242/0.460220/0.536126 ms. Median thread allocations:
+5,854,816/4,640 bytes. Source-node normalization included. Exact tree/source
+and mesh equivalence checked outside timing. Excludes mesh generation, full
+validation, history/save/commit/network/render; not peak memory or city/max
+qualification. Report: `structure-chunk-graft-validation.json`.
+
+Fresh native full workflow passed. Inspected component screenshot and decoded
+F10 frame: H264, 15 frames, 25.268 s, 364,257 bytes. SHA-256:
+`82eae82c249b9b67e17245826106203e66447a11899139da16c03e448adc9dca`.
+All 213 production/harness source paths and hashes verified unchanged.
+llvmpipe about 1 FPS; not physical-GPU/frame-time qualification. New source
+and fresh media require controller publication and exact-source checks. No deleted files against review
+base; merged MP3/Hub/Asset Manager features retained. Required city/max fixtures
+still fail unchanged provisional admission limits. Full history persistence,
+atomic world transaction and reference GPU/network/system qualification remain
+unfinished. No supported-city/readiness claim; rollout gates stay closed.
