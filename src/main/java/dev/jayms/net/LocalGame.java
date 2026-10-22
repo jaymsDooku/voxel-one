@@ -207,7 +207,7 @@ public final class LocalGame {
     private void saveWorld() throws IOException {
         Files.createDirectories(save.toAbsolutePath().getParent());
         Path temp = save.resolveSibling(save.getFileName() + ".tmp");
-        try (var out = new DataOutputStream(Files.newOutputStream(temp))) {
+        try (var out = new DataOutputStream(new BufferedOutputStream(Files.newOutputStream(temp), 64 * 1024))) {
             out.writeInt(models.hasStructureModels()?9:8);
             out.writeLong(seed);
             out.writeInt(generatorVersion);

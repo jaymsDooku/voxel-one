@@ -1112,7 +1112,7 @@ public final class MultiplayerServer implements AutoCloseable {
         Path absolute = save.toAbsolutePath();
         Files.createDirectories(absolute.getParent());
         Path temp = absolute.resolveSibling(absolute.getFileName() + ".tmp");
-        try (var out = new DataOutputStream(Files.newOutputStream(temp))) {
+        try (var out = new DataOutputStream(new BufferedOutputStream(Files.newOutputStream(temp), 64 * 1024))) {
             out.writeInt(Protocol.MAGIC);
             out.writeInt(models.hasStructureModels()?-9:-8);
             out.writeLong(terrain.seed);

@@ -835,3 +835,61 @@ Native manifest digest: `aa844f6336e8042ea913a6f86abbd584d69bfa3c80040fea56376e8
 llvmpipe about 1 FPS; no physical GPU/frame qualification. Local report and media
 pending controller publication. Request feature_validation for new exact-source
 hosted checks; this is not ready for review or a city/max support claim.
+
+## Buffered world-save writes
+
+Parent `1bd9a971` has eight inspected hosted summaries: 815 tests each, zero
+failures/errors, one skip. Exact feature source and PR merge parents verified
+against the review base. Downloaded published parent video equals the inspected
+recording SHA-256 `1a3e2a2b636784db38031c18ed6a026e7658ebfb46f4c3b07a7174f4af68307f`.
+Details: `structure-1bd9-hosted.json`; no unchanged completed-check wait.
+
+Offline/server world temp files now buffer primitive DataOutputStream writes in
+64 KiB. Try-with-resources flushes and closes output before the existing rename.
+IOException still exits before rename or follows the existing move-failure path,
+feeding structure rollback. File formats, caps, locks and rename policy unchanged.
+File forcing and directory barriers are absent before and after this change;
+power-loss durable save remains unqualified.
+
+36 selected tests passed: actual offline persistence/undo, save-failure rollback
+with shared fractional history, actual TLS multiplayer/restart, fractional world
+and history regressions. Review helper failed and was resolved self. Only actual
+local executions claimed.
+
+Actual LocalGame.save probe: 100,000 valid edits in 40,000 cells (20,000 whole,
+20,000 with four fractional edits), 3 warmups and 20 measured saves in separate
+JVMs per parent/current and version-8/version-9 mode. Model identity/fingerprints,
+all ordered edits and complete file hashes checked after every reload outside
+timed saves. Parent LocalGame class compiled from exact `1bd9a971`; dependencies
+otherwise identical. Timing includes temp close and rename, without fsync.
+No concurrent native run during measurements. Warm cache, not cold/durable/system
+qualification. Server timings not inferred from this offline diagnostic.
+
+Version-8 parent/buffered median/p95/worst:
+2,171.138335/2,237.950293/2,252.269726 ms versus
+31.096953/35.523462/36.036487 ms. Both files 2,400,101 bytes, SHA-256
+`76bc1e642310fb2a58487f28934e16137a95fedf1d7b1b1c4f673a109d3bb1dc`.
+Version-9 (one 8-resolution structure definition):
+2,211.362687/2,413.592056/2,459.205748 ms versus
+31.333659/32.494069/37.281032 ms. Both files 2,400,166 bytes, SHA-256
+`072c1aa5600d23320a0695f60cf044a7de3a5822b8162869b609e960dd82492b`.
+Source: `WorldSaveProbe.java`; report: `structure-buffered-save-validation.json`.
+
+No files deleted against review base `4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a`.
+Intended source-line replacements only buffer existing writes. MP3, Hub and Asset
+Manager retained. Full city/max admission, atomic chunk publication, persistence
+beyond 2,000,000 edits, power-loss durability and reference GPU/network/system
+qualification remain unfinished. No caps raised; rollout gates stay closed.
+Controller owns integration/publication and new exact-source checks after fresh
+native workflow/media completes. This is not ready for review.
+
+Fresh native workflow passed on all 213 unchanged production/harness source paths
+and hashes. Capture/export/import, preview/all four rotations, conflict rejection,
+empty-space preservation, live-player guard, cancellation, undo, repeated
+placement, restart and inventory/model-editor regressions passed. Inspected fresh
+conflict screenshot and decoded F10 frame. H264: 17 frames, 27.268 s, 366,969 bytes;
+SHA-256 `2915e96a5b1b2037f03dc5cb17f00e33e6edffe6dcc07ab3addbf7cedbfcfb77`.
+Native manifest digest: `0bffd3d9ca3e7973c97a1e1d28b099963d927d02dfd6ad5630638ebe821c1943`.
+llvmpipe about 1 FPS; no physical GPU/frame qualification. Report/media pending
+controller publication. Request feature_validation for new exact-source hosted
+checks after integration; no full city/max or readiness claim.
