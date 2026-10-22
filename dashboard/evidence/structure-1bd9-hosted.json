@@ -1,0 +1,123 @@
+{
+  "feature_head": "1bd9a971ffdaf41de2965a40aabe5852808d8e1a",
+  "review_base": "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+  "observations": [
+    {
+      "run": 39870596846,
+      "head": "1bd9a971ffdaf41de2965a40aabe5852808d8e1a",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success",
+      "summaries": [
+        {
+          "artifact": 12467235032,
+          "name": "maven-test-summary-mac-arm",
+          "sourceHead": "1bd9a971ffdaf41de2965a40aabe5852808d8e1a",
+          "totals": {
+            "tests": 815,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 1
+          }
+        },
+        {
+          "artifact": 12467195081,
+          "name": "maven-test-summary-windows",
+          "sourceHead": "1bd9a971ffdaf41de2965a40aabe5852808d8e1a",
+          "totals": {
+            "tests": 815,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 1
+          }
+        },
+        {
+          "artifact": 12466926148,
+          "name": "maven-test-summary-mac-intel",
+          "sourceHead": "1bd9a971ffdaf41de2965a40aabe5852808d8e1a",
+          "totals": {
+            "tests": 815,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 1
+          }
+        },
+        {
+          "artifact": 12466143075,
+          "name": "maven-test-summary-linux",
+          "sourceHead": "1bd9a971ffdaf41de2965a40aabe5852808d8e1a",
+          "totals": {
+            "tests": 815,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 1
+          }
+        }
+      ]
+    },
+    {
+      "run": 39870598551,
+      "head": "1bd9a971ffdaf41de2965a40aabe5852808d8e1a",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "summaries": [
+        {
+          "artifact": 12466980862,
+          "name": "maven-test-summary-linux",
+          "sourceHead": "ab79207d2984d5995d6e9f6c80c2ebde42750141",
+          "totals": {
+            "tests": 815,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 1
+          }
+        },
+        {
+          "artifact": 12466921547,
+          "name": "maven-test-summary-mac-intel",
+          "sourceHead": "ab79207d2984d5995d6e9f6c80c2ebde42750141",
+          "totals": {
+            "tests": 815,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 1
+          }
+        },
+        {
+          "artifact": 12466088288,
+          "name": "maven-test-summary-windows",
+          "sourceHead": "ab79207d2984d5995d6e9f6c80c2ebde42750141",
+          "totals": {
+            "tests": 815,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 1
+          }
+        },
+        {
+          "artifact": 12465729040,
+          "name": "maven-test-summary-mac-arm",
+          "sourceHead": "ab79207d2984d5995d6e9f6c80c2ebde42750141",
+          "totals": {
+            "tests": 815,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 1
+          }
+        }
+      ],
+      "merge_parents": [
+        "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+        "1bd9a971ffdaf41de2965a40aabe5852808d8e1a"
+      ]
+    }
+  ],
+  "scope": "Build summaries only. Full city/max and reference GPU/network/system qualification pending.",
+  "published_native_video": {
+    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/1bd9a971ffdaf41de2965a40aabe5852808d8e1a/dashboard/evidence/structure-workflow.mp4",
+    "bytes": 364851,
+    "sha256": "1a3e2a2b636784db38031c18ed6a026e7658ebfb46f4c3b07a7174f4af68307f",
+    "scope": "Verified published parent-head media equals previously inspected native recording. New save implementation still requires fresh playtest/media."
+  }
+}
