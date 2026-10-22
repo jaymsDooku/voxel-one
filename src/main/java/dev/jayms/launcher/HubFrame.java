@@ -201,7 +201,7 @@ public final class HubFrame extends JFrame {
         info.add(prose(e.summary())); info.add(title(availability(e), 18));
         info.add(prose("Controls & modes\n" + e.controls() + "\n\nRelease notes\n" + e.notes()));
         info.add(prose("Available build: " + e.build() + "\nAvailable engine: " + (availableRevision == null ? "Not checked / unavailable" : availableRevision) + "\nInstalled engine: " + (installed == null ? "Not installed" : installed.revision())
-                + "\nSource: " + e.source() + "\nCatalog: " + catalog.version() + " · Hub: 1"));
+                + "\nSource: " + e.source() + "\nCatalog: " + catalog.version() + " · Hub: " + shellVersion()));
         body.add(new JScrollPane(info));
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT));
         boolean nativeGame = e.adapter().equals("native");
@@ -228,6 +228,10 @@ public final class HubFrame extends JFrame {
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.LEFT)); buttons.add(cancel);
         buttons.add(button("Retry / Repair client", () -> install(null, List.of()))); buttons.add(button("Refresh library", this::refresh));
         body.add(buttons, BorderLayout.SOUTH); content.add(body);
+    }
+    static String shellVersion() {
+        String revision=System.getProperty("voxel.hub.shellRevision", "");
+        return revision.matches("[0-9a-f]{40}") ? revision : "Bundled shell";
     }
     private void preferences() {
         JPanel body = column(); body.add(prose("Client install location\n" + installCache + "\n\nGame saves, controls, username and server trust remain in your existing .voxel-one folder. Cache cleanup does not remove saves."));

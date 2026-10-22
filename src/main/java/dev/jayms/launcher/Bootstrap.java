@@ -89,6 +89,7 @@ public final class Bootstrap {
             List<String> command = new ArrayList<>(List.of(Path.of(System.getProperty("java.home"), "bin",
                     Platform.current() == Platform.WINDOWS ? "javaw.exe" : "java").toString(),
                     "-Dvoxel.hub.preview=" + Boolean.getBoolean("voxel.hub.preview"),
+                    "-Dvoxel.hub.shellRevision=" + shell.result().revision(),
                     "-Duser.home=" + System.getProperty("user.home"), "-Djava.io.tmpdir=" + System.getProperty("java.io.tmpdir"),
                     "-Dvoxel.hub.activation=" + ready, "-jar", shell.result().client().toString()));
             command.addAll(Arrays.asList(args));
