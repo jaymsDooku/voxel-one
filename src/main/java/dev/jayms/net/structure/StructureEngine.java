@@ -169,7 +169,7 @@ public final class StructureEngine {
                     if(source.emptyCell(p.x(),p.y(),p.z()))continue;
                     tree=source.cell(p.x(),p.y(),p.z());
                 }
-                if(tree.occupied()!=0)for(var edit:new Protocol.CellState(p.x(),p.y(),p.z(),tree).edits())chunk.apply(edit);
+                if(tree.occupied()!=0)chunk.replaceCell(x,y,z,tree);
             }
             long instanceQuads=0;
             for(int id:chunk.models().values()) {
