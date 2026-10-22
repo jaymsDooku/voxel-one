@@ -1,0 +1,18 @@
+{
+  "source": "c41afd216a4a5dfbff3fe20c39902bbd39d9557d",
+  "release": "https://github.com/jaymsDooku/voxel-one/releases/tag/hub-preview-1",
+  "shellSha256": "501f9c51f2907df5f91b2e8a6fc207f79db0c83a314cb1b25d438ffc239a2c34",
+  "size": 885236,
+  "catalogDownloaded": true,
+  "shellManifestDownloaded": true,
+  "playtest": "Actual HTTPS shell launched with packaged bundled Linux Java on inherited DISPLAY; isolated synthetic profile; visible capture passed. No native gameplay or second-generation upgrade claim.",
+  "receiptIssue": "Supplied development-progress receipt raw URL returned404; release and metadata independently verified instead.",
+  "pending": [
+    "second published shell generation",
+    "native Windows/macOS rendering",
+    "physical GPU/DPI/performance",
+    "published web freshness"
+  ],
+  "publicCatalogPlaytest": "PublicCatalogProbe compiled against actual downloaded public shell; packaged Java fetched production HTTPS catalog;4entries parsed; fresh store read matching cached version. Passed.",
+  "mediaInspection": "Captured public shell Games page inspected; City, Sandbox and Space Invaders cards visible."
+}
