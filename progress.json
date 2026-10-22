@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-22T21:08:53+00:00",
+  "updatedAt": "2026-10-22T21:11:28+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -3914,11 +3914,16 @@
           "kind": "link",
           "label": "Reviewed recovery fix",
           "url": "https://github.com/jaymsDooku/codex-development-dashboard/pull/60"
+        },
+        {
+          "kind": "report",
+          "label": "agent recovery 2026 10 22.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/agent-recovery-2026-10-22.json"
         }
       ],
-      "status": "in_progress",
-      "note": "PR60 independently approved and merged after corrected-head CI. Matching owner-private dashboard API deployed successfully; installing the reviewed VPS coordinator while preserving sessions, then verifying actual worker recovery.",
-      "updatedAt": "2026-10-22T21:08:53+00:00"
+      "status": "complete",
+      "note": "Independently reviewed recovery deployed to both private dashboard API and VPS runtime. Planner recovered and all three developers resumed preserved work. At verification: zero blocked work items, no owner questions; 7 installed tests and 12 source hashes passed. CI/release qualification remains enforced.",
+      "updatedAt": "2026-10-22T21:11:28+00:00"
     },
     {
       "id": "hub-preview-publication-2026-10-22",
