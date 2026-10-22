@@ -279,12 +279,22 @@ class StructureTest {
     @Test void durableSaveFailureRollsBackGeometryHistoryAndDependencies()throws Exception {
         var path=folder.resolve("failed-world.dat");var local=new LocalGame(path,42);var world=new World(42,local.models);var engine=new StructureEngine();
         Files.createDirectory(path);Files.writeString(path.resolve("keep"),"synthetic obstruction");
-        var history=Map.copyOf(local.edits);var models=local.models.entries().size();
+        var models=local.models.entries().size();
         try(var staged=engine.prepare(asset(),new Position(300,128,300),0,world.structureSnapshot(),()->false,p->{})) {
-            var positions=List.copyOf(staged.cells().keySet());
+            var positions=List.copyOf(staged.cells().keySet());var first=positions.get(0);
+            // Valid air history overlaps the staged destination without occupying it.
+            // Staging replaces its shared multi-key index; rollback must retain that index.
+            for(int part=0;part<2;part++) {
+                var air=new Protocol.Edit(first.x(),first.y(),first.z(),0,4,part,0,0,0);
+                assertTrue(air.valid());WorldVoxels.remember(local.edits,air);
+            }
+            var history=new LinkedHashMap<>(local.edits);
             assertThrows(IOException.class,()->staged.commit("me",local.structureAuthority(world)));
-            assertEquals(history,local.edits);assertEquals(models,local.models.entries().size());
+            assertEquals(new ArrayList<>(history.entrySet()),new ArrayList<>(local.edits.entrySet()));assertEquals(models,local.models.entries().size());
             for(var p:positions)assertEquals(0,world.cell(p.x(),p.y(),p.z()).occupied());
+            var replacement=new Protocol.Edit(first.x(),first.y(),first.z(),0);
+            WorldVoxels.remember(history,replacement);WorldVoxels.remember(local.edits,replacement);
+            assertEquals(new ArrayList<>(history.entrySet()),new ArrayList<>(local.edits.entrySet()));
         }
         assertFalse(engine.busy());assertEquals("synthetic obstruction",Files.readString(path.resolve("keep")));
     }

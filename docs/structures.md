@@ -259,3 +259,14 @@ That fallback checks cancellation every 128 destinations. Model revision,
 cancellation and live-body checks still run at commit. This removes repeated
 validation and occupancy reads for unchanged server chunks; it does not remove
 history/save costs, expand admission or qualify city/max and tick/frame budgets.
+
+Structure transaction history copies preserve the ordered edit map and share
+per-cell key indexes until either copy edits that cell. Owner tokens fence both
+sides of each copy boundary, including nested copies. Generic map sources keep
+the validated rebuilding path. This avoids regenerating the full cell index for
+each offline/server structure transaction. It still clones two top-level maps
+and remains O(history size) under the existing authority lock. First edits to
+shared fractional indexes clone their key sets. Full-history serialization and
+the 2,000,000-edit persistence ceiling remain; see
+`dashboard/evidence/structure-history-copy-validation.json` for scoped allocation
+measurements and explicit exclusions from city/max/system qualification.

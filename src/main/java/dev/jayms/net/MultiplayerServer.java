@@ -842,7 +842,7 @@ public final class MultiplayerServer implements AutoCloseable {
             public void commit(ModelLibrary staged,Map<StructurePackage.Position,SparseVoxelOctree> cells)throws IOException {
                 if(!running)throw new IOException("Server stopping");
                 dev.jayms.net.structure.StructureOccupancy.validate(cells,city.frame(),peers.values().stream().map(peer->peer.pose).toList());
-                var next=new WorldVoxels.History();next.putAll(edits);var geometry=voxels.snapshot();var states=new ArrayList<Protocol.CellState>();
+                var next=WorldVoxels.History.copyOf(edits);var geometry=voxels.snapshot();var states=new ArrayList<Protocol.CellState>();
                 for(var entry:cells.entrySet()) {
                     var p=entry.getKey();var state=new Protocol.CellState(p.x(),p.y(),p.z(),entry.getValue());
                     for(var edit:state.edits())WorldVoxels.remember(next,edit);
