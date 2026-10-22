@@ -132,7 +132,15 @@ public class StructurePlaytest {
                 x("type","--clearmodifiers","--delay","2","place");waitFor(()->menu().input.equals("place"),"Cancel command text entered");x("key","--delay","0","Return","Escape");onFrame(()->null);waitFor(()->menu().input.isEmpty()&&!menu().busy,"Cancellation completed");onFrame(()->null);
                 require(menu().message.contains("Cancelled"),"Explicit placement cancellation: "+menu().message);
                 require(local().edits.size()==beforeCancel&&local().models.entries().size()==modelsBeforeCancel,"Cancellation leaves no staged dependencies or geometry");
+                var importFixture=menu().selected;Path cancelImport=Path.of("target/structure-native/cancel-import.vstr");importFixture.save(cancelImport);
                 onFrame(()->{menu().selected=original;return null;});
+                String importCommand="import "+cancelImport;x("type","--clearmodifiers","--delay","2",importCommand);
+                waitFor(()->menu().input.equals(importCommand),"Import cancellation text entered");x("key","--delay","0","Return","Escape");onFrame(()->null);
+                waitFor(()->menu().input.isEmpty()&&!menu().busy,"Import cancellation completed");onFrame(()->null);
+                require(menu().message.contains("Cancelled"),"Explicit import cancellation: "+menu().message);
+                require(menu().selected==original&&!Files.exists(Controls.directory().resolve("structures/Cancel staging.vstr")),"Cancelled decode leaves selection/library unchanged");
+                require(local().edits.size()==beforeCancel&&local().models.entries().size()==modelsBeforeCancel,"Cancelled import leaves world/dependencies unchanged");
+                capture(window,output.resolve("structure-import-cancelled.png"));
                 Files.writeString(Path.of("target/structure-native/bad.vstr"),"not a package");int edits=local().edits.size();command("import target/structure-native/bad.vstr");require(local().edits.size()==edits,"Malformed import leaves world unchanged");
                 command("place");require(menu().message.startsWith("Placed and saved"),"Repeated placement after cancel/import failure");command("preview");capture(window,output.resolve("structure-placed.png"));
                 onFrame(()->{local().save();return null;});var loaded=new LocalGame(Path.of("target/structure-native/world.dat"),0);require(loaded.models.hasStructureModels(),"Versioned dependency restart recovery");
@@ -140,7 +148,7 @@ public class StructurePlaytest {
                 onFrame(()->{var player=new dev.jayms.player.Player(new org.joml.Vector3f(30,131,24),180,-12,(Camera)get("camera"));player.toggleFlight();set("player",player);return null;});
                 capture(window,output.resolve("structure-component-closeup.png"));x("key","e");waitFor(()->((InventoryHud)get("inventoryHud")).open,"Inventory regression");x("key","e");x("key","F7");waitFor(()->((ModelEditor)get("editor")).open,"Existing model editor regression");x("key","F7");
                 onFrame(()->{renderer=org.lwjgl.opengl.GL11.glGetString(org.lwjgl.opengl.GL11.GL_RENDERER);return null;});
-                Files.writeString(output.resolve("structure-native-result.json"),"{\"status\":\"passed\",\"playtest\":\"Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.\",\"renderer\":\""+renderer+"\",\"qualification\":\"Experimental functional checks only; physical GPU and city/network budgets pending\"}\n");
+                Files.writeString(output.resolve("structure-native-result.json"),"{\"status\":\"passed\",\"playtest\":\"Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.\",\"renderer\":\""+renderer+"\",\"qualification\":\"Experimental functional checks only; physical GPU and city/network budgets pending\"}\n");
             }catch(Throwable problem){failure=problem;try{Files.writeString(output.resolve("structure-native-failure.txt"),problem.getClass().getSimpleName()+": "+problem.getMessage());}catch(Exception ignored){}}
             finally {if(handle!=0)glfwSetWindowShouldClose(handle,true);}
         },"structure-playtest-input");driver.setDaemon(true);driver.start();

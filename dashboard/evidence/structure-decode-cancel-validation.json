@@ -1,0 +1,101 @@
+{
+  "schema": 1,
+  "parentHead": "82556042bd9339ee43479b2728fa43e7eee0d213",
+  "change": "Cancellable StructurePackage.decode/load overloads, UI import/library progress and cancellation propagation, and server decode cancellation before staging. Final package constructor checks the same cancellation flag between validation units. Existing APIs/codecs/budgets preserved.",
+  "tests": {
+    "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=StructureDecodeCancellationTest,StructureTest,StructureModelCodecTest,StructureMultiplayerTest test",
+    "suites": [
+      {
+        "name": "dev.jayms.StructureDecodeCancellationTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.29"
+      },
+      {
+        "name": "dev.jayms.StructureTest",
+        "tests": "24",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "3.856"
+      },
+      {
+        "name": "dev.jayms.net.structure.StructureModelCodecTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.174"
+      },
+      {
+        "name": "dev.jayms.StructureMultiplayerTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "14.014"
+      }
+    ],
+    "total": 35,
+    "coverage": "Pre-cancelled file/decode, interrupted entry, cancellation at parse progress 0/25/62/99/100 and multiple supplier-check thresholds through late validation, no completion on corrupt CRC, exact default/cancellable encode roundtrips and post-cancel retry; existing offline/codec/actual TLS multiplayer regressions.",
+    "focused_rerun": "Three new cases passed again, zero failures/errors/skips, after closing the Files.list test resource."
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": {
+      "Architecture": "x86_64",
+      "CPU(s)": "4",
+      "Model name": "Intel Core Processor (Haswell, no TSX)",
+      "Thread(s) per core": "1",
+      "Core(s) per socket": "1",
+      "Socket(s)": "4"
+    },
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "scope": "Development VPS; not reference physical GPU/network qualification."
+  },
+  "Playtest": {
+    "status": "passed",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "expected": "Existing full native workflow plus heavy import cancellation with unchanged selected asset, library, geometry and model definitions.",
+    "scope": "Native Main/GLFW/X11 with inherited display/authentication and isolated synthetic profile. Browser testing does not apply to this native game.",
+    "result": {
+      "status": "passed",
+      "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+      "source_manifest": "structure-native-source.json",
+      "source_manifest_sha256": "b43975b55b7ed6428aeb7582490a7ee0223fa5cc2537c737b299fad7362f7658",
+      "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+      "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+      "publication": "Local evidence pending controller publication"
+    },
+    "observed": "Harness exited 0. Heavy import cancelled through real Return/Escape input; selection, asset library, geometry and model definitions unchanged. Existing malformed-import/retry and complete workflow/regressions passed. Inspected fresh cancellation screenshot and decoded video frame. All 213 production/harness paths and hashes verified unchanged.",
+    "video": {
+      "file": "structure-workflow.mp4",
+      "codec": "H264",
+      "frames": 16,
+      "seconds": 30.776,
+      "bytes": 458140,
+      "sha256": "030984005a3915ded68423aa7695c3eaedda1b7bee13d5cd85ab0433d7a3043e"
+    },
+    "image": {
+      "file": "structure-import-cancelled.png",
+      "sha256": "4e095a00c88379ec2335cf1da07378e2823436562d5d9f4e9cfc312605aa4d01"
+    },
+    "qualification": "llvmpipe software rendering; captures show 0\u20131 FPS. Functional evidence only; no physical-GPU/frame-time qualification."
+  },
+  "limits": "Cancellation checks are between bounded parsing and final validation units. Individual file read, model meshing and final cell sort are not preempted. Export encoding/save cancellation is unchanged. No measured cancellation/acknowledgment latency budget claimed.",
+  "qualification": "Full city/max admission, 2,000,000-edit persistence ceiling, bounded atomic chunk publication and reference physical GPU/shaped-network/32 rendered-client/20-run system budgets remain unfinished. No admission caps raised, supported-city or readiness claim.",
+  "delegate": "Helper failed without output, explicitly resolved self; independently inspected resource cleanup, callbacks, UI delivery gating and server failure cleanup.",
+  "audit": "No files deleted against review base 4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a. Intended false cancellation suppliers in decode/final validation replaced by operation flag; old API overloads delegate with false. MP3/Hub/Asset Manager features retained.",
+  "publication": "Local edits/report/media need controller publication and fresh exact-source checks; parent completed checks are not requested again.",
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/structure/StructurePackage.java": "6983b949fc9f3756ac3fa099fa3e466a63f9e599e20288881cee3ee568769c90",
+    "src/main/java/dev/jayms/net/MultiplayerServer.java": "407acc327c65eb32f39715666e3f9e595900323890e7e8c15edaabb3c218c953",
+    "src/main/java/dev/jayms/ui/StructureMenu.java": "e909f8a8c2e692e386e493166e19e1e413cb29331e99f4b387e951f10f0aeadd",
+    "src/test/java/dev/jayms/StructureDecodeCancellationTest.java": "12d3a941b9d49d0b5a6aa562f343512542ac549f938503a6642339afddbaa321",
+    "deploy/StructurePlaytest.java": "83b1f196a292b0a8d143743a2e60a2158a0276a6f7d665e17d52f4ce6859a678"
+  }
+}
