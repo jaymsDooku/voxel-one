@@ -234,7 +234,7 @@ public final class StructureEngine {
                 for(var entry:record.after.entrySet()) {
                     if((checked++&127)==0)cancelled(cancel);
                     var p=entry.getKey();
-                    if(!authority.cell(p.x(),p.y(),p.z()).leaves().equals(entry.getValue().leaves()))
+                    if(!authority.cell(p.x(),p.y(),p.z()).sameValues(entry.getValue()))
                         throw new IOException("Placed cells changed; undo will not overwrite later edits");
                 }
                 cancelled(cancel);publication.apply();

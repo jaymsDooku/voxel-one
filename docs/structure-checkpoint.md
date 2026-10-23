@@ -1429,3 +1429,32 @@ supported-city or full-budget qualification claimed. Full city/max admission,
 scalable/atomic publication, 2,000,000-edit ceiling, remaining history/application/
 save lock work, 20-run reference GPU/network/frame/tick/memory/traffic and complete
 power-loss qualification remain pending. Rollout gates closed; not ready for review.
+
+## Legacy octree undo repair after fd866b30
+
+The exact published fd866b3042fe8fd26b624f125666973416ad4126 passed all eight
+push/PR platform builds. Inspected Maven artifacts report 844 tests, zero failures,
+zero errors and one skip each; the PR merge parents include this feature head and
+recorded review base 4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a. Sanitized receipt:
+structure-fd86-hosted.json. These passes exclude subsequent undo edits.
+
+A decoded legacy cell with eight identical branches reproduced undo rejection
+after canonical world publication. Undo now uses allocation-free recursive voxel
+value comparison, preserving immutable source layouts and later-edit rejection.
+49 focused tests passed, including real offline durable placement/undo and the
+existing production TLS multiplayer suite. The pre-fix reproduction failed with
+one IOException; it is not counted as a pass. The diagnostic compares independently
+decoded equal trees across three warmups and 20 measured runs. For 256 dense cells,
+legacy/semantic p95 was 78.985082/14.110230 ms; thread allocation p95 was
+109645824/0 bytes. This ran alongside native llvmpipe; it excludes authority lookup,
+locks, save, networking, rendering and peak memory. Full city/max acceptance remains
+unfinished; no provisional admission cap or rollout gate was weakened.
+
+Playtest: python3 deploy/run_structure_playtest.py --display "$DISPLAY" passed with
+an isolated synthetic profile and inherited display/auth. Fresh F10 H264 clip:
+17 frames, 29.58 s, 421526 bytes, SHA-256
+8a2681d68e711b2a4a0ef3c09c7eb1f5d0ede5ef3b2d1233039c55e9dc4cc099.
+All 216 manifest paths/hashes match the tested source. Decoded video frame,
+placed-world and live-player rejection screenshots inspected. llvmpipe at 0–1 FPS
+is functional evidence only. Local media and sanitized reports await controller
+publication and new exact-source hosted checks. No readiness claim.
