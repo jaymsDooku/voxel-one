@@ -954,3 +954,55 @@ Native manifest digest: `c97029896fe1e607e57726adc086ec844f6077529a385d85dc9f289
 llvmpipe about 1 FPS; no physical GPU/frame qualification. Local report/media
 pending controller publication. Request feature_validation for new exact-source
 checks after integration; not a complete durability/city/max/readiness claim.
+
+## Require atomic save replacement for structures
+
+Parent `2b81b4e5` has eight inspected hosted summaries: 815 tests each, zero
+failures/errors, one skip. Exact feature sources and PR merge parents verified
+against the review base in `structure-2b81-hosted.json`; no repeated completed wait.
+
+A shared package-private WorldSavePublication policy now performs save
+replacement. Structure placement/undo offline and server pass requireAtomic=true:
+AtomicMoveNotSupportedException propagates without a non-atomic retry. Existing
+rollback handles pre-publication failure. Ordinary offline save/server persist
+retain the compatibility fallback. Other IOException never retries. Buffer
+flush/file force/resource close remain before rename; no new fallible I/O follows
+a successful rename. Directory/power-loss durability remains unqualified.
+
+40 selected tests passed: four policy tests, actual offline save/undo/rollback,
+real TLS multiplayer/restart, fractional world and history regressions. Injected
+unsupported mover in strict mode is called once with atomic/replace options,
+rethrows the same exception and preserves original target/staged temp. Ordinary
+mode retries only unsupported atomic moves, then publishes the complete temp.
+Generic IOException in either mode is not retried and preserves both files.
+Actual same-filesystem strict replacement of 131,073 synthetic bytes over an
+existing file preserves every byte and removes temp. Unsupported-provider testing
+uses an injected operation before file mutation, not a physical unsupported
+filesystem or full-authority injection. Strict placement/undo and ordinary mode
+call-site routing independently inspected; actual admitted positive workflows
+exercise real file moves. Report: `structure-atomic-save-validation.json`.
+
+No files deleted against review base `4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a`.
+Intended source-line removals consolidate duplicate move/fallback code into the
+shared tested policy. MP3, Hub and Asset Manager retained. Full city/max admission,
+atomic chunk publication, persistence beyond the 2,000,000-edit ceiling,
+directory/power-loss durability and 20-run reference GPU/network/system
+qualification remain unfinished. Rollout gates stay closed; no caps raised.
+Controller owns integration/publication and fresh exact-source checks after
+native workflow/media completes. Not ready for review.
+
+Review helper failed and was resolved self. Policy, strict/ordinary call-site
+routing and exception ordering independently inspected; no delegated execution
+claimed and no pending delegate remains.
+
+Fresh native workflow passed on all 214 unchanged production/harness source paths
+and hashes. Capture/export/import, all four rotations, preview/conflicts,
+empty-space preservation, live-player guard, cancellation, undo, repeated
+placement, restart and inventory/model-editor regressions passed. Inspected fresh
+rejection image and decoded F10 saved-placement frame. H264: 15 frames, 27.915 s,
+379,232 bytes; SHA-256
+`24569b4083af93edf703c1e2c1a1596013c7df9e03870b84cd601df57fd864cd`.
+Native manifest digest: `116182b94ed6d55bd5a1aa14f3caa8cac50636e9aa87ca12adbf45c9c1d0b9fc`.
+llvmpipe 0–1 FPS; no physical GPU/frame qualification. Local report/media pending
+controller publication. Request feature_validation for new exact-source checks
+after integration; no full city/max, durability or readiness claim.
