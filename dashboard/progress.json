@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-23T04:43:18+00:00",
+  "updatedAt": "2026-10-23T05:10:38+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4017,8 +4017,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Bounded server history copy: 53 focused tests and fresh native workflow passed; all 217 source hashes match. Twenty-run diagnostic records shorter guarded reads with higher total CPU/allocation. Code/media/report pending controller publication and exact-head checks. Full city/max and GPU/network qualification remain gated.",
-      "updatedAt": "2026-10-23T04:43:18+00:00"
+      "note": "Validated-key copy: 54 focused tests plus 10 fixture rechecks passed; fresh native workflow and all 217 source hashes verified. Two 20-run diagnostic modes record lower reuse allocation, with control outlier and system gates retained. New edits/media/report pending controller publication and exact-head checks.",
+      "updatedAt": "2026-10-23T05:10:38+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

@@ -6,6 +6,25 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class WorldHistoryIndexTest {
+    @Test void capturedKeysCopyWithoutAliasingMutableEntriesOrWeakeningPublicValidation() {
+        var source=new WorldVoxels.History();var reference=new LinkedHashMap<String,Protocol.Edit>();
+        for(int i=0;i<100;i++) {
+            int depth=i%2==0?4:0;var edit=new Protocol.Edit(i/4,180,0,Blocks.piece(Blocks.STONE,depth),depth,depth==0?0:i%4,0,0,0xffffff);
+            source.put(edit.key(),edit);reference.put(edit.key(),edit);
+        }
+        var batch=source.copyCursor().nextBatch();var target=new WorldVoxels.History();long revision=target.revision();
+        batch.copyTo(target,()->{});assertTrue(target.revision()>revision);assertEquals(new ArrayList<>(reference.entrySet()),new ArrayList<>(target.entrySet()));
+        var first=batch.get(0);source.put(first.key(),new Protocol.Edit(first.x(),first.y(),first.z(),Blocks.piece(Blocks.BRICKS,first.depth()),first.depth(),first.ix(),first.iy(),first.iz()));
+        assertEquals(first,target.get(first.key())); // No live Map.Entry aliases in the batch.
+        assertThrows(UnsupportedOperationException.class,()->batch.set(0,new Protocol.Edit(0,0,0,Blocks.STONE)));
+        assertThrows(IllegalArgumentException.class,()->target.put("invalid",first));
+        var whole=new Protocol.Edit(first.x(),first.y(),first.z(),Blocks.BRICKS);WorldVoxels.remember(target,whole);WorldVoxels.remember(reference,whole);
+        assertEquals(new ArrayList<>(reference.entrySet()),new ArrayList<>(target.entrySet()));
+        var privateCopy=new WorldVoxels.History();var checks=new java.util.concurrent.atomic.AtomicInteger();
+        assertThrows(java.util.concurrent.CancellationException.class,()->batch.copyTo(privateCopy,()->{if(checks.incrementAndGet()==10)throw new java.util.concurrent.CancellationException();}));
+        assertEquals(9,privateCopy.size());assertEquals(Blocks.BRICKS,Blocks.material(source.get(first.key()).type()));
+        var empty=new WorldVoxels.History().copyCursor().nextBatch();empty.copyTo(target,()->fail("Empty batch callback"));
+    }
     @Test void copyCursorBoundsBatchesAndRebuildsIndependentOrderedHistory() {
         var source=new WorldVoxels.History();
         for(int i=0;i<2051;i++){var edit=new Protocol.Edit(i%512,180,i/512,Blocks.STONE);source.put(edit.key(),edit);}

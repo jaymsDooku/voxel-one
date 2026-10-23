@@ -23,17 +23,30 @@ public final class WorldVoxels {
         public CopyCursor copyCursor(){return new CopyCursor();}
         public final class CopyCursor {
             private final long expectedRevision=revision;
-            private final Iterator<Protocol.Edit> iterator=ordered.values().iterator();
+            private final Iterator<Entry<String,Protocol.Edit>> iterator=ordered.entrySet().iterator();
             private int remaining=ordered.size();
             private CopyCursor(){}
-            /** At most 1024 immutable edit references; index rebuilding belongs outside the lock. */
-            public List<Protocol.Edit> nextBatch() {
+            /** At most 1024 detached key/value pairs; copying belongs outside the lock. */
+            public CopyBatch nextBatch() {
                 if(revision!=expectedRevision)throw new ConcurrentModificationException("History changed during copy");
                 int count=Math.min(1024,remaining);
-                if(count==0)return List.of();
-                var batch=new ArrayList<Protocol.Edit>(count);
-                for(int i=0;i<count;i++)batch.add(iterator.next());
-                remaining-=count;return Collections.unmodifiableList(batch);
+                if(count==0)return CopyBatch.EMPTY;
+                var keys=new String[count];var values=new Protocol.Edit[count];
+                for(int i=0;i<count;i++){var entry=iterator.next();keys[i]=entry.getKey();values[i]=entry.getValue();}
+                remaining-=count;return new CopyBatch(keys,values);
+            }
+        }
+        /** Immutable cursor result. Captured keys already passed History.put validation. */
+        public static final class CopyBatch extends AbstractList<Protocol.Edit> implements RandomAccess {
+            private static final CopyBatch EMPTY=new CopyBatch(new String[0],new Protocol.Edit[0]);
+            private final String[] keys;private final Protocol.Edit[] values;
+            private CopyBatch(String[] keys,Protocol.Edit[] values){this.keys=keys;this.values=values;}
+            @Override public int size(){return values.length;}
+            @Override public Protocol.Edit get(int index){return values[index];}
+            /** Rebuild the private target index while reusing immutable validated key strings. */
+            public void copyTo(History target,Runnable checkpoint) {
+                Objects.requireNonNull(target);Objects.requireNonNull(checkpoint);
+                for(int i=0;i<values.length;i++){checkpoint.run();target.putTrusted(keys[i],values[i]);}
             }
         }
         private History(History source) {
@@ -83,6 +96,9 @@ public final class WorldVoxels {
         @Override public boolean containsKey(Object key) { return ordered.containsKey(key); }
         @Override public Protocol.Edit put(String key, Protocol.Edit edit) {
             if (!key.equals(edit.key())) throw new IllegalArgumentException("Edit key mismatch");
+            return putTrusted(key,edit);
+        }
+        private Protocol.Edit putTrusted(String key,Protocol.Edit edit) {
             writable(edit.cellKey()).add(key);
             revision++;
             return ordered.put(key,edit);
