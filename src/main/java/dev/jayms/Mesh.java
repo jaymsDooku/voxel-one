@@ -184,6 +184,31 @@ public final class Mesh implements AutoCloseable {
         glBindVertexArray(0);
     }
 
+    /** Packed center, scale and color triples; one bounded streaming buffer for music boxes. */
+    public void renderColoredBoxes(float[] boxes,int count) {
+        if(count==0)return;
+        drawCalls++;triangles+=(long)indexCount/3*count;
+        glBindVertexArray(vao);
+        if(instances==0){
+            instances=glGenBuffers();glBindBuffer(GL_ARRAY_BUFFER,instances);
+            for(int i=0;i<3;i++){
+                glVertexAttribPointer(5+i,3,GL_FLOAT,false,36,i*12L);
+                glEnableVertexAttribArray(5+i);
+                org.lwjgl.opengl.GL33.glVertexAttribDivisor(5+i,1);
+            }
+        }
+        if(instanceData==null){
+            instanceData=MemoryUtil.memAllocFloat(boxes.length);
+            instanceBytes=(long)boxes.length*4;residentBytes+=instanceBytes;
+            glBindBuffer(GL_ARRAY_BUFFER,instances);glBufferData(GL_ARRAY_BUFFER,instanceBytes,GL_STREAM_DRAW);
+        }
+        if(count*9>instanceData.capacity())throw new IllegalArgumentException("Music box capacity");
+        instanceData.clear().put(boxes,0,count*9).flip();
+        glBindBuffer(GL_ARRAY_BUFFER,instances);glBufferSubData(GL_ARRAY_BUFFER,0,instanceData);
+        org.lwjgl.opengl.GL31.glDrawElementsInstanced(GL_TRIANGLES,indexCount,GL_UNSIGNED_INT,0L,count);
+        glBindVertexArray(0);
+    }
+
     @Override
     public void close() {
         if(closed)return;closed=true;residentBytes-=bytes+instanceBytes;

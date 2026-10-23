@@ -4,6 +4,7 @@ package dev.jayms.music;
 public final class MusicAnalysis {
     public record Bands(double bass,double mid,double treble,boolean beat) { }
     private static final int N=2048,HOP=512;
+    private static final double[] ATTACK={.150,.100,.040},DECAY={.900,.600,.350};
     private final double[] real=new double[N],imag=new double[N],window=new double[N],previous=new double[N/2];
     private final double[] target=new double[3],smooth=new double[3];
     private long lastHop=-1;
@@ -58,7 +59,7 @@ public final class MusicAnalysis {
         }
         if(!playing)java.util.Arrays.fill(target,0);
         for(int b=0;b<3;b++){
-            double tau=target[b]>smooth[b]?.055:.30;
+            double tau=target[b]>smooth[b]?ATTACK[b]:DECAY[b];
             smooth[b]+=(target[b]-smooth[b])*(1-Math.exp(-Math.max(0,dt)/tau));
             if(smooth[b]<.0001)smooth[b]=0;
         }

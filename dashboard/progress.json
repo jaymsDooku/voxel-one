@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-21T12:06:01+00:00",
+  "updatedAt": "2026-10-23T06:00:47+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,96 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "living-landscape",
+      "title": "Living music landscape",
+      "description": "Living voxel terrain, rooted vegetation, water and bounded musical effects; controls and native audio retained.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "Validation and pending qualifications (published)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-32303665306237372d623933612d346464642d383435342d346162633836393964313931/dashboard/evidence/landscape-validation.md"
+        },
+        {
+          "kind": "report",
+          "label": "Three matched performance pairs (published)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-32303665306237372d623933612d346464642d383435342d346162633836393964313931/dashboard/evidence/landscape-performance.json"
+        },
+        {
+          "kind": "report",
+          "label": "24 focused tests (published)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-32303665306237372d623933612d346464642d383435342d346162633836393964313931/dashboard/evidence/landscape-unit-check.json"
+        },
+        {
+          "kind": "image",
+          "label": "Original baseline (published)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-32303665306237372d623933612d346464642d383435342d346162633836393964313931/dashboard/evidence/landscape-baseline.png"
+        },
+        {
+          "kind": "image",
+          "label": "Living terrain and rooted grove (published)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-32303665306237372d623933612d346464642d383435342d346162633836393964313931/dashboard/evidence/landscape-live-bass.png"
+        },
+        {
+          "kind": "image",
+          "label": "High-frequency fireflies (published)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-32303665306237372d623933612d346464642d383435342d346162633836393964313931/dashboard/evidence/landscape-live-treble.png"
+        },
+        {
+          "kind": "video",
+          "label": "F10 contrasting passages and natural calm (published)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-32303665306237372d623933612d346464642d383435342d346162633836393964313931/dashboard/evidence/landscape-live.mp4"
+        },
+        {
+          "kind": "image",
+          "label": "Natural all-effect expiry (published)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-32303665306237372d623933612d346464642d383435342d346162633836393964313931/dashboard/evidence/landscape-live-expired.png"
+        },
+        {
+          "kind": "report",
+          "label": "Final exact-head hosted results (published)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-32303665306237372d623933612d346464642d383435342d346162633836393964313931/dashboard/evidence/landscape-final-hosted-review.md"
+        },
+        {
+          "kind": "video",
+          "label": "Hosted F10 contrasting passages and calm (published)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-32303665306237372d623933612d346464642d383435342d346162633836393964313931/dashboard/evidence/landscape-final-hosted-live.mp4"
+        },
+        {
+          "kind": "image",
+          "label": "Hosted decoded F10 frames (published)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-32303665306237372d623933612d346464642d383435342d346162633836393964313931/dashboard/evidence/landscape-final-hosted-live-video-contact.png"
+        },
+        {
+          "kind": "report",
+          "label": "Restored Asset Manager and current landscape validation (published)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-32303665306237372d623933612d346464642d383435342d346162633836393964313931/dashboard/evidence/landscape-restoration-validation.md"
+        },
+        {
+          "kind": "image",
+          "label": "Restored native model intake and inventory (published)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-32303665306237372d623933612d346464642d383435342d346162633836393964313931/dashboard/evidence/landscape-restored-asset-manager-inventory.png"
+        },
+        {
+          "kind": "report",
+          "label": "Restored-source exact-head qualification (published)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-32303665306237372d623933612d346464642d383435342d346162633836393964313931/dashboard/evidence/landscape-restored-hosted-review.md"
+        },
+        {
+          "kind": "video",
+          "label": "Restored-source hosted F10 (published)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-32303665306237372d623933612d346464642d383435342d346162633836393964313931/dashboard/evidence/landscape-restored-hosted-live.mp4"
+        },
+        {
+          "kind": "image",
+          "label": "Restored-source hosted decoded frames (published)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-32303665306237372d623933612d346464642d383435342d346162633836393964313931/dashboard/evidence/landscape-restored-hosted-live-video-contact.png"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Current-source audit: d412d969 already contains latest master 4a0bbd6a; product/harness source matches qualified 2e688dc6. Both current-head builds passed. 32 Asset Manager files preserved; no tracked deletions. Published F10/contact sheet/report hashes verified. Existing 29 test passes (1 optional browser unit skipped), real browser E2E, native workflows, 1800-second soak and three timing pairs remain valid. Ready for independent review. Physical GPU/audio remains pending and gates stable rollout.",
+      "updatedAt": "2026-10-23T06:00:47+00:00"
+    },
     {
       "id": "2ae7c6f2-358b-4d7a-8906-4c3687cda4ff",
       "title": "Unblock Hub preview packaging: use a macOS-compatible package version",

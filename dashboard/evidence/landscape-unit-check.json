@@ -1,0 +1,44 @@
+{
+  "command": "mvn -q -Dmaven.repo.local=target/maven-cache -DargLine=\"-Djava.io.tmpdir=$PWD/target/tmp\" -Dtest=MusicAnalysisTest,MusicLandscapeTest,MusicMp3Test,SandboxIdentityTest,ControlsTest test package",
+  "results": [
+    {
+      "name": "dev.jayms.MusicAnalysisTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.MusicLandscapeTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.MusicMp3Test",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.SandboxIdentityTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.ControlsTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "totalTests": 24,
+  "sourceBaseHead": "63cc43a80b0d3eef5543f32b58f1d5c1133477f7",
+  "includesUncommittedChanges": true,
+  "testedVisualizerSha256": "7d071c6d6d7bd1fa107cd906a515c8b99792299b83594ae80f9dfb89af78b7a4"
+}

@@ -8,6 +8,7 @@ import subprocess
 
 p = argparse.ArgumentParser()
 p.add_argument('--display', required=True)
+p.add_argument('--evidence-prefix', default='music-mp3')
 a = p.parse_args()
 if not a.display or a.display != os.environ.get('DISPLAY'):
     raise SystemExit('Inherited assigned DISPLAY required')
@@ -33,9 +34,9 @@ if result.returncode:
     if (out/'failure.txt').exists(): print((out/'failure.txt').read_text())
     raise SystemExit(result.returncode)
 for file in out.glob('music-mp3-*'):
-    if file.suffix in ('.png', '.json'): shutil.copyfile(file, root/'dashboard/evidence'/file.name)
+    if file.suffix in ('.png', '.json'): shutil.copyfile(file, root/'dashboard/evidence'/file.name.replace('music-mp3',a.evidence_prefix))
 clips = sorted(set(recordings.glob('*.mp4')) - previous_clips)
 if not clips: raise SystemExit('F10 clip missing')
 if clips[-1].stat().st_size > 6_000_000: raise SystemExit('F10 clip exceeds 6 MB')
-shutil.copyfile(clips[-1], root/'dashboard/evidence/music-mp3.mp4')
+shutil.copyfile(clips[-1], root/'dashboard/evidence'/(a.evidence_prefix+'.mp4'))
 print('PASS: fresh MP3 F10 video bytes:', clips[-1].stat().st_size)

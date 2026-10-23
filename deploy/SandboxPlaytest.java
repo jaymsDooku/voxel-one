@@ -152,7 +152,15 @@ public class SandboxPlaytest {
     static void exerciseSandboxInventory(String id) throws Exception {
         var inventory = new dev.jayms.net.Inventory();
         inventory.add(dev.jayms.net.Blocks.STONE,7);
-        ((dev.jayms.net.LocalGame)get("local")).inventory = inventory;
+        onFrame(() -> { local().inventory = inventory; return null; });
+        // Closing the inventory keeps its last tab. Earlier crafting leaves the book open.
+        // Use the real Escape path to return to slots before testing a stack move.
+        var hud=(InventoryHud)get("inventoryHud");
+        if(hud.bookOpen()) {
+            x("key","Escape");
+            await(() -> hud.open && !hud.bookOpen(),"Recipe book returns to inventory slots");
+        }
+        renderedFrames();
         int w=(int)get("framebufferWidth"), h=(int)get("framebufferHeight");
         int x=w/2-268+26, y=h/2-175;
         x("mousemove","--window",id,""+x,""+(y+210)); x("click","1");

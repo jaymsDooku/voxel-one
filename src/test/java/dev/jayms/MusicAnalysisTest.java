@@ -20,11 +20,24 @@ class MusicAnalysisTest {
     }
     @Test void pauseSilenceResetAndClockDoNotLeakHistory(){
         var a=new MusicAnalysis();var data=tone(100);run(a,data);
-        for(int i=0;i<180;i++)assertFalse(a.sample(data,44100,2,1/60.0,false,1).beat());
+        for(int i=0;i<720;i++)assertFalse(a.sample(data,44100,2,1/60.0,false,1).beat());
         var settled=a.sample(data,44100,2,.1,false,1);assertEquals(0,settled.bass(),.0001);
         a.reset();var silence=run(a,new float[44100*3]);assertEquals(new MusicAnalysis.Bands(0,0,0,false),silence);
         a.reset();assertTrue(a.sample(data,44100,1,.016,true,1).beat());assertFalse(a.sample(data,44100,1,.016,true,1).beat());
         a.reset();assertEquals(new MusicAnalysis.Bands(0,0,0,false),a.sample(data,44100,0,0,false,1));
+    }
+    @Test void landscapeBandsUseDistinctAttackAndDecayTimes(){
+        int[] frequencies={100,1000,6000};double[] attacks={.15,.10,.04},decays={.9,.6,.35};
+        for(int band=0;band<3;band++){
+            var data=tone(frequencies[band]);var a=new MusicAnalysis();
+            var settled=new MusicAnalysis().sample(data,44100,1,20,true,1);
+            var rising=a.sample(data,44100,1,attacks[band],true,1);
+            double full=band==0?settled.bass():band==1?settled.mid():settled.treble();
+            double value=band==0?rising.bass():band==1?rising.mid():rising.treble();
+            assertEquals(full*(1-Math.exp(-1)),value,1e-8);
+            var falling=a.sample(data,44100,1,decays[band],false,1);
+            assertEquals(value/Math.E,band==0?falling.bass():band==1?falling.mid():falling.treble(),1e-8);
+        }
     }
     @Test void pulsedSignalHasBoundedOnsets(){
         float[] data=tone(100);for(int i=0;i<data.length;i++)if(i%22050>6000)data[i]=0;
@@ -64,7 +77,7 @@ class MusicAnalysisTest {
             double[] other={right.bass(),right.mid(),right.treble()};
             for(int band=0;band<3;band++){
                 assertEquals(expected[band],opposite[band],1e-6,"Antiphase preserves frequency energy");
-                assertEquals(expected[band]/Math.sqrt(2),one[band],1e-6,"One-channel RMS normalization");
+                assertEquals(expected[band]/Math.sqrt(2),one[band],1e-4,"One-channel RMS normalization (below 0.0001 envelope gate)");
                 assertEquals(one[band],other[band],1e-6,"Either channel can drive analysis");
             }
             assertTrue(Math.max(anti.bass(),Math.max(anti.mid(),anti.treble()))>.5);
@@ -76,7 +89,7 @@ class MusicAnalysisTest {
         var a=new MusicAnalysis();int beats=0;
         for(int i=1;i<180;i++)if(a.sample(data.stereo(),44100,i/60.0,1/60.0,true,1).beat())beats++;
         assertTrue(beats>=4&&beats<=7,"Antiphase beats="+beats);
-        for(int i=0;i<180;i++)a.sample(data.stereo(),44100,2.9,1/60.0,false,1);
+        for(int i=0;i<720;i++)a.sample(data.stereo(),44100,2.9,1/60.0,false,1);
         assertEquals(0,a.sample(data.stereo(),44100,2.9,.1,false,1).bass(),.0001);
         a.reset();assertEquals(new MusicAnalysis.Bands(0,0,0,false),a.sample(new short[88200],44100,1,1,true,1));
     }
