@@ -245,16 +245,16 @@ public final class LocalGame {
                 var before=new LinkedHashMap<dev.jayms.net.structure.StructurePackage.Position,SparseVoxelOctree>();
                 for(var e:cells.entrySet()) {
                     var p=e.getKey();before.put(p,world.cell(p.x(),p.y(),p.z()).copy().freeze());
-                    for(var edit:new Protocol.CellState(p.x(),p.y(),p.z(),e.getValue()).edits())WorldVoxels.remember(next,edit);
+                    WorldVoxels.rememberCell(next,new Protocol.CellState(p.x(),p.y(),p.z(),e.getValue()));
                 }
                 if(next.size()>2_000_000)throw new IOException("World edit persistence limit");
                 try {
                     models.replaceWith(prepared);edits=next;
-                    for(var e:cells.entrySet()) {var p=e.getKey();for(var edit:new Protocol.CellState(p.x(),p.y(),p.z(),e.getValue()).edits())world.apply(edit);}
+                    for(var e:cells.entrySet()) {var p=e.getKey();world.replaceCell(p.x(),p.y(),p.z(),e.getValue());}
                     saveWorld(true);
                 } catch(IOException|RuntimeException failure) {
                     edits=original;models.replaceWith(originalModels);
-                    for(var e:before.entrySet()) {var p=e.getKey();for(var edit:new Protocol.CellState(p.x(),p.y(),p.z(),e.getValue()).edits())world.apply(edit);}
+                    for(var e:before.entrySet()) {var p=e.getKey();world.replaceCell(p.x(),p.y(),p.z(),e.getValue());}
                     throw failure;
                 }
             }

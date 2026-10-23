@@ -340,3 +340,17 @@ The normal path moves per-cell geometry copying outside the final lock; history
 updates, top-level map copying, save I/O and changed-chunk fallback remain locked.
 The scoped geometry probe records the CPU/lock-time tradeoff separately from full
 city/max and system qualification in `structure-cell-patch-validation.json`.
+
+Offline structure commit and rollback now install a whole cell through
+`World.replaceCell` instead of replaying each leaf through renderer-facing edits.
+Destination geometry is canonicalized without changing source bytes, then copied
+to collision storage and grafted into any resident chunk. Canonical edit history,
+final edit revision, model/fractional metadata, sky invalidation and cold replay
+remain intact. Sky/mesh invalidation coalesces within the owner-thread call; no
+intermediate air/leaf states are rendered. History for complete cells clears the
+old cell index once and inserts the same air-prefix/nonoverlapping leaf sequence
+without quadratic coverage scans. Generic histories retain legacy replay. Offline
+and server history staging use this path. Save schemas, file ordering, preimages
+and atomic-save/rollback sequencing are unchanged. Owner-thread history copying,
+whole-structure application and disk I/O still need full-scale qualification; the
+scoped diagnostic is `structure-world-cell-validation.json`.

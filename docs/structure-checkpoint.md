@@ -1346,3 +1346,86 @@ whole-placement performance claim. Full city/max admission, atomic/scalable worl
 publication, persistence beyond 2,000,000 edits, remaining history/save lock work,
 20-run reference GPU/network/frame/tick/memory/traffic and complete power-loss
 qualification remain pending. Rollout gates closed; not ready for review.
+
+
+## Whole-cell offline application and history continuation
+
+Published parent `fb9baa7dd6eae403e0fe9e873abda64ce11b51b3`: inspected all
+eight Maven artifacts from push 39891673797 and PR 39891676965. Each reports
+838 tests, zero failures/errors and one skip. Verified merge source
+`f2989644ac6eec986b68fa8a2c4314540996bf91` has the exact feature and recorded
+review-base parents. These checks do not cover new whole-cell/history edits.
+
+Offline commit/rollback use owner-thread `World.replaceCell`: same canonical
+edit sequence/history and final editsVersion, one geometry graft and coalesced
+sky/replay/neighbor invalidation per cell. Destination-only canonicalization
+matches the legacy replay tree, including redundant legacy branches, leaving
+source bytes intact. Resident terrainEquivalent/canonicalMutation guards remain.
+Collision geometry and EditedCell metadata remain readonly copies; cold resident
+replay still uses the exact canonical edit history. Live-body checks, durable
+history/preimages and save-before-success/rollback ordering remain unchanged.
+
+Complete-cell History replacement removes old cell keys once without mutating
+shared copy indexes, then inserts air prefix plus nonoverlapping leaves directly.
+Uniform full-cell leaves replace the same-key prefix; final global replay order
+matches repeated coverage scans. Generic Map histories retain the old per-edit
+fallback. Offline/server durable history staging and renderer-facing World cell
+replacement use this linear path; ordinary brush edits are unchanged.
+
+Successful local command: `mvn -q -Dmaven.repo.local="$PWD/target/structure-m2"
+-DargLine="-Djava.io.tmpdir=$PWD/target/structure-audit-tmp"
+-Dtest=WorldCellReplacementTest,WorldHistoryIndexTest,ChunkCellReplacementTest,StructureTest,StructureMultiplayerTest,WorldStreamingTest,FractionalWorldTest,WorldVoxelSnapshotTest test`: 54 tests, zero failures/errors/skips.
+Then strengthened binary/sky and legacy byte tests: `-Dtest=WorldCellReplacementTest,WorldHistoryIndexTest,SkyVisibilitySchedulerTest,DistantTerrainTest` with the
+same Maven options: 35 tests, zero failures/errors/skips. 80 unique test cases
+across these two runs; nine repeated cases. First fixture errors (using public
+opaque-color set for internal LED encoding, and querying a nonresident getBlock)
+were corrected before these successful runs; failed runs are not counted.
+
+Tests compare exact history order/revisions, resident binary trees, sky edit and
+geometry revisions, model/fractional metadata, cold reload, immutable snapshots,
+source/copy independence, air restoration, malformed input atomicity and redundant
+legacy source bytes. Indexed whole-cell history matches generic legacy scans for
+random mixed edits, COW copies and a dense 4,096-leaf cell. Existing actual TLS
+placement/undo/late join/restart, forced-save rollback, streaming, fractional world,
+GI scheduler and distant-terrain regressions pass. Initial review findings were
+independently checked against source; destination canonicalization was added.
+Failed follow-up was resolved self; no delegated execution is counted.
+
+CLI: `javac --release 17 -cp target/classes -d target
+tools/structures/WorldCellProbe.java`; `java -Xmx1g -cp target:target/classes
+WorldCellProbe target/structure-world-cell-probe.json`. Actual World API update
+for one 4,096-leaf coloured LED cell plus unchanged neighbor, resident/unloaded
+cases. Three warmups and 20 measured iterations per case, legacy first; exact
+geometry/history/revisions/neighbors/resident metadata verified outside timing.
+No browser applies to this headless CPU routine; native app playtest separately
+required. Shared VPS, hosted-artifact retrieval overlapped; no reference-system,
+GPU, memory or full-placement qualification. Native run started afterward.
+
+Unloaded legacy/whole-cell median/p95/worst:
+509.601388/663.529914/667.829352 ms versus 2.727095/7.527578/8.988965 ms.
+Resident: 499.557478/646.631728/652.890204 ms versus
+2.173246/3.072189/5.291470 ms. Geometry/history phase only; excludes durable
+save, CPU/GPU mesh publication, frame times, city/max and 32-client budgets.
+
+Playtest: `python3 deploy/run_structure_playtest.py --display "$DISPLAY"` passed
+on inherited X11/GLFW with isolated synthetic profile. Capture/anchor/browse,
+export/import, rotations/footprint/conflicts, empty-space preservation, occupied/
+live-player rejection, placement/export/import cancellation, malformed import
+atomicity, undo, repeated copies, dependency/restart recovery and inventory/model
+editor regressions passed. All 216 production/harness paths and hashes match.
+Inspected fresh decoded staging/preview video frame, saved-placement and
+player-rejection images. F10 H264: 17 frames, 25.979 s, 345,446 bytes, SHA-256
+`d5362b34cf4ea471eff221c1508bb4a69ce2d5a9bd78e565a370c5b1f385590d`.
+Manifest SHA-256 `83231f15398b796821b56d9271889a2eb7f3eb69acb272fda6dcdc523d2318c5`.
+llvmpipe LLVM 15.0.6 at 0–1 FPS remains functional evidence only, not physical
+GPU/30 FPS qualification. No files deleted against recorded base. Offline
+leaf-replay loops were intentionally replaced by whole-cell calls; complete-cell
+history loops by equivalent bulk indexing. Ordinary edits, MP3, Hub and Asset
+Manager preserved. Helper resolved self; no delegated execution counted.
+
+Local report/media pending controller publication; feature_validation handoff
+needed for integration/publication and exact-head checks. No full-placement,
+supported-city or full-budget qualification claimed. Full city/max admission,
+scalable/atomic publication, 2,000,000-edit ceiling, remaining history/application/
+save lock work, 20-run reference GPU/network/frame/tick/memory/traffic and complete
+power-loss qualification remain pending. Rollout gates closed; not ready for review.
