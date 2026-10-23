@@ -314,6 +314,16 @@ lock wait starts when the scheduled callback is invoked and excludes prior
 scheduler queue delay. Work includes city advancement, item updates and tick
 broadcast construction under the authority lock, including failed ticks. Snapshot
 copying is bounded; sorting happens after releasing the metrics lock. No player
-or account data is retained. The existing 100 ms fixed-delay scheduler and
-simulation behavior are unchanged. This exposes the cadence deficit and lock
-contention; it does not meet or qualify the required 20 Hz or p95 <50 ms budgets.
+or account data is retained. These measurements expose cadence and lock contention;
+they do not by themselves qualify the required 20 Hz or p95 <50 ms budgets.
+
+The server now targets 50 ms monotonic tick deadlines (20 Hz). A completed tick
+schedules exactly one next callback. Slow ticks, authority-lock waits and periodic
+saves skip missed slots instead of running catch-up bursts. The next callback is
+scheduled at least 1 ms after completion, leaving an opportunity for commands;
+this is not a monitor-fairness guarantee. City simulation still advances by actual
+elapsed time. Separate elapsed-time gates keep item fall/pickup at a 100 ms target
+and city snapshots at 200 ms; missed item/broadcast slots are not replayed.
+Shutdown stops rescheduling, and a failing callback retains the prior stop-on-error
+behavior. The small TLS diagnostic is separate from full city/max, shaped-network
+and physical-GPU qualification, which remain pending.

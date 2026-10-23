@@ -1202,3 +1202,73 @@ fix, city/max support, 20-run/32-client/GPU/system qualification or readiness cl
 Next engineering gates remain atomic chunk publication, scalable persistence and
 measured admission for city/max, then scheduler work against actual reference
 measurements. Existing caps and rollout gates remain unchanged.
+
+
+## Deadline-based server tick continuation
+
+Published parent `aeca8f67a4a0f4240f0fb151781f78274c8c8654`: inspected all
+eight Maven artifacts from push 39886030546 and PR 39886032772. Each reports
+828 tests, zero failures/errors and one skip. Verified merge source
+`29e6f2d7770e543d378c5d83cc512754de96e4bf` has the exact feature and recorded
+review-base parents. These checks do not cover new cadence edits.
+
+Replace the measured <10 Hz fixed delay with 50 ms monotonic tick deadlines.
+Exactly one callback reschedules after successful completion. Slow work, monitor
+waits and shared-scheduler saves skip missed slots; no fixed-rate catch-up burst.
+Every next callback has at least a 1 ms scheduled gap after completion, allowing
+command processing but not guaranteeing monitor fairness. Exceptions retain the
+prior stop-on-failed-callback behavior. Shutdown/rejected scheduling race checks
+volatile running state. City elapsed-time integration and authority lock scope
+remain. Separate 100 ms item and 200 ms city-broadcast deadlines preserve their
+target rates and do not replay missed slots. Item .3-cell fall step stays unchanged.
+
+Pure cadence tests cover normal work/deadline retention, skipped slow slots,
+minimum gap, independent item/broadcast rates, no replay after pauses, monotonic
+wrap and day-long pauses. Real structure/city/multiplayer workflows and a fresh
+native run are required before handoff. Full city/max, shaped 32-client, GPU,
+frame/tick/traffic/memory and persistence-scaling qualification stay pending.
+No admission caps or rollout gates changed. Helper failed and was resolved self;
+implementation/deadline arithmetic and lifecycle reasoning independently reviewed.
+
+Local command: `mvn -q -Dmaven.repo.local="$PWD/target/structure-m2"
+-DargLine="-Djava.io.tmpdir=$PWD/target/structure-audit-tmp"
+-Dtest=ServerTickCadenceTest,ServerTickTimingTest,StructureMultiplayerTest,CityMultiplayerTest,MultiplayerTest test`.
+Result: 24 tests, zero failures/errors/skips. Four new cadence tests, three timing
+tests, actual TLS structure workflow, city multiplayer and 15 multiplayer tests.
+Pickup exclusivity/drop handling and city behavior regressions retained.
+
+CLI: existing compiled `ServerTickProbe`, actual TLS server/client with fresh
+`target/structure-cadence-probe-profile`, result `target/structure-cadence-probe-result.json`.
+`java -Xmx1g -cp target:target/classes:<JOML jars> ServerTickProbe ...`.
+Normal cumulative window (startup/TLS handshake plus five seconds of movement):
+133 ticks over 6,598.498500 ms, 20.004551 starts/s; interval median/p95/worst
+50.000375/50.143518/51.799518 ms; work 0.015104/1.148276/26.119777 ms;
+lock wait 0.000705/0.001050/0.105691 ms. After deliberate 350 ms authority-lock
+hold: 137 ticks, worst lock wait 306.469201 ms and interval 356.514961 ms;
+ticks resume, no failures. Maven city/multiplayer checks shared this host during
+the probe; native run started afterward. Not a controlled work-time comparison
+against historical baseline, reference hardware, city/max, 20-run or 32-client
+qualification. Report: `structure-cadence-validation.json`.
+
+Playtest: `python3 deploy/run_structure_playtest.py --display "$DISPLAY"` passed
+on inherited X11/GLFW with isolated synthetic profile. Capture/anchor/browse,
+self-contained export/import, four rotations, footprint/conflict preview, empty
+space preservation, occupied/live-player rejection, placement/export/import
+cancellation, malformed import atomicity, undo, repeated copies, dependency and
+restart recovery, inventory/model-editor regressions passed. All 216 production
+and harness source paths/hashes match. Inspected decoded staging/preview video
+frame, saved placement and live-player rejection images. F10 H264: 17 frames,
+32.287 s, 369,804 bytes, SHA-256
+`44e081299d111a7b7325038701e9ea562251ff7b77f452854566df57ad0e93f8`.
+Manifest SHA-256 `77f04a8c1730a0dceeb3749ac2ea80ab50b9b19f8c39a4598ff498d6cd537fb1`.
+Renderer llvmpipe LLVM 15.0.6, 0–1 FPS; functional evidence only, no physical
+GPU/30 FPS qualification. No files deleted against review base. Fixed-delay
+schedule and every-second-tick counter were intentionally replaced by deadlines;
+item/broadcast target rates preserved. MP3, Hub and Asset Manager retained.
+
+Local report/media pending controller publication; feature_validation handoff
+needed for integration/publication and exact-head checks. Small-fixture cadence
+improvement does not qualify full city/max or system budgets. Admission caps,
+scalable/atomic chunk publication, 2,000,000-edit persistence ceiling, full-history
+save locks, 20-run reference GPU/network/frame/tick/memory/traffic and power-loss
+qualification remain pending. Rollout gates remain closed; not ready for review.

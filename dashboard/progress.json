@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-23T01:47:42+00:00",
+  "updatedAt": "2026-10-23T02:19:06+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4017,8 +4017,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Bounded server tick diagnostics validated: 26 local tests pass, four focused tests repeated; real TLS probe confirms cadence/lock-wait attribution. Fresh native workflow/media passed on matching 215-file manifest. Pending controller publication/exact-head CI. Scheduler, full city/max and GPU/network qualification remain unfinished and gated.",
-      "updatedAt": "2026-10-23T01:47:42+00:00"
+      "note": "Deadline-based server cadence validated: 24 local tests pass; small TLS probe observes about 20 Hz and recovery from lock contention. Fresh native workflow/media passed on matching 216-file manifest. Pending controller publication/exact-head CI. Full city/max, persistence scaling and reference GPU/network qualification remain gated.",
+      "updatedAt": "2026-10-23T02:19:06+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
