@@ -6,6 +6,19 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class WorldHistoryIndexTest {
+    @Test void revisionCoversMutatingMapDefaultsAndCompleteCellReplacement() {
+        var history=new WorldVoxels.History();var a=new Protocol.Edit(0,180,0,Blocks.STONE);long stamp=history.revision();
+        history.put(a.key(),a);assertTrue(history.revision()>stamp);stamp=history.revision();
+        var snapshot=WorldVoxels.History.copyOf(history);assertEquals(stamp,history.revision());
+        history.compute(a.key(),(k,v)->new Protocol.Edit(0,180,0,Blocks.BRICKS));assertTrue(history.revision()>stamp);stamp=history.revision();
+        assertThrows(UnsupportedOperationException.class,()->history.replaceAll((k,v)->a));assertEquals(stamp,history.revision());
+        var tree=new dev.jayms.net.model.SparseVoxelOctree(16);tree.fill(0,0,0,16,16,16,WorldVoxels.encode(Blocks.STONE));
+        WorldVoxels.rememberCell(history,new Protocol.CellState(0,180,0,tree));assertTrue(history.revision()>stamp);stamp=history.revision();
+        history.remove(a.key());assertTrue(history.revision()>stamp);stamp=history.revision();
+        history.remove("missing");history.clear();assertEquals(stamp,history.revision());
+        history.putAll(snapshot);stamp=history.revision();history.clear();assertTrue(history.revision()>stamp);
+        assertEquals(a,snapshot.get(a.key()));
+    }
     @Test void promotionDemotionAndReplacementPreserveReplayOrder() {
         var actual=new WorldVoxels.History();var expected=new LinkedHashMap<String,Protocol.Edit>();
         var a=new Protocol.Edit(-17,128,-1,Blocks.piece(Blocks.STONE,4),4,0,0,0,0xffffff);

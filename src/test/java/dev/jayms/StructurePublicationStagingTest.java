@@ -23,6 +23,34 @@ class StructurePublicationStagingTest {
     static void place(StructureEngine engine,Authority authority,BooleanSupplier cancel)throws Exception {
         try(var plan=engine.prepare(StructureValidationStampTest.asset(),StructureValidationStampTest.DEST,0,authority.snapshot(),cancel,p->{})){plan.commit("test",authority);}
     }
+    @Test void stagedResourcesCloseAfterSuccessCancellationRevalidationAndPublishFailure()throws Exception {
+        for(int scenario=0;scenario<4;scenario++) {
+            final int mode=scenario;var cancel=new AtomicBoolean();var closed=new AtomicInteger();
+            var authority=new Authority(){
+                @Override public StructureEngine.Commit stageCommit(ModelLibrary staged,Map<StructurePackage.Position,SparseVoxelOctree> cells,long revision,BooleanSupplier ignored)throws IOException {
+                    var delegate=super.stageCommit(staged,cells,revision,ignored);
+                    if(mode==1)cancel.set(true);
+                    if(mode==2){var p=StructureValidationStampTest.DEST;geometry.apply(new Protocol.Edit(p.x(),p.y(),p.z(),Blocks.BRICKS));}
+                    return new StructureEngine.Commit(){
+                        public void apply()throws IOException {if(mode==3)throw new IOException("Synthetic publication failure");delegate.apply();}
+                        public void close()throws IOException {assertFalse(Thread.holdsLock(lock()));closed.incrementAndGet();delegate.close();}
+                    };
+                }
+            };
+            var engine=new StructureEngine();
+            if(mode==0)place(engine,authority,cancel::get);
+            else if(mode==1)assertThrows(CancellationException.class,()->place(engine,authority,cancel::get));
+            else assertThrows(IOException.class,()->place(engine,authority,cancel::get));
+            assertEquals(1,closed.get());assertEquals(mode==0?1:0,authority.commits);assertFalse(engine.busy());
+        }
+        var closes=new AtomicInteger();var authority=new Authority(){
+            @Override public StructureEngine.Commit stageCommit(ModelLibrary staged,Map<StructurePackage.Position,SparseVoxelOctree> cells,long revision,BooleanSupplier cancel)throws IOException {
+                var delegate=super.stageCommit(staged,cells,revision,cancel);
+                return new StructureEngine.Commit(){public void apply()throws IOException {delegate.apply();}public void close()throws IOException {closes.incrementAndGet();delegate.close();}};
+            }
+        };
+        var engine=new StructureEngine();place(engine,authority,()->false);engine.undo("test",authority);assertEquals(2,closes.get());
+    }
     @Test void placementAndUndoStageOutsideLockAndPublishInside()throws Exception {
         var engine=new StructureEngine();var authority=new Authority();place(engine,authority,()->false);engine.undo("test",authority);
         assertEquals(2,authority.stages);assertEquals(2,authority.commits);assertFalse(engine.busy());

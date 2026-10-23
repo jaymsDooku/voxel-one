@@ -23,7 +23,10 @@ public final class StructureEngine {
             cancelled(cancel);return ()->commit(staged,cells);
         }
     }
-    @FunctionalInterface public interface Commit { void apply() throws IOException; }
+    @FunctionalInterface public interface Commit extends AutoCloseable {
+        void apply() throws IOException;
+        @Override default void close()throws IOException {}
+    }
     private final int undoCellBudget;
     public StructureEngine(){this(262144);}
     /** History target; retain the newest admitted placement even when it exceeds the target. */
@@ -86,27 +89,28 @@ public final class StructureEngine {
             try {
                 if(closed)throw new IOException("Structure staging closed");
                 cancelled(cancel);
-                var publication=authority.stageCommit(staged,after,modelRevision,cancel);
-                synchronized(authority.lock()) {
-                    if(closed)throw new IOException("Structure staging closed");
-                    cancelled(cancel);
-                    if(authority.models().revision()!=modelRevision)throw new IOException("Model library changed; retry placement");
-                    // prepare proved every destination empty. Reuse that proof only when every
-                    // affected chunk still has its trusted stamp under this same authority lock.
-                    if(!destinationsUnchanged(authority)) {
-                        int checked=0;
-                        for(var p:after.keySet()) {
-                            if((checked++&127)==0)cancelled(cancel);
-                            if(authority.cell(p.x(),p.y(),p.z()).occupied()!=0)
-                                throw new IOException("Destination changed or occupied; nothing placed");
+                try(var publication=authority.stageCommit(staged,after,modelRevision,cancel)) {
+                    synchronized(authority.lock()) {
+                        if(closed)throw new IOException("Structure staging closed");
+                        cancelled(cancel);
+                        if(authority.models().revision()!=modelRevision)throw new IOException("Model library changed; retry placement");
+                        // prepare proved every destination empty. Reuse that proof only when every
+                        // affected chunk still has its trusted stamp under this same authority lock.
+                        if(!destinationsUnchanged(authority)) {
+                            int checked=0;
+                            for(var p:after.keySet()) {
+                                if((checked++&127)==0)cancelled(cancel);
+                                if(authority.cell(p.x(),p.y(),p.z()).occupied()!=0)
+                                    throw new IOException("Destination changed or occupied; nothing placed");
+                            }
                         }
+                        validateChunks(after,authority,staged,cancel,validatedChunks);
+                        cancelled(cancel);publication.apply();
+                        var records=undo.computeIfAbsent(owner,k->new ArrayDeque<>());
+                        var record=new Record(++sequence,owner,before,after);records.addLast(record);chronology.addLast(record);undoCells+=after.size();
+                        while(records.size()>8) {var expired=records.removeFirst();chronology.remove(expired);undoCells-=expired.after.size();}
+                        while(undoCells>undoCellBudget&&chronology.size()>1) {var expired=chronology.removeFirst();undo.get(expired.owner).remove(expired);undoCells-=expired.after.size();}
                     }
-                    validateChunks(after,authority,staged,cancel,validatedChunks);
-                    cancelled(cancel);publication.apply();
-                    var records=undo.computeIfAbsent(owner,k->new ArrayDeque<>());
-                    var record=new Record(++sequence,owner,before,after);records.addLast(record);chronology.addLast(record);undoCells+=after.size();
-                    while(records.size()>8) {var expired=records.removeFirst();chronology.remove(expired);undoCells-=expired.after.size();}
-                    while(undoCells>undoCellBudget&&chronology.size()>1) {var expired=chronology.removeFirst();undo.get(expired.owner).remove(expired);undoCells-=expired.after.size();}
                 }
             } finally {close();}
         }
@@ -226,19 +230,20 @@ public final class StructureEngine {
                 var records=undo.get(owner);if(records==null||records.isEmpty())throw new IOException("No structure placement to undo");
                 record=records.peekLast();revision=authority.models().revision();staged=authority.models().copy();
             }
-            var publication=authority.stageCommit(staged,record.before,revision,cancel);
-            synchronized(authority.lock()) {
-                cancelled(cancel);
-                if(authority.models().revision()!=revision)throw new IOException("Model library changed; retry undo");
-                int checked=0;
-                for(var entry:record.after.entrySet()) {
-                    if((checked++&127)==0)cancelled(cancel);
-                    var p=entry.getKey();
-                    if(!authority.cell(p.x(),p.y(),p.z()).sameValues(entry.getValue()))
-                        throw new IOException("Placed cells changed; undo will not overwrite later edits");
+            try(var publication=authority.stageCommit(staged,record.before,revision,cancel)) {
+                synchronized(authority.lock()) {
+                    cancelled(cancel);
+                    if(authority.models().revision()!=revision)throw new IOException("Model library changed; retry undo");
+                    int checked=0;
+                    for(var entry:record.after.entrySet()) {
+                        if((checked++&127)==0)cancelled(cancel);
+                        var p=entry.getKey();
+                        if(!authority.cell(p.x(),p.y(),p.z()).sameValues(entry.getValue()))
+                            throw new IOException("Placed cells changed; undo will not overwrite later edits");
+                    }
+                    cancelled(cancel);publication.apply();
+                    undo.get(owner).removeLast();chronology.remove(record);undoCells-=record.after.size();
                 }
-                cancelled(cancel);publication.apply();
-                undo.get(owner).removeLast();chronology.remove(record);undoCells-=record.after.size();
             }
         } finally {busy.set(false);}
     }
