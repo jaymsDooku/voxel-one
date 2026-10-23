@@ -1,0 +1,141 @@
+{
+  "status": "local_57_tests_diagnostic_and_native_passed_pending_controller_publication",
+  "parent": "8dc67be4a0f8ba92e0ff8bdcd0df9ecdbe00b010",
+  "reviewBase": "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+  "change": "Stage server structure save header/models/edit-history prefix outside authority lock, invalidate on any concurrent history change, append live transient tail and force/atomic-publish under lock. Engine closes resources on all publication paths.",
+  "source": {
+    "src/main/java/dev/jayms/net/StagedWorldSave.java": "3f3a1432eb2ddd335a2351ae393464cb6e260744c96ab962046ca608d1667cef",
+    "src/main/java/dev/jayms/net/MultiplayerServer.java": "b668c0948ff2b9f220d16d25b76293473ceb69dc8477105eb398fbf0b08540bf",
+    "src/main/java/dev/jayms/net/WorldVoxels.java": "171d6de018b887cf6f126f8d73d8d3a448e5d02ed381910ba0d23da209f01d4a",
+    "src/main/java/dev/jayms/net/structure/StructureEngine.java": "db4965106d059f3a79850bbc284dd484de747ce7ea150fdf281be64801b57d16",
+    "src/test/java/dev/jayms/net/StagedWorldSaveTest.java": "46c07431e1969c552ec16cf71a7c839ee13fd6fc2a363219f073fb1317d73750",
+    "src/test/java/dev/jayms/StructureSaveStagingTest.java": "344f737af633a2f6ff965590be7e3cb27eb50a71fa34d15b044eccb50bb7d040",
+    "src/test/java/dev/jayms/StructurePublicationStagingTest.java": "0023669741038816399ddab509a957447493eb852995db809b55de915c0d080a",
+    "src/test/java/dev/jayms/WorldHistoryIndexTest.java": "ab83bb181473a6a9b107566692e3b8440c4f6cbb14ad543b734b3cedb337b972",
+    "tools/structures/ServerSaveStagingProbe.java": "19944498dc3437331a95d1fd7826f74dce4ff573e34ebaf2043b4a36d6bcb5f4"
+  },
+  "uniqueTests": 57,
+  "suitesLatest": [
+    {
+      "suite": "StagedWorldSaveTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "StructureSaveStagingTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "StructurePublicationStagingTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "WorldHistoryIndexTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "StructureTest",
+      "tests": 25,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "StructureMultiplayerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "StructureOccupancyTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "ServerTickTimingTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "commands": [
+    "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=StagedWorldSaveTest,StructureSaveStagingTest,StructurePublicationStagingTest,WorldHistoryIndexTest,StructureTest,StructureMultiplayerTest,StructureOccupancyTest,ServerTickTimingTest test",
+    "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=StagedWorldSaveTest,StructureSaveStagingTest,StructurePublicationStagingTest,WorldHistoryIndexTest test",
+    "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=StructureSaveStagingTest test",
+    "javac --release 17 -cp target/classes -d target tools/structures/ServerSaveStagingProbe.java",
+    "java -Xmx1g -cp target:target/classes ServerSaveStagingProbe target/structure-save-stage-probe-profile target/structure-save-stage-probe.json"
+  ],
+  "runs": {
+    "initial": 56,
+    "formattingRecheck": 19,
+    "addedCancellation": 3,
+    "durableFileRecheck": 3
+  },
+  "diagnostic": {
+    "scope": "Actual server authority, 131072 existing whole-cell edits plus one replacement cell, no dependencies/inventories/drops/clients/tick loop. Three warmups, 20 measured runs, legacy first. Exact save bytes verified outside timing. Staging includes history copy under lock; publication includes live-body validation, geometry merge, tail append, force and atomic rename. Excludes full engine validation, capture, mesh, network, rendering, memory and city/max qualification.",
+    "save_bytes": 3145788,
+    "legacy_guarded_commit_ms": {
+      "median": 87.402302,
+      "p95": 238.923021,
+      "worst": 267.954182
+    },
+    "staging_ms": {
+      "median": 82.620994,
+      "p95": 161.387811,
+      "worst": 179.472714
+    },
+    "guarded_publication_ms": {
+      "median": 3.021576,
+      "p95": 7.639779,
+      "worst": 19.79022
+    }
+  },
+  "diagnosticCaveat": "Baseline is current direct-commit fallback, including one-cell wire compression under lock, not an exact replay of the prior staged production path. Guarded history-copy time inside staging not separately measured. No other feature test/native process ran during this probe.",
+  "environment": {
+    "os": "Linux 6.1.0-50-cloud-amd64",
+    "architecture": "x86_64",
+    "vcpus": 4,
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "hypervisor": "KVM"
+  },
+  "integration": "Production server authority stages prefix outside lock; current inventory/health/drops survive reopen before ordinary close-save. Stale outside-footprint edit retains prior durable bytes and live edit. Cancellation during prefix/after staging deletes temporary files. Writer/rename errors and unexecuted resources preserve target; ordinary .tmp unaffected. Existing production TLS multiplayer rotation/late-join/restart suite passed.",
+  "diffAudit": "No deleted paths against recorded review base. No diff in .github/workflows, pom.xml or AssetManager.java against base. MP3 fixtures/smokes and Hub registration tests retained.",
+  "qualification": "No new format or admission caps. Full city/max fixtures, 20-run system performance, physical-GPU, shaped 32-client, peak-memory/frame/tick/traffic budgets remain unfinished. History copying and final tail+force remain guarded; busy worlds may require retries after unrelated edits. Partitioned persistence and stable rollout remain gated.",
+  "native": {
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_manifest": "structure-native-source.json",
+    "source_manifest_sha256": "eafb307b9c0b4f894c75989ec09abdbf11fe1a460c958df2dd6bc67e96712e39",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "publication": "Local evidence pending controller publication",
+    "observed": "Fresh decoded video frame, placed-world and player-conflict screenshots inspected. UI 0\u20131 FPS on llvmpipe, functional only. Server persistence behavior separately exercised through actual authority/reopen and production TLS integration; browser playtesting does not apply to this native Java/server change."
+  },
+  "media": {
+    "file": "dashboard/evidence/structure-workflow.mp4",
+    "bytes": 362141,
+    "sha256": "b2a34d98f01a29b5b24762351eeb87f7c28e8c5073303b6f1228d0ea3bc53a61",
+    "codec": "H264",
+    "frames": 17,
+    "durationSeconds": 31.075,
+    "sourceFilesMatched": 217,
+    "publication": "Pending controller publication"
+  }
+}

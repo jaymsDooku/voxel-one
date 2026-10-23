@@ -14,6 +14,9 @@ public final class WorldVoxels {
         private final Map<String, Protocol.Edit> ordered;
         private final Map<String, CellKeys> cells;
         private Object owner=new Object();
+        private long revision;
+        /** Owner-thread change stamp; pair with this history identity. */
+        public long revision(){return revision;}
         public History(){ordered=new LinkedHashMap<>();cells=new HashMap<>();}
         private History(History source) {
             ordered=new LinkedHashMap<>(source.ordered);cells=new HashMap<>(source.cells);
@@ -63,17 +66,19 @@ public final class WorldVoxels {
         @Override public Protocol.Edit put(String key, Protocol.Edit edit) {
             if (!key.equals(edit.key())) throw new IllegalArgumentException("Edit key mismatch");
             writable(edit.cellKey()).add(key);
+            revision++;
             return ordered.put(key,edit);
         }
         @Override public Protocol.Edit remove(Object key) {
             var old = ordered.remove(key);
             if (old != null) {
+                revision++;
                 var keys = writable(old.cellKey()); keys.remove(key);
                 if (keys.isEmpty()) cells.remove(old.cellKey());
             }
             return old;
         }
-        @Override public void clear() { ordered.clear(); cells.clear(); }
+        @Override public void clear() { if(!ordered.isEmpty())revision++; ordered.clear(); cells.clear(); }
         private void rememberCell(Protocol.CellState state) {
             if(state.tree().size()!=RESOLUTION)throw new IllegalArgumentException("Invalid world cell resolution");
             var replay=state.edits();var old=cells.remove(replay.get(0).cellKey());

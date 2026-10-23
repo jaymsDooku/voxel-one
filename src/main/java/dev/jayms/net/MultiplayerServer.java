@@ -26,7 +26,7 @@ public final class MultiplayerServer implements AutoCloseable {
     private final Map<Integer, Peer> peers = new HashMap<>();
     private final Set<String> sessions = new HashSet<>();
     // City paving emits many edits. Index by cell so replacement never scans the whole world.
-    private Map<String, Protocol.Edit> edits = new WorldVoxels.History();
+    private WorldVoxels.History edits = new WorldVoxels.History();
     private final StructureEngine structureEngine=new StructureEngine();
     private final java.util.concurrent.atomic.AtomicBoolean structureOperation=new java.util.concurrent.atomic.AtomicBoolean();
     private final Map<String, Inventory> inventories = new HashMap<>();
@@ -901,23 +901,40 @@ public final class MultiplayerServer implements AutoCloseable {
                 }
                 for(var entry:cells.entrySet()){StructurePackage.cancelled(cancel);var p=entry.getKey();geometry.replaceCell(p.x(),p.y(),p.z(),entry.getValue());}
                 var publication=publication(staged,cells,revision,cancel);
-                return ()->commitStaged(staged,cells,publication,geometry);
+                WorldVoxels.History base,next;long historyRevision;
+                synchronized(lock()) {
+                    StructurePackage.cancelled(cancel);base=edits;historyRevision=base.revision();next=WorldVoxels.History.copyOf(base);
+                }
+                for(var entry:cells.entrySet()) {
+                    StructurePackage.cancelled(cancel);var p=entry.getKey();
+                    WorldVoxels.rememberCell(next,new Protocol.CellState(p.x(),p.y(),p.z(),entry.getValue()));
+                }
+                if(next.size()>2_000_000)throw new IOException("World persistence edit limit");
+                var file=save==null?null:StagedWorldSave.stage(save,out->writeWorldPrefix(out,staged,next,cancel));
+                return new StructureEngine.Commit() {
+                    public void apply()throws IOException {
+                        if(edits!=base||base.revision()!=historyRevision)throw new IOException("World changed while staging save; retry structure operation");
+                        commitStaged(staged,cells,publication,geometry,next,file);
+                    }
+                    public void close()throws IOException {if(file!=null)file.close();}
+                };
             }
             public void commit(ModelLibrary staged,Map<StructurePackage.Position,SparseVoxelOctree> cells)throws IOException {
-                commitStaged(staged,cells,publication(staged,cells,models.revision(),()->false),null);
+                commitStaged(staged,cells,publication(staged,cells,models.revision(),()->false),null,null,null);
             }
-            private void commitStaged(ModelLibrary staged,Map<StructurePackage.Position,SparseVoxelOctree> cells,Event publication,WorldVoxels.CellPatch patch)throws IOException {
+            private void commitStaged(ModelLibrary staged,Map<StructurePackage.Position,SparseVoxelOctree> cells,Event publication,WorldVoxels.CellPatch patch,WorldVoxels.History stagedHistory,StagedWorldSave file)throws IOException {
                 if(!running)throw new IOException("Server stopping");
                 dev.jayms.net.structure.StructureOccupancy.validate(cells,city.frame(),peers.values().stream().map(peer->peer.pose).toList());
-                var next=WorldVoxels.History.copyOf(edits);var geometry=patch==null?null:patch.merge(voxels);
+                var next=stagedHistory==null?WorldVoxels.History.copyOf(edits):stagedHistory;var geometry=patch==null?null:patch.merge(voxels);
                 boolean restage=geometry==null;if(restage)geometry=voxels.snapshot();
                 for(var entry:cells.entrySet()) {
                     var p=entry.getKey();var state=new Protocol.CellState(p.x(),p.y(),p.z(),entry.getValue());
-                    WorldVoxels.rememberCell(next,state);
+                    if(stagedHistory==null)WorldVoxels.rememberCell(next,state);
                     if(restage)geometry.replaceCell(p.x(),p.y(),p.z(),entry.getValue());
                 }
                 if(next.size()>2_000_000)throw new IOException("World persistence edit limit");
-                saveWorld(staged,next,true);models=staged;edits=next;voxels=geometry;broadcast(publication);
+                if(file==null)saveWorld(staged,next,true);else file.publish(MultiplayerServer.this::writeWorldTail);
+                models=staged;edits=next;voxels=geometry;broadcast(publication);
             }
         };
     }
@@ -1180,25 +1197,34 @@ public final class MultiplayerServer implements AutoCloseable {
         Path temp = absolute.resolveSibling(absolute.getFileName() + ".tmp");
         try (var channel = FileChannel.open(temp, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
                 var out = new DataOutputStream(new BufferedOutputStream(Channels.newOutputStream(channel), 64 * 1024))) {
-            out.writeInt(Protocol.MAGIC);
-            out.writeInt(models.hasStructureModels()?-9:-8);
-            out.writeLong(terrain.seed);
-            out.writeInt(terrain.version);
-            if(models.hasStructureModels())models.writeAll(out);else models.write(out);
-            out.writeInt(edits.size());
-            for (var e : edits.values()) e.write(out);
-            out.writeInt(inventories.size());
-            for (var e : inventories.entrySet()) {
-                out.writeUTF(e.getKey());
-                e.getValue().write(out);
-                out.writeByte(health.getOrDefault(e.getKey(), 20));
-            }
-            out.writeInt(drops.size());
-            for (ItemDrop drop : drops.values()) drop.write(out);
+            writeWorldPrefix(out,models,edits,()->false);
+            writeWorldTail(out);
             out.flush();
             channel.force(true);
         }
         WorldSavePublication.replace(temp, absolute, requireAtomic);
+    }
+
+    private void writeWorldPrefix(DataOutputStream out,ModelLibrary models,Map<String,Protocol.Edit> edits,java.util.function.BooleanSupplier cancel)throws IOException {
+        StructurePackage.cancelled(cancel);
+        out.writeInt(Protocol.MAGIC);
+        out.writeInt(models.hasStructureModels()?-9:-8);
+        out.writeLong(terrain.seed);
+        out.writeInt(terrain.version);
+        if(models.hasStructureModels())models.writeAll(out);else models.write(out);
+        out.writeInt(edits.size());
+        for (var e : edits.values()) {StructurePackage.cancelled(cancel);e.write(out);}
+    }
+    /** Called under the server authority lock to retain current inventories, health and drops. */
+    private void writeWorldTail(DataOutputStream out)throws IOException {
+        out.writeInt(inventories.size());
+        for (var e : inventories.entrySet()) {
+            out.writeUTF(e.getKey());
+            e.getValue().write(out);
+            out.writeByte(health.getOrDefault(e.getKey(), 20));
+        }
+        out.writeInt(drops.size());
+        for (ItemDrop drop : drops.values()) drop.write(out);
     }
 
     @Override
