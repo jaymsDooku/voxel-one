@@ -28,6 +28,8 @@ public final class StructurePackage {
         SparseVoxelOctree cell(int x,int y,int z);
         /** Conservative snapshot hint: true means empty; false may mean unknown. */
         default boolean emptyCell(int x,int y,int z){return false;}
+        /** Conservative snapshot hint: true proves every cell in this chunk empty. */
+        default boolean emptyChunk(dev.jayms.ChunkPos position){return false;}
         /** Trusted stamp must change for any observable chunk geometry change under the authority lock.
          * Snapshot sources must be detached; live authorities are queried under their lock.
          * Null means always revalidate. Never accept wire tokens. */
@@ -95,27 +97,46 @@ public final class StructurePackage {
     }
     public static StructurePackage capture(String name,Bounds bounds,Position origin,Source source,
                                            BooleanSupplier cancel,IntConsumer progress) throws IOException {
+        cancelled(cancel);
+        long maxX=(long)origin.x+bounds.x-1,maxY=(long)origin.y+bounds.y-1,maxZ=(long)origin.z+bounds.z-1;
+        if(maxX>Integer.MAX_VALUE||maxY>Integer.MAX_VALUE||maxZ>Integer.MAX_VALUE
+                ||!new Protocol.Edit(origin.x,origin.y,origin.z,0).valid()
+                ||!new Protocol.Edit((int)maxX,(int)maxY,(int)maxZ,0).valid())throw new IOException("Capture outside world");
+        int firstX=Math.floorDiv(origin.x,16),firstY=Math.floorDiv(origin.y,16),firstZ=Math.floorDiv(origin.z,16);
+        int chunksX=Math.floorDiv((int)maxX,16)-firstX+1,chunksZ=Math.floorDiv((int)maxZ,16)-firstZ+1;
+        // At the enforced bounds, even an unaligned box spans at most 65*17*65 chunks.
+        var hints=new byte[chunksX*chunksZ*(Math.floorDiv((int)maxY,16)-firstY+1)];
         var cells=new StructureCells.Builder();var definitions=new ArrayList<ModelDefinition>();var ids=new HashMap<String,Integer>();int leaves=0,instances=0;
-        long volume=(long)bounds.x*bounds.y*bounds.z,done=0;
-        for(int y=0;y<bounds.y;y++)for(int z=0;z<bounds.z;z++)for(int x=0;x<bounds.x;x++) {
-            cancelled(cancel);var p=new Position(x,y,z);
-            if(!new Protocol.Edit(origin.x+x,origin.y+y,origin.z+z,0).valid())throw new IOException("Capture outside world");
-            if(!source.emptyCell(origin.x+x,origin.y+y,origin.z+z)) {
-                var tree=source.cell(origin.x+x,origin.y+y,origin.z+z);
-                int type=WorldVoxels.decode(tree.uniform(0,0,0,16));
-                if(Blocks.isModel(type)) {
-                    var entry=source.models().get(type);if(entry==null)throw new IOException("Missing captured model");
-                    var definition=entry.definition();var fingerprint=definition.fingerprint();Integer id=ids.get(fingerprint);
-                    if(id==null) {id=definitions.size();if(id>=MAX_MODELS)throw new IOException("512 dependency limit");ids.put(fingerprint,id);definitions.add(definition);}
-                    if(++instances>MAX_INSTANCES)throw new IOException("Experimental instance cap");
-                    cells.add(p,null,id);
-                } else if(tree.occupied()!=0) {
-                    leaves+=tree.leaves().size();if(leaves>MAX_LEAVES)throw new IOException("Experimental geometry cap");
-                    cells.add(p,tree.copy().freeze(),-1);
+        long volume=(long)bounds.x*bounds.y*bounds.z,done=0,nextProgress=1024;
+        // Preserve y/z/x encounter order so dependency IDs and package bytes stay stable.
+        for(int y=0;y<bounds.y;y++)for(int z=0;z<bounds.z;z++)for(int x=0;x<bounds.x;) {
+            cancelled(cancel);int worldX=origin.x+x,worldY=origin.y+y,worldZ=origin.z+z;
+            int end=Math.min(bounds.x,x+16-Math.floorMod(worldX,16));
+            int cx=Math.floorDiv(worldX,16),cy=Math.floorDiv(worldY,16),cz=Math.floorDiv(worldZ,16);
+            int hint=((cy-firstY)*chunksZ+cz-firstZ)*chunksX+cx-firstX;
+            if(hints[hint]==0)hints[hint]=(byte)(source.emptyChunk(new dev.jayms.ChunkPos(cx,cy,cz))?1:2);
+            if(hints[hint]==1){done+=end-x;x=end;}
+            else while(x<end) {
+                cancelled(cancel);
+                if(!source.emptyCell(origin.x+x,worldY,worldZ)) {
+                    var p=new Position(x,y,z);var tree=source.cell(origin.x+x,worldY,worldZ);
+                    int type=WorldVoxels.decode(tree.uniform(0,0,0,16));
+                    if(Blocks.isModel(type)) {
+                        var entry=source.models().get(type);if(entry==null)throw new IOException("Missing captured model");
+                        var definition=entry.definition();var fingerprint=definition.fingerprint();Integer id=ids.get(fingerprint);
+                        if(id==null) {id=definitions.size();if(id>=MAX_MODELS)throw new IOException("512 dependency limit");ids.put(fingerprint,id);definitions.add(definition);}
+                        if(++instances>MAX_INSTANCES)throw new IOException("Experimental instance cap");
+                        cells.add(p,null,id);
+                    } else if(tree.occupied()!=0) {
+                        leaves+=tree.leaves().size();if(leaves>MAX_LEAVES)throw new IOException("Experimental geometry cap");
+                        cells.add(p,tree.copy().freeze(),-1);
+                    }
+                    if(cells.size()>MAX_CELLS)throw new IOException("Occupied cell limit");
                 }
-                if(cells.size()>MAX_CELLS)throw new IOException("Occupied cell limit");
+                x++;done++;
+                if(done>=nextProgress){progress.accept((int)(done*100/volume));nextProgress=(done/1024+1)*1024;}
             }
-            if((++done&1023)==0)progress.accept((int)(done*100/volume));
+            if(done>=nextProgress){progress.accept((int)(done*100/volume));nextProgress=(done/1024+1)*1024;}
         }
         cancelled(cancel);var result=new StructurePackage(name,bounds,definitions,cells,cancel);
         cancelled(cancel);progress.accept(100);cancelled(cancel);return result;
