@@ -1561,3 +1561,38 @@ llvmpipe 0–1 FPS remains functional evidence only. Ten history tests repeated 
 canonical fractional-material fixture correction also passed; main source unchanged.
 Local code, media and structure-copy-keys-validation.json await controller publication
 and exact-source hosted checks. Full city/max and system qualification unfinished.
+
+## Empty-chunk capture skipping after d637f36c
+
+All eight exact parent summaries inspected: 859 tests each, zero failures/errors,
+one skip. Merge parents contain d637f36cd7f85ea92a3e95864c10eb88bdd049ac and recorded
+review base 4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a. Receipt:
+structure-d637-hosted.json; these passes exclude new capture changes.
+
+Capture validates both corners with long arithmetic before hints, then caches a
+conservative per-chunk proof in at most 71825 bytes. Snapshots only prove empty
+outside natural terrain's complete [-32,95] height interval with no occupied
+overrides. Preserve y/z/x encounter order, dependency IDs, cell validation, caps,
+cancellation and progress. 48 unique focused tests passed across runs of 47, 5
+and 5 tests (repeats included), including exact bytes for negative unaligned
+capture with models/fractional geometry, terrain fallback, COW source independence,
+invalid bounds before hints, cancellation and y=-1024 preservation.
+
+Three warmups and 20 runs per sparse-box mode: actual World snapshot with one cell.
+512x128x512 control/hint capture median/p95/worst:
+563.252185/725.220276/833.815266 versus 25.661882/30.513305/32.654733 ms.
+1024x256x1024: 4543.203166/4626.064057/4641.366858 versus
+198.389395/204.199894/206.134547 ms. Untimed cell checks 33554432 or 268435456
+versus 4096; one octree read each. Exact encoded bytes match. These are sparse
+bounding boxes, NOT populated acceptance fixtures. No placement/save/peak-memory,
+GPU/network or full-system pass. Native run underway on frozen source. All full
+qualification and stable rollout gates remain.
+
+Playtest: python3 deploy/run_structure_playtest.py --display "$DISPLAY" passed with
+an isolated synthetic profile and inherited display/auth. All 217 source paths and
+hashes match. Fresh F10 H264 clip: 14 frames, 21.737 s, 309263 bytes, SHA-256
+f09ba4fe22ff0134e0607f731638747f921641cdd34f048b19edb61c5d32b17e.
+Decoded video frame, placed-world and live-player conflict images inspected.
+llvmpipe 0–1 FPS remains functional evidence only. New code, media and sanitized
+structure-capture-chunk-validation.json await controller publication and exact-source
+hosted checks. No populated city/max or full-system qualification claim.
