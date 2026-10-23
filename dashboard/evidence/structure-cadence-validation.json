@@ -1,0 +1,154 @@
+{
+  "status": "local_tests_tls_diagnostic_and_native_passed_hosted_pending",
+  "parent": "aeca8f67a4a0f4240f0fb151781f78274c8c8654",
+  "reviewBase": "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+  "change": "50 ms monotonic server deadlines, skip missed slots, minimum 1 ms scheduled gap; separate 100 ms item and 200 ms broadcast gates.",
+  "source": {
+    "src/main/java/dev/jayms/net/ServerTickCadence.java": "833da326244c1e2626067725562819fbe1e5f860f15d82fe2deceb693e5964b3",
+    "src/main/java/dev/jayms/net/MultiplayerServer.java": "45acadb1cb39495df45c2f5e3aee8926e65f73370ed7b19eca4b3919287674ad",
+    "src/test/java/dev/jayms/net/ServerTickCadenceTest.java": "d0db395802b79daddb8dea9aefbdcb78d69f36b44c1cbe77c1f2a3e8eafbd7cf",
+    "tools/structures/ServerTickProbe.java": "74e2b83680bf447801cbd05f5409b4a62c0a9f38551af6d25da6119e48943d1d"
+  },
+  "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=ServerTickCadenceTest,ServerTickTimingTest,StructureMultiplayerTest,CityMultiplayerTest,MultiplayerTest test",
+  "suites": [
+    {
+      "suite": "net.ServerTickCadenceTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "net.ServerTickTimingTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "StructureMultiplayerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "CityMultiplayerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "MultiplayerTest",
+      "tests": 15,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "cliCommand": "java -Xmx1g -cp \"target:target/classes:<JOML dependency jars>\" ServerTickProbe target/structure-cadence-probe-profile target/structure-cadence-probe-result.json",
+  "diagnostic": {
+    "scope": "One real TLS loopback client; 5 s normal observation then deliberate 350 ms authority-lock hold. Not a city/max or 20-run qualification.",
+    "normal": {
+      "total_ticks": 133,
+      "failed_ticks": 0,
+      "window_ticks": 133,
+      "window_span_ms": 6598.4985,
+      "starts_per_second": 20.004551,
+      "intervals": {
+        "samples": 132,
+        "median_ms": 50.000375,
+        "p95_ms": 50.143518,
+        "worst_ms": 51.799518
+      },
+      "lock_wait": {
+        "samples": 133,
+        "median_ms": 0.000705,
+        "p95_ms": 0.00105,
+        "worst_ms": 0.105691
+      },
+      "work": {
+        "samples": 133,
+        "median_ms": 0.015104,
+        "p95_ms": 1.148276,
+        "worst_ms": 26.119777
+      }
+    },
+    "after_synthetic_contention": {
+      "total_ticks": 137,
+      "failed_ticks": 0,
+      "window_ticks": 137,
+      "window_span_ms": 7098.475966,
+      "starts_per_second": 19.159042,
+      "intervals": {
+        "samples": 136,
+        "median_ms": 50.000375,
+        "p95_ms": 50.18973,
+        "worst_ms": 356.514961
+      },
+      "lock_wait": {
+        "samples": 137,
+        "median_ms": 0.000708,
+        "p95_ms": 0.001387,
+        "worst_ms": 306.469201
+      },
+      "work": {
+        "samples": 137,
+        "median_ms": 0.016055,
+        "p95_ms": 1.148276,
+        "worst_ms": 26.119777
+      }
+    }
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "25.0.3+9-LTS-195",
+    "concurrency": "Maven city/multiplayer regressions ran on the shared host during the diagnostic. Native playtest started afterward. Not an isolated reference run."
+  },
+  "checks": [
+    "Normal completion stays aligned to tick deadlines rather than adding work time to every period.",
+    "Slow work and day-long pauses skip missed slots; at least 1 ms scheduled gap; monotonic wrap checked.",
+    "Twenty tick slots yield ten item and five broadcast gates; missed slots are not replayed.",
+    "Actual TLS probe sends movement and polls; deliberate 350 ms authority-lock hold is observed and ticks resume.",
+    "Structure rotations, 512 dependencies, cancellation, undo, late join/restart; city and multiplayer regressions passed."
+  ],
+  "measurementLimits": [
+    "Normal window includes server startup/TLS handshake plus five seconds of movement; no reset five-second window.",
+    "One small TLS loopback client; not a city/max fixture or 20-run/32-client qualification.",
+    "Historical baseline 9.85 Hz used different shared-host load; no controlled before/after work-time comparison.",
+    "1 ms gap creates an opportunity, not monitor fairness or a command latency guarantee."
+  ],
+  "pending": [
+    "Full city/max admission and atomic chunk publication",
+    "Persistence scaling beyond 2,000,000 edits; full-history/save lock costs",
+    "20-run reference physical-GPU, frame/tick/traffic/memory, shaped 32-client synchronization qualification",
+    "Complete power-loss durability"
+  ],
+  "rollout": "Gated; not ready.",
+  "deletionAudit": "No deleted files against recorded base; fixed-delay schedule and every-second-tick counter intentionally replaced by deadlines. MP3/Hub/Asset Manager retained.",
+  "playtest": {
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_manifest": "structure-native-source.json",
+    "source_manifest_sha256": "77f04a8c1730a0dceeb3749ac2ea80ab50b9b19f8c39a4598ff498d6cd537fb1",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "publication": "Local evidence pending controller publication"
+  },
+  "video": {
+    "file": "dashboard/evidence/structure-workflow.mp4",
+    "bytes": 369804,
+    "sha256": "44e081299d111a7b7325038701e9ea562251ff7b77f452854566df57ad0e93f8",
+    "codec": "H264",
+    "frames": 17,
+    "durationSeconds": 32.287,
+    "inspection": "Decoded staging/preview video frame, saved-placement and live-player rejection images.",
+    "publication": "Pending controller publication"
+  },
+  "sourceManifestFiles": 216
+}
