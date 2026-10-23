@@ -56,6 +56,15 @@ public final class MultiplayerServer implements AutoCloseable {
     public TransportFailure transportFailure() { return transportFailure.get(); }
     private void recordTransportFailure(TransportFailure reason) { transportFailure.compareAndSet(null, reason); }
 
+    /** Last 4096 actual tick starts/completions; milliseconds, nearest-rank percentiles.
+     * Invocation lock wait excludes scheduler queue delay; intervals expose missed cadence.
+     * Empty windows have zero samples/rate. Diagnostics do not qualify performance budgets. */
+    public record TickDistribution(int samples,double medianMs,double p95Ms,double worstMs) {}
+    public record TickTiming(long totalTicks,long failedTicks,int windowTicks,double windowSpanMs,double startsPerSecond,
+                             TickDistribution intervals,TickDistribution lockWait,TickDistribution work) {}
+    private final ServerTickTiming tickTiming=new ServerTickTiming();
+    public TickTiming tickTiming(){return tickTiming.snapshot();}
+
     private record AttemptWindow(long start, int count) {}
 
     public MultiplayerServer(
@@ -694,8 +703,20 @@ public final class MultiplayerServer implements AutoCloseable {
         }
     }
 
-    private synchronized void tickItems() {
-        if (!running) return;
+    private void tickItems() {
+        long requested=System.nanoTime(),started=0,finished=0;boolean executed=false,succeeded=false;
+        try {
+            synchronized(this) {
+                if(!running)return;
+                executed=true;started=System.nanoTime();
+                try {tickItemsLocked();succeeded=true;}finally{finished=System.nanoTime();}
+            }
+        } finally {
+            if(executed)tickTiming.record(requested,started,finished,succeeded);
+        }
+    }
+    /** Caller holds this server's authority lock. */
+    private void tickItemsLocked() {
         long now = System.nanoTime();
         city.advance((now - lastTick) / 1e9);
         lastTick = now;
