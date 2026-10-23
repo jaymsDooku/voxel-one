@@ -448,3 +448,33 @@ pass follows from these diagnostics. Allocations still exceed the shared-index
 whole-clone baseline (23,068,952 median bytes), and total system/GC behavior needs
 qualification. This probe has no competing thread, server, geometry, save, network
 or rendering. Package limits and stable-rollout gates remain unchanged.
+
+### Skipping proven-empty capture chunks
+
+Capture validates both world-space bounding corners using long additions before
+consulting hints. It caches a conservative whole-chunk emptiness result in a
+bounded byte array (at most 65×17×65 = 71,825 bytes for unaligned maximum bounds).
+The scan keeps y/z/x encounter order and skips only the current x run to the next
+16-cell boundary. Dependency order and package bytes remain stable. Cancellation
+runs before each span and each visited cell; progress accounts for skipped cells.
+
+World snapshots prove a chunk empty only when its entire y range is outside
+Terrain.MIN_Y through Terrain.MAX_Y (-32 through 95) and every edited cell in it
+is air. Missing or air-only override buckets may therefore be skipped above or
+below terrain. Occupied overrides, fractional geometry and model instances prevent
+skipping. Chunks intersecting the full terrain range return unknown, regardless of
+local column height. Unknown sources retain cell-level capture checks. Server
+snapshots expose the same chunk hint; their prior per-cell behavior remains.
+This changes neither package format nor geometry/dependency/admission caps.
+
+The 20-run sparse-box diagnostic uses one occupied cell at world y=180 in otherwise
+air boxes of 512×128×512 and 1,024×256×1,024 cells. It uses actual World snapshots,
+three warmups, disabled-hint control first and exact encoded-byte checks outside
+timing. It is not the populated city/maximum fixture. City-size box capture
+median/p95/worst was 563.252185/725.220276/833.815266 ms without chunk hints and
+25.661882/30.513305/32.654733 ms with hints. Maximum-size box results were
+4543.203166/4626.064057/4641.366858 ms and
+198.389395/204.199894/206.134547 ms. Untimed cell checks fell from 33,554,432 or
+268,435,456 to 4,096; each mode read one octree. Both modes use current chunk-run
+capture code, not an exact parent-binary replay. No placement, save, peak-memory,
+GPU or network qualification follows from these sparse-box measurements.

@@ -1,0 +1,168 @@
+{
+  "status": "local_48_tests_sparse_diagnostics_and_native_passed_pending_controller_publication",
+  "parent": "d637f36cd7f85ea92a3e95864c10eb88bdd049ac",
+  "reviewBase": "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+  "change": "Skip capture spans only in trusted snapshot chunks proven empty outside the full natural terrain height range, retaining y/z/x encounter order. Validate bounding corners before hints; use bounded byte cache. All original cell/package validations and caps retained.",
+  "source": {
+    "src/main/java/dev/jayms/net/WorldVoxels.java": "4c968a2feb8e77a376fb0e8968d822c8bd57405acf2d4e3f84bc76380b40bca9",
+    "src/main/java/dev/jayms/World.java": "ddfdecb5fc640512502189af5ee4237e120850799b531dab950f3fc09033520f",
+    "src/main/java/dev/jayms/net/MultiplayerServer.java": "57126cce483c7de1894e4c618698121b1b786d7d41ae776364ec026263e021a3",
+    "src/main/java/dev/jayms/net/structure/StructurePackage.java": "41db6156e9c7ade56c7b8b378abc2ce9c5eb9124f875c991723c4c4aafa42590",
+    "src/test/java/dev/jayms/StructureCaptureChunkTest.java": "86a9fa22d734c3b9a3f0e45f9f821ef940bd750ba916027adc1ef829abdb65f7",
+    "tools/structures/ChunkCaptureProbe.java": "feb7cd21170ce8014b245f439455054329831c5abc2acd1addd53d88fd3ac34f"
+  },
+  "suitesLatest": [
+    {
+      "suite": "StructureCaptureChunkTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "StructureTest",
+      "tests": 25,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "WorldVoxelSnapshotTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "StructureMultiplayerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "WorldStreamingTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "FractionalWorldTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "uniqueTests": 48,
+  "executedRuns": {
+    "initial": 47,
+    "serverSnapshotRecheck": 5,
+    "addedLowerWorldEdge": 5
+  },
+  "commands": [
+    "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=StructureCaptureChunkTest,StructureTest,WorldVoxelSnapshotTest,StructureMultiplayerTest,WorldStreamingTest,FractionalWorldTest test",
+    "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=StructureCaptureChunkTest,StructureMultiplayerTest test",
+    "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=StructureCaptureChunkTest test",
+    "javac --release 17 -cp target/classes -d target tools/structures/ChunkCaptureProbe.java",
+    "java -Xmx1g -cp target:target/classes ChunkCaptureProbe target/structure-capture-chunk-probe.json"
+  ],
+  "expectedAndObserved": "Conservative hints at inclusive terrain endpoints, air/occupied overrides, fractional geometry and COW snapshots pass. Negative unaligned capture with two dependencies and fractional LED produces identical package bytes with hints disabled/enabled. Natural terrain/unknown-source fallback matches. Invalid overflowing/outside bounds reject before any hint. Cancellation remains available in skipped regions. Lowest legal y=-1024 occupied cell is captured. Production TLS, streaming and fractional/source regressions pass.",
+  "diagnostic": {
+    "scope": "Actual World snapshot and capture, one whole-cell edit at y180 inside otherwise air bounding boxes. Not the populated city/max fixtures. Untimed counters separate from timing. Three warmups and 20 measured runs per mode, hint-disabled control first; both modes use current chunk-run capture code. Encode/byte validation outside timing. No placement, save, GPU, network, memory or system qualification.",
+    "results": [
+      {
+        "width": 512,
+        "height": 128,
+        "depth": 512,
+        "chunk_hints": false,
+        "untimed_cell_checks": 33554432,
+        "untimed_chunk_checks": 8192,
+        "untimed_tree_reads": 1,
+        "capture_ms": {
+          "median": 563.252185,
+          "p95": 725.220276,
+          "worst": 833.815266
+        }
+      },
+      {
+        "width": 512,
+        "height": 128,
+        "depth": 512,
+        "chunk_hints": true,
+        "untimed_cell_checks": 4096,
+        "untimed_chunk_checks": 8192,
+        "untimed_tree_reads": 1,
+        "capture_ms": {
+          "median": 25.661882,
+          "p95": 30.513305,
+          "worst": 32.654733
+        }
+      },
+      {
+        "width": 1024,
+        "height": 256,
+        "depth": 1024,
+        "chunk_hints": false,
+        "untimed_cell_checks": 268435456,
+        "untimed_chunk_checks": 65536,
+        "untimed_tree_reads": 1,
+        "capture_ms": {
+          "median": 4543.203166,
+          "p95": 4626.064057,
+          "worst": 4641.366858
+        }
+      },
+      {
+        "width": 1024,
+        "height": 256,
+        "depth": 1024,
+        "chunk_hints": true,
+        "untimed_cell_checks": 4096,
+        "untimed_chunk_checks": 65536,
+        "untimed_tree_reads": 1,
+        "capture_ms": {
+          "median": 198.389395,
+          "p95": 204.199894,
+          "worst": 206.134547
+        }
+      }
+    ]
+  },
+  "environment": {
+    "os": "Linux 6.1.0-50-cloud-amd64",
+    "architecture": "x86_64",
+    "vcpus": 4,
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "hypervisor": "KVM",
+    "javaRuntime": "25.0.3+9-LTS-195",
+    "javaVm": "Java HotSpot(TM) 64-Bit Server VM",
+    "contention": "No local test/native run overlapped sparse-box diagnostic; shared VPS contention remains possible."
+  },
+  "tradeoffs": "Adds at most 71825-byte hint cache for unaligned maximum bounds. Terrain-intersecting and unknown chunks still use cell checks. Whole-chunk proof may inspect override trees. Diagnostic boxes contain one cell and are NOT populated city/max fixtures; control uses current chunk-run code, not exact parent binary. Encode verification outside timed capture. No placement/save/peak-memory/GPU/network/system qualification.",
+  "diffAudit": "No deleted paths against recorded review base. Intended removal of repeated per-cell coordinate validation is replaced by overflow-safe validation of both corners before traversal. MP3/Hub/AssetManager features retained.",
+  "qualification": "Required populated city/max fixtures and 20-run system performance, physical-GPU, shaped 32-client, peak-memory/frame/tick/traffic gates remain pending. No provisional geometry, instance, surface, chunk or persistence cap raised; stable rollout remains gated.",
+  "native": {
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_manifest": "structure-native-source.json",
+    "source_manifest_sha256": "94a31ee8c6edbea53a2bc012c67f1627244220ac1c2474b940b0ef34d9c9e9a6",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "publication": "Local evidence pending controller publication",
+    "observed": "Fresh decoded video frame, placed-world and live-player conflict screenshots inspected. Native llvmpipe at 0\u20131 FPS is functional only. Actual capture integration, terrain/bounds/source edges and production TLS tests separately exercise the code. Browser testing does not apply to this native Java engine."
+  },
+  "media": {
+    "file": "dashboard/evidence/structure-workflow.mp4",
+    "bytes": 309263,
+    "sha256": "f09ba4fe22ff0134e0607f731638747f921641cdd34f048b19edb61c5d32b17e",
+    "codec": "H264",
+    "frames": 14,
+    "durationSeconds": 21.737,
+    "sourceFilesMatched": 217,
+    "publication": "Pending controller publication"
+  }
+}

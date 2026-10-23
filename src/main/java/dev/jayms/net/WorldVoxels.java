@@ -266,6 +266,16 @@ public final class WorldVoxels {
         return tree.freeze();
     }
 
+    /** Conservative capture hint: implicit terrain is air only outside its full height range. */
+    public boolean emptyChunk(ChunkPos position) {
+        long minY=(long)position.chunkY()*16;
+        if(minY<=Terrain.MAX_Y&&minY+15>=Terrain.MIN_Y)return false;
+        var bucket=chunks.get(position);if(bucket==null)return true;
+        if(bucket.cells==null)return bucket.singleKey<0||bucket.singleTree.occupied()==0;
+        for(var tree:bucket.cells.values())if(tree.occupied()!=0)return false;
+        return true;
+    }
+
     public int type(int x, int y, int z) {
         var existing = editedCell(x,y,z);
         return existing == null ? terrain.block(x, y, z) : decode(existing.uniform(0, 0, 0, 16));

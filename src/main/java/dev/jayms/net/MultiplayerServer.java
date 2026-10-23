@@ -867,6 +867,7 @@ public final class MultiplayerServer implements AutoCloseable {
             return new StructurePackage.Source() {
                 public dev.jayms.net.model.SparseVoxelOctree cell(int x,int y,int z){return geometry.cell(x,y,z);}
                 public ModelLibrary models(){return library;}
+                public boolean emptyChunk(dev.jayms.ChunkPos position){return geometry.emptyChunk(position);}
                 public Object chunkStamp(dev.jayms.ChunkPos position){return geometry.terrainRevision()==terrainRevision?geometry.chunkStamp(position):null;}
             };
         }

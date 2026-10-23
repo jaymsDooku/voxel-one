@@ -250,6 +250,7 @@ public class World implements AutoCloseable {
         return new dev.jayms.net.structure.StructurePackage.Source() {
             public SparseVoxelOctree cell(int x,int y,int z){return geometry.cell(x,y,z);}
             public boolean emptyCell(int x,int y,int z){return geometry.type(x,y,z)==0;}
+            public boolean emptyChunk(ChunkPos position){return geometry.emptyChunk(position);}
             public ModelLibrary models(){return definitions;}
         };
     }
