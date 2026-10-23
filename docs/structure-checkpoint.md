@@ -1528,3 +1528,36 @@ Decoded video frame, placed-world and player-conflict images inspected. llvmpipe
 0–1 FPS is functional only. Local code, media and sanitized report
 structure-history-batch-validation.json await controller publication and new
 exact-source hosted checks. No full city/max/system qualification or readiness.
+
+## Reusing batch keys after 5f4ce0ac
+
+All eight parent hosted summaries inspected: 858 tests each, zero failures/errors,
+one skip. Merge parents contain 5f4ce0ac6269ba7fbaa7cf6f535e1145fae54b4b and recorded
+review base 4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a. Receipt:
+structure-5f4c-hosted.json. These passes exclude new copy-key changes.
+
+Cursor captures immutable validated key/value pairs without retaining Map.Entry
+objects. Worker copy reuses keys through ordinary index/revision updates; public
+put validation remains intact. Cancellation checks remain before each edit.
+54 focused tests passed, including snapshot independence, bad-key rejection,
+fractional index order, cancellation and existing production save/TLS regressions.
+
+Two separate sequential diagnostic JVMs, 262144 edits, three warmups and 20 runs:
+rebuild versus reuse total copy median/p95/worst:
+264.209773/313.733590/317.726842 versus 195.776655/279.573552/308.566410 ms.
+Median thread allocations 73377864 versus 50331400 bytes. Reuse maximum guarded
+batch median/p95/worst 0.092402/0.190105/0.761216 ms. Control had a
+148.055859 ms worst guarded sample, cause uninstrumented. No 100 ms stall-budget
+pass; whole-clone allocation baseline is still lower. No local test/native overlap
+with probes. Native workflow running on frozen source. Full city/max, GPU/network,
+GC/peak-memory and stable-rollout qualification remain gated.
+
+Playtest: python3 deploy/run_structure_playtest.py --display "$DISPLAY" passed with
+an isolated synthetic profile and inherited display/auth. All 217 source paths and
+hashes match. Fresh H264 F10 clip: 17 frames, 26.298 s, 346316 bytes, SHA-256
+5e9a9dcc2ac2c5cee61037f2aaaf0dcb62edf74e0c56dde3e0cb364279e07359.
+Decoded video frame, placed-world and live-player conflict images inspected.
+llvmpipe 0–1 FPS remains functional evidence only. Ten history tests repeated after
+canonical fractional-material fixture correction also passed; main source unchanged.
+Local code, media and structure-copy-keys-validation.json await controller publication
+and exact-source hosted checks. Full city/max and system qualification unfinished.
