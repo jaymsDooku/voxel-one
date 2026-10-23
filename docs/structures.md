@@ -354,3 +354,18 @@ and server history staging use this path. Save schemas, file ordering, preimages
 and atomic-save/rollback sequencing are unchanged. Owner-thread history copying,
 whole-structure application and disk I/O still need full-scale qualification; the
 scoped diagnostic is `structure-world-cell-validation.json`.
+
+### Legacy geometry undo comparison
+
+Undo compares voxel values, rather than octree leaf-list representation. Legacy
+packages can contain redundant branches that world storage collapses. An unchanged
+placed cell must remain undoable after that normalization. The comparison shares
+identity fast paths, handles air and uniform nodes without expansion, and allocates
+no leaf lists. Different voxel values still reject undo before publication.
+
+The local regression reproduces the old rejection using a self-contained legacy
+package, then checks successful undo and rejection after a later fractional edit.
+Random mixed trees, redundant branches down to individual voxels, air, coloured
+materials, frozen source bytes and differing resolutions are covered separately.
+This fix does not change package bytes, model identity, placement admission limits
+or the outstanding city/maximum and physical-GPU/network qualification gates.

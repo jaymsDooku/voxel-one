@@ -1,0 +1,160 @@
+{
+  "status": "local_49_tests_and_native_passed_pending_controller_publication",
+  "parent": "fd866b3042fe8fd26b624f125666973416ad4126",
+  "reviewBase": "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+  "change": "Fix undo of semantically unchanged legacy octrees; avoid leaf-list allocations while retaining later-edit rejection.",
+  "reproduction": {
+    "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=StructureTest#legacyRedundantGeometryCanUndoAfterCanonicalWorldPublication test",
+    "before": "One test, one IOException: Placed cells changed; undo will not overwrite later edits",
+    "after": "Passed in focused suite"
+  },
+  "source": {
+    "src/main/java/dev/jayms/net/model/SparseVoxelOctree.java": "74d1404bdc7deaa54ed8d440b25c3f20dda8e52f3d6baff8cc018ee51a525ef0",
+    "src/main/java/dev/jayms/net/structure/StructureEngine.java": "5494423dbd3c618262c3e7b68bc34525847d8a75b56451076de6bb93c979e7b0",
+    "src/test/java/dev/jayms/StructureTest.java": "e3f149a84f81eb48f84740a1a54905068417bdb684f8a32abf381e7c6be6d0e7",
+    "src/test/java/dev/jayms/OctreeValueComparisonTest.java": "850ba765fa94616f5fdd6278532ad6b97ae366a3bcc05c060c3379f70af49095",
+    "tools/structures/UndoComparisonProbe.java": "89ff8d7f6c5684df0722bfb2b5a8ee924d46fa9970b73ac4f39f021101cbbc7c"
+  },
+  "suites": [
+    {
+      "suite": "StructureTest",
+      "tests": 25,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "StructureMultiplayerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "StructurePublicationStagingTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "WorldCellReplacementTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "WorldVoxelSnapshotTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "VoxelModelTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "OctreeValueComparisonTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "commands": [
+    "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=StructureTest,StructureMultiplayerTest,StructurePublicationStagingTest,WorldCellReplacementTest,WorldVoxelSnapshotTest,VoxelModelTest test",
+    "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=OctreeValueComparisonTest test",
+    "javac --release 17 -cp target/classes -d target tools/structures/UndoComparisonProbe.java",
+    "java -Xmx1g -cp target:target/classes UndoComparisonProbe target/structure-undo-comparison-probe.json"
+  ],
+  "diagnostic": {
+    "scope": "Shared VPS isolated comparison loop, independently decoded equal cells, legacy first, three warmups and 20 measured runs. ThreadMXBean thread allocation bytes, not peak memory. Excludes cell lookup, locks, save, network, GL and city/max qualification.",
+    "results": [
+      {
+        "dense": false,
+        "cells": 131072,
+        "legacy_ms": {
+          "median": 2.396234,
+          "p95": 10.712735,
+          "worst": 10.904609
+        },
+        "semantic_ms": {
+          "median": 0.623994,
+          "p95": 0.755547,
+          "worst": 0.813316
+        },
+        "legacy_allocated_bytes": {
+          "median": 8388608.0,
+          "p95": 8388608.0,
+          "worst": 12135008.0
+        },
+        "semantic_allocated_bytes": {
+          "median": 0.0,
+          "p95": 0.0,
+          "worst": 0.0
+        }
+      },
+      {
+        "dense": true,
+        "cells": 256,
+        "legacy_ms": {
+          "median": 62.510039,
+          "p95": 78.985082,
+          "worst": 85.228912
+        },
+        "semantic_ms": {
+          "median": 10.944238,
+          "p95": 14.11023,
+          "worst": 15.080491
+        },
+        "legacy_allocated_bytes": {
+          "median": 109645824.0,
+          "p95": 109645824.0,
+          "worst": 109645824.0
+        },
+        "semantic_allocated_bytes": {
+          "median": 0.0,
+          "p95": 0.0,
+          "worst": 0.0
+        }
+      }
+    ]
+  },
+  "environment": {
+    "os": "Linux 6.1.0-50-cloud-amd64",
+    "architecture": "x86_64",
+    "vcpus": 4,
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "hypervisor": "KVM",
+    "contention": "Native llvmpipe playtest ran concurrently; diagnostic timings are shared-VPS observations."
+  },
+  "diffAudit": "No deleted paths against recorded review base. MP3/Hub restoration and merged features retained.",
+  "qualification": "Full city/max fixtures still exceed provisional geometry/surface/chunk admission caps. Required 20-run system benchmarks, physical-GPU/frame/tick/traffic/memory and shaped 32-client qualification remain unfinished. No supported-limit or stable-rollout claim.",
+  "native": {
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_manifest": "structure-native-source.json",
+    "source_manifest_sha256": "132fe2aa8ec53ba31b165d6cf4d8d88d50dc4fa1f070f75fbe1f1cd884bac9f1",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "publication": "Local evidence pending controller publication",
+    "observed": "Production native workflow passed; decoded fresh video frame, placed-world and player-conflict images inspected. UI showed 0\u20131 FPS on llvmpipe. Functional only."
+  },
+  "media": {
+    "file": "dashboard/evidence/structure-workflow.mp4",
+    "bytes": 421526,
+    "sha256": "8a2681d68e711b2a4a0ef3c09c7eb1f5d0ede5ef3b2d1233039c55e9dc4cc099",
+    "codec": "H264",
+    "frames": 17,
+    "durationSeconds": 29.58,
+    "publication": "Pending controller publication",
+    "sourceFilesMatched": 216
+  }
+}

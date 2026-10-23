@@ -231,6 +231,25 @@ class StructureTest {
         assertThrows(IOException.class,()->new StructurePackage("Duplicate",new Bounds(1,1,1,0,0,0),List.of(),
                 List.of(new Cell(new Position(0,0,0),new SparseVoxelOctree(16),-1))));
     }
+    @Test void legacyRedundantGeometryCanUndoAfterCanonicalWorldPublication()throws Exception {
+        var bytes=new ByteArrayOutputStream();var out=new DataOutputStream(bytes);out.writeByte(16);out.writeByte(2);
+        for(int i=0;i<8;i++){out.writeByte(1);out.writeInt(WorldVoxels.encode(Blocks.STONE));}
+        var tree=SparseVoxelOctree.read(new DataInputStream(new ByteArrayInputStream(bytes.toByteArray())));
+        var asset=StructurePackage.decode(new StructurePackage("Legacy branches",new Bounds(1,1,1,0,0,0),List.of(),
+            List.of(new Cell(new Position(0,0,0),tree,-1))).encode());
+        assertEquals(8,asset.cells.get(0).geometry().leaves().size());
+        var local=new LocalGame(folder.resolve("legacy-undo.dat"),42);
+        try(var world=new World(42,local.models)) {
+            var engine=new StructureEngine();var authority=local.structureAuthority(world);
+            try(var prepared=engine.prepare(asset,new Position(320,180,320),0,world.structureSnapshot(),()->false,p->{})) {prepared.commit("fixture",authority);}
+            assertEquals(1,world.cell(320,180,320).leaves().size());
+            engine.undo("fixture",authority);assertTrue(world.cell(320,180,320).isEmpty());
+            try(var prepared=engine.prepare(asset,new Position(320,180,320),0,world.structureSnapshot(),()->false,p->{})) {prepared.commit("fixture",authority);}
+            world.apply(new Protocol.Edit(320,180,320,Blocks.BRICKS,4,0,0,0));
+            assertThrows(IOException.class,()->engine.undo("fixture",authority));
+            assertEquals(WorldVoxels.encode(Blocks.BRICKS),world.cell(320,180,320).get(0,0,0));
+        }
+    }
     @Test void tallSkyscraperAndLongRoadKeepCellDimensionsAcrossRestart()throws Exception {
         var stone=new SparseVoxelOctree(16);stone.fill(0,0,0,16,16,16,WorldVoxels.encode(Blocks.STONE));
         var cells=new ArrayList<Cell>();

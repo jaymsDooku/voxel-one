@@ -36,6 +36,20 @@ public final class SparseVoxelOctree {
         return size;
     }
 
+    /** Compare voxel values without allocating leaves or changing legacy branch layouts. */
+    public boolean sameValues(SparseVoxelOctree other) {
+        return other!=null && size==other.size && sameValues(root,other.root);
+    }
+
+    private static boolean sameValues(Node a,Node b) {
+        if(a==b)return true;
+        boolean aLeaf=a==null||a.children==null,bLeaf=b==null||b.children==null;
+        if(aLeaf&&bLeaf)return (a==null?0:a.color)==(b==null?0:b.color);
+        for(int i=0;i<8;i++)
+            if(!sameValues(aLeaf?a:a.children[i],bLeaf?b:b.children[i]))return false;
+        return true;
+    }
+
     public int get(int x, int y, int z) {
         if (x < 0 || y < 0 || z < 0 || x >= size || y >= size || z >= size) return 0;
         Node n = root;
