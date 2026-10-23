@@ -285,3 +285,10 @@ non-atomic retry. Ordinary saves retain their compatibility fallback. Directory
 durability barriers are not added; no fallible I/O follows a successful rename. Complete power-loss durability
 and full city/max durable-save qualification remain pending, alongside full-history
 serialization and the 2,000,000-edit persistence ceiling.
+
+Offline/server world loaders buffer primitive reads in a bounded 64 KiB input
+stream. Parsers, count limits and EOF checks are unchanged. The warm-cache
+constructor diagnostic and late-EOF/invalid-version retry checks are recorded in
+`dashboard/evidence/structure-buffered-load-validation.json`. Those measurements
+include history reconstruction, but do not qualify cold region loading, usable
+nearby geometry or full city/max/system budgets.
