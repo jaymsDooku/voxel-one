@@ -275,8 +275,11 @@ Offline/server world saves buffer primitive writes in 64 KiB before closing the
 temp file and performing the existing rename. Save schemas and bytes stay the
 same. The actual offline version-8/version-9 save/reload probe compares complete
 file hashes against the parent implementation; see
-`dashboard/evidence/structure-buffered-save-validation.json`. Its 20-sample timings
-use a warm cache and exclude load/verification work. Neither file forcing nor
-directory durability barriers are added. Power-loss durability and full city/max
-durable-save qualification remain pending, alongside full-history serialization
-and the 2,000,000-edit persistence ceiling.
+`dashboard/evidence/structure-buffered-save-validation.json`. Those historical
+20-sample timings cover buffering without file forcing, use a warm cache and
+exclude load/verification work. Current writers also flush the buffer and call
+`FileChannel.force(true)` on the writing channel before closing and renaming.
+A force failure exits before publication. Directory durability barriers are not
+added; no fallible I/O follows a successful rename. Complete power-loss durability
+and full city/max durable-save qualification remain pending, alongside full-history
+serialization and the 2,000,000-edit persistence ceiling.

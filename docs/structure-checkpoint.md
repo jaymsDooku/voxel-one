@@ -893,3 +893,64 @@ Native manifest digest: `0bffd3d9ca3e7973c97a1e1d28b099963d927d02dfd6ad5630638eb
 llvmpipe about 1 FPS; no physical GPU/frame qualification. Report/media pending
 controller publication. Request feature_validation for new exact-source hosted
 checks after integration; no full city/max or readiness claim.
+
+## Force temp-file contents before publication
+
+Inspected seven available parent `9b6ba716` hosted summaries: three feature
+platforms and all four PR merge platforms, 815 tests each, zero failures/errors,
+one skip. Exact feature source and PR merge parents verified against the review
+base. Live feature run remained in progress; no missing platform pass inferred.
+Details: `structure-9b6b-hosted.json`. No repeated unchanged wait requested.
+
+Offline/server saves now write the buffered stream through an explicit
+FileChannel. After serialization, out.flush() drains all buffered bytes;
+channel.force(true) runs on that same writing channel. Resources close before the
+existing rename. Failures before rename feed the existing rollback path. No new
+fallible I/O runs after rename. Directory durability barriers are not added;
+complete power-loss durable publication remains unqualified. Formats, temp paths,
+locks, admission caps and rename fallback unchanged.
+
+36 selected tests passed: actual offline persistence/undo, move-failure rollback
+with a shared fractional history index, actual TLS multiplayer/restart,
+fractional geometry and history regressions. Force-failure injection and
+power-loss recovery were not executed. Review helper failed and was resolved
+self; all reported execution was local.
+
+Actual LocalGame.save comparison: 100,000 valid edits in 40,000 cells, three
+warmups and 20 measured samples per parent/current and version-8/version-9 mode
+in separate JVMs. Current timing includes explicit file force, close and rename.
+Every sample reloads and verifies all ordered edits/model fingerprints and the
+complete file hash outside timing. Exact parent class compiled from `9b6ba716`;
+other dependencies identical. No concurrent native run during measurements.
+Warm cache, not cold load or reference city/max/system qualification. Actual
+server path covered by TLS tests, not this offline timing diagnostic.
+
+Version-8 parent/forced median/p95/worst:
+32.081784/33.967632/35.528827 ms versus
+34.889206/39.481846/42.401668 ms. Both files 2,400,101 bytes, SHA-256
+`76bc1e642310fb2a58487f28934e16137a95fedf1d7b1b1c4f673a109d3bb1dc`.
+Version-9 (one 8-resolution structure definition):
+33.674132/36.254955/41.932500 ms versus
+35.202119/39.019061/39.140592 ms. Both files 2,400,166 bytes, SHA-256
+`072c1aa5600d23320a0695f60cf044a7de3a5822b8162869b609e960dd82492b`.
+Probe source: `WorldSaveProbe.java`; report: `structure-force-save-validation.json`.
+
+Full-history traversal and force latency still run under the existing lock;
+no main-thread/tick/frame budgets claimed. Full city/max admission, atomic chunk
+publication, persistence beyond the 2,000,000-edit ceiling, directory/power-loss
+durability and reference GPU/network/system qualification remain unfinished.
+Rollout gates stay closed; no caps raised. No files deleted against review base
+`4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a`. Intended replacements retain buffered
+writes on a forceable channel. MP3, Hub and Asset Manager retained. Controller owns
+integration, publication and fresh exact-source checks after native media completes.
+
+Fresh native workflow passed on all 213 unchanged production/harness source paths
+and hashes. Capture/export/import, all four rotations, preview/conflicts,
+empty-space preservation, live-player guard, cancellation, undo, repeated
+placement, restart and inventory/model-editor regressions passed. Inspected fresh
+rejection image and decoded F10 frame. H264: 16 frames, 26.056 s, 355,792 bytes;
+SHA-256 `c264eee8c8f35bcebe6690001366cb36874c5116f4ce3919ffcf13a68141fe8c`.
+Native manifest digest: `c97029896fe1e607e57726adc086ec844f6077529a385d85dc9f289bc65d0435`.
+llvmpipe about 1 FPS; no physical GPU/frame qualification. Local report/media
+pending controller publication. Request feature_validation for new exact-source
+checks after integration; not a complete durability/city/max/readiness claim.

@@ -9,6 +9,8 @@ import dev.jayms.net.structure.*;
 import java.io.*;
 import java.net.*;
 import java.nio.file.*;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.*;
@@ -1112,7 +1114,8 @@ public final class MultiplayerServer implements AutoCloseable {
         Path absolute = save.toAbsolutePath();
         Files.createDirectories(absolute.getParent());
         Path temp = absolute.resolveSibling(absolute.getFileName() + ".tmp");
-        try (var out = new DataOutputStream(new BufferedOutputStream(Files.newOutputStream(temp), 64 * 1024))) {
+        try (var channel = FileChannel.open(temp, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
+                var out = new DataOutputStream(new BufferedOutputStream(Channels.newOutputStream(channel), 64 * 1024))) {
             out.writeInt(Protocol.MAGIC);
             out.writeInt(models.hasStructureModels()?-9:-8);
             out.writeLong(terrain.seed);
@@ -1128,6 +1131,8 @@ public final class MultiplayerServer implements AutoCloseable {
             }
             out.writeInt(drops.size());
             for (ItemDrop drop : drops.values()) drop.write(out);
+            out.flush();
+            channel.force(true);
         }
         try {
             Files.move(
