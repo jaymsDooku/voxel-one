@@ -901,10 +901,11 @@ public final class MultiplayerServer implements AutoCloseable {
                 }
                 for(var entry:cells.entrySet()){StructurePackage.cancelled(cancel);var p=entry.getKey();geometry.replaceCell(p.x(),p.y(),p.z(),entry.getValue());}
                 var publication=publication(staged,cells,revision,cancel);
-                WorldVoxels.History base,next;long historyRevision;
+                WorldVoxels.History base;WorldVoxels.History.CopyCursor cursor;long historyRevision;
                 synchronized(lock()) {
-                    StructurePackage.cancelled(cancel);base=edits;historyRevision=base.revision();next=WorldVoxels.History.copyOf(base);
+                    StructurePackage.cancelled(cancel);base=edits;historyRevision=base.revision();cursor=base.copyCursor();
                 }
+                var next=copyStructureHistory(base,cursor,cancel);
                 for(var entry:cells.entrySet()) {
                     StructurePackage.cancelled(cancel);var p=entry.getKey();
                     WorldVoxels.rememberCell(next,new Protocol.CellState(p.x(),p.y(),p.z(),entry.getValue()));
@@ -937,6 +938,21 @@ public final class MultiplayerServer implements AutoCloseable {
                 models=staged;edits=next;voxels=geometry;broadcast(publication);
             }
         };
+    }
+    /** Read bounded batches under the monitor; rebuild the detached index on the worker. */
+    private WorldVoxels.History copyStructureHistory(WorldVoxels.History base,WorldVoxels.History.CopyCursor cursor,java.util.function.BooleanSupplier cancel)throws IOException {
+        var next=new WorldVoxels.History();
+        while(true) {
+            StructurePackage.cancelled(cancel);List<Protocol.Edit> batch;
+            synchronized(this) {
+                StructurePackage.cancelled(cancel);
+                if(edits!=base)throw new IOException("World changed while copying save history; retry structure operation");
+                try{batch=cursor.nextBatch();}
+                catch(ConcurrentModificationException changed){throw new IOException("World changed while copying save history; retry structure operation",changed);}
+            }
+            if(batch.isEmpty())return next;
+            for(var edit:batch){StructurePackage.cancelled(cancel);next.put(edit.key(),edit);}
+        }
     }
     private void handleStructure(Peer peer,DataInputStream in)throws IOException {
         int action=in.readUnsignedByte(),request=in.readInt();

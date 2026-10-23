@@ -18,6 +18,24 @@ public final class WorldVoxels {
         /** Owner-thread change stamp; pair with this history identity. */
         public long revision(){return revision;}
         public History(){ordered=new LinkedHashMap<>();cells=new HashMap<>();}
+        /** Begin under the authority lock; every batch read needs that same lock.
+         * Any edit-history mutation invalidates the cursor before iterator access. */
+        public CopyCursor copyCursor(){return new CopyCursor();}
+        public final class CopyCursor {
+            private final long expectedRevision=revision;
+            private final Iterator<Protocol.Edit> iterator=ordered.values().iterator();
+            private int remaining=ordered.size();
+            private CopyCursor(){}
+            /** At most 1024 immutable edit references; index rebuilding belongs outside the lock. */
+            public List<Protocol.Edit> nextBatch() {
+                if(revision!=expectedRevision)throw new ConcurrentModificationException("History changed during copy");
+                int count=Math.min(1024,remaining);
+                if(count==0)return List.of();
+                var batch=new ArrayList<Protocol.Edit>(count);
+                for(int i=0;i<count;i++)batch.add(iterator.next());
+                remaining-=count;return Collections.unmodifiableList(batch);
+            }
+        }
         private History(History source) {
             ordered=new LinkedHashMap<>(source.ordered);cells=new HashMap<>(source.cells);
             // Neither copy may mutate the index entries shared at this boundary.

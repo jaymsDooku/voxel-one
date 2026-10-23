@@ -6,6 +6,37 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class WorldHistoryIndexTest {
+    @Test void copyCursorBoundsBatchesAndRebuildsIndependentOrderedHistory() {
+        var source=new WorldVoxels.History();
+        for(int i=0;i<2051;i++){var edit=new Protocol.Edit(i%512,180,i/512,Blocks.STONE);source.put(edit.key(),edit);}
+        var cursor=source.copyCursor();var result=new WorldVoxels.History();var sizes=new ArrayList<Integer>();
+        // COW owner rotation changes no values and must not invalidate a read cursor.
+        var shared=WorldVoxels.History.copyOf(source);
+        while(true) {
+            var batch=cursor.nextBatch();if(batch.isEmpty())break;sizes.add(batch.size());
+            assertThrows(UnsupportedOperationException.class,()->batch.clear());
+            for(var edit:batch)result.put(edit.key(),edit);
+        }
+        assertEquals(List.of(1024,1024,3),sizes);assertEquals(new ArrayList<>(source.entrySet()),new ArrayList<>(result.entrySet()));
+        var key=result.keySet().iterator().next();result.remove(key);assertTrue(source.containsKey(key));assertEquals(source,shared);
+        source.remove(key);assertThrows(ConcurrentModificationException.class,cursor::nextBatch);
+    }
+    @Test void copyCursorRejectsEveryMutationBeforeIteratorResume() {
+        for(int action=0;action<5;action++) {
+            var source=new WorldVoxels.History();var edit=new Protocol.Edit(0,180,0,Blocks.STONE);source.put(edit.key(),edit);
+            var cursor=source.copyCursor();
+            switch(action) {
+                case 0 -> source.put(edit.key(),edit); // Value replacement also invalidates.
+                case 1 -> source.remove(edit.key());
+                case 2 -> source.clear();
+                case 3 -> source.compute(edit.key(),(k,v)->new Protocol.Edit(0,180,0,Blocks.BRICKS));
+                default -> WorldVoxels.rememberCell(source,new Protocol.CellState(0,180,0,new dev.jayms.net.model.SparseVoxelOctree(16)));
+            }
+            assertThrows(ConcurrentModificationException.class,cursor::nextBatch);
+        }
+        var source=new WorldVoxels.History();var cursor=source.copyCursor();assertTrue(cursor.nextBatch().isEmpty());
+        var edit=new Protocol.Edit(0,180,0,Blocks.STONE);source.put(edit.key(),edit);assertThrows(ConcurrentModificationException.class,cursor::nextBatch);
+    }
     @Test void revisionCoversMutatingMapDefaultsAndCompleteCellReplacement() {
         var history=new WorldVoxels.History();var a=new Protocol.Edit(0,180,0,Blocks.STONE);long stamp=history.revision();
         history.put(a.key(),a);assertTrue(history.revision()>stamp);stamp=history.revision();
