@@ -292,3 +292,16 @@ constructor diagnostic and late-EOF/invalid-version retry checks are recorded in
 `dashboard/evidence/structure-buffered-load-validation.json`. Those measurements
 include history reconstruction, but do not qualify cold region loading, usable
 nearby geometry or full city/max/system budgets.
+
+Server placement and undo stage the synchronization cell list and compressed
+publication before taking the final authority lock. The short dependency lookup
+uses that lock and verifies the captured model revision. Final commit rechecks
+model revision, destination/chunk state and live bodies under the same lock before
+saving or broadcasting. Undo also rechecks every placed cell and keeps its history
+record on staging failure, cancellation or concurrent edits. Serialization checks
+cancellation between definitions and cells and after compression closes. No partial
+event is broadcast. The wire format and byte limits stay unchanged. Offline
+authorities retain their commit path. This removes server publication compression
+from the critical section; history copying, geometry staging, durable save and
+queue publication still hold the lock. Late-join synchronization is unchanged.
+This is not a tick, frame, memory, city/max or shaped-network qualification.

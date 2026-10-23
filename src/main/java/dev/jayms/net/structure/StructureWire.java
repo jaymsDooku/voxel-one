@@ -5,19 +5,23 @@ import dev.jayms.net.model.*;
 import java.io.*;
 import java.util.*;
 import java.util.zip.*;
+import java.util.function.BooleanSupplier;
 
 /** One validated publication carries dependency definitions before complete destination cells. */
 public final class StructureWire {
     public record Delta(List<ModelLibrary.Entry> models,List<Protocol.CellState> cells) {
         public Delta {models=List.copyOf(models);cells=List.copyOf(cells);}
     }
-    public static byte[] encode(Delta delta)throws IOException {
+    public static byte[] encode(Delta delta)throws IOException {return encode(delta,()->false);}
+    public static byte[] encode(Delta delta,BooleanSupplier cancel)throws IOException {
+        StructurePackage.cancelled(cancel);
         var bytes=new ByteArrayOutputStream();
         try(var out=new DataOutputStream(new StructurePackage.BudgetOutput(new GZIPOutputStream(new StructurePackage.BudgetOutput(bytes,StructurePackage.COMPRESSED)),StructurePackage.DECODED))) {
             out.writeInt(delta.models.size());
-            for(var entry:delta.models){out.writeInt(entry.id());out.writeUTF(entry.author());entry.definition().write(out);}
-            out.writeInt(delta.cells.size());for(var cell:delta.cells)cell.write(out);
+            for(var entry:delta.models){StructurePackage.cancelled(cancel);out.writeInt(entry.id());out.writeUTF(entry.author());entry.definition().write(out);}
+            out.writeInt(delta.cells.size());for(var cell:delta.cells){StructurePackage.cancelled(cancel);cell.write(out);}
         }
+        StructurePackage.cancelled(cancel);
         if(bytes.size()>StructurePackage.COMPRESSED)throw new IOException("Structure synchronization byte limit");return bytes.toByteArray();
     }
     public static Delta decode(byte[] payload)throws IOException {

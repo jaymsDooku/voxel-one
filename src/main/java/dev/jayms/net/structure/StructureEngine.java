@@ -17,7 +17,13 @@ public final class StructureEngine {
         Object lock();
         /** Owner-thread atomic replacement, including durable world state; rollback on IOException. */
         void commit(ModelLibrary staged,Map<Position,SparseVoxelOctree> cells) throws IOException;
+        /** Side-effect-free publication staging, called before the engine acquires lock().
+         * The returned commit runs under lock after authoritative revalidation. */
+        default Commit stageCommit(ModelLibrary staged,Map<Position,SparseVoxelOctree> cells,long modelRevision,BooleanSupplier cancel)throws IOException {
+            cancelled(cancel);return ()->commit(staged,cells);
+        }
     }
+    @FunctionalInterface public interface Commit { void apply() throws IOException; }
     private final int undoCellBudget;
     public StructureEngine(){this(262144);}
     /** History target; retain the newest admitted placement even when it exceeds the target. */
@@ -78,6 +84,9 @@ public final class StructureEngine {
         public Map<Position,SparseVoxelOctree> cells(){return after;}
         public void commit(String owner,Authority authority) throws IOException {
             try {
+                if(closed)throw new IOException("Structure staging closed");
+                cancelled(cancel);
+                var publication=authority.stageCommit(staged,after,modelRevision,cancel);
                 synchronized(authority.lock()) {
                     if(closed)throw new IOException("Structure staging closed");
                     cancelled(cancel);
@@ -93,7 +102,7 @@ public final class StructureEngine {
                         }
                     }
                     validateChunks(after,authority,staged,cancel,validatedChunks);
-                    cancelled(cancel);authority.commit(staged,after);
+                    cancelled(cancel);publication.apply();
                     var records=undo.computeIfAbsent(owner,k->new ArrayDeque<>());
                     var record=new Record(++sequence,owner,before,after);records.addLast(record);chronology.addLast(record);undoCells+=after.size();
                     while(records.size()>8) {var expired=records.removeFirst();chronology.remove(expired);undoCells-=expired.after.size();}
@@ -207,18 +216,29 @@ public final class StructureEngine {
         }
         return Map.copyOf(validated);
     }
-    public void undo(String owner,Authority authority)throws IOException {
+    public void undo(String owner,Authority authority)throws IOException {undo(owner,authority,()->false);}
+    public void undo(String owner,Authority authority,BooleanSupplier cancel)throws IOException {
         if(!busy.compareAndSet(false,true))throw new IOException("Another large placement is running");
         try {
+            Record record;ModelLibrary staged;long revision;
             synchronized(authority.lock()) {
+                cancelled(cancel);
                 var records=undo.get(owner);if(records==null||records.isEmpty())throw new IOException("No structure placement to undo");
-                var record=records.peekLast();
+                record=records.peekLast();revision=authority.models().revision();staged=authority.models().copy();
+            }
+            var publication=authority.stageCommit(staged,record.before,revision,cancel);
+            synchronized(authority.lock()) {
+                cancelled(cancel);
+                if(authority.models().revision()!=revision)throw new IOException("Model library changed; retry undo");
+                int checked=0;
                 for(var entry:record.after.entrySet()) {
+                    if((checked++&127)==0)cancelled(cancel);
                     var p=entry.getKey();
                     if(!authority.cell(p.x(),p.y(),p.z()).leaves().equals(entry.getValue().leaves()))
                         throw new IOException("Placed cells changed; undo will not overwrite later edits");
                 }
-                authority.commit(authority.models().copy(),record.before);records.removeLast();chronology.remove(record);undoCells-=record.after.size();
+                cancelled(cancel);publication.apply();
+                undo.get(owner).removeLast();chronology.remove(record);undoCells-=record.after.size();
             }
         } finally {busy.set(false);}
     }
