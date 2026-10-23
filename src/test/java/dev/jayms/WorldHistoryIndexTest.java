@@ -79,4 +79,30 @@ class WorldHistoryIndexTest {
         }
     }
 
+    @Test void completeCellReplacementMatchesLegacyOrderAndKeepsCopiesIndependent() {
+        var indexed=new WorldVoxels.History();var legacy=new LinkedHashMap<String,Protocol.Edit>();var generic=new LinkedHashMap<String,Protocol.Edit>();var random=new Random(82);
+        for(int step=0;step<80;step++) {
+            int x=step%5-2;var tree=new dev.jayms.net.model.SparseVoxelOctree(16);
+            if(step%4==0)tree.fill(0,0,0,16,16,16,WorldVoxels.encode(Blocks.STONE));
+            if(step%4==1)for(int i=0;i<40;i++){int a=random.nextInt(16),b=random.nextInt(16),c=random.nextInt(16);tree.fill(a,b,c,a+1,b+1,c+1,0xfe000000|random.nextInt(0x1000000));}
+            if(step%4==2)tree.fill(0,0,0,16,16,16,WorldVoxels.encode(1024));
+            var state=new Protocol.CellState(x,128,-1,tree);var before=new ArrayList<>(indexed.entrySet());var copy=WorldVoxels.History.copyOf(indexed);
+            WorldVoxels.rememberCell(copy,state);assertEquals(before,new ArrayList<>(indexed.entrySet()));
+            WorldVoxels.rememberCell(indexed,state);WorldVoxels.rememberCell(generic,state);for(var edit:state.edits())WorldVoxels.remember(legacy,edit);
+            assertEquals(new ArrayList<>(legacy.entrySet()),new ArrayList<>(indexed.entrySet()));assertEquals(new ArrayList<>(legacy.entrySet()),new ArrayList<>(generic.entrySet()));assertEquals(new ArrayList<>(legacy.entrySet()),new ArrayList<>(copy.entrySet()));
+            var edit=new Protocol.Edit(x,128,-1,Blocks.piece(Blocks.BRICKS,4),4,1,2,3,0);
+            WorldVoxels.remember(indexed,edit);WorldVoxels.remember(generic,edit);WorldVoxels.remember(legacy,edit);
+            assertEquals(new ArrayList<>(legacy.entrySet()),new ArrayList<>(indexed.entrySet()));
+            assertNotEquals(new ArrayList<>(indexed.entrySet()),new ArrayList<>(copy.entrySet()));
+        }
+    }
+    @Test void denseCellReplacementAndInvalidResolutionPreserveCanonicalHistory() {
+        var indexed=new WorldVoxels.History();var legacy=new LinkedHashMap<String,Protocol.Edit>();var tree=new dev.jayms.net.model.SparseVoxelOctree(16);
+        for(int i=0;i<4096;i++){int x=i%16,y=i/256,z=i/16%16;tree.fill(x,y,z,x+1,y+1,z+1,0xfe000000|i);}
+        var state=new Protocol.CellState(-17,128,-1,tree);WorldVoxels.rememberCell(indexed,state);for(var edit:state.edits())WorldVoxels.remember(legacy,edit);
+        assertEquals(new ArrayList<>(legacy.entrySet()),new ArrayList<>(indexed.entrySet()));var before=new ArrayList<>(indexed.entrySet());
+        assertThrows(IllegalArgumentException.class,()->WorldVoxels.rememberCell(indexed,new Protocol.CellState(-17,128,-1,new dev.jayms.net.model.SparseVoxelOctree(8))));assertEquals(before,new ArrayList<>(indexed.entrySet()));
+        var snapshot=WorldVoxels.History.copyOf(indexed);WorldVoxels.rememberCell(indexed,new Protocol.CellState(-17,128,-1,new dev.jayms.net.model.SparseVoxelOctree(16)));
+        assertEquals(1,indexed.size());assertEquals(before,new ArrayList<>(snapshot.entrySet()));
+    }
 }

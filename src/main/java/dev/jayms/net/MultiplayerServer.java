@@ -913,7 +913,7 @@ public final class MultiplayerServer implements AutoCloseable {
                 boolean restage=geometry==null;if(restage)geometry=voxels.snapshot();
                 for(var entry:cells.entrySet()) {
                     var p=entry.getKey();var state=new Protocol.CellState(p.x(),p.y(),p.z(),entry.getValue());
-                    for(var edit:state.edits())WorldVoxels.remember(next,edit);
+                    WorldVoxels.rememberCell(next,state);
                     if(restage)geometry.replaceCell(p.x(),p.y(),p.z(),entry.getValue());
                 }
                 if(next.size()>2_000_000)throw new IOException("World persistence edit limit");

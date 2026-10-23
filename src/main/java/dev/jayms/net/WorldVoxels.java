@@ -74,6 +74,15 @@ public final class WorldVoxels {
             return old;
         }
         @Override public void clear() { ordered.clear(); cells.clear(); }
+        private void rememberCell(Protocol.CellState state) {
+            if(state.tree().size()!=RESOLUTION)throw new IllegalArgumentException("Invalid world cell resolution");
+            var replay=state.edits();var old=cells.remove(replay.get(0).cellKey());
+            if(old!=null)for(var key:old.snapshot())ordered.remove(key);
+            // A complete cell starts with air, followed by nonoverlapping octree leaves.
+            // No coverage scan is needed between those leaves. Full-cell leaves share
+            // the prefix key; replacing its value retains the same final replay order.
+            for(var edit:replay)put(edit.key(),edit);
+        }
         private void remember(Protocol.Edit edit) {
             var keys = cells.get(edit.cellKey());
             if (keys != null) for (var key : keys.snapshot()) {
@@ -266,6 +275,13 @@ public final class WorldVoxels {
     }
 
     /** Preserve replay order and remove overrides fully covered by the new region. */
+    /** Replace a complete cell's canonical replay history without repeated coverage scans. */
+    public static void rememberCell(Map<String,Protocol.Edit> history,Protocol.CellState state) {
+        if(state.tree().size()!=RESOLUTION)throw new IllegalArgumentException("Invalid world cell resolution");
+        if(history instanceof History indexed){indexed.rememberCell(state);return;}
+        for(var edit:state.edits())remember(history,edit);
+    }
+
     public static void remember(Map<String, Protocol.Edit> history, Protocol.Edit edit) {
         if (history instanceof History indexed) { indexed.remember(edit); return; }
         history.entrySet()
