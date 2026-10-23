@@ -39,7 +39,7 @@ public final class MultiplayerServer implements AutoCloseable {
     private CitySimulation city;
     private Path citySave;
     private long lastTick = System.nanoTime();
-    private int cityTicks;
+    private final ServerTickCadence tickCadence;
     private final Map<String, AttemptWindow> attempts = new HashMap<>();
     private final AtomicInteger ids = new AtomicInteger();
     private final Semaphore connections = new Semaphore(64), hashing = new Semaphore(4);
@@ -209,9 +209,10 @@ public final class MultiplayerServer implements AutoCloseable {
         listener = tls.getServerSocketFactory().createServerSocket();
         ((SSLServerSocket) listener).setEnabledProtocols(new String[] {"TLSv1.3", "TLSv1.2"});
         listener.bind(new InetSocketAddress(bind, port));
-        // Leave a command-processing window after slow city ticks. Fixed-rate catch-up can
-        // monopolize this server monitor; simulation time already uses actual elapsed time.
-        saves.scheduleWithFixedDelay(this::tickItems, 100, 100, TimeUnit.MILLISECONDS);
+        // Target 20 Hz without catch-up bursts after slow/blocked ticks. Simulation uses
+        // actual elapsed time; every reschedule leaves at least a 1 ms command window.
+        tickCadence=new ServerTickCadence(System.nanoTime());
+        scheduleTick(ServerTickCadence.PERIOD);
         saves.scheduleAtFixedRate(
                 () -> {
                     try {
@@ -703,6 +704,15 @@ public final class MultiplayerServer implements AutoCloseable {
         }
     }
 
+    private void scheduleTick(long delay) {
+        saves.schedule(()->{
+            tickItems(); // Preserve scheduler failure behavior: a failed callback stops ticking.
+            if(running) {
+                try {scheduleTick(tickCadence.delayAfterTick(System.nanoTime()));}
+                catch(RejectedExecutionException e){if(running)throw e;}
+            }
+        },delay,TimeUnit.NANOSECONDS);
+    }
     private void tickItems() {
         long requested=System.nanoTime(),started=0,finished=0;boolean executed=false,succeeded=false;
         try {
@@ -720,7 +730,10 @@ public final class MultiplayerServer implements AutoCloseable {
         long now = System.nanoTime();
         city.advance((now - lastTick) / 1e9);
         lastTick = now;
-        if (++cityTicks % 2 == 0) broadcast(cityState());
+        long publicationTime=System.nanoTime();
+        if(tickCadence.broadcastDue(publicationTime))broadcast(cityState());
+        // Keep item fall/pickup at a 100 ms target rather than doubling its speed.
+        if(!tickCadence.itemsDue(publicationTime))return;
         var iterator = drops.entrySet().iterator();
         while (iterator.hasNext()) {
             var entry = iterator.next();
