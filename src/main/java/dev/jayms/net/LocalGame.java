@@ -28,7 +28,7 @@ public final class LocalGame {
         long worldSeed = requestedSeed;
         int generator = Terrain.CURRENT_VERSION;
         if (Files.exists(save))
-            try (var in = new DataInputStream(Files.newInputStream(save))) {
+            try (var in = new DataInputStream(new BufferedInputStream(Files.newInputStream(save), 64 * 1024))) {
                 int version = in.readInt();
                 if (version != 3 && version != 4 && version != 5 && version != 6 && version != 7 && version != 8 && version != 9)
                     throw new IOException("Invalid offline world");

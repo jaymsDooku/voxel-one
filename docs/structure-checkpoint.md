@@ -1006,3 +1006,62 @@ Native manifest digest: `116182b94ed6d55bd5a1aa14f3caa8cac50636e9aa87ca12adbf45c
 llvmpipe 0–1 FPS; no physical GPU/frame qualification. Local report/media pending
 controller publication. Request feature_validation for new exact-source checks
 after integration; no full city/max, durability or readiness claim.
+
+## Buffered world-file reads
+
+Parent `025df735` has eight inspected hosted summaries: 819 tests each, zero
+failures/errors, one skip. Exact feature sources and PR merge parents verified
+against review base in `structure-025d-hosted.json`; no repeated completed wait.
+
+Offline/server world loaders now wrap primitive reads in a bounded 64 KiB input
+buffer, closed by the existing DataInputStream resource. Parsers, count limits,
+file formats, save publication and EOF validation unchanged. ModelDefinition's
+trailing-byte check operates on its own bounded ByteArrayInputStream; outer file
+buffering does not affect that check. Adds one bounded buffer per loader.
+
+40 selected tests passed: actual offline persistence/undo/rollback, actual TLS
+multiplayer/restart, fractional world, history and atomic publication policy.
+Review helper failed and was resolved self. Stream ownership, parser transparency
+and nested byte-array validation independently inspected; no delegated execution.
+
+Actual LocalGame-constructor probe: known SHA-256 version-8/version-9 synthetic
+files, 100,000 valid edits in 40,000 cells, one 8-resolution definition in v9.
+Three warmups and 20 measured loads per parent/current and format in separate
+JVMs. Every load verifies all ordered edits and model identity/fingerprints outside
+timing. Each mode/format rejects the complete fixture truncated by one final byte
+and an invalid version, then reloads the good fixture after each error. Input
+bytes remain unchanged. Parent class compiled from exact `025df735`; dependencies
+otherwise identical. No concurrent native run during measurements. Warm cache,
+not cold region load, nearby usable geometry, peak memory or reference system
+qualification. Server loader covered by actual TLS restart, not timed here.
+
+Version-8 parent/buffered median/p95/worst:
+1,235.332631/1,390.108253/1,433.839175 ms versus
+119.011969/241.571668/286.532681 ms. File 2,400,101 bytes, SHA-256
+`76bc1e642310fb2a58487f28934e16137a95fedf1d7b1b1c4f673a109d3bb1dc`.
+Version-9:
+1,211.579218/1,345.296766/1,430.185849 ms versus
+118.726687/232.537076/295.772445 ms. File 2,400,166 bytes, SHA-256
+`072c1aa5600d23320a0695f60cf044a7de3a5822b8162869b609e960dd82492b`.
+Source: `WorldLoadProbe.java`; report: `structure-buffered-load-validation.json`.
+
+Full history reconstruction remains O(history size). Full city/max admission,
+atomic chunk publication, persistence beyond 2,000,000 edits, complete power-loss
+durability, cold region load and 20-run reference GPU/network/system qualification
+remain unfinished. Rollout gates stay closed; no caps raised. No files deleted
+against review base `4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a`. Intended source-line
+replacements only buffer existing file reads. MP3, Hub and Asset Manager retained.
+Controller owns integration/publication and new exact-source checks after fresh
+native media completes. Not ready for review.
+
+Fresh native workflow passed on all 214 unchanged production/harness source paths
+and hashes. Capture/export/import, all four rotations, preview/conflicts,
+empty-space preservation, live-player guard, cancellation, undo, repeated
+placement, restart and inventory/model-editor regressions passed. Inspected fresh
+rejection image and decoded F10 saved-placement frame. H264: 15 frames, 25.588 s,
+408,219 bytes; SHA-256
+`35e799eb67e662dc62d8c43ec89543736b3a5ce71b299bd201f9dbbb73098829`.
+Native manifest digest: `b873d8a4d778237eee64ba137a9c96297c2fa696d62c9a5492dbcb8a06f8f53a`.
+llvmpipe about 1 FPS; no physical GPU/frame qualification. Local report/media
+pending controller publication. Request feature_validation for new exact-source
+checks after integration; no full city/max, cold-load, durability or readiness claim.

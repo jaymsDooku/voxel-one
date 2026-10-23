@@ -96,7 +96,7 @@ public final class MultiplayerServer implements AutoCloseable {
         this.save = save;
         this.accounts = accounts;
         if (save != null && Files.exists(save)) {
-            try (var in = new DataInputStream(Files.newInputStream(save))) {
+            try (var in = new DataInputStream(new BufferedInputStream(Files.newInputStream(save), 64 * 1024))) {
                 if (in.readInt() != Protocol.MAGIC) throw new IOException("Invalid world save");
                 int count = in.readInt();
                 terrain = new Terrain(seed, Terrain.LEGACY_VERSION);
