@@ -1065,3 +1065,60 @@ Native manifest digest: `b873d8a4d778237eee64ba137a9c96297c2fa696d62c9a5492dbcb8
 llvmpipe about 1 FPS; no physical GPU/frame qualification. Local report/media
 pending controller publication. Request feature_validation for new exact-source
 checks after integration; no full city/max, cold-load, durability or readiness claim.
+
+
+## Server publication staging continuation
+
+Published parent `1c87a086cccacbfc5f8b13f4f3297b513a9af0dc`: inspected
+push run 39880661480 and PR run 39880666355. All eight Maven artifacts report
+819 tests, zero failures/errors and one skip each. Verified PR merge source
+`d8114f8646375e2cdffae7e9217c49f526676252` has the exact feature and recorded
+review-base parents. These results do not cover new edits.
+
+Server placement and undo now build synchronization cells and compressed bytes
+before the final authority lock. A short locked dependency lookup checks revision;
+final locked validation checks revision, destination/chunks and live bodies again.
+No publication before save succeeds. Serialization cancellation checks entry,
+each definition/cell and completion. Undo accepts the server cancellation flag,
+rechecks models/cells after staging and retains its record on failure. Default
+offline authority behavior and wire format/limits stay unchanged. History copy,
+geometry staging, save and broadcast remain locked; late-join compression unchanged.
+
+Actual command: `mvn -q -Dmaven.repo.local="$PWD/target/structure-m2"
+-DargLine="-Djava.io.tmpdir=$PWD/target/structure-audit-tmp"
+-Dtest=StructurePublicationStagingTest,StructureTest,StructureMultiplayerTest,StructureValidationStampTest,StructureOccupancyTest test`.
+Result: 46 tests, zero failures/errors/skips. Six new tests cover lock ownership,
+concurrent destination edits during a latch-blocked stage, publication failure,
+cancellation/retry, undo history retention and model/cell revalidation, wire byte
+identity, cancellation boundaries and interrupt recovery. Actual three-client TLS
+workflow covers 512 dependencies, rotations, observer movement, overlap, contested
+placement, cancellation, undo, late join and restart. Synthetic profiles only.
+Two initial test-compilation failures were corrected before the successful run;
+no failed run is counted as passed. Helper failed and was resolved self; all
+concurrency reasoning and tests were independently inspected and executed locally.
+
+No deleted files against review base. Removed server cell-list/encoding lines were
+moved into staging. MP3, Hub and Asset Manager remain. No caps raised. Full city/max
+admission, atomic chunk publication, persistence scaling, physical-GPU and shaped
+32-client qualification remain unfinished. Rollout gates stay closed.
+
+Repeated `StructurePublicationStagingTest` after adding a model-definition wire
+fixture: six tests passed again, zero failures/errors/skips. Cancellation before
+the definition, both cells and final completion preserves retry bytes; decoded
+definition fingerprint matches. This is a focused repeat, not six extra unique tests.
+
+Playtest: `python3 deploy/run_structure_playtest.py --display "$DISPLAY"` passed
+on inherited X11/GLFW with an isolated synthetic offline profile. Named capture,
+anchor, browse, self-contained export/import, all four rotations, footprint/conflict
+preview, empty-space preservation, overlap/live-player rejection, placement and
+export/import cancellation, malformed import atomicity, undo, repeated placement,
+32-resolution dependency/restart and inventory/model-editor regressions passed.
+All 214 production/harness manifest paths and hashes match this implementation.
+Inspected fresh decoded video frame and player/occupied rejection screenshots.
+F10 H264 video: 16 frames, 32.204 s, 358,474 bytes, SHA-256
+`9c91f8da2940df63f2ab9783fd095aaa697d2ac0989e424cff504ac018e876dd`.
+Manifest SHA-256: `53ebc46f450fe8e7702971494028e1639cdbc7a7243d6eb7d5a64c3e5024fdfb`.
+Renderer llvmpipe LLVM 15.0.6, 0–1 FPS: functional evidence only, no GPU/frame
+qualification. Local report/media pending controller publication. Controller
+feature_validation handoff needed for integration/publication and new exact-head
+checks. No full city/max, tick/frame, network, durability or readiness claim.
