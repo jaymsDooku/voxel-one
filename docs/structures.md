@@ -1,0 +1,480 @@
+# Experimental reusable structures
+
+Structures copy physical construction across world cells. They contain blocks,
+fractional geometry and immutable voxel model definitions, without scaling.
+Players, inventories, drops, businesses and other simulation state are excluded.
+Placed copies do not follow later edits to a saved package or source model.
+
+This implementation is experimental. City performance, maximum fragmented
+construction, physical-GPU rendering and the agreed shaped-network budgets are
+not qualified. No supported-city claim or stable rollout is made.
+
+## Use
+
+The default structure-library key is F12; it can be remapped in Controls. Aim at
+a cell, open the library and type `first`, then press Enter. Close the library,
+aim at the opposite corner, reopen and enter `second`. Use `anchor` on a selected
+cell to align placement; otherwise the minimum corner is the anchor. The anchor
+must be inside the selection. Selection corners include their entire world cells.
+
+Type `capture House` to save the selected physical region as House. Up/Down
+browses saved `.vstr` packages. `at 20 64 30` sets the world cell at which the
+anchor is aligned. `rotate` turns the package another 90 degrees around the
+vertical axis; no scaling or arbitrary-angle rotation is provided. Bounds and
+an anchor cross appear in the world view. `preview` checks destination cells;
+movement and rotation invalidate older conflict results. `place` places a copy
+and keeps the selected package available for repeated placement.
+
+Placement rejects every occupied destination cell corresponding to an occupied
+source cell, even if only a small fraction of that cell is occupied. Empty source
+cells do not erase destination terrain. Preview is advisory: the authority checks
+again before publication. Offline and server commits also reserve live player,
+citizen, horse and cow bodies. Every nonempty resulting cell is checked as a whole
+cell, including fractional geometry and model instances. Bodies entering after
+preview or staging reject the entire commit without dependency, geometry or save
+changes. The same check applies to undo restoring nonempty cells; undo removing
+geometry may proceed around bodies. Commit-time validation probes changed cells
+under each live body instead of scanning the full structure for every body;
+reservation sizes and authority locking remain the same. Escape or `cancel`
+requests cancellation before commit.
+A completed commit cannot be cancelled. In multiplayer, cancellation is confirmed
+by the server and can arrive after upload; do not assume a request rolled back an
+already completed placement.
+
+`undo` reverses the most recent retained placement as one operation. It refuses
+to overwrite cells changed since placement; unrelated cells are preserved. Undo
+history is session-local, with at most eight records per actor and a global target
+of 262,144 occupied cells. Older records age out first; the newest admitted
+placement remains undoable even when it exceeds that target. Dependencies remain deduplicated
+after undo so other placed copies continue to work.
+
+`export` writes the selected self-contained package to the library's `exports`
+folder. `import PATH` validates a package before adding it to the local library.
+The library is under the game's device profile in `structures/`. The current
+browser shows the first 256 package names in sorted order. Import errors
+do not alter the world. Captures include implicit seeded terrain and edited
+geometry; model definitions are copied and frozen.
+
+## Format and safety limits
+
+VSTR version 2 is a strict gzip-compressed binary package with name, dimensions,
+anchor, deduplicated model definitions and occupied cells ordered by 16-cell
+spatial sections. Geometry keeps its original 1/16-cell detail; voxel models keep
+their own 8/16/32 resolution, colours and 8,192-quad/200,000-byte per-model limits.
+Definitions are identified by SHA-256 over the existing name/voxel serialization.
+Placement remaps them to immutable world definitions, baking quarter-turn model
+orientation into a copied definition rather than stretching it.
+
+Enforced format ceilings are 1,024×256×1,024 cells, 4,000,000 occupied cells,
+512 unique dependencies, 64 MiB compressed and 512 MiB decoded. Decoding checks
+the version, order, duplicate positions, material values, references, gzip CRC
+and lengths. Invalid dimensions/counts fail before world publication.
+
+Validated packages retain cell coordinates and model references in primitive arrays,
+with frozen geometry references. Reading a cell creates a temporary record; the
+public list remains immutable and spatially ordered. This reduces retained
+per-cell objects without increasing admission limits.
+Constructor validation uses primitive sort keys for canonical ordering and duplicate
+detection. Capture/decode accumulate cells in bounded primitive buffers and pass a temporary
+read-only view through full constructor validation. Capture copies source trees
+before freezing them. Decoded trees are owned by the importer. The private capture/import path validates this owned buffer directly; public
+constructor inputs are copied before freezing. Both paths enforce all package
+checks. Sorting still creates final storage separately, and placement staging
+needs further memory work.
+
+Additional provisional development caps are 131,072 geometry leaves and 16,384
+model instances per package, 1,048,576 model-definition surface quads,
+1,048,576 instance-weighted model quads, and 262,144 instance-weighted
+model quads per affected chunk, with at most 256 affected chunks per placement.
+Detached production CPU meshes validate each affected chunk before publication,
+including unchanged geometry. The authority repeats this check under its lock
+to cover concurrent edits outside the footprint. Chunk edges are conservatively
+counted as exposed. These are safety caps, not benchmark-established
+supported limits. A representative city or maximum fragmented fixture can exceed
+them and is currently rejected. World-only structure definitions have a separate
+budget of 2,048 definitions and 128 MiB serialized model data. These allowances
+do not change the legacy 128-custom-model world library or 16-model author quota.
+
+World-only component IDs occupy 1024–66559 and cannot enter inventory byte slots.
+Existing worlds without these components retain their version-8 offline or
+version-8 server save format. Worlds containing them use version 9, with explicit
+integer model IDs. Older world versions remain readable; old clients cannot read
+the new save format. Network protocol 31 carries atomic dependency/cell batches;
+the desktop client can still reconnect to supported legacy servers without
+structure commands. Updated servers require an updated client.
+
+Build/pose validation permits cells from y=-1024 through y=1023 while natural
+terrain remains unchanged. High/low edited chunks and nearby air use the existing
+bounded terrain worker. Such worlds have a provisional 2,048-chunk residency cap;
+ordinary terrain retains its 1,690-chunk cap.
+
+Capture asks immutable world snapshots whether a cell is known empty before
+materializing its octree. Unknown answers retain the original one-read capture
+path. Bounds checks, cancellation and progress still run for every coordinate;
+fractional geometry and model dependencies follow the same package validation.
+
+Staging reuses immutable trees for repeated whole-cell materials and repeated
+instances of the same dependency. Identity rotations retain persistent octree
+nodes through frozen snapshots. Editing one placed cell still creates independent
+world geometry. Undo history targets 262,144 retained cells and evicts older
+operations first; the newest admitted placement remains one undoable operation
+even when it exceeds that target. This history policy does not increase package,
+world, geometry or affected-chunk admission limits.
+
+## Remaining qualification work
+
+Reference hardware and network qualification is deferred. The current commit
+path serializes placements and validates/stages work off-thread, but final owner
+thread application, persistence, initial dependency loading and render uploads
+can still exceed frame/tick budgets. These are unresolved performance gates,
+not passed tests. The existing server simulation schedule also needs measurement
+against the requested 20 Hz requirement. The current maximum world history is
+2,000,000 edits; a placement exceeding it is rejected before publication.
+
+The benchmark corpus and CPU probes in `structure-benchmark-preparation.md` remain
+prerequisite tools. Their timings are not capture/placement or 32-client city
+qualification. Final supported geometry/instance limits and stable rollout stay
+gated until the agreed city and fragmented scenarios pass all budgets.
+
+Placement undo stores an immutable empty-value view over the placed cell keys.
+This relies on the occupied-destination rejection policy: every admitted before
+image is empty. The authority still checks for later changes before undo.
+
+Detached chunk validation checks staged cells first. For untouched cells, the
+snapshot may skip an octree lookup only when its conservative hint proves air.
+Unknown hints retain the full cell read; mesh and model budgets still apply.
+
+
+Placement staging retains immutable relative-coordinate arrays and frozen tree
+references instead of one object key and hash-map entry per occupied cell. The
+footprint bounds limit each coordinate key to 28 bits. Sorted keys use binary
+search for lookups; the authority still receives the same immutable Map API.
+This reduces retained staging storage on the measured small fixture. It does
+not remove owner-thread commit, mesh, persistence, history or admission limits.
+
+
+VSTR readers accept versions 1 and 2; new exports use version 2. Version 1 readers
+reject version 2 packages. Existing standalone voxel-model files, model transfer,
+model fingerprints and saved-world formats are unchanged. A v1 package is decoded
+with its original model codec and can be exported as v2 without changing content.
+
+Version 2 adds one encoding byte per model dependency. Mode 0 contains the
+existing length-prefixed `ModelDefinition` representation. Mode 1 contains the
+name (Java modified UTF, validated as 1–32 ASCII name characters), a resolution
+byte (8, 16 or 32), a fixed occupancy bitmap of resolution³/8 bytes, then RGB
+triples for occupied voxels. Index order is x fastest, then y, then z; voxel i
+uses bit `1 << (i & 7)` of byte `i >>> 3`. Air has no RGB triple; opaque black has
+a set occupancy bit and three zero bytes. Alpha is restored as 255. Encoding
+chooses the smaller representation before writing. Legacy definitions containing
+redundant octree branches retain mode 0 so their exact fingerprints survive. Sparse/uniform components
+usually retain their existing octree bytes; dense components avoid per-voxel
+alpha and octree-node overhead. Decoding still enforces existing model limits,
+package budgets, surface/geometry limits and dependency validation. This format
+change does not qualify city admission or performance.
+
+
+Import validates each dependency's identity, occupancy and surface budget as it
+is decoded, before retaining later definitions or reading world cells. The final
+package validation still checks references, geometry, counts and byte integrity.
+
+
+World snapshots share frozen cell trees through chunk buckets. Each snapshot
+copies the chunk index; the first subsequent edit to a shared bucket copies that
+bucket before replacing a cell. Single-cell buckets store one local key directly;
+other buckets use local integer keys. Repeated and nested snapshots remain
+independent, including after clear/replay. Cell reads are immutable; world edits
+use `WorldVoxels.apply`, or `replaceCell` for a validated complete 16³ cell.
+Whole-cell replacement copies the tree wrapper and shares persistent nodes, so
+caller edits and snapshots remain independent. Server structure staging uses
+this path instead of replaying every leaf into its private geometry snapshot.
+Edit history is still generated and saved in the existing format; this does not
+remove history limits or make the full commit asynchronous. Snapshot creation and mutation remain owner-thread
+operations. A handed-off snapshot can be read independently; concurrent mutation
+of the same WorldVoxels instance is not supported. No save or wire format changes.
+
+This bounds per-bucket copying to 4,096 cell slots but still copies the whole
+edited-chunk index. Widely scattered edits can therefore increase snapshot work.
+Measured CPU probes cover compact and scattered 100,000-cell worlds; they are
+not city/max, peak-memory or reference GPU/network qualification. Owner-thread
+application, persistence and other outstanding gates above remain unresolved.
+
+
+Edit histories index a single edit key directly for cells with one retained edit.
+A second distinct key promotes the cell index to an ordered set; removal back
+to one key releases that set. Global replay order remains in the existing
+ordered history map. Collection views are read-only; callers mutate through
+put/remove/clear so the cell index stays consistent. This changes no file or
+wire representation and does not remove the 2,000,000-edit persistence limit.
+The compact index saves memory for single-edit cells, with an extra wrapper
+for cells that retain multiple fractional edits. Measured tradeoffs are recorded
+in the history-index validation report; they do not establish supported city
+limits or qualify whole-operation timing budgets.
+
+
+Package loading and decoding have cancellable worker APIs. Saved-library loads
+and imports pass their operation flag through dependency parsing, cell parsing
+and final validation. Server placement decode uses the peer cancellation flag
+before staging. Import progress reports 0–99 during parse and 100 after gzip
+integrity and package validation. A cancellation raised by a progress callback
+still aborts delivery. Existing decode/load entry points preserve their formats
+and validation rules. Cancellation is checked between bounded decode/validation
+units, not by interrupting an individual file read, model mesh or final cell
+sort. This does not qualify city-scale latency or change placement admission.
+
+
+Encoding and asset-file saving also accept cancellation/progress callbacks.
+Capture, import, export and upload preparation use those flags. File saves stage
+bytes in a temporary file in the destination directory, check cancellation
+between writes of at most 64 KiB and immediately before atomic replacement,
+and clean failed staging files. Cancellation before replacement preserves an
+existing destination. Save progress stays below 100 until return; the UI marks
+100 on successful completion. A successful atomic replacement commits the asset
+file; later cancellation does not hide that success or undo the file. Callbacks
+run only before this commit boundary. This does not add fsync durability or
+qualify latency, city admission or world-placement persistence budgets.
+
+
+Detached structure chunk validation installs complete 16³ world cells through
+aligned persistent octree subtree replacement. It visits source nodes to
+normalize legacy redundant branches, shares unchanged immutable nodes and
+copies destination ancestor paths. The source tree and encoded identity stay
+unchanged. Chunk metadata records whole-cell model IDs and fractional-cell
+counts, matching leaf replay; validation still runs the same CPU mesh and
+instance budgets. This reduces staging work without changing world publication,
+file/wire formats, geometry detail or admission caps. The detached assembly
+probe is documented separately from full city/max and system qualification.
+
+
+Server staging records opaque, process-local geometry stamps for successfully
+validated chunks. Final commit reuses that CPU mesh validation only if the live
+stamp still matches under the authority lock. Stamps include terrain identity
+and a stable generation, chunk-bucket identity and its edit revision. Snapshot
+trust is lost after any terrain generation change, including a change away and
+back. Changed chunks and unknown stamps always run full validation. This cache
+belongs only to one prepared placement and retains at most 256 chunk stamps.
+Offline/default sources keep full validation. Final commit also reuses the staged
+empty-destination proof when every affected chunk has a matching non-null live
+stamp. A missing or changed stamp anywhere restores the full destination scan.
+That fallback checks cancellation every 128 destinations. Model revision,
+cancellation and live-body checks still run at commit. This removes repeated
+validation and occupancy reads for unchanged server chunks; it does not remove
+history/save costs, expand admission or qualify city/max and tick/frame budgets.
+
+Structure transaction history copies preserve the ordered edit map and share
+per-cell key indexes until either copy edits that cell. Owner tokens fence both
+sides of each copy boundary, including nested copies. Generic map sources keep
+the validated rebuilding path. This avoids regenerating the full cell index for
+each offline/server structure transaction. It still clones two top-level maps
+and remains O(history size) under the existing authority lock. First edits to
+shared fractional indexes clone their key sets. Full-history serialization and
+the 2,000,000-edit persistence ceiling remain; see
+`dashboard/evidence/structure-history-copy-validation.json` for scoped allocation
+measurements and explicit exclusions from city/max/system qualification.
+
+Offline/server world saves buffer primitive writes in 64 KiB before closing the
+temp file and performing the existing rename. Save schemas and bytes stay the
+same. The actual offline version-8/version-9 save/reload probe compares complete
+file hashes against the parent implementation; see
+`dashboard/evidence/structure-buffered-save-validation.json`. Those historical
+20-sample timings cover buffering without file forcing, use a warm cache and
+exclude load/verification work. Current writers also flush the buffer and call
+`FileChannel.force(true)` on the writing channel before closing and renaming.
+A force failure exits before publication. Structure placement and undo require
+atomic replacement: unsupported atomic moves reject through rollback without a
+non-atomic retry. Ordinary saves retain their compatibility fallback. Directory
+durability barriers are not added; no fallible I/O follows a successful rename. Complete power-loss durability
+and full city/max durable-save qualification remain pending, alongside full-history
+serialization and the 2,000,000-edit persistence ceiling.
+
+Offline/server world loaders buffer primitive reads in a bounded 64 KiB input
+stream. Parsers, count limits and EOF checks are unchanged. The warm-cache
+constructor diagnostic and late-EOF/invalid-version retry checks are recorded in
+`dashboard/evidence/structure-buffered-load-validation.json`. Those measurements
+include history reconstruction, but do not qualify cold region loading, usable
+nearby geometry or full city/max/system budgets.
+
+Server placement and undo stage the synchronization cell list and compressed
+publication before taking the final authority lock. The short dependency lookup
+uses that lock and verifies the captured model revision. Final commit rechecks
+model revision, destination/chunk state and live bodies under the same lock before
+saving or broadcasting. Undo also rechecks every placed cell and keeps its history
+record on staging failure, cancellation or concurrent edits. Serialization checks
+cancellation between definitions and cells and after compression closes. No partial
+event is broadcast. The wire format and byte limits stay unchanged. Offline
+authorities retain their commit path. This removes server publication compression
+from the critical section; history copying, geometry staging, durable save and
+queue publication still hold the lock. Late-join synchronization is unchanged.
+This is not a tick, frame, memory, city/max or shaped-network qualification.
+
+Server tick diagnostics retain at most 4,096 actual tick starts, lock waits and
+work durations. `MultiplayerServer.tickTiming()` returns immutable aggregate
+snapshots with lifetime tick/failure counts, window span/rate and nearest-rank
+median/p95/worst milliseconds. Interval samples count gaps between actual starts;
+lock wait starts when the scheduled callback is invoked and excludes prior
+scheduler queue delay. Work includes city advancement, item updates and tick
+broadcast construction under the authority lock, including failed ticks. Snapshot
+copying is bounded; sorting happens after releasing the metrics lock. No player
+or account data is retained. These measurements expose cadence and lock contention;
+they do not by themselves qualify the required 20 Hz or p95 <50 ms budgets.
+
+The server now targets 50 ms monotonic tick deadlines (20 Hz). A completed tick
+schedules exactly one next callback. Slow ticks, authority-lock waits and periodic
+saves skip missed slots instead of running catch-up bursts. The next callback is
+scheduled at least 1 ms after completion, leaving an opportunity for commands;
+this is not a monitor-fairness guarantee. City simulation still advances by actual
+elapsed time. Separate elapsed-time gates keep item fall/pickup at a 100 ms target
+and city snapshots at 200 ms; missed item/broadcast slots are not replayed.
+Shutdown stops rescheduling, and a failing callback retains the prior stop-on-error
+behavior. The small TLS diagnostic is separate from full city/max, shaped-network
+and physical-GPU qualification, which remain pending.
+
+Server placement and undo capture only affected geometry buckets under the
+authority lock, then stage frozen cell replacements on the worker. A candidate
+merge checks every captured chunk/terrain stamp under the final lock. Matching
+stamps install the staged buckets into a snapshot of the current world, preserving
+new edits in other chunks. Any changed/unknown stamp uses the existing full
+restage path, preserving nearby edits before the usual atomic save/publication.
+Owner-token changes protect the live world, older snapshots and candidates from
+later staging edits. Cancelling or discarding staging changes no live cells.
+The normal path moves per-cell geometry copying outside the final lock; history
+updates, top-level map copying, save I/O and changed-chunk fallback remain locked.
+The scoped geometry probe records the CPU/lock-time tradeoff separately from full
+city/max and system qualification in `structure-cell-patch-validation.json`.
+
+Offline structure commit and rollback now install a whole cell through
+`World.replaceCell` instead of replaying each leaf through renderer-facing edits.
+Destination geometry is canonicalized without changing source bytes, then copied
+to collision storage and grafted into any resident chunk. Canonical edit history,
+final edit revision, model/fractional metadata, sky invalidation and cold replay
+remain intact. Sky/mesh invalidation coalesces within the owner-thread call; no
+intermediate air/leaf states are rendered. History for complete cells clears the
+old cell index once and inserts the same air-prefix/nonoverlapping leaf sequence
+without quadratic coverage scans. Generic histories retain legacy replay. Offline
+and server history staging use this path. Save schemas, file ordering, preimages
+and atomic-save/rollback sequencing are unchanged. Owner-thread history copying,
+whole-structure application and disk I/O still need full-scale qualification; the
+scoped diagnostic is `structure-world-cell-validation.json`.
+
+### Legacy geometry undo comparison
+
+Undo compares voxel values, rather than octree leaf-list representation. Legacy
+packages can contain redundant branches that world storage collapses. An unchanged
+placed cell must remain undoable after that normalization. The comparison shares
+identity fast paths, handles air and uniform nodes without expansion, and allocates
+no leaf lists. Different voxel values still reject undo before publication.
+
+The local regression reproduces the old rejection using a self-contained legacy
+package, then checks successful undo and rejection after a later fractional edit.
+Random mixed trees, redundant branches down to individual voxels, air, coloured
+materials, frozen source bytes and differing resolutions are covered separately.
+This fix does not change package bytes, model identity, placement admission limits
+or the outstanding city/maximum and physical-GPU/network qualification gates.
+
+### Server save-prefix staging
+
+Structure placement and undo stage a private sibling save prefix on the worker.
+The prefix contains the existing save header, immutable model definitions and a
+copied edit history with the requested cell replacements. Serialization and prefix
+flush run outside the server authority lock. Histories expose an owner-thread
+revision paired with object identity; ordinary map writes, removals, clearing and
+complete-cell updates invalidate the captured revision. Final publication rejects
+a changed history with a retry message, including edits outside the footprint,
+rather than overwriting concurrent work with a stale save.
+
+After the engine revalidates models, geometry and cancellation, the authority checks
+live bodies and appends current inventories, health and dropped items under its
+lock. The file is flushed and forced before strict atomic replacement, followed by
+live geometry/history publication and broadcast. Staged files have distinct names
+from ordinary saves. Resource cleanup covers cancellation, rejected revalidation,
+writer errors, failed rename and abandoned staging. The format and admission caps
+remain unchanged. Ordinary save publication retains its existing fallback policy.
+
+The direct-commit fallback also constructs its one-cell wire event under the lock;
+it is not an isolated replay of the previous staged production path.
+The 20-run synthetic server diagnostic uses 131,072 existing whole-cell edits and
+one replacement cell, with three warmups. Exact save bytes match the prior path.
+Direct-commit fallback median/p95/worst was 87.402302/238.923021/267.954182 ms;
+staging was 82.620994/161.387811/179.472714 ms; final guarded publication was
+3.021576/7.639779/19.790220 ms. This isolates authority save phases on the shared
+VPS. It excludes full placement validation, dependencies, inventories, drops,
+clients, ticks, rendering and peak memory. History copying still acquires the lock;
+final tail serialization and disk force also remain guarded. These results do not
+establish the 100 ms stall budget or city/max support. Busy-world retry behavior,
+partitioned persistence and full system qualification remain unfinished.
+
+### Bounded server history-copy reads
+
+Server structure save staging now captures a revision-checked history cursor under
+the authority lock. It reads at most 1,024 immutable edit references per lock hold
+and rebuilds the detached history/index on the worker between reads. Each batch,
+including completion, checks the captured revision before iterator access. The
+server also checks source-history identity. Any write, replacement, removal or
+clear invalidates the copy; COW index-owner changes alone do not. Final publication
+retains the existing revision/identity guard. Cancellation during copying creates
+no save-prefix file. Offline transaction copying retains the existing shared-index
+clone path.
+
+A 20-run isolated copy diagnostic with 262,144 whole-cell edits and three warmups
+reported whole-clone guarded median/p95/worst of
+50.540579/193.049155/207.736418 ms. The maximum guarded batch per run was
+0.075254/0.146869/0.157552 ms; the sum of guarded reads was
+8.454132/11.909500/13.481683 ms. Total batched copy time was
+299.527839/385.274064/398.501998 ms. Median thread allocation increased from
+23,068,952 to 72,337,480 bytes. Exact replay order and source independence matched.
+This trades more total CPU/allocation for shorter guarded work; it does not prove
+tick/frame/stall or peak-memory budgets. The probe has no competing thread, server,
+save, geometry, network or rendering. GC pauses and busy-world retries remain part
+of outstanding full qualification. Existing admission and persistence caps remain.
+
+### Reusing validated history keys
+
+Bounded cursor batches now retain immutable keys together with immutable edits.
+They snapshot each key/value immediately under the authority lock and retain no
+mutable map entries. Worker copying reuses those validated strings through the
+same index/revision update path as ordinary puts; public puts still validate keys.
+Cancellation checkpoints remain before every copied edit. Cursor and final
+identity/revision guards are unchanged, and cell indexes are still rebuilt.
+
+Both diagnostic modes use the new key/value capture; the rebuild control uses
+public puts and is not an exact replay of the parent binary.
+Two sequential diagnostic JVMs each used 262,144 whole-cell edits, three warmups
+and 20 measured runs. Rebuilding keys versus reusing them gave total batch-copy
+median/p95/worst of 264.209773/313.733590/317.726842 ms versus
+195.776655/279.573552/308.566410 ms. Median thread allocation was
+73,377,864 versus 50,331,400 bytes. Reuse-mode maximum guarded-batch
+median/p95/worst was 0.092402/0.190105/0.761216 ms. The rebuild control had a
+148.055859 ms worst guarded sample; its cause was not instrumented. No stall-budget
+pass follows from these diagnostics. Allocations still exceed the shared-index
+whole-clone baseline (23,068,952 median bytes), and total system/GC behavior needs
+qualification. This probe has no competing thread, server, geometry, save, network
+or rendering. Package limits and stable-rollout gates remain unchanged.
+
+### Skipping proven-empty capture chunks
+
+Capture validates both world-space bounding corners using long additions before
+consulting hints. It caches a conservative whole-chunk emptiness result in a
+bounded byte array (at most 65×17×65 = 71,825 bytes for unaligned maximum bounds).
+The scan keeps y/z/x encounter order and skips only the current x run to the next
+16-cell boundary. Dependency order and package bytes remain stable. Cancellation
+runs before each span and each visited cell; progress accounts for skipped cells.
+
+World snapshots prove a chunk empty only when its entire y range is outside
+Terrain.MIN_Y through Terrain.MAX_Y (-32 through 95) and every edited cell in it
+is air. Missing or air-only override buckets may therefore be skipped above or
+below terrain. Occupied overrides, fractional geometry and model instances prevent
+skipping. Chunks intersecting the full terrain range return unknown, regardless of
+local column height. Unknown sources retain cell-level capture checks. Server
+snapshots expose the same chunk hint; their prior per-cell behavior remains.
+This changes neither package format nor geometry/dependency/admission caps.
+
+The 20-run sparse-box diagnostic uses one occupied cell at world y=180 in otherwise
+air boxes of 512×128×512 and 1,024×256×1,024 cells. It uses actual World snapshots,
+three warmups, disabled-hint control first and exact encoded-byte checks outside
+timing. It is not the populated city/maximum fixture. City-size box capture
+median/p95/worst was 563.252185/725.220276/833.815266 ms without chunk hints and
+25.661882/30.513305/32.654733 ms with hints. Maximum-size box results were
+4543.203166/4626.064057/4641.366858 ms and
+198.389395/204.199894/206.134547 ms. Untimed cell checks fell from 33,554,432 or
+268,435,456 to 4,096; each mode read one octree. Both modes use current chunk-run
+capture code, not an exact parent-binary replay. No placement, save, peak-memory,
+GPU or network qualification follows from these sparse-box measurements.

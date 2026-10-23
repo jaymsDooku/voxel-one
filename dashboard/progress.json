@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-21T12:06:01+00:00",
+  "updatedAt": "2026-10-23T05:45:13+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4010,6 +4010,15 @@
       "status": "in_progress",
       "note": "CI follow-up confirmed: both exact-head runs passed Linux, Windows, Intel Mac and Apple Silicon Mac; publish skipped. Earlier cancelled run was superseded. Source hashes match validated playtests. Ready for independent review.",
       "updatedAt": "2026-10-08T15:02:53+00:00"
+    },
+    {
+      "id": "38386339653031612d356232622d343634362d616262332d383538623938346339346437",
+      "title": "Reusable voxel structures alongside voxel models",
+      "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Empty-chunk capture: 48 unique focused tests and fresh native workflow passed; all 217 source hashes match. Twenty-run one-cell sparse-box diagnostics preserve bytes and reduce scan work; these are not populated acceptance fixtures. New edits/media/report pending controller publication and exact-head checks. Full qualification remains gated.",
+      "updatedAt": "2026-10-23T05:45:13+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

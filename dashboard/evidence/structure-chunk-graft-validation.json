@@ -1,0 +1,135 @@
+{
+  "schema": 1,
+  "parentHead": "b598be2bc3069f92d7cec9d8d7480c8ace9ad25b",
+  "change": "Aligned persistent octree subtree replacement and Chunk.replaceCell for detached structure chunk validation. Replaces Protocol.CellState leaf-edit replay in that staging path. Destination-only canonical normalization preserves legacy source bytes/fingerprints, correct whole-cell/fractional flags, model IDs and mesh output. No world save/commit redesign or admission cap change.",
+  "tests": {
+    "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=ChunkCellReplacementTest,StructureTest,StructureMultiplayerTest,FractionalWorldTest,WorldStreamingTest test",
+    "total": 41,
+    "suites": [
+      {
+        "name": "dev.jayms.ChunkCellReplacementTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.106"
+      },
+      {
+        "name": "dev.jayms.StructureTest",
+        "tests": "24",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "2.73"
+      },
+      {
+        "name": "dev.jayms.StructureMultiplayerTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "13.209"
+      },
+      {
+        "name": "dev.jayms.FractionalWorldTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.108"
+      },
+      {
+        "name": "dev.jayms.WorldStreamingTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "1.175"
+      }
+    ],
+    "coverage": "100 seeded complete-cell replacements compare exact geometry, model map and fractional metadata with replay, including models/LED/air. Exact generated vertex/index/surface arrays compared. Source mutation/snapshot isolation, every coordinate in a grafted 32-cube tree, neighbours, uniform collapse, bad alignment/bounds/size/frozen destination, and noncanonical legacy source bytes tested. Existing offline/TLS placement/undo and streaming regressions passed.",
+    "initial_run": "40 selected cases passed before the canonical legacy-tree refinement; 41 selected cases passed on final source."
+  },
+  "probe": {
+    "compile": "javac --release 17 -cp target/classes -d target tools/structures/ChunkGraftProbe.java",
+    "commands": [
+      "java -Xms512m -Xmx512m -cp target:target/classes ChunkGraftProbe replay > target/structure-chunk-replay-probe.json",
+      "java -Xms512m -Xmx512m -cp target:target/classes ChunkGraftProbe graft > target/structure-chunk-graft-probe.json"
+    ],
+    "results": [
+      {
+        "operation": "replay",
+        "cells": 16,
+        "leaves_per_cell": 512,
+        "warmups": 3,
+        "runs": 20,
+        "median_ms": 16.207705,
+        "p95_ms": 21.599483,
+        "worst_ms": 24.641474,
+        "median_thread_allocated_bytes": 5854816
+      },
+      {
+        "operation": "graft",
+        "cells": 16,
+        "leaves_per_cell": 512,
+        "warmups": 3,
+        "runs": 20,
+        "median_ms": 0.339242,
+        "p95_ms": 0.46022,
+        "worst_ms": 0.536126,
+        "median_thread_allocated_bytes": 4640
+      }
+    ],
+    "scope": "Detached assembly of 16 cells with a shared 512-leaf fractional LED pattern; three warmups/20 samples in separate JVMs. Canonical traversal included in graft timing. Tree/source/metadata equivalence checked each sample; generated mesh arrays checked outside timing. Both paths use current source APIs; replay apply/fill logic unchanged from parent. Initialization, mesh generation, whole-region validation, history/save/commit/network/render excluded. Thread allocations are not peak memory. No city/max or system budget qualification."
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": {
+      "Architecture": "x86_64",
+      "CPU(s)": "4",
+      "Model name": "Intel Core Processor (Haswell, no TSX)",
+      "Thread(s) per core": "1",
+      "Core(s) per socket": "1",
+      "Socket(s)": "4"
+    },
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "scope": "Development VPS; not reference physical GPU/network qualification."
+  },
+  "Playtest": {
+    "status": "passed",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "expected": "Full native workflow including all four rotations, preserved fractional/model geometry, conflict and cancellation, undo/retry/restart, inventory/editor regression.",
+    "scope": "Native Main/GLFW/X11 with inherited display/authentication and synthetic profile. Browser testing does not apply.",
+    "result": {
+      "status": "passed",
+      "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+      "source_manifest": "structure-native-source.json",
+      "source_manifest_sha256": "270f4b71283f4a53a6f28ce57623997d158f9fbd46d0e1098983c8a5ea446a4a",
+      "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+      "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+      "publication": "Local evidence pending controller publication"
+    },
+    "observed": "Harness exited 0. Full native workflow/regressions passed on inherited display with synthetic profile. Fresh component screenshot and decoded F10 frame inspected. All 213 production/harness source paths and hashes match. llvmpipe about 1 FPS; functional evidence only, no physical-GPU/frame-time qualification.",
+    "video": {
+      "file": "structure-workflow.mp4",
+      "codec": "H264",
+      "frames": 15,
+      "seconds": 25.268,
+      "bytes": 364257,
+      "sha256": "82eae82c249b9b67e17245826106203e66447a11899139da16c03e448adc9dca"
+    }
+  },
+  "delegate": "Helper failed without output and was explicitly resolved self. Independently audited persistent-node aliasing, alignment/overflow checks, canonical legacy normalization and Chunk metadata; executed actual checks locally.",
+  "qualification": "Still rejects required city/max fixtures under unchanged provisional caps. Full admission, history persistence ceiling, atomic world chunk commit, physical GPU/shaped-network/32 rendered-client and 20-run system budgets unfinished. Not ready; rollout gates closed.",
+  "audit": "No deleted files against review base 4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a. Intended deletion replaces detached leaf replay with cell grafting. MP3/Hub/Asset Manager features retained.",
+  "publication": "New source/report/media need controller publication and fresh exact-source hosted checks; parent completed checks not requested again.",
+  "source_sha256": {
+    "src/main/java/dev/jayms/Chunk.java": "662679aa935729259004af02902fa04127621c668627a9aeca9a0eab21da6842",
+    "src/main/java/dev/jayms/net/model/SparseVoxelOctree.java": "ebb9f9f8beec2fa3aad8bce453b2ffa9f7a4a5823a67524bd2142f14485ecaab",
+    "src/main/java/dev/jayms/net/structure/StructureEngine.java": "2270a81089aad16ac91be1281770f7da905f1088048d7002cccb0334a4dd670a",
+    "src/test/java/dev/jayms/ChunkCellReplacementTest.java": "34c6e73b3c581aa530b67dcb1484f9b3c30577447e0ef5428b934b27c414d5a8",
+    "tools/structures/ChunkGraftProbe.java": "53f79efd7863141da415de5662e281d99aca005532fdb7f28125ebd4631fffc0"
+  }
+}

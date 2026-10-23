@@ -1,0 +1,96 @@
+{
+  "sourceHead": "84fcd75e7ef213e42edd2f9cb936a0566091c831",
+  "base": "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+  "summaries": [
+    {
+      "run": 39631123289,
+      "name": "maven-test-summary-linux",
+      "sourceHead": "84fcd75e7ef213e42edd2f9cb936a0566091c831",
+      "totals": {
+        "tests": 780,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39631123289,
+      "name": "maven-test-summary-windows",
+      "sourceHead": "84fcd75e7ef213e42edd2f9cb936a0566091c831",
+      "totals": {
+        "tests": 780,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39631123289,
+      "name": "maven-test-summary-mac-intel",
+      "sourceHead": "84fcd75e7ef213e42edd2f9cb936a0566091c831",
+      "totals": {
+        "tests": 780,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39631123289,
+      "name": "maven-test-summary-mac-arm",
+      "sourceHead": "84fcd75e7ef213e42edd2f9cb936a0566091c831",
+      "totals": {
+        "tests": 780,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39631130209,
+      "name": "maven-test-summary-mac-intel",
+      "sourceHead": "1e24701e240d8e55080d91a266a63a18a555fb6d",
+      "totals": {
+        "tests": 780,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39631130209,
+      "name": "maven-test-summary-linux",
+      "sourceHead": "1e24701e240d8e55080d91a266a63a18a555fb6d",
+      "totals": {
+        "tests": 780,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39631130209,
+      "name": "maven-test-summary-mac-arm",
+      "sourceHead": "1e24701e240d8e55080d91a266a63a18a555fb6d",
+      "totals": {
+        "tests": 780,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39631130209,
+      "name": "maven-test-summary-windows",
+      "sourceHead": "1e24701e240d8e55080d91a266a63a18a555fb6d",
+      "totals": {
+        "tests": 780,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    }
+  ],
+  "prMergeParentsVerified": true,
+  "qualification": "Hosted regressions only; city/max qualification unfinished."
+}

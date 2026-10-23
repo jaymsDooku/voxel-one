@@ -1,0 +1,106 @@
+{
+  "feature_head": "9b6ba7166e90d04a0f7559da456553bdb6dee1fb",
+  "review_base": "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+  "observations": [
+    {
+      "run": 39873382111,
+      "head": "9b6ba7166e90d04a0f7559da456553bdb6dee1fb",
+      "event": "push",
+      "status": "in_progress",
+      "conclusion": null,
+      "summaries": [
+        {
+          "artifact": 12467950951,
+          "name": "maven-test-summary-mac-arm",
+          "sourceHead": "9b6ba7166e90d04a0f7559da456553bdb6dee1fb",
+          "totals": {
+            "tests": 815,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 1
+          }
+        },
+        {
+          "artifact": 12467687162,
+          "name": "maven-test-summary-windows",
+          "sourceHead": "9b6ba7166e90d04a0f7559da456553bdb6dee1fb",
+          "totals": {
+            "tests": 815,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 1
+          }
+        },
+        {
+          "artifact": 12467587383,
+          "name": "maven-test-summary-linux",
+          "sourceHead": "9b6ba7166e90d04a0f7559da456553bdb6dee1fb",
+          "totals": {
+            "tests": 815,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 1
+          }
+        }
+      ]
+    },
+    {
+      "run": 39873384739,
+      "head": "9b6ba7166e90d04a0f7559da456553bdb6dee1fb",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "summaries": [
+        {
+          "artifact": 12468226240,
+          "name": "maven-test-summary-mac-intel",
+          "sourceHead": "b610230aa66954af1b1b0938fed14043ff514167",
+          "totals": {
+            "tests": 815,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 1
+          }
+        },
+        {
+          "artifact": 12468021037,
+          "name": "maven-test-summary-mac-arm",
+          "sourceHead": "b610230aa66954af1b1b0938fed14043ff514167",
+          "totals": {
+            "tests": 815,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 1
+          }
+        },
+        {
+          "artifact": 12467686935,
+          "name": "maven-test-summary-windows",
+          "sourceHead": "b610230aa66954af1b1b0938fed14043ff514167",
+          "totals": {
+            "tests": 815,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 1
+          }
+        },
+        {
+          "artifact": 12466689092,
+          "name": "maven-test-summary-linux",
+          "sourceHead": "b610230aa66954af1b1b0938fed14043ff514167",
+          "totals": {
+            "tests": 815,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 1
+          }
+        }
+      ],
+      "merge_parents": [
+        "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+        "9b6ba7166e90d04a0f7559da456553bdb6dee1fb"
+      ]
+    }
+  ],
+  "scope": "Build summaries only. Full city/max and reference GPU/network/system qualification pending."
+}

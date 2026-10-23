@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="480" viewBox="0 0 960 480">
+<rect width="960" height="480" fill="#101824"/>
+<g font-family="DejaVu Sans" fill="#ecf2fa">
+<text x="30" y="38" font-family="DejaVu Sans" font-size="25" fill="#ecf2fa" stroke="none">CPU chunk-mesher probe — NOT QUALIFIED</text>
+<text x="30" y="66" font-family="DejaVu Sans" font-size="15" fill="#ecf2fa" stroke="none">LOCAL-VPS-CPU-PREREQUISITE</text>
+<text x="30" y="91" font-family="DejaVu Sans" font-size="15" fill="#ecf2fa" stroke="none">20 trials per density; three warmups; elapsed worker time in ms</text>
+<text x="30" y="121" font-family="DejaVu Sans" font-size="15" fill="#ecf2fa" stroke="none">Median / p95 / worst. One chunk, isolated two-leaf fractional cells.</text>
+<text x="30" y="170" font-family="DejaVu Sans" font-size="16" fill="#ecf2fa" stroke="none">1 cells</text>
+<rect x="140" y="156" width="2.25" height="6" fill="#52647d"/>
+<rect x="140" y="163" width="1.74" height="6" fill="#efb35c"/>
+<rect x="140" y="170" width="1.00" height="6" fill="#61c9c0"/>
+<text x="750" y="170" font-family="DejaVu Sans" font-size="14" fill="#ecf2fa" stroke="none">3.7 / 9.2 / 11.9</text>
+<text x="30" y="233" font-family="DejaVu Sans" font-size="16" fill="#ecf2fa" stroke="none">8 cells</text>
+<rect x="140" y="219" width="10.04" height="6" fill="#52647d"/>
+<rect x="140" y="226" width="8.08" height="6" fill="#efb35c"/>
+<rect x="140" y="233" width="4.04" height="6" fill="#61c9c0"/>
+<text x="750" y="233" font-family="DejaVu Sans" font-size="14" fill="#ecf2fa" stroke="none">21.3 / 42.6 / 53.0</text>
+<text x="30" y="296" font-family="DejaVu Sans" font-size="16" fill="#ecf2fa" stroke="none">64 cells</text>
+<rect x="140" y="282" width="36.67" height="6" fill="#52647d"/>
+<rect x="140" y="289" width="34.80" height="6" fill="#efb35c"/>
+<rect x="140" y="296" width="22.57" height="6" fill="#61c9c0"/>
+<text x="750" y="296" font-family="DejaVu Sans" font-size="14" fill="#ecf2fa" stroke="none">119.0 / 183.5 / 193.4</text>
+<text x="30" y="359" font-family="DejaVu Sans" font-size="16" fill="#ecf2fa" stroke="none">512 cells</text>
+<rect x="140" y="345" width="590.00" height="6" fill="#52647d"/>
+<rect x="140" y="352" width="493.09" height="6" fill="#efb35c"/>
+<rect x="140" y="359" width="338.40" height="6" fill="#61c9c0"/>
+<text x="750" y="359" font-family="DejaVu Sans" font-size="14" fill="#ecf2fa" stroke="none">1784.8 / 2600.7 / 3111.9</text>
+<text x="30" y="428" font-family="DejaVu Sans" font-size="15" fill="#ecf2fa" stroke="none">Not a frame, full-fixture, instance-rendering, placement or network benchmark.</text>
+<text x="30" y="454" font-family="DejaVu Sans" font-size="15" fill="#ecf2fa" stroke="none">Local development data. No supported limits or reference-target pass inferred.</text>
+</g></svg>

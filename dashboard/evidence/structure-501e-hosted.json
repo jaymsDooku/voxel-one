@@ -1,0 +1,90 @@
+{
+  "schema": 1,
+  "sourceHead": "501e5ded93da0b301920e725bee534f68064819c",
+  "base": "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+  "summaries": [
+    {
+      "run": 39617009432,
+      "name": "maven-test-summary-linux",
+      "sourceHead": "501e5ded93da0b301920e725bee534f68064819c",
+      "totals": {
+        "tests": 777,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39617009432,
+      "name": "maven-test-summary-windows",
+      "sourceHead": "501e5ded93da0b301920e725bee534f68064819c",
+      "totals": {
+        "tests": 777,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39617009432,
+      "name": "maven-test-summary-mac-arm",
+      "sourceHead": "501e5ded93da0b301920e725bee534f68064819c",
+      "totals": {
+        "tests": 777,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39617013368,
+      "name": "maven-test-summary-windows",
+      "sourceHead": "42e3f41b083222505303b60b9ae946b5558c8ff7",
+      "totals": {
+        "tests": 777,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39617013368,
+      "name": "maven-test-summary-mac-arm",
+      "sourceHead": "42e3f41b083222505303b60b9ae946b5558c8ff7",
+      "totals": {
+        "tests": 777,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39617013368,
+      "name": "maven-test-summary-linux",
+      "sourceHead": "42e3f41b083222505303b60b9ae946b5558c8ff7",
+      "totals": {
+        "tests": 777,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39617013368,
+      "name": "maven-test-summary-mac-intel",
+      "sourceHead": "42e3f41b083222505303b60b9ae946b5558c8ff7",
+      "totals": {
+        "tests": 777,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    }
+  ],
+  "prMergeParents": [
+    "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+    "501e5ded93da0b301920e725bee534f68064819c"
+  ],
+  "observation": "Seven summaries available when inspected; PR four platforms passed. Push Mac Intel was in progress and is not claimed passed.",
+  "qualification": "Regression CI only; city/max qualification remains unfinished."
+}

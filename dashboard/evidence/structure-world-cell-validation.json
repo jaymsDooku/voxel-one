@@ -1,0 +1,183 @@
+{
+  "status": "local_tests_geometry_history_diagnostic_and_native_passed_hosted_pending",
+  "parent": "fb9baa7dd6eae403e0fe9e873abda64ce11b51b3",
+  "reviewBase": "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+  "change": "Whole-cell offline application/rollback and linear canonical complete-cell history updates; legacy per-edit path retained.",
+  "source": {
+    "src/main/java/dev/jayms/World.java": "93e18cee9dfe3e6d2c393c0406a6c0be88731471d65fe9725ffef2aee9640e9d",
+    "src/main/java/dev/jayms/net/LocalGame.java": "a259d55253777ebb41b488c96bf7973e3c6f5bd2e4086a4b38297253e63ff2e8",
+    "src/main/java/dev/jayms/net/MultiplayerServer.java": "7d5c94fe526a505fee184abc8d81e09e5e077deab82295ee6038e0421990f2ce",
+    "src/main/java/dev/jayms/net/WorldVoxels.java": "3f297e522b916e6dd1198f50c972646c868135b7e7bddaf95ccb3598bffb61b2",
+    "src/test/java/dev/jayms/WorldCellReplacementTest.java": "09e66316a3184439c12017a5f391d28b7a0259ffa479ea2f569bdde1e5672332",
+    "src/test/java/dev/jayms/WorldHistoryIndexTest.java": "d4726835a7f5eb4cba81426cd29fc10655518f27c4f63c2a209dfa60db489e5e",
+    "tools/structures/WorldCellProbe.java": "5348c41dfcc812e271885713fe0180f2ba4ba8356e1ebce3294b746339b5f709"
+  },
+  "commands": [
+    "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=WorldCellReplacementTest,WorldHistoryIndexTest,ChunkCellReplacementTest,StructureTest,StructureMultiplayerTest,WorldStreamingTest,FractionalWorldTest,WorldVoxelSnapshotTest test",
+    "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=WorldCellReplacementTest,WorldHistoryIndexTest,SkyVisibilitySchedulerTest,DistantTerrainTest test"
+  ],
+  "executedSuccessfulRunCounts": [
+    54,
+    35
+  ],
+  "uniqueTests": 80,
+  "repeatedTests": 9,
+  "suitesLatest": [
+    {
+      "suite": "dev.jayms.WorldCellReplacementTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.WorldHistoryIndexTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.ChunkCellReplacementTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.StructureTest",
+      "tests": 24,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.StructureMultiplayerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.WorldStreamingTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.FractionalWorldTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.WorldVoxelSnapshotTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.render.SkyVisibilitySchedulerTest",
+      "tests": 19,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "dev.jayms.DistantTerrainTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "cliCommands": [
+    "javac --release 17 -cp target/classes -d target tools/structures/WorldCellProbe.java",
+    "java -Xmx1g -cp target:target/classes WorldCellProbe target/structure-world-cell-probe.json"
+  ],
+  "diagnostic": {
+    "scope": "Actual World owner-thread cell update, 4096 coloured LED leaves, one unchanged neighbour, loaded/unloaded cases. Three warmups, 20 measured runs each; legacy first, state verified outside timing. Not whole placement, save, GL upload, peak memory, city/max or system qualification.",
+    "results": [
+      {
+        "resident": false,
+        "legacy_leaf_replay_ms": {
+          "median": 509.601388,
+          "p95": 663.529914,
+          "worst": 667.829352
+        },
+        "whole_cell_ms": {
+          "median": 2.727095,
+          "p95": 7.527578,
+          "worst": 8.988965
+        }
+      },
+      {
+        "resident": true,
+        "legacy_leaf_replay_ms": {
+          "median": 499.557478,
+          "p95": 646.631728,
+          "worst": 652.890204
+        },
+        "whole_cell_ms": {
+          "median": 2.173246,
+          "p95": 3.072189,
+          "worst": 5.29147
+        }
+      }
+    ]
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "25.0.3+9-LTS-195",
+    "concurrency": "Regression processes finished before diagnostic. Hosted-artifact collection overlapped; native app run started afterward. Shared VPS, not isolated reference hardware."
+  },
+  "checks": [
+    "Exact ordered history and final edit/sky revisions match legacy replay.",
+    "Canonical resident/nonresident trees, model/fractional metadata, frozen snapshots, caller/copy independence and cold reload checked.",
+    "Legacy redundant branches normalize only destination; source bytes unchanged.",
+    "Random mixed and dense complete-cell history matches indexed/generic legacy coverage scans; COW copies remain independent.",
+    "Malformed input does not mutate history or revisions; shared forced-save rollback and TLS placement/undo/late join/restart passed.",
+    "Streaming, fractional geometry, distant terrain and sky scheduler regressions passed."
+  ],
+  "measurementLimits": [
+    "4096-leaf cell, one neighbor; three warmups and 20 measured component iterations per loaded/unloaded case, legacy first.",
+    "All state/metadata/history comparisons outside timing.",
+    "No whole-placement, durable-save, GL upload, peak-memory or city/max/system qualification.",
+    "Headless CPU routine; browser playtesting does not apply. Native application checked separately."
+  ],
+  "pending": [
+    "Full city/max admission and scalable/atomic publication",
+    "Owner-thread history copies, whole-structure application, save I/O and 2,000,000-edit ceiling",
+    "20-run reference physical GPU/frame/tick/memory/traffic and shaped 32-client qualification",
+    "Complete power-loss durability"
+  ],
+  "rollout": "Gated; not ready.",
+  "deletionAudit": "No file deletions against recorded base. Offline leaf replay loops replaced with whole-cell calls; complete-cell history loops replaced by equivalent bulk indexing. Ordinary per-edit path, MP3, Hub and Asset Manager preserved.",
+  "playtest": {
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_manifest": "structure-native-source.json",
+    "source_manifest_sha256": "83231f15398b796821b56d9271889a2eb7f3eb69acb272fda6dcdc523d2318c5",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "publication": "Local evidence pending controller publication"
+  },
+  "video": {
+    "file": "dashboard/evidence/structure-workflow.mp4",
+    "bytes": 345446,
+    "sha256": "d5362b34cf4ea471eff221c1508bb4a69ce2d5a9bd78e565a370c5b1f385590d",
+    "codec": "H264",
+    "frames": 17,
+    "durationSeconds": 25.979,
+    "inspection": "Decoded staging/preview video frame, saved-placement and live-player rejection images.",
+    "publication": "Pending controller publication"
+  },
+  "sourceManifestFiles": 216
+}

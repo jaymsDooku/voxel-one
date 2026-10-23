@@ -1,0 +1,92 @@
+{
+  "schema": 1,
+  "source_head": "e351d91bf4de6f17657976e4cd467aeb3f44c15b",
+  "scope": "Post-master-integration experimental functional validation",
+  "review_base": "b1d7b8d796b97a87a3d63bb08baf2bb9746b8ca6",
+  "focused_suites": [
+    {
+      "name": "dev.jayms.StructureOccupancyTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.StructureTest",
+      "tests": "13",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.FractionalWorldTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.VoxelModelTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "commands": [
+    "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=StructureOccupancyTest,StructureTest,FractionalWorldTest,VoxelModelTest test",
+    "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=StructureMultiplayerTest -Dvoxel.structure.clients=32 -Dsurefire.reportNameSuffix=rebase32 -Dsurefire.timeout=900 surefire:test"
+  ],
+  "native": {
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_manifest": "structure-native-source.json",
+    "source_manifest_sha256": "665d25b1bb96d248b7fdc279db5b8042ce34b049eb27bfbba5df103a8302def9",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "publication": "Local evidence pending controller publication"
+  },
+  "multiplayer": {
+    "sessions": 32,
+    "topology": "Single-host loopback functional check, not distributed performance qualification",
+    "result": {
+      "name": "dev.jayms.StructureMultiplayerTest(rebase32)",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "352.882"
+    }
+  },
+  "diff_audit": "No deleted files against review base, no unmerged paths, git diff --check passed. Master additions preserved. Production Java and native harness byte-identical to prior validated collision fix. No intended deletions.",
+  "media": {
+    "structure-player-conflict.png": {
+      "sha256": "b2d86ad7f2b966a96c790d8da7629ac56b598acbbea9e960ce823ddb64b3aee0",
+      "bytes": 141834,
+      "publication": "pending controller publication"
+    },
+    "structure-world-placed.png": {
+      "sha256": "a0f6144f1417c5ce132cc8b4594c8dfc2a5ec28df21b8310412b25a4094fe77b",
+      "bytes": 339311,
+      "publication": "pending controller publication"
+    },
+    "structure-workflow.mp4": {
+      "sha256": "0c903f32fb98622e7e5ed530c049ecae077dbcd207ec266dba4caa4f190dfdda",
+      "bytes": 364434,
+      "publication": "pending controller publication"
+    }
+  },
+  "media_inspection": "Fresh live-player rejection and placed-world screenshots inspected. Fresh H264 recording decoded: 17 frames, 39.679 s; decoded frame inspected. Production source hashes verified unchanged after playtest.",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "display": "Inherited assigned X11 display; isolated synthetic offline profile"
+  },
+  "earlier_attempts": "Initial focused run failed because /tmp is read-only; worktree-temp retry passed. Initial native harness started before Maven compilation completed and failed to compile; sequential retry was paused along with multiplayer. Fresh resumed native and multiplayer commands both exited 0. Interrupted attempts are not passes.",
+  "hosted": "Pending controller publication and exact-head checks; previous hosted reports apply to older heads only",
+  "qualification": "City/max fixtures, physical GPU, shaped-network, 20-run performance and stable rollout remain gated; no performance budgets claimed passed",
+  "publication": "Local sanitized evidence pending controller publication"
+}

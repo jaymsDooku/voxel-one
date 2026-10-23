@@ -31,7 +31,7 @@ class CityFormat16RegressionTest {
         sim.save(path);
         try(var in=new DataInputStream(Files.newInputStream(path))) { assertEquals(0x43495441,in.readInt()); }
         assertEquals(sim.frame(),CitySimulation.load(path));
-        assertEquals(30,Protocol.VERSION);
+        assertEquals(31,Protocol.VERSION); // Structure envelopes; existing city frame IDs stay unchanged.
     }
 
     @Test void version16StressSnapshotAndOlderStressSaveBothLoad() throws Exception {

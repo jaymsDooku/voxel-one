@@ -1,0 +1,176 @@
+{
+  "status": "local_54_tests_diagnostics_and_native_passed_pending_controller_publication",
+  "parent": "5f4ce0ac6269ba7fbaa7cf6f535e1145fae54b4b",
+  "reviewBase": "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+  "change": "Reuse immutable validated keys in detached cursor batches; no mutable Map.Entry aliases. Public puts retain key validation; trusted insertion shares ordinary index/revision path. Cancellation checkpoints remain per edit.",
+  "source": {
+    "src/main/java/dev/jayms/net/WorldVoxels.java": "3564de2bf4f65225eb83dd4913800580882016f4f97f76974860ce63c4a9100a",
+    "src/main/java/dev/jayms/net/MultiplayerServer.java": "f4d34dc854ba25110e7d7337364443199c50147bc0bfcf4fdf85630f8019e597",
+    "src/test/java/dev/jayms/WorldHistoryIndexTest.java": "9f3027bddcf1de084b2de3c19f69d3d259e8ff5218eb94fa1d36831044ff755e",
+    "tools/structures/HistoryBatchProbe.java": "12a692c32a3a43fa162d91b9cb19fc375522b3d361dcd1b73a44ab3cc8e4198b"
+  },
+  "suites": [
+    {
+      "suite": "WorldHistoryIndexTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "StructureSaveStagingTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "StagedWorldSaveTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "StructureMultiplayerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "StructureTest",
+      "tests": 25,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "StructurePublicationStagingTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "WorldVoxelSnapshotTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "commands": [
+    "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=WorldHistoryIndexTest,StructureSaveStagingTest,StagedWorldSaveTest,StructureMultiplayerTest,StructureTest,StructurePublicationStagingTest,WorldVoxelSnapshotTest test",
+    "javac --release 17 -cp target/classes -d target tools/structures/HistoryBatchProbe.java",
+    "java -Xmx1g -cp target:target/classes HistoryBatchProbe target/structure-copy-keys-rebuild-probe.json rebuild",
+    "java -Xmx1g -cp target:target/classes HistoryBatchProbe target/structure-copy-keys-reuse-probe.json reuse",
+    "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=WorldHistoryIndexTest test"
+  ],
+  "expectedAndObserved": "54 tests pass: detached snapshots survive later source value replacement; bad public keys reject; fractional index coverage/replay order matches generic reference; cancellation checkpoints stop before next insertion; empty batches do nothing. Existing production server copy-lock/concurrent-edit, stale-save bytes, cancellation/reopen and TLS multiplayer regressions pass.",
+  "diagnostics": [
+    {
+      "mode": "rebuild",
+      "scope": "262144 whole-cell history entries; no competing threads, server, geometry, save, network, rendering or system qualification. Three warmups, 20 measured runs, clone first. Guarded timings include monitor entry and timer overhead; batch totals include rebuilding index outside monitor. Exact replay order and source independence checked outside timing. Thread allocation is not peak memory.",
+      "clone_guarded_ms": {
+        "median": 44.845698,
+        "p95": 115.030564,
+        "worst": 178.13139
+      },
+      "batch_total_ms": {
+        "median": 264.209773,
+        "p95": 313.73359,
+        "worst": 317.726842
+      },
+      "maximum_batch_guarded_ms": {
+        "median": 0.08863,
+        "p95": 0.258379,
+        "worst": 148.055859
+      },
+      "sum_batch_guarded_ms": {
+        "median": 9.359953,
+        "p95": 13.967634,
+        "worst": 156.562654
+      },
+      "clone_thread_allocated_bytes": {
+        "median": 23068952.0,
+        "p95": 23068952.0,
+        "worst": 23068952.0
+      },
+      "batch_thread_allocated_bytes": {
+        "median": 73377864.0,
+        "p95": 73377864.0,
+        "worst": 77183424.0
+      }
+    },
+    {
+      "mode": "reuse",
+      "scope": "262144 whole-cell history entries; no competing threads, server, geometry, save, network, rendering or system qualification. Three warmups, 20 measured runs, clone first. Guarded timings include monitor entry and timer overhead; batch totals include rebuilding index outside monitor. Exact replay order and source independence checked outside timing. Thread allocation is not peak memory.",
+      "clone_guarded_ms": {
+        "median": 40.939249,
+        "p95": 119.042897,
+        "worst": 173.49816
+      },
+      "batch_total_ms": {
+        "median": 195.776655,
+        "p95": 279.573552,
+        "worst": 308.56641
+      },
+      "maximum_batch_guarded_ms": {
+        "median": 0.092402,
+        "p95": 0.190105,
+        "worst": 0.761216
+      },
+      "sum_batch_guarded_ms": {
+        "median": 9.356419,
+        "p95": 11.895293,
+        "worst": 12.391696
+      },
+      "clone_thread_allocated_bytes": {
+        "median": 23068952.0,
+        "p95": 23068952.0,
+        "worst": 23068952.0
+      },
+      "batch_thread_allocated_bytes": {
+        "median": 50331400.0,
+        "p95": 50331400.0,
+        "worst": 50331400.0
+      }
+    }
+  ],
+  "caveats": "Sequential separate JVMs, shared VPS, no local test/native overlap. Rebuild control had one 148.055859 ms maximum guarded sample; cause uninstrumented. No 100 ms stall-budget pass, peak-memory or full-system claim. Reuse still allocates more than whole-clone baseline. Main-thread GC, busy-world retries, final mesh validation/save/network/rendering remain to qualify. Both modes use the new immutable key/value batch capture; rebuild control calls the public put loop and is not an exact parent-binary replay.",
+  "environment": {
+    "os": "Linux 6.1.0-50-cloud-amd64",
+    "architecture": "x86_64",
+    "vcpus": 4,
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "hypervisor": "KVM",
+    "javaRuntime": "25.0.3+9-LTS-195",
+    "javaVm": "Java HotSpot(TM) 64-Bit Server VM"
+  },
+  "qualification": "Full city/max fixtures, 20-run system measurements, physical-GPU, shaped 32-client and memory/frame/tick/traffic qualification remain unfinished. No admission caps or stable-rollout gates weakened.",
+  "fixtureRecheck": "10 repeated tests passed after making the source-value replacement fixture use the canonical fractional material ID; production source unchanged.",
+  "native": {
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_manifest": "structure-native-source.json",
+    "source_manifest_sha256": "025485bfd27c92a17c05c3c738577a70c2a2f5d4ece76470e79b0b65752c76b8",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "publication": "Local evidence pending controller publication",
+    "observed": "Fresh decoded video frame, placed-world and live-player conflict images inspected. llvmpipe at 0\u20131 FPS qualifies functional behavior only. Actual production server helper/save/reopen and TLS tests separately exercise the server change; browser testing does not apply to this native Java/server change."
+  },
+  "media": {
+    "file": "dashboard/evidence/structure-workflow.mp4",
+    "bytes": 346316,
+    "sha256": "5e9a9dcc2ac2c5cee61037f2aaaf0dcb62edf74e0c56dde3e0cb364279e07359",
+    "codec": "H264",
+    "frames": 17,
+    "durationSeconds": 26.298,
+    "sourceFilesMatched": 217,
+    "publication": "Pending controller publication"
+  },
+  "diffAudit": "No deleted paths against recorded review base. MP3/Hub and merged AssetManager features retained."
+}

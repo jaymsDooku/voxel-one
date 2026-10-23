@@ -1,0 +1,162 @@
+{
+  "scope": "Prerequisite fixture preparation only; no player structure feature or performance qualification",
+  "environment": {
+    "kernel": "6.1.0-50-cloud-amd64",
+    "architecture": "x86_64",
+    "python": "3.11.2",
+    "zlib": "1.2.13",
+    "java": "25.0.3+9-LTS-195",
+    "graphics": "Not exercised; diagram only; physical-GPU qualification pending"
+  },
+  "checks": [
+    {
+      "command": "python3 tools/structures/fixtures.py generate city --manifest dashboard/evidence/structure-city-v1.json",
+      "expected": "Generate versioned fixture and verify all declared counts, fields and bounds",
+      "observed": "Exit 0; manifest saved"
+    },
+    {
+      "command": "python3 tools/structures/fixtures.py generate city --output target/structure-fixtures-repeat",
+      "expected": "Same compressed/decoded hashes and counts",
+      "observed": "Exit 0; both hashes and all compared counts match first generation"
+    },
+    {
+      "command": "python3 tools/structures/fixtures.py verify city --manifest dashboard/evidence/structure-city-v1.json",
+      "expected": "Stream parse with resource bounds and occupancy validation",
+      "observed": "Exit 0"
+    },
+    {
+      "command": "java -cp target/classes tools/structures/CheckFixtureModels.java target/structure-fixtures/city-v1.vxbf.gz 256",
+      "expected": "Every model passes production codec, fingerprint roundtrip and mesher limits",
+      "observed": {
+        "models": 256,
+        "production_codec_bytes": 43145984,
+        "production_mesh_quads": 1572864,
+        "largest_model_bytes": 168539,
+        "largest_model_quads": 6144
+      }
+    },
+    {
+      "command": "python3 tools/structures/fixtures.py generate maximum --manifest dashboard/evidence/structure-maximum-v1.json",
+      "expected": "Generate versioned fixture and verify all declared counts, fields and bounds",
+      "observed": "Exit 0; manifest saved"
+    },
+    {
+      "command": "python3 tools/structures/fixtures.py generate maximum --output target/structure-fixtures-repeat",
+      "expected": "Same compressed/decoded hashes and counts",
+      "observed": "Exit 0; both hashes and all compared counts match first generation"
+    },
+    {
+      "command": "python3 tools/structures/fixtures.py verify maximum --manifest dashboard/evidence/structure-maximum-v1.json",
+      "expected": "Stream parse with resource bounds and occupancy validation",
+      "observed": "Exit 0"
+    },
+    {
+      "command": "java -cp target/classes tools/structures/CheckFixtureModels.java target/structure-fixtures/maximum-v1.vxbf.gz 512",
+      "expected": "Every model passes production codec, fingerprint roundtrip and mesher limits",
+      "observed": {
+        "models": 512,
+        "production_codec_bytes": 10794496,
+        "production_mesh_quads": 786432,
+        "largest_model_bytes": 21083,
+        "largest_model_quads": 1536
+      }
+    },
+    {
+      "command": "python3 tools/structures/test_fixtures.py",
+      "expected": "Reject wrong magic, oversized header, truncated header/dependencies, unknown fixture and changed dimensions",
+      "observed": "6 tests passed"
+    },
+    {
+      "command": "python3 tools/structures/inspect_fixtures.py --output dashboard/evidence/structure-fixture-diagnostic.png",
+      "expected": "Plot actual city stream and maximum fractional-fragment zoom",
+      "observed": "Exit 0; image visually inspected: building grid, model markers, pylons and isolated fragments visible"
+    },
+    {
+      "command": "git diff --check",
+      "expected": "No whitespace errors",
+      "observed": "Exit 0; rerun at handoff"
+    }
+  ],
+  "fixtures": {
+    "city": {
+      "artifact": "city-v1.vxbf.gz",
+      "bounds": [
+        512,
+        128,
+        512
+      ],
+      "compressed_bytes": 33506457,
+      "compressed_sha256": "99fcd753636143639f0965931003304ff5354a51045d7b24495bfa93cc50639d",
+      "decoded_bytes": 49139366,
+      "decoded_sha256": "5a545e58436dba8b1de1c3a55398e585d382f095518436111ed95e1f9f1c4263",
+      "dependency_bytes": 33558272,
+      "fixture": "city",
+      "format": "VXBF",
+      "fractional_leaf_count": 30240,
+      "generator_sha256": "e0ca1e17de564553f8d6e5a23696558ca2ec289fc438da5b33076b4e2d0e81cf",
+      "instances": 10240,
+      "leaves": 968048,
+      "model_resolution": 32,
+      "model_surface_unit_faces": 1572864,
+      "models": 256,
+      "occupied_cells": 978288,
+      "publication": "Pending controller publication; regenerate binary from versioned source",
+      "python_version": "3.11.2",
+      "qualification": "Unqualified intermediate benchmark input; not a player package",
+      "seed": 87129111,
+      "source_url": "https://github.com/jaymsDooku/voxel-one/blob/feature/queue-38386339653031612d356232622d343634362d616262332d383538623938346339346437/tools/structures/fixtures.py",
+      "surface_quad_metric": "exposed geometry leaf faces before greedy merging; excludes model surfaces",
+      "surface_quads": 2031032,
+      "version": 1,
+      "zlib_version": "1.2.13"
+    },
+    "maximum": {
+      "artifact": "maximum-v1.vxbf.gz",
+      "bounds": [
+        1024,
+        256,
+        1024
+      ],
+      "compressed_bytes": 54394399,
+      "compressed_sha256": "79ab475b835306b345528533262a496b766a1dccf2cdb3a1c5c83ec6336df1e3",
+      "decoded_bytes": 136019628,
+      "decoded_sha256": "315d8686d18044df38abb6ce7f64bcad47983d9fb0f6769ff01f512cc7f27a30",
+      "dependency_bytes": 8396288,
+      "fixture": "maximum",
+      "format": "VXBF",
+      "fractional_leaf_count": 7967232,
+      "generator_sha256": "e0ca1e17de564553f8d6e5a23696558ca2ec289fc438da5b33076b4e2d0e81cf",
+      "instances": 16384,
+      "leaves": 7967232,
+      "model_resolution": 16,
+      "model_surface_unit_faces": 786432,
+      "models": 512,
+      "occupied_cells": 4000000,
+      "publication": "Pending controller publication; regenerate binary from versioned source",
+      "python_version": "3.11.2",
+      "qualification": "Unqualified intermediate benchmark input; not a player package",
+      "seed": 87129111,
+      "source_url": "https://github.com/jaymsDooku/voxel-one/blob/feature/queue-38386339653031612d356232622d343634362d616262332d383538623938346339346437/tools/structures/fixtures.py",
+      "surface_quad_metric": "exposed geometry leaf faces before greedy merging; excludes model surfaces",
+      "surface_quads": 47803392,
+      "version": 1,
+      "zlib_version": "1.2.13"
+    }
+  },
+  "source_hashes": {
+    "tools/structures/CheckFixtureModels.java": "42ed3a341c676bd710e0a00fb723f1fee93234e6c78b460c8856299832c4597b",
+    "tools/structures/fixtures.py": "e0ca1e17de564553f8d6e5a23696558ca2ec289fc438da5b33076b4e2d0e81cf",
+    "tools/structures/inspect_fixtures.py": "0ea736fd2c64d8691e9ca99a3d5800b8f90643228c889f67af63a179973f5996",
+    "tools/structures/test_fixtures.py": "a4da6d59ef53b896fd0159cde3c25f4d12185410506c9fa42ed5bfcc87830e1b"
+  },
+  "image": {
+    "path": "dashboard/evidence/structure-fixture-diagnostic.png",
+    "sha256": "cd5f32548972785ffe51f354de35e0642c052b4d10d2303f8b77ed8faa5bc402",
+    "meaning": "Actual intermediate-fixture CLI diagnostic, not game rendering"
+  },
+  "playtest": "Playtest: Linux CLI integration exercised generation and full-stream validation of both corpora, independent repeat generation, malformed-input rejection, and every dependency through unchanged production ModelDefinition/ModelMesher code. Expected deterministic valid corpus, rejection of malformed records, retained per-model limits; observed matching hashes/counts, 6 parser tests passed, and 768 production model checks passed. Browser playtesting does not apply to these CLI tools. No running-game structure workflow or UI exists yet; its playtest/media remain pending.",
+  "regression": "Previous turn: 20 model/fractional-world/sculptor/protocol tests passed; historical baseline, not rerun this turn. No game source changed.",
+  "diff_audit": "No tracked game source modified. Added fixture tools/docs/evidence and updated only this progress item plus dashboard timestamp. No intended source deletions; no synchronized review base supplied yet.",
+  "handoff": "Runner owns commit/push and publication. Binary fixtures remain in target/structure-fixtures; source, manifests, report and diagnostic image await controller publication.",
+  "pending": "Reference target selected privately; provisioning and execution unconfirmed. See structure-cpu-probe.json for local CPU primitive measurements. No supported limits or feature implementation."
+}

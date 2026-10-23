@@ -88,7 +88,7 @@ public final class InventoryHud {
     public void prepareIcons(ModelLibrary models) {
         if(iconLibrary==models && iconRevision==models.revision()) return;
         iconLibrary=models; iconRevision=models.revision(); icons.clear();
-        for(var entry:models.entries()) icon(entry);
+        for(var entry:models.entries()) if(Items.valid(entry.id()))icon(entry);
         for(int id=190;id<=198;id++) icon(models.get(id));
     }
 

@@ -1,0 +1,83 @@
+{
+  "sourceHead": "b598be2bc3069f92d7cec9d8d7480c8ace9ad25b",
+  "base": "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+  "summaries": [
+    {
+      "run": 39856445778,
+      "artifact": 12461505902,
+      "head": "b598be2bc3069f92d7cec9d8d7480c8ace9ad25b",
+      "tests": 803,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39856445778,
+      "artifact": 12461011811,
+      "head": "b598be2bc3069f92d7cec9d8d7480c8ace9ad25b",
+      "tests": 803,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39856445778,
+      "artifact": 12460525781,
+      "head": "b598be2bc3069f92d7cec9d8d7480c8ace9ad25b",
+      "tests": 803,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39856445778,
+      "artifact": 12459194297,
+      "head": "b598be2bc3069f92d7cec9d8d7480c8ace9ad25b",
+      "tests": 803,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39856449947,
+      "artifact": 12461236582,
+      "head": "76f784d2d31da6fd4166ced863e89e9dd90e5123",
+      "tests": 803,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39856449947,
+      "artifact": 12460890708,
+      "head": "76f784d2d31da6fd4166ced863e89e9dd90e5123",
+      "tests": 803,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39856449947,
+      "artifact": 12460840563,
+      "head": "76f784d2d31da6fd4166ced863e89e9dd90e5123",
+      "tests": 803,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39856449947,
+      "artifact": 12460128630,
+      "head": "76f784d2d31da6fd4166ced863e89e9dd90e5123",
+      "tests": 803,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    }
+  ],
+  "verified_pr_merge_parents": [
+    "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+    "b598be2bc3069f92d7cec9d8d7480c8ace9ad25b"
+  ],
+  "scope": "Actual available parent sanitized summaries only. Not new chunk-graft or city/max qualification."
+}

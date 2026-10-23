@@ -1,0 +1,137 @@
+{
+  "schema": 1,
+  "parentHead": "e8a32faf5b48be24f371f89090a4bef1ba09ead3",
+  "change": "Immutable sorted relative-coordinate keys and frozen tree arrays replace LinkedHashMap staging and Map.copyOf retention. Authority Map API, conflict revalidation, undo and safety caps unchanged.",
+  "tests": {
+    "commands": [
+      "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=StructurePlacementCellsTest,StructureTest,StructureOccupancyTest,WorldStreamingTest,MusicMp3Test,StructureMultiplayerTest test",
+      "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=StructurePlacementCellsTest test"
+    ],
+    "suites": [
+      {
+        "name": "dev.jayms.net.structure.StructurePlacementCellsTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.StructureTest",
+        "tests": 24,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.StructureOccupancyTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.WorldStreamingTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.MusicMp3Test",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.StructureMultiplayerTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "total": 45,
+    "notes": "New test fixtures initially used non-opaque octree colours and then the wrong expected frozen-tree exception. Corrected test data/assertion. Existing 43 regressions passed in the combined run; the two corrected new tests passed in the final focused run. No unexecuted passes claimed."
+  },
+  "probe": {
+    "commands": [
+      "javac --release 17 -cp target/classes -d target/structure-placement-parent-classes target/structure-placement-parent-src/dev/jayms/net/structure/StructureEngine.java",
+      "javac --release 17 -cp target/classes -d target tools/structures/UndoSnapshotProbe.java",
+      "java -Xms256m -Xmx256m -cp target/structure-placement-parent-classes:target:target/classes UndoSnapshotProbe",
+      "java -Xms256m -Xmx256m -cp target:target/classes UndoSnapshotProbe",
+      "javac --release 17 -cp target/classes -d target tools/structures/ChunkHintProbe.java",
+      "java -Xms256m -Xmx256m -cp target/structure-placement-parent-classes:target:target/classes ChunkHintProbe 16384",
+      "java -Xms256m -Xmx256m -cp target:target/classes ChunkHintProbe 16384"
+    ],
+    "parent_engine_source": "git show HEAD:src/main/java/dev/jayms/net/structure/StructureEngine.java at recorded parent head",
+    "retained_prepared_heap_bytes": {
+      "parent": 656808,
+      "compact": 131392,
+      "cells": 16384,
+      "scope": "One GC-sensitive sample per revision; not process peak memory."
+    },
+    "timings": {
+      "parent": {
+        "cells": 16384,
+        "chunks": 64,
+        "snapshot_cell_reads": 16384,
+        "warmups": 3,
+        "runs": 20,
+        "median_ms": 115.908,
+        "p95_ms": 179.802,
+        "worst_ms": 210.429,
+        "qualification": "bounded CPU staging only; not city/max or GPU/network qualification"
+      },
+      "compact": {
+        "cells": 16384,
+        "chunks": 64,
+        "snapshot_cell_reads": 16384,
+        "warmups": 3,
+        "runs": 20,
+        "median_ms": 103.245,
+        "p95_ms": 153.117,
+        "worst_ms": 155.95,
+        "qualification": "bounded CPU staging only; not city/max or GPU/network qualification"
+      },
+      "scope": "Bounded CPU staging diagnostic; software graphical run active. Three warmups and 20 samples per revision. No reference city/max performance claim."
+    }
+  },
+  "qualification": "City/max admission, atomic chunk publication, history beyond 2,000,000 edits, main-thread work, physical GPU, shaped 32-client network and full 20-run system budgets remain unfinished. No safety caps raised; no supported limits published.",
+  "publication": "Local report pending controller publication",
+  "Playtest": {
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "expected": "Full production workflow, relevant rejection/cancellation edges and inventory/editor regressions pass.",
+    "observed": {
+      "status": "passed",
+      "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+      "source_manifest": "structure-native-source.json",
+      "source_manifest_sha256": "cfb1a1c628bbf743c0f1b118d71645944842a3892948ad44b09647d7940916f6",
+      "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+      "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+      "publication": "Local evidence pending controller publication"
+    },
+    "environment": {
+      "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+      "display": "Inherited assigned DISPLAY and XAUTHORITY; cookie never read or printed.",
+      "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)"
+    },
+    "video": {
+      "file": "structure-workflow.mp4",
+      "bytes": 388719,
+      "sha256": "fdea5fe3d6a8e468ec03c1c1b68989377907d57fd3a26613d559c5841dab312e",
+      "frames": 17,
+      "duration_seconds": 27.687,
+      "inspection": "Decoded and inspected a fresh video frame and the player-conflict screenshot.",
+      "publication": "Pending controller publication"
+    },
+    "source_hashes": "All production/harness hashes match structure-native-source.json after execution."
+  },
+  "source_files": {
+    "src/main/java/dev/jayms/net/structure/StructureEngine.java": "871ff117dcd475006aec83acb0e563f5458cab4886ae45570432b61155c49bc8",
+    "src/main/java/dev/jayms/net/structure/StructurePlacementCells.java": "27625d145ea15d7973cc277a10b66ec67be2b3379594676fcbc315d7bf13f73c"
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "sourceHead": "4902a95b47c5e1434b8093e4bd13a292e2fd9d0e",
+  "base": "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+  "push_run": 39651998144,
+  "pr_run": 39652005182,
+  "summaries": [
+    {
+      "artifact": 12370940610,
+      "head": "4902a95b47c5e1434b8093e4bd13a292e2fd9d0e",
+      "tests": 784,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "artifact": 12370800243,
+      "head": "4902a95b47c5e1434b8093e4bd13a292e2fd9d0e",
+      "tests": 784,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "artifact": 12370264415,
+      "head": "4902a95b47c5e1434b8093e4bd13a292e2fd9d0e",
+      "tests": 784,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "artifact": 12371015157,
+      "head": "9d333f694c882625363ec4349c4d4835e78fad63",
+      "tests": 784,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "artifact": 12370589000,
+      "head": "9d333f694c882625363ec4349c4d4835e78fad63",
+      "tests": 784,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "artifact": 12370413176,
+      "head": "9d333f694c882625363ec4349c4d4835e78fad63",
+      "tests": 784,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "artifact": 12369219250,
+      "head": "9d333f694c882625363ec4349c4d4835e78fad63",
+      "tests": 784,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    }
+  ],
+  "verified_pr_merge_parents": [
+    "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+    "4902a95b47c5e1434b8093e4bd13a292e2fd9d0e"
+  ],
+  "scope": "Seven available Maven artifacts inspected: three feature push and four PR merge summaries. Each has 784 tests, zero failures/errors and one skip. Push mac-intel artifact was unavailable at inspection; no eighth artifact pass claimed. Parent checks do not qualify subsequent local format changes or city/GPU/network budgets."
+}
