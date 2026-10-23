@@ -86,6 +86,17 @@ class StructureMultiplayerTest {
                 views.get(views.size()-1).client.close();views.remove(views.size()-1);Thread.sleep(100);
                 var late=new View(new MultiplayerClient("127.0.0.1",server.port(),"LateStructure","synthetic-password".toCharArray(),true,tls.fingerprint()));views.add(late);
                 assertTrue(late.geometry.cell(2000,128,2000).occupied()>0);assertTrue(late.client.models.hasStructureModels());
+                var timing=server.tickTiming();assertTrue(timing.totalTicks()>1);assertEquals(0,timing.failedTicks());
+                assertTrue(timing.windowTicks()<=4096);assertEquals(timing.windowTicks(),timing.work().samples());
+                assertEquals(timing.windowTicks()-1,timing.intervals().samples());assertTrue(timing.startsPerSecond()>0);
+                assertTrue(timing.work().worstMs()>=timing.work().p95Ms());assertTrue(timing.work().p95Ms()>=timing.work().medianMs());
+                var diagnostics=java.util.concurrent.Executors.newSingleThreadExecutor();
+                try {
+                    synchronized(server) {
+                        var snapshot=diagnostics.submit(server::tickTiming).get(5,java.util.concurrent.TimeUnit.SECONDS);
+                        assertTrue(snapshot.totalTicks()>=timing.totalTicks());
+                    }
+                }finally{diagnostics.shutdownNow();}
             }finally{for(var view:views)view.client.close();views.clear();}
         }
         try(var server=new MultiplayerServer("127.0.0.1",0,save,accounts,tls.context(),42,GameConfig.sandbox())) {

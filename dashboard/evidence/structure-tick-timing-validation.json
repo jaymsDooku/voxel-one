@@ -1,0 +1,173 @@
+{
+  "status": "local_tests_cli_and_native_passed_hosted_pending",
+  "parent": "9efc41f8e6f55f52fe1f9973d80d1ecea7d89af5",
+  "reviewBase": "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+  "change": "Bounded actual server tick diagnostics; scheduler and simulation unchanged.",
+  "source": {
+    "src/main/java/dev/jayms/net/MultiplayerServer.java": "d85687ecdca6e1cc479e981e2eddb12b4dc6c334f366928cc9a82406c3b409ae",
+    "src/main/java/dev/jayms/net/ServerTickTiming.java": "242ee146e07e013c3ead30efb7d9fa481ffcc98f0fe15864a570b7abeb6cc3af",
+    "src/test/java/dev/jayms/net/ServerTickTimingTest.java": "4f20929f75d74d9495fab8f9c7fa469e320c41ea91d81b3f94609e5c1f982540",
+    "src/test/java/dev/jayms/StructureMultiplayerTest.java": "c0a26f06754eb97d74e36a666e502b0018829f54afcd50457db8eaed20832d36",
+    "tools/structures/ServerTickProbe.java": "74e2b83680bf447801cbd05f5409b4a62c0a9f38551af6d25da6119e48943d1d"
+  },
+  "testCommand": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=ServerTickTimingTest,StructureMultiplayerTest,StructurePublicationStagingTest,CityMultiplayerTest,MultiplayerTest test",
+  "suites": [
+    {
+      "suite": "net.ServerTickTimingTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "StructurePublicationStagingTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "StructureMultiplayerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "CityMultiplayerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "MultiplayerTest",
+      "tests": 15,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "cliCommands": [
+    "javac --release 17 -cp target/classes -d target tools/structures/ServerTickProbe.java",
+    "java -Xmx1g -cp \"target:target/classes:<JOML dependency jars>\" ServerTickProbe target/structure-tick-probe-profile target/structure-tick-probe-result.json"
+  ],
+  "diagnostic": {
+    "scope": "One real TLS loopback client; 5 s normal observation then deliberate 350 ms authority-lock hold. Not a city/max or 20-run qualification.",
+    "normal": {
+      "total_ticks": 65,
+      "failed_ticks": 0,
+      "window_ticks": 65,
+      "window_span_ms": 6498.892826,
+      "starts_per_second": 9.847831,
+      "intervals": {
+        "samples": 64,
+        "median_ms": 100.857373,
+        "p95_ms": 103.743055,
+        "worst_ms": 137.621229
+      },
+      "lock_wait": {
+        "samples": 65,
+        "median_ms": 0.000705,
+        "p95_ms": 0.000963,
+        "worst_ms": 0.001477
+      },
+      "work": {
+        "samples": 65,
+        "median_ms": 0.658436,
+        "p95_ms": 1.870528,
+        "worst_ms": 37.441715
+      }
+    },
+    "after_synthetic_contention": {
+      "total_ticks": 68,
+      "failed_ticks": 0,
+      "window_ticks": 68,
+      "window_span_ms": 7139.182677,
+      "starts_per_second": 9.384828,
+      "intervals": {
+        "samples": 67,
+        "median_ms": 100.879189,
+        "p95_ms": 107.30202,
+        "worst_ms": 439.055548
+      },
+      "lock_wait": {
+        "samples": 68,
+        "median_ms": 0.000719,
+        "p95_ms": 0.001477,
+        "worst_ms": 338.8714
+      },
+      "work": {
+        "samples": 68,
+        "median_ms": 0.658436,
+        "p95_ms": 1.870528,
+        "worst_ms": 37.441715
+      }
+    }
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "architecture": "x86_64",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "25.0.3+9-LTS-195",
+    "concurrentWork": "Native llvmpipe functional playtest shared this host during the short diagnostic. No isolated/reference-hardware performance claim."
+  },
+  "measurementSemantics": [
+    "4096 samples maximum; three long arrays retain starts, wait and work.",
+    "Snapshot copying holds only timing lock; percentile sorting holds neither timing nor authority lock.",
+    "Nearest-rank median/p95, zero samples distinguish empty statistics.",
+    "Window start rate includes observed start gaps; shared-scheduler delay before invocation is not separately attributed to authority lock wait.",
+    "Failed ticks retained; callbacks after stopped server excluded; duration arithmetic handles monotonic clock wrap.",
+    "Normal snapshot is cumulative from server startup and includes TLS handshake plus five seconds of client movement; it is not a reset five-second window."
+  ],
+  "pending": [
+    "100 ms fixed-delay scheduler remains below required 20 Hz; no cadence fix claimed",
+    "Full city/max admission, atomic chunk publication and persistence scaling",
+    "20-run reference CPU/GPU/system budgets, shaped 32-client synchronization, frame/tick/traffic/peak memory qualification",
+    "Full-history/save locking and complete power-loss durability"
+  ],
+  "rollout": "Gated; not ready.",
+  "deletionAudit": "No file deletions against recorded base. Original tick body moved behind wrapper; authority lock scope and behavior preserved. MP3/Hub/Asset Manager preserved.",
+  "additionalCommand": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=ServerTickTimingTest,StructureMultiplayerTest test",
+  "additionalResult": [
+    {
+      "suite": "net.ServerTickTimingTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "StructureMultiplayerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "checks": [
+    "Live second-thread tickTiming() snapshot completed while the server authority lock was held; snapshot counts remain coherent."
+  ],
+  "playtest": {
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_manifest": "structure-native-source.json",
+    "source_manifest_sha256": "fbac5bab26885aadff7e65a9f745f6e3ef1601bd0029ff990244591c9aaeeedf",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "publication": "Local evidence pending controller publication"
+  },
+  "video": {
+    "file": "dashboard/evidence/structure-workflow.mp4",
+    "bytes": 355033,
+    "sha256": "b3aae5513a6c10630957cb9ac0d207092619b7a06d39184e272242b12296c68a",
+    "codec": "H264",
+    "frames": 16,
+    "durationSeconds": 26.54,
+    "inspection": "Decoded footprint/placement input frame, saved placement screenshot and live-player rejection screenshot.",
+    "publication": "Pending controller publication"
+  },
+  "sourceManifestFiles": 215
+}
