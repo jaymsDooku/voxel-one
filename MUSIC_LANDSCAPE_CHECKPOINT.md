@@ -69,3 +69,9 @@ Next: controller commits/synchronizes/publishes only assigned feature source and
 ## Restored-source qualification inspected
 
 Exact head `2e688dc6af88994cce70cca315ebe95b25a876a6` against current base `4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a` passed both builds and all seven hosted native commands. Receipt hashes, hosted media and resource trends independently inspected. Asset Manager P1 restoration is preserved: 32 protected files match current base and no tracked deletions remain. Detailed results and renamed raw evidence are in `dashboard/evidence/landscape-restored-hosted-review.md` and its index. Current edits are reports/media only; no tested product/harness source changed. Runner should publish evidence for independent review. Physical GPU/audio remains pending and gates stable rollout. No approval, merge or deployment claimed.
+
+## Current-source and publication audit
+
+Audited current published PR head `d412d969ce8e58585ac8cf02b6e4fb930c3a29f0`. GitHub master remains `4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a`, already an ancestor; no synchronization edit is needed. `src`, `deploy`, `pom.xml` and workflows are identical to software-qualified `2e688dc6af88994cce70cca315ebe95b25a876a6`. Current-head build runs 39611157949 and 39611153822 both passed. No tracked deletions against current master; all 32 protected Asset Manager files still match it.
+
+Read published exact-head raw F10, contact sheet and qualification report; SHA-256 matches local files. Clip remains 2843596 bytes, 249 decoded frames, 17.949 seconds. Existing native/soak/timing/media qualification is retained under its tested source receipt; no unexecuted test is claimed. No new test was needed for documentation-only changes. This continuation updates only progress/checkpoint records. Ready for independent review; physical GPU/audio remains pending and stable rollout stays gated. No commit, push, merge, approval or deployment by developer.
