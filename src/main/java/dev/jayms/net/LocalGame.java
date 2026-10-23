@@ -5,6 +5,8 @@ import dev.jayms.net.model.*;
 
 import java.io.*;
 import java.nio.file.*;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
 import java.util.*;
 
 /** Offline survival state uses the same stack rules and terrain as multiplayer. */
@@ -207,7 +209,8 @@ public final class LocalGame {
     private void saveWorld() throws IOException {
         Files.createDirectories(save.toAbsolutePath().getParent());
         Path temp = save.resolveSibling(save.getFileName() + ".tmp");
-        try (var out = new DataOutputStream(new BufferedOutputStream(Files.newOutputStream(temp), 64 * 1024))) {
+        try (var channel = FileChannel.open(temp, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
+                var out = new DataOutputStream(new BufferedOutputStream(Channels.newOutputStream(channel), 64 * 1024))) {
             out.writeInt(models.hasStructureModels()?9:8);
             out.writeLong(seed);
             out.writeInt(generatorVersion);
@@ -218,6 +221,8 @@ public final class LocalGame {
             for (var e : edits.values()) e.write(out);
             out.writeInt(drops.size());
             for (var d : drops.values()) d.write(out);
+            out.flush();
+            channel.force(true);
         }
         try {
             Files.move(
