@@ -369,3 +369,35 @@ Random mixed trees, redundant branches down to individual voxels, air, coloured
 materials, frozen source bytes and differing resolutions are covered separately.
 This fix does not change package bytes, model identity, placement admission limits
 or the outstanding city/maximum and physical-GPU/network qualification gates.
+
+### Server save-prefix staging
+
+Structure placement and undo stage a private sibling save prefix on the worker.
+The prefix contains the existing save header, immutable model definitions and a
+copied edit history with the requested cell replacements. Serialization and prefix
+flush run outside the server authority lock. Histories expose an owner-thread
+revision paired with object identity; ordinary map writes, removals, clearing and
+complete-cell updates invalidate the captured revision. Final publication rejects
+a changed history with a retry message, including edits outside the footprint,
+rather than overwriting concurrent work with a stale save.
+
+After the engine revalidates models, geometry and cancellation, the authority checks
+live bodies and appends current inventories, health and dropped items under its
+lock. The file is flushed and forced before strict atomic replacement, followed by
+live geometry/history publication and broadcast. Staged files have distinct names
+from ordinary saves. Resource cleanup covers cancellation, rejected revalidation,
+writer errors, failed rename and abandoned staging. The format and admission caps
+remain unchanged. Ordinary save publication retains its existing fallback policy.
+
+The direct-commit fallback also constructs its one-cell wire event under the lock;
+it is not an isolated replay of the previous staged production path.
+The 20-run synthetic server diagnostic uses 131,072 existing whole-cell edits and
+one replacement cell, with three warmups. Exact save bytes match the prior path.
+Direct-commit fallback median/p95/worst was 87.402302/238.923021/267.954182 ms;
+staging was 82.620994/161.387811/179.472714 ms; final guarded publication was
+3.021576/7.639779/19.790220 ms. This isolates authority save phases on the shared
+VPS. It excludes full placement validation, dependencies, inventories, drops,
+clients, ticks, rendering and peak memory. History copying still acquires the lock;
+final tail serialization and disk force also remain guarded. These results do not
+establish the 100 ms stall budget or city/max support. Busy-world retry behavior,
+partitioned persistence and full system qualification remain unfinished.

@@ -1458,3 +1458,40 @@ All 216 manifest paths/hashes match the tested source. Decoded video frame,
 placed-world and live-player rejection screenshots inspected. llvmpipe at 0–1 FPS
 is functional evidence only. Local media and sanitized reports await controller
 publication and new exact-source hosted checks. No readiness claim.
+
+## Server save-prefix staging after 8dc67be4
+
+Verified all eight hosted parent summaries: 847 tests each, zero failures/errors,
+one skip. PR merge parents include exact feature 8dc67be4a0f8ba92e0ff8bdcd0df9ecdbe00b010
+and base 4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a. Receipt:
+structure-8dc6-hosted.json. These passes exclude new save-staging edits.
+
+Stage server structure header/models/history bytes outside the authority lock;
+retain live transient tail, force and strict atomic rename inside final guarded
+publication. History identity/revision rejects concurrent changes rather than
+losing outside edits. Resource cleanup covers stage/final cancellation, failed
+revalidation and file errors. Unique siblings avoid ordinary .tmp collisions.
+57 unique focused tests passed, including production TLS multiplayer and actual
+server save/reopen, stale-history durable-byte preservation and cancellation.
+
+Actual authority diagnostic: three warmups, 20 runs, 131072 existing whole-cell
+edits plus one replacement. Direct-commit fallback median/p95/worst:
+87.402302/238.923021/267.954182 ms. Staging:
+82.620994/161.387811/179.472714 ms. Guarded final publication:
+3.021576/7.639779/19.790220 ms. Save bytes identical (3145788 bytes). Baseline
+includes direct-path one-cell wire compression; not an isolated replay of prior
+staged production code. No rendered clients/ticks/dependencies/inventories/drops
+in this diagnostic. History-copy lock time remains unmeasured and guarded; tail
+and force also remain guarded. No system performance claim. Native workflow is
+running on frozen source; new media and hosted checks remain pending. City/max,
+physical GPU, shaped network and stable rollout remain gated.
+
+Playtest: python3 deploy/run_structure_playtest.py --display "$DISPLAY" passed on
+frozen source using the inherited display/auth and isolated synthetic profile.
+All 217 source paths/hashes match. Fresh F10 H264 clip: 17 frames, 31.075 s,
+362141 bytes, SHA-256
+b2a34d98f01a29b5b24762351eeb87f7c28e8c5073303b6f1228d0ea3bc53a61.
+Decoded video frame, placed-world and live-player rejection screenshots inspected.
+llvmpipe 0–1 FPS is functional evidence only. New code, media and sanitized report
+structure-save-staging-validation.json await controller publication and exact-source
+hosted validation. No readiness or full qualification claim.
