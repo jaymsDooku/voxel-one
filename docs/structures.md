@@ -327,3 +327,16 @@ and city snapshots at 200 ms; missed item/broadcast slots are not replayed.
 Shutdown stops rescheduling, and a failing callback retains the prior stop-on-error
 behavior. The small TLS diagnostic is separate from full city/max, shaped-network
 and physical-GPU qualification, which remain pending.
+
+Server placement and undo capture only affected geometry buckets under the
+authority lock, then stage frozen cell replacements on the worker. A candidate
+merge checks every captured chunk/terrain stamp under the final lock. Matching
+stamps install the staged buckets into a snapshot of the current world, preserving
+new edits in other chunks. Any changed/unknown stamp uses the existing full
+restage path, preserving nearby edits before the usual atomic save/publication.
+Owner-token changes protect the live world, older snapshots and candidates from
+later staging edits. Cancelling or discarding staging changes no live cells.
+The normal path moves per-cell geometry copying outside the final lock; history
+updates, top-level map copying, save I/O and changed-chunk fallback remain locked.
+The scoped geometry probe records the CPU/lock-time tradeoff separately from full
+city/max and system qualification in `structure-cell-patch-validation.json`.

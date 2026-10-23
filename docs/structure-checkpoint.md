@@ -1272,3 +1272,77 @@ improvement does not qualify full city/max or system budgets. Admission caps,
 scalable/atomic chunk publication, 2,000,000-edit persistence ceiling, full-history
 save locks, 20-run reference GPU/network/frame/tick/memory/traffic and power-loss
 qualification remain pending. Rollout gates remain closed; not ready for review.
+
+
+## Selected-bucket geometry staging continuation
+
+Published parent `518c728afb98cd4a36e04f5e877ac3bb2dd75579` hosted checks
+inspected before edits. New server staging captures only affected bucket references
+and chunk/terrain stamps under the authority lock, rotates the live owner token,
+and builds cell replacements outside the lock. Final merge requires every stamp
+to match, copies current top-level chunks and substitutes staged buckets. Unrelated
+current chunks are retained. Changed/unknown stamps return no candidate and use
+the existing full restage path under lock after engine revalidation.
+
+Merge rotates staging ownership too, preserving a previously returned candidate
+if the patch is edited or reused. Frozen tree wrappers protect caller input.
+Terrain identity/generation, including ABA, and bucket identity/revision fence
+the proof. Engine model/destination/mesh guards and final live-body guard remain.
+Save still precedes swapping world/models/history and broadcasting. Stage failure,
+cancellation or discarded candidates do not change live cells. This does not
+remove history copying, history-cell updates, top-level map copying, save I/O or
+changed-chunk fallback from the final lock. Existing caps unchanged.
+
+Actual command: `mvn -q -Dmaven.repo.local="$PWD/target/structure-m2"
+-DargLine="-Djava.io.tmpdir=$PWD/target/structure-audit-tmp"
+-Dtest=WorldCellPatchTest,WorldVoxelSnapshotTest,StructureTest,StructureMultiplayerTest,StructureValidationStampTest,StructurePublicationStagingTest test`.
+48 tests, zero failures/errors/skips. Six new patch tests cover no live mutation,
+latest unrelated chunks, same-chunk neighbor conflicts/retry, snapshot/patch/
+candidate independence after reuse and caller edits, terrain ABA/different world,
+cleared buckets, invalid chunk/resolution writes, fractional detail and air undo.
+Actual TLS structure rotations/dependencies/conflicts/cancellation/undo/late join/
+restart and shared rollback/stamp/snapshot regressions passed. Helper failed and
+was resolved self; COW ownership and commit ordering independently inspected.
+
+Geometry CLI: `javac --release 17 -cp target/classes -d target
+tools/structures/CellPatchProbe.java`; `java -Xmx1g -cp target:target/classes
+CellPatchProbe target/structure-cell-patch-probe.json`. Three warmups and 20
+measured iterations: 131,072 uniform cells in 32 chunks, 40,000 unrelated overrides.
+Every result verifies all placed cells, source isolation and unrelated geometry
+outside timing. Same source, legacy fallback first; no isolated reference-system
+or full-placement claim. Native run and hosted-artifact collection started afterward.
+
+Legacy guarded snapshot+cell-copy median/p95/worst: 7.792619/21.703015/23.446623 ms.
+Selected capture: 0.044856/0.109805/0.119756 ms. Outside-lock cell staging:
+8.834858/43.966731/53.549414 ms. Guarded merge:
+0.231073/0.375509/0.443603 ms. Combined capture+merge:
+0.274444/0.461286/0.540705 ms. This moves work outside the critical section;
+extra chunk checks/staging can increase total CPU/latency. No overall placement
+speedup, peak-memory, city/max, GPU or 32-client qualification claimed.
+
+Published-parent artifact details: all eight summaries from push 39888936197 and
+PR 39888938217 report 832 tests, zero failures/errors and one skip. Merge source
+`af1646e6706b7c7793d53565f23005c2c6c95a8d` has exact parent feature and
+review-base commits. These results do not cover pending cell-patch edits.
+
+Playtest: `python3 deploy/run_structure_playtest.py --display "$DISPLAY"` passed
+on inherited X11/GLFW, isolated synthetic profile. Capture/anchor/browse,
+export/import, rotations/footprint/conflicts, empty-space preservation, occupied/
+live-player rejection, placement/export/import cancellation, malformed import
+atomicity, undo, repeated placement, dependency/restart recovery and inventory/
+model-editor regressions passed. All 216 production/harness paths and hashes
+match. Inspected fresh decoded staging/preview video frame, saved-placement and
+player-rejection images. F10 H264: 17 frames, 26.807 s, 364,787 bytes, SHA-256
+`67e0ce813bde582ac2a10de641b98d132d17af63d021278402bf9b096916fc1b`.
+Manifest SHA-256 `9ae27642e652da0bfca2a595e5686781ca2caf513005db67e685223dbfc8bb29`.
+llvmpipe LLVM 15.0.6 at 0–1 FPS is functional evidence only, not physical-GPU
+or 30 FPS qualification. No files deleted against recorded base. Server per-cell
+geometry copying intentionally moved into staging and retained as mismatch
+fallback. MP3, Hub and Asset Manager preserved. Helper resolved self.
+
+Local report/media pending controller publication. feature_validation handoff
+needed for integration/publication and exact-head checks. No supported-city or
+whole-placement performance claim. Full city/max admission, atomic/scalable world
+publication, persistence beyond 2,000,000 edits, remaining history/save lock work,
+20-run reference GPU/network/frame/tick/memory/traffic and complete power-loss
+qualification remain pending. Rollout gates closed; not ready for review.

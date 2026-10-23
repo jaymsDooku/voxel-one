@@ -891,20 +891,30 @@ public final class MultiplayerServer implements AutoCloseable {
                 return structureEvent(new StructureWire.Delta(definitions,states),cancel);
             }
             @Override public StructureEngine.Commit stageCommit(ModelLibrary staged,Map<StructurePackage.Position,SparseVoxelOctree> cells,long revision,java.util.function.BooleanSupplier cancel)throws IOException {
+                var positions=new HashSet<dev.jayms.ChunkPos>();
+                for(var p:cells.keySet()){StructurePackage.cancelled(cancel);positions.add(dev.jayms.ChunkPos.fromBlock(p.x(),p.y(),p.z()));}
+                WorldVoxels.CellPatch geometry;
+                synchronized(lock()) {
+                    StructurePackage.cancelled(cancel);
+                    if(models.revision()!=revision)throw new IOException("Model library changed; retry placement");
+                    geometry=voxels.captureCellPatch(positions);
+                }
+                for(var entry:cells.entrySet()){StructurePackage.cancelled(cancel);var p=entry.getKey();geometry.replaceCell(p.x(),p.y(),p.z(),entry.getValue());}
                 var publication=publication(staged,cells,revision,cancel);
-                return ()->commitStaged(staged,cells,publication);
+                return ()->commitStaged(staged,cells,publication,geometry);
             }
             public void commit(ModelLibrary staged,Map<StructurePackage.Position,SparseVoxelOctree> cells)throws IOException {
-                commitStaged(staged,cells,publication(staged,cells,models.revision(),()->false));
+                commitStaged(staged,cells,publication(staged,cells,models.revision(),()->false),null);
             }
-            private void commitStaged(ModelLibrary staged,Map<StructurePackage.Position,SparseVoxelOctree> cells,Event publication)throws IOException {
+            private void commitStaged(ModelLibrary staged,Map<StructurePackage.Position,SparseVoxelOctree> cells,Event publication,WorldVoxels.CellPatch patch)throws IOException {
                 if(!running)throw new IOException("Server stopping");
                 dev.jayms.net.structure.StructureOccupancy.validate(cells,city.frame(),peers.values().stream().map(peer->peer.pose).toList());
-                var next=WorldVoxels.History.copyOf(edits);var geometry=voxels.snapshot();
+                var next=WorldVoxels.History.copyOf(edits);var geometry=patch==null?null:patch.merge(voxels);
+                boolean restage=geometry==null;if(restage)geometry=voxels.snapshot();
                 for(var entry:cells.entrySet()) {
                     var p=entry.getKey();var state=new Protocol.CellState(p.x(),p.y(),p.z(),entry.getValue());
                     for(var edit:state.edits())WorldVoxels.remember(next,edit);
-                    geometry.replaceCell(p.x(),p.y(),p.z(),entry.getValue());
+                    if(restage)geometry.replaceCell(p.x(),p.y(),p.z(),entry.getValue());
                 }
                 if(next.size()>2_000_000)throw new IOException("World persistence edit limit");
                 saveWorld(staged,next,true);models=staged;edits=next;voxels=geometry;broadcast(publication);

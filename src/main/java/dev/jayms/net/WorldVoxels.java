@@ -139,6 +139,37 @@ public final class WorldVoxels {
         return copy;
     }
 
+    /** Capture only affected buckets under the world authority lock. Stage on one worker;
+     * merge under that same lock. No live cell changes occur during capture/staging. */
+    public CellPatch captureCellPatch(Collection<ChunkPos> positions) {
+        var staged=new WorldVoxels(terrain);var stamps=new HashMap<ChunkPos,Object>();
+        for(var position:positions) {
+            stamps.put(position,chunkStamp(position));var bucket=chunks.get(position);
+            if(bucket!=null)staged.chunks.put(position,bucket);
+        }
+        owner=new Object();
+        return new CellPatch(staged,stamps);
+    }
+    public static final class CellPatch {
+        private final WorldVoxels staged;private final Map<ChunkPos,Object> stamps;
+        private CellPatch(WorldVoxels staged,Map<ChunkPos,Object> stamps){this.staged=staged;this.stamps=stamps;}
+        public void replaceCell(int x,int y,int z,SparseVoxelOctree tree) {
+            if(!stamps.containsKey(ChunkPos.fromBlock(x,y,z)))throw new IllegalArgumentException("Cell outside captured chunks");
+            staged.replaceCell(x,y,z,tree);
+        }
+        /** Null means a captured chunk/terrain changed: caller must restage from current.
+         * Other current chunks are retained. The returned candidate is not published. */
+        public WorldVoxels merge(WorldVoxels current) {
+            for(var entry:stamps.entrySet()) {
+                if(entry.getValue()==null||!entry.getValue().equals(current.chunkStamp(entry.getKey())))return null;
+            }
+            var result=current.snapshot();result.chunks.putAll(staged.chunks);
+            // Protect the candidate if this staging object is edited/reused afterward.
+            staged.owner=new Object();
+            return result;
+        }
+    }
+
     private record ChunkStamp(Terrain terrain,long terrainRevision,CellBucket bucket,long revision) {}
     public long terrainRevision(){return terrain.geometryRevision();}
     /** Trusted in-process stamp for one chunk. Compare only under the authority's lock. */
