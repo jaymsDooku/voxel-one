@@ -1,0 +1,102 @@
+{
+  "status": "local_regressions_and_native_workflow_passed_hosted_pending",
+  "parent": "1c87a086cccacbfc5f8b13f4f3297b513a9af0dc",
+  "reviewBase": "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+  "change": "Stage server structure synchronization cells and gzip bytes outside final authority lock; retain locked authoritative revalidation, save and broadcast. Make server undo publication staging cancellable.",
+  "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=StructurePublicationStagingTest,StructureTest,StructureMultiplayerTest,StructureValidationStampTest,StructureOccupancyTest test",
+  "environment": {
+    "system": "Linux",
+    "release": "6.1.0-50-cloud-amd64",
+    "machine": "x86_64",
+    "clients": "Three real TLS loopback protocol clients in synthetic accounts/profile; not rendered or shaped network."
+  },
+  "suites": [
+    {
+      "suite": "StructurePublicationStagingTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "StructureTest",
+      "tests": 24,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "StructureMultiplayerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "StructureValidationStampTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "StructureOccupancyTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "source": {
+    "src/main/java/dev/jayms/net/MultiplayerServer.java": "1585f13eb6e84ecf2f17df61496327ec2b53b43cb023cd1b4e65637a4829aab6",
+    "src/main/java/dev/jayms/net/structure/StructureEngine.java": "c6435b685d1a03465d6cabfdba85021a4b231bdd4dca12976d3b70428a1868c3",
+    "src/main/java/dev/jayms/net/structure/StructureWire.java": "d7b6edf4e0116290759776b8b0bc62ac9e2629d6d7a5855246ab8b4ad63314d7",
+    "src/test/java/dev/jayms/StructurePublicationStagingTest.java": "5e861de74b95ee1be0a933416b62240a5703bca3bd9a0f30cf79807367519989"
+  },
+  "checks": [
+    "Latch-held publication staging allows another thread to acquire the authority lock and edit destination; commit rejects and preserves the edit.",
+    "Placement and undo stage outside lock, publish inside lock.",
+    "Stage failure/cancellation publishes nothing, releases busy state and allows retry; rejected/cancelled undo retains history.",
+    "Model revision and placed cells rechecked after undo staging.",
+    "Wire cancellation at entry, each of two cells and after compression; interrupt, retry and byte equality checked.",
+    "TLS placement all rotations, 512 dependencies, observer movement, overlap, undo, cancellation, contested destination, late join and restart passed.",
+    "Repeated six staging tests after adding model-definition cancellation boundaries and decoded dependency fingerprint verification."
+  ],
+  "deletionAudit": "No deleted files against recorded review base. Existing server cell-list/encoding lines moved into cancellable staging. MP3 support, Hub workflow/tests and Asset Manager retained.",
+  "pending": [
+    "Full city/max admission and atomic chunk publication",
+    "2,000,000-edit persistence ceiling and full-history/save authority locking",
+    "20-run city/max reference hardware, physical GPU, frame/tick/memory/traffic and shaped 32-client qualification",
+    "Late-join compression remains on its existing path",
+    "Directory durability barriers and complete power-loss qualification"
+  ],
+  "rollout": "Gated; not ready for review or stable supported-limit claims.",
+  "additionalCommand": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=StructurePublicationStagingTest test",
+  "additionalResult": {
+    "tests": 6,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "playtest": {
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_manifest": "structure-native-source.json",
+    "source_manifest_sha256": "53ebc46f450fe8e7702971494028e1639cdbc7a7243d6eb7d5a64c3e5024fdfb",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "publication": "Local evidence pending controller publication"
+  },
+  "video": {
+    "file": "dashboard/evidence/structure-workflow.mp4",
+    "bytes": 358474,
+    "sha256": "9c91f8da2940df63f2ab9783fd095aaa697d2ac0989e424cff504ac018e876dd",
+    "codec": "H264",
+    "frames": 16,
+    "durationSeconds": 32.204,
+    "inspected": "Decoded staging/preview video frame, live-player rejection, placed overlap rejection and saved world placement screenshots.",
+    "publication": "Pending controller publication"
+  }
+}

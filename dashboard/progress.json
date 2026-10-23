@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-23T00:51:49+00:00",
+  "updatedAt": "2026-10-23T01:21:22+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4017,8 +4017,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Offline/server world loaders use bounded 64 KiB input buffers. 40 tests passed. Actual 100,000-edit v8/v9 constructor probes: 20 samples each, identical state; medians fell from about 1.2 s to 119 ms. Late-truncated/invalid-version rejection and retry passed. Warm cache only. Fresh native workflow/media passed; all 214 source hashes verified. Request controller publication/new exact-source checks. Full city/max, cold region, durability and reference GPU/network/system qualification remain unfinished.",
-      "updatedAt": "2026-10-23T00:51:49+00:00"
+      "note": "Server publication staging and cancellable undo validated: 46 local tests pass; six focused tests repeated after dependency-wire coverage. Fresh native workflow/media passed on matching 214-file manifest. Pending controller publication/exact-head CI; full city/max and physical-GPU/network qualification still gated.",
+      "updatedAt": "2026-10-23T01:21:22+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
