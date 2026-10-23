@@ -305,3 +305,15 @@ authorities retain their commit path. This removes server publication compressio
 from the critical section; history copying, geometry staging, durable save and
 queue publication still hold the lock. Late-join synchronization is unchanged.
 This is not a tick, frame, memory, city/max or shaped-network qualification.
+
+Server tick diagnostics retain at most 4,096 actual tick starts, lock waits and
+work durations. `MultiplayerServer.tickTiming()` returns immutable aggregate
+snapshots with lifetime tick/failure counts, window span/rate and nearest-rank
+median/p95/worst milliseconds. Interval samples count gaps between actual starts;
+lock wait starts when the scheduled callback is invoked and excludes prior
+scheduler queue delay. Work includes city advancement, item updates and tick
+broadcast construction under the authority lock, including failed ticks. Snapshot
+copying is bounded; sorting happens after releasing the metrics lock. No player
+or account data is retained. The existing 100 ms fixed-delay scheduler and
+simulation behavior are unchanged. This exposes the cadence deficit and lock
+contention; it does not meet or qualify the required 20 Hz or p95 <50 ms budgets.

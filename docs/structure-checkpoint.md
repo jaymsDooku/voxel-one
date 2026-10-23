@@ -1122,3 +1122,83 @@ Renderer llvmpipe LLVM 15.0.6, 0–1 FPS: functional evidence only, no GPU/frame
 qualification. Local report/media pending controller publication. Controller
 feature_validation handoff needed for integration/publication and new exact-head
 checks. No full city/max, tick/frame, network, durability or readiness claim.
+
+
+## Bounded server tick measurement continuation
+
+Published parent `9efc41f8e6f55f52fe1f9973d80d1ecea7d89af5`: inspected all
+eight Maven artifacts from push 39883557379 and PR 39883560722. Each reports
+825 tests, zero failures/errors and one skip. PR merge source
+`abb29d1070c58cd40b980d497d24560d729bb6a6` has this feature and recorded
+review-base parents. These results exclude the new timing instrumentation.
+
+Before changing the slow-tick command window, measure real cadence and lock cost.
+Added a 4,096-sample ring for tick start timestamps, invocation-to-lock waits
+and work duration, plus lifetime tick/failure counts. Immutable snapshots copy
+under only the metrics lock, then sort outside it; they never acquire the server
+lock. Tick work retains the original synchronized authority scope. Failed ticks
+are recorded through finally; callbacks after shutdown do not create fake ticks.
+Clock arithmetic uses elapsed monotonic subtraction, including wrap. Rate is
+window start intervals, not a claimed scheduler target. Percentiles use nearest
+rank, including lower-middle median for even sample counts. No player/account
+data is retained. Storage is three fixed 4,096-long arrays plus fixed metadata.
+
+The 100 ms fixed-delay scheduler, city elapsed-time integration, every-second-tick
+broadcast cadence, item behavior and world formats remain unchanged. This cannot
+qualify 20 Hz: the fixed delay alone limits actual cadence below 10 Hz once work
+is included. Full city/max, GPU, network and system budgets remain pending.
+
+Actual local tests: `mvn -q -Dmaven.repo.local="$PWD/target/structure-m2"
+-DargLine="-Djava.io.tmpdir=$PWD/target/structure-audit-tmp"
+-Dtest=ServerTickTimingTest,StructureMultiplayerTest,StructurePublicationStagingTest,CityMultiplayerTest,MultiplayerTest test`: 26 tests, zero failures/errors/skips.
+Timing tests cover empty/single snapshots, exact nearest-rank statistics, separate
+wait/work/interval accounting, ring eviction, lifetime failure retention, immutable
+old snapshots and monotonic wrap. Existing real TLS structure workflow validates
+nonempty coherent timing samples alongside rotations, dependencies, cancellation,
+undo, late join and restart. City and multiplayer regressions pass.
+
+CLI: compiled `tools/structures/ServerTickProbe.java` with `javac --release 17
+-cp target/classes -d target`; ran `java -Xmx1g` with target/classes and JOML jars,
+fresh `target/structure-tick-probe-profile`, sanitized JSON result. One real TLS
+client moves/polls for five seconds, then the fixture deliberately holds the
+authority lock for 350 ms. Callback counters advance after release and measured
+lock wait exceeds 100 ms. Private synthetic profile/runtime log stay in target.
+Native llvmpipe playtest shared this host; no isolated performance comparison,
+20-run, city/max, 32-client or reference-system claim. Helper failed and was
+resolved self; implementation and measurements independently checked locally.
+
+Actual diagnostic: normal cumulative window includes startup/TLS handshake plus
+five seconds of moving/polling: 65 ticks over 6,498.892826 ms, 9.847831 starts/s;
+interval median/p95/worst 100.857373/103.743055/137.621229 ms; work
+0.658436/1.870528/37.441715 ms; lock wait
+0.000705/0.000963/0.001477 ms. After the deliberate lock hold: 68 ticks,
+worst lock wait 338.871400 ms and worst interval 439.055548 ms. No failures.
+This verifies attribution on a small shared-host fixture, not the required budgets.
+
+Repeated `ServerTickTimingTest,StructureMultiplayerTest` after strengthening the
+real TLS regression: four tests pass, zero failures/errors/skips. A second thread
+reads `tickTiming()` while the test holds the server authority lock; the future
+completes and returns coherent counters. This checks diagnostic access does not
+wait on the authority lock. Four repeated tests are not four extra unique tests.
+
+Playtest: `python3 deploy/run_structure_playtest.py --display "$DISPLAY"` passed
+on inherited X11/GLFW with isolated synthetic profile. Capture/anchor/browse,
+export/import, all four rotations, footprint/conflicts, empty-space preservation,
+occupied/live-player rejection, placement/export/import cancellation, malformed
+import atomicity, undo, repeated copies, dependency/restart and inventory/model
+editor regressions passed. All 215 production/harness paths and hashes match.
+Inspected decoded footprint/placement-input video frame, fresh saved-placement
+and player-rejection images. F10 H264: 16 frames, 26.54 s, 355,033 bytes, SHA-256
+`b3aae5513a6c10630957cb9ac0d207092619b7a06d39184e272242b12296c68a`.
+Manifest SHA-256 `fbac5bab26885aadff7e65a9f745f6e3ef1601bd0029ff990244591c9aaeeedf`.
+llvmpipe LLVM 15.0.6 at 0–1 FPS is functional evidence only, not GPU/30 FPS
+qualification. No files deleted against review base; original tick body moved
+behind timing wrapper with the same authority lock scope. MP3 support/fixtures,
+Hub workflow/tests and Asset Manager retained. Helper resolved self.
+
+Local report/media pending controller publication. Controller feature_validation
+handoff needed for integration, publication and exact-head checks. No scheduler
+fix, city/max support, 20-run/32-client/GPU/system qualification or readiness claim.
+Next engineering gates remain atomic chunk publication, scalable persistence and
+measured admission for city/max, then scheduler work against actual reference
+measurements. Existing caps and rollout gates remain unchanged.
