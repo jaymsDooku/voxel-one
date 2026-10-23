@@ -206,7 +206,9 @@ public final class LocalGame {
         if (city != null) city.save(save.resolveSibling(save.getFileName() + ".city"));
     }
 
-    private void saveWorld() throws IOException {
+    private void saveWorld() throws IOException { saveWorld(false); }
+
+    private void saveWorld(boolean requireAtomic) throws IOException {
         Files.createDirectories(save.toAbsolutePath().getParent());
         Path temp = save.resolveSibling(save.getFileName() + ".tmp");
         try (var channel = FileChannel.open(temp, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
@@ -224,15 +226,7 @@ public final class LocalGame {
             out.flush();
             channel.force(true);
         }
-        try {
-            Files.move(
-                    temp,
-                    save,
-                    StandardCopyOption.ATOMIC_MOVE,
-                    StandardCopyOption.REPLACE_EXISTING);
-        } catch (AtomicMoveNotSupportedException e) {
-            Files.move(temp, save, StandardCopyOption.REPLACE_EXISTING);
-        }
+        WorldSavePublication.replace(temp, save, requireAtomic);
     }
 
     public dev.jayms.net.structure.StructureEngine.Authority structureAuthority(dev.jayms.World world) {
@@ -257,7 +251,7 @@ public final class LocalGame {
                 try {
                     models.replaceWith(prepared);edits=next;
                     for(var e:cells.entrySet()) {var p=e.getKey();for(var edit:new Protocol.CellState(p.x(),p.y(),p.z(),e.getValue()).edits())world.apply(edit);}
-                    saveWorld();
+                    saveWorld(true);
                 } catch(IOException|RuntimeException failure) {
                     edits=original;models.replaceWith(originalModels);
                     for(var e:before.entrySet()) {var p=e.getKey();for(var edit:new Protocol.CellState(p.x(),p.y(),p.z(),e.getValue()).edits())world.apply(edit);}
