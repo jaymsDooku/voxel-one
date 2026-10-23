@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-23T00:06:26+00:00",
+  "updatedAt": "2026-10-23T00:28:46+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4017,8 +4017,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Offline/server temp-file writes now flush and force(true) on the writing channel before rename; no new I/O after publication. 36 tests passed. Actual v8/v9 100,000-edit save/reload comparisons: 20 samples each, exact parent/current bytes, forced medians about 35 ms. Fresh native workflow/media passed; all 213 source hashes verified. Request controller publication/new exact-source checks. Complete power-loss durability, city/max and reference GPU/network/system qualification remain unfinished.",
-      "updatedAt": "2026-10-23T00:06:26+00:00"
+      "note": "Structure placement/undo requires atomic save replacement; unsupported atomic moves reject without non-atomic retry. Ordinary save fallback retained. 40 policy/offline/TLS/fractional/history tests passed. Fresh native workflow/media passed; all 214 source hashes verified. Request controller publication/new exact-source checks. Full city/max, complete durability and reference GPU/network/system qualification remain unfinished.",
+      "updatedAt": "2026-10-23T00:28:46+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

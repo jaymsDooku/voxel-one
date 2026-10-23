@@ -853,7 +853,7 @@ public final class MultiplayerServer implements AutoCloseable {
                 if(next.size()>2_000_000)throw new IOException("World persistence edit limit");
                 var definitions=staged.entries().stream().filter(e->models.get(e.id())==null).toList();
                 Event publication=structureEvent(new StructureWire.Delta(definitions,states));
-                saveWorld(staged,next);models=staged;edits=next;voxels=geometry;broadcast(publication);
+                saveWorld(staged,next,true);models=staged;edits=next;voxels=geometry;broadcast(publication);
             }
         };
     }
@@ -1105,11 +1105,11 @@ public final class MultiplayerServer implements AutoCloseable {
     }
 
     private synchronized void persist() throws IOException {
-        saveWorld(models,edits);
+        saveWorld(models,edits,false);
         if(save!=null)city.save(citySave);
     }
 
-    private void saveWorld(ModelLibrary models,Map<String,Protocol.Edit> edits)throws IOException {
+    private void saveWorld(ModelLibrary models,Map<String,Protocol.Edit> edits,boolean requireAtomic)throws IOException {
         if (save == null) return;
         Path absolute = save.toAbsolutePath();
         Files.createDirectories(absolute.getParent());
@@ -1134,15 +1134,7 @@ public final class MultiplayerServer implements AutoCloseable {
             out.flush();
             channel.force(true);
         }
-        try {
-            Files.move(
-                    temp,
-                    absolute,
-                    StandardCopyOption.ATOMIC_MOVE,
-                    StandardCopyOption.REPLACE_EXISTING);
-        } catch (AtomicMoveNotSupportedException e) {
-            Files.move(temp, absolute, StandardCopyOption.REPLACE_EXISTING);
-        }
+        WorldSavePublication.replace(temp, absolute, requireAtomic);
     }
 
     @Override

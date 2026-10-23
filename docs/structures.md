@@ -279,7 +279,9 @@ file hashes against the parent implementation; see
 20-sample timings cover buffering without file forcing, use a warm cache and
 exclude load/verification work. Current writers also flush the buffer and call
 `FileChannel.force(true)` on the writing channel before closing and renaming.
-A force failure exits before publication. Directory durability barriers are not
-added; no fallible I/O follows a successful rename. Complete power-loss durability
+A force failure exits before publication. Structure placement and undo require
+atomic replacement: unsupported atomic moves reject through rollback without a
+non-atomic retry. Ordinary saves retain their compatibility fallback. Directory
+durability barriers are not added; no fallible I/O follows a successful rename. Complete power-loss durability
 and full city/max durable-save qualification remain pending, alongside full-history
 serialization and the 2,000,000-edit persistence ceiling.
