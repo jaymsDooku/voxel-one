@@ -941,9 +941,9 @@ public final class MultiplayerServer implements AutoCloseable {
     }
     /** Read bounded batches under the monitor; rebuild the detached index on the worker. */
     private WorldVoxels.History copyStructureHistory(WorldVoxels.History base,WorldVoxels.History.CopyCursor cursor,java.util.function.BooleanSupplier cancel)throws IOException {
-        var next=new WorldVoxels.History();
+        var next=new WorldVoxels.History();Runnable checkpoint=()->StructurePackage.cancelled(cancel);
         while(true) {
-            StructurePackage.cancelled(cancel);List<Protocol.Edit> batch;
+            StructurePackage.cancelled(cancel);WorldVoxels.History.CopyBatch batch;
             synchronized(this) {
                 StructurePackage.cancelled(cancel);
                 if(edits!=base)throw new IOException("World changed while copying save history; retry structure operation");
@@ -951,7 +951,7 @@ public final class MultiplayerServer implements AutoCloseable {
                 catch(ConcurrentModificationException changed){throw new IOException("World changed while copying save history; retry structure operation",changed);}
             }
             if(batch.isEmpty())return next;
-            for(var edit:batch){StructurePackage.cancelled(cancel);next.put(edit.key(),edit);}
+            batch.copyTo(next,checkpoint);
         }
     }
     private void handleStructure(Peer peer,DataInputStream in)throws IOException {

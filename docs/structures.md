@@ -425,3 +425,26 @@ This trades more total CPU/allocation for shorter guarded work; it does not prov
 tick/frame/stall or peak-memory budgets. The probe has no competing thread, server,
 save, geometry, network or rendering. GC pauses and busy-world retries remain part
 of outstanding full qualification. Existing admission and persistence caps remain.
+
+### Reusing validated history keys
+
+Bounded cursor batches now retain immutable keys together with immutable edits.
+They snapshot each key/value immediately under the authority lock and retain no
+mutable map entries. Worker copying reuses those validated strings through the
+same index/revision update path as ordinary puts; public puts still validate keys.
+Cancellation checkpoints remain before every copied edit. Cursor and final
+identity/revision guards are unchanged, and cell indexes are still rebuilt.
+
+Both diagnostic modes use the new key/value capture; the rebuild control uses
+public puts and is not an exact replay of the parent binary.
+Two sequential diagnostic JVMs each used 262,144 whole-cell edits, three warmups
+and 20 measured runs. Rebuilding keys versus reusing them gave total batch-copy
+median/p95/worst of 264.209773/313.733590/317.726842 ms versus
+195.776655/279.573552/308.566410 ms. Median thread allocation was
+73,377,864 versus 50,331,400 bytes. Reuse-mode maximum guarded-batch
+median/p95/worst was 0.092402/0.190105/0.761216 ms. The rebuild control had a
+148.055859 ms worst guarded sample; its cause was not instrumented. No stall-budget
+pass follows from these diagnostics. Allocations still exceed the shared-index
+whole-clone baseline (23,068,952 median bytes), and total system/GC behavior needs
+qualification. This probe has no competing thread, server, geometry, save, network
+or rendering. Package limits and stable-rollout gates remain unchanged.
