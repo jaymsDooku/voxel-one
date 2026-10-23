@@ -401,3 +401,27 @@ clients, ticks, rendering and peak memory. History copying still acquires the lo
 final tail serialization and disk force also remain guarded. These results do not
 establish the 100 ms stall budget or city/max support. Busy-world retry behavior,
 partitioned persistence and full system qualification remain unfinished.
+
+### Bounded server history-copy reads
+
+Server structure save staging now captures a revision-checked history cursor under
+the authority lock. It reads at most 1,024 immutable edit references per lock hold
+and rebuilds the detached history/index on the worker between reads. Each batch,
+including completion, checks the captured revision before iterator access. The
+server also checks source-history identity. Any write, replacement, removal or
+clear invalidates the copy; COW index-owner changes alone do not. Final publication
+retains the existing revision/identity guard. Cancellation during copying creates
+no save-prefix file. Offline transaction copying retains the existing shared-index
+clone path.
+
+A 20-run isolated copy diagnostic with 262,144 whole-cell edits and three warmups
+reported whole-clone guarded median/p95/worst of
+50.540579/193.049155/207.736418 ms. The maximum guarded batch per run was
+0.075254/0.146869/0.157552 ms; the sum of guarded reads was
+8.454132/11.909500/13.481683 ms. Total batched copy time was
+299.527839/385.274064/398.501998 ms. Median thread allocation increased from
+23,068,952 to 72,337,480 bytes. Exact replay order and source independence matched.
+This trades more total CPU/allocation for shorter guarded work; it does not prove
+tick/frame/stall or peak-memory budgets. The probe has no competing thread, server,
+save, geometry, network or rendering. GC pauses and busy-world retries remain part
+of outstanding full qualification. Existing admission and persistence caps remain.

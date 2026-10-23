@@ -1495,3 +1495,36 @@ Decoded video frame, placed-world and live-player rejection screenshots inspecte
 llvmpipe 0–1 FPS is functional evidence only. New code, media and sanitized report
 structure-save-staging-validation.json await controller publication and exact-source
 hosted validation. No readiness or full qualification claim.
+
+## Bounded server history copy after a2bf03d1
+
+All eight exact parent hosted summaries inspected: 855 tests each, zero
+failures/errors, one skip. PR merge parents contain a2bf03d116bcb83dc3c8836a3f0d1c46a20c3911
+and review base 4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a. Sanitized receipt:
+structure-a2bf-hosted.json; these passes exclude new batch-copy changes.
+
+Server save staging reads at most 1024 immutable edits per authority-lock hold,
+rebuilding its private ordered history/index outside. Cursor checks revision
+before iterator access, including completion; server checks source identity.
+Final identity/revision guard remains. Offline copy retains shared-index clone.
+53 focused tests passed, including production monitor/concurrent-edit latch,
+stable/cancelled copies, exact order, mutation invalidation and existing actual
+save/reopen, production TLS, source snapshot and placement/undo regressions.
+
+20-run copy diagnostic, 262144 edits, three warmups: whole-clone guarded
+median/p95/worst 50.540579/193.049155/207.736418 ms. Maximum guarded batch per run
+0.075254/0.146869/0.157552 ms; guarded sum 8.454132/11.909500/13.481683 ms.
+Total batched copy 299.527839/385.274064/398.501998 ms. Median thread allocations
+23068952 bytes (clone) versus 72337480 bytes (batch). More CPU/allocation for less
+guarded work, not a frame/tick/stall or peak-memory qualification claim.
+No local test/native process overlapped this diagnostic. Fresh native run underway
+on frozen source. Full city/max, physical GPU, shaped network and rollout gated.
+
+Playtest: python3 deploy/run_structure_playtest.py --display "$DISPLAY" passed with
+an isolated synthetic profile and inherited display/auth. All 217 source paths and
+hashes match. Fresh F10 H264 clip: 15 frames, 25.413 s, 397463 bytes, SHA-256
+eecfe2177af82fd295cd188984da4aeb72f02ee090f23af33442e0af840a212a.
+Decoded video frame, placed-world and player-conflict images inspected. llvmpipe
+0–1 FPS is functional only. Local code, media and sanitized report
+structure-history-batch-validation.json await controller publication and new
+exact-source hosted checks. No full city/max/system qualification or readiness.
