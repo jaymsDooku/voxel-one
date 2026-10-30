@@ -89,24 +89,29 @@ public final class ModelMesher {
                             }
                             boolean positive = (key & 1) == 1;
                             int color = (int) (key >>> 1);
-                            float[] base = new float[3];
-                            base[axis] = (slice + 1f) / size;
-                            base[u] = (float) i / size;
-                            base[v] = (float) j / size;
+                            float plane = (slice + 1f) / size;
+                            float startU = (float) i / size, startV = (float) j / size;
                             for (int corner = 0; corner < 4; corner++) {
-                                int c = positive ? corner : new int[] {0, 3, 2, 1}[corner];
-                                float[] p = base.clone();
-                                if (c == 1 || c == 2) p[u] += (float) width / size;
-                                if (c == 2 || c == 3) p[v] += (float) height / size;
+                                int c = positive || corner == 0 || corner == 2 ? corner : 4 - corner;
+                                float positionU = startU, positionV = startV;
+                                if (c == 1 || c == 2) positionU += (float) width / size;
+                                if (c == 2 || c == 3) positionV += (float) height / size;
                                 int offset = quads * 36 + corner * 9;
-                                System.arraycopy(p, 0, vertices, offset, 3);
+                                vertices[offset + axis] = plane;
+                                vertices[offset + u] = positionU;
+                                vertices[offset + v] = positionV;
                                 vertices[offset + 3 + axis] = positive ? 1 : -1;
                                 vertices[offset + 6] = ((color >>> 16) & 255) / 255f;
                                 vertices[offset + 7] = ((color >>> 8) & 255) / 255f;
                                 vertices[offset + 8] = (color & 255) / 255f;
                             }
-                            int[] order = {0, 1, 2, 2, 3, 0};
-                            for (int k = 0; k < 6; k++) indices[quads * 6 + k] = quads * 4 + order[k];
+                            int index = quads * 6, vertex = quads * 4;
+                            indices[index] = vertex;
+                            indices[index + 1] = vertex + 1;
+                            indices[index + 2] = vertex + 2;
+                            indices[index + 3] = vertex + 2;
+                            indices[index + 4] = vertex + 3;
+                            indices[index + 5] = vertex;
                         }
                         quads++;
                         for (int y = 0; y < height; y++)
