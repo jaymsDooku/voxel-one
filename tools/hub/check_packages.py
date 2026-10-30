@@ -79,7 +79,7 @@ def run(args):
     classes=work/'classes';classes.mkdir(exist_ok=True)
     source_client=root/'target/voxel-one-1.0-SNAPSHOT-client.jar'
     command([javac,'--release','17','-cp',str(source_client),'-d',classes,'tools/hub/HubPlaytest.java',
-             'tools/hub/PackageUiProbe.java','tools/hub/HubPerformanceProbe.java','tools/hub/ProcessQueryProbeTest.java','tools/hub/UpdaterProbe.java','tools/hub/OnlineLoginPlaytest.java','tools/hub/NativeRenderProbe.java','tools/hub/WindowFailureProbe.java','tools/hub/NativeContextProbe.java','tools/hub/PrePlayCatalogPlaytest.java'])
+             'tools/hub/PackageUiProbe.java','tools/hub/HubPerformanceProbe.java','tools/hub/ProcessQueryProbeTest.java','tools/hub/UpdaterProbe.java','tools/hub/OnlineLoginPlaytest.java','tools/hub/NativeRenderProbe.java','tools/hub/WindowFailureProbe.java','tools/hub/NativeContextProbe.java','tools/hub/PrePlayCatalogPlaytest.java','tools/hub/ClientExitPlaytest.java'])
     jars=[];apps=[]
     from package import package
     for i in (1,2):
@@ -266,6 +266,16 @@ def run(args):
         return command([runtime,'-Djava.io.tmpdir='+str(work),'-cp',cp,'dev.jayms.launcher.PrePlayCatalogPlaytest',
                         work/'pre-play-profile',out/'pre-play-catalog',fixture],timeout=180,output='playtest')
     check('Catalog promotion before Play','Actual Hub/update/browser dispatch with synthetic native command; real rendering remains separately required',pre_play_catalog)
+    def client_exit():
+        fixture_classes=work/'exit-fixture-classes';fixture_classes.mkdir()
+        command([javac,'--release','17','-d',fixture_classes,'tools/hub/DelayedExitClient.java'])
+        fixture=work/'delayed-exit-client.jar'
+        with zipfile.ZipFile(fixture,'w',zipfile.ZIP_DEFLATED) as jar:
+            jar.writestr('META-INF/MANIFEST.MF','Manifest-Version: 1.0\nMain-Class: dev.jayms.Main\n\n')
+            jar.write(fixture_classes/'dev/jayms/Main.class','dev/jayms/Main.class')
+        return command([runtime,'-Djava.io.tmpdir='+str(work),'-cp',cp,'dev.jayms.launcher.ClientExitPlaytest',
+                        work/'exit-profile',out/'client-exit',fixture],timeout=90,output='playtest')
+    check('Native client exit recovery','Actual Play reports delayed failure and clean exit, retains verified installation, ignores older client exits',client_exit)
     def invalid_window():
         argv=[runtime,'-Djava.io.tmpdir='+str(work)]
         if platform.system()=='Darwin':argv.append('-XstartOnFirstThread')

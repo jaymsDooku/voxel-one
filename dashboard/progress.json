@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-30T20:30:45+00:00",
+  "updatedAt": "2026-10-30T20:45:13+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Building the catalog-driven desktop hub around verified client updates. Platform packaging and playtests remain required.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Mac65f both architectures fingerprint-verified: supported format attempts remain0x10009; native qualification pending, no repeat/repair request. Added real bundled-runtime startup/heap/30navigation measurement. Linux final visibleUIidle1206ms,heap8556736bytes,EDTp9542ms,nativequeuep95109ms; provisional budgets pass. Initial combined measurement failure retained.11Python tests pass; physical/DPI/performance/stable gates retained.",
-      "updatedAt": "2026-10-30T20:30:45+00:00"
+      "note": "Fixed silent delayed native-client exits. Actual Hub Play tests passed for delayed failure, clean exit, stale-process suppression, startup cancellation and preserved synthetic save. Catalog regression and 11 Python checks passed. New source needs exact-head packaged checks. Mac rendering, physical GPU/DPI/performance and publication qualification remain pending.",
+      "updatedAt": "2026-10-30T20:45:13+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

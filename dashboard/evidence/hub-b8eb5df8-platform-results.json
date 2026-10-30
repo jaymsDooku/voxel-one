@@ -1,0 +1,319 @@
+{
+  "sourceSha": "b8eb5df888e4cff7465af17cb33f702526650fe3",
+  "base": "71612f09bfec4549456b3317676e76cdced085a4",
+  "ci": "https://github.com/jaymsDooku/voxel-one/actions/runs/41123857794",
+  "reports": [
+    {
+      "platform": "windows",
+      "fingerprintMismatches": [],
+      "javaTests": {
+        "tests": 24,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "performance": {
+        "scope": "software-session regression only; no physical performance qualification",
+        "javaVisibleProcessors": 4,
+        "jvmToVisibleUiIdleMillis": 589,
+        "frameConstructionAndUiIdleMillis": 485,
+        "heapUsedBytes": 20550344,
+        "heapCommittedBytes": 35651584,
+        "memoryScope": "Java heap after navigation; not RSS, native memory or peak memory",
+        "navigationSamples": 30,
+        "navigationMedianMillis": 5,
+        "navigationP95Millis": 26,
+        "navigationMaxMillis": 33,
+        "navigationScope": "EDT page rebuild and layout round trip; native queue drain is separate",
+        "nativeQueueDrainP95Millis": 25,
+        "nativeQueueDrainMaxMillis": 26,
+        "budget": {
+          "firstUiIdleMillis": 10000,
+          "heapUsedBytes": 268435456,
+          "navigationP95Millis": 1000
+        },
+        "provisionalBudgetPassed": true,
+        "physicalQualificationPassed": false
+      },
+      "passed": true,
+      "fullQualificationPassed": false,
+      "checks": [
+        {
+          "name": "Bounded own-child query controls",
+          "status": "passed",
+          "observed": "Playtest: own-child query eof matched=true elapsedMs=128"
+        },
+        {
+          "name": "Updater failures, locks, concurrency and migration",
+          "status": "passed",
+          "observed": "Verified immutable update under lock; corrupt/partial/malformed fallback; cancellation; two concurrent processes downloaded once; legacy migration reused bytes."
+        },
+        {
+          "name": "Native executable and two-version bootstrap update",
+          "status": "passed",
+          "observed": "Two packaged fixture generations: bundled runtime launched verified v1; bootstrap staged v2 while v1 active; next start executed v2. No public release claim."
+        },
+        {
+          "name": "Failed shell activation rollback",
+          "status": "passed",
+          "observed": "Executable shell exited 7 without acknowledgement; downloaded working shell resumed, installed pointer rolled back, rejected artifact not restaged, immutable JARs retained."
+        },
+        {
+          "name": "Windows MSI, shortcuts and uninstall",
+          "status": "passed",
+          "observed": "Scoped MSI installed, native executable ran, desktop/menu shortcuts verified, uninstall retained synthetic save."
+        },
+        {
+          "name": "UI at JVM scale 1",
+          "status": "passed",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1. Full-size qualification pending: 1280x800 unavailable on 1024x728 desktop; qualification pending"
+        },
+        {
+          "name": "UI at JVM scale 1.5",
+          "status": "passed",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1.5. Full-size qualification pending: 900x600 unavailable on 683x485 desktop; qualification pending\n1280x800 unavailable on 683x485 desktop; qualification pending"
+        },
+        {
+          "name": "UI at JVM scale 2",
+          "status": "passed",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 2. Full-size qualification pending: 900x600 unavailable on 512x364 desktop; qualification pending\n1280x800 unavailable on 512x364 desktop; qualification pending"
+        },
+        {
+          "name": "Provisional Hub responsiveness",
+          "status": "passed",
+          "observed": "Playtest: Hub startup, Java heap and 30 real page navigations measured; provisional software-session budgets passed. Physical performance remains pending."
+        },
+        {
+          "name": "Synthetic online login handoff",
+          "status": "passed",
+          "observed": "City/Sandbox locked selection; custom loopback port; invalid-port rejection; pinned TLS sign-in passed."
+        },
+        {
+          "name": "Catalog promotion before Play",
+          "status": "passed",
+          "observed": "Playtest: catalog native A-to-B and web URL B; responsive EDT; duplicate suppression; malformed fallback; removal; updates-off; one download; synthetic native command verified; not gameplay qualification."
+        },
+        {
+          "name": "Bounded native window failure",
+          "status": "passed",
+          "observed": "Invalid native width produced fixed GLFW_INVALID_VALUE code 0x10004; no native descriptions retained."
+        },
+        {
+          "name": "Bounded context diagnosis",
+          "status": "passed",
+          "observed": "Context diagnosis: variant=0 created=true code=0x0\r\nContext diagnosis: variant=1 created=true code=0x0\r\nContext diagnosis: variant=2 created=true code=0x0\r\nContext diagnosis: variant=3 created=true code=0x0\r\nPlaytest: four bounded context attempts completed; diagnostic only, no gameplay qualification. Diagnostic completion only; native rendering gates remain required."
+        },
+        {
+          "name": "Native rendered city",
+          "status": "passed",
+          "observed": "Playtest: production native city renderer completed four frames in 12580 ms; renderer llvmpipe (LLVM 23.1.4, 256 bits); LOW preset; no smooth-performance claim. Renderer observer smoke; launcher CLI and interactive GPU performance remain separate checks."
+        },
+        {
+          "name": "Native rendered sandbox",
+          "status": "passed",
+          "observed": "Playtest: production native sandbox renderer completed four frames in 10981 ms; renderer llvmpipe (LLVM 23.1.4, 256 bits); LOW preset; no smooth-performance claim. Renderer observer smoke; launcher CLI and interactive GPU performance remain separate checks."
+        },
+        {
+          "name": "Native rendered editor",
+          "status": "passed",
+          "observed": "Playtest: production native editor renderer completed four frames in 12267 ms; renderer llvmpipe (LLVM 23.1.4, 256 bits); LOW preset; no smooth-performance claim. Renderer observer smoke; launcher CLI and interactive GPU performance remain separate checks."
+        },
+        {
+          "name": "Offline native installation",
+          "status": "passed",
+          "observed": "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\native-cache\\versions\\b8eb5df888e4cff7465af17cb33f702526650fe3\\0e18a403284fd4164b797b7b6fe775d4f5c82758e129489d0d6e1af18ca42b17\\windows.jar"
+        }
+      ],
+      "pendingQualification": [
+        "JVM scale 1: 1280x800 unavailable on 1024x728 desktop; qualification pending",
+        "JVM scale 1.5: 900x600 unavailable on 683x485 desktop; qualification pending\n1280x800 unavailable on 683x485 desktop; qualification pending",
+        "JVM scale 2: 900x600 unavailable on 512x364 desktop; qualification pending\n1280x800 unavailable on 512x364 desktop; qualification pending"
+      ]
+    },
+    {
+      "platform": "mac-arm",
+      "fingerprintMismatches": [],
+      "javaTests": {
+        "tests": 24,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "performance": {
+        "scope": "software-session regression only; no physical performance qualification",
+        "javaVisibleProcessors": 3,
+        "jvmToVisibleUiIdleMillis": 1766,
+        "frameConstructionAndUiIdleMillis": 1348,
+        "heapUsedBytes": 11912496,
+        "heapCommittedBytes": 20971520,
+        "memoryScope": "Java heap after navigation; not RSS, native memory or peak memory",
+        "navigationSamples": 30,
+        "navigationMedianMillis": 6,
+        "navigationP95Millis": 32,
+        "navigationMaxMillis": 32,
+        "navigationScope": "EDT page rebuild and layout round trip; native queue drain is separate",
+        "nativeQueueDrainP95Millis": 76,
+        "nativeQueueDrainMaxMillis": 81,
+        "budget": {
+          "firstUiIdleMillis": 10000,
+          "heapUsedBytes": 268435456,
+          "navigationP95Millis": 1000
+        },
+        "provisionalBudgetPassed": true,
+        "physicalQualificationPassed": false
+      },
+      "passed": false,
+      "fullQualificationPassed": false,
+      "checks": [
+        {
+          "name": "Bounded own-child query controls",
+          "status": "passed",
+          "observed": "Playtest: own-child query eof matched=true elapsedMs=87"
+        },
+        {
+          "name": "Updater failures, locks, concurrency and migration",
+          "status": "passed",
+          "observed": "Verified immutable update under lock; corrupt/partial/malformed fallback; cancellation; two concurrent processes downloaded once; legacy migration reused bytes."
+        },
+        {
+          "name": "Native executable and two-version bootstrap update",
+          "status": "passed",
+          "observed": "Two packaged fixture generations: bundled runtime launched verified v1; bootstrap staged v2 while v1 active; next start executed v2. No public release claim."
+        },
+        {
+          "name": "Failed shell activation rollback",
+          "status": "passed",
+          "observed": "Executable shell exited 7 without acknowledgement; downloaded working shell resumed, installed pointer rolled back, rejected artifact not restaged, immutable JARs retained."
+        },
+        {
+          "name": "UI at JVM scale 1",
+          "status": "passed",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1. Full-size qualification pending: 1280x800 unavailable on 1024x684 desktop; qualification pending"
+        },
+        {
+          "name": "UI at JVM scale 1.5",
+          "status": "passed",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1.5. Full-size qualification pending: 1280x800 unavailable on 1024x684 desktop; qualification pending"
+        },
+        {
+          "name": "UI at JVM scale 2",
+          "status": "passed",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 2. Full-size qualification pending: 1280x800 unavailable on 1024x684 desktop; qualification pending"
+        },
+        {
+          "name": "Provisional Hub responsiveness",
+          "status": "passed",
+          "observed": "Playtest: Hub startup, Java heap and 30 real page navigations measured; provisional software-session budgets passed. Physical performance remains pending."
+        },
+        {
+          "name": "Synthetic online login handoff",
+          "status": "passed",
+          "observed": "City/Sandbox locked selection; custom loopback port; invalid-port rejection; pinned TLS sign-in passed."
+        },
+        {
+          "name": "Catalog promotion before Play",
+          "status": "passed",
+          "observed": "Playtest: catalog native A-to-B and web URL B; responsive EDT; duplicate suppression; malformed fallback; removal; updates-off; one download; synthetic native command verified; not gameplay qualification."
+        },
+        {
+          "name": "Bounded native window failure",
+          "status": "passed",
+          "observed": "Invalid native width produced fixed GLFW_INVALID_VALUE code 0x10004; no native descriptions retained."
+        },
+        {
+          "name": "Bounded context diagnosis",
+          "status": "passed",
+          "observed": "Context diagnosis: variant=0 created=false code=0x10009\nContext diagnosis: variant=1 created=false code=0x10009\nContext diagnosis: variant=2 created=false code=0x10009\nContext diagnosis: variant=3 created=false code=0x10009\nPlaytest: four bounded context attempts completed; diagnostic only, no gameplay qualification. Diagnostic completion only; native rendering gates remain required."
+        },
+        {
+          "name": "Native rendered city",
+          "status": "pending",
+          "observed": "No tested native OpenGL context could be created on this runner; actual city rendering remains pending."
+        },
+        {
+          "name": "Native rendered sandbox",
+          "status": "pending",
+          "observed": "No tested native OpenGL context could be created on this runner; actual sandbox rendering remains pending."
+        },
+        {
+          "name": "Native rendered editor",
+          "status": "pending",
+          "observed": "No tested native OpenGL context could be created on this runner; actual editor rendering remains pending."
+        },
+        {
+          "name": "Offline native installation",
+          "status": "passed",
+          "observed": "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache/versions/b8eb5df888e4cff7465af17cb33f702526650fe3/24fc9bf7f87982b8460eca562b6b5d22c5acd724f44055d9be06bfc0ec13c7f5/mac-arm.jar"
+        }
+      ],
+      "pendingQualification": [
+        "JVM scale 1: 1280x800 unavailable on 1024x684 desktop; qualification pending",
+        "JVM scale 1.5: 1280x800 unavailable on 1024x684 desktop; qualification pending",
+        "JVM scale 2: 1280x800 unavailable on 1024x684 desktop; qualification pending",
+        "No tested native OpenGL context could be created on this runner; actual city rendering remains pending.",
+        "No tested native OpenGL context could be created on this runner; actual sandbox rendering remains pending.",
+        "No tested native OpenGL context could be created on this runner; actual editor rendering remains pending."
+      ]
+    }
+  ],
+  "commands": [
+    "gh run download 41123857794 -n hub-windows-b8eb5df888e4cff7465af17cb33f702526650fe3 -D target/hub-b8-windows",
+    "gh run download 41123857794 -n hub-mac-arm-b8eb5df888e4cff7465af17cb33f702526650fe3 -D target/hub-b8-mac-arm",
+    "Verify raw/CRLF-normalized source fingerprints against git show b8eb5df8:<path>."
+  ],
+  "Playtest": "Exact-source Windows package suite exercised production City/Sandbox/editor through llvmpipe, updater edge cases, bootstrap fixtures, MSI and login. Both platforms exercised 30 real Hub page navigations. Media decoded; human inspection recorded after capture. No physical qualification or real public-generation upgrade pass.",
+  "media": [
+    {
+      "mode": "city",
+      "file": "hub-b8eb5df8-windows-city.mp4",
+      "bytes": 195689,
+      "decodeCommand": [
+        "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+        "-cp",
+        "target/hub-software-classes:target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "InspectMovie",
+        "dashboard/evidence/hub-b8eb5df8-windows-city.mp4",
+        "target/hub-software-local/b8-city-decoded.png"
+      ],
+      "observed": "Actual movie: 4 frames, 7.466 seconds"
+    },
+    {
+      "mode": "sandbox",
+      "file": "hub-b8eb5df8-windows-sandbox.mp4",
+      "bytes": 161739,
+      "decodeCommand": [
+        "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+        "-cp",
+        "target/hub-software-classes:target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "InspectMovie",
+        "dashboard/evidence/hub-b8eb5df8-windows-sandbox.mp4",
+        "target/hub-software-local/b8-sandbox-decoded.png"
+      ],
+      "observed": "Actual movie: 4 frames, 7.281 seconds"
+    },
+    {
+      "mode": "editor",
+      "file": "hub-b8eb5df8-windows-editor.mp4",
+      "bytes": 76540,
+      "decodeCommand": [
+        "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+        "-cp",
+        "target/hub-software-classes:target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "InspectMovie",
+        "dashboard/evidence/hub-b8eb5df8-windows-editor.mp4",
+        "target/hub-software-local/b8-editor-decoded.png"
+      ],
+      "observed": "Actual movie: 4 frames, 7.124 seconds"
+    }
+  ],
+  "pending": [
+    "Mac native rendering unavailable after bounded supported-format attempts; root owns physical availability.",
+    "MacIntel exact-head artifact not inspected in this collection.",
+    "Actual Windows monitor DPI, full-size layouts and physical reference-hardware performance.",
+    "Root existing public preview/catalog execution, actual two-public-generation update and deployed browser freshness.",
+    "Independent exact-source review."
+  ],
+  "fullQualificationPassed": false,
+  "stableRolloutQualified": false,
+  "mediaInspection": "All three decoded Windows first frames inspected: actual City plots/HUD, Sandbox terrain/vehicle/HUD and editor inspector. Mac ARM900x600 performance capture inspected. Software four-frame smoke only."
+}
