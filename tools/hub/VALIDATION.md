@@ -62,6 +62,21 @@ Non-Mac variants are unchanged. A successful probe still requires actual
 production rendering. Four format failures remain pending native qualification;
 they must never be turned into a passing package result.
 
+`HubPerformanceProbe` records provisional software-session measurements from the
+actual bundled runtime and Hub: JVM start to visible Swing UI/native queue idle,
+frame construction time, Java heap after navigation, and 30 page rebuild/layout
+round trips on the EDT. Native queue-drain time is recorded separately; it is not
+silently included in EDT response time. Heap values are not process RSS, native
+memory or peak memory. The report's Java-visible processor count describes the
+virtual session, not a physical reference machine.
+
+Initial regression budgets are 10,000 ms to visible UI idle, 256 MiB Java heap,
+and 1,000 ms p95 EDT navigation. These bounded defaults detect gross stalls;
+passing them does not satisfy owner-required physical performance qualification.
+Reports include the observed values and a 900x600 library capture. A budget
+failure fails this provisional check and remains recorded. No production
+accounts, environment dump or private runtime logs are collected.
+
 The coordinator publishes only the assigned feature branch. Its push starts
 `.github/workflows/hub-validation.yml`. The workflow has read-only repository
 access. It does not publish releases, deploy sites or use account credentials.
