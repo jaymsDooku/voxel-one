@@ -247,12 +247,20 @@ public class World implements AutoCloseable {
 
     public dev.jayms.net.structure.StructurePackage.Source structureSnapshot() {
         var geometry=voxels.snapshot();var definitions=models().copy();
+        var resident=Set.copyOf(loadedChunks.keySet());long generation=geometry.terrainRevision();
         return new dev.jayms.net.structure.StructurePackage.Source() {
             public SparseVoxelOctree cell(int x,int y,int z){return geometry.cell(x,y,z);}
             public boolean emptyCell(int x,int y,int z){return geometry.type(x,y,z)==0;}
             public boolean emptyChunk(ChunkPos position){return geometry.emptyChunk(position);}
             public ModelLibrary models(){return definitions;}
+            public Object chunkStamp(ChunkPos position){return resident.contains(position)||geometry.terrainRevision()!=generation?null:geometry.chunkStamp(position);}
         };
+    }
+
+    /** Owner-thread proof only for canonical, unloaded geometry. Resident chunks may
+     * have been supplied directly and must retain authoritative cell/mesh checks. */
+    public Object structureChunkStamp(ChunkPos position) {
+        return loadedChunks.containsKey(position)?null:voxels.chunkStamp(position);
     }
 
     public int region(Protocol.Edit e) {
