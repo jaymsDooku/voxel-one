@@ -1,0 +1,114 @@
+{
+  "sourceSha": "ec95f45423860d37f84edfae8dce5b1b4392018b",
+  "base": "71612f09bfec4549456b3317676e76cdced085a4",
+  "ci": "https://github.com/jaymsDooku/voxel-one/actions/runs/41108175285",
+  "fingerprintMismatches": [],
+  "javaTests": {
+    "tests": 24,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "checks": [
+    {
+      "name": "Bounded own-child query controls",
+      "status": "passed",
+      "observed": "Playtest: own-child query eof matched=true elapsedMs=90"
+    },
+    {
+      "name": "Updater failures, locks, concurrency and migration",
+      "status": "passed",
+      "observed": "Verified immutable update under lock; corrupt/partial/malformed fallback; cancellation; two concurrent processes downloaded once; legacy migration reused bytes."
+    },
+    {
+      "name": "Native executable and two-version bootstrap update",
+      "status": "passed",
+      "observed": "Two packaged fixture generations: bundled runtime launched verified v1; bootstrap staged v2 while v1 active; next start executed v2. No public release claim."
+    },
+    {
+      "name": "Failed shell activation rollback",
+      "status": "passed",
+      "observed": "Executable shell exited 7 without acknowledgement; downloaded working shell resumed, installed pointer rolled back, rejected artifact not restaged, immutable JARs retained."
+    },
+    {
+      "name": "Windows MSI, shortcuts and uninstall",
+      "status": "passed",
+      "observed": "Scoped MSI installed, native executable ran, desktop/menu shortcuts verified, uninstall retained synthetic save."
+    },
+    {
+      "name": "UI at JVM scale 1",
+      "status": "passed",
+      "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1. Full-size qualification pending: 1280x800 unavailable on 1024x728 desktop; qualification pending"
+    },
+    {
+      "name": "UI at JVM scale 1.5",
+      "status": "passed",
+      "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1.5. Full-size qualification pending: 900x600 unavailable on 683x485 desktop; qualification pending\n1280x800 unavailable on 683x485 desktop; qualification pending"
+    },
+    {
+      "name": "UI at JVM scale 2",
+      "status": "passed",
+      "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 2. Full-size qualification pending: 900x600 unavailable on 512x364 desktop; qualification pending\n1280x800 unavailable on 512x364 desktop; qualification pending"
+    },
+    {
+      "name": "Synthetic online login handoff",
+      "status": "passed",
+      "observed": "City/Sandbox locked selection; custom loopback port; invalid-port rejection; pinned TLS sign-in passed."
+    },
+    {
+      "name": "Catalog promotion before Play",
+      "status": "passed",
+      "observed": "Playtest: catalog native A-to-B and web URL B; responsive EDT; duplicate suppression; malformed fallback; removal; updates-off; one download; synthetic native command verified; not gameplay qualification."
+    },
+    {
+      "name": "Bounded native window failure",
+      "status": "passed",
+      "observed": "Invalid native width produced fixed GLFW_INVALID_VALUE code 0x10004; no native descriptions retained."
+    },
+    {
+      "name": "Bounded context diagnosis",
+      "status": "passed",
+      "observed": "Context diagnosis: variant=0 created=false code=0x10006\r\nContext diagnosis: variant=1 created=false code=0x10006\r\nContext diagnosis: variant=2 created=false code=0x10006\r\nContext diagnosis: variant=3 created=false code=0x10006\r\nPlaytest: four bounded context attempts completed; diagnostic only, no gameplay qualification. Diagnostic completion only; native rendering gates remain required."
+    },
+    {
+      "name": "Native rendered city",
+      "status": "pending",
+      "observed": "No tested native OpenGL context could be created on this runner; actual city rendering remains pending."
+    },
+    {
+      "name": "Native rendered sandbox",
+      "status": "pending",
+      "observed": "No tested native OpenGL context could be created on this runner; actual sandbox rendering remains pending."
+    },
+    {
+      "name": "Native rendered editor",
+      "status": "pending",
+      "observed": "No tested native OpenGL context could be created on this runner; actual editor rendering remains pending."
+    },
+    {
+      "name": "Offline native installation",
+      "status": "passed",
+      "observed": "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\native-cache\\versions\\ec95f45423860d37f84edfae8dce5b1b4392018b\\65b0bdc64242c82260a93fcb67b046ff6edd5e1c505aa94278f4903b7e50d439\\windows.jar"
+    }
+  ],
+  "pendingQualification": [
+    "JVM scale 1: 1280x800 unavailable on 1024x728 desktop; qualification pending",
+    "JVM scale 1.5: 900x600 unavailable on 683x485 desktop; qualification pending\n1280x800 unavailable on 683x485 desktop; qualification pending",
+    "JVM scale 2: 900x600 unavailable on 512x364 desktop; qualification pending\n1280x800 unavailable on 512x364 desktop; qualification pending",
+    "No tested native OpenGL context could be created on this runner; actual city rendering remains pending.",
+    "No tested native OpenGL context could be created on this runner; actual sandbox rendering remains pending.",
+    "No tested native OpenGL context could be created on this runner; actual editor rendering remains pending."
+  ],
+  "Playtest": "Inspected actual exact-head Windows shell-two capture: Games page and City card visible. Packaged fixture bootstrap/update, MSI, login and catalog probes reported passed. Three native render checks remain pending; no gameplay pass.",
+  "commands": [
+    "gh run download 41108175285 -n hub-windows-ec95f45423860d37f84edfae8dce5b1b4392018b -D target/hub-ec95-windows",
+    "Compare report sourceTreeSha256 against git show ec95f454:<path>, accepting raw or CRLF-normalized text hashes."
+  ],
+  "sourceChangeDecision": "No source fault demonstrated by this report. Four independent GLFW context attempts fail before application rendering. Preserve requirements and request controller-owned qualification execution.",
+  "stableRolloutQualified": false,
+  "otherPending": [
+    "Mac exact-head reports not yet delivered/inspected.",
+    "Actual two-public-generation update; hub-preview-2 release API returned404.",
+    "Published browser freshness and physical performance/DPI qualification."
+  ]
+}

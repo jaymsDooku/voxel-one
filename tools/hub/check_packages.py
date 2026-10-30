@@ -271,6 +271,16 @@ def run(args):
         command(argv,timeout=60)
         return 'Invalid native width produced fixed GLFW_INVALID_VALUE code 0x10004; no native descriptions retained.'
     check('Bounded native window failure','Native window failures expose a fixed numeric GLFW code',invalid_window)
+    if args.software_rendering:
+        if platform.system()=='Windows':
+            from software_renderer import prepare
+            report['softwareRenderer']=prepare(work,runtime)
+        elif platform.system()=='Linux':
+            report['softwareRenderer']={'kind':'software-llvmpipe','scope':'Existing system Mesa; no dependency installed'}
+        else:
+            raise ValueError('Software rendering is not configured for this platform')
+        env.update(GALLIUM_DRIVER='llvmpipe',LIBGL_ALWAYS_SOFTWARE='1',LP_NUM_THREADS='2')
+        report['limitations'].append('Software llvmpipe output does not qualify physical GPU, monitor DPI or performance.')
     context_result=[]
     def context_diagnosis():
         argv=[runtime,'-Djava.io.tmpdir='+str(work)]
@@ -291,6 +301,7 @@ def run(args):
             # empty-PATH launcher/MSI checks above still verify runtime independence.
             native_env=env.copy();native_env['ALSOFT_DRIVERS']='null'
             argv=[runtime,'-Djava.io.tmpdir='+str(work)]
+            if args.software_rendering:argv.append('-Dvoxel.hub.requireSoftwareRenderer=true')
             if platform.system()=='Darwin':argv.append('-XstartOnFirstThread')
             argv.extend(['-cp',os.pathsep.join(map(str,(classes,second))),'NativeRenderProbe',work/('native-'+mode),out/('native-'+mode),mode])
             text=command(argv,native_env,timeout=180,output='playtest')
@@ -312,6 +323,7 @@ def run(args):
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--source-sha',required=True);parser.add_argument('--jdk',required=True)
     parser.add_argument('--artifacts-only',action='store_true',help='Partial local artifact checks; does not satisfy full desktop validation')
+    parser.add_argument('--software-rendering',action='store_true',help='Require llvmpipe; Windows uses pinned application-local Mesa, Linux uses existing Mesa. Not physical qualification.')
     parser.add_argument('--display',help='Inherited role display only; does not start a display server')
     parser.add_argument('--work',default='target/hub-scoped-check');parser.add_argument('--output',default='dashboard/evidence/hub-scoped')
     args=parser.parse_args()

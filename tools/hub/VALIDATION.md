@@ -15,6 +15,32 @@ missing dependencies. It does not publish or run platform gameplay checks.
 Passing these local checks does not satisfy GPU, Windows DPI/performance,
 published shell upgrades or browser cached-reload acceptance.
 
+Hosted Windows validation uses `--software-rendering`. This downloads only
+Mesa-dist-win 26.2.5 MinGW from its distributor's immutable release URL, verifies
+59,285,313 bytes and SHA-256
+`2471864068672b82032d8f8cccfb8da8e196b1b06b316b99838b47c35d738a17`,
+then uses the runner's existing 7z to extract x64 DLLs into the disposable work
+directory. DLLs are copied only beside that check's bundled `java.exe`, after the
+portable-launch/MSI checks. No installer, distributor script, registry change,
+system DLL replacement or driver registration runs. The archive and its notices
+remain in `target`; Mesa is not added to shipped Hub packages. Provenance:
+https://github.com/pal1000/mesa-dist-win/releases/tag/26.2.5
+
+This follows Mesa's documented application-local Windows OpenGL implementation:
+https://docs.mesa3d.org/drivers/llvmpipe.html
+The report records the archive and each DLL digest. Native checks use
+`GALLIUM_DRIVER=llvmpipe`, `LIBGL_ALWAYS_SOFTWARE=1` and `LP_NUM_THREADS=2`.
+The real City, Sandbox and editor renderer must report `llvmpipe`, render four
+frames and produce nonuniform framebuffer content. Context creation alone does
+not pass rendering. Linux can use the same flag with existing system Mesa and
+the inherited display; no dependency or display server is installed by the check.
+macOS software rendering is not configured and remains separately pending.
+
+Software results are explicitly distinct from physical GPU, actual Windows
+monitor DPI and performance qualification. `fullQualificationPassed` remains
+false. Missing DLLs, hash failure, wrong renderer or render failure cannot become
+a pass. Inspect screenshots and decode the recordings after the exact-source run.
+
 The coordinator publishes only the assigned feature branch. Its push starts
 `.github/workflows/hub-validation.yml`. The workflow has read-only repository
 access. It does not publish releases, deploy sites or use account credentials.
