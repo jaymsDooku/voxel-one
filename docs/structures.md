@@ -478,3 +478,9 @@ median/p95/worst was 563.252185/725.220276/833.815266 ms without chunk hints and
 268,435,456 to 4,096; each mode read one octree. Both modes use current chunk-run
 capture code, not an exact parent-binary replay. No placement, save, peak-memory,
 GPU or network qualification follows from these sparse-box measurements.
+
+### Cancellable spatial sorting
+
+Capture/import and placement builders now use stable two-pass 14-bit radix ordering over packed spatial keys and source indices. Cancellation is checked at most 1,024 loop entries apart, including prefix sums and final storage construction. Spatial order, duplicate rejection and published immutability remain unchanged. At 4,000,000 cells, temporary sort arrays use 80,065,536 bytes excluding headers, versus 32,000,000 bytes for the previous packed-long sort. This extra bounded memory buys cancellable sorting; admission limits are unchanged.
+
+The 20-run shared-VPS component probe measured control/new p95 of 136.783/101.631 ms at 1,000,000 keys and 528.801/445.349 ms at 4,000,000 keys. It does not construct populated city/max fixtures or measure complete workflow budgets. See `structure-order-validation.json` for commands, results and limits.

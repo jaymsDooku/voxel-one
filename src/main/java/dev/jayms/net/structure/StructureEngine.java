@@ -181,7 +181,7 @@ public final class StructureEngine {
                 if(affectedChunks.size()>256)throw new IOException("Experimental placement exceeds 256 affected chunks");
                 cells.add(p,next);if((++count&127)==0)progress.accept(count*100/asset.cells.size());
             }
-            var after=cells.build();
+            var after=cells.build(cancel);
             var validated=validateChunks(after,snapshot,staged,cancel,Map.of());
             cancelled(cancel);progress.accept(100);var result=new Prepared(after,staged,revision,cancel,empty,validated,affectedChunks.size());complete=true;return result;
         } finally {if(!complete)busy.set(false);}
