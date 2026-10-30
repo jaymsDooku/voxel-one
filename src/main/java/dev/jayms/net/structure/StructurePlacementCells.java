@@ -62,14 +62,15 @@ final class StructurePlacementCells extends AbstractMap<Position,SparseVoxelOctr
             int key=key(box,position);if(key<0||tree==null)throw new IOException("Placement cell outside footprint/missing tree");
             keys[count]=key;trees[count++]=tree;
         }
-        Map<Position,SparseVoxelOctree> build()throws IOException {
+        Map<Position,SparseVoxelOctree> build()throws IOException {return build(()->false);}
+        Map<Position,SparseVoxelOctree> build(java.util.function.BooleanSupplier cancel)throws IOException {
             if(count!=keys.length)throw new IOException("Incomplete placement buffer");
-            long[] order=new long[count];
-            for(int i=0;i<count;i++)order[i]=((long)keys[i]<<22)|i;
-            Arrays.sort(order);int[] sorted=new int[count];var values=new SparseVoxelOctree[count];
+            int[] order=StructureOrder.indices(keys,count,cancel);
+            int[] sorted=new int[count];var values=new SparseVoxelOctree[count];
             for(int i=0;i<count;i++) {
-                int key=(int)(order[i]>>>22);if(i>0&&key==sorted[i-1])throw new IOException("Duplicate placement cell");
-                sorted[i]=key;values[i]=trees[(int)(order[i]&((1<<22)-1))];
+                if((i&1023)==0)cancelled(cancel);
+                int key=keys[order[i]];if(i>0&&key==sorted[i-1])throw new IOException("Duplicate placement cell");
+                sorted[i]=key;values[i]=trees[order[i]];
             }
             return Collections.unmodifiableMap(new StructurePlacementCells(box,sorted,values));
         }

@@ -31,7 +31,7 @@ final class StructureCells extends AbstractList<Cell> implements RandomAccess {
     /** Owns unsorted values; only validated bounds/model IDs and frozen trees may be added. */
     static final class Builder {
         // MAX_CELLS is below 2^22; the canonical spatial key uses at most 28 bits.
-        private static final int INDEX_BITS=22,INDEX_MASK=(1<<INDEX_BITS)-1;
+        private static final int INDEX_MASK=(1<<22)-1;
         private int[] positions;
         private short[] models;
         private SparseVoxelOctree[] geometry;
@@ -64,18 +64,15 @@ final class StructureCells extends AbstractList<Cell> implements RandomAccess {
             }
             positions[count]=(int)StructurePackage.order(p);models[count]=(short)model;geometry[count]=tree;count++;
         }
-        StructureCells build() throws IOException {
+        StructureCells build() throws IOException {return build(()->false);}
+        StructureCells build(java.util.function.BooleanSupplier cancel) throws IOException {
             if(expectedCount>=0&&count!=expectedCount)throw new IllegalStateException("Incomplete structure cells");
-            long[] order=new long[count];
-            for(int i=0;i<count;i++) {
-                cancelled(()->false);order[i]=((long)positions[i]<<INDEX_BITS)|i;
-            }
-            Arrays.sort(order);
+            int[] order=StructureOrder.indices(positions,count,cancel);
             int[] sortedPositions=new int[count];short[] sortedModels=new short[count];
             var sortedGeometry=new SparseVoxelOctree[count];int previous=-1;
             for(int i=0;i<count;i++) {
-                cancelled(()->false);
-                int key=(int)(order[i]>>>INDEX_BITS),source=(int)(order[i]&INDEX_MASK);
+                if((i&1023)==0)cancelled(cancel);
+                int source=order[i],key=positions[source];
                 if(key==previous)throw new IOException("Invalid or duplicate structure cell");
                 previous=key;sortedPositions[i]=key;sortedModels[i]=models[source];sortedGeometry[i]=geometry[source];
             }

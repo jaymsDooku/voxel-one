@@ -1596,3 +1596,21 @@ Decoded video frame, placed-world and live-player conflict images inspected.
 llvmpipe 0–1 FPS remains functional evidence only. New code, media and sanitized
 structure-capture-chunk-validation.json await controller publication and exact-source
 hosted checks. No populated city/max or full-system qualification claim.
+
+## 2026-10-30 post-rebase hosted validation
+
+Exact feature head `06a12e0894df6d503a68d243278f40521f536297` is based on review base `71612f09bfec4549456b3317676e76cdced085a4`. Direct PR inspection found all eight feature/PR platform builds successful; publication jobs skipped. Runs: 41109659422 and 41109669833. Do not repeat their wait.
+
+The preceding local checks passed 79 structure/MP3 Java tests and six Hub registration tests. Playtest: the fresh native capture/export/import/rotation/conflict/cancel/undo/editor workflow passed; all 218 production/harness hashes match. Published exact-head video is 270568 bytes, SHA-256 `dc3edd56c0af6c5ae16440dbe45a73ffcf90986a9e78f11c0fe0d3284e3de317`, decoded as H264, 13 frames, 19.704 s. Software rendering remains functional evidence only. No deleted paths were found against the updated review base.
+
+Implementation is incomplete: package geometry remains capped at 131072 leaves, placement at 256 affected chunks, and world history at 2000000 edits. These reject required populated city/maximum cases. Next work must implement partitioned immutable geometry/history publication and durable region persistence, preserve one-operation atomicity/undo across regions, and bound nearby render/dependency uploads and synchronization before measuring populated fixtures. Do not raise caps without measured resource bounds. Full 20-run city/max and physical-GPU/shaped-network 32-rendered-client qualification remain pending. Stable supported-limit claims, readiness and rollout remain gated. No new owner answer or internal repair request is needed to continue engineering.
+
+## Cancellable spatial ordering implementation
+
+Capture/import and placement builders now pass their cancellation supplier into stable packed-key radix ordering. Both 14-bit passes, prefix sums and final storage loops check cancellation every 1,024 entries. Published storage, spatial order and duplicate rejection remain unchanged. Temporary sort arrays are bounded at 20 bytes per cell plus 65,536 bytes, excluding headers. This is 80,065,536 bytes at 4,000,000 cells; no admission cap was raised.
+
+Command: `mvn -q -Dmaven.repo.local="$PWD/target/structure-m2" -DargLine="-Djava.io.tmpdir=$PWD/target/structure-audit-tmp" -Dtest=Structure*Test test`. All 75 current tests passed. New tests compare a stable reference across all 28 key bits, preserve inputs, and check invalid keys/counts, cancellation phases and interruption. The first two new cancellation assertions expected IOException incorrectly; they were corrected to the existing CancellationException contract and rerun.
+
+The first index-only radix design regressed 4,000,000-key p95 to 2,553.957 ms and was replaced. Final 20-run packed-key sort diagnostics measured control/new p95 136.783/101.631 ms at 1,000,000 keys and 528.801/445.349 ms at 4,000,000 keys. These are shared-VPS component probes, not populated-fixture or system qualification. An overlapping intermediate native run was discarded because production source changed; final-source native validation is running.
+
+Final-source Playtest: `python3 deploy/run_structure_playtest.py --display "$DISPLAY"` passed. All 219 production/harness source hashes match the manifest. Fresh video decoded and inspected: H264, 17 frames, 27.47 s, 365404 bytes, SHA-256 `e0c71941ce41ccce0c66c2b3e0caf86a840d482800b15c06d681eb25196738f7`. Placed-world screenshot inspected. Media and validation report await controller publication. Physical-GPU and full city/max qualification remain pending.
