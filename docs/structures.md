@@ -520,3 +520,11 @@ Filesystem tests cover valid large input and legacy entry-point byte compatibili
 Structure package and placement validation now use a count-only mode in the existing greedy model mesher. The scan, oriented colour mask, rectangle merging, clearing and surface-limit checks are shared with rendering. Count-only mode skips vertex/index emission. Rendered geometry still uses the original emission path. All per-model and package face limits remain unchanged.
 
 Exact parent/current vertex and index array hashes matched across 12 fixtures at resolutions 8, 16 and 32. A shared-VPS component diagnostic ran three warmups and 20 measured batches per mode, alternating full render/count-only work. Each batch processed 64 seeded, fully occupied 16-resolution models with 1,536 merged faces each. Full/count median allocated bytes on the current thread were 85,284,352/140,800; p95 time was 111.575/66.905 ms. This is total thread allocation, not peak memory. It does not qualify populated fixtures or full-system budgets. Commands, full statistics and limits are in `structure-face-count-validation.json`.
+
+### Render-face scratch allocation
+
+The model mesher now emits coordinates and triangle indices directly. It preserves the order of float operations, vertex winding, normals, colours and greedy face merging. Twelve deterministic fixtures at resolutions 8, 16 and 32 produce the same raw render-buffer SHA-256 as parent `a41b2c8033d03cc8c69bf1cc95023772148c2c3e`: `39a6a09f93231f026425c3d20eda01ee780ac1508328e2c4ba57b68a4e367dc0`. Per-model and structure limits are unchanged.
+
+On the shared Linux VPS, 20 measured batches after three warmups each rendered 64 coloured solid 16-resolution models with 1,536 quads per model. Parent/current median times were 84.550/78.655 ms, p95 109.632/86.878 ms and worst 120.433/87.925 ms. Median current-thread allocated bytes fell from 85,284,352 to 59,332,096. This measures total allocation, not peak memory. The count-only path remained at 140,800 allocated bytes per batch. Both executions overlapped the targeted test process; timings are diagnostic and do not establish a performance guarantee.
+
+This component probe does not qualify populated city or maximum packages, physical-GPU frame times, durable saves, cold loads, server ticks or synchronization to 32 clients. Those gates remain pending.
