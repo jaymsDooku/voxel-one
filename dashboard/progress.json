@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-30T20:55:51+00:00",
+  "updatedAt": "2026-10-30T21:25:06+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Fixed hosted Intel Mac failure caused by high-column readiness race. All 113 targeted structure/streaming/sky tests and deterministic parent/fixed integration probe passed. Fresh native workflow passed; 219 hashes match and media inspected. New hosted validation and full city/max GPU/network qualification remain pending.",
-      "updatedAt": "2026-10-30T20:55:51+00:00"
+      "note": "Conservative offline proof reuse implemented. All 92 targeted tests and 20-run small offline commit/save diagnostic passed. Fresh native workflow passed; 219 hashes match and new media inspected. Resident/changed geometry retains full live checks. Hosted validation and full city/max GPU/network qualification remain pending.",
+      "updatedAt": "2026-10-30T21:25:06+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

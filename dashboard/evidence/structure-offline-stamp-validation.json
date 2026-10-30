@@ -1,0 +1,76 @@
+{
+  "status": "92 targeted tests, 20-run real offline diagnostic and fresh native workflow passed; exact-source hosted validation and full qualification pending",
+  "parent": "f2457456ece76b88200ed54d8d1f93eca3aac837",
+  "parent_hosted": "Direct PR inspection found all eight feature/PR platform builds successful; publication skipped.",
+  "change": "World snapshots expose canonical chunk stamps only for chunks absent from a frozen resident-position set and while the captured terrain revision remains current. Live offline authorities return null for currently resident chunks. Geometry edits, residency changes, unknown proof or terrain ABA retain existing authoritative collision and chunk-mesh validation. Worker source never reads the live loaded-chunk map. No format, limit or publication policy change.",
+  "tests": {
+    "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=\"Structure*Test,WorldStreamingTest\" test",
+    "tests": 92,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "coverage": "Unloaded proof equality, unrelated edit stability, same-chunk and terrain ABA invalidation, frozen snapshot residency, resident-at-snapshot and newly resident manual collision rejection, live resident neighbour model surface limit, real LocalGame placement/save/reload/undo, existing structure and streaming regressions."
+  },
+  "probe": {
+    "commands": [
+      "git show HEAD:src/main/java/dev/jayms/World.java > target/structure-offline-control/src/World.java",
+      "git show HEAD:src/main/java/dev/jayms/net/LocalGame.java > target/structure-offline-control/src/LocalGame.java",
+      "javac --release 17 -cp target/classes:target/structure-m2/org/joml/joml/1.10.9/joml-1.10.9.jar -d target/structure-offline-control/classes target/structure-offline-control/src/World.java target/structure-offline-control/src/LocalGame.java",
+      "javac --release 17 -cp target/classes -d target tools/structures/OfflineStampProbe.java",
+      "java -Xmx1g -cp target/structure-offline-control/classes:target:target/classes:target/structure-m2/org/joml/joml/1.10.9/joml-1.10.9.jar OfflineStampProbe parent target/structure-offline-parent-worlds-r2",
+      "java -Xmx1g -cp target:target/classes:target/structure-m2/org/joml/joml/1.10.9/joml-1.10.9.jar OfflineStampProbe stamped target/structure-offline-stamped-worlds-r2"
+    ],
+    "fixture": "Sixteen whole STONE cells across sixteen unloaded chunks in 49 x 1 x 49 bounds, placed at 320,180,320. Real LocalGame authority and durable save; each trial reloads and reconstructs geometry from persisted edits outside timing. Not city/maximum qualification.",
+    "warmups": 3,
+    "results": [
+      {
+        "implementation": "parent",
+        "cells": 16,
+        "chunks": 16,
+        "runs": 20,
+        "commit_cell_reads": 65552,
+        "median_ms": 21.187,
+        "p95_ms": 30.416,
+        "worst_ms": 34.148
+      },
+      {
+        "implementation": "stamped",
+        "cells": 16,
+        "chunks": 16,
+        "runs": 20,
+        "commit_cell_reads": 16,
+        "median_ms": 2.878,
+        "p95_ms": 3.99,
+        "worst_ms": 4.028
+      }
+    ],
+    "environment": {
+      "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+      "cpu": "Intel Core Processor (Haswell, no TSX)",
+      "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+      "heap": "-Xmx1g"
+    },
+    "limits": "Shared VPS, parent first/current second; tests finished before timing. Commit timing includes all owner-thread placement and durable save work, not just mesh checks. No peak-memory, frame/tick, cold-load or network qualification. Initial probe expected an incorrect edit-record count; replaced with semantic reconstruction and reran both implementations in fresh directories."
+  },
+  "Playtest": {
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "environment": "Inherited role DISPLAY/XAUTHORITY, isolated synthetic profile; LOW, detail 32, horizon 512, scale 0.5, shadows/AA/dynamic resolution OFF; renderer llvmpipe (LLVM 15.0.6, 256 bits)",
+    "expected": "Capture/export/import, all rotations, conflicts, empty-space preservation, cancellation, atomic failure, undo, restart and inventory/model-editor regressions pass on changed source.",
+    "observed": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "exit_code": 0,
+    "source_hashes": 219,
+    "manifest_sha256": "51593c14d596a63ccd088c84b524bf09394b9f3053ac4421c4d5aae8f4fc2be0",
+    "media_inspection": "Decoded and viewed a fresh video frame and placed-world screenshot. Clear footprint and placed brick structures visible. llvmpipe at observed 1 FPS is functional evidence only. Conservative stamp and resident-geometry edge cases separately exercised through real LocalGame tests and CLI. Browser playtesting does not apply to this GLFW client."
+  },
+  "qualification": "Full populated city/maximum admission, 20-run full-system performance and physical-GPU/shaped-network 32-rendered-client qualification remain pending. All existing caps, readiness and stable-rollout gates retained.",
+  "video": {
+    "file": "structure-workflow.mp4",
+    "bytes": 425076,
+    "sha256": "24b7e3ec0e755867ab827ef235ba109f8b5793eb56e250eaeebcc4c606516149",
+    "codec": "H264",
+    "frames": 16,
+    "duration_seconds": 27.945,
+    "publication": "Pending controller publication"
+  },
+  "audit": "No deleted paths against review base 71612f09bfec4549456b3317676e76cdced085a4. No intended deletions. Restored MP3 and Hub workflows/tests retained."
+}

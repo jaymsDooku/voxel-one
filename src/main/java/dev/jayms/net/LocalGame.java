@@ -238,6 +238,7 @@ public final class LocalGame {
             public Object lock(){return LocalGame.this;}
             public ModelLibrary models(){return models;}
             public SparseVoxelOctree cell(int x,int y,int z){return world.cell(x,y,z);}
+            public Object chunkStamp(dev.jayms.ChunkPos position){return world.structureChunkStamp(position);}
             public void commit(ModelLibrary prepared,Map<dev.jayms.net.structure.StructurePackage.Position,SparseVoxelOctree> cells)throws IOException {
                 var livePlayer=player.get();
                 dev.jayms.net.structure.StructureOccupancy.validate(cells,city==null?null:city.frame(),livePlayer==null?List.of():List.of(livePlayer));
