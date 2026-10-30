@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-30T19:59:09+00:00",
+  "updatedAt": "2026-10-30T20:30:38+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Bounded package codec buffers implemented. 78 distinct structure tests passed; 20-run admitted-package encode/decode probe improved p95. Fresh native retry passed after local test-cache cleanup; 219 source hashes match and new media inspected. Exact-source hosted validation and full city/max GPU/network qualification remain pending.",
-      "updatedAt": "2026-10-30T19:59:09+00:00"
+      "note": "Repeated-model capture cache implemented with 512-entry bound. All 81 structure tests passed. Twenty-run 10240-instance diagnostic improved capture p95 from 3557.839 ms to 19.782 ms with reference byte equality. Fresh native workflow passed; 219 source hashes and inspected media match. Hosted validation and full city/max GPU/network qualification remain pending.",
+      "updatedAt": "2026-10-30T20:30:38+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

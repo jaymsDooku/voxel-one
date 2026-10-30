@@ -107,6 +107,9 @@ public final class StructurePackage {
         // At the enforced bounds, even an unaligned box spans at most 65*17*65 chunks.
         var hints=new byte[chunksX*chunksZ*(Math.floorDiv((int)maxY,16)-firstY+1)];
         var cells=new StructureCells.Builder();var definitions=new ArrayList<ModelDefinition>();var ids=new HashMap<String,Integer>();int leaves=0,instances=0;
+        // Library definitions are frozen. Repeated instances need not serialize/hash
+        // the same definition again. Bound memoization independently of alias count.
+        var encountered=new IdentityHashMap<ModelDefinition,Integer>();
         long volume=(long)bounds.x*bounds.y*bounds.z,done=0,nextProgress=1024;
         // Preserve y/z/x encounter order so dependency IDs and package bytes stay stable.
         for(int y=0;y<bounds.y;y++)for(int z=0;z<bounds.z;z++)for(int x=0;x<bounds.x;) {
@@ -123,8 +126,12 @@ public final class StructurePackage {
                     int type=WorldVoxels.decode(tree.uniform(0,0,0,16));
                     if(Blocks.isModel(type)) {
                         var entry=source.models().get(type);if(entry==null)throw new IOException("Missing captured model");
-                        var definition=entry.definition();var fingerprint=definition.fingerprint();Integer id=ids.get(fingerprint);
-                        if(id==null) {id=definitions.size();if(id>=MAX_MODELS)throw new IOException("512 dependency limit");ids.put(fingerprint,id);definitions.add(definition);}
+                        var definition=entry.definition();Integer id=encountered.get(definition);
+                        if(id==null) {
+                            var fingerprint=definition.fingerprint();id=ids.get(fingerprint);
+                            if(id==null) {id=definitions.size();if(id>=MAX_MODELS)throw new IOException("512 dependency limit");ids.put(fingerprint,id);definitions.add(definition);}
+                            if(encountered.size()<MAX_MODELS)encountered.put(definition,id);
+                        }
                         if(++instances>MAX_INSTANCES)throw new IOException("Experimental instance cap");
                         cells.add(p,null,id);
                     } else if(tree.occupied()!=0) {
