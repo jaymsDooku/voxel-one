@@ -249,9 +249,21 @@ public final class StructurePackage {
         return load(path,()->false,p->{});
     }
     public static StructurePackage load(Path path,BooleanSupplier cancel,IntConsumer progress) throws IOException {
-        cancelled(cancel);
-        if(Files.size(path)>COMPRESSED)throw new IOException("64 MiB compressed structure limit");
-        try(var in=Files.newInputStream(path)) {return decode(in.readNBytes((int)COMPRESSED+1),cancel,progress);}
+        Objects.requireNonNull(cancel,"cancel");Objects.requireNonNull(progress,"progress");
+        cancelled(cancel);progress.accept(0);cancelled(cancel);
+        long size=Files.size(path);
+        if(size>COMPRESSED)throw new IOException("64 MiB compressed structure limit");
+        byte[] bytes=new byte[(int)size];
+        try(var in=Files.newInputStream(path)) {
+            for(int offset=0;offset<bytes.length;) {
+                cancelled(cancel);int count=in.read(bytes,offset,Math.min(65536,bytes.length-offset));
+                if(count<0)throw new EOFException("Structure file changed while reading; retry import");
+                offset+=count;progress.accept((int)((long)offset*10/bytes.length));cancelled(cancel);
+            }
+            cancelled(cancel);
+            if(in.read()!=-1)throw new IOException("Structure file changed while reading; retry import");
+        }
+        cancelled(cancel);return decode(bytes,cancel,p->progress.accept(10+p*90/100));
     }
     static final class BudgetInput extends FilterInputStream {
         long remaining;BudgetInput(InputStream in,long limit){super(in);remaining=limit;}

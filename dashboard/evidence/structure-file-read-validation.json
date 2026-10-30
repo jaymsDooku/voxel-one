@@ -1,0 +1,58 @@
+{
+  "status": "88 structure tests and fresh native workflow passed; exact-source hosted validation and full qualification pending",
+  "parent": "f9b9df3c0e45c51c13624a0d528d264b6aa51401",
+  "parent_hosted": "Direct PR inspection found all eight feature/PR platform builds successful; publication skipped.",
+  "change": "File import captures size at or below 64 MiB, allocates that exact compressed byte array, reads at most 65536 bytes per call and checks cancellation between reads. File-read progress occupies 0..10, validated decode 10..100. Premature EOF or an extra byte rejects a changed file before decoding. Existing gzip/material/resource validation remains mandatory; no format/admission change.",
+  "tests": {
+    "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=\"Structure*Test\" test",
+    "tests": 88,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "file_read_cases": [
+      {
+        "case": "Valid package larger than two 64 KiB read chunks",
+        "expected": "Monotonic read/decode progress with completion after validation; exact re-encoded bytes and legacy load entry point preserved",
+        "observed": "passed"
+      },
+      {
+        "case": "Cancel during reading a 196608-byte malformed file",
+        "expected": "CancellationException before malformed gzip decode; no completion or file mutation",
+        "observed": "passed"
+      },
+      {
+        "case": "Grow/truncate valid package from first read-progress callback",
+        "expected": "IOException for changed file and no 100-percent completion",
+        "observed": "passed"
+      },
+      {
+        "case": "Sparse file sized 64 MiB + 1",
+        "expected": "Reject compressed limit before allocating or decoding the file",
+        "observed": "passed"
+      }
+    ]
+  },
+  "environment": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+  "Playtest": {
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "environment": "Inherited role DISPLAY/XAUTHORITY, isolated synthetic profile; LOW, detail 32, horizon 512, scale 0.5, shadows/AA/dynamic resolution OFF; renderer llvmpipe (LLVM 15.0.6, 256 bits)",
+    "expected": "Capture/import/export including long path and import cancellation; all rotations, conflicts, empty-space preservation, atomic failure, undo, restart and inventory/model-editor regressions pass.",
+    "observed": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "exit_code": 0,
+    "source_hashes": 219,
+    "manifest_sha256": "ffd4ffc62c5f0bb33191c2595172178ee79a34a819184aa49c40cd40c5ede3ab",
+    "media_inspection": "Decoded and viewed fresh video frame and placed-world screenshot. Preview/staging UI and placed brick structures visible. llvmpipe at observed 1 FPS is functional evidence only. Read-phase edge cases separately exercised through real filesystem tests. Browser playtesting does not apply to this GLFW client."
+  },
+  "limits": "Cancellation is checked between bounded reads, not while a filesystem read is blocked. Same-size concurrent rewrites still require valid gzip CRC and package validation; no file identity snapshot guarantee. No performance, peak-memory, full fixture or physical-GPU/network qualification claimed.",
+  "qualification": "Required populated city/maximum admission, 20-run full-system budgets and physical-GPU/shaped-network 32-rendered-client qualification remain pending. Existing caps, readiness and stable-rollout gates retained.",
+  "video": {
+    "file": "structure-workflow.mp4",
+    "bytes": 336463,
+    "sha256": "5318852a455c65a95be2a8d020d10f90638e3df1b71d5d60cf4b9933afade36d",
+    "codec": "H264",
+    "frames": 17,
+    "duration_seconds": 26.717,
+    "publication": "Pending controller publication"
+  },
+  "audit": "No deleted paths against review base 71612f09bfec4549456b3317676e76cdced085a4. No intended deletions. Restored MP3 and Hub workflows/tests retained."
+}
