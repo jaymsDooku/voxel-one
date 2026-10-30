@@ -373,6 +373,19 @@ public final class SparseVoxelOctree {
 
     public record Leaf(int x, int y, int z, int side, int color) {}
 
+    /** Count stored non-air leaves without constructing a temporary leaf list. */
+    public int leafCount() {
+        return leafCount(root);
+    }
+
+    private static int leafCount(Node node) {
+        if (node == null) return 0;
+        if (node.children == null) return 1;
+        int count = 0;
+        for (Node child : node.children) count += leafCount(child);
+        return count;
+    }
+
     public java.util.List<Leaf> leaves() {
         var result = new java.util.ArrayList<Leaf>();
         leaves(root, 0, 0, 0, size, result, false);

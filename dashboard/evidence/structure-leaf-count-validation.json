@@ -1,0 +1,86 @@
+{
+  "schema": 1,
+  "parent_head": "74a41bff0ebcf2f45caf026e087048eca3cd4e6a",
+  "scope": "Count-only tree traversal during capture/decode; no cap or format changes",
+  "qualification": "PENDING",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu_model": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "native_renderer": "llvmpipe through existing inherited display; not physical GPU qualification"
+  },
+  "tests": {
+    "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest='Structure*Test,VoxelModelTest' test",
+    "tests": 97,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "new_regressions": [
+      "Stored leaf counts match traversal across 1/8/16/32/256 resolutions, random edits, frozen persistent snapshots and serialization",
+      "Legacy redundant uniform branches count eight stored leaves, not occupied volume, without rewriting bytes"
+    ]
+  },
+  "probe": {
+    "commands": [
+      "javac --release 17 -d target/structure-leaf-probe src/main/java/dev/jayms/net/model/SparseVoxelOctree.java tools/structures/LeafCountProbe.java",
+      "java -Xmx1g -cp target/structure-leaf-probe LeafCountProbe"
+    ],
+    "results": [
+      {
+        "operation": "leaf-list-count",
+        "runs": 20,
+        "warmups": 3,
+        "batch": 128,
+        "leaves_per_tree": 2048,
+        "median_ms": 9.325,
+        "p95_ms": 23.462,
+        "worst_ms": 27.311,
+        "median_thread_allocated_bytes": 14789632
+      },
+      {
+        "operation": "direct-leaf-count",
+        "runs": 20,
+        "warmups": 3,
+        "batch": 128,
+        "leaves_per_tree": 2048,
+        "median_ms": 2.412,
+        "p95_ms": 2.604,
+        "worst_ms": 2.763,
+        "median_thread_allocated_bytes": 0
+      }
+    ],
+    "limits": "Same frozen fragmented 16-resolution tree, 2048 leaves; alternating modes, 3 warmups and 20 measured batches of 128 calls. Current-thread allocation is cumulative, not peak memory. Shared VPS; targeted tests ran concurrently. Not full-fixture timing."
+  },
+  "native": {
+    "result": {
+      "status": "passed",
+      "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+      "source_manifest": "structure-native-source.json",
+      "source_manifest_sha256": "59514db0424ab2c67ee12d1d5d3181d05b7b4702b3ee8c8d55b52b823dfc5bdd",
+      "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+      "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+      "publication": "Local evidence pending controller publication"
+    },
+    "video": {
+      "bytes": 364676,
+      "sha256": "4ef64486283b7d848e30a401b8957351fc96d6be0e21d0e73d6a483793bd8576",
+      "codec": "H264",
+      "frames": 17,
+      "duration_s": 26.269,
+      "inspection": "Decoded frame and fresh placed-structures screenshot inspected; green preview and independent brick structures visible. HUD 1 FPS; functional only.",
+      "publication": "Pending controller publication"
+    },
+    "source_manifest_entries": 219,
+    "source_manifest_match": true,
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\""
+  },
+  "pending": [
+    "Populated city and maximum fixture admission",
+    "20-run full-pipeline qualification",
+    "Physical GPU, shaped network and 32 rendered clients",
+    "Memory/frame/tick/traffic budgets"
+  ],
+  "audit": "No unrelated path deletions against recorded base; git diff --check passed."
+}
