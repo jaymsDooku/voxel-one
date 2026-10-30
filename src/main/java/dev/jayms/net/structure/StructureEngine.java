@@ -211,7 +211,7 @@ public final class StructureEngine {
             long instanceQuads=0;
             for(int id:chunk.models().values()) {
                 cancelled(cancel);Integer quads=modelQuads.get(id);
-                if(quads==null){var definition=models.get(id);if(definition==null)throw new IOException("Missing world dependency");quads=ModelMesher.mesh(definition.definition().voxels()).quads();modelQuads.put(id,quads);}
+                if(quads==null){var definition=models.get(id);if(definition==null)throw new IOException("Missing world dependency");quads=ModelMesher.count(definition.definition().voxels());modelQuads.put(id,quads);}
                 instanceQuads+=quads;if(instanceQuads>262144)throw new IOException("Experimental chunk model-instance surface cap");
             }
             try {MeshDataGenerator.generate(chunk);}

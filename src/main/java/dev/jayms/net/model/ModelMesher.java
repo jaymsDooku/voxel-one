@@ -13,6 +13,15 @@ public final class ModelMesher {
         return mesh(tree.size(), tree::get);
     }
 
+    /** Exact greedy surface validation without constructing render buffers. */
+    public static int count(SparseVoxelOctree tree)throws IOException {
+        return count(tree.size(),tree::get,MAX_QUADS);
+    }
+
+    public static int count(int size,VoxelSampler sampler,int maximumQuads)throws IOException {
+        return mesh(size,sampler,maximumQuads,false).quads();
+    }
+
     @FunctionalInterface
     public interface VoxelSampler {
         int get(int x, int y, int z);
@@ -24,9 +33,14 @@ public final class ModelMesher {
 
     public static Geometry mesh(int size, VoxelSampler sampler, int maximumQuads)
             throws IOException {
+        return mesh(size,sampler,maximumQuads,true);
+    }
+
+    private static Geometry mesh(int size,VoxelSampler sampler,int maximumQuads,boolean emitGeometry)
+            throws IOException {
         int quads = 0;
-        float[] vertices = new float[36 * 128];
-        int[] indices = new int[6 * 128];
+        float[] vertices = emitGeometry?new float[36 * 128]:null;
+        int[] indices = emitGeometry?new int[6 * 128]:null;
         long[] mask = new long[size * size];
         for (int axis = 0; axis < 3; axis++) {
             int u = (axis + 1) % 3, v = (axis + 2) % 3;
@@ -68,30 +82,32 @@ public final class ModelMesher {
                                     "Surface exceeds "
                                             + maximumQuads
                                             + " merged faces; simplify the design");
-                        if ((quads + 1) * 36 > vertices.length) {
-                            vertices = Arrays.copyOf(vertices, vertices.length * 2);
-                            indices = Arrays.copyOf(indices, indices.length * 2);
+                        if (emitGeometry) {
+                            if ((quads + 1) * 36 > vertices.length) {
+                                vertices = Arrays.copyOf(vertices, vertices.length * 2);
+                                indices = Arrays.copyOf(indices, indices.length * 2);
+                            }
+                            boolean positive = (key & 1) == 1;
+                            int color = (int) (key >>> 1);
+                            float[] base = new float[3];
+                            base[axis] = (slice + 1f) / size;
+                            base[u] = (float) i / size;
+                            base[v] = (float) j / size;
+                            for (int corner = 0; corner < 4; corner++) {
+                                int c = positive ? corner : new int[] {0, 3, 2, 1}[corner];
+                                float[] p = base.clone();
+                                if (c == 1 || c == 2) p[u] += (float) width / size;
+                                if (c == 2 || c == 3) p[v] += (float) height / size;
+                                int offset = quads * 36 + corner * 9;
+                                System.arraycopy(p, 0, vertices, offset, 3);
+                                vertices[offset + 3 + axis] = positive ? 1 : -1;
+                                vertices[offset + 6] = ((color >>> 16) & 255) / 255f;
+                                vertices[offset + 7] = ((color >>> 8) & 255) / 255f;
+                                vertices[offset + 8] = (color & 255) / 255f;
+                            }
+                            int[] order = {0, 1, 2, 2, 3, 0};
+                            for (int k = 0; k < 6; k++) indices[quads * 6 + k] = quads * 4 + order[k];
                         }
-                        boolean positive = (key & 1) == 1;
-                        int color = (int) (key >>> 1);
-                        float[] base = new float[3];
-                        base[axis] = (slice + 1f) / size;
-                        base[u] = (float) i / size;
-                        base[v] = (float) j / size;
-                        for (int corner = 0; corner < 4; corner++) {
-                            int c = positive ? corner : new int[] {0, 3, 2, 1}[corner];
-                            float[] p = base.clone();
-                            if (c == 1 || c == 2) p[u] += (float) width / size;
-                            if (c == 2 || c == 3) p[v] += (float) height / size;
-                            int offset = quads * 36 + corner * 9;
-                            System.arraycopy(p, 0, vertices, offset, 3);
-                            vertices[offset + 3 + axis] = positive ? 1 : -1;
-                            vertices[offset + 6] = ((color >>> 16) & 255) / 255f;
-                            vertices[offset + 7] = ((color >>> 8) & 255) / 255f;
-                            vertices[offset + 8] = (color & 255) / 255f;
-                        }
-                        int[] order = {0, 1, 2, 2, 3, 0};
-                        for (int k = 0; k < 6; k++) indices[quads * 6 + k] = quads * 4 + order[k];
                         quads++;
                         for (int y = 0; y < height; y++)
                             Arrays.fill(mask, (j + y) * size + i, (j + y) * size + i + width, 0);
@@ -100,7 +116,8 @@ public final class ModelMesher {
             }
         }
         return new Geometry(
-                Arrays.copyOf(vertices, quads * 36), Arrays.copyOf(indices, quads * 6), quads);
+                emitGeometry?Arrays.copyOf(vertices, quads * 36):null,
+                emitGeometry?Arrays.copyOf(indices, quads * 6):null, quads);
     }
 
     private ModelMesher() {}

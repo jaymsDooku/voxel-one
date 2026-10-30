@@ -1,0 +1,80 @@
+{
+  "status": "107 distinct targeted tests, exact parent/current render digest, allocation diagnostic and fresh native workflow passed; hosted and full qualification pending",
+  "parent": "bde34351639f5f3de6b10d3b2a68781387282278",
+  "parent_hosted": "Direct PR inspection found all eight feature/PR platform builds successful; publication skipped.",
+  "change": "Shared ModelMesher greedy traversal can count merged faces without constructing render buffers. Surface limits, oriented colour masks, greedy rectangle selection and clearing are shared. Structure package validation and placement instance-surface checks use count-only mode; public rendered geometry entry points retain full output. No format, per-model or structure cap change.",
+  "tests": {
+    "full_command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=\"Structure*Test,ModelFaceCountTest,VoxelModelTest,ModelSculptorTest,DetailedMeshSchedulerTest\" test",
+    "full_observed": "105 existing tests passed and one new boundary test passed; one new fixture incorrectly assumed a coloured hollow 32 model would be admitted. It exceeded 8192 faces. Updated that case to require matching rendering/count rejection, retaining the cap.",
+    "focused_command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=ModelFaceCountTest test",
+    "focused_observed": "Both new tests passed; 107 distinct tests passed across these runs. Not a single full 107-test rerun.",
+    "coverage": "Exact count/render parity across 8,16,32 resolutions, empty/solid/coloured/hollow/sparse patterns, equal rejection messages, exact 6-face boundary, oversized checkerboard rejection, serialized source unchanged; existing models/editor/scheduler/structure regressions."
+  },
+  "probe": {
+    "commands": [
+      "git show HEAD:src/main/java/dev/jayms/net/model/ModelMesher.java > target/structure-face-control/src/ModelMesher.java",
+      "javac --release 17 -cp target/classes -d target/structure-face-control/classes target/structure-face-control/src/ModelMesher.java",
+      "javac --release 17 -cp target/classes -d target tools/structures/ModelFaceCountProbe.java",
+      "java -Xmx1g -cp target/structure-face-control/classes:target:target/classes ModelFaceCountProbe parent",
+      "java -Xmx1g -cp target:target/classes ModelFaceCountProbe current"
+    ],
+    "render_digest": {
+      "implementation": "parent",
+      "render_array_sha256": "39a6a09f93231f026425c3d20eda01ee780ac1508328e2c4ba57b68a4e367dc0",
+      "fixtures": 12
+    },
+    "measurements": [
+      {
+        "operation": "full-render-output",
+        "batch": 64,
+        "resolution": 16,
+        "quads_per_model": 1536,
+        "runs": 20,
+        "median_ms": 91.318,
+        "p95_ms": 111.575,
+        "worst_ms": 117.514,
+        "median_thread_allocated_bytes": 85284352
+      },
+      {
+        "operation": "count-only",
+        "batch": 64,
+        "resolution": 16,
+        "quads_per_model": 1536,
+        "runs": 20,
+        "median_ms": 55.864,
+        "p95_ms": 66.905,
+        "worst_ms": 67.255,
+        "median_thread_allocated_bytes": 140800
+      }
+    ],
+    "fixture": "Twelve render comparison fixtures across 8,16,32 resolutions. Allocation/timing: batches of 64 fully occupied 16-resolution models with seeded random opaque colours, 1536 merged faces/model. Three warmups and 20 measured runs per mode, alternating full render/count. Exact quad totals checked each trial.",
+    "environment": {
+      "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+      "cpu": "Intel Core Processor (Haswell, no TSX)",
+      "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+      "heap": "-Xmx1g"
+    },
+    "limits": "Shared VPS; final native run started after probe. ThreadMXBean measures current-thread total allocation, not peak memory or all-thread allocation. No populated fixture, frame/tick, save/load or network qualification."
+  },
+  "Playtest": {
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "environment": "Inherited role DISPLAY/XAUTHORITY, isolated synthetic profile; LOW, detail 32, horizon 512, scale 0.5, shadows/AA/dynamic resolution OFF; renderer llvmpipe (LLVM 15.0.6, 256 bits)",
+    "expected": "Capture/import/export, four rotations, conflicts, empty-space preservation, cancellation, atomic failure, undo, restart and inventory/model-editor regressions pass after mesher refactor.",
+    "observed": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "exit_code": 0,
+    "source_hashes": 219,
+    "manifest_sha256": "015206a87d3081e03e0c02a6c2951a056ae26377d7edc4dafb677accb13fb509",
+    "media_inspection": "Decoded and viewed fresh video frame, placed-world screenshot and component close-up. Preview/staging UI and brick structures visible. llvmpipe at observed 1 FPS is functional evidence only. Render array identity and face limits separately checked by parent comparison/tests. Browser playtesting does not apply to this GLFW client."
+  },
+  "qualification": "Full populated city/maximum admission and 20-run full-system physical-GPU/shaped-network 32-rendered-client qualification remain pending. Readiness and stable-rollout gates retained.",
+  "video": {
+    "file": "structure-workflow.mp4",
+    "bytes": 371968,
+    "sha256": "83e782ed7ee9c2d4ee5d1e019bda916e3bd4cf1cb344c24362c9d03b236e50cb",
+    "codec": "H264",
+    "frames": 16,
+    "duration_seconds": 26.526,
+    "publication": "Pending controller publication"
+  },
+  "audit": "No deleted paths against review base 71612f09bfec4549456b3317676e76cdced085a4. No intended path deletions. Render emission statements were grouped under the shared traversal switch; exact parent render hashes match. Restored MP3/Hub workflows and tests retained."
+}
