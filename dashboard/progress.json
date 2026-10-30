@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-30T19:24:18+00:00",
+  "updatedAt": "2026-10-30T19:59:09+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Cancellable spatial sorting implemented. All 75 current structure tests passed. Twenty-run sorting probes improved p95 at 1 million and 4 million keys; extra temporary memory documented. Fresh native workflow passed with 219 matching source hashes and inspected media. Full city/max and GPU/network qualification remain pending.",
-      "updatedAt": "2026-10-30T19:24:18+00:00"
+      "note": "Bounded package codec buffers implemented. 78 distinct structure tests passed; 20-run admitted-package encode/decode probe improved p95. Fresh native retry passed after local test-cache cleanup; 219 source hashes match and new media inspected. Exact-source hosted validation and full city/max GPU/network qualification remain pending.",
+      "updatedAt": "2026-10-30T19:59:09+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
