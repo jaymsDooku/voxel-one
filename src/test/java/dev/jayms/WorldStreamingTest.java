@@ -7,6 +7,32 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 
 class WorldStreamingTest {
+    @Test void highOnlyRequestsInvalidateReadyColumnsBeforeBaseWorkCanEnterTheQueue()throws Exception {
+        var release=new java.util.concurrent.CountDownLatch(1);
+        var entered=new java.util.concurrent.CountDownLatch(1);
+        try(var world=new World(42)) {
+            var column=new ChunkPos(0,0,0);world.addChunk(new ChunkPos(0,23,0),new Chunk());
+            assertTrue(world.renderedColumns().contains(column));
+            var scheduler=new TerrainScheduler(42,world.terrain().version,(position,terrain)->{
+                entered.countDown();
+                try {if(!release.await(10,TimeUnit.SECONDS))throw new AssertionError("Synthetic worker release timed out");}
+                catch(InterruptedException failure){Thread.currentThread().interrupt();throw new AssertionError(failure);}
+                return new Chunk();
+            });
+            var field=World.class.getDeclaredField("terrainScheduler");field.setAccessible(true);field.set(world,scheduler);
+            try {
+                world.streamAsync(8,383,8,1_000_000_000L);
+                assertTrue(entered.await(1,TimeUnit.SECONDS));assertEquals(TerrainScheduler.CAPACITY,world.terrainPending());
+                assertTrue(world.getLoadedChunks().keySet().stream().allMatch(p->p.chunkY()>7));
+                assertFalse(world.skyColumnReady(column),"A high-only queue does not prove natural base coverage");
+                assertFalse(world.renderedColumns().contains(column),"Pending base coverage invalidates cached complete columns");
+            } finally {release.countDown();}
+            long end=System.nanoTime()+TimeUnit.SECONDS.toNanos(5);
+            while(!world.skyColumnReady(column)&&System.nanoTime()<end){world.streamAsync(8,383,8,2_000_000);Thread.sleep(1);}
+            assertTrue(world.skyColumnReady(column));
+            for(int y=-2;y<=7;y++)assertTrue(world.getLoadedChunks().containsKey(new ChunkPos(0,y,0)));
+        } finally {release.countDown();}
+    }
     static void resident(World w,ChunkPos p,float x,float y,float z)throws Exception {
         long end=System.nanoTime()+TimeUnit.SECONDS.toNanos(20);
         while(!w.getLoadedChunks().containsKey(p)&&System.nanoTime()<end){w.streamAsync(x,y,z,2_000_000);assertTrue(w.terrainPending()<=TerrainScheduler.CAPACITY+1);Thread.sleep(1);}

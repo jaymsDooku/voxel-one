@@ -403,14 +403,14 @@ public class World implements AutoCloseable {
             var p=structureScan.next();
             if((p.chunkY()< -2||p.chunkY()>7)&&Math.abs(p.chunkX()-cx)<=4&&Math.abs(p.chunkZ()-cz)<=4
                     &&!loadedChunks.containsKey(p)&&(preparing==null||!preparing.position().equals(p)))
-                terrainScheduler.request(p,terrain.stressGrid());
+                requestStreamingChunk(p);
         }
 
     }
     private void requestNear(int cx,int cy,int cz,float x,float z,long deadline){
         if(cy< -2||cy>7)for(int dx=-1;dx<=1;dx++)for(int dz=-1;dz<=1;dz++)for(int dy=-1;dy<=1;dy++) {
             if(System.nanoTime()>=deadline)return;var p=new ChunkPos(cx+dx,cy+dy,cz+dz);
-            if((p.chunkY()< -2||p.chunkY()>7)&&!loadedChunks.containsKey(p)&&(preparing==null||!preparing.position().equals(p)))terrainScheduler.request(p,terrain.stressGrid());
+            if((p.chunkY()< -2||p.chunkY()>7)&&!loadedChunks.containsKey(p)&&(preparing==null||!preparing.position().equals(p)))requestStreamingChunk(p);
         }
         int terrainCy=Math.max(-2,Math.min(7,cy));
         int minX=Math.floorDiv((int)Math.floor(x-24),16),maxX=Math.floorDiv((int)Math.floor(x+24),16);
@@ -437,9 +437,13 @@ public class World implements AutoCloseable {
                 if(System.nanoTime()>=deadline||terrainScheduler.pending()>=TerrainScheduler.CAPACITY)break outer;
                 int yy=terrainCy+d*sign;if(yy< -2||yy>7)continue;
                 ChunkPos p=new ChunkPos(cx+a,yy,cz+b);
-                if(!loadedChunks.containsKey(p)&&(preparing==null||!preparing.position().equals(p))&&terrainScheduler.request(p,terrain.stressGrid()))streamingColumns.add(column(p));
+                if(!loadedChunks.containsKey(p)&&(preparing==null||!preparing.position().equals(p)))requestStreamingChunk(p);
             }
         }
+    }
+    /** High chunks also require natural base coverage before their column is ready. */
+    private void requestStreamingChunk(ChunkPos p) {
+        if(terrainScheduler.request(p,terrain.stressGrid())&&streamingColumns.add(column(p)))dirtyColumns.add(column(p));
     }
 
     @Override
