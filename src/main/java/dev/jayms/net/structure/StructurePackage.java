@@ -151,7 +151,7 @@ public final class StructurePackage {
         Objects.requireNonNull(cancel,"cancel");Objects.requireNonNull(progress,"progress");
         cancelled(cancel);progress.accept(0);cancelled(cancel);
         var bytes=new ByteArrayOutputStream();
-        try(var compressed=new BudgetOutput(bytes,COMPRESSED);var gzip=new GZIPOutputStream(compressed);var out=new DataOutputStream(new BudgetOutput(gzip,DECODED))) {
+        try(var compressed=new BudgetOutput(bytes,COMPRESSED);var gzip=new GZIPOutputStream(compressed);var out=new DataOutputStream(new BufferedOutputStream(new BudgetOutput(gzip,DECODED),65536))) {
             out.writeInt(MAGIC);out.writeInt(VERSION);out.writeUTF(name);
             out.writeInt(bounds.x);out.writeInt(bounds.y);out.writeInt(bounds.z);out.writeInt(bounds.ax);out.writeInt(bounds.ay);out.writeInt(bounds.az);
             out.writeInt(models.size());int modelIndex=0;
@@ -178,7 +178,7 @@ public final class StructurePackage {
         if(bytes.length<18||bytes[0]!=(byte)31||bytes[1]!=(byte)139||bytes[2]!=8||bytes[3]!=0)
             throw new IOException("Invalid structure gzip header");
         var payload=new ByteArrayInputStream(bytes,10,bytes.length-18);var inflater=new Inflater(true);var crc=new CRC32();
-        try(var raw=new InflaterInputStream(payload,inflater);var checked=new CheckedInputStream(raw,crc);var budget=new BudgetInput(checked,DECODED);var in=new DataInputStream(budget)) {
+        try(var raw=new InflaterInputStream(payload,inflater);var checked=new CheckedInputStream(raw,crc);var budget=new BudgetInput(checked,DECODED);var in=new DataInputStream(new BufferedInputStream(budget,65536))) {
             if(in.readInt()!=MAGIC)throw new IOException("Unsupported structure package");
             int version=in.readInt();if(version!=1&&version!=VERSION)throw new IOException("Unsupported structure package");
             String name=Protocol.readText(in,48);Bounds bounds;
