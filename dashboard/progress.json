@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-30T22:43:08+00:00",
+  "updatedAt": "2026-10-30T23:01:13+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Render scratch removal validated: exact parent buffers, 108 distinct targeted tests, fresh full native workflow and inspected video. Median allocation 85,284,352 to 59,332,096 bytes per 64-model batch. New source/media await controller publication; full city/maximum qualification remains pending.",
-      "updatedAt": "2026-10-30T22:43:08+00:00"
+      "note": "Parent 5f652c7e passed eight platform builds. Added fail-closed full-fixture receipt checker; six synthetic CLI tests passed and existing component report rejected. Game source/media unchanged and verified. Full city/maximum admission and qualification remain pending.",
+      "updatedAt": "2026-10-30T23:01:13+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

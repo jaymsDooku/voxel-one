@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "source_head": "5f652c7e3e6fc1feb2fe9b326aa280c84e8b2039",
+  "scope": "Receipt checker CLI only; production game unchanged",
+  "qualification": "PENDING; full fixtures remain unadmitted and unqualified",
+  "tests": [
+    "python3 -m unittest discover -s tools/structures -p test_qualification.py -v: 6 tests passed; synthetic positive and negative receipt paths, including actual CLI subprocess execution.",
+    "Playtest: python3 tools/structures/check_qualification.py dashboard/evidence/structure-render-allocation-validation.json --head 5f652c7e3e6fc1feb2fe9b326aa280c84e8b2039 --environment-id required-reference: expected exit 1; observed NOT QUALIFIED: Source head mismatch. Component evidence cannot qualify a full fixture.",
+    "Browser playtesting does not apply to this CLI-only change. No production Java or native harness changes; all 219 manifest entries match the previously passed native workflow.",
+    "Published exact-head video verified byte-for-byte: 364085 bytes, SHA-256 b6efdfb474fb2d8ab01852b2da4ebd3fe229ce1f7b61952ae8d8a77bf8c6314c.",
+    "All eight push/PR platform builds for 5f652c7e passed. New tooling awaits hosted checks."
+  ],
+  "limitations": [
+    "Checker validates receipt structure and stated budgets, not truth of measurements.",
+    "Independent exact-source, fixture, hardware, media and measurement review remains required.",
+    "No synthetic passing receipt is game qualification.",
+    "City/maximum admission, 20-run full-pipeline and physical GPU/shaped-network qualification remain pending."
+  ]
+}
