@@ -4,7 +4,7 @@
   "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
   "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
   "source_manifest": "structure-native-source.json",
-  "source_manifest_sha256": "94a31ee8c6edbea53a2bc012c67f1627244220ac1c2474b940b0ef34d9c9e9a6",
+  "source_manifest_sha256": "97f644ddd41f34c52e8543f7be26b991d182f730f957e0802103b055bec45c01",
   "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
   "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
   "publication": "Local evidence pending controller publication"
