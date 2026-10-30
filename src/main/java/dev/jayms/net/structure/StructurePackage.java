@@ -135,7 +135,7 @@ public final class StructurePackage {
                         if(++instances>MAX_INSTANCES)throw new IOException("Experimental instance cap");
                         cells.add(p,null,id);
                     } else if(tree.occupied()!=0) {
-                        leaves+=tree.leaves().size();if(leaves>MAX_LEAVES)throw new IOException("Experimental geometry cap");
+                        leaves+=tree.leafCount();if(leaves>MAX_LEAVES)throw new IOException("Experimental geometry cap");
                         cells.add(p,tree.copy().freeze(),-1);
                     }
                     if(cells.size()>MAX_CELLS)throw new IOException("Occupied cell limit");
@@ -210,7 +210,7 @@ public final class StructurePackage {
                 var p=new Position(sx*16+index%16,sy*16+index/256,sz*16+(index/16)%16);
                 long key=order(p);if(key<=last)throw new IOException("Duplicate/unordered structure cells");last=key;
                 SparseVoxelOctree tree=null;
-                if(model<0){tree=SparseVoxelOctree.read(in,16);if(tree.occupied()==0)throw new IOException("Invalid/empty cell");leaves+=tree.leaves().size();if(leaves>MAX_LEAVES)throw new IOException("Experimental geometry cap");}
+                if(model<0){tree=SparseVoxelOctree.read(in,16);if(tree.occupied()==0)throw new IOException("Invalid/empty cell");leaves+=tree.leafCount();if(leaves>MAX_LEAVES)throw new IOException("Experimental geometry cap");}
                 else if(++instances>MAX_INSTANCES)throw new IOException("Experimental instance cap");
                 cells.add(p,tree==null?null:tree.freeze(),model);
                 if((i&127)==127||i==n-1){progress.accept(25+(int)((long)(i+1)*74/n));cancelled(cancel);}
