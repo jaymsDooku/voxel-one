@@ -62,7 +62,7 @@ public final class StructurePackage {
             cancelled(cancel);
             var frozen=new ModelDefinition(model.name(),model.voxels().copy().freeze());
             if(frozen.voxels().occupied()==0||!identities.add(frozen.fingerprint()))throw new IOException("Empty or duplicate dependency");
-            int faces=ModelMesher.mesh(frozen.voxels()).quads();quads[definitions.size()]=faces;dependencyQuads+=faces;
+            int faces=ModelMesher.count(frozen.voxels());quads[definitions.size()]=faces;dependencyQuads+=faces;
             if(dependencyQuads>MAX_DEPENDENCY_QUADS)throw new IOException("Experimental dependency surface cap");
             definitions.add(frozen);
         }
@@ -196,7 +196,7 @@ public final class StructurePackage {
             for(int i=0;i<n;i++) {
                 cancelled(cancel);var model=version==1?ModelDefinition.read(in):StructureModelCodec.read(in);
                 if(model.voxels().occupied()==0||!identities.add(model.fingerprint()))throw new IOException("Empty or duplicate dependency");
-                dependencyQuads+=ModelMesher.mesh(model.voxels()).quads();
+                dependencyQuads+=ModelMesher.count(model.voxels());
                 if(dependencyQuads>MAX_DEPENDENCY_QUADS)throw new IOException("Experimental dependency surface cap");
                 models.add(model);progress.accept((i+1)*25/n);cancelled(cancel);
             }
