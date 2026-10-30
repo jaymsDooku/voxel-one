@@ -35,6 +35,7 @@ public final class HubFrame extends JFrame {
     private HubCatalog.Entry selected;
     private boolean light;
     private Updater.Result installed;
+    private Process latestGame;
     private final Platform platform = Platform.current();
 
     public HubFrame(Path cache) throws IOException { this(cache, Updater.MANIFEST); }
@@ -341,8 +342,10 @@ public final class HubFrame extends JFrame {
     }
     private void install(HubCatalog.Entry entry, List<String> args) {
         if (task != null && !task.isDone()) { status.setText("A client operation is already running."); return; }
+        latestGame = null;
         transfer.setText("Checking shared client…\n"); cancel.setEnabled(true); showPage("Downloads");
         task = new SwingWorker<Updater.Result, String>() {
+            private volatile Process game;
             protected Updater.Result doInBackground() throws Exception {
                 Updater updater = new Updater(installCache, entry != null && clientManifest.equals(Updater.MANIFEST) ? entry.clientManifest() : clientManifest); activeUpdater = updater;
                 Updater.Result result = Boolean.parseBoolean(settings.getProperty("updates", "true")) || entry == null ? null : updater.installed(platform);
@@ -350,23 +353,40 @@ public final class HubFrame extends JFrame {
                 if (isCancelled()) throw new java.util.concurrent.CancellationException();
                 if (entry != null) {
                     entry.requireClient(result);
-                    Process process = new ProcessBuilder(Launcher.command(result.client(), platform, args)).redirectOutput(ProcessBuilder.Redirect.DISCARD).redirectError(ProcessBuilder.Redirect.DISCARD).start();
-                    if (process.waitFor(1500, java.util.concurrent.TimeUnit.MILLISECONDS) && process.exitValue() != 0) throw new IOException("Game could not start. Check graphics support and client/server compatibility.");
+                    game = new ProcessBuilder(Launcher.command(result.client(), platform, args)).redirectOutput(ProcessBuilder.Redirect.DISCARD).redirectError(ProcessBuilder.Redirect.DISCARD).start();
+                    try {
+                        if (isCancelled()) { game.destroy(); throw new java.util.concurrent.CancellationException(); }
+                        if (game.waitFor(1500, java.util.concurrent.TimeUnit.MILLISECONDS) && game.exitValue() != 0) throw new GameLaunchFailure(game.exitValue());
+                    } catch (InterruptedException e) { game.destroy(); Thread.currentThread().interrupt(); throw e; }
                 }
                 return result;
             }
             protected void process(List<String> messages) { for (String message : messages) transfer.append(message + "\n"); status.setText(messages.get(messages.size() - 1)); }
             protected void done() {
                 cancel.setEnabled(false); activeUpdater = null;
-                try { installed = get(); clientOffline = !installed.warning().isBlank(); if (!clientOffline) availableRevision = installed.revision(); transfer.append(entry == null ? "Client ready.\n" : "Game started.\n"); status.setText(installed.warning().isBlank() ? "Ready to play" : installed.warning()); if (entry != null && Boolean.parseBoolean(settings.getProperty("close", "false"))) dispose(); }
-                catch (java.util.concurrent.CancellationException e) { transfer.append("Cancelled. Previous verified client kept.\n"); status.setText("Cancelled"); }
+                try { installed = get(); clientOffline = !installed.warning().isBlank(); if (!clientOffline) availableRevision = installed.revision(); transfer.append(entry == null ? "Client ready.\n" : "Game started.\n"); status.setText(installed.warning().isBlank() ? entry == null ? "Ready to play" : "Client running." : installed.warning()); if (game != null) watchGame(game); if (entry != null && Boolean.parseBoolean(settings.getProperty("close", "false"))) dispose(); }
+                catch (java.util.concurrent.CancellationException e) { if (game != null) game.destroy(); transfer.append("Cancelled. Previous verified client kept.\n"); status.setText("Cancelled"); }
                 catch (Exception e) { transfer.append("Operation failed. Retry to repair; previous verified client kept.\n"); Throwable cause = e.getCause() == null ? e : e.getCause();
                     String message = cause.getMessage();
-                    status.setText(message != null && message.contains("Catalog/client mismatch")
+                    status.setText(cause instanceof GameLaunchFailure ? message : message != null && message.contains("Catalog/client mismatch")
                             ? "Catalog/client mismatch. Refresh the catalog or install a compatible client." : "Could not install or start the client.");
                     if (message != null && message.contains("Catalog/client mismatch")) transfer.append("Catalog/client mismatch. No incompatible client was launched.\n"); }
             }
         }; task.execute();
+    }
+    private static final class GameLaunchFailure extends IOException {
+        GameLaunchFailure(int code) { super("Client stopped (exit " + code + "). Check graphics support or client/server compatibility, then try again."); }
+    }
+    /** Event-driven exit observation. A prior game must not overwrite a newer launch. */
+    private void watchGame(Process game) {
+        latestGame = game;
+        SwingWorker<?, ?> launchTask = task;
+        game.onExit().thenAccept(exited -> SwingUtilities.invokeLater(() -> {
+            if (!isDisplayable() || latestGame != exited) return;
+            String message = exited.exitValue() == 0 ? "Client closed." : new GameLaunchFailure(exited.exitValue()).getMessage();
+            transfer.append(message + "\nVerified client and saves kept.\n");
+            if (task == launchTask || task == null || task.isDone()) status.setText(message);
+        }));
     }
     private static final class CardsPanel extends JPanel implements Scrollable {
         CardsPanel() { super(new GridLayout(0, 2, 18, 18)); }
