@@ -38,6 +38,9 @@ public final class NativeRenderProbe {
                     Object window=field(actual,"window");handle[0]=((Number)window.getClass().getMethod("getHandle").invoke(window)).longValue();
                     glfwSetWindowSize(handle[0],900,600);glfwPollEvents();started[0]=System.nanoTime();
                     renderer[0]=glGetString(GL_RENDERER);
+                    if(Boolean.getBoolean("voxel.hub.requireSoftwareRenderer")
+                            && (renderer[0]==null || !renderer[0].toLowerCase(java.util.Locale.ROOT).contains("llvmpipe")))
+                        throw new AssertionError("Expected llvmpipe software renderer");
                 }
                 public void afterFrame(Main actual)throws Exception {
                     int[] width={0},height={0};glfwGetFramebufferSize(handle[0],width,height);
@@ -49,7 +52,12 @@ public final class NativeRenderProbe {
                         int p=((height[0]-1-y)*width[0]+x)*4;
                         image.setRGB(x,y,(pixels.get(p)&255)<<16|(pixels.get(p+1)&255)<<8|(pixels.get(p+2)&255));
                     }
-                    if(frames[0]==0)ImageIO.write(image,"png",output.resolve("native-"+mode+".png").toFile());
+                    if(frames[0]==0) {
+                        var colors=new java.util.HashSet<Integer>();
+                        for(int y=0;y<height[0];y+=8)for(int x=0;x<width[0];x+=8)colors.add(image.getRGB(x,y));
+                        if(colors.size()<8)throw new AssertionError("Native frame has insufficient rendered content");
+                        ImageIO.write(image,"png",output.resolve("native-"+mode+".png").toFile());
+                    }
                     BufferedImage bounded=new BufferedImage(900,600,BufferedImage.TYPE_INT_RGB);
                     Graphics2D graphics=bounded.createGraphics();graphics.drawImage(image,0,0,900,600,null);graphics.dispose();
                     byte[] rgb=new byte[900*600*3];

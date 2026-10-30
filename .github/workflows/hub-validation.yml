@@ -73,8 +73,7 @@ jobs:
           PYCODE
       - name: Catalog and controller publication regressions
         run: |
-          python3 tools/hub/test_publisher.py
-          python3 tools/hub/test_publication_bundle.py
+          python3 -m unittest discover -s tools/hub -p 'test_*.py'
       - name: Build and updater/account/TLS regressions
         shell: bash
         run: mvn -q '-Dtest=SandboxIdentityTest,HubCatalogTest,HubShellTest,HubShellActivationTest,UpdaterTest,AccountStoreTest,ProtocolCompatibilityTest,MultiplayerTest#authenticationRegistrationDuplicateSessionsAndCertificatePin' test package
@@ -88,7 +87,13 @@ jobs:
         run: swift tools/hub/mac_desktop.swift
       - name: Actual packaged runtime, GUI, shell update and locks
         shell: bash
-        run: python tools/hub/check_packages.py --source-sha "$SOURCE_SHA" --jdk "$JAVA_HOME" --output "dashboard/evidence/hub-scoped-$PLATFORM"
+        run: |
+          args=()
+          # Application-local Mesa only. No driver install, registry change or GPU claim.
+          if [[ "$PLATFORM" == windows && "${{ inputs.runner_pool }}" != desktop ]]; then
+            args+=(--software-rendering)
+          fi
+          python tools/hub/check_packages.py --source-sha "$SOURCE_SHA" --jdk "$JAVA_HOME" --output "dashboard/evidence/hub-scoped-$PLATFORM" "${args[@]}"
       - name: Compact test summary (no logs or system properties)
         if: always()
         shell: bash

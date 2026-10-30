@@ -1,0 +1,135 @@
+{
+  "sourceSha": "ec95f45423860d37f84edfae8dce5b1b4392018b",
+  "sourceKind": "Exact production source plus working-tree validation changes",
+  "scope": "User-space software renderer validation; no system driver installation or publication",
+  "changes": [
+    "Pinned Windows Mesa-dist-win26.2.5 archive and bounded SHA-256/size validation.",
+    "Extract only x64 DLLs with existing7z into disposable worktree runtime; no scripts or registry tools.",
+    "Hosted Windows uses llvmpipe; software renderer assertion and nonuniform real framebuffer are required.",
+    "Full physical qualification remains false; macOS software path not configured."
+  ],
+  "dependency": {
+    "url": "https://github.com/pal1000/mesa-dist-win/releases/download/26.2.5/mesa3d-26.2.5-release-mingw.7z",
+    "bytes": 59285313,
+    "sha256": "2471864068672b82032d8f8cccfb8da8e196b1b06b316b99838b47c35d738a17",
+    "observed": "Downloaded and verified locally. Windows extraction/loading not executed on Linux."
+  },
+  "commands": [
+    "python3 -m unittest discover -s tools/hub -p test_*.py -q",
+    "python3 -m py_compile tools/hub/software_renderer.py tools/hub/check_packages.py",
+    "javac --release 17 -cp target/voxel-one-1.0-SNAPSHOT-client.jar -d target/hub-software-classes tools/hub/NativeRenderProbe.java",
+    "Bundled Java NativeRenderProbe for city,sandbox,editor with -Dvoxel.hub.requireSoftwareRenderer=true; exact argument arrays below.",
+    "InspectMovie decoded each MP4 with JCodec; decoded frames viewed."
+  ],
+  "pythonTests": {
+    "tests": 11,
+    "failures": 0
+  },
+  "environment": {
+    "platform": "Linux VPS",
+    "display": "Inherited assigned role display; no display server started or authentication cookie read",
+    "GALLIUM_DRIVER": "llvmpipe",
+    "LIBGL_ALWAYS_SOFTWARE": "1",
+    "LP_NUM_THREADS": "2",
+    "ALSOFT_DRIVERS": "null",
+    "profiles": "Separate synthetic worktree profiles per mode",
+    "clientJarSha256": "b1a7cf6bf0abae94c8400d532f2526bab6f80eab525bc8592d111b3b0b2aa355",
+    "probeSourceSha256": "2977527637e9dbe263e33fa62f8bf7446f023f7b9b0d7fd6b9042e7f2de2a39c"
+  },
+  "Playtest": {
+    "expected": "Production City, Sandbox and editor render four real frames through llvmpipe; nonuniform framebuffer; bounded recording.",
+    "observed": [
+      {
+        "mode": "city",
+        "command": [
+          "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-repair-linux/package-1/Voxel One Hub/lib/runtime/bin/java",
+          "-Dvoxel.hub.requireSoftwareRenderer=true",
+          "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-tmp",
+          "-cp",
+          "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-software-classes:/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/voxel-one-1.0-SNAPSHOT-client.jar",
+          "NativeRenderProbe",
+          "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-software-local/profile-city",
+          "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/dashboard/evidence/hub-software-city",
+          "city"
+        ],
+        "exitCode": 0,
+        "observed": [
+          "Playtest: production native city renderer completed four frames in 52233 ms; renderer llvmpipe (LLVM 15.0.6, 256 bits); LOW preset; no smooth-performance claim."
+        ]
+      },
+      {
+        "mode": "sandbox",
+        "command": [
+          "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-repair-linux/package-1/Voxel One Hub/lib/runtime/bin/java",
+          "-Dvoxel.hub.requireSoftwareRenderer=true",
+          "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-tmp",
+          "-cp",
+          "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-software-classes:/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/voxel-one-1.0-SNAPSHOT-client.jar",
+          "NativeRenderProbe",
+          "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-software-local/profile-sandbox",
+          "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/dashboard/evidence/hub-software-sandbox",
+          "sandbox"
+        ],
+        "exitCode": 0,
+        "observed": [
+          "Playtest: production native sandbox renderer completed four frames in 31892 ms; renderer llvmpipe (LLVM 15.0.6, 256 bits); LOW preset; no smooth-performance claim."
+        ]
+      },
+      {
+        "mode": "editor",
+        "command": [
+          "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-repair-linux/package-1/Voxel One Hub/lib/runtime/bin/java",
+          "-Dvoxel.hub.requireSoftwareRenderer=true",
+          "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-tmp",
+          "-cp",
+          "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-software-classes:/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/voxel-one-1.0-SNAPSHOT-client.jar",
+          "NativeRenderProbe",
+          "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-software-local/profile-editor",
+          "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/dashboard/evidence/hub-software-editor",
+          "editor"
+        ],
+        "exitCode": 0,
+        "observed": [
+          "Playtest: production native editor renderer completed four frames in 30511 ms; renderer llvmpipe (LLVM 15.0.6, 256 bits); LOW preset; no smooth-performance claim."
+        ]
+      }
+    ],
+    "inspection": "All three native PNGs and first decoded frames from all three MP4s viewed. City shows isometric plots/citizens; Sandbox shows vehicle/terrain/HUD; editor shows project inspector. Four-frame smoke only, no sustained gameplay or performance pass."
+  },
+  "media": [
+    {
+      "mode": "city",
+      "decoder": "JCodec InspectMovie",
+      "observed": "Actual movie: 4 frames, 35.041 seconds",
+      "bytes": 267268,
+      "image": "hub-software-city.png",
+      "video": "hub-software-city.mp4"
+    },
+    {
+      "mode": "sandbox",
+      "decoder": "JCodec InspectMovie",
+      "observed": "Actual movie: 4 frames, 21.915 seconds",
+      "bytes": 268002,
+      "image": "hub-software-sandbox.png",
+      "video": "hub-software-sandbox.mp4"
+    },
+    {
+      "mode": "editor",
+      "decoder": "JCodec InspectMovie",
+      "observed": "Actual movie: 4 frames, 19.371 seconds",
+      "bytes": 101699,
+      "image": "hub-software-editor.png",
+      "video": "hub-software-editor.mp4"
+    }
+  ],
+  "fallbacks": "System ffmpeg absent and bundled Playwright ffmpeg could not decode PNG; JCodec decoder succeeded for all three. No failed decode claimed passed.",
+  "pending": [
+    "Windows pinned-DLL extraction, actual llvmpipe loading and rendered-output validation on exact new head.",
+    "macOS graphics qualification; no unsupported software default selected.",
+    "PhysicalGPU, Windows monitor DPI and performance.",
+    "Actual two-published-generation Hub update and deployed browser cached freshness."
+  ],
+  "fullQualificationPassed": false,
+  "stableRolloutQualified": false,
+  "mediaStorage": "Copied byte-for-byte to direct dashboard/evidence files; temporary per-mode capture directories removed."
+}
