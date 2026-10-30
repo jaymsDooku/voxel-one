@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "parent_head": "da423f64819f67cc1bd18f9fc917a6080af905e9",
+  "scope": "Build workflow integration for existing structure Python tests; production source unchanged",
+  "qualification": "PENDING",
+  "tests": [
+    "python3 -m unittest discover -s tools/structures -p \"test_*.py\" -v: 24 tests passed, 0 failures/errors.",
+    "Playtest: affected CLI integration executed complete structure-tool discovery, including real checker subprocesses, valid synthetic receipt, duplicate JSON/component rejection, malformed corpus and archive integrity edges. Browser playtesting does not apply to this CI-only change.",
+    "All 219 production/harness source entries match the passed native workflow.",
+    "Published parent video verified byte-for-byte: 364676 bytes, SHA-256 4ef64486283b7d848e30a401b8957351fc96d6be0e21d0e73d6a483793bd8576.",
+    "All eight push/PR platform builds for da423f64 passed. New workflow execution remains pending hosted checks."
+  ],
+  "audit": "One test step added after Maven; existing Java, MP3 smoke, summaries, packaging and publish controls retained. No unrelated deletions intended.",
+  "limits": "Synthetic tooling tests do not qualify populated city/maximum fixtures, physical GPU, shaped network, memory/frame/tick or traffic budgets."
+}
