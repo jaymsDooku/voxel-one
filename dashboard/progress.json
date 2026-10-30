@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-23T06:00:47+00:00",
+  "updatedAt": "2026-10-30T18:34:35+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Building the catalog-driven desktop hub around verified client updates. Platform packaging and playtests remain required.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Inspected exact-head e393b264 Windows report and visible Games capture; all source fingerprints match and 24 Java tests pass. Native rendering and monitor DPI remain pending. Added and executed real bootstrap child revision assertion with failure/unacknowledged rollback. Public second-generation update and physical qualification remain gated.",
-      "updatedAt": "2026-10-22T21:40:09+00:00"
+      "note": "Rebase integrated source 7732c2b4: 24 fresh Java test results pass, eight Python tests pass, actual HubPlaytest passes with isolated profile and fresh inspected library/search/downloads captures. Audited diff: no deleted paths. All three retained786d desktop reports and fingerprints inspected; native contexts unavailable on hosted runners. Fresh integrated-source platform checks, published upgrade/browser and physical qualification remain pending; stable rollout gated.",
+      "updatedAt": "2026-10-30T18:34:35+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
