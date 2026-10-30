@@ -79,7 +79,7 @@ def run(args):
     classes=work/'classes';classes.mkdir(exist_ok=True)
     source_client=root/'target/voxel-one-1.0-SNAPSHOT-client.jar'
     command([javac,'--release','17','-cp',str(source_client),'-d',classes,'tools/hub/HubPlaytest.java',
-             'tools/hub/PackageUiProbe.java','tools/hub/ProcessQueryProbeTest.java','tools/hub/UpdaterProbe.java','tools/hub/OnlineLoginPlaytest.java','tools/hub/NativeRenderProbe.java','tools/hub/WindowFailureProbe.java','tools/hub/NativeContextProbe.java','tools/hub/PrePlayCatalogPlaytest.java'])
+             'tools/hub/PackageUiProbe.java','tools/hub/HubPerformanceProbe.java','tools/hub/ProcessQueryProbeTest.java','tools/hub/UpdaterProbe.java','tools/hub/OnlineLoginPlaytest.java','tools/hub/NativeRenderProbe.java','tools/hub/WindowFailureProbe.java','tools/hub/NativeContextProbe.java','tools/hub/PrePlayCatalogPlaytest.java'])
     jars=[];apps=[]
     from package import package
     for i in (1,2):
@@ -250,6 +250,8 @@ def run(args):
             if unavailable:report.setdefault('pendingQualification',[]).append('JVM scale '+scale+': '+unavailable)
             return 'Production hub cards, available desktop extents and keyboard captured at JVM scale '+scale+('. Full-size qualification pending: '+unavailable if unavailable else '')
         check('UI at JVM scale '+scale,'900x600/1280x800 actual screenshots and bounded UI video',ui)
+    check('Provisional Hub responsiveness','Bounded startup, heap and 30 navigation samples; not physical qualification',
+          lambda:command([runtime,'-Djava.io.tmpdir='+str(work),'-cp',cp,'HubPerformanceProbe',work/'performance-profile',out/'performance'],timeout=90,output='playtest'))
     def online():
         command([runtime,'-Djava.io.tmpdir='+str(work),'-cp',cp,'OnlineLoginPlaytest',work/'online-profile',out],timeout=120)
         return 'City/Sandbox locked selection; custom loopback port; invalid-port rejection; pinned TLS sign-in passed.'

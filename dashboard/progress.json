@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-30T20:17:00+00:00",
+  "updatedAt": "2026-10-30T20:30:45+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Building the catalog-driven desktop hub around verified client updates. Platform packaging and playtests remain required.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Diagnosed Mac pixel-format failure against upstream NSGL source. Mac now requests supported4.1 and eligible offline GPUs;3.3fallback retained. Added bounded Mac format comparisons; no CPU-renderer or qualification claim. Java compile,11Python tests,Linux context/invalid-window checks and real3.3Sandbox regression pass; fresh video inspected. New Mac exact-source run required; physical/stable gates retained.",
-      "updatedAt": "2026-10-30T20:17:00+00:00"
+      "note": "Mac65f both architectures fingerprint-verified: supported format attempts remain0x10009; native qualification pending, no repeat/repair request. Added real bundled-runtime startup/heap/30navigation measurement. Linux final visibleUIidle1206ms,heap8556736bytes,EDTp9542ms,nativequeuep95109ms; provisional budgets pass. Initial combined measurement failure retained.11Python tests pass; physical/DPI/performance/stable gates retained.",
+      "updatedAt": "2026-10-30T20:30:45+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

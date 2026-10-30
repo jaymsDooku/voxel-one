@@ -1,0 +1,64 @@
+{
+  "sourceSha": "65fbe50aa9e650d1839e9c678e1a58020f3ab837",
+  "ci": "https://github.com/jaymsDooku/voxel-one/actions/runs/41121958512",
+  "reports": [
+    {
+      "platform": "mac-arm",
+      "fingerprintMismatches": [],
+      "javaTests": {
+        "tests": 24,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "pending": [
+        {
+          "name": "Native rendered city",
+          "observed": "No tested native OpenGL context could be created on this runner; actual city rendering remains pending."
+        },
+        {
+          "name": "Native rendered sandbox",
+          "observed": "No tested native OpenGL context could be created on this runner; actual sandbox rendering remains pending."
+        },
+        {
+          "name": "Native rendered editor",
+          "observed": "No tested native OpenGL context could be created on this runner; actual editor rendering remains pending."
+        }
+      ],
+      "context": "Context diagnosis: variant=0 created=false code=0x10009\nContext diagnosis: variant=1 created=false code=0x10009\nContext diagnosis: variant=2 created=false code=0x10009\nContext diagnosis: variant=3 created=false code=0x10009\nPlaytest: four bounded context attempts completed; diagnostic only, no gameplay qualification. Diagnostic completion only; native rendering gates remain required.",
+      "passed": false,
+      "fullQualificationPassed": false
+    },
+    {
+      "platform": "mac-intel",
+      "fingerprintMismatches": [],
+      "javaTests": {
+        "tests": 24,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "pending": [
+        {
+          "name": "Native rendered city",
+          "observed": "No tested native OpenGL context could be created on this runner; actual city rendering remains pending."
+        },
+        {
+          "name": "Native rendered sandbox",
+          "observed": "No tested native OpenGL context could be created on this runner; actual sandbox rendering remains pending."
+        },
+        {
+          "name": "Native rendered editor",
+          "observed": "No tested native OpenGL context could be created on this runner; actual editor rendering remains pending."
+        }
+      ],
+      "context": "Context diagnosis: variant=0 created=false code=0x10009\nContext diagnosis: variant=1 created=false code=0x10009\nContext diagnosis: variant=2 created=false code=0x10009\nContext diagnosis: variant=3 created=false code=0x10009\nPlaytest: four bounded context attempts completed; diagnostic only, no gameplay qualification. Diagnostic completion only; native rendering gates remain required.",
+      "passed": false,
+      "fullQualificationPassed": false
+    }
+  ],
+  "finding": "Both architectures remain unable to select accelerated core pixel format after supported4.1,3.3, offlineGPU and relaxed-format variants. No renderer-level pass and no unsupportedGL2.x downgrade.",
+  "action": "Retain nativeMac qualification pending. Do not repeat unchanged hosted runs or select nonexistent desktop pool. Root already owns physical availability and publication; no new repair requested.",
+  "otherWork": "Continue executable general Hub regression measurements independently.",
+  "stableRolloutQualified": false
+}
