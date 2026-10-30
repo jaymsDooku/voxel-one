@@ -7,15 +7,18 @@ public final class NativeContextProbe {
             System.out.println("Context diagnosis: initialization failed code=0x"+Integer.toHexString(glfwGetError((org.lwjgl.PointerBuffer)null)));
             return;
         }
+        boolean mac=org.lwjgl.system.Platform.get()==org.lwjgl.system.Platform.MACOSX;
         try {
             for (int variant=0;variant<4;variant++) {
                 glfwDefaultWindowHints();
                 glfwWindowHint(GLFW_VISIBLE,GLFW_FALSE);
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,variant==0?4:3);
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
+                boolean modern=mac?variant!=1:variant==0;
+                glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,modern?4:3);
+                glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,mac&&modern?1:3);
                 glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE);
                 glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT,GLFW_TRUE);
-                if(variant==2)glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER,GLFW_FALSE);
+                if(mac)glfwWindowHint(GLFW_COCOA_GRAPHICS_SWITCHING,variant==2?GLFW_FALSE:GLFW_TRUE);
+                if(variant==2 || mac&&variant==3)glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER,GLFW_FALSE);
                 if(variant==3) {
                     glfwWindowHint(GLFW_RED_BITS,GLFW_DONT_CARE);
                     glfwWindowHint(GLFW_GREEN_BITS,GLFW_DONT_CARE);
@@ -23,7 +26,10 @@ public final class NativeContextProbe {
                     glfwWindowHint(GLFW_ALPHA_BITS,GLFW_DONT_CARE);
                     glfwWindowHint(GLFW_DEPTH_BITS,GLFW_DONT_CARE);
                     glfwWindowHint(GLFW_STENCIL_BITS,GLFW_DONT_CARE);
-                    glfwWindowHint(GLFW_DOUBLEBUFFER,GLFW_FALSE);
+                    if(mac) {
+                        glfwWindowHint(GLFW_SAMPLES,0);
+                        glfwWindowHint(GLFW_STENCIL_BITS,0);
+                    } else glfwWindowHint(GLFW_DOUBLEBUFFER,GLFW_FALSE);
                 }
                 glfwGetError((org.lwjgl.PointerBuffer)null);
                 long window=glfwCreateWindow(64,64,"Synthetic context diagnosis",0,0);

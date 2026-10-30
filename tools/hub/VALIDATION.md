@@ -41,6 +41,27 @@ monitor DPI and performance qualification. `fullQualificationPassed` remains
 false. Missing DLLs, hash failure, wrong renderer or render failure cannot become
 a pass. Inspect screenshots and decode the recordings after the exact-source run.
 
+Mac format diagnosis: the upstream NSGL implementation examined at GLFW 3.4 returns `0x10009` when
+`NSOpenGLPixelFormat` cannot select a format. It always includes
+`NSOpenGLPFAAccelerated`; relaxing color/depth bits does not remove that condition.
+The application's Mac request now uses supported core 4.1 instead of 4.3 and
+enables `GLFW_COCOA_GRAPHICS_SWITCHING`, which permits eligible offline GPUs.
+The existing core 3.3 fallback and minimum engine requirements remain intact.
+This is a supported GPU-selection path, not a CPU-renderer fallback or a bypass
+of screen permissions. Source:
+https://raw.githubusercontent.com/glfw/glfw/3.4/src/nsgl_context.m
+https://www.glfw.org/docs/3.3.9/window_guide.html
+The packaged Linux native library reports GLFW 3.5.0 with LWJGL 3.4.1;
+the 3.4 source reference is not a claim of identical bundled native source.
+The changed exact-source Mac run must confirm the actual bundled behavior.
+
+On macOS the four bounded probe variants are: 4.1 with graphics switching; 3.3
+with switching; 4.1 without switching; and 4.1 with switching, Retina disabled,
+relaxed color/depth bits, zero samples/stencil and double buffering retained.
+Non-Mac variants are unchanged. A successful probe still requires actual
+production rendering. Four format failures remain pending native qualification;
+they must never be turned into a passing package result.
+
 The coordinator publishes only the assigned feature branch. Its push starts
 `.github/workflows/hub-validation.yml`. The workflow has read-only repository
 access. It does not publish releases, deploy sites or use account credentials.
