@@ -1,5 +1,33 @@
 # Structure review fix checkpoint
 
+## Current octree rotation validation
+
+Parent `c9b52c3e047eca42ff58a96628b4c552bab3ce8f`. Direct octant remapping now
+replaces repeated leaf-fill rotation for structure geometry and model definitions.
+All four turns match the old algorithm's bytes, including mixed legacy branches,
+fractional materials, air, source independence and frozen results. Interruption
+cancels without source changes. No package, placement or persistence cap changed.
+
+108 structure/model tests passed with zero failures, errors or skips. A 20-batch
+component diagnostic recorded reference/current median 62.311/3.007 ms, p95
+84.953/3.944 ms and worst 88.427/4.773 ms per 64 rotations. Median thread
+allocation was 48,290,816/2,697,216 bytes. This is not full-fixture qualification.
+
+Playtest: fresh production Main/GLFW workflow passed on inherited display with an
+isolated synthetic profile and llvmpipe. Four rotations, capture/export/import,
+invalid anchor, conflicts, empty-space preservation, cancellation, atomic malformed
+import, undo, repeated placement, custom model/restart, inventory and model-editor
+checks passed. All 219 source hashes match. Fresh 379,552-byte H264 video decoded
+and inspected: 15 frames, 24.311 s; placed-world screenshot also inspected. Report:
+`structure-rotation-tree-validation.json`. Media awaits controller publication.
+
+Last observed parent CI had seven successful builds and one Intel Mac build
+running; no unchanged wait was repeated. New source needs exact-head hosted
+validation. Full city/maximum admission, partitioned persistence/publication and
+physical-GPU/network/system qualification remain unfinished. Continue those
+implementation gates after hosted checks; do not mark ready or raise supported
+limits from this rotation result.
+
 ## Current admission prerequisite validation
 
 Production head `d2bafe0d8fa4a1fd02ce3ccd472406c709553d43` has eight successful
