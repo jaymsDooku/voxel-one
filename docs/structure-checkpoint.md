@@ -1,5 +1,15 @@
 # Structure review fix checkpoint
 
+## Strict bounded production city-history stream reader
+
+Exact parent `fe29ac08` has eight successful hosted builds; publication skipped. Added `CityHistory.readSnapshot(InputStream,String,GameConfig,double,int)` by extracting existing v1 parse/CRC/count/clock validation. Strict malformed streams throw and expose no partial history; input is not closed and no files are opened. Encoded consumption is capped at caller0..64MiB plus one over-limit probe; zero-progress bulk reads reject. Existing file loader delegates while retaining its fresh-history fallback and sanitized note. No live world is mutated.
+
+Final14 targeted Maven production regressions passed with0 failures/errors/skips; final5 affected tool integrations passed, no skips. CLI passed34 rejection cases,239147-byte populated production roundtrip, caller ownership, exact/small limits, bad binding/CRC/truncation/trailing data, count/clock corruption with repaired CRC, throwing source, explicit zero-progress guard, fallback, source immutability and retry. After the first successful checks, inspection added zero-progress handling; final production and tool checks reran on that source. Fresh actual child exit0 own-window image inspected.
+
+Playtest: actual synthetic CitySimulation/history save, strict stream restore and normal file fallback. Persistence-only operation; browser/rendering does not apply. Only CityHistory differs from retained native baseline; old video is not claimed exact-source proof for this reader. No deleted paths against review base; diff check passed. Evidence `structure-history-reader.json` and `structure-history-reader-cli.png`, pending controller publication.
+
+This enables a strict coordinated restore but does not install a live region backend or restore automatically. Caller owns cancellation/timeouts and discards consumed partial input on failure. Full city/maximum admission/performance, owner-thread stall/peak memory, physical GPU, shaped32-client and directory durability gates remain pending. No caps raised or rollout gates weakened.
+
 ## Coordinated private active-city owner snapshot
 
 Exact parent `1c370953` has eight successful hosted builds; publication skipped. Actual LocalGame owner backup now captures active city frame17 plus matching bounded history1 bytes read-only, without calling collectHistory/save. City/history use exact binding and combined4MiB cap inside unchanged16MiB private envelope. City-mode history must be initialized and not ahead of frame time; sandbox retains no-history-file policy. Snapshot token includes simulation/history identities, history revision and exact bytes. Final owner revalidation catches clock/events mutations without revision as well as frame/history replacements. No simulation state enters reusable structures.

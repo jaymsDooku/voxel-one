@@ -298,42 +298,61 @@ public final class CityHistory {
         if(history==null||!Files.exists(history))return h;
         try {
             if(Files.size(history)>MAX_BYTES)throw new IOException("Oversized history");
-            var checksum=new CRC32();
-            try(var in=new DataInputStream(new CheckedInputStream(new BufferedInputStream(Files.newInputStream(history)),checksum))) {
-                if(in.readInt()!=0x48495331||in.readInt()!=VERSION||!in.readUTF().equals(fingerprint(world)))throw new IOException("History world/version mismatch");
-                h.identity=new UUID(in.readLong(),in.readLong());h.revision=in.readLong();h.last=in.readDouble();h.latestEvent=in.readDouble();h.clock=in.readDouble();h.events=in.readBoolean();
-                if(!Double.isFinite(h.last)||h.last<0||h.last>elapsed||!Double.isNaN(h.latestEvent)&&(!Double.isFinite(h.latestEvent)||h.latestEvent<0||h.latestEvent>elapsed)||!Double.isNaN(h.clock)&&(!Double.isFinite(h.clock)||h.clock<0||h.clock>elapsed))throw new IOException("History clock mismatch");
-                for(int i=0,n=count(in,64);i<n;i++) {
-                    int id=in.readInt();double at=in.readDouble(),day=in.readDouble(),hour=in.readDouble();boolean cycle=in.readBoolean();
-                    new GameConfig(true,cycle,day,hour);
-                    if(id!=i||!Double.isFinite(at)||at<0)throw new IOException("Invalid epoch");
-                    h.epochs.add(new Epoch(id,at,day,hour,cycle));
-                }
-                if(h.epochs.isEmpty())throw new IOException("Missing epoch");
-                for(int i=0,n=count(in,MAX_SERIES);i<n;i++) {
-                    Metric m=readMetric(in);double metricStart=in.readDouble();if(!Double.isFinite(metricStart)||metricStart<0||metricStart>elapsed)throw new IOException("Invalid metric coverage start");h.metricStarts.put(m.id(),metricStart);if(h.catalog.put(m.id(),m)!=null)throw new IOException("Duplicate metric");
-                    var levels=new ArrayList<ArrayDeque<Bucket>>();int[] caps={289,721,366};
-                    for(int level=0;level<3;level++) {
-                        var rows=new ArrayDeque<Bucket>();double before=Double.NEGATIVE_INFINITY;
-                        for(int j=0,size=count(in,caps[level]);j<size;j++) {
-                            double start=in.readDouble(),end=in.readDouble(),sum=in.readDouble(),weight=in.readDouble(),averageWeight=in.readDouble(),min=in.readDouble(),max=in.readDouble(),last=in.readDouble(),lastCapture=in.readDouble();int epoch=in.readInt();boolean gap=in.readBoolean();
-                            if(!Double.isFinite(start)||!Double.isFinite(end)||(start<before&&epoch==rows.peekLast().epoch)||end<=start||!Double.isFinite(sum)||!Double.isFinite(weight)||!Double.isFinite(averageWeight)||averageWeight<0||weight<0||weight>end-start+1||!Double.isFinite(last)||!Double.isFinite(lastCapture)||lastCapture<start-1e-6||lastCapture>end+1e-6||(!flow(m.kind())&&weight>0&&(!Double.isFinite(min)||!Double.isFinite(max)||min>max))||epoch<0||epoch>=h.epochs.size())throw new IOException("Invalid history bucket");
-                            Bucket b=new Bucket(start,end,epoch);b.sum=sum;b.weight=weight;b.averageWeight=averageWeight;b.min=min;b.max=max;b.last=last;b.lastCapture=lastCapture;b.gap=gap;rows.add(b);before=start;
-                        }
-                        levels.add(rows);
-                    }
-                    h.data.put(m.id(),levels);
-                }
-                var previous=new LinkedHashMap<String,Double>();
-                for(int i=0,n=count(in,MAX_SERIES);i<n;i++){String id=in.readUTF();double value=in.readDouble();if(!h.catalog.containsKey(id)||!Double.isFinite(value)||previous.put(id,value)!=null)throw new IOException("Invalid prior sample");}
-                long actualChecksum=checksum.getValue();
-                if(in.readLong()!=actualChecksum)throw new IOException("History checksum mismatch");
-                if(in.read()!=-1)throw new IOException("Trailing history bytes");h.previous=Map.copyOf(previous);
-                Epoch e=h.epochs.get(h.epochs.size()-1);h.config=new GameConfig(true,e.cycle(),e.daySeconds(),e.startHour(),settings.atmosphere());
-                h.note=String.format(Locale.ROOT,"Restore boundary at elapsed %.3fs; no simulation time recorded while stopped",elapsed);
-            }
-            return h;
+            try(var input=new BufferedInputStream(Files.newInputStream(history))){return readSnapshot(input,fingerprint(world),settings,elapsed,(int)MAX_BYTES);}
         } catch(IOException|IllegalArgumentException e) { h=new CityHistory();h.note="History rejected ("+(Set.of("Invalid history bucket","Invalid prior sample","History clock mismatch","History world/version mismatch","Invalid epoch","Missing epoch","Duplicate metric","Trailing history bytes","History count cap","Oversized history","History checksum mismatch","Invalid metric coverage start").contains(Objects.toString(e.getMessage(),"invalid data"))?e.getMessage():"invalid data")+"); valid world preserved. Collection restarts now";return h; }
+    }
+    /** Strict existing-format reader for coordinated restores. Does not open files or close source.
+     * At most maximumBytes plus one over-limit probe are consumed; failure returns no partial history.
+     * The caller supplies the matching city's SHA-256 and handles stream timeouts if needed. */
+    public static CityHistory readSnapshot(InputStream source,String worldFingerprint,GameConfig settings,double elapsed,int maximumBytes)throws IOException {
+        Objects.requireNonNull(source);Objects.requireNonNull(worldFingerprint);Objects.requireNonNull(settings);
+        if(maximumBytes<0||maximumBytes>MAX_BYTES)throw new IllegalArgumentException("History input budget");
+        if(worldFingerprint.length()!=64||!worldFingerprint.chars().allMatch(c->c>='0'&&c<='9'||c>='a'&&c<='f'))throw new IllegalArgumentException("City SHA-256 required");
+        if(!Double.isFinite(elapsed)||elapsed<0)throw new IllegalArgumentException("History elapsed time");
+        var limited=new InputStream(){
+            int count;
+            @Override public int read()throws IOException{int value=source.read();if(value>=0){if(count==maximumBytes)throw new IOException("Oversized history");count++;}return value;}
+            @Override public int read(byte[] bytes,int offset,int length)throws IOException {
+                Objects.checkFromIndexSize(offset,length,bytes.length);if(length==0)return 0;
+                if(count==maximumBytes)return read();
+                int amount=source.read(bytes,offset,Math.min(length,maximumBytes-count));if(amount==0)throw new IOException("No history read progress");if(amount>0)count+=amount;return amount;
+            }
+        };
+        var checksum=new CRC32();var in=new DataInputStream(new CheckedInputStream(limited,checksum));var h=new CityHistory();
+        try {
+            if(in.readInt()!=0x48495331||in.readInt()!=VERSION||!in.readUTF().equals(worldFingerprint))throw new IOException("History world/version mismatch");
+            h.identity=new UUID(in.readLong(),in.readLong());h.revision=in.readLong();h.last=in.readDouble();h.latestEvent=in.readDouble();h.clock=in.readDouble();h.events=in.readBoolean();
+            if(!Double.isFinite(h.last)||h.last<0||h.last>elapsed||!Double.isNaN(h.latestEvent)&&(!Double.isFinite(h.latestEvent)||h.latestEvent<0||h.latestEvent>elapsed)||!Double.isNaN(h.clock)&&(!Double.isFinite(h.clock)||h.clock<0||h.clock>elapsed))throw new IOException("History clock mismatch");
+            for(int i=0,n=count(in,64);i<n;i++) {
+                int id=in.readInt();double at=in.readDouble(),day=in.readDouble(),hour=in.readDouble();boolean cycle=in.readBoolean();
+                new GameConfig(true,cycle,day,hour);
+                if(id!=i||!Double.isFinite(at)||at<0)throw new IOException("Invalid epoch");
+                h.epochs.add(new Epoch(id,at,day,hour,cycle));
+            }
+            if(h.epochs.isEmpty())throw new IOException("Missing epoch");
+            for(int i=0,n=count(in,MAX_SERIES);i<n;i++) {
+                Metric m=readMetric(in);double metricStart=in.readDouble();if(!Double.isFinite(metricStart)||metricStart<0||metricStart>elapsed)throw new IOException("Invalid metric coverage start");h.metricStarts.put(m.id(),metricStart);if(h.catalog.put(m.id(),m)!=null)throw new IOException("Duplicate metric");
+                var levels=new ArrayList<ArrayDeque<Bucket>>();int[] caps={289,721,366};
+                for(int level=0;level<3;level++) {
+                    var rows=new ArrayDeque<Bucket>();double before=Double.NEGATIVE_INFINITY;
+                    for(int j=0,size=count(in,caps[level]);j<size;j++) {
+                        double start=in.readDouble(),end=in.readDouble(),sum=in.readDouble(),weight=in.readDouble(),averageWeight=in.readDouble(),min=in.readDouble(),max=in.readDouble(),last=in.readDouble(),lastCapture=in.readDouble();int epoch=in.readInt();boolean gap=in.readBoolean();
+                        if(!Double.isFinite(start)||!Double.isFinite(end)||(start<before&&epoch==rows.peekLast().epoch)||end<=start||!Double.isFinite(sum)||!Double.isFinite(weight)||!Double.isFinite(averageWeight)||averageWeight<0||weight<0||weight>end-start+1||!Double.isFinite(last)||!Double.isFinite(lastCapture)||lastCapture<start-1e-6||lastCapture>end+1e-6||(!flow(m.kind())&&weight>0&&(!Double.isFinite(min)||!Double.isFinite(max)||min>max))||epoch<0||epoch>=h.epochs.size())throw new IOException("Invalid history bucket");
+                        Bucket b=new Bucket(start,end,epoch);b.sum=sum;b.weight=weight;b.averageWeight=averageWeight;b.min=min;b.max=max;b.last=last;b.lastCapture=lastCapture;b.gap=gap;rows.add(b);before=start;
+                    }
+                    levels.add(rows);
+                }
+                h.data.put(m.id(),levels);
+            }
+            var previous=new LinkedHashMap<String,Double>();
+            for(int i=0,n=count(in,MAX_SERIES);i<n;i++){String id=in.readUTF();double value=in.readDouble();if(!h.catalog.containsKey(id)||!Double.isFinite(value)||previous.put(id,value)!=null)throw new IOException("Invalid prior sample");}
+            long actualChecksum=checksum.getValue();
+            if(in.readLong()!=actualChecksum)throw new IOException("History checksum mismatch");
+            if(in.read()!=-1)throw new IOException("Trailing history bytes");h.previous=Map.copyOf(previous);
+            Epoch e=h.epochs.get(h.epochs.size()-1);h.config=new GameConfig(true,e.cycle(),e.daySeconds(),e.startHour(),settings.atmosphere());
+            h.note=String.format(Locale.ROOT,"Restore boundary at elapsed %.3fs; no simulation time recorded while stopped",elapsed);
+            return h;
+        }catch(IllegalArgumentException invalid){throw new IOException("Invalid history data",invalid);}
     }
     private static int count(DataInput in,int max)throws IOException{int n=in.readInt();if(n<0||n>max)throw new IOException("History count cap");return n;}
     private static String fingerprint(Path world)throws IOException {
