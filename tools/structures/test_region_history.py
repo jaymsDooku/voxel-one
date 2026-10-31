@@ -23,7 +23,7 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
                         'RegionGenerationPrototype.java', 'RegionGenerationCheck.java', 'RegionGenerationEvidence.java',
                         'RegionAuthorityPrototype.java', 'RegionAuthorityCheck.java',
                         'RegionWorldLibraryPrototype.java', 'RegionWorldLibraryCheck.java', 'RegionOfflineMetadataPrototype.java', 'RegionOfflineMetadataCheck.java',
-                        'RegionOfflineImportPrototype.java', 'RegionOfflineImportCheck.java', 'RegionOfflineLegacyCheck.java', 'RegionSidecarsPrototype.java', 'RegionSidecarsCheck.java', 'RegionOfflineBundlePrototype.java', 'RegionOfflineBundleCheck.java', 'RegionServerMetadataPrototype.java', 'RegionServerMetadataCheck.java', 'RegionServerImportPrototype.java', 'RegionServerImportCheck.java', 'RegionServerBundleCheck.java', 'RegionOfflineOwnerPrototype.java', 'RegionOfflineOwnerCheck.java', 'CityHistorySnapshotCheck.java', 'RegionCityOwnerPrototype.java', 'RegionCityRestorePrototype.java', 'RegionCompleteRestoreCheck.java', 'RegionOfflineCellOwnerCheck.java')]
+                        'RegionOfflineImportPrototype.java', 'RegionOfflineImportCheck.java', 'RegionOfflineLegacyCheck.java', 'RegionSidecarsPrototype.java', 'RegionSidecarsCheck.java', 'RegionOfflineBundlePrototype.java', 'RegionOfflineBundleCheck.java', 'RegionServerMetadataPrototype.java', 'RegionServerMetadataCheck.java', 'RegionServerImportPrototype.java', 'RegionServerImportCheck.java', 'RegionServerBundleCheck.java', 'RegionOfflineOwnerPrototype.java', 'RegionOfflineOwnerCheck.java', 'CityHistorySnapshotCheck.java', 'RegionCityOwnerPrototype.java', 'RegionCityRestorePrototype.java', 'RegionCompleteRestoreCheck.java', 'RegionOfflineCellOwnerCheck.java', 'RegionDenseHistoryCheck.java')]
             compiled = subprocess.run(['javac', '-encoding', 'UTF-8', '--release', '17', '-cp', str(CLASSES), '-d', temporary,
                                        *map(str, sources)], capture_output=True, text=True, timeout=30)
             self.assertEqual(compiled.returncode, 0, compiled.stderr[:4000])
@@ -84,6 +84,17 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
         self.assertTrue(row['strict_stream_reader'])
         self.assertTrue(row['source_unchanged'])
         self.assertFalse(row['live_region_backend'])
+        self.assertFalse(row['qualification'])
+
+    def test_dense_indexed_history(self):
+        row = self.run_check('RegionDenseHistoryCheck')[0]
+        self.assertEqual(row['status'], 'passed')
+        self.assertEqual(row['input_records'], 200704)
+        self.assertTrue(row['preflight_budget_rejected'])
+        self.assertEqual(row['final_cells'], 49)
+        self.assertTrue(row['replay_path_rejected'])
+        self.assertTrue(row['indexed_path_restored'])
+        self.assertTrue(row['stale_rejected'])
         self.assertFalse(row['qualification'])
 
     def test_offline_cell_owner(self):

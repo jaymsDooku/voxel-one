@@ -33,4 +33,14 @@ class WorldCellSnapshotTest {
     @Test void patchCandidateChangesIdentityAndKeepsPriorSnapshot() {
         var world=world();var history=new WorldVoxels.History();world.apply(stone());WorldVoxels.remember(history,stone());var snapshot=world.cellSnapshot(history);var chunk=ChunkPos.fromBlock(0,128,0);var patch=world.captureCellPatch(List.of(chunk));var tree=world.cell(0,128,0).copy();tree.fill(0,0,0,16,16,16,WorldVoxels.encode(Blocks.GLASS));patch.replaceCell(0,128,0,tree);var candidate=patch.merge(world);assertNotNull(candidate);assertTrue(snapshot.unchanged(world,history));assertFalse(snapshot.unchanged(candidate,history));assertEquals(WorldVoxels.encode(Blocks.STONE),snapshot.cell(new WorldVoxels.CellPosition(0,128,0)).tree().uniform(0,0,0,16));
     }
+    @Test void callerBudgetsRejectBeforeCaptureAndExactBoundsPass() {
+        var world=world();var history=new WorldVoxels.History();assertTrue(world.cellSnapshot(history,0,0).unchanged(world,history));
+        WorldVoxels.remember(history,stone());world.apply(stone());
+        assertThrows(IllegalArgumentException.class,()->world.cellSnapshot(history,0,1));
+        assertThrows(IllegalArgumentException.class,()->world.cellSnapshot(history,1,0));
+        assertThrows(IllegalArgumentException.class,()->world.cellSnapshot(history,-1,1));
+        assertThrows(IllegalArgumentException.class,()->world.cellSnapshot(history,1,-1));
+        assertEquals(1,world.cellSnapshot(history,1,1).nextBatch(world,history).size());
+    }
+
 }

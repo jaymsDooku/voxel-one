@@ -1,5 +1,16 @@
 # Structure review fix checkpoint
 
+## Dense history admission for indexed private backup
+
+Indexed backup no longer inherits the replay path's 200,000-record input cap. It accepts the existing offline ceiling of 2,000,000 source records without replay; the replay overload stays at 200,000. Final cells/chunks are checked against 100,000/1,024 before cloning the world chunk map. Existing geometry, leaf and envelope caps stay unchanged. The production snapshot overload accepts caller budgets; final owner validation still checks identities/revisions before metadata reads.
+
+Final 35 production tests passed with 0 failures/errors/skips. Four affected integrations passed in 21.717 s. Initial checks passed before adding pre-clone budgets; final checks reran after that change. Playtest: 200,704 actual depth4 edits describe 49 full stone cells. Replay rejects; indexed capture and strict restart preserve all 49 cells in a 1,205-byte generation. Stale same-value revision rejects without altering generation; retry passes. Source history and absent legacy file unchanged. Oversize cell/chunk preflight and exact/zero/negative budget tests pass. Fresh actual child exit0 image inspected. This is a noninteractive persistence path; browser/native rendering does not apply.
+
+The fixture is redundant replay history, not maximum fragmented geometry or either supplied full fixture. No 2-million-record performance claim. Parent `77e70689` has eight successful builds; publication skipped. New edits await publication/exact-head checks. No deleted paths against review base; diff check passed. Evidence `structure-dense-history.json` and `structure-dense-history-cli.png`, pending controller publication. Historical native media remains insufficient for changed persistence source.
+
+Next: production region persistence/streaming and live owner installation. Full city/maximum admission and 20-run budgets, physical GPU, shaped 32-client, stalls/peak memory and durability remain pending. Final geometry caps and rollout gates retained.
+
+
 ## Twenty-run small-fixture owner capture diagnostic
 
 Measured replay and fenced world-cell capture on the same synthetic generated-city fixture: 4,829 cells, 6,786 flat records, one warmup and 20 runs per path with alternating order. Intel Haswell/no-TSX virtual CPU, 4 vCPUs, Linux6.1.0-50-cloud-amd64, Java25.0.3+9-LTS-195, 512MiB heap. Capture median/p95/worst: replay35.38/66.42/76.83ms; cells38.15/54.04/67.75ms. Maximum owner-pump median/p95/worst per run: replay6.01/31.12/40.57ms; cells6.17/10.56/11.14ms. Median increased; p95 decreased. No general speedup claim.
