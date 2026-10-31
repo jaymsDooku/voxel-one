@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-31T08:47:30+00:00",
+  "updatedAt": "2026-10-31T09:04:53+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Uniform preparation cache uses primitive keys/references and preserves full material sharing; rejected 1024-entry cap retained extra trees. 170 targeted tests passed. Four 20-run probes show lower allocation; palette/mixed timing regressions and three-sample live-world/undo estimates documented. Native workflow passed; 224 source hashes and decoded 418769-byte video verified. Source/media await controller publication. Full city/maximum and physical qualification remain gated.",
-      "updatedAt": "2026-10-31T08:47:30+00:00"
+      "note": "Fixture CLI now measures canonical region-history cost without allocating Edit objects: city 1,008,528 records/2,173 chunks; maximum 11,967,232 records/8,192 chunks. Both full fixtures verified; actual Java replay oracle and 33 tool tests passed. Admission caps unchanged. Partitioned canonical storage and full physical-GPU/32-client qualification remain pending.",
+      "updatedAt": "2026-10-31T09:04:53+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

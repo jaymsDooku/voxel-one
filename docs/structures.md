@@ -123,6 +123,29 @@ world, geometry or affected-chunk admission limits.
 
 ## Remaining qualification work
 
+The fixture verifier now reports canonical history cost and occupied 16-cell
+chunks without creating millions of Edit objects. The currently retained city
+input needs 1,008,528 records across 2,173 chunks; the maximum input needs
+11,967,232 records across 8,192 chunks. Their busiest chunks need 1,528 and
+1,536 records respectively. These counts assume an empty destination. Existing
+destination history and later edits add cost. The maximum exceeds the current
+2,000,000-record persistence limit even before rendering or synchronization.
+Both inputs also exceed the 256-chunk placement cap. Current input hashes and
+compressed sizes are in `dashboard/evidence/structure-history-partition-cost.json`;
+they differ from older receipts and must not be mixed with older timings.
+
+The next storage change must migrate canonical history, rather than raise its
+record cap. A bounded first step is a private region index with whole-cell or
+fractional-tree records and global dependency identities. Import old ordered
+history on a worker, preserve within-cell edit precedence, and compare replay
+against the legacy map before using this index for saves. Bound each region and
+the total decoded bytes. Keep the old format readable. Only then connect a
+versioned region manifest to atomic placement, save/load, undo and late-join
+transfer. Publish one validated generation; never expose partial region commits.
+Undo must reject conflicting later edits. Measure live geometry, old/new roots
+and retained undo together, not serialized storage alone. This migration is not
+implemented or qualified by the diagnostic.
+
 Reference hardware and network qualification is deferred. The current commit
 path serializes placements and validates/stages work off-thread, but final owner
 thread application, persistence, initial dependency loading and render uploads
