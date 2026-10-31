@@ -1,5 +1,16 @@
 # Structure review fix checkpoint
 
+## Current-source native workflow validation
+
+Tested production source at `b1eac551` in Main with real GLFW/X11 input and an isolated synthetic offline profile. Full native workflow passed: named capture with fractional geometry/custom models, browsing, long-path import/export, four rotations, footprint/conflict previews, empty-space preservation, occupied-cell/player rejection, undo retaining unrelated edits, placement/export/import cancellation, malformed import atomicity, repeated placement, 32-resolution/packed dependency geometry and colour retention, restart, inventory and model editor. No production source changed this turn or during the run; all 224 source hashes still match the fresh manifest.
+
+Command: `python3 deploy/run_structure_playtest.py --display "$DISPLAY"`. Exit 0. Linux6.1.0-50-cloud-amd64,Java25.0.3+9-LTS-195,llvmpipe LLVM15.0.6,1GiB game heap; LOW/detail32/horizon512/scale0.5,shadows/AA/dynamic OFF. HUD1FPS observed; this does not qualify physical-GPU30FPS. New F10 video:18 frames,32.936s,423245 bytes,SHA256 `611a2ec0e0e3c096ad262db8af3d38870cf28ef68f0fd4c2ee7b41e95ea0d432`. Every frame decoded with bundled JCodec; midpoint,270-degree preview and player-conflict image inspected. `ffprobe` unavailable; JCodec provided actual decoding.
+
+Six Hub registration tests passed in0.060s. Current compiled classes plus cached SPI JARs decoded CBR stereo and VBR mono to44100Hz,6.060s each,exit0. This invocation is not a newly built shaded-JAR test despite the helper's stdout label. Exact-head CI has eight successful platform builds and two skipped publication jobs. No new Maven run needed: production source unchanged. No deleted paths against review base,no intended deletions,diff check passed. Fresh media/report `structure-current-native-validation.json` pending controller publication. Older native media is historical for these changed persistence paths.
+
+Production region backend/streaming/live installation and both full fixtures remain unfinished. Full20-run budgets,physicalGPU,shaped32-client,peak memory/frame/tick/traffic/stall/durability qualification remain pending. Caps and stable-rollout gates retained.
+
+
 ## Capture iteration after map churn
 
 World chunk map and History distinct-cell index now use linked iteration, including history copies. This removes retained sparse hash-table scans between capture entries. Per-bucket maps, wire formats and limits unchanged. Extra entry links add unmeasured memory overhead.
