@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Deterministic benchmark inputs, NOT a player structure package or qualification."""
 import argparse
+from array import array
 import gzip
 import hashlib
 import json
@@ -152,6 +153,16 @@ def verify(path):
             raise ValueError('Unexpected fixture header')
         sx, sy, sz = h['bounds']
         cells = bytearray((sx * sy * sz + 7) // 8)
+        # Diagnostic only: current canonical replay collapses a full-cell leaf
+        # onto its air prefix, but fractional cells retain that prefix. Keep
+        # counters per 16-cell region rather than materializing Edit objects.
+        chunks_x, chunks_y, chunks_z = (n // 16 for n in (sx, sy, sz))
+        history = array('I', [0]) * (chunks_x * chunks_y * chunks_z)
+
+        def records(x, y, z, count):
+            index = ((y // 16) * chunks_z + z // 16) * chunks_x + x // 16
+            history[index] += count
+
         occupied = 0
 
         def mark(x, y, z):
@@ -192,6 +203,7 @@ def verify(path):
                 raise ValueError('Overlapping geometry')
             if h['fixture'] == 'maximum' and (depth != 4 or (ix, iy, iz) not in ((0, 0, 0), (15, 15, 15))):
                 raise ValueError('Fragmentation invariant')
+            records(x, y, z, 1 + int(fresh and depth != 0))
             fractional += depth != 0
             if depth:
                 quads += 6  # All fractional leaves are separated by air.
@@ -204,6 +216,7 @@ def verify(path):
             x, y, z, model, rotation = INSTANCE.unpack(read(INSTANCE.size))
             if model >= h['models'] or rotation > 3 or not mark(x, y, z):
                 raise ValueError('Invalid or overlapping instance')
+            records(x, y, z, 1)
         if source.read(1):
             raise ValueError('Trailing fixture data')
         expected = 978288 if h['fixture'] == 'city' else 4_000_000
@@ -215,6 +228,13 @@ def verify(path):
                 dependency_bytes=dependency_bytes, decoded_bytes=decoded,
                 compressed_bytes=path.stat().st_size, compressed_sha256=compressed_hash,
                 decoded_sha256=digest.hexdigest(), artifact=path.name,
+                canonical_history_records=sum(history),
+                canonical_history_record_limit=2_000_000,
+                canonical_history_limit_exceeded=sum(history) > 2_000_000,
+                occupied_chunks=sum(count != 0 for count in history),
+                maximum_chunk_history_records=max(history),
+                history_counter_bytes=len(history) * history.itemsize,
+                history_metric='Empty destination; air prefix plus fractional leaves; full cells and model instances each retain one record. Counts only, not a new storage format or qualification.',
                 source_url=SOURCE_URL, publication='Pending controller publication; regenerate binary from versioned source',
                 generator_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
                 python_version=sys.version.split()[0], zlib_version=zlib.ZLIB_RUNTIME_VERSION,

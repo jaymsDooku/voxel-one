@@ -1,5 +1,40 @@
 # Structure review fix checkpoint
 
+## Canonical region-history cost diagnostic
+
+The controller reports successful required platform builds for `d637c329`.
+Fresh PR observation matched that exact feature head: seven successful build
+entries and one additional Intel Mac PR build still running; no repeated wait
+was requested. The worktree was clean before this diagnostic change.
+
+Fixture verification now counts current canonical replay records per 16-cell
+chunk using bounded primitive counters. Both complete retained inputs passed
+header/dependency/geometry/overlap/CRC/EOF validation. City: 978,288 occupied
+cells, 30,240 fractional leaves, 1,008,528 canonical records, 2,173 chunks,
+maximum 1,528 records per chunk. Maximum: 4,000,000 occupied cells, 7,967,232
+fractional leaves, 11,967,232 canonical records, 8,192 chunks, maximum 1,536
+records per chunk. Counter arrays use 32,768 and 262,144 bytes. These are counts,
+not peak-memory or latency measurements. The retained input hashes differ from
+older receipts; the new report records their actual bytes and hashes.
+
+Six malformed-parser tests and all 33 structure-tool tests passed. The new Java
+CLI checks the count rule against actual indexed and legacy canonical history
+for whole geometry, model instances, one fractional leaf and two separated
+fractional leaves. All four cases pass, including repeated replacement and a
+later whole-cell edit. Playtest: both fixture CLIs and the Java integration
+oracle ran successfully. Browser playtesting does not apply to this CLI-only
+diagnostic. Production game source is unchanged; the existing 224-path native
+source manifest and published native media still match it. No blanket native or
+Maven rerun was performed. Report: `structure-history-partition-cost.json`.
+
+Next: implement and replay-test a private bounded region-history index before
+migrating save/load, atomic generation publication, undo and late-join transfer.
+The maximum exceeds the 2,000,000-record persistence cap; both fixtures exceed
+the 256-chunk placement cap. No cap was raised. Full city/maximum admission and
+physical-GPU/shaped-network/32-rendered-client qualification remain pending.
+Independent review and stable-rollout gates remain. Local diagnostic/docs/report
+changes need controller publication and exact-source hosted checks.
+
 ## Current uniform-material cache validation
 
 Parent `520ccf5a02074c2ed78d743a0c6685817aa3bcb1` has eight successful platform
