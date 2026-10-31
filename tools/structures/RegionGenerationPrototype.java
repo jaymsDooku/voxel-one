@@ -55,8 +55,8 @@ public final class RegionGenerationPrototype {
         int version=in.readInt();if(version!=1&&version!=2)throw new IOException("Generation format/version");
         long generation=in.readLong();int length=in.readInt();
         if(generation<1||length<24||length>RegionDependencyPrototype.MAX_BYTES||length!=in.available())throw new IOException("Generation metadata");
-        var payload=in.readNBytes(length);
-        Loaded loaded=version==1?new Loaded(generation,RegionDependencyPrototype.decode(payload,cancel),null):new Loaded(generation,null,RegionWorldLibraryPrototype.decode(payload,cancel));check(cancel);
+        Loaded loaded=version==1?new Loaded(generation,RegionDependencyPrototype.decode(in.readNBytes(length),cancel),null)
+                :new Loaded(generation,null,RegionWorldLibraryPrototype.decode(bytes,20,length,cancel));check(cancel);
         return new Frame(loaded,bytes);
     }
     public Optional<Loaded> load(BooleanSupplier cancel)throws IOException {

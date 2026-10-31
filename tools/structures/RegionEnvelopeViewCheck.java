@@ -4,6 +4,7 @@ import dev.jayms.net.model.*;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.nio.file.*;
 import java.util.concurrent.CancellationException;
 import java.util.zip.CRC32;
 
@@ -29,10 +30,24 @@ public final class RegionEnvelopeViewCheck {
         var base=RegionWorldLibraryPrototype.capture(geometry,models,()->false);var survival=RegionWorldLibraryPrototype.capture(geometry,models,offline,()->false);
         var candidates=List.of(base,survival,survival.withSidecars(sidecars,()->false),RegionWorldLibraryPrototype.captureServer(geometry,models,server,()->false).withSidecars(sidecars,()->false));
         long bytesTotal=0;int version=0;
-        for(var candidate:candidates) {
+        Path parent=Path.of("target/structure-envelope-view-tests");Files.createDirectories(parent);Path root=Files.createTempDirectory(parent,"synthetic-");
+        try {for(var candidate:candidates) {
             byte[] bytes=candidate.encode(()->false),saved=bytes.clone();bytesTotal+=bytes.length;version++;
             require(ByteBuffer.wrap(bytes).getInt(4)==version,"Fixture envelope version");
             var decoded=RegionWorldLibraryPrototype.decode(bytes,()->false);require(Arrays.equals(bytes,decoded.encode(()->false)),"Section framing changed bytes");
+            for(int prefix:new int[]{1,37}) {
+                byte[] padded=new byte[prefix+bytes.length+9];Arrays.fill(padded,(byte)0x7f);System.arraycopy(bytes,0,padded,prefix,bytes.length);
+                var sliced=RegionWorldLibraryPrototype.decode(padded,prefix,bytes.length,()->false);require(Arrays.equals(bytes,sliced.encode(()->false)),"Array range changed payload");
+                padded[0]^=1;padded[prefix+bytes.length]^=1;require(Arrays.equals(bytes,sliced.encode(()->false)),"Decoded state aliases encoded padding");
+                reject(IOException.class,()->RegionWorldLibraryPrototype.decode(padded,prefix,bytes.length-1,()->false));
+                reject(IOException.class,()->RegionWorldLibraryPrototype.decode(padded,prefix,bytes.length+1,()->false));
+            }
+            for(int[] range:new int[][]{{-1,bytes.length},{1,bytes.length},{Integer.MAX_VALUE,52},{0,Integer.MAX_VALUE},{0,-1}})
+                reject(IOException.class,()->RegionWorldLibraryPrototype.decode(bytes,range[0],range[1],()->false));
+            var store=new RegionGenerationPrototype(root.resolve("version-"+version));try(var staged=store.stage(candidate,()->false)){staged.commit(()->false);}
+            var loaded=store.loadComplete(126,Terrain.CURRENT_VERSION,GameConfig.cityGame(),()->false).orElseThrow();
+            require(loaded.generation()==1&&loaded.state().world().cell(0,128,0).sameValues(whole)&&loaded.state().models().get(42)!=null,"Generation range restart changed state");
+            require(Arrays.equals(bytes,store.load(()->false).orElseThrow().worldLibrary().encode(()->false)),"Generation changed inner payload");
             var restored=decoded.restoreComplete(GameConfig.cityGame(),()->false);
             require(restored.world().cell(0,128,0).sameValues(whole)&&restored.world().cell(1,128,0).occupied()==0&&restored.world().cell(-1,128,-1).sameValues(fraction),"Geometry/air changed");
             require(restored.models().get(42)!=null&&restored.models().get(4096)!=null,"Library section lost used/unused models");
@@ -46,6 +61,7 @@ public final class RegionEnvelopeViewCheck {
             reject(CancellationException.class,()->RegionWorldLibraryPrototype.decode(bytes,()->true));
             require(Arrays.equals(bytes,saved)&&Arrays.equals(bytes,RegionWorldLibraryPrototype.decode(bytes,()->false).encode(()->false)),"Rejected parse changed source/retry");
         }
-        System.out.println("{\"status\":\"passed\",\"versions\":4,\"rejection_cases\":"+rejects+",\"total_fixture_bytes\":"+bytesTotal+",\"byte_exact\":true,\"geometry_and_air\":true,\"library_preserved\":true,\"metadata_boundaries\":true,\"source_unchanged\":true,\"retry\":true,\"qualification\":false}");
+        } finally {try(var paths=Files.walk(root)){for(var path:paths.sorted(Comparator.reverseOrder()).toList())Files.delete(path);}}
+        System.out.println("{\"status\":\"passed\",\"versions\":4,\"rejection_cases\":"+rejects+",\"total_fixture_bytes\":"+bytesTotal+",\"byte_exact\":true,\"geometry_and_air\":true,\"library_preserved\":true,\"metadata_boundaries\":true,\"array_ranges\":true,\"generation_restart\":true,\"source_unchanged\":true,\"retry\":true,\"qualification\":false}");
     }
 }

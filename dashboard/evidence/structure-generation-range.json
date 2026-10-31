@@ -1,0 +1,51 @@
+{
+  "parent_head": "41cb77d535b55daba7483d24ca6136eeff743258",
+  "parent_hosted": "Controller scoped result:four platform builds success;publish skipped. Not QA approval.",
+  "change": "Private version2 generation loader passes its validated file array at offset20 to new envelope offset/length decoder instead of copying payload with readNBytes. Legacy dependency version1 retains prior path. Envelope CRC,section offsets and budgets apply to selected range only;CRC loop uses remaining count to avoid cursor increment overflow.",
+  "source_sha256": {
+    "tools/structures/RegionGenerationPrototype.java": "56b59d4af7e9d82dbd476b8b396219fe557033d77f5dac260487a521e10956e2",
+    "tools/structures/RegionWorldLibraryPrototype.java": "852d7dd2572618760fcc37041835e091abf538d8608c9590d622096aafc3a9f2",
+    "tools/structures/RegionEnvelopeViewCheck.java": "94fbbe00c70a0a45816a42476816738473906f802c256086f1bb3ec1164ce838",
+    "tools/structures/RegionEnvelopeViewEvidence.java": "320573ba54fd767bc6158b46dbe2560377a46e7bcc0f4a4e04e7c1a6e385612c",
+    "tools/structures/test_region_history.py": "8c9e5496eca1776bf3601ebac5fb13c411ed2b6731bd2877a842153fc3fb6731"
+  },
+  "commands": [
+    "python3 -m unittest tools.structures.test_region_history.RegionHistoryIntegrationTest.test_envelope_section_views tools.structures.test_region_history.RegionHistoryIntegrationTest.test_generation_publication tools.structures.test_region_history.RegionHistoryIntegrationTest.test_complete_restore tools.structures.test_region_history.RegionHistoryIntegrationTest.test_world_library tools.structures.test_region_history.RegionHistoryIntegrationTest.test_offline_cell_owner tools.structures.test_region_history.RegionHistoryIntegrationTest.test_actual_engine_authority tools.structures.test_region_history.RegionHistoryIntegrationTest.test_server_bundle",
+    "java -Xmx512m -cp target/structure-generation-range-evidence:target/classes RegionEnvelopeViewCheck",
+    "java -Xmx512m -cp target/structure-generation-range-evidence:target/classes RegionEnvelopeViewEvidence",
+    "import -display \"$DISPLAY\" -window 2097159 dashboard/evidence/structure-generation-range-cli.png"
+  ],
+  "environment": "Linux6.1.0-50-cloud-amd64 x86_64,Java25.0.3+9-LTS-195,512MiB CLI heap. Inherited managed role DISPLAY/XAUTHORITY for own synthetic CLI window only;no authentication cookie read.",
+  "results": {
+    "integration_summary": ".......\n----------------------------------------------------------------------\nRan 7 tests in 37.856s\n\nOK",
+    "cli": {
+      "status": "passed",
+      "versions": 4,
+      "rejection_cases": 76,
+      "total_fixture_bytes": 14632,
+      "byte_exact": true,
+      "geometry_and_air": true,
+      "library_preserved": true,
+      "metadata_boundaries": true,
+      "array_ranges": true,
+      "generation_restart": true,
+      "source_unchanged": true,
+      "retry": true,
+      "qualification": false
+    },
+    "initial": "Initial envelope/generation tests passed;range check1/1 passed in4.151s. Final seven affected integrations passed with no skips.",
+    "production": "Only private tools changed.224 production Java/harness hashes still match current native manifest;no Maven/native rerun needed."
+  },
+  "Playtest:": "Expected exact envelopes at bounded offsets and generation restart with no encoded payload copy. Observed envelope versions1..4 retain models,fractional geometry,explicit air,offline/server survival and city bytes. Each decoded at offsets1 and37 with unrelated prefix/suffix bytes outside the frame;integer/negative/out-of-range and incorrect lengths rejected. Four actual private generation-file stage/commit/strict restarts retained generation1,geometry and unused models;loaded envelopes re-encoded exactly.76 rejection cases,source preservation and retry passed. Existing generation publication faults,authority and owner/server bundle regressions passed. Fresh actual child exit0 image inspected. Noninteractive persistence integration;browser/native rendering does not apply.",
+  "limits": [
+    "Generation read still materializes bounded file array;decoded geometry/models,metadata and staging arrays still allocate. Only redundant version2 load payload copy removed. No measured peak-memory or speedup claim.",
+    "Formats and private16MiB envelope/8MiB geometry/100000cells/1024regions/131072leaves caps retained. Caller must not mutate source array during decode.",
+    "No production backend/owner installation or supported-size increase. Full city/maximum20-run,GPU,shaped32clients,frame/tick/traffic/peak-memory/stall and durability qualification remain pending. Rollout gated."
+  ],
+  "audit": "No deleted paths against71612f09bfec4549456b3317676e76cdced085a4. Version2 payload copy intentionally replaced by bounded decode range;legacy version1 copy retained. No unrelated deletions;diff check passed.",
+  "media": {
+    "file": "structure-generation-range-cli.png",
+    "sha256": "fbfd2c6d7d234ba54d6990bfa29e06e89fbc6b6b7f5e365d9ccc6ca8b69f0459",
+    "publication": "pending controller publication"
+  }
+}

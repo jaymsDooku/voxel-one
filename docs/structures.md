@@ -1221,3 +1221,7 @@ The diagnostic region codec accepts caller-owned input/output streams while reta
 ### Private envelope section views
 
 The private envelope decoder now parses its library and geometry through bounded views of the existing encoded envelope array. The geometry parser uses the region stream API. Each view ends at its declared section boundary, preventing a valid geometry parser from reading following metadata. Versions 1–4 retain byte-exact roundtrips; invalid lengths and CRC corruption still reject. This removes redundant encoded section copies. The outer envelope and decoded state remain materialized, so no peak-memory improvement is claimed. Existing limits and production integration gates remain unchanged. See dashboard/evidence/structure-envelope-view.json.
+
+### Generation payload range decoding
+
+The private version2 generation loader passes its validated file array directly to a bounded offset/length envelope decoder. This avoids another encoded payload array; legacy dependency generations keep their prior path. Envelope CRC and section boundaries exclude unrelated prefix/suffix bytes. Tests cover all four envelope versions, padded array ranges, invalid ranges and actual generation restart. File bytes, decoded state and staging buffers still allocate; no peak-memory or speedup claim. Formats, limits and production rollout gates remain unchanged. See dashboard/evidence/structure-generation-range.json.
