@@ -1,5 +1,53 @@
 # Structure review fix checkpoint
 
+## Private generation-file publication
+
+Fresh PR observation matched parent `b88d73c3`: eight successful platform build
+entries; publication skipped. No unchanged checks were rerun. The new work is
+tools-only; all 224 native source paths still match the recorded game workflow.
+
+The generation store stages a self-contained manifest in a private sibling file,
+writes at most 64 KiB at a time, forces the file and publishes with strict atomic
+replacement under an OS file lock. It checks the expected prior generation and
+exact staged bytes before the publication point. Loader bounds the file before
+allocation and validates CRC, metadata and nested dependencies. Its byte ceiling
+is the private 16 MiB envelope plus 24 bytes of generation framing; no production
+limit changed. File size is read from the opened handle, not a pre-open path
+stat. A deterministic atomic replacement with a differently sized valid file
+between stat and open exercises that race.
+
+37 structure-tool tests passed, followed by four final affected tests after the
+evidence-viewer compile was added. Zero failures, errors or skips. The actual
+file CLI passed 23 rejection cases: stale writer across store instances, force
+and pre-rename failures, unsupported atomic replacement, busy lock, changed or
+corrupt staged bytes, corrupt/truncated/oversized/invalid current files,
+generation exhaustion, cancellation and interruption. Initial large-fixture
+setup accidentally constructed an unused empty dependency; removed before final
+checks. Fresh-instance loading restores models, air and fractional LED geometry.
+
+An injected IOException after a completed rename returns a committed receipt
+when exact published bytes prove the outcome. Cancellation after the publication
+point does not pretend the operation was uncommitted. Other ambiguous I/O errors
+still require reloading; no blanket old-state guarantee is claimed. The normal
+cohort reached generation 4. A 168,763-byte generation stopped after 65,536 bytes
+before force and left no stage or published file; full retry and cancelled-read
+regressions passed. Private stages remain invisible to a fresh reader.
+
+Playtest: actual synthetic CLI, local NIO force, OS locks, atomic rename,
+fresh-instance loading and injected failures. Browser/game playtesting does not
+apply to this tools-only storage experiment. A fresh assigned-display window
+showed the actual child command, exit 0 and result. Window-only screenshot
+`structure-generation-cli.png` was captured and visually inspected. The viewer
+was stopped after capture; its cleanup does not change the child test exit 0.
+Report: `structure-region-generation.json`.
+
+No live-game save/load, geometry publication, undo, multiplayer or late-join
+integration has been made. Directory fsync, process-crash/power-loss guarantees,
+orphan-stage recovery and owner-thread responsiveness remain unqualified. Full
+city/maximum admission and 20-run physical-GPU/shaped-network/32-rendered-client
+budgets remain pending. Readiness and stable rollout stay gated. New local
+tools/docs/report/image need controller publication and exact-source checks.
+
 ## Private global dependency manifest
 
 Parent `7cf035c0` has successful required platform builds per controller. Fresh
