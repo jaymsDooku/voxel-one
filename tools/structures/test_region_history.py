@@ -23,7 +23,7 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
                         'RegionGenerationPrototype.java', 'RegionGenerationCheck.java', 'RegionGenerationEvidence.java',
                         'RegionAuthorityPrototype.java', 'RegionAuthorityCheck.java',
                         'RegionWorldLibraryPrototype.java', 'RegionWorldLibraryCheck.java', 'RegionOfflineMetadataPrototype.java', 'RegionOfflineMetadataCheck.java',
-                        'RegionOfflineImportPrototype.java', 'RegionOfflineImportCheck.java', 'RegionOfflineLegacyCheck.java', 'RegionSidecarsPrototype.java', 'RegionSidecarsCheck.java', 'RegionOfflineBundlePrototype.java', 'RegionOfflineBundleCheck.java', 'RegionServerMetadataPrototype.java', 'RegionServerMetadataCheck.java', 'RegionServerImportPrototype.java', 'RegionServerImportCheck.java', 'RegionServerBundleCheck.java')]
+                        'RegionOfflineImportPrototype.java', 'RegionOfflineImportCheck.java', 'RegionOfflineLegacyCheck.java', 'RegionSidecarsPrototype.java', 'RegionSidecarsCheck.java', 'RegionOfflineBundlePrototype.java', 'RegionOfflineBundleCheck.java', 'RegionServerMetadataPrototype.java', 'RegionServerMetadataCheck.java', 'RegionServerImportPrototype.java', 'RegionServerImportCheck.java', 'RegionServerBundleCheck.java', 'RegionOfflineOwnerPrototype.java', 'RegionOfflineOwnerCheck.java')]
             compiled = subprocess.run(['javac', '-encoding', 'UTF-8', '--release', '17', '-cp', str(CLASSES), '-d', temporary,
                                        *map(str, sources)], capture_output=True, text=True, timeout=30)
             self.assertEqual(compiled.returncode, 0, compiled.stderr[:4000])
@@ -64,6 +64,14 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
         self.assertGreaterEqual(rows[0]['mid_write_cancel_bytes'], 65536)
         self.assertFalse(rows[0]['directory_fsync_qualified'])
         self.assertFalse(rows[0]['qualification'])
+
+    def test_offline_owner(self):
+        row = self.run_check('RegionOfflineOwnerCheck')[0]
+        self.assertEqual(row['status'], 'passed')
+        self.assertTrue(row['actual_local_game'])
+        self.assertTrue(row['legacy_file_untouched'])
+        self.assertFalse(row['production_backend_selected'])
+        self.assertFalse(row['qualification'])
 
     def test_server_bundle(self):
         row = self.run_check('RegionServerBundleCheck')[0]
