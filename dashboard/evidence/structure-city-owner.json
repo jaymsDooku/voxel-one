@@ -1,0 +1,89 @@
+{
+  "schema": 1,
+  "parent_head": "1c3709537205436b0702e5008bd2fb76745c5841",
+  "review_base": "71612f09bfec4549456b3317676e76cdced085a4",
+  "scope": "Tools-only coordinated active-city/history snapshot in actual synthetic LocalGame private owner backup",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "java": "25.0.3+9-LTS-195",
+    "compile_release": 17,
+    "cli_heap": "512 MiB",
+    "display": "Inherited managed display; own Swing window only"
+  },
+  "source_sha256": {
+    "tools/structures/RegionCityOwnerPrototype.java": "3f8de7649605de869519d6fd5da98f94a647820217cc72c304867c55350bf0da",
+    "tools/structures/RegionOfflineOwnerPrototype.java": "5c0f4714ba533380880ab75ba25fd93a0a66b562df47afa05a1da7ab10d59196",
+    "tools/structures/RegionOfflineOwnerCheck.java": "d67c1c938374d7b3760b8e71869263b02e028813cb3f70fcf7094b4eb716126c",
+    "tools/structures/test_region_history.py": "9bbbf2203757ead2dbeb31c36458bbe299aa4019a1f4ddc64e3f792c6c65f5f0",
+    "src/main/java/dev/jayms/net/city/CityHistory.java": "498319047fbc523058e0492f75ff1450032dbada618dbfb1343a390031aac925"
+  },
+  "commands": [
+    {
+      "command": "gh pr view 76 --json headRefOid,statusCheckRollup",
+      "result": "Exact parent1c370953 has eight successful platform builds; publication skipped"
+    },
+    {
+      "command": "javac -encoding UTF-8 --release 17 -cp target:target/classes -d target tools/structures/RegionCityOwnerPrototype.java tools/structures/RegionOfflineOwnerPrototype.java tools/structures/RegionOfflineOwnerCheck.java",
+      "exit": 0
+    },
+    {
+      "command": "java -Xmx512m -cp target:target/classes RegionOfflineOwnerCheck",
+      "exit": 0,
+      "result": {
+        "status": "passed",
+        "actual_local_game": true,
+        "active_city_preserved": true,
+        "owner_queue_pumps": 102,
+        "rejection_cases": 28,
+        "legacy_file_untouched": true,
+        "production_backend_selected": false,
+        "qualification": false
+      }
+    },
+    {
+      "command": "python3 -m unittest tools.structures.test_region_history.RegionHistoryIntegrationTest.test_offline_owner tools.structures.test_region_history.RegionHistoryIntegrationTest.test_city_history_snapshot tools.structures.test_region_history.RegionHistoryIntegrationTest.test_sidecars tools.structures.test_region_history.RegionHistoryIntegrationTest.test_offline_bundle tools.structures.test_region_history.RegionHistoryIntegrationTest.test_server_bundle",
+      "exit": 0,
+      "summary": ".....\n----------------------------------------------------------------------\nRan 5 tests in 23.401s\n\nOK"
+    },
+    {
+      "command": "java -cp target:target/classes RegionGenerationEvidence RegionOfflineOwnerCheck",
+      "child_exit": 0,
+      "viewer_cleanup_exit": 130
+    },
+    {
+      "command": "git diff --check 71612f09bfec4549456b3317676e76cdced085a4",
+      "exit": 0,
+      "deleted_paths": []
+    }
+  ],
+  "playtest": "Playtest: actual synthetic LocalGame/city and existing owner queue. Capture current city frame v17, bind exact SHA256 into existing history v1 stream, attach to private envelope and commit/restart. Expected production CitySimulation.load frame equality and CityHistory.load identity/revision/catalog/latest retention; observed passed. Expected snapshot purity, no legacy writes, source identity/history replacement, frame changes, clock change without revision, event-flag change without revision, changes during capture and pre/mid cancellation reject or remain unchanged; observed28 rejection cases and retry passed. Sandbox frame loaded correctly without invented history. Fresh actual child exit0 own-window image inspected. Browser/native rendering does not apply to this tools-only persistence adapter.",
+  "image": {
+    "path": "dashboard/evidence/structure-city-owner-cli.png",
+    "bytes": 6029,
+    "sha256": "b0f2248bc577d10d2884dcf6607faedbfc994aafe5b38bed362ff00b1c0b567a",
+    "publication": "pending controller publication"
+  },
+  "decisions": [
+    "Read-only capture never calls collectHistory or save. City-mode history must already have nonempty catalog and latest time no later than frame elapsed; otherwise reject, leaving normal initialization to owner workflow.",
+    "Retain simulation/history identity, history revision and exact serialized sidecar bytes; revision alone cannot detect clock/events mutations.",
+    "Sandbox uses existing no-history-sidecar save policy.",
+    "City/history remain private world state, never reusable structure-package content."
+  ],
+  "limits": {
+    "combined_city_history_bytes": 4194304,
+    "whole_private_envelope_bytes": 16777216,
+    "source_edits": 200000,
+    "final_touched_cells": 100000,
+    "regions": 1024,
+    "geometry_leaves": 131072
+  },
+  "regression": "Five affected integrations passed, no skips. Production CityHistory source matches validated published snapshot receipt unchanged; retained14 production regressions were not repeated. Native historical baseline still differs only in that previously validated CityHistory writer; no blanket renderer rerun or exact-source claim for old video.",
+  "limitations": [
+    "Requires exclusively owner-managed live state. Owner frame/history serialization and full revalidation remain synchronous and unqualified for100ms stalls, frame budgets or peak memory.",
+    "No live region backend selection/automatic restore/server owner adapter or ordinary-edit region persistence yet.",
+    "The sidecar envelope is not a generic semantic validator; tests use actual generated state and production loaders.",
+    "Directory durability/power-loss and full20-run city/maximum admission, physical-GPU, shaped32-rendered-client qualification remain pending. Production caps unchanged; rollout gated."
+  ],
+  "qualification": false,
+  "ready": false
+}
