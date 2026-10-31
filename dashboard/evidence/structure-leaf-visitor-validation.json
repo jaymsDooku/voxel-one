@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "parent_head": "967f9eceae7e3cb98223b29d4af2c46222460514",
+  "scope": "Streaming material validation in structure package constructor; no admission cap changes",
+  "qualification": "PENDING",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu_model": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)"
+  },
+  "tests": {
+    "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest='Structure*Test,VoxelModelTest' test",
+    "tests": 99,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "new_regressions": [
+      "Visitor matches list leaf coordinates, order and counts at resolutions 1/8/16/32/256",
+      "IOException stops at exact failing leaf, retains immutable source and permits clean retry; null visitor rejected"
+    ]
+  },
+  "probe": {
+    "commands": [
+      "javac --release 17 -d target/structure-leaf-visitor-probe src/main/java/dev/jayms/net/model/SparseVoxelOctree.java tools/structures/LeafVisitorProbe.java",
+      "java -Xmx1g -cp target/structure-leaf-visitor-probe LeafVisitorProbe"
+    ],
+    "results": [
+      {
+        "operation": "leaf-list-traversal",
+        "runs": 20,
+        "warmups": 3,
+        "batch": 128,
+        "leaves_per_tree": 2048,
+        "median_ms": 11.619,
+        "p95_ms": 22.313,
+        "worst_ms": 25.068,
+        "median_thread_allocated_bytes": 14793728
+      },
+      {
+        "operation": "leaf-visitor",
+        "runs": 20,
+        "warmups": 3,
+        "batch": 128,
+        "leaves_per_tree": 2048,
+        "median_ms": 4.534,
+        "p95_ms": 4.619,
+        "worst_ms": 4.674,
+        "median_thread_allocated_bytes": 0
+      }
+    ],
+    "note": "Same frozen fragmented 16-resolution tree, 2048 leaves; alternating modes, 3 warmups and 20 measured batches of 128 traversals. Same count and ordered coordinate/colour checksum asserted each traversal. Reused visitor/counter setup excluded. Current-thread allocation is cumulative, not peak memory. Shared VPS; targeted tests ran concurrently. This measures traversal, not complete package validation or full fixtures."
+  },
+  "native": {
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "result": {
+      "status": "passed",
+      "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+      "source_manifest": "structure-native-source.json",
+      "source_manifest_sha256": "cec01746ef7f4267f572eebca8b502f2683c7efe40d31de8f1cea8b79fadbd5f",
+      "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+      "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+      "publication": "Local evidence pending controller publication"
+    },
+    "source_manifest_entries": 219,
+    "source_manifest_match": true,
+    "video_bytes": 382128,
+    "video_sha256": "e8a1cac476d5e50b2998ec3cc4277f93635126fe5cc5141754fa77434a609706",
+    "video_codec": "H264",
+    "video_frames": 17,
+    "video_duration_s": 26.774,
+    "inspection": "Decoded frame and fresh placed-structures screenshot inspected; green preview and independent brick structures visible. HUD 1 FPS: functional only.",
+    "publication": "Pending controller publication"
+  },
+  "hosted_parent_observation": "Seven checks succeeded; Intel Mac push check still in progress when inspected. No repeated polling.",
+  "pending": [
+    "Full city/maximum admission and 20-run full-pipeline qualification",
+    "Physical GPU, shaped network and 32 rendered clients",
+    "Memory/frame/tick/traffic budgets"
+  ],
+  "audit": "Diff check passed against recorded review base; no deleted paths; no cap or format changes."
+}
