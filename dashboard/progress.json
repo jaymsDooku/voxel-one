@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Streamed canonical history replay preserves serialized edit order/bytes. Median thread allocation fell by 9,540,608 bytes for 64 fragmented cells; median CPU time regressed while p95/worst improved, all recorded. 135 targeted tests and fresh native workflow passed; 221 source hashes and decoded media verified. Local edits/media await controller publication. Full city/maximum and physical-GPU/network qualification remain pending.",
-      "updatedAt": "2026-10-31T06:01:48+00:00"
+      "note": "Immutable history key reuse preserves serialized replay and COW isolation. For 50,000 uniform/mixed cells, median staging allocation fell by 14,000,000/30,800,000 bytes. Live-world retained estimates also fell with and without a history copy; raw samples and limits recorded. 150 targeted tests and fresh native workflow passed; 221 source hashes and decoded media verified. Local edits/media await controller publication. Full city/maximum and physical-GPU/network qualification remain pending.",
+      "updatedAt": "2026-10-31T06:30:49+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

@@ -61,7 +61,7 @@
     "src/main/java/dev/jayms/net/StagedWorldSave.java": "3f3a1432eb2ddd335a2351ae393464cb6e260744c96ab962046ca608d1667cef",
     "src/main/java/dev/jayms/net/Terrain.java": "6ebe8434adb002ba2fcaa74e5bfed64b7bf4741e3e422138b37c96d03eee5845",
     "src/main/java/dev/jayms/net/WorldSavePublication.java": "589ca574888c83e270d285e3a86e3094255a1b69c2e436454bb8ecfa56894bba",
-    "src/main/java/dev/jayms/net/WorldVoxels.java": "b5371d37582ca5a77e60ffe0586862a1d2a071359bb13942bbba9ce67da43209",
+    "src/main/java/dev/jayms/net/WorldVoxels.java": "5099c7edf02e50111b99a08f9b25cc06211ef8333e6bff141eb4718155be67df",
     "src/main/java/dev/jayms/net/atmosphere/AtmosphereConfig.java": "d14101f2b0f8a1e6b155be95c3ff3d5cc47c918f75bdf0c980eabc209dbc8308",
     "src/main/java/dev/jayms/net/city/Agriculture.java": "61cbe6f28d3c16407f1074860edab0407fad35f6d9498c8bd9d7fce16e96eeb7",
     "src/main/java/dev/jayms/net/city/Aviation.java": "aec5129c8d0ee506a0f5626217cf773af7152194b2d828ba106660f29b1a62ff",
