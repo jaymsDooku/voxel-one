@@ -1,5 +1,16 @@
 # Structure review fix checkpoint
 
+## Production distinct-cell history cursor
+
+Added History.cellCopyCursor over the existing cell index. Returns detached immutable position batches≤1024, including explicit air and one position per fractional cell. Begin/read under same owner lock; source revision changes invalidate before iteration even after exhaustion. Independent COW copy mutation does not invalidate source. No spatial/order guarantee.
+
+Twenty-six production regressions passed,0 failures/errors/skips: new cursor3, history index10, edit history1, offline staging9, cell replay3. Three affected integrations passed in15.341s. Playtest: actual synthetic v9 LocalGame save/reload;2054 distinct cells in3 batches reconstructed through existing CellState wire36980bytes. Fractional geometry, explicit air, negative positions and model definitions retained. Same-value mutation fence, retained batch/source-save immutability and world snapshot isolation passed. Fresh child exit0 image inspected. Noninteractive data path; browser/native rendering does not apply. This small fixture is not latency/memory or large-fixture qualification.
+
+Historical native baseline224files now has221unchanged; LocalGame, WorldVoxels and CityHistory differ. Old native media is not exact-source proof for these persistence changes. Parent `2123a2cd`: controller reports success; direct GitHub showed7SUCCESS and1mac-intel running, publication skipped. No polling. New edits await publication and exact-head checks. No deleted paths against review base; diff check passed. Evidence `structure-cell-cursor.json` and `structure-cell-cursor-cli.png`, pending controller publication.
+
+Next: use indexed cell batches in production region persistence with owner/world snapshot fences. Region streaming/backend installation, full city/maximum admission and20-run budgets, physical GPU, shaped32-client, stall/peak-memory and directory durability qualification remain pending. No caps raised or gates weakened.
+
+
 ## Production normal-save integrity guard
 
 Parent `1c67f555` has eight successful hosted builds; publication skipped. Found normal LocalGame.save could write more than2,000,000 edits although its loader rejects that count. Added preflight before directory creation/temp opening; reader, normal writer and structure admission share existing limit. No caps raised.

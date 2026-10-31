@@ -9,6 +9,8 @@ import java.util.*;
  * Sparse overrides on an implicit seeded world; each block subdivides to sixteen cells per axis.
  */
 public final class WorldVoxels {
+    /** Immutable world-cell coordinate; contains no geometry or replay history. */
+    public record CellPosition(int x,int y,int z) {}
     /** Ordered edit history with a cell index. Collection views are read-only. */
     public static final class History extends AbstractMap<String, Protocol.Edit> {
         private final Map<String, Protocol.Edit> ordered;
@@ -34,6 +36,28 @@ public final class WorldVoxels {
                 var keys=new String[count];var values=new Protocol.Edit[count];
                 for(int i=0;i<count;i++){var entry=iterator.next();keys[i]=entry.getKey();values[i]=entry.getValue();}
                 remaining-=count;return new CopyBatch(keys,values);
+            }
+        }
+        /** Begin and read every batch under the same owner lock. No spatial/order contract.
+         * Visits explicit air and every other indexed cell once, regardless of edit count. */
+        public CellCopyCursor cellCopyCursor(){return new CellCopyCursor();}
+        public final class CellCopyCursor {
+            private final long expectedRevision=revision;
+            private final Iterator<CellKeys> iterator=cells.values().iterator();
+            private int remaining=cells.size();
+            private CellCopyCursor(){}
+            /** At most 1024 detached positions. Any source mutation invalidates even exhaustion. */
+            public List<CellPosition> nextBatch() {
+                if(revision!=expectedRevision)throw new ConcurrentModificationException("History changed during cell copy");
+                int count=Math.min(1024,remaining);if(count==0)return List.of();
+                var result=new ArrayList<CellPosition>(count);
+                for(int i=0;i<count;i++) {
+                    var keys=iterator.next();String first=keys.many==null?keys.single:keys.many.iterator().next();
+                    var edit=ordered.get(first);
+                    if(edit==null)throw new IllegalStateException("History cell index mismatch");
+                    result.add(new CellPosition(edit.x(),edit.y(),edit.z()));
+                }
+                remaining-=count;return List.copyOf(result);
             }
         }
         /** Immutable cursor result. Captured keys already passed History.put validation. */

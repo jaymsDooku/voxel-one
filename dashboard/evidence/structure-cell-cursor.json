@@ -1,0 +1,85 @@
+{
+  "parent": "2123a2cd987727ae691cb2f67944318988610f73",
+  "change": "History.cellCopyCursor enumerates distinct touched cell positions from existing index in immutable batches of at most1024. Begin/read under same owner lock; no order guarantee. Explicit air included. Any source revision change rejects before iterator access, even at exhaustion; independent COW copy edits do not invalidate source cursor. No geometry or replay edits retained in output.",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "java": "25.0.3+9-LTS-195",
+    "compile_release": 17,
+    "cli_heap": "512 MiB",
+    "display": "inherited assigned display, synthetic own window"
+  },
+  "commands": [
+    "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=WorldHistoryCellCursorTest,WorldHistoryIndexTest,EditHistoryTest,StructureOfflineHistoryStagingTest,StructureCellReplayTest test",
+    "javac -encoding UTF-8 --release 17 -cp target/classes -d target tools/structures/HistoryCellCursorCheck.java tools/structures/RegionGenerationEvidence.java",
+    "java -Xmx512m -cp target:target/classes HistoryCellCursorCheck",
+    "python3 -m unittest tools.structures.test_region_history.RegionHistoryIntegrationTest.test_offline_owner tools.structures.test_region_history.RegionHistoryIntegrationTest.test_complete_restore tools.structures.test_region_history.RegionHistoryIntegrationTest.test_actual_engine_authority",
+    "java -cp target:target/classes RegionGenerationEvidence HistoryCellCursorCheck",
+    "import -display \"$DISPLAY\" -window 2097159 dashboard/evidence/structure-cell-cursor-cli.png",
+    "gh pr view 76 --json headRefOid,statusCheckRollup"
+  ],
+  "production_tests": [
+    {
+      "class": "WorldHistoryCellCursorTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "WorldHistoryIndexTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "EditHistoryTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "StructureOfflineHistoryStagingTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "StructureCellReplayTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "tool_tests": "3 integrations passed in15.341s; no skips.",
+  "cli": {
+    "status": "passed",
+    "cells": 2054,
+    "batches": 3,
+    "cell_wire_bytes": 36980,
+    "fractional_air_models": true,
+    "revision_fence": true,
+    "production_region_backend": false,
+    "qualification": false
+  },
+  "playtest": "Playtest: actual synthetic LocalGame v9 save/reload with negative coordinates, fractional glass/stone, explicit air and custom model. Enumerate2054 cells in3 bounded batches; encode/decode each through existing Protocol.CellState wire and reconstruct detached world. Expected all cell geometry and model definitions preserved with no duplicate coordinates; observed pass,36980 cell-wire bytes. Same-value source mutation invalidates exhausted cursor; retained batch and COW world snapshot stay unchanged. Original save bytes unchanged. Direct and displayed child exit0; image inspected. Persistence/data-path change; browser/native rendering does not apply.",
+  "scope": "Small functional fixture only. No100ms stall, memory, large-fixture or stable supported-limit claim. Cell cursor does not select region save/stream backend.",
+  "native_baseline": "224 historical source files:221 unchanged; LocalGame.java, WorldVoxels.java and CityHistory.java differ. Historical native media is not exact-source proof for these persistence changes.",
+  "hosted": "Controller reports parent success; direct GitHub observation seven SUCCESS and one mac-intel IN_PROGRESS, publish skipped. No polling. New edits require exact-head publication/checks.",
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/WorldVoxels.java": "57cee5206ffcd160a7cbf78bfb887dc5207a6c3467fcf3d4c25998ae1bbb9eb7",
+    "src/test/java/dev/jayms/WorldHistoryCellCursorTest.java": "f807cd7428d6693d76b0976c1e5b5cfedb31efeee8fc4d4a2f84f40b27ffeaf0",
+    "tools/structures/HistoryCellCursorCheck.java": "799b80b0ad19eba54477691711ea1c4acb01622c0e1672cb257fee187a8bfcd2",
+    "tools/structures/RegionGenerationEvidence.java": "289b71e39438ffffc4e96d2d805902e67825b1411ddb130dccf5e496d5301576"
+  },
+  "media": {
+    "file": "structure-cell-cursor-cli.png",
+    "sha256": "3fec090397b0680750f2bb0b49f27ee167a0de01e6fa1fabe013ea90aa9eac8d",
+    "publication": "pending controller"
+  },
+  "audit": "No deleted paths against71612f09bfec4549456b3317676e76cdced085a4; no intended deletions. git diff --check passed.",
+  "pending": "Production region persistence/streaming/owner installation, full city/maximum admission,20-run budgets, physical GPU, shaped32-client sync, stall/peak memory and directory durability. Existing caps and rollout gates retained."
+}
