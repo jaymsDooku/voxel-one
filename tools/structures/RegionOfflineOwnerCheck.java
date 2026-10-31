@@ -22,6 +22,7 @@ public final class RegionOfflineOwnerCheck {
     }
     static <T>T worker(Callable<T> call,StructureOwnerQueue owner)throws Exception{return worker(call,owner,()->{});}
     static RegionOfflineOwnerPrototype.Staged stage(LocalGame game,StructureOwnerQueue owner,RegionGenerationPrototype store)throws Exception{return worker(()->RegionOfflineOwnerPrototype.capture(game,owner,()->false).stage(store,()->false),owner);}
+    static Path writeCity(Path path,byte[] bytes)throws IOException{Files.write(path,bytes);return path;}
     public static void main(String[] args)throws Exception {
         Path parent=Path.of("target/structure-offline-owner-tests");Files.createDirectories(parent);Path root=Files.createTempDirectory(parent,"synthetic-");
         try(var owner=new StructureOwnerQueue()){
@@ -50,8 +51,25 @@ public final class RegionOfflineOwnerCheck {
             restored=new RegionAuthorityPrototype(root.resolve("private"),123,Terrain.CURRENT_VERSION);require(restored.metadata().orElseThrow().health()==8&&restored.metadata().orElseThrow().drops().size()==2&&restored.models().get(76)!=null,"Retry lost latest owner state");
             try(var closed=new StructureOwnerQueue()){closed.close();reject(IOException.class,()->worker(()->RegionOfflineOwnerPrototype.capture(game,closed,()->false),closed));}
             var ground=new CitySimulation.Ground(){public int type(int x,int y,int z){return y<=0?Blocks.STONE:0;}public void apply(List<Protocol.Edit> edits){}public boolean occupied(int x,int y,int z,int w,int d){return false;}};game.city=new CitySimulation(GameConfig.cityGame(),ground,new Terrain(123),null);reject(IOException.class,()->worker(()->RegionOfflineOwnerPrototype.capture(game,owner,()->false),owner));
+            game.city.collectHistory();var cityFrame=game.city.frame();long cityRevision=game.city.history.revision();double cityLatest=game.city.history.latest();
+            try(var pending=stage(game,owner,store)){pending.commit(()->false);}
+            require(cityFrame.equals(game.city.frame())&&cityRevision==game.city.history.revision()&&cityLatest==game.city.history.latest(),"Snapshot changed city/history state");
+            var cityRestored=new RegionAuthorityPrototype(root.resolve("private"),123,Terrain.CURRENT_VERSION).sidecars().orElseThrow();Path cityFile=root.resolve("restored.city"),historyFile=root.resolve("restored.city.history");Files.write(cityFile,cityRestored.city());Files.write(historyFile,cityRestored.history().orElseThrow());var loadedFrame=CitySimulation.load(cityFile);var loadedHistory=CityHistory.load(historyFile,cityFile,loadedFrame.config(),loadedFrame.elapsed());
+            require(cityFrame.equals(loadedFrame)&&loadedHistory.identity().equals(game.city.history.identity())&&loadedHistory.revision()==cityRevision&&loadedHistory.catalog().equals(game.city.history.catalog())&&loadedHistory.latest()==cityLatest,"City/history restart changed state or rejected history");
+            byte[] citySaved=Files.readAllBytes(root.resolve("private/current.region"));
+            try(var pending=stage(game,owner,store)){game.city.advance(1);reject(IOException.class,()->pending.commit(()->false));}
+            require(Arrays.equals(citySaved,Files.readAllBytes(root.resolve("private/current.region"))),"Changed city frame published");
+            try(var pending=stage(game,owner,store)){var historyIdentity=game.city.history;game.city.history=new CityHistory();reject(IOException.class,()->pending.commit(()->false));game.city.history=historyIdentity;}
+            try(var pending=stage(game,owner,store)){var cityIdentity=game.city;game.city=null;reject(IOException.class,()->pending.commit(()->false));game.city=cityIdentity;}
+            try(var pending=stage(game,owner,store)){double before=game.city.history.latest();require(before>0,"Synthetic clock did not advance");long revisionBefore=game.city.history.revision();game.city.history.clock(before/2);require(revisionBefore==game.city.history.revision(),"Clock mutation unexpectedly changed revision");reject(IOException.class,()->pending.commit(()->false));game.city.history.clock(before);}
+            try(var pending=stage(game,owner,store)){game.city.history.events=!game.city.history.events;reject(IOException.class,()->pending.commit(()->false));game.city.history.events=!game.city.history.events;}
+            var cityCalls=new AtomicInteger();reject(IOException.class,()->worker(()->RegionOfflineOwnerPrototype.capture(game,owner,()->false),owner,()->{if(cityCalls.incrementAndGet()==1)game.city.advance(1);}));
+            try(var pending=stage(game,owner,store)){pending.commit(()->false);}
+            require(game.city.frame().equals(CitySimulation.load(writeCity(root.resolve("latest.city"),new RegionAuthorityPrototype(root.resolve("private"),123,Terrain.CURRENT_VERSION).sidecars().orElseThrow().city()))),"City retry lost latest frame");
+            var cityBeforeCancel=game.city.frame();long historyBeforeCancel=game.city.history.revision();reject(CancellationException.class,()->RegionCityOwnerPrototype.capture(game.city,()->true));var cityCancelCalls=new AtomicInteger();reject(CancellationException.class,()->RegionCityOwnerPrototype.capture(game.city,()->cityCancelCalls.incrementAndGet()>100));require(cityBeforeCancel.equals(game.city.frame())&&historyBeforeCancel==game.city.history.revision(),"Cancelled city snapshot mutated state");
+            var sandbox=new CitySimulation(GameConfig.sandbox(),ground,new Terrain(123),null);var sandboxSnapshot=RegionCityOwnerPrototype.capture(sandbox,()->false);require(sandboxSnapshot.sidecars().history().isEmpty()&&sandbox.frame().equals(CitySimulation.load(writeCity(root.resolve("sandbox.city"),sandboxSnapshot.sidecars().city()))),"Sandbox invented history or changed frame");
             require(!Files.exists(legacy),"Adapter wrote legacy source file");try(var files=Files.list(root.resolve("private"))){require(files.noneMatch(p->p.getFileName().toString().startsWith(".region-stage-")),"Private stage leaked");}
         }finally{try(var paths=Files.walk(root)){for(var path:paths.sorted(Comparator.reverseOrder()).toList())Files.delete(path);}}
-        System.out.printf("{\"status\":\"passed\",\"actual_local_game\":true,\"owner_queue_pumps\":%d,\"rejection_cases\":%d,\"legacy_file_untouched\":true,\"production_backend_selected\":false,\"qualification\":false}%n",pumps,rejected);
+        System.out.printf("{\"status\":\"passed\",\"actual_local_game\":true,\"active_city_preserved\":true,\"owner_queue_pumps\":%d,\"rejection_cases\":%d,\"legacy_file_untouched\":true,\"production_backend_selected\":false,\"qualification\":false}%n",pumps,rejected);
     }
 }

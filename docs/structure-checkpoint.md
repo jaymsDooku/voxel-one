@@ -1,5 +1,13 @@
 # Structure review fix checkpoint
 
+## Coordinated private active-city owner snapshot
+
+Exact parent `1c370953` has eight successful hosted builds; publication skipped. Actual LocalGame owner backup now captures active city frame17 plus matching bounded history1 bytes read-only, without calling collectHistory/save. City/history use exact binding and combined4MiB cap inside unchanged16MiB private envelope. City-mode history must be initialized and not ahead of frame time; sandbox retains no-history-file policy. Snapshot token includes simulation/history identities, history revision and exact bytes. Final owner revalidation catches clock/events mutations without revision as well as frame/history replacements. No simulation state enters reusable structures.
+
+Five affected integrations passed, no skips. CLI passed28 rejection cases, full generated city/history restoration through production loaders, snapshot purity, cancellation and retry. Production CityHistory source unchanged from its validated published receipt; no blanket Maven/native rerun. Fresh actual child exit0 own-window image inspected. Playtest: actual synthetic LocalGame/city owner queue/private commit/restart, stale frame/history/clock/flags/identity rejection and sandbox absence. Browser/rendering does not apply to tools-only persistence. No legacy save written. No deleted paths against review base; diff check passed. Evidence `structure-city-owner.json` and `structure-city-owner-cli.png`, pending controller publication.
+
+Owner serialization/revalidation remains synchronous and unqualified for100ms stalls/peak memory. Requires exclusive owner-thread state management. No live region backend, auto restore, server owner adapter or ordinary-edit persistence selected. Directory durability and full20-run city/maximum physical-GPU/shaped32-client qualification remain pending; no caps raised and rollout gated. Next: bounded restore/owner installation before switching a backend.
+
 ## Bounded production city-history snapshot writer
 
 Exact parent `b4735e8a` has successful hosted platform builds. Extracted `CityHistory.writeSnapshot(OutputStream,String,int)` from existing file serialization, retaining HIS1 v1 field order, city SHA-256 binding and CRC. New read-only stream API opens no files, collects no samples and leaves caller stream open; output cap0..64MiB includes checksum and applies before writes. Partial frames on failure must be discarded. Existing file save delegates with its unchanged64MiB cap/publication policy; serialization/fingerprint failures now clean temporary history files.

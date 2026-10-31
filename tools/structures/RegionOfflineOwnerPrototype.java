@@ -9,21 +9,21 @@ import java.util.function.BooleanSupplier;
 /** Private owner-queue backup adapter. Does not replace LocalGame state or select a production save backend. */
 public final class RegionOfflineOwnerPrototype {
     private record State(Thread ownerThread,WorldVoxels.History history,long historyRevision,WorldVoxels.History.CopyCursor cursor,int count,
-                         ModelLibrary liveModels,long modelRevision,ModelLibrary models,Inventory inventory,int health,List<ItemDrop> drops){}
+                         ModelLibrary liveModels,long modelRevision,ModelLibrary models,Inventory inventory,int health,List<ItemDrop> drops,RegionCityOwnerPrototype city){}
     private static void check(BooleanSupplier cancel){if(Thread.currentThread().isInterrupted()||cancel.getAsBoolean())throw new CancellationException();}
     private static State read(LocalGame game,BooleanSupplier cancel)throws IOException {
-        check(cancel);if(game.city!=null)throw new IOException("Active city state requires a coordinated adapter");
+        check(cancel);
         if(!(game.edits instanceof WorldVoxels.History history))throw new IOException("Versioned history required");
         if(history.size()>200_000||game.drops.size()>100_000)throw new IOException("Owner snapshot record budget");
-        return new State(Thread.currentThread(),history,history.revision(),history.copyCursor(),history.size(),game.models,game.models.revision(),game.models.copy(),game.inventory.copy(),game.health,List.copyOf(game.drops.values()));
+        return new State(Thread.currentThread(),history,history.revision(),history.copyCursor(),history.size(),game.models,game.models.revision(),game.models.copy(),game.inventory.copy(),game.health,List.copyOf(game.drops.values()),game.city==null?null:RegionCityOwnerPrototype.capture(game.city,cancel));
     }
     private static void validateGeometry(LocalGame game,State state)throws IOException {
-        if(game.city!=null||game.edits!=state.history()||state.history().revision()!=state.historyRevision()||game.models!=state.liveModels()||game.models.revision()!=state.modelRevision())throw new IOException("Owner state changed; retry region backup");
+        if((state.city()==null?game.city!=null:!state.city().sameIdentity(game.city))||game.edits!=state.history()||state.history().revision()!=state.historyRevision()||game.models!=state.liveModels()||game.models.revision()!=state.modelRevision())throw new IOException("Owner state changed; retry region backup");
     }
     private static byte[] metadata(State state,BooleanSupplier cancel)throws IOException{return RegionOfflineMetadataPrototype.capture(state.inventory(),state.health(),state.drops(),state.models(),cancel).encode(cancel);}
     private static void validate(LocalGame game,State state,byte[] metadata,BooleanSupplier cancel)throws IOException {
         validateGeometry(game,state);var current=read(game,cancel);
-        if(!Arrays.equals(metadata,metadata(current,cancel)))throw new IOException("Owner survival state changed; retry region backup");
+        if((state.city()==null?current.city()!=null:!state.city().sameState(current.city()))||!Arrays.equals(metadata,metadata(current,cancel)))throw new IOException("Owner survival state changed; retry region backup");
         check(cancel);
     }
     /** Worker only. Every live field and cursor read is dispatched to the existing game owner queue. */
@@ -47,7 +47,7 @@ public final class RegionOfflineOwnerPrototype {
         catch(UncheckedIOException invalid){throw invalid.getCause();}
         catch(IllegalArgumentException invalid){throw new IOException("Owner migration value/budget",invalid);}
         var survival=RegionOfflineMetadataPrototype.capture(state.inventory(),state.health(),state.drops(),state.models(),cancel);byte[] frozen=survival.encode(cancel);
-        var candidate=RegionWorldLibraryPrototype.capture(geometry,state.models(),survival,cancel);candidate.encode(cancel);
+        var candidate=RegionWorldLibraryPrototype.capture(geometry,state.models(),survival,cancel);if(state.city()!=null)candidate=candidate.withSidecars(state.city().sidecars(),cancel);candidate.encode(cancel);
         owner.call(()->{validate(game,state,frozen,cancel);return null;},cancel);return new Snapshot(game,state,frozen,candidate);
     }
     public static final class Snapshot {
