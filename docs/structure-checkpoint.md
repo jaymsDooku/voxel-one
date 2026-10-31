@@ -1,5 +1,16 @@
 # Structure review fix checkpoint
 
+## Generation payload range decoding
+
+Private version2 generation loading now decodes the whole-library payload from the validated file array at offset20, removing its extra payload copy. Legacy dependency version1 keeps its old loading path. Envelope decode accepts an explicit offset/length; CRC, section boundaries and byte budgets use that range. The CRC loop advances by remaining bytes without overflowing its cursor. Caller must not mutate the source during decoding. Formats and limits unchanged.
+
+Final seven affected integrations passed in37.856s, no skips. Playtest: envelope versions1–4 round-trip exactly at offsets1/37 with unrelated padding. Negative, huge and incorrect ranges reject. Four actual generation-file stage/commit/strict restarts retain geometry, unused models and generation1; payload bytes remain exact. Seventy-six rejection cases, retry and source preservation pass. Existing publication-fault, authority, owner and server-bundle checks pass. Fresh child exit0 image inspected. Noninteractive persistence integration; browser/native rendering does not apply.
+
+Only private tools changed;224 production Java/harness hashes match the current native manifest. Parent41cb77d5 platform builds passed; publication skipped. No deleted paths against review base. Version2 copy intentionally replaced; legacy version1 path retained. No unrelated deletions, diff check passed. Report structure-generation-range.json and image structure-generation-range-cli.png pending controller publication.
+
+Bounded file bytes and decoded/staging state still allocate; no peak-memory or speedup claim. Production backend/streaming/live installation and full city/maximum20-run,GPU,shaped32-client,frame/tick/traffic/peak-memory/stall/durability qualification remain pending. Existing caps and stable-rollout gates retained.
+
+
 ## Bounded envelope section views
 
 Private envelope decode now gives the library and geometry parsers bounded views of the already CRC-checked envelope array. This replaces two `readNBytes` section copies and uses the new region stream API. Each view ends at its declared section length; the parent cursor advances by exactly that length. Versions 1–4, validation and limits remain unchanged. Outer envelope bytes and decoded state still allocate; no peak-memory or speedup claim.

@@ -74,24 +74,30 @@ public final class RegionWorldLibraryPrototype {
     }
     /** Bounded view over the CRC-checked envelope, not another encoded-section copy.
      * Parent excludes its four-byte CRC; all callers validate their section budget first. */
-    private static InputStream section(byte[] bytes,ByteArrayInputStream parent,int size)throws IOException {
+    private static InputStream section(byte[] bytes,int bodyEnd,ByteArrayInputStream parent,int size)throws IOException {
         if(size<0||size>parent.available())throw new IOException("World section byte budget");
-        int offset=bytes.length-4-parent.available();
+        int offset=bodyEnd-parent.available();
         var view=new ByteArrayInputStream(bytes,offset,size);parent.skipNBytes(size);return view;
     }
     public static RegionWorldLibraryPrototype decode(byte[] bytes,BooleanSupplier cancel)throws IOException {
+        Objects.requireNonNull(bytes);return decode(bytes,0,bytes.length,cancel);
+    }
+    /** Decode one bounded frame inside a caller-owned array. Prefix/suffix bytes are
+     * excluded from budgets, CRC and section views. Caller must not mutate during decode. */
+    public static RegionWorldLibraryPrototype decode(byte[] bytes,int offset,int length,BooleanSupplier cancel)throws IOException {
         Objects.requireNonNull(bytes);Objects.requireNonNull(cancel);check(cancel);
-        if(bytes.length<52||bytes.length>MAX_BYTES)throw new IOException("World envelope byte budget");
-        var crc=new CRC32();for(int offset=0;offset<bytes.length-4;offset+=65536){check(cancel);crc.update(bytes,offset,Math.min(65536,bytes.length-4-offset));}
-        var tail=new DataInputStream(new ByteArrayInputStream(bytes,bytes.length-4,4));
-        if((int)crc.getValue()!=tail.readInt())throw new IOException("World envelope CRC");
-        var raw=new ByteArrayInputStream(bytes,0,bytes.length-4);var in=new DataInputStream(raw);
+        if(offset<0||length<52||length>MAX_BYTES||offset>bytes.length-length)throw new IOException("World envelope byte budget/range");
+        int bodyEnd=offset+length-4;
+        var crc=new CRC32();int cursor=offset,remaining=length-4;
+        while(remaining>0){check(cancel);int n=Math.min(65536,remaining);crc.update(bytes,cursor,n);cursor+=n;remaining-=n;}
+        if((int)crc.getValue()!=java.nio.ByteBuffer.wrap(bytes).getInt(bodyEnd))throw new IOException("World envelope CRC");
+        var raw=new ByteArrayInputStream(bytes,offset,length-4);var in=new DataInputStream(raw);
         if(in.readInt()!=MAGIC)throw new IOException("World envelope format/version");
         int version=in.readInt();if(version<1||version>4)throw new IOException("World envelope format/version");
         int size=in.readInt();if(size<4||size>MAX_LIBRARY_BYTES||size>raw.available()-4)throw new IOException("Library byte budget");
-        var library=readLibrary(section(bytes,raw,size),cancel);
+        var library=readLibrary(section(bytes,bodyEnd,raw,size),cancel);
         size=in.readInt();if(size<28||size>BUDGET.bytes()||(version==1?size!=raw.available():size>raw.available()-4))throw new IOException("World region byte budget");
-        var geometry=RegionHistoryPrototype.decode(section(bytes,raw,size),BUDGET,cancel);references(geometry,library,cancel);
+        var geometry=RegionHistoryPrototype.decode(section(bytes,bodyEnd,raw,size),BUDGET,cancel);references(geometry,library,cancel);
         RegionOfflineMetadataPrototype metadata=null;
         if(version==2||version==3){size=in.readInt();if(size<89||size>RegionOfflineMetadataPrototype.MAX_BYTES||(version==2?size!=raw.available():size>raw.available()-4))throw new IOException("Metadata byte budget");metadata=RegionOfflineMetadataPrototype.decode(in.readNBytes(size),library,cancel);}
         RegionServerMetadataPrototype serverMetadata=null;

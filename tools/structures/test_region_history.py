@@ -46,7 +46,7 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
         self.assertEqual(row['status'], 'passed')
         self.assertEqual(row['versions'], 4)
         self.assertGreaterEqual(row['rejection_cases'], 40)
-        for key in ['byte_exact', 'geometry_and_air', 'library_preserved', 'metadata_boundaries', 'source_unchanged', 'retry']:
+        for key in ['byte_exact', 'geometry_and_air', 'library_preserved', 'metadata_boundaries', 'array_ranges', 'generation_restart', 'source_unchanged', 'retry']:
             self.assertTrue(row[key])
         self.assertFalse(row['qualification'])
 
