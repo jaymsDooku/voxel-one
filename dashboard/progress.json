@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-31T07:34:50+00:00",
+  "updatedAt": "2026-10-31T07:59:53+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Offline library placement stages model/history save bytes on worker; owner patches current survival state before force/atomic publication. Version8/9 byte compatibility, cancel/cleanup, model mismatch and full rollback verified:163 distinct tests passed. Save-only20-run owner p95 37.802 to2.697ms; not full qualification. Fresh native workflow passed;223 source hashes and decoded434951-byte video verified. Local source/media await controller publication. Full city/maximum and physical qualification remain gated.",
-      "updatedAt": "2026-10-31T07:34:50+00:00"
+      "note": "Offline private save writes check cancel/interruption at most64KiB per delegated write, including model bytes.15 affected tests passed: format bytes, partial model writes, interrupt flag, cleanup, rollback and actual menu retry. Fresh20-run save outputs match. Native workflow passed;223 source hashes and decoded425446-byte video verified. Source/media await controller publication. Full city/maximum and physical qualification remain gated.",
+      "updatedAt": "2026-10-31T07:59:53+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
