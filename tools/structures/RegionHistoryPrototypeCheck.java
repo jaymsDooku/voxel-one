@@ -16,7 +16,7 @@ public final class RegionHistoryPrototypeCheck {
     private static WorldVoxels replay(Iterable<Protocol.Edit> edits) {
         var world=new WorldVoxels(new Terrain(SEED,terrainVersion));for(var edit:edits)world.apply(edit);return world;
     }
-    private static void run() {
+    private static void run() throws Exception {
         var edits=new ArrayList<Protocol.Edit>();var random=new Random(0x5317c17);
         int[] coordinates={-17,-16,-1,0,15,16,17};
         for(int i=0;i<5000;i++) {
@@ -35,11 +35,16 @@ public final class RegionHistoryPrototypeCheck {
         for(var edit:edits)WorldVoxels.remember(legacy,edit);
         var oldWorld=replay(legacy.values());
         var migrated=RegionHistoryPrototype.migrate(SEED,terrainVersion,legacy.values(),BUDGET,()->false);
+        var codecBudget=new RegionHistoryPrototype.CodecBudget(8*1024*1024,100_000,1024,131_072);
+        var encoded=migrated.encode(codecBudget,()->false);
+        var decoded=RegionHistoryPrototype.decode(encoded,codecBudget,()->false);var decodedWorld=decoded.replay();
+        require(Arrays.equals(encoded,decoded.encode(codecBudget,()->false)),"Region wire round trip changed bytes");
         var restored=migrated.replay();int cells=0;
         for(var records:migrated.regions().values())for(var cell:records) {
             require(cell.tree().sameValues(raw.cell(cell.x(),cell.y(),cell.z())),"Raw replay differs");
             require(cell.tree().sameValues(oldWorld.cell(cell.x(),cell.y(),cell.z())),"Legacy replay differs");
             require(cell.tree().sameValues(restored.cell(cell.x(),cell.y(),cell.z())),"Region replay differs");
+            require(cell.tree().sameValues(decodedWorld.cell(cell.x(),cell.y(),cell.z())),"Decoded region replay differs");
             cells++;
         }
         require(restored.type(1,Terrain.MIN_Y,1)==0,"Air override lost");
@@ -68,9 +73,9 @@ public final class RegionHistoryPrototypeCheck {
             require(Thread.currentThread().isInterrupted(),"Interrupt flag cleared");}
         finally{Thread.interrupted();}
         require(RegionHistoryPrototype.migrate(SEED,terrainVersion,legacy.values(),BUDGET,()->false).regions().size()==migrated.regions().size(),"Retry differs");
-        System.out.printf("{\"status\":\"passed\",\"raw_edits\":%d,\"canonical_records\":%d,\"cells\":%d,\"regions\":%d,\"seed\":%d,\"terrain_version\":%d,\"qualification\":false}%n",edits.size(),legacy.size(),cells,migrated.regions().size(),SEED,terrainVersion);
+        System.out.printf("{\"status\":\"passed\",\"raw_edits\":%d,\"canonical_records\":%d,\"cells\":%d,\"regions\":%d,\"seed\":%d,\"terrain_version\":%d,\"encoded_bytes\":%d,\"wire_sha256\":\"%s\",\"qualification\":false}%n",edits.size(),legacy.size(),cells,migrated.regions().size(),SEED,terrainVersion,encoded.length,HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(encoded)));
     }
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         for(int version=Terrain.LEGACY_VERSION;version<=Terrain.CURRENT_VERSION;version++){terrainVersion=version;run();}
     }
 }

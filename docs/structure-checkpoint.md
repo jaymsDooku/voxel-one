@@ -1,5 +1,45 @@
 # Structure review fix checkpoint
 
+## Private bounded region-history codec
+
+Parent `d809f700` has successful required platform builds per controller. Fresh
+PR observation matched that head: seven successful build entries and one extra
+Intel Mac build still running; publication skipped. No repeated wait was made.
+
+The tools-only prototype now has a private uncompressed version-1 region codec.
+It bounds bytes to 8 MiB, cells to 100,000, regions to 1,024 and leaves to 131,072.
+It retains seed and terrain version, explicit air and whole model IDs. It checks
+unique region coordinates, cell order/ownership, existing validated size-16 SVO
+payloads, CRC and EOF before returning a private decoded result. Leaf totals are
+checked after each cell, permitting one extra tree of at most 4,096 leaves before
+rejection. This is not a measured heap bound. Encoding and decoding check
+cancellation during I/O and again before returning complete results.
+
+35 structure-tool tests passed, followed by two final affected tests after an
+extra final-copy cancellation check: 37 test executions, zero failures, errors
+or skips. Actual Java CLI checks passed 47 rejection cases and an independently
+constructed 96-byte golden container. Semantic corruptions recompute CRC so
+parser checks are exercised. Truncation, duplicate/order/coordinate/material
+errors, all budget categories, cancellation, interruption, empty/exact budgets
+and retry are covered. The first mid-decode cancellation fixture assumed more
+than 40 callbacks; it now measures the JDK callback count before choosing its
+midpoint. The codec failure and no-result checks pass on final source.
+
+Playtest: all three terrain-version cohorts round-trip to 15,362-byte payloads,
+re-encode byte-for-byte and replay every touched cell against raw and legacy
+worlds. Each has 5,004 raw edits, 489 canonical records, 102 cells and 35 regions.
+Browser/native playtesting does not apply to this CLI-only experiment. All 224
+native source hashes remain unchanged; existing game media remains applicable.
+Report: `structure-region-history-codec.json`.
+
+Next: bounded global dependency manifest, then real versioned save/load,
+atomic generation publication, conflict-safe undo and late-join integration.
+The private format has no game importer. Production saves, history, networking
+and admission caps remain unchanged. Full city/maximum, 20-run budgets and
+physical-GPU/shaped-network/32-rendered-client qualification remain pending.
+No readiness or stable-rollout claim. New local prototype/docs/report need
+controller publication and exact-source hosted checks.
+
 ## Private region-history migration prototype
 
 Fresh hosted observation matched `fb76de63`: eight successful platform builds;

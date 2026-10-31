@@ -155,7 +155,16 @@ world boundaries, immutable snapshots and later edits. Its source is
 after compiling production classes. It retains seed and generator version and
 publishes a result only after migration finishes. Diagnostic count budgets and
 cancellation are checked; these are not decoded-byte or peak-memory bounds.
-It has no region codec, dependency manifest or production integration yet.
+Its private uncompressed version-1 codec now bounds input/output to 8 MiB,
+100,000 cells, 1,024 regions and 131,072 leaves. It validates region coordinates,
+unique regions, ordered local cell indices, cell ownership, size-16 geometry,
+materials, CRC and end-of-input before returning a result. Leaf counts are
+checked after each cell parses, so rejection can follow one extra tree of at
+most 4,096 leaves. This is not a measured heap bound. Cancellation is checked
+during I/O and before returning final results. A 96-byte independent golden
+container, 47 rejection cases and all three terrain-version replay cohorts pass.
+See `structure-region-history-codec.json`. It has no dependency manifest or
+production integration yet.
 No city-sized storage, save, network, atomic commit or undo claim follows from
 these small replay checks. Results: `structure-region-history-prototype.json`.
 
