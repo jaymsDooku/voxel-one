@@ -9,6 +9,9 @@ import java.util.function.BooleanSupplier;
 public final class RegionOfflineImportPrototype {
     static final int MAX_BYTES=16*1024*1024,MAX_SOURCE_EDITS=200_000;
     private static void check(BooleanSupplier cancel){if(Thread.currentThread().isInterrupted()||cancel.getAsBoolean())throw new CancellationException();}
+    public static RegionWorldLibraryPrototype decode(byte[] source,RegionSidecarsPrototype sidecars,BooleanSupplier cancel)throws IOException {
+        var candidate=decode(source,cancel).withSidecars(Objects.requireNonNull(sidecars),cancel);candidate.encode(cancel);check(cancel);return candidate;
+    }
     public static RegionWorldLibraryPrototype decode(byte[] source,BooleanSupplier cancel)throws IOException {
         Objects.requireNonNull(source);Objects.requireNonNull(cancel);check(cancel);
         if(source.length<93||source.length>MAX_BYTES)throw new IOException("Offline source byte budget");

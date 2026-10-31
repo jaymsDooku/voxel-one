@@ -15,8 +15,12 @@ public final class RegionWorldLibraryPrototype {
     private final RegionHistoryPrototype geometry;
     private final ModelLibrary library;
     private final RegionOfflineMetadataPrototype metadata;
+    private final RegionSidecarsPrototype sidecars;
     private RegionWorldLibraryPrototype(RegionHistoryPrototype geometry,ModelLibrary library){this(geometry,library,null);}
-    private RegionWorldLibraryPrototype(RegionHistoryPrototype geometry,ModelLibrary library,RegionOfflineMetadataPrototype metadata){this.geometry=geometry;this.library=library;this.metadata=metadata;}
+    private RegionWorldLibraryPrototype(RegionHistoryPrototype geometry,ModelLibrary library,RegionOfflineMetadataPrototype metadata){this(geometry,library,metadata,null);}
+    private RegionWorldLibraryPrototype(RegionHistoryPrototype geometry,ModelLibrary library,RegionOfflineMetadataPrototype metadata,RegionSidecarsPrototype sidecars){this.geometry=geometry;this.library=library;this.metadata=metadata;this.sidecars=sidecars;}
+    public Optional<RegionSidecarsPrototype> sidecars(){return Optional.ofNullable(sidecars);}
+    public RegionWorldLibraryPrototype withSidecars(RegionSidecarsPrototype value,BooleanSupplier cancel)throws IOException{Objects.requireNonNull(value);check(cancel);if(metadata==null)throw new IOException("Offline metadata required with sidecars");return new RegionWorldLibraryPrototype(geometry,library,metadata,value);}
     public Optional<RegionOfflineMetadataPrototype> metadata(){return Optional.ofNullable(metadata);}
     RegionHistoryPrototype geometrySnapshot(){return geometry;}
     private static void check(BooleanSupplier cancel){if(Thread.currentThread().isInterrupted()||cancel.getAsBoolean())throw new CancellationException();}
@@ -51,8 +55,9 @@ public final class RegionWorldLibraryPrototype {
     public byte[] encode(BooleanSupplier cancel)throws IOException {
         Objects.requireNonNull(cancel);check(cancel);byte[] models=libraryBytes(library,cancel),cells=geometry.encode(BUDGET,cancel);
         var sink=new RegionHistoryPrototype.LimitedOutput(MAX_BYTES,cancel);var crc=new CRC32();var out=new DataOutputStream(new CheckedOutputStream(sink,crc));
-        out.writeInt(MAGIC);out.writeInt(metadata==null?VERSION:2);out.writeInt(models.length);out.write(models);out.writeInt(cells.length);out.write(cells);
+        out.writeInt(MAGIC);out.writeInt(sidecars!=null?3:metadata==null?VERSION:2);out.writeInt(models.length);out.write(models);out.writeInt(cells.length);out.write(cells);
         if(metadata!=null){byte[] survival=metadata.encode(cancel);out.writeInt(survival.length);out.write(survival);}
+        if(sidecars!=null){byte[] data=sidecars.encode(cancel);out.writeInt(data.length);out.write(data);}
         out.flush();new DataOutputStream(sink).writeInt((int)crc.getValue());
         byte[] result=sink.bytes.toByteArray();check(cancel);return result;
     }
@@ -64,14 +69,16 @@ public final class RegionWorldLibraryPrototype {
         if((int)crc.getValue()!=tail.readInt())throw new IOException("World envelope CRC");
         var raw=new ByteArrayInputStream(bytes,0,bytes.length-4);var in=new DataInputStream(raw);
         if(in.readInt()!=MAGIC)throw new IOException("World envelope format/version");
-        int version=in.readInt();if(version!=1&&version!=2)throw new IOException("World envelope format/version");
+        int version=in.readInt();if(version<1||version>3)throw new IOException("World envelope format/version");
         int size=in.readInt();if(size<4||size>MAX_LIBRARY_BYTES||size>raw.available()-4)throw new IOException("Library byte budget");
         var library=readLibrary(in.readNBytes(size),cancel);
         size=in.readInt();if(size<28||size>BUDGET.bytes()||(version==1?size!=raw.available():size>raw.available()-4))throw new IOException("World region byte budget");
         var geometry=RegionHistoryPrototype.decode(in.readNBytes(size),BUDGET,cancel);references(geometry,library,cancel);
         RegionOfflineMetadataPrototype metadata=null;
-        if(version==2){size=in.readInt();if(size<89||size>RegionOfflineMetadataPrototype.MAX_BYTES||size!=raw.available())throw new IOException("Metadata byte budget");metadata=RegionOfflineMetadataPrototype.decode(in.readNBytes(size),library,cancel);}
-        check(cancel);return new RegionWorldLibraryPrototype(geometry,library,metadata);
+        if(version>=2){size=in.readInt();if(size<89||size>RegionOfflineMetadataPrototype.MAX_BYTES||(version==2?size!=raw.available():size>raw.available()-4))throw new IOException("Metadata byte budget");metadata=RegionOfflineMetadataPrototype.decode(in.readNBytes(size),library,cancel);}
+        RegionSidecarsPrototype sidecars=null;
+        if(version==3){size=in.readInt();if(size<24||size>RegionSidecarsPrototype.MAX_BYTES||size!=raw.available())throw new IOException("Sidecar byte budget");sidecars=RegionSidecarsPrototype.decode(in.readNBytes(size),cancel);}
+        check(cancel);return new RegionWorldLibraryPrototype(geometry,library,metadata,sidecars);
     }
     public record Restored(WorldVoxels world,ModelLibrary models){}
     /** Exact saved IDs; does not merge into another world's library or mutate either input. */
