@@ -54,9 +54,10 @@ public final class RegionOfflineOwnerPrototype {
         owner.call(()->{validate(game,state,frozen,cancel);return null;},cancel);return new Snapshot(game,state,frozen,candidate);
     }
     private record GeometryState(State state,WorldVoxels.CellSnapshotBuilder builder){}
-    /** Worker only. Caller supplies the current owner-managed world, initially consistent
-     * with game history. World, terrain and game mutation must stay serialized on that
-     * owner through commit. Geometry stays per-cell; no flat history replay is performed.
+    /** Worker only. Caller supplies the authoritative current owner-managed world.
+     * History is a change fence, not the geometry enumeration source. World, terrain and
+     * game mutation must stay serialized on that owner through commit. Geometry stays
+     * per-cell; no flat history replay is performed.
      * Indexed input retains the existing offline limit of 2,000,000 records; output caps are unchanged. */
     public static Snapshot capture(LocalGame game,java.util.function.Supplier<WorldVoxels> currentWorld,StructureOwnerQueue owner,BooleanSupplier cancel)throws IOException {
         Objects.requireNonNull(game);Objects.requireNonNull(currentWorld);Objects.requireNonNull(owner);Objects.requireNonNull(cancel);check(cancel);
@@ -68,11 +69,10 @@ public final class RegionOfflineOwnerPrototype {
             var state=captured.state();WorldVoxels.CellSnapshot geometry;
             do {geometry=owner.call(()->{validateGeometry(game,state);check(cancel);return captured.builder().advance(currentWorld.get(),state.history());},cancel);}while(geometry==null);
             if(geometry.terrainSeed()!=game.seed||geometry.terrainVersion()!=game.generatorVersion)throw new IOException("Owner world identity differs");
-            final var frozenGeometry=geometry;var cells=new ArrayList<Protocol.CellState>();
+            final var frozenGeometry=geometry;var cells=new ArrayList<Protocol.CellState>();var cursor=geometry.worldCells(100_000);
             while(true) {
-                var positions=owner.call(()->{validateGeometry(game,state);check(cancel);return frozenGeometry.nextBatch(currentWorld.get(),state.history());},cancel);
-                if(positions.isEmpty())break;
-                for(var position:positions){check(cancel);if(cells.size()>=100_000)throw new IOException("Owner final-cell budget");cells.add(geometry.cell(position));}
+                owner.call(()->{validateGeometry(game,state);check(cancel);if(!frozenGeometry.unchanged(currentWorld.get(),state.history()))throw new IOException("Owner world changed; retry region backup");return null;},cancel);
+                var batch=cursor.nextBatch();if(batch.isEmpty())break;cells.addAll(batch);
             }
             var region=RegionHistoryPrototype.fromCells(game.seed,game.generatorVersion,cells,new RegionHistoryPrototype.CodecBudget(8*1024*1024,100_000,1024,131_072),cancel);
             var survival=RegionOfflineMetadataPrototype.capture(state.inventory(),state.health(),state.drops(),state.models(),cancel);byte[] frozen=survival.encode(cancel);

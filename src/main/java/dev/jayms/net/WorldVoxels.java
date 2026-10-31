@@ -300,6 +300,45 @@ public final class WorldVoxels {
             if(!unchanged(current,currentHistory))throw new ConcurrentModificationException("World/history changed during cell capture");
             return cursor.nextBatch();
         }
+        /** Enumerate stored overrides without consulting flat replay history. Create and
+         * consume each cursor on one worker. Explicit air is retained; implicit terrain
+         * is absent. Final owner unchanged validation is still required before publication. */
+        public WorldCellCursor worldCells(int maxCells) {
+            if(maxCells<0)throw new IllegalArgumentException("Negative world cell budget");
+            terrain();return new WorldCellCursor(maxCells);
+        }
+        public final class WorldCellCursor {
+            private final Thread reader=Thread.currentThread();
+            private final int maxCells;
+            private final Iterator<Map.Entry<ChunkPos,CellBucket>> chunks=detached.chunks.entrySet().iterator();
+            private Iterator<Map.Entry<Integer,SparseVoxelOctree>> cells=Collections.emptyIterator();
+            private ChunkPos position;
+            private int emitted;
+            private boolean failed;
+            private WorldCellCursor(int maxCells){this.maxCells=maxCells;}
+            public List<Protocol.CellState> nextBatch() {
+                if(Thread.currentThread()!=reader)throw new IllegalStateException("World cell cursor requires its reader thread");
+                if(failed)throw new IllegalStateException("World cell cursor failed; create a new capture");
+                try {
+                    terrain();var result=new ArrayList<Protocol.CellState>();
+                    while(result.size()<1024) {
+                        if(!cells.hasNext()) {
+                            if(!chunks.hasNext())break;
+                            var entry=chunks.next();position=entry.getKey();var bucket=entry.getValue();
+                            cells=bucket.cells!=null?bucket.cells.entrySet().iterator():bucket.singleKey<0?Collections.emptyIterator()
+                                    :Collections.singletonMap(bucket.singleKey,bucket.singleTree).entrySet().iterator();
+                            continue;
+                        }
+                        if(emitted>=maxCells)throw new IllegalArgumentException("World cell snapshot budget exceeded");
+                        var cell=cells.next();int index=cell.getKey();
+                        int x=position.chunkX()*16+(index&15),y=position.chunkY()*16+(index>>>8),z=position.chunkZ()*16+((index>>>4)&15);
+                        if(!new Protocol.Edit(x,y,z,0).valid())throw new IllegalArgumentException("Invalid world cell position");
+                        result.add(new Protocol.CellState(x,y,z,cell.getValue()));emitted++;
+                    }
+                    terrain();return List.copyOf(result);
+                }catch(RuntimeException failure){failed=true;throw failure;}
+            }
+        }
         /** Caller supplies a position from nextBatch; the returned cell tree is frozen. */
         public Protocol.CellState cell(CellPosition position) {
             Objects.requireNonNull(position);

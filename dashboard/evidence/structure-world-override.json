@@ -1,0 +1,62 @@
+{
+  "parent_head": "cc65772f571bb2ebd9e7556ed169f5180240a809",
+  "parent_hosted": "Controller scoped result:four platform builds success;publish skipped. Not QA approval.",
+  "change": "Production CellSnapshot gains worker-owned cursor over detached stored overrides without flat-history enumeration. At most1024 frozen CellState values per batch;explicit air retained,implicit terrain omitted. Independent cell budget,reader-thread confinement,terrain epoch fencing,poisoned cursor after budget/terrain/value failure. Private owner backup uses cursor with owner validation between batches and immediately before commit.",
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/WorldVoxels.java": "13b2df024818f296ff718b641335d419ffd0c8ba3a69f7cc1779151e662eaf69",
+    "src/test/java/dev/jayms/WorldCellSnapshotTest.java": "74fc7c01247979dd83eca38540b8cba008cfad3cc56d849f20fde87abfc86fec",
+    "tools/structures/RegionOfflineOwnerPrototype.java": "59ba7b04929c99f56e0cadc99efd2fbadf6ba50bddf2dfd59e70917770fa0d56",
+    "tools/structures/WorldOverrideCursorCheck.java": "450df6735174f7fdc3caabc266b1172db3241f2dac8caa4fb77d3b7db4f24efc",
+    "tools/structures/WorldOverrideCursorEvidence.java": "ba583ccaad90d2389006d920c51c589d3929cca294924b3a46513e70eb73c423",
+    "tools/structures/test_region_history.py": "5220a14151fb99741a7f681c0bcdbcdbfaf88a7d6cfab868c12494c152b0df10"
+  },
+  "commands": [
+    "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=WorldCellSnapshotTest,WorldHistoryCellCursorTest,WorldHistoryIndexTest,StructureOfflineHistoryStagingTest,StructureValidationStampTest,WorldStreamingTest test",
+    "python3 -m unittest tools.structures.test_region_history.RegionHistoryIntegrationTest.test_world_override_cursor tools.structures.test_region_history.RegionHistoryIntegrationTest.test_offline_cell_owner tools.structures.test_region_history.RegionHistoryIntegrationTest.test_offline_owner tools.structures.test_region_history.RegionHistoryIntegrationTest.test_dense_indexed_history tools.structures.test_region_history.RegionHistoryIntegrationTest.test_complete_restore tools.structures.test_region_history.RegionHistoryIntegrationTest.test_actual_engine_authority tools.structures.test_region_history.RegionHistoryIntegrationTest.test_world_library",
+    "java -Xmx512m -cp target/structure-world-override-evidence:target/classes WorldOverrideCursorCheck",
+    "java -Xmx512m -cp target/structure-world-override-evidence:target/classes WorldOverrideCursorEvidence",
+    "import -display \"$DISPLAY\" -window 2097159 dashboard/evidence/structure-world-override-cli.png"
+  ],
+  "environment": "Linux6.1.0-50-cloud-amd64 x86_64,Java25.0.3+9-LTS-195,512MiB CLI heap. Inherited managed role DISPLAY/XAUTHORITY for own synthetic CLI window only;no authentication cookie read.",
+  "results": {
+    "production_tests": {
+      "tests": 49,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "tool_tests": ".......\n----------------------------------------------------------------------\nRan 7 tests in 34.692s\n\nOK",
+    "cli": {
+      "status": "passed",
+      "stored_cells": 2054,
+      "flat_records": 0,
+      "strict_restart": true,
+      "models_and_survival": true,
+      "air_overrides_terrain": true,
+      "stale_world_rejected": true,
+      "retry": true,
+      "source_unchanged": true,
+      "qualification": false
+    },
+    "initial_attempts": "Initial production test fixture used model-only set for encoded LED and failed one test;corrected to world fill,then all49 passed. Initial tools failed compilation because CLI called WorldVoxels.sample instead of type;corrected and final7 passed. Failed attempts excluded.",
+    "native_scope": {
+      "changed_since_native_media": [
+        "src/main/java/dev/jayms/net/WorldVoxels.java"
+      ],
+      "note": "Earlier native video is historical for this new storage helper. No native rerun:affected workflow is noninteractive private backup and actual production WorldVoxels cursor,exercised by CLI and tests. Main rendering/UI unchanged."
+    }
+  },
+  "Playtest:": "Expected authoritative world-cell persistence without reconstructing flat leaf edits,including negative coordinates,fractional LED,explicit air and custom model. Observed2054 stored cells with0 flat records restored by strict private generation restart;explicit air over solid implicit terrain retained. Models and offline health20 restored. World-only stale change rejects commit with prior generation bytes unchanged;retry generation2 saves current glass. Flat source remains empty and legacy file absent. Production tests additionally verify2053 cells in3 batches,immutable/frozen results,source COW isolation,owner rejection,reader-thread errors,invalid positions,terrain invalidation,exact/zero/negative/overflowing configured cell budgets and poisoned cursor/retry. Fresh actual child exit0 image inspected. Noninteractive persistence path;browser/native game rendering does not apply.",
+  "limits": [
+    "World is authoritative for geometry;flat history remains a revision fence. Caller still serializes world/terrain/game mutation on same owner through commit and revalidates immediately before publication. This cursor alone never publishes.",
+    "Normal Main startup still replays local.edits.values() and normal save retains2million edit cap. No production region backend/streaming/live installation.",
+    "Private100000cell/1024region/131072leaf/8MiB geometry caps and2million source-record admission retained. API batching is a count bound,not100ms or peak-memory qualification.",
+    "Full city/maximum20-run,GPU,shaped32clients,frame/tick/traffic/peak-memory/stall and durability qualification remain pending. Stable rollout gated."
+  ],
+  "audit": "No deleted paths against71612f09bfec4549456b3317676e76cdced085a4. Old private backup history-position enumeration intentionally replaced by stored-world cursor;old production history cursor retained. No unrelated deletions;diff check passed.",
+  "media": {
+    "file": "structure-world-override-cli.png",
+    "sha256": "2860397ab26906a41ad0ff77edbd077029f3bb01242ec56d48ea6e2e67fca7a1",
+    "publication": "pending controller publication"
+  }
+}
