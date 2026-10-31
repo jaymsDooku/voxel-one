@@ -1,9 +1,11 @@
 import dev.jayms.net.structure.StructurePackage;
 import java.io.IOException;
+import java.io.ByteArrayInputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.util.HexFormat;
+import java.util.zip.GZIPInputStream;
 
 /** Decode-only prerequisite gate. Never creates a world or qualifies performance. */
 public final class CheckAdmission {
@@ -50,7 +52,12 @@ public final class CheckAdmission {
                 + "\",\"compressed_bytes\":" + bytes.length;
         try {
             var asset = StructurePackage.decode(bytes);
+            // Diagnostic pass only, outside game decoding and benchmark timings. Do not
+            // retain the decoded stream or infer its size from gzip's 32-bit trailer.
+            long decoded = decodedBytes(bytes, StructurePackage.DECODED);
             System.out.println("{\"status\":\"admitted\",\"admitted\":true," + identity
+                    + ",\"decoded_bytes\":" + decoded
+                    + ",\"dimensions\":[" + asset.bounds.x() + "," + asset.bounds.y() + "," + asset.bounds.z() + "]"
                     + ",\"cells\":" + asset.cells.size() + ",\"models\":" + asset.models.size()
                     + ",\"geometry_leaves\":" + asset.leafCount + ",\"instances\":" + asset.instanceCount
                     + ",\"qualification\":\"NOT QUALIFIED\"}");
@@ -68,6 +75,22 @@ public final class CheckAdmission {
             System.out.println("{\"status\":\"rejected\",\"admitted\":false," + identity
                     + ",\"reason\":\"" + reason + "\",\"qualification\":\"NOT QUALIFIED\"}");
             return 2;
+        }
+    }
+
+    static long decodedBytes(byte[] bytes, long limit) throws IOException {
+        if (limit < 0 || limit > StructurePackage.DECODED) throw new IllegalArgumentException("Decoded measurement limit");
+        long count = 0;
+        byte[] buffer = new byte[65536];
+        try (var input = new GZIPInputStream(new ByteArrayInputStream(bytes), 65536)) {
+            for (;;) {
+                // At most one byte beyond the limit is read to distinguish exact EOF.
+                int size = (int) Math.min(buffer.length, limit - count + 1);
+                int read = input.read(buffer, 0, size);
+                if (read < 0) return count;
+                count += read;
+                if (count > limit) throw new IOException("Decoded measurement limit");
+            }
         }
     }
 

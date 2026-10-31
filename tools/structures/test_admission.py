@@ -26,8 +26,23 @@ class AdmissionTest(unittest.TestCase):
         cls.folder = tempfile.TemporaryDirectory(dir=ROOT / 'target')
         cls.addClassCleanup(cls.folder.cleanup)
         cls.work = Path(cls.folder.name)
+        probe = cls.work / 'DecodedSizeProbe.java'
+        probe.write_text('''
+import java.io.IOException;
+import java.nio.file.*;
+public class DecodedSizeProbe {
+    public static void main(String[] args) throws Exception {
+        try {
+            System.out.println(CheckAdmission.decodedBytes(Files.readAllBytes(Path.of(args[0])), Long.parseLong(args[1])));
+        } catch (IOException rejected) {
+            System.out.println("rejected");
+            System.exit(2);
+        }
+    }
+}
+''')
         subprocess.run(['javac', '--release', '17', '-cp', str(ROOT / 'target/classes'),
-                        '-d', str(cls.work), str(ROOT / 'tools/structures/CheckAdmission.java')],
+                        '-d', str(cls.work), str(ROOT / 'tools/structures/CheckAdmission.java'), str(probe)],
                        check=True, capture_output=True, text=True)
 
     def run_cli(self, path, digest):
@@ -48,6 +63,32 @@ class AdmissionTest(unittest.TestCase):
         self.assertTrue(report['admitted'])
         self.assertTrue(report['identity_verified'])
         self.assertEqual((1, 0, 1, 0), tuple(report[k] for k in ('cells', 'models', 'geometry_leaves', 'instances')))
+        self.assertEqual(len(gzip.decompress(raw)), report['decoded_bytes'])
+        self.assertEqual([1, 1, 1], report['dimensions'])
+
+    def measure(self, raw, limit):
+        path = self.work / 'decoded-size.gz'; path.write_bytes(raw)
+        result = subprocess.run(['java', '-Xmx64m', '-cp', os.pathsep.join(
+            (str(ROOT / 'target/classes'), str(self.work))), 'DecodedSizeProbe', str(path), str(limit)],
+            capture_output=True, text=True, timeout=30)
+        self.assertEqual('', result.stderr)
+        return result.returncode, result.stdout.strip()
+
+    def test_decoded_measurement_counts_stream_bytes_across_buffers_and_checks_exact_limit(self):
+        # Exercise the real bounded stream scanner with small limits, not a claimed
+        # full 512 MiB allocation or a city performance measurement.
+        for size in (0, 1, 65535, 65536, 65537, 196613):
+            raw = gzip.compress(b'x' * size, mtime=0)
+            self.assertEqual((0, str(size)), self.measure(raw, size))
+            self.assertEqual((0, str(size)), self.measure(raw, size + 1))
+            if size:
+                self.assertEqual((2, 'rejected'), self.measure(raw, size - 1))
+
+    def test_decoded_measurement_checks_crc_and_size_trailer(self):
+        raw = gzip.compress(b'x' * 65537, mtime=0)
+        for broken in (raw[:-1], raw[:-8] + b'\0' * 8,
+                       raw[:-4] + struct.pack('<I', 1)):
+            self.assertEqual((2, 'rejected'), self.measure(broken, 65537))
 
     def test_malformed_and_bad_checksum_are_decoder_rejections(self):
         path = self.work / 'malformed.vstr'
@@ -58,6 +99,7 @@ class AdmissionTest(unittest.TestCase):
             self.assertFalse(report['admitted'])
             self.assertTrue(report['identity_verified'])
             self.assertEqual('decoder_rejected', report['reason'])
+            self.assertNotIn('decoded_bytes', report)
 
     def test_production_geometry_cap_is_reported_as_first_rejection(self):
         # Spatially ordered, nonempty cells exceed the current development cap.
@@ -75,6 +117,7 @@ class AdmissionTest(unittest.TestCase):
         self.assertEqual(2, code)
         self.assertTrue(report['identity_verified'])
         self.assertEqual('geometry_cap', report['reason'])
+        self.assertNotIn('decoded_bytes', report)
 
     def test_wrong_identity_and_missing_input_are_not_admission_results(self):
         path = self.work / 'identity.vstr'; path.write_bytes(package())
