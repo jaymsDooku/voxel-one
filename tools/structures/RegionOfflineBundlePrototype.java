@@ -24,10 +24,17 @@ public final class RegionOfflineBundlePrototype {
     }
     /** Caller-held monitor is required before any source file is read. Does not open arbitrary sidecar paths. */
     public static Snapshot capture(Path base,Object monitor,LongSupplier revision,BooleanSupplier cancel)throws IOException {
+        return capture(base,monitor,revision,cancel,false);
+    }
+    /** Explicit server codec selection; source monitor/revision and fixed-path rules are identical. */
+    public static Snapshot captureServer(Path base,Object monitor,LongSupplier revision,BooleanSupplier cancel)throws IOException {
+        return capture(base,monitor,revision,cancel,true);
+    }
+    private static Snapshot capture(Path base,Object monitor,LongSupplier revision,BooleanSupplier cancel,boolean server)throws IOException {
         Objects.requireNonNull(base);Objects.requireNonNull(monitor);Objects.requireNonNull(revision);Objects.requireNonNull(cancel);owner(monitor);check(cancel);
         long expected=revision.getAsLong();if(expected<0)throw new IOException("Invalid source revision");
         var absolute=base.toAbsolutePath().normalize();var paths=List.of(absolute,absolute.resolveSibling(absolute.getFileName()+".city"),absolute.resolveSibling(absolute.getFileName()+".city.history"));
-        byte[][] bytes=readAll(paths,cancel);var result=new Snapshot(paths,bytes,monitor,revision,expected);result.validate(cancel);return result;
+        byte[][] bytes=readAll(paths,cancel);var result=new Snapshot(paths,bytes,monitor,revision,expected,server);result.validate(cancel);return result;
     }
     private static byte[][] readAll(List<Path> paths,BooleanSupplier cancel)throws IOException {
         var base=read(paths.get(0),RegionOfflineImportPrototype.MAX_BYTES,true,cancel);var city=read(paths.get(1),RegionSidecarsPrototype.MAX_CONTENT,false,cancel);
@@ -37,8 +44,8 @@ public final class RegionOfflineBundlePrototype {
         return new byte[][]{base,city,history};
     }
     public static final class Snapshot {
-        private final List<Path> paths;private final byte[][] bytes;private final Object monitor;private final LongSupplier revision;private final long expected;
-        private Snapshot(List<Path> paths,byte[][] bytes,Object monitor,LongSupplier revision,long expected){this.paths=paths;this.bytes=bytes;this.monitor=monitor;this.revision=revision;this.expected=expected;}
+        private final List<Path> paths;private final byte[][] bytes;private final Object monitor;private final LongSupplier revision;private final long expected;private final boolean server;
+        private Snapshot(List<Path> paths,byte[][] bytes,Object monitor,LongSupplier revision,long expected,boolean server){this.server=server;this.paths=paths;this.bytes=bytes;this.monitor=monitor;this.revision=revision;this.expected=expected;}
         private void validate(BooleanSupplier cancel)throws IOException {
             owner(monitor);check(cancel);if(revision.getAsLong()!=expected)throw new IOException("Source revision changed");
             var current=readAll(paths,cancel);for(int i=0;i<3;i++){check(cancel);if(!Arrays.equals(bytes[i],current[i]))throw new IOException("Source bundle changed");}
@@ -47,7 +54,8 @@ public final class RegionOfflineBundlePrototype {
         /** Parse and force only private candidate bytes; may run outside the source monitor. */
         public Staged stage(RegionGenerationPrototype destination,BooleanSupplier cancel)throws IOException {
             Objects.requireNonNull(destination);Objects.requireNonNull(cancel);check(cancel);
-            var candidate=bytes[1]==null?RegionOfflineImportPrototype.decode(bytes[0],cancel):RegionOfflineImportPrototype.decode(bytes[0],RegionSidecarsPrototype.capture(bytes[1],bytes[2],cancel),cancel);
+            var candidate=server?RegionServerImportPrototype.decode(bytes[0],cancel):RegionOfflineImportPrototype.decode(bytes[0],cancel);
+            if(bytes[1]!=null)candidate=candidate.withSidecars(RegionSidecarsPrototype.capture(bytes[1],bytes[2],cancel),cancel);
             return new Staged(this,destination.stage(candidate,cancel));
         }
     }
