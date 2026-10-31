@@ -747,3 +747,25 @@ All raw samples and the storage-only results are recorded in
 3,277,872 more bytes than the existing map with the world alive. These three
 post-GC estimates are diagnostic, not a 20-run peak-memory qualification. Existing
 undo remains the default; the candidate is not shipped in the game client.
+
+
+### Synchronization position index
+
+Structure delta decoding now tracks positions in one primitive `long[]` instead
+of a `HashSet<String>`. Each valid position has an exact 53-bit key: 21 bits per
+horizontal axis and 11 bits vertically. Coordinate checks precede packing.
+Sorting the keys detects duplicates without hash chains, while the decoded cell
+list retains its wire order. Duplicate validation finishes before the delta can
+be returned or applied. A declared transfer count allocates at most 16,000,000
+payload bytes for this index at the existing 2,000,000-cell limit; that number
+excludes the array header, sorting workspace and the rest of the decoded delta.
+Truncated or duplicate packages still reject without world mutation.
+
+`tools/structures/WirePositionsProbe.java` compares the parent decoder and this
+source with a shuffled 100,000-cell uniform delta. It uses separate JVMs, three
+warmups and 20 measured decodes. Cell values and order are checked outside the
+timed interval, and encoded bytes must match exactly. Decode median/p95/worst
+fell from 74.964/102.579/158.642 ms to 38.203/55.839/57.548 ms. Median current-thread
+allocation fell from 21,045,896 to 10,948,616 bytes. These are CPU/allocation
+diagnostics, not peak-memory, frame-time, network or full-fixture qualification.
+All city/maximum admission, physical-GPU and 32-rendered-client gates remain.

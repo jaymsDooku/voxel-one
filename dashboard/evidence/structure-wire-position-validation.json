@@ -1,0 +1,148 @@
+{
+  "schema": 1,
+  "parent_head": "24d14a64cebf15e1dfe36ab7b3a7ce71666d329e",
+  "scope": "Primitive exact position index for structure delta decoding. No wire, protocol, transfer-cap, geometry-cap or rollout-gate changes.",
+  "qualification": "NOT QUALIFIED",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu_model": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)"
+  },
+  "tests": {
+    "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-position-tmp\" -Dtest='Structure*Test,ProtocolCompatibilityTest,ShippingProtocolCompatibilityTest,VoxelModelTest' test > target/structure-position-tests.log 2>&1",
+    "exit_code": 0,
+    "results": {
+      "tests": 132,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "suites": [
+      "dev.jayms.ProtocolCompatibilityTest",
+      "dev.jayms.ShippingProtocolCompatibilityTest",
+      "dev.jayms.StructureCaptureChunkTest",
+      "dev.jayms.StructureCaptureModelTest",
+      "dev.jayms.StructureCellReadTest",
+      "dev.jayms.StructureDecodeCancellationTest",
+      "dev.jayms.StructureEncodeCancellationTest",
+      "dev.jayms.StructureFileReadTest",
+      "dev.jayms.StructureLeafCountTest",
+      "dev.jayms.StructureLeafVisitorTest",
+      "dev.jayms.StructureMenuAnchorTest",
+      "dev.jayms.StructureModelAdmissionTest",
+      "dev.jayms.StructureMultiplayerTest",
+      "dev.jayms.StructureOccupancyTest",
+      "dev.jayms.StructureOfflineStampTest",
+      "dev.jayms.StructurePublicationStagingTest",
+      "dev.jayms.StructureRotationTreeTest",
+      "dev.jayms.StructureSaveStagingTest",
+      "dev.jayms.StructureTest",
+      "dev.jayms.StructureValidationStampTest",
+      "dev.jayms.VoxelModelTest",
+      "dev.jayms.net.structure.StructureBufferedCodecTest",
+      "dev.jayms.net.structure.StructureBufferedWireTest",
+      "dev.jayms.net.structure.StructureChunkMeshCountTest",
+      "dev.jayms.net.structure.StructureModelCodecTest",
+      "dev.jayms.net.structure.StructureOrderTest",
+      "dev.jayms.net.structure.StructurePackedGeometryTest",
+      "dev.jayms.net.structure.StructurePlacementCellsTest",
+      "dev.jayms.net.structure.StructureWirePositionsTest"
+    ],
+    "initial_attempt": "First run omitted the worktree temp-directory setting and failed with Failed to create default temp directory. Rerun used the assigned worktree temp directory and passed.",
+    "expected": "Exact wire bytes and cell order; coordinate boundaries; duplicate, invalid, incomplete and oversized rejection; maximum transfer index; protocol and multiplayer regressions.",
+    "observed": "All fresh test reports passed. Three new tests cover boundary and zero axes, shuffled order, duplicate wire rejection, a full 2,000,000-position index, a late duplicate, invalid coordinates/counts and incomplete records. Full 2,000,000-cell delta decoding is not claimed."
+  },
+  "integration_playtest": "Playtest: StructureMultiplayerTest used actual TLS server and synthetic protocol clients for all four rotations, initially empty dependency caches, conflicts/cancellation, undo, late join and restart. Default three clients; not shaped-network or 32 rendered clients.",
+  "index": {
+    "bits": "21 x, 21 z, 11 y; bounds checked before packing",
+    "payload_bytes_at_2000000_cells": 16000000,
+    "memory_scope": "Only long-array payload. Excludes array header, sorting workspace and all model/cell/geometry allocations. Declared count allocates this array before reading cells; malformed maximum count can therefore allocate 16 MB before rejection. No world mutation occurs before a valid Delta is returned.",
+    "duplicate_policy": "Keys sort after all bounded cells decode, before return/application; no hash chains. Cell list order stays unchanged."
+  },
+  "probe": {
+    "commands": [
+      "git show HEAD:src/main/java/dev/jayms/net/structure/StructureWire.java > target/structure-position-control/src/StructureWire.java",
+      "javac --release 17 -cp target/classes -d target/structure-position-control/classes target/structure-position-control/src/StructureWire.java",
+      "javac --release 17 -cp target/classes -d target tools/structures/WirePositionsProbe.java",
+      "java -Xmx1g -cp target/structure-position-control/classes:target:target/classes WirePositionsProbe parent > target/structure-position-parent.jsonl",
+      "java -Xmx1g -cp target:target/classes WirePositionsProbe current > target/structure-position-current.jsonl"
+    ],
+    "parent": {
+      "implementation": "parent",
+      "operation": "decode",
+      "cells": 100000,
+      "compressed_bytes": 326684,
+      "wire_sha256": "9812030ea1bb185045b103337f5a4da0376b00d6cafea2a0fdb2951c93773b96",
+      "warmups": 3,
+      "runs": 20,
+      "median_ms": 74.964,
+      "p95_ms": 102.579,
+      "worst_ms": 158.642,
+      "median_thread_allocated_bytes": 21045896
+    },
+    "current": {
+      "implementation": "current",
+      "operation": "decode",
+      "cells": 100000,
+      "compressed_bytes": 326684,
+      "wire_sha256": "9812030ea1bb185045b103337f5a4da0376b00d6cafea2a0fdb2951c93773b96",
+      "warmups": 3,
+      "runs": 20,
+      "median_ms": 38.203,
+      "p95_ms": 55.839,
+      "worst_ms": 57.548,
+      "median_thread_allocated_bytes": 10948616
+    },
+    "parent_source_sha256": "7b1da69323f6cc59bba8dcb1c1c8a4534c396dcc8a2577b5d9c71d64a984ee08",
+    "method": "Separate JVMs, parent first; no concurrent Maven/native run. Three warmups, 20 measured decodes each. Fixture shuffled with deterministic seed371. Position/order/physical geometry checked after each timed decode; byte-identical re-encoding verified. Times include sorting in current decoder. Allocation is current-thread allocated bytes, not retained or peak memory. Single ordered comparison, not randomized system qualification."
+  },
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/structure/StructureWire.java": "509566721e21e038a453e82473332319ff9c3aeabde7a8ae1cd4ccd3656cb3dc",
+    "src/main/java/dev/jayms/net/structure/StructureWirePositions.java": "986f3dfd4fddd36aebb17feafa3783b3437d7a8849f452bfec5bf556af37d801",
+    "src/test/java/dev/jayms/net/structure/StructureWirePositionsTest.java": "90733480e14290c5c3a9e03e1f16ec8b8cafd4567935bb736ffff6d3d78e78f6",
+    "tools/structures/WirePositionsProbe.java": "b392bbbfd94cf5210e0e8b32752de34c3d0e276c2a343b8edae9cf882fefe4a4"
+  },
+  "native_playtest": {
+    "status": "passed",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" > target/structure-position-native-summary.json 2>&1",
+    "exit_code": 0,
+    "expected": "Exercise capture/library/import/export, rotations, conflict and empty-source policy, atomic cancellation/failure, undo, repeat placement, restart, inventory and model editor in production Main on the assigned display.",
+    "observed": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "source_manifest": "structure-native-source.json",
+    "source_files": 221,
+    "source_manifest_sha256": "80ab9c50531033fb988bafa70de723ea4fd5bbc72ad7378abcc4b290183faed0",
+    "source_check": "All production Java plus harness paths and SHA256 hashes match after execution.",
+    "media_inspection": "Decoded H264 recording and inspected clear footprint/anchor/staging frame. Inspected fresh 90-degree occupied-cell conflict screenshot with red bounds and blocked message. HUD 1 FPS: functional software rendering only.",
+    "decode_command": "java -cp /home/debian/.m2/repository/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar target/InspectStructureVideo.java dashboard/evidence/structure-workflow.mp4 target/structure-position-frame.png",
+    "video": {
+      "file": "structure-workflow.mp4",
+      "bytes": 397555,
+      "sha256": "ad7d5c8f7ae877c6e07b6d35c64e92838cf68f867895d9110b8818bd9f35d543",
+      "codec": "H264",
+      "frames": 16,
+      "duration_seconds": 26.497
+    },
+    "publication": "Local evidence pending controller publication",
+    "qualification": "Not physical-GPU, frame-time or full-city/network qualification."
+  },
+  "audit": "git diff --check against 71612f09bfec4549456b3317676e76cdced085a4 passed; no deleted paths. No intended deletions.",
+  "remaining": [
+    "Full city and maximum packages still reject under provisional geometry, dependency/instance-surface and affected-chunk caps.",
+    "At least 20 full-fixture runs on reference physical GPU, server and shaped network with 32 rendered clients remain pending.",
+    "Capture/export/preview/placement/save/load/sync/upload, peak memory, frame/tick/traffic, 100 ms acknowledgment/stall and progress/cancellation qualification remain pending.",
+    "Do not publish supported city limits or claim readiness/stable rollout. Independent exact-source review remains required."
+  ],
+  "parent_hosted_checks": {
+    "head": "24d14a64cebf15e1dfe36ab7b3a7ce71666d329e",
+    "command": "gh pr view 76 --json headRefOid,statusCheckRollup",
+    "successful_builds": 8,
+    "publish": "skipped",
+    "urls": [
+      "https://github.com/jaymsDooku/voxel-one/actions/runs/41171980331",
+      "https://github.com/jaymsDooku/voxel-one/actions/runs/41171977956"
+    ],
+    "scope": "Observed completed parent checks. Pending local source has not run hosted checks."
+  }
+}

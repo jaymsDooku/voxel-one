@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Rejected packed-undo default after live-world comparison: mixed retained heap rose from 35,139,288 to 38,417,160 bytes because world and undo already share nodes. Existing game behavior preserved. Added reproducible diagnostics; 33 tool tests passed. Unchanged 220-source native evidence verified. Full qualification remains pending.",
-      "updatedAt": "2026-10-31T05:16:27+00:00"
+      "note": "Primitive synchronization position index preserves wire bytes and order. 100,000-cell decode p95 102.579 to 55.839 ms; median thread allocation 21,045,896 to 10,948,616 bytes. 132 targeted tests and fresh native workflow passed; 221 source hashes and decoded media verified. Local evidence awaits controller publication. Full city/maximum and physical-GPU/network qualification remain pending.",
+      "updatedAt": "2026-10-31T05:40:08+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
