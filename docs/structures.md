@@ -558,3 +558,9 @@ A shared-VPS traversal diagnostic compared list traversal and a reused visitor o
 ### Placement anchor input
 
 The `at X Y Z` command validates the candidate anchor against the existing world and build-height bounds before replacing the current target or scheduling a preview. An invalid candidate reports `Placement anchor outside world` and retains the prior target. Valid negative coordinates and exact world boundaries remain accepted. Server placement checks remain authoritative and unchanged.
+
+### Resident geometry snapshot proofs
+
+Offline structure snapshots now include immutable trees from resident chunks, including directly supplied chunks whose geometry differs from canonical terrain/history. Capture, occupancy checks and mesh validation read that detached geometry. Resident proof identity includes the chunk object, geometry version and canonical geometry/terrain stamp. Live edits, chunk replacement, residency transitions and terrain-generation changes invalidate reuse. Unknown or changed proofs still require authoritative destination and mesh checks; model-library revision checks remain unchanged.
+
+In a shared-VPS diagnostic with 16 occupied cells across 16 resident chunks, three warmups and 20 real offline commits compared the separately compiled parent World with this implementation. Commit-time cell reads fell from 65,552 to 16. Parent/current median was 21.243/2.640 ms, p95 40.857/3.614 ms and worst 43.310/6.453 ms. Preparation was excluded; commit included durable save. Placed cells and reloaded geometry were checked outside timing. These small-fixture results do not establish city/maximum, peak-memory, GPU, frame, tick or network qualification. No admission limits increase.
