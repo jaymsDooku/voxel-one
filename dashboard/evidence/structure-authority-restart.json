@@ -1,0 +1,46 @@
+{
+  "parent": "f6ebdccc7485fa4da7b476abceda796db655b84c",
+  "change": "Explicit strict private StructureEngine authority startup validates whole-library generation, terrain identity, game mode and complete city/history before root assignment. Cancellation propagates through load/decode/known-cell rebuild. Old opaque inspection constructor retained. No production backend selected.",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "java": "25.0.3+9-LTS-195",
+    "compile_release": 17,
+    "heap": "512 MiB",
+    "display": "inherited assigned display; synthetic own window"
+  },
+  "commands": [
+    "javac -encoding UTF-8 --release 17 -cp target:target/classes -d target tools/structures/RegionAuthorityPrototype.java tools/structures/RegionCompleteRestoreCheck.java",
+    "java -Xmx512m -cp target:target/classes RegionCompleteRestoreCheck",
+    "python3 -m unittest tools.structures.test_region_history.RegionHistoryIntegrationTest.test_complete_restore tools.structures.test_region_history.RegionHistoryIntegrationTest.test_actual_engine_authority tools.structures.test_region_history.RegionHistoryIntegrationTest.test_generation_publication tools.structures.test_region_history.RegionHistoryIntegrationTest.test_sidecars",
+    "java -cp target:target/classes RegionGenerationEvidence RegionCompleteRestoreCheck",
+    "import -display \"$DISPLAY\" -window 2097159 dashboard/evidence/structure-authority-restart-cli.png",
+    "gh pr view 76 --json headRefOid,statusCheckRollup"
+  ],
+  "result": {
+    "status": "passed",
+    "strict_authority_restart": true,
+    "strict_generation_restart": true,
+    "game_mode_guard": true,
+    "legacy_city_formats": 17,
+    "offline_and_server_metadata": true,
+    "rejection_cases": 31,
+    "source_unchanged": true,
+    "live_region_backend": false,
+    "qualification": false
+  },
+  "tests": "4 integrations passed in 21.237 s; no skips. Production Java unchanged; Maven/native not rerun.",
+  "playtest": "Playtest: actual StructureEngine over strict private authority loaded from actual synthetic city/history generation. Place stone cell, restart at generation2, reject overlap, one-operation undo, restart at generation3. Expected geometry, metadata and exact city/history bytes retained; observed pass. Strict startup rejects wrong seed/game, dependency-only legacy, malformed history, pre/mid cancellation; absent save yields generation0. Source generation bytes unchanged on rejection. Direct CLI and displayed child exit0, image inspected. This private persistence CLI does not use browser/native rendering.",
+  "hosted": "Controller reported platform success for parent. Direct GitHub observation shows seven builds SUCCESS and one mac-intel IN_PROGRESS, publish skipped. No polling. New edits require controller publication and exact-head checks.",
+  "source_sha256": {
+    "tools/structures/RegionAuthorityPrototype.java": "9c51e7ba4036f7d3f6aaadb3ef2897c470b228ef76399f8398cc51303be2f81e",
+    "tools/structures/RegionCompleteRestoreCheck.java": "6da63cf6fb62abb6f4d1f83190b584919aeb721a26be21a090413f6ebf2decad",
+    "tools/structures/test_region_history.py": "3ac20139b1ab5d7f4a9b68f0e651b16b76b22437d7904605abce1506966bde50"
+  },
+  "media": {
+    "file": "structure-authority-restart-cli.png",
+    "sha256": "75f10dd4fdd40e8cca36daacc4a8508cbf7cfe432e816bd3952642e645e873d8",
+    "publication": "pending controller"
+  },
+  "audit": "No deleted paths against review base 71612f09bfec4549456b3317676e76cdced085a4; git diff --check passed; no intended deletions.",
+  "pending": "Production owner/backend integration, full city/maximum admission and 20-run budgets, physical GPU, shaped32-rendered-client sync, stall/peak memory and directory durability. Existing caps and rollout gates unchanged."
+}
