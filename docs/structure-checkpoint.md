@@ -1,5 +1,16 @@
 # Structure review fix checkpoint
 
+## Capture iteration after map churn
+
+World chunk map and History distinct-cell index now use linked iteration, including history copies. This removes retained sparse hash-table scans between capture entries. Per-bucket maps, wire formats and limits unchanged. Extra entry links add unmeasured memory overhead.
+
+Final78 production regressions passed,0failures/errors/skips. Four tools passed in19.341s. Initial tool runs overlapped Maven class rebuilding and failed missing classes; not counted. Final tools ran after Maven exit0. Playtest:8192 synthetic chunks/history cells inserted then cleared;257 current glass chunks captured in3 advances, all cells checked each of20 runs, source history unchanged; partial snapshot rejects after world clear. One warmup. Actual fresh child exit0 image inspected. Noninteractive persistence helper; browser/native rendering does not apply.
+
+Standalone diagnostic wall median/p95/worst: before1.011380/2.298334/2.386494ms; after0.863352/1.849949/2.491312ms. Max advance per run: before0.132040/0.163979/0.179130ms; after0.054572/0.064336/0.075041ms. Separate media rerun was slower: wall2.008968/2.770358/3.428056ms, max advance0.098451/0.206827/0.727128ms. Shared VPS/JIT/GC contention; no general speedup claim. Final raw rows retained; baseline summary only. Wrapper independently checks final statistics.
+
+Parent0ba583de platform success,publication skipped. No deleted paths against review base,no intended deletions,diff check passed. Evidence structure-chunk-churn.json and structure-chunk-churn-cli.png pending controller publication. Production region backend/live installation,full city/maximum20-run budgets,physicalGPU,shaped32-client,frame/tick/traffic/peak memory/stalls and durability remain pending. Rollout gates retained.
+
+
 ## Incremental owner chunk-map capture
 
 Added owner-only snapshot builder. Each advance copies at most128 chunk entries and checks world/history identity and revisions plus terrain epoch. Source bucket ownership changes before sharing begins. No detached handle escapes until completion. Private indexed backup pumps the builder with cancellation between calls; one-shot API retained.

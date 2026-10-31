@@ -19,7 +19,8 @@ public final class WorldVoxels {
         private long revision;
         /** Owner-thread change stamp; pair with this history identity. */
         public long revision(){return revision;}
-        public History(){ordered=new LinkedHashMap<>();cells=new HashMap<>();}
+        // Cell cursors must not scan a retained sparse hash table between entries.
+        public History(){ordered=new LinkedHashMap<>();cells=new LinkedHashMap<>();}
         /** Begin under the authority lock; every batch read needs that same lock.
          * Any edit-history mutation invalidates the cursor before iterator access. */
         public CopyCursor copyCursor(){return new CopyCursor();}
@@ -74,7 +75,7 @@ public final class WorldVoxels {
             }
         }
         private History(History source) {
-            ordered=new LinkedHashMap<>(source.ordered);cells=new HashMap<>(source.cells);
+            ordered=new LinkedHashMap<>(source.ordered);cells=new LinkedHashMap<>(source.cells);
             // Neither copy may mutate the index entries shared at this boundary.
             source.owner=new Object();
         }
@@ -204,7 +205,8 @@ public final class WorldVoxels {
             cells=new HashMap<>(4);cells.put(singleKey,singleTree);cells.put(key,tree);singleKey=-1;singleTree=null;
         }
     }
-    private final Map<ChunkPos,CellBucket> chunks=new HashMap<>();
+    // Linked iteration keeps capture batches independent of retained hash-table capacity.
+    private final Map<ChunkPos,CellBucket> chunks=new LinkedHashMap<>();
     private Object owner=new Object();
     private long geometryRevision;
 

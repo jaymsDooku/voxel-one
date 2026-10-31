@@ -23,7 +23,7 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
                         'RegionGenerationPrototype.java', 'RegionGenerationCheck.java', 'RegionGenerationEvidence.java',
                         'RegionAuthorityPrototype.java', 'RegionAuthorityCheck.java',
                         'RegionWorldLibraryPrototype.java', 'RegionWorldLibraryCheck.java', 'RegionOfflineMetadataPrototype.java', 'RegionOfflineMetadataCheck.java',
-                        'RegionOfflineImportPrototype.java', 'RegionOfflineImportCheck.java', 'RegionOfflineLegacyCheck.java', 'RegionSidecarsPrototype.java', 'RegionSidecarsCheck.java', 'RegionOfflineBundlePrototype.java', 'RegionOfflineBundleCheck.java', 'RegionServerMetadataPrototype.java', 'RegionServerMetadataCheck.java', 'RegionServerImportPrototype.java', 'RegionServerImportCheck.java', 'RegionServerBundleCheck.java', 'RegionOfflineOwnerPrototype.java', 'RegionOfflineOwnerCheck.java', 'CityHistorySnapshotCheck.java', 'RegionCityOwnerPrototype.java', 'RegionCityRestorePrototype.java', 'RegionCompleteRestoreCheck.java', 'RegionOfflineCellOwnerCheck.java', 'RegionDenseHistoryCheck.java')]
+                        'RegionOfflineImportPrototype.java', 'RegionOfflineImportCheck.java', 'RegionOfflineLegacyCheck.java', 'RegionSidecarsPrototype.java', 'RegionSidecarsCheck.java', 'RegionOfflineBundlePrototype.java', 'RegionOfflineBundleCheck.java', 'RegionServerMetadataPrototype.java', 'RegionServerMetadataCheck.java', 'RegionServerImportPrototype.java', 'RegionServerImportCheck.java', 'RegionServerBundleCheck.java', 'RegionOfflineOwnerPrototype.java', 'RegionOfflineOwnerCheck.java', 'CityHistorySnapshotCheck.java', 'RegionCityOwnerPrototype.java', 'RegionCityRestorePrototype.java', 'RegionCompleteRestoreCheck.java', 'RegionOfflineCellOwnerCheck.java', 'RegionDenseHistoryCheck.java', 'ChunkCaptureChurnCheck.java', 'ChunkCaptureChurnEvidence.java')]
             compiled = subprocess.run(['javac', '-encoding', 'UTF-8', '--release', '17', '-cp', str(CLASSES), '-d', temporary,
                                        *map(str, sources)], capture_output=True, text=True, timeout=30)
             self.assertEqual(compiled.returncode, 0, compiled.stderr[:4000])
@@ -85,6 +85,22 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
         self.assertTrue(row['source_unchanged'])
         self.assertFalse(row['live_region_backend'])
         self.assertFalse(row['qualification'])
+
+    def test_chunk_capture_churn(self):
+        row = self.run_check('ChunkCaptureChurnCheck')[0]
+        self.assertEqual(row['status'], 'passed')
+        self.assertEqual(row['runs'], 20)
+        self.assertEqual(row['advances'], 3)
+        self.assertEqual(row['final_chunks'], 257)
+        self.assertTrue(row['geometry_checked_each_run'])
+        self.assertTrue(row['stale_clear_rejected'])
+        self.assertFalse(row['qualification'])
+        for key, samples in [('wall', 'wall_samples_ms'), ('max_advance_per_run', 'max_advance_samples_ms')]:
+            values = sorted(row[samples])
+            self.assertEqual(len(values), 20)
+            self.assertAlmostEqual(row[key]['median_ms'], (values[9]+values[10])/2, places=5)
+            self.assertAlmostEqual(row[key]['p95_ms'], values[18], places=5)
+            self.assertAlmostEqual(row[key]['worst_ms'], values[19], places=5)
 
     def test_dense_indexed_history(self):
         row = self.run_check('RegionDenseHistoryCheck')[0]
