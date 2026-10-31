@@ -1,0 +1,74 @@
+{
+  "parent_head": "5924e1498eed36f506229f4d599a2492a5d6df4c",
+  "status": "private_whole_library_generations_passed_production_integration_pending",
+  "source_sha256": {
+    "tools/structures/RegionHistoryPrototype.java": "3936279654e7b40d6d82f7259237dde14c8967d46fe1748e8f988251a5c1f1a8",
+    "tools/structures/RegionDependencyPrototype.java": "f5e8d00a52e17c738eda35464622d5e563295e1416fc39cf7a309a8f8426e3d5",
+    "tools/structures/RegionWorldLibraryPrototype.java": "40743342d2e48f79b0839a6f0073f285c4c3cfb41afe1c0917a3143b756c57ad",
+    "tools/structures/RegionGenerationPrototype.java": "6ec4c8bad9aa55f0365d1981222cade57d84ce4409ed0ad55efad94e3e207053",
+    "tools/structures/RegionAuthorityPrototype.java": "9c60bf3f60b7af1a1be6be3447fc5acebec4bdf1e47f3bf0b2bcae26727796a3",
+    "tools/structures/RegionAuthorityCheck.java": "b0e269da7872b523f266a7d6dbff53ed2e921e5b44a261b5800199fcce6c65c7",
+    "tools/structures/RegionGenerationEvidence.java": "b29c136c6a2a234fba5f971ec93413f3b78f49bdde2c826fa8152fbacde39a85",
+    "tools/structures/test_region_history.py": "d29dba0e59c8535506f4d382eda7179e2afd724f179dbf8313c7b4547b0e9e55"
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "python": "3.11.2",
+    "java_heap_cap": "-Xmx512m; cap only, not measured peak memory",
+    "execution": "Actual StructureEngine API against isolated synthetic roots and temporary files; no LocalGame/server launched",
+    "capture": "Assigned inherited DISPLAY/XAUTHORITY, window-only actual CLI output; no authentication values read or printed"
+  },
+  "commands": [
+    "python3 -m unittest discover -s tools/structures -p 'test_*.py'",
+    "python3 -m unittest discover -s tools/structures -p 'test_region_history.py'",
+    "javac --release 17 -cp target/classes -d target tools/structures/RegionHistoryPrototype.java tools/structures/RegionDependencyPrototype.java tools/structures/RegionWorldLibraryPrototype.java tools/structures/RegionGenerationPrototype.java tools/structures/RegionAuthorityPrototype.java tools/structures/RegionAuthorityCheck.java tools/structures/RegionGenerationEvidence.java",
+    "java -Xmx512m -cp target:target/classes RegionAuthorityCheck target/structure-library-generation-tests > target/structure-library-generation-check.json",
+    "java -cp target:target/classes RegionGenerationEvidence RegionAuthorityCheck",
+    "Window-only ImageMagick import on inherited DISPLAY to dashboard/evidence/structure-library-generation-cli.png"
+  ],
+  "observed": {
+    "status": "passed",
+    "rotations": 4,
+    "world_library_generation": 2,
+    "v1_upgrade": true,
+    "retained_library_entries": 5,
+    "successful_placements": 13,
+    "successful_undos": 7,
+    "rejection_cases": 37,
+    "production_integration": false,
+    "qualification": false
+  },
+  "tests": {
+    "broad_structure_tool_tests": 39,
+    "final_affected_integration_tests": 6,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "sequence": "39 broad tests passed before the final downgrade guard and added result assertions. All six affected integration tests then passed on final source. Final actual CLI and child viewer both exited 0. Viewer cleanup exit 130 is separate."
+  },
+  "implementation": {
+    "format": "Private generation v1 retains its dependency-manifest payload; v2 contains the bounded exact-ID whole-library/region envelope. Loaded records require exactly one typed payload. Same 16 MiB payload ceiling plus 24 framing bytes. No production format change.",
+    "authority": "Read v1 with its original dependency remapping; read v2 preserving exact IDs, aliases, authors and all unplaced entries. Authority writes v2 only. Seed/version identity is checked before restoring geometry.",
+    "publication": "Reuse private file force, strict atomic replacement, expected generation and root identity fences, staged-byte validation, cancellation and post-rename exact-byte recovery. Reject v1 staging if the saved generation is v2; a previously staged old generation also cannot commit over a newer generation."
+  },
+  "cases": [
+    "Whole-library model IDs 42,75,4096 plus default and a new structure component survive placement, undo and a fresh authority instance; exact authors and fingerprints retained",
+    "Both unused custom aliases survive; the placed component also survives after undo makes it unused; generation reaches 3 and placed cell is empty",
+    "A real v1 private file loads with its prior 4096-to-1024 remapping; next authority placement saves v2 and a later undo/restart preserves existing geometry and remapped ID",
+    "Lossy v2-to-v1 staging rejects without changing saved bytes or leaking a private stage",
+    "Existing all-four-rotation anchor/fractional/component/overlap/empty-space regressions passed",
+    "Existing stale-root/disk fencing, changed-cell undo, unrelated edits, force/move/unsupported-atomic failures, cancellation and post-rename recovery passed using new authority v2 publication",
+    "Existing bounded codecs and v1 generation failure tests passed"
+  ],
+  "playtest": "Playtest: real StructureEngine prepare/commit/undo through the private authority and actual filesystem. Expected complete library preservation across restart and undo, v1 upgrade and downgrade rejection; observed passed, along with rotation and injected-failure regressions. Fresh assigned-display screenshot shows actual child exit 0 and results; visually inspected. Browser/game playtesting does not apply to tools-only storage integration. All 224 native game/harness source hashes still match the prior native workflow.",
+  "image": {
+    "path": "dashboard/evidence/structure-library-generation-cli.png",
+    "bytes": 6680,
+    "sha256": "4fb626050be548ae737ee291d2ab65fe0d4457416a774f49b8efee9f4f51c659",
+    "publication": "Pending controller publication"
+  },
+  "hosted_observation": "Exact parent 5924e149 has eight successful platform build entries, publication skipped. These results do not cover pending edits.",
+  "limitations": "Inventories and player/transient metadata remain absent. Not a complete world save and not connected to LocalGame/server. V1 upgrade cannot recover unplaced assets already omitted by an old generation. Runtime undo does not survive restart; synthetic direct edits remain dirty until later publication. Model validation, index copying and full-file validation remain bounded synchronous work with no owner-thread latency qualification. No directory-fsync, power-loss, orphan-stage recovery, peak-memory or full-city claim.",
+  "qualification": "Full city/maximum admission, 20-run memory/frame/tick/traffic budgets, physical GPU and shaped-network/32-rendered-client qualification remain pending. No caps raised; stable rollout stays gated.",
+  "next": "Preserve remaining legacy world metadata, integrate responsive complete-world region persistence and live publication, then qualify full fixtures."
+}

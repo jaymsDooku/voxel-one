@@ -78,6 +78,9 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]['status'], 'passed')
         self.assertEqual(rows[0]['rotations'], 4)
+        self.assertEqual(rows[0]['world_library_generation'], 2)
+        self.assertTrue(rows[0]['v1_upgrade'])
+        self.assertEqual(rows[0]['retained_library_entries'], 5)
         self.assertFalse(rows[0]['production_integration'])
         self.assertFalse(rows[0]['qualification'])
 

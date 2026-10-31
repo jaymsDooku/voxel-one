@@ -209,12 +209,21 @@ retaining unplaced definitions, duplicate-fingerprint aliases, original IDs and
 authors. The detached restore does not remap IDs or mutate its source library.
 CRC, lengths, counts, dependencies and cancellation are checked under private
 16 MiB envelope and 8 MiB library limits. This is not a complete world save:
-inventory and player/transient metadata are absent. It is not connected to the
-private generation authority, LocalGame or the server. Reports and fresh CLI
+inventory and player/transient metadata are absent. The private generation authority now writes this envelope as generation v2;
+LocalGame and the server remain unchanged. Reports and fresh CLI
 image: `structure-world-library.json` and `structure-library-cli.png`.
 
+Private generation v2 retains the full library, including models left unused by
+undo, exact IDs, authors and duplicate-fingerprint aliases. Loading v1 retains
+its original dependency-remapping behavior; the next authority save upgrades to
+v2. This cannot recover assets already omitted by an older v1 file. A
+dependency-only v1 stage cannot downgrade an existing v2 generation.
+The same force, atomic-replace, root/generation fences and cancellation recovery
+apply to both versions. Fresh CLI results: `structure-library-generation.json`
+and `structure-library-generation-cli.png`.
+
 This adapter is not used by LocalGame or the server. Its physical manifest does
-not preserve inventories, transient/player metadata or unplaced library assets;
+not preserve inventories or transient/player metadata;
 synthetic edits are dirty until a successful later publication. Runtime undo is
 not restored after restart. Complete legacy-world migration, responsive live
 publication and full storage/render/network qualification remain required before

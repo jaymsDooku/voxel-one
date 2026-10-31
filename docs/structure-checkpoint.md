@@ -1,5 +1,42 @@
 # Structure review fix checkpoint
 
+## Whole-library private generation publication
+
+Exact parent `5924e149` has eight successful platform build entries; publication
+skipped. Production/harness source still matches all 224 native hashes.
+
+The private generation store now reads v1 dependency manifests and v2 whole-library
+envelopes. Loaded records require exactly one typed payload. Authority staging
+writes v2 using the existing strict force/atomic-replace, source-root and saved
+generation fences. Restart retains exact IDs, authors, alias definitions and
+unplaced assets. The v1 load path keeps original dependency-remapping semantics;
+the next authority save upgrades to v2. A v1 stage cannot downgrade an existing
+v2 generation. Assets already omitted by an older v1 file cannot be recovered.
+
+39 broad structure-tool tests passed before the final downgrade guard/result
+assertions; all six affected integration tests passed after those changes.
+Actual CLI: 13 placements, seven undos, 37 rejection cases, all four rotations.
+Five library entries survive placement, undo and restart, including unplaced
+custom aliases and the component now unused after undo. An actual v1 file loads,
+upgrades and preserves its remapped component after restart and later undo.
+Downgrade rejection leaves file bytes unchanged and no private stage behind.
+Existing force/move/cancel, stale-root/disk and post-rename recovery checks pass
+through v2. Older v1 store/codec regression checks pass too.
+
+Playtest: actual production StructureEngine API through synthetic private roots
+and files. CLI expected library/geometry preservation and safe failure; observed
+passed. Browser/game playtesting does not apply to tools-only storage code.
+Fresh child command/result, exit 0 and qualification:false were captured on the
+assigned display and inspected. Image: `structure-library-generation-cli.png`.
+Report: `structure-library-generation.json`. Viewer cleanup is not a test failure.
+
+LocalGame/server and production admission caps remain unchanged. Inventories and
+player/transient metadata remain absent. This is not a complete world-save path;
+runtime undo is not restored on restart and ordinary synthetic edits remain
+dirty until later publication. Responsive complete-world migration, directory
+fsync/power-loss qualification and full city/maximum physical-GPU/network budgets
+remain pending. No ready/stable claim.
+
 ## Detached whole-library region codec
 
 Parent `c5ed6f02` has eight successful platform build entries; publication
