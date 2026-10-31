@@ -1,5 +1,16 @@
 # Structure review fix checkpoint
 
+## Production owner-fenced world cell snapshot
+
+Added WorldVoxels.CellSnapshot combining distinct-cell cursor and COW geometry. Owner-only batches/final unchanged check fence world/history identities and revisions plus terrain generation. Worker cell reads return frozen detached cells with terrain checks before/after. World revision advances on replacement, nonempty clear and patch-result merge. Requires same owner thread/authority lock and final validation immediately before publication; no automatic publication.
+
+Thirty-seven production regressions passed,0 failures/errors/skips: snapshot5, cursor3, index10, offline staging9, cell replay3, validation stamp7. Three affected integrations passed in15.195s. Playtest: actual synthetic v9 LocalGame save/reload,2054 cells in3 owner batches, worker geometry reads, owner revalidation and CellState wire36980bytes reconstruction. Fractional geometry, air, negative coordinates/models, source-save immutability and mutation fences passed. Edge tests cover world-only edits, identity/history replacement, clear/terrain ABA, thread checks and patch isolation. Fresh actual child exit0 image inspected. Noninteractive data path; browser/native rendering does not apply.
+
+Capture still clones the world chunk map on the owner.100ms stall/peak-memory budgets are unqualified; callers must separately fence models/survival/publication. No backend selected. Historical native baseline221/224files unchanged; LocalGame, WorldVoxels and CityHistory differ, so old native media is not exact-source proof. Parent `7a148dd4`: controller feature-platform success; PR rollup direct7SUCCESS/1mac-intel running, publication skipped. No polling. New edits await publication/exact-head checks. No deleted paths against review base; diff check passed. Evidence `structure-cell-snapshot.json` and `structure-cell-snapshot-cli.png`, pending controller publication.
+
+Next: use fenced worker cell reads in region persistence and owner installation. Full city/maximum admission and20-run budgets, physical GPU, shaped32-client sync, stall/memory and directory durability remain pending. No caps raised or gates weakened.
+
+
 ## Production distinct-cell history cursor
 
 Added History.cellCopyCursor over the existing cell index. Returns detached immutable position batches≤1024, including explicit air and one position per fractional cell. Begin/read under same owner lock; source revision changes invalidate before iteration even after exhaustion. Independent COW copy mutation does not invalidate source. No spatial/order guarantee.

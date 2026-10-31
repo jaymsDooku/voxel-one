@@ -206,6 +206,7 @@ public final class WorldVoxels {
     }
     private final Map<ChunkPos,CellBucket> chunks=new HashMap<>();
     private Object owner=new Object();
+    private long geometryRevision;
 
     public WorldVoxels(Terrain terrain) {
         this.terrain = terrain;
@@ -214,10 +215,50 @@ public final class WorldVoxels {
     /** Owner-thread snapshot: share frozen cells and clone a bucket on its next edit. */
     public WorldVoxels snapshot() {
         var copy=new WorldVoxels(terrain);
-        copy.chunks.putAll(chunks);
+        copy.chunks.putAll(chunks);copy.geometryRevision=geometryRevision;
         // Neither world may mutate a bucket owned before this sharing boundary.
         owner=new Object();
         return copy;
+    }
+
+    /** Owner-thread capture for indexed cell persistence. Every live read and final
+     * unchanged check must use this same owner thread and its authority lock. */
+    public CellSnapshot cellSnapshot(History history) {
+        Objects.requireNonNull(history);long terrainRevision=terrain.geometryRevision();
+        if((terrainRevision&1)!=0)throw new ConcurrentModificationException("Terrain changing during cell capture");
+        var result=new CellSnapshot(this,history,snapshot(),terrainRevision);
+        if(!result.unchanged(this,history))throw new ConcurrentModificationException("World changed during cell capture");
+        return result;
+    }
+    /** Detached geometry reads may run on a worker. A candidate must still pass an
+     * owner-side unchanged check immediately before publication; this handle never publishes. */
+    public static final class CellSnapshot {
+        private final Thread owner=Thread.currentThread();
+        private final WorldVoxels source,detached;
+        private final History history;
+        private final long worldRevision,historyRevision,terrainRevision;
+        private final History.CellCopyCursor cursor;
+        private CellSnapshot(WorldVoxels source,History history,WorldVoxels detached,long terrainRevision) {
+            this.source=source;this.history=history;this.detached=detached;this.terrainRevision=terrainRevision;
+            worldRevision=source.geometryRevision;historyRevision=history.revision();cursor=history.cellCopyCursor();
+        }
+        private void owner(){if(Thread.currentThread()!=owner)throw new IllegalStateException("Cell snapshot validation requires owner thread");}
+        private void terrain(){if(detached.terrain.geometryRevision()!=terrainRevision)throw new ConcurrentModificationException("Terrain changed during cell capture");}
+        public boolean unchanged(WorldVoxels current,History currentHistory) {
+            owner();return current==source&&currentHistory==history&&source.geometryRevision==worldRevision
+                    &&history.revision()==historyRevision&&source.terrain.geometryRevision()==terrainRevision;
+        }
+        public List<CellPosition> nextBatch(WorldVoxels current,History currentHistory) {
+            if(!unchanged(current,currentHistory))throw new ConcurrentModificationException("World/history changed during cell capture");
+            return cursor.nextBatch();
+        }
+        /** Caller supplies a position from nextBatch; the returned cell tree is frozen. */
+        public Protocol.CellState cell(CellPosition position) {
+            Objects.requireNonNull(position);
+            if(!new Protocol.Edit(position.x(),position.y(),position.z(),0).valid())throw new IllegalArgumentException("Invalid world cell position");
+            terrain();var tree=detached.cell(position.x(),position.y(),position.z()).copy().freeze();terrain();
+            return new Protocol.CellState(position.x(),position.y(),position.z(),tree);
+        }
     }
 
     /** Capture only affected buckets under the world authority lock. Stage on one worker;
@@ -244,7 +285,7 @@ public final class WorldVoxels {
             for(var entry:stamps.entrySet()) {
                 if(entry.getValue()==null||!entry.getValue().equals(current.chunkStamp(entry.getKey())))return null;
             }
-            var result=current.snapshot();result.chunks.putAll(staged.chunks);
+            var result=current.snapshot();result.chunks.putAll(staged.chunks);result.geometryRevision++;
             // Protect the candidate if this staging object is edited/reused afterward.
             staged.owner=new Object();
             return result;
@@ -282,7 +323,7 @@ public final class WorldVoxels {
         return value == -1 ? Blocks.PARTIAL : value >>> 24 == 254 ? Blocks.LED : value & 0xffffff;
     }
 
-    public void clear(){chunks.clear();}
+    public void clear(){if(!chunks.isEmpty())geometryRevision++;chunks.clear();}
 
     private SparseVoxelOctree editedCell(int x,int y,int z) {
         var bucket=chunks.get(ChunkPos.fromBlock(x,y,z));
@@ -353,7 +394,7 @@ public final class WorldVoxels {
             bucket=new CellBucket(owner,bucket);
             chunks.put(position,bucket);
         }
-        bucket.put(localCell(x,y,z),stored);
+        bucket.put(localCell(x,y,z),stored);geometryRevision++;
     }
 
     /** Preserve replay order and remove overrides fully covered by the new region. */
