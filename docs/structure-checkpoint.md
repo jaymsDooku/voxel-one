@@ -1,5 +1,51 @@
 # Structure review fix checkpoint
 
+## Private global dependency manifest
+
+Parent `7cf035c0` has successful required platform builds per controller. Fresh
+PR observation matched that head with seven successful entries and one extra
+Intel Mac build still running; publication skipped. No repeated wait was made.
+
+The tools-only region prototype now has a self-contained private dependency
+envelope. It captures only referenced definitions, freezes them and deduplicates
+by existing fingerprint. Sorted source IDs reference the shared definition table.
+No author/account fields are captured. Diagnostic caps are 16 MiB total, 8 MiB
+definition bytes, 512 unique definitions and 1,024 alias bindings. Existing
+per-model resolution/size/8,192-quad caps remain enforced. Aggregate bytes are
+checked after each bounded existing ModelDefinition parser; a single extra
+record can parse before rejection. This is not peak-memory qualification.
+
+Private restore copies the destination library, stages/remaps definitions and
+changes model IDs only in a private restored world. No live authority is changed.
+Actual CLI checks passed empty-cache restoration, a conflicting destination
+ID1024, alias reuse, built-in ID8, legacy custom ID9, source-asset edit isolation,
+and preservation of air, fractional LED and ordinary geometry. 512 distinct
+simple 8-resolution definitions round-trip in 50,658 bytes. 1,024 alias bindings
+deduplicate to one definition; 513 unique definitions and 1,025 bindings reject.
+The representative mixed manifest is 9,195 bytes, four bindings/three definitions.
+These are small synthetic checks, not full city/maximum performance evidence.
+
+47 rejection cases pass, including model meshing caps, missing/extra dependency
+references, empty/duplicate/unused/identity-mismatched definitions, bad binding
+IDs/indices/order, malformed lengths, CRC, trailing/truncated/oversized input,
+cancellation during capture/encode/decode/private restore and before final result
+return, preserved interruption and retry. Golden container bytes are constructed
+independently of the envelope encoder. The source destination library remains
+unchanged on cancelled restore. All 36 structure-tool tests passed with zero
+failures, errors or skips; focused three-test integration also passed.
+
+Playtest: ran the detached CLI against actual ModelLibrary remapping and world
+geometry. Browser/native playtesting does not apply to this tools-only change.
+All 224 native source paths remain unchanged, so existing game media still
+matches. Report: `structure-region-dependencies.json`.
+
+Next: versioned save/load and atomic generation publication using bounded region
+and dependency storage, then conflict-safe undo and late-join integration. Actual
+production migration and full city/maximum admission remain unfinished. The
+20-run physical-GPU/shaped-network/32-rendered-client budgets remain pending.
+Readiness and stable rollout stay gated. Local tools/docs/report need controller
+publication and exact-source hosted checks.
+
 ## Private bounded region-history codec
 
 Parent `d809f700` has successful required platform builds per controller. Fresh

@@ -29,7 +29,7 @@ public final class RegionHistoryPrototype {
         this.regions=Collections.unmodifiableMap(regions);
     }
     public Map<ChunkPos,List<Protocol.CellState>> regions(){return regions;}
-    private static final class LimitedOutput extends OutputStream {
+    static final class LimitedOutput extends OutputStream {
         final ByteArrayOutputStream bytes=new ByteArrayOutputStream();
         final int maximum;final BooleanSupplier cancel;int count;
         LimitedOutput(int maximum,BooleanSupplier cancel){this.maximum=maximum;this.cancel=cancel;}

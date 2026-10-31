@@ -18,7 +18,8 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
         folder.mkdir(parents=True, exist_ok=True)
         with tempfile.TemporaryDirectory(dir=folder) as temporary:
             sources = [ROOT / 'tools/structures' / name for name in
-                       ('RegionHistoryPrototype.java', 'RegionHistoryPrototypeCheck.java', 'RegionHistoryCodecCheck.java')]
+                       ('RegionHistoryPrototype.java', 'RegionHistoryPrototypeCheck.java', 'RegionHistoryCodecCheck.java',
+                        'RegionDependencyPrototype.java', 'RegionDependencyCheck.java')]
             subprocess.run(['javac', '--release', '17', '-cp', str(CLASSES), '-d', temporary,
                             *map(str, sources)], check=True, capture_output=True, timeout=30)
             result = subprocess.run(['java', '-Xmx512m', '-cp', os.pathsep.join((temporary, str(CLASSES))),
@@ -38,6 +39,14 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]['status'], 'passed')
         self.assertGreaterEqual(rows[0]['rejection_cases'], 40)
+        self.assertFalse(rows[0]['qualification'])
+
+    def test_dependency_manifest(self):
+        rows = self.run_check('RegionDependencyCheck')
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]['status'], 'passed')
+        self.assertEqual(rows[0]['unique_definitions'], 3)
+        self.assertGreaterEqual(rows[0]['rejection_cases'], 35)
         self.assertFalse(rows[0]['qualification'])
 
 
