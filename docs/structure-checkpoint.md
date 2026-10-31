@@ -1,5 +1,15 @@
 # Structure review fix checkpoint
 
+## Private server file-bundle source fence
+
+Exact parent `a1bd2ead` has eight successful hosted platform builds; publication skipped. Added explicit `captureServer` entry to the common private bundle coordinator. Immutable snapshot mode chooses the correct decoder; all source monitor/revision, fixed-slot, byte/absence revalidation, cancellation, strict private generation commit and cleanup rules are shared. No source files are replaced.
+
+All 14 affected integration tests passed in two batches of 7, no skips. Actual server CLI passed 26 rejection cases, including wrong selected codec before publication. Complete encoded payload comparisons prove geometry, full library, survival data and sidecars survive initial/final private restart. Unsaved revision, changed/removed/new files, missing source monitor, malformed sources, closed stages and competing destination publications reject. Actual local synthetic symlink case checked. Source fixture bytes restored/unchanged and private stages cleaned up.
+
+Playtest: actual synthetic server bundle capture/stage/commit/restart and failure/retry; fresh CLI child exit0 own-window image inspected. Browser/game playtesting does not apply to tools-only migration; all224 native hashes unchanged. Hand-built server schema bytes plus actual synthetic CitySimulation.save sidecars, no account/auth files and no server started. No deleted paths against review base; diff check passed. Evidence `structure-server-bundle.json` and `structure-server-bundle-cli.png`, pending controller publication.
+
+Requires trusted directories and all writers honoring one monitor/monotonic revision. This does not integrate live owner state or exclude arbitrary external writers. Automatic migration, ordinary-edit region persistence, semantic sidecar validation, directory durability and full city/maximum physical-GPU/shaped32-client qualification remain pending. No caps raised; rollout gated. Next: owner-state adapter and bounded region publication before full qualification.
+
 ## Private modern server base-file import
 
 Exact parent `b1c8eb1b` has eight successful hosted platform builds; publication skipped. Added a tools-only bounded parser for server save markers `-3` through `-9`, retaining seed/generator, final geometry, full saved model definitions and aliases, synthetic player names/inventories/health and drops. Uses existing per-format production field codecs. Unversioned files reject explicitly; no authentication data is read and no server starts. Source bytes are copied, never changed; candidate admission completes before return. Optional typed sidecars remain outside reusable structures.

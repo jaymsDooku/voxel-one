@@ -23,7 +23,7 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
                         'RegionGenerationPrototype.java', 'RegionGenerationCheck.java', 'RegionGenerationEvidence.java',
                         'RegionAuthorityPrototype.java', 'RegionAuthorityCheck.java',
                         'RegionWorldLibraryPrototype.java', 'RegionWorldLibraryCheck.java', 'RegionOfflineMetadataPrototype.java', 'RegionOfflineMetadataCheck.java',
-                        'RegionOfflineImportPrototype.java', 'RegionOfflineImportCheck.java', 'RegionOfflineLegacyCheck.java', 'RegionSidecarsPrototype.java', 'RegionSidecarsCheck.java', 'RegionOfflineBundlePrototype.java', 'RegionOfflineBundleCheck.java', 'RegionServerMetadataPrototype.java', 'RegionServerMetadataCheck.java', 'RegionServerImportPrototype.java', 'RegionServerImportCheck.java')]
+                        'RegionOfflineImportPrototype.java', 'RegionOfflineImportCheck.java', 'RegionOfflineLegacyCheck.java', 'RegionSidecarsPrototype.java', 'RegionSidecarsCheck.java', 'RegionOfflineBundlePrototype.java', 'RegionOfflineBundleCheck.java', 'RegionServerMetadataPrototype.java', 'RegionServerMetadataCheck.java', 'RegionServerImportPrototype.java', 'RegionServerImportCheck.java', 'RegionServerBundleCheck.java')]
             compiled = subprocess.run(['javac', '-encoding', 'UTF-8', '--release', '17', '-cp', str(CLASSES), '-d', temporary,
                                        *map(str, sources)], capture_output=True, text=True, timeout=30)
             self.assertEqual(compiled.returncode, 0, compiled.stderr[:4000])
@@ -64,6 +64,15 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
         self.assertGreaterEqual(rows[0]['mid_write_cancel_bytes'], 65536)
         self.assertFalse(rows[0]['directory_fsync_qualified'])
         self.assertFalse(rows[0]['qualification'])
+
+    def test_server_bundle(self):
+        row = self.run_check('RegionServerBundleCheck')[0]
+        self.assertEqual(row['status'], 'passed')
+        self.assertTrue(row['server_source'])
+        self.assertTrue(row['generation_restart'])
+        self.assertTrue(row['source_files_unchanged'])
+        self.assertFalse(row['production_integration'])
+        self.assertFalse(row['qualification'])
 
     def test_server_import(self):
         rows = self.run_check('RegionServerImportCheck')
