@@ -2,12 +2,15 @@ package dev.jayms.net;
 
 import dev.jayms.net.city.*;
 import dev.jayms.net.model.*;
+import dev.jayms.net.structure.*;
 
 import java.io.*;
 import java.nio.file.*;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.util.*;
+import java.util.function.BooleanSupplier;
+import java.util.function.IntConsumer;
 
 /** Offline survival state uses the same stack rules and terrain as multiplayer. */
 public final class LocalGame {
@@ -229,11 +232,70 @@ public final class LocalGame {
         WorldSavePublication.replace(temp, save, requireAtomic);
     }
 
+    /** Private worker-built history, consumed only after owner-thread revision checks. */
+    public static final class StructureHistory {
+        private final LocalGame owner;
+        private final WorldVoxels.History base,next;
+        private final Map<StructurePackage.Position,SparseVoxelOctree> cells;
+        private final long revision;
+        private StructureHistory(LocalGame owner,WorldVoxels.History base,long revision,WorldVoxels.History next,Map<StructurePackage.Position,SparseVoxelOctree> cells) {
+            this.owner=owner;this.base=base;this.revision=revision;this.next=next;this.cells=cells;
+        }
+    }
+    private record HistorySource(WorldVoxels.History base,long revision,WorldVoxels.History.CopyCursor cursor,int size) {}
+
+    /** Worker only, for immutable engine-prepared cells. Live history reads execute
+     * in bounded batches on the owner; the result is bound to this exact cell map. */
+    public StructureHistory stageStructureHistory(Map<StructurePackage.Position,SparseVoxelOctree> cells,
+            StructureOwnerQueue owner,BooleanSupplier cancel,IntConsumer progress)throws IOException {
+        var source=owner.call(()->{
+            StructurePackage.cancelled(cancel);
+            // Preserve the existing synchronous path for legacy/custom map implementations.
+            if(!(edits instanceof WorldVoxels.History base))return null;
+            return new HistorySource(base,base.revision(),base.copyCursor(),base.size());
+        },cancel);
+        if(source==null){progress.accept(100);return null;}
+        var next=new WorldVoxels.History();long copied=0,total=Math.max(1L,(long)source.size()+cells.size());
+        while(copied<source.size()) {
+            StructurePackage.cancelled(cancel);
+            var batches=owner.call(()->{
+                StructurePackage.cancelled(cancel);
+                if(edits!=source.base())throw new IOException("World changed while copying save history; retry placement");
+                try {
+                    var group=new ArrayList<WorldVoxels.History.CopyBatch>(32);
+                    for(int i=0;i<32;i++) {
+                        StructurePackage.cancelled(cancel);var batch=source.cursor().nextBatch();
+                        if(batch.isEmpty())break;group.add(batch);
+                    }
+                    return group;
+                }
+                catch(ConcurrentModificationException changed){throw new IOException("World changed while copying save history; retry placement",changed);}
+            },cancel);
+            if(batches.isEmpty())throw new IOException("Incomplete save history copy");
+            for(var batch:batches) {
+                batch.copyTo(next,()->StructurePackage.cancelled(cancel));copied+=batch.size();
+                progress.accept((int)(100*copied/total));
+            }
+        }
+        for(var entry:cells.entrySet()) {
+            StructurePackage.cancelled(cancel);var p=entry.getKey();
+            WorldVoxels.rememberCell(next,new Protocol.CellState(p.x(),p.y(),p.z(),entry.getValue()));
+            progress.accept((int)(100*++copied/total));
+        }
+        StructurePackage.cancelled(cancel);
+        if(next.size()>2_000_000)throw new IOException("World edit persistence limit");
+        progress.accept(100);return new StructureHistory(this,source.base(),source.revision(),next,cells);
+    }
+
     public dev.jayms.net.structure.StructureEngine.Authority structureAuthority(dev.jayms.World world) {
         return structureAuthority(world, () -> null);
     }
 
     public dev.jayms.net.structure.StructureEngine.Authority structureAuthority(dev.jayms.World world, java.util.function.Supplier<Protocol.Pose> player) {
+        return structureAuthority(world,player,null);
+    }
+
+    public dev.jayms.net.structure.StructureEngine.Authority structureAuthority(dev.jayms.World world, java.util.function.Supplier<Protocol.Pose> player,StructureHistory history) {
         return new dev.jayms.net.structure.StructureEngine.Authority() {
             public Object lock(){return LocalGame.this;}
             public ModelLibrary models(){return models;}
@@ -242,11 +304,13 @@ public final class LocalGame {
             public void commit(ModelLibrary prepared,Map<dev.jayms.net.structure.StructurePackage.Position,SparseVoxelOctree> cells)throws IOException {
                 var livePlayer=player.get();
                 dev.jayms.net.structure.StructureOccupancy.validate(cells,city==null?null:city.frame(),livePlayer==null?List.of():List.of(livePlayer));
-                var original=edits;var originalModels=models.copy();var next=WorldVoxels.History.copyOf(original);
+                if(history!=null&&(history.owner!=LocalGame.this||history.cells!=cells||edits!=history.base||history.base.revision()!=history.revision))
+                    throw new IOException("World changed while staging save history; retry placement");
+                var original=edits;var originalModels=models.copy();var next=history==null?WorldVoxels.History.copyOf(original):history.next;
                 var before=new LinkedHashMap<dev.jayms.net.structure.StructurePackage.Position,SparseVoxelOctree>();
                 for(var e:cells.entrySet()) {
                     var p=e.getKey();before.put(p,world.cell(p.x(),p.y(),p.z()).copy().freeze());
-                    WorldVoxels.rememberCell(next,new Protocol.CellState(p.x(),p.y(),p.z(),e.getValue()));
+                    if(history==null)WorldVoxels.rememberCell(next,new Protocol.CellState(p.x(),p.y(),p.z(),e.getValue()));
                 }
                 if(next.size()>2_000_000)throw new IOException("World edit persistence limit");
                 try {

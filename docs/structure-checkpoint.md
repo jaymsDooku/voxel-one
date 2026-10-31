@@ -1,5 +1,46 @@
 # Structure review fix checkpoint
 
+## Current offline placement-history staging validation
+
+Parent `2b4f9d50ad99eddb3ce11c2e45300b08c6622ba7` has eight successful platform
+builds; publication skipped. Offline library placement builds indexed save
+history on the worker. Main serves at most one queued owner read per frame;
+each read contains at most 32 batches of 1,024 immutable key/Edit pairs (32,768
+pairs). Target index construction and placement replay stay on the worker.
+
+The private result is bound to world/source-history identity/revision and exact
+immutable prepared-cell map. Source edits require retry before publication.
+Model/destination/collision checks, current survival state, atomic save and undo
+remain guarded by existing owner-thread commit. Nonindexed maps keep their old
+synchronous path. Cancel/close and worker errors release reads/prepared resources.
+
+157 targeted tests passed. Seven new tests cover bounded owner reads, worker
+progress, durable replay/current health/inventory/restart/undo, stale history,
+mutation between groups, cancellation/close, result binding, legacy maps and an
+actual StructureMenu failure followed by successful retry. Initial fixture
+assertions were corrected before final checks.
+
+Three warmups and 20 runs per mode compare the prior synchronous history-only
+algorithm with actual worker staging for 100,000 source edits plus 1,000 cells.
+Ordered replay hashes match. Per-run maximum owner duration median/p95/worst
+changed from 32.934/88.845/145.748 ms to 1.949/2.480/3.601 ms. Wall time increased
+from 32.936/88.848/145.750 ms to 204.159/266.902/270.702 ms under synthetic 33 ms
+owner-pump sleeps. Median allocation changed from 9,617,488 owner bytes to
+806,848 owner plus 14,093,016 worker bytes. This is a responsiveness tradeoff,
+not lower total allocation or a real-renderer/frame/full-commit qualification.
+Report: `structure-offline-history-validation.json`. Fresh native workflow passed
+on the inherited display with an isolated synthetic profile and llvmpipe. All
+222 source hashes match. Fresh H264 recording is 400,053 bytes, 16 frames and
+27.245 s. Decoded history-staging progress frame and fresh blocked-conflict
+screenshot inspected; HUD 0-1 FPS is functional evidence only. The decoded frame
+is saved as `structure-offline-history-progress.png`. Local edits/media need
+controller publication and exact-source hosted checks.
+
+Snapshot capture, validation, geometry publication, disk save and undo still have
+owner-thread work. Full city/maximum admission, partitioned storage/transfer and
+physical-GPU/shaped-network/32-rendered-client/20-run full-workflow qualification
+remain unfinished. Supported-city and stable-rollout gates stay.
+
 ## Current immutable-history-key validation
 
 Parent `4f80b31d14631a17ba376ad84d0b07d69487be2a` has eight successful platform
