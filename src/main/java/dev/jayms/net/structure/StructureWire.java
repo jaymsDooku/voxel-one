@@ -16,7 +16,7 @@ public final class StructureWire {
     public static byte[] encode(Delta delta,BooleanSupplier cancel)throws IOException {
         StructurePackage.cancelled(cancel);
         var bytes=new ByteArrayOutputStream();
-        try(var out=new DataOutputStream(new StructurePackage.BudgetOutput(new GZIPOutputStream(new StructurePackage.BudgetOutput(bytes,StructurePackage.COMPRESSED)),StructurePackage.DECODED))) {
+        try(var out=new DataOutputStream(new BufferedOutputStream(new StructurePackage.BudgetOutput(new GZIPOutputStream(new StructurePackage.BudgetOutput(bytes,StructurePackage.COMPRESSED)),StructurePackage.DECODED),65536))) {
             out.writeInt(delta.models.size());
             for(var entry:delta.models){StructurePackage.cancelled(cancel);out.writeInt(entry.id());out.writeUTF(entry.author());entry.definition().write(out);}
             out.writeInt(delta.cells.size());for(var cell:delta.cells){StructurePackage.cancelled(cancel);cell.write(out);}
@@ -26,7 +26,7 @@ public final class StructureWire {
     }
     public static Delta decode(byte[] payload)throws IOException {
         if(payload.length>StructurePackage.COMPRESSED)throw new IOException("Structure synchronization byte limit");
-        try(var raw=new GZIPInputStream(new ByteArrayInputStream(payload));var in=new DataInputStream(new Limited(raw))) {
+        try(var raw=new GZIPInputStream(new ByteArrayInputStream(payload));var in=new DataInputStream(new BufferedInputStream(new Limited(raw),65536))) {
             int n=in.readInt();if(n<0||n>ModelLibrary.MAX_CUSTOM+2048)throw new IOException("World dependency transfer limit");
             var models=new ArrayList<ModelLibrary.Entry>();
             for(int i=0;i<n;i++)models.add(new ModelLibrary.Entry(in.readInt(),Protocol.readText(in,16),ModelDefinition.read(in)));
@@ -35,7 +35,7 @@ public final class StructureWire {
             for(int i=0;i<n;i++) {
                 var cell=Protocol.CellState.read(in);
                 if(!positions.add(cell.x()+","+cell.y()+","+cell.z()))throw new IOException("Duplicate structure cell");
-                leaves+=cell.tree().leaves().size();if(leaves>2_000_000)throw new IOException("World synchronization leaf limit");
+                leaves+=cell.tree().leafCount();if(leaves>2_000_000)throw new IOException("World synchronization leaf limit");
                 cells.add(cell);
             }
             if(in.read()!=-1)throw new IOException("Trailing structure delta");return new Delta(models,cells);

@@ -1,5 +1,41 @@
 # Structure review fix checkpoint
 
+## Current buffered synchronization validation
+
+Parent `74e480d50873d886dfde7c1a5da2198e7a5c0131` has eight successful platform
+builds; publication skipped. Structure wire encoding and decoding now use bounded
+64 KiB buffers. Existing byte budgets stay below the buffers. Leaf counting no
+longer constructs temporary lists. Wire format and all transfer caps stay intact.
+
+132 targeted tests passed, including real TLS structure placement across four
+rotations, empty dependency caches, late joining, undo and restart. New tests
+compare independent legacy writer bytes across buffers and verify model IDs,
+physical cells including air, CRC/size/truncation/duplicates/trailing rejection,
+cancellation and decoded-limit enforcement. Small limits test the limiter;
+no full 512 MiB allocation is claimed.
+
+Three warmups and 20 codec runs compared separately compiled parent with current
+source, in separate JVMs without concurrent tests/native playtesting. The
+64-cell, 131,072-leaf delta is 192,676 compressed bytes; wire hashes match.
+Encode median/p95/worst: 229.507/236.544/249.087 ms before,
+88.774/96.959/98.141 ms now. Decode: 144.300/157.263/164.123 ms before,
+22.557/29.997/38.717 ms now. Thread allocation fell from 7,919,896 to 793,952 bytes
+for encode and from 13,255,528 to 5,926,304 bytes for decode. These are codec CPU
+and thread-allocation measurements, not full synchronization or peak memory.
+
+Playtest: fresh native workflow passed on inherited display with isolated
+synthetic profile and llvmpipe. All 220 production/harness hashes match. Fresh
+H264 video is 376,781 bytes, 16 frames and 27.442 s. Decoded staging/anchor frame
+and occupied-cell conflict screenshot inspected; HUD 1 FPS is functional evidence
+only. Report: `structure-wire-buffer-validation.json`. Edits, fresh media and
+exact-head checks require controller publication.
+
+Next: partitioned transfer/persistence/publication, owner-thread history/save
+work and placement/undo graph retention. Two-million-cell/leaf transfer caps and
+other provisional limits remain. Full city/maximum admission and 20-run physical
+GPU, shaped-network and 32-rendered-client qualification remain pending. Stable
+rollout and supported-city limits stay gated.
+
 ## Current count-only chunk validation
 
 Parent `07fd590d26d974a3f3a967c05c8a2900b7a0b853` has eight successful platform
