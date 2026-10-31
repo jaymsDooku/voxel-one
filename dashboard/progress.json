@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-31T13:51:11+00:00",
+  "updatedAt": "2026-10-31T14:03:43+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Private server survival metadata now survives generation restart and geometry saves. 45 tool tests passed; actual synthetic CLI passed 34 rejection cases. Fresh CLI image recorded. Production integration and full city/GPU/32-client qualification remain pending; rollout gated.",
-      "updatedAt": "2026-10-31T13:51:11+00:00"
+      "note": "Fixed Windows Java source encoding in structure integration wrapper. Reproduced failure with Windows-1252; all 12 affected tests pass with explicit UTF-8 under that process default. Fresh CLI image saved. Hosted rerun and full city/GPU/32-client qualification pending.",
+      "updatedAt": "2026-10-31T14:03:43+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
