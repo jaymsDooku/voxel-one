@@ -1,5 +1,45 @@
 # Structure review fix checkpoint
 
+## Bounded offline v8/v9 base-file migration
+
+Exact parent `db970e8d` has eight successful platform builds; publication skipped.
+All 224 native source hashes still match; no unchanged native/Maven checks rerun.
+
+Added a detached byte-array parser for v8/v9 base files. Input is at most 16 MiB,
+model bytes at most 8 MiB, source edits at most 200,000, final cells at most
+100,000 and regions at most 1,024. Existing final-leaf/envelope/metadata budgets
+also apply before a candidate is returned. Edits stream into private replay;
+there is no second complete Edit list. Existing production readers validate
+models, Inventory, edits and drops. Counts, terrain, health, model dependencies,
+exact EOF and cancellation reject malformed input without a returned result.
+No source file or live world is mutated. No production format/cap changed.
+
+Eight affected integration tests and all 41 final tool tests passed. Actual CLI:
+six synthetic fixtures, v8/v9 times terrain 1/2/3, and 91 rejection cases passed.
+LocalGame.save wrote base fixtures; terrain-version headers were changed for the
+three cohorts, then the actual LocalGame loader supplied the replay oracle.
+Full/fractional/model geometry, explicit air over seeded terrain, untouched
+terrain, exact model IDs/authors/unused aliases and survival fields match.
+Private generation publication/restart retains metadata and unused assets.
+Original bytes remain unchanged. Cancel/interruption rejects and retry matches.
+
+Initial fixture compilation used a wrong Blocks.piece signature; eight tests
+could not compile. Subsequent inconsistent piece type/depth was correctly
+rejected by LocalGame. Corrected both fields before final passing checks. The
+wrapper now reports bounded compiler stderr instead of repeated argument lists.
+
+Playtest: actual LocalGame save/load CLI through the importer and private store.
+Expected existing loader parity and safe failures; observed passed. Browser/game
+playtesting does not apply to tools-only migration. Fresh assigned-display CLI
+window showed child exit 0 and results; captured window-only image inspected.
+Image: `structure-offline-import-cli.png`; report: `structure-offline-import.json`.
+
+This is not automatic or complete world migration. Versions 3..7, city sidecars,
+server-player state, ordinary-edit persistence and responsive game integration
+remain pending. No real user/account files were read. Count/byte admission is
+not peak-memory qualification. Full city/maximum, physical GPU, shaped-network
+32-client performance and storage durability remain gated. No ready/stable claim.
+
 ## Private offline survival metadata
 
 Exact parent `ea0bfa2f` has eight successful platform builds; publication skipped.
