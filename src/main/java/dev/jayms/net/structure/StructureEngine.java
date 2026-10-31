@@ -74,6 +74,8 @@ public final class StructureEngine {
             this.after=after;this.before=emptyBeforeImage(this.after,empty);this.staged=staged;modelRevision=revision;this.cancel=cancel;this.validatedChunks=validatedChunks;this.affectedChunkCount=affectedChunkCount;
         }
         public Map<Position,SparseVoxelOctree> cells(){return after;}
+        /** Independent maps over immutable definitions for worker save staging. */
+        public ModelLibrary modelSnapshot(){return staged.copy();}
         public void commit(String owner,Authority authority) throws IOException {
             try {
                 if(closed)throw new IOException("Structure staging closed");

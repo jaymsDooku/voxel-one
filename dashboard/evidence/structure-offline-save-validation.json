@@ -1,0 +1,523 @@
+{
+  "schema": 1,
+  "parent_head": "35325317aa2a585d3f25ef2a7cccc4b20e8f69bd",
+  "scope": "Offline library placement private save staging; synthetic durable save microbenchmark",
+  "qualification": "NOT QUALIFIED",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu_model": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)"
+  },
+  "design": [
+    "Worker serializes detached prepared models and ordered history into private sibling file.",
+    "Version 8/9 fixed 72-byte inventory plus health placeholder is patched with current owner state; current drops appended before force and strict atomic rename.",
+    "Exact history/cell binding and prepared model entries checked before publication.",
+    "Close/cancel/error discard private save. Legacy custom history and undo remain synchronous."
+  ],
+  "tests": {
+    "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-offline-history-tmp\" -Dtest='Structure*Test,WorldHistoryIndexTest,EditHistoryTest,WorldVoxelSnapshotTest,ProtocolCompatibilityTest,ShippingProtocolCompatibilityTest,VoxelModelTest' test",
+    "exit_code": 0,
+    "suites": 35,
+    "tests": 162,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "new_coverage": [
+      "Version 8/9 byte equality to existing codec",
+      "Current inventory/health/drops after staging",
+      "Cancel before and during history write",
+      "Private-file cleanup on close and failed atomic replacement",
+      "Mismatched prepared models reject without world/save mutation",
+      "Actual StructureMenu staging failure/retry plus existing TLS multiplayer regressions",
+      "Final integration: failed staged atomic publication rolls back world/history/models, creates no undo entry and removes private file."
+    ],
+    "initial_run": {
+      "suites": 35,
+      "tests": 162,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "final_focused_command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-offline-history-tmp\" -Dtest=StructureOfflineHistoryStagingTest test",
+    "final_focused_run": {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "exit_code": 0
+    },
+    "distinct_tests": 163,
+    "test_executions": 171
+  },
+  "probe": {
+    "commands": [
+      "javac --release 17 -cp target/classes -d target tools/structures/OfflineSaveProbe.java",
+      "java -Xmx1g -cp target:target/classes dev.jayms.net.OfflineSaveProbe sync",
+      "java -Xmx1g -cp target:target/classes dev.jayms.net.OfflineSaveProbe staged"
+    ],
+    "fixture": "100000 uniform BRICKS history records, fixed inventory/health/one drop; 2400119 save bytes",
+    "method": "Separate JVMs, sync first, 3 warmups then20 measurements. Baseline LocalGame.save() attempts atomic rename with fallback; staged save requires atomic rename. Includes force and actual filesystem IO; excludes structure preparation, geometry publication, rendering and networking. Fixture construction and digest outside timing.",
+    "results": {
+      "sync": {
+        "runs": 20,
+        "warmups": 3,
+        "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c",
+        "bytes": 2400119,
+        "statistics": {
+          "wall_ms": {
+            "median": 33.957434,
+            "p95": 37.801912,
+            "worst": 37.985588
+          },
+          "owner_ms": {
+            "median": 33.9570685,
+            "p95": 37.80156,
+            "worst": 37.984965
+          },
+          "stage_ms": {
+            "median": 0.0,
+            "p95": 0.0,
+            "worst": 0.0
+          }
+        },
+        "samples": [
+          {
+            "run": 0,
+            "mode": "sync",
+            "wall_ms": 37.043328,
+            "owner_ms": 37.042991,
+            "stage_ms": 0.0,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 1,
+            "mode": "sync",
+            "wall_ms": 36.58338,
+            "owner_ms": 36.583005,
+            "stage_ms": 0.0,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 2,
+            "mode": "sync",
+            "wall_ms": 34.943286,
+            "owner_ms": 34.942967,
+            "stage_ms": 0.0,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 3,
+            "mode": "sync",
+            "wall_ms": 33.969857,
+            "owner_ms": 33.969214,
+            "stage_ms": 0.0,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 4,
+            "mode": "sync",
+            "wall_ms": 34.657229,
+            "owner_ms": 34.656899,
+            "stage_ms": 0.0,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 5,
+            "mode": "sync",
+            "wall_ms": 34.199829,
+            "owner_ms": 34.199462,
+            "stage_ms": 0.0,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 6,
+            "mode": "sync",
+            "wall_ms": 33.527466,
+            "owner_ms": 33.527143,
+            "stage_ms": 0.0,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 7,
+            "mode": "sync",
+            "wall_ms": 31.779753,
+            "owner_ms": 31.779426,
+            "stage_ms": 0.0,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 8,
+            "mode": "sync",
+            "wall_ms": 33.39739,
+            "owner_ms": 33.396683,
+            "stage_ms": 0.0,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 9,
+            "mode": "sync",
+            "wall_ms": 32.591806,
+            "owner_ms": 32.591239,
+            "stage_ms": 0.0,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 10,
+            "mode": "sync",
+            "wall_ms": 32.905913,
+            "owner_ms": 32.905526,
+            "stage_ms": 0.0,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 11,
+            "mode": "sync",
+            "wall_ms": 33.968063,
+            "owner_ms": 33.967698,
+            "stage_ms": 0.0,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 12,
+            "mode": "sync",
+            "wall_ms": 33.910766,
+            "owner_ms": 33.910281,
+            "stage_ms": 0.0,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 13,
+            "mode": "sync",
+            "wall_ms": 32.599125,
+            "owner_ms": 32.598603,
+            "stage_ms": 0.0,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 14,
+            "mode": "sync",
+            "wall_ms": 37.985588,
+            "owner_ms": 37.984965,
+            "stage_ms": 0.0,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 15,
+            "mode": "sync",
+            "wall_ms": 34.761878,
+            "owner_ms": 34.76148,
+            "stage_ms": 0.0,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 16,
+            "mode": "sync",
+            "wall_ms": 37.801912,
+            "owner_ms": 37.80156,
+            "stage_ms": 0.0,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 17,
+            "mode": "sync",
+            "wall_ms": 32.20074,
+            "owner_ms": 32.20031,
+            "stage_ms": 0.0,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 18,
+            "mode": "sync",
+            "wall_ms": 33.946805,
+            "owner_ms": 33.946439,
+            "stage_ms": 0.0,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 19,
+            "mode": "sync",
+            "wall_ms": 32.515393,
+            "owner_ms": 32.514933,
+            "stage_ms": 0.0,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          }
+        ]
+      },
+      "staged": {
+        "runs": 20,
+        "warmups": 3,
+        "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c",
+        "bytes": 2400119,
+        "statistics": {
+          "wall_ms": {
+            "median": 34.447111,
+            "p95": 37.057056,
+            "worst": 41.900455
+          },
+          "owner_ms": {
+            "median": 2.482257,
+            "p95": 2.697472,
+            "worst": 2.784214
+          },
+          "stage_ms": {
+            "median": 32.075222,
+            "p95": 34.402141,
+            "worst": 39.377054
+          }
+        },
+        "samples": [
+          {
+            "run": 0,
+            "mode": "staged",
+            "wall_ms": 41.900455,
+            "owner_ms": 2.522089,
+            "stage_ms": 39.377054,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 1,
+            "mode": "staged",
+            "wall_ms": 33.560573,
+            "owner_ms": 2.672182,
+            "stage_ms": 30.887261,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 2,
+            "mode": "staged",
+            "wall_ms": 35.15395,
+            "owner_ms": 2.5798,
+            "stage_ms": 32.572883,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 3,
+            "mode": "staged",
+            "wall_ms": 37.057056,
+            "owner_ms": 2.653448,
+            "stage_ms": 34.402141,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 4,
+            "mode": "staged",
+            "wall_ms": 33.660826,
+            "owner_ms": 2.784214,
+            "stage_ms": 30.875253,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 5,
+            "mode": "staged",
+            "wall_ms": 35.960016,
+            "owner_ms": 2.086353,
+            "stage_ms": 33.872288,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 6,
+            "mode": "staged",
+            "wall_ms": 33.214803,
+            "owner_ms": 2.62971,
+            "stage_ms": 30.58378,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 7,
+            "mode": "staged",
+            "wall_ms": 32.752215,
+            "owner_ms": 2.423642,
+            "stage_ms": 30.327374,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 8,
+            "mode": "staged",
+            "wall_ms": 32.502347,
+            "owner_ms": 2.697472,
+            "stage_ms": 29.803835,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 9,
+            "mode": "staged",
+            "wall_ms": 34.100231,
+            "owner_ms": 2.602426,
+            "stage_ms": 31.496788,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 10,
+            "mode": "staged",
+            "wall_ms": 34.388484,
+            "owner_ms": 2.393312,
+            "stage_ms": 31.994182,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 11,
+            "mode": "staged",
+            "wall_ms": 34.505738,
+            "owner_ms": 2.42459,
+            "stage_ms": 32.08018,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 12,
+            "mode": "staged",
+            "wall_ms": 34.748247,
+            "owner_ms": 2.220274,
+            "stage_ms": 32.527064,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 13,
+            "mode": "staged",
+            "wall_ms": 35.132855,
+            "owner_ms": 2.38293,
+            "stage_ms": 32.748977,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 14,
+            "mode": "staged",
+            "wall_ms": 34.282842,
+            "owner_ms": 2.473869,
+            "stage_ms": 31.808122,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 15,
+            "mode": "staged",
+            "wall_ms": 34.225995,
+            "owner_ms": 2.154912,
+            "stage_ms": 32.070264,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 16,
+            "mode": "staged",
+            "wall_ms": 34.745041,
+            "owner_ms": 2.508962,
+            "stage_ms": 32.235294,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 17,
+            "mode": "staged",
+            "wall_ms": 34.269511,
+            "owner_ms": 2.328092,
+            "stage_ms": 31.905239,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 18,
+            "mode": "staged",
+            "wall_ms": 34.906774,
+            "owner_ms": 2.296341,
+            "stage_ms": 32.605762,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          },
+          {
+            "run": 19,
+            "mode": "staged",
+            "wall_ms": 35.652215,
+            "owner_ms": 2.490645,
+            "stage_ms": 33.154155,
+            "bytes": 2400119,
+            "sha256": "142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c"
+          }
+        ]
+      }
+    }
+  },
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/StagedOfflineSave.java": "0b2ad3b8d826fc729dfb34185acfc842be988aab1667e8d225191482df13e88b",
+    "src/main/java/dev/jayms/net/LocalGame.java": "21f6b37a42b6c44816fa4016e4d2d0bd5ca4059471c2de6b4319399e28c39972",
+    "src/main/java/dev/jayms/net/structure/StructureEngine.java": "ebb8775801c95fe1dab5c22d9492d5cb6be73511dd4f4d87bf957031736b45c6",
+    "src/main/java/dev/jayms/ui/StructureMenu.java": "1328d3f57c28ceb6407187ab74bd996fe9d8c5742af0679966622d9e69abec75",
+    "src/test/java/dev/jayms/net/StructureOfflineSaveTest.java": "e3b00d47c983ad03c760d7771640afaf6f46d91a1252d4454e6b93b64af7896c",
+    "src/test/java/dev/jayms/StructureOfflineHistoryStagingTest.java": "4029c74351d38393d0b63916f3c01f3d8f63ad5a272e2cc91d1fc52326b401bb",
+    "tools/structures/OfflineSaveProbe.java": "6276b6528cd29e1645ce5d7fd35d8db6fa92e9395a5392d69aea3525ce46a96f"
+  },
+  "parent_hosted_checks": "Observed eight successful exact-head platform builds for35325317; publish skipped. New edits require controller publication and hosted checks.",
+  "remaining": [
+    "Full city fixture and maximum fragmented fixture are still rejected by provisional geometry/dependency/affected-chunk budgets; no caps raised.",
+    "Canonical partitioned geometry/history persistence and synchronized transfer remain unfinished.",
+    "Offline snapshot/validation/geometry publication, current drop serialization, force/atomic rename and undo still contain owner work. No hard100ms bound.",
+    "Required20-run city/maximum measurements on reference hardware, physical GPU, shaped network and32 rendered clients with empty dependency caches remain pending.",
+    "Peak memory, real frame times, server ticks, traffic and complete workflow/upload/synchronization budgets remain unqualified. Stable rollout and supported-city claims stay gated."
+  ],
+  "audit": {
+    "diff_check": "passed against71612f09bfec4549456b3317676e76cdced085a4",
+    "deleted_paths": []
+  },
+  "native_playtest": {
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_manifest": "structure-native-source.json",
+    "source_manifest_sha256": "a3ad4f0fde7a3c98f6414e78f46707a3d36bcf889bed76907fd49f85f9aa2f51",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "publication": "Local evidence pending controller publication",
+    "source_paths_verified": 223,
+    "video": {
+      "file": "structure-workflow.mp4",
+      "bytes": 434951,
+      "sha256": "d1b15a5dddea28d6fd488c39cae328ebb49e1a3f6312131bdd2daed71c80ddb4",
+      "codec": "H264",
+      "frames": 19,
+      "seconds": 30.552
+    },
+    "decode_command": "java -cp /home/debian/.m2/repository/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar target/InspectStructureVideo.java dashboard/evidence/structure-workflow.mp4 target/structure-offline-save-frame.png",
+    "decoded_frame_inspected": true
+  },
+  "media_inspection": [
+    "Fresh green clear bounds/anchor at180degrees inspected; saved asstructure-offline-save-workflow.png.",
+    "Fresh red occupied-destination conflict at90degrees inspected.",
+    "Decoded fresh video frame inspected: green preview/anchor with history staging progress, world unchanged; HUD1FPS.",
+    "Software functional check only; HUD0-1FPS is not physical or >=30FPS qualification.",
+    "Artifacts are local, pending controller publication."
+  ]
+}

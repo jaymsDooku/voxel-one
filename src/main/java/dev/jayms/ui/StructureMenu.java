@@ -135,8 +135,12 @@ public final class StructureMenu implements AutoCloseable {
                     var prepared=engine.prepare(asset,point,orientation,snapshot,cancel::get,p->progress=p/2);
                     try {
                         message="Preparing save history; world unchanged...";
-                        var history=local.stageStructureHistory(prepared.cells(),ownerReads,cancel::get,p->progress=50+p/2);
-                        return new Completion(()->{try{prepared.commit("offline",local.structureAuthority(world,player,history));message="Placed and saved "+asset.name+". Move the target to place again.";conflict=true;}catch(Exception failure){message=failure.getMessage();}},prepared,cancel);
+                        var history=local.stageStructureHistory(prepared.cells(),ownerReads,cancel::get,p->progress=50+p/4);
+                        try {
+                            message="Writing private save; world unchanged...";
+                            local.stageStructureSave(history,prepared.modelSnapshot(),cancel::get,p->progress=75+p/4);
+                        }catch(Exception|Error failure){if(history!=null)history.close();throw failure;}
+                        return new Completion(()->{try{prepared.commit("offline",local.structureAuthority(world,player,history));message="Placed and saved "+asset.name+". Move the target to place again.";conflict=true;}catch(Exception failure){message=failure.getMessage();}},()->{try{prepared.close();}finally{if(history!=null)history.close();}},cancel);
                     }catch(Exception|Error failure){prepared.close();throw failure;}
                 });return;
             }

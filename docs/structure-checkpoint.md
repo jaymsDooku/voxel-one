@@ -1,5 +1,35 @@
 # Structure review fix checkpoint
 
+## Current offline private-save staging validation
+
+Exact parent `35325317aa2a585d3f25ef2a7cccc4b20e8f69bd` has eight successful
+platform builds; publication skipped. Offline library placement now writes model
+and history data on its worker into a private sibling file. Owner publication
+patches the fixed inventory/health slot with current values, appends current
+drops, forces the file and requires atomic replacement. Model entries and the
+exact history/cell plan are checked before world mutation. Cancel/close/failure
+remove private files. Legacy custom history maps and undo keep their old save.
+
+162 targeted tests passed across 35 suites, with zero failures, errors or skips.
+The final nine-test focused rerun also passed, including new full rollback after
+failed atomic publication: 163 distinct tests, 171 executions total.
+Version 8/9 saves match existing codec bytes; fresh survival state, cancellation
+before/during write, cleanup, failed atomic replacement and mismatched prepared
+models are covered. Real TLS multiplayer regressions passed as part of this run.
+A 100,000-edit save-only probe ran three warmups and 20 measured saves per mode
+in separate JVMs. Output hashes match. Owner p95 changed 37.802 to 2.697 ms;
+wall p95 37.802 to 37.057 ms. The baseline is existing LocalGame.save(), not a
+full prior placement. This does not establish a hard owner or full-frame bound.
+Fresh native workflow passed on inherited display and isolated synthetic profile;
+all 223 production/harness source hashes match. H264 video: 434,951 bytes,
+19 frames, 30.552 s; SHA-256
+`d1b15a5dddea28d6fd488c39cae328ebb49e1a3f6312131bdd2daed71c80ddb4`.
+Decoded video frame and fresh clear/conflict screenshots inspected; HUD 0-1 FPS
+is functional software evidence only. Report: `structure-offline-save-validation.json`.
+Local source/media await controller publication and exact-head hosted checks.
+No Git changes published by the developer. Full city/maximum, physical GPU, shaped-network and 32 rendered
+client qualification remain unfinished; supported-city/stable-rollout gates stay.
+
 ## Current offline placement-history staging validation
 
 Parent `2b4f9d50ad99eddb3ce11c2e45300b08c6622ba7` has eight successful platform

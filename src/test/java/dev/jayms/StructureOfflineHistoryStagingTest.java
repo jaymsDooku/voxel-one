@@ -39,11 +39,14 @@ class StructureOfflineHistoryStagingTest {
                 var history=worker(queue,()->local.stageStructureHistory(prepared.cells(),queue,()->false,p->{assertNotSame(owner,Thread.currentThread());progress.set(p);}),()->{},reads);
                 assertNotNull(history);assertEquals(2,reads.get()); // Capture plus one bounded group.
                 assertEquals(100,progress.get());assertEquals(before,local.edits);assertTrue(world.cell(320,180,320).isEmpty());
+                worker(queue,()->{local.stageStructureSave(history,prepared.modelSnapshot(),()->false,p->assertNotSame(owner,Thread.currentThread()));return true;},()->{},new AtomicInteger());
+                assertFalse(Files.exists(path));
                 local.health=17;local.inventory.add(Blocks.STONE,3);
+                local.drops.put(1,new ItemDrop(1,Blocks.STONE,2,1,180,1));
                 prepared.commit("fixture",local.structureAuthority(world,()->null,history));
             }
             assertFalse(engine.busy());assertEquals(Blocks.STONE,world.sample(320,180,320));
-            var loaded=new LocalGame(path,0);assertEquals(17,loaded.health);assertEquals(3,loaded.inventory.countType(Blocks.STONE));
+            var loaded=new LocalGame(path,0);assertEquals(local.drops,loaded.drops);assertEquals(17,loaded.health);assertEquals(3,loaded.inventory.countType(Blocks.STONE));
             var expected=new WorldVoxels.History();expected.putAll(before);
             WorldVoxels.rememberCell(expected,new Protocol.CellState(320,180,320,world.cell(320,180,320)));
             assertEquals(new ArrayList<>(expected.entrySet()),new ArrayList<>(loaded.edits.entrySet()));
@@ -69,6 +72,38 @@ class StructureOfflineHistoryStagingTest {
                     assertFalse(Files.exists(path));assertFalse(engine.busy());assertEquals(models,local.models.entries().size());
                 }
             }
+        }
+    }
+    @Test void stagedSavePublicationFailureRollsBackWorldAndHistory()throws Exception {
+        var path=folder.resolve("publication-failure.dat");var local=new LocalGame(path,42);populate(local,1);
+        var before=new ArrayList<>(local.edits.entrySet());int models=local.models.entries().size();
+        try(var queue=new StructureOwnerQueue();var world=new World(42,local.models)) {
+            var engine=new StructureEngine();
+            try(var prepared=engine.prepare(asset(),new Position(320,180,320),0,world.structureSnapshot(),()->false,p->{});
+                var history=worker(queue,()->local.stageStructureHistory(prepared.cells(),queue,()->false,p->{}),()->{},new AtomicInteger())) {
+                worker(queue,()->{local.stageStructureSave(history,prepared.modelSnapshot(),()->false,p->{});return true;},()->{},new AtomicInteger());
+                Files.createDirectory(path);Files.writeString(path.resolve("keep"),"keep");
+                assertThrows(IOException.class,()->prepared.commit("fixture",local.structureAuthority(world,()->null,history)));
+                assertEquals(before,new ArrayList<>(local.edits.entrySet()));assertEquals(models,local.models.entries().size());
+                assertTrue(world.cell(320,180,320).isEmpty());assertFalse(engine.busy());assertEquals("keep",Files.readString(path.resolve("keep")));
+                assertThrows(IOException.class,()->engine.undo("fixture",local.structureAuthority(world)));
+            }
+            try(var files=Files.list(folder)){assertFalse(files.anyMatch(p->p.getFileName().toString().startsWith(".structure-offline-")));}
+        }
+    }
+    @Test void stagedModelMismatchRejectsBeforeWorldOrSavePublication()throws Exception {
+        var path=folder.resolve("model-mismatch.dat");var local=new LocalGame(path,42);
+        try(var queue=new StructureOwnerQueue();var world=new World(42,local.models)) {
+            var engine=new StructureEngine();
+            try(var prepared=engine.prepare(asset(),new Position(320,180,320),0,world.structureSnapshot(),()->false,p->{});
+                var history=worker(queue,()->local.stageStructureHistory(prepared.cells(),queue,()->false,p->{}),()->{},new AtomicInteger())) {
+                var wrong=prepared.modelSnapshot();var voxels=new SparseVoxelOctree(8);voxels.set(1,2,3,0xffaabbcc);
+                wrong.stageStructureModel(new ModelDefinition("Wrong model",voxels));
+                worker(queue,()->{local.stageStructureSave(history,wrong,()->false,p->{});return true;},()->{},new AtomicInteger());
+                assertThrows(IOException.class,()->prepared.commit("fixture",local.structureAuthority(world,()->null,history)));
+                assertTrue(local.edits.isEmpty());assertTrue(world.cell(320,180,320).isEmpty());assertFalse(Files.exists(path));assertFalse(engine.busy());
+            }
+            try(var files=Files.list(folder)){assertFalse(files.anyMatch(p->p.getFileName().toString().startsWith(".structure-offline-")));}
         }
     }
     @Test void mutationBetweenOwnerBatchesRejectsBeforeIteratorResume()throws Exception {
