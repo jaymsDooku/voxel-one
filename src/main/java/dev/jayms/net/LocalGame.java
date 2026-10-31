@@ -14,6 +14,7 @@ import java.util.function.IntConsumer;
 
 /** Offline survival state uses the same stack rules and terrain as multiplayer. */
 public final class LocalGame {
+    static final int MAX_SAVED_EDITS = 2_000_000;
     public CitySimulation city;
     public ModelLibrary models = new ModelLibrary();
     public Inventory inventory = new Inventory();
@@ -47,7 +48,7 @@ public final class LocalGame {
                 health = in.readUnsignedByte();
                 if (health > 20) throw new IOException("Invalid saved health");
                 int n = in.readInt();
-                if (n < 0 || n > 2000000) throw new IOException("Invalid world");
+                if (n < 0 || n > MAX_SAVED_EDITS) throw new IOException("Invalid world");
                 for (int i = 0; i < n; i++) {
                     var e =
                             version >= 6
@@ -212,6 +213,9 @@ public final class LocalGame {
     private void saveWorld() throws IOException { saveWorld(false); }
 
     private void saveWorld(boolean requireAtomic) throws IOException {
+        int editCount = edits.size();
+        if (editCount < 0 || editCount > MAX_SAVED_EDITS)
+            throw new IOException("World edit persistence limit");
         Files.createDirectories(save.toAbsolutePath().getParent());
         Path temp = save.resolveSibling(save.getFileName() + ".tmp");
         try (var channel = FileChannel.open(temp, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
@@ -222,7 +226,7 @@ public final class LocalGame {
             if(models.hasStructureModels())models.writeAll(out);else models.write(out);
             inventory.write(out);
             out.writeByte(health);
-            out.writeInt(edits.size());
+            out.writeInt(editCount);
             for (var e : edits.values()) e.write(out);
             out.writeInt(drops.size());
             for (var d : drops.values()) d.write(out);
@@ -286,7 +290,7 @@ public final class LocalGame {
             progress.accept((int)(100*++copied/total));
         }
         StructurePackage.cancelled(cancel);
-        if(next.size()>2_000_000)throw new IOException("World edit persistence limit");
+        if(next.size()>MAX_SAVED_EDITS)throw new IOException("World edit persistence limit");
         progress.accept(100);return new StructureHistory(this,source.base(),source.revision(),next,cells);
     }
 
@@ -326,7 +330,7 @@ public final class LocalGame {
                     var p=e.getKey();before.put(p,world.cell(p.x(),p.y(),p.z()).copy().freeze());
                     if(history==null)WorldVoxels.rememberCell(next,new Protocol.CellState(p.x(),p.y(),p.z(),e.getValue()));
                 }
-                if(next.size()>2_000_000)throw new IOException("World edit persistence limit");
+                if(next.size()>MAX_SAVED_EDITS)throw new IOException("World edit persistence limit");
                 try {
                     models.replaceWith(prepared);edits=next;
                     for(var e:cells.entrySet()) {var p=e.getKey();world.replaceCell(p.x(),p.y(),p.z(),e.getValue());}

@@ -1,5 +1,16 @@
 # Structure review fix checkpoint
 
+## Production normal-save integrity guard
+
+Parent `1c67f555` has eight successful hosted builds; publication skipped. Found normal LocalGame.save could write more than2,000,000 edits although its loader rejects that count. Added preflight before directory creation/temp opening; reader, normal writer and structure admission share existing limit. No caps raised.
+
+Nineteen targeted production regressions passed,0 failures/errors/skips: LocalGameSaveLimitTest2, StructureOfflineSaveTest6, StructureOfflineHistoryStagingTest9, CitySavesTest2. Three affected tool integrations passed in14.348s. Playtest: actual synthetic normal save versions8/9, generated city/history, oversized reported map count rejects without traversal and preserves prior world/city/history/temp bytes. Normal retry with fractional glass geometry retains models, health12, inventory3 stone and latest city frame on reload. Oversized new save creates no directory. Count fixture does not allocate2,000,001 records and is not a performance benchmark. Fresh actual child exit0 image inspected. Persistence-only operation; browser/native rendering does not apply.
+
+Historical native baseline224files now has222unchanged; LocalGame and CityHistory differ. Old native media is not exact-source proof for these persistence changes. No deleted paths against review base; diff check passed. Evidence `structure-save-bounds.json` and `structure-save-bounds-cli.png`, pending controller publication.
+
+Production region backend/owner integration and full city/maximum admission still unfinished. Full20-run budgets, physical GPU, shaped32-client, stall/memory and directory durability qualification remain pending. Rollout gated.
+
+
 ## Strict private authority startup
 
 Added explicit expected-game/cancellation constructor for private StructureEngine authority. Loaded whole-library generation must pass terrain identity, game mode and full city/history decode before root assignment. Known-cell reconstruction checks cancellation. Opaque inspection constructor remains; no production backend selected or simulation installed.
