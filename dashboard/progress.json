@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-31T17:48:58+00:00",
+  "updatedAt": "2026-10-31T18:05:51+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Fixed normal offline save overwrite gap: reject above existing 2,000,000-edit limit before file writes. 19 production tests and 3 integrations passed; actual v8/v9 failure/retry CLI image saved. Region backend and full qualification pending.",
-      "updatedAt": "2026-10-31T17:48:58+00:00"
+      "note": "Added revision-fenced distinct-cell history batches for region persistence. 26 production tests and 3 integrations passed; actual 2054-cell save/reload reconstruction and fresh CLI image recorded. Backend integration and full qualification pending.",
+      "updatedAt": "2026-10-31T18:05:51+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
