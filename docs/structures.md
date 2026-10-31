@@ -1209,3 +1209,7 @@ Indexed private backup can now accept the existing offline input ceiling of 2,00
 ### Incremental owner snapshot experiment
 
 The production world helper now offers an owner-only builder that copies at most128 chunk-map entries per advance. The private indexed backup uses it with cancellation and revision fencing. A257-chunk correctness fixture completes in3 calls and rejects stale partial captures. Existing one-shot capture remains available. Count batching does not establish a100ms stall guarantee: allocation/rehash, GC and metadata capture still need measurement. This does not select a production region backend or raise supported limits. See dashboard/evidence/structure-incremental-capture.json for actual checks and qualification gaps.
+
+### Capture iteration after churn
+
+Chunk and distinct-history-cell indexes use linked iteration so capture cursors do not scan unused retained hash-table capacity between entries. History copies retain this map type. This adds entry-link memory overhead; peak memory remains unmeasured. A synthetic8192-to257-chunk churn check verifies3 capture batches,unchanged source and stale-clear rejection over20 runs. Diagnostic timings vary across runs; no general speedup or100ms guarantee is claimed. See dashboard/evidence/structure-chunk-churn.json. Full fixtures,production backend integration and qualification gates remain pending.
