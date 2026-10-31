@@ -11,7 +11,12 @@ public final class MeshDataGenerator {
 
     private static final class Scratch {final FloatBuilder vertices=new FloatBuilder();final IntBuilder indices=new IntBuilder();final int[] mask=new int[256];}
     private static final ThreadLocal<Scratch> SCRATCH=ThreadLocal.withInitial(Scratch::new);
-    public static MeshData generate(Chunk chunk) {
+    private static final int MAX_VERTEX_FLOATS=6_000_000,MAX_INDICES=2_000_000;
+    private record Scan(MeshData mesh,int quads) {}
+    public static MeshData generate(Chunk chunk) {return scan(chunk,true).mesh();}
+    /** Exact render-budget validation using the same face scanner, without render arrays. */
+    public static int count(Chunk chunk) {return scan(chunk,false).quads();}
+    private static Scan scan(Chunk chunk,boolean emit) {
         Scratch scratch=SCRATCH.get();FloatBuilder vertices=scratch.vertices;IntBuilder indices=scratch.indices;
         vertices.reset();indices.reset();
 
@@ -19,8 +24,18 @@ public final class MeshDataGenerator {
         // Fractional geometry keeps its exact sparse surface. Full cells merge by raw value,
         // so RGB LEDs, material boundaries and chunk-neighbour visibility stay intact.
         for (int y = 0; y < 16; y++) for (int z = 0; z < 16; z++) for (int x = 0; x < 16; x++)
-            if (chunk.getBlock(x,y,z) == dev.jayms.net.Blocks.PARTIAL)
-                vertexCount = addPartial(vertices, indices, chunk, x,y,z,vertexCount);
+            if (chunk.getBlock(x,y,z) == dev.jayms.net.Blocks.PARTIAL) {
+                if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
+                if(emit)vertexCount = addPartial(vertices, indices, chunk, x,y,z,vertexCount);
+                else {
+                    try {
+                        int quads=dev.jayms.net.model.ModelMesher.count(16,partialSampler(chunk,x,y,z),24576);
+                        checkBudget(vertexCount/4+quads);vertexCount+=quads*4;
+                    } catch(java.io.IOException failure) {
+                        throw new IllegalStateException("Fractional surface exceeds mesh budget",failure);
+                    }
+                }
+            }
         for (Face face : Face.values()) {
             int axis = face.dx()!=0 ? 0 : face.dy()!=0 ? 1 : 2;
             int u = (axis+1)%3, w = (axis+2)%3;
@@ -46,16 +61,19 @@ public final class MeshDataGenerator {
                         for(int k=0;k<width;k++)if(mask[i+k+(j+height)*16]!=raw)break rows;
                         height++;
                     }
-                    float[] origin=new float[3], scale={1,1,1};
-                    origin[axis]=slice; origin[u]=i; origin[w]=j; scale[u]=width; scale[w]=height;
-                    int type=dev.jayms.net.WorldVoxels.decode(raw);
-                    float[] color=dev.jayms.net.Blocks.color(type==1 && face.dy()<1?2:type);
-                    for(int vtx=0;vtx<4;vtx++) {
-                        for(int d=0;d<3;d++)vertices.add(origin[d]+face.vertices()[vtx*3+d]*scale[d]);
-                        vertices.add((float)face.dx());vertices.add((float)face.dy());vertices.add((float)face.dz());
-                        for(float component:color)vertices.add(component);
+                    checkBudget(vertexCount/4+1);
+                    if(emit) {
+                        float[] origin=new float[3], scale={1,1,1};
+                        origin[axis]=slice; origin[u]=i; origin[w]=j; scale[u]=width; scale[w]=height;
+                        int type=dev.jayms.net.WorldVoxels.decode(raw);
+                        float[] color=dev.jayms.net.Blocks.color(type==1 && face.dy()<1?2:type);
+                        for(int vtx=0;vtx<4;vtx++) {
+                            for(int d=0;d<3;d++)vertices.add(origin[d]+face.vertices()[vtx*3+d]*scale[d]);
+                            vertices.add((float)face.dx());vertices.add((float)face.dy());vertices.add((float)face.dz());
+                            for(float component:color)vertices.add(component);
+                        }
+                        for(int idx:FACE_INDICES)indices.add(vertexCount+idx);
                     }
-                    for(int idx:FACE_INDICES)indices.add(vertexCount+idx);
                     vertexCount+=4;
                     for(int y=0;y<height;y++)for(int x=0;x<width;x++)mask[i+x+(j+y)*16]=0;
                     i+=width;
@@ -63,6 +81,7 @@ public final class MeshDataGenerator {
             }
         }
 
+        if(!emit)return new Scan(null,vertexCount/4);
         float[] v = toFloatArray(vertices);
         float[] surface = new float[v.length / 9 * 3];
         for (int base = 0; base < v.length; base += 36) {
@@ -94,7 +113,7 @@ public final class MeshDataGenerator {
                                 type == 1 && v[i + 4] < 1 ? 2 : type);
             }
         }
-        return new MeshData(v, toIntArray(indices), surface);
+        return new Scan(new MeshData(v, toIntArray(indices), surface),vertexCount/4);
     }
 
     private static void addFace(
@@ -155,9 +174,7 @@ public final class MeshDataGenerator {
             var geometry =
                     dev.jayms.net.model.ModelMesher.mesh(
                             16,
-                            (x, y, z) ->
-                                    dev.jayms.net.WorldVoxels.surfaceColor(
-                                            chunk.value(bx * 16 + x, by * 16 + y, bz * 16 + z)),
+                            partialSampler(chunk,bx,by,bz),
                             24576);
             float[] v = geometry.vertices();
             for (int i = 0; i < v.length; i += 9) {
@@ -174,18 +191,26 @@ public final class MeshDataGenerator {
         return count;
     }
 
+    private static dev.jayms.net.model.ModelMesher.VoxelSampler partialSampler(Chunk chunk,int bx,int by,int bz) {
+        return (x,y,z)->dev.jayms.net.WorldVoxels.surfaceColor(chunk.value(bx*16+x,by*16+y,bz*16+z));
+    }
+    private static void checkBudget(int quads) {
+        if((long)quads*36>MAX_VERTEX_FLOATS)throw new IllegalStateException("Chunk mesh exceeds bounded vertex budget");
+        if((long)quads*6>MAX_INDICES)throw new IllegalStateException("Chunk mesh exceeds bounded index budget");
+    }
+
     private static float[] toFloatArray(FloatBuilder values) {return values.array();}
     private static int[] toIntArray(IntBuilder values) {return values.array();}
     private static final class FloatBuilder {
         private float[] data=new float[1024];private int count;
         void reset(){count=0;if(data.length>262144)data=new float[1024];}
-        void add(float value){if(count==6_000_000)throw new IllegalStateException("Chunk mesh exceeds bounded vertex budget");if(count==data.length)data=Arrays.copyOf(data,Math.min(6_000_000,data.length*2));data[count++]=value;}
+        void add(float value){if(count==MAX_VERTEX_FLOATS)throw new IllegalStateException("Chunk mesh exceeds bounded vertex budget");if(count==data.length)data=Arrays.copyOf(data,Math.min(MAX_VERTEX_FLOATS,data.length*2));data[count++]=value;}
         float[] array(){return Arrays.copyOf(data,count);}
     }
     private static final class IntBuilder {
         private int[] data=new int[1024];private int count;
         void reset(){count=0;if(data.length>262144)data=new int[1024];}
-        void add(int value){if(count==2_000_000)throw new IllegalStateException("Chunk mesh exceeds bounded index budget");if(count==data.length)data=Arrays.copyOf(data,Math.min(2_000_000,data.length*2));data[count++]=value;}
+        void add(int value){if(count==MAX_INDICES)throw new IllegalStateException("Chunk mesh exceeds bounded index budget");if(count==data.length)data=Arrays.copyOf(data,Math.min(MAX_INDICES,data.length*2));data[count++]=value;}
         int[] array(){return Arrays.copyOf(data,count);}
     }
 }

@@ -1,5 +1,41 @@
 # Structure review fix checkpoint
 
+## Current count-only chunk validation
+
+Parent `07fd590d26d974a3f3a967c05c8a2900b7a0b853` has eight successful platform
+builds; publication skipped. Structure validation now counts chunk faces through
+the shared render scanner. It skips full render-buffer emission and preserves
+all geometry/material rules and mesh budgets. No admission caps increased.
+
+Initial 135 targeted tests passed. After adding an engine rejection test, all
+five focused tests passed: 136 distinct cases, 140 test executions. Count/render
+quads match across empty/full, loaded-neighbor, water, material, model and colored
+fractional cases. Render arrays stay unchanged after counting. Thirteen separated
+checkerboard cells pass at 159,744 quads; fourteen reject the same vertex budget.
+The engine rejects before publication, retains model state and clears its busy
+lease. Both paths observe interruption.
+
+Three warmups and 20 component runs per fixture compared separately compiled
+parent render validation with counting. All three render hashes match. On two
+98,304-quad fragmented chunks, p95 fell from 71.883/68.604 to 16.868/11.014 ms;
+thread allocation fell from 123,572,272 to 17,832 bytes. The small fixture median
+and worst increased slightly. These are CPU component results, not peak memory
+or full-system qualification. See `structure-chunk-count-validation.json`.
+
+Playtest: fresh production Main/GLFW workflow passed with isolated synthetic
+profile and inherited display on llvmpipe. Capture/export/import, all rotations,
+conflicts, empty space, cancellation, undo, repeated placement, dependencies,
+restart, inventory and model editor passed. All 220 production/harness source
+hashes match. New H264 video: 383,216 bytes, 15 frames, 24.407 s. Decoded preview
+frame and placed-world screenshot inspected. HUD 1 FPS is functional evidence,
+not physical-GPU qualification. Controller publication and exact-head checks
+are needed for these edits and fresh media.
+
+Next: placement/undo graph retention, partitioned persistence/publication,
+owner-thread history/save work and bounded rendering. Full city/maximum admission
+and 20-run physical-GPU, shaped-network and 32-rendered-client qualification
+remain pending. Stable rollout and supported-city limits stay gated.
+
 ## Current decoded-size admission diagnostics
 
 Controller reports successful required platform builds for `cf381381868047051f3241da73ad837c75864436`.
