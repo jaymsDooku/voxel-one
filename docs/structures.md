@@ -209,8 +209,7 @@ retaining unplaced definitions, duplicate-fingerprint aliases, original IDs and
 authors. The detached restore does not remap IDs or mutate its source library.
 CRC, lengths, counts, dependencies and cancellation are checked under private
 16 MiB envelope and 8 MiB library limits. This is not a complete world save;
-offline survival metadata is optional, while server-player and city-sidecar state
-still need a migration path. The private generation authority now writes this
+offline survival metadata is optional, while server-player and live city state still need a production migration path. The private generation authority now writes this
 envelope as generation v2;
 LocalGame and the server remain unchanged. Reports and fresh CLI
 image: `structure-world-library.json` and `structure-library-cli.png`.
@@ -226,7 +225,7 @@ and `structure-library-generation-cli.png`.
 
 This adapter is not used by LocalGame or the server. Its physical manifest
 preserves optional offline inventory, health and dropped-item metadata, but
-does not migrate server-player or city-sidecar state;
+does not install server-player or live city state;
 synthetic edits are dirty until a successful later publication. Runtime undo is
 not restored after restart. Complete legacy-world migration, responsive live
 publication and full storage/render/network qualification remain required before
@@ -260,6 +259,21 @@ plus existing final-cell/region/leaf/envelope limits. These are diagnostic limit
 Current report and fresh CLI image: `structure-offline-legacy-import.json` and
 `structure-offline-legacy-import-cli.png`. Earlier v8/v9 fixture evidence is
 retained in `structure-offline-import.json`.
+
+`RegionSidecarsPrototype` preserves typed city and optional city-history bytes
+inside private world/library envelope v3 and the existing generation frame.
+Combined sidecar content is capped at 4 MiB for this experiment; larger valid
+city/history saves reject rather than truncate. Known city format headers,
+history version/framing, CRC and its SHA-256 binding to the exact city bytes are
+checked. City/history bodies are preserved verbatim, not semantically validated
+by this envelope. Generated synthetic files pass their normal loaders after
+private-generation restart. Getters copy bytes; root updates invalidate stale
+stages, later geometry saves retain sidecars, and a store stage cannot omit
+existing sidecars. No arbitrary names or paths are embedded. These bytes never
+enter reusable structure packages. Automatic migration, coordinated restoration
+of multiple legacy files and live city/server integration remain pending.
+Current report and CLI image: `structure-sidecar-preservation.json` and
+`structure-sidecar-preservation-cli.png`.
 
 Reference hardware and network qualification is deferred. The current commit
 path serializes placements and validates/stages work off-thread, but final owner

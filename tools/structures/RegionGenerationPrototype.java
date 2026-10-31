@@ -70,16 +70,17 @@ public final class RegionGenerationPrototype {
     }
     public Staged stage(RegionDependencyPrototype manifest,BooleanSupplier cancel)throws IOException {
         Objects.requireNonNull(manifest);Objects.requireNonNull(cancel);check(cancel);
-        return stagePayload(manifest.encode(cancel),1,false,cancel);
+        return stagePayload(manifest.encode(cancel),1,false,false,cancel);
     }
     public Staged stage(RegionWorldLibraryPrototype world,BooleanSupplier cancel)throws IOException {
         Objects.requireNonNull(world);Objects.requireNonNull(cancel);check(cancel);
-        return stagePayload(world.encode(cancel),2,world.metadata().isPresent(),cancel);
+        return stagePayload(world.encode(cancel),2,world.metadata().isPresent(),world.sidecars().isPresent(),cancel);
     }
-    private Staged stagePayload(byte[] payload,int version,boolean hasMetadata,BooleanSupplier cancel)throws IOException {
+    private Staged stagePayload(byte[] payload,int version,boolean hasMetadata,boolean hasSidecars,BooleanSupplier cancel)throws IOException {
         check(cancel);var loaded=load(cancel);
         if(version==1&&loaded.isPresent()&&loaded.orElseThrow().formatVersion()==2)throw new IOException("Generation downgrade would discard library assets");
         if(!hasMetadata&&loaded.isPresent()&&loaded.orElseThrow().worldLibrary()!=null&&loaded.orElseThrow().worldLibrary().metadata().isPresent())throw new IOException("Generation downgrade would discard offline metadata");
+        if(!hasSidecars&&loaded.isPresent()&&loaded.orElseThrow().worldLibrary()!=null&&loaded.orElseThrow().worldLibrary().sidecars().isPresent())throw new IOException("Generation downgrade would discard sidecars");
         long expected=loaded.map(Loaded::generation).orElse(0L),next;
         try{next=Math.addExact(expected,1);}catch(ArithmeticException overflow){throw new IOException("Generation exhausted",overflow);}
         var sink=new ByteArrayOutputStream(payload.length+24);var out=new DataOutputStream(sink);

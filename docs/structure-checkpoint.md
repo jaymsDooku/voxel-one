@@ -1,5 +1,49 @@
 # Structure review fix checkpoint
 
+## Private world sidecar preservation
+
+Exact parent `ad46906f` has eight successful platform builds; publication skipped.
+All 224 native source hashes remain unchanged; no unchanged native/Maven reruns.
+
+Added typed immutable city and optional city-history byte preservation in private
+world/library envelope v3, inside the existing private generation frame. Combined
+content is at most 4 MiB, below existing CityHistory's 64 MiB maximum; larger
+valid files reject rather than truncate. Whole payload still must fit 16 MiB.
+Only fixed city/history slots exist; no arbitrary paths or names. These bytes
+never enter reusable structure packages. Offline metadata is required with them.
+
+Known city headers and history framing/version, CRC and SHA-256 binding to exact
+city bytes are checked. Bodies are preserved verbatim, not semantically validated
+by this envelope. Source/getter arrays copy. Root updates invalidate staged work;
+later geometry saves retain sidecars and a store stage cannot omit saved sidecars.
+Private base importer has an explicit typed sidecar overload. No production save
+format, city simulation behavior or admission cap changed.
+
+Ten affected integration tests and all 43 final tool tests passed, zero failures,
+errors or skips. Actual CitySimulation generated 39,949 city bytes and 239,147
+history bytes. Both survive import, private restart and later geometry save.
+Normal city loading returns the original frame; history loading retains nonempty
+catalog, identity, revision and latest time. Source files stay unchanged.
+CLI passed 21 rejection cases for binding/CRC, omissions, stale stages, bounds,
+malformed envelopes, required metadata, cancellation and interruption. Exactly
+4 MiB prefix-only synthetic bytes test transport capacity only; they are not a
+semantic CityFrame fixture. The first checker used a nonexistent history note
+getter; changed to real public state APIs before final checks.
+
+Playtest: actual generated city/history CLI through private import/store and
+normal loaders. Expected byte/loader parity and safe failure; observed passed.
+Browser/game playtesting does not apply to tools-only storage code. Fresh assigned
+display child exit0/result captured window-only and inspected. Image:
+`structure-sidecar-preservation-cli.png`; report:
+`structure-sidecar-preservation.json`. No real user/account/city files read.
+
+Not automatic production migration, arbitrary city-body validation or coordinated
+legacy multi-file restoration. Live simulation ownership, server-player state,
+ordinary-edit persistence, restart undo and responsive production integration
+remain pending. Synthetic updates stay dirty until later publication. Full
+city/maximum, physical GPU/shaped-network 32-client performance and storage
+durability remain gated. No ready/stable claim.
+
 ## Private importer covers offline versions 3 through 9
 
 Exact parent `38e87716` has eight successful platform builds; publication skipped.
