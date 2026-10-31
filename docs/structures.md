@@ -178,6 +178,20 @@ ModelLibrary and private world. It never publishes to a live authority. Simple
 512-definition and 1,024-alias cohorts, conflict/empty-cache restoration and 47
 rejection cases pass. Report: `structure-region-dependencies.json`. Production
 save/load, generation publication, undo and network integration remain pending.
+
+`RegionGenerationPrototype.java` now tests private file publication of this
+envelope in isolated synthetic directories. It writes a cancellable sibling file
+in at most 64 KiB writes, forces it, checks the expected prior generation under
+an OS file lock and requires atomic replacement. Restart by a fresh store instance
+validates bounded file bytes, CRC, generation metadata and the nested manifest.
+Read size comes from the same opened handle as the bytes, so an atomic path
+replacement cannot mix two generation sizes. Stale writers and changed staged
+bytes reject. An error after rename is checked against the exact published bytes;
+it must not be treated as proof the old generation survived. Directory fsync,
+machine-crash/power-loss guarantees, orphan-stage recovery and responsive live
+publication are still pending. This synchronous experiment is not a production
+save path or a 100 ms owner-thread qualification. Results and fresh CLI screenshot:
+`structure-region-generation.json` and `structure-generation-cli.png`.
 No city-sized storage, save, network, atomic commit or undo claim follows from
 these small replay checks. Results: `structure-region-history-prototype.json`.
 
