@@ -1,0 +1,125 @@
+{
+  "schema": 1,
+  "parent_head": "44c10aec8da045b6793f0b6a9e31f09271f91b9d",
+  "scope": "Actual resident geometry snapshots and conservative identity/version proof reuse at offline commit",
+  "qualification": "PENDING",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu_model": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)"
+  },
+  "tests": {
+    "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest='Structure*Test,WorldStreamingTest,VoxelModelTest' test",
+    "tests": 110,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "regressions": [
+      "Resident snapshot uses actual geometry and stays detached after manual edits",
+      "Resident collisions reject during prepare or commit when residency changes",
+      "Unchanged resident and unloaded placements reuse validation and still persist/undo",
+      "Changed resident neighbour model surfaces still enforce chunk cap",
+      "Terrain generation ABA invalidates snapshot proof; unloading changes proof identity"
+    ]
+  },
+  "probe": {
+    "commands": [
+      [
+        "git",
+        "show",
+        "HEAD:src/main/java/dev/jayms/World.java"
+      ],
+      [
+        "javac",
+        "--release",
+        "17",
+        "-cp",
+        "target/classes:target/structure-m2/org/lwjgl/lwjgl-stb/3.4.1/lwjgl-stb-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-stb/3.4.1/lwjgl-stb-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-openal/3.4.1/lwjgl-openal-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-openal/3.4.1/lwjgl-openal-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-glfw/3.4.1/lwjgl-glfw-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-glfw/3.4.1/lwjgl-glfw-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-par/3.4.1/lwjgl-par-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-par/3.4.1/lwjgl-par-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-assimp/3.4.1/lwjgl-assimp-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-assimp/3.4.1/lwjgl-assimp-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-opengl/3.4.1/lwjgl-opengl-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-opengl/3.4.1/lwjgl-opengl-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nanovg/3.4.1/lwjgl-nanovg-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nanovg/3.4.1/lwjgl-nanovg-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-vulkan/3.4.1/lwjgl-vulkan-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-nuklear/3.4.1/lwjgl-nuklear-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nuklear/3.4.1/lwjgl-nuklear-3.4.1.jar:target/structure-m2/org/joml/joml/1.10.9/joml-1.10.9.jar:target/structure-m2/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar:target/structure-m2/com/googlecode/soundlibs/mp3spi/1.9.5.4/mp3spi-1.9.5.4.jar:target/structure-m2/com/googlecode/soundlibs/jlayer/1.0.1.4/jlayer-1.0.1.4.jar:target/structure-m2/com/googlecode/soundlibs/tritonus-share/0.3.7.4/tritonus-share-0.3.7.4.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-stb/3.4.1/lwjgl-stb-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-stb/3.4.1/lwjgl-stb-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-openal/3.4.1/lwjgl-openal-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-openal/3.4.1/lwjgl-openal-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-glfw/3.4.1/lwjgl-glfw-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-glfw/3.4.1/lwjgl-glfw-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-par/3.4.1/lwjgl-par-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-par/3.4.1/lwjgl-par-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-assimp/3.4.1/lwjgl-assimp-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-assimp/3.4.1/lwjgl-assimp-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-opengl/3.4.1/lwjgl-opengl-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-opengl/3.4.1/lwjgl-opengl-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-nanovg/3.4.1/lwjgl-nanovg-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-nanovg/3.4.1/lwjgl-nanovg-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-vulkan/3.4.1/lwjgl-vulkan-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-nuklear/3.4.1/lwjgl-nuklear-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-nuklear/3.4.1/lwjgl-nuklear-3.4.1.jar:/home/debian/.m2/repository/org/joml/joml/1.10.9/joml-1.10.9.jar:/home/debian/.m2/repository/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar",
+        "-d",
+        "target/structure-resident-control/classes",
+        "target/structure-resident-control/src/World.java"
+      ],
+      [
+        "javac",
+        "--release",
+        "17",
+        "-cp",
+        "target/classes:target/structure-m2/org/lwjgl/lwjgl-stb/3.4.1/lwjgl-stb-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-stb/3.4.1/lwjgl-stb-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-openal/3.4.1/lwjgl-openal-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-openal/3.4.1/lwjgl-openal-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-glfw/3.4.1/lwjgl-glfw-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-glfw/3.4.1/lwjgl-glfw-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-par/3.4.1/lwjgl-par-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-par/3.4.1/lwjgl-par-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-assimp/3.4.1/lwjgl-assimp-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-assimp/3.4.1/lwjgl-assimp-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-opengl/3.4.1/lwjgl-opengl-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-opengl/3.4.1/lwjgl-opengl-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nanovg/3.4.1/lwjgl-nanovg-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nanovg/3.4.1/lwjgl-nanovg-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-vulkan/3.4.1/lwjgl-vulkan-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-nuklear/3.4.1/lwjgl-nuklear-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nuklear/3.4.1/lwjgl-nuklear-3.4.1.jar:target/structure-m2/org/joml/joml/1.10.9/joml-1.10.9.jar:target/structure-m2/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar:target/structure-m2/com/googlecode/soundlibs/mp3spi/1.9.5.4/mp3spi-1.9.5.4.jar:target/structure-m2/com/googlecode/soundlibs/jlayer/1.0.1.4/jlayer-1.0.1.4.jar:target/structure-m2/com/googlecode/soundlibs/tritonus-share/0.3.7.4/tritonus-share-0.3.7.4.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-stb/3.4.1/lwjgl-stb-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-stb/3.4.1/lwjgl-stb-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-openal/3.4.1/lwjgl-openal-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-openal/3.4.1/lwjgl-openal-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-glfw/3.4.1/lwjgl-glfw-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-glfw/3.4.1/lwjgl-glfw-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-par/3.4.1/lwjgl-par-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-par/3.4.1/lwjgl-par-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-assimp/3.4.1/lwjgl-assimp-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-assimp/3.4.1/lwjgl-assimp-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-opengl/3.4.1/lwjgl-opengl-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-opengl/3.4.1/lwjgl-opengl-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-nanovg/3.4.1/lwjgl-nanovg-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-nanovg/3.4.1/lwjgl-nanovg-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-vulkan/3.4.1/lwjgl-vulkan-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-nuklear/3.4.1/lwjgl-nuklear-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-nuklear/3.4.1/lwjgl-nuklear-3.4.1.jar:/home/debian/.m2/repository/org/joml/joml/1.10.9/joml-1.10.9.jar:/home/debian/.m2/repository/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar",
+        "-d",
+        "target",
+        "tools/structures/ResidentStampProbe.java"
+      ],
+      [
+        "java",
+        "-Xmx1g",
+        "-cp",
+        "target/structure-resident-control/classes:target:target/classes:target/structure-m2/org/lwjgl/lwjgl-stb/3.4.1/lwjgl-stb-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-stb/3.4.1/lwjgl-stb-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-openal/3.4.1/lwjgl-openal-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-openal/3.4.1/lwjgl-openal-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-glfw/3.4.1/lwjgl-glfw-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-glfw/3.4.1/lwjgl-glfw-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-par/3.4.1/lwjgl-par-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-par/3.4.1/lwjgl-par-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-assimp/3.4.1/lwjgl-assimp-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-assimp/3.4.1/lwjgl-assimp-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-opengl/3.4.1/lwjgl-opengl-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-opengl/3.4.1/lwjgl-opengl-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nanovg/3.4.1/lwjgl-nanovg-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nanovg/3.4.1/lwjgl-nanovg-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-vulkan/3.4.1/lwjgl-vulkan-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-nuklear/3.4.1/lwjgl-nuklear-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nuklear/3.4.1/lwjgl-nuklear-3.4.1.jar:target/structure-m2/org/joml/joml/1.10.9/joml-1.10.9.jar:target/structure-m2/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar:target/structure-m2/com/googlecode/soundlibs/mp3spi/1.9.5.4/mp3spi-1.9.5.4.jar:target/structure-m2/com/googlecode/soundlibs/jlayer/1.0.1.4/jlayer-1.0.1.4.jar:target/structure-m2/com/googlecode/soundlibs/tritonus-share/0.3.7.4/tritonus-share-0.3.7.4.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-stb/3.4.1/lwjgl-stb-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-stb/3.4.1/lwjgl-stb-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-openal/3.4.1/lwjgl-openal-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-openal/3.4.1/lwjgl-openal-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-glfw/3.4.1/lwjgl-glfw-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-glfw/3.4.1/lwjgl-glfw-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-par/3.4.1/lwjgl-par-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-par/3.4.1/lwjgl-par-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-assimp/3.4.1/lwjgl-assimp-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-assimp/3.4.1/lwjgl-assimp-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-opengl/3.4.1/lwjgl-opengl-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-opengl/3.4.1/lwjgl-opengl-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-nanovg/3.4.1/lwjgl-nanovg-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-nanovg/3.4.1/lwjgl-nanovg-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-vulkan/3.4.1/lwjgl-vulkan-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-nuklear/3.4.1/lwjgl-nuklear-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-nuklear/3.4.1/lwjgl-nuklear-3.4.1.jar:/home/debian/.m2/repository/org/joml/joml/1.10.9/joml-1.10.9.jar:/home/debian/.m2/repository/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar",
+        "ResidentStampProbe",
+        "parent",
+        "target/structure-resident-parent-worlds"
+      ],
+      [
+        "java",
+        "-Xmx1g",
+        "-cp",
+        "target:target/classes:target/structure-m2/org/lwjgl/lwjgl-stb/3.4.1/lwjgl-stb-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-stb/3.4.1/lwjgl-stb-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-openal/3.4.1/lwjgl-openal-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-openal/3.4.1/lwjgl-openal-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-glfw/3.4.1/lwjgl-glfw-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-glfw/3.4.1/lwjgl-glfw-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-par/3.4.1/lwjgl-par-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-par/3.4.1/lwjgl-par-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-assimp/3.4.1/lwjgl-assimp-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-assimp/3.4.1/lwjgl-assimp-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-opengl/3.4.1/lwjgl-opengl-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-opengl/3.4.1/lwjgl-opengl-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nanovg/3.4.1/lwjgl-nanovg-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nanovg/3.4.1/lwjgl-nanovg-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-vulkan/3.4.1/lwjgl-vulkan-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-nuklear/3.4.1/lwjgl-nuklear-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nuklear/3.4.1/lwjgl-nuklear-3.4.1.jar:target/structure-m2/org/joml/joml/1.10.9/joml-1.10.9.jar:target/structure-m2/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar:target/structure-m2/com/googlecode/soundlibs/mp3spi/1.9.5.4/mp3spi-1.9.5.4.jar:target/structure-m2/com/googlecode/soundlibs/jlayer/1.0.1.4/jlayer-1.0.1.4.jar:target/structure-m2/com/googlecode/soundlibs/tritonus-share/0.3.7.4/tritonus-share-0.3.7.4.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-stb/3.4.1/lwjgl-stb-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-stb/3.4.1/lwjgl-stb-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-openal/3.4.1/lwjgl-openal-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-openal/3.4.1/lwjgl-openal-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-glfw/3.4.1/lwjgl-glfw-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-glfw/3.4.1/lwjgl-glfw-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-par/3.4.1/lwjgl-par-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-par/3.4.1/lwjgl-par-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-assimp/3.4.1/lwjgl-assimp-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-assimp/3.4.1/lwjgl-assimp-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-opengl/3.4.1/lwjgl-opengl-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-opengl/3.4.1/lwjgl-opengl-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-nanovg/3.4.1/lwjgl-nanovg-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-nanovg/3.4.1/lwjgl-nanovg-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-vulkan/3.4.1/lwjgl-vulkan-3.4.1.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-nuklear/3.4.1/lwjgl-nuklear-3.4.1-natives-linux.jar:/home/debian/.m2/repository/org/lwjgl/lwjgl-nuklear/3.4.1/lwjgl-nuklear-3.4.1.jar:/home/debian/.m2/repository/org/joml/joml/1.10.9/joml-1.10.9.jar:/home/debian/.m2/repository/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar",
+        "ResidentStampProbe",
+        "current",
+        "target/structure-resident-current-worlds"
+      ]
+    ],
+    "results": [
+      {
+        "implementation": "parent",
+        "cells": 16,
+        "chunks": 16,
+        "runs": 20,
+        "commit_cell_reads": 65552,
+        "median_ms": 21.243,
+        "p95_ms": 40.857,
+        "worst_ms": 43.31
+      },
+      {
+        "implementation": "current",
+        "cells": 16,
+        "chunks": 16,
+        "runs": 20,
+        "commit_cell_reads": 16,
+        "median_ms": 2.64,
+        "p95_ms": 3.614,
+        "worst_ms": 6.453
+      }
+    ],
+    "note": "Exact parent World compiled separately. Three warmups, 20 measured real LocalGame commits; 16 occupied cells across 16 resident chunks, no models, prepare excluded. Commit includes durable save. Every placed cell and reloaded persisted geometry checked outside timing. Probes completed before native run. Shared VPS; not city/maximum, peak-memory, frame, tick or network qualification.",
+    "control_source": "git show stdout saved to target/structure-resident-control/src/World.java; exact parent at the start of this validation"
+  },
+  "native": {
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "result": {
+      "status": "passed",
+      "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+      "source_manifest": "structure-native-source.json",
+      "source_manifest_sha256": "4306148586615e3a59b940d80bb220497e75e17bc369cae9e7d9b63b5ea4a1e9",
+      "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+      "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+      "publication": "Local evidence pending controller publication"
+    },
+    "source_manifest_entries": 219,
+    "source_manifest_match": true,
+    "video_bytes": 347963,
+    "video_sha256": "386b5d39bcc2b7c0d31a33beda5e20aae3253148752db634195a710fe0c54726",
+    "codec": "H264",
+    "frames": 15,
+    "duration_s": 24.487,
+    "inspection": "Decoded video frame and fresh placed-structures screenshot inspected. Red occupied preview after placement and two independent brick structures visible. HUD 1 FPS: functional only.",
+    "publication": "Pending controller publication"
+  },
+  "pending": [
+    "Full city/maximum admission and 20-run full-pipeline qualification",
+    "Physical GPU, shaped network with 32 rendered clients",
+    "Memory/frame/tick/traffic qualification"
+  ],
+  "audit": "Diff check passed against recorded review base; no deleted paths. Existing limits and changed-state collision/surface checks retained."
+}

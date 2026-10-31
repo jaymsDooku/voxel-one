@@ -245,22 +245,40 @@ public class World implements AutoCloseable {
                 : c.cell(Math.floorMod(x, 16), Math.floorMod(y, 16), Math.floorMod(z, 16));
     }
 
+    private record StructureChunkStamp(Chunk chunk,long revision,Object canonical) {}
+    private record StructureResident(SparseVoxelOctree geometry,Object stamp) {}
+
+    /** Owner-thread capture of immutable geometry, including directly supplied resident chunks. */
     public dev.jayms.net.structure.StructurePackage.Source structureSnapshot() {
         var geometry=voxels.snapshot();var definitions=models().copy();
-        var resident=Set.copyOf(loadedChunks.keySet());long generation=geometry.terrainRevision();
+        var resident=new HashMap<ChunkPos,StructureResident>();long generation=geometry.terrainRevision();
+        for(var entry:loadedChunks.entrySet()) {
+            var chunk=entry.getValue();
+            resident.put(entry.getKey(),new StructureResident(chunk.snapshot(),
+                    new StructureChunkStamp(chunk,chunk.geometryVersion(),geometry.chunkStamp(entry.getKey()))));
+        }
         return new dev.jayms.net.structure.StructurePackage.Source() {
-            public SparseVoxelOctree cell(int x,int y,int z){return geometry.cell(x,y,z);}
-            public boolean emptyCell(int x,int y,int z){return geometry.type(x,y,z)==0;}
-            public boolean emptyChunk(ChunkPos position){return geometry.emptyChunk(position);}
+            public SparseVoxelOctree cell(int x,int y,int z){
+                var chunk=resident.get(ChunkPos.fromBlock(x,y,z));
+                return chunk==null?geometry.cell(x,y,z):chunk.geometry().region(Math.floorMod(x,16)*16,Math.floorMod(y,16)*16,Math.floorMod(z,16)*16,16);
+            }
+            public boolean emptyCell(int x,int y,int z){
+                var chunk=resident.get(ChunkPos.fromBlock(x,y,z));
+                return chunk==null?geometry.type(x,y,z)==0:chunk.geometry().uniform(Math.floorMod(x,16)*16,Math.floorMod(y,16)*16,Math.floorMod(z,16)*16,16)==0;
+            }
+            public boolean emptyChunk(ChunkPos position){var chunk=resident.get(position);return chunk==null?geometry.emptyChunk(position):chunk.geometry().isEmpty();}
             public ModelLibrary models(){return definitions;}
-            public Object chunkStamp(ChunkPos position){return resident.contains(position)||geometry.terrainRevision()!=generation?null:geometry.chunkStamp(position);}
+            public Object chunkStamp(ChunkPos position){
+                if(geometry.terrainRevision()!=generation)return null;
+                var chunk=resident.get(position);return chunk==null?geometry.chunkStamp(position):chunk.stamp();
+            }
         };
     }
 
-    /** Owner-thread proof only for canonical, unloaded geometry. Resident chunks may
-     * have been supplied directly and must retain authoritative cell/mesh checks. */
+    /** Owner-thread proof includes resident identity/version and canonical geometry/terrain state. */
     public Object structureChunkStamp(ChunkPos position) {
-        return loadedChunks.containsKey(position)?null:voxels.chunkStamp(position);
+        var chunk=loadedChunks.get(position);var canonical=voxels.chunkStamp(position);
+        return chunk==null?canonical:new StructureChunkStamp(chunk,chunk.geometryVersion(),canonical);
     }
 
     public int region(Protocol.Edit e) {
