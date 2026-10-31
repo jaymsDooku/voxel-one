@@ -611,3 +611,41 @@ outside timing. Parent and current ran in separate processes, parent first.
 This is component staging and cumulative allocation, not peak memory, world-load,
 placement, frame, tick, network or city/maximum qualification. All admission and
 rollout gates remain.
+
+### In-memory structure geometry
+
+Saved structure cells keep uniform values inline and mixed geometry as exact
+octree bytes in immutable 64 KiB segments. Individual cell access reconstructs a
+frozen tree; export copies stored bytes without reconstructing it. Sorting keeps
+position, model and geometry associations together. The appendable segment tail
+is copied when publishing a snapshot, so later builder growth cannot change it.
+Internal geometry storage is bounded at 512 MiB; existing package decoding,
+material, leaf, instance and dependency limits still apply. This changes memory
+representation, not VSTR versions or exported bytes. Placement and undo storage
+remain separate work.
+
+Cell records compare physical geometry values, positions and model references.
+Their hashes use position and model reference, avoiding geometry traversal.
+Callers can compare immutable cell lists by value; they must not depend on a
+stable Java object identity for a reconstructed tree. Redundant legacy branches
+still retain their original wire bytes.
+
+A shared-VPS diagnostic compared admitted packages with separately compiled parent
+package/cell classes. Three warmups preceded 20 measured export and full-visit
+passes. Parent and current ran in separate processes, parent first. Every export
+and final decode/export roundtrip matched the same package SHA-256.
+
+| Geometry fixture | Retained heap estimate, parent/current bytes | Export p95, parent/current ms | Full visit p95, parent/current ms |
+| --- | ---: | ---: | ---: |
+| 100,000 uniform cells | 5,843,096 / 981,656 | 88.975 / 96.670 | 1.642 / 4.889 |
+| 50,000 mixed cells, two fractional leaves each | 29,722,440 / 4,055,696 | 150.319 / 59.427 | 17.590 / 53.822 |
+
+This trades tree-access cost for lower retained memory. Median allocation per
+full visit increased from 0 to 2,400,000 bytes for the uniform fixture and from
+0 to 31,600,000 bytes for the mixed fixture. The single post-GC retained-heap
+delta is JVM-sensitive and is not peak memory. Uniform export p95 also increased
+in this run; no general speed improvement is claimed. Full results, including
+median and worst times, are in `structure-packed-geometry-validation.json`.
+These small package diagnostics do not qualify city/maximum capture, preview,
+placement, persistence, memory, frame, tick or network budgets. Admission caps,
+supported-limit publication and stable rollout gates remain unchanged.

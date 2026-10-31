@@ -23,7 +23,14 @@ public final class StructurePackage {
         }
     }
     public record Position(int x,int y,int z) {}
-    public record Cell(Position position,SparseVoxelOctree geometry,int model) {}
+    public record Cell(Position position,SparseVoxelOctree geometry,int model) {
+        @Override public boolean equals(Object other) {
+            return this==other||other instanceof Cell cell&&Objects.equals(position,cell.position)&&model==cell.model
+                    &&(geometry==null?cell.geometry==null:geometry.sameValues(cell.geometry));
+        }
+        // Positions already distribute package cells; avoid traversing geometry to hash them.
+        @Override public int hashCode(){return 31*Objects.hashCode(position)+model;}
+    }
     public interface Source {
         SparseVoxelOctree cell(int x,int y,int z);
         /** Conservative snapshot hint: true means empty; false may mean unknown. */
@@ -165,11 +172,10 @@ public final class StructurePackage {
             out.writeInt(models.size());int modelIndex=0;
             for(var model:models){cancelled(cancel);StructureModelCodec.write(out,model);progress.accept(++modelIndex*25/models.size());cancelled(cancel);}
             progress.accept(25);cancelled(cancel);out.writeInt(cells.size());int cellIndex=0;
-            for(var cell:cells) {
+            var packed=(StructureCells)cells;
+            while(cellIndex<cells.size()) {
                 cancelled(cancel);
-                out.writeShort(cell.position.x/16);out.writeByte(cell.position.y/16);out.writeShort(cell.position.z/16);
-                out.writeShort((cell.position.y%16*16+cell.position.z%16)*16+cell.position.x%16);
-                out.writeShort(cell.model);if(cell.model<0)cell.geometry.write(out);
+                packed.writeCell(cellIndex,out);
                 if((++cellIndex&127)==0||cellIndex==cells.size()){progress.accept(25+(int)((long)cellIndex*74/cells.size()));cancelled(cancel);}
             }
         }

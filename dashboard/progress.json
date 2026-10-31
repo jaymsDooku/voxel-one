@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Structure-model admission uses exact face counting without render buffers. 110 structure/model tests and fresh native workflow passed. Component staging bytes match parent; fresh video inspected and 219 hashes verified. Exact-head CI needed; city/maximum qualification remains pending.",
-      "updatedAt": "2026-10-31T02:44:02+00:00"
+      "note": "Segmented in-memory geometry: 114 structure/model tests and fresh native workflow passed. Export bytes match parent; retained-memory savings and higher access cost recorded. Video inspected, 220 source hashes match. Hosted checks needed; full city/maximum qualification remains pending.",
+      "updatedAt": "2026-10-31T03:22:59+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

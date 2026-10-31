@@ -1,5 +1,43 @@
 # Structure review fix checkpoint
 
+## Current segmented package-geometry validation
+
+Parent `ff2b269f965eb46b23bc888a000f7ccd75c026c5` has eight successful platform
+builds; publication skipped. Structure cells now store uniform values inline and
+mixed geometry in bounded immutable 64 KiB segments. Trees are reconstructed only
+on access; export copies original bytes directly. Cell equality/hash compare
+physical values consistently across lazy reads. No wire version, material rule,
+admission cap or placement/persistence limit changed.
+
+114 structure/model tests passed. New tests cover record prefixes and payloads
+crossing segment boundaries, snapshot independence after append, exact legacy
+writer bytes, redundant branches, coordinate extremes, model references, frozen
+values, cell-list equality and white-sentinel handling. A synthetic counter tests
+the 512 MiB allocation guard; no full-size allocation is claimed.
+
+Twenty export/visit runs compared admitted 100,000-uniform-cell and
+50,000-two-leaf-cell packages with separately compiled parent sources. Package
+hashes match. Single post-GC retained-heap estimates fell from 5,843,096 to
+981,656 bytes and from 29,722,440 to 4,055,696 bytes. Mixed export p95 fell from
+150.319 to 59.427 ms. Access costs increased: uniform visit p95 1.642/4.889 ms,
+mixed 17.590/53.822 ms; uniform export p95 also increased 88.975/96.670 ms.
+The report retains all median/worst/allocation results and limitations. These are
+small package diagnostics, not peak-memory or full-system qualification.
+
+Playtest: fresh production Main/GLFW workflow passed on inherited display with
+synthetic profile and llvmpipe. Capture/export/import, rotations, conflicts,
+empty-space preservation, cancellation, undo, repeated placement, dependencies,
+restart, inventory and model-editor regressions passed. All 220 source hashes
+match. Fresh H264 media decoded and inspected: 434,292 bytes, 16 frames, 28.753 s.
+Placed-world screenshot inspected. Report: `structure-packed-geometry-validation.json`.
+Source and media need controller publication and exact-head checks.
+
+Next: address placement/undo graph retention, partitioned publication/persistence
+and remaining model/rendering constraints before raising admission limits.
+City/maximum admission and the required physical-GPU, shaped-network,
+32-rendered-client, 20-run system qualification remain unfinished. Supported
+limits and stable rollout stay gated; no owner answer is needed for engineering.
+
 ## Current structure-model admission validation
 
 Parent `e76ff7881b2a5f3ae8e07df82a790392e7c7e43a` has eight successful platform
