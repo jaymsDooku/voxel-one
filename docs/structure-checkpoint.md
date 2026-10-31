@@ -1,5 +1,14 @@
 # Structure review fix checkpoint
 
+## Strict private generation restart
+
+Parent `54938283` has eight successful hosted builds; publication skipped. New store loadComplete validates expected terrain and generation identity, requires whole-library format, then strictly restores city/history, geometry, models and survival metadata. Returns detached generation/state only. Empty directories stay absent; legacy dependency-only generations require explicit migration. No live installation or disk writes.
+
+Final4 affected integrations passed in17.393s, no skips: complete restore, generation publication, actual engine authority and whole library. Direct CLI passed24 total rejection cases. Initial capture argument compile error and nonexistent test name were corrected; failed attempts are not passes. Playtest: synthetic actual city/history generation restart, identity/game/cancellation/legacy/semantic failure rejection, exact source bytes retained and absent-save handling. Fresh child exit0 image inspected. Tools-only persistence; browser/native rendering does not apply. Production Java unchanged; no repeated Maven/native run. No deleted paths against review base; diff check passed. Evidence `structure-generation-restart.json` and `structure-generation-restart-cli.png`, pending controller publication.
+
+Next: owner/backend integration. Full city/maximum admission and20-run budgets, physical GPU, shaped32-rendered-client synchronization, stall/peak-memory and directory durability qualification remain pending. No caps raised or gates weakened.
+
+
 ## Detached restore game-mode guard
 
 Parent `1526b3ab` has eight successful hosted builds; publication skipped. Added optional expected game configuration to private complete restore. City/sandbox mismatch rejects before physical restoration, following LocalGame policy. Matching modes and missing legacy sidecars pass; detached inspection overload remains. No live owner installation.
