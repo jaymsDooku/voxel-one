@@ -1,5 +1,48 @@
 # Structure review fix checkpoint
 
+## Private offline survival metadata
+
+Exact parent `ea0bfa2f` has eight successful platform builds; publication skipped.
+All 224 production/native harness hashes remain unchanged. No unchanged native
+or Maven tests were rerun.
+
+Added bounded private offline metadata: existing 36-slot Inventory, health 0..20
+and at most 100,000 ItemDrop records in a 2 MiB CRC envelope. Inventory getters
+copy, lists are immutable, IDs are unique and model dependencies must exist.
+Existing read validation is reused; capture also rejects byte-truncating inputs.
+The maximum synthetic drop count round-trips in 1,800,089 bytes. No performance
+or complete-world capacity claim follows from this codec boundary check.
+
+Optional metadata is attached to world/library envelope v2 within private
+outer generation v2. Old files keep absent metadata rather than invented state.
+The authority includes metadata in its root, validates updates and retains it
+on later publication. Source-root identity fences a staged save after a newer
+metadata update. A store stage cannot omit metadata already on disk. The same
+16 MiB overall payload limit, strict file publication and rollback rules remain.
+These fields never enter structure packages. No production save format changed.
+
+Seven initial integration tests passed; all 40 final structure-tool tests passed
+with zero failures, errors or skips. Actual CLI: 107-byte sample metadata,
+100,000-drop boundary, private-generation restart and 34 rejection cases passed.
+Inventory/source isolation, health/drop field preservation, malformed fields,
+missing models, CRC/count/length/version, cancellation and interruption pass.
+Invalid metadata cannot enter a root without its model. Metadata omission and
+stale publication reject; retry retains the current state. A final JavaDoc-only
+change describes optional metadata; functional source is unchanged since tests.
+
+Playtest: actual Java metadata and private-generation CLI. Expected exact field
+and model preservation across restart and safe rejection; observed passed.
+Browser/game playtesting does not apply to tools-only code. Fresh assigned-display
+window showed actual child exit 0 and results; window-only image inspected.
+Image: `structure-offline-metadata-cli.png`; report: `structure-offline-metadata.json`.
+Viewer cleanup is separate from child test success.
+
+LocalGame/server integration, complete old-world migration, city-sidecar/server
+player state, ordinary-edit persistence, restart undo and responsive publication
+remain pending. Updates are dirty until later private publication. No actual
+account data was read. Full city/maximum admission, physical-GPU/shaped-network
+32-client budgets, directory fsync/power loss and stable rollout remain gated.
+
 ## Whole-library private generation publication
 
 Exact parent `5924e149` has eight successful platform build entries; publication

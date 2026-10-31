@@ -208,8 +208,10 @@ physical-world/library envelope. It round-trips the existing world-model codec,
 retaining unplaced definitions, duplicate-fingerprint aliases, original IDs and
 authors. The detached restore does not remap IDs or mutate its source library.
 CRC, lengths, counts, dependencies and cancellation are checked under private
-16 MiB envelope and 8 MiB library limits. This is not a complete world save:
-inventory and player/transient metadata are absent. The private generation authority now writes this envelope as generation v2;
+16 MiB envelope and 8 MiB library limits. This is not a complete world save;
+offline survival metadata is optional, while server-player and city-sidecar state
+still need a migration path. The private generation authority now writes this
+envelope as generation v2;
 LocalGame and the server remain unchanged. Reports and fresh CLI
 image: `structure-world-library.json` and `structure-library-cli.png`.
 
@@ -222,14 +224,28 @@ The same force, atomic-replace, root/generation fences and cancellation recovery
 apply to both versions. Fresh CLI results: `structure-library-generation.json`
 and `structure-library-generation-cli.png`.
 
-This adapter is not used by LocalGame or the server. Its physical manifest does
-not preserve inventories or transient/player metadata;
+This adapter is not used by LocalGame or the server. Its physical manifest
+preserves optional offline inventory, health and dropped-item metadata, but
+does not migrate server-player or city-sidecar state;
 synthetic edits are dirty until a successful later publication. Runtime undo is
 not restored after restart. Complete legacy-world migration, responsive live
 publication and full storage/render/network qualification remain required before
 production integration. No admission cap or production format has changed.
 No city-sized storage, save, network, atomic commit or undo claim follows from
 these small replay checks. Results: `structure-region-history-prototype.json`.
+
+`RegionOfflineMetadataPrototype` now stores the existing 36-slot inventory,
+health and up to 100,000 dropped items in a private 2 MiB CRC envelope. It uses
+the existing item/inventory validation and requires model dependencies. Optional
+offline metadata is attached to world/library envelope v2 inside the existing
+private generation v2. Old files retain absent metadata rather than fabricated
+survival state. The private authority carries metadata in its source root and
+preserves it on later publications; updates invalidate stale stages. A generation
+stage cannot discard existing metadata. These fields are never structure-package
+contents. No LocalGame/server save format or behavior has changed. Report and
+fresh CLI screenshot: `structure-offline-metadata.json` and
+`structure-offline-metadata-cli.png`. Complete legacy migration, city-sidecar and
+server-player handling, responsive integration and qualification remain pending.
 
 Reference hardware and network qualification is deferred. The current commit
 path serializes placements and validates/stages work off-thread, but final owner

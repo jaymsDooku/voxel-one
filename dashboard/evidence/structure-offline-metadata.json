@@ -1,0 +1,77 @@
+{
+  "parent_head": "ea0bfa2faf9c9c69f3e351ae90c2ed0304a7d42b",
+  "status": "private_offline_survival_metadata_checks_passed_production_integration_pending",
+  "source_sha256": {
+    "tools/structures/RegionHistoryPrototype.java": "3936279654e7b40d6d82f7259237dde14c8967d46fe1748e8f988251a5c1f1a8",
+    "tools/structures/RegionDependencyPrototype.java": "f5e8d00a52e17c738eda35464622d5e563295e1416fc39cf7a309a8f8426e3d5",
+    "tools/structures/RegionOfflineMetadataPrototype.java": "8e4d2ffc4e65042a45ff55a5669787e377f2adf28f78394444b03906c262fe22",
+    "tools/structures/RegionOfflineMetadataCheck.java": "e8efa99655d6ecfd7b7fb18221ba17f34b6cc288c38d62f22cba424ffa35d5a3",
+    "tools/structures/RegionWorldLibraryPrototype.java": "e7d5f7ea45f33aaa3184d0640df412881866c1af10c138e9fc241d6f2a581f08",
+    "tools/structures/RegionGenerationPrototype.java": "ee745bb42e0c93b1bf7d90ee063ffcab7511e01b9e08bb553bb242e4c0273420",
+    "tools/structures/RegionAuthorityPrototype.java": "fe2dcf6026ff18bc1ee69942c21065ac343ae2991fcf987875c3f94821c25c34",
+    "tools/structures/RegionGenerationEvidence.java": "b1c8ae6eb36e8f0cfb12e8ace87eb6dfb62955820a87b44ec78df8fb8edb96dc",
+    "tools/structures/test_region_history.py": "4988e9ad3dec8141b2f5d6573a8996757ef4a19ddf502bd107088f1c7031a21c",
+    "src/main/java/dev/jayms/net/Inventory.java": "251f649394c0a2bb7d4bea7bdefac27f9b3dc14f2ccb7403d934b0cae0b1567b",
+    "src/main/java/dev/jayms/net/ItemDrop.java": "2249a4531a2354761a514755999c87fca085becf892bdb23b50e9c3543d9d946"
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "python": "3.11.2",
+    "java_heap_cap": "-Xmx512m; not measured peak memory",
+    "execution": "Detached synthetic offline metadata plus actual private generation files and restart; no game/server launched",
+    "capture": "Inherited assigned DISPLAY/XAUTHORITY; window-only actual child CLI output. No authentication values entered context."
+  },
+  "commands": [
+    "python3 -m unittest discover -s tools/structures -p 'test_region_history.py'",
+    "python3 -m unittest discover -s tools/structures -p 'test_*.py'",
+    "javac --release 17 -cp target/classes -d target tools/structures/RegionHistoryPrototype.java tools/structures/RegionDependencyPrototype.java tools/structures/RegionOfflineMetadataPrototype.java tools/structures/RegionWorldLibraryPrototype.java tools/structures/RegionGenerationPrototype.java tools/structures/RegionAuthorityPrototype.java tools/structures/RegionOfflineMetadataCheck.java tools/structures/RegionGenerationEvidence.java",
+    "java -Xmx512m -cp target:target/classes RegionOfflineMetadataCheck > target/structure-offline-metadata-check.json",
+    "java -cp target:target/classes RegionGenerationEvidence RegionOfflineMetadataCheck",
+    "Window-only ImageMagick import on inherited DISPLAY to dashboard/evidence/structure-offline-metadata-cli.png"
+  ],
+  "observed": {
+    "status": "passed",
+    "metadata_bytes": 107,
+    "maximum_drop_count": 100000,
+    "maximum_metadata_bytes": 1800089,
+    "rejection_cases": 34,
+    "generation_restart": true,
+    "production_integration": false,
+    "qualification": false
+  },
+  "tests": {
+    "initial_integration_tests": 7,
+    "final_broad_structure_tool_tests": 40,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "sequence": "Seven initial integration tests passed. Forty broad tests passed after metadata-loss guard, dependency checks and viewer changes. Actual CLI and displayed child both exited 0. A final JavaDoc correction only describes the optional metadata; no functional code changed after final checks."
+  },
+  "implementation": {
+    "fields": "Existing 36-slot Inventory codec, health 0..20 and immutable ItemDrop records; maximum 100000 drops and 2 MiB metadata bytes. Duplicate drop IDs reject; zero-count drops retain existing codec behavior. nextDrop is derived as the highest saved ID. Inventory getters copy and drop lists are immutable.",
+    "format": "Private CRC metadata envelope inside optional world/library envelope v2; outer private generation v2 remains unchanged. Missing metadata in old generations stays absent. 16 MiB whole payload ceiling still applies. No production save format or structure-package changes.",
+    "publication": "Authority root includes immutable metadata; synthetic metadata updates validate dependencies and create a new source revision. Publication retains captured metadata. Source-root fencing rejects staged work after metadata changes. The store rejects omission of already saved metadata, as well as older lossy format downgrades.",
+    "validation": "Existing Inventory.read and ItemDrop.read validation; capture rejects byte-truncating type/count inputs, nonfinite coordinates, health bounds, duplicate IDs and missing inventory/drop model definitions. Length/count bounds and cancellation prevent unbounded decode. No public evidence includes actual inventories or player data; fixtures are synthetic."
+  },
+  "cases": [
+    "Inventory/health/drop exact byte round trip, negative zero/fractional positions retained, source and returned inventory isolation, immutable drop list",
+    "100000 synthetic drops encode to 1800089 bytes and decode; 100001 reject. This is a metadata codec boundary check, not a city or live-world benchmark",
+    "Invalid ID/type/count/health, nonfinite coordinates, duplicate drop IDs, malformed inventory, CRC/version/magic, count/size/truncation and missing model dependencies reject",
+    "Pre-cancel, mid-decode cancellation and interruption reject without a result; retry produces identical bytes",
+    "Actual private generation publication/restart preserves metadata, physical cell and an unplaced inventory model",
+    "Invalid metadata cannot enter a root without its dependency; omitting saved metadata rejects",
+    "A newer synthetic metadata edit invalidates staged publication, preserves saved bytes and keeps the newer root; retry saves the current metadata",
+    "Existing region, whole-library, old generation and actual engine authority regressions pass"
+  ],
+  "playtest": "Playtest: actual Java CLI exercised offline metadata capture/encode/decode and private generation restart. Expected all survival fields and dependencies retained, malformed/cancel/stale cases rejected; observed passed with 34 rejection cases. Fresh window-only screenshot of actual child exit 0 and JSON result was inspected. Browser/game playtesting does not apply to tools-only persistence code. All 224 native workflow source hashes still match prior game playtesting.",
+  "image": {
+    "path": "dashboard/evidence/structure-offline-metadata-cli.png",
+    "bytes": 6027,
+    "sha256": "ac83db33843621126aa1020dfd664eec351f5f401b2659359fb235489a21a804",
+    "publication": "Pending controller publication"
+  },
+  "hosted_observation": "Exact parent ea0bfa2f has eight successful platform builds; publication skipped. These checks do not cover pending edits.",
+  "limitations": "Not connected to LocalGame or server, not complete legacy-world migration. City sidecar/simulation state, server-player state, direct ordinary-edit save flow and persistent runtime undo remain unresolved. Synthetic metadata updates stay dirty until later publication. No real account data read. Metadata capacity checks do not qualify peak memory, owner-thread latency, storage durability or city/maximum budgets. Existing model validation and whole-index/file processing remain synchronous bounded operations.",
+  "qualification": "Full city/maximum admission and 20-run timing/memory/frame/tick/traffic, directory fsync/power-loss, physical GPU and shaped-network/32-rendered-client qualification remain pending. No cap increases or ready/stable claim.",
+  "next": "Preserve complete legacy world/sidecar/server metadata and integrate responsive region save/load, then qualify full fixtures."
+}

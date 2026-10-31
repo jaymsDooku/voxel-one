@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-31T11:42:38+00:00",
+  "updatedAt": "2026-10-31T12:01:39+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Whole-library private generations pass six final integration tests: exact IDs/assets survive restart and undo; v1 upgrades safely and lossy downgrade rejects. Actual CLI passes 13 placements, seven undos and 37 rejection cases. Fresh report/image await controller publication. Complete world metadata, production integration and full qualification remain pending.",
-      "updatedAt": "2026-10-31T11:42:38+00:00"
+      "note": "Private offline metadata now survives generation restart with inventory, health and drops. All 40 tool tests passed; CLI passed 100000-drop boundary and 34 rejection cases. Fresh image/report being saved. Production migration, server-player/city-sidecar preservation and full qualification remain pending.",
+      "updatedAt": "2026-10-31T12:01:39+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

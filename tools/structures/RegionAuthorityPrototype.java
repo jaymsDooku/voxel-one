@@ -11,7 +11,7 @@ import static dev.jayms.net.structure.StructurePackage.*;
 
 /** Actual engine adapter over private synthetic roots/files. Not LocalGame or server persistence. */
 public final class RegionAuthorityPrototype implements StructureEngine.Authority {
-    private record Root(long revision,long generation,WorldVoxels world,ModelLibrary models,Map<Position,SparseVoxelOctree> known){}
+    private record Root(long revision,long generation,WorldVoxels world,ModelLibrary models,Map<Position,SparseVoxelOctree> known,RegionOfflineMetadataPrototype metadata){}
     private record Stamp(long revision,Object geometry){}
     private static final RegionHistoryPrototype.CodecBudget BUDGET=new RegionHistoryPrototype.CodecBudget(8*1024*1024,100_000,1024,131_072);
     private final Object lock=new Object();private final RegionGenerationPrototype store;
@@ -21,7 +21,7 @@ public final class RegionAuthorityPrototype implements StructureEngine.Authority
     RegionAuthorityPrototype(Path directory,long seed,int version,RegionGenerationPrototype.Operations operations)throws IOException {
         this.seed=seed;terrainVersion=version;store=new RegionGenerationPrototype(directory,operations);
         var loaded=store.load(()->false);var known=new LinkedHashMap<Position,SparseVoxelOctree>();
-        if(loaded.isEmpty())root=new Root(0,0,new WorldVoxels(new Terrain(seed,version)),new ModelLibrary(),Map.of());
+        if(loaded.isEmpty())root=new Root(0,0,new WorldVoxels(new Terrain(seed,version)),new ModelLibrary(),Map.of(),null);
         else {
             var saved=loaded.orElseThrow();
             var identity=saved.formatVersion()==1?saved.manifest().geometrySnapshot():saved.worldLibrary().geometrySnapshot();
@@ -30,7 +30,7 @@ public final class RegionAuthorityPrototype implements StructureEngine.Authority
             if(saved.formatVersion()==1){var restored=saved.manifest().restore(new ModelLibrary(),()->false);world=restored.world();models=restored.models();}
             else {var restored=saved.worldLibrary().restore(()->false);world=restored.world();models=restored.models();}
             for(var region:identity.regions().values())for(var cell:region)known.put(new Position(cell.x(),cell.y(),cell.z()),world.cell(cell.x(),cell.y(),cell.z()));
-            root=new Root(0,saved.generation(),world,models,Collections.unmodifiableMap(known));
+            root=new Root(0,saved.generation(),world,models,Collections.unmodifiableMap(known),saved.formatVersion()==2?saved.worldLibrary().metadata().orElse(null):null);
         }
     }
     @Override public Object lock(){return lock;}
@@ -55,8 +55,14 @@ public final class RegionAuthorityPrototype implements StructureEngine.Authority
             var state=root;if(Blocks.isModel(edit.type())&&state.models().get(edit.type())==null)throw new IOException("Unknown model");
             var world=state.world().snapshot();world.apply(edit);var known=new LinkedHashMap<>(state.known());
             known.put(new Position(edit.x(),edit.y(),edit.z()),world.cell(edit.x(),edit.y(),edit.z()));
-            root=new Root(state.revision()+1,state.generation(),world,state.models(),Collections.unmodifiableMap(known));
+            root=new Root(state.revision()+1,state.generation(),world,state.models(),Collections.unmodifiableMap(known),state.metadata());
         }
+    }
+    public Optional<RegionOfflineMetadataPrototype> metadata(){return Optional.ofNullable(root.metadata());}
+    /** Synthetic offline metadata update, dirty until a later generation publication. */
+    public void metadata(RegionOfflineMetadataPrototype metadata)throws IOException {
+        Objects.requireNonNull(metadata);synchronized(lock){var state=root;metadata.validateModels(state.models(),()->false);
+            root=new Root(state.revision()+1,state.generation(),state.world(),state.models(),state.known(),metadata);}
     }
     @Override public void commit(ModelLibrary models,Map<Position,SparseVoxelOctree> cells)throws IOException {
         try(var staged=stageCommit(models,cells,root.models().revision(),()->false)){synchronized(lock){staged.apply();}}
@@ -69,9 +75,9 @@ public final class RegionAuthorityPrototype implements StructureEngine.Authority
         var records=new ArrayList<Protocol.CellState>();
         for(var entry:known.entrySet()){check(cancel);var p=entry.getKey();records.add(new Protocol.CellState(p.x(),p.y(),p.z(),entry.getValue()));}
         var geometry=RegionHistoryPrototype.fromCells(seed,terrainVersion,records,BUDGET,cancel);
-        var worldLibrary=RegionWorldLibraryPrototype.capture(geometry,stagedModels,cancel);var file=store.stage(worldLibrary,cancel);
+        var worldLibrary=expected.metadata()==null?RegionWorldLibraryPrototype.capture(geometry,stagedModels,cancel):RegionWorldLibraryPrototype.capture(geometry,stagedModels,expected.metadata(),cancel);var file=store.stage(worldLibrary,cancel);
         if(file.expectedGeneration()!=expected.generation()){file.close();throw new IOException("Disk generation changed; reload");}
-        var candidate=new Root(expected.revision()+1,file.nextGeneration(),world,stagedModels,Collections.unmodifiableMap(known));
+        var candidate=new Root(expected.revision()+1,file.nextGeneration(),world,stagedModels,Collections.unmodifiableMap(known),expected.metadata());
         return new StructureEngine.Commit(){
             private boolean closed;
             @Override public void apply()throws IOException {
