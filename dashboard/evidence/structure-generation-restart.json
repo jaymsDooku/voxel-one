@@ -1,0 +1,45 @@
+{
+  "parent": "54938283215fdb531b1c39227da0578f95a08173",
+  "change": "Strict private generation loadComplete checks caller terrain, on-disk seed/version, world-library format, expected city/sandbox mode, city/history semantics and cancellation before returning detached generation plus state. No writes, implicit legacy migration or live installation.",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "java": "25.0.3+9-LTS-195",
+    "compile_release": 17,
+    "heap": "512 MiB",
+    "display": "inherited assigned display; own synthetic CLI result window"
+  },
+  "commands": [
+    "javac -encoding UTF-8 --release 17 -cp target:target/classes -d target tools/structures/RegionGenerationPrototype.java tools/structures/RegionCompleteRestoreCheck.java",
+    "java -Xmx512m -cp target:target/classes RegionCompleteRestoreCheck",
+    "python3 -m unittest tools.structures.test_region_history.RegionHistoryIntegrationTest.test_complete_restore tools.structures.test_region_history.RegionHistoryIntegrationTest.test_generation_publication tools.structures.test_region_history.RegionHistoryIntegrationTest.test_actual_engine_authority tools.structures.test_region_history.RegionHistoryIntegrationTest.test_world_library",
+    "java -cp target:target/classes RegionGenerationEvidence RegionCompleteRestoreCheck",
+    "import -display \"$DISPLAY\" -window 2097159 dashboard/evidence/structure-generation-restart-cli.png",
+    "gh pr view 76 --json headRefOid,statusCheckRollup"
+  ],
+  "results": {
+    "status": "passed",
+    "strict_generation_restart": true,
+    "game_mode_guard": true,
+    "legacy_city_formats": 17,
+    "offline_and_server_metadata": true,
+    "rejection_cases": 24,
+    "source_unchanged": true,
+    "live_region_backend": false,
+    "qualification": false
+  },
+  "tests": "Final 4 affected integrations passed in 17.393 s, no skips. Initial compile used wrong dependency-capture argument type; corrected to definition map. Initial integration command named nonexistent test_generation and failed; final command uses test_generation_publication. Those failed attempts are not passes. Production Java unchanged; no Maven/native rerun.",
+  "playtest": "Playtest: actual synthetic city/history and private generation restart. Expected valid generation, geometry, models and metadata preserved; wrong seed/version/game, unsupported terrain, cancellation, dependency-only format and semantically bad history reject with source bytes unchanged. Empty directory returns explicit absence. Observed pass; direct and displayed child exit 0. Fresh own-window image inspected. Tools-only persistence operation; browser/native game rendering does not apply.",
+  "hosted": "Eight exact-parent platform builds successful; two publication jobs skipped. New edits await controller publication and CI.",
+  "source_sha256": {
+    "tools/structures/RegionGenerationPrototype.java": "905f7a0386a76a62085dd2fe750f73c039e902abb3d76cad7f4a087f050cc5de",
+    "tools/structures/RegionCompleteRestoreCheck.java": "ca4b8c51c6e4dc393821dff727f9797c34403fcf9362e808cc6b315948740340",
+    "tools/structures/test_region_history.py": "33a6240d909c7f0c9196b1da99f02aaba41d3536b5132c821ad30fefa05b1b06"
+  },
+  "media": {
+    "file": "structure-generation-restart-cli.png",
+    "sha256": "ebda5cb71649d0552058493090389a60192eedfba677bc121c5cf82856d46bcb",
+    "publication": "pending controller"
+  },
+  "audit": "No deleted paths against review base 71612f09bfec4549456b3317676e76cdced085a4. No intended deletions. git diff --check passed.",
+  "qualification": "Not qualified. Production owner/backend integration, full city/maximum admission, 20-run budgets, physical GPU, shaped 32-rendered-client synchronization, main-thread stalls, peak memory and directory durability remain pending. Caps and rollout gates unchanged."
+}

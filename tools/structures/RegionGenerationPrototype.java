@@ -63,6 +63,20 @@ public final class RegionGenerationPrototype {
         try{return Optional.of(read(current,cancel).loaded());}
         catch(NoSuchFileException absent){return Optional.empty();}
     }
+    public record CompleteLoaded(long generation,RegionWorldLibraryPrototype.CompleteRestored state){}
+    /** Strict detached restart. No live state installation or implicit legacy migration. */
+    public Optional<CompleteLoaded> loadComplete(long seed,int terrainVersion,dev.jayms.net.city.GameConfig expectedGame,BooleanSupplier cancel)throws IOException {
+        Objects.requireNonNull(expectedGame);Objects.requireNonNull(cancel);check(cancel);
+        // Validate caller identity even when no generation exists.
+        try{new dev.jayms.net.Terrain(seed,terrainVersion);}catch(IllegalArgumentException invalid){throw new IOException("Unsupported terrain generator",invalid);}
+        var loaded=load(cancel);if(loaded.isEmpty())return Optional.empty();
+        var saved=loaded.orElseThrow();
+        if(saved.formatVersion()!=2)throw new IOException("Complete restart requires world/library generation; migrate legacy dependencies explicitly");
+        var world=saved.worldLibrary();var identity=world.geometrySnapshot();
+        if(identity.terrainSeed()!=seed||identity.terrainVersion()!=terrainVersion)throw new IOException("World identity mismatch");
+        var restored=world.restoreComplete(expectedGame,cancel);check(cancel);
+        return Optional.of(new CompleteLoaded(saved.generation(),restored));
+    }
     private long generation(BooleanSupplier cancel)throws IOException {
         // The synthetic directory is private. Only this store's locked atomic
         // replacements may change current.region; disappearance is not a reset API.
