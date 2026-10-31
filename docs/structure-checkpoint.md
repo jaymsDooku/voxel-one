@@ -1,5 +1,11 @@
 # Structure review fix checkpoint
 
+## Windows source-encoding CI repair
+
+Exact head `65fee8e9` failed Windows structure-tool validation in `test_server_metadata`. The Python wrapper hid child stderr. Compiling the fixture with explicit Windows-1252 locally reproduced exit 1 and `Invalid/duplicate server player`: UTF-8 omega source bytes became two characters, violating the 16-character fixture boundary. The wrapper now passes `javac -encoding UTF-8` and reports at most 4,000 characters of synthetic child stderr on failure. No fixture limits or assertions were weakened. All 12 affected integration tests passed with `JAVA_TOOL_OPTIONS=-Dfile.encoding=windows-1252`; no skips.
+
+Playtest: fresh actual synthetic server-metadata CLI child exited 0; its own-window image was captured and inspected. This CLI-only wrapper fix needs no browser/game rerun; all 224 native source hashes remain unchanged. See `structure-server-encoding.json` and `structure-server-encoding-cli.png`. Hosted Windows qualification must be rerun on the fixed source; no Windows pass claimed locally. Full production integration and city/maximum physical-GPU/32-client gates remain pending.
+
 ## Private server survival metadata
 
 Exact parent `999c7987`: eight hosted builds passed; publication skipped. Added tools-only server survival metadata and private inner envelope format 4. Synthetic identifiers, inventories, health and drops survive private restart and later geometry saves. Offline/server mode changes and metadata omission reject; stale staged roots reject. Limits: 10,000 saved players, 100,000 drops, 4 MiB metadata, unchanged 16 MiB envelope. No authentication data was read and no multiplayer server started.

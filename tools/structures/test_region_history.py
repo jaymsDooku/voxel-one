@@ -24,14 +24,14 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
                         'RegionAuthorityPrototype.java', 'RegionAuthorityCheck.java',
                         'RegionWorldLibraryPrototype.java', 'RegionWorldLibraryCheck.java', 'RegionOfflineMetadataPrototype.java', 'RegionOfflineMetadataCheck.java',
                         'RegionOfflineImportPrototype.java', 'RegionOfflineImportCheck.java', 'RegionOfflineLegacyCheck.java', 'RegionSidecarsPrototype.java', 'RegionSidecarsCheck.java', 'RegionOfflineBundlePrototype.java', 'RegionOfflineBundleCheck.java', 'RegionServerMetadataPrototype.java', 'RegionServerMetadataCheck.java')]
-            compiled = subprocess.run(['javac', '--release', '17', '-cp', str(CLASSES), '-d', temporary,
+            compiled = subprocess.run(['javac', '-encoding', 'UTF-8', '--release', '17', '-cp', str(CLASSES), '-d', temporary,
                                        *map(str, sources)], capture_output=True, text=True, timeout=30)
             self.assertEqual(compiled.returncode, 0, compiled.stderr[:4000])
             command = ['java', '-Xmx512m', '-cp', os.pathsep.join((temporary, str(CLASSES))), class_name]
             if class_name in ('RegionGenerationCheck', 'RegionAuthorityCheck'):
                 command.append(str(Path(temporary) / 'synthetic-generations'))
-            result = subprocess.run(command, check=True,
-                                    capture_output=True, text=True, timeout=30)
+            result = subprocess.run(command, capture_output=True, text=True, timeout=30)
+            self.assertEqual(result.returncode, 0, result.stderr[:4000])
             return [json.loads(line) for line in result.stdout.splitlines()]
 
     def test_actual_replay_migration(self):
