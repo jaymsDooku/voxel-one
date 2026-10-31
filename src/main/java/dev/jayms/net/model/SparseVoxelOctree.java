@@ -373,6 +373,30 @@ public final class SparseVoxelOctree {
 
     public record Leaf(int x, int y, int z, int side, int color) {}
 
+    @FunctionalInterface
+    public interface LeafVisitor {
+        void accept(int x, int y, int z, int side, int color) throws IOException;
+    }
+
+    /** Visit stored leaves in octant order without allocating a leaf list. */
+    public void forEachLeaf(LeafVisitor visitor) throws IOException {
+        java.util.Objects.requireNonNull(visitor);
+        visitLeaves(root, 0, 0, 0, size, visitor);
+    }
+
+    private static void visitLeaves(Node node, int x, int y, int z, int side, LeafVisitor visitor)
+            throws IOException {
+        if (node == null) return;
+        if (node.children == null) {
+            visitor.accept(x, y, z, side, node.color);
+            return;
+        }
+        int half = side / 2;
+        for (int i = 0; i < 8; i++)
+            visitLeaves(node.children[i], x + ((i & 1) != 0 ? half : 0),
+                    y + ((i & 2) != 0 ? half : 0), z + ((i & 4) != 0 ? half : 0), half, visitor);
+    }
+
     /** Count stored non-air leaves without constructing a temporary leaf list. */
     public int leafCount() {
         return leafCount(root);

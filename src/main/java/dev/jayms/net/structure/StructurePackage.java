@@ -67,7 +67,7 @@ public final class StructurePackage {
             definitions.add(frozen);
         }
         this.models=List.copyOf(definitions);
-        var entries=owned==null?new StructureCells.Builder(cells.size()):owned;int leaves=0,instances=0;
+        var entries=owned==null?new StructureCells.Builder(cells.size()):owned;int[] leaves={0};int instances=0;
         for(var cell:cells) {
             cancelled(cancel);
             var p=cell.position();
@@ -79,17 +79,18 @@ public final class StructurePackage {
             } else {
                 if(cell.model!=-1||cell.geometry==null||cell.geometry.size()!=16||cell.geometry.occupied()==0)throw new IOException("Invalid structure geometry");
                 var tree=owned==null?cell.geometry.copy().freeze():cell.geometry;
-                for(var leaf:tree.leaves()) {
-                    int type=WorldVoxels.decode(leaf.color());
+                tree.forEachLeaf((x,y,z,side,color)->{
+                    cancelled(cancel);
+                    int type=WorldVoxels.decode(color);
                     if(!Blocks.valid(type)||type==0||Blocks.isModel(type)||Blocks.isPiece(type)
-                            ||leaf.side()<16&&!Blocks.subdividable(type))throw new IOException("Invalid geometry material");
-                    if(++leaves>MAX_LEAVES)throw new IOException("Experimental geometry cap exceeded; city support unqualified");
-                }
+                            ||side<16&&!Blocks.subdividable(type))throw new IOException("Invalid geometry material");
+                    if(++leaves[0]>MAX_LEAVES)throw new IOException("Experimental geometry cap exceeded; city support unqualified");
+                });
                 if(owned==null)entries.add(p,tree,-1);
             }
         }
         // Spatial partition order: 16-cell sections, then local cell index.
-        cancelled(cancel);this.cells=entries.build(cancel);cancelled(cancel);leafCount=leaves;instanceCount=instances;
+        cancelled(cancel);this.cells=entries.build(cancel);cancelled(cancel);leafCount=leaves[0];instanceCount=instances;
     }
     static long order(Position p) {
         long section=(p.y/16L*64+p.z/16)*64+p.x/16;
