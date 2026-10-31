@@ -1,5 +1,38 @@
 # Structure review fix checkpoint
 
+## Current synchronization position-index validation
+
+Parent `24d14a64cebf15e1dfe36ab7b3a7ce71666d329e` has eight successful platform
+builds; publication skipped. The rejected undo candidate remains diagnostic-only.
+
+Structure wire decoding now uses an exact primitive position index instead of
+per-cell strings and hash nodes. Coordinate validation precedes packing; sorted
+keys detect duplicates before returning a delta. Cell order and wire bytes stay
+unchanged. The index payload is bounded to 16,000,000 bytes at the existing
+2,000,000-cell transfer limit; decoded geometry and sorting memory are separate.
+
+132 targeted tests passed, including real TLS multiplayer and protocol/model
+regressions. Three new tests cover exact coordinate edges, wire ordering, late
+duplicates, invalid inputs and a full 2,000,000-position index. The first test
+attempt lacked a writable temp directory; the corrected worktree-local temp
+setting passed. No full maximum-size delta decode is claimed by the index test.
+
+Separate parent/current JVMs each completed three warmups and 20 decodes of the
+same shuffled 100,000-cell delta. Median/p95/worst fell from
+74.964/102.579/158.642 ms to 38.203/55.839/57.548 ms. Median thread allocation fell
+from 21,045,896 to 10,948,616 bytes. Exact wire bytes, cell order and physical
+geometry match. This is a codec diagnostic, not full-system qualification.
+Report: `structure-wire-position-validation.json`. Fresh native workflow passed
+on the inherited display with an isolated synthetic profile and llvmpipe. All
+221 source hashes match. The 397,555-byte H264 recording has 16 frames over
+26.497 s; decoded clear-footprint frame and fresh blocked-conflict screenshot
+were inspected. HUD 1 FPS is functional evidence only. Local edits and media
+await controller publication and exact-source hosted checks.
+
+Full city/maximum admission, partitioned canonical storage/persistence/transfer,
+owner-thread work and 20-run physical-GPU/shaped-network/32-rendered-client
+qualification remain unfinished. Supported-city and stable-rollout gates stay.
+
 ## Current undo-sharing diagnostic
 
 Parent `f7742adf5c1a9d5a788057fd49cb01e45ec15039` has eight successful platform

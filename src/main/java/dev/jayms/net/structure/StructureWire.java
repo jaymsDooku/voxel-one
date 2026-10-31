@@ -31,13 +31,14 @@ public final class StructureWire {
             var models=new ArrayList<ModelLibrary.Entry>();
             for(int i=0;i<n;i++)models.add(new ModelLibrary.Entry(in.readInt(),Protocol.readText(in,16),ModelDefinition.read(in)));
             n=in.readInt();if(n<0||n>2_000_000)throw new IOException("Structure cell transfer limit");
-            var cells=new ArrayList<Protocol.CellState>();var positions=new HashSet<String>();int leaves=0;
+            var cells=new ArrayList<Protocol.CellState>();var positions=new StructureWirePositions(n);int leaves=0;
             for(int i=0;i<n;i++) {
                 var cell=Protocol.CellState.read(in);
-                if(!positions.add(cell.x()+","+cell.y()+","+cell.z()))throw new IOException("Duplicate structure cell");
+                positions.add(cell.x(),cell.y(),cell.z());
                 leaves+=cell.tree().leafCount();if(leaves>2_000_000)throw new IOException("World synchronization leaf limit");
                 cells.add(cell);
             }
+            positions.validate();
             if(in.read()!=-1)throw new IOException("Trailing structure delta");return new Delta(models,cells);
         }
     }
