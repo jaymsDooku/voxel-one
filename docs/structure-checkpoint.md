@@ -1,5 +1,44 @@
 # Structure review fix checkpoint
 
+## Current offline model-write cancellation validation
+
+Parent `888b8b1b35af6c9c05885e462a8d3acff504be83` has eight successful platform
+builds; publication skipped. Private offline save output now checks cancellation
+before each delegated file write of at most 64 KiB. This includes model bytes
+before history. Formats, caps and final owner publication are unchanged.
+
+15 final affected tests passed: six save tests and nine history/integration tests.
+The last case interrupts one 32-resolution model larger than 128 KiB. It stops
+partway through model bytes, preserves the interrupt flag, never reaches history
+progress, leaves prior save bytes intact and removes its private file.
+The new eight-model checker fixture exceeds 128 KiB and cancels before its second
+raw write and before history progress. Prior save bytes and live edits remain
+unchanged; no private file remains. The initial test assumed an exact full-buffer
+flush, but Java flushed 63,354 bytes. Its corrected assertion checks a positive
+write of at most 65,536 bytes; final tests passed.
+
+A fresh three-warmup/20-run save-only probe has identical output hashes in both
+modes. Owner p95 is 43.115 ms synchronous versus 4.520 ms staged; wall p95 is
+43.115 versus 43.863 ms. File force and rename still run on the owner. No hard
+100 ms stall or cancellation-time bound is claimed. Fresh native workflow passed
+on inherited display with an isolated synthetic profile. All 223 source hashes
+match. H264 video: 425,446 bytes, 19 frames, 31.405 s; SHA-256
+`c942f7ac68a0f7e3412d39caee457c0e25120271395b72970ed66f164ba20ac4`.
+Decoded current frame and fresh blocked-conflict screenshot inspected; software
+HUD 0-1 FPS is functional evidence only. Report:
+`structure-offline-save-cancellation.json`. Local source/media await controller
+publication and exact-head checks.
+
+Next scaling investigation: a bounded per-preparation pool of frozen uniform
+16-resolution cells could share repeated block/model cell objects without changing
+placement-map identity. Measure actual live World plus undo retention, mixed and
+all-unique fixtures, rotations and wire bytes before adopting it. Do not repeat
+the rejected packed-undo approach, which increased live-world memory.
+
+Full city/maximum admission and reference-hardware/physical-GPU/shaped-network/
+32-rendered-client qualification remain pending. No supported-city or stable
+rollout claim. Local edits need controller publication and exact-source checks.
+
 ## Current offline private-save staging validation
 
 Exact parent `35325317aa2a585d3f25ef2a7cccc4b20e8f69bd` has eight successful

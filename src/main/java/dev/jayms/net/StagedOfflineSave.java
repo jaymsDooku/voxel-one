@@ -20,7 +20,7 @@ final class StagedOfflineSave implements AutoCloseable {
         Path absolute=target.toAbsolutePath();Files.createDirectories(absolute.getParent());
         var staged=new StagedOfflineSave(absolute,Files.createTempFile(absolute.getParent(),".structure-offline-",".tmp"));
         try {
-            try(var out=new DataOutputStream(new BufferedOutputStream(Files.newOutputStream(staged.temp),64*1024))) {
+            try(var out=new DataOutputStream(new BufferedOutputStream(new CancelOutput(Files.newOutputStream(staged.temp),cancel),64*1024))) {
                 StructurePackage.cancelled(cancel);
                 out.writeInt(models.hasStructureModels()?9:8);out.writeLong(seed);out.writeInt(generator);
                 if(models.hasStructureModels())models.writeAll(out);else models.write(out);
@@ -49,6 +49,22 @@ final class StagedOfflineSave implements AutoCloseable {
             }
             WorldSavePublication.replace(temp,target,true);closed=true;
         }catch(IOException|RuntimeException|Error failure){try{close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;}
+    }
+    /** Below buffering: cancellation also interrupts model bytes before history starts. */
+    private static final class CancelOutput extends OutputStream {
+        private final OutputStream output;
+        private final BooleanSupplier cancel;
+        CancelOutput(OutputStream output,BooleanSupplier cancel){this.output=output;this.cancel=cancel;}
+        @Override public void write(int value)throws IOException {StructurePackage.cancelled(cancel);output.write(value);}
+        @Override public void write(byte[] bytes,int offset,int length)throws IOException {
+            java.util.Objects.checkFromIndexSize(offset,length,bytes.length);
+            while(length>0) {
+                StructurePackage.cancelled(cancel);int count=Math.min(length,64*1024);
+                output.write(bytes,offset,count);offset+=count;length-=count;
+            }
+        }
+        @Override public void flush()throws IOException {output.flush();}
+        @Override public void close()throws IOException {output.close();}
     }
     @Override public void close()throws IOException {if(!closed){Files.deleteIfExists(temp);closed=true;}}
 }

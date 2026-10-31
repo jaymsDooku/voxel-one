@@ -912,3 +912,19 @@ Owner duration median/p95/worst was 33.957/37.802/37.985 ms synchronously and
 33.957/37.802/37.986 ms versus 34.447/37.057/41.900 ms. These local filesystem
 samples do not bound force/rename latency or establish peak-memory, frame,
 server-tick, network or city/maximum qualification.
+
+Private offline save staging also checks cancellation/interruption before each
+file write of at most 64 KiB, including model definitions before history begins.
+The output buffer may flush smaller records sooner. Cancelling a private save
+closes its stream, removes the private file and preserves the prior durable
+world. Final owner publication remains uncancellable after authoritative commit
+begins. This bounds bytes between write checks, not model serialization time,
+filesystem latency or cancellation latency.
+
+A fresh save-only probe after this change used three warmups and 20 measured
+runs per mode. Synchronous owner median/p95/worst was
+33.204/43.115/44.307 ms; staged owner was 2.473/4.520/13.795 ms. Total wall
+median/p95/worst was 33.204/43.115/44.308 ms versus
+33.089/43.863/44.315 ms. All output bytes still match the hash recorded above.
+No city, maximum fixture, peak-memory, rendering or network qualification follows
+from this synthetic save probe.
