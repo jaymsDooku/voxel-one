@@ -22,9 +22,11 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
                         'RegionDependencyPrototype.java', 'RegionDependencyCheck.java',
                         'RegionGenerationPrototype.java', 'RegionGenerationCheck.java', 'RegionGenerationEvidence.java',
                         'RegionAuthorityPrototype.java', 'RegionAuthorityCheck.java',
-                        'RegionWorldLibraryPrototype.java', 'RegionWorldLibraryCheck.java', 'RegionOfflineMetadataPrototype.java', 'RegionOfflineMetadataCheck.java')]
-            subprocess.run(['javac', '--release', '17', '-cp', str(CLASSES), '-d', temporary,
-                            *map(str, sources)], check=True, capture_output=True, timeout=30)
+                        'RegionWorldLibraryPrototype.java', 'RegionWorldLibraryCheck.java', 'RegionOfflineMetadataPrototype.java', 'RegionOfflineMetadataCheck.java',
+                        'RegionOfflineImportPrototype.java', 'RegionOfflineImportCheck.java')]
+            compiled = subprocess.run(['javac', '--release', '17', '-cp', str(CLASSES), '-d', temporary,
+                                       *map(str, sources)], capture_output=True, text=True, timeout=30)
+            self.assertEqual(compiled.returncode, 0, compiled.stderr[:4000])
             command = ['java', '-Xmx512m', '-cp', os.pathsep.join((temporary, str(CLASSES))), class_name]
             if class_name in ('RegionGenerationCheck', 'RegionAuthorityCheck'):
                 command.append(str(Path(temporary) / 'synthetic-generations'))
@@ -61,6 +63,13 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
         self.assertEqual(rows[0]['final_generation'], 4)
         self.assertGreaterEqual(rows[0]['mid_write_cancel_bytes'], 65536)
         self.assertFalse(rows[0]['directory_fsync_qualified'])
+        self.assertFalse(rows[0]['qualification'])
+
+    def test_offline_import(self):
+        rows = self.run_check('RegionOfflineImportCheck')
+        self.assertEqual(rows[0]['status'], 'passed')
+        self.assertEqual(rows[0]['production_save_fixtures'], 6)
+        self.assertFalse(rows[0]['production_integration'])
         self.assertFalse(rows[0]['qualification'])
 
     def test_offline_metadata(self):
