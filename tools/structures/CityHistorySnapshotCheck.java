@@ -2,6 +2,7 @@ import dev.jayms.net.*;
 import dev.jayms.net.city.*;
 import java.io.*;
 import java.nio.file.*;
+import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.util.*;
 import java.util.zip.CRC32;
@@ -12,6 +13,9 @@ public final class CityHistorySnapshotCheck {
     interface Action{void run()throws Exception;}
     static void require(boolean value,String message){if(!value)throw new AssertionError(message);}
     static void reject(Class<? extends Throwable> type,Action action)throws Exception{try{action.run();}catch(Throwable error){if(type.isInstance(error)){rejected++;return;}throw new AssertionError(error);}throw new AssertionError("Unexpected acceptance");}
+    static class Source extends ByteArrayInputStream {boolean closed;Source(byte[] bytes){super(bytes);}@Override public void close(){closed=true;}int consumed(){return pos;}}
+    static byte[] checksum(byte[] bytes){var crc=new CRC32();crc.update(bytes,0,bytes.length-8);ByteBuffer.wrap(bytes).putLong(bytes.length-8,crc.getValue());return bytes;}
+    static byte[] patch(byte[] bytes,int offset,int value){var copy=bytes.clone();ByteBuffer.wrap(copy).putInt(offset,value);return checksum(copy);}
     static class Sink extends ByteArrayOutputStream {boolean closed;@Override public void close(){closed=true;}}
     static byte[] snapshot(CityHistory history,String fingerprint,int maximum)throws IOException{var out=new ByteArrayOutputStream();history.writeSnapshot(out,fingerprint,maximum);return out.toByteArray();}
     public static void main(String[] args)throws Exception {
@@ -29,8 +33,23 @@ public final class CityHistorySnapshotCheck {
             var broken=new OutputStream(){int count;public void write(int value)throws IOException{if(count++==30)throw new IOException("Synthetic sink failure");}};reject(IOException.class,()->history.writeSnapshot(broken,fingerprint,(int)CityHistory.MAX_BYTES));
             require(identity.equals(history.identity())&&revision==history.revision()&&latest==history.latest()&&catalog.equals(history.catalog())&&frame.equals(sim.frame()),"Read-only snapshot mutated simulation/history");require(Arrays.equals(bytes,snapshot(history,fingerprint,bytes.length)),"Retry changed payload");
             Path copied=root.resolve("copy.history");Files.write(copied,bytes);var loaded=CityHistory.load(copied,city,sim.config(),sim.frame().elapsed());require(identity.equals(loaded.identity())&&revision==loaded.revision()&&latest==loaded.latest()&&catalog.equals(loaded.catalog())&&!catalog.isEmpty(),"Production loader rejected stream snapshot");
+            var source=new Source(bytes);var strict=CityHistory.readSnapshot(source,fingerprint,sim.config(),frame.elapsed(),bytes.length);require(!source.closed&&source.consumed()==bytes.length&&strict.identity().equals(identity)&&strict.revision()==revision&&strict.latest()==latest&&strict.catalog().equals(catalog),"Strict reader differs or closed caller stream");
+            for(int maximum:new int[]{0,1,bytes.length-1}){var shortSource=new Source(bytes);reject(IOException.class,()->CityHistory.readSnapshot(shortSource,fingerprint,sim.config(),frame.elapsed(),maximum));require(shortSource.consumed()<=maximum+1&&!shortSource.closed,"Reader exceeded byte budget/probe or closed caller stream");}
+            for(int maximum:new int[]{-1,(int)CityHistory.MAX_BYTES+1}){var invalidSource=new Source(bytes);reject(IllegalArgumentException.class,()->CityHistory.readSnapshot(invalidSource,fingerprint,sim.config(),frame.elapsed(),maximum));require(invalidSource.consumed()==0&&!invalidSource.closed,"Invalid budget consumed input");}
+            for(double elapsed:new double[]{-1,Double.NaN,Double.POSITIVE_INFINITY})reject(IllegalArgumentException.class,()->CityHistory.readSnapshot(new Source(bytes),fingerprint,sim.config(),elapsed,bytes.length));
+            reject(IOException.class,()->CityHistory.readSnapshot(new Source(bytes),"f".repeat(64),sim.config(),frame.elapsed(),bytes.length));
+            for(int length:new int[]{0,27,bytes.length-1,bytes.length+1})reject(IOException.class,()->CityHistory.readSnapshot(new Source(Arrays.copyOf(bytes,length)),fingerprint,sim.config(),frame.elapsed(),bytes.length+1));
+            var crcBroken=bytes.clone();crcBroken[crcBroken.length-1]^=1;reject(IOException.class,()->CityHistory.readSnapshot(new Source(crcBroken),fingerprint,sim.config(),frame.elapsed(),bytes.length));
+            var raw=new ByteArrayInputStream(bytes);var fields=new DataInputStream(raw);fields.readInt();fields.readInt();fields.readUTF();fields.readLong();fields.readLong();fields.readLong();int clockOffset=bytes.length-raw.available();fields.readDouble();fields.readDouble();fields.readDouble();fields.readBoolean();int epochOffset=bytes.length-raw.available();int epochs=fields.readInt();for(int i=0;i<epochs;i++){fields.readInt();fields.readDouble();fields.readDouble();fields.readDouble();fields.readBoolean();}int catalogOffset=bytes.length-raw.available();
+            for(int[] invalid:new int[][]{{0,0},{4,2},{epochOffset,-1},{epochOffset,65},{catalogOffset,-1},{catalogOffset,CityHistory.MAX_SERIES+1}})reject(IOException.class,()->CityHistory.readSnapshot(new Source(patch(bytes,invalid[0],invalid[1])),fingerprint,sim.config(),frame.elapsed(),bytes.length));
+            var badClock=bytes.clone();ByteBuffer.wrap(badClock).putDouble(clockOffset,Double.NaN);checksum(badClock);reject(IOException.class,()->CityHistory.readSnapshot(new Source(badClock),fingerprint,sim.config(),frame.elapsed(),bytes.length));
+            var brokenSource=new InputStream(){int count;public int read()throws IOException{if(count==30)throw new IOException("Synthetic source failure");return count<bytes.length?bytes[count++]&255:-1;}};reject(IOException.class,()->CityHistory.readSnapshot(brokenSource,fingerprint,sim.config(),frame.elapsed(),bytes.length));
+            var zeroSource=new Source(bytes){@Override public synchronized int read(byte[] target,int offset,int length){if(consumed()>=10)return 0;return super.read(target,offset,Math.min(length,10-consumed()));}};
+            try{CityHistory.readSnapshot(zeroSource,fingerprint,sim.config(),frame.elapsed(),bytes.length);throw new AssertionError("Zero-progress source accepted");}catch(IOException invalid){require(invalid.getMessage().equals("No history read progress"),"Zero-progress case did not reach progress guard");rejected++;}
+            Files.write(copied,crcBroken);var fallback=CityHistory.load(copied,city,sim.config(),frame.elapsed());require(fallback.catalog().isEmpty()&&!fallback.identity().equals(identity),"File loader lost graceful fallback");
+            require(identity.equals(history.identity())&&revision==history.revision()&&latest==history.latest()&&catalog.equals(history.catalog())&&frame.equals(sim.frame()),"Strict restore failure mutated source");require(CityHistory.readSnapshot(new Source(bytes),fingerprint,sim.config(),frame.elapsed(),bytes.length).identity().equals(identity),"Strict reader retry failed");
             reject(IOException.class,()->history.save(root.resolve("city.history"),root.resolve("absent-city")));require(Arrays.equals(saved,Files.readAllBytes(root.resolve("city.history")))&&!Files.exists(root.resolve("city.history.tmp")),"Failed file save replaced prior history or leaked temp");require(Arrays.equals(cityBytes,Files.readAllBytes(city)),"Snapshot changed city source");
         }finally{try(var paths=Files.walk(root)){for(var path:paths.sorted(Comparator.reverseOrder()).toList())Files.delete(path);}}
-        System.out.printf("{\"status\":\"passed\",\"existing_wire_version\":1,\"populated_bytes\":%d,\"rejection_cases\":%d,\"production_loader\":true,\"source_unchanged\":true,\"active_city_adapter\":false,\"qualification\":false}%n",populatedBytes,rejected);
+        System.out.printf("{\"status\":\"passed\",\"existing_wire_version\":1,\"populated_bytes\":%d,\"rejection_cases\":%d,\"production_loader\":true,\"strict_stream_reader\":true,\"source_unchanged\":true,\"live_region_backend\":false,\"qualification\":false}%n",populatedBytes,rejected);
     }
 }

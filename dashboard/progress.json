@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-31T15:47:25+00:00",
+  "updatedAt": "2026-10-31T16:11:26+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Private LocalGame owner backup now retains active city/history with exact stale-state checks. Five affected integrations passed; actual CLI passed 28 rejection cases and production-loader restart checks. Fresh image saved. Live backend and full city/GPU/32-client qualification remain pending.",
-      "updatedAt": "2026-10-31T15:47:25+00:00"
+      "note": "Added strict bounded CityHistory stream restore while retaining normal file-loader fallback. Final 14 production regressions and 5 tool integrations passed; actual CLI passed 34 rejection cases. Fresh image saved. Live backend and full city/GPU/32-client qualification remain pending.",
+      "updatedAt": "2026-10-31T16:11:26+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

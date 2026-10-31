@@ -70,8 +70,9 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
         self.assertEqual(row['status'], 'passed')
         self.assertEqual(row['existing_wire_version'], 1)
         self.assertTrue(row['production_loader'])
+        self.assertTrue(row['strict_stream_reader'])
         self.assertTrue(row['source_unchanged'])
-        self.assertFalse(row['active_city_adapter'])
+        self.assertFalse(row['live_region_backend'])
         self.assertFalse(row['qualification'])
 
     def test_offline_owner(self):
