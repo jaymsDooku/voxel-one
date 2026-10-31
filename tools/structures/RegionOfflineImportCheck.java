@@ -43,7 +43,7 @@ public final class RegionOfflineImportCheck {
             require(Arrays.equals(bytes,Files.readAllBytes(source)),"Migration modified legacy source");
             // Locate fields using existing codecs rather than assumptions about definition byte lengths.
             var raw=new ByteArrayInputStream(bytes);var in=new DataInputStream(raw);in.readInt();in.readLong();in.readInt();if(version==9)ModelLibrary.readAll(in);else ModelLibrary.read(in);Inventory.read(in);int healthOffset=bytes.length-raw.available();in.readByte();int editOffset=bytes.length-raw.available();int n=in.readInt();for(int i=0;i<n;i++)Protocol.Edit.read(in);int dropOffset=bytes.length-raw.available();
-            reject(IOException.class,()->RegionOfflineImportPrototype.decode(patch(bytes,0,7),()->false));reject(IOException.class,()->RegionOfflineImportPrototype.decode(patch(bytes,12,0),()->false));
+            reject(IOException.class,()->RegionOfflineImportPrototype.decode(patch(bytes,0,2),()->false));reject(IOException.class,()->RegionOfflineImportPrototype.decode(patch(bytes,12,0),()->false));
             var badHealth=bytes.clone();badHealth[healthOffset]=21;reject(IOException.class,()->RegionOfflineImportPrototype.decode(badHealth,()->false));
             for(int count:new int[]{-1,200001})reject(IOException.class,()->RegionOfflineImportPrototype.decode(patch(bytes,editOffset,count),()->false));
             for(int count:new int[]{-1,100001})reject(IOException.class,()->RegionOfflineImportPrototype.decode(patch(bytes,dropOffset,count),()->false));

@@ -247,16 +247,19 @@ fresh CLI screenshot: `structure-offline-metadata.json` and
 `structure-offline-metadata-cli.png`. Complete legacy migration, city-sidecar and
 server-player handling, responsive integration and qualification remain pending.
 
-`RegionOfflineImportPrototype` parses bounded offline v8/v9 base-file bytes into
-a detached region/library/survival envelope. It uses the production readers,
-streams edits into private replay and checks final encoded admission before
-return. Six synthetic LocalGame save/load fixtures cover both formats and all
-three terrain versions. Older versions, sidecars, server state and automatic
-migration are not implemented; actual game save paths remain unchanged. Private
-limits are 16 MiB source, 8 MiB model section and 200,000 source edits, plus the
-existing final-cell/region/leaf/envelope limits. These are diagnostic limits.
-Report and fresh CLI image: `structure-offline-import.json` and
-`structure-offline-import-cli.png`.
+`RegionOfflineImportPrototype` parses bounded offline v3..9 base-file bytes into
+a detached region/library/survival envelope. It uses the production versioned
+readers, streams edits into private replay and checks final encoded admission
+before return. Thirteen synthetic fixtures cover all seven formats and the
+three terrain versions where the format stores them. Older formats retain the
+implicit legacy terrain version, version 3's absent model table, legacy item
+restrictions and pre-v6 default colour behavior. Sidecars, server state and
+automatic migration are not implemented; actual game save paths remain unchanged.
+Private limits are 16 MiB source, 8 MiB model section and 200,000 source edits,
+plus existing final-cell/region/leaf/envelope limits. These are diagnostic limits.
+Current report and fresh CLI image: `structure-offline-legacy-import.json` and
+`structure-offline-legacy-import-cli.png`. Earlier v8/v9 fixture evidence is
+retained in `structure-offline-import.json`.
 
 Reference hardware and network qualification is deferred. The current commit
 path serializes placements and validates/stages work off-thread, but final owner

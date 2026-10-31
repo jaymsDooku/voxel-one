@@ -1,5 +1,44 @@
 # Structure review fix checkpoint
 
+## Private importer covers offline versions 3 through 9
+
+Exact parent `38e87716` has eight successful platform builds; publication skipped.
+All 224 native source hashes remain unchanged; no unchanged game/Maven checks rerun.
+
+Expanded the bounded detached importer using the exact LocalGame reader branches:
+version 3 has no model table; v4..8 use the legacy model library and v9 the full
+world codec. Generator version is explicit from v7, otherwise legacy terrain1.
+Edits use readLegacy for v3/4, readV7 for v5 and read for v6 onward. Old default
+LED color and pre-v8 inventory/drop item restrictions are retained. Minimum v3
+size is 93 bytes. Private byte/count/cell/region/leaf budgets remain unchanged.
+The old v8/v9 unsupported-version test now uses version2, which remains invalid.
+
+Nine affected integration tests and all 42 final tool tests passed, with zero
+failures/errors/skips. Seven hand-built old-format fixtures use existing codecs
+and correct edit prefixes; the actual LocalGame loader is the oracle. Formats
+3..6 cover implicit terrain1, v7 covers terrain1/2/3. Six existing v8/v9 fixtures
+also pass: 13 fixtures across all seven formats. Full/fractional/model geometry,
+explicit air, seeded terrain, implicit/explicit LED colors, every inventory byte,
+health, drops and exact model IDs/authors/unused aliases match. Private restart
+retains metadata and unused models; legacy source bytes remain unchanged.
+
+Old-format CLI passed 77 rejection cases, including modern item190 rejected from
+legacy inventories and drops, unsupported versions0/2/10, truncation/trailing
+bytes, cancellation and retry. A minimal v3 default-only world also passes.
+No real user/account files were read. Source fixtures are synthetic and removed.
+
+Playtest: actual LocalGame loader through the private importer and generation
+store. Expected version-specific parity and safe rejection; observed passed.
+Browser/game playtesting does not apply to tools-only code. Fresh assigned-display
+window showed actual child exit0/result and was captured window-only and inspected.
+Image: `structure-offline-legacy-import-cli.png`; report:
+`structure-offline-legacy-import.json`.
+
+Automatic production migration, city-sidecar/server-player handling, ordinary-edit
+persistence, restart undo and responsive integration remain pending. Full
+city/maximum, physical GPU/shaped-network 32-client budgets and storage durability
+remain gated. No ready/stable claim and no production admission cap changes.
+
 ## Bounded offline v8/v9 base-file migration
 
 Exact parent `db970e8d` has eight successful platform builds; publication skipped.
