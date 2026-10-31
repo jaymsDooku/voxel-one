@@ -15,6 +15,7 @@ public final class RegionWorldLibraryPrototype {
     private final RegionHistoryPrototype geometry;
     private final ModelLibrary library;
     private RegionWorldLibraryPrototype(RegionHistoryPrototype geometry,ModelLibrary library){this.geometry=geometry;this.library=library;}
+    RegionHistoryPrototype geometrySnapshot(){return geometry;}
     private static void check(BooleanSupplier cancel){if(Thread.currentThread().isInterrupted()||cancel.getAsBoolean())throw new CancellationException();}
     private static byte[] libraryBytes(ModelLibrary library,BooleanSupplier cancel)throws IOException {
         var sink=new RegionHistoryPrototype.LimitedOutput(MAX_LIBRARY_BYTES,cancel);

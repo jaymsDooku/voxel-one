@@ -23,11 +23,14 @@ public final class RegionAuthorityPrototype implements StructureEngine.Authority
         var loaded=store.load(()->false);var known=new LinkedHashMap<Position,SparseVoxelOctree>();
         if(loaded.isEmpty())root=new Root(0,0,new WorldVoxels(new Terrain(seed,version)),new ModelLibrary(),Map.of());
         else {
-            var saved=loaded.orElseThrow();var restored=saved.manifest().restore(new ModelLibrary(),()->false);
-            var identity=saved.manifest().geometrySnapshot();
+            var saved=loaded.orElseThrow();
+            var identity=saved.formatVersion()==1?saved.manifest().geometrySnapshot():saved.worldLibrary().geometrySnapshot();
             if(identity.terrainSeed()!=seed||identity.terrainVersion()!=version)throw new IOException("World identity mismatch");
-            for(var region:saved.manifest().geometrySnapshot().regions().values())for(var cell:region)known.put(new Position(cell.x(),cell.y(),cell.z()),restored.world().cell(cell.x(),cell.y(),cell.z()));
-            root=new Root(0,saved.generation(),restored.world(),restored.models(),Collections.unmodifiableMap(known));
+            WorldVoxels world;ModelLibrary models;
+            if(saved.formatVersion()==1){var restored=saved.manifest().restore(new ModelLibrary(),()->false);world=restored.world();models=restored.models();}
+            else {var restored=saved.worldLibrary().restore(()->false);world=restored.world();models=restored.models();}
+            for(var region:identity.regions().values())for(var cell:region)known.put(new Position(cell.x(),cell.y(),cell.z()),world.cell(cell.x(),cell.y(),cell.z()));
+            root=new Root(0,saved.generation(),world,models,Collections.unmodifiableMap(known));
         }
     }
     @Override public Object lock(){return lock;}
@@ -65,9 +68,8 @@ public final class RegionAuthorityPrototype implements StructureEngine.Authority
         for(var entry:cells.entrySet()){check(cancel);var p=entry.getKey();var tree=entry.getValue().copy().freeze();world.replaceCell(p.x(),p.y(),p.z(),tree);known.put(p,tree);if(known.size()>100_000)throw new IOException("Private final-cell budget");}
         var records=new ArrayList<Protocol.CellState>();
         for(var entry:known.entrySet()){check(cancel);var p=entry.getKey();records.add(new Protocol.CellState(p.x(),p.y(),p.z(),entry.getValue()));}
-        var geometry=RegionHistoryPrototype.fromCells(seed,terrainVersion,records,BUDGET,cancel);var definitions=new HashMap<Integer,ModelDefinition>();
-        for(var entry:stagedModels.entries()){check(cancel);definitions.put(entry.id(),entry.definition());}
-        var manifest=RegionDependencyPrototype.capture(geometry,definitions,cancel);var file=store.stage(manifest,cancel);
+        var geometry=RegionHistoryPrototype.fromCells(seed,terrainVersion,records,BUDGET,cancel);
+        var worldLibrary=RegionWorldLibraryPrototype.capture(geometry,stagedModels,cancel);var file=store.stage(worldLibrary,cancel);
         if(file.expectedGeneration()!=expected.generation()){file.close();throw new IOException("Disk generation changed; reload");}
         var candidate=new Root(expected.revision()+1,file.nextGeneration(),world,stagedModels,Collections.unmodifiableMap(known));
         return new StructureEngine.Commit(){

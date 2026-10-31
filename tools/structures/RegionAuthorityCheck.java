@@ -67,6 +67,37 @@ public final class RegionAuthorityCheck {
             reject(IOException.class,"identity",()->new RegionAuthorityPrototype(path,124,Terrain.CURRENT_VERSION));
             reject(IOException.class,"identity",()->new RegionAuthorityPrototype(path,123,Terrain.LEGACY_VERSION));
         }
+        // Whole-library generations retain unused assets and exact IDs across placement, undo and restart.
+        var libraryPath=work.resolve("whole-library");var libraryAuthority=open(libraryPath);var whole=libraryAuthority.models();
+        var customTree=new SparseVoxelOctree(8);customTree.set(1,2,3,0xff998877);
+        var custom=new ModelDefinition("unplaced synthetic",customTree);
+        whole.accept(new ModelLibrary.Entry(42,"synthetic",custom));whole.accept(new ModelLibrary.Entry(75,"fixture",custom));
+        whole.acceptWorldEntry(new ModelLibrary.Entry(4096,"structure",custom));
+        libraryAuthority.commit(whole,Map.of());
+        require(new RegionGenerationPrototype(libraryPath).load(()->false).orElseThrow().formatVersion()==2,"Authority did not publish v2");
+        var libraryEngine=new StructureEngine();place(libraryEngine,asset,anchor,libraryAuthority);
+        var placedLibrary=libraryAuthority.models();libraryEngine.undo("synthetic",libraryAuthority);undos++;
+        var libraryRestart=open(libraryPath);
+        for(var entry:placedLibrary.entries()){var restored=libraryRestart.models().get(entry.id());require(restored!=null&&restored.author().equals(entry.author())&&restored.definition().fingerprint().equals(entry.definition().fingerprint()),"Restart lost unplaced asset/alias/author/ID");}
+        require(libraryRestart.models().entries().size()==5,"Undo discarded the now-unplaced component");
+        require(libraryRestart.generation()==3&&libraryRestart.cell(anchor.x(),anchor.y(),anchor.z()).occupied()==0,"Library undo/restart differs");
+        // A v1 generation is read with its original remapping semantics, then upgraded on the next save.
+        var legacyPath=work.resolve("legacy-v1");var legacyStore=new RegionGenerationPrototype(legacyPath);
+        var legacyTree=solid(4096);var legacyPosition=new Position(800,128,800);
+        var legacyGeometry=RegionHistoryPrototype.fromCells(123,Terrain.CURRENT_VERSION,List.of(new Protocol.CellState(800,128,800,legacyTree)),new RegionHistoryPrototype.CodecBudget(8192,1,1,1),()->false);
+        var legacyManifest=RegionDependencyPrototype.capture(legacyGeometry,Map.of(4096,custom),()->false);
+        try(var stage=legacyStore.stage(legacyManifest,()->false)){stage.commit(()->false);}
+        require(legacyStore.load(()->false).orElseThrow().formatVersion()==1,"Legacy stage version changed");
+        var upgraded=open(legacyPath);var legacyView=upgraded.snapshot();var migratedId=WorldVoxels.decode(upgraded.cell(800,128,800).uniform(0,0,0,16));
+        require(migratedId==1024,"Legacy dependency remapping changed");
+        var upgradeEngine=new StructureEngine();place(upgradeEngine,asset,anchor,upgraded);
+        require(legacyStore.load(()->false).orElseThrow().formatVersion()==2,"Next authority save did not upgrade v1");
+        physical(legacyView,open(legacyPath),legacyPosition);
+        var upgradedBytes=Files.readAllBytes(legacyPath.resolve("current.region"));
+        reject(IOException.class,"downgrade",()->legacyStore.stage(legacyManifest,()->false));
+        require(Arrays.equals(upgradedBytes,Files.readAllBytes(legacyPath.resolve("current.region")))&&temps(legacyPath)==0,"Rejected downgrade changed disk");
+        require(open(legacyPath).models().get(migratedId).definition().fingerprint().equals(custom.fingerprint()),"Upgrade changed remapped library ID");
+        upgradeEngine.undo("synthetic",upgraded);undos++;physical(legacyView,open(legacyPath),legacyPosition);
         var stalePath=work.resolve("stale-root");var stale=open(stalePath);var staleEngine=new StructureEngine();
         stale.beforeApply=()->{try{stale.edit(new Protocol.Edit(300,128,300,Blocks.GLASS));}catch(IOException failure){throw new UncheckedIOException(failure);}};
         reject(IOException.class,"Root changed",()->place(staleEngine,asset,anchor,stale));
@@ -120,6 +151,6 @@ public final class RegionAuthorityCheck {
         reject(IOException.class,"Leaf budget",()->RegionHistoryPrototype.fromCells(123,3,List.of(cell),new RegionHistoryPrototype.CodecBudget(1024,1,1,0),()->false));
         reject(IOException.class,"Terrain version",()->RegionHistoryPrototype.fromCells(123,0,List.of(cell),budget,()->false));
         reject(CancellationException.class,null,()->RegionHistoryPrototype.fromCells(123,3,List.of(cell),budget,()->true));
-        System.out.printf("{\"status\":\"passed\",\"rotations\":4,\"successful_placements\":%d,\"successful_undos\":%d,\"rejection_cases\":%d,\"production_integration\":false,\"qualification\":false}%n",placements,undos,rejected);
+        System.out.printf("{\"status\":\"passed\",\"rotations\":4,\"world_library_generation\":2,\"v1_upgrade\":true,\"retained_library_entries\":5,\"successful_placements\":%d,\"successful_undos\":%d,\"rejection_cases\":%d,\"production_integration\":false,\"qualification\":false}%n",placements,undos,rejected);
     }
 }
