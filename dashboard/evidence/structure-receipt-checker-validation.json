@@ -15,5 +15,15 @@
     "Independent exact-source, fixture, hardware, media and measurement review remains required.",
     "No synthetic passing receipt is game qualification.",
     "City/maximum admission, 20-run full-pipeline and physical GPU/shaped-network qualification remain pending."
-  ]
+  ],
+  "decoded_size_followup": {
+    "parent_head": "72e63d2a9c4b061c425d9da30b5b66e0431a12c6",
+    "change": "Require positive integer decoded_bytes <=512 MiB for both fixtures; missing/invalid/oversized sizes reject before receipt budget pass.",
+    "command": "python3 -m unittest discover -s tools/structures -p \"test_*.py\" -v",
+    "result": "25 tests passed, 0 failures/errors. Boundary 512 MiB accepted; above boundary and missing/zero/negative/boolean/string values rejected for both fixtures. Actual CLI subprocess rejected oversized maximum receipt. All data synthetic; not game qualification.",
+    "playtest": "Playtest: affected CLI integration exercised synthetic valid receipt and malformed/component/oversized receipt rejection. Browser playtesting does not apply to CLI-only change.",
+    "native": "Production Java and harness unchanged; all 219 manifest entries match. Published exact-parent workflow video matches local bytes/hash. No new native recording needed.",
+    "hosted": "All eight platform builds for parent passed; new tooling edits await hosted validation.",
+    "qualification": "PENDING; populated city/maximum admission and all physical/network performance gates remain unresolved."
+  }
 }
