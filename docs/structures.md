@@ -1217,3 +1217,7 @@ Chunk and distinct-history-cell indexes use linked iteration so capture cursors 
 ### Private region stream codec
 
 The diagnostic region codec accepts caller-owned input/output streams while retaining its version1 bytes and existing caps. The decoder expects one frame ending at EOF, checks CRC, supports cancellation and reads at most its byte cap plus one trailing-data probe. The writer can leave a prefix on failure; callers must stage output before publication. Neither API closes caller streams. Blocking IO belongs on a worker. This removes the stream API's need for a whole encoded-input array; decoded geometry is still materialized. It does not select a production backend or establish memory/performance qualification. See dashboard/evidence/structure-region-stream.json.
+
+### Private envelope section views
+
+The private envelope decoder now parses its library and geometry through bounded views of the existing encoded envelope array. The geometry parser uses the region stream API. Each view ends at its declared section boundary, preventing a valid geometry parser from reading following metadata. Versions 1–4 retain byte-exact roundtrips; invalid lengths and CRC corruption still reject. This removes redundant encoded section copies. The outer envelope and decoded state remain materialized, so no peak-memory improvement is claimed. Existing limits and production integration gates remain unchanged. See dashboard/evidence/structure-envelope-view.json.

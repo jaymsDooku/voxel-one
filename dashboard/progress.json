@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-31T20:52:30+00:00",
+  "updatedAt": "2026-10-31T21:13:26+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Private region stream codec preserves format and caps;7 integrations and16 rejection cases passed. Published native video hash verified. Production region integration and full city/GPU/32-client qualification remain pending.",
-      "updatedAt": "2026-10-31T20:52:30+00:00"
+      "note": "Private envelope library/geometry decode uses bounded section views;6 integrations and40 rejection cases passed. Production region integration and full city/GPU/32-client qualification remain pending.",
+      "updatedAt": "2026-10-31T21:13:26+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
