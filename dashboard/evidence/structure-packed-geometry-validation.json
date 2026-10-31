@@ -1,0 +1,375 @@
+{
+  "schema": 1,
+  "parent_head": "ff2b269f965eb46b23bc888a000f7ccd75c026c5",
+  "scope": "Bounded in-memory structure-cell geometry representation; VSTR wire and all admission caps unchanged.",
+  "qualification": "NOT QUALIFIED",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu_model": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)"
+  },
+  "tests": {
+    "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest='Structure*Test,VoxelModelTest' test > target/structure-packed-geometry-tests.log 2>&1",
+    "exit_code": 0,
+    "suites": [
+      {
+        "name": "dev.jayms.net.structure.StructureBufferedCodecTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureEncodeCancellationTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureOccupancyTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureLeafCountTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureOfflineStampTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureModelAdmissionTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureCellReadTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureTest",
+        "tests": "25",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.structure.StructurePlacementCellsTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.structure.StructureOrderTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureCaptureModelTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.structure.StructureModelCodecTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.structure.StructurePackedGeometryTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureCaptureChunkTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureFileReadTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureLeafVisitorTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureMultiplayerTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureDecodeCancellationTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureRotationTreeTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureSaveStagingTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureMenuAnchorTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructurePublicationStagingTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.VoxelModelTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureValidationStampTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ],
+    "totals": {
+      "tests": 114,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "coverage": "Independent legacy writer matches packed export exactly, including redundant branches, position extremes, model references and fractional materials. Prefix/payload cross 64 KiB boundaries; old snapshots survive builder growth; geometry is frozen; cell-list equality/hash/contains are stable by physical value. White sentinel raw path works. A synthetic counter tests the 512 MiB guard before allocation; no 512 MiB allocation was claimed."
+  },
+  "probe": {
+    "commands": [
+      "mkdir -p target/structure-packed-geometry-control/src target/structure-packed-geometry-control/classes",
+      "git show HEAD:src/main/java/dev/jayms/net/structure/StructurePackage.java > target/structure-packed-geometry-control/src/StructurePackage.java",
+      "git show HEAD:src/main/java/dev/jayms/net/structure/StructureCells.java > target/structure-packed-geometry-control/src/StructureCells.java",
+      "javac --release 17 -cp target/classes -d target/structure-packed-geometry-control/classes target/structure-packed-geometry-control/src/StructurePackage.java target/structure-packed-geometry-control/src/StructureCells.java",
+      "javac --release 17 -cp target/classes -d target tools/structures/PackedGeometryProbe.java",
+      "java -Xmx1g -cp target/structure-packed-geometry-control/classes:target:target/classes PackedGeometryProbe parent > target/structure-packed-geometry-parent.jsonl",
+      "java -Xmx1g -cp target:target/classes PackedGeometryProbe current > target/structure-packed-geometry-current.jsonl"
+    ],
+    "control_source_sha256": {
+      "StructurePackage": "232f5af6498f727f0e90333c14b516aff2c82418e8098ed5cd5a816c0d169802",
+      "StructureCells": "92d5d94809667acbe3c98beaebe127d12d779372320836883c39321b6fe104c1"
+    },
+    "results": {
+      "parent": [
+        {
+          "implementation": "parent",
+          "fixture": "uniform",
+          "cells": 100000,
+          "operation": "export",
+          "runs": 20,
+          "warmups": 3,
+          "median_ms": 84.979,
+          "p95_ms": 88.975,
+          "worst_ms": 95.361,
+          "median_thread_allocated_bytes": 792208,
+          "retained_heap_delta_bytes": 5843096,
+          "compressed_bytes": 191306,
+          "package_sha256": "daa8c7254a923a1100a3b02fefa256e2d6d5560f273cf054aabd55fa11f6b078"
+        },
+        {
+          "implementation": "parent",
+          "fixture": "uniform",
+          "cells": 100000,
+          "operation": "visit",
+          "runs": 20,
+          "warmups": 3,
+          "median_ms": 1.039,
+          "p95_ms": 1.642,
+          "worst_ms": 1.835,
+          "median_thread_allocated_bytes": 0,
+          "retained_heap_delta_bytes": 5843096,
+          "compressed_bytes": 191306,
+          "package_sha256": "daa8c7254a923a1100a3b02fefa256e2d6d5560f273cf054aabd55fa11f6b078"
+        },
+        {
+          "implementation": "parent",
+          "fixture": "mixed",
+          "cells": 50000,
+          "operation": "export",
+          "runs": 20,
+          "warmups": 3,
+          "median_ms": 140.809,
+          "p95_ms": 150.319,
+          "worst_ms": 153.447,
+          "median_thread_allocated_bytes": 1411760,
+          "retained_heap_delta_bytes": 29722440,
+          "compressed_bytes": 276313,
+          "package_sha256": "9f743d68eea171f51a61101976055d236069538811305dc3c023f33e3e2064ef"
+        },
+        {
+          "implementation": "parent",
+          "fixture": "mixed",
+          "cells": 50000,
+          "operation": "visit",
+          "runs": 20,
+          "warmups": 3,
+          "median_ms": 14.338,
+          "p95_ms": 17.59,
+          "worst_ms": 17.962,
+          "median_thread_allocated_bytes": 0,
+          "retained_heap_delta_bytes": 29722440,
+          "compressed_bytes": 276313,
+          "package_sha256": "9f743d68eea171f51a61101976055d236069538811305dc3c023f33e3e2064ef"
+        }
+      ],
+      "current": [
+        {
+          "implementation": "current",
+          "fixture": "uniform",
+          "cells": 100000,
+          "operation": "export",
+          "runs": 20,
+          "warmups": 3,
+          "median_ms": 79.907,
+          "p95_ms": 96.67,
+          "worst_ms": 106.277,
+          "median_thread_allocated_bytes": 792208,
+          "retained_heap_delta_bytes": 981656,
+          "compressed_bytes": 191306,
+          "package_sha256": "daa8c7254a923a1100a3b02fefa256e2d6d5560f273cf054aabd55fa11f6b078"
+        },
+        {
+          "implementation": "current",
+          "fixture": "uniform",
+          "cells": 100000,
+          "operation": "visit",
+          "runs": 20,
+          "warmups": 3,
+          "median_ms": 2.02,
+          "p95_ms": 4.889,
+          "worst_ms": 5.209,
+          "median_thread_allocated_bytes": 2400000,
+          "retained_heap_delta_bytes": 981656,
+          "compressed_bytes": 191306,
+          "package_sha256": "daa8c7254a923a1100a3b02fefa256e2d6d5560f273cf054aabd55fa11f6b078"
+        },
+        {
+          "implementation": "current",
+          "fixture": "mixed",
+          "cells": 50000,
+          "operation": "export",
+          "runs": 20,
+          "warmups": 3,
+          "median_ms": 57.844,
+          "p95_ms": 59.427,
+          "worst_ms": 62.687,
+          "median_thread_allocated_bytes": 1411760,
+          "retained_heap_delta_bytes": 4055696,
+          "compressed_bytes": 276313,
+          "package_sha256": "9f743d68eea171f51a61101976055d236069538811305dc3c023f33e3e2064ef"
+        },
+        {
+          "implementation": "current",
+          "fixture": "mixed",
+          "cells": 50000,
+          "operation": "visit",
+          "runs": 20,
+          "warmups": 3,
+          "median_ms": 49.469,
+          "p95_ms": 53.822,
+          "worst_ms": 54.936,
+          "median_thread_allocated_bytes": 31600000,
+          "retained_heap_delta_bytes": 4055696,
+          "compressed_bytes": 276313,
+          "package_sha256": "9f743d68eea171f51a61101976055d236069538811305dc3c023f33e3e2064ef"
+        }
+      ]
+    },
+    "method": "100,000 uniform cells and 50,000 mixed cells with two fractional leaves each. Three warmups, 20 measured exports and full visits. Parent/current separate processes, parent first, no test/native overlap. Every exported package and final decode/export SHA matched; every visited cell checked expected value and occupancy.",
+    "limitations": "Single GC-sensitive retained-heap delta per corpus is not peak memory. On-demand access reconstructs trees and increases visit time/allocation. Uniform export p95 also increased in this run. No full-fixture or system qualification."
+  },
+  "native": {
+    "status": "passed",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" > target/structure-packed-geometry-native.log 2>&1",
+    "exit_code": 0,
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "source_files_verified": 220,
+    "source_manifest_sha256": "f51f83e635c7aa3e88b62b33a51ea5b46a04757c93328b1ae2d0cc5ee687e151",
+    "video_bytes": 434292,
+    "video_sha256": "b273f8ac2e98ce98a09094b83bc5e674c0635c9030aa661daddfa523a59e1d42",
+    "video_codec": "H264",
+    "video_frames": 16,
+    "video_duration_s": 28.753,
+    "media_command": "java -cp /home/debian/.m2/repository/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar target/InspectStructureVideo.java dashboard/evidence/structure-workflow.mp4 target/structure-packed-geometry-frame.png",
+    "media_inspected": [
+      "Decoded frame: clear footprint and anchor during repeated placement; synthetic profile only.",
+      "Fresh structure-world-placed.png: two independent brick structures. Software-rendered HUD 1 FPS does not qualify performance."
+    ],
+    "publication": "Local evidence pending controller publication"
+  },
+  "audit": {
+    "review_base": "71612f09bfec4549456b3317676e76cdced085a4",
+    "intended_removal": "Per-cell retained octree reference array replaced by inline values and bounded byte segments. Export uses exact stored wire; Cell equality/hash refined to physical values for lazy reads.",
+    "deleted_paths": [],
+    "diff_check": "passed"
+  },
+  "pending": [
+    "City and maximum admission still fail existing caps.",
+    "Placement/undo node-graph retention, partitioned publication and persistence remain unfinished.",
+    "Physical-GPU, shaped-network, 32-rendered-client and 20-run full-fixture budgets remain pending.",
+    "Exact-head hosted checks and independent review remain required."
+  ],
+  "bounds_reasoning": "A mixed stored record adds a 4-byte prefix, below the 9-byte VSTR per-cell metadata already charged to decoded bytes. Uniform and model cells add no geometry bytes. The storage ceiling therefore does not reduce the existing decoded wire allowance. Each stored 16-resolution tree is below 64 KiB.",
+  "hosted_parent": {
+    "head": "ff2b269f965eb46b23bc888a000f7ccd75c026c5",
+    "platform_builds_succeeded": 8,
+    "publication": "skipped",
+    "scope": "Parent only; changed source needs exact-head hosted checks."
+  }
+}
