@@ -203,6 +203,16 @@ undo, restart loading, stale-root/disk-generation rejection, unrelated-edit
 preservation and injected failure/cancellation cases. Report and fresh CLI image:
 `structure-region-authority.json` and `structure-authority-cli.png`.
 
+A separate tools-only `RegionWorldLibraryPrototype` now validates an exact-ID
+physical-world/library envelope. It round-trips the existing world-model codec,
+retaining unplaced definitions, duplicate-fingerprint aliases, original IDs and
+authors. The detached restore does not remap IDs or mutate its source library.
+CRC, lengths, counts, dependencies and cancellation are checked under private
+16 MiB envelope and 8 MiB library limits. This is not a complete world save:
+inventory and player/transient metadata are absent. It is not connected to the
+private generation authority, LocalGame or the server. Reports and fresh CLI
+image: `structure-world-library.json` and `structure-library-cli.png`.
+
 This adapter is not used by LocalGame or the server. Its physical manifest does
 not preserve inventories, transient/player metadata or unplaced library assets;
 synthetic edits are dirty until a successful later publication. Runtime undo is
