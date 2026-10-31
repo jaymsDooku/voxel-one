@@ -242,6 +242,8 @@ public final class WorldVoxels {
             this.source=source;this.history=history;this.detached=detached;this.terrainRevision=terrainRevision;
             worldRevision=source.geometryRevision;historyRevision=history.revision();cursor=history.cellCopyCursor();
         }
+        public long terrainSeed(){return detached.terrain.seed;}
+        public int terrainVersion(){return detached.terrain.version;}
         private void owner(){if(Thread.currentThread()!=owner)throw new IllegalStateException("Cell snapshot validation requires owner thread");}
         private void terrain(){if(detached.terrain.geometryRevision()!=terrainRevision)throw new ConcurrentModificationException("Terrain changed during cell capture");}
         public boolean unchanged(WorldVoxels current,History currentHistory) {

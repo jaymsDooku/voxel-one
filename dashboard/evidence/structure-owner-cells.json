@@ -1,0 +1,87 @@
+{
+  "parent": "c04b4a708d54cccf3797fbc8076ca900162472b2",
+  "change": "Private offline owner backup overload consumes fenced world-cell snapshots instead of flat history replay. Current-world supplier is read only on owner; terrain identity must match game. Worker reads frozen geometry; existing100k-cell/1024-region/131072-leaf/8MiB geometry and16MiB envelope caps retained. Game metadata/library/city and current world identity/revisions revalidated after encoding and before owner-only private commit. Existing replay overload retained.",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "java": "25.0.3+9-LTS-195",
+    "compile_release": 17,
+    "cli_heap": "512 MiB",
+    "display": "inherited assigned display, synthetic own window"
+  },
+  "commands": [
+    "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=WorldCellSnapshotTest,WorldHistoryCellCursorTest,WorldHistoryIndexTest,StructureOfflineHistoryStagingTest,StructureValidationStampTest test",
+    "javac -encoding UTF-8 --release 17 -cp target:target/classes -d target tools/structures/RegionOfflineOwnerPrototype.java tools/structures/RegionOfflineCellOwnerCheck.java",
+    "java -Xmx512m -cp target:target/classes RegionOfflineCellOwnerCheck",
+    "python3 -m unittest tools.structures.test_region_history.RegionHistoryIntegrationTest.test_offline_cell_owner tools.structures.test_region_history.RegionHistoryIntegrationTest.test_offline_owner tools.structures.test_region_history.RegionHistoryIntegrationTest.test_complete_restore tools.structures.test_region_history.RegionHistoryIntegrationTest.test_actual_engine_authority",
+    "java -cp target:target/classes RegionGenerationEvidence RegionOfflineCellOwnerCheck",
+    "import -display \"$DISPLAY\" -window 2097159 dashboard/evidence/structure-owner-cells-cli.png",
+    "gh pr view 76 --json headRefOid,statusCheckRollup"
+  ],
+  "production_tests": [
+    {
+      "class": "WorldCellSnapshotTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "WorldHistoryCellCursorTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "WorldHistoryIndexTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "StructureOfflineHistoryStagingTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "StructureValidationStampTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "tool_tests": "4 integrations passed in22.951s; no skips.",
+  "cli": {
+    "status": "passed",
+    "captured_cells": 4829,
+    "rejection_cases": 10,
+    "owner_pumps": 69,
+    "world_geometry_capture": true,
+    "legacy_files_unchanged": true,
+    "production_region_backend": false,
+    "qualification": false
+  },
+  "playtest": "Playtest: actual synthetic LocalGame, WorldVoxels and generated CitySimulation whose Ground.apply updates both geometry/history. Capture4829 cells via owner batches and worker reads; private generation1 strict restart preserves all cells, models, health12 and city/history frame. Reject world-only edits, root replacement, health change, terrain generation, history replacement, city advance, pre/mid cancellation, mid-capture root replacement and wrong seed. Ten rejection cases leave current generation unchanged. Retry generation2 contains latest state with health11; legacy world/city/history bytes unchanged.69 owner pumps observed. Direct and displayed child exit0; image inspected. Noninteractive persistence path; browser/native rendering does not apply.",
+  "assumptions": "Caller supplies an initially consistent world/history pair and serializes world, terrain and game mutation on the same owner through commit. The adapter does not prove consistency of arbitrary unrelated input worlds. Post-test edit only clarified this existing caller contract in Javadoc.",
+  "limits": "Small generated city fixture only. World chunk-map snapshot and metadata serialization still occur on owner;100ms stall and peak memory unqualified. No production save backend or automatic migration selected.",
+  "hosted": "Eight parent builds SUCCESS, two publish jobs SKIPPED. New edits require controller publication and exact-head validation.",
+  "native_baseline": "221/224 historical native source files unchanged; LocalGame, WorldVoxels and CityHistory differ. Old native media is not exact-source proof for these persistence changes.",
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/WorldVoxels.java": "fc7a6d79c0344ed5b224cb72e6314d7a9ae4863e4a0a2b11b8ec0cd5630dd05a",
+    "tools/structures/RegionOfflineOwnerPrototype.java": "f4187879ce146fe9d17538f341ff6b23aa1bed716a5b3fddcc5b2f10a950d348",
+    "tools/structures/RegionOfflineCellOwnerCheck.java": "f6c94da750546d7d8d7d82b39dde714d4ea0138edd39acf31fd2a95be0963456",
+    "tools/structures/RegionGenerationEvidence.java": "540bcf207a9a02a6cf7bc369acdd9d92dab028f40a52d50b256f5a649246141d",
+    "tools/structures/test_region_history.py": "4680f5bf9961b0ee91d65c8eb7f5fbd607fd2a21680d6693397739218c6c412a"
+  },
+  "media": {
+    "file": "structure-owner-cells-cli.png",
+    "sha256": "686fe4eb826d36d172cb10a1dbc477d8d67906da8b693437ed3da5a967ae54fb",
+    "publication": "pending controller"
+  },
+  "audit": "No deleted paths against71612f09bfec4549456b3317676e76cdced085a4; no intended deletions. git diff --check passed.",
+  "pending": "Production region persistence/streaming/owner installation, full city/maximum admission and20-run budgets, physical GPU, shaped32-client synchronization, stalls/peak memory and directory durability. Existing caps and rollout gates retained."
+}
