@@ -1,0 +1,263 @@
+{
+  "schema": 1,
+  "parent_head": "e76ff7881b2a5f3ae8e07df82a790392e7c7e43a",
+  "scope": "Structure-model staging, synchronized acceptance and world-save model admission use exact face counting; no format or limit change.",
+  "qualification": "NOT QUALIFIED",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "cpu_model": "Intel Core Processor (Haswell, no TSX)"
+  },
+  "tests": {
+    "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest='Structure*Test,VoxelModelTest' test > target/structure-model-admission-tests.log 2>&1",
+    "exit_code": 0,
+    "suites": [
+      {
+        "name": "dev.jayms.net.structure.StructureBufferedCodecTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureEncodeCancellationTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureOccupancyTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureLeafCountTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureOfflineStampTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureModelAdmissionTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureCellReadTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureTest",
+        "tests": "25",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.structure.StructurePlacementCellsTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.structure.StructureOrderTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureCaptureModelTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.structure.StructureModelCodecTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureCaptureChunkTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureFileReadTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureLeafVisitorTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureMultiplayerTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureDecodeCancellationTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureRotationTreeTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureSaveStagingTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureMenuAnchorTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructurePublicationStagingTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.VoxelModelTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureValidationStampTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ],
+    "totals": {
+      "tests": 110,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "coverage": "8/16/32-resolution valid models keep stable IDs, fingerprints, frozen values and exact world bytes; duplicate staging reuses ID without revision change; independently received definitions and readAll roundtrip match. Over-8192-quads definitions retain the full mesher rejection message and cause no library mutation across stage/accept/read. Existing structure, TLS and legacy model regressions passed."
+  },
+  "probe": {
+    "commands": [
+      "mkdir -p target/structure-model-admission-control/src target/structure-model-admission-control/classes",
+      "git show HEAD:src/main/java/dev/jayms/net/model/ModelLibrary.java > target/structure-model-admission-control/src/ModelLibrary.java",
+      "javac --release 17 -cp target/classes -d target/structure-model-admission-control/classes target/structure-model-admission-control/src/ModelLibrary.java",
+      "javac --release 17 -cp target/classes -d target tools/structures/ModelAdmissionProbe.java",
+      "java -Xmx1g -cp target/structure-model-admission-control/classes:target:target/classes ModelAdmissionProbe parent > target/structure-model-admission-parent.jsonl",
+      "java -Xmx1g -cp target:target/classes ModelAdmissionProbe current > target/structure-model-admission-current.jsonl"
+    ],
+    "control_source_sha256": "7dcadc18d73689456c65ef920561d29a72d0f8fbd407b54148e39e63d35c1972",
+    "results": [
+      {
+        "implementation": "parent",
+        "runs": 20,
+        "warmups": 3,
+        "models_per_batch": 64,
+        "quads_per_model": 1536,
+        "median_ms": 133.609,
+        "p95_ms": 162.922,
+        "worst_ms": 164.75,
+        "median_thread_allocated_bytes": 91433560,
+        "world_models_sha256": "41fcfe861aa9a110226b2922319240bae17708ac8bc9afe68b9b9da8704c62dd"
+      },
+      {
+        "implementation": "current",
+        "runs": 20,
+        "warmups": 3,
+        "models_per_batch": 64,
+        "quads_per_model": 1536,
+        "median_ms": 108.418,
+        "p95_ms": 113.429,
+        "worst_ms": 122.998,
+        "median_thread_allocated_bytes": 32242264,
+        "world_models_sha256": "41fcfe861aa9a110226b2922319240bae17708ac8bc9afe68b9b9da8704c62dd"
+      }
+    ],
+    "method": "Actual ModelLibrary staging; three warmups and 20 batches of 64 unique 16-resolution model definitions with 1,536 quads each. Parent and current in separate processes, parent first; no native run or tests overlapped. Per-batch ID/fingerprint and serialized-byte identity checks outside timing.",
+    "limitations": "Component staging only. Thread allocation is cumulative, not peak memory. No full-system or main-thread/frame qualification."
+  },
+  "native": {
+    "status": "passed",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" > target/structure-model-admission-native.log 2>&1",
+    "exit_code": 0,
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "source_files_verified": 219,
+    "source_manifest_sha256": "64b149977a42989c92be042840ea34f03b9c5c768513848aaf21089a9bf53414",
+    "video_bytes": 380640,
+    "video_sha256": "27f156d5ddea6c6c6ee06762f8291bc512335d423c3e05228c3b5dce336fd4a8",
+    "video_codec": "H264",
+    "video_frames": 15,
+    "video_duration_s": 24.598,
+    "media_command": "java -cp /home/debian/.m2/repository/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar target/InspectStructureVideo.java dashboard/evidence/structure-workflow.mp4 target/structure-model-admission-frame.png",
+    "media_inspected": [
+      "Decoded video frame: staged placement progress, clear footprint and anchor; synthetic profile only.",
+      "Fresh structure-world-placed.png: two independent brick structures. HUD 1 FPS is software functional evidence, not qualification."
+    ],
+    "publication": "Local evidence pending controller publication"
+  },
+  "audit": {
+    "review_base": "71612f09bfec4549456b3317676e76cdced085a4",
+    "intended_change": "Replace three structure-specific render-buffer validation calls with the existing exact count-only path. Legacy model registration/acceptance and legacy readAll entries retain full mesh validation.",
+    "deleted_paths": [],
+    "diff_check": "passed"
+  },
+  "pending": [
+    "Full city dependency-surface and maximum geometry admission still fail; limits are not raised.",
+    "256 affected chunks and 2,000,000 persisted edit records remain further constraints.",
+    "Physical-GPU, shaped-network, 32-rendered-client and 20-run full-fixture budgets remain pending.",
+    "Exact-source hosted checks and independent review remain required."
+  ],
+  "hosted_parent": {
+    "head": "e76ff7881b2a5f3ae8e07df82a790392e7c7e43a",
+    "platform_builds_succeeded": 8,
+    "publication": "skipped",
+    "scope": "Parent checks only; changed source still needs exact-head hosted validation."
+  }
+}

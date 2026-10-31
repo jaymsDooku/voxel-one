@@ -144,7 +144,7 @@ public final class ModelLibrary {
         int existing=fingerprints.getOrDefault(definition.fingerprint(),-1);if(existing>=0)return get(existing);
         var buffer=new ByteArrayOutputStream();definition.write(new DataOutputStream(buffer));
         if(structureCount>=2048||structureBytes+buffer.size()>128L*1024*1024)throw new IOException("Experimental world dependency budget");
-        ModelMesher.mesh(definition.voxels());
+        ModelMesher.count(definition.voxels());
         for(int id=1024;id<66560;id++)if(!entries.containsKey(id)) {
             var entry=new Entry(id,"structure",new ModelDefinition(definition.name(),definition.voxels().copy().freeze()));putUnchecked(entry);structureCount++;structureBytes+=buffer.size();return entry;
         }
@@ -170,7 +170,7 @@ public final class ModelLibrary {
         if(!Blocks.structureModel(entry.id)){accept(entry);return;}
         var bytes=new ByteArrayOutputStream();entry.definition.write(new DataOutputStream(bytes));
         if(structureCount>=2048||structureBytes+bytes.size()>128L*1024*1024||entry.definition.voxels().occupied()==0)throw new IOException("World dependency budget");
-        ModelMesher.mesh(entry.definition.voxels());putUnchecked(new Entry(entry.id,"structure",new ModelDefinition(entry.definition.name(),entry.definition.voxels().copy().freeze())));
+        ModelMesher.count(entry.definition.voxels());putUnchecked(new Entry(entry.id,"structure",new ModelDefinition(entry.definition.name(),entry.definition.voxels().copy().freeze())));
         structureCount++;structureBytes+=bytes.size();
     }
     public static ModelLibrary readAll(DataInputStream in) throws IOException {
@@ -183,7 +183,8 @@ public final class ModelLibrary {
             if(Blocks.structureModel(id)) {extended++;var encoded=new ByteArrayOutputStream();model.write(new DataOutputStream(encoded));bytes+=encoded.size();}
             else custom++;
             if(custom>MAX_CUSTOM||extended>2048||bytes>128L*1024*1024)throw new IOException("World dependency budget");
-            ModelMesher.mesh(model.voxels());result.putUnchecked(new Entry(id,author,new ModelDefinition(model.name(),model.voxels().freeze())));
+            if(Blocks.structureModel(id))ModelMesher.count(model.voxels());else ModelMesher.mesh(model.voxels());
+            result.putUnchecked(new Entry(id,author,new ModelDefinition(model.name(),model.voxels().freeze())));
         }
         result.structureBytes=bytes;result.structureCount=extended;return result;
     }

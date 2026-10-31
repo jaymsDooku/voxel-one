@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Direct octant rotation: 108 structure/model tests and fresh native workflow passed. All four turns match prior bytes; 20-batch component diagnostic recorded. New video inspected; 219 hashes match. Hosted validation needed; city/maximum qualification stays gated.",
-      "updatedAt": "2026-10-31T02:16:42+00:00"
+      "note": "Structure-model admission uses exact face counting without render buffers. 110 structure/model tests and fresh native workflow passed. Component staging bytes match parent; fresh video inspected and 219 hashes verified. Exact-head CI needed; city/maximum qualification remains pending.",
+      "updatedAt": "2026-10-31T02:44:02+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

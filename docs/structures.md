@@ -590,3 +590,24 @@ bytes were compared before timing; output count and sample values were checked
 after each batch. These are rotation-only diagnostics, not peak-memory or full
 capture, preview, placement, save, frame, tick or network qualification. Package
 admission limits and all city/maximum qualification gates remain unchanged.
+
+### Structure-model admission
+
+Staging structure dependencies, accepting their synchronized definitions and
+reading their world-save entries use the exact greedy face counter instead of
+building temporary render arrays. Standalone model registration, legacy custom
+model acceptance and legacy world entries retain their existing paths. The
+8,192-quad per-model limit, definition codec, fingerprints, IDs, freezing and
+world dependency count/byte budgets remain unchanged. Rendering still builds
+the same geometry when a model is used.
+
+A shared-VPS staging diagnostic compared the separately compiled parent library
+with this implementation. After three warmups, 20 measured batches each staged
+64 distinct definitions with 1,536 quads per model. Parent/current median was
+133.609/108.418 ms, p95 162.922/113.429 ms and worst 164.750/122.998 ms.
+Median current-thread allocation was 91,433,560/32,242,264 bytes per batch.
+Every batch checked IDs/fingerprints and the same serialized world-model SHA-256
+outside timing. Parent and current ran in separate processes, parent first.
+This is component staging and cumulative allocation, not peak memory, world-load,
+placement, frame, tick, network or city/maximum qualification. All admission and
+rollout gates remain.
