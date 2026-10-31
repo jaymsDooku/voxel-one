@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-31T15:03:16+00:00",
+  "updatedAt": "2026-10-31T15:24:21+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Added private LocalGame owner-queue snapshot adapter with direct owner-thread publication and stale-state/world-identity fences. CLI passed 20 rejection cases; 15 integration workflows passed through incremental batches. Fresh image saved. Live backend and full city/GPU/32-client qualification remain pending.",
-      "updatedAt": "2026-10-31T15:03:16+00:00"
+      "note": "Added bounded read-only CityHistory stream serialization with existing v1 format retained. Final 14 production regressions and 4 tool integrations passed; actual CLI passed 11 rejection cases. Fresh image saved. Active-city coordination and full city/GPU/32-client qualification remain pending.",
+      "updatedAt": "2026-10-31T15:24:21+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

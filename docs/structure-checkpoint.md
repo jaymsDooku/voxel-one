@@ -1,5 +1,15 @@
 # Structure review fix checkpoint
 
+## Bounded production city-history snapshot writer
+
+Exact parent `b4735e8a` has successful hosted platform builds. Extracted `CityHistory.writeSnapshot(OutputStream,String,int)` from existing file serialization, retaining HIS1 v1 field order, city SHA-256 binding and CRC. New read-only stream API opens no files, collects no samples and leaves caller stream open; output cap0..64MiB includes checksum and applies before writes. Partial frames on failure must be discarded. Existing file save delegates with its unchanged64MiB cap/publication policy; serialization/fingerprint failures now clean temporary history files.
+
+Final14 targeted Maven regressions passed with0 failures/errors/skips: CityHistoryTest8, CityHistoryIntegrationTest1, CityHistoryNetworkTest1, CitySavesTest2, CityFormat16RegressionTest2. Four affected tool integrations passed, no skips. Initial Maven default-cache failure and missing temp-directory14-error run are not passes; switched to existing worktree offline cache, created assigned temp dir and reran. CLI passed independent empty-v1 wire contract, populated stream/file equality239147 bytes, production loader, immutable state, exact/small bounds, throwing sink, invalid binding, failed file-save cleanup and11 rejection cases.
+
+Playtest: actual synthetic CitySimulation/history writer/save/loader and failure/retry, with fresh actual child exit0 own-window image inspected. Persistence-only operation; browser/native rendering does not apply. Of224 native baseline source files,223 unchanged and only CityHistory.java changed. Historical native media is not claimed exact-source proof for this writer; targeted tests and fresh CLI evidence cover it. Final edit after tests was Javadoc warning about partial output only. No deleted paths against review base; diff check passed. Evidence `structure-history-snapshot.json` and `structure-history-snapshot-cli.png`, pending controller publication.
+
+Active city coordination still pending; owner adapter continues to reject active city until frame/history snapshots can be captured and fenced together. No region backend selected. Full city/maximum admission/performance, owner-thread stalls/peak memory, physical GPU, shaped32-client and directory durability gates remain pending. No cap raised or rollout gate weakened.
+
 ## Actual LocalGame owner-queue private backup adapter
 
 Exact parent `cb927db3` has eight successful hosted builds; publication skipped. Added a tools-only adapter over actual synthetic LocalGame and existing StructureOwnerQueue. Worker captures versioned history/model identity+revision and detached survival state on owner, streams at most1,024 edits per owner request, builds bounded region payload/stages private file on worker, and publishes directly on original owner after full revalidation. No mutation goes through the read-only queue. No running-game state or legacy source file is replaced.

@@ -246,32 +246,52 @@ public final class CityHistory {
     public synchronized void save(Path history,Path world) throws IOException {
         if(history==null)return;
         Path tmp=history.resolveSibling(history.getFileName()+".tmp");
-        var checksum=new CRC32();
-        try(var out=new DataOutputStream(new CheckedOutputStream(new BufferedOutputStream(Files.newOutputStream(tmp)),checksum))) {
-            out.writeInt(0x48495331);out.writeInt(VERSION);out.writeUTF(fingerprint(world));
-            out.writeLong(identity.getMostSignificantBits());out.writeLong(identity.getLeastSignificantBits());out.writeLong(revision);
-            out.writeDouble(last);out.writeDouble(latestEvent);out.writeDouble(clock);out.writeBoolean(events);out.writeInt(epochs.size());
-            for(var e:epochs){out.writeInt(e.id());out.writeDouble(e.start());out.writeDouble(e.daySeconds());out.writeDouble(e.startHour());out.writeBoolean(e.cycle());}
-            out.writeInt(catalog.size());
-            for(var m:catalog.values()) {
-                writeMetric(out,m);out.writeDouble(metricStarts.get(m.id()));
-                for(var rows:data.get(m.id())) {
-                    double priorStart=Double.NEGATIVE_INFINITY;int priorEpoch=-1;
-                    for(var b:rows){
-                        if((b.epoch==priorEpoch&&b.start<priorStart) || b.weight>b.end-b.start+1 || !Double.isFinite(b.last))
-                            throw new IOException("Invalid generated history bucket");
-                        priorStart=b.start;priorEpoch=b.epoch;
-                    }
-                    out.writeInt(rows.size());
-                    for(var b:rows){out.writeDouble(b.start);out.writeDouble(b.end);out.writeDouble(b.sum);out.writeDouble(b.weight);out.writeDouble(b.averageWeight);out.writeDouble(b.min);out.writeDouble(b.max);out.writeDouble(b.last);out.writeDouble(b.lastCapture);out.writeInt(b.epoch);out.writeBoolean(b.gap);}
-                }
-            }
-            out.writeInt(previous.size());for(var e:previous.entrySet()){out.writeUTF(e.getKey());out.writeDouble(e.getValue());}
-            out.writeLong(checksum.getValue());
+        try(var target=new BufferedOutputStream(Files.newOutputStream(tmp))) {
+            writeSnapshot(target,fingerprint(world),(int)MAX_BYTES);
+        } catch(IOException|RuntimeException failure) {
+            try{Files.deleteIfExists(tmp);}catch(IOException cleanup){failure.addSuppressed(cleanup);}
+            throw failure;
         }
         if(Files.size(tmp)>MAX_BYTES){Files.delete(tmp);throw new IOException("History size cap exceeded");}
         try{Files.move(tmp,history,StandardCopyOption.REPLACE_EXISTING,StandardCopyOption.ATOMIC_MOVE);}
         catch(AtomicMoveNotSupportedException e){Files.move(tmp,history,StandardCopyOption.REPLACE_EXISTING);}
+    }
+    /** Write the existing history format without opening files or closing the caller's stream.
+     * The caller supplies the SHA-256 of the exact matching city bytes and a bounded output budget.
+     * This read-only operation does not collect samples or change history state.
+     * On failure the target can contain a partial frame; the caller must discard it. */
+    public synchronized void writeSnapshot(OutputStream target,String worldFingerprint,int maximumBytes)throws IOException {
+        Objects.requireNonNull(target);Objects.requireNonNull(worldFingerprint);
+        if(maximumBytes<0||maximumBytes>MAX_BYTES)throw new IllegalArgumentException("History output budget");
+        if(worldFingerprint.length()!=64||!worldFingerprint.chars().allMatch(c->c>='0'&&c<='9'||c>='a'&&c<='f'))throw new IllegalArgumentException("City SHA-256 required");
+        var limited=new OutputStream(){
+            int count;
+            @Override public void write(int value)throws IOException{if(count>=maximumBytes)throw new IOException("History size cap exceeded");target.write(value);count++;}
+            @Override public void write(byte[] bytes,int offset,int length)throws IOException{Objects.checkFromIndexSize(offset,length,bytes.length);if(length>maximumBytes-count)throw new IOException("History size cap exceeded");target.write(bytes,offset,length);count+=length;}
+            @Override public void flush()throws IOException{target.flush();}
+        };
+        var checksum=new CRC32();var out=new DataOutputStream(new CheckedOutputStream(limited,checksum));
+        out.writeInt(0x48495331);out.writeInt(VERSION);out.writeUTF(worldFingerprint);
+        out.writeLong(identity.getMostSignificantBits());out.writeLong(identity.getLeastSignificantBits());out.writeLong(revision);
+        out.writeDouble(last);out.writeDouble(latestEvent);out.writeDouble(clock);out.writeBoolean(events);out.writeInt(epochs.size());
+        for(var e:epochs){out.writeInt(e.id());out.writeDouble(e.start());out.writeDouble(e.daySeconds());out.writeDouble(e.startHour());out.writeBoolean(e.cycle());}
+        out.writeInt(catalog.size());
+        for(var m:catalog.values()) {
+            writeMetric(out,m);out.writeDouble(metricStarts.get(m.id()));
+            for(var rows:data.get(m.id())) {
+                double priorStart=Double.NEGATIVE_INFINITY;int priorEpoch=-1;
+                for(var b:rows){
+                    if((b.epoch==priorEpoch&&b.start<priorStart) || b.weight>b.end-b.start+1 || !Double.isFinite(b.last))
+                        throw new IOException("Invalid generated history bucket");
+                    priorStart=b.start;priorEpoch=b.epoch;
+                }
+                out.writeInt(rows.size());
+                for(var b:rows){out.writeDouble(b.start);out.writeDouble(b.end);out.writeDouble(b.sum);out.writeDouble(b.weight);out.writeDouble(b.averageWeight);out.writeDouble(b.min);out.writeDouble(b.max);out.writeDouble(b.last);out.writeDouble(b.lastCapture);out.writeInt(b.epoch);out.writeBoolean(b.gap);}
+            }
+        }
+        out.writeInt(previous.size());for(var e:previous.entrySet()){out.writeUTF(e.getKey());out.writeDouble(e.getValue());}
+        out.writeLong(checksum.getValue());
+        out.flush();
     }
     public static CityHistory load(Path history,Path world,GameConfig settings,double elapsed) {
         CityHistory h=new CityHistory();
