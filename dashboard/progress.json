@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-31T13:04:20+00:00",
+  "updatedAt": "2026-10-31T13:27:15+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Typed private city/history preservation passes all 43 tool tests and 21 CLI rejection cases. Generated files survive restart and later geometry saves byte for byte; normal loaders match. Fresh report/image await publication. Semantic validation, automatic production migration/server state and full qualification remain pending.",
-      "updatedAt": "2026-10-31T13:04:20+00:00"
+      "note": "Private offline bundle capture/staging now fences exact file bytes/absence and caller source revisions. 44 broad tests passed; 11 affected tests passed after empty-history rejection. Final CLI passed 25 rejection cases and restart/source-preservation checks. Fresh evidence awaits publication; production integration and full qualification remain pending.",
+      "updatedAt": "2026-10-31T13:27:15+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

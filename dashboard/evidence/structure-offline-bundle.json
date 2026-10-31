@@ -1,0 +1,77 @@
+{
+  "parent_head": "01dd6302d41519a95b25e96820aca7199670a11a",
+  "status": "private_file_bundle_source_fencing_passed_production_integration_pending",
+  "source_sha256": {
+    "tools/structures/RegionOfflineBundlePrototype.java": "a46a47f09a1236063d7fdef012b00dbebf81dc4da4eda74953664006202082cd",
+    "tools/structures/RegionOfflineBundleCheck.java": "4d4cf06f372bd0d4482e10c13efb2bed15de0954fbbf0657b7ad78c371cbc210",
+    "tools/structures/RegionSidecarsPrototype.java": "0f8ba37e7f3bea15fd367c0d668ca6909196bc2591f0a7ddf200eb53e471fde3",
+    "tools/structures/RegionSidecarsCheck.java": "7ec4427731863af9d1ac2f80d597550378c53fea25e235cf98f45c915b2ab995",
+    "tools/structures/RegionOfflineImportPrototype.java": "0ed37a0b765b1f4db644cc464ba4e31f24d7b016266b17af5466f2d8366e67ef",
+    "tools/structures/RegionWorldLibraryPrototype.java": "0efad5dcdaa5b5cb1d5aa328769eb99769a192f4bd022f0667597904f6dc8ff1",
+    "tools/structures/RegionGenerationPrototype.java": "e62378c3e42f805654b0bf9bc35e202b49dd614a24a0be191535d60464e0fd91",
+    "tools/structures/RegionAuthorityPrototype.java": "b19f7642cd13d94e144a536ccaaec27a771ef2d871097f22b693e3bb4e18856a",
+    "tools/structures/RegionGenerationEvidence.java": "5999865630bd5994ba819e0c17e8b1563b8112976182b8827eef40d2ae9032fc",
+    "tools/structures/test_region_history.py": "3a9a2af8c4aa597b089cfa5dbaeb12013b94672d61891218ea9c94a6541d3fb9"
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "python": "3.11.2",
+    "java_heap_cap": "-Xmx512m; cap only, not measured peak memory",
+    "execution": "Actual LocalGame/CitySimulation synthetic source files and private generation stage/restart. No graphics game/server or real save/account files.",
+    "capture": "Window-only actual child CLI output on inherited assigned DISPLAY/XAUTHORITY; no authentication values read or printed"
+  },
+  "commands": [
+    "python3 -m unittest discover -s tools/structures -p 'test_region_history.py'",
+    "python3 -m unittest discover -s tools/structures -p 'test_*.py'",
+    "javac --release 17 -cp target/classes -d target tools/structures/RegionHistoryPrototype.java tools/structures/RegionDependencyPrototype.java tools/structures/RegionOfflineMetadataPrototype.java tools/structures/RegionSidecarsPrototype.java tools/structures/RegionWorldLibraryPrototype.java tools/structures/RegionGenerationPrototype.java tools/structures/RegionAuthorityPrototype.java tools/structures/RegionOfflineImportPrototype.java tools/structures/RegionOfflineBundlePrototype.java tools/structures/RegionOfflineBundleCheck.java tools/structures/RegionGenerationEvidence.java",
+    "java -Xmx512m -cp target:target/classes RegionOfflineBundleCheck > target/structure-offline-bundle-check.json",
+    "java -cp target:target/classes RegionGenerationEvidence RegionOfflineBundleCheck",
+    "Window-only ImageMagick import on inherited DISPLAY to dashboard/evidence/structure-offline-bundle-cli.png"
+  ],
+  "observed": {
+    "status": "passed",
+    "bundle_slots": 3,
+    "generation_restart": true,
+    "rejection_cases": 25,
+    "source_files_unchanged": true,
+    "symlink_checked": true,
+    "production_integration": false,
+    "qualification": false
+  },
+  "tests": {
+    "broad_structure_tool_tests_before_final_empty_history_guard": 44,
+    "final_affected_integration_tests": 11,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "sequence": "Eleven initial integration tests and 44 broad tests passed. Inspection found that an empty history file could be treated as absent. Added rejection in capture/sidecar codec, preserving encoded absent-history representation; all 11 affected integration tests then passed. Final CLI/child exit0 and image match final source.",
+    "symlink_platform_note": "Symlink creation/rejection actually ran locally and result is true. Platforms unable to create the synthetic symlink report symlink_checked:false; no pass is invented for that subcase."
+  },
+  "implementation": {
+    "slots": "Exactly the base path and fixed .city/.city.history siblings; no arbitrary source slots or embedded filenames. Require caller-owned trusted parent directory. No legacy source file replacement.",
+    "capture": "Require caller-held shared monitor and nonnegative monotonic source revision before file reads. Read regular files with NOFOLLOW, size from the same opened channel and at most 64 KiB per read, checking cancellation and truncation/growth. Enforce 16 MiB base plus 4 MiB combined sidecars. Orphan and empty history files reject. Copy bytes and recheck exact bytes/absence plus source revision before returning snapshot.",
+    "staging": "Detached parsing and private generation force may run outside source monitor. Snapshot does not expose source arrays. Publication requires the same monitor, unchanged source revision and exact source bytes/absence before existing private generation commit. Competing destination generation fences remain in force.",
+    "contract": "Every source writer must share the caller monitor/revision. This is not exclusion of arbitrary external processes. Unsaved in-memory edits are fenced only when their owner advances the supplied revision. Source copying/revalidation remains synchronous and unqualified for the game-thread budget."
+  },
+  "cases": [
+    "Base-only source capture/stage/commit/restart retains inventory/health; actual full base/city/history bundle retains exact sidecar bytes",
+    "Capture and commit without the required source monitor reject; source revision change rejects even when disk bytes are identical",
+    "Changed/removed base, newly present city/history and modified/removed sidecars reject before destination publication; old saved bytes stay unchanged and private stage cleanup succeeds",
+    "A revision change during capture validation rejects; negative revision rejects",
+    "Two private destination stages compete: first commits, second rejects stale generation; repeated commit of closed stage rejects",
+    "Pre/mid-cancel and thread interruption reject; valid retry commits",
+    "Orphan history, empty history, directory source, sparse oversized base and actual local symlink reject",
+    "Test-injected source changes are restored; final source base/city/history bytes match originals and no private stages remain"
+  ],
+  "playtest": "Playtest: actual synthetic offline file-bundle CLI from source capture through private staging, source revalidation, commit and restart. Expected preservation and source/destination fencing; observed passed with 25 rejection cases. Source files stayed unchanged by migration. Fresh actual child exit0/result captured and visually inspected. Browser/game playtesting does not apply to tools-only migration code. All 224 native workflow source hashes remain unchanged.",
+  "image": {
+    "path": "dashboard/evidence/structure-offline-bundle-cli.png",
+    "bytes": 6103,
+    "sha256": "bd6dc4d93812acc741527613d19abd2fe8aed921ad125867d6443ec26f2828ac",
+    "publication": "Pending controller publication"
+  },
+  "hosted_observation": "Exact parent 01dd6302 has eight successful platform build entries; publication skipped. These results do not cover pending edits.",
+  "limitations": "Not connected to LocalGame/server ownership or production save discovery. Cooperative monitor/revision excludes only participating writers; trusted parent directories and caller ownership are required. No arbitrary external-writer or multi-file atomic snapshot guarantee. No coordinated legacy-file replacement, server-player migration, persistent undo or ordinary-edit integration. Sidecar bodies remain opaque; no semantic city validation. Existing private generation post-rename recovery behavior applies; no universal rollback/power-loss claim. No peak-memory or 100 ms owner-thread qualification.",
+  "qualification": "Full city/maximum admission, 20-run timing/memory/frame/tick/traffic, physical GPU and shaped-network/32-rendered-client qualification and directory-fsync/power-loss checks remain pending. No production caps raised or ready/stable claim.",
+  "next": "Integrate responsive production region persistence under actual owner revisions and preserve remaining server state, then qualify both full fixtures."
+}

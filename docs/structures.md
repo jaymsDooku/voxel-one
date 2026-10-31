@@ -275,6 +275,22 @@ of multiple legacy files and live city/server integration remain pending.
 Current report and CLI image: `structure-sidecar-preservation.json` and
 `structure-sidecar-preservation-cli.png`.
 
+`RegionOfflineBundlePrototype` now captures only the offline base file and its
+fixed `.city`/`.city.history` siblings. It requires a caller-held source monitor
+and monotonic source revision before reading. Regular files use NOFOLLOW and
+same-opened-handle size bounds, with reads and cancellation checks in at most
+64 KiB chunks. The 16 MiB base and combined 4 MiB sidecar limits remain. Orphan or empty
+history files reject rather than disappearing. Capture rechecks source bytes and
+absence; parsing/staging may run outside the monitor. Publication requires the
+same monitor, unchanged revision and exact source bytes/absence before the private
+generation commit. No legacy files are replaced. This contract requires all
+source writers to cooperate; it does not fence arbitrary external processes.
+Owned parent directories are trusted. Full-source copying/revalidation is still
+synchronous and not qualified for the 100 ms game-thread budget. Actual game
+save integration and coordinated legacy-file replacement remain pending.
+Report and fresh CLI image: `structure-offline-bundle.json` and
+`structure-offline-bundle-cli.png`.
+
 Reference hardware and network qualification is deferred. The current commit
 path serializes placements and validates/stages work off-thread, but final owner
 thread application, persistence, initial dependency loading and render uploads

@@ -54,7 +54,7 @@ public final class RegionSidecarsCheck {
         Thread.currentThread().interrupt();try{reject(CancellationException.class,()->sidecars.encode(()->false));}finally{Thread.interrupted();}
         var mismatch=city.clone();mismatch[mismatch.length-1]^=1;reject(IOException.class,()->RegionSidecarsPrototype.capture(mismatch,history,()->false));
         var broken=history.clone();broken[broken.length-9]^=1;reject(IOException.class,()->RegionSidecarsPrototype.capture(city,broken,()->false));
-        reject(IOException.class,()->RegionSidecarsPrototype.capture(new byte[4],null,()->false));reject(IOException.class,()->RegionSidecarsPrototype.capture(city,new byte[10],()->false));
+        reject(IOException.class,()->RegionSidecarsPrototype.capture(new byte[4],null,()->false));reject(IOException.class,()->RegionSidecarsPrototype.capture(city,new byte[10],()->false));reject(IOException.class,()->RegionSidecarsPrototype.capture(city,new byte[0],()->false));
         reject(IOException.class,()->RegionSidecarsPrototype.capture(new byte[RegionSidecarsPrototype.MAX_CONTENT+1],null,()->false));reject(IOException.class,()->RegionSidecarsPrototype.capture(city,new byte[RegionSidecarsPrototype.MAX_CONTENT],()->false));
         for(int length:new int[]{0,23,wire.length-1,wire.length+1,RegionSidecarsPrototype.MAX_BYTES+1})reject(IOException.class,()->RegionSidecarsPrototype.decode(Arrays.copyOf(wire,length),()->false));
         var corrupt=wire.clone();corrupt[12]^=1;reject(IOException.class,()->RegionSidecarsPrototype.decode(corrupt,()->false));

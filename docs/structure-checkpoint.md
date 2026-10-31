@@ -1,5 +1,50 @@
 # Structure review fix checkpoint
 
+## Private offline file-bundle capture and source fencing
+
+Exact parent `01dd6302` has eight successful platform builds; publication skipped.
+All 224 native source hashes remain unchanged; no unchanged game/Maven reruns.
+
+Added bounded capture of only the base file and its fixed city/history siblings.
+The caller must hold a shared source monitor and supply a monotonic revision
+before reading. Regular files use NOFOLLOW, same-opened-handle size, reads at
+most 64 KiB and cancellation checks. Base limit is 16 MiB; combined sidecars
+4 MiB. Orphan/empty history reject. Capture records bytes and absence, then
+rechecks both plus revision. Parsing/private staging can run outside the monitor;
+publication requires the same monitor, unchanged revision and exact current
+source bytes/absence before existing private generation commit. No legacy
+source files are replaced. All writers must honor this caller contract.
+
+Eleven initial integration tests and 44 broad tool tests passed. Inspection found
+an empty-history file could be treated as absent; added rejection without changing
+the encoded absent-history case. All 11 affected integration tests passed after
+that fix. Final actual CLI: restart and 25 rejection cases passed, source files
+unchanged, local symlink case actually checked. Platforms without synthetic
+symlink creation report that subcase false rather than invent a pass.
+
+Base-only and actual generated base/city/history bundles preserve state after
+private restart. Missing owner monitor, changed unsaved revision, changed/removed
+source files and newly present sidecars reject before publication. Revision
+changes during capture also reject. Competing destination stages remain fenced;
+closed-stage reuse rejects. Orphan/empty history, directory, sparse oversize and
+symlink sources reject. Pre/mid-cancel and interruption reject, cleanup succeeds
+and retry commits. Test-injected source mutations are restored; migration itself
+does not modify source bytes and leaves no private stages behind.
+
+Playtest: actual synthetic file-bundle CLI from capture to stage/commit/restart.
+Expected preservation and source/destination fences; observed passed. Browser/
+game playtesting does not apply to tools-only migration. Fresh assigned-display
+child exit0/result captured window-only and inspected. Image:
+`structure-offline-bundle-cli.png`; report: `structure-offline-bundle.json`.
+
+Not production game/server integration, arbitrary external-writer exclusion or
+coordinated legacy-file replacement. Source parent directories/caller ownership
+are trusted. Full-source copying/revalidation remains synchronous and unqualified
+for 100 ms game-thread budgets. Unsaved changes require owner revision updates.
+Sidecar semantic validation, remaining server state, ordinary-edit persistence,
+restart undo, directory durability and full city/maximum physical-GPU/network
+qualification remain pending. No ready/stable claim or production cap changes.
+
 ## Private world sidecar preservation
 
 Exact parent `ad46906f` has eight successful platform builds; publication skipped.

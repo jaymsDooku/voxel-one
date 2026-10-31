@@ -17,7 +17,7 @@ public final class RegionSidecarsPrototype {
     public byte[] city(){return city.clone();}
     public Optional<byte[]> history(){return history.length==0?Optional.empty():Optional.of(history.clone());}
     public static RegionSidecarsPrototype capture(byte[] city,byte[] history,BooleanSupplier cancel)throws IOException {
-        Objects.requireNonNull(city);Objects.requireNonNull(cancel);check(cancel);int size=history==null?0:history.length;
+        Objects.requireNonNull(city);Objects.requireNonNull(cancel);check(cancel);if(history!=null&&history.length==0)throw new IOException("Empty history sidecar");int size=history==null?0:history.length;
         if(city.length<4||city.length>MAX_CONTENT||size>MAX_CONTENT-city.length)throw new IOException("Sidecar content budget");
         var cityCopy=copy(city,cancel);var historyCopy=history==null?new byte[0]:copy(history,cancel);
         int magic=ByteBuffer.wrap(cityCopy).getInt();if(magic<0x43495431||magic>0x43495441)throw new IOException("Unknown city sidecar format");
@@ -45,6 +45,6 @@ public final class RegionSidecarsPrototype {
         var in=new DataInputStream(new ByteArrayInputStream(bytes,0,bytes.length-4));if(in.readInt()!=MAGIC||in.readInt()!=1)throw new IOException("Sidecar envelope format/version");
         int size=in.readInt();if(size<4||size>MAX_CONTENT||size>in.available()-4)throw new IOException("City byte budget");var city=in.readNBytes(size);
         size=in.readInt();if(size<0||size>MAX_CONTENT-city.length||size!=in.available())throw new IOException("History byte budget");
-        return capture(city,in.readNBytes(size),cancel);
+        return capture(city,size==0?null:in.readNBytes(size),cancel);
     }
 }
