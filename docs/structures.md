@@ -163,8 +163,21 @@ checked after each cell parses, so rejection can follow one extra tree of at
 most 4,096 leaves. This is not a measured heap bound. Cancellation is checked
 during I/O and before returning final results. A 96-byte independent golden
 container, 47 rejection cases and all three terrain-version replay cohorts pass.
-See `structure-region-history-codec.json`. It has no dependency manifest or
-production integration yet.
+See `structure-region-history-codec.json`.
+
+The private dependency envelope now stores only referenced model definitions,
+deduplicated by existing fingerprint, plus source-ID bindings and the bounded
+region payload. It carries no author/account fields. Diagnostic bounds are
+16 MiB total, 8 MiB serialized definitions, 512 distinct definitions and 1,024
+alias bindings. Existing per-model limits remain: 8/16/32 resolution, 200,000
+serialized bytes and 8,192 mesh quads. A single bounded definition can parse
+before the aggregate byte limit rejects it; these limits do not measure heap.
+Decode rejects missing/extra bindings, duplicate identities, unused definitions,
+bad references, CRC and trailing data. Restore remaps IDs into a private copied
+ModelLibrary and private world. It never publishes to a live authority. Simple
+512-definition and 1,024-alias cohorts, conflict/empty-cache restoration and 47
+rejection cases pass. Report: `structure-region-dependencies.json`. Production
+save/load, generation publication, undo and network integration remain pending.
 No city-sized storage, save, network, atomic commit or undo claim follows from
 these small replay checks. Results: `structure-region-history-prototype.json`.
 
