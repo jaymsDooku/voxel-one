@@ -649,3 +649,33 @@ median and worst times, are in `structure-packed-geometry-validation.json`.
 These small package diagnostics do not qualify city/maximum capture, preview,
 placement, persistence, memory, frame, tick or network budgets. Admission caps,
 supported-limit publication and stable rollout gates remain unchanged.
+
+### Count-only chunk geometry validation
+
+Structure placement now checks chunk geometry through `MeshDataGenerator.count`.
+Count and render paths share the same fractional sampler, greedy full-cell face
+scanner, neighbor visibility and water policy. Counting skips vertex/index
+emission and material-buffer construction. It retains small thread-local scratch
+buffers and fractional scan masks; this is not an allocation-free path.
+The existing 6,000,000 vertex-float, 2,000,000 index and 24,576 fractional-cell
+face limits remain. A rejected placement still publishes no world changes.
+Rendered geometry, materials and wire formats are unchanged.
+
+A component probe compared separately compiled parent `07fd590d` render validation
+with count-only validation. Three warmups preceded 20 runs per fixture. The
+parent ran first in its own JVM, then the count path ran in a separate JVM.
+Parent/current render hashes and quad counts match for all three fixtures.
+Timings include each operation; render hashing and fixture construction are
+outside timing. Count invocation includes reflection overhead. Allocation is
+current-thread allocation, not peak process memory.
+
+| Fixture | Quads | Parent/count median ms | Parent/count p95 ms | Parent/count worst ms | Parent/count allocated bytes |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Full-cell water, glass and model marker | 720 | 2.373 / 2.658 | 3.671 / 3.268 | 3.927 / 4.057 | 224,752 / 104 |
+| Eight separated stone checkerboard cells | 98,304 | 65.960 / 16.302 | 71.883 / 16.868 | 121.753 / 17.466 | 123,572,272 / 17,832 |
+| Eight separated colored checkerboard cells | 98,304 | 66.201 / 10.481 | 68.604 / 11.014 | 74.641 / 11.178 | 123,572,272 / 17,832 |
+
+The small fixture median and worst time increased slightly. Fragmented fixtures
+show lower validation cost, but this does not establish placement latency,
+frame or tick budgets. No city, maximum-package, GPU, shaped-network or
+32-rendered-client qualification is claimed. Admission and rollout gates remain.

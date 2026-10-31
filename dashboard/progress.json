@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Admission CLI now measures bounded decoded bytes and dimensions. All 32 tool tests passed; actual 8,192-cell CLI count matches independent decompression. Full fixtures still reject. Unchanged 220-source native manifest and published video verified. Full city/maximum qualification remains pending.",
-      "updatedAt": "2026-10-31T03:39:10+00:00"
+      "note": "Count-only chunk validation passed 136 distinct targeted tests and fresh native workflow. Parent render hashes match; fragmented validation allocation fell from 123,572,272 to 17,832 bytes. Video decoded/inspected, all 220 source hashes verified. Exact-head checks needed; city/maximum qualification remains pending.",
+      "updatedAt": "2026-10-31T04:04:37+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
