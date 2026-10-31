@@ -281,3 +281,30 @@ surface cap, not a new lower limit. Version 1 files follow the same early checks
 Generation, byte-size reduction and rejection do not qualify capture/export
 latencies, placement, persistence, rendering or synchronization. The current
 report is `dashboard/evidence/structure-v2-validation.json`.
+
+## Decode admission prerequisite
+
+Run `tools/structures/CheckAdmission.java` against the exact compiled checkout
+before starting expensive full-fixture measurements. Pass the package path and
+its trusted SHA-256 from the retained conversion report. For example, from the
+repository root after compiling the game:
+
+```sh
+java -Xmx1g -cp target/classes tools/structures/CheckAdmission.java target/structure-fixtures/city-v2.vstr 6e9b606d0e3c8045db437dabad75d797a22843c39df6244c196e8e792d488ef6
+java -Xmx1g -cp target/classes tools/structures/CheckAdmission.java target/structure-fixtures/maximum-v2.vstr c76fcc00260e42370b9877f3ef4a00ed95e203a557b4e1e8dcb4e95a8f4a4eda
+```
+
+Exit 0 means only that the production package decoder admitted that byte
+snapshot. Exit 2 means compressed-size or decoder rejection. Exit 1 means invalid
+input, identity mismatch or a tool failure; it is not an admission measurement.
+Every result says `NOT QUALIFIED`. A cap can reject before checksum validation,
+so rejection does not certify the remaining package content. Hash verification
+identifies bytes; it does not prove their format is valid.
+
+The CLI reads at most 64 MiB, hashes and decodes the same snapshot, and does not
+create a world, place cells, register models, save, or connect players. It prints
+only numeric package counts, hashes and fixed diagnostic categories. It omits
+file paths, asset names and exception messages. Oversized files are rejected
+before hashing or decoding and report `identity_verified: false`. Decoder
+admission is only the first prerequisite: placement, persistence, rendering,
+32-client synchronization and all 20-run system budgets still need measurement.

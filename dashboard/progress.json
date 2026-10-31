@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "World-cell visitor validation verified: 111 distinct targeted tests, loopback integration and fresh native regression passed. Wire/rules unchanged. New video inspected, 219 hashes match. Source/media need hosted checks; full city/maximum qualification pending.",
-      "updatedAt": "2026-10-31T01:27:34+00:00"
+      "note": "Eight d2bafe0d platform builds passed. New production-decoder admission CLI: 30 tooling tests passed; exact-hash city and maximum packages still reject surface/geometry caps. Native source/media match. Full qualification and rollout remain gated.",
+      "updatedAt": "2026-10-31T01:53:36+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

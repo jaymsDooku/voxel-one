@@ -1,5 +1,31 @@
 # Structure review fix checkpoint
 
+## Current admission prerequisite validation
+
+Production head `d2bafe0d8fa4a1fd02ce3ccd472406c709553d43` has eight successful
+platform builds across feature and PR checks; publication was skipped. Added
+`tools/structures/CheckAdmission.java` as a decode-only prerequisite gate, with
+30 passing tooling tests. It checks a trusted package SHA-256 against the same
+bounded byte snapshot passed to the production decoder. Missing/changed input,
+identity errors, size rejection and decoder rejection have distinct exit/result
+semantics. Output excludes paths, asset names and exception messages.
+
+Actual retained VSTR v2 city and maximum CLI runs exited 2, with verified package
+identities and first rejection categories `dependency_surface_cap` and
+`geometry_cap`, respectively. This is failed admission, not successful import
+or performance qualification. Report: `structure-admission-validation.json`.
+Production source and native harness remain unchanged; all 219 manifest hashes
+and exact-head published workflow video bytes match the passed native run.
+No blanket game-test or graphical rerun was needed for the CLI-only change.
+
+Next implementation must address bounded model rendering/dependency resources,
+partitioned geometry/history publication and durable persistence before raising
+the current safety caps. The 256-chunk placement limit and 2,000,000-edit world
+persistence limit remain further gates even after package admission. Then run
+the full workflows and 20-run system qualification. Physical-GPU, shaped-network,
+32-rendered-client and all city/maximum performance gates remain pending.
+No supported-limit or readiness claim is made.
+
 Current published base: 3f7ab54c500e77b664312a780f39fdf4bed901d9, PR #76.
 Review base: b1d7b8d796b97a87a3d63bb08baf2bb9746b8ca6.
 
