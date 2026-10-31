@@ -90,6 +90,8 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
         row = self.run_check('RegionDenseHistoryCheck')[0]
         self.assertEqual(row['status'], 'passed')
         self.assertEqual(row['input_records'], 200704)
+        self.assertEqual(row['chunk_batches'], 3)
+        self.assertTrue(row['partial_stale_rejected'])
         self.assertTrue(row['preflight_budget_rejected'])
         self.assertEqual(row['final_cells'], 49)
         self.assertTrue(row['replay_path_rejected'])

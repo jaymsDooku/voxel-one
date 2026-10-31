@@ -43,4 +43,32 @@ class WorldCellSnapshotTest {
         assertEquals(1,world.cellSnapshot(history,1,1).nextBatch(world,history).size());
     }
 
+    @Test void incrementalCopyYieldsAndSharesFrozenBuckets() {
+        var world=world();var history=new WorldVoxels.History();
+        for(int i=0;i<257;i++){var edit=new Protocol.Edit(i*16,128,0,Blocks.STONE);world.apply(edit);WorldVoxels.remember(history,edit);}
+        var builder=world.beginCellSnapshot(history,257,257);
+        assertNull(builder.advance(world,history));assertNull(builder.advance(world,history));
+        var snapshot=builder.advance(world,history);assertNotNull(snapshot);assertSame(snapshot,builder.advance(world,history));
+        assertEquals(257,snapshot.nextBatch(world,history).size());
+        world.apply(new Protocol.Edit(0,128,0,Blocks.GLASS));
+        assertEquals(WorldVoxels.encode(Blocks.STONE),snapshot.cell(new WorldVoxels.CellPosition(0,128,0)).tree().uniform(0,0,0,16));
+        assertThrows(ConcurrentModificationException.class,()->builder.advance(world,history));
+    }
+    @Test void incrementalCopyRejectsStaleIdentityRevisionTerrainAndWrongThread()throws Exception {
+        for(int change=0;change<5;change++) {
+            var terrain=new Terrain(126);var world=new WorldVoxels(terrain);var history=new WorldVoxels.History();
+            for(int i=0;i<129;i++)world.apply(new Protocol.Edit(i*16,128,0,Blocks.STONE));
+            var builder=world.beginCellSnapshot(history,0,129);assertNull(builder.advance(world,history));
+            switch(change){case 0->world.apply(stone());case 1->WorldVoxels.remember(history,stone());case 2->terrain.stressGrid(null);
+                case 3->{assertThrows(ConcurrentModificationException.class,()->builder.advance(world.snapshot(),history));continue;}
+                default->{assertThrows(ConcurrentModificationException.class,()->builder.advance(world,WorldVoxels.History.copyOf(history)));continue;}}
+            assertThrows(ConcurrentModificationException.class,()->builder.advance(world,history));
+        }
+        var world=world();var history=new WorldVoxels.History();var builder=world.beginCellSnapshot(history,0,0);
+        var task=new FutureTask<>(()->{assertThrows(IllegalStateException.class,()->builder.advance(world,history));return true;});
+        var thread=new Thread(task);thread.start();assertTrue(task.get(5,TimeUnit.SECONDS));thread.join();assertNotNull(builder.advance(world,history));
+        assertThrows(IllegalArgumentException.class,()->world.beginCellSnapshot(history,-1,0));
+        world.apply(stone());assertThrows(IllegalArgumentException.class,()->world.beginCellSnapshot(history,0,0));
+    }
+
 }
