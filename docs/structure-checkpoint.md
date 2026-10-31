@@ -1,5 +1,16 @@
 # Structure review fix checkpoint
 
+## Bounded envelope section views
+
+Private envelope decode now gives the library and geometry parsers bounded views of the already CRC-checked envelope array. This replaces two `readNBytes` section copies and uses the new region stream API. Each view ends at its declared section length; the parent cursor advances by exactly that length. Versions 1–4, validation and limits remain unchanged. Outer envelope bytes and decoded state still allocate; no peak-memory or speedup claim.
+
+Final six affected integrations passed in 31.351 s, no skips. Initial library/complete-restore checks and the new section check also passed. Playtest: four envelope versions round-trip exactly, totaling 14,632 fixture bytes. Used/unused models, model geometry, fractional glass and explicit air survive. Offline health 17, server health 15 and city bytes remain intact. Forty invalid section-length, inner-CRC and cancellation cases reject; source bytes and retry remain unchanged. Fresh actual child exit0 image inspected. Noninteractive persistence integration; browser/native rendering does not apply.
+
+Only private tools changed. All 224 production Java/harness hashes still match the current native manifest. Parent 0e82863e platform builds passed; publication skipped. No deleted paths against review base. Two section-copy reads intentionally replaced; no unrelated deletions, diff check passed. Evidence structure-envelope-view.json and structure-envelope-view-cli.png pending controller publication.
+
+Production backend/streaming/live installation and full city/maximum 20-run budgets, physical GPU, shaped 32-client, frame/tick/traffic/peak-memory/stall/durability qualification remain pending. Existing caps and stable-rollout gates retained.
+
+
 ## Bounded private region stream API
 
 Added InputStream/OutputStream codec entry points. Byte-array methods delegate and retain exact version1 bytes. Decode consumes one exclusive EOF-terminated frame, checks bodyCRC/trailer, cancels between reads and limits consumption to byte cap plus one trailing probe. Caller streams remain open. Writer enforces byte budget; failure can leave a prefix, so callers must stage before publication. Blocking IO belongs on a worker. Decoded geometry remains materialized under existing caps; no peak-memory improvement claimed.

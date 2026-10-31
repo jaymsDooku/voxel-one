@@ -22,7 +22,7 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
                         'RegionDependencyPrototype.java', 'RegionDependencyCheck.java',
                         'RegionGenerationPrototype.java', 'RegionGenerationCheck.java', 'RegionGenerationEvidence.java',
                         'RegionAuthorityPrototype.java', 'RegionAuthorityCheck.java',
-                        'RegionWorldLibraryPrototype.java', 'RegionWorldLibraryCheck.java', 'RegionOfflineMetadataPrototype.java', 'RegionOfflineMetadataCheck.java',
+                        'RegionWorldLibraryPrototype.java', 'RegionWorldLibraryCheck.java', 'RegionEnvelopeViewCheck.java', 'RegionEnvelopeViewEvidence.java', 'RegionOfflineMetadataPrototype.java', 'RegionOfflineMetadataCheck.java',
                         'RegionOfflineImportPrototype.java', 'RegionOfflineImportCheck.java', 'RegionOfflineLegacyCheck.java', 'RegionSidecarsPrototype.java', 'RegionSidecarsCheck.java', 'RegionOfflineBundlePrototype.java', 'RegionOfflineBundleCheck.java', 'RegionServerMetadataPrototype.java', 'RegionServerMetadataCheck.java', 'RegionServerImportPrototype.java', 'RegionServerImportCheck.java', 'RegionServerBundleCheck.java', 'RegionOfflineOwnerPrototype.java', 'RegionOfflineOwnerCheck.java', 'CityHistorySnapshotCheck.java', 'RegionCityOwnerPrototype.java', 'RegionCityRestorePrototype.java', 'RegionCompleteRestoreCheck.java', 'RegionOfflineCellOwnerCheck.java', 'RegionDenseHistoryCheck.java', 'ChunkCaptureChurnCheck.java', 'ChunkCaptureChurnEvidence.java')]
             compiled = subprocess.run(['javac', '-encoding', 'UTF-8', '--release', '17', '-cp', str(CLASSES), '-d', temporary,
                                        *map(str, sources)], capture_output=True, text=True, timeout=30)
@@ -40,6 +40,15 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
         for row in rows:
             self.assertEqual(row['status'], 'passed')
             self.assertFalse(row['qualification'])
+
+    def test_envelope_section_views(self):
+        row = self.run_check('RegionEnvelopeViewCheck')[0]
+        self.assertEqual(row['status'], 'passed')
+        self.assertEqual(row['versions'], 4)
+        self.assertGreaterEqual(row['rejection_cases'], 40)
+        for key in ['byte_exact', 'geometry_and_air', 'library_preserved', 'metadata_boundaries', 'source_unchanged', 'retry']:
+            self.assertTrue(row[key])
+        self.assertFalse(row['qualification'])
 
     def test_region_streams(self):
         row = self.run_check('RegionHistoryStreamCheck')[0]

@@ -1,0 +1,49 @@
+{
+  "parent_head": "0e82863e4561f9a324510ec768a0d35238e7820a",
+  "parent_hosted": "Controller scoped result: four platform builds success;publish skipped. Not QA approval.",
+  "change": "Private envelope decoder uses bounded ByteArrayInputStream section views for library and geometry instead of readNBytes section copies. Geometry now uses the bounded stream codec. Parent section cursor is advanced by exactly declared size; each view ends at that section boundary. Versions1..4 and all existing caps unchanged.",
+  "source_sha256": {
+    "tools/structures/RegionWorldLibraryPrototype.java": "0ae96bab1cc7fbe02373f37cc4f0a72af157f41dd5c65fb149c125de1ad03a39",
+    "tools/structures/RegionEnvelopeViewCheck.java": "92db5273d598710cdebeefaf8c34582935a12a79c0e567b546c4a7b21e8ef867",
+    "tools/structures/RegionEnvelopeViewEvidence.java": "2eeb0a198b4a53f54a9d975d6ffc861eb1fde167267e1107f617c8acf26fd434",
+    "tools/structures/test_region_history.py": "8de9811af1178351d12f135252b64978e5dd886ab3b5a29f6888677ac4df19ba"
+  },
+  "commands": [
+    "python3 -m unittest tools.structures.test_region_history.RegionHistoryIntegrationTest.test_envelope_section_views tools.structures.test_region_history.RegionHistoryIntegrationTest.test_region_streams tools.structures.test_region_history.RegionHistoryIntegrationTest.test_world_library tools.structures.test_region_history.RegionHistoryIntegrationTest.test_complete_restore tools.structures.test_region_history.RegionHistoryIntegrationTest.test_offline_cell_owner tools.structures.test_region_history.RegionHistoryIntegrationTest.test_generation_publication",
+    "java -Xmx512m -cp target/structure-envelope-view-evidence:target/classes RegionEnvelopeViewCheck",
+    "java -Xmx512m -cp target/structure-envelope-view-evidence:target/classes RegionEnvelopeViewEvidence",
+    "import -display \"$DISPLAY\" -window 2097159 dashboard/evidence/structure-envelope-view-cli.png"
+  ],
+  "environment": "Linux6.1.0-50-cloud-amd64 x86_64,Java25.0.3+9-LTS-195,512MiB CLI heap. Inherited managed role DISPLAY/XAUTHORITY for own synthetic CLI window only;no authentication cookie read.",
+  "results": {
+    "integrations": "......\n----------------------------------------------------------------------\nRan 6 tests in 31.351s\n\nOK",
+    "cli": {
+      "status": "passed",
+      "versions": 4,
+      "rejection_cases": 40,
+      "total_fixture_bytes": 14632,
+      "byte_exact": true,
+      "geometry_and_air": true,
+      "library_preserved": true,
+      "metadata_boundaries": true,
+      "source_unchanged": true,
+      "retry": true,
+      "qualification": false
+    },
+    "initial_checks": "Initial world-library/complete-restore checks passed2/2 in9.370s. New section check passed1/1 in4.422s. Final affected suite passed6/6 in31.351s;no skips.",
+    "production": "No production Java/harness edits. All224 source hashes match current native manifest;Maven/native reruns not needed for this private codec integration."
+  },
+  "Playtest:": "Expected exact envelopes across versions1physical,2offline survival,3offline+city,4server survival+city,with section boundaries enforced. Observed4 byte-exact roundtrips totaling14632 fixture bytes,used and unused models retained,model references/fractional glass/explicit air restored,offline health17/server health15/city bytes preserved. Forty invalid length,innerCRC and cancellation cases rejected;source bytes/retry unchanged. Fresh fixed-child exit0 image inspected. Noninteractive persistence integration;browser/native rendering does not apply.",
+  "limits": [
+    "Outer envelope still materializes <=16MiB encoded array. Only redundant encoded library/geometry section copies were removed;decoded models/geometry and other sections still allocate. No measured peak-memory or speedup claim.",
+    "Private8MiB geometry,100000cells,1024regions,131072leaves and8MiB library caps retained. No production backend/owner installation or supported-size increase.",
+    "Full city/maximum20-run operation budgets,physicalGPU,shaped32clients,peak memory/frame/tick/traffic/stall and durability qualification remain pending. Rollout gated."
+  ],
+  "audit": "No deleted paths against71612f09bfec4549456b3317676e76cdced085a4. Two readNBytes calls intentionally replaced by bounded section views;no unrelated deletions. git diff --check passed.",
+  "media": {
+    "file": "structure-envelope-view-cli.png",
+    "bytes": 8831,
+    "sha256": "380221053f94070983d8989a30bfc5f22021815e455d6ad021ce8a2be6f3b777",
+    "publication": "pending controller publication"
+  }
+}

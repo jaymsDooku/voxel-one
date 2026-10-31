@@ -33,7 +33,9 @@ public final class RegionWorldLibraryPrototype {
         library.writeAll(new DataOutputStream(sink));check(cancel);return sink.bytes.toByteArray();
     }
     private static ModelLibrary readLibrary(byte[] bytes,BooleanSupplier cancel)throws IOException {
-        var raw=new ByteArrayInputStream(bytes);
+        return readLibrary(new ByteArrayInputStream(bytes),cancel);
+    }
+    private static ModelLibrary readLibrary(InputStream raw,BooleanSupplier cancel)throws IOException {
         var input=new DataInputStream(new FilterInputStream(raw){
             @Override public int read()throws IOException{check(cancel);return super.read();}
             @Override public int read(byte[] data,int offset,int length)throws IOException{check(cancel);return in.read(data,offset,length);}
@@ -70,6 +72,13 @@ public final class RegionWorldLibraryPrototype {
         out.flush();new DataOutputStream(sink).writeInt((int)crc.getValue());
         byte[] result=sink.bytes.toByteArray();check(cancel);return result;
     }
+    /** Bounded view over the CRC-checked envelope, not another encoded-section copy.
+     * Parent excludes its four-byte CRC; all callers validate their section budget first. */
+    private static InputStream section(byte[] bytes,ByteArrayInputStream parent,int size)throws IOException {
+        if(size<0||size>parent.available())throw new IOException("World section byte budget");
+        int offset=bytes.length-4-parent.available();
+        var view=new ByteArrayInputStream(bytes,offset,size);parent.skipNBytes(size);return view;
+    }
     public static RegionWorldLibraryPrototype decode(byte[] bytes,BooleanSupplier cancel)throws IOException {
         Objects.requireNonNull(bytes);Objects.requireNonNull(cancel);check(cancel);
         if(bytes.length<52||bytes.length>MAX_BYTES)throw new IOException("World envelope byte budget");
@@ -80,9 +89,9 @@ public final class RegionWorldLibraryPrototype {
         if(in.readInt()!=MAGIC)throw new IOException("World envelope format/version");
         int version=in.readInt();if(version<1||version>4)throw new IOException("World envelope format/version");
         int size=in.readInt();if(size<4||size>MAX_LIBRARY_BYTES||size>raw.available()-4)throw new IOException("Library byte budget");
-        var library=readLibrary(in.readNBytes(size),cancel);
+        var library=readLibrary(section(bytes,raw,size),cancel);
         size=in.readInt();if(size<28||size>BUDGET.bytes()||(version==1?size!=raw.available():size>raw.available()-4))throw new IOException("World region byte budget");
-        var geometry=RegionHistoryPrototype.decode(in.readNBytes(size),BUDGET,cancel);references(geometry,library,cancel);
+        var geometry=RegionHistoryPrototype.decode(section(bytes,raw,size),BUDGET,cancel);references(geometry,library,cancel);
         RegionOfflineMetadataPrototype metadata=null;
         if(version==2||version==3){size=in.readInt();if(size<89||size>RegionOfflineMetadataPrototype.MAX_BYTES||(version==2?size!=raw.available():size>raw.available()-4))throw new IOException("Metadata byte budget");metadata=RegionOfflineMetadataPrototype.decode(in.readNBytes(size),library,cancel);}
         RegionServerMetadataPrototype serverMetadata=null;
