@@ -1,0 +1,93 @@
+{
+  "schema": 1,
+  "parent_head": "ab0364cdc9c900d82c1ddc98a370487b2a20a5e3",
+  "scope": "Protocol.CellState material checks visit leaves without a temporary list; wire/version/rules unchanged",
+  "qualification": "PENDING",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu_model": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)"
+  },
+  "tests": {
+    "commands": [
+      "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest='Structure*Test,VoxelModelTest' test",
+      "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest='ProtocolCompatibilityTest,ShippingProtocolCompatibilityTest' test"
+    ],
+    "distinct_tests": 111,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "regressions": [
+      "Air/uniform/model/fractional/coloured cells retain exact wire bytes and frozen result",
+      "Unknown/piece/encoded-air/partial-model materials reject",
+      "Invalid position/resolution and truncated payload reject"
+    ]
+  },
+  "probe": {
+    "commands": [
+      "git show HEAD:src/main/java/dev/jayms/net/Protocol.java > target/structure-cell-read-control/src/Protocol.java",
+      "javac --release 17 -cp target/classes -d target/structure-cell-read-control/classes target/structure-cell-read-control/src/Protocol.java",
+      "javac --release 17 -cp target/classes -d target tools/structures/CellReadProbe.java",
+      "java -Xmx1g -cp target/structure-cell-read-control/classes:target:target/classes CellReadProbe parent",
+      "java -Xmx1g -cp target:target/classes CellReadProbe current"
+    ],
+    "results": [
+      {
+        "implementation": "parent",
+        "runs": 20,
+        "warmups": 3,
+        "batch": 64,
+        "leaves_per_cell": 2048,
+        "wire_bytes_per_cell": 12886,
+        "median_ms": 18.631,
+        "p95_ms": 28.378,
+        "worst_ms": 31.603,
+        "median_thread_allocated_bytes": 13245440
+      },
+      {
+        "implementation": "current",
+        "runs": 20,
+        "warmups": 3,
+        "batch": 64,
+        "leaves_per_cell": 2048,
+        "wire_bytes_per_cell": 12886,
+        "median_ms": 16.529,
+        "p95_ms": 20.904,
+        "worst_ms": 26.592,
+        "median_thread_allocated_bytes": 5853696
+      }
+    ],
+    "note": "Exact parent Protocol compiled separately; 3 warmups, 20 measured batches of 64 decodes each. Each cell contains 2048 leaves and 12886 wire bytes. Coordinates, occupied count and sample values checked each decode; exact roundtrip bytes checked before timing. Allocation is cumulative current-thread bytes, not peak memory. Shared VPS; probes completed before native workflow. Not complete structure synchronization or city/maximum qualification."
+  },
+  "native": {
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "result": {
+      "status": "passed",
+      "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+      "source_manifest": "structure-native-source.json",
+      "source_manifest_sha256": "1231222d0d89901f2cda14c81b0f1d09a8066df584208ded87cfcff5d691fd29",
+      "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+      "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+      "publication": "Local evidence pending controller publication"
+    },
+    "source_manifest_entries": 219,
+    "source_manifest_match": true,
+    "video_bytes": 404819,
+    "video_sha256": "c39d99e8fac9b0ce711f9090811c3d9e390211084365e690a158d56e3eb34f60",
+    "codec": "H264",
+    "frames": 17,
+    "duration_s": 27.581,
+    "inspection": "Decoded workflow frame and placed-structures screenshot inspected; preview and two independent brick structures visible. HUD 1 FPS: functional only.",
+    "scope": "Offline graphical regression; world-cell wire decoding is exercised by direct and loopback integration tests.",
+    "publication": "Pending controller publication"
+  },
+  "pending": [
+    "Full city/maximum admission and 20-run full-pipeline qualification",
+    "Physical GPU, shaped network with 32 rendered clients",
+    "Memory/frame/tick/traffic budgets"
+  ],
+  "network_integration": "Targeted StructureMultiplayerTest runs actual loopback TLS server/client transfers, placement and persistence/restart assertions. This is not 32-rendered-client shaped-network qualification.",
+  "audit": "Diff check passed against recorded review base; no deleted paths; protocol/version/material rules unchanged."
+}
