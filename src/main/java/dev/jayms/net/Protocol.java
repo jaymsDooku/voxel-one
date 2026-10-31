@@ -306,14 +306,14 @@ public final class Protocol {
             int x = in.readInt(), y = in.readInt(), z = in.readInt();
             var tree = dev.jayms.net.model.SparseVoxelOctree.read(in,16);
             if (tree.size() != 16) throw new IOException("Invalid world cell");
-            for (var leaf : tree.leaves()) {
-                int material = WorldVoxels.decode(leaf.color());
+            tree.forEachLeaf((lx,ly,lz,side,color)->{
+                int material = WorldVoxels.decode(color);
                 if (!Blocks.valid(material)
                         || Blocks.isPiece(material)
                         || material == 0
-                        || Blocks.isModel(material) && leaf.side() != 16)
+                        || Blocks.isModel(material) && side != 16)
                     throw new IOException("Invalid world material");
-            }
+            });
             if (!new Edit(x, y, z, 0).valid()) throw new IOException("Invalid world cell position");
             return new CellState(x, y, z, tree.freeze());
         }
