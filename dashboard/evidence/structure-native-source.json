@@ -114,7 +114,7 @@
     "src/main/java/dev/jayms/net/mobile/MobileSnapshot.java": "93190a32889b1df69379904ddfc96588e5cc9b4d65213fe82382101f44169c74",
     "src/main/java/dev/jayms/net/model/ModelDefinition.java": "5b7ddd49dc6908d4280e9e60b964f2ab733aa7905520d01230d36ce60b77e683",
     "src/main/java/dev/jayms/net/model/ModelGenerators.java": "6bc4ff9edece182c9f59cc6a84e26756b438751e04c13ccaee38549a19347b42",
-    "src/main/java/dev/jayms/net/model/ModelLibrary.java": "7dcadc18d73689456c65ef920561d29a72d0f8fbd407b54148e39e63d35c1972",
+    "src/main/java/dev/jayms/net/model/ModelLibrary.java": "5177125851e07673657f52b09c45164a07b67388a745a2d0fef2a1d8a114aaef",
     "src/main/java/dev/jayms/net/model/ModelMesher.java": "1b98f8aa13badcfa76a023637f11aceb43e0d720de18e176f062d3b67d4947b8",
     "src/main/java/dev/jayms/net/model/SparseVoxelOctree.java": "4f3b3c2f96e232067193e454ef89f6e25e2b0290e950941ff896978ddc5e993a",
     "src/main/java/dev/jayms/net/structure/StructureCells.java": "92d5d94809667acbe3c98beaebe127d12d779372320836883c39321b6fe104c1",

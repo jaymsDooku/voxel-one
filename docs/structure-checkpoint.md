@@ -1,5 +1,35 @@
 # Structure review fix checkpoint
 
+## Current structure-model admission validation
+
+Parent `e76ff7881b2a5f3ae8e07df82a790392e7c7e43a` has eight successful platform
+builds; publication skipped. Structure-specific staging, synchronized acceptance
+and world-model reads now validate with the existing exact greedy face counter,
+without temporary render arrays. Legacy model paths, 8,192-quad limit, codecs,
+fingerprints, IDs, freezing and world dependency budgets remain unchanged.
+
+110 structure/model tests passed with zero failures, errors or skips. Valid
+8/16/32-resolution dependencies retained IDs, fingerprints and exact saved bytes.
+Excess surface counts still reject with the same error before library mutation.
+Twenty measured batches of 64 dependencies compared the separately compiled
+parent with current source: median 133.609/108.418 ms, p95 162.922/113.429 ms,
+worst 164.750/122.998 ms; median thread allocation 91,433,560/32,242,264 bytes.
+Saved model bytes matched. Component staging is not full-system qualification.
+
+Playtest: fresh production Main/GLFW workflow passed on the inherited display,
+isolated synthetic profile and llvmpipe. Capture/export/import, all rotations,
+conflicts, empty-space preservation, cancellation, undo, repeated placement,
+custom dependencies/restart, inventory and model-editor regression checks passed.
+All 219 source hashes match. Fresh H264 video: 380,640 bytes, 15 frames, 24.598 s.
+Decoded frame and placed-world screenshot inspected. Report:
+`structure-model-admission-validation.json`; source and media await controller
+publication and new exact-head hosted checks.
+
+Full city/maximum admission, partitioned publication/persistence and required
+physical-GPU, shaped-network, 32-rendered-client, 20-run system qualification
+remain unfinished. Supported limits and stable rollout remain gated. No owner
+answer is needed for the next engineering steps.
+
 ## Current octree rotation validation
 
 Parent `c9b52c3e047eca42ff58a96628b4c552bab3ce8f`. Direct octant remapping now
