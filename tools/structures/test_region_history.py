@@ -21,7 +21,8 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
                        ('RegionHistoryPrototype.java', 'RegionHistoryPrototypeCheck.java', 'RegionHistoryCodecCheck.java',
                         'RegionDependencyPrototype.java', 'RegionDependencyCheck.java',
                         'RegionGenerationPrototype.java', 'RegionGenerationCheck.java', 'RegionGenerationEvidence.java',
-                        'RegionAuthorityPrototype.java', 'RegionAuthorityCheck.java')]
+                        'RegionAuthorityPrototype.java', 'RegionAuthorityCheck.java',
+                        'RegionWorldLibraryPrototype.java', 'RegionWorldLibraryCheck.java')]
             subprocess.run(['javac', '--release', '17', '-cp', str(CLASSES), '-d', temporary,
                             *map(str, sources)], check=True, capture_output=True, timeout=30)
             command = ['java', '-Xmx512m', '-cp', os.pathsep.join((temporary, str(CLASSES))), class_name]
@@ -60,6 +61,16 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
         self.assertEqual(rows[0]['final_generation'], 4)
         self.assertGreaterEqual(rows[0]['mid_write_cancel_bytes'], 65536)
         self.assertFalse(rows[0]['directory_fsync_qualified'])
+        self.assertFalse(rows[0]['qualification'])
+
+    def test_world_library(self):
+        rows = self.run_check('RegionWorldLibraryCheck')
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]['status'], 'passed')
+        self.assertEqual(rows[0]['model_entries'], 4)
+        self.assertEqual(rows[0]['unplaced_custom_entries'], 2)
+        self.assertGreaterEqual(rows[0]['rejection_cases'], 18)
+        self.assertFalse(rows[0]['production_integration'])
         self.assertFalse(rows[0]['qualification'])
 
     def test_actual_engine_authority(self):

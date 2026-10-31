@@ -1,5 +1,39 @@
 # Structure review fix checkpoint
 
+## Detached whole-library region codec
+
+Parent `c5ed6f02` has eight successful platform build entries; publication
+skipped. No unchanged game checks were rerun. All 224 native source hashes match.
+
+Added `RegionWorldLibraryPrototype` as a separate bounded codec. It retains
+unplaced definitions, duplicate-fingerprint aliases, exact IDs and authors via
+the existing world-library codec. The restore uses original IDs, frozen cells
+and copied libraries. CRC and lengths/counts reject malformed input before a
+result is returned. Cancellation checks cover library I/O, region processing
+and each restored cell. Existing per-model validation remains indivisible.
+Private bounds are 16 MiB total, 8 MiB library and the existing region limits.
+
+39 broad tool tests passed before the last cancellable restore change. Six
+affected integration tests passed after it. Final viewer wording was compiled
+and executed. Actual CLI output: four entries, two unplaced custom entries,
+286 envelope bytes and 27 expected rejection cases. Source and returned-library
+mutations do not affect a later restore. Empty/default library and explicit air
+also pass. An initial malformed-ID test wrote the existing ID and correctly
+failed its rejection assertion; the test now writes an invalid ID.
+
+Playtest: actual detached Java CLI capture/encode/decode/restore with relevant
+malformed/cancel edges and exact-ID/source-isolation regressions. Browser/game
+playtesting does not apply to tools-only code. Fresh assigned-display window
+showed actual child exit 0 and results. Window-only image was inspected:
+`structure-library-cli.png`. Report: `structure-world-library.json`.
+
+No production code or admission cap changed. This codec is not connected to
+private generation publication, LocalGame or the server. Inventories and
+player/transient metadata are still missing. No complete-world-save, disk
+durability, performance or full-city qualification claim. Complete remaining
+world metadata and responsive integration next; full city/maximum, physical GPU
+and shaped-network/32-rendered-client gates remain pending.
+
 ## Actual engine with a private generation authority
 
 Fresh hosted observation matched parent `2f3bca64`: eight successful platform
