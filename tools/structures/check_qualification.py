@@ -60,9 +60,10 @@ def check(receipt, head, environment_id):
         require(fixture.get('admitted') is True, name + ' admission pending')
         require(re.fullmatch('[0-9a-f]{64}', str(fixture.get('package_sha256', ''))) is not None, name + ' package identity missing')
         require(fixture.get('dimensions') == ([512, 128, 512] if name == 'city' else [1024, 256, 1024]), name + ' dimensions mismatch')
-        for field in ('occupied_cells', 'models', 'instances', 'compressed_bytes', 'geometry_leaves'):
+        for field in ('occupied_cells', 'models', 'instances', 'compressed_bytes', 'decoded_bytes', 'geometry_leaves'):
             require(type(fixture.get(field)) is int and fixture[field] > 0, name + ' invalid ' + field)
         require(fixture['compressed_bytes'] <= 64 * 1024 * 1024, name + ' compressed limit')
+        require(fixture['decoded_bytes'] <= 512 * 1024 * 1024, name + ' decoded limit')
         if name == 'city':
             require(900_000 <= fixture['occupied_cells'] <= 1_100_000 and fixture['models'] == 256
                     and fixture['instances'] >= 10_000 and 16 * 1024 * 1024 <= fixture['compressed_bytes'] <= 32 * 1024 * 1024,

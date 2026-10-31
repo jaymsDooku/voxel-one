@@ -20,7 +20,7 @@ def fixture(name):
                   dimensions=[512, 128, 512] if name == 'city' else [1024, 256, 1024],
                   occupied_cells=1_000_000 if name == 'city' else 4_000_000,
                   models=256 if name == 'city' else 512, instances=10_240,
-                  compressed_bytes=20 * 1024 * 1024, geometry_leaves=4_000_000,
+                  compressed_bytes=20 * 1024 * 1024, decoded_bytes=200 * 1024 * 1024, geometry_leaves=4_000_000,
                   buildings=121, roads=True, pylons=True, fractional_geometry=True,
                   fragmented=True, evidence='SYNTHETIC TEST DATA; not execution evidence',
                   runs=[dict(run, id=i) for i in range(1, 21)])
@@ -78,6 +78,18 @@ class QualificationTest(unittest.TestCase):
             data = receipt(); data['fixtures']['city']['runs'][0][key] = value
             with self.assertRaises(ValueError): self.check(data)
 
+    def test_decoded_size_is_required_and_bounded_at_512_mib(self):
+        data = receipt()
+        for fixture_data in data['fixtures'].values():
+            fixture_data['decoded_bytes'] = 512 * 1024 * 1024
+        self.check(data)
+        for name in ('city', 'maximum'):
+            for value in (None, 0, -1, True, '512', 512 * 1024 * 1024 + 1):
+                data = receipt(); data['fixtures'][name]['decoded_bytes'] = value
+                with self.assertRaises(ValueError): self.check(data)
+            data = receipt(); data['fixtures'][name].pop('decoded_bytes')
+            with self.assertRaises(ValueError): self.check(data)
+
     def test_percentile_boundary_and_upload(self):
         data = receipt(); runs = data['fixtures']['city']['runs']
         for run in runs: run['capture_s'] = 5
@@ -97,7 +109,9 @@ class QualificationTest(unittest.TestCase):
                                      '--environment-id', 'synthetic'], capture_output=True, text=True)
             self.assertEqual(0, result.returncode)
             self.assertEqual('passed', json.loads(result.stdout)['receipt_budgets'])
-            for raw in ('{"schema":1,"schema":1}', json.dumps({'scope': 'CPU component only'})):
+            oversized = receipt()
+            oversized['fixtures']['maximum']['decoded_bytes'] = 512 * 1024 * 1024 + 1
+            for raw in ('{"schema":1,"schema":1}', json.dumps({'scope': 'CPU component only'}), json.dumps(oversized)):
                 path.write_text(raw)
                 result = subprocess.run([sys.executable, str(script), str(path), '--head', HEAD,
                                          '--environment-id', 'synthetic'], capture_output=True, text=True)
