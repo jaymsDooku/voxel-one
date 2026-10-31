@@ -1,5 +1,13 @@
 # Structure review fix checkpoint
 
+## Private server survival metadata
+
+Exact parent `999c7987`: eight hosted builds passed; publication skipped. Added tools-only server survival metadata and private inner envelope format 4. Synthetic identifiers, inventories, health and drops survive private restart and later geometry saves. Offline/server mode changes and metadata omission reject; stale staged roots reject. Limits: 10,000 saved players, 100,000 drops, 4 MiB metadata, unchanged 16 MiB envelope. No authentication data was read and no multiplayer server started.
+
+Final broad suite: 45 tests passed in 54.912 s, no skips. Actual CLI passed 34 rejection cases; maximum synthetic metadata was 2,610,020 bytes. Existing format, offline import, bundle/source fencing, dependency and generation regressions passed. Playtest: actual child CLI exit 0 and fresh own-window image inspected. Browser/game playtesting does not apply to tools-only metadata. All 224 native hashes unchanged; no blanket game reruns. No deleted paths against review base; diff whitespace check passed.
+
+Evidence: `structure-server-metadata.json` and `structure-server-metadata-cli.png`, pending controller publication. Server importer/live ownership, ordinary-edit persistence, durable directory publication and full city/maximum physical-GPU/32-client benchmarks remain pending. Manual tail schema parity is not a real server save. Prefix-only city bytes test transport, not semantic city validity. Keep all rollout gates; not ready. Next: bounded server base-file migration and actual ownership integration before full qualification.
+
 ## Private offline file-bundle capture and source fencing
 
 Exact parent `01dd6302` has eight successful platform builds; publication skipped.

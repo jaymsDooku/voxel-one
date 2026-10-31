@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "parent_head": "999c798799f486f25eeef333bc94a260ca4ade40",
+  "review_base": "71612f09bfec4549456b3317676e76cdced085a4",
+  "scope": "Tools-only private server survival metadata; no production integration",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "runtime": "Java 17 compilation, CLI -Xmx512m; inherited managed display for Swing viewer"
+  },
+  "source_sha256": {
+    "tools/structures/RegionGenerationPrototype.java": "a14fc34e5f006b26ef6fa50113b5c110b14cf3eeabb6eb67092a068de2a8508a",
+    "tools/structures/RegionServerMetadataPrototype.java": "d91021b34314de8d2d7f811e2d27ea62f91ecdb3229a6a901b229f3ba80fc438",
+    "tools/structures/RegionWorldLibraryPrototype.java": "810bf02dbdc97b9efbd6a88472949ea698ff50ae269a5f05421377f6e026881f",
+    "tools/structures/RegionServerMetadataCheck.java": "2180dd2ede06b6690a65abcce57bebb2d36c41943aae6bd3f3399566f3952116",
+    "tools/structures/RegionGenerationEvidence.java": "4d3f88a38cbc476a89a97f121cf174fe9a2fec146b6e7a1b36def75a659c13c8",
+    "tools/structures/RegionAuthorityPrototype.java": "73914e739198ed2dc24dcc201ff217c69a9fb1d55ea9c9b7809beeee0b3f402e",
+    "tools/structures/test_region_history.py": "3f6a3dbc0c04807341747d67bc6d2fddbe53ec0da72bbd7067de3dccc9ffb76c"
+  },
+  "commands": [
+    {
+      "command": "python3 -m unittest discover -s tools/structures -p 'test_*.py'",
+      "exit": 0,
+      "result": "45 tests, 54.912 s, OK; no skips"
+    },
+    {
+      "command": "javac --release 17 -cp target/classes -d target <region history, dependency, offline/server metadata, sidecar, world-library, generation, authority, server check and viewer sources>",
+      "exit": 0
+    },
+    {
+      "command": "java -Xmx512m -cp target:target/classes RegionServerMetadataCheck",
+      "exit": 0,
+      "result": {
+        "status": "passed",
+        "sample_players": 3,
+        "maximum_players": 10000,
+        "maximum_drops": 100000,
+        "maximum_metadata_bytes": 2610020,
+        "rejection_cases": 34,
+        "generation_restart": true,
+        "production_integration": false,
+        "qualification": false
+      }
+    },
+    {
+      "command": "java -cp target:target/classes RegionGenerationEvidence RegionServerMetadataCheck",
+      "child_exit": 0,
+      "viewer_cleanup_exit": 130
+    },
+    {
+      "command": "gh pr view 76 --json headRefOid,statusCheckRollup",
+      "result": "Exact parent 999c7987; eight successful builds, two publication checks skipped"
+    },
+    {
+      "command": "git diff --check 71612f09bfec4549456b3317676e76cdced085a4",
+      "exit": 0,
+      "deleted_paths": []
+    }
+  ],
+  "playtest": "Playtest: actual CLI capture/encode/decode/private generation commit/restart and subsequent geometry save. Expected exact synthetic names/inventory/health/drops and sidecar bytes; observed preserved. Expected malformed/missing-model/oversized/cancelled/stale/mode-changing operations reject; observed 34 rejection cases passed. Browser/native game playtest does not apply to tools-only codecs. Actual child exit 0 shown in fresh own-window image, visually inspected.",
+  "image": {
+    "path": "dashboard/evidence/structure-server-metadata-cli.png",
+    "bytes": 6341,
+    "sha256": "493f6f72a6938b5865afabfd337ba894f24583d8cb04f7173355d81c73407f51",
+    "publication": "pending controller publication"
+  },
+  "native_regression": "All 224 production Java/native-harness hashes match retained tested source; no unchanged native or Maven rerun.",
+  "privacy": "All player identifiers and inventories are synthetic. No authentication data read and no multiplayer server started.",
+  "limits": [
+    "10,000 private saved player records",
+    "100,000 drops",
+    "4 MiB server metadata",
+    "16 MiB whole private envelope"
+  ],
+  "limitations": [
+    "Manual modern saved-tail schema comparison is not actual MultiplayerServer save execution.",
+    "Prefix-only city sidecar verifies framing and exact bytes, not semantic CityFrame validity.",
+    "Server base-file import and live owner-thread integration remain unfinished.",
+    "Whole-file staging, peak memory, 100 ms stalls, directory fsync and power-loss recovery remain unqualified.",
+    "Full city/maximum 20-run physical-GPU and shaped-network 32-rendered-client qualification remains pending. Production caps unchanged; rollout gated."
+  ],
+  "qualification": false,
+  "ready": false
+}
