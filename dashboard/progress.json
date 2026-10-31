@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-31T18:25:16+00:00",
+  "updatedAt": "2026-10-31T18:45:16+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Added owner-fenced world/history cell snapshots with detached worker geometry reads. 37 production tests and 3 integrations passed; 2054-cell CLI reconstruction and fresh image recorded. Region persistence, owner installation and full qualification pending.",
-      "updatedAt": "2026-10-31T18:25:16+00:00"
+      "note": "Private owner backup now reads fenced world cells without flat replay. 34 production tests and 4 integrations passed; 4829-cell generated-city restart, 10 failures and fresh CLI image recorded. Live backend and full qualification pending.",
+      "updatedAt": "2026-10-31T18:45:16+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

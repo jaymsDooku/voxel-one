@@ -50,9 +50,40 @@ public final class RegionOfflineOwnerPrototype {
         var candidate=RegionWorldLibraryPrototype.capture(geometry,state.models(),survival,cancel);if(state.city()!=null)candidate=candidate.withSidecars(state.city().sidecars(),cancel);candidate.encode(cancel);
         owner.call(()->{validate(game,state,frozen,cancel);return null;},cancel);return new Snapshot(game,state,frozen,candidate);
     }
+    private record GeometryState(State state,WorldVoxels.CellSnapshot geometry){}
+    /** Worker only. Caller supplies the current owner-managed world, initially consistent
+     * with game history. World, terrain and game mutation must stay serialized on that
+     * owner through commit. Geometry stays per-cell; no flat history replay is performed. */
+    public static Snapshot capture(LocalGame game,java.util.function.Supplier<WorldVoxels> currentWorld,StructureOwnerQueue owner,BooleanSupplier cancel)throws IOException {
+        Objects.requireNonNull(game);Objects.requireNonNull(currentWorld);Objects.requireNonNull(owner);Objects.requireNonNull(cancel);check(cancel);
+        try {
+            var captured=owner.call(()->{
+                var state=read(game,cancel);var geometry=Objects.requireNonNull(currentWorld.get()).cellSnapshot(state.history());
+                if(geometry.terrainSeed()!=game.seed||geometry.terrainVersion()!=game.generatorVersion)throw new IOException("Owner world identity differs");
+                return new GeometryState(state,geometry);
+            },cancel);
+            var state=captured.state();var geometry=captured.geometry();var cells=new ArrayList<Protocol.CellState>();
+            while(true) {
+                var positions=owner.call(()->{validateGeometry(game,state);check(cancel);return geometry.nextBatch(currentWorld.get(),state.history());},cancel);
+                if(positions.isEmpty())break;
+                for(var position:positions){check(cancel);if(cells.size()>=100_000)throw new IOException("Owner final-cell budget");cells.add(geometry.cell(position));}
+            }
+            var region=RegionHistoryPrototype.fromCells(game.seed,game.generatorVersion,cells,new RegionHistoryPrototype.CodecBudget(8*1024*1024,100_000,1024,131_072),cancel);
+            var survival=RegionOfflineMetadataPrototype.capture(state.inventory(),state.health(),state.drops(),state.models(),cancel);byte[] frozen=survival.encode(cancel);
+            var candidate=RegionWorldLibraryPrototype.capture(region,state.models(),survival,cancel);if(state.city()!=null)candidate=candidate.withSidecars(state.city().sidecars(),cancel);candidate.encode(cancel);
+            var snapshot=new Snapshot(game,state,frozen,candidate,currentWorld,geometry);
+            owner.call(()->{snapshot.validate(cancel);return null;},cancel);return snapshot;
+        }catch(ConcurrentModificationException changed){throw new IOException("Owner world changed; retry region backup",changed);}
+    }
     public static final class Snapshot {
         private final LocalGame game;private final State state;private final byte[] metadata;private final RegionWorldLibraryPrototype candidate;
-        private Snapshot(LocalGame game,State state,byte[] metadata,RegionWorldLibraryPrototype candidate){this.game=game;this.state=state;this.metadata=metadata;this.candidate=candidate;}
+        private final java.util.function.Supplier<WorldVoxels> currentWorld;private final WorldVoxels.CellSnapshot geometry;
+        private Snapshot(LocalGame game,State state,byte[] metadata,RegionWorldLibraryPrototype candidate){this(game,state,metadata,candidate,null,null);}
+        private Snapshot(LocalGame game,State state,byte[] metadata,RegionWorldLibraryPrototype candidate,java.util.function.Supplier<WorldVoxels> currentWorld,WorldVoxels.CellSnapshot geometry){this.game=game;this.state=state;this.metadata=metadata;this.candidate=candidate;this.currentWorld=currentWorld;this.geometry=geometry;}
+        private void validate(BooleanSupplier cancel)throws IOException {
+            RegionOfflineOwnerPrototype.validate(game,state,metadata,cancel);
+            if(geometry!=null&&!geometry.unchanged(currentWorld.get(),state.history()))throw new IOException("Owner world changed; retry region backup");
+        }
         public Staged stage(RegionGenerationPrototype destination,BooleanSupplier cancel)throws IOException {
             Objects.requireNonNull(destination);var loaded=destination.load(cancel);
             if(loaded.isPresent()){
@@ -71,7 +102,7 @@ public final class RegionOfflineOwnerPrototype {
         public synchronized RegionGenerationPrototype.Receipt commit(BooleanSupplier cancel)throws IOException {
             if(closed)throw new IOException("Owner backup stage closed");Objects.requireNonNull(cancel);
             if(Thread.currentThread()!=source.state.ownerThread())throw new IOException("Original owner thread required");
-            validate(source.game,source.state,source.metadata,cancel);var receipt=file.commit(cancel);closed=true;return receipt;
+            source.validate(cancel);var receipt=file.commit(cancel);closed=true;return receipt;
         }
         @Override public synchronized void close()throws IOException{closed=true;file.close();}
     }

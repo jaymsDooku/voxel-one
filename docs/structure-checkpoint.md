@@ -1,5 +1,16 @@
 # Structure review fix checkpoint
 
+## Private owner backup from fenced world cells
+
+Added capture overload using current-world supplier and production cell snapshot. Owner reads game/state and world together, checks seed/terrain version, supplies position batches≤1024; worker reads frozen cells without flat replay. Existing geometry/envelope caps remain. Final encoding and owner commit revalidate game metadata/library/city plus current-world identity/revisions. Existing replay path retained. Added immutable terrain identity getters to production snapshot.
+
+Thirty-four targeted production tests passed,0 failures/errors/skips. Four affected integrations passed in22.951s. Playtest: actual synthetic LocalGame, WorldVoxels and generated city with Ground.apply updating world/history;4829 cells captured and strict restart compared cell-by-cell. Models, survival and city/history retained. Ten stale/cancel/wrong-seed cases reject with prior generation bytes unchanged; retry generation2 captures latest state.69 owner pumps observed. Legacy world/city/history files unchanged. Fresh actual child exit0 image inspected. Noninteractive persistence path; browser/native rendering does not apply.
+
+Caller must supply initially consistent world/history and serialize all world/terrain/game mutation on the same owner through commit. Snapshot/metadata owner cost remains unqualified. Last post-test edit clarified this contract in Javadoc only. Parent `c04b4a70` has eight successful builds; publication skipped. New edits await publication/exact-head checks. Historical native baseline221/224unchanged; old native media is not proof for these persistence changes. No deleted paths against review base; diff check passed. Evidence `structure-owner-cells.json` and `structure-owner-cells-cli.png`, pending controller publication.
+
+Next: production region persistence/streaming and live owner installation. Full city/maximum admission and20-run budgets, physical GPU, shaped32-client, stall/memory and directory durability remain pending. No caps raised or gates weakened.
+
+
 ## Production owner-fenced world cell snapshot
 
 Added WorldVoxels.CellSnapshot combining distinct-cell cursor and COW geometry. Owner-only batches/final unchanged check fence world/history identities and revisions plus terrain generation. Worker cell reads return frozen detached cells with terrain checks before/after. World revision advances on replacement, nonempty clear and patch-result merge. Requires same owner thread/authority lock and final validation immediately before publication; no automatic publication.
