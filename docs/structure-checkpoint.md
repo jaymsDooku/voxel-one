@@ -1,5 +1,15 @@
 # Structure review fix checkpoint
 
+## Private modern server base-file import
+
+Exact parent `b1c8eb1b` has eight successful hosted platform builds; publication skipped. Added a tools-only bounded parser for server save markers `-3` through `-9`, retaining seed/generator, final geometry, full saved model definitions and aliases, synthetic player names/inventories/health and drops. Uses existing per-format production field codecs. Unversioned files reject explicitly; no authentication data is read and no server starts. Source bytes are copied, never changed; candidate admission completes before return. Optional typed sidecars remain outside reusable structures.
+
+Limits remain conservative: 16 MiB source/envelope, 8 MiB model section, 200,000 source edits, 100,000 final touched cells, 1,024 regions and 131,072 leaves; 10,000 saved players and 100,000 drops within 4 MiB server metadata. Both full qualification fixtures still exceed production caps. No supported-city claim.
+
+Playtest: 13 hand-built schema fixtures across seven server markers, all three stored terrain versions where present, private generation commit/restart, exact state, retry, malformed input and cancellation. Actual CLI passed 283 rejection cases; 28-byte empty modern file accepted. Fresh actual child exit 0 image inspected. Initial fixture incorrectly put placed-only ID 4096 in inventory; corrected to use inventory ID 42 while retaining placed ID 4096. A later full suite stopped with exit 143 after 37 dots, without a summary; it is not counted as passed. Final bounded batches passed 7 + 6 + 33 = 46 tests, with no skips; exact test names and summaries are in the report.
+
+The fixture oracle uses production field readers, not a running server loader or actual server save writer. Prefix-only city bytes test framing only. Automatic server file-bundle migration, source fencing/live owner-state integration, ordinary edits, directory durability and full city/maximum physical-GPU/shaped-32-client qualification remain pending. All 224 native hashes unchanged; no blanket native/Maven rerun. Evidence: `structure-server-import.json` and `structure-server-import-cli.png`, pending controller publication.
+
 ## Windows source-encoding CI repair
 
 Exact head `65fee8e9` failed Windows structure-tool validation in `test_server_metadata`. The Python wrapper hid child stderr. Compiling the fixture with explicit Windows-1252 locally reproduced exit 1 and `Invalid/duplicate server player`: UTF-8 omega source bytes became two characters, violating the 16-character fixture boundary. The wrapper now passes `javac -encoding UTF-8` and reports at most 4,000 characters of synthetic child stderr on failure. No fixture limits or assertions were weakened. All 12 affected integration tests passed with `JAVA_TOOL_OPTIONS=-Dfile.encoding=windows-1252`; no skips.

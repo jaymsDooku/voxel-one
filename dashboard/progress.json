@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-31T14:03:43+00:00",
+  "updatedAt": "2026-10-31T14:23:07+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Fixed Windows Java source encoding in structure integration wrapper. Reproduced failure with Windows-1252; all 12 affected tests pass with explicit UTF-8 under that process default. Fresh CLI image saved. Hosted rerun and full city/GPU/32-client qualification pending.",
-      "updatedAt": "2026-10-31T14:03:43+00:00"
+      "note": "Added bounded private importer for modern server save schemas -3 through -9. Thirteen synthetic schema fixtures and 283 rejection cases passed; all 46 tool tests passed in bounded batches. Fresh CLI image saved. Live integration and full city/GPU/32-client qualification remain pending.",
+      "updatedAt": "2026-10-31T14:23:07+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
