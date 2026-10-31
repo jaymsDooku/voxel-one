@@ -1,5 +1,14 @@
 # Structure review fix checkpoint
 
+## Detached restore game-mode guard
+
+Parent `1526b3ab` has eight successful hosted builds; publication skipped. Added optional expected game configuration to private complete restore. City/sandbox mismatch rejects before physical restoration, following LocalGame policy. Matching modes and missing legacy sidecars pass; detached inspection overload remains. No live owner installation.
+
+Three affected integrations passed in17.315s, no skips. CLI passed17 total rejection cases and source preservation. Playtest: synthetic actual city/history and private generation restore, both cross-game rejects, matching modes and legacy absence. Persistence-only tools; browser/native rendering does not apply. Fresh child exit0 image inspected. Evidence `structure-restore-mode.json` and `structure-restore-mode-cli.png`, pending controller publication. No production Java changes or repeated Maven/native run; no deleted paths against review base; diff check passed.
+
+Live owner/backend integration and full city/maximum20-run, physical-GPU, shaped32-client, stall/memory and durability qualification remain pending. No caps raised or gates weakened.
+
+
 ## Strict detached complete restore
 
 Parent `02da3dbb` has eight successful hosted builds; publication skipped. Private world/library restore now optionally decodes city frames and matching history through strict production codecs before restoring geometry. Missing history remains explicit. Malformed or cancelled decoding exposes no result and leaves source bytes and private generation unchanged. No live owner state is installed.
