@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-31T09:04:53+00:00",
+  "updatedAt": "2026-10-31T09:27:14+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Fixture CLI now measures canonical region-history cost without allocating Edit objects: city 1,008,528 records/2,173 chunks; maximum 11,967,232 records/8,192 chunks. Both full fixtures verified; actual Java replay oracle and 33 tool tests passed. Admission caps unchanged. Partitioned canonical storage and full physical-GPU/32-client qualification remain pending.",
-      "updatedAt": "2026-10-31T09:04:53+00:00"
+      "note": "Tools-only region-history prototype now preserves canonical replay across terrain versions 1\u20133: each cohort checks 5,004 edits, 102 cells and 35 regions. Cancellation, budgets, air/model/LED data, negative boundaries and snapshot isolation passed; all 34 structure-tool tests passed. Production storage and admission unchanged. Region codec/integration and full city/maximum GPU/network qualification remain pending.",
+      "updatedAt": "2026-10-31T09:27:14+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

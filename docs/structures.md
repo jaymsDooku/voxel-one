@@ -146,6 +146,19 @@ Undo must reject conflicting later edits. Measure live geometry, old/new roots
 and retained undo together, not serialized storage alone. This migration is not
 implemented or qualified by the diagnostic.
 
+A tools-only migration prototype now groups final canonical cell states into
+16-cell regions. Replay checks cover terrain generator versions 1, 2 and 3,
+explicit air overrides, fractional LED colours, model IDs, negative coordinates,
+world boundaries, immutable snapshots and later edits. Its source is
+`tools/structures/RegionHistoryPrototype.java`; run the integration check with
+`python3 -m unittest discover -s tools/structures -p 'test_region_history.py'`
+after compiling production classes. It retains seed and generator version and
+publishes a result only after migration finishes. Diagnostic count budgets and
+cancellation are checked; these are not decoded-byte or peak-memory bounds.
+It has no region codec, dependency manifest or production integration yet.
+No city-sized storage, save, network, atomic commit or undo claim follows from
+these small replay checks. Results: `structure-region-history-prototype.json`.
+
 Reference hardware and network qualification is deferred. The current commit
 path serializes placements and validates/stages work off-thread, but final owner
 thread application, persistence, initial dependency loading and render uploads

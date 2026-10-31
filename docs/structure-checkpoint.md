@@ -1,5 +1,43 @@
 # Structure review fix checkpoint
 
+## Private region-history migration prototype
+
+Fresh hosted observation matched `fb76de63`: eight successful platform builds;
+publication skipped. The worktree was clean at the start. No unchanged native
+or Maven checks were rerun. All 224 native source paths still match the recorded
+workflow manifest.
+
+The next architecture step is now a tools-only executable prototype. It imports
+a detached canonical replay into private geometry and groups frozen final cells
+by 16-cell regions. It keeps explicit air, model IDs, terrain seed and generator
+version. It does not publish a partial result on cancellation or failure.
+Count budgets are at most 200,000 source edits, 100,000 cells and 1,024 regions;
+these are diagnostic bounds, not a measured memory/decoded-byte qualification.
+
+Actual Java checks passed for terrain versions 1, 2 and 3. Each cohort replays
+5,004 raw edits and 489 canonical records into 102 cells across 35 regions.
+Every touched cell matches both raw and legacy indexed replay. Checks include
+fractional LED/material edits, models, explicit air over natural terrain,
+untouched seeded terrain, negative boundaries and extreme legal coordinates,
+snapshot isolation after later edits, immutable maps/lists/trees, exact/overflow
+budgets, invalid inputs, cancellation during final snapshot, preserved interrupt
+flags, retry and empty history. Initial fixtures incorrectly used Blocks.piece
+for air and y=-100 as natural terrain; corrected before final checks. Retaining
+the terrain generator version was added before checking all old versions.
+
+Playtest: compiled and exercised the CLI migration against production replay.
+Browser/native playtesting does not apply to this tools-only change. All 34
+structure-tool tests passed with zero errors, failures or skips. Report:
+`structure-region-history-prototype.json`. Production history, saves, networking
+and admission caps remain unchanged. Current game media remains applicable.
+
+Next: bounded region codec and global dependency manifest, then real integration
+with old-save migration, atomic generation publication, conflict-safe undo and
+late-join transfer. Full city/maximum and physical-GPU/shaped-network/32-rendered-
+client qualification remain pending. Stable rollout and independent review stay
+gated. New local prototype/docs/report need controller publication and hosted
+checks; this is not readiness.
+
 ## Canonical region-history cost diagnostic
 
 The controller reports successful required platform builds for `d637c329`.
