@@ -1,0 +1,48 @@
+{
+  "parent": "1526b3abe3a7c7c8743358922ae45ae8c31acb4b",
+  "change": "Optional expected game mode rejects mismatching city/sandbox sidecar before physical restore, following LocalGame policy. Existing no-expectation overload retained for detached inspection; missing legacy sidecar accepted. No live installation.",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "java": "25.0.3+9-LTS-195",
+    "release": 17,
+    "heap": "512 MiB",
+    "display": "inherited assigned display, synthetic own window"
+  },
+  "commands": [
+    "javac -encoding UTF-8 --release 17 -cp target:target/classes -d target tools/structures/RegionWorldLibraryPrototype.java tools/structures/RegionCompleteRestoreCheck.java tools/structures/RegionGenerationEvidence.java",
+    "java -Xmx512m -cp target:target/classes RegionCompleteRestoreCheck",
+    "python3 -m unittest tools.structures.test_region_history.RegionHistoryIntegrationTest.test_complete_restore tools.structures.test_region_history.RegionHistoryIntegrationTest.test_world_library tools.structures.test_region_history.RegionHistoryIntegrationTest.test_offline_owner",
+    "java -cp target:target/classes RegionGenerationEvidence RegionCompleteRestoreCheck",
+    "import -display \"$DISPLAY\" -window 2097159 dashboard/evidence/structure-restore-mode-cli.png",
+    "gh pr view 76 --json headRefOid,statusCheckRollup"
+  ],
+  "tests": "3 integrations passed in 17.315 s; no skips. Production Java unchanged; prior Maven results retained, not rerun.",
+  "playtest": "Playtest: synthetic actual CitySimulation/history in private world generation. Expected both cross-game restores to reject; matching city and sandbox restores and legacy absent-sidecar restore to pass without source mutation. Observed all passed; direct CLI and viewer child exit 0. Fresh own-window image inspected. Browser/native rendering does not apply to this tools-only persistence change.",
+  "result": {
+    "status": "passed",
+    "game_mode_guard": true,
+    "legacy_city_formats": 17,
+    "offline_and_server_metadata": true,
+    "rejection_cases": 17,
+    "source_unchanged": true,
+    "live_region_backend": false,
+    "qualification": false
+  },
+  "hosted": "Eight exact-parent builds successful; two publication jobs skipped. New edits await publication and CI.",
+  "source_sha256": {
+    "tools/structures/RegionWorldLibraryPrototype.java": "46e21dafcf7b8214d0bb80ce9e72b004efa21e5bfa7366f496eb1f73ae23c163",
+    "tools/structures/RegionCompleteRestoreCheck.java": "0f097160e10d636a0bb6a67df2e29f728d854e37abb334f002ad2bde645a8e12"
+  },
+  "image": {
+    "file": "structure-restore-mode-cli.png",
+    "sha256": "e7603b3fda1508e9cdfe9a0596d50f7d82dafdab81db6472255376c7634e0017",
+    "publication": "pending controller"
+  },
+  "audit": "No deleted paths against review base 71612f09bfec4549456b3317676e76cdced085a4; diff check passed. No intended deletions.",
+  "pending": [
+    "Live owner installation and region backend integration",
+    "Full city/maximum admission and 20-run budgets",
+    "Physical GPU and shaped 32-rendered-client qualification",
+    "Main-thread stall, peak-memory and directory durability qualification"
+  ]
+}

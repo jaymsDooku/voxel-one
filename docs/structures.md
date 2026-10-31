@@ -1187,3 +1187,5 @@ The existing file loader delegates to the strict reader while retaining its esta
 ### Private detached complete restore
 
 The tools-only world/library experiment can strictly decode optional city frames and matching history before physical restoration. It returns detached state, keeps missing history explicit, rejects malformed or cancelled input, and never installs live owner state. Five affected integrations and a synthetic restart/cancellation CLI passed; see `dashboard/evidence/structure-complete-restore.json`. Seventeen legacy cases cover empty wire fixtures only. Existing production constructor normalization prevents claiming full simulation frame equality after construction. Live region persistence, owner installation and all full-fixture qualification gates remain pending.
+
+Private complete restore also accepts an expected game configuration. It rejects a city/sandbox sidecar mismatch before physical restoration, following LocalGame policy. Missing legacy sidecars remain valid. This guard is tested in `dashboard/evidence/structure-restore-mode.json`; live backend integration and full qualification remain pending.

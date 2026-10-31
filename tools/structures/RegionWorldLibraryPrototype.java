@@ -95,8 +95,14 @@ public final class RegionWorldLibraryPrototype {
     public record CompleteRestored(WorldVoxels world,ModelLibrary models,Optional<RegionOfflineMetadataPrototype> offline,Optional<RegionServerMetadataPrototype> server,Optional<RegionCityRestorePrototype.Restored> city){}
     /** Detached candidate only. Strict city/history decode completes before geometry restoration. */
     public CompleteRestored restoreComplete(BooleanSupplier cancel)throws IOException {
+        return restoreComplete(null,cancel);
+    }
+    /** Expected game mode follows LocalGame policy. Absence of legacy sidecars remains valid. */
+    public CompleteRestored restoreComplete(dev.jayms.net.city.GameConfig expected,BooleanSupplier cancel)throws IOException {
         Objects.requireNonNull(cancel);check(cancel);
         var city=sidecars==null?Optional.<RegionCityRestorePrototype.Restored>empty():Optional.of(RegionCityRestorePrototype.decode(sidecars,cancel));
+        if(expected!=null&&city.isPresent()&&city.orElseThrow().frame().config().city()!=expected.city())
+            throw new IOException("World belongs to another game; select that game or use a different world path");
         var physical=restore(cancel);check(cancel);return new CompleteRestored(physical.world(),physical.models(),metadata(),serverMetadata(),city);
     }
     public record Restored(WorldVoxels world,ModelLibrary models){}
