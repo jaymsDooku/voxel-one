@@ -1,0 +1,121 @@
+{
+  "schema": 1,
+  "parent_head": "b1c8eb1bc5ffe3ad237e070c1808f7623518552b",
+  "review_base": "71612f09bfec4549456b3317676e76cdced085a4",
+  "scope": "Tools-only modern server saved-world byte import into private generations",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "java": "25.0.3+9-LTS-195",
+    "compile_release": 17,
+    "cli_heap": "512 MiB",
+    "graphics": "Inherited managed display; own Swing window only"
+  },
+  "source_sha256": {
+    "tools/structures/RegionServerImportPrototype.java": "184a23d03d0c26c8d8c76dcdd5d387a60dc1aa033908416d29276fbee044724a",
+    "tools/structures/RegionServerImportCheck.java": "8ed7820794cb3128db2d9dd9ab479576b91de249ed3b4ac58e8e5166e804cc38",
+    "tools/structures/RegionGenerationEvidence.java": "7f5ffe24d60e17c330f8f427404f9c6abf83d9aa096264b83a4e8dbde287fe37",
+    "tools/structures/test_region_history.py": "28db6c69003b94f5f5f39bd0d4e6336d2249b4f2bb99ba7acdbd2c7826a1a436",
+    "src/main/java/dev/jayms/net/MultiplayerServer.java": "57126cce483c7de1894e4c618698121b1b786d7d41ae776364ec026263e021a3"
+  },
+  "commands": [
+    {
+      "command": "gh pr view 76 --json headRefOid,statusCheckRollup",
+      "result": "Exact parent b1c8eb1b; eight successful platform builds, publication skipped"
+    },
+    {
+      "command": "javac -encoding UTF-8 --release 17 -cp target:target/classes -d target tools/structures/RegionServerImportPrototype.java tools/structures/RegionServerImportCheck.java tools/structures/RegionGenerationEvidence.java",
+      "exit": 0
+    },
+    {
+      "command": "java -Xmx512m -cp target:target/classes RegionServerImportCheck",
+      "exit": 0,
+      "result": {
+        "status": "passed",
+        "server_formats": 7,
+        "schema_fixtures": 13,
+        "minimum_bytes": 28,
+        "rejection_cases": 283,
+        "production_integration": false,
+        "qualification": false
+      }
+    },
+    {
+      "command": "python3 -m unittest discover -s tools/structures -p 'test_*.py'",
+      "exit": 143,
+      "result": "Interrupted after 37 progress dots; no summary; not a pass"
+    },
+    {
+      "command": "python3 stdin: load sorted RegionHistoryIntegrationTest names[:7] into unittest.TestSuite, TextTestRunner.run; exit not wasSuccessful",
+      "tests": [
+        "test_actual_engine_authority",
+        "test_actual_replay_migration",
+        "test_bounded_codec",
+        "test_dependency_manifest",
+        "test_generation_publication",
+        "test_offline_bundle",
+        "test_offline_import"
+      ],
+      "exit": 0,
+      "summary": ".......\n----------------------------------------------------------------------\nRan 7 tests in 46.239s\n\nOK"
+    },
+    {
+      "command": "python3 stdin: load sorted RegionHistoryIntegrationTest names[7:] into unittest.TestSuite, TextTestRunner.run; exit not wasSuccessful",
+      "tests": [
+        "test_offline_legacy",
+        "test_offline_metadata",
+        "test_server_import",
+        "test_server_metadata",
+        "test_sidecars",
+        "test_world_library"
+      ],
+      "exit": 0,
+      "summary": "......\n----------------------------------------------------------------------\nRan 6 tests in 42.193s\n\nOK"
+    },
+    {
+      "command": "python3 stdin: load every tools/structures/test_*.py module except test_region_history into unittest.TestSuite, TextTestRunner.run; exit not wasSuccessful",
+      "exit": 0,
+      "summary": ".................................\n----------------------------------------------------------------------\nRan 33 tests in 16.835s\n\nOK"
+    },
+    {
+      "command": "java -cp target:target/classes RegionGenerationEvidence RegionServerImportCheck",
+      "child_exit": 0,
+      "viewer_cleanup_exit": 143
+    },
+    {
+      "command": "git diff --check 71612f09bfec4549456b3317676e76cdced085a4",
+      "exit": 0,
+      "deleted_paths": []
+    }
+  ],
+  "initial_fixture_failure": "Inventory.add rejected placed-only model ID 4096. Corrected fixture keeps 4096 in geometry and uses legacy model42 for inventory/drops; actual assertions and limits retained.",
+  "playtest": "Playtest: 13 hand-built server-schema fixtures across seven modern markers and stored terrain versions1..3. Expected exact final geometry/color/fractional state, terrain identity, all model definitions/unused aliases, Unicode names, inventories, health and drops through candidate/private commit/restart; observed preserved. Expected 283 malformed/count/missing-model/cancel/interrupt rejection cases with unchanged source/destination and deterministic retry; observed passed. Fresh actual child CLI exit0 image inspected. Browser/native game playtesting does not apply to tools-only import; native source hashes unchanged.",
+  "image": {
+    "path": "dashboard/evidence/structure-server-import-cli.png",
+    "bytes": 5568,
+    "sha256": "bc20b42ddad5fab3fba5c86ccdf7af9b2cba556c9a3d850946498e8ecef12204",
+    "publication": "pending controller publication"
+  },
+  "regression": "46 final tool tests passed in bounded batches (7+6+33), no skips. All224 production/native-harness source hashes match retained tested baseline.",
+  "limits": {
+    "source_bytes": 16777216,
+    "library_bytes": 8388608,
+    "source_edits": 200000,
+    "final_touched_cells": 100000,
+    "regions": 1024,
+    "geometry_leaves": 131072,
+    "players": 10000,
+    "drops": 100000,
+    "server_metadata_bytes": 4194304,
+    "whole_envelope_bytes": 16777216
+  },
+  "limitations": [
+    "Hand-built schemas use production field codecs and expected geometry readers; neither actual MultiplayerServer save writer nor server loader was executed.",
+    "No authentication data read; no multiplayer server started. Identifiers and inventory data are synthetic.",
+    "Older unversioned formats reject explicitly. Prefix-only city bytes test framing, not semantic CityFrame validity.",
+    "No server file-bundle migration/source fence/live owner-state publication or ordinary-edit integration yet.",
+    "Synchronous private decoding, peak memory, game-thread100ms budgets, directory fsync and power-loss recovery remain unqualified.",
+    "Both full qualification fixtures still exceed production caps. Full20-run city/maximum physical-GPU and shaped-network32-rendered-client validation remain pending; rollout gated."
+  ],
+  "qualification": false,
+  "ready": false
+}
