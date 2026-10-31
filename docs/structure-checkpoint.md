@@ -1,5 +1,15 @@
 # Structure review fix checkpoint
 
+## Actual LocalGame owner-queue private backup adapter
+
+Exact parent `cb927db3` has eight successful hosted builds; publication skipped. Added a tools-only adapter over actual synthetic LocalGame and existing StructureOwnerQueue. Worker captures versioned history/model identity+revision and detached survival state on owner, streams at most1,024 edits per owner request, builds bounded region payload/stages private file on worker, and publishes directly on original owner after full revalidation. No mutation goes through the read-only queue. No running-game state or legacy source file is replaced.
+
+CLI passed20 rejection cases, exact geometry/model/survival restoration, retry and cleanup. Stale identity/revision/ABA, inventory/health/drop/model changes, changes during capture, wrong thread/destination, competing stage, closed queue, cancellation, active city and unversioned history reject. Native hashes unchanged. Eight unaffected integration regressions passed before final adapter-only destination guard; final four plus three tests passed after it, including actual adapter check. One7-test batch stopped with exit143 after four dots, no summary, not counted. Smaller final batches passed with no skips. Fresh actual CLI child exit0 image inspected; evidence `structure-offline-owner.json` and `structure-offline-owner-cli.png`, pending controller publication.
+
+Playtest: actual synthetic LocalGame/owner queue/private commit/restart. Browser/game rendering does not apply to tools-only adapter. All224 native hashes match retained tested source; no blanket native/Maven rerun. No deleted paths against review base; diff check passed.
+
+Owner metadata copy/validation and rename remain synchronous and unqualified for100ms stalls/peak memory. Requires all game mutations on its owner thread. Active city rejects pending coordination; this does not select or restore a live region backend. Server ownership, ordinary-edit region persistence, directory durability and full city/maximum physical-GPU/shaped32-client qualification remain pending; no caps raised or rollout gate removed.
+
 ## Private server file-bundle source fence
 
 Exact parent `a1bd2ead` has eight successful hosted platform builds; publication skipped. Added explicit `captureServer` entry to the common private bundle coordinator. Immutable snapshot mode chooses the correct decoder; all source monitor/revision, fixed-slot, byte/absence revalidation, cancellation, strict private generation commit and cleanup rules are shared. No source files are replaced.
