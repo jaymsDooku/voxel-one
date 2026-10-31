@@ -1,0 +1,88 @@
+{
+  "parent": "77e706892eff0ed30ffc2d8474c210aae8724edb",
+  "change": "Indexed private backup admits up to existing offline2,000,000 flat source records instead of replay-only200,000 cap. Replay path stays200,000. Final cell/region admission100,000/1024 now runs before owner chunk-map cloning, through a caller-budgeted production cellSnapshot overload. Existing131072-leaf,8MiB geometry and16MiB private envelope limits unchanged. Final validation retains captured source count after identity/revision checks.",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "java": "25.0.3+9-LTS-195",
+    "compile_release": 17,
+    "cli_heap": "512 MiB",
+    "display": "inherited assigned display; own synthetic CLI window"
+  },
+  "commands": [
+    "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=WorldCellSnapshotTest,WorldHistoryCellCursorTest,WorldHistoryIndexTest,StructureOfflineHistoryStagingTest,StructureValidationStampTest test",
+    "javac -encoding UTF-8 --release 17 -cp target:target/classes -d target tools/structures/RegionOfflineOwnerPrototype.java tools/structures/RegionDenseHistoryCheck.java tools/structures/RegionGenerationEvidence.java",
+    "java -Xmx512m -cp target:target/classes RegionDenseHistoryCheck",
+    "python3 -m unittest tools.structures.test_region_history.RegionHistoryIntegrationTest.test_dense_indexed_history tools.structures.test_region_history.RegionHistoryIntegrationTest.test_offline_cell_owner tools.structures.test_region_history.RegionHistoryIntegrationTest.test_offline_owner tools.structures.test_region_history.RegionHistoryIntegrationTest.test_complete_restore",
+    "java -cp target:target/classes RegionGenerationEvidence RegionDenseHistoryCheck",
+    "import -display \"$DISPLAY\" -window 2097159 dashboard/evidence/structure-dense-history-cli.png"
+  ],
+  "production_tests": [
+    {
+      "class": "WorldCellSnapshotTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "WorldHistoryCellCursorTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "WorldHistoryIndexTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "StructureOfflineHistoryStagingTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "StructureValidationStampTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "tool_tests": "Final4 affected integrations passed in21.717s, no skips. Initial checks passed before adding pre-clone budgets; final production/tool/CLI checks ran after that change.",
+  "cli": {
+    "status": "passed",
+    "input_records": 200704,
+    "final_cells": 49,
+    "generation_bytes": 1205,
+    "preflight_budget_rejected": true,
+    "replay_path_rejected": true,
+    "indexed_path_restored": true,
+    "stale_rejected": true,
+    "source_unchanged": true,
+    "qualification": false
+  },
+  "playtest": "Playtest: build200704 actual valid depth4 edits covering49 full stone cells. Source world contains corresponding final full cells. Replay backup rejects input; indexed backup captures and strict restart compares all49 cells. Generation1 is1205bytes. Source size/revision and absent legacy path remain unchanged. Same-value revision change rejects staged commit without altering generation; retry publishes generation2. Over100000 indexed cells and1024 world chunks reject preflight; production tests verify exact/zero/negative budgets. Oversize budget fixtures deliberately need no consistent geometry because admission must reject before capture. Actual direct and displayed child exit0; fresh image inspected. Noninteractive data/persistence path; browser/native rendering does not apply.",
+  "scope": "This is redundant fine-edit history, not a fragmented geometry maximum or supplied city. No2million-record performance or admission boundary execution claimed. Existing final-geometry caps still reject full fixtures. World/history must initially correspond and mutations remain owner-serialized.",
+  "hosted": "Eight parent platform builds successful; two publication jobs skipped. New edits await controller publication/exact-head checks.",
+  "native_baseline": "221/224 retained historical native source files unchanged; LocalGame, WorldVoxels and CityHistory differ. Old native media is not exact-source proof for these persistence changes.",
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/WorldVoxels.java": "e00fa14f8c7367856a8b853e38f6ff176eb5f504af33297a88e2da865ad24479",
+    "src/test/java/dev/jayms/WorldCellSnapshotTest.java": "daf09a5c466d470a524512d1b96a64c09f1648d27ea72d039b36783033b64f3d",
+    "tools/structures/RegionOfflineOwnerPrototype.java": "a30a4378702dcaf1191b41f8df75454cbc919930ca0d60783080fb18b918b227",
+    "tools/structures/RegionDenseHistoryCheck.java": "8816655bff898ffd89e07e67aa955282d78fef6f763f16e5954d4fcf1057a97d",
+    "tools/structures/RegionGenerationEvidence.java": "01d4d48dcad2c4327bb4eeab09429bdd48ba971b2046ffeaf50e7c9a8899b5eb",
+    "tools/structures/test_region_history.py": "75dafe59bcdca29f3f1ecbabb25a3ee1694733f028b0820363beafed6693618b"
+  },
+  "media": {
+    "file": "structure-dense-history-cli.png",
+    "sha256": "784823a49affc2b94e8e5d0cf5f38a48967169ee964c8db5b187bffcf54793cf",
+    "publication": "pending controller"
+  },
+  "audit": "No deleted paths against71612f09bfec4549456b3317676e76cdced085a4; no intended deletions. git diff --check passed.",
+  "pending": "Production region persistence/streaming/owner installation, full city/maximum admission and20-run budgets, physical GPU, shaped32-client sync, stalls/peak memory and durability. Stable rollout remains gated."
+}

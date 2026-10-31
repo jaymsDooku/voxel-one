@@ -12,9 +12,12 @@ public final class RegionOfflineOwnerPrototype {
                          ModelLibrary liveModels,long modelRevision,ModelLibrary models,Inventory inventory,int health,List<ItemDrop> drops,RegionCityOwnerPrototype city){}
     private static void check(BooleanSupplier cancel){if(Thread.currentThread().isInterrupted()||cancel.getAsBoolean())throw new CancellationException();}
     private static State read(LocalGame game,BooleanSupplier cancel)throws IOException {
+        return read(game,cancel,200_000);
+    }
+    private static State read(LocalGame game,BooleanSupplier cancel,int historyLimit)throws IOException {
         check(cancel);
         if(!(game.edits instanceof WorldVoxels.History history))throw new IOException("Versioned history required");
-        if(history.size()>200_000||game.drops.size()>100_000)throw new IOException("Owner snapshot record budget");
+        if(history.size()>historyLimit||game.drops.size()>100_000)throw new IOException("Owner snapshot record budget");
         return new State(Thread.currentThread(),history,history.revision(),history.copyCursor(),history.size(),game.models,game.models.revision(),game.models.copy(),game.inventory.copy(),game.health,List.copyOf(game.drops.values()),game.city==null?null:RegionCityOwnerPrototype.capture(game.city,cancel));
     }
     private static void validateGeometry(LocalGame game,State state)throws IOException {
@@ -22,7 +25,7 @@ public final class RegionOfflineOwnerPrototype {
     }
     private static byte[] metadata(State state,BooleanSupplier cancel)throws IOException{return RegionOfflineMetadataPrototype.capture(state.inventory(),state.health(),state.drops(),state.models(),cancel).encode(cancel);}
     private static void validate(LocalGame game,State state,byte[] metadata,BooleanSupplier cancel)throws IOException {
-        validateGeometry(game,state);var current=read(game,cancel);
+        validateGeometry(game,state);var current=read(game,cancel,Math.max(200_000,state.count()));
         if((state.city()==null?current.city()!=null:!state.city().sameState(current.city()))||!Arrays.equals(metadata,metadata(current,cancel)))throw new IOException("Owner survival state changed; retry region backup");
         check(cancel);
     }
@@ -53,12 +56,13 @@ public final class RegionOfflineOwnerPrototype {
     private record GeometryState(State state,WorldVoxels.CellSnapshot geometry){}
     /** Worker only. Caller supplies the current owner-managed world, initially consistent
      * with game history. World, terrain and game mutation must stay serialized on that
-     * owner through commit. Geometry stays per-cell; no flat history replay is performed. */
+     * owner through commit. Geometry stays per-cell; no flat history replay is performed.
+     * Indexed input retains the existing offline limit of 2,000,000 records; output caps are unchanged. */
     public static Snapshot capture(LocalGame game,java.util.function.Supplier<WorldVoxels> currentWorld,StructureOwnerQueue owner,BooleanSupplier cancel)throws IOException {
         Objects.requireNonNull(game);Objects.requireNonNull(currentWorld);Objects.requireNonNull(owner);Objects.requireNonNull(cancel);check(cancel);
         try {
             var captured=owner.call(()->{
-                var state=read(game,cancel);var geometry=Objects.requireNonNull(currentWorld.get()).cellSnapshot(state.history());
+                var state=read(game,cancel,2_000_000);var geometry=Objects.requireNonNull(currentWorld.get()).cellSnapshot(state.history(),100_000,1024);
                 if(geometry.terrainSeed()!=game.seed||geometry.terrainVersion()!=game.generatorVersion)throw new IOException("Owner world identity differs");
                 return new GeometryState(state,geometry);
             },cancel);
@@ -74,6 +78,7 @@ public final class RegionOfflineOwnerPrototype {
             var snapshot=new Snapshot(game,state,frozen,candidate,currentWorld,geometry);
             owner.call(()->{snapshot.validate(cancel);return null;},cancel);return snapshot;
         }catch(ConcurrentModificationException changed){throw new IOException("Owner world changed; retry region backup",changed);}
+        catch(IllegalArgumentException budget){throw new IOException("Owner world capture value/budget",budget);}
     }
     public static final class Snapshot {
         private final LocalGame game;private final State state;private final byte[] metadata;private final RegionWorldLibraryPrototype candidate;

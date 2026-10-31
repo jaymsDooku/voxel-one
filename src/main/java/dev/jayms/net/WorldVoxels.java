@@ -221,6 +221,13 @@ public final class WorldVoxels {
         return copy;
     }
 
+    /** Check caller admission budgets before cloning the chunk map on the owner. */
+    public CellSnapshot cellSnapshot(History history,int maxCells,int maxChunks) {
+        Objects.requireNonNull(history);
+        if(maxCells<0||maxChunks<0)throw new IllegalArgumentException("Negative cell snapshot budget");
+        if(history.cells.size()>maxCells||chunks.size()>maxChunks)throw new IllegalArgumentException("Cell snapshot budget exceeded");
+        return cellSnapshot(history);
+    }
     /** Owner-thread capture for indexed cell persistence. Every live read and final
      * unchanged check must use this same owner thread and its authority lock. */
     public CellSnapshot cellSnapshot(History history) {
