@@ -47,10 +47,28 @@ public final class RegionHistoryPrototype {
     }
     /** Private uncompressed diagnostic wire; not accepted by any game importer. */
     public byte[] encode(CodecBudget budget,BooleanSupplier cancel)throws IOException {
-        Objects.requireNonNull(budget);Objects.requireNonNull(cancel);checkpoint(cancel);
+        var sink=new ByteArrayOutputStream();encode(sink,budget,cancel);
+        checkpoint(cancel);return sink.toByteArray();
+    }
+    /** Writes one complete frame, leaving the caller stream open. Failure may leave
+     * a prefix; callers must stage output and publish only after successful return.
+     * Blocking I/O belongs on a worker, not the game owner thread. */
+    public void encode(OutputStream target,CodecBudget budget,BooleanSupplier cancel)throws IOException {
+        Objects.requireNonNull(target);Objects.requireNonNull(budget);Objects.requireNonNull(cancel);checkpoint(cancel);
         if(regions.size()>budget.regions())throw new IOException("Region budget");
-        var sink=new LimitedOutput(budget.bytes(),cancel);var crc=new CRC32();
-        var out=new DataOutputStream(new CheckedOutputStream(sink,crc));
+        var sink=new FilterOutputStream(target) {
+            int count;
+            @Override public void write(int value)throws IOException {
+                checkpoint(cancel);if(count>=budget.bytes())throw new IOException("Encoded byte budget");
+                out.write(value);count++;
+            }
+            @Override public void write(byte[] data,int offset,int length)throws IOException {
+                Objects.checkFromIndexSize(offset,length,data.length);checkpoint(cancel);
+                if(length>budget.bytes()-count)throw new IOException("Encoded byte budget");
+                out.write(data,offset,length);count+=length;
+            }
+        };
+        var crc=new CRC32();var out=new DataOutputStream(new CheckedOutputStream(sink,crc));
         out.writeInt(MAGIC);out.writeInt(VERSION);out.writeLong(seed);out.writeInt(terrainVersion);out.writeInt(regions.size());
         int cells=0;long leaves=0;
         for(var entry:regions.entrySet()) {
@@ -68,7 +86,6 @@ public final class RegionHistoryPrototype {
             }
         }
         out.flush();new DataOutputStream(sink).writeInt((int)crc.getValue());checkpoint(cancel);
-        var result=sink.bytes.toByteArray();checkpoint(cancel);return result;
     }
     private static int localIndex(Protocol.CellState cell) {
         return (Math.floorMod(cell.y(),16)*16+Math.floorMod(cell.z(),16))*16+Math.floorMod(cell.x(),16);
@@ -96,13 +113,30 @@ public final class RegionHistoryPrototype {
     public static RegionHistoryPrototype decode(byte[] bytes,CodecBudget budget,BooleanSupplier cancel)throws IOException {
         Objects.requireNonNull(bytes);Objects.requireNonNull(budget);Objects.requireNonNull(cancel);checkpoint(cancel);
         if(bytes.length<28||bytes.length>budget.bytes())throw new IOException("Encoded byte budget");
-        var raw=new ByteArrayInputStream(bytes,0,bytes.length-4);var crc=new CRC32();
-        var checked=new CheckedInputStream(raw,crc);
-        var input=new FilterInputStream(checked) {
-            @Override public int read()throws IOException{checkpoint(cancel);return super.read();}
-            @Override public int read(byte[] data,int offset,int length)throws IOException{checkpoint(cancel);return in.read(data,offset,length);}
+        return decode(new ByteArrayInputStream(bytes),budget,cancel);
+    }
+    /** One exclusive frame ending at EOF. Leaves the caller open; failure consumes
+     * a prefix. At most byte budget plus one trailing-data probe is read.
+     * Blocking I/O belongs on a worker, not the game owner thread. */
+    public static RegionHistoryPrototype decode(InputStream source,CodecBudget budget,BooleanSupplier cancel)throws IOException {
+        Objects.requireNonNull(source);Objects.requireNonNull(budget);Objects.requireNonNull(cancel);checkpoint(cancel);
+        var raw=new FilterInputStream(source) {
+            int count;
+            @Override public int read()throws IOException {
+                checkpoint(cancel);int value=in.read();
+                if(value!=-1&&++count>budget.bytes())throw new IOException("Encoded byte budget");
+                return value;
+            }
+            @Override public int read(byte[] data,int offset,int length)throws IOException {
+                Objects.checkFromIndexSize(offset,length,data.length);if(length==0)return 0;checkpoint(cancel);
+                int remaining=budget.bytes()-count;
+                if(remaining==0){int value=read();if(value==-1)return -1;throw new IOException("Encoded byte budget");}
+                int n=in.read(data,offset,Math.min(length,remaining));
+                if(n==0)throw new IOException("Region input made no progress");
+                if(n>0)count+=n;return n;
+            }
         };
-        var in=new DataInputStream(input);
+        var crc=new CRC32();var in=new DataInputStream(new CheckedInputStream(raw,crc));
         if(in.readInt()!=MAGIC||in.readInt()!=VERSION)throw new IOException("Diagnostic format/version");
         long seed=in.readLong();int version=in.readInt();
         if(version<Terrain.LEGACY_VERSION||version>Terrain.CURRENT_VERSION)throw new IOException("Terrain version");
@@ -126,8 +160,8 @@ public final class RegionHistoryPrototype {
             }
             result.put(region,List.copyOf(records));
         }
-        if(in.read()!=-1)throw new IOException("Trailing diagnostic data");
-        int expected=new DataInputStream(new ByteArrayInputStream(bytes,bytes.length-4,4)).readInt();
+        int expected=new DataInputStream(raw).readInt();
+        if(raw.read()!=-1)throw new IOException("Trailing diagnostic data");
         if((int)crc.getValue()!=expected)throw new IOException("Diagnostic CRC");
         checkpoint(cancel);return new RegionHistoryPrototype(seed,version,result);
     }
