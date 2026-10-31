@@ -233,7 +233,10 @@ public final class LocalGame {
     }
 
     /** Private worker-built history, consumed only after owner-thread revision checks. */
-    public static final class StructureHistory {
+    public static final class StructureHistory implements AutoCloseable {
+        private StagedOfflineSave save;
+        private List<ModelLibrary.Entry> saveModels;
+        @Override public void close()throws IOException {if(save!=null)save.close();}
         private final LocalGame owner;
         private final WorldVoxels.History base,next;
         private final Map<StructurePackage.Position,SparseVoxelOctree> cells;
@@ -287,6 +290,15 @@ public final class LocalGame {
         progress.accept(100);return new StructureHistory(this,source.base(),source.revision(),next,cells);
     }
 
+    /** Worker only. Prepared models and history stay detached until owner revalidation. */
+    public void stageStructureSave(StructureHistory history,ModelLibrary prepared,BooleanSupplier cancel,IntConsumer progress)throws IOException {
+        if(history==null)return; // Legacy history maps retain synchronous saving.
+        if(history.owner!=this||history.save!=null)throw new IOException("Invalid staged history save");
+        var snapshot=prepared.copy();
+        history.saveModels=List.copyOf(snapshot.entries());
+        history.save=StagedOfflineSave.stage(save,seed,generatorVersion,snapshot,history.next,cancel,progress);
+    }
+
     public dev.jayms.net.structure.StructureEngine.Authority structureAuthority(dev.jayms.World world) {
         return structureAuthority(world, () -> null);
     }
@@ -306,6 +318,8 @@ public final class LocalGame {
                 dev.jayms.net.structure.StructureOccupancy.validate(cells,city==null?null:city.frame(),livePlayer==null?List.of():List.of(livePlayer));
                 if(history!=null&&(history.owner!=LocalGame.this||history.cells!=cells||edits!=history.base||history.base.revision()!=history.revision))
                     throw new IOException("World changed while staging save history; retry placement");
+                if(history!=null&&history.save!=null&&!history.saveModels.equals(List.copyOf(prepared.entries())))
+                    throw new IOException("Prepared models changed while staging save; retry placement");
                 var original=edits;var originalModels=models.copy();var next=history==null?WorldVoxels.History.copyOf(original):history.next;
                 var before=new LinkedHashMap<dev.jayms.net.structure.StructurePackage.Position,SparseVoxelOctree>();
                 for(var e:cells.entrySet()) {
@@ -316,7 +330,8 @@ public final class LocalGame {
                 try {
                     models.replaceWith(prepared);edits=next;
                     for(var e:cells.entrySet()) {var p=e.getKey();world.replaceCell(p.x(),p.y(),p.z(),e.getValue());}
-                    saveWorld(true);
+                    if(history!=null&&history.save!=null)history.save.publish(inventory,health,drops.values(),drops.size());
+                    else saveWorld(true);
                 } catch(IOException|RuntimeException failure) {
                     edits=original;models.replaceWith(originalModels);
                     for(var e:before.entrySet()) {var p=e.getKey();world.replaceCell(p.x(),p.y(),p.z(),e.getValue());}

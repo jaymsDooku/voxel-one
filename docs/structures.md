@@ -882,3 +882,33 @@ entries. Five owner requests served the staged fixture: capture plus four groups
 The worker CPU p95 was 54.860 ms. Allocation is not retained or peak memory, and
 owner-read timings exclude final commit/save/render work. Full city/maximum,
 physical-GPU, shaped-network, 32-rendered-client and 20-run workflow gates remain.
+
+### Offline placement save staging
+
+The offline structure-library worker now writes the immutable model/history part
+of a private save before publication. Version 8/9 field order stays unchanged:
+the worker reserves the fixed 72-byte inventory plus one-byte health slot. After
+model, destination and history revalidation, the owner patches that slot with
+current survival state, appends current drops, forces the file and requests a
+strict atomic replacement. The private save is bound to the exact prepared
+history/cell map and model entries. Stale history or mismatched models require
+retry before any world or save publication. Cancellation, close and failed
+publication discard the private file. Legacy history-map callers and undo retain
+the existing synchronous save path.
+
+This removes model/history serialization and bulk buffered writes from the
+library placement's owner completion. It does not remove geometry publication,
+current drop serialization, file force or atomic rename from the owner. It does
+not establish a 100 ms bound or qualify city/maximum packages. Those gates remain.
+
+A synthetic 100,000-edit durable-save probe ran three warmups and 20 measured
+saves per mode in separate JVMs, baseline first. Both modes wrote 2,400,119 bytes
+with SHA-256 `142b1d16d06d2d90af542685be6742e766a76e798f5cebe6a10b191c2828d46c`.
+The baseline calls existing `LocalGame.save()` (which attempts atomic replacement
+and permits fallback); staged publication requires atomic replacement. This is
+a save-only comparison, excluding structure validation and geometry publication.
+Owner duration median/p95/worst was 33.957/37.802/37.985 ms synchronously and
+2.482/2.697/2.784 ms for staged publication. Total wall duration was
+33.957/37.802/37.986 ms versus 34.447/37.057/41.900 ms. These local filesystem
+samples do not bound force/rename latency or establish peak-memory, frame,
+server-tick, network or city/maximum qualification.
