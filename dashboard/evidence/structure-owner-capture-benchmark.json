@@ -1,0 +1,333 @@
+{
+  "status": "passed",
+  "measured_runs_per_path": 20,
+  "warmups_per_path": 1,
+  "alternating_order": true,
+  "cells": 4829,
+  "flat_records": 6786,
+  "replay": {
+    "capture_ms": {
+      "median": 35.379182,
+      "p95": 66.421035,
+      "worst": 76.826433
+    },
+    "maximum_owner_pump_ms": {
+      "median": 6.006763,
+      "p95": 31.123823,
+      "worst": 40.572303
+    },
+    "sampled_heap_used_bytes": {
+      "median": 66124960.0,
+      "p95": 99350432.0,
+      "worst": 107017984.0
+    },
+    "runs": [
+      {
+        "capture_ms": 55.058414,
+        "maximum_owner_pump_ms": 10.846644,
+        "pumps": 9,
+        "sampled_heap_used_bytes": 52764232
+      },
+      {
+        "capture_ms": 48.403267,
+        "maximum_owner_pump_ms": 5.86768,
+        "pumps": 9,
+        "sampled_heap_used_bytes": 33168792
+      },
+      {
+        "capture_ms": 46.336321,
+        "maximum_owner_pump_ms": 6.145845,
+        "pumps": 9,
+        "sampled_heap_used_bytes": 47848856
+      },
+      {
+        "capture_ms": 58.466809,
+        "maximum_owner_pump_ms": 8.497108,
+        "pumps": 9,
+        "sampled_heap_used_bytes": 85597592
+      },
+      {
+        "capture_ms": 76.826433,
+        "maximum_owner_pump_ms": 40.572303,
+        "pumps": 9,
+        "sampled_heap_used_bytes": 85597592
+      },
+      {
+        "capture_ms": 40.430775,
+        "maximum_owner_pump_ms": 14.453396,
+        "pumps": 9,
+        "sampled_heap_used_bytes": 61929216
+      },
+      {
+        "capture_ms": 31.903065,
+        "maximum_owner_pump_ms": 5.548431,
+        "pumps": 9,
+        "sampled_heap_used_bytes": 75560704
+      },
+      {
+        "capture_ms": 66.421035,
+        "maximum_owner_pump_ms": 31.123823,
+        "pumps": 9,
+        "sampled_heap_used_bytes": 107017984
+      },
+      {
+        "capture_ms": 40.599049,
+        "maximum_owner_pump_ms": 7.228018,
+        "pumps": 9,
+        "sampled_heap_used_bytes": 32571968
+      },
+      {
+        "capture_ms": 27.861938,
+        "maximum_owner_pump_ms": 4.409507,
+        "pumps": 9,
+        "sampled_heap_used_bytes": 70320704
+      },
+      {
+        "capture_ms": 27.904752,
+        "maximum_owner_pump_ms": 4.569562,
+        "pumps": 9,
+        "sampled_heap_used_bytes": 85000768
+      },
+      {
+        "capture_ms": 33.847598,
+        "maximum_owner_pump_ms": 5.102454,
+        "pumps": 9,
+        "sampled_heap_used_bytes": 27409488
+      },
+      {
+        "capture_ms": 40.096858,
+        "maximum_owner_pump_ms": 5.805723,
+        "pumps": 9,
+        "sampled_heap_used_bytes": 42089552
+      },
+      {
+        "capture_ms": 31.44559,
+        "maximum_owner_pump_ms": 5.10702,
+        "pumps": 9,
+        "sampled_heap_used_bytes": 79838288
+      },
+      {
+        "capture_ms": 31.228823,
+        "maximum_owner_pump_ms": 4.485621,
+        "pumps": 9,
+        "sampled_heap_used_bytes": 93469776
+      },
+      {
+        "capture_ms": 30.039534,
+        "maximum_owner_pump_ms": 7.266,
+        "pumps": 9,
+        "sampled_heap_used_bytes": 33290144
+      },
+      {
+        "capture_ms": 32.857191,
+        "maximum_owner_pump_ms": 6.284182,
+        "pumps": 9,
+        "sampled_heap_used_bytes": 47970208
+      },
+      {
+        "capture_ms": 30.336406,
+        "maximum_owner_pump_ms": 5.837768,
+        "pumps": 9,
+        "sampled_heap_used_bytes": 85718944
+      },
+      {
+        "capture_ms": 26.30332,
+        "maximum_owner_pump_ms": 4.301073,
+        "pumps": 9,
+        "sampled_heap_used_bytes": 99350432
+      },
+      {
+        "capture_ms": 36.910765,
+        "maximum_owner_pump_ms": 7.794476,
+        "pumps": 9,
+        "sampled_heap_used_bytes": 45134184
+      }
+    ]
+  },
+  "world_cells": {
+    "capture_ms": {
+      "median": 38.146847,
+      "p95": 54.042871,
+      "worst": 67.746763
+    },
+    "maximum_owner_pump_ms": {
+      "median": 6.165228,
+      "p95": 10.564102,
+      "worst": 11.137329
+    },
+    "sampled_heap_used_bytes": {
+      "median": 67444296.0,
+      "p95": 105972288.0,
+      "worst": 108149840.0
+    },
+    "runs": [
+      {
+        "capture_ms": 54.042871,
+        "maximum_owner_pump_ms": 10.355629,
+        "pumps": 8,
+        "sampled_heap_used_bytes": 65347144
+      },
+      {
+        "capture_ms": 67.746763,
+        "maximum_owner_pump_ms": 10.564102,
+        "pumps": 8,
+        "sampled_heap_used_bytes": 69541448
+      },
+      {
+        "capture_ms": 46.839505,
+        "maximum_owner_pump_ms": 10.064318,
+        "pumps": 8,
+        "sampled_heap_used_bytes": 60431768
+      },
+      {
+        "capture_ms": 39.587614,
+        "maximum_owner_pump_ms": 4.944241,
+        "pumps": 8,
+        "sampled_heap_used_bytes": 71966104
+      },
+      {
+        "capture_ms": 34.601378,
+        "maximum_owner_pump_ms": 4.549576,
+        "pumps": 8,
+        "sampled_heap_used_bytes": 35714816
+      },
+      {
+        "capture_ms": 35.204093,
+        "maximum_owner_pump_ms": 4.648215,
+        "pumps": 8,
+        "sampled_heap_used_bytes": 47249152
+      },
+      {
+        "capture_ms": 35.134912,
+        "maximum_owner_pump_ms": 4.506189,
+        "pumps": 8,
+        "sampled_heap_used_bytes": 88143616
+      },
+      {
+        "capture_ms": 48.975427,
+        "maximum_owner_pump_ms": 10.082546,
+        "pumps": 8,
+        "sampled_heap_used_bytes": 99677952
+      },
+      {
+        "capture_ms": 46.048546,
+        "maximum_owner_pump_ms": 11.137329,
+        "pumps": 8,
+        "sampled_heap_used_bytes": 45154880
+      },
+      {
+        "capture_ms": 34.196897,
+        "maximum_owner_pump_ms": 4.614943,
+        "pumps": 8,
+        "sampled_heap_used_bytes": 56689216
+      },
+      {
+        "capture_ms": 41.231508,
+        "maximum_owner_pump_ms": 5.69709,
+        "pumps": 8,
+        "sampled_heap_used_bytes": 96535104
+      },
+      {
+        "capture_ms": 43.181552,
+        "maximum_owner_pump_ms": 8.609387,
+        "pumps": 8,
+        "sampled_heap_used_bytes": 105972288
+      },
+      {
+        "capture_ms": 42.591484,
+        "maximum_owner_pump_ms": 7.192916,
+        "pumps": 8,
+        "sampled_heap_used_bytes": 53623888
+      },
+      {
+        "capture_ms": 29.811866,
+        "maximum_owner_pump_ms": 4.729607,
+        "pumps": 8,
+        "sampled_heap_used_bytes": 65158224
+      },
+      {
+        "capture_ms": 32.445985,
+        "maximum_owner_pump_ms": 6.633366,
+        "pumps": 8,
+        "sampled_heap_used_bytes": 105004112
+      },
+      {
+        "capture_ms": 37.305277,
+        "maximum_owner_pump_ms": 7.269366,
+        "pumps": 8,
+        "sampled_heap_used_bytes": 108149840
+      },
+      {
+        "capture_ms": 28.138035,
+        "maximum_owner_pump_ms": 5.300291,
+        "pumps": 8,
+        "sampled_heap_used_bytes": 59504544
+      },
+      {
+        "capture_ms": 31.358028,
+        "maximum_owner_pump_ms": 4.576995,
+        "pumps": 8,
+        "sampled_heap_used_bytes": 71038880
+      },
+      {
+        "capture_ms": 38.988417,
+        "maximum_owner_pump_ms": 4.86962,
+        "pumps": 8,
+        "sampled_heap_used_bytes": 105641888
+      },
+      {
+        "capture_ms": 30.323812,
+        "maximum_owner_pump_ms": 8.245588,
+        "pumps": 8,
+        "sampled_heap_used_bytes": 31502696
+      }
+    ]
+  },
+  "canonical_payloads_equal": true,
+  "strict_restart": true,
+  "qualification": false,
+  "provenance": {
+    "parent": "be98b4b9896318d3a48ad75842f09114a5dcc33d",
+    "environment": {
+      "cpu": "Intel Core Processor (Haswell, no TSX)",
+      "virtual_cpus": 4,
+      "threads_per_core": 1,
+      "cores_per_socket": 1,
+      "sockets": 4,
+      "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+      "kernel": "Linux 6.1.0-50-cloud-amd64 x86_64",
+      "java": "Java HotSpot 64-Bit Server VM 25.0.3+9-LTS-195",
+      "compile_release": 17,
+      "heap_limit": "512 MiB",
+      "gpu_driver": "Not used; CLI diagnostic on VPS, physical-GPU qualification unavailable/pending."
+    },
+    "commands": [
+      "javac -encoding UTF-8 --release 17 -cp target:target/classes -d target tools/structures/RegionOfflineCellOwnerCheck.java tools/structures/OwnerCaptureBenchmark.java",
+      "java -Xmx512m -cp target:target/classes OwnerCaptureBenchmark > dashboard/evidence/structure-owner-capture-benchmark.json",
+      "python3 -m unittest tools.structures.test_region_history.RegionHistoryIntegrationTest.test_offline_cell_owner tools.structures.test_region_history.RegionHistoryIntegrationTest.test_offline_owner tools.structures.test_region_history.RegionHistoryIntegrationTest.test_complete_restore",
+      "python3 tools/structures/summarize_owner_capture.py",
+      "javac -encoding UTF-8 --release 17 -d target tools/structures/OwnerCaptureBenchmarkEvidence.java",
+      "java -cp target OwnerCaptureBenchmarkEvidence",
+      "import -display \"$DISPLAY\" -window 2097159 dashboard/evidence/structure-owner-capture-benchmark.png"
+    ],
+    "method": "One warmup per path;20 measured runs per path with alternating order. Full capture worker wall time includes thread startup/queue waits. Each owner.pump is timed; report maximum per run. Heap used sampled between pumps/idle1ms waits, not true peak/allocation/RSS. Last result from each path retained for correctness; old per-run snapshots discarded. Same live JVM, JIT/GC/scheduling and shared VPS affect observations. Median averages middle two; nearest-rank p95 selects19th sorted value. Summary script independently recomputes stats from20 raw rows.",
+    "correctness": "Canonicalize region order before complete payload comparison; both strict restarts match all source cells. Initial raw-byte comparison failed because region insertion order differs between replay and HashMap cell enumeration. Canonical payloads match. Earlier attempts were not passes. Initial benchmark retained all result snapshots; corrected before final measured run to avoid distorted heap sampling. Source frame/history revision and legacy base bytes unchanged.",
+    "tests": "3 affected integrations passed in16.582s, no skips. Production Java unchanged this turn; no Maven/native rerun.",
+    "playtest": "Playtest: generated-city owner backup on actual synthetic LocalGame/WorldVoxels,20 captures per path; publish final results only to private synthetic generation files and strict restart both, compare all4829 cells and canonical payloads. Expected stable construction and owner data; observed pass. Actual JSON rendered by bounded summary viewer and fresh own-window image inspected. Noninteractive persistence benchmark; browser/native rendering does not apply.",
+    "interpretation": "Cell capture median38.146847ms is higher than replay35.379182ms; cell capture p95 54.042871ms is lower than replay66.421035ms. Owner-pump p95 10.564102ms vs31.123823ms. No general speedup, memory improvement or full-fixture qualification claim.",
+    "limits": "4829 cells and6786 flat records, not supplied ~1million-cell city or4million-cell maximum. No capture/export/preview/place/save/load/upload/network/frame/tick budget qualification. Full reference environment,20 runs of both full fixtures, physical GPU, shaped32-client sync, actual peak memory and durability remain pending. Production region backend/owner installation unfinished. Caps and rollout gates unchanged.",
+    "hosted": "Controller feature platform success; direct PR rollup seven successes and one mac-intel running for parent. No polling. New tools/evidence edits await publication/exact-head CI.",
+    "source_sha256": {
+      "tools/structures/OwnerCaptureBenchmark.java": "707a0aef49a570baa94b8657715c37777a3fb89a1f3bd141213b30008f341e07",
+      "tools/structures/OwnerCaptureBenchmarkEvidence.java": "9ae929cd7cdbaf25d67e2d87bc907372f9bd49eef6750d31293b4ac41d0ff441",
+      "tools/structures/summarize_owner_capture.py": "634661040a1268123c4d0afd09105e0dbb724475f3997624ddbc78ce5e16d2cd",
+      "tools/structures/RegionOfflineCellOwnerCheck.java": "5a4b71ab1b9b2c32236aaafdee83884f77d596f50bdb3be1c525ee5b07d9e923"
+    },
+    "media": {
+      "file": "structure-owner-capture-benchmark.png",
+      "sha256": "aa3dda21f6ceaae52fb56416008b17c8a8042e4929f44ad1eec72900aad06dd0",
+      "publication": "pending controller"
+    },
+    "audit": "No deleted paths against71612f09bfec4549456b3317676e76cdced085a4; no intended deletions. git diff --check passed."
+  }
+}

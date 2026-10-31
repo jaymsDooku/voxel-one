@@ -1,5 +1,16 @@
 # Structure review fix checkpoint
 
+## Twenty-run small-fixture owner capture diagnostic
+
+Measured replay and fenced world-cell capture on the same synthetic generated-city fixture: 4,829 cells, 6,786 flat records, one warmup and 20 runs per path with alternating order. Intel Haswell/no-TSX virtual CPU, 4 vCPUs, Linux6.1.0-50-cloud-amd64, Java25.0.3+9-LTS-195, 512MiB heap. Capture median/p95/worst: replay35.38/66.42/76.83ms; cells38.15/54.04/67.75ms. Maximum owner-pump median/p95/worst per run: replay6.01/31.12/40.57ms; cells6.17/10.56/11.14ms. Median increased; p95 decreased. No general speedup claim.
+
+Heap samples are live-JVM used heap, not true peak/allocation/RSS. Last output per path retained; old outputs discarded. Initial raw-byte comparison failed due unspecified region insertion order; normalized complete payloads and strict source-cell restarts match. Failed attempts are not passes. Three affected integrations passed in16.582s, no skips. Summary script independently checks20 raw rows/statistics; fresh actual-report image inspected. Playtest: actual synthetic LocalGame/world owner queues and private generation restart; persistence-only benchmark, browser/native rendering does not apply. Production Java unchanged; no Maven/native rerun.
+
+Parent `be98b4b9`: controller feature-platform success; direct PR rollup7SUCCESS/1mac-intel running. New tools/evidence require publication/checks. No deleted paths against review base; diff check passed. Raw timings/host/method/limits in `structure-owner-capture-benchmark.json`; image `structure-owner-capture-benchmark.png`, pending controller publication.
+
+This is not either supplied full fixture or reference GPU/network qualification. Live backend/owner installation, full city/maximum admission and20-run operation budgets, physical GPU, shaped32-client, true peak memory/frame/tick/traffic and durability remain pending. Caps and rollout gates unchanged.
+
+
 ## Private owner backup from fenced world cells
 
 Added capture overload using current-world supplier and production cell snapshot. Owner reads game/state and world together, checks seed/terrain version, supplies position batches≤1024; worker reads frozen cells without flat replay. Existing geometry/envelope caps remain. Final encoding and owner commit revalidate game metadata/library/city plus current-world identity/revisions. Existing replay path retained. Added immutable terrain identity getters to production snapshot.
