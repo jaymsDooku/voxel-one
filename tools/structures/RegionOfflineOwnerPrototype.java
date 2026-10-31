@@ -53,7 +53,7 @@ public final class RegionOfflineOwnerPrototype {
         var candidate=RegionWorldLibraryPrototype.capture(geometry,state.models(),survival,cancel);if(state.city()!=null)candidate=candidate.withSidecars(state.city().sidecars(),cancel);candidate.encode(cancel);
         owner.call(()->{validate(game,state,frozen,cancel);return null;},cancel);return new Snapshot(game,state,frozen,candidate);
     }
-    private record GeometryState(State state,WorldVoxels.CellSnapshot geometry){}
+    private record GeometryState(State state,WorldVoxels.CellSnapshotBuilder builder){}
     /** Worker only. Caller supplies the current owner-managed world, initially consistent
      * with game history. World, terrain and game mutation must stay serialized on that
      * owner through commit. Geometry stays per-cell; no flat history replay is performed.
@@ -62,13 +62,15 @@ public final class RegionOfflineOwnerPrototype {
         Objects.requireNonNull(game);Objects.requireNonNull(currentWorld);Objects.requireNonNull(owner);Objects.requireNonNull(cancel);check(cancel);
         try {
             var captured=owner.call(()->{
-                var state=read(game,cancel,2_000_000);var geometry=Objects.requireNonNull(currentWorld.get()).cellSnapshot(state.history(),100_000,1024);
-                if(geometry.terrainSeed()!=game.seed||geometry.terrainVersion()!=game.generatorVersion)throw new IOException("Owner world identity differs");
-                return new GeometryState(state,geometry);
+                var state=read(game,cancel,2_000_000);var builder=Objects.requireNonNull(currentWorld.get()).beginCellSnapshot(state.history(),100_000,1024);
+                return new GeometryState(state,builder);
             },cancel);
-            var state=captured.state();var geometry=captured.geometry();var cells=new ArrayList<Protocol.CellState>();
+            var state=captured.state();WorldVoxels.CellSnapshot geometry;
+            do {geometry=owner.call(()->{validateGeometry(game,state);check(cancel);return captured.builder().advance(currentWorld.get(),state.history());},cancel);}while(geometry==null);
+            if(geometry.terrainSeed()!=game.seed||geometry.terrainVersion()!=game.generatorVersion)throw new IOException("Owner world identity differs");
+            final var frozenGeometry=geometry;var cells=new ArrayList<Protocol.CellState>();
             while(true) {
-                var positions=owner.call(()->{validateGeometry(game,state);check(cancel);return geometry.nextBatch(currentWorld.get(),state.history());},cancel);
+                var positions=owner.call(()->{validateGeometry(game,state);check(cancel);return frozenGeometry.nextBatch(currentWorld.get(),state.history());},cancel);
                 if(positions.isEmpty())break;
                 for(var position:positions){check(cancel);if(cells.size()>=100_000)throw new IOException("Owner final-cell budget");cells.add(geometry.cell(position));}
             }

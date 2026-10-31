@@ -237,6 +237,43 @@ public final class WorldVoxels {
         if(!result.unchanged(this,history))throw new ConcurrentModificationException("World changed during cell capture");
         return result;
     }
+    /** Start on the owner. Each advance copies at most 128 chunk entries; no
+     * detached handle escapes until all entries and revision fences pass. */
+    public CellSnapshotBuilder beginCellSnapshot(History history,int maxCells,int maxChunks) {
+        Objects.requireNonNull(history);
+        if(maxCells<0||maxChunks<0)throw new IllegalArgumentException("Negative cell snapshot budget");
+        if(history.cells.size()>maxCells||chunks.size()>maxChunks)throw new IllegalArgumentException("Cell snapshot budget exceeded");
+        return new CellSnapshotBuilder(this,history);
+    }
+    public static final class CellSnapshotBuilder {
+        private final Thread ownerThread=Thread.currentThread();
+        private final WorldVoxels source,detached;
+        private final History history;
+        private final long worldRevision,historyRevision,terrainRevision;
+        private final Iterator<Map.Entry<ChunkPos,CellBucket>> entries;
+        private CellSnapshot result;
+        private CellSnapshotBuilder(WorldVoxels source,History history) {
+            this.source=source;this.history=history;
+            worldRevision=source.geometryRevision;historyRevision=history.revision();terrainRevision=source.terrain.geometryRevision();
+            if((terrainRevision&1)!=0)throw new ConcurrentModificationException("Terrain changing during cell capture");
+            detached=new WorldVoxels(source.terrain);detached.geometryRevision=worldRevision;
+            // Freeze ownership before sharing even the first bucket.
+            source.owner=new Object();entries=source.chunks.entrySet().iterator();
+        }
+        public CellSnapshot advance(WorldVoxels current,History currentHistory) {
+            if(Thread.currentThread()!=ownerThread)throw new IllegalStateException("Cell snapshot builder requires owner thread");
+            if(current!=source||currentHistory!=history||source.geometryRevision!=worldRevision
+                    ||history.revision()!=historyRevision||source.terrain.geometryRevision()!=terrainRevision)
+                throw new ConcurrentModificationException("World/history changed during cell capture");
+            if(result!=null)return result;
+            for(int i=0;i<128&&entries.hasNext();i++) {
+                var entry=entries.next();detached.chunks.put(entry.getKey(),entry.getValue());
+            }
+            if(entries.hasNext())return null;
+            result=new CellSnapshot(source,history,detached,terrainRevision);
+            return result;
+        }
+    }
     /** Detached geometry reads may run on a worker. A candidate must still pass an
      * owner-side unchanged check immediately before publication; this handle never publishes. */
     public static final class CellSnapshot {

@@ -1,5 +1,14 @@
 # Structure review fix checkpoint
 
+## Incremental owner chunk-map capture
+
+Added owner-only snapshot builder. Each advance copies at most128 chunk entries and checks world/history identity and revisions plus terrain epoch. Source bucket ownership changes before sharing begins. No detached handle escapes until completion. Private indexed backup pumps the builder with cancellation between calls; one-shot API retained.
+
+All37 targeted production tests passed,0failures/errors/skips. Four persistence integrations passed in22.171s. Initial attempt during compilation skipped4, not counted. Extended CLI and final wrapper assertions passed separately. Playtest:257 chunks yield twice, complete third call; partial stale copy rejects; old captured stone survives live glass edit. Dense history backup/restart and stale generation/retry regressions pass. Fresh child exit0 image inspected. Noninteractive persistence path; browser/native rendering does not apply.
+
+128 entries is a count bound, not a100ms wall-time guarantee. HashMap resizing/allocation, GC and metadata owner work remain unqualified. No production region backend/live installation or supported-size increase. Full city/maximum20-run, GPU, shaped32-client, frame/tick/traffic/peak memory and durability qualification remain pending. Rollout gates retained. Parent5ecf5e32 platform builds passed; publication skipped. No deleted paths against review base; no intended deletions. Evidence structure-incremental-capture.json and structure-incremental-capture-cli.png pending controller publication.
+
+
 ## Dense history admission for indexed private backup
 
 Indexed backup no longer inherits the replay path's 200,000-record input cap. It accepts the existing offline ceiling of 2,000,000 source records without replay; the replay overload stays at 200,000. Final cells/chunks are checked against 100,000/1,024 before cloning the world chunk map. Existing geometry, leaf and envelope caps stay unchanged. The production snapshot overload accepts caller budgets; final owner validation still checks identities/revisions before metadata reads.
