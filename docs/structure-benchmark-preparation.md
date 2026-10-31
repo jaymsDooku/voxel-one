@@ -308,3 +308,25 @@ file paths, asset names and exception messages. Oversized files are rejected
 before hashing or decoding and report `identity_verified: false`. Decoder
 admission is only the first prerequisite: placement, persistence, rendering,
 32-client synchronization and all 20-run system budgets still need measurement.
+
+Admitted results now include `dimensions` and `decoded_bytes` for the benchmark
+receipt. After production decoding succeeds, the CLI makes a separate diagnostic
+gzip pass over the same compressed byte snapshot. It counts bytes through fixed
+65,536-byte input and output buffers, retains no expanded payload, checks gzip
+completion, and reads at most one byte beyond the 512 MiB decoded limit before
+rejecting. It does not infer the count from the gzip trailer. Keep this extra
+diagnostic pass outside game capture, import and benchmark timing measurements.
+Rejected input has no `decoded_bytes`: an early cap rejection does not measure the
+complete payload. Dimensions and byte counts do not establish corpus content or
+performance qualification.
+
+Playtest: the CLI admitted a synthetic 8,192-cell package with dimensions
+32×16×16, 18,619 compressed bytes and 122,946 decoded bytes. The decoded count
+matched independent Python decompression. Both retained full fixtures still
+reject at their existing dependency-surface and geometry caps. All 32 tooling
+tests passed, including exact-limit EOF, buffers spanning 65,536 bytes, one-byte
+overflow, bad CRC and incorrect size trailers. Small limits exercise the scanner
+guard; no full 512 MiB allocation or system benchmark is claimed. This change is
+noninteractive tooling; browser/native playtesting does not apply. Production
+source and the native harness are unchanged, and the 220-file source manifest
+and retained published workflow video were verified.

@@ -1,5 +1,29 @@
 # Structure review fix checkpoint
 
+## Current decoded-size admission diagnostics
+
+Controller reports successful required platform builds for `cf381381868047051f3241da73ad837c75864436`.
+The retained native source manifest still matches all 220 production/harness
+files; its published 434,292-byte video matches local bytes. No production Java
+or native harness changed in this step.
+
+The decode-only CLI now measures complete decoded bytes and dimensions for
+admitted packages. Its separate gzip scan uses fixed buffers, checks completion
+and enforces the existing 512 MiB ceiling. Early rejections omit decoded size.
+All 32 tooling tests passed. An actual synthetic 8,192-cell CLI invocation
+reported 18,619 compressed and 122,946 decoded bytes, matching independent Python
+decompression. Actual city and maximum invocations still reject at dependency
+surface and geometry caps. See `structure-decoded-admission-validation.json`.
+This is CLI validation, not game performance qualification. Hosted checks for
+these tooling edits require controller publication.
+
+Next: address placement/undo graph retention, partitioned publication/persistence
+and remaining model/rendering constraints before raising admission limits.
+Placement maps currently promise stable SVO identities; lazy reconstruction
+cannot replace their values without changing that API. Full city/maximum
+admission, 20-run physical-GPU, shaped-network and 32-rendered-client qualification
+remain pending. No rollout gate is weakened.
+
 ## Current segmented package-geometry validation
 
 Parent `ff2b269f965eb46b23bc888a000f7ccd75c026c5` has eight successful platform

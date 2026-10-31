@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Segmented in-memory geometry: 114 structure/model tests and fresh native workflow passed. Export bytes match parent; retained-memory savings and higher access cost recorded. Video inspected, 220 source hashes match. Hosted checks needed; full city/maximum qualification remains pending.",
-      "updatedAt": "2026-10-31T03:22:59+00:00"
+      "note": "Admission CLI now measures bounded decoded bytes and dimensions. All 32 tool tests passed; actual 8,192-cell CLI count matches independent decompression. Full fixtures still reject. Unchanged 220-source native manifest and published video verified. Full city/maximum qualification remains pending.",
+      "updatedAt": "2026-10-31T03:39:10+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
