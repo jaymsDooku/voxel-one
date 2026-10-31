@@ -36,6 +36,37 @@ public final class SparseVoxelOctree {
         return size;
     }
 
+    /** Detached, frozen quarter-turn copy. Immutable leaves may safely be shared. */
+    public SparseVoxelOctree rotatedY(int turns) {
+        if(turns<0||turns>3)throw new IllegalArgumentException("Quarter-turn rotation 0..3 required");
+        if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
+        var result=new SparseVoxelOctree(size);
+        // Preserve the existing zero-turn and uniform-region shortcuts.
+        result.root=turns==0||uniform(0,0,0,size)!=-1?root:rotateY(root,turns);
+        return result.freeze();
+    }
+
+    private static Node rotateY(Node node,int turns) {
+        if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
+        if(node==null||node.children==null)return node;
+        Node[] children=new Node[8];
+        for(int i=0;i<8;i++) {
+            int x=i&1,y=i&2,z=(i>>>2)&1;
+            int destination=switch(turns) {
+                case 1 -> (1-z)|y|(x<<2);
+                case 2 -> (1-x)|y|((1-z)<<2);
+                default -> z|y|((1-x)<<2);
+            };
+            children[destination]=rotateY(node.children[i],turns);
+        }
+        // Leaf-fill rotation canonicalized mixed legacy trees. Retain that behavior.
+        int first=children[0]==null?0:children[0].color;
+        for(Node child:children)
+            if(child!=null&&child.children!=null||(child==null?0:child.color)!=first)
+                return new Node(children);
+        return first==0?null:children[0];
+    }
+
     /** Compare voxel values without allocating leaves or changing legacy branch layouts. */
     public boolean sameValues(SparseVoxelOctree other) {
         return other!=null && size==other.size && sameValues(root,other.root);

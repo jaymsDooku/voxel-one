@@ -59,18 +59,7 @@ public final class StructureEngine {
         };
     }
     public static SparseVoxelOctree rotate(SparseVoxelOctree source,int rotation) {
-        checkRotation(rotation);int size=source.size();
-        // Persistent nodes let immutable snapshots share safely. No rotation is needed
-        // for a whole-cell uniform tree, regardless of the requested quarter turn.
-        if(rotation==0||source.uniform(0,0,0,size)!=-1)return source.copy().freeze();
-        var result=new SparseVoxelOctree(size);
-        for(var leaf:source.leaves()) {
-            int x=leaf.x(),z=leaf.z(),s=leaf.side();
-            int rx=switch(rotation){case 1 -> size-z-s;case 2 -> size-x-s;case 3 -> z;default -> x;};
-            int rz=switch(rotation){case 1 -> x;case 2 -> size-z-s;case 3 -> size-x-s;default -> z;};
-            result.fill(rx,leaf.y(),rz,rx+s,leaf.y()+s,rz+s,leaf.color());
-        }
-        return result.freeze();
+        checkRotation(rotation);return source.rotatedY(rotation);
     }
     public final class Prepared implements AutoCloseable {
         private final Map<Position,SparseVoxelOctree> before,after;

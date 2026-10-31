@@ -570,3 +570,23 @@ In a shared-VPS diagnostic with 16 occupied cells across 16 resident chunks, thr
 World-cell decoding uses the checked stored-leaf visitor for material checks. This removes the temporary leaf list while preserving the cell wire layout, protocol version, material/position rules and frozen decoded result. Unknown, piece-encoded, encoded-air and fractional-model leaves remain rejected.
 
 A shared-VPS decoder diagnostic compared separately compiled parent Protocol with current source. After three warmups, 20 batches each decoded 64 cells containing 2,048 leaves and 12,886 wire bytes per cell. Parent/current median time was 18.631/16.529 ms, p95 28.378/20.904 ms and worst 31.603/26.592 ms. Median current-thread allocation was 13,245,440/5,853,696 bytes per batch. Every decode checked position, occupied count and sample values; an exact roundtrip byte check ran before timing. This is cumulative allocation rather than peak memory and is not full structure synchronization or city/maximum qualification.
+
+### Octree rotation
+
+Quarter-turn geometry and model rotation remap octants directly and share immutable
+leaves. Mixed legacy branches still collapse as they did under leaf-fill rotation;
+zero-turn and uniform-region shortcuts remain. Returned trees are frozen and
+detached from later edits to the source. All four rotations match the previous
+algorithm byte-for-byte in seeded tests at resolutions 1, 8, 16, 32 and 256,
+including encoded fractional materials and redundant legacy branches. Thread
+interruption cancels rotation without changing the source.
+
+A shared-VPS component diagnostic compared the retained leaf-fill reference with
+octant rotation. After three warmups, 20 alternating measured batches each rotated
+64 frozen, 2,048-leaf, 16-resolution trees by 90 degrees. Reference/current median
+was 62.311/3.007 ms, p95 84.953/3.944 ms and worst 88.427/4.773 ms. Median
+current-thread allocation was 48,290,816/2,697,216 bytes per batch. Exact output
+bytes were compared before timing; output count and sample values were checked
+after each batch. These are rotation-only diagnostics, not peak-memory or full
+capture, preview, placement, save, frame, tick or network qualification. Package
+admission limits and all city/maximum qualification gates remain unchanged.
