@@ -29,6 +29,7 @@ public final class StructureMenu implements AutoCloseable {
     private int index;
     private int networkResults;
     private final StructureEngine engine=new StructureEngine();
+    private final StructureOwnerQueue ownerReads=new StructureOwnerQueue();
     private final ExecutorService worker=Executors.newSingleThreadExecutor(r->{var t=new Thread(r,"structure-library");t.setDaemon(true);return t;});
     private AtomicBoolean cancellation=new AtomicBoolean();
     private final AtomicReference<Completion> ready=new AtomicReference<>();
@@ -59,6 +60,7 @@ public final class StructureMenu implements AutoCloseable {
         if(closed.get()&&ready.compareAndSet(completion,null))try{if(completion.resource!=null)completion.resource.close();}catch(Exception ignored){}
     }
     public void pump() {
+        ownerReads.pump();
         var completion=ready.getAndSet(null);if(completion==null)return;
         busy=false;
         try {if(!completion.cancel.get())completion.action.run();else message="Cancelled; nothing placed";}
@@ -130,8 +132,12 @@ public final class StructureMenu implements AutoCloseable {
                     start("Preparing structure upload...",cancel->{byte[] payload=asset.encode(cancel::get,p->progress=p);return new Completion(()->message=network.placeStructure(payload,point,orientation)?"Upload queued; wait for server result":"Wait or update server to use structures",null,cancel);});return;
                 }
                 var snapshot=world.structureSnapshot();start("Staging placement; world unchanged...",cancel->{
-                    var prepared=engine.prepare(asset,point,orientation,snapshot,cancel::get,p->progress=p);
-                    return new Completion(()->{try{prepared.commit("offline",local.structureAuthority(world,player));message="Placed and saved "+asset.name+". Move the target to place again.";conflict=true;}catch(Exception failure){message=failure.getMessage();}},prepared,cancel);
+                    var prepared=engine.prepare(asset,point,orientation,snapshot,cancel::get,p->progress=p/2);
+                    try {
+                        message="Preparing save history; world unchanged...";
+                        var history=local.stageStructureHistory(prepared.cells(),ownerReads,cancel::get,p->progress=50+p/2);
+                        return new Completion(()->{try{prepared.commit("offline",local.structureAuthority(world,player,history));message="Placed and saved "+asset.name+". Move the target to place again.";conflict=true;}catch(Exception failure){message=failure.getMessage();}},prepared,cancel);
+                    }catch(Exception|Error failure){prepared.close();throw failure;}
                 });return;
             }
             message="Unknown command; use the commands shown below.";
@@ -166,5 +172,5 @@ public final class StructureMenu implements AutoCloseable {
         ui.text("City performance and supported geometry/instance limits are not qualified.",28,301,1.1f);
         ui.coordinateScale(1);
     }
-    @Override public void close(){closed.set(true);cancellation.set(true);worker.shutdownNow();var completion=ready.getAndSet(null);if(completion!=null&&completion.resource!=null)try{completion.resource.close();}catch(Exception ignored){}}
+    @Override public void close(){closed.set(true);cancellation.set(true);ownerReads.close();worker.shutdownNow();var completion=ready.getAndSet(null);if(completion!=null&&completion.resource!=null)try{completion.resource.close();}catch(Exception ignored){}}
 }

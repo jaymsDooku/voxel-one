@@ -836,3 +836,49 @@ Edit records, map nodes and canonical geometry still have substantial retained
 costs. City/maximum admission, partitioned storage/publication/transfer,
 owner-thread work and physical-GPU/shaped-network/32-rendered-client full-workflow
 qualification remain unfinished. Supported-city and stable-rollout gates stay.
+
+
+### Worker-built offline placement history
+
+Offline library placement now builds its replacement save history on the library
+worker. The game thread serves at most one queued history-read request per frame.
+Each request captures at most 32 immutable batches of 1,024 key/Edit pairs:
+32,768 pairs total. Index construction and placement replay happen on the worker,
+with progress and cancellation checks. The queue accepts one pending request,
+requires reads to run on its creating owner thread, and releases waiting workers
+when closed or cancelled. Main pumps it even when the structure menu is hidden.
+
+The private result is bound to its offline world, source history identity and
+revision, and the exact immutable engine-prepared cell map. Final owner-thread
+commit rejects stale history before publication, including equal-value history
+replacement and edits outside the destination. Such edits require a retry;
+they are never overwritten. Existing model, terrain, collision, durable-save and
+undo guards remain. Inventory, health and drops are read at final commit, so
+collecting items or taking damage during staging does not restore stale state.
+Legacy/custom nonindexed history maps retain their previous synchronous path.
+
+This moves the indexed placement-history phase only. Snapshot capture, conflict
+revalidation, geometry publication, disk saving and undo still include owner-thread
+work. No complete 100 ms stall bound or full-city latency claim is made.
+
+`tools/structures/OfflineHistoryStagingProbe.java` compares the old synchronous
+history algorithm with this staging path for 100,000 source edits plus 1,000 new
+cells. The baseline reproduces history copy/replay only on the same unchanged
+WorldVoxels implementation; it is not a full parent client/commit benchmark.
+Separate JVMs run three warmups and 20 iterations. The staged probe sleeps 33 ms
+between synthetic owner pumps; this is not rendered FPS. Ordered replay hashes
+match at 101,000 edits. Measured results were:
+
+| Metric | Synchronous | Staged |
+| --- | ---: | ---: |
+| Wall median/p95/worst ms | 32.936 / 88.848 / 145.750 | 204.159 / 266.902 / 270.702 |
+| Per-run maximum owner duration median/p95/worst ms | 32.934 / 88.845 / 145.748 | 1.949 / 2.480 / 3.601 |
+| Median owner-thread allocated bytes | 9,617,488 | 806,848 |
+| Median worker-thread allocated bytes | No worker | 14,093,016 |
+
+Staging trades higher wall latency and total allocation for shorter owner-thread
+history reads. It rebuilds a detached index instead of copying shared index
+entries. Five owner requests served the staged fixture: capture plus four groups.
+The worker CPU p95 was 54.860 ms. Allocation is not retained or peak memory, and
+owner-read timings exclude final commit/save/render work. Full city/maximum,
+physical-GPU, shaped-network, 32-rendered-client and 20-run workflow gates remain.
