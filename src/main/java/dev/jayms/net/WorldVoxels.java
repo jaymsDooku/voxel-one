@@ -75,7 +75,8 @@ public final class WorldVoxels {
             private LinkedHashSet<String> many;
             void add(String key) {
                 if(many!=null){many.add(key);return;}
-                if(single==null||single.equals(key)){single=key;return;}
+                if(single==null){single=key;return;}
+                if(single.equals(key))return;
                 many=new LinkedHashSet<>();many.add(single);many.add(key);single=null;
             }
             void remove(Object key) {
@@ -99,7 +100,12 @@ public final class WorldVoxels {
             return putTrusted(key,edit);
         }
         private Protocol.Edit putTrusted(String key,Protocol.Edit edit) {
-            writable(edit.cellKey()).add(key);
+            // A validated depth-zero key is also the cell key. Share its immutable
+            // string with the ordered map rather than retaining a duplicate.
+            return putInCell(key,edit,edit.depth()==0?key:edit.cellKey());
+        }
+        private Protocol.Edit putInCell(String key,Protocol.Edit edit,String cell) {
+            writable(cell).add(key);
             revision++;
             return ordered.put(key,edit);
         }
@@ -115,12 +121,15 @@ public final class WorldVoxels {
         @Override public void clear() { if(!ordered.isEmpty())revision++; ordered.clear(); cells.clear(); }
         private void rememberCell(Protocol.CellState state) {
             if(state.tree().size()!=RESOLUTION)throw new IllegalArgumentException("Invalid world cell resolution");
-            var old=cells.remove(state.x()+","+state.y()+","+state.z());
+            String cell=state.x()+","+state.y()+","+state.z();
+            var old=cells.remove(cell);
             if(old!=null)for(var key:old.snapshot())ordered.remove(key);
             // A complete cell starts with air, followed by nonoverlapping octree leaves.
             // No coverage scan is needed between those leaves. Full-cell leaves share
             // the prefix key; replacing its value retains the same final replay order.
-            state.forEachEdit(edit->put(edit.key(),edit));
+            // Both strings are derived here from this immutable cell and its emitted
+            // edits; external map keys still pass public put validation.
+            state.forEachEdit(edit->putInCell(edit.depth()==0?cell:edit.key(),edit,cell));
         }
         private void remember(Protocol.Edit edit) {
             var keys = cells.get(edit.cellKey());

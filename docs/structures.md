@@ -796,3 +796,43 @@ Those persistent costs, owner-thread history/save work and larger partitioned
 publication/storage remain unfinished. This is not peak-memory or full-city
 qualification. City/maximum admission and physical-GPU, shaped-network,
 32-rendered-client and 20-run full-workflow gates remain in force.
+
+
+### Immutable history key reuse
+
+Canonical history now reuses validated depth-zero key strings in its cell index.
+Replacing an equal single-cell index member retains the existing immutable key.
+Whole-cell replay computes one coordinate key and uses it for the air prefix,
+full-cell leaves and cell-index lookups. Fractional edit keys are still distinct.
+Those internal keys are derived from the cell and emitted immutable edits;
+external map writes still pass the same public key validation. No string pool,
+format change, replay reordering, revision change or resource-cap increase is
+introduced. Copy-on-write history snapshots remain independent.
+
+`tools/structures/HistoryKeyProbe.java` compares parent/current history builds
+for 50,000 uniform or two-leaf mixed cells. Separate JVMs run parent first,
+three warmups and 20 measured builds per fixture; serialized edit hashes match.
+Median thread allocation changed from 29,697,640 to 15,697,640 bytes for uniform
+cells and from 81,546,232 to 50,746,232 bytes for mixed cells. Uniform
+median/p95/worst changed from 69.911/136.872/152.520 ms to
+22.177/77.927/105.220 ms; mixed changed from 216.514/279.648/291.513 ms to
+148.425/233.366/241.328 ms. These are single ordered CPU/allocation diagnostics,
+not full placement or a 100 ms main-thread guarantee.
+
+The same probe keeps an actual `WorldVoxels` instance alive with history, then
+repeats with an additional copy-on-write history snapshot. Three post-GC samples
+per fixture/mode estimate retained heap; these are not peak-memory measurements
+or 20-run full-system qualification. All raw samples are in
+`structure-history-key-validation.json`. The diagnostic medians were:
+
+| Retained state | Fixture | Parent bytes | Current bytes |
+| --- | --- | ---: | ---: |
+| World and history | Uniform | 23,325,192 | 17,834,296 |
+| World and history | Mixed | 78,762,728 | 76,013,752 |
+| World, history and copy | Uniform | 29,265,808 | 23,534,064 |
+| World, history and copy | Mixed | 89,516,992 | 86,753,888 |
+
+Edit records, map nodes and canonical geometry still have substantial retained
+costs. City/maximum admission, partitioned storage/publication/transfer,
+owner-thread work and physical-GPU/shaped-network/32-rendered-client full-workflow
+qualification remain unfinished. Supported-city and stable-rollout gates stay.

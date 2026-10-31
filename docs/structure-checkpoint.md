@@ -1,5 +1,42 @@
 # Structure review fix checkpoint
 
+## Current immutable-history-key validation
+
+Parent `4f80b31d14631a17ba376ad84d0b07d69487be2a` has eight successful platform
+builds; publication skipped. Canonical history now reuses immutable coordinate
+keys and computes the whole-cell key once during replay. Equal single-index
+keys retain their existing string. Public key validation, map ordering, revision
+stamps, copy-on-write isolation, formats and resource caps remain unchanged.
+
+150 final-source targeted tests passed, including indexed history, snapshots,
+canonical replay, real TLS multiplayer, model and protocol regressions. Existing
+tests cover mixed edits, up to 12 independent forks, copy cursors and invalid
+external keys. Source changed during refinement, so these checks were rerun.
+
+Separate parent/current JVMs each ran three warmups and 20 history builds for
+50,000 uniform or two-leaf mixed cells; serialized edit hashes match. Median
+thread allocation changed from 29,697,640 to 15,697,640 bytes for uniform and
+81,546,232 to 50,746,232 bytes for mixed. Uniform median/p95/worst changed from
+69.911/136.872/152.520 ms to 22.177/77.927/105.220 ms; mixed from
+216.514/279.648/291.513 ms to 148.425/233.366/241.328 ms. No 100 ms bound claimed.
+
+Three post-GC samples per retained mode also keep actual WorldVoxels geometry
+alive. World/history median estimates changed from 23,325,192 to 17,834,296 bytes
+for uniform and 78,762,728 to 76,013,752 bytes for mixed. With an additional COW
+history copy, medians changed from 29,265,808 to 23,534,064 and from 89,516,992
+to 86,753,888 bytes respectively. These are estimates, not peak memory or 20-run
+full-system qualification. Report: `structure-history-key-validation.json`.
+Fresh native workflow passed with an isolated synthetic profile on the inherited
+display and llvmpipe; all 221 source hashes match. Fresh H264 recording is
+420,903 bytes, 17 frames and 26.660 s. Decoded staging/anchor frame and fresh
+blocked-conflict screenshot inspected; HUD 1 FPS is functional evidence only.
+Local edits/media need controller publication and exact-source hosted checks.
+
+Persistent edit/map/geometry costs, full city/maximum admission, partitioned
+storage/publication/transfer, owner-thread work and physical-GPU/shaped-network/
+32-rendered-client/20-run full-workflow qualification remain unfinished.
+Supported-city and stable-rollout gates stay.
+
 ## Current canonical replay validation
 
 Parent `0b5a8cd67087d8f9ee34bc981cd67413cccd01d5` feature workflow completed all
