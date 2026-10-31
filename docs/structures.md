@@ -928,3 +928,38 @@ median/p95/worst was 33.204/43.115/44.308 ms versus
 33.089/43.863/44.315 ms. All output bytes still match the hash recorded above.
 No city, maximum fixture, peak-memory, rendering or network qualification follows
 from this synthetic save probe.
+
+### Uniform preparation cache
+
+Preparation already shares frozen cells with the same uniform material. Its
+material lookup now uses primitive keys and tree references instead of boxed keys
+and map entries. It grows within the package's geometry-cell count, which the
+existing 131,072-leaf admission cap bounds. Each final array has at most 262,144
+slots; old and new arrays coexist while growing. Rehash and long collision scans
+check cancellation every 1,024 steps. Instance caching remains separately bounded
+by 512 dependencies. Formats, accepted limits and frozen-cell sharing are unchanged.
+
+A proposed 1,024-entry cache was rejected. With 100,000 cells and 4,096 repeating
+materials, it retained 76,000 after-image tree objects instead of 4,096. Three
+post-GC samples retaining real WorldVoxels geometry and actual engine undo records
+had median estimates of 14,530,272 bytes for that proposal and 11,217,400 bytes for
+the parent. The final primitive cache retains 4,096 objects and measured
+11,246,680 bytes. These are noisy retained-heap estimates, not peak-memory results
+or a retained-memory improvement. Every sample checked actual undo afterward.
+
+Separate parent/current JVMs each ran three warmups and 20 preparation runs per
+fixture. Ordered cell wire hashes match. The repeated, unique and 4,096-material
+palette fixtures have 100,000 cells; the bounded mixed fixture has 10,000 cells,
+10% with two fractional leaves. Median current-thread allocation changed from
+43,690,392 to 42,213,384 bytes for repeated, 50,644,400 to 46,284,880 for unique,
+41,650,784 to 39,919,792 for palette and 7,550,124 to 7,406,140 for mixed.
+Preparation p95 changed from 200.292 to 148.276 ms, 238.216 to 232.889 ms,
+183.201 to 184.161 ms and 842.425 to 876.300 ms respectively. Palette and mixed
+p95 regressed; no general latency improvement or hard stall bound is claimed.
+
+An earlier exploratory 100,000-cell mixed case took parent median 9,033.051 ms.
+The final mixed probe deliberately uses 10,000 cells to bound diagnostic runtime.
+These probes do not qualify city/maximum admission, placement, persistence,
+rendering, network or supported limits. Full qualification and stable-rollout
+gates remain. See `structure-uniform-cache-validation.json` for exact commands,
+samples, source hashes and limits.

@@ -150,7 +150,7 @@ public final class StructureEngine {
             var cells=new StructurePlacementCells.Builder(box,asset.cells.size());int count=0;
             var affectedChunks=new HashSet<ChunkPos>();
             var empty=new SparseVoxelOctree(16).freeze();
-            var uniformGeometry=new HashMap<Integer,SparseVoxelOctree>();
+            var uniformGeometry=new StructureUniformCells(asset.cells.size()-asset.instanceCount,cancel);
             var instances=new HashMap<Integer,SparseVoxelOctree>();
             for(var cell:asset.cells) {
                 cancelled(cancel);var relative=rotate(cell.position(),asset.bounds.x(),asset.bounds.z(),rotation);

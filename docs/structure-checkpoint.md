@@ -1,5 +1,45 @@
 # Structure review fix checkpoint
 
+## Current uniform-material cache validation
+
+Parent `520ccf5a02074c2ed78d743a0c6685817aa3bcb1` has eight successful platform
+builds; publication skipped. Preparation's existing uniform-cell sharing now uses
+primitive keys/references. It retains every admitted material, grows within the
+geometry-cell budget (at most 131,072 entries / 262,144 slots per final array),
+and checks cancellation during growth and long collision scans. No format or
+admission change. The separate model-instance cache is unchanged.
+
+170 final targeted tests passed across 37 suites. Five new tests cover manual
+rotation/fractional/model/wire oracles, early and late palette reuse, frozen
+values, cancellation, preparation isolation, 20,000 seeded keys across all bits,
+capacity overflow, replacement, invalid bounds and cancelled growth/retry.
+The initial fixture used model-only set for a world LED; changed to fill before
+final checks. Real TLS and offline save/undo/restart regressions passed.
+
+The rejected 1,024-entry proposal retained 76,000 after-image trees for 4,096
+repeating materials. Parent/final primitive both retain 4,096. Three post-GC live
+WorldVoxels + actual engine-undo estimates have medians 11,217,400 / 14,530,272 /
+11,246,680 bytes for parent/rejected/final. Undo was checked after every sample.
+Do not claim lower retained memory or peak-memory qualification.
+
+Final three-warmup/20-run preparation probes use 100,000 repeated/unique/palette
+cells and 10,000 mixed cells. All ordered wire hashes match. Allocation medians
+fell in all four cases. Palette p95 rose 183.201 to 184.161 ms; mixed p95 rose
+842.425 to 876.300 ms. An earlier 100,000-cell mixed diagnostic took parent
+median 9,033.051 ms; the smaller final mixed probe does not replace qualification.
+Details: `structure-uniform-cache-validation.json`. Fresh native workflow passed
+with inherited display, isolated synthetic profile and llvmpipe. All 224 source
+hashes match. Current H264 recording: 418,769 bytes, 18 frames, 29.808 s;
+SHA-256 `7f2a4d87e298ab8bfffe4c63a958e5fad5d4da8a3d184b02592b01503032e9b2`.
+Decoded clear/progress frame and fresh blocked-conflict screenshot inspected;
+HUD 1 FPS is functional software evidence only. The decoded frame is saved as
+`structure-uniform-workflow.png`. Local source/media need controller publication
+and exact-source hosted checks.
+
+Full city/maximum admission and reference hardware/physical GPU/shaped network/
+32 rendered client qualification remain pending. No supported-city/stable rollout
+claim. Source/media still need controller publication and exact-head checks.
+
 ## Current offline model-write cancellation validation
 
 Parent `888b8b1b35af6c9c05885e462a8d3acff504be83` has eight successful platform
