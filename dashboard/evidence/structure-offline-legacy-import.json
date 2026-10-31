@@ -1,0 +1,83 @@
+{
+  "parent_head": "38e877165e938fa7b2cf9948c0c1a6d23f875ae2",
+  "status": "all_offline_base_file_reader_branches_passed_production_migration_pending",
+  "source_sha256": {
+    "tools/structures/RegionOfflineImportPrototype.java": "9b710368858933737e7022fbd60749b81c3a7bb058ca91c4a2638297ed5b4235",
+    "tools/structures/RegionOfflineImportCheck.java": "190d61f904bf08d0bd951d3995e268593f102a5ed3e17ed4c5f7d3fcfef7eee1",
+    "tools/structures/RegionOfflineLegacyCheck.java": "c4af8ab089ae81a9d414db4e0ca5708776e6c2ad6a3efeac28adc971cf0f6515",
+    "tools/structures/RegionHistoryPrototype.java": "3936279654e7b40d6d82f7259237dde14c8967d46fe1748e8f988251a5c1f1a8",
+    "tools/structures/RegionOfflineMetadataPrototype.java": "8e4d2ffc4e65042a45ff55a5669787e377f2adf28f78394444b03906c262fe22",
+    "tools/structures/RegionWorldLibraryPrototype.java": "e7d5f7ea45f33aaa3184d0640df412881866c1af10c138e9fc241d6f2a581f08",
+    "tools/structures/RegionGenerationPrototype.java": "ee745bb42e0c93b1bf7d90ee063ffcab7511e01b9e08bb553bb242e4c0273420",
+    "tools/structures/RegionAuthorityPrototype.java": "fe2dcf6026ff18bc1ee69942c21065ac343ae2991fcf987875c3f94821c25c34",
+    "tools/structures/RegionGenerationEvidence.java": "605c013b62cb5ab8d0adc64d8a7cd0e1f2f8fa31177be718e6868af7dbdd3bd3",
+    "tools/structures/test_region_history.py": "1193bb823e4720d0006b1aa9a2ee5aaaf7894529286fc5d5cabfc22413aaa5f8",
+    "src/main/java/dev/jayms/net/LocalGame.java": "21f6b37a42b6c44816fa4016e4d2d0bd5ca4059471c2de6b4319399e28c39972",
+    "src/main/java/dev/jayms/net/Protocol.java": "bd5996e71158d569c7e7cefcb5a8b340fa9f316643bf2497288673006e2f30c5",
+    "src/main/java/dev/jayms/net/Inventory.java": "251f649394c0a2bb7d4bea7bdefac27f9b3dc14f2ccb7403d934b0cae0b1567b",
+    "src/main/java/dev/jayms/net/ItemDrop.java": "2249a4531a2354761a514755999c87fca085becf892bdb23b50e9c3543d9d946"
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "python": "3.11.2",
+    "java_heap_cap": "-Xmx512m; not measured peak memory",
+    "execution": "Actual LocalGame loader against hand-built old-format synthetic fixtures; detached migration and private-generation restart. No game graphics/server launched.",
+    "capture": "Window-only actual child CLI output on assigned inherited DISPLAY/XAUTHORITY. No authentication values read or printed."
+  },
+  "commands": [
+    "python3 -m unittest discover -s tools/structures -p 'test_region_history.py'",
+    "python3 -m unittest discover -s tools/structures -p 'test_*.py'",
+    "javac --release 17 -cp target/classes -d target tools/structures/RegionHistoryPrototype.java tools/structures/RegionDependencyPrototype.java tools/structures/RegionOfflineMetadataPrototype.java tools/structures/RegionWorldLibraryPrototype.java tools/structures/RegionGenerationPrototype.java tools/structures/RegionAuthorityPrototype.java tools/structures/RegionOfflineImportPrototype.java tools/structures/RegionOfflineLegacyCheck.java tools/structures/RegionGenerationEvidence.java",
+    "java -Xmx512m -cp target:target/classes RegionOfflineLegacyCheck > target/structure-offline-legacy-check.json",
+    "java -cp target:target/classes RegionGenerationEvidence RegionOfflineLegacyCheck",
+    "Window-only ImageMagick import on inherited DISPLAY to dashboard/evidence/structure-offline-legacy-import-cli.png"
+  ],
+  "observed": {
+    "status": "passed",
+    "legacy_versions": 5,
+    "legacy_fixtures": 7,
+    "minimum_v3_bytes": 93,
+    "rejection_cases": 77,
+    "production_integration": false,
+    "qualification": false
+  },
+  "tests": {
+    "affected_integration_tests": 9,
+    "final_structure_tool_tests": 42,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "v8_v9_regression_fixtures": 6,
+    "old_format_fixtures": 7,
+    "total_base_file_formats": 7,
+    "total_format_fixtures": 13
+  },
+  "implementation": {
+    "versions": "Accept offline v3..9 exactly. Version3 has no model table; v4..8 use legacy model library; v9 uses complete world model codec. Terrain generator is present only v7 onward; older files use Terrain.LEGACY_VERSION.",
+    "edits": "Use Protocol.Edit.readLegacy for v3/v4, readV7 for v5 and read for v6 onward. Retain old LED default color when no explicit color field exists.",
+    "survival": "Inventory and ItemDrop readers use itemFormat=false before v8, preserving old item restrictions. The detached modern metadata envelope preserves validated original values.",
+    "bounds": "Unchanged 16 MiB source, 8 MiB model section, 200000 source edits, 100000 final cells, 1024 regions and existing leaf/envelope/metadata budgets. Minimum v3 base file is 93 bytes. Candidate size is checked before returning. No production caps changed.",
+    "publication": "Existing private generation stage/restart only. Source files are untouched; no automatic production migration or sidecar handling."
+  },
+  "fixture_provenance": "Seven hand-built old-format files use existing production inventory/model/drop codecs and the version-appropriate 16/20/24-byte edit prefix. Actual LocalGame constructor provides the loader oracle. Formats3..6 each use implicit terrain1; format7 covers terrain1,2,3. Six existing v8/v9 production-writer fixtures also pass in the regression suite. All files are synthetic and removed; no actual user/account data read.",
+  "cases": [
+    "All old-format seed/generator fields match the production loader; minimal 93-byte v3 default-only save restores correctly",
+    "Full/model/explicit-air cells match production edit replay; v5 fractional geometry and implicit LED white match; v6/v7 explicit LED color matches; untouched terrain matches",
+    "Every inventory byte, health, drop values/coordinates and model ID/author/fingerprint match; unused aliases survive",
+    "Private generation publication/restart retains survival state and unused old models; source bytes remain unchanged",
+    "Unsupported versions0,2,10 reject; modern item190 in a legacy inventory or dropped item rejects",
+    "Truncated, trailing and too-short input rejects; pre/mid-cancel rejects; retry gives identical candidate bytes",
+    "Unchanged v8/v9 importer and private codec/engine/storage regressions pass"
+  ],
+  "playtest": "Playtest: actual LocalGame old-format load CLI to private importer and generation restart. Expected version-specific parity and safe rejection; observed seven old fixtures and 77 rejection cases passed. All six v8/v9 regression fixtures also passed. Fresh actual child exit0/result captured on the assigned display and visually inspected. Browser/game playtesting does not apply to tools-only importer code. All 224 native workflow source hashes remain unchanged.",
+  "image": {
+    "path": "dashboard/evidence/structure-offline-legacy-import-cli.png",
+    "bytes": 5785,
+    "sha256": "c65523131bbbd9fc9389a84d7d4eef08af8e5219ced902754b3e9c380690b917",
+    "publication": "Pending controller publication"
+  },
+  "hosted_observation": "Exact parent 38e87716 has eight successful platform build entries; publication skipped. These results do not cover pending edits.",
+  "limitations": "Not integrated with LocalGame/server production persistence. No city-sidecar/simulation state, server-player migration, ordinary-edit persistence, responsive publication or persistent runtime undo. Existing count/byte caps are not peak-memory or latency measurements. Legacy base files have no source CRC/authenticity guarantee. No real user/account data was read.",
+  "qualification": "Full city/maximum admission, 20-run memory/frame/tick/traffic budgets, physical GPU, shaped-network/32-rendered-client checks and directory-fsync/power-loss qualification remain pending. No ready/stable rollout claim.",
+  "next": "Complete sidecar/server state preservation and responsive production region storage migration, then qualify full fixtures."
+}

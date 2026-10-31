@@ -5,20 +5,20 @@ import java.util.*;
 import java.util.concurrent.CancellationException;
 import java.util.function.BooleanSupplier;
 
-/** Bounded base-file v8/v9 migration into a detached private envelope. No sidecars or live-world writes. */
+/** Bounded base-file v3..9 migration into a detached private envelope. No sidecars or live-world writes. */
 public final class RegionOfflineImportPrototype {
     static final int MAX_BYTES=16*1024*1024,MAX_SOURCE_EDITS=200_000;
     private static void check(BooleanSupplier cancel){if(Thread.currentThread().isInterrupted()||cancel.getAsBoolean())throw new CancellationException();}
     public static RegionWorldLibraryPrototype decode(byte[] source,BooleanSupplier cancel)throws IOException {
         Objects.requireNonNull(source);Objects.requireNonNull(cancel);check(cancel);
-        if(source.length<101||source.length>MAX_BYTES)throw new IOException("Offline source byte budget");
+        if(source.length<93||source.length>MAX_BYTES)throw new IOException("Offline source byte budget");
         byte[] bytes=source.clone();check(cancel);var raw=new ByteArrayInputStream(bytes);
         var checked=new FilterInputStream(raw){
             @Override public int read()throws IOException{check(cancel);return super.read();}
             @Override public int read(byte[] data,int offset,int length)throws IOException{check(cancel);return in.read(data,offset,length);}
         };
-        var in=new DataInputStream(checked);int version=in.readInt();if(version!=8&&version!=9)throw new IOException("Only offline base files v8/v9 are supported");
-        long seed=in.readLong();int terrainVersion=in.readInt();
+        var in=new DataInputStream(checked);int version=in.readInt();if(version<3||version>9)throw new IOException("Only offline base files v3..9 are supported");
+        long seed=in.readLong();int terrainVersion=version>=7?in.readInt():Terrain.LEGACY_VERSION;
         try{new Terrain(seed,terrainVersion);}catch(IllegalArgumentException invalid){throw new IOException("Unsupported terrain version",invalid);}
         // Bound the library bytes while the existing production model codecs read them.
         var limited=new FilterInputStream(checked){
@@ -26,14 +26,14 @@ public final class RegionOfflineImportPrototype {
             @Override public int read()throws IOException{if(remaining==0)throw new IOException("Source library byte budget");int value=in.read();if(value>=0)remaining--;return value;}
             @Override public int read(byte[] data,int offset,int length)throws IOException{if(length>remaining)throw new IOException("Source library byte budget");int count=in.read(data,offset,length);if(count>0)remaining-=count;return count;}
         };
-        var modelInput=new DataInputStream(limited);var models=version==9?ModelLibrary.readAll(modelInput):ModelLibrary.read(modelInput);check(cancel);
-        var inventory=Inventory.read(in);int health=in.readUnsignedByte();if(health>20)throw new IOException("Invalid health");
+        var modelInput=new DataInputStream(limited);var models=version==3?new ModelLibrary():version==9?ModelLibrary.readAll(modelInput):ModelLibrary.read(modelInput);check(cancel);
+        var inventory=Inventory.read(in,version>=8);int health=in.readUnsignedByte();if(health>20)throw new IOException("Invalid health");
         int count=in.readInt();if(count<0||count>MAX_SOURCE_EDITS)throw new IOException("Source edit budget");
         Iterable<Protocol.Edit> edits=()->new Iterator<>(){
             int remaining=count;
             public boolean hasNext(){return remaining>0;}
             public Protocol.Edit next(){if(remaining==0)throw new NoSuchElementException();check(cancel);remaining--;
-                try{var edit=Protocol.Edit.read(in);if(!edit.valid()||Blocks.isModel(edit.type())&&models.get(edit.type())==null)throw new IOException("Invalid edit or missing model");return edit;}
+                try{var edit=version>=6?Protocol.Edit.read(in):version==5?Protocol.Edit.readV7(in):Protocol.Edit.readLegacy(in);if(!edit.valid()||Blocks.isModel(edit.type())&&models.get(edit.type())==null)throw new IOException("Invalid edit or missing model");return edit;}
                 catch(IOException invalid){throw new UncheckedIOException(invalid);}
             }
         };
@@ -42,7 +42,7 @@ public final class RegionOfflineImportPrototype {
         catch(UncheckedIOException invalid){throw invalid.getCause();}
         catch(IllegalArgumentException invalid){throw new IOException("Offline migration budget/value",invalid);}
         int drops=in.readInt();if(drops<0||drops>RegionOfflineMetadataPrototype.MAX_DROPS)throw new IOException("Source drop budget");
-        var records=new ArrayList<ItemDrop>();for(int i=0;i<drops;i++){check(cancel);records.add(ItemDrop.read(in));}
+        var records=new ArrayList<ItemDrop>();for(int i=0;i<drops;i++){check(cancel);records.add(ItemDrop.read(in,version>=8));}
         if(in.read()!=-1)throw new IOException("Trailing offline data");
         var metadata=RegionOfflineMetadataPrototype.capture(inventory,health,records,models,cancel);
         var result=RegionWorldLibraryPrototype.capture(geometry,models,metadata,cancel);
