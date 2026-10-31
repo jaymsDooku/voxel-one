@@ -1,5 +1,31 @@
 # Structure review fix checkpoint
 
+## Current undo-sharing diagnostic
+
+Parent `f7742adf5c1a9d5a788057fd49cb01e45ec15039` has eight successful platform
+builds; publication skipped. The packed-undo candidate was rejected after checking
+live-world sharing. The world copies SVO wrappers but shares immutable node
+graphs with placements. Existing maps avoid a duplicate packed representation
+while that world geometry remains live. Reconstructing packed expected cells
+also adds guarded-undo work.
+
+Production sources and native evidence are restored to that tested parent.
+Candidate sources are preserved outside game sources under diagnostic tools;
+the integrated trial is retained only in assigned build output. No shipping
+undo behavior, format, cap or unrelated feature changes. All 33 tooling tests
+passed, including four deterministic candidate invariant groups. Reproducible
+storage-only and live-world diagnostics completed. With the world retained,
+mixed medians are 35,139,288 bytes for the existing map and 38,417,160 for packing.
+The candidate adds 3,277,872 bytes and reconstruction cost. Report:
+`structure-undo-sharing-validation.json`. All 220 source hashes and published
+native video match the unchanged game source; a video frame was decoded and
+inspected. No game test rerun is claimed. New diagnostic publication/checks pending.
+
+Next: measure canonical-region/history storage before changing undo retention.
+Full city/maximum admission, partitioned persistence/publication/transfer,
+owner-thread work and physical-GPU/shaped-network/32-rendered-client/20-run
+qualification remain unfinished. Supported-city and stable-rollout gates stay.
+
 ## Current buffered synchronization validation
 
 Parent `74e480d50873d886dfde7c1a5da2198e7a5c0131` has eight successful platform

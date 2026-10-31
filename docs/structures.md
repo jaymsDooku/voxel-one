@@ -711,3 +711,39 @@ counter limits exercise the guard; no full 512 MiB allocation is claimed. Real
 TLS structure placement, late joining, restart and regressions also passed.
 Full city/maximum admission and physical-GPU, frame/tick, shaped-network and
 32-rendered-client qualification remain pending. Supported limits stay gated.
+
+### Undo storage and live-world sharing
+
+The packed-undo default was rejected. `WorldVoxels.replaceCell` copies the SVO
+wrapper and shares immutable octree nodes. Existing undo maps therefore share
+those nodes with the live world. A storage-only comparison can make packing look
+cheaper while omitting the node graphs that the world still retains. Packing
+also adds preparation and guarded-undo reconstruction work.
+
+The candidate stays in `tools/structures/undo-prototype`, outside game sources.
+Its deterministic checks cover physical/frozen values, position bounds,
+model-reference values, all orientations, cancellation and immutable views. The
+live game retains its existing undo maps, guards, history policy and formats.
+Reproduction commands and measurement limits are in that directory's README.
+
+The diagnostics compare 50,000 shared-uniform or two-leaf mixed cells. The
+storage-only probe uses three warmups and 20 capture/visit runs; the live-world
+probe retains actual `WorldVoxels` geometry and records three post-GC heap-delta
+samples per fixture/mode. Neither is a peak-memory or full-system qualification.
+The validation report records both comparisons and the decision. Compressing
+canonical world regions is the next storage problem to measure before revisiting
+undo packing. Full city/maximum and physical-GPU/network qualification stay gated.
+
+The retained live-world diagnostic medians were:
+
+| Retained state | Shared-uniform bytes | Mixed bytes |
+| --- | ---: | ---: |
+| World only | 5,512,400 | 34,449,384 |
+| World plus existing undo map | 5,953,856 | 35,139,288 |
+| World plus packed candidate | 6,011,200 | 38,417,160 |
+
+All raw samples and the storage-only results are recorded in
+`structure-undo-sharing-validation.json`. The mixed packed state retained
+3,277,872 more bytes than the existing map with the world alive. These three
+post-GC estimates are diagnostic, not a 20-run peak-memory qualification. Existing
+undo remains the default; the candidate is not shipped in the game client.
