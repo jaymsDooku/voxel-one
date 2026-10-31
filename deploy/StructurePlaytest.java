@@ -92,6 +92,12 @@ public class StructurePlaytest {
                 require(("import "+longImport).length()>240,"Long import path regression exceeds former cap");
                 onFrame(()->{menu().selected=null;return null;});command("import "+longImport);require(menu().selected!=null,"Self-contained import");
                 onFrame(()->{menu().selected=null;return null;});x("key","Down");waitFor(()->!menu().busy&&menu().selected!=null,"Saved library browsing");
+                var previousTarget=menu().target;
+                int invalidAnchorEdits=local().edits.size(),invalidAnchorModels=local().models.entries().size();
+                command("at -2147483648 128 0");
+                require(menu().message.equals("Placement anchor outside world")&&menu().target.equals(previousTarget)&&!menu().busy,"Invalid placement anchor rejected before preview");
+                require(local().edits.size()==invalidAnchorEdits&&local().models.entries().size()==invalidAnchorModels,"Invalid anchor leaves world/dependencies unchanged");
+                capture(window,output.resolve("structure-invalid-anchor.png"));
                 command("at 20 128 26");
                 // Commit must use the live player pose, including movement after preview.
                 onFrame(()->{var p=new dev.jayms.player.Player(new org.joml.Vector3f(20.5f,128,26.5f),-90,-26,(Camera)get("camera"));p.toggleFlight();set("player",p);return null;});

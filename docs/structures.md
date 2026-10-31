@@ -554,3 +554,7 @@ A shared-VPS component probe alternated list counting and direct counting for a 
 Package construction now visits stored leaves directly for material validation rather than building temporary `Leaf` records and a list. The visitor preserves octant order, coordinates, sizes and colours. Checked validation failures stop traversal immediately. Cancellation is checked at each visited leaf. Material rules, errors, geometry caps, model limits and package formats remain unchanged.
 
 A shared-VPS traversal diagnostic compared list traversal and a reused visitor over a frozen 2,048-leaf, 16-resolution tree. After three warmups, 20 measured batches each visited 128 trees and checked the same ordered coordinate/colour checksum. List/visitor median times were 11.619/4.534 ms, p95 22.313/4.619 ms and worst 25.068/4.674 ms. Median current-thread allocated bytes were 14,793,728/0. Counter and visitor setup were excluded; tests overlapped the probe. These are traversal diagnostics, not full material-validation, peak-memory or city qualification measurements. Full-fixture and physical qualification remain pending.
+
+### Placement anchor input
+
+The `at X Y Z` command validates the candidate anchor against the existing world and build-height bounds before replacing the current target or scheduling a preview. An invalid candidate reports `Placement anchor outside world` and retains the prior target. Valid negative coordinates and exact world boundaries remain accepted. Server placement checks remain authoritative and unchanged.

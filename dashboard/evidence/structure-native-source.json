@@ -216,10 +216,10 @@
     "src/main/java/dev/jayms/ui/RenderingMenu.java": "8d3f24a7118b098d4b31331532563ef7768e6cba7003b23af478559c582bfa00",
     "src/main/java/dev/jayms/ui/SavesMenu.java": "2996b42e3590055005ce88bd7cf6979f589222dbe0b0f836c7c3981186cfc79f",
     "src/main/java/dev/jayms/ui/SessionMetricTrends.java": "5d3e7a3a5fbfa8447e6800e4092d463abf3a29c755079f49f733cbd1d7394f05",
-    "src/main/java/dev/jayms/ui/StructureMenu.java": "7e43f0848f1997a01752f696af88e01cb6a92c222cae80d4c7b9df032ba3f4fd",
+    "src/main/java/dev/jayms/ui/StructureMenu.java": "31b788d9d80a2205cabd43e4a4ce5b04e067ea64fd86b288a2a44c111083ad24",
     "src/main/java/dev/jayms/window/KeyAction.java": "a2d892382438b9b81b69ad7773f192beeac17a1d739ec1a3248c2cc000dcdaf8",
     "src/main/java/dev/jayms/window/Window.java": "9953ca693c8c74631ebcb8d45b81587fc944afad15cec865edbe31dbc8f1a27d",
-    "deploy/StructurePlaytest.java": "076c641fc4e2ff0f1e65259ad1ebf57f57073a5fed2635aece2a6e10e60a7d82"
+    "deploy/StructurePlaytest.java": "e1575854ed7dc851c29675b0f2cec7d32d06f9a33b68610377cf28791747caa9"
   },
   "scope": "Production Java plus native workflow harness; isolated synthetic profile"
 }
