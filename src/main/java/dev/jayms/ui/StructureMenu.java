@@ -82,7 +82,11 @@ public final class StructureMenu implements AutoCloseable {
             if(verb.equals("first")){first=mark;message="First corner "+first;return;}
             if(verb.equals("second")){second=mark;message="Second corner "+second;return;}
             if(verb.equals("anchor")){anchor=mark;message="Capture anchor "+anchor;return;}
-            if(verb.equals("at")&&words.length==4){target=new Position(Integer.parseInt(words[1]),Integer.parseInt(words[2]),Integer.parseInt(words[3]));conflict=null;if(selected!=null)execute("preview",world,local,network);return;}
+            if(verb.equals("at")&&words.length==4){
+                var point=new Position(Integer.parseInt(words[1]),Integer.parseInt(words[2]),Integer.parseInt(words[3]));
+                if(!new Protocol.Edit(point.x(),point.y(),point.z(),0).valid())throw new IOException("Placement anchor outside world");
+                target=point;conflict=null;if(selected!=null)execute("preview",world,local,network);return;
+            }
             if(verb.equals("rotate")){rotation=(rotation+1)%4;conflict=null;message="Orientation "+rotation*90+" degrees";if(selected!=null)execute("preview",world,local,network);return;}
             if(verb.equals("cancel")){cancel(network);return;}
             if(verb.equals("capture")) {
