@@ -1,0 +1,80 @@
+{
+  "commands": [
+    "javac --release 17 -cp target/classes -d target tools/structures/RegionHistoryPrototype.java tools/structures/RegionDependencyPrototype.java tools/structures/RegionGenerationPrototype.java tools/structures/RegionAuthorityPrototype.java tools/structures/RegionAuthorityCheck.java",
+    "java -Xmx512m -cp target:target/classes RegionAuthorityCheck target/structure-authority-tests > target/structure-authority-check.json",
+    "python3 -m unittest discover -s tools/structures -p 'test_*.py'",
+    "python3 -m unittest discover -s tools/structures -p 'test_region_history.py'",
+    "javac --release 17 -cp target/classes -d target tools/structures/RegionGenerationEvidence.java",
+    "java -cp target:target/classes RegionGenerationEvidence RegionAuthorityCheck",
+    "Window-only ImageMagick import on inherited DISPLAY to dashboard/evidence/structure-authority-cli.png"
+  ],
+  "environment": {
+    "capture": "Inherited DISPLAY/XAUTHORITY; window-only screenshot of actual child CLI result. No authentication values entered model context.",
+    "execution": "Actual StructureEngine prepare/commit/undo with detached synthetic authority and temporary generation files; no game client or server launched.",
+    "java_heap_cap": "-Xmx512m; cap only, not measured peak memory",
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "python": "3.11.2"
+  },
+  "hosted_observation": "Fresh PR observation matched the exact parent: eight successful platform build entries; publication skipped.",
+  "image": {
+    "bytes": 6009,
+    "description": "Fresh actual StructureEngine/private-authority CLI exit 0 and result; labels production integration and qualification false.",
+    "path": "dashboard/evidence/structure-authority-cli.png",
+    "sha256": "85554f71469b5651f3b1fb0bb2903bb3771ae068944faed95318db098b8799fb"
+  },
+  "implementation": {
+    "publication": "Under actual engine authority lock, require exact captured root identity and matching disk generation; strict file publication is followed by a preallocated root assignment. File-generation outcomes use existing exact-byte recovery.",
+    "root": "Private volatile root contains frozen geometry, copied model library, immutable final-cell index, source revision and saved generation. Stable snapshot views capture one root.",
+    "scope": "Tools-only StructureEngine.Authority adapter; no LocalGame, server, production save format or admission changes.",
+    "staging": "Clone private world/index under authority lock, apply prepared engine cells off-lock, build bounded final-cell regions directly, capture dependencies and force a private file.",
+    "world_identity": "Loading requires seed and terrain generator version to match stored region identity."
+  },
+  "initial_compile_correction": "The initial rotation-loop rejection lambda captured a changing loop variable. Introduced an effectively final pose before final compilation and executed checks.",
+  "limitations": "Private geometry/dependency generations are not complete world saves: inventories, player/transient metadata and unplaced model-library assets are not retained by this manifest. Synthetic direct edits are dirty until a later successful publication; ordinary edit autosave is not implemented. Runtime undo ledger is not restored after restart. Root snapshots and logical interleaving hooks are tested, not 32 concurrent rendered clients. Stage still copies a whole bounded final-cell index and validates full private files; no peak-memory, disk-durability, 100 ms owner-thread or full-city performance claim. Existing private codec caps and production development caps remain. Unknown I/O after the publication point still needs reload/recovery; no universal rollback claim.",
+  "next": "Preserve complete legacy world metadata/assets, integrate responsive versioned region save/load and live publication in actual clients/server, then qualify undo/late-join transfer and full fixtures. Measure retained root generations plus undo together.",
+  "observed": {
+    "production_integration": false,
+    "qualification": false,
+    "rejection_cases": 36,
+    "rotations": 4,
+    "status": "passed",
+    "successful_placements": 11,
+    "successful_undos": 5
+  },
+  "parent_head": "2f3bca648bc49ab84c7a34652e9d9212b3f8cae9",
+  "playtest": "Playtest: actual CLI ran the production engine API through 11 successful placements, five successful undos and 36 expected rejection cases. It exercised four rotations, relevant overlap/stale/disk-failure edges and unrelated-edit/snapshot/restart regressions; all passed. Actual child exit 0 and JSON result were captured on the assigned display and visually inspected. Browser/game playtesting does not apply to this tools-only adapter; all 224 production/harness source hashes remain unchanged.",
+  "qualification": "Full city/maximum admission,20-run memory/frame/tick/traffic budgets, directory/power-loss durability and physical-GPU/shaped-network/32-rendered-client qualification remain pending. No readiness or stable rollout claim.",
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/WorldVoxels.java": "5099c7edf02e50111b99a08f9b25cc06211ef8333e6bff141eb4718155be67df",
+    "src/main/java/dev/jayms/net/model/ModelLibrary.java": "5177125851e07673657f52b09c45164a07b67388a745a2d0fef2a1d8a114aaef",
+    "src/main/java/dev/jayms/net/structure/StructureEngine.java": "4b42c313633a36eebe75c965429f960cde16f99ec21d9c2801490532cd3de263",
+    "tools/structures/RegionAuthorityCheck.java": "dcacd8b4cf5a3ef33dfc85567a8fdfebfed7bd879d11b962debbe951976d36dd",
+    "tools/structures/RegionAuthorityPrototype.java": "7c82612a5e9e47a5e0418113b654bb09b184159f1e74a12d03a4793eccbbc7e3",
+    "tools/structures/RegionDependencyPrototype.java": "f5e8d00a52e17c738eda35464622d5e563295e1416fc39cf7a309a8f8426e3d5",
+    "tools/structures/RegionGenerationEvidence.java": "13f98298ac813580ae9faea971f8f9739c368eb3b4e808881e46fe1c94699cd2",
+    "tools/structures/RegionGenerationPrototype.java": "6ee8a67db17fed8e1035155524a431ef592c16c484c8b3d40aa3ab3d79fc07ce",
+    "tools/structures/RegionHistoryPrototype.java": "3936279654e7b40d6d82f7259237dde14c8967d46fe1748e8f988251a5c1f1a8",
+    "tools/structures/test_region_history.py": "2c41642fb309b1669d54ab49ab10961ff69507520be944bde40edfb5e32f0d2d"
+  },
+  "status": "real_engine_private_authority_checks_passed_production_integration_pending",
+  "tests": {
+    "broad_structure_tool_tests": 38,
+    "cases": [
+      "Actual engine placements and undo in all four rotations; anchor alignment, fractional geometry and component definitions preserved across private restart loading.",
+      "Occupied overlap rejection and empty-source terrain preservation; unrelated later edit survives undo.",
+      "Old snapshot geometry and model state stay stable across placement and undo; returned model-library copy cannot mutate a root.",
+      "Deterministic edit between file staging and apply makes exact root stale; it rejects without placing cells or losing the intervening edit, then retry succeeds.",
+      "Changed placed cells make real Engine.undo reject without altering the current root or saved bytes.",
+      "A separate authority publishes a newer disk generation; a stale in-memory root cannot overwrite it.",
+      "Injected force, move and unsupported-atomic failures leave cells/models/file/undo unpublished, release busy state and delete private stages; retries succeed.",
+      "Cancellation after actual file force leaves no root/model publication or stage; retry succeeds.",
+      "Injected exception and cancellation after actual rename recover the committed generation and root; subsequent real engine undo succeeds.",
+      "Wrong world seed or terrain version rejects loading; invalid edits, unknown model references and unlocked Commit.apply reject.",
+      "Direct final-cell indexing avoids global Edit replay and rejects duplicate/invalid cells, wrong resolution/version, count/leaf budgets and cancellation."
+    ],
+    "errors": 0,
+    "failures": 0,
+    "final_affected_integration_tests": 5,
+    "skips": 0
+  }
+}

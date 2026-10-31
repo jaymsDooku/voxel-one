@@ -15,6 +15,7 @@ public final class RegionDependencyPrototype {
     private final Map<Integer,ModelDefinition> bindings;
     private RegionDependencyPrototype(RegionHistoryPrototype geometry,Map<Integer,ModelDefinition> bindings){this.geometry=geometry;this.bindings=Collections.unmodifiableMap(bindings);}
     public Map<Integer,ModelDefinition> bindings(){return bindings;}
+    RegionHistoryPrototype geometrySnapshot(){return geometry;}
     private static void check(BooleanSupplier cancel){if(Thread.currentThread().isInterrupted()||cancel.getAsBoolean())throw new CancellationException();}
     private static Set<Integer> references(RegionHistoryPrototype geometry,BooleanSupplier cancel)throws IOException {
         var ids=new TreeSet<Integer>();

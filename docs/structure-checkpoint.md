@@ -1,5 +1,56 @@
 # Structure review fix checkpoint
 
+## Actual engine with a private generation authority
+
+Fresh hosted observation matched parent `2f3bca64`: eight successful platform
+build entries; publication skipped. No unchanged native or Maven checks were
+rerun. Production/harness source still matches all 224 native manifest hashes.
+
+`RegionAuthorityPrototype` implements the actual StructureEngine.Authority over
+isolated synthetic roots and files. A root contains frozen geometry, copied model
+library, immutable final-cell index, source revision and saved generation. Staging
+captures a root, builds private geometry/dependencies and forces a generation
+file. Under the engine lock, apply requires exact source-root identity and a
+matching disk generation. Strict file publication is followed by preallocated
+root assignment. Final-cell indexing avoids a global Edit replay. Loading checks
+the original seed and terrain version. Returned model libraries are copies.
+
+38 structure-tool tests passed, then five final affected integration tests after
+updating the evidence viewer. Zero failures, errors or skips. Actual production
+engine API completed 11 placements, five undos and 36 expected rejection cases.
+All four rotations preserve anchor alignment, fractional geometry and component
+definitions across private restart loading. Overlap fails, empty source space
+preserves occupied destination geometry, and undo retains unrelated later edits.
+Old snapshot views stay unchanged. Altered placed cells prevent undo without
+changing the current root or saved file. Initial compilation captured a changing
+rotation loop variable in a lambda; corrected before executed checks.
+
+Deterministic edits between staging and apply reject a stale root without losing
+the intervening edit; retry succeeds. A separately updated disk generation cannot
+be overwritten by an outdated authority. Force, pre-move and unsupported-atomic
+failures publish no root/model/file/undo state, release engine busy state and
+remove private stages. Cancellation after force behaves likewise. Exception and
+cancellation after an actual rename recover the committed root; subsequent real
+engine undo succeeds. Wrong identity, invalid edits, unknown model references,
+unlocked apply and malformed final-cell inputs reject.
+
+Playtest: actual StructureEngine prepare/commit/undo through the private CLI
+authority. Browser/game playtesting does not apply to this tools-only adapter.
+Fresh assigned-display window showed the actual child command, exit 0 and
+results. `structure-authority-cli.png` was captured window-only and inspected.
+Viewer cleanup is separate from the child test exit 0. Report:
+`structure-region-authority.json`.
+
+This is not LocalGame/server integration or a full world-save format. Inventory,
+player/transient metadata and unplaced library definitions are not preserved by
+the physical manifest. Synthetic direct edits are dirty until later publication;
+runtime undo is not restored after restart. Owner-thread budget, complete metadata
+migration, live atomic publication, late joining, directory/power-loss durability
+and full city/maximum admission remain unfinished. Physical-GPU/shaped-network/
+32-rendered-client/20-run qualification remains pending. Readiness and stable
+rollout stay gated. New local tools/docs/report/image need controller publication
+and exact-source checks.
+
 ## Private generation-file publication
 
 Fresh PR observation matched parent `b88d73c3`: eight successful platform build

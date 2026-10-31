@@ -84,6 +84,8 @@ public final class RegionGenerationPrototype {
     public final class Staged implements AutoCloseable {
         final Path path;private final long expected,next;private final byte[] bytes;private boolean closed;
         private Staged(Path path,long expected,long next,byte[] bytes){this.path=path;this.expected=expected;this.next=next;this.bytes=bytes;}
+        long expectedGeneration(){return expected;}
+        long nextGeneration(){return next;}
         public synchronized Receipt commit(BooleanSupplier cancel)throws IOException {
             Objects.requireNonNull(cancel);if(closed)throw new IOException("Stage closed");check(cancel);boolean attempted=false;
             try(var channel=FileChannel.open(lockFile,StandardOpenOption.CREATE,StandardOpenOption.READ,StandardOpenOption.WRITE)) {

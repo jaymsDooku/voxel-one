@@ -29,6 +29,8 @@ public final class RegionHistoryPrototype {
         this.regions=Collections.unmodifiableMap(regions);
     }
     public Map<ChunkPos,List<Protocol.CellState>> regions(){return regions;}
+    long terrainSeed(){return seed;}
+    int terrainVersion(){return terrainVersion;}
     static final class LimitedOutput extends OutputStream {
         final ByteArrayOutputStream bytes=new ByteArrayOutputStream();
         final int maximum;final BooleanSupplier cancel;int count;
@@ -70,6 +72,25 @@ public final class RegionHistoryPrototype {
     }
     private static int localIndex(Protocol.CellState cell) {
         return (Math.floorMod(cell.y(),16)*16+Math.floorMod(cell.z(),16))*16+Math.floorMod(cell.x(),16);
+    }
+    /** Detached final-cell migration without recreating a global Edit history. */
+    public static RegionHistoryPrototype fromCells(long seed,int version,Collection<Protocol.CellState> source,CodecBudget budget,BooleanSupplier cancel)throws IOException {
+        Objects.requireNonNull(source);Objects.requireNonNull(budget);Objects.requireNonNull(cancel);checkpoint(cancel);
+        if(version<Terrain.LEGACY_VERSION||version>Terrain.CURRENT_VERSION)throw new IOException("Terrain version");
+        if(source.size()>budget.cells())throw new IOException("Cell budget");
+        var groups=new LinkedHashMap<ChunkPos,TreeMap<Integer,Protocol.CellState>>();int count=0;long leaves=0;
+        for(var cell:source) {
+            checkpoint(cancel);if(cell==null||!new Protocol.Edit(cell.x(),cell.y(),cell.z(),0).valid()||cell.tree()==null||cell.tree().size()!=16)throw new IOException("Invalid final cell");
+            if(++count>budget.cells())throw new IOException("Cell budget");
+            var tree=cell.tree().copy().freeze();leaves+=tree.leafCount();if(leaves>budget.leaves())throw new IOException("Leaf budget");
+            tree.forEachLeaf((x,y,z,side,color)->{checkpoint(cancel);int material=WorldVoxels.decode(color);if(!Blocks.valid(material)||Blocks.isPiece(material)||material==0||Blocks.isModel(material)&&side!=16)throw new IOException("Invalid world material");});
+            var region=ChunkPos.fromBlock(cell.x(),cell.y(),cell.z());var records=groups.get(region);
+            if(records==null){if(groups.size()>=budget.regions())throw new IOException("Region budget");records=new TreeMap<>();groups.put(region,records);}
+            if(records.putIfAbsent(localIndex(cell),new Protocol.CellState(cell.x(),cell.y(),cell.z(),tree))!=null)throw new IOException("Duplicate final cell");
+        }
+        var result=new LinkedHashMap<ChunkPos,List<Protocol.CellState>>();
+        for(var entry:groups.entrySet()){checkpoint(cancel);result.put(entry.getKey(),List.copyOf(entry.getValue().values()));}
+        checkpoint(cancel);return new RegionHistoryPrototype(seed,version,result);
     }
     /** Decode into a private result. Bounds precede node parsing; no live world is touched. */
     public static RegionHistoryPrototype decode(byte[] bytes,CodecBudget budget,BooleanSupplier cancel)throws IOException {
