@@ -1,0 +1,82 @@
+{
+  "commands": [
+    "javac --release 17 -cp target/classes -d target tools/structures/RegionHistoryPrototype.java tools/structures/RegionHistoryPrototypeCheck.java",
+    "java -Xmx512m -cp target:target/classes RegionHistoryPrototypeCheck > target/structure-region-history-check.jsonl",
+    "python3 -m unittest discover -s tools/structures -p 'test_region_history.py'",
+    "python3 -m unittest discover -s tools/structures -p 'test_*.py'"
+  ],
+  "environment": {
+    "java_heap_cap": "-Xmx512m; process cap, not measured peak memory",
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "python": "3.11.2",
+    "workflow": "Linux CLI, detached synthetic edit histories"
+  },
+  "initial_test_corrections": [
+    "Initial fixture called Blocks.piece for fractional air; production API rejects it. Corrected fixture to type 0.",
+    "Initial air-override assertion used y=-100 below natural terrain. Corrected to Terrain.MIN_Y and asserted base terrain is nonempty.",
+    "Prototype now stores both seed and generator version, rather than replaying all old worlds with the current generator."
+  ],
+  "limits": "Diagnostic ceilings only: 200000 source edits,100000 touched cells,1024 regions; no production admission change. These are count caps, not a measured decoded-byte or peak-memory bound. Input must be a detached canonical replay owned by one worker. Region trees share immutable nodes; retained memory and full-size fixture performance are not established. Model IDs are retained but model definitions are not packaged by this experiment.",
+  "next": "Design and test a bounded region codec and global dependency manifest, then integrate versioned save/load, atomic generation publication, conflict-safe undo and late-join transfer. Preserve old saves and within-cell precedence. No production format, network or history replacement has been made.",
+  "observed": [
+    {
+      "canonical_records": 489,
+      "cells": 102,
+      "qualification": false,
+      "raw_edits": 5004,
+      "regions": 35,
+      "seed": 123,
+      "status": "passed",
+      "terrain_version": 1
+    },
+    {
+      "canonical_records": 489,
+      "cells": 102,
+      "qualification": false,
+      "raw_edits": 5004,
+      "regions": 35,
+      "seed": 123,
+      "status": "passed",
+      "terrain_version": 2
+    },
+    {
+      "canonical_records": 489,
+      "cells": 102,
+      "qualification": false,
+      "raw_edits": 5004,
+      "regions": 35,
+      "seed": 123,
+      "status": "passed",
+      "terrain_version": 3
+    }
+  ],
+  "parent_head": "fb76de63b8d917fe8b0970473cf4c577ae075e71",
+  "parent_hosted_checks": "Fresh PR observation matched fb76de63: eight successful platform build entries; two publication entries skipped.",
+  "playtest": "Playtest: compiled and ran the detached CLI migration against actual production WorldVoxels.History and WorldVoxels replay. Expected exact touched-cell geometry and unchanged untouched terrain; observed equality for all three terrain versions. Edge rejection, cancellation/retry and later-edit regression checks passed. Browser/native playtesting does not apply to this tools-only experiment. All 224 existing native source manifest paths remain unchanged, so the existing implementation workflow media still matches game source.",
+  "qualification": "Full city/maximum admission,20-run budgets,physical GPU,shaped network and32 rendered clients remain pending. No readiness or stable rollout claim.",
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/Protocol.java": "bd5996e71158d569c7e7cefcb5a8b340fa9f316643bf2497288673006e2f30c5",
+    "src/main/java/dev/jayms/net/Terrain.java": "6ebe8434adb002ba2fcaa74e5bfed64b7bf4741e3e422138b37c96d03eee5845",
+    "src/main/java/dev/jayms/net/WorldVoxels.java": "5099c7edf02e50111b99a08f9b25cc06211ef8333e6bff141eb4718155be67df",
+    "tools/structures/RegionHistoryPrototype.java": "b33b6aa4c5aee0ee42d6a5d17f51e926186b52b427ac23b5dc5c6e55327d988e",
+    "tools/structures/RegionHistoryPrototypeCheck.java": "fd53a563a5cb4e18570532f076df9eb59402b646075f375505fa392a5c647c78",
+    "tools/structures/test_region_history.py": "9635e14f945fd532354d7252dacd2ec2b7e8c54907167589125af80c334cd572"
+  },
+  "status": "private_prototype_checks_passed_production_migration_pending",
+  "tests": {
+    "cases": [
+      "Raw ordered replay equals indexed legacy replay and migrated region replay for every touched cell.",
+      "Terrain versions 1, 2 and 3; explicit air over nonempty natural terrain; untouched seeded terrain.",
+      "Negative 16-cell boundaries and exact world-coordinate limits.",
+      "Whole model ID 1024, fractional building materials and LED colours.",
+      "Repeated/mixed-depth edit precedence; immutable region maps, lists and frozen trees.",
+      "Later edits to a restored world leave retained prototype snapshot unchanged.",
+      "Exact budget success; edit, cell and region overflow rejection; invalid edit and invalid diagnostic budget rejection.",
+      "Cancellation before replay and during final region snapshot; interruption flag preserved; retry and empty input succeed."
+    ],
+    "errors": 0,
+    "failures": 0,
+    "skips": 0,
+    "structure_tool_tests": 34
+  }
+}
