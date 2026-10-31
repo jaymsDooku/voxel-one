@@ -68,6 +68,7 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
     def test_complete_restore(self):
         row = self.run_check('RegionCompleteRestoreCheck')[0]
         self.assertEqual(row['status'], 'passed')
+        self.assertTrue(row['strict_authority_restart'])
         self.assertTrue(row['strict_generation_restart'])
         self.assertEqual(row['legacy_city_formats'], 17)
         self.assertTrue(row['offline_and_server_metadata'])

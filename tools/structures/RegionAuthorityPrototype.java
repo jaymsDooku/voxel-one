@@ -19,17 +19,29 @@ public final class RegionAuthorityPrototype implements StructureEngine.Authority
     Runnable beforeApply=()->{};
     public RegionAuthorityPrototype(Path directory,long seed,int version)throws IOException{this(directory,seed,version,RegionGenerationPrototype.NIO);}
     RegionAuthorityPrototype(Path directory,long seed,int version,RegionGenerationPrototype.Operations operations)throws IOException {
+        this(directory,seed,version,operations,null,()->false);
+    }
+    /** Explicit strict private restart; no production backend or live simulation installation. */
+    public RegionAuthorityPrototype(Path directory,long seed,int version,dev.jayms.net.city.GameConfig expectedGame,BooleanSupplier cancel)throws IOException {
+        this(directory,seed,version,RegionGenerationPrototype.NIO,Objects.requireNonNull(expectedGame),cancel);
+    }
+    private RegionAuthorityPrototype(Path directory,long seed,int version,RegionGenerationPrototype.Operations operations,dev.jayms.net.city.GameConfig expectedGame,BooleanSupplier cancel)throws IOException {
+        Objects.requireNonNull(cancel);check(cancel);
+        try{new Terrain(seed,version);}catch(IllegalArgumentException invalid){throw new IOException("Unsupported terrain generator",invalid);}
         this.seed=seed;terrainVersion=version;store=new RegionGenerationPrototype(directory,operations);
-        var loaded=store.load(()->false);var known=new LinkedHashMap<Position,SparseVoxelOctree>();
+        var loaded=store.load(cancel);var known=new LinkedHashMap<Position,SparseVoxelOctree>();
         if(loaded.isEmpty())root=new Root(0,0,new WorldVoxels(new Terrain(seed,version)),new ModelLibrary(),Map.of(),null,null,null);
         else {
             var saved=loaded.orElseThrow();
             var identity=saved.formatVersion()==1?saved.manifest().geometrySnapshot():saved.worldLibrary().geometrySnapshot();
             if(identity.terrainSeed()!=seed||identity.terrainVersion()!=version)throw new IOException("World identity mismatch");
+            if(expectedGame!=null&&saved.formatVersion()!=2)throw new IOException("Strict authority restart requires explicit legacy migration");
             WorldVoxels world;ModelLibrary models;
-            if(saved.formatVersion()==1){var restored=saved.manifest().restore(new ModelLibrary(),()->false);world=restored.world();models=restored.models();}
+            if(expectedGame!=null){var restored=saved.worldLibrary().restoreComplete(expectedGame,cancel);world=restored.world();models=restored.models();}
+            else if(saved.formatVersion()==1){var restored=saved.manifest().restore(new ModelLibrary(),()->false);world=restored.world();models=restored.models();}
             else {var restored=saved.worldLibrary().restore(()->false);world=restored.world();models=restored.models();}
-            for(var region:identity.regions().values())for(var cell:region)known.put(new Position(cell.x(),cell.y(),cell.z()),world.cell(cell.x(),cell.y(),cell.z()));
+            for(var region:identity.regions().values())for(var cell:region){check(cancel);known.put(new Position(cell.x(),cell.y(),cell.z()),world.cell(cell.x(),cell.y(),cell.z()));}
+            check(cancel);
             root=new Root(0,saved.generation(),world,models,Collections.unmodifiableMap(known),saved.formatVersion()==2?saved.worldLibrary().metadata().orElse(null):null,saved.formatVersion()==2?saved.worldLibrary().sidecars().orElse(null):null,saved.formatVersion()==2?saved.worldLibrary().serverMetadata().orElse(null):null);
         }
     }

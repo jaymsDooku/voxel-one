@@ -1,5 +1,16 @@
 # Structure review fix checkpoint
 
+## Strict private authority startup
+
+Added explicit expected-game/cancellation constructor for private StructureEngine authority. Loaded whole-library generation must pass terrain identity, game mode and full city/history decode before root assignment. Known-cell reconstruction checks cancellation. Opaque inspection constructor remains; no production backend selected or simulation installed.
+
+Four affected integrations passed in21.237s, no skips. CLI passed31 total rejection cases. Playtest: actual StructureEngine placement, strict restart generation2, overlap rejection, one-operation undo and strict restart generation3 preserve geometry, survival metadata and exact city/history bytes. Wrong identity/game, legacy format, malformed history, pre/mid cancellation reject; missing save starts generation0. Rejected source bytes unchanged. Fresh child exit0 image inspected. Tools-only persistence; browser/native rendering does not apply. Production Java unchanged, no Maven/native rerun.
+
+Parent `f6ebdccc`: controller reported platform success; direct GitHub observation showed seven successful builds and one mac-intel running, publish skipped. No polling. New edits await exact-head publication/checks. No deleted paths against review base; diff check passed. Evidence `structure-authority-restart.json` and `structure-authority-restart-cli.png`, pending controller publication.
+
+Next: production owner/backend integration. Full city/maximum admission and20-run budgets, physical GPU, shaped32-rendered-client sync, stall/peak-memory and directory durability qualification remain pending. No caps raised or gates weakened.
+
+
 ## Strict private generation restart
 
 Parent `54938283` has eight successful hosted builds; publication skipped. New store loadComplete validates expected terrain and generation identity, requires whole-library format, then strictly restores city/history, geometry, models and survival metadata. Returns detached generation/state only. Empty directories stay absent; legacy dependency-only generations require explicit migration. No live installation or disk writes.
