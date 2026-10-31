@@ -1,5 +1,16 @@
 # Structure review fix checkpoint
 
+## Stored-world cursor for private backup
+
+Added a production CellSnapshot cursor over frozen stored overrides without consulting the flat-history index. Each cursor belongs to one reader thread and yields at most1,024 cells per batch. Explicit air survives; implicit terrain is omitted. It enforces a caller cell budget and poisons itself after budget, terrain or invalid-position failure. Detached COW geometry survives later world edits, but owner validation must reject publication from a changed source. Private owner backup now uses this cursor and validates between batches and before commit. Old history cursor retained.
+
+Final49 production tests passed,0failures/errors/skips. Seven affected integrations passed in34.692s. Playtest:2,054 stored cells with zero flat records, fractional LED, explicit air over solid terrain and a custom model survive strict private restart. World-only stale commit rejects without changing prior generation; retry generation2 captures current glass. Models, health20, empty flat source and absent legacy file remain correct. Production tests cover2,053 cells in3 batches, negative coordinates, frozen results, COW isolation, reader threads, budgets, invalid positions, terrain failure and poisoned cursor/retry. Fresh actual child exit0 image inspected. Initial fixture setter and CLI method-name failures were corrected; failed attempts excluded. Commands/results in structure-world-override.json.
+
+The affected path is noninteractive persistence; browser/native rendering does not apply. WorldVoxels is the only production file changed since native media, so that video is historical for this helper. Main UI/rendering unchanged. Parentcc65772f platform builds passed; publication skipped. No deleted paths against review base. Private history-position enumeration intentionally replaced; no unrelated deletions,diff check passed. Fresh CLI image/report pending controller publication.
+
+Normal Main startup still replays local.edits.values(); normal save still caps2million records. Production region backend/streaming/live installation and both full fixtures remain unfinished. Private caps retained;1,024 values per batch is not a100ms/peak-memory guarantee. Full20-run,GPU,shaped32-client,frame/tick/traffic/stall/memory/durability qualification remains pending. Stable rollout gated.
+
+
 ## Generation payload range decoding
 
 Private version2 generation loading now decodes the whole-library payload from the validated file array at offset20, removing its extra payload copy. Legacy dependency version1 keeps its old loading path. Envelope decode accepts an explicit offset/length; CRC, section boundaries and byte budgets use that range. The CRC loop advances by remaining bytes without overflowing its cursor. Caller must not mutate the source during decoding. Formats and limits unchanged.

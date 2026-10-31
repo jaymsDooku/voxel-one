@@ -23,7 +23,7 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
                         'RegionGenerationPrototype.java', 'RegionGenerationCheck.java', 'RegionGenerationEvidence.java',
                         'RegionAuthorityPrototype.java', 'RegionAuthorityCheck.java',
                         'RegionWorldLibraryPrototype.java', 'RegionWorldLibraryCheck.java', 'RegionEnvelopeViewCheck.java', 'RegionEnvelopeViewEvidence.java', 'RegionOfflineMetadataPrototype.java', 'RegionOfflineMetadataCheck.java',
-                        'RegionOfflineImportPrototype.java', 'RegionOfflineImportCheck.java', 'RegionOfflineLegacyCheck.java', 'RegionSidecarsPrototype.java', 'RegionSidecarsCheck.java', 'RegionOfflineBundlePrototype.java', 'RegionOfflineBundleCheck.java', 'RegionServerMetadataPrototype.java', 'RegionServerMetadataCheck.java', 'RegionServerImportPrototype.java', 'RegionServerImportCheck.java', 'RegionServerBundleCheck.java', 'RegionOfflineOwnerPrototype.java', 'RegionOfflineOwnerCheck.java', 'CityHistorySnapshotCheck.java', 'RegionCityOwnerPrototype.java', 'RegionCityRestorePrototype.java', 'RegionCompleteRestoreCheck.java', 'RegionOfflineCellOwnerCheck.java', 'RegionDenseHistoryCheck.java', 'ChunkCaptureChurnCheck.java', 'ChunkCaptureChurnEvidence.java')]
+                        'RegionOfflineImportPrototype.java', 'RegionOfflineImportCheck.java', 'RegionOfflineLegacyCheck.java', 'RegionSidecarsPrototype.java', 'RegionSidecarsCheck.java', 'RegionOfflineBundlePrototype.java', 'RegionOfflineBundleCheck.java', 'RegionServerMetadataPrototype.java', 'RegionServerMetadataCheck.java', 'RegionServerImportPrototype.java', 'RegionServerImportCheck.java', 'RegionServerBundleCheck.java', 'RegionOfflineOwnerPrototype.java', 'RegionOfflineOwnerCheck.java', 'CityHistorySnapshotCheck.java', 'RegionCityOwnerPrototype.java', 'RegionCityRestorePrototype.java', 'RegionCompleteRestoreCheck.java', 'RegionOfflineCellOwnerCheck.java', 'RegionDenseHistoryCheck.java', 'WorldOverrideCursorCheck.java', 'WorldOverrideCursorEvidence.java', 'ChunkCaptureChurnCheck.java', 'ChunkCaptureChurnEvidence.java')]
             compiled = subprocess.run(['javac', '-encoding', 'UTF-8', '--release', '17', '-cp', str(CLASSES), '-d', temporary,
                                        *map(str, sources)], capture_output=True, text=True, timeout=30)
             self.assertEqual(compiled.returncode, 0, compiled.stderr[:4000])
@@ -40,6 +40,15 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
         for row in rows:
             self.assertEqual(row['status'], 'passed')
             self.assertFalse(row['qualification'])
+
+    def test_world_override_cursor(self):
+        row = self.run_check('WorldOverrideCursorCheck')[0]
+        self.assertEqual(row['status'], 'passed')
+        self.assertEqual(row['stored_cells'], 2054)
+        self.assertEqual(row['flat_records'], 0)
+        for key in ['strict_restart', 'models_and_survival', 'air_overrides_terrain', 'stale_world_rejected', 'retry', 'source_unchanged']:
+            self.assertTrue(row[key])
+        self.assertFalse(row['qualification'])
 
     def test_envelope_section_views(self):
         row = self.run_check('RegionEnvelopeViewCheck')[0]

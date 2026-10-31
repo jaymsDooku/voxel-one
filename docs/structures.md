@@ -1225,3 +1225,7 @@ The private envelope decoder now parses its library and geometry through bounded
 ### Generation payload range decoding
 
 The private version2 generation loader passes its validated file array directly to a bounded offset/length envelope decoder. This avoids another encoded payload array; legacy dependency generations keep their prior path. Envelope CRC and section boundaries exclude unrelated prefix/suffix bytes. Tests cover all four envelope versions, padded array ranges, invalid ranges and actual generation restart. File bytes, decoded state and staging buffers still allocate; no peak-memory or speedup claim. Formats, limits and production rollout gates remain unchanged. See dashboard/evidence/structure-generation-range.json.
+
+### Stored override cursor
+
+A detached production world snapshot can now enumerate stored override cells on one worker without rebuilding or consulting flat leaf-edit history. Batches contain at most1,024 frozen cells and preserve explicit air; implicit seeded terrain is omitted. A caller cell budget and terrain epoch bound the traversal, and failure invalidates that cursor. Source changes still require the final owner validation to reject publication. The private backup uses this cursor and can restart a synthetic2,054-cell world with no flat records. This is a persistence building block: normal startup/save and production region backend integration remain unchanged. Existing caps and qualification gates remain in force. See dashboard/evidence/structure-world-override.json.

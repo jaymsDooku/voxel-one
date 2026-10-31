@@ -71,4 +71,41 @@ class WorldCellSnapshotTest {
         world.apply(stone());assertThrows(IllegalArgumentException.class,()->world.beginCellSnapshot(history,0,0));
     }
 
+    @Test void worldCursorEnumeratesStoredCellsWithoutFlatHistory()throws Exception {
+        var world=world();var history=new WorldVoxels.History();var expected=new HashMap<WorldVoxels.CellPosition,dev.jayms.net.model.SparseVoxelOctree>();
+        for(int i=0;i<2053;i++) {
+            var position=new WorldVoxels.CellPosition(i-1026,128+i%2,-1+i%3);var tree=new dev.jayms.net.model.SparseVoxelOctree(16);
+            if(i==1)tree.fill(1,2,3,2,3,4,0xfe22bbff);else if(i!=0)tree.fill(0,0,0,16,16,16,WorldVoxels.encode(Blocks.STONE));
+            world.replaceCell(position.x(),position.y(),position.z(),tree);expected.put(position,tree.copy().freeze());
+        }
+        var snapshot=world.cellSnapshot(history,0,512);assertTrue(snapshot.nextBatch(world,history).isEmpty());
+        var worker=new FutureTask<>(()->{var cursor=snapshot.worldCells(2053);var found=new HashSet<WorldVoxels.CellPosition>();int batches=0;
+            for(var batch=cursor.nextBatch();!batch.isEmpty();batch=cursor.nextBatch()) {assertTrue(batch.size()<=1024);batches++;assertThrows(UnsupportedOperationException.class,batch::clear);
+                for(var cell:batch){var key=new WorldVoxels.CellPosition(cell.x(),cell.y(),cell.z());assertTrue(found.add(key));assertTrue(expected.get(key).sameValues(cell.tree()));assertThrows(IllegalStateException.class,()->cell.tree().set(0,0,0,1));}}
+            assertEquals(3,batches);assertEquals(expected.keySet(),found);assertTrue(cursor.nextBatch().isEmpty());return true;});
+        var thread=new Thread(worker);thread.start();assertTrue(worker.get(5,TimeUnit.SECONDS));thread.join();assertTrue(snapshot.unchanged(world,history));assertTrue(history.isEmpty());
+    }
+    @Test void worldCursorKeepsDetachedGeometryButOwnerRejectsChangedSource() {
+        var world=world();var history=new WorldVoxels.History();world.apply(stone());var snapshot=world.cellSnapshot(history);
+        world.apply(new Protocol.Edit(0,128,0,Blocks.GLASS));world.clear();
+        var batch=snapshot.worldCells(1).nextBatch();assertEquals(1,batch.size());assertEquals(WorldVoxels.encode(Blocks.STONE),batch.get(0).tree().uniform(0,0,0,16));assertFalse(snapshot.unchanged(world,history));
+    }
+    @Test void worldCursorBudgetFailurePoisonsCursorAndRetryUsesNewCursor() {
+        var world=world();var history=new WorldVoxels.History();for(int i=0;i<1025;i++)world.apply(new Protocol.Edit(i,128,0,Blocks.STONE));var snapshot=world.cellSnapshot(history);
+        assertThrows(IllegalArgumentException.class,()->snapshot.worldCells(-1));var zero=snapshot.worldCells(0);assertThrows(IllegalArgumentException.class,zero::nextBatch);assertThrows(IllegalStateException.class,zero::nextBatch);
+        var cursor=snapshot.worldCells(1024);assertEquals(1024,cursor.nextBatch().size());assertThrows(IllegalArgumentException.class,cursor::nextBatch);assertThrows(IllegalStateException.class,cursor::nextBatch);
+        var retry=snapshot.worldCells(1025);assertEquals(1024,retry.nextBatch().size());assertEquals(1,retry.nextBatch().size());assertTrue(retry.nextBatch().isEmpty());
+        assertTrue(world().cellSnapshot(new WorldVoxels.History()).worldCells(0).nextBatch().isEmpty());
+    }
+    @Test void worldCursorTerrainAndInvalidPositionFailuresPoisonCursor() {
+        var terrain=new Terrain(126);var world=new WorldVoxels(terrain);var history=new WorldVoxels.History();world.apply(stone());var snapshot=world.cellSnapshot(history);var cursor=snapshot.worldCells(1);terrain.stressGrid(null);
+        assertThrows(ConcurrentModificationException.class,cursor::nextBatch);assertThrows(IllegalStateException.class,cursor::nextBatch);
+        var invalid=world();invalid.replaceCell(Integer.MAX_VALUE,128,0,new dev.jayms.net.model.SparseVoxelOctree(16));var invalidCursor=invalid.cellSnapshot(new WorldVoxels.History()).worldCells(1);
+        assertThrows(IllegalArgumentException.class,invalidCursor::nextBatch);assertThrows(IllegalStateException.class,invalidCursor::nextBatch);
+    }
+    @Test void worldCursorBelongsToItsReaderThread()throws Exception {
+        var world=world();world.apply(stone());var cursor=world.cellSnapshot(new WorldVoxels.History()).worldCells(1);
+        var worker=new FutureTask<>(()->{assertThrows(IllegalStateException.class,cursor::nextBatch);return true;});var thread=new Thread(worker);thread.start();assertTrue(worker.get(5,TimeUnit.SECONDS));thread.join();assertEquals(1,cursor.nextBatch().size());
+    }
+
 }
