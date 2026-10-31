@@ -92,6 +92,13 @@ public final class RegionWorldLibraryPrototype {
         if(version==3){size=in.readInt();if(size<24||size>RegionSidecarsPrototype.MAX_BYTES||size!=raw.available())throw new IOException("Sidecar byte budget");sidecars=RegionSidecarsPrototype.decode(in.readNBytes(size),cancel);}
         check(cancel);return new RegionWorldLibraryPrototype(geometry,library,metadata,sidecars,serverMetadata);
     }
+    public record CompleteRestored(WorldVoxels world,ModelLibrary models,Optional<RegionOfflineMetadataPrototype> offline,Optional<RegionServerMetadataPrototype> server,Optional<RegionCityRestorePrototype.Restored> city){}
+    /** Detached candidate only. Strict city/history decode completes before geometry restoration. */
+    public CompleteRestored restoreComplete(BooleanSupplier cancel)throws IOException {
+        Objects.requireNonNull(cancel);check(cancel);
+        var city=sidecars==null?Optional.<RegionCityRestorePrototype.Restored>empty():Optional.of(RegionCityRestorePrototype.decode(sidecars,cancel));
+        var physical=restore(cancel);check(cancel);return new CompleteRestored(physical.world(),physical.models(),metadata(),serverMetadata(),city);
+    }
     public record Restored(WorldVoxels world,ModelLibrary models){}
     /** Exact saved IDs; does not merge into another world's library or mutate either input. */
     public Restored restore(BooleanSupplier cancel)throws IOException {

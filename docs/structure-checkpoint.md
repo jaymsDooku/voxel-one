@@ -1,5 +1,16 @@
 # Structure review fix checkpoint
 
+## Strict detached complete restore
+
+Parent `02da3dbb` has eight successful hosted builds; publication skipped. Private world/library restore now optionally decodes city frames and matching history through strict production codecs before restoring geometry. Missing history remains explicit. Malformed or cancelled decoding exposes no result and leaves source bytes and private generation unchanged. No live owner state is installed.
+
+Five affected tool integrations passed in25.765s, no skips. Direct CLI passed15 rejection cases, offline/server metadata, exact decoded frame/history, isolated restored models, retry and17 empty legacy city formats. Actual restored simulation preserves core state and advances; its constructor normalizes frame state, so full simulation record equality is not claimed. Initial stronger assertion failed and was corrected after inspecting constructor behavior.
+
+Playtest: actual synthetic city/history, private generation restart and strict failure/cancellation paths. Tools-only persistence; browser/native game rendering does not apply. Fresh actual child exit0 image inspected. Evidence `structure-complete-restore.json` and `structure-complete-restore-cli.png`, pending controller publication. Production Java unchanged from validated parent; no repeated Maven/native run. No deleted paths against review base.
+
+Next: coordinated live owner installation and region backend integration. Full city/maximum admission and20-run performance, physical GPU, shaped32-client synchronization, main-thread stall/peak memory and directory durability remain pending. No limits raised or rollout gates weakened.
+
+
 ## Strict bounded production city-history stream reader
 
 Exact parent `fe29ac08` has eight successful hosted builds; publication skipped. Added `CityHistory.readSnapshot(InputStream,String,GameConfig,double,int)` by extracting existing v1 parse/CRC/count/clock validation. Strict malformed streams throw and expose no partial history; input is not closed and no files are opened. Encoded consumption is capped at caller0..64MiB plus one over-limit probe; zero-progress bulk reads reject. Existing file loader delegates while retaining its fresh-history fallback and sanitized note. No live world is mutated.
