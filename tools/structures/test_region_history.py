@@ -18,7 +18,7 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
         folder.mkdir(parents=True, exist_ok=True)
         with tempfile.TemporaryDirectory(dir=folder) as temporary:
             sources = [ROOT / 'tools/structures' / name for name in
-                       ('RegionHistoryPrototype.java', 'RegionHistoryPrototypeCheck.java', 'RegionHistoryCodecCheck.java',
+                       ('RegionHistoryPrototype.java', 'RegionHistoryPrototypeCheck.java', 'RegionHistoryCodecCheck.java', 'RegionHistoryStreamCheck.java', 'RegionHistoryStreamEvidence.java',
                         'RegionDependencyPrototype.java', 'RegionDependencyCheck.java',
                         'RegionGenerationPrototype.java', 'RegionGenerationCheck.java', 'RegionGenerationEvidence.java',
                         'RegionAuthorityPrototype.java', 'RegionAuthorityCheck.java',
@@ -40,6 +40,14 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
         for row in rows:
             self.assertEqual(row['status'], 'passed')
             self.assertFalse(row['qualification'])
+
+    def test_region_streams(self):
+        row = self.run_check('RegionHistoryStreamCheck')[0]
+        self.assertEqual(row['status'], 'passed')
+        self.assertGreaterEqual(row['rejection_cases'], 16)
+        for key in ['short_reads', 'byte_exact', 'caller_streams_open', 'cap_plus_one_probe', 'geometry_and_air', 'file_restart', 'retry']:
+            self.assertTrue(row[key])
+        self.assertFalse(row['qualification'])
 
     def test_bounded_codec(self):
         rows = self.run_check('RegionHistoryCodecCheck')

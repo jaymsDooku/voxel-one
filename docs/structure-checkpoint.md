@@ -1,5 +1,16 @@
 # Structure review fix checkpoint
 
+## Bounded private region stream API
+
+Added InputStream/OutputStream codec entry points. Byte-array methods delegate and retain exact version1 bytes. Decode consumes one exclusive EOF-terminated frame, checks bodyCRC/trailer, cancels between reads and limits consumption to byte cap plus one trailing probe. Caller streams remain open. Writer enforces byte budget; failure can leave a prefix, so callers must stage before publication. Blocking IO belongs on a worker. Decoded geometry remains materialized under existing caps; no peak-memory improvement claimed.
+
+Final seven affected integrations passed with no skips. Stream CLI passed16rejectioncases and236-byte golden roundtrip,short reads,caller ownership,bounded trailing probe,actual temporary-file restart,fractional geometry/explicit air preservation,cancellation/IO failure and retry. Fresh child exit0 image inspected. This is a noninteractive codec path; browser/native rendering does not apply. Initial wrapper count mismatch and later nonexistent test name were corrected; failed attempts are excluded. Details/commands in structure-region-stream.json.
+
+Only private tools changed;224production Java/harness hashes match the current native manifest. Published exact-head native MP4 at ab1db177 fetched and matched423245bytes,SHA256611a2ec0e0e3c096ad262db8af3d38870cf28ef68f0fd4c2ee7b41e95ea0d432. Parent platform builds succeeded;publication skipped. No deleted paths against review base. Old byte-array parsing intentionally replaced by shared stream path;no unrelated deletions,diff check passed. New CLI image/report pending controller publication.
+
+Private8MiB/100000cell/1024region/131072leaf caps retained. Production backend/streaming/live installation and full city/maximum20-run,GPU,shaped32-client,frame/tick/traffic/peak-memory/stall/durability qualification remain pending. Stable rollout gated.
+
+
 ## Current-source native workflow validation
 
 Tested production source at `b1eac551` in Main with real GLFW/X11 input and an isolated synthetic offline profile. Full native workflow passed: named capture with fractional geometry/custom models, browsing, long-path import/export, four rotations, footprint/conflict previews, empty-space preservation, occupied-cell/player rejection, undo retaining unrelated edits, placement/export/import cancellation, malformed import atomicity, repeated placement, 32-resolution/packed dependency geometry and colour retention, restart, inventory and model editor. No production source changed this turn or during the run; all 224 source hashes still match the fresh manifest.

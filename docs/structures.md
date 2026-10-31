@@ -1213,3 +1213,7 @@ The production world helper now offers an owner-only builder that copies at most
 ### Capture iteration after churn
 
 Chunk and distinct-history-cell indexes use linked iteration so capture cursors do not scan unused retained hash-table capacity between entries. History copies retain this map type. This adds entry-link memory overhead; peak memory remains unmeasured. A synthetic8192-to257-chunk churn check verifies3 capture batches,unchanged source and stale-clear rejection over20 runs. Diagnostic timings vary across runs; no general speedup or100ms guarantee is claimed. See dashboard/evidence/structure-chunk-churn.json. Full fixtures,production backend integration and qualification gates remain pending.
+
+### Private region stream codec
+
+The diagnostic region codec accepts caller-owned input/output streams while retaining its version1 bytes and existing caps. The decoder expects one frame ending at EOF, checks CRC, supports cancellation and reads at most its byte cap plus one trailing-data probe. The writer can leave a prefix on failure; callers must stage output before publication. Neither API closes caller streams. Blocking IO belongs on a worker. This removes the stream API's need for a whole encoded-input array; decoded geometry is still materialized. It does not select a production backend or establish memory/performance qualification. See dashboard/evidence/structure-region-stream.json.
