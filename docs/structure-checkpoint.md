@@ -1,5 +1,35 @@
 # Structure review fix checkpoint
 
+## Current canonical replay validation
+
+Parent `0b5a8cd67087d8f9ee34bc981cd67413cccd01d5` feature workflow completed all
+four platform builds; publication skipped. Three PR comparison builds passed
+and macOS Intel was still running at observation. No unchanged wait is needed.
+
+Canonical cell replay now visits stored leaves directly. The existing list API
+collects the same air prefix and edits; indexed whole-cell history consumes the
+visitor without allocating leaf or replay lists. Formats, ordering, immutable
+source/copy isolation and resource caps remain unchanged. 135 targeted tests
+passed, including three new legacy-oracle/history-isolation/failure checks and
+actual TLS multiplayer, model and protocol regressions.
+
+Separate parent/current JVMs each ran three warmups and 20 canonical-history
+builds for 64 cells and 131,072 fractional LED leaves. Serialized edit hashes
+match. Median thread allocation fell from 76,654,352 to 67,113,744 bytes. Timing
+was mixed: median/p95/worst changed from 120.918/208.163/221.251 ms to
+133.338/174.608/176.591 ms. Do not claim lower median latency or a 100 ms bound.
+Report: `structure-cell-replay-validation.json`. Fresh native workflow passed
+with an isolated synthetic profile on inherited display/llvmpipe. All 221 source
+hashes match. Fresh H264 video is 407,292 bytes, 17 frames and 27.541 s. Decoded
+clear-footprint/staging frame and fresh blocked-conflict screenshot inspected;
+HUD 1 FPS is functional evidence only. Local edits/media need controller
+publication and exact-source hosted checks.
+
+Persistent canonical-history edit/string/map costs and owner-thread history/save
+work remain. Full city/maximum admission, partitioned storage/publication/transfer
+and physical-GPU/shaped-network/32-rendered-client/20-run qualification remain
+unfinished. Supported-city and stable-rollout gates stay.
+
 ## Current synchronization position-index validation
 
 Parent `24d14a64cebf15e1dfe36ab7b3a7ce71666d329e` has eight successful platform

@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Primitive synchronization position index preserves wire bytes and order. 100,000-cell decode p95 102.579 to 55.839 ms; median thread allocation 21,045,896 to 10,948,616 bytes. 132 targeted tests and fresh native workflow passed; 221 source hashes and decoded media verified. Local evidence awaits controller publication. Full city/maximum and physical-GPU/network qualification remain pending.",
-      "updatedAt": "2026-10-31T05:40:08+00:00"
+      "note": "Streamed canonical history replay preserves serialized edit order/bytes. Median thread allocation fell by 9,540,608 bytes for 64 fragmented cells; median CPU time regressed while p95/worst improved, all recorded. 135 targeted tests and fresh native workflow passed; 221 source hashes and decoded media verified. Local edits/media await controller publication. Full city/maximum and physical-GPU/network qualification remain pending.",
+      "updatedAt": "2026-10-31T06:01:48+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

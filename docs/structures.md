@@ -769,3 +769,30 @@ fell from 74.964/102.579/158.642 ms to 38.203/55.839/57.548 ms. Median current-t
 allocation fell from 21,045,896 to 10,948,616 bytes. These are CPU/allocation
 diagnostics, not peak-memory, frame-time, network or full-fixture qualification.
 All city/maximum admission, physical-GPU and 32-rendered-client gates remain.
+
+
+### Streamed canonical cell replay
+
+`Protocol.CellState.forEachEdit` emits the air prefix and stored octree leaves in
+canonical order without temporary leaf or replay lists. The existing `edits()`
+API still returns the same mutable list, collected from that visitor. Indexed
+whole-cell history replacement consumes the visitor directly. Edit records,
+keys, history order, copy isolation, wire format and persistence caps stay the
+same. Source trees must remain unchanged during a visit; structure publication
+uses detached/frozen cells and stages history before publishing world changes.
+
+`tools/structures/HistoryReplayProbe.java` compares the parent and this source in
+separate JVMs, parent first, with three warmups and 20 measured builds. The
+64-cell fixture has 131,072 fractional LED leaves and produces 131,136 history
+edits. Serialized edit bytes and physical source leaves match. Median thread
+allocation fell from 76,654,352 to 67,113,744 bytes. CPU results were mixed:
+median/p95/worst changed from 120.918/208.163/221.251 ms to
+133.338/174.608/176.591 ms. This reduces temporary allocation; it is not evidence
+of lower median latency or a 100 ms main-thread bound. Hash checks run outside
+timing, and GC/JIT effects remain possible in this single ordered comparison.
+
+Canonical history still retains edit records, strings and map/index nodes.
+Those persistent costs, owner-thread history/save work and larger partitioned
+publication/storage remain unfinished. This is not peak-memory or full-city
+qualification. City/maximum admission and physical-GPU, shaped-network,
+32-rendered-client and 20-run full-workflow gates remain in force.

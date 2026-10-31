@@ -1,0 +1,147 @@
+{
+  "schema": 1,
+  "parent_head": "0b5a8cd67087d8f9ee34bc981cd67413cccd01d5",
+  "scope": "Stream canonical cell replay directly into indexed history, removing temporary leaf/replay lists. Existing list API, edit order, values, history sharing and formats/caps remain.",
+  "qualification": "NOT QUALIFIED",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu_model": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)"
+  },
+  "tests": {
+    "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-replay-tmp\" -Dtest='Structure*Test,ProtocolCompatibilityTest,ShippingProtocolCompatibilityTest,VoxelModelTest' test > target/structure-replay-tests.log 2>&1",
+    "exit_code": 0,
+    "results": {
+      "tests": 135,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "suites": [
+      "dev.jayms.ProtocolCompatibilityTest",
+      "dev.jayms.ShippingProtocolCompatibilityTest",
+      "dev.jayms.StructureCaptureChunkTest",
+      "dev.jayms.StructureCaptureModelTest",
+      "dev.jayms.StructureCellReadTest",
+      "dev.jayms.StructureCellReplayTest",
+      "dev.jayms.StructureDecodeCancellationTest",
+      "dev.jayms.StructureEncodeCancellationTest",
+      "dev.jayms.StructureFileReadTest",
+      "dev.jayms.StructureLeafCountTest",
+      "dev.jayms.StructureLeafVisitorTest",
+      "dev.jayms.StructureMenuAnchorTest",
+      "dev.jayms.StructureModelAdmissionTest",
+      "dev.jayms.StructureMultiplayerTest",
+      "dev.jayms.StructureOccupancyTest",
+      "dev.jayms.StructureOfflineStampTest",
+      "dev.jayms.StructurePublicationStagingTest",
+      "dev.jayms.StructureRotationTreeTest",
+      "dev.jayms.StructureSaveStagingTest",
+      "dev.jayms.StructureTest",
+      "dev.jayms.StructureValidationStampTest",
+      "dev.jayms.VoxelModelTest",
+      "dev.jayms.net.structure.StructureBufferedCodecTest",
+      "dev.jayms.net.structure.StructureBufferedWireTest",
+      "dev.jayms.net.structure.StructureChunkMeshCountTest",
+      "dev.jayms.net.structure.StructureModelCodecTest",
+      "dev.jayms.net.structure.StructureOrderTest",
+      "dev.jayms.net.structure.StructurePackedGeometryTest",
+      "dev.jayms.net.structure.StructurePlacementCellsTest",
+      "dev.jayms.net.structure.StructureWirePositionsTest"
+    ],
+    "expected": "Canonical replay order/bytes, air prefix, negative/extreme positions, LED colours/fractional geometry/model references, copy isolation and outside edits, failed visitor reuse, invalid-resolution rejection, multiplayer and protocol regressions.",
+    "observed": "All 135 tests passed. Three new tests compare streaming/list output to an independent legacy leaf-list oracle; serialized edit bytes match. Whole-cell indexed history matches ordered fallback replay, including clearing old fractional entries and preserving unrelated edits. Source history/trees remain unchanged. Visitor runtime failures propagate and the frozen source remains reusable. Wrong resolution rejects before history mutation."
+  },
+  "integration_playtest": "Playtest: actual TLS multiplayer server and synthetic protocol clients passed four rotations, empty dependency caches, conflict/cancellation, undo, late join and restart. Default three clients; not 32 rendered clients or shaped-network qualification.",
+  "probe": {
+    "commands": [
+      "git show HEAD:src/main/java/dev/jayms/net/Protocol.java > target/structure-replay-control/src/Protocol.java",
+      "git show HEAD:src/main/java/dev/jayms/net/WorldVoxels.java > target/structure-replay-control/src/WorldVoxels.java",
+      "javac --release 17 -cp target/classes -d target/structure-replay-control/classes target/structure-replay-control/src/Protocol.java target/structure-replay-control/src/WorldVoxels.java",
+      "javac --release 17 -cp target/classes -d target tools/structures/HistoryReplayProbe.java",
+      "java -Xmx1g -cp target/structure-replay-control/classes:target:target/classes HistoryReplayProbe parent > target/structure-replay-parent.jsonl",
+      "java -Xmx1g -cp target:target/classes HistoryReplayProbe current > target/structure-replay-current.jsonl"
+    ],
+    "parent": {
+      "implementation": "parent",
+      "operation": "canonical_history",
+      "cells": 64,
+      "leaves": 131072,
+      "edits": 131136,
+      "replay_sha256": "bc1a3d517f1f9325fd8dc03b1028eab55b8e193921b9204e9286c92bfa7ca60d",
+      "warmups": 3,
+      "runs": 20,
+      "median_ms": 120.918,
+      "p95_ms": 208.163,
+      "worst_ms": 221.251,
+      "median_thread_allocated_bytes": 76654352
+    },
+    "current": {
+      "implementation": "current",
+      "operation": "canonical_history",
+      "cells": 64,
+      "leaves": 131072,
+      "edits": 131136,
+      "replay_sha256": "bc1a3d517f1f9325fd8dc03b1028eab55b8e193921b9204e9286c92bfa7ca60d",
+      "warmups": 3,
+      "runs": 20,
+      "median_ms": 133.338,
+      "p95_ms": 174.608,
+      "worst_ms": 176.591,
+      "median_thread_allocated_bytes": 67113744
+    },
+    "parent_source_sha256": {
+      "Protocol.java": "4becf6a32991e530297cce8a73a0b77c08a24e903844fe615809215324fd975f",
+      "WorldVoxels.java": "4c968a2feb8e77a376fb0e8968d822c8bd57405acf2d4e3f84bc76380b40bca9"
+    },
+    "method": "Separate JVMs, parent first, no concurrent tests/native. Three warmups and 20 builds of canonical indexed history from 64 frozen checkerboard LED cells, 2048 leaves/cell. Each timed build includes Edit/key/map construction. Ordered serialized Edit hash and source leaf counts checked outside timing after every build. Allocation is current-thread allocated bytes, not retained or peak memory. Hash checking can influence later GC; this single ordered comparison is not randomized full-system qualification.",
+    "decision": "Retain lower-allocation traversal. Median time regressed by 12.420 ms in this diagnostic; p95/worst fell. Do not claim reduced median latency or a 100 ms main-thread bound. Persistent history/edit/key/map costs remain unchanged."
+  },
+  "native_playtest": {
+    "status": "passed",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" > target/structure-replay-native-summary.json 2>&1",
+    "exit_code": 0,
+    "expected": "Production Main capture/library/import/export, all rotations, conflict/empty-source policy, cancellation/malformed failure, undo, repeat placement, restart and existing inventory/model editor.",
+    "observed": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "source_manifest": "structure-native-source.json",
+    "source_files": 221,
+    "source_manifest_sha256": "ac89334623df311831143ff9687305ff8de513a1925b832a2d1d2942f4c87fd1",
+    "source_check": "Every production Java and harness path/hash matches after playtesting.",
+    "media_inspection": "Fresh conflict screenshot inspected: visible brick geometry, red blocked footprint, 90-degree orientation and anchor. Decoded and inspected recording frame: green clear footprint, anchor and staging progress with world unchanged. HUD 1 FPS on software renderer is functional evidence only.",
+    "decode_command": "java -cp /home/debian/.m2/repository/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar target/InspectStructureVideo.java dashboard/evidence/structure-workflow.mp4 target/structure-replay-frame.png",
+    "video": {
+      "file": "structure-workflow.mp4",
+      "bytes": 407292,
+      "sha256": "c56cc4027937d79b6ce48031cf4b42b3e2b71c859d1112b0a0fb66c07a665309",
+      "codec": "H264",
+      "frames": 17,
+      "duration_seconds": 27.541
+    },
+    "publication": "Local evidence pending controller publication",
+    "qualification": "Not physical-GPU, frame-time, city or shaped-network qualification."
+  },
+  "parent_hosted_checks": {
+    "command": "gh pr view 76 --json headRefOid,statusCheckRollup",
+    "head": "0b5a8cd67087d8f9ee34bc981cd67413cccd01d5",
+    "observation": "Feature workflow: four builds successful, publish skipped. PR comparison workflow: three successful, macOS Intel still running at observation. No polling or repeated wait requested. New local source is untested by hosted checks.",
+    "urls": [
+      "https://github.com/jaymsDooku/voxel-one/actions/runs/41173534941",
+      "https://github.com/jaymsDooku/voxel-one/actions/runs/41173532900"
+    ]
+  },
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/Protocol.java": "bd5996e71158d569c7e7cefcb5a8b340fa9f316643bf2497288673006e2f30c5",
+    "src/main/java/dev/jayms/net/WorldVoxels.java": "b5371d37582ca5a77e60ffe0586862a1d2a071359bb13942bbba9ce67da43209",
+    "src/test/java/dev/jayms/StructureCellReplayTest.java": "0d6a1673cfbd78533cca484c40a2834b3ee69251d649c27c08e1bf34ebb7c63f",
+    "tools/structures/HistoryReplayProbe.java": "cca18a5f6270328a1fe55fba316d28ef58382b6f3e481f6b151bf82a18cc71c6"
+  },
+  "remaining": [
+    "City/maximum packages still reject under provisional complexity and affected-chunk caps.",
+    "Canonical history retains edit records, strings and map/index nodes; owner-thread history/save and partitioned canonical storage/publication/transfer remain unfinished.",
+    "Required reference physical-GPU, shaped-network and 32-rendered-client full-workflow benchmarks with 20 runs, peak memory, frame/tick/traffic and all latency/progress budgets remain pending.",
+    "Do not publish supported city limits, claim readiness, or weaken stable-rollout gates. Independent exact-head review remains required."
+  ],
+  "audit": "git diff --check against 71612f09bfec4549456b3317676e76cdced085a4 passed; no deleted paths. The old list-building replay loop is replaced by streaming traversal; no files are intentionally deleted."
+}

@@ -318,29 +318,32 @@ public final class Protocol {
             return new CellState(x, y, z, tree.freeze());
         }
 
+        /** Emit canonical replay order without temporary leaf/replay lists.
+         * The caller must not change the source tree during the visit. */
+        public void forEachEdit(java.util.function.Consumer<Edit> visitor) {
+            java.util.Objects.requireNonNull(visitor);
+            visitor.accept(new Edit(x, y, z, 0));
+            try {
+                tree.forEachLeaf((lx,ly,lz,side,color)->{
+                    int depth = Integer.numberOfTrailingZeros(16)
+                            - Integer.numberOfTrailingZeros(side);
+                    int material = WorldVoxels.decode(color);
+                    visitor.accept(new Edit(x, y, z, Blocks.piece(material, depth),
+                            depth, lx / side, ly / side, lz / side,
+                            material == Blocks.LED ? WorldVoxels.lightColor(color) : 0));
+                });
+            } catch (IOException impossible) {
+                // The checked leaf visitor above performs no I/O.
+                throw new AssertionError(impossible);
+            }
+        }
+
         public java.util.List<Edit> edits() {
             var out = new java.util.ArrayList<Edit>();
-            out.add(new Edit(x, y, z, 0));
-            for (var leaf : tree.leaves()) {
-                int depth =
-                        Integer.numberOfTrailingZeros(16)
-                                - Integer.numberOfTrailingZeros(leaf.side());
-                out.add(
-                        new Edit(
-                                x,
-                                y,
-                                z,
-                                Blocks.piece(WorldVoxels.decode(leaf.color()), depth),
-                                depth,
-                                leaf.x() / leaf.side(),
-                                leaf.y() / leaf.side(),
-                                leaf.z() / leaf.side(),
-                                WorldVoxels.decode(leaf.color()) == Blocks.LED
-                                        ? WorldVoxels.lightColor(leaf.color())
-                                        : 0));
-            }
+            forEachEdit(out::add);
             return out;
         }
+
     }
 
     public record BlockRequest(int requestId, Pose pose, Edit edit, int slot) {
