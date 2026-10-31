@@ -1131,3 +1131,11 @@ These probes do not qualify city/maximum admission, placement, persistence,
 rendering, network or supported limits. Full qualification and stable-rollout
 gates remain. See `structure-uniform-cache-validation.json` for exact commands,
 samples, source hashes and limits.
+
+### Private server survival metadata preservation
+
+The tools-only world/library envelope now has inner format 4 for synthetic server survival state: at most 10,000 player records and 100,000 drops, bounded to 4 MiB with CRC and cancellation. Names, inventories, health and drops retain exact values. Model dependencies must exist. Inventories copy on capture and access; duplicate exact names, malformed fields and oversized input reject. Case-distinct identifiers remain distinct, matching the saved layout. This is saved-world state, never reusable structure content or authentication data.
+
+Private generation restart and later geometry commits preserve server metadata and typed sidecar bytes. Existing formats 1–3 remain readable. Saved offline/server modes cannot be switched or stripped by a later stage, and a metadata update invalidates older staged work. The 16 MiB whole-envelope limit remains. The boundary fixture encoded 10,000 synthetic players and 100,000 drops in 2,610,020 bytes. This is a codec boundary check, not a multiplayer capacity claim.
+
+Playtest: `java -Xmx512m -cp target:target/classes RegionServerMetadataCheck` passed 34 rejection cases and restart checks. The viewer ran the actual child CLI with exit 0; its own-window image was inspected. No multiplayer server was started and no authentication data was read. Manual saved-tail layout parity is not production server-save execution. The prefix-only sidecar fixture checks framing/byte preservation, not semantic CityFrame validity. Production server import, owner-thread integration, ordinary-edit persistence, directory durability, full city/maximum benchmarks, physical GPU and shaped 32-client qualification remain pending. See `dashboard/evidence/structure-server-metadata.json`.
