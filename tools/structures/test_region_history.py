@@ -20,11 +20,12 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
             sources = [ROOT / 'tools/structures' / name for name in
                        ('RegionHistoryPrototype.java', 'RegionHistoryPrototypeCheck.java', 'RegionHistoryCodecCheck.java',
                         'RegionDependencyPrototype.java', 'RegionDependencyCheck.java',
-                        'RegionGenerationPrototype.java', 'RegionGenerationCheck.java', 'RegionGenerationEvidence.java')]
+                        'RegionGenerationPrototype.java', 'RegionGenerationCheck.java', 'RegionGenerationEvidence.java',
+                        'RegionAuthorityPrototype.java', 'RegionAuthorityCheck.java')]
             subprocess.run(['javac', '--release', '17', '-cp', str(CLASSES), '-d', temporary,
                             *map(str, sources)], check=True, capture_output=True, timeout=30)
             command = ['java', '-Xmx512m', '-cp', os.pathsep.join((temporary, str(CLASSES))), class_name]
-            if class_name == 'RegionGenerationCheck':
+            if class_name in ('RegionGenerationCheck', 'RegionAuthorityCheck'):
                 command.append(str(Path(temporary) / 'synthetic-generations'))
             result = subprocess.run(command, check=True,
                                     capture_output=True, text=True, timeout=30)
@@ -59,6 +60,14 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
         self.assertEqual(rows[0]['final_generation'], 4)
         self.assertGreaterEqual(rows[0]['mid_write_cancel_bytes'], 65536)
         self.assertFalse(rows[0]['directory_fsync_qualified'])
+        self.assertFalse(rows[0]['qualification'])
+
+    def test_actual_engine_authority(self):
+        rows = self.run_check('RegionAuthorityCheck')
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]['status'], 'passed')
+        self.assertEqual(rows[0]['rotations'], 4)
+        self.assertFalse(rows[0]['production_integration'])
         self.assertFalse(rows[0]['qualification'])
 
 

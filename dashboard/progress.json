@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-31T10:34:58+00:00",
+  "updatedAt": "2026-10-31T11:06:48+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Private generation-file publication passed forced staging, strict atomic rename, stale-writer/lock/cancellation/restart checks and 23 rejection cases. Fixed opened-file sizing race. All 37 tool tests plus four final affected tests passed. Fresh CLI screenshot captured. Production integration, directory/power-loss durability and full city/maximum GPU/network qualification remain pending.",
-      "updatedAt": "2026-10-31T10:34:58+00:00"
+      "note": "Actual StructureEngine now passes private generation-authority integration: four rotations, 11 placements, five undos, 36 rejection cases, stale-root/disk fencing and failure recovery. All 38 tool tests plus five final integration tests passed; fresh CLI image captured. Production metadata/save/server integration and full city/maximum GPU/network qualification remain unfinished; rollout gated.",
+      "updatedAt": "2026-10-31T11:06:48+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

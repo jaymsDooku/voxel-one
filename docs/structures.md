@@ -192,6 +192,23 @@ machine-crash/power-loss guarantees, orphan-stage recovery and responsive live
 publication are still pending. This synchronous experiment is not a production
 save path or a 100 ms owner-thread qualification. Results and fresh CLI screenshot:
 `structure-region-generation.json` and `structure-generation-cli.png`.
+
+The tools-only `RegionAuthorityPrototype` now connects the actual shared
+StructureEngine API to private generation files. It stages frozen geometry,
+models and a final-cell index off-lock, fences both source root and saved
+generation, then publishes a preallocated root after strict file publication.
+Snapshot views retain one coherent root. Direct final-cell indexing avoids
+reconstructing a global Edit map. The CLI passes all four rotations, placement,
+undo, restart loading, stale-root/disk-generation rejection, unrelated-edit
+preservation and injected failure/cancellation cases. Report and fresh CLI image:
+`structure-region-authority.json` and `structure-authority-cli.png`.
+
+This adapter is not used by LocalGame or the server. Its physical manifest does
+not preserve inventories, transient/player metadata or unplaced library assets;
+synthetic edits are dirty until a successful later publication. Runtime undo is
+not restored after restart. Complete legacy-world migration, responsive live
+publication and full storage/render/network qualification remain required before
+production integration. No admission cap or production format has changed.
 No city-sized storage, save, network, atomic commit or undo claim follows from
 these small replay checks. Results: `structure-region-history-prototype.json`.
 
