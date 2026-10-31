@@ -679,3 +679,35 @@ The small fixture median and worst time increased slightly. Fragmented fixtures
 show lower validation cost, but this does not establish placement latency,
 frame or tick budgets. No city, maximum-package, GPU, shaped-network or
 32-rendered-client qualification is claimed. Admission and rollout gates remain.
+
+### Buffered structure synchronization
+
+Structure synchronization now buffers decoded reads and encoded writes in
+65,536-byte blocks. The decoded limiter remains below the read buffer; decoded
+and compressed output budgets remain below the write buffer. Gzip completion,
+CRC checks, cancellation between dependencies/cells, duplicate rejection and all
+existing transfer limits remain. Stored octree leaves are counted directly
+rather than materializing a temporary leaf list. Protocol and wire bytes do not
+change. This does not raise the current two-million-cell/leaf transfer limits.
+
+An isolated codec probe used 64 fractional cells, 131,072 geometry leaves and one
+32-resolution model dependency. Its compressed delta is 192,676 bytes. Three
+warmups preceded 20 runs per operation in separate parent/current JVMs, parent
+first, without concurrent tests or native playtesting. Construction, SHA-256 and
+per-cell physical equality checks are outside timing. Parent/current wire hash
+is `09f19df5b369cbe0c86debd89b89a9726cbcd4a84a04273b3d2e18cca9460e79`.
+
+| Operation | Parent/current median ms | Parent/current p95 ms | Parent/current worst ms | Parent/current thread allocation bytes |
+| --- | ---: | ---: | ---: | ---: |
+| Encode | 229.507 / 88.774 | 236.544 / 96.959 | 249.087 / 98.141 | 7,919,896 / 793,952 |
+| Decode | 144.300 / 22.557 | 157.263 / 29.997 | 164.123 / 38.717 | 13,255,528 / 5,926,304 |
+
+These are CPU codec timings and current-thread allocation, not peak memory,
+network traffic or synchronization to rendered clients. New tests compare an
+independent legacy writer byte-for-byte across buffers, preserve model IDs and
+physical geometry including air, reject malformed CRC/size/truncated/duplicate/
+trailing input, and retain cancellation and the decoded allocation guard. Small
+counter limits exercise the guard; no full 512 MiB allocation is claimed. Real
+TLS structure placement, late joining, restart and regressions also passed.
+Full city/maximum admission and physical-GPU, frame/tick, shaped-network and
+32-rendered-client qualification remain pending. Supported limits stay gated.

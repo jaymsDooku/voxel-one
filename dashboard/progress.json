@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Count-only chunk validation passed 136 distinct targeted tests and fresh native workflow. Parent render hashes match; fragmented validation allocation fell from 123,572,272 to 17,832 bytes. Video decoded/inspected, all 220 source hashes verified. Exact-head checks needed; city/maximum qualification remains pending.",
-      "updatedAt": "2026-10-31T04:04:37+00:00"
+      "note": "Buffered synchronization passed 132 targeted tests, real TLS workflow and fresh native regression. Exact wire hash preserved; encode/decode p95 fell to 96.959/29.997 ms in a small codec probe. New video inspected and 220 source hashes verified. Exact-head CI needed; full city/maximum qualification remains pending.",
+      "updatedAt": "2026-10-31T04:29:19+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
