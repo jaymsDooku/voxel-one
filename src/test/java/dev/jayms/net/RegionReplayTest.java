@@ -50,6 +50,12 @@ class RegionReplayTest {
         }
         for(int length:new int[]{0,4,23,valid.length-1})assertThrows(IOException.class,()->RegionReplay.read(new DataInputStream(new ByteArrayInputStream(Arrays.copyOf(valid,length))),new WorldVoxels.History()));
     }
+    @Test void applicationPredicateRejectsWholeSectionBeforeHistoryChanges()throws Exception {
+        var source=new WorldVoxels.History();WorldVoxels.remember(source,new Protocol.Edit(0,128,0,Blocks.STONE));WorldVoxels.remember(source,new Protocol.Edit(1,128,0,Blocks.GLASS));
+        var target=new WorldVoxels.History();byte[] bytes=encode(source);
+        assertThrows(IOException.class,()->RegionReplay.read(new DataInputStream(new ByteArrayInputStream(bytes)),target,e->e.type()!=Blocks.GLASS));assertTrue(target.isEmpty());
+        RegionReplay.read(new DataInputStream(new ByteArrayInputStream(bytes)),target,e->true);assertEquals(new ArrayList<>(source.entrySet()),new ArrayList<>(target.entrySet()));
+    }
     @Test void cancellationCountMismatchAndProgressFailureDoNotPublishAndAllowRetry()throws Exception {
         var source=fixture();byte[] before=encode(source);var cancel=new AtomicBoolean();var partial=new ByteArrayOutputStream();
         assertThrows(CancellationException.class,()->RegionReplay.write(new DataOutputStream(partial),source,cancel::get,p->{if(p>0)cancel.set(true);}));

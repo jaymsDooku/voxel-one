@@ -120,4 +120,19 @@ class StructureSaveStagingTest {
             assertEquals(0,temporaryCount());
         }
     }
+    @Test void failedRegionalPublicationDoesNotUpgradeFormatOrChangeLiveWorld()throws Exception {
+        var tls=SecureTransport.server(folder.resolve("synthetic-tls"));var accounts=new AccountStore(folder.resolve("synthetic-accounts"));var save=folder.resolve("world.dat");
+        try(var server=new MultiplayerServer("127.0.0.1",0,save,accounts,tls.context(),42,GameConfig.sandbox())) {
+            var authority=authority(server);var persist=MultiplayerServer.class.getDeclaredMethod("persist");persist.setAccessible(true);persist.invoke(server);byte[] before=Files.readAllBytes(save);
+            try(var staged=authority.stageCommit(authority.models().copy(),cells(),authority.models().revision(),()->false)) {
+                var backup=folder.resolve("original.dat");Files.move(save,backup);Files.createDirectory(save);Files.writeString(save.resolve("keep"),"keep");
+                try {
+                    synchronized(server){assertThrows(IOException.class,staged::apply);assertFalse(StructureSaveStagingTest.<Boolean>field(server,"regionalSaves"));assertEquals(0,authority.cell(320,180,320).occupied());}
+                    assertArrayEquals(before,Files.readAllBytes(backup));assertEquals("keep",Files.readString(save.resolve("keep")));assertEquals(0,temporaryCount());
+                }finally{Files.delete(save.resolve("keep"));Files.delete(save);Files.move(backup,save);}
+            }
+        }
+        try(var in=new java.io.DataInputStream(Files.newInputStream(save))){assertEquals(Protocol.MAGIC,in.readInt());assertEquals(-8,in.readInt());}
+    }
+
 }

@@ -1265,3 +1265,9 @@ Version-10 offline structure saves keep seed, generator, full model definitions,
 Both staged writes and normal version-10 resaves use the bounded encoder. Loading checks section count, length, checksum, edit validity and chunk identity before applying that section to private load history. Failed or cancelled staging removes its private file. Successful structure publication still requires the existing exact-state validation and atomic save replacement. Older readers do not understand version 10.
 
 This bounds replay section buffers, not total live memory. The canonical History still materializes all records. There is no indexed lazy startup, disk-backed world root or lifted city/maximum admission cap. Full fixture admission and all physical-GPU, 32-client and 20-run performance qualification remain pending.
+
+### Production server replay sections
+
+Staged server structure saves now use marker -10 after the existing protocol magic, followed by seed, generator, the full model library, the same bounded replay sections as offline version 10, and the existing player/inventory/health/drop tail. The server validates referenced model IDs before applying a complete section to private load history. Version -10 rejects trailing bytes. Existing server formats remain readable. Legacy ordinary worlds retain version -8/-9 until a staged structure save publishes; version -10 then remains in use for later saves and restarts. The format flag changes only after successful atomic publication. Network protocol and city sidecar bytes remain unchanged.
+
+Replay buffers are bounded; live history is still materialized and still capped at 2,000,000 records. This does not lift geometry, model-surface or affected-chunk caps and does not qualify full city/maximum fixtures, cold-cache loading, physical rendering or synchronization budgets.
