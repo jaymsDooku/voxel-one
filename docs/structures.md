@@ -100,6 +100,15 @@ constructor inputs are copied before freezing. Both paths enforce all package
 checks. Sorting still creates final storage separately, and placement staging
 needs further memory work.
 
+Placement staging retains mixed 16-resolution cells as immutable packed wire
+images rather than retaining their child-node graphs. Each cell image is at most
+64 KiB. Its wrapper identity stays stable for map lookups and undo; uniform cells
+and model instances keep their shared trees. Value queries reconstruct a temporary
+cell graph without retaining a decoded cache. Ordinary world storage takes its
+normal independent copy. This trades additional per-cell decoding work for lower
+retained fractional-geometry storage. It does not establish peak-memory, frame or
+operation-time budgets, and it does not change geometry or placement limits.
+
 Additional provisional development caps are 131,072 geometry leaves and 16,384
 model instances per package, 1,048,576 model-definition surface quads,
 1,048,576 instance-weighted model quads, and 262,144 instance-weighted

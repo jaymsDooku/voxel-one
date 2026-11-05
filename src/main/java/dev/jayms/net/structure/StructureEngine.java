@@ -165,7 +165,7 @@ public final class StructureEngine {
                     if(next==null){next=new SparseVoxelOctree(16);next.fill(0,0,0,16,16,16,WorldVoxels.encode(id));next.freeze();instances.put(id,next);}
                 } else {
                     int uniform=cell.geometry().uniform(0,0,0,16);
-                    if(uniform==-1)next=rotate(cell.geometry(),rotation);
+                    if(uniform==-1)next=rotate(cell.geometry(),rotation).packedCellCopy();
                     else {next=uniformGeometry.get(uniform);if(next==null){next=rotate(cell.geometry(),rotation);uniformGeometry.put(uniform,next);}}
                 }
                 affectedChunks.add(ChunkPos.fromBlock(p.x(),p.y(),p.z()));
