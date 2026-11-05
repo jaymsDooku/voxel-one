@@ -135,4 +135,19 @@ class StructureSaveStagingTest {
         try(var in=new java.io.DataInputStream(Files.newInputStream(save))){assertEquals(Protocol.MAGIC,in.readInt());assertEquals(-8,in.readInt());}
     }
 
+    @Test void cancellationInterruptsProductionModelPrefixBeforeReplayAndLeavesNoDependency()throws Exception {
+        var tls=SecureTransport.server(folder.resolve("synthetic-tls"));var accounts=new AccountStore(folder.resolve("synthetic-accounts"));var save=folder.resolve("world.dat");
+        try(var server=new MultiplayerServer("127.0.0.1",0,save,accounts,tls.context(),42,GameConfig.sandbox())) {
+            var authority=authority(server);var models=authority.models().copy();var tree=new SparseVoxelOctree(32);tree.fill(0,0,0,32,32,32,0xff112233);
+            for(int x=1;x<31;x++)for(int y=1;y<31;y++)for(int z=1;z<31;z++)tree.set(x,y,z,0xff000000|((x*73856093^y*19349663^z*83492791)&0xffffff));
+            var definition=new ModelDefinition("Synthetic bounded prefix",tree);var bytes=new ByteArrayOutputStream();definition.write(new DataOutputStream(bytes));assertTrue(bytes.size()>65536);models.stageStructureModel(definition);
+            var observed=new java.util.concurrent.atomic.AtomicLong();
+            assertThrows(java.util.concurrent.CancellationException.class,()->authority.stageCommit(models,cells(),authority.models().revision(),()->{
+                try(var files=Files.list(folder)){for(var path:files.filter(p->p.getFileName().toString().startsWith(".structure-save-")).toList()){long size=Files.size(path);observed.set(Math.max(observed.get(),size));if(size>=65536)return true;}}catch(IOException e){throw new UncheckedIOException(e);}return false;
+            }));
+            assertTrue(observed.get()>=65536&&observed.get()<2L*65536);assertTrue(observed.get()<bytes.size(),"Cancellation must interrupt the model body before replay");assertFalse(Files.exists(save));assertEquals(0,temporaryCount());assertFalse(authority.models().hasStructureModels());assertEquals(0,authority.cell(320,180,320).occupied());
+            try(var retry=authority.stageCommit(authority.models().copy(),cells(),authority.models().revision(),()->false)){synchronized(server){retry.apply();}}assertEquals(Blocks.STONE,WorldVoxels.decode(authority.cell(320,180,320).uniform(0,0,0,16)));
+        }
+    }
+
 }

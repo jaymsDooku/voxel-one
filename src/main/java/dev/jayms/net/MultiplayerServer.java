@@ -918,7 +918,7 @@ public final class MultiplayerServer implements AutoCloseable {
                     WorldVoxels.rememberCell(next,new Protocol.CellState(p.x(),p.y(),p.z(),entry.getValue()));
                 }
                 if(next.size()>2_000_000)throw new IOException("World persistence edit limit");
-                var file=save==null?null:StagedWorldSave.stage(save,out->writeWorldPrefix(out,staged,next,cancel,true));
+                var file=save==null?null:StagedWorldSave.stage(save,out->writeWorldPrefix(out,staged,next,cancel,true),cancel);
                 return new StructureEngine.Commit() {
                     public void apply()throws IOException {
                         if(edits!=base||base.revision()!=historyRevision)throw new IOException("World changed while staging save; retry structure operation");
