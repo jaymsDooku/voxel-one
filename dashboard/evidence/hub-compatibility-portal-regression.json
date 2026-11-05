@@ -1,0 +1,17 @@
+{
+  "command": [
+    "node",
+    "--test",
+    "games/space-invaders/portal.test.mjs",
+    "games/space-invaders/alternate-earth.test.mjs",
+    "games/space-invaders/ground.test.mjs"
+  ],
+  "exitCode": 0,
+  "counts": [
+    "# tests 31",
+    "# pass 31",
+    "# fail 0",
+    "# skipped 0"
+  ],
+  "source": "current working tree based on 7fde413; game/website source unchanged from review base 403033"
+}

@@ -1,0 +1,72 @@
+{
+  "baseHead": "2da57e184bfa8e77cfb4826d74d6a06154cee349",
+  "sourceKind": "Uncommitted feature working tree",
+  "sourceSha256": {
+    "src/main/java/dev/jayms/launcher/Bootstrap.java": "83ee45a0557087063da210d49da662180f2e0aa6135c1950d20ccc22129132f6",
+    "src/test/java/dev/jayms/launcher/HubShellActivationTest.java": "43b0c6fb058b835d9278f488bcbc6ccc8c5969626f1e3dcc3864030d733ed649"
+  },
+  "bug": "Bootstrap read startup update preference after waiting for child readiness; another launch could change settings and cause old bootstrap to stage a new generation.",
+  "baseline": {
+    "commandTest": "HubShellActivationTest#updatePreferenceIsCapturedBeforeWaitingForShellReadiness",
+    "exitCode": 1,
+    "expectedDownloads": 1,
+    "observedDownloads": 2
+  },
+  "fix": "Snapshot preference before candidate launch/readiness. Settings changed during startup apply to the next bootstrap invocation.",
+  "command": "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 PATH=/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin:\"$PATH\" TMPDIR=\"$PWD/target/hub-tmp\" mvn -q -o -Dmaven.repo.local=\"$PWD/target/maven-cache\" -Djava.io.tmpdir=\"$PWD/target/hub-tmp\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/hub-tmp\" -Dtest=HubCatalogTest,HubShellTest,HubShellActivationTest,UpdaterTest,AccountStoreTest,ProtocolCompatibilityTest test package",
+  "exitCode": 0,
+  "suites": [
+    {
+      "name": "dev.jayms.HubCatalogTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.HubShellTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.launcher.HubShellActivationTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.UpdaterTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.AccountStoreTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.ProtocolCompatibilityTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "publisherTests": 4,
+  "Playtest:": "Linux inherited role display/XAUTHORITY, synthetic profiles, bundled Java. Executable regression delays shell readiness2s, flips startup preference and serves B while A is starting; expected original invocation retain updates=false and A. Failed before fix with2 downloads; passed after fix with1. Existing executable failure/timeout/rollback and newer-stage tests passed. Actual rebuilt Bootstrap launched visible Hub; full assigned-desktop capture inspected. Exact commands in hub-startup-snapshot-playtest.json. No platform/native gameplay qualification claimed.",
+  "pending": [
+    "Windows own-child CIM query timeout",
+    "Remote confirmation of shell-stage behavior on resulting source",
+    "Real native render/GPU/DPI/performance qualification",
+    "Controller publication, published shell upgrades, independent catalog promotion, browser cached reload"
+  ],
+  "audit": "No deleted paths against26b8761; git diff --check passed. No commit/push/deploy/publication.",
+  "stableRolloutQualified": false
+}

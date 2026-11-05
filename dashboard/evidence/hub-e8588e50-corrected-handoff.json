@@ -1,0 +1,20 @@
+{
+  "sourceSha": "e8588e50c6136c64ccdff7822a48d3c8c1039f5b",
+  "ordinaryBuildRun": {
+    "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39348285325",
+    "workflow": ".github/workflows/build.yml",
+    "qualification": "Not scoped Hub package/gameplay qualification"
+  },
+  "scopedHubRun": null,
+  "latestScopedRun": {
+    "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39347111564",
+    "sourceSha": "d11bed03d7bfb01f8187f90b3395243a51f5bbe6",
+    "conclusion": "failure"
+  },
+  "controllerDispatchCommand": "gh workflow run hub-validation.yml --ref feature/queue-62383835386364312d346130642d346262652d383736632d393534373062343337356161 -f source_sha=e8588e50c6136c64ccdff7822a48d3c8c1039f5b -f runner_pool=hosted",
+  "dispatchFence": "Controller must verify current feature head equals source_sha before dispatch. Hosted diagnostics do not qualify physical GPU/DPI.",
+  "publicationBundle": "target/hub-exact-e8588e50-publication",
+  "publication": "Controller must execute authorized preview publication with all existing fences, then return live endpoint and upgrade/browser checks. No developer publication performed.",
+  "Playtest:": "CLI integration audit on Linux VPS: queried run metadata and scoped-workflow list. Expected scoped Hub qualification for exact e8588e50; observed ordinary build.yml run and no exact-head scoped Hub run. Browser UI not applicable to workflow identity audit. No new application/graphics test or pass claimed.",
+  "stableRolloutQualified": false
+}

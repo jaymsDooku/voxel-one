@@ -1,0 +1,45 @@
+{
+  "origin": "https://voxel-one.jamesleaver1.chatgpt.site",
+  "path": "/games/space-invaders/",
+  "access": "Registered Sites service access held server-side in memory; no visitor identity or sign-in claim.",
+  "passed": true,
+  "assets": {
+    "/games/space-invaders/": {
+      "sha256": "50d89027cf940d4ae5db5bed15d31023d82edeea53c84df227bfecbe3223d05b",
+      "size": 2670
+    },
+    "/games/space-invaders/style.css": {
+      "sha256": "cd7311ee6eecdd503db56a40798918a0cb6f9e93b370d3c587ee6047c4c5231f",
+      "size": 4290
+    },
+    "/games/space-invaders/app.mjs": {
+      "sha256": "d9e90d3c8b976f8d0ddcc72371fb115ffa6793f72f900a687f636854eda59432",
+      "size": 16868
+    },
+    "/games/space-invaders/game.mjs": {
+      "sha256": "f4cf0664a1861719710aca2f9d769b0ab600b4769e1b401a6e2d109e4da6a1c8",
+      "size": 8630
+    },
+    "/games/space-invaders/terrain-view.mjs": {
+      "sha256": "ab5e6817942124f35deb11a2c12768e36be984feb6875000a8adec9607ccb371",
+      "size": 13340
+    },
+    "/games/space-invaders/terrain.mjs": {
+      "sha256": "1f14765c2ad7bcd34f3cff542d3c8b80b022b7e52e49c7031c1659ead0fc482d",
+      "size": 18630
+    },
+    "/games/space-invaders/terrain-scene.mjs": {
+      "sha256": "987ba986916f04635bca52a06d4381d49415a003eb30df29c339d92914f02412",
+      "size": 3245
+    },
+    "/games/space-invaders/terrain-worker.mjs": {
+      "sha256": "852885762ff48bb061bcb8b82ebaa311855e8d8b1def67b0d1662ece7b28147a",
+      "size": 297
+    }
+  },
+  "limitations": [
+    "No new deployment or catalog promotion occurred.",
+    "Same deployed build reload is not cross-deployment freshness.",
+    "Service-authenticated proxy is not the normal signed-in browser flow."
+  ]
+}

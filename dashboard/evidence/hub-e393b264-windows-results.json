@@ -1,0 +1,93 @@
+{
+  "source": "e393b264077adfd61500ccb2f4d8684a8e32e69f",
+  "ci": "https://github.com/jaymsDooku/voxel-one/actions/runs/39857255137",
+  "fingerprintMismatches": [],
+  "javaTests": {
+    "tests": 24,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "checks": [
+    {
+      "name": "Bounded own-child query controls",
+      "status": "passed"
+    },
+    {
+      "name": "Updater failures, locks, concurrency and migration",
+      "status": "passed"
+    },
+    {
+      "name": "Native executable and two-version bootstrap update",
+      "status": "passed"
+    },
+    {
+      "name": "Failed shell activation rollback",
+      "status": "passed"
+    },
+    {
+      "name": "Windows MSI, shortcuts and uninstall",
+      "status": "passed"
+    },
+    {
+      "name": "UI at JVM scale 1",
+      "status": "passed"
+    },
+    {
+      "name": "UI at JVM scale 1.5",
+      "status": "passed"
+    },
+    {
+      "name": "UI at JVM scale 2",
+      "status": "passed"
+    },
+    {
+      "name": "Synthetic online login handoff",
+      "status": "passed"
+    },
+    {
+      "name": "Catalog promotion before Play",
+      "status": "passed"
+    },
+    {
+      "name": "Bounded native window failure",
+      "status": "passed"
+    },
+    {
+      "name": "Bounded context diagnosis",
+      "status": "passed"
+    },
+    {
+      "name": "Native rendered city",
+      "status": "pending"
+    },
+    {
+      "name": "Native rendered sandbox",
+      "status": "pending"
+    },
+    {
+      "name": "Native rendered editor",
+      "status": "pending"
+    },
+    {
+      "name": "Offline native installation",
+      "status": "passed"
+    }
+  ],
+  "passed": false,
+  "fullQualificationPassed": false,
+  "pendingQualification": [
+    "JVM scale 1: 1280x800 unavailable on 1024x728 desktop; qualification pending",
+    "JVM scale 1.5: 900x600 unavailable on 683x485 desktop; qualification pending\n1280x800 unavailable on 683x485 desktop; qualification pending",
+    "JVM scale 2: 900x600 unavailable on 512x364 desktop; qualification pending\n1280x800 unavailable on 512x364 desktop; qualification pending",
+    "No tested native OpenGL context could be created on this runner; actual city rendering remains pending.",
+    "No tested native OpenGL context could be created on this runner; actual sandbox rendering remains pending.",
+    "No tested native OpenGL context could be created on this runner; actual editor rendering remains pending."
+  ],
+  "Playtest": "Inspected exact-source Windows packaged shell-two/native-executable.png: Games page and City card visible. Synthetic package fixture; no native gameplay pass. Image copied without alteration.",
+  "limitations": [
+    "Mac reports not yet inspected for this head.",
+    "Two fixture shell versions do not prove two published-generation self-update.",
+    "Physical GPU, Windows monitor DPI and performance qualification remain pending; stable rollout gated."
+  ]
+}

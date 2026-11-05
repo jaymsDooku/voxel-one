@@ -1,0 +1,27 @@
+{
+  "source": "91988655c3061160899befe5cef24092a3b9390d plus working harness edits",
+  "command": "python3 -m unittest discover -s tools/hub -p test_*.py",
+  "tests": "8 passed",
+  "integration": "Actual downloaded exact-head context observations fed to classifier; all three classified unavailable; overall qualification remains false",
+  "platforms": [
+    {
+      "platform": "Windows",
+      "architecture": "AMD64",
+      "renderStatus": "pending",
+      "overallPassed": false
+    },
+    {
+      "platform": "Darwin",
+      "architecture": "x86_64",
+      "renderStatus": "pending",
+      "overallPassed": false
+    },
+    {
+      "platform": "Darwin",
+      "architecture": "arm64",
+      "renderStatus": "pending",
+      "overallPassed": false
+    }
+  ],
+  "playtest": "Noninteractive harness classification exercised against real scoped CLI output. No new gameplay execution or browser check applies. Existing shell media retained; physical and rendering qualification pending."
+}

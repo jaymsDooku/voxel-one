@@ -1,0 +1,21 @@
+{
+  "source": "62d33b1ae1711992b738c48694d9eb30a02ec999",
+  "sourcePreserved": true,
+  "packagingFix": {
+    "preparedPatch": "target/hub-preview-positive-major.patch",
+    "change": "Use 1.0.N instead of 0.1.N for bounded preview generation N=1..65535. Major is positive; distinct preview tag and non-stable qualification remain unchanged.",
+    "validation": "Both generation endpoints checked; modified YAML and embedded Python parsed. macOS jpackage execution remains pending; patch not applied."
+  },
+  "nativeDiagnosis": {
+    "windows": "0x10006 is GLFW_API_UNAVAILABLE. Existing code retries 4.3 to 3.3 core forward-compatible. No evidence that increasing retries or lowering below required GL3.3 restores WGL API.",
+    "mac": "0x10009 is GLFW_FORMAT_UNAVAILABLE during creation. Existing fallback and -XstartOnFirstThread are present. Need bounded framebuffer-hint/context probe on same scoped desktop before changing production renderer.",
+    "capture": "screen mode sends Alt+2 then captures entire desktop after700ms without asserting Hub window visible. Mac Intel black capture cannot pass visual qualification. Proposed repair: platform-specific activation of assigned child only plus bounded visible-window/capture assertion; do not substitute Swing paint for real desktop evidence.",
+    "size": "Reported extents exceed scoped desktops. Keep pending; shrinking screenshots or treating JVM scaling as physical DPI would not meet acceptance."
+  },
+  "nextDiagnostics": [
+    "Scoped native probe: request production4.3 then3.3, record only fixed GLFW codes; test3.3 with GLFW_COCOA_RETINA_FRAMEBUFFER false and default framebuffer hints on Mac; no graphics gate bypass.",
+    "Mac capture: inspect assigned-child window visibility/activation and capture permission with synthetic desktop only.",
+    "Retain required physical GPU, Windows monitor DPI, performance, live web and two-public-generation upgrade gates."
+  ],
+  "reference": "https://www.glfw.org/docs/latest/group__errors.html"
+}

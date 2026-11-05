@@ -1,0 +1,46 @@
+{
+  "head": "2f896b9d8def0e40d1913470ce38d91e8d934cba",
+  "base": "3f877c21c8e6776adba9d2130e2fd92e55853763",
+  "sourceKind": "exact-commit",
+  "commands": [
+    "javac --release 17 -cp target/voxel-one-1.0-SNAPSHOT-client.jar -d target/hub-tmp tools/hub/HubPlaytest.java tools/hub/PackageUiProbe.java tools/hub/ProcessQueryProbeTest.java tools/hub/UnavailableWebPlaytest.java",
+    "\"target/hub-repair-linux/package-1/Voxel One Hub/lib/runtime/bin/java\" -Djava.io.tmpdir=\"$PWD/target/hub-tmp\" -cp target/hub-tmp:target/voxel-one-1.0-SNAPSHOT-client.jar ProcessQueryProbeTest",
+    "python3 -m unittest discover -s tools/hub -p test_*.py",
+    "python3 tools/hub/publication_bundle.py prepare --native-receipt dashboard/evidence/hub-preview-native-receipt.json --web-receipt dashboard/evidence/hub-preview-web-receipt.json --jar target/voxel-one-1.0-SNAPSHOT-launcher.jar --source-sha 2f896b9d8def0e40d1913470ce38d91e8d934cba --tag hub-preview-1 --expected-catalog-head absent --output target/hub-2f896b9d-publication",
+    "java -Djava.io.tmpdir=$PWD/target/hub-tmp -cp target/hub-tmp:target/voxel-one-1.0-SNAPSHOT-client.jar UnavailableWebPlaytest target/hub-2f896b9d-publication/catalog.properties target/hub-2f896b9d-profile dashboard/evidence/hub-2f896b9d-web-unavailable.png",
+    "python3 tools/hub/publication_bundle.py verify --bundle target/hub-2f896b9d-publication --report dashboard/evidence/hub-2f896b9d-delivery.json",
+    "git diff --quiet 3d01f7407cab4a9638b03c96b13969be10ea87aa..HEAD -- src/main",
+    "git diff --name-only --diff-filter=D 3f877c21c8e6776adba9d2130e2fd92e55853763",
+    "git diff --check"
+  ],
+  "controls": [
+    "Playtest: own-child query eof matched=true elapsedMs=176",
+    "Playtest: own-child query hang matched=false elapsedMs=305",
+    "Playtest: own-child query wrong matched=false elapsedMs=96",
+    "Playtest: own-child query overflow matched=false elapsedMs=113",
+    "Playtest: own-child query failed matched=false elapsedMs=149",
+    "Playtest: own-child query stderr matched=true elapsedMs=132"
+  ],
+  "pythonTests": "5 passed",
+  "Playtest": "Published pipe-probe sources compiled and six real child controls passed on bundled Linux Java. Fresh actual Hub unavailable-web state passed with isolated profile; screenshot inspected. Process probe has no browser workflow; actual deployed browser gameplay remains pending.",
+  "environment": "Linux; JDK 21.0.5; inherited DISPLAY/XAUTHORITY; synthetic profiles; no credentials retained",
+  "publicDelivery": {
+    "exitCode": 1,
+    "result": "All three catalog/shell endpoints HTTP 404; not published"
+  },
+  "hosted": {
+    "run": "https://github.com/jaymsDooku/voxel-one/actions/runs/39496419915",
+    "observedStatus": "pending",
+    "passed": null
+  },
+  "priorValidation": "Application src/main is unchanged from locally tested 3d01f740, where 24 Java tests and package passed. No new 24-test run claimed here.",
+  "audit": "No unrelated deletions against current review base. Source changes since f1cc0e5b are only the published probe fix, its controls, packaged expectation and notes.",
+  "bundle": "target/hub-2f896b9d-publication",
+  "controllerDependency": "Feature push is already complete. Separate authorized preview release/catalog publication is still required; do not repeat unchanged feature handoff.",
+  "pending": [
+    "Exact-head hosted Windows/macOS reports and media",
+    "Public delivery and two actually published shell generations",
+    "Deployed browser gameplay/cache reload and independent web promotion",
+    "Physical GPU, Windows DPI, reference performance; stable rollout gated"
+  ]
+}

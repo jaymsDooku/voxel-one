@@ -1,0 +1,18 @@
+{
+  "source": "3f40eaed790a44dbf1d05aa23d1de449ca67c844",
+  "environment": "Linux; inherited DISPLAY and XAUTHORITY; JDK 21.0.5; isolated synthetic profile",
+  "tests": [
+    "python3 -m unittest discover -s tools/hub -p test_*.py: 5 passed",
+    "ProcessQueryProbeTest: six real subprocess controls passed (EOF, timeout, wrong token, overflow, nonzero exit, stderr pressure)",
+    "Playtest: UnavailableWebPlaytest with generated catalog; three supported native entries retained; unverified web detail and disabled browser action passed; screenshot inspected",
+    "Workflow YAML, embedded Python and trusted guards passed; whitespace passed; no deletions against recorded base",
+    "Maven offline attempt failed before tests: new com.googlecode.soundlibs:mp3spi:1.9.5.4 missing from worktree cache. Online retry reported Connection closed: Broken pipe and was stopped with exit 130; Java/package qualification remains pending."
+  ],
+  "pending": [
+    "Final Maven build and regression tests",
+    "Exact-source Windows/macOS packaged validation",
+    "Public preview delivery and two published shell generations",
+    "Physical GPU, Windows DPI and reference performance"
+  ],
+  "media": "hub-3f40eaed-web-unavailable.png"
+}

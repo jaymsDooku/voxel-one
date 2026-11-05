@@ -1,0 +1,15 @@
+{
+  "reviewedHead": "6a9187b87339c19db1ca885f2d2631da5b9333e4",
+  "recoveryHead": "416f52abec11c6c233010d83c0604d769f9c6323",
+  "recordedReviewBase": "4f8a09aca177062a50d0ab2b68e36735318bfb22",
+  "currentMasterReference": "403033b9f53ce66063982879c6e2daff684a427b",
+  "historicalEvidenceRestored": 210,
+  "historicalEvidenceMissingOrChangedFromCurrentMaster": 0,
+  "spaceInvadersSourceAndWebsiteDiffFromCurrentMaster": "none",
+  "progressResolution": "All current-master non-Hub entries retained; only Hub milestone updated.",
+  "privacyCleanup": "Removed accidentally staged hs_err_pid135.log without reading it; ignore patterns added for JVM crash/replay dumps. Controller must stage removal.",
+  "command": "node --test games/space-invaders/portal.test.mjs games/space-invaders/alternate-earth.test.mjs games/space-invaders/ground.test.mjs",
+  "playtest": "Playtest: noninteractive ground/portal/alternate-Earth runtime regression CLI, including completion/opening, transfer, resource preservation, safe spawning and pause/restart edges. Browser/UI final-head validation deferred until controller finishes Git recovery.",
+  "observed": "31 passed; zero failed/skipped. Restored portal and alternate-Earth runtime regression cases passed.",
+  "pending": "Controller stages resolved contents and continues Git. Then inspect/fix MSI shortcut-count failure and rerun resulting-source workflow/media. No stable GPU/DPI qualification claim."
+}

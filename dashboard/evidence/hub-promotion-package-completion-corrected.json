@@ -1,0 +1,55 @@
+{
+  "checks": [
+    {
+      "name": "sandbox",
+      "command": [
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages/package-1/Voxel One Hub/lib/runtime/bin/java",
+        "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages",
+        "-cp",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages/classes:/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages/native-cache/versions/6307ffede5a191e917a3b6d248d7d44df2b361fc/cdacb099a4c224e90804e41cd01bb4683fe04a0b7ac0547793762dffd3507660/linux.jar",
+        "NativeRenderProbe",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages/completion-sandbox",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/dashboard/evidence/hub-promotion-resumed-packages/completion-sandbox",
+        "sandbox"
+      ],
+      "exitCode": 0,
+      "observed": [
+        "Playtest: production native sandbox renderer completed four frames in 22749 ms; renderer llvmpipe (LLVM 15.0.6, 256 bits); LOW preset; no smooth-performance claim."
+      ]
+    },
+    {
+      "name": "editor",
+      "command": [
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages/package-1/Voxel One Hub/lib/runtime/bin/java",
+        "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages",
+        "-cp",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages/classes:/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages/native-cache/versions/6307ffede5a191e917a3b6d248d7d44df2b361fc/cdacb099a4c224e90804e41cd01bb4683fe04a0b7ac0547793762dffd3507660/linux.jar",
+        "NativeRenderProbe",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages/completion-editor",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/dashboard/evidence/hub-promotion-resumed-packages/completion-editor",
+        "editor"
+      ],
+      "exitCode": 0,
+      "observed": [
+        "Playtest: production native editor renderer completed four frames in 35073 ms; renderer llvmpipe (LLVM 15.0.6, 256 bits); LOW preset; no smooth-performance claim."
+      ]
+    },
+    {
+      "name": "offline installed retention",
+      "command": [
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages/package-1/Voxel One Hub/lib/runtime/bin/java",
+        "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages",
+        "-cp",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages/classes:/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "UpdaterProbe",
+        "installed",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages/native-cache",
+        "http://127.0.0.1:33857/manifest",
+        "false"
+      ],
+      "exitCode": 0,
+      "observed": "Verified client resolved with fixture publisher stopped"
+    }
+  ],
+  "environment": "Inherited Linux role display; bundled Java; isolated synthetic profiles; software OpenGL"
+}

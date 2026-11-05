@@ -1,0 +1,30 @@
+{
+  "command": [
+    "/home/debian/.local/bin/node",
+    "--test",
+    "games/space-invaders/portal.test.mjs",
+    "games/space-invaders/alternate-earth.test.mjs",
+    "games/space-invaders/ground.test.mjs"
+  ],
+  "cwd": "repository root",
+  "exitCode": 0,
+  "sourceWebsiteAssetsMatched": [
+    "app.mjs",
+    "game.mjs",
+    "ground.mjs",
+    "ground-controls.mjs",
+    "ground-renderer.mjs",
+    "portal.mjs",
+    "alternate-earth.mjs",
+    "earth-scene.mjs",
+    "style.css"
+  ],
+  "counts": [
+    "# tests 31",
+    "# pass 31",
+    "# fail 0",
+    "# skipped 0"
+  ],
+  "correctedAttempt": "Initial command used website cwd and exited 1 because test paths are repository-relative; rerun from repository root.",
+  "Playtest": "CLI portal/ground/alternate-Earth regression integration; browser gameplay remains separate required qualification."
+}
