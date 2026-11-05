@@ -1,0 +1,76 @@
+{
+  "scope": "Production capture/export save streams compressed bytes directly into its disk stage before atomic replacement. No admission increase or full-region backend claim.",
+  "source_parent": "1b63c6f79315d57c194a7f8928c7d5055f657961",
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/structure/StructurePackage.java": "92e26b340588f8d61d1bff33675c217a727985bb661cb8e6c5e9f69a3d9c8d8e",
+    "src/test/java/dev/jayms/StructureEncodeCancellationTest.java": "746faf682ee28321711634e7d374f76b98ca67c7dfe964aca1468b08cf9f540f"
+  },
+  "parent_hosted_checks": {
+    "source": "controller scoped result",
+    "four_platform_builds": "success",
+    "publish": "skipped",
+    "qa_approval": false
+  },
+  "commands": [
+    "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" \"-Dtest=Structure*,WorldStreamingTest,WorldCellSnapshotTest\" test",
+    "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\""
+  ],
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "java": "25.0.3+9-LTS-195",
+    "test_tmp": "target/reviewer-tmp",
+    "native": "isolated synthetic profile; inherited DISPLAY; software rendering"
+  },
+  "junit": {
+    "tests": 167,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "suites": 33
+  },
+  "expected_observed": [
+    "Bytes reach the disk stage before encoding completes while destination retains sentinel bytes: passed.",
+    "Successful file output matches byte-array encoding and loads/re-encodes identically: passed.",
+    "Partial streamed-output callback failure preserves destination, removes stage and permits retry: passed.",
+    "Atomic move onto a nonempty directory fails without changing its contents or leaking a stage: passed.",
+    "Cancellation at encoding/save phases preserves prior file, removes stage and permits retry: passed.",
+    "Shared encoder retains existing byte budgets and legacy payload compatibility: passed."
+  ],
+  "playtest": {
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_manifest": "structure-native-source.json",
+    "source_manifest_sha256": "f69972e7437b2d29635dd030d269c4bee8809a34fba07665ddd17b65ed73c6d4",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "publication": "Local evidence pending controller publication"
+  },
+  "qualification": false,
+  "pending": [
+    "Full production region capture/placement/persistence integration",
+    "City/maximum production admission and 20-run budgets",
+    "Physical GPU and shaped32-client qualification; frame/tick/traffic/peak-memory/stall/durability gates"
+  ],
+  "publication": "pending controller publication",
+  "media": {
+    "decodedFrames": 16,
+    "durationSeconds": 28.159,
+    "bytes": 415132,
+    "width": 960,
+    "height": 544,
+    "midpointIndex": 8,
+    "videoSha256": "33ffa00371e388a96ce1ee896e4c754c4dc6a1f5a899d20531b4f0a424634bac",
+    "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step.",
+    "inspection": "All16 frames decoded; midpoint and occupied-conflict screenshot inspected. HUD1FPS does not meet physical-GPU qualification."
+  },
+  "native_source_entries": 225,
+  "native_source_mismatches": 0,
+  "native_temporary_files_left": 0,
+  "review_base_audit": {
+    "base": "71612f09bfec4549456b3317676e76cdced085a4",
+    "tracked_deleted_paths": 0,
+    "intended_deletions": []
+  }
+}

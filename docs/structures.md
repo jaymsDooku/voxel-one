@@ -79,6 +79,15 @@ also deletes it. A process crash can leave a temporary file for later cleanup.
 Staging does not change package identity, admission caps or world state. Decoded
 cell/model storage and placement still need further large-region work.
 
+Capture saves and library exports stream gzip output directly into a temporary
+file beside the destination, with a 64 KiB disk-output buffer. The existing
+compressed and decoded byte ceilings apply while writing. The completed stream
+is closed before the final cancellation check and atomic replacement. Before
+replacement, cancellation or failure removes the stage and preserves any prior
+package. A successful replacement is committed; no progress callback runs after
+it. Network encoding still returns the same byte-array format. Decoded assets,
+world saves, placement staging and crash durability need further qualification.
+
 Validated packages retain cell coordinates and model references in primitive arrays,
 with frozen geometry references. Reading a cell creates a temporary record; the
 public list remains immutable and spatially ordered. This reduces retained
