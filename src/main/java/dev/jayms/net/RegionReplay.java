@@ -41,6 +41,10 @@ final class RegionReplay {
     }
     /** Reads exactly the declared replay; the caller reads and validates the remaining world tail. */
     static void read(DataInputStream in,Map<String,Protocol.Edit> edits)throws IOException {
+        read(in,edits,edit->true);
+    }
+    static void read(DataInputStream in,Map<String,Protocol.Edit> edits,Predicate<Protocol.Edit> allowed)throws IOException {
+        Objects.requireNonNull(allowed);
         int total=in.readInt();if(total<0||total>LocalGame.MAX_SAVED_EDITS)throw new IOException("Invalid world");
         int count=0;
         while(count<total) {
@@ -53,7 +57,7 @@ final class RegionReplay {
             try(var body=new DataInputStream(new ByteArrayInputStream(bytes))) {
                 for(int i=0;i<records;i++) {
                     var edit=Protocol.Edit.read(body);
-                    if(!edit.valid()||!ChunkPos.fromBlock(edit.x(),edit.y(),edit.z()).equals(region))throw new IOException("Invalid regional replay position/value");
+                    if(!edit.valid()||!allowed.test(edit)||!ChunkPos.fromBlock(edit.x(),edit.y(),edit.z()).equals(region))throw new IOException("Invalid regional replay position/value");
                     section.add(edit);
                 }
                 if(body.read()!=-1)throw new IOException("Trailing regional replay section");

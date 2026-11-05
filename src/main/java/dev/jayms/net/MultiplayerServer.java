@@ -46,6 +46,7 @@ public final class MultiplayerServer implements AutoCloseable {
     private final ExecutorService workers = Executors.newCachedThreadPool();
     private final ScheduledExecutorService saves = Executors.newSingleThreadScheduledExecutor();
     private final Path save;
+    private boolean regionalSaves;
     private volatile boolean running = true;
     /** Fixed transport codes for isolated integration diagnostics; never includes account data. */
     public enum TransportFailure { READ_TIMEOUT, INVALID_MOVEMENT, MESSAGE_RATE, UNKNOWN_MESSAGE, OUTPUT_QUEUE, WRITE_IO, READ_IO }
@@ -109,7 +110,8 @@ public final class MultiplayerServer implements AutoCloseable {
                 if (in.readInt() != Protocol.MAGIC) throw new IOException("Invalid world save");
                 int count = in.readInt();
                 terrain = new Terrain(seed, Terrain.LEGACY_VERSION);
-                boolean structureFormat=count == -9;
+                regionalSaves=count == -10;
+                boolean structureFormat=count == -9 || regionalSaves;
                 boolean itemFormat = count == -8 || structureFormat;
                 boolean versioned = count == -7 || itemFormat;
                 boolean colored = count == -6 || versioned;
@@ -125,8 +127,10 @@ public final class MultiplayerServer implements AutoCloseable {
                         throw new IOException("Unsupported terrain generator", e);
                     }
                     if (withModels) models = structureFormat?ModelLibrary.readAll(in):ModelLibrary.read(in);
-                    count = in.readInt();
+                    if(!regionalSaves)count = in.readInt();
                 }
+                if(regionalSaves)RegionReplay.read(in,edits,e->models.has(e.type()));
+                else {
                 if (count < 0 || count > 2000000) throw new IOException("Invalid edit count");
                 for (int i = 0; i < count; i++) {
                     var e =
@@ -138,6 +142,7 @@ public final class MultiplayerServer implements AutoCloseable {
                     if (!e.valid() || !models.has(e.type()))
                         throw new IOException("Invalid saved block");
                     edits.put(e.key(), e);
+                }
                 }
                 if (modern) {
                     int players = in.readInt();
@@ -163,6 +168,7 @@ public final class MultiplayerServer implements AutoCloseable {
                         nextDrop = Math.max(nextDrop, d.id());
                     }
                 }
+                if(regionalSaves&&in.read()!=-1)throw new IOException("Trailing regional server world");
             }
         }
         voxels = new WorldVoxels(terrain);
@@ -912,7 +918,7 @@ public final class MultiplayerServer implements AutoCloseable {
                     WorldVoxels.rememberCell(next,new Protocol.CellState(p.x(),p.y(),p.z(),entry.getValue()));
                 }
                 if(next.size()>2_000_000)throw new IOException("World persistence edit limit");
-                var file=save==null?null:StagedWorldSave.stage(save,out->writeWorldPrefix(out,staged,next,cancel));
+                var file=save==null?null:StagedWorldSave.stage(save,out->writeWorldPrefix(out,staged,next,cancel,true));
                 return new StructureEngine.Commit() {
                     public void apply()throws IOException {
                         if(edits!=base||base.revision()!=historyRevision)throw new IOException("World changed while staging save; retry structure operation");
@@ -935,7 +941,7 @@ public final class MultiplayerServer implements AutoCloseable {
                     if(restage)geometry.replaceCell(p.x(),p.y(),p.z(),entry.getValue());
                 }
                 if(next.size()>2_000_000)throw new IOException("World persistence edit limit");
-                if(file==null)saveWorld(staged,next,true);else file.publish(MultiplayerServer.this::writeWorldTail);
+                if(file==null)saveWorld(staged,next,true);else {file.publish(MultiplayerServer.this::writeWorldTail);regionalSaves=true;}
                 models=staged;edits=next;voxels=geometry;broadcast(publication);
             }
         };
@@ -1214,7 +1220,7 @@ public final class MultiplayerServer implements AutoCloseable {
         Path temp = absolute.resolveSibling(absolute.getFileName() + ".tmp");
         try (var channel = FileChannel.open(temp, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
                 var out = new DataOutputStream(new BufferedOutputStream(Channels.newOutputStream(channel), 64 * 1024))) {
-            writeWorldPrefix(out,models,edits,()->false);
+            writeWorldPrefix(out,models,edits,()->false,regionalSaves);
             writeWorldTail(out);
             out.flush();
             channel.force(true);
@@ -1222,15 +1228,15 @@ public final class MultiplayerServer implements AutoCloseable {
         WorldSavePublication.replace(temp, absolute, requireAtomic);
     }
 
-    private void writeWorldPrefix(DataOutputStream out,ModelLibrary models,Map<String,Protocol.Edit> edits,java.util.function.BooleanSupplier cancel)throws IOException {
+    private void writeWorldPrefix(DataOutputStream out,ModelLibrary models,Map<String,Protocol.Edit> edits,java.util.function.BooleanSupplier cancel,boolean regional)throws IOException {
         StructurePackage.cancelled(cancel);
         out.writeInt(Protocol.MAGIC);
-        out.writeInt(models.hasStructureModels()?-9:-8);
+        out.writeInt(regional?-10:models.hasStructureModels()?-9:-8);
         out.writeLong(terrain.seed);
         out.writeInt(terrain.version);
-        if(models.hasStructureModels())models.writeAll(out);else models.write(out);
-        out.writeInt(edits.size());
-        for (var e : edits.values()) {StructurePackage.cancelled(cancel);e.write(out);}
+        if(regional||models.hasStructureModels())models.writeAll(out);else models.write(out);
+        if(regional)RegionReplay.write(out,edits,cancel,p->{});
+        else {out.writeInt(edits.size());for(var e:edits.values()){StructurePackage.cancelled(cancel);e.write(out);}}
     }
     /** Called under the server authority lock to retain current inventories, health and drops. */
     private void writeWorldTail(DataOutputStream out)throws IOException {

@@ -55,6 +55,7 @@ class StructureMultiplayerTest {
                     var target=new Position(2000+r*2000,128,2000);
                     assertTrue(player.placeStructure(asset.encode(),target,r));
                     waitFor(views,()->!player.structurePending());assertTrue(player.structureMessage.startsWith("Structure placed"),player.structureMessage);
+                    try(var in=new java.io.DataInputStream(Files.newInputStream(save))){assertEquals(Protocol.MAGIC,in.readInt());assertEquals(-10,in.readInt());}
                     var observer=views.get(1);var spawn=observer.client.spawn;
                     observer.pose=new Protocol.Pose(observer.client.id,spawn.x()+.25f,spawn.y(),spawn.z(),spawn.yaw(),spawn.pitch());
                     waitFor(views,()->player.players.containsKey(observer.client.id)&&Math.abs(player.players.get(observer.client.id).x()-observer.pose.x())<.01f);
