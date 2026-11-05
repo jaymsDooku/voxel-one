@@ -1271,3 +1271,9 @@ This bounds replay section buffers, not total live memory. The canonical History
 Staged server structure saves now use marker -10 after the existing protocol magic, followed by seed, generator, the full model library, the same bounded replay sections as offline version 10, and the existing player/inventory/health/drop tail. The server validates referenced model IDs before applying a complete section to private load history. Version -10 rejects trailing bytes. Existing server formats remain readable. Legacy ordinary worlds retain version -8/-9 until a staged structure save publishes; version -10 then remains in use for later saves and restarts. The format flag changes only after successful atomic publication. Network protocol and city sidecar bytes remain unchanged.
 
 Replay buffers are bounded; live history is still materialized and still capped at 2,000,000 records. This does not lift geometry, model-surface or affected-chunk caps and does not qualify full city/maximum fixtures, cold-cache loading, physical rendering or synchronization budgets.
+
+### Cancellable server model-prefix writes
+
+Server structure save staging now checks cancellation below the 64 KiB file buffer. Oversized model writes are split into writes of at most 65,536 bytes, with a check before each write and flush. Cancellation before entry creates no stage directory; cancellation during or after prefix encoding closes/removes the private stage and preserves the committed world. The final atomic publication step remains uncancellable.
+
+Tests exercise both a 512 KiB bulk write and actual production model serialization before replay, followed by cleanup and retry. File metadata can precede the first model slice, so total staged length is not a single-write size. This is a bounded cancellation checkpoint, not a measured cancellation-latency or stall guarantee. Full qualification remains pending.

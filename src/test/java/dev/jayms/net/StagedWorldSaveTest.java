@@ -39,4 +39,17 @@ class StagedWorldSaveTest {
         try(var staged=StagedWorldSave.stage(directory,out->out.writeByte(7))){assertThrows(IOException.class,()->staged.publish(out->{}));}
         assertArrayEquals(new byte[]{3},Files.readAllBytes(directory.resolve("keep")));assertEquals(0,temporaryCount());
     }
+    @Test void cancellationBoundsBulkWritesAndPreservesCommittedFileWithRetry()throws Exception {
+        var target=folder.resolve("world.dat");byte[] before={1,2,3};Files.write(target,before);var observed=new java.util.concurrent.atomic.AtomicLong();
+        assertThrows(java.util.concurrent.CancellationException.class,()->StagedWorldSave.stage(target,out->out.write(new byte[512*1024]),()->{
+            try(var files=Files.list(folder)){for(var path:files.filter(p->p.getFileName().toString().startsWith(".structure-save-")).toList()){long size=Files.size(path);observed.set(Math.max(observed.get(),size));if(size>=64*1024)return true;}}catch(IOException e){throw new UncheckedIOException(e);}return false;
+        }));
+        assertEquals(64*1024,observed.get());assertArrayEquals(before,Files.readAllBytes(target));assertEquals(0,temporaryCount());
+        var cancelled=new java.util.concurrent.atomic.AtomicBoolean();
+        assertThrows(java.util.concurrent.CancellationException.class,()->StagedWorldSave.stage(target,out->{out.writeInt(7);cancelled.set(true);},cancelled::get));assertEquals(0,temporaryCount());assertArrayEquals(before,Files.readAllBytes(target));
+        try(var stage=StagedWorldSave.stage(target,out->out.writeInt(42),()->false)){stage.publish(out->out.writeInt(9));}
+        try(var in=new DataInputStream(Files.newInputStream(target))){assertEquals(42,in.readInt());assertEquals(9,in.readInt());assertEquals(-1,in.read());}
+        var absent=folder.resolve("absent/world.dat");assertThrows(java.util.concurrent.CancellationException.class,()->StagedWorldSave.stage(absent,out->fail(),()->true));assertFalse(Files.exists(absent.getParent()));
+    }
+
 }
