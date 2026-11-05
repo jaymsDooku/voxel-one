@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-31T22:04:22+00:00",
+  "updatedAt": "2026-11-05T10:31:26+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Stored-world cursor backs private persistence without flat-history enumeration;49 production tests and7 integrations passed. Full city/GPU/32-client qualification and production region integration remain pending.",
-      "updatedAt": "2026-10-31T22:04:22+00:00"
+      "note": "Production import disk staging passed 165 Java tests, three CLI checks, six Hub tests and fresh native workflow/media. Maximum diagnostic now passes after disk repair. Full city/maximum production admission, region persistence/placement and hardware/network qualification remain pending; rollout gated.",
+      "updatedAt": "2026-11-05T10:31:26+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

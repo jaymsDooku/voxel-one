@@ -18,7 +18,7 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
         folder.mkdir(parents=True, exist_ok=True)
         with tempfile.TemporaryDirectory(dir=folder) as temporary:
             sources = [ROOT / 'tools/structures' / name for name in
-                       ('RegionHistoryPrototype.java', 'RegionHistoryPrototypeCheck.java', 'RegionHistoryCodecCheck.java', 'RegionHistoryStreamCheck.java', 'RegionHistoryStreamEvidence.java',
+                       ('DiskPackageIndexPrototype.java', 'DiskPackageIndexCheck.java', 'DiskPackageIndexEvidence.java', 'RegionHistoryPrototype.java', 'RegionHistoryPrototypeCheck.java', 'RegionHistoryCodecCheck.java', 'RegionHistoryStreamCheck.java', 'RegionHistoryStreamEvidence.java',
                         'RegionDependencyPrototype.java', 'RegionDependencyCheck.java',
                         'RegionGenerationPrototype.java', 'RegionGenerationCheck.java', 'RegionGenerationEvidence.java',
                         'RegionAuthorityPrototype.java', 'RegionAuthorityCheck.java',
@@ -33,6 +33,16 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
             result = subprocess.run(command, capture_output=True, text=True, timeout=30)
             self.assertEqual(result.returncode, 0, result.stderr[:4000])
             return [json.loads(line) for line in result.stdout.splitlines()]
+
+    def test_disk_package_index(self):
+        row = self.run_check('DiskPackageIndexCheck')[0]
+        self.assertEqual(row['status'], 'passed')
+        self.assertEqual(row['cells'], 5)
+        self.assertEqual(row['regions'], 3)
+        self.assertEqual(row['rejection_cases'], 18)
+        self.assertTrue(row['production_byte_roundtrip'])
+        self.assertTrue(row['cache_cleanup'])
+        self.assertFalse(row['qualification'])
 
     def test_actual_replay_migration(self):
         rows = self.run_check('RegionHistoryPrototypeCheck')

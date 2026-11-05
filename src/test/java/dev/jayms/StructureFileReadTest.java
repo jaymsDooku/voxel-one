@@ -55,4 +55,41 @@ class StructureFileReadTest {
         try(var out=new RandomAccessFile(oversized.toFile(),"rw")){out.setLength(StructurePackage.COMPRESSED+1);}
         assertThrows(IOException.class,()->StructurePackage.load(oversized));
     }
+    private Set<Path> stages()throws IOException {
+        try(var paths=Files.list(Path.of(System.getProperty("java.io.tmpdir")))) {
+            return paths.filter(p->p.getFileName().toString().startsWith("voxel-structure-import-")).collect(java.util.stream.Collectors.toSet());
+        }
+    }
+    @Test void stagedImportRejectsBadFootersAndTrailingMembersWithoutLeakingOrChangingSource()throws Exception {
+        byte[] good=packageBytes();var before=stages();var path=folder.resolve("strict.vstr");
+        for(int variant=0;variant<4;variant++) {
+            byte[] bytes=Arrays.copyOf(good,good.length+(variant==2?1:variant==3?good.length:0));
+            if(variant==0)bytes[bytes.length-8]^=1;
+            if(variant==1)bytes[bytes.length-4]^=1;
+            if(variant==3)System.arraycopy(good,0,bytes,good.length,good.length);
+            Files.write(path,bytes);var progress=new ArrayList<Integer>();
+            assertThrows(IOException.class,()->StructurePackage.load(path,()->false,progress::add));
+            assertFalse(progress.contains(100));assertArrayEquals(bytes,Files.readAllBytes(path));assertEquals(before,stages());
+        }
+        Files.write(path,good);assertArrayEquals(good,StructurePackage.load(path).encode());assertEquals(before,stages());
+    }
+    @Test void cancellationAndCallbackFailureDuringStagingOrDecodeCleanOwnedFileAndAllowRetry()throws Exception {
+        byte[] good=packageBytes();var path=folder.resolve("cancel-stage.vstr");Files.write(path,good);var before=stages();
+        for(int threshold:new int[]{1,30,99,100}) {
+            var cancel=new AtomicBoolean();
+            assertThrows(CancellationException.class,()->StructurePackage.load(path,cancel::get,p->{if(p>=threshold)cancel.set(true);}));
+            assertEquals(before,stages());assertArrayEquals(good,Files.readAllBytes(path));
+        }
+        assertThrows(IllegalStateException.class,()->StructurePackage.load(path,()->false,p->{if(p>0)throw new IllegalStateException("Synthetic callback failure");}));
+        assertEquals(before,stages());assertArrayEquals(good,StructurePackage.load(path).encode());
+    }
+    @Test void stageReadsOneOpenedSourceWhenItsPathIsReplaced()throws Exception {
+        byte[] good=packageBytes();var path=folder.resolve("replaced.vstr");Files.write(path,good);var moved=folder.resolve("original.vstr");var changed=new AtomicBoolean();var before=stages();
+        var result=StructurePackage.load(path,()->false,p->{
+            if(p>0&&p<10&&changed.compareAndSet(false,true))try {
+                Files.move(path,moved);Files.write(path,new byte[]{42});
+            }catch(IOException failure){throw new UncheckedIOException(failure);}
+        });
+        assertTrue(changed.get());assertArrayEquals(good,result.encode());assertArrayEquals(good,Files.readAllBytes(moved));assertArrayEquals(new byte[]{42},Files.readAllBytes(path));assertEquals(before,stages());
+    }
 }

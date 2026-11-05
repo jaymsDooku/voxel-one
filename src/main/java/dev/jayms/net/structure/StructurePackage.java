@@ -191,7 +191,12 @@ public final class StructurePackage {
         if(bytes.length<1||bytes.length>COMPRESSED)throw new IOException("64 MiB compressed structure limit");
         if(bytes.length<18||bytes[0]!=(byte)31||bytes[1]!=(byte)139||bytes[2]!=8||bytes[3]!=0)
             throw new IOException("Invalid structure gzip header");
-        var payload=new ByteArrayInputStream(bytes,10,bytes.length-18);var inflater=new Inflater(true);var crc=new CRC32();
+        var payload=new ByteArrayInputStream(bytes,10,bytes.length-18);
+        return decodePayload(payload,payload::available,littleInt(bytes,bytes.length-8),littleInt(bytes,bytes.length-4),cancel,progress);
+    }
+    /** Shared strict decoder for in-memory wire data and an owned, disk-staged import. */
+    static StructurePackage decodePayload(InputStream payload,LongSupplier remaining,long expectedCRC,long expectedLength,BooleanSupplier cancel,IntConsumer progress)throws IOException {
+        var inflater=new Inflater(true);var crc=new CRC32();
         try(var raw=new InflaterInputStream(payload,inflater);var checked=new CheckedInputStream(raw,crc);var budget=new BudgetInput(checked,DECODED);var in=new DataInputStream(new BufferedInputStream(budget,65536))) {
             if(in.readInt()!=MAGIC)throw new IOException("Unsupported structure package");
             int version=in.readInt();if(version!=1&&version!=VERSION)throw new IOException("Unsupported structure package");
@@ -223,9 +228,9 @@ public final class StructurePackage {
                 if((i&127)==127||i==n-1){progress.accept(25+(int)((long)(i+1)*74/n));cancelled(cancel);}
             }
             if(in.read()!=-1)throw new IOException("Trailing structure bytes");
-            if(!inflater.finished()||inflater.getRemaining()!=0||payload.available()!=0
-                    ||crc.getValue()!=littleInt(bytes,bytes.length-8)
-                    ||((DECODED-budget.remaining)&0xffffffffL)!=littleInt(bytes,bytes.length-4))
+            if(!inflater.finished()||inflater.getRemaining()!=0||remaining.getAsLong()!=0
+                    ||crc.getValue()!=expectedCRC
+                    ||((DECODED-budget.remaining)&0xffffffffL)!=expectedLength)
                 throw new IOException("Structure gzip length/checksum/trailing data");
             cancelled(cancel);var result=new StructurePackage(name,bounds,models,cells,cancel);
             cancelled(cancel);progress.accept(100);cancelled(cancel);return result;
@@ -258,20 +263,12 @@ public final class StructurePackage {
     public static StructurePackage load(Path path,BooleanSupplier cancel,IntConsumer progress) throws IOException {
         Objects.requireNonNull(cancel,"cancel");Objects.requireNonNull(progress,"progress");
         cancelled(cancel);progress.accept(0);cancelled(cancel);
-        long size=Files.size(path);
-        if(size>COMPRESSED)throw new IOException("64 MiB compressed structure limit");
-        byte[] bytes=new byte[(int)size];
-        try(var in=Files.newInputStream(path)) {
-            for(int offset=0;offset<bytes.length;) {
-                cancelled(cancel);int count=in.read(bytes,offset,Math.min(65536,bytes.length-offset));
-                if(count<0)throw new EOFException("Structure file changed while reading; retry import");
-                offset+=count;progress.accept((int)((long)offset*10/bytes.length));cancelled(cancel);
-            }
+        try(var stage=StructureImportStage.copy(path,cancel,progress)) {
             cancelled(cancel);
-            if(in.read()!=-1)throw new IOException("Structure file changed while reading; retry import");
+            return stage.decode(cancel,p->progress.accept(10+p*90/100));
         }
-        cancelled(cancel);return decode(bytes,cancel,p->progress.accept(10+p*90/100));
     }
+
     static final class BudgetInput extends FilterInputStream {
         long remaining;BudgetInput(InputStream in,long limit){super(in);remaining=limit;}
         @Override public int read() throws IOException {int v=in.read();if(v>=0&&--remaining<0)throw new IOException("512 MiB decoded structure limit");return v;}

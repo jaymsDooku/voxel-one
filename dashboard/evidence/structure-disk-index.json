@@ -1,0 +1,96 @@
+{
+  "scope": "Private read-only disk index diagnostic. No production importer, admission, world mutation or supported-limit change.",
+  "source_parent": "c8f029dcd574f8d3c849c4fe26f2b1f0d3feb7e0",
+  "source_sha256": {
+    "tools/structures/DiskPackageIndexPrototype.java": "f5b7fdbb169162cff89cb872884c6d1bce1b46cd5d2e3f86028dca5e5850924d",
+    "tools/structures/DiskPackageIndexCheck.java": "39b853d7b53c79950d2662f116aa9652d0b7c34d88e9509b3ce08f716da04c84",
+    "tools/structures/DiskPackageIndexEvidence.java": "eeffab433df7ccddf64dab2011999a3361d4c66215af3e85e45ca7a3958dfe19",
+    "tools/structures/test_region_history.py": "76c72c8fea775e45ae94d9c4df3e62974b72b539b22f16337ce16c0bbec27599"
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "java": "25.0.3+9-LTS-195",
+    "heap": "-Xmx256m",
+    "rss_method": "Linux Python resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss; each wrapper starts only one Java child; KiB"
+  },
+  "commands": [
+    "javac -encoding UTF-8 --release 17 -cp target/classes -d target/disk-index-check tools/structures/DiskPackageIndexPrototype.java tools/structures/DiskPackageIndexCheck.java",
+    "java -Xmx256m -cp target/disk-index-check:target/classes DiskPackageIndexCheck",
+    "java -Xmx256m -cp target/disk-index-check:target/classes DiskPackageIndexCheck target/structure-fixtures/city-v2.vstr",
+    "java -Xmx256m -cp target/disk-index-check:target/classes DiskPackageIndexCheck target/structure-fixtures/maximum-v2.vstr",
+    "python3 -m unittest tools.structures.test_region_history.RegionHistoryIntegrationTest.test_disk_package_index tools.structures.test_region_history.RegionHistoryIntegrationTest.test_bounded_codec tools.structures.test_region_history.RegionHistoryIntegrationTest.test_world_override_cursor"
+  ],
+  "tests": {
+    "selected_cli_tests": 3,
+    "seconds": 14.658,
+    "passed": true,
+    "selftest_rejection_cases": 18
+  },
+  "city": {
+    "status": "passed",
+    "fixture": "city-v2.vstr",
+    "cells": 978288,
+    "leaves": 968048,
+    "instances": 10240,
+    "models": 256,
+    "regions": 2173,
+    "decoded_bytes": 41073093,
+    "dependency_quads": 1572864,
+    "instance_quads": 62914560,
+    "index_seconds": 6.991678,
+    "visit_seconds": 4.86728,
+    "all_regions_and_models_read": true,
+    "production_admission": false,
+    "qualification": false
+  },
+  "city_resources": {
+    "exit": 0,
+    "elapsed_seconds": 12.004040326923132,
+    "peak_rss_kib": 178536
+  },
+  "maximum": {
+    "status": "passed",
+    "fixture": "maximum-v2.vstr",
+    "cells": 4000000,
+    "leaves": 7967232,
+    "instances": 16384,
+    "models": 512,
+    "regions": 8192,
+    "decoded_bytes": 305479992,
+    "dependency_quads": 786432,
+    "instance_quads": 25165824,
+    "index_seconds": 15.513335,
+    "visit_seconds": 13.037053,
+    "all_regions_and_models_read": true,
+    "production_admission": false,
+    "qualification": false
+  },
+  "fixture_sha256": {
+    "city-v2.vstr": "6e9b606d0e3c8045db437dabad75d797a22843c39df6244c196e8e792d488ef6",
+    "maximum-v2.vstr": "c76fcc00260e42370b9877f3ef4a00ed95e203a557b4e1e8dcb4e95a8f4a4eda"
+  },
+  "playtest": "CLI only: fixed synthetic child roundtrips five cells across three regions against production encoding, reloads model, rejects 18 malformed/cancel/cache cases, retries, and deletes owned cache. Expected checks passed. Existing codec/world cursor regression passed. Screenshot captured on inherited display and inspected. Browser/game UI is unaffected; this is not a fresh native workflow run.",
+  "hosted_parent": {
+    "source": "controller scoped observation",
+    "four_platform_builds": "success",
+    "publish": "skipped",
+    "readiness": false
+  },
+  "qualification": false,
+  "pending": [
+    "Production region backend, streaming and live owner installation",
+    "Full 20-run city/maximum budgets",
+    "Physical GPU and shaped 32-client qualification; memory/frame/tick/traffic/stall/durability gates"
+  ],
+  "media": {
+    "file": "structure-disk-index-cli.png",
+    "sha256": "5de5ceca2d8d1ce2d3b6a47dbc6edb3c1dcc8d949eb2cd195ec729030c93c783",
+    "publication": "pending controller publication"
+  },
+  "maximum_resources": {
+    "exit": 0,
+    "elapsed_seconds": 28.825886696577072,
+    "peak_rss_kib": 182392
+  },
+  "disk_repair": "Controller restored over9GiB; maximum diagnostic rerun passed and owned cache removed."
+}
