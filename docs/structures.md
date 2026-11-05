@@ -70,6 +70,15 @@ Enforced format ceilings are 1,024×256×1,024 cells, 4,000,000 occupied cells,
 the version, order, duplicate positions, material values, references, gzip CRC
 and lengths. Invalid dimensions/counts fail before world publication.
 
+File imports first copy the opened compressed source into a private temporary file
+in chunks of at most 64 KiB, enforcing the 64 MiB limit before staging. The worker
+then streams that snapshot through the same strict decoder used for network byte
+arrays. This removes the full compressed byte array from file import. Cancellation,
+malformed data and callback failures delete the temporary file; a successful load
+also deletes it. A process crash can leave a temporary file for later cleanup.
+Staging does not change package identity, admission caps or world state. Decoded
+cell/model storage and placement still need further large-region work.
+
 Validated packages retain cell coordinates and model references in primitive arrays,
 with frozen geometry references. Reading a cell creates a temporary record; the
 public list remains immutable and spatially ordered. This reduces retained
