@@ -1,0 +1,22 @@
+{
+  "checkedAt": "2026-11-05T10:21:25.201582+00:00",
+  "scope": "Operational recovery; game feature completion and hardware qualification are separate.",
+  "blockedWorkItems": 0,
+  "activeWorkItems": 2,
+  "obsoleteCleanReviewSnapshotsRemoved": 8,
+  "reclaimedBytes": 9563254784,
+  "freeBytesAfterCleanup": 9746542592,
+  "safeguards": [
+    "Developer worktrees and uncommitted changes retained.",
+    "Latest review worktrees and evidence retained.",
+    "Detached review commits retained under Git references.",
+    "Ordinary git worktree removal only; no forced deletion or garbage collection.",
+    "Independent review and physical-hardware qualification gates retained."
+  ],
+  "verification": [
+    "Queue reports zero blocked work items.",
+    "Both unfinished items have resumed in their original developer worktrees.",
+    "Existing catalog endpoint returned HTTP 200.",
+    "Shared quota checked through the actual account endpoint before continuation."
+  ]
+}
