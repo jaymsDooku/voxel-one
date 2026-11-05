@@ -5,7 +5,7 @@
   "passed": true,
   "assets": {
     "/games/space-invaders/": {
-      "sha256": "c5e431a0ba583f93237cfc47e3111f8eb52204ba7db4736a025f336923ed5762",
+      "sha256": "50d89027cf940d4ae5db5bed15d31023d82edeea53c84df227bfecbe3223d05b",
       "size": 2670
     },
     "/games/space-invaders/style.css": {
