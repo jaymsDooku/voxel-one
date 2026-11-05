@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-22T21:11:28+00:00",
+  "updatedAt": "2026-11-05T10:21:50+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -3954,6 +3954,21 @@
       "status": "complete",
       "note": "Published the source-fenced initial Hub prerelease and its catalog. All four platform packages passed; public metadata and shell hashes verified. Actual Linux packaged Hub staged and activated the public shell across two launches; Games sidebar inspected. Further game, physical and second-generation qualification remains pending.",
       "updatedAt": "2026-10-22T20:48:32+00:00"
+    },
+    {
+      "id": "agent-recovery-2026-11-05",
+      "title": "Recover disk space and resume stalled work",
+      "description": "Freed 8.91 GiB from obsolete clean review snapshots while retaining commits, evidence and unfinished edits. Both unfinished work items resumed; verified zero blocked items. Game implementation and hardware qualification continue separately.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "agent recovery 2026 11 05.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/agent-recovery-2026-11-05.json"
+        }
+      ],
+      "status": "complete",
+      "note": "Freed 8.91 GiB from obsolete clean review snapshots while retaining commits, evidence and unfinished edits. Both unfinished work items resumed; verified zero blocked items. Game implementation and hardware qualification continue separately.",
+      "updatedAt": "2026-11-05T10:21:50+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
