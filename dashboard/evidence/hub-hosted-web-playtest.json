@@ -1,0 +1,8 @@
+{
+  "playtest": "Playtest: actual deployed game via bounded service-authenticated proxy; Start; move/fire until score increases; pause/resume; reload and start again.",
+  "expected": "Rendered game responds, score advances, pause/resume and same-build reload work.",
+  "observed": "Score 30 · Lives 3 · Wave 1; all assertions passed; no page errors.",
+  "environment": "Desktop WebKit on inherited Linux display; isolated synthetic browser context; no stored credentials.",
+  "passed": true,
+  "limitations": "Registered service view only, not normal visitor sign-in. No new deployment, cross-deployment freshness, or catalog promotion claim."
+}

@@ -1,0 +1,28 @@
+{
+  "head": "372d1ad982e8a4bdfb008f7c1a6cc24d77bd2442",
+  "run": "https://github.com/jaymsDooku/voxel-one/actions/runs/41125730571",
+  "sourceFingerprints": "All report sourceTreeSha256 entries independently matched exact-head git show content. No mismatches.",
+  "commands": [
+    "TMPDIR=\"$PWD/target/hub-tmp\" gh run download 41125730571 -n hub-mac-arm-372d1ad982e8a4bdfb008f7c1a6cc24d77bd2442 -D target/hub-372-mac-arm",
+    "TMPDIR=\"$PWD/target/hub-tmp\" PLAYWRIGHT_BROWSERS_PATH=\"$PWD/target/hub-browsers\" node tools/hub/browser-playtest.cjs",
+    "TMPDIR=\"$PWD/target/hub-tmp\" PLAYWRIGHT_BROWSERS_PATH=\"$PWD/target/hub-browsers\" node tools/hub/web-freshness-playtest.cjs",
+    "git diff --name-status 71612f09bfec4549456b3317676e76cdced085a4 --diff-filter=D",
+    "git diff --check"
+  ],
+  "results": [
+    "Playtest: inspected exact-head Mac ARM delayed-client failure image. Packaged runtime test passed late exit 7, clean exit 0, stale exit suppression, startup cancellation and preserved synthetic save. Full commands retained in attached exact-head report.",
+    "Mac ARM: updater, two local packaged shell generations, rollback, login/TLS, catalog promotion, UI scales and provisional responsiveness passed. Full-size monitor/DPI and physical performance remain pending.",
+    "Mac ARM: all four supported context/format variants returned 0x10009. Actual City/Sandbox/editor rendering remains pending, not passed. Prior diagnosis identified unavailable accelerated NSGL pixel format; source/context fallbacks were exhausted within supported engine floor. No driver or system modifications made.",
+    "Playtest: local desktop WebKit same-browser immutable-cache integration passed across web builds dacf9106628eb0cb01d3 and d2b61b860a6c13cc7c2b. Started both, moved/fired, paused/resumed; fresh module URLs; no page errors; native artifact hash unchanged. Screenshot inspected: real paused Space Invaders with score 10. This is local web hosting, not deployed promotion.",
+    "Playtest: published HTTPS game route in fresh isolated WebKit had no Start control. Published gameplay not qualified. No authentication-page screenshot, content, cookies or storage retained.",
+    "Browser invocation first failed due read-only default /tmp, then absent default browser cache. Rerun used existing worktree browser and temporary directories; no dependency download or system install.",
+    "Deletion audit returned no deleted paths against recorded base."
+  ],
+  "pending": [
+    "Current-head Windows and Intel packaged results not inspected; retained prior Windows software-rendered evidence remains source-scoped.",
+    "Required Mac native rendering qualification unavailable on tested runner.",
+    "Physical GPU, real Windows DPI/performance, published two-generation self-update, deployed browser freshness, and independent review."
+  ],
+  "handoff": "Environmental findings for existing root-owned qualification/publication work. No new driver, infrastructure, credentials, desktop-session or recursive repair request. Resume on new actionable evidence or environment change. Stable rollout remains gated.",
+  "mediaPublication": "New copied Mac image/report and refreshed local browser screenshot/report await controller publication."
+}
