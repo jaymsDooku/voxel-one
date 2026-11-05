@@ -6,7 +6,7 @@
     "dacf9106628eb0cb01d3",
     "d2b61b860a6c13cc7c2b"
   ],
-  "nativeClientSha256": "d640188cbe587e2576bbae9437f1ee9f6bb37dc546474e2e445376621d50d49c",
+  "nativeClientSha256": "b1a7cf6bf0abae94c8400d532f2526bab6f80eab525bc8592d111b3b0b2aa355",
   "environment": "Linux desktop WebKit; assigned inherited display; fresh synthetic browser context; localhost static host deliberately uses one-year immutable caching.",
   "limitation": "Local hosting integration only. No production website deployment or owner-private sign-in was performed."
 }

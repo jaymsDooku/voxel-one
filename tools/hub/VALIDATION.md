@@ -339,3 +339,27 @@ When all four context attempts report creation failure with nonzero fixed codes,
 After controller publication, compile `tools/hub/PublicCatalogProbe.java` against the downloaded verified public shell JAR, then run `PublicCatalogProbe <isolated-cache>` with the packaged runtime. It exercises the production HTTPS parser and persists the accepted catalog, then constructs a fresh store and requires the same catalog version from disk. It does not claim a second published generation or deployed web-game freshness. Keep the isolated cache inside the assigned worktree.
 
 For a later catalog promotion, copy the previous accepted catalog to a separate baseline file before refreshing, then pass that file as the probe’s second argument. The probe requires a changed full catalog, unchanged shared native artifact identity for retained native entries, and exact equality between the fetched catalog and a fresh cached read. An unchanged publication fails rather than counting as a promotion. This does not prove a shell generation update.
+
+### Registered Sites game checks
+
+`hosted-web-playtest.py` and `hosted-web-playtest.cjs` test the deployed Space
+Invaders assets through the existing Sites service-access boundary. Run from the
+feature checkout on its inherited display. Use worktree-local `TMPDIR` and
+`PLAYWRIGHT_BROWSERS_PATH`; `PLAYWRIGHT_MODULE` can select an existing Playwright
+installation. No browser or driver installation is performed by these tools.
+
+The controller supplies the registered origin and service token through hidden
+stdin. The Python process keeps the token in memory and sends it only to the
+fixed registered HTTPS origin. Its loopback proxy serves only bounded game
+assets, refuses redirects and traversal, and never supplies the token to the
+browser. It does not proxy dashboard APIs, visitor cookies or account identity.
+Game Start is checked before serving HTML. Reports contain asset hashes and
+outcomes; a failed new run cannot retain an earlier passing receipt.
+
+The actual desktop test starts the game, sends movement/fire input, waits for a
+positive score, pauses/resumes, reloads and starts again. A screenshot is taken
+only after the game is visible. This is a service-view integration check, not
+proof of visitor sign-in, a new deployment, a catalog promotion or freshness
+across two deployed builds. Preserve the Site audience. Public catalog entries
+must still use separately reviewed publication receipts. Keep service access out
+of launcher packages and catalog metadata.
