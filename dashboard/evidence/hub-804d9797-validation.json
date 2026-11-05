@@ -1,0 +1,112 @@
+{
+  "featureHead": "804d9797b701fbd22ed182c06da95595e124a789",
+  "localChange": "Hosted web evidence reset and CLI regression test are pending controller publication. Production launcher/native game source unchanged.",
+  "run": "https://github.com/jaymsDooku/voxel-one/actions/runs/42011188032",
+  "problem": "A malformed input, invalid origin or failed preflight exited before Node reset its browser receipt. A previous passed:true could remain after a failed command.",
+  "fix": "Python clears both assets and browser receipts to passed:false before reading stdin or making network requests. An old image alone does not qualify a failed run.",
+  "tests": [
+    "Playtest: reproduced old CLI exit1 leaving both seeded old passes at committed804d9797.",
+    "Playtest: real fixed CLI in isolated synthetic directories rejected malformed JSON, invalid origin and missing token; both old passes replaced with false, supplied synthetic marker not echoed, no browser screenshot created.",
+    "Playtest: fixed hosted CLI then completed actual deployed game through existing server-side service access. Start, movement/fire input, positive score20, pause/resume, same-build reload and restart passed. Screenshot inspected; no page errors. This is service view, not normal visitor sign-in or a new web deployment.",
+    "12 local Python regression tests passed; Python compilation, diff whitespace and deletion audit passed. The negative CLI integration requires no browser because it tests failure before browser startup.",
+    "Actual scoped platform reports independently matched source fingerprints: Windows has289 expected CRLF text checkout conversions; all raw or LF/CRLF text candidates matched. Both Macs matched directly. No source mismatches.",
+    "Exact804 Windows native recordings decoded:4frames each; durations7.642,7.275,7.023seconds. Inspected first decoded frame of each: City zones/HUD, Sandbox terrain/vehicle/HUD, editor workspace. Pinned llvmpipe software rendering only.",
+    "Exact804 Intel shell-one image inspected: actual Hub visible; local two-generation package activation check passed. This supersedes372d1ad9 black capture, which remains retained as historical failure."
+  ],
+  "commands": [
+    "python3 -m unittest discover -s tools/hub -p 'test_*.py' -q",
+    "python3 -m py_compile tools/hub/hosted-web-playtest.py",
+    "TMPDIR=\"$PWD/target/hub-tmp\" PLAYWRIGHT_BROWSERS_PATH=\"$PWD/target/hub-browsers\" python3 tools/hub/hosted-web-playtest.py (existing registered Sites service access supplied through hidden stdin; no credential values retained)",
+    "TMPDIR=\"$PWD/target/hub-tmp\" gh run download 42011188032 -n hub-windows-804d9797b701fbd22ed182c06da95595e124a789 -D target/hub-804-windows",
+    "TMPDIR=\"$PWD/target/hub-tmp\" gh run download 42011188032 -n hub-mac-intel-804d9797b701fbd22ed182c06da95595e124a789 -D target/hub-804-mac-intel",
+    "TMPDIR=\"$PWD/target/hub-tmp\" gh run download 42011188032 -n hub-mac-arm-804d9797b701fbd22ed182c06da95595e124a789 -D target/hub-804-mac-arm",
+    "java -cp target/hub-software-classes:target/voxel-one-1.0-SNAPSHOT-client.jar InspectMovie <each copied804d9797 Windows MP4> <decoded PNG>",
+    "git diff --name-status 71612f09bfec4549456b3317676e76cdced085a4 --diff-filter=D",
+    "git diff --check"
+  ],
+  "platforms": {
+    "windows": {
+      "sourceSha": "804d9797b701fbd22ed182c06da95595e124a789",
+      "passedChecks": 18,
+      "nonPassing": [],
+      "maven": {
+        "tests": 24,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "mac-intel": {
+      "sourceSha": "804d9797b701fbd22ed182c06da95595e124a789",
+      "passedChecks": 14,
+      "nonPassing": [
+        {
+          "name": "Native rendered city",
+          "status": "pending",
+          "observed": "No tested native OpenGL context could be created on this runner; actual city rendering remains pending."
+        },
+        {
+          "name": "Native rendered sandbox",
+          "status": "pending",
+          "observed": "No tested native OpenGL context could be created on this runner; actual sandbox rendering remains pending."
+        },
+        {
+          "name": "Native rendered editor",
+          "status": "pending",
+          "observed": "No tested native OpenGL context could be created on this runner; actual editor rendering remains pending."
+        }
+      ],
+      "maven": {
+        "tests": 24,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "mac-arm": {
+      "sourceSha": "804d9797b701fbd22ed182c06da95595e124a789",
+      "passedChecks": 14,
+      "nonPassing": [
+        {
+          "name": "Native rendered city",
+          "status": "pending",
+          "observed": "No tested native OpenGL context could be created on this runner; actual city rendering remains pending."
+        },
+        {
+          "name": "Native rendered sandbox",
+          "status": "pending",
+          "observed": "No tested native OpenGL context could be created on this runner; actual sandbox rendering remains pending."
+        },
+        {
+          "name": "Native rendered editor",
+          "status": "pending",
+          "observed": "No tested native OpenGL context could be created on this runner; actual editor rendering remains pending."
+        }
+      ],
+      "maven": {
+        "tests": 24,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    }
+  },
+  "sourceSha256": {
+    "tools/hub/hosted-web-playtest.py": "b2882d18effad825a9c86ddbf3fc93e769d53edca64a4860e3f05c862ae91dda",
+    "tools/hub/test_hosted_web_evidence.py": "297a7f46b51fe87272d23a3b815c1234f4bae6635dd5896e86ba0d013d2bf6f7",
+    "tools/hub/VALIDATION.md": "6e4b947c210116ca0346a283db74309ea62d40f920af062632cb4bc2b8b1b7c7"
+  },
+  "currentServiceMedia": {
+    "file": "hub-hosted-space-invaders.png",
+    "sha256": "ff97f1caf944d0701fe7b81ca87fbddb49b98fef124c38f68c14ca227e26e3fb",
+    "provenance": "Fresh execution after local CLI fix against deployed Sites game; no claim that external deployed game source equals feature game source."
+  },
+  "pending": [
+    "Mac native City/Sandbox/editor rendering; unchanged context probes were not manually rerun.",
+    "Physical GPU, real Windows monitor DPI/performance and stable rollout.",
+    "Normal visitor browser sign-in and freshness across two actually deployed web generations.",
+    "Second reviewed public Hub generation and actual public-bootstrap upgrade; latest observed public release still preview1.",
+    "Controller integration of latest master and independent review."
+  ],
+  "publication": "New report/media and source fix await normal controller feature publication. No Git mutation, release, deployment or audience change performed."
+}

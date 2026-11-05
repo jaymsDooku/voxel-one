@@ -354,7 +354,9 @@ fixed registered HTTPS origin. Its loopback proxy serves only bounded game
 assets, refuses redirects and traversal, and never supplies the token to the
 browser. It does not proxy dashboard APIs, visitor cookies or account identity.
 Game Start is checked before serving HTML. Reports contain asset hashes and
-outcomes; a failed new run cannot retain an earlier passing receipt.
+outcomes. Python clears both outcome receipts before reading stdin or contacting
+the service, so malformed input and preflight failures cannot retain an earlier
+browser pass. An existing image alone never qualifies a failed run.
 
 The actual desktop test starts the game, sends movement/fire input, waits for a
 positive score, pauses/resumes, reloads and starts again. A screenshot is taken

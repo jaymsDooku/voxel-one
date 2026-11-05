@@ -25,6 +25,14 @@ MAX_TOTAL = 64 * 1024 * 1024
 
 
 def main():
+    # Clear every prior pass before reading input or touching the network. In
+    # particular, preflight failure never reaches the Node-side report reset.
+    pending = json.dumps({'passed': False,
+        'observed': 'Started; deployed service-view validation has not completed.'}, indent=2) + '\n'
+    evidence = Path('dashboard/evidence')
+    evidence.mkdir(parents=True, exist_ok=True)
+    for name in ('hub-hosted-web-assets.json', 'hub-hosted-web-playtest.json'):
+        (evidence / name).write_text(pending)
     fd = sys.stdin.fileno()
     previous = termios.tcgetattr(fd) if sys.stdin.isatty() else None
     if previous:
@@ -68,10 +76,6 @@ def main():
                 records[path] = {'sha256': hashlib.sha256(body).hexdigest(), 'size': len(body)}
             return body, response.headers.get('Content-Type', 'application/octet-stream')
 
-    # Replace any old pass before network work; a failed run cannot leave a stale receipt.
-    Path('dashboard/evidence/hub-hosted-web-assets.json').write_text(json.dumps({
-        'passed': False, 'observed': 'Started; deployed service-view validation has not completed.'
-    }, indent=2) + '\n')
     # Fail before exposing any unexpected/authentication page to the browser.
     fetch(PREFIX)
 
