@@ -1,3 +1,16 @@
+## Production fractional placement storage
+
+Hosted platform builds passed for parent b87c1e7435a5f6153ef1961d112c6b40959f6e59; publication skipped. This is not QA approval or readiness.
+
+Production placement now calls `SparseVoxelOctree.packedCellCopy` for nonuniform 16-resolution geometry. The immutable cell wrapper and map identity remain stable, but a private packed-root marker retains the exact bounded wire image and logical counts instead of the child-node graph. Uniform geometry/model-instance sharing remains unchanged. Normal octree wrappers and ordinary nodes gain no fields. Queries reconstruct one temporary cell graph; no decoded cache is retained. `WorldVoxels.replaceCell` still takes a normal independent mutable copy before freezing its stored wrapper. This trades extra query work for lower retained placement/undo geometry, not a measured full-memory or speedup claim. Per-cell records remain at most65536bytes; all admission caps remain unchanged.
+
+Tests cover every voxel/query/region/copy/rotation operation, exact bytes and redundant legacy branches, including all-air branch membership behavior; frozen mutation rejection, source independence, output-stream isolation, concurrent readers, full4096-leaf fragmentation and visitor failure. A production preparation test checks stable map value identity, symmetric equality/hash with a copied map, fractional geometry and uniform sharing. The initial targeted suite passed. A preliminary full-suite run was deliberately interrupted with exit130 after representation refinements; it is not counted as a pass. The final full Java suite finished with exit0:970 tests in191 current suites;969 passed,1 skipped,zero failures/errors. The skipped AssetManagerIntegrationTest.browserWorkflow requires opt-in asset.browser=true and was not executed. Playtest: fresh `python3 deploy/run_structure_playtest.py --display "$DISPLAY"` passed with real Main/GLFW/X11 input and an isolated synthetic profile. Capture/import/export, all rotations, occupied/player conflicts, empty-space preservation, cancellation, malformed import atomicity, one-operation undo, repeated placement, dependency/restart and inventory/editor regressions passed. All225 source hashes match; no synthetic-profile .tmp files remain. All19 F10 frames decoded and midpoint inspected. Video34.679s,372938bytes,SHA-256 `6713ba35f349080c5598fdbd996a00581f989b8efbdd82116b46878b6fbb2fc0`. llvmpipe HUD0-1FPS is functional evidence only. Evidence awaits controller publication. The full Java result above is final.
+
+Production region persistence and full capture/placement scaling, city/maximum admission and20-run budgets, physicalGPU,shaped32-client and all frame/tick/traffic/memory/stall/durability qualification remain pending. Stable rollout stays gated.
+
+
+No tracked deletions against review base; no intended deletions. Only the reproducible local target/structure-handoff/structure-prerequisite-v1.tar archive (88002560bytes) was removed to recover space. Source, full fixtures and evidence remain.
+
 ## Production capture/export streaming save
 
 Hosted platform builds passed for parent 1b63c6f79315d57c194a7f8928c7d5055f657961; publication skipped. No readiness or QA approval follows from these checks.

@@ -4,7 +4,7 @@ import java.io.*;
 
 /** Null nodes represent air; uniform regions collapse to one colored leaf. */
 public final class SparseVoxelOctree {
-    private static final class Node {
+    private static class Node {
         final int color;
         final Node[] children;
 
@@ -16,6 +16,15 @@ public final class SparseVoxelOctree {
         Node(Node[] children) {
             color = 0;
             this.children = children;
+        }
+    }
+
+    /** Immutable marker; ordinary nodes and octree wrappers gain no storage fields. */
+    private static final class PackedCell extends Node {
+        final byte[] bytes;
+        final int nodes,occupied,leaves;
+        PackedCell(byte[] bytes,int nodes,int occupied,int leaves) {
+            super(0);this.bytes=bytes;this.nodes=nodes;this.occupied=occupied;this.leaves=leaves;
         }
     }
 
@@ -42,7 +51,8 @@ public final class SparseVoxelOctree {
         if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
         var result=new SparseVoxelOctree(size);
         // Preserve the existing zero-turn and uniform-region shortcuts.
-        result.root=turns==0||uniform(0,0,0,size)!=-1?root:rotateY(root,turns);
+        Node source=readRoot();
+        result.root=turns==0||source==null||source.children==null?source:rotateY(source,turns);
         return result.freeze();
     }
 
@@ -69,7 +79,7 @@ public final class SparseVoxelOctree {
 
     /** Compare voxel values without allocating leaves or changing legacy branch layouts. */
     public boolean sameValues(SparseVoxelOctree other) {
-        return other!=null && size==other.size && sameValues(root,other.root);
+        return this==other || other!=null && size==other.size && sameValues(readRoot(),other.readRoot());
     }
 
     private static boolean sameValues(Node a,Node b) {
@@ -83,7 +93,7 @@ public final class SparseVoxelOctree {
 
     public int get(int x, int y, int z) {
         if (x < 0 || y < 0 || z < 0 || x >= size || y >= size || z >= size) return 0;
-        Node n = root;
+        Node n = readRoot();
         for (int half = size / 2; n != null && n.children != null; half /= 2) {
             int index = (x >= half ? 1 : 0) | (y >= half ? 2 : 0) | (z >= half ? 4 : 0);
             if (x >= half) x -= half;
@@ -195,7 +205,7 @@ public final class SparseVoxelOctree {
         if(side>size||x<0||y<0||z<0||x>size-side||y>size-side||z>size-side
                 ||x%side!=0||y%side!=0||z%side!=0)
             throw new IllegalArgumentException("Aligned octree region required");
-        root=replaceRegion(root,size,x,y,z,side,canonical(source.root));
+        root=replaceRegion(root,size,x,y,z,side,canonical(source.readRoot()));
     }
     // Legacy streams may contain redundant branches. Normalize only the destination;
     // never alter the source representation or model fingerprint.
@@ -238,7 +248,7 @@ public final class SparseVoxelOctree {
                 || y % side != 0
                 || z % side != 0)
             throw new IllegalArgumentException("Aligned octree region required");
-        Node n = root;
+        Node n = readRoot();
         for (int span = size; span > side && n != null && n.children != null; ) {
             int h = span / 2;
             n = n.children[(x >= h ? 1 : 0) | (y >= h ? 2 : 0) | (z >= h ? 4 : 0)];
@@ -253,8 +263,34 @@ public final class SparseVoxelOctree {
     // Nodes are persistent: edits copy only the path to a leaf, so snapshots share safely.
     public SparseVoxelOctree copy() {
         SparseVoxelOctree c = new SparseVoxelOctree(size);
-        c.root = root;
+        c.root = readRoot();
         return c;
+    }
+
+    /** Detached immutable 16-resolution cell with stable wrapper identity and packed geometry.
+     * Uniform cells retain persistent nodes. Mixed cells retain only their exact wire image;
+     * queries reconstruct a temporary cell graph, never a retained cache. Copies are mutable.
+     * This trades bounded per-cell query work for lower retained placement/undo geometry. */
+    public SparseVoxelOctree packedCellCopy() throws IOException {
+        if(size!=16)throw new IllegalArgumentException("Packed world-cell resolution16 required");
+        if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
+        var result=new SparseVoxelOctree(size);
+        if(root instanceof PackedCell||root==null||root.children==null)result.root=root;
+        else {
+            var bytes=new ByteArrayOutputStream();try(var out=new DataOutputStream(bytes)){write(out);}
+            if(bytes.size()>65536)throw new IOException("Packed world-cell byte limit");
+            result.root=new PackedCell(bytes.toByteArray(),nodes(root),occupied(root,size),leafCount(root));
+        }
+        if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
+        return result.freeze();
+    }
+    private Node readRoot() {
+        if(!(root instanceof PackedCell packed))return root;
+        try(var input=new DataInputStream(new ByteArrayInputStream(packed.bytes))) {
+            var tree=read(input,16);
+            if(input.read()!=-1)throw new IOException("Trailing packed cell bytes");
+            return tree.root;
+        } catch(IOException invalid){throw new IllegalStateException("Invalid internal packed world cell",invalid);}
     }
 
     public SparseVoxelOctree freeze() {
@@ -266,7 +302,7 @@ public final class SparseVoxelOctree {
     public boolean isEmpty() { return root==null; }
 
     public int nodes() {
-        return nodes(root);
+        return root instanceof PackedCell packed?packed.nodes:nodes(root);
     }
 
     private static int nodes(Node n) {
@@ -277,7 +313,7 @@ public final class SparseVoxelOctree {
     }
 
     public int occupied() {
-        return occupied(root, size);
+        return root instanceof PackedCell packed?packed.occupied:occupied(root, size);
     }
 
     private static int occupied(Node n, int size) {
@@ -289,7 +325,7 @@ public final class SparseVoxelOctree {
     }
 
     public boolean intersects(float x0, float y0, float z0, float x1, float y1, float z1) {
-        return intersects(root, 0, 0, 0, 1, x0, y0, z0, x1, y1, z1);
+        return intersects(readRoot(), 0, 0, 0, 1, x0, y0, z0, x1, y1, z1);
     }
 
     private static boolean intersects(
@@ -338,7 +374,7 @@ public final class SparseVoxelOctree {
                 || !Float.isFinite(dy)
                 || !Float.isFinite(dz)
                 || dx == 0 && dy == 0 && dz == 0) return null;
-        return raycast(root, 0, 0, 0, 1, ox, oy, oz, dx, dy, dz, start, end);
+        return raycast(readRoot(), 0, 0, 0, 1, ox, oy, oz, dx, dy, dz, start, end);
     }
 
     private static Hit raycast(
@@ -412,7 +448,7 @@ public final class SparseVoxelOctree {
     /** Visit stored leaves in octant order without allocating a leaf list. */
     public void forEachLeaf(LeafVisitor visitor) throws IOException {
         java.util.Objects.requireNonNull(visitor);
-        visitLeaves(root, 0, 0, 0, size, visitor);
+        visitLeaves(readRoot(), 0, 0, 0, size, visitor);
     }
 
     private static void visitLeaves(Node node, int x, int y, int z, int side, LeafVisitor visitor)
@@ -430,7 +466,7 @@ public final class SparseVoxelOctree {
 
     /** Count stored non-air leaves without constructing a temporary leaf list. */
     public int leafCount() {
-        return leafCount(root);
+        return root instanceof PackedCell packed?packed.leaves:leafCount(root);
     }
 
     private static int leafCount(Node node) {
@@ -443,14 +479,15 @@ public final class SparseVoxelOctree {
 
     public java.util.List<Leaf> leaves() {
         var result = new java.util.ArrayList<Leaf>();
-        leaves(root, 0, 0, 0, size, result, false);
+        leaves(readRoot(), 0, 0, 0, size, result, false);
         return java.util.List.copyOf(result);
     }
 
     /** Detached preparation can stop while collecting a large immutable tree. */
     public java.util.List<Leaf> leavesInterruptibly() {
         var result = new java.util.ArrayList<Leaf>();
-        leaves(root, 0, 0, 0, size, result, true);
+        if (Thread.currentThread().isInterrupted()) throw new java.util.concurrent.CancellationException();
+        leaves(readRoot(), 0, 0, 0, size, result, true);
         if (Thread.currentThread().isInterrupted()) throw new java.util.concurrent.CancellationException();
         return result; // Private worker-owned list; callers must not publish it as a mutable snapshot.
     }
@@ -474,6 +511,7 @@ public final class SparseVoxelOctree {
     }
 
     public void write(DataOutputStream out) throws IOException {
+        if(root instanceof PackedCell packed){out.write(packed.bytes.clone());return;}
         out.writeByte(size == 256 ? 0 : size);
         if (size == 256) out.writeShort(size);
         write(root, out);
