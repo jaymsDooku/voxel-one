@@ -23,6 +23,7 @@ public final class LocalGame {
     public Map<String, Protocol.Edit> edits = new WorldVoxels.History();
     public final long seed;
     public final int generatorVersion;
+    private boolean regionalSaves;
     private int nextDrop;
     private float fallTop;
     private final Path save;
@@ -34,8 +35,9 @@ public final class LocalGame {
         if (Files.exists(save))
             try (var in = new DataInputStream(new BufferedInputStream(Files.newInputStream(save), 64 * 1024))) {
                 int version = in.readInt();
-                if (version != 3 && version != 4 && version != 5 && version != 6 && version != 7 && version != 8 && version != 9)
+                if (version != 3 && version != 4 && version != 5 && version != 6 && version != 7 && version != 8 && version != 9 && version != 10)
                     throw new IOException("Invalid offline world");
+                regionalSaves=version==10;
                 worldSeed = in.readLong();
                 generator = version >= 7 ? in.readInt() : Terrain.LEGACY_VERSION;
                 try {
@@ -47,25 +49,29 @@ public final class LocalGame {
                 inventory = Inventory.read(in,version>=8);
                 health = in.readUnsignedByte();
                 if (health > 20) throw new IOException("Invalid saved health");
-                int n = in.readInt();
-                if (n < 0 || n > MAX_SAVED_EDITS) throw new IOException("Invalid world");
-                for (int i = 0; i < n; i++) {
-                    var e =
-                            version >= 6
-                                    ? Protocol.Edit.read(in)
-                                    : version == 5
-                                            ? Protocol.Edit.readV7(in)
-                                            : Protocol.Edit.readLegacy(in);
-                    if (!e.valid()) throw new IOException("Invalid edit");
-                    WorldVoxels.remember(edits, e);
+                if(regionalSaves)RegionReplay.read(in,edits);
+                else {
+                    int n = in.readInt();
+                    if (n < 0 || n > MAX_SAVED_EDITS) throw new IOException("Invalid world");
+                    for (int i = 0; i < n; i++) {
+                        var e =
+                                version >= 6
+                                        ? Protocol.Edit.read(in)
+                                        : version == 5
+                                                ? Protocol.Edit.readV7(in)
+                                                : Protocol.Edit.readLegacy(in);
+                        if (!e.valid()) throw new IOException("Invalid edit");
+                        WorldVoxels.remember(edits, e);
+                    }
                 }
-                n = in.readInt();
+                int n = in.readInt();
                 if (n < 0 || n > 100000) throw new IOException("Invalid drops");
                 for (int i = 0; i < n; i++) {
                     ItemDrop d = ItemDrop.read(in,version>=8);
                     drops.put(d.id(), d);
                     nextDrop = Math.max(nextDrop, d.id());
                 }
+                if(regionalSaves&&in.read()!=-1)throw new IOException("Trailing regional offline world");
             }
         seed = worldSeed;
         generatorVersion = generator;
@@ -218,22 +224,25 @@ public final class LocalGame {
             throw new IOException("World edit persistence limit");
         Files.createDirectories(save.toAbsolutePath().getParent());
         Path temp = save.resolveSibling(save.getFileName() + ".tmp");
-        try (var channel = FileChannel.open(temp, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
-                var out = new DataOutputStream(new BufferedOutputStream(Channels.newOutputStream(channel), 64 * 1024))) {
-            out.writeInt(models.hasStructureModels()?9:8);
-            out.writeLong(seed);
-            out.writeInt(generatorVersion);
-            if(models.hasStructureModels())models.writeAll(out);else models.write(out);
-            inventory.write(out);
-            out.writeByte(health);
-            out.writeInt(editCount);
-            for (var e : edits.values()) e.write(out);
-            out.writeInt(drops.size());
-            for (var d : drops.values()) d.write(out);
-            out.flush();
-            channel.force(true);
-        }
-        WorldSavePublication.replace(temp, save, requireAtomic);
+        var channel=FileChannel.open(temp,StandardOpenOption.CREATE,StandardOpenOption.TRUNCATE_EXISTING,StandardOpenOption.WRITE);
+        boolean committed=false;
+        try {
+            try (channel;var out = new DataOutputStream(new BufferedOutputStream(Channels.newOutputStream(channel), 64 * 1024))) {
+                out.writeInt(regionalSaves?10:models.hasStructureModels()?9:8);
+                out.writeLong(seed);
+                out.writeInt(generatorVersion);
+                if(regionalSaves||models.hasStructureModels())models.writeAll(out);else models.write(out);
+                inventory.write(out);
+                out.writeByte(health);
+                if(regionalSaves)RegionReplay.write(out,edits,()->false,p->{});
+                else {out.writeInt(editCount);for(var e:edits.values())e.write(out);}
+                out.writeInt(drops.size());
+                for (var d : drops.values()) d.write(out);
+                out.flush();
+                channel.force(true);
+            }
+            WorldSavePublication.replace(temp,save,requireAtomic);committed=true;
+        } finally {if(!committed)Files.deleteIfExists(temp);}
     }
 
     /** Private worker-built history, consumed only after owner-thread revision checks. */
@@ -300,7 +309,7 @@ public final class LocalGame {
         if(history.owner!=this||history.save!=null)throw new IOException("Invalid staged history save");
         var snapshot=prepared.copy();
         history.saveModels=List.copyOf(snapshot.entries());
-        history.save=StagedOfflineSave.stage(save,seed,generatorVersion,snapshot,history.next,cancel,progress);
+        history.save=StagedOfflineSave.stageRegions(save,seed,generatorVersion,snapshot,history.next,cancel,progress);
     }
 
     public dev.jayms.net.structure.StructureEngine.Authority structureAuthority(dev.jayms.World world) {
@@ -334,7 +343,7 @@ public final class LocalGame {
                 try {
                     models.replaceWith(prepared);edits=next;
                     for(var e:cells.entrySet()) {var p=e.getKey();world.replaceCell(p.x(),p.y(),p.z(),e.getValue());}
-                    if(history!=null&&history.save!=null)history.save.publish(inventory,health,drops.values(),drops.size());
+                    if(history!=null&&history.save!=null){history.save.publish(inventory,health,drops.values(),drops.size());regionalSaves=history.save.regional();}
                     else saveWorld(true);
                 } catch(IOException|RuntimeException failure) {
                     edits=original;models.replaceWith(originalModels);

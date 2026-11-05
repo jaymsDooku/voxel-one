@@ -14,20 +14,34 @@ final class StagedOfflineSave implements AutoCloseable {
     private final Path target,temp;
     private long survivalOffset;
     private boolean closed;
+    private boolean regional;
+    boolean regional(){return regional;}
     private StagedOfflineSave(Path target,Path temp){this.target=target;this.temp=temp;}
     static StagedOfflineSave stage(Path target,long seed,int generator,ModelLibrary models,
             WorldVoxels.History edits,BooleanSupplier cancel,IntConsumer progress)throws IOException {
+        return stage(target,seed,generator,models,edits,cancel,progress,false);
+    }
+    static StagedOfflineSave stageRegions(Path target,long seed,int generator,ModelLibrary models,
+            WorldVoxels.History edits,BooleanSupplier cancel,IntConsumer progress)throws IOException {
+        return stage(target,seed,generator,models,edits,cancel,progress,true);
+    }
+    private static StagedOfflineSave stage(Path target,long seed,int generator,ModelLibrary models,
+            WorldVoxels.History edits,BooleanSupplier cancel,IntConsumer progress,boolean regional)throws IOException {
         Path absolute=target.toAbsolutePath();Files.createDirectories(absolute.getParent());
         var staged=new StagedOfflineSave(absolute,Files.createTempFile(absolute.getParent(),".structure-offline-",".tmp"));
+        staged.regional=regional;
         try {
             try(var out=new DataOutputStream(new BufferedOutputStream(new CancelOutput(Files.newOutputStream(staged.temp),cancel),64*1024))) {
                 StructurePackage.cancelled(cancel);
-                out.writeInt(models.hasStructureModels()?9:8);out.writeLong(seed);out.writeInt(generator);
-                if(models.hasStructureModels())models.writeAll(out);else models.write(out);
+                out.writeInt(regional?10:models.hasStructureModels()?9:8);out.writeLong(seed);out.writeInt(generator);
+                if(regional||models.hasStructureModels())models.writeAll(out);else models.write(out);
                 staged.survivalOffset=out.size();
                 new Inventory().write(out);out.writeByte(20);
-                out.writeInt(edits.size());int count=0;
-                for(var edit:edits.values()){if((count++&1023)==0){StructurePackage.cancelled(cancel);progress.accept((int)(100L*count/Math.max(1,edits.size())));}edit.write(out);}
+                if(regional)RegionReplay.write(out,edits,cancel,progress);
+                else {
+                    out.writeInt(edits.size());int count=0;
+                    for(var edit:edits.values()){if((count++&1023)==0){StructurePackage.cancelled(cancel);progress.accept((int)(100L*count/Math.max(1,edits.size())));}edit.write(out);}
+                }
                 StructurePackage.cancelled(cancel);
             }
             progress.accept(100);return staged;
@@ -38,7 +52,7 @@ final class StagedOfflineSave implements AutoCloseable {
         try {
             var bytes=new ByteArrayOutputStream();var survival=new DataOutputStream(bytes);
             inventory.write(survival);survival.writeByte(health);survival.flush();
-            // Version 8/9 inventory has exactly 36 two-byte slots followed by health.
+            // Version 8/9/10 inventory has exactly 36 two-byte slots followed by health.
             if(bytes.size()!=Inventory.SIZE*2+1)throw new IOException("Offline survival slot size changed");
             try(var channel=FileChannel.open(temp,StandardOpenOption.WRITE)) {
                 channel.position(survivalOffset);var patch=ByteBuffer.wrap(bytes.toByteArray());

@@ -46,6 +46,7 @@ class StructureOfflineHistoryStagingTest {
                 prepared.commit("fixture",local.structureAuthority(world,()->null,history));
             }
             assertFalse(engine.busy());assertEquals(Blocks.STONE,world.sample(320,180,320));
+            try(var in=new java.io.DataInputStream(Files.newInputStream(path))){assertEquals(10,in.readInt(),"Production staged placement uses regional replay");}
             var loaded=new LocalGame(path,0);assertEquals(local.drops,loaded.drops);assertEquals(17,loaded.health);assertEquals(3,loaded.inventory.countType(Blocks.STONE));
             var expected=new WorldVoxels.History();expected.putAll(before);
             WorldVoxels.rememberCell(expected,new Protocol.CellState(320,180,320,world.cell(320,180,320)));

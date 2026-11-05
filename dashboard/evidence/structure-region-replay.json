@@ -1,0 +1,112 @@
+{
+  "scope": "Production version-10 offline structure replay sections; not city/maximum qualification",
+  "source_parent": "0b05667b29777a600b770b0a62044ff868ff4685",
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/RegionReplay.java": "81ae67b80536b2c9b3f618b1b714f877087a71f878a080af67ee922cfa5023b8",
+    "src/main/java/dev/jayms/net/StagedOfflineSave.java": "1ae97b36ea34a02097299307e3ef5e447b8963c0f08889989f6703ef17fc59f5",
+    "src/main/java/dev/jayms/net/LocalGame.java": "5bfade81c3d174f11dd168b4b621bba01a3a97e008147a0525d2c90f39a2cc7a",
+    "src/test/java/dev/jayms/net/RegionReplayTest.java": "c6eccaa734ff2ee42e956fdbdb0a76274ccb7796b145c9c6f7547031ac9043d5",
+    "src/test/java/dev/jayms/StructureOfflineHistoryStagingTest.java": "c70d0b39b907ed3d5d3f28c8551b131c55e94b36411cb2d4109284190d94a8bd"
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "java": "25.0.3+9-LTS-195",
+    "test_tmp": "target/reviewer-tmp",
+    "native": "Inherited DISPLAY and XAUTHORITY; isolated synthetic profile; software llvmpipe"
+  },
+  "commands": [
+    "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=RegionReplayTest,StructureOfflineHistoryStagingTest,StructureOfflineSaveTest,LocalGameSaveLimitTest,WorldSavePublicationTest test",
+    "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" test",
+    "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\""
+  ],
+  "focused": {
+    "tests": 26,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "result": "passed after correcting invalid fractional LED test fixture"
+  },
+  "full_java_suite": {
+    "result": "passed",
+    "exit_code": 0,
+    "classes": 192,
+    "tests": 975,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1,
+    "passed": 974,
+    "missing": [],
+    "stale": [],
+    "skips": [
+      {
+        "class": "dev.jayms.assets.AssetManagerIntegrationTest",
+        "test": "browserWorkflow",
+        "reason": "Optional browser workflow not enabled; not claimed passed."
+      }
+    ],
+    "selection": "Current source test classes matching default Surefire naming; every report newer than unique command-output file birth time."
+  },
+  "playtest": {
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_manifest": "structure-native-source.json",
+    "source_manifest_sha256": "685867127cb21e0b88b470c7a90ab0c8813fefefdb0a87191be256896caca199",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "publication": "Local evidence pending controller publication",
+    "saved_world_version": 10,
+    "source_entries": 226,
+    "source_mismatches": [],
+    "browser": "Not applicable to native Main/GLFW desktop workflow"
+  },
+  "format": {
+    "version": 10,
+    "max_section_records": 1024,
+    "edit_bytes": 24,
+    "max_payload_bytes": 24576,
+    "section_header_bytes": 20,
+    "checksum": "CRC32 payload",
+    "order": "Consecutive same-chunk sections; regions may recur; exact original replay order",
+    "legacy": "Reads versions 3\u20139; never-upgraded ordinary worlds keep version-8/9 writes",
+    "live_history": "Still fully materialized; existing 2,000,000-record cap retained"
+  },
+  "expected_observed": [
+    "Focused tests restore exact history/model definitions/inventory/health/drops and retain version 10 on resave.",
+    "Malformed section lengths/counts/CRC/positions reject before section records apply.",
+    "Cancellation, callback and atomic-publication failure preserve the old save and remove private stages.",
+    "Failed normal version-10 writes preserve the committed file, remove their temporary file and allow retry."
+  ],
+  "parent_hosted": {
+    "head": "0b05667b29777a600b770b0a62044ff868ff4685",
+    "source": "Controller-delivered exact-head observation",
+    "platform_builds": "Four passed",
+    "publish": "skipped",
+    "qualification": "Not QA approval or performance qualification"
+  },
+  "pending": [
+    "Production disk-backed live region/root integration and lazy startup",
+    "City/maximum admission under existing geometry/instance/chunk/history caps",
+    "20-run reference fixture budgets, physical GPU and shaped-network synchronization to 32 rendered clients"
+  ],
+  "rollout": "Gated; no supported-limit or full-acceptance claim",
+  "publication": "Pending controller publication",
+  "review_base_audit": {
+    "base": "71612f09bfec4549456b3317676e76cdced085a4",
+    "tracked_deleted_files": [],
+    "intended_deletions": [],
+    "mp3_and_hub": "Base MP3 implementation/tests/fixtures/smoke retained; Hub publication unchanged"
+  },
+  "media": {
+    "decodedFrames": 19,
+    "durationSeconds": 32.396,
+    "bytes": 432309,
+    "width": 960,
+    "height": 544,
+    "midpointIndex": 9,
+    "videoSha256": "7b197b3617175f12cfd203547504401d5494ee2919cdad5b931b2ae36bd87434",
+    "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step.",
+    "inspection": "Every frame decoded; midpoint visually inspected: bounds/anchor preview and structure placement command; HUD 1 FPS. Conflict screenshot also inspected: red bounds and occupied-cell rejection at 90 degrees."
+  }
+}
