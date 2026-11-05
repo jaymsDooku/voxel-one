@@ -126,7 +126,7 @@
     "src/main/java/dev/jayms/net/structure/StructureOccupancy.java": "2fe8c88af2f4b8edbee3f096e513dec88dd592165139578dfb2633c996635bcb",
     "src/main/java/dev/jayms/net/structure/StructureOrder.java": "e62f816158d1a2396898e5d2adfa468461de449006365b176cd35372e20e8455",
     "src/main/java/dev/jayms/net/structure/StructureOwnerQueue.java": "54e8c37e90ecd17a93d38615df1d8a082729039faf35ccfc70f22819dfb8c263",
-    "src/main/java/dev/jayms/net/structure/StructurePackage.java": "10f352174ec4d01b8367a053e2db4dda5b30025bd5279fb648024b38f2ecbbbc",
+    "src/main/java/dev/jayms/net/structure/StructurePackage.java": "92e26b340588f8d61d1bff33675c217a727985bb661cb8e6c5e9f69a3d9c8d8e",
     "src/main/java/dev/jayms/net/structure/StructurePlacementCells.java": "5cb73dcf687dbd697466bb4e2b345efa32220f5e251b55a319467705167ab12a",
     "src/main/java/dev/jayms/net/structure/StructureUniformCells.java": "27dd4f9172aea7eb5dd15c542e0fbdef2bc0a0ae481a537d6b61438faac4049a",
     "src/main/java/dev/jayms/net/structure/StructureWire.java": "509566721e21e038a453e82473332319ff9c3aeabde7a8ae1cd4ccd3656cb3dc",

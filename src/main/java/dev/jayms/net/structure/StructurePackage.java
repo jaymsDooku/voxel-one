@@ -166,6 +166,11 @@ public final class StructurePackage {
         Objects.requireNonNull(cancel,"cancel");Objects.requireNonNull(progress,"progress");
         cancelled(cancel);progress.accept(0);cancelled(cancel);
         var bytes=new ByteArrayOutputStream();
+        encodeTo(bytes,cancel,progress);
+        cancelled(cancel);var result=bytes.toByteArray();progress.accept(100);cancelled(cancel);return result;
+    }
+    /** Writes an owned stream; caller must stage output before publication. Closes output. */
+    private void encodeTo(OutputStream bytes,BooleanSupplier cancel,IntConsumer progress)throws IOException {
         try(var compressed=new BudgetOutput(bytes,COMPRESSED);var gzip=new GZIPOutputStream(compressed);var out=new DataOutputStream(new BufferedOutputStream(new BudgetOutput(gzip,DECODED),65536))) {
             out.writeInt(MAGIC);out.writeInt(VERSION);out.writeUTF(name);
             out.writeInt(bounds.x);out.writeInt(bounds.y);out.writeInt(bounds.z);out.writeInt(bounds.ax);out.writeInt(bounds.ay);out.writeInt(bounds.az);
@@ -179,8 +184,9 @@ public final class StructurePackage {
                 if((++cellIndex&127)==0||cellIndex==cells.size()){progress.accept(25+(int)((long)cellIndex*74/cells.size()));cancelled(cancel);}
             }
         }
-        cancelled(cancel);var result=bytes.toByteArray();progress.accept(100);cancelled(cancel);return result;
+        cancelled(cancel);
     }
+
     public static StructurePackage decode(byte[] bytes) throws IOException {
         return decode(bytes,()->false,p->{});
     }
@@ -244,19 +250,20 @@ public final class StructurePackage {
     }
     /** Cancellation ends at atomic file replacement. A successful replacement is committed. */
     public void save(Path path,BooleanSupplier cancel,IntConsumer progress) throws IOException {
-        byte[] bytes=encode(cancel,p->progress.accept(p*90/100));cancelled(cancel);
+        Objects.requireNonNull(cancel,"cancel");Objects.requireNonNull(progress,"progress");
+        cancelled(cancel);progress.accept(0);cancelled(cancel);
         Files.createDirectories(path.toAbsolutePath().getParent());
         Path temp=Files.createTempFile(path.toAbsolutePath().getParent(),"structure-",".tmp");boolean committed=false;
         try {
-            try(var out=Files.newOutputStream(temp)) {
-                for(int offset=0;offset<bytes.length;) {
-                    cancelled(cancel);int count=Math.min(65536,bytes.length-offset);out.write(bytes,offset,count);offset+=count;
-                    progress.accept(90+(int)((long)offset*9/bytes.length));cancelled(cancel);
-                }
+            try(var out=new BufferedOutputStream(Files.newOutputStream(temp),65536)) {
+                encodeTo(out,cancel,p->progress.accept(p*90/100));
             }
-            cancelled(cancel);Files.move(temp,path,StandardCopyOption.ATOMIC_MOVE,StandardCopyOption.REPLACE_EXISTING);committed=true;
+            progress.accept(90);cancelled(cancel);
+            progress.accept(99);cancelled(cancel);
+            Files.move(temp,path,StandardCopyOption.ATOMIC_MOVE,StandardCopyOption.REPLACE_EXISTING);committed=true;
         } finally {if(!committed)Files.deleteIfExists(temp);}
     }
+
     public static StructurePackage load(Path path) throws IOException {
         return load(path,()->false,p->{});
     }
