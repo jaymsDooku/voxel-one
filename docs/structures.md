@@ -123,10 +123,11 @@ budget of 2,048 definitions and 128 MiB serialized model data. These allowances
 do not change the legacy 128-custom-model world library or 16-model author quota.
 
 World-only component IDs occupy 1024–66559 and cannot enter inventory byte slots.
-Existing worlds without these components retain their version-8 offline or
-version-8 server save format. Worlds containing them use version 9, with explicit
-integer model IDs. Older world versions remain readable; old clients cannot read
-the new save format. Network protocol 31 carries atomic dependency/cell batches;
+Ordinary worlds without these components retain version-8 saves; component
+worlds use version 9 with explicit integer model IDs. Offline structure placement
+now stages version 10 with bounded replay sections and explicit integer model
+IDs. Later saves retain version 10 after successful publication or loading.
+Versions 3–9 remain readable; older clients cannot read version 10. Network protocol 31 carries atomic dependency/cell batches;
 the desktop client can still reconnect to supported legacy servers without
 structure commands. Updated servers require an updated client.
 
@@ -1256,3 +1257,11 @@ The private version2 generation loader passes its validated file array directly 
 ### Stored override cursor
 
 A detached production world snapshot can now enumerate stored override cells on one worker without rebuilding or consulting flat leaf-edit history. Batches contain at most1,024 frozen cells and preserve explicit air; implicit seeded terrain is omitted. A caller cell budget and terrain epoch bound the traversal, and failure invalidates that cursor. Source changes still require the final owner validation to reject publication. The private backup uses this cursor and can restart a synthetic2,054-cell world with no flat records. This is a persistence building block: normal startup/save and production region backend integration remain unchanged. Existing caps and qualification gates remain in force. See dashboard/evidence/structure-world-override.json.
+
+### Production bounded offline replay
+
+Version-10 offline structure saves keep seed, generator, full model definitions, inventory, health and dropped items. Replay starts with an integer record count, bounded by the existing 2,000,000-record cap. Each following section stores chunk X/Y/Z as three integers, record count and body length as unsigned shorts, a CRC32 integer, and the edit payload. Sections contain 1–1,024 consecutive records from the same chunk and exactly 24 bytes per record, at most 24,576 payload bytes. Regions may repeat; file order remains replay order. Empty replay has only the zero count. The dropped-item tail follows the declared replay, and version 10 rejects trailing file bytes.
+
+Both staged writes and normal version-10 resaves use the bounded encoder. Loading checks section count, length, checksum, edit validity and chunk identity before applying that section to private load history. Failed or cancelled staging removes its private file. Successful structure publication still requires the existing exact-state validation and atomic save replacement. Older readers do not understand version 10.
+
+This bounds replay section buffers, not total live memory. The canonical History still materializes all records. There is no indexed lazy startup, disk-backed world root or lifted city/maximum admission cap. Full fixture admission and all physical-GPU, 32-client and 20-run performance qualification remain pending.
