@@ -1,0 +1,129 @@
+{
+  "status": "passed",
+  "scope": "Private read-only disk-region cache integration; not production admission or game performance qualification",
+  "parent_head": "096aa171ed270b40fb818ec5d5d6c36d79bb3325",
+  "hosted_parent": {
+    "platform_builds": 8,
+    "result": "success",
+    "publication": "skipped"
+  },
+  "commands": [
+    "javac -encoding UTF-8 --release 17 -cp target/classes -d target/structure-region-cache tools/structures/DiskPackageIndexPrototype.java tools/structures/DiskRegionCachePrototype.java tools/structures/DiskRegionCacheCheck.java",
+    "java -Xmx256m -cp target/structure-region-cache:target/classes DiskRegionCacheCheck",
+    "python3 -m unittest discover -s tools/structures -p \"test_*.py\" -v",
+    "python3 -m unittest tools.structures.test_region_history.RegionHistoryIntegrationTest.test_disk_region_cache -v",
+    "java -Xmx256m -cp target/structure-region-cache:target/classes DiskRegionCacheCheck target/structure-fixtures/city-v2.vstr",
+    "java -Xmx256m -cp target/structure-region-cache:target/classes DiskRegionCacheCheck target/structure-fixtures/maximum-v2.vstr",
+    "java -Xmx256m -cp target/structure-region-cache:target/classes DiskRegionCacheCheck --evidence"
+  ],
+  "tests": {
+    "tooling": {
+      "count": 58,
+      "seconds": 128.054,
+      "exit": 0,
+      "note": "Before adding four budget-edge rejections; final selected integration rerun below."
+    },
+    "final_cache_integration": {
+      "count": 1,
+      "seconds": 4.208,
+      "exit": 0,
+      "rejection_cases": 14
+    },
+    "synthetic_cells": 4,
+    "synthetic_regions": 3,
+    "world_queries": true,
+    "source_holes_preserved": true,
+    "custom_dependency_remapped": true,
+    "affected_edit_rejected": true,
+    "unrelated_edits_preserved": true,
+    "cancelled_patch_not_published": true,
+    "crc_failure_does_not_evict": true,
+    "byte_and_page_eviction": true,
+    "owned_cache_cleanup": true
+  },
+  "playtest": {
+    "command": "java -Xmx256m -cp target/structure-region-cache:target/classes DiskRegionCacheCheck --evidence",
+    "environment": "Inherited assigned X11 display and authentication, synthetic CLI fixture; no game profile",
+    "expected": "All synthetic assertions pass; only fully verified regions become visible; failures preserve world/cache",
+    "observed": "Exit 0; 14 rejection cases; actual detached WorldVoxels patch and query checks passed. Own Swing result window captured and inspected.",
+    "browser": "Not applicable to CLI-only change. No production or native harness source changed.",
+    "native_hashes_unchanged": 228,
+    "image": "structure-region-cache.png",
+    "image_sha256": "f6b22d5128df59c414a482c21d403da33dfeceb8cc403e9dd0eca73336818c09"
+  },
+  "source_sha256": {
+    "tools/structures/DiskPackageIndexPrototype.java": "f5b7fdbb169162cff89cb872884c6d1bce1b46cd5d2e3f86028dca5e5850924d",
+    "tools/structures/DiskRegionCachePrototype.java": "8179b66b9c29212d76e2354e0bf2b65927048f91667fc15cc9333fe3bb38e258",
+    "tools/structures/DiskRegionCacheCheck.java": "289d497694012a396b6cd7891ae9fea4a7930f753a57aff8ca62fd0be37ec36d",
+    "tools/structures/test_region_history.py": "9cc1cf724e86cbb9c0250af4a66baeca95364df6736fb6de9b4586c741fdade2"
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS",
+    "heap": "-Xmx256m",
+    "gpu_drivers": "Not measured; no graphical performance qualification",
+    "rss_measurement": "Linux os.wait4 ru_maxrss in KiB, whole child process including index creation, verification and cache; not retained/per-phase memory"
+  },
+  "fixtures": {
+    "city": {
+      "observed": {
+        "status": "passed",
+        "cells": 978288,
+        "leaves": 968048,
+        "instances": 10240,
+        "regions": 2173,
+        "loads": 2173,
+        "peak_pages": 2,
+        "peak_encoded_bytes": 43140,
+        "index_seconds": 7.21924,
+        "visit_seconds": 1.487032,
+        "production_admission": false,
+        "qualification": false
+      },
+      "process": {
+        "elapsed_seconds": 8.844790572300553,
+        "peak_rss_kib": 180512,
+        "exit": 0
+      },
+      "fixture_sha256": "6e9b606d0e3c8045db437dabad75d797a22843c39df6244c196e8e792d488ef6"
+    },
+    "maximum": {
+      "observed": {
+        "status": "passed",
+        "cells": 4000000,
+        "leaves": 7967232,
+        "instances": 16384,
+        "regions": 8192,
+        "loads": 8192,
+        "peak_pages": 2,
+        "peak_encoded_bytes": 76800,
+        "index_seconds": 14.918111,
+        "visit_seconds": 41.961276,
+        "production_admission": false,
+        "qualification": false
+      },
+      "process": {
+        "elapsed_seconds": 57.07364175654948,
+        "peak_rss_kib": 191052,
+        "exit": 0
+      },
+      "fixture_sha256": "c76fcc00260e42370b9877f3ef4a00ed95e203a557b4e1e8dcb4e95a8f4a4eda"
+    }
+  },
+  "limitations": [
+    "One diagnostic traversal per fixture; not the required 20 runs.",
+    "The maximum traversal overlapped the small synthetic evidence child on the shared VPS. These are not isolated performance measurements.",
+    "Encoded cache bytes exclude object overhead, decoded transient geometry, dependencies and caller-retained references. A cold page is staged alongside existing pages before eviction.",
+    "Full fixtures still reject production geometry/chunk/history caps. No cap was raised.",
+    "No live disk-backed world/root/save/renderer/server integration, full placement or synchronization qualified.",
+    "Physical GPU, shaped 32-client, memory/frame/tick/traffic/stall/ack/durability budgets remain pending. Stable rollout stays gated."
+  ],
+  "audit": {
+    "review_base": "71612f09bfec4549456b3317676e76cdced085a4",
+    "tracked_deletions": 0,
+    "intended_unrelated_deletions": [],
+    "restored_mp3_and_hub_files_match_base": true
+  },
+  "publication": "Pending controller publication and exact-source hosted checks"
+}
