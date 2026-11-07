@@ -66,10 +66,21 @@ class ChunkDirectoryTest {
         var source=new WorldVoxels(new Terrain(42));int[] xs={-17,16,48,80},zs={-1,0,32,48};int[] types={Blocks.STONE,Blocks.BRICKS,Blocks.GLASS,0};
         for(int i=0;i<3;i++)source.apply(new Protocol.Edit(xs[i],128,zs[i],types[i]));var frozen=source.snapshot();var start=new CountDownLatch(1);var workers=Executors.newFixedThreadPool(4);var futures=new ArrayList<Future<?>>();
         try {
-            for(int t=0;t<4;t++){int id=t;futures.add(workers.submit(()->{start.await();for(int i=0;i<50000;i++){int k=(i*31+id)&3;if(frozen.type(xs[k],128,zs[k])!=types[k])throw new AssertionError("Torn cache entry");}return null;}));}
+            for(int t=0;t<4;t++){int id=t;futures.add(workers.submit(()->{start.await();for(int i=0;i<50000;i++){int step=(i&1024)==0?i:i/16;int k=(step*31+id)&3;if(frozen.type(xs[k],128,zs[k])!=types[k])throw new AssertionError("Torn cache entry");}return null;}));}
             source.apply(new Protocol.Edit(xs[1],128,zs[1],Blocks.LED));start.countDown();for(var future:futures)future.get(10,TimeUnit.SECONDS);
             assertEquals(Blocks.LED,source.type(xs[1],128,zs[1]));assertEquals(Blocks.BRICKS,frozen.type(xs[1],128,zs[1]));
         }finally{start.countDown();workers.shutdownNow();assertTrue(workers.awaitTermination(10,TimeUnit.SECONDS));}
+    }
+    @Test void repeatedReadsDistinguishEveryCoordinateAndInvalidateMissingBuckets() {
+        var source=new WorldVoxels(new Terrain(42));
+        int[][] cells={{-17,128,-1},{-1,128,-1},{-17,144,-1},{-17,128,15},{80,128,80}};
+        int[] types={Blocks.STONE,Blocks.BRICKS,Blocks.GLASS,Blocks.LED,0};
+        for(int i=0;i<4;i++)source.apply(new Protocol.Edit(cells[i][0],cells[i][1],cells[i][2],types[i]));
+        for(int pass=0;pass<4;pass++)for(int i=0;i<cells.length;i++)for(int repeat=0;repeat<32;repeat++)
+            assertEquals(types[i],source.type(cells[i][0],cells[i][1],cells[i][2]));
+        var old=source.snapshot();source.apply(new Protocol.Edit(80,128,80,Blocks.BRICKS));
+        for(int repeat=0;repeat<32;repeat++){assertEquals(Blocks.BRICKS,source.type(80,128,80));assertEquals(0,old.type(80,128,80));}
+        source.clear();for(int repeat=0;repeat<32;repeat++)assertEquals(0,source.type(-17,128,-1));
     }
     @Test void worldLookupCacheTracksRootAndOwnedBucketChangesAcrossSnapshotsAndClear() {
         var source=new WorldVoxels(new Terrain(42));int x=-17,y=128,z=-1;var position=ChunkPos.fromBlock(x,y,z);
