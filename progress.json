@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-07T02:12:30+00:00",
+  "updatedAt": "2026-11-07T02:30:39+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -3994,11 +3994,16 @@
           "kind": "link",
           "label": "Implementation and independent review",
           "url": "https://github.com/jaymsDooku/codex-development-dashboard/pull/78"
+        },
+        {
+          "kind": "report",
+          "label": "recovery specialist activation 20261107.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/recovery-specialist-activation-20261107.json"
         }
       ],
-      "status": "in_progress",
-      "note": "Corrected lifecycle commit e82f623 is published. Independent regressions now pass developer submission, reviewer decisions and repaired-environment continuation without additional model calls. Final advice/guard checks, hosted CI and native qualification remain before independent approval and activation. Local full suite: 1133 passed, 2 skipped.",
-      "updatedAt": "2026-11-07T02:12:30+00:00"
+      "status": "complete",
+      "note": "Implemented, independently reviewed and merged, privately published, and activated on the VPS. Recovery observes safely every 60 seconds, caps diagnosis starts at two per hour, preserves unknown sessions and genuine owner/hardware gates, and prevents unchanged retry loops. Independent full suite: 1133 passed, 2 skipped; exact-head QA, hosted CI, and one native-model synthetic recovery passed. Live API/service healthy, settings unchanged, structures developer resumed.",
+      "updatedAt": "2026-11-07T02:30:39+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
