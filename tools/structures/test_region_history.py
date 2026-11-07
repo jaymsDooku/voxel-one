@@ -18,7 +18,7 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
         folder.mkdir(parents=True, exist_ok=True)
         with tempfile.TemporaryDirectory(dir=folder) as temporary:
             sources = [ROOT / 'tools/structures' / name for name in
-                       ('DiskPackageIndexPrototype.java', 'DiskPackageIndexCheck.java', 'DiskPackageIndexEvidence.java', 'RegionHistoryPrototype.java', 'RegionHistoryPrototypeCheck.java', 'RegionHistoryCodecCheck.java', 'RegionHistoryStreamCheck.java', 'RegionHistoryStreamEvidence.java',
+                       ('DiskPackageIndexPrototype.java', 'DiskPackageIndexCheck.java', 'DiskPackageIndexEvidence.java', 'DiskRegionCachePrototype.java', 'DiskRegionCacheCheck.java', 'RegionHistoryPrototype.java', 'RegionHistoryPrototypeCheck.java', 'RegionHistoryCodecCheck.java', 'RegionHistoryStreamCheck.java', 'RegionHistoryStreamEvidence.java',
                         'RegionDependencyPrototype.java', 'RegionDependencyCheck.java',
                         'RegionGenerationPrototype.java', 'RegionGenerationCheck.java', 'RegionGenerationEvidence.java',
                         'RegionAuthorityPrototype.java', 'RegionAuthorityCheck.java',
@@ -33,6 +33,16 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
             result = subprocess.run(command, capture_output=True, text=True, timeout=30)
             self.assertEqual(result.returncode, 0, result.stderr[:4000])
             return [json.loads(line) for line in result.stdout.splitlines()]
+
+    def test_disk_region_cache(self):
+        row = self.run_check('DiskRegionCacheCheck')[0]
+        self.assertEqual(row['status'], 'passed')
+        self.assertEqual(row['cells'], 4)
+        self.assertEqual(row['regions'], 3)
+        self.assertEqual(row['cache_pages'], 2)
+        self.assertEqual(row['rejection_cases'], 14)
+        self.assertTrue(row['world_patch_queries'])
+        self.assertFalse(row['qualification'])
 
     def test_disk_package_index(self):
         row = self.run_check('DiskPackageIndexCheck')[0]
