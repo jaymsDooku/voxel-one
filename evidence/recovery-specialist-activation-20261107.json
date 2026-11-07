@@ -1,0 +1,60 @@
+{
+  "title": "Recovery specialist activation",
+  "completedAt": "2026-11-07T02:30:26.175334+00:00",
+  "status": "complete",
+  "reviewedHead": "e82f623329ba7c93e70edbf4865ec71126c64124",
+  "installedMerge": "d76e30f9bd67198767c78d1c9b2557f9f2da17c2",
+  "implementation": "https://github.com/jaymsDooku/codex-development-dashboard/pull/78",
+  "dashboard": "https://codex-development-dashboard.jamesleaver1.chatgpt.site",
+  "deployment": {
+    "status": "succeeded",
+    "versionId": "appgprj_6ac0222f10108191876f6ec5622d4ace~appgver_6832230d34588191a70e4e494131fa6a",
+    "privateAudiencePreserved": true
+  },
+  "verification": {
+    "independentFullSuite": {
+      "passed": 1133,
+      "failed": 0,
+      "skipped": 2,
+      "skipReason": "Real thread/start tool-contract checks; separate recovery native qualification executed."
+    },
+    "hostedCI": "https://github.com/jaymsDooku/codex-development-dashboard/actions/runs/42327914548",
+    "boundedQA": "https://github.com/jaymsDooku/codex-development-dashboard/blob/a89ef01329464aca59a2f84d2f2e68a001d3051e/dashboard/evidence/recovery-specialist-20261107/qa/e82f-exact-head-report.json",
+    "nativeQualification": {
+      "evidence": "https://github.com/jaymsDooku/codex-development-dashboard/blob/a89ef01329464aca59a2f84d2f2e68a001d3051e/dashboard/evidence/recovery-specialist-20261107/native-qualification-e82f623329ba/proof.json",
+      "realModelTurns": 1,
+      "syntheticQueue": true,
+      "productionQueueMutations": 0,
+      "passed": true
+    },
+    "live": {
+      "serviceRunning": true,
+      "apiHealthy": true,
+      "specialistEnabled": true,
+      "allApplicationsDiskAdmitted": true,
+      "budgetState": "available",
+      "configUnchanged": true,
+      "controlUnchanged": true,
+      "developerResumed": true,
+      "firstMinuteDiagnosisStarts": 1
+    }
+  },
+  "recoveryPolicy": {
+    "observationSeconds": 60,
+    "maxDiagnosisStartsPerHour": 2,
+    "unchangedIncidentRetries": 0,
+    "idleObservationModelCalls": 0,
+    "ownerAndHardwareGatesPreserved": true
+  },
+  "immediateRecovery": {
+    "reclaimedBytes": 14468116480,
+    "cleanObsoleteReviewTreesRemoved": 50,
+    "previouslyBlockedLondonParentItemsIndependentlyComplete": 2,
+    "structuresWorkerActive": true
+  },
+  "limitations": [
+    "Known safe recovery classes are automated; a diagnosis never approves code or waives qualification.",
+    "Existing launcher hardware qualification and superseded diagnostic history remain retained.",
+    "Environment presence is advisory; workers still execute actual browser/native workflow checks."
+  ]
+}
