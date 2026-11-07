@@ -14,6 +14,7 @@ public class World implements AutoCloseable {
     private int visualMinX,visualMaxX,visualMinZ,visualMaxZ;
     private static ChunkPos column(ChunkPos p){return new ChunkPos(p.chunkX(),0,p.chunkZ());}
     private boolean canonicalMutation;
+    private Set<ChunkPos> deferredNeighborChunks;
     void meshDirty(ChunkPos p,Chunk c){if(loadedChunks.get(p)==c){if(c.takeGeometryChange()){changedSky(column(p));if(!c.terrainEquivalent&&!canonicalMutation)columnGeometryVersions.put(column(p),++geometryEpoch);}dirtyMeshes.put(p,c);dirtyColumns.add(column(p));}}
     void meshClean(ChunkPos p,Chunk c){if(loadedChunks.get(p)==c){dirtyMeshes.remove(p);dirtyColumns.add(column(p));sceneRevision++;}}
     Map<ChunkPos,Chunk> dirtyMeshes(){return dirtyMeshes;}
@@ -183,6 +184,7 @@ public class World implements AutoCloseable {
     }
 
     private void dirtyNeighbors(ChunkPos p) {
+        if(deferredNeighborChunks!=null){deferredNeighborChunks.add(p);return;}
         for (Face f : Face.values()) {
             Chunk c =
                     loadedChunks.get(
@@ -365,6 +367,19 @@ public class World implements AutoCloseable {
     /** Owner-thread whole-cell replacement. Keep canonical replay history, graft geometry once. */
     public void replaceCell(int x,int y,int z,SparseVoxelOctree source) {
         replaceCell(prepareCellReplacement(x,y,z,source));
+    }
+    /** Owner-thread batch. Coalesce neighbor mesh invalidations per changed chunk;
+     * geometry/history and virtual per-cell installation retain their existing order.
+     * Flush even on failure. This is not a transaction; caller owns rollback. */
+    public void replaceCells(List<CellReplacement> replacements) {
+        var cells=List.copyOf(replacements);
+        if(deferredNeighborChunks!=null){for(var cell:cells)replaceCell(cell);return;}
+        var changed=new LinkedHashSet<ChunkPos>();deferredNeighborChunks=changed;
+        try{for(var cell:cells)replaceCell(cell);}
+        finally {
+            deferredNeighborChunks=null;
+            for(var position:changed)dirtyNeighbors(position);
+        }
     }
     /** Owner-thread installation of detached validated data. Authoritative checks remain caller-owned. */
     public void replaceCell(CellReplacement replacement) {
