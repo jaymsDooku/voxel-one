@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-07T07:04:48+00:00",
+  "updatedAt": "2026-11-07T07:25:17+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Bounded disk-region cache integration passes synthetic world-patch checks and one exact read traversal of each full fixture. 58 tooling tests and final cache edge cases pass; CLI screenshot inspected. Production caps and full-game/GPU/32-client gates remain unchanged. New tooling and evidence need controller publication/checks.",
-      "updatedAt": "2026-11-07T07:04:48+00:00"
+      "note": "Async disk-region adapter passes queue, stale-view, partial-cancel, reentrant callback and cleanup checks. 59 tooling tests passed; final async/cache tests rerun passed; CLI screenshot inspected. Game source/caps unchanged. Live integration and full city/max/GPU/32-client qualification remain pending. New tooling/evidence need publication/checks.",
+      "updatedAt": "2026-11-07T07:25:17+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
