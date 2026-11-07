@@ -14,6 +14,43 @@ class StructureModelCodecTest {
         out.writeByte(2);int half=side/2;
         for(int i=0;i<8;i++)unmerged(out,x+((i&1)==0?0:half),y+((i&2)==0?0:half),z+((i&4)==0?0:half),half);
     }
+    void dense(DataOutputStream out,int x,int y,int z,int side)throws Exception {
+        if(side==1){out.writeByte(1);out.writeInt(0xff000000|(x+32*y+1024*z));return;}
+        out.writeByte(2);int half=side/2;
+        for(int i=0;i<8;i++)dense(out,x+((i&1)==0?0:half),y+((i&2)==0?0:half),z+((i&4)==0?0:half),half);
+    }
+    @Test void cancelsInsideDenseDependencyAndRetriesWithoutChangingBytes()throws Exception {
+        var bytes=new ByteArrayOutputStream();var out=new DataOutputStream(bytes);
+        out.writeByte(32);dense(out,0,0,0,32);
+        var model=new ModelDefinition("Cancellable",SparseVoxelOctree.read(new DataInputStream(new ByteArrayInputStream(bytes.toByteArray()))));
+        byte[] expected=packed(model);
+        for(int stop:new int[]{4,128,512}) {
+            var checks=new java.util.concurrent.atomic.AtomicInteger();var partial=new ByteArrayOutputStream();
+            assertThrows(java.util.concurrent.CancellationException.class,()->StructureModelCodec.write(new DataOutputStream(partial),model,()->checks.incrementAndGet()>=stop));
+            assertTrue(checks.get()>=stop);
+            checks.set(0);
+            assertThrows(java.util.concurrent.CancellationException.class,()->StructureModelCodec.read(new DataInputStream(new ByteArrayInputStream(expected)),()->checks.incrementAndGet()>=stop));
+            assertTrue(checks.get()>=stop);
+        }
+        var retry=new ByteArrayOutputStream();StructureModelCodec.write(new DataOutputStream(retry),model,()->false);
+        assertArrayEquals(expected,retry.toByteArray());
+        assertEquals(model.fingerprint(),StructureModelCodec.read(new DataInputStream(new ByteArrayInputStream(expected)),()->false).fingerprint());
+    }
+    @Test void dependencyCancellationPreservesExportTargetAndCleansPrivateStage(@org.junit.jupiter.api.io.TempDir java.nio.file.Path directory)throws Exception {
+        var bytes=new ByteArrayOutputStream();var out=new DataOutputStream(bytes);out.writeByte(32);dense(out,0,0,0,32);
+        var model=new ModelDefinition("Export component",SparseVoxelOctree.read(new DataInputStream(new ByteArrayInputStream(bytes.toByteArray()))));
+        var asset=new StructurePackage("Export",new Bounds(1,1,1,0,0,0),List.of(model),List.of(new Cell(new Position(0,0,0),null,0)));
+        var target=directory.resolve("saved.vstr");byte[] previous={1,2,3};java.nio.file.Files.write(target,previous);
+        var checks=new java.util.concurrent.atomic.AtomicInteger();
+        assertThrows(java.util.concurrent.CancellationException.class,()->asset.save(target,()->checks.incrementAndGet()>=64,p->{}));
+        assertArrayEquals(previous,java.nio.file.Files.readAllBytes(target));
+        try(var files=java.nio.file.Files.list(directory)){assertEquals(List.of(target),files.toList());}
+        asset.save(target);assertArrayEquals(asset.encode(),java.nio.file.Files.readAllBytes(target));
+        byte[] saved=java.nio.file.Files.readAllBytes(target);checks.set(0);
+        assertThrows(java.util.concurrent.CancellationException.class,()->StructurePackage.load(target,()->checks.incrementAndGet()>=64,p->{}));
+        assertArrayEquals(saved,java.nio.file.Files.readAllBytes(target));
+        assertEquals(model.fingerprint(),StructurePackage.load(target).models.get(0).fingerprint());
+    }
     @Test void retainsExactLegacyIdentityForRedundantOctreeBranches()throws Exception {
         var bytes=new ByteArrayOutputStream();var out=new DataOutputStream(bytes);out.writeByte(8);unmerged(out,0,0,0,8);
         var tree=SparseVoxelOctree.read(new DataInputStream(new ByteArrayInputStream(bytes.toByteArray())));

@@ -175,7 +175,7 @@ public final class StructurePackage {
             out.writeInt(MAGIC);out.writeInt(VERSION);out.writeUTF(name);
             out.writeInt(bounds.x);out.writeInt(bounds.y);out.writeInt(bounds.z);out.writeInt(bounds.ax);out.writeInt(bounds.ay);out.writeInt(bounds.az);
             out.writeInt(models.size());int modelIndex=0;
-            for(var model:models){cancelled(cancel);StructureModelCodec.write(out,model);progress.accept(++modelIndex*25/models.size());cancelled(cancel);}
+            for(var model:models){cancelled(cancel);StructureModelCodec.write(out,model,cancel);progress.accept(++modelIndex*25/models.size());cancelled(cancel);}
             progress.accept(25);cancelled(cancel);out.writeInt(cells.size());int cellIndex=0;
             var packed=(StructureCells)cells;
             while(cellIndex<cells.size()) {
@@ -212,7 +212,7 @@ public final class StructurePackage {
             int n=in.readInt();if(n<0||n>MAX_MODELS)throw new IOException("512 dependency limit");
             var models=new ArrayList<ModelDefinition>();var identities=new HashSet<String>();long dependencyQuads=0;
             for(int i=0;i<n;i++) {
-                cancelled(cancel);var model=version==1?ModelDefinition.read(in):StructureModelCodec.read(in);
+                cancelled(cancel);var model=version==1?ModelDefinition.read(in):StructureModelCodec.read(in,cancel);
                 if(model.voxels().occupied()==0||!identities.add(model.fingerprint()))throw new IOException("Empty or duplicate dependency");
                 dependencyQuads+=ModelMesher.count(model.voxels());
                 if(dependencyQuads>MAX_DEPENDENCY_QUADS)throw new IOException("Experimental dependency surface cap");
