@@ -1,0 +1,459 @@
+{
+  "schema": 1,
+  "scope": "Admitted production World cell preparation/install component, current direct API versus prepared API; not a historical binary replay or complete placement qualification.",
+  "source_head": "afc6dc64a4bfeacf09fbf47667a3d0464618fec8",
+  "source_sha256": "f320c036f32c2476bafe0c0b2aa690b7b126fd020249e732aa2d53860c3a1ac8",
+  "fixtures": {
+    "bounds_cells": [
+      64,
+      1,
+      64
+    ],
+    "occupied_cells": 4096,
+    "uniform_leaves": 4096,
+    "fractional_leaves": 131072,
+    "models": 0,
+    "instances": 0,
+    "details": "Repeated immutable source geometry; fractional cell has 32 spaced single-voxel leaves alternating LED 0x123456 and glass. Both fixtures pass production StructurePackage admission. Negative world coordinates; unrelated brick edit retained. Nonresident world; no meshes."
+  },
+  "method": {
+    "runs": 20,
+    "warmups": 3,
+    "order": "Direct/prepared order alternates each run; fresh World per path/run. Actual named worker thread prepares cells.",
+    "stats": "Arithmetic median, nearest-rank p95, worst; all raw measured samples retained. ThreadMXBean phase allocation excludes fixture/setup/verification and measurement result allocation.",
+    "combined": "Per-run worker plus owner measured phases summed before calculating statistics; excludes thread start/queue/transfer and world setup/verification.",
+    "verification": "Every path/run checks all geometry/colours/materials, exact global history map contents, exact per-chunk replay order, replay revision count and unrelated edit preservation. Invalid fractional model rejects before runs."
+  },
+  "results": [
+    {
+      "fixture": "uniform",
+      "cells": 4096,
+      "leaves": 4096,
+      "phase": "direct_owner",
+      "runs": 20,
+      "ms": {
+        "median": 2.948718,
+        "p95": 10.719893,
+        "worst": 10.858179
+      },
+      "allocated_bytes": {
+        "median": 3410888.0,
+        "p95": 4361160.0,
+        "worst": 4361160.0
+      },
+      "samples_ms": [
+        10.719893,
+        10.858179,
+        4.470986,
+        3.921506,
+        3.611486,
+        2.745381,
+        6.312367,
+        8.432668,
+        2.69847,
+        2.707741,
+        2.990562,
+        3.039998,
+        3.271847,
+        2.734319,
+        2.705682,
+        2.680274,
+        2.699585,
+        2.906873,
+        2.709616,
+        2.562703
+      ],
+      "samples_allocated_bytes": [
+        4361160.0,
+        4361160.0,
+        3410888.0,
+        3410888.0,
+        3410888.0,
+        3410888.0,
+        3410888.0,
+        3410888.0,
+        3410888.0,
+        3410888.0,
+        3410888.0,
+        3410888.0,
+        3410888.0,
+        3410888.0,
+        3410888.0,
+        3410888.0,
+        3410888.0,
+        3410888.0,
+        3410888.0,
+        3410888.0
+      ]
+    },
+    {
+      "fixture": "uniform",
+      "cells": 4096,
+      "leaves": 4096,
+      "phase": "worker_preparation",
+      "runs": 20,
+      "ms": {
+        "median": 0.608964,
+        "p95": 4.08225,
+        "worst": 8.318776
+      },
+      "allocated_bytes": {
+        "median": 698824.0,
+        "p95": 1649096.0,
+        "worst": 1649096.0
+      },
+      "samples_ms": [
+        2.332559,
+        4.08225,
+        8.318776,
+        0.613281,
+        0.604647,
+        0.592128,
+        0.572835,
+        1.469469,
+        0.933554,
+        0.939093,
+        0.930707,
+        1.76327,
+        0.987291,
+        0.267436,
+        0.38229,
+        0.463304,
+        0.346768,
+        0.304077,
+        0.243564,
+        0.334152
+      ],
+      "samples_allocated_bytes": [
+        1649096.0,
+        1649096.0,
+        1092040.0,
+        698824.0,
+        698824.0,
+        698824.0,
+        698824.0,
+        698824.0,
+        698824.0,
+        698824.0,
+        698824.0,
+        698824.0,
+        698824.0,
+        698824.0,
+        698824.0,
+        698824.0,
+        698824.0,
+        698824.0,
+        698824.0,
+        698824.0
+      ]
+    },
+    {
+      "fixture": "uniform",
+      "cells": 4096,
+      "leaves": 4096,
+      "phase": "prepared_owner_install",
+      "runs": 20,
+      "ms": {
+        "median": 2.541973,
+        "p95": 6.681389,
+        "worst": 6.98481
+      },
+      "allocated_bytes": {
+        "median": 2728520.0,
+        "p95": 2728520.0,
+        "worst": 2728520.0
+      },
+      "samples_ms": [
+        6.552501,
+        6.98481,
+        3.234962,
+        3.167631,
+        2.694085,
+        2.483015,
+        2.441909,
+        6.681389,
+        3.848218,
+        2.358512,
+        2.519521,
+        2.519537,
+        2.725217,
+        2.374988,
+        2.423253,
+        2.564409,
+        2.312871,
+        2.603607,
+        2.46593,
+        2.510559
+      ],
+      "samples_allocated_bytes": [
+        2728520.0,
+        2728520.0,
+        2728520.0,
+        2728520.0,
+        2728520.0,
+        2728520.0,
+        2728520.0,
+        2728520.0,
+        2728520.0,
+        2728520.0,
+        2728520.0,
+        2728520.0,
+        2728520.0,
+        2728520.0,
+        2728520.0,
+        2728520.0,
+        2728520.0,
+        2728520.0,
+        2728520.0,
+        2728520.0
+      ]
+    },
+    {
+      "fixture": "fractional32",
+      "cells": 4096,
+      "leaves": 131072,
+      "phase": "direct_owner",
+      "runs": 20,
+      "ms": {
+        "median": 162.945373,
+        "p95": 186.831847,
+        "worst": 193.220087
+      },
+      "allocated_bytes": {
+        "median": 69486856.0,
+        "p95": 69486856.0,
+        "worst": 69486856.0
+      },
+      "samples_ms": [
+        150.756663,
+        125.817518,
+        161.740526,
+        150.695727,
+        158.94393,
+        193.220087,
+        177.634035,
+        135.529033,
+        158.915542,
+        176.596929,
+        186.831847,
+        165.054839,
+        134.776546,
+        174.101661,
+        177.210075,
+        175.936684,
+        159.864633,
+        158.473113,
+        183.612083,
+        164.150219
+      ],
+      "samples_allocated_bytes": [
+        69486856.0,
+        69486856.0,
+        69486856.0,
+        69486856.0,
+        69486856.0,
+        69486856.0,
+        69486856.0,
+        69486856.0,
+        69486856.0,
+        69486856.0,
+        69486856.0,
+        69486856.0,
+        69486856.0,
+        69486856.0,
+        69486856.0,
+        69486856.0,
+        69486856.0,
+        69486856.0,
+        69486856.0,
+        69486856.0
+      ]
+    },
+    {
+      "fixture": "fractional32",
+      "cells": 4096,
+      "leaves": 131072,
+      "phase": "worker_preparation",
+      "runs": 20,
+      "ms": {
+        "median": 91.544849,
+        "p95": 115.997464,
+        "worst": 127.934529
+      },
+      "allocated_bytes": {
+        "median": 26388936.0,
+        "p95": 26388936.0,
+        "worst": 26388936.0
+      },
+      "samples_ms": [
+        74.8138,
+        101.804763,
+        76.444054,
+        127.934529,
+        81.765549,
+        115.427303,
+        98.82095,
+        74.952157,
+        112.379219,
+        103.500373,
+        115.997464,
+        75.909358,
+        76.140441,
+        76.878561,
+        78.706484,
+        110.497148,
+        98.848525,
+        101.106009,
+        84.268748,
+        83.225939
+      ],
+      "samples_allocated_bytes": [
+        26388936.0,
+        26388936.0,
+        26388936.0,
+        26388936.0,
+        26388936.0,
+        26388936.0,
+        26388936.0,
+        26388936.0,
+        26388936.0,
+        26388936.0,
+        26388936.0,
+        26388936.0,
+        26388936.0,
+        26388936.0,
+        26388936.0,
+        26388936.0,
+        26388936.0,
+        26388936.0,
+        26388936.0,
+        26388936.0
+      ]
+    },
+    {
+      "fixture": "fractional32",
+      "cells": 4096,
+      "leaves": 131072,
+      "phase": "prepared_owner_install",
+      "runs": 20,
+      "ms": {
+        "median": 81.536372,
+        "p95": 106.842094,
+        "worst": 110.901081
+      },
+      "allocated_bytes": {
+        "median": 43114376.0,
+        "p95": 43114376.0,
+        "worst": 43114376.0
+      },
+      "samples_ms": [
+        103.422234,
+        92.691862,
+        70.137528,
+        71.726199,
+        97.671657,
+        72.950163,
+        60.740176,
+        99.384023,
+        71.028972,
+        72.29392,
+        61.759472,
+        103.028593,
+        71.151005,
+        103.020405,
+        106.842094,
+        76.607824,
+        110.901081,
+        86.464919,
+        99.656284,
+        61.269984
+      ],
+      "samples_allocated_bytes": [
+        43114376.0,
+        43114376.0,
+        43114376.0,
+        43114376.0,
+        43114376.0,
+        43114376.0,
+        43114376.0,
+        43114376.0,
+        43114376.0,
+        43114376.0,
+        43114376.0,
+        43114376.0,
+        43114376.0,
+        43114376.0,
+        43114376.0,
+        43114376.0,
+        43114376.0,
+        43114376.0,
+        43114376.0,
+        43114376.0
+      ]
+    }
+  ],
+  "combined_phase_results": [
+    {
+      "fixture": "uniform",
+      "phase": "sum_of_worker_and_owner_phases",
+      "ms": {
+        "median": 3.2981685,
+        "p95": 11.067060000000001,
+        "worst": 11.553738
+      },
+      "allocated_bytes": {
+        "median": 3427344.0,
+        "p95": 4377616.0,
+        "worst": 4377616.0
+      }
+    },
+    {
+      "fixture": "fractional32",
+      "phase": "sum_of_worker_and_owner_phases",
+      "ms": {
+        "median": 179.66808600000002,
+        "p95": 199.660728,
+        "worst": 209.749606
+      },
+      "allocated_bytes": {
+        "median": 69503312.0,
+        "p95": 69503312.0,
+        "worst": 69503312.0
+      }
+    }
+  ],
+  "process": {
+    "exit": 0,
+    "heap": "-Xmx512m",
+    "peak_rss_kib": 591528,
+    "peak_scope": "Whole Java benchmark process including fixture setup, warmups, verification and Swing evidence; not retained or per-phase peak memory"
+  },
+  "environment": {
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "os": "Debian 12 / Linux 6.1.0-50-cloud-amd64 x86_64 / glibc 2.36",
+    "java": "25.0.3+9-LTS-195",
+    "drivers": "CPU timing; no graphical driver performance measured. Swing/X11 on inherited assigned display for own-window evidence only.",
+    "concurrency": "Tooling regression finished before measurements; shared VPS, other host activity not controlled."
+  },
+  "commands": {
+    "compile": "javac -encoding UTF-8 --release 17 -cp target/classes -d target/structure-cell-benchmark tools/structures/PreparedCellBenchmark.java",
+    "benchmark": "java -Xmx512m -Djava.io.tmpdir=\"$PWD/target/reviewer-tmp\" -Duser.home=\"$PWD/target/structure-cell-benchmark/home\" -cp target/structure-cell-benchmark:target/classes PreparedCellBenchmark target/structure-cell-benchmark/measurement.json --evidence",
+    "tooling": "python3 -m unittest discover -s tools/structures -p \"test_*.py\" -v",
+    "capture": "import -display \"$DISPLAY\" -window <own benchmark window> dashboard/evidence/structure-prepared-cell-benchmark.png"
+  },
+  "tests": {
+    "playtest": "Playtest: actual admitted component CLI exited 0 after all correctness checks and 20 runs per path/fixture; own Swing window captured and inspected. Browser/native game rerun does not apply to this benchmark-only change.",
+    "tooling": "57 tests passed in 119.830s; exit 0.",
+    "statistics": "Independently recalculated every median/p95/worst from all 120 measured phase samples; all matched.",
+    "unchanged_native_source_hashes": 228,
+    "published_video_bytes": 446636,
+    "published_video_sha256": "488bd051b46b8561f8e0c32afe20ddf12f723ccb115847bc9c753c1b495574ad",
+    "native": "Existing exact-head production Main/GLFW validation remains valid for unchanged Java/harness source; no new native workflow or Maven run claimed.",
+    "failed_attempt": "Initial probe failed in its first warmup due to an invalid global history-order oracle. World exposes unordered chunk grouping. Oracle now checks exact map contents and exact order within each chunk. Failed attempt produced no accepted measurements."
+  },
+  "findings": "Fractional owner-install p95 106.842094 ms exceeds 100 ms even without meshes, save, conflict checks or network. Combined phase p95 199.660728 ms versus direct 186.831847 ms; work was shifted, not eliminated. Fractional median owner allocation 43114376 versus direct 69486856 bytes; combined 69503312 bytes. Thread allocation is not retained memory.",
+  "remaining": "No action acknowledgement, main-thread stall, frame/tick/traffic, durable save, region load, GPU, full city/maximum or 32-client qualification established. Live disk-backed regions/roots and all admission/resource/performance gates remain pending; no cap lifted; stable rollout gated.",
+  "evidence_image": "structure-prepared-cell-benchmark.png",
+  "image_sha256": "58d40b87373bc9ca370b92d2143ac22f70d4d6c99321069007a9a670e77be6b4",
+  "publication": "Pending controller publication"
+}
