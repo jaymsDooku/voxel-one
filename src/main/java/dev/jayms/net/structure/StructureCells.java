@@ -22,6 +22,13 @@ final class StructureCells extends AbstractList<Cell> implements RandomAccess {
         this.positions=positions;this.models=models;this.values=values;this.geometry=geometry;
     }
     @Override public int size(){return positions.length;}
+    /** Immutable position-only view: footprint queries never decode geometry. */
+    List<Position> occupiedPositions() {
+        return new AbstractList<>() {
+            @Override public int size(){return positions.length;}
+            @Override public Position get(int index){Objects.checkIndex(index,positions.length);return position(positions[index]);}
+        };
+    }
     @Override public Cell get(int index) {
         Objects.checkIndex(index,positions.length);
         short model=models[index];
@@ -40,8 +47,11 @@ final class StructureCells extends AbstractList<Cell> implements RandomAccess {
         } else if(model<0)geometry.write(values[index],out);
     }
     private static Cell cell(int p,SparseVoxelOctree tree,int model) {
-        return new Cell(new Position(((p>>>12)&63)*16+(p&15),
-                (p>>>24)*16+((p>>>8)&15),((p>>>18)&63)*16+((p>>>4)&15)),tree,model);
+        return new Cell(position(p),tree,model);
+    }
+    private static Position position(int p) {
+        return new Position(((p>>>12)&63)*16+(p&15),
+                (p>>>24)*16+((p>>>8)&15),((p>>>18)&63)*16+((p>>>4)&15));
     }
 
     /** Owns unsorted values; only validated bounds/model IDs and frozen trees may be added. */

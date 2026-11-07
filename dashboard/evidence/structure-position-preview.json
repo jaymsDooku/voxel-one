@@ -1,0 +1,204 @@
+{
+  "schema": 1,
+  "scope": "Production position-only destination conflict preview",
+  "parent_hosted_checks": {
+    "head": "6aee678a0d75b59dd135b7804a854428a18e9968",
+    "four_platform_builds": "success",
+    "publish": "skipped"
+  },
+  "test_command": "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=StructurePreviewTest,StructurePackedGeometryTest,StructureRegionSnapshotTest,StructureTest,StructureOccupancyTest test",
+  "test_exit_code": 0,
+  "tests": [
+    {
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.net.structure.StructurePreviewTest",
+      "seconds": 0.04
+    },
+    {
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.net.structure.StructurePackedGeometryTest",
+      "seconds": 0.051
+    },
+    {
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.StructureRegionSnapshotTest",
+      "seconds": 0.079
+    },
+    {
+      "tests": 25,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.StructureTest",
+      "seconds": 1.793
+    },
+    {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.StructureOccupancyTest",
+      "seconds": 3.785
+    }
+  ],
+  "unique_tests": 45,
+  "probe_compile_command": "javac -encoding UTF-8 --release 17 -cp target/classes -d target/position-preview-probe tools/structures/PackedGeometryProbe.java tools/structures/PositionPreviewProbe.java",
+  "cpu_microbenchmark": {
+    "scope": "Production CPU preview microbenchmark; admitted 50000-cell/100000-leaf fractional fixture; no city/GPU/network qualification",
+    "runs": 20,
+    "warmups": 3,
+    "statistics": "Median averages the middle pair; p95 uses nearest rank",
+    "cases": [
+      {
+        "scenario": "clear_hinted",
+        "path": "previous_ui_loop",
+        "medianMs": 37.42416,
+        "p95Ms": 50.848158,
+        "worstMs": 58.813335,
+        "medianAllocatedBytes": 35200024,
+        "worstAllocatedBytes": 35200128,
+        "destinationGeometryReads": 50000,
+        "emptyHints": 0
+      },
+      {
+        "scenario": "clear_hinted",
+        "path": "production",
+        "medianMs": 1.516858,
+        "p95Ms": 2.653814,
+        "worstMs": 3.524713,
+        "medianAllocatedBytes": 1200248,
+        "worstAllocatedBytes": 1200248,
+        "destinationGeometryReads": 0,
+        "emptyHints": 50000
+      },
+      {
+        "scenario": "clear_unknown",
+        "path": "previous_ui_loop",
+        "medianMs": 27.448696,
+        "p95Ms": 29.084022,
+        "worstMs": 30.138832,
+        "medianAllocatedBytes": 35200024,
+        "worstAllocatedBytes": 35200024,
+        "destinationGeometryReads": 50000,
+        "emptyHints": 0
+      },
+      {
+        "scenario": "clear_unknown",
+        "path": "production",
+        "medianMs": 1.363885,
+        "p95Ms": 4.180094,
+        "worstMs": 4.780767,
+        "medianAllocatedBytes": 1200248,
+        "worstAllocatedBytes": 1200248,
+        "destinationGeometryReads": 50000,
+        "emptyHints": 50000
+      },
+      {
+        "scenario": "first_conflict",
+        "path": "previous_ui_loop",
+        "medianMs": 28.30919,
+        "p95Ms": 35.285556,
+        "worstMs": 38.021783,
+        "medianAllocatedBytes": 35200024,
+        "worstAllocatedBytes": 35200024,
+        "destinationGeometryReads": 50000,
+        "emptyHints": 0
+      },
+      {
+        "scenario": "first_conflict",
+        "path": "production",
+        "medianMs": 0.004535,
+        "p95Ms": 0.047378,
+        "worstMs": 0.171551,
+        "medianAllocatedBytes": 272,
+        "worstAllocatedBytes": 272,
+        "destinationGeometryReads": 1,
+        "emptyHints": 1
+      }
+    ]
+  },
+  "process_resources": {
+    "command": [
+      "java",
+      "-Xmx256m",
+      "-cp",
+      "target/position-preview-probe:target/classes",
+      "PositionPreviewProbe"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 3.103282881900668,
+    "peak_rss_kib": 157316
+  },
+  "environment": {
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "os": {
+      "PRETTY_NAME": "Debian GNU/Linux 12 (bookworm)",
+      "NAME": "Debian GNU/Linux",
+      "VERSION": "12 (bookworm)"
+    },
+    "kernel": "6.1.0-50-cloud-amd64",
+    "architecture": "x86_64",
+    "java": [
+      "java version \"25.0.3\" 2026-04-21 LTS",
+      "Java(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)",
+      "Java HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)"
+    ],
+    "gpu_scope": "No GPU used by CPU preview microbenchmark; native playtest uses llvmpipe."
+  },
+  "notes": [
+    "Initial resource wrapper did not run: /usr/bin/time absent; actual run used Python subprocess/time/resource. Final statistics use arithmetic median and nearest-rank p95.",
+    "Microbenchmark invokes the production helper. Previous UI loop is retained only as a comparison in the probe.",
+    "Fixture is admitted 50000 cells/100000 leaves, not the required city or maximum fixture. Snapshot construction, UI acknowledgement, owner stalls, GPU/frame/tick/network/durability are excluded.",
+    "Peak RSS is the entire bounded probe process, not a per-query peak memory measure. Allocation counters are per-thread/per-query.",
+    "No cap raised, no supported-limit/rollout claim, no full-suite rerun claimed. Full acceptance remains unfinished."
+  ],
+  "native_playtest": {
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_manifest": "structure-native-source.json",
+    "source_manifest_sha256": "a311616b742752c9aa28f859cf808e144517fa4a8901e94976449d0a06a22afc",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "publication": "Local evidence pending controller publication"
+  },
+  "diff_check": "passed",
+  "tracked_deletions_against_review_base": [],
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/structure/StructureCells.java": "45634149ec68d8fbad3e1fa9ece6336458d4057cb37b90e0f77c5681e6550265",
+    "src/main/java/dev/jayms/net/structure/StructurePackage.java": "473d93baa94b144dc347603b821918987fef4d3c8db1737c68b01b363c6a8b5e",
+    "src/main/java/dev/jayms/net/structure/StructurePreview.java": "163453412e53f7a57af3699ef9d2c0ed8d596ce13d01675e1a379f62b2bd11a3",
+    "src/main/java/dev/jayms/ui/StructureMenu.java": "e4ae33da47c2b36df0ae07c262a350eb0883d28a6c0c3a75c0e01b34cc92bc35",
+    "src/test/java/dev/jayms/net/structure/StructurePreviewTest.java": "2e6291745b2985a83db8cf9e2b9d56bb176485c3bbb55c221d0a5db42ee97d26",
+    "tools/structures/PositionPreviewProbe.java": "e4555cd6cbaf05a33cad4906ef8768405489b0fcb12c18b87a5e595a69067131"
+  },
+  "restoration_audit": {
+    "review_base": "71612f09bfec4549456b3317676e76cdced085a4",
+    "tracked_deletions": [],
+    "mp3_fixtures_tests_decoder_notices_smokes_and_hub_registration": "Named restored files byte-unchanged against review base; git diff --exit-code passed.",
+    "build_workflow": "Only two added lines for structure tooling unittest step; existing shipped-client MP3 smoke retained."
+  },
+  "media": {
+    "decodedFrames": 24,
+    "durationSeconds": 40.819,
+    "bytes": 464291,
+    "width": 960,
+    "height": 544,
+    "midpointIndex": 12,
+    "videoSha256": "68d6a9d752446b345509da119b2414bd7ead9552e8e5aaa3cd3707268bf77b7b",
+    "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step.",
+    "inspection": "All frames decoded. Midpoint green footprint/anchor and occupied-conflict red bounds/rejection inspected; HUD 1 FPS, functional software rendering only."
+  },
+  "verified_production_harness_hashes": 228,
+  "publication": "Local evidence pending controller publication"
+}

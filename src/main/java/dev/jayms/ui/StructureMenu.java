@@ -121,9 +121,8 @@ public final class StructureMenu implements AutoCloseable {
                 var point=target;int orientation=rotation;
                 start("Checking destination footprint...",cancel->{
                     var box=StructureEngine.footprint(asset,point,orientation);
-                    var snapshot=StructureRegionSnapshot.capture(world,new Position(box.minX(),box.minY(),box.minZ()),box.width(),box.height(),box.depth(),ownerReads,cancel::get,p->progress=p/2);boolean blocked=false;
-                    for(var cell:asset.cells){StructurePackage.cancelled(cancel::get);var p=StructureEngine.rotate(cell.position(),asset.bounds.x(),asset.bounds.z(),orientation);if(snapshot.cell(box.minX()+p.x(),box.minY()+p.y(),box.minZ()+p.z()).occupied()!=0)blocked=true;}
-                    final boolean overlap=blocked;return new Completion(()->{
+                    var snapshot=StructureRegionSnapshot.capture(world,new Position(box.minX(),box.minY(),box.minZ()),box.width(),box.height(),box.depth(),ownerReads,cancel::get,p->progress=p/2);
+                    final boolean overlap=StructurePreview.blocked(asset,point,orientation,snapshot,cancel::get,p->progress=50+p/2);return new Completion(()->{
                         if(selected!=asset||!target.equals(point)||rotation!=orientation){conflict=null;execute("preview",world,local,network);return;}
                         conflict=overlap;message=overlap?"Blocking occupied cells; placement rejected":"Footprint clear; server revalidates at commit";
                     },null,cancel);
