@@ -223,6 +223,14 @@ public final class WorldVoxels {
         return copy;
     }
 
+    /** Owner-only bounded sharing boundary for a selected structure region. */
+    public WorldVoxels snapshot(Collection<ChunkPos> positions) {
+        if(positions.size()>128)throw new IllegalArgumentException("Structure snapshot batch exceeds 128 chunks");
+        var copy=new WorldVoxels(terrain);copy.geometryRevision=geometryRevision;
+        for(var position:positions){var bucket=chunks.get(Objects.requireNonNull(position));if(bucket!=null)copy.chunks.put(position,bucket);}
+        owner=new Object();return copy;
+    }
+
     /** Check caller admission budgets before cloning the chunk map on the owner. */
     public CellSnapshot cellSnapshot(History history,int maxCells,int maxChunks) {
         Objects.requireNonNull(history);

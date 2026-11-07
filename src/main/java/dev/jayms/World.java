@@ -257,6 +257,32 @@ public class World implements AutoCloseable {
             resident.put(entry.getKey(),new StructureResident(chunk.snapshot(),
                     new StructureChunkStamp(chunk,chunk.geometryVersion(),geometry.chunkStamp(entry.getKey()))));
         }
+        return structureSource(geometry,definitions,resident,generation);
+    }
+
+    /** Begin on the owner; workers obtain only bounded detached batches through the owner queue. */
+    public StructureSnapshotPlan beginStructureSnapshot(){return new StructureSnapshotPlan();}
+    public final class StructureSnapshotPlan {
+        private final Thread owner=Thread.currentThread();
+        private final long edits=editsVersion,geometry=geometryEpoch,generation=terrain.geometryRevision();
+        private final ModelLibrary library=models(),definitions=library.copy();
+        private final long modelsRevision=library.revision();
+        private StructureSnapshotPlan(){validate();}
+        public long terrainRevision(){return generation;}
+        public Terrain terrain(){return World.this.terrain;}
+        public void validate(){
+            if(Thread.currentThread()!=owner)throw new IllegalStateException("Structure snapshot requires owner thread");
+            if(closed||editsVersion!=edits||geometryEpoch!=geometry||terrain.geometryRevision()!=generation||(generation&1)!=0||models()!=library||library.revision()!=modelsRevision)
+                throw new ConcurrentModificationException("World changed while snapshotting structure; retry");
+        }
+        public dev.jayms.net.structure.StructurePackage.Source batch(List<ChunkPos> positions){
+            validate();if(positions.size()>128)throw new IllegalArgumentException("Structure snapshot batch exceeds 128 chunks");
+            var detached=voxels.snapshot(positions);var resident=new HashMap<ChunkPos,StructureResident>();
+            for(var position:positions){var chunk=loadedChunks.get(position);if(chunk!=null)resident.put(position,new StructureResident(chunk.snapshot(),new StructureChunkStamp(chunk,chunk.geometryVersion(),detached.chunkStamp(position))));}
+            validate();return structureSource(detached,definitions,resident,generation);
+        }
+    }
+    private dev.jayms.net.structure.StructurePackage.Source structureSource(WorldVoxels geometry,ModelLibrary definitions,Map<ChunkPos,StructureResident> resident,long generation) {
         return new dev.jayms.net.structure.StructurePackage.Source() {
             public SparseVoxelOctree cell(int x,int y,int z){
                 var chunk=resident.get(ChunkPos.fromBlock(x,y,z));

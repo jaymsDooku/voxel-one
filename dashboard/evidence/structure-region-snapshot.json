@@ -1,0 +1,117 @@
+{
+  "scope": "Production region-only owner-queue snapshot batching for capture, preview and offline placement",
+  "source_parent": "0b1061415b5d89192f3bdf989dfd592c4d2a47e2",
+  "source_sha256": {
+    "src/main/java/dev/jayms/World.java": "a803ead36c7a05533beeba6c7c26b6829c3781ceac58abf0984f83f952c3a8b2",
+    "src/main/java/dev/jayms/net/WorldVoxels.java": "d5cc57fdd08833f04102750ff4f0afeb70ff7459ed8c4d10c7ad84214f50bf6a",
+    "src/main/java/dev/jayms/ui/StructureMenu.java": "e22110a8772e9b90beec35e70d5076ee88b364dcffbfd9f8316ee44c513b5d8d",
+    "src/main/java/dev/jayms/net/structure/StructureRegionSnapshot.java": "6df94154d361fea88a06fbed6ea5d999d2eba4ca0386e8b9ccfab01ca6764279",
+    "src/test/java/dev/jayms/StructureRegionSnapshotTest.java": "a2308d8514e2874b4e0ced30dd13a2b33df0af0e0014790db3578d80c136f2b8"
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "java": "25.0.3+9-LTS-195",
+    "test_tmp": "target/reviewer-tmp",
+    "native": "Inherited DISPLAY/XAUTHORITY, isolated synthetic profile, software llvmpipe"
+  },
+  "commands": [
+    "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=StructureRegionSnapshotTest,StructureCaptureChunkTest,StructureOfflineStampTest,StructureMenuAnchorTest,StructureOccupancyTest,WorldCellSnapshotTest test",
+    "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" test",
+    "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\""
+  ],
+  "initial_compile": "Missing model-package import corrected before tests executed.",
+  "focused": "Passed; final full-suite results pending.",
+  "full_java_suite": {
+    "result": "All current test classes completed across interrupted full run and successful remaining-class run",
+    "classes": 194,
+    "tests": 985,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1,
+    "passed": 984,
+    "completed_before_pause_classes": 142,
+    "resumed_classes": 52,
+    "interrupted_full_command_exit": 130,
+    "remaining_command_exit": 0,
+    "single_full_command_pass_claimed": false,
+    "source_check": "All 227 production/harness hashes and changed-test hashes unchanged; completed report timestamps postdate source; resumed reports postdate command birth time.",
+    "skips": [
+      {
+        "class": "dev.jayms.assets.AssetManagerIntegrationTest",
+        "test": "browserWorkflow"
+      }
+    ]
+  },
+  "playtest": {
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_manifest": "structure-native-source.json",
+    "source_manifest_sha256": "8520d361e61af9d1c4dd13e66dcaa662883d13811912c158cf9f16863ccd353b",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "publication": "Local evidence pending controller publication",
+    "source_entries": 227,
+    "source_mismatches": []
+  },
+  "expected_observed": [
+    "Negative/unaligned capture with models, coloured fractional geometry and resident-only geometry matches legacy whole-snapshot package bytes.",
+    "320 chunks require three <=128-entry owner batches plus begin/final validation calls; observed progress 0,40,80,100.",
+    "Canonical edits, resident-only changes, model revisions and terrain ABA invalidate partial snapshots or subsequent terrain reads.",
+    "Cancellation rejects pending work, leaves no published package and permits retry.",
+    "Menu marks busy before snapshot requests; another capture while busy creates no whole-world or extra region snapshot.",
+    "Detached sources retain old canonical and resident geometry after later source edits."
+  ],
+  "tradeoffs": [
+    "Model metadata and region lookup still materialize; canonical history and world geometry are not disk backed.",
+    "Global canonical/resident epochs conservatively reject some unrelated changes; no live-map iterator spans frames.",
+    "COW sharing rotates bucket ownership; subsequent edits may allocate bucket copies.",
+    "Batch count is a resource bound, not a measured 100 ms stall or memory/FPS guarantee."
+  ],
+  "recovered_maximum_diagnostic": {
+    "command": "java -Xmx256m -Djava.io.tmpdir=\"$PWD/target/reviewer-tmp\" -cp target/disk-index-check:target/classes DiskPackageIndexCheck target/structure-fixtures/maximum-v2.vstr",
+    "exit_code": 0,
+    "elapsed_seconds": 28.191258946433663,
+    "peak_rss_KiB": 188648,
+    "available_before_bytes": 10569449472,
+    "stdout": "{\"status\":\"passed\",\"fixture\":\"maximum-v2.vstr\",\"cells\":4000000,\"leaves\":7967232,\"instances\":16384,\"models\":512,\"regions\":8192,\"decoded_bytes\":305479992,\"dependency_quads\":786432,\"instance_quads\":25165824,\"index_seconds\":14.826210,\"visit_seconds\":13.130519,\"all_regions_and_models_read\":true,\"production_admission\":false,\"qualification\":false}\n",
+    "stderr": "",
+    "scope": "Previously disk-blocked diagnostic rerun only; not production admission or qualification."
+  },
+  "parent_hosted": {
+    "head": "0b1061415b5d89192f3bdf989dfd592c4d2a47e2",
+    "platform_builds": "Four passed per controller exact-head results",
+    "publish": "skipped"
+  },
+  "pending": [
+    "Full production city/maximum admission under existing geometry/model/chunk/history caps",
+    "Disk-backed live region/root integration and lazy startup",
+    "20-run reference budgets, physical GPU and shaped-network synchronization to 32 rendered clients"
+  ],
+  "rollout": "Gated; no supported-limit/full-acceptance claim",
+  "publication": "Pending controller publication and exact-head hosted validation",
+  "review_base_audit": {
+    "base": "71612f09bfec4549456b3317676e76cdced085a4",
+    "tracked_deleted_files": [],
+    "intended_deletions": [],
+    "retained_features": "MP3 decoder, fixtures, tests and packaged-client smoke scripts are unchanged from base; Hub publication retained, registration tests unchanged."
+  },
+  "interrupted_validation": {
+    "full_suite_exit_code": 130,
+    "native_exit_code": 130,
+    "result": "Prior requested pause; neither passed."
+  },
+  "media": {
+    "decodedFrames": 23,
+    "durationSeconds": 44.489,
+    "bytes": 499171,
+    "width": 960,
+    "height": 544,
+    "midpointIndex": 11,
+    "videoSha256": "414102c44d1a43b62655bb1608e25b5dcb34b6b7e75cbbd93fe50dd0fb472828",
+    "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step.",
+    "inspection": "All frames decoded; midpoint and occupied-conflict screenshot visually inspected. Bounds/anchor preview and red 90-degree occupied conflict appear. Inspected frames show HUD 1 FPS: functional evidence only."
+  },
+  "remaining_class_command": "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=dev.jayms.AccountStoreTest,dev.jayms.AviationSaveCompatibilityTest,dev.jayms.CameraMovementTest,dev.jayms.CapitalInspectorTest,dev.jayms.CityFormat16RegressionTest,dev.jayms.CityHistoryIntegrationTest,dev.jayms.ControlsTest,dev.jayms.CraftingTest,dev.jayms.DaylightTest,dev.jayms.DemolitionTest,dev.jayms.ExchangeLabourMarketTest,dev.jayms.InventoryHudTest,dev.jayms.LightingTest,dev.jayms.ModelFaceCountTest,dev.jayms.MusicAnalysisTest,dev.jayms.OperatingEnergyTest,dev.jayms.PopulationJourneyTest,dev.jayms.RailwaySaveCompatibilityTest,dev.jayms.RailwayTest,dev.jayms.RegionalPopulationTest,dev.jayms.RoadCitySavesTest,dev.jayms.RoadWorkflowTest,dev.jayms.ShippingAviationCompatibilityTest,dev.jayms.ShippingProtocolCompatibilityTest,dev.jayms.ShopRestockMarketTest,dev.jayms.StressGridRoadMarkingsTest,dev.jayms.StructureModelAdmissionTest,dev.jayms.StructureRegionSnapshotTest,dev.jayms.StructureRotationTreeTest,dev.jayms.StructureUniformCacheTest,dev.jayms.WorldSkyJournalTest,dev.jayms.WorldStreamingTest,dev.jayms.net.LocalGameSaveLimitTest,dev.jayms.net.LongLruCacheTest,dev.jayms.net.RegionReplayTest,dev.jayms.net.ServerRegionSaveTest,dev.jayms.net.ServerTickCadenceTest,dev.jayms.net.ServerTickTimingTest,dev.jayms.net.StagedWorldSaveTest,dev.jayms.net.StructureOfflineSaveTest,dev.jayms.net.WorldSavePublicationTest,dev.jayms.net.city.CityStockExchangeTest,dev.jayms.net.city.RoadSpacingTest,dev.jayms.net.structure.StructureBufferedCodecTest,dev.jayms.net.structure.StructureBufferedWireTest,dev.jayms.net.structure.StructureChunkMeshCountTest,dev.jayms.net.structure.StructureModelCodecTest,dev.jayms.net.structure.StructureOrderTest,dev.jayms.net.structure.StructurePackedGeometryTest,dev.jayms.net.structure.StructurePlacementCellsTest,dev.jayms.net.structure.StructureUniformCellsTest,dev.jayms.net.structure.StructureWirePositionsTest compiler:testCompile surefire:test"
+}
