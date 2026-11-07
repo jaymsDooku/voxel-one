@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-07T05:05:26+00:00",
+  "updatedAt": "2026-11-07T05:41:39+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Reduced cancellable sort arrays by 40% at 4 million cells; documented timing tradeoff. Full Java regression passed: 1002 tests, 1 optional skip. Fresh Main/GLFW workflow and 25-frame media passed; exact-source hosted validation and full city/maximum qualification remain pending.",
-      "updatedAt": "2026-11-07T05:05:26+00:00"
+      "note": "Offline worker staging now prepares validated canonical cell replacements before owner publication. Full Java regression passed: 1006 tests, 1 optional skip. Fresh native workflow and 24-frame media passed. Hosted validation and full city/maximum qualification remain pending.",
+      "updatedAt": "2026-11-07T05:41:39+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
