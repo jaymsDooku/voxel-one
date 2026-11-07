@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-07T03:55:51+00:00",
+  "updatedAt": "2026-11-07T04:32:43+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Offline undo now stages snapshots/history/saves on the worker and revalidates at owner publication. 62 targeted tests and fresh native undo-cancel/retry workflow passed; new image/video inspected. Pending publication/hosted checks. Full city/maximum and qualification remain gated.",
-      "updatedAt": "2026-11-07T03:55:51+00:00"
+      "note": "Local publication reuses verified rollback images and streams replay counting while preserving pre-mutation material validation. Final 79 tests and fresh native workflow passed; 26 video frames decoded/inspected. Pending publication/CI. City/maximum and qualification remain gated.",
+      "updatedAt": "2026-11-07T04:32:43+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

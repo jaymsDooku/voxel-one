@@ -1295,3 +1295,9 @@ An admitted 50,000-cell/100,000-leaf fractional fixture was measured over 20 run
 Offline undo now starts a cancellable worker operation. It captures and validates the placed region, copies save history and writes a private save before owner-thread publication. Cancelling before publication leaves the placed construction and committed file intact. Failed publication retains the undo record for retry. Current inventory, health and dropped items are patched at publication, as for placement.
 
 The owner reuses detached equality checks only when every trusted chunk stamp is unchanged. Changed or unavailable stamps require authoritative comparisons, and changed placed cells reject undo. Final rollback snapshots, cell replacement and legacy-map saves still involve owner work. This does not establish a 100 ms stall/latency guarantee, lift admission caps or complete city/maximum, physical-GPU or 32-client qualification. See `dashboard/evidence/structure-worker-undo.json` for actual tests.
+
+### Verified rollback-image reuse
+
+The structure engine now passes its frozen, verified before-images to local publication. Successful authoritative checks still precede publication; the before-images are an internal engine contract, not wire data. Legacy authority staging overrides retain their dispatch, and direct local commits still capture current rollback state.
+
+Whole-cell replacement also counts canonical replay records without building a throwaway edit list. Replay order, saved formats and edit revisions remain unchanged. Final per-cell owner publication and fallback checks remain, so this is not a 100 ms stall guarantee or full city/maximum qualification. Exact tests are in `dashboard/evidence/structure-publication-images.json`.

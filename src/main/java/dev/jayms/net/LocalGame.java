@@ -326,7 +326,15 @@ public final class LocalGame {
             public ModelLibrary models(){return models;}
             public SparseVoxelOctree cell(int x,int y,int z){return world.cell(x,y,z);}
             public Object chunkStamp(dev.jayms.ChunkPos position){return world.structureChunkStamp(position);}
+            @Override public dev.jayms.net.structure.StructureEngine.Commit stageCommit(ModelLibrary prepared,Map<StructurePackage.Position,SparseVoxelOctree> cells,Map<StructurePackage.Position,SparseVoxelOctree> beforeImages,long revision,BooleanSupplier cancel)throws IOException {
+                StructurePackage.cancelled(cancel);
+                // Engine applies this only after revalidating every before-image under lock.
+                return ()->publish(prepared,cells,beforeImages);
+            }
             public void commit(ModelLibrary prepared,Map<dev.jayms.net.structure.StructurePackage.Position,SparseVoxelOctree> cells)throws IOException {
+                publish(prepared,cells,null);
+            }
+            private void publish(ModelLibrary prepared,Map<StructurePackage.Position,SparseVoxelOctree> cells,Map<StructurePackage.Position,SparseVoxelOctree> verifiedBefore)throws IOException {
                 var livePlayer=player.get();
                 dev.jayms.net.structure.StructureOccupancy.validate(cells,city==null?null:city.frame(),livePlayer==null?List.of():List.of(livePlayer));
                 if(history!=null&&(history.owner!=LocalGame.this||history.cells!=cells||edits!=history.base||history.base.revision()!=history.revision))
@@ -334,9 +342,10 @@ public final class LocalGame {
                 if(history!=null&&history.save!=null&&!history.saveModels.equals(List.copyOf(prepared.entries())))
                     throw new IOException("Prepared models changed while staging save; retry placement");
                 var original=edits;var originalModels=models.copy();var next=history==null?WorldVoxels.History.copyOf(original):history.next;
-                var before=new LinkedHashMap<dev.jayms.net.structure.StructurePackage.Position,SparseVoxelOctree>();
-                for(var e:cells.entrySet()) {
-                    var p=e.getKey();before.put(p,world.cell(p.x(),p.y(),p.z()).copy().freeze());
+                Map<StructurePackage.Position,SparseVoxelOctree> before=verifiedBefore==null?new LinkedHashMap<>():verifiedBefore;
+                if(verifiedBefore==null||history==null)for(var e:cells.entrySet()) {
+                    var p=e.getKey();
+                    if(verifiedBefore==null)before.put(p,world.cell(p.x(),p.y(),p.z()).copy().freeze());
                     if(history==null)WorldVoxels.rememberCell(next,new Protocol.CellState(p.x(),p.y(),p.z(),e.getValue()));
                 }
                 if(next.size()>MAX_SAVED_EDITS)throw new IOException("World edit persistence limit");

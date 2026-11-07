@@ -22,6 +22,12 @@ public final class StructureEngine {
         default Commit stageCommit(ModelLibrary staged,Map<Position,SparseVoxelOctree> cells,long modelRevision,BooleanSupplier cancel)throws IOException {
             cancelled(cancel);return ()->commit(staged,cells);
         }
+        /** Trusted engine-only before-images: same keys as cells, detached/frozen, and
+         * authoritatively verified before apply under lock. Never accept wire before-images.
+         * Default dispatch preserves existing server/custom staging implementations. */
+        default Commit stageCommit(ModelLibrary staged,Map<Position,SparseVoxelOctree> cells,Map<Position,SparseVoxelOctree> beforeImages,long modelRevision,BooleanSupplier cancel)throws IOException {
+            return stageCommit(staged,cells,modelRevision,cancel);
+        }
     }
     @FunctionalInterface public interface Commit extends AutoCloseable {
         void apply() throws IOException;
@@ -80,7 +86,7 @@ public final class StructureEngine {
             try {
                 if(closed)throw new IOException("Structure staging closed");
                 cancelled(cancel);
-                try(var publication=authority.stageCommit(staged,after,modelRevision,cancel)) {
+                try(var publication=authority.stageCommit(staged,after,before,modelRevision,cancel)) {
                     synchronized(authority.lock()) {
                         if(closed)throw new IOException("Structure staging closed");
                         cancelled(cancel);
@@ -271,7 +277,7 @@ public final class StructureEngine {
         public void commit(Authority authority)throws IOException {
             try {
                 open();if(!validated)throw new IOException("Structure undo not validated");
-                try(var publication=authority.stageCommit(staged,record.before,modelRevision,cancel)) {
+                try(var publication=authority.stageCommit(staged,record.before,record.after,modelRevision,cancel)) {
                     synchronized(authority.lock()) {
                         open();var records=undo.get(record.owner);
                         if(records==null||records.peekLast()!=record)throw new IOException("Undo history changed; retry undo");
@@ -298,7 +304,7 @@ public final class StructureEngine {
                 var records=undo.get(owner);if(records==null||records.isEmpty())throw new IOException("No structure placement to undo");
                 record=records.peekLast();revision=authority.models().revision();staged=authority.models().copy();
             }
-            try(var publication=authority.stageCommit(staged,record.before,revision,cancel)) {
+            try(var publication=authority.stageCommit(staged,record.before,record.after,revision,cancel)) {
                 synchronized(authority.lock()) {
                     cancelled(cancel);
                     if(authority.models().revision()!=revision)throw new IOException("Model library changed; retry undo");

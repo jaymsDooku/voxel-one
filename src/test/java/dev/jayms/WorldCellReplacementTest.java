@@ -67,4 +67,32 @@ class WorldCellReplacementTest {
         }
         var after=new java.io.ByteArrayOutputStream();source.write(new java.io.DataOutputStream(after));assertArrayEquals(bytes.toByteArray(),after.toByteArray());
     }
+    @Test void packedFractionalAndRedundantAirKeepExactReplayCounts()throws Exception {
+        var mixed=new SparseVoxelOctree(16);for(int i=0;i<512;i++){int x=i%16,y=(i/16)%16,z=i/256;mixed.fill(x,y,z,x+1,y+1,z+1,0xfe000000|i);}
+        var raw=new java.io.ByteArrayOutputStream();var out=new java.io.DataOutputStream(raw);out.writeByte(16);out.writeByte(2);for(int i=0;i<8;i++)out.writeByte(0);
+        var redundantAir=SparseVoxelOctree.read(new java.io.DataInputStream(new java.io.ByteArrayInputStream(raw.toByteArray())));
+        try(var actual=new World(42);var replay=new World(42)) {
+            for(var source:List.of(mixed.packedCellCopy(),redundantAir.packedCellCopy(),uniform(Blocks.STONE),new SparseVoxelOctree(16))) {
+                long before=actual.editsVersion();var edits=new Protocol.CellState(-17,180,-1,source).edits();
+                actual.replaceCell(-17,180,-1,source);for(var edit:edits)replay.apply(edit);
+                assertEquals(edits.size(),actual.editsVersion()-before);
+                assertEquals(new ArrayList<>(replay.editsSnapshot().entrySet()),new ArrayList<>(actual.editsSnapshot().entrySet()));
+                assertTrue(actual.cell(-17,180,-1).sameValues(replay.cell(-17,180,-1)));
+            }
+        }
+    }
+
+    @Test void invalidFractionalMaterialRejectsBeforeWorldMutation()throws Exception {
+        try(var world=new World(42)) {
+            world.replaceCell(0,180,0,uniform(Blocks.STONE));var before=world.editsSnapshot();long version=world.editsVersion(),sky=world.skyStamp();
+            var invalid=new SparseVoxelOctree(16);invalid.fill(0,0,0,1,1,1,WorldVoxels.encode(Blocks.FLOWER_POT));
+            for(var source:List.of(invalid,invalid.packedCellCopy())) {
+                var state=new Protocol.CellState(0,180,0,source);
+                assertThrows(IllegalArgumentException.class,state::edits);assertThrows(IllegalArgumentException.class,state::replayEditCount);
+                assertThrows(IllegalArgumentException.class,()->world.replaceCell(0,180,0,source));
+                assertEquals(before,world.editsSnapshot());assertEquals(version,world.editsVersion());assertEquals(sky,world.skyStamp());assertEquals(Blocks.STONE,world.sample(0,180,0));
+            }
+        }
+    }
+
 }

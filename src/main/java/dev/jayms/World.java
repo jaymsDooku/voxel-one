@@ -344,15 +344,16 @@ public class World implements AutoCloseable {
     public void replaceCell(int x,int y,int z,SparseVoxelOctree source) {
         Objects.requireNonNull(source,"source");
         if(source.size()!=16||!new Protocol.Edit(x,y,z,0).valid())throw new IllegalArgumentException("Invalid world cell");
-        var replayEdits=new Protocol.CellState(x,y,z,source).edits();
+        var state=new Protocol.CellState(x,y,z,source);int replayCount=state.replayEditCount();
+        var cellKey=new Protocol.Edit(x,y,z,0).cellKey();
         var canonical=new SparseVoxelOctree(16);canonical.replaceRegion(0,0,0,source);
-        var p=ChunkPos.fromBlock(x,y,z);editsVersion+=replayEdits.size();
+        var p=ChunkPos.fromBlock(x,y,z);editsVersion+=replayCount;
         var skyColumn=column(p);changedSky(skyColumn);skyPositions.put(skyColumn,true);if(y>Terrain.MAX_Y)editedCeilings.add(skyColumn);
         skyEditChunks.computeIfAbsent(skyColumn,k->new HashSet<>()).add(p);skyEditVersions.put(skyColumn,editsVersion);
         if(preparing!=null&&preparing.position().equals(p))replay=null;
         voxels.replaceCell(x,y,z,canonical);
-        editedCells.computeIfAbsent(p,k->new LinkedHashMap<>()).put(replayEdits.get(0).cellKey(),new EditedCell(x,y,z,voxels.cell(x,y,z).copy().freeze()));
-        var history=edits.computeIfAbsent(p,k->new WorldVoxels.History());WorldVoxels.rememberCell(history,new Protocol.CellState(x,y,z,source));
+        editedCells.computeIfAbsent(p,k->new LinkedHashMap<>()).put(cellKey,new EditedCell(x,y,z,voxels.cell(x,y,z).copy().freeze()));
+        var history=edits.computeIfAbsent(p,k->new WorldVoxels.History());WorldVoxels.rememberCell(history,state);
         var chunk=loadedChunks.get(p);
         if(chunk!=null) {
             boolean equivalent=chunk.terrainEquivalent,prior=canonicalMutation;canonicalMutation=true;

@@ -338,6 +338,12 @@ public final class Protocol {
             }
         }
 
+        /** Count canonical replay records with the same material preflight as emission,
+         * without retaining an edit list. Source must remain unchanged during the visit. */
+        public int replayEditCount() {
+            int[] count={0};forEachEdit(edit->count[0]++);return count[0];
+        }
+
         public java.util.List<Edit> edits() {
             var out = new java.util.ArrayList<Edit>();
             forEachEdit(out::add);
