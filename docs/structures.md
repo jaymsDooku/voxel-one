@@ -1369,3 +1369,7 @@ The unchanged component benchmark completed three warmups and 20 runs per path/f
 ### Private directory experiment
 
 Immutable directory roots were tested without changing the live chunk map. See `docs/structure-directory.md` for contracts, exact checks and all measurement limits. The tree keeps old roots intact, but its query cost is substantially higher than the hash-map baseline. Production retains its hash map. Full backend and city/maximum qualification remain pending.
+
+### Private shared hash directory
+
+A 64-shard linked hash experiment makes read-only root capture cheap, but its placement-shaped writes still copy all 8,192 entries. It stays outside production. See `docs/structure-shared-directory.md` for exact contracts, checks and measurements. Full backend and qualification gates remain pending.
