@@ -70,7 +70,7 @@ public final class LocalGame {
                                                 ? Protocol.Edit.readV7(in)
                                                 : Protocol.Edit.readLegacy(in);
                         if (!e.valid()) throw new IOException("Invalid edit");
-                        WorldVoxels.remember(edits, e);
+                        WorldVoxels.rememberValidated(edits, e);
                         if(((i+1)&127)==0)progress.accept(i+1);
                     }
                     progress.accept(n);StructurePackage.cancelled(cancel);

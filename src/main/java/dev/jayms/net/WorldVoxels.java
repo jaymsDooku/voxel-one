@@ -595,6 +595,15 @@ public final class WorldVoxels {
                         });
         history.put(edit.key(), edit);
     }
+    /** Decoder-only path: every existing record must also have passed Edit.valid().
+     * A finest-grid edit cannot cover another valid key. Remove/reinsert retains
+     * replay order; larger ancestor overrides must remain before this edit. */
+    static void rememberValidated(Map<String,Protocol.Edit> history,Protocol.Edit edit) {
+        if(!edit.valid())throw new IllegalArgumentException("Invalid replay edit");
+        if(edit.depth()==4) {
+            String key=edit.key();history.remove(key);history.put(key,edit);
+        }else remember(history,edit);
+    }
     private static boolean covered(Protocol.Edit old, Protocol.Edit edit) {
         return old.minX() >= edit.minX() && old.minY() >= edit.minY() && old.minZ() >= edit.minZ()
                 && old.minX()+old.size() <= edit.minX()+edit.size()
