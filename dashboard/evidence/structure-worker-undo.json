@@ -1,0 +1,144 @@
+{
+  "schema": 1,
+  "scope": "Worker staging for offline structure undo, with owner-thread publication",
+  "parent_hosted_checks": {
+    "head": "e7e55c2149ecb69a40db52b4c7e9d669ffdc3e48",
+    "four_platform_builds": "success",
+    "publish": "skipped"
+  },
+  "commands": [
+    "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=StructurePreparedUndoTest,StructureWorkerUndoTest,StructureTest,StructureOfflineHistoryStagingTest,StructureSaveStagingTest test",
+    "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=StructureMultiplayerTest,StructurePublicationStagingTest,StagedWorldSaveTest,StructureRegionSnapshotTest compiler:testCompile surefire:test",
+    "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=StructureWorkerUndoTest compiler:testCompile surefire:test"
+  ],
+  "command_exit_codes": [
+    0,
+    0,
+    0
+  ],
+  "tests": [
+    {
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.net.structure.StructurePreparedUndoTest",
+      "seconds": 0.068
+    },
+    {
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.StructureWorkerUndoTest",
+      "seconds": 0.608
+    },
+    {
+      "tests": 25,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.StructureTest",
+      "seconds": 1.47
+    },
+    {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.StructureOfflineHistoryStagingTest",
+      "seconds": 0.434
+    },
+    {
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.StructureSaveStagingTest",
+      "seconds": 6.068
+    },
+    {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.StructureMultiplayerTest",
+      "seconds": 13.37
+    },
+    {
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.StructurePublicationStagingTest",
+      "seconds": 0.395
+    },
+    {
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.net.StagedWorldSaveTest",
+      "seconds": 0.075
+    },
+    {
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.StructureRegionSnapshotTest",
+      "seconds": 0.187
+    }
+  ],
+  "unique_tests": 62,
+  "expected_observed": [
+    "Undo menu starts busy and returns before owner snapshot reads; immediate cancel leaves live geometry and exact prior file bytes intact; retry succeeds.",
+    "History/save callbacks execute off owner; no live/durable mutation before publication; publication preserves current health/inventory/drop state and restart bytes.",
+    "Changed destination, model revision, missing proofs, cancellation and publication failure reject safely and retain undo record until success.",
+    "Actual blocked atomic rename restores live world/history and preserves prior file bytes; legacy synchronous undo can retry the same retained record.",
+    "Stable trusted chunk proofs avoid repeated engine equality scans; unknown or changed proofs fall back to authoritative cell comparisons."
+  ],
+  "limits": [
+    "No cap raised or rollout qualification claimed.",
+    "Final owner publication still scans/copies/replaces cells and may perform fallback equality checks; legacy custom history maps still use synchronous saving. No 100 ms stall/latency guarantee established.",
+    "Full city/maximum admission, disk-backed live root/region work, 20-run full-fixture, physicalGPU and shaped32client qualification remain pending.",
+    "No full-suite rerun claimed this turn."
+  ],
+  "native_playtest": {
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, undo, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_manifest": "structure-native-source.json",
+    "source_manifest_sha256": "22d6ee9aa5d993e35cc769e8073004bccd7e16461967ba4b121e75ff15bdc2d9",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "publication": "Local evidence pending controller publication"
+  },
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/structure/StructureEngine.java": "b446cd61004d7a7eabc39150ecd12105939edb4f5583f52bcd2520c66ff75cfe",
+    "src/main/java/dev/jayms/ui/StructureMenu.java": "f2b04d43f0b32fed7d5159fe6acd54b67aa96527f0ec4b9523a2a7478ecede73",
+    "deploy/StructurePlaytest.java": "84c355584648d9024e9e1488db9e9e72c12ea003f9665e7837eb6f00cefd24c0",
+    "src/test/java/dev/jayms/net/structure/StructurePreparedUndoTest.java": "7794d2c4170977288158cca75a2d714ccbeed11c3db1ab88f2c8615e3db9af4d",
+    "src/test/java/dev/jayms/StructureWorkerUndoTest.java": "a69ec14c6cbc82b3d22625cb9c32d12fe89f4f044095627a8345dd8312b7c244"
+  },
+  "media": {
+    "decodedFrames": 25,
+    "durationSeconds": 43.567,
+    "bytes": 503528,
+    "width": 960,
+    "height": 544,
+    "midpointIndex": 12,
+    "videoSha256": "45e3c9e062ab67cceb65e85e335dcf6c5364ec7ef011e45eb2b30a5d35be8a82",
+    "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step.",
+    "inspection": "All 25 video frames decoded; green footprint/anchor midpoint and new undo-cancellation screenshot inspected. Cancelled undo leaves the physical house visible. HUD 1 FPS; software-rendered functional evidence only."
+  },
+  "undo_cancellation_image": {
+    "file": "structure-undo-cancelled.png",
+    "sha256": "b637055b4069232385203b5552ffe3da7bff62e2348deec9345ce3f14e320f4d"
+  },
+  "verified_source_hashes": 228,
+  "publication": "Pending controller publication",
+  "diff_check": "passed",
+  "tracked_deletions_against_review_base": []
+}

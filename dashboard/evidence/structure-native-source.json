@@ -120,7 +120,7 @@
     "src/main/java/dev/jayms/net/model/ModelMesher.java": "1b98f8aa13badcfa76a023637f11aceb43e0d720de18e176f062d3b67d4947b8",
     "src/main/java/dev/jayms/net/model/SparseVoxelOctree.java": "a5cf38992d7a459c11460023671eeb7ba971a26aa5de715756c20b5fdf07c0f8",
     "src/main/java/dev/jayms/net/structure/StructureCells.java": "45634149ec68d8fbad3e1fa9ece6336458d4057cb37b90e0f77c5681e6550265",
-    "src/main/java/dev/jayms/net/structure/StructureEngine.java": "99590ea5caac03536b1d918834b6c7dd75482ee21a436fcdff7833292adbc0a4",
+    "src/main/java/dev/jayms/net/structure/StructureEngine.java": "b446cd61004d7a7eabc39150ecd12105939edb4f5583f52bcd2520c66ff75cfe",
     "src/main/java/dev/jayms/net/structure/StructureGeometry.java": "91d85df4b5fe361e6b8068f9464026075a298b8db754632f42b4cfa489a49ae5",
     "src/main/java/dev/jayms/net/structure/StructureImportStage.java": "3a2c92d4af2980bd0f21beb433f022bf16b9fd6b2ba48abbe3edb0818fe9e836",
     "src/main/java/dev/jayms/net/structure/StructureModelCodec.java": "0df26890245d750277edbc33bb92d6eda4613062b7a5e6ebc97c0407f1780f71",
@@ -225,10 +225,10 @@
     "src/main/java/dev/jayms/ui/RenderingMenu.java": "8d3f24a7118b098d4b31331532563ef7768e6cba7003b23af478559c582bfa00",
     "src/main/java/dev/jayms/ui/SavesMenu.java": "2996b42e3590055005ce88bd7cf6979f589222dbe0b0f836c7c3981186cfc79f",
     "src/main/java/dev/jayms/ui/SessionMetricTrends.java": "5d3e7a3a5fbfa8447e6800e4092d463abf3a29c755079f49f733cbd1d7394f05",
-    "src/main/java/dev/jayms/ui/StructureMenu.java": "e4ae33da47c2b36df0ae07c262a350eb0883d28a6c0c3a75c0e01b34cc92bc35",
+    "src/main/java/dev/jayms/ui/StructureMenu.java": "f2b04d43f0b32fed7d5159fe6acd54b67aa96527f0ec4b9523a2a7478ecede73",
     "src/main/java/dev/jayms/window/KeyAction.java": "a2d892382438b9b81b69ad7773f192beeac17a1d739ec1a3248c2cc000dcdaf8",
     "src/main/java/dev/jayms/window/Window.java": "9953ca693c8c74631ebcb8d45b81587fc944afad15cec865edbe31dbc8f1a27d",
-    "deploy/StructurePlaytest.java": "e1575854ed7dc851c29675b0f2cec7d32d06f9a33b68610377cf28791747caa9"
+    "deploy/StructurePlaytest.java": "84c355584648d9024e9e1488db9e9e72c12ea003f9665e7837eb6f00cefd24c0"
   },
   "scope": "Production Java plus native workflow harness; isolated synthetic profile"
 }
