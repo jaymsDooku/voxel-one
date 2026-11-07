@@ -1303,3 +1303,10 @@ The owner reuses detached equality checks only when every trusted chunk stamp is
 The structure engine now passes its frozen, verified before-images to local publication. Successful authoritative checks still precede publication; the before-images are an internal engine contract, not wire data. Legacy authority staging overrides retain their dispatch, and direct local commits still capture current rollback state.
 
 Whole-cell replacement also counts canonical replay records without building a throwaway edit list. Replay order, saved formats and edit revisions remain unchanged. Final per-cell owner publication and fallback checks remain, so this is not a 100 ms stall guarantee or full city/maximum qualification. Exact tests are in `dashboard/evidence/structure-publication-images.json`.
+
+
+### Worker-prepared offline cell installation
+
+Offline structure history staging prepares each cell's detached replay state, exact record count, cell key and canonical frozen geometry on its worker. Owner publication installs that immutable data after the existing authoritative destination, history, model and player checks. The private-constructor preparation result contains no world reference. Mutable callers remain mutable; later caller edits cannot change staged results. Original redundant source branches still determine canonical replay records and revision counts, while installed geometry folds equivalent branches. Direct legacy replacement and rollback still prepare synchronously.
+
+This removes cell validation/canonicalization from the staged owner path. It retains more prepared geometry during staging. History traversal, per-cell installation, resident updates and fallback checks remain owner work. No main-thread latency or peak-memory qualification follows, and no package format, admission cap or supported city limit changes. See `structure-cell-prepare.json` for current validation.

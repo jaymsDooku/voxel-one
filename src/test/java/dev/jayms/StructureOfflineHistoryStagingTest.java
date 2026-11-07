@@ -33,7 +33,15 @@ class StructureOfflineHistoryStagingTest {
     @Test void boundedOwnerBatchesBuildOffThreadAndCommitCurrentSurvivalState()throws Exception {
         var path=folder.resolve("world.dat");var local=new LocalGame(path,42);populate(local,2051);
         var before=new LinkedHashMap<>(local.edits);var owner=Thread.currentThread();var reads=new AtomicInteger();var progress=new AtomicInteger();
-        try(var queue=new StructureOwnerQueue();var world=new World(42,local.models)) {
+        var installed=new AtomicInteger();var legacyInstalls=new AtomicInteger();
+        try(var queue=new StructureOwnerQueue();var world=new World(42,local.models) {
+            @Override public void replaceCell(CellReplacement replacement) {
+                assertSame(owner,Thread.currentThread());installed.incrementAndGet();super.replaceCell(replacement);
+            }
+            @Override public void replaceCell(int x,int y,int z,SparseVoxelOctree source) {
+                legacyInstalls.incrementAndGet();super.replaceCell(x,y,z,source);
+            }
+        }) {
             var engine=new StructureEngine();
             try(var prepared=engine.prepare(asset(),new Position(320,180,320),0,world.structureSnapshot(),()->false,p->{})) {
                 var history=worker(queue,()->local.stageStructureHistory(prepared.cells(),queue,()->false,p->{assertNotSame(owner,Thread.currentThread());progress.set(p);}),()->{},reads);
@@ -44,6 +52,7 @@ class StructureOfflineHistoryStagingTest {
                 local.health=17;local.inventory.add(Blocks.STONE,3);
                 local.drops.put(1,new ItemDrop(1,Blocks.STONE,2,1,180,1));
                 prepared.commit("fixture",local.structureAuthority(world,()->null,history));
+                assertEquals(1,installed.get());assertEquals(0,legacyInstalls.get(),"Worker-staged cells bypass owner preparation");
             }
             assertFalse(engine.busy());assertEquals(Blocks.STONE,world.sample(320,180,320));
             try(var in=new java.io.DataInputStream(Files.newInputStream(path))){assertEquals(10,in.readInt(),"Production staged placement uses regional replay");}

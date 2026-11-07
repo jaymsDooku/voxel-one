@@ -340,13 +340,36 @@ public class World implements AutoCloseable {
         dirtyNeighbors(p);
     }
 
-    /** Owner-thread whole-cell replacement. Keep canonical replay history, graft geometry once. */
-    public void replaceCell(int x,int y,int z,SparseVoxelOctree source) {
+    /** Detached worker preparation. Contains no world references or publication authority. */
+    public static final class CellReplacement {
+        private final Protocol.CellState state;
+        private final SparseVoxelOctree canonical;
+        private final int replayCount;
+        private final String cellKey;
+        private CellReplacement(Protocol.CellState state,SparseVoxelOctree canonical,int replayCount,String cellKey) {
+            this.state=state;this.canonical=canonical;this.replayCount=replayCount;this.cellKey=cellKey;
+        }
+        public Protocol.CellState replayState(){return state;}
+    }
+    /** Validate and canonicalize before publication; caller edits cannot change the result. */
+    public static CellReplacement prepareCellReplacement(int x,int y,int z,SparseVoxelOctree source) {
         Objects.requireNonNull(source,"source");
         if(source.size()!=16||!new Protocol.Edit(x,y,z,0).valid())throw new IllegalArgumentException("Invalid world cell");
-        var state=new Protocol.CellState(x,y,z,source);int replayCount=state.replayEditCount();
+        var detached=source.copy().freeze();
+        var state=new Protocol.CellState(x,y,z,detached);int replayCount=state.replayEditCount();
         var cellKey=new Protocol.Edit(x,y,z,0).cellKey();
-        var canonical=new SparseVoxelOctree(16);canonical.replaceRegion(0,0,0,source);
+        var canonical=new SparseVoxelOctree(16);canonical.replaceRegion(0,0,0,detached);canonical.freeze();
+        return new CellReplacement(state,canonical,replayCount,cellKey);
+    }
+    /** Owner-thread whole-cell replacement. Keep canonical replay history, graft geometry once. */
+    public void replaceCell(int x,int y,int z,SparseVoxelOctree source) {
+        replaceCell(prepareCellReplacement(x,y,z,source));
+    }
+    /** Owner-thread installation of detached validated data. Authoritative checks remain caller-owned. */
+    public void replaceCell(CellReplacement replacement) {
+        Objects.requireNonNull(replacement,"replacement");
+        var state=replacement.state;int x=state.x(),y=state.y(),z=state.z();
+        var canonical=replacement.canonical;var cellKey=replacement.cellKey;int replayCount=replacement.replayCount;
         var p=ChunkPos.fromBlock(x,y,z);editsVersion+=replayCount;
         var skyColumn=column(p);changedSky(skyColumn);skyPositions.put(skyColumn,true);if(y>Terrain.MAX_Y)editedCeilings.add(skyColumn);
         skyEditChunks.computeIfAbsent(skyColumn,k->new HashSet<>()).add(p);skyEditVersions.put(skyColumn,editsVersion);

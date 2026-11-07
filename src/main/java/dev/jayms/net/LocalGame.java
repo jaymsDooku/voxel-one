@@ -253,9 +253,10 @@ public final class LocalGame {
         private final LocalGame owner;
         private final WorldVoxels.History base,next;
         private final Map<StructurePackage.Position,SparseVoxelOctree> cells;
+        private final List<dev.jayms.World.CellReplacement> replacements;
         private final long revision;
-        private StructureHistory(LocalGame owner,WorldVoxels.History base,long revision,WorldVoxels.History next,Map<StructurePackage.Position,SparseVoxelOctree> cells) {
-            this.owner=owner;this.base=base;this.revision=revision;this.next=next;this.cells=cells;
+        private StructureHistory(LocalGame owner,WorldVoxels.History base,long revision,WorldVoxels.History next,Map<StructurePackage.Position,SparseVoxelOctree> cells,List<dev.jayms.World.CellReplacement> replacements) {
+            this.owner=owner;this.base=base;this.revision=revision;this.next=next;this.cells=cells;this.replacements=List.copyOf(replacements);
         }
     }
     private record HistorySource(WorldVoxels.History base,long revision,WorldVoxels.History.CopyCursor cursor,int size) {}
@@ -293,14 +294,17 @@ public final class LocalGame {
                 progress.accept((int)(100*copied/total));
             }
         }
+        var replacements=new ArrayList<dev.jayms.World.CellReplacement>(cells.size());
         for(var entry:cells.entrySet()) {
             StructurePackage.cancelled(cancel);var p=entry.getKey();
-            WorldVoxels.rememberCell(next,new Protocol.CellState(p.x(),p.y(),p.z(),entry.getValue()));
+            var replacement=dev.jayms.World.prepareCellReplacement(p.x(),p.y(),p.z(),entry.getValue());
+            StructurePackage.cancelled(cancel);replacements.add(replacement);
+            WorldVoxels.rememberCell(next,replacement.replayState());
             progress.accept((int)(100*++copied/total));
         }
         StructurePackage.cancelled(cancel);
         if(next.size()>MAX_SAVED_EDITS)throw new IOException("World edit persistence limit");
-        progress.accept(100);return new StructureHistory(this,source.base(),source.revision(),next,cells);
+        progress.accept(100);StructurePackage.cancelled(cancel);return new StructureHistory(this,source.base(),source.revision(),next,cells,replacements);
     }
 
     /** Worker only. Prepared models and history stay detached until owner revalidation. */
@@ -351,7 +355,8 @@ public final class LocalGame {
                 if(next.size()>MAX_SAVED_EDITS)throw new IOException("World edit persistence limit");
                 try {
                     models.replaceWith(prepared);edits=next;
-                    for(var e:cells.entrySet()) {var p=e.getKey();world.replaceCell(p.x(),p.y(),p.z(),e.getValue());}
+                    if(history!=null)for(var replacement:history.replacements)world.replaceCell(replacement);
+                    else for(var e:cells.entrySet()) {var p=e.getKey();world.replaceCell(p.x(),p.y(),p.z(),e.getValue());}
                     if(history!=null&&history.save!=null){history.save.publish(inventory,health,drops.values(),drops.size());regionalSaves=history.save.regional();}
                     else saveWorld(true);
                 } catch(IOException|RuntimeException failure) {
