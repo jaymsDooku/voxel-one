@@ -1336,3 +1336,18 @@ Offline prepared structure publication now uses `World.replaceCells` to group ne
 A regression check compares resident and stored fractional geometry, replay order/revisions, explicit air, multiple chunks and unload/reload against individual installs. Nine edits in one source chunk notify its loaded neighbor once instead of nine times. Other checks cover nested virtual dispatch, post-install failure, null input and ordinary edits after a batch. Existing placement rollback/retry, worker undo, save failure, TLS multiplayer and streaming tests remain required. This reduces repeated mesh invalidation work; no wall-clock speedup or 100 ms stall guarantee is claimed. All geometry/instance/chunk/history caps remain unchanged, and full city/maximum admission and qualification remain pending.
 
 Validation of this batching change: all 121 targeted tests and the full 1,013-test Java suite passed, with one optional browser test skipped in the full suite. Fresh Main/GLFW workflow passed; all 24 video frames decoded and footprint/cancelled-undo images inspected. Software rendering at HUD 1 FPS is functional evidence only. Detailed commands, source binding and limits: `dashboard/evidence/structure-cell-batch.json`. New source and media await controller publication and exact-source hosted checks.
+
+### Neighbor batching component measurements
+
+`NeighborBatchBenchmark` compares individual prepared installs with the batch API on the same immutable replacements. Both admitted fixtures contain 4,096 cells in 64×1×64 bounds; uniform has 4,096 leaves, fractional has 131,072 leaves. Four empty neighbor chunks are loaded. Three warmups precede 20 measured runs; three installation paths rotate order. Every path verifies exact geometry/material/colour, complete history contents, per-chunk replay order, revisions and an unrelated edit. Notifications fall from 1,024 to 4.
+
+| Fixture / prepared owner path | Median ms | p95 ms | Worst ms | Median allocated bytes |
+| --- | ---: | ---: | ---: | ---: |
+| Uniform individual | 2.767346 | 5.244825 | 5.441996 | 1,939,688 |
+| Uniform batch | 3.292908 | 7.119381 | 12.929391 | 1,753,008 |
+| Fractional individual | 21.173334 | 33.308374 | 46.627648 | 9,216,840 |
+| Fractional batch | 19.665899 | 64.387612 | 75.172040 | 9,030,160 |
+
+Allocation and notification counts improve; timing does not improve consistently. In particular, fractional p95 worsens. These shared-VPS measurements do not establish a speedup, a main-thread stall bound or a supported limit. Setup, validation of the package/fixture, queue/transfer, authoritative conflicts, changed-cell resident geometry/meshing/GPU, saves/network and full placement are excluded. Worker cell preparation is measured separately. Whole Java child peak RSS is 608,052 KiB with `-Xmx512m`, including fixtures, warmups, verification and Swing; allocation counters do not measure retained or peak memory.
+
+Playtest: the actual CLI completed all 20 runs per path/fixture, its result window was captured on inherited display/authentication and inspected, and all raw statistics were independently recomputed. Two selected tooling integrations passed in 8.681 seconds and compile the new benchmark through the common source list. No production/native harness source changed; all 228 hashes still match the completed native workflow. No new Maven/native run is claimed. Browser playtesting does not apply to this CLI-only change. Commands, raw samples, environment and limits: `dashboard/evidence/structure-neighbor-benchmark.json`. Full city/maximum, physical GPU, shaped 32-client and all required game budgets remain pending; rollout stays gated. New tooling/media await controller publication and exact-source checks.

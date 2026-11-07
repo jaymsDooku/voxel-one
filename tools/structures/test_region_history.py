@@ -18,7 +18,7 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
         folder.mkdir(parents=True, exist_ok=True)
         with tempfile.TemporaryDirectory(dir=folder) as temporary:
             sources = [ROOT / 'tools/structures' / name for name in
-                       ('DiskPackageIndexPrototype.java', 'DiskPackageIndexCheck.java', 'DiskPackageIndexEvidence.java', 'DiskRegionCachePrototype.java', 'DiskRegionCacheCheck.java', 'AsyncRegionReadPrototype.java', 'AsyncRegionReadCheck.java', 'RegionHistoryPrototype.java', 'RegionHistoryPrototypeCheck.java', 'RegionHistoryCodecCheck.java', 'RegionHistoryStreamCheck.java', 'RegionHistoryStreamEvidence.java',
+                       ('DiskPackageIndexPrototype.java', 'DiskPackageIndexCheck.java', 'DiskPackageIndexEvidence.java', 'DiskRegionCachePrototype.java', 'DiskRegionCacheCheck.java', 'AsyncRegionReadPrototype.java', 'AsyncRegionReadCheck.java', 'NeighborBatchBenchmark.java', 'RegionHistoryPrototype.java', 'RegionHistoryPrototypeCheck.java', 'RegionHistoryCodecCheck.java', 'RegionHistoryStreamCheck.java', 'RegionHistoryStreamEvidence.java',
                         'RegionDependencyPrototype.java', 'RegionDependencyCheck.java',
                         'RegionGenerationPrototype.java', 'RegionGenerationCheck.java', 'RegionGenerationEvidence.java',
                         'RegionAuthorityPrototype.java', 'RegionAuthorityCheck.java',
