@@ -677,9 +677,11 @@ GPU or network qualification follows from these sparse-box measurements.
 
 ### Cancellable spatial sorting
 
-Capture/import and placement builders now use stable two-pass 14-bit radix ordering over packed spatial keys and source indices. Cancellation is checked at most 1,024 loop entries apart, including prefix sums and final storage construction. Spatial order, duplicate rejection and published immutability remain unchanged. At 4,000,000 cells, temporary sort arrays use 80,065,536 bytes excluding headers, versus 32,000,000 bytes for the previous packed-long sort. This extra bounded memory buys cancellable sorting; admission limits are unchanged.
+Capture/import and placement builders use stable two-pass 14-bit radix ordering. The current sorter keeps two integer index buffers and one integer key buffer in first-pass order. The key buffer keeps second-pass reads sequential. The final index buffer is returned directly. At 4,000,000 cells, sort arrays use 48,065,536 bytes excluding headers and the caller-owned input, down from 80,065,536 bytes in the earlier cancellable sorter. Cancellation is checked at most 1,024 loop entries apart, including prefix sums and final storage construction. Spatial order, duplicate rejection and published immutability remain unchanged. Admission limits are unchanged.
 
-The 20-run shared-VPS component probe measured control/new p95 of 136.783/101.631 ms at 1,000,000 keys and 528.801/445.349 ms at 4,000,000 keys. It does not construct populated city/max fixtures or measure complete workflow budgets. See `structure-order-validation.json` for commands, results and limits.
+The historical 20-run shared-VPS component probe for the earlier packed-key cancellable sorter measured control/new p95 of 136.783/101.631 ms at 1,000,000 keys and 528.801/445.349 ms at 4,000,000 keys. It does not construct populated city/max fixtures or measure complete workflow budgets. See `structure-order-validation.json` for commands, results and limits.
+
+The current 20-run component comparison measured prior/current median, p95 and worst of 74.852/87.814/89.253 ms versus 63.700/78.315/80.258 ms at 1,000,000 keys; at 4,000,000 keys, 319.260/382.178/503.763 ms versus 369.961/443.111/547.835 ms. The 40% sort-array reduction trades some maximum-size sort speed on this shared VPS. These sequential probes overlap other local checks and do not establish complete workflow budgets, peak memory or supported city limits. See `structure-sort-memory.json`.
 
 ### Bounded package I/O buffers
 
