@@ -44,10 +44,20 @@ final class RegionReplay {
         read(in,edits,edit->true);
     }
     static void read(DataInputStream in,Map<String,Protocol.Edit> edits,Predicate<Protocol.Edit> allowed)throws IOException {
-        Objects.requireNonNull(edits);
-        visit(in,allowed,()->false,(region,section)->{
-            for(var edit:section)WorldVoxels.remember(edits,edit);
+        read(in,edits,allowed,()->false,count->{});
+    }
+    /** Worker load adapter. Progress counts decoded records, not unique keys. */
+    static void read(DataInputStream in,Map<String,Protocol.Edit> edits,Predicate<Protocol.Edit> allowed,
+            BooleanSupplier cancel,IntConsumer progress)throws IOException {
+        Objects.requireNonNull(edits);Objects.requireNonNull(progress);
+        StructurePackage.cancelled(cancel);progress.accept(0);int[] count={0};
+        visit(in,allowed,cancel,(region,section)->{
+            for(var edit:section) {
+                StructurePackage.cancelled(cancel);WorldVoxels.remember(edits,edit);
+                if((++count[0]&127)==0)progress.accept(count[0]);
+            }
         });
+        StructurePackage.cancelled(cancel);progress.accept(count[0]);StructurePackage.cancelled(cancel);
     }
     /** A worker-owned staging sink. Sections retain file order, including recurring
      * regions. The sink must not publish live state: a later section may fail. */

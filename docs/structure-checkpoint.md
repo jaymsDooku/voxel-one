@@ -3538,3 +3538,116 @@ validation. Continue live region/history/durable-root startup and publication,
 renderer/physics pending states and large multiplayer integration afterward.
 Full city/maximum admission and all reference physical-GPU/shaped 32-client/
 20-run performance qualification remain unfinished. Keep stable rollout gated.
+
+
+## Responsive offline startup — full regression running
+
+Controller exact-head results passed all four platforms for
+`13eb72c88955ddb699bc4be6c1c040d8c745e16f`; publication skipped. No unchanged wait
+requested. Inspection found ordinary startup could draw loading UI before
+reading its save. Moved that read to one worker rather than adding a duplicate
+disk-spool pass. Cancellable LocalGame overload preserves the old API, adds
+bounded read checkpoints and replay-record counts. Main only assigns a finished
+private load. Close cancels result publication and interrupts without joining
+blocked I/O. Initial offline/network replay yields after 128 records or 2 ms,
+retains order and accepts Escape. Scene-ready cleanup guard prevents startup
+cancellation from saving world/vehicle state. Explicit asset/city startup writes
+retain their own behavior. All formats and admission caps remain unchanged.
+
+All 24 focused tests passed in five suites. Actual native Main/GLFW checks
+passed real Escape during a 200,000-record read and a 5,000-record version-3
+replay; source files stayed byte-exact and play was never entered. A normal
+200-record startup reached play, verified each geometry edit and closed with
+source bytes exact. Fresh read/replay loading images captured from own window
+on inherited display/authentication and inspected: counts 0 and 1, Escape hint
+visible. All 232 startup production/harness hashes match. Initial native pass
+used version 8 for both cancellation cases; reran with version 3 for replay to
+prove cancellation does not upgrade an older save. Both passed; initial private
+run retained under ignored `target/structure-startup-initial`, never read logs.
+
+Full Java regression is running. Run the complete structure workflow alone
+after it completes, then decode/inspect fresh media, check source hashes and
+audit full diff/deletions. Report draft:
+`dashboard/evidence/structure-offline-startup.json`. Software llvmpipe functional
+checks are not 30 FPS/100 ms or city/network qualification. Full live backend,
+city/maximum admission and reference physical-GPU/shaped 32-client/20-run gates
+remain unfinished. Stable rollout stays gated.
+
+
+First full Java run passed: 1,041 tests/207 fresh suites, zero failures/errors,
+one optional browser skip. Before final playtest, inspection found a forced draw
+per 128 replay records would add excessive frame waits for cheap edits. Refined
+scheduling: keep 128-record/2 ms event checkpoints, acknowledge once, then draw
+only after 16,666,667 ns since the previous draw ended. Synthetic-clock tests
+show 32,768 cheap records generate 256 polls and one initial draw. Time threshold
+and signed nano-time wrap tests pass too. These are scheduling tests, not actual
+performance qualification. All 27 focused tests passed. Reran all three actual
+native startup cases on this final source: passed again, including byte-exact
+version-3 replay cancellation. All 233 production/startup-harness hashes match.
+Earlier private run preserved under ignored `target/structure-startup-pre-coalescing`.
+Final-source full regression will run next, then serial full structure workflow.
+Do not use the earlier full pass as exact-final-source validation.
+
+
+Final-source full Java regression passed: 1,044 tests/208 fresh current suites,
+zero failures/errors, one optional browser-workflow skip, no missing/stale reports.
+All 233 startup source/harness hashes still match. Complete structure workflow
+will now run alone. Do not claim that new native pass or video yet.
+
+
+Independent runtime inspection found owner-side interrupt can invoke NIO channel
+closure and `FileChannelImpl.implCloseChannel` calls `NativeThreadSet.signalAndWait`.
+The current full structure playtest remains frozen on the pre-repair source.
+After it finishes, replace active-worker interruption with cooperative cancel
+and orderly executor shutdown, assert no worker interruption in the delayed-I/O
+test, and rerun affected checks/native media. Do not claim the current close
+implementation guarantees a nonblocking owner under stalled channel I/O.
+
+
+Pre-repair full structure workflow passed with exit 0. Repaired cancellation:
+owner sets cooperative flag, uses `Future.cancel(false)` and orderly executor
+shutdown; it no longer interrupts active channel I/O. Constructor-failure cleanup
+uses the same policy. Delayed-worker test now asserts no interruption and still
+proves nonjoining close, publication fencing and eventual worker exit after
+release. All 27 focused final-source tests passed. All three real native startup
+cases passed again on repaired source; byte-exact version-3 cancellation retained.
+Old private runtime folders preserved under ignored pre-cooperative names.
+The 1,044-test full run and prior structure playtest are pre-repair evidence,
+not exact-final-source full validation. Final structure workflow will now rerun
+alone; exact-source hosted full regression remains required after publication.
+No physical stalled-filesystem timing or city/network qualification claimed.
+
+
+## Offline startup — final local validation complete
+
+Final 27 focused tests passed after strengthening worker-load coverage with a
+32-resolution custom definition, byte-exact flat/regional saves and cancellation
+observations asserted outside the cancelled Future. Actual Main/GLFW startup
+cases passed after cooperative close repair: Escape during 200,000-record read
+and 5,000-record version-3 replay preserves source bytes; normal 200-record
+startup reaches play with exact geometry/source. Complete structure Main/GLFW
+workflow passed again on final production source, including capture/library,
+import/export/long path, four rotations, conflicts/holes/player rejection,
+atomicity/cancellation/place/undo/repeat/dependencies/restart/inventory/editor.
+All 232 production hashes match both native manifests (233 files each including
+their respective harness). No temporary profile files remain.
+
+Playtest media: fresh F10 video fully decoded, 25 frames, 45.402 seconds,
+534,699 bytes, 960×544, SHA-256
+`8f32f92f5d9eb93b1314cd7bb9cdb25fcccc73832c8494588533dc42c3e6af63`.
+Fresh startup read/replay images, full-video midpoint and conflict view inspected.
+Software FPS 1 remains functional evidence only. No physical GPU/frame/stall/
+city/network budgets passed. The 1,044-test full Java run is explicitly BEFORE
+the cooperative-close repair; not rerun locally afterward. Exact-source hosted
+full regression is still required. Detailed commands, environment, steps and
+expected/observed results: `dashboard/evidence/structure-offline-startup.json`.
+
+Final audit: diff/new-file checks passed, no tracked deletions/unmerged entries
+or pending Git recovery, restored MP3/Hub files still byte-match review base.
+Inline refactors replace eager copy/meshing/replay loops with bounded/shared
+helpers and preserve city-history fields; inventory skips world-only IDs. No
+unrelated deletion intended. No commit/push/merge performed locally. Controller
+must publish new source/report/media and run exact-source hosted checks. Continue
+live region/history/durable-root/renderer/server integration afterward. City/max
+admission and full reference physical-GPU/shaped 32-client/20-run qualification
+remain unfinished. Stable rollout stays gated; do not mark ready.
