@@ -1492,3 +1492,32 @@ Java regression; it is not a controlled reference-environment performance claim.
 Thread allocation is not peak memory. Raw measurements and commands are in
 `dashboard/evidence/structure-dense-replay.json`. Required 20-run full-fixture
 qualification remains pending.
+
+### Private offline geometry replay
+
+After the saved state and asset intake are ready, offline startup captures an
+immutable history root and prepares the geometry on one daemon worker. The
+worker builds a private `World`, including the same ordered edits, fractional
+geometry, sky indexes and model-library identity used by normal play. A saved
+stress grid is installed before replay. No chunks, terrain scheduler, GL objects
+or file handles are created by this preparation. The render thread shows progress
+and handles Escape while the worker checks cancellation before each edit.
+
+The completed world transfers once, only if the original history identity and
+revision and model-library identity and revision still match. Source changes,
+cancellation and worker failure publish no partial geometry. Closing the startup
+handle never joins or interrupts an active worker. A cancelled worker clears its
+private world at its next cancellation check. A completed result discarded in a
+close race contains only heap state and is reclaimed normally. Closing the handle
+after transfer does not close the live world. The product loader supplies indexed
+history; this private startup helper rejects generic maps before starting work.
+
+This moves CPU replay off the render owner. It still materializes full history,
+geometry and indexes in memory. Multiplayer startup retains its existing replay
+path. Source save formats, normal editing, model resolution, admission caps and
+qualification gates are unchanged. It does not provide lazy disk-backed regions
+or prove a 100 ms acknowledgement, 30 FPS, city/maximum or network budget.
+
+Asset intake, city-sidecar loading and later GPU initialization retain their
+existing owner-side paths. This change is not a general nonblocking startup
+transaction or a guarantee for all loading stages.
