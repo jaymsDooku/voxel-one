@@ -32,6 +32,7 @@ public class Main {
         default void afterFrame(Main game) throws Exception {}
     }
     private FrameObserver frameObserver;
+    private boolean sceneReady;
     private Window window;
     private GraphicsController graphics;
     private final PerformanceRecorder performance=new PerformanceRecorder();
@@ -345,11 +346,15 @@ public class Main {
         }
     }
 
-    private void loadingFrame(String stage)throws Exception{
+    private void loadingFrame(String stage)throws Exception{loadingFrame(stage,-1);}
+    private void loadingFrame(String stage,int editsRead)throws Exception{
         if(framebufferWidth>0&&framebufferHeight>0){
             org.lwjgl.opengl.GL30.glBindFramebuffer(org.lwjgl.opengl.GL30.GL_FRAMEBUFFER,0);glViewport(0,0,framebufferWidth,framebufferHeight);
             glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);overlay.begin(framebufferWidth,framebufferHeight);
-            overlay.text(stage.equals("lighting")?"Loading nearby lighting...":"Loading nearby terrain...",24,40,2);
+            String message=stage.equals("world")?"Loading saved world... "+editsRead+" edits read":
+                    stage.equals("replay")?"Loading world geometry... "+editsRead+" edits applied":
+                    stage.equals("lighting")?"Loading nearby lighting...":"Loading nearby terrain...";
+            overlay.text(message,24,40,2);
             overlay.text("Escape: cancel",24,72,1.3f);overlay.end();
             if(frameObserver!=null)frameObserver.loading(this,stage);
         }
@@ -367,6 +372,40 @@ public class Main {
             loadingFrame("lighting");
         }
         rendering.resetFocus();
+    }
+
+    /** Only the completed private load crosses to the render owner. Escape/close
+     * cancels before assignment, so cleanup cannot save a partial load. */
+    private LocalGame awaitOfflineWorld()throws Exception {
+        try(var load=new OfflineGameLoad(offlineSave,seed)) {
+            while(true) {
+                if(window.shouldClose()||glfwGetKey(window.getHandle(),GLFW_KEY_ESCAPE)==GLFW_PRESS)
+                    throw new java.util.concurrent.CancellationException("Offline world loading cancelled");
+                if(load.done())return load.result();
+                loadingFrame("world",load.editsRead());
+            }
+        }
+    }
+
+    /** Preserve replay order while polling frequently before play/physics starts.
+     * Progress draws are coalesced, not forced after every 128 records. */
+    private void applyInitialEdits(Iterable<Protocol.Edit> edits)throws Exception {
+        int count=0;var budget=new StartupReplayBudget(System.nanoTime());
+        for(var edit:edits) {
+            world.apply(edit);count++;
+            if(budget.afterEdit(System.nanoTime())) {
+                window.pollEvents();checkReplayCancellation();
+                if(budget.drawDue(System.nanoTime())) {
+                    loadingFrame("replay",count);budget.frameFinished(System.nanoTime());checkReplayCancellation();
+                }
+                budget.resumed(System.nanoTime());
+            }
+        }
+        window.pollEvents();checkReplayCancellation();
+    }
+    private void checkReplayCancellation() {
+        if(window.shouldClose()||glfwGetKey(window.getHandle(),GLFW_KEY_ESCAPE)==GLFW_PRESS)
+            throw new java.util.concurrent.CancellationException("World replay cancelled");
     }
 
     private void initScene() throws Exception {
@@ -390,7 +429,7 @@ public class Main {
         shipModel = new ShipModel();
         farmModels = new FarmModels();
         if (network == null) {
-            local = new LocalGame(offlineSave, seed);
+            local = awaitOfflineWorld();
             String assetNotice = dev.jayms.assets.AssetIntake.apply(Controls.directory(), GameIdentity.of(gameConfig.city()), offlineSave, local);
             if (!assetNotice.isEmpty()) notice = assetNotice;
             seed = local.seed;
@@ -405,7 +444,7 @@ public class Main {
         editor = new ModelEditor();
         lightColors = new LightColorMenu(Controls.directory().resolve("light-colour.properties"));
         structures=new StructureMenu(Controls.directory().resolve("structures"), () -> player==null?null:new Protocol.Pose(0,player.position().x,player.position().y,player.position().z,0,0));
-        for (var e : network == null ? local.edits.values() : network.initialEdits) world.apply(e);
+        applyInitialEdits(network == null ? local.edits.values() : network.initialEdits);
         Protocol.Pose spawn =
                 network == null
                         ? new Protocol.Pose(
@@ -499,6 +538,7 @@ public class Main {
         awaitInitialLighting();
         configureInput();
         setCaptured(true);
+        sceneReady=true;
     }
 
     private void saveCurrentSimulation() throws java.io.IOException {
@@ -1827,8 +1867,8 @@ public class Main {
         cleanup.run(() -> { if(graphics!=null)graphics.close(); });
         cleanup.run(() -> { recorder.close(); });
         cleanup.run(() -> { missiles.close(); });
-        cleanup.run(() -> { if (local != null) local.save(); });
-        cleanup.run(() -> { if (jeep != null) jeep.save(jeepSave()); });
+        cleanup.run(() -> { if (local != null && sceneReady) local.save(); });
+        cleanup.run(() -> { if (jeep != null && sceneReady) jeep.save(jeepSave()); });
         cleanup.run(() -> { if (network != null) network.close(); });
         cleanup.run(() -> { detailedMeshes.close(); });
         cleanup.run(() -> { if (distant != null) distant.close(); });

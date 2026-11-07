@@ -1437,3 +1437,33 @@ The caller must supply a stable source generation and retain final identity/revi
 fences. Per-section CRC is not a source-generation or adversarial identity proof.
 Completed spools live in a trusted private staging directory. Crash orphan
 recovery is not implemented; normal close/failure cleanup is scoped to one file.
+
+
+### Offline startup loading
+
+The renderer now loads the offline save on one read-only worker after the
+window and overlay exist. While it waits, it polls input and draws the number
+of decoded replay records with an Escape hint. Legacy and regional decoders
+check cancellation per record; input below buffering checks around reads of at
+most 64 KiB. Only a completed private `LocalGame` is assigned to the scene.
+Close fences publication with cooperative cancellation and orderly shutdown.
+It does not interrupt an active file-reading worker from the renderer: NIO
+interrupt-driven channel closure can itself wait for active I/O. A daemon
+blocked inside the filesystem can remain until that call returns, then observes
+the cancel flag; it never writes the source. No GL work runs on this worker.
+
+Initial geometry replay preserves order and polls input after 128 records or
+2 ms of work. It draws an initial acknowledgement, then coalesces progress
+redraws until at least 16,666,667 ns after the last draw finishes. Cheap batches
+therefore do not each force a frame swap. These are scheduling defaults, not
+measured stall bounds: one edit or a GL swap can take longer. Escape also
+cancels this phase.
+Normal cleanup saves world/vehicle state only after scene initialization
+finishes. Existing explicit asset-intake and city-startup writes retain their
+separate behavior; this is not a general transaction over every startup sidecar.
+
+Live history and initial geometry still materialize in memory with existing
+limits. The replay spool is deliberately not added as an extra disk pass on
+ordinary loads. This responsiveness step does not provide lazy region roots,
+loaded/pending/failed physics/render queries, large atomic publication or city
+qualification. Full performance, memory and multiplayer gates remain pending.

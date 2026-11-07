@@ -29,11 +29,19 @@ public final class LocalGame {
     private final Path save;
 
     public LocalGame(Path save, long requestedSeed) throws IOException {
+        this(save,requestedSeed,()->false,count->{});
+    }
+
+    /** Private worker load until returned. Progress counts replay records. Never
+     * writes the source or publishes partially decoded state. */
+    public LocalGame(Path save,long requestedSeed,BooleanSupplier cancel,IntConsumer progress)throws IOException {
+        Objects.requireNonNull(save);Objects.requireNonNull(cancel);Objects.requireNonNull(progress);
+        StructurePackage.cancelled(cancel);progress.accept(0);StructurePackage.cancelled(cancel);
         this.save = save;
         long worldSeed = requestedSeed;
         int generator = Terrain.CURRENT_VERSION;
         if (Files.exists(save))
-            try (var in = new DataInputStream(new BufferedInputStream(Files.newInputStream(save), 64 * 1024))) {
+            try (var in = new DataInputStream(new BufferedInputStream(new LoadInput(Files.newInputStream(save),cancel), 64 * 1024))) {
                 int version = in.readInt();
                 if (version != 3 && version != 4 && version != 5 && version != 6 && version != 7 && version != 8 && version != 9 && version != 10)
                     throw new IOException("Invalid offline world");
@@ -49,11 +57,12 @@ public final class LocalGame {
                 inventory = Inventory.read(in,version>=8);
                 health = in.readUnsignedByte();
                 if (health > 20) throw new IOException("Invalid saved health");
-                if(regionalSaves)RegionReplay.read(in,edits);
+                if(regionalSaves)RegionReplay.read(in,edits,e->true,cancel,progress);
                 else {
                     int n = in.readInt();
                     if (n < 0 || n > MAX_SAVED_EDITS) throw new IOException("Invalid world");
                     for (int i = 0; i < n; i++) {
+                        StructurePackage.cancelled(cancel);
                         var e =
                                 version >= 6
                                         ? Protocol.Edit.read(in)
@@ -62,19 +71,41 @@ public final class LocalGame {
                                                 : Protocol.Edit.readLegacy(in);
                         if (!e.valid()) throw new IOException("Invalid edit");
                         WorldVoxels.remember(edits, e);
+                        if(((i+1)&127)==0)progress.accept(i+1);
                     }
+                    progress.accept(n);StructurePackage.cancelled(cancel);
                 }
                 int n = in.readInt();
                 if (n < 0 || n > 100000) throw new IOException("Invalid drops");
                 for (int i = 0; i < n; i++) {
+                    StructurePackage.cancelled(cancel);
                     ItemDrop d = ItemDrop.read(in,version>=8);
                     drops.put(d.id(), d);
                     nextDrop = Math.max(nextDrop, d.id());
                 }
                 if(regionalSaves&&in.read()!=-1)throw new IOException("Trailing regional offline world");
             }
+        StructurePackage.cancelled(cancel);
         seed = worldSeed;
         generatorVersion = generator;
+    }
+
+    /** Below buffering, checks cancellation around at most 64 KiB per read.
+     * This cannot interrupt a blocked filesystem call; callers must use a worker. */
+    private static final class LoadInput extends FilterInputStream {
+        private final BooleanSupplier cancel;
+        LoadInput(InputStream input,BooleanSupplier cancel){super(input);this.cancel=cancel;}
+        @Override public int read()throws IOException {
+            StructurePackage.cancelled(cancel);int result=in.read();StructurePackage.cancelled(cancel);return result;
+        }
+        @Override public int read(byte[] bytes,int offset,int length)throws IOException {
+            Objects.checkFromIndexSize(offset,length,bytes.length);StructurePackage.cancelled(cancel);
+            int result=in.read(bytes,offset,Math.min(length,65536));StructurePackage.cancelled(cancel);return result;
+        }
+        @Override public long skip(long count)throws IOException {
+            StructurePackage.cancelled(cancel);long result=in.skip(Math.min(Math.max(0,count),65536));
+            StructurePackage.cancelled(cancel);return result;
+        }
     }
 
     public void startGame(GameConfig config, CitySimulation.Ground ground) throws IOException {
