@@ -156,6 +156,16 @@ public final class WorldVoxels {
             // edits; external map keys still pass public put validation.
             state.forEachEdit(edit->putInCell(edit.depth()==0?cell:edit.key(),edit,cell));
         }
+        private void rememberCell(CellReplay replay) {
+            var old=cells.remove(replay.cell);
+            if(old!=null)for(var key:old.snapshot())ordered.remove(key);
+            for(int i=0;i<replay.edits.length;i++) {
+                ordered.put(replay.keys[i],replay.edits[i]);revision++;
+            }
+            // The replay's owner token can never equal a history owner. Later
+            // edits clone this index through writable(), protecting every reuse.
+            cells.put(replay.cell,replay.index);
+        }
         private void remember(Protocol.Edit edit) {
             var keys = cells.get(edit.cellKey());
             if (keys != null) for (var key : keys.snapshot()) {
@@ -164,6 +174,31 @@ public final class WorldVoxels {
             }
             put(edit.key(),edit);
         }
+    }
+    /** Immutable replay records/keys and cell index. No source geometry is retained. */
+    public static final class CellReplay {
+        private final String cell;
+        private final String[] keys;
+        private final Protocol.Edit[] edits;
+        private final History.CellKeys index;
+        private CellReplay(String cell,String[] keys,Protocol.Edit[] edits,History.CellKeys index) {
+            this.cell=cell;this.keys=keys;this.edits=edits;this.index=index;
+        }
+        public String cellKey(){return cell;}
+        /** Includes the clear record and a possible full-cell replacement of that same key. */
+        public int editCount(){return edits.length;}
+    }
+    /** Prepare from stable geometry on a worker. Failure cannot change a history. */
+    public static CellReplay prepareCellReplay(Protocol.CellState state) {
+        Objects.requireNonNull(state,"state");
+        if(state.tree().size()!=RESOLUTION)throw new IllegalArgumentException("Invalid world cell resolution");
+        String cell=state.x()+","+state.y()+","+state.z();
+        var keys=new ArrayList<String>();var edits=new ArrayList<Protocol.Edit>();
+        var index=new History.CellKeys(new Object(),null);
+        state.forEachEdit(edit->{
+            String key=edit.depth()==0?cell:edit.key();keys.add(key);edits.add(edit);index.add(key);
+        });
+        return new CellReplay(cell,keys.toArray(String[]::new),edits.toArray(Protocol.Edit[]::new),index);
     }
     public static final int RESOLUTION = 16;
     private static final int[] COLORS = new int[190];
@@ -498,6 +533,12 @@ public final class WorldVoxels {
         if(state.tree().size()!=RESOLUTION)throw new IllegalArgumentException("Invalid world cell resolution");
         if(history instanceof History indexed){indexed.rememberCell(state);return;}
         for(var edit:state.edits())remember(history,edit);
+    }
+    /** Reuse immutable records and an immutable COW index without rebuilding their keys. */
+    public static void rememberCell(Map<String,Protocol.Edit> history,CellReplay replay) {
+        Objects.requireNonNull(replay,"replay");
+        if(history instanceof History indexed){indexed.rememberCell(replay);return;}
+        for(var edit:replay.edits)remember(history,edit);
     }
 
     public static void remember(Map<String, Protocol.Edit> history, Protocol.Edit edit) {

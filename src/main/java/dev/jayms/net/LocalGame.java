@@ -299,7 +299,7 @@ public final class LocalGame {
             StructurePackage.cancelled(cancel);var p=entry.getKey();
             var replacement=dev.jayms.World.prepareCellReplacement(p.x(),p.y(),p.z(),entry.getValue());
             StructurePackage.cancelled(cancel);replacements.add(replacement);
-            WorldVoxels.rememberCell(next,replacement.replayState());
+            WorldVoxels.rememberCell(next,replacement.replay());
             progress.accept((int)(100*++copied/total));
         }
         StructurePackage.cancelled(cancel);
