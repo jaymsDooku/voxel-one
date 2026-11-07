@@ -99,6 +99,9 @@ public final class StructurePackage {
         // Spatial partition order: 16-cell sections, then local cell index.
         cancelled(cancel);this.cells=entries.build(cancel);cancelled(cancel);leafCount=leaves[0];instanceCount=instances;
     }
+    /** Immutable occupied-cell index, without reading colours, geometry or dependencies. */
+    public List<Position> occupiedPositions(){return ((StructureCells)cells).occupiedPositions();}
+
     static long order(Position p) {
         long section=(p.y/16L*64+p.z/16)*64+p.x/16;
         return section*4096+(p.y%16*16+p.z%16)*16+p.x%16;
