@@ -259,41 +259,23 @@ public final class LocalGame {
             this.owner=owner;this.base=base;this.revision=revision;this.next=next;this.cells=cells;this.replacements=List.copyOf(replacements);
         }
     }
-    private record HistorySource(WorldVoxels.History base,long revision,WorldVoxels.History.CopyCursor cursor,int size) {}
+    private record HistorySource(WorldVoxels.History base,long revision,WorldVoxels.History next) {}
 
-    /** Worker only, for immutable engine-prepared cells. Live history reads execute
-     * in bounded batches on the owner; the result is bound to this exact cell map. */
+    /** Worker only, for immutable engine-prepared cells. Capture history roots on
+     * the owner; prepare detached edits on the worker and revalidate on the owner.
+     * The result remains bound to this exact cell map and commit revision. */
     public StructureHistory stageStructureHistory(Map<StructurePackage.Position,SparseVoxelOctree> cells,
             StructureOwnerQueue owner,BooleanSupplier cancel,IntConsumer progress)throws IOException {
         var source=owner.call(()->{
             StructurePackage.cancelled(cancel);
             // Preserve the existing synchronous path for legacy/custom map implementations.
             if(!(edits instanceof WorldVoxels.History base))return null;
-            return new HistorySource(base,base.revision(),base.copyCursor(),base.size());
+            if(base.size()>MAX_SAVED_EDITS)throw new IOException("World edit persistence limit");
+            return new HistorySource(base,base.revision(),WorldVoxels.History.copyOf(base));
         },cancel);
         if(source==null){progress.accept(100);return null;}
-        var next=new WorldVoxels.History();long copied=0,total=Math.max(1L,(long)source.size()+cells.size());
-        while(copied<source.size()) {
-            StructurePackage.cancelled(cancel);
-            var batches=owner.call(()->{
-                StructurePackage.cancelled(cancel);
-                if(edits!=source.base())throw new IOException("World changed while copying save history; retry placement");
-                try {
-                    var group=new ArrayList<WorldVoxels.History.CopyBatch>(32);
-                    for(int i=0;i<32;i++) {
-                        StructurePackage.cancelled(cancel);var batch=source.cursor().nextBatch();
-                        if(batch.isEmpty())break;group.add(batch);
-                    }
-                    return group;
-                }
-                catch(ConcurrentModificationException changed){throw new IOException("World changed while copying save history; retry placement",changed);}
-            },cancel);
-            if(batches.isEmpty())throw new IOException("Incomplete save history copy");
-            for(var batch:batches) {
-                batch.copyTo(next,()->StructurePackage.cancelled(cancel));copied+=batch.size();
-                progress.accept((int)(100*copied/total));
-            }
-        }
+        var next=source.next();long copied=0,total=Math.max(1L,cells.size());
+        progress.accept(0);
         var replacements=new ArrayList<dev.jayms.World.CellReplacement>(cells.size());
         for(var entry:cells.entrySet()) {
             StructurePackage.cancelled(cancel);var p=entry.getKey();
@@ -304,6 +286,12 @@ public final class LocalGame {
         }
         StructurePackage.cancelled(cancel);
         if(next.size()>MAX_SAVED_EDITS)throw new IOException("World edit persistence limit");
+        owner.call(()->{
+            StructurePackage.cancelled(cancel);
+            if(edits!=source.base()||source.base().revision()!=source.revision())
+                throw new IOException("World changed while staging save history; retry placement");
+            return true;
+        },cancel);
         progress.accept(100);StructurePackage.cancelled(cancel);return new StructureHistory(this,source.base(),source.revision(),next,cells,replacements);
     }
 
