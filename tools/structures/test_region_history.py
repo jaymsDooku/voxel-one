@@ -18,7 +18,7 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
         folder.mkdir(parents=True, exist_ok=True)
         with tempfile.TemporaryDirectory(dir=folder) as temporary:
             sources = [ROOT / 'tools/structures' / name for name in
-                       ('DiskPackageIndexPrototype.java', 'DiskPackageIndexCheck.java', 'DiskPackageIndexEvidence.java', 'DiskRegionCachePrototype.java', 'DiskRegionCacheCheck.java', 'AsyncRegionReadPrototype.java', 'AsyncRegionReadCheck.java', 'NeighborBatchBenchmark.java', 'RegionReadViewPrototype.java', 'RegionReadViewCheck.java', 'RegionHistoryPrototype.java', 'RegionHistoryPrototypeCheck.java', 'RegionHistoryCodecCheck.java', 'RegionHistoryStreamCheck.java', 'RegionHistoryStreamEvidence.java',
+                       ('PersistentChunkDirectoryPrototype.java', 'PersistentChunkDirectoryCheck.java', 'DiskPackageIndexPrototype.java', 'DiskPackageIndexCheck.java', 'DiskPackageIndexEvidence.java', 'DiskRegionCachePrototype.java', 'DiskRegionCacheCheck.java', 'AsyncRegionReadPrototype.java', 'AsyncRegionReadCheck.java', 'NeighborBatchBenchmark.java', 'RegionReadViewPrototype.java', 'RegionReadViewCheck.java', 'RegionHistoryPrototype.java', 'RegionHistoryPrototypeCheck.java', 'RegionHistoryCodecCheck.java', 'RegionHistoryStreamCheck.java', 'RegionHistoryStreamEvidence.java',
                         'RegionDependencyPrototype.java', 'RegionDependencyCheck.java',
                         'RegionGenerationPrototype.java', 'RegionGenerationCheck.java', 'RegionGenerationEvidence.java',
                         'RegionAuthorityPrototype.java', 'RegionAuthorityCheck.java',
@@ -33,6 +33,28 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
             result = subprocess.run(command, capture_output=True, text=True, timeout=30)
             self.assertEqual(result.returncode, 0, result.stderr[:4000])
             return [json.loads(line) for line in result.stdout.splitlines()]
+
+    def test_persistent_chunk_directory(self):
+        row = self.run_check('PersistentChunkDirectoryCheck')[0]
+        self.assertEqual(row['status'], 'passed')
+        self.assertEqual(row['rejection_cases'], 11)
+        self.assertEqual(row['random_operations'], 25000)
+        self.assertEqual(row['retained_roots'], 8)
+        self.assertTrue(row['frozen_world_images'])
+        self.assertFalse(row['qualification'])
+        result = row['benchmark']
+        self.assertEqual(result['entries'], 8192)
+        self.assertLessEqual(result['height'], 20)
+        self.assertEqual(result['runs'], 20)
+        self.assertEqual(result['writes_per_run'], 256)
+        self.assertEqual(result['queries_per_run'], 65536)
+        for name in ('hash_snapshot_ms', 'hash_update_ms', 'tree_update_ms',
+                     'hash_read_ms', 'tree_read_ms'):
+            samples = sorted(result[name]['samples'])
+            self.assertEqual(len(samples), 20)
+            self.assertAlmostEqual(result[name]['median'], (samples[9] + samples[10]) / 2, places=5)
+            self.assertAlmostEqual(result[name]['p95'], samples[18], places=5)
+            self.assertAlmostEqual(result[name]['worst'], samples[19], places=5)
 
     def test_region_read_view(self):
         row = self.run_check('RegionReadViewCheck')[0]
