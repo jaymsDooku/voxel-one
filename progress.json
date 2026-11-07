@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-07T02:30:39+00:00",
+  "updatedAt": "2026-11-07T02:31:37+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -3973,7 +3973,7 @@
     {
       "id": "recovery-specialist-20261107",
       "title": "Dedicated agent recovery specialist",
-      "description": "Specialist audited current blockers and reclaimed13.47GiB safely. Durable incident-driven recovery, storage admission, fresh validation and bounded retries are being implemented through independent review.",
+      "description": "Active Recovery Specialist for all registered applications: safe blocker diagnosis, preserved sessions, bounded retries, disk admission and obsolete review-tree cleanup. Independently reviewed, deployed and verified on the VPS.",
       "evidence": [
         {
           "kind": "link",
@@ -4003,7 +4003,7 @@
       ],
       "status": "complete",
       "note": "Implemented, independently reviewed and merged, privately published, and activated on the VPS. Recovery observes safely every 60 seconds, caps diagnosis starts at two per hour, preserves unknown sessions and genuine owner/hardware gates, and prevents unchanged retry loops. Independent full suite: 1133 passed, 2 skipped; exact-head QA, hosted CI, and one native-model synthetic recovery passed. Live API/service healthy, settings unchanged, structures developer resumed.",
-      "updatedAt": "2026-11-07T02:30:39+00:00"
+      "updatedAt": "2026-11-07T02:31:37+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
