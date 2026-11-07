@@ -355,7 +355,7 @@ public final class LocalGame {
                 if(next.size()>MAX_SAVED_EDITS)throw new IOException("World edit persistence limit");
                 try {
                     models.replaceWith(prepared);edits=next;
-                    if(history!=null)for(var replacement:history.replacements)world.replaceCell(replacement);
+                    if(history!=null)world.replaceCells(history.replacements);
                     else for(var e:cells.entrySet()) {var p=e.getKey();world.replaceCell(p.x(),p.y(),p.z(),e.getValue());}
                     if(history!=null&&history.save!=null){history.save.publish(inventory,health,drops.values(),drops.size());regionalSaves=history.save.regional();}
                     else saveWorld(true);
