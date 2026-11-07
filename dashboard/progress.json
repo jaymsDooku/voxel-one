@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-07T08:24:07+00:00",
+  "updatedAt": "2026-11-07T08:43:28+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "20-run admitted component probe confirms 1024-to-4 neighbor notifications and lower allocation, but mixed timing: fractional p95 worsens. No speedup or supported-limit claim. CLI image inspected; two tooling checks passed. Production source unchanged. Full city/max/GPU/32-client gates remain pending; new tooling/evidence need publication/checks.",
-      "updatedAt": "2026-11-07T08:24:07+00:00"
+      "note": "Hosted builds passed for 01abb0ec. Owner-side read fence passes 12 stale/invalid/cancelled read cases and real async disk revalidation. Pending and known-absent stay distinct; unrelated edits remain valid. Private integration only; live game wiring and city/max/GPU/32-client gates remain pending.",
+      "updatedAt": "2026-11-07T08:43:28+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
