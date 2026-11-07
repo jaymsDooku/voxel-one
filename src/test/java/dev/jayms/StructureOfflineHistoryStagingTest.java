@@ -30,7 +30,7 @@ class StructureOfflineHistoryStagingTest {
             assertTrue(task.isDone(),"Worker owner-read deadline");return task.get();
         } finally {task.cancel(true);thread.join(2000);assertFalse(thread.isAlive(),"Worker released");}
     }
-    @Test void boundedOwnerBatchesBuildOffThreadAndCommitCurrentSurvivalState()throws Exception {
+    @Test void rootCaptureBuildsOffThreadAndCommitsCurrentSurvivalState()throws Exception {
         var path=folder.resolve("world.dat");var local=new LocalGame(path,42);populate(local,2051);
         var before=new LinkedHashMap<>(local.edits);var owner=Thread.currentThread();var reads=new AtomicInteger();var progress=new AtomicInteger();
         var installed=new AtomicInteger();var legacyInstalls=new AtomicInteger();
@@ -45,7 +45,7 @@ class StructureOfflineHistoryStagingTest {
             var engine=new StructureEngine();
             try(var prepared=engine.prepare(asset(),new Position(320,180,320),0,world.structureSnapshot(),()->false,p->{})) {
                 var history=worker(queue,()->local.stageStructureHistory(prepared.cells(),queue,()->false,p->{assertNotSame(owner,Thread.currentThread());progress.set(p);}),()->{},reads);
-                assertNotNull(history);assertEquals(2,reads.get()); // Capture plus one bounded group.
+                assertNotNull(history);assertEquals(2,reads.get()); // Root capture plus final revision validation.
                 assertEquals(100,progress.get());assertEquals(before,local.edits);assertTrue(world.cell(320,180,320).isEmpty());
                 worker(queue,()->{local.stageStructureSave(history,prepared.modelSnapshot(),()->false,p->assertNotSame(owner,Thread.currentThread()));return true;},()->{},new AtomicInteger());
                 assertFalse(Files.exists(path));
@@ -116,7 +116,7 @@ class StructureOfflineHistoryStagingTest {
             try(var files=Files.list(folder)){assertFalse(files.anyMatch(p->p.getFileName().toString().startsWith(".structure-offline-")));}
         }
     }
-    @Test void mutationBetweenOwnerBatchesRejectsBeforeIteratorResume()throws Exception {
+    @Test void mutationAfterRootCaptureRejectsAtFinalOwnerValidation()throws Exception {
         var local=new LocalGame(folder.resolve("mid-copy.dat"),42);populate(local,33000);
         var copied=new AtomicBoolean();var changed=new AtomicBoolean();var reads=new AtomicInteger();
         try(var queue=new StructureOwnerQueue()) {
@@ -124,7 +124,7 @@ class StructureOfflineHistoryStagingTest {
                     ()->local.stageStructureHistory(Map.of(),queue,()->false,p->copied.set(true)),
                     ()->{if(copied.get()&&changed.compareAndSet(false,true)){var e=local.edits.values().iterator().next();local.edits.put(e.key(),e);}},reads));
             assertInstanceOf(IOException.class,failure.getCause());assertTrue(failure.getCause().getMessage().contains("changed"));
-            assertTrue(changed.get());assertEquals(33000,local.edits.size());assertEquals(3,reads.get());
+            assertTrue(changed.get());assertEquals(33000,local.edits.size());assertEquals(2,reads.get());
         }
     }
     @Test void cancellationLeavesQueueReusableAndSourceUntouched()throws Exception {

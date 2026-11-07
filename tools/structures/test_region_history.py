@@ -18,7 +18,7 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
         folder.mkdir(parents=True, exist_ok=True)
         with tempfile.TemporaryDirectory(dir=folder) as temporary:
             sources = [ROOT / 'tools/structures' / name for name in
-                       ('HashTrieChunkDirectoryCheck.java', 'WorldSnapshotProbe.java', 'WorldChunkLookupProbe.java', 'SharedHashChunkDirectoryPrototype.java', 'SharedHashChunkDirectoryCheck.java', 'PersistentChunkDirectoryPrototype.java', 'PersistentChunkDirectoryCheck.java', 'DiskPackageIndexPrototype.java', 'DiskPackageIndexCheck.java', 'DiskPackageIndexEvidence.java', 'DiskRegionCachePrototype.java', 'DiskRegionCacheCheck.java', 'AsyncRegionReadPrototype.java', 'AsyncRegionReadCheck.java', 'NeighborBatchBenchmark.java', 'RegionReadViewPrototype.java', 'RegionReadViewCheck.java', 'RegionHistoryPrototype.java', 'RegionHistoryPrototypeCheck.java', 'RegionHistoryCodecCheck.java', 'RegionHistoryStreamCheck.java', 'RegionHistoryStreamEvidence.java',
+                       ('HistoryRootProbe.java', 'HashTrieChunkDirectoryCheck.java', 'WorldSnapshotProbe.java', 'WorldChunkLookupProbe.java', 'SharedHashChunkDirectoryPrototype.java', 'SharedHashChunkDirectoryCheck.java', 'PersistentChunkDirectoryPrototype.java', 'PersistentChunkDirectoryCheck.java', 'DiskPackageIndexPrototype.java', 'DiskPackageIndexCheck.java', 'DiskPackageIndexEvidence.java', 'DiskRegionCachePrototype.java', 'DiskRegionCacheCheck.java', 'AsyncRegionReadPrototype.java', 'AsyncRegionReadCheck.java', 'NeighborBatchBenchmark.java', 'RegionReadViewPrototype.java', 'RegionReadViewCheck.java', 'RegionHistoryPrototype.java', 'RegionHistoryPrototypeCheck.java', 'RegionHistoryCodecCheck.java', 'RegionHistoryStreamCheck.java', 'RegionHistoryStreamEvidence.java',
                         'RegionDependencyPrototype.java', 'RegionDependencyCheck.java',
                         'RegionGenerationPrototype.java', 'RegionGenerationCheck.java', 'RegionGenerationEvidence.java',
                         'RegionAuthorityPrototype.java', 'RegionAuthorityCheck.java',
@@ -28,13 +28,30 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
                                        *map(str, sources)], capture_output=True, text=True, timeout=30)
             self.assertEqual(compiled.returncode, 0, compiled.stderr[:4000])
             command = ['java', '-Xmx512m', '-cp', os.pathsep.join((temporary, str(CLASSES))), class_name]
-            if class_name == 'WorldChunkLookupProbe':
+            if class_name in ('WorldChunkLookupProbe', 'HistoryRootProbe'):
                 command.append(str(Path(temporary) / 'synthetic-lookup.json'))
             if class_name in ('RegionGenerationCheck', 'RegionAuthorityCheck'):
                 command.append(str(Path(temporary) / 'synthetic-generations'))
             result = subprocess.run(command, capture_output=True, text=True, timeout=30)
             self.assertEqual(result.returncode, 0, result.stderr[:4000])
             return [json.loads(line) for line in result.stdout.splitlines()]
+
+    def test_persistent_history_roots(self):
+        row = self.run_check('HistoryRootProbe')[0]
+        self.assertEqual(row['status'], 'passed')
+        self.assertEqual(row['records'], 100000)
+        self.assertEqual(row['cells'], 100000)
+        self.assertEqual(row['runs'], 20)
+        self.assertTrue(row['copy_order_cell_cursor_isolation'])
+        self.assertFalse(row['qualification'])
+        for field in ('snapshot', 'first_edit', 'lookup_65536', 'iterate_100000'):
+            for unit in ('ms', 'allocated_bytes'):
+                stats = row[field + '_' + unit]
+                values = sorted(stats['samples'])
+                self.assertEqual(len(values), 20)
+                self.assertAlmostEqual(stats['median'], (values[9] + values[10]) / 2, places=5)
+                self.assertAlmostEqual(stats['p95'], values[18], places=5)
+                self.assertAlmostEqual(stats['worst'], values[19], places=5)
 
     def test_world_chunk_lookup(self):
         row = self.run_check('WorldChunkLookupProbe')[0]

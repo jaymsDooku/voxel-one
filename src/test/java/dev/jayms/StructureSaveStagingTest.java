@@ -73,37 +73,54 @@ class StructureSaveStagingTest {
             assertEquals(0,temporaryCount());assertFalse(Files.exists(save));assertFalse(engine.busy());assertEquals(0,authority.cell(320,180,320).occupied());
         }
     }
-    @Test void productionHistoryCopyReleasesMonitorAndRejectsConcurrentEditsBeforeResume()throws Exception {
+    @Test void productionRootCaptureReleasesMonitorAndRejectsConcurrentEditsBeforeCommit()throws Exception {
         var tls=SecureTransport.server(folder.resolve("synthetic-tls"));var accounts=new AccountStore(folder.resolve("synthetic-accounts"));var save=folder.resolve("world.dat");
         try(var server=new MultiplayerServer("127.0.0.1",0,save,accounts,tls.context(),42,GameConfig.sandbox())) {
-            var base=StructureSaveStagingTest.<WorldVoxels.History>field(server,"edits");
-            for(int i=0;i<2051;i++){var edit=new Protocol.Edit(i%512,180,i/512,Blocks.STONE);base.put(edit.key(),edit);}
-            var method=MultiplayerServer.class.getDeclaredMethod("copyStructureHistory",WorldVoxels.History.class,WorldVoxels.History.CopyCursor.class,java.util.function.BooleanSupplier.class);method.setAccessible(true);
-            WorldVoxels.History.CopyCursor cursor;synchronized(server){cursor=base.copyCursor();}
+            var authority=authority(server);var base=StructureSaveStagingTest.<WorldVoxels.History>field(server,"edits");
+            var geometry=StructureSaveStagingTest.<WorldVoxels>field(server,"voxels");
+            for(int i=0;i<2051;i++){var edit=new Protocol.Edit(i%512,180,i/512,Blocks.STONE);base.put(edit.key(),edit);geometry.apply(edit);}
+            var held=WorldVoxels.History.copyOf(base);var before=new ArrayList<>(base.entrySet());
             var entered=new java.util.concurrent.CountDownLatch(1);var release=new java.util.concurrent.CountDownLatch(1);var once=new java.util.concurrent.atomic.AtomicBoolean();
-            java.util.function.BooleanSupplier cancel=()->{
-                if(once.compareAndSet(false,true)) {
-                    assertFalse(Thread.holdsLock(server));entered.countDown();
-                    try{assertTrue(release.await(10,java.util.concurrent.TimeUnit.SECONDS));}catch(InterruptedException e){Thread.currentThread().interrupt();throw new AssertionError(e);}
-                }return false;
+            java.util.function.BooleanSupplier checkpoint=()->{
+                try {
+                    if(temporaryCount()>0&&once.compareAndSet(false,true)) {
+                        assertFalse(Thread.holdsLock(server));entered.countDown();
+                        assertTrue(release.await(10,java.util.concurrent.TimeUnit.SECONDS));
+                    }
+                }catch(InterruptedException e){Thread.currentThread().interrupt();throw new AssertionError(e);}
+                catch(IOException e){throw new UncheckedIOException(e);}
+                return false;
             };
             var worker=java.util.concurrent.Executors.newSingleThreadExecutor();
             try {
-                var result=worker.submit(()->method.invoke(server,base,cursor,cancel));
+                var result=worker.submit(()->authority.stageCommit(authority.models().copy(),cells(),authority.models().revision(),checkpoint));
                 try {
                     assertTrue(entered.await(10,java.util.concurrent.TimeUnit.SECONDS));
-                    synchronized(server){var outside=new Protocol.Edit(900,180,900,Blocks.BRICKS);base.put(outside.key(),outside);}
+                    synchronized(server) {
+                        assertEquals(before,new ArrayList<>(base.entrySet()));assertFalse(Files.exists(save));
+                        assertEquals(0,authority.cell(320,180,320).occupied());
+                        var outside=new Protocol.Edit(900,180,900,Blocks.BRICKS);
+                        StructureSaveStagingTest.<WorldVoxels>field(server,"voxels").apply(outside);WorldVoxels.remember(base,outside);
+                    }
                 }finally{release.countDown();}
-                var error=assertThrows(java.util.concurrent.ExecutionException.class,()->result.get(10,java.util.concurrent.TimeUnit.SECONDS));
-                assertInstanceOf(IOException.class,error.getCause().getCause());assertEquals(2052,base.size());assertFalse(Files.exists(save));assertEquals(0,temporaryCount());
-                WorldVoxels.History.CopyCursor stable;synchronized(server){stable=base.copyCursor();}
-                WorldVoxels.History copied=(WorldVoxels.History)method.invoke(server,base,stable,(java.util.function.BooleanSupplier)()->false);
-                assertEquals(new ArrayList<>(base.entrySet()),new ArrayList<>(copied.entrySet()));copied.clear();assertEquals(2052,base.size());
-                var checks=new java.util.concurrent.atomic.AtomicInteger();
-                WorldVoxels.History.CopyCursor interrupted;synchronized(server){interrupted=base.copyCursor();}
-                var failed=assertThrows(java.lang.reflect.InvocationTargetException.class,()->method.invoke(server,base,interrupted,(java.util.function.BooleanSupplier)()->checks.incrementAndGet()>12));
-                assertInstanceOf(java.util.concurrent.CancellationException.class,failed.getCause());assertEquals(2052,base.size());assertEquals(0,temporaryCount());
-            }finally{release.countDown();worker.shutdownNow();}
+                try(var staged=result.get(10,java.util.concurrent.TimeUnit.SECONDS)) {
+                    synchronized(server){assertThrows(IOException.class,staged::apply);}
+                }
+                assertEquals(2052,base.size());assertEquals(before,new ArrayList<>(held.entrySet()));
+                assertFalse(Files.exists(save));assertEquals(0,temporaryCount());assertEquals(0,authority.cell(320,180,320).occupied());
+                assertEquals(Blocks.BRICKS,StructureSaveStagingTest.<WorldVoxels>field(server,"voxels").type(900,180,900));
+                try(var retry=authority.stageCommit(authority.models().copy(),cells(),authority.models().revision(),()->false)) {
+                    synchronized(server){retry.apply();}
+                }
+                assertEquals(2053,StructureSaveStagingTest.<WorldVoxels.History>field(server,"edits").size());
+                assertEquals(2052,base.size());assertTrue(Files.exists(save));assertTrue(authority.cell(320,180,320).occupied()>0);
+                var current=new ArrayList<>(StructureSaveStagingTest.<WorldVoxels.History>field(server,"edits").entrySet());byte[] durable=Files.readAllBytes(save);
+                assertThrows(java.util.concurrent.CancellationException.class,()->authority.stageCommit(authority.models().copy(),cells(),authority.models().revision(),()->{
+                    try{return temporaryCount()>0;}catch(IOException e){throw new UncheckedIOException(e);}
+                }));
+                assertEquals(current,new ArrayList<>(StructureSaveStagingTest.<WorldVoxels.History>field(server,"edits").entrySet()));
+                assertArrayEquals(durable,Files.readAllBytes(save));assertEquals(0,temporaryCount());
+            }finally{release.countDown();worker.shutdownNow();assertTrue(worker.awaitTermination(10,java.util.concurrent.TimeUnit.SECONDS));}
         }
     }
     @Test void concurrentOutsideEditRejectsStaleSaveAndLeavesDiskAndGeometryUnchanged()throws Exception {

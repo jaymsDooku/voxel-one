@@ -13,14 +13,15 @@ public final class WorldVoxels {
     public record CellPosition(int x,int y,int z) {}
     /** Ordered edit history with a cell index. Collection views are read-only. */
     public static final class History extends AbstractMap<String, Protocol.Edit> {
-        private final Map<String, Protocol.Edit> ordered;
-        private final Map<String, CellKeys> cells;
+        private final PersistentOrderedMap<Protocol.Edit> ordered;
+        private final PersistentOrderedMap<CellKeys> cells;
         private Object owner=new Object();
         private long revision;
         /** Owner-thread change stamp; pair with this history identity. */
         public long revision(){return revision;}
-        // Cell cursors must not scan a retained sparse hash table between entries.
-        public History(){ordered=new LinkedHashMap<>();cells=new LinkedHashMap<>();}
+        // Persistent insertion indexes retain replay order without whole-map copying.
+        // Iterators walk trees directly; they never scan a sparse hash table.
+        public History(){ordered=new PersistentOrderedMap<>();cells=new PersistentOrderedMap<>();}
         /** Begin under the authority lock; every batch read needs that same lock.
          * Any edit-history mutation invalidates the cursor before iterator access. */
         public CopyCursor copyCursor(){return new CopyCursor();}
@@ -75,11 +76,12 @@ public final class WorldVoxels {
             }
         }
         private History(History source) {
-            ordered=new LinkedHashMap<>(source.ordered);cells=new LinkedHashMap<>(source.cells);
+            ordered=new PersistentOrderedMap<>(source.ordered);cells=new PersistentOrderedMap<>(source.cells);
             // Neither copy may mutate the index entries shared at this boundary.
             source.owner=new Object();
         }
-        /** Owner-thread transaction copy. Retains order; shares index entries until edited. */
+        /** Owner-thread constant-root transaction copy. Retains order; shares index
+         * entries until edited. This does not validate or publish a transaction. */
         public static History copyOf(Map<String,Protocol.Edit> source) {
             if(source instanceof History history)return new History(history);
             var copy=new History();copy.putAll(source);return copy;
@@ -113,7 +115,9 @@ public final class WorldVoxels {
             List<String> snapshot(){return many==null?(single==null?List.of():List.of(single)):List.copyOf(many);}
         }
         @Override public Set<Entry<String, Protocol.Edit>> entrySet() {
-            return Collections.unmodifiableMap(ordered).entrySet();
+            // The persistent index already exposes an unmodifiable set of immutable
+            // entries. An additional map wrapper allocates a wrapper per replay row.
+            return ordered.entrySet();
         }
         @Override public Set<String> keySet() { return Collections.unmodifiableSet(ordered.keySet()); }
         @Override public Collection<Protocol.Edit> values() { return Collections.unmodifiableCollection(ordered.values()); }
