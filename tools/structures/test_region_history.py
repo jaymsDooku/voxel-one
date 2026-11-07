@@ -18,7 +18,7 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
         folder.mkdir(parents=True, exist_ok=True)
         with tempfile.TemporaryDirectory(dir=folder) as temporary:
             sources = [ROOT / 'tools/structures' / name for name in
-                       ('SharedHashChunkDirectoryPrototype.java', 'SharedHashChunkDirectoryCheck.java', 'PersistentChunkDirectoryPrototype.java', 'PersistentChunkDirectoryCheck.java', 'DiskPackageIndexPrototype.java', 'DiskPackageIndexCheck.java', 'DiskPackageIndexEvidence.java', 'DiskRegionCachePrototype.java', 'DiskRegionCacheCheck.java', 'AsyncRegionReadPrototype.java', 'AsyncRegionReadCheck.java', 'NeighborBatchBenchmark.java', 'RegionReadViewPrototype.java', 'RegionReadViewCheck.java', 'RegionHistoryPrototype.java', 'RegionHistoryPrototypeCheck.java', 'RegionHistoryCodecCheck.java', 'RegionHistoryStreamCheck.java', 'RegionHistoryStreamEvidence.java',
+                       ('HashTrieChunkDirectoryCheck.java', 'WorldSnapshotProbe.java', 'WorldChunkLookupProbe.java', 'SharedHashChunkDirectoryPrototype.java', 'SharedHashChunkDirectoryCheck.java', 'PersistentChunkDirectoryPrototype.java', 'PersistentChunkDirectoryCheck.java', 'DiskPackageIndexPrototype.java', 'DiskPackageIndexCheck.java', 'DiskPackageIndexEvidence.java', 'DiskRegionCachePrototype.java', 'DiskRegionCacheCheck.java', 'AsyncRegionReadPrototype.java', 'AsyncRegionReadCheck.java', 'NeighborBatchBenchmark.java', 'RegionReadViewPrototype.java', 'RegionReadViewCheck.java', 'RegionHistoryPrototype.java', 'RegionHistoryPrototypeCheck.java', 'RegionHistoryCodecCheck.java', 'RegionHistoryStreamCheck.java', 'RegionHistoryStreamEvidence.java',
                         'RegionDependencyPrototype.java', 'RegionDependencyCheck.java',
                         'RegionGenerationPrototype.java', 'RegionGenerationCheck.java', 'RegionGenerationEvidence.java',
                         'RegionAuthorityPrototype.java', 'RegionAuthorityCheck.java',
@@ -28,11 +28,46 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
                                        *map(str, sources)], capture_output=True, text=True, timeout=30)
             self.assertEqual(compiled.returncode, 0, compiled.stderr[:4000])
             command = ['java', '-Xmx512m', '-cp', os.pathsep.join((temporary, str(CLASSES))), class_name]
+            if class_name == 'WorldChunkLookupProbe':
+                command.append(str(Path(temporary) / 'synthetic-lookup.json'))
             if class_name in ('RegionGenerationCheck', 'RegionAuthorityCheck'):
                 command.append(str(Path(temporary) / 'synthetic-generations'))
             result = subprocess.run(command, capture_output=True, text=True, timeout=30)
             self.assertEqual(result.returncode, 0, result.stderr[:4000])
             return [json.loads(line) for line in result.stdout.splitlines()]
+
+    def test_world_chunk_lookup(self):
+        row = self.run_check('WorldChunkLookupProbe')[0]
+        self.assertEqual(row['status'], 'passed')
+        self.assertEqual(row['chunks'], 8192)
+        self.assertEqual(row['runs'], 20)
+        self.assertTrue(row['snapshot_edit_clear'])
+        self.assertFalse(row['qualification'])
+        for name in ('coherent_ms', 'mixed_ms', 'coherent_allocated_bytes', 'mixed_allocated_bytes'):
+            values = sorted(row[name]['samples'])
+            self.assertEqual(len(values), 20)
+            self.assertAlmostEqual(row[name]['median'], (values[9] + values[10]) / 2, places=5)
+            self.assertAlmostEqual(row[name]['p95'], values[18], places=5)
+            self.assertAlmostEqual(row[name]['worst'], values[19], places=5)
+
+    def test_hash_trie_chunk_directory(self):
+        row = self.run_check('HashTrieChunkDirectoryCheck')[0]
+        self.assertEqual(row['status'], 'passed')
+        self.assertEqual(row['rejection_cases'], 11)
+        self.assertEqual(row['random_operations'], 25000)
+        self.assertTrue(row['frozen_world_images'])
+        self.assertFalse(row['qualification'])
+        result = row['benchmark']
+        self.assertLessEqual(result['trie_depth'], 7)
+        self.assertLessEqual(result['collision_entries'], 16)
+        self.assertEqual(result['runs'], 20)
+        for name in ('linked_snapshot_ms', 'linked_update_ms', 'trie_update_ms',
+                     'linked_read_ms', 'trie_read_ms'):
+            values = sorted(result[name]['samples'])
+            self.assertEqual(len(values), 20)
+            self.assertAlmostEqual(result[name]['median'], (values[9] + values[10]) / 2, places=5)
+            self.assertAlmostEqual(result[name]['p95'], values[18], places=5)
+            self.assertAlmostEqual(result[name]['worst'], values[19], places=5)
 
     def test_shared_hash_chunk_directory(self):
         row = self.run_check('SharedHashChunkDirectoryCheck')[0]

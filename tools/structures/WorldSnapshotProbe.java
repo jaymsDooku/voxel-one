@@ -8,8 +8,9 @@ public final class WorldSnapshotProbe {
     static volatile long consumed;
     static long heap()throws Exception{System.gc();Thread.sleep(100);System.gc();Thread.sleep(100);var r=Runtime.getRuntime();return r.totalMemory()-r.freeMemory();}
     static void print(String layout,String operation,long[] allocations,double[] times) {
+        var sampleAllocations=allocations.clone();var sampleTimes=times.clone();
         Arrays.sort(allocations);Arrays.sort(times);
-        System.out.printf(Locale.ROOT,"{\"layout\":\"%s\",\"operation\":\"%s\",\"cells\":100000,\"warmups\":3,\"runs\":20,\"median_thread_allocated_bytes\":%d,\"median_ms\":%.6f,\"p95_ms\":%.6f,\"worst_ms\":%.6f}%n",layout,operation,(allocations[9]+allocations[10])/2,(times[9]+times[10])/2,times[18],times[19]);
+        System.out.printf(Locale.ROOT,"{\"layout\":\"%s\",\"operation\":\"%s\",\"cells\":100000,\"warmups\":3,\"runs\":20,\"median_thread_allocated_bytes\":%d,\"median_ms\":%.6f,\"p95_ms\":%.6f,\"worst_ms\":%.6f,\"samples_ms\":%s,\"samples_allocated_bytes\":%s}%n",layout,operation,(allocations[9]+allocations[10])/2,(times[9]+times[10])/2,times[18],times[19],Arrays.toString(sampleTimes),Arrays.toString(sampleAllocations));
     }
     public static void main(String[] args)throws Exception {
         var bean=(com.sun.management.ThreadMXBean)ManagementFactory.getThreadMXBean();
