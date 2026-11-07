@@ -1404,3 +1404,36 @@ first constructing a global replay map. Existing offline/server loaders still
 rebuild that map through the same decoder. It adds no lazy startup, disk-backed
 live history, new save version, admission allowance or qualification claim.
 The 2,000,000-record persistence limit and all structure limits remain intact.
+
+
+### Private replay spool
+
+`RegionReplaySpool` stages validated version 10 replay sections in an owned
+private temporary file on a worker. It retains a path, count and encoded size;
+it does not build a global edit map or section index. The existing
+2,000,000-record limit yields a worst-case 88,000,004-byte file when every edit
+needs its own 20-byte section header. A caller may tighten this byte budget.
+Each section still contains at most 1,024 edits. Reopening checks the sealed
+length and total count, then validates every section and exact EOF. A sink must
+stage privately because later sections or the final EOF check can fail.
+
+Cancellation, malformed input, I/O errors and callback exceptions close and
+remove the operation's own file during staging. Completed handles are confined
+to their creating worker, reject reentrant operations, and require close to
+remove their file. Cancellation or sink failure during a read leaves the
+completed handle available for retry. The source and caller stream remain
+owned by the caller; the world tail is left unread. Callers must validate that
+tail and dependencies, revalidate authority, and publish a whole transaction
+separately. File forcing applies only to this private candidate; it is not a
+world commit. Blocking disk operations must never run on the owner thread.
+
+This is a migration prerequisite, not a new live startup path or save format.
+Existing loaders still build global history maps. Live region roots, lazy read
+states, geometry/history/save publication and large multiplayer integration
+remain unfinished. No structure/persistence allowance or qualification gate
+changed. See the scoped `structure-replay-spool.json` evidence report.
+
+The caller must supply a stable source generation and retain final identity/revision
+fences. Per-section CRC is not a source-generation or adversarial identity proof.
+Completed spools live in a trusted private staging directory. Crash orphan
+recovery is not implemented; normal close/failure cleanup is scoped to one file.

@@ -33,7 +33,7 @@ final class RegionReplay {
         if(sectionCount>0)section(out,region,sectionCount,bytes);
         StructurePackage.cancelled(cancel);
     }
-    private static void section(DataOutputStream out,ChunkPos region,int count,ByteArrayOutputStream bytes)throws IOException {
+    static void section(DataOutputStream out,ChunkPos region,int count,ByteArrayOutputStream bytes)throws IOException {
         if(count<1||count>MAX_RECORDS||bytes.size()!=count*EDIT_BYTES)throw new IOException("Regional replay section budget");
         byte[] payload=bytes.toByteArray();var crc=new CRC32();crc.update(payload);
         out.writeInt(region.chunkX());out.writeInt(region.chunkY());out.writeInt(region.chunkZ());

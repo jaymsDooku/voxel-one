@@ -3486,3 +3486,55 @@ remains historical. No tracked deletions/unmerged entries; diff check passed;
 restored MP3/Hub files byte-match review base. New source/report/media await
 controller publication. Continue live backend integration afterward; full
 city/maximum admission and qualification remain unfinished, stable rollout gated.
+
+
+## Bounded replay spool — full regression running
+
+Controller exact-head results passed Windows, Mac Intel, Linux and Mac ARM for
+`a1df01ba319f8c7bea340a5b68382423d65a9f5b`; publication skipped. Continued without
+an unchanged CI wait. Added worker-private `RegionReplaySpool` using the shared
+validated decoder and section writer. It retains only path/count/size and
+streams bounded sections to/from its own temporary file. It checks the sealed
+length/count, per-section validation and exact EOF on every traversal. No game
+caller, live authority, new world format or admission increase is introduced.
+Caller must supply stable source generation, validate tail/dependencies and
+retain final authority fences before complete publication. CRC does not prove
+source identity; crash orphan recovery remains unimplemented.
+
+All 20 focused tests passed in four suites: bounded immutable ordered replay,
+source tail, malformed later sections, cancellation, byte budgets, callback
+failure/retry, corruption/count/length changes, close/worker/reentrancy and
+interrupt behavior. Full Java regression is running; no full-suite pass claimed.
+Playtest: actual streamed CLI under `-Xmx64m` passed one run each at 100,000 and
+2,000,000 records. One edit per section stresses header count: 4,400,004 and
+88,000,004 bytes. Stage/read timings were 418.555802/174.846951 ms and
+3,044.128613/1,645.847365 ms. Exact order/air/fractional colour/materials, unchanged
+source SHA-256, unread tail and owned-file cleanup passed. Own Swing result
+window captured using inherited display/authentication and inspected. These
+single-run component results are not p95, retained/peak memory or game budgets.
+Browser playtesting does not apply to the noninteractive staging API. No fresh
+native Main/GLFW pass claimed for this source. Report/image:
+`dashboard/evidence/structure-replay-spool.json` and `.png` with `-cli` suffix.
+Continue by inspecting actual full regression exit/fresh reports and source
+hashes, audit diff/deletions, then controller publication/exact-source checks.
+All live backend and full city/maximum/physical-GPU/shaped-32-client/20-run
+qualification gates remain unfinished; stable rollout stays gated.
+
+
+Bounded replay spool full Java regression passed with exit 0: 1,037 tests in
+206 fresh current suites, zero failures/errors, one optional
+`AssetManagerIntegrationTest.browserWorkflow` skip. Every current test source
+has a matching fresh suite report; no missing/stale reports. All 230 production
+source hashes and CLI/test hashes match the scoped report. Diff and new-file
+whitespace checks passed; no tracked deletions or unmerged entries; restored
+MP3/Hub files remain byte-exact to review base. No local commit/push/merge.
+
+Playtest for this noninteractive API is the executed streamed worker CLI and
+captured/inspected result window, `structure-replay-spool-cli.png`. The existing
+native workflow video remains historical to the parent implementation; no new
+native Main/GLFW pass is claimed. There is no new game UI or live caller to this
+spool. New code/report/image need controller publication/exact-source hosted
+validation. Continue live region/history/durable-root startup and publication,
+renderer/physics pending states and large multiplayer integration afterward.
+Full city/maximum admission and all reference physical-GPU/shaped 32-client/
+20-run performance qualification remain unfinished. Keep stable rollout gated.
