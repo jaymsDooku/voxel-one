@@ -1,0 +1,279 @@
+{
+  "status": "private_component_passed_live_backend_pending",
+  "parent_head": "cd45357c23f726463bb7054c9fe8f2e2bd19e373",
+  "hosted_parent": {
+    "source": "Controller exact-head scoped observation",
+    "platforms": [
+      "windows",
+      "mac-arm",
+      "linux",
+      "mac-intel"
+    ],
+    "state": "success",
+    "publication": "skipped"
+  },
+  "implementation": "Private 64-shard linked hash directory. Snapshot clones 64 shard references and changes source ownership. First write to a shared shard copies that shard. No live backend wiring.",
+  "contract": [
+    "Single mutable wrapper owner; capture/transfer under external authority synchronization.",
+    "Values must be immutable or protected by their own copy-on-write protocol. Directory sharing does not freeze values.",
+    "Snapshots isolate writes/removes/clear on either side. Stable iterators share captured shards and return immutable entries.",
+    "Linked iteration is per shard; global insertion order is not preserved.",
+    "Private constructor entry budget is 1 through 1,048,576; new keys at capacity reject before cloning. This is not a new supported world limit.",
+    "Full-coordinate mixing distributes record-hash collisions but does not bound adversarial shard size."
+  ],
+  "commands": [
+    "javac -encoding UTF-8 --release 17 -cp target/classes -d target/structure-shared-directory tools/structures/SharedHashChunkDirectoryPrototype.java tools/structures/SharedHashChunkDirectoryCheck.java",
+    "java -Xmx256m -Djava.io.tmpdir=\"$PWD/target/reviewer-tmp\" -cp target/structure-shared-directory:target/classes SharedHashChunkDirectoryCheck target/structure-shared-directory/final-check.json",
+    "python3 -m unittest tools.structures.test_region_history.RegionHistoryIntegrationTest.test_shared_hash_chunk_directory tools.structures.test_region_history.RegionHistoryIntegrationTest.test_persistent_chunk_directory tools.structures.test_region_history.RegionHistoryIntegrationTest.test_region_read_view",
+    "python3 -m unittest tools.structures.test_region_history.RegionHistoryIntegrationTest.test_shared_hash_chunk_directory",
+    "java -Xmx256m -Djava.io.tmpdir=\"$PWD/target/reviewer-tmp\" -cp target/structure-shared-directory:target/classes SharedHashChunkDirectoryCheck target/structure-shared-directory/final-evidence.json --evidence"
+  ],
+  "tests": {
+    "three_integrations": {
+      "exit": 0,
+      "elapsed_seconds": 15.962
+    },
+    "final_affected_integration_after_extreme_key_hardening": {
+      "exit": 0,
+      "tests": 1,
+      "elapsed_seconds": 5.388
+    },
+    "random_operations": 25000,
+    "retained_roots": 8,
+    "rejections": 11,
+    "coverage": [
+      "Exact HashMap oracle agreement for mixed insert/replace/remove and eight retained roots.",
+      "Both-side writes, stable iteration through clear, missing removals and read-only entry/iterator behavior.",
+      "Record-hash collisions and simultaneous extreme signed coordinate retrieval/deletion.",
+      "Separate worker fork mutations and original-root independence.",
+      "Actual frozen WorldVoxels cell images match world geometry and survive caller/later world edits.",
+      "256 distinct keys deliberately concentrated in one shard; a shared-shard update copies all 256 entries without changing the older root."
+    ],
+    "fixture_correction": "Initial development CLI used invalid non-ARGB colour 1 for a mutable caller edit. Replaced with WorldVoxels.encode(Blocks.BRICKS); final checks pass. No implementation gate weakened."
+  },
+  "playtest": "Playtest: actual CLI completed oracle/rejection/world-image checks and all 20-run component paths. Its own painted Swing result window was captured on inherited DISPLAY/XAUTHORITY and inspected. Expected retained-root independence and exact current map/world-image values; observed pass. Browser playtesting does not apply to this CLI-only change. All 228 production/harness hashes remain identical to the completed native implementation; no new Maven/native game pass is claimed.",
+  "final_result": {
+    "status": "passed",
+    "rejection_cases": 11,
+    "random_operations": 25000,
+    "retained_roots": 8,
+    "frozen_world_images": true,
+    "benchmark": {
+      "entries": 8192,
+      "shards": 64,
+      "copied_entries_after_updates": 8192,
+      "max_shard_entries": 183,
+      "runs": 20,
+      "writes_per_run": 256,
+      "queries_per_run": 65536,
+      "linked_snapshot_ms": {
+        "median": 0.22144,
+        "p95": 0.37276,
+        "worst": 6.505812,
+        "samples": [
+          0.312265,
+          0.37276,
+          0.222101,
+          0.188982,
+          0.221016,
+          0.247474,
+          0.219454,
+          0.227261,
+          0.223371,
+          0.194481,
+          0.239669,
+          0.216403,
+          0.221863,
+          6.505812,
+          0.236862,
+          0.219437,
+          0.217936,
+          0.181097,
+          0.18536,
+          0.214163
+        ]
+      },
+      "shared_snapshot_ms": {
+        "median": 0.002364,
+        "p95": 0.007153,
+        "worst": 0.011495,
+        "samples": [
+          0.002173,
+          0.001638,
+          0.002139,
+          0.002062,
+          0.002982,
+          0.003308,
+          0.002184,
+          0.00303,
+          0.007153,
+          0.00213,
+          0.002657,
+          0.0035,
+          0.003163,
+          0.011495,
+          0.002544,
+          0.002696,
+          0.001917,
+          0.001995,
+          0.001649,
+          0.002118
+        ]
+      },
+      "linked_update_ms": {
+        "median": 0.018766,
+        "p95": 0.052788,
+        "worst": 0.129931,
+        "samples": [
+          0.035815,
+          0.02141,
+          0.02054,
+          0.016606,
+          0.019116,
+          0.017035,
+          0.052788,
+          0.037911,
+          0.03565,
+          0.017406,
+          0.015468,
+          0.017388,
+          0.020487,
+          0.129931,
+          0.01556,
+          0.017856,
+          0.018416,
+          0.015637,
+          0.020815,
+          0.01756
+        ]
+      },
+      "shared_update_ms": {
+        "median": 0.42753,
+        "p95": 2.602306,
+        "worst": 2.695548,
+        "samples": [
+          0.732368,
+          0.643942,
+          0.462447,
+          0.417806,
+          0.36538,
+          0.37655,
+          2.602306,
+          0.42433,
+          0.367919,
+          2.265618,
+          0.346929,
+          0.381897,
+          2.695548,
+          0.665044,
+          0.523158,
+          0.430729,
+          0.422178,
+          0.641262,
+          0.422244,
+          0.421071
+        ]
+      },
+      "linked_read_ms": {
+        "median": 3.910196,
+        "p95": 4.907952,
+        "worst": 10.053622,
+        "samples": [
+          3.584327,
+          3.745746,
+          4.907952,
+          3.816392,
+          3.998363,
+          3.998735,
+          2.039123,
+          10.053622,
+          3.909125,
+          3.830175,
+          3.972025,
+          3.911266,
+          4.195031,
+          4.849242,
+          3.896266,
+          4.509894,
+          3.610084,
+          4.089387,
+          3.663486,
+          3.562239
+        ]
+      },
+      "shared_read_ms": {
+        "median": 5.091559,
+        "p95": 5.892563,
+        "worst": 12.055441,
+        "samples": [
+          4.816124,
+          4.844993,
+          4.979068,
+          5.565131,
+          5.360882,
+          3.268477,
+          12.055441,
+          5.175409,
+          5.084969,
+          4.958558,
+          5.098148,
+          5.138403,
+          5.170195,
+          4.99291,
+          5.892563,
+          5.114125,
+          5.413128,
+          4.988817,
+          4.955679,
+          4.826339
+        ]
+      }
+    },
+    "qualification": false
+  },
+  "process": {
+    "exit": 0,
+    "captured": true,
+    "elapsed_seconds": 17.684327006340027,
+    "peak_rss_kib": 163940,
+    "command": [
+      "java",
+      "-Xmx256m",
+      "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-cp",
+      "target/structure-shared-directory:target/classes",
+      "SharedHashChunkDirectoryCheck",
+      "target/structure-shared-directory/final-evidence.json",
+      "--evidence"
+    ]
+  },
+  "benchmark_method": "8,192 entries, three warmups, 20 measured runs. Baseline is LinkedHashMap, matching production container type. Snapshot, 256 existing-key replacement calls and 65,536 mixed hit/miss reads are measured separately. Snapshot/update/read order rotates across the two paths. Final maps and read checksums must match. Setup and oracle/invariant checks are excluded from component timings. Whole child RSS includes fixture checks, warmups, measurements and Swing.",
+  "measurement_context": "Shared VPS; other tenants uncontrolled. No other long-running own check overlapped the final CLI measurements. Earlier preliminary cohorts remain ignored diagnostics; only the final frozen-source cohort is reported here. These numbers do not establish a game performance or memory budget.",
+  "decision": "Keep production LinkedHashMap. Small root capture shifts copying to first writes: the 256 distributed replacements copied all 8,192 entries across 64 shards. A deliberately clustered 256-entry fixture confirms there is no fixed shard-copy bound. This does not solve bounded placement commit; retain the experiment for read-only snapshot design work.",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS",
+    "heap": "-Xmx256m",
+    "display": "Inherited X11; own Swing window only",
+    "gpu": "No physical GPU or game frame qualification executed"
+  },
+  "source_binding": {
+    "production_harness_files": 228,
+    "unchanged": true,
+    "native_manifest": "structure-native-source.json",
+    "new_tool_sha256": {
+      "tools/structures/SharedHashChunkDirectoryPrototype.java": "6d1143f27d6fc51422ead4d3601aa6ab8518d977964e41393d0dcb91a3ce5d54",
+      "tools/structures/SharedHashChunkDirectoryCheck.java": "ee36293c8060f52420450fc6d76fa6082b5ae97204f3989127cff9b620643074",
+      "tools/structures/test_region_history.py": "c2e5a6ea86b25bf631cd42009d7587584a81c1c871c576c0eb5a602427b500f4"
+    }
+  },
+  "media": {
+    "file": "structure-shared-directory.png",
+    "inspected": true,
+    "sha256": "4b4e1c29a978f73494f4d683507a67b6250dabc7a1aa55b3b5ced4a557c443f2",
+    "publication": "Pending controller publication"
+  },
+  "qualification": "Full city/maximum fixtures still exceed production admission caps. Live region/root/history, renderer/physics/server/persistence work remains unfinished. Physical GPU, shaped 32-client and required 20-run full game/memory/frame/tick/traffic qualification remain pending. Stable rollout gated.",
+  "audit": "git diff --check passed; no unmerged index or tracked deletions against 71612f09bfec4549456b3317676e76cdced085a4. Restored MP3 tests/fixtures and Hub workflows match that base. No unrelated deletions intended."
+}
