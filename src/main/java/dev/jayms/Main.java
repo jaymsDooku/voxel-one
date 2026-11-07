@@ -387,6 +387,17 @@ public class Main {
         }
     }
 
+    /** No live chunks or GL resources exist in the private worker result. */
+    private World awaitOfflineReplay(dev.jayms.net.city.StressGrid grid)throws Exception {
+        try(var replay=new OfflineWorldReplay(local,grid)) {
+            while(true) {
+                checkReplayCancellation();
+                if(replay.done())return replay.result();
+                loadingFrame("replay",replay.applied());
+            }
+        }
+    }
+
     /** Preserve replay order while polling frequently before play/physics starts.
      * Progress draws are coalesced, not forced after every 128 records. */
     private void applyInitialEdits(Iterable<Protocol.Edit> edits)throws Exception {
@@ -435,16 +446,15 @@ public class Main {
             seed = local.seed;
         } else seed = network.seed;
         int generatorVersion = network == null ? local.generatorVersion : network.generatorVersion;
-        world = new World(seed, network == null ? local.models : network.models, generatorVersion);
         if (network == null) {
             var saved = CitySimulation.load(CitySaves.sidecar(offlineSave,".city"));
-            if (saved != null) world.terrain().stressGrid(saved.stressGrid());
-        }
+            world=awaitOfflineReplay(saved==null?null:saved.stressGrid());
+        }else world = new World(seed, network.models, generatorVersion);
         modelRenderer = new VoxelModelRenderer(world.models());
         editor = new ModelEditor();
         lightColors = new LightColorMenu(Controls.directory().resolve("light-colour.properties"));
         structures=new StructureMenu(Controls.directory().resolve("structures"), () -> player==null?null:new Protocol.Pose(0,player.position().x,player.position().y,player.position().z,0,0));
-        applyInitialEdits(network == null ? local.edits.values() : network.initialEdits);
+        if(network!=null)applyInitialEdits(network.initialEdits);
         Protocol.Pose spawn =
                 network == null
                         ? new Protocol.Pose(

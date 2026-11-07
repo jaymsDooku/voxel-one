@@ -75,6 +75,7 @@ public final class OfflineLoadPlaytest {
         finally{if(observed)x("keyup","Escape");}
         require(Arrays.equals(before,hash(source)),"Source bytes unchanged");
         if(mode.equals("world"))require(get("local")==null&&get("world")==null,"No partial load published");
+        if(mode.equals("replay"))require(get("local")!=null&&get("world")==null,"Private geometry never published on cancellation");
         if(!mode.equals("success"))require(!(Boolean)get("sceneReady"),"No ready scene on cancellation");
         String json="{\"status\":\"passed\",\"mode\":\""+mode+"\",\"records\":"+records+",\"source_unchanged\":true,\"renderer\":\""+renderer+"\",\"qualification\":false}";
         Files.writeString(output.resolve("structure-startup-"+mode+".json"),json+"\n");System.out.println("Playtest: "+json);

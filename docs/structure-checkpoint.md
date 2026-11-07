@@ -3726,3 +3726,91 @@ region/history/roots/large placement/render/server integration after hosted
 results. City/max admission and 20-run reference physical-GPU/shaped 32-client
 qualification remain unfinished. Keep stable rollout and supported-limit claims
 gated. Do not mark ready.
+
+## Private offline geometry replay — implementation and focused/native startup checks
+
+Inspected parent 8f7ae36eeb9e1f8acee98505aff5227527ba9287: all eight PR-rollup
+build checks succeeded; publication skipped. Exact feature run 42395300755 Linux
+summary reports 1,047 tests/209 suites, zero failures/errors, one optional skip.
+No raw hosted runtime logs read.
+
+Main now prepares offline World geometry on one startup daemon after LocalGame
+load and asset intake. It captures an immutable indexed history root, preserves
+the live model-library identity, applies the saved stress grid before replay,
+and transfers only a complete world after history/model identity and revision
+checks. Worker World has no chunks, scheduler, GL objects or file handles. Main
+continues drawing progress/handling Escape; cancellation publishes no geometry.
+Close is cooperative, nonjoining and does not interrupt the active worker.
+Failed/cancelled active preparation closes private state on worker; a discarded
+completed heap-only result is collected normally. Multiplayer replay unchanged.
+No save format, admission cap or performance qualification changed.
+
+All 36 focused tests passed, including six new worker tests: exact geometry and
+model identity, single transfer, history/model fences, mutation during replay,
+blocked-worker cancellation without join/interruption, failure cleanup, empty
+world and unsupported generic-map rejection. Actual Main/GLFW startup passed:
+200,000-record read cancellation; 5,000-record version-3 geometry cancellation
+with local loaded and Main.world still null; successful 4,097-record dense replay
+with every piece checked. All source bytes unchanged. Updated native manifests
+bind this source/harness. Native private folders preserved under ignored
+`target/structure-startup-pre-worker-replay` and `target/structure-native-pre-worker-replay`;
+never read their private runtime logs.
+
+Full Java regression is currently running. Then run complete native structure
+workflow alone, fully decode/inspect new video and images, finalize sanitized
+report/source hashes and request controller publication/exact-source checks.
+Do not claim those unfinished checks passed. Detailed current report:
+`dashboard/evidence/structure-worker-replay.json`. Both Pro attempts failed
+before creating IDs; no delegate result or validation accepted. Independent
+local reasoning/tests used. No local commit/push/merge or other worktree writes.
+
+This still materializes global history, geometry and indexes. Continue live
+disk-backed region/history/durable roots and large placement/render/server
+integration. City/max admission and required 20-run reference physical-GPU,
+shaped-network 32-client, memory/frame/tick/traffic/stall/cold-load/upload
+qualification remain unfinished. Keep supported-limit and stable-rollout gates.
+
+## Private offline geometry replay — final local validation complete
+
+Full final-source Java regression passed: 1,053 tests/210 fresh suites, zero
+failures/errors, one optional AssetManager browser-workflow skip. Every current
+test source has a fresh report. All 36 focused tests passed. Actual native Main
+startup passed all three cases, including the new requirement that cancelled
+geometry preparation never publishes Main.world. The source saves remain
+byte-exact. Native overlay showed progress 0 at capture; exact applied-prefix
+length there was not measured. The blocked-worker unit test finishes one private
+apply after close, then observes cancellation and clears private state without
+publication. No active-worker interruption or owner join occurred in that test.
+
+Full Main/GLFW structure workflow passed on the same production source: named
+capture/anchor/library, import/export/long path, all four rotations, occupied-cell
+and player-overlap rejection, holes, cancellation/atomicity, place/undo/repeat,
+32-resolution dependency/restart and inventory/editor regressions. All 233
+production hashes match both 234-file native manifests and validation sources.
+No source changed during the full regression or final native workflows.
+
+Fresh F10 video fully decoded and inspected: 26 frames, 42.926 seconds,
+497,335 bytes, 960×544, SHA-256
+`5dbc0482718b9117af3164c652a30b6f5b7f6e293c56fdb8871699ccb1e442e9`.
+Inspected new midpoint, occupied-cell conflict capture and startup images.
+Recording matches isolated profile bytes; no profile temporary files remain.
+Software FPS 1 remains functional evidence only. Exact commands, environment,
+steps, expected/observed results, source hashes and limits are recorded in
+`dashboard/evidence/structure-worker-replay.json`.
+
+Final audit: diff checks passed; no removed files, unmerged entries or pending
+Git recovery. All restored MP3/Hub sources, workflows, tests and fixtures still
+byte-match review base. This turn replaces offline owner replay with a private
+worker and strengthens cancellation assertions; multiplayer owner replay and
+all formats/caps stay unchanged. Earlier protocol compatibility replacements and
+functional sky-priority test timing are documented in the audit. No unrelated
+feature deletion intended. No local staging/commit/push/merge or other-worktree
+mutation. Source/report/media await controller publication and exact-source
+hosted checks; parent 8f7ae36e checks already passed and need no unchanged wait.
+
+Continue live disk-backed region/history/durable roots and large placement,
+renderer and server integration after scoped hosted results. This worker still
+materializes global history/geometry/indexes; asset intake, city-sidecar reads
+and later GPU setup retain existing owner paths. City/max admission and required
+20-run reference physical-GPU/shaped 32-client qualification remain unfinished.
+Keep stable rollout and supported-limit claims gated. Do not mark ready.
