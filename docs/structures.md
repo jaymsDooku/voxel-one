@@ -1277,3 +1277,9 @@ Replay buffers are bounded; live history is still materialized and still capped 
 Server structure save staging now checks cancellation below the 64 KiB file buffer. Oversized model writes are split into writes of at most 65,536 bytes, with a check before each write and flush. Cancellation before entry creates no stage directory; cancellation during or after prefix encoding closes/removes the private stage and preserves the committed world. The final atomic publication step remains uncancellable.
 
 Tests exercise both a 512 KiB bulk write and actual production model serialization before replay, followed by cleanup and retry. File metadata can precede the first model slice, so total staged length is not a single-write size. This is a bounded cancellation checkpoint, not a measured cancellation-latency or stall guarantee. Full qualification remains pending.
+
+### Region-only UI snapshots
+
+Capture, destination preview and offline placement now assemble snapshots on a worker through bounded owner requests. Each request copies at most 128 relevant chunk entries, preserving canonical COW buckets, actual resident geometry and validation stamps. The owner checks edits, resident geometry, terrain and model revisions before each batch and at completion. The worker builds the bounded chunk grid and lookup; no live chunk-map iterator spans frames. Busy commands are rejected before snapshot work starts.
+
+Detached sources keep their captured geometry after later edits. Terrain changes invalidate their reads. Some unrelated global geometry changes conservatively reject a partial snapshot and require retry. The synchronous whole-world snapshot API remains for compatibility. Model metadata and the region lookup still materialize, and COW edits can allocate bucket copies. A 128-chunk batch bound does not establish a 100 ms stall, memory or frame-time guarantee. Admission caps and full city/maximum, physical-GPU and 32-client qualification remain pending.

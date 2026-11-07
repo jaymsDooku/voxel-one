@@ -91,14 +91,16 @@ public final class StructureMenu implements AutoCloseable {
             }
             if(verb.equals("rotate")){rotation=(rotation+1)%4;conflict=null;message="Orientation "+rotation*90+" degrees";if(selected!=null)execute("preview",world,local,network);return;}
             if(verb.equals("cancel")){cancel(network);return;}
+            if(busy){message="Wait for the current operation, or cancel it.";return;}
             if(verb.equals("capture")) {
                 if(first==null||second==null)throw new IOException("Mark first and second corners before capture");
                 Position origin=new Position(Math.min(first.x(),second.x()),Math.min(first.y(),second.y()),Math.min(first.z(),second.z()));
                 var a=anchor==null?origin:anchor;
                 var bounds=new Bounds(Math.abs(first.x()-second.x())+1,Math.abs(first.y()-second.y())+1,Math.abs(first.z()-second.z())+1,a.x()-origin.x(),a.y()-origin.y(),a.z()-origin.z());
-                String name=command.substring(verb.length()).trim();var snapshot=world.structureSnapshot();
+                String name=command.substring(verb.length()).trim();
                 start("Capturing physical construction...",cancel->{
-                    var asset=StructurePackage.capture(name,bounds,origin,snapshot,cancel::get,p->progress=p/2);StructurePackage.cancelled(cancel::get);
+                    var snapshot=StructureRegionSnapshot.capture(world,origin,bounds.x(),bounds.y(),bounds.z(),ownerReads,cancel::get,p->progress=p/10);
+                    var asset=StructurePackage.capture(name,bounds,origin,snapshot,cancel::get,p->progress=10+p*40/100);StructurePackage.cancelled(cancel::get);
                     asset.save(directory.resolve(asset.name+".vstr"),cancel::get,p->progress=50+p/2);
                     return new Completion(()->{progress=100;selected=asset;refresh();message="Captured "+asset.name;conflict=null;},null,new AtomicBoolean());
                 });return;
@@ -116,9 +118,10 @@ public final class StructureMenu implements AutoCloseable {
                 Path file=directory.resolve("exports").resolve(asset.name+".vstr");start("Exporting self-contained package...",cancel->{asset.save(file,cancel::get,p->progress=p);return new Completion(()->{progress=100;message="Exported "+file;},null,new AtomicBoolean());});return;
             }
             if(verb.equals("preview")) {
-                var snapshot=world.structureSnapshot();var point=target;int orientation=rotation;
+                var point=target;int orientation=rotation;
                 start("Checking destination footprint...",cancel->{
-                    var box=StructureEngine.footprint(asset,point,orientation);boolean blocked=false;
+                    var box=StructureEngine.footprint(asset,point,orientation);
+                    var snapshot=StructureRegionSnapshot.capture(world,new Position(box.minX(),box.minY(),box.minZ()),box.width(),box.height(),box.depth(),ownerReads,cancel::get,p->progress=p/2);boolean blocked=false;
                     for(var cell:asset.cells){StructurePackage.cancelled(cancel::get);var p=StructureEngine.rotate(cell.position(),asset.bounds.x(),asset.bounds.z(),orientation);if(snapshot.cell(box.minX()+p.x(),box.minY()+p.y(),box.minZ()+p.z()).occupied()!=0)blocked=true;}
                     final boolean overlap=blocked;return new Completion(()->{
                         if(selected!=asset||!target.equals(point)||rotation!=orientation){conflict=null;execute("preview",world,local,network);return;}
@@ -131,8 +134,10 @@ public final class StructureMenu implements AutoCloseable {
                 if(network!=null) {
                     start("Preparing structure upload...",cancel->{byte[] payload=asset.encode(cancel::get,p->progress=p);return new Completion(()->message=network.placeStructure(payload,point,orientation)?"Upload queued; wait for server result":"Wait or update server to use structures",null,cancel);});return;
                 }
-                var snapshot=world.structureSnapshot();start("Staging placement; world unchanged...",cancel->{
-                    var prepared=engine.prepare(asset,point,orientation,snapshot,cancel::get,p->progress=p/2);
+                start("Staging placement; world unchanged...",cancel->{
+                    var box=StructureEngine.footprint(asset,point,orientation);
+                    var snapshot=StructureRegionSnapshot.capture(world,new Position(box.minX(),box.minY(),box.minZ()),box.width(),box.height(),box.depth(),ownerReads,cancel::get,p->progress=p/10);
+                    var prepared=engine.prepare(asset,point,orientation,snapshot,cancel::get,p->progress=10+p*40/100);
                     try {
                         message="Preparing save history; world unchanged...";
                         var history=local.stageStructureHistory(prepared.cells(),ownerReads,cancel::get,p->progress=50+p/4);
