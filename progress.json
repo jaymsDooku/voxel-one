@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-07T01:59:42+00:00",
+  "updatedAt": "2026-11-07T02:12:30+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -3989,11 +3989,16 @@
           "kind": "link",
           "label": "Current independent review",
           "url": "https://github.com/jaymsDooku/codex-development-dashboard/pull/78"
+        },
+        {
+          "kind": "link",
+          "label": "Implementation and independent review",
+          "url": "https://github.com/jaymsDooku/codex-development-dashboard/pull/78"
         }
       ],
       "status": "in_progress",
-      "note": "Independent code review requested fixes for reviewer progress and actionable environment recovery. The originating developer is correcting these; lower-priority structures source was safely checkpointed and normal workers restored. Prior test evidence remains historical; activation waits for the corrected exact head.",
-      "updatedAt": "2026-11-07T01:59:42+00:00"
+      "note": "Corrected lifecycle commit e82f623 is published. Independent regressions now pass developer submission, reviewer decisions and repaired-environment continuation without additional model calls. Final advice/guard checks, hosted CI and native qualification remain before independent approval and activation. Local full suite: 1133 passed, 2 skipped.",
+      "updatedAt": "2026-11-07T02:12:30+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
