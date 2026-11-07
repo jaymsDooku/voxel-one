@@ -595,10 +595,10 @@ public final class WorldVoxels {
                         });
         history.put(edit.key(), edit);
     }
-    /** Decoder-only path: every existing record must also have passed Edit.valid().
+    /** Validated replay path: every existing record must also have passed Edit.valid().
      * A finest-grid edit cannot cover another valid key. Remove/reinsert retains
      * replay order; larger ancestor overrides must remain before this edit. */
-    static void rememberValidated(Map<String,Protocol.Edit> history,Protocol.Edit edit) {
+    public static void rememberValidated(Map<String,Protocol.Edit> history,Protocol.Edit edit) {
         if(!edit.valid())throw new IllegalArgumentException("Invalid replay edit");
         if(edit.depth()==4) {
             String key=edit.key();history.remove(key);history.put(key,edit);

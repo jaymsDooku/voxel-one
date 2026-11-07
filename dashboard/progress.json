@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-07T18:04:20+00:00",
+  "updatedAt": "2026-11-07T19:00:13+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Private offline geometry worker passed 1,053 tests/210 fresh suites (zero failures/errors, one optional skip), 36 focused tests, three native startup cases and the full Main/GLFW structure workflow. Fresh video fully decoded/inspected; all 233 production hashes match both native manifests. Source/media await controller publication and hosted checks. Large backend and full city/max qualification remain unfinished; rollout gated.",
-      "updatedAt": "2026-11-07T18:04:20+00:00"
+      "note": "One-cell private startup replay passed 1,057 Java tests (one optional skip), 39 focused tests, three native startup cases and the full native structure workflow. Fresh video decoded and inspected. Dense/coarse diagnostic tradeoff documented. New source/media await controller publication and hosted checks; city/max backend and full qualification remain unfinished.",
+      "updatedAt": "2026-11-07T19:00:13+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

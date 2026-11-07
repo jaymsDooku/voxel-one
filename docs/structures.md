@@ -1521,3 +1521,40 @@ or prove a 100 ms acknowledgement, 30 FPS, city/maximum or network budget.
 Asset intake, city-sidecar loading and later GPU initialization retain their
 existing owner-side paths. This change is not a general nonblocking startup
 transaction or a guarantee for all loading stages.
+
+### Bounded private replay cell builder
+
+Private offline replay now retains one mutable 16³ cell. Consecutive edits to
+that cell update the builder without copying/freezing its whole tree each time.
+Changing coordinates flushes the final frozen cell and its edited-cell image.
+An interleaved return visit starts from the previous private canonical value.
+Original per-record history order, coverage pruning, edit version, sky journal,
+sky versions and ceiling flags stay intact. Finest-grid history replay uses the
+validated exact-key path. Ordinary editing keeps its existing path.
+
+This path rejects an existing, loaded, closed, scheduled or already-prepared
+world, including recursive calls from the first progress callback. No caller may
+read the private world before successful completion. Failure or cancellation
+requires discarding it; the existing worker does that. Only the complete,
+source-fenced world transfers to the owner. Private canonical revision counts
+advance per cell flush during construction; no prior observer exists there.
+
+A headless two-cell/8,192-piece diagnostic used one warmup and five measured
+runs. Median replay was 2,345.89 ms with per-record apply and 14.95 ms with the
+cell builder. Median thread allocation was 152,160,656 versus 14,077,224 bytes.
+The fixture alternates bricks/glass at the finest world-cell detail. Every piece
+and the full history count were checked. This excludes construction, decoding,
+cleanup, owner handoff, rendering, capture/export/placement/save and network;
+thread allocation is not peak memory. The shared VPS run is not reference
+qualification. Commands/raw measurements are in
+`dashboard/evidence/structure-cell-replay.json`.
+
+Global history, geometry and indexes still materialize in memory. No package
+format or admission limit changes. Full city/maximum, physical-GPU, shaped
+32-client and 20-run qualification and rollout gates remain pending.
+
+The coarse diagnostic (16,384 whole-cell edits) had median 31.77 ms before and
+32.26 ms with the builder. Median thread allocation rose from 33,115,432 to
+36,261,040 bytes. This is a measured tradeoff; the builder does not improve every
+replay shape. Both diagnostics ran serially after full regression. Neither is
+full-fixture or reference-environment qualification.

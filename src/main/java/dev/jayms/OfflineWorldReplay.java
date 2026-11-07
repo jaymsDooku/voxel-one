@@ -39,12 +39,9 @@ final class OfflineWorldReplay implements AutoCloseable {
             result=worker.submit(()->{
                 World world=factory.create(local.seed,models,local.generatorVersion);
                 try {
-                    if(grid!=null)world.terrain().stressGrid(grid);int count=0;
-                    for(var edit:snapshot.values()) {
-                        checkCancelled();world.apply(edit);
-                        if((++count&127)==0)applied.set(count);
-                    }
-                    applied.set(count);checkCancelled();return world;
+                    if(grid!=null)world.terrain().stressGrid(grid);
+                    world.replayInitial(snapshot.values(),cancelled::get,applied::set);
+                    checkCancelled();return world;
                 }catch(RuntimeException|Error failure) {
                     try{world.close();}catch(Exception cleanup){failure.addSuppressed(cleanup);}throw failure;
                 }

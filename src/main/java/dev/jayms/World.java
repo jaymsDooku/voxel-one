@@ -325,7 +325,7 @@ public class World implements AutoCloseable {
         apply(new Protocol.Edit(x, y, z, type));
     }
 
-    public void apply(Protocol.Edit e) {
+    private ChunkPos noteEdit(Protocol.Edit e) {
         var p = ChunkPos.fromBlock(e.x(), e.y(), e.z());
         editsVersion++;
         ChunkPos skyColumn=column(p);changedSky(skyColumn);skyPositions.put(skyColumn,true);if(e.y()>Terrain.MAX_Y)editedCeilings.add(skyColumn);
@@ -333,6 +333,12 @@ public class World implements AutoCloseable {
         // A detached replay may span frames. Restart from current authoritative history if
         // edits changed; newer covering edits erase any older replayed regions.
         if(preparing!=null&&preparing.position().equals(p))replay=null;
+        return p;
+    }
+
+    public void apply(Protocol.Edit e) {
+        if(initialReplay!=null){initialReplay.apply(e);return;}
+        var p=noteEdit(e);
         voxels.apply(e);
         editedCells.computeIfAbsent(p,k->new LinkedHashMap<>()).put(e.cellKey(),
                 new EditedCell(e.x(),e.y(),e.z(),voxels.cell(e.x(),e.y(),e.z()).copy().freeze()));
@@ -340,6 +346,56 @@ public class World implements AutoCloseable {
         var c = loadedChunks.get(p);
         if (c != null)applyCanonical(c,e);
         dirtyNeighbors(p);
+    }
+
+    private InitialReplay initialReplay;
+    private boolean initialReplayComplete;
+    /** Private startup only. No reads, chunks, GL or other callers may observe
+     * this world until successful return. Discard the world on any failure.
+     * Only one mutable cell is retained; interleaved visits flush in file order. */
+    void replayInitial(Iterable<Protocol.Edit> source,java.util.function.BooleanSupplier cancel,
+            java.util.function.IntConsumer progress) {
+        Objects.requireNonNull(source);Objects.requireNonNull(cancel);Objects.requireNonNull(progress);
+        if(closed||initialReplayComplete||initialReplay!=null||editsVersion!=0||!loadedChunks.isEmpty()||terrainScheduler!=null)
+            throw new IllegalStateException("Initial replay requires a private fresh world");
+        checkInitialCancellation(cancel);
+        var stage=new InitialReplay();initialReplay=stage;
+        try {
+            progress.accept(0);checkInitialCancellation(cancel);
+            int count=0;
+            for(var edit:source) {
+                checkInitialCancellation(cancel);apply(edit);
+                if((++count&127)==0){progress.accept(count);checkInitialCancellation(cancel);}
+            }
+            checkInitialCancellation(cancel);stage.flush();checkInitialCancellation(cancel);
+            progress.accept(count);checkInitialCancellation(cancel);initialReplayComplete=true;
+        }finally{initialReplay=null;}
+    }
+    private static void checkInitialCancellation(java.util.function.BooleanSupplier cancel) {
+        if(cancel.getAsBoolean())throw new java.util.concurrent.CancellationException("Offline world replay cancelled");
+    }
+    private final class InitialReplay {
+        private WorldVoxels.CellPosition position;
+        private SparseVoxelOctree tree;
+        void apply(Protocol.Edit edit) {
+            if(!edit.valid())throw new IllegalArgumentException("Invalid initial replay edit");
+            if(position==null||position.x()!=edit.x()||position.y()!=edit.y()||position.z()!=edit.z()) {
+                flush();position=new WorldVoxels.CellPosition(edit.x(),edit.y(),edit.z());
+                tree=voxels.cell(edit.x(),edit.y(),edit.z()).copy();
+            }
+            var chunk=noteEdit(edit);int side=16>>edit.depth();
+            int x=edit.ix()*side,y=edit.iy()*side,z=edit.iz()*side;
+            tree.fill(x,y,z,x+side,y+side,z+side,WorldVoxels.encode(edit));
+            WorldVoxels.rememberValidated(edits.computeIfAbsent(chunk,k->new WorldVoxels.History()),edit);
+        }
+        void flush() {
+            if(position==null)return;
+            int x=position.x(),y=position.y(),z=position.z();var chunk=ChunkPos.fromBlock(x,y,z);
+            voxels.replaceCell(x,y,z,tree);
+            editedCells.computeIfAbsent(chunk,k->new LinkedHashMap<>()).put(x+","+y+","+z,
+                    new EditedCell(x,y,z,voxels.cell(x,y,z).copy().freeze()));
+            dirtyNeighbors(chunk);position=null;tree=null;
+        }
     }
 
     /** Detached worker preparation. Contains no world references or publication authority. */
