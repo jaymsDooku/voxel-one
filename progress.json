@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-07T01:06:29+00:00",
+  "updatedAt": "2026-11-07T01:27:29+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -3979,11 +3979,16 @@
           "kind": "link",
           "label": "Private implementation review",
           "url": "https://github.com/jaymsDooku/codex-development-dashboard/pull/78"
+        },
+        {
+          "kind": "link",
+          "label": "Implementation and review",
+          "url": "https://github.com/jaymsDooku/codex-development-dashboard/pull/78"
         }
       ],
       "status": "in_progress",
-      "note": "Reclaimed 13.47 GiB and resumed London Monitor work through independent review. Recovery specialist implementation is in private PR78; independent adversarial checks are gating activation while safety and resume defects are corrected.",
-      "updatedAt": "2026-11-07T01:06:29+00:00"
+      "note": "Corrected specialist passed 1,123 tests (two skipped), independent exact-head regression and packaging checks, and one real read-only 6.1 Sol diagnosis against a synthetic queue. Hosted CI and normal independent review precede activation.",
+      "updatedAt": "2026-11-07T01:27:29+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
