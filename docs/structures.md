@@ -1373,3 +1373,9 @@ Immutable directory roots were tested without changing the live chunk map. See `
 ### Private shared hash directory
 
 A 64-shard linked hash experiment makes read-only root capture cheap, but its placement-shaped writes still copy all 8,192 entries. It stays outside production. See `docs/structure-shared-directory.md` for exact contracts, checks and measurements. Full backend and qualification gates remain pending.
+
+### Immutable chunk roots
+
+`WorldVoxels` now shares immutable bitmap hash-trie roots. Existing cell-bucket copy-on-write isolation remains; full-hash collisions use balanced coordinate trees. A primitive, sampled read cache verifies the root and every coordinate. Flat history order and all admission/format/material policies stay unchanged. Focused checks pass; full regression and fresh native validation are pending. Diagnostic tradeoffs and final results are tracked in `dashboard/evidence/structure-hash-trie.json`. Random reads remain costlier than the prior linked map. Full city/maximum and all required game qualification remain pending.
+
+Immutable-root validation completed: 1,025 Java tests across 204 fresh suites passed with one optional browser skip; all 31 region-backend integrations and fresh Main/GLFW workflow/media passed. See `docs/structure-hash-trie.md` for exact results, source binding, the corrected parent Mac save fixture and measured read-cost tradeoffs. Full city/maximum and physical GPU/32-client qualification remain pending; rollout stays gated.

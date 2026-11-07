@@ -240,8 +240,26 @@ public final class WorldVoxels {
             cells=new HashMap<>(4);cells.put(singleKey,singleTree);cells.put(key,tree);singleKey=-1;singleTree=null;
         }
     }
-    // Linked iteration keeps capture batches independent of retained hash-table capacity.
-    private final Map<ChunkPos,CellBucket> chunks=new LinkedHashMap<>();
+    // Immutable roots give bounded-path updates and stable iteration without map cloning.
+    private ChunkDirectory<CellBucket> chunks=new ChunkDirectory<>(Integer.MAX_VALUE);
+    private record ChunkLookup(ChunkDirectory<CellBucket> root,int x,int y,int z,CellBucket bucket) {}
+    private volatile ChunkLookup lookup;
+    // Races may change the sampling rate, never the root/key checks or returned value.
+    private int lookupMisses;
+    private CellBucket chunk(ChunkPos position) {
+        if(position==null)return null;
+        return chunk(position.chunkX(),position.chunkY(),position.chunkZ());
+    }
+    private CellBucket chunk(int x,int y,int z) {
+        var root=chunks;var cached=lookup;
+        if(cached!=null&&cached.root==root&&cached.x==x&&cached.y==y&&cached.z==z)return cached.bucket;
+        var bucket=root.get(x,y,z);
+        // Sample cold misses to avoid allocating a cache entry on every random read.
+        if(cached==null||cached.root!=root||(++lookupMisses&3)==0)
+            lookup=new ChunkLookup(root,x,y,z,bucket);
+        return bucket;
+    }
+    private void putChunk(ChunkPos position,CellBucket bucket){chunks=chunks.with(position,bucket);lookup=null;lookupMisses=0;}
     private Object owner=new Object();
     private long geometryRevision;
 
@@ -252,7 +270,7 @@ public final class WorldVoxels {
     /** Owner-thread snapshot: share frozen cells and clone a bucket on its next edit. */
     public WorldVoxels snapshot() {
         var copy=new WorldVoxels(terrain);
-        copy.chunks.putAll(chunks);copy.geometryRevision=geometryRevision;
+        copy.chunks=chunks;copy.geometryRevision=geometryRevision;
         // Neither world may mutate a bucket owned before this sharing boundary.
         owner=new Object();
         return copy;
@@ -262,11 +280,11 @@ public final class WorldVoxels {
     public WorldVoxels snapshot(Collection<ChunkPos> positions) {
         if(positions.size()>128)throw new IllegalArgumentException("Structure snapshot batch exceeds 128 chunks");
         var copy=new WorldVoxels(terrain);copy.geometryRevision=geometryRevision;
-        for(var position:positions){var bucket=chunks.get(Objects.requireNonNull(position));if(bucket!=null)copy.chunks.put(position,bucket);}
+        for(var position:positions){var bucket=chunk(Objects.requireNonNull(position));if(bucket!=null)copy.putChunk(position,bucket);}
         owner=new Object();return copy;
     }
 
-    /** Check caller admission budgets before cloning the chunk map on the owner. */
+    /** Check caller admission budgets before capturing the chunk root on the owner. */
     public CellSnapshot cellSnapshot(History history,int maxCells,int maxChunks) {
         Objects.requireNonNull(history);
         if(maxCells<0||maxChunks<0)throw new IllegalArgumentException("Negative cell snapshot budget");
@@ -303,7 +321,7 @@ public final class WorldVoxels {
             if((terrainRevision&1)!=0)throw new ConcurrentModificationException("Terrain changing during cell capture");
             detached=new WorldVoxels(source.terrain);detached.geometryRevision=worldRevision;
             // Freeze ownership before sharing even the first bucket.
-            source.owner=new Object();entries=source.chunks.entrySet().iterator();
+            source.owner=new Object();entries=source.chunks.iterator();
         }
         public CellSnapshot advance(WorldVoxels current,History currentHistory) {
             if(Thread.currentThread()!=ownerThread)throw new IllegalStateException("Cell snapshot builder requires owner thread");
@@ -312,7 +330,7 @@ public final class WorldVoxels {
                 throw new ConcurrentModificationException("World/history changed during cell capture");
             if(result!=null)return result;
             for(int i=0;i<128&&entries.hasNext();i++) {
-                var entry=entries.next();detached.chunks.put(entry.getKey(),entry.getValue());
+                var entry=entries.next();detached.putChunk(entry.getKey(),entry.getValue());
             }
             if(entries.hasNext())return null;
             result=new CellSnapshot(source,history,detached,terrainRevision);
@@ -353,7 +371,7 @@ public final class WorldVoxels {
         public final class WorldCellCursor {
             private final Thread reader=Thread.currentThread();
             private final int maxCells;
-            private final Iterator<Map.Entry<ChunkPos,CellBucket>> chunks=detached.chunks.entrySet().iterator();
+            private final Iterator<Map.Entry<ChunkPos,CellBucket>> chunks=detached.chunks.iterator();
             private Iterator<Map.Entry<Integer,SparseVoxelOctree>> cells=Collections.emptyIterator();
             private ChunkPos position;
             private int emitted;
@@ -396,8 +414,8 @@ public final class WorldVoxels {
     public CellPatch captureCellPatch(Collection<ChunkPos> positions) {
         var staged=new WorldVoxels(terrain);var stamps=new HashMap<ChunkPos,Object>();
         for(var position:positions) {
-            stamps.put(position,chunkStamp(position));var bucket=chunks.get(position);
-            if(bucket!=null)staged.chunks.put(position,bucket);
+            stamps.put(position,chunkStamp(position));var bucket=chunk(position);
+            if(bucket!=null)staged.putChunk(position,bucket);
         }
         owner=new Object();
         return new CellPatch(staged,stamps);
@@ -415,7 +433,7 @@ public final class WorldVoxels {
             for(var entry:stamps.entrySet()) {
                 if(entry.getValue()==null||!entry.getValue().equals(current.chunkStamp(entry.getKey())))return null;
             }
-            var result=current.snapshot();result.chunks.putAll(staged.chunks);result.geometryRevision++;
+            var result=current.snapshot();for(var entry:staged.chunks)result.putChunk(entry.getKey(),entry.getValue());result.geometryRevision++;
             // Protect the candidate if this staging object is edited/reused afterward.
             staged.owner=new Object();
             return result;
@@ -427,7 +445,7 @@ public final class WorldVoxels {
     /** Trusted in-process stamp for one chunk. Compare only under the authority's lock. */
     public Object chunkStamp(ChunkPos position) {
         long generation=terrain.geometryRevision();if((generation&1)!=0)return null;
-        var bucket=chunks.get(position);
+        var bucket=chunk(position);
         return new ChunkStamp(terrain,generation,bucket,bucket==null?0:bucket.revision);
     }
 
@@ -453,10 +471,10 @@ public final class WorldVoxels {
         return value == -1 ? Blocks.PARTIAL : value >>> 24 == 254 ? Blocks.LED : value & 0xffffff;
     }
 
-    public void clear(){if(!chunks.isEmpty())geometryRevision++;chunks.clear();}
+    public void clear(){if(chunks.size()!=0)geometryRevision++;chunks=chunks.cleared();lookup=null;lookupMisses=0;}
 
     private SparseVoxelOctree editedCell(int x,int y,int z) {
-        var bucket=chunks.get(ChunkPos.fromBlock(x,y,z));
+        var bucket=chunk(Math.floorDiv(x,16),Math.floorDiv(y,16),Math.floorDiv(z,16));
         return bucket==null?null:bucket.get(localCell(x,y,z));
     }
     private static int localCell(int x,int y,int z){return (x&15)|((z&15)<<4)|((y&15)<<8);}
@@ -474,7 +492,7 @@ public final class WorldVoxels {
     public boolean emptyChunk(ChunkPos position) {
         long minY=(long)position.chunkY()*16;
         if(minY<=Terrain.MAX_Y&&minY+15>=Terrain.MIN_Y)return false;
-        var bucket=chunks.get(position);if(bucket==null)return true;
+        var bucket=chunk(position);if(bucket==null)return true;
         if(bucket.cells==null)return bucket.singleKey<0||bucket.singleTree.occupied()==0;
         for(var tree:bucket.cells.values())if(tree.occupied()!=0)return false;
         return true;
@@ -537,10 +555,10 @@ public final class WorldVoxels {
     }
     private void storeCell(int x,int y,int z,SparseVoxelOctree stored) {
         var position=ChunkPos.fromBlock(x,y,z);
-        var bucket=chunks.get(position);
+        var bucket=chunk(position);
         if(bucket==null||bucket.owner!=owner) {
             bucket=new CellBucket(owner,bucket);
-            chunks.put(position,bucket);
+            putChunk(position,bucket);
         }
         bucket.put(localCell(x,y,z),stored);geometryRevision++;
     }
