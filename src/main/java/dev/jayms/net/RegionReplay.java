@@ -44,10 +44,30 @@ final class RegionReplay {
         read(in,edits,edit->true);
     }
     static void read(DataInputStream in,Map<String,Protocol.Edit> edits,Predicate<Protocol.Edit> allowed)throws IOException {
-        Objects.requireNonNull(allowed);
+        Objects.requireNonNull(edits);
+        visit(in,allowed,()->false,(region,section)->{
+            for(var edit:section)WorldVoxels.remember(edits,edit);
+        });
+    }
+    /** A worker-owned staging sink. Sections retain file order, including recurring
+     * regions. The sink must not publish live state: a later section may fail. */
+    @FunctionalInterface interface SectionSink {
+        void accept(ChunkPos region,List<Protocol.Edit> section)throws IOException;
+    }
+    /** Decode one bounded, fully validated immutable section at a time without
+     * rebuilding a global history map. Leaves the caller's stream and world tail
+     * open/unread. Cancellation is checked before I/O, per record and before each
+     * sink call; blocking reads themselves still belong on a worker. Earlier sink
+     * calls are private staged prefixes, not a transaction commit. */
+    static void visit(DataInputStream in,Predicate<Protocol.Edit> allowed,BooleanSupplier cancel,
+            SectionSink sink)throws IOException {
+        Objects.requireNonNull(in);Objects.requireNonNull(allowed);
+        Objects.requireNonNull(cancel);Objects.requireNonNull(sink);
+        StructurePackage.cancelled(cancel);
         int total=in.readInt();if(total<0||total>LocalGame.MAX_SAVED_EDITS)throw new IOException("Invalid world");
         int count=0;
         while(count<total) {
+            StructurePackage.cancelled(cancel);
             var region=new ChunkPos(in.readInt(),in.readInt(),in.readInt());
             int records=in.readUnsignedShort(),length=in.readUnsignedShort();long expected=Integer.toUnsignedLong(in.readInt());
             if(records<1||records>MAX_RECORDS||records>total-count||length!=records*EDIT_BYTES||length>MAX_BODY)throw new IOException("Regional replay section budget");
@@ -56,15 +76,19 @@ final class RegionReplay {
             var section=new ArrayList<Protocol.Edit>(records);
             try(var body=new DataInputStream(new ByteArrayInputStream(bytes))) {
                 for(int i=0;i<records;i++) {
+                    StructurePackage.cancelled(cancel);
                     var edit=Protocol.Edit.read(body);
                     if(!edit.valid()||!allowed.test(edit)||!ChunkPos.fromBlock(edit.x(),edit.y(),edit.z()).equals(region))throw new IOException("Invalid regional replay position/value");
                     section.add(edit);
                 }
                 if(body.read()!=-1)throw new IOException("Trailing regional replay section");
             }
-            // Validate the complete bounded section before changing the private load history.
-            for(var edit:section)WorldVoxels.remember(edits,edit);
+            // No record escapes before its entire section passes validation.
+            StructurePackage.cancelled(cancel);
+            sink.accept(region,List.copyOf(section));
+            StructurePackage.cancelled(cancel);
             count+=records;
         }
+        StructurePackage.cancelled(cancel);
     }
 }

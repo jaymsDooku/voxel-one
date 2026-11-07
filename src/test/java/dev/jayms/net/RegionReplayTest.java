@@ -64,6 +64,48 @@ class RegionReplayTest {
         var wrong=new AbstractMap<String,Protocol.Edit>(){public int size(){return 2;}public Set<Entry<String,Protocol.Edit>> entrySet(){return Set.of(Map.entry("one",new Protocol.Edit(0,128,0,Blocks.STONE)));}};
         assertThrows(IOException.class,()->encode(wrong));assertArrayEquals(before,encode(source));
     }
+    @Test void streamingSinkIsBoundedImmutableOrderedAndLeavesTailUnread()throws Exception {
+        var source=fixture();var bytes=new ByteArrayOutputStream();bytes.write(encode(source));
+        new DataOutputStream(bytes).writeInt(0x12345678);
+        var sections=new ArrayList<List<Protocol.Edit>>();var regions=new ArrayList<ChunkPos>();
+        try(var in=new DataInputStream(new ByteArrayInputStream(bytes.toByteArray()))) {
+            RegionReplay.visit(in,e->true,()->false,(region,section)->{
+                assertTrue(section.size()>0&&section.size()<=1024);
+                assertThrows(UnsupportedOperationException.class,section::clear);
+                for(var edit:section)assertEquals(region,ChunkPos.fromBlock(edit.x(),edit.y(),edit.z()));
+                regions.add(region);sections.add(section);
+            });
+            assertEquals(0x12345678,in.readInt());assertEquals(-1,in.read());
+        }
+        assertEquals(List.of(1024,76,1,1),sections.stream().map(List::size).toList());
+        assertEquals(regions.get(0),regions.get(3));
+        assertEquals(new ArrayList<>(source.values()),sections.stream().flatMap(List::stream).toList());
+        // Retained immutable sections survive later reads and source mutations.
+        source.clear();assertEquals(1024,sections.get(0).size());
+    }
+    @Test void streamingFailureAndCancellationNeverDeliverAnInvalidSection()throws Exception {
+        byte[] bytes=encode(fixture());var cancel=new AtomicBoolean();
+        var in=new DataInputStream(new ByteArrayInputStream(bytes));
+        assertThrows(CancellationException.class,()->RegionReplay.visit(in,e->true,()->true,(r,s)->fail()));
+        assertEquals(bytes.length,in.available());
+        var delivered=new ArrayList<List<Protocol.Edit>>();
+        assertThrows(CancellationException.class,()->RegionReplay.visit(
+                new DataInputStream(new ByteArrayInputStream(bytes)),e->true,cancel::get,
+                (r,s)->{delivered.add(s);cancel.set(true);}));
+        assertEquals(1,delivered.size());assertEquals(1024,delivered.get(0).size());
+        // The predicate can trigger cancellation within a section; no partial delivery.
+        var checks=new int[1];cancel.set(false);
+        assertThrows(CancellationException.class,()->RegionReplay.visit(
+                new DataInputStream(new ByteArrayInputStream(bytes)),e->{if(++checks[0]==17)cancel.set(true);return true;},
+                cancel::get,(r,s)->fail()));assertEquals(17,checks[0]);
+        // A later bad checksum keeps only the prior private staged prefix.
+        bytes[24+1024*24+16]^=1;delivered.clear();
+        assertThrows(IOException.class,()->RegionReplay.visit(new DataInputStream(new ByteArrayInputStream(bytes)),
+                e->true,()->false,(r,s)->delivered.add(s)));assertEquals(1,delivered.size());
+        var failure=new IOException("Synthetic staging failure");
+        assertSame(failure,assertThrows(IOException.class,()->RegionReplay.visit(
+                new DataInputStream(new ByteArrayInputStream(encode(fixture()))),e->true,()->false,(r,s)->{throw failure;})));
+    }
     @Test void versionTenStagingRestoresModelsSurvivalAndExactHistoryThenRemainsRegional()throws Exception {
         var path=folder.resolve("world.dat");var local=new LocalGame(path,42);local.edits=fixture();
         var voxels=new SparseVoxelOctree(8);voxels.set(1,2,3,0xff123456);int id=local.models.stageStructureModel(new ModelDefinition("Regional model",voxels)).id();WorldVoxels.remember(local.edits,new Protocol.Edit(32,180,0,id));

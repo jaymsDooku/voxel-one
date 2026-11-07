@@ -1386,3 +1386,21 @@ Immutable-root validation completed: 1,025 Java tests across 204 fresh suites pa
 `History.copyOf` now shares immutable key/order roots and rotates existing per-cell COW ownership. Replay insertion order and read-only entry contracts remain unchanged. Offline structure staging captures roots once and revalidates identity/revision once on the owner; server staging captures under its authority lock. Both final commit fences remain. Worker preparation/save staging stay detached. This replaces the old repeated-batch history copier; it does not raise admission limits or remove full-history serialization.
 
 Full Java retry passed 1,031 tests/205 fresh suites with one optional browser skip and zero failures/errors; all 32 backend checks and the serial Main/GLFW workflow passed. Fresh video was fully decoded and inspected; all 230 source hashes match. The first full-run obsolete reflection-test error is retained in the report, alongside the actual staging/concurrent-edit/retry/cancellation replacement coverage. Copy allocation is lower in the 100,000-record component fixture; reads, iteration and first writes remain slower. See `docs/structure-history-roots.md` and `dashboard/evidence/structure-history-roots.json` for exact metrics, contracts and limits. Source/media await controller publication and exact-source hosted checks. Full city/maximum, remaining live backend and required physical-GPU/shaped 32-client/20-run game qualification remain pending; stable rollout gated.
+
+
+### Bounded regional replay delivery
+
+Version 10 loaders share a regional decoder with a worker-owned section sink.
+It validates the checksum, count, coordinates, values and application predicate
+for a whole section before delivering an immutable list of at most 1,024 edits.
+Delivery retains file order, including recurring regions, and leaves the save
+tail unread. The sink can throw `IOException`; cancellation is checked before
+I/O, per record, and before and after delivery. Blocking I/O still belongs on a
+worker. A sink must stage privately: an error in a later section does not undo
+previous deliveries. Whole-world publication remains a separate transaction.
+
+This seam lets future disk-backed migration consume validated sections without
+first constructing a global replay map. Existing offline/server loaders still
+rebuild that map through the same decoder. It adds no lazy startup, disk-backed
+live history, new save version, admission allowance or qualification claim.
+The 2,000,000-record persistence limit and all structure limits remain intact.
