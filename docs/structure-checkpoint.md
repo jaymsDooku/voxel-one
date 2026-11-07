@@ -3651,3 +3651,78 @@ must publish new source/report/media and run exact-source hosted checks. Continu
 live region/history/durable-root/renderer/server integration afterward. City/max
 admission and full reference physical-GPU/shaped 32-client/20-run qualification
 remain unfinished. Stable rollout stays gated; do not mark ready.
+
+## Dense validated replay load — implementation and focused checks
+
+Parent exact head 1ed366d90e7b8510288105feb77f1dac15a8ed73: inspected PR checks;
+all eight builds succeeded and publication skipped. Downloaded sanitized Linux
+Maven summary from run 42391291811: 1,044 tests/208 suites, zero failures/errors,
+one optional browser-workflow skip. No raw hosted runtime logs read.
+
+Current edits add decoder-only `WorldVoxels.rememberValidated`: valid depth-4
+records remove/reinsert only their exact key, keeping coarser ancestors and replay
+order. Other depths use prior coverage pruning. LocalGame flat replay and shared
+version-10 replay (offline/server) use it. No format or admission cap changed.
+Three new tests cover all 4,096 leaves at both world limits, duplicate order,
+coarse overwrite, snapshot isolation, seeded mixed-depth records, invalid input,
+and byte-exact dense flat/regional load/save. All 40 focused tests passed.
+
+Small diagnostic: two warmups/five runs, 8 cells/32,768 records, shared 4-vCPU
+Haswell VPS/Linux 6.1.0-50-cloud-amd64/Oracle Java 25.0.3/512 MiB heap. Baseline
+median 9,979.766216 ms, 588,356,936 thread-allocated bytes; validated path median
+57.763836 ms, 47,804,328 bytes. Part overlaps full regression. This is neither
+peak memory nor city/maximum/reference-environment qualification.
+Commands/raw measurements: dashboard/evidence/structure-dense-replay.json.
+
+Full Java regression is currently running; do not claim pass yet. Then run both
+native harnesses alone on inherited display, decode/inspect fresh video and
+startup/conflict images, finalize source hashes/report and request controller
+publication/hosted checks. Previous ignored native folders preserved as
+`target/structure-startup-pre-dense-replay` and `target/structure-native-pre-dense-replay`;
+never read their private runtime logs. No helper ID was created by either failed
+Pro attempt; no proposal or delegated validation was accepted. Independent local
+analysis and tests supply the evidence. Whole feature remains unfinished: live
+disk-backed history/geometry/roots, city/max admission, full 20-run physical-GPU
+and shaped-network 32-client qualification still required. No stable rollout.
+
+## Dense validated replay — final local validation complete
+
+Full final-production Java regression passed: 1,047 tests/209 fresh suites,
+zero failures/errors, one optional AssetManager browser-workflow skip. All current
+test sources have fresh reports. The 40 focused tests also passed. No production
+source changed during either run or either final native workflow.
+
+Strengthened native success fixture to 4,096 alternating bricks/glass depth-4
+pieces plus one normal block. Actual Main startup checked every saved piece in
+live World; normal close preserved source bytes. Both native Escape cases passed
+again: read 200,000 records and partial replay 5,000 version-3 records, no partial
+world publication/ready scene or source rewrite. Full native structure workflow
+passed with exit0: named capture/anchor/library, import/export/long path, all four
+rotations, overlap/holes/player rejection, cancel/atomicity/place/undo/repeat,
+32-resolution model dependency/restart, inventory/editor regressions.
+
+Fresh F10 video fully decoded: 25 frames, 44.013 seconds, 466,842 bytes, 960×544,
+SHA-256 `5f995190f52e9631ac84296531644b1e20007e9525b88042f57385a659d48b40`.
+Inspected new midpoint, occupied-cell conflict screenshot and both startup images.
+All 232 production hashes match both 233-file native manifests. Recording matches
+isolated profile bytes; no profile temporary files remain. Software FPS 1 remains
+functional evidence only. Exact commands/environment/steps/expected/observed,
+microbenchmark limitations and current pending gates are in
+`dashboard/evidence/structure-dense-replay.json`.
+
+Audit: no removed files/unmerged index/pending Git operation; restored MP3/Hub
+files byte-match review base. Intended old test line replacements expect structure
+protocol 31 while retaining old-save/packet assertions and adding 29/30 fallback.
+Earlier sky-priority functional call grants 10 seconds for cold CI, retains the
+fairness assertion and leaves production timing budgets untouched; it is not a
+frame/stall qualification result. This turn replaces only decoder calls with the
+validated exact-key path and strengthens native dense startup coverage. No
+unrelated feature deletion intended. No local staging/commit/push/merge.
+
+Controller must publish pending feature source and sanitized media, then run
+exact-source hosted checks. This is a new source handoff, not another wait for
+parent 1ed366d9 (all eight parent builds already passed). Continue live disk-backed
+region/history/roots/large placement/render/server integration after hosted
+results. City/max admission and 20-run reference physical-GPU/shaped 32-client
+qualification remain unfinished. Keep stable rollout and supported-limit claims
+gated. Do not mark ready.

@@ -53,7 +53,7 @@ final class RegionReplay {
         StructurePackage.cancelled(cancel);progress.accept(0);int[] count={0};
         visit(in,allowed,cancel,(region,section)->{
             for(var edit:section) {
-                StructurePackage.cancelled(cancel);WorldVoxels.remember(edits,edit);
+                StructurePackage.cancelled(cancel);WorldVoxels.rememberValidated(edits,edit);
                 if((++count[0]&127)==0)progress.accept(count[0]);
             }
         });

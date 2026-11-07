@@ -1467,3 +1467,28 @@ limits. The replay spool is deliberately not added as an extra disk pass on
 ordinary loads. This responsiveness step does not provide lazy region roots,
 loaded/pending/failed physics/render queries, large atomic publication or city
 qualification. Full performance, memory and multiplayer gates remain pending.
+
+### Dense replay loading
+
+Validated offline replay and version-10 server replay use an exact-key path for
+finest-grid (depth-4) records. A valid 1/16-cell edit cannot fully cover a different
+valid key. Loading removes that key, then appends the new record so replay order
+is unchanged. Coarser ancestor edits remain in history. Larger incoming edits
+still use coverage pruning. The generic editing API keeps its existing behavior;
+the fast path requires every existing replay record to be valid.
+
+This avoids a whole-cell key snapshot and coverage scan for each finest-grid
+record. It does not remove the eager history/geometry load, change any save
+format, increase admission limits, or qualify city/maximum packages. The small
+`deploy/ValidatedReplayBenchmark.java` fixture measures history construction only;
+it is not a capture, placement, durable-save, rendering or network benchmark.
+
+On the shared 4-vCPU Haswell VPS (Linux 6.1.0-50-cloud-amd64, Oracle Java
+25.0.3, 512 MiB heap), eight fully fragmented cells/32,768 records took a median
+9,979.77 ms with coverage scanning and 57.76 ms with validated exact-key replay.
+Median thread allocation was 588,356,936 versus 47,804,328 bytes. There were two
+warmups and five measured runs. Part of this diagnostic overlapped the full
+Java regression; it is not a controlled reference-environment performance claim.
+Thread allocation is not peak memory. Raw measurements and commands are in
+`dashboard/evidence/structure-dense-replay.json`. Required 20-run full-fixture
+qualification remains pending.
