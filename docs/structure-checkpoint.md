@@ -3447,3 +3447,42 @@ Full final-source retry passed: 1,031 tests/205 fresh current suites, zero failu
 Playtest: serial production Main/GLFW workflow passed all capture/browse/import/export/rotations/conflicts/holes/rejection/atomicity/cancellation/place/undo/repeat/dependency/restart/inventory/editor checks on inherited X11 with isolated synthetic profile. All 230 benchmark/native/current source hashes match; no temporary profile files remain. Fresh F10 clip fully decoded and midpoint/cancelled-undo views inspected: 24 frames, 43.317 seconds, 416,629 bytes, 960×544, SHA-256 `ddb345451bad03b11bef0d42a829f35fa3170b643a2b1599a9813cf3d09f2d16`. Software 1 FPS llvmpipe is functional evidence only.
 
 Report/contracts: `dashboard/evidence/structure-history-roots.json`, `docs/structure-history-roots.md`. No tracked deletions, unmerged entries or pending Git recovery; MP3/Hub restored files match review base, diff/new-file checks passed. Private server copier and offline batch-copy loop were intentionally replaced by root capture; no unrelated deletion intended. No local commit/push/merge performed. New source/report/media need controller publication and exact-source hosted checks. Continue live region/history/durable-root/renderer/server work afterward. Full city/maximum admission and physical-GPU/shaped 32-client/20-run full-game qualification remain unfinished. Stable rollout stays gated; do not mark ready from this scoped result.
+
+
+## Bounded regional replay sink — native validation running
+
+Controller scoped results passed all four platforms for exact parent
+`56f92c0a8f4e77715c59f585027f3eea4e3b45a2`; publication skipped. No unchanged
+CI wait requested. `RegionReplay.visit` now delivers fully validated immutable
+sections of at most 1,024 edits to an IOException-capable staging sink. Both
+existing version 10 loaders use the same decoder through the map adapter.
+File order, recurring regions, explicit air, predicates, format and persistence
+limits stay intact. Cancellation checks precede I/O, each record and delivery.
+Earlier sink calls remain private prefixes; no whole-world atomicity claim.
+
+All 16 targeted tests passed in three suites with zero failures/errors/skips:
+`RegionReplayTest`, `ServerRegionSaveTest`, `StructureSaveStagingTest`. New tests
+cover bounded immutable batches, exact order and tail position, pre-read and
+mid-section cancellation, bad later checksum and sink failure. Native Main/GLFW
+is running alone on inherited display and isolated synthetic profile. Do not
+claim it or new media passed yet. Report: `dashboard/evidence/structure-replay-sink.json`.
+The whole live history still materializes; this is a decoder integration seam,
+not completed disk-backed loading. Full city/maximum admission, live backend,
+physical GPU, shaped 32-client and 20-run qualification remain pending.
+
+
+Bounded regional replay sink local validation complete. All 16 targeted tests
+passed; serial Main/GLFW workflow passed with exit 0. Playtest covered named
+capture/import/export, four rotations, conflicts and empty source cells,
+rejection/atomicity/cancellation, placement/undo/repeat, dependency restoration,
+restart, inventory and editor regressions. All 230 source/harness hashes match.
+No temporary profile files remain. Fresh video fully decoded: 24 frames,
+43.48 seconds, 515,309 bytes; SHA-256
+`fc50add6affd87dff5e97232981d2e68a2a1b9a15edb41e7a4af99c00a1ff3e8`.
+Midpoint and fresh conflict screenshot inspected. Software 1 FPS llvmpipe is
+functional evidence only. Full current-source Java suite was not rerun for this
+bounded refactor; new hosted checks are required. The old full-suite result
+remains historical. No tracked deletions/unmerged entries; diff check passed;
+restored MP3/Hub files byte-match review base. New source/report/media await
+controller publication. Continue live backend integration afterward; full
+city/maximum admission and qualification remain unfinished, stable rollout gated.
