@@ -20,7 +20,7 @@ class StructureOrderTest {
     }
     @Test void cancellationDuringEveryRadixPhaseLeavesInputUntouched() {
         int[] keys=new int[8192];for(int i=0;i<keys.length;i++)keys[i]=keys.length-i;
-        for(int at:new int[]{1,5,12,20,35,60,75,81}) {
+        for(int at:new int[]{1,5,12,20,35,60,72,74}) {
             var calls=new AtomicInteger();int[] before=keys.clone();
             assertThrows(CancellationException.class,()->StructureOrder.indices(keys,keys.length,()->calls.incrementAndGet()>=at));
             assertArrayEquals(before,keys);
@@ -33,5 +33,15 @@ class StructureOrderTest {
         Thread.currentThread().interrupt();
         try {assertThrows(CancellationException.class,()->StructureOrder.indices(new int[]{1},1,()->false));}
         finally {Thread.interrupted();}
+    }
+    @Test void sortsOnlyRequestedPrefixAndReturnsIndependentStableIndices()throws Exception {
+        int[] keys={7,0,7,(1<<28)-1,0,-1};
+        int[] before=keys.clone();
+        int[] order=StructureOrder.indices(keys,5,()->false);
+        assertArrayEquals(new int[]{1,4,0,2,3},order);
+        assertArrayEquals(before,keys);
+        order[0]=99;
+        assertArrayEquals(new int[]{1,4,0,2,3},StructureOrder.indices(keys,5,()->false));
+        assertThrows(IllegalArgumentException.class,()->StructureOrder.indices(keys,-1,()->false));
     }
 }
