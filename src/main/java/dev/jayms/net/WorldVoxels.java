@@ -244,8 +244,10 @@ public final class WorldVoxels {
     private ChunkDirectory<CellBucket> chunks=new ChunkDirectory<>(Integer.MAX_VALUE);
     private record ChunkLookup(ChunkDirectory<CellBucket> root,int x,int y,int z,CellBucket bucket) {}
     private volatile ChunkLookup lookup;
-    // Races may change the sampling rate, never the root/key checks or returned value.
-    private int lookupMisses;
+    // Admission hints only. Races can cause extra/missed cache writes, never a hit.
+    // No root or bucket is retained here; the immutable entry validates both.
+    private int previousLookupX,previousLookupY,previousLookupZ;
+    private boolean previousLookup;
     private CellBucket chunk(ChunkPos position) {
         if(position==null)return null;
         return chunk(position.chunkX(),position.chunkY(),position.chunkZ());
@@ -254,12 +256,14 @@ public final class WorldVoxels {
         var root=chunks;var cached=lookup;
         if(cached!=null&&cached.root==root&&cached.x==x&&cached.y==y&&cached.z==z)return cached.bucket;
         var bucket=root.get(x,y,z);
-        // Sample cold misses to avoid allocating a cache entry on every random read.
-        if(cached==null||cached.root!=root||(++lookupMisses&3)==0)
+        // Admit a repeated chunk, not a fraction of random cold reads. Always use
+        // this read's root/key/bucket, even if concurrent hints formed a false match.
+        if(previousLookup&&previousLookupX==x&&previousLookupY==y&&previousLookupZ==z)
             lookup=new ChunkLookup(root,x,y,z,bucket);
+        previousLookupX=x;previousLookupY=y;previousLookupZ=z;previousLookup=true;
         return bucket;
     }
-    private void putChunk(ChunkPos position,CellBucket bucket){chunks=chunks.with(position,bucket);lookup=null;lookupMisses=0;}
+    private void putChunk(ChunkPos position,CellBucket bucket){chunks=chunks.with(position,bucket);lookup=null;previousLookup=false;}
     private Object owner=new Object();
     private long geometryRevision;
 
@@ -471,7 +475,7 @@ public final class WorldVoxels {
         return value == -1 ? Blocks.PARTIAL : value >>> 24 == 254 ? Blocks.LED : value & 0xffffff;
     }
 
-    public void clear(){if(chunks.size()!=0)geometryRevision++;chunks=chunks.cleared();lookup=null;lookupMisses=0;}
+    public void clear(){if(chunks.size()!=0)geometryRevision++;chunks=chunks.cleared();lookup=null;previousLookup=false;}
 
     private SparseVoxelOctree editedCell(int x,int y,int z) {
         var bucket=chunk(Math.floorDiv(x,16),Math.floorDiv(y,16),Math.floorDiv(z,16));
