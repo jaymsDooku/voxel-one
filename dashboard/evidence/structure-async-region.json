@@ -1,0 +1,103 @@
+{
+  "status": "passed",
+  "scope": "Private asynchronous disk-region read adapter; not live game integration or qualification",
+  "parent_head": "286983b371915aa5165b212e67887d8dc4856449",
+  "hosted_parent": {
+    "platform_builds": 8,
+    "result": "success",
+    "publication": "skipped"
+  },
+  "commands": [
+    "javac -encoding UTF-8 --release 17 -cp target/classes -d target/structure-async-region tools/structures/DiskPackageIndexPrototype.java tools/structures/DiskRegionCachePrototype.java tools/structures/DiskRegionCacheCheck.java tools/structures/AsyncRegionReadPrototype.java tools/structures/AsyncRegionReadCheck.java",
+    "java -Xmx256m -cp target/structure-async-region:target/classes AsyncRegionReadCheck",
+    "python3 -m unittest discover -s tools/structures -p \"test_*.py\" -v",
+    "python3 -m unittest tools.structures.test_region_history.RegionHistoryIntegrationTest.test_async_region_reads tools.structures.test_region_history.RegionHistoryIntegrationTest.test_disk_region_cache -v",
+    "java -Xmx256m -cp target/structure-async-region:target/classes AsyncRegionReadCheck --evidence"
+  ],
+  "tests": {
+    "tooling": {
+      "count": 59,
+      "seconds": 137.284,
+      "exit": 0,
+      "note": "Full suite started before final reentrant-callback hardening. Both affected integrations rerun on final source below."
+    },
+    "final_selected": {
+      "count": 2,
+      "seconds": 15.055,
+      "exit": 0
+    },
+    "cli": {
+      "exit": 0,
+      "rejection_cases": 11,
+      "disk_cells": 4,
+      "known_absent": 1,
+      "worker_only_io": true,
+      "queue_overflow": true,
+      "pending_distinct_from_absent": true,
+      "partial_batch_cancelled": true,
+      "stale_views_cancelled": true,
+      "fresh_callback_request_survives": true,
+      "close_cancels_running_and_queued": true,
+      "startup_retry": true,
+      "cleanup_failure_visible": true,
+      "immutable_results_after_close": true,
+      "owned_cache_deleted": true
+    }
+  },
+  "bounds": {
+    "batch_positions": 1024,
+    "waiting_requests_min": 1,
+    "waiting_requests_max": 128,
+    "storage_threads": 1,
+    "running_requests": 1,
+    "observed_queue_capacity_in_edges": 2,
+    "cache_pages": 2,
+    "cache_encoded_bytes": 1048576,
+    "heap": "-Xmx256m"
+  },
+  "playtest": {
+    "command": "java -Xmx256m -cp target/structure-async-region:target/classes AsyncRegionReadCheck --evidence",
+    "environment": "Inherited assigned X11 display/authentication; synthetic CLI fixtures; no game profile",
+    "steps": [
+      "Run deterministic blocked-worker lifecycle, cancellation and queue checks.",
+      "Open a production-encoded synthetic package through the real disk index/cache on the storage worker.",
+      "Compare four loaded cells and one known-absent result; reject invalid coordinate; retry; close and verify file cleanup.",
+      "Display actual CLI result; capture only this child window using xdotool PID selection and import with inherited DISPLAY."
+    ],
+    "expected": "Pending/cancelled/failed reads never become empty data or partial lists; I/O stays on worker; cleanup completion reflects actual close.",
+    "observed": "All assertions passed; 11 rejection cases; CLI exited 0; own-window screenshot inspected.",
+    "browser": "Does not apply to tooling-only changes. No production/native harness source changed.",
+    "unchanged_native_hashes": 228,
+    "image": "structure-async-region.png",
+    "image_sha256": "e60bde95a8576b20b48de1689d12d02145ddd55843b0c74513dc6658c089cc64"
+  },
+  "source_sha256": {
+    "tools/structures/AsyncRegionReadPrototype.java": "05e83578d3f72952e0e4e44b2c8acc04b1cb3e1878f661c10632e4c3e188435b",
+    "tools/structures/AsyncRegionReadCheck.java": "22541a235c2274462f61c217b82b78e60f4b539e41536884d55f09d7783a3477",
+    "tools/structures/DiskRegionCachePrototype.java": "8179b66b9c29212d76e2354e0bf2b65927048f91667fc15cc9333fe3bb38e258",
+    "tools/structures/DiskPackageIndexPrototype.java": "f5b7fdbb169162cff89cb872884c6d1bce1b46cd5d2e3f86028dca5e5850924d",
+    "tools/structures/test_region_history.py": "8d314ff9598e8715aa80a6a09908f78ef764c5413c6fe6df349fa39346c1d7c5"
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS",
+    "gpu_drivers": "No GPU/driver performance measured"
+  },
+  "limitations": [
+    "Private adapter only. Game world/root, renderer, physics, persistence and server integration remain unfinished.",
+    "Invalidation covers pending views of one immutable source; completed results still need owner-side world/root identity checks before publication.",
+    "Caller callbacks follow CompletableFuture rules; expensive callbacks must be dispatched away from the game owner.",
+    "Close and cancellation are cooperative. The close future must be observed; requesting close does not prove cleanup.",
+    "No new production admission limits, save formats or full-fixture runs.",
+    "No action/stall/frame/tick/memory/durability or city/maximum performance qualification claimed.",
+    "Physical GPU and shaped 32-client qualification remain pending. Stable rollout stays gated."
+  ],
+  "audit": {
+    "review_base": "71612f09bfec4549456b3317676e76cdced085a4",
+    "tracked_deletions": 0,
+    "intended_unrelated_deletions": [],
+    "restored_mp3_and_hub_files_match_base": true
+  },
+  "publication": "New tooling/report/image pending controller publication and exact-source checks"
+}

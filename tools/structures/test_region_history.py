@@ -18,7 +18,7 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
         folder.mkdir(parents=True, exist_ok=True)
         with tempfile.TemporaryDirectory(dir=folder) as temporary:
             sources = [ROOT / 'tools/structures' / name for name in
-                       ('DiskPackageIndexPrototype.java', 'DiskPackageIndexCheck.java', 'DiskPackageIndexEvidence.java', 'DiskRegionCachePrototype.java', 'DiskRegionCacheCheck.java', 'RegionHistoryPrototype.java', 'RegionHistoryPrototypeCheck.java', 'RegionHistoryCodecCheck.java', 'RegionHistoryStreamCheck.java', 'RegionHistoryStreamEvidence.java',
+                       ('DiskPackageIndexPrototype.java', 'DiskPackageIndexCheck.java', 'DiskPackageIndexEvidence.java', 'DiskRegionCachePrototype.java', 'DiskRegionCacheCheck.java', 'AsyncRegionReadPrototype.java', 'AsyncRegionReadCheck.java', 'RegionHistoryPrototype.java', 'RegionHistoryPrototypeCheck.java', 'RegionHistoryCodecCheck.java', 'RegionHistoryStreamCheck.java', 'RegionHistoryStreamEvidence.java',
                         'RegionDependencyPrototype.java', 'RegionDependencyCheck.java',
                         'RegionGenerationPrototype.java', 'RegionGenerationCheck.java', 'RegionGenerationEvidence.java',
                         'RegionAuthorityPrototype.java', 'RegionAuthorityCheck.java',
@@ -33,6 +33,15 @@ class RegionHistoryIntegrationTest(unittest.TestCase):
             result = subprocess.run(command, capture_output=True, text=True, timeout=30)
             self.assertEqual(result.returncode, 0, result.stderr[:4000])
             return [json.loads(line) for line in result.stdout.splitlines()]
+
+    def test_async_region_reads(self):
+        row = self.run_check('AsyncRegionReadCheck')[0]
+        self.assertEqual(row['status'], 'passed')
+        self.assertEqual(row['rejection_cases'], 11)
+        self.assertEqual(row['disk_cells'], 4)
+        self.assertEqual(row['known_absent'], 1)
+        self.assertTrue(row['worker_only_io'])
+        self.assertFalse(row['qualification'])
 
     def test_disk_region_cache(self):
         row = self.run_check('DiskRegionCacheCheck')[0]
