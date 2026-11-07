@@ -345,11 +345,11 @@ public class World implements AutoCloseable {
     /** Detached worker preparation. Contains no world references or publication authority. */
     public static final class CellReplacement {
         private final Protocol.CellState state;
-        private final SparseVoxelOctree canonical;
+        private final WorldVoxels.CellImage canonical;
         private final int replayCount;
         private final String cellKey;
         private final WorldVoxels.CellReplay replay;
-        private CellReplacement(Protocol.CellState state,SparseVoxelOctree canonical,WorldVoxels.CellReplay replay) {
+        private CellReplacement(Protocol.CellState state,WorldVoxels.CellImage canonical,WorldVoxels.CellReplay replay) {
             this.state=state;this.canonical=canonical;this.replayCount=replay.editCount();this.cellKey=replay.cellKey();this.replay=replay;
         }
         public Protocol.CellState replayState(){return state;}
@@ -362,7 +362,7 @@ public class World implements AutoCloseable {
         var detached=source.copy().freeze();
         var state=new Protocol.CellState(x,y,z,detached);var replay=WorldVoxels.prepareCellReplay(state);
         var canonical=new SparseVoxelOctree(16);canonical.replaceRegion(0,0,0,detached);canonical.freeze();
-        return new CellReplacement(state,canonical,replay);
+        return new CellReplacement(state,WorldVoxels.prepareCellImage(canonical),replay);
     }
     /** Owner-thread whole-cell replacement. Keep canonical replay history, graft geometry once. */
     public void replaceCell(int x,int y,int z,SparseVoxelOctree source) {
@@ -385,13 +385,13 @@ public class World implements AutoCloseable {
     public void replaceCell(CellReplacement replacement) {
         Objects.requireNonNull(replacement,"replacement");
         var state=replacement.state;int x=state.x(),y=state.y(),z=state.z();
-        var canonical=replacement.canonical;var cellKey=replacement.cellKey;int replayCount=replacement.replayCount;
+        var canonical=replacement.canonical.tree();var cellKey=replacement.cellKey;int replayCount=replacement.replayCount;
         var p=ChunkPos.fromBlock(x,y,z);editsVersion+=replayCount;
         var skyColumn=column(p);changedSky(skyColumn);skyPositions.put(skyColumn,true);if(y>Terrain.MAX_Y)editedCeilings.add(skyColumn);
         skyEditChunks.computeIfAbsent(skyColumn,k->new HashSet<>()).add(p);skyEditVersions.put(skyColumn,editsVersion);
         if(preparing!=null&&preparing.position().equals(p))replay=null;
-        voxels.replaceCell(x,y,z,canonical);
-        editedCells.computeIfAbsent(p,k->new LinkedHashMap<>()).put(cellKey,new EditedCell(x,y,z,voxels.cell(x,y,z).copy().freeze()));
+        voxels.installCellImage(x,y,z,replacement.canonical);
+        editedCells.computeIfAbsent(p,k->new LinkedHashMap<>()).put(cellKey,new EditedCell(x,y,z,canonical));
         var history=edits.computeIfAbsent(p,k->new WorldVoxels.History());WorldVoxels.rememberCell(history,replacement.replay);
         var chunk=loadedChunks.get(p);
         if(chunk!=null) {

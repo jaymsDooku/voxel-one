@@ -512,12 +512,30 @@ public final class WorldVoxels {
         replaceCell(edit.x(),edit.y(),edit.z(),tree);
     }
 
+    /** Detached immutable cell image. Geometry/material policy remains caller-owned. */
+    public static final class CellImage {
+        private final SparseVoxelOctree tree;
+        private CellImage(SparseVoxelOctree tree){this.tree=tree;}
+        public SparseVoxelOctree tree(){return tree;}
+    }
+    /** Worker preparation. Never freezes the caller or retains its mutable wrapper. */
+    public static CellImage prepareCellImage(SparseVoxelOctree source) {
+        Objects.requireNonNull(source,"source");
+        if(source.size()!=RESOLUTION)throw new IllegalArgumentException("Invalid world cell resolution");
+        return new CellImage(source.copy().freeze());
+    }
+    /** Owner installation shares only a factory-owned frozen image; later edits fork. */
+    public void installCellImage(int x,int y,int z,CellImage image) {
+        storeCell(x,y,z,Objects.requireNonNull(image,"image").tree);
+    }
     /** Replace one validated world cell without replaying its leaves. Owner thread only. */
     public void replaceCell(int x,int y,int z,SparseVoxelOctree tree) {
         Objects.requireNonNull(tree,"tree");
         if(tree.size()!=RESOLUTION)throw new IllegalArgumentException("Invalid world cell resolution");
         // Copy the wrapper so later caller edits cannot change this world or freeze the caller.
-        var stored=tree.copy().freeze();
+        storeCell(x,y,z,tree.copy().freeze());
+    }
+    private void storeCell(int x,int y,int z,SparseVoxelOctree stored) {
         var position=ChunkPos.fromBlock(x,y,z);
         var bucket=chunks.get(position);
         if(bucket==null||bucket.owner!=owner) {
