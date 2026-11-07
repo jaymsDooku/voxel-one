@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-07T06:06:31+00:00",
+  "updatedAt": "2026-11-07T06:40:57+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Measured 20-run admitted cell paths: fractional prepared-owner p95 106.8ms versus direct 186.8ms; combined phases 199.7ms. Owner budget remains unmet. 57 tooling tests and CLI correctness checks passed; fresh diagnostic image saved. Full city/maximum qualification stays gated.",
-      "updatedAt": "2026-11-07T06:06:31+00:00"
+      "note": "Worker-prepared replay records/indexes reduce admitted fractional owner p95 to 67.1ms and owner allocation to 9.2MB. Full Java regression passed: 1009 tests, 1 optional skip. Fresh Main/GLFW workflow and 25-frame media passed. Hosted exact-source and full city/maximum qualification remain pending.",
+      "updatedAt": "2026-11-07T06:40:57+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

@@ -346,20 +346,21 @@ public class World implements AutoCloseable {
         private final SparseVoxelOctree canonical;
         private final int replayCount;
         private final String cellKey;
-        private CellReplacement(Protocol.CellState state,SparseVoxelOctree canonical,int replayCount,String cellKey) {
-            this.state=state;this.canonical=canonical;this.replayCount=replayCount;this.cellKey=cellKey;
+        private final WorldVoxels.CellReplay replay;
+        private CellReplacement(Protocol.CellState state,SparseVoxelOctree canonical,WorldVoxels.CellReplay replay) {
+            this.state=state;this.canonical=canonical;this.replayCount=replay.editCount();this.cellKey=replay.cellKey();this.replay=replay;
         }
         public Protocol.CellState replayState(){return state;}
+        public WorldVoxels.CellReplay replay(){return replay;}
     }
     /** Validate and canonicalize before publication; caller edits cannot change the result. */
     public static CellReplacement prepareCellReplacement(int x,int y,int z,SparseVoxelOctree source) {
         Objects.requireNonNull(source,"source");
         if(source.size()!=16||!new Protocol.Edit(x,y,z,0).valid())throw new IllegalArgumentException("Invalid world cell");
         var detached=source.copy().freeze();
-        var state=new Protocol.CellState(x,y,z,detached);int replayCount=state.replayEditCount();
-        var cellKey=new Protocol.Edit(x,y,z,0).cellKey();
+        var state=new Protocol.CellState(x,y,z,detached);var replay=WorldVoxels.prepareCellReplay(state);
         var canonical=new SparseVoxelOctree(16);canonical.replaceRegion(0,0,0,detached);canonical.freeze();
-        return new CellReplacement(state,canonical,replayCount,cellKey);
+        return new CellReplacement(state,canonical,replay);
     }
     /** Owner-thread whole-cell replacement. Keep canonical replay history, graft geometry once. */
     public void replaceCell(int x,int y,int z,SparseVoxelOctree source) {
@@ -376,7 +377,7 @@ public class World implements AutoCloseable {
         if(preparing!=null&&preparing.position().equals(p))replay=null;
         voxels.replaceCell(x,y,z,canonical);
         editedCells.computeIfAbsent(p,k->new LinkedHashMap<>()).put(cellKey,new EditedCell(x,y,z,voxels.cell(x,y,z).copy().freeze()));
-        var history=edits.computeIfAbsent(p,k->new WorldVoxels.History());WorldVoxels.rememberCell(history,state);
+        var history=edits.computeIfAbsent(p,k->new WorldVoxels.History());WorldVoxels.rememberCell(history,replacement.replay);
         var chunk=loadedChunks.get(p);
         if(chunk!=null) {
             boolean equivalent=chunk.terrainEquivalent,prior=canonicalMutation;canonicalMutation=true;
