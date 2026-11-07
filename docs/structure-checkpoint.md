@@ -3814,3 +3814,57 @@ materializes global history/geometry/indexes; asset intake, city-sidecar reads
 and later GPU setup retain existing owner paths. City/max admission and required
 20-run reference physical-GPU/shaped 32-client qualification remain unfinished.
 Keep stable rollout and supported-limit claims gated. Do not mark ready.
+
+## One-cell private startup replay — implementation and focused validation
+
+Completed scoped run 42399479148 succeeded for parent 007b01bb. Its Linux summary
+uses synthetic merge SHA 651e4e9b335bf63c164191aeefd9ec8e8a799d9c, whose tree
+exactly matches assigned parent tree db4538a7ff109efa54552f771b5ef3a5365adc45.
+Feature-run Linux summary from 42399474387 explicitly names 007b01bb. Both report
+1,053 tests/210 suites, zero failures/errors and one optional skip. No unchanged
+hosted wait requested; no full runtime logs read.
+
+Private startup now keeps one mutable 16³ cell while applying consecutive edits.
+Coordinate changes flush the canonical frozen tree and final edited-cell image;
+interleaved return visits start from the previous private value. Original history
+order and per-edit sky/version metadata are retained. Normal World.apply still
+uses its original geometry path. The validated finest-grid history helper is
+also used by this fully validated private replay. Fresh/loaded/closed/scheduled,
+completed and recursive initial replay guards keep it out of live worlds. The
+first progress callback is guarded too. Failure/cancel discards private state via
+existing OfflineWorldReplay cleanup, before owner/source-fenced publication.
+No package/save format, model resolution or admission cap changed.
+
+All 39 focused tests passed after strengthening first-progress reentrancy checks.
+New coverage compares interleaved coarse/fine/air, colours and custom models,
+exact histories, geometry, edit/sky metadata, dense cells, later ordinary edits,
+source isolation, guards, invalid input, callback failure and cancellation.
+Existing worker lifecycle/fence/cleanup tests also passed.
+
+Initial dense-only headless diagnostic passed all material/detail/history checks
+with five measured runs after one warmup. Raw data preserved as ignored
+`target/structure-cell-replay/benchmark-dense-initial.json`. The benchmark now
+also includes a coarse 16,384-cell fixture; rerun both serially after full Java
+regression finishes. The current draft report's initial benchmark/hash section
+must be replaced with those final measurements. Do not claim the new coarse
+case was run yet. Full Java regression is running. Then run both native harnesses
+alone, decode/inspect fresh media, finalize hashes/report and request controller
+publication/exact-source hosted checks. Prior private native folders preserved
+as ignored pre-cell-replay names; never read their private runtime logs.
+
+This still materializes global history/geometry/indexes. Live disk-backed
+region/history/durable roots and large placement/render/server integration,
+city/max admission and full 20-run physical-GPU/shaped 32-client qualification
+remain unfinished. Keep rollout and supported-limit gates. No owner answer is
+needed for these routine implementation defaults. No local staging/commit/push,
+merge, master or other-worktree mutation.
+
+### One-cell private replay: final local validation
+
+The private startup replay cell builder is locally validated. Focused checks passed 39 tests in six suites. Full Java regression passed 1,057 tests in 211 fresh suites with zero failures/errors and one optional browser skip. The serial five-run headless diagnostic measured dense replay median 2345.89 ms before versus 14.95 ms with the builder. Coarse replay measured 31.77 ms versus 32.26 ms and allocated more; this is a documented tradeoff, not a universal speedup or full fixture qualification.
+
+Playtest: `python3 deploy/run_offline_load_playtest.py --display "$DISPLAY"` passed all three startup cases. `python3 deploy/run_structure_playtest.py --display "$DISPLAY"` passed the full native workflow, including long import paths, conflicts, rotations, cancellation, undo, restart and inventory/editor regression. These runs used isolated synthetic profiles and llvmpipe software rendering. All 233 production source hashes match both native manifests. The fresh F10 video decoded all 25 image frames across 45.695 seconds; its midpoint and conflict screenshot were visually inspected. Video SHA-256: `d60dbf6ef651e523471368f6cd2206dff173b3a6804c94e16f3f592092a707cc`.
+
+The complete diff against review base `71612f09bfec4549456b3317676e76cdced085a4` removes no files. All ten restored MP3/Hub files match that base. No unmerged index or Git operation is pending. New source, reports and media need controller publication and exact-source hosted validation. Parent `007b01bb978cf9c30f33ec8161f5d09eb14ff5cf` hosted checks already succeeded; no unchanged wait is requested.
+
+Full city/maximum admission, live disk-backed integration and required 20-run physical-GPU/shaped 32-client qualification remain unfinished. Supported-limit claims and stable rollout remain gated. Detailed commands, environment, results and source hashes are in `dashboard/evidence/structure-cell-replay.json`.
