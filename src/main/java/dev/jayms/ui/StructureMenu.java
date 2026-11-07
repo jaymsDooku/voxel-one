@@ -111,7 +111,18 @@ public final class StructureMenu implements AutoCloseable {
             }
             if(verb.equals("undo")) {
                 if(network!=null){message=network.undoStructure()?"Undo sent to server":"Wait or update server to use structures";return;}
-                engine.undo("offline",local.structureAuthority(world,player));message="Structure placement undone";conflict=null;return;
+                start("Staging undo; world unchanged...",cancel->{
+                    var prepared=engine.beginUndo("offline",cancel::get);
+                    try {
+                        var box=prepared.footprint();
+                        var snapshot=StructureRegionSnapshot.capture(world,new Position(box.minX(),box.minY(),box.minZ()),box.width(),box.height(),box.depth(),ownerReads,cancel::get,p->progress=p/10);
+                        prepared.validate(snapshot,p->progress=10+p*40/100);
+                        var history=local.stageStructureHistory(prepared.cells(),ownerReads,cancel::get,p->progress=50+p/4);
+                        try {local.stageStructureSave(history,prepared.modelSnapshot(),cancel::get,p->progress=75+p/4);}
+                        catch(Exception|Error failure){if(history!=null)history.close();throw failure;}
+                        return new Completion(()->{try{prepared.commit(local.structureAuthority(world,player,history));message="Structure placement undone";conflict=null;}catch(Exception failure){message=failure.getMessage();}},()->{try{prepared.close();}finally{if(history!=null)history.close();}},cancel);
+                    }catch(Exception|Error failure){prepared.close();throw failure;}
+                });return;
             }
             var asset=selected;if(asset==null)throw new IOException("Choose a saved structure with Up/Down first");
             if(verb.equals("export")) {

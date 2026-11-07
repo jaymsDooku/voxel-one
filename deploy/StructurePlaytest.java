@@ -122,6 +122,15 @@ public class StructurePlaytest {
                     command("place");require(menu().message.contains("Occupied destination"),"Overlap rejected");
                     if(r==1){command("preview");capture(window,output.resolve("structure-preview-conflict.png"));}
                     if(r==0)x("key","F10");
+                    if(r==0) {
+                        byte[] saved=Files.readAllBytes((Path)get("offlineSave"));int edits=local().edits.size();
+                        x("type","--clearmodifiers","--delay","2","undo");waitFor(()->menu().input.equals("undo"),"Undo cancellation text entered");
+                        x("key","--delay","0","Return","Escape");onFrame(()->null);waitFor(()->menu().input.isEmpty()&&!menu().busy,"Undo cancellation completed");onFrame(()->null);
+                        require(menu().message.contains("Cancelled"),"Explicit undo cancellation: "+menu().message);
+                        require(local().edits.size()==edits&&world().sample(modelPosition.x(),modelPosition.y(),modelPosition.z())==id,"Cancelled undo preserves placed geometry and history");
+                        require(Arrays.equals(saved,Files.readAllBytes((Path)get("offlineSave"))),"Cancelled undo preserves durable world");
+                        capture(window,output.resolve("structure-undo-cancelled.png"));
+                    }
                     command("undo");require(menu().message.contains("undone"),"One-operation undo");require(world().sample(preserved.x(),preserved.y(),preserved.z())==Blocks.STONE,"Undo preserves unrelated edit");
                     onFrame(()->{edit(new Protocol.Edit(preserved.x(),preserved.y(),preserved.z(),0));return null;});
                     if(r<3)command("rotate");
@@ -158,7 +167,7 @@ public class StructurePlaytest {
                 onFrame(()->{var player=new dev.jayms.player.Player(new org.joml.Vector3f(30,131,24),180,-12,(Camera)get("camera"));player.toggleFlight();set("player",player);return null;});
                 capture(window,output.resolve("structure-component-closeup.png"));x("key","e");waitFor(()->((InventoryHud)get("inventoryHud")).open,"Inventory regression");x("key","e");x("key","F7");waitFor(()->((ModelEditor)get("editor")).open,"Existing model editor regression");x("key","F7");
                 onFrame(()->{renderer=org.lwjgl.opengl.GL11.glGetString(org.lwjgl.opengl.GL11.GL_RENDERER);return null;});
-                Files.writeString(output.resolve("structure-native-result.json"),"{\"status\":\"passed\",\"playtest\":\"Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.\",\"renderer\":\""+renderer+"\",\"qualification\":\"Experimental functional checks only; physical GPU and city/network budgets pending\"}\n");
+                Files.writeString(output.resolve("structure-native-result.json"),"{\"status\":\"passed\",\"playtest\":\"Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, undo, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.\",\"renderer\":\""+renderer+"\",\"qualification\":\"Experimental functional checks only; physical GPU and city/network budgets pending\"}\n");
             }catch(Throwable problem){failure=problem;try{Files.writeString(output.resolve("structure-native-failure.txt"),problem.getClass().getSimpleName()+": "+problem.getMessage());}catch(Exception ignored){}}
             finally {if(handle!=0)glfwSetWindowShouldClose(handle,true);}
         },"structure-playtest-input");driver.setDaemon(true);driver.start();

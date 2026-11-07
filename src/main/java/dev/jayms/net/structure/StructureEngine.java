@@ -211,6 +211,83 @@ public final class StructureEngine {
         }
         return Map.copyOf(validated);
     }
+    /** Reserve the newest undo record without touching the live world. Worker callers must close it. */
+    public UndoPrepared beginUndo(String owner,BooleanSupplier cancel)throws IOException {
+        if(!busy.compareAndSet(false,true))throw new IOException("Another large placement is running");
+        boolean complete=false;
+        try {
+            cancelled(cancel);var records=undo.get(owner);
+            if(records==null||records.isEmpty())throw new IOException("No structure placement to undo");
+            var result=new UndoPrepared(records.peekLast(),cancel);complete=true;return result;
+        } finally {if(!complete)busy.set(false);}
+    }
+    /** Detached undo staging. Only commit may publish or remove the reserved history record. */
+    public final class UndoPrepared implements AutoCloseable {
+        private final Record record;
+        private final BooleanSupplier cancel;
+        private ModelLibrary staged;
+        private long modelRevision;
+        private Map<ChunkPos,Object> proofs=Map.of();
+        private int affectedChunks;
+        private boolean closed,validated;
+        private UndoPrepared(Record record,BooleanSupplier cancel){this.record=record;this.cancel=cancel;}
+        private void open()throws IOException {if(closed)throw new IOException("Structure undo staging closed");cancelled(cancel);}
+        public Map<Position,SparseVoxelOctree> cells(){return record.before;}
+        /** Worker-only scan of immutable keys; no owner-thread bounds scan. */
+        public Footprint footprint()throws IOException {
+            open();int minX=Integer.MAX_VALUE,minY=Integer.MAX_VALUE,minZ=Integer.MAX_VALUE;
+            int maxX=Integer.MIN_VALUE,maxY=Integer.MIN_VALUE,maxZ=Integer.MIN_VALUE;
+            for(var p:record.after.keySet()) {
+                cancelled(cancel);minX=Math.min(minX,p.x());minY=Math.min(minY,p.y());minZ=Math.min(minZ,p.z());
+                maxX=Math.max(maxX,p.x());maxY=Math.max(maxY,p.y());maxZ=Math.max(maxZ,p.z());
+            }
+            return new Footprint(minX,minY,minZ,maxX-minX+1,maxY-minY+1,maxZ-minZ+1,0,new Position(minX,minY,minZ));
+        }
+        public void validate(Source snapshot,IntConsumer progress)throws IOException {
+            open();if(validated)throw new IOException("Structure undo already validated");
+            modelRevision=snapshot.models().revision();staged=snapshot.models().copy();
+            var chunks=new HashSet<ChunkPos>();var captured=new HashMap<ChunkPos,Object>();int count=0;
+            progress.accept(0);cancelled(cancel);
+            for(var entry:record.after.entrySet()) {
+                cancelled(cancel);var p=entry.getKey();var chunk=ChunkPos.fromBlock(p.x(),p.y(),p.z());
+                if(chunks.add(chunk)){var stamp=snapshot.chunkStamp(chunk);if(stamp!=null)captured.put(chunk,stamp);}
+                if(!snapshot.cell(p.x(),p.y(),p.z()).sameValues(entry.getValue()))
+                    throw new IOException("Placed cells changed; undo will not overwrite later edits");
+                if((++count&127)==0)progress.accept((int)(100L*count/record.after.size()));
+            }
+            for(var entry:captured.entrySet()) {
+                cancelled(cancel);
+                if(!entry.getValue().equals(snapshot.chunkStamp(entry.getKey())))throw new IOException("World changed during undo validation; retry undo");
+            }
+            cancelled(cancel);progress.accept(100);cancelled(cancel);
+            proofs=Map.copyOf(captured);affectedChunks=chunks.size();validated=true;
+        }
+        public ModelLibrary modelSnapshot()throws IOException {open();if(!validated)throw new IOException("Structure undo not validated");return staged.copy();}
+        private boolean unchanged(Authority authority) {
+            if(proofs.size()!=affectedChunks)return false;
+            for(var entry:proofs.entrySet()){cancelled(cancel);if(!entry.getValue().equals(authority.chunkStamp(entry.getKey())))return false;}
+            return true;
+        }
+        public void commit(Authority authority)throws IOException {
+            try {
+                open();if(!validated)throw new IOException("Structure undo not validated");
+                try(var publication=authority.stageCommit(staged,record.before,modelRevision,cancel)) {
+                    synchronized(authority.lock()) {
+                        open();var records=undo.get(record.owner);
+                        if(records==null||records.peekLast()!=record)throw new IOException("Undo history changed; retry undo");
+                        if(authority.models().revision()!=modelRevision)throw new IOException("Model library changed; retry undo");
+                        if(!unchanged(authority))for(var entry:record.after.entrySet()) {
+                            cancelled(cancel);var p=entry.getKey();
+                            if(!authority.cell(p.x(),p.y(),p.z()).sameValues(entry.getValue()))
+                                throw new IOException("Placed cells changed; undo will not overwrite later edits");
+                        }
+                        cancelled(cancel);publication.apply();records.removeLast();chronology.remove(record);undoCells-=record.after.size();
+                    }
+                }
+            } finally {close();}
+        }
+        @Override public void close(){if(!closed){closed=true;busy.set(false);}}
+    }
     public void undo(String owner,Authority authority)throws IOException {undo(owner,authority,()->false);}
     public void undo(String owner,Authority authority,BooleanSupplier cancel)throws IOException {
         if(!busy.compareAndSet(false,true))throw new IOException("Another large placement is running");
